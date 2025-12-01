@@ -32,7 +32,7 @@ export class MasteryItemSheet extends foundry.appv1.sheets.ItemSheet {
         // Add configuration data
         context.config = CONFIG.MASTERY;
         // Enrich description for display
-        context.enrichedDescription = TextEditor.enrichHTML(context.system.description || '');
+        context.enrichedDescription = foundry.applications.ux.TextEditor.implementation.enrichHTML(context.system.description || '');
         // Add type-specific data
         switch (this.item.type) {
             case 'special':

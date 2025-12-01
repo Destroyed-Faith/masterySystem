@@ -48,8 +48,8 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
         context.editMode = this.editMode || false;
         // Enrich biography info for display
         context.enrichedBio = {
-            notes: TextEditor.enrichHTML(context.system.bio?.notes || ''),
-            background: TextEditor.enrichHTML(context.system.notes?.background || '')
+            notes: foundry.applications.ux.TextEditor.implementation.enrichHTML(context.system.bio?.notes || ''),
+            background: foundry.applications.ux.TextEditor.implementation.enrichHTML(context.system.notes?.background || '')
         };
         // Prepare items by type
         context.items = this.#prepareItems();

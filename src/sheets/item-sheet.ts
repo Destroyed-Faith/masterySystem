@@ -38,7 +38,7 @@ export class MasteryItemSheet extends foundry.appv1.sheets.ItemSheet {
     context.config = (CONFIG as any).MASTERY;
     
     // Enrich description for display
-    context.enrichedDescription = TextEditor.enrichHTML(
+    context.enrichedDescription = foundry.applications.ux.TextEditor.implementation.enrichHTML(
       context.system.description || ''
     );
     
