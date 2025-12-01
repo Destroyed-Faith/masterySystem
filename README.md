@@ -25,6 +25,20 @@ A custom Foundry VTT game system for the **Mastery System** and **Destroyed Fait
 4. Click **Install**
 5. Create a new world using "Mastery System / Destroyed Faith" as the game system
 
+**Important:** To receive automatic update notifications, you must install the system using the manifest URL above. If you manually install the system (e.g., via Git clone), Foundry VTT will not detect updates automatically.
+
+#### Updating the System
+
+If you installed via the manifest URL, Foundry VTT will automatically check for updates:
+- Go to **Setup** → **Manage Systems**
+- If an update is available, you'll see an "Update" button next to the system
+- Click **Update** to install the latest version
+
+If you don't see update notifications:
+1. Make sure you installed via the manifest URL (not manual installation)
+2. Try refreshing Foundry VTT (F5)
+3. Check that your installed version is lower than the latest version on GitHub
+
 ### For Self-Hosted Foundry VTT
 
 1. Navigate to your Foundry VTT user data folder:
@@ -109,7 +123,7 @@ mastery-system/
 
 ## Version
 
-**Current Version:** 0.0.2 (Alpha)
+**Current Version:** 0.0.5 (Alpha)
 
 Future updates will increment as:
 - **0.0.x** - Bug fixes and minor changes during alpha
