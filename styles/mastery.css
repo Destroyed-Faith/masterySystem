@@ -8,7 +8,9 @@
   font-size: 14px;
 }
 
-.mastery-system .window-content {
+/* Only apply to sheet windows, not modals or other dialogs */
+.mastery-system.sheet .window-content,
+.mastery-system.window-app .window-content {
   background: #f0f0f0;
   padding: 5px;
 }
