@@ -268,7 +268,14 @@
   transform: scale(1.1);
 }
 
-.mastery-system.sheet.actor.character .evade-value-container {
+.mastery-system.sheet.actor.character .combat-values-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mastery-system.sheet.actor.character .evade-value-container,
+.mastery-system.sheet.actor.character .initiative-value-container {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -278,13 +285,16 @@
   border-radius: 8px;
 }
 
-.mastery-system.sheet.actor.character .evade-value-container label {
+.mastery-system.sheet.actor.character .evade-value-container label,
+.mastery-system.sheet.actor.character .initiative-value-container label {
   font-weight: bold;
   font-size: 14px;
   color: #8b0000;
+  min-width: 80px;
 }
 
-.mastery-system.sheet.actor.character .evade-value-container input {
+.mastery-system.sheet.actor.character .evade-value-container input,
+.mastery-system.sheet.actor.character .initiative-value-container input {
   width: 60px;
   padding: 6px;
   border: 1px solid #ccc;

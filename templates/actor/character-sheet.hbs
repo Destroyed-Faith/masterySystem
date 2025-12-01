@@ -104,10 +104,16 @@
                 </div>
               </div>
               
-              {{!-- Evade Value --}}
-              <div class="evade-value-container">
-                <label>Evade:</label>
-                <input type="number" name="system.combat.evade" value="{{system.combat.evade}}" data-dtype="Number"/>
+              {{!-- Evade and Initiative --}}
+              <div class="combat-values-container">
+                <div class="evade-value-container">
+                  <label>Evade:</label>
+                  <input type="number" name="system.combat.evade" value="{{system.combat.evade}}" data-dtype="Number"/>
+                </div>
+                <div class="initiative-value-container">
+                  <label>Initiative:</label>
+                  <input type="number" name="system.combat.initiative" value="{{system.combat.initiative}}" data-dtype="Number"/>
+                </div>
               </div>
             </div>
           </div>
@@ -150,12 +156,58 @@
         </div>
 
 
+        {{!-- Armor and Shield Panel --}}
+        <div class="armor-shield-panel">
+          <div class="armor-shield-item">
+            <label>Armor:</label>
+            <div class="armor-shield-content">
+              <input type="number" name="system.combat.armor" value="{{system.combat.armor}}" data-dtype="Number" class="armor-value"/>
+              <input type="text" name="system.combat.armorName" value="{{system.combat.armorName}}" placeholder="Armor Name" class="armor-name"/>
+            </div>
+          </div>
+          <div class="armor-shield-item">
+            <label>Shield:</label>
+            <div class="armor-shield-content">
+              <input type="number" name="system.combat.shield" value="{{system.combat.shield}}" data-dtype="Number" class="armor-value"/>
+              <input type="text" name="system.combat.shieldName" value="{{system.combat.shieldName}}" placeholder="Shield Name" class="armor-name"/>
+            </div>
+          </div>
+        </div>
+
+        {{!-- Faith Fractures Circle --}}
+        <div class="faith-fractures-container">
+          <h3>Faith Fractures</h3>
+          <div class="faith-fractures-circle-wrapper">
+            <div class="faith-fractures-circle">
+              <div class="fractures-center">
+                <label class="fractures-label">Fractures</label>
+                <input type="number" 
+                       name="system.faithFractures.current" 
+                       value="{{system.faithFractures.current}}" 
+                       data-dtype="Number" 
+                       min="0"
+                       class="fractures-value-input"/>
+              </div>
+              <div class="fractures-ring">
+                {{#each (array 1 2 3 4 5 6 7 8 9 10) as |fracture index|}}
+                <div class="fracture-segment fracture-segment-{{index}} {{#if (gte system.faithFractures.current fracture)}}filled{{/if}}" 
+                     data-fracture="{{fracture}}"
+                     title="{{fracture}}"
+                     style="--a: {{multiply index 36}}deg">
+                  {{fracture}}
+                </div>
+                {{/each}}
+              </div>
+            </div>
+            <div class="fractures-notes">
+              <label>Notes:</label>
+              <textarea name="system.notes.faithFractures" placeholder="Faith Fracture notes and disadvantages...">{{system.notes.faithFractures}}</textarea>
+            </div>
+          </div>
+        </div>
+
         {{!-- Bottom Stats Panel --}}
         <div class="bottom-stats-panel">
-          <div class="stat-group">
-            <label>Armor:</label>
-            <input type="number" name="system.combat.armor" value="{{system.combat.armor}}" data-dtype="Number"/>
-          </div>
           <div class="stat-group">
             <label>Health Levels:</label>
             <div class="health-bars-compact">

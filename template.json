@@ -48,7 +48,14 @@
           "initiative": 0,
           "evade": 10,
           "armor": 0,
+          "armorName": "",
+          "shield": 0,
+          "shieldName": "",
           "speed": 6
+        },
+        "faithFractures": {
+          "current": 0,
+          "maximum": 10
         },
         "resources": {
           "reactions": {
