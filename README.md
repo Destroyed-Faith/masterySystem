@@ -109,12 +109,12 @@ mastery-system/
 
 ## Version
 
-**Current Version:** 1.0.0
+**Current Version:** 0.0.1 (Alpha)
 
 Future updates will increment as:
-- **1.0.x** - Bug fixes and minor changes
-- **1.x.0** - New features
-- **x.0.0** - Major breaking changes
+- **0.0.x** - Bug fixes and minor changes during alpha
+- **0.x.0** - New features during beta
+- **1.0.0** - First stable release
 
 ## Links
 

@@ -5,10 +5,10 @@ All notable changes to the Mastery System / Destroyed Faith for Foundry VTT will
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.0] - 2025-12-01
+## [0.0.1] - 2025-12-01
 
 ### Added
-- Initial release of Mastery System / Destroyed Faith for Foundry VTT v13
+- Initial alpha release of Mastery System / Destroyed Faith for Foundry VTT v13
 - Character actor sheet with full attribute, skills, and resource tracking
 - NPC actor sheet (simplified version)
 - Roll & Keep d8 dice mechanic with exploding 8s
