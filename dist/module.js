@@ -4,11 +4,11 @@
  */
 // Immediate log to verify module is loading
 console.log('Mastery System | Module file loaded');
-import { MasteryActor } from './documents/actor';
-import { MasteryItem } from './documents/item';
-import { MasteryCharacterSheet } from './sheets/character-sheet';
-import { MasteryNpcSheet } from './sheets/npc-sheet';
-import { MasteryItemSheet } from './sheets/item-sheet';
+import { MasteryActor } from './documents/actor.js';
+import { MasteryItem } from './documents/item.js';
+import { MasteryCharacterSheet } from './sheets/character-sheet.js';
+import { MasteryNpcSheet } from './sheets/npc-sheet.js';
+import { MasteryItemSheet } from './sheets/item-sheet.js';
 // Dice roller functions are imported in sheets where needed
 console.log('Mastery System | All imports completed');
 /**
