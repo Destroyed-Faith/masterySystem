@@ -3,8 +3,12 @@
  * Main player character sheet with tabs for attributes, skills, powers, etc.
  */
 
-import { MasteryActor } from '../documents/actor';
-import { quickRoll } from '../dice/roll-handler';
+import { MasteryActor } from '../documents/actor.js';
+import { quickRoll } from '../dice/roll-handler.js';
+import { getSkillsByCategory, SKILL_CATEGORIES } from '../utils/skills.js';
+import { getAllMasteryTrees } from '../utils/mastery-trees.js';
+import { getAllSpellSchools } from '../utils/spell-schools.js';
+import { getAllRituals } from '../utils/rituals.js';
 
 export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
   editMode: boolean = false;
@@ -64,9 +68,18 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
     // Calculate derived values
     context.derivedValues = this.#calculateDerivedValues(context.system);
     
-    // Add skills list (sorted alphabetically)
-    context.skills = this.#prepareSkills(context.system.skills);
+    // Add skills list (grouped by category)
+    context.skillsByCategory = this.#prepareSkills(context.system.skills);
     
+    // Add mastery trees
+    context.masteryTrees = getAllMasteryTrees();
+    
+    // Add spell schools
+    context.spellSchools = getAllSpellSchools();
+    
+    // Add rituals
+    context.rituals = getAllRituals();
+
     return context;
   }
 
@@ -174,23 +187,101 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
   }
 
   /**
-   * Prepare skills for display
+   * Prepare skills for display, grouped by category
    */
   #prepareSkills(skills: Record<string, number>) {
-    const skillList: any[] = [];
+    const { SKILLS } = require('../utils/skills.js');
+    const skillsByCategory = getSkillsByCategory();
+    const result: Record<string, any[]> = {};
     
-    for (const [name, value] of Object.entries(skills || {})) {
-      skillList.push({
-        name,
-        value,
-        label: name.charAt(0).toUpperCase() + name.slice(1)
-      });
+    // Initialize all categories
+    for (const category of Object.values(SKILL_CATEGORIES)) {
+      result[category] = [];
     }
     
-    // Sort alphabetically
-    skillList.sort((a, b) => a.label.localeCompare(b.label));
+    // Add skills to their categories - use the actual keys from SKILLS
+    for (const [key, skillDef] of Object.entries(skillsByCategory)) {
+      const skillList = skillDef as any[];
+      for (const skill of skillList) {
+        // Find the actual key in SKILLS object
+        let skillKey = '';
+        for (const [skKey, skDef] of Object.entries(SKILLS)) {
+          const sk = skDef as any;
+          if (sk?.name === skill.name) {
+            skillKey = skKey;
+            break;
+          }
+        }
+        
+        // If not found, use normalized key
+        if (!skillKey) {
+          skillKey = this.#normalizeSkillKey(skill.name);
+        }
+        
+        // Try multiple key formats to find the value
+        const value = skills?.[skillKey] 
+          || skills?.[skill.name.toLowerCase()] 
+          || skills?.[skill.name.toLowerCase().replace(/\s+/g, '')]
+          || skills?.[skill.name.toLowerCase().replace(/\s+/g, '').replace(/\//g, '')]
+          || 0;
+        
+        result[key].push({
+          key: skillKey,
+          name: skill.name,
+          value: value,
+          attributes: skill.attributes,
+          category: skill.category
+        });
+      }
+    }
     
-    return skillList;
+    return result;
+  }
+
+  /**
+   * Normalize skill key to match stored format
+   * Maps skill names to their keys in SKILLS object
+   */
+  #normalizeSkillKey(skillName: string): string {
+    // Try to find matching skill by name first
+    const { SKILLS } = require('../utils/skills.js');
+    for (const [key, skill] of Object.entries(SKILLS)) {
+      const skillDef = skill as any;
+      if (skillDef?.name?.toLowerCase() === skillName.toLowerCase()) {
+        return key;
+      }
+    }
+    
+    // If not found, try camelCase conversion
+    const normalized = skillName
+      .toLowerCase()
+      .replace(/\s+/g, '')
+      .replace(/\//g, '')
+      .replace(/-/g, '');
+    
+    // Handle special cases
+    const mappings: Record<string, string> = {
+      'sleightofhand': 'sleightOfHand',
+      'herbalismalchemy': 'herbalismAlchemy',
+      'herbalism/alchemy': 'herbalismAlchemy',
+      'handtohand': 'handToHand',
+      'hand-to-hand': 'handToHand',
+      'meleeweapons': 'meleeWeapons',
+      'melee weapons': 'meleeWeapons',
+      'rangedweapons': 'rangedWeapons',
+      'ranged weapons': 'rangedWeapons',
+      'defensivecombat': 'defensiveCombat',
+      'defensive combat': 'defensiveCombat',
+      'combatreflexes': 'combatReflexes',
+      'combat reflexes': 'combatReflexes',
+      'animalhandling': 'animalHandling',
+      'animal handling': 'animalHandling',
+      'weathersense': 'weatherSense',
+      'weather sense': 'weatherSense',
+      'foraging': 'foraging'
+    };
+    
+    return mappings[normalized] || normalized;
   }
 
   /** @override */
@@ -336,12 +427,36 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
   async #onSkillRoll(event: JQuery.ClickEvent) {
     event.preventDefault();
     const element = event.currentTarget;
-    const skill = element.dataset.skill;
+    const skillKey = element.dataset.skill;
     
-    if (!skill) return;
+    if (!skillKey) return;
     
-    // Default to Wits for skill rolls (can be customized)
-    const attribute = 'wits';
+    // Get skill definition to determine which attribute to use
+    const { getSkill, SKILLS } = await import('../utils/skills.js');
+    let skillDef = getSkill(skillKey);
+    
+    // If not found by key, try to find by name
+    if (!skillDef) {
+      for (const skill of Object.values(SKILLS)) {
+        const normalizedKey = this.#normalizeSkillKey(skill.name);
+        if (normalizedKey === skillKey) {
+          skillDef = skill;
+          break;
+        }
+      }
+    }
+    
+    if (!skillDef) {
+      console.warn(`Skill ${skillKey} not found in skill definitions`);
+      // Fallback: use wits as default
+      const tn = await this.#promptForTN();
+      if (tn === null) return;
+      await quickRoll(this.actor, 'wits', skillKey, tn, `${skillKey} Check`);
+      return;
+    }
+    
+    // Use first attribute from skill definition (primary attribute)
+    const attribute = skillDef.attributes[0];
     
     // Prompt for TN
     const tn = await this.#promptForTN();
@@ -350,9 +465,9 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
     await quickRoll(
       this.actor,
       attribute,
-      skill,
+      skillKey,
       tn,
-      `${skill.charAt(0).toUpperCase() + skill.slice(1)} Check`
+      `${skillDef.name} Check`
     );
   }
 
@@ -500,12 +615,128 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
     const element = event.currentTarget;
     const type = element.dataset.type;
     
+    // Special handling for powers - show tree selection dialog
+    if (type === 'special') {
+      await this.#showPowerCreationDialog();
+      return;
+    }
+    
     const itemData = {
       name: `New ${type.charAt(0).toUpperCase() + type.slice(1)}`,
       type
     };
     
     await this.actor.createEmbeddedDocuments('Item', [itemData]);
+  }
+
+  /**
+   * Show dialog for creating a power with tree selection
+   */
+  async #showPowerCreationDialog() {
+    const { getAllMasteryTrees } = await import('../utils/mastery-trees.js');
+    const trees = getAllMasteryTrees();
+    
+    // Create tree selection options
+    const treeOptions = trees.map(tree => `<option value="${tree.name}">${tree.name}</option>`).join('');
+    
+    const content = `
+      <form>
+        <div class="form-group">
+          <label>Mastery Tree:</label>
+          <select name="tree" id="power-tree-select" style="width: 100%; margin-bottom: 10px;">
+            <option value="">-- Select a Tree --</option>
+            ${treeOptions}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Power Name:</label>
+          <input type="text" name="name" id="power-name-input" placeholder="Enter power name" style="width: 100%; margin-bottom: 10px;"/>
+        </div>
+        <div class="form-group">
+          <label>Power Type:</label>
+          <select name="powerType" id="power-type-select" style="width: 100%; margin-bottom: 10px;">
+            <option value="active">Active</option>
+            <option value="buff">Buff</option>
+            <option value="utility">Utility</option>
+            <option value="passive">Passive</option>
+            <option value="reaction">Reaction</option>
+            <option value="movement">Movement</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Level:</label>
+          <input type="number" name="level" id="power-level-input" value="1" min="1" max="4" style="width: 100%; margin-bottom: 10px;"/>
+        </div>
+      </form>
+    `;
+    
+    new Dialog({
+      title: 'Create New Power',
+      content: content,
+      buttons: {
+        create: {
+          icon: '<i class="fas fa-check"></i>',
+          label: 'Create',
+          callback: async (html) => {
+            const $html = html as JQuery;
+            const tree = $html.find('#power-tree-select').val() as string;
+            const name = ($html.find('#power-name-input').val() as string) || 'New Power';
+            const powerType = ($html.find('#power-type-select').val() as string) || 'active';
+            const level = parseInt(($html.find('#power-level-input').val() as string) || '1');
+            
+            if (!tree) {
+              ui.notifications?.warn('Please select a Mastery Tree');
+              return;
+            }
+            
+            const itemData = {
+              name: name,
+              type: 'special',
+              system: {
+                tree: tree,
+                powerType: powerType,
+                level: level,
+                description: '',
+                tags: [],
+                range: '0m',
+                aoe: '',
+                duration: 'instant',
+                effect: '',
+                specials: [],
+                ap: 30,
+                cost: {
+                  action: true,
+                  movement: false,
+                  reaction: false,
+                  stones: 0,
+                  charges: 0
+                },
+                roll: {
+                  attribute: 'might',
+                  tn: 0,
+                  damage: '',
+                  healing: '',
+                  raises: ''
+                },
+                requirements: {
+                  masteryRank: level,
+                  other: ''
+                }
+              }
+            };
+            
+            await this.actor.createEmbeddedDocuments('Item', [itemData]);
+            ui.notifications?.info(`Created power: ${name} from ${tree} tree`);
+          }
+        },
+        cancel: {
+          icon: '<i class="fas fa-times"></i>',
+          label: 'Cancel',
+          callback: () => {}
+        }
+      },
+      default: 'create'
+    }).render(true);
   }
 
   /**

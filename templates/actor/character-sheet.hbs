@@ -239,22 +239,37 @@
       <div class="tab skills" data-group="primary" data-tab="skills">
         <div class="skills-header">
           <h3>Skills</h3>
-          <button type="button" class="skill-add"><i class="fas fa-plus"></i> Add Skill</button>
+          <p class="skills-description">All skills are listed below. Enter your skill values directly in the input fields.</p>
         </div>
-        <ol class="skills-list">
-          {{#each skills as |skill|}}
-          <li class="skill">
-            <div class="skill-name">{{skill.label}}</div>
-            <input type="number" name="system.skills.{{skill.name}}" value="{{skill.value}}" data-dtype="Number" min="0"/>
-            <button type="button" class="skill-roll" data-skill="{{skill.name}}">
-              <i class="fas fa-dice-d20"></i>
-            </button>
-            <button type="button" class="skill-delete" data-skill="{{skill.name}}">
-              <i class="fas fa-trash"></i>
-            </button>
-          </li>
-          {{/each}}
-        </ol>
+        {{#each skillsByCategory as |skills category|}}
+        <div class="skill-category">
+          <h4 class="category-header">{{category}}</h4>
+          <ol class="skills-list">
+            {{#each skills as |skill|}}
+            <li class="skill">
+              <div class="skill-info">
+                <div class="skill-name">{{skill.name}}</div>
+                <div class="skill-attributes">
+                  {{#each skill.attributes as |attr|}}
+                  <span class="attribute-tag">{{attr}}</span>
+                  {{/each}}
+                </div>
+              </div>
+              <input type="number" 
+                     name="system.skills.{{skill.key}}" 
+                     value="{{skill.value}}" 
+                     data-dtype="Number" 
+                     min="0"
+                     class="skill-value"
+                     placeholder="0"/>
+              <button type="button" class="skill-roll" data-skill="{{skill.key}}" title="Roll {{skill.name}}">
+                <i class="fas fa-dice-d20"></i>
+              </button>
+            </li>
+            {{/each}}
+          </ol>
+        </div>
+        {{/each}}
       </div>
 
       {{!-- Powers Tab --}}
@@ -263,26 +278,59 @@
           <h3>Powers & Mastery Trees</h3>
           <button type="button" class="item-create" data-type="special"><i class="fas fa-plus"></i> Add Power</button>
         </div>
-        <ol class="items-list">
-          {{#each items.powers as |power|}}
-          <li class="item power" data-item-id="{{power._id}}">
-            <div class="item-name">
-              <img src="{{power.img}}" title="{{power.name}}" width="24" height="24"/>
-              <h4>{{power.name}}</h4>
-              <span class="item-level">L{{power.system.level}}</span>
+        
+        {{!-- Mastery Trees Overview --}}
+        <div class="mastery-trees-section">
+          <h4>Available Mastery Trees</h4>
+          <div class="mastery-trees-grid">
+            {{#each masteryTrees as |tree|}}
+            <div class="mastery-tree-card">
+              <h5 class="tree-name">{{tree.name}}</h5>
+              <div class="tree-focus">{{tree.focus}}</div>
+              <div class="tree-roles">
+                {{#each tree.roles as |role|}}
+                <span class="role-tag">{{role}}</span>
+                {{/each}}
+              </div>
+              {{#if tree.requirements}}
+              <div class="tree-requirements">
+                <strong>Requirements:</strong> {{tree.requirements}}
+              </div>
+              {{/if}}
+              {{#if tree.bonus}}
+              <div class="tree-bonus">
+                <strong>Bonus:</strong> {{tree.bonus}}
+              </div>
+              {{/if}}
             </div>
-            <div class="item-tree">{{power.system.tree}}</div>
-            <div class="item-type">{{power.system.powerType}}</div>
-            <div class="item-controls">
-              <button type="button" class="power-use" data-item-id="{{power._id}}" title="Use Power">
-                <i class="fas fa-bolt"></i>
-              </button>
-              <a class="item-edit" title="Edit Power"><i class="fas fa-edit"></i></a>
-              <a class="item-delete" title="Delete Power"><i class="fas fa-trash"></i></a>
-            </div>
-          </li>
-          {{/each}}
-        </ol>
+            {{/each}}
+          </div>
+        </div>
+
+        {{!-- Powers List --}}
+        <div class="powers-list-section">
+          <h4>Your Powers</h4>
+          <ol class="items-list">
+            {{#each items.powers as |power|}}
+            <li class="item power" data-item-id="{{power._id}}">
+              <div class="item-name">
+                <img src="{{power.img}}" title="{{power.name}}" width="24" height="24"/>
+                <h4>{{power.name}}</h4>
+                <span class="item-level">L{{power.system.level}}</span>
+              </div>
+              <div class="item-tree">{{power.system.tree}}</div>
+              <div class="item-type">{{power.system.powerType}}</div>
+              <div class="item-controls">
+                <button type="button" class="power-use" data-item-id="{{power._id}}" title="Use Power">
+                  <i class="fas fa-bolt"></i>
+                </button>
+                <a class="item-edit" title="Edit Power"><i class="fas fa-edit"></i></a>
+                <a class="item-delete" title="Delete Power"><i class="fas fa-trash"></i></a>
+              </div>
+            </li>
+            {{/each}}
+          </ol>
+        </div>
 
         <div class="schticks-header">
           <h3>Schticks</h3>
@@ -303,6 +351,104 @@
           </li>
           {{/each}}
         </ol>
+      </div>
+
+      {{!-- Magic Tab --}}
+      <div class="tab magic" data-group="primary" data-tab="magic">
+        {{!-- Spell Schools Section --}}
+        <div class="spell-schools-section">
+          <h3>Spell Schools (Mastery Spell Trees)</h3>
+          <p class="section-description">
+            Spell Schools are Mastery Trees focused on magical disciplines. Each School represents a distinct philosophy of magic.
+          </p>
+          
+          <div class="spell-schools-grid">
+            {{#each spellSchools as |school|}}
+            <div class="spell-school-card">
+              <h4 class="school-name">{{school.fullName}}</h4>
+              <div class="school-focus">{{school.focus}}</div>
+              <div class="school-roles">
+                {{#each school.roles as |role|}}
+                <span class="role-tag">{{role}}</span>
+                {{/each}}
+              </div>
+              {{#if school.bonus}}
+              <div class="school-bonus">
+                <strong>Bonus:</strong> {{school.bonus}}
+              </div>
+              {{/if}}
+              {{#if school.requirements}}
+              <div class="school-requirements">
+                <strong>Requirements:</strong> {{school.requirements}}
+              </div>
+              {{/if}}
+            </div>
+            {{/each}}
+          </div>
+        </div>
+
+        {{!-- Rituals Section --}}
+        <div class="rituals-section">
+          <h3>Core Rituals</h3>
+          <p class="section-description">
+            Rituals are deliberate workings of magic, performed outside of battle. They require patience, precision, and will — and always consume Stones permanently for the day.
+          </p>
+          
+          <div class="rituals-list">
+            {{#each rituals as |ritual|}}
+            <div class="ritual-card">
+              <div class="ritual-header">
+                <h4 class="ritual-name">{{ritual.name}}</h4>
+                <div class="ritual-meta">
+                  <span class="ritual-type">{{ritual.type}}</span>
+                  <span class="ritual-cost">Cost: {{ritual.cost}}</span>
+                  <span class="ritual-duration">Duration: {{ritual.duration}}</span>
+                </div>
+              </div>
+              
+              <div class="ritual-description">
+                <em>{{ritual.description}}</em>
+              </div>
+              
+              {{#if ritual.requirement}}
+              <div class="ritual-requirement">
+                <strong>Requirement:</strong> {{ritual.requirement}}
+              </div>
+              {{/if}}
+              
+              <div class="ritual-roll">
+                <strong>Roll:</strong> {{ritual.roll}}
+              </div>
+              
+              <div class="ritual-raises">
+                <strong>Raises and Effects:</strong>
+                <table class="raises-table">
+                  <thead>
+                    <tr>
+                      <th>Raise Level</th>
+                      <th>Effect</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {{#each ritual.raises as |raise|}}
+                    <tr>
+                      <td class="raise-level">{{raise.level}}</td>
+                      <td class="raise-effect">{{raise.effect}}</td>
+                    </tr>
+                    {{/each}}
+                  </tbody>
+                </table>
+              </div>
+              
+              {{#if ritual.danger}}
+              <div class="ritual-danger">
+                <strong>⚠️ Danger:</strong> {{ritual.danger}}
+              </div>
+              {{/if}}
+            </div>
+            {{/each}}
+          </div>
+        </div>
       </div>
 
       {{!-- Echo Tab --}}
@@ -391,6 +537,7 @@
     <a class="item" data-tab="attributes">Attributes</a>
     <a class="item" data-tab="skills">Skills</a>
     <a class="item" data-tab="powers">Powers</a>
+    <a class="item" data-tab="magic">Magic</a>
     <a class="item" data-tab="echo">Echo</a>
     <a class="item" data-tab="equipment">Equipment</a>
   </nav>

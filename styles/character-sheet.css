@@ -536,6 +536,429 @@
   align-items: center;
 }
 
+/* ========== Skills Tab ========== */
+.mastery-system.sheet.actor.character .skills-header {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f9f9f9;
+  border: 2px solid #8b0000;
+  border-radius: 8px;
+}
+
+.mastery-system.sheet.actor.character .skills-header h3 {
+  margin: 0 0 10px 0;
+  font-size: 20px;
+  color: #8b0000;
+}
+
+.mastery-system.sheet.actor.character .skills-description {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+  font-style: italic;
+}
+
+.mastery-system.sheet.actor.character .skill-category {
+  margin-bottom: 30px;
+  padding: 15px;
+  background: #fff;
+  border: 2px solid #8b0000;
+  border-radius: 8px;
+}
+
+.mastery-system.sheet.actor.character .category-header {
+  margin: 0 0 15px 0;
+  font-size: 18px;
+  color: #8b0000;
+  border-bottom: 2px solid #8b0000;
+  padding-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.mastery-system.sheet.actor.character .skills-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mastery-system.sheet.actor.character .skill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  transition: all 0.2s;
+}
+
+.mastery-system.sheet.actor.character .skill:hover {
+  background: #fff;
+  border-color: #8b0000;
+}
+
+.mastery-system.sheet.actor.character .skill-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.mastery-system.sheet.actor.character .skill-name {
+  font-weight: bold;
+  font-size: 14px;
+  color: #333;
+}
+
+.mastery-system.sheet.actor.character .skill-attributes {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.mastery-system.sheet.actor.character .attribute-tag {
+  font-size: 10px;
+  padding: 2px 6px;
+  background: #e0e0e0;
+  border-radius: 3px;
+  color: #666;
+  text-transform: capitalize;
+}
+
+.mastery-system.sheet.actor.character .skill-value {
+  width: 60px;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.mastery-system.sheet.actor.character .skill-roll {
+  background: #8b0000;
+  border: none;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mastery-system.sheet.actor.character .skill-roll:hover {
+  background: #a00000;
+  transform: scale(1.1);
+}
+
+/* ========== Mastery Trees ========== */
+.mastery-system.sheet.actor.character .mastery-trees-section {
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #f9f9f9;
+  border: 2px solid #8b0000;
+  border-radius: 8px;
+}
+
+.mastery-system.sheet.actor.character .mastery-trees-section h4 {
+  margin: 0 0 20px 0;
+  font-size: 18px;
+  color: #8b0000;
+  border-bottom: 2px solid #8b0000;
+  padding-bottom: 8px;
+}
+
+.mastery-system.sheet.actor.character .mastery-trees-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.mastery-system.sheet.actor.character .mastery-tree-card {
+  padding: 15px;
+  background: #fff;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.mastery-system.sheet.actor.character .mastery-tree-card:hover {
+  border-color: #8b0000;
+  box-shadow: 0 2px 8px rgba(139, 0, 0, 0.2);
+}
+
+.mastery-system.sheet.actor.character .tree-name {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: #8b0000;
+}
+
+.mastery-system.sheet.actor.character .tree-focus {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
+.mastery-system.sheet.actor.character .tree-roles {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.mastery-system.sheet.actor.character .role-tag {
+  font-size: 10px;
+  padding: 3px 8px;
+  background: #8b0000;
+  color: #fff;
+  border-radius: 3px;
+  text-transform: uppercase;
+}
+
+.mastery-system.sheet.actor.character .tree-requirements,
+.mastery-system.sheet.actor.character .tree-bonus {
+  font-size: 11px;
+  color: #555;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #ddd;
+}
+
+.mastery-system.sheet.actor.character .tree-requirements strong,
+.mastery-system.sheet.actor.character .tree-bonus strong {
+  color: #8b0000;
+}
+
+.mastery-system.sheet.actor.character .powers-list-section {
+  margin-top: 30px;
+}
+
+.mastery-system.sheet.actor.character .powers-list-section h4 {
+  margin: 0 0 15px 0;
+  font-size: 18px;
+  color: #8b0000;
+  border-bottom: 2px solid #8b0000;
+  padding-bottom: 8px;
+}
+
+/* ========== Magic Tab ========== */
+.mastery-system.sheet.actor.character .spell-schools-section,
+.mastery-system.sheet.actor.character .rituals-section {
+  margin-bottom: 40px;
+  padding: 20px;
+  background: #f9f9f9;
+  border: 2px solid #8b0000;
+  border-radius: 8px;
+}
+
+.mastery-system.sheet.actor.character .spell-schools-section h3,
+.mastery-system.sheet.actor.character .rituals-section h3 {
+  margin: 0 0 15px 0;
+  font-size: 20px;
+  color: #8b0000;
+  border-bottom: 2px solid #8b0000;
+  padding-bottom: 10px;
+}
+
+.mastery-system.sheet.actor.character .section-description {
+  margin: 0 0 20px 0;
+  font-size: 13px;
+  color: #666;
+  font-style: italic;
+  line-height: 1.6;
+}
+
+.mastery-system.sheet.actor.character .spell-schools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.mastery-system.sheet.actor.character .spell-school-card {
+  padding: 15px;
+  background: #fff;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.mastery-system.sheet.actor.character .spell-school-card:hover {
+  border-color: #8b0000;
+  box-shadow: 0 2px 8px rgba(139, 0, 0, 0.2);
+}
+
+.mastery-system.sheet.actor.character .school-name {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: #8b0000;
+}
+
+.mastery-system.sheet.actor.character .school-focus {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 10px;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.mastery-system.sheet.actor.character .school-roles {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.mastery-system.sheet.actor.character .school-bonus,
+.mastery-system.sheet.actor.character .school-requirements {
+  font-size: 11px;
+  color: #555;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #ddd;
+  line-height: 1.4;
+}
+
+.mastery-system.sheet.actor.character .school-bonus strong,
+.mastery-system.sheet.actor.character .school-requirements strong {
+  color: #8b0000;
+}
+
+.mastery-system.sheet.actor.character .rituals-list {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.mastery-system.sheet.actor.character .ritual-card {
+  padding: 20px;
+  background: #fff;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.mastery-system.sheet.actor.character .ritual-card:hover {
+  border-color: #8b0000;
+  box-shadow: 0 2px 8px rgba(139, 0, 0, 0.2);
+}
+
+.mastery-system.sheet.actor.character .ritual-header {
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #8b0000;
+}
+
+.mastery-system.sheet.actor.character .ritual-name {
+  margin: 0 0 10px 0;
+  font-size: 18px;
+  font-weight: bold;
+  color: #8b0000;
+}
+
+.mastery-system.sheet.actor.character .ritual-meta {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  font-size: 12px;
+}
+
+.mastery-system.sheet.actor.character .ritual-type,
+.mastery-system.sheet.actor.character .ritual-cost,
+.mastery-system.sheet.actor.character .ritual-duration {
+  padding: 4px 8px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  color: #555;
+}
+
+.mastery-system.sheet.actor.character .ritual-description {
+  margin: 15px 0;
+  font-size: 13px;
+  color: #666;
+  line-height: 1.6;
+}
+
+.mastery-system.sheet.actor.character .ritual-requirement,
+.mastery-system.sheet.actor.character .ritual-roll {
+  margin: 10px 0;
+  font-size: 12px;
+  color: #555;
+}
+
+.mastery-system.sheet.actor.character .ritual-requirement strong,
+.mastery-system.sheet.actor.character .ritual-roll strong {
+  color: #8b0000;
+}
+
+.mastery-system.sheet.actor.character .ritual-raises {
+  margin: 15px 0;
+}
+
+.mastery-system.sheet.actor.character .ritual-raises strong {
+  color: #8b0000;
+  font-size: 13px;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.mastery-system.sheet.actor.character .raises-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  margin-top: 10px;
+}
+
+.mastery-system.sheet.actor.character .raises-table thead {
+  background: #8b0000;
+  color: #fff;
+}
+
+.mastery-system.sheet.actor.character .raises-table th {
+  padding: 8px;
+  text-align: left;
+  font-weight: bold;
+}
+
+.mastery-system.sheet.actor.character .raises-table td {
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+}
+
+.mastery-system.sheet.actor.character .raises-table tbody tr:hover {
+  background: #f9f9f9;
+}
+
+.mastery-system.sheet.actor.character .raise-level {
+  font-weight: bold;
+  color: #8b0000;
+  width: 30%;
+}
+
+.mastery-system.sheet.actor.character .raise-effect {
+  color: #555;
+  line-height: 1.4;
+}
+
+.mastery-system.sheet.actor.character .ritual-danger {
+  margin-top: 15px;
+  padding: 10px;
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  border-radius: 5px;
+  font-size: 12px;
+  color: #856404;
+  line-height: 1.5;
+}
+
+.mastery-system.sheet.actor.character .ritual-danger strong {
+  color: #856404;
+}
+
 /* ========== NPC Sheet Specific ========== */
 .mastery-system.sheet.actor.npc {
   min-width: 600px;

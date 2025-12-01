@@ -2,8 +2,12 @@
  * Utility exports for Mastery System
  */
 
-export * from './calculations';
-export * from './constants';
+export * from './calculations.js';
+export * from './constants.js';
+export * from './skills.js';
+export * from './mastery-trees.js';
+export * from './spell-schools.js';
+export * from './rituals.js';
 
 
 
