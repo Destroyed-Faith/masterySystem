@@ -1,10 +1,10 @@
 {
   "name": "mastery-system",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Foundry VTT system for Mastery System / Destroyed Faith",
   "main": "dist/module.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node scripts/fix-imports.js",
     "watch": "tsc --watch",
     "clean": "rimraf dist",
     "rebuild": "npm run clean && npm run build",
