@@ -7,6 +7,8 @@ import { MasteryActor } from '../documents/actor';
 import { quickRoll } from '../dice/roll-handler';
 
 export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
+  editMode: boolean = false;
+
   /** @override */
   static get defaultOptions() {
     const options = foundry.utils.mergeObject(super.defaultOptions as any, {
@@ -46,6 +48,9 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
     
     // Add configuration data
     context.config = (CONFIG as any).MASTERY;
+    
+    // Edit mode state (stored in sheet data)
+    context.editMode = this.editMode || false;
     
     // Enrich biography info for display
     context.enrichedBio = {
@@ -162,6 +167,9 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
   activateListeners(html: JQuery) {
     super.activateListeners(html);
     
+    // Edit mode toggle
+    html.find('.edit-mode-toggle').on('click', this.#onEditModeToggle.bind(this));
+    
     // Everything below here is only needed if the sheet is editable
     if (!this.isEditable) return;
     
@@ -193,6 +201,15 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
     
     // Stone adjustment
     html.find('.stone-adjust').on('click', this.#onStoneAdjust.bind(this));
+  }
+
+  /**
+   * Toggle edit mode for header fields
+   */
+  #onEditModeToggle(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    this.editMode = !this.editMode;
+    this.render();
   }
 
   /**

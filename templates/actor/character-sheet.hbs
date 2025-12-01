@@ -1,285 +1,311 @@
 <form class="{{cssClass}} flexcol" autocomplete="off">
   {{!-- Sheet Header --}}
   <header class="sheet-header">
-    <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" height="100" width="100"/>
-    <div class="header-fields">
-      <h1 class="charname"><input name="name" type="text" value="{{actor.name}}" placeholder="Character Name"/></h1>
-      <div class="resource-row">
-        <div class="resource">
-          <label>Echo:</label>
-          <input type="text" name="system.bio.echo" value="{{system.bio.echo}}" placeholder="Human, Elf, etc."/>
-        </div>
-        <div class="resource">
-          <label>Concept:</label>
-          <input type="text" name="system.bio.concept" value="{{system.bio.concept}}" placeholder="Wandering Swordsman"/>
-        </div>
-        <div class="resource">
+    <div class="header-left">
+      <img class="profile-img {{#unless editMode}}locked{{/unless}}" 
+           src="{{actor.img}}" 
+           {{#if editMode}}data-edit="img"{{/if}}
+           title="{{actor.name}}" 
+           height="100" 
+           width="100"/>
+      <div class="header-fields">
+        <h1 class="charname">
+          {{#if editMode}}
+            <input name="name" type="text" value="{{actor.name}}" placeholder="Character Name"/>
+          {{else}}
+            <span>{{actor.name}}</span>
+          {{/if}}
+        </h1>
+        <div class="mastery-rank-display">
           <label>Mastery Rank:</label>
-          <input type="number" name="system.mastery.rank" value="{{system.mastery.rank}}" data-dtype="Number" min="1" max="8"/>
+          {{#if editMode}}
+            <input type="number" name="system.mastery.rank" value="{{system.mastery.rank}}" data-dtype="Number" min="1" max="8"/>
+          {{else}}
+            <span class="value">M{{system.mastery.rank}}</span>
+          {{/if}}
         </div>
       </div>
+    </div>
+    <div class="header-right">
+      <button type="button" class="edit-mode-toggle" title="{{#if editMode}}Lock Editing{{else}}Edit Header{{/if}}">
+        <i class="fas {{#if editMode}}fa-lock{{else}}fa-edit{{/if}}"></i>
+      </button>
     </div>
   </header>
 
-  {{!-- Sheet Tabs --}}
-  <nav class="sheet-tabs tabs" data-group="primary">
-    <a class="item" data-tab="attributes">Attributes</a>
-    <a class="item" data-tab="skills">Skills</a>
-    <a class="item" data-tab="powers">Powers</a>
-    <a class="item" data-tab="equipment">Equipment</a>
-    <a class="item" data-tab="notes">Notes</a>
-  </nav>
+  <div class="sheet-content-wrapper">
+    {{!-- Sheet Tabs (Sidebar) --}}
+    <nav class="sheet-tabs tabs" data-group="primary">
+      <a class="item" data-tab="attributes">Attributes</a>
+      <a class="item" data-tab="skills">Skills</a>
+      <a class="item" data-tab="powers">Powers</a>
+      <a class="item" data-tab="echo">Echo</a>
+      <a class="item" data-tab="equipment">Equipment</a>
+    </nav>
 
-  {{!-- Sheet Body --}}
-  <section class="sheet-body">
-    
-    {{!-- Attributes Tab --}}
-    <div class="tab attributes" data-group="primary" data-tab="attributes">
+    {{!-- Sheet Body --}}
+    <section class="sheet-body">
       
-      {{!-- Stones & Resources --}}
-      <div class="resources-panel">
-        <div class="resource-block">
-          <h3>Stones</h3>
-          <div class="stone-display">
-            <div class="stone-value">
-              <label>Total:</label>
-              <span class="value">{{derivedValues.totalStones}}</span>
+      {{!-- Attributes Tab --}}
+      <div class="tab attributes" data-group="primary" data-tab="attributes">
+        
+        {{!-- Stones & Resources --}}
+        <div class="resources-panel">
+          <div class="resource-block">
+            <h3>Stones</h3>
+            <div class="stone-display">
+              <div class="stone-value">
+                <label>Total:</label>
+                <span class="value">{{derivedValues.totalStones}}</span>
+              </div>
+              <div class="stone-value">
+                <label>Current:</label>
+                <input type="number" name="system.stones.current" value="{{system.stones.current}}" data-dtype="Number"/>
+              </div>
+              <div class="stone-value">
+                <label>Vitality:</label>
+                <span class="value">{{derivedValues.vitalityStones}}</span>
+              </div>
             </div>
-            <div class="stone-value">
-              <label>Current:</label>
-              <input type="number" name="system.stones.current" value="{{system.stones.current}}" data-dtype="Number"/>
-            </div>
-            <div class="stone-value">
-              <label>Vitality:</label>
-              <span class="value">{{derivedValues.vitalityStones}}</span>
+            <div class="button-group">
+              <button type="button" class="stone-adjust" data-adjustment="-1">-1</button>
+              <button type="button" class="stone-adjust" data-adjustment="1">+1</button>
             </div>
           </div>
-          <div class="button-group">
-            <button type="button" class="stone-adjust" data-adjustment="-1">-1</button>
-            <button type="button" class="stone-adjust" data-adjustment="1">+1</button>
+
+          <div class="resource-block">
+            <h3>Health</h3>
+            <div class="health-display">
+              <div class="hp-current">
+                <label>HP:</label>
+                <span class="value">{{derivedValues.currentHP}} / {{derivedValues.maxHP}}</span>
+              </div>
+              <div class="hp-penalty">
+                <label>Penalty:</label>
+                <span class="value">{{derivedValues.currentPenalty}}</span>
+              </div>
+            </div>
+            <div class="health-bars">
+              {{#each system.health.bars as |bar index|}}
+              <div class="health-bar {{#if (eq ../system.health.currentBar index)}}active{{/if}}">
+                <span class="bar-name">{{bar.name}}</span>
+                <span class="bar-hp">{{bar.current}} / {{bar.max}}</span>
+                <span class="bar-penalty">({{bar.penalty}})</span>
+              </div>
+              {{/each}}
+            </div>
+            <div class="button-group">
+              <button type="button" class="hp-adjust" data-adjustment="-5">-5</button>
+              <button type="button" class="hp-adjust" data-adjustment="-1">-1</button>
+              <button type="button" class="hp-adjust" data-adjustment="1">+1</button>
+              <button type="button" class="hp-adjust" data-adjustment="5">+5</button>
+            </div>
+          </div>
+
+          <div class="resource-block">
+            <h3>Stress</h3>
+            <div class="stress-display">
+              <input type="number" name="system.stress.current" value="{{system.stress.current}}" data-dtype="Number"/> / {{system.stress.maximum}}
+            </div>
+            <div class="button-group">
+              <button type="button" class="stress-adjust" data-adjustment="-5">-5</button>
+              <button type="button" class="stress-adjust" data-adjustment="-1">-1</button>
+              <button type="button" class="stress-adjust" data-adjustment="1">+1</button>
+              <button type="button" class="stress-adjust" data-adjustment="5">+5</button>
+            </div>
           </div>
         </div>
 
-        <div class="resource-block">
-          <h3>Health</h3>
-          <div class="health-display">
-            <div class="hp-current">
-              <label>HP:</label>
-              <span class="value">{{derivedValues.currentHP}} / {{derivedValues.maxHP}}</span>
-            </div>
-            <div class="hp-penalty">
-              <label>Penalty:</label>
-              <span class="value">{{derivedValues.currentPenalty}}</span>
-            </div>
-          </div>
-          <div class="health-bars">
-            {{#each system.health.bars as |bar index|}}
-            <div class="health-bar {{#if (eq ../system.health.currentBar index)}}active{{/if}}">
-              <span class="bar-name">{{bar.name}}</span>
-              <span class="bar-hp">{{bar.current}} / {{bar.max}}</span>
-              <span class="bar-penalty">({{bar.penalty}})</span>
+        {{!-- Attributes --}}
+        <div class="attributes-panel">
+          <h3>Attributes</h3>
+          <div class="attributes-grid">
+            {{#each system.attributes as |attr key|}}
+            <div class="attribute">
+              <label>{{key}}</label>
+              <input type="number" name="system.attributes.{{key}}.value" value="{{attr.value}}" data-dtype="Number" min="0"/>
+              <span class="stones">{{attr.stones}} <i class="fas fa-gem"></i></span>
+              <button type="button" class="attribute-roll" data-attribute="{{key}}">
+                <i class="fas fa-dice-d20"></i>
+              </button>
             </div>
             {{/each}}
           </div>
-          <div class="button-group">
-            <button type="button" class="hp-adjust" data-adjustment="-5">-5</button>
-            <button type="button" class="hp-adjust" data-adjustment="-1">-1</button>
-            <button type="button" class="hp-adjust" data-adjustment="1">+1</button>
-            <button type="button" class="hp-adjust" data-adjustment="5">+5</button>
-          </div>
         </div>
 
-        <div class="resource-block">
-          <h3>Stress</h3>
-          <div class="stress-display">
-            <input type="number" name="system.stress.current" value="{{system.stress.current}}" data-dtype="Number"/> / {{system.stress.maximum}}
-          </div>
-          <div class="button-group">
-            <button type="button" class="stress-adjust" data-adjustment="-5">-5</button>
-            <button type="button" class="stress-adjust" data-adjustment="-1">-1</button>
-            <button type="button" class="stress-adjust" data-adjustment="1">+1</button>
-            <button type="button" class="stress-adjust" data-adjustment="5">+5</button>
+        {{!-- Combat Stats --}}
+        <div class="combat-panel">
+          <h3>Combat</h3>
+          <div class="combat-grid">
+            <div class="combat-stat">
+              <label>Initiative:</label>
+              <input type="number" name="system.combat.initiative" value="{{system.combat.initiative}}" data-dtype="Number"/>
+            </div>
+            <div class="combat-stat">
+              <label>Evade:</label>
+              <input type="number" name="system.combat.evade" value="{{system.combat.evade}}" data-dtype="Number"/>
+            </div>
+            <div class="combat-stat">
+              <label>Armor:</label>
+              <input type="number" name="system.combat.armor" value="{{system.combat.armor}}" data-dtype="Number"/>
+            </div>
+            <div class="combat-stat">
+              <label>Speed:</label>
+              <input type="number" name="system.combat.speed" value="{{system.combat.speed}}" data-dtype="Number"/>
+            </div>
           </div>
         </div>
       </div>
 
-      {{!-- Attributes --}}
-      <div class="attributes-panel">
-        <h3>Attributes</h3>
-        <div class="attributes-grid">
-          {{#each system.attributes as |attr key|}}
-          <div class="attribute">
-            <label>{{key}}</label>
-            <input type="number" name="system.attributes.{{key}}.value" value="{{attr.value}}" data-dtype="Number" min="0"/>
-            <span class="stones">{{attr.stones}} <i class="fas fa-gem"></i></span>
-            <button type="button" class="attribute-roll" data-attribute="{{key}}">
+      {{!-- Skills Tab --}}
+      <div class="tab skills" data-group="primary" data-tab="skills">
+        <div class="skills-header">
+          <h3>Skills</h3>
+          <button type="button" class="skill-add"><i class="fas fa-plus"></i> Add Skill</button>
+        </div>
+        <ol class="skills-list">
+          {{#each skills as |skill|}}
+          <li class="skill">
+            <div class="skill-name">{{skill.label}}</div>
+            <input type="number" name="system.skills.{{skill.name}}" value="{{skill.value}}" data-dtype="Number" min="0"/>
+            <button type="button" class="skill-roll" data-skill="{{skill.name}}">
               <i class="fas fa-dice-d20"></i>
             </button>
-          </div>
-          {{/each}}
-        </div>
-      </div>
-
-      {{!-- Combat Stats --}}
-      <div class="combat-panel">
-        <h3>Combat</h3>
-        <div class="combat-grid">
-          <div class="combat-stat">
-            <label>Initiative:</label>
-            <input type="number" name="system.combat.initiative" value="{{system.combat.initiative}}" data-dtype="Number"/>
-          </div>
-          <div class="combat-stat">
-            <label>Evade:</label>
-            <input type="number" name="system.combat.evade" value="{{system.combat.evade}}" data-dtype="Number"/>
-          </div>
-          <div class="combat-stat">
-            <label>Armor:</label>
-            <input type="number" name="system.combat.armor" value="{{system.combat.armor}}" data-dtype="Number"/>
-          </div>
-          <div class="combat-stat">
-            <label>Speed:</label>
-            <input type="number" name="system.combat.speed" value="{{system.combat.speed}}" data-dtype="Number"/>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {{!-- Skills Tab --}}
-    <div class="tab skills" data-group="primary" data-tab="skills">
-      <div class="skills-header">
-        <h3>Skills</h3>
-        <button type="button" class="skill-add"><i class="fas fa-plus"></i> Add Skill</button>
-      </div>
-      <ol class="skills-list">
-        {{#each skills as |skill|}}
-        <li class="skill">
-          <div class="skill-name">{{skill.label}}</div>
-          <input type="number" name="system.skills.{{skill.name}}" value="{{skill.value}}" data-dtype="Number" min="0"/>
-          <button type="button" class="skill-roll" data-skill="{{skill.name}}">
-            <i class="fas fa-dice-d20"></i>
-          </button>
-          <button type="button" class="skill-delete" data-skill="{{skill.name}}">
-            <i class="fas fa-trash"></i>
-          </button>
-        </li>
-        {{/each}}
-      </ol>
-    </div>
-
-    {{!-- Powers Tab --}}
-    <div class="tab powers" data-group="primary" data-tab="powers">
-      <div class="powers-header">
-        <h3>Powers & Mastery Trees</h3>
-        <button type="button" class="item-create" data-type="special"><i class="fas fa-plus"></i> Add Power</button>
-      </div>
-      <ol class="items-list">
-        {{#each items.powers as |power|}}
-        <li class="item power" data-item-id="{{power._id}}">
-          <div class="item-name">
-            <img src="{{power.img}}" title="{{power.name}}" width="24" height="24"/>
-            <h4>{{power.name}}</h4>
-            <span class="item-level">L{{power.system.level}}</span>
-          </div>
-          <div class="item-tree">{{power.system.tree}}</div>
-          <div class="item-type">{{power.system.powerType}}</div>
-          <div class="item-controls">
-            <button type="button" class="power-use" data-item-id="{{power._id}}" title="Use Power">
-              <i class="fas fa-bolt"></i>
+            <button type="button" class="skill-delete" data-skill="{{skill.name}}">
+              <i class="fas fa-trash"></i>
             </button>
-            <a class="item-edit" title="Edit Power"><i class="fas fa-edit"></i></a>
-            <a class="item-delete" title="Delete Power"><i class="fas fa-trash"></i></a>
-          </div>
-        </li>
-        {{/each}}
-      </ol>
-
-      <div class="schticks-header">
-        <h3>Schticks</h3>
-        <button type="button" class="item-create" data-type="schtick"><i class="fas fa-plus"></i> Add Schtick</button>
+          </li>
+          {{/each}}
+        </ol>
       </div>
-      <ol class="items-list">
-        {{#each items.schticks as |schtick|}}
-        <li class="item schtick" data-item-id="{{schtick._id}}">
-          <div class="item-name">
-            <h4>{{schtick.name}}</h4>
-            <span class="item-rank">M{{schtick.system.masteryRank}}</span>
-          </div>
-          <div class="item-description">{{schtick.system.manifestation}}</div>
-          <div class="item-controls">
-            <a class="item-edit" title="Edit Schtick"><i class="fas fa-edit"></i></a>
-            <a class="item-delete" title="Delete Schtick"><i class="fas fa-trash"></i></a>
-          </div>
-        </li>
-        {{/each}}
-      </ol>
-    </div>
 
-    {{!-- Equipment Tab --}}
-    <div class="tab equipment" data-group="primary" data-tab="equipment">
-      <div class="artifacts-header">
-        <h3>Artifacts</h3>
-        <button type="button" class="item-create" data-type="artifact"><i class="fas fa-plus"></i> Add Artifact</button>
+      {{!-- Powers Tab --}}
+      <div class="tab powers" data-group="primary" data-tab="powers">
+        <div class="powers-header">
+          <h3>Powers & Mastery Trees</h3>
+          <button type="button" class="item-create" data-type="special"><i class="fas fa-plus"></i> Add Power</button>
+        </div>
+        <ol class="items-list">
+          {{#each items.powers as |power|}}
+          <li class="item power" data-item-id="{{power._id}}">
+            <div class="item-name">
+              <img src="{{power.img}}" title="{{power.name}}" width="24" height="24"/>
+              <h4>{{power.name}}</h4>
+              <span class="item-level">L{{power.system.level}}</span>
+            </div>
+            <div class="item-tree">{{power.system.tree}}</div>
+            <div class="item-type">{{power.system.powerType}}</div>
+            <div class="item-controls">
+              <button type="button" class="power-use" data-item-id="{{power._id}}" title="Use Power">
+                <i class="fas fa-bolt"></i>
+              </button>
+              <a class="item-edit" title="Edit Power"><i class="fas fa-edit"></i></a>
+              <a class="item-delete" title="Delete Power"><i class="fas fa-trash"></i></a>
+            </div>
+          </li>
+          {{/each}}
+        </ol>
+
+        <div class="schticks-header">
+          <h3>Schticks</h3>
+          <button type="button" class="item-create" data-type="schtick"><i class="fas fa-plus"></i> Add Schtick</button>
+        </div>
+        <ol class="items-list">
+          {{#each items.schticks as |schtick|}}
+          <li class="item schtick" data-item-id="{{schtick._id}}">
+            <div class="item-name">
+              <h4>{{schtick.name}}</h4>
+              <span class="item-rank">M{{schtick.system.masteryRank}}</span>
+            </div>
+            <div class="item-description">{{schtick.system.manifestation}}</div>
+            <div class="item-controls">
+              <a class="item-edit" title="Edit Schtick"><i class="fas fa-edit"></i></a>
+              <a class="item-delete" title="Delete Schtick"><i class="fas fa-trash"></i></a>
+            </div>
+          </li>
+          {{/each}}
+        </ol>
       </div>
-      <ol class="items-list">
-        {{#each items.artifacts as |artifact|}}
-        <li class="item artifact" data-item-id="{{artifact._id}}">
-          <div class="item-name">
-            <img src="{{artifact.img}}" title="{{artifact.name}}" width="24" height="24"/>
-            <h4>{{artifact.name}}</h4>
-            <span class="item-level">L{{artifact.system.level}}</span>
-          </div>
-          <div class="item-equipped">
-            <input type="checkbox" name="items.{{artifact._id}}.system.equipped" {{#if artifact.system.equipped}}checked{{/if}}/>
-          </div>
-          <div class="item-controls">
-            <a class="item-edit" title="Edit Artifact"><i class="fas fa-edit"></i></a>
-            <a class="item-delete" title="Delete Artifact"><i class="fas fa-trash"></i></a>
-          </div>
-        </li>
-        {{/each}}
-      </ol>
 
-      <div class="weapons-header">
-        <h3>Weapons</h3>
-        <button type="button" class="item-create" data-type="weapon"><i class="fas fa-plus"></i> Add Weapon</button>
+      {{!-- Echo Tab --}}
+      <div class="tab echo" data-group="primary" data-tab="echo">
+        <div class="echo-content">
+          <div class="form-group">
+            <label>Echo:</label>
+            <input type="text" name="system.bio.echo" value="{{system.bio.echo}}" placeholder="Human, Elf, etc."/>
+          </div>
+          <div class="form-group">
+            <label>Concept:</label>
+            <input type="text" name="system.bio.concept" value="{{system.bio.concept}}" placeholder="Wandering Swordsman"/>
+          </div>
+          <div class="form-group">
+            <label>Appearance:</label>
+            <input type="text" name="system.bio.appearance" value="{{system.bio.appearance}}" placeholder="Physical description"/>
+          </div>
+          <div class="form-group">
+            <label>Notes:</label>
+            {{editor system.bio.notes target="system.bio.notes" button=true owner=owner editable=editable}}
+          </div>
+          <div class="form-group">
+            <label>Background:</label>
+            {{editor system.notes.background target="system.notes.background" button=true owner=owner editable=editable}}
+          </div>
+          <div class="form-group">
+            <label>Schticks:</label>
+            <textarea name="system.notes.schticks">{{system.notes.schticks}}</textarea>
+          </div>
+          <div class="form-group">
+            <label>Faith Fractures:</label>
+            <textarea name="system.notes.faithFractures">{{system.notes.faithFractures}}</textarea>
+          </div>
+        </div>
       </div>
-      <ol class="items-list">
-        {{#each items.weapons as |weapon|}}
-        <li class="item weapon" data-item-id="{{weapon._id}}">
-          <div class="item-name">
-            <h4>{{weapon.name}}</h4>
-          </div>
-          <div class="item-damage">{{weapon.system.damage}}</div>
-          <div class="item-controls">
-            <a class="item-edit" title="Edit Weapon"><i class="fas fa-edit"></i></a>
-            <a class="item-delete" title="Delete Weapon"><i class="fas fa-trash"></i></a>
-          </div>
-        </li>
-        {{/each}}
-      </ol>
-    </div>
 
-    {{!-- Notes Tab --}}
-    <div class="tab notes" data-group="primary" data-tab="notes">
-      <div class="editor-content">
-        <label>Appearance:</label>
-        <input type="text" name="system.bio.appearance" value="{{system.bio.appearance}}"/>
-        
-        <label>Notes:</label>
-        {{editor system.bio.notes target="system.bio.notes" button=true owner=owner editable=editable}}
-        
-        <label>Background:</label>
-        {{editor system.notes.background target="system.notes.background" button=true owner=owner editable=editable}}
-        
-        <label>Schticks:</label>
-        <textarea name="system.notes.schticks">{{system.notes.schticks}}</textarea>
-        
-        <label>Faith Fractures:</label>
-        <textarea name="system.notes.faithFractures">{{system.notes.faithFractures}}</textarea>
+      {{!-- Equipment Tab --}}
+      <div class="tab equipment" data-group="primary" data-tab="equipment">
+        <div class="artifacts-header">
+          <h3>Artifacts</h3>
+          <button type="button" class="item-create" data-type="artifact"><i class="fas fa-plus"></i> Add Artifact</button>
+        </div>
+        <ol class="items-list">
+          {{#each items.artifacts as |artifact|}}
+          <li class="item artifact" data-item-id="{{artifact._id}}">
+            <div class="item-name">
+              <img src="{{artifact.img}}" title="{{artifact.name}}" width="24" height="24"/>
+              <h4>{{artifact.name}}</h4>
+              <span class="item-level">L{{artifact.system.level}}</span>
+            </div>
+            <div class="item-equipped">
+              <input type="checkbox" name="items.{{artifact._id}}.system.equipped" {{#if artifact.system.equipped}}checked{{/if}}/>
+            </div>
+            <div class="item-controls">
+              <a class="item-edit" title="Edit Artifact"><i class="fas fa-edit"></i></a>
+              <a class="item-delete" title="Delete Artifact"><i class="fas fa-trash"></i></a>
+            </div>
+          </li>
+          {{/each}}
+        </ol>
+
+        <div class="weapons-header">
+          <h3>Weapons</h3>
+          <button type="button" class="item-create" data-type="weapon"><i class="fas fa-plus"></i> Add Weapon</button>
+        </div>
+        <ol class="items-list">
+          {{#each items.weapons as |weapon|}}
+          <li class="item weapon" data-item-id="{{weapon._id}}">
+            <div class="item-name">
+              <h4>{{weapon.name}}</h4>
+            </div>
+            <div class="item-damage">{{weapon.system.damage}}</div>
+            <div class="item-controls">
+              <a class="item-edit" title="Edit Weapon"><i class="fas fa-edit"></i></a>
+              <a class="item-delete" title="Delete Weapon"><i class="fas fa-trash"></i></a>
+            </div>
+          </li>
+          {{/each}}
+        </ol>
       </div>
-    </div>
 
-  </section>
+    </section>
+  </div>
 </form>
-
-

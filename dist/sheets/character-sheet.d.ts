@@ -4,6 +4,7 @@
  */
 export declare class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
     #private;
+    editMode: boolean;
     /** @override */
     static get defaultOptions(): any;
     /** @override */
