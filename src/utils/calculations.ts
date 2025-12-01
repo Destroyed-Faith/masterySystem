@@ -157,3 +157,4 @@ export function validateSkillValue(skillValue: number, masteryRank: number): num
   return Math.min(skillValue, maxSkill);
 }
 
+
