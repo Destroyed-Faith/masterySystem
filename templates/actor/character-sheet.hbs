@@ -42,28 +42,30 @@
         {{!-- Attributes in Circles --}}
         <div class="attributes-circles-container">
           {{#each system.attributes as |attr key|}}
-          <div class="attribute-circle-wrapper">
-            <div class="attribute-circle" data-attribute="{{key}}">
-              <div class="circle-center">
-                <label class="attribute-label">{{key}}</label>
-                <input type="number" 
-                       name="system.attributes.{{key}}.value" 
-                       value="{{attr.value}}" 
-                       data-dtype="Number" 
-                       min="0"
-                       class="attribute-value-input"/>
-                <button type="button" class="attribute-roll" data-attribute="{{key}}" title="Roll {{key}}">
-                  <i class="fas fa-dice-d20"></i>
-                </button>
-              </div>
-              <div class="stones-ring">
-                {{#each (array 8 16 24 32 40 48 56 64 72 80) as |threshold|}}
-                <div class="stone-box {{#if (gte attr.value threshold)}}filled{{/if}}" 
-                     data-threshold="{{threshold}}"
-                     title="{{threshold}}">
-                  <span class="stone-value">{{threshold}}</span>
+          <div class="attribute-row">
+            <label class="attribute-name-vertical">{{key}}</label>
+            <div class="attribute-circle-wrapper">
+              <div class="attribute-circle" data-attribute="{{key}}">
+                <div class="circle-center">
+                  <input type="number" 
+                         name="system.attributes.{{key}}.value" 
+                         value="{{attr.value}}" 
+                         data-dtype="Number" 
+                         min="0"
+                         class="attribute-value-input"/>
+                  <button type="button" class="attribute-roll" data-attribute="{{key}}" title="Roll {{key}}">
+                    <i class="fas fa-dice-d20"></i>
+                  </button>
                 </div>
-                {{/each}}
+                <div class="stones-ring">
+                  {{#each (array 8 16 24 32 40 48 56 64 72 80) as |threshold|}}
+                  <div class="stone-segment {{#if (gte attr.value threshold)}}filled{{/if}}" 
+                       data-threshold="{{threshold}}"
+                       title="{{threshold}}">
+                    <span class="stone-label">{{threshold}}</span>
+                  </div>
+                  {{/each}}
+                </div>
               </div>
             </div>
           </div>
