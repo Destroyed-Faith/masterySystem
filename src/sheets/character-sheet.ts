@@ -9,7 +9,7 @@ import { quickRoll } from '../dice/roll-handler';
 export class MasteryCharacterSheet extends ActorSheet {
   /** @override */
   static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions as any, {
+    const options = foundry.utils.mergeObject(super.defaultOptions as any, {
       classes: ['mastery-system', 'sheet', 'actor', 'character'],
       template: 'systems/mastery-system/templates/actor/character-sheet.hbs',
       width: 720,
@@ -24,11 +24,15 @@ export class MasteryCharacterSheet extends ActorSheet {
       dragDrop: [{ dragSelector: '.item-list .item', dropSelector: null }],
       scrollY: ['.attributes', '.skills', '.powers', '.equipment']
     });
+    console.log('Mastery System | Character Sheet defaultOptions:', options);
+    return options;
   }
 
   /** @override */
   get template() {
-    return 'systems/mastery-system/templates/actor/character-sheet.hbs';
+    const templatePath = 'systems/mastery-system/templates/actor/character-sheet.hbs';
+    console.log('Mastery System | Character Sheet template path:', templatePath);
+    return templatePath;
   }
 
   /** @override */

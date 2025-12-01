@@ -24,14 +24,17 @@ Hooks.once('init', async function () {
         makeDefault: true,
         label: 'Mastery Character Sheet'
     });
+    console.log('Mastery System | Registered Character Sheet');
     // Register NPC sheet
     Actors.registerSheet('mastery-system', MasteryNpcSheet, {
         types: ['npc'],
         makeDefault: true,
         label: 'Mastery NPC Sheet'
     });
+    console.log('Mastery System | Registered NPC Sheet');
     // Unregister core sheets after registering our own (to ensure ours are used)
     Actors.unregisterSheet('core', ActorSheet);
+    console.log('Mastery System | Unregistered core ActorSheet');
     // Register Item sheet
     Items.registerSheet('mastery-system', MasteryItemSheet, {
         makeDefault: true,
