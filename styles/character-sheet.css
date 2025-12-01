@@ -13,44 +13,44 @@
 }
 
 /* ========== Powers Tab Specific ========== */
-.powers-header,
-.schticks-header,
-.artifacts-header,
-.weapons-header {
+.mastery-system .powers-header,
+.mastery-system .schticks-header,
+.mastery-system .artifacts-header,
+.mastery-system .weapons-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin: 20px 0 10px 0;
 }
 
-.powers-header h3,
-.schticks-header h3,
-.artifacts-header h3,
-.weapons-header h3 {
+.mastery-system .powers-header h3,
+.mastery-system .schticks-header h3,
+.mastery-system .artifacts-header h3,
+.mastery-system .weapons-header h3 {
   margin: 0;
   color: #8b0000;
   font-size: 18px;
 }
 
-.items-list .power {
+.mastery-system .items-list .power {
   background: linear-gradient(to right, #fff 0%, #ffe4e1 100%);
 }
 
-.items-list .schtick {
+.mastery-system .items-list .schtick {
   background: linear-gradient(to right, #fff 0%, #e6f3ff 100%);
 }
 
-.items-list .artifact {
+.mastery-system .items-list .artifact {
   background: linear-gradient(to right, #fff 0%, #fff8dc 100%);
 }
 
-.items-list .item-tree {
+.mastery-system .items-list .item-tree {
   font-size: 12px;
   color: #666;
   font-style: italic;
 }
 
-.items-list .item-type {
+.mastery-system .items-list .item-type {
   font-size: 11px;
   color: #8b0000;
   text-transform: uppercase;
@@ -59,20 +59,20 @@
   border-radius: 3px;
 }
 
-.items-list .item-description {
+.mastery-system .items-list .item-description {
   flex: 1;
   font-size: 12px;
   color: #666;
   font-style: italic;
 }
 
-.items-list .item-damage {
+.mastery-system .items-list .item-damage {
   font-size: 13px;
   font-weight: bold;
   color: #8b0000;
 }
 
-.items-list .item-equipped {
+.mastery-system .items-list .item-equipped {
   display: flex;
   align-items: center;
 }
@@ -142,4 +142,5 @@
     display: none;
   }
 }
+
 
