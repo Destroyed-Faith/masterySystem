@@ -145,21 +145,47 @@ async function sendRollToChat(
     actor = (game as any).actors.get(actorId);
   }
   
-  // Build dice display HTML
-  const diceHTML = result.dice.map((value, index) => {
-    const isKept = result.kept.includes(value) && 
-                   result.dice.indexOf(value, result.dice.indexOf(value) === index ? 0 : index + 1) === index;
-    const isExploded = result.exploded.includes(index);
-    
-    let classes = 'die d8';
-    if (isKept) classes += ' kept';
-    if (isExploded) classes += ' exploded';
-    
-    return `<div class="${classes}">${value}</div>`;
-  }).join('');
-  
-  // Build result display
+  // Create a Foundry Roll object to display dice visually
   const diceSum = result.total - result.skill;
+  
+  // Create roll formula
+  const formula = `${result.dice.length}d8${result.skill !== 0 ? ` + ${result.skill}` : ''}`;
+  const roll = new Roll(formula);
+  
+  // Evaluate the roll first to get the structure
+  await roll.evaluate({ async: false });
+  
+  // Now replace the dice results with our actual rolled values
+  // We need to modify the dice terms to show our actual results
+  let dieIndex = 0;
+  for (const term of roll.terms as any[]) {
+    if (term instanceof foundry.dice.terms.Die) {
+      // Replace the results with our actual dice values
+      const actualValue = result.dice[dieIndex];
+      const isKept = result.kept.includes(actualValue);
+      const isExploded = result.exploded.includes(dieIndex);
+      
+      // Update the die results
+      term.results = [{
+        result: actualValue,
+        active: isKept,
+        discarded: !isKept,
+        rerolled: false
+      }];
+      
+      // Mark as exploded if needed (stored in flags)
+      if (isExploded) {
+        (term as any).options.explode = true;
+      }
+      
+      dieIndex++;
+    }
+  }
+  
+  // Update the total
+  (roll as any)._total = result.total;
+  
+  // Build result display HTML
   const successClass = result.success ? 'success' : 'failure';
   
   let content = `
@@ -170,12 +196,10 @@ async function sendRollToChat(
       </div>
       
       <div class="roll-details">
-        <div class="dice-pool">
-          <div class="label">Rolled ${result.dice.length}d8, kept ${result.kept.length}:</div>
-          <div class="dice">${diceHTML}</div>
-        </div>
-        
         <div class="roll-breakdown">
+          <div class="breakdown-line">
+            <span>Rolled ${result.dice.length}d8, kept ${result.kept.length}</span>
+          </div>
           <div class="breakdown-line">
             <span>Dice Total:</span>
             <span class="value">${diceSum}</span>
@@ -214,12 +238,13 @@ async function sendRollToChat(
     </div>
   `;
   
-  // Create chat message
+  // Create chat message with the Roll object
   const chatData: any = {
     user: (game as any).user?.id,
     speaker: actor ? ChatMessage.getSpeaker({ actor }) : ChatMessage.getSpeaker(),
     content,
     type: CONST.CHAT_MESSAGE_TYPES.ROLL,
+    roll: roll,
     sound: CONFIG.sounds.dice,
     flags: {
       'mastery-system': {
