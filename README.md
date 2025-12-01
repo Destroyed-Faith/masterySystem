@@ -136,4 +136,3 @@ See LICENSE file for full details.
 - **Character Art:** Jesús Bey
 - **World Map:** Pena Negra
 - **Full Page Art:** Dzmitry Zasimovich
-
