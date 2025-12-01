@@ -2,7 +2,7 @@
  * Character Sheet for Mastery System
  * Main player character sheet with tabs for attributes, skills, powers, etc.
  */
-import { quickRoll } from '../dice/roll-handler';
+import { quickRoll } from '../dice/roll-handler.js';
 export class MasteryCharacterSheet extends ActorSheet {
     /** @override */
     static get defaultOptions() {
