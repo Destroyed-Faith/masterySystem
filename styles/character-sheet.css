@@ -187,6 +187,113 @@
   box-shadow: -6px 0 8px rgba(139,0,0,0.5);
 }
 
+/* ========== Top Section: Might + Saving Throws + Evade ========== */
+.mastery-system.sheet.actor.character .attributes-top-section {
+  margin-bottom: 20px;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 8px;
+}
+
+.mastery-system.sheet.actor.character .top-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 30px;
+}
+
+.mastery-system.sheet.actor.character .saving-throws-container-top {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  flex: 1;
+}
+
+.mastery-system.sheet.actor.character .saving-throws-grid-top {
+  display: flex;
+  gap: 15px;
+}
+
+.mastery-system.sheet.actor.character .saving-throw-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: #fff;
+  border: 2px solid #8b0000;
+  border-radius: 8px;
+  min-width: 80px;
+  transition: all 0.2s;
+}
+
+.mastery-system.sheet.actor.character .saving-throw-item:hover {
+  border-color: #a00000;
+  background: #fff5f5;
+}
+
+.mastery-system.sheet.actor.character .saving-throw-item label {
+  font-weight: bold;
+  font-size: 14px;
+  color: #8b0000;
+  text-transform: uppercase;
+}
+
+.mastery-system.sheet.actor.character .saving-throw-value-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mastery-system.sheet.actor.character .saving-throw-value {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+  min-width: 30px;
+  text-align: center;
+}
+
+.mastery-system.sheet.actor.character .saving-throw-value-group button {
+  background: #8b0000;
+  border: none;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 12px;
+}
+
+.mastery-system.sheet.actor.character .saving-throw-value-group button:hover {
+  background: #a00000;
+  transform: scale(1.1);
+}
+
+.mastery-system.sheet.actor.character .evade-value-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background: #fff;
+  border: 2px solid #8b0000;
+  border-radius: 8px;
+}
+
+.mastery-system.sheet.actor.character .evade-value-container label {
+  font-weight: bold;
+  font-size: 14px;
+  color: #8b0000;
+}
+
+.mastery-system.sheet.actor.character .evade-value-container input {
+  width: 60px;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+}
+
 /* ========== Attributes in Circles ========== */
 .mastery-system.sheet.actor.character .attributes-circles-container {
   display: flex;

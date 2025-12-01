@@ -39,9 +39,83 @@
       {{!-- Attributes Tab --}}
       <div class="tab attributes" data-group="primary" data-tab="attributes">
         
-        {{!-- Attributes in Circles --}}
+        {{!-- Top Section: Saving Throws and Evade --}}
+        <div class="attributes-top-section">
+          {{!-- First Attribute (Might) with Saving Throws beside it --}}
+          <div class="top-row">
+            <div class="attribute-row">
+              <label class="attribute-name-vertical">might</label>
+              <div class="attribute-circle-wrapper">
+                <div class="attribute-circle" data-attribute="might">
+                  <div class="circle-center">
+                    <input type="number" 
+                           name="system.attributes.might.value" 
+                           value="{{system.attributes.might.value}}" 
+                           data-dtype="Number" 
+                           min="0"
+                           class="attribute-value-input"/>
+                    <button type="button" class="attribute-roll" data-attribute="might" title="Roll might">
+                      <i class="fas fa-dice-d20"></i>
+                    </button>
+                  </div>
+                  <div class="stones-ring">
+                    {{#each (array 8 16 24 32 40 48 56 64 72 80) as |threshold|}}
+                    <div class="stone-segment {{#if (gte system.attributes.might.value threshold)}}filled{{/if}}" 
+                         data-threshold="{{threshold}}"
+                         title="{{threshold}}">
+                      <span class="stone-label">{{threshold}}</span>
+                    </div>
+                    {{/each}}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {{!-- Saving Throws --}}
+            <div class="saving-throws-container-top">
+              <div class="saving-throws-grid-top">
+                <div class="saving-throw-item" data-save="body">
+                  <label>BODY</label>
+                  <div class="saving-throw-value-group">
+                    <span class="saving-throw-value">{{derivedValues.savingThrows.body}}</span>
+                    <button type="button" class="saving-throw-roll" data-save="body" title="Roll BODY Saving Throw">
+                      <i class="fas fa-dice-d20"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="saving-throw-item" data-save="will">
+                  <label>WILL</label>
+                  <div class="saving-throw-value-group">
+                    <span class="saving-throw-value">{{derivedValues.savingThrows.will}}</span>
+                    <button type="button" class="saving-throw-roll" data-save="will" title="Roll WILL Saving Throw">
+                      <i class="fas fa-dice-d20"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="saving-throw-item" data-save="mind">
+                  <label>MIND</label>
+                  <div class="saving-throw-value-group">
+                    <span class="saving-throw-value">{{derivedValues.savingThrows.mind}}</span>
+                    <button type="button" class="saving-throw-roll" data-save="mind" title="Roll MIND Saving Throw">
+                      <i class="fas fa-dice-d20"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              {{!-- Evade Value --}}
+              <div class="evade-value-container">
+                <label>Evade:</label>
+                <input type="number" name="system.combat.evade" value="{{system.combat.evade}}" data-dtype="Number"/>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {{!-- Remaining Attributes in Circles --}}
         <div class="attributes-circles-container">
           {{#each system.attributes as |attr key|}}
+          {{#unless (eq key "might")}}
           <div class="attribute-row">
             <label class="attribute-name-vertical">{{key}}</label>
             <div class="attribute-circle-wrapper">
@@ -69,41 +143,8 @@
               </div>
             </div>
           </div>
+          {{/unless}}
           {{/each}}
-        </div>
-
-        {{!-- Saving Throws --}}
-        <div class="saving-throws-container">
-          <h3>Saving Throws</h3>
-          <div class="saving-throws-grid">
-            <div class="saving-throw-item" data-save="body">
-              <label>BODY</label>
-              <div class="saving-throw-value-group">
-                <span class="saving-throw-value">{{derivedValues.savingThrows.body}}</span>
-                <button type="button" class="saving-throw-roll" data-save="body" title="Roll BODY Saving Throw">
-                  <i class="fas fa-dice-d20"></i>
-                </button>
-              </div>
-            </div>
-            <div class="saving-throw-item" data-save="will">
-              <label>WILL</label>
-              <div class="saving-throw-value-group">
-                <span class="saving-throw-value">{{derivedValues.savingThrows.will}}</span>
-                <button type="button" class="saving-throw-roll" data-save="will" title="Roll WILL Saving Throw">
-                  <i class="fas fa-dice-d20"></i>
-                </button>
-              </div>
-            </div>
-            <div class="saving-throw-item" data-save="mind">
-              <label>MIND</label>
-              <div class="saving-throw-value-group">
-                <span class="saving-throw-value">{{derivedValues.savingThrows.mind}}</span>
-                <button type="button" class="saving-throw-roll" data-save="mind" title="Roll MIND Saving Throw">
-                  <i class="fas fa-dice-d20"></i>
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
 
 
@@ -112,10 +153,6 @@
           <div class="stat-group">
             <label>Armor:</label>
             <input type="number" name="system.combat.armor" value="{{system.combat.armor}}" data-dtype="Number"/>
-          </div>
-          <div class="stat-group">
-            <label>Evade:</label>
-            <input type="number" name="system.combat.evade" value="{{system.combat.evade}}" data-dtype="Number"/>
           </div>
           <div class="stat-group">
             <label>Health Levels:</label>
