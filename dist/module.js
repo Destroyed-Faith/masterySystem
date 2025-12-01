@@ -7,8 +7,7 @@ import { MasteryItem } from './documents/item';
 import { MasteryCharacterSheet } from './sheets/character-sheet';
 import { MasteryNpcSheet } from './sheets/npc-sheet';
 import { MasteryItemSheet } from './sheets/item-sheet';
-// Import the dice roller
-import './dice/roll-handler';
+// Dice roller functions are imported in sheets where needed
 /**
  * Initialize the Mastery System
  * This hook is called once when Foundry first starts up
@@ -74,25 +73,18 @@ function registerSystemSettings() {
  */
 async function preloadTemplates() {
     const templatePaths = [
-        // Actor sheets
+        // Actor sheets (only load existing templates)
         'systems/mastery-system/templates/actor/character-sheet.hbs',
         'systems/mastery-system/templates/actor/npc-sheet.hbs',
-        'systems/mastery-system/templates/actor/summon-sheet.hbs',
-        'systems/mastery-system/templates/actor/divine-sheet.hbs',
-        // Item sheets
-        'systems/mastery-system/templates/item/special-sheet.hbs',
-        'systems/mastery-system/templates/item/echo-sheet.hbs',
-        'systems/mastery-system/templates/item/artifact-sheet.hbs',
-        'systems/mastery-system/templates/item/condition-sheet.hbs',
-        // Partials
-        'systems/mastery-system/templates/partials/attribute-block.hbs',
-        'systems/mastery-system/templates/partials/skill-list.hbs',
-        'systems/mastery-system/templates/partials/health-bars.hbs',
-        // Chat cards
-        'systems/mastery-system/templates/chat/roll-card.hbs',
-        'systems/mastery-system/templates/chat/damage-card.hbs'
+        // Item sheets (only load existing templates)
+        'systems/mastery-system/templates/item/special-sheet.hbs'
     ];
-    return loadTemplates(templatePaths);
+    try {
+        await loadTemplates(templatePaths);
+    }
+    catch (error) {
+        console.warn('Mastery System | Some templates could not be loaded:', error);
+    }
 }
 /**
  * Ready hook - called when Foundry is fully loaded and ready
