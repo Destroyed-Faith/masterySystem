@@ -241,7 +241,8 @@ export async function quickRoll(
   attributeName: string,
   skillName?: string,
   tn?: number,
-  label?: string
+  label?: string,
+  modifier?: number
 ): Promise<MasteryRollResult> {
   const actorData = actor.system as any;
   
@@ -251,12 +252,12 @@ export async function quickRoll(
   // Get mastery rank (number to keep)
   const keepDice = actorData.mastery?.rank || 1;
   
-  // Get skill bonus
-  const skill = skillName ? (actorData.skills?.[skillName] || 0) : 0;
+  // Get skill bonus or use provided modifier
+  const skill = modifier !== undefined ? modifier : (skillName ? (actorData.skills?.[skillName] || 0) : 0);
   
   // Build label
   const rollLabel = label || `${attributeName.charAt(0).toUpperCase() + attributeName.slice(1)} Roll`;
-  const flavorText = skillName ? `with ${skillName} skill` : '';
+  const flavorText = skillName ? `with ${skillName} skill` : (modifier !== undefined ? `modifier: ${modifier >= 0 ? '+' : ''}${modifier}` : '');
   
   return await masteryRoll({
     numDice,

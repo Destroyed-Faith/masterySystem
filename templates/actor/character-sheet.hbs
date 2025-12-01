@@ -33,22 +33,51 @@
     </div>
   </header>
 
-  <div class="sheet-content-wrapper">
-    {{!-- Sheet Tabs (Sidebar) --}}
-    <nav class="sheet-tabs tabs" data-group="primary">
-      <a class="item" data-tab="attributes">Attributes</a>
-      <a class="item" data-tab="skills">Skills</a>
-      <a class="item" data-tab="powers">Powers</a>
-      <a class="item" data-tab="echo">Echo</a>
-      <a class="item" data-tab="equipment">Equipment</a>
-    </nav>
-
-    {{!-- Sheet Body --}}
-    <section class="sheet-body">
+  {{!-- Sheet Body --}}
+  <section class="sheet-body">
       
       {{!-- Attributes Tab --}}
       <div class="tab attributes" data-group="primary" data-tab="attributes">
         
+        <div class="attributes-layout">
+          {{!-- Attributes Column --}}
+          <div class="attributes-column">
+            <h3>Attributes</h3>
+            <div class="attributes-list">
+              {{#each system.attributes as |attr key|}}
+              <div class="attribute-item">
+                <label>{{key}}</label>
+                <div class="attribute-value-group">
+                  <input type="number" name="system.attributes.{{key}}.value" value="{{attr.value}}" data-dtype="Number" min="0"/>
+                  <span class="stones">{{attr.stones}} <i class="fas fa-gem"></i></span>
+                  <button type="button" class="attribute-roll" data-attribute="{{key}}">
+                    <i class="fas fa-dice-d20"></i>
+                  </button>
+                </div>
+              </div>
+              {{/each}}
+            </div>
+          </div>
+
+          {{!-- Saving Throws Column --}}
+          <div class="saving-throws-column">
+            <h3>Saving Throws</h3>
+            <div class="saving-throws-list">
+              {{#each system.attributes as |attr key|}}
+              <div class="saving-throw-item">
+                <label>{{key}}</label>
+                <div class="saving-throw-value-group">
+                  <input type="number" name="system.savingThrows.{{key}}" value="{{lookup ../system.savingThrows key}}" data-dtype="Number" placeholder="0"/>
+                  <button type="button" class="saving-throw-roll" data-attribute="{{key}}">
+                    <i class="fas fa-dice-d20"></i>
+                  </button>
+                </div>
+              </div>
+              {{/each}}
+            </div>
+          </div>
+        </div>
+
         {{!-- Stones & Resources --}}
         <div class="resources-panel">
           <div class="resource-block">
@@ -113,23 +142,6 @@
               <button type="button" class="stress-adjust" data-adjustment="1">+1</button>
               <button type="button" class="stress-adjust" data-adjustment="5">+5</button>
             </div>
-          </div>
-        </div>
-
-        {{!-- Attributes --}}
-        <div class="attributes-panel">
-          <h3>Attributes</h3>
-          <div class="attributes-grid">
-            {{#each system.attributes as |attr key|}}
-            <div class="attribute">
-              <label>{{key}}</label>
-              <input type="number" name="system.attributes.{{key}}.value" value="{{attr.value}}" data-dtype="Number" min="0"/>
-              <span class="stones">{{attr.stones}} <i class="fas fa-gem"></i></span>
-              <button type="button" class="attribute-roll" data-attribute="{{key}}">
-                <i class="fas fa-dice-d20"></i>
-              </button>
-            </div>
-            {{/each}}
           </div>
         </div>
 
@@ -307,5 +319,13 @@
       </div>
 
     </section>
-  </div>
+
+  {{!-- Sheet Tabs (Right Side - Bookmark Style) --}}
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item" data-tab="attributes">Attributes</a>
+    <a class="item" data-tab="skills">Skills</a>
+    <a class="item" data-tab="powers">Powers</a>
+    <a class="item" data-tab="echo">Echo</a>
+    <a class="item" data-tab="equipment">Equipment</a>
+  </nav>
 </form>

@@ -115,6 +115,15 @@
         "maximum": 100
       },
       "skills": {},
+      "savingThrows": {
+        "might": 0,
+        "agility": 0,
+        "vitality": 0,
+        "intellect": 0,
+        "resolve": 0,
+        "influence": 0,
+        "wits": 0
+      },
       "conditions": [],
       "notes": {
         "schticks": "",

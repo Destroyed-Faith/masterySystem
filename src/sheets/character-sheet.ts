@@ -176,6 +176,9 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
     // Attribute rolls
     html.find('.attribute-roll').on('click', this.#onAttributeRoll.bind(this));
     
+    // Saving throw rolls
+    html.find('.saving-throw-roll').on('click', this.#onSavingThrowRoll.bind(this));
+    
     // Skill rolls
     html.find('.skill-roll').on('click', this.#onSkillRoll.bind(this));
     
@@ -232,6 +235,33 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
       undefined,
       tn,
       `${attribute.charAt(0).toUpperCase() + attribute.slice(1)} Check`
+    );
+  }
+
+  /**
+   * Handle saving throw roll
+   */
+  async #onSavingThrowRoll(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    const element = event.currentTarget;
+    const attribute = element.dataset.attribute;
+    
+    if (!attribute) return;
+    
+    // Get saving throw modifier from system data
+    const system = (this.actor as any).system;
+    const savingThrowMod = system.savingThrows?.[attribute] || 0;
+    
+    // Saving throws typically use a fixed TN (e.g., 16)
+    const tn = 16;
+    
+    await quickRoll(
+      this.actor,
+      attribute,
+      undefined,
+      tn,
+      `${attribute.charAt(0).toUpperCase() + attribute.slice(1)} Saving Throw`,
+      savingThrowMod
     );
   }
 

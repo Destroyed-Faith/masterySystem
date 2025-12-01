@@ -192,17 +192,17 @@ async function sendRollToChat(result, label, flavor, actorId) {
  * Quick roll from actor
  * Helper function to make rolling easier
  */
-export async function quickRoll(actor, attributeName, skillName, tn, label) {
+export async function quickRoll(actor, attributeName, skillName, tn, label, modifier) {
     const actorData = actor.system;
     // Get attribute value (number of dice)
     const numDice = actorData.attributes?.[attributeName]?.value || 0;
     // Get mastery rank (number to keep)
     const keepDice = actorData.mastery?.rank || 1;
-    // Get skill bonus
-    const skill = skillName ? (actorData.skills?.[skillName] || 0) : 0;
+    // Get skill bonus or use provided modifier
+    const skill = modifier !== undefined ? modifier : (skillName ? (actorData.skills?.[skillName] || 0) : 0);
     // Build label
     const rollLabel = label || `${attributeName.charAt(0).toUpperCase() + attributeName.slice(1)} Roll`;
-    const flavorText = skillName ? `with ${skillName} skill` : '';
+    const flavorText = skillName ? `with ${skillName} skill` : (modifier !== undefined ? `modifier: ${modifier >= 0 ? '+' : ''}${modifier}` : '');
     return await masteryRoll({
         numDice,
         keepDice,
