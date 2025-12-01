@@ -898,8 +898,6 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
    * Show dialog for creating a weapon
    */
   async #showWeaponCreationDialog() {
-    const { getWeaponsByType } = await import('../utils/equipment.js');
-    
     const content = `
       <form style="min-width: 500px;">
         <div class="form-group">
