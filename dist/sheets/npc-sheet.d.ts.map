@@ -1,0 +1,1 @@
+{"version":3,"file":"npc-sheet.d.ts","sourceRoot":"","sources":["../../src/sheets/npc-sheet.ts"],"names":[],"mappings":"AAAA;;;GAGG;AAEH,OAAO,EAAE,qBAAqB,EAAE,MAAM,mBAAmB,CAAC;AAE1D,qBAAa,eAAgB,SAAQ,qBAAqB;IACxD,gBAAgB;IAChB,MAAM,KAAK,cAAc,QAOxB;IAED,gBAAgB;IAChB,IAAI,QAAQ,WAEX;CACF"}
