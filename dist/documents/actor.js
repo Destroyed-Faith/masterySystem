@@ -2,7 +2,7 @@
  * Extended Actor document for Mastery System
  * Handles automatic calculation of derived values
  */
-import { calculateStones, calculateTotalStones, initializeHealthBars, updateHealthBars } from '../utils/calculations.js';
+import { calculateStones, calculateTotalStones, initializeHealthBars, updateHealthBars } from '../utils/calculations';
 export class MasteryActor extends Actor {
     /**
      * Augment the basic actor data with additional dynamic data

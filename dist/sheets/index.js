@@ -1,7 +1,7 @@
 /**
  * Sheet exports for Mastery System
  */
-export { MasteryCharacterSheet } from './character-sheet.js';
-export { MasteryNpcSheet } from './npc-sheet.js';
-export { MasteryItemSheet } from './item-sheet.js';
+export { MasteryCharacterSheet } from './character-sheet';
+export { MasteryNpcSheet } from './npc-sheet';
+export { MasteryItemSheet } from './item-sheet';
 //# sourceMappingURL=index.js.map

@@ -521,6 +521,45 @@
               <h4>{{weapon.name}}</h4>
             </div>
             <div class="item-damage">{{weapon.system.damage}}</div>
+            <div class="item-equipped">
+              <input type="checkbox" name="items.{{weapon._id}}.system.equipped" {{#if weapon.system.equipped}}checked{{/if}}/>
+            </div>
+            <div class="item-controls">
+              <a class="item-edit" title="Edit Weapon"><i class="fas fa-edit"></i></a>
+              <a class="item-delete" title="Delete Weapon"><i class="fas fa-trash"></i></a>
+            </div>
+          </li>
+          {{/each}}
+        </ol>
+
+        <div class="armor-header">
+          <h3>Armor</h3>
+          <button type="button" class="item-create" data-type="armor"><i class="fas fa-plus"></i> Add Armor</button>
+        </div>
+        <ol class="items-list">
+          {{#each items.armor as |armor|}}
+          <li class="item armor" data-item-id="{{armor._id}}">
+            <div class="item-name">
+              <h4>{{armor.name}}</h4>
+            </div>
+            <div class="item-armor-value">+{{armor.system.armorValue}} Armor</div>
+            <div class="item-equipped">
+              <input type="checkbox" name="items.{{armor._id}}.system.equipped" {{#if armor.system.equipped}}checked{{/if}}/>
+            </div>
+            <div class="item-controls">
+              <a class="item-edit" title="Edit Armor"><i class="fas fa-edit"></i></a>
+              <a class="item-delete" title="Delete Armor"><i class="fas fa-trash"></i></a>
+            </div>
+          </li>
+          {{/each}}
+        </ol>
+        <ol class="items-list">
+          {{#each items.weapons as |weapon|}}
+          <li class="item weapon" data-item-id="{{weapon._id}}">
+            <div class="item-name">
+              <h4>{{weapon.name}}</h4>
+            </div>
+            <div class="item-damage">{{weapon.system.damage}}</div>
             <div class="item-controls">
               <a class="item-edit" title="Edit Weapon"><i class="fas fa-edit"></i></a>
               <a class="item-delete" title="Delete Weapon"><i class="fas fa-trash"></i></a>

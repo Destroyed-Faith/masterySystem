@@ -620,6 +620,19 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
       return;
     }
     
+    // Special handling for weapons - show weapon selection dialog
+    if (type === 'weapon') {
+      await this.#showWeaponCreationDialog();
+      return;
+    }
+    
+    // Special handling for armor - show armor selection dialog
+    if (type === 'armor') {
+      await this.#showArmorCreationDialog();
+      return;
+    }
+    
+    // Default item creation
     const itemData = {
       name: `New ${type.charAt(0).toUpperCase() + type.slice(1)}`,
       type
@@ -633,10 +646,15 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
    */
   async #showPowerCreationDialog() {
     const { getAllMasteryTrees } = await import('../utils/mastery-trees.js');
+    const { getTreesWithPowers } = await import('../utils/powers.js');
     const trees = getAllMasteryTrees();
+    const treesWithPowers = getTreesWithPowers();
     
-    // Create tree selection options
-    const treeOptions = trees.map(tree => `<option value="${tree.name}">${tree.name}</option>`).join('');
+    // Create tree selection options (only trees that have powers)
+    const treeOptions = trees
+      .filter(tree => treesWithPowers.includes(tree.name))
+      .map(tree => `<option value="${tree.name}">${tree.name}</option>`)
+      .join('');
     
     const content = `
       <form>
@@ -647,29 +665,29 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
             ${treeOptions}
           </select>
         </div>
-        <div class="form-group">
-          <label>Power Name:</label>
-          <input type="text" name="name" id="power-name-input" placeholder="Enter power name" style="width: 100%; margin-bottom: 10px;"/>
-        </div>
-        <div class="form-group">
-          <label>Power Type:</label>
-          <select name="powerType" id="power-type-select" style="width: 100%; margin-bottom: 10px;">
-            <option value="active">Active</option>
-            <option value="buff">Buff</option>
-            <option value="utility">Utility</option>
-            <option value="passive">Passive</option>
-            <option value="reaction">Reaction</option>
-            <option value="movement">Movement</option>
+        <div class="form-group" id="power-select-group" style="display: none;">
+          <label>Power:</label>
+          <select name="power" id="power-select" style="width: 100%; margin-bottom: 10px;">
+            <option value="">-- Select a Power --</option>
           </select>
         </div>
-        <div class="form-group">
+        <div class="form-group" id="power-details" style="display: none; margin-top: 15px; padding: 10px; background: #f5f5f5; border-radius: 5px;">
+          <div id="power-description" style="margin-bottom: 10px; font-style: italic; color: #666;"></div>
+          <div id="power-level-info" style="font-size: 0.9em; color: #333;"></div>
+        </div>
+        <div class="form-group" id="level-select-group" style="display: none;">
           <label>Level:</label>
-          <input type="number" name="level" id="power-level-input" value="1" min="1" max="4" style="width: 100%; margin-bottom: 10px;"/>
+          <select name="level" id="power-level-select" style="width: 100%; margin-bottom: 10px;">
+            <option value="1">Level 1</option>
+            <option value="2">Level 2</option>
+            <option value="3">Level 3</option>
+            <option value="4">Level 4</option>
+          </select>
         </div>
       </form>
     `;
     
-    new Dialog({
+    const dialog = new Dialog({
       title: 'Create New Power',
       content: content,
       buttons: {
@@ -679,42 +697,73 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
           callback: async (html) => {
             const $html = html as JQuery;
             const tree = $html.find('#power-tree-select').val() as string;
-            const name = ($html.find('#power-name-input').val() as string) || 'New Power';
-            const powerType = ($html.find('#power-type-select').val() as string) || 'active';
-            const level = parseInt(($html.find('#power-level-input').val() as string) || '1');
+            const powerName = $html.find('#power-select').val() as string;
+            const level = parseInt(($html.find('#power-level-select').val() as string) || '1');
             
             if (!tree) {
               ui.notifications?.warn('Please select a Mastery Tree');
-              return;
+              return false;
             }
             
+            if (!powerName) {
+              ui.notifications?.warn('Please select a Power');
+              return false;
+            }
+            
+            const { getPower } = await import('../utils/powers.js');
+            const power = getPower(tree, powerName);
+            
+            if (!power) {
+              ui.notifications?.error('Power not found');
+              return false;
+            }
+            
+            const levelData = power.levels.find(l => l.level === level);
+            if (!levelData) {
+              ui.notifications?.error('Level data not found');
+              return false;
+            }
+            
+            // Map power type from the level data
+            const powerTypeMap: Record<string, string> = {
+              'Melee': 'active',
+              'Ranged': 'active',
+              'Buff': 'buff',
+              'Utility': 'utility',
+              'Passive': 'passive',
+              'Reaction': 'reaction',
+              'Movement': 'movement'
+            };
+            
+            const powerType = powerTypeMap[levelData.type] || 'active';
+            
             const itemData = {
-              name: name,
+              name: powerName,
               type: 'special',
               system: {
                 tree: tree,
                 powerType: powerType,
                 level: level,
-                description: '',
+                description: power.description,
                 tags: [],
-                range: '0m',
-                aoe: '',
-                duration: 'instant',
-                effect: '',
-                specials: [],
-                ap: 30,
+                range: levelData.range,
+                aoe: levelData.aoe === '—' ? '' : levelData.aoe,
+                duration: levelData.duration,
+                effect: levelData.effect,
+                specials: levelData.special && levelData.special !== '—' ? [levelData.special] : [],
+                ap: 30, // Default, can be calculated later
                 cost: {
-                  action: true,
-                  movement: false,
-                  reaction: false,
+                  action: powerType === 'active' || powerType === 'buff' || powerType === 'utility',
+                  movement: powerType === 'movement',
+                  reaction: powerType === 'reaction',
                   stones: 0,
                   charges: 0
                 },
                 roll: {
                   attribute: 'might',
                   tn: 0,
-                  damage: '',
-                  healing: '',
+                  damage: levelData.effect.includes('damage') ? levelData.effect : '',
+                  healing: levelData.effect.includes('Heal') ? levelData.effect : '',
                   raises: ''
                 },
                 requirements: {
@@ -725,17 +774,381 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
             };
             
             await this.actor.createEmbeddedDocuments('Item', [itemData]);
-            ui.notifications?.info(`Created power: ${name} from ${tree} tree`);
+            ui.notifications?.info(`Created power: ${powerName} (Level ${level}) from ${tree} tree`);
+            return true;
           }
         },
         cancel: {
           icon: '<i class="fas fa-times"></i>',
           label: 'Cancel',
-          callback: () => {}
+          callback: () => false
         }
       },
-      default: 'create'
-    }).render(true);
+      default: 'create',
+      render: async (html: JQuery) => {
+        // Register event handlers after dialog is rendered
+        const treeSelect = html.find('#power-tree-select')[0] as HTMLSelectElement;
+        const powerSelect = html.find('#power-select')[0] as HTMLSelectElement;
+        const powerSelectGroup = html.find('#power-select-group');
+        const powerDetails = html.find('#power-details');
+        const powerDescription = html.find('#power-description');
+        const powerLevelInfo = html.find('#power-level-info');
+        const levelSelect = html.find('#power-level-select')[0] as HTMLSelectElement;
+        const levelSelectGroup = html.find('#level-select-group');
+        
+        let powersData: Record<string, any> = {};
+        
+        treeSelect?.addEventListener('change', async function() {
+          const treeName = this.value;
+          if (powerSelect) {
+            powerSelect.innerHTML = '<option value="">-- Select a Power --</option>';
+          }
+          powerSelectGroup.hide();
+          powerDetails.hide();
+          levelSelectGroup.hide();
+          
+          if (!treeName) return;
+          
+          try {
+            const { getPowersByTree } = await import('../utils/powers.js');
+            const powers = getPowersByTree(treeName);
+            powersData = {};
+            
+            if (powers.length === 0) {
+              if (powerSelect) {
+                powerSelect.innerHTML = '<option value="">No powers available for this tree</option>';
+              }
+              powerSelectGroup.show();
+              return;
+            }
+            
+            powers.forEach(power => {
+              powersData[power.name] = power;
+              if (powerSelect) {
+                const option = document.createElement('option');
+                option.value = power.name;
+                option.textContent = power.name;
+                powerSelect.appendChild(option);
+              }
+            });
+            
+            powerSelectGroup.show();
+          } catch (error) {
+            console.error('Error loading powers:', error);
+          }
+        });
+        
+        powerSelect?.addEventListener('change', function() {
+          const powerName = this.value;
+          powerDetails.hide();
+          levelSelectGroup.hide();
+          
+          if (!powerName || !powersData[powerName]) return;
+          
+          const power = powersData[powerName];
+          powerDescription.text(power.description);
+          
+          // Show level info
+          let levelInfo = '<strong>Available Levels:</strong><br>';
+          power.levels.forEach((level: any) => {
+            levelInfo += `Level ${level.level}: ${level.type} - ${level.effect}`;
+            if (level.special && level.special !== '—') {
+              levelInfo += ` (${level.special})`;
+            }
+            levelInfo += '<br>';
+          });
+          powerLevelInfo.html(levelInfo);
+          
+          powerDetails.show();
+          levelSelectGroup.show();
+        });
+        
+        levelSelect?.addEventListener('change', function() {
+          const powerName = powerSelect.value;
+          const level = parseInt(this.value);
+          
+          if (!powerName || !powersData[powerName]) return;
+          
+          const power = powersData[powerName];
+          const levelData = power.levels.find((l: any) => l.level === level);
+          
+          if (levelData) {
+            // Update level info to show selected level details
+            let levelInfo = '<strong>Selected Level ' + level + ':</strong><br>';
+            levelInfo += `Type: ${levelData.type}<br>`;
+            levelInfo += `Range: ${levelData.range}<br>`;
+            if (levelData.aoe && levelData.aoe !== '—') {
+              levelInfo += `AoE: ${levelData.aoe}<br>`;
+            }
+            levelInfo += `Duration: ${levelData.duration}<br>`;
+            levelInfo += `Effect: ${levelData.effect}<br>`;
+            if (levelData.special && levelData.special !== '—') {
+              levelInfo += `Special: ${levelData.special}<br>`;
+            }
+            powerLevelInfo.html(levelInfo);
+          }
+        });
+      }
+    });
+    
+    dialog.render(true);
+  }
+
+  /**
+   * Show dialog for creating a weapon
+   */
+  async #showWeaponCreationDialog() {
+    const { getWeaponsByType } = await import('../utils/equipment.js');
+    
+    const content = `
+      <form style="min-width: 500px;">
+        <div class="form-group">
+          <label>Weapon Type:</label>
+          <select name="weaponType" id="weapon-type-select" style="width: 100%; margin-bottom: 10px;">
+            <option value="">-- Select Weapon Type --</option>
+            <option value="melee">Melee Weapons</option>
+            <option value="ranged">Ranged Weapons</option>
+          </select>
+        </div>
+        <div class="form-group" id="weapon-select-group" style="display: none;">
+          <label>Weapon:</label>
+          <select name="weapon" id="weapon-select" style="width: 100%; margin-bottom: 10px;">
+            <option value="">-- Select a Weapon --</option>
+          </select>
+        </div>
+        <div class="form-group" id="weapon-details" style="display: none; margin-top: 15px; padding: 10px; background: #f5f5f5; border-radius: 5px;">
+          <div id="weapon-description" style="margin-bottom: 10px; font-style: italic; color: #666;"></div>
+          <div id="weapon-stats" style="font-size: 0.9em; color: #333;"></div>
+        </div>
+      </form>
+    `;
+    
+    const dialog = new Dialog({
+      title: 'Create New Weapon',
+      content: content,
+      buttons: {
+        create: {
+          icon: '<i class="fas fa-check"></i>',
+          label: 'Create',
+          callback: async (html) => {
+            const $html = html as JQuery;
+            const weaponName = $html.find('#weapon-select').val() as string;
+            
+            if (!weaponName) {
+              ui.notifications?.warn('Please select a Weapon');
+              return false;
+            }
+            
+            const { getAllWeapons } = await import('../utils/equipment.js');
+            const weapons = getAllWeapons();
+            const weapon = weapons.find(w => w.name === weaponName);
+            
+            if (!weapon) {
+              ui.notifications?.error('Weapon not found');
+              return false;
+            }
+            
+            const itemData = {
+              name: weapon.name,
+              type: 'weapon',
+              system: {
+                weaponType: weapon.weaponType,
+                damage: weapon.damage,
+                range: weapon.weaponType === 'ranged' ? '16m' : '0m',
+                specials: weapon.special && weapon.special !== '—' ? [weapon.special] : [],
+                equipped: false,
+                description: weapon.description || ''
+              }
+            };
+            
+            await this.actor.createEmbeddedDocuments('Item', [itemData]);
+            ui.notifications?.info(`Created weapon: ${weapon.name}`);
+            return true;
+          }
+        },
+        cancel: {
+          icon: '<i class="fas fa-times"></i>',
+          label: 'Cancel',
+          callback: () => false
+        }
+      },
+      default: 'create',
+      render: async (html: JQuery) => {
+        const weaponTypeSelect = html.find('#weapon-type-select')[0] as HTMLSelectElement;
+        const weaponSelect = html.find('#weapon-select')[0] as HTMLSelectElement;
+        const weaponSelectGroup = html.find('#weapon-select-group');
+        const weaponDetails = html.find('#weapon-details');
+        const weaponDescription = html.find('#weapon-description');
+        const weaponStats = html.find('#weapon-stats');
+        
+        weaponTypeSelect?.addEventListener('change', async function() {
+          const type = this.value as 'melee' | 'ranged' | '';
+          if (weaponSelect) {
+            weaponSelect.innerHTML = '<option value="">-- Select a Weapon --</option>';
+          }
+          weaponSelectGroup.hide();
+          weaponDetails.hide();
+          
+          if (!type) return;
+          
+          const { getWeaponsByType } = await import('../utils/equipment.js');
+          const weapons = getWeaponsByType(type as 'melee' | 'ranged');
+          
+          weapons.forEach(weapon => {
+            if (weaponSelect) {
+              const option = document.createElement('option');
+              option.value = weapon.name;
+              option.textContent = weapon.name;
+              weaponSelect.appendChild(option);
+            }
+          });
+          
+          weaponSelectGroup.show();
+        });
+        
+        weaponSelect?.addEventListener('change', async function() {
+          const weaponName = this.value;
+          weaponDetails.hide();
+          
+          if (!weaponName) return;
+          
+          const { getAllWeapons } = await import('../utils/equipment.js');
+          const weapons = getAllWeapons();
+          const weapon = weapons.find(w => w.name === weaponName);
+          
+          if (!weapon) return;
+          
+          weaponDescription.text(weapon.description || '');
+          
+          let stats = '<strong>Weapon Stats:</strong><br>';
+          stats += `Damage: ${weapon.damage}<br>`;
+          stats += `Hands: ${weapon.hands}<br>`;
+          stats += `Type: ${weapon.weaponType}<br>`;
+          if (weapon.innateAbilities.length > 0) {
+            stats += `Innate Abilities: ${weapon.innateAbilities.join(', ')}<br>`;
+          }
+          if (weapon.special && weapon.special !== '—') {
+            stats += `Special: ${weapon.special}<br>`;
+          }
+          weaponStats.html(stats);
+          
+          weaponDetails.show();
+        });
+      }
+    });
+    
+    dialog.render(true);
+  }
+
+  /**
+   * Show dialog for creating armor
+   */
+  async #showArmorCreationDialog() {
+    const { getAllArmor } = await import('../utils/equipment.js');
+    const armorList = getAllArmor();
+    
+    const armorOptions = armorList.map(armor => 
+      `<option value="${armor.name}">${armor.name} (${armor.type})</option>`
+    ).join('');
+    
+    const content = `
+      <form style="min-width: 500px;">
+        <div class="form-group">
+          <label>Armor:</label>
+          <select name="armor" id="armor-select" style="width: 100%; margin-bottom: 10px;">
+            <option value="">-- Select Armor --</option>
+            ${armorOptions}
+          </select>
+        </div>
+        <div class="form-group" id="armor-details" style="display: none; margin-top: 15px; padding: 10px; background: #f5f5f5; border-radius: 5px;">
+          <div id="armor-description" style="margin-bottom: 10px; font-style: italic; color: #666;"></div>
+          <div id="armor-stats" style="font-size: 0.9em; color: #333;"></div>
+        </div>
+      </form>
+    `;
+    
+    const dialog = new Dialog({
+      title: 'Create New Armor',
+      content: content,
+      buttons: {
+        create: {
+          icon: '<i class="fas fa-check"></i>',
+          label: 'Create',
+          callback: async (html) => {
+            const $html = html as JQuery;
+            const armorName = $html.find('#armor-select').val() as string;
+            
+            if (!armorName) {
+              ui.notifications?.warn('Please select Armor');
+              return false;
+            }
+            
+            const { getAllArmor } = await import('../utils/equipment.js');
+            const armorList = getAllArmor();
+            const armor = armorList.find(a => a.name === armorName);
+            
+            if (!armor) {
+              ui.notifications?.error('Armor not found');
+              return false;
+            }
+            
+            const itemData = {
+              name: armor.name,
+              type: 'armor',
+              system: {
+                type: armor.type,
+                armorValue: armor.armorValue,
+                equipped: false,
+                description: armor.description
+              }
+            };
+            
+            await this.actor.createEmbeddedDocuments('Item', [itemData]);
+            ui.notifications?.info(`Created armor: ${armor.name}`);
+            return true;
+          }
+        },
+        cancel: {
+          icon: '<i class="fas fa-times"></i>',
+          label: 'Cancel',
+          callback: () => false
+        }
+      },
+      default: 'create',
+      render: async (html: JQuery) => {
+        const armorSelect = html.find('#armor-select')[0] as HTMLSelectElement;
+        const armorDetails = html.find('#armor-details');
+        const armorDescription = html.find('#armor-description');
+        const armorStats = html.find('#armor-stats');
+        
+        armorSelect?.addEventListener('change', async function() {
+          const armorName = this.value;
+          armorDetails.hide();
+          
+          if (!armorName) return;
+          
+          const { getAllArmor } = await import('../utils/equipment.js');
+          const armorList = getAllArmor();
+          const armor = armorList.find(a => a.name === armorName);
+          
+          if (!armor) return;
+          
+          armorDescription.text(armor.description);
+          
+          let stats = '<strong>Armor Stats:</strong><br>';
+          stats += `Armor Value: +${armor.armorValue}<br>`;
+          stats += `Type: ${armor.type}<br>`;
+          if (armor.skillPenalty && armor.skillPenalty !== '—') {
+            stats += `Skill Penalty: ${armor.skillPenalty}<br>`;
+          }
+          armorStats.html(stats);
+          
+          armorDetails.show();
+        });
+      }
+    });
+    
+    dialog.render(true);
   }
 
   /**
