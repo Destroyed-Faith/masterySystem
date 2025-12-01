@@ -35,16 +35,12 @@ Hooks.once('init', async function () {
         label: 'Mastery NPC Sheet'
     });
     console.log('Mastery System | Registered NPC Sheet');
-    // Unregister core sheets after registering our own (to ensure ours are used)
-    foundry.documents.collections.Actors.unregisterSheet('core', foundry.appv1.sheets.ActorSheet);
-    console.log('Mastery System | Unregistered core ActorSheet');
     // Register Item sheet
     foundry.documents.collections.Items.registerSheet('mastery-system', MasteryItemSheet, {
         makeDefault: true,
         label: 'Mastery Item Sheet'
     });
-    // Unregister core item sheet
-    foundry.documents.collections.Items.unregisterSheet('core', foundry.appv1.sheets.ItemSheet);
+    console.log('Mastery System | Registered Item Sheet');
     // Register system settings
     registerSystemSettings();
     // Register Handlebars helpers
@@ -155,7 +151,7 @@ console.log(`
 ║  • Powers & Mastery Trees (L1-L4)                         ║
 ║  • Divine Clash late-game combat                          ║
 ║                                                           ║
-║  Version: 0.0.13 (Alpha)                                   ║
+║  Version: 0.0.14 (Alpha)                                   ║
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
 `);

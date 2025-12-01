@@ -5,7 +5,7 @@
 
 import { MasteryActor } from '../documents/actor.js';
 import { quickRoll } from '../dice/roll-handler.js';
-import { getSkillsByCategory, SKILL_CATEGORIES } from '../utils/skills.js';
+import { getSkillsByCategory, SKILL_CATEGORIES, SKILLS } from '../utils/skills.js';
 import { getAllMasteryTrees } from '../utils/mastery-trees.js';
 import { getAllSpellSchools } from '../utils/spell-schools.js';
 import { getAllRituals } from '../utils/rituals.js';
@@ -190,12 +190,11 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
    * Prepare skills for display, grouped by category
    */
   #prepareSkills(skills: Record<string, number>) {
-    const { SKILLS } = require('../utils/skills.js');
     const skillsByCategory = getSkillsByCategory();
     const result: Record<string, any[]> = {};
     
     // Initialize all categories
-    for (const category of Object.values(SKILL_CATEGORIES)) {
+    for (const category of Object.values(SKILL_CATEGORIES) as string[]) {
       result[category] = [];
     }
     
@@ -244,7 +243,6 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
    */
   #normalizeSkillKey(skillName: string): string {
     // Try to find matching skill by name first
-    const { SKILLS } = require('../utils/skills.js');
     for (const [key, skill] of Object.entries(SKILLS)) {
       const skillDef = skill as any;
       if (skillDef?.name?.toLowerCase() === skillName.toLowerCase()) {
@@ -432,15 +430,16 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
     if (!skillKey) return;
     
     // Get skill definition to determine which attribute to use
-    const { getSkill, SKILLS } = await import('../utils/skills.js');
+    const { getSkill } = await import('../utils/skills.js');
     let skillDef = getSkill(skillKey);
     
     // If not found by key, try to find by name
     if (!skillDef) {
       for (const skill of Object.values(SKILLS)) {
-        const normalizedKey = this.#normalizeSkillKey(skill.name);
+        const sk = skill as any;
+        const normalizedKey = this.#normalizeSkillKey(sk.name);
         if (normalizedKey === skillKey) {
-          skillDef = skill;
+          skillDef = sk;
           break;
         }
       }
