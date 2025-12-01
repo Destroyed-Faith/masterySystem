@@ -371,16 +371,25 @@
   background: #8b0000;
   border: none;
   color: #fff;
-  padding: 4px 8px;
+  padding: 2px 4px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 6px;
   transition: all 0.2s;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .mastery-system.sheet.actor.character .circle-center button:hover {
   background: #a00000;
   transform: scale(1.1);
+}
+
+.mastery-system.sheet.actor.character .circle-center button i {
+  font-size: 8px;
 }
 
 /* Stones Ring around circle - 3D perspective */
