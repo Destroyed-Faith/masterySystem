@@ -1,0 +1,34 @@
+{
+  "name": "mastery-system",
+  "version": "1.0.0",
+  "description": "Foundry VTT system for Mastery System / Destroyed Faith",
+  "main": "dist/module.js",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "clean": "rimraf dist",
+    "rebuild": "npm run clean && npm run build",
+    "lint": "eslint src --ext .ts",
+    "format": "prettier --write \"src/**/*.ts\""
+  },
+  "keywords": [
+    "foundry-vtt",
+    "tabletop",
+    "rpg",
+    "mastery-system",
+    "destroyed-faith"
+  ],
+  "author": "Daniel Rodrigo Navarro Melendo",
+  "license": "SEE LICENSE IN LICENSE",
+  "devDependencies": {
+    "@league-of-foundry-developers/foundry-vtt-types": "^13.0.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {}
+}
+

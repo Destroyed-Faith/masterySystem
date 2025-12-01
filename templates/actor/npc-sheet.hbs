@@ -1,0 +1,115 @@
+<form class="{{cssClass}} flexcol" autocomplete="off">
+  {{!-- Sheet Header --}}
+  <header class="sheet-header">
+    <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" height="80" width="80"/>
+    <div class="header-fields">
+      <h1 class="charname"><input name="name" type="text" value="{{actor.name}}" placeholder="NPC Name"/></h1>
+      <div class="resource-row">
+        <div class="resource">
+          <label>Type:</label>
+          <input type="text" name="system.bio.type" value="{{system.bio.type}}" placeholder="Monster, NPC, etc."/>
+        </div>
+        <div class="resource">
+          <label>Faction:</label>
+          <input type="text" name="system.bio.faction" value="{{system.bio.faction}}" placeholder="Red Priests, etc."/>
+        </div>
+        <div class="resource">
+          <label>Mastery Rank:</label>
+          <input type="number" name="system.mastery.rank" value="{{system.mastery.rank}}" data-dtype="Number" min="1" max="8"/>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  {{!-- Sheet Body --}}
+  <section class="sheet-body">
+    
+    {{!-- Combat Stats --}}
+    <div class="combat-panel">
+      <h3>Combat</h3>
+      <div class="combat-grid">
+        <div class="combat-stat">
+          <label>Initiative:</label>
+          <input type="number" name="system.combat.initiative" value="{{system.combat.initiative}}" data-dtype="Number"/>
+        </div>
+        <div class="combat-stat">
+          <label>Evade:</label>
+          <input type="number" name="system.combat.evade" value="{{system.combat.evade}}" data-dtype="Number"/>
+        </div>
+        <div class="combat-stat">
+          <label>Armor:</label>
+          <input type="number" name="system.combat.armor" value="{{system.combat.armor}}" data-dtype="Number"/>
+        </div>
+        <div class="combat-stat">
+          <label>Speed:</label>
+          <input type="number" name="system.combat.speed" value="{{system.combat.speed}}" data-dtype="Number"/>
+        </div>
+      </div>
+    </div>
+
+    {{!-- Health --}}
+    <div class="health-panel">
+      <h3>Health</h3>
+      <div class="health-display">
+        <label>HP:</label>
+        {{#each system.health.bars as |bar index|}}
+        <div class="health-bar {{#if (eq ../system.health.currentBar index)}}active{{/if}}">
+          <input type="number" name="system.health.bars.{{index}}.current" value="{{bar.current}}" data-dtype="Number"/> / 
+          <input type="number" name="system.health.bars.{{index}}.max" value="{{bar.max}}" data-dtype="Number"/>
+          <span class="bar-penalty">({{bar.penalty}})</span>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+
+    {{!-- Attributes --}}
+    <div class="attributes-panel">
+      <h3>Attributes</h3>
+      <div class="attributes-grid">
+        {{#each system.attributes as |attr key|}}
+        <div class="attribute">
+          <label>{{key}}</label>
+          <input type="number" name="system.attributes.{{key}}.value" value="{{attr.value}}" data-dtype="Number" min="0"/>
+          <span class="stones">{{attr.stones}} <i class="fas fa-gem"></i></span>
+          <button type="button" class="attribute-roll" data-attribute="{{key}}">
+            <i class="fas fa-dice-d20"></i>
+          </button>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+
+    {{!-- Skills --}}
+    <div class="skills-panel">
+      <div class="skills-header">
+        <h3>Skills</h3>
+        <button type="button" class="skill-add"><i class="fas fa-plus"></i> Add</button>
+      </div>
+      <div class="skills-list">
+        {{#each skills as |skill|}}
+        <div class="skill">
+          <span class="skill-name">{{skill.label}}</span>
+          <input type="number" name="system.skills.{{skill.name}}" value="{{skill.value}}" data-dtype="Number" min="0"/>
+          <button type="button" class="skill-roll" data-skill="{{skill.name}}">
+            <i class="fas fa-dice-d20"></i>
+          </button>
+          <button type="button" class="skill-delete" data-skill="{{skill.name}}">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+
+    {{!-- Notes --}}
+    <div class="notes-panel">
+      <label>Description:</label>
+      {{editor system.bio.description target="system.bio.description" button=true owner=owner editable=editable}}
+      
+      <label>Notes:</label>
+      <textarea name="system.notes">{{system.notes}}</textarea>
+    </div>
+
+  </section>
+</form>
+

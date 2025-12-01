@@ -1,0 +1,170 @@
+<form class="{{cssClass}} flexcol" autocomplete="off">
+  {{!-- Sheet Header --}}
+  <header class="sheet-header">
+    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" height="64" width="64"/>
+    <div class="header-fields">
+      <h1 class="item-name"><input name="name" type="text" value="{{item.name}}" placeholder="Power Name"/></h1>
+      <div class="item-subtitle">
+        <div class="resource">
+          <label>Type:</label>
+          <select name="system.powerType">
+            {{#each powerTypes as |type|}}
+            <option value="{{type}}" {{#if (eq type ../system.powerType)}}selected{{/if}}>{{type}}</option>
+            {{/each}}
+          </select>
+        </div>
+        <div class="resource">
+          <label>Level:</label>
+          <input type="number" name="system.level" value="{{system.level}}" data-dtype="Number" min="1" max="4"/>
+        </div>
+        <div class="resource">
+          <label>Tree:</label>
+          <input type="text" name="system.tree" value="{{system.tree}}" placeholder="Crusader, Grim Hunter, etc."/>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  {{!-- Sheet Tabs --}}
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item" data-tab="description">Description</a>
+    <a class="item" data-tab="mechanics">Mechanics</a>
+    <a class="item" data-tab="cost">Cost</a>
+  </nav>
+
+  {{!-- Sheet Body --}}
+  <section class="sheet-body">
+    
+    {{!-- Description Tab --}}
+    <div class="tab description" data-group="primary" data-tab="description">
+      <div class="editor-content">
+        {{editor system.description target="system.description" button=true owner=owner editable=editable}}
+      </div>
+    </div>
+
+    {{!-- Mechanics Tab --}}
+    <div class="tab mechanics" data-group="primary" data-tab="mechanics">
+      
+      <div class="form-group">
+        <label>Range:</label>
+        <input type="text" name="system.range" value="{{system.range}}" placeholder="0m, 8m, 12m, etc."/>
+      </div>
+
+      <div class="form-group">
+        <label>AoE:</label>
+        <input type="text" name="system.aoe" value="{{system.aoe}}" placeholder="Radius 2m, Cone 90°, etc."/>
+      </div>
+
+      <div class="form-group">
+        <label>Duration:</label>
+        <input type="text" name="system.duration" value="{{system.duration}}" placeholder="Instant, Mastery Rank Rounds, etc."/>
+      </div>
+
+      <div class="form-group">
+        <label>Effect:</label>
+        <textarea name="system.effect" rows="3">{{system.effect}}</textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Roll Attribute:</label>
+        <select name="system.roll.attribute">
+          {{#each attributes as |attr|}}
+          <option value="{{attr}}" {{#if (eq attr ../system.roll.attribute)}}selected{{/if}}>{{attr}}</option>
+          {{/each}}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Target Number (TN):</label>
+        <input type="number" name="system.roll.tn" value="{{system.roll.tn}}" data-dtype="Number"/>
+      </div>
+
+      <div class="form-group">
+        <label>Damage Formula:</label>
+        <input type="text" name="system.roll.damage" value="{{system.roll.damage}}" placeholder="2d8, 4d8, etc."/>
+      </div>
+
+      <div class="form-group">
+        <label>Healing Formula:</label>
+        <input type="text" name="system.roll.healing" value="{{system.roll.healing}}" placeholder="1d8, 2d8, etc."/>
+      </div>
+
+      <div class="form-group">
+        <label>Raises:</label>
+        <textarea name="system.roll.raises" rows="2">{{system.roll.raises}}</textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Tags:</label>
+        <div class="tags-list">
+          {{#each system.tags as |tag index|}}
+          <span class="tag">
+            {{tag}}
+            <button type="button" class="tag-remove" data-index="{{index}}">×</button>
+          </span>
+          {{/each}}
+          <button type="button" class="tag-add"><i class="fas fa-plus"></i> Add Tag</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Special Effects:</label>
+        <div class="specials-list">
+          {{#each system.specials as |special index|}}
+          <span class="special">
+            {{special}}
+            <button type="button" class="special-remove" data-index="{{index}}">×</button>
+          </span>
+          {{/each}}
+          <button type="button" class="special-add"><i class="fas fa-plus"></i> Add Special</button>
+        </div>
+      </div>
+
+    </div>
+
+    {{!-- Cost Tab --}}
+    <div class="tab cost" data-group="primary" data-tab="cost">
+      
+      <div class="form-group">
+        <label><input type="checkbox" name="system.cost.action" {{#if system.cost.action}}checked{{/if}}/> Requires Attack Action</label>
+      </div>
+
+      <div class="form-group">
+        <label><input type="checkbox" name="system.cost.movement" {{#if system.cost.movement}}checked{{/if}}/> Requires Movement</label>
+      </div>
+
+      <div class="form-group">
+        <label><input type="checkbox" name="system.cost.reaction" {{#if system.cost.reaction}}checked{{/if}}/> Requires Reaction</label>
+      </div>
+
+      <div class="form-group">
+        <label>Stone Cost:</label>
+        <input type="number" name="system.cost.stones" value="{{system.cost.stones}}" data-dtype="Number" min="0"/>
+      </div>
+
+      <div class="form-group">
+        <label>Charges:</label>
+        <input type="number" name="system.cost.charges" value="{{system.cost.charges}}" data-dtype="Number" min="0"/>
+      </div>
+
+      <div class="form-group">
+        <label>AP Value (Design):</label>
+        <input type="number" name="system.ap" value="{{system.ap}}" data-dtype="Number" min="0"/>
+        <small>Internal balance metric (30/60/90/120 for Actives, 20/40/60/80 for Utilities)</small>
+      </div>
+
+      <div class="form-group">
+        <label>Mastery Rank Requirement:</label>
+        <input type="number" name="system.requirements.masteryRank" value="{{system.requirements.masteryRank}}" data-dtype="Number" min="1" max="8"/>
+      </div>
+
+      <div class="form-group">
+        <label>Other Requirements:</label>
+        <textarea name="system.requirements.other" rows="2">{{system.requirements.other}}</textarea>
+      </div>
+
+    </div>
+
+  </section>
+</form>
+

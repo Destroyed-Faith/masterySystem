@@ -1,0 +1,145 @@
+/**
+ * Character sheet specific styles for Mastery System
+ */
+
+/* ========== Character Sheet Specific ========== */
+.mastery-system.sheet.actor.character {
+  min-width: 720px;
+  min-height: 800px;
+}
+
+.mastery-system.sheet.actor.character .window-content {
+  padding: 0;
+}
+
+/* ========== Powers Tab Specific ========== */
+.powers-header,
+.schticks-header,
+.artifacts-header,
+.weapons-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 0 10px 0;
+}
+
+.powers-header h3,
+.schticks-header h3,
+.artifacts-header h3,
+.weapons-header h3 {
+  margin: 0;
+  color: #8b0000;
+  font-size: 18px;
+}
+
+.items-list .power {
+  background: linear-gradient(to right, #fff 0%, #ffe4e1 100%);
+}
+
+.items-list .schtick {
+  background: linear-gradient(to right, #fff 0%, #e6f3ff 100%);
+}
+
+.items-list .artifact {
+  background: linear-gradient(to right, #fff 0%, #fff8dc 100%);
+}
+
+.items-list .item-tree {
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
+}
+
+.items-list .item-type {
+  font-size: 11px;
+  color: #8b0000;
+  text-transform: uppercase;
+  background: #f0f0f0;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.items-list .item-description {
+  flex: 1;
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
+}
+
+.items-list .item-damage {
+  font-size: 13px;
+  font-weight: bold;
+  color: #8b0000;
+}
+
+.items-list .item-equipped {
+  display: flex;
+  align-items: center;
+}
+
+/* ========== NPC Sheet Specific ========== */
+.mastery-system.sheet.actor.npc {
+  min-width: 600px;
+  min-height: 700px;
+}
+
+.mastery-system.sheet.actor.npc .sheet-body {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* ========== Item Sheet Specific ========== */
+.mastery-system.sheet.item {
+  min-width: 520px;
+  min-height: 480px;
+}
+
+.mastery-system.sheet.item .sheet-header {
+  padding: 15px;
+}
+
+.mastery-system.sheet.item .item-subtitle {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+/* ========== Scrollbars ========== */
+.mastery-system ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.mastery-system ::-webkit-scrollbar-track {
+  background: #f0f0f0;
+}
+
+.mastery-system ::-webkit-scrollbar-thumb {
+  background: #8b0000;
+  border-radius: 4px;
+}
+
+.mastery-system ::-webkit-scrollbar-thumb:hover {
+  background: #a00000;
+}
+
+/* ========== Tooltips ========== */
+.mastery-system [title] {
+  position: relative;
+}
+
+/* ========== Print Styles ========== */
+@media print {
+  .mastery-system .sheet-header {
+    background: #fff;
+    color: #000;
+    border-bottom: 2px solid #000;
+  }
+  
+  .mastery-system button,
+  .mastery-system .item-controls {
+    display: none;
+  }
+}
+

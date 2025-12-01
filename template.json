@@ -1,0 +1,307 @@
+{
+  "Actor": {
+    "types": ["character", "npc", "summon", "divine"],
+    "templates": {
+      "base": {
+        "bio": {
+          "name": "",
+          "description": ""
+        },
+        "attributes": {
+          "might": {
+            "value": 2,
+            "stones": 0
+          },
+          "agility": {
+            "value": 2,
+            "stones": 0
+          },
+          "vitality": {
+            "value": 2,
+            "stones": 0
+          },
+          "intellect": {
+            "value": 2,
+            "stones": 0
+          },
+          "resolve": {
+            "value": 2,
+            "stones": 0
+          },
+          "influence": {
+            "value": 2,
+            "stones": 0
+          },
+          "wits": {
+            "value": 2,
+            "stones": 0
+          }
+        },
+        "mastery": {
+          "rank": 2,
+          "points": 0,
+          "experience": 0
+        }
+      },
+      "combatant": {
+        "combat": {
+          "initiative": 0,
+          "evade": 10,
+          "armor": 0,
+          "speed": 6
+        },
+        "resources": {
+          "reactions": {
+            "value": 1,
+            "max": 1
+          },
+          "movement": {
+            "value": 1,
+            "max": 1
+          },
+          "actions": {
+            "value": 1,
+            "max": 1
+          }
+        }
+      }
+    },
+    "character": {
+      "templates": ["base", "combatant"],
+      "bio": {
+        "echo": "",
+        "concept": "",
+        "appearance": "",
+        "notes": ""
+      },
+      "stones": {
+        "total": 0,
+        "vitality": 0,
+        "current": 0,
+        "maximum": 0
+      },
+      "health": {
+        "bars": [
+          {
+            "name": "Healthy",
+            "max": 0,
+            "current": 0,
+            "penalty": 0
+          },
+          {
+            "name": "Bruised",
+            "max": 0,
+            "current": 0,
+            "penalty": -1
+          },
+          {
+            "name": "Injured",
+            "max": 0,
+            "current": 0,
+            "penalty": -2
+          },
+          {
+            "name": "Wounded",
+            "max": 0,
+            "current": 0,
+            "penalty": -4
+          }
+        ],
+        "currentBar": 0,
+        "tempHP": 0
+      },
+      "stress": {
+        "current": 0,
+        "maximum": 100
+      },
+      "skills": {},
+      "conditions": [],
+      "notes": {
+        "schticks": "",
+        "faithFractures": "",
+        "background": ""
+      }
+    },
+    "npc": {
+      "templates": ["base", "combatant"],
+      "bio": {
+        "type": "",
+        "faction": ""
+      },
+      "health": {
+        "bars": [
+          {
+            "name": "Healthy",
+            "max": 0,
+            "current": 0,
+            "penalty": 0
+          }
+        ],
+        "currentBar": 0,
+        "tempHP": 0
+      },
+      "skills": {},
+      "conditions": [],
+      "notes": ""
+    },
+    "summon": {
+      "bio": {
+        "name": "",
+        "summonType": "",
+        "duration": "",
+        "description": ""
+      },
+      "attributes": {
+        "might": {
+          "value": 2
+        },
+        "agility": {
+          "value": 2
+        },
+        "vitality": {
+          "value": 2
+        },
+        "wits": {
+          "value": 2
+        }
+      },
+      "health": {
+        "current": 10,
+        "maximum": 10
+      },
+      "combat": {
+        "evade": 10,
+        "armor": 0,
+        "speed": 6
+      },
+      "abilities": [],
+      "notes": ""
+    },
+    "divine": {
+      "bio": {
+        "name": "",
+        "title": "",
+        "description": ""
+      },
+      "stones": {
+        "vitality": 10,
+        "pool": 20
+      },
+      "divineClash": {
+        "attack": 0,
+        "defense": 0,
+        "overhang": 0
+      },
+      "artifacts": [],
+      "notes": ""
+    }
+  },
+  "Item": {
+    "types": ["special", "masteryNode", "echo", "schtick", "artifact", "condition", "weapon", "armor"],
+    "templates": {
+      "base": {
+        "description": ""
+      }
+    },
+    "special": {
+      "templates": ["base"],
+      "powerType": "active",
+      "level": 1,
+      "tree": "",
+      "tags": [],
+      "range": "0m",
+      "aoe": "",
+      "duration": "instant",
+      "effect": "",
+      "specials": [],
+      "ap": 30,
+      "cost": {
+        "action": true,
+        "movement": false,
+        "reaction": false,
+        "stones": 0,
+        "charges": 0
+      },
+      "roll": {
+        "attribute": "might",
+        "tn": 0,
+        "damage": "",
+        "healing": "",
+        "raises": ""
+      },
+      "requirements": {
+        "masteryRank": 1,
+        "other": ""
+      }
+    },
+    "masteryNode": {
+      "templates": ["base"],
+      "tree": "",
+      "level": 1,
+      "bonus": "",
+      "requirements": {
+        "masteryRank": 1,
+        "prerequisites": []
+      }
+    },
+    "echo": {
+      "templates": ["base"],
+      "echoType": "human",
+      "traits": [],
+      "bonuses": {
+        "attributes": {},
+        "skills": {},
+        "other": ""
+      },
+      "options": []
+    },
+    "schtick": {
+      "templates": ["base"],
+      "manifestation": "",
+      "masteryRank": 1,
+      "notes": ""
+    },
+    "artifact": {
+      "templates": ["base"],
+      "level": 1,
+      "equipped": false,
+      "effects": [],
+      "bonuses": {
+        "attack": 0,
+        "damage": "",
+        "defense": 0,
+        "specials": []
+      },
+      "lore": "",
+      "requirements": {
+        "stones": 0,
+        "masteryRank": 1
+      }
+    },
+    "condition": {
+      "templates": ["base"],
+      "conditionType": "bleeding",
+      "value": 0,
+      "diminishing": true,
+      "duration": "rounds",
+      "effect": "",
+      "save": "body",
+      "removal": ""
+    },
+    "weapon": {
+      "templates": ["base"],
+      "weaponType": "melee",
+      "damage": "1d8",
+      "range": "0m",
+      "specials": [],
+      "equipped": false
+    },
+    "armor": {
+      "templates": ["base"],
+      "armorValue": 0,
+      "type": "light",
+      "equipped": false
+    }
+  }
+}
+

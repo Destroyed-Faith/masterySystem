@@ -1,0 +1,161 @@
+/**
+ * Chat message styles for Mastery System
+ */
+
+/* ========== Mastery Roll Card ========== */
+.mastery-roll {
+  background: #f5f5f5;
+  border: 2px solid #8b0000;
+  border-radius: 5px;
+  padding: 10px;
+  font-family: 'Signika', sans-serif;
+}
+
+.mastery-roll .roll-header {
+  border-bottom: 2px solid #8b0000;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+}
+
+.mastery-roll .roll-header h3 {
+  margin: 0;
+  color: #8b0000;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.mastery-roll .roll-header .flavor {
+  font-style: italic;
+  color: #666;
+  font-size: 13px;
+  margin-top: 3px;
+}
+
+/* ========== Dice Pool ========== */
+.mastery-roll .dice-pool {
+  margin-bottom: 15px;
+}
+
+.mastery-roll .dice-pool .label {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.mastery-roll .dice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.mastery-roll .die {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: #fff;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+.mastery-roll .die.kept {
+  background: #90ee90;
+  border-color: #228b22;
+  color: #000;
+  box-shadow: 0 0 8px rgba(34, 139, 34, 0.5);
+}
+
+.mastery-roll .die.exploded {
+  background: #ffd700;
+  border-color: #ff8c00;
+  color: #000;
+  box-shadow: 0 0 8px rgba(255, 140, 0, 0.5);
+}
+
+.mastery-roll .die.kept.exploded {
+  background: linear-gradient(135deg, #90ee90 50%, #ffd700 50%);
+  border-color: #ff8c00;
+}
+
+/* ========== Roll Breakdown ========== */
+.mastery-roll .roll-breakdown {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.mastery-roll .breakdown-line {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.mastery-roll .breakdown-line:last-child {
+  border-bottom: none;
+}
+
+.mastery-roll .breakdown-line.total {
+  border-top: 2px solid #8b0000;
+  margin-top: 5px;
+  padding-top: 10px;
+  font-size: 16px;
+}
+
+.mastery-roll .breakdown-line .value {
+  font-weight: bold;
+  color: #8b0000;
+}
+
+/* ========== Roll Result ========== */
+.mastery-roll .roll-result {
+  background: #fff;
+  border: 2px solid;
+  border-radius: 4px;
+  padding: 10px;
+}
+
+.mastery-roll .roll-result.success {
+  border-color: #228b22;
+  background: #f0fff0;
+}
+
+.mastery-roll .roll-result.failure {
+  border-color: #dc143c;
+  background: #fff5f5;
+}
+
+.mastery-roll .result-line {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+}
+
+.mastery-roll .result-line .value {
+  font-weight: bold;
+}
+
+.mastery-roll .roll-result.success .value {
+  color: #228b22;
+}
+
+.mastery-roll .roll-result.failure .value {
+  color: #dc143c;
+}
+
+/* ========== Responsive ========== */
+@media (max-width: 400px) {
+  .mastery-roll .die {
+    width: 35px;
+    height: 35px;
+    font-size: 14px;
+  }
+}
+

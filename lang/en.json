@@ -1,0 +1,34 @@
+{
+  "MASTERY": {
+    "system": {
+      "name": "Mastery System / Destroyed Faith",
+      "version": "1.0.0"
+    },
+    "attributes": {
+      "might": "Might",
+      "agility": "Agility",
+      "vitality": "Vitality",
+      "intellect": "Intellect",
+      "resolve": "Resolve",
+      "influence": "Influence",
+      "wits": "Wits"
+    },
+    "resources": {
+      "stones": "Stones",
+      "vitality": "Vitality",
+      "health": "Health",
+      "stress": "Stress"
+    },
+    "ui": {
+      "addSkill": "Add Skill",
+      "deleteSkill": "Delete Skill",
+      "addPower": "Add Power",
+      "roll": "Roll",
+      "targetNumber": "Target Number",
+      "success": "SUCCESS",
+      "failure": "FAILURE",
+      "raises": "Raises"
+    }
+  }
+}
+
