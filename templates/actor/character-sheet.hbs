@@ -39,131 +39,104 @@
       {{!-- Attributes Tab --}}
       <div class="tab attributes" data-group="primary" data-tab="attributes">
         
-        <div class="attributes-layout">
-          {{!-- Attributes Column --}}
-          <div class="attributes-column">
-            <h3>Attributes</h3>
-            <div class="attributes-list">
-              {{#each system.attributes as |attr key|}}
-              <div class="attribute-item">
-                <label>{{key}}</label>
-                <div class="attribute-value-group">
-                  <input type="number" name="system.attributes.{{key}}.value" value="{{attr.value}}" data-dtype="Number" min="0"/>
-                  <span class="stones">{{attr.stones}} <i class="fas fa-gem"></i></span>
-                  <button type="button" class="attribute-roll" data-attribute="{{key}}">
-                    <i class="fas fa-dice-d20"></i>
-                  </button>
-                </div>
+        {{!-- Attributes in Circles --}}
+        <div class="attributes-circles-container">
+          {{#each system.attributes as |attr key|}}
+          <div class="attribute-circle-wrapper">
+            <div class="attribute-circle" data-attribute="{{key}}">
+              <div class="circle-center">
+                <label class="attribute-label">{{key}}</label>
+                <input type="number" 
+                       name="system.attributes.{{key}}.value" 
+                       value="{{attr.value}}" 
+                       data-dtype="Number" 
+                       min="0"
+                       class="attribute-value-input"/>
+                <button type="button" class="attribute-roll" data-attribute="{{key}}" title="Roll {{key}}">
+                  <i class="fas fa-dice-d20"></i>
+                </button>
               </div>
-              {{/each}}
+              <div class="stones-ring">
+                {{#each (array 8 16 24 32 40 48 56 64 72 80) as |threshold|}}
+                <div class="stone-box {{#if (gte attr.value threshold)}}filled{{/if}}" 
+                     data-threshold="{{threshold}}"
+                     title="{{threshold}}">
+                  <span class="stone-value">{{threshold}}</span>
+                </div>
+                {{/each}}
+              </div>
             </div>
           </div>
+          {{/each}}
+        </div>
 
-          {{!-- Saving Throws Column --}}
-          <div class="saving-throws-column">
-            <h3>Saving Throws</h3>
-            <div class="saving-throws-list">
-              {{#each system.attributes as |attr key|}}
-              <div class="saving-throw-item">
-                <label>{{key}}</label>
-                <div class="saving-throw-value-group">
-                  <input type="number" name="system.savingThrows.{{key}}" value="{{lookup ../system.savingThrows key}}" data-dtype="Number" placeholder="0"/>
-                  <button type="button" class="saving-throw-roll" data-attribute="{{key}}">
-                    <i class="fas fa-dice-d20"></i>
-                  </button>
-                </div>
+        {{!-- Saving Throws --}}
+        <div class="saving-throws-container">
+          <h3>Saving Throws</h3>
+          <div class="saving-throws-grid">
+            <div class="saving-throw-item" data-save="body">
+              <label>BODY</label>
+              <div class="saving-throw-value-group">
+                <span class="saving-throw-value">{{derivedValues.savingThrows.body}}</span>
+                <button type="button" class="saving-throw-roll" data-save="body" title="Roll BODY Saving Throw">
+                  <i class="fas fa-dice-d20"></i>
+                </button>
               </div>
-              {{/each}}
+            </div>
+            <div class="saving-throw-item" data-save="will">
+              <label>WILL</label>
+              <div class="saving-throw-value-group">
+                <span class="saving-throw-value">{{derivedValues.savingThrows.will}}</span>
+                <button type="button" class="saving-throw-roll" data-save="will" title="Roll WILL Saving Throw">
+                  <i class="fas fa-dice-d20"></i>
+                </button>
+              </div>
+            </div>
+            <div class="saving-throw-item" data-save="mind">
+              <label>MIND</label>
+              <div class="saving-throw-value-group">
+                <span class="saving-throw-value">{{derivedValues.savingThrows.mind}}</span>
+                <button type="button" class="saving-throw-roll" data-save="mind" title="Roll MIND Saving Throw">
+                  <i class="fas fa-dice-d20"></i>
+                </button>
+              </div>
             </div>
           </div>
         </div>
 
-        {{!-- Stones & Resources --}}
-        <div class="resources-panel">
-          <div class="resource-block">
-            <h3>Stones</h3>
-            <div class="stone-display">
-              <div class="stone-value">
-                <label>Total:</label>
-                <span class="value">{{derivedValues.totalStones}}</span>
-              </div>
-              <div class="stone-value">
-                <label>Current:</label>
-                <input type="number" name="system.stones.current" value="{{system.stones.current}}" data-dtype="Number"/>
-              </div>
-              <div class="stone-value">
-                <label>Vitality:</label>
-                <span class="value">{{derivedValues.vitalityStones}}</span>
-              </div>
-            </div>
-            <div class="button-group">
-              <button type="button" class="stone-adjust" data-adjustment="-1">-1</button>
-              <button type="button" class="stone-adjust" data-adjustment="1">+1</button>
-            </div>
-          </div>
 
-          <div class="resource-block">
-            <h3>Health</h3>
-            <div class="health-display">
-              <div class="hp-current">
-                <label>HP:</label>
-                <span class="value">{{derivedValues.currentHP}} / {{derivedValues.maxHP}}</span>
-              </div>
-              <div class="hp-penalty">
-                <label>Penalty:</label>
-                <span class="value">{{derivedValues.currentPenalty}}</span>
-              </div>
-            </div>
-            <div class="health-bars">
+        {{!-- Bottom Stats Panel --}}
+        <div class="bottom-stats-panel">
+          <div class="stat-group">
+            <label>Armor:</label>
+            <input type="number" name="system.combat.armor" value="{{system.combat.armor}}" data-dtype="Number"/>
+          </div>
+          <div class="stat-group">
+            <label>Evade:</label>
+            <input type="number" name="system.combat.evade" value="{{system.combat.evade}}" data-dtype="Number"/>
+          </div>
+          <div class="stat-group">
+            <label>Health Levels:</label>
+            <div class="health-bars-compact">
               {{#each system.health.bars as |bar index|}}
-              <div class="health-bar {{#if (eq ../system.health.currentBar index)}}active{{/if}}">
+              <div class="health-bar-compact {{#if (eq ../system.health.currentBar index)}}active{{/if}}">
                 <span class="bar-name">{{bar.name}}</span>
                 <span class="bar-hp">{{bar.current}} / {{bar.max}}</span>
                 <span class="bar-penalty">({{bar.penalty}})</span>
               </div>
               {{/each}}
             </div>
-            <div class="button-group">
-              <button type="button" class="hp-adjust" data-adjustment="-5">-5</button>
-              <button type="button" class="hp-adjust" data-adjustment="-1">-1</button>
-              <button type="button" class="hp-adjust" data-adjustment="1">+1</button>
-              <button type="button" class="hp-adjust" data-adjustment="5">+5</button>
-            </div>
           </div>
-
-          <div class="resource-block">
-            <h3>Stress</h3>
-            <div class="stress-display">
+          <div class="stat-group">
+            <label>Stress:</label>
+            <div class="stress-display-compact">
               <input type="number" name="system.stress.current" value="{{system.stress.current}}" data-dtype="Number"/> / {{system.stress.maximum}}
-            </div>
-            <div class="button-group">
-              <button type="button" class="stress-adjust" data-adjustment="-5">-5</button>
-              <button type="button" class="stress-adjust" data-adjustment="-1">-1</button>
-              <button type="button" class="stress-adjust" data-adjustment="1">+1</button>
-              <button type="button" class="stress-adjust" data-adjustment="5">+5</button>
-            </div>
-          </div>
-        </div>
-
-        {{!-- Combat Stats --}}
-        <div class="combat-panel">
-          <h3>Combat</h3>
-          <div class="combat-grid">
-            <div class="combat-stat">
-              <label>Initiative:</label>
-              <input type="number" name="system.combat.initiative" value="{{system.combat.initiative}}" data-dtype="Number"/>
-            </div>
-            <div class="combat-stat">
-              <label>Evade:</label>
-              <input type="number" name="system.combat.evade" value="{{system.combat.evade}}" data-dtype="Number"/>
-            </div>
-            <div class="combat-stat">
-              <label>Armor:</label>
-              <input type="number" name="system.combat.armor" value="{{system.combat.armor}}" data-dtype="Number"/>
-            </div>
-            <div class="combat-stat">
-              <label>Speed:</label>
-              <input type="number" name="system.combat.speed" value="{{system.combat.speed}}" data-dtype="Number"/>
+              <div class="button-group-compact">
+                <button type="button" class="stress-adjust" data-adjustment="-5">-5</button>
+                <button type="button" class="stress-adjust" data-adjustment="-1">-1</button>
+                <button type="button" class="stress-adjust" data-adjustment="1">+1</button>
+                <button type="button" class="stress-adjust" data-adjustment="5">+5</button>
+              </div>
             </div>
           </div>
         </div>

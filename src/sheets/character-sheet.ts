@@ -132,6 +132,31 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
    * Calculate derived values for display
    */
   #calculateDerivedValues(system: any) {
+    // Calculate saving throws (highest value from relevant attributes)
+    const attributes = system.attributes || {};
+    
+    // BODY: might, agility, vitality (physical)
+    const bodyAttrs = [
+      attributes.might?.value || 0,
+      attributes.agility?.value || 0,
+      attributes.vitality?.value || 0
+    ];
+    const bodySave = Math.max(...bodyAttrs);
+    
+    // WILL: resolve, influence (willpower)
+    const willAttrs = [
+      attributes.resolve?.value || 0,
+      attributes.influence?.value || 0
+    ];
+    const willSave = Math.max(...willAttrs);
+    
+    // MIND: intellect, wits (mental)
+    const mindAttrs = [
+      attributes.intellect?.value || 0,
+      attributes.wits?.value || 0
+    ];
+    const mindSave = Math.max(...mindAttrs);
+    
     return {
       totalStones: system.stones?.total || 0,
       currentStones: system.stones?.current || 0,
@@ -139,7 +164,12 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
       currentHP: this.actor.totalHP || 0,
       maxHP: this.actor.maxHP || 0,
       currentPenalty: this.actor.currentPenalty || 0,
-      keepDice: system.mastery?.rank || 1
+      keepDice: system.mastery?.rank || 1,
+      savingThrows: {
+        body: bodySave,
+        will: willSave,
+        mind: mindSave
+      }
     };
   }
 
@@ -244,24 +274,59 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
   async #onSavingThrowRoll(event: JQuery.ClickEvent) {
     event.preventDefault();
     const element = event.currentTarget;
-    const attribute = element.dataset.attribute;
+    const saveType = element.dataset.save; // body, will, or mind
     
-    if (!attribute) return;
+    if (!saveType) return;
     
-    // Get saving throw modifier from system data
     const system = (this.actor as any).system;
-    const savingThrowMod = system.savingThrows?.[attribute] || 0;
+    const attributes = system.attributes || {};
+    
+    // Determine which attribute to use for the saving throw
+    let attributeName = '';
+    
+    if (saveType === 'body') {
+      // Use highest of might, agility, vitality
+      const might = attributes.might?.value || 0;
+      const agility = attributes.agility?.value || 0;
+      const vitality = attributes.vitality?.value || 0;
+      if (might >= agility && might >= vitality) {
+        attributeName = 'might';
+      } else if (agility >= vitality) {
+        attributeName = 'agility';
+      } else {
+        attributeName = 'vitality';
+      }
+    } else if (saveType === 'will') {
+      // Use highest of resolve, influence
+      const resolve = attributes.resolve?.value || 0;
+      const influence = attributes.influence?.value || 0;
+      if (resolve >= influence) {
+        attributeName = 'resolve';
+      } else {
+        attributeName = 'influence';
+      }
+    } else if (saveType === 'mind') {
+      // Use highest of intellect, wits
+      const intellect = attributes.intellect?.value || 0;
+      const wits = attributes.wits?.value || 0;
+      if (intellect >= wits) {
+        attributeName = 'intellect';
+      } else {
+        attributeName = 'wits';
+      }
+    }
+    
+    if (!attributeName) return;
     
     // Saving throws typically use a fixed TN (e.g., 16)
     const tn = 16;
     
     await quickRoll(
       this.actor,
-      attribute,
+      attributeName,
       undefined,
       tn,
-      `${attribute.charAt(0).toUpperCase() + attribute.slice(1)} Saving Throw`,
-      savingThrowMod
+      `${saveType.toUpperCase()} Saving Throw`
     );
   }
 

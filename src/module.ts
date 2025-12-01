@@ -59,12 +59,31 @@ Hooks.once('init', async function() {
   
   // Register system settings
   registerSystemSettings();
-  
+
+  // Register Handlebars helpers
+  registerHandlebarsHelpers();
+
   // Preload Handlebars templates
   await preloadTemplates();
-  
+
   console.log('Mastery System | System initialized');
 });
+
+/**
+ * Register Handlebars helpers
+ */
+function registerHandlebarsHelpers() {
+  // Helper to create arrays
+  Handlebars.registerHelper('array', function(...args: any[]) {
+    args.pop(); // Remove Handlebars options object
+    return args;
+  });
+
+  // Helper for greater than or equal comparison
+  Handlebars.registerHelper('gte', function(a: number, b: number) {
+    return a >= b;
+  });
+}
 
 /**
  * Register system settings
@@ -157,7 +176,7 @@ console.log(`
 ║  • Powers & Mastery Trees (L1-L4)                         ║
 ║  • Divine Clash late-game combat                          ║
 ║                                                           ║
-║  Version: 0.0.11 (Alpha)                                   ║
+║  Version: 0.0.12 (Alpha)                                   ║
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
 `);
