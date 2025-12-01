@@ -24,9 +24,7 @@ Hooks.once('init', async function() {
   CONFIG.Item.documentClass = MasteryItem;
   
   // Register custom sheet application classes
-  Actors.unregisterSheet('core', ActorSheet);
-  
-  // Register Character sheet
+  // Register Character sheet first
   Actors.registerSheet('mastery-system', MasteryCharacterSheet, {
     types: ['character'],
     makeDefault: true,
@@ -40,12 +38,17 @@ Hooks.once('init', async function() {
     label: 'Mastery NPC Sheet'
   });
   
+  // Unregister core sheets after registering our own (to ensure ours are used)
+  Actors.unregisterSheet('core', ActorSheet);
+  
   // Register Item sheet
-  Items.unregisterSheet('core', ItemSheet);
   Items.registerSheet('mastery-system', MasteryItemSheet, {
     makeDefault: true,
     label: 'Mastery Item Sheet'
   });
+  
+  // Unregister core item sheet
+  Items.unregisterSheet('core', ItemSheet);
   
   // Register system settings
   registerSystemSettings();
