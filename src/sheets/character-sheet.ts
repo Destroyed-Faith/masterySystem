@@ -646,13 +646,10 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
    */
   async #showPowerCreationDialog() {
     const { getAllMasteryTrees } = await import('../utils/mastery-trees.js');
-    const { getTreesWithPowers } = await import('../utils/powers.js');
     const trees = getAllMasteryTrees();
-    const treesWithPowers = getTreesWithPowers();
     
-    // Create tree selection options (only trees that have powers)
+    // Create tree selection options (all available trees)
     const treeOptions = trees
-      .filter(tree => treesWithPowers.includes(tree.name))
       .map(tree => `<option value="${tree.name}">${tree.name}</option>`)
       .join('');
     
@@ -705,10 +702,8 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
               return false;
             }
             
-            if (!powerName) {
-              ui.notifications?.warn('Please select a Power');
-              return false;
-            }
+            // Allow creation even without power selection (for trees without predefined powers)
+            // The validation for powerName is now handled below
             
             const { getPower } = await import('../utils/powers.js');
             const power = getPower(tree, powerName);
@@ -816,9 +811,16 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
             
             if (powers.length === 0) {
               if (powerSelect) {
-                powerSelect.innerHTML = '<option value="">No powers available for this tree</option>';
+                powerSelect.innerHTML = '<option value="">No powers available for this tree yet</option>';
               }
               powerSelectGroup.show();
+              // Show message that powers can be added manually
+              const powerDetails = html.find('#power-details');
+              const powerDescription = html.find('#power-description');
+              const powerLevelInfo = html.find('#power-level-info');
+              powerDescription.text('This tree does not have predefined powers yet. You can create a custom power manually.');
+              powerLevelInfo.html('<em>You can still create a power by entering a name manually in the item sheet after creation.</em>');
+              powerDetails.show();
               return;
             }
             
