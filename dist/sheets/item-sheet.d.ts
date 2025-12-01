@@ -2,7 +2,7 @@
  * Item Sheet for Mastery System
  * Generic sheet for all item types
  */
-export declare class MasteryItemSheet extends ItemSheet {
+export declare class MasteryItemSheet extends foundry.appv1.sheets.ItemSheet {
     #private;
     /** @override */
     static get defaultOptions(): any;

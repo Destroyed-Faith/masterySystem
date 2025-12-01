@@ -22,29 +22,29 @@ Hooks.once('init', async function () {
     CONFIG.Item.documentClass = MasteryItem;
     // Register custom sheet application classes
     // Register Character sheet first
-    Actors.registerSheet('mastery-system', MasteryCharacterSheet, {
+    foundry.documents.collections.Actors.registerSheet('mastery-system', MasteryCharacterSheet, {
         types: ['character'],
         makeDefault: true,
         label: 'Mastery Character Sheet'
     });
     console.log('Mastery System | Registered Character Sheet');
     // Register NPC sheet
-    Actors.registerSheet('mastery-system', MasteryNpcSheet, {
+    foundry.documents.collections.Actors.registerSheet('mastery-system', MasteryNpcSheet, {
         types: ['npc'],
         makeDefault: true,
         label: 'Mastery NPC Sheet'
     });
     console.log('Mastery System | Registered NPC Sheet');
     // Unregister core sheets after registering our own (to ensure ours are used)
-    Actors.unregisterSheet('core', ActorSheet);
+    foundry.documents.collections.Actors.unregisterSheet('core', foundry.appv1.sheets.ActorSheet);
     console.log('Mastery System | Unregistered core ActorSheet');
     // Register Item sheet
-    Items.registerSheet('mastery-system', MasteryItemSheet, {
+    foundry.documents.collections.Items.registerSheet('mastery-system', MasteryItemSheet, {
         makeDefault: true,
         label: 'Mastery Item Sheet'
     });
     // Unregister core item sheet
-    Items.unregisterSheet('core', ItemSheet);
+    foundry.documents.collections.Items.unregisterSheet('core', foundry.appv1.sheets.ItemSheet);
     // Register system settings
     registerSystemSettings();
     // Preload Handlebars templates
@@ -86,7 +86,7 @@ async function preloadTemplates() {
         'systems/mastery-system/templates/item/special-sheet.hbs'
     ];
     try {
-        await loadTemplates(templatePaths);
+        await foundry.applications.handlebars.loadTemplates(templatePaths);
     }
     catch (error) {
         console.warn('Mastery System | Some templates could not be loaded:', error);
@@ -135,7 +135,7 @@ console.log(`
 ║  • Powers & Mastery Trees (L1-L4)                         ║
 ║  • Divine Clash late-game combat                          ║
 ║                                                           ║
-║  Version: 0.0.6 (Alpha)                                   ║
+║  Version: 0.0.9 (Alpha)                                   ║
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
 `);

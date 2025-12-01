@@ -2,7 +2,7 @@
  * Character Sheet for Mastery System
  * Main player character sheet with tabs for attributes, skills, powers, etc.
  */
-export declare class MasteryCharacterSheet extends ActorSheet {
+export declare class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
     #private;
     /** @override */
     static get defaultOptions(): any;

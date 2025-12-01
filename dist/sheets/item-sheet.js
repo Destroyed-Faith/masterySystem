@@ -2,7 +2,7 @@
  * Item Sheet for Mastery System
  * Generic sheet for all item types
  */
-export class MasteryItemSheet extends ItemSheet {
+export class MasteryItemSheet extends foundry.appv1.sheets.ItemSheet {
     /** @override */
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {

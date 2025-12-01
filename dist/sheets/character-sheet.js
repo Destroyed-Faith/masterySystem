@@ -3,7 +3,7 @@
  * Main player character sheet with tabs for attributes, skills, powers, etc.
  */
 import { quickRoll } from '../dice/roll-handler.js';
-export class MasteryCharacterSheet extends ActorSheet {
+export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
     /** @override */
     static get defaultOptions() {
         const options = foundry.utils.mergeObject(super.defaultOptions, {
