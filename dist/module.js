@@ -66,6 +66,10 @@ function registerHandlebarsHelpers() {
     Handlebars.registerHelper('gte', function (a, b) {
         return a >= b;
     });
+    // Helper for multiplication
+    Handlebars.registerHelper('multiply', function (a, b) {
+        return a * b;
+    });
 }
 /**
  * Register system settings

@@ -336,6 +336,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  transform-style: preserve-3d;
+  perspective: 1000px;
 }
 
 .mastery-system.sheet.actor.character .circle-center {
@@ -381,92 +383,41 @@
   transform: scale(1.1);
 }
 
-/* Stones Ring around circle */
+/* Stones Ring around circle - 3D perspective */
 .mastery-system.sheet.actor.character .stones-ring {
   position: absolute;
   width: 100%;
   height: 100%;
   top: 0;
   left: 0;
-  border-radius: 50%;
-  overflow: visible;
+  transform-style: preserve-3d;
 }
 
 .mastery-system.sheet.actor.character .stone-segment {
   position: absolute;
-  width: 25px;
-  height: 25px;
-  border: 2px solid #8b0000;
+  width: 28px;
+  height: 28px;
+  margin: calc(50% - 14px) 0 0 calc(50% - 14px);
+  transform: rotate(var(--a, 0deg)) translate(50px) rotateX(40deg) scaleY(1.305);
+  box-shadow: inset 0 0 0 2px #8b0000;
   background: #e0e0e0;
+  border: 2px solid #8b0000;
   border-radius: 3px;
+  font: 900 10px/28px Arial, sans-serif;
+  text-align: center;
+  color: #666;
+  transition: all 0.3s;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 9px;
-  font-weight: bold;
-  color: #666;
-  transition: all 0.2s;
+  line-height: 28px;
 }
 
 .mastery-system.sheet.actor.character .stone-segment.filled {
   background: #8b0000;
   color: #fff;
   border-color: #8b0000;
-}
-
-.mastery-system.sheet.actor.character .stone-segment .stone-label {
-  font-size: 8px;
-}
-
-/* Position stones around circle (10 segments clockwise starting from top-right) */
-.mastery-system.sheet.actor.character .stone-segment[data-threshold="8"] {
-  top: -12px;
-  right: 20px;
-}
-
-.mastery-system.sheet.actor.character .stone-segment[data-threshold="16"] {
-  top: 8px;
-  right: -12px;
-}
-
-.mastery-system.sheet.actor.character .stone-segment[data-threshold="24"] {
-  top: 35px;
-  right: 5px;
-}
-
-.mastery-system.sheet.actor.character .stone-segment[data-threshold="32"] {
-  bottom: 35px;
-  right: 5px;
-}
-
-.mastery-system.sheet.actor.character .stone-segment[data-threshold="40"] {
-  bottom: -12px;
-  right: 20px;
-}
-
-.mastery-system.sheet.actor.character .stone-segment[data-threshold="48"] {
-  bottom: -12px;
-  left: 20px;
-}
-
-.mastery-system.sheet.actor.character .stone-segment[data-threshold="56"] {
-  bottom: 35px;
-  left: 5px;
-}
-
-.mastery-system.sheet.actor.character .stone-segment[data-threshold="64"] {
-  top: 35px;
-  left: 5px;
-}
-
-.mastery-system.sheet.actor.character .stone-segment[data-threshold="72"] {
-  top: 8px;
-  left: -12px;
-}
-
-.mastery-system.sheet.actor.character .stone-segment[data-threshold="80"] {
-  top: -12px;
-  left: 20px;
+  box-shadow: inset 0 0 0 2px #fff, 0 2px 8px rgba(139, 0, 0, 0.5);
 }
 
 /* ========== Echo Tab ========== */

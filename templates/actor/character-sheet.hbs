@@ -59,11 +59,12 @@
                     </button>
                   </div>
                   <div class="stones-ring">
-                    {{#each (array 8 16 24 32 40 48 56 64 72 80) as |threshold|}}
-                    <div class="stone-segment {{#if (gte system.attributes.might.value threshold)}}filled{{/if}}" 
+                    {{#each (array 8 16 24 32 40 48 56 64 72 80) as |threshold index|}}
+                    <div class="stone-segment stone-segment-{{index}} {{#if (gte system.attributes.might.value threshold)}}filled{{/if}}" 
                          data-threshold="{{threshold}}"
-                         title="{{threshold}}">
-                      <span class="stone-label">{{threshold}}</span>
+                         title="{{threshold}}"
+                         style="--a: {{multiply index 36}}deg">
+                      {{threshold}}
                     </div>
                     {{/each}}
                   </div>
@@ -132,11 +133,12 @@
                   </button>
                 </div>
                 <div class="stones-ring">
-                  {{#each (array 8 16 24 32 40 48 56 64 72 80) as |threshold|}}
-                  <div class="stone-segment {{#if (gte attr.value threshold)}}filled{{/if}}" 
+                  {{#each (array 8 16 24 32 40 48 56 64 72 80) as |threshold index|}}
+                  <div class="stone-segment stone-segment-{{index}} {{#if (gte attr.value threshold)}}filled{{/if}}" 
                        data-threshold="{{threshold}}"
-                       title="{{threshold}}">
-                    <span class="stone-label">{{threshold}}</span>
+                       title="{{threshold}}"
+                       style="--a: {{multiply index 36}}deg">
+                    {{threshold}}
                   </div>
                   {{/each}}
                 </div>

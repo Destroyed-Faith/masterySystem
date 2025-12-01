@@ -83,6 +83,11 @@ function registerHandlebarsHelpers() {
   Handlebars.registerHelper('gte', function(a: number, b: number) {
     return a >= b;
   });
+
+  // Helper for multiplication
+  Handlebars.registerHelper('multiply', function(a: number, b: number) {
+    return a * b;
+  });
 }
 
 /**
