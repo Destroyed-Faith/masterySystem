@@ -275,41 +275,12 @@
       {{!-- Powers Tab --}}
       <div class="tab powers" data-group="primary" data-tab="powers">
         <div class="powers-header">
-          <h3>Powers & Mastery Trees</h3>
+          <h3>Powers</h3>
           <button type="button" class="item-create" data-type="special"><i class="fas fa-plus"></i> Add Power</button>
-        </div>
-        
-        {{!-- Mastery Trees Overview --}}
-        <div class="mastery-trees-section">
-          <h4>Available Mastery Trees</h4>
-          <div class="mastery-trees-grid">
-            {{#each masteryTrees as |tree|}}
-            <div class="mastery-tree-card">
-              <h5 class="tree-name">{{tree.name}}</h5>
-              <div class="tree-focus">{{tree.focus}}</div>
-              <div class="tree-roles">
-                {{#each tree.roles as |role|}}
-                <span class="role-tag">{{role}}</span>
-                {{/each}}
-              </div>
-              {{#if tree.requirements}}
-              <div class="tree-requirements">
-                <strong>Requirements:</strong> {{tree.requirements}}
-              </div>
-              {{/if}}
-              {{#if tree.bonus}}
-              <div class="tree-bonus">
-                <strong>Bonus:</strong> {{tree.bonus}}
-              </div>
-              {{/if}}
-            </div>
-            {{/each}}
-          </div>
         </div>
 
         {{!-- Powers List --}}
         <div class="powers-list-section">
-          <h4>Your Powers</h4>
           <ol class="items-list">
             {{#each items.powers as |power|}}
             <li class="item power" data-item-id="{{power._id}}">
@@ -331,26 +302,6 @@
             {{/each}}
           </ol>
         </div>
-
-        <div class="schticks-header">
-          <h3>Schticks</h3>
-          <button type="button" class="item-create" data-type="schtick"><i class="fas fa-plus"></i> Add Schtick</button>
-        </div>
-        <ol class="items-list">
-          {{#each items.schticks as |schtick|}}
-          <li class="item schtick" data-item-id="{{schtick._id}}">
-            <div class="item-name">
-              <h4>{{schtick.name}}</h4>
-              <span class="item-rank">M{{schtick.system.masteryRank}}</span>
-            </div>
-            <div class="item-description">{{schtick.system.manifestation}}</div>
-            <div class="item-controls">
-              <a class="item-edit" title="Edit Schtick"><i class="fas fa-edit"></i></a>
-              <a class="item-delete" title="Delete Schtick"><i class="fas fa-trash"></i></a>
-            </div>
-          </li>
-          {{/each}}
-        </ol>
       </div>
 
       {{!-- Magic Tab --}}

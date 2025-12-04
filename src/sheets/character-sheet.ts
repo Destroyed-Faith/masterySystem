@@ -663,10 +663,14 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
           </select>
         </div>
         <div class="form-group" id="power-select-group" style="display: none;">
-          <label>Power:</label>
+          <label>Power (optional - select from predefined or enter manually):</label>
           <select name="power" id="power-select" style="width: 100%; margin-bottom: 10px;">
-            <option value="">-- Select a Power --</option>
+            <option value="">-- Select a Power or Enter Manually --</option>
           </select>
+        </div>
+        <div class="form-group" id="power-name-group" style="display: none;">
+          <label>Power Name (if not selecting from list):</label>
+          <input type="text" name="powerName" id="power-name-input" style="width: 100%; margin-bottom: 10px;" placeholder="Enter power name"/>
         </div>
         <div class="form-group" id="power-details" style="display: none; margin-top: 15px; padding: 10px; background: #f5f5f5; border-radius: 5px;">
           <div id="power-description" style="margin-bottom: 10px; font-style: italic; color: #666;"></div>
@@ -694,7 +698,8 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
           callback: async (html) => {
             const $html = html as JQuery;
             const tree = $html.find('#power-tree-select').val() as string;
-            const powerName = $html.find('#power-select').val() as string;
+            const selectedPowerName = $html.find('#power-select').val() as string;
+            const manualPowerName = $html.find('#power-name-input').val() as string;
             const level = parseInt(($html.find('#power-level-select').val() as string) || '1');
             
             if (!tree) {
@@ -702,75 +707,119 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
               return false;
             }
             
-            // Allow creation even without power selection (for trees without predefined powers)
-            // The validation for powerName is now handled below
+            // Use selected power name or manual entry
+            const powerName = selectedPowerName || manualPowerName;
+            
+            if (!powerName || powerName.trim() === '') {
+              ui.notifications?.warn('Please select a power from the list or enter a power name');
+              return false;
+            }
             
             const { getPower } = await import('../utils/powers.js');
             const power = getPower(tree, powerName);
             
-            if (!power) {
-              ui.notifications?.error('Power not found');
-              return false;
-            }
-            
-            const levelData = power.levels.find(l => l.level === level);
-            if (!levelData) {
-              ui.notifications?.error('Level data not found');
-              return false;
-            }
-            
-            // Map power type from the level data
-            const powerTypeMap: Record<string, string> = {
-              'Melee': 'active',
-              'Ranged': 'active',
-              'Buff': 'buff',
-              'Utility': 'utility',
-              'Passive': 'passive',
-              'Reaction': 'reaction',
-              'Movement': 'movement'
-            };
-            
-            const powerType = powerTypeMap[levelData.type] || 'active';
-            
-            const itemData = {
-              name: powerName,
-              type: 'special',
-              system: {
-                tree: tree,
-                powerType: powerType,
-                level: level,
-                description: power.description,
-                tags: [],
-                range: levelData.range,
-                aoe: levelData.aoe === '—' ? '' : levelData.aoe,
-                duration: levelData.duration,
-                effect: levelData.effect,
-                specials: levelData.special && levelData.special !== '—' ? [levelData.special] : [],
-                ap: 30, // Default, can be calculated later
-                cost: {
-                  action: powerType === 'active' || powerType === 'buff' || powerType === 'utility',
-                  movement: powerType === 'movement',
-                  reaction: powerType === 'reaction',
-                  stones: 0,
-                  charges: 0
-                },
-                roll: {
-                  attribute: 'might',
-                  tn: 0,
-                  damage: levelData.effect.includes('damage') ? levelData.effect : '',
-                  healing: levelData.effect.includes('Heal') ? levelData.effect : '',
-                  raises: ''
-                },
-                requirements: {
-                  masteryRank: level,
-                  other: ''
-                }
+            // If power is found in predefined list, use its data
+            if (power) {
+              const levelData = power.levels.find(l => l.level === level);
+              if (!levelData) {
+                ui.notifications?.error('Level data not found for this power');
+                return false;
               }
-            };
-            
-            await this.actor.createEmbeddedDocuments('Item', [itemData]);
-            ui.notifications?.info(`Created power: ${powerName} (Level ${level}) from ${tree} tree`);
-            return true;
+              
+              // Map power type from the level data
+              const powerTypeMap: Record<string, string> = {
+                'Melee': 'active',
+                'Ranged': 'active',
+                'Buff': 'buff',
+                'Utility': 'utility',
+                'Passive': 'passive',
+                'Reaction': 'reaction',
+                'Movement': 'movement'
+              };
+              
+              const powerType = powerTypeMap[levelData.type] || 'active';
+              
+              const itemData = {
+                name: powerName,
+                type: 'special',
+                system: {
+                  tree: tree,
+                  powerType: powerType,
+                  level: level,
+                  description: power.description,
+                  tags: [],
+                  range: levelData.range,
+                  aoe: levelData.aoe === '—' ? '' : levelData.aoe,
+                  duration: levelData.duration,
+                  effect: levelData.effect,
+                  specials: levelData.special && levelData.special !== '—' ? [levelData.special] : [],
+                  ap: 30, // Default, can be calculated later
+                  cost: {
+                    action: powerType === 'active' || powerType === 'buff' || powerType === 'utility',
+                    movement: powerType === 'movement',
+                    reaction: powerType === 'reaction',
+                    stones: 0,
+                    charges: 0
+                  },
+                  roll: {
+                    attribute: 'might',
+                    tn: 0,
+                    damage: levelData.effect.includes('damage') ? levelData.effect : '',
+                    healing: levelData.effect.includes('Heal') ? levelData.effect : '',
+                    raises: ''
+                  },
+                  requirements: {
+                    masteryRank: level,
+                    other: ''
+                  }
+                }
+              };
+              
+              await this.actor.createEmbeddedDocuments('Item', [itemData]);
+              ui.notifications?.info(`Created power: ${powerName} (Level ${level}) from ${tree} tree`);
+              return true;
+            } else {
+              // Create a basic power structure for manually entered powers
+              const itemData = {
+                name: powerName.trim(),
+                type: 'special',
+                system: {
+                  tree: tree,
+                  powerType: 'active',
+                  level: level,
+                  description: '',
+                  tags: [],
+                  range: '',
+                  aoe: '',
+                  duration: '',
+                  effect: '',
+                  specials: [],
+                  ap: 30,
+                  cost: {
+                    action: true,
+                    movement: false,
+                    reaction: false,
+                    stones: 0,
+                    charges: 0
+                  },
+                  roll: {
+                    attribute: 'might',
+                    tn: 0,
+                    damage: '',
+                    healing: '',
+                    raises: ''
+                  },
+                  requirements: {
+                    masteryRank: level,
+                    other: ''
+                  }
+                }
+              };
+              
+              await this.actor.createEmbeddedDocuments('Item', [itemData]);
+              ui.notifications?.info(`Created power: ${powerName} (Level ${level}) from ${tree} tree. You can edit the details in the power sheet.`);
+              return true;
+            }
           }
         },
         cancel: {
@@ -784,7 +833,9 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
         // Register event handlers after dialog is rendered
         const treeSelect = html.find('#power-tree-select')[0] as HTMLSelectElement;
         const powerSelect = html.find('#power-select')[0] as HTMLSelectElement;
+        const powerNameInput = html.find('#power-name-input')[0] as HTMLInputElement;
         const powerSelectGroup = html.find('#power-select-group');
+        const powerNameGroup = html.find('#power-name-group');
         const powerDetails = html.find('#power-details');
         const powerDescription = html.find('#power-description');
         const powerLevelInfo = html.find('#power-level-info');
@@ -796,13 +847,21 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
         treeSelect?.addEventListener('change', async function() {
           const treeName = this.value;
           if (powerSelect) {
-            powerSelect.innerHTML = '<option value="">-- Select a Power --</option>';
+            powerSelect.innerHTML = '<option value="">-- Select a Power or Enter Manually --</option>';
+          }
+          if (powerNameInput) {
+            powerNameInput.value = '';
           }
           powerSelectGroup.hide();
+          powerNameGroup.hide();
           powerDetails.hide();
           levelSelectGroup.hide();
           
           if (!treeName) return;
+          
+          // Always show level select and power name input when tree is selected
+          levelSelectGroup.show();
+          powerNameGroup.show();
           
           try {
             const { getPowersByTree } = await import('../utils/powers.js');
@@ -810,42 +869,46 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
             powersData = {};
             
             if (powers.length === 0) {
+              // Tree has no predefined powers - show manual entry option
               if (powerSelect) {
-                powerSelect.innerHTML = '<option value="">No powers available for this tree yet</option>';
+                powerSelect.innerHTML = '<option value="">No predefined powers - Enter name manually below</option>';
               }
               powerSelectGroup.show();
-              // Show message that powers can be added manually
-              const powerDetails = html.find('#power-details');
-              const powerDescription = html.find('#power-description');
-              const powerLevelInfo = html.find('#power-level-info');
-              powerDescription.text('This tree does not have predefined powers yet. You can create a custom power manually.');
-              powerLevelInfo.html('<em>You can still create a power by entering a name manually in the item sheet after creation.</em>');
-              powerDetails.show();
-              return;
+              powerDetails.hide();
+            } else {
+              // Tree has predefined powers - show them in dropdown
+              powers.forEach(power => {
+                powersData[power.name] = power;
+                if (powerSelect) {
+                  const option = document.createElement('option');
+                  option.value = power.name;
+                  option.textContent = power.name;
+                  powerSelect.appendChild(option);
+                }
+              });
+              powerSelectGroup.show();
             }
-            
-            powers.forEach(power => {
-              powersData[power.name] = power;
-              if (powerSelect) {
-                const option = document.createElement('option');
-                option.value = power.name;
-                option.textContent = power.name;
-                powerSelect.appendChild(option);
-              }
-            });
-            
-            powerSelectGroup.show();
           } catch (error) {
             console.error('Error loading powers:', error);
+            // On error, still allow manual entry
+            powerSelectGroup.show();
+            powerNameGroup.show();
+            levelSelectGroup.show();
           }
         });
         
         powerSelect?.addEventListener('change', function() {
           const powerName = this.value;
-          powerDetails.hide();
-          levelSelectGroup.hide();
           
-          if (!powerName || !powersData[powerName]) return;
+          // Clear manual input when selecting from dropdown
+          if (powerNameInput && powerName) {
+            powerNameInput.value = '';
+          }
+          
+          if (!powerName || !powersData[powerName]) {
+            powerDetails.hide();
+            return;
+          }
           
           const power = powersData[powerName];
           powerDescription.text(power.description);
@@ -862,7 +925,14 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
           powerLevelInfo.html(levelInfo);
           
           powerDetails.show();
-          levelSelectGroup.show();
+        });
+        
+        // Clear dropdown selection when typing manually
+        powerNameInput?.addEventListener('input', function() {
+          if (this.value && powerSelect) {
+            powerSelect.value = '';
+            powerDetails.hide();
+          }
         });
         
         levelSelect?.addEventListener('change', function() {
