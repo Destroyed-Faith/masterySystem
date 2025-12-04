@@ -5,7 +5,6 @@
 
 import { MasteryActor } from '../documents/actor';
 import { quickRoll } from '../dice/roll-handler';
-import { showMagicPowerCreationDialog } from './character-sheet-magic-dialog.js';
 
 export class MasteryCharacterSheet extends ActorSheet {
   /** @override */
@@ -388,18 +387,12 @@ export class MasteryCharacterSheet extends ActorSheet {
     event.preventDefault();
     const element = event.currentTarget;
     const type = element.dataset.type;
-
-    // Special handling for magic powers - open dedicated dialog
-    if (type === 'magic-power') {
-      await showMagicPowerCreationDialog(this.actor);
-      return;
-    }
-
+    
     const itemData = {
       name: `New ${type.charAt(0).toUpperCase() + type.slice(1)}`,
       type
     };
-
+    
     await this.actor.createEmbeddedDocuments('Item', [itemData]);
   }
 

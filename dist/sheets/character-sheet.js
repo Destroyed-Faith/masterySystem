@@ -3,7 +3,6 @@
  * Main player character sheet with tabs for attributes, skills, powers, etc.
  */
 import { quickRoll } from '../dice/roll-handler.js';
-import { showMagicPowerCreationDialog } from './character-sheet-magic-dialog.js';
 export class MasteryCharacterSheet extends ActorSheet {
     /** @override */
     static get defaultOptions() {
@@ -330,11 +329,6 @@ export class MasteryCharacterSheet extends ActorSheet {
         event.preventDefault();
         const element = event.currentTarget;
         const type = element.dataset.type;
-        // Special handling for magic powers - open dedicated dialog
-        if (type === 'magic-power') {
-            await showMagicPowerCreationDialog(this.actor);
-            return;
-        }
         const itemData = {
             name: `New ${type.charAt(0).toUpperCase() + type.slice(1)}`,
             type
