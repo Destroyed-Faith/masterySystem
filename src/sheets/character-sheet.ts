@@ -646,20 +646,42 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
    */
   async #showPowerCreationDialog() {
     const { getAllMasteryTrees } = await import('../utils/mastery-trees.js');
+    const { getAllSpellSchools } = await import('../utils/spell-schools.js');
     const trees = getAllMasteryTrees();
+    const spellSchools = getAllSpellSchools();
     
     // Create tree selection options (all available trees)
     const treeOptions = trees
       .map(tree => `<option value="${tree.name}">${tree.name}</option>`)
       .join('');
     
+    // Create spell school selection options
+    const schoolOptions = spellSchools
+      .map(school => `<option value="${school.name}">${school.fullName}</option>`)
+      .join('');
+    
     const content = `
       <form>
         <div class="form-group">
+          <label>Power Type:</label>
+          <select name="powerType" id="power-type-select" style="width: 100%; margin-bottom: 10px;">
+            <option value="">-- Select Power Type --</option>
+            <option value="mastery">Mastery Tree Power</option>
+            <option value="magic">Magic Power (Spell School)</option>
+          </select>
+        </div>
+        <div class="form-group" id="mastery-tree-group" style="display: none;">
           <label>Mastery Tree:</label>
           <select name="tree" id="power-tree-select" style="width: 100%; margin-bottom: 10px;">
             <option value="">-- Select a Tree --</option>
             ${treeOptions}
+          </select>
+        </div>
+        <div class="form-group" id="spell-school-group" style="display: none;">
+          <label>Spell School:</label>
+          <select name="school" id="spell-school-select" style="width: 100%; margin-bottom: 10px;">
+            <option value="">-- Select a Spell School --</option>
+            ${schoolOptions}
           </select>
         </div>
         <div class="form-group" id="power-select-group" style="display: none;">
@@ -697,13 +719,25 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
           label: 'Create',
           callback: async (html) => {
             const $html = html as JQuery;
+            const powerType = $html.find('#power-type-select').val() as string;
             const tree = $html.find('#power-tree-select').val() as string;
+            const school = $html.find('#spell-school-select').val() as string;
             const selectedPowerName = $html.find('#power-select').val() as string;
             const manualPowerName = $html.find('#power-name-input').val() as string;
             const level = parseInt(($html.find('#power-level-select').val() as string) || '1');
             
-            if (!tree) {
+            if (!powerType) {
+              ui.notifications?.warn('Please select a Power Type');
+              return false;
+            }
+            
+            if (powerType === 'mastery' && !tree) {
               ui.notifications?.warn('Please select a Mastery Tree');
+              return false;
+            }
+            
+            if (powerType === 'magic' && !school) {
+              ui.notifications?.warn('Please select a Spell School');
               return false;
             }
             
@@ -715,111 +749,88 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
               return false;
             }
             
-            const { getPower } = await import('../utils/powers.js');
-            const power = getPower(tree, powerName);
+            const sourceName = powerType === 'magic' ? school : tree;
+            let power: any = null;
+            let levelData: any = null;
+            
+            if (powerType === 'magic') {
+              const { getMagicPower } = await import('../utils/magic-powers.js');
+              power = getMagicPower(school!, powerName);
+            } else {
+              const { getPower } = await import('../utils/powers.js');
+              power = getPower(tree!, powerName);
+            }
             
             // If power is found in predefined list, use its data
             if (power) {
-              const levelData = power.levels.find(l => l.level === level);
+              levelData = power.levels.find((l: any) => l.level === level);
               if (!levelData) {
                 ui.notifications?.error('Level data not found for this power');
                 return false;
               }
-              
-              // Map power type from the level data
-              const powerTypeMap: Record<string, string> = {
-                'Melee': 'active',
-                'Ranged': 'active',
-                'Buff': 'buff',
-                'Utility': 'utility',
-                'Passive': 'passive',
-                'Reaction': 'reaction',
-                'Movement': 'movement'
-              };
-              
-              const powerType = powerTypeMap[levelData.type] || 'active';
-              
-              const itemData = {
-                name: powerName,
-                type: 'special',
-                system: {
-                  tree: tree,
-                  powerType: powerType,
-                  level: level,
-                  description: power.description,
-                  tags: [],
-                  range: levelData.range,
-                  aoe: levelData.aoe === '—' ? '' : levelData.aoe,
-                  duration: levelData.duration,
-                  effect: levelData.effect,
-                  specials: levelData.special && levelData.special !== '—' ? [levelData.special] : [],
-                  ap: 30, // Default, can be calculated later
-                  cost: {
-                    action: powerType === 'active' || powerType === 'buff' || powerType === 'utility',
-                    movement: powerType === 'movement',
-                    reaction: powerType === 'reaction',
-                    stones: 0,
-                    charges: 0
-                  },
-                  roll: {
-                    attribute: 'might',
-                    tn: 0,
-                    damage: levelData.effect.includes('damage') ? levelData.effect : '',
-                    healing: levelData.effect.includes('Heal') ? levelData.effect : '',
-                    raises: ''
-                  },
-                  requirements: {
-                    masteryRank: level,
-                    other: ''
-                  }
-                }
-              };
-              
-              await this.actor.createEmbeddedDocuments('Item', [itemData]);
-              ui.notifications?.info(`Created power: ${powerName} (Level ${level}) from ${tree} tree`);
-              return true;
-            } else {
-              // Create a basic power structure for manually entered powers
-              const itemData = {
-                name: powerName.trim(),
-                type: 'special',
-                system: {
-                  tree: tree,
-                  powerType: 'active',
-                  level: level,
-                  description: '',
-                  tags: [],
-                  range: '',
-                  aoe: '',
-                  duration: '',
-                  effect: '',
-                  specials: [],
-                  ap: 30,
-                  cost: {
-                    action: true,
-                    movement: false,
-                    reaction: false,
-                    stones: 0,
-                    charges: 0
-                  },
-                  roll: {
-                    attribute: 'might',
-                    tn: 0,
-                    damage: '',
-                    healing: '',
-                    raises: ''
-                  },
-                  requirements: {
-                    masteryRank: level,
-                    other: ''
-                  }
-                }
-              };
-              
-              await this.actor.createEmbeddedDocuments('Item', [itemData]);
-              ui.notifications?.info(`Created power: ${powerName} (Level ${level}) from ${tree} tree. You can edit the details in the power sheet.`);
-              return true;
             }
+            
+            // Map power type from the level data
+            const powerTypeMap: Record<string, string> = {
+              'Melee': 'active',
+              'Ranged': 'active',
+              'Buff': 'buff',
+              'Utility': 'utility',
+              'Support': 'utility',
+              'Passive': 'passive',
+              'Reaction': 'reaction',
+              'Movement': 'movement',
+              'Zone': 'utility'
+            };
+            
+            const mappedPowerType = levelData ? (powerTypeMap[levelData.type] || 'active') : 'active';
+            
+            const itemData = {
+              name: powerName,
+              type: 'special',
+              system: {
+                tree: powerType === 'magic' ? school : tree,
+                isMagicPower: powerType === 'magic',
+                powerType: mappedPowerType,
+                level: level,
+                description: power?.description || '',
+                tags: [],
+                range: levelData?.range || '',
+                aoe: levelData?.aoe && levelData.aoe !== '—' ? levelData.aoe : '',
+                duration: levelData?.duration || '',
+                effect: levelData?.effect || '',
+                specials: levelData?.special && levelData.special !== '—' ? [levelData.special] : [],
+                ap: 30, // Default, can be calculated later
+                cost: {
+                  action: mappedPowerType === 'active' || mappedPowerType === 'buff' || mappedPowerType === 'utility',
+                  movement: mappedPowerType === 'movement',
+                  reaction: mappedPowerType === 'reaction',
+                  stones: 0,
+                  charges: 0
+                },
+                roll: {
+                  attribute: 'might',
+                  tn: 0,
+                  damage: levelData?.effect?.includes('damage') ? levelData.effect : '',
+                  healing: levelData?.effect?.includes('Heal') ? levelData.effect : '',
+                  raises: ''
+                },
+                requirements: {
+                  masteryRank: level,
+                  other: ''
+                }
+              }
+            };
+            
+            await this.actor.createEmbeddedDocuments('Item', [itemData]);
+            const sourceType = powerType === 'magic' ? 'Spell School' : 'Mastery Tree';
+            const source = powerType === 'magic' ? school : tree;
+            if (power) {
+              ui.notifications?.info(`Created power: ${powerName} (Level ${level}) from ${source} ${sourceType}`);
+            } else {
+              ui.notifications?.info(`Created power: ${powerName} (Level ${level}) from ${source} ${sourceType}. You can edit the details in the power sheet.`);
+            }
+            return true;
           }
         },
         cancel: {
@@ -831,7 +842,11 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
       default: 'create',
       render: async (html: JQuery) => {
         // Register event handlers after dialog is rendered
+        const powerTypeSelect = html.find('#power-type-select')[0] as HTMLSelectElement;
+        const masteryTreeGroup = html.find('#mastery-tree-group');
+        const spellSchoolGroup = html.find('#spell-school-group');
         const treeSelect = html.find('#power-tree-select')[0] as HTMLSelectElement;
+        const schoolSelect = html.find('#spell-school-select')[0] as HTMLSelectElement;
         const powerSelect = html.find('#power-select')[0] as HTMLSelectElement;
         const powerNameInput = html.find('#power-name-input')[0] as HTMLInputElement;
         const powerSelectGroup = html.find('#power-select-group');
@@ -843,7 +858,78 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
         const levelSelectGroup = html.find('#level-select-group');
         
         let powersData: Record<string, any> = {};
+        let isMagicPower = false;
         
+        // Handle power type selection (Mastery Tree vs Magic Power)
+        powerTypeSelect?.addEventListener('change', function() {
+          const powerType = this.value;
+          masteryTreeGroup.hide();
+          spellSchoolGroup.hide();
+          powerSelectGroup.hide();
+          powerNameGroup.hide();
+          powerDetails.hide();
+          levelSelectGroup.hide();
+          
+          if (powerType === 'mastery') {
+            isMagicPower = false;
+            masteryTreeGroup.show();
+          } else if (powerType === 'magic') {
+            isMagicPower = true;
+            spellSchoolGroup.show();
+          }
+        });
+        
+        // Handle spell school selection (for Magic Powers)
+        schoolSelect?.addEventListener('change', async function() {
+          const schoolName = this.value;
+          if (powerSelect) {
+            powerSelect.innerHTML = '<option value="">-- Select a Power or Enter Manually --</option>';
+          }
+          if (powerNameInput) {
+            powerNameInput.value = '';
+          }
+          powerSelectGroup.hide();
+          powerNameGroup.hide();
+          powerDetails.hide();
+          levelSelectGroup.hide();
+          
+          if (!schoolName) return;
+          
+          levelSelectGroup.show();
+          powerNameGroup.show();
+          
+          try {
+            const { getMagicPowersBySchool } = await import('../utils/magic-powers.js');
+            const powers = getMagicPowersBySchool(schoolName);
+            powersData = {};
+            
+            if (powers.length === 0) {
+              if (powerSelect) {
+                powerSelect.innerHTML = '<option value="">No predefined powers - Enter name manually below</option>';
+              }
+              powerSelectGroup.show();
+              powerDetails.hide();
+            } else {
+              powers.forEach(power => {
+                powersData[power.name] = power;
+                if (powerSelect) {
+                  const option = document.createElement('option');
+                  option.value = power.name;
+                  option.textContent = power.name;
+                  powerSelect.appendChild(option);
+                }
+              });
+              powerSelectGroup.show();
+            }
+          } catch (error) {
+            console.error('Error loading magic powers:', error);
+            powerSelectGroup.show();
+            powerNameGroup.show();
+            levelSelectGroup.show();
+          }
+        });
+        
+        // Handle mastery tree selection (for normal Powers)
         treeSelect?.addEventListener('change', async function() {
           const treeName = this.value;
           if (powerSelect) {
@@ -917,7 +1003,7 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
           let levelInfo = '<strong>Available Levels:</strong><br>';
           power.levels.forEach((level: any) => {
             levelInfo += `Level ${level.level}: ${level.type} - ${level.effect}`;
-            if (level.special && level.special !== '—') {
+            if (level.special && level.special !== '—' && level.special !== '') {
               levelInfo += ` (${level.special})`;
             }
             levelInfo += '<br>';
@@ -925,6 +1011,26 @@ export class MasteryCharacterSheet extends foundry.appv1.sheets.ActorSheet {
           powerLevelInfo.html(levelInfo);
           
           powerDetails.show();
+          
+          // Update level info when level is already selected
+          if (levelSelect && levelSelect.value) {
+            const level = parseInt(levelSelect.value);
+            const levelData = power.levels.find((l: any) => l.level === level);
+            if (levelData) {
+              let levelInfo = '<strong>Selected Level ' + level + ':</strong><br>';
+              levelInfo += `Type: ${levelData.type}<br>`;
+              levelInfo += `Range: ${levelData.range}<br>`;
+              if (levelData.aoe && levelData.aoe !== '—' && levelData.aoe !== '') {
+                levelInfo += `AoE: ${levelData.aoe}<br>`;
+              }
+              levelInfo += `Duration: ${levelData.duration}<br>`;
+              levelInfo += `Effect: ${levelData.effect}<br>`;
+              if (levelData.special && levelData.special !== '—' && levelData.special !== '') {
+                levelInfo += `Special: ${levelData.special}<br>`;
+              }
+              powerLevelInfo.html(levelInfo);
+            }
+          }
         });
         
         // Clear dropdown selection when typing manually

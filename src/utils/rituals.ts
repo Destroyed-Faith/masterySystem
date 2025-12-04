@@ -413,3 +413,7 @@ export function getRitual(name: string): RitualDefinition | undefined {
   return RITUALS.find(r => r.name.toLowerCase() === name.toLowerCase());
 }
 
+
+
+
+
