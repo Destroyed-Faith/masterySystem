@@ -250,8 +250,255 @@ export const POWERS = {
                 { level: 4, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'You gain +5 Attack Die against Marked targets', special: '—' }
             ]
         }
+    ],
+    'Berserker of the Blood Moon': [
+        {
+            name: 'Rending Strike',
+            tree: 'Berserker of the Blood Moon',
+            description: 'A vicious swing that tears flesh and armor, best used to stack high Bleeding on a single priority target and fuel your blood-based passives.',
+            levels: [
+                { level: 1, type: 'Melee', range: '0 m', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 2d8 damage', special: 'Bleeding(1)' },
+                { level: 2, type: 'Melee', range: '0 m', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 3d8 damage', special: 'Bleeding(3)' },
+                { level: 3, type: 'Melee', range: '0 m', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 4d8 damage', special: 'Bleeding(4)' },
+                { level: 4, type: 'Melee', range: '0 m', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 5d8 damage', special: 'Bleeding(5)' }
+            ]
+        },
+        {
+            name: 'Leaping Cleave',
+            tree: 'Berserker of the Blood Moon',
+            description: 'Leap into the fray and cut down foes in a brutal arc, best used to dive into clustered enemies and spread Bleeding across multiple targets at once.',
+            levels: [
+                { level: 1, type: 'Melee', range: 'Self', aoe: 'Radius 1 m', duration: 'Instant', effect: 'Weapon DMG + 1d8 damage', special: 'Bleeding(1)' },
+                { level: 2, type: 'Melee', range: 'Self', aoe: 'Radius 2 m', duration: 'Instant', effect: 'Weapon DMG + 2d8 damage', special: 'Bleeding(2)' },
+                { level: 3, type: 'Melee', range: 'Self', aoe: 'Radius 4 m', duration: 'Instant', effect: 'Weapon DMG + 3d8 damage', special: 'Bleeding(3)' },
+                { level: 4, type: 'Melee', range: 'Self', aoe: 'Radius 6 m', duration: 'Instant', effect: 'Weapon DMG + 4d8 damage', special: 'Bleeding(4)' }
+            ]
+        },
+        {
+            name: 'Reckless Attack',
+            tree: 'Berserker of the Blood Moon',
+            description: 'You throw caution aside and swing with brutal abandon, best used when a massive damage spike can finish a key foe or turn the fight in your favor. After resolving this attack, until the start of your next turn, attacks against you have Advantage.',
+            levels: [
+                { level: 1, type: 'Melee', range: '0 m', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 4d8 damage', special: '—' },
+                { level: 2, type: 'Melee', range: '0 m', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 6d8 damage', special: '—' },
+                { level: 3, type: 'Melee', range: '0 m', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 8d8 damage', special: '—' },
+                { level: 4, type: 'Melee', range: '0 m', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 10d8 damage', special: '—' }
+            ]
+        },
+        {
+            name: 'Rage of the Blood Moon',
+            tree: 'Berserker of the Blood Moon',
+            description: 'You let your own blood feed the fury, best used at the start of drawn-out melees where you can afford to trade your own HP for overwhelming damage every round.',
+            levels: [
+                { level: 1, type: 'Buff', range: 'Self', aoe: '—', duration: 'Mastery Rank Rounds', effect: 'Gain +3d8 damage, suffer Bleeding(1) (self) per Attack', special: '—' },
+                { level: 2, type: 'Buff', range: 'Self', aoe: '—', duration: 'Mastery Rank Rounds', effect: 'Gain +6d8 damage, suffer Bleeding(2) (self) per Attack', special: '—' },
+                { level: 3, type: 'Buff', range: 'Self', aoe: '—', duration: 'Mastery Rank Rounds', effect: 'Gain +8d8 damage, suffer Bleeding(3) (self) per Attack', special: '—' },
+                { level: 4, type: 'Buff', range: 'Self', aoe: '—', duration: 'Mastery Rank Rounds', effect: 'Gain +10d8 damage, suffer Bleeding(4) (self) per Attack', special: '—' }
+            ]
+        },
+        {
+            name: 'Brutal Howl',
+            tree: 'Berserker of the Blood Moon',
+            description: 'A primal scream that shakes enemy resolve, best used to blunt incoming damage from groups or to break the will of weaker foes before you close in.',
+            levels: [
+                { level: 1, type: 'Utility', range: 'Self', aoe: 'Radius 2 m', duration: '1 Round', effect: 'Enemies in radius suffer -1 Attack Die until your next turn', special: '—' },
+                { level: 2, type: 'Utility', range: 'Self', aoe: 'Radius 4 m', duration: '1 Round', effect: 'Enemies suffer -1 Attack Die until your next turn', special: 'Frightened(1)' },
+                { level: 3, type: 'Utility', range: 'Self', aoe: 'Radius 6 m', duration: '1 Round', effect: 'Enemies suffer -2 Attack Dice until your next turn', special: 'Frightened(1)' },
+                { level: 4, type: 'Utility', range: 'Self', aoe: 'Radius 8 m', duration: '1 Round', effect: 'Enemies suffer -2 Attack Dice until your next turn', special: 'Frightened(1)' }
+            ]
+        },
+        {
+            name: 'Bloodlust',
+            tree: 'Berserker of the Blood Moon',
+            description: 'The scent of blood drives you deeper into frenzy, best used when you stay close to already Bleeding enemies so every swing benefits from the extra damage.',
+            levels: [
+                { level: 1, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'While any enemy within 2 m is Bleeding, your attacks gain +3d8 damage.', special: '—' },
+                { level: 2, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'While any enemy within 4 m is Bleeding, your attacks gain +4d8 damage.', special: '—' },
+                { level: 3, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'While any enemy within 6 m is Bleeding, your attacks gain +5d8 damage.', special: '—' },
+                { level: 4, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'While any enemy within 8 m is Bleeding, your attacks gain +6d8 damage.', special: '—' }
+            ]
+        },
+        {
+            name: 'Blood Feast',
+            tree: 'Berserker of the Blood Moon',
+            description: 'Your wounds knit as enemy blood spatters the ground, best used when you remain in the thick of bleeding foes so your regeneration can keep pace with the punishment you take.',
+            levels: [
+                { level: 1, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'While any enemy or you within 2 m is Bleeding, gain Regeneration(5).', special: '—' },
+                { level: 2, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'While any enemy or you within 4 m is Bleeding, gain Regeneration(6).', special: '—' },
+                { level: 3, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'While any enemy or you within 6 m is Bleeding, gain Regeneration(7).', special: '—' },
+                { level: 4, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'While any enemy or you within 8 m is Bleeding, gain Regeneration(8).', special: '—' }
+            ]
+        }
+    ],
+    'Wild Stalker': [
+        {
+            name: 'Shackles',
+            tree: 'Wild Stalker',
+            description: 'A binding attack that roots enemies in place.',
+            levels: [
+                { level: 1, type: 'Ranged', range: '8 m', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 1d8 damage', special: 'Entangled(2)' },
+                { level: 2, type: 'Ranged', range: '16 m', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 2d8 damage', special: 'Entangled(3)' },
+                { level: 3, type: 'Ranged', range: '24 m', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 3d8 damage', special: 'Entangled(4)' },
+                { level: 4, type: 'Ranged', range: '32 m', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 4d8 damage', special: 'Entangled(5), Prone(1)' }
+            ]
+        },
+        {
+            name: 'Verdant Shackles',
+            tree: 'Wild Stalker',
+            description: 'An area effect that roots multiple enemies.',
+            levels: [
+                { level: 1, type: 'Ranged', range: '8 m', aoe: 'R 2 m', duration: '1 R', effect: 'Weapon DMG', special: 'Entangled(1)' },
+                { level: 2, type: 'Ranged', range: '12 m', aoe: 'R 3 m', duration: '1 R', effect: 'Weapon DMG + 1d8 damage', special: 'Entangled(2)' },
+                { level: 3, type: 'Ranged', range: '16 m', aoe: 'R 4 m', duration: '1 R', effect: 'Weapon DMG + 2d8 damage', special: 'Entangled(3)' },
+                { level: 4, type: 'Ranged', range: '20 m', aoe: 'R 4 m', duration: '1 R', effect: 'Weapon DMG + 3d8 damage', special: 'Entangled(4)' }
+            ]
+        },
+        {
+            name: 'Panic in Their Eyes',
+            tree: 'Wild Stalker',
+            description: 'A strike that terrifies entangled enemies.',
+            levels: [
+                { level: 1, type: 'Ranged', range: '8 m', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 1d8 damage', special: 'Frightened(2) if target is Entangled' },
+                { level: 2, type: 'Ranged', range: '12 m', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 2d8 damage', special: 'Frightened(3) if Entangled' },
+                { level: 3, type: 'Ranged', range: '16 m', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 3d8 damage', special: 'Frightened(4) if Entangled' },
+                { level: 4, type: 'Ranged', range: '20 m', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 4d8 damage', special: 'Frightened(5) if Entangled' }
+            ]
+        },
+        {
+            name: 'Predator\'s Gaze',
+            tree: 'Wild Stalker',
+            description: 'A buff that enhances attacks against frightened enemies.',
+            levels: [
+                { level: 1, type: 'Active Buff', range: 'Self', aoe: '—', duration: 'Mastery Rounds', effect: 'vs Frightened: -4 Evade + +1d8 damage.', special: '—' },
+                { level: 2, type: 'Active Buff', range: 'Self', aoe: '—', duration: 'Mastery Rounds', effect: 'vs Frightened: -6 Ev + 2d8 damage.', special: '—' },
+                { level: 3, type: 'Active Buff', range: 'Self', aoe: '—', duration: 'Mastery Rounds', effect: 'vs Frightened: -8 Ev + 3d8 damage + Crit(1).', special: '—' },
+                { level: 4, type: 'Active Buff', range: 'Self', aoe: '—', duration: 'Mastery Rounds', effect: 'vs Frightened: -10 Ev + 4d8 damage + Crit(2).', special: '—' }
+            ]
+        },
+        {
+            name: 'Bullseye',
+            tree: 'Wild Stalker',
+            description: 'A precision finisher for controlled targets.',
+            levels: [
+                { level: 1, type: 'Ranged', range: 'Weapon', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 2d8 damage', special: 'Penetration(1) + Crit(1) if target is Entangled or Frightened' },
+                { level: 2, type: 'Ranged', range: 'Weapon', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 3d8 damage', special: 'Penetration(2) + Crit(1) if Ent/Fri' },
+                { level: 3, type: 'Ranged', range: 'Weapon', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 4d8 damage', special: 'Penetration(3) + Crit(1) if Ent/Fri' },
+                { level: 4, type: 'Ranged', range: 'Weapon', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 5d8 damage', special: 'Penetration(4) + Crit(1) if Ent/Fri' }
+            ]
+        },
+        {
+            name: 'Green Hell',
+            tree: 'Wild Stalker',
+            description: 'A passive that spreads fear when hidden.',
+            levels: [
+                { level: 1, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'End of your turn: if you were Hidden and you dealt damage or applied Entangle, one affected enemy becomes Frightened(2).', special: '—' },
+                { level: 2, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'As above, plus Expose(1).', special: '—' },
+                { level: 3, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'As above, but Frightened(4) and Expose(4).', special: '—' },
+                { level: 4, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'As above, but Frightened(5) and Expose(6).', special: '—' }
+            ]
+        },
+        {
+            name: 'Camouflage',
+            tree: 'Wild Stalker',
+            description: 'Enhanced evade while hidden.',
+            levels: [
+                { level: 1, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'While Hidden, gain +4 Evade.', special: '—' },
+                { level: 2, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'While Hidden, gain +8 Evade.', special: '—' },
+                { level: 3, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'While Hidden, gain +13 Evade.', special: '—' },
+                { level: 4, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'While Hidden, gain +17 Evade.', special: '—' }
+            ]
+        },
+        {
+            name: 'Not Here!',
+            tree: 'Wild Stalker',
+            description: 'Enhanced concealment and initiative.',
+            levels: [
+                { level: 1, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'Gain +3 Concealment and +4 Initiative.', special: '—' },
+                { level: 2, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'Gain +6 Concealment and +8 Initiative.', special: '—' },
+                { level: 3, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'Gain +9 Concealment and +12 Initiative.', special: '—' },
+                { level: 4, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'Gain +12 Concealment and +16 Initiative.', special: '—' }
+            ]
+        }
+    ],
+    'Elemental Scholar': [
+        {
+            name: 'Way of the Fire',
+            tree: 'Elemental Scholar',
+            description: 'You ignite your strikes with disciplined flame.',
+            levels: [
+                { level: 1, type: 'Melee', range: '0 m', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 2d8 damage', special: 'Ignite(1)' },
+                { level: 2, type: 'Melee', range: '0 m', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 3d8 damage', special: 'Ignite(2)' },
+                { level: 3, type: 'Melee', range: '0 m', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 4d8 damage', special: 'Ignite(3)' },
+                { level: 4, type: 'Melee', range: '0 m', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 5d8 damage', special: 'Ignite(4)' }
+            ]
+        },
+        {
+            name: 'Way of the Air',
+            tree: 'Elemental Scholar',
+            description: 'Your strike carries the will of the storm.',
+            levels: [
+                { level: 1, type: 'Melee', range: '0 m', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 1d8 damage', special: 'Push(1), Shock(1)' },
+                { level: 2, type: 'Melee', range: '0 m', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 2d8 damage', special: 'Push(2), Shock(1)' },
+                { level: 3, type: 'Melee', range: '0 m', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 3d8 damage', special: 'Push(2), Shock(2)' },
+                { level: 4, type: 'Melee', range: '0 m', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 4d8 damage', special: 'Push(3), Shock(2)' }
+            ]
+        },
+        {
+            name: 'Way of the Earth',
+            tree: 'Elemental Scholar',
+            description: 'You strike with the patience and weight of stone.',
+            levels: [
+                { level: 1, type: 'Melee', range: '0 m', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 1d8 damage', special: 'Corrode(1)' },
+                { level: 2, type: 'Melee', range: '0 m', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 2d8 damage', special: 'Corrode(2)' },
+                { level: 3, type: 'Melee', range: '0 m', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 3d8 damage', special: 'Corrode(3)' },
+                { level: 4, type: 'Melee', range: '0 m', aoe: '—', duration: 'Instant', effect: 'Weapon DMG + 4d8 damage', special: 'Corrode(4)' }
+            ]
+        },
+        {
+            name: 'Elemental Stone Armor',
+            tree: 'Elemental Scholar',
+            description: 'An unbreakable vow to endure.',
+            levels: [
+                { level: 1, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'Gain +2 Armor for each unique elemental Special active on an opponent.', special: '—' },
+                { level: 2, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'Gain +4 Armor for each unique elemental Special active on an opponent.', special: '—' },
+                { level: 3, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'Gain +6 Armor for each unique elemental Special active on an opponent.', special: '—' },
+                { level: 4, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'Gain +8 Armor for each unique elemental Special active on an opponent.', special: '—' }
+            ]
+        },
+        {
+            name: 'Elemental Balance',
+            tree: 'Elemental Scholar',
+            description: 'The scholar strikes when the elements align.',
+            levels: [
+                { level: 1, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'If any opponent has 3+ unique elemental Specials, gain Extra Attack(1) for a Level 1 Power or Spell', special: '—' },
+                { level: 2, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'If any opponent has 4+ unique elemental Specials, gain Extra Attack(1) for a Level 2 Power or Spell', special: '—' },
+                { level: 3, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'If any opponent has 4+ unique elemental Specials, gain Extra Attack(1) for a Level 3 Power or Spell', special: '—' },
+                { level: 4, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'If any opponent has 4+ unique elemental Specials, gain Extra Attack(1) for a Level 4 Power or Spell', special: '—' }
+            ]
+        },
+        {
+            name: 'Elemental Flow',
+            tree: 'Elemental Scholar',
+            description: 'Balance restores what fury destroys.',
+            levels: [
+                { level: 1, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'End of your round: if any opponent suffers from 2+ unique elemental Specials, heal 1d8 HP.', special: '—' },
+                { level: 2, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'As above, heal 2d8 HP.', special: '—' },
+                { level: 3, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'As above, heal 3d8 HP.', special: '—' },
+                { level: 4, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'As above, heal 4d8 HP.', special: '—' }
+            ]
+        },
+        {
+            name: 'Elemental Reflexes',
+            tree: 'Elemental Scholar',
+            description: 'Harmony sharpens instinct.',
+            levels: [
+                { level: 1, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'While any opponent suffers from 2+ unique elemental Specials, gain +4 Evade.', special: '—' },
+                { level: 2, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'While any opponent suffers from 2+ unique elemental Specials, gain +8 Evade.', special: '—' },
+                { level: 3, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'While any opponent suffers from 2+ unique elemental Specials, gain +12 Evade.', special: '—' },
+                { level: 4, type: 'Passive', range: '—', aoe: '—', duration: '—', effect: 'While any opponent suffers from 2+ unique elemental Specials, gain +16 Evade.', special: '—' }
+            ]
+        }
     ]
-    // TODO: Add more trees (Wild Stalker, Berserker of the Blood Moon, etc.)
 };
 /**
  * Get all powers for a specific Mastery Tree
