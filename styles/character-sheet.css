@@ -934,7 +934,241 @@
   transform: scale(1.05);
 }
 
-/* ========== Powers & Magic Tabs ========== */
+/* ========== Powers & Magic Tabs (Compact Tabular) ========== */
+.mastery-system.sheet.actor.character .powers-overview,
+.mastery-system.sheet.actor.character .magic-overview {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding: 15px 20px;
+  background: linear-gradient(135deg, #f9f9f9 0%, #ffffff 100%);
+  border: 3px solid #8b0000;
+  border-radius: 12px;
+}
+
+.mastery-system.sheet.actor.character .powers-overview h3,
+.mastery-system.sheet.actor.character .magic-overview h3 {
+  margin: 0;
+  font-size: 20px;
+  color: #8b0000;
+  text-transform: uppercase;
+}
+
+.mastery-system.sheet.actor.character .add-power-btn,
+.mastery-system.sheet.actor.character .add-spell-btn {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #8b0000 0%, #a00000 100%);
+  border: none;
+  color: #fff;
+  font-weight: bold;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+}
+
+.mastery-system.sheet.actor.character .add-power-btn:hover,
+.mastery-system.sheet.actor.character .add-spell-btn:hover {
+  background: linear-gradient(135deg, #a00000 0%, #b00000 100%);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(139, 0, 0, 0.4);
+}
+
+/* Compact Power/Spell Rows */
+.mastery-system.sheet.actor.character .powers-table,
+.mastery-system.sheet.actor.character .spells-table {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mastery-system.sheet.actor.character .power-row-compact,
+.mastery-system.sheet.actor.character .spell-row-compact {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  gap: 8px;
+  padding: 10px;
+  background: #fff;
+  border: 2px solid #8b0000;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.mastery-system.sheet.actor.character .power-row-compact:hover,
+.mastery-system.sheet.actor.character .spell-row-compact:hover {
+  box-shadow: 0 3px 10px rgba(139, 0, 0, 0.2);
+  transform: translateX(2px);
+}
+
+/* Row Layout */
+.mastery-system.sheet.actor.character .power-main-info,
+.mastery-system.sheet.actor.character .spell-main-info {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mastery-system.sheet.actor.character .power-name-compact,
+.mastery-system.sheet.actor.character .spell-name-compact {
+  font-size: 15px;
+  font-weight: bold;
+  color: #333;
+}
+
+.mastery-system.sheet.actor.character .power-tree-badge,
+.mastery-system.sheet.actor.character .spell-school-badge {
+  font-size: 10px;
+  padding: 3px 8px;
+  background: #8b0000;
+  color: #fff;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.mastery-system.sheet.actor.character .power-stats-compact,
+.mastery-system.sheet.actor.character .spell-stats-compact {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.mastery-system.sheet.actor.character .stat-badge {
+  font-size: 9px;
+  padding: 3px 6px;
+  border-radius: 3px;
+  font-weight: 600;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.mastery-system.sheet.actor.character .level-badge {
+  background: #4a90e2;
+  color: #fff;
+}
+
+.mastery-system.sheet.actor.character .type-badge {
+  background: #9b59b6;
+  color: #fff;
+}
+
+.mastery-system.sheet.actor.character .range-badge,
+.mastery-system.sheet.actor.character .casting-badge {
+  background: #27ae60;
+  color: #fff;
+}
+
+.mastery-system.sheet.actor.character .cost-badge,
+.mastery-system.sheet.actor.character .stones-badge {
+  background: #e74c3c;
+  color: #fff;
+}
+
+.mastery-system.sheet.actor.character .power-effect-compact,
+.mastery-system.sheet.actor.character .spell-effect-compact {
+  grid-column: 1;
+  grid-row: 2;
+  font-size: 12px;
+  color: #666;
+  line-height: 1.4;
+}
+
+.mastery-system.sheet.actor.character .effect-text {
+  margin: 0;
+}
+
+.mastery-system.sheet.actor.character .power-actions-compact,
+.mastery-system.sheet.actor.character .spell-actions-compact {
+  grid-column: 2;
+  grid-row: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.mastery-system.sheet.actor.character .equipped-toggle,
+.mastery-system.sheet.actor.character .prepared-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #666;
+  cursor: pointer;
+}
+
+.mastery-system.sheet.actor.character .equipped-toggle input,
+.mastery-system.sheet.actor.character .prepared-toggle input {
+  cursor: pointer;
+}
+
+.mastery-system.sheet.actor.character .item-edit-compact,
+.mastery-system.sheet.actor.character .item-delete-compact {
+  padding: 4px 8px;
+  background: #666;
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 12px;
+}
+
+.mastery-system.sheet.actor.character .item-edit-compact:hover {
+  background: #8b0000;
+  transform: scale(1.1);
+}
+
+.mastery-system.sheet.actor.character .item-delete-compact:hover {
+  background: #cc0000;
+  transform: scale(1.1);
+}
+
+.mastery-system.sheet.actor.character .empty-message {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+  font-style: italic;
+  font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 800px) {
+  .mastery-system.sheet.actor.character .power-row-compact,
+  .mastery-system.sheet.actor.character .spell-row-compact {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto;
+  }
+  
+  .mastery-system.sheet.actor.character .power-stats-compact,
+  .mastery-system.sheet.actor.character .spell-stats-compact {
+    grid-column: 1;
+    grid-row: 2;
+    justify-content: flex-start;
+  }
+  
+  .mastery-system.sheet.actor.character .power-effect-compact,
+  .mastery-system.sheet.actor.character .spell-effect-compact {
+    grid-row: 3;
+  }
+  
+  .mastery-system.sheet.actor.character .power-actions-compact,
+  .mastery-system.sheet.actor.character .spell-actions-compact {
+    grid-column: 1;
+    grid-row: 4;
+    justify-content: flex-start;
+  }
+}
+
+/* Old Power/Spell Cards (removed) */
 .mastery-system.sheet.actor.character .powers-overview,
 .mastery-system.sheet.actor.character .magic-overview {
   display: flex;

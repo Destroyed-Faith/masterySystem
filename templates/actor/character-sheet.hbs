@@ -634,31 +634,54 @@
         </button>
       </div>
       
-      <!-- Powers List -->
+      <!-- Powers List (Compact Table) -->
       <div class="powers-list-section">
         {{#if items.powers}}
-          {{#each items.powers}}
-            <div class="power-card" data-item-id="{{this.id}}">
-              <div class="power-header">
-                <h4 class="power-name">{{this.name}}</h4>
-                <div class="power-controls">
-                  <button type="button" class="item-edit" title="Edit"><i class="fas fa-edit"></i></button>
-                  <button type="button" class="item-delete" title="Delete"><i class="fas fa-trash"></i></button>
+          <div class="powers-table">
+            {{#each items.powers}}
+              <div class="power-row-compact" data-item-id="{{this.id}}">
+                <div class="power-main-info">
+                  <span class="power-name-compact">{{this.name}}</span>
+                  <span class="power-tree-badge">{{default this.system.tree "No Tree"}}</span>
+                </div>
+                
+                <div class="power-stats-compact">
+                  <span class="stat-badge level-badge">Lv {{default this.system.level 1}}</span>
+                  <span class="stat-badge type-badge">{{default this.system.powerType "Active"}}</span>
+                  {{#if this.system.range}}
+                    <span class="stat-badge range-badge">{{this.system.range}}</span>
+                  {{/if}}
+                  {{#if this.system.cost.action}}
+                    <span class="stat-badge cost-badge">1 Action</span>
+                  {{/if}}
+                  {{#if (gt this.system.cost.stones 0)}}
+                    <span class="stat-badge stones-badge">{{this.system.cost.stones}} Stones</span>
+                  {{/if}}
+                </div>
+                
+                <div class="power-effect-compact">
+                  {{#if this.system.effect}}
+                    <p class="effect-text">{{this.system.effect}}</p>
+                  {{else}}
+                    <p class="effect-text">{{this.system.description}}</p>
+                  {{/if}}
+                </div>
+                
+                <div class="power-actions-compact">
+                  <label class="equipped-toggle">
+                    <input type="checkbox" name="items.{{this.id}}.system.equipped" {{#if this.system.equipped}}checked{{/if}} />
+                    <span>Equipped</span>
+                  </label>
+                  <button type="button" class="item-edit-compact" data-item-id="{{this.id}}" title="Edit">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button type="button" class="item-delete-compact" data-item-id="{{this.id}}" title="Delete">
+                    <i class="fas fa-trash"></i>
+                  </button>
                 </div>
               </div>
-              <div class="power-details">
-                <span class="power-tree">{{default this.system.tree "No Tree"}}</span>
-                <span class="power-level">Level {{default this.system.level 1}}</span>
-                <span class="power-type">{{default this.system.powerType "Active"}}</span>
-              </div>
-              <div class="power-description">{{this.system.description}}</div>
-              {{#if this.system.equipped}}
-                <button type="button" class="power-use-btn" data-power-id="{{this.id}}">
-                  <i class="fas fa-bolt"></i> Use Power
-                </button>
-              {{/if}}
-            </div>
-          {{/each}}
+            {{/each}}
+          </div>
         {{else}}
           <p class="empty-message">No powers yet. Click "Add Power" to start.</p>
         {{/if}}
@@ -676,31 +699,47 @@
         </button>
       </div>
       
-      <!-- Spells List -->
+      <!-- Spells List (Compact Table) -->
       <div class="spells-list-section">
         {{#if items.spells}}
-          {{#each items.spells}}
-            <div class="spell-card" data-item-id="{{this.id}}">
-              <div class="spell-header">
-                <h4 class="spell-name">{{this.name}}</h4>
-                <div class="spell-controls">
-                  <button type="button" class="item-edit" title="Edit"><i class="fas fa-edit"></i></button>
-                  <button type="button" class="item-delete" title="Delete"><i class="fas fa-trash"></i></button>
+          <div class="spells-table">
+            {{#each items.spells}}
+              <div class="spell-row-compact" data-item-id="{{this.id}}">
+                <div class="spell-main-info">
+                  <span class="spell-name-compact">{{this.name}}</span>
+                  <span class="spell-school-badge">{{default this.system.school "No School"}}</span>
+                </div>
+                
+                <div class="spell-stats-compact">
+                  <span class="stat-badge level-badge">Lv {{default this.system.level 1}}</span>
+                  <span class="stat-badge type-badge">{{default this.system.spellType "Active"}}</span>
+                  {{#if this.system.range}}
+                    <span class="stat-badge range-badge">{{this.system.range}}</span>
+                  {{/if}}
+                  {{#if this.system.castingTime}}
+                    <span class="stat-badge casting-badge">{{this.system.castingTime}}</span>
+                  {{/if}}
+                </div>
+                
+                <div class="spell-effect-compact">
+                  <p class="effect-text">{{this.system.description}}</p>
+                </div>
+                
+                <div class="spell-actions-compact">
+                  <label class="prepared-toggle">
+                    <input type="checkbox" name="items.{{this.id}}.system.prepared" {{#if this.system.prepared}}checked{{/if}} />
+                    <span>Prepared</span>
+                  </label>
+                  <button type="button" class="item-edit-compact" data-item-id="{{this.id}}" title="Edit">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button type="button" class="item-delete-compact" data-item-id="{{this.id}}" title="Delete">
+                    <i class="fas fa-trash"></i>
+                  </button>
                 </div>
               </div>
-              <div class="spell-details">
-                <span class="spell-school">{{default this.system.school "No School"}}</span>
-                <span class="spell-level">Level {{default this.system.level 1}}</span>
-                <span class="spell-type">{{default this.system.spellType "Active"}}</span>
-              </div>
-              <div class="spell-description">{{this.system.description}}</div>
-              {{#if this.system.prepared}}
-                <button type="button" class="spell-cast-btn" data-spell-id="{{this.id}}">
-                  <i class="fas fa-magic"></i> Cast Spell
-                </button>
-              {{/if}}
-            </div>
-          {{/each}}
+            {{/each}}
+          </div>
         {{else}}
           <p class="empty-message">No spells yet. Click "Add Spell" to start.</p>
         {{/if}}

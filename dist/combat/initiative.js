@@ -125,8 +125,10 @@ async function onCombatTurn(combat, _updateData, _options) {
  * Add custom buttons to combat tracker
  */
 function onRenderCombatTracker(_app, html, _data) {
+    // Convert to jQuery if needed
+    const $html = html instanceof jQuery ? html : $(html);
     // Add a "Roll Initiative (All)" button
-    const header = html.find('.directory-header');
+    const header = $html.find('.directory-header');
     if (header.find('.roll-initiative-all').length === 0) {
         const button = $(`
       <button class="roll-initiative-all" title="Roll Initiative for All">

@@ -155,9 +155,12 @@ async function onCombatTurn(combat: any, _updateData: any, _options: any): Promi
 /**
  * Add custom buttons to combat tracker
  */
-function onRenderCombatTracker(_app: any, html: JQuery, _data: any): void {
+function onRenderCombatTracker(_app: any, html: any, _data: any): void {
+  // Convert to jQuery if needed
+  const $html: any = html instanceof jQuery ? html : $(html);
+  
   // Add a "Roll Initiative (All)" button
-  const header = html.find('.directory-header');
+  const header = $html.find('.directory-header');
   
   if (header.find('.roll-initiative-all').length === 0) {
     const button = $(`

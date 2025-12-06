@@ -274,10 +274,12 @@ export class MasteryCharacterSheet extends ActorSheet {
         html.find('.reduce-stress-btn').on('click', this.#onReduceStress.bind(this));
         // Power selection for action use
         html.find('.use-power-action').on('click', this.#onUsePowerWithAction.bind(this));
-        // Item controls
+        // Item controls (both old and new compact versions)
         html.find('.item-create').on('click', this.#onItemCreate.bind(this));
         html.find('.item-edit').on('click', this.#onItemEdit.bind(this));
         html.find('.item-delete').on('click', this.#onItemDelete.bind(this));
+        html.find('.item-edit-compact').on('click', this.#onItemEdit.bind(this));
+        html.find('.item-delete-compact').on('click', this.#onItemDelete.bind(this));
         // HP adjustment
         html.find('.hp-adjust').on('click', this.#onHPAdjust.bind(this));
         // Stress adjustment
