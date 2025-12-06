@@ -969,24 +969,189 @@ export class MasteryCharacterSheet extends ActorSheet {
     }
     /**
      * Handle add power or spell
+     * Opens a dialog to select from predefined Mastery Trees or Spell Schools
      * @param itemType - Type of item to create ('special' or 'spell')
      */
     async #onAddPowerOrSpell(itemType) {
-        // Create new item
-        const itemData = {
-            name: itemType === 'special' ? 'New Power' : 'New Spell',
-            type: itemType,
-            system: {
-                description: '',
-                tree: '',
-                school: '',
-                level: 1,
-                equipped: false,
-                prepared: false
-            }
-        };
-        await this.actor.createEmbeddedDocuments('Item', [itemData]);
-        this.render(false);
+        if (itemType === 'special') {
+            // Show Mastery Trees selection dialog
+            await this.#showMasteryTreeSelectionDialog();
+        }
+        else if (itemType === 'spell') {
+            // Show Spell Schools selection dialog
+            await this.#showSpellSchoolSelectionDialog();
+        }
+    }
+    /**
+     * Show dialog to select a Mastery Tree
+     */
+    async #showMasteryTreeSelectionDialog() {
+        const { getAllMasteryTrees } = await import('../utils/mastery-trees.js');
+        const trees = getAllMasteryTrees();
+        // Build HTML for tree selection
+        let html = '<div class="mastery-tree-selection"><h3>Select Mastery Tree</h3>';
+        html += '<p>Choose a Mastery Tree to add powers from:</p>';
+        html += '<div class="tree-list" style="max-height: 400px; overflow-y: auto;">';
+        for (const tree of trees) {
+            html += `
+        <div class="tree-option" data-tree-key="${tree.name.toLowerCase().replace(/\s+/g, '')}" style="
+          padding: 12px;
+          margin: 8px 0;
+          border: 2px solid #8b0000;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.2s;
+          background: #fff;
+        ">
+          <h4 style="margin: 0 0 5px 0; color: #8b0000;">${tree.name}</h4>
+          <p style="margin: 0 0 5px 0; font-size: 12px; color: #666;">${tree.focus}</p>
+          <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+            ${tree.roles.map(role => `<span style="font-size: 10px; padding: 2px 6px; background: #e0e0e0; border-radius: 3px;">${role}</span>`).join('')}
+          </div>
+          ${tree.bonus ? `<p style="margin: 5px 0 0 0; font-size: 11px; font-style: italic; color: #444;"><strong>Bonus:</strong> ${tree.bonus}</p>` : ''}
+        </div>
+      `;
+        }
+        html += '</div></div>';
+        // Show dialog
+        return new Promise((resolve) => {
+            const dialog = new Dialog({
+                title: 'Add Mastery Power',
+                content: html,
+                buttons: {
+                    cancel: {
+                        label: 'Cancel',
+                        callback: () => resolve()
+                    }
+                },
+                default: 'cancel',
+                render: (html) => {
+                    // Add click handlers to tree options
+                    html.find('.tree-option').on('click', async (event) => {
+                        const treeKey = $(event.currentTarget).data('tree-key');
+                        const treeName = trees.find(t => t.name.toLowerCase().replace(/\s+/g, '') === treeKey)?.name || treeKey;
+                        // Create a power for this tree
+                        const itemData = {
+                            name: `New ${treeName} Power`,
+                            type: 'special',
+                            system: {
+                                description: `A power from the ${treeName} tree.`,
+                                tree: treeName,
+                                level: 1,
+                                equipped: false,
+                                powerType: 'active'
+                            }
+                        };
+                        await this.actor.createEmbeddedDocuments('Item', [itemData]);
+                        dialog.close();
+                        this.render(false);
+                        resolve();
+                    });
+                    // Add hover effects
+                    html.find('.tree-option').on('mouseenter', function () {
+                        $(this).css({
+                            'transform': 'translateX(5px)',
+                            'box-shadow': '0 4px 12px rgba(139, 0, 0, 0.3)',
+                            'border-color': '#a00000'
+                        });
+                    }).on('mouseleave', function () {
+                        $(this).css({
+                            'transform': 'translateX(0)',
+                            'box-shadow': 'none',
+                            'border-color': '#8b0000'
+                        });
+                    });
+                }
+            });
+            dialog.render(true);
+        });
+    }
+    /**
+     * Show dialog to select a Spell School
+     */
+    async #showSpellSchoolSelectionDialog() {
+        const { getAllSpellSchools } = await import('../utils/spell-schools.js');
+        const schools = getAllSpellSchools();
+        // Build HTML for school selection
+        let html = '<div class="spell-school-selection"><h3>Select Spell School</h3>';
+        html += '<p>Choose a Spell School to add spells from:</p>';
+        html += '<div class="school-list" style="max-height: 400px; overflow-y: auto;">';
+        for (const school of schools) {
+            html += `
+        <div class="school-option" data-school-key="${school.name.toLowerCase().replace(/\s+/g, '')}" style="
+          padding: 12px;
+          margin: 8px 0;
+          border: 2px solid #8b0000;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.2s;
+          background: #fff;
+        ">
+          <h4 style="margin: 0 0 5px 0; color: #8b0000;">${school.fullName}</h4>
+          <p style="margin: 0 0 5px 0; font-size: 12px; color: #666;">${school.focus}</p>
+          <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+            ${school.roles.map(role => `<span style="font-size: 10px; padding: 2px 6px; background: #e0e0e0; border-radius: 3px;">${role}</span>`).join('')}
+          </div>
+          ${school.bonus ? `<p style="margin: 5px 0 0 0; font-size: 11px; font-style: italic; color: #444;"><strong>Bonus:</strong> ${school.bonus}</p>` : ''}
+        </div>
+      `;
+        }
+        html += '</div></div>';
+        // Show dialog
+        return new Promise((resolve) => {
+            const dialog = new Dialog({
+                title: 'Add Spell',
+                content: html,
+                buttons: {
+                    cancel: {
+                        label: 'Cancel',
+                        callback: () => resolve()
+                    }
+                },
+                default: 'cancel',
+                render: (html) => {
+                    // Add click handlers to school options
+                    html.find('.school-option').on('click', async (event) => {
+                        const schoolKey = $(event.currentTarget).data('school-key');
+                        const schoolName = schools.find(s => s.name.toLowerCase().replace(/\s+/g, '') === schoolKey)?.name || schoolKey;
+                        // Create a spell for this school
+                        const itemData = {
+                            name: `New ${schoolName} Spell`,
+                            type: 'spell',
+                            system: {
+                                description: `A spell from the ${schoolName} school.`,
+                                school: schoolName,
+                                level: 1,
+                                prepared: false,
+                                spellType: 'active',
+                                castingTime: '1 action',
+                                range: '0m',
+                                duration: 'instant'
+                            }
+                        };
+                        await this.actor.createEmbeddedDocuments('Item', [itemData]);
+                        dialog.close();
+                        this.render(false);
+                        resolve();
+                    });
+                    // Add hover effects
+                    html.find('.school-option').on('mouseenter', function () {
+                        $(this).css({
+                            'transform': 'translateX(5px)',
+                            'box-shadow': '0 4px 12px rgba(139, 0, 0, 0.3)',
+                            'border-color': '#a00000'
+                        });
+                    }).on('mouseleave', function () {
+                        $(this).css({
+                            'transform': 'translateX(0)',
+                            'box-shadow': 'none',
+                            'border-color': '#8b0000'
+                        });
+                    });
+                }
+            });
+            dialog.render(true);
+        });
     }
     /**
      * Handle maneuver use
