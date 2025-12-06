@@ -6,6 +6,7 @@ import { calculateStones, calculateTotalStones, initializeHealthBars, updateHeal
 import { applyPassiveEffects } from '../powers/passives.js';
 import { applyBuffEffects } from '../powers/buffs.js';
 import { initializeHealthLevels } from '../combat/health.js';
+import { calculateEquipmentPenalties, getShieldBonuses } from '../combat/equipment.js';
 export class MasteryActor extends Actor {
     /**
      * Augment the basic actor data with additional dynamic data
@@ -99,13 +100,20 @@ export class MasteryActor extends Actor {
             // Auto-calculate Evade: Agility + Defensive Combat Skill + (Mastery Rank × 2)
             const agility = system.attributes.agility?.value || 0;
             const defensiveCombat = system.skills?.defensiveCombat || 0;
-            const baseEvade = agility + defensiveCombat + (masteryRank * 2);
-            // Add equipment bonuses (shield, armor)
-            const shieldEvadeBonus = system.combat.shieldEvadeBonus || 0;
-            const armorEvadeBonus = system.combat.armorEvadeBonus || 0;
-            const equipmentEvadeBonus = shieldEvadeBonus + armorEvadeBonus;
-            // Store base evade (before passives and buffs)
-            system.combat.evadeBase = baseEvade + equipmentEvadeBonus;
+            let baseEvade = agility + defensiveCombat + (masteryRank * 2);
+            // Get shield bonuses (AR and Evade)
+            const shieldType = system.combat.shieldType || 'none';
+            const shieldBonuses = getShieldBonuses(shieldType);
+            system.combat.shieldEvadeBonus = shieldBonuses.evade;
+            system.combat.shield = shieldBonuses.armor;
+            // Add shield evade bonus to base
+            baseEvade += shieldBonuses.evade;
+            // Calculate equipment penalties
+            const equipmentPenalties = calculateEquipmentPenalties(this);
+            // Apply equipment penalties to evade
+            baseEvade -= equipmentPenalties.evade;
+            // Store base evade (after equipment, before passives and buffs)
+            system.combat.evadeBase = baseEvade;
             // Apply passive bonuses to armor and evade
             const baseArmor = system.combat.armor || 0;
             const armorWithPassives = applyPassiveEffects(this, 'armor', baseArmor);
@@ -115,6 +123,8 @@ export class MasteryActor extends Actor {
             system.combat.evadeTotal = applyBuffEffects(this, 'evade', evadeWithPassives);
             // Set the final evade value
             system.combat.evade = system.combat.evadeTotal;
+            // Store equipment penalties for display
+            system.combat.equipmentPenalties = equipmentPenalties;
         }
         // Update Mastery Charges max
         if (system.mastery) {

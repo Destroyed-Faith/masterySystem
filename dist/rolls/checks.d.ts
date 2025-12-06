@@ -1,6 +1,13 @@
 /**
- * Check Workflow for Mastery System
- * Handles skill checks, attribute checks, and saves with TN and Raises
+ * Roll & Keep d8 System for Mastery System
+ *
+ * Core dice rolling mechanic:
+ * - Roll X d8 (pool = Attribute)
+ * - Keep K dice (keep = Mastery Rank)
+ * - 8s explode (roll again and add)
+ * - Advantage: reroll 1s once
+ * - Disadvantage: only highest die explodes
+ * - Raises: declared before roll, each adds +4 to TN
  */
 import { type RollKeepResult } from '../rolls/rollKeep';
 /**

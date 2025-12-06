@@ -12,6 +12,7 @@ export interface HealthLevel {
     boxes: number;
     damageBoxes: number;
     penalty: number;
+    scarred: boolean;
 }
 export interface HealthLevelsData {
     levels: HealthLevel[];
@@ -40,6 +41,7 @@ export declare function getHealthLevelsData(actor: any): HealthLevelsData;
 /**
  * Apply damage to health levels
  * Fills boxes from top to bottom
+ * Marks level as scarred when completely filled
  *
  * @param actor - The actor taking damage
  * @param damage - Amount of damage
@@ -48,13 +50,18 @@ export declare function getHealthLevelsData(actor: any): HealthLevelsData;
 export declare function applyDamageToHealthLevels(actor: any, damage: number): Promise<HealthLevelsData>;
 /**
  * Heal damage from health levels
- * Clears boxes from bottom to top
+ * Clears boxes from the CURRENT active level only (per rules)
+ * Cannot heal scarred levels
  *
  * @param actor - The actor being healed
  * @param healing - Amount of healing
  * @returns Updated health levels
  */
 export declare function healHealthLevels(actor: any, healing: number): Promise<HealthLevelsData>;
+/**
+ * Long rest healing - removes scarring and heals all levels
+ */
+export declare function longRestHeal(actor: any): Promise<void>;
 /**
  * Get wound penalty for rolls
  * Used when rolling dice - subtract this many dice from the pool

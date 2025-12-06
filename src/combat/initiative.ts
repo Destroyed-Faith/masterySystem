@@ -20,6 +20,8 @@ import { regenerateStones } from './resources';
 import { updateConditionsForRound } from '../effects/conditions';
 import { resetChargedPowerFlag } from '../powers/charges';
 import { updateBuffDurations } from '../powers/buffs';
+import { decrementUtilityDurations } from '../powers/utilities';
+import { performDeathSave, isIncapacitated } from './death';
 
 /**
  * Initialize combat hooks
@@ -102,6 +104,9 @@ async function resetCombatantResources(combat: any): Promise<void> {
     // Update buff durations
     await updateBuffDurations(actor);
     
+    // Update utility durations
+    await decrementUtilityDurations(actor);
+    
     // Reset Charged Power flag (can use 1 per round)
     await resetChargedPowerFlag(actor);
     
@@ -136,8 +141,15 @@ async function onCombatTurn(combat: any, _updateData: any, _options: any): Promi
   const currentCombatant = combat.combatant;
   if (!currentCombatant || !currentCombatant.actor) return;
   
+  const actor = currentCombatant.actor;
+  
+  // Check if actor is incapacitated and needs death save
+  if (isIncapacitated(actor)) {
+    await performDeathSave(actor);
+  }
+  
   // Reset actions for this actor's turn (expire converted Reactions)
-  await resetActionsForTurn(currentCombatant.actor);
+  await resetActionsForTurn(actor);
 }
 
 /**

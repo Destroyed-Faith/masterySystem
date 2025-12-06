@@ -13,6 +13,7 @@ export interface HealthLevel {
   boxes: number;           // Total boxes (Vitality × 2)
   damageBoxes: number;     // Boxes currently filled with damage
   penalty: number;         // Penalty when this level is damaged (-1 die)
+  scarred: boolean;        // Cannot be healed in combat/day
 }
 
 export interface HealthLevelsData {
@@ -39,14 +40,14 @@ export function initializeHealthLevels(vitality: number): HealthLevel[] {
   const boxesPerLevel = vitality * 2;
   
   return [
-    { name: 'Healthy', boxes: boxesPerLevel, damageBoxes: 0, penalty: 0 },
-    { name: 'Bruised', boxes: boxesPerLevel, damageBoxes: 0, penalty: 1 },
-    { name: 'Hurt', boxes: boxesPerLevel, damageBoxes: 0, penalty: 2 },
-    { name: 'Injured', boxes: boxesPerLevel, damageBoxes: 0, penalty: 3 },
-    { name: 'Wounded', boxes: boxesPerLevel, damageBoxes: 0, penalty: 4 },
-    { name: 'Mauled', boxes: boxesPerLevel, damageBoxes: 0, penalty: 5 },
-    { name: 'Crippled', boxes: boxesPerLevel, damageBoxes: 0, penalty: 6 },
-    { name: 'Incapacitated', boxes: boxesPerLevel, damageBoxes: 0, penalty: 999 }
+    { name: 'Healthy', boxes: boxesPerLevel, damageBoxes: 0, penalty: 0, scarred: false },
+    { name: 'Bruised', boxes: boxesPerLevel, damageBoxes: 0, penalty: 1, scarred: false },
+    { name: 'Hurt', boxes: boxesPerLevel, damageBoxes: 0, penalty: 2, scarred: false },
+    { name: 'Injured', boxes: boxesPerLevel, damageBoxes: 0, penalty: 3, scarred: false },
+    { name: 'Wounded', boxes: boxesPerLevel, damageBoxes: 0, penalty: 4, scarred: false },
+    { name: 'Mauled', boxes: boxesPerLevel, damageBoxes: 0, penalty: 5, scarred: false },
+    { name: 'Crippled', boxes: boxesPerLevel, damageBoxes: 0, penalty: 6, scarred: false },
+    { name: 'Incapacitated', boxes: boxesPerLevel, damageBoxes: 0, penalty: 999, scarred: false }
   ];
 }
 
@@ -85,6 +86,7 @@ export function getHealthLevelsData(actor: any): HealthLevelsData {
 /**
  * Apply damage to health levels
  * Fills boxes from top to bottom
+ * Marks level as scarred when completely filled
  * 
  * @param actor - The actor taking damage
  * @param damage - Amount of damage
@@ -109,6 +111,12 @@ export async function applyDamageToHealthLevels(
     
     level.damageBoxes += boxesToFill;
     remainingDamage -= boxesToFill;
+    
+    // Mark as scarred if level is completely filled
+    if (level.damageBoxes >= level.boxes && !level.scarred) {
+      level.scarred = true;
+      console.log(`Mastery System | Health level ${level.name} is now scarred`);
+    }
   }
   
   // Save updated levels
@@ -150,7 +158,8 @@ export async function applyDamageToHealthLevels(
 
 /**
  * Heal damage from health levels
- * Clears boxes from bottom to top
+ * Clears boxes from the CURRENT active level only (per rules)
+ * Cannot heal scarred levels
  * 
  * @param actor - The actor being healed
  * @param healing - Amount of healing
@@ -166,16 +175,24 @@ export async function healHealthLevels(
   
   let remainingHealing = healing;
   
-  // Clear boxes from bottom to top (reverse order)
+  // Find the current active level (highest damaged, non-scarred level)
+  let currentLevelIndex = -1;
   for (let i = levels.length - 1; i >= 0; i--) {
-    if (remainingHealing <= 0) break;
-    
-    const level = levels[i];
-    const boxesToClear = Math.min(remainingHealing, level.damageBoxes);
-    
-    level.damageBoxes -= boxesToClear;
-    remainingHealing -= boxesToClear;
+    if (levels[i].damageBoxes > 0 && !levels[i].scarred) {
+      currentLevelIndex = i;
+      break;
+    }
   }
+  
+  if (currentLevelIndex === -1) {
+    ui.notifications?.info(`${actor.name} has no healable damage (all scarred or undamaged)`);
+    return healthData;
+  }
+  
+  // Heal only the current level
+  const currentLevel = levels[currentLevelIndex];
+  const boxesToClear = Math.min(remainingHealing, currentLevel.damageBoxes);
+  currentLevel.damageBoxes -= boxesToClear;
   
   // Save updated levels
   await actor.update({
@@ -184,11 +201,42 @@ export async function healHealthLevels(
   
   const newHealthData = getHealthLevelsData(actor);
   
-  ui.notifications?.info(`${actor.name} healed ${healing} damage (penalty now: -${newHealthData.currentPenalty} dice)`);
+  ui.notifications?.info(`${actor.name} healed ${boxesToClear} damage (penalty now: -${newHealthData.currentPenalty} dice)`);
   
-  console.log(`Mastery System | ${actor.name} healed ${healing}, penalty: -${newHealthData.currentPenalty} dice`);
+  console.log(`Mastery System | ${actor.name} healed ${boxesToClear} in ${currentLevel.name}, penalty: -${newHealthData.currentPenalty} dice`);
   
   return newHealthData;
+}
+
+/**
+ * Long rest healing - removes scarring and heals all levels
+ */
+export async function longRestHeal(actor: any): Promise<void> {
+  const healthData = getHealthLevelsData(actor);
+  const levels = healthData.levels.map(level => ({
+    ...level,
+    damageBoxes: 0,
+    scarred: false
+  }));
+  
+  await actor.update({
+    'system.health.levels': levels
+  });
+  
+  await ChatMessage.create({
+    user: (game as any).user?.id,
+    speaker: ChatMessage.getSpeaker({ actor }),
+    content: `
+      <div class="mastery-long-rest">
+        <h3>${actor.name} completes a Long Rest</h3>
+        <p>All Health Levels restored and scarring removed.</p>
+      </div>
+    `,
+    type: CONST.CHAT_MESSAGE_TYPES.OTHER
+  });
+  
+  ui.notifications?.info(`${actor.name} fully healed from Long Rest!`);
+  console.log(`Mastery System | ${actor.name} long rest - all levels healed and unscarred`);
 }
 
 /**

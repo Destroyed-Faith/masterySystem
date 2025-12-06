@@ -13,6 +13,8 @@ import { regenerateStones } from './resources.js';
 import { updateConditionsForRound } from '../effects/conditions.js';
 import { resetChargedPowerFlag } from '../powers/charges.js';
 import { updateBuffDurations } from '../powers/buffs.js';
+import { decrementUtilityDurations } from '../powers/utilities.js';
+import { performDeathSave, isIncapacitated } from './death.js';
 /**
  * Initialize combat hooks
  */
@@ -79,6 +81,8 @@ async function resetCombatantResources(combat) {
         await updateConditionsForRound(actor);
         // Update buff durations
         await updateBuffDurations(actor);
+        // Update utility durations
+        await decrementUtilityDurations(actor);
         // Reset Charged Power flag (can use 1 per round)
         await resetChargedPowerFlag(actor);
         // Clear initiative shop flags
@@ -109,8 +113,13 @@ async function onCombatTurn(combat, _updateData, _options) {
     const currentCombatant = combat.combatant;
     if (!currentCombatant || !currentCombatant.actor)
         return;
+    const actor = currentCombatant.actor;
+    // Check if actor is incapacitated and needs death save
+    if (isIncapacitated(actor)) {
+        await performDeathSave(actor);
+    }
     // Reset actions for this actor's turn (expire converted Reactions)
-    await resetActionsForTurn(currentCombatant.actor);
+    await resetActionsForTurn(actor);
 }
 /**
  * Add custom buttons to combat tracker

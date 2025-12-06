@@ -1,9 +1,17 @@
 /**
- * Check Workflow for Mastery System
- * Handles skill checks, attribute checks, and saves with TN and Raises
+ * Roll & Keep d8 System for Mastery System
+ *
+ * Core dice rolling mechanic:
+ * - Roll X d8 (pool = Attribute)
+ * - Keep K dice (keep = Mastery Rank)
+ * - 8s explode (roll again and add)
+ * - Advantage: reroll 1s once
+ * - Disadvantage: only highest die explodes
+ * - Raises: declared before roll, each adds +4 to TN
  */
 import { rollKeepD8 } from '../rolls/rollKeep.js';
 import { createCheckChatCard } from './chatCards.js';
+import { applySkillPenalties } from '../combat/equipment.js';
 /**
  * Perform a generic check (skill, attribute, save)
  * Shows a dialog for the player to declare Raises before rolling
@@ -16,8 +24,13 @@ export async function performCheck(actor, checkData) {
     // Build the roll options
     const masteryRank = actor.system.mastery?.rank || 2;
     const totalFlat = (checkData.skillValue || 0) + (checkData.situationalBonus || 0);
+    // Apply equipment penalties to dice pool if skill check
+    let dicePool = checkData.attributeValue;
+    if (checkData.skill) {
+        dicePool = applySkillPenalties(actor, checkData.skill, dicePool);
+    }
     const rollOptions = {
-        dice: checkData.attributeValue,
+        dice: dicePool,
         keep: masteryRank,
         flat: totalFlat,
         advantage: checkData.advantage,

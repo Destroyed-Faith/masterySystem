@@ -12,6 +12,7 @@ import {
 import { applyPassiveEffects } from '../powers/passives';
 import { applyBuffEffects } from '../powers/buffs';
 import { initializeHealthLevels } from '../combat/health';
+import { calculateEquipmentPenalties, getShieldBonuses } from '../combat/equipment';
 
 export class MasteryActor extends Actor {
   /**
@@ -123,15 +124,25 @@ export class MasteryActor extends Actor {
       // Auto-calculate Evade: Agility + Defensive Combat Skill + (Mastery Rank × 2)
       const agility = system.attributes.agility?.value || 0;
       const defensiveCombat = system.skills?.defensiveCombat || 0;
-      const baseEvade = agility + defensiveCombat + (masteryRank * 2);
+      let baseEvade = agility + defensiveCombat + (masteryRank * 2);
       
-      // Add equipment bonuses (shield, armor)
-      const shieldEvadeBonus = system.combat.shieldEvadeBonus || 0;
-      const armorEvadeBonus = system.combat.armorEvadeBonus || 0;
-      const equipmentEvadeBonus = shieldEvadeBonus + armorEvadeBonus;
+      // Get shield bonuses (AR and Evade)
+      const shieldType = system.combat.shieldType || 'none';
+      const shieldBonuses = getShieldBonuses(shieldType as any);
+      system.combat.shieldEvadeBonus = shieldBonuses.evade;
+      system.combat.shield = shieldBonuses.armor;
       
-      // Store base evade (before passives and buffs)
-      system.combat.evadeBase = baseEvade + equipmentEvadeBonus;
+      // Add shield evade bonus to base
+      baseEvade += shieldBonuses.evade;
+      
+      // Calculate equipment penalties
+      const equipmentPenalties = calculateEquipmentPenalties(this as any);
+      
+      // Apply equipment penalties to evade
+      baseEvade -= equipmentPenalties.evade;
+      
+      // Store base evade (after equipment, before passives and buffs)
+      system.combat.evadeBase = baseEvade;
       
       // Apply passive bonuses to armor and evade
       const baseArmor = system.combat.armor || 0;
@@ -144,6 +155,9 @@ export class MasteryActor extends Actor {
       
       // Set the final evade value
       system.combat.evade = system.combat.evadeTotal;
+      
+      // Store equipment penalties for display
+      system.combat.equipmentPenalties = equipmentPenalties;
     }
     
     // Update Mastery Charges max

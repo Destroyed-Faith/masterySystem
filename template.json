@@ -81,8 +81,10 @@
           "armor": 0,
           "armorTotal": 0,
           "armorName": "",
+          "armorType": "none",
           "shield": 0,
           "shieldName": "",
+          "shieldType": "none",
           "speed": 6,
           "damageReduction": {
             "physical": 0,
@@ -121,6 +123,7 @@
             "maxConversions": 2
           }
         },
+        "activeUtilities": [],
         "faithFractures": {
           "current": 0,
           "maximum": 10
@@ -187,6 +190,12 @@
       "stress": {
         "current": 0,
         "maximum": 0
+      },
+      "deathSave": {
+        "successes": 0,
+        "deathMarks": 0,
+        "stabilized": false,
+        "dead": false
       },
       "skills": {},
       "savingThrows": {

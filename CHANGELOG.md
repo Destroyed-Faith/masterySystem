@@ -5,6 +5,97 @@ All notable changes to the Mastery System / Destroyed Faith for Foundry VTT will
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.25] - 2025-12-06
+
+### Added - Missing Core Systems
+
+**Armor/Shield Skill Penalties System**
+- ✅ Light Armor: No penalty
+- ✅ Medium Armor: Stealth -2 dice, Evade -2
+- ✅ Heavy Armor: Athletics/Acrobatics/Stealth -4 dice, Evade -4
+- ✅ Shields: Parry (+1 AR, +4 Evade), Medium (+2 AR, -4 Evade), Tower (+4 AR, -8 Evade)
+- ✅ Automatic penalty application to skill rolls
+- ✅ Automatic penalty application to Evade calculation
+- ✅ Equipment penalty summary display
+
+**Health Bar Scarring System**
+- ✅ Health levels marked as "scarred" when completely filled with damage
+- ✅ Scarred levels cannot be healed during combat/day
+- ✅ Only current active level can be healed
+- ✅ Long rest removes all scarring and fully heals
+- ✅ Automatic scarring on level completion
+
+**Death Saves & Death Marks System**
+- ✅ Death Save roll: Vitality k Mastery Rank vs TN 20
+- ✅ Track successes (0-3) and Death Marks (0-3)
+- ✅ 3 successes = Stabilized
+- ✅ 3 Death Marks = Dead
+- ✅ Automatic Death Save prompt at start of incapacitated actor's turn
+- ✅ Taking damage while incapacitated: +1 Death Mark
+- ✅ Critical hit while incapacitated: +2 Death Marks
+- ✅ Healing removes Death Marks (1 per 3 points healed)
+- ✅ Death Save chat cards with visual tracking
+
+**Movement Powers Roll/Cost System**
+- ✅ Movement Powers replace Movement Action
+- ✅ Roll only required if power includes attack/contested action
+- ✅ Stone cost support for Movement Powers
+- ✅ AoE and range modifiers for stone costs
+- ✅ Automatic movement action consumption
+- ✅ Chat messages for Movement Power usage
+
+**Utilities Duration Enforcement**
+- ✅ Track active utilities per actor
+- ✅ Enforce "same utility cannot be active twice" rule
+- ✅ Duration tracking (instant to N rounds)
+- ✅ Automatic expiration on specified round
+- ✅ Utility status summary display
+- ✅ Manual utility removal option
+- ✅ Integration with combat round hooks
+
+### Modified
+
+**Combat System**
+- ✅ Integrated utility duration decrements into combat rounds
+- ✅ Integrated Death Save checks into combat turns
+- ✅ Added equipment penalties to Evade calculation
+
+**Actor Data Schema**
+- ✅ Added `combat.armorType` (light/medium/heavy/none)
+- ✅ Added `combat.shieldType` (none/parry/medium/tower)
+- ✅ Added `combat.equipmentPenalties` tracking
+- ✅ Added `deathSave` object (successes, deathMarks, stabilized, dead)
+- ✅ Added `activeUtilities` array tracking
+- ✅ Added `scarred` flag to health levels
+
+**Files Added**
+- `src/combat/equipment.ts` - Armor/shield penalties logic
+- `src/combat/death.ts` - Death saves and death marks
+- `src/powers/movement.ts` - Movement power mechanics
+- `src/powers/utilities.ts` - Utility duration enforcement
+
+### Technical Details
+
+**Equipment Penalties**
+- Penalties applied automatically in check rolls
+- Shield bonuses/penalties calculated in actor preparation
+- Equipment summary available for character sheet display
+
+**Death System**
+- Hooks into combat turn for automatic prompts
+- Chat cards show roll details and current status
+- Death Marks tracked separately from health damage
+
+**Movement Powers**
+- Differentiate between movement-only and attack-movement powers
+- Stone cost calculation based on AoE and range
+- Integration with action economy
+
+**Utilities**
+- Unique ID generation for utility instances
+- Round-based expiration tracking
+- Prevents duplicate utility stacking
+
 ## [0.0.24] - 2025-12-06
 
 ### Added - Character Sheet UI for Advanced Systems
