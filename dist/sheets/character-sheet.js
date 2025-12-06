@@ -983,31 +983,36 @@ export class MasteryCharacterSheet extends ActorSheet {
         }
     }
     /**
-     * Show dialog to select a Mastery Tree
+     * Show dialog to select a Mastery Tree, then a specific power
      */
     async #showMasteryTreeSelectionDialog() {
         const { getAllMasteryTrees } = await import('../utils/mastery-trees.js');
+        const { getPowersForTree } = await import('../utils/mastery-powers.js');
         const trees = getAllMasteryTrees();
         // Build HTML for tree selection
         let html = '<div class="mastery-tree-selection"><h3>Select Mastery Tree</h3>';
-        html += '<p>Choose a Mastery Tree to add powers from:</p>';
+        html += '<p>Choose a Mastery Tree to see available powers:</p>';
         html += '<div class="tree-list" style="max-height: 400px; overflow-y: auto;">';
         for (const tree of trees) {
+            const powers = getPowersForTree(tree.name);
+            const hasPowers = powers.length > 0 && powers[0].name !== 'Placeholder Power';
             html += `
-        <div class="tree-option" data-tree-key="${tree.name.toLowerCase().replace(/\s+/g, '')}" style="
+        <div class="tree-option ${!hasPowers ? 'disabled' : ''}" data-tree-name="${tree.name}" style="
           padding: 12px;
           margin: 8px 0;
-          border: 2px solid #8b0000;
+          border: 2px solid ${hasPowers ? '#8b0000' : '#ccc'};
           border-radius: 8px;
-          cursor: pointer;
+          cursor: ${hasPowers ? 'pointer' : 'not-allowed'};
           transition: all 0.2s;
-          background: #fff;
+          background: ${hasPowers ? '#fff' : '#f5f5f5'};
+          opacity: ${hasPowers ? '1' : '0.6'};
         ">
-          <h4 style="margin: 0 0 5px 0; color: #8b0000;">${tree.name}</h4>
+          <h4 style="margin: 0 0 5px 0; color: ${hasPowers ? '#8b0000' : '#999'};">${tree.name}</h4>
           <p style="margin: 0 0 5px 0; font-size: 12px; color: #666;">${tree.focus}</p>
-          <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+          <div style="display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 5px;">
             ${tree.roles.map(role => `<span style="font-size: 10px; padding: 2px 6px; background: #e0e0e0; border-radius: 3px;">${role}</span>`).join('')}
           </div>
+          ${hasPowers ? `<p style="margin: 5px 0 0 0; font-size: 11px; color: #8b0000;"><strong>${powers.length} Powers available</strong></p>` : '<p style="margin: 5px 0 0 0; font-size: 11px; color: #999; font-style: italic;">Coming soon...</p>'}
           ${tree.bonus ? `<p style="margin: 5px 0 0 0; font-size: 11px; font-style: italic; color: #444;"><strong>Bonus:</strong> ${tree.bonus}</p>` : ''}
         </div>
       `;
@@ -1026,29 +1031,16 @@ export class MasteryCharacterSheet extends ActorSheet {
                 },
                 default: 'cancel',
                 render: (html) => {
-                    // Add click handlers to tree options
-                    html.find('.tree-option').on('click', async (event) => {
-                        const treeKey = $(event.currentTarget).data('tree-key');
-                        const treeName = trees.find(t => t.name.toLowerCase().replace(/\s+/g, '') === treeKey)?.name || treeKey;
-                        // Create a power for this tree
-                        const itemData = {
-                            name: `New ${treeName} Power`,
-                            type: 'special',
-                            system: {
-                                description: `A power from the ${treeName} tree.`,
-                                tree: treeName,
-                                level: 1,
-                                equipped: false,
-                                powerType: 'active'
-                            }
-                        };
-                        await this.actor.createEmbeddedDocuments('Item', [itemData]);
+                    // Add click handlers to tree options (only for non-disabled)
+                    html.find('.tree-option:not(.disabled)').on('click', async (event) => {
+                        const treeName = $(event.currentTarget).data('tree-name');
                         dialog.close();
-                        this.render(false);
+                        // Show power selection for this tree
+                        await this.#showPowerSelectionDialog(treeName);
                         resolve();
                     });
                     // Add hover effects
-                    html.find('.tree-option').on('mouseenter', function () {
+                    html.find('.tree-option:not(.disabled)').on('mouseenter', function () {
                         $(this).css({
                             'transform': 'translateX(5px)',
                             'box-shadow': '0 4px 12px rgba(139, 0, 0, 0.3)',
@@ -1057,6 +1049,117 @@ export class MasteryCharacterSheet extends ActorSheet {
                     }).on('mouseleave', function () {
                         $(this).css({
                             'transform': 'translateX(0)',
+                            'box-shadow': 'none',
+                            'border-color': '#8b0000'
+                        });
+                    });
+                }
+            });
+            dialog.render(true);
+        });
+    }
+    /**
+     * Show dialog to select a specific power from a tree
+     */
+    async #showPowerSelectionDialog(treeName) {
+        const { getPowersForTree } = await import('../utils/mastery-powers.js');
+        const powers = getPowersForTree(treeName);
+        // Build HTML for power selection
+        let html = `<div class="power-selection"><h3>${treeName} Powers</h3>`;
+        html += '<p>Choose a power to add to your character:</p>';
+        html += '<div class="power-list" style="max-height: 500px; overflow-y: auto;">';
+        for (const power of powers) {
+            html += `
+        <div class="power-option" data-power-name="${power.name}" style="
+          padding: 15px;
+          margin: 10px 0;
+          border: 3px solid #8b0000;
+          border-radius: 10px;
+          cursor: pointer;
+          transition: all 0.2s;
+          background: #fff;
+        ">
+          <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+            <h4 style="margin: 0; color: #8b0000;">${power.name}</h4>
+            <span style="font-size: 11px; padding: 3px 8px; background: #8b0000; color: #fff; border-radius: 4px; text-transform: uppercase;">${power.powerType}</span>
+          </div>
+          <p style="margin: 0 0 10px 0; font-size: 13px; color: #666; font-style: italic;">${power.description}</p>
+          
+          <div style="background: #f9f9f9; padding: 10px; border-radius: 6px; border-left: 4px solid #8b0000;">
+            <strong style="font-size: 12px; color: #333;">Levels:</strong>
+            <ul style="margin: 5px 0 0 0; padding-left: 20px; font-size: 11px; color: #555;">
+              ${power.levels.slice(0, 2).map(level => `
+                <li><strong>Level ${level.level}:</strong> ${level.effect}</li>
+              `).join('')}
+              ${power.levels.length > 2 ? '<li style="color: #999; font-style: italic;">... and more</li>' : ''}
+            </ul>
+          </div>
+        </div>
+      `;
+        }
+        html += '</div><button type="button" class="back-btn" style="margin-top: 15px; padding: 8px 16px; background: #666; color: #fff; border: none; border-radius: 4px; cursor: pointer;">← Back to Trees</button></div>';
+        // Show dialog
+        return new Promise((resolve) => {
+            const dialog = new Dialog({
+                title: `Add ${treeName} Power`,
+                content: html,
+                buttons: {
+                    cancel: {
+                        label: 'Cancel',
+                        callback: () => resolve()
+                    }
+                },
+                default: 'cancel',
+                render: (html) => {
+                    // Add click handlers to power options
+                    html.find('.power-option').on('click', async (event) => {
+                        const powerName = $(event.currentTarget).data('power-name');
+                        const { getPower } = await import('../utils/mastery-powers.js');
+                        const powerDef = getPower(treeName, powerName);
+                        if (!powerDef)
+                            return;
+                        // Create item with full power data
+                        const itemData = {
+                            name: powerDef.name,
+                            type: 'special',
+                            system: {
+                                description: powerDef.description,
+                                tree: treeName,
+                                level: 1,
+                                equipped: false,
+                                powerType: powerDef.powerType,
+                                passiveCategory: powerDef.passiveCategory || '',
+                                range: powerDef.levels[0].range || '0m',
+                                aoe: powerDef.levels[0].aoe || '',
+                                duration: powerDef.levels[0].duration || 'instant',
+                                effect: powerDef.levels[0].effect,
+                                cost: powerDef.levels[0].cost || { action: true },
+                                roll: powerDef.levels[0].roll || {},
+                                requirements: { masteryRank: 1 }
+                            }
+                        };
+                        await this.actor.createEmbeddedDocuments('Item', [itemData]);
+                        dialog.close();
+                        this.render(false);
+                        ui.notifications?.info(`Added ${powerName} from ${treeName} tree!`);
+                        resolve();
+                    });
+                    // Back button
+                    html.find('.back-btn').on('click', async () => {
+                        dialog.close();
+                        await this.#showMasteryTreeSelectionDialog();
+                        resolve();
+                    });
+                    // Add hover effects
+                    html.find('.power-option').on('mouseenter', function () {
+                        $(this).css({
+                            'transform': 'scale(1.02)',
+                            'box-shadow': '0 6px 18px rgba(139, 0, 0, 0.4)',
+                            'border-color': '#a00000'
+                        });
+                    }).on('mouseleave', function () {
+                        $(this).css({
+                            'transform': 'scale(1)',
                             'box-shadow': 'none',
                             'border-color': '#8b0000'
                         });
