@@ -104,4 +104,30 @@ export declare const DIMINISHING_CONDITIONS: readonly ["bleeding", "ignite", "ma
  * Power types
  */
 export declare const POWER_TYPES: readonly ["active", "buff", "utility", "passive", "reaction", "movement"];
+/**
+ * Initiative Shop costs and effects
+ */
+export declare const INITIATIVE_SHOP: {
+    readonly MOVEMENT: {
+        readonly COST: 4;
+        readonly EFFECT: 2;
+    };
+    readonly SWAP: {
+        readonly COST: 8;
+        readonly RAISES_REQUIRED: 2;
+    };
+    readonly EXTRA_ATTACK: {
+        readonly COST: 20;
+        readonly MAX_PER_ROUND: 1;
+    };
+};
+/**
+ * Initiative is rolled each round using Mastery Dice
+ * Base = Agility + Wits + Combat Reflexes skill
+ * Roll = Mastery Rank d8s, keep all, 8s explode
+ */
+export declare const INITIATIVE: {
+    readonly MIN_VALUE: 0;
+    readonly HEAVY_WEAPON_PENALTY: -10;
+};
 //# sourceMappingURL=constants.d.ts.map

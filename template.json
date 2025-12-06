@@ -46,6 +46,12 @@
       "combatant": {
         "combat": {
           "initiative": 0,
+          "initiativeBonus": 0,
+          "initiativeShop": {
+            "movement": 0,
+            "swap": false,
+            "extraAttack": false
+          },
           "evade": 10,
           "armor": 0,
           "armorName": "",

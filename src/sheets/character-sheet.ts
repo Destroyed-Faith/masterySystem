@@ -5,8 +5,6 @@
 
 import { MasteryActor } from '../documents/actor';
 import { quickRoll } from '../dice/roll-handler';
-import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
-import { showMagicPowerCreationDialog } from './character-sheet-magic-dialog.js';
 
 export class MasteryCharacterSheet extends ActorSheet {
   /** @override */
@@ -72,24 +70,19 @@ export class MasteryCharacterSheet extends ActorSheet {
    */
   #prepareItems() {
     const powers: any[] = [];
-    const magicPowers: any[] = [];
     const echoes: any[] = [];
     const schticks: any[] = [];
     const artifacts: any[] = [];
     const conditions: any[] = [];
     const weapons: any[] = [];
     const armor: any[] = [];
-
+    
     for (const item of this.actor.items) {
-      const itemData = item as any;
-
+      const itemData = item;
+      
       switch (item.type) {
         case 'special':
-          if (itemData.system?.isMagicPower) {
-            magicPowers.push(itemData);
-          } else {
-            powers.push(itemData);
-          }
+          powers.push(itemData);
           break;
         case 'echo':
           echoes.push(itemData);
@@ -111,24 +104,16 @@ export class MasteryCharacterSheet extends ActorSheet {
           break;
       }
     }
-
-    // Sort non-magic powers by tree and level
+    
+    // Sort powers by tree and level
     powers.sort((a, b) => {
       const treeCompare = (a.system.tree || '').localeCompare(b.system.tree || '');
       if (treeCompare !== 0) return treeCompare;
       return (a.system.level || 0) - (b.system.level || 0);
     });
-
-    // Sort magic powers by tree (spell school) and level
-    magicPowers.sort((a, b) => {
-      const treeCompare = (a.system.tree || '').localeCompare(b.system.tree || '');
-      if (treeCompare !== 0) return treeCompare;
-      return (a.system.level || 0) - (b.system.level || 0);
-    });
-
+    
     return {
       powers,
-      magicPowers,
       echoes,
       schticks,
       artifacts,
@@ -402,24 +387,12 @@ export class MasteryCharacterSheet extends ActorSheet {
     event.preventDefault();
     const element = event.currentTarget;
     const type = element.dataset.type;
-
-    // Mastery Tree powers: open selection dialog over 27 trees & their powers
-    if (type === 'special') {
-      await showPowerCreationDialog(this.actor);
-      return;
-    }
-
-    // Magic powers: open spell-school based dialog
-    if (type === 'magic-power') {
-      await showMagicPowerCreationDialog(this.actor);
-      return;
-    }
-
+    
     const itemData = {
       name: `New ${type.charAt(0).toUpperCase() + type.slice(1)}`,
       type
     };
-
+    
     await this.actor.createEmbeddedDocuments('Item', [itemData]);
   }
 
@@ -503,3 +476,4 @@ export class MasteryCharacterSheet extends ActorSheet {
     await this.actor.update({ 'system.stones.current': newValue });
   }
 }
+

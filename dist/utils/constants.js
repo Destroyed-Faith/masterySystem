@@ -132,4 +132,30 @@ export const POWER_TYPES = [
     'reaction',
     'movement'
 ];
+/**
+ * Initiative Shop costs and effects
+ */
+export const INITIATIVE_SHOP = {
+    MOVEMENT: {
+        COST: 4,
+        EFFECT: 2 // meters of extra movement
+    },
+    SWAP: {
+        COST: 8,
+        RAISES_REQUIRED: 2 // Number of raises required to use
+    },
+    EXTRA_ATTACK: {
+        COST: 20,
+        MAX_PER_ROUND: 1
+    }
+};
+/**
+ * Initiative is rolled each round using Mastery Dice
+ * Base = Agility + Wits + Combat Reflexes skill
+ * Roll = Mastery Rank d8s, keep all, 8s explode
+ */
+export const INITIATIVE = {
+    MIN_VALUE: 0, // Initiative cannot drop below 0
+    HEAVY_WEAPON_PENALTY: -10
+};
 //# sourceMappingURL=constants.js.map
