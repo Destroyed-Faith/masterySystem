@@ -1,54 +1,16 @@
 /**
  * Mastery Powers - All powers from Mastery Trees in the Players Guide
  *
- * This file contains the complete power definitions for each Mastery Tree.
- * Powers are organized by tree and include all mechanical details.
+ * DEPRECATED: This file now re-exports from the modular powers/ directory.
+ * Each tree is now in its own file for better maintainability.
+ *
+ * To add a new tree:
+ * 1. Create a new file in src/utils/powers/your-tree.ts
+ * 2. Export a const YOUR_TREE_POWERS: PowerDefinition[]
+ * 3. Import and add it to powers/index.ts
+ *
+ * @see src/utils/powers/
  */
-export interface PowerLevel {
-    level: number;
-    type: string;
-    range?: string;
-    aoe?: string;
-    duration?: string;
-    effect: string;
-    special?: string;
-    cost?: {
-        action?: boolean;
-        movement?: boolean;
-        reaction?: boolean;
-        stones?: number;
-        charges?: number;
-    };
-    roll?: {
-        attribute?: string;
-        tn?: number;
-        damage?: string;
-        damageType?: string;
-        penetration?: number;
-    };
-}
-export interface PowerDefinition {
-    name: string;
-    tree: string;
-    powerType: 'active' | 'buff' | 'utility' | 'passive' | 'reaction' | 'movement';
-    passiveCategory?: 'armor' | 'evade' | 'toHit' | 'damage' | 'roll' | 'save' | 'hitPoint' | 'healing' | 'awareness' | 'attribute';
-    description: string;
-    levels: PowerLevel[];
-}
-/**
- * All Mastery Powers organized by tree
- */
-export declare const MASTERY_POWERS: Record<string, PowerDefinition[]>;
-/**
- * Get all powers for a specific Mastery Tree
- */
-export declare function getPowersForTree(treeName: string): PowerDefinition[];
-/**
- * Get a specific power by tree and name
- */
-export declare function getPower(treeName: string, powerName: string): PowerDefinition | undefined;
-/**
- * Get all available tree names that have powers defined
- */
-export declare function getTreesWithPowers(): string[];
+export * from './powers/types';
+export { ALL_MASTERY_POWERS as MASTERY_POWERS, getPowersForTree, getPower, getTreesWithPowers } from './powers/index';
 //# sourceMappingURL=mastery-powers.d.ts.map
