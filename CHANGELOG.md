@@ -5,6 +5,82 @@ All notable changes to the Mastery System / Destroyed Faith for Foundry VTT will
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.21] - 2025-12-06
+
+### Added
+- **Complete Roll & Keep d8 Dice System**
+  - XkY dice rolling (roll X d8, keep Y highest)
+  - Exploding 8s: roll again and add (chains infinitely)
+  - **Advantage**: Reroll 1s once per die
+  - **Disadvantage**: Only highest die can explode, others capped at 8
+  - Proper formula generation and detailed result tracking
+  - Each die tracks: rolls[], total, exploded status, rerolled status
+
+- **Check System with Dialogs**
+  - Skill checks with configurable TN
+  - Attribute checks
+  - Saving throws (Body/Mind/Spirit using best of 2 attributes + Vitality)
+  - **Raises**: Players declare before rolling, each adds +4 to TN
+  - Advantage/Disadvantage toggles
+  - Situational bonuses
+  - Beautiful dialog with live TN calculation
+  - Both dialog and quick-check variants (for PCs vs NPCs)
+
+- **Attack & Damage System**
+  - Attack workflow with target selection
+  - Weapon/Power attacks against Evade rating
+  - Declare Raises before attack roll
+  - **Separate damage roll only on hit**
+  - Spend Raises dialog: allocate to +1d8 damage or Special effects
+  - Damage calculation: base + raise dice − (armor + shield + Mastery Rank)
+  - **Special rule**: If damage ≤ 0, still take 1 damage per 8 rolled
+  - Damage dice do NOT explode (only to-hit rolls explode)
+
+- **Conditions/Status Effects System**
+  - Apply conditions with intensity values (e.g., Poisoned(3), Bleeding(2))
+  - Duration tracking: rounds, scene, or permanent
+  - Diminishing values (reduce by 1 each round)
+  - Save configuration: type (body/mind/spirit), TN, frequency
+  - Automatic condition updates on combat round start
+  - Stack or replace existing conditions
+  - Chat messages for applied/removed conditions
+
+- **Beautiful Chat Cards**
+  - **Check cards**: Show all dice (kept/dropped), explosions, rerolls, formula, TN comparison
+  - **Attack cards**: Show attack roll, hit/miss, target evade, raises available
+  - **Damage cards**: Show damage dice, armor reduction, final damage, 8s highlight
+  - **Condition cards**: Show condition applied/removed with details
+  - **Detail level setting**: Toggle between detailed (all dice) and summary (just totals)
+  - Color-coded results (success=green, failure=red, damage=red gradient, conditions=purple)
+  - Visual indicators: explosions(!), rerolls(↻), 8s highlighted in gold
+
+- **Character Sheet Integration**
+  - Skill rolls now open dialog with TN and Raises
+  - Weapon attacks require target selection
+  - Power attacks require target selection
+  - All rolls go through new Roll&Keep system
+  - Legacy quick roll still available for NPCs
+
+- **System Settings**
+  - "Roll Detail Level" client setting: Detailed vs Summary chat cards
+  - Allows players to choose their preferred level of dice info
+
+### Technical
+- New modules: `src/rolls/rollKeep.ts`, `src/rolls/checks.ts`, `src/rolls/attacks.ts`, `src/rolls/chatCards.ts`
+- New module: `src/effects/conditions.ts`
+- Updated combat hooks to track conditions per round
+- New CSS: `styles/rolls.css` for all roll-related UI
+- Updated condition item schema in `template.json`
+- TypeScript strict type checking throughout
+
+### Notes
+- The Roll&Keep system implements **exactly** your rules:
+  - 1s are rerolled once with Advantage
+  - Only the highest die explodes with Disadvantage
+  - Raises add +4 to TN per raise
+  - Damage dice do NOT explode (only attack/check rolls do)
+- Future: Hook Specials/conditions to Raise spending, implement full power effects
+
 ## [0.0.20] - 2025-12-06
 
 ### Added

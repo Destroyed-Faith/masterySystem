@@ -5,6 +5,8 @@
 import { quickRoll } from '../dice/roll-handler.js';
 import { getActionStatus, useAction, unuseAction, convertAttackAction, undoConversion } from '../combat/actions.js';
 import { getResourceStatus, spendStones, addStress, reduceStress } from '../combat/resources.js';
+import { performCheckWithDialog } from '../rolls/checks.js';
+import { performAttackWithDialog } from '../rolls/attacks.js';
 export class MasteryCharacterSheet extends ActorSheet {
     /** @override */
     static get defaultOptions() {
@@ -185,8 +187,11 @@ export class MasteryCharacterSheet extends ActorSheet {
             return;
         // Attribute rolls
         html.find('.attribute-roll').on('click', this.#onAttributeRoll.bind(this));
-        // Skill rolls
-        html.find('.skill-roll').on('click', this.#onSkillRoll.bind(this));
+        // Skill rolls (now with dialog)
+        html.find('.skill-roll').on('click', this.#onSkillRollWithDialog.bind(this));
+        // Attack rolls
+        html.find('.weapon-attack').on('click', this.#onWeaponAttack.bind(this));
+        html.find('.power-attack').on('click', this.#onPowerAttack.bind(this));
         // Add skill
         html.find('.skill-add').on('click', this.#onSkillAdd.bind(this));
         // Delete skill
@@ -233,19 +238,67 @@ export class MasteryCharacterSheet extends ActorSheet {
     /**
      * Handle skill roll
      */
-    async #onSkillRoll(event) {
+    /**
+     * Skill roll with new dialog system
+     */
+    async #onSkillRollWithDialog(event) {
         event.preventDefault();
         const element = event.currentTarget;
-        const skill = element.dataset.skill;
-        if (!skill)
+        const skillKey = element.dataset.skill;
+        if (!skillKey)
             return;
-        // Default to Wits for skill rolls (can be customized)
+        // Determine best attribute for this skill (default to wits)
+        // TODO: Pull from skill definitions
         const attribute = 'wits';
-        // Prompt for TN
-        const tn = await this.#promptForTN();
-        if (tn === null)
+        const skillName = skillKey.charAt(0).toUpperCase() + skillKey.slice(1);
+        await performCheckWithDialog(this.actor, {
+            attribute,
+            skill: skillKey,
+            label: `${skillName} Check`,
+            tn: 16 // Default to Standard
+        });
+    }
+    /**
+     * Weapon attack
+     */
+    async #onWeaponAttack(event) {
+        event.preventDefault();
+        const element = event.currentTarget;
+        const itemId = element.dataset.itemId;
+        const weapon = this.actor.items.get(itemId);
+        if (!weapon)
             return;
-        await quickRoll(this.actor, attribute, skill, tn, `${skill.charAt(0).toUpperCase() + skill.slice(1)} Check`);
+        // Get target from current targets
+        const targets = Array.from(game.user?.targets || []);
+        if (targets.length === 0) {
+            ui.notifications?.warn('Please target an enemy first!');
+            return;
+        }
+        const target = targets[0].actor;
+        if (!target)
+            return;
+        await performAttackWithDialog(this.actor, target, weapon);
+    }
+    /**
+     * Power attack
+     */
+    async #onPowerAttack(event) {
+        event.preventDefault();
+        const element = event.currentTarget;
+        const powerId = element.dataset.powerId;
+        const power = this.actor.items.get(powerId);
+        if (!power)
+            return;
+        // Get target from current targets
+        const targets = Array.from(game.user?.targets || []);
+        if (targets.length === 0) {
+            ui.notifications?.warn('Please target an enemy first!');
+            return;
+        }
+        const target = targets[0].actor;
+        if (!target)
+            return;
+        await performAttackWithDialog(this.actor, target, power);
     }
     /**
      * Prompt for Target Number

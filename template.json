@@ -327,13 +327,15 @@
     },
     "condition": {
       "templates": ["base"],
-      "conditionType": "bleeding",
-      "value": 0,
-      "diminishing": true,
+      "conditionType": "custom",
+      "value": 1,
+      "diminishing": false,
       "duration": "rounds",
+      "durationRemaining": 0,
       "effect": "",
       "save": "body",
-      "removal": ""
+      "saveTN": 12,
+      "saveFrequency": "none"
     },
     "weapon": {
       "templates": ["base"],

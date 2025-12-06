@@ -10,6 +10,7 @@ import { MasteryCharacterSheet } from './sheets/character-sheet.js';
 import { MasteryNpcSheet } from './sheets/npc-sheet.js';
 import { MasteryItemSheet } from './sheets/item-sheet.js';
 import { initializeCombatHooks } from './combat/initiative.js';
+import { registerChatCardSettings } from './rolls/chatCards.js';
 // Dice roller functions are imported in sheets where needed
 console.log('Mastery System | All imports completed');
 /**
@@ -44,6 +45,8 @@ Hooks.once('init', async function () {
     console.log('Mastery System | Registered Item Sheet');
     // Register system settings
     registerSystemSettings();
+    // Register chat card settings
+    registerChatCardSettings();
     // Register Handlebars helpers
     registerHandlebarsHelpers();
     // Preload Handlebars templates

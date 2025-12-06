@@ -10,6 +10,7 @@ import { calculateBaseInitiative, rollInitiativeDice, createInitiativeChatMessag
 import { InitiativeShopDialog } from '../sheets/initiative-shop-dialog.js';
 import { resetActionsForRound, resetActionsForTurn } from './actions.js';
 import { regenerateStones } from './resources.js';
+import { updateConditionsForRound } from '../effects/conditions.js';
 /**
  * Initialize combat hooks
  */
@@ -72,6 +73,8 @@ async function resetCombatantResources(combat) {
         await resetActionsForRound(actor);
         // Regenerate Stones
         await regenerateStones(actor);
+        // Update conditions (duration, diminishing, etc.)
+        await updateConditionsForRound(actor);
         // Clear initiative shop flags
         if (actor.system.combat?.initiativeShop) {
             await actor.update({
