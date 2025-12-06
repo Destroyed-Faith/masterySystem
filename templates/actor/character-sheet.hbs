@@ -2,33 +2,32 @@
   
   <!-- Header -->
   <header class="sheet-header">
-    <div class="header-left">
-      <img class="profile-img {{#if editable}}{{else}}locked{{/if}}" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" alt="{{actor.name}}" />
-      <div class="header-fields">
-        <h1 class="charname">
-          {{#if editable}}
-            <input name="name" type="text" value="{{actor.name}}" placeholder="Character Name" />
-          {{else}}
-            <span>{{actor.name}}</span>
-          {{/if}}
-        </h1>
-        <div class="mastery-rank-display">
-          <label>Mastery Rank:</label>
-          {{#if editable}}
-            <input type="number" name="system.mastery.rank" value="{{default system.mastery.rank 2}}" min="1" max="10" />
-          {{else}}
-            <span class="value">{{default system.mastery.rank 2}}</span>
-          {{/if}}
-        </div>
+    <img class="profile-img {{#if editable}}{{else}}locked{{/if}}" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" alt="{{actor.name}}" />
+    
+    <div class="header-info">
+      <div class="mastery-rank-box">
+        <label>Mastery Rank</label>
+        {{#if editable}}
+          <input type="number" name="system.mastery.rank" value="{{default system.mastery.rank 2}}" min="1" max="20" data-dtype="Number" />
+        {{else}}
+          <span class="rank-value">{{default system.mastery.rank 2}}</span>
+        {{/if}}
+      </div>
+      
+      <div class="character-name-box">
+        {{#if editable}}
+          <input name="name" type="text" value="{{actor.name}}" placeholder="Character Name" />
+        {{else}}
+          <h1>{{actor.name}}</h1>
+        {{/if}}
       </div>
     </div>
-    <div class="header-right">
-      {{#if owner}}
-        <button type="button" class="edit-mode-toggle" title="Toggle Edit Mode">
-          <i class="fas fa-edit"></i> {{#if editable}}View{{else}}Edit{{/if}}
-        </button>
-      {{/if}}
-    </div>
+    
+    {{#if owner}}
+      <button type="button" class="edit-mode-toggle" title="Toggle Edit Mode">
+        <i class="fas fa-edit"></i> {{#if editable}}Lock{{else}}Edit{{/if}}
+      </button>
+    {{/if}}
   </header>
 
   <!-- Tabs Navigation (Right Side Bookmarks) -->
@@ -36,8 +35,8 @@
     <a class="item" data-tab="attributes"><i class="fas fa-fist-raised"></i> Attributes</a>
     <a class="item" data-tab="skills"><i class="fas fa-cogs"></i> Skills</a>
     <a class="item" data-tab="powers"><i class="fas fa-magic"></i> Powers</a>
-    <a class="item" data-tab="equipment"><i class="fas fa-shield-alt"></i> Equipment</a>
     <a class="item" data-tab="magic"><i class="fas fa-hat-wizard"></i> Magic</a>
+    <a class="item" data-tab="equipment"><i class="fas fa-shield-alt"></i> Equipment</a>
     <a class="item" data-tab="biography"><i class="fas fa-scroll"></i> Bio</a>
   </nav>
 
@@ -403,90 +402,66 @@
       <div class="saving-throws-section">
         <h3><i class="fas fa-dice-d20"></i> Saving Throws</h3>
         
-        <div class="saving-throws-grid">
-          <!-- Might Save -->
+        <div class="saving-throws-grid-three">
+          <!-- Body Save: Max(Might, Agility) k Mastery + Vitality -->
           <div class="saving-throw-card">
-            <div class="save-header">
-              <i class="fas fa-dumbbell"></i>
-              <label>Might</label>
+            <h4 class="save-title">
+              <i class="fas fa-dumbbell"></i> Body Save
+            </h4>
+            <div class="save-pool">
+              {{#if (gt system.attributes.might.value system.attributes.agility.value)}}
+                {{system.attributes.might.value}}d8
+              {{else}}
+                {{system.attributes.agility.value}}d8
+              {{/if}}
+              k {{default system.mastery.rank 2}} + {{default system.attributes.vitality.value 2}}
             </div>
-            <div class="save-value">{{default system.attributes.might.value 2}}</div>
-            <button type="button" class="save-roll" data-attribute="might" title="Roll Might Save">
-              <i class="fas fa-dice-d20"></i> Save
+            <button type="button" class="save-roll-btn" data-save-type="body" title="Roll Body Save">
+              <i class="fas fa-dice-d20"></i> Roll Save
             </button>
           </div>
           
-          <!-- Agility Save -->
+          <!-- Mind Save: Max(Intellect, Wits) k Mastery + Vitality -->
           <div class="saving-throw-card">
-            <div class="save-header">
-              <i class="fas fa-running"></i>
-              <label>Agility</label>
+            <h4 class="save-title">
+              <i class="fas fa-brain"></i> Mind Save
+            </h4>
+            <div class="save-pool">
+              {{#if (gt system.attributes.intellect.value system.attributes.wits.value)}}
+                {{system.attributes.intellect.value}}d8
+              {{else}}
+                {{system.attributes.wits.value}}d8
+              {{/if}}
+              k {{default system.mastery.rank 2}} + {{default system.attributes.vitality.value 2}}
             </div>
-            <div class="save-value">{{default system.attributes.agility.value 2}}</div>
-            <button type="button" class="save-roll" data-attribute="agility" title="Roll Agility Save">
-              <i class="fas fa-dice-d20"></i> Save
+            <button type="button" class="save-roll-btn" data-save-type="mind" title="Roll Mind Save">
+              <i class="fas fa-dice-d20"></i> Roll Save
             </button>
           </div>
           
-          <!-- Vitality Save -->
+          <!-- Spirit Save: Max(Resolve, Influence) k Mastery + Vitality -->
           <div class="saving-throw-card">
-            <div class="save-header">
-              <i class="fas fa-heart"></i>
-              <label>Vitality</label>
+            <h4 class="save-title">
+              <i class="fas fa-hands-praying"></i> Spirit Save
+            </h4>
+            <div class="save-pool">
+              {{#if (gt system.attributes.resolve.value system.attributes.influence.value)}}
+                {{system.attributes.resolve.value}}d8
+              {{else}}
+                {{system.attributes.influence.value}}d8
+              {{/if}}
+              k {{default system.mastery.rank 2}} + {{default system.attributes.vitality.value 2}}
             </div>
-            <div class="save-value">{{default system.attributes.vitality.value 2}}</div>
-            <button type="button" class="save-roll" data-attribute="vitality" title="Roll Vitality Save">
-              <i class="fas fa-dice-d20"></i> Save
+            <button type="button" class="save-roll-btn" data-save-type="spirit" title="Roll Spirit Save">
+              <i class="fas fa-dice-d20"></i> Roll Save
             </button>
           </div>
-          
-          <!-- Wits Save -->
-          <div class="saving-throw-card">
-            <div class="save-header">
-              <i class="fas fa-brain"></i>
-              <label>Wits</label>
-            </div>
-            <div class="save-value">{{default system.attributes.wits.value 2}}</div>
-            <button type="button" class="save-roll" data-attribute="wits" title="Roll Wits Save">
-              <i class="fas fa-dice-d20"></i> Save
-            </button>
-          </div>
-          
-          <!-- Intellect Save -->
-          <div class="saving-throw-card">
-            <div class="save-header">
-              <i class="fas fa-book"></i>
-              <label>Intellect</label>
-            </div>
-            <div class="save-value">{{default system.attributes.intellect.value 2}}</div>
-            <button type="button" class="save-roll" data-attribute="intellect" title="Roll Intellect Save">
-              <i class="fas fa-dice-d20"></i> Save
-            </button>
-          </div>
-          
-          <!-- Resolve Save -->
-          <div class="saving-throw-card">
-            <div class="save-header">
-              <i class="fas fa-mountain"></i>
-              <label>Resolve</label>
-            </div>
-            <div class="save-value">{{default system.attributes.resolve.value 2}}</div>
-            <button type="button" class="save-roll" data-attribute="resolve" title="Roll Resolve Save">
-              <i class="fas fa-dice-d20"></i> Save
-            </button>
-          </div>
-          
-          <!-- Influence Save -->
-          <div class="saving-throw-card">
-            <div class="save-header">
-              <i class="fas fa-users"></i>
-              <label>Influence</label>
-            </div>
-            <div class="save-value">{{default system.attributes.influence.value 2}}</div>
-            <button type="button" class="save-roll" data-attribute="influence" title="Roll Influence Save">
-              <i class="fas fa-dice-d20"></i> Save
-            </button>
-          </div>
+        </div>
+        
+        <div class="save-explanation">
+          <p><strong>Body:</strong> Resist poison, disease, exhaustion</p>
+          <p><strong>Mind:</strong> Resist fear, charm, confusion</p>
+          <p><strong>Spirit:</strong> Resist curses, divine effects</p>
         </div>
       </div>
       
@@ -496,56 +471,55 @@
     <div class="tab skills" data-group="primary" data-tab="skills">
       
       <div class="skills-overview">
-        <h3><i class="fas fa-cogs"></i> Skills Overview</h3>
+        <h3><i class="fas fa-cogs"></i> Skills</h3>
         <p class="skills-description">
-          Skills provide <strong>flat bonuses</strong> added after your roll. 
-          <em>Formula: (Sum of kept dice) + Skill Bonus</em>
+          Skills provide <strong>flat bonuses</strong> added after your roll. Max: <strong>4 × Mastery Rank</strong>
         </p>
-        <div class="skill-points-display">
-          <span class="label">Skill Points Available:</span>
-          <span class="value">{{default system.skillPoints 16}}</span>
-        </div>
       </div>
       
       {{#each skills}}
         {{#if @first}}
-          <div class="skill-category">
-            <h4 class="category-header"><i class="fas fa-running"></i> {{this.category}}</h4>
-            <div class="skills-list">
+          <div class="skill-category-compact">
+            <h4 class="category-header-compact">
+              {{#if (eq this.category "Physical")}}<i class="fas fa-running"></i>{{/if}}
+              {{#if (eq this.category "Knowledge & Craft")}}<i class="fas fa-book"></i>{{/if}}
+              {{#if (eq this.category "Social")}}<i class="fas fa-comments"></i>{{/if}}
+              {{#if (eq this.category "Survival")}}<i class="fas fa-tree"></i>{{/if}}
+              {{#if (eq this.category "Martial")}}<i class="fas fa-sword"></i>{{/if}}
+              {{this.category}}
+            </h4>
+            <div class="skills-list-compact">
         {{else}}
           {{#unless (eq this.category @root.skills.[subtract @index 1].category)}}
             </div></div>
-            <div class="skill-category">
-              <h4 class="category-header">
+            <div class="skill-category-compact">
+              <h4 class="category-header-compact">
+                {{#if (eq this.category "Physical")}}<i class="fas fa-running"></i>{{/if}}
                 {{#if (eq this.category "Knowledge & Craft")}}<i class="fas fa-book"></i>{{/if}}
                 {{#if (eq this.category "Social")}}<i class="fas fa-comments"></i>{{/if}}
                 {{#if (eq this.category "Survival")}}<i class="fas fa-tree"></i>{{/if}}
                 {{#if (eq this.category "Martial")}}<i class="fas fa-sword"></i>{{/if}}
                 {{this.category}}
               </h4>
-              <div class="skills-list">
+              <div class="skills-list-compact">
           {{/unless}}
         {{/if}}
         
-        <div class="skill-item">
-          <div class="skill-info">
-            <label class="skill-name">{{this.name}}</label>
-            <div class="skill-attributes">
-              {{#each this.attributes}}
-                <span class="attribute-tag">{{capitalize this}}</span>
-              {{/each}}
-            </div>
+        <div class="skill-row-compact">
+          <span class="skill-name-compact">{{this.name}}</span>
+          <div class="skill-attrs-compact">
+            {{#each this.attributes}}
+              <span class="attr-badge">{{capitalize this}}</span>
+            {{/each}}
           </div>
-          <div class="skill-controls">
-            {{#if ../../editable}}
-              <input type="number" name="system.skills.{{this.key}}" value="{{default this.value 0}}" min="0" max="32" class="skill-value" data-dtype="Number" />
-            {{else}}
-              <span class="skill-value-static">{{default this.value 0}}</span>
-            {{/if}}
-            <button type="button" class="skill-roll" data-skill="{{this.key}}" title="Roll {{this.name}}">
-              <i class="fas fa-dice-d20"></i> Roll
-            </button>
-          </div>
+          {{#if ../../editable}}
+            <input type="number" name="system.skills.{{this.key}}" value="{{default this.value 0}}" min="0" max="32" class="skill-value-compact" data-dtype="Number" />
+          {{else}}
+            <span class="skill-value-compact">{{default this.value 0}}</span>
+          {{/if}}
+          <button type="button" class="skill-roll-compact" data-skill="{{this.key}}" title="Roll {{this.name}}">
+            <i class="fas fa-dice-d20"></i>
+          </button>
         </div>
         
         {{#if @last}}
@@ -558,22 +532,96 @@
     
     <!-- POWERS TAB -->
     <div class="tab powers" data-group="primary" data-tab="powers">
-      <p style="padding: 20px; text-align: center; color: #666;">Powers tab - To be implemented in next step</p>
+      
+      <div class="powers-overview">
+        <h3><i class="fas fa-magic"></i> Mastery Powers</h3>
+        <button type="button" class="add-power-btn" title="Add New Power">
+          <i class="fas fa-plus"></i> Add Power
+        </button>
+      </div>
+      
+      <!-- Powers List -->
+      <div class="powers-list-section">
+        {{#if items.powers}}
+          {{#each items.powers}}
+            <div class="power-card" data-item-id="{{this.id}}">
+              <div class="power-header">
+                <h4 class="power-name">{{this.name}}</h4>
+                <div class="power-controls">
+                  <button type="button" class="item-edit" title="Edit"><i class="fas fa-edit"></i></button>
+                  <button type="button" class="item-delete" title="Delete"><i class="fas fa-trash"></i></button>
+                </div>
+              </div>
+              <div class="power-details">
+                <span class="power-tree">{{default this.system.tree "No Tree"}}</span>
+                <span class="power-level">Level {{default this.system.level 1}}</span>
+                <span class="power-type">{{default this.system.powerType "Active"}}</span>
+              </div>
+              <div class="power-description">{{this.system.description}}</div>
+              {{#if this.system.equipped}}
+                <button type="button" class="power-use-btn" data-power-id="{{this.id}}">
+                  <i class="fas fa-bolt"></i> Use Power
+                </button>
+              {{/if}}
+            </div>
+          {{/each}}
+        {{else}}
+          <p class="empty-message">No powers yet. Click "Add Power" to start.</p>
+        {{/if}}
+      </div>
+      
     </div>
     
     <!-- MAGIC TAB -->
     <div class="tab magic" data-group="primary" data-tab="magic">
-      <p style="padding: 20px; text-align: center; color: #666;">Magic tab - To be implemented in next step</p>
+      
+      <div class="magic-overview">
+        <h3><i class="fas fa-hat-wizard"></i> Spell Schools</h3>
+        <button type="button" class="add-spell-btn" title="Add New Spell">
+          <i class="fas fa-plus"></i> Add Spell
+        </button>
+      </div>
+      
+      <!-- Spells List -->
+      <div class="spells-list-section">
+        {{#if items.spells}}
+          {{#each items.spells}}
+            <div class="spell-card" data-item-id="{{this.id}}">
+              <div class="spell-header">
+                <h4 class="spell-name">{{this.name}}</h4>
+                <div class="spell-controls">
+                  <button type="button" class="item-edit" title="Edit"><i class="fas fa-edit"></i></button>
+                  <button type="button" class="item-delete" title="Delete"><i class="fas fa-trash"></i></button>
+                </div>
+              </div>
+              <div class="spell-details">
+                <span class="spell-school">{{default this.system.school "No School"}}</span>
+                <span class="spell-level">Level {{default this.system.level 1}}</span>
+                <span class="spell-type">{{default this.system.spellType "Active"}}</span>
+              </div>
+              <div class="spell-description">{{this.system.description}}</div>
+              {{#if this.system.prepared}}
+                <button type="button" class="spell-cast-btn" data-spell-id="{{this.id}}">
+                  <i class="fas fa-magic"></i> Cast Spell
+                </button>
+              {{/if}}
+            </div>
+          {{/each}}
+        {{else}}
+          <p class="empty-message">No spells yet. Click "Add Spell" to start.</p>
+        {{/else}}
+      </div>
+      
     </div>
     
     <!-- EQUIPMENT TAB -->
     <div class="tab equipment" data-group="primary" data-tab="equipment">
-      <p style="padding: 20px; text-align: center; color: #666;">Equipment tab - To be implemented in next step</p>
+      <p style="padding: 20px; text-align: center; color: #666;">Equipment tab - Weapons, Armor, Artifacts</p>
     </div>
     
     <!-- BIOGRAPHY TAB -->
     <div class="tab biography" data-group="primary" data-tab="biography">
-      <p style="padding: 20px; text-align: center; color: #666;">Biography tab - To be implemented in next step</p>
+      <p style="padding: 20px; text-align: center; color: #666;">Biography tab - Background, Notes</p>
     </div>
     
   </section>

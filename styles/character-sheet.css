@@ -15,109 +15,113 @@
 /* ========== Header Layout ========== */
 .mastery-system.sheet.actor.character .sheet-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 8px 15px;
+  gap: 20px;
+  padding: 15px 20px;
   background: linear-gradient(to bottom, #4a4a4a, #2a2a2a);
   color: #fff;
   border-bottom: 2px solid #8b0000;
-  min-height: 80px;
-  max-height: 80px;
-}
-
-.mastery-system.sheet.actor.character .header-left {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  flex: 1;
-}
-
-.mastery-system.sheet.actor.character .header-right {
-  display: flex;
-  align-items: center;
+  min-height: 100px;
 }
 
 .mastery-system.sheet.actor.character .profile-img {
-  border: 2px solid #8b0000;
-  border-radius: 4px;
+  border: 3px solid #8b0000;
+  border-radius: 8px;
   cursor: pointer;
-  width: 70px;
-  height: 70px;
+  width: 80px;
+  height: 80px;
   object-fit: cover;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  flex-shrink: 0;
 }
 
 .mastery-system.sheet.actor.character .profile-img.locked {
   cursor: default;
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
-.mastery-system.sheet.actor.character .header-fields {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.mastery-system.sheet.actor.character .charname {
-  margin: 0;
-  font-size: 20px;
-  font-weight: bold;
-}
-
-.mastery-system.sheet.actor.character .charname input {
-  background: transparent;
-  border: none;
-  color: #fff;
-  font-size: 20px;
-  font-weight: bold;
-  width: 100%;
-}
-
-.mastery-system.sheet.actor.character .charname span {
-  color: #fff;
-  font-size: 20px;
-  font-weight: bold;
-}
-
-.mastery-system.sheet.actor.character .mastery-rank-display {
+.mastery-system.sheet.actor.character .header-info {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 20px;
+  flex: 1;
 }
 
-.mastery-system.sheet.actor.character .mastery-rank-display label {
-  font-size: 14px;
-  color: #ccc;
+.mastery-system.sheet.actor.character .mastery-rank-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 15px;
+  background: rgba(139, 0, 0, 0.3);
+  border: 2px solid #8b0000;
+  border-radius: 8px;
+  min-width: 100px;
+}
+
+.mastery-system.sheet.actor.character .mastery-rank-box label {
+  font-size: 11px;
   text-transform: uppercase;
+  color: #ccc;
+  letter-spacing: 1px;
 }
 
-.mastery-system.sheet.actor.character .mastery-rank-display input {
+.mastery-system.sheet.actor.character .mastery-rank-box input {
   background: rgba(0,0,0,0.3);
   border: 1px solid #555;
   color: #fff;
-  padding: 4px 8px;
-  border-radius: 3px;
+  padding: 6px 10px;
+  border-radius: 4px;
   width: 60px;
   text-align: center;
-}
-
-.mastery-system.sheet.actor.character .mastery-rank-display .value {
-  color: #fff;
-  font-size: 18px;
+  font-size: 24px;
   font-weight: bold;
 }
 
-.mastery-system.sheet.actor.character .edit-mode-toggle {
-  background: rgba(139, 0, 0, 0.5);
-  border: 1px solid #8b0000;
+.mastery-system.sheet.actor.character .mastery-rank-box .rank-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ffd700;
+}
+
+.mastery-system.sheet.actor.character .character-name-box {
+  flex: 1;
+}
+
+.mastery-system.sheet.actor.character .character-name-box input {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid #8b0000;
   color: #fff;
-  padding: 8px 12px;
-  border-radius: 4px;
+  font-size: 28px;
+  font-weight: bold;
+  width: 100%;
+  padding: 5px 0;
+}
+
+.mastery-system.sheet.actor.character .character-name-box h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.mastery-system.sheet.actor.character .edit-mode-toggle {
+  background: rgba(139, 0, 0, 0.6);
+  border: 2px solid #8b0000;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 12px;
 }
 
 .mastery-system.sheet.actor.character .edit-mode-toggle:hover {
-  background: rgba(139, 0, 0, 0.8);
+  background: rgba(139, 0, 0, 0.9);
+  transform: scale(1.05);
 }
 
 /* ========== Sheet Body ========== */
@@ -701,7 +705,7 @@
   font-style: italic;
 }
 
-/* ========== Saving Throws Section ========== */
+/* ========== Saving Throws Section (3 Types) ========== */
 .mastery-system.sheet.actor.character .saving-throws-section {
   margin-bottom: 30px;
   padding: 20px;
@@ -722,79 +726,100 @@
   padding-bottom: 12px;
 }
 
-.mastery-system.sheet.actor.character .saving-throws-grid {
+.mastery-system.sheet.actor.character .saving-throws-grid-three {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 15px;
 }
 
 .mastery-system.sheet.actor.character .saving-throw-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 15px;
+  gap: 12px;
+  padding: 20px;
   background: linear-gradient(135deg, #ffffff 0%, #f8f8f8 100%);
-  border: 2px solid #8b0000;
+  border: 3px solid #8b0000;
   border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(139, 0, 0, 0.15);
+  box-shadow: 0 2px 10px rgba(139, 0, 0, 0.2);
   transition: all 0.3s;
 }
 
 .mastery-system.sheet.actor.character .saving-throw-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 16px rgba(139, 0, 0, 0.25);
+  box-shadow: 0 6px 18px rgba(139, 0, 0, 0.3);
   border-color: #a00000;
 }
 
-.mastery-system.sheet.actor.character .save-header {
+.mastery-system.sheet.actor.character .save-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: #8b0000;
+  text-transform: uppercase;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.mastery-system.sheet.actor.character .save-header i {
-  font-size: 18px;
-  color: #8b0000;
-}
-
-.mastery-system.sheet.actor.character .save-header label {
-  font-size: 14px;
+.mastery-system.sheet.actor.character .save-pool {
+  font-size: 20px;
   font-weight: bold;
   color: #333;
-  text-transform: uppercase;
-}
-
-.mastery-system.sheet.actor.character .save-value {
-  font-size: 32px;
-  font-weight: bold;
-  color: #8b0000;
-}
-
-.mastery-system.sheet.actor.character .save-roll {
+  text-align: center;
+  font-family: 'Courier New', monospace;
+  background: rgba(139, 0, 0, 0.05);
+  padding: 10px 15px;
+  border-radius: 6px;
   width: 100%;
-  padding: 8px;
+}
+
+.mastery-system.sheet.actor.character .save-roll-btn {
+  width: 100%;
+  padding: 10px;
   background: linear-gradient(135deg, #8b0000 0%, #a00000 100%);
   border: none;
   color: #fff;
   font-weight: bold;
-  font-size: 12px;
+  font-size: 13px;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.3s;
   text-transform: uppercase;
 }
 
-.mastery-system.sheet.actor.character .save-roll:hover {
+.mastery-system.sheet.actor.character .save-roll-btn:hover {
   background: linear-gradient(135deg, #a00000 0%, #b00000 100%);
   transform: scale(1.05);
   box-shadow: 0 4px 12px rgba(139, 0, 0, 0.4);
 }
 
-/* ========== Skills Tab ========== */
+.mastery-system.sheet.actor.character .save-explanation {
+  display: flex;
+  justify-content: space-around;
+  padding: 15px;
+  background: rgba(139, 0, 0, 0.05);
+  border-radius: 8px;
+  font-size: 12px;
+  color: #666;
+}
+
+.mastery-system.sheet.actor.character .save-explanation p {
+  margin: 0;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .mastery-system.sheet.actor.character .saving-throws-grid-three {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ========== Compact Skills Layout ========== */
 .mastery-system.sheet.actor.character .skills-overview {
-  margin-bottom: 25px;
-  padding: 20px;
+  margin-bottom: 20px;
+  padding: 15px 20px;
   background: linear-gradient(135deg, #f9f9f9 0%, #ffffff 100%);
   border: 3px solid #8b0000;
   border-radius: 12px;
@@ -802,45 +827,30 @@
 }
 
 .mastery-system.sheet.actor.character .skills-overview h3 {
-  margin: 0 0 10px 0;
+  margin: 0 0 8px 0;
   font-size: 20px;
   color: #8b0000;
   text-transform: uppercase;
 }
 
 .mastery-system.sheet.actor.character .skills-description {
-  margin: 0 0 15px 0;
-  font-size: 14px;
+  margin: 0;
+  font-size: 13px;
   color: #666;
 }
 
-.mastery-system.sheet.actor.character .skill-points-display {
-  font-size: 16px;
-  font-weight: bold;
-  color: #333;
-}
-
-.mastery-system.sheet.actor.character .skill-points-display .label {
-  color: #666;
-}
-
-.mastery-system.sheet.actor.character .skill-points-display .value {
-  color: #8b0000;
-  font-size: 20px;
-}
-
-.mastery-system.sheet.actor.character .skill-category {
-  margin-bottom: 25px;
-  padding: 20px;
+.mastery-system.sheet.actor.character .skill-category-compact {
+  margin-bottom: 20px;
+  padding: 15px;
   background: linear-gradient(135deg, #f9f9f9 0%, #ffffff 100%);
-  border: 3px solid #8b0000;
-  border-radius: 12px;
+  border: 2px solid #8b0000;
+  border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-.mastery-system.sheet.actor.character .category-header {
-  margin: 0 0 15px 0;
-  font-size: 18px;
+.mastery-system.sheet.actor.character .category-header-compact {
+  margin: 0 0 12px 0;
+  font-size: 16px;
   color: #8b0000;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -848,103 +858,248 @@
   padding-bottom: 8px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
-.mastery-system.sheet.actor.character .skills-list {
+.mastery-system.sheet.actor.character .skills-list-compact {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
-.mastery-system.sheet.actor.character .skill-item {
-  display: flex;
+.mastery-system.sheet.actor.character .skill-row-compact {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 15px;
-  padding: 12px;
+  gap: 12px;
+  padding: 8px 12px;
   background: #fff;
-  border: 2px solid #ddd;
-  border-radius: 8px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
   transition: all 0.2s;
 }
 
-.mastery-system.sheet.actor.character .skill-item:hover {
+.mastery-system.sheet.actor.character .skill-row-compact:hover {
   border-color: #8b0000;
-  box-shadow: 0 2px 8px rgba(139, 0, 0, 0.15);
-  transform: translateX(3px);
+  box-shadow: 0 2px 6px rgba(139, 0, 0, 0.15);
+  transform: translateX(2px);
 }
 
-.mastery-system.sheet.actor.character .skill-info {
-  flex: 1;
-}
-
-.mastery-system.sheet.actor.character .skill-name {
-  font-size: 15px;
-  font-weight: bold;
+.mastery-system.sheet.actor.character .skill-name-compact {
+  font-size: 14px;
+  font-weight: 600;
   color: #333;
-  display: block;
-  margin-bottom: 5px;
 }
 
-.mastery-system.sheet.actor.character .skill-attributes {
+.mastery-system.sheet.actor.character .skill-attrs-compact {
   display: flex;
-  gap: 5px;
-  flex-wrap: wrap;
+  gap: 4px;
 }
 
-.mastery-system.sheet.actor.character .attribute-tag {
-  font-size: 10px;
-  padding: 2px 6px;
+.mastery-system.sheet.actor.character .attr-badge {
+  font-size: 9px;
+  padding: 2px 5px;
   background: #e0e0e0;
   border-radius: 3px;
   color: #666;
-  text-transform: capitalize;
+  text-transform: uppercase;
+  font-weight: 600;
 }
 
-.mastery-system.sheet.actor.character .skill-controls {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.mastery-system.sheet.actor.character .skill-value {
-  width: 60px;
-  padding: 6px;
+.mastery-system.sheet.actor.character .skill-value-compact {
+  width: 50px;
+  padding: 4px;
   border: 2px solid #8b0000;
   border-radius: 4px;
   text-align: center;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: bold;
 }
 
-.mastery-system.sheet.actor.character .skill-value-static {
-  width: 60px;
-  text-align: center;
-  font-size: 16px;
-  font-weight: bold;
-  color: #333;
-}
-
-.mastery-system.sheet.actor.character .skill-roll {
-  padding: 8px 12px;
+.mastery-system.sheet.actor.character .skill-roll-compact {
+  padding: 6px 10px;
   background: linear-gradient(135deg, #8b0000 0%, #a00000 100%);
   border: none;
   color: #fff;
   font-weight: bold;
-  font-size: 12px;
+  font-size: 11px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.mastery-system.sheet.actor.character .skill-roll-compact:hover {
+  background: linear-gradient(135deg, #a00000 0%, #b00000 100%);
+  transform: scale(1.05);
+}
+
+/* ========== Powers & Magic Tabs ========== */
+.mastery-system.sheet.actor.character .powers-overview,
+.mastery-system.sheet.actor.character .magic-overview {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 15px 20px;
+  background: linear-gradient(135deg, #f9f9f9 0%, #ffffff 100%);
+  border: 3px solid #8b0000;
+  border-radius: 12px;
+}
+
+.mastery-system.sheet.actor.character .powers-overview h3,
+.mastery-system.sheet.actor.character .magic-overview h3 {
+  margin: 0;
+  font-size: 20px;
+  color: #8b0000;
+  text-transform: uppercase;
+}
+
+.mastery-system.sheet.actor.character .add-power-btn,
+.mastery-system.sheet.actor.character .add-spell-btn {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #8b0000 0%, #a00000 100%);
+  border: none;
+  color: #fff;
+  font-weight: bold;
+  font-size: 14px;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.3s;
   text-transform: uppercase;
-  white-space: nowrap;
 }
 
-.mastery-system.sheet.actor.character .skill-roll:hover {
+.mastery-system.sheet.actor.character .add-power-btn:hover,
+.mastery-system.sheet.actor.character .add-spell-btn:hover {
   background: linear-gradient(135deg, #a00000 0%, #b00000 100%);
   transform: scale(1.05);
   box-shadow: 0 4px 12px rgba(139, 0, 0, 0.4);
 }
+
+.mastery-system.sheet.actor.character .power-card,
+.mastery-system.sheet.actor.character .spell-card {
+  margin-bottom: 15px;
+  padding: 15px;
+  background: #fff;
+  border: 2px solid #8b0000;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: all 0.3s;
+}
+
+.mastery-system.sheet.actor.character .power-card:hover,
+.mastery-system.sheet.actor.character .spell-card:hover {
+  box-shadow: 0 4px 16px rgba(139, 0, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+.mastery-system.sheet.actor.character .power-header,
+.mastery-system.sheet.actor.character .spell-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #8b0000;
+}
+
+.mastery-system.sheet.actor.character .power-name,
+.mastery-system.sheet.actor.character .spell-name {
+  margin: 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+.mastery-system.sheet.actor.character .power-controls,
+.mastery-system.sheet.actor.character .spell-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.mastery-system.sheet.actor.character .item-edit,
+.mastery-system.sheet.actor.character .item-delete {
+  padding: 6px 10px;
+  background: #666;
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mastery-system.sheet.actor.character .item-edit:hover {
+  background: #8b0000;
+}
+
+.mastery-system.sheet.actor.character .item-delete:hover {
+  background: #cc0000;
+}
+
+.mastery-system.sheet.actor.character .power-details,
+.mastery-system.sheet.actor.character .spell-details {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.mastery-system.sheet.actor.character .power-tree,
+.mastery-system.sheet.actor.character .spell-school,
+.mastery-system.sheet.actor.character .power-level,
+.mastery-system.sheet.actor.character .spell-level,
+.mastery-system.sheet.actor.character .power-type,
+.mastery-system.sheet.actor.character .spell-type {
+  font-size: 11px;
+  padding: 4px 8px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  color: #666;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.mastery-system.sheet.actor.character .power-description,
+.mastery-system.sheet.actor.character .spell-description {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.mastery-system.sheet.actor.character .power-use-btn,
+.mastery-system.sheet.actor.character .spell-cast-btn {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(135deg, #8b0000 0%, #a00000 100%);
+  border: none;
+  color: #fff;
+  font-weight: bold;
+  font-size: 13px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+}
+
+.mastery-system.sheet.actor.character .power-use-btn:hover,
+.mastery-system.sheet.actor.character .spell-cast-btn:hover {
+  background: linear-gradient(135deg, #a00000 0%, #b00000 100%);
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(139, 0, 0, 0.4);
+}
+
+.mastery-system.sheet.actor.character .empty-message {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+  font-style: italic;
+  font-size: 14px;
+}
+
+/* ========== Old Saving Throws (removed) ========== */
+
+/* ========== Old Skills Tab (removed) ========== */
 
 /* ========== Attributes in Circles ========== */
 .mastery-system.sheet.actor.character .attributes-circles-container {

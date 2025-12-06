@@ -138,6 +138,7 @@ export class MasteryCharacterSheet extends ActorSheet {
    */
   #prepareItems() {
     const powers: any[] = [];
+    const spells: any[] = [];
     const echoes: any[] = [];
     const schticks: any[] = [];
     const artifacts: any[] = [];
@@ -151,6 +152,9 @@ export class MasteryCharacterSheet extends ActorSheet {
       switch (item.type) {
         case 'special':
           powers.push(itemData);
+          break;
+        case 'spell':
+          spells.push(itemData);
           break;
         case 'echo':
           echoes.push(itemData);
@@ -180,8 +184,16 @@ export class MasteryCharacterSheet extends ActorSheet {
       return (a.system.level || 0) - (b.system.level || 0);
     });
     
+    // Sort spells by school and level
+    spells.sort((a, b) => {
+      const schoolCompare = (a.system.school || '').localeCompare(b.system.school || '');
+      if (schoolCompare !== 0) return schoolCompare;
+      return (a.system.level || 0) - (b.system.level || 0);
+    });
+    
     return {
       powers,
+      spells,
       echoes,
       schticks,
       artifacts,
@@ -271,6 +283,12 @@ export class MasteryCharacterSheet extends ActorSheet {
     html.find('.attribute-adjust').on('click', this.#onAttributeAdjust.bind(this));
     html.find('.attribute-roll').on('click', this.#onAttributeRoll.bind(this));
     
+    // Saving Throws (3 types: body, mind, spirit)
+    html.find('.save-roll-btn').on('click', this.#onSavingThrowRoll.bind(this));
+    
+    // Skills rolls (compact)
+    html.find('.skill-roll-compact').on('click', this.#onSkillRollWithDialog.bind(this));
+    
     // Everything below here is only needed if the sheet is editable
     if (!this.isEditable) return;
     
@@ -280,6 +298,10 @@ export class MasteryCharacterSheet extends ActorSheet {
     // Attack rolls
     html.find('.weapon-attack').on('click', this.#onWeaponAttack.bind(this));
     html.find('.power-attack').on('click', this.#onPowerAttack.bind(this));
+    
+    // Add Power/Spell buttons
+    html.find('.add-power-btn').on('click', () => this.#onAddPowerOrSpell('special'));
+    html.find('.add-spell-btn').on('click', () => this.#onAddPowerOrSpell('spell'));
     
     // Add skill
     html.find('.skill-add').on('click', this.#onSkillAdd.bind(this));
@@ -436,12 +458,12 @@ export class MasteryCharacterSheet extends ActorSheet {
   /**
    * Prompt for Target Number
    */
-  async #promptForTN(): Promise<number | null> {
+  async #promptForTN(defaultValue: number = 16): Promise<number | null> {
     const content = `
       <form>
         <div class="form-group">
           <label>Target Number:</label>
-          <input type="number" name="tn" value="16" step="1" min="0"/>
+          <input type="number" name="tn" value="${defaultValue}" step="1" min="0"/>
         </div>
         <div class="form-group">
           <label>Preset Difficulties:</label>
@@ -1073,6 +1095,52 @@ export class MasteryCharacterSheet extends ActorSheet {
     if (success) {
       this.render(false);
     }
+  }
+
+  /**
+   * Handle saving throw roll
+   * @param event - Click event
+   */
+  async #onSavingThrowRoll(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    const element = event.currentTarget;
+    const saveType = element.dataset.saveType as 'body' | 'mind' | 'spirit';
+    
+    if (!saveType) return;
+    
+    // Prompt for TN (default to Mastery Rank based DC)
+    const masteryRank = this.actor.system.mastery?.rank || 2;
+    const defaultTN = 12 * masteryRank;
+    
+    const tn = await this.#promptForTN(defaultTN);
+    if (tn === null) return;
+    
+    // Import and perform save
+    const { performSave } = await import('../rolls/checks.js');
+    await performSave(this.actor, saveType, tn, 'General');
+  }
+
+  /**
+   * Handle add power or spell
+   * @param itemType - Type of item to create ('special' or 'spell')
+   */
+  async #onAddPowerOrSpell(itemType: string) {
+    // Create new item
+    const itemData = {
+      name: itemType === 'special' ? 'New Power' : 'New Spell',
+      type: itemType,
+      system: {
+        description: '',
+        tree: '',
+        school: '',
+        level: 1,
+        equipped: false,
+        prepared: false
+      }
+    };
+    
+    await this.actor.createEmbeddedDocuments('Item', [itemData]);
+    this.render(false);
   }
 
   /**

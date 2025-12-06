@@ -5,6 +5,86 @@ All notable changes to the Mastery System / Destroyed Faith for Foundry VTT will
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.28] - 2025-12-06
+
+### Added - Complete Character Sheet Overhaul
+
+**Header Improvements**
+- ✅ **Modern Header Layout**: Image + Mastery Rank box + Character Name in one horizontal line
+- ✅ **Mastery Rank Prominent**: Large number display with red border
+- ✅ **Professional Design**: Better spacing and visual hierarchy
+
+**Saving Throws - Complete Redesign**
+- ✅ **3 Core Saving Throws**: Body, Mind, Spirit (as per rulebook lines 4398-4420)
+- ✅ **Automatic Pool Calculation**: 
+  - Body: Max(Might, Agility) k Mastery + Vitality
+  - Mind: Max(Intellect, Wits) k Mastery + Vitality
+  - Spirit: Max(Resolve, Influence) k Mastery + Vitality
+- ✅ **Visual Pool Display**: Shows exact dice pool (e.g., "8d8 k 2 + 3")
+- ✅ **Roll Integration**: Prompts for TN (defaults to 12 × Mastery Rank)
+- ✅ **Descriptive Text**: Each save shows what it resists (poison, fear, curses, etc.)
+
+**Skills Tab - Compact One-Line Layout**
+- ✅ **Category Grouping**: Physical, Knowledge & Craft, Social, Survival, Martial
+- ✅ **One-Line Entries**: Skill name, attributes badges, value input, roll button all in one row
+- ✅ **Attribute Badges**: Small tags showing which attributes apply (e.g., "MIG", "AGL")
+- ✅ **Hover Effects**: Rows highlight and shift on hover
+- ✅ **Clean Design**: Minimal padding, maximum information density
+
+**Powers Tab - Add System**
+- ✅ **Add Power Button**: Large, prominent button at top
+- ✅ **Power Cards**: Display name, tree, level, type, description
+- ✅ **Edit/Delete Controls**: Per-power action buttons
+- ✅ **Equipped Status**: "Use Power" button only for equipped powers
+- ✅ **Empty State**: Helpful message when no powers exist
+
+**Magic Tab - Add System**
+- ✅ **Add Spell Button**: Large, prominent button at top
+- ✅ **Spell Cards**: Display name, school, level, type, description
+- ✅ **Edit/Delete Controls**: Per-spell action buttons
+- ✅ **Prepared Status**: "Cast Spell" button only for prepared spells
+- ✅ **Empty State**: Helpful message when no spells exist
+- ✅ **New Item Type**: Added "spell" item type to template.json and system.json
+
+**Tab Order Update**
+- ✅ **Reordered Tabs**: Attributes → Skills → Powers → Magic → Equipment → Biography
+- ✅ **Magic Before Equipment**: As requested by user
+
+### Modified
+
+**TypeScript Backend**
+- ✅ `character-sheet.ts`: Added `#onSavingThrowRoll()` handler for new 3-type saves
+- ✅ `character-sheet.ts`: Added `#onAddPowerOrSpell()` handler for item creation
+- ✅ `character-sheet.ts`: Updated `#prepareItems()` to include "spells" array
+- ✅ `character-sheet.ts`: Updated `#promptForTN()` to accept default value parameter
+
+**Data Templates**
+- ✅ `template.json`: Added "spell" item type with school, level, components, costs
+- ✅ `system.json`: Added "spell" to documentTypes
+
+**Handlebars Template**
+- ✅ `character-sheet.hbs`: Complete header redesign
+- ✅ `character-sheet.hbs`: 3 saving throws with automatic calculations
+- ✅ `character-sheet.hbs`: Compact one-line skills layout
+- ✅ `character-sheet.hbs`: Powers tab with add button and power cards
+- ✅ `character-sheet.hbs`: Magic tab with add button and spell cards
+- ✅ `character-sheet.hbs`: Reordered tab navigation
+
+**CSS Styling**
+- ✅ `character-sheet.css`: New header layout styles (horizontal, image + rank + name)
+- ✅ `character-sheet.css`: 3-column saving throws grid (responsive to 1 column on mobile)
+- ✅ `character-sheet.css`: Compact skills styles (one-line rows, small badges)
+- ✅ `character-sheet.css`: Power/spell card styles with hover effects
+- ✅ `character-sheet.css`: Add button styles (prominent red gradient)
+- ✅ `character-sheet.css`: Removed old 7-saving-throws styles
+- ✅ `character-sheet.css`: Removed old verbose skills styles
+
+### Fixed
+- ✅ Saving Throws now follow rulebook (Body/Mind/Spirit instead of 7 attribute-based saves)
+- ✅ Skill display is much more space-efficient (one line per skill)
+- ✅ Header is cleaner and more professional
+- ✅ Tab order matches user preference (Magic before Equipment)
+
 ## [0.0.26] - 2025-12-06
 
 ### Added - Improved Character Sheet UI

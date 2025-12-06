@@ -382,6 +382,30 @@
         "masteryRank": 1
       }
     },
+    "spell": {
+      "templates": ["base"],
+      "school": "",
+      "level": 1,
+      "spellType": "active",
+      "castingTime": "1 action",
+      "range": "0m",
+      "duration": "instant",
+      "prepared": false,
+      "components": {
+        "verbal": true,
+        "somatic": true,
+        "material": false,
+        "materialDescription": ""
+      },
+      "cost": {
+        "stones": 0,
+        "charges": 0
+      },
+      "requirements": {
+        "masteryRank": 1,
+        "schoolLevel": 1
+      }
+    },
     "condition": {
       "templates": ["base"],
       "conditionType": "custom",
