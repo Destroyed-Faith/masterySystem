@@ -477,56 +477,150 @@
         </p>
       </div>
       
-      {{#each skills}}
-        {{#if @first}}
-          <div class="skill-category-compact">
-            <h4 class="category-header-compact">
-              {{#if (eq this.category "Physical")}}<i class="fas fa-running"></i>{{/if}}
-              {{#if (eq this.category "Knowledge & Craft")}}<i class="fas fa-book"></i>{{/if}}
-              {{#if (eq this.category "Social")}}<i class="fas fa-comments"></i>{{/if}}
-              {{#if (eq this.category "Survival")}}<i class="fas fa-tree"></i>{{/if}}
-              {{#if (eq this.category "Martial")}}<i class="fas fa-sword"></i>{{/if}}
-              {{this.category}}
-            </h4>
-            <div class="skills-list-compact">
-        {{else}}
-          {{#unless (eq this.category @root.skills.[subtract @index 1].category)}}
-            </div></div>
-            <div class="skill-category-compact">
-              <h4 class="category-header-compact">
-                {{#if (eq this.category "Physical")}}<i class="fas fa-running"></i>{{/if}}
-                {{#if (eq this.category "Knowledge & Craft")}}<i class="fas fa-book"></i>{{/if}}
-                {{#if (eq this.category "Social")}}<i class="fas fa-comments"></i>{{/if}}
-                {{#if (eq this.category "Survival")}}<i class="fas fa-tree"></i>{{/if}}
-                {{#if (eq this.category "Martial")}}<i class="fas fa-sword"></i>{{/if}}
-                {{this.category}}
-              </h4>
-              <div class="skills-list-compact">
-          {{/unless}}
-        {{/if}}
-        
-        <div class="skill-row-compact">
-          <span class="skill-name-compact">{{this.name}}</span>
-          <div class="skill-attrs-compact">
-            {{#each this.attributes}}
-              <span class="attr-badge">{{capitalize this}}</span>
-            {{/each}}
-          </div>
-          {{#if ../../editable}}
-            <input type="number" name="system.skills.{{this.key}}" value="{{default this.value 0}}" min="0" max="32" class="skill-value-compact" data-dtype="Number" />
-          {{else}}
-            <span class="skill-value-compact">{{default this.value 0}}</span>
-          {{/if}}
-          <button type="button" class="skill-roll-compact" data-skill="{{this.key}}" title="Roll {{this.name}}">
-            <i class="fas fa-dice-d20"></i>
-          </button>
+      <!-- Physical Skills -->
+      <div class="skill-category-compact">
+        <h4 class="category-header-compact">
+          <i class="fas fa-running"></i> Physical
+        </h4>
+        <div class="skills-list-compact">
+          {{#each skills}}
+            {{#if (eq this.category "Physical")}}
+              <div class="skill-row-compact">
+                <span class="skill-name-compact">{{this.name}}</span>
+                <div class="skill-attrs-compact">
+                  {{#each this.attributes}}
+                    <span class="attr-badge">{{capitalize this}}</span>
+                  {{/each}}
+                </div>
+                {{#if ../../editable}}
+                  <input type="number" name="system.skills.{{this.key}}" value="{{default this.value 0}}" min="0" max="32" class="skill-value-compact" data-dtype="Number" />
+                {{else}}
+                  <span class="skill-value-compact">{{default this.value 0}}</span>
+                {{/if}}
+                <button type="button" class="skill-roll-compact" data-skill="{{this.key}}" title="Roll {{this.name}}">
+                  <i class="fas fa-dice-d20"></i>
+                </button>
+              </div>
+            {{/if}}
+          {{/each}}
         </div>
-        
-        {{#if @last}}
-            </div>
-          </div>
-        {{/if}}
-      {{/each}}
+      </div>
+      
+      <!-- Knowledge & Craft Skills -->
+      <div class="skill-category-compact">
+        <h4 class="category-header-compact">
+          <i class="fas fa-book"></i> Knowledge & Craft
+        </h4>
+        <div class="skills-list-compact">
+          {{#each skills}}
+            {{#if (eq this.category "Knowledge & Craft")}}
+              <div class="skill-row-compact">
+                <span class="skill-name-compact">{{this.name}}</span>
+                <div class="skill-attrs-compact">
+                  {{#each this.attributes}}
+                    <span class="attr-badge">{{capitalize this}}</span>
+                  {{/each}}
+                </div>
+                {{#if ../../editable}}
+                  <input type="number" name="system.skills.{{this.key}}" value="{{default this.value 0}}" min="0" max="32" class="skill-value-compact" data-dtype="Number" />
+                {{else}}
+                  <span class="skill-value-compact">{{default this.value 0}}</span>
+                {{/if}}
+                <button type="button" class="skill-roll-compact" data-skill="{{this.key}}" title="Roll {{this.name}}">
+                  <i class="fas fa-dice-d20"></i>
+                </button>
+              </div>
+            {{/if}}
+          {{/each}}
+        </div>
+      </div>
+      
+      <!-- Martial Skills -->
+      <div class="skill-category-compact">
+        <h4 class="category-header-compact">
+          <i class="fas fa-sword"></i> Martial
+        </h4>
+        <div class="skills-list-compact">
+          {{#each skills}}
+            {{#if (eq this.category "Martial")}}
+              <div class="skill-row-compact">
+                <span class="skill-name-compact">{{this.name}}</span>
+                <div class="skill-attrs-compact">
+                  {{#each this.attributes}}
+                    <span class="attr-badge">{{capitalize this}}</span>
+                  {{/each}}
+                </div>
+                {{#if ../../editable}}
+                  <input type="number" name="system.skills.{{this.key}}" value="{{default this.value 0}}" min="0" max="32" class="skill-value-compact" data-dtype="Number" />
+                {{else}}
+                  <span class="skill-value-compact">{{default this.value 0}}</span>
+                {{/if}}
+                <button type="button" class="skill-roll-compact" data-skill="{{this.key}}" title="Roll {{this.name}}">
+                  <i class="fas fa-dice-d20"></i>
+                </button>
+              </div>
+            {{/if}}
+          {{/each}}
+        </div>
+      </div>
+      
+      <!-- Social Skills -->
+      <div class="skill-category-compact">
+        <h4 class="category-header-compact">
+          <i class="fas fa-comments"></i> Social
+        </h4>
+        <div class="skills-list-compact">
+          {{#each skills}}
+            {{#if (eq this.category "Social")}}
+              <div class="skill-row-compact">
+                <span class="skill-name-compact">{{this.name}}</span>
+                <div class="skill-attrs-compact">
+                  {{#each this.attributes}}
+                    <span class="attr-badge">{{capitalize this}}</span>
+                  {{/each}}
+                </div>
+                {{#if ../../editable}}
+                  <input type="number" name="system.skills.{{this.key}}" value="{{default this.value 0}}" min="0" max="32" class="skill-value-compact" data-dtype="Number" />
+                {{else}}
+                  <span class="skill-value-compact">{{default this.value 0}}</span>
+                {{/if}}
+                <button type="button" class="skill-roll-compact" data-skill="{{this.key}}" title="Roll {{this.name}}">
+                  <i class="fas fa-dice-d20"></i>
+                </button>
+              </div>
+            {{/if}}
+          {{/each}}
+        </div>
+      </div>
+      
+      <!-- Survival Skills -->
+      <div class="skill-category-compact">
+        <h4 class="category-header-compact">
+          <i class="fas fa-tree"></i> Survival
+        </h4>
+        <div class="skills-list-compact">
+          {{#each skills}}
+            {{#if (eq this.category "Survival")}}
+              <div class="skill-row-compact">
+                <span class="skill-name-compact">{{this.name}}</span>
+                <div class="skill-attrs-compact">
+                  {{#each this.attributes}}
+                    <span class="attr-badge">{{capitalize this}}</span>
+                  {{/each}}
+                </div>
+                {{#if ../../editable}}
+                  <input type="number" name="system.skills.{{this.key}}" value="{{default this.value 0}}" min="0" max="32" class="skill-value-compact" data-dtype="Number" />
+                {{else}}
+                  <span class="skill-value-compact">{{default this.value 0}}</span>
+                {{/if}}
+                <button type="button" class="skill-roll-compact" data-skill="{{this.key}}" title="Roll {{this.name}}">
+                  <i class="fas fa-dice-d20"></i>
+                </button>
+              </div>
+            {{/if}}
+          {{/each}}
+        </div>
+      </div>
       
     </div>
     
@@ -609,7 +703,7 @@
           {{/each}}
         {{else}}
           <p class="empty-message">No spells yet. Click "Add Spell" to start.</p>
-        {{/else}}
+        {{/if}}
       </div>
       
     </div>
