@@ -2,6 +2,12 @@
   
   <!-- Header -->
   <header class="sheet-header">
+    {{#if owner}}
+      <button type="button" class="edit-mode-toggle-compact" title="Toggle Edit Mode">
+        <i class="fas {{#if editable}}fa-lock-open{{else}}fa-lock{{/if}}"></i>
+      </button>
+    {{/if}}
+    
     <img class="profile-img {{#if editable}}{{else}}locked{{/if}}" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" alt="{{actor.name}}" />
     
     <div class="header-info">
@@ -22,12 +28,6 @@
         {{/if}}
       </div>
     </div>
-    
-    {{#if owner}}
-      <button type="button" class="edit-mode-toggle" title="Toggle Edit Mode">
-        <i class="fas fa-edit"></i> {{#if editable}}Lock{{else}}Edit{{/if}}
-      </button>
-    {{/if}}
   </header>
 
   <!-- Tabs Navigation (Right Side Bookmarks) -->

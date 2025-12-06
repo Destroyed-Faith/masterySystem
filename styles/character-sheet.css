@@ -24,6 +24,29 @@
   min-height: 100px;
 }
 
+.mastery-system.sheet.actor.character .edit-mode-toggle-compact {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  background: rgba(139, 0, 0, 0.6);
+  border: 2px solid #8b0000;
+  color: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mastery-system.sheet.actor.character .edit-mode-toggle-compact:hover {
+  background: rgba(139, 0, 0, 0.9);
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(139, 0, 0, 0.5);
+}
+
 .mastery-system.sheet.actor.character .profile-img {
   border: 3px solid #8b0000;
   border-radius: 8px;
@@ -104,24 +127,6 @@
   font-size: 28px;
   font-weight: bold;
   color: #fff;
-}
-
-.mastery-system.sheet.actor.character .edit-mode-toggle {
-  background: rgba(139, 0, 0, 0.6);
-  border: 2px solid #8b0000;
-  color: #fff;
-  padding: 10px 16px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-weight: bold;
-  text-transform: uppercase;
-  font-size: 12px;
-}
-
-.mastery-system.sheet.actor.character .edit-mode-toggle:hover {
-  background: rgba(139, 0, 0, 0.9);
-  transform: scale(1.05);
 }
 
 /* ========== Sheet Body ========== */
@@ -941,29 +946,29 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 15px;
-  padding: 15px 20px;
+  padding: 10px 15px;
   background: linear-gradient(135deg, #f9f9f9 0%, #ffffff 100%);
-  border: 3px solid #8b0000;
-  border-radius: 12px;
+  border: 2px solid #8b0000;
+  border-radius: 8px;
 }
 
 .mastery-system.sheet.actor.character .powers-overview h3,
 .mastery-system.sheet.actor.character .magic-overview h3 {
   margin: 0;
-  font-size: 20px;
+  font-size: 18px;
   color: #8b0000;
   text-transform: uppercase;
 }
 
 .mastery-system.sheet.actor.character .add-power-btn,
 .mastery-system.sheet.actor.character .add-spell-btn {
-  padding: 10px 20px;
+  padding: 6px 12px;
   background: linear-gradient(135deg, #8b0000 0%, #a00000 100%);
   border: none;
   color: #fff;
   font-weight: bold;
-  font-size: 14px;
-  border-radius: 6px;
+  font-size: 11px;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.3s;
   text-transform: uppercase;
@@ -973,7 +978,7 @@
 .mastery-system.sheet.actor.character .add-spell-btn:hover {
   background: linear-gradient(135deg, #a00000 0%, #b00000 100%);
   transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(139, 0, 0, 0.4);
+  box-shadow: 0 3px 10px rgba(139, 0, 0, 0.4);
 }
 
 /* Compact Power/Spell Rows */
