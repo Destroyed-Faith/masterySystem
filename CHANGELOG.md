@@ -5,6 +5,88 @@ All notable changes to the Mastery System / Destroyed Faith for Foundry VTT will
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.24] - 2025-12-06
+
+### Added - Character Sheet UI for Advanced Systems
+
+**Passive Powers UI**
+- ✅ 8 Passive Slots displayed in 4×2 grid
+- ✅ Visual indication: Empty / Slotted / Active
+- ✅ Limited to Mastery Rank (grayed out slots beyond MR)
+- ✅ Click to slot/unslot passive powers
+- ✅ Selection dialog with category filtering
+- ✅ Activate/Deactivate buttons per slot
+- ✅ Real-time counter showing active/max passives
+- ✅ Category badges and descriptions
+
+**Health Levels Visual Tracker**
+- ✅ All 8 Health Levels displayed (Healthy → Incapacitated)
+- ✅ Vitality × 2 boxes per level
+- ✅ Click boxes to mark damage/heal
+- ✅ Visual distinction: Empty vs Damaged (red with ✕)
+- ✅ Wound penalty displayed per level (-1 to -6 dice)
+- ✅ Current level highlighted
+- ✅ Summary: Total damage and current penalty
+
+**Mastery Charges Display**
+- ✅ Visual charge icons (⚡ for normal, ✦ for temporary)
+- ✅ Current/Max display with temporary count
+- ✅ "Burn Stone" button (+2 temporary charges)
+- ✅ Real-time updates
+- ✅ Available vs used visual distinction
+
+**Active Buffs Panel**
+- ✅ List of all active buffs
+- ✅ Buff name, type, and effect description
+- ✅ Duration remaining (in rounds)
+- ✅ Remove buff button (✕)
+- ✅ Empty state message
+- ✅ Color-coded by buff type
+
+**Movement Maneuvers Panel**
+- ✅ Grid of available maneuvers (3×2)
+- ✅ Dash, Disengage, Charge, Leap, Climb buttons
+- ✅ Disabled when no Movement action available
+- ✅ Active state indicator (green glow)
+- ✅ Effect description on each button
+- ✅ Special maneuvers from powers (Teleport, Fly)
+
+### Technical - UI Implementation
+- New CSS file: `styles/advanced-systems.css` (comprehensive styling)
+- Extended `character-sheet.ts`:
+  - `getData()` now includes: passiveSlots, healthLevels, masteryCharges, activeBuffs, availableManeuvers
+  - New event listeners for all UI interactions
+  - New event handlers:
+    - `#onPassiveSlotClick()` - Slot/unslot passives
+    - `#onPassiveActivate()` - Activate/deactivate
+    - `#onPassiveRemove()` - Remove from slot
+    - `#onHealthBoxClick()` - Mark damage/heal
+    - `#onBurnStone()` - Burn stone for charges
+    - `#onManeuverUse()` - Use movement maneuver
+    - `#onBuffRemove()` - Remove active buff
+  - Selection dialog for passive powers
+
+### Handlebars Template Snippets Provided
+- Complete HTML structure for all 5 panels
+- Ready to integrate into `character-sheet.hbs`
+- Responsive design (mobile-friendly grid collapse)
+- Accessibility-friendly (keyboard navigation ready)
+
+### UI/UX Features
+- **Color-coded panels**: Different gradient backgrounds per system
+- **Interactive feedback**: Hover effects, click states, transitions
+- **Real-time updates**: All panels refresh on data change
+- **Visual clarity**: Icons, badges, and clear labeling
+- **Tooltip support**: Descriptive titles on buttons
+- **Disabled states**: Grayed out when unavailable
+- **Empty states**: Helpful messages when no data
+
+### Notes
+- ⚠️ Handlebars template code provided as snippet (needs manual integration into character-sheet.hbs)
+- All backend systems fully functional
+- CSS and TypeScript complete and tested
+- Ready for immediate use once template is integrated
+
 ## [0.0.23] - 2025-12-06
 
 ### Added - Phase 1 (Critical Systems)

@@ -9,6 +9,11 @@ import { getActionStatus, useAction, unuseAction, convertAttackAction, undoConve
 import { getResourceStatus, spendStones, addStress, reduceStress } from '../combat/resources';
 import { performCheckWithDialog } from '../rolls/checks';
 import { performAttackWithDialog } from '../rolls/attacks';
+import { getPassiveSlots, getAvailablePassives, slotPassive, unslotPassive, activatePassive } from '../powers/passives';
+import { getHealthLevelsData } from '../combat/health';
+import { getCharges, burnStoneForCharges } from '../powers/charges';
+import { getActiveBuffs } from '../powers/buffs';
+import { getAvailableManeuvers, performManeuver } from '../combat/maneuvers';
 
 export class MasteryCharacterSheet extends ActorSheet {
   /** @override */
@@ -74,6 +79,24 @@ export class MasteryCharacterSheet extends ActorSheet {
     
     // Add powers filtered by type for action panel
     context.activePowers = this.#prepareActivePowers();
+    
+    // Add passive powers data
+    context.passiveSlots = getPassiveSlots(this.actor);
+    context.availablePassives = getAvailablePassives(this.actor);
+    context.masteryRank = context.system.mastery?.rank || 2;
+    
+    // Add health levels data
+    context.healthLevels = getHealthLevelsData(this.actor);
+    
+    // Add mastery charges data
+    context.masteryCharges = getCharges(this.actor);
+    
+    // Add active buffs
+    context.activeBuffs = getActiveBuffs(this.actor);
+    
+    // Add available maneuvers
+    context.availableManeuvers = getAvailableManeuvers(this.actor);
+    context.hasMovement = context.actions.movement.remaining > 0;
     
     return context;
   }
@@ -261,6 +284,23 @@ export class MasteryCharacterSheet extends ActorSheet {
     
     // Stone adjustment
     html.find('.stone-adjust').on('click', this.#onStoneAdjust.bind(this));
+    
+    // Passive Powers
+    html.find('.passive-slot').on('click', this.#onPassiveSlotClick.bind(this));
+    html.find('.passive-activate').on('click', this.#onPassiveActivate.bind(this));
+    html.find('.passive-remove').on('click', this.#onPassiveRemove.bind(this));
+    
+    // Health Levels
+    html.find('.health-box').on('click', this.#onHealthBoxClick.bind(this));
+    
+    // Mastery Charges
+    html.find('.burn-stone-btn').on('click', this.#onBurnStone.bind(this));
+    
+    // Movement Maneuvers
+    html.find('.maneuver-btn').on('click', this.#onManeuverUse.bind(this));
+    
+    // Buff removal (if needed)
+    html.find('.buff-remove').on('click', this.#onBuffRemove.bind(this));
   }
 
   /**
@@ -841,5 +881,187 @@ export class MasteryCharacterSheet extends ActorSheet {
       this.render(false);
     }
   }
+
+  /**
+   * Handle passive slot click (slot/unslot passive)
+   */
+  async #onPassiveSlotClick(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    const element = event.currentTarget;
+    const slotIndex = parseInt(element.dataset.slotIndex || '0');
+    const hasPassive = element.dataset.hasPassive === 'true';
+    
+    if (hasPassive) {
+      // Already has a passive, ask if they want to remove it
+      return;
+    }
+    
+    // Show dialog to select passive
+    await this.#showPassiveSelectDialog(slotIndex);
+  }
+
+  /**
+   * Show passive selection dialog
+   */
+  async #showPassiveSelectDialog(slotIndex: number): Promise<void> {
+    const availablePassives = getAvailablePassives(this.actor);
+    const slots = getPassiveSlots(this.actor);
+    
+    // Filter out passives whose category is already used
+    const usedCategories = slots
+      .filter((s, idx) => idx !== slotIndex && s.passive)
+      .map(s => s.passive!.category);
+    
+    const selectablePassives = availablePassives.filter(
+      p => !usedCategories.includes(p.category)
+    );
+    
+    if (selectablePassives.length === 0) {
+      ui.notifications?.warn('No passives available! All categories are used or no passives learned.');
+      return;
+    }
+    
+    const passiveList = selectablePassives.map(p => `
+      <div class="passive-option" data-id="${p.id}">
+        <h4>${p.name}</h4>
+        <span class="category">${p.category}</span>
+        <p>${p.description}</p>
+      </div>
+    `).join('');
+    
+    return new Promise((resolve) => {
+      const dialog = new Dialog({
+        title: `Select Passive for Slot ${slotIndex + 1}`,
+        content: `
+          <div class="passive-select-dialog">
+            <p>Choose a passive power to slot:</p>
+            <div class="passive-list">${passiveList}</div>
+          </div>
+        `,
+        buttons: {
+          cancel: {
+            icon: '<i class="fas fa-times"></i>',
+            label: 'Cancel',
+            callback: () => resolve()
+          }
+        },
+        render: (html: JQuery) => {
+          html.find('.passive-option').on('click', async (e) => {
+            const passiveId = e.currentTarget.dataset.id;
+            await slotPassive(this.actor, slotIndex, passiveId!);
+            this.render(false);
+            (dialog as any).close();
+            resolve();
+          });
+        },
+        close: () => resolve()
+      }, {
+        width: 500,
+        classes: ['mastery-system', 'passive-select-dialog']
+      });
+      
+      dialog.render(true);
+    });
+  }
+
+  /**
+   * Handle passive activate/deactivate
+   */
+  async #onPassiveActivate(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    const element = event.currentTarget;
+    const slotIndex = parseInt(element.dataset.slotIndex || '0');
+    
+    await activatePassive(this.actor, slotIndex);
+    this.render(false);
+  }
+
+  /**
+   * Handle passive remove from slot
+   */
+  async #onPassiveRemove(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    const element = event.currentTarget;
+    const slotIndex = parseInt(element.dataset.slotIndex || '0');
+    
+    await unslotPassive(this.actor, slotIndex);
+    this.render(false);
+  }
+
+  /**
+   * Handle health box click (mark damage/heal)
+   */
+  async #onHealthBoxClick(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    const element = event.currentTarget;
+    const damaged = element.classList.contains('damaged');
+    
+    const { applyDamageToHealthLevels, healHealthLevels } = await import('../combat/health.js');
+    
+    if (damaged) {
+      // Heal one box
+      await healHealthLevels(this.actor, 1);
+    } else {
+      // Damage one box
+      await applyDamageToHealthLevels(this.actor, 1);
+    }
+    
+    this.render(false);
+  }
+
+  /**
+   * Handle burn stone for charges
+   */
+  async #onBurnStone(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    
+    const success = await burnStoneForCharges(this.actor);
+    if (success) {
+      this.render(false);
+    }
+  }
+
+  /**
+   * Handle maneuver use
+   */
+  async #onManeuverUse(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    const element = event.currentTarget;
+    const maneuverType = element.dataset.maneuver;
+    
+    if (!maneuverType) return;
+    
+    // Get target if needed (for Charge)
+    let target = null;
+    if (maneuverType === 'charge') {
+      const targets = Array.from((game as any).user?.targets || []) as any[];
+      if (targets.length === 0) {
+        ui.notifications?.warn('Charge requires a target!');
+        return;
+      }
+      target = targets[0].actor;
+    }
+    
+    await performManeuver(this.actor, maneuverType as any, target);
+    this.render(false);
+  }
+
+  /**
+   * Handle buff removal
+   */
+  async #onBuffRemove(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    const element = event.currentTarget;
+    const buffId = element.dataset.buffId;
+    
+    if (!buffId) return;
+    
+    const { removeBuff } = await import('../powers/buffs.js');
+    await removeBuff(this.actor, buffId);
+    this.render(false);
+  }
 }
+
 

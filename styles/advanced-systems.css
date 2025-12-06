@@ -1,0 +1,539 @@
+/**
+ * Advanced Systems UI CSS
+ * Styles for Passive Powers, Health Levels, Charges, Buffs, and Maneuvers
+ */
+
+/* Passive Powers Panel */
+.passive-powers-panel {
+  background: linear-gradient(135deg, #1e3a5f 0%, #2d5a7b 100%);
+  border: 2px solid #4a7ba7;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.passive-powers-panel h3 {
+  margin: 0 0 0.75rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 1.1rem;
+}
+
+.passive-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.passive-slot {
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid #555;
+  border-radius: 4px;
+  padding: 0.5rem;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.passive-slot:hover {
+  border-color: #4a7ba7;
+  background: rgba(74, 123, 167, 0.1);
+}
+
+.passive-slot.has-passive {
+  border-color: #3498db;
+  background: rgba(52, 152, 219, 0.2);
+}
+
+.passive-slot.active {
+  border-color: #2ecc71;
+  background: linear-gradient(135deg, rgba(46, 204, 113, 0.3) 0%, rgba(39, 174, 96, 0.3) 100%);
+  box-shadow: 0 0 10px rgba(46, 204, 113, 0.5);
+}
+
+.passive-slot.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.passive-slot-number {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: bold;
+}
+
+.passive-slot-name {
+  font-size: 0.85rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 0.25rem;
+  color: #fff;
+}
+
+.passive-slot-category {
+  font-size: 0.7rem;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.passive-slot-empty {
+  font-size: 0.75rem;
+  color: #777;
+  font-style: italic;
+}
+
+.passive-slot-controls {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: flex;
+  gap: 2px;
+}
+
+.passive-slot-btn {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+  padding: 2px 6px;
+  font-size: 0.7rem;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.passive-slot-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: #fff;
+}
+
+.passive-limit-info {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #ccc;
+  margin-top: 0.5rem;
+}
+
+.passive-limit-info strong {
+  color: #3498db;
+}
+
+/* Health Levels Tracker */
+.health-levels-panel {
+  background: linear-gradient(135deg, #8e44ad 0%, #9b59b6 100%);
+  border: 2px solid #6c3483;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.health-levels-panel h3 {
+  margin: 0 0 0.75rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 1.1rem;
+}
+
+.health-level {
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.health-level-name {
+  min-width: 100px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #fff;
+}
+
+.health-level-penalty {
+  min-width: 60px;
+  font-size: 0.85rem;
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.health-level-boxes {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.health-box {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.health-box:hover {
+  border-color: #fff;
+  transform: scale(1.1);
+}
+
+.health-box.damaged {
+  background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+  border-color: #c0392b;
+}
+
+.health-box.damaged::after {
+  content: '✕';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.health-level.current {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.25rem;
+  border-radius: 4px;
+}
+
+.health-summary {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: #fff;
+}
+
+.health-summary strong {
+  color: #e74c3c;
+}
+
+/* Mastery Charges Display */
+.mastery-charges-panel {
+  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+  border: 2px solid #d68910;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.mastery-charges-panel h3 {
+  margin: 0 0 0.75rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 1.1rem;
+}
+
+.charges-display {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.charges-icons {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+.charge-icon {
+  width: 32px;
+  height: 32px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.charge-icon.available {
+  background: linear-gradient(135deg, #f1c40f 0%, #f39c12 100%);
+  border-color: #f39c12;
+  box-shadow: 0 0 8px rgba(243, 156, 18, 0.6);
+}
+
+.charge-icon.available::before {
+  content: '⚡';
+  color: #fff;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+}
+
+.charge-icon.temporary {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  border-color: #2980b9;
+}
+
+.charge-icon.temporary::before {
+  content: '✦';
+  color: #fff;
+}
+
+.charge-icon.used {
+  opacity: 0.3;
+}
+
+.charges-text {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.charges-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.burn-stone-btn {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 4px;
+  padding: 0.5rem;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.burn-stone-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: #fff;
+}
+
+/* Active Buffs Display */
+.active-buffs-panel {
+  background: linear-gradient(135deg, #16a085 0%, #1abc9c 100%);
+  border: 2px solid #138d75;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.active-buffs-panel h3 {
+  margin: 0 0 0.75rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 1.1rem;
+}
+
+.buffs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.buff-item {
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: all 0.2s;
+}
+
+.buff-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.buff-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+  border: 2px solid #27ae60;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.buff-info {
+  flex: 1;
+}
+
+.buff-name {
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 0.2rem;
+}
+
+.buff-details {
+  font-size: 0.8rem;
+  color: #ddd;
+}
+
+.buff-duration {
+  min-width: 80px;
+  text-align: right;
+  font-size: 0.9rem;
+  color: #f39c12;
+  font-weight: bold;
+}
+
+.buffs-empty {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-style: italic;
+  padding: 1rem;
+}
+
+/* Movement Maneuvers Panel */
+.maneuvers-panel {
+  background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+  border: 2px solid #1a252f;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.maneuvers-panel h3 {
+  margin: 0 0 0.75rem 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 1.1rem;
+}
+
+.maneuvers-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.maneuver-btn {
+  background: rgba(52, 152, 219, 0.2);
+  border: 2px solid #3498db;
+  border-radius: 4px;
+  padding: 0.75rem;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.maneuver-btn:hover {
+  background: rgba(52, 152, 219, 0.4);
+  border-color: #5dade2;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.maneuver-btn:active {
+  transform: translateY(0);
+}
+
+.maneuver-btn.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: #555;
+}
+
+.maneuver-btn.disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.maneuver-btn.active {
+  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+  border-color: #27ae60;
+  box-shadow: 0 0 12px rgba(46, 204, 113, 0.6);
+}
+
+.maneuver-name {
+  font-size: 0.95rem;
+}
+
+.maneuver-effect {
+  font-size: 0.75rem;
+  color: #aaa;
+  font-weight: normal;
+}
+
+/* Responsive adjustments */
+@media (max-width: 800px) {
+  .passive-slots-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .maneuvers-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Dialog specific styles */
+.passive-select-dialog .passive-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.passive-option {
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.passive-option:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.passive-option h4 {
+  margin: 0 0 0.5rem 0;
+  color: #3498db;
+}
+
+.passive-option .category {
+  display: inline-block;
+  background: rgba(52, 152, 219, 0.3);
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.passive-option p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #ccc;
+}
+
