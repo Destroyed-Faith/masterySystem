@@ -12,6 +12,7 @@ import { getHealthLevelsData } from '../combat/health.js';
 import { getCharges, burnStoneForCharges } from '../powers/charges.js';
 import { getActiveBuffs } from '../powers/buffs.js';
 import { getAvailableManeuvers, performManeuver } from '../combat/maneuvers.js';
+import { SKILLS } from '../utils/skills.js';
 export class MasteryCharacterSheet extends ActorSheet {
     /** @override */
     static get defaultOptions() {
@@ -78,7 +79,33 @@ export class MasteryCharacterSheet extends ActorSheet {
         // Add available maneuvers
         context.availableManeuvers = getAvailableManeuvers(this.actor);
         context.hasMovement = context.actions.movement.remaining > 0;
+        // Add skills organized by category
+        context.skills = this.#prepareSkillsList();
         return context;
+    }
+    /**
+     * Prepare skills list with values from actor
+     */
+    #prepareSkillsList() {
+        const skillsList = [];
+        const actorSkills = this.actor.system.skills || {};
+        for (const [key, definition] of Object.entries(SKILLS)) {
+            skillsList.push({
+                key,
+                name: definition.name,
+                category: definition.category,
+                attributes: definition.attributes,
+                value: actorSkills[key] || 0
+            });
+        }
+        // Sort by category, then by name
+        skillsList.sort((a, b) => {
+            if (a.category !== b.category) {
+                return a.category.localeCompare(b.category);
+            }
+            return a.name.localeCompare(b.name);
+        });
+        return skillsList;
     }
     /**
      * Prepare items organized by type

@@ -602,6 +602,350 @@
   }
 }
 
+/* ========== Combat Stats Section ========== */
+.mastery-system.sheet.actor.character .combat-stats-section {
+  margin-bottom: 30px;
+  padding: 20px;
+  background: linear-gradient(135deg, #f9f9f9 0%, #ffffff 100%);
+  border: 3px solid #8b0000;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.mastery-system.sheet.actor.character .combat-stats-section h3 {
+  margin: 0 0 20px 0;
+  font-size: 20px;
+  color: #8b0000;
+  text-transform: uppercase;
+  text-align: center;
+  letter-spacing: 2px;
+  border-bottom: 3px solid #8b0000;
+  padding-bottom: 12px;
+}
+
+.mastery-system.sheet.actor.character .combat-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+}
+
+.mastery-system.sheet.actor.character .combat-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f8f8 100%);
+  border: 2px solid #8b0000;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(139, 0, 0, 0.15);
+  transition: all 0.3s;
+}
+
+.mastery-system.sheet.actor.character .combat-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(139, 0, 0, 0.25);
+}
+
+.mastery-system.sheet.actor.character .stat-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.mastery-system.sheet.actor.character .stat-icon.evade-icon {
+  background: linear-gradient(135deg, #4a9eff 0%, #1e6fcc 100%);
+}
+
+.mastery-system.sheet.actor.character .stat-icon.armor-icon {
+  background: linear-gradient(135deg, #808080 0%, #505050 100%);
+}
+
+.mastery-system.sheet.actor.character .stat-icon.speed-icon {
+  background: linear-gradient(135deg, #00cc66 0%, #008844 100%);
+}
+
+.mastery-system.sheet.actor.character .stat-icon.initiative-icon {
+  background: linear-gradient(135deg, #ffaa00 0%, #cc8800 100%);
+}
+
+.mastery-system.sheet.actor.character .stat-content {
+  flex: 1;
+}
+
+.mastery-system.sheet.actor.character .stat-content label {
+  display: block;
+  font-size: 12px;
+  font-weight: bold;
+  color: #666;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.mastery-system.sheet.actor.character .stat-value {
+  font-size: 28px;
+  font-weight: bold;
+  color: #8b0000;
+  line-height: 1;
+  margin-bottom: 3px;
+}
+
+.mastery-system.sheet.actor.character .stat-formula {
+  font-size: 10px;
+  color: #999;
+  font-style: italic;
+}
+
+/* ========== Saving Throws Section ========== */
+.mastery-system.sheet.actor.character .saving-throws-section {
+  margin-bottom: 30px;
+  padding: 20px;
+  background: linear-gradient(135deg, #f9f9f9 0%, #ffffff 100%);
+  border: 3px solid #8b0000;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.mastery-system.sheet.actor.character .saving-throws-section h3 {
+  margin: 0 0 20px 0;
+  font-size: 20px;
+  color: #8b0000;
+  text-transform: uppercase;
+  text-align: center;
+  letter-spacing: 2px;
+  border-bottom: 3px solid #8b0000;
+  padding-bottom: 12px;
+}
+
+.mastery-system.sheet.actor.character .saving-throws-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+}
+
+.mastery-system.sheet.actor.character .saving-throw-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 15px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f8f8 100%);
+  border: 2px solid #8b0000;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(139, 0, 0, 0.15);
+  transition: all 0.3s;
+}
+
+.mastery-system.sheet.actor.character .saving-throw-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(139, 0, 0, 0.25);
+  border-color: #a00000;
+}
+
+.mastery-system.sheet.actor.character .save-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mastery-system.sheet.actor.character .save-header i {
+  font-size: 18px;
+  color: #8b0000;
+}
+
+.mastery-system.sheet.actor.character .save-header label {
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+  text-transform: uppercase;
+}
+
+.mastery-system.sheet.actor.character .save-value {
+  font-size: 32px;
+  font-weight: bold;
+  color: #8b0000;
+}
+
+.mastery-system.sheet.actor.character .save-roll {
+  width: 100%;
+  padding: 8px;
+  background: linear-gradient(135deg, #8b0000 0%, #a00000 100%);
+  border: none;
+  color: #fff;
+  font-weight: bold;
+  font-size: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+}
+
+.mastery-system.sheet.actor.character .save-roll:hover {
+  background: linear-gradient(135deg, #a00000 0%, #b00000 100%);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(139, 0, 0, 0.4);
+}
+
+/* ========== Skills Tab ========== */
+.mastery-system.sheet.actor.character .skills-overview {
+  margin-bottom: 25px;
+  padding: 20px;
+  background: linear-gradient(135deg, #f9f9f9 0%, #ffffff 100%);
+  border: 3px solid #8b0000;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.mastery-system.sheet.actor.character .skills-overview h3 {
+  margin: 0 0 10px 0;
+  font-size: 20px;
+  color: #8b0000;
+  text-transform: uppercase;
+}
+
+.mastery-system.sheet.actor.character .skills-description {
+  margin: 0 0 15px 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.mastery-system.sheet.actor.character .skill-points-display {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+.mastery-system.sheet.actor.character .skill-points-display .label {
+  color: #666;
+}
+
+.mastery-system.sheet.actor.character .skill-points-display .value {
+  color: #8b0000;
+  font-size: 20px;
+}
+
+.mastery-system.sheet.actor.character .skill-category {
+  margin-bottom: 25px;
+  padding: 20px;
+  background: linear-gradient(135deg, #f9f9f9 0%, #ffffff 100%);
+  border: 3px solid #8b0000;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.mastery-system.sheet.actor.character .category-header {
+  margin: 0 0 15px 0;
+  font-size: 18px;
+  color: #8b0000;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 2px solid #8b0000;
+  padding-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mastery-system.sheet.actor.character .skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mastery-system.sheet.actor.character .skill-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 12px;
+  background: #fff;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.mastery-system.sheet.actor.character .skill-item:hover {
+  border-color: #8b0000;
+  box-shadow: 0 2px 8px rgba(139, 0, 0, 0.15);
+  transform: translateX(3px);
+}
+
+.mastery-system.sheet.actor.character .skill-info {
+  flex: 1;
+}
+
+.mastery-system.sheet.actor.character .skill-name {
+  font-size: 15px;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.mastery-system.sheet.actor.character .skill-attributes {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.mastery-system.sheet.actor.character .attribute-tag {
+  font-size: 10px;
+  padding: 2px 6px;
+  background: #e0e0e0;
+  border-radius: 3px;
+  color: #666;
+  text-transform: capitalize;
+}
+
+.mastery-system.sheet.actor.character .skill-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mastery-system.sheet.actor.character .skill-value {
+  width: 60px;
+  padding: 6px;
+  border: 2px solid #8b0000;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.mastery-system.sheet.actor.character .skill-value-static {
+  width: 60px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+.mastery-system.sheet.actor.character .skill-roll {
+  padding: 8px 12px;
+  background: linear-gradient(135deg, #8b0000 0%, #a00000 100%);
+  border: none;
+  color: #fff;
+  font-weight: bold;
+  font-size: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.mastery-system.sheet.actor.character .skill-roll:hover {
+  background: linear-gradient(135deg, #a00000 0%, #b00000 100%);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(139, 0, 0, 0.4);
+}
+
 /* ========== Attributes in Circles ========== */
 .mastery-system.sheet.actor.character .attributes-circles-container {
   display: flex;

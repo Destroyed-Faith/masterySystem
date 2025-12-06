@@ -35,10 +35,9 @@
   <nav class="sheet-tabs tabs" data-group="primary">
     <a class="item" data-tab="attributes"><i class="fas fa-fist-raised"></i> Attributes</a>
     <a class="item" data-tab="skills"><i class="fas fa-cogs"></i> Skills</a>
-    <a class="item" data-tab="combat"><i class="fas fa-shield-alt"></i> Combat</a>
     <a class="item" data-tab="powers"><i class="fas fa-magic"></i> Powers</a>
-    <a class="item" data-tab="equipment"><i class="fas fa-sword"></i> Equipment</a>
-    <a class="item" data-tab="magic"><i class="fas fa-book-dead"></i> Magic</a>
+    <a class="item" data-tab="equipment"><i class="fas fa-shield-alt"></i> Equipment</a>
+    <a class="item" data-tab="magic"><i class="fas fa-hat-wizard"></i> Magic</a>
     <a class="item" data-tab="biography"><i class="fas fa-scroll"></i> Bio</a>
   </nav>
 
@@ -353,31 +352,228 @@
         </div>
       </div>
       
+      <!-- Combat Stats Section -->
+      <div class="combat-stats-section">
+        <h3><i class="fas fa-shield-alt"></i> Combat Statistics</h3>
+        
+        <div class="combat-stats-grid">
+          <!-- Evade -->
+          <div class="combat-stat-card">
+            <div class="stat-icon evade-icon"><i class="fas fa-wind"></i></div>
+            <div class="stat-content">
+              <label>Evade</label>
+              <div class="stat-value">{{default system.combat.evadeTotal 10}}</div>
+              <div class="stat-formula">Agi + Def.Combat + (MR×2)</div>
+            </div>
+          </div>
+          
+          <!-- Armor -->
+          <div class="combat-stat-card">
+            <div class="stat-icon armor-icon"><i class="fas fa-shield-alt"></i></div>
+            <div class="stat-content">
+              <label>Armor</label>
+              <div class="stat-value">{{default system.combat.armorTotal 0}}</div>
+              <div class="stat-formula">Base + Shield + Passives</div>
+            </div>
+          </div>
+          
+          <!-- Speed -->
+          <div class="combat-stat-card">
+            <div class="stat-icon speed-icon"><i class="fas fa-running"></i></div>
+            <div class="stat-content">
+              <label>Speed</label>
+              <div class="stat-value">{{default system.combat.speed 6}}m</div>
+              <div class="stat-formula">Base Movement</div>
+            </div>
+          </div>
+          
+          <!-- Initiative Bonus -->
+          <div class="combat-stat-card">
+            <div class="stat-icon initiative-icon"><i class="fas fa-bolt"></i></div>
+            <div class="stat-content">
+              <label>Initiative</label>
+              <div class="stat-value">+{{default system.combat.initiativeBonus 0}}</div>
+              <div class="stat-formula">Combat Reflexes</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Saving Throws Section -->
+      <div class="saving-throws-section">
+        <h3><i class="fas fa-dice-d20"></i> Saving Throws</h3>
+        
+        <div class="saving-throws-grid">
+          <!-- Might Save -->
+          <div class="saving-throw-card">
+            <div class="save-header">
+              <i class="fas fa-dumbbell"></i>
+              <label>Might</label>
+            </div>
+            <div class="save-value">{{default system.attributes.might.value 2}}</div>
+            <button type="button" class="save-roll" data-attribute="might" title="Roll Might Save">
+              <i class="fas fa-dice-d20"></i> Save
+            </button>
+          </div>
+          
+          <!-- Agility Save -->
+          <div class="saving-throw-card">
+            <div class="save-header">
+              <i class="fas fa-running"></i>
+              <label>Agility</label>
+            </div>
+            <div class="save-value">{{default system.attributes.agility.value 2}}</div>
+            <button type="button" class="save-roll" data-attribute="agility" title="Roll Agility Save">
+              <i class="fas fa-dice-d20"></i> Save
+            </button>
+          </div>
+          
+          <!-- Vitality Save -->
+          <div class="saving-throw-card">
+            <div class="save-header">
+              <i class="fas fa-heart"></i>
+              <label>Vitality</label>
+            </div>
+            <div class="save-value">{{default system.attributes.vitality.value 2}}</div>
+            <button type="button" class="save-roll" data-attribute="vitality" title="Roll Vitality Save">
+              <i class="fas fa-dice-d20"></i> Save
+            </button>
+          </div>
+          
+          <!-- Wits Save -->
+          <div class="saving-throw-card">
+            <div class="save-header">
+              <i class="fas fa-brain"></i>
+              <label>Wits</label>
+            </div>
+            <div class="save-value">{{default system.attributes.wits.value 2}}</div>
+            <button type="button" class="save-roll" data-attribute="wits" title="Roll Wits Save">
+              <i class="fas fa-dice-d20"></i> Save
+            </button>
+          </div>
+          
+          <!-- Intellect Save -->
+          <div class="saving-throw-card">
+            <div class="save-header">
+              <i class="fas fa-book"></i>
+              <label>Intellect</label>
+            </div>
+            <div class="save-value">{{default system.attributes.intellect.value 2}}</div>
+            <button type="button" class="save-roll" data-attribute="intellect" title="Roll Intellect Save">
+              <i class="fas fa-dice-d20"></i> Save
+            </button>
+          </div>
+          
+          <!-- Resolve Save -->
+          <div class="saving-throw-card">
+            <div class="save-header">
+              <i class="fas fa-mountain"></i>
+              <label>Resolve</label>
+            </div>
+            <div class="save-value">{{default system.attributes.resolve.value 2}}</div>
+            <button type="button" class="save-roll" data-attribute="resolve" title="Roll Resolve Save">
+              <i class="fas fa-dice-d20"></i> Save
+            </button>
+          </div>
+          
+          <!-- Influence Save -->
+          <div class="saving-throw-card">
+            <div class="save-header">
+              <i class="fas fa-users"></i>
+              <label>Influence</label>
+            </div>
+            <div class="save-value">{{default system.attributes.influence.value 2}}</div>
+            <button type="button" class="save-roll" data-attribute="influence" title="Roll Influence Save">
+              <i class="fas fa-dice-d20"></i> Save
+            </button>
+          </div>
+        </div>
+      </div>
+      
     </div>
     
-    <!-- OTHER TABS: Skills, Combat, Powers, etc. -->
+    <!-- SKILLS TAB -->
     <div class="tab skills" data-group="primary" data-tab="skills">
-      <p style="padding: 20px; text-align: center; color: #666;">Skills tab - To be implemented</p>
+      
+      <div class="skills-overview">
+        <h3><i class="fas fa-cogs"></i> Skills Overview</h3>
+        <p class="skills-description">
+          Skills provide <strong>flat bonuses</strong> added after your roll. 
+          <em>Formula: (Sum of kept dice) + Skill Bonus</em>
+        </p>
+        <div class="skill-points-display">
+          <span class="label">Skill Points Available:</span>
+          <span class="value">{{default system.skillPoints 16}}</span>
+        </div>
+      </div>
+      
+      {{#each skills}}
+        {{#if @first}}
+          <div class="skill-category">
+            <h4 class="category-header"><i class="fas fa-running"></i> {{this.category}}</h4>
+            <div class="skills-list">
+        {{else}}
+          {{#unless (eq this.category @root.skills.[subtract @index 1].category)}}
+            </div></div>
+            <div class="skill-category">
+              <h4 class="category-header">
+                {{#if (eq this.category "Knowledge & Craft")}}<i class="fas fa-book"></i>{{/if}}
+                {{#if (eq this.category "Social")}}<i class="fas fa-comments"></i>{{/if}}
+                {{#if (eq this.category "Survival")}}<i class="fas fa-tree"></i>{{/if}}
+                {{#if (eq this.category "Martial")}}<i class="fas fa-sword"></i>{{/if}}
+                {{this.category}}
+              </h4>
+              <div class="skills-list">
+          {{/unless}}
+        {{/if}}
+        
+        <div class="skill-item">
+          <div class="skill-info">
+            <label class="skill-name">{{this.name}}</label>
+            <div class="skill-attributes">
+              {{#each this.attributes}}
+                <span class="attribute-tag">{{capitalize this}}</span>
+              {{/each}}
+            </div>
+          </div>
+          <div class="skill-controls">
+            {{#if ../../editable}}
+              <input type="number" name="system.skills.{{this.key}}" value="{{default this.value 0}}" min="0" max="32" class="skill-value" data-dtype="Number" />
+            {{else}}
+              <span class="skill-value-static">{{default this.value 0}}</span>
+            {{/if}}
+            <button type="button" class="skill-roll" data-skill="{{this.key}}" title="Roll {{this.name}}">
+              <i class="fas fa-dice-d20"></i> Roll
+            </button>
+          </div>
+        </div>
+        
+        {{#if @last}}
+            </div>
+          </div>
+        {{/if}}
+      {{/each}}
+      
     </div>
     
-    <div class="tab combat" data-group="primary" data-tab="combat">
-      <p style="padding: 20px; text-align: center; color: #666;">Combat tab - To be implemented</p>
-    </div>
-    
+    <!-- POWERS TAB -->
     <div class="tab powers" data-group="primary" data-tab="powers">
-      <p style="padding: 20px; text-align: center; color: #666;">Powers tab - To be implemented</p>
+      <p style="padding: 20px; text-align: center; color: #666;">Powers tab - To be implemented in next step</p>
     </div>
     
-    <div class="tab equipment" data-group="primary" data-tab="equipment">
-      <p style="padding: 20px; text-align: center; color: #666;">Equipment tab - To be implemented</p>
-    </div>
-    
+    <!-- MAGIC TAB -->
     <div class="tab magic" data-group="primary" data-tab="magic">
-      <p style="padding: 20px; text-align: center; color: #666;">Magic tab - To be implemented</p>
+      <p style="padding: 20px; text-align: center; color: #666;">Magic tab - To be implemented in next step</p>
     </div>
     
+    <!-- EQUIPMENT TAB -->
+    <div class="tab equipment" data-group="primary" data-tab="equipment">
+      <p style="padding: 20px; text-align: center; color: #666;">Equipment tab - To be implemented in next step</p>
+    </div>
+    
+    <!-- BIOGRAPHY TAB -->
     <div class="tab biography" data-group="primary" data-tab="biography">
-      <p style="padding: 20px; text-align: center; color: #666;">Biography tab - To be implemented</p>
+      <p style="padding: 20px; text-align: center; color: #666;">Biography tab - To be implemented in next step</p>
     </div>
     
   </section>
