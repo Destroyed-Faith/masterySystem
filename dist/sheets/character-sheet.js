@@ -524,11 +524,24 @@ export class MasteryCharacterSheet extends ActorSheet {
      */
     #onItemEdit(event) {
         event.preventDefault();
-        const element = event.currentTarget.closest('.item');
-        const itemId = element.dataset.itemId;
+        const button = event.currentTarget;
+        // Try to get itemId from the button itself or from parent container
+        let itemId = button.dataset?.itemId;
+        if (!itemId) {
+            // Look for parent with data-item-id (old .item or new .power-row-compact/.spell-row-compact)
+            const container = $(button).closest('[data-item-id]');
+            itemId = container.attr('data-item-id');
+        }
+        if (!itemId) {
+            console.error('No item ID found for edit button');
+            return;
+        }
         const item = this.actor.items.get(itemId);
         if (item) {
             item.sheet?.render(true);
+        }
+        else {
+            console.error('Item not found:', itemId);
         }
     }
     /**
@@ -536,17 +549,30 @@ export class MasteryCharacterSheet extends ActorSheet {
      */
     async #onItemDelete(event) {
         event.preventDefault();
-        const element = event.currentTarget.closest('.item');
-        const itemId = element.dataset.itemId;
-        const item = this.actor.items.get(itemId);
-        if (!item)
+        const button = event.currentTarget;
+        // Try to get itemId from the button itself or from parent container
+        let itemId = button.dataset?.itemId;
+        if (!itemId) {
+            // Look for parent with data-item-id (old .item or new .power-row-compact/.spell-row-compact)
+            const container = $(button).closest('[data-item-id]');
+            itemId = container.attr('data-item-id');
+        }
+        if (!itemId) {
+            console.error('No item ID found for delete button');
             return;
+        }
+        const item = this.actor.items.get(itemId);
+        if (!item) {
+            console.error('Item not found:', itemId);
+            return;
+        }
         const confirmed = await Dialog.confirm({
             title: 'Delete Item',
             content: `<p>Are you sure you want to delete <strong>${item.name}</strong>?</p>`
         });
         if (confirmed) {
             await item.delete();
+            this.render(false);
         }
     }
     /**
