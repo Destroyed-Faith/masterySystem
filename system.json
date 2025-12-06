@@ -3,18 +3,28 @@
   "title": "Mastery System / Destroyed Faith",
   "description": "A dark fantasy tabletop RPG system featuring Roll & Keep dice mechanics, Attribute Stones, Mastery Ranks, and divine power progression.",
   "version": "0.0.27",
-  "template": "template.json",
-  "logo": "assets/logo.png",
-  "banner": "assets/banner.jpg",
   "compatibility": {
-    "minimum": "13",
-    "verified": "13"
+    "minimum": "13.0.0",
+    "verified": "13.331",
+    "maximum": "13.999"
   },
   "authors": [
     {
       "name": "Daniel Rodrigo Navarro Melendo",
-      "email": "",
-      "url": ""
+      "flags": {}
+    }
+  ],
+  "url": "https://github.com/Destroyed-Faith/masterySystem",
+  "manifest": "https://raw.githubusercontent.com/Destroyed-Faith/masterySystem/main/system.json",
+  "download": "https://github.com/Destroyed-Faith/masterySystem/archive/refs/heads/main.zip",
+  "license": "LICENSE",
+  "readme": "README.md",
+  "bugs": "https://github.com/Destroyed-Faith/masterySystem/issues",
+  "changelog": "CHANGELOG.md",
+  "media": [
+    {
+      "type": "cover",
+      "url": "https://raw.githubusercontent.com/Destroyed-Faith/masterySystem/main/assets/banner.jpg"
     }
   ],
   "esmodules": [
@@ -33,7 +43,8 @@
     {
       "lang": "en",
       "name": "English",
-      "path": "lang/en.json"
+      "path": "lang/en.json",
+      "flags": {}
     }
   ],
   "packs": [
@@ -68,6 +79,16 @@
       }
     }
   ],
+  "relationships": {
+    "systems": [],
+    "requires": []
+  },
+  "socket": false,
+  "initiative": "@combat.initiative",
+  "gridDistance": 1,
+  "gridUnits": "m",
+  "primaryTokenAttribute": "health",
+  "secondaryTokenAttribute": "stress",
   "documentTypes": {
     "Actor": {
       "character": {},
@@ -85,19 +106,5 @@
       "weapon": {},
       "armor": {}
     }
-  },
-  "socket": false,
-  "initiative": "@combat.initiative",
-  "gridDistance": 1,
-  "gridUnits": "m",
-  "primaryTokenAttribute": "health",
-  "secondaryTokenAttribute": "stress",
-  "url": "https://github.com/Destroyed-Faith/masterySystem",
-  "manifest": "https://raw.githubusercontent.com/Destroyed-Faith/masterySystem/main/system.json",
-  "download": "https://github.com/Destroyed-Faith/masterySystem/releases/latest/download/mastery-system.zip",
-  "license": "LICENSE",
-  "readme": "README.md",
-  "bugs": "https://github.com/Destroyed-Faith/masterySystem/issues",
-  "changelog": "CHANGELOG.md"
+  }
 }
-
