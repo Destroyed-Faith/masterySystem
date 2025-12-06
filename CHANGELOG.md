@@ -5,6 +5,77 @@ All notable changes to the Mastery System / Destroyed Faith for Foundry VTT will
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.22] - 2025-12-06
+
+### Added
+- **Passive Powers System** (Complete implementation of rulebook system)
+  - **8 Passive Slots** per character
+  - Only **Mastery Rank** number of passives can be active
+  - **10 Categories**: Armor, Evade, To-Hit, Damage, Roll, Save, Hit Point, Healing, Awareness, Attribute
+  - **Category uniqueness**: Only 1 passive per category can be slotted
+  - Set before Initiative roll, no switching during combat
+  - Automatic effect application (flat bonuses, dice bonuses, flags)
+  - `getActivePassiveEffects()`, `applyPassiveEffects()` helpers
+  - Integration with actor stat calculations
+
+- **Health Levels System with Wound Penalties**
+  - **8 Health Levels**: Healthy, Bruised, Hurt, Injured, Wounded, Mauled, Crippled, Incapacitated
+  - Each level has **Vitality × 2 boxes**
+  - **Wound penalties**: -1 die per damaged Health Level (cumulative)
+  - Damage fills boxes top-to-bottom
+  - Healing clears boxes bottom-to-top
+  - **Automatic dice reduction** from wounds applied to all rolls
+  - `applyDamageToHealthLevels()`, `healHealthLevels()` functions
+  - `getWoundPenalty()` integrated into Roll&Keep system
+  - Incapacitated status when last level is damaged
+  - Chat notifications for wound penalties
+
+- **Penetration & Damage Reduction (DR) System**
+  - **Penetration(X)**: Reduces target's armor by X before damage calc
+  - **Damage Reduction (DR)**: Typed damage mitigation (physical, fire, cold, lightning, poison, psychic, radiant, necrotic)
+  - Damage calculation: `Base Damage − (Armor − Penetration) − DR = Final Damage`
+  - Added to weapon schema (`penetration`, `damageType`)
+  - Added to combat stats schema (`damageReduction` object)
+  - Updated damage chat cards to show penetration and DR
+  - Special rule still applies: If damage ≤ 0, take 1 per 8 rolled
+
+- **Mastery Charges System** (Charged Powers)
+  - **Mastery Charges = Mastery Rank** per day
+  - Refresh at dawn/long rest
+  - Powers with `(Charged)` tag consume 1 charge
+  - **Max 1 Charged Power per round** (enforced)
+  - **Burn Stone → +2 temporary Charges** (out of combat)
+  - Temporary charges lost at dawn
+  - `spendCharge()`, `restoreCharges()`, `burnStoneForCharges()` functions
+  - Integrated into combat round reset
+  - Chat messages for charge usage
+  - Flag system prevents multiple charged powers per round
+
+### Technical
+- New modules: `src/powers/passives.ts`, `src/powers/charges.ts`, `src/combat/health.ts`
+- Updated `template.json`: 
+  - Added `passives.slots` (8 slots)
+  - Added `mastery.charges` (current/maximum/temporary)
+  - Added `health.levels` array
+  - Added `combat.damageReduction` object
+  - Added `penetration`, `damageType` to weapons and powers
+  - Added `passiveCategory`, `passiveEffects`, `charged` to special items
+- Updated `actor.ts`: 
+  - Passive effects applied to armor/evade
+  - Health levels initialization
+  - Mastery Charges initialization
+  - Wound penalty calculation
+- Updated `rollKeep.ts`: Wound penalties reduce dice pool before roll
+- Updated `attacks.ts`: Penetration and DR in damage calculation
+- Updated `chatCards.ts`: Display penetration and DR in damage cards
+- Updated `initiative.ts`: Reset charged power flag each round
+
+### Balance Notes
+- Wound penalties can significantly reduce effectiveness (e.g., Injured = -3 dice)
+- Penetration ignores armor but NOT DR
+- Charged Powers limited to 1/round prevents nova strategies
+- Burning Stones for Charges is a meaningful resource trade
+
 ## [0.0.21] - 2025-12-06
 
 ### Added

@@ -40,10 +40,30 @@
         "mastery": {
           "rank": 2,
           "points": 0,
-          "experience": 0
+          "experience": 0,
+          "charges": {
+            "current": 2,
+            "maximum": 2,
+            "temporary": 0
+          }
+        },
+        "passives": {
+          "slots": [
+            {"passive": null, "active": false},
+            {"passive": null, "active": false},
+            {"passive": null, "active": false},
+            {"passive": null, "active": false},
+            {"passive": null, "active": false},
+            {"passive": null, "active": false},
+            {"passive": null, "active": false},
+            {"passive": null, "active": false}
+          ]
         }
       },
       "combatant": {
+        "health": {
+          "levels": []
+        },
         "combat": {
           "initiative": 0,
           "initiativeBonus": 0,
@@ -57,7 +77,17 @@
           "armorName": "",
           "shield": 0,
           "shieldName": "",
-          "speed": 6
+          "speed": 6,
+          "damageReduction": {
+            "physical": 0,
+            "fire": 0,
+            "cold": 0,
+            "lightning": 0,
+            "poison": 0,
+            "psychic": 0,
+            "radiant": 0,
+            "necrotic": 0
+          }
         },
         "actions": {
           "attack": {
@@ -273,13 +303,18 @@
         "attribute": "might",
         "tn": 0,
         "damage": "",
+        "damageType": "physical",
+        "penetration": 0,
         "healing": "",
         "raises": ""
       },
       "requirements": {
         "masteryRank": 1,
         "other": ""
-      }
+      },
+      "passiveCategory": "damage",
+      "passiveEffects": [],
+      "charged": false
     },
     "masteryNode": {
       "templates": ["base"],
@@ -341,6 +376,8 @@
       "templates": ["base"],
       "weaponType": "melee",
       "damage": "1d8",
+      "damageType": "physical",
+      "penetration": 0,
       "range": "0m",
       "specials": [],
       "equipped": false

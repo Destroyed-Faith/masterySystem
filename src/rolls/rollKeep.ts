@@ -98,7 +98,7 @@ function rollSingleD8(explode: boolean = true): number[] {
 /**
  * Roll & Keep d8 with exploding dice, advantage/disadvantage, and TN evaluation
  * 
- * @param actor - The actor making the roll (for context)
+ * @param actor - The actor making the roll (for context and wound penalties)
  * @param options - Roll configuration
  * @returns Roll result with all details
  */
@@ -119,9 +119,15 @@ export async function rollKeepD8(
     flavor: _flavor = ""
   } = options;
   
-  // Validate
-  const actualDice = Math.min(Math.max(1, dice), 40); // Cap at 40
+  // Apply wound penalty (reduces dice pool)
+  const { getWoundPenalty } = await import('../combat/health.js');
+  const woundPenalty = getWoundPenalty(actor);
+  const actualDice = Math.max(1, Math.min(Math.max(1, dice - woundPenalty), 40)); // Cap at 40, min 1
   const actualKeep = Math.min(Math.max(1, keep), Math.min(actualDice, 8)); // Cap at k8
+  
+  if (woundPenalty > 0) {
+    console.log(`Mastery System | Wound penalty: -${woundPenalty} dice (${dice} → ${actualDice})`);
+  }
   
   console.log(`Mastery System | Rolling ${actualDice}k${actualKeep} + ${flat} for ${actor?.name || 'Unknown'}`);
   

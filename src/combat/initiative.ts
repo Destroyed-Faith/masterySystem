@@ -18,6 +18,7 @@ import { InitiativeShopDialog } from '../sheets/initiative-shop-dialog';
 import { resetActionsForRound, resetActionsForTurn } from './actions';
 import { regenerateStones } from './resources';
 import { updateConditionsForRound } from '../effects/conditions';
+import { resetChargedPowerFlag } from '../powers/charges';
 
 /**
  * Initialize combat hooks
@@ -96,6 +97,9 @@ async function resetCombatantResources(combat: any): Promise<void> {
     
     // Update conditions (duration, diminishing, etc.)
     await updateConditionsForRound(actor);
+    
+    // Reset Charged Power flag (can use 1 per round)
+    await resetChargedPowerFlag(actor);
     
     // Clear initiative shop flags
     if (actor.system.combat?.initiativeShop) {

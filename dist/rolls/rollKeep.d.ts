@@ -56,7 +56,7 @@ export interface RollKeepResult {
 /**
  * Roll & Keep d8 with exploding dice, advantage/disadvantage, and TN evaluation
  *
- * @param actor - The actor making the roll (for context)
+ * @param actor - The actor making the roll (for context and wound penalties)
  * @param options - Roll configuration
  * @returns Roll result with all details
  */

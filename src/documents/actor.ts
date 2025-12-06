@@ -9,6 +9,8 @@ import {
   initializeHealthBars,
   updateHealthBars
 } from '../utils/calculations';
+import { applyPassiveEffects } from '../powers/passives';
+import { initializeHealthLevels } from '../combat/health';
 
 export class MasteryActor extends Actor {
   /**
@@ -94,6 +96,11 @@ export class MasteryActor extends Actor {
     if (system.health && system.attributes?.vitality) {
       const vitality = system.attributes.vitality.value;
       
+      // Initialize health levels if they don't exist
+      if (!system.health.levels || system.health.levels.length === 0) {
+        system.health.levels = initializeHealthLevels(vitality);
+      }
+      
       // Initialize health bars if they don't exist or are empty
       if (!system.health.bars || system.health.bars.length === 0) {
         system.health.bars = initializeHealthBars(vitality);
@@ -105,6 +112,31 @@ export class MasteryActor extends Actor {
       // Ensure currentBar is valid
       if (system.health.currentBar < 0 || system.health.currentBar >= system.health.bars.length) {
         system.health.currentBar = 0;
+      }
+    }
+    
+    // Apply passive effects to combat stats
+    if (system.combat) {
+      // Base values before passives
+      const baseArmor = system.combat.armor || 0;
+      const baseEvade = system.combat.evade || 10;
+      
+      // Apply passive bonuses
+      system.combat.armorTotal = applyPassiveEffects(this as any, 'armor', baseArmor);
+      system.combat.evadeTotal = applyPassiveEffects(this as any, 'evade', baseEvade);
+    }
+    
+    // Update Mastery Charges max
+    if (system.mastery) {
+      const masteryRank = system.mastery.rank || 2;
+      if (!system.mastery.charges) {
+        system.mastery.charges = {
+          current: masteryRank,
+          maximum: masteryRank,
+          temporary: 0
+        };
+      } else {
+        system.mastery.charges.maximum = masteryRank;
       }
     }
   }

@@ -197,12 +197,24 @@ export async function createDamageChatCard(
   item: any,
   damageResult: { rolls: number[]; total: number; formula: string },
   armor: number,
+  penetration: number,
+  effectiveArmor: number,
+  dr: number,
+  damageType: string,
   finalDamage: number
 ): Promise<void> {
   
   const rolls = damageResult.rolls.map(r => 
     `<span class="damage-die ${r === 8 ? 'eight' : ''}">${r}</span>`
   ).join(' ');
+  
+  const penetrationDisplay = penetration > 0 
+    ? `<div class="damage-penetration">Penetration: ${penetration} (Armor: ${armor} → ${effectiveArmor})</div>`
+    : '';
+  
+  const drDisplay = dr > 0
+    ? `<div class="damage-dr">DR (${damageType}): ${dr}</div>`
+    : '';
   
   const content = `
     <div class="mastery-damage">
@@ -212,6 +224,7 @@ export async function createDamageChatCard(
       
       <div class="damage-weapon">
         <strong>Weapon:</strong> ${item.name}
+        <span class="damage-type">(${damageType})</span>
       </div>
       
       <div class="damage-roll">
@@ -220,9 +233,14 @@ export async function createDamageChatCard(
         <div class="damage-total">Total: <strong>${damageResult.total}</strong></div>
       </div>
       
+      ${penetrationDisplay}
+      ${drDisplay}
+      
       <div class="damage-calculation">
         <div class="damage-before">${damageResult.total} damage</div>
-        <div class="damage-armor">− ${armor} armor</div>
+        ${penetration > 0 ? `<div class="damage-penetration-note">− ${penetration} penetration</div>` : ''}
+        <div class="damage-armor">− ${effectiveArmor} armor</div>
+        ${dr > 0 ? `<div class="damage-dr-note">− ${dr} DR (${damageType})</div>` : ''}
         <div class="damage-final"><strong>${finalDamage} final damage</strong></div>
       </div>
       
@@ -241,7 +259,9 @@ export async function createDamageChatCard(
       'mastery-system': {
         type: 'damage',
         damage: finalDamage,
-        target: target.id
+        target: target.id,
+        damageType,
+        penetration
       }
     }
   });

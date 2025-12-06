@@ -5,7 +5,7 @@
 
 import { rollKeepD8, rollDamage, count8sInDamage, type RollKeepResult } from '../rolls/rollKeep';
 import { createAttackChatCard, createDamageChatCard } from './chatCards';
-import { applyVitalityDamage } from '../combat/resources';
+// import { applyVitalityDamage } from '../combat/resources'; // Replaced by Health Levels system
 // import { applyCondition } from '../effects/conditions'; // TODO: Use when applying conditions from items
 
 /**
@@ -360,13 +360,23 @@ async function rollAndApplyDamage(
   // Roll damage
   const damageResult = await rollDamage(attackData.baseDamage, bonusDice);
   
-  // Get target's armor
+  // Get damage type and penetration
+  const damageType = attackData.item.system.damageType || 'physical';
+  const penetration = attackData.item.system.penetration || attackData.item.system.roll?.penetration || 0;
+  
+  // Get target's defenses
   const targetArmor = (attackData.target.system.combat?.armor || 0) +
                       (attackData.target.system.combat?.shield || 0) +
                       (attackData.target.system.mastery?.rank || 0);
   
-  // Calculate final damage
-  let finalDamage = damageResult.total - targetArmor;
+  // Apply penetration (reduces effective armor)
+  const effectiveArmor = Math.max(0, targetArmor - penetration);
+  
+  // Get Damage Reduction for this damage type
+  const dr = attackData.target.system.combat?.damageReduction?.[damageType] || 0;
+  
+  // Calculate final damage: base − armor − DR
+  let finalDamage = damageResult.total - effectiveArmor - dr;
   
   // Special rule: if damage ≤ 0, still take 1 damage per 8 rolled
   if (finalDamage <= 0) {
@@ -376,13 +386,26 @@ async function rollAndApplyDamage(
   
   finalDamage = Math.max(0, finalDamage);
   
-  // Apply damage
+  // Apply damage to Health Levels
   if (finalDamage > 0) {
-    await applyVitalityDamage(attackData.target, finalDamage);
+    // Import health system
+    const { applyDamageToHealthLevels } = await import('../combat/health.js');
+    await applyDamageToHealthLevels(attackData.target, finalDamage);
   }
   
   // Show damage chat card
-  await createDamageChatCard(attacker, attackData.target, attackData.item, damageResult, targetArmor, finalDamage);
+  await createDamageChatCard(
+    attacker, 
+    attackData.target, 
+    attackData.item, 
+    damageResult, 
+    targetArmor,
+    penetration,
+    effectiveArmor,
+    dr,
+    damageType,
+    finalDamage
+  );
   
   // TODO: Apply conditions from item if any
 }

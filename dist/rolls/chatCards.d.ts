@@ -20,7 +20,7 @@ export declare function createDamageChatCard(attacker: any, target: any, item: a
     rolls: number[];
     total: number;
     formula: string;
-}, armor: number, finalDamage: number): Promise<void>;
+}, armor: number, penetration: number, effectiveArmor: number, dr: number, damageType: string, finalDamage: number): Promise<void>;
 /**
  * Register chat card CSS and settings
  */
