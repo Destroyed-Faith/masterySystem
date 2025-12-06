@@ -58,7 +58,8 @@
             {"passive": null, "active": false},
             {"passive": null, "active": false}
           ]
-        }
+        },
+        "activeBuffs": []
       },
       "combatant": {
         "health": {
@@ -73,7 +74,12 @@
             "extraAttack": false
           },
           "evade": 10,
+          "evadeBase": 10,
+          "evadeTotal": 10,
+          "shieldEvadeBonus": 0,
+          "armorEvadeBonus": 0,
           "armor": 0,
+          "armorTotal": 0,
           "armorName": "",
           "shield": 0,
           "shieldName": "",
@@ -286,6 +292,8 @@
       "level": 1,
       "tree": "",
       "tags": [],
+      "isSpell": false,
+      "powerSchool": "martial",
       "range": "0m",
       "aoe": "",
       "duration": "instant",
@@ -314,7 +322,12 @@
       },
       "passiveCategory": "damage",
       "passiveEffects": [],
-      "charged": false
+      "charged": false,
+      "reactionTrigger": "whenAttacked",
+      "reactionRollType": "contested",
+      "buffDuration": 0,
+      "buffType": "",
+      "movementType": ""
     },
     "masteryNode": {
       "templates": ["base"],

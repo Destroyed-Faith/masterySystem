@@ -10,6 +10,7 @@ import {
   updateHealthBars
 } from '../utils/calculations';
 import { applyPassiveEffects } from '../powers/passives';
+import { applyBuffEffects } from '../powers/buffs';
 import { initializeHealthLevels } from '../combat/health';
 
 export class MasteryActor extends Actor {
@@ -115,15 +116,34 @@ export class MasteryActor extends Actor {
       }
     }
     
-    // Apply passive effects to combat stats
-    if (system.combat) {
-      // Base values before passives
-      const baseArmor = system.combat.armor || 0;
-      const baseEvade = system.combat.evade || 10;
+    // Calculate and apply combat stats
+    if (system.combat && system.attributes) {
+      const masteryRank = system.mastery?.rank || 2;
       
-      // Apply passive bonuses
-      system.combat.armorTotal = applyPassiveEffects(this as any, 'armor', baseArmor);
-      system.combat.evadeTotal = applyPassiveEffects(this as any, 'evade', baseEvade);
+      // Auto-calculate Evade: Agility + Defensive Combat Skill + (Mastery Rank × 2)
+      const agility = system.attributes.agility?.value || 0;
+      const defensiveCombat = system.skills?.defensiveCombat || 0;
+      const baseEvade = agility + defensiveCombat + (masteryRank * 2);
+      
+      // Add equipment bonuses (shield, armor)
+      const shieldEvadeBonus = system.combat.shieldEvadeBonus || 0;
+      const armorEvadeBonus = system.combat.armorEvadeBonus || 0;
+      const equipmentEvadeBonus = shieldEvadeBonus + armorEvadeBonus;
+      
+      // Store base evade (before passives and buffs)
+      system.combat.evadeBase = baseEvade + equipmentEvadeBonus;
+      
+      // Apply passive bonuses to armor and evade
+      const baseArmor = system.combat.armor || 0;
+      const armorWithPassives = applyPassiveEffects(this as any, 'armor', baseArmor);
+      const evadeWithPassives = applyPassiveEffects(this as any, 'evade', system.combat.evadeBase);
+      
+      // Apply buff bonuses on top of passives
+      system.combat.armorTotal = applyBuffEffects(this as any, 'armor', armorWithPassives);
+      system.combat.evadeTotal = applyBuffEffects(this as any, 'evade', evadeWithPassives);
+      
+      // Set the final evade value
+      system.combat.evade = system.combat.evadeTotal;
     }
     
     // Update Mastery Charges max

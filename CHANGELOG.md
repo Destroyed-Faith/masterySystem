@@ -5,6 +5,108 @@ All notable changes to the Mastery System / Destroyed Faith for Foundry VTT will
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.23] - 2025-12-06
+
+### Added - Phase 1 (Critical Systems)
+
+**Evade Auto-Calculation**
+- ✅ **Automatic Evade calculation**: `Agility + Defensive Combat Skill + (Mastery Rank × 2)`
+- ✅ Equipment bonuses (shield, armor) added to base
+- ✅ Passive and Buff bonuses applied on top
+- ✅ `evadeBase` and `evadeTotal` tracked separately
+- Formula fully implemented per rulebook (Zeile 4950)
+
+**Reaction Trigger System**
+- ✅ **12 Reaction Triggers**: whenAttacked, whenHit, whenMissed, whenDamaged, whenAllyAttacked, whenAllyDamaged, whenAllyFailsSave, whenEnemyMoves, whenEnemyEntersRange, whenEnemyLeavesRange, whenSpellCast, startOfTurn, endOfTurn
+- ✅ **Automatic trigger detection** when events occur
+- ✅ **Dialog prompts** for single or multiple reactions
+- ✅ Range validation for reactions
+- ✅ Consumes Reaction action when used
+- ✅ "Resolve immediately after trigger" logic
+- ✅ Helper functions: `triggerWhenAttackedReactions()`, `triggerWhenHitReactions()`, `triggerWhenDamagedReactions()`
+- Ready for integration into attack/damage workflows
+
+**Buff Duration & Limits System**
+- ✅ **Buff types**: Attack, Defense, Damage, Movement, Attribute, Resistance, Regeneration, Custom
+- ✅ **Max 1 buff per type** enforced
+- ✅ **Duration tracking** (2-6 rounds)
+- ✅ Cannot reactivate until expired
+- ✅ Automatic duration decrement each round
+- ✅ Buff effects (flat/dice/flag) applied to stats
+- ✅ Integrated with Passive system (both applied to final stats)
+- ✅ Chat notifications for applied/expired buffs
+
+### Added - Phase 2 (Important Systems)
+
+**Special Effects System**
+- ✅ **14 Special Effects**: Prone, Bleed, Disarm, Stun, Frightened, Mark, Dazed, Slowed, Blind, Deafened, Grappled, Restrained, Poisoned, Burning, Frozen
+- ✅ Each effect has unique mechanical impact
+- ✅ Applied via Raises or special abilities
+- ✅ Integrated with Condition system
+- ✅ `applySpecialEffect()` universal function
+- ✅ `parseSpecialEffects()` reads from item data
+- Effects like Prone (-2 dice), Bleed (damage per round), Stun (lose actions), etc.
+
+**Movement Maneuvers**
+- ✅ **5 Basic Maneuvers**: Dash, Disengage, Charge, Leap, Climb
+- ✅ **Dash**: 2× Speed for the turn
+- ✅ **Disengage**: No opportunity attacks
+- ✅ **Charge**: Move + Attack with +1d8 damage
+- ✅ **Leap**: Athletics check to jump
+- ✅ **Climb**: Half speed while climbing
+- ✅ Special maneuvers from powers (Teleport, Fly)
+- ✅ "Use entire Movement" logic enforced
+- ✅ Flags track active maneuvers
+- ✅ `getCurrentSpeed()` helper for modified speed
+- ✅ `hasChargeBonusVs()` for charge damage bonus
+
+### Added - Phase 3 (Nice-to-have)
+
+**Spell Tag System**
+- ✅ **Spell identification**: Tag, flag, or powerSchool-based
+- ✅ `isSpell()` function checks if power/effect is a spell
+- ✅ **Dispel Magic**: Roll Intellect vs (8 + Spell Level × 4)
+- ✅ **Suppress Spells**: Anti-Magic Field condition
+- ✅ **Counterspell**: Reaction to negate spell (Intellect vs 12 + Spell Level × 4)
+- ✅ Consumes Reaction for Counterspell
+- ✅ Tracks active spells (buffs and conditions)
+- ✅ `getActiveSpells()`, `hasSpellImmunity()` helpers
+- Full spell interaction system ready
+
+### Technical
+- New modules: 
+  - `src/powers/reactions.ts` - Reaction trigger system
+  - `src/powers/buffs.ts` - Buff duration & limits
+  - `src/powers/spells.ts` - Spell tag & interactions
+  - `src/effects/specials.ts` - Special effects (Prone, Bleed, etc.)
+  - `src/combat/maneuvers.ts` - Movement maneuvers
+- Updated `template.json`:
+  - Added `evadeBase`, `evadeTotal`, `shieldEvadeBonus`, `armorEvadeBonus` to combat
+  - Added `activeBuffs` array to character template
+  - Added `reactionTrigger`, `reactionRollType`, `buffDuration`, `buffType`, `movementType` to special items
+  - Added `isSpell`, `powerSchool` to special items
+- Updated `actor.ts`:
+  - Evade auto-calculation with formula
+  - Buff effects applied after passive effects
+- Updated `initiative.ts`:
+  - Buff duration updates each round
+- All systems fully integrated with combat hooks
+
+### Balance & Mechanics
+- Evade now properly scales with attributes and Mastery Rank
+- Buff limits prevent stacking same-type bonuses
+- Special effects add tactical depth to combat
+- Movement maneuvers provide strategic options
+- Spell system ready for magic-heavy campaigns
+- Reaction triggers enable defensive tactics
+
+### Still TODO (Future Updates)
+- ❌ UI for Passives/Health Levels/Charges on character sheet
+- ❌ Visual Health Level tracker
+- ❌ Maneuver selection UI
+- ❌ Reaction configuration UI on items
+- Backend complete, UI enhancements pending
+
 ## [0.0.22] - 2025-12-06
 
 ### Added

@@ -12,6 +12,7 @@ import { resetActionsForRound, resetActionsForTurn } from './actions.js';
 import { regenerateStones } from './resources.js';
 import { updateConditionsForRound } from '../effects/conditions.js';
 import { resetChargedPowerFlag } from '../powers/charges.js';
+import { updateBuffDurations } from '../powers/buffs.js';
 /**
  * Initialize combat hooks
  */
@@ -76,6 +77,8 @@ async function resetCombatantResources(combat) {
         await regenerateStones(actor);
         // Update conditions (duration, diminishing, etc.)
         await updateConditionsForRound(actor);
+        // Update buff durations
+        await updateBuffDurations(actor);
         // Reset Charged Power flag (can use 1 per round)
         await resetChargedPowerFlag(actor);
         // Clear initiative shop flags
