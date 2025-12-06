@@ -5,6 +5,70 @@ All notable changes to the Mastery System / Destroyed Faith for Foundry VTT will
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.26] - 2025-12-06
+
+### Added - Improved Character Sheet UI
+
+**New Attribute Grid Layout**
+- ✅ **4×2 Grid Display**: All 7 attributes visible at once (Might, Agility, Vitality, Wits in row 1; Intellect, Resolve, Influence in row 2)
+- ✅ **Stones Visualization**: Each attribute card shows stones as visual dots (⬤ filled, ○ empty)
+- ✅ **Calculated Stones**: Automatic calculation per attribute (value ÷ 8)
+- ✅ **Total Stones Summary**: Card at bottom showing current/max stones and regeneration rate
+- ✅ **+/− Buttons**: Quick adjustment controls for each attribute
+- ✅ **Roll Buttons**: One-click attribute rolling with integrated dialog
+- ✅ **Hover Effects**: Cards lift and glow on hover for better UX
+- ✅ **Icons**: Font Awesome icons for each attribute (dumbbell, running, heart, brain, book, mountain, users)
+- ✅ **Responsive Design**: Grid adapts to screen size (4→2→1 columns on smaller screens)
+
+**Handlebars Template System**
+- ✅ Complete Handlebars template for character sheet (`character-sheet.hbs`)
+- ✅ Custom Handlebars helpers: `calculateStones`, `times`, `subtract`, `capitalize`, `eq`, `or`, `add`, `multiply`, `divide`, `gt`, `lt`, `default`
+- ✅ Tab navigation system (Attributes, Skills, Combat, Powers, Equipment, Magic, Bio)
+- ✅ Edit mode toggle support
+- ✅ Conditional rendering based on owner/editor permissions
+
+**Visual Design**
+- ✅ Modern gradient backgrounds
+- ✅ Red theme (#8b0000) consistent with Mastery System
+- ✅ Box shadows and 3D effects
+- ✅ Smooth transitions and animations
+- ✅ Professional card-based layout
+
+### Modified
+
+**Character Sheet TypeScript**
+- ✅ Added `#onAttributeAdjust()` handler for +/− buttons
+- ✅ Added `#onAttributeRoll()` handler for attribute rolls
+- ✅ Removed duplicate event listener registrations
+- ✅ Cleaned up event binding structure
+
+**Module System**
+- ✅ Registered Handlebars helpers in `init` hook
+- ✅ Removed duplicate helper definitions
+- ✅ Centralized helper system in `utils/handlebars-helpers.ts`
+
+### Files Added
+- `templates/actor/character-sheet.hbs` - Full Handlebars template for character sheet
+- `src/utils/handlebars-helpers.ts` - Centralized Handlebars helper functions
+
+### Technical Details
+
+**Stones Calculation**
+- Formula: `Math.floor(attributeValue / 8)`
+- Visual display: Up to 5 stones per attribute (maximum at 40 points)
+- Total stones tracked from all attributes
+- Current/maximum display with regeneration info
+
+**Grid System**
+- CSS Grid with `repeat(auto-fit, minmax(200px, 1fr))`
+- Responsive breakpoints at 1200px and 768px
+- Cards scale from 4 columns → 2 columns → 1 column
+
+**Event Handling**
+- Attribute adjustments update actor data immediately
+- Roll buttons trigger check dialog with TN prompt
+- All changes auto-save to actor document
+
 ## [0.0.25] - 2025-12-06
 
 ### Added - Missing Core Systems

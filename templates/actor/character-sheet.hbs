@@ -1,1 +1,384 @@
+<form class="{{cssClass}}" autocomplete="off">
+  
+  <!-- Header -->
+  <header class="sheet-header">
+    <div class="header-left">
+      <img class="profile-img {{#if editable}}{{else}}locked{{/if}}" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" alt="{{actor.name}}" />
+      <div class="header-fields">
+        <h1 class="charname">
+          {{#if editable}}
+            <input name="name" type="text" value="{{actor.name}}" placeholder="Character Name" />
+          {{else}}
+            <span>{{actor.name}}</span>
+          {{/if}}
+        </h1>
+        <div class="mastery-rank-display">
+          <label>Mastery Rank:</label>
+          {{#if editable}}
+            <input type="number" name="system.mastery.rank" value="{{default system.mastery.rank 2}}" min="1" max="10" />
+          {{else}}
+            <span class="value">{{default system.mastery.rank 2}}</span>
+          {{/if}}
+        </div>
+      </div>
+    </div>
+    <div class="header-right">
+      {{#if owner}}
+        <button type="button" class="edit-mode-toggle" title="Toggle Edit Mode">
+          <i class="fas fa-edit"></i> {{#if editable}}View{{else}}Edit{{/if}}
+        </button>
+      {{/if}}
+    </div>
+  </header>
 
+  <!-- Tabs Navigation (Right Side Bookmarks) -->
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item" data-tab="attributes"><i class="fas fa-fist-raised"></i> Attributes</a>
+    <a class="item" data-tab="skills"><i class="fas fa-cogs"></i> Skills</a>
+    <a class="item" data-tab="combat"><i class="fas fa-shield-alt"></i> Combat</a>
+    <a class="item" data-tab="powers"><i class="fas fa-magic"></i> Powers</a>
+    <a class="item" data-tab="equipment"><i class="fas fa-sword"></i> Equipment</a>
+    <a class="item" data-tab="magic"><i class="fas fa-book-dead"></i> Magic</a>
+    <a class="item" data-tab="biography"><i class="fas fa-scroll"></i> Bio</a>
+  </nav>
+
+  <!-- Sheet Body -->
+  <section class="sheet-body">
+    
+    <!-- ATTRIBUTES TAB -->
+    <div class="tab attributes" data-group="primary" data-tab="attributes">
+      
+      <!-- Attributes Grid Section -->
+      <div class="attributes-grid-section">
+        <h3><i class="fas fa-fist-raised"></i> Character Attributes</h3>
+        
+        <!-- Row 1: Physical + Mental Attributes -->
+        <div class="attributes-grid">
+          
+          <!-- Might -->
+          {{#with system.attributes.might}}
+            <div class="attribute-card" data-attribute="might">
+              <div class="attribute-card-header">
+                <h4 class="attribute-name"><i class="fas fa-dumbbell"></i> Might</h4>
+                <div class="attribute-value">{{default value 0}}</div>
+              </div>
+              
+              <!-- Stones Display -->
+              <div class="attribute-stones">
+                <div class="stones-container">
+                  {{#times (calculateStones value)}}
+                    <span class="stone filled">⬤</span>
+                  {{/times}}
+                  {{#times (subtract 5 (calculateStones value))}}
+                    <span class="stone empty">○</span>
+                  {{/times}}
+                </div>
+                <div class="stones-count">{{calculateStones value}} / 5 Stones</div>
+              </div>
+              
+              <!-- Controls -->
+              {{#if ../../editable}}
+                <div class="attribute-controls">
+                  <button type="button" class="attribute-adjust" data-attribute="might" data-adjustment="-1" title="Decrease">
+                    <i class="fas fa-minus"></i>
+                  </button>
+                  <input type="number" name="system.attributes.might.value" value="{{default value 0}}" min="0" max="40" data-dtype="Number" />
+                  <button type="button" class="attribute-adjust" data-attribute="might" data-adjustment="1" title="Increase">
+                    <i class="fas fa-plus"></i>
+                  </button>
+                </div>
+              {{else}}
+                <div class="attribute-value-static">{{default value 0}}</div>
+              {{/if}}
+              
+              <!-- Roll Button -->
+              <button type="button" class="attribute-roll" data-attribute="might" title="Roll Might">
+                <i class="fas fa-dice-d20"></i> Roll Might
+              </button>
+            </div>
+          {{/with}}
+          
+          <!-- Agility -->
+          {{#with system.attributes.agility}}
+            <div class="attribute-card" data-attribute="agility">
+              <div class="attribute-card-header">
+                <h4 class="attribute-name"><i class="fas fa-running"></i> Agility</h4>
+                <div class="attribute-value">{{default value 0}}</div>
+              </div>
+              
+              <div class="attribute-stones">
+                <div class="stones-container">
+                  {{#times (calculateStones value)}}
+                    <span class="stone filled">⬤</span>
+                  {{/times}}
+                  {{#times (subtract 5 (calculateStones value))}}
+                    <span class="stone empty">○</span>
+                  {{/times}}
+                </div>
+                <div class="stones-count">{{calculateStones value}} / 5 Stones</div>
+              </div>
+              
+              {{#if ../../editable}}
+                <div class="attribute-controls">
+                  <button type="button" class="attribute-adjust" data-attribute="agility" data-adjustment="-1">
+                    <i class="fas fa-minus"></i>
+                  </button>
+                  <input type="number" name="system.attributes.agility.value" value="{{default value 0}}" min="0" max="40" data-dtype="Number" />
+                  <button type="button" class="attribute-adjust" data-attribute="agility" data-adjustment="1">
+                    <i class="fas fa-plus"></i>
+                  </button>
+                </div>
+              {{/if}}
+              
+              <button type="button" class="attribute-roll" data-attribute="agility">
+                <i class="fas fa-dice-d20"></i> Roll Agility
+              </button>
+            </div>
+          {{/with}}
+          
+          <!-- Vitality -->
+          {{#with system.attributes.vitality}}
+            <div class="attribute-card" data-attribute="vitality">
+              <div class="attribute-card-header">
+                <h4 class="attribute-name"><i class="fas fa-heart"></i> Vitality</h4>
+                <div class="attribute-value">{{default value 0}}</div>
+              </div>
+              
+              <div class="attribute-stones">
+                <div class="stones-container">
+                  {{#times (calculateStones value)}}
+                    <span class="stone filled">⬤</span>
+                  {{/times}}
+                  {{#times (subtract 5 (calculateStones value))}}
+                    <span class="stone empty">○</span>
+                  {{/times}}
+                </div>
+                <div class="stones-count">{{calculateStones value}} / 5 Stones</div>
+              </div>
+              
+              {{#if ../../editable}}
+                <div class="attribute-controls">
+                  <button type="button" class="attribute-adjust" data-attribute="vitality" data-adjustment="-1">
+                    <i class="fas fa-minus"></i>
+                  </button>
+                  <input type="number" name="system.attributes.vitality.value" value="{{default value 0}}" min="0" max="40" data-dtype="Number" />
+                  <button type="button" class="attribute-adjust" data-attribute="vitality" data-adjustment="1">
+                    <i class="fas fa-plus"></i>
+                  </button>
+                </div>
+              {{/if}}
+              
+              <button type="button" class="attribute-roll" data-attribute="vitality">
+                <i class="fas fa-dice-d20"></i> Roll Vitality
+              </button>
+            </div>
+          {{/with}}
+          
+          <!-- Wits -->
+          {{#with system.attributes.wits}}
+            <div class="attribute-card" data-attribute="wits">
+              <div class="attribute-card-header">
+                <h4 class="attribute-name"><i class="fas fa-brain"></i> Wits</h4>
+                <div class="attribute-value">{{default value 0}}</div>
+              </div>
+              
+              <div class="attribute-stones">
+                <div class="stones-container">
+                  {{#times (calculateStones value)}}
+                    <span class="stone filled">⬤</span>
+                  {{/times}}
+                  {{#times (subtract 5 (calculateStones value))}}
+                    <span class="stone empty">○</span>
+                  {{/times}}
+                </div>
+                <div class="stones-count">{{calculateStones value}} / 5 Stones</div>
+              </div>
+              
+              {{#if ../../editable}}
+                <div class="attribute-controls">
+                  <button type="button" class="attribute-adjust" data-attribute="wits" data-adjustment="-1">
+                    <i class="fas fa-minus"></i>
+                  </button>
+                  <input type="number" name="system.attributes.wits.value" value="{{default value 0}}" min="0" max="40" data-dtype="Number" />
+                  <button type="button" class="attribute-adjust" data-attribute="wits" data-adjustment="1">
+                    <i class="fas fa-plus"></i>
+                  </button>
+                </div>
+              {{/if}}
+              
+              <button type="button" class="attribute-roll" data-attribute="wits">
+                <i class="fas fa-dice-d20"></i> Roll Wits
+              </button>
+            </div>
+          {{/with}}
+          
+        </div>
+        
+        <!-- Row 2: Mental/Social Attributes -->
+        <div class="attributes-grid">
+          
+          <!-- Intellect -->
+          {{#with system.attributes.intellect}}
+            <div class="attribute-card" data-attribute="intellect">
+              <div class="attribute-card-header">
+                <h4 class="attribute-name"><i class="fas fa-book"></i> Intellect</h4>
+                <div class="attribute-value">{{default value 0}}</div>
+              </div>
+              
+              <div class="attribute-stones">
+                <div class="stones-container">
+                  {{#times (calculateStones value)}}
+                    <span class="stone filled">⬤</span>
+                  {{/times}}
+                  {{#times (subtract 5 (calculateStones value))}}
+                    <span class="stone empty">○</span>
+                  {{/times}}
+                </div>
+                <div class="stones-count">{{calculateStones value}} / 5 Stones</div>
+              </div>
+              
+              {{#if ../../editable}}
+                <div class="attribute-controls">
+                  <button type="button" class="attribute-adjust" data-attribute="intellect" data-adjustment="-1">
+                    <i class="fas fa-minus"></i>
+                  </button>
+                  <input type="number" name="system.attributes.intellect.value" value="{{default value 0}}" min="0" max="40" data-dtype="Number" />
+                  <button type="button" class="attribute-adjust" data-attribute="intellect" data-adjustment="1">
+                    <i class="fas fa-plus"></i>
+                  </button>
+                </div>
+              {{/if}}
+              
+              <button type="button" class="attribute-roll" data-attribute="intellect">
+                <i class="fas fa-dice-d20"></i> Roll Intellect
+              </button>
+            </div>
+          {{/with}}
+          
+          <!-- Resolve -->
+          {{#with system.attributes.resolve}}
+            <div class="attribute-card" data-attribute="resolve">
+              <div class="attribute-card-header">
+                <h4 class="attribute-name"><i class="fas fa-mountain"></i> Resolve</h4>
+                <div class="attribute-value">{{default value 0}}</div>
+              </div>
+              
+              <div class="attribute-stones">
+                <div class="stones-container">
+                  {{#times (calculateStones value)}}
+                    <span class="stone filled">⬤</span>
+                  {{/times}}
+                  {{#times (subtract 5 (calculateStones value))}}
+                    <span class="stone empty">○</span>
+                  {{/times}}
+                </div>
+                <div class="stones-count">{{calculateStones value}} / 5 Stones</div>
+              </div>
+              
+              {{#if ../../editable}}
+                <div class="attribute-controls">
+                  <button type="button" class="attribute-adjust" data-attribute="resolve" data-adjustment="-1">
+                    <i class="fas fa-minus"></i>
+                  </button>
+                  <input type="number" name="system.attributes.resolve.value" value="{{default value 0}}" min="0" max="40" data-dtype="Number" />
+                  <button type="button" class="attribute-adjust" data-attribute="resolve" data-adjustment="1">
+                    <i class="fas fa-plus"></i>
+                  </button>
+                </div>
+              {{/if}}
+              
+              <button type="button" class="attribute-roll" data-attribute="resolve">
+                <i class="fas fa-dice-d20"></i> Roll Resolve
+              </button>
+            </div>
+          {{/with}}
+          
+          <!-- Influence -->
+          {{#with system.attributes.influence}}
+            <div class="attribute-card" data-attribute="influence">
+              <div class="attribute-card-header">
+                <h4 class="attribute-name"><i class="fas fa-users"></i> Influence</h4>
+                <div class="attribute-value">{{default value 0}}</div>
+              </div>
+              
+              <div class="attribute-stones">
+                <div class="stones-container">
+                  {{#times (calculateStones value)}}
+                    <span class="stone filled">⬤</span>
+                  {{/times}}
+                  {{#times (subtract 5 (calculateStones value))}}
+                    <span class="stone empty">○</span>
+                  {{/times}}
+                </div>
+                <div class="stones-count">{{calculateStones value}} / 5 Stones</div>
+              </div>
+              
+              {{#if ../../editable}}
+                <div class="attribute-controls">
+                  <button type="button" class="attribute-adjust" data-attribute="influence" data-adjustment="-1">
+                    <i class="fas fa-minus"></i>
+                  </button>
+                  <input type="number" name="system.attributes.influence.value" value="{{default value 0}}" min="0" max="40" data-dtype="Number" />
+                  <button type="button" class="attribute-adjust" data-attribute="influence" data-adjustment="1">
+                    <i class="fas fa-plus"></i>
+                  </button>
+                </div>
+              {{/if}}
+              
+              <button type="button" class="attribute-roll" data-attribute="influence">
+                <i class="fas fa-dice-d20"></i> Roll Influence
+              </button>
+            </div>
+          {{/with}}
+          
+        </div>
+        
+        <!-- Total Stones Summary -->
+        <div class="stones-summary">
+          <div class="stones-summary-content">
+            <div class="stones-summary-item">
+              <h4><i class="fas fa-gem"></i> Total Stones</h4>
+              <div class="stones-total">
+                <span class="current">{{default resources.stones.current 0}}</span> / 
+                <span class="maximum">{{default resources.stones.maximum 0}}</span>
+              </div>
+            </div>
+            <div class="stones-summary-item">
+              <h4><i class="fas fa-sync-alt"></i> Regeneration</h4>
+              <div class="stones-regen">
+                {{default resources.stones.regeneration 2}} per round
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+    
+    <!-- OTHER TABS: Skills, Combat, Powers, etc. -->
+    <div class="tab skills" data-group="primary" data-tab="skills">
+      <p style="padding: 20px; text-align: center; color: #666;">Skills tab - To be implemented</p>
+    </div>
+    
+    <div class="tab combat" data-group="primary" data-tab="combat">
+      <p style="padding: 20px; text-align: center; color: #666;">Combat tab - To be implemented</p>
+    </div>
+    
+    <div class="tab powers" data-group="primary" data-tab="powers">
+      <p style="padding: 20px; text-align: center; color: #666;">Powers tab - To be implemented</p>
+    </div>
+    
+    <div class="tab equipment" data-group="primary" data-tab="equipment">
+      <p style="padding: 20px; text-align: center; color: #666;">Equipment tab - To be implemented</p>
+    </div>
+    
+    <div class="tab magic" data-group="primary" data-tab="magic">
+      <p style="padding: 20px; text-align: center; color: #666;">Magic tab - To be implemented</p>
+    </div>
+    
+    <div class="tab biography" data-group="primary" data-tab="biography">
+      <p style="padding: 20px; text-align: center; color: #666;">Biography tab - To be implemented</p>
+    </div>
+    
+  </section>
+</form>

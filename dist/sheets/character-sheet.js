@@ -200,11 +200,12 @@ export class MasteryCharacterSheet extends ActorSheet {
     /** @override */
     activateListeners(html) {
         super.activateListeners(html);
+        // Attribute adjustments
+        html.find('.attribute-adjust').on('click', this.#onAttributeAdjust.bind(this));
+        html.find('.attribute-roll').on('click', this.#onAttributeRoll.bind(this));
         // Everything below here is only needed if the sheet is editable
         if (!this.isEditable)
             return;
-        // Attribute rolls
-        html.find('.attribute-roll').on('click', this.#onAttributeRoll.bind(this));
         // Skill rolls (now with dialog)
         html.find('.skill-roll').on('click', this.#onSkillRollWithDialog.bind(this));
         // Attack rolls
@@ -513,6 +514,22 @@ export class MasteryCharacterSheet extends ActorSheet {
         else if (adjustment < 0) {
             await this.actor.applyDamage(Math.abs(adjustment));
         }
+    }
+    /**
+     * Handle attribute adjustment (+/- buttons)
+     */
+    async #onAttributeAdjust(event) {
+        event.preventDefault();
+        const element = event.currentTarget;
+        const attribute = element.dataset.attribute;
+        const adjustment = parseInt(element.dataset.adjustment || '0');
+        if (!attribute)
+            return;
+        const currentValue = this.actor.system.attributes?.[attribute]?.value || 0;
+        const newValue = Math.max(0, Math.min(40, currentValue + adjustment));
+        await this.actor.update({
+            [`system.attributes.${attribute}.value`]: newValue
+        });
     }
     /**
      * Adjust Stress

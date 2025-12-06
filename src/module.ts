@@ -13,6 +13,7 @@ import { MasteryNpcSheet } from './sheets/npc-sheet.js';
 import { MasteryItemSheet } from './sheets/item-sheet.js';
 import { initializeCombatHooks } from './combat/initiative.js';
 import { registerChatCardSettings } from './rolls/chatCards.js';
+import { registerHandlebarsHelpers } from './utils/handlebars-helpers.js';
 
 // Dice roller functions are imported in sheets where needed
 
@@ -24,6 +25,9 @@ console.log('Mastery System | All imports completed');
  */
 Hooks.once('init', async function() {
   console.log('Mastery System | Initializing Mastery System / Destroyed Faith');
+  
+  // Register Handlebars helpers
+  registerHandlebarsHelpers();
   
   // Register custom Document classes
   CONFIG.Actor.documentClass = MasteryActor;
@@ -70,27 +74,6 @@ Hooks.once('init', async function() {
 
   console.log('Mastery System | System initialized');
 });
-
-/**
- * Register Handlebars helpers
- */
-function registerHandlebarsHelpers() {
-  // Helper to create arrays
-  Handlebars.registerHelper('array', function(...args: any[]) {
-    args.pop(); // Remove Handlebars options object
-    return args;
-  });
-
-  // Helper for greater than or equal comparison
-  Handlebars.registerHelper('gte', function(a: number, b: number) {
-    return a >= b;
-  });
-
-  // Helper for multiplication
-  Handlebars.registerHelper('multiply', function(a: number, b: number) {
-    return a * b;
-  });
-}
 
 /**
  * Register system settings
