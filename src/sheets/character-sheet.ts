@@ -5,6 +5,8 @@
 
 import { MasteryActor } from '../documents/actor';
 import { quickRoll } from '../dice/roll-handler';
+import { getActionStatus, useAction, unuseAction, convertAttackAction, undoConversion } from '../combat/actions';
+import { getResourceStatus, spendStones, addStress, reduceStress } from '../combat/resources';
 
 export class MasteryCharacterSheet extends ActorSheet {
   /** @override */
@@ -61,6 +63,15 @@ export class MasteryCharacterSheet extends ActorSheet {
     
     // Add skills list (sorted alphabetically)
     context.skills = this.#prepareSkills(context.system.skills);
+    
+    // Add action economy status
+    context.actions = getActionStatus(this.actor);
+    
+    // Add resource status
+    context.resources = getResourceStatus(this.actor);
+    
+    // Add powers filtered by type for action panel
+    context.activePowers = this.#prepareActivePowers();
     
     return context;
   }
@@ -158,6 +169,43 @@ export class MasteryCharacterSheet extends ActorSheet {
     return skillList;
   }
 
+  /**
+   * Prepare active powers for action panel
+   * Filters powers by type: Movement, Active, Utility, Reaction
+   */
+  #prepareActivePowers() {
+    const powers: any[] = [];
+    
+    for (const item of this.actor.items) {
+      if (item.type !== 'special') continue;
+      
+      const powerType = item.system.powerType;
+      
+      // Filter by combat-usable power types
+      if (['movement', 'active', 'utility', 'reaction'].includes(powerType)) {
+        powers.push({
+          id: item.id,
+          name: item.name,
+          powerType,
+          level: item.system.level || 1,
+          range: item.system.range || '0m',
+          cost: item.system.cost || {},
+          equipped: item.system.equipped !== false // Default to equipped if not specified
+        });
+      }
+    }
+    
+    // Sort by power type then level
+    powers.sort((a, b) => {
+      const typeOrder: any = { movement: 0, active: 1, utility: 2, reaction: 3 };
+      const typeCompare = (typeOrder[a.powerType] || 99) - (typeOrder[b.powerType] || 99);
+      if (typeCompare !== 0) return typeCompare;
+      return a.level - b.level;
+    });
+    
+    return powers;
+  }
+
   /** @override */
   activateListeners(html: JQuery) {
     super.activateListeners(html);
@@ -179,6 +227,20 @@ export class MasteryCharacterSheet extends ActorSheet {
     
     // Power use
     html.find('.power-use').on('click', this.#onPowerUse.bind(this));
+    
+    // Action economy buttons
+    html.find('.action-use').on('click', this.#onActionUse.bind(this));
+    html.find('.action-unuse').on('click', this.#onActionUnuse.bind(this));
+    html.find('.action-convert').on('click', this.#onActionConvert.bind(this));
+    html.find('.action-undo-convert').on('click', this.#onActionUndoConvert.bind(this));
+    
+    // Resource management buttons
+    html.find('.spend-stones-btn').on('click', this.#onSpendStones.bind(this));
+    html.find('.add-stress-btn').on('click', this.#onAddStress.bind(this));
+    html.find('.reduce-stress-btn').on('click', this.#onReduceStress.bind(this));
+    
+    // Power selection for action use
+    html.find('.use-power-action').on('click', this.#onUsePowerWithAction.bind(this));
     
     // Item controls
     html.find('.item-create').on('click', this.#onItemCreate.bind(this));
@@ -474,6 +536,256 @@ export class MasteryCharacterSheet extends ActorSheet {
     const newValue = Math.max(0, Math.min(max, current + adjustment));
     
     await this.actor.update({ 'system.stones.current': newValue });
+  }
+
+  /**
+   * Mark an action as used
+   */
+  async #onActionUse(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    const element = event.currentTarget;
+    const actionType = element.dataset.actionType as 'attack' | 'movement' | 'reaction';
+    
+    if (actionType) {
+      await useAction(this.actor, actionType);
+      this.render(false);
+    }
+  }
+
+  /**
+   * Unmark an action
+   */
+  async #onActionUnuse(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    const element = event.currentTarget;
+    const actionType = element.dataset.actionType as 'attack' | 'movement' | 'reaction';
+    
+    if (actionType) {
+      await unuseAction(this.actor, actionType);
+      this.render(false);
+    }
+  }
+
+  /**
+   * Convert an Attack Action
+   */
+  async #onActionConvert(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    const element = event.currentTarget;
+    const targetType = element.dataset.targetType as 'movement' | 'reaction';
+    
+    if (targetType) {
+      const success = await convertAttackAction(this.actor, targetType);
+      if (success) {
+        this.render(false);
+      }
+    }
+  }
+
+  /**
+   * Undo a conversion
+   */
+  async #onActionUndoConvert(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    const element = event.currentTarget;
+    const conversionType = element.dataset.conversionType as 'movement' | 'reaction';
+    
+    if (conversionType) {
+      const success = await undoConversion(this.actor, conversionType);
+      if (success) {
+        this.render(false);
+      }
+    }
+  }
+
+  /**
+   * Spend Stones dialog
+   */
+  async #onSpendStones(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    
+    const dialog = new Dialog({
+      title: 'Spend Stones',
+      content: `
+        <form>
+          <div class="form-group">
+            <label>Amount:</label>
+            <input type="number" name="amount" value="1" min="0" max="${this.actor.system.resources?.stones?.current || 0}"/>
+          </div>
+          <div class="form-group">
+            <label>Reason:</label>
+            <input type="text" name="reason" value="power activation"/>
+          </div>
+        </form>
+      `,
+      buttons: {
+        spend: {
+          icon: '<i class="fas fa-check"></i>',
+          label: 'Spend',
+          callback: async (html: JQuery) => {
+            const amount = parseInt((html.find('[name="amount"]').val() as string) || '0');
+            const reason = (html.find('[name="reason"]').val() as string) || 'power activation';
+            
+            const success = await spendStones(this.actor, amount, reason);
+            if (success) {
+              this.render(false);
+            }
+          }
+        },
+        cancel: {
+          icon: '<i class="fas fa-times"></i>',
+          label: 'Cancel'
+        }
+      },
+      default: 'spend'
+    });
+    
+    dialog.render(true);
+  }
+
+  /**
+   * Add Stress dialog
+   */
+  async #onAddStress(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    
+    const dialog = new Dialog({
+      title: 'Add Stress',
+      content: `
+        <form>
+          <div class="form-group">
+            <label>Amount:</label>
+            <input type="number" name="amount" value="1" min="0"/>
+          </div>
+          <div class="form-group">
+            <label>Reason:</label>
+            <input type="text" name="reason" value="stressful event"/>
+          </div>
+        </form>
+      `,
+      buttons: {
+        add: {
+          icon: '<i class="fas fa-plus"></i>',
+          label: 'Add',
+          callback: async (html: JQuery) => {
+            const amount = parseInt((html.find('[name="amount"]').val() as string) || '0');
+            const reason = (html.find('[name="reason"]').val() as string) || 'stressful event';
+            
+            await addStress(this.actor, amount, reason);
+            this.render(false);
+          }
+        },
+        cancel: {
+          icon: '<i class="fas fa-times"></i>',
+          label: 'Cancel'
+        }
+      },
+      default: 'add'
+    });
+    
+    dialog.render(true);
+  }
+
+  /**
+   * Reduce Stress dialog
+   */
+  async #onReduceStress(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    
+    const dialog = new Dialog({
+      title: 'Reduce Stress',
+      content: `
+        <form>
+          <div class="form-group">
+            <label>Amount:</label>
+            <input type="number" name="amount" value="1" min="0" max="${this.actor.system.resources?.stress?.current || 0}"/>
+          </div>
+          <div class="form-group">
+            <label>Reason:</label>
+            <input type="text" name="reason" value="stress relief"/>
+          </div>
+        </form>
+      `,
+      buttons: {
+        reduce: {
+          icon: '<i class="fas fa-minus"></i>',
+          label: 'Reduce',
+          callback: async (html: JQuery) => {
+            const amount = parseInt((html.find('[name="amount"]').val() as string) || '0');
+            const reason = (html.find('[name="reason"]').val() as string) || 'stress relief';
+            
+            await reduceStress(this.actor, amount, reason);
+            this.render(false);
+          }
+        },
+        cancel: {
+          icon: '<i class="fas fa-times"></i>',
+          label: 'Cancel'
+        }
+      },
+      default: 'reduce'
+    });
+    
+    dialog.render(true);
+  }
+
+  /**
+   * Use a power with an action
+   */
+  async #onUsePowerWithAction(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    const element = event.currentTarget;
+    const powerId = element.dataset.powerId;
+    const power = this.actor.items.get(powerId);
+    
+    if (!power) return;
+    
+    const powerType = power.system.powerType;
+    let actionType: 'attack' | 'movement' | 'reaction' = 'attack';
+    
+    // Determine action type from power type
+    if (powerType === 'movement') {
+      actionType = 'movement';
+    } else if (powerType === 'reaction') {
+      actionType = 'reaction';
+    } else {
+      actionType = 'attack'; // Active, Utility use Attack Action
+    }
+    
+    // Use the action
+    const success = await useAction(this.actor, actionType);
+    
+    if (success) {
+      // Post chat message
+      await ChatMessage.create({
+        user: (game as any).user?.id,
+        speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+        content: `
+          <div class="mastery-power-use">
+            <div class="power-header">
+              <img src="${this.actor.img}" alt="${this.actor.name}" class="actor-portrait"/>
+              <h3>${this.actor.name} uses ${power.name}</h3>
+            </div>
+            <div class="power-details">
+              <p><strong>Type:</strong> ${powerType.charAt(0).toUpperCase() + powerType.slice(1)}</p>
+              <p><strong>Action Used:</strong> ${actionType.charAt(0).toUpperCase() + actionType.slice(1)}</p>
+              <p><strong>Range:</strong> ${power.system.range || '0m'}</p>
+              ${power.system.cost?.stones ? `<p><strong>Stone Cost:</strong> ${power.system.cost.stones}</p>` : ''}
+            </div>
+          </div>
+        `,
+        type: CONST.CHAT_MESSAGE_TYPES.OTHER,
+        flags: {
+          'mastery-system': {
+            type: 'power-use',
+            powerId,
+            actionType
+          }
+        }
+      });
+      
+      this.render(false);
+    }
   }
 }
 

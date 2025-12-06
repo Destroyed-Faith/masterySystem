@@ -59,22 +59,47 @@
           "shieldName": "",
           "speed": 6
         },
+        "actions": {
+          "attack": {
+            "max": 1,
+            "used": 0,
+            "base": 1,
+            "bonus": 0
+          },
+          "movement": {
+            "max": 1,
+            "used": 0,
+            "base": 1,
+            "bonus": 0
+          },
+          "reaction": {
+            "max": 1,
+            "used": 0,
+            "base": 1,
+            "bonus": 0,
+            "convertedThisRound": 0
+          },
+          "conversions": {
+            "attackToMovement": 0,
+            "attackToReaction": 0,
+            "maxConversions": 2
+          }
+        },
         "faithFractures": {
           "current": 0,
           "maximum": 10
         },
         "resources": {
-          "reactions": {
-            "value": 1,
-            "max": 1
+          "stones": {
+            "current": 0,
+            "maximum": 0,
+            "vitality": 0,
+            "regeneration": 2,
+            "spentThisRound": 0
           },
-          "movement": {
-            "value": 1,
-            "max": 1
-          },
-          "actions": {
-            "value": 1,
-            "max": 1
+          "stress": {
+            "current": 0,
+            "maximum": 0
           }
         }
       }
@@ -125,7 +150,7 @@
       },
       "stress": {
         "current": 0,
-        "maximum": 100
+        "maximum": 0
       },
       "skills": {},
       "savingThrows": {

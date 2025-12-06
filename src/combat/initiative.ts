@@ -15,6 +15,8 @@ import {
   applyShopPurchases
 } from '../utils/initiative';
 import { InitiativeShopDialog } from '../sheets/initiative-shop-dialog';
+import { resetActionsForRound, resetActionsForTurn } from './actions';
+import { regenerateStones } from './resources';
 
 /**
  * Initialize combat hooks
@@ -22,10 +24,11 @@ import { InitiativeShopDialog } from '../sheets/initiative-shop-dialog';
 export function initializeCombatHooks(): void {
   console.log('Mastery System | Initializing Combat Hooks');
   
-  // Override Combat.rollInitiative to use custom logic
+  // Override Combat.rollInitiative to use Mastery System rules
   Hooks.on('preCreateCombat', onPreCreateCombat);
   Hooks.on('combatStart', onCombatStart);
   Hooks.on('combatRound', onCombatRound);
+  Hooks.on('combatTurn', onCombatTurn);
   Hooks.on('renderCombatTracker', onRenderCombatTracker);
   
   // Override the Combat class's rollInitiative method
@@ -84,24 +87,22 @@ async function resetCombatantResources(combat: any): Promise<void> {
     const actor = combatant.actor;
     if (!actor) continue;
     
-    // Reset to base values
-    const updates: any = {
-      'system.resources.movement.value': 1,
-      'system.resources.movement.max': 1,
-      'system.resources.actions.value': 1,
-      'system.resources.actions.max': 1,
-      'system.resources.reactions.value': 1,
-      'system.resources.reactions.max': 1
-    };
+    // Reset actions for the round
+    await resetActionsForRound(actor);
+    
+    // Regenerate Stones
+    await regenerateStones(actor);
     
     // Clear initiative shop flags
-    updates['system.combat.initiativeShop'] = {
-      movement: 0,
-      swap: false,
-      extraAttack: false
-    };
-    
-    await actor.update(updates);
+    if (actor.system.combat?.initiativeShop) {
+      await actor.update({
+        'system.combat.initiativeShop': {
+          movement: 0,
+          swap: false,
+          extraAttack: false
+        }
+      });
+    }
   }
 }
 
@@ -113,6 +114,18 @@ async function rollInitiativeForAllCombatants(combat: any): Promise<void> {
   
   // Use the custom roll initiative
   await combat.rollInitiative(combatantIds);
+}
+
+/**
+ * Handle combat turn change
+ * Reset converted Reactions that expired
+ */
+async function onCombatTurn(combat: any, _updateData: any, _options: any): Promise<void> {
+  const currentCombatant = combat.combatant;
+  if (!currentCombatant || !currentCombatant.actor) return;
+  
+  // Reset actions for this actor's turn (expire converted Reactions)
+  await resetActionsForTurn(currentCombatant.actor);
 }
 
 /**

@@ -34,6 +34,41 @@ export class MasteryActor extends Actor {
                     system.stones.current = system.stones.maximum;
                 }
             }
+            // Update resources.stones to match (consolidation)
+            if (system.resources?.stones) {
+                system.resources.stones.maximum = system.stones.total;
+                system.resources.stones.vitality = system.attributes.vitality.stones || 0;
+                system.resources.stones.regeneration = system.mastery?.rank || 2;
+                // Ensure current doesn't exceed max
+                if (system.resources.stones.current > system.resources.stones.maximum) {
+                    system.resources.stones.current = system.resources.stones.maximum;
+                }
+            }
+        }
+        // Calculate Stress maximum (Resolve + Wits)
+        if (system.resources?.stress && system.attributes) {
+            const resolve = system.attributes.resolve?.value || 0;
+            const wits = system.attributes.wits?.value || 0;
+            system.resources.stress.maximum = resolve + wits;
+            // Clamp current stress
+            if (system.resources.stress.current > system.resources.stress.maximum) {
+                system.resources.stress.current = system.resources.stress.maximum;
+            }
+        }
+        // Update action conversions max based on Mastery Rank
+        if (system.actions?.conversions) {
+            const masteryRank = system.mastery?.rank || 2;
+            system.actions.conversions.maxConversions = masteryRank;
+        }
+        // Recalculate action max values from base + bonus + conversions
+        if (system.actions) {
+            const attack = system.actions.attack || { base: 1, bonus: 0 };
+            const movement = system.actions.movement || { base: 1, bonus: 0 };
+            const reaction = system.actions.reaction || { base: 1, bonus: 0 };
+            const conversions = system.actions.conversions || { attackToMovement: 0, attackToReaction: 0 };
+            system.actions.attack.max = attack.base + attack.bonus;
+            system.actions.movement.max = movement.base + movement.bonus + (conversions.attackToMovement || 0);
+            system.actions.reaction.max = reaction.base + reaction.bonus + (conversions.attackToReaction || 0);
         }
         // Update health bars based on vitality
         if (system.health && system.attributes?.vitality) {
