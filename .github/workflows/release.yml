@@ -5,55 +5,67 @@ on:
     tags:
       - 'v*.*.*'
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      
+        uses: actions/checkout@v4
+
       - name: Get version from tag
-        id: get_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-      
-      - name: Install dependencies
-        run: npm ci
-      
-      - name: Build
-        run: npm run build
-      
-      - name: Create ZIP for release
+        id: tag_version
         run: |
+          echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+          echo "TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Create release archive
+        run: |
+          # Create a clean directory for the release
           mkdir -p release
-          zip -r release/mastery-system.zip . \
-            -x "*.git*" \
-            -x "node_modules/*" \
-            -x "src/*" \
-            -x "release/*" \
-            -x "*.md" \
-            -x "tsconfig.json" \
-            -x "package*.json"
-      
-      - name: Extract changelog for this version
+          
+          # Copy all necessary files (exclude .git, node_modules, etc.)
+          rsync -av \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='.github' \
+            --exclude='release' \
+            --exclude='src' \
+            --exclude='tsconfig.json' \
+            --exclude='package.json' \
+            --exclude='package-lock.json' \
+            --exclude='.gitignore' \
+            --exclude='COMBAT_START_CHANGES.md' \
+            . release/
+          
+          # Create zip file
+          cd release
+          zip -r ../mastery-system-${{ steps.tag_version.outputs.VERSION }}.zip .
+          cd ..
+
+      - name: Read CHANGELOG
         id: changelog
         run: |
-          VERSION=${{ steps.get_version.outputs.VERSION }}
-          # Extract changelog section for this version
-          sed -n "/## \[$VERSION\]/,/## \[/p" CHANGELOG.md | sed '$d' > release-notes.md
-      
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
+          # Extract the latest version's changelog
+          VERSION="${{ steps.tag_version.outputs.VERSION }}"
+          sed -n "/## \[${VERSION}\]/,/## \[/p" CHANGELOG.md | sed '$ d' > release_notes.md
+          
+          # If empty, use a default message
+          if [ ! -s release_notes.md ]; then
+            echo "Release ${{ steps.tag_version.outputs.TAG }}" > release_notes.md
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          files: release/mastery-system.zip
-          body_path: release-notes.md
+          files: mastery-system-${{ steps.tag_version.outputs.VERSION }}.zip
+          body_path: release_notes.md
           draft: false
           prerelease: false
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
