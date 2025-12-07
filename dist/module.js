@@ -9,6 +9,7 @@ import { MasteryItem } from './documents/item.js';
 import { MasteryCharacterSheet } from './sheets/character-sheet.js';
 import { MasteryNpcSheet } from './sheets/npc-sheet.js';
 import { MasteryItemSheet } from './sheets/item-sheet.js';
+import { initializeCombatHooks } from './combat/initiative.js';
 // Dice roller functions are imported in sheets where needed
 console.log('Mastery System | All imports completed');
 /**
@@ -45,6 +46,8 @@ Hooks.once('init', async function () {
     registerSystemSettings();
     // Register Handlebars helpers
     registerHandlebarsHelpers();
+    // Initialize combat hooks
+    initializeCombatHooks();
     // Preload Handlebars templates
     await preloadTemplates();
     console.log('Mastery System | System initialized');
