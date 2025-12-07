@@ -170,7 +170,7 @@ export async function createInitiativeChatMessage(actor, baseInitiative, mastery
         user: game.user?.id,
         speaker: ChatMessage.getSpeaker({ actor }),
         content,
-        type: CONST.CHAT_MESSAGE_TYPES.OTHER,
+        type: CONST.CHAT_MESSAGE_STYLES.OTHER,
         flags: {
             'mastery-system': {
                 type: 'initiative-roll',
@@ -220,7 +220,7 @@ export async function rollNpcInitiative(actor, combatant) {
         </div>
       </div>
     `,
-        type: CONST.CHAT_MESSAGE_TYPES.OTHER
+        type: CONST.CHAT_MESSAGE_STYLES.OTHER
     });
     return finalInitiative;
 }

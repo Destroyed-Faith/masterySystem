@@ -56,7 +56,7 @@ export async function spendStones(actor, amount, reason = 'power activation') {
         </div>
       </div>
     `,
-        type: CONST.CHAT_MESSAGE_TYPES.OTHER,
+        type: CONST.CHAT_MESSAGE_STYLES.OTHER,
         flags: {
             'mastery-system': {
                 type: 'resource-use',
@@ -138,7 +138,7 @@ export async function applyVitalityDamage(actor, amount) {
         </div>
       </div>
     `,
-        type: CONST.CHAT_MESSAGE_TYPES.OTHER,
+        type: CONST.CHAT_MESSAGE_STYLES.OTHER,
         flags: {
             'mastery-system': {
                 type: 'resource-use',
@@ -185,7 +185,7 @@ export async function healVitality(actor, amount) {
         </div>
       </div>
     `,
-        type: CONST.CHAT_MESSAGE_TYPES.OTHER,
+        type: CONST.CHAT_MESSAGE_STYLES.OTHER,
         flags: {
             'mastery-system': {
                 type: 'resource-use',
@@ -231,7 +231,7 @@ export async function addStress(actor, amount, reason = 'stressful event') {
         </div>
       </div>
     `,
-        type: CONST.CHAT_MESSAGE_TYPES.OTHER,
+        type: CONST.CHAT_MESSAGE_STYLES.OTHER,
         flags: {
             'mastery-system': {
                 type: 'resource-use',
@@ -280,7 +280,7 @@ export async function reduceStress(actor, amount, reason = 'stress relief') {
         </div>
       </div>
     `,
-        type: CONST.CHAT_MESSAGE_TYPES.OTHER,
+        type: CONST.CHAT_MESSAGE_STYLES.OTHER,
         flags: {
             'mastery-system': {
                 type: 'resource-use',

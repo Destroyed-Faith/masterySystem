@@ -1,0 +1,673 @@
+/**
+ * Combat Overlays Styling
+ * Styles for Passive Selection Dialog and Combat Action Overlay
+ */
+
+/* ========================================
+   Common Overlay Styles
+   ======================================== */
+
+.mastery-system.passive-selection,
+.mastery-system.combat-overlay {
+  font-family: 'Signika', sans-serif;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border: 2px solid #0f3460;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  border-radius: 12px;
+  color: #e9e9e9;
+}
+
+.mastery-system .overlay-header,
+.mastery-system .combat-header {
+  background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+  padding: 1.5rem;
+  border-bottom: 2px solid #e94560;
+  border-radius: 10px 10px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mastery-system .overlay-footer,
+.mastery-system .combat-footer {
+  background: #16213e;
+  padding: 1rem 1.5rem;
+  border-top: 2px solid #0f3460;
+  border-radius: 0 0 10px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* ========================================
+   Character Info
+   ======================================== */
+
+.mastery-system .character-info,
+.mastery-system .character-panel {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mastery-system .actor-portrait {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 3px solid #e94560;
+  object-fit: cover;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.mastery-system .character-details h2,
+.mastery-system .character-panel h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #e94560;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.mastery-system .character-counter,
+.mastery-system .turn-indicator {
+  font-size: 0.9rem;
+  color: #a8dadc;
+  margin: 0.25rem 0 0 0;
+}
+
+/* ========================================
+   Passive Selection Dialog
+   ======================================== */
+
+.passive-selection-overlay {
+  padding: 0;
+}
+
+.passive-selection-overlay .passive-limit {
+  background: rgba(233, 69, 96, 0.2);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #e94560;
+}
+
+.passive-selection-overlay .passive-limit p {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.passive-selection-overlay .passive-limit strong {
+  color: #e94560;
+  font-size: 1.3rem;
+}
+
+/* Passive Slots Section */
+
+.passive-slots-section,
+.available-passives-section {
+  padding: 1.5rem;
+}
+
+.passive-slots-section h3,
+.available-passives-section h3 {
+  margin: 0 0 1rem 0;
+  color: #e94560;
+  font-size: 1.3rem;
+  border-bottom: 2px solid #0f3460;
+  padding-bottom: 0.5rem;
+}
+
+.slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.passive-slot {
+  background: #16213e;
+  border: 2px solid #0f3460;
+  border-radius: 8px;
+  padding: 1rem;
+  transition: all 0.3s ease;
+}
+
+.passive-slot.active {
+  border-color: #e94560;
+  background: linear-gradient(135deg, #16213e 0%, #1a1a2e 100%);
+  box-shadow: 0 0 16px rgba(233, 69, 96, 0.4);
+}
+
+.passive-slot.empty {
+  opacity: 0.6;
+  border-style: dashed;
+}
+
+.passive-slot:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.passive-slot .slot-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.passive-slot .slot-number {
+  font-weight: bold;
+  color: #a8dadc;
+}
+
+.passive-slot .passive-category {
+  background: #0f3460;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: #e94560;
+  text-transform: capitalize;
+}
+
+.passive-slot .slot-body h4 {
+  margin: 0 0 0.5rem 0;
+  color: #e94560;
+  font-size: 1.1rem;
+}
+
+.passive-slot .passive-description {
+  font-size: 0.9rem;
+  color: #c7c7c7;
+  margin: 0 0 0.75rem 0;
+  line-height: 1.4;
+}
+
+.passive-slot .slot-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.passive-slot .empty-slot {
+  text-align: center;
+  padding: 1rem 0;
+  color: #7a7a7a;
+}
+
+.passive-slot .empty-slot .hint {
+  font-size: 0.8rem;
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+/* Available Passives List */
+
+.passives-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.passive-item {
+  background: #16213e;
+  border: 1px solid #0f3460;
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.3s ease;
+}
+
+.passive-item:hover {
+  border-color: #e94560;
+  box-shadow: 0 4px 12px rgba(233, 69, 96, 0.2);
+}
+
+.passive-item .passive-info {
+  flex: 1;
+}
+
+.passive-item h4 {
+  margin: 0 0 0.5rem 0;
+  color: #e94560;
+  font-size: 1.1rem;
+}
+
+.passive-item .badge {
+  background: #0f3460;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: #a8dadc;
+  text-transform: capitalize;
+  margin-left: 0.5rem;
+}
+
+.passive-item .passive-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.no-passives {
+  text-align: center;
+  padding: 2rem;
+  color: #7a7a7a;
+  font-style: italic;
+}
+
+/* ========================================
+   Combat Action Overlay
+   ======================================== */
+
+.combat-overlay {
+  padding: 0;
+}
+
+.combat-overlay .resources-panel {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.combat-overlay .resource-item {
+  background: rgba(15, 52, 96, 0.5);
+  padding: 0.75rem;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.combat-overlay .resource-item i {
+  font-size: 1.5rem;
+  color: #a8dadc;
+}
+
+.combat-overlay .resource-item.stones i {
+  color: #e94560;
+}
+
+.combat-overlay .resource-item.vitality i {
+  color: #ff6b6b;
+}
+
+.combat-overlay .resource-item.stress i {
+  color: #feca57;
+}
+
+.combat-overlay .resource-item.charges i {
+  color: #48dbfb;
+}
+
+.combat-overlay .resource-label {
+  font-size: 0.8rem;
+  color: #a8dadc;
+  text-transform: uppercase;
+}
+
+.combat-overlay .resource-value {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #e9e9e9;
+}
+
+.combat-overlay .temp-charges {
+  font-size: 0.8rem;
+  color: #48dbfb;
+  font-style: italic;
+}
+
+/* Actions Section */
+
+.actions-section,
+.powers-section {
+  padding: 1.5rem;
+  border-bottom: 1px solid #0f3460;
+}
+
+.actions-section h3,
+.powers-section h3 {
+  margin: 0 0 1rem 0;
+  color: #e94560;
+  font-size: 1.3rem;
+  border-bottom: 2px solid #0f3460;
+  padding-bottom: 0.5rem;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.action-item {
+  background: #16213e;
+  border: 2px solid #0f3460;
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.action-item.attack {
+  border-color: #e94560;
+}
+
+.action-item.movement {
+  border-color: #48dbfb;
+}
+
+.action-item.reaction {
+  border-color: #feca57;
+}
+
+.action-item .action-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.action-item .action-header i {
+  font-size: 1.5rem;
+}
+
+.action-item.attack .action-header i {
+  color: #e94560;
+}
+
+.action-item.movement .action-header i {
+  color: #48dbfb;
+}
+
+.action-item.reaction .action-header i {
+  color: #feca57;
+}
+
+.action-item .action-label {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.action-item .action-counter {
+  font-size: 1.5rem;
+  margin: 0.5rem 0;
+}
+
+.action-item .action-counter .used {
+  color: #e94560;
+  font-weight: bold;
+}
+
+.action-item .action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+/* Powers Section */
+
+.power-group {
+  margin-bottom: 1.5rem;
+}
+
+.power-group:last-child {
+  margin-bottom: 0;
+}
+
+.power-group h4 {
+  margin: 0 0 1rem 0;
+  color: #a8dadc;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.power-group h4 i {
+  color: #e94560;
+}
+
+.powers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.power-item {
+  background: #16213e;
+  border: 1px solid #0f3460;
+  border-radius: 6px;
+  padding: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.3s ease;
+}
+
+.power-item:hover {
+  border-color: #e94560;
+  box-shadow: 0 2px 8px rgba(233, 69, 96, 0.2);
+}
+
+.power-item .power-info {
+  flex: 1;
+}
+
+.power-item .power-info strong {
+  color: #e9e9e9;
+  font-size: 1rem;
+}
+
+.power-item .power-meta {
+  display: flex;
+  gap: 0.75rem;
+  margin: 0.5rem 0;
+  flex-wrap: wrap;
+}
+
+.power-item .power-meta span {
+  background: #0f3460;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: #a8dadc;
+}
+
+.power-item .power-cost {
+  color: #e94560 !important;
+}
+
+.power-item .power-desc {
+  font-size: 0.85rem;
+  color: #b0b0b0;
+  margin: 0.5rem 0 0 0;
+  line-height: 1.3;
+}
+
+.no-powers {
+  text-align: center;
+  padding: 2rem;
+  color: #7a7a7a;
+  font-style: italic;
+}
+
+/* ========================================
+   Buttons
+   ======================================== */
+
+.mastery-system button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.mastery-system button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mastery-system .btn-primary {
+  background: #e94560;
+  color: #fff;
+}
+
+.mastery-system .btn-primary:hover:not(:disabled) {
+  background: #ff5570;
+  box-shadow: 0 4px 12px rgba(233, 69, 96, 0.4);
+  transform: translateY(-2px);
+}
+
+.mastery-system .btn-secondary {
+  background: #0f3460;
+  color: #e9e9e9;
+}
+
+.mastery-system .btn-secondary:hover:not(:disabled) {
+  background: #16213e;
+}
+
+.mastery-system .btn-nav {
+  background: #16213e;
+  color: #a8dadc;
+  border: 1px solid #0f3460;
+}
+
+.mastery-system .btn-nav:hover:not(:disabled) {
+  background: #1a1a2e;
+  border-color: #e94560;
+}
+
+.mastery-system .btn-warning {
+  background: #feca57;
+  color: #1a1a2e;
+}
+
+.mastery-system .btn-warning:hover:not(:disabled) {
+  background: #ffe066;
+}
+
+.mastery-system .btn-toggle {
+  background: #0f3460;
+  color: #a8dadc;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.75rem;
+}
+
+.mastery-system .btn-toggle:hover:not(:disabled) {
+  background: #16213e;
+  color: #e94560;
+}
+
+.mastery-system .btn-remove {
+  background: #e94560;
+  color: #fff;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.75rem;
+}
+
+.mastery-system .btn-remove:hover:not(:disabled) {
+  background: #ff5570;
+}
+
+.mastery-system .btn-slot {
+  background: #0f3460;
+  color: #a8dadc;
+  font-size: 0.8rem;
+  padding: 0.35rem 0.6rem;
+}
+
+.mastery-system .btn-slot:hover:not(:disabled) {
+  background: #e94560;
+  color: #fff;
+}
+
+.mastery-system .btn-action {
+  background: #48dbfb;
+  color: #1a1a2e;
+  flex: 1;
+}
+
+.mastery-system .btn-action:hover:not(:disabled) {
+  background: #5fe5ff;
+  transform: scale(1.05);
+}
+
+.mastery-system .btn-undo {
+  background: #16213e;
+  color: #a8dadc;
+  border: 1px solid #0f3460;
+}
+
+.mastery-system .btn-undo:hover:not(:disabled) {
+  background: #1a1a2e;
+  color: #feca57;
+}
+
+.mastery-system .btn-use-power {
+  background: #e94560;
+  color: #fff;
+  padding: 0.5rem 1rem;
+}
+
+.mastery-system .btn-use-power:hover:not(:disabled) {
+  background: #ff5570;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(233, 69, 96, 0.4);
+}
+
+.mastery-system .btn-end {
+  background: #7a7a7a;
+  color: #e9e9e9;
+}
+
+.mastery-system .btn-end:hover:not(:disabled) {
+  background: #8a8a8a;
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
+@media (max-width: 768px) {
+  .slots-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .combat-overlay .resources-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .mastery-system .overlay-header,
+  .mastery-system .combat-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .power-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .passive-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+

@@ -155,7 +155,7 @@ export async function activatePassive(actor, slotIndex) {
           <p>${slot.passive.description}</p>
         </div>
       `,
-            type: CONST.CHAT_MESSAGE_TYPES.OTHER
+            type: CONST.CHAT_MESSAGE_STYLES.OTHER
         });
     }
     else {

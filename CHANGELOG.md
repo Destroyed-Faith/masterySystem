@@ -2,7 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.0.32] - 2025-12-07
+## [0.0.34] - 2025-12-07
+
+### Fixed
+- **Critical:** Fixed missing MasteryActor and MasteryItem class implementations causing actor preparation failures
+- **Critical:** Fixed "Cannot read properties of undefined (reading 'total')" error in actor data preparation
+- Fixed deprecated CONST.CHAT_MESSAGE_TYPES → CONST.CHAT_MESSAGE_STYLES (Foundry v13 compatibility)
+- Actor data now safely initializes with default values for resources, actions, and mastery
+
+### Added
+- Safe data validation in MasteryActor._prepareCharacterData()
+- Safe data validation in MasteryActor._prepareNpcData()
+- Comprehensive error handling for missing actor system properties
+
+## [0.0.33] - 2025-12-07
 
 ### Added
 - **Automatic Initiative Rolling on Combat Start**: When combat begins, initiative is now automatically rolled for all combatants after a 1-second delay

@@ -1,0 +1,105 @@
+<div class="passive-selection-overlay">
+  <header class="overlay-header">
+    <div class="character-info">
+      <img src="{{actor.img}}" alt="{{actor.name}}" class="actor-portrait" />
+      <div class="character-details">
+        <h2>{{actor.name}}</h2>
+        <p class="character-counter">Character {{currentIndex}} of {{total}}</p>
+      </div>
+    </div>
+    <div class="passive-limit">
+      <p>Max Active Passives: <strong>{{masteryRank}}</strong></p>
+    </div>
+  </header>
+
+  <section class="passive-slots-section">
+    <h3>Passive Slots</h3>
+    <div class="slots-grid">
+      {{#each slots as |slot|}}
+        <div class="passive-slot {{#if slot.active}}active{{/if}} {{#unless slot.passive}}empty{{/unless}}" data-slot-index="{{slot.slotIndex}}">
+          <div class="slot-header">
+            <span class="slot-number">Slot {{inc slot.slotIndex}}</span>
+            {{#if slot.passive}}
+              <span class="passive-category">{{slot.passive.category}}</span>
+            {{/if}}
+          </div>
+          
+          {{#if slot.passive}}
+            <div class="slot-body">
+              <h4>{{slot.passive.name}}</h4>
+              <p class="passive-description">{{slot.passive.description}}</p>
+              <div class="slot-actions">
+                <button class="js-toggle-passive btn-toggle" data-slot-index="{{slot.slotIndex}}" title="{{#if slot.active}}Deactivate{{else}}Activate{{/if}}">
+                  <i class="fas {{#if slot.active}}fa-toggle-on{{else}}fa-toggle-off{{/if}}"></i>
+                  {{#if slot.active}}Active{{else}}Inactive{{/if}}
+                </button>
+                <button class="js-unslot-passive btn-remove" data-slot-index="{{slot.slotIndex}}" title="Remove from slot">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+          {{else}}
+            <div class="slot-body empty-slot">
+              <p><em>Empty slot</em></p>
+              <p class="hint">Select a passive below</p>
+            </div>
+          {{/if}}
+        </div>
+      {{/each}}
+    </div>
+  </section>
+
+  <section class="available-passives-section">
+    <h3>Available Passives</h3>
+    {{#if availablePassives}}
+      <div class="passives-list">
+        {{#each availablePassives as |passive|}}
+          <div class="passive-item">
+            <div class="passive-info">
+              <h4>{{passive.name}}</h4>
+              <span class="passive-category badge">{{passive.category}}</span>
+              <p class="passive-description">{{passive.description}}</p>
+            </div>
+            <div class="passive-actions">
+              {{#each ../slots as |slot|}}
+                {{#unless slot.passive}}
+                  <button class="js-slot-passive btn-slot" 
+                          data-slot-index="{{slot.slotIndex}}" 
+                          data-passive-id="{{../passive.id}}"
+                          title="Add to Slot {{inc slot.slotIndex}}">
+                    → Slot {{inc slot.slotIndex}}
+                  </button>
+                {{/unless}}
+              {{/each}}
+            </div>
+          </div>
+        {{/each}}
+      </div>
+    {{else}}
+      <div class="no-passives">
+        <p><em>No available passives. All categories are in use or no passives learned.</em></p>
+      </div>
+    {{/if}}
+  </section>
+
+  <footer class="overlay-footer">
+    <button class="js-prev-character btn-nav" {{#if isFirst}}disabled{{/if}}>
+      <i class="fas fa-chevron-left"></i> Previous
+    </button>
+    
+    <button class="js-next-character btn-primary">
+      {{#if isLast}}
+        Finish <i class="fas fa-check"></i>
+      {{else}}
+        Next <i class="fas fa-chevron-right"></i>
+      {{/if}}
+    </button>
+    
+    {{#if isGM}}
+      <button class="js-gm-skip btn-warning">
+        <i class="fas fa-forward"></i> GM: Skip All
+      </button>
+    {{/if}}
+  </footer>
+</div>
+

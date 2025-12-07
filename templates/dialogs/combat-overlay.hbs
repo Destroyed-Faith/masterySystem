@@ -1,0 +1,248 @@
+<div class="combat-overlay">
+  <header class="combat-header">
+    <div class="character-panel">
+      <img src="{{actor.img}}" alt="{{actor.name}}" class="actor-portrait" />
+      <div class="character-info">
+        <h2>{{actor.name}}</h2>
+        <p class="turn-indicator">Your Turn</p>
+      </div>
+    </div>
+    
+    <div class="resources-panel">
+      <div class="resource-item stones">
+        <i class="fas fa-gem"></i>
+        <span class="resource-label">Stones</span>
+        <span class="resource-value">{{stones.current}} / {{stones.maximum}}</span>
+      </div>
+      
+      <div class="resource-item vitality">
+        <i class="fas fa-heart"></i>
+        <span class="resource-label">Vitality</span>
+        <span class="resource-value">{{vitality.current}} / {{vitality.maximum}}</span>
+      </div>
+      
+      <div class="resource-item stress">
+        <i class="fas fa-brain"></i>
+        <span class="resource-label">Stress</span>
+        <span class="resource-value">{{stress.current}} / {{stress.maximum}}</span>
+      </div>
+      
+      <div class="resource-item charges">
+        <i class="fas fa-bolt"></i>
+        <span class="resource-label">Charges</span>
+        <span class="resource-value">{{charges.current}} / {{charges.maximum}}</span>
+        {{#if charges.temporary}}
+          <span class="temp-charges">(+{{charges.temporary}} temp)</span>
+        {{/if}}
+      </div>
+    </div>
+  </header>
+
+  <section class="actions-section">
+    <h3>Actions This Round</h3>
+    <div class="actions-grid">
+      <div class="action-item attack">
+        <div class="action-header">
+          <i class="fas fa-sword"></i>
+          <span class="action-label">Attack</span>
+        </div>
+        <div class="action-counter">
+          <span class="used">{{actions.attack.used}}</span> / <span class="max">{{actions.attack.max}}</span>
+        </div>
+        <div class="action-buttons">
+          <button class="js-use-action btn-action" data-action-type="attack" 
+                  {{#if (gte actions.attack.used actions.attack.max)}}disabled{{/if}}>
+            <i class="fas fa-plus"></i> Use
+          </button>
+          <button class="js-undo-action btn-undo" data-action-type="attack"
+                  {{#if (lte actions.attack.used 0)}}disabled{{/if}}>
+            <i class="fas fa-undo"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="action-item movement">
+        <div class="action-header">
+          <i class="fas fa-running"></i>
+          <span class="action-label">Movement</span>
+        </div>
+        <div class="action-counter">
+          <span class="used">{{actions.movement.used}}</span> / <span class="max">{{actions.movement.max}}</span>
+        </div>
+        <div class="action-buttons">
+          <button class="js-use-action btn-action" data-action-type="movement"
+                  {{#if (gte actions.movement.used actions.movement.max)}}disabled{{/if}}>
+            <i class="fas fa-plus"></i> Use
+          </button>
+          <button class="js-undo-action btn-undo" data-action-type="movement"
+                  {{#if (lte actions.movement.used 0)}}disabled{{/if}}>
+            <i class="fas fa-undo"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="action-item reaction">
+        <div class="action-header">
+          <i class="fas fa-shield"></i>
+          <span class="action-label">Reaction</span>
+        </div>
+        <div class="action-counter">
+          <span class="used">{{actions.reaction.used}}</span> / <span class="max">{{actions.reaction.max}}</span>
+        </div>
+        <div class="action-buttons">
+          <button class="js-use-action btn-action" data-action-type="reaction"
+                  {{#if (gte actions.reaction.used actions.reaction.max)}}disabled{{/if}}>
+            <i class="fas fa-plus"></i> Use
+          </button>
+          <button class="js-undo-action btn-undo" data-action-type="reaction"
+                  {{#if (lte actions.reaction.used 0)}}disabled{{/if}}>
+            <i class="fas fa-undo"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="powers-section">
+    <h3>Available Powers</h3>
+    
+    {{#if powersByType.movement}}
+      <div class="power-group movement-powers">
+        <h4><i class="fas fa-running"></i> Movement Powers</h4>
+        <div class="powers-list">
+          {{#each powersByType.movement as |power|}}
+            <div class="power-item">
+              <div class="power-info">
+                <strong>{{power.name}}</strong>
+                <div class="power-meta">
+                  <span class="power-level">Lv {{power.level}}</span>
+                  <span class="power-range">{{power.range}}</span>
+                  {{#if power.stoneCost}}
+                    <span class="power-cost"><i class="fas fa-gem"></i> {{power.stoneCost}}</span>
+                  {{/if}}
+                </div>
+                {{#if power.description}}
+                  <p class="power-desc">{{power.description}}</p>
+                {{/if}}
+              </div>
+              <button class="js-use-power btn-use-power" 
+                      data-power-id="{{power.id}}" 
+                      data-power-type="{{power.powerType}}">
+                <i class="fas fa-bolt"></i> Use
+              </button>
+            </div>
+          {{/each}}
+        </div>
+      </div>
+    {{/if}}
+
+    {{#if powersByType.active}}
+      <div class="power-group active-powers">
+        <h4><i class="fas fa-fist-raised"></i> Active Powers</h4>
+        <div class="powers-list">
+          {{#each powersByType.active as |power|}}
+            <div class="power-item">
+              <div class="power-info">
+                <strong>{{power.name}}</strong>
+                <div class="power-meta">
+                  <span class="power-level">Lv {{power.level}}</span>
+                  <span class="power-range">{{power.range}}</span>
+                  {{#if power.stoneCost}}
+                    <span class="power-cost"><i class="fas fa-gem"></i> {{power.stoneCost}}</span>
+                  {{/if}}
+                </div>
+                {{#if power.description}}
+                  <p class="power-desc">{{power.description}}</p>
+                {{/if}}
+              </div>
+              <button class="js-use-power btn-use-power" 
+                      data-power-id="{{power.id}}" 
+                      data-power-type="{{power.powerType}}">
+                <i class="fas fa-bolt"></i> Use
+              </button>
+            </div>
+          {{/each}}
+        </div>
+      </div>
+    {{/if}}
+
+    {{#if powersByType.utility}}
+      <div class="power-group utility-powers">
+        <h4><i class="fas fa-tools"></i> Utility Powers</h4>
+        <div class="powers-list">
+          {{#each powersByType.utility as |power|}}
+            <div class="power-item">
+              <div class="power-info">
+                <strong>{{power.name}}</strong>
+                <div class="power-meta">
+                  <span class="power-level">Lv {{power.level}}</span>
+                  {{#if power.stoneCost}}
+                    <span class="power-cost"><i class="fas fa-gem"></i> {{power.stoneCost}}</span>
+                  {{/if}}
+                </div>
+                {{#if power.description}}
+                  <p class="power-desc">{{power.description}}</p>
+                {{/if}}
+              </div>
+              <button class="js-use-power btn-use-power" 
+                      data-power-id="{{power.id}}" 
+                      data-power-type="{{power.powerType}}">
+                <i class="fas fa-bolt"></i> Use
+              </button>
+            </div>
+          {{/each}}
+        </div>
+      </div>
+    {{/if}}
+
+    {{#if powersByType.reaction}}
+      <div class="power-group reaction-powers">
+        <h4><i class="fas fa-shield"></i> Reaction Powers</h4>
+        <div class="powers-list">
+          {{#each powersByType.reaction as |power|}}
+            <div class="power-item">
+              <div class="power-info">
+                <strong>{{power.name}}</strong>
+                <div class="power-meta">
+                  <span class="power-level">Lv {{power.level}}</span>
+                  {{#if power.stoneCost}}
+                    <span class="power-cost"><i class="fas fa-gem"></i> {{power.stoneCost}}</span>
+                  {{/if}}
+                </div>
+                {{#if power.description}}
+                  <p class="power-desc">{{power.description}}</p>
+                {{/if}}
+              </div>
+              <button class="js-use-power btn-use-power" 
+                      data-power-id="{{power.id}}" 
+                      data-power-type="{{power.powerType}}">
+                <i class="fas fa-bolt"></i> Use
+              </button>
+            </div>
+          {{/each}}
+        </div>
+      </div>
+    {{/if}}
+
+    {{#unless powers}}
+      <div class="no-powers">
+        <p><em>No combat powers available</em></p>
+      </div>
+    {{/unless}}
+  </section>
+
+  <footer class="combat-footer">
+    <button class="js-refresh btn-secondary">
+      <i class="fas fa-sync"></i> Refresh
+    </button>
+    
+    <button class="js-roll-attack btn-primary">
+      <i class="fas fa-dice-d20"></i> Roll Attack
+    </button>
+    
+    <button class="js-end-turn btn-end">
+      <i class="fas fa-stop"></i> End Turn / Close
+    </button>
+  </footer>
+</div>
+

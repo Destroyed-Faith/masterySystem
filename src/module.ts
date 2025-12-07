@@ -11,9 +11,6 @@ import { MasteryItem } from './documents/item.js';
 import { MasteryCharacterSheet } from './sheets/character-sheet.js';
 import { MasteryNpcSheet } from './sheets/npc-sheet.js';
 import { MasteryItemSheet } from './sheets/item-sheet.js';
-import { initializeCombatHooks } from './combat/initiative.js';
-import { registerChatCardSettings } from './rolls/chatCards.js';
-import { registerHandlebarsHelpers } from './utils/handlebars-helpers.js';
 
 // Dice roller functions are imported in sheets where needed
 
@@ -25,9 +22,6 @@ console.log('Mastery System | All imports completed');
  */
 Hooks.once('init', async function() {
   console.log('Mastery System | Initializing Mastery System / Destroyed Faith');
-  
-  // Register Handlebars helpers
-  registerHandlebarsHelpers();
   
   // Register custom Document classes
   CONFIG.Actor.documentClass = MasteryActor;
@@ -59,9 +53,6 @@ Hooks.once('init', async function() {
   
   // Register system settings
   registerSystemSettings();
-  
-  // Register chat card settings
-  registerChatCardSettings();
 
   // Register Handlebars helpers
   registerHandlebarsHelpers();
@@ -69,11 +60,44 @@ Hooks.once('init', async function() {
   // Preload Handlebars templates
   await preloadTemplates();
 
-  // Initialize combat system hooks
-  initializeCombatHooks();
-
   console.log('Mastery System | System initialized');
 });
+
+/**
+ * Register Handlebars helpers
+ */
+function registerHandlebarsHelpers() {
+  // Helper to create arrays
+  Handlebars.registerHelper('array', function(...args: any[]) {
+    args.pop(); // Remove Handlebars options object
+    return args;
+  });
+
+  // Helper for greater than or equal comparison
+  Handlebars.registerHelper('gte', function(a: number, b: number) {
+    return a >= b;
+  });
+
+  // Helper for less than or equal comparison
+  Handlebars.registerHelper('lte', function(a: number, b: number) {
+    return a <= b;
+  });
+
+  // Helper for incrementing (for 1-based indexing)
+  Handlebars.registerHelper('inc', function(value: number) {
+    return parseInt(String(value)) + 1;
+  });
+
+  // Helper for multiplication
+  Handlebars.registerHelper('multiply', function(a: number, b: number) {
+    return a * b;
+  });
+
+  // Helper to check if user is GM
+  Handlebars.registerHelper('userIsGM', function() {
+    return (game as any).user?.isGM ?? false;
+  });
+}
 
 /**
  * Register system settings
@@ -166,7 +190,7 @@ console.log(`
 ║  • Powers & Mastery Trees (L1-L4)                         ║
 ║  • Divine Clash late-game combat                          ║
 ║                                                           ║
-║  Version: 0.0.20 (Alpha)                                  ║
+║  Version: 0.0.18 (Alpha)                                   ║
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
 `);

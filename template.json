@@ -40,105 +40,35 @@
         "mastery": {
           "rank": 2,
           "points": 0,
-          "experience": 0,
-          "charges": {
-            "current": 2,
-            "maximum": 2,
-            "temporary": 0
-          }
-        },
-        "passives": {
-          "slots": [
-            {"passive": null, "active": false},
-            {"passive": null, "active": false},
-            {"passive": null, "active": false},
-            {"passive": null, "active": false},
-            {"passive": null, "active": false},
-            {"passive": null, "active": false},
-            {"passive": null, "active": false},
-            {"passive": null, "active": false}
-          ]
-        },
-        "activeBuffs": []
+          "experience": 0
+        }
       },
       "combatant": {
-        "health": {
-          "levels": []
-        },
         "combat": {
           "initiative": 0,
-          "initiativeBonus": 0,
-          "initiativeShop": {
-            "movement": 0,
-            "swap": false,
-            "extraAttack": false
-          },
           "evade": 10,
-          "evadeBase": 10,
-          "evadeTotal": 10,
-          "shieldEvadeBonus": 0,
-          "armorEvadeBonus": 0,
           "armor": 0,
-          "armorTotal": 0,
           "armorName": "",
-          "armorType": "none",
           "shield": 0,
           "shieldName": "",
-          "shieldType": "none",
-          "speed": 6,
-          "damageReduction": {
-            "physical": 0,
-            "fire": 0,
-            "cold": 0,
-            "lightning": 0,
-            "poison": 0,
-            "psychic": 0,
-            "radiant": 0,
-            "necrotic": 0
-          }
+          "speed": 6
         },
-        "actions": {
-          "attack": {
-            "max": 1,
-            "used": 0,
-            "base": 1,
-            "bonus": 0
-          },
-          "movement": {
-            "max": 1,
-            "used": 0,
-            "base": 1,
-            "bonus": 0
-          },
-          "reaction": {
-            "max": 1,
-            "used": 0,
-            "base": 1,
-            "bonus": 0,
-            "convertedThisRound": 0
-          },
-          "conversions": {
-            "attackToMovement": 0,
-            "attackToReaction": 0,
-            "maxConversions": 2
-          }
-        },
-        "activeUtilities": [],
         "faithFractures": {
           "current": 0,
           "maximum": 10
         },
         "resources": {
-          "stones": {
-            "current": 0,
-            "maximum": 0,
-            "vitality": 0,
-            "regeneration": 2,
-            "spentThisRound": 0
+          "reactions": {
+            "value": 1,
+            "max": 1
           },
-          "stress": {
-            "current": 0,
-            "maximum": 0
+          "movement": {
+            "value": 1,
+            "max": 1
+          },
+          "actions": {
+            "value": 1,
+            "max": 1
           }
         }
       }
@@ -189,13 +119,7 @@
       },
       "stress": {
         "current": 0,
-        "maximum": 0
-      },
-      "deathSave": {
-        "successes": 0,
-        "deathMarks": 0,
-        "stabilized": false,
-        "dead": false
+        "maximum": 100
       },
       "skills": {},
       "savingThrows": {
@@ -301,8 +225,6 @@
       "level": 1,
       "tree": "",
       "tags": [],
-      "isSpell": false,
-      "powerSchool": "martial",
       "range": "0m",
       "aoe": "",
       "duration": "instant",
@@ -320,23 +242,13 @@
         "attribute": "might",
         "tn": 0,
         "damage": "",
-        "damageType": "physical",
-        "penetration": 0,
         "healing": "",
         "raises": ""
       },
       "requirements": {
         "masteryRank": 1,
         "other": ""
-      },
-      "passiveCategory": "damage",
-      "passiveEffects": [],
-      "charged": false,
-      "reactionTrigger": "whenAttacked",
-      "reactionRollType": "contested",
-      "buffDuration": 0,
-      "buffType": "",
-      "movementType": ""
+      }
     },
     "masteryNode": {
       "templates": ["base"],
@@ -382,48 +294,20 @@
         "masteryRank": 1
       }
     },
-    "spell": {
-      "templates": ["base"],
-      "school": "",
-      "level": 1,
-      "spellType": "active",
-      "castingTime": "1 action",
-      "range": "0m",
-      "duration": "instant",
-      "prepared": false,
-      "components": {
-        "verbal": true,
-        "somatic": true,
-        "material": false,
-        "materialDescription": ""
-      },
-      "cost": {
-        "stones": 0,
-        "charges": 0
-      },
-      "requirements": {
-        "masteryRank": 1,
-        "schoolLevel": 1
-      }
-    },
     "condition": {
       "templates": ["base"],
-      "conditionType": "custom",
-      "value": 1,
-      "diminishing": false,
+      "conditionType": "bleeding",
+      "value": 0,
+      "diminishing": true,
       "duration": "rounds",
-      "durationRemaining": 0,
       "effect": "",
       "save": "body",
-      "saveTN": 12,
-      "saveFrequency": "none"
+      "removal": ""
     },
     "weapon": {
       "templates": ["base"],
       "weaponType": "melee",
       "damage": "1d8",
-      "damageType": "physical",
-      "penetration": 0,
       "range": "0m",
       "specials": [],
       "equipped": false
