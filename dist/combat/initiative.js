@@ -142,24 +142,76 @@ async function onCombatTurn(combat, _updateData, _options) {
 function onRenderCombatTracker(_app, html, _data) {
     // Convert to jQuery if needed
     const $html = html instanceof jQuery ? html : $(html);
-    // Add a "Roll Initiative (All)" button
+    const combat = game.combat;
+    
+    // Add a "Select Passives" button in the header
     const header = $html.find('.directory-header');
-    if (header.find('.roll-initiative-all').length === 0) {
-        const button = $(`
-      <button class="roll-initiative-all" title="Roll Initiative for All">
-        <i class="fas fa-dice-d20"></i> Roll Initiative
+    if (header.find('.select-passives-btn').length === 0) {
+        const passivesButton = $(`
+      <button class="select-passives-btn" title="Select Passive Abilities">
+        <i class="fas fa-shield-alt"></i> Passives
       </button>
     `);
-        button.on('click', async () => {
-            const combat = game.combat;
+        passivesButton.on('click', async () => {
             if (!combat) {
                 ui.notifications?.warn('No active combat!');
                 return;
             }
-            await rollInitiativeForAllCombatants(combat);
+            const { PassiveSelectionDialog } = await import('../sheets/passive-selection-dialog.js');
+            await PassiveSelectionDialog.showForCombat(combat);
         });
-        header.append(button);
+        header.append(passivesButton);
     }
+    
+    // Replace default initiative roll button behavior
+    // Find all initiative roll icons in the combat tracker
+    $html.find('.combatant .token-initiative').each(function() {
+        const $initiativeDiv = $(this);
+        const combatantId = $initiativeDiv.closest('.combatant').data('combatant-id');
+        
+        // Remove default click handler and add our custom one for Passive Selection
+        $initiativeDiv.off('click');
+        $initiativeDiv.on('click', async (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            if (!combat) return;
+            
+            const combatant = combat.combatants.get(combatantId);
+            if (!combatant || !combatant.actor) return;
+            
+            // If it's a player character, show passive selection first
+            if (combatant.actor.type === 'character' && combatant.actor.hasPlayerOwner) {
+                const { PassiveSelectionDialog } = await import('../sheets/passive-selection-dialog.js');
+                await PassiveSelectionDialog.showForCombat(combat);
+            }
+            
+            // Then roll initiative
+            await combat.rollInitiative([combatantId]);
+        });
+    });
+    
+    // Add double-click handler to combatants for Combat Action Overlay
+    $html.find('.combatant').each(function() {
+        const $combatant = $(this);
+        const combatantId = $combatant.data('combatant-id');
+        
+        $combatant.off('dblclick');
+        $combatant.on('dblclick', async (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            if (!combat) return;
+            
+            const combatant = combat.combatants.get(combatantId);
+            if (!combatant || !combatant.actor) return;
+            
+            // Show Combat Action Overlay
+            const { CombatActionOverlay } = await import('../sheets/combat-action-overlay.js');
+            const overlay = new CombatActionOverlay(combatant.actor);
+            overlay.render(true);
+        });
+    });
 }
 /**
  * Override the Combat.rollInitiative method to use Mastery System rules
