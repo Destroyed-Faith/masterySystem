@@ -1,128 +1,54 @@
 /**
- * Extended Actor class for Mastery System
+ * Extended Actor document for Mastery System
  */
 export class MasteryActor extends Actor {
-  /**
-   * Prepare base data for the actor
-   */
-  prepareData() {
-    super.prepareData();
-  }
-
-  /**
-   * Prepare derived data for the actor
-   */
-  prepareDerivedData() {
-    super.prepareDerivedData();
-    
-    const actorData = this;
-    const system = actorData.system;
-    const flags = actorData.flags.masterySystem || {};
-
-    // Call specific preparation based on actor type
-    if (actorData.type === 'character') {
-      this._prepareCharacterData(actorData);
-    } else if (actorData.type === 'npc') {
-      this._prepareNpcData(actorData);
+    /**
+     * Augment the basic actor data with additional dynamic data
+     */
+    prepareData() {
+        super.prepareData();
+        this.prepareBaseData();
     }
-  }
-
-  /**
-   * Prepare Character type specific data
-   */
-  _prepareCharacterData(actorData) {
-    const system = actorData.system;
-
-    // Ensure resources exist with defaults
-    if (!system.resources) {
-      system.resources = {
-        stones: { current: 0, maximum: 0 },
-        vitality: { current: 0, maximum: 0 },
-        stress: { current: 0, maximum: 0 }
-      };
+    /**
+     * Prepare base data for the actor
+     */
+    prepareBaseData() {
+        const system = this.system;
+        // Calculate derived values if needed
+        if (system.attributes) {
+            // Calculate attribute stones
+            for (const attr of Object.values(system.attributes)) {
+                if (attr && typeof attr.value === 'number') {
+                    attr.stones = Math.floor(attr.value / 2);
+                }
+            }
+        }
     }
-
-    // Ensure stones has required properties
-    if (!system.resources.stones) {
-      system.resources.stones = { current: 0, maximum: 0 };
+    /**
+     * Heal the actor
+     */
+    async heal(amount) {
+        const system = this.system;
+        if (system.health && system.health.bars) {
+            const currentBar = system.health.bars[system.health.currentBar || 0];
+            if (currentBar) {
+                currentBar.current = Math.min(currentBar.current + amount, currentBar.max);
+                await this.update({ 'system.health': system.health });
+            }
+        }
     }
-    if (system.resources.stones.current === undefined) {
-      system.resources.stones.current = 0;
+    /**
+     * Apply damage to the actor
+     */
+    async applyDamage(amount) {
+        const system = this.system;
+        if (system.health && system.health.bars) {
+            const currentBar = system.health.bars[system.health.currentBar || 0];
+            if (currentBar) {
+                currentBar.current = Math.max(currentBar.current - amount, 0);
+                await this.update({ 'system.health': system.health });
+            }
+        }
     }
-    if (system.resources.stones.maximum === undefined) {
-      system.resources.stones.maximum = 0;
-    }
-
-    // Ensure vitality has required properties  
-    if (!system.resources.vitality) {
-      system.resources.vitality = { current: 0, maximum: 0 };
-    }
-    if (system.resources.vitality.current === undefined) {
-      system.resources.vitality.current = 0;
-    }
-    if (system.resources.vitality.maximum === undefined) {
-      system.resources.vitality.maximum = 0;
-    }
-
-    // Ensure stress has required properties
-    if (!system.resources.stress) {
-      system.resources.stress = { current: 0, maximum: 0 };
-    }
-    if (system.resources.stress.current === undefined) {
-      system.resources.stress.current = 0;
-    }
-    if (system.resources.stress.maximum === undefined) {
-      system.resources.stress.maximum = 0;
-    }
-
-    // Ensure actions exist
-    if (!system.actions) {
-      system.actions = {
-        attack: { max: 1, used: 0 },
-        movement: { max: 1, used: 0 },
-        reaction: { max: 1, used: 0 }
-      };
-    }
-
-    // Ensure mastery exists
-    if (!system.mastery) {
-      system.mastery = {
-        rank: 2,
-        charges: { current: 2, maximum: 2, temporary: 0 }
-      };
-    }
-
-    // Ensure passives structure exists
-    if (!system.passives) {
-      system.passives = {
-        slots: []
-      };
-    }
-  }
-
-  /**
-   * Prepare NPC type specific data
-   */
-  _prepareNpcData(actorData) {
-    const system = actorData.system;
-
-    // Ensure basic resources for NPCs
-    if (!system.resources) {
-      system.resources = {
-        stones: { current: 0, maximum: 0 },
-        vitality: { current: 0, maximum: 0 },
-        stress: { current: 0, maximum: 0 }
-      };
-    }
-
-    // Ensure actions exist
-    if (!system.actions) {
-      system.actions = {
-        attack: { max: 1, used: 0 },
-        movement: { max: 1, used: 0 },
-        reaction: { max: 1, used: 0 }
-      };
-    }
-  }
 }
 //# sourceMappingURL=actor.js.map

@@ -1,6 +1,6 @@
 /**
  * Passive Selection Dialog for Combat Start
- * 
+ *
  * Shows an overlay at combat start where players select and activate their passive abilities.
  * Supports multiple characters per player with step-by-step navigation.
  */
@@ -58,7 +58,8 @@ export class PassiveSelectionDialog extends Application {
         if (!actor)
             return {};
         // Import passive functions dynamically (they are compiled JS modules)
-        const { getPassiveSlots, getAvailablePassives } = await import('../powers/passives.js');
+        const passivesModule = await import('../../dist/powers/passives.js');
+        const { getPassiveSlots, getAvailablePassives } = passivesModule;
         const slots = getPassiveSlots(actor);
         const available = getAvailablePassives(actor);
         const masteryRank = actor.system.mastery?.rank ?? 2;
@@ -91,8 +92,8 @@ export class PassiveSelectionDialog extends Application {
             const passiveId = String($(ev.currentTarget).data('passive-id') ?? '');
             if (!passiveId)
                 return;
-            const { slotPassive } = await import('../powers/passives.js');
-            await slotPassive(actor, slotIndex, passiveId);
+            const passivesModule = await import('../../dist/powers/passives.js');
+            await passivesModule.slotPassive(actor, slotIndex, passiveId);
             this.render(false);
         });
         // Toggle passive active/inactive
@@ -102,8 +103,8 @@ export class PassiveSelectionDialog extends Application {
             if (!actor)
                 return;
             const slotIndex = Number($(ev.currentTarget).data('slot-index') ?? 0);
-            const { activatePassive } = await import('../powers/passives.js');
-            await activatePassive(actor, slotIndex);
+            const passivesModule = await import('../../dist/powers/passives.js');
+            await passivesModule.activatePassive(actor, slotIndex);
             this.render(false);
         });
         // Unslot a passive
@@ -113,8 +114,8 @@ export class PassiveSelectionDialog extends Application {
             if (!actor)
                 return;
             const slotIndex = Number($(ev.currentTarget).data('slot-index') ?? 0);
-            const { unslotPassive } = await import('../powers/passives.js');
-            await unslotPassive(actor, slotIndex);
+            const passivesModule = await import('../../dist/powers/passives.js');
+            await passivesModule.unslotPassive(actor, slotIndex);
             this.render(false);
         });
         // Next character

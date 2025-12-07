@@ -39,10 +39,10 @@ export class MasteryCharacterSheet extends ActorSheet {
         context.flags = actorData.flags;
         // Add configuration data
         context.config = CONFIG.MASTERY;
-        // Enrich biography info for display (synchronous for compatibility)
+        // Enrich biography info for display
         context.enrichedBio = {
-            notes: TextEditor.enrichHTML(context.system.bio?.notes || '', { async: false }),
-            background: TextEditor.enrichHTML(context.system.notes?.background || '', { async: false })
+            notes: TextEditor.enrichHTML(context.system.bio?.notes || ''),
+            background: TextEditor.enrichHTML(context.system.notes?.background || '')
         };
         // Prepare items by type
         context.items = this.#prepareItems();

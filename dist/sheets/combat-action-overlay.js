@@ -1,6 +1,6 @@
 /**
  * Combat Action Overlay
- * 
+ *
  * Shows an overlay during a character's turn displaying:
  * - Available actions (Attack/Movement/Reaction)
  * - Combat powers
@@ -145,12 +145,12 @@ export class CombatActionOverlay extends Application {
             try {
                 switch (powerType) {
                     case 'movement':
-                        const { useMovementPower } = await import('../powers/movement.js');
-                        await useMovementPower(this.actor, item);
+                        const movementModule = await import('../../dist/powers/movement.js');
+                        await movementModule.useMovementPower(this.actor, item);
                         break;
                     case 'utility':
-                        const { activateUtility } = await import('../powers/utilities.js');
-                        await activateUtility(this.actor, item, null);
+                        const utilityModule = await import('../../dist/powers/utilities.js');
+                        await utilityModule.activateUtility(this.actor, item, null);
                         break;
                     default:
                         ui.notifications?.info(`Using power: ${item.name} (${powerType})`);
@@ -170,8 +170,8 @@ export class CombatActionOverlay extends Application {
             const actionType = String($(ev.currentTarget).data('action-type') ?? '');
             if (!actionType)
                 return;
-            const { useAction } = await import('../combat/actions.js');
-            const success = await useAction(this.actor, actionType, 1);
+            const actionsModule = await import('../../dist/combat/actions.js');
+            const success = await actionsModule.useAction(this.actor, actionType, 1);
             if (success) {
                 this.render(false);
             }

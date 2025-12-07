@@ -173,8 +173,22 @@ function onRenderCombatTracker(_app, html, _data) {
     }
     
     // Find initiative buttons/icons - try multiple selectors
-    const initiativeElements = $html.find('.combatant .initiative');
+    let initiativeElements = $html.find('.combatant .initiative');
+    if (initiativeElements.length === 0) {
+        initiativeElements = $html.find('.combatant [data-control="rollInitiative"]');
+    }
+    if (initiativeElements.length === 0) {
+        initiativeElements = $html.find('.combatant .initiative-roll');
+    }
+    if (initiativeElements.length === 0) {
+        initiativeElements = $html.find('.combatant a[data-action="rollInitiative"]');
+    }
+    if (initiativeElements.length === 0) {
+        // Foundry v13 uses different structure - find the initiative column directly
+        initiativeElements = $html.find('.combatant').find('a.combatant-control[data-control="rollInitiative"]');
+    }
     console.log('Mastery System | Found initiative elements:', initiativeElements.length);
+    console.log('Mastery System | Initiative element classes:', initiativeElements.first().attr('class'));
     
     initiativeElements.each(function() {
         const $initiativeDiv = $(this);

@@ -1,37 +1,21 @@
 /**
- * Constants for Mastery System
+ * Constants for the Mastery System
  */
-
 // Dice mechanics
-export const EXPLODE_VALUE = 8; // d8s explode on 8
-export const RAISE_INCREMENT = 5; // Each raise = 5 over TN
-
-// Initiative Shop costs
-export const INITIATIVE_SHOP = {
-  extraMovement: 2, // 2 initiative per meter
-  initiativeSwap: 10, // 10 initiative to swap with another
-  extraAttack: 15 // 15 initiative for extra attack
-};
-
-// Action economy
-export const ACTIONS_PER_ROUND = {
-  attack: 1,
-  movement: 1,
-  reaction: 1
-};
-
-// Stone costs (exponential)
-export const STONE_COSTS = [1, 2, 4, 8]; // Level 1-4 power costs
-
-// Mastery Ranks
-export const MAX_MASTERY_RANK = 10;
-export const DEFAULT_MASTERY_RANK = 2;
-
-// Passive limits
-export const MAX_PASSIVE_SLOTS = 8;
-
-// Death & Dying
-export const DEATH_SAVE_TN = 10;
-export const MAX_DEATH_FAILURES = 3;
-
+export const EXPLODE_VALUE = 8;
+export const RAISE_INCREMENT = 5;
+// Attribute ranges
+export const MIN_ATTRIBUTE = 0;
+export const MAX_ATTRIBUTE = 10;
+// Combat
+export const ACTIONS_PER_TURN = 2;
+export const REACTIONS_PER_ROUND = 1;
+export const MOVEMENT_POINTS_BASE = 6;
+// Health bars
+export const HEALTH_BARS_COUNT = 3;
+export const DEFAULT_HEALTH_PER_BAR = 10;
+// Mastery ranks
+export const MAX_MASTERY_RANK = 4;
+// Stone pools
+export const STARTING_STONES = 8;
 //# sourceMappingURL=constants.js.map

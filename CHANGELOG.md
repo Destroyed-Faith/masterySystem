@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.36] - 2025-12-07
+
+### Fixed
+- **Critical:** Fixed Combat Tracker initiative dice not being detected - updated selector to use multiple fallback options for Foundry v13 compatibility
+- Added comprehensive selector fallbacks: `.initiative`, `[data-control="rollInitiative"]`, `.initiative-roll`, `a[data-action="rollInitiative"]`, and `a.combatant-control[data-control="rollInitiative"]`
+- Restored missing source files: `src/documents/actor.ts`, `src/utils/constants.ts`, `src/utils/powers.ts`
+- Added `heal()` and `applyDamage()` methods to MasteryActor class
+- Fixed module.ts to properly import and initialize combat hooks
+
+### Added
+- Debug logging to show which selector successfully finds initiative elements
+- Comprehensive TypeScript rebuild of core source files
+
 ## [0.0.34] - 2025-12-07
 
 ### Fixed
