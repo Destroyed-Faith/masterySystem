@@ -42,10 +42,87 @@ function onPreCreateCombat(combat, _data, _options, _userId) {
 /**
  * Handle combat start
  */
-function onCombatStart(_combat, _updateData) {
+async function onCombatStart(combat, _updateData) {
     console.log('Mastery System | Combat Started');
-    // Prompt for initiative rolls
-    ui.notifications?.info('Combat started! Roll initiative for all combatants.');
+    
+    // Step 1: Prompt players to select/activate their passives
+    ui.notifications?.info('Combat started! Please select your passive abilities.');
+    await promptPassiveSelection(combat);
+    
+    // Step 2: Automatically roll initiative for all combatants
+    ui.notifications?.info('Rolling initiative for all combatants...');
+    
+    // Small delay to let the passive dialogs finish
+    setTimeout(async () => {
+        await rollInitiativeForAllCombatants(combat);
+    }, 1000);
+}
+/**
+ * Prompt all player characters to select/activate their passive abilities
+ * Called at the start of combat before initiative is rolled
+ */
+async function promptPassiveSelection(combat) {
+    console.log('Mastery System | Prompting passive selection');
+    
+    // Get all player character combatants
+    const pcCombatants = combat.combatants.filter(c => 
+        c.actor?.type === 'character' && c.actor?.hasPlayerOwner
+    );
+    
+    if (pcCombatants.length === 0) {
+        console.log('Mastery System | No player characters in combat');
+        return;
+    }
+    
+    // Import passive functions
+    const { getPassiveSlots } = await import('../powers/passives.js');
+    
+    // Show passive status for each PC
+    for (const combatant of pcCombatants) {
+        const actor = combatant.actor;
+        if (!actor) continue;
+        
+        const slots = getPassiveSlots(actor);
+        const activePassives = slots.filter(s => s.active && s.passive);
+        const masteryRank = actor.system.mastery?.rank || 2;
+        
+        // Create a chat message showing passive status
+        let passivesList = '';
+        if (activePassives.length > 0) {
+            passivesList = activePassives.map(s => 
+                `<li><strong>${s.passive.name}</strong> (${s.passive.category})</li>`
+            ).join('');
+        } else {
+            passivesList = '<li><em>No passives activated</em></li>';
+        }
+        
+        const content = `
+            <div class="mastery-passive-reminder">
+                <h3>${actor.name} - Passive Abilities</h3>
+                <p><strong>Active Passives (${activePassives.length}/${masteryRank}):</strong></p>
+                <ul class="passive-list">
+                    ${passivesList}
+                </ul>
+                <p class="passive-hint">
+                    ${activePassives.length < masteryRank 
+                        ? `<em>You can activate ${masteryRank - activePassives.length} more passive(s). Open your character sheet to manage passives.</em>`
+                        : `<em>All passive slots used.</em>`
+                    }
+                </p>
+            </div>
+        `;
+        
+        await ChatMessage.create({
+            user: game.user?.id,
+            speaker: ChatMessage.getSpeaker({ actor }),
+            content: content,
+            type: CONST.CHAT_MESSAGE_TYPES.OTHER,
+            whisper: game.users?.filter(u => u.isGM || actor.testUserPermission(u, 'OWNER')).map(u => u.id)
+        });
+    }
+    
+    // Notify that passive selection phase is active
+    ui.notifications?.info('Review your passive abilities before initiative is rolled!');
 }
 /**
  * Handle new combat round

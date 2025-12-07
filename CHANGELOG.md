@@ -1,78 +1,53 @@
-# Changelog
+# Changelog - Mastery System / Destroyed Faith
 
-All notable changes to the Mastery System / Destroyed Faith for Foundry VTT will be documented in this file.
+All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.0.32] - 2025-12-07
 
-## [0.0.29] - 2025-12-06
+### Added
+- **Automatic Initiative Rolling on Combat Start**: When combat begins, initiative is now automatically rolled for all combatants after a 1-second delay
+- **Passive Ability Reminder System**: Players receive a private chat message at combat start showing their active passive abilities and available slots
+- **Passive Selection Phase**: Before initiative is rolled, players are prompted to review and adjust their passive abilities
 
-### Added - Mastery Powers Database & 2-Step Selection
-
-**Mastery Powers System**
-- ✅ **New File**: `src/utils/mastery-powers.ts` - Complete power database
-- ✅ **Battlemage Tree**: 8 Powers fully implemented with all 4 levels
-  - Arcane Combustion (Passive: Roll)
-  - Flameguard (Passive: Armor)
-  - Elemental Focus (Passive: Roll)
-  - Combustion Surge (Active Buff)
-  - Inferno Core (Active Buff)
-  - Flamewave (Passive: Damage)
-  - Phoenix Mantle (Passive: Healing)
-  - Immolation Strike (Active)
-- ✅ **Power Data Structure**: Complete with type, description, levels, effects, costs, rolls
-- ✅ **Expandable System**: Easy to add more trees incrementally
-
-**2-Step Power Selection Dialog**
-- ✅ **Step 1**: Select Mastery Tree (shows which trees have powers available)
-- ✅ **Step 2**: Select specific Power from that tree
-- ✅ **Power Details Display**: Shows description, type, and level progression
-- ✅ **Back Button**: Navigate back to tree selection
-- ✅ **Auto-populated Items**: Powers created with full mechanical data
-- ✅ **Visual Feedback**: Disabled trees shown as "Coming soon..."
-- ✅ **Hover Effects**: Enhanced UX with animations
-
-**Power Item Creation**
-- ✅ **Full Data Import**: All power mechanics transferred to item
-- ✅ **Level Scaling**: Level 1 data pre-filled (upgradeable in item sheet)
-- ✅ **Type Classification**: Passive, Active, Buff, Utility, Reaction, Movement
-- ✅ **Passive Categories**: Armor, Evade, Roll, Damage, Healing, etc.
-- ✅ **Cost Tracking**: Action, Movement, Reaction, Stones, Charges
-- ✅ **Roll Data**: Attribute, damage, damage type, penetration
-- ✅ **Requirements**: Mastery Rank tracking
-
-### Modified
-
-**Character Sheet - Powers Tab**
-- ✅ `character-sheet.ts`: Complete rewrite of `#showMasteryTreeSelectionDialog()`
-- ✅ `character-sheet.ts`: New `#showPowerSelectionDialog()` method
-- ✅ Dialog flow: Tree selection → Power selection → Item creation
-- ✅ Notifications: Success message when power is added
-
-**Data Structures**
-- ✅ `PowerDefinition` interface: name, tree, powerType, passiveCategory, description, levels[]
-- ✅ `PowerLevel` interface: level, type, range, aoe, duration, effect, cost, roll, special
-- ✅ Export functions: `getPowersForTree()`, `getPower()`, `getTreesWithPowers()`
+### Changed
+- `onCombatStart` function is now async and triggers automatic initiative rolling
+- Combat start sequence now includes passive ability management phase
+- NPCs roll initiative first (automatic, no shop), followed by PCs (with Initiative Shop dialog)
 
 ### Technical Details
+- New function: `promptPassiveSelection(combat)` - Displays passive ability status to all player characters
+- Modified function: `onCombatStart(combat, _updateData)` - Now handles full combat initialization sequence
+- Passive status messages are whispered to individual players and GM only
+- 1-second delay between passive prompt and initiative rolling to allow player interaction
 
-**Architecture**
-- ✅ Powers stored as structured data (not raw JSON)
-- ✅ Each tree is a key in `MASTERY_POWERS` record
-- ✅ Each power has 4 levels with complete mechanics
-- ✅ Type-safe TypeScript interfaces
-- ✅ Fully compatible with existing Item system
+### Combat Start Flow
+1. Combat begins
+2. Players receive passive ability status notifications
+3. Players can open character sheets to adjust passives
+4. After 1 second, automatic initiative rolling begins
+5. NPCs roll first
+6. Players roll individually with Initiative Shop access
+7. Combat proceeds with sorted initiative order
 
-**Extensibility**
-- ✅ Add new trees by adding keys to `MASTERY_POWERS`
-- ✅ Each tree can have unlimited powers
-- ✅ Each power can have 1-4 levels
-- ✅ Dialog automatically shows/hides based on available data
+## [0.0.31] - Previous Version
+- Refactor powers into modular structure - each tree in separate file
 
-**Next Steps**
-- 📋 Add remaining 25 Mastery Trees (Crusader, Juggernaut, etc.)
-- 📋 Extract powers from Players Guide for each tree
-- 📋 Implement similar system for Spell Schools
+## [0.0.30] - Earlier Version
+- Add 5 new Mastery Trees with full powers (Crusader, Berserker, Sanctifier, Alchemist, Catalyst)
 
-## [0.0.28] - 2025-12-06
-(previous changelog entries remain...)
+## [0.0.29] - Earlier Version
+- Mastery Powers database with 2-step selection (Battlemage tree complete)
+
+## [0.0.20] - Earlier Version
+- Initiative System fully implemented
+- Action Economy & Resource Management complete
+- Actions per round (Attack/Movement/Reaction)
+- Action conversions
+- Stones/Vitality/Stress tracking
+- Character sheet UI panels
+
+## [0.0.7] - Earlier Version
+- Base system implementation
+- Character and NPC sheets
+- Item management
+- Basic combat integration
