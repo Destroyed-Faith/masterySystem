@@ -39,11 +39,10 @@ export class MasteryCharacterSheet extends ActorSheet {
         context.flags = actorData.flags;
         // Add configuration data
         context.config = CONFIG.MASTERY;
-        // Enrich biography info for display (use Foundry v13 API)
-        const TextEditorImpl = foundry.applications?.fields?.HTMLField || TextEditor;
+        // Enrich biography info for display (synchronous for compatibility)
         context.enrichedBio = {
-            notes: await TextEditorImpl.enrichHTML(context.system.bio?.notes || '', { async: true }),
-            background: await TextEditorImpl.enrichHTML(context.system.notes?.background || '', { async: true })
+            notes: TextEditor.enrichHTML(context.system.bio?.notes || '', { async: false }),
+            background: TextEditor.enrichHTML(context.system.notes?.background || '', { async: false })
         };
         // Prepare items by type
         context.items = this.#prepareItems();
