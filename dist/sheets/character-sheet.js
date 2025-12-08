@@ -27,6 +27,57 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         return options;
     }
     /**
+     * Add a new Spell (simple creation prompt)
+     */
+    async #onSpellAdd(event) {
+        event.preventDefault();
+        const name = await this.#promptForSpellName();
+        if (!name)
+            return;
+        await this.actor.createEmbeddedDocuments('Item', [{
+                name,
+                type: 'special', // reuse special items for spells
+                system: {
+                    powerType: 'spell',
+                    school: '',
+                    level: 1,
+                    description: ''
+                }
+            }]);
+    }
+    /**
+     * Prompt for spell name
+     */
+    async #promptForSpellName() {
+        return new Promise((resolve) => {
+            new Dialog({
+                title: 'Add Spell',
+                content: `
+          <form>
+            <div class="form-group">
+              <label>Spell Name:</label>
+              <input type="text" name="spellName" placeholder="Enter spell name"/>
+            </div>
+          </form>
+        `,
+                buttons: {
+                    add: {
+                        label: 'Add',
+                        callback: (html) => {
+                            const name = html.find('[name="spellName"]').val() || '';
+                            resolve(name.trim() || null);
+                        }
+                    },
+                    cancel: {
+                        label: 'Cancel',
+                        callback: () => resolve(null)
+                    }
+                },
+                default: 'add'
+            }).render(true);
+        });
+    }
+    /**
      * Add a new Power (opens a basic creation prompt)
      */
     async #onPowerAdd(event) {
@@ -205,6 +256,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('.skill-add').on('click', this.#onSkillAdd.bind(this));
         // Add power
         html.find('.add-power-btn').on('click', this.#onPowerAdd.bind(this));
+        // Add spell
+        html.find('.add-spell-btn').on('click', this.#onSpellAdd.bind(this));
         // Delete skill
         html.find('.skill-delete').on('click', this.#onSkillDelete.bind(this));
         // Power use
