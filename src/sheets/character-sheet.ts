@@ -6,7 +6,10 @@
 import { MasteryActor } from '../documents/actor';
 import { quickRoll } from '../dice/roll-handler';
 
-export class MasteryCharacterSheet extends ActorSheet {
+// Use namespaced ActorSheet when available to avoid deprecation warnings
+const BaseActorSheet: any = (foundry as any)?.appv1?.sheets?.ActorSheet || (ActorSheet as any);
+
+export class MasteryCharacterSheet extends BaseActorSheet {
   /** @override */
   static get defaultOptions() {
     const options = foundry.utils.mergeObject(super.defaultOptions as any, {

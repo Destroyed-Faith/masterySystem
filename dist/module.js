@@ -18,6 +18,10 @@ console.log('Mastery System | All imports completed');
  */
 Hooks.once('init', async function () {
     console.log('Mastery System | Initializing Mastery System / Destroyed Faith');
+    // Shim deprecated globals to the namespaced versions to suppress warnings (Foundry v13+)
+    if (!globalThis.FilePicker && foundry?.applications?.apps?.FilePicker?.implementation) {
+        globalThis.FilePicker = foundry.applications.apps.FilePicker.implementation;
+    }
     // Register custom Document classes
     CONFIG.Actor.documentClass = MasteryActor;
     CONFIG.Item.documentClass = MasteryItem;
@@ -56,6 +60,10 @@ Hooks.once('init', async function () {
  * Register Handlebars helpers
  */
 function registerHandlebarsHelpers() {
+    // Default/fallback helper: {{default value fallback}}
+    Handlebars.registerHelper('default', function (value, fallback) {
+        return value !== undefined && value !== null ? value : fallback;
+    });
     // Helper to create arrays
     Handlebars.registerHelper('array', function (...args) {
         args.pop(); // Remove Handlebars options object
@@ -166,7 +174,7 @@ console.log(`
 ║  • Powers & Mastery Trees (L1-L4)                         ║
 ║  • Divine Clash late-game combat                          ║
 ║                                                           ║
-║  Version: 0.0.36 (Alpha)                                   ║
+║  Version: 0.0.37 (Alpha)                                   ║
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
 `);

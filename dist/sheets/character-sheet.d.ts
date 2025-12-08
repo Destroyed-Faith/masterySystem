@@ -2,7 +2,8 @@
  * Character Sheet for Mastery System
  * Main player character sheet with tabs for attributes, skills, powers, etc.
  */
-export declare class MasteryCharacterSheet extends ActorSheet {
+declare const BaseActorSheet: any;
+export declare class MasteryCharacterSheet extends BaseActorSheet {
     #private;
     /** @override */
     static get defaultOptions(): any;
@@ -13,4 +14,5 @@ export declare class MasteryCharacterSheet extends ActorSheet {
     /** @override */
     activateListeners(html: JQuery): void;
 }
+export {};
 //# sourceMappingURL=character-sheet.d.ts.map
