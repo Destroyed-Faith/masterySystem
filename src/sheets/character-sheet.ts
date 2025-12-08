@@ -250,8 +250,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('.skill-spend-point').on('click', this.#onSkillSpendPoint.bind(this));
     
     // Profile image click handlers (work for everyone)
-    html.find('.profile-zone-edit').on('click', this.#onProfileEdit.bind(this));
-    html.find('.profile-zone-show').on('click', this.#onProfileShow.bind(this));
+    html.find('.profile-zone-edit').off('click').on('click', this.#onProfileEdit.bind(this));
+    html.find('.profile-zone-show').off('click').on('click', this.#onProfileShow.bind(this));
     
     // Everything below here is only needed if the sheet is editable
     if (!this.isEditable) return;
@@ -674,27 +674,33 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   async #onProfileEdit(event: JQuery.ClickEvent) {
     event.preventDefault();
     event.stopPropagation();
+    event.stopImmediatePropagation();
     
     if (!this.isEditable) {
       ui.notifications?.warn('You do not have permission to edit this character.');
       return;
     }
     
-    // Use Foundry's built-in image editing functionality
-    // Try to use the shimmed FilePicker first, then fallback to foundry's implementation
-    const FilePickerClass = (globalThis as any).FilePicker || 
-                           (foundry as any)?.applications?.apps?.FilePicker?.implementation ||
-                           FilePicker;
-    
-    const filePicker = new FilePickerClass({
-      type: 'image',
-      current: this.actor.img,
-      callback: async (path: string) => {
-        await this.actor.update({ img: path });
-      }
-    });
-    
-    await filePicker.render(true);
+    try {
+      // Use Foundry's built-in image editing functionality
+      // Try to use the shimmed FilePicker first, then fallback to foundry's implementation
+      const FilePickerClass = (globalThis as any).FilePicker || 
+                             (foundry as any)?.applications?.apps?.FilePicker?.implementation ||
+                             FilePicker;
+      
+      const filePicker = new FilePickerClass({
+        type: 'image',
+        current: this.actor.img,
+        callback: async (path: string) => {
+          await this.actor.update({ img: path });
+        }
+      });
+      
+      await filePicker.render(true);
+    } catch (error) {
+      console.error('Mastery System | Error opening file picker:', error);
+      ui.notifications?.error('Failed to open image picker.');
+    }
   }
 
   /**
@@ -703,6 +709,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   async #onProfileShow(event: JQuery.ClickEvent) {
     event.preventDefault();
     event.stopPropagation();
+    event.stopImmediatePropagation();
     
     const imgSrc = this.actor.img;
     if (!imgSrc || imgSrc === 'icons/svg/mystery-man.svg') {
@@ -710,43 +717,55 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       return;
     }
     
-    // Create and show image popup using Foundry's ImagePopout
     try {
-      const ImagePopout = (window as any).ImagePopout || (foundry as any).applications?.apps?.ImagePopout?.implementation;
-      if (ImagePopout) {
-        new ImagePopout(imgSrc, {
+      // Try to use Foundry's ImagePopout if available
+      const ImagePopoutClass = (foundry as any)?.applications?.apps?.ImagePopout?.implementation ||
+                               (window as any).ImagePopout;
+      
+      if (ImagePopoutClass) {
+        const popout = new ImagePopoutClass(imgSrc, {
           title: this.actor.name,
           shareable: true,
           uuid: this.actor.uuid
-        }).render(true);
+        });
+        await popout.render(true);
       } else {
         // Fallback: Create a simple dialog with the image
-        new Dialog({
+        const dialog = new Dialog({
           title: this.actor.name,
-          content: `<img src="${imgSrc}" style="max-width: 100%; height: auto;" />`,
+          content: `<div style="text-align: center;"><img src="${imgSrc}" style="max-width: 100%; max-height: 80vh; height: auto; border-radius: 4px;" /></div>`,
           buttons: {
             close: {
               label: 'Close',
               callback: () => {}
             }
           },
-          default: 'close'
-        }).render(true);
+          default: 'close',
+          width: 600
+        });
+        await dialog.render(true);
       }
     } catch (error) {
       console.error('Mastery System | Failed to show image popup', error);
       // Fallback: Create a simple dialog with the image
-      new Dialog({
-        title: this.actor.name,
-        content: `<img src="${imgSrc}" style="max-width: 100%; height: auto;" />`,
-        buttons: {
-          close: {
-            label: 'Close',
-            callback: () => {}
-          }
-        },
-        default: 'close'
-      }).render(true);
+      try {
+        const dialog = new Dialog({
+          title: this.actor.name,
+          content: `<div style="text-align: center;"><img src="${imgSrc}" style="max-width: 100%; max-height: 80vh; height: auto; border-radius: 4px;" /></div>`,
+          buttons: {
+            close: {
+              label: 'Close',
+              callback: () => {}
+            }
+          },
+          default: 'close',
+          width: 600
+        });
+        await dialog.render(true);
+      } catch (fallbackError) {
+        console.error('Mastery System | Fallback dialog also failed', fallbackError);
+        ui.notifications?.error('Failed to display image.');
+      }
     }
   }
 }
