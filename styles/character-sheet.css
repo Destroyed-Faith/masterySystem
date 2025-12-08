@@ -122,6 +122,85 @@
   opacity: 0.8;
 }
 
+/* Profile Image Container with Overlay */
+.mastery-system.sheet.actor.character .profile-img-container {
+  position: relative;
+  display: inline-block;
+  width: 70px;
+  height: 70px;
+}
+
+.mastery-system.sheet.actor.character .profile-img-container .profile-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  margin: 0;
+  cursor: default;
+}
+
+.mastery-system.sheet.actor.character .profile-img-container .profile-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.mastery-system.sheet.actor.character .profile-img-container:hover .profile-overlay {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.mastery-system.sheet.actor.character .profile-img-container .profile-zone {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.mastery-system.sheet.actor.character .profile-img-container .profile-zone-edit {
+  top: 0;
+  height: 50%;
+  border-radius: 4px 4px 0 0;
+}
+
+.mastery-system.sheet.actor.character .profile-img-container .profile-zone-show {
+  top: 50%;
+  height: 50%;
+  border-radius: 0 0 4px 4px;
+}
+
+.mastery-system.sheet.actor.character .profile-img-container .profile-zone:hover {
+  background: rgba(139, 0, 0, 0.7);
+}
+
+.mastery-system.sheet.actor.character .profile-img-container .zone-label {
+  color: #fff;
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.mastery-system.sheet.actor.character .profile-img-container .profile-zone:hover .zone-label {
+  opacity: 1;
+}
+
+.mastery-system.sheet.actor.character .profile-img-container.locked .profile-overlay {
+  display: none;
+}
+
 .mastery-system.sheet.actor.character .header-fields {
   display: flex;
   flex-direction: column;

@@ -2,7 +2,17 @@
   
   <!-- Header -->
   <header class="sheet-header">
-    <img class="profile-img {{#if editable}}{{else}}locked{{/if}}" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" alt="{{actor.name}}" />
+    <div class="profile-img-container {{#unless editable}}locked{{/unless}}">
+      <img class="profile-img {{#if editable}}{{else}}locked{{/if}}" src="{{actor.img}}" title="{{actor.name}}" alt="{{actor.name}}" />
+      <div class="profile-overlay">
+        <div class="profile-zone profile-zone-edit" data-action="edit">
+          <span class="zone-label">EDIT</span>
+        </div>
+        <div class="profile-zone profile-zone-show" data-action="show">
+          <span class="zone-label">SHOW</span>
+        </div>
+      </div>
+    </div>
     
     <div class="header-info">
       <div class="mastery-rank-box">

@@ -249,6 +249,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('.attribute-spend-point').on('click', this.#onAttributeSpendPoint.bind(this));
     html.find('.skill-spend-point').on('click', this.#onSkillSpendPoint.bind(this));
     
+    // Profile image click handlers (work for everyone)
+    html.find('.profile-zone-edit').on('click', this.#onProfileEdit.bind(this));
+    html.find('.profile-zone-show').on('click', this.#onProfileShow.bind(this));
+    
     // Everything below here is only needed if the sheet is editable
     if (!this.isEditable) return;
     
@@ -662,6 +666,88 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const newValue = Math.max(0, Math.min(max, current + adjustment));
     
     await this.actor.update({ 'system.stones.current': newValue });
+  }
+
+  /**
+   * Handle profile image edit (upper zone)
+   */
+  async #onProfileEdit(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    if (!this.isEditable) {
+      ui.notifications?.warn('You do not have permission to edit this character.');
+      return;
+    }
+    
+    // Use Foundry's built-in image editing functionality
+    // Try to use the shimmed FilePicker first, then fallback to foundry's implementation
+    const FilePickerClass = (globalThis as any).FilePicker || 
+                           (foundry as any)?.applications?.apps?.FilePicker?.implementation ||
+                           FilePicker;
+    
+    const filePicker = new FilePickerClass({
+      type: 'image',
+      current: this.actor.img,
+      callback: async (path: string) => {
+        await this.actor.update({ img: path });
+      }
+    });
+    
+    await filePicker.render(true);
+  }
+
+  /**
+   * Handle profile image show (lower zone)
+   */
+  async #onProfileShow(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const imgSrc = this.actor.img;
+    if (!imgSrc || imgSrc === 'icons/svg/mystery-man.svg') {
+      ui.notifications?.warn('No image to display.');
+      return;
+    }
+    
+    // Create and show image popup using Foundry's ImagePopout
+    try {
+      const ImagePopout = (window as any).ImagePopout || (foundry as any).applications?.apps?.ImagePopout?.implementation;
+      if (ImagePopout) {
+        new ImagePopout(imgSrc, {
+          title: this.actor.name,
+          shareable: true,
+          uuid: this.actor.uuid
+        }).render(true);
+      } else {
+        // Fallback: Create a simple dialog with the image
+        new Dialog({
+          title: this.actor.name,
+          content: `<img src="${imgSrc}" style="max-width: 100%; height: auto;" />`,
+          buttons: {
+            close: {
+              label: 'Close',
+              callback: () => {}
+            }
+          },
+          default: 'close'
+        }).render(true);
+      }
+    } catch (error) {
+      console.error('Mastery System | Failed to show image popup', error);
+      // Fallback: Create a simple dialog with the image
+      new Dialog({
+        title: this.actor.name,
+        content: `<img src="${imgSrc}" style="max-width: 100%; height: auto;" />`,
+        buttons: {
+          close: {
+            label: 'Close',
+            callback: () => {}
+          }
+        },
+        default: 'close'
+      }).render(true);
+    }
   }
 }
 
