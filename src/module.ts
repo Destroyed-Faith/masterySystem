@@ -105,6 +105,15 @@ function registerHandlebarsHelpers() {
     return accum;
   });
 
+  // Simple arithmetic helpers
+  Handlebars.registerHelper('add', function (a: any, b: any) {
+    return (Number(a) || 0) + (Number(b) || 0);
+  });
+
+  Handlebars.registerHelper('subtract', function (a: any, b: any) {
+    return (Number(a) || 0) - (Number(b) || 0);
+  });
+
   // Helper to create arrays
   Handlebars.registerHelper('array', function(...args: any[]) {
     args.pop(); // Remove Handlebars options object
