@@ -1,6 +1,6 @@
 /**
  * Passive Selection Dialog for Combat Start
- * 
+ *
  * Shows an overlay at combat start where players select and activate their passive abilities.
  * Supports multiple characters per player with step-by-step navigation.
  */

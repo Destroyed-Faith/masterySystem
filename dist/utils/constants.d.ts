@@ -12,4 +12,16 @@ export declare const HEALTH_BARS_COUNT = 3;
 export declare const DEFAULT_HEALTH_PER_BAR = 10;
 export declare const MAX_MASTERY_RANK = 4;
 export declare const STARTING_STONES = 8;
+export declare const INITIATIVE_SHOP: {
+    MOVEMENT: {
+        COST: number;
+        INCREMENT: number;
+    };
+    SWAP: {
+        COST: number;
+    };
+    EXTRA_ATTACK: {
+        COST: number;
+    };
+};
 //# sourceMappingURL=constants.d.ts.map
