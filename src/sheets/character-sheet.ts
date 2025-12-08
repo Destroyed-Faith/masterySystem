@@ -195,19 +195,30 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   /**
    * Prepare skills for display
    */
-  #prepareSkills(skills: Record<string, number>) {
+  #prepareSkills(skillValues: Record<string, number> = {}) {
     const skillList: any[] = [];
     
-    for (const [name, value] of Object.entries(skills || {})) {
+    // Import SKILLS from utils
+    const { SKILLS } = require('../utils/skills');
+    
+    for (const [key, definition] of Object.entries(SKILLS)) {
+      const def = definition as any;
       skillList.push({
-        name,
-        value,
-        label: name.charAt(0).toUpperCase() + name.slice(1)
+        key,
+        name: def.name,
+        category: def.category,
+        attributes: def.attributes,
+        value: skillValues[key] || 0
       });
     }
     
-    // Sort alphabetically
-    skillList.sort((a, b) => a.label.localeCompare(b.label));
+    // Sort by category first, then by name
+    skillList.sort((a: any, b: any) => {
+      if (a.category !== b.category) {
+        return a.category.localeCompare(b.category);
+      }
+      return a.name.localeCompare(b.name);
+    });
     
     return skillList;
   }
