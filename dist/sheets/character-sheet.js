@@ -3,6 +3,7 @@
  * Main player character sheet with tabs for attributes, skills, powers, etc.
  */
 import { quickRoll } from '../dice/roll-handler.js';
+import { SKILLS } from '../utils/skills.js';
 // Use namespaced ActorSheet when available to avoid deprecation warnings
 const BaseActorSheet = foundry?.appv1?.sheets?.ActorSheet || ActorSheet;
 export class MasteryCharacterSheet extends BaseActorSheet {
@@ -178,15 +179,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      */
     #prepareSkills(skillValues = {}) {
         const skillList = [];
-        // Import SKILLS from utils
-        const { SKILLS } = require('../utils/skills');
         for (const [key, definition] of Object.entries(SKILLS)) {
-            const def = definition;
             skillList.push({
                 key,
-                name: def.name,
-                category: def.category,
-                attributes: def.attributes,
+                name: definition.name,
+                category: definition.category,
+                attributes: definition.attributes,
                 value: skillValues[key] || 0
             });
         }

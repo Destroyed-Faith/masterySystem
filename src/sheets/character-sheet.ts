@@ -5,6 +5,7 @@
 
 import { MasteryActor } from '../documents/actor';
 import { quickRoll } from '../dice/roll-handler';
+import { SKILLS } from '../utils/skills';
 
 // Use namespaced ActorSheet when available to avoid deprecation warnings
 const BaseActorSheet: any = (foundry as any)?.appv1?.sheets?.ActorSheet || (ActorSheet as any);
@@ -198,16 +199,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   #prepareSkills(skillValues: Record<string, number> = {}) {
     const skillList: any[] = [];
     
-    // Import SKILLS from utils
-    const { SKILLS } = require('../utils/skills');
-    
     for (const [key, definition] of Object.entries(SKILLS)) {
-      const def = definition as any;
       skillList.push({
         key,
-        name: def.name,
-        category: def.category,
-        attributes: def.attributes,
+        name: definition.name,
+        category: definition.category,
+        attributes: definition.attributes,
         value: skillValues[key] || 0
       });
     }
