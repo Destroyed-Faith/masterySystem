@@ -187,8 +187,23 @@ function onRenderCombatTracker(_app, html, _data) {
         // Foundry v13 uses different structure - find the initiative column directly
         initiativeElements = $html.find('.combatant').find('a.combatant-control[data-control="rollInitiative"]');
     }
+    if (initiativeElements.length === 0) {
+        // Try finding by data-tooltip (Foundry v13 new structure)
+        initiativeElements = $html.find('.combatant a[data-tooltip*="Initiative"]');
+    }
+    if (initiativeElements.length === 0) {
+        // Try finding the initiative value column which should be clickable
+        initiativeElements = $html.find('.combatant .initiative-value');
+    }
+    if (initiativeElements.length === 0) {
+        // Last resort: find any clickable element in the combatant that has dice icons
+        initiativeElements = $html.find('.combatant a').filter(function() {
+            return $(this).find('i.fa-dice, i.fa-dice-d20').length > 0;
+        });
+    }
     console.log('Mastery System | Found initiative elements:', initiativeElements.length);
     console.log('Mastery System | Initiative element classes:', initiativeElements.first().attr('class'));
+    console.log('Mastery System | Full HTML structure:', $html.find('.combatant').first().html());
     
     initiativeElements.each(function() {
         const $initiativeDiv = $(this);
