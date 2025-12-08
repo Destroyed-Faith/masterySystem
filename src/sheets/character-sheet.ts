@@ -98,6 +98,18 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     context.system = actorData.system;
     context.flags = actorData.flags;
     
+    // Get Mastery Rank from settings (per player or global default)
+    const playerMasteryRanks = (game as any).settings.get('mastery-system', 'playerMasteryRanks') || {};
+    const defaultMasteryRank = (game as any).settings.get('mastery-system', 'defaultMasteryRank') || 2;
+    const playerId = this.actor.getFlag('mastery-system', 'playerId') || this.actor.ownership?.default || '';
+    const masteryRankFromSettings = playerMasteryRanks[playerId] || defaultMasteryRank;
+    
+    // Use setting value if actor doesn't have one set, otherwise use actor's value
+    if (!context.system.mastery?.rank) {
+      context.system.mastery = context.system.mastery || {};
+      context.system.mastery.rank = masteryRankFromSettings;
+    }
+    
     // Add configuration data
     context.config = (CONFIG as any).MASTERY;
     

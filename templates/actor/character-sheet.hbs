@@ -15,34 +15,22 @@
     </div>
     
     <div class="header-info">
-      <div class="mastery-rank-box">
-        <label>Mastery Rank</label>
-        {{#if editable}}
-          <input type="number" name="system.mastery.rank" value="{{default system.mastery.rank 2}}" min="1" max="20" data-dtype="Number" />
-        {{else}}
-          <span class="rank-value">{{default system.mastery.rank 2}}</span>
-        {{/if}}
+      <div class="mastery-rank-box" title="Mastery Rank">
+        <label>MR</label>
+        <span class="rank-value">{{default system.mastery.rank 2}}</span>
       </div>
       
       <div class="points-box">
         <label>Attribute Points</label>
         <div class="points-display">
-          {{#if editable}}
-            <input type="number" name="system.points.attribute" value="{{default system.points.attribute 0}}" min="0" data-dtype="Number" class="points-input" />
-          {{else}}
-            <span class="points-value">{{default system.points.attribute 0}}</span>
-          {{/if}}
+          <span class="points-value">{{default system.points.attribute 0}}</span>
         </div>
       </div>
       
       <div class="points-box">
         <label>Mastery Points</label>
         <div class="points-display">
-          {{#if editable}}
-            <input type="number" name="system.points.mastery" value="{{default system.points.mastery 0}}" min="0" data-dtype="Number" class="points-input" />
-          {{else}}
-            <span class="points-value">{{default system.points.mastery 0}}</span>
-          {{/if}}
+          <span class="points-value">{{default system.points.mastery 0}}</span>
         </div>
       </div>
       

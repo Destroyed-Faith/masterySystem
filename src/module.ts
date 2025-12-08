@@ -169,6 +169,61 @@ function registerSystemSettings() {
     type: Boolean,
     default: false
   });
+
+  // Mastery Rank - Global default
+  (game as any).settings.register('mastery-system', 'defaultMasteryRank', {
+    name: 'Default Mastery Rank',
+    hint: 'Default Mastery Rank for all characters (can be overridden per player)',
+    scope: 'world',
+    config: true,
+    type: Number,
+    default: 2,
+    range: {
+      min: 1,
+      max: 20,
+      step: 1
+    }
+  });
+
+  // Mastery Rank per player (stored as object with player IDs as keys)
+  (game as any).settings.register('mastery-system', 'playerMasteryRanks', {
+    name: 'Player Mastery Ranks',
+    hint: 'Mastery Rank per player (overrides global default)',
+    scope: 'world',
+    config: false,
+    type: Object,
+    default: {}
+  });
+
+  // Attribute Points distribution
+  (game as any).settings.register('mastery-system', 'attributePointsPerLevel', {
+    name: 'Attribute Points per Level',
+    hint: 'How many Attribute Points characters receive per level/session',
+    scope: 'world',
+    config: true,
+    type: Number,
+    default: 1,
+    range: {
+      min: 0,
+      max: 10,
+      step: 1
+    }
+  });
+
+  // Mastery Points distribution
+  (game as any).settings.register('mastery-system', 'masteryPointsPerLevel', {
+    name: 'Mastery Points per Level',
+    hint: 'How many Mastery Points characters receive per level/session',
+    scope: 'world',
+    config: true,
+    type: Number,
+    default: 1,
+    range: {
+      min: 0,
+      max: 10,
+      step: 1
+    }
+  });
 }
 
 /**

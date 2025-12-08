@@ -44,43 +44,43 @@
   flex: 1;
 }
 
-.mastery-system.sheet.actor.character .mastery-rank-box,
-.mastery-system.sheet.actor.character .points-box {
+.mastery-system.sheet.actor.character .mastery-rank-box {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 8px 12px;
+  gap: 2px;
+  padding: 4px 8px;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(139, 0, 0, 0.5);
   border-radius: 6px;
-  min-width: 120px;
+  min-width: 50px;
+  max-width: 60px;
+}
+
+.mastery-system.sheet.actor.character .points-box {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(139, 0, 0, 0.5);
+  border-radius: 6px;
+  min-width: 80px;
+  max-width: 100px;
 }
 
 .mastery-system.sheet.actor.character .mastery-rank-box label,
 .mastery-system.sheet.actor.character .points-box label {
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: #ffd700;
-}
-
-.mastery-system.sheet.actor.character .mastery-rank-box input,
-.mastery-system.sheet.actor.character .points-box .points-input {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #fff;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 18px;
-  font-weight: 700;
   text-align: center;
-  width: 100%;
 }
 
 .mastery-system.sheet.actor.character .rank-value,
 .mastery-system.sheet.actor.character .points-value {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   color: #fff;
   text-align: center;
