@@ -27,107 +27,36 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         return options;
     }
     /**
-     * Add a new Spell (simple creation prompt)
+     * Add Spell → open magic power dialog
      */
     async #onSpellAdd(event) {
         event.preventDefault();
-        const name = await this.#promptForSpellName();
-        if (!name)
-            return;
-        await this.actor.createEmbeddedDocuments('Item', [{
-                name,
-                type: 'special', // reuse special items for spells
-                system: {
-                    powerType: 'spell',
-                    school: '',
-                    level: 1,
-                    description: ''
-                }
-            }]);
+        await this.#openMagicPowerDialog();
     }
     /**
-     * Prompt for spell name
+     * Open the prebuilt Magic Power Creation Dialog (dropdown of schools/powers)
      */
-    async #promptForSpellName() {
-        return new Promise((resolve) => {
-            new Dialog({
-                title: 'Add Spell',
-                content: `
-          <form>
-            <div class="form-group">
-              <label>Spell Name:</label>
-              <input type="text" name="spellName" placeholder="Enter spell name"/>
-            </div>
-          </form>
-        `,
-                buttons: {
-                    add: {
-                        label: 'Add',
-                        callback: (html) => {
-                            const name = html.find('[name="spellName"]').val() || '';
-                            resolve(name.trim() || null);
-                        }
-                    },
-                    cancel: {
-                        label: 'Cancel',
-                        callback: () => resolve(null)
-                    }
-                },
-                default: 'add'
-            }).render(true);
-        });
+    async #openMagicPowerDialog() {
+        try {
+            const dialogModule = await import('../../dist/sheets/character-sheet-magic-dialog.js');
+            if (dialogModule?.showMagicPowerCreationDialog) {
+                await dialogModule.showMagicPowerCreationDialog(this.actor);
+            }
+            else {
+                ui.notifications?.error('Magic power dialog not found.');
+            }
+        }
+        catch (error) {
+            console.error('Mastery System | Failed to open magic power dialog', error);
+            ui.notifications?.error('Failed to open magic power selection dialog');
+        }
     }
     /**
      * Add a new Power (opens a basic creation prompt)
      */
     async #onPowerAdd(event) {
         event.preventDefault();
-        const name = await this.#promptForPowerName();
-        if (!name)
-            return;
-        // Create a new embedded Item of type "special" (powers are stored as special items)
-        await this.actor.createEmbeddedDocuments('Item', [{
-                name,
-                type: 'special',
-                system: {
-                    powerType: 'active',
-                    level: 1,
-                    tree: '',
-                    description: ''
-                }
-            }]);
-    }
-    /**
-     * Prompt for power name
-     */
-    async #promptForPowerName() {
-        return new Promise((resolve) => {
-            new Dialog({
-                title: 'Add Power',
-                content: `
-          <form>
-            <div class="form-group">
-              <label>Power Name:</label>
-              <input type="text" name="powerName" placeholder="Enter power name"/>
-            </div>
-          </form>
-        `,
-                buttons: {
-                    add: {
-                        label: 'Add',
-                        callback: (html) => {
-                            const name = html.find('[name=\"powerName\"]').val() || '';
-                            resolve(name.trim() || null);
-                        }
-                    },
-                    cancel: {
-                        label: 'Cancel',
-                        callback: () => resolve(null)
-                    }
-                },
-                default: 'add'
-            }).render(true);
-        });
+        await this.#openMagicPowerDialog();
     }
     /** @override */
     get template() {
