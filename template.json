@@ -41,6 +41,10 @@
           "rank": 2,
           "points": 0,
           "experience": 0
+        },
+        "points": {
+          "attribute": 0,
+          "mastery": 0
         }
       },
       "combatant": {

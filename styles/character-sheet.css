@@ -45,7 +45,7 @@
 }
 
 .mastery-system.sheet.actor.character .mastery-rank-box,
-.mastery-system.sheet.actor.character .xp-box {
+.mastery-system.sheet.actor.character .points-box {
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -53,10 +53,11 @@
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(139, 0, 0, 0.5);
   border-radius: 6px;
+  min-width: 120px;
 }
 
 .mastery-system.sheet.actor.character .mastery-rank-box label,
-.mastery-system.sheet.actor.character .xp-box label {
+.mastery-system.sheet.actor.character .points-box label {
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
@@ -65,7 +66,7 @@
 }
 
 .mastery-system.sheet.actor.character .mastery-rank-box input,
-.mastery-system.sheet.actor.character .xp-box .xp-input {
+.mastery-system.sheet.actor.character .points-box .points-input {
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: #fff;
@@ -74,11 +75,11 @@
   font-size: 18px;
   font-weight: 700;
   text-align: center;
-  width: 80px;
+  width: 100%;
 }
 
 .mastery-system.sheet.actor.character .rank-value,
-.mastery-system.sheet.actor.character .xp-value {
+.mastery-system.sheet.actor.character .points-value {
   font-size: 18px;
   font-weight: 700;
   color: #fff;
@@ -86,7 +87,7 @@
 }
 
 .mastery-system.sheet.actor.character .character-name-box {
-  flex: 1;
+  flex: 2;
 }
 
 .mastery-system.sheet.actor.character .character-name-box input {
@@ -395,6 +396,43 @@
   align-items: center;
   gap: 10px;
   justify-content: center;
+}
+
+.mastery-system.sheet.actor.character .attribute-spend-point {
+  background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
+  border: none;
+  color: #333;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.mastery-system.sheet.actor.character .attribute-spend-point:hover {
+  background: linear-gradient(135deg, #ffaa00 0%, #ff8800 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+}
+
+.mastery-system.sheet.actor.character .attribute-spend-point:active {
+  transform: translateY(0);
+}
+
+.mastery-system.sheet.actor.character .attribute-spend-point:disabled {
+  background: #ccc;
+  color: #666;
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .mastery-system.sheet.actor.character .attribute-controls button {

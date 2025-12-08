@@ -197,6 +197,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             return;
         // Attribute rolls
         html.find('.attribute-roll').on('click', this.#onAttributeRoll.bind(this));
+        // Attribute point spending
+        html.find('.attribute-spend-point').on('click', this.#onAttributeSpendPoint.bind(this));
         // Skill rolls
         html.find('.skill-roll').on('click', this.#onSkillRoll.bind(this));
         // Add skill
@@ -219,6 +221,44 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('.stress-adjust').on('click', this.#onStressAdjust.bind(this));
         // Stone adjustment
         html.find('.stone-adjust').on('click', this.#onStoneAdjust.bind(this));
+    }
+    /**
+     * Calculate cost to increase an attribute from current value to next value
+     * Cost tiers: 1-8 = 1pt, 9-16 = 2pt, 17-24 = 3pt, etc.
+     */
+    #calculateAttributeCost(currentValue) {
+        const nextValue = currentValue + 1;
+        const tier = Math.floor((nextValue - 1) / 8);
+        return tier + 1;
+    }
+    /**
+     * Handle spending attribute points
+     */
+    async #onAttributeSpendPoint(event) {
+        event.preventDefault();
+        const element = event.currentTarget;
+        const attributeName = element.dataset.attribute;
+        if (!attributeName)
+            return;
+        const currentValue = this.actor.system.attributes[attributeName]?.value || 0;
+        const availablePoints = this.actor.system.points?.attribute || 0;
+        const cost = this.#calculateAttributeCost(currentValue);
+        // Check if we have enough points
+        if (availablePoints < cost) {
+            ui.notifications?.warn(`Not enough Attribute Points! You need ${cost} points, but only have ${availablePoints}.`);
+            return;
+        }
+        // Check max value
+        if (currentValue >= 80) {
+            ui.notifications?.warn('This attribute is already at maximum value (80).');
+            return;
+        }
+        // Update attribute and spend points
+        const updates = {};
+        updates[`system.attributes.${attributeName}.value`] = currentValue + 1;
+        updates['system.points.attribute'] = availablePoints - cost;
+        await this.actor.update(updates);
+        ui.notifications?.info(`${attributeName.charAt(0).toUpperCase() + attributeName.slice(1)} increased to ${currentValue + 1}! (Cost: ${cost} points, Remaining: ${availablePoints - cost})`);
     }
     /**
      * Handle attribute roll

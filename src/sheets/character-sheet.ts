@@ -222,6 +222,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Attribute rolls
     html.find('.attribute-roll').on('click', this.#onAttributeRoll.bind(this));
     
+    // Attribute point spending
+    html.find('.attribute-spend-point').on('click', this.#onAttributeSpendPoint.bind(this));
+    
     // Skill rolls
     html.find('.skill-roll').on('click', this.#onSkillRoll.bind(this));
     
@@ -253,6 +256,52 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     // Stone adjustment
     html.find('.stone-adjust').on('click', this.#onStoneAdjust.bind(this));
+  }
+
+  /**
+   * Calculate cost to increase an attribute from current value to next value
+   * Cost tiers: 1-8 = 1pt, 9-16 = 2pt, 17-24 = 3pt, etc.
+   */
+  #calculateAttributeCost(currentValue: number): number {
+    const nextValue = currentValue + 1;
+    const tier = Math.floor((nextValue - 1) / 8);
+    return tier + 1;
+  }
+
+  /**
+   * Handle spending attribute points
+   */
+  async #onAttributeSpendPoint(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    const element = event.currentTarget;
+    const attributeName = element.dataset.attribute;
+    
+    if (!attributeName) return;
+    
+    const currentValue = this.actor.system.attributes[attributeName]?.value || 0;
+    const availablePoints = this.actor.system.points?.attribute || 0;
+    const cost = this.#calculateAttributeCost(currentValue);
+    
+    // Check if we have enough points
+    if (availablePoints < cost) {
+      (ui as any).notifications?.warn(`Not enough Attribute Points! You need ${cost} points, but only have ${availablePoints}.`);
+      return;
+    }
+    
+    // Check max value
+    if (currentValue >= 80) {
+      (ui as any).notifications?.warn('This attribute is already at maximum value (80).');
+      return;
+    }
+    
+    // Update attribute and spend points
+    const updates: any = {};
+    updates[`system.attributes.${attributeName}.value`] = currentValue + 1;
+    updates['system.points.attribute'] = availablePoints - cost;
+    
+    await this.actor.update(updates);
+    
+    (ui as any).notifications?.info(`${attributeName.charAt(0).toUpperCase() + attributeName.slice(1)} increased to ${currentValue + 1}! (Cost: ${cost} points, Remaining: ${availablePoints - cost})`);
   }
 
   /**

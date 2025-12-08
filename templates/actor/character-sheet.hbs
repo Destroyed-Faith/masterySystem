@@ -14,13 +14,24 @@
         {{/if}}
       </div>
       
-      <div class="xp-box">
-        <label>Experience Points</label>
-        <div class="xp-display">
+      <div class="points-box">
+        <label>Attribute Points</label>
+        <div class="points-display">
           {{#if editable}}
-            <input type="number" name="system.mastery.experience" value="{{default system.mastery.experience 0}}" min="0" data-dtype="Number" class="xp-input" />
+            <input type="number" name="system.points.attribute" value="{{default system.points.attribute 0}}" min="0" data-dtype="Number" class="points-input" />
           {{else}}
-            <span class="xp-value">{{default system.mastery.experience 0}}</span>
+            <span class="points-value">{{default system.points.attribute 0}}</span>
+          {{/if}}
+        </div>
+      </div>
+      
+      <div class="points-box">
+        <label>Mastery Points</label>
+        <div class="points-display">
+          {{#if editable}}
+            <input type="number" name="system.points.mastery" value="{{default system.points.mastery 0}}" min="0" data-dtype="Number" class="points-input" />
+          {{else}}
+            <span class="points-value">{{default system.points.mastery 0}}</span>
           {{/if}}
         </div>
       </div>
@@ -33,12 +44,6 @@
         {{/if}}
       </div>
     </div>
-    
-    {{#if owner}}
-      <button type="button" class="edit-mode-toggle" title="Toggle Edit Mode">
-        <i class="fas fa-edit"></i> {{#if editable}}Lock{{else}}Edit{{/if}}
-      </button>
-    {{/if}}
   </header>
 
   <!-- Tabs Navigation (Right Side Bookmarks) -->
@@ -88,13 +93,10 @@
               <!-- Controls -->
               {{#if ../../editable}}
                 <div class="attribute-controls">
-                  <button type="button" class="attribute-adjust" data-attribute="might" data-adjustment="-1" title="Decrease">
-                    <i class="fas fa-minus"></i>
+                  <button type="button" class="attribute-spend-point" data-attribute="might" title="Spend Attribute Point to Increase">
+                    <i class="fas fa-arrow-up"></i> Spend Point
                   </button>
-                  <input type="number" name="system.attributes.might.value" value="{{default value 0}}" min="0" max="40" data-dtype="Number" />
-                  <button type="button" class="attribute-adjust" data-attribute="might" data-adjustment="1" title="Increase">
-                    <i class="fas fa-plus"></i>
-                  </button>
+                  <input type="number" name="system.attributes.might.value" value="{{default value 0}}" min="0" max="80" data-dtype="Number" />
                 </div>
               {{/if}}
               
@@ -127,13 +129,10 @@
               
               {{#if ../../editable}}
                 <div class="attribute-controls">
-                  <button type="button" class="attribute-adjust" data-attribute="agility" data-adjustment="-1">
-                    <i class="fas fa-minus"></i>
+                  <button type="button" class="attribute-spend-point" data-attribute="agility" title="Spend Attribute Point to Increase">
+                    <i class="fas fa-arrow-up"></i> Spend Point
                   </button>
-                  <input type="number" name="system.attributes.agility.value" value="{{default value 0}}" min="0" max="40" data-dtype="Number" />
-                  <button type="button" class="attribute-adjust" data-attribute="agility" data-adjustment="1">
-                    <i class="fas fa-plus"></i>
-                  </button>
+                  <input type="number" name="system.attributes.agility.value" value="{{default value 0}}" min="0" max="80" data-dtype="Number" />
                 </div>
               {{/if}}
               
@@ -165,13 +164,10 @@
               
               {{#if ../../editable}}
                 <div class="attribute-controls">
-                  <button type="button" class="attribute-adjust" data-attribute="vitality" data-adjustment="-1">
-                    <i class="fas fa-minus"></i>
+                  <button type="button" class="attribute-spend-point" data-attribute="vitality" title="Spend Attribute Point to Increase">
+                    <i class="fas fa-arrow-up"></i> Spend Point
                   </button>
-                  <input type="number" name="system.attributes.vitality.value" value="{{default value 0}}" min="0" max="40" data-dtype="Number" />
-                  <button type="button" class="attribute-adjust" data-attribute="vitality" data-adjustment="1">
-                    <i class="fas fa-plus"></i>
-                  </button>
+                  <input type="number" name="system.attributes.vitality.value" value="{{default value 0}}" min="0" max="80" data-dtype="Number" />
                 </div>
               {{/if}}
               
@@ -203,13 +199,10 @@
               
               {{#if ../../editable}}
                 <div class="attribute-controls">
-                  <button type="button" class="attribute-adjust" data-attribute="wits" data-adjustment="-1">
-                    <i class="fas fa-minus"></i>
+                  <button type="button" class="attribute-spend-point" data-attribute="wits" title="Spend Attribute Point to Increase">
+                    <i class="fas fa-arrow-up"></i> Spend Point
                   </button>
-                  <input type="number" name="system.attributes.wits.value" value="{{default value 0}}" min="0" max="40" data-dtype="Number" />
-                  <button type="button" class="attribute-adjust" data-attribute="wits" data-adjustment="1">
-                    <i class="fas fa-plus"></i>
-                  </button>
+                  <input type="number" name="system.attributes.wits.value" value="{{default value 0}}" min="0" max="80" data-dtype="Number" />
                 </div>
               {{/if}}
               
@@ -246,13 +239,10 @@
               
               {{#if ../../editable}}
                 <div class="attribute-controls">
-                  <button type="button" class="attribute-adjust" data-attribute="intellect" data-adjustment="-1">
-                    <i class="fas fa-minus"></i>
+                  <button type="button" class="attribute-spend-point" data-attribute="intellect" title="Spend Attribute Point to Increase">
+                    <i class="fas fa-arrow-up"></i> Spend Point
                   </button>
-                  <input type="number" name="system.attributes.intellect.value" value="{{default value 0}}" min="0" max="40" data-dtype="Number" />
-                  <button type="button" class="attribute-adjust" data-attribute="intellect" data-adjustment="1">
-                    <i class="fas fa-plus"></i>
-                  </button>
+                  <input type="number" name="system.attributes.intellect.value" value="{{default value 0}}" min="0" max="80" data-dtype="Number" />
                 </div>
               {{/if}}
               
@@ -284,13 +274,10 @@
               
               {{#if ../../editable}}
                 <div class="attribute-controls">
-                  <button type="button" class="attribute-adjust" data-attribute="resolve" data-adjustment="-1">
-                    <i class="fas fa-minus"></i>
+                  <button type="button" class="attribute-spend-point" data-attribute="resolve" title="Spend Attribute Point to Increase">
+                    <i class="fas fa-arrow-up"></i> Spend Point
                   </button>
-                  <input type="number" name="system.attributes.resolve.value" value="{{default value 0}}" min="0" max="40" data-dtype="Number" />
-                  <button type="button" class="attribute-adjust" data-attribute="resolve" data-adjustment="1">
-                    <i class="fas fa-plus"></i>
-                  </button>
+                  <input type="number" name="system.attributes.resolve.value" value="{{default value 0}}" min="0" max="80" data-dtype="Number" />
                 </div>
               {{/if}}
               
@@ -322,13 +309,10 @@
               
               {{#if ../../editable}}
                 <div class="attribute-controls">
-                  <button type="button" class="attribute-adjust" data-attribute="influence" data-adjustment="-1">
-                    <i class="fas fa-minus"></i>
+                  <button type="button" class="attribute-spend-point" data-attribute="influence" title="Spend Attribute Point to Increase">
+                    <i class="fas fa-arrow-up"></i> Spend Point
                   </button>
-                  <input type="number" name="system.attributes.influence.value" value="{{default value 0}}" min="0" max="40" data-dtype="Number" />
-                  <button type="button" class="attribute-adjust" data-attribute="influence" data-adjustment="1">
-                    <i class="fas fa-plus"></i>
-                  </button>
+                  <input type="number" name="system.attributes.influence.value" value="{{default value 0}}" min="0" max="80" data-dtype="Number" />
                 </div>
               {{/if}}
               
