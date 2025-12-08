@@ -31,6 +31,61 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     return options;
   }
 
+  /**
+   * Add a new Power (opens a basic creation prompt)
+   */
+  async #onPowerAdd(event: JQuery.ClickEvent) {
+    event.preventDefault();
+
+    const name = await this.#promptForPowerName();
+    if (!name) return;
+
+    // Create a new embedded Item of type "special" (powers are stored as special items)
+    await this.actor.createEmbeddedDocuments('Item', [{
+      name,
+      type: 'special',
+      system: {
+        powerType: 'active',
+        level: 1,
+        tree: '',
+        description: ''
+      }
+    }]);
+  }
+
+  /**
+   * Prompt for power name
+   */
+  async #promptForPowerName(): Promise<string | null> {
+    return new Promise((resolve) => {
+      new Dialog({
+        title: 'Add Power',
+        content: `
+          <form>
+            <div class="form-group">
+              <label>Power Name:</label>
+              <input type="text" name="powerName" placeholder="Enter power name"/>
+            </div>
+          </form>
+        `,
+        buttons: {
+          add: {
+            label: 'Add',
+            callback: (html: JQuery) => {
+              const name = (html.find('[name=\"powerName\"]').val() as string) || '';
+              resolve(name.trim() || null);
+            }
+          },
+          cancel: {
+            label: 'Cancel',
+            callback: () => resolve(null)
+          }
+        },
+        default: 'add'
+      }).render(true);
+    });
+  }
+
   /** @override */
   get template() {
     const templatePath = 'systems/mastery-system/templates/actor/character-sheet.hbs';
@@ -177,6 +232,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     // Add skill
     html.find('.skill-add').on('click', this.#onSkillAdd.bind(this));
+
+    // Add power
+    html.find('.add-power-btn').on('click', this.#onPowerAdd.bind(this));
     
     // Delete skill
     html.find('.skill-delete').on('click', this.#onSkillDelete.bind(this));
