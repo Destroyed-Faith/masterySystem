@@ -31,7 +31,10 @@ export var PassiveCategory;
 export function getPassiveSlots(actor) {
     const slots = [];
     const slotData = actor.system.passives?.slots || [];
-    for (let i = 0; i < 8; i++) {
+    const masteryRank = actor.system.mastery?.rank || 2;
+    // Only show slots up to Mastery Rank (not all 8)
+    const maxSlots = Math.min(masteryRank, 8);
+    for (let i = 0; i < maxSlots; i++) {
         const slot = slotData[i] || { passive: null, active: false };
         slots.push({
             slotIndex: i,
