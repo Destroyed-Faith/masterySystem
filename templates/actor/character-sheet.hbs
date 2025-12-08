@@ -91,14 +91,16 @@
               </div>
               
               <!-- Controls -->
-              {{#if ../../editable}}
-                <div class="attribute-controls">
+              <div class="attribute-controls">
+                {{#if ../../editable}}
                   <button type="button" class="attribute-spend-point" data-attribute="might" title="Spend Attribute Point to Increase">
                     <i class="fas fa-arrow-up"></i> Spend Point
                   </button>
                   <input type="number" name="system.attributes.might.value" value="{{default value 0}}" min="0" max="80" data-dtype="Number" />
-                </div>
-              {{/if}}
+                {{else}}
+                  <div class="attribute-value-display">{{default value 0}}</div>
+                {{/if}}
+              </div>
               
               <!-- Roll Button -->
               <button type="button" class="attribute-roll" data-attribute="might" title="Roll Might">
@@ -127,14 +129,16 @@
                 <div class="stones-count">{{calculateStones value}} / 5 Stones</div>
               </div>
               
-              {{#if ../../editable}}
-                <div class="attribute-controls">
+              <div class="attribute-controls">
+                {{#if ../../editable}}
                   <button type="button" class="attribute-spend-point" data-attribute="agility" title="Spend Attribute Point to Increase">
                     <i class="fas fa-arrow-up"></i> Spend Point
                   </button>
                   <input type="number" name="system.attributes.agility.value" value="{{default value 0}}" min="0" max="80" data-dtype="Number" />
-                </div>
-              {{/if}}
+                {{else}}
+                  <div class="attribute-value-display">{{default value 0}}</div>
+                {{/if}}
+              </div>
               
               <button type="button" class="attribute-roll" data-attribute="agility">
                 <i class="fas fa-dice-d20"></i> Roll Agility
@@ -162,14 +166,16 @@
                 <div class="stones-count">{{calculateStones value}} / 5 Stones</div>
               </div>
               
-              {{#if ../../editable}}
-                <div class="attribute-controls">
+              <div class="attribute-controls">
+                {{#if ../../editable}}
                   <button type="button" class="attribute-spend-point" data-attribute="vitality" title="Spend Attribute Point to Increase">
                     <i class="fas fa-arrow-up"></i> Spend Point
                   </button>
                   <input type="number" name="system.attributes.vitality.value" value="{{default value 0}}" min="0" max="80" data-dtype="Number" />
-                </div>
-              {{/if}}
+                {{else}}
+                  <div class="attribute-value-display">{{default value 0}}</div>
+                {{/if}}
+              </div>
               
               <button type="button" class="attribute-roll" data-attribute="vitality">
                 <i class="fas fa-dice-d20"></i> Roll Vitality
@@ -197,14 +203,16 @@
                 <div class="stones-count">{{calculateStones value}} / 5 Stones</div>
               </div>
               
-              {{#if ../../editable}}
-                <div class="attribute-controls">
+              <div class="attribute-controls">
+                {{#if ../../editable}}
                   <button type="button" class="attribute-spend-point" data-attribute="wits" title="Spend Attribute Point to Increase">
                     <i class="fas fa-arrow-up"></i> Spend Point
                   </button>
                   <input type="number" name="system.attributes.wits.value" value="{{default value 0}}" min="0" max="80" data-dtype="Number" />
-                </div>
-              {{/if}}
+                {{else}}
+                  <div class="attribute-value-display">{{default value 0}}</div>
+                {{/if}}
+              </div>
               
               <button type="button" class="attribute-roll" data-attribute="wits">
                 <i class="fas fa-dice-d20"></i> Roll Wits
@@ -237,14 +245,16 @@
                 <div class="stones-count">{{calculateStones value}} / 5 Stones</div>
               </div>
               
-              {{#if ../../editable}}
-                <div class="attribute-controls">
+              <div class="attribute-controls">
+                {{#if ../../editable}}
                   <button type="button" class="attribute-spend-point" data-attribute="intellect" title="Spend Attribute Point to Increase">
                     <i class="fas fa-arrow-up"></i> Spend Point
                   </button>
                   <input type="number" name="system.attributes.intellect.value" value="{{default value 0}}" min="0" max="80" data-dtype="Number" />
-                </div>
-              {{/if}}
+                {{else}}
+                  <div class="attribute-value-display">{{default value 0}}</div>
+                {{/if}}
+              </div>
               
               <button type="button" class="attribute-roll" data-attribute="intellect">
                 <i class="fas fa-dice-d20"></i> Roll Intellect
@@ -272,14 +282,16 @@
                 <div class="stones-count">{{calculateStones value}} / 5 Stones</div>
               </div>
               
-              {{#if ../../editable}}
-                <div class="attribute-controls">
+              <div class="attribute-controls">
+                {{#if ../../editable}}
                   <button type="button" class="attribute-spend-point" data-attribute="resolve" title="Spend Attribute Point to Increase">
                     <i class="fas fa-arrow-up"></i> Spend Point
                   </button>
                   <input type="number" name="system.attributes.resolve.value" value="{{default value 0}}" min="0" max="80" data-dtype="Number" />
-                </div>
-              {{/if}}
+                {{else}}
+                  <div class="attribute-value-display">{{default value 0}}</div>
+                {{/if}}
+              </div>
               
               <button type="button" class="attribute-roll" data-attribute="resolve">
                 <i class="fas fa-dice-d20"></i> Roll Resolve
@@ -307,14 +319,16 @@
                 <div class="stones-count">{{calculateStones value}} / 5 Stones</div>
               </div>
               
-              {{#if ../../editable}}
-                <div class="attribute-controls">
+              <div class="attribute-controls">
+                {{#if ../../editable}}
                   <button type="button" class="attribute-spend-point" data-attribute="influence" title="Spend Attribute Point to Increase">
                     <i class="fas fa-arrow-up"></i> Spend Point
                   </button>
                   <input type="number" name="system.attributes.influence.value" value="{{default value 0}}" min="0" max="80" data-dtype="Number" />
-                </div>
-              {{/if}}
+                {{else}}
+                  <div class="attribute-value-display">{{default value 0}}</div>
+                {{/if}}
+              </div>
               
               <button type="button" class="attribute-roll" data-attribute="influence">
                 <i class="fas fa-dice-d20"></i> Roll Influence
