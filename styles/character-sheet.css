@@ -491,6 +491,128 @@
   font-size: 18px;
 }
 
+/* Power and Spell Cards - Beautiful detailed styling */
+.mastery-system.sheet.actor.character .power-card,
+.mastery-system.sheet.actor.character .spell-card {
+  margin-bottom: 15px;
+  padding: 15px;
+  background: #fff;
+  border: 2px solid #8b0000;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: all 0.3s;
+}
+
+.mastery-system.sheet.actor.character .power-card:hover,
+.mastery-system.sheet.actor.character .spell-card:hover {
+  box-shadow: 0 4px 16px rgba(139, 0, 0, 0.2);
+  transform: translateY(-2px);
+}
+
+.mastery-system.sheet.actor.character .power-header,
+.mastery-system.sheet.actor.character .spell-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #8b0000;
+}
+
+.mastery-system.sheet.actor.character .power-name,
+.mastery-system.sheet.actor.character .spell-name {
+  margin: 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+.mastery-system.sheet.actor.character .power-controls,
+.mastery-system.sheet.actor.character .spell-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.mastery-system.sheet.actor.character .item-edit,
+.mastery-system.sheet.actor.character .item-delete {
+  padding: 6px 10px;
+  background: #666;
+  border: none;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mastery-system.sheet.actor.character .item-edit:hover {
+  background: #8b0000;
+}
+
+.mastery-system.sheet.actor.character .item-delete:hover {
+  background: #cc0000;
+}
+
+.mastery-system.sheet.actor.character .power-details,
+.mastery-system.sheet.actor.character .spell-details {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.mastery-system.sheet.actor.character .power-tree,
+.mastery-system.sheet.actor.character .spell-school,
+.mastery-system.sheet.actor.character .power-level,
+.mastery-system.sheet.actor.character .spell-level,
+.mastery-system.sheet.actor.character .power-type,
+.mastery-system.sheet.actor.character .spell-type {
+  font-size: 11px;
+  padding: 4px 8px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  color: #666;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.mastery-system.sheet.actor.character .power-description,
+.mastery-system.sheet.actor.character .spell-description {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.mastery-system.sheet.actor.character .power-use-btn,
+.mastery-system.sheet.actor.character .spell-cast-btn {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(135deg, #8b0000 0%, #a00000 100%);
+  border: none;
+  color: #fff;
+  font-weight: bold;
+  font-size: 13px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+}
+
+.mastery-system.sheet.actor.character .power-use-btn:hover,
+.mastery-system.sheet.actor.character .spell-cast-btn:hover {
+  background: linear-gradient(135deg, #a00000 0%, #b00000 100%);
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(139, 0, 0, 0.4);
+}
+
+.mastery-system.sheet.actor.character .empty-message {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+  font-style: italic;
+  font-size: 14px;
+}
+
 .mastery-system .items-list .power {
   background: linear-gradient(to right, #fff 0%, #ffe4e1 100%);
 }
