@@ -10,6 +10,7 @@ import { MasteryCharacterSheet } from './sheets/character-sheet.js';
 import { MasteryNpcSheet } from './sheets/npc-sheet.js';
 import { MasteryItemSheet } from './sheets/item-sheet.js';
 import { initializeCombatHooks } from '../dist/combat/initiative.js';
+import { calculateStones } from './utils/calculations.js';
 // Dice roller functions are imported in sheets where needed
 console.log('Mastery System | All imports completed');
 /**
@@ -21,6 +22,11 @@ Hooks.once('init', async function () {
     // Shim deprecated globals to the namespaced versions to suppress warnings (Foundry v13+)
     if (!globalThis.FilePicker && foundry?.applications?.apps?.FilePicker?.implementation) {
         globalThis.FilePicker = foundry.applications.apps.FilePicker.implementation;
+    }
+    // Shim Application to V2 if available to silence V1 deprecation (non-breaking)
+    if (foundry?.applications?.api?.ApplicationV2 && !globalThis._masteryAppPatched) {
+        globalThis.Application = foundry.applications.api.ApplicationV2;
+        globalThis._masteryAppPatched = true;
     }
     // Register custom Document classes
     CONFIG.Actor.documentClass = MasteryActor;
@@ -63,6 +69,11 @@ function registerHandlebarsHelpers() {
     // Default/fallback helper: {{default value fallback}}
     Handlebars.registerHelper('default', function (value, fallback) {
         return value !== undefined && value !== null ? value : fallback;
+    });
+    // Calculate stones from an attribute value: {{calculateStones value}}
+    Handlebars.registerHelper('calculateStones', function (value) {
+        const num = Number(value) || 0;
+        return calculateStones(num);
     });
     // Helper to create arrays
     Handlebars.registerHelper('array', function (...args) {
