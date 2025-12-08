@@ -255,48 +255,60 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('.skill-spend-point').on('click', this.#onSkillSpendPoint.bind(this));
     
     // Profile image click handlers (work for everyone)
-    // Wait a bit for DOM to be ready, then set up handlers
+    // Use event delegation to handle clicks even if elements are added later
+    const container = html.find('.profile-img-container');
+    
+    console.log('Mastery System | Setting up profile image handlers', {
+      containerFound: container.length,
+      htmlLength: html.length
+    });
+    
+    // Use event delegation on the container
+    container.off('click.profile-delegation').on('click.profile-delegation', (e: JQuery.ClickEvent) => {
+      const target = $(e.target);
+      const clickedZone = target.closest('.profile-zone');
+      
+      console.log('Mastery System | Container clicked', {
+        target: target[0]?.className,
+        clickedZone: clickedZone.length,
+        zoneClass: clickedZone[0]?.className
+      });
+      
+      if (clickedZone.hasClass('profile-zone-edit')) {
+        console.log('Mastery System | EDIT zone clicked via delegation');
+        e.preventDefault();
+        e.stopPropagation();
+        this.#onProfileEdit(e);
+      } else if (clickedZone.hasClass('profile-zone-show')) {
+        console.log('Mastery System | SHOW zone clicked via delegation');
+        e.preventDefault();
+        e.stopPropagation();
+        this.#onProfileShow(e);
+      }
+    });
+    
+    // Also set up direct handlers as backup
     setTimeout(() => {
       const editZone = html.find('.profile-zone-edit');
       const showZone = html.find('.profile-zone-show');
-      const container = html.find('.profile-img-container');
       
-      console.log('Mastery System | Setting up profile image handlers', {
+      console.log('Mastery System | Direct handler setup', {
         editZoneFound: editZone.length,
-        showZoneFound: showZone.length,
-        containerFound: container.length,
-        htmlLength: html.length,
-        htmlContent: html.find('.sheet-header').html()?.substring(0, 200)
+        showZoneFound: showZone.length
       });
       
-      if (editZone.length === 0 || showZone.length === 0) {
-        console.warn('Mastery System | Profile zones not found! Checking DOM structure...');
-        const profileImg = html.find('.profile-img');
-        const overlay = html.find('.profile-overlay');
-        console.log('Mastery System | DOM check', {
-          profileImgFound: profileImg.length,
-          overlayFound: overlay.length,
-          containerHTML: container.html()?.substring(0, 300)
-        });
-      }
-      
       editZone.off('click.profile-edit').on('click.profile-edit', (e) => {
-        console.log('Mastery System | EDIT zone clicked', e);
+        console.log('Mastery System | EDIT zone clicked (direct)', e);
+        e.preventDefault();
+        e.stopPropagation();
         this.#onProfileEdit(e);
       });
       
       showZone.off('click.profile-show').on('click.profile-show', (e) => {
-        console.log('Mastery System | SHOW zone clicked', e);
+        console.log('Mastery System | SHOW zone clicked (direct)', e);
+        e.preventDefault();
+        e.stopPropagation();
         this.#onProfileShow(e);
-      });
-      
-      // Also try direct click on container for debugging
-      container.off('click.profile-container').on('click.profile-container', (e) => {
-        console.log('Mastery System | Container clicked', {
-          target: e.target,
-          currentTarget: e.currentTarget,
-          targetClass: (e.target as HTMLElement)?.className
-        });
       });
     }, 100);
     

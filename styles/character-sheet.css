@@ -147,9 +147,15 @@
   opacity: 0;
   transition: opacity 0.2s ease;
   pointer-events: none;
+  z-index: 10;
 }
 
 .mastery-system.sheet.actor.character .profile-img-container:hover .profile-overlay {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.mastery-system.sheet.actor.character .profile-img-container .profile-overlay:hover {
   opacity: 1;
   pointer-events: all;
 }
@@ -164,6 +170,8 @@
   background: rgba(0, 0, 0, 0.5);
   cursor: pointer;
   transition: background 0.2s ease;
+  pointer-events: auto;
+  z-index: 11;
 }
 
 .mastery-system.sheet.actor.character .profile-img-container .profile-zone-edit {
