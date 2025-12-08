@@ -442,55 +442,37 @@
       </div>
       
       {{#each skills}}
-        {{#if @first}}
-          <div class="skill-category-compact">
-            <h4 class="category-header-compact">
-              {{#if (eq this.category "Physical")}}<i class="fas fa-running"></i>{{/if}}
-              {{#if (eq this.category "Knowledge & Craft")}}<i class="fas fa-book"></i>{{/if}}
-              {{#if (eq this.category "Social")}}<i class="fas fa-comments"></i>{{/if}}
-              {{#if (eq this.category "Survival")}}<i class="fas fa-tree"></i>{{/if}}
-              {{#if (eq this.category "Martial")}}<i class="fas fa-sword"></i>{{/if}}
-              {{this.category}}
-            </h4>
-            <div class="skills-list-compact">
-        {{else}}
-          {{#unless (eq this.category @root.skills.[subtract @index 1].category)}}
-            </div></div>
-            <div class="skill-category-compact">
-              <h4 class="category-header-compact">
-                {{#if (eq this.category "Physical")}}<i class="fas fa-running"></i>{{/if}}
-                {{#if (eq this.category "Knowledge & Craft")}}<i class="fas fa-book"></i>{{/if}}
-                {{#if (eq this.category "Social")}}<i class="fas fa-comments"></i>{{/if}}
-                {{#if (eq this.category "Survival")}}<i class="fas fa-tree"></i>{{/if}}
-                {{#if (eq this.category "Martial")}}<i class="fas fa-sword"></i>{{/if}}
-                {{this.category}}
-              </h4>
-              <div class="skills-list-compact">
-          {{/unless}}
-        {{/if}}
-        
-        <div class="skill-row-compact">
-          <span class="skill-name-compact">{{this.name}}</span>
-          <div class="skill-attrs-compact">
-            {{#each this.attributes}}
-              <span class="attr-badge">{{capitalize this}}</span>
+        <div class="skill-category-compact">
+          <h4 class="category-header-compact">
+            {{#if (eq this.category "Physical")}}<i class="fas fa-running"></i>{{/if}}
+            {{#if (eq this.category "Knowledge & Craft")}}<i class="fas fa-book"></i>{{/if}}
+            {{#if (eq this.category "Social")}}<i class="fas fa-comments"></i>{{/if}}
+            {{#if (eq this.category "Survival")}}<i class="fas fa-tree"></i>{{/if}}
+            {{#if (eq this.category "Martial")}}<i class="fas fa-sword"></i>{{/if}}
+            {{this.category}}
+          </h4>
+          <div class="skills-list-compact">
+            {{#each this.skills}}
+              <div class="skill-row-compact">
+                <span class="skill-name-compact">{{this.name}}</span>
+                <div class="skill-attrs-compact">
+                  {{#each this.attributes}}
+                    <span class="attr-badge">{{capitalize this}}</span>
+                  {{/each}}
+                </div>
+                <div class="skill-value-display-compact">
+                  <span class="skill-value-compact">{{default this.value 0}}</span>
+                  <button type="button" class="skill-spend-point" data-skill="{{this.key}}" title="Spend Mastery Point (Cost: {{default this.value 0}} pts)">
+                    <i class="fas fa-arrow-up"></i>
+                  </button>
+                </div>
+                <button type="button" class="skill-roll-compact" data-skill="{{this.key}}" title="Roll {{this.name}}">
+                  <i class="fas fa-dice-d20"></i>
+                </button>
+              </div>
             {{/each}}
           </div>
-          <div class="skill-value-display-compact">
-            <span class="skill-value-compact">{{default this.value 0}}</span>
-            <button type="button" class="skill-spend-point" data-skill="{{this.key}}" title="Spend Mastery Point (Cost: {{default this.value 0}} pts)">
-              <i class="fas fa-arrow-up"></i>
-            </button>
-          </div>
-          <button type="button" class="skill-roll-compact" data-skill="{{this.key}}" title="Roll {{this.name}}">
-            <i class="fas fa-dice-d20"></i>
-          </button>
         </div>
-        
-        {{#if @last}}
-            </div>
-          </div>
-        {{/if}}
       {{/each}}
       
     </div>

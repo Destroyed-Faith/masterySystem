@@ -178,9 +178,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      * Prepare skills for display
      */
     #prepareSkills(skillValues = {}) {
-        const skillList = [];
+        const skillsByCategory = {};
+        // Group skills by category
         for (const [key, definition] of Object.entries(SKILLS)) {
-            skillList.push({
+            const category = definition.category;
+            if (!skillsByCategory[category]) {
+                skillsByCategory[category] = [];
+            }
+            skillsByCategory[category].push({
                 key,
                 name: definition.name,
                 category: definition.category,
@@ -188,14 +193,22 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 value: skillValues[key] || 0
             });
         }
-        // Sort by category first, then by name
-        skillList.sort((a, b) => {
-            if (a.category !== b.category) {
-                return a.category.localeCompare(b.category);
+        // Sort skills within each category by name
+        for (const category in skillsByCategory) {
+            skillsByCategory[category].sort((a, b) => a.name.localeCompare(b.name));
+        }
+        // Convert to array of category objects
+        const categoryOrder = ['Physical', 'Knowledge & Craft', 'Social', 'Survival', 'Martial'];
+        const groupedSkills = [];
+        for (const category of categoryOrder) {
+            if (skillsByCategory[category] && skillsByCategory[category].length > 0) {
+                groupedSkills.push({
+                    category,
+                    skills: skillsByCategory[category]
+                });
             }
-            return a.name.localeCompare(b.name);
-        });
-        return skillList;
+        }
+        return groupedSkills;
     }
     /** @override */
     activateListeners(html) {
