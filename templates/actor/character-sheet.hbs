@@ -476,11 +476,12 @@
               <span class="attr-badge">{{capitalize this}}</span>
             {{/each}}
           </div>
-          {{#if ../../editable}}
-            <input type="number" name="system.skills.{{this.key}}" value="{{default this.value 0}}" min="0" max="32" class="skill-value-compact" data-dtype="Number" />
-          {{else}}
+          <div class="skill-value-display-compact">
             <span class="skill-value-compact">{{default this.value 0}}</span>
-          {{/if}}
+            <button type="button" class="skill-spend-point" data-skill="{{this.key}}" title="Spend Mastery Point (Cost: {{default this.value 0}} pts)">
+              <i class="fas fa-arrow-up"></i>
+            </button>
+          </div>
           <button type="button" class="skill-roll-compact" data-skill="{{this.key}}" title="Roll {{this.name}}">
             <i class="fas fa-dice-d20"></i>
           </button>

@@ -224,17 +224,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   activateListeners(html: JQuery) {
     super.activateListeners(html);
     
+    // Roll buttons work for everyone
+    html.find('.attribute-roll').on('click', this.#onAttributeRoll.bind(this));
+    html.find('.skill-roll').on('click', this.#onSkillRoll.bind(this));
+    html.find('.skill-roll-compact').on('click', this.#onSkillRoll.bind(this));
+    
+    // Point spending buttons (JavaScript will check permissions)
+    html.find('.attribute-spend-point').on('click', this.#onAttributeSpendPoint.bind(this));
+    html.find('.skill-spend-point').on('click', this.#onSkillSpendPoint.bind(this));
+    
     // Everything below here is only needed if the sheet is editable
     if (!this.isEditable) return;
-    
-    // Attribute rolls
-    html.find('.attribute-roll').on('click', this.#onAttributeRoll.bind(this));
-    
-    // Attribute point spending
-    html.find('.attribute-spend-point').on('click', this.#onAttributeSpendPoint.bind(this));
-    
-    // Skill rolls
-    html.find('.skill-roll').on('click', this.#onSkillRoll.bind(this));
     
     // Add skill
     html.find('.skill-add').on('click', this.#onSkillAdd.bind(this));
@@ -281,6 +281,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    */
   async #onAttributeSpendPoint(event: JQuery.ClickEvent) {
     event.preventDefault();
+    
+    // Check if user is owner
+    if (!this.actor.isOwner) {
+      (ui as any).notifications?.warn('Only the owner can spend Attribute Points.');
+      return;
+    }
+    
     const element = event.currentTarget;
     const attributeName = element.dataset.attribute;
     
@@ -359,6 +366,54 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       tn,
       `${skill.charAt(0).toUpperCase() + skill.slice(1)} Check`
     );
+  }
+
+  /**
+   * Handle spending mastery points on skills
+   * Cost: Level N → N+1 costs N points
+   */
+  async #onSkillSpendPoint(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    
+    // Check if user is owner
+    if (!this.actor.isOwner) {
+      (ui as any).notifications?.warn('Only the owner can spend Mastery Points.');
+      return;
+    }
+    
+    const element = event.currentTarget;
+    const skillKey = element.dataset.skill;
+    
+    if (!skillKey) return;
+    
+    const currentValue = this.actor.system.skills?.[skillKey] || 0;
+    const availablePoints = this.actor.system.points?.mastery || 0;
+    const cost = currentValue; // Level N → N+1 costs N points
+    
+    // Check if we have enough points
+    if (availablePoints < cost) {
+      (ui as any).notifications?.warn(`Not enough Mastery Points! You need ${cost} points, but only have ${availablePoints}.`);
+      return;
+    }
+    
+    // Check max value (4 × Mastery Rank)
+    const masteryRank = this.actor.system.mastery?.rank || 2;
+    const maxSkill = 4 * masteryRank;
+    
+    if (currentValue >= maxSkill) {
+      (ui as any).notifications?.warn(`This skill is already at maximum value (${maxSkill} = 4 × Mastery Rank ${masteryRank}).`);
+      return;
+    }
+    
+    // Update skill and spend points
+    const updates: any = {};
+    updates[`system.skills.${skillKey}`] = currentValue + 1;
+    updates['system.points.mastery'] = availablePoints - cost;
+    
+    await this.actor.update(updates);
+    
+    const skillName = skillKey.charAt(0).toUpperCase() + skillKey.slice(1);
+    (ui as any).notifications?.info(`${skillName} increased to ${currentValue + 1}! (Cost: ${cost} Mastery Points, Remaining: ${availablePoints - cost})`);
   }
 
   /**
