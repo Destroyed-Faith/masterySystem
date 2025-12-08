@@ -75,6 +75,15 @@ function registerHandlebarsHelpers() {
         const num = Number(value) || 0;
         return calculateStones(num);
     });
+    // Repeat block n times: {{#times n}}...{{/times}}
+    Handlebars.registerHelper('times', function (count, block) {
+        const n = Number(count) || 0;
+        let accum = '';
+        for (let i = 0; i < n; i++) {
+            accum += block.fn(i);
+        }
+        return accum;
+    });
     // Helper to create arrays
     Handlebars.registerHelper('array', function (...args) {
         args.pop(); // Remove Handlebars options object
