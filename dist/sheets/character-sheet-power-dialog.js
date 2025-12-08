@@ -154,7 +154,8 @@ export async function showPowerCreationDialog(actor) {
                 }
                 levelSelectGroup.show();
                 powerNameGroup.show();
-                const treePowers = getPowersByTree(treeName);
+                // TODO: Implement getPowersByTree function when power database is available
+                const treePowers = [];
                 powersData = {};
                 if (!treePowers || treePowers.length === 0) {
                     powerSelect.innerHTML = '<option value="">No predefined powers - Enter name manually below</option>';
