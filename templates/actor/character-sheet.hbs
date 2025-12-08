@@ -74,7 +74,14 @@
             <div class="attribute-card" data-attribute="might">
               <div class="attribute-card-header">
                 <h4 class="attribute-name"><i class="fas fa-dumbbell"></i> Might</h4>
-                <div class="attribute-value">{{default value 0}}</div>
+                <div class="attribute-value-with-button">
+                  <div class="attribute-value">{{default value 0}}</div>
+                  {{#if ../../owner}}
+                    <button type="button" class="attribute-spend-point" data-attribute="might" title="Spend Attribute Point">
+                      <i class="fas fa-arrow-up"></i>
+                    </button>
+                  {{/if}}
+                </div>
               </div>
               
               <!-- Stones Display -->
@@ -90,18 +97,6 @@
                 <div class="stones-count">{{calculateStones value}} / 5 Stones</div>
               </div>
               
-              <!-- Controls -->
-              <div class="attribute-controls">
-                {{#if ../../editable}}
-                  <button type="button" class="attribute-spend-point" data-attribute="might" title="Spend Attribute Point to Increase">
-                    <i class="fas fa-arrow-up"></i> Spend Point
-                  </button>
-                  <input type="number" name="system.attributes.might.value" value="{{default value 0}}" min="0" max="80" data-dtype="Number" />
-                {{else}}
-                  <div class="attribute-value-display">{{default value 0}}</div>
-                {{/if}}
-              </div>
-              
               <!-- Roll Button -->
               <button type="button" class="attribute-roll" data-attribute="might" title="Roll Might">
                 <i class="fas fa-dice-d20"></i> Roll Might
@@ -114,7 +109,14 @@
             <div class="attribute-card" data-attribute="agility">
               <div class="attribute-card-header">
                 <h4 class="attribute-name"><i class="fas fa-running"></i> Agility</h4>
-                <div class="attribute-value">{{default value 0}}</div>
+                <div class="attribute-value-with-button">
+                  <div class="attribute-value">{{default value 0}}</div>
+                  {{#if ../../owner}}
+                    <button type="button" class="attribute-spend-point" data-attribute="agility" title="Spend Attribute Point">
+                      <i class="fas fa-arrow-up"></i>
+                    </button>
+                  {{/if}}
+                </div>
               </div>
               
               <div class="attribute-stones">
@@ -127,17 +129,6 @@
                   {{/times}}
                 </div>
                 <div class="stones-count">{{calculateStones value}} / 5 Stones</div>
-              </div>
-              
-              <div class="attribute-controls">
-                {{#if ../../editable}}
-                  <button type="button" class="attribute-spend-point" data-attribute="agility" title="Spend Attribute Point to Increase">
-                    <i class="fas fa-arrow-up"></i> Spend Point
-                  </button>
-                  <input type="number" name="system.attributes.agility.value" value="{{default value 0}}" min="0" max="80" data-dtype="Number" />
-                {{else}}
-                  <div class="attribute-value-display">{{default value 0}}</div>
-                {{/if}}
               </div>
               
               <button type="button" class="attribute-roll" data-attribute="agility">
@@ -151,7 +142,14 @@
             <div class="attribute-card" data-attribute="vitality">
               <div class="attribute-card-header">
                 <h4 class="attribute-name"><i class="fas fa-heart"></i> Vitality</h4>
-                <div class="attribute-value">{{default value 0}}</div>
+                <div class="attribute-value-with-button">
+                  <div class="attribute-value">{{default value 0}}</div>
+                  {{#if ../../owner}}
+                    <button type="button" class="attribute-spend-point" data-attribute="vitality" title="Spend Attribute Point">
+                      <i class="fas fa-arrow-up"></i>
+                    </button>
+                  {{/if}}
+                </div>
               </div>
               
               <div class="attribute-stones">
@@ -164,17 +162,6 @@
                   {{/times}}
                 </div>
                 <div class="stones-count">{{calculateStones value}} / 5 Stones</div>
-              </div>
-              
-              <div class="attribute-controls">
-                {{#if ../../editable}}
-                  <button type="button" class="attribute-spend-point" data-attribute="vitality" title="Spend Attribute Point to Increase">
-                    <i class="fas fa-arrow-up"></i> Spend Point
-                  </button>
-                  <input type="number" name="system.attributes.vitality.value" value="{{default value 0}}" min="0" max="80" data-dtype="Number" />
-                {{else}}
-                  <div class="attribute-value-display">{{default value 0}}</div>
-                {{/if}}
               </div>
               
               <button type="button" class="attribute-roll" data-attribute="vitality">
@@ -188,7 +175,14 @@
             <div class="attribute-card" data-attribute="wits">
               <div class="attribute-card-header">
                 <h4 class="attribute-name"><i class="fas fa-brain"></i> Wits</h4>
-                <div class="attribute-value">{{default value 0}}</div>
+                <div class="attribute-value-with-button">
+                  <div class="attribute-value">{{default value 0}}</div>
+                  {{#if ../../owner}}
+                    <button type="button" class="attribute-spend-point" data-attribute="wits" title="Spend Attribute Point">
+                      <i class="fas fa-arrow-up"></i>
+                    </button>
+                  {{/if}}
+                </div>
               </div>
               
               <div class="attribute-stones">
@@ -201,17 +195,6 @@
                   {{/times}}
                 </div>
                 <div class="stones-count">{{calculateStones value}} / 5 Stones</div>
-              </div>
-              
-              <div class="attribute-controls">
-                {{#if ../../editable}}
-                  <button type="button" class="attribute-spend-point" data-attribute="wits" title="Spend Attribute Point to Increase">
-                    <i class="fas fa-arrow-up"></i> Spend Point
-                  </button>
-                  <input type="number" name="system.attributes.wits.value" value="{{default value 0}}" min="0" max="80" data-dtype="Number" />
-                {{else}}
-                  <div class="attribute-value-display">{{default value 0}}</div>
-                {{/if}}
               </div>
               
               <button type="button" class="attribute-roll" data-attribute="wits">
@@ -230,7 +213,14 @@
             <div class="attribute-card" data-attribute="intellect">
               <div class="attribute-card-header">
                 <h4 class="attribute-name"><i class="fas fa-book"></i> Intellect</h4>
-                <div class="attribute-value">{{default value 0}}</div>
+                <div class="attribute-value-with-button">
+                  <div class="attribute-value">{{default value 0}}</div>
+                  {{#if ../../owner}}
+                    <button type="button" class="attribute-spend-point" data-attribute="intellect" title="Spend Attribute Point">
+                      <i class="fas fa-arrow-up"></i>
+                    </button>
+                  {{/if}}
+                </div>
               </div>
               
               <div class="attribute-stones">
@@ -243,17 +233,6 @@
                   {{/times}}
                 </div>
                 <div class="stones-count">{{calculateStones value}} / 5 Stones</div>
-              </div>
-              
-              <div class="attribute-controls">
-                {{#if ../../editable}}
-                  <button type="button" class="attribute-spend-point" data-attribute="intellect" title="Spend Attribute Point to Increase">
-                    <i class="fas fa-arrow-up"></i> Spend Point
-                  </button>
-                  <input type="number" name="system.attributes.intellect.value" value="{{default value 0}}" min="0" max="80" data-dtype="Number" />
-                {{else}}
-                  <div class="attribute-value-display">{{default value 0}}</div>
-                {{/if}}
               </div>
               
               <button type="button" class="attribute-roll" data-attribute="intellect">
@@ -267,7 +246,14 @@
             <div class="attribute-card" data-attribute="resolve">
               <div class="attribute-card-header">
                 <h4 class="attribute-name"><i class="fas fa-mountain"></i> Resolve</h4>
-                <div class="attribute-value">{{default value 0}}</div>
+                <div class="attribute-value-with-button">
+                  <div class="attribute-value">{{default value 0}}</div>
+                  {{#if ../../owner}}
+                    <button type="button" class="attribute-spend-point" data-attribute="resolve" title="Spend Attribute Point">
+                      <i class="fas fa-arrow-up"></i>
+                    </button>
+                  {{/if}}
+                </div>
               </div>
               
               <div class="attribute-stones">
@@ -280,17 +266,6 @@
                   {{/times}}
                 </div>
                 <div class="stones-count">{{calculateStones value}} / 5 Stones</div>
-              </div>
-              
-              <div class="attribute-controls">
-                {{#if ../../editable}}
-                  <button type="button" class="attribute-spend-point" data-attribute="resolve" title="Spend Attribute Point to Increase">
-                    <i class="fas fa-arrow-up"></i> Spend Point
-                  </button>
-                  <input type="number" name="system.attributes.resolve.value" value="{{default value 0}}" min="0" max="80" data-dtype="Number" />
-                {{else}}
-                  <div class="attribute-value-display">{{default value 0}}</div>
-                {{/if}}
               </div>
               
               <button type="button" class="attribute-roll" data-attribute="resolve">
@@ -304,7 +279,14 @@
             <div class="attribute-card" data-attribute="influence">
               <div class="attribute-card-header">
                 <h4 class="attribute-name"><i class="fas fa-users"></i> Influence</h4>
-                <div class="attribute-value">{{default value 0}}</div>
+                <div class="attribute-value-with-button">
+                  <div class="attribute-value">{{default value 0}}</div>
+                  {{#if ../../owner}}
+                    <button type="button" class="attribute-spend-point" data-attribute="influence" title="Spend Attribute Point">
+                      <i class="fas fa-arrow-up"></i>
+                    </button>
+                  {{/if}}
+                </div>
               </div>
               
               <div class="attribute-stones">
@@ -317,17 +299,6 @@
                   {{/times}}
                 </div>
                 <div class="stones-count">{{calculateStones value}} / 5 Stones</div>
-              </div>
-              
-              <div class="attribute-controls">
-                {{#if ../../editable}}
-                  <button type="button" class="attribute-spend-point" data-attribute="influence" title="Spend Attribute Point to Increase">
-                    <i class="fas fa-arrow-up"></i> Spend Point
-                  </button>
-                  <input type="number" name="system.attributes.influence.value" value="{{default value 0}}" min="0" max="80" data-dtype="Number" />
-                {{else}}
-                  <div class="attribute-value-display">{{default value 0}}</div>
-                {{/if}}
               </div>
               
               <button type="button" class="attribute-roll" data-attribute="influence">

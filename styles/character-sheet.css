@@ -313,6 +313,19 @@
   border-bottom: 2px solid #8b0000;
 }
 
+.mastery-system.sheet.actor.character .attribute-value-with-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mastery-system.sheet.actor.character .attribute-value-with-button .attribute-spend-point {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  font-size: 14px;
+}
+
 .mastery-system.sheet.actor.character .attribute-name {
   margin: 0;
   font-size: 15px;
