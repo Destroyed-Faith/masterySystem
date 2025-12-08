@@ -12,6 +12,8 @@ export declare class MasteryCharacterSheet extends BaseActorSheet {
     /** @override */
     getData(options?: any): any;
     /** @override */
+    render(force?: boolean, options?: any): Promise<any>;
+    /** @override */
     activateListeners(html: JQuery): void;
 }
 export {};

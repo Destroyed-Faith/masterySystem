@@ -120,6 +120,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     return context;
   }
 
+  /** @override */
+  async render(force?: boolean, options?: any) {
+    console.log('Mastery System | Character Sheet render called', { force, options });
+    const result = await super.render(force, options);
+    console.log('Mastery System | Character Sheet render completed');
+    return result;
+  }
+
   /**
    * Prepare items organized by type
    */
@@ -238,9 +246,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
   /** @override */
   activateListeners(html: JQuery) {
+    console.log('Mastery System | activateListeners START', {
+      htmlLength: html.length,
+      actorName: this.actor?.name,
+      htmlIsJQuery: html instanceof jQuery,
+      htmlContent: html[0]?.tagName
+    });
+    
     super.activateListeners(html);
     
-    console.log('Mastery System | activateListeners called', {
+    console.log('Mastery System | activateListeners called AFTER super', {
       htmlLength: html.length,
       actorName: this.actor?.name
     });
@@ -841,9 +856,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
               callback: () => {}
             }
           },
-          default: 'close',
-          width: 600
-        });
+          default: 'close'
+        } as any);
         console.log('Mastery System | Dialog created, rendering...');
         await dialog.render(true);
         console.log('Mastery System | Dialog rendered successfully');
@@ -863,9 +877,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
               callback: () => {}
             }
           },
-          default: 'close',
-          width: 600
-        });
+          default: 'close'
+        } as any);
         await dialog.render(true);
         console.log('Mastery System | Fallback dialog rendered successfully');
       } catch (fallbackError) {
