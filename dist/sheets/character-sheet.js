@@ -52,11 +52,29 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
     }
     /**
-     * Add a new Power (opens a basic creation prompt)
+     * Add a new Power → open power dialog (Mastery Trees)
      */
     async #onPowerAdd(event) {
         event.preventDefault();
-        await this.#openMagicPowerDialog();
+        await this.#openPowerDialog();
+    }
+    /**
+     * Open the Power Creation Dialog (dropdown of Mastery Trees/Powers)
+     */
+    async #openPowerDialog() {
+        try {
+            const dialogModule = await import('../../dist/sheets/character-sheet-power-dialog.js');
+            if (dialogModule?.showPowerCreationDialog) {
+                await dialogModule.showPowerCreationDialog(this.actor);
+            }
+            else {
+                ui.notifications?.error('Power dialog not found.');
+            }
+        }
+        catch (error) {
+            console.error('Mastery System | Failed to open power dialog', error);
+            ui.notifications?.error('Failed to open power selection dialog');
+        }
     }
     /** @override */
     get template() {
