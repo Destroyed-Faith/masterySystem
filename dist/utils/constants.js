@@ -18,4 +18,17 @@ export const DEFAULT_HEALTH_PER_BAR = 10;
 export const MAX_MASTERY_RANK = 4;
 // Stone pools
 export const STARTING_STONES = 8;
+// Initiative Shop costs
+export const INITIATIVE_SHOP = {
+    MOVEMENT: {
+        COST: 1, // Per 2m of movement
+        INCREMENT: 2 // Movement increases by 2m per purchase
+    },
+    SWAP: {
+        COST: 3 // Cost to unlock initiative swap
+    },
+    EXTRA_ATTACK: {
+        COST: 5 // Cost for extra attack
+    }
+};
 //# sourceMappingURL=constants.js.map
