@@ -13,6 +13,7 @@ import { MasteryNpcSheet } from './sheets/npc-sheet.js';
 import { MasteryItemSheet } from './sheets/item-sheet.js';
 import { initializeCombatHooks } from '../dist/combat/initiative.js';
 import { calculateStones } from './utils/calculations.js';
+import { initializeTokenActionSelector } from './token-action-selector.js';
 
 // Dice roller functions are imported in sheets where needed
 
@@ -73,6 +74,9 @@ Hooks.once('init', async function() {
 
   // Initialize combat hooks
   initializeCombatHooks();
+
+  // Initialize token action selector
+  initializeTokenActionSelector();
 
   // Preload Handlebars templates
   await preloadTemplates();

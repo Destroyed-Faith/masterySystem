@@ -671,6 +671,44 @@
   }
 }
 
+/* ========================================
+   Token HUD Action Selector
+   ======================================== */
+
+.control-icon.ms-action-selector {
+  background: rgba(15, 52, 96, 0.8);
+  border: 2px solid #0f3460;
+  border-radius: 4px;
+  color: #a8dadc;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.control-icon.ms-action-selector:hover {
+  background: rgba(233, 69, 96, 0.2);
+  border-color: #e94560;
+  color: #e94560;
+  transform: scale(1.1);
+  box-shadow: 0 0 8px rgba(233, 69, 96, 0.4);
+}
+
+.control-icon.ms-action-selector.active {
+  background: rgba(233, 69, 96, 0.3);
+  border-color: #e94560;
+  color: #e94560;
+  box-shadow: 0 0 12px rgba(233, 69, 96, 0.5);
+}
+
+.control-icon.ms-action-selector.active:hover {
+  background: rgba(233, 69, 96, 0.4);
+  box-shadow: 0 0 16px rgba(233, 69, 96, 0.6);
+}
+
+.control-icon.ms-action-selector i {
+  font-size: 1.2em;
+}
+
+
 
 
 
