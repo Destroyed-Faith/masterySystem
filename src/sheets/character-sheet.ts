@@ -848,30 +848,53 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const testStyles = window.getComputedStyle(portraitEl);
       const testTokenStyles = window.getComputedStyle(tokenEl);
       
-      console.log('Mastery System | CSS Selector Match Test', {
-        portraitElement: {
-          tagName: portraitEl.tagName,
-          className: portraitEl.className,
-          dataImageType: portraitEl.getAttribute('data-image-type'),
-          hasProfileImgContainer: portraitEl.classList.contains('profile-img-container'),
-          hasTokenClass: portraitEl.classList.contains('profile-img-container-token'),
-          computedDisplay: testStyles.display
-        },
-        tokenElement: {
-          tagName: tokenEl.tagName,
-          className: tokenEl.className,
-          dataImageType: tokenEl.getAttribute('data-image-type'),
-          hasProfileImgContainer: tokenEl.classList.contains('profile-img-container'),
-          hasTokenClass: tokenEl.classList.contains('profile-img-container-token'),
-          computedDisplay: testTokenStyles.display
-        },
-        sectionElement: {
-          className: sectionEl.className,
-          hasShowingToken: sectionEl.classList.contains('showing-token'),
-          parentSelector: '.portrait-section.showing-token .profile-img-container[data-image-type="portrait"]',
-          tokenSelector: '.portrait-section.showing-token .profile-img-container-token'
-        }
+      // Log each property separately for better visibility
+      console.log('Mastery System | CSS Selector Match Test - Portrait Element', {
+        tagName: portraitEl.tagName,
+        className: portraitEl.className,
+        dataImageType: portraitEl.getAttribute('data-image-type'),
+        hasProfileImgContainer: portraitEl.classList.contains('profile-img-container'),
+        hasTokenClass: portraitEl.classList.contains('profile-img-container-token'),
+        computedDisplay: testStyles.display,
+        computedVisibility: testStyles.visibility,
+        computedOpacity: testStyles.opacity,
+        computedWidth: testStyles.width,
+        computedHeight: testStyles.height
       });
+      
+      console.log('Mastery System | CSS Selector Match Test - Token Element', {
+        tagName: tokenEl.tagName,
+        className: tokenEl.className,
+        dataImageType: tokenEl.getAttribute('data-image-type'),
+        hasProfileImgContainer: tokenEl.classList.contains('profile-img-container'),
+        hasTokenClass: tokenEl.classList.contains('profile-img-container-token'),
+        computedDisplay: testTokenStyles.display,
+        computedVisibility: testTokenStyles.visibility,
+        computedOpacity: testTokenStyles.opacity,
+        computedWidth: testTokenStyles.width,
+        computedHeight: testTokenStyles.height
+      });
+      
+      console.log('Mastery System | CSS Selector Match Test - Section Element', {
+        className: sectionEl.className,
+        hasShowingToken: sectionEl.classList.contains('showing-token'),
+        allClasses: Array.from(sectionEl.classList),
+        parentSelector: '.portrait-section.showing-token .profile-img-container[data-image-type="portrait"]',
+        tokenSelector: '.portrait-section.showing-token .profile-img-container-token'
+      });
+      
+      // Test if the selectors actually match
+      try {
+        const portraitMatches = portraitEl.matches('.mastery-system.sheet.actor.character .portrait-section.showing-token .profile-img-container[data-image-type="portrait"]');
+        const tokenMatches = tokenEl.matches('.mastery-system.sheet.actor.character .portrait-section.showing-token .profile-img-container-token');
+        console.log('Mastery System | CSS Selector Match Test - Actual Matches', {
+          portraitMatchesSelector: portraitMatches,
+          tokenMatchesSelector: tokenMatches,
+          sectionHasShowingToken: sectionEl.classList.contains('showing-token')
+        });
+      } catch (e) {
+        console.log('Mastery System | CSS Selector Match Test - Could not test matches()', e);
+      }
     }
     
     // Toggle the showing-token class on the section
@@ -924,6 +947,35 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         tokenIsVisible: tokenContainer.is(':visible'),
         sectionClasses: portraitSection[0]?.className
       });
+      
+      // Log computed styles separately for better visibility
+      if (portraitContainer.length > 0 && tokenContainer.length > 0) {
+        const portraitElAfter = portraitContainer[0] as HTMLElement;
+        const tokenElAfter = tokenContainer[0] as HTMLElement;
+        const portraitComputed = window.getComputedStyle(portraitElAfter);
+        const tokenComputed = window.getComputedStyle(tokenElAfter);
+        
+        console.log('Mastery System | AFTER SWAP - Detailed Computed Styles', {
+          portrait: {
+            display: portraitComputed.display,
+            visibility: portraitComputed.visibility,
+            opacity: portraitComputed.opacity,
+            width: portraitComputed.width,
+            height: portraitComputed.height,
+            position: portraitComputed.position,
+            zIndex: portraitComputed.zIndex
+          },
+          token: {
+            display: tokenComputed.display,
+            visibility: tokenComputed.visibility,
+            opacity: tokenComputed.opacity,
+            width: tokenComputed.width,
+            height: tokenComputed.height,
+            position: tokenComputed.position,
+            zIndex: tokenComputed.zIndex
+          }
+        });
+      }
       
       // Check if CSS rules are being applied
       const sectionElement = portraitSection[0] as HTMLElement;
