@@ -265,12 +265,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             const target = $(e.target);
             const clickedZone = target.closest('.profile-zone');
             const container = target.closest('.profile-img-container');
-            const imgType = container.data('image-type') || clickedZone.data('img-type') || 'portrait';
+            // Get imgType from container's data attribute first, then from zone, fallback to 'portrait'
+            const imgType = container.attr('data-image-type') || clickedZone.attr('data-img-type') || 'portrait';
             console.log('Mastery System | Container clicked', {
                 target: target[0]?.className,
                 clickedZone: clickedZone.length,
                 zoneClass: clickedZone[0]?.className,
-                imgType: imgType
+                containerDataImageType: container.attr('data-image-type'),
+                zoneDataImgType: clickedZone.attr('data-img-type'),
+                finalImgType: imgType
             });
             if (clickedZone.hasClass('profile-zone-edit')) {
                 console.log('Mastery System | EDIT zone clicked via delegation', { imgType });
@@ -660,7 +663,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             target: event.target,
             currentTarget: event.currentTarget,
             isEditable: this.isEditable,
-            actorName: this.actor.name
+            actorName: this.actor.name,
+            imgType: imgType,
+            isToken: imgType === 'token'
         });
         event.preventDefault();
         event.stopPropagation();
@@ -683,23 +688,40 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 foundry?.applications?.apps?.FilePicker?.implementation ||
                 FilePicker;
             console.log('Mastery System | FilePickerClass resolved', { FilePickerClass: FilePickerClass?.name || 'unknown' });
-            const currentImage = imgType === 'token'
-                ? (this.actor.prototypeToken?.texture?.src || this.actor.img)
-                : this.actor.img;
+            // Get current image based on imgType
+            let currentImage;
+            if (imgType === 'token') {
+                currentImage = this.actor.prototypeToken?.texture?.src || this.actor.img || '';
+                console.log('Mastery System | Token image edit - current:', currentImage);
+            }
+            else {
+                currentImage = this.actor.img || '';
+                console.log('Mastery System | Portrait image edit - current:', currentImage);
+            }
             const filePicker = new FilePickerClass({
                 type: 'image',
                 current: currentImage,
                 callback: async (path) => {
-                    console.log('Mastery System | FilePicker callback triggered', { path, imgType });
-                    if (imgType === 'token') {
-                        // Update token image
-                        const tokenData = foundry.utils.deepClone(this.actor.prototypeToken);
-                        tokenData.texture.src = path;
-                        await this.actor.update({ 'prototypeToken.texture.src': path });
+                    console.log('Mastery System | FilePicker callback triggered', { path, imgType, isToken: imgType === 'token' });
+                    try {
+                        if (imgType === 'token') {
+                            // Update token image
+                            console.log('Mastery System | Updating token image to:', path);
+                            await this.actor.update({ 'prototypeToken.texture.src': path });
+                            console.log('Mastery System | Token image updated successfully');
+                        }
+                        else {
+                            // Update portrait image
+                            console.log('Mastery System | Updating portrait image to:', path);
+                            await this.actor.update({ img: path });
+                            console.log('Mastery System | Portrait image updated successfully');
+                        }
+                        // Re-render the sheet to show the new image
+                        this.render(false);
                     }
-                    else {
-                        // Update portrait image
-                        await this.actor.update({ img: path });
+                    catch (updateError) {
+                        console.error('Mastery System | Error updating image:', updateError);
+                        ui.notifications?.error('Failed to update image.');
                     }
                 }
             });
@@ -722,14 +744,25 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             target: event.target,
             currentTarget: event.currentTarget,
             actorName: this.actor.name,
-            imgType: imgType
+            imgType: imgType,
+            isToken: imgType === 'token'
         });
         event.preventDefault();
         event.stopPropagation();
         event.stopImmediatePropagation();
-        const imgSrc = imgType === 'token'
-            ? (this.actor.prototypeToken?.texture?.src || this.actor.img)
-            : this.actor.img;
+        // Get image source based on imgType
+        let imgSrc;
+        if (imgType === 'token') {
+            imgSrc = this.actor.prototypeToken?.texture?.src || this.actor.img || '';
+            console.log('Mastery System | Token image show - source:', imgSrc, {
+                hasTokenSrc: !!this.actor.prototypeToken?.texture?.src,
+                fallbackToPortrait: !this.actor.prototypeToken?.texture?.src
+            });
+        }
+        else {
+            imgSrc = this.actor.img || '';
+            console.log('Mastery System | Portrait image show - source:', imgSrc);
+        }
         console.log('Mastery System | Image source check', { imgSrc, isDefault: imgSrc === 'icons/svg/mystery-man.svg' });
         if (!imgSrc || imgSrc === 'icons/svg/mystery-man.svg') {
             console.log('Mastery System | No valid image to display');

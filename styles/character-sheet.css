@@ -144,6 +144,14 @@
   align-self: center; /* Center vertically in header */
 }
 
+/* Profile Image Wrapper (contains image + label) */
+.mastery-system.sheet.actor.character .profile-img-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+}
+
 /* Profile Image Container with Overlay */
 .mastery-system.sheet.actor.character .profile-img-container {
   position: relative;
@@ -157,6 +165,18 @@
   display: inline-block;
   width: 70px;
   height: 70px;
+}
+
+/* Profile Image Label (vertical text) */
+.mastery-system.sheet.actor.character .profile-img-label {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: 10px;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 1px;
+  line-height: 1.2;
+  user-select: none;
 }
 
 .mastery-system.sheet.actor.character .profile-img-container .profile-img {
