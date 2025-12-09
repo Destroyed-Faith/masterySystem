@@ -2,16 +2,32 @@
   
   <!-- Header -->
   <header class="sheet-header">
-    <div class="profile-img-container {{#unless editable}}locked{{/unless}}">
-      <img class="profile-img {{#if editable}}{{else}}locked{{/if}}" src="{{actor.img}}" title="{{actor.name}}" alt="{{actor.name}}" />
-      <div class="profile-overlay">
-        <div class="profile-zone profile-zone-edit" data-action="edit">
-          <span class="zone-label">EDIT</span>
-        </div>
-        <div class="profile-zone profile-zone-show" data-action="show">
-          <span class="zone-label">SHOW</span>
+    <div class="portrait-section">
+      <div class="profile-img-container {{#unless editable}}locked{{/unless}}" data-image-type="portrait">
+        <img class="profile-img {{#if editable}}{{else}}locked{{/if}}" src="{{actor.img}}" title="{{actor.name}}" alt="{{actor.name}}" />
+        <div class="profile-overlay">
+          <div class="profile-zone profile-zone-edit" data-action="edit" data-img-type="portrait">
+            <span class="zone-label">EDIT</span>
+          </div>
+          <div class="profile-zone profile-zone-show" data-action="show" data-img-type="portrait">
+            <span class="zone-label">SHOW</span>
+          </div>
         </div>
       </div>
+      <div class="profile-img-container {{#unless editable}}locked{{/unless}}" data-image-type="token" style="display: none;">
+        <img class="profile-img {{#if editable}}{{else}}locked{{/if}}" src="{{default actor.prototypeToken.texture.src actor.img}}" title="{{actor.name}} Token" alt="{{actor.name}} Token" />
+        <div class="profile-overlay">
+          <div class="profile-zone profile-zone-edit" data-action="edit" data-img-type="token">
+            <span class="zone-label">EDIT</span>
+          </div>
+          <div class="profile-zone profile-zone-show" data-action="show" data-img-type="token">
+            <span class="zone-label">SHOW</span>
+          </div>
+        </div>
+      </div>
+      <button type="button" class="token-swap-btn" title="Swap between Portrait and Token Image">
+        <i class="fas fa-exchange-alt"></i>
+      </button>
     </div>
     
     <div class="header-info">

@@ -129,6 +129,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Add skills list (sorted alphabetically)
     context.skills = this.#prepareSkills(context.system.skills);
     
+    // Ensure token image is available
+    if (!context.actor.prototypeToken?.texture?.src) {
+      context.actor.prototypeToken = context.actor.prototypeToken || {};
+      context.actor.prototypeToken.texture = context.actor.prototypeToken.texture || {};
+      context.actor.prototypeToken.texture.src = context.actor.img;
+    }
+    
     return context;
   }
 
@@ -283,35 +290,45 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     // Profile image click handlers (work for everyone)
     // Use event delegation to handle clicks even if elements are added later
-    const container = html.find('.profile-img-container');
+    const containers = html.find('.profile-img-container');
     
     console.log('Mastery System | Setting up profile image handlers', {
-      containerFound: container.length,
+      containerFound: containers.length,
       htmlLength: html.length
     });
     
-    // Use event delegation on the container
-    container.off('click.profile-delegation').on('click.profile-delegation', (e: JQuery.ClickEvent) => {
+    // Use event delegation on all containers
+    containers.off('click.profile-delegation').on('click.profile-delegation', (e: JQuery.ClickEvent) => {
       const target = $(e.target);
       const clickedZone = target.closest('.profile-zone');
+      const container = target.closest('.profile-img-container');
+      const imgType = container.data('image-type') || clickedZone.data('img-type') || 'portrait';
       
       console.log('Mastery System | Container clicked', {
         target: target[0]?.className,
         clickedZone: clickedZone.length,
-        zoneClass: clickedZone[0]?.className
+        zoneClass: clickedZone[0]?.className,
+        imgType: imgType
       });
       
       if (clickedZone.hasClass('profile-zone-edit')) {
-        console.log('Mastery System | EDIT zone clicked via delegation');
+        console.log('Mastery System | EDIT zone clicked via delegation', { imgType });
         e.preventDefault();
         e.stopPropagation();
-        this.#onProfileEdit(e);
+        this.#onProfileEdit(e, imgType);
       } else if (clickedZone.hasClass('profile-zone-show')) {
-        console.log('Mastery System | SHOW zone clicked via delegation');
+        console.log('Mastery System | SHOW zone clicked via delegation', { imgType });
         e.preventDefault();
         e.stopPropagation();
-        this.#onProfileShow(e);
+        this.#onProfileShow(e, imgType);
       }
+    });
+    
+    // Token swap button
+    html.find('.token-swap-btn').off('click.token-swap').on('click.token-swap', (e: JQuery.ClickEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.#onTokenSwap(e);
     });
     
     // Also set up direct handlers as backup
@@ -755,9 +772,33 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   /**
+   * Handle token swap button
+   */
+  #onTokenSwap(e: JQuery.ClickEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const portraitSection = this.element.find('.portrait-section');
+    const portraitContainer = portraitSection.find('.profile-img-container[data-image-type="portrait"]');
+    const tokenContainer = portraitSection.find('.profile-img-container[data-image-type="token"]');
+    
+    if (portraitContainer.is(':visible')) {
+      // Switch to token
+      portraitContainer.hide();
+      tokenContainer.show();
+      portraitSection.addClass('showing-token');
+    } else {
+      // Switch to portrait
+      tokenContainer.hide();
+      portraitContainer.show();
+      portraitSection.removeClass('showing-token');
+    }
+  }
+
+  /**
    * Handle profile image edit (upper zone)
    */
-  async #onProfileEdit(event: JQuery.ClickEvent) {
+  async #onProfileEdit(event: JQuery.ClickEvent, imgType: string = 'portrait') {
     console.log('Mastery System | #onProfileEdit called', {
       eventType: event.type,
       target: event.target,
@@ -792,12 +833,24 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       
       console.log('Mastery System | FilePickerClass resolved', { FilePickerClass: FilePickerClass?.name || 'unknown' });
       
+      const currentImage = imgType === 'token' 
+        ? (this.actor.prototypeToken?.texture?.src || this.actor.img)
+        : this.actor.img;
+      
       const filePicker = new FilePickerClass({
         type: 'image',
-        current: this.actor.img,
+        current: currentImage,
         callback: async (path: string) => {
-          console.log('Mastery System | FilePicker callback triggered', { path });
-          await this.actor.update({ img: path });
+          console.log('Mastery System | FilePicker callback triggered', { path, imgType });
+          if (imgType === 'token') {
+            // Update token image
+            const tokenData = foundry.utils.deepClone(this.actor.prototypeToken);
+            tokenData.texture.src = path;
+            await this.actor.update({ 'prototypeToken.texture.src': path });
+          } else {
+            // Update portrait image
+            await this.actor.update({ img: path });
+          }
         }
       });
       
@@ -814,19 +867,22 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   /**
    * Handle profile image show (lower zone)
    */
-  async #onProfileShow(event: JQuery.ClickEvent) {
+  async #onProfileShow(event: JQuery.ClickEvent, imgType: string = 'portrait') {
     console.log('Mastery System | #onProfileShow called', {
       eventType: event.type,
       target: event.target,
       currentTarget: event.currentTarget,
-      actorName: this.actor.name
+      actorName: this.actor.name,
+      imgType: imgType
     });
     
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
     
-    const imgSrc = this.actor.img;
+    const imgSrc = imgType === 'token'
+      ? (this.actor.prototypeToken?.texture?.src || this.actor.img)
+      : this.actor.img;
     console.log('Mastery System | Image source check', { imgSrc, isDefault: imgSrc === 'icons/svg/mystery-man.svg' });
     
     if (!imgSrc || imgSrc === 'icons/svg/mystery-man.svg') {
