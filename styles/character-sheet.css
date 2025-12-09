@@ -150,7 +150,7 @@
 }
 
 .mastery-system.sheet.actor.character .profile-img-container-token {
-  display: none;
+  display: none !important;
 }
 
 .mastery-system.sheet.actor.character .portrait-section.showing-token .profile-img-container[data-image-type="portrait"] {
@@ -159,6 +159,14 @@
 
 .mastery-system.sheet.actor.character .portrait-section.showing-token .profile-img-container-token {
   display: inline-block !important;
+}
+
+.mastery-system.sheet.actor.character .portrait-section:not(.showing-token) .profile-img-container[data-image-type="portrait"] {
+  display: inline-block !important;
+}
+
+.mastery-system.sheet.actor.character .portrait-section:not(.showing-token) .profile-img-container-token {
+  display: none !important;
 }
 
 .mastery-system.sheet.actor.character .profile-img-container .profile-img {
