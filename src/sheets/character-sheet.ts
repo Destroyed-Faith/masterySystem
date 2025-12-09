@@ -303,27 +303,36 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const clickedZone = target.closest('.profile-zone');
       const container = target.closest('.profile-img-container');
       // Get imgType from zone's data attribute first (most specific), then container, fallback to 'portrait'
-      const imgType = clickedZone.attr('data-img-type') || container.attr('data-image-type') || 'portrait';
+      const zoneImgType = clickedZone.attr('data-img-type');
+      const containerImgType = container.attr('data-image-type');
+      const imgType = zoneImgType || containerImgType || 'portrait';
       
       console.log('Mastery System | Container clicked', {
         target: target[0]?.className,
         clickedZone: clickedZone.length,
         zoneClass: clickedZone[0]?.className,
-        containerDataImageType: container.attr('data-image-type'),
-        zoneDataImgType: clickedZone.attr('data-img-type'),
-        finalImgType: imgType
+        zoneDataImgType: zoneImgType,
+        containerDataImageType: containerImgType,
+        finalImgType: imgType,
+        isToken: imgType === 'token',
+        isPortrait: imgType === 'portrait'
       });
       
       if (clickedZone.hasClass('profile-zone-edit')) {
-        console.log('Mastery System | EDIT zone clicked via delegation', { imgType });
+        console.log('Mastery System | EDIT zone clicked via delegation', { 
+          imgType, 
+          isToken: imgType === 'token',
+          willCallOnProfileEdit: true
+        });
         e.preventDefault();
         e.stopPropagation();
-        this.#onProfileEdit(e, imgType);
+        // Pass imgType as string to ensure it's not modified
+        this.#onProfileEdit(e, String(imgType));
       } else if (clickedZone.hasClass('profile-zone-show')) {
         console.log('Mastery System | SHOW zone clicked via delegation', { imgType });
         e.preventDefault();
         e.stopPropagation();
-        this.#onProfileShow(e, imgType);
+        this.#onProfileShow(e, String(imgType));
       }
     });
     
@@ -808,9 +817,19 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       
       console.log('Mastery System | FilePickerClass resolved', { FilePickerClass: FilePickerClass?.name || 'unknown' });
       
-      // Get current image based on imgType
+      // Get current image based on imgType - use strict comparison
+      const isTokenEdit = (imgType === 'token'); // Store in const to ensure it's captured correctly in closure
       let currentImage: string;
-      const isTokenEdit = imgType === 'token'; // Store in const to ensure it's captured correctly in closure
+      
+      console.log('Mastery System | Determining image type for edit', {
+        imgType: imgType,
+        imgTypeType: typeof imgType,
+        isTokenEdit: isTokenEdit,
+        strictComparison: imgType === 'token',
+        currentActorImg: this.actor.img,
+        currentTokenImg: this.actor.prototypeToken?.texture?.src
+      });
+      
       if (isTokenEdit) {
         currentImage = this.actor.prototypeToken?.texture?.src || this.actor.img || '';
         console.log('Mastery System | Token image edit - current:', currentImage);
@@ -819,27 +838,36 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         console.log('Mastery System | Portrait image edit - current:', currentImage);
       }
       
+      // Store isTokenEdit in a way that can't be modified
+      const updateIsToken = isTokenEdit;
+      
       const filePicker = new FilePickerClass({
         type: 'image',
         current: currentImage,
         callback: async (path: string) => {
           console.log('Mastery System | FilePicker callback triggered', { 
             path, 
-            imgType, 
-            isTokenEdit,
+            imgType: imgType,
+            imgTypeType: typeof imgType,
+            isTokenEdit: updateIsToken,
+            strictComparison: imgType === 'token',
             actorImg: this.actor.img,
             tokenImg: this.actor.prototypeToken?.texture?.src
           });
           try {
-            if (isTokenEdit) {
+            if (updateIsToken) {
               // Update token image
-              console.log('Mastery System | Updating token image to:', path);
-              await this.actor.update({ 'prototypeToken.texture.src': path });
+              console.log('Mastery System | Updating TOKEN image to:', path);
+              const updateData = { 'prototypeToken.texture.src': path };
+              console.log('Mastery System | Update data:', updateData);
+              await this.actor.update(updateData);
               console.log('Mastery System | Token image updated successfully');
             } else {
               // Update portrait image
-              console.log('Mastery System | Updating portrait image to:', path);
-              await this.actor.update({ img: path });
+              console.log('Mastery System | Updating PORTRAIT image to:', path);
+              const updateData = { img: path };
+              console.log('Mastery System | Update data:', updateData);
+              await this.actor.update(updateData);
               console.log('Mastery System | Portrait image updated successfully');
             }
             // Re-render the sheet to show the new image
