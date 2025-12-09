@@ -141,6 +141,8 @@
   gap: 4px;
   position: relative;
   min-width: 98px; /* Button (24px) + gap (4px) + image (70px) */
+  height: 70px; /* Match image height */
+  align-self: center; /* Center vertically in header */
 }
 
 /* Profile Image Container with Overlay */
