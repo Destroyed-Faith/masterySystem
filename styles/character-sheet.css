@@ -4,8 +4,10 @@
 
 /* ========== Character Sheet Specific ========== */
 .mastery-system.sheet.actor.character {
-  min-width: 720px;
-  min-height: 800px;
+  width: 1054px;
+  height: 809px;
+  min-width: 1054px;
+  min-height: 809px;
 }
 
 .mastery-system.sheet.actor.character .window-content {
