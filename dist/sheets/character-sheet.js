@@ -679,26 +679,31 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             tokenVisible: tokenContainer.is(':visible'),
             portraitLength: portraitContainer.length,
             tokenLength: tokenContainer.length,
-            sectionHasClass: portraitSection.hasClass('showing-token')
+            sectionHasClass: portraitSection.hasClass('showing-token'),
+            portraitDisplay: portraitContainer.css('display'),
+            tokenDisplay: tokenContainer.css('display')
         });
-        if (portraitContainer.is(':visible') || !portraitSection.hasClass('showing-token')) {
+        // Use CSS classes instead of show/hide for better control
+        if (!portraitSection.hasClass('showing-token')) {
             // Switch to token
             console.log('Mastery System | Switching to token');
-            portraitContainer.hide();
-            tokenContainer.show();
             portraitSection.addClass('showing-token');
+            portraitContainer.css('display', 'none');
+            tokenContainer.css('display', 'inline-block');
         }
         else {
             // Switch to portrait
             console.log('Mastery System | Switching to portrait');
-            tokenContainer.hide();
-            portraitContainer.show();
             portraitSection.removeClass('showing-token');
+            tokenContainer.css('display', 'none');
+            portraitContainer.css('display', 'inline-block');
         }
         console.log('Mastery System | After swap', {
             portraitVisible: portraitContainer.is(':visible'),
             tokenVisible: tokenContainer.is(':visible'),
-            sectionHasClass: portraitSection.hasClass('showing-token')
+            sectionHasClass: portraitSection.hasClass('showing-token'),
+            portraitDisplay: portraitContainer.css('display'),
+            tokenDisplay: tokenContainer.css('display')
         });
     }
     /**
