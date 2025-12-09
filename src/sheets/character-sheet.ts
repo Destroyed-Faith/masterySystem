@@ -302,10 +302,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const target = $(e.target);
       const clickedZone = target.closest('.profile-zone');
       const container = target.closest('.profile-img-container');
+      
       // Get imgType from zone's data attribute first (most specific), then container, fallback to 'portrait'
       const zoneImgType = clickedZone.attr('data-img-type');
       const containerImgType = container.attr('data-image-type');
       const imgType = zoneImgType || containerImgType || 'portrait';
+      
+      // Also check if container has the token class
+      const isTokenContainer = container.hasClass('profile-img-container-token');
       
       console.log('Mastery System | Container clicked', {
         target: target[0]?.className,
@@ -313,26 +317,35 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         zoneClass: clickedZone[0]?.className,
         zoneDataImgType: zoneImgType,
         containerDataImageType: containerImgType,
+        containerClasses: container.attr('class'),
+        isTokenContainer: isTokenContainer,
         finalImgType: imgType,
         isToken: imgType === 'token',
         isPortrait: imgType === 'portrait'
       });
       
+      // Determine final imgType - prioritize zone attribute, then container class, then container attribute
+      let finalImgType = imgType;
+      if (!zoneImgType && isTokenContainer) {
+        finalImgType = 'token';
+        console.log('Mastery System | Overriding imgType to token based on container class');
+      }
+      
       if (clickedZone.hasClass('profile-zone-edit')) {
         console.log('Mastery System | EDIT zone clicked via delegation', { 
-          imgType, 
-          isToken: imgType === 'token',
+          imgType: finalImgType, 
+          isToken: finalImgType === 'token',
           willCallOnProfileEdit: true
         });
         e.preventDefault();
         e.stopPropagation();
         // Pass imgType as string to ensure it's not modified
-        this.#onProfileEdit(e, String(imgType));
+        this.#onProfileEdit(e, String(finalImgType));
       } else if (clickedZone.hasClass('profile-zone-show')) {
-        console.log('Mastery System | SHOW zone clicked via delegation', { imgType });
+        console.log('Mastery System | SHOW zone clicked via delegation', { imgType: finalImgType });
         e.preventDefault();
         e.stopPropagation();
-        this.#onProfileShow(e, String(imgType));
+        this.#onProfileShow(e, String(finalImgType));
       }
     });
     
