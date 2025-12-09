@@ -3,11 +3,8 @@
   <!-- Header -->
   <header class="sheet-header">
     <div class="portrait-section">
-      <button type="button" class="token-swap-btn" title="Swap between Portrait and Token Image">
-        <i class="fas fa-exchange-alt"></i>
-      </button>
       <div class="profile-img-container {{#unless editable}}locked{{/unless}}" data-image-type="portrait">
-        <img class="profile-img {{#if editable}}{{else}}locked{{/if}}" src="{{actor.img}}" title="{{actor.name}}" alt="{{actor.name}}" />
+        <img class="profile-img {{#if editable}}{{else}}locked{{/if}}" src="{{actor.img}}" title="{{actor.name}} Portrait" alt="{{actor.name}} Portrait" />
         <div class="profile-overlay">
           <div class="profile-zone profile-zone-edit" data-action="edit" data-img-type="portrait">
             <span class="zone-label">EDIT</span>

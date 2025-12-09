@@ -285,18 +285,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 this.#onProfileShow(e, imgType);
             }
         });
-        // Token swap button
-        const swapBtn = html.find('.token-swap-btn');
-        console.log('Mastery System | Setting up token swap button', {
-            buttonFound: swapBtn.length
-        });
-        swapBtn.off('click.token-swap').on('click.token-swap', (e) => {
-            console.log('Mastery System | Token swap button clicked');
-            e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation();
-            this.#onTokenSwap(e);
-        });
         // Also set up direct handlers as backup
         setTimeout(() => {
             const editZone = html.find('.profile-zone-edit');
@@ -662,60 +650,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const max = this.actor.system.stones?.maximum || 0;
         const newValue = Math.max(0, Math.min(max, current + adjustment));
         await this.actor.update({ 'system.stones.current': newValue });
-    }
-    /**
-     * Handle token swap button - Pure TypeScript/DOM implementation
-     */
-    #onTokenSwap(e) {
-        console.log('Mastery System | #onTokenSwap called - Pure DOM implementation');
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        // Get elements using pure DOM API
-        const sectionElement = this.element[0]?.querySelector('.portrait-section');
-        if (!sectionElement) {
-            console.error('Mastery System | Portrait section not found');
-            return;
-        }
-        const portraitContainer = sectionElement.querySelector('.profile-img-container[data-image-type="portrait"]');
-        const tokenContainer = sectionElement.querySelector('.profile-img-container-token');
-        if (!portraitContainer || !tokenContainer) {
-            console.error('Mastery System | Portrait or token container not found', {
-                portrait: !!portraitContainer,
-                token: !!tokenContainer
-            });
-            return;
-        }
-        // Toggle the showing-token class
-        const isShowingToken = sectionElement.classList.contains('showing-token');
-        console.log('Mastery System | Before swap', {
-            isShowingToken: isShowingToken,
-            portraitDisplay: window.getComputedStyle(portraitContainer).display,
-            tokenDisplay: window.getComputedStyle(tokenContainer).display
-        });
-        if (isShowingToken) {
-            // Switch to portrait - remove class
-            sectionElement.classList.remove('showing-token');
-            // Force display values directly
-            portraitContainer.style.display = 'inline-block';
-            tokenContainer.style.display = 'none';
-        }
-        else {
-            // Switch to token - add class
-            sectionElement.classList.add('showing-token');
-            // Force display values directly
-            portraitContainer.style.display = 'none';
-            tokenContainer.style.display = 'inline-block';
-        }
-        // Force a reflow
-        void sectionElement.offsetHeight;
-        console.log('Mastery System | After swap', {
-            isShowingToken: sectionElement.classList.contains('showing-token'),
-            portraitDisplay: window.getComputedStyle(portraitContainer).display,
-            tokenDisplay: window.getComputedStyle(tokenContainer).display,
-            portraitStyleDisplay: portraitContainer.style.display,
-            tokenStyleDisplay: tokenContainer.style.display
-        });
     }
     /**
      * Handle profile image edit (upper zone)
