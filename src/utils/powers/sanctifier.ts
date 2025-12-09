@@ -1,7 +1,10 @@
 /**
  * Sanctifier Mastery Tree Powers
  */
-export const SANCTIFIER_POWERS = [
+
+import type { PowerDefinition } from './types.js';
+
+export const SANCTIFIER_POWERS: PowerDefinition[] = [
     {
         name: 'Smite Evil',
         tree: 'Sanctifier',
@@ -64,4 +67,4 @@ export const SANCTIFIER_POWERS = [
         ]
     }
 ];
-//# sourceMappingURL=sanctifier.js.map
+

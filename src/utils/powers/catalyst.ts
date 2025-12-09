@@ -1,7 +1,10 @@
 /**
  * Catalyst Mastery Tree Powers
  */
-export const CATALYST_POWERS = [
+
+import type { PowerDefinition } from './types.js';
+
+export const CATALYST_POWERS: PowerDefinition[] = [
     {
         name: 'Mutagenic Strike',
         tree: 'Catalyst',
@@ -52,4 +55,4 @@ export const CATALYST_POWERS = [
         ]
     }
 ];
-//# sourceMappingURL=catalyst.js.map
+

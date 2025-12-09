@@ -1,1 +1,1 @@
-{"version":3,"file":"sanctifier.d.ts","sourceRoot":"","sources":["../../../src/utils/powers/sanctifier.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,eAAe,EAAE,MAAM,SAAS,CAAC;AAE1C,eAAO,MAAM,iBAAiB,EAAE,eAAe,EA8D9C,CAAC"}
+{"version":3,"file":"sanctifier.d.ts","sourceRoot":"","sources":["../../../src/utils/powers/sanctifier.ts"],"names":[],"mappings":"AAAA;;GAEG;AAEH,OAAO,KAAK,EAAE,eAAe,EAAE,MAAM,YAAY,CAAC;AAElD,eAAO,MAAM,iBAAiB,EAAE,eAAe,EA8D9C,CAAC"}

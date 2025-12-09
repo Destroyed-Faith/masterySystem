@@ -7,7 +7,7 @@ export interface PowerLevelDefinition {
   type: string;
   range?: string;
   aoe?: string;
-  duration: string;
+  duration?: string; // Optional - Passive powers don't have duration
   effect: string;
   special?: string;
   cost?: {

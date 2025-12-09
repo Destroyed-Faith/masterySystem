@@ -1,1 +1,1 @@
-{"version":3,"file":"crusader.d.ts","sourceRoot":"","sources":["../../../src/utils/powers/crusader.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,eAAe,EAAE,MAAM,SAAS,CAAC;AAE1C,eAAO,MAAM,eAAe,EAAE,eAAe,EAmG5C,CAAC"}
+{"version":3,"file":"crusader.d.ts","sourceRoot":"","sources":["../../../src/utils/powers/crusader.ts"],"names":[],"mappings":"AAAA;;GAEG;AAEH,OAAO,KAAK,EAAE,eAAe,EAAE,MAAM,YAAY,CAAC;AAElD,eAAO,MAAM,eAAe,EAAE,eAAe,EAmG5C,CAAC"}

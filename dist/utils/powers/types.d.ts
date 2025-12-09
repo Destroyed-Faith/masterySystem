@@ -6,7 +6,7 @@ export interface PowerLevelDefinition {
     type: string;
     range?: string;
     aoe?: string;
-    duration: string;
+    duration?: string;
     effect: string;
     special?: string;
     cost?: {

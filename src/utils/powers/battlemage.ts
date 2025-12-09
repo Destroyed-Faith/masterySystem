@@ -1,7 +1,10 @@
 /**
  * Battlemage Mastery Tree Powers
  */
-export const BATTLEMAGE_POWERS = [
+
+import type { PowerDefinition } from './types.js';
+
+export const BATTLEMAGE_POWERS: PowerDefinition[] = [
     {
         name: 'Arcane Combustion',
         tree: 'Battlemage',
@@ -104,4 +107,4 @@ export const BATTLEMAGE_POWERS = [
         ]
     }
 ];
-//# sourceMappingURL=battlemage.js.map
+

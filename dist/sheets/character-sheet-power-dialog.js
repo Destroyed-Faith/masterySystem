@@ -3,7 +3,7 @@
  */
 export async function showPowerCreationDialog(actor) {
     const { getAllMasteryTrees } = await import('../utils/mastery-trees.js');
-    const { getPowersByTree, getPower } = await import('../utils/powers.js');
+    const { getPowersForTree, getPower } = await import('../utils/powers/index.js');
     const trees = getAllMasteryTrees();
     const treeOptions = trees
         .map((tree) => `<option value="${tree.name}">${tree.name}</option>`)
@@ -161,8 +161,8 @@ export async function showPowerCreationDialog(actor) {
                 }
                 levelSelectGroup.show();
                 powerNameGroup.show();
-                // TODO: Implement getPowersByTree function when power database is available
-                const treePowers = [];
+                // Load powers for the selected tree
+                const treePowers = getPowersForTree(treeName);
                 powersData = {};
                 if (!treePowers || treePowers.length === 0) {
                     powerSelect.innerHTML = '<option value="">No predefined powers - Enter name manually below</option>';

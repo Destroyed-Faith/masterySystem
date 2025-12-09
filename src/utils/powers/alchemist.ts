@@ -1,7 +1,10 @@
 /**
  * Alchemist Mastery Tree Powers
  */
-export const ALCHEMIST_POWERS = [
+
+import type { PowerDefinition } from './types.js';
+
+export const ALCHEMIST_POWERS: PowerDefinition[] = [
     {
         name: 'Alchemical Bomb',
         tree: 'Alchemist',
@@ -64,4 +67,4 @@ export const ALCHEMIST_POWERS = [
         ]
     }
 ];
-//# sourceMappingURL=alchemist.js.map
+

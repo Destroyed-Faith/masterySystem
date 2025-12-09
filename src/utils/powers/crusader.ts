@@ -1,7 +1,10 @@
 /**
  * Crusader Mastery Tree Powers
  */
-export const CRUSADER_POWERS = [
+
+import type { PowerDefinition } from './types.js';
+
+export const CRUSADER_POWERS: PowerDefinition[] = [
     {
         name: 'Overhead Blow',
         tree: 'Crusader',
@@ -101,4 +104,4 @@ export const CRUSADER_POWERS = [
         ]
     }
 ];
-//# sourceMappingURL=crusader.js.map
+

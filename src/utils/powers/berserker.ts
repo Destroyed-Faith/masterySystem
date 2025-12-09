@@ -1,7 +1,10 @@
 /**
  * Berserker of the Blood Moon Mastery Tree Powers
  */
-export const BERSERKER_POWERS = [
+
+import type { PowerDefinition } from './types.js';
+
+export const BERSERKER_POWERS: PowerDefinition[] = [
     {
         name: 'Rending Strike',
         tree: 'Berserker of the Blood Moon',
@@ -76,4 +79,4 @@ export const BERSERKER_POWERS = [
         ]
     }
 ];
-//# sourceMappingURL=berserker.js.map
+
