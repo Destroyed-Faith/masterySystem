@@ -319,13 +319,41 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 console.log('Mastery System | EDIT zone clicked (direct)', e);
                 e.preventDefault();
                 e.stopPropagation();
-                this.#onProfileEdit(e);
+                e.stopImmediatePropagation();
+                const zone = $(e.currentTarget);
+                const container = zone.closest('.profile-img-container');
+                const zoneImgType = zone.attr('data-img-type');
+                const containerImgType = container.attr('data-image-type');
+                const isTokenContainer = container.hasClass('profile-img-container-token');
+                // Determine imgType - prioritize zone attribute, then container class, then container attribute
+                let imgType = zoneImgType || (isTokenContainer ? 'token' : null) || containerImgType || 'portrait';
+                console.log('Mastery System | Direct handler imgType detection', {
+                    zoneImgType: zoneImgType,
+                    containerImgType: containerImgType,
+                    isTokenContainer: isTokenContainer,
+                    finalImgType: imgType
+                });
+                this.#onProfileEdit(e, String(imgType));
             });
             showZone.off('click.profile-show').on('click.profile-show', (e) => {
                 console.log('Mastery System | SHOW zone clicked (direct)', e);
                 e.preventDefault();
                 e.stopPropagation();
-                this.#onProfileShow(e);
+                e.stopImmediatePropagation();
+                const zone = $(e.currentTarget);
+                const container = zone.closest('.profile-img-container');
+                const zoneImgType = zone.attr('data-img-type');
+                const containerImgType = container.attr('data-image-type');
+                const isTokenContainer = container.hasClass('profile-img-container-token');
+                // Determine imgType - prioritize zone attribute, then container class, then container attribute
+                let imgType = zoneImgType || (isTokenContainer ? 'token' : null) || containerImgType || 'portrait';
+                console.log('Mastery System | Direct handler imgType detection (show)', {
+                    zoneImgType: zoneImgType,
+                    containerImgType: containerImgType,
+                    isTokenContainer: isTokenContainer,
+                    finalImgType: imgType
+                });
+                this.#onProfileShow(e, String(imgType));
             });
         }, 100);
         // Everything below here is only needed if the sheet is editable
