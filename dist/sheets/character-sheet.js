@@ -715,6 +715,39 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             portraitIsVisible: portraitContainer.is(':visible'),
             tokenIsVisible: tokenContainer.is(':visible')
         });
+        // Check if CSS selectors match
+        if (portraitContainer.length > 0 && tokenContainer.length > 0) {
+            const portraitEl = portraitContainer[0];
+            const tokenEl = tokenContainer[0];
+            const sectionEl = portraitSection[0];
+            // Test if CSS rules would apply
+            const testStyles = window.getComputedStyle(portraitEl);
+            const testTokenStyles = window.getComputedStyle(tokenEl);
+            console.log('Mastery System | CSS Selector Match Test', {
+                portraitElement: {
+                    tagName: portraitEl.tagName,
+                    className: portraitEl.className,
+                    dataImageType: portraitEl.getAttribute('data-image-type'),
+                    hasProfileImgContainer: portraitEl.classList.contains('profile-img-container'),
+                    hasTokenClass: portraitEl.classList.contains('profile-img-container-token'),
+                    computedDisplay: testStyles.display
+                },
+                tokenElement: {
+                    tagName: tokenEl.tagName,
+                    className: tokenEl.className,
+                    dataImageType: tokenEl.getAttribute('data-image-type'),
+                    hasProfileImgContainer: tokenEl.classList.contains('profile-img-container'),
+                    hasTokenClass: tokenEl.classList.contains('profile-img-container-token'),
+                    computedDisplay: testTokenStyles.display
+                },
+                sectionElement: {
+                    className: sectionEl.className,
+                    hasShowingToken: sectionEl.classList.contains('showing-token'),
+                    parentSelector: '.portrait-section.showing-token .profile-img-container[data-image-type="portrait"]',
+                    tokenSelector: '.portrait-section.showing-token .profile-img-container-token'
+                }
+            });
+        }
         // Toggle the showing-token class on the section
         const wasShowingToken = portraitSection.hasClass('showing-token');
         console.log('Mastery System | Current state', {
