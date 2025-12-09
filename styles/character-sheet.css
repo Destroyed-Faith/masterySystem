@@ -149,16 +149,16 @@
   height: 70px;
 }
 
-.mastery-system.sheet.actor.character .profile-img-container[data-image-type="token"] {
+.mastery-system.sheet.actor.character .profile-img-container-token {
   display: none;
 }
 
 .mastery-system.sheet.actor.character .portrait-section.showing-token .profile-img-container[data-image-type="portrait"] {
-  display: none;
+  display: none !important;
 }
 
-.mastery-system.sheet.actor.character .portrait-section.showing-token .profile-img-container[data-image-type="token"] {
-  display: inline-block;
+.mastery-system.sheet.actor.character .portrait-section.showing-token .profile-img-container-token {
+  display: inline-block !important;
 }
 
 .mastery-system.sheet.actor.character .profile-img-container .profile-img {

@@ -17,7 +17,7 @@
           </div>
         </div>
       </div>
-      <div class="profile-img-container {{#unless editable}}locked{{/unless}}" data-image-type="token" style="display: none;">
+      <div class="profile-img-container profile-img-container-token {{#unless editable}}locked{{/unless}}" data-image-type="token">
         <img class="profile-img {{#if editable}}{{else}}locked{{/if}}" src="{{default actor.prototypeToken.texture.src actor.img}}" title="{{actor.name}} Token" alt="{{actor.name}} Token" />
         <div class="profile-overlay">
           <div class="profile-zone profile-zone-edit" data-action="edit" data-img-type="token">

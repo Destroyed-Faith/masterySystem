@@ -789,7 +789,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     const portraitSection = this.element.find('.portrait-section');
     const portraitContainer = portraitSection.find('.profile-img-container[data-image-type="portrait"]');
-    const tokenContainer = portraitSection.find('.profile-img-container[data-image-type="token"]');
+    const tokenContainer = portraitSection.find('.profile-img-container-token');
     
     console.log('Mastery System | Token swap state', {
       portraitVisible: portraitContainer.is(':visible'),
@@ -798,31 +798,32 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       tokenLength: tokenContainer.length,
       sectionHasClass: portraitSection.hasClass('showing-token'),
       portraitDisplay: portraitContainer.css('display'),
-      tokenDisplay: tokenContainer.css('display')
+      tokenDisplay: tokenContainer.css('display'),
+      portraitHasClass: portraitContainer.hasClass('profile-img-container-token'),
+      tokenHasClass: tokenContainer.hasClass('profile-img-container-token')
     });
     
-    // Use CSS classes instead of show/hide for better control
+    // Toggle the showing-token class on the section
     if (!portraitSection.hasClass('showing-token')) {
       // Switch to token
       console.log('Mastery System | Switching to token');
       portraitSection.addClass('showing-token');
-      portraitContainer.css('display', 'none');
-      tokenContainer.css('display', 'inline-block');
     } else {
       // Switch to portrait
       console.log('Mastery System | Switching to portrait');
       portraitSection.removeClass('showing-token');
-      tokenContainer.css('display', 'none');
-      portraitContainer.css('display', 'inline-block');
     }
     
-    console.log('Mastery System | After swap', {
-      portraitVisible: portraitContainer.is(':visible'),
-      tokenVisible: tokenContainer.is(':visible'),
-      sectionHasClass: portraitSection.hasClass('showing-token'),
-      portraitDisplay: portraitContainer.css('display'),
-      tokenDisplay: tokenContainer.css('display')
-    });
+    // Force update display after class change
+    setTimeout(() => {
+      console.log('Mastery System | After swap (delayed check)', {
+        portraitVisible: portraitContainer.is(':visible'),
+        tokenVisible: tokenContainer.is(':visible'),
+        sectionHasClass: portraitSection.hasClass('showing-token'),
+        portraitDisplay: portraitContainer.css('display'),
+        tokenDisplay: tokenContainer.css('display')
+      });
+    }, 50);
   }
 
   /**
