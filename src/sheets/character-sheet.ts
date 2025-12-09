@@ -302,8 +302,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const target = $(e.target);
       const clickedZone = target.closest('.profile-zone');
       const container = target.closest('.profile-img-container');
-      // Get imgType from container's data attribute first, then from zone, fallback to 'portrait'
-      const imgType = container.attr('data-image-type') || clickedZone.attr('data-img-type') || 'portrait';
+      // Get imgType from zone's data attribute first (most specific), then container, fallback to 'portrait'
+      const imgType = clickedZone.attr('data-img-type') || container.attr('data-image-type') || 'portrait';
       
       console.log('Mastery System | Container clicked', {
         target: target[0]?.className,

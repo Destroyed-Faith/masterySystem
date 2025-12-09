@@ -170,7 +170,7 @@
 /* Profile Image Label (vertical text) */
 .mastery-system.sheet.actor.character .profile-img-label {
   writing-mode: vertical-rl;
-  text-orientation: mixed;
+  text-orientation: upright;
   font-size: 10px;
   font-weight: bold;
   color: rgba(255, 255, 255, 0.8);
