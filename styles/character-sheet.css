@@ -150,15 +150,15 @@
 }
 
 .mastery-system.sheet.actor.character .profile-img-container[data-image-type="token"] {
-  display: none !important;
+  display: none;
 }
 
 .mastery-system.sheet.actor.character .portrait-section.showing-token .profile-img-container[data-image-type="portrait"] {
-  display: none !important;
+  display: none;
 }
 
 .mastery-system.sheet.actor.character .portrait-section.showing-token .profile-img-container[data-image-type="token"] {
-  display: inline-block !important;
+  display: inline-block;
 }
 
 .mastery-system.sheet.actor.character .profile-img-container .profile-img {

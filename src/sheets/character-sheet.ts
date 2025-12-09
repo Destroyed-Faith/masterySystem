@@ -325,9 +325,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     });
     
     // Token swap button
-    html.find('.token-swap-btn').off('click.token-swap').on('click.token-swap', (e: JQuery.ClickEvent) => {
+    const swapBtn = html.find('.token-swap-btn');
+    console.log('Mastery System | Setting up token swap button', {
+      buttonFound: swapBtn.length
+    });
+    
+    swapBtn.off('click.token-swap').on('click.token-swap', (e: JQuery.ClickEvent) => {
+      console.log('Mastery System | Token swap button clicked');
       e.preventDefault();
       e.stopPropagation();
+      e.stopImmediatePropagation();
       this.#onTokenSwap(e);
     });
     
@@ -775,24 +782,42 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    * Handle token swap button
    */
   #onTokenSwap(e: JQuery.ClickEvent) {
+    console.log('Mastery System | #onTokenSwap called');
     e.preventDefault();
     e.stopPropagation();
+    e.stopImmediatePropagation();
     
     const portraitSection = this.element.find('.portrait-section');
     const portraitContainer = portraitSection.find('.profile-img-container[data-image-type="portrait"]');
     const tokenContainer = portraitSection.find('.profile-img-container[data-image-type="token"]');
     
-    if (portraitContainer.is(':visible')) {
+    console.log('Mastery System | Token swap state', {
+      portraitVisible: portraitContainer.is(':visible'),
+      tokenVisible: tokenContainer.is(':visible'),
+      portraitLength: portraitContainer.length,
+      tokenLength: tokenContainer.length,
+      sectionHasClass: portraitSection.hasClass('showing-token')
+    });
+    
+    if (portraitContainer.is(':visible') || !portraitSection.hasClass('showing-token')) {
       // Switch to token
+      console.log('Mastery System | Switching to token');
       portraitContainer.hide();
       tokenContainer.show();
       portraitSection.addClass('showing-token');
     } else {
       // Switch to portrait
+      console.log('Mastery System | Switching to portrait');
       tokenContainer.hide();
       portraitContainer.show();
       portraitSection.removeClass('showing-token');
     }
+    
+    console.log('Mastery System | After swap', {
+      portraitVisible: portraitContainer.is(':visible'),
+      tokenVisible: tokenContainer.is(':visible'),
+      sectionHasClass: portraitSection.hasClass('showing-token')
+    });
   }
 
   /**
