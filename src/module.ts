@@ -11,7 +11,8 @@ import { MasteryItem } from './documents/item.js';
 import { MasteryCharacterSheet } from './sheets/character-sheet.js';
 import { MasteryNpcSheet } from './sheets/npc-sheet.js';
 import { MasteryItemSheet } from './sheets/item-sheet.js';
-import { initializeCombatHooks } from '../dist/combat/initiative.js';
+// Combat hooks are imported dynamically to avoid build errors if dist/combat doesn't exist yet
+// import { initializeCombatHooks } from '../dist/combat/initiative.js';
 import { calculateStones } from './utils/calculations.js';
 import { initializeTokenActionSelector } from './token-action-selector';
 
@@ -72,8 +73,15 @@ Hooks.once('init', async function() {
   // Register Handlebars helpers
   registerHandlebarsHelpers();
 
-  // Initialize combat hooks
-  initializeCombatHooks();
+  // Initialize combat hooks (dynamically imported to avoid build errors)
+  try {
+    const combatModule = await import('../dist/combat/initiative.js' as any);
+    if (combatModule.initializeCombatHooks) {
+      combatModule.initializeCombatHooks();
+    }
+  } catch (error) {
+    console.warn('Mastery System | Combat hooks not available:', error);
+  }
 
   // Initialize token action selector
   initializeTokenActionSelector();
@@ -296,7 +304,7 @@ console.log(`
 ║  • Powers & Mastery Trees (L1-L4)                         ║
 ║  • Divine Clash late-game combat                          ║
 ║                                                           ║
-       ║  Version: 0.0.60 (Alpha)                                   ║
+       ║  Version: 0.0.61 (Alpha)                                   ║
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
 `);

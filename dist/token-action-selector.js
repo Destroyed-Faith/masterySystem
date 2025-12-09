@@ -16,8 +16,10 @@ export function initializeTokenActionSelector() {
             console.warn('Mastery System | Could not find token in Token HUD');
             return;
         }
+        // Convert html to jQuery if it's not already (Foundry v13 compatibility)
+        const $html = (html instanceof jQuery ? html : $(html));
         // Find the right column of the Token HUD
-        const rightCol = html.find('.col.right');
+        const rightCol = $html.find('.col.right');
         if (rightCol.length === 0) {
             console.warn('Mastery System | Could not find .col.right in Token HUD');
             return;

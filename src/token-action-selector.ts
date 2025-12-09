@@ -11,7 +11,7 @@ export function initializeTokenActionSelector() {
   console.log('Mastery System | Initializing Token Action Selector');
 
   // Hook into Token HUD rendering to add custom icon
-  Hooks.on('renderTokenHUD', (app: any, html: JQuery, _data: any) => {
+  Hooks.on('renderTokenHUD', (app: any, html: any, _data: any) => {
     // Get the token from app.object (Foundry v11+)
     const token = app.object;
     if (!token) {
@@ -19,8 +19,11 @@ export function initializeTokenActionSelector() {
       return;
     }
 
+    // Convert html to jQuery if it's not already (Foundry v13 compatibility)
+    const $html = (html instanceof jQuery ? html : $(html)) as JQuery;
+
     // Find the right column of the Token HUD
-    const rightCol = html.find('.col.right');
+    const rightCol = $html.find('.col.right');
     if (rightCol.length === 0) {
       console.warn('Mastery System | Could not find .col.right in Token HUD');
       return;
