@@ -13,7 +13,7 @@ import { MasteryNpcSheet } from './sheets/npc-sheet.js';
 import { MasteryItemSheet } from './sheets/item-sheet.js';
 import { initializeCombatHooks } from '../dist/combat/initiative.js';
 import { calculateStones } from './utils/calculations.js';
-import { initializeTokenActionSelector } from './token-action-selector.js';
+import { initializeTokenActionSelector } from './token-action-selector';
 
 // Dice roller functions are imported in sheets where needed
 
@@ -296,7 +296,7 @@ console.log(`
 ║  • Powers & Mastery Trees (L1-L4)                         ║
 ║  • Divine Clash late-game combat                          ║
 ║                                                           ║
-       ║  Version: 0.0.59 (Alpha)                                   ║
+       ║  Version: 0.0.60 (Alpha)                                   ║
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
 `);

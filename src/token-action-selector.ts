@@ -11,7 +11,7 @@ export function initializeTokenActionSelector() {
   console.log('Mastery System | Initializing Token Action Selector');
 
   // Hook into Token HUD rendering to add custom icon
-  Hooks.on('renderTokenHUD', (app, html, data) => {
+  Hooks.on('renderTokenHUD', (app: any, html: JQuery, _data: any) => {
     // Get the token from app.object (Foundry v11+)
     const token = app.object;
     if (!token) {
@@ -50,7 +50,7 @@ export function initializeTokenActionSelector() {
     }
 
     // Add click handler
-    actionIcon.on('click', async (event) => {
+    actionIcon.on('click', async (event: JQuery.ClickEvent) => {
       event.preventDefault();
       event.stopPropagation();
       await openActionSelectorDialog(token);
@@ -61,7 +61,7 @@ export function initializeTokenActionSelector() {
   });
 
   // Hook into token updates to intercept movement
-  Hooks.on('preUpdateToken', async (tokenDoc, change, options, userId) => {
+  Hooks.on('preUpdateToken', async (tokenDoc: any, change: any, _options: any, userId: string) => {
     // Only react to position changes
     if (change.x === undefined && change.y === undefined) {
       return;
@@ -88,10 +88,11 @@ export function initializeTokenActionSelector() {
 
     // At this point, movement is allowed
     // The flag will be cleared after successful movement in the updateToken hook
+    return;
   });
 
   // Hook into token updates to clear flag after successful movement
-  Hooks.on('updateToken', async (tokenDoc, change, options, userId) => {
+  Hooks.on('updateToken', async (tokenDoc: any, change: any, _options: any, userId: string) => {
     // Only react to position changes
     if (change.x === undefined && change.y === undefined) {
       return;
@@ -113,9 +114,9 @@ export function initializeTokenActionSelector() {
 
 /**
  * Open the action selector dialog
- * @param {Token} token - The token to set the action for
+ * @param token - The token to set the action for
  */
-async function openActionSelectorDialog(token) {
+async function openActionSelectorDialog(token: any) {
   const currentAction = token.document.getFlag('mastery-system', 'currentAction') || {};
 
   // Create dialog content
@@ -150,28 +151,28 @@ async function openActionSelectorDialog(token) {
       ok: {
         icon: '<i class="fas fa-check"></i>',
         label: 'OK',
-        callback: async (html) => {
-          const category = html.find('[name="category"]').val();
-          const kind = html.find('[name="kind"]').val();
+        callback: async (html: JQuery) => {
+          const category = html.find('[name="category"]').val() as string;
+          const kind = html.find('[name="kind"]').val() as string;
 
           // Validate selection
           if (!category || !kind) {
             ui.notifications.warn('Please select both category and kind.');
-            return false;
+            return;
           }
 
           // Validate category
           const validCategories = ['attack', 'movement', 'utility', 'reaction'];
           if (!validCategories.includes(category)) {
             ui.notifications.warn('Invalid category selected.');
-            return false;
+            return;
           }
 
           // Validate kind
           const validKinds = ['maneuver', 'power'];
           if (!validKinds.includes(kind)) {
             ui.notifications.warn('Invalid kind selected.');
-            return false;
+            return;
           }
 
           // Set the flag
