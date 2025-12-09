@@ -737,6 +737,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 computedHeight: testStyles.height
             });
             console.log('Mastery System | Portrait Element - FULL COMPUTED STYLES', testStyles);
+            console.log('Mastery System | Portrait Element - DISPLAY VALUE:', testStyles.display);
             console.log('Mastery System | CSS Selector Match Test - Token Element', {
                 tagName: tokenEl.tagName,
                 className: tokenEl.className,
@@ -750,6 +751,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 computedHeight: testTokenStyles.height
             });
             console.log('Mastery System | Token Element - FULL COMPUTED STYLES', testTokenStyles);
+            console.log('Mastery System | Token Element - DISPLAY VALUE:', testTokenStyles.display);
             console.log('Mastery System | CSS Selector Match Test - Section Element', {
                 className: sectionEl.className,
                 hasShowingToken: sectionEl.classList.contains('showing-token'),
@@ -844,7 +846,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     }
                 });
                 console.log('Mastery System | AFTER SWAP - Portrait FULL COMPUTED STYLES', portraitComputed);
+                console.log('Mastery System | AFTER SWAP - Portrait DISPLAY VALUE:', portraitComputed.display);
                 console.log('Mastery System | AFTER SWAP - Token FULL COMPUTED STYLES', tokenComputed);
+                console.log('Mastery System | AFTER SWAP - Token DISPLAY VALUE:', tokenComputed.display);
             }
             // Check if CSS rules are being applied
             const sectionElement = portraitSection[0];
