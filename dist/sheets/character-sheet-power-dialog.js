@@ -9,6 +9,12 @@ export async function showPowerCreationDialog(actor) {
         .map((tree) => `<option value="${tree.name}">${tree.name}</option>`)
         .join('');
     const content = `
+    <style>
+      .mastery-power-dialog .window-content {
+        height: 500px !important;
+        overflow-y: auto;
+      }
+    </style>
     <form>
       <div class="form-group">
         <label>Mastery Tree:</label>
@@ -45,6 +51,7 @@ export async function showPowerCreationDialog(actor) {
     const dialog = new Dialog({
         title: 'Create New Power',
         content,
+        default: 'create',
         buttons: {
             create: {
                 icon: '<i class="fas fa-check"></i>',
@@ -227,5 +234,21 @@ export async function showPowerCreationDialog(actor) {
         }
     });
     dialog.render(true);
+    // Set dialog size after rendering
+    const dialogElement = dialog.element;
+    if (dialogElement) {
+        dialogElement.addClass('mastery-power-dialog');
+        const windowContent = dialogElement.find('.window-content');
+        if (windowContent.length) {
+            windowContent.css('height', '500px');
+            windowContent.css('overflow-y', 'auto');
+        }
+        // Also set overall dialog height
+        dialogElement.css('height', 'auto');
+        const dialogApp = dialogElement.closest('.app');
+        if (dialogApp.length) {
+            dialogApp.css('height', 'auto');
+        }
+    }
 }
 //# sourceMappingURL=character-sheet-power-dialog.js.map

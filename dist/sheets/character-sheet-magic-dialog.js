@@ -8,6 +8,12 @@ export async function showMagicPowerCreationDialog(actor) {
         .map(school => `<option value="${school.name}">${school.fullName}</option>`)
         .join('');
     const content = `
+    <style>
+      .mastery-magic-dialog .window-content {
+        height: 500px !important;
+        overflow-y: auto;
+      }
+    </style>
     <form>
       <div class="form-group">
         <label>Spell School:</label>
@@ -44,6 +50,7 @@ export async function showMagicPowerCreationDialog(actor) {
     const dialog = new Dialog({
         title: 'Create New Magic Power',
         content: content,
+        default: 'create',
         buttons: {
             create: {
                 icon: '<i class="fas fa-check"></i>',
@@ -269,5 +276,21 @@ export async function showMagicPowerCreationDialog(actor) {
         }
     });
     dialog.render(true);
+    // Set dialog size after rendering
+    const dialogElement = dialog.element;
+    if (dialogElement) {
+        dialogElement.addClass('mastery-magic-dialog');
+        const windowContent = dialogElement.find('.window-content');
+        if (windowContent.length) {
+            windowContent.css('height', '500px');
+            windowContent.css('overflow-y', 'auto');
+        }
+        // Also set overall dialog height
+        dialogElement.css('height', 'auto');
+        const dialogApp = dialogElement.closest('.app');
+        if (dialogApp.length) {
+            dialogApp.css('height', 'auto');
+        }
+    }
 }
 //# sourceMappingURL=character-sheet-magic-dialog.js.map

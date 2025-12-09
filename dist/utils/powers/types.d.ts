@@ -1,12 +1,12 @@
 /**
  * Shared types for Mastery Powers
  */
-export interface PowerLevel {
+export interface PowerLevelDefinition {
     level: number;
     type: string;
     range?: string;
     aoe?: string;
-    duration?: string;
+    duration: string;
     effect: string;
     special?: string;
     cost?: {
@@ -18,18 +18,18 @@ export interface PowerLevel {
     };
     roll?: {
         attribute?: string;
-        tn?: number;
         damage?: string;
         damageType?: string;
-        penetration?: number;
+        healing?: string;
+        raises?: string;
     };
 }
 export interface PowerDefinition {
     name: string;
     tree: string;
-    powerType: 'active' | 'buff' | 'utility' | 'passive' | 'reaction' | 'movement';
-    passiveCategory?: 'armor' | 'evade' | 'toHit' | 'damage' | 'roll' | 'save' | 'hitPoint' | 'healing' | 'awareness' | 'attribute';
+    powerType: 'active' | 'passive' | 'reaction' | 'movement' | 'utility' | 'buff';
     description: string;
-    levels: PowerLevel[];
+    passiveCategory?: 'armor' | 'damage' | 'healing' | 'roll' | 'save' | 'utility';
+    levels: PowerLevelDefinition[];
 }
 //# sourceMappingURL=types.d.ts.map
