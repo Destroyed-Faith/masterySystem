@@ -810,7 +810,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       
       // Get current image based on imgType
       let currentImage: string;
-      if (imgType === 'token') {
+      const isTokenEdit = imgType === 'token'; // Store in const to ensure it's captured correctly in closure
+      if (isTokenEdit) {
         currentImage = this.actor.prototypeToken?.texture?.src || this.actor.img || '';
         console.log('Mastery System | Token image edit - current:', currentImage);
       } else {
@@ -822,9 +823,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         type: 'image',
         current: currentImage,
         callback: async (path: string) => {
-          console.log('Mastery System | FilePicker callback triggered', { path, imgType, isToken: imgType === 'token' });
+          console.log('Mastery System | FilePicker callback triggered', { 
+            path, 
+            imgType, 
+            isTokenEdit,
+            actorImg: this.actor.img,
+            tokenImg: this.actor.prototypeToken?.texture?.src
+          });
           try {
-            if (imgType === 'token') {
+            if (isTokenEdit) {
               // Update token image
               console.log('Mastery System | Updating token image to:', path);
               await this.actor.update({ 'prototypeToken.texture.src': path });

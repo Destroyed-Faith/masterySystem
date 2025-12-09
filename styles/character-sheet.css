@@ -169,14 +169,17 @@
 
 /* Profile Image Label (vertical text) */
 .mastery-system.sheet.actor.character .profile-img-label {
-  writing-mode: vertical-rl;
-  text-orientation: upright;
+  writing-mode: vertical-lr;
+  text-orientation: mixed;
+  transform: rotate(180deg);
   font-size: 10px;
   font-weight: bold;
   color: rgba(255, 255, 255, 0.8);
-  letter-spacing: 1px;
+  letter-spacing: 2px;
   line-height: 1.2;
   user-select: none;
+  display: inline-block;
+  white-space: nowrap;
 }
 
 .mastery-system.sheet.actor.character .profile-img-container .profile-img {
