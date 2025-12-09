@@ -136,7 +136,7 @@
 /* Portrait Section */
 .mastery-system.sheet.actor.character .portrait-section {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   gap: 4px;
 }

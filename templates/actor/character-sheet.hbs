@@ -3,6 +3,9 @@
   <!-- Header -->
   <header class="sheet-header">
     <div class="portrait-section">
+      <button type="button" class="token-swap-btn" title="Swap between Portrait and Token Image">
+        <i class="fas fa-exchange-alt"></i>
+      </button>
       <div class="profile-img-container {{#unless editable}}locked{{/unless}}" data-image-type="portrait">
         <img class="profile-img {{#if editable}}{{else}}locked{{/if}}" src="{{actor.img}}" title="{{actor.name}}" alt="{{actor.name}}" />
         <div class="profile-overlay">
@@ -25,9 +28,6 @@
           </div>
         </div>
       </div>
-      <button type="button" class="token-swap-btn" title="Swap between Portrait and Token Image">
-        <i class="fas fa-exchange-alt"></i>
-      </button>
     </div>
     
     <div class="header-info">
