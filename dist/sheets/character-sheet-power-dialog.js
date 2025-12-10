@@ -5,22 +5,15 @@
  * Supports both predefined powers and manual entry.
  */
 /**
- * Get system-relative path for dynamic imports
- * Foundry resolves dynamic imports relative to system root
- */
-function getSystemPath(relativePath) {
-    const systemId = game.system.id;
-    return `systems/${systemId}/${relativePath}`;
-}
-/**
  * Show the power creation dialog for an actor
  * @param actor - The actor to add powers to
  */
 export async function showPowerCreationDialog(actor) {
     // Dynamic imports to avoid build issues
-    // Use system-relative paths for Foundry's dynamic import resolution
-    const { getAllMasteryTrees } = await import(getSystemPath('dist/utils/mastery-trees.js'));
-    const { getAllSpellSchools } = await import(getSystemPath('dist/utils/spell-schools.js'));
+    // Foundry resolves dynamic imports relative to the current file location
+    // From dist/sheets/ to dist/utils/, we need ../utils/
+    const { getAllMasteryTrees } = await import('../utils/mastery-trees.js');
+    const { getAllSpellSchools } = await import('../utils/spell-schools.js');
     const trees = getAllMasteryTrees();
     const spellSchools = getAllSpellSchools();
     // Create tree selection options (all available trees)
@@ -118,7 +111,7 @@ export async function showPowerCreationDialog(actor) {
                     if (powerType === 'magic') {
                         // Magic powers - try to import if available, otherwise use manual entry
                         try {
-                            const magicModule = await import(getSystemPath('dist/utils/magic-powers'));
+                            const magicModule = await import('../utils/magic-powers');
                             if (magicModule?.getMagicPower) {
                                 power = magicModule.getMagicPower(school, powerName);
                             }
@@ -129,7 +122,7 @@ export async function showPowerCreationDialog(actor) {
                     }
                     else {
                         // Mastery tree power
-                        const { getPower } = await import(getSystemPath('dist/utils/powers/index.js'));
+                        const { getPower } = await import('../utils/powers/index.js');
                         power = getPower(tree, powerName);
                     }
                     // If power is found in predefined list, use its data
@@ -260,7 +253,7 @@ export async function showPowerCreationDialog(actor) {
                 powerNameGroup.show();
                 try {
                     // Try to load magic powers if available
-                    const magicModule = await import(getSystemPath('dist/utils/magic-powers'));
+                    const magicModule = await import('../utils/magic-powers');
                     if (magicModule?.getMagicPowersBySchool) {
                         const powers = magicModule.getMagicPowersBySchool(schoolName);
                         powersData = {};
@@ -323,7 +316,7 @@ export async function showPowerCreationDialog(actor) {
                 levelSelectGroup.show();
                 powerNameGroup.show();
                 try {
-                    const { getPowersForTree } = await import(getSystemPath('dist/utils/powers/index.js'));
+                    const { getPowersForTree } = await import('../utils/powers/index.js');
                     const powers = getPowersForTree(treeName);
                     powersData = {};
                     if (powers.length === 0) {

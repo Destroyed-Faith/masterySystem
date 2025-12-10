@@ -182,9 +182,9 @@ export async function getAllCombatOptionsForActor(actor) {
     // Pre-load power definitions for range lookup
     let getPowerFn = null;
     try {
-        // Use system-relative path for Foundry's dynamic import resolution
-        const systemId = game.system.id;
-        const powerModule = await import(`systems/${systemId}/dist/utils/powers/index.js`);
+        // Foundry resolves dynamic imports relative to the current file location
+        // From dist/token-radial-menu.js to dist/utils/powers/index.js
+        const powerModule = await import('./utils/powers/index.js');
         getPowerFn = powerModule.getPower;
     }
     catch (error) {
