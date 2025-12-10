@@ -133,31 +133,13 @@ export const COMBAT_MANEUVERS: CombatManeuver[] = [
     effect: "Move up to your Speed toward an enemy, then make one attack with +1d8 damage. Must move in a straight line."
   },
   {
-    id: "leap",
-    name: "Leap",
-    description: "Jump over obstacles or gaps",
+    id: "move",
+    name: "Move",
+    description: "Normal movement (walk, run, swim, climb, leap)",
     slot: "movement",
     category: "movement",
-    tags: ["movement", "athletics"],
-    effect: "Make an Athletics check (TN 12+) to jump over obstacles or gaps. Distance depends on check result."
-  },
-  {
-    id: "climb",
-    name: "Climb",
-    description: "Climb vertical surfaces",
-    slot: "movement",
-    category: "movement",
-    tags: ["movement", "athletics"],
-    effect: "Move at half speed while climbing. Athletics check required for difficult surfaces (TN varies)."
-  },
-  {
-    id: "swim",
-    name: "Swim",
-    description: "Move through water",
-    slot: "movement",
-    category: "movement",
-    tags: ["movement", "athletics"],
-    effect: "Move at half speed while swimming. Athletics check required in rough water (TN varies)."
+    tags: ["movement", "basic"],
+    effect: "Move up to your Speed. Can be used for walking, running, swimming (half speed), climbing (half speed), or leaping (Athletics check required)."
   },
 
   // ========================================

@@ -28,7 +28,7 @@ export declare function closeRadialMenu(): void;
  * Get all combat options for an actor (all categories)
  * Collects all Powers and Maneuvers available to the actor
  */
-export declare function getAllCombatOptionsForActor(actor: any): RadialCombatOption[];
+export declare function getAllCombatOptionsForActor(actor: any): Promise<RadialCombatOption[]>;
 /**
  * Open the radial menu for an actor's token
  */

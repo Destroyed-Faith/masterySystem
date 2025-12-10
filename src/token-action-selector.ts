@@ -135,7 +135,7 @@ async function openMasteryActionRadialMenu(token: any) {
   closeRadialMenu();
 
   // Get all combat options for the actor
-  const allOptions = getAllCombatOptionsForActor(actor);
+  const allOptions = await getAllCombatOptionsForActor(actor);
 
   if (!allOptions.length) {
     ui.notifications.warn('No combat options available for this actor.');

@@ -166,11 +166,20 @@ function getSegmentIdForOption(option) {
  * Get all combat options for an actor (all categories)
  * Collects all Powers and Maneuvers available to the actor
  */
-export function getAllCombatOptionsForActor(actor) {
+export async function getAllCombatOptionsForActor(actor) {
     const options = [];
     if (!actor) {
         console.warn('Mastery System | getAllCombatOptionsForActor: No actor provided');
         return options;
+    }
+    // Pre-load power definitions for range lookup
+    let getPowerFn = null;
+    try {
+        const powerModule = await import('../../utils/powers/index.js');
+        getPowerFn = powerModule.getPower;
+    }
+    catch (error) {
+        console.warn('Mastery System | Could not load power definitions module:', error);
     }
     // --- POWERS (from Actor items) ---
     const items = actor.items || [];
@@ -190,8 +199,31 @@ export function getAllCombatOptionsForActor(actor) {
         // Map power type to slot
         const slot = mapPowerTypeToSlot(powerType);
         // Parse range from system.range (e.g., "8m", "12m", "Self")
-        const rangeStr = item.system?.range;
-        const range = parseRange(rangeStr);
+        let rangeStr = item.system?.range;
+        let range = parseRange(rangeStr);
+        // If range is missing or empty, try to get it from the power definition
+        // This handles cases where the level was changed but range wasn't updated
+        if ((!rangeStr || !range) && getPowerFn) {
+            const treeName = item.system?.tree;
+            const powerName = item.name;
+            const level = item.system?.level || 1;
+            if (treeName && powerName) {
+                try {
+                    const powerDef = getPowerFn(treeName, powerName);
+                    if (powerDef && powerDef.levels) {
+                        const levelData = powerDef.levels.find((l) => l.level === level);
+                        if (levelData && levelData.range) {
+                            rangeStr = levelData.range;
+                            range = parseRange(rangeStr);
+                        }
+                    }
+                }
+                catch (error) {
+                    // If lookup fails, just use the existing range (or undefined)
+                    console.warn('Mastery System | Could not lookup power definition for range:', error);
+                }
+            }
+        }
         // Get tags if available
         const tags = item.system?.tags || [];
         options.push({
@@ -209,15 +241,32 @@ export function getAllCombatOptionsForActor(actor) {
     // --- MANEUVERS (generic combat maneuvers) ---
     // Get available maneuvers for this actor (filters by requirements)
     const availableManeuvers = getAvailableManeuvers(actor);
+    // Get actor's speed for movement maneuvers
+    const actorSpeed = actor.system?.combat?.speed || 6; // Default to 6m if not set
     for (const maneuver of availableManeuvers) {
         // Maneuvers have their slot defined in the maneuver data
-        // They typically don't have range, but we can check if needed
+        // For "move" maneuver, use the actor's speed as range
+        let maneuverRange = undefined;
+        if (maneuver.id === 'move') {
+            maneuverRange = actorSpeed;
+        }
+        // Other movement maneuvers might also benefit from speed-based range
+        else if (maneuver.slot === 'movement' && maneuver.tags?.includes('speed')) {
+            // For maneuvers that mention speed (like Dash), calculate based on speed
+            if (maneuver.id === 'dash') {
+                maneuverRange = actorSpeed * 2;
+            }
+            else if (maneuver.id === 'flee-you-fools') {
+                maneuverRange = actorSpeed * 3;
+            }
+        }
         options.push({
             id: maneuver.id,
             name: maneuver.name,
             description: maneuver.description || (maneuver.effect || ''),
             slot: maneuver.slot,
             source: 'maneuver',
+            range: maneuverRange,
             maneuver: maneuver,
             tags: maneuver.tags || []
         });
