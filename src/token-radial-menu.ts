@@ -235,7 +235,9 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
   // Pre-load power definitions for range lookup
   let getPowerFn: ((treeName: string, powerName: string) => any) | null = null;
   try {
-    const powerModule = await import('./utils/powers/index.js' as any);
+    // Use absolute path from system root for dynamic imports
+    // From dist/token-radial-menu.js, we need to go to dist/utils/powers/index.js
+    const powerModule = await import('../utils/powers/index.js' as any);
     getPowerFn = powerModule.getPower;
   } catch (error) {
     console.warn('Mastery System | Could not load power definitions module:', error);
@@ -1100,9 +1102,16 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
         }
         // Also check nested properties
         if (value && typeof value === 'object') {
+          // Check for v13 element property first (replaces deprecated container)
+          if (value.element && typeof value.element.addChild === 'function') {
+            hudContainer = value.element;
+            console.log(`Mastery System | Using canvas.hud.${key}.element`);
+            break;
+          }
+          // Fallback to deprecated container property (for backwards compatibility)
           if (value.container && typeof value.container.addChild === 'function') {
             hudContainer = value.container;
-            console.log(`Mastery System | Using canvas.hud.${key}.container`);
+            console.log(`Mastery System | Using canvas.hud.${key}.container (deprecated)`);
             break;
           }
         }

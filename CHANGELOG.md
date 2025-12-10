@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.73] - 2025-01-XX
+
+### Fixed
+- Fixed guided movement mode not activating - now checks both `option.slot` and `option.segment` for movement detection
+- Fixed import path for power definitions in token-radial-menu.ts (changed from `./utils/` to `../utils/`)
+- Fixed ChatBubbles deprecation warning - now uses `element` property instead of deprecated `container` property
+- Improved guided movement implementation:
+  - Added token control to ensure token is focused during movement
+  - Improved Ruler integration using state's ruler instance
+  - Enhanced grid highlighting with proper highlight layer support
+  - Better error handling and fallback distance calculations
+  - Exported `startGuidedMovement` and `endGuidedMovement` functions for proper access
+
 ## [0.0.72] - 2025-01-XX
 
 ### Added

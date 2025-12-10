@@ -19,6 +19,8 @@ interface MovementState {
   maxRange: number; // in grid units
   originalAlpha: number;
   previewGraphics: PIXI.Graphics | null;
+  ruler: any | null;
+  highlightId: string;
   onMove: (ev: PIXI.FederatedPointerEvent) => void;
   onDown: (ev: PIXI.FederatedPointerEvent) => void;
   onKeyDown: (ev: KeyboardEvent) => void;
@@ -192,18 +194,34 @@ function getDefaultMovementRange(token: any, option: RadialCombatOption): number
 /**
  * Start guided movement mode for a token
  */
-function startGuidedMovement(token: any, option: RadialCombatOption): void {
+export function startGuidedMovement(token: any, option: RadialCombatOption): void {
   console.log('Mastery System | Starting guided movement mode', { token: token.name, option: option.name });
   
   // Cancel any existing movement mode first
   endGuidedMovement(false);
   
+  // Ensure token is controlled by this user
+  token.control({ releaseOthers: false });
+  
   const origin = { x: token.x, y: token.y };
   const maxRange = getDefaultMovementRange(token, option);
   const originalAlpha = token.alpha;
   
+  console.log('Mastery System | Guided movement start:', token.name, 'maxRange:', maxRange, 'option:', option);
+  
   // Make the token slightly transparent to indicate "picked up"
   token.alpha = 0.6;
+  
+  // Create a Ruler bound to this user
+  let ruler: any = null;
+  try {
+    ruler = new (Ruler as any)(game.user);
+    ruler.clear();
+  } catch (error) {
+    console.warn('Mastery System | Could not create Ruler, using fallback', error);
+  }
+  
+  const highlightId = "mastery-move";
   
   // Create preview graphics
   const previewGraphics = new PIXI.Graphics();
@@ -232,7 +250,8 @@ function startGuidedMovement(token: any, option: RadialCombatOption): void {
   const onMove = (ev: PIXI.FederatedPointerEvent) => handleMovementPointerMove(ev);
   const onDown = (ev: PIXI.FederatedPointerEvent) => handleMovementPointerDown(ev);
   const onKeyDown = (ev: KeyboardEvent) => {
-    if (ev.key === 'Escape') {
+    if (ev.key === 'Escape' && activeMovementState) {
+      console.log('Mastery System | Guided movement cancelled via ESC');
       endGuidedMovement(false);
     }
   };
@@ -244,6 +263,8 @@ function startGuidedMovement(token: any, option: RadialCombatOption): void {
     maxRange,
     originalAlpha,
     previewGraphics,
+    ruler,
+    highlightId,
     onMove,
     onDown,
     onKeyDown
@@ -258,8 +279,8 @@ function startGuidedMovement(token: any, option: RadialCombatOption): void {
   // Attach keyboard listener for ESC
   window.addEventListener("keydown", state.onKeyDown);
   
-  // Show initial notification
-  ui.notifications.info(`Movement mode: ${option.name}. Click to move, Right-click or ESC to cancel.`);
+  // Initial preview at origin (zero-length)
+  refreshMovementPreview(state, origin.x, origin.y);
   
   console.log('Mastery System | Guided movement mode active', { maxRange, origin });
 }
@@ -267,16 +288,14 @@ function startGuidedMovement(token: any, option: RadialCombatOption): void {
 /**
  * Handle pointer move during movement mode
  */
-function handleMovementPointerMove(ev: PIXI.FederatedPointerEvent): void {
-  if (!activeMovementState) return;
+function handleMovementPointerMove(ev: PIXI.FederatedPointerEvent, state?: MovementState): void {
+  const currentState = state || activeMovementState;
+  if (!currentState || activeMovementState !== currentState) return;
   
-  const state = activeMovementState;
-  // Convert screen coordinates to world coordinates
-  const worldPos = canvas.app.stage.toLocal(ev.global);
-  // Snap to grid
-  const dest = canvas.grid.getSnappedPosition(worldPos.x, worldPos.y, 1);
+  const worldPos = ev.data.getLocalPosition(canvas.app.stage);
+  const snapped = canvas.grid.getSnappedPosition(worldPos.x, worldPos.y, 1);
   
-  refreshMovementPreview(state, dest.x, dest.y);
+  refreshMovementPreview(currentState, snapped.x, snapped.y);
 }
 
 /**
@@ -292,31 +311,30 @@ function refreshMovementPreview(state: MovementState, destX: number, destY: numb
   const origin = state.origin;
   const dest = { x: destX, y: destY };
   
-  // Use Foundry's Ruler to measure distance and get path
-  // In Foundry v13, Ruler might need to be instantiated differently
   let distanceInUnits = 0;
   let segments: any[] = [];
   
-  try {
-    // Try v13 Ruler API
-    const ruler = new (Ruler as any)(game.user);
-    
-    // Set waypoints
-    ruler.waypoints = [
-      { x: origin.x, y: origin.y },
-      { x: dest.x, y: dest.y }
-    ];
-    
-    // Measure the path
-    const measurement = ruler.measure(ruler.waypoints);
-    distanceInUnits = measurement?.distance || 0;
-    segments = measurement?.segments || [];
-    
-    // Clean up
-    ruler.clear();
-  } catch (error) {
-    // Fallback: simple distance calculation
-    console.warn('Mastery System | Ruler API error, using fallback', error);
+  // Use Ruler if available
+  if (state.ruler) {
+    try {
+      state.ruler.clear();
+      state.ruler.waypoints = [
+        { x: origin.x, y: origin.y },
+        { x: dest.x, y: dest.y }
+      ];
+      
+      // Measure the path - try v13 API
+      const measurement = state.ruler.measure(state.ruler.waypoints);
+      distanceInUnits = measurement?.distance || 0;
+      segments = measurement?.segments || [];
+    } catch (error) {
+      console.warn('Mastery System | Ruler measure error', error);
+      // Fallback calculation below
+    }
+  }
+  
+  // Fallback: simple distance calculation if Ruler failed
+  if (distanceInUnits === 0) {
     const dx = dest.x - origin.x;
     const dy = dest.y - origin.y;
     const pixelDistance = Math.sqrt(dx * dx + dy * dy);
@@ -327,6 +345,26 @@ function refreshMovementPreview(state: MovementState, destX: number, destY: numb
   const isValid = distanceInUnits <= state.maxRange;
   const lineColor = isValid ? 0x00ff00 : 0xff0000; // Green if valid, red if not
   const fillColor = isValid ? 0x00ff00 : 0xff0000;
+  
+  // Get highlight layer
+  let highlight: any = null;
+  try {
+    if (canvas.grid.highlight) {
+      highlight = canvas.grid.highlight;
+    } else if ((canvas.grid as any).getHighlightLayer) {
+      highlight = (canvas.grid as any).getHighlightLayer(state.highlightId);
+      if (!highlight && (canvas.grid as any).addHighlightLayer) {
+        highlight = (canvas.grid as any).addHighlightLayer(state.highlightId);
+      }
+    }
+  } catch (error) {
+    console.warn('Mastery System | Could not get highlight layer', error);
+  }
+  
+  // Clear previous highlights
+  if (highlight && highlight.clear) {
+    highlight.clear();
+  }
   
   // Draw path line
   state.previewGraphics.lineStyle(3, lineColor, 0.8);
@@ -345,69 +383,71 @@ function refreshMovementPreview(state: MovementState, destX: number, destY: numb
   state.previewGraphics.drawCircle(dest.x, dest.y, canvas.grid.size * 0.3);
   state.previewGraphics.endFill();
   
-  // If we have path segments, highlight grid positions along the path
-  if (segments.length > 0) {
+  // Highlight grid positions along the path
+  if (highlight && segments.length > 0) {
     const gridSize = canvas.grid.size;
     const halfGrid = gridSize * 0.5;
     
     for (const segment of segments) {
       if (segment.positions && Array.isArray(segment.positions)) {
         for (const pos of segment.positions) {
-          // Draw a small square/hex at each grid position
-          const gridX = pos.x;
-          const gridY = pos.y;
-          
-          state.previewGraphics.lineStyle(1, fillColor, 0.5);
-          state.previewGraphics.beginFill(fillColor, 0.2);
-          
-          // Draw based on grid type (hex or square)
-          if (canvas.grid.type === 1) { // Hex grid
-            // Draw hex shape (simplified as circle for now)
-            state.previewGraphics.drawCircle(gridX, gridY, halfGrid * 0.8);
-          } else { // Square grid
-            state.previewGraphics.drawRect(
-              gridX - halfGrid,
-              gridY - halfGrid,
-              gridSize,
-              gridSize
-            );
+          const gridPos = canvas.grid.getGridPositionFromPixels(pos.x, pos.y);
+          if (gridPos) {
+            if (highlight.highlightPosition) {
+              highlight.highlightPosition(gridPos.x, gridPos.y, { color: fillColor, alpha: 0.3 });
+            } else if (highlight.highlightGridPosition) {
+              highlight.highlightGridPosition(gridPos.x, gridPos.y, { color: fillColor, alpha: 0.3 });
+            }
           }
-          
-          state.previewGraphics.endFill();
         }
       }
     }
   }
   
-  // Clean up ruler
-  ruler.clear();
+  // Also highlight origin and destination
+  const originGrid = canvas.grid.getGridPositionFromPixels(origin.x, origin.y);
+  const destGrid = canvas.grid.getGridPositionFromPixels(dest.x, dest.y);
+  
+  if (highlight && originGrid) {
+    if (highlight.highlightPosition) {
+      highlight.highlightPosition(originGrid.x, originGrid.y, { color: 0x00ffff, alpha: 0.5 });
+    } else if (highlight.highlightGridPosition) {
+      highlight.highlightGridPosition(originGrid.x, originGrid.y, { color: 0x00ffff, alpha: 0.5 });
+    }
+  }
+  
+  if (highlight && destGrid) {
+    if (highlight.highlightPosition) {
+      highlight.highlightPosition(destGrid.x, destGrid.y, { color: fillColor, alpha: 0.5 });
+    } else if (highlight.highlightGridPosition) {
+      highlight.highlightGridPosition(destGrid.x, destGrid.y, { color: fillColor, alpha: 0.5 });
+    }
+  }
 }
 
 /**
  * Handle pointer down during movement mode
  */
-function handleMovementPointerDown(ev: PIXI.FederatedPointerEvent): void {
-  if (!activeMovementState) return;
+function handleMovementPointerDown(ev: PIXI.FederatedPointerEvent, state?: MovementState): void {
+  const currentState = state || activeMovementState;
+  if (!currentState || activeMovementState !== currentState) return;
   
-  const state = activeMovementState;
-  
-  // Right click or middle click cancels
+  // Right or middle click cancels
   if (ev.button === 2 || ev.button === 1) {
+    console.log('Mastery System | Guided movement cancelled via mouse button', ev.button);
     endGuidedMovement(false);
     return;
   }
   
   // Left click -> attempt move
   if (ev.button === 0) {
-    // Convert screen coordinates to world coordinates
-    const worldPos = canvas.app.stage.toLocal(ev.global);
-    // Snap to grid
-    const dest = canvas.grid.getSnappedPosition(worldPos.x, worldPos.y, 1);
+    const worldPos = ev.data.getLocalPosition(canvas.app.stage);
+    const snapped = canvas.grid.getSnappedPosition(worldPos.x, worldPos.y, 1);
     
-    attemptCommitMovement(dest.x, dest.y, state)
+    attemptCommitMovement(snapped.x, snapped.y, currentState)
       .catch(err => {
-        console.error('Mastery System | Movement commit failed', err);
-        ui.notifications.error('Failed to move token');
+        console.error('Mastery System | Guided movement commit failed', err);
+        endGuidedMovement(false);
       });
   }
 }
@@ -419,24 +459,26 @@ async function attemptCommitMovement(destX: number, destY: number, state: Moveme
   const origin = state.origin;
   const dest = { x: destX, y: destY };
   
-  // Re-measure the path using Ruler
+  // Re-measure the path (same as in refreshMovementPreview)
   let distanceInUnits = 0;
   
-  try {
-    const ruler = new (Ruler as any)(game.user);
-    ruler.waypoints = [
-      { x: origin.x, y: origin.y },
-      { x: dest.x, y: dest.y }
-    ];
-    
-    const measurement = ruler.measure(ruler.waypoints);
-    distanceInUnits = measurement?.distance || 0;
-    
-    // Clean up ruler
-    ruler.clear();
-  } catch (error) {
-    // Fallback: simple distance calculation
-    console.warn('Mastery System | Ruler API error, using fallback', error);
+  if (state.ruler) {
+    try {
+      state.ruler.clear();
+      state.ruler.waypoints = [
+        { x: origin.x, y: origin.y },
+        { x: dest.x, y: dest.y }
+      ];
+      
+      const measurement = state.ruler.measure(state.ruler.waypoints);
+      distanceInUnits = measurement?.distance || 0;
+    } catch (error) {
+      console.warn('Mastery System | Ruler measure error', error);
+    }
+  }
+  
+  // Fallback calculation
+  if (distanceInUnits === 0) {
     const dx = dest.x - origin.x;
     const dy = dest.y - origin.y;
     const pixelDistance = Math.sqrt(dx * dx + dy * dy);
@@ -445,29 +487,21 @@ async function attemptCommitMovement(destX: number, destY: number, state: Moveme
   
   // Check if destination is within range
   if (distanceInUnits > state.maxRange) {
-    ui.notifications.warn(`Destination is out of range! Maximum range: ${state.maxRange}m, Distance: ${distanceInUnits.toFixed(1)}m`);
+    ui.notifications.warn('Target is out of movement range.');
+    // Do not move the token; keep movement mode active
     return;
   }
   
-  // Move the token
+  // Move the token using Foundry's movement animation
   const token = state.token;
   
-  // Use Foundry's token movement animation if available
-  // In v13, we can use token.animateMovement or token.document.update with animate option
   try {
-    // Try animateMovement first (if available in v13)
-    if (token.animateMovement && typeof token.animateMovement === 'function') {
-      await token.animateMovement(dest, { duration: 400 });
-    } else {
-      // Fallback to document update with animation
-      await token.document.update(
-        { x: dest.x, y: dest.y },
-        { animate: true }
-      );
-    }
+    // Use v13 API: token.document.update with animate option
+    await token.document.update(
+      { x: dest.x, y: dest.y },
+      { animate: true }
+    );
     
-    // Mark movement as used (if needed)
-    // This could update actor resources, flags, etc.
     console.log('Mastery System | Movement completed', {
       option: state.option.name,
       distance: distanceInUnits.toFixed(1),
@@ -477,27 +511,47 @@ async function attemptCommitMovement(destX: number, destY: number, state: Moveme
     // End movement mode successfully
     endGuidedMovement(true);
     
-    ui.notifications.info(`Moved ${distanceInUnits.toFixed(1)}m using ${state.option.name}`);
-    
   } catch (error) {
     console.error('Mastery System | Error during token movement', error);
     ui.notifications.error('Failed to move token');
+    endGuidedMovement(false);
   }
 }
 
 /**
  * End guided movement mode
  */
-function endGuidedMovement(success: boolean): void {
+export function endGuidedMovement(success: boolean): void {
   const state = activeMovementState;
   if (!state) return;
   
-  console.log('Mastery System | Ending guided movement mode', { success });
+  console.log('Mastery System | Guided movement end. success =', success);
   
   // Remove event listeners
   canvas.stage.off("pointermove", state.onMove);
   canvas.stage.off("pointerdown", state.onDown);
   window.removeEventListener("keydown", state.onKeyDown);
+  
+  // Clear highlights
+  let highlight: any = null;
+  try {
+    if (canvas.grid?.highlight) {
+      highlight = canvas.grid.highlight;
+    } else if (canvas.grid && (canvas.grid as any).getHighlightLayer) {
+      highlight = (canvas.grid as any).getHighlightLayer(state.highlightId);
+    }
+  } catch (error) {
+    // Ignore
+  }
+  
+  if (highlight && highlight.clear) {
+    highlight.clear();
+  }
+  
+  // Clear ruler
+  if (state.ruler && state.ruler.clear) {
+    state.ruler.clear();
+  }
   
   // Clear preview graphics
   if (state.previewGraphics && state.previewGraphics.parent) {
@@ -505,7 +559,7 @@ function endGuidedMovement(success: boolean): void {
     state.previewGraphics.clear();
   }
   
-  // Restore token alpha
+  // Reset token alpha
   state.token.alpha = state.originalAlpha;
   
   // Clear state
@@ -526,8 +580,11 @@ function endGuidedMovement(success: boolean): void {
 export function handleChosenCombatOption(token: any, option: RadialCombatOption) {
   console.log('Mastery System | Chosen combat option:', { token: token.name, option });
 
-  // Check if this is a movement option
-  if (option.slot === 'movement') {
+  // Check if this is a movement option - check both segment and slot
+  const isMovement = option.slot === 'movement' || (option as any).segment === 'movement';
+  
+  if (isMovement) {
+    console.log('Mastery System | Starting guided movement for', token.name, option);
     startGuidedMovement(token, option);
     return;
   }
