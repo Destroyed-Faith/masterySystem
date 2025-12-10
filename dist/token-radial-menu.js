@@ -253,6 +253,19 @@ export async function getAllCombatOptionsForActor(actor) {
     // Get actor's speed for movement maneuvers
     const actorSpeed = actor.system?.combat?.speed || 6; // Default to 6m if not set
     for (const maneuver of availableManeuvers) {
+        // Filter out Multiattacks from the radial menu
+        if (maneuver.tags?.includes('multiattack') || maneuver.id?.includes('multiattack')) {
+            continue; // Skip Multiattack maneuvers
+        }
+        // For attack slot: only allow Weapon Attack and the two main stances (Parry Stance and Dodge Stance)
+        if (maneuver.slot === 'attack') {
+            // Only allow Parry Stance and Dodge Stance
+            if (maneuver.id !== 'parry-stance' && maneuver.id !== 'dodge-stance') {
+                // Check if it's a "Weapon Attack" - this might be a special case or we need to add it
+                // For now, skip all other attack maneuvers except the two stances
+                continue;
+            }
+        }
         // Maneuvers have their slot defined in the maneuver data
         // For "move" maneuver, use the actor's speed as range
         let maneuverRange = undefined;
@@ -278,6 +291,30 @@ export async function getAllCombatOptionsForActor(actor) {
             range: maneuverRange,
             maneuver: maneuver,
             tags: maneuver.tags || []
+        });
+    }
+    // Add "Weapon Attack" as a standard attack option if not already present
+    // Check if we already have a weapon attack option
+    const hasWeaponAttack = options.some(opt => opt.slot === 'attack' && (opt.id === 'weapon-attack' || opt.name.toLowerCase() === 'weapon attack'));
+    if (!hasWeaponAttack) {
+        // Add Weapon Attack as a standard maneuver option
+        options.push({
+            id: 'weapon-attack',
+            name: 'Weapon Attack',
+            description: 'Make a standard attack with your equipped weapon.',
+            slot: 'attack',
+            source: 'maneuver',
+            range: undefined,
+            maneuver: {
+                id: 'weapon-attack',
+                name: 'Weapon Attack',
+                description: 'Make a standard attack with your equipped weapon.',
+                slot: 'attack',
+                category: 'combat-action',
+                tags: ['attack', 'weapon'],
+                effect: 'Make a standard attack with your equipped weapon. Roll attack dice against the target\'s Evade.'
+            },
+            tags: ['attack', 'weapon']
         });
     }
     console.log(`Mastery System | Collected ${options.length} combat options for actor:`, {
