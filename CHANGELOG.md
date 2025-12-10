@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.68] - 2025-01-XX
+
+### Fixed
+- Fixed inner radial menu segments not being clickable - added proper interactivity and z-order management
+- Updated version to 0.0.68 in all relevant files
+
 ## [0.0.67] - 2025-01-XX
 
 ### Fixed
