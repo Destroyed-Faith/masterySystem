@@ -11,6 +11,8 @@
  */
 export async function showPowerCreationDialog(actor: Actor): Promise<void> {
   // Dynamic imports to avoid build issues
+  // Use paths relative to the compiled file location
+  // From dist/sheets/ to dist/utils/, go up one level then into utils
   const { getAllMasteryTrees } = await import('../utils/mastery-trees.js' as any);
   const { getAllSpellSchools } = await import('../utils/spell-schools.js' as any);
   

@@ -235,9 +235,9 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
   // Pre-load power definitions for range lookup
   let getPowerFn: ((treeName: string, powerName: string) => any) | null = null;
   try {
-    // Use absolute path from system root for dynamic imports
-    // From dist/token-radial-menu.js, we need to go to dist/utils/powers/index.js
-    const powerModule = await import('../utils/powers/index.js' as any);
+    // From dist/token-radial-menu.js to dist/utils/powers/index.js
+    // Go up one level (to dist/) then into utils/
+    const powerModule = await import('./utils/powers/index.js' as any);
     getPowerFn = powerModule.getPower;
   } catch (error) {
     console.warn('Mastery System | Could not load power definitions module:', error);
