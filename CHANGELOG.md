@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.66] - 2025-01-XX
+
+### Changed
+- **Radial Menu Redesign**: Refactored outer ring from small circular buttons to CS:GO-style wedge slices
+- Outer ring now displays large, clickable wedge segments instead of tiny dots
+- Each combat option is represented as a ring segment (donut slice) between inner and outer radius
+- Improved visual clarity and clickability of options
+
+### Added
+- **Info Panel**: Added HTML info panel that appears on the right side of the screen when hovering over options
+- Info panel displays: option name, source (power/maneuver), slot type, range, and description
+- Info panel positioned dynamically based on token screen coordinates
+- Enhanced hover effects: wedges highlight with increased alpha and brighter borders
+- CSS styling for info panel in `styles/overlays.css`
+
+### Technical
+- Refactored `createRadialOptionSlice()` to draw proper ring segments (donut slices)
+- Added `worldToScreen()` helper for coordinate conversion
+- Added `getOrCreateInfoDiv()`, `showRadialInfoPanel()`, and `hideRadialInfoPanel()` functions
+- Updated `closeRadialMenu()` to also hide info panel
+- Improved wedge drawing with proper inner/outer arc calculations
+
 ## [0.0.65] - 2025-01-XX
 
 ### Fixed

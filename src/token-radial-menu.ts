@@ -41,6 +41,8 @@ const MS_INNER_SEGMENTS: InnerSegment[] = [
 
 const MS_OUTER_RADIUS = 140;
 const MS_INNER_RADIUS = 60;
+const MS_OUTER_RING_INNER = 80;  // Inner radius of outer ring (where wedges start)
+const MS_OUTER_RING_OUTER = 140;  // Outer radius of outer ring (where wedges end)
 
 // Global state
 let msRadialMenu: PIXI.Container | null = null;
@@ -144,6 +146,7 @@ function showRangePreview(token: any, rangeUnits: number): void {
  */
 export function closeRadialMenu(): void {
   clearRangePreview();
+  hideRadialInfoPanel();
   
   if (msRadialMenu && msRadialMenu.parent) {
     msRadialMenu.parent.removeChild(msRadialMenu);
@@ -281,57 +284,206 @@ function mapPowerTypeToSlot(powerType: string): CombatSlot {
  */
 function shortenOptionName(name: string): string {
   if (!name) return '';
-  if (name.length <= 8) return name;
-  return name.slice(0, 7) + '…';
+  if (name.length <= 12) return name;
+  return name.slice(0, 11) + '…';
 }
 
 /**
- * Create a radial option button for the outer ring
+ * Convert world coordinates to screen coordinates
  */
-function createRadialOptionButton(
+function worldToScreen(worldX: number, worldY: number): { x: number; y: number } {
+  const point = new PIXI.Point();
+  canvas.app.renderer.plugins.interaction.mapPositionToPoint(point, worldX, worldY);
+  return { x: point.x, y: point.y };
+}
+
+/**
+ * Get or create the info panel div
+ */
+function getOrCreateInfoDiv(): HTMLElement {
+  let infoDiv = document.getElementById('ms-radial-info');
+  if (!infoDiv) {
+    infoDiv = document.createElement('div');
+    infoDiv.id = 'ms-radial-info';
+    infoDiv.className = 'ms-radial-info hidden';
+    document.body.appendChild(infoDiv);
+  }
+  return infoDiv;
+}
+
+/**
+ * Show the info panel with option details
+ */
+function showRadialInfoPanel(token: any, option: RadialCombatOption): void {
+  const info = getOrCreateInfoDiv();
+  info.classList.remove('hidden');
+  
+  const screenPos = worldToScreen(token.center.x, token.center.y);
+  // Position to the right of the token center
+  info.style.left = `${screenPos.x + 200}px`;
+  info.style.top = `${screenPos.y - 100}px`;
+  
+  const segmentId = getSegmentIdForOption(option);
+  const category = segmentId === 'active-buff' ? 'attack' : segmentId;
+  const rangeText = option.range !== undefined ? `${option.range}m` : '–';
+  
+  info.innerHTML = `
+    <div class="ms-info-title">${option.name}</div>
+    <div class="ms-info-meta">
+      <span class="ms-info-source">${option.source}</span> · <span class="ms-info-slot">${category}</span>
+    </div>
+    <div class="ms-info-range">Range: ${rangeText}</div>
+    <div class="ms-info-desc">${option.description || 'No description available'}</div>
+  `;
+}
+
+/**
+ * Hide the info panel
+ */
+function hideRadialInfoPanel(): void {
+  const info = document.getElementById('ms-radial-info');
+  if (info) {
+    info.classList.add('hidden');
+  }
+}
+
+/**
+ * Create a radial option wedge/slice for the outer ring
+ */
+function createRadialOptionSlice(
   option: RadialCombatOption,
-  angle: number,
+  startAngle: number,
+  endAngle: number,
   token: any,
   ringColor: number
 ): PIXI.Container {
   const container = new PIXI.Container();
   
-  const x = Math.cos(angle) * MS_OUTER_RADIUS;
-  const y = Math.sin(angle) * MS_OUTER_RADIUS;
-  container.position.set(x, y);
+  // Create the wedge graphics
+  const wedge = new PIXI.Graphics();
   
-  // Button bubble
-  const bubble = new PIXI.Graphics();
-  bubble.beginFill(ringColor, 0.95);
-  bubble.drawCircle(0, 0, 18);
-  bubble.endFill();
-  container.addChild(bubble);
+  // Draw the wedge as a ring segment (donut slice)
+  // Start from inner radius at startAngle
+  const innerStartX = Math.cos(startAngle) * MS_OUTER_RING_INNER;
+  const innerStartY = Math.sin(startAngle) * MS_OUTER_RING_INNER;
+  const innerEndX = Math.cos(endAngle) * MS_OUTER_RING_INNER;
+  const innerEndY = Math.sin(endAngle) * MS_OUTER_RING_INNER;
+  
+  wedge.beginFill(ringColor, 0.6); // Default alpha
+  wedge.moveTo(innerStartX, innerStartY);
+  // Arc along outer radius
+  wedge.arc(0, 0, MS_OUTER_RING_OUTER, startAngle, endAngle);
+  // Line to inner radius at endAngle
+  wedge.lineTo(innerEndX, innerEndY);
+  // Arc back along inner radius
+  wedge.arc(0, 0, MS_OUTER_RING_INNER, endAngle, startAngle, true);
+  wedge.closePath();
+  wedge.endFill();
+  
+  // Add border
+  wedge.lineStyle(2, ringColor, 0.8);
+  // Outer arc
+  wedge.arc(0, 0, MS_OUTER_RING_OUTER, startAngle, endAngle);
+  // Line from outer to inner at endAngle
+  wedge.moveTo(innerEndX, innerEndY);
+  wedge.lineTo(Math.cos(endAngle) * MS_OUTER_RING_OUTER, Math.sin(endAngle) * MS_OUTER_RING_OUTER);
+  // Inner arc
+  wedge.arc(0, 0, MS_OUTER_RING_INNER, endAngle, startAngle, true);
+  // Line from inner to outer at startAngle
+  wedge.moveTo(innerStartX, innerStartY);
+  wedge.lineTo(Math.cos(startAngle) * MS_OUTER_RING_OUTER, Math.sin(startAngle) * MS_OUTER_RING_OUTER);
+  
+  container.addChild(wedge);
+  
+  // Calculate text position (center of the wedge)
+  const midAngle = (startAngle + endAngle) / 2;
+  const textRadius = (MS_OUTER_RING_INNER + MS_OUTER_RING_OUTER) / 2;
+  const textX = Math.cos(midAngle) * textRadius;
+  const textY = Math.sin(midAngle) * textRadius;
   
   // Label text
   const label = new PIXI.Text(shortenOptionName(option.name), {
-    fontSize: 10,
-    fill: 0x000000,
+    fontSize: 11,
+    fill: 0xffffff,
     align: 'center',
+    fontWeight: 'bold',
     wordWrap: true,
-    wordWrapWidth: 30
+    wordWrapWidth: (MS_OUTER_RING_OUTER - MS_OUTER_RING_INNER) * 0.8
   });
   label.anchor.set(0.5);
+  label.position.set(textX, textY);
   container.addChild(label);
   
+  // Make the entire wedge interactive
   container.interactive = true;
   container.buttonMode = true;
   
-  // Hover: show range preview and scale up
+  // Store reference to wedge graphics for hover effects
+  (container as any).wedgeGfx = wedge;
+  (container as any).defaultAlpha = 0.6;
+  
+  // Hover: highlight wedge, show range preview, and update info panel
   container.on('pointerover', () => {
-    bubble.scale.set(1.1);
+    // Visual highlight - increase alpha and redraw
+    const innerStartX = Math.cos(startAngle) * MS_OUTER_RING_INNER;
+    const innerStartY = Math.sin(startAngle) * MS_OUTER_RING_INNER;
+    const innerEndX = Math.cos(endAngle) * MS_OUTER_RING_INNER;
+    const innerEndY = Math.sin(endAngle) * MS_OUTER_RING_INNER;
+    
+    wedge.clear();
+    wedge.beginFill(ringColor, 1.0); // Full alpha on hover
+    wedge.moveTo(innerStartX, innerStartY);
+    wedge.arc(0, 0, MS_OUTER_RING_OUTER, startAngle, endAngle);
+    wedge.lineTo(innerEndX, innerEndY);
+    wedge.arc(0, 0, MS_OUTER_RING_INNER, endAngle, startAngle, true);
+    wedge.closePath();
+    wedge.endFill();
+    
+    // Add brighter border
+    wedge.lineStyle(3, ringColor, 1.0);
+    wedge.arc(0, 0, MS_OUTER_RING_OUTER, startAngle, endAngle);
+    wedge.moveTo(innerEndX, innerEndY);
+    wedge.lineTo(Math.cos(endAngle) * MS_OUTER_RING_OUTER, Math.sin(endAngle) * MS_OUTER_RING_OUTER);
+    wedge.arc(0, 0, MS_OUTER_RING_INNER, endAngle, startAngle, true);
+    wedge.moveTo(innerStartX, innerStartY);
+    wedge.lineTo(Math.cos(startAngle) * MS_OUTER_RING_OUTER, Math.sin(startAngle) * MS_OUTER_RING_OUTER);
+    
+    // Range preview
     if (option.range !== undefined) {
       showRangePreview(token, option.range);
     }
+    
+    // Info panel
+    showRadialInfoPanel(token, option);
   });
   
   container.on('pointerout', () => {
-    bubble.scale.set(1.0);
+    // Restore default appearance
+    const innerStartX = Math.cos(startAngle) * MS_OUTER_RING_INNER;
+    const innerStartY = Math.sin(startAngle) * MS_OUTER_RING_INNER;
+    const innerEndX = Math.cos(endAngle) * MS_OUTER_RING_INNER;
+    const innerEndY = Math.sin(endAngle) * MS_OUTER_RING_INNER;
+    
+    wedge.clear();
+    wedge.beginFill(ringColor, 0.6); // Default alpha
+    wedge.moveTo(innerStartX, innerStartY);
+    wedge.arc(0, 0, MS_OUTER_RING_OUTER, startAngle, endAngle);
+    wedge.lineTo(innerEndX, innerEndY);
+    wedge.arc(0, 0, MS_OUTER_RING_INNER, endAngle, startAngle, true);
+    wedge.closePath();
+    wedge.endFill();
+    
+    // Default border
+    wedge.lineStyle(2, ringColor, 0.8);
+    wedge.arc(0, 0, MS_OUTER_RING_OUTER, startAngle, endAngle);
+    wedge.moveTo(innerEndX, innerEndY);
+    wedge.lineTo(Math.cos(endAngle) * MS_OUTER_RING_OUTER, Math.sin(endAngle) * MS_OUTER_RING_OUTER);
+    wedge.arc(0, 0, MS_OUTER_RING_INNER, endAngle, startAngle, true);
+    wedge.moveTo(innerStartX, innerStartY);
+    wedge.lineTo(Math.cos(startAngle) * MS_OUTER_RING_OUTER, Math.sin(startAngle) * MS_OUTER_RING_OUTER);
+    
     clearRangePreview();
+    hideRadialInfoPanel();
   });
   
   // Click: select option
@@ -358,7 +510,7 @@ function createRadialOptionButton(
 }
 
 /**
- * Render the outer ring of option buttons
+ * Render the outer ring of option wedges
  */
 function renderOuterRing(
   root: PIXI.Container,
@@ -369,7 +521,7 @@ function renderOuterRing(
   // Remove existing outer ring elements
   const toRemove: PIXI.DisplayObject[] = [];
   root.children.forEach((child: any) => {
-    if (child.msOuterButton === true || child.msOuterRing === true) {
+    if (child.msOuterSlice === true || child.msOuterRing === true) {
       toRemove.push(child);
     }
   });
@@ -379,11 +531,11 @@ function renderOuterRing(
   const segMeta = MS_INNER_SEGMENTS.find(s => s.id === segmentId);
   const ringColor = segMeta ? segMeta.color : 0xffffff;
   
-  // Background ring
+  // Faint background ring
   const ringGfx = new PIXI.Graphics();
-  ringGfx.lineStyle(2, ringColor, 0.7);
-  ringGfx.beginFill(ringColor, 0.08);
-  ringGfx.drawCircle(0, 0, MS_OUTER_RADIUS);
+  ringGfx.lineStyle(2, ringColor, 0.3);
+  ringGfx.beginFill(ringColor, 0.05);
+  ringGfx.drawCircle(0, 0, MS_OUTER_RING_OUTER);
   ringGfx.endFill();
   (ringGfx as any).msOuterRing = true;
   root.addChild(ringGfx);
@@ -404,15 +556,18 @@ function renderOuterRing(
     return;
   }
   
-  // Distribute buttons evenly around the ring
-  const angleStep = (Math.PI * 2) / optionsForSegment.length;
+  // Distribute wedges evenly around the ring
+  const count = optionsForSegment.length;
+  const angleStep = (Math.PI * 2) / count;
   const startAngle = -Math.PI / 2; // Start at top
   
   optionsForSegment.forEach((option, index) => {
-    const angle = startAngle + index * angleStep;
-    const btn = createRadialOptionButton(option, angle, token, ringColor);
-    (btn as any).msOuterButton = true;
-    root.addChild(btn);
+    const baseAngle = startAngle + index * angleStep;
+    const endAngle = baseAngle + angleStep;
+    
+    const slice = createRadialOptionSlice(option, baseAngle, endAngle, token, ringColor);
+    (slice as any).msOuterSlice = true;
+    root.addChild(slice);
   });
 }
 

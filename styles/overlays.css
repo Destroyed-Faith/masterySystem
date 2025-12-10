@@ -708,6 +708,87 @@
   font-size: 1.2em;
 }
 
+/* ========================================
+   Radial Menu Info Panel
+   ======================================== */
+
+.ms-radial-info {
+  position: fixed;
+  min-width: 280px;
+  max-width: 350px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border: 2px solid #0f3460;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
+  z-index: 10000;
+  font-family: 'Signika', sans-serif;
+  color: #e9e9e9;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.ms-radial-info.hidden {
+  display: none;
+}
+
+.ms-info-title {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #e94560;
+  margin: 0 0 0.75rem 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  border-bottom: 2px solid #0f3460;
+  padding-bottom: 0.5rem;
+}
+
+.ms-info-meta {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin: 0 0 0.75rem 0;
+  font-size: 0.9rem;
+  color: #a8dadc;
+}
+
+.ms-info-source {
+  background: #0f3460;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  text-transform: capitalize;
+  font-weight: 600;
+}
+
+.ms-info-slot {
+  background: rgba(233, 69, 96, 0.3);
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  text-transform: capitalize;
+  font-weight: 600;
+  color: #e94560;
+}
+
+.ms-info-range {
+  background: rgba(15, 52, 96, 0.5);
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  margin: 0 0 0.75rem 0;
+  font-size: 0.95rem;
+  color: #a8dadc;
+  border-left: 3px solid #48dbfb;
+}
+
+.ms-info-desc {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #c7c7c7;
+  margin: 0;
+  padding: 0.75rem;
+  background: rgba(15, 52, 96, 0.3);
+  border-radius: 6px;
+  border: 1px solid #0f3460;
+}
+
 
 
 
