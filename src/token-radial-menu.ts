@@ -39,7 +39,6 @@ const MS_INNER_SEGMENTS: InnerSegment[] = [
   { id: 'active-buff', color: 0xcc88ff, label: 'Buff' }
 ];
 
-const MS_OUTER_RADIUS = 140;
 const MS_INNER_RADIUS = 60;
 const MS_OUTER_RING_INNER = 80;  // Inner radius of outer ring (where wedges start)
 const MS_OUTER_RING_OUTER = 140;  // Outer radius of outer ring (where wedges end)
@@ -292,9 +291,40 @@ function shortenOptionName(name: string): string {
  * Convert world coordinates to screen coordinates
  */
 function worldToScreen(worldX: number, worldY: number): { x: number; y: number } {
-  const point = new PIXI.Point();
-  canvas.app.renderer.plugins.interaction.mapPositionToPoint(point, worldX, worldY);
-  return { x: point.x, y: point.y };
+  // Try multiple methods for Foundry v13 compatibility
+  let screenX = 0;
+  let screenY = 0;
+  
+  // Method 1: Use canvas stage toGlobal (if available)
+  if (canvas.stage && typeof canvas.stage.toGlobal === 'function') {
+    const worldPoint = new PIXI.Point(worldX, worldY);
+    const globalPoint = canvas.stage.toGlobal(worldPoint);
+    screenX = globalPoint.x;
+    screenY = globalPoint.y;
+  }
+  // Method 2: Use renderer plugins interaction (older API)
+  else if (canvas.app?.renderer?.plugins?.interaction?.mapPositionToPoint) {
+    const point = new PIXI.Point();
+    canvas.app.renderer.plugins.interaction.mapPositionToPoint(point, worldX, worldY);
+    screenX = point.x;
+    screenY = point.y;
+  }
+  // Method 3: Manual calculation using stage transform
+  else if (canvas.stage) {
+    const stage = canvas.stage;
+    const transform = stage.worldTransform;
+    screenX = transform.a * worldX + transform.c * worldY + transform.tx;
+    screenY = transform.b * worldX + transform.d * worldY + transform.ty;
+  }
+  // Fallback: use canvas dimensions and grid
+  else {
+    // Rough approximation using stage scale
+    const scale = canvas.stage?.scale?.x || 1;
+    screenX = worldX * scale;
+    screenY = worldY * scale;
+  }
+  
+  return { x: screenX, y: screenY };
 }
 
 /**
@@ -826,11 +856,46 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
   updateMenu();
   
   // Outside-click closes the menu
-  msRadialCloseHandler = (_event: MouseEvent) => {
+  msRadialCloseHandler = (event: MouseEvent) => {
     if (!msRadialMenu) return;
     
     // Get the click position in canvas coordinates
-    const canvasPoint = canvas.app.renderer.plugins.interaction.mouse.global;
+    let canvasPoint: { x: number; y: number } | null = null;
+    
+    // Try multiple methods to get mouse position
+    // Method 1: Use event coordinates and convert
+    if (event && canvas.app?.renderer) {
+      const rect = canvas.app.renderer.view.getBoundingClientRect();
+      const clientX = event.clientX - rect.left;
+      const clientY = event.clientY - rect.top;
+      
+      // Convert screen coordinates to world coordinates
+      if (canvas.stage && typeof canvas.stage.toLocal === 'function') {
+        const screenPoint = new PIXI.Point(clientX, clientY);
+        const worldPoint = canvas.stage.toLocal(screenPoint);
+        canvasPoint = { x: worldPoint.x, y: worldPoint.y };
+      } else {
+        // Fallback: use screen coordinates directly (approximation)
+        const scale = canvas.stage?.scale?.x || 1;
+        canvasPoint = { x: clientX / scale, y: clientY / scale };
+      }
+    }
+    // Method 2: Use interaction plugin (if available)
+    else if (canvas.app?.renderer?.plugins?.interaction?.mouse?.global) {
+      const mouseGlobal = canvas.app.renderer.plugins.interaction.mouse.global;
+      if (canvas.stage && typeof canvas.stage.toLocal === 'function') {
+        const worldPoint = canvas.stage.toLocal(mouseGlobal);
+        canvasPoint = { x: worldPoint.x, y: worldPoint.y };
+      } else {
+        canvasPoint = { x: mouseGlobal.x, y: mouseGlobal.y };
+      }
+    }
+    
+    // If we couldn't get the point, just close on any click
+    if (!canvasPoint) {
+      closeRadialMenu();
+      return;
+    }
     
     // Calculate distance from token center
     const dx = canvasPoint.x - tokenCenter.x;
@@ -838,7 +903,7 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
     const distance = Math.sqrt(dx * dx + dy * dy);
     
     // If click is outside the outer ring (with some margin for easier clicking), close
-    if (distance > MS_OUTER_RADIUS + 30) {
+    if (distance > MS_OUTER_RING_OUTER + 30) {
       closeRadialMenu();
     }
   };
