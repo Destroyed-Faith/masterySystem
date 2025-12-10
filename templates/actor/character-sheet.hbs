@@ -580,7 +580,111 @@
     
     <!-- EQUIPMENT TAB -->
     <div class="tab equipment" data-group="primary" data-tab="equipment">
-      <p style="padding: 20px; text-align: center; color: #666;">Equipment tab - Weapons, Armor, Artifacts</p>
+      
+      <div class="equipment-overview">
+        <h3><i class="fas fa-shield-alt"></i> Equipment</h3>
+        <div class="equipment-controls">
+          <button type="button" class="add-weapon-btn" title="Add Weapon">
+            <i class="fas fa-sword"></i> Add Weapon
+          </button>
+          <button type="button" class="add-armor-btn" title="Add Armor">
+            <i class="fas fa-shield"></i> Add Armor
+          </button>
+        </div>
+      </div>
+      
+      <!-- Weapons Section -->
+      <div class="equipment-section">
+        <h4><i class="fas fa-sword"></i> Weapons</h4>
+        {{#if items.weapons}}
+          <div class="weapons-list">
+            {{#each items.weapons}}
+              <div class="equipment-item" data-item-id="{{this.id}}">
+                <div class="equipment-header">
+                  <div class="equipment-name">
+                    <input type="checkbox" name="equipped" {{#if this.system.equipped}}checked{{/if}} data-item-id="{{this.id}}" />
+                    <label>{{this.name}}</label>
+                  </div>
+                  <div class="equipment-controls">
+                    <button type="button" class="item-edit" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button type="button" class="item-delete" title="Delete"><i class="fas fa-trash"></i></button>
+                  </div>
+                </div>
+                <div class="equipment-details">
+                  <div class="equipment-stat">
+                    <span class="stat-label">Damage:</span>
+                    <span class="stat-value">{{default this.system.damage "1d8"}}</span>
+                  </div>
+                  <div class="equipment-stat">
+                    <span class="stat-label">Type:</span>
+                    <span class="stat-value">{{default this.system.weaponType "melee"}}</span>
+                  </div>
+                  <div class="equipment-stat">
+                    <span class="stat-label">Hands:</span>
+                    <span class="stat-value">{{default this.system.hands 1}}</span>
+                  </div>
+                  {{#if this.system.innateAbilities}}
+                    <div class="equipment-stat">
+                      <span class="stat-label">Properties:</span>
+                      <span class="stat-value">{{this.system.innateAbilities.join ', '}}</span>
+                    </div>
+                  {{/if}}
+                  {{#if this.system.specials}}
+                    <div class="equipment-stat">
+                      <span class="stat-label">Special:</span>
+                      <span class="stat-value">{{this.system.specials.join ', '}}</span>
+                    </div>
+                  {{/if}}
+                </div>
+                {{#if this.system.description}}
+                  <div class="equipment-description">{{this.system.description}}</div>
+                {{/if}}
+              </div>
+            {{/each}}
+          </div>
+        {{else}}
+          <p class="empty-message">No weapons yet. Click "Add Weapon" to start.</p>
+        {{/if}}
+      </div>
+      
+      <!-- Armor Section -->
+      <div class="equipment-section">
+        <h4><i class="fas fa-shield"></i> Armor</h4>
+        {{#if items.armor}}
+          <div class="armor-list">
+            {{#each items.armor}}
+              <div class="equipment-item" data-item-id="{{this.id}}">
+                <div class="equipment-header">
+                  <div class="equipment-name">
+                    <input type="checkbox" name="equipped" {{#if this.system.equipped}}checked{{/if}} data-item-id="{{this.id}}" />
+                    <label>{{this.name}}</label>
+                  </div>
+                  <div class="equipment-controls">
+                    <button type="button" class="item-edit" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button type="button" class="item-delete" title="Delete"><i class="fas fa-trash"></i></button>
+                  </div>
+                </div>
+                <div class="equipment-details">
+                  <div class="equipment-stat">
+                    <span class="stat-label">Armor Value:</span>
+                    <span class="stat-value">{{default this.system.armorValue 0}}</span>
+                  </div>
+                  <div class="equipment-stat">
+                    <span class="stat-label">Type:</span>
+                    <span class="stat-value">{{default this.system.type "light"}}</span>
+                  </div>
+                </div>
+                {{#if this.system.description}}
+                  <div class="equipment-description">{{this.system.description}}</div>
+                {{/if}}
+              </div>
+            {{/each}}
+          </div>
+        {{else}}
+          <p class="empty-message">No armor yet. Click "Add Armor" to start.</p>
+        {{/if}}
+      </div>
+      
     </div>
     
     <!-- BIOGRAPHY TAB -->

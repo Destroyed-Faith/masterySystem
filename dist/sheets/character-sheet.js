@@ -77,6 +77,52 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ui.notifications?.error('Failed to open power selection dialog');
         }
     }
+    /**
+     * Add Weapon → open weapon dialog
+     */
+    async #onWeaponAdd(event) {
+        event.preventDefault();
+        await this.#openWeaponDialog();
+    }
+    /**
+     * Open the Weapon Creation Dialog
+     */
+    async #openWeaponDialog() {
+        try {
+            const dialogModule = await import('../../dist/sheets/character-sheet-weapon-dialog.js');
+            if (dialogModule?.showWeaponCreationDialog) {
+                await dialogModule.showWeaponCreationDialog(this.actor);
+            }
+            else {
+                ui.notifications?.error('Weapon dialog not found.');
+            }
+        }
+        catch (error) {
+            console.error('Mastery System | Failed to open weapon dialog', error);
+            ui.notifications?.error('Failed to open weapon selection dialog');
+        }
+    }
+    /**
+     * Add Armor → open armor dialog (placeholder for now)
+     */
+    async #onArmorAdd(event) {
+        event.preventDefault();
+        ui.notifications?.info('Armor dialog coming soon!');
+        // TODO: Implement armor dialog
+    }
+    /**
+     * Toggle equipment equipped status
+     */
+    async #onEquipmentToggle(event) {
+        const itemId = $(event.currentTarget).data('item-id');
+        const equipped = $(event.currentTarget).is(':checked');
+        if (itemId) {
+            const item = this.actor.items.get(itemId);
+            if (item) {
+                await item.update({ 'system.equipped': equipped });
+            }
+        }
+    }
     /** @override */
     get template() {
         const templatePath = 'systems/mastery-system/templates/actor/character-sheet.hbs';
@@ -363,6 +409,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('.skill-add').on('click', this.#onSkillAdd.bind(this));
         // Add power
         html.find('.add-power-btn').on('click', this.#onPowerAdd.bind(this));
+        // Equipment handlers
+        html.find('.add-weapon-btn').on('click', this.#onWeaponAdd.bind(this));
+        html.find('.add-armor-btn').on('click', this.#onArmorAdd.bind(this));
+        html.find('.equipment-item input[name="equipped"]').on('change', this.#onEquipmentToggle.bind(this));
         // Add spell
         html.find('.add-spell-btn').on('click', this.#onSpellAdd.bind(this));
         // Delete skill
