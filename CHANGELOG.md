@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.72] - 2025-01-XX
+
+### Added
+- **Guided Movement Mode**: Implemented a complete guided movement system for movement actions
+  - When a movement option is selected from the radial menu, enters guided movement mode
+  - Token becomes semi-transparent to indicate "picked up" state
+  - Real-time path preview from origin to mouse position with visual feedback
+  - Green path/highlights for valid destinations (within range), red for invalid (out of range)
+  - Left-click on valid destination animates token movement along the path
+  - Right-click or ESC cancels movement mode
+  - Automatic cleanup of event listeners and graphics
+  - Integrated with existing token movement restrictions
+- Added system setting for default scene background image (configurable by GM)
+
+### Fixed
+- Fixed 404 error when opening power creation dialog - corrected dynamic import paths for `mastery-trees.js` and related utility modules
+- Updated import paths in `character-sheet-power-dialog.ts` from `../../utils/` to `../utils/` to correctly resolve from `dist/sheets/` to `dist/utils/`
+- Fixed import path in `token-radial-menu.ts` for power utilities
+
 ## [0.0.71] - 2025-01-XX
 
 ### Fixed
