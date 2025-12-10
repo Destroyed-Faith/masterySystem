@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.64] - 2025-01-XX
+
+### Fixed
+- **Critical:** Fixed `canvas.hud.addChild is not a function` error in radial menu
+- Added Foundry v13 compatibility for canvas layer API with multiple fallback options
+- Radial menu now tries multiple canvas layer structures (container, direct, objects)
+- Range preview also uses fallback options for canvas.effects layer
+- Added debug logging to identify canvas layer structure
+
+### Technical
+- Updated `src/token-radial-menu.ts` with v13-compatible canvas layer access
+- Multiple fallback paths for canvas.hud and canvas.effects
+- Fallback to canvas.foreground if HUD layer not available
+
 ## [0.0.63] - 2025-01-XX
 
 ### Added

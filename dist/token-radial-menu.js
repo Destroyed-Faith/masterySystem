@@ -67,11 +67,35 @@ function showRangePreview(token, rangeUnits) {
     gfx.endFill();
     msRangePreviewGfx = gfx;
     // Add to effects layer so it appears above tokens
+    // Try multiple approaches for Foundry v13 compatibility
+    let effectsContainer = null;
     if (canvas.effects) {
-        canvas.effects.addChild(gfx);
+        // Try v13 structure first (container property)
+        if (canvas.effects.container && typeof canvas.effects.container.addChild === 'function') {
+            effectsContainer = canvas.effects.container;
+        }
+        // Try direct addChild (older versions)
+        else if (typeof canvas.effects.addChild === 'function') {
+            effectsContainer = canvas.effects;
+        }
+    }
+    // Fallback to foreground if effects doesn't work
+    if (!effectsContainer && canvas.foreground) {
+        if (canvas.foreground.container && typeof canvas.foreground.container.addChild === 'function') {
+            effectsContainer = canvas.foreground.container;
+        }
+        else if (typeof canvas.foreground.addChild === 'function') {
+            effectsContainer = canvas.foreground;
+        }
+    }
+    if (effectsContainer) {
+        effectsContainer.addChild(gfx);
         // Position at token center
         const tokenCenter = token.center;
         gfx.position.set(tokenCenter.x, tokenCenter.y);
+    }
+    else {
+        console.warn('Mastery System | Could not find effects layer for range preview');
     }
 }
 /**
@@ -369,14 +393,59 @@ function renderInnerSegments(root, _token, _allOptions, getCurrentSegmentId, set
  */
 export function openRadialMenuForActor(token, allOptions) {
     closeRadialMenu();
-    if (!canvas.hud) {
-        console.warn('Mastery System | Canvas HUD not available');
+    // In Foundry v13, canvas layers may have different structure
+    // Try multiple approaches for compatibility
+    let hudContainer = null;
+    if (canvas.hud) {
+        // Debug: log canvas.hud structure
+        console.log('Mastery System | canvas.hud structure:', {
+            hasAddChild: typeof canvas.hud.addChild === 'function',
+            hasContainer: !!canvas.hud.container,
+            hasObjects: !!canvas.hud.objects,
+            keys: Object.keys(canvas.hud)
+        });
+        // Try v13 structure first (container property)
+        if (canvas.hud.container && typeof canvas.hud.container.addChild === 'function') {
+            hudContainer = canvas.hud.container;
+            console.log('Mastery System | Using canvas.hud.container');
+        }
+        // Try direct addChild (older versions)
+        else if (typeof canvas.hud.addChild === 'function') {
+            hudContainer = canvas.hud;
+            console.log('Mastery System | Using canvas.hud directly');
+        }
+        // Try objects container
+        else if (canvas.hud.objects && typeof canvas.hud.objects.addChild === 'function') {
+            hudContainer = canvas.hud.objects;
+            console.log('Mastery System | Using canvas.hud.objects');
+        }
+    }
+    // Fallback to foreground layer if HUD doesn't work
+    if (!hudContainer && canvas.foreground) {
+        if (canvas.foreground.container && typeof canvas.foreground.container.addChild === 'function') {
+            hudContainer = canvas.foreground.container;
+            console.log('Mastery System | Using canvas.foreground.container');
+        }
+        else if (typeof canvas.foreground.addChild === 'function') {
+            hudContainer = canvas.foreground;
+            console.log('Mastery System | Using canvas.foreground directly');
+        }
+    }
+    if (!hudContainer) {
+        console.error('Mastery System | Could not find suitable canvas layer for radial menu');
+        console.error('Mastery System | Available canvas layers:', {
+            hud: !!canvas.hud,
+            foreground: !!canvas.foreground,
+            effects: !!canvas.effects,
+            tokens: !!canvas.tokens
+        });
+        ui.notifications.error('Could not display radial menu: Canvas layer not available');
         return;
     }
     const root = new PIXI.Container();
     msRadialMenu = root;
-    // Add to HUD layer so it appears above tokens
-    canvas.hud.addChild(root);
+    // Add to canvas layer
+    hudContainer.addChild(root);
     // Center on token
     const tokenCenter = token.center;
     root.position.set(tokenCenter.x, tokenCenter.y);
