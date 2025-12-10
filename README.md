@@ -123,7 +123,7 @@ mastery-system/
 
 ## Version
 
-**Current Version:** 0.0.5 (Alpha)
+**Current Version:** 0.0.68 (Alpha)
 
 Future updates will increment as:
 - **0.0.x** - Bug fixes and minor changes during alpha
