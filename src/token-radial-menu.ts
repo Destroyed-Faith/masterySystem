@@ -15,12 +15,13 @@ export interface RadialCombatOption {
   id: string;
   name: string;
   description: string;
-  slot: CombatSlot;
+  slot: CombatSlot;  // "attack" | "movement" | "utility" | "reaction"
   source: 'power' | 'maneuver';
   range?: number; // numeric range in meters
-  item?: any;
-  maneuver?: CombatManeuver;
-  powerType?: string; // for filtering active buffs
+  item?: any;  // The item document if source is 'power'
+  maneuver?: CombatManeuver;  // The maneuver definition if source is 'maneuver'
+  powerType?: string; // e.g. "active" | "active-buff" | "movement" | "utility" | "reaction"
+  tags?: string[];  // Tags for additional filtering (e.g. ["buff", "stance"])
 }
 
 /**
@@ -160,6 +161,7 @@ export function closeRadialMenu(): void {
 
 /**
  * Map an option to one of the 4 inner segment IDs
+ * This determines which inner quadrant (Buff/Move/Util/Atk) an option belongs to
  */
 function getSegmentIdForOption(option: RadialCombatOption): InnerSegment['id'] {
   // Active Buff powers get their own segment
@@ -168,13 +170,20 @@ function getSegmentIdForOption(option: RadialCombatOption): InnerSegment['id'] {
     const powerType = option.powerType || (option.item.system as any)?.powerType;
     const cost = (option.item.system as any)?.cost;
     
-    // If it's a buff/active-buff power that requires an action, it's an active buff
+    // If it's explicitly an active-buff or buff power that requires an action, it's an active buff
     if ((powerType === 'active-buff' || powerType === 'buff') && cost?.action === true) {
       return 'active-buff';
     }
     
+    // Check tags for active-buff indicators
+    const tags = option.tags || [];
+    if (tags.includes('active-buff') || tags.includes('buff') || tags.includes('stance')) {
+      if (cost?.action === true) {
+        return 'active-buff';
+      }
+    }
+    
     // Also check if power type is 'active' but has buff-like characteristics
-    // (This is a heuristic - you may need to adjust based on your power definitions)
     if (powerType === 'active' && option.slot === 'attack') {
       // Check if description or name suggests it's a buff
       const nameLower = option.name.toLowerCase();
@@ -195,29 +204,39 @@ function getSegmentIdForOption(option: RadialCombatOption): InnerSegment['id'] {
     case 'utility':
       return 'utility';
     case 'reaction':
-      // Reactions typically go to utility, but we can adjust if needed
+      // Reactions go to utility segment
       return 'utility';
     default:
+      // Default to attack for offensive actions
       return 'attack';
   }
 }
 
 /**
  * Get all combat options for an actor (all categories)
+ * Collects all Powers and Maneuvers available to the actor
  */
 export function getAllCombatOptionsForActor(actor: any): RadialCombatOption[] {
   const options: RadialCombatOption[] = [];
+  
+  if (!actor) {
+    console.warn('Mastery System | getAllCombatOptionsForActor: No actor provided');
+    return options;
+  }
   
   // --- POWERS (from Actor items) ---
   const items = actor.items || [];
   
   for (const item of items) {
+    // Powers are stored as items with type "special"
     if (item.type !== 'special') continue;
     
     const powerType = (item.system as any)?.powerType;
     if (!powerType) continue;
     
     // Only include combat-usable powers
+    // Include: movement, active, active-buff, buff, utility, reaction
+    // Exclude: passive (these are not combat actions)
     if (!['movement', 'active', 'active-buff', 'buff', 'utility', 'reaction'].includes(powerType)) {
       continue;
     }
@@ -225,36 +244,54 @@ export function getAllCombatOptionsForActor(actor: any): RadialCombatOption[] {
     // Map power type to slot
     const slot = mapPowerTypeToSlot(powerType);
     
-    // Parse range
+    // Parse range from system.range (e.g., "8m", "12m", "Self")
     const rangeStr = (item.system as any)?.range;
     const range = parseRange(rangeStr);
+    
+    // Get tags if available
+    const tags = (item.system as any)?.tags || [];
     
     options.push({
       id: item.id,
       name: item.name,
-      description: (item.system as any)?.description || '',
+      description: (item.system as any)?.description || (item.system as any)?.effect || '',
       slot: slot,
       source: 'power',
       range: range,
       item: item,
-      powerType: powerType
+      powerType: powerType,
+      tags: Array.isArray(tags) ? tags : []
     });
   }
   
   // --- MANEUVERS (generic combat maneuvers) ---
+  // Get available maneuvers for this actor (filters by requirements)
   const availableManeuvers = getAvailableManeuvers(actor);
   
   for (const maneuver of availableManeuvers) {
-    // Maneuvers don't typically have range, but we can add it if needed
+    // Maneuvers have their slot defined in the maneuver data
+    // They typically don't have range, but we can check if needed
     options.push({
       id: maneuver.id,
       name: maneuver.name,
       description: maneuver.description || (maneuver.effect || ''),
       slot: maneuver.slot,
       source: 'maneuver',
-      maneuver: maneuver
+      maneuver: maneuver,
+      tags: maneuver.tags || []
     });
   }
+  
+  console.log(`Mastery System | Collected ${options.length} combat options for actor:`, {
+    powers: options.filter(o => o.source === 'power').length,
+    maneuvers: options.filter(o => o.source === 'maneuver').length,
+    bySegment: {
+      movement: options.filter(o => getSegmentIdForOption(o) === 'movement').length,
+      attack: options.filter(o => getSegmentIdForOption(o) === 'attack').length,
+      utility: options.filter(o => getSegmentIdForOption(o) === 'utility').length,
+      'active-buff': options.filter(o => getSegmentIdForOption(o) === 'active-buff').length
+    }
+  });
   
   return options;
 }
@@ -520,14 +557,21 @@ function createRadialOptionSlice(
   container.on('pointertap', async () => {
     // Store the chosen option as a flag
     const segmentId = getSegmentIdForOption(option);
-    // Map segment ID back to CombatSlot for the flag
-    const category: CombatSlot = segmentId === 'active-buff' ? 'attack' : segmentId as CombatSlot;
     
+    // Store segment in flag (this is the quadrant the option came from)
     await token.document.setFlag('mastery-system', 'currentAction', {
-      category: category,
+      segment: segmentId,  // "movement" | "attack" | "utility" | "active-buff"
+      category: segmentId === 'active-buff' ? 'attack' : segmentId as CombatSlot,  // For backward compatibility
       kind: option.source === 'power' ? 'power' : 'maneuver',
       optionId: option.id,
       optionSource: option.source
+    });
+    
+    console.log('Mastery System | Selected combat option:', {
+      segment: segmentId,
+      optionId: option.id,
+      name: option.name,
+      source: option.source
     });
     
     // Trigger handler
@@ -831,11 +875,16 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
   const tokenCenter = token.center;
   root.position.set(tokenCenter.x, tokenCenter.y);
   
-  // Track currently selected segment (default to "attack")
-  let currentSegmentId: InnerSegment['id'] = 'attack';
+  // Track currently selected segment (default to "movement")
+  let currentSegmentId: InnerSegment['id'] = 'movement';
   
-  // Function to update both inner and outer rings when segment changes
-  const updateMenu = () => {
+  // Function to re-render outer ring when segment changes
+  const rerenderOuter = () => {
+    renderOuterRing(root, token, allOptions, currentSegmentId);
+  };
+  
+  // Function to update inner segments when segment changes
+  const updateInner = () => {
     renderInnerSegments(
       root,
       token,
@@ -843,17 +892,21 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
       () => currentSegmentId,
       (newId) => {
         currentSegmentId = newId;
-        updateMenu();
+        // Update inner segments to show new active state
+        updateInner();
+        // Re-render outer ring with filtered options
+        rerenderOuter();
       },
       () => {
-        updateMenu();
+        // This callback is called when segment changes
+        rerenderOuter();
       }
     );
-    renderOuterRing(root, token, allOptions, currentSegmentId);
   };
   
   // Initial render
-  updateMenu();
+  updateInner();
+  rerenderOuter();
   
   // Outside-click closes the menu
   msRadialCloseHandler = (event: MouseEvent) => {

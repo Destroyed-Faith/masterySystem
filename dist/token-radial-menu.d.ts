@@ -18,6 +18,7 @@ export interface RadialCombatOption {
     item?: any;
     maneuver?: CombatManeuver;
     powerType?: string;
+    tags?: string[];
 }
 /**
  * Close the radial menu and clean up
@@ -25,6 +26,7 @@ export interface RadialCombatOption {
 export declare function closeRadialMenu(): void;
 /**
  * Get all combat options for an actor (all categories)
+ * Collects all Powers and Maneuvers available to the actor
  */
 export declare function getAllCombatOptionsForActor(actor: any): RadialCombatOption[];
 /**

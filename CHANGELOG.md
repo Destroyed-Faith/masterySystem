@@ -2,6 +2,30 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.67] - 2025-01-XX
+
+### Fixed
+- **Inner Segments Now Functional Filters**: Inner quadrants (Buff/Move/Util/Atk) are now clickable and properly filter the outer ring
+- Clicking inner segments now updates the outer ring to show only options for that segment
+- Default segment changed to "movement" for better UX
+
+### Changed
+- **Real Powers and Maneuvers**: Outer ring now displays all actual Powers and Maneuvers from actor data
+- Removed hard-coded test options - all options come from real actor items and maneuver definitions
+- Improved data collection from actor items (type "special" for powers)
+- Enhanced `getAllCombatOptionsForActor()` to properly extract range, tags, and metadata
+
+### Added
+- Enhanced `getSegmentIdForOption()` with tag-based active-buff detection
+- Debug logging to show option counts per segment
+- Token flag now stores `segment` field in addition to `category` for better tracking
+- Tags support in `RadialCombatOption` interface for advanced filtering
+
+### Technical
+- Refactored `openRadialMenuForActor()` with separate `updateInner()` and `rerenderOuter()` functions
+- Improved state management for segment selection
+- Better visual feedback when inner segments are clicked (active state highlighting)
+
 ## [0.0.66] - 2025-01-XX
 
 ### Changed
