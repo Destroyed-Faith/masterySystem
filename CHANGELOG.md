@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.63] - 2025-01-XX
+
+### Added
+- **PIXI-based Radial Menu for Combat Action Selection**: Replaced dialog-based combat option selection with a visual radial menu that appears on the canvas around tokens
+- Inner circle with 4 color-coded segments: Movement (yellow), Attack (red), Utility (blue), Active Buff (violet)
+- Outer ring showing filtered options based on selected segment
+- Range preview on hover (cyan circle showing maximum reach in meters)
+- Click handling to select options and store flags on tokens
+- Outside-click detection to close the menu
+- Active Buff detection for powers requiring actions
+- Proper cleanup of graphics and event listeners
+
+### Changed
+- Token HUD icon now opens radial menu instead of dialogs
+- Combat option selection is now visual and canvas-based rather than HTML dialogs
+
+### Technical
+- New file: `src/token-radial-menu.ts` - Complete radial menu implementation
+- Updated: `src/token-action-selector.ts` - Integrated radial menu, removed old dialog functions
+- Range parsing from power/maneuver data (supports formats like "8m", "12m", "Self")
+- Foundry v13 compatible PIXI graphics and canvas layer integration
+
 ## [0.0.36] - 2025-12-07
 
 ### Fixed
