@@ -484,7 +484,7 @@ function createRadialOptionSlice(option, startAngle, endAngle, token, ringColor)
 /**
  * Render the outer ring of option wedges
  */
-function renderOuterRing(root, token, allOptions, segmentId) {
+function renderOuterRing(root, token, bySegment, segmentId) {
     // Remove existing outer ring elements
     const toRemove = [];
     root.children.forEach((child) => {
@@ -494,8 +494,11 @@ function renderOuterRing(root, token, allOptions, segmentId) {
     });
     toRemove.forEach(child => root.removeChild(child));
     // Get segment metadata
-    const segMeta = MS_INNER_SEGMENTS.find(s => s.id === segmentId);
-    const ringColor = segMeta ? segMeta.color : 0xffffff;
+    const segMeta = getSegmentMeta(segmentId);
+    const ringColor = segMeta.color;
+    // Get options for this segment
+    const options = bySegment[segmentId] ?? [];
+    console.log(`Mastery System | Rendering outer ring for segment "${segmentId}" with ${options.length} options`);
     // Faint background ring
     const ringGfx = new PIXI.Graphics();
     ringGfx.lineStyle(2, ringColor, 0.3);
@@ -503,10 +506,9 @@ function renderOuterRing(root, token, allOptions, segmentId) {
     ringGfx.drawCircle(0, 0, MS_OUTER_RING_OUTER);
     ringGfx.endFill();
     ringGfx.msOuterRing = true;
+    ringGfx.interactive = false; // Background ring should not capture events
     root.addChild(ringGfx);
-    // Filter options for this segment
-    const optionsForSegment = allOptions.filter(opt => getSegmentIdForOption(opt) === segmentId);
-    if (!optionsForSegment.length) {
+    if (!options.length) {
         // Show "No options" text
         const noOptionsText = new PIXI.Text('No options', {
             fontSize: 14,
@@ -519,10 +521,10 @@ function renderOuterRing(root, token, allOptions, segmentId) {
         return;
     }
     // Distribute wedges evenly around the ring
-    const count = optionsForSegment.length;
+    const count = options.length;
     const angleStep = (Math.PI * 2) / count;
     const startAngle = -Math.PI / 2; // Start at top
-    optionsForSegment.forEach((option, index) => {
+    options.forEach((option, index) => {
         const baseAngle = startAngle + index * angleStep;
         const endAngle = baseAngle + angleStep;
         const slice = createRadialOptionSlice(option, baseAngle, endAngle, token, ringColor);
@@ -532,8 +534,9 @@ function renderOuterRing(root, token, allOptions, segmentId) {
 }
 /**
  * Render the inner segmented circle
+ * The inner quadrants (Buff/Move/Util/Atk) act as clickable filters
  */
-function renderInnerSegments(root, _token, _allOptions, getCurrentSegmentId, setCurrentSegmentId, onSegmentChange) {
+function renderInnerSegments(root, getCurrentSegmentId, setCurrentSegmentId) {
     // Remove existing inner segments
     const toRemove = [];
     root.children.forEach((child) => {
@@ -545,21 +548,25 @@ function renderInnerSegments(root, _token, _allOptions, getCurrentSegmentId, set
     const segmentCount = MS_INNER_SEGMENTS.length;
     const angleStep = (Math.PI * 2) / segmentCount;
     const startAngle = -Math.PI / 2; // Start at top
+    console.log('Mastery System | Rendering inner segments, current segment:', getCurrentSegmentId());
     MS_INNER_SEGMENTS.forEach((seg, index) => {
         const container = new PIXI.Container();
         container.msInnerSegment = true;
-        root.addChild(container);
-        const gfx = new PIXI.Graphics();
+        container.msSegmentId = seg.id; // Store segment ID for visual refresh
+        container.name = `ms-inner-${seg.id}`;
         const baseAngle = startAngle + index * angleStep;
         const endAngle = baseAngle + angleStep;
         const isActive = getCurrentSegmentId() === seg.id;
-        // Draw pie slice
-        gfx.beginFill(seg.color, isActive ? 0.9 : 0.6);
+        console.log(`Mastery System | Creating inner segment "${seg.id}" (index ${index}), active: ${isActive}, angles: ${baseAngle.toFixed(2)} to ${endAngle.toFixed(2)}`);
+        const gfx = new PIXI.Graphics();
+        // Draw pie slice with visual feedback for active state
+        const fillAlpha = isActive ? 0.9 : 0.6;
+        gfx.beginFill(seg.color, fillAlpha);
         gfx.moveTo(0, 0);
         gfx.arc(0, 0, MS_INNER_RADIUS, baseAngle, endAngle);
         gfx.lineTo(0, 0);
         gfx.endFill();
-        // Add border
+        // Add border (stronger for active segment)
         gfx.lineStyle(2, 0x000000, isActive ? 0.8 : 0.5);
         gfx.moveTo(0, 0);
         gfx.arc(0, 0, MS_INNER_RADIUS, baseAngle, endAngle);
@@ -578,21 +585,174 @@ function renderInnerSegments(root, _token, _allOptions, getCurrentSegmentId, set
         });
         text.anchor.set(0.5);
         text.position.set(lx, ly);
+        text.interactive = false; // Text should not capture events
         container.addChild(text);
-        // Make interactive
+        // Make container interactive - this is critical for click functionality
         container.interactive = true;
         container.buttonMode = true;
-        container.on('pointertap', () => {
+        container.cursor = 'pointer';
+        // Create a polygon hit area for better click detection
+        // Generate points along the arc for the hit area
+        const hitPoints = [0, 0]; // Start at center
+        const numPoints = 16; // Number of points along the arc
+        for (let i = 0; i <= numPoints; i++) {
+            const angle = baseAngle + (endAngle - baseAngle) * (i / numPoints);
+            const x = Math.cos(angle) * MS_INNER_RADIUS;
+            const y = Math.sin(angle) * MS_INNER_RADIUS;
+            hitPoints.push(x, y);
+        }
+        hitPoints.push(0, 0); // Close the polygon
+        // Use PIXI.Polygon for hitArea (more reliable than Graphics)
+        const hitPolygon = new PIXI.Polygon(hitPoints);
+        container.hitArea = hitPolygon;
+        console.log(`Mastery System | Inner segment "${seg.id}": interactive=${container.interactive}, hitArea=${!!container.hitArea}, children=${container.children.length}`);
+        // Ensure the graphics don't capture events - container should handle them
+        gfx.interactive = false;
+        // Click handler - this should trigger segment change
+        const handleClick = (event) => {
+            event.stopPropagation(); // Prevent event from bubbling to parent
+            event.stopImmediatePropagation(); // Prevent other handlers
+            console.log(`Mastery System | [CLICK] Inner segment "${seg.id}" clicked! (was: ${getCurrentSegmentId()})`, {
+                eventType: event.type,
+                target: event.target?.constructor?.name,
+                currentTarget: event.currentTarget?.constructor?.name,
+                data: event.data
+            });
             setCurrentSegmentId(seg.id);
-            onSegmentChange();
+        };
+        container.on('pointertap', handleClick);
+        container.on('click', handleClick); // Some PIXI versions use 'click'
+        // Also handle pointerdown as a fallback (some PIXI versions use this)
+        container.on('pointerdown', (event) => {
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+            console.log(`Mastery System | [POINTERDOWN] Inner segment "${seg.id}" pointerdown`, {
+                eventType: event.type,
+                target: event.target?.constructor?.name
+            });
+            // Don't call setCurrentSegmentId here to avoid double-triggering
+            // Only use pointertap/click for actual selection
         });
+        // Add hover feedback with debug logs
+        container.on('pointerover', (event) => {
+            console.log(`Mastery System | [HOVER] Inner segment "${seg.id}" hovered`, {
+                eventType: event.type,
+                target: event.target?.constructor?.name
+            });
+            if (!isActive) {
+                gfx.clear();
+                gfx.beginFill(seg.color, 0.75); // Slightly brighter on hover
+                gfx.moveTo(0, 0);
+                gfx.arc(0, 0, MS_INNER_RADIUS, baseAngle, endAngle);
+                gfx.lineTo(0, 0);
+                gfx.endFill();
+                gfx.lineStyle(2, 0x000000, 0.6);
+                gfx.moveTo(0, 0);
+                gfx.arc(0, 0, MS_INNER_RADIUS, baseAngle, endAngle);
+                gfx.lineTo(0, 0);
+            }
+        });
+        container.on('pointerout', (_event) => {
+            console.log(`Mastery System | [HOVER OUT] Inner segment "${seg.id}" hover out`);
+            if (!isActive) {
+                // Restore default appearance
+                gfx.clear();
+                gfx.beginFill(seg.color, 0.6);
+                gfx.moveTo(0, 0);
+                gfx.arc(0, 0, MS_INNER_RADIUS, baseAngle, endAngle);
+                gfx.lineTo(0, 0);
+                gfx.endFill();
+                gfx.lineStyle(2, 0x000000, 0.5);
+                gfx.moveTo(0, 0);
+                gfx.arc(0, 0, MS_INNER_RADIUS, baseAngle, endAngle);
+                gfx.lineTo(0, 0);
+            }
+        });
+        // Add to root AFTER setting up all properties
+        root.addChild(container);
+        console.log(`Mastery System | Inner segment "${seg.id}" added to root, zIndex: ${root.getChildIndex(container)}`);
     });
+}
+/**
+ * Get segment metadata (color, label) by segment ID
+ */
+function getSegmentMeta(segmentId) {
+    const seg = MS_INNER_SEGMENTS.find(s => s.id === segmentId);
+    return seg ? { color: seg.color, label: seg.label } : { color: 0xffffff, label: '?' };
+}
+/**
+ * Refresh inner segments visual state (update appearance based on active segment)
+ * This is called when the segment changes to update the visual highlighting
+ */
+function refreshInnerSegmentsVisual(root, getCurrentSegmentId) {
+    const current = getCurrentSegmentId();
+    console.log(`Mastery System | Refreshing inner segments visual, active: ${current}`);
+    for (const child of root.children) {
+        if (!child.msInnerSegment)
+            continue;
+        const container = child;
+        const segId = container.msSegmentId;
+        if (!segId)
+            continue;
+        const isActive = segId === current;
+        const gfx = container.children.find((c) => c instanceof PIXI.Graphics);
+        const text = container.children.find((c) => c instanceof PIXI.Text);
+        if (!gfx)
+            continue;
+        // Get segment metadata
+        const seg = MS_INNER_SEGMENTS.find(s => s.id === segId);
+        if (!seg)
+            continue;
+        // Calculate angles for this segment
+        const segmentCount = MS_INNER_SEGMENTS.length;
+        const angleStep = (Math.PI * 2) / segmentCount;
+        const startAngle = -Math.PI / 2;
+        const index = MS_INNER_SEGMENTS.findIndex(s => s.id === segId);
+        const baseAngle = startAngle + index * angleStep;
+        const endAngle = baseAngle + angleStep;
+        // Redraw with correct active state
+        gfx.clear();
+        gfx.beginFill(seg.color, isActive ? 0.9 : 0.6);
+        gfx.moveTo(0, 0);
+        gfx.arc(0, 0, MS_INNER_RADIUS, baseAngle, endAngle);
+        gfx.lineTo(0, 0);
+        gfx.endFill();
+        // Update border
+        gfx.lineStyle(2, 0x000000, isActive ? 0.8 : 0.5);
+        gfx.moveTo(0, 0);
+        gfx.arc(0, 0, MS_INNER_RADIUS, baseAngle, endAngle);
+        gfx.lineTo(0, 0);
+        // Update text weight
+        if (text) {
+            text.style.fontWeight = isActive ? 'bold' : 'normal';
+        }
+    }
 }
 /**
  * Open the radial menu for an actor's token
  */
 export function openRadialMenuForActor(token, allOptions) {
     closeRadialMenu();
+    // Build bySegment structure from allOptions
+    const bySegment = {
+        'movement': [],
+        'attack': [],
+        'utility': [],
+        'active-buff': []
+    };
+    for (const option of allOptions) {
+        const segmentId = getSegmentIdForOption(option);
+        bySegment[segmentId].push(option);
+    }
+    console.log('Mastery System | Options by segment:', {
+        movement: bySegment.movement.length,
+        attack: bySegment.attack.length,
+        utility: bySegment.utility.length,
+        'active-buff': bySegment['active-buff'].length
+    });
+    // Determine initial segment (first non-empty segment, default to movement)
+    const segments = ['movement', 'attack', 'utility', 'active-buff'];
+    let currentSegmentId = segments.find(id => (bySegment[id]?.length ?? 0) > 0) ?? 'movement';
     // In Foundry v13, canvas layers may have different structure
     // Try multiple approaches for compatibility
     let hudContainer = null;
@@ -723,33 +883,89 @@ export function openRadialMenuForActor(token, allOptions) {
     }
     const root = new PIXI.Container();
     msRadialMenu = root;
+    root.name = 'ms-radial-menu-root';
+    // Make root interactive so child events can be captured
+    root.interactive = true;
+    root.interactiveChildren = true; // Allow children to be interactive
+    console.log('Mastery System | Root container created:', {
+        interactive: root.interactive,
+        interactiveChildren: root.interactiveChildren,
+        name: root.name
+    });
     // Add to canvas layer
     hudContainer.addChild(root);
+    console.log('Mastery System | Root container added to hudContainer, parent:', root.parent?.constructor?.name);
     // Center on token
     const tokenCenter = token.center;
     root.position.set(tokenCenter.x, tokenCenter.y);
-    // Track currently selected segment (default to "movement")
-    let currentSegmentId = 'movement';
-    // Function to re-render outer ring when segment changes
-    const rerenderOuter = () => {
-        renderOuterRing(root, token, allOptions, currentSegmentId);
-    };
-    // Function to update inner segments when segment changes
-    const updateInner = () => {
-        renderInnerSegments(root, token, allOptions, () => currentSegmentId, (newId) => {
-            currentSegmentId = newId;
-            // Update inner segments to show new active state
-            updateInner();
-            // Re-render outer ring with filtered options
-            rerenderOuter();
-        }, () => {
-            // This callback is called when segment changes
-            rerenderOuter();
+    // State management functions
+    const getCurrentSegmentId = () => currentSegmentId;
+    const setCurrentSegmentId = (id) => {
+        console.log(`Mastery System | [setCurrentSegmentId] Called with id="${id}", current="${currentSegmentId}"`);
+        if (currentSegmentId === id) {
+            console.log(`Mastery System | Segment ${id} already active, no change needed`);
+            return; // No change needed
+        }
+        console.log(`Mastery System | [setCurrentSegmentId] Changing segment from "${currentSegmentId}" to "${id}"`);
+        const oldSegmentId = currentSegmentId;
+        currentSegmentId = id;
+        // Check if the new segment has options
+        const optionsForSegment = bySegment[currentSegmentId] ?? [];
+        console.log(`Mastery System | [setCurrentSegmentId] Segment "${currentSegmentId}" has ${optionsForSegment.length} options`);
+        // Re-render outer ring with filtered options for the new segment
+        console.log(`Mastery System | [setCurrentSegmentId] Re-rendering outer ring...`);
+        renderOuterRing(root, token, bySegment, currentSegmentId);
+        // Refresh inner segments visual state to highlight the active segment
+        console.log(`Mastery System | [setCurrentSegmentId] Refreshing inner segments visual...`);
+        refreshInnerSegmentsVisual(root, getCurrentSegmentId);
+        // Ensure inner segments stay on top after re-rendering outer ring
+        const innerSegments = [];
+        root.children.forEach((child) => {
+            if (child.msInnerSegment === true) {
+                innerSegments.push(child);
+            }
         });
+        console.log(`Mastery System | [setCurrentSegmentId] Moving ${innerSegments.length} inner segments to top...`);
+        // Remove and re-add to put them on top
+        innerSegments.forEach((seg, idx) => {
+            const oldIndex = root.getChildIndex(seg);
+            root.removeChild(seg);
+            root.addChild(seg);
+            const newIndex = root.getChildIndex(seg);
+            console.log(`Mastery System | [setCurrentSegmentId] Inner segment ${idx} moved from index ${oldIndex} to ${newIndex}`);
+        });
+        console.log(`Mastery System | [setCurrentSegmentId] Segment change complete: "${oldSegmentId}" -> "${currentSegmentId}"`);
     };
     // Initial render
-    updateInner();
-    rerenderOuter();
+    // Render outer ring first, then inner segments
+    // This ensures inner segments are on top and can receive clicks
+    renderOuterRing(root, token, bySegment, currentSegmentId);
+    renderInnerSegments(root, getCurrentSegmentId, setCurrentSegmentId);
+    // Move inner segments to the end of children list to ensure they're on top
+    // This helps with event handling - elements rendered later are on top
+    const innerSegments = [];
+    root.children.forEach((child) => {
+        if (child.msInnerSegment === true) {
+            innerSegments.push(child);
+        }
+    });
+    console.log(`Mastery System | Found ${innerSegments.length} inner segments, moving to top`);
+    // Remove and re-add to put them on top
+    innerSegments.forEach((seg, idx) => {
+        const oldIndex = root.getChildIndex(seg);
+        root.removeChild(seg);
+        root.addChild(seg);
+        const newIndex = root.getChildIndex(seg);
+        console.log(`Mastery System | Inner segment ${idx} moved from index ${oldIndex} to ${newIndex}`);
+    });
+    // Final verification: log all children in order
+    console.log('Mastery System | Root children order (bottom to top):');
+    root.children.forEach((child, idx) => {
+        const type = child.msInnerSegment ? 'INNER_SEGMENT' :
+            child.msOuterSlice ? 'OUTER_SLICE' :
+                child.msOuterRing ? 'OUTER_RING' : 'UNKNOWN';
+        console.log(`  [${idx}] ${type} - ${child.name || child.constructor.name}`);
+    });
     // Outside-click closes the menu
     msRadialCloseHandler = (event) => {
         if (!msRadialMenu)
