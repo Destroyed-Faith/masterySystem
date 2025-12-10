@@ -182,7 +182,9 @@ export async function getAllCombatOptionsForActor(actor) {
     // Pre-load power definitions for range lookup
     let getPowerFn = null;
     try {
-        const powerModule = await import('../../utils/powers/index.js');
+        // Use system-relative path for Foundry's dynamic import resolution
+        const systemId = game.system.id;
+        const powerModule = await import(`systems/${systemId}/dist/utils/powers/index.js`);
         getPowerFn = powerModule.getPower;
     }
     catch (error) {
@@ -926,9 +928,16 @@ export function openRadialMenuForActor(token, allOptions) {
                 }
                 // Also check nested properties
                 if (value && typeof value === 'object') {
+                    // Check for v13 element property first (replaces deprecated container)
+                    if (value.element && typeof value.element.addChild === 'function') {
+                        hudContainer = value.element;
+                        console.log(`Mastery System | Using canvas.hud.${key}.element`);
+                        break;
+                    }
+                    // Fallback to deprecated container property (for backwards compatibility)
                     if (value.container && typeof value.container.addChild === 'function') {
                         hudContainer = value.container;
-                        console.log(`Mastery System | Using canvas.hud.${key}.container`);
+                        console.log(`Mastery System | Using canvas.hud.${key}.container (deprecated)`);
                         break;
                     }
                 }

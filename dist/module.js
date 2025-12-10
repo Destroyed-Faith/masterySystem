@@ -202,6 +202,16 @@ function registerSystemSettings() {
             step: 1
         }
     });
+    // Default scene background image
+    game.settings.register('mastery-system', 'defaultSceneImage', {
+        name: 'Default Scene Background Image',
+        hint: 'Default background image path for new scenes (leave empty to use Foundry default)',
+        scope: 'world',
+        config: true,
+        type: String,
+        default: 'systems/mastery-system/assets/banner.jpg',
+        filePicker: 'image'
+    });
 }
 /**
  * Preload Handlebars templates
@@ -229,6 +239,20 @@ Hooks.once('ready', async function () {
     // Log system version
     const system = game.system;
     console.log(`Mastery System | Version ${system.version}`);
+});
+/**
+ * Set default scene background image when creating new scenes
+ */
+Hooks.on('preCreateScene', (_scene, data, _options, _userId) => {
+    // Only set default if no background image is provided
+    if (!data.img && (!data.background || !data.background.src)) {
+        const defaultImage = game.settings.get('mastery-system', 'defaultSceneImage');
+        if (defaultImage && defaultImage.trim() !== '') {
+            // Set the background image - Foundry uses 'img' field for scene background
+            data.img = defaultImage;
+            console.log('Mastery System | Setting default scene background:', defaultImage);
+        }
+    }
 });
 /**
  * Add chat message context menu options

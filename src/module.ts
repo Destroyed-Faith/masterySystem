@@ -283,7 +283,7 @@ Hooks.once('ready', async function() {
 /**
  * Set default scene background image when creating new scenes
  */
-Hooks.on('preCreateScene', (scene: any, data: any, options: any, userId: string) => {
+Hooks.on('preCreateScene', (_scene: any, data: any, _options: any, _userId: string) => {
   // Only set default if no background image is provided
   if (!data.img && (!data.background || !data.background.src)) {
     const defaultImage = (game as any).settings.get('mastery-system', 'defaultSceneImage');

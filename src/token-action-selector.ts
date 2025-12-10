@@ -385,9 +385,6 @@ function refreshMovementPreview(state: MovementState, destX: number, destY: numb
   
   // Highlight grid positions along the path
   if (highlight && segments.length > 0) {
-    const gridSize = canvas.grid.size;
-    const halfGrid = gridSize * 0.5;
-    
     for (const segment of segments) {
       if (segment.positions && Array.isArray(segment.positions)) {
         for (const pos of segment.positions) {
@@ -579,9 +576,16 @@ export function endGuidedMovement(success: boolean): void {
  */
 export function handleChosenCombatOption(token: any, option: RadialCombatOption) {
   console.log('Mastery System | Chosen combat option:', { token: token.name, option });
+  console.log('Mastery System | Option details:', {
+    slot: option.slot,
+    segment: (option as any).segment,
+    source: option.source,
+    name: option.name
+  });
 
   // Check if this is a movement option - check both segment and slot
   const isMovement = option.slot === 'movement' || (option as any).segment === 'movement';
+  console.log('Mastery System | Is movement option?', isMovement, { slot: option.slot, segment: (option as any).segment });
   
   if (isMovement) {
     console.log('Mastery System | Starting guided movement for', token.name, option);

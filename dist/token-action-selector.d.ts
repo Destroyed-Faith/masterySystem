@@ -11,6 +11,14 @@ import type { RadialCombatOption } from './token-radial-menu';
  */
 export declare function initializeTokenActionSelector(): void;
 /**
+ * Start guided movement mode for a token
+ */
+export declare function startGuidedMovement(token: any, option: RadialCombatOption): void;
+/**
+ * End guided movement mode
+ */
+export declare function endGuidedMovement(success: boolean): void;
+/**
  * Handle the chosen combat option
  * Can trigger rolls, chat cards, or other mechanics based on the selection
  * Made available globally so the radial menu can call it
