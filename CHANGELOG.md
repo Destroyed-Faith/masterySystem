@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.74] - 2025-01-XX
+
+### Added
+- **Weapons System**: Complete weapons implementation with all weapons from the Players Guide
+  - Created `src/utils/weapons.ts` with all 22 weapons (Unarmed, Daggers, Swords, Axes, Hammers, Polearms, Bows, Crossbows, etc.)
+  - Each weapon includes: damage dice, hands requirement, innate abilities, and special effects
+  - Weapon properties reference with descriptions (Finesse, Light, Versatile, Brutal, Reach, Heavy, Ranged, Set, Defensive, etc.)
+  - Helper functions to filter weapons by hands, type, and properties
+  - Easily extensible structure for adding new weapons
+- **Special Effects System**: Complete special effects reference implementation
+  - Created `src/utils/special-effects.ts` with all special effects organized by category
+  - Physical Effects: Bleeding, Blinded, Corrode, Freeze, Grappled, Ignite, Poisoned, Prone, Push, Regeneration, Shock, Stunned
+  - Mental Effects: Charmed, Curse, Disoriented, Frightened, Mark, Soulburn, Torment, Hex
+  - Damage & Combat Modifiers: Crit, Penetration, Smite, Precision, Brutal Impact, Expose, Weaken
+  - Support & Cleansing: Cleanse, Immovable
+  - Each effect includes: description, duration, stacking rules, and removal methods
+  - Helper functions to parse and format effect values
+- **Equipment Tab**: Fully functional equipment management interface
+  - Weapons section with detailed weapon cards showing damage, type, hands, properties, and special effects
+  - Armor section (prepared for future implementation)
+  - "Add Weapon" button opens weapon selection dialog
+  - "Add Armor" button (placeholder for future implementation)
+  - Equip/Unequip checkboxes for weapons and armor
+  - Edit and Delete buttons for equipment items
+- **Weapon Creation Dialog**: User-friendly dialog for adding weapons to characters
+  - Dropdown selection with all available weapons
+  - Weapons grouped by category (One-Handed Melee, Two-Handed Melee, Ranged)
+  - Live preview of weapon details (damage, hands, properties, special, description)
+  - Option to equip weapon immediately upon creation
+  - Automatically determines weapon type (melee/ranged) based on properties
+
 ## [0.0.73] - 2025-01-XX
 
 ### Fixed
