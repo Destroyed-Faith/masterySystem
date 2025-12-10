@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.71] - 2025-01-XX
+
+### Fixed
+- Fixed 404 error when opening power creation dialog - corrected dynamic import paths for `mastery-trees.js` and related utility modules
+- Updated import paths in `character-sheet-power-dialog.ts` from `../../utils/` to `../utils/` to correctly resolve from `dist/sheets/` to `dist/utils/`
+- Fixed import path in `token-radial-menu.ts` for power utilities
+
 ## [0.0.68] - 2025-01-XX
 
 ### Fixed

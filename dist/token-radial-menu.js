@@ -18,6 +18,7 @@ const MS_OUTER_RING_OUTER = 140; // Outer radius of outer ring (where wedges end
 let msRadialMenu = null;
 let msRangePreviewGfx = null;
 let msRadialCloseHandler = null;
+let msTokenHUD = null; // Reference to the Token HUD element to hide/show
 /**
  * Parse range string (e.g., "8m", "12m", "Self") to numeric meters
  */
@@ -112,6 +113,12 @@ export function closeRadialMenu() {
     if (msRadialCloseHandler) {
         window.removeEventListener('mousedown', msRadialCloseHandler, true);
         msRadialCloseHandler = null;
+    }
+    // Show Token HUD again if it was hidden
+    if (msTokenHUD && msTokenHUD.length > 0) {
+        msTokenHUD.css('display', '');
+        msTokenHUD = null;
+        console.log('Mastery System | Token HUD restored');
     }
 }
 /**
@@ -782,6 +789,42 @@ function refreshInnerSegmentsVisual(root, getCurrentSegmentId) {
  */
 export function openRadialMenuForActor(token, allOptions) {
     closeRadialMenu();
+    // Hide Token HUD to show only the radial menu
+    // Find the Token HUD element for this token
+    const tokenHUD = canvas.hud?.token;
+    if (tokenHUD) {
+        // Try to find the HTML element
+        // In Foundry v13, the TokenHUD might have different structure
+        let hudElement = null;
+        // Method 1: Try to get the element from the TokenHUD app
+        if (tokenHUD.element) {
+            hudElement = $(tokenHUD.element);
+        }
+        // Method 2: Try to find by token ID in the DOM
+        else {
+            const tokenId = token.id;
+            hudElement = $(`.token-hud[data-token-id="${tokenId}"]`);
+            if (hudElement.length === 0) {
+                // Try alternative selector
+                hudElement = $(`[data-token-id="${tokenId}"]`).closest('.token-hud, .hud');
+            }
+        }
+        // Method 3: Try to find any visible Token HUD
+        if (!hudElement || hudElement.length === 0) {
+            hudElement = $('.token-hud:visible');
+            if (hudElement.length === 0) {
+                hudElement = $('.hud.token-hud:visible');
+            }
+        }
+        if (hudElement && hudElement.length > 0) {
+            msTokenHUD = hudElement;
+            hudElement.css('display', 'none');
+            console.log('Mastery System | Token HUD hidden');
+        }
+        else {
+            console.warn('Mastery System | Could not find Token HUD element to hide');
+        }
+    }
     // Build bySegment structure from allOptions
     const bySegment = {
         'movement': [],

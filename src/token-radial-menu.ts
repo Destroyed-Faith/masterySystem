@@ -48,6 +48,7 @@ const MS_OUTER_RING_OUTER = 140;  // Outer radius of outer ring (where wedges en
 let msRadialMenu: PIXI.Container | null = null;
 let msRangePreviewGfx: PIXI.Graphics | null = null;
 let msRadialCloseHandler: ((event: MouseEvent) => void) | null = null;
+let msTokenHUD: JQuery | null = null; // Reference to the Token HUD element to hide/show
 
 /**
  * Parse range string (e.g., "8m", "12m", "Self") to numeric meters
@@ -157,6 +158,13 @@ export function closeRadialMenu(): void {
     window.removeEventListener('mousedown', msRadialCloseHandler, true);
     msRadialCloseHandler = null;
   }
+  
+  // Show Token HUD again if it was hidden
+  if (msTokenHUD && msTokenHUD.length > 0) {
+    msTokenHUD.css('display', '');
+    msTokenHUD = null;
+    console.log('Mastery System | Token HUD restored');
+  }
 }
 
 /**
@@ -227,7 +235,7 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
   // Pre-load power definitions for range lookup
   let getPowerFn: ((treeName: string, powerName: string) => any) | null = null;
   try {
-    const powerModule = await import('../../utils/powers/index.js' as any);
+    const powerModule = await import('./utils/powers/index.js' as any);
     getPowerFn = powerModule.getPower;
   } catch (error) {
     console.warn('Mastery System | Could not load power definitions module:', error);
@@ -940,6 +948,45 @@ function refreshInnerSegmentsVisual(
  */
 export function openRadialMenuForActor(token: any, allOptions: RadialCombatOption[]): void {
   closeRadialMenu();
+  
+  // Hide Token HUD to show only the radial menu
+  // Find the Token HUD element for this token
+  const tokenHUD = canvas.hud?.token;
+  if (tokenHUD) {
+    // Try to find the HTML element
+    // In Foundry v13, the TokenHUD might have different structure
+    let hudElement: JQuery | null = null;
+    
+    // Method 1: Try to get the element from the TokenHUD app
+    if ((tokenHUD as any).element) {
+      hudElement = $(tokenHUD.element);
+    }
+    // Method 2: Try to find by token ID in the DOM
+    else {
+      const tokenId = token.id;
+      hudElement = $(`.token-hud[data-token-id="${tokenId}"]`);
+      if (hudElement.length === 0) {
+        // Try alternative selector
+        hudElement = $(`[data-token-id="${tokenId}"]`).closest('.token-hud, .hud');
+      }
+    }
+    
+    // Method 3: Try to find any visible Token HUD
+    if (!hudElement || hudElement.length === 0) {
+      hudElement = $('.token-hud:visible');
+      if (hudElement.length === 0) {
+        hudElement = $('.hud.token-hud:visible');
+      }
+    }
+    
+    if (hudElement && hudElement.length > 0) {
+      msTokenHUD = hudElement;
+      hudElement.css('display', 'none');
+      console.log('Mastery System | Token HUD hidden');
+    } else {
+      console.warn('Mastery System | Could not find Token HUD element to hide');
+    }
+  }
   
   // Build bySegment structure from allOptions
   const bySegment: Record<InnerSegment['id'], RadialCombatOption[]> = {
