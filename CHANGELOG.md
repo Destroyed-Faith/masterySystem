@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.65] - 2025-01-XX
+
+### Fixed
+- Enhanced canvas layer detection with detailed logging
+- Added fallback to `canvas.tokens` layer when HUD layer unavailable
+- Added last resort fallback to `canvas.app.stage` (root PIXI container)
+- Improved nested property checking (e.g., `key.container`)
+- Better debugging output showing all canvas.hud keys and their types
+
+### Technical
+- Enhanced `src/token-radial-menu.ts` with comprehensive canvas layer detection
+- Logs key types and identifies which properties have `addChild` method
+- Multiple fallback strategies for maximum compatibility
+
 ## [0.0.64] - 2025-01-XX
 
 ### Fixed

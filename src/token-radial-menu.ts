@@ -504,27 +504,106 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
   
   if (canvas.hud) {
     // Debug: log canvas.hud structure
+    const hudKeys = Object.keys(canvas.hud as any);
+    const hudKeyTypes: Record<string, string> = {};
+    hudKeys.forEach(key => {
+      const value = (canvas.hud as any)[key];
+      hudKeyTypes[key] = typeof value;
+      if (value && typeof value.addChild === 'function') {
+        hudKeyTypes[key] += ' (has addChild)';
+      }
+    });
+    
     console.log('Mastery System | canvas.hud structure:', {
       hasAddChild: typeof (canvas.hud as any).addChild === 'function',
       hasContainer: !!(canvas.hud as any).container,
       hasObjects: !!(canvas.hud as any).objects,
-      keys: Object.keys(canvas.hud as any)
+      keys: hudKeys,
+      keyTypes: hudKeyTypes
     });
     
-    // Try v13 structure first (container property)
-    if ((canvas.hud as any).container && typeof (canvas.hud as any).container.addChild === 'function') {
+    // Try v13 structure - check for layers property
+    if ((canvas.hud as any).layers) {
+      // Foundry v13 uses layers array/object
+      const layers = (canvas.hud as any).layers;
+      if (layers instanceof Array && layers.length > 0) {
+        // Try first layer
+        const firstLayer = layers[0];
+        if (firstLayer && typeof firstLayer.addChild === 'function') {
+          hudContainer = firstLayer;
+          console.log('Mastery System | Using canvas.hud.layers[0]');
+        } else if (firstLayer && firstLayer.container && typeof firstLayer.container.addChild === 'function') {
+          hudContainer = firstLayer.container;
+          console.log('Mastery System | Using canvas.hud.layers[0].container');
+        }
+      } else if (layers && typeof layers.addChild === 'function') {
+        hudContainer = layers;
+        console.log('Mastery System | Using canvas.hud.layers');
+      }
+    }
+    
+    // Try v13 structure - check for interactive property (TokenHUD)
+    if (!hudContainer && (canvas.hud as any).interactive && typeof (canvas.hud as any).interactive.addChild === 'function') {
+      hudContainer = (canvas.hud as any).interactive;
+      console.log('Mastery System | Using canvas.hud.interactive');
+    }
+    
+    // Try v13 structure - check for children property
+    if (!hudContainer && (canvas.hud as any).children && Array.isArray((canvas.hud as any).children)) {
+      // If it has children, it might be a container itself
+      if (typeof (canvas.hud as any).addChild === 'function') {
+        hudContainer = canvas.hud as any;
+        console.log('Mastery System | Using canvas.hud (has children array)');
+      }
+    }
+    
+    // Try container property
+    if (!hudContainer && (canvas.hud as any).container && typeof (canvas.hud as any).container.addChild === 'function') {
       hudContainer = (canvas.hud as any).container;
       console.log('Mastery System | Using canvas.hud.container');
     }
+    
     // Try direct addChild (older versions)
-    else if (typeof (canvas.hud as any).addChild === 'function') {
+    if (!hudContainer && typeof (canvas.hud as any).addChild === 'function') {
       hudContainer = canvas.hud as any;
       console.log('Mastery System | Using canvas.hud directly');
     }
+    
     // Try objects container
-    else if ((canvas.hud as any).objects && typeof (canvas.hud as any).objects.addChild === 'function') {
+    if (!hudContainer && (canvas.hud as any).objects && typeof (canvas.hud as any).objects.addChild === 'function') {
       hudContainer = (canvas.hud as any).objects;
       console.log('Mastery System | Using canvas.hud.objects');
+    }
+    
+    // Try each key to see if any is a PIXI.Container
+    if (!hudContainer) {
+      for (const key of hudKeys) {
+        const value = (canvas.hud as any)[key];
+        if (value && typeof value.addChild === 'function') {
+          hudContainer = value;
+          console.log(`Mastery System | Using canvas.hud.${key}`);
+          break;
+        }
+        // Also check nested properties
+        if (value && typeof value === 'object') {
+          if (value.container && typeof value.container.addChild === 'function') {
+            hudContainer = value.container;
+            console.log(`Mastery System | Using canvas.hud.${key}.container`);
+            break;
+          }
+        }
+      }
+    }
+  }
+  
+  // Fallback to tokens layer if HUD doesn't work (tokens layer exists)
+  if (!hudContainer && canvas.tokens) {
+    if ((canvas.tokens as any).container && typeof (canvas.tokens as any).container.addChild === 'function') {
+      hudContainer = (canvas.tokens as any).container;
+      console.log('Mastery System | Using canvas.tokens.container');
+    } else if (typeof (canvas.tokens as any).addChild === 'function') {
+      hudContainer = canvas.tokens as any;
+      console.log('Mastery System | Using canvas.tokens directly');
     }
   }
   
@@ -537,6 +616,12 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
       hudContainer = canvas.foreground as any;
       console.log('Mastery System | Using canvas.foreground directly');
     }
+  }
+  
+  // Last resort: use canvas.app.stage (the root PIXI container)
+  if (!hudContainer && canvas.app && canvas.app.stage) {
+    hudContainer = canvas.app.stage;
+    console.log('Mastery System | Using canvas.app.stage as last resort');
   }
   
   if (!hudContainer) {
