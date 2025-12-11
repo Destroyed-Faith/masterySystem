@@ -789,8 +789,125 @@
   border: 1px solid #0f3460;
 }
 
+/* ========================================
+   Utility Targeting Panel
+   ======================================== */
 
+.mastery-utility-panel-container {
+  position: fixed;
+  z-index: 1000;
+  pointer-events: auto;
+}
 
+.mastery-utility-panel {
+  background: rgba(20, 20, 30, 0.95);
+  border: 2px solid #66aaff;
+  border-radius: 8px;
+  padding: 12px;
+  min-width: 220px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  font-family: 'Signika', sans-serif;
+  color: #fff;
+}
+
+.mastery-utility-panel .panel-header {
+  margin-bottom: 10px;
+  border-bottom: 1px solid #66aaff;
+  padding-bottom: 8px;
+}
+
+.mastery-utility-panel .panel-header h4 {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  font-weight: bold;
+  color: #66aaff;
+}
+
+.mastery-utility-panel .panel-subtitle {
+  font-size: 11px;
+  color: #aaa;
+}
+
+.mastery-utility-panel .panel-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.mastery-utility-panel .panel-btn {
+  flex: 1;
+  min-width: 45px;
+  padding: 6px 10px;
+  background: rgba(102, 170, 255, 0.2);
+  border: 1px solid #66aaff;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mastery-utility-panel .panel-btn:hover {
+  background: rgba(102, 170, 255, 0.4);
+  border-color: #88ccff;
+}
+
+.mastery-utility-panel .panel-btn.confirm {
+  background: rgba(102, 255, 102, 0.3);
+  border-color: #66ff66;
+  font-weight: bold;
+}
+
+.mastery-utility-panel .panel-btn.confirm:hover {
+  background: rgba(102, 255, 102, 0.5);
+}
+
+.mastery-utility-panel .panel-btn.cancel {
+  background: rgba(255, 102, 102, 0.3);
+  border-color: #ff6666;
+}
+
+.mastery-utility-panel .panel-btn.cancel:hover {
+  background: rgba(255, 102, 102, 0.5);
+}
+
+.mastery-utility-panel .panel-toggle {
+  margin-bottom: 10px;
+  font-size: 11px;
+}
+
+.mastery-utility-panel .panel-toggle label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.mastery-utility-panel .panel-toggle input[type="checkbox"] {
+  cursor: pointer;
+}
+
+.mastery-utility-panel .panel-actions {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.mastery-utility-panel .panel-actions .panel-btn {
+  flex: 1;
+}
+
+.mastery-utility-panel .panel-info {
+  font-size: 11px;
+  color: #aaa;
+  text-align: center;
+}
+
+.mastery-utility-panel .panel-info #selected-count {
+  color: #66aaff;
+  font-weight: bold;
+}
 
 
 

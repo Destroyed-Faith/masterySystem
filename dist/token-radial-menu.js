@@ -5,6 +5,8 @@
  */
 import { getAvailableManeuvers } from './system/combat-maneuvers.js';
 import { handleChosenCombatOption } from './token-action-selector.js';
+import { endMeleeTargeting } from './melee-targeting.js';
+import { endUtilityTargeting } from './utility-targeting.js';
 const MS_INNER_SEGMENTS = [
     { id: 'movement', color: 0xffe066, label: 'Move' },
     { id: 'attack', color: 0xff6666, label: 'Atk' },
@@ -120,6 +122,10 @@ export function closeRadialMenu() {
         msTokenHUD = null;
         console.log('Mastery System | Token HUD restored');
     }
+    // Cancel any active melee targeting when menu closes
+    endMeleeTargeting(false);
+    // Cancel any active utility targeting when menu closes
+    endUtilityTargeting(false);
 }
 /**
  * Map an option to one of the 4 inner segment IDs
@@ -210,6 +216,7 @@ export async function getAllCombatOptionsForActor(actor) {
         // Parse range from system.range (e.g., "8m", "12m", "Self")
         let rangeStr = item.system?.range;
         let range = parseRange(rangeStr);
+        let levelData = undefined;
         // If range is missing or empty, try to get it from the power definition
         // This handles cases where the level was changed but range wasn't updated
         if ((!rangeStr || !range) && getPowerFn) {
@@ -220,7 +227,7 @@ export async function getAllCombatOptionsForActor(actor) {
                 try {
                     const powerDef = getPowerFn(treeName, powerName);
                     if (powerDef && powerDef.levels) {
-                        const levelData = powerDef.levels.find((l) => l.level === level);
+                        levelData = powerDef.levels.find((l) => l.level === level);
                         if (levelData && levelData.range) {
                             rangeStr = levelData.range;
                             range = parseRange(rangeStr);
@@ -233,19 +240,50 @@ export async function getAllCombatOptionsForActor(actor) {
                 }
             }
         }
+        // Determine range category
+        const rangeCategory = determineRangeCategory(rangeStr, powerType, levelData);
+        // Parse AoE information for utilities
+        let aoeShape = 'none';
+        let aoeRadiusMeters = undefined;
+        let rangeMeters = range;
+        if (slot === 'utility' || powerType === 'utility') {
+            // Get AoE from system or level data
+            let aoeStr = item.system?.aoe;
+            if (!aoeStr && levelData && levelData.aoe) {
+                aoeStr = levelData.aoe;
+            }
+            aoeShape = parseAoEShape(aoeStr);
+            aoeRadiusMeters = parseAoERadius(aoeStr);
+            // For utilities, rangeMeters is the max distance to center
+            rangeMeters = range;
+            // If range is "Self" or 0 and has AoE, it's a self-aura
+            if ((!rangeStr || rangeStr.toLowerCase() === 'self' || range === 0) && aoeShape !== 'none') {
+                rangeMeters = 0; // Self-aura
+            }
+        }
         // Get tags if available
         const tags = item.system?.tags || [];
-        options.push({
+        const option = {
             id: item.id,
             name: item.name,
             description: item.system?.description || item.system?.effect || '',
             slot: slot,
             source: 'power',
             range: range,
+            rangeCategory: rangeCategory,
             item: item,
             powerType: powerType,
             tags: Array.isArray(tags) ? tags : []
-        });
+        };
+        // Add utility targeting fields if this is a utility
+        if (slot === 'utility' || powerType === 'utility') {
+            option.rangeMeters = rangeMeters;
+            option.aoeShape = aoeShape;
+            option.aoeRadiusMeters = aoeRadiusMeters;
+            option.defaultTargetGroup = determineTargetGroup(option);
+            option.allowManualTargetSelection = true; // Default true for utilities
+        }
+        options.push(option);
     }
     // --- MANEUVERS (generic combat maneuvers) ---
     // Get available maneuvers for this actor (filters by requirements)
@@ -282,6 +320,15 @@ export async function getAllCombatOptionsForActor(actor) {
                 maneuverRange = actorSpeed * 3;
             }
         }
+        // Determine range category for maneuvers
+        let maneuverRangeCategory = 'melee'; // Default
+        if (maneuver.id === 'move' || maneuver.slot === 'movement') {
+            maneuverRangeCategory = 'self';
+        }
+        else if (maneuver.slot === 'attack') {
+            // Weapon Attack and melee stances are melee
+            maneuverRangeCategory = 'melee';
+        }
         options.push({
             id: maneuver.id,
             name: maneuver.name,
@@ -289,6 +336,7 @@ export async function getAllCombatOptionsForActor(actor) {
             slot: maneuver.slot,
             source: 'maneuver',
             range: maneuverRange,
+            rangeCategory: maneuverRangeCategory,
             maneuver: maneuver,
             tags: maneuver.tags || []
         });
@@ -305,6 +353,7 @@ export async function getAllCombatOptionsForActor(actor) {
             slot: 'attack',
             source: 'maneuver',
             range: undefined,
+            rangeCategory: 'melee', // Weapon Attack is melee
             maneuver: {
                 id: 'weapon-attack',
                 name: 'Weapon Attack',
@@ -346,6 +395,115 @@ function mapPowerTypeToSlot(powerType) {
         default:
             return 'attack';
     }
+}
+/**
+ * Parse AoE radius from string (e.g., "Radius 2m", "Radius 4m")
+ */
+function parseAoERadius(aoeStr) {
+    if (!aoeStr)
+        return undefined;
+    const match = aoeStr.match(/radius\s*(\d+(?:\.\d+)?)\s*m/i);
+    if (match) {
+        return parseFloat(match[1]);
+    }
+    return undefined;
+}
+/**
+ * Parse AoE shape from string
+ */
+function parseAoEShape(aoeStr) {
+    if (!aoeStr)
+        return 'none';
+    const lower = aoeStr.toLowerCase();
+    if (lower.includes('radius')) {
+        return 'radius';
+    }
+    if (lower.includes('cone')) {
+        return 'cone';
+    }
+    if (lower.includes('line')) {
+        return 'line';
+    }
+    return 'none';
+}
+/**
+ * Determine default target group from power description and type
+ */
+function determineTargetGroup(option) {
+    // Check if explicitly set
+    if (option.defaultTargetGroup) {
+        return option.defaultTargetGroup;
+    }
+    // Check description for keywords
+    const desc = (option.description || '').toLowerCase();
+    const name = (option.name || '').toLowerCase();
+    // Check for "allies" keywords
+    if (desc.includes('allies') || desc.includes('ally') ||
+        name.includes('bless') || name.includes('beacon') || name.includes('healing')) {
+        return 'ally';
+    }
+    // Check for "enemies" keywords
+    if (desc.includes('enemies') || desc.includes('enemy') || desc.includes('hostile')) {
+        return 'enemy';
+    }
+    // Check for "creatures" or "all creatures"
+    if (desc.includes('creatures') || desc.includes('all creatures') ||
+        name.includes('feather fall')) {
+        return 'creature';
+    }
+    // Default for utilities: ally
+    if (option.slot === 'utility') {
+        return 'ally';
+    }
+    return 'any';
+}
+/**
+ * Determine range category from power/option data
+ * @param rangeStr - Range string (e.g., "0m", "8m", "Self", "Self + Radius 5m")
+ * @param powerType - Power type (e.g., "active", "movement")
+ * @param levelData - Level data from power definition (optional)
+ * @returns Range category
+ */
+function determineRangeCategory(rangeStr, powerType, levelData) {
+    if (!rangeStr) {
+        // Default based on power type
+        if (powerType === 'movement') {
+            return 'self';
+        }
+        return 'melee'; // Default for attacks
+    }
+    const rangeLower = rangeStr.toLowerCase();
+    // Check for self-centered AoE
+    if (rangeLower.includes('self') && (rangeLower.includes('radius') || rangeLower.includes('area'))) {
+        return 'area';
+    }
+    // Check for "Self" or "0m" - melee
+    if (rangeLower === 'self' || rangeLower === '0m' || rangeStr === '0') {
+        return 'melee';
+    }
+    // Check level data type if available
+    if (levelData && levelData.type) {
+        const typeLower = levelData.type.toLowerCase();
+        if (typeLower === 'melee') {
+            return 'melee';
+        }
+        if (typeLower === 'ranged') {
+            return 'ranged';
+        }
+    }
+    // Parse numeric range
+    const match = rangeStr.match(/(\d+(?:\.\d+)?)\s*m/i);
+    if (match) {
+        const rangeMeters = parseFloat(match[1]);
+        if (rangeMeters === 0) {
+            return 'melee';
+        }
+        // For now, assume anything with range > 0 is ranged
+        // TODO: Could check if it's actually a ranged attack vs melee with reach
+        return 'ranged';
+    }
+    // Default fallback
+    return 'melee';
 }
 /**
  * Shorten option name for display

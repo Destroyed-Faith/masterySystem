@@ -6,6 +6,8 @@
  * Uses a PIXI-based radial menu for visual option selection
  */
 import { openRadialMenuForActor, getAllCombatOptionsForActor, closeRadialMenu } from './token-radial-menu.js';
+import { startMeleeTargeting } from './melee-targeting.js';
+import { startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting.js';
 // Global movement state
 let activeMovementState = null;
 /**
@@ -482,7 +484,8 @@ export function handleChosenCombatOption(token, option) {
         slot: option.slot,
         segment: option.segment,
         source: option.source,
-        name: option.name
+        name: option.name,
+        rangeCategory: option.rangeCategory
     });
     // Check if this is a movement option - check both segment and slot
     const isMovement = option.slot === 'movement' || option.segment === 'movement';
@@ -491,6 +494,34 @@ export function handleChosenCombatOption(token, option) {
         console.log('Mastery System | Starting guided movement for', token.name, option);
         startGuidedMovement(token, option);
         return;
+    }
+    // Check if this is a melee attack option
+    const isMeleeAttack = option.slot === 'attack' && option.rangeCategory === 'melee';
+    console.log('Mastery System | Is melee attack option?', isMeleeAttack, { slot: option.slot, rangeCategory: option.rangeCategory });
+    if (isMeleeAttack) {
+        console.log('Mastery System | Starting melee targeting for', token.name, option);
+        startMeleeTargeting(token, option);
+        return;
+    }
+    // Check if this is a utility option
+    const isUtility = option.slot === 'utility';
+    console.log('Mastery System | Is utility option?', isUtility, { slot: option.slot, aoeShape: option.aoeShape });
+    if (isUtility) {
+        if (option.aoeShape === 'none') {
+            console.log('Mastery System | Starting single-target utility mode for', token.name, option);
+            startUtilitySingleTargetMode(token, option);
+            return;
+        }
+        else if (option.aoeShape === 'radius') {
+            console.log('Mastery System | Starting radius utility mode for', token.name, option);
+            startUtilityRadiusMode(token, option);
+            return;
+        }
+        else if (option.aoeShape === 'cone') {
+            // TODO: Implement cone targeting later
+            ui.notifications?.warn('Cone targeting not yet implemented');
+            return;
+        }
     }
     if (option.source === 'power' && option.item) {
         // Handle power selection
