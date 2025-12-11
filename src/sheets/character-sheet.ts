@@ -45,9 +45,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    */
   async #openMagicPowerDialog(): Promise<void> {
     try {
-      const dialogModule = await import('../../dist/sheets/character-sheet-magic-dialog.js' as any);
-      if (dialogModule?.showMagicPowerCreationDialog) {
-        await dialogModule.showMagicPowerCreationDialog(this.actor);
+      const dialogModule = await import('../../dist/sheets/character-sheet-power-dialog.js' as any);
+      if (dialogModule?.showPowerCreationDialog) {
+        await dialogModule.showPowerCreationDialog(this.actor, 'magic');
       } else {
         ui.notifications?.error('Magic power dialog not found.');
       }
@@ -72,7 +72,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     try {
       const dialogModule = await import('../../dist/sheets/character-sheet-power-dialog.js' as any);
       if (dialogModule?.showPowerCreationDialog) {
-        await dialogModule.showPowerCreationDialog(this.actor);
+        await dialogModule.showPowerCreationDialog(this.actor, 'mastery');
       } else {
         ui.notifications?.error('Power dialog not found.');
       }

@@ -2,13 +2,14 @@
  * Power Creation Dialog for Character Sheet
  *
  * Shows a dialog where players can select and add Powers from Mastery Trees or Spell Schools.
- * Supports both predefined powers and manual entry.
+ * Only allows selection from predefined powers (no manual entry).
  */
 /**
  * Show the power creation dialog for an actor
  * @param actor - The actor to add powers to
+ * @param context - The context: 'mastery' for Mastery Tree Powers, 'magic' for Magic Powers
  */
-export async function showPowerCreationDialog(actor) {
+export async function showPowerCreationDialog(actor, context = 'mastery') {
     // Dynamic imports to avoid build issues
     // Foundry resolves dynamic imports relative to the current file location
     // From dist/sheets/ to dist/utils/, we need ../utils/
@@ -24,39 +25,26 @@ export async function showPowerCreationDialog(actor) {
     const schoolOptions = spellSchools
         .map((school) => `<option value="${school.name}">${school.fullName}</option>`)
         .join('');
+    // Determine which fields to show based on context
+    const isMastery = context === 'mastery';
+    const categoryLabel = isMastery ? 'Mastery Tree' : 'Spell School';
+    const categoryOptions = isMastery ? treeOptions : schoolOptions;
+    const categorySelectId = isMastery ? 'power-tree-select' : 'spell-school-select';
+    const categoryGroupId = isMastery ? 'mastery-tree-group' : 'spell-school-group';
     const content = `
     <form>
-      <div class="form-group">
-        <label>Power Type:</label>
-        <select name="powerType" id="power-type-select" style="width: 100%; margin-bottom: 10px;">
-          <option value="">-- Select Power Type --</option>
-          <option value="mastery">Mastery Tree Power</option>
-          <option value="magic">Magic Power (Spell School)</option>
-        </select>
-      </div>
-      <div class="form-group" id="mastery-tree-group" style="display: none;">
-        <label>Mastery Tree:</label>
-        <select name="tree" id="power-tree-select" style="width: 100%; margin-bottom: 10px;">
-          <option value="">-- Select a Tree --</option>
-          ${treeOptions}
-        </select>
-      </div>
-      <div class="form-group" id="spell-school-group" style="display: none;">
-        <label>Spell School:</label>
-        <select name="school" id="spell-school-select" style="width: 100%; margin-bottom: 10px;">
-          <option value="">-- Select a Spell School --</option>
-          ${schoolOptions}
+      <div class="form-group" id="${categoryGroupId}">
+        <label>${categoryLabel}:</label>
+        <select name="${isMastery ? 'tree' : 'school'}" id="${categorySelectId}" style="width: 100%; margin-bottom: 10px;">
+          <option value="">-- Select a ${categoryLabel} --</option>
+          ${categoryOptions}
         </select>
       </div>
       <div class="form-group" id="power-select-group" style="display: none;">
-        <label>Power (optional - select from predefined or enter manually):</label>
+        <label>Power:</label>
         <select name="power" id="power-select" style="width: 100%; margin-bottom: 10px;">
-          <option value="">-- Select a Power or Enter Manually --</option>
+          <option value="">-- Select a Power --</option>
         </select>
-      </div>
-      <div class="form-group" id="power-name-group" style="display: none;">
-        <label>Power Name (if not selecting from list):</label>
-        <input type="text" name="powerName" id="power-name-input" style="width: 100%; margin-bottom: 10px;" placeholder="Enter power name"/>
       </div>
       <div class="form-group" id="power-details" style="display: none; margin-top: 15px; padding: 10px; background: #f5f5f5; border-radius: 5px;">
         <div id="power-description" style="margin-bottom: 10px; font-style: italic; color: #666;"></div>
@@ -82,34 +70,27 @@ export async function showPowerCreationDialog(actor) {
                 label: 'Create',
                 callback: async (html) => {
                     const $html = html;
-                    const powerType = $html.find('#power-type-select').val();
                     const tree = $html.find('#power-tree-select').val();
                     const school = $html.find('#spell-school-select').val();
                     const selectedPowerName = $html.find('#power-select').val();
-                    const manualPowerName = $html.find('#power-name-input').val();
                     const level = parseInt($html.find('#power-level-select').val() || '1');
-                    if (!powerType) {
-                        ui.notifications?.warn('Please select a Power Type');
-                        return false;
-                    }
-                    if (powerType === 'mastery' && !tree) {
+                    if (isMastery && !tree) {
                         ui.notifications?.warn('Please select a Mastery Tree');
                         return false;
                     }
-                    if (powerType === 'magic' && !school) {
+                    if (!isMastery && !school) {
                         ui.notifications?.warn('Please select a Spell School');
                         return false;
                     }
-                    // Use selected power name or manual entry
-                    const powerName = selectedPowerName || manualPowerName;
-                    if (!powerName || powerName.trim() === '') {
-                        ui.notifications?.warn('Please select a power from the list or enter a power name');
+                    if (!selectedPowerName || selectedPowerName.trim() === '') {
+                        ui.notifications?.warn('Please select a power from the list');
                         return false;
                     }
+                    const powerName = selectedPowerName;
                     let power = null;
                     let levelData = null;
-                    if (powerType === 'magic') {
-                        // Magic powers - try to import if available, otherwise use manual entry
+                    if (!isMastery) {
+                        // Magic powers
                         try {
                             const magicModule = await import('../utils/magic-powers');
                             if (magicModule?.getMagicPower) {
@@ -117,13 +98,19 @@ export async function showPowerCreationDialog(actor) {
                             }
                         }
                         catch (error) {
-                            console.warn('Mastery System | Magic powers module not available, using manual entry');
+                            console.warn('Mastery System | Magic powers module not available');
+                            ui.notifications?.error('Failed to load magic power data');
+                            return false;
                         }
                     }
                     else {
                         // Mastery tree power
                         const { getPower } = await import('../utils/powers/index.js');
                         power = getPower(tree, powerName);
+                    }
+                    if (!power) {
+                        ui.notifications?.error('Power not found in predefined list');
+                        return false;
                     }
                     // If power is found in predefined list, use its data
                     if (power) {
@@ -150,11 +137,11 @@ export async function showPowerCreationDialog(actor) {
                         name: powerName,
                         type: 'special',
                         system: {
-                            tree: powerType === 'magic' ? school : tree,
-                            isMagicPower: powerType === 'magic',
+                            tree: !isMastery ? school : tree,
+                            isMagicPower: !isMastery,
                             powerType: mappedPowerType,
                             level: level,
-                            description: power?.description || '',
+                            description: power.description || '',
                             tags: [],
                             range: levelData?.range || '',
                             aoe: levelData?.aoe && levelData.aoe !== '—' ? levelData.aoe : '',
@@ -183,14 +170,9 @@ export async function showPowerCreationDialog(actor) {
                         }
                     };
                     await actor.createEmbeddedDocuments('Item', [itemData]);
-                    const sourceType = powerType === 'magic' ? 'Spell School' : 'Mastery Tree';
-                    const source = powerType === 'magic' ? school : tree;
-                    if (power) {
-                        ui.notifications?.info(`Created power: ${powerName} (Level ${level}) from ${source} ${sourceType}`);
-                    }
-                    else {
-                        ui.notifications?.info(`Created power: ${powerName} (Level ${level}) from ${source} ${sourceType}. You can edit the details in the power sheet.`);
-                    }
+                    const sourceType = !isMastery ? 'Spell School' : 'Mastery Tree';
+                    const source = !isMastery ? school : tree;
+                    ui.notifications?.info(`Created power: ${powerName} (Level ${level}) from ${source} ${sourceType}`);
                     return true;
                 }
             },
@@ -202,133 +184,46 @@ export async function showPowerCreationDialog(actor) {
         },
         default: 'create',
         render: async (html) => {
+            // Set dialog height to 300px - use setTimeout to ensure DOM is ready
+            setTimeout(() => {
+                const dialogElement = html.closest('.window-app.dialog');
+                if (dialogElement.length) {
+                    dialogElement.css('height', '300px');
+                }
+            }, 0);
             // Register event handlers after dialog is rendered
-            const powerTypeSelect = html.find('#power-type-select')[0];
-            const masteryTreeGroup = html.find('#mastery-tree-group');
-            const spellSchoolGroup = html.find('#spell-school-group');
             const treeSelect = html.find('#power-tree-select')[0];
             const schoolSelect = html.find('#spell-school-select')[0];
             const powerSelect = html.find('#power-select')[0];
-            const powerNameInput = html.find('#power-name-input')[0];
             const powerSelectGroup = html.find('#power-select-group');
-            const powerNameGroup = html.find('#power-name-group');
             const powerDetails = html.find('#power-details');
             const powerDescription = html.find('#power-description');
             const powerLevelInfo = html.find('#power-level-info');
             const levelSelect = html.find('#power-level-select')[0];
             const levelSelectGroup = html.find('#level-select-group');
             let powersData = {};
-            // Handle power type selection (Mastery Tree vs Magic Power)
-            powerTypeSelect?.addEventListener('change', function () {
-                const powerType = this.value;
-                masteryTreeGroup.hide();
-                spellSchoolGroup.hide();
-                powerSelectGroup.hide();
-                powerNameGroup.hide();
-                powerDetails.hide();
-                levelSelectGroup.hide();
-                if (powerType === 'mastery') {
-                    masteryTreeGroup.show();
-                }
-                else if (powerType === 'magic') {
-                    spellSchoolGroup.show();
-                }
-            });
-            // Handle spell school selection (for Magic Powers)
-            schoolSelect?.addEventListener('change', async function () {
-                const schoolName = this.value;
+            // Handle category selection (Tree or School based on context)
+            const categorySelect = isMastery ? treeSelect : schoolSelect;
+            categorySelect?.addEventListener('change', async function () {
+                const categoryName = this.value;
                 if (powerSelect) {
-                    powerSelect.innerHTML = '<option value="">-- Select a Power or Enter Manually --</option>';
-                }
-                if (powerNameInput) {
-                    powerNameInput.value = '';
+                    powerSelect.innerHTML = '<option value="">-- Select a Power --</option>';
                 }
                 powerSelectGroup.hide();
-                powerNameGroup.hide();
                 powerDetails.hide();
                 levelSelectGroup.hide();
-                if (!schoolName)
+                if (!categoryName)
                     return;
-                levelSelectGroup.show();
-                powerNameGroup.show();
                 try {
-                    // Try to load magic powers if available
-                    const magicModule = await import('../utils/magic-powers');
-                    if (magicModule?.getMagicPowersBySchool) {
-                        const powers = magicModule.getMagicPowersBySchool(schoolName);
+                    if (isMastery) {
+                        // Load mastery tree powers
+                        const { getPowersForTree } = await import('../utils/powers/index.js');
+                        const powers = getPowersForTree(categoryName);
                         powersData = {};
                         if (powers.length === 0) {
-                            if (powerSelect) {
-                                powerSelect.innerHTML = '<option value="">No predefined powers - Enter name manually below</option>';
-                            }
-                            powerSelectGroup.show();
-                            powerDetails.hide();
+                            ui.notifications?.warn('No predefined powers found for this tree');
+                            return;
                         }
-                        else {
-                            powers.forEach((power) => {
-                                powersData[power.name] = power;
-                                if (powerSelect) {
-                                    const option = document.createElement('option');
-                                    option.value = power.name;
-                                    option.textContent = power.name;
-                                    powerSelect.appendChild(option);
-                                }
-                            });
-                            powerSelectGroup.show();
-                        }
-                    }
-                    else {
-                        // No magic powers module - allow manual entry
-                        if (powerSelect) {
-                            powerSelect.innerHTML = '<option value="">No predefined powers - Enter name manually below</option>';
-                        }
-                        powerSelectGroup.show();
-                        powerDetails.hide();
-                    }
-                }
-                catch (error) {
-                    console.warn('Mastery System | Error loading magic powers:', error);
-                    // On error, still allow manual entry
-                    if (powerSelect) {
-                        powerSelect.innerHTML = '<option value="">No predefined powers - Enter name manually below</option>';
-                    }
-                    powerSelectGroup.show();
-                    powerNameGroup.show();
-                    levelSelectGroup.show();
-                }
-            });
-            // Handle mastery tree selection (for normal Powers)
-            treeSelect?.addEventListener('change', async function () {
-                const treeName = this.value;
-                if (powerSelect) {
-                    powerSelect.innerHTML = '<option value="">-- Select a Power or Enter Manually --</option>';
-                }
-                if (powerNameInput) {
-                    powerNameInput.value = '';
-                }
-                powerSelectGroup.hide();
-                powerNameGroup.hide();
-                powerDetails.hide();
-                levelSelectGroup.hide();
-                if (!treeName)
-                    return;
-                // Always show level select and power name input when tree is selected
-                levelSelectGroup.show();
-                powerNameGroup.show();
-                try {
-                    const { getPowersForTree } = await import('../utils/powers/index.js');
-                    const powers = getPowersForTree(treeName);
-                    powersData = {};
-                    if (powers.length === 0) {
-                        // Tree has no predefined powers - show manual entry option
-                        if (powerSelect) {
-                            powerSelect.innerHTML = '<option value="">No predefined powers - Enter name manually below</option>';
-                        }
-                        powerSelectGroup.show();
-                        powerDetails.hide();
-                    }
-                    else {
-                        // Tree has predefined powers - show them in dropdown
                         powers.forEach((power) => {
                             powersData[power.name] = power;
                             if (powerSelect) {
@@ -340,30 +235,49 @@ export async function showPowerCreationDialog(actor) {
                         });
                         powerSelectGroup.show();
                     }
+                    else {
+                        // Load magic powers
+                        const magicModule = await import('../utils/magic-powers');
+                        if (magicModule?.getMagicPowersBySchool) {
+                            const powers = magicModule.getMagicPowersBySchool(categoryName);
+                            powersData = {};
+                            if (powers.length === 0) {
+                                ui.notifications?.warn('No predefined powers found for this spell school');
+                                return;
+                            }
+                            powers.forEach((power) => {
+                                powersData[power.name] = power;
+                                if (powerSelect) {
+                                    const option = document.createElement('option');
+                                    option.value = power.name;
+                                    option.textContent = power.name;
+                                    powerSelect.appendChild(option);
+                                }
+                            });
+                            powerSelectGroup.show();
+                        }
+                        else {
+                            ui.notifications?.error('Magic powers module not available');
+                            return;
+                        }
+                    }
                 }
                 catch (error) {
                     console.error('Mastery System | Error loading powers:', error);
-                    // On error, still allow manual entry
-                    if (powerSelect) {
-                        powerSelect.innerHTML = '<option value="">No predefined powers - Enter name manually below</option>';
-                    }
-                    powerSelectGroup.show();
-                    powerNameGroup.show();
-                    levelSelectGroup.show();
+                    ui.notifications?.error('Failed to load powers');
                 }
             });
             powerSelect?.addEventListener('change', function () {
                 const powerName = this.value;
-                // Clear manual input when selecting from dropdown
-                if (powerNameInput && powerName) {
-                    powerNameInput.value = '';
-                }
                 if (!powerName || !powersData[powerName]) {
                     powerDetails.hide();
+                    levelSelectGroup.hide();
                     return;
                 }
                 const power = powersData[powerName];
                 powerDescription.text(power.description || '');
+                // Show level select when power is selected
+                levelSelectGroup.show();
                 // Show level info
                 if (power.levels && power.levels.length > 0) {
                     let levelInfo = '<strong>Available Levels:</strong><br>';
@@ -402,17 +316,10 @@ export async function showPowerCreationDialog(actor) {
                     }
                 }
             });
-            // Clear dropdown selection when typing manually
-            powerNameInput?.addEventListener('input', function () {
-                if (this.value && powerSelect) {
-                    powerSelect.value = '';
-                    powerDetails.hide();
-                }
-            });
             // Update level details when level changes
             levelSelect?.addEventListener('change', function () {
                 const level = parseInt(this.value);
-                const powerName = powerSelect?.value || powerNameInput?.value;
+                const powerName = powerSelect?.value;
                 if (!powerName || !powersData[powerName]) {
                     return;
                 }
