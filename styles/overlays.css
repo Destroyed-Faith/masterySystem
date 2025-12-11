@@ -768,7 +768,8 @@
   color: #e94560;
 }
 
-.ms-info-range {
+.ms-info-range,
+.ms-info-reach {
   background: rgba(15, 52, 96, 0.5);
   padding: 0.5rem 0.75rem;
   border-radius: 6px;
@@ -776,6 +777,26 @@
   font-size: 0.95rem;
   color: #a8dadc;
   border-left: 3px solid #48dbfb;
+}
+
+.ms-info-damage {
+  background: rgba(233, 69, 96, 0.2);
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  margin: 0 0 0.75rem 0;
+  font-size: 0.95rem;
+  color: #ffcccc;
+  border-left: 3px solid #e94560;
+}
+
+.ms-info-special {
+  background: rgba(204, 136, 255, 0.2);
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  margin: 0 0 0.75rem 0;
+  font-size: 0.95rem;
+  color: #e6ccff;
+  border-left: 3px solid #cc88ff;
 }
 
 .ms-info-desc {

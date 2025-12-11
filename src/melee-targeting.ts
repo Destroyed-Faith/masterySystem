@@ -197,14 +197,17 @@ function highlightReachArea(state: MeleeTargetingState): void {
     // Use new v13 API: canvas.interface.grid.highlight
     if (canvas.interface?.grid?.highlight) {
       highlight = canvas.interface.grid.highlight;
+      console.log('Mastery System | Using canvas.interface.grid.highlight for melee reach');
     } else if (canvas.grid?.highlight) {
       // Fallback to old API for compatibility
       highlight = canvas.grid.highlight;
+      console.log('Mastery System | Using canvas.grid.highlight (fallback) for melee reach');
     } else if ((canvas.grid as any).getHighlightLayer) {
       highlight = (canvas.grid as any).getHighlightLayer(state.highlightId);
       if (!highlight && (canvas.grid as any).addHighlightLayer) {
         highlight = (canvas.grid as any).addHighlightLayer(state.highlightId);
       }
+      console.log('Mastery System | Using getHighlightLayer for melee reach');
     }
   } catch (error) {
     console.warn('Mastery System | Could not get highlight layer for melee reach', error);
@@ -212,6 +215,9 @@ function highlightReachArea(state: MeleeTargetingState): void {
   
   if (highlight && highlight.clear) {
     highlight.clear();
+    console.log('Mastery System | Highlight layer cleared for melee reach');
+  } else {
+    console.warn('Mastery System | No highlight layer available - hex highlighting will not work');
   }
   
   // Highlight hexes within reach
@@ -369,15 +375,28 @@ export function startMeleeTargeting(token: any, option: RadialCombatOption): voi
   // Create preview graphics
   const previewGraphics = new PIXI.Graphics();
   
-  // Add to effects layer
+  // Add to effects layer - try multiple layers to ensure visibility
   let effectsContainer: PIXI.Container | null = null;
-  if (canvas.effects) {
+  
+  // Try tokens layer first (most visible)
+  if (canvas.tokens) {
+    if ((canvas.tokens as any).container && typeof (canvas.tokens as any).container.addChild === 'function') {
+      effectsContainer = (canvas.tokens as any).container;
+    } else if (typeof (canvas.tokens as any).addChild === 'function') {
+      effectsContainer = canvas.tokens as any;
+    }
+  }
+  
+  // Fallback to effects layer
+  if (!effectsContainer && canvas.effects) {
     if ((canvas.effects as any).container && typeof (canvas.effects as any).container.addChild === 'function') {
       effectsContainer = (canvas.effects as any).container;
     } else if (typeof (canvas.effects as any).addChild === 'function') {
       effectsContainer = canvas.effects as any;
     }
   }
+  
+  // Fallback to foreground layer
   if (!effectsContainer && canvas.foreground) {
     if ((canvas.foreground as any).container && typeof (canvas.foreground as any).container.addChild === 'function') {
       effectsContainer = (canvas.foreground as any).container;
@@ -385,8 +404,14 @@ export function startMeleeTargeting(token: any, option: RadialCombatOption): voi
       effectsContainer = canvas.foreground as any;
     }
   }
+  
   if (effectsContainer) {
     effectsContainer.addChild(previewGraphics);
+    // Ensure it's on top
+    effectsContainer.setChildIndex(previewGraphics, effectsContainer.children.length - 1);
+    console.log('Mastery System | Melee reach circle added to container:', effectsContainer.constructor.name);
+  } else {
+    console.warn('Mastery System | Could not find container for melee reach preview');
   }
   
   const highlightId = 'mastery-melee';

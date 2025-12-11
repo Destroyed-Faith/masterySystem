@@ -585,14 +585,54 @@ function showRadialInfoPanel(token, option) {
     const segmentId = getSegmentIdForOption(option);
     const category = segmentId === 'active-buff' ? 'attack' : segmentId;
     const rangeText = option.range !== undefined ? `${option.range}m` : '–';
-    info.innerHTML = `
+    // Get weapon damage if this is a weapon attack
+    let damageText = '';
+    let reachText = '';
+    let specialText = '';
+    if (option.slot === 'attack' && token.actor) {
+        // Try to get equipped weapon
+        const actor = token.actor;
+        const items = actor.items || [];
+        const equippedWeapon = items.find((item) => item.type === 'weapon' && item.system?.equipped === true);
+        if (equippedWeapon) {
+            const weaponSystem = equippedWeapon.system;
+            damageText = weaponSystem.damage || weaponSystem.weaponDamage || '';
+            // Get reach from weapon
+            const innateAbilities = weaponSystem.innateAbilities || [];
+            const reachAbility = innateAbilities.find((a) => a.includes('Reach'));
+            if (reachAbility) {
+                const reachMatch = reachAbility.match(/Reach\s*\((\d+)\s*m\)/i);
+                if (reachMatch) {
+                    reachText = `Reach: ${reachMatch[1]}m`;
+                }
+            }
+            // Get special ability
+            if (weaponSystem.special && weaponSystem.special !== '—') {
+                specialText = weaponSystem.special;
+            }
+        }
+    }
+    // Build info HTML
+    let infoHTML = `
     <div class="ms-info-title">${option.name}</div>
     <div class="ms-info-meta">
       <span class="ms-info-source">${option.source}</span> · <span class="ms-info-slot">${category}</span>
     </div>
-    <div class="ms-info-range">Range: ${rangeText}</div>
-    <div class="ms-info-desc">${option.description || 'No description available'}</div>
   `;
+    if (damageText) {
+        infoHTML += `<div class="ms-info-damage"><strong>Damage:</strong> ${damageText}</div>`;
+    }
+    if (reachText) {
+        infoHTML += `<div class="ms-info-reach">${reachText}</div>`;
+    }
+    else {
+        infoHTML += `<div class="ms-info-range">Range: ${rangeText}</div>`;
+    }
+    if (specialText) {
+        infoHTML += `<div class="ms-info-special"><strong>Special:</strong> ${specialText}</div>`;
+    }
+    infoHTML += `<div class="ms-info-desc">${option.description || 'No description available'}</div>`;
+    info.innerHTML = infoHTML;
 }
 /**
  * Hide the info panel
