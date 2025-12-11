@@ -7,8 +7,6 @@
 import { getAvailableManeuvers, CombatManeuver } from './system/combat-maneuvers';
 import type { CombatSlot } from './system/combat-maneuvers';
 import { handleChosenCombatOption } from './token-action-selector';
-import { endMeleeTargeting } from './melee-targeting';
-import { endUtilityTargeting } from './utility-targeting';
 
 /**
  * Range category for combat options
@@ -200,11 +198,9 @@ export function closeRadialMenu(): void {
     console.log('Mastery System | Token HUD restored');
   }
   
-  // Cancel any active melee targeting when menu closes
-  endMeleeTargeting(false);
-  
-  // Cancel any active utility targeting when menu closes
-  endUtilityTargeting(false);
+  // Don't cancel melee/utility targeting when menu closes
+  // The targeting modes should remain active so the user can select targets
+  // They will be cancelled when the user clicks outside or presses ESC
 }
 
 /**

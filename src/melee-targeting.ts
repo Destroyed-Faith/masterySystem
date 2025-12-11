@@ -28,11 +28,11 @@ let activeMeleeTargeting: MeleeTargetingState | null = null;
 /**
  * Parse reach from weapon innate abilities or option
  * @param innateAbilities - Array of ability strings like ["Reach (2 m)", "Finesse"]
- * @returns Reach in meters, or 1 if not found
+ * @returns Reach in meters, or 2 if not found (default melee reach is now 2m)
  */
 function parseReachFromAbilities(innateAbilities: string[]): number {
   if (!innateAbilities || !Array.isArray(innateAbilities)) {
-    return 1; // Default melee reach
+    return 2; // Default melee reach is now 2m
   }
   
   for (const ability of innateAbilities) {
@@ -43,7 +43,7 @@ function parseReachFromAbilities(innateAbilities: string[]): number {
     }
   }
   
-  return 1; // Default melee reach
+  return 2; // Default melee reach is now 2m
 }
 
 /**
@@ -69,15 +69,16 @@ function getMeleeReach(token: any, option: RadialCombatOption): number {
     if (equippedWeapon) {
       const innateAbilities = (equippedWeapon.system as any)?.innateAbilities || [];
       const reach = parseReachFromAbilities(innateAbilities);
-      if (reach > 1) {
+      // If weapon has explicit reach, use it (even if it's 2m, which is now the default)
+      if (reach >= 2) {
         console.log('Mastery System | Found weapon reach:', reach, 'm from', equippedWeapon.name);
         return reach;
       }
     }
   }
   
-  // Default: 1 meter (adjacent/close combat)
-  return 1;
+  // Default: 2 meters (extended melee reach)
+  return 2;
 }
 
 /**
@@ -213,9 +214,14 @@ function highlightReachArea(state: MeleeTargetingState): void {
     console.warn('Mastery System | Could not get highlight layer for melee reach', error);
   }
   
-  if (highlight && highlight.clear) {
-    highlight.clear();
-    console.log('Mastery System | Highlight layer cleared for melee reach');
+  if (highlight) {
+    // Try to clear the highlight layer
+    if (typeof highlight.clear === 'function') {
+      highlight.clear();
+      console.log('Mastery System | Highlight layer cleared for melee reach');
+    } else {
+      console.log('Mastery System | Highlight layer found but no clear method');
+    }
   } else {
     console.warn('Mastery System | No highlight layer available - hex highlighting will not work');
   }
@@ -303,10 +309,14 @@ function highlightReachArea(state: MeleeTargetingState): void {
           }
           
           if (distanceInUnits <= state.reachGridUnits) {
-            if (highlight.highlightPosition) {
-              highlight.highlightPosition(gridCol, gridRow, { color: 0xff6666, alpha: 0.5 }); // More visible
-            } else if (highlight.highlightGridPosition) {
-              highlight.highlightGridPosition(gridCol, gridRow, { color: 0xff6666, alpha: 0.5 }); // More visible
+            // Try different methods to highlight the hex
+            if (highlight && typeof highlight.highlightPosition === 'function') {
+              highlight.highlightPosition(gridCol, gridRow, { color: 0xff6666, alpha: 0.5 });
+            } else if (highlight && typeof highlight.highlightGridPosition === 'function') {
+              highlight.highlightGridPosition(gridCol, gridRow, { color: 0xff6666, alpha: 0.5 });
+            } else if (highlight && typeof highlight.highlight === 'function') {
+              // Some versions use just 'highlight'
+              highlight.highlight(gridCol, gridRow, { color: 0xff6666, alpha: 0.5 });
             }
           }
         }
@@ -333,21 +343,26 @@ function highlightValidTargets(state: MeleeTargetingState): void {
     // Apply red tint (reduce alpha slightly and add red filter)
     target.alpha = Math.max(0.6, target.alpha * 0.8);
     
-    // Add red tint using filters (if available)
-    if (target.filters) {
-      // Check if we already have a red tint filter
-      const hasTintFilter = target.filters.some((f: any) => f.tint !== undefined);
-      if (!hasTintFilter) {
-        // Add a subtle red tint
-        const tintFilter = new PIXI.filters.ColorMatrixFilter();
-        tintFilter.tint(0xff6666, false);
-        target.filters = [...(target.filters || []), tintFilter];
-      }
-    } else {
-      // Create filters array if it doesn't exist
-      const tintFilter = new PIXI.filters.ColorMatrixFilter();
-      tintFilter.tint(0xff6666, false);
-      target.filters = [tintFilter];
+    // Add red tint using a simple color overlay instead of deprecated ColorMatrixFilter
+    // Store original tint for restoration
+    const originalTint = target.tint;
+    (target as any).msOriginalTint = originalTint;
+    
+    // Apply red tint (mix red with original color)
+    target.tint = 0xff6666;
+    
+    // Also add a red outline/border effect using a graphics overlay
+    // This is more reliable than filters
+    if (!(target as any).msTargetOverlay) {
+      const overlay = new PIXI.Graphics();
+      const radius = Math.max(target.w || 50, target.h || 50) / 2 + 5;
+      overlay.lineStyle(3, 0xff6666, 0.8);
+      overlay.drawCircle(0, 0, radius);
+      // Position overlay at token center
+      overlay.position.set((target.w || 50) / 2, (target.h || 50) / 2);
+      target.addChild(overlay);
+      (target as any).msTargetOverlay = overlay;
+      console.log('Mastery System | Added red overlay to target:', target.name);
     }
   }
 }
@@ -479,14 +494,49 @@ function handleMeleePointerDown(ev: PIXI.FederatedPointerEvent): void {
   
   // Left click - check if clicking on a valid target
   if (ev.button === 0) {
-    const worldPos = ev.data.getLocalPosition(canvas.app.stage);
+    // Get the clicked object from the event
+    const clickedObject = ev.target;
     
-    // Find token at click position
-    const tokens = canvas.tokens?.placeables || [];
-    const clickedToken = tokens.find((token: any) => {
-      const bounds = token.bounds;
-      return bounds && bounds.contains(worldPos.x, worldPos.y);
-    });
+    // Try to find the token from the clicked object
+    let clickedToken: any = null;
+    
+    // Method 1: Check if the clicked object is a token
+    if (clickedObject && (clickedObject as any).document && (clickedObject as any).document.type === 'Token') {
+      clickedToken = clickedObject;
+      console.log('Mastery System | Found token via direct check:', clickedToken.name);
+    }
+    
+    // Method 2: Check if clicked object is a child of a token
+    if (!clickedToken && clickedObject) {
+      let parent = (clickedObject as any).parent;
+      let depth = 0;
+      while (parent && depth < 10) {
+        if (parent.document && parent.document.type === 'Token') {
+          clickedToken = parent;
+          console.log('Mastery System | Found token via parent traversal:', clickedToken.name);
+          break;
+        }
+        parent = parent.parent;
+        depth++;
+      }
+    }
+    
+    // Method 3: Find token by position (fallback)
+    if (!clickedToken) {
+      try {
+        const worldPos = ev.data.getLocalPosition(canvas.app.stage);
+        const tokens = canvas.tokens?.placeables || [];
+        clickedToken = tokens.find((token: any) => {
+          const bounds = token.bounds;
+          return bounds && bounds.contains(worldPos.x, worldPos.y);
+        });
+        if (clickedToken) {
+          console.log('Mastery System | Found token via position check:', clickedToken.name);
+        }
+      } catch (error) {
+        console.warn('Mastery System | Could not get world position from click', error);
+      }
+    }
     
     if (clickedToken && clickedToken.id !== state.token.id) {
       // Check if it's a valid target
@@ -495,8 +545,12 @@ function handleMeleePointerDown(ev: PIXI.FederatedPointerEvent): void {
       
       if (isValidTarget) {
         console.log('Mastery System | Valid melee target selected:', clickedToken.name);
+        ev.stopPropagation();
+        ev.stopImmediatePropagation();
         confirmMeleeTarget(clickedToken, state);
         return;
+      } else {
+        console.log('Mastery System | Clicked token is not a valid target:', clickedToken.name);
       }
     }
     
@@ -584,15 +638,19 @@ export function endMeleeTargeting(success: boolean): void {
   for (const [token, originalAlpha] of state.originalTokenAlphas.entries()) {
     token.alpha = originalAlpha;
     
-    // Remove red tint filter
-    if (token.filters) {
-      token.filters = token.filters.filter((f: any) => {
-        // Remove ColorMatrixFilter that was used for tinting
-        return !(f instanceof PIXI.filters.ColorMatrixFilter);
-      });
-      if (token.filters.length === 0) {
-        token.filters = null;
-      }
+    // Restore original tint
+    const originalTint = (token as any).msOriginalTint;
+    if (originalTint !== undefined) {
+      token.tint = originalTint;
+      delete (token as any).msOriginalTint;
+    }
+    
+    // Remove overlay graphics
+    const overlay = (token as any).msTargetOverlay;
+    if (overlay && overlay.parent) {
+      overlay.parent.removeChild(overlay);
+      overlay.destroy();
+      delete (token as any).msTargetOverlay;
     }
   }
   

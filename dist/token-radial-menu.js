@@ -5,8 +5,6 @@
  */
 import { getAvailableManeuvers } from './system/combat-maneuvers.js';
 import { handleChosenCombatOption } from './token-action-selector.js';
-import { endMeleeTargeting } from './melee-targeting.js';
-import { endUtilityTargeting } from './utility-targeting.js';
 const MS_INNER_SEGMENTS = [
     { id: 'movement', color: 0xffe066, label: 'Move' },
     { id: 'attack', color: 0xff6666, label: 'Atk' },
@@ -129,10 +127,9 @@ export function closeRadialMenu() {
         msTokenHUD = null;
         console.log('Mastery System | Token HUD restored');
     }
-    // Cancel any active melee targeting when menu closes
-    endMeleeTargeting(false);
-    // Cancel any active utility targeting when menu closes
-    endUtilityTargeting(false);
+    // Don't cancel melee/utility targeting when menu closes
+    // The targeting modes should remain active so the user can select targets
+    // They will be cancelled when the user clicks outside or presses ESC
 }
 /**
  * Map an option to one of the 4 inner segment IDs
