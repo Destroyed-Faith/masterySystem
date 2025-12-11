@@ -74,7 +74,19 @@ function getDistanceInGridUnits(point1, point2) {
     const gridDistance = pixelDistance / gridSize;
     // Use Foundry's distance measurement if available (for hex grids)
     try {
-        if (canvas.grid?.measureDistances) {
+        if (canvas.grid?.measurePath) {
+            // New v13 API: measurePath returns array of distances
+            const waypoints = [
+                { x: point1.x, y: point1.y },
+                { x: point2.x, y: point2.y }
+            ];
+            const measurement = canvas.grid.measurePath(waypoints, {});
+            if (measurement && measurement.length > 0) {
+                return measurement[0];
+            }
+        }
+        else if (canvas.grid?.measureDistances) {
+            // Fallback to old API
             const waypoints = [
                 { x: point1.x, y: point1.y },
                 { x: point2.x, y: point2.y }
@@ -138,7 +150,12 @@ function highlightRadiusArea(state) {
     // Highlight hexes within radius
     let highlight = null;
     try {
-        if (canvas.grid.highlight) {
+        // Use new v13 API: canvas.interface.grid.highlight
+        if (canvas.interface?.grid?.highlight) {
+            highlight = canvas.interface.grid.highlight;
+        }
+        else if (canvas.grid?.highlight) {
+            // Fallback to old API for compatibility
             highlight = canvas.grid.highlight;
         }
         else if (canvas.grid.getHighlightLayer) {
@@ -156,21 +173,53 @@ function highlightRadiusArea(state) {
     }
     // Highlight hexes within radius
     const maxHexDistance = Math.ceil(state.radiusMeters / (canvas.grid.distance || 1));
-    const centerGrid = canvas.grid.getGridPositionFromPixels(center.x, center.y);
+    // Get grid position using new v13 API
+    let centerGrid = null;
+    try {
+        if (canvas.grid?.getOffset) {
+            // New v13 API: getOffset returns {col, row}
+            const offset = canvas.grid.getOffset(center.x, center.y);
+            centerGrid = { col: offset.col, row: offset.row };
+        }
+        else if (canvas.grid?.getGridPositionFromPixels) {
+            // Fallback to old API
+            const oldGrid = canvas.grid.getGridPositionFromPixels(center.x, center.y);
+            if (oldGrid) {
+                centerGrid = { col: oldGrid.x, row: oldGrid.y };
+            }
+        }
+    }
+    catch (error) {
+        console.warn('Mastery System | Could not get grid position for utility radius', error);
+    }
     if (centerGrid && highlight) {
         for (let q = -maxHexDistance; q <= maxHexDistance; q++) {
             for (let r = -maxHexDistance; r <= maxHexDistance; r++) {
-                const gridX = centerGrid.x + q;
-                const gridY = centerGrid.y + r;
-                const hexCenter = canvas.grid.getPixelsFromGridPosition(gridX, gridY);
+                const gridCol = centerGrid.col + q;
+                const gridRow = centerGrid.row + r;
+                // Get hex center using new v13 API
+                let hexCenter = null;
+                try {
+                    if (canvas.grid?.getTopLeftPoint) {
+                        // New v13 API: getTopLeftPoint(col, row) returns center point
+                        hexCenter = canvas.grid.getTopLeftPoint(gridCol, gridRow);
+                    }
+                    else if (canvas.grid?.getPixelsFromGridPosition) {
+                        // Fallback to old API
+                        hexCenter = canvas.grid.getPixelsFromGridPosition(gridCol, gridRow);
+                    }
+                }
+                catch (error) {
+                    continue; // Skip this hex if we can't get its position
+                }
                 if (hexCenter) {
                     const distance = getDistanceInGridUnits(center, hexCenter);
                     if (distance <= state.radiusMeters / (canvas.grid.distance || 1)) {
                         if (highlight.highlightPosition) {
-                            highlight.highlightPosition(gridX, gridY, { color: 0x66aaff, alpha: 0.3 });
+                            highlight.highlightPosition(gridCol, gridRow, { color: 0x66aaff, alpha: 0.3 });
                         }
                         else if (highlight.highlightGridPosition) {
-                            highlight.highlightGridPosition(gridX, gridY, { color: 0x66aaff, alpha: 0.3 });
+                            highlight.highlightGridPosition(gridCol, gridRow, { color: 0x66aaff, alpha: 0.3 });
                         }
                     }
                 }
@@ -754,10 +803,15 @@ export function endUtilityTargeting(success) {
     canvas.stage.off('pointermove', state.onPointerMove);
     canvas.stage.off('pointerdown', state.onPointerDown);
     window.removeEventListener('keydown', state.onKeyDown);
-    // Clear highlights
+    // Clear highlights using new v13 API
     let highlight = null;
     try {
-        if (canvas.grid?.highlight) {
+        // Use new v13 API: canvas.interface.grid.highlight
+        if (canvas.interface?.grid?.highlight) {
+            highlight = canvas.interface.grid.highlight;
+        }
+        else if (canvas.grid?.highlight) {
+            // Fallback to old API for compatibility
             highlight = canvas.grid.highlight;
         }
         else if (canvas.grid && canvas.grid.getHighlightLayer) {

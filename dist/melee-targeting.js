@@ -96,10 +96,22 @@ function getValidMeleeTargets(attackerToken, reachGridUnits) {
         const dy = targetCenter.y - attackerCenter.y;
         const pixelDistance = Math.sqrt(dx * dx + dy * dy);
         const gridDistance = pixelDistance / (canvas.grid?.size || 1);
-        // For hex grids, use Foundry's distance measurement
+        // For hex grids, use Foundry's distance measurement (new v13 API)
         let distanceInUnits = gridDistance;
         try {
-            if (canvas.grid?.measureDistances) {
+            if (canvas.grid?.measurePath) {
+                // New v13 API: measurePath returns array of distances
+                const waypoints = [
+                    { x: attackerCenter.x, y: attackerCenter.y },
+                    { x: targetCenter.x, y: targetCenter.y }
+                ];
+                const measurement = canvas.grid.measurePath(waypoints, {});
+                if (measurement && measurement.length > 0) {
+                    distanceInUnits = measurement[0];
+                }
+            }
+            else if (canvas.grid?.measureDistances) {
+                // Fallback to old API
                 const waypoints = [
                     { x: attackerCenter.x, y: attackerCenter.y },
                     { x: targetCenter.x, y: targetCenter.y }
@@ -143,7 +155,12 @@ function highlightReachArea(state) {
     // Also highlight hexes within reach using grid highlight
     let highlight = null;
     try {
-        if (canvas.grid.highlight) {
+        // Use new v13 API: canvas.interface.grid.highlight
+        if (canvas.interface?.grid?.highlight) {
+            highlight = canvas.interface.grid.highlight;
+        }
+        else if (canvas.grid?.highlight) {
+            // Fallback to old API for compatibility
             highlight = canvas.grid.highlight;
         }
         else if (canvas.grid.getHighlightLayer) {
@@ -162,8 +179,25 @@ function highlightReachArea(state) {
     // Highlight hexes within reach
     // For hex grids, we need to iterate through nearby hexes
     const maxHexDistance = Math.ceil(state.reachGridUnits);
-    // Get grid position of attacker
-    const attackerGrid = canvas.grid.getGridPositionFromPixels(attackerCenter.x, attackerCenter.y);
+    // Get grid position of attacker using new v13 API
+    let attackerGrid = null;
+    try {
+        if (canvas.grid?.getOffset) {
+            // New v13 API: getOffset returns {col, row}
+            const offset = canvas.grid.getOffset(attackerCenter.x, attackerCenter.y);
+            attackerGrid = { col: offset.col, row: offset.row };
+        }
+        else if (canvas.grid?.getGridPositionFromPixels) {
+            // Fallback to old API
+            const oldGrid = canvas.grid.getGridPositionFromPixels(attackerCenter.x, attackerCenter.y);
+            if (oldGrid) {
+                attackerGrid = { col: oldGrid.x, row: oldGrid.y };
+            }
+        }
+    }
+    catch (error) {
+        console.warn('Mastery System | Could not get grid position', error);
+    }
     if (attackerGrid && highlight) {
         // For hex grids, use cube coordinates or axial coordinates
         // Simple approach: check all hexes in a square area and measure distance
@@ -172,19 +206,45 @@ function highlightReachArea(state) {
                 // For hex grids, calculate distance using hex distance formula
                 // In axial coordinates: distance = (|q| + |r| + |q + r|) / 2
                 // But we need to check if this hex is within reach
-                const gridX = attackerGrid.x + q;
-                const gridY = attackerGrid.y + r;
-                // Measure actual distance from attacker to this hex
-                const hexCenter = canvas.grid.getPixelsFromGridPosition(gridX, gridY);
+                const gridCol = attackerGrid.col + q;
+                const gridRow = attackerGrid.row + r;
+                // Measure actual distance from attacker to this hex using new v13 API
+                let hexCenter = null;
+                try {
+                    if (canvas.grid?.getTopLeftPoint) {
+                        // New v13 API: getTopLeftPoint(col, row) returns center point
+                        hexCenter = canvas.grid.getTopLeftPoint(gridCol, gridRow);
+                    }
+                    else if (canvas.grid?.getPixelsFromGridPosition) {
+                        // Fallback to old API
+                        hexCenter = canvas.grid.getPixelsFromGridPosition(gridCol, gridRow);
+                    }
+                }
+                catch (error) {
+                    // Skip this hex if we can't get its position
+                    continue;
+                }
                 if (hexCenter) {
                     const dx = hexCenter.x - attackerCenter.x;
                     const dy = hexCenter.y - attackerCenter.y;
                     const pixelDistance = Math.sqrt(dx * dx + dy * dy);
                     const gridDistance = pixelDistance / (canvas.grid.size || 1);
-                    // Use Foundry's distance measurement if available
+                    // Use Foundry's distance measurement if available (new v13 API)
                     let distanceInUnits = gridDistance;
                     try {
-                        if (canvas.grid?.measureDistances) {
+                        if (canvas.grid?.measurePath) {
+                            // New v13 API: measurePath returns array of distances
+                            const waypoints = [
+                                { x: attackerCenter.x, y: attackerCenter.y },
+                                { x: hexCenter.x, y: hexCenter.y }
+                            ];
+                            const measurement = canvas.grid.measurePath(waypoints, {});
+                            if (measurement && measurement.length > 0) {
+                                distanceInUnits = measurement[0];
+                            }
+                        }
+                        else if (canvas.grid?.measureDistances) {
+                            // Fallback to old API
                             const waypoints = [
                                 { x: attackerCenter.x, y: attackerCenter.y },
                                 { x: hexCenter.x, y: hexCenter.y }
@@ -200,10 +260,10 @@ function highlightReachArea(state) {
                     }
                     if (distanceInUnits <= state.reachGridUnits) {
                         if (highlight.highlightPosition) {
-                            highlight.highlightPosition(gridX, gridY, { color: 0xff6666, alpha: 0.5 }); // More visible
+                            highlight.highlightPosition(gridCol, gridRow, { color: 0xff6666, alpha: 0.5 }); // More visible
                         }
                         else if (highlight.highlightGridPosition) {
-                            highlight.highlightGridPosition(gridX, gridY, { color: 0xff6666, alpha: 0.5 }); // More visible
+                            highlight.highlightGridPosition(gridCol, gridRow, { color: 0xff6666, alpha: 0.5 }); // More visible
                         }
                     }
                 }
@@ -402,10 +462,15 @@ export function endMeleeTargeting(success) {
     // Remove event listeners
     canvas.stage.off('pointerdown', state.onPointerDown);
     window.removeEventListener('keydown', state.onKeyDown);
-    // Clear highlights
+    // Clear highlights using new v13 API
     let highlight = null;
     try {
-        if (canvas.grid?.highlight) {
+        // Use new v13 API: canvas.interface.grid.highlight
+        if (canvas.interface?.grid?.highlight) {
+            highlight = canvas.interface.grid.highlight;
+        }
+        else if (canvas.grid?.highlight) {
+            // Fallback to old API for compatibility
             highlight = canvas.grid.highlight;
         }
         else if (canvas.grid && canvas.grid.getHighlightLayer) {
