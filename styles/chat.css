@@ -159,6 +159,123 @@
   }
 }
 
+/* ========== Attack Card ========== */
+.mastery-attack-card {
+  background: #f5f5f5;
+  border: 2px solid #8b0000;
+  border-radius: 5px;
+  padding: 12px;
+  font-family: 'Signika', sans-serif;
+  margin: 5px 0;
+}
+
+.mastery-attack-card .attack-header {
+  border-bottom: 2px solid #8b0000;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+}
+
+.mastery-attack-card .attack-header h3 {
+  margin: 0 0 5px 0;
+  color: #8b0000;
+  font-size: 18px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mastery-attack-card .attack-header h3 i {
+  color: #8b0000;
+}
+
+.mastery-attack-card .attack-participants {
+  font-size: 14px;
+  color: #333;
+  margin-top: 5px;
+}
+
+.mastery-attack-card .attack-details {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 12px;
+}
+
+.mastery-attack-card .detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+
+.mastery-attack-card .detail-row:last-child {
+  border-bottom: none;
+}
+
+.mastery-attack-card .detail-row span:first-child {
+  color: #666;
+}
+
+.mastery-attack-card .detail-row span:last-child {
+  font-weight: bold;
+  color: #8b0000;
+}
+
+.mastery-attack-card .attack-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.mastery-attack-card .roll-attack-btn {
+  background: linear-gradient(to bottom, #8b0000, #6b0000);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.mastery-attack-card .roll-attack-btn:hover {
+  background: linear-gradient(to bottom, #a00000, #8b0000);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transform: translateY(-1px);
+}
+
+.mastery-attack-card .roll-attack-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.mastery-attack-card .roll-attack-btn i {
+  font-size: 18px;
+}
+
+.mastery-attack-card .roll-attack-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.mastery-attack-card .roll-attack-btn.rolled {
+  background: linear-gradient(to bottom, #228b22, #1a6b1a);
+}
+
+.mastery-attack-card .roll-attack-btn.rolled:hover {
+  background: linear-gradient(to bottom, #228b22, #1a6b1a);
+  transform: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
 
 
 

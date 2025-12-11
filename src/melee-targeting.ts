@@ -561,7 +561,53 @@ function handleMeleePointerDown(ev: PIXI.FederatedPointerEvent): void {
 }
 
 /**
- * Confirm melee target and execute attack
+ * Calculate Evade (defense) for a target
+ * Evade = Agility + Combat Reflexes + (Mastery Rank × 2)
+ * Or use pre-calculated evadeTotal if available
+ */
+function calculateEvade(actor: any): number {
+  const system = actor.system as any;
+  
+  // Try to use pre-calculated evadeTotal first
+  if (system.combat?.evadeTotal !== undefined) {
+    return system.combat.evadeTotal;
+  }
+  
+  // Fallback calculation: Agility + Combat Reflexes + (MR × 2)
+  const agility = system.attributes?.agility?.value || 0;
+  const combatReflexes = system.combat?.reflexes || system.combat?.combatReflexes || 0;
+  const masteryRank = system.mastery?.rank || 2;
+  
+  return agility + combatReflexes + (masteryRank * 2);
+}
+
+/**
+ * Get attack attribute for melee attack
+ * Defaults to Might, but can be Agility if weapon has Finesse
+ */
+function getAttackAttribute(actor: any, weapon: any): { name: string; value: number } {
+  const system = actor.system as any;
+  
+  // Check if weapon has Finesse
+  const innateAbilities = (weapon?.system as any)?.innateAbilities || [];
+  const hasFinesse = innateAbilities.some((a: string) => a.toLowerCase().includes('finesse'));
+  
+  if (hasFinesse) {
+    return {
+      name: 'Agility',
+      value: system.attributes?.agility?.value || 0
+    };
+  }
+  
+  // Default to Might
+  return {
+    name: 'Might',
+    value: system.attributes?.might?.value || 0
+  };
+}
+
+/**
+ * Confirm melee target and create attack roll card
  */
 async function confirmMeleeTarget(targetToken: any, state: MeleeTargetingState): Promise<void> {
   // Set target using Foundry's targeting API
@@ -572,27 +618,109 @@ async function confirmMeleeTarget(targetToken: any, state: MeleeTargetingState):
     console.warn('Mastery System | Could not set target via API', error);
   }
   
-  // Execute attack resolution
-  // This will be handled by the existing combat option handler
-  // We just need to pass the target information
-  console.log('Mastery System | Melee attack confirmed:', {
-    attacker: state.token.name,
-    target: targetToken.name,
-    option: state.option.name,
-    reach: state.reachMeters + 'm'
-  });
+  const attacker = state.token.actor;
+  const target = targetToken.actor;
   
-  // Call the existing attack handler with target info
-  // The handler should be able to access the target via game.user.targets
-  // For now, we'll just log and end targeting mode
-  // TODO: Integrate with actual attack resolution
+  if (!attacker || !target) {
+    console.error('Mastery System | Missing actor data for attack');
+    endMeleeTargeting(false);
+    return;
+  }
+  
+  // Get equipped weapon
+  const items = (attacker as any).items || [];
+  const equippedWeapon = items.find((item: any) => 
+    item.type === 'weapon' && (item.system as any)?.equipped === true
+  );
+  
+  // Get attack data
+  const attackAttr = getAttackAttribute(attacker, equippedWeapon);
+  const attackerSystem = attacker.system as any;
+  const masteryRank = attackerSystem.mastery?.rank || 2;
+  
+  // Get target's Evade
+  const targetEvade = calculateEvade(target);
+  
+  // Get weapon damage for display
+  const weaponDamage = equippedWeapon ? ((equippedWeapon.system as any)?.damage || (equippedWeapon.system as any)?.weaponDamage || '1d8') : '1d8';
+  
+  // Create attack card in chat
+  const attackCardContent = `
+    <div class="mastery-attack-card">
+      <div class="attack-header">
+        <h3><i class="fas fa-sword"></i> Melee Attack</h3>
+        <div class="attack-participants">
+          <strong>${attacker.name}</strong> → <strong>${target.name}</strong>
+        </div>
+      </div>
+      
+      <div class="attack-details">
+        <div class="detail-row">
+          <span>Attack Attribute:</span>
+          <span><strong>${attackAttr.name}</strong> (${attackAttr.value} dice)</span>
+        </div>
+        <div class="detail-row">
+          <span>Mastery Rank:</span>
+          <span><strong>${masteryRank}</strong> (keep ${masteryRank} highest)</span>
+        </div>
+        <div class="detail-row">
+          <span>Target Evade:</span>
+          <span><strong>${targetEvade}</strong></span>
+        </div>
+        ${equippedWeapon ? `
+          <div class="detail-row">
+            <span>Weapon:</span>
+            <span><strong>${equippedWeapon.name}</strong> (${weaponDamage} damage)</span>
+          </div>
+        ` : ''}
+      </div>
+      
+      <div class="attack-actions">
+        <button class="roll-attack-btn" data-attacker-id="${attacker.id}" data-target-id="${target.id}" 
+                data-attribute="${attackAttr.name.toLowerCase()}" data-attribute-value="${attackAttr.value}"
+                data-mastery-rank="${masteryRank}" data-target-evade="${targetEvade}">
+          <i class="fas fa-dice-d20"></i> Roll Attack
+        </button>
+      </div>
+    </div>
+  `;
+  
+  // Create chat message
+  const chatData: any = {
+    user: (game as any).user?.id,
+    speaker: ChatMessage.getSpeaker({ actor: attacker, token: state.token }),
+    content: attackCardContent,
+    type: CONST.CHAT_MESSAGE_TYPES.OTHER,
+    flags: {
+      'mastery-system': {
+        attackType: 'melee',
+        attackerId: attacker.id,
+        targetId: target.id,
+        targetTokenId: targetToken.id,
+        attribute: attackAttr.name.toLowerCase(),
+        attributeValue: attackAttr.value,
+        masteryRank: masteryRank,
+        targetEvade: targetEvade,
+        weaponDamage: weaponDamage
+      }
+    }
+  };
+  
+  await ChatMessage.create(chatData);
+  
+  // The roll button click handler is managed globally in module.ts via renderChatLog hook
+  
+  console.log('Mastery System | Melee attack card created:', {
+    attacker: attacker.name,
+    target: target.name,
+    attribute: attackAttr.name,
+    evade: targetEvade
+  });
   
   // End targeting mode
   endMeleeTargeting(true);
-  
-  // Trigger notification
-  ui.notifications?.info(`Melee attack: ${state.token.name} → ${targetToken.name} (${state.option.name})`);
 }
+
 
 /**
  * End melee targeting mode
