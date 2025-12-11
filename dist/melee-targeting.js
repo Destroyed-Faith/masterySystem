@@ -130,11 +130,14 @@ function highlightReachArea(state) {
     const radiusPx = state.reachGridUnits * (canvas.grid.size || 1);
     // Clear previous graphics
     state.previewGraphics.clear();
-    // Draw reach circle (semi-transparent red/orange)
-    state.previewGraphics.lineStyle(2, 0xff6666, 0.8);
-    state.previewGraphics.beginFill(0xff6666, 0.2);
+    // Draw reach circle (semi-transparent red/orange) - make it more visible
+    state.previewGraphics.lineStyle(3, 0xff6666, 1.0); // Thicker, fully opaque border
+    state.previewGraphics.beginFill(0xff6666, 0.25); // Slightly more visible fill
     state.previewGraphics.drawCircle(0, 0, radiusPx);
     state.previewGraphics.endFill();
+    // Add an inner ring for better visibility
+    state.previewGraphics.lineStyle(1, 0xff8888, 0.6);
+    state.previewGraphics.drawCircle(0, 0, radiusPx * 0.9);
     // Position at attacker center
     state.previewGraphics.position.set(attackerCenter.x, attackerCenter.y);
     // Also highlight hexes within reach using grid highlight
@@ -197,10 +200,10 @@ function highlightReachArea(state) {
                     }
                     if (distanceInUnits <= state.reachGridUnits) {
                         if (highlight.highlightPosition) {
-                            highlight.highlightPosition(gridX, gridY, { color: 0xff6666, alpha: 0.3 });
+                            highlight.highlightPosition(gridX, gridY, { color: 0xff6666, alpha: 0.5 }); // More visible
                         }
                         else if (highlight.highlightGridPosition) {
-                            highlight.highlightGridPosition(gridX, gridY, { color: 0xff6666, alpha: 0.3 });
+                            highlight.highlightGridPosition(gridX, gridY, { color: 0xff6666, alpha: 0.5 }); // More visible
                         }
                     }
                 }
@@ -305,7 +308,20 @@ export function startMeleeTargeting(token, option) {
     // Draw reach area and highlight targets
     highlightReachArea(state);
     highlightValidTargets(state);
-    console.log('Mastery System | Melee targeting mode active');
+    // Show notification to help user understand what's happening
+    const validTargets = getValidMeleeTargets(token, reachGridUnits);
+    if (validTargets.length > 0) {
+        ui.notifications?.info(`Melee targeting active: ${reachMeters}m reach. ${validTargets.length} enemy(ies) in range. Click on an enemy to attack.`);
+    }
+    else {
+        ui.notifications?.info(`Melee targeting active: ${reachMeters}m reach. No enemies in range. Move enemies within the red area to attack.`);
+    }
+    console.log('Mastery System | Melee targeting mode active', {
+        reachMeters,
+        reachGridUnits,
+        token: token.name,
+        validTargets: validTargets.length
+    });
 }
 /**
  * Handle pointer down during melee targeting

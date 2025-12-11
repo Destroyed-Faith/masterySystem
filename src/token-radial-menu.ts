@@ -74,6 +74,7 @@ let msRadialMenu: PIXI.Container | null = null;
 let msRangePreviewGfx: PIXI.Graphics | null = null;
 let msRadialCloseHandler: ((event: MouseEvent) => void) | null = null;
 let msTokenHUD: JQuery | null = null; // Reference to the Token HUD element to hide/show
+let msCurrentTokenId: string | null = null; // ID of token with open radial menu
 
 /**
  * Parse range string (e.g., "8m", "12m", "Self") to numeric meters
@@ -174,6 +175,9 @@ export function closeRadialMenu(): void {
   clearRangePreview();
   hideRadialInfoPanel();
   
+  const previousTokenId = msCurrentTokenId;
+  msCurrentTokenId = null;
+  
   if (msRadialMenu && msRadialMenu.parent) {
     msRadialMenu.parent.removeChild(msRadialMenu);
   }
@@ -182,6 +186,11 @@ export function closeRadialMenu(): void {
   if (msRadialCloseHandler) {
     window.removeEventListener('mousedown', msRadialCloseHandler, true);
     msRadialCloseHandler = null;
+  }
+  
+  // Notify turn indicator that radial menu closed
+  if (previousTokenId) {
+    Hooks.call('masterySystem.radialMenuClosed', previousTokenId);
   }
   
   // Show Token HUD again if it was hidden
@@ -1413,11 +1422,15 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
   
   const root = new PIXI.Container();
   msRadialMenu = root;
+  msCurrentTokenId = token.id; // Track which token has the menu open
   root.name = 'ms-radial-menu-root';
   
   // Make root interactive so child events can be captured
   root.interactive = true;
   root.interactiveChildren = true; // Allow children to be interactive
+  
+  // Notify turn indicator that radial menu opened
+  Hooks.call('masterySystem.radialMenuOpened', token.id);
   
   console.log('Mastery System | Root container created:', {
     interactive: root.interactive,

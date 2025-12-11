@@ -15,6 +15,7 @@ import { MasteryItemSheet } from './sheets/item-sheet.js';
 // import { initializeCombatHooks } from '../dist/combat/initiative.js';
 import { calculateStones } from './utils/calculations.js';
 import { initializeTokenActionSelector } from './token-action-selector';
+import { initializeTurnIndicator } from './turn-indicator';
 
 // Dice roller functions are imported in sheets where needed
 
@@ -85,6 +86,9 @@ Hooks.once('init', async function() {
 
   // Initialize token action selector
   initializeTokenActionSelector();
+  
+  // Initialize turn indicator (blue ring around active combatant)
+  initializeTurnIndicator();
 
   // Preload Handlebars templates
   await preloadTemplates();
