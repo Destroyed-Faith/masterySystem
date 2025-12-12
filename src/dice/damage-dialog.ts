@@ -46,9 +46,13 @@ export async function showDamageDialog(
     attackerName: (attacker as any).name,
     targetName: (target as any).name,
     hasWeapon: !!weapon,
+    weaponName: weapon ? (weapon as any).name : 'none',
+    weaponDamage: weapon ? ((weapon.system as any)?.damage || (weapon.system as any)?.weaponDamage) : 'none',
     raises,
+    raisesType: typeof raises,
     hasFlags: !!flags,
-    selectedPower: flags?.selectedPower
+    selectedPower: flags?.selectedPower,
+    flagsKeys: flags ? Object.keys(flags) : []
   });
   
   // Calculate base damage from weapon
@@ -184,7 +188,22 @@ function createDamageCardContent(
     `;
   }
   
-  return `
+  console.log('Mastery System | DEBUG: createDamageCardContent - values', {
+    baseDamage,
+    powerDamage,
+    passiveDamage,
+    raises,
+    hasRaisesSection: !!raisesSection,
+    raisesSectionLength: raisesSection.length,
+    selectedPower: selectedPower ? {
+      name: selectedPower.name,
+      level: selectedPower.level,
+      specials: selectedPower.specials,
+      damage: selectedPower.damage
+    } : null
+  });
+  
+  const html = `
     <div class="mastery-damage-card">
       <div class="damage-header">
         <h3><i class="fas fa-sword"></i> Damage Calculation</h3>
@@ -229,6 +248,11 @@ function createDamageCardContent(
       </div>
     </div>
   `;
+  
+  console.log('Mastery System | DEBUG: createDamageCardContent - generated HTML length', html.length);
+  console.log('Mastery System | DEBUG: createDamageCardContent - HTML preview', html.substring(0, 500));
+  
+  return html;
 }
 
 /**

@@ -420,6 +420,16 @@ Hooks.once('ready', () => {
                     // Get equipped weapon
                     const items = attacker.items || [];
                     const equippedWeapon = items.find((item) => item.type === 'weapon' && item.system?.equipped === true);
+                    console.log('Mastery System | DEBUG: Equipped weapon search', {
+                        totalItems: items.length,
+                        weaponItems: items.filter((item) => item.type === 'weapon').length,
+                        equippedWeapon: equippedWeapon ? {
+                            id: equippedWeapon.id,
+                            name: equippedWeapon.name,
+                            damage: equippedWeapon.system?.damage || equippedWeapon.system?.weaponDamage,
+                            equipped: equippedWeapon.system?.equipped
+                        } : null
+                    });
                     // Get selected power data from flags
                     const selectedPowerId = flags.selectedPowerId;
                     const selectedPower = selectedPowerId ? items.find((item) => item.id === selectedPowerId) : null;
@@ -431,6 +441,13 @@ Hooks.once('ready', () => {
                         damage: flags.selectedPowerDamage || selectedPower.system?.roll?.damage || ''
                     } : null;
                     console.log('Mastery System | DEBUG: Selected power data', selectedPowerData);
+                    console.log('Mastery System | DEBUG: Raises value', {
+                        resultRaises: result.raises,
+                        resultRaisesType: typeof result.raises,
+                        resultSuccess: result.success,
+                        resultTotal: result.total,
+                        resultTN: result.tn
+                    });
                     // Import and show damage dialog
                     const { showDamageDialog } = await import('./dice/damage-dialog.js');
                     const damageResult = await showDamageDialog(attacker, target, equippedWeapon, result.raises, {
