@@ -792,6 +792,7 @@ async function confirmMeleeTarget(targetToken: any, state: MeleeTargetingState):
               console.log('Mastery System | DEBUG: Blocked non-numeric input:', char);
               return false;
             }
+            return true;
           });
           
           // Handle input changes

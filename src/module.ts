@@ -329,25 +329,26 @@ Hooks.on('getChatLogEntryContext', (_html: JQuery, options: any[]) => {
  * Handle attack roll button clicks in chat
  */
 Hooks.on('renderChatLog', (_app: any, html: JQuery, _data: any) => {
-  console.log('Mastery System | DEBUG: renderChatLog hook fired, setting up roll-attack-btn handler');
-  
-  // Check if buttons exist
-  const existingButtons = html.find('.roll-attack-btn');
-  console.log('Mastery System | DEBUG: Found existing roll-attack-btn buttons:', existingButtons.length);
-  if (existingButtons.length > 0) {
-    existingButtons.each((index, btn) => {
-      console.log('Mastery System | DEBUG: Button', index, {
-        id: $(btn).attr('id'),
-        classes: $(btn).attr('class'),
-        dataAttackerId: $(btn).data('attacker-id'),
-        html: $(btn).html()?.substring(0, 50)
+  try {
+    console.log('Mastery System | DEBUG: renderChatLog hook fired, setting up roll-attack-btn handler');
+    
+    // Check if buttons exist
+    const existingButtons = html.find('.roll-attack-btn');
+    console.log('Mastery System | DEBUG: Found existing roll-attack-btn buttons:', existingButtons.length);
+    if (existingButtons.length > 0) {
+      existingButtons.each((index, btn) => {
+        console.log('Mastery System | DEBUG: Button', index, {
+          id: $(btn).attr('id'),
+          classes: $(btn).attr('class'),
+          dataAttackerId: $(btn).data('attacker-id'),
+          html: $(btn).html()?.substring(0, 50)
+        });
       });
-    });
-  }
-  
-  // Use event delegation for attack roll buttons
-  console.log('Mastery System | DEBUG: Registering click handler for .roll-attack-btn');
-  html.off('click', '.roll-attack-btn').on('click', '.roll-attack-btn', async (ev: JQuery.ClickEvent) => {
+    }
+    
+    // Use event delegation for attack roll buttons
+    console.log('Mastery System | DEBUG: Registering click handler for .roll-attack-btn');
+    html.off('click', '.roll-attack-btn').on('click', '.roll-attack-btn', async (ev: JQuery.ClickEvent) => {
     console.log('Mastery System | DEBUG: Roll Attack button clicked!', {
       eventType: ev.type,
       target: ev.target,
@@ -456,6 +457,9 @@ Hooks.on('renderChatLog', (_app: any, html: JQuery, _data: any) => {
       button.prop('disabled', false).html('<i class="fas fa-dice-d20"></i> Roll Attack');
     }
   });
+  } catch (error) {
+    console.error('Mastery System | DEBUG: Error in renderChatLog hook:', error);
+  }
 });
 
 /**

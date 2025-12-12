@@ -600,7 +600,8 @@ async function confirmMeleeTarget(targetToken, state) {
         <label for="raises-input-${attacker.id}" style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
           <span style="font-weight: bold; color: #8b0000;">Raises:</span>
           <input type="number" class="raises-input" id="raises-input-${attacker.id}" 
-                 min="0" value="0" data-base-evade="${targetEvade}">
+                 min="0" value="0" step="1" inputmode="numeric" pattern="[0-9]*"
+                 data-base-evade="${targetEvade}">
           <span class="raises-hint">(+4 TN per raise)</span>
         </label>
       </div>
@@ -644,6 +645,32 @@ async function confirmMeleeTarget(targetToken, state) {
             }
         };
         const message = await ChatMessage.create(chatData);
+        console.log('Mastery System | DEBUG: Chat message created', {
+            messageId: message.id,
+            contentLength: attackCardContent.length
+        });
+        // Also add direct event handler to the button after message is created
+        setTimeout(() => {
+            const messageElement = $(`[data-message-id="${message.id}"]`);
+            const rollButton = messageElement.find(`[data-attacker-id="${attacker.id}"].roll-attack-btn`);
+            if (rollButton.length > 0) {
+                console.log('Mastery System | DEBUG: Adding direct click handler to button');
+                rollButton.off('click.mastery-direct').on('click.mastery-direct', async function (ev) {
+                    console.log('Mastery System | DEBUG: Direct button click handler fired!', {
+                        button: this,
+                        event: ev
+                    });
+                    // Trigger the main handler
+                    $(this).trigger('click');
+                });
+            }
+            else {
+                console.warn('Mastery System | DEBUG: Could not find button for direct handler', {
+                    messageId: message.id,
+                    attackerId: attacker.id
+                });
+            }
+        }, 200);
         // Initialize raises input handler
         const initializeRaisesInput = () => {
             const messageElement = $(`[data-message-id="${message.id}"]`);
@@ -667,10 +694,28 @@ async function confirmMeleeTarget(targetToken, state) {
                 });
                 if (raisesInput.length && displayEvade.length && rollButton.length) {
                     console.log('Mastery System | DEBUG: All elements found, attaching input handler');
+                    // Prevent non-numeric input
+                    raisesInput.off('keypress').on('keypress', function (e) {
+                        const char = String.fromCharCode(e.which);
+                        if (!/[0-9]/.test(char)) {
+                            e.preventDefault();
+                            console.log('Mastery System | DEBUG: Blocked non-numeric input:', char);
+                            return false;
+                        }
+                        return true;
+                    });
+                    // Handle input changes
                     raisesInput.off('input').on('input', function () {
-                        const raises = parseInt($(this).val()) || 0;
+                        let value = $(this).val();
+                        // Remove any non-numeric characters
+                        value = value.replace(/[^0-9]/g, '');
+                        if (value === '')
+                            value = '0';
+                        $(this).val(value);
+                        const raises = parseInt(value) || 0;
                         const adjustedEvade = baseEvade + (raises * 4);
                         console.log('Mastery System | DEBUG: Raises input changed', {
+                            rawValue: $(this).val(),
                             raises,
                             baseEvade,
                             adjustedEvade
