@@ -735,28 +735,6 @@ async function confirmMeleeTarget(targetToken: any, state: MeleeTargetingState):
       contentLength: attackCardContent.length
     });
     
-    // Also add direct event handler to the button after message is created
-    setTimeout(() => {
-      const messageElement = $(`[data-message-id="${message.id}"]`);
-      const rollButton = messageElement.find(`[data-attacker-id="${attacker.id}"].roll-attack-btn`);
-      if (rollButton.length > 0) {
-        console.log('Mastery System | DEBUG: Adding direct click handler to button');
-        rollButton.off('click.mastery-direct').on('click.mastery-direct', async function(ev: JQuery.ClickEvent) {
-          console.log('Mastery System | DEBUG: Direct button click handler fired!', {
-            button: this,
-            event: ev
-          });
-          // Trigger the main handler
-          $(this).trigger('click');
-        });
-      } else {
-        console.warn('Mastery System | DEBUG: Could not find button for direct handler', {
-          messageId: message.id,
-          attackerId: attacker.id
-        });
-      }
-    }, 200);
-    
     // Initialize raises input handler
     const initializeRaisesInput = () => {
       const messageElement = $(`[data-message-id="${message.id}"]`);
