@@ -13,7 +13,8 @@ const BaseActorSheet: any = (foundry as any)?.appv1?.sheets?.ActorSheet || (Acto
 export class MasteryCharacterSheet extends BaseActorSheet {
   /** @override */
   static get defaultOptions() {
-    const options = foundry.utils.mergeObject(super.defaultOptions as any, {
+    const baseOptions = super.defaultOptions || {};
+    const options = foundry.utils.mergeObject(baseOptions, {
       classes: ['mastery-system', 'sheet', 'actor', 'character'],
       template: 'systems/mastery-system/templates/actor/character-sheet.hbs',
       width: 720,
@@ -150,40 +151,40 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Check if character creation is complete
     context.creationComplete = context.system.creation?.complete !== false;
     
-    // Calculate creation point counters if in creation mode
-    if (!context.creationComplete) {
-      const masteryRank = context.system.mastery?.rank || 2;
-      const skillPointsConfig = (CONFIG as any).MASTERY?.creation?.skillPoints || 16;
-      
-      // Calculate attribute points spent
-      let attributePointsSpent = 0;
-      const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
-      for (const key of attributeKeys) {
-        const attrValue = context.system.attributes?.[key]?.value || masteryRank;
-        if (attrValue > masteryRank) {
-          attributePointsSpent += attrValue - masteryRank;
-        }
+    // Calculate creation point counters (always calculate, but only show if not complete)
+    const masteryRank = context.system.mastery?.rank || 2;
+    const skillPointsConfig = (CONFIG as any).MASTERY?.creation?.skillPoints || 16;
+    
+    // Calculate attribute points spent
+    let attributePointsSpent = 0;
+    const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
+    for (const key of attributeKeys) {
+      const attrValue = context.system.attributes?.[key]?.value || masteryRank;
+      if (attrValue > masteryRank) {
+        attributePointsSpent += attrValue - masteryRank;
       }
-      
-      // Calculate skill points spent
-      let skillPointsSpent = 0;
-      for (const skillValue of Object.values(context.system.skills || {})) {
-        skillPointsSpent += (typeof skillValue === 'number' ? skillValue : 0);
-      }
-      
-      // Calculate disadvantage points
-      const disadvantagePoints = (context.system.disadvantages || []).reduce((sum: number, d: any) => sum + (d.points || 0), 0);
-      
-      context.creation = {
-        masteryRank,
-        attributePointsRemaining: 16 - attributePointsSpent,
-        attributePointsSpent,
-        skillPointsRemaining: skillPointsConfig - skillPointsSpent,
-        skillPointsSpent,
-        disadvantagePoints,
-        canFinalize: attributePointsSpent === 16 && skillPointsSpent === skillPointsConfig
-      };
     }
+    
+    // Calculate skill points spent
+    let skillPointsSpent = 0;
+    for (const skillValue of Object.values(context.system.skills || {})) {
+      skillPointsSpent += (typeof skillValue === 'number' ? skillValue : 0);
+    }
+    
+    // Calculate disadvantage points
+    const disadvantagePoints = (context.system.disadvantages || []).reduce((sum: number, d: any) => sum + (d.points || 0), 0);
+    
+    // Always provide creation data for template (even if complete)
+    context.creation = {
+      masteryRank,
+      skillPointsConfig,
+      attributePointsRemaining: 16 - attributePointsSpent,
+      attributePointsSpent,
+      skillPointsRemaining: skillPointsConfig - skillPointsSpent,
+      skillPointsSpent,
+      disadvantagePoints,
+      canFinalize: attributePointsSpent === 16 && skillPointsSpent === skillPointsConfig
+    };
     
     // Get Mastery Rank from settings (per player or global default)
     const playerMasteryRanks = (game as any).settings.get('mastery-system', 'playerMasteryRanks') || {};
