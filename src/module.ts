@@ -310,7 +310,6 @@ async function preloadTemplates() {
     'systems/mastery-system/templates/dice/damage-dialog.hbs',
     
     // Character creation wizard
-    'systems/mastery-system/templates/dialogs/character-creation-wizard.hbs',
     'systems/mastery-system/templates/dialogs/disadvantage-config.hbs'
   ];
   

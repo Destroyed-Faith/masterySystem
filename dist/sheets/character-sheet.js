@@ -4,6 +4,7 @@
  */
 import { quickRoll } from '../dice/roll-handler.js';
 import { SKILLS } from '../utils/skills.js';
+import { DISADVANTAGES, getDisadvantageDefinition, calculateDisadvantagePoints, validateDisadvantageSelection } from '../system/disadvantages.js';
 // Use namespaced ActorSheet when available to avoid deprecation warnings
 const BaseActorSheet = foundry?.appv1?.sheets?.ActorSheet || ActorSheet;
 export class MasteryCharacterSheet extends BaseActorSheet {
@@ -355,6 +356,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('.skill-increase').on('click', this.#onCreationSkillIncrease.bind(this));
         html.find('.skill-decrease').on('click', this.#onCreationSkillDecrease.bind(this));
         html.find('.finalize-creation').on('click', this.#onFinalizeCreation.bind(this));
+        // Disadvantages buttons (only during creation)
+        html.find('.add-disadvantage-btn').on('click', this.#onAddDisadvantage.bind(this));
+        html.find('.disadvantage-edit-btn').on('click', this.#onEditDisadvantage.bind(this));
+        html.find('.disadvantage-remove-btn').on('click', this.#onRemoveDisadvantage.bind(this));
         // Profile image click handlers (work for everyone)
         // Use event delegation to handle clicks even if elements are added later
         const containers = html.find('.profile-img-container');
@@ -1160,6 +1165,164 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             [`system.skills.${skill}`]: currentValue - 1
         });
         this.render();
+    }
+    /**
+     * Add Disadvantage during Creation
+     */
+    async #onAddDisadvantage(event) {
+        event.preventDefault();
+        // Show selection dialog
+        const disadvantageOptions = DISADVANTAGES.map(d => ({
+            value: d.id,
+            label: `${d.name} (${Array.isArray(d.basePoints) ? d.basePoints.join('/') : d.basePoints} pts)`
+        }));
+        const content = `
+      <form>
+        <div class="form-group">
+          <label>Select Disadvantage:</label>
+          <select name="disadvantageId" id="disadvantageId">
+            <option value="">-- Select --</option>
+            ${disadvantageOptions.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join('')}
+          </select>
+        </div>
+      </form>
+    `;
+        const dialog = new Dialog({
+            title: 'Add Disadvantage',
+            content,
+            buttons: {
+                configure: {
+                    label: 'Configure',
+                    callback: async (html) => {
+                        const disadvantageId = html.find('[name="disadvantageId"]').val();
+                        if (!disadvantageId) {
+                            ui.notifications?.warn('Please select a disadvantage.');
+                            return false;
+                        }
+                        const def = getDisadvantageDefinition(disadvantageId);
+                        if (!def)
+                            return false;
+                        // Open configuration dialog
+                        await this.#openDisadvantageConfigDialog(def);
+                        return true;
+                    }
+                },
+                cancel: {
+                    label: 'Cancel',
+                    callback: () => { }
+                }
+            },
+            default: 'configure'
+        });
+        await dialog.render(true);
+    }
+    /**
+     * Edit Disadvantage during Creation
+     */
+    async #onEditDisadvantage(event) {
+        event.preventDefault();
+        const index = parseInt($(event.currentTarget).data('index') || '0');
+        const system = this.actor.system;
+        const disadvantages = system.disadvantages || [];
+        if (index < 0 || index >= disadvantages.length)
+            return;
+        const selection = disadvantages[index];
+        const def = getDisadvantageDefinition(selection.id);
+        if (!def)
+            return;
+        await this.#openDisadvantageConfigDialog(def, index, selection.details);
+    }
+    /**
+     * Remove Disadvantage during Creation
+     */
+    async #onRemoveDisadvantage(event) {
+        event.preventDefault();
+        const index = parseInt($(event.currentTarget).data('index') || '0');
+        const system = this.actor.system;
+        const disadvantages = [...(system.disadvantages || [])];
+        if (index < 0 || index >= disadvantages.length)
+            return;
+        const removed = disadvantages[index];
+        disadvantages.splice(index, 1);
+        await this.actor.update({ 'system.disadvantages': disadvantages });
+        ui.notifications?.info(`Removed ${removed.name}`);
+        this.render();
+    }
+    /**
+     * Open Disadvantage Configuration Dialog
+     */
+    async #openDisadvantageConfigDialog(def, editIndex, existingDetails) {
+        const content = await foundry.applications.handlebars.renderTemplate('systems/mastery-system/templates/dialogs/disadvantage-config.hbs', {
+            disadvantage: def,
+            details: existingDetails || {}
+        });
+        new Dialog({
+            title: `${editIndex !== undefined ? 'Edit' : 'Add'} ${def.name}`,
+            content,
+            buttons: {
+                save: {
+                    icon: '<i class="fas fa-check"></i>',
+                    label: 'Save',
+                    callback: async (html) => {
+                        const details = {};
+                        for (const field of def.fields || []) {
+                            if (field.type === 'number') {
+                                details[field.name] = parseInt($(html).find(`[name="${field.name}"]`).val()) || 0;
+                            }
+                            else if (field.type === 'select') {
+                                details[field.name] = $(html).find(`[name="${field.name}"]`).val();
+                            }
+                            else {
+                                details[field.name] = $(html).find(`[name="${field.name}"]`).val() || '';
+                            }
+                        }
+                        const points = calculateDisadvantagePoints(def.id, details);
+                        const system = this.actor.system;
+                        const currentDisadvantages = [...(system.disadvantages || [])];
+                        // Remove the one being edited if editing
+                        if (editIndex !== undefined) {
+                            currentDisadvantages.splice(editIndex, 1);
+                        }
+                        // Add new selection
+                        const newSelection = { id: def.id, details };
+                        const validation = validateDisadvantageSelection([...currentDisadvantages, newSelection]);
+                        if (!validation.valid) {
+                            ui.notifications?.error(validation.error || 'Invalid disadvantage selection');
+                            return false;
+                        }
+                        // Update actor
+                        if (editIndex !== undefined) {
+                            currentDisadvantages[editIndex] = {
+                                id: def.id,
+                                name: def.name,
+                                points,
+                                details,
+                                description: def.description
+                            };
+                        }
+                        else {
+                            currentDisadvantages.push({
+                                id: def.id,
+                                name: def.name,
+                                points,
+                                details,
+                                description: def.description
+                            });
+                        }
+                        await this.actor.update({ 'system.disadvantages': currentDisadvantages });
+                        ui.notifications?.info(`${editIndex !== undefined ? 'Updated' : 'Added'} ${def.name} (${points} points)`);
+                        this.render();
+                        return true;
+                    }
+                },
+                cancel: {
+                    icon: '<i class="fas fa-times"></i>',
+                    label: 'Cancel',
+                    callback: () => { }
+                }
+            },
+            default: 'save'
+        }).render(true);
     }
     /**
      * Finalize Character Creation

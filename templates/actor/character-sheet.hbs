@@ -843,13 +843,31 @@
         </div>
       </div>
       
+      {{#unless creationComplete}}
+      <div class="disadvantages-creation-controls">
+        <button type="button" class="add-disadvantage-btn" title="Add Disadvantage">
+          <i class="fas fa-plus"></i> Add Disadvantage
+        </button>
+      </div>
+      {{/unless}}
+      
       {{#if disadvantages.length}}
       <div class="disadvantages-list">
-        {{#each disadvantages as |disadvantage|}}
-        <div class="disadvantage-card-sheet">
+        {{#each disadvantages as |disadvantage index|}}
+        <div class="disadvantage-card-sheet" data-index="{{index}}">
           <div class="disadvantage-header-sheet">
             <h4>{{disadvantage.name}}</h4>
-            <span class="disadvantage-points-sheet">{{disadvantage.points}} pts</span>
+            <div class="disadvantage-controls">
+              <span class="disadvantage-points-sheet">{{disadvantage.points}} pts</span>
+              {{#unless ../creationComplete}}
+              <button type="button" class="disadvantage-edit-btn" data-index="{{index}}" title="Edit">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button type="button" class="disadvantage-remove-btn" data-index="{{index}}" title="Remove">
+                <i class="fas fa-trash"></i>
+              </button>
+              {{/unless}}
+            </div>
           </div>
           {{#if disadvantage.description}}
           <p class="disadvantage-description-sheet">{{disadvantage.description}}</p>
@@ -872,7 +890,7 @@
       
       {{#unless creationComplete}}
       <div class="creation-note">
-        <p><i class="fas fa-info-circle"></i> Disadvantages can be selected during character creation.</p>
+        <p><i class="fas fa-info-circle"></i> You can select up to 8 points of disadvantages. These will set your starting Faith Fractures.</p>
       </div>
       {{/unless}}
     </div>

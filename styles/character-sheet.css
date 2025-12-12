@@ -2161,6 +2161,12 @@
   margin-bottom: 10px;
 }
 
+.mastery-system.sheet.actor.character .disadvantage-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .mastery-system.sheet.actor.character .disadvantage-header-sheet h4 {
   margin: 0;
   color: #8b0000;
@@ -2193,6 +2199,59 @@
   margin: 5px 0;
   font-size: 14px;
   color: #444;
+}
+
+.mastery-system.sheet.actor.character .disadvantages-creation-controls {
+  margin-bottom: 20px;
+}
+
+.mastery-system.sheet.actor.character .add-disadvantage-btn {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #8b0000 0%, #a00000 100%);
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mastery-system.sheet.actor.character .add-disadvantage-btn:hover {
+  background: linear-gradient(135deg, #a00000 0%, #c00000 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 0, 0, 0.3);
+}
+
+.mastery-system.sheet.actor.character .disadvantage-edit-btn,
+.mastery-system.sheet.actor.character .disadvantage-remove-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fff;
+  color: #666;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.mastery-system.sheet.actor.character .disadvantage-edit-btn:hover {
+  background: #e3f2fd;
+  border-color: #2196f3;
+  color: #2196f3;
+}
+
+.mastery-system.sheet.actor.character .disadvantage-remove-btn:hover {
+  background: #ffebee;
+  border-color: #f44336;
+  color: #f44336;
 }
 
 .mastery-system.sheet.actor.character .creation-note {
