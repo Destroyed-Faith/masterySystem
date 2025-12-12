@@ -59,6 +59,8 @@ Hooks.once('init', async function () {
     registerSystemSettings();
     // Register Handlebars helpers
     registerHandlebarsHelpers();
+    // Register CONFIG constants
+    registerConfigConstants();
     // Initialize combat hooks (dynamically imported to avoid build errors)
     // Note: Combat hooks are optional - if the file doesn't exist, we continue without them
     // The file may not exist, so we use a try-catch to handle this gracefully
@@ -140,6 +142,30 @@ function registerHandlebarsHelpers() {
     // Helper to check if user is GM
     Handlebars.registerHelper('userIsGM', function () {
         return game.user?.isGM ?? false;
+    });
+    // Helper for equality comparison
+    Handlebars.registerHelper('eq', function (a, b) {
+        return a === b;
+    });
+    // Helper to check if value is an array
+    Handlebars.registerHelper('isArray', function (value) {
+        return Array.isArray(value);
+    });
+    // Helper to capitalize first letter
+    Handlebars.registerHelper('capitalize', function (str) {
+        if (!str)
+            return '';
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    });
+    // Helper to reduce array (sum)
+    Handlebars.registerHelper('reduce', function (array, initial, property) {
+        if (!Array.isArray(array))
+            return initial;
+        return array.reduce((sum, item) => sum + (item[property] || 0), initial);
+    });
+    // Helper to lookup value in object
+    Handlebars.registerHelper('lookup', function (obj, key) {
+        return obj && obj[key];
     });
 }
 /**
@@ -237,7 +263,10 @@ async function preloadTemplates() {
         // Item sheets (only load existing templates)
         'systems/mastery-system/templates/item/special-sheet.hbs',
         // Dice dialogs
-        'systems/mastery-system/templates/dice/damage-dialog.hbs'
+        'systems/mastery-system/templates/dice/damage-dialog.hbs',
+        // Character creation wizard
+        'systems/mastery-system/templates/dialogs/character-creation-wizard.hbs',
+        'systems/mastery-system/templates/dialogs/disadvantage-config.hbs'
     ];
     try {
         await foundry.applications.handlebars.loadTemplates(templatePaths);
@@ -246,6 +275,57 @@ async function preloadTemplates() {
         console.warn('Mastery System | Some templates could not be loaded:', error);
     }
 }
+/**
+ * Register CONFIG constants
+ */
+function registerConfigConstants() {
+    if (!CONFIG.MASTERY) {
+        CONFIG.MASTERY = {};
+    }
+    CONFIG.MASTERY.creation = {
+        attributePoints: 16,
+        skillPoints: 16, // Configurable - can be changed later
+        maxAttributeAtCreation: 8,
+        maxSkillAtCreation: 4,
+        maxDisadvantagePoints: 8
+    };
+}
+/**
+ * Character Creation Hooks
+ */
+Hooks.on('preCreateActor', async (actor, data, _options, _userId) => {
+    // Set creationComplete=false for new character actors
+    if (actor.type === 'character') {
+        if (!data.system) {
+            data.system = {};
+        }
+        if (!data.system.creation) {
+            data.system.creation = {};
+        }
+        data.system.creation.complete = false;
+        console.log('Mastery System | New character created - setting creationComplete=false');
+    }
+});
+/**
+ * Migration hook - set creationComplete=true for existing characters without the flag
+ */
+Hooks.once('ready', async function () {
+    console.log('Mastery System | Running character creation migration...');
+    // Get all character actors
+    const characters = game.actors?.filter((a) => a.type === 'character') || [];
+    let migrated = 0;
+    for (const actor of characters) {
+        const system = actor.system;
+        // If creation.complete is undefined or null, set it to true (existing character)
+        if (system?.creation?.complete === undefined || system?.creation?.complete === null) {
+            await actor.update({ 'system.creation.complete': true });
+            migrated++;
+        }
+    }
+    if (migrated > 0) {
+        console.log(`Mastery System | Migrated ${migrated} existing characters (set creationComplete=true)`);
+    }
+});
 /**
  * Ready hook - called when Foundry is fully loaded and ready
  */

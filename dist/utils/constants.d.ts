@@ -24,4 +24,11 @@ export declare const INITIATIVE_SHOP: {
         COST: number;
     };
 };
+export declare const CREATION: {
+    ATTRIBUTE_POINTS: number;
+    SKILL_POINTS: number;
+    MAX_ATTRIBUTE_AT_CREATION: number;
+    MAX_SKILL_AT_CREATION: number;
+    MAX_DISADVANTAGE_POINTS: number;
+};
 //# sourceMappingURL=constants.d.ts.map

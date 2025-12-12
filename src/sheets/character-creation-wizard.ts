@@ -199,7 +199,6 @@ export class CharacterCreationWizard extends BaseApplication {
   #onAttributeIncrease(event: JQuery.ClickEvent) {
     const attribute = $(event.currentTarget).data('attribute');
     const current = this.state.attributes[attribute] || 0;
-    const masteryRank = ((this.actor as any).system.mastery?.rank || 2);
 
     if (current < CREATION.MAX_ATTRIBUTE_AT_CREATION && this.state.attributePointsSpent < CREATION.ATTRIBUTE_POINTS) {
       this.state.attributes[attribute] = current + 1;
@@ -336,6 +335,7 @@ export class CharacterCreationWizard extends BaseApplication {
             }
 
             this.render();
+            return true;
           }
         },
         cancel: {
@@ -387,20 +387,19 @@ export class CharacterCreationWizard extends BaseApplication {
 
     // Sync Faith Fractures
     const disadvantagePoints = this.state.disadvantagePointsSpent;
-    const currentFF = ((this.actor as any).system.faithFractures?.current || 0);
     const maxFF = ((this.actor as any).system.faithFractures?.maximum || 10);
 
     updateData['system.faithFractures.current'] = Math.min(disadvantagePoints, maxFF);
     updateData['system.faithFractures.maximum'] = Math.max(disadvantagePoints, maxFF);
 
     try {
-      await this.actor.update(updateData);
+      await (this.actor as any).update(updateData);
       ui.notifications?.info('Character creation complete!');
       this.close();
       
       // Re-render the actor sheet
-      if (this.actor.sheet?.rendered) {
-        this.actor.sheet.render();
+      if ((this.actor as any).sheet?.rendered) {
+        (this.actor as any).sheet.render();
       }
     } catch (error) {
       console.error('Mastery System | Failed to finalize character creation', error);

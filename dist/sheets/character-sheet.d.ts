@@ -15,6 +15,8 @@ export declare class MasteryCharacterSheet extends BaseActorSheet {
     render(force?: boolean, options?: any): Promise<any>;
     /** @override */
     activateListeners(html: JQuery): void;
+    /** @override */
+    _onSubmit(event: Event, options?: any): Promise<any>;
 }
 export {};
 //# sourceMappingURL=character-sheet.d.ts.map

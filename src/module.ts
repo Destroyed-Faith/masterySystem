@@ -341,7 +341,7 @@ function registerConfigConstants() {
 /**
  * Character Creation Hooks
  */
-Hooks.on('preCreateActor', async (actor: any, data: any, options: any, userId: string) => {
+Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId: string) => {
   // Set creationComplete=false for new character actors
   if (actor.type === 'character') {
     if (!data.system) {

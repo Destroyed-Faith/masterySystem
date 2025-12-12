@@ -136,6 +136,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Add system data
         context.system = actorData.system;
         context.flags = actorData.flags;
+        // Check if character creation is complete
+        context.creationComplete = context.system.creation?.complete !== false;
         // Get Mastery Rank from settings (per player or global default)
         const playerMasteryRanks = game.settings.get('mastery-system', 'playerMasteryRanks') || {};
         const defaultMasteryRank = game.settings.get('mastery-system', 'defaultMasteryRank') || 2;
@@ -160,6 +162,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         context.derivedValues = this.#calculateDerivedValues(context.system);
         // Add skills list (sorted alphabetically)
         context.skills = this.#prepareSkills(context.system.skills);
+        // Prepare disadvantages
+        context.disadvantages = context.system.disadvantages || [];
+        context.disadvantagePointsTotal = context.disadvantages.reduce((sum, d) => sum + (d.points || 0), 0);
         // Ensure token image is available
         if (!context.actor.prototypeToken?.texture?.src) {
             context.actor.prototypeToken = context.actor.prototypeToken || {};
@@ -292,6 +297,89 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             htmlLength: html.length,
             actorName: this.actor?.name
         });
+        // Character Creation Wizard button
+        const wizardButton = html.find('.open-creation-wizard');
+        const unlockButton = html.find('.force-unlock-creation');
+        console.log('Mastery System | Setting up creation wizard buttons', {
+            wizardButtonFound: wizardButton.length,
+            unlockButtonFound: unlockButton.length,
+            wizardButtonHTML: wizardButton.length > 0 ? wizardButton[0].outerHTML.substring(0, 200) : 'NOT FOUND',
+            unlockButtonHTML: unlockButton.length > 0 ? unlockButton[0].outerHTML.substring(0, 200) : 'NOT FOUND',
+            htmlLength: html.length,
+            htmlContent: html.html()?.substring(0, 500)
+        });
+        if (wizardButton.length > 0) {
+            console.log('Mastery System | Wizard button found, attaching handler');
+            wizardButton.off('click.creation-wizard').on('click.creation-wizard', (e) => {
+                console.log('Mastery System | Wizard button CLICKED!', {
+                    event: e,
+                    target: e.target,
+                    currentTarget: e.currentTarget,
+                    button: $(e.currentTarget)
+                });
+                this.#onOpenCreationWizard(e);
+            });
+            // Also try direct click handler as backup
+            wizardButton[0].addEventListener('click', (e) => {
+                console.log('Mastery System | Wizard button CLICKED (addEventListener)!', e);
+                e.preventDefault();
+                e.stopPropagation();
+                this.#onOpenCreationWizard(e);
+            }, true);
+        }
+        else {
+            console.error('Mastery System | Wizard button NOT FOUND in HTML!');
+        }
+        if (unlockButton.length > 0) {
+            console.log('Mastery System | Unlock button found, attaching handler');
+            unlockButton.off('click.force-unlock').on('click.force-unlock', (e) => {
+                console.log('Mastery System | Unlock button CLICKED!', e);
+                this.#onForceUnlockCreation(e);
+            });
+        }
+        else {
+            console.warn('Mastery System | Unlock button NOT FOUND in HTML!');
+        }
+        // Check if creation is incomplete and lock sheet
+        const creationComplete = this.actor.system?.creation?.complete !== false;
+        console.log('Mastery System | Creation complete check', {
+            creationComplete,
+            systemCreation: this.actor.system?.creation,
+            willLock: !creationComplete
+        });
+        if (!creationComplete) {
+            console.log('Mastery System | Locking sheet for creation');
+            this.#lockSheetForCreation(html);
+            // Add global click listener for debugging
+            setTimeout(() => {
+                const overlay = html.find('.creation-lock-overlay');
+                const banner = html.find('.creation-lock-banner');
+                const wizardBtn = html.find('.open-creation-wizard');
+                console.log('Mastery System | Debug: Overlay elements after lock', {
+                    overlayFound: overlay.length,
+                    bannerFound: banner.length,
+                    wizardBtnFound: wizardBtn.length,
+                    overlayHTML: overlay.length > 0 ? overlay[0].outerHTML.substring(0, 300) : 'NOT FOUND',
+                    wizardBtnHTML: wizardBtn.length > 0 ? wizardBtn[0].outerHTML : 'NOT FOUND'
+                });
+                // Test if button is actually in DOM
+                const testBtn = document.querySelector('.open-creation-wizard');
+                console.log('Mastery System | Debug: Button in document.querySelector', {
+                    found: !!testBtn,
+                    element: testBtn
+                });
+                // Add click listener directly to document for testing
+                document.addEventListener('click', (e) => {
+                    const target = e.target;
+                    if (target?.closest('.open-creation-wizard')) {
+                        console.log('Mastery System | DEBUG: Click detected on wizard button via document listener!', {
+                            target,
+                            button: target.closest('.open-creation-wizard')
+                        });
+                    }
+                }, true);
+            }, 500);
+        }
         // Roll buttons work for everyone
         html.find('.attribute-roll').on('click', this.#onAttributeRoll.bind(this));
         html.find('.skill-roll').on('click', this.#onSkillRoll.bind(this));
@@ -954,6 +1042,136 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 ui.notifications?.error('Failed to display image.');
             }
         }
+    }
+    /**
+     * Lock sheet when character creation is incomplete
+     */
+    #lockSheetForCreation(html) {
+        // Disable all input fields
+        html.find('input, textarea, select').prop('disabled', true);
+        // Disable buttons (except creation wizard and force unlock buttons)
+        html.find('button:not(.open-creation-wizard):not(.force-unlock-creation)').prop('disabled', true);
+        // Ensure wizard and unlock buttons are NOT disabled
+        html.find('.open-creation-wizard, .force-unlock-creation').prop('disabled', false);
+        // Add CSS class for styling
+        html.addClass('creation-incomplete');
+    }
+    /**
+     * Open Character Creation Wizard
+     */
+    async #onOpenCreationWizard(event) {
+        console.log('Mastery System | #onOpenCreationWizard CALLED', {
+            eventType: event.type,
+            event: event,
+            actor: this.actor?.name,
+            actorId: this.actor?.id
+        });
+        if (event.preventDefault) {
+            event.preventDefault();
+        }
+        if (event.stopPropagation) {
+            event.stopPropagation();
+        }
+        console.log('Mastery System | Starting wizard import process...');
+        try {
+            // Try relative path first (for development)
+            let wizardModule;
+            let importPath = '';
+            try {
+                importPath = './character-creation-wizard.js';
+                console.log('Mastery System | Attempting import from:', importPath);
+                wizardModule = await import(importPath);
+                console.log('Mastery System | Import successful from relative path', {
+                    module: wizardModule,
+                    hasFunction: !!wizardModule?.openCharacterCreationWizard
+                });
+            }
+            catch (e) {
+                console.warn('Mastery System | Relative import failed, trying system path', e);
+                // Fallback to full system path (for runtime)
+                try {
+                    importPath = 'systems/mastery-system/dist/sheets/character-creation-wizard.js';
+                    console.log('Mastery System | Attempting import from:', importPath);
+                    wizardModule = await import(importPath);
+                    console.log('Mastery System | Import successful from system path', {
+                        module: wizardModule,
+                        hasFunction: !!wizardModule?.openCharacterCreationWizard
+                    });
+                }
+                catch (e2) {
+                    console.error('Mastery System | Both import paths failed', {
+                        relativeError: e,
+                        systemError: e2
+                    });
+                    throw e2;
+                }
+            }
+            console.log('Mastery System | Checking for openCharacterCreationWizard function...', {
+                moduleKeys: Object.keys(wizardModule || {}),
+                hasFunction: !!wizardModule?.openCharacterCreationWizard,
+                functionType: typeof wizardModule?.openCharacterCreationWizard
+            });
+            if (wizardModule?.openCharacterCreationWizard) {
+                console.log('Mastery System | Calling openCharacterCreationWizard with actor:', this.actor);
+                const result = wizardModule.openCharacterCreationWizard(this.actor);
+                console.log('Mastery System | Wizard opened, result:', result);
+            }
+            else {
+                console.error('Mastery System | openCharacterCreationWizard function not found in module', {
+                    module: wizardModule,
+                    moduleKeys: Object.keys(wizardModule || {}),
+                    availableExports: Object.keys(wizardModule || {})
+                });
+                ui.notifications?.error('Character Creation Wizard module not found. Check console for details.');
+            }
+        }
+        catch (error) {
+            console.error('Mastery System | Failed to open character creation wizard', {
+                error,
+                errorMessage: error instanceof Error ? error.message : String(error),
+                errorStack: error instanceof Error ? error.stack : 'No stack',
+                actor: this.actor?.name
+            });
+            ui.notifications?.error(`Failed to open Character Creation Wizard: ${error instanceof Error ? error.message : String(error)}`);
+        }
+    }
+    /**
+     * Force unlock creation (GM only)
+     */
+    async #onForceUnlockCreation(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        console.log('Mastery System | Force Unlock clicked');
+        if (!game.user?.isGM) {
+            ui.notifications?.warn('Only the GM can force unlock character creation.');
+            return;
+        }
+        const confirmed = await Dialog.confirm({
+            title: 'Force Unlock Character Creation',
+            content: '<p>Are you sure you want to mark this character\'s creation as complete? This will unlock the sheet for editing.</p>'
+        });
+        if (confirmed) {
+            try {
+                await this.actor.update({ 'system.creation.complete': true });
+                ui.notifications?.info('Character creation marked as complete.');
+                this.render();
+            }
+            catch (error) {
+                console.error('Mastery System | Failed to force unlock', error);
+                ui.notifications?.error('Failed to unlock character creation.');
+            }
+        }
+    }
+    /** @override */
+    async _onSubmit(event, options) {
+        // Block updates if creation is incomplete
+        const creationComplete = this.actor.system?.creation?.complete !== false;
+        if (!creationComplete && !game.user?.isGM) {
+            event.preventDefault();
+            ui.notifications?.warn('Character creation is incomplete. Please complete character creation first.');
+            return false;
+        }
+        return super._onSubmit(event, options);
     }
 }
 //# sourceMappingURL=character-sheet.js.map
