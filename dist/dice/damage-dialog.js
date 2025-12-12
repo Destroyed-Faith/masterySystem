@@ -28,7 +28,13 @@ export async function showDamageDialog(attacker, target, weapon, raises, _flags)
         weaponSpecials
     };
     return new Promise((resolve) => {
-        new DamageDialog(dialogData, resolve).render(true);
+        const dialog = new DamageDialog(dialogData, resolve);
+        console.log('Mastery System | DEBUG: Creating DamageDialog', {
+            hasData: !!dialogData,
+            raises: dialogData.raises,
+            template: DamageDialog.defaultOptions.template
+        });
+        dialog.render(true);
     });
 }
 /**
@@ -169,9 +175,15 @@ class DamageDialog extends Application {
         super({});
         this.data = data;
         this.resolve = resolve;
+        console.log('Mastery System | DEBUG: DamageDialog constructor', {
+            hasData: !!data,
+            raises: data.raises,
+            baseDamage: data.baseDamage,
+            availableSpecials: data.availableSpecials?.length || 0
+        });
     }
     static get defaultOptions() {
-        const opts = foundry.utils.mergeObject({}, super.defaultOptions || {});
+        const opts = super.defaultOptions;
         opts.id = 'mastery-damage-dialog';
         opts.title = 'Calculate Damage';
         opts.template = 'systems/mastery-system/templates/dice/damage-dialog.hbs';
@@ -179,28 +191,25 @@ class DamageDialog extends Application {
         opts.height = 'auto';
         opts.resizable = true;
         opts.classes = ['mastery-damage-dialog'];
+        opts.popOut = true;
+        console.log('Mastery System | DEBUG: DamageDialog defaultOptions', opts);
         return opts;
     }
-    // Implement required methods for Handlebars templates (Foundry VTT v13)
-    async _renderHTML(data) {
-        const template = this.constructor.defaultOptions.template || this.options.template;
-        if (!template) {
-            throw new Error('Template path is required');
-        }
-        const html = await foundry.applications.handlebars.renderTemplate(template, data);
-        return $(html);
-    }
-    async _replaceHTML(element, html) {
-        element.replaceWith(html);
-    }
     async getData() {
-        return {
+        const data = {
             ...this.data,
             raiseSelections: Array.from(this.raiseSelections.entries()).map(([index, selection]) => ({
                 index,
                 ...selection
             }))
         };
+        console.log('Mastery System | DEBUG: DamageDialog getData()', {
+            hasData: !!this.data,
+            raises: this.data.raises,
+            baseDamage: this.data.baseDamage,
+            availableSpecials: this.data.availableSpecials?.length || 0
+        });
+        return data;
     }
     activateListeners(html) {
         super.activateListeners(html);

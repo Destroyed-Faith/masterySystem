@@ -231,7 +231,9 @@ async function preloadTemplates() {
         'systems/mastery-system/templates/actor/character-sheet.hbs',
         'systems/mastery-system/templates/actor/npc-sheet.hbs',
         // Item sheets (only load existing templates)
-        'systems/mastery-system/templates/item/special-sheet.hbs'
+        'systems/mastery-system/templates/item/special-sheet.hbs',
+        // Dice dialogs
+        'systems/mastery-system/templates/dice/damage-dialog.hbs'
     ];
     try {
         await foundry.applications.handlebars.loadTemplates(templatePaths);
