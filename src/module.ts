@@ -346,10 +346,20 @@ Hooks.once('ready', () => {
     
     const button = $(ev.currentTarget);
     const messageElement = button.closest('.message');
-    const messageId = messageElement.data('messageId');
+    
+    // Try multiple methods to get message ID (Foundry VTT uses data-message-id attribute)
+    const messageId = messageElement.attr('data-message-id') || 
+                      messageElement.data('message-id') || 
+                      messageElement.data('messageId');
     
     console.log('Mastery System | DEBUG: Button click details', {
       messageId,
+      messageElementAttrs: {
+        'data-message-id': messageElement.attr('data-message-id'),
+        'data-messageId': messageElement.attr('data-messageId'),
+        'id': messageElement.attr('id'),
+        'class': messageElement.attr('class')
+      },
       buttonData: {
         attackerId: button.data('attacker-id'),
         targetId: button.data('target-id'),
@@ -364,18 +374,29 @@ Hooks.once('ready', () => {
     });
     
     if (!messageId) {
-      console.warn('Mastery System | Could not find message ID for attack roll');
+      console.warn('Mastery System | Could not find message ID for attack roll', {
+        messageElementHtml: messageElement[0]?.outerHTML?.substring(0, 200),
+        allDataAttrs: Array.from(messageElement[0]?.attributes || []).map((attr: any) => `${attr.name}="${attr.value}"`)
+      });
       return;
     }
     
     const message = (game as any).messages?.get(messageId);
     if (!message) {
-      console.warn('Mastery System | Could not find message for attack roll');
+      const allMessageIds = (game as any).messages ? Array.from((game as any).messages.keys()) : [];
+      console.warn('Mastery System | Could not find message for attack roll', {
+        messageId,
+        allMessageIds: allMessageIds.slice(0, 10) // Only show first 10 for debugging
+      });
       return;
     }
     
+    // Debug: Check all flags on the message
+    const allFlags = message.flags;
+    console.log('Mastery System | DEBUG: All message flags', allFlags);
+    
     const flags = message.getFlag('mastery-system');
-    console.log('Mastery System | DEBUG: Message flags', flags);
+    console.log('Mastery System | DEBUG: Message flags (mastery-system)', flags);
     
     if (!flags || flags.attackType !== 'melee') {
       console.warn('Mastery System | DEBUG: Invalid flags or not melee attack', { flags, attackType: flags?.attackType });
@@ -449,20 +470,24 @@ Hooks.once('ready', () => {
  * Also handle renderChatLog to ensure handler is set up
  */
 Hooks.on('renderChatLog', (_app: any, html: JQuery, _data: any) => {
-  console.log('Mastery System | DEBUG: renderChatLog hook fired');
-  
-  // Check if buttons exist in the rendered HTML
-  const existingButtons = html.find('.roll-attack-btn');
-  console.log('Mastery System | DEBUG: Found existing roll-attack-btn buttons:', existingButtons.length);
-  if (existingButtons.length > 0) {
-    existingButtons.each((index, btn) => {
-      console.log('Mastery System | DEBUG: Button', index, {
-        id: $(btn).attr('id'),
-        classes: $(btn).attr('class'),
-        dataAttackerId: $(btn).data('attacker-id'),
-        html: $(btn).html()?.substring(0, 50)
+  try {
+    console.log('Mastery System | DEBUG: renderChatLog hook fired');
+    
+    // Check if buttons exist in the rendered HTML
+    const existingButtons = html.find('.roll-attack-btn');
+    console.log('Mastery System | DEBUG: Found existing roll-attack-btn buttons:', existingButtons.length);
+    if (existingButtons.length > 0) {
+      existingButtons.each((index, btn) => {
+        console.log('Mastery System | DEBUG: Button', index, {
+          id: $(btn).attr('id'),
+          classes: $(btn).attr('class'),
+          dataAttackerId: $(btn).data('attacker-id'),
+          html: $(btn).html()?.substring(0, 50)
+        });
       });
-    });
+    }
+  } catch (error) {
+    console.error('Mastery System | DEBUG: Error in renderChatLog hook', error);
   }
 });
 
