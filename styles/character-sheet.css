@@ -1940,6 +1940,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  pointer-events: auto;
 }
 
 .mastery-system.sheet.actor.character .creation-lock-banner {
@@ -1950,6 +1951,9 @@
   text-align: center;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   max-width: 500px;
+  pointer-events: auto;
+  position: relative;
+  z-index: 1001;
 }
 
 .mastery-system.sheet.actor.character .creation-lock-banner h2 {

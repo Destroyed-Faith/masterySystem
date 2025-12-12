@@ -336,8 +336,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     });
     
     // Character Creation Wizard button
-    html.find('.open-creation-wizard').on('click', this.#onOpenCreationWizard.bind(this));
-    html.find('.force-unlock-creation').on('click', this.#onForceUnlockCreation.bind(this));
+    const wizardButton = html.find('.open-creation-wizard');
+    const unlockButton = html.find('.force-unlock-creation');
+    console.log('Mastery System | Setting up creation wizard buttons', {
+      wizardButtonFound: wizardButton.length,
+      unlockButtonFound: unlockButton.length
+    });
+    
+    wizardButton.off('click.creation-wizard').on('click.creation-wizard', this.#onOpenCreationWizard.bind(this));
+    unlockButton.off('click.force-unlock').on('click.force-unlock', this.#onForceUnlockCreation.bind(this));
     
     // Check if creation is incomplete and lock sheet
     const creationComplete = (this.actor as any).system?.creation?.complete !== false;
@@ -1118,8 +1125,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Disable all input fields
     html.find('input, textarea, select').prop('disabled', true);
     
-    // Disable buttons (except creation wizard button)
+    // Disable buttons (except creation wizard and force unlock buttons)
     html.find('button:not(.open-creation-wizard):not(.force-unlock-creation)').prop('disabled', true);
+    
+    // Ensure wizard and unlock buttons are NOT disabled
+    html.find('.open-creation-wizard, .force-unlock-creation').prop('disabled', false);
     
     // Add CSS class for styling
     html.addClass('creation-incomplete');
@@ -1130,12 +1140,28 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    */
   async #onOpenCreationWizard(event: JQuery.ClickEvent) {
     event.preventDefault();
+    event.stopPropagation();
+    console.log('Mastery System | Open Character Creation Wizard clicked');
     try {
-      const { openCharacterCreationWizard } = await import('./character-creation-wizard');
-      openCharacterCreationWizard(this.actor as MasteryActor);
+      // Try relative path first (for development)
+      let wizardModule;
+      try {
+        wizardModule = await import('./character-creation-wizard.js');
+      } catch (e) {
+        // Fallback to full system path (for runtime)
+        console.log('Mastery System | Trying full system path for wizard import');
+        wizardModule = await import('systems/mastery-system/dist/sheets/character-creation-wizard.js' as any);
+      }
+      
+      if (wizardModule?.openCharacterCreationWizard) {
+        wizardModule.openCharacterCreationWizard(this.actor as MasteryActor);
+      } else {
+        console.error('Mastery System | openCharacterCreationWizard function not found in module', wizardModule);
+        ui.notifications?.error('Character Creation Wizard module not found.');
+      }
     } catch (error) {
       console.error('Mastery System | Failed to open character creation wizard', error);
-      ui.notifications?.error('Failed to open Character Creation Wizard');
+      ui.notifications?.error('Failed to open Character Creation Wizard. Check console for details.');
     }
   }
 
@@ -1144,6 +1170,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    */
   async #onForceUnlockCreation(event: JQuery.ClickEvent) {
     event.preventDefault();
+    event.stopPropagation();
+    console.log('Mastery System | Force Unlock clicked');
+    
     if (!(game as any).user?.isGM) {
       ui.notifications?.warn('Only the GM can force unlock character creation.');
       return;
@@ -1155,9 +1184,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     });
 
     if (confirmed) {
-      await this.actor.update({ 'system.creation.complete': true });
-      ui.notifications?.info('Character creation marked as complete.');
-      this.render();
+      try {
+        await this.actor.update({ 'system.creation.complete': true });
+        ui.notifications?.info('Character creation marked as complete.');
+        this.render();
+      } catch (error) {
+        console.error('Mastery System | Failed to force unlock', error);
+        ui.notifications?.error('Failed to unlock character creation.');
+      }
     }
   }
 
