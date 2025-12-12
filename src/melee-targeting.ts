@@ -24,6 +24,8 @@ interface MeleeTargetingState {
 
 // Global melee targeting state
 let activeMeleeTargeting: MeleeTargetingState | null = null;
+// Guard to prevent duplicate confirmMeleeTarget calls
+let isConfirmingTarget = false;
 
 /**
  * Parse reach from weapon innate abilities or option
@@ -610,16 +612,17 @@ function getAttackAttribute(actor: any, weapon: any): { name: string; value: num
  * Confirm melee target and create attack roll card
  */
 async function confirmMeleeTarget(targetToken: any, state: MeleeTargetingState): Promise<void> {
-  // Set target using Foundry's targeting API
-  try {
-    await game.user.updateTokenTargets([targetToken.id]);
-    console.log('Mastery System | Target set:', targetToken.name);
-  } catch (error) {
-    console.warn('Mastery System | Could not set target via API', error);
+  // Guard against duplicate calls
+  if (isConfirmingTarget) {
+    console.warn('Mastery System | confirmMeleeTarget already in progress, ignoring duplicate call');
+    return;
   }
   
-  const attacker = state.token.actor;
-  const target = targetToken.actor;
+  isConfirmingTarget = true;
+  
+  try {
+    const attacker = state.token.actor;
+    const target = targetToken.actor;
   
   if (!attacker || !target) {
     console.error('Mastery System | Missing actor data for attack');
@@ -686,65 +689,83 @@ async function confirmMeleeTarget(targetToken: any, state: MeleeTargetingState):
       <div class="attack-actions">
         <button class="roll-attack-btn" data-attacker-id="${attacker.id}" data-target-id="${target.id}" 
                 data-attribute="${attackAttr.name.toLowerCase()}" data-attribute-value="${attackAttr.value}"
-                data-mastery-rank="${masteryRank}" data-target-evade="${targetEvade}" data-raises="0">
+                data-mastery-rank="${masteryRank}" data-target-evade="${targetEvade}" data-raises="0"
+                data-base-evade="${targetEvade}">
           <i class="fas fa-dice-d20"></i> Roll Attack
         </button>
       </div>
-      <script>
-        (function() {
-          const raisesInput = document.getElementById('raises-input-${attacker.id}');
-          const displayEvade = document.getElementById('display-evade-${attacker.id}');
-          const rollButton = document.querySelector('[data-attacker-id="${attacker.id}"].roll-attack-btn');
-          const baseEvade = ${targetEvade};
-          
-          if (raisesInput && displayEvade && rollButton) {
-            raisesInput.addEventListener('input', function() {
-              const raises = parseInt(this.value) || 0;
-              const adjustedEvade = baseEvade + (raises * 4);
-              displayEvade.textContent = adjustedEvade;
-              rollButton.setAttribute('data-target-evade', adjustedEvade);
-              rollButton.setAttribute('data-raises', raises);
-            });
-          }
-        })();
-      </script>
     </div>
   `;
   
-  // Create chat message
-  const chatData: any = {
-    user: (game as any).user?.id,
-    speaker: ChatMessage.getSpeaker({ actor: attacker, token: state.token }),
-    content: attackCardContent,
-    type: CONST.CHAT_MESSAGE_TYPES.OTHER,
-    flags: {
-      'mastery-system': {
-        attackType: 'melee',
-        attackerId: attacker.id,
-        targetId: target.id,
-        targetTokenId: targetToken.id,
-        attribute: attackAttr.name.toLowerCase(),
-        attributeValue: attackAttr.value,
-        masteryRank: masteryRank,
-        targetEvade: targetEvade,
-        weaponDamage: weaponDamage
+    // Create chat message
+    const chatData: any = {
+      user: (game as any).user?.id,
+      speaker: ChatMessage.getSpeaker({ actor: attacker, token: state.token }),
+      content: attackCardContent,
+      style: CONST.CHAT_MESSAGE_STYLES.OTHER,
+      flags: {
+        'mastery-system': {
+          attackType: 'melee',
+          attackerId: attacker.id,
+          targetId: target.id,
+          targetTokenId: targetToken.id,
+          attribute: attackAttr.name.toLowerCase(),
+          attributeValue: attackAttr.value,
+          masteryRank: masteryRank,
+          targetEvade: targetEvade,
+          weaponDamage: weaponDamage,
+          baseEvade: targetEvade
+        }
       }
+    };
+    
+    const message = await ChatMessage.create(chatData);
+    
+    // Initialize raises input handler
+    const initializeRaisesInput = () => {
+      const messageElement = $(`[data-message-id="${message.id}"]`);
+      if (messageElement.length) {
+        const raisesInput = messageElement.find(`#raises-input-${attacker.id}`);
+        const displayEvade = messageElement.find(`#display-evade-${attacker.id}`);
+        const rollButton = messageElement.find(`[data-attacker-id="${attacker.id}"].roll-attack-btn`);
+        const baseEvade = targetEvade;
+        
+        if (raisesInput.length && displayEvade.length && rollButton.length) {
+          raisesInput.off('input').on('input', function() {
+            const raises = parseInt($(this).val() as string) || 0;
+            const adjustedEvade = baseEvade + (raises * 4);
+            displayEvade.text(adjustedEvade);
+            rollButton.attr('data-target-evade', adjustedEvade);
+            rollButton.attr('data-raises', raises);
+          });
+          return true;
+        }
+      }
+      return false;
+    };
+    
+    // Try to initialize immediately
+    if (!initializeRaisesInput()) {
+      // If not found, wait for render
+      Hooks.once('renderChatMessage', (messageApp: any, html: JQuery, messageData: any) => {
+        if (messageData.message.id === message.id) {
+          initializeRaisesInput();
+        }
+      });
     }
-  };
-  
-  await ChatMessage.create(chatData);
-  
-  // The roll button click handler is managed globally in module.ts via renderChatLog hook
-  
-  console.log('Mastery System | Melee attack card created:', {
-    attacker: attacker.name,
-    target: target.name,
-    attribute: attackAttr.name,
-    evade: targetEvade
-  });
-  
-  // End targeting mode
-  endMeleeTargeting(true);
+    
+    console.log('Mastery System | Melee attack card created:', {
+      attacker: attacker.name,
+      target: target.name,
+      attribute: attackAttr.name,
+      evade: targetEvade
+    });
+    
+    // End targeting mode
+    endMeleeTargeting(true);
+  } finally {
+    isConfirmingTarget = false;
+  }
 }
 
 
