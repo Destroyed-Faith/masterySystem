@@ -565,10 +565,42 @@ async function confirmMeleeTarget(targetToken, state) {
         const targetEvade = calculateEvade(target);
         // Get weapon damage for display
         const weaponDamage = equippedWeapon ? (equippedWeapon.system?.damage || equippedWeapon.system?.weaponDamage || '1d8') : '1d8';
+        console.log('Mastery System | [ATTACK CARD CREATION] Weapon info', {
+            hasEquippedWeapon: !!equippedWeapon,
+            weaponId: equippedWeapon ? equippedWeapon.id : null,
+            weaponName: equippedWeapon ? equippedWeapon.name : null,
+            weaponDamage: weaponDamage
+        });
         // Get available attack powers (powers that can be used on attack)
-        const attackPowers = items.filter((item) => item.type === 'special' &&
-            item.system?.powerType === 'active' &&
-            item.system?.canUseOnAttack === true);
+        // Show all active powers, or powers explicitly marked as canUseOnAttack
+        const attackPowers = items.filter((item) => {
+            if (item.type !== 'special')
+                return false;
+            const system = item.system;
+            const powerType = system?.powerType;
+            // Include if it's an active power
+            if (powerType === 'active') {
+                // If canUseOnAttack is explicitly set, respect it
+                if (system?.canUseOnAttack !== undefined) {
+                    return system.canUseOnAttack === true;
+                }
+                // Otherwise, include all active powers (default to true)
+                return true;
+            }
+            return false;
+        });
+        console.log('Mastery System | [ATTACK CARD CREATION] Attack powers found', {
+            totalItems: items.length,
+            specialItems: items.filter((item) => item.type === 'special').length,
+            attackPowersCount: attackPowers.length,
+            attackPowers: attackPowers.map((p) => ({
+                id: p.id,
+                name: p.name,
+                powerType: p.system?.powerType,
+                canUseOnAttack: p.system?.canUseOnAttack,
+                level: p.system?.level
+            }))
+        });
         // Create power selection dropdown if powers are available
         let powerSelectionSection = '';
         if (attackPowers.length > 0) {
@@ -672,12 +704,38 @@ async function confirmMeleeTarget(targetToken, state) {
       </div>
     </div>
   `;
-        console.log('Mastery System | DEBUG: Attack card HTML generated:', {
+        console.log('Mastery System | [ATTACK CARD CREATION] Attack card HTML generated', {
             hasRaisesSection: attackCardContent.includes('raises-section'),
             hasRaisesInput: attackCardContent.includes('raises-input'),
+            hasPowerSelection: attackCardContent.includes('power-select'),
             raisesInputId: `raises-input-${attacker.id}`,
             htmlLength: attackCardContent.length,
             htmlPreview: attackCardContent.substring(0, 500) + '...'
+        });
+        // Prepare initial flags
+        const initialFlags = {
+            attackType: 'melee',
+            attackerId: attacker.id,
+            targetId: target.id,
+            targetTokenId: targetToken.id,
+            attribute: attackAttr.name.toLowerCase(),
+            attributeValue: attackAttr.value,
+            masteryRank: masteryRank,
+            targetEvade: targetEvade,
+            weaponDamage: weaponDamage,
+            baseEvade: targetEvade,
+            weaponId: equippedWeapon ? equippedWeapon.id : null,
+            selectedPowerId: null,
+            selectedPowerLevel: null,
+            selectedPowerSpecials: [],
+            selectedPowerDamage: ''
+        };
+        console.log('Mastery System | [ATTACK CARD CREATION] Initial flags being set', {
+            weaponId: initialFlags.weaponId,
+            selectedPowerId: initialFlags.selectedPowerId,
+            targetEvade: initialFlags.targetEvade,
+            baseEvade: initialFlags.baseEvade,
+            allFlagKeys: Object.keys(initialFlags)
         });
         // Create chat message
         const chatData = {
@@ -686,23 +744,7 @@ async function confirmMeleeTarget(targetToken, state) {
             content: attackCardContent,
             style: CONST.CHAT_MESSAGE_STYLES.OTHER,
             flags: {
-                'mastery-system': {
-                    attackType: 'melee',
-                    attackerId: attacker.id,
-                    targetId: target.id,
-                    targetTokenId: targetToken.id,
-                    attribute: attackAttr.name.toLowerCase(),
-                    attributeValue: attackAttr.value,
-                    masteryRank: masteryRank,
-                    targetEvade: targetEvade,
-                    weaponDamage: weaponDamage,
-                    baseEvade: targetEvade,
-                    weaponId: equippedWeapon ? equippedWeapon.id : null,
-                    selectedPowerId: null,
-                    selectedPowerLevel: null,
-                    selectedPowerSpecials: [],
-                    selectedPowerDamage: ''
-                }
+                'mastery-system': initialFlags
             }
         };
         const message = await ChatMessage.create(chatData);
@@ -728,22 +770,59 @@ async function confirmMeleeTarget(targetToken, state) {
                         const powerLevel = parseInt(selectedOption.data('level')) || 1;
                         const powerSpecials = selectedOption.data('specials') || [];
                         const powerDamage = selectedOption.data('damage') || '';
-                        console.log('Mastery System | DEBUG: Power selected', {
-                            powerId,
+                        console.log('Mastery System | [POWER SELECTION] Power selected in dropdown', {
+                            messageId: message.id,
+                            powerId: powerId || 'none (deselected)',
                             powerLevel,
                             powerSpecials,
-                            powerDamage
+                            powerDamage,
+                            powerIdType: typeof powerId,
+                            powerIdLength: powerId ? powerId.length : 0
                         });
                         // Update message flags with selected power data
                         const currentMessage = game.messages?.get(message.id);
                         if (currentMessage) {
                             const currentFlags = currentMessage.getFlag('mastery-system') || currentMessage.flags?.['mastery-system'] || {};
-                            await currentMessage.setFlag('mastery-system', {
+                            console.log('Mastery System | [POWER SELECTION] Current flags before update', {
+                                messageId: message.id,
+                                currentSelectedPowerId: currentFlags.selectedPowerId,
+                                currentWeaponId: currentFlags.weaponId,
+                                allCurrentFlagKeys: Object.keys(currentFlags)
+                            });
+                            const newFlags = {
                                 ...currentFlags,
                                 selectedPowerId: powerId || null,
                                 selectedPowerLevel: powerId ? powerLevel : null,
                                 selectedPowerSpecials: powerId ? powerSpecials : [],
                                 selectedPowerDamage: powerId ? powerDamage : ''
+                            };
+                            console.log('Mastery System | [POWER SELECTION] New flags to be saved', {
+                                messageId: message.id,
+                                selectedPowerId: newFlags.selectedPowerId,
+                                selectedPowerLevel: newFlags.selectedPowerLevel,
+                                selectedPowerSpecials: newFlags.selectedPowerSpecials,
+                                selectedPowerDamage: newFlags.selectedPowerDamage,
+                                weaponId: newFlags.weaponId,
+                                allNewFlagKeys: Object.keys(newFlags)
+                            });
+                            await currentMessage.setFlag('mastery-system', newFlags);
+                            // Verify the flags were saved
+                            const verifyFlags = currentMessage.getFlag('mastery-system') || currentMessage.flags?.['mastery-system'];
+                            console.log('Mastery System | [POWER SELECTION] Verified flags after save', {
+                                messageId: message.id,
+                                selectedPowerId: verifyFlags?.selectedPowerId,
+                                selectedPowerLevel: verifyFlags?.selectedPowerLevel,
+                                selectedPowerSpecials: verifyFlags?.selectedPowerSpecials,
+                                selectedPowerDamage: verifyFlags?.selectedPowerDamage,
+                                weaponId: verifyFlags?.weaponId,
+                                allVerifiedFlagKeys: Object.keys(verifyFlags || {})
+                            });
+                        }
+                        else {
+                            console.error('Mastery System | [POWER SELECTION] ERROR: Could not find message to update flags', {
+                                messageId: message.id,
+                                allMessageIds: Array.from(game.messages?.keys() || []).slice(0, 10),
+                                totalMessages: game.messages?.size || 0
                             });
                         }
                     });

@@ -43,28 +43,48 @@ export async function showDamageDialog(
   raises: number,
   flags?: any
 ): Promise<DamageResult | null> {
-  console.log('Mastery System | DEBUG: showDamageDialog - starting', {
+  console.log('Mastery System | [DAMAGE DIALOG] showDamageDialog - starting', {
+    attackerId: (attacker as any).id,
     attackerName: (attacker as any).name,
+    targetId: (target as any).id,
     targetName: (target as any).name,
     weaponId: weaponId,
+    weaponIdType: typeof weaponId,
+    weaponIdLength: weaponId ? weaponId.length : 0,
     selectedPowerId: selectedPowerId,
-    raises,
+    selectedPowerIdType: typeof selectedPowerId,
+    selectedPowerIdLength: selectedPowerId ? selectedPowerId.length : 0,
+    raises: raises,
     raisesType: typeof raises,
     hasFlags: !!flags,
-    flagsKeys: flags ? Object.keys(flags) : []
+    flagsKeys: flags ? Object.keys(flags) : [],
+    flagsWeaponId: flags?.weaponId,
+    flagsSelectedPowerId: flags?.selectedPowerId
   });
   
   // Load weapon from actor by ID
   const items = (attacker as any).items || [];
   const weapon = weaponId ? items.find((item: any) => item.id === weaponId) : null;
   
+  console.log('Mastery System | [DAMAGE DIALOG] Weapon loading', {
+    weaponId: weaponId,
+    totalItems: items.length,
+    weaponItems: items.filter((item: any) => item.type === 'weapon').length,
+    weaponFound: !!weapon,
+    weaponName: weapon ? weapon.name : 'none',
+    weaponIdMatch: weapon ? weapon.id === weaponId : false,
+    allWeaponIds: items.filter((item: any) => item.type === 'weapon').map((item: any) => item.id)
+  });
+  
   // Calculate base damage from weapon
   const baseDamage = weapon ? ((weapon.system as any)?.damage || (weapon.system as any)?.weaponDamage || '1d8') : '1d8';
-  console.log('Mastery System | DEBUG: showDamageDialog - baseDamage', {
+  console.log('Mastery System | [DAMAGE DIALOG] Base damage calculated', {
     weaponId,
     weaponFound: !!weapon,
     weaponName: weapon ? weapon.name : 'none',
-    baseDamage
+    baseDamage: baseDamage,
+    weaponSystemDamage: weapon ? (weapon.system as any)?.damage : null,
+    weaponSystemWeaponDamage: weapon ? (weapon.system as any)?.weaponDamage : null
   });
   
   // Get weapon specials
@@ -76,8 +96,27 @@ export async function showDamageDialog(
   let powerSpecials: string[] = [];
   let selectedPowerData: any = null;
   
+  console.log('Mastery System | [DAMAGE DIALOG] Power loading', {
+    selectedPowerId: selectedPowerId,
+    hasSelectedPowerId: !!selectedPowerId,
+    totalItems: items.length,
+    specialItems: items.filter((item: any) => item.type === 'special').length,
+    allSpecialIds: items.filter((item: any) => item.type === 'special').map((item: any) => ({
+      id: item.id,
+      name: item.name,
+      powerType: (item.system as any)?.powerType
+    }))
+  });
+  
   if (selectedPowerId) {
     const selectedPower = items.find((item: any) => item.id === selectedPowerId);
+    console.log('Mastery System | [DAMAGE DIALOG] Power search result', {
+      selectedPowerId: selectedPowerId,
+      powerFound: !!selectedPower,
+      powerName: selectedPower ? selectedPower.name : 'not found',
+      powerIdMatch: selectedPower ? selectedPower.id === selectedPowerId : false
+    });
+    
     if (selectedPower) {
       const powerSystem = selectedPower.system as any;
       const powerLevel = powerSystem.level || 1;
@@ -118,19 +157,37 @@ export async function showDamageDialog(
         damage: powerDamage
       };
       
-      console.log('Mastery System | DEBUG: showDamageDialog - power loaded from actor', {
+      console.log('Mastery System | [DAMAGE DIALOG] Power loaded from actor', {
         powerId: selectedPowerId,
         powerName: selectedPower.name,
         powerLevel: powerLevel,
-        powerDamage,
-        powerSpecials,
-        hasLevelData: !!levelData
+        powerDamage: powerDamage,
+        powerSpecials: powerSpecials,
+        hasLevelData: !!levelData,
+        levelDataSpecial: levelData?.special,
+        levelDataDamage: levelData?.roll?.damage,
+        systemSpecials: powerSystem.specials,
+        systemDamage: powerSystem.roll?.damage
       });
     } else {
-      console.warn('Mastery System | Selected power not found in actor items', selectedPowerId);
+      console.error('Mastery System | [DAMAGE DIALOG] ERROR: Selected power not found in actor items', {
+        selectedPowerId: selectedPowerId,
+        totalItems: items.length,
+        specialItems: items.filter((item: any) => item.type === 'special').length,
+        allSpecialIds: items.filter((item: any) => item.type === 'special').map((item: any) => item.id)
+      });
     }
+  } else {
+    console.log('Mastery System | [DAMAGE DIALOG] No power selected (selectedPowerId is null/undefined)', {
+      selectedPowerId: selectedPowerId,
+      selectedPowerIdType: typeof selectedPowerId
+    });
   }
-  console.log('Mastery System | DEBUG: showDamageDialog - powerDamage', powerDamage);
+  console.log('Mastery System | [DAMAGE DIALOG] Final power damage', {
+    powerDamage: powerDamage,
+    hasSelectedPower: !!selectedPowerData,
+    selectedPowerName: selectedPowerData?.name
+  });
   
   // Calculate passive damage (from equipped passives)
   const passiveDamage = await calculatePassiveDamage(attacker);
@@ -242,19 +299,24 @@ function createDamageCardContent(
     `;
   }
   
-  console.log('Mastery System | DEBUG: createDamageCardContent - values', {
-    baseDamage,
-    powerDamage,
-    passiveDamage,
-    raises,
+  console.log('Mastery System | [DAMAGE CARD HTML] createDamageCardContent - values', {
+    baseDamage: baseDamage,
+    powerDamage: powerDamage,
+    passiveDamage: passiveDamage,
+    raises: raises,
+    raisesType: typeof raises,
     hasRaisesSection: !!raisesSection,
     raisesSectionLength: raisesSection.length,
     selectedPower: selectedPower ? {
+      id: selectedPower.id,
       name: selectedPower.name,
       level: selectedPower.level,
       specials: selectedPower.specials,
-      damage: selectedPower.damage
-    } : null
+      damage: selectedPower.damage,
+      specialsCount: selectedPower.specials?.length || 0
+    } : null,
+    availableSpecialsCount: availableSpecials.length,
+    weaponSpecialsCount: _weaponSpecials.length
   });
   
   const html = `
@@ -303,8 +365,16 @@ function createDamageCardContent(
     </div>
   `;
   
-  console.log('Mastery System | DEBUG: createDamageCardContent - generated HTML length', html.length);
-  console.log('Mastery System | DEBUG: createDamageCardContent - HTML preview', html.substring(0, 500));
+  console.log('Mastery System | [DAMAGE CARD HTML] Generated HTML', {
+    htmlLength: html.length,
+    htmlPreview: html.substring(0, 500),
+    containsBaseDamage: html.includes(baseDamage),
+    containsPowerDamage: html.includes(powerDamage),
+    containsRaises: html.includes(`Raises (${raises} available)`),
+    containsSelectedPower: selectedPower ? html.includes(selectedPower.name) : false,
+    containsPowerSpecials: selectedPower && selectedPower.specials.length > 0 ? 
+      selectedPower.specials.some((s: string) => html.includes(s)) : false
+  });
   
   return html;
 }

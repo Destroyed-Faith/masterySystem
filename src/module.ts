@@ -401,15 +401,30 @@ Hooks.once('ready', () => {
     
     // Debug: Check all flags on the message
     const allFlags = message.flags;
-    console.log('Mastery System | DEBUG: All message flags', allFlags);
+    console.log('Mastery System | [ROLL BUTTON CLICK] All message flags', {
+      messageId: messageId,
+      allFlags: allFlags,
+      allFlagKeys: Object.keys(allFlags || {}),
+      masterySystemFlags: allFlags?.['mastery-system']
+    });
     
     // Try both methods to get flags (getFlag might not work in some Foundry versions)
     const flags = message.getFlag?.('mastery-system') || message.flags?.['mastery-system'];
-    console.log('Mastery System | DEBUG: Message flags (mastery-system)', flags);
-    console.log('Mastery System | DEBUG: Flags structure', {
+    console.log('Mastery System | [ROLL BUTTON CLICK] Message flags (mastery-system)', {
+      messageId: messageId,
+      flags: flags,
+      weaponId: flags?.weaponId,
+      selectedPowerId: flags?.selectedPowerId,
+      targetEvade: flags?.targetEvade,
+      baseEvade: flags?.baseEvade,
+      allFlagKeys: Object.keys(flags || {})
+    });
+    console.log('Mastery System | [ROLL BUTTON CLICK] Flags structure', {
+      messageId: messageId,
       hasGetFlag: typeof message.getFlag === 'function',
       flagsDirect: message.flags?.['mastery-system'],
-      flagsViaGetFlag: message.getFlag?.('mastery-system')
+      flagsViaGetFlag: message.getFlag?.('mastery-system'),
+      flagsMatch: message.flags?.['mastery-system'] === message.getFlag?.('mastery-system')
     });
     
     if (!flags || flags.attackType !== 'melee') {
@@ -483,17 +498,63 @@ Hooks.once('ready', () => {
           // Re-read flags from message to get updated power selection
           const currentMessage = (game as any).messages?.get(messageId);
           let updatedFlags = flags;
+          console.log('Mastery System | [BEFORE DAMAGE DIALOG] Re-reading flags from message', {
+            messageId: messageId,
+            hasMessage: !!currentMessage,
+            originalFlags: {
+              weaponId: flags.weaponId,
+              selectedPowerId: flags.selectedPowerId,
+              targetEvade: flags.targetEvade,
+              baseEvade: flags.baseEvade
+            }
+          });
+          
           if (currentMessage) {
             const messageFlags = currentMessage.getFlag('mastery-system') || currentMessage.flags?.['mastery-system'];
             if (messageFlags) {
               updatedFlags = { ...flags, ...messageFlags };
-              console.log('Mastery System | DEBUG: Updated flags from message', {
-                originalSelectedPowerId: flags.selectedPowerId,
-                updatedSelectedPowerId: updatedFlags.selectedPowerId,
-                originalWeaponId: flags.weaponId,
-                updatedWeaponId: updatedFlags.weaponId
+              console.log('Mastery System | [BEFORE DAMAGE DIALOG] Updated flags from message', {
+                messageId: messageId,
+                originalFlags: {
+                  weaponId: flags.weaponId,
+                  selectedPowerId: flags.selectedPowerId,
+                  targetEvade: flags.targetEvade,
+                  baseEvade: flags.baseEvade
+                },
+                messageFlags: {
+                  weaponId: messageFlags.weaponId,
+                  selectedPowerId: messageFlags.selectedPowerId,
+                  targetEvade: messageFlags.targetEvade,
+                  baseEvade: messageFlags.baseEvade,
+                  allKeys: Object.keys(messageFlags)
+                },
+                updatedFlags: {
+                  weaponId: updatedFlags.weaponId,
+                  selectedPowerId: updatedFlags.selectedPowerId,
+                  targetEvade: updatedFlags.targetEvade,
+                  baseEvade: updatedFlags.baseEvade,
+                  allKeys: Object.keys(updatedFlags)
+                },
+                flagsChanged: {
+                  weaponId: flags.weaponId !== updatedFlags.weaponId,
+                  selectedPowerId: flags.selectedPowerId !== updatedFlags.selectedPowerId
+                }
+              });
+            } else {
+              console.warn('Mastery System | [BEFORE DAMAGE DIALOG] WARNING: No message flags found', {
+                messageId,
+                hasMessage: !!currentMessage,
+                messageFlags: currentMessage?.flags,
+                messageFlagsKeys: Object.keys(currentMessage?.flags || {}),
+                masterySystemFlags: currentMessage?.flags?.['mastery-system']
               });
             }
+          } else {
+            console.error('Mastery System | [BEFORE DAMAGE DIALOG] ERROR: Could not find message to re-read flags', {
+              messageId,
+              allMessageIds: Array.from((game as any).messages?.keys() || []).slice(0, 10),
+              totalMessages: (game as any).messages?.size || 0
+            });
           }
           
           // Get equipped weapon ID (just the ID, not the full object)
@@ -503,16 +564,24 @@ Hooks.once('ready', () => {
           );
           const weaponId = equippedWeapon ? equippedWeapon.id : null;
           
-          console.log('Mastery System | DEBUG: Weapon and power IDs', {
+          console.log('Mastery System | [BEFORE DAMAGE DIALOG] Weapon and power IDs', {
+            messageId: messageId,
             weaponId: weaponId,
-            selectedPowerId: updatedFlags.selectedPowerId
+            weaponIdFromFlags: updatedFlags.weaponId,
+            weaponIdMatch: weaponId === updatedFlags.weaponId,
+            selectedPowerId: updatedFlags.selectedPowerId,
+            selectedPowerIdType: typeof updatedFlags.selectedPowerId,
+            selectedPowerIdLength: updatedFlags.selectedPowerId ? updatedFlags.selectedPowerId.length : 0,
+            hasEquippedWeapon: !!equippedWeapon,
+            equippedWeaponName: equippedWeapon ? equippedWeapon.name : null
           });
           
           // result.raises is already calculated based on the adjusted TN (which includes manual raises)
           // So we just use result.raises directly
           const totalRaises = result.raises || 0;
           
-          console.log('Mastery System | DEBUG: Raises calculation', {
+          console.log('Mastery System | [BEFORE DAMAGE DIALOG] Raises calculation', {
+            messageId: messageId,
             resultRaises: result.raises,
             totalRaises: totalRaises,
             resultRaisesType: typeof result.raises,
@@ -520,7 +589,20 @@ Hooks.once('ready', () => {
             resultTotal: result.total,
             resultTN: result.tn,
             currentTargetEvade: currentTargetEvade,
-            baseEvade: flags.targetEvade
+            baseEvade: flags.targetEvade,
+            raisesFromButton: parseInt(button.data('raises')) || 0
+          });
+          
+          console.log('Mastery System | [BEFORE DAMAGE DIALOG] Calling showDamageDialog with', {
+            messageId: messageId,
+            attackerId: attacker.id,
+            attackerName: (attacker as any).name,
+            targetId: target.id,
+            targetName: (target as any).name,
+            weaponId: weaponId,
+            selectedPowerId: updatedFlags.selectedPowerId || null,
+            totalRaises: totalRaises,
+            flagsKeys: Object.keys(updatedFlags || {})
           });
           
           // Import and show damage dialog - pass only IDs, not full objects
