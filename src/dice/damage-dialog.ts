@@ -223,7 +223,7 @@ class DamageDialog extends Application {
   }
   
   static get defaultOptions(): any {
-    const opts = super.defaultOptions;
+    const opts = foundry.utils.mergeObject({}, super.defaultOptions || {});
     opts.id = 'mastery-damage-dialog';
     opts.title = 'Calculate Damage';
     opts.template = 'systems/mastery-system/templates/dice/damage-dialog.hbs';
