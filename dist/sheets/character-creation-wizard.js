@@ -113,6 +113,19 @@ export class CharacterCreationWizard extends BaseApplication {
             skills
         }));
     }
+    // Implement required methods for Handlebars templates (Foundry VTT v13)
+    async _renderHTML(_data) {
+        const template = this.constructor.defaultOptions.template || this.options.template;
+        if (!template) {
+            throw new Error('Template path is required');
+        }
+        const templateData = await this.getData();
+        const html = await foundry.applications.handlebars.renderTemplate(template, templateData);
+        return $(html);
+    }
+    async _replaceHTML(element, html) {
+        element.replaceWith(html);
+    }
     activateListeners(html) {
         super.activateListeners(html);
         // Step navigation

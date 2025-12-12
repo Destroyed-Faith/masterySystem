@@ -27,6 +27,8 @@ export declare class CharacterCreationWizard extends BaseApplication {
     static get defaultOptions(): any;
     initializeState(): CreationState;
     getData(options?: any): any;
+    _renderHTML(_data?: any): Promise<JQuery>;
+    _replaceHTML(element: JQuery, html: JQuery): Promise<void>;
     activateListeners(html: JQuery): void;
 }
 /**
