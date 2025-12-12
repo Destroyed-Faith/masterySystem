@@ -224,6 +224,36 @@
   color: #8b0000;
 }
 
+.mastery-attack-card .raises-input {
+  width: 60px;
+  text-align: center;
+  padding: 4px 8px;
+  border: 1px solid #8b0000;
+  border-radius: 3px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #8b0000;
+  background: #fff;
+  transition: all 0.2s ease;
+}
+
+.mastery-attack-card .raises-input:focus {
+  outline: none;
+  border-color: #a00000;
+  box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.2);
+}
+
+.mastery-attack-card .raises-input:hover {
+  border-color: #a00000;
+}
+
+.mastery-attack-card .raises-hint {
+  margin-left: 5px;
+  color: #666;
+  font-size: 12px;
+  font-weight: normal;
+}
+
 .mastery-attack-card .attack-actions {
   display: flex;
   justify-content: center;

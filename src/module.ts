@@ -367,14 +367,18 @@ Hooks.on('renderChatLog', (_app: any, html: JQuery, _data: any) => {
         throw new Error('Attacker not found');
       }
       
-      // Perform the attack roll
+      // Get current values from button (including raises-adjusted TN)
+      const currentTargetEvade = parseInt(button.data('target-evade')) || flags.targetEvade;
+      const raises = parseInt(button.data('raises')) || 0;
+      
+      // Perform the attack roll with d8 dice (exploding 8s handled in roll-handler)
       const result = await masteryRoll({
         numDice: flags.attributeValue,
         keepDice: flags.masteryRank,
         skill: 0,
-        tn: flags.targetEvade,
+        tn: currentTargetEvade,
         label: `Attack Roll (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`,
-        flavor: `vs ${(game as any).actors?.get(flags.targetId)?.name || 'Target'}'s Evade (${flags.targetEvade})`,
+        flavor: `vs ${(game as any).actors?.get(flags.targetId)?.name || 'Target'}'s Evade (${currentTargetEvade}${raises > 0 ? `, ${raises} raise${raises > 1 ? 's' : ''}` : ''})`,
         actorId: flags.attackerId
       });
       

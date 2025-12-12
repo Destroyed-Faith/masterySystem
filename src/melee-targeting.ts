@@ -665,7 +665,15 @@ async function confirmMeleeTarget(targetToken: any, state: MeleeTargetingState):
         </div>
         <div class="detail-row">
           <span>Target Evade:</span>
-          <span><strong>${targetEvade}</strong></span>
+          <span><strong id="display-evade-${attacker.id}">${targetEvade}</strong></span>
+        </div>
+        <div class="detail-row">
+          <span>Raises:</span>
+          <span>
+            <input type="number" class="raises-input" id="raises-input-${attacker.id}" 
+                   min="0" value="0" data-base-evade="${targetEvade}">
+            <span class="raises-hint">(+4 TN per raise)</span>
+          </span>
         </div>
         ${equippedWeapon ? `
           <div class="detail-row">
@@ -678,10 +686,28 @@ async function confirmMeleeTarget(targetToken: any, state: MeleeTargetingState):
       <div class="attack-actions">
         <button class="roll-attack-btn" data-attacker-id="${attacker.id}" data-target-id="${target.id}" 
                 data-attribute="${attackAttr.name.toLowerCase()}" data-attribute-value="${attackAttr.value}"
-                data-mastery-rank="${masteryRank}" data-target-evade="${targetEvade}">
+                data-mastery-rank="${masteryRank}" data-target-evade="${targetEvade}" data-raises="0">
           <i class="fas fa-dice-d20"></i> Roll Attack
         </button>
       </div>
+      <script>
+        (function() {
+          const raisesInput = document.getElementById('raises-input-${attacker.id}');
+          const displayEvade = document.getElementById('display-evade-${attacker.id}');
+          const rollButton = document.querySelector('[data-attacker-id="${attacker.id}"].roll-attack-btn');
+          const baseEvade = ${targetEvade};
+          
+          if (raisesInput && displayEvade && rollButton) {
+            raisesInput.addEventListener('input', function() {
+              const raises = parseInt(this.value) || 0;
+              const adjustedEvade = baseEvade + (raises * 4);
+              displayEvade.textContent = adjustedEvade;
+              rollButton.setAttribute('data-target-evade', adjustedEvade);
+              rollButton.setAttribute('data-raises', raises);
+            });
+          }
+        })();
+      </script>
     </div>
   `;
   
