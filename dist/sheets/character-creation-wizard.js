@@ -16,7 +16,8 @@ export class CharacterCreationWizard extends BaseApplication {
         this.state = this.initializeState();
     }
     static get defaultOptions() {
-        return foundry.utils.mergeObject(super.defaultOptions, {
+        const opts = super.defaultOptions || {};
+        return foundry.utils.mergeObject(opts, {
             id: 'character-creation-wizard',
             title: 'Character Creation',
             template: 'systems/mastery-system/templates/dialogs/character-creation-wizard.hbs',
