@@ -142,14 +142,19 @@ function registerHandlebarsHelpers() {
     return args;
   });
 
+  // Helper for greater than comparison
+  Handlebars.registerHelper('gt', function(a: number, b: number) {
+    return (Number(a) || 0) > (Number(b) || 0);
+  });
+
   // Helper for greater than or equal comparison
   Handlebars.registerHelper('gte', function(a: number, b: number) {
-    return a >= b;
+    return (Number(a) || 0) >= (Number(b) || 0);
   });
 
   // Helper for less than or equal comparison
   Handlebars.registerHelper('lte', function(a: number, b: number) {
-    return a <= b;
+    return (Number(a) || 0) <= (Number(b) || 0);
   });
 
   // Helper for incrementing (for 1-based indexing)

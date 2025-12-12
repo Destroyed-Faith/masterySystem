@@ -117,13 +117,17 @@ function registerHandlebarsHelpers() {
         args.pop(); // Remove Handlebars options object
         return args;
     });
+    // Helper for greater than comparison
+    Handlebars.registerHelper('gt', function (a, b) {
+        return (Number(a) || 0) > (Number(b) || 0);
+    });
     // Helper for greater than or equal comparison
     Handlebars.registerHelper('gte', function (a, b) {
-        return a >= b;
+        return (Number(a) || 0) >= (Number(b) || 0);
     });
     // Helper for less than or equal comparison
     Handlebars.registerHelper('lte', function (a, b) {
-        return a <= b;
+        return (Number(a) || 0) <= (Number(b) || 0);
     });
     // Helper for incrementing (for 1-based indexing)
     Handlebars.registerHelper('inc', function (value) {

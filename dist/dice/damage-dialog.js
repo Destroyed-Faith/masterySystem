@@ -6,27 +6,46 @@
  * Show damage dialog after successful attack
  */
 export async function showDamageDialog(attacker, target, weapon, raises, _flags) {
+    console.log('Mastery System | DEBUG: showDamageDialog - starting', {
+        attackerName: attacker.name,
+        targetName: target.name,
+        hasWeapon: !!weapon,
+        raises
+    });
     // Calculate base damage from weapon
     const baseDamage = weapon ? (weapon.system?.damage || weapon.system?.weaponDamage || '1d8') : '1d8';
+    console.log('Mastery System | DEBUG: showDamageDialog - baseDamage', baseDamage);
     // Get weapon specials
     const weaponSpecials = weapon ? (weapon.system?.specials || []) : [];
+    console.log('Mastery System | DEBUG: showDamageDialog - weaponSpecials', weaponSpecials);
     // Calculate power damage (from powers used in attack - for now, we'll need to track this)
     const powerDamage = '0'; // TODO: Get from attack flags if powers were used
+    console.log('Mastery System | DEBUG: showDamageDialog - powerDamage', powerDamage);
     // Calculate passive damage (from equipped passives)
     const passiveDamage = await calculatePassiveDamage(attacker);
+    console.log('Mastery System | DEBUG: showDamageDialog - passiveDamage', passiveDamage);
     // Collect available specials
     const availableSpecials = await collectAvailableSpecials(attacker, weapon);
+    console.log('Mastery System | DEBUG: showDamageDialog - availableSpecials', availableSpecials.length);
     const dialogData = {
         attacker,
         target,
         weapon,
-        baseDamage,
-        powerDamage,
-        passiveDamage,
-        raises,
-        availableSpecials,
-        weaponSpecials
+        baseDamage: baseDamage || '0',
+        powerDamage: powerDamage || '0',
+        passiveDamage: passiveDamage || '0',
+        raises: raises || 0,
+        availableSpecials: availableSpecials || [],
+        weaponSpecials: weaponSpecials || []
     };
+    console.log('Mastery System | DEBUG: showDamageDialog - dialogData prepared', {
+        baseDamage: dialogData.baseDamage,
+        powerDamage: dialogData.powerDamage,
+        passiveDamage: dialogData.passiveDamage,
+        raises: dialogData.raises,
+        availableSpecialsCount: dialogData.availableSpecials.length,
+        weaponSpecialsCount: dialogData.weaponSpecials.length
+    });
     return new Promise((resolve) => {
         console.log('Mastery System | DEBUG: showDamageDialog - creating dialog', {
             hasData: !!dialogData,
@@ -223,11 +242,29 @@ class DamageDialog extends Application {
         if (!template) {
             throw new Error('Template path is required');
         }
-        console.log('Mastery System | DEBUG: DamageDialog _renderHTML - rendering template', { template, hasData: !!data });
+        console.log('Mastery System | DEBUG: DamageDialog _renderHTML - rendering template', {
+            template,
+            hasData: !!data,
+            dataKeys: data ? Object.keys(data) : []
+        });
         // Get data if not provided
         const templateData = data || await this.getData();
+        console.log('Mastery System | DEBUG: DamageDialog _renderHTML - templateData', {
+            hasData: !!templateData,
+            keys: templateData ? Object.keys(templateData) : [],
+            baseDamage: templateData?.baseDamage,
+            powerDamage: templateData?.powerDamage,
+            passiveDamage: templateData?.passiveDamage,
+            raises: templateData?.raises,
+            availableSpecials: templateData?.availableSpecials?.length || 0,
+            attacker: templateData?.attacker ? templateData.attacker.name : 'none',
+            target: templateData?.target ? templateData.target.name : 'none'
+        });
         const html = await foundry.applications.handlebars.renderTemplate(template, templateData);
-        console.log('Mastery System | DEBUG: DamageDialog _renderHTML - template rendered', { htmlLength: html.length });
+        console.log('Mastery System | DEBUG: DamageDialog _renderHTML - template rendered', {
+            htmlLength: html.length,
+            htmlPreview: html.substring(0, 500)
+        });
         return $(html);
     }
     async _replaceHTML(element, html) {
@@ -239,12 +276,23 @@ class DamageDialog extends Application {
             hasData: !!this.data,
             raises: this.data?.raises,
             baseDamage: this.data?.baseDamage,
+            powerDamage: this.data?.powerDamage,
+            passiveDamage: this.data?.passiveDamage,
             availableSpecials: this.data?.availableSpecials?.length || 0,
+            weaponSpecials: this.data?.weaponSpecials?.length || 0,
             attacker: this.data?.attacker?.name,
             target: this.data?.target?.name
         });
         const data = {
-            ...this.data,
+            attacker: this.data?.attacker || null,
+            target: this.data?.target || null,
+            weapon: this.data?.weapon || null,
+            baseDamage: this.data?.baseDamage || '0',
+            powerDamage: this.data?.powerDamage || '0',
+            passiveDamage: this.data?.passiveDamage || '0',
+            raises: this.data?.raises || 0,
+            availableSpecials: this.data?.availableSpecials || [],
+            weaponSpecials: this.data?.weaponSpecials || [],
             raiseSelections: Array.from(this.raiseSelections.entries()).map(([index, selection]) => ({
                 index,
                 ...selection
@@ -254,8 +302,13 @@ class DamageDialog extends Application {
             hasData: !!data,
             raises: data.raises,
             baseDamage: data.baseDamage,
+            powerDamage: data.powerDamage,
+            passiveDamage: data.passiveDamage,
             availableSpecials: data.availableSpecials?.length || 0,
-            raiseSelectionsCount: data.raiseSelections?.length || 0
+            weaponSpecials: data.weaponSpecials?.length || 0,
+            raiseSelectionsCount: data.raiseSelections?.length || 0,
+            attackerName: data.attacker ? data.attacker.name : 'none',
+            targetName: data.target ? data.target.name : 'none'
         });
         return data;
     }

@@ -2,30 +2,28 @@
   <div class="damage-dialog-content">
     <div class="damage-summary">
       <h3><i class="fas fa-sword"></i> Damage Calculation</h3>
+      <p><strong>{{#if attacker}}{{attacker.name}}{{else}}Attacker{{/if}}</strong> attacks <strong>{{#if target}}{{target.name}}{{else}}Target{{/if}}</strong></p>
       
       <div class="damage-breakdown">
         <div class="damage-row">
           <span class="damage-label">Base Weapon Damage:</span>
-          <span class="damage-value">{{baseDamage}}</span>
+          <span class="damage-value">{{#if baseDamage}}{{baseDamage}}{{else}}0{{/if}}</span>
         </div>
         
-        {{#if powerDamage}}
         <div class="damage-row">
           <span class="damage-label">Power Damage:</span>
-          <span class="damage-value">{{powerDamage}}</span>
+          <span class="damage-value">{{#if powerDamage}}{{powerDamage}}{{else}}0{{/if}}</span>
         </div>
-        {{/if}}
         
-        {{#if passiveDamage}}
         <div class="damage-row">
           <span class="damage-label">Passive Damage:</span>
-          <span class="damage-value">{{passiveDamage}}</span>
+          <span class="damage-value">{{#if passiveDamage}}{{passiveDamage}}{{else}}0{{/if}}</span>
         </div>
-        {{/if}}
       </div>
     </div>
     
     {{#if raises}}
+    {{#if (gt raises 0)}}
     <div class="raises-section">
       <h3><i class="fas fa-star"></i> Raises ({{raises}} available)</h3>
       <p class="raises-description">Each raise can be used for a Special (once per raise) or 1d8 additional damage.</p>
@@ -38,11 +36,14 @@
             <option value="">-- Select --</option>
             <option value="damage">+1d8 Damage</option>
             {{#if availableSpecials}}
+            {{#if availableSpecials.length}}
             <option value="special">Use Special</option>
+            {{/if}}
             {{/if}}
           </select>
           
           {{#if availableSpecials}}
+          {{#if availableSpecials.length}}
           <select class="special-select" data-raise-index="{{this}}" style="display: none;">
             <option value="">-- Select Special --</option>
             {{#each availableSpecials}}
@@ -50,9 +51,19 @@
             {{/each}}
           </select>
           {{/if}}
+          {{/if}}
         </div>
         {{/times}}
       </div>
+    </div>
+    {{else}}
+    <div class="raises-section">
+      <p>No raises available</p>
+    </div>
+    {{/if}}
+    {{else}}
+    <div class="raises-section">
+      <p>No raises available</p>
     </div>
     {{/if}}
     
