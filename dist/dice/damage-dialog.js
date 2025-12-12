@@ -5,38 +5,86 @@
 /**
  * Show damage dialog after successful attack
  */
-export async function showDamageDialog(attacker, target, weapon, raises, flags) {
+export async function showDamageDialog(attacker, target, weaponId, selectedPowerId, raises, flags) {
     console.log('Mastery System | DEBUG: showDamageDialog - starting', {
         attackerName: attacker.name,
         targetName: target.name,
-        hasWeapon: !!weapon,
-        weaponName: weapon ? weapon.name : 'none',
-        weaponDamage: weapon ? (weapon.system?.damage || weapon.system?.weaponDamage) : 'none',
+        weaponId: weaponId,
+        selectedPowerId: selectedPowerId,
         raises,
         raisesType: typeof raises,
         hasFlags: !!flags,
-        selectedPower: flags?.selectedPower,
         flagsKeys: flags ? Object.keys(flags) : []
     });
+    // Load weapon from actor by ID
+    const items = attacker.items || [];
+    const weapon = weaponId ? items.find((item) => item.id === weaponId) : null;
     // Calculate base damage from weapon
     const baseDamage = weapon ? (weapon.system?.damage || weapon.system?.weaponDamage || '1d8') : '1d8';
-    console.log('Mastery System | DEBUG: showDamageDialog - baseDamage', baseDamage);
+    console.log('Mastery System | DEBUG: showDamageDialog - baseDamage', {
+        weaponId,
+        weaponFound: !!weapon,
+        weaponName: weapon ? weapon.name : 'none',
+        baseDamage
+    });
     // Get weapon specials
     const weaponSpecials = weapon ? (weapon.system?.specials || []) : [];
     console.log('Mastery System | DEBUG: showDamageDialog - weaponSpecials', weaponSpecials);
-    // Calculate power damage from selected power
+    // Load selected power from actor by ID and get its data
     let powerDamage = '0';
     let powerSpecials = [];
-    if (flags?.selectedPower) {
-        const selectedPower = flags.selectedPower;
-        powerDamage = selectedPower.damage || '0';
-        powerSpecials = selectedPower.specials || [];
-        console.log('Mastery System | DEBUG: showDamageDialog - powerDamage from selected power', {
-            powerName: selectedPower.name,
-            powerLevel: selectedPower.level,
-            powerDamage,
-            powerSpecials
-        });
+    let selectedPowerData = null;
+    if (selectedPowerId) {
+        const selectedPower = items.find((item) => item.id === selectedPowerId);
+        if (selectedPower) {
+            const powerSystem = selectedPower.system;
+            const powerLevel = powerSystem.level || 1;
+            // Try to get level-specific data from power definitions
+            let levelData = null;
+            try {
+                const powersModule = await import('../../utils/powers/index.js');
+                const powerDefinitions = powersModule.ALL_MASTERY_POWERS || [];
+                const powerDef = powerDefinitions.find((p) => p.name === selectedPower.name && p.tree === powerSystem.tree);
+                if (powerDef && powerDef.levels) {
+                    levelData = powerDef.levels.find((l) => l.level === powerLevel);
+                }
+            }
+            catch (e) {
+                console.warn('Mastery System | Could not load power definitions for level data', e);
+            }
+            // Use level-specific data if available, otherwise fall back to system data
+            if (levelData) {
+                powerDamage = levelData.roll?.damage || powerSystem.roll?.damage || '0';
+                if (levelData.special) {
+                    powerSpecials = levelData.special.split(',').map((s) => s.trim());
+                }
+                else {
+                    powerSpecials = powerSystem.specials || [];
+                }
+            }
+            else {
+                powerDamage = powerSystem.roll?.damage || '0';
+                powerSpecials = powerSystem.specials || [];
+            }
+            selectedPowerData = {
+                id: selectedPower.id,
+                name: selectedPower.name,
+                level: powerLevel,
+                specials: powerSpecials,
+                damage: powerDamage
+            };
+            console.log('Mastery System | DEBUG: showDamageDialog - power loaded from actor', {
+                powerId: selectedPowerId,
+                powerName: selectedPower.name,
+                powerLevel: powerLevel,
+                powerDamage,
+                powerSpecials,
+                hasLevelData: !!levelData
+            });
+        }
+        else {
+            console.warn('Mastery System | Selected power not found in actor items', selectedPowerId);
+        }
     }
     console.log('Mastery System | DEBUG: showDamageDialog - powerDamage', powerDamage);
     // Calculate passive damage (from equipped passives)
@@ -47,7 +95,7 @@ export async function showDamageDialog(attacker, target, weapon, raises, flags) 
     console.log('Mastery System | DEBUG: showDamageDialog - availableSpecials', availableSpecials.length);
     // Create damage card as chat message instead of dialog
     return new Promise((resolve) => {
-        const damageCardContent = createDamageCardContent(attacker, target, baseDamage, powerDamage, passiveDamage, raises, availableSpecials, weaponSpecials, resolve, flags?.selectedPower);
+        const damageCardContent = createDamageCardContent(attacker, target, baseDamage, powerDamage, passiveDamage, raises, availableSpecials, weaponSpecials, resolve, selectedPowerData);
         const chatData = {
             user: game.user?.id,
             speaker: ChatMessage.getSpeaker({ actor: attacker }),
@@ -58,13 +106,14 @@ export async function showDamageDialog(attacker, target, weapon, raises, flags) 
                     damageType: 'selection',
                     attackerId: attacker.id,
                     targetId: target.id,
+                    weaponId: weaponId,
+                    selectedPowerId: selectedPowerId,
                     baseDamage,
                     powerDamage,
                     passiveDamage,
                     raises,
                     availableSpecials,
-                    weaponSpecials,
-                    selectedPower: flags?.selectedPower || null
+                    weaponSpecials
                 }
             }
         };

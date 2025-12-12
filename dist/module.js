@@ -427,35 +427,19 @@ Hooks.once('ready', () => {
                             console.log('Mastery System | DEBUG: Updated flags from message', {
                                 originalSelectedPowerId: flags.selectedPowerId,
                                 updatedSelectedPowerId: updatedFlags.selectedPowerId,
-                                originalRaises: flags.raises,
-                                updatedRaises: updatedFlags.raises
+                                originalWeaponId: flags.weaponId,
+                                updatedWeaponId: updatedFlags.weaponId
                             });
                         }
                     }
-                    // Get equipped weapon
+                    // Get equipped weapon ID (just the ID, not the full object)
                     const items = attacker.items || [];
                     const equippedWeapon = items.find((item) => item.type === 'weapon' && item.system?.equipped === true);
-                    console.log('Mastery System | DEBUG: Equipped weapon search', {
-                        totalItems: items.length,
-                        weaponItems: items.filter((item) => item.type === 'weapon').length,
-                        equippedWeapon: equippedWeapon ? {
-                            id: equippedWeapon.id,
-                            name: equippedWeapon.name,
-                            damage: equippedWeapon.system?.damage || equippedWeapon.system?.weaponDamage,
-                            equipped: equippedWeapon.system?.equipped
-                        } : null
+                    const weaponId = equippedWeapon ? equippedWeapon.id : null;
+                    console.log('Mastery System | DEBUG: Weapon and power IDs', {
+                        weaponId: weaponId,
+                        selectedPowerId: updatedFlags.selectedPowerId
                     });
-                    // Get selected power data from updated flags
-                    const selectedPowerId = updatedFlags.selectedPowerId;
-                    const selectedPower = selectedPowerId ? items.find((item) => item.id === selectedPowerId) : null;
-                    const selectedPowerData = selectedPower ? {
-                        id: selectedPower.id,
-                        name: selectedPower.name,
-                        level: updatedFlags.selectedPowerLevel || selectedPower.system?.level || 1,
-                        specials: updatedFlags.selectedPowerSpecials || selectedPower.system?.specials || [],
-                        damage: updatedFlags.selectedPowerDamage || selectedPower.system?.roll?.damage || ''
-                    } : null;
-                    console.log('Mastery System | DEBUG: Selected power data', selectedPowerData);
                     // result.raises is already calculated based on the adjusted TN (which includes manual raises)
                     // So we just use result.raises directly
                     const totalRaises = result.raises || 0;
@@ -469,12 +453,9 @@ Hooks.once('ready', () => {
                         currentTargetEvade: currentTargetEvade,
                         baseEvade: flags.targetEvade
                     });
-                    // Import and show damage dialog
+                    // Import and show damage dialog - pass only IDs, not full objects
                     const { showDamageDialog } = await import('./dice/damage-dialog.js');
-                    const damageResult = await showDamageDialog(attacker, target, equippedWeapon, totalRaises, {
-                        ...updatedFlags,
-                        selectedPower: selectedPowerData
-                    });
+                    const damageResult = await showDamageDialog(attacker, target, weaponId, updatedFlags.selectedPowerId || null, totalRaises, updatedFlags);
                     if (damageResult) {
                         // Roll and display damage
                         await rollAndDisplayDamage(damageResult, attacker, target, flags);
