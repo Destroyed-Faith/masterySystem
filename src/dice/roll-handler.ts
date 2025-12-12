@@ -194,8 +194,8 @@ async function sendRollToChat(
   const formula = `${result.dice.length}d8${result.skill !== 0 ? ` + ${result.skill}` : ''}`;
   const roll = new Roll(formula);
   
-  // Evaluate the roll first to get the structure
-  await roll.evaluate({ async: false });
+  // Evaluate the roll synchronously (async option removed in Foundry v13)
+  roll.evaluateSync();
   
   // Now replace the dice results with our actual rolled values
   // We need to modify the dice terms to show our actual results
@@ -280,13 +280,13 @@ async function sendRollToChat(
     </div>
   `;
   
-  // Create chat message with the Roll object
+  // Create chat message with the Roll object (use rolls array instead of type in v13)
   const chatData: any = {
     user: (game as any).user?.id,
     speaker: actor ? ChatMessage.getSpeaker({ actor }) : ChatMessage.getSpeaker(),
     content,
-    type: CONST.CHAT_MESSAGE_TYPES.ROLL,
-    roll: roll,
+    style: CONST.CHAT_MESSAGE_STYLES.OTHER,
+    rolls: [roll],
     sound: CONFIG.sounds.dice,
     flags: {
       'mastery-system': {

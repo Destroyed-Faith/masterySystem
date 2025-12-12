@@ -79,8 +79,19 @@ export async function showDamageDialog(
  */
 async function calculatePassiveDamage(actor: Actor): Promise<string> {
   try {
-    // Import passive functions to get slots
-    const passivesModule = await import('../../dist/powers/passives.js' as any);
+    // Import passive functions to get slots (try multiple paths)
+    let passivesModule;
+    try {
+      passivesModule = await import('../../dist/powers/passives.js' as any);
+    } catch (e) {
+      // Try alternative path
+      try {
+        passivesModule = await import('../../utils/powers/passives.js' as any);
+      } catch (e2) {
+        console.warn('Mastery System | Could not load passives module, skipping passive damage');
+        return '0';
+      }
+    }
     const { getPassiveSlots } = passivesModule;
     
     const slots = getPassiveSlots(actor);
@@ -145,7 +156,18 @@ async function collectAvailableSpecials(actor: Actor, weapon: any | null): Promi
   
   // Get passives that can be used on attack (from passive slots)
   try {
-    const passivesModule = await import('../../dist/powers/passives.js' as any);
+    // Try multiple paths for passives module
+    let passivesModule;
+    try {
+      passivesModule = await import('../../dist/powers/passives.js' as any);
+    } catch (e) {
+      try {
+        passivesModule = await import('../../utils/powers/passives.js' as any);
+      } catch (e2) {
+        console.warn('Mastery System | Could not load passives module for specials');
+        return specials; // Return what we have so far
+      }
+    }
     const { getPassiveSlots } = passivesModule;
     
     const slots = getPassiveSlots(actor);
@@ -187,8 +209,13 @@ async function collectAvailableSpecials(actor: Actor, weapon: any | null): Promi
 
 /**
  * Damage Dialog Application
+ * Uses HandlebarsApplicationMixin for Foundry VTT v13 compatibility
  */
-class DamageDialog extends Application {
+const DamageDialogBase = (foundry as any)?.applications?.api?.HandlebarsApplicationMixin 
+  ? foundry.utils.mergeObject(Application, (foundry as any).applications.api.HandlebarsApplicationMixin)
+  : Application;
+
+class DamageDialog extends DamageDialogBase {
   private data: DamageDialogData;
   private resolve: (result: DamageResult | null) => void;
   private raiseSelections: Map<number, { type: 'special' | 'damage'; value: string }> = new Map();
@@ -200,8 +227,7 @@ class DamageDialog extends Application {
   }
   
   static get defaultOptions(): any {
-    return {
-      ...super.defaultOptions,
+    return foundry.utils.mergeObject(super.defaultOptions, {
       id: 'mastery-damage-dialog',
       title: 'Calculate Damage',
       template: 'systems/mastery-system/templates/dice/damage-dialog.hbs',
@@ -209,10 +235,10 @@ class DamageDialog extends Application {
       height: 'auto',
       resizable: true,
       classes: ['mastery-damage-dialog']
-    };
+    });
   }
   
-  override async getData(): Promise<any> {
+  async getData(): Promise<any> {
     return {
       ...this.data,
       raiseSelections: Array.from(this.raiseSelections.entries()).map(([index, selection]) => ({
@@ -222,7 +248,7 @@ class DamageDialog extends Application {
     };
   }
   
-  override activateListeners(html: JQuery): void {
+  activateListeners(html: JQuery): void {
     super.activateListeners(html);
     
     // Handle raise selection changes

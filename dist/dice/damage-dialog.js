@@ -36,8 +36,21 @@ export async function showDamageDialog(attacker, target, weapon, raises, _flags)
  */
 async function calculatePassiveDamage(actor) {
     try {
-        // Import passive functions to get slots
-        const passivesModule = await import('../../dist/powers/passives.js');
+        // Import passive functions to get slots (try multiple paths)
+        let passivesModule;
+        try {
+            passivesModule = await import('../../dist/powers/passives.js');
+        }
+        catch (e) {
+            // Try alternative path
+            try {
+                passivesModule = await import('../../utils/powers/passives.js');
+            }
+            catch (e2) {
+                console.warn('Mastery System | Could not load passives module, skipping passive damage');
+                return '0';
+            }
+        }
         const { getPassiveSlots } = passivesModule;
         const slots = getPassiveSlots(actor);
         const activePassives = slots.filter((slot) => slot.active && slot.passive);
@@ -95,7 +108,20 @@ async function collectAvailableSpecials(actor, weapon) {
     }
     // Get passives that can be used on attack (from passive slots)
     try {
-        const passivesModule = await import('../../dist/powers/passives.js');
+        // Try multiple paths for passives module
+        let passivesModule;
+        try {
+            passivesModule = await import('../../dist/powers/passives.js');
+        }
+        catch (e) {
+            try {
+                passivesModule = await import('../../utils/powers/passives.js');
+            }
+            catch (e2) {
+                console.warn('Mastery System | Could not load passives module for specials');
+                return specials; // Return what we have so far
+            }
+        }
         const { getPassiveSlots } = passivesModule;
         const slots = getPassiveSlots(actor);
         const activePassives = slots.filter((slot) => slot.active && slot.passive);
@@ -133,8 +159,12 @@ async function collectAvailableSpecials(actor, weapon) {
 }
 /**
  * Damage Dialog Application
+ * Uses HandlebarsApplicationMixin for Foundry VTT v13 compatibility
  */
-class DamageDialog extends Application {
+const DamageDialogBase = foundry?.applications?.api?.HandlebarsApplicationMixin
+    ? foundry.utils.mergeObject(Application, foundry.applications.api.HandlebarsApplicationMixin)
+    : Application;
+class DamageDialog extends DamageDialogBase {
     data;
     resolve;
     raiseSelections = new Map();
@@ -144,8 +174,7 @@ class DamageDialog extends Application {
         this.resolve = resolve;
     }
     static get defaultOptions() {
-        return {
-            ...super.defaultOptions,
+        return foundry.utils.mergeObject(super.defaultOptions, {
             id: 'mastery-damage-dialog',
             title: 'Calculate Damage',
             template: 'systems/mastery-system/templates/dice/damage-dialog.hbs',
@@ -153,7 +182,7 @@ class DamageDialog extends Application {
             height: 'auto',
             resizable: true,
             classes: ['mastery-damage-dialog']
-        };
+        });
     }
     async getData() {
         return {
