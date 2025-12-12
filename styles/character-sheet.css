@@ -1928,7 +1928,115 @@
   font-size: 16px;
 }
 
-/* ========== Character Creation Lock ========== */
+/* ========== Character Creation Banner ========== */
+.mastery-system.sheet.actor.character .creation-banner {
+  background: linear-gradient(135deg, #8b0000 0%, #5a0000 100%);
+  border-bottom: 2px solid #ffd700;
+  padding: 12px 20px;
+  margin: 0;
+}
+
+.mastery-system.sheet.actor.character .creation-banner-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.mastery-system.sheet.actor.character .creation-banner-content h3 {
+  margin: 0;
+  color: #ffd700;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mastery-system.sheet.actor.character .creation-banner-content p {
+  margin: 0;
+  color: #fff;
+  font-size: 13px;
+  flex: 1;
+}
+
+.mastery-system.sheet.actor.character .creation-banner-content .finalize-creation {
+  background: #28a745;
+  color: #fff;
+  border: 2px solid #1e7e34;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.mastery-system.sheet.actor.character .creation-banner-content .finalize-creation:hover {
+  background: #218838;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.mastery-system.sheet.actor.character .creation-banner-content .creation-status {
+  color: #ffd700;
+  font-style: italic;
+  font-size: 12px;
+}
+
+.mastery-system.sheet.actor.character .points-box.creation-points {
+  min-width: 60px;
+  max-width: 70px;
+}
+
+.mastery-system.sheet.actor.character .points-box.creation-points .points-label {
+  font-size: 10px;
+  color: #aaa;
+  margin-left: 2px;
+}
+
+.mastery-system.sheet.actor.character .points-box.creation-points .points-value.complete {
+  color: #28a745;
+}
+
+.mastery-system.sheet.actor.character .points-box.creation-points .points-value.remaining {
+  color: #ffd700;
+}
+
+.mastery-system.sheet.actor.character .creation-controls {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.mastery-system.sheet.actor.character .creation-controls button {
+  padding: 4px 8px;
+  min-width: 24px;
+  height: 24px;
+  border-radius: 3px;
+  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.mastery-system.sheet.actor.character .creation-controls button:hover:not(:disabled) {
+  background: rgba(255,255,255,0.2);
+  transform: scale(1.1);
+}
+
+.mastery-system.sheet.actor.character .creation-controls button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
 .mastery-system.sheet.actor.character .creation-lock-overlay {
   position: absolute;
   top: 0;

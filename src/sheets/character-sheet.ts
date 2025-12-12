@@ -150,6 +150,41 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Check if character creation is complete
     context.creationComplete = context.system.creation?.complete !== false;
     
+    // Calculate creation point counters if in creation mode
+    if (!context.creationComplete) {
+      const masteryRank = context.system.mastery?.rank || 2;
+      const skillPointsConfig = (CONFIG as any).MASTERY?.creation?.skillPoints || 16;
+      
+      // Calculate attribute points spent
+      let attributePointsSpent = 0;
+      const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
+      for (const key of attributeKeys) {
+        const attrValue = context.system.attributes?.[key]?.value || masteryRank;
+        if (attrValue > masteryRank) {
+          attributePointsSpent += attrValue - masteryRank;
+        }
+      }
+      
+      // Calculate skill points spent
+      let skillPointsSpent = 0;
+      for (const skillValue of Object.values(context.system.skills || {})) {
+        skillPointsSpent += (typeof skillValue === 'number' ? skillValue : 0);
+      }
+      
+      // Calculate disadvantage points
+      const disadvantagePoints = (context.system.disadvantages || []).reduce((sum: number, d: any) => sum + (d.points || 0), 0);
+      
+      context.creation = {
+        masteryRank,
+        attributePointsRemaining: 16 - attributePointsSpent,
+        attributePointsSpent,
+        skillPointsRemaining: skillPointsConfig - skillPointsSpent,
+        skillPointsSpent,
+        disadvantagePoints,
+        canFinalize: attributePointsSpent === 16 && skillPointsSpent === skillPointsConfig
+      };
+    }
+    
     // Get Mastery Rank from settings (per player or global default)
     const playerMasteryRanks = (game as any).settings.get('mastery-system', 'playerMasteryRanks') || {};
     const defaultMasteryRank = (game as any).settings.get('mastery-system', 'defaultMasteryRank') || 2;
@@ -335,95 +370,20 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       actorName: this.actor?.name
     });
     
-    // Character Creation Wizard button
-    const wizardButton = html.find('.open-creation-wizard');
+    // Character Creation buttons
     const unlockButton = html.find('.force-unlock-creation');
-    console.log('Mastery System | Setting up creation wizard buttons', {
-      wizardButtonFound: wizardButton.length,
-      unlockButtonFound: unlockButton.length,
-      wizardButtonHTML: wizardButton.length > 0 ? wizardButton[0].outerHTML.substring(0, 200) : 'NOT FOUND',
-      unlockButtonHTML: unlockButton.length > 0 ? unlockButton[0].outerHTML.substring(0, 200) : 'NOT FOUND',
-      htmlLength: html.length,
-      htmlContent: html.html()?.substring(0, 500)
-    });
-    
-    if (wizardButton.length > 0) {
-      console.log('Mastery System | Wizard button found, attaching handler');
-      wizardButton.off('click.creation-wizard').on('click.creation-wizard', (e: JQuery.ClickEvent) => {
-        console.log('Mastery System | Wizard button CLICKED!', {
-          event: e,
-          target: e.target,
-          currentTarget: e.currentTarget,
-          button: $(e.currentTarget)
-        });
-        this.#onOpenCreationWizard(e);
-      });
-      
-      // Also try direct click handler as backup
-      wizardButton[0].addEventListener('click', (e: MouseEvent) => {
-        console.log('Mastery System | Wizard button CLICKED (addEventListener)!', e);
+    if (unlockButton.length > 0) {
+      unlockButton.off('click.force-unlock').on('click.force-unlock', (e: JQuery.ClickEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        this.#onOpenCreationWizard(e as any);
-      }, true);
-    } else {
-      console.error('Mastery System | Wizard button NOT FOUND in HTML!');
-    }
-    
-    if (unlockButton.length > 0) {
-      console.log('Mastery System | Unlock button found, attaching handler');
-      unlockButton.off('click.force-unlock').on('click.force-unlock', (e: JQuery.ClickEvent) => {
-        console.log('Mastery System | Unlock button CLICKED!', e);
         this.#onForceUnlockCreation(e);
       });
-    } else {
-      console.warn('Mastery System | Unlock button NOT FOUND in HTML!');
     }
     
-    // Check if creation is incomplete and lock sheet
+    // Check if creation is incomplete - don't lock, just disable non-creation fields
     const creationComplete = (this.actor as any).system?.creation?.complete !== false;
-    console.log('Mastery System | Creation complete check', {
-      creationComplete,
-      systemCreation: (this.actor as any).system?.creation,
-      willLock: !creationComplete
-    });
-    
     if (!creationComplete) {
-      console.log('Mastery System | Locking sheet for creation');
       this.#lockSheetForCreation(html);
-      
-      // Add global click listener for debugging
-      setTimeout(() => {
-        const overlay = html.find('.creation-lock-overlay');
-        const banner = html.find('.creation-lock-banner');
-        const wizardBtn = html.find('.open-creation-wizard');
-        
-        console.log('Mastery System | Debug: Overlay elements after lock', {
-          overlayFound: overlay.length,
-          bannerFound: banner.length,
-          wizardBtnFound: wizardBtn.length,
-          overlayHTML: overlay.length > 0 ? overlay[0].outerHTML.substring(0, 300) : 'NOT FOUND',
-          wizardBtnHTML: wizardBtn.length > 0 ? wizardBtn[0].outerHTML : 'NOT FOUND'
-        });
-        
-        // Test if button is actually in DOM
-        const testBtn = document.querySelector('.open-creation-wizard');
-        console.log('Mastery System | Debug: Button in document.querySelector', {
-          found: !!testBtn,
-          element: testBtn
-        });
-        
-        // Add click listener directly to document for testing
-        document.addEventListener('click', (e: MouseEvent) => {
-          const target = e.target as HTMLElement;
-          if (target?.closest('.open-creation-wizard')) {
-            console.log('Mastery System | DEBUG: Click detected on wizard button via document listener!', {
-              target,
-              button: target.closest('.open-creation-wizard')
-            });
-          }
-        }, true);
-      }, 500);
     }
     
     // Roll buttons work for everyone
@@ -434,6 +394,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Point spending buttons (JavaScript will check permissions)
     html.find('.attribute-spend-point').on('click', this.#onAttributeSpendPoint.bind(this));
     html.find('.skill-spend-point').on('click', this.#onSkillSpendPoint.bind(this));
+    
+    // Character Creation mode buttons
+    html.find('.attr-increase').on('click', this.#onCreationAttributeIncrease.bind(this));
+    html.find('.attr-decrease').on('click', this.#onCreationAttributeDecrease.bind(this));
+    html.find('.skill-increase').on('click', this.#onCreationSkillIncrease.bind(this));
+    html.find('.skill-decrease').on('click', this.#onCreationSkillDecrease.bind(this));
+    html.find('.finalize-creation').on('click', this.#onFinalizeCreation.bind(this));
     
     // Profile image click handlers (work for everyone)
     // Use event delegation to handle clicks even if elements are added later
@@ -1194,102 +1161,22 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
   /**
    * Lock sheet when character creation is incomplete
+   * Only disable non-creation fields, allow creation controls
    */
   #lockSheetForCreation(html: JQuery) {
-    // Disable all input fields
-    html.find('input, textarea, select').prop('disabled', true);
+    // Disable non-creation inputs (name, bio, etc.)
+    html.find('input[name="name"], textarea, select').prop('disabled', true);
     
-    // Disable buttons (except creation wizard and force unlock buttons)
-    html.find('button:not(.open-creation-wizard):not(.force-unlock-creation)').prop('disabled', true);
+    // Disable buttons except creation controls
+    html.find('button:not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.force-unlock-creation)').prop('disabled', true);
     
-    // Ensure wizard and unlock buttons are NOT disabled
-    html.find('.open-creation-wizard, .force-unlock-creation').prop('disabled', false);
+    // Ensure creation buttons are enabled
+    html.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .force-unlock-creation').prop('disabled', false);
     
     // Add CSS class for styling
     html.addClass('creation-incomplete');
   }
 
-  /**
-   * Open Character Creation Wizard
-   */
-  async #onOpenCreationWizard(event: JQuery.ClickEvent | MouseEvent) {
-    console.log('Mastery System | #onOpenCreationWizard CALLED', {
-      eventType: event.type,
-      event: event,
-      actor: this.actor?.name,
-      actorId: this.actor?.id
-    });
-    
-    if (event.preventDefault) {
-      event.preventDefault();
-    }
-    if (event.stopPropagation) {
-      event.stopPropagation();
-    }
-    
-    console.log('Mastery System | Starting wizard import process...');
-    
-    try {
-      // Try relative path first (for development)
-      let wizardModule;
-      let importPath = '';
-      
-      try {
-        importPath = './character-creation-wizard.js';
-        console.log('Mastery System | Attempting import from:', importPath);
-        wizardModule = await import(importPath);
-        console.log('Mastery System | Import successful from relative path', {
-          module: wizardModule,
-          hasFunction: !!wizardModule?.openCharacterCreationWizard
-        });
-      } catch (e) {
-        console.warn('Mastery System | Relative import failed, trying system path', e);
-        // Fallback to full system path (for runtime)
-        try {
-          importPath = 'systems/mastery-system/dist/sheets/character-creation-wizard.js';
-          console.log('Mastery System | Attempting import from:', importPath);
-          wizardModule = await import(importPath as any);
-          console.log('Mastery System | Import successful from system path', {
-            module: wizardModule,
-            hasFunction: !!wizardModule?.openCharacterCreationWizard
-          });
-        } catch (e2) {
-          console.error('Mastery System | Both import paths failed', {
-            relativeError: e,
-            systemError: e2
-          });
-          throw e2;
-        }
-      }
-      
-      console.log('Mastery System | Checking for openCharacterCreationWizard function...', {
-        moduleKeys: Object.keys(wizardModule || {}),
-        hasFunction: !!wizardModule?.openCharacterCreationWizard,
-        functionType: typeof wizardModule?.openCharacterCreationWizard
-      });
-      
-      if (wizardModule?.openCharacterCreationWizard) {
-        console.log('Mastery System | Calling openCharacterCreationWizard with actor:', this.actor);
-        const result = wizardModule.openCharacterCreationWizard(this.actor as MasteryActor);
-        console.log('Mastery System | Wizard opened, result:', result);
-      } else {
-        console.error('Mastery System | openCharacterCreationWizard function not found in module', {
-          module: wizardModule,
-          moduleKeys: Object.keys(wizardModule || {}),
-          availableExports: Object.keys(wizardModule || {})
-        });
-        ui.notifications?.error('Character Creation Wizard module not found. Check console for details.');
-      }
-    } catch (error) {
-      console.error('Mastery System | Failed to open character creation wizard', {
-        error,
-        errorMessage: error instanceof Error ? error.message : String(error),
-        errorStack: error instanceof Error ? error.stack : 'No stack',
-        actor: this.actor?.name
-      });
-      ui.notifications?.error(`Failed to open Character Creation Wizard: ${error instanceof Error ? error.message : String(error)}`);
-    }
-  }
 
   /**
    * Force unlock creation (GM only)
@@ -1318,6 +1205,187 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         console.error('Mastery System | Failed to force unlock', error);
         ui.notifications?.error('Failed to unlock character creation.');
       }
+    }
+  }
+
+  /**
+   * Character Creation: Increase Attribute
+   */
+  async #onCreationAttributeIncrease(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    const attribute = $(event.currentTarget).data('attribute');
+    if (!attribute) return;
+    
+    const system = (this.actor as any).system;
+    const masteryRank = system.mastery?.rank || 2;
+    const currentValue = system.attributes?.[attribute]?.value || masteryRank;
+    // Calculate current points spent
+    let attributePointsSpent = 0;
+    const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
+    for (const key of attributeKeys) {
+      const attrValue = system.attributes?.[key]?.value || masteryRank;
+      if (attrValue > masteryRank) {
+        attributePointsSpent += attrValue - masteryRank;
+      }
+    }
+    
+    // Validate
+    if (currentValue >= 8) {
+      ui.notifications?.warn('Attribute cannot exceed 8 during character creation.');
+      return;
+    }
+    if (attributePointsSpent >= 16) {
+      ui.notifications?.warn('All attribute points have been allocated.');
+      return;
+    }
+    
+    // Update
+    await this.actor.update({
+      [`system.attributes.${attribute}.value`]: currentValue + 1
+    });
+    
+    this.render();
+  }
+
+  /**
+   * Character Creation: Decrease Attribute
+   */
+  async #onCreationAttributeDecrease(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    const attribute = $(event.currentTarget).data('attribute');
+    if (!attribute) return;
+    
+    const system = (this.actor as any).system;
+    const masteryRank = system.mastery?.rank || 2;
+    const currentValue = system.attributes?.[attribute]?.value || masteryRank;
+    
+    // Validate
+    if (currentValue <= masteryRank) {
+      ui.notifications?.warn('Attribute cannot go below Mastery Rank.');
+      return;
+    }
+    
+    // Update
+    await this.actor.update({
+      [`system.attributes.${attribute}.value`]: currentValue - 1
+    });
+    
+    this.render();
+  }
+
+  /**
+   * Character Creation: Increase Skill
+   */
+  async #onCreationSkillIncrease(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    const skill = $(event.currentTarget).data('skill');
+    if (!skill) return;
+    
+    const system = (this.actor as any).system;
+    const currentValue = system.skills?.[skill] || 0;
+    const skillPointsConfig = (CONFIG as any).MASTERY?.creation?.skillPoints || 16;
+    
+    // Calculate current points spent
+    let skillPointsSpent = 0;
+    for (const skillValue of Object.values(system.skills || {})) {
+      skillPointsSpent += (typeof skillValue === 'number' ? skillValue : 0);
+    }
+    
+    // Validate
+    if (currentValue >= 4) {
+      ui.notifications?.warn('Skill cannot exceed 4 during character creation.');
+      return;
+    }
+    if (skillPointsSpent >= skillPointsConfig) {
+      ui.notifications?.warn('All skill points have been allocated.');
+      return;
+    }
+    
+    // Update
+    await this.actor.update({
+      [`system.skills.${skill}`]: currentValue + 1
+    });
+    
+    this.render();
+  }
+
+  /**
+   * Character Creation: Decrease Skill
+   */
+  async #onCreationSkillDecrease(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    const skill = $(event.currentTarget).data('skill');
+    if (!skill) return;
+    
+    const system = (this.actor as any).system;
+    const currentValue = system.skills?.[skill] || 0;
+    
+    // Validate
+    if (currentValue <= 0) {
+      ui.notifications?.warn('Skill cannot go below 0.');
+      return;
+    }
+    
+    // Update
+    await this.actor.update({
+      [`system.skills.${skill}`]: currentValue - 1
+    });
+    
+    this.render();
+  }
+
+  /**
+   * Finalize Character Creation
+   */
+  async #onFinalizeCreation(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    
+    const system = (this.actor as any).system;
+    const masteryRank = system.mastery?.rank || 2;
+    const skillPointsConfig = (CONFIG as any).MASTERY?.creation?.skillPoints || 16;
+    
+    // Calculate points spent
+    let attributePointsSpent = 0;
+    const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
+    for (const key of attributeKeys) {
+      const attrValue = system.attributes?.[key]?.value || masteryRank;
+      if (attrValue > masteryRank) {
+        attributePointsSpent += attrValue - masteryRank;
+      }
+    }
+    
+    let skillPointsSpent = 0;
+    for (const skillValue of Object.values(system.skills || {})) {
+      skillPointsSpent += (typeof skillValue === 'number' ? skillValue : 0);
+    }
+    
+    const disadvantagePoints = (system.disadvantages || []).reduce((sum: number, d: any) => sum + (d.points || 0), 0);
+    
+    // Validate
+    if (attributePointsSpent !== 16) {
+      ui.notifications?.error(`Must spend exactly 16 attribute points. Currently spent: ${attributePointsSpent}`);
+      return;
+    }
+    if (skillPointsSpent !== skillPointsConfig) {
+      ui.notifications?.error(`Must spend exactly ${skillPointsConfig} skill points. Currently spent: ${skillPointsSpent}`);
+      return;
+    }
+    
+    // Sync Faith Fractures
+    const maxFF = system.faithFractures?.maximum || 10;
+    const updateData: any = {
+      'system.creation.complete': true,
+      'system.faithFractures.current': Math.min(disadvantagePoints, maxFF),
+      'system.faithFractures.maximum': Math.max(disadvantagePoints, maxFF)
+    };
+    
+    try {
+      await this.actor.update(updateData);
+      ui.notifications?.info('Character creation complete!');
+      this.render();
+    } catch (error) {
+      console.error('Mastery System | Failed to finalize character creation', error);
+      ui.notifications?.error('Failed to finalize character creation.');
     }
   }
 

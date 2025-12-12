@@ -39,6 +39,7 @@
         <span class="rank-value">{{default system.mastery.rank 2}}</span>
       </div>
       
+      {{#if creationComplete}}
       <div class="points-box" title="Attribute Points">
         <label>AP</label>
         <div class="points-display">
@@ -52,6 +53,32 @@
           <span class="points-value">{{default system.points.mastery 0}}</span>
         </div>
       </div>
+      {{else}}
+      <!-- Character Creation Point Counters -->
+      <div class="points-box creation-points" title="Attribute Points Remaining">
+        <label>AP</label>
+        <div class="points-display">
+          <span class="points-value {{#if (eq creation.attributePointsRemaining 0)}}complete{{else}}remaining{{/if}}">{{creation.attributePointsRemaining}}</span>
+          <span class="points-label">/ 16</span>
+        </div>
+      </div>
+      
+      <div class="points-box creation-points" title="Skill Points Remaining">
+        <label>SP</label>
+        <div class="points-display">
+          <span class="points-value {{#if (eq creation.skillPointsRemaining 0)}}complete{{else}}remaining{{/if}}">{{creation.skillPointsRemaining}}</span>
+          <span class="points-label">/ {{creation.skillPointsConfig}}</span>
+        </div>
+      </div>
+      
+      <div class="points-box creation-points" title="Disadvantage Points">
+        <label>DP</label>
+        <div class="points-display">
+          <span class="points-value">{{creation.disadvantagePoints}}</span>
+          <span class="points-label">/ 8</span>
+        </div>
+      </div>
+      {{/if}}
       
       <div class="character-name-box">
         {{#if editable}}
@@ -63,15 +90,19 @@
     </div>
   </header>
 
-  <!-- Character Creation Lock Overlay -->
+  <!-- Character Creation Banner -->
   {{#unless creationComplete}}
-  <div class="creation-lock-overlay">
-    <div class="creation-lock-banner">
-      <h2><i class="fas fa-lock"></i> Character Creation Incomplete</h2>
-      <p>You must allocate points to unlock the sheet.</p>
-      <button type="button" class="open-creation-wizard">
-        <i class="fas fa-wizard"></i> Open Character Creation
+  <div class="creation-banner">
+    <div class="creation-banner-content">
+      <h3><i class="fas fa-user-edit"></i> Character Creation Mode</h3>
+      <p>Allocate your points: <strong>{{creation.attributePointsRemaining}}</strong> Attribute Points, <strong>{{creation.skillPointsRemaining}}</strong> Skill Points remaining.</p>
+      {{#if creation.canFinalize}}
+      <button type="button" class="finalize-creation" title="Finalize character creation">
+        <i class="fas fa-check-circle"></i> Finalize Character Creation
       </button>
+      {{else}}
+      <span class="creation-status">Complete Attributes and Skills to finalize</span>
+      {{/if}}
       {{#if (userIsGM)}}
       <button type="button" class="force-unlock-creation" title="GM Only: Force unlock character creation">
         <i class="fas fa-unlock"></i> Force Unlock
@@ -112,9 +143,21 @@
                 <h4 class="attribute-name"><i class="fas fa-dumbbell"></i> Might</h4>
                 <div class="attribute-value-with-button">
                   <div class="attribute-value">{{default value 0}}</div>
+                  {{#if ../creationComplete}}
+                  {{#if ../creationComplete}}
                   <button type="button" class="attribute-spend-point" data-attribute="might" title="Spend Attribute Point">
                     <i class="fas fa-arrow-up"></i>
                   </button>
+                  {{else}}
+                  <div class="creation-controls">
+                    <button type="button" class="attr-decrease" data-attribute="might" title="Decrease Attribute" {{#if (lte value ../creation.masteryRank)}}disabled{{/if}}>
+                      <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="attr-increase" data-attribute="might" title="Increase Attribute" {{#if (gte value 8)}}disabled{{/if}} {{#if (eq ../creation.attributePointsRemaining 0)}}disabled{{/if}}>
+                      <i class="fas fa-plus"></i>
+                    </button>
+                  </div>
+                  {{/if}}
                 </div>
               </div>
               
@@ -145,9 +188,20 @@
                 <h4 class="attribute-name"><i class="fas fa-running"></i> Agility</h4>
                 <div class="attribute-value-with-button">
                   <div class="attribute-value">{{default value 0}}</div>
+                  {{#if ../creationComplete}}
                   <button type="button" class="attribute-spend-point" data-attribute="agility" title="Spend Attribute Point">
                     <i class="fas fa-arrow-up"></i>
                   </button>
+                  {{else}}
+                  <div class="creation-controls">
+                    <button type="button" class="attr-decrease" data-attribute="agility" title="Decrease Attribute" {{#if (lte value ../creation.masteryRank)}}disabled{{/if}}>
+                      <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="attr-increase" data-attribute="agility" title="Increase Attribute" {{#if (gte value 8)}}disabled{{/if}} {{#if (eq ../creation.attributePointsRemaining 0)}}disabled{{/if}}>
+                      <i class="fas fa-plus"></i>
+                    </button>
+                  </div>
+                  {{/if}}
                 </div>
               </div>
               
@@ -176,9 +230,20 @@
                 <h4 class="attribute-name"><i class="fas fa-heart"></i> Vitality</h4>
                 <div class="attribute-value-with-button">
                   <div class="attribute-value">{{default value 0}}</div>
+                  {{#if ../creationComplete}}
                   <button type="button" class="attribute-spend-point" data-attribute="vitality" title="Spend Attribute Point">
                     <i class="fas fa-arrow-up"></i>
                   </button>
+                  {{else}}
+                  <div class="creation-controls">
+                    <button type="button" class="attr-decrease" data-attribute="vitality" title="Decrease Attribute" {{#if (lte value ../creation.masteryRank)}}disabled{{/if}}>
+                      <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="attr-increase" data-attribute="vitality" title="Increase Attribute" {{#if (gte value 8)}}disabled{{/if}} {{#if (eq ../creation.attributePointsRemaining 0)}}disabled{{/if}}>
+                      <i class="fas fa-plus"></i>
+                    </button>
+                  </div>
+                  {{/if}}
                 </div>
               </div>
               
@@ -207,9 +272,20 @@
                 <h4 class="attribute-name"><i class="fas fa-brain"></i> Wits</h4>
                 <div class="attribute-value-with-button">
                   <div class="attribute-value">{{default value 0}}</div>
+                  {{#if ../creationComplete}}
                   <button type="button" class="attribute-spend-point" data-attribute="wits" title="Spend Attribute Point">
                     <i class="fas fa-arrow-up"></i>
                   </button>
+                  {{else}}
+                  <div class="creation-controls">
+                    <button type="button" class="attr-decrease" data-attribute="wits" title="Decrease Attribute" {{#if (lte value ../creation.masteryRank)}}disabled{{/if}}>
+                      <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="attr-increase" data-attribute="wits" title="Increase Attribute" {{#if (gte value 8)}}disabled{{/if}} {{#if (eq ../creation.attributePointsRemaining 0)}}disabled{{/if}}>
+                      <i class="fas fa-plus"></i>
+                    </button>
+                  </div>
+                  {{/if}}
                 </div>
               </div>
               
@@ -243,9 +319,20 @@
                 <h4 class="attribute-name"><i class="fas fa-book"></i> Intellect</h4>
                 <div class="attribute-value-with-button">
                   <div class="attribute-value">{{default value 0}}</div>
+                  {{#if ../creationComplete}}
                   <button type="button" class="attribute-spend-point" data-attribute="intellect" title="Spend Attribute Point">
                     <i class="fas fa-arrow-up"></i>
                   </button>
+                  {{else}}
+                  <div class="creation-controls">
+                    <button type="button" class="attr-decrease" data-attribute="intellect" title="Decrease Attribute" {{#if (lte value ../creation.masteryRank)}}disabled{{/if}}>
+                      <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="attr-increase" data-attribute="intellect" title="Increase Attribute" {{#if (gte value 8)}}disabled{{/if}} {{#if (eq ../creation.attributePointsRemaining 0)}}disabled{{/if}}>
+                      <i class="fas fa-plus"></i>
+                    </button>
+                  </div>
+                  {{/if}}
                 </div>
               </div>
               
@@ -274,9 +361,20 @@
                 <h4 class="attribute-name"><i class="fas fa-mountain"></i> Resolve</h4>
                 <div class="attribute-value-with-button">
                   <div class="attribute-value">{{default value 0}}</div>
+                  {{#if ../creationComplete}}
                   <button type="button" class="attribute-spend-point" data-attribute="resolve" title="Spend Attribute Point">
                     <i class="fas fa-arrow-up"></i>
                   </button>
+                  {{else}}
+                  <div class="creation-controls">
+                    <button type="button" class="attr-decrease" data-attribute="resolve" title="Decrease Attribute" {{#if (lte value ../creation.masteryRank)}}disabled{{/if}}>
+                      <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="attr-increase" data-attribute="resolve" title="Increase Attribute" {{#if (gte value 8)}}disabled{{/if}} {{#if (eq ../creation.attributePointsRemaining 0)}}disabled{{/if}}>
+                      <i class="fas fa-plus"></i>
+                    </button>
+                  </div>
+                  {{/if}}
                 </div>
               </div>
               
@@ -305,9 +403,20 @@
                 <h4 class="attribute-name"><i class="fas fa-users"></i> Influence</h4>
                 <div class="attribute-value-with-button">
                   <div class="attribute-value">{{default value 0}}</div>
+                  {{#if ../creationComplete}}
                   <button type="button" class="attribute-spend-point" data-attribute="influence" title="Spend Attribute Point">
                     <i class="fas fa-arrow-up"></i>
                   </button>
+                  {{else}}
+                  <div class="creation-controls">
+                    <button type="button" class="attr-decrease" data-attribute="influence" title="Decrease Attribute" {{#if (lte value ../creation.masteryRank)}}disabled{{/if}}>
+                      <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="attr-increase" data-attribute="influence" title="Increase Attribute" {{#if (gte value 8)}}disabled{{/if}} {{#if (eq ../creation.attributePointsRemaining 0)}}disabled{{/if}}>
+                      <i class="fas fa-plus"></i>
+                    </button>
+                  </div>
+                  {{/if}}
                 </div>
               </div>
               
@@ -498,9 +607,20 @@
                 </div>
                 <div class="skill-value-display-compact">
                   <span class="skill-value-compact">{{default this.value 0}}</span>
+                  {{#if ../creationComplete}}
                   <button type="button" class="skill-spend-point" data-skill="{{this.key}}" title="Spend Mastery Point (Cost: {{default this.value 0}} pts)">
                     <i class="fas fa-arrow-up"></i>
                   </button>
+                  {{else}}
+                  <div class="creation-controls">
+                    <button type="button" class="skill-decrease" data-skill="{{this.key}}" title="Decrease Skill" {{#if (lte this.value 0)}}disabled{{/if}}>
+                      <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="skill-increase" data-skill="{{this.key}}" title="Increase Skill" {{#if (gte this.value 4)}}disabled{{/if}} {{#if (eq ../creation.skillPointsRemaining 0)}}disabled{{/if}}>
+                      <i class="fas fa-plus"></i>
+                    </button>
+                  </div>
+                  {{/if}}
                 </div>
                 <button type="button" class="skill-roll-compact" data-skill="{{this.key}}" title="Roll {{this.name}}">
                   <i class="fas fa-dice-d20"></i>
