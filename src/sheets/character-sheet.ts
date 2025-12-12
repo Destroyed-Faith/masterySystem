@@ -1293,6 +1293,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const skill = $(event.currentTarget).data('skill');
     if (!skill) return;
     
+    // Save scroll position
+    const skillsTab = this.element.find('.tab.skills');
+    const scrollTop = skillsTab.scrollTop();
+    
     const system = (this.actor as any).system;
     const currentValue = system.skills?.[skill] || 0;
     const skillPointsConfig = (CONFIG as any).MASTERY?.creation?.skillPoints || 16;
@@ -1318,7 +1322,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       [`system.skills.${skill}`]: currentValue + 1
     });
     
-    this.render();
+    await this.render();
+    
+    // Restore scroll position
+    const newSkillsTab = this.element.find('.tab.skills');
+    if (newSkillsTab.length) {
+      newSkillsTab.scrollTop(scrollTop);
+    }
   }
 
   /**
@@ -1328,6 +1338,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     event.preventDefault();
     const skill = $(event.currentTarget).data('skill');
     if (!skill) return;
+    
+    // Save scroll position
+    const skillsTab = this.element.find('.tab.skills');
+    const scrollTop = skillsTab.scrollTop();
     
     const system = (this.actor as any).system;
     const currentValue = system.skills?.[skill] || 0;
@@ -1343,7 +1357,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       [`system.skills.${skill}`]: currentValue - 1
     });
     
-    this.render();
+    await this.render();
+    
+    // Restore scroll position
+    const newSkillsTab = this.element.find('.tab.skills');
+    if (newSkillsTab.length) {
+      newSkillsTab.scrollTop(scrollTop);
+    }
   }
 
   /**
