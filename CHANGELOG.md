@@ -2,6 +2,56 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.94] - 2025-01-XX
+
+### Added
+- **Character Creation Workflow**: Complete character creation system with guided wizard
+  - 5-step wizard: Overview → Attributes → Skills → Disadvantages → Review
+  - Attribute Point Buy: Start at Mastery Rank, spend exactly 16 points (max 8 per attribute)
+  - Skill Point Buy: Start at 0, spend exactly 16 points (configurable via CONFIG), max 4 per skill
+  - Disadvantages system: Optional 0-8 points, determines starting Faith Fractures
+  - Sheet locking: Hard lock until creation complete (prevents editing, shows overlay banner)
+  - GM-only "Force Unlock" option for existing characters
+  - Auto-migration: Existing characters automatically marked as creation complete
+- **Disadvantages System**: Complete implementation with all 7 disadvantage types
+  - Addiction (2 pts): Substance/ritual dependency with penalties
+  - Berserker's Curse (2 pts): Berserk state when Wounds ≥ Vitality
+  - Hunted (1-3 pts): Variable threat level with hunter details
+  - Physical Scars (1-3 pts): One-Eyed, One-Handed, Heavy Sleeper, Fragile Frame
+  - Mental Restrictions (2 pts): Oaths/Fears/Personality traits with Resolve checks
+  - Unluck (1-3 pts): Misfortune tokens per session
+  - Vulnerability (3 pts): Double damage from specific type
+  - Configurable fields for each disadvantage type
+  - Validation to ensure total points ≤ 8
+- **Disadvantages Tab**: New character sheet tab displaying selected disadvantages
+  - Shows total disadvantage points and Faith Fractures sync status
+  - Displays all selected disadvantages with details and point costs
+  - Read-only view after creation (editable during creation wizard)
+- **Character Creation Wizard**: Full-featured stepper UI
+  - Step navigation with visual indicators
+  - Real-time point tracking and validation
+  - Attribute allocation with +/- controls (enforces MR base, 8 max)
+  - Skill allocation organized by category
+  - Disadvantage selection with configuration dialogs
+  - Review step with complete summary
+  - Finalize button that applies all changes and unlocks sheet
+- **Creation State Management**: Actor flag system for tracking completion
+  - `system.creation.complete` flag on all character actors
+  - `system.disadvantages` array storing selected disadvantages
+  - Hooks: `preCreateActor` sets new characters to incomplete
+  - Migration hook: Existing characters auto-set to complete
+- **CONFIG Constants**: Creation rules configuration
+  - `CONFIG.MASTERY.creation.attributePoints` (16)
+  - `CONFIG.MASTERY.creation.skillPoints` (16, configurable)
+  - `CONFIG.MASTERY.creation.maxAttributeAtCreation` (8)
+  - `CONFIG.MASTERY.creation.maxSkillAtCreation` (4)
+  - `CONFIG.MASTERY.creation.maxDisadvantagePoints` (8)
+
+### Changed
+- Character sheet now locks when `system.creation.complete === false`
+- Faith Fractures automatically synced with Disadvantage Points on creation finalize
+- Template structure updated to include creation and disadvantages fields
+
 ## [0.0.74] - 2025-01-XX
 
 ### Added
