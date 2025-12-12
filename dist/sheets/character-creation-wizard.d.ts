@@ -26,7 +26,7 @@ export declare class CharacterCreationWizard extends BaseApplication {
     constructor(actor: MasteryActor, options?: any);
     static get defaultOptions(): any;
     initializeState(): CreationState;
-    getData(options?: any): any;
+    getData(options?: any): Promise<any>;
     _renderHTML(_data?: any): Promise<JQuery>;
     _replaceHTML(element: JQuery, html: JQuery): Promise<void>;
     activateListeners(html: JQuery): void;

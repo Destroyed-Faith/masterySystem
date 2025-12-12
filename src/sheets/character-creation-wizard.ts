@@ -83,7 +83,7 @@ export class CharacterCreationWizard extends BaseApplication {
     };
   }
 
-  getData(options?: any) {
+  async getData(options?: any) {
     const system = (this.actor as any).system;
     const masteryRank = system.mastery?.rank || 2;
     const skillPointsConfig = (CONFIG as any).MASTERY?.creation?.skillPoints || CREATION.SKILL_POINTS;
@@ -97,8 +97,11 @@ export class CharacterCreationWizard extends BaseApplication {
     const skillsComplete = this.state.skillPointsSpent === skillPointsConfig;
     const canProceed = attributesComplete && skillsComplete;
 
+    // Get base data if super.getData exists, otherwise use empty object
+    const baseData = (typeof super.getData === 'function') ? await super.getData(options) : {};
+
     return {
-      ...super.getData(options),
+      ...baseData,
       actor: this.actor,
       state: this.state,
       masteryRank,
