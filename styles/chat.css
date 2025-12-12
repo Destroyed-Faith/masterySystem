@@ -254,6 +254,30 @@
   font-weight: normal;
 }
 
+.mastery-attack-card .raises-section {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.mastery-attack-card .raises-section label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  cursor: pointer;
+}
+
+.mastery-attack-card .raises-section label span:first-child {
+  font-weight: bold;
+  color: #8b0000;
+  min-width: 60px;
+}
+
 .mastery-attack-card .attack-actions {
   display: flex;
   justify-content: center;

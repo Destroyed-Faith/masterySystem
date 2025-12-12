@@ -670,20 +670,21 @@ async function confirmMeleeTarget(targetToken: any, state: MeleeTargetingState):
           <span>Target Evade:</span>
           <span><strong id="display-evade-${attacker.id}">${targetEvade}</strong></span>
         </div>
-        <div class="detail-row">
-          <span>Raises:</span>
-          <span>
-            <input type="number" class="raises-input" id="raises-input-${attacker.id}" 
-                   min="0" value="0" data-base-evade="${targetEvade}">
-            <span class="raises-hint">(+4 TN per raise)</span>
-          </span>
-        </div>
         ${equippedWeapon ? `
           <div class="detail-row">
             <span>Weapon:</span>
             <span><strong>${equippedWeapon.name}</strong> (${weaponDamage} damage)</span>
           </div>
         ` : ''}
+      </div>
+      
+      <div class="raises-section">
+        <label for="raises-input-${attacker.id}" style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+          <span style="font-weight: bold; color: #8b0000;">Raises:</span>
+          <input type="number" class="raises-input" id="raises-input-${attacker.id}" 
+                 min="0" value="0" data-base-evade="${targetEvade}">
+          <span class="raises-hint">(+4 TN per raise)</span>
+        </label>
       </div>
       
       <div class="attack-actions">
@@ -744,15 +745,17 @@ async function confirmMeleeTarget(targetToken: any, state: MeleeTargetingState):
       return false;
     };
     
-    // Try to initialize immediately
-    if (!initializeRaisesInput()) {
-      // If not found, wait for render
-      Hooks.once('renderChatMessage', (messageApp: any, html: JQuery, messageData: any) => {
-        if (messageData.message.id === message.id) {
-          initializeRaisesInput();
-        }
-      });
-    }
+    // Initialize raises input handler - use setTimeout to ensure DOM is ready
+    setTimeout(() => {
+      if (!initializeRaisesInput()) {
+        // If still not found, wait for render hook
+        Hooks.once('renderChatMessage', (messageApp: any, html: JQuery, messageData: any) => {
+          if (messageData.message.id === message.id) {
+            initializeRaisesInput();
+          }
+        });
+      }
+    }, 100);
     
     console.log('Mastery System | Melee attack card created:', {
       attacker: attacker.name,
