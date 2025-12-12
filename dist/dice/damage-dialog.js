@@ -166,24 +166,24 @@ class DamageDialog extends Application {
     resolve;
     raiseSelections = new Map();
     constructor(data, resolve) {
-        super();
+        super({});
         this.data = data;
         this.resolve = resolve;
     }
     static get defaultOptions() {
-        return foundry.utils.mergeObject(super.defaultOptions, {
-            id: 'mastery-damage-dialog',
-            title: 'Calculate Damage',
-            template: 'systems/mastery-system/templates/dice/damage-dialog.hbs',
-            width: 600,
-            height: 'auto',
-            resizable: true,
-            classes: ['mastery-damage-dialog']
-        });
+        const opts = super.defaultOptions;
+        opts.id = 'mastery-damage-dialog';
+        opts.title = 'Calculate Damage';
+        opts.template = 'systems/mastery-system/templates/dice/damage-dialog.hbs';
+        opts.width = 600;
+        opts.height = 'auto';
+        opts.resizable = true;
+        opts.classes = ['mastery-damage-dialog'];
+        return opts;
     }
     // Implement required methods for Handlebars templates (Foundry VTT v13)
     async _renderHTML(data) {
-        const template = this.options.template;
+        const template = this.constructor.defaultOptions.template || this.options.template;
         if (!template) {
             throw new Error('Template path is required');
         }
