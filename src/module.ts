@@ -419,8 +419,8 @@ Hooks.once('ready', () => {
     console.log('Mastery System | DEBUG: Starting attack roll...');
     
     try {
-      // Import the roll handler
-      const { masteryRoll } = await import('./dice/roll-handler');
+      // Import the roll handler (must use .js extension for ES modules in Foundry VTT)
+      const { masteryRoll } = await import('./dice/roll-handler.js');
       console.log('Mastery System | DEBUG: Roll handler imported');
       
       // Get actor data
