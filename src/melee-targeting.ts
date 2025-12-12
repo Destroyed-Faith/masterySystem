@@ -698,6 +698,14 @@ async function confirmMeleeTarget(targetToken: any, state: MeleeTargetingState):
     </div>
   `;
   
+  console.log('Mastery System | DEBUG: Attack card HTML generated:', {
+    hasRaisesSection: attackCardContent.includes('raises-section'),
+    hasRaisesInput: attackCardContent.includes('raises-input'),
+    raisesInputId: `raises-input-${attacker.id}`,
+    htmlLength: attackCardContent.length,
+    htmlPreview: attackCardContent.substring(0, 500) + '...'
+  });
+  
     // Create chat message
     const chatData: any = {
       user: (game as any).user?.id,
@@ -725,31 +733,71 @@ async function confirmMeleeTarget(targetToken: any, state: MeleeTargetingState):
     // Initialize raises input handler
     const initializeRaisesInput = () => {
       const messageElement = $(`[data-message-id="${message.id}"]`);
+      console.log('Mastery System | DEBUG: Initializing raises input handler', {
+        messageId: message.id,
+        messageElementFound: messageElement.length > 0,
+        messageElementHtml: messageElement.length > 0 ? messageElement.html()?.substring(0, 200) : 'not found'
+      });
+      
       if (messageElement.length) {
         const raisesInput = messageElement.find(`#raises-input-${attacker.id}`);
         const displayEvade = messageElement.find(`#display-evade-${attacker.id}`);
         const rollButton = messageElement.find(`[data-attacker-id="${attacker.id}"].roll-attack-btn`);
         const baseEvade = targetEvade;
         
+        console.log('Mastery System | DEBUG: Looking for elements in message', {
+          raisesInputFound: raisesInput.length > 0,
+          displayEvadeFound: displayEvade.length > 0,
+          rollButtonFound: rollButton.length > 0,
+          raisesInputId: `raises-input-${attacker.id}`,
+          allInputsInMessage: messageElement.find('input').length,
+          allInputsIds: messageElement.find('input').map((i, el) => $(el).attr('id')).get()
+        });
+        
         if (raisesInput.length && displayEvade.length && rollButton.length) {
+          console.log('Mastery System | DEBUG: All elements found, attaching input handler');
           raisesInput.off('input').on('input', function() {
             const raises = parseInt($(this).val() as string) || 0;
             const adjustedEvade = baseEvade + (raises * 4);
+            console.log('Mastery System | DEBUG: Raises input changed', {
+              raises,
+              baseEvade,
+              adjustedEvade
+            });
             displayEvade.text(adjustedEvade);
             rollButton.attr('data-target-evade', adjustedEvade);
             rollButton.attr('data-raises', raises);
           });
+          console.log('Mastery System | DEBUG: Raises input handler attached successfully');
           return true;
+        } else {
+          console.warn('Mastery System | DEBUG: Not all elements found for raises input initialization', {
+            raisesInput: raisesInput.length,
+            displayEvade: displayEvade.length,
+            rollButton: rollButton.length
+          });
         }
+      } else {
+        console.warn('Mastery System | DEBUG: Message element not found for initialization', {
+          messageId: message.id,
+          allMessages: $('.message').length
+        });
       }
       return false;
     };
     
     // Initialize raises input handler - use setTimeout to ensure DOM is ready
     setTimeout(() => {
+      console.log('Mastery System | DEBUG: Attempting to initialize raises input (setTimeout)');
       if (!initializeRaisesInput()) {
+        console.log('Mastery System | DEBUG: Raises input not found, waiting for renderChatMessage hook');
         // If still not found, wait for render hook
         Hooks.once('renderChatMessage', (messageApp: any, html: JQuery, messageData: any) => {
+          console.log('Mastery System | DEBUG: renderChatMessage hook fired', {
+            messageId: messageData.message.id,
+            expectedMessageId: message.id,
+            matches: messageData.message.id === message.id
+          });
           if (messageData.message.id === message.id) {
             initializeRaisesInput();
           }
