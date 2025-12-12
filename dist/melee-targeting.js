@@ -6,6 +6,8 @@
  */
 // Global melee targeting state
 let activeMeleeTargeting = null;
+// Guard to prevent duplicate confirmMeleeTarget calls
+let isConfirmingTarget = false;
 /**
  * Parse reach from weapon innate abilities or option
  * @param innateAbilities - Array of ability strings like ["Reach (2 m)", "Finesse"]
@@ -538,34 +540,33 @@ function getAttackAttribute(actor, weapon) {
  * Confirm melee target and create attack roll card
  */
 async function confirmMeleeTarget(targetToken, state) {
-    // Set target using Foundry's targeting API
-    try {
-        await game.user.updateTokenTargets([targetToken.id]);
-        console.log('Mastery System | Target set:', targetToken.name);
-    }
-    catch (error) {
-        console.warn('Mastery System | Could not set target via API', error);
-    }
-    const attacker = state.token.actor;
-    const target = targetToken.actor;
-    if (!attacker || !target) {
-        console.error('Mastery System | Missing actor data for attack');
-        endMeleeTargeting(false);
+    // Guard against duplicate calls
+    if (isConfirmingTarget) {
+        console.warn('Mastery System | confirmMeleeTarget already in progress, ignoring duplicate call');
         return;
     }
-    // Get equipped weapon
-    const items = attacker.items || [];
-    const equippedWeapon = items.find((item) => item.type === 'weapon' && item.system?.equipped === true);
-    // Get attack data
-    const attackAttr = getAttackAttribute(attacker, equippedWeapon);
-    const attackerSystem = attacker.system;
-    const masteryRank = attackerSystem.mastery?.rank || 2;
-    // Get target's Evade
-    const targetEvade = calculateEvade(target);
-    // Get weapon damage for display
-    const weaponDamage = equippedWeapon ? (equippedWeapon.system?.damage || equippedWeapon.system?.weaponDamage || '1d8') : '1d8';
-    // Create attack card in chat
-    const attackCardContent = `
+    isConfirmingTarget = true;
+    try {
+        const attacker = state.token.actor;
+        const target = targetToken.actor;
+        if (!attacker || !target) {
+            console.error('Mastery System | Missing actor data for attack');
+            endMeleeTargeting(false);
+            return;
+        }
+        // Get equipped weapon
+        const items = attacker.items || [];
+        const equippedWeapon = items.find((item) => item.type === 'weapon' && item.system?.equipped === true);
+        // Get attack data
+        const attackAttr = getAttackAttribute(attacker, equippedWeapon);
+        const attackerSystem = attacker.system;
+        const masteryRank = attackerSystem.mastery?.rank || 2;
+        // Get target's Evade
+        const targetEvade = calculateEvade(target);
+        // Get weapon damage for display
+        const weaponDamage = equippedWeapon ? (equippedWeapon.system?.damage || equippedWeapon.system?.weaponDamage || '1d8') : '1d8';
+        // Create attack card in chat
+        const attackCardContent = `
     <div class="mastery-attack-card">
       <div class="attack-header">
         <h3><i class="fas fa-sword"></i> Melee Attack</h3>
@@ -585,7 +586,7 @@ async function confirmMeleeTarget(targetToken, state) {
         </div>
         <div class="detail-row">
           <span>Target Evade:</span>
-          <span><strong>${targetEvade}</strong></span>
+          <span><strong id="display-evade-${attacker.id}">${targetEvade}</strong></span>
         </div>
         ${equippedWeapon ? `
           <div class="detail-row">
@@ -595,45 +596,138 @@ async function confirmMeleeTarget(targetToken, state) {
         ` : ''}
       </div>
       
+      <div class="raises-section">
+        <label for="raises-input-${attacker.id}" style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+          <span style="font-weight: bold; color: #8b0000;">Raises:</span>
+          <input type="number" class="raises-input" id="raises-input-${attacker.id}" 
+                 min="0" value="0" data-base-evade="${targetEvade}">
+          <span class="raises-hint">(+4 TN per raise)</span>
+        </label>
+      </div>
+      
       <div class="attack-actions">
         <button class="roll-attack-btn" data-attacker-id="${attacker.id}" data-target-id="${target.id}" 
                 data-attribute="${attackAttr.name.toLowerCase()}" data-attribute-value="${attackAttr.value}"
-                data-mastery-rank="${masteryRank}" data-target-evade="${targetEvade}">
+                data-mastery-rank="${masteryRank}" data-target-evade="${targetEvade}" data-raises="0"
+                data-base-evade="${targetEvade}">
           <i class="fas fa-dice-d20"></i> Roll Attack
         </button>
       </div>
     </div>
   `;
-    // Create chat message
-    const chatData = {
-        user: game.user?.id,
-        speaker: ChatMessage.getSpeaker({ actor: attacker, token: state.token }),
-        content: attackCardContent,
-        type: CONST.CHAT_MESSAGE_TYPES.OTHER,
-        flags: {
-            'mastery-system': {
-                attackType: 'melee',
-                attackerId: attacker.id,
-                targetId: target.id,
-                targetTokenId: targetToken.id,
-                attribute: attackAttr.name.toLowerCase(),
-                attributeValue: attackAttr.value,
-                masteryRank: masteryRank,
-                targetEvade: targetEvade,
-                weaponDamage: weaponDamage
+        console.log('Mastery System | DEBUG: Attack card HTML generated:', {
+            hasRaisesSection: attackCardContent.includes('raises-section'),
+            hasRaisesInput: attackCardContent.includes('raises-input'),
+            raisesInputId: `raises-input-${attacker.id}`,
+            htmlLength: attackCardContent.length,
+            htmlPreview: attackCardContent.substring(0, 500) + '...'
+        });
+        // Create chat message
+        const chatData = {
+            user: game.user?.id,
+            speaker: ChatMessage.getSpeaker({ actor: attacker, token: state.token }),
+            content: attackCardContent,
+            style: CONST.CHAT_MESSAGE_STYLES.OTHER,
+            flags: {
+                'mastery-system': {
+                    attackType: 'melee',
+                    attackerId: attacker.id,
+                    targetId: target.id,
+                    targetTokenId: targetToken.id,
+                    attribute: attackAttr.name.toLowerCase(),
+                    attributeValue: attackAttr.value,
+                    masteryRank: masteryRank,
+                    targetEvade: targetEvade,
+                    weaponDamage: weaponDamage,
+                    baseEvade: targetEvade
+                }
             }
-        }
-    };
-    await ChatMessage.create(chatData);
-    // The roll button click handler is managed globally in module.ts via renderChatLog hook
-    console.log('Mastery System | Melee attack card created:', {
-        attacker: attacker.name,
-        target: target.name,
-        attribute: attackAttr.name,
-        evade: targetEvade
-    });
-    // End targeting mode
-    endMeleeTargeting(true);
+        };
+        const message = await ChatMessage.create(chatData);
+        // Initialize raises input handler
+        const initializeRaisesInput = () => {
+            const messageElement = $(`[data-message-id="${message.id}"]`);
+            console.log('Mastery System | DEBUG: Initializing raises input handler', {
+                messageId: message.id,
+                messageElementFound: messageElement.length > 0,
+                messageElementHtml: messageElement.length > 0 ? messageElement.html()?.substring(0, 200) : 'not found'
+            });
+            if (messageElement.length) {
+                const raisesInput = messageElement.find(`#raises-input-${attacker.id}`);
+                const displayEvade = messageElement.find(`#display-evade-${attacker.id}`);
+                const rollButton = messageElement.find(`[data-attacker-id="${attacker.id}"].roll-attack-btn`);
+                const baseEvade = targetEvade;
+                console.log('Mastery System | DEBUG: Looking for elements in message', {
+                    raisesInputFound: raisesInput.length > 0,
+                    displayEvadeFound: displayEvade.length > 0,
+                    rollButtonFound: rollButton.length > 0,
+                    raisesInputId: `raises-input-${attacker.id}`,
+                    allInputsInMessage: messageElement.find('input').length,
+                    allInputsIds: messageElement.find('input').map((_i, el) => $(el).attr('id')).get()
+                });
+                if (raisesInput.length && displayEvade.length && rollButton.length) {
+                    console.log('Mastery System | DEBUG: All elements found, attaching input handler');
+                    raisesInput.off('input').on('input', function () {
+                        const raises = parseInt($(this).val()) || 0;
+                        const adjustedEvade = baseEvade + (raises * 4);
+                        console.log('Mastery System | DEBUG: Raises input changed', {
+                            raises,
+                            baseEvade,
+                            adjustedEvade
+                        });
+                        displayEvade.text(adjustedEvade);
+                        rollButton.attr('data-target-evade', adjustedEvade);
+                        rollButton.attr('data-raises', raises);
+                    });
+                    console.log('Mastery System | DEBUG: Raises input handler attached successfully');
+                    return true;
+                }
+                else {
+                    console.warn('Mastery System | DEBUG: Not all elements found for raises input initialization', {
+                        raisesInput: raisesInput.length,
+                        displayEvade: displayEvade.length,
+                        rollButton: rollButton.length
+                    });
+                }
+            }
+            else {
+                console.warn('Mastery System | DEBUG: Message element not found for initialization', {
+                    messageId: message.id,
+                    allMessages: $('.message').length
+                });
+            }
+            return false;
+        };
+        // Initialize raises input handler - use setTimeout to ensure DOM is ready
+        setTimeout(() => {
+            console.log('Mastery System | DEBUG: Attempting to initialize raises input (setTimeout)');
+            if (!initializeRaisesInput()) {
+                console.log('Mastery System | DEBUG: Raises input not found, waiting for renderChatMessage hook');
+                // If still not found, wait for render hook
+                Hooks.once('renderChatMessage', (_messageApp, _html, messageData) => {
+                    console.log('Mastery System | DEBUG: renderChatMessage hook fired', {
+                        messageId: messageData.message.id,
+                        expectedMessageId: message.id,
+                        matches: messageData.message.id === message.id
+                    });
+                    if (messageData.message.id === message.id) {
+                        initializeRaisesInput();
+                    }
+                });
+            }
+        }, 100);
+        console.log('Mastery System | Melee attack card created:', {
+            attacker: attacker.name,
+            target: target.name,
+            attribute: attackAttr.name,
+            evade: targetEvade
+        });
+        // End targeting mode
+        endMeleeTargeting(true);
+    }
+    finally {
+        isConfirmingTarget = false;
+    }
 }
 /**
  * End melee targeting mode

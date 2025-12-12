@@ -70,18 +70,50 @@ function calculateRaises(total, tn) {
  */
 export async function masteryRoll(options) {
     const { numDice, keepDice, skill, tn = 0, label = 'Roll', flavor = '' } = options;
+    console.log('Mastery System | DEBUG: masteryRoll called', {
+        numDice,
+        keepDice,
+        skill,
+        tn,
+        label,
+        flavor
+    });
     // Roll the dice
     const { dice, exploded } = rollDice(numDice);
+    console.log('Mastery System | DEBUG: Dice rolled', {
+        numDice,
+        dice,
+        exploded,
+        diceCount: dice.length
+    });
     // Select highest dice to keep
     const keptIndices = selectHighestDice(dice, keepDice);
     const keptValues = keptIndices.map(i => dice[i]);
+    console.log('Mastery System | DEBUG: Dice selection', {
+        keptIndices,
+        keptValues,
+        allDice: dice
+    });
     // Calculate total from kept dice
     const diceTotal = calculateTotal(dice, keptIndices);
+    console.log('Mastery System | DEBUG: Dice total calculated', {
+        diceTotal,
+        skill,
+        totalBeforeSkill: diceTotal
+    });
     // Add skill bonus
     const total = diceTotal + skill;
     // Calculate success and raises
     const success = tn > 0 ? total >= tn : true;
     const raises = tn > 0 ? calculateRaises(total, tn) : 0;
+    console.log('Mastery System | DEBUG: Roll result calculated', {
+        total,
+        tn,
+        success,
+        raises,
+        diceTotal,
+        skill
+    });
     // Create result object
     const result = {
         total,
@@ -93,8 +125,14 @@ export async function masteryRoll(options) {
         success,
         exploded
     };
+    console.log('Mastery System | DEBUG: Sending roll to chat', {
+        result,
+        label,
+        flavor
+    });
     // Send to chat
     await sendRollToChat(result, label, flavor, options.actorId);
+    console.log('Mastery System | DEBUG: Roll complete, returning result', result);
     return result;
 }
 /**

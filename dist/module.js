@@ -288,11 +288,26 @@ Hooks.on('getChatLogEntryContext', (_html, options) => {
 Hooks.on('renderChatLog', (_app, html, _data) => {
     // Use event delegation for attack roll buttons
     html.off('click', '.roll-attack-btn').on('click', '.roll-attack-btn', async (ev) => {
+        console.log('Mastery System | DEBUG: Roll Attack button clicked!');
         ev.preventDefault();
         ev.stopPropagation();
         const button = $(ev.currentTarget);
         const messageElement = button.closest('.message');
         const messageId = messageElement.data('messageId');
+        console.log('Mastery System | DEBUG: Button click details', {
+            messageId,
+            buttonData: {
+                attackerId: button.data('attacker-id'),
+                targetId: button.data('target-id'),
+                attribute: button.data('attribute'),
+                attributeValue: button.data('attribute-value'),
+                masteryRank: button.data('mastery-rank'),
+                targetEvade: button.data('target-evade'),
+                raises: button.data('raises'),
+                baseEvade: button.data('base-evade')
+            },
+            buttonHtml: button.html()
+        });
         if (!messageId) {
             console.warn('Mastery System | Could not find message ID for attack roll');
             return;
@@ -303,39 +318,60 @@ Hooks.on('renderChatLog', (_app, html, _data) => {
             return;
         }
         const flags = message.getFlag('mastery-system');
+        console.log('Mastery System | DEBUG: Message flags', flags);
         if (!flags || flags.attackType !== 'melee') {
+            console.warn('Mastery System | DEBUG: Invalid flags or not melee attack', { flags, attackType: flags?.attackType });
             return;
         }
         // Disable button during roll
         button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Rolling...');
+        console.log('Mastery System | DEBUG: Starting attack roll...');
         try {
             // Import the roll handler
             const { masteryRoll } = await import('./dice/roll-handler');
+            console.log('Mastery System | DEBUG: Roll handler imported');
             // Get actor data
             const attacker = game.actors?.get(flags.attackerId);
             if (!attacker) {
                 throw new Error('Attacker not found');
             }
-            // Perform the attack roll
+            // Get current values from button (including raises-adjusted TN)
+            const currentTargetEvade = parseInt(button.data('target-evade')) || flags.targetEvade;
+            const raises = parseInt(button.data('raises')) || 0;
+            console.log('Mastery System | DEBUG: Roll parameters', {
+                numDice: flags.attributeValue,
+                keepDice: flags.masteryRank,
+                skill: 0,
+                tn: currentTargetEvade,
+                raises,
+                baseEvade: flags.targetEvade,
+                adjustedEvade: currentTargetEvade
+            });
+            // Perform the attack roll with d8 dice (exploding 8s handled in roll-handler)
+            console.log('Mastery System | DEBUG: Calling masteryRoll...');
             const result = await masteryRoll({
                 numDice: flags.attributeValue,
                 keepDice: flags.masteryRank,
                 skill: 0,
-                tn: flags.targetEvade,
+                tn: currentTargetEvade,
                 label: `Attack Roll (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`,
-                flavor: `vs ${game.actors?.get(flags.targetId)?.name || 'Target'}'s Evade (${flags.targetEvade})`,
+                flavor: `vs ${game.actors?.get(flags.targetId)?.name || 'Target'}'s Evade (${currentTargetEvade}${raises > 0 ? `, ${raises} raise${raises > 1 ? 's' : ''}` : ''})`,
                 actorId: flags.attackerId
             });
-            console.log('Mastery System | Attack roll completed:', {
+            console.log('Mastery System | DEBUG: Roll completed!', {
                 total: result.total,
-                targetEvade: flags.targetEvade,
-                success: result.success,
-                raises: result.raises
+                dice: result.dice,
+                kept: result.kept,
+                targetEvade: currentTargetEvade,
+                baseEvade: flags.targetEvade,
+                raises: result.raises,
+                success: result.success
             });
             // Update button to show it was rolled
             button.html('<i class="fas fa-check"></i> Rolled').addClass('rolled');
         }
         catch (error) {
+            console.error('Mastery System | DEBUG: Error during roll', error);
             console.error('Mastery System | Error rolling attack:', error);
             ui.notifications?.error('Failed to roll attack');
             button.prop('disabled', false).html('<i class="fas fa-dice-d20"></i> Roll Attack');

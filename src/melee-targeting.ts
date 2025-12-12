@@ -751,7 +751,7 @@ async function confirmMeleeTarget(targetToken: any, state: MeleeTargetingState):
           rollButtonFound: rollButton.length > 0,
           raisesInputId: `raises-input-${attacker.id}`,
           allInputsInMessage: messageElement.find('input').length,
-          allInputsIds: messageElement.find('input').map((i, el) => $(el).attr('id')).get()
+          allInputsIds: messageElement.find('input').map((_i, el) => $(el).attr('id')).get()
         });
         
         if (raisesInput.length && displayEvade.length && rollButton.length) {
@@ -792,7 +792,7 @@ async function confirmMeleeTarget(targetToken: any, state: MeleeTargetingState):
       if (!initializeRaisesInput()) {
         console.log('Mastery System | DEBUG: Raises input not found, waiting for renderChatMessage hook');
         // If still not found, wait for render hook
-        Hooks.once('renderChatMessage', (messageApp: any, html: JQuery, messageData: any) => {
+        Hooks.once('renderChatMessage', (_messageApp: any, _html: JQuery, messageData: any) => {
           console.log('Mastery System | DEBUG: renderChatMessage hook fired', {
             messageId: messageData.message.id,
             expectedMessageId: message.id,
