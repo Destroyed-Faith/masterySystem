@@ -245,11 +245,12 @@ class DamageDialog extends Application {
         console.log('Mastery System | DEBUG: DamageDialog _renderHTML - rendering template', {
             template,
             hasData: !!data,
-            dataKeys: data ? Object.keys(data) : []
+            dataKeys: data ? Object.keys(data) : [],
+            dataValue: data
         });
-        // Get data if not provided
-        const templateData = data || await this.getData();
-        console.log('Mastery System | DEBUG: DamageDialog _renderHTML - templateData', {
+        // Always call getData() to ensure we have the correct data structure
+        const templateData = await this.getData();
+        console.log('Mastery System | DEBUG: DamageDialog _renderHTML - templateData from getData()', {
             hasData: !!templateData,
             keys: templateData ? Object.keys(templateData) : [],
             baseDamage: templateData?.baseDamage,
@@ -257,19 +258,33 @@ class DamageDialog extends Application {
             passiveDamage: templateData?.passiveDamage,
             raises: templateData?.raises,
             availableSpecials: templateData?.availableSpecials?.length || 0,
+            weaponSpecials: templateData?.weaponSpecials?.length || 0,
             attacker: templateData?.attacker ? templateData.attacker.name : 'none',
-            target: templateData?.target ? templateData.target.name : 'none'
+            target: templateData?.target ? templateData.target.name : 'none',
+            fullData: JSON.stringify(templateData, null, 2).substring(0, 1000)
         });
         const html = await foundry.applications.handlebars.renderTemplate(template, templateData);
         console.log('Mastery System | DEBUG: DamageDialog _renderHTML - template rendered', {
             htmlLength: html.length,
-            htmlPreview: html.substring(0, 500)
+            htmlType: typeof html,
+            htmlPreview: html.substring ? html.substring(0, 500) : String(html).substring(0, 500)
         });
-        return $(html);
+        const $html = $(html);
+        console.log('Mastery System | DEBUG: DamageDialog _renderHTML - jQuery object created', {
+            length: $html.length,
+            htmlContent: $html.html()?.substring(0, 500)
+        });
+        return $html;
     }
     async _replaceHTML(element, html) {
-        console.log('Mastery System | DEBUG: DamageDialog _replaceHTML - replacing element');
+        console.log('Mastery System | DEBUG: DamageDialog _replaceHTML - replacing element', {
+            elementLength: element.length,
+            elementHtml: element.html()?.substring(0, 200),
+            htmlLength: html.length,
+            htmlContent: html.html()?.substring(0, 500)
+        });
         element.replaceWith(html);
+        console.log('Mastery System | DEBUG: DamageDialog _replaceHTML - element replaced');
     }
     async getData() {
         console.log('Mastery System | DEBUG: DamageDialog getData() - called', {
