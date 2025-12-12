@@ -186,7 +186,7 @@ async function collectAvailableSpecials(actor, weapon) {
 }
 /**
  * Damage Dialog Application
- * Uses HandlebarsApplicationMixin for Foundry VTT v13 compatibility
+ * Implements _renderHTML and _replaceHTML for Foundry VTT v13 compatibility
  */
 class DamageDialog extends Application {
     data;
@@ -216,6 +216,23 @@ class DamageDialog extends Application {
         opts.popOut = true;
         console.log('Mastery System | DEBUG: DamageDialog defaultOptions - final opts', opts);
         return opts;
+    }
+    // Implement required methods for Handlebars templates (Foundry VTT v13)
+    async _renderHTML(data) {
+        const template = this.constructor.defaultOptions.template || this.options.template;
+        if (!template) {
+            throw new Error('Template path is required');
+        }
+        console.log('Mastery System | DEBUG: DamageDialog _renderHTML - rendering template', { template, hasData: !!data });
+        // Get data if not provided
+        const templateData = data || await this.getData();
+        const html = await foundry.applications.handlebars.renderTemplate(template, templateData);
+        console.log('Mastery System | DEBUG: DamageDialog _renderHTML - template rendered', { htmlLength: html.length });
+        return $(html);
+    }
+    async _replaceHTML(element, html) {
+        console.log('Mastery System | DEBUG: DamageDialog _replaceHTML - replacing element');
+        element.replaceWith(html);
     }
     async getData() {
         console.log('Mastery System | DEBUG: DamageDialog getData() - called', {
