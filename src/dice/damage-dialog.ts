@@ -211,11 +211,7 @@ async function collectAvailableSpecials(actor: Actor, weapon: any | null): Promi
  * Damage Dialog Application
  * Uses HandlebarsApplicationMixin for Foundry VTT v13 compatibility
  */
-const DamageDialogBase = (foundry as any)?.applications?.api?.HandlebarsApplicationMixin 
-  ? foundry.utils.mergeObject(Application, (foundry as any).applications.api.HandlebarsApplicationMixin)
-  : Application;
-
-class DamageDialog extends DamageDialogBase {
+class DamageDialog extends Application {
   private data: DamageDialogData;
   private resolve: (result: DamageResult | null) => void;
   private raiseSelections: Map<number, { type: 'special' | 'damage'; value: string }> = new Map();
@@ -236,6 +232,20 @@ class DamageDialog extends DamageDialogBase {
       resizable: true,
       classes: ['mastery-damage-dialog']
     });
+  }
+  
+  // Implement required methods for Handlebars templates (Foundry VTT v13)
+  async _renderHTML(data: any): Promise<JQuery> {
+    const template = this.options.template as string;
+    if (!template) {
+      throw new Error('Template path is required');
+    }
+    const html = await foundry.applications.handlebars.renderTemplate(template, data);
+    return $(html);
+  }
+  
+  async _replaceHTML(element: JQuery, html: JQuery): Promise<void> {
+    element.replaceWith(html);
   }
   
   async getData(): Promise<any> {

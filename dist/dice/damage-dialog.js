@@ -161,10 +161,7 @@ async function collectAvailableSpecials(actor, weapon) {
  * Damage Dialog Application
  * Uses HandlebarsApplicationMixin for Foundry VTT v13 compatibility
  */
-const DamageDialogBase = foundry?.applications?.api?.HandlebarsApplicationMixin
-    ? foundry.utils.mergeObject(Application, foundry.applications.api.HandlebarsApplicationMixin)
-    : Application;
-class DamageDialog extends DamageDialogBase {
+class DamageDialog extends Application {
     data;
     resolve;
     raiseSelections = new Map();
@@ -183,6 +180,18 @@ class DamageDialog extends DamageDialogBase {
             resizable: true,
             classes: ['mastery-damage-dialog']
         });
+    }
+    // Implement required methods for Handlebars templates (Foundry VTT v13)
+    async _renderHTML(data) {
+        const template = this.options.template;
+        if (!template) {
+            throw new Error('Template path is required');
+        }
+        const html = await foundry.applications.handlebars.renderTemplate(template, data);
+        return $(html);
+    }
+    async _replaceHTML(element, html) {
+        element.replaceWith(html);
     }
     async getData() {
         return {
