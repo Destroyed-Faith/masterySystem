@@ -1928,6 +1928,366 @@
   font-size: 16px;
 }
 
+/* ========== Character Creation Lock ========== */
+.mastery-system.sheet.actor.character .creation-lock-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mastery-system.sheet.actor.character .creation-lock-banner {
+  background: linear-gradient(135deg, #8b0000 0%, #a00000 100%);
+  border: 3px solid #ffd700;
+  border-radius: 12px;
+  padding: 30px 40px;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  max-width: 500px;
+}
+
+.mastery-system.sheet.actor.character .creation-lock-banner h2 {
+  color: #fff;
+  margin: 0 0 15px 0;
+  font-size: 24px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.mastery-system.sheet.actor.character .creation-lock-banner p {
+  color: #fff;
+  margin: 0 0 20px 0;
+  font-size: 16px;
+}
+
+.mastery-system.sheet.actor.character .creation-lock-banner .open-creation-wizard,
+.mastery-system.sheet.actor.character .creation-lock-banner .force-unlock-creation {
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+  border: 2px solid #fff;
+  border-radius: 8px;
+  color: #8b0000;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 12px 24px;
+  margin: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mastery-system.sheet.actor.character .creation-lock-banner .open-creation-wizard:hover,
+.mastery-system.sheet.actor.character .creation-lock-banner .force-unlock-creation:hover {
+  background: linear-gradient(135deg, #ffed4e 0%, #ffd700 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+}
+
+.mastery-system.sheet.actor.character.creation-incomplete input,
+.mastery-system.sheet.actor.character.creation-incomplete textarea,
+.mastery-system.sheet.actor.character.creation-incomplete select {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* ========== Disadvantages Tab ========== */
+.mastery-system.sheet.actor.character .disadvantages-overview {
+  padding: 15px;
+  background: rgba(139, 0, 0, 0.1);
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.mastery-system.sheet.actor.character .disadvantages-summary {
+  display: flex;
+  gap: 30px;
+  margin-top: 10px;
+}
+
+.mastery-system.sheet.actor.character .summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.mastery-system.sheet.actor.character .summary-item label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+}
+
+.mastery-system.sheet.actor.character .summary-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: #8b0000;
+}
+
+.mastery-system.sheet.actor.character .disadvantages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.mastery-system.sheet.actor.character .disadvantage-card-sheet {
+  background: #fff;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.mastery-system.sheet.actor.character .disadvantage-header-sheet {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.mastery-system.sheet.actor.character .disadvantage-header-sheet h4 {
+  margin: 0;
+  color: #8b0000;
+  font-size: 18px;
+}
+
+.mastery-system.sheet.actor.character .disadvantage-points-sheet {
+  background: #8b0000;
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.mastery-system.sheet.actor.character .disadvantage-description-sheet {
+  color: #666;
+  margin: 10px 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.mastery-system.sheet.actor.character .disadvantage-details-sheet {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+}
+
+.mastery-system.sheet.actor.character .detail-item-sheet {
+  margin: 5px 0;
+  font-size: 14px;
+  color: #444;
+}
+
+.mastery-system.sheet.actor.character .creation-note {
+  margin-top: 20px;
+  padding: 15px;
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 6px;
+  color: #856404;
+}
+
+/* ========== Character Creation Wizard ========== */
+.character-creation-wizard {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.character-creation-wizard .wizard-steps {
+  display: flex;
+  gap: 10px;
+  padding: 15px;
+  background: #f5f5f5;
+  border-bottom: 2px solid #8b0000;
+}
+
+.character-creation-wizard .step-nav-button {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 10px;
+  background: #fff;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: #666;
+}
+
+.character-creation-wizard .step-nav-button:hover {
+  border-color: #8b0000;
+  background: #fff5f5;
+}
+
+.character-creation-wizard .step-nav-button.active {
+  background: #8b0000;
+  border-color: #8b0000;
+  color: #fff;
+}
+
+.character-creation-wizard .step-number {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.character-creation-wizard .step-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.character-creation-wizard .wizard-content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.character-creation-wizard .wizard-step h2 {
+  color: #8b0000;
+  margin-bottom: 15px;
+}
+
+.character-creation-wizard .overview-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.character-creation-wizard .stat-box {
+  background: #fff;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  text-align: center;
+}
+
+.character-creation-wizard .stat-box.incomplete {
+  border-color: #ffc107;
+  background: #fffbf0;
+}
+
+.character-creation-wizard .stat-box h3 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  color: #666;
+  text-transform: uppercase;
+}
+
+.character-creation-wizard .stat-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #8b0000;
+  margin: 10px 0;
+}
+
+.character-creation-wizard .stat-note {
+  font-size: 12px;
+  color: #999;
+  margin: 0;
+}
+
+.character-creation-wizard .attributes-grid-wizard,
+.character-creation-wizard .skills-list-wizard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.character-creation-wizard .attribute-row-wizard,
+.character-creation-wizard .skill-row-wizard {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 10px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.character-creation-wizard .attr-controls,
+.character-creation-wizard .skill-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.character-creation-wizard .attr-increase,
+.character-creation-wizard .attr-decrease,
+.character-creation-wizard .skill-increase,
+.character-creation-wizard .skill-decrease {
+  width: 30px;
+  height: 30px;
+  border: 2px solid #8b0000;
+  border-radius: 50%;
+  background: #fff;
+  color: #8b0000;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.character-creation-wizard .attr-increase:hover:not(:disabled),
+.character-creation-wizard .attr-decrease:hover:not(:disabled),
+.character-creation-wizard .skill-increase:hover:not(:disabled),
+.character-creation-wizard .skill-decrease:hover:not(:disabled) {
+  background: #8b0000;
+  color: #fff;
+}
+
+.character-creation-wizard .attr-increase:disabled,
+.character-creation-wizard .attr-decrease:disabled,
+.character-creation-wizard .skill-increase:disabled,
+.character-creation-wizard .skill-decrease:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.character-creation-wizard .wizard-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 2px solid #ddd;
+}
+
+.character-creation-wizard .step-button,
+.character-creation-wizard .finalize-button {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #8b0000 0%, #a00000 100%);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.character-creation-wizard .step-button:hover:not(:disabled),
+.character-creation-wizard .finalize-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #a00000 0%, #c00000 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 0, 0, 0.3);
+}
+
+.character-creation-wizard .step-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* ========== Print Styles ========== */
 @media print {
   .mastery-system .sheet-header {

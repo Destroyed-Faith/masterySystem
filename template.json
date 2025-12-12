@@ -140,7 +140,11 @@
         "schticks": "",
         "faithFractures": "",
         "background": ""
-      }
+      },
+      "creation": {
+        "complete": false
+      },
+      "disadvantages": []
     },
     "npc": {
       "templates": ["base", "combatant"],

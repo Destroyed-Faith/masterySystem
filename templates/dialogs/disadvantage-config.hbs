@@ -1,0 +1,45 @@
+<div class="disadvantage-config-dialog">
+  <div class="disadvantage-info">
+    <h3>{{disadvantage.name}}</h3>
+    <p class="disadvantage-description">{{disadvantage.description}}</p>
+    {{#if disadvantage.effect}}
+    <p class="disadvantage-effect"><strong>Effect:</strong> {{disadvantage.effect}}</p>
+    {{/if}}
+  </div>
+  
+  <div class="disadvantage-fields">
+    {{#each disadvantage.fields as |field|}}
+    <div class="form-group">
+      <label for="{{field.name}}">{{field.label}}{{#if field.required}} <span class="required">*</span>{{/if}}</label>
+      
+      {{#if (eq field.type "select")}}
+      <select name="{{field.name}}" id="{{field.name}}" {{#if field.required}}required{{/if}}>
+        <option value="">-- Select --</option>
+        {{#each field.options as |option|}}
+        <option value="{{option.value}}" {{#if (eq option.value (lookup ../details field.name))}}selected{{/if}}>
+          {{option.label}}
+        </option>
+        {{/each}}
+      </select>
+      {{else if (eq field.type "number")}}
+      <input type="number" 
+             name="{{field.name}}" 
+             id="{{field.name}}" 
+             value="{{lookup ../details field.name}}"
+             {{#if field.min}}min="{{field.min}}"{{/if}}
+             {{#if field.max}}max="{{field.max}}"{{/if}}
+             {{#if field.required}}required{{/if}}
+             placeholder="{{field.placeholder}}" />
+      {{else}}
+      <input type="text" 
+             name="{{field.name}}" 
+             id="{{field.name}}" 
+             value="{{lookup ../details field.name}}"
+             {{#if field.required}}required{{/if}}
+             placeholder="{{field.placeholder}}" />
+      {{/if}}
+    </div>
+    {{/each}}
+  </div>
+</div>
+

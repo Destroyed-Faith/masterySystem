@@ -1,0 +1,324 @@
+<div class="character-creation-wizard">
+  <!-- Step Navigation -->
+  <nav class="wizard-steps">
+    <a class="step-nav-button {{#if (eq state.step 1)}}active{{/if}}" data-step="1">
+      <span class="step-number">1</span>
+      <span class="step-label">Overview</span>
+    </a>
+    <a class="step-nav-button {{#if (eq state.step 2)}}active{{/if}}" data-step="2">
+      <span class="step-number">2</span>
+      <span class="step-label">Attributes</span>
+    </a>
+    <a class="step-nav-button {{#if (eq state.step 3)}}active{{/if}}" data-step="3">
+      <span class="step-number">3</span>
+      <span class="step-label">Skills</span>
+    </a>
+    <a class="step-nav-button {{#if (eq state.step 4)}}active{{/if}}" data-step="4">
+      <span class="step-number">4</span>
+      <span class="step-label">Disadvantages</span>
+    </a>
+    <a class="step-nav-button {{#if (eq state.step 5)}}active{{/if}}" data-step="5">
+      <span class="step-number">5</span>
+      <span class="step-label">Review</span>
+    </a>
+  </nav>
+
+  <div class="wizard-content">
+    <!-- Step 1: Overview -->
+    {{#if (eq state.step 1)}}
+    <div class="wizard-step overview-step">
+      <h2>Character Creation Overview</h2>
+      
+      <div class="overview-stats">
+        <div class="stat-box">
+          <h3>Mastery Rank</h3>
+          <div class="stat-value">{{masteryRank}}</div>
+          <p class="stat-note">All attributes start at this value</p>
+        </div>
+        
+        <div class="stat-box {{#unless attributesComplete}}incomplete{{/unless}}">
+          <h3>Attribute Points</h3>
+          <div class="stat-value">{{attributePointsRemaining}} / 16</div>
+          <p class="stat-note">{{#if attributesComplete}}✓ Complete{{else}}Must spend exactly 16 points{{/if}}</p>
+        </div>
+        
+        <div class="stat-box {{#unless skillsComplete}}incomplete{{/unless}}">
+          <h3>Skill Points</h3>
+          <div class="stat-value">{{skillPointsRemaining}} / {{skillPointsConfig}}</div>
+          <p class="stat-note">{{#if skillsComplete}}✓ Complete{{else}}Must spend exactly {{skillPointsConfig}} points{{/if}}</p>
+        </div>
+        
+        <div class="stat-box">
+          <h3>Disadvantage Points</h3>
+          <div class="stat-value">{{state.disadvantagePointsSpent}} / 8</div>
+          <p class="stat-note">Optional (0-8 points)</p>
+        </div>
+      </div>
+      
+      <div class="overview-rules">
+        <h3>Creation Rules</h3>
+        <ul>
+          <li><strong>Attributes:</strong> Start at MR ({{masteryRank}}), spend 16 points. Max 8 per attribute.</li>
+          <li><strong>Skills:</strong> Start at 0, spend {{skillPointsConfig}} points. Max 4 per skill.</li>
+          <li><strong>Disadvantages:</strong> Optional, up to 8 points total. Determines starting Faith Fractures.</li>
+        </ul>
+      </div>
+      
+      <div class="wizard-buttons">
+        <button type="button" class="step-button" data-direction="next" {{#unless canProceed}}disabled{{/unless}}>
+          Next: Attributes <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+    {{/if}}
+
+    <!-- Step 2: Attributes -->
+    {{#if (eq state.step 2)}}
+    <div class="wizard-step attributes-step">
+      <h2>Attribute Allocation</h2>
+      <p class="step-description">
+        All attributes start at your Mastery Rank ({{masteryRank}}). 
+        Spend exactly 16 points across the 8 attributes. Maximum 8 per attribute.
+      </p>
+      
+      <div class="points-remaining">
+        <strong>Points Remaining: {{attributePointsRemaining}} / 16</strong>
+      </div>
+      
+      <div class="attributes-grid-wizard">
+        {{#each attributeKeys as |attrKey|}}
+        <div class="attribute-row-wizard">
+          <label class="attr-label">{{lookup ../attributeLabels attrKey}}</label>
+          <div class="attr-controls">
+            <button type="button" class="attr-decrease" data-attribute="{{attrKey}}" 
+                    {{#if (eq (lookup ../state.attributes attrKey) ../masteryRank)}}disabled{{/if}}>
+              <i class="fas fa-minus"></i>
+            </button>
+            <span class="attr-value">{{lookup ../state.attributes attrKey}}</span>
+            <button type="button" class="attr-increase" data-attribute="{{attrKey}}"
+                    {{#if (or (eq (lookup ../state.attributes attrKey) ../maxAttribute) (eq ../attributePointsRemaining 0))}}disabled{{/if}}>
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+          <div class="attr-base">Base: {{../masteryRank}}</div>
+        </div>
+        {{/each}}
+      </div>
+      
+      <div class="wizard-buttons">
+        <button type="button" class="step-button" data-direction="prev">
+          <i class="fas fa-arrow-left"></i> Previous
+        </button>
+        <button type="button" class="step-button" data-direction="next" {{#unless attributesComplete}}disabled{{/unless}}>
+          Next: Skills <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+    {{/if}}
+
+    <!-- Step 3: Skills -->
+    {{#if (eq state.step 3)}}
+    <div class="wizard-step skills-step">
+      <h2>Skill Allocation</h2>
+      <p class="step-description">
+        All skills start at 0. Spend exactly {{skillPointsConfig}} points across skills. Maximum 4 per skill.
+      </p>
+      
+      <div class="points-remaining">
+        <strong>Points Remaining: {{skillPointsRemaining}} / {{skillPointsConfig}}</strong>
+      </div>
+      
+      <div class="skills-list-wizard">
+        {{#each skills as |category|}}
+        <div class="skill-category-wizard">
+          <h3>{{category.category}}</h3>
+          <div class="skills-in-category">
+            {{#each category.skills as |skill|}}
+            <div class="skill-row-wizard">
+              <label class="skill-label">{{skill.name}}</label>
+              <div class="skill-controls">
+                <button type="button" class="skill-decrease" data-skill="{{skill.key}}"
+                        {{#if (eq skill.value 0)}}disabled{{/if}}>
+                  <i class="fas fa-minus"></i>
+                </button>
+                <span class="skill-value">{{skill.value}}</span>
+                <button type="button" class="skill-increase" data-skill="{{skill.key}}"
+                        {{#if (or (eq skill.value ../maxSkill) (eq ../skillPointsRemaining 0))}}disabled{{/if}}>
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+            </div>
+            {{/each}}
+          </div>
+        </div>
+        {{/each}}
+      </div>
+      
+      <div class="wizard-buttons">
+        <button type="button" class="step-button" data-direction="prev">
+          <i class="fas fa-arrow-left"></i> Previous
+        </button>
+        <button type="button" class="step-button" data-direction="next" {{#unless skillsComplete}}disabled{{/unless}}>
+          Next: Disadvantages <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+    {{/if}}
+
+    <!-- Step 4: Disadvantages -->
+    {{#if (eq state.step 4)}}
+    <div class="wizard-step disadvantages-step">
+      <h2>Disadvantages (Optional)</h2>
+      <p class="step-description">
+        You may choose up to 8 points of disadvantages, or none. 
+        The number of Disadvantage Points determines starting Faith Fractures and maximum capacity.
+      </p>
+      
+      <div class="points-remaining">
+        <strong>Points Spent: {{state.disadvantagePointsSpent}} / {{maxDisadvantagePoints}}</strong>
+        {{#if disadvantageValidation.error}}
+        <div class="error-message">{{disadvantageValidation.error}}</div>
+        {{/if}}
+      </div>
+      
+      <div class="disadvantages-available">
+        <h3>Available Disadvantages</h3>
+        <div class="disadvantage-list">
+          {{#each disadvantages as |disadvantage|}}
+          <div class="disadvantage-card">
+            <div class="disadvantage-header">
+              <h4>{{disadvantage.name}}</h4>
+              <span class="disadvantage-points">
+                {{#if (isArray disadvantage.basePoints)}}
+                  {{disadvantage.basePoints.[0]}}-{{disadvantage.basePoints.[disadvantage.basePoints.length - 1]}} pts
+                {{else}}
+                  {{disadvantage.basePoints}} pts
+                {{/if}}
+              </span>
+            </div>
+            <p class="disadvantage-description">{{disadvantage.description}}</p>
+            <button type="button" class="disadvantage-add" data-disadvantage-id="{{disadvantage.id}}">
+              <i class="fas fa-plus"></i> Add
+            </button>
+          </div>
+          {{/each}}
+        </div>
+      </div>
+      
+      <div class="disadvantages-selected">
+        <h3>Selected Disadvantages</h3>
+        {{#if selectedDisadvantages.length}}
+        <div class="selected-list">
+          {{#each selectedDisadvantages as |disadvantage index|}}
+          <div class="selected-disadvantage">
+            <div class="selected-header">
+              <strong>{{disadvantage.name}}</strong>
+              <span class="selected-points">{{disadvantage.points}} pts</span>
+            </div>
+            <div class="selected-details">
+              {{#each disadvantage.details as |value key|}}
+              <span class="detail-item"><strong>{{key}}:</strong> {{value}}</span>
+              {{/each}}
+            </div>
+            <div class="selected-controls">
+              <button type="button" class="disadvantage-edit" data-index="{{index}}">
+                <i class="fas fa-edit"></i> Edit
+              </button>
+              <button type="button" class="disadvantage-remove" data-index="{{index}}">
+                <i class="fas fa-trash"></i> Remove
+              </button>
+            </div>
+          </div>
+          {{/each}}
+        </div>
+        {{else}}
+        <p class="empty-message">No disadvantages selected.</p>
+        {{/if}}
+      </div>
+      
+      <div class="wizard-buttons">
+        <button type="button" class="step-button" data-direction="prev">
+          <i class="fas fa-arrow-left"></i> Previous
+        </button>
+        <button type="button" class="step-button" data-direction="next">
+          Next: Review <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+    {{/if}}
+
+    <!-- Step 5: Review & Finalize -->
+    {{#if (eq state.step 5)}}
+    <div class="wizard-step review-step">
+      <h2>Review & Finalize</h2>
+      
+      <div class="review-section">
+        <h3>Attributes</h3>
+        <div class="review-attributes">
+          {{#each attributeKeys as |attrKey|}}
+          <div class="review-item">
+            <span class="review-label">{{lookup ../attributeLabels attrKey}}:</span>
+            <span class="review-value">{{lookup ../state.attributes attrKey}} (Base: {{../masteryRank}})</span>
+          </div>
+          {{/each}}
+        </div>
+        <div class="review-summary">
+          <strong>Total Points Spent: {{state.attributePointsSpent}} / 16</strong>
+        </div>
+      </div>
+      
+      <div class="review-section">
+        <h3>Skills</h3>
+        <div class="review-skills">
+          {{#each skills as |category|}}
+          {{#each category.skills as |skill|}}
+          {{#if (gt skill.value 0)}}
+          <div class="review-item">
+            <span class="review-label">{{skill.name}}:</span>
+            <span class="review-value">{{skill.value}}</span>
+          </div>
+          {{/if}}
+          {{/each}}
+          {{/each}}
+        </div>
+        <div class="review-summary">
+          <strong>Total Points Spent: {{state.skillPointsSpent}} / {{skillPointsConfig}}</strong>
+        </div>
+      </div>
+      
+      <div class="review-section">
+        <h3>Disadvantages</h3>
+        {{#if selectedDisadvantages.length}}
+        <div class="review-disadvantages">
+          {{#each selectedDisadvantages as |disadvantage|}}
+          <div class="review-item">
+            <span class="review-label">{{disadvantage.name}}:</span>
+            <span class="review-value">{{disadvantage.points}} pts</span>
+          </div>
+          {{/each}}
+        </div>
+        <div class="review-summary">
+          <strong>Total Points: {{state.disadvantagePointsSpent}} / {{maxDisadvantagePoints}}</strong>
+          <p>Faith Fractures will be set to: Current = {{state.disadvantagePointsSpent}}, Max = {{state.disadvantagePointsSpent}}</p>
+        </div>
+        {{else}}
+        <p class="empty-message">No disadvantages selected.</p>
+        <div class="review-summary">
+          <p>Faith Fractures will remain at current values.</p>
+        </div>
+        {{/if}}
+      </div>
+      
+      <div class="wizard-buttons">
+        <button type="button" class="step-button" data-direction="prev">
+          <i class="fas fa-arrow-left"></i> Previous
+        </button>
+        <button type="button" class="finalize-button">
+          <i class="fas fa-check"></i> Finalize Character
+        </button>
+      </div>
+    </div>
+    {{/if}}
+  </div>
+</div>
+

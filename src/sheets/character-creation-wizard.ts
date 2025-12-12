@@ -1,0 +1,420 @@
+/**
+ * Character Creation Wizard for Mastery System
+ * Multi-step wizard for character creation with attribute, skill, and disadvantage allocation
+ */
+
+import { MasteryActor } from '../documents/actor';
+import { SKILLS } from '../utils/skills';
+import { CREATION } from '../utils/constants';
+import {
+  DISADVANTAGES,
+  getDisadvantageDefinition,
+  calculateDisadvantagePoints,
+  validateDisadvantageSelection
+} from '../system/disadvantages';
+
+// Use ApplicationV2 if available, otherwise fall back to Application
+const BaseApplication: any = (foundry as any)?.applications?.api?.ApplicationV2 || Application;
+
+export interface CreationState {
+  step: number;
+  attributes: Record<string, number>;
+  skills: Record<string, number>;
+  disadvantages: Array<{
+    id: string;
+    name: string;
+    points: number;
+    details: Record<string, any>;
+    description?: string;
+  }>;
+  attributePointsSpent: number;
+  skillPointsSpent: number;
+  disadvantagePointsSpent: number;
+}
+
+export class CharacterCreationWizard extends BaseApplication {
+  actor: MasteryActor;
+  state: CreationState;
+
+  constructor(actor: MasteryActor, options?: any) {
+    super(options);
+    this.actor = actor;
+    this.state = this.initializeState();
+  }
+
+  static get defaultOptions() {
+    return foundry.utils.mergeObject(super.defaultOptions, {
+      id: 'character-creation-wizard',
+      title: 'Character Creation',
+      template: 'systems/mastery-system/templates/dialogs/character-creation-wizard.hbs',
+      width: 800,
+      height: 700,
+      resizable: true,
+      classes: ['mastery-system', 'character-creation-wizard']
+    });
+  }
+
+  initializeState(): CreationState {
+    const system = (this.actor as any).system;
+    const masteryRank = system.mastery?.rank || 2;
+
+    // Initialize attributes at MR
+    const attributes: Record<string, number> = {};
+    const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
+    for (const key of attributeKeys) {
+      attributes[key] = masteryRank;
+    }
+
+    // Initialize skills at 0
+    const skills: Record<string, number> = {};
+    for (const key of Object.keys(SKILLS)) {
+      skills[key] = 0;
+    }
+
+    return {
+      step: 1,
+      attributes,
+      skills,
+      disadvantages: [],
+      attributePointsSpent: 0,
+      skillPointsSpent: 0,
+      disadvantagePointsSpent: 0
+    };
+  }
+
+  getData(options?: any) {
+    const system = (this.actor as any).system;
+    const masteryRank = system.mastery?.rank || 2;
+    const skillPointsConfig = (CONFIG as any).MASTERY?.creation?.skillPoints || CREATION.SKILL_POINTS;
+
+    // Calculate remaining points
+    const attributePointsRemaining = CREATION.ATTRIBUTE_POINTS - this.state.attributePointsSpent;
+    const skillPointsRemaining = skillPointsConfig - this.state.skillPointsSpent;
+
+    // Check if steps are complete
+    const attributesComplete = this.state.attributePointsSpent === CREATION.ATTRIBUTE_POINTS;
+    const skillsComplete = this.state.skillPointsSpent === skillPointsConfig;
+    const canProceed = attributesComplete && skillsComplete;
+
+    return {
+      ...super.getData(options),
+      actor: this.actor,
+      state: this.state,
+      masteryRank,
+      skillPointsConfig,
+      attributePointsRemaining,
+      skillPointsRemaining,
+      attributesComplete,
+      skillsComplete,
+      canProceed,
+      attributeKeys: ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'],
+      attributeLabels: {
+        might: 'Might',
+        agility: 'Agility',
+        vitality: 'Vitality',
+        intellect: 'Intellect',
+        resolve: 'Resolve',
+        influence: 'Influence',
+        wits: 'Wits'
+      },
+      skills: this.#prepareSkills(),
+      disadvantages: DISADVANTAGES,
+      selectedDisadvantages: this.state.disadvantages,
+      disadvantageValidation: validateDisadvantageSelection(this.state.disadvantages),
+      maxAttribute: CREATION.MAX_ATTRIBUTE_AT_CREATION,
+      maxSkill: CREATION.MAX_SKILL_AT_CREATION,
+      maxDisadvantagePoints: CREATION.MAX_DISADVANTAGE_POINTS
+    };
+  }
+
+  #prepareSkills() {
+    const skillsByCategory = new Map<string, Array<{ key: string; name: string; value: number }>>();
+
+    for (const [key, def] of Object.entries(SKILLS)) {
+      const category = def.category;
+      if (!skillsByCategory.has(category)) {
+        skillsByCategory.set(category, []);
+      }
+      skillsByCategory.get(category)!.push({
+        key,
+        name: def.name,
+        value: this.state.skills[key] || 0
+      });
+    }
+
+    // Sort within categories
+    for (const skills of skillsByCategory.values()) {
+      skills.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    return Array.from(skillsByCategory.entries()).map(([category, skills]) => ({
+      category,
+      skills
+    }));
+  }
+
+  activateListeners(html: JQuery) {
+    super.activateListeners(html);
+
+    // Step navigation
+    html.find('.step-nav-button').on('click', this.#onStepNav.bind(this));
+    html.find('.step-button').on('click', this.#onStepButton.bind(this));
+
+    // Attribute controls
+    html.find('.attr-increase').on('click', this.#onAttributeIncrease.bind(this));
+    html.find('.attr-decrease').on('click', this.#onAttributeDecrease.bind(this));
+
+    // Skill controls
+    html.find('.skill-increase').on('click', this.#onSkillIncrease.bind(this));
+    html.find('.skill-decrease').on('click', this.#onSkillDecrease.bind(this));
+
+    // Disadvantage controls
+    html.find('.disadvantage-add').on('click', this.#onDisadvantageAdd.bind(this));
+    html.find('.disadvantage-remove').on('click', this.#onDisadvantageRemove.bind(this));
+    html.find('.disadvantage-edit').on('click', this.#onDisadvantageEdit.bind(this));
+
+    // Finalize
+    html.find('.finalize-button').on('click', this.#onFinalize.bind(this));
+  }
+
+  #onStepNav(event: JQuery.ClickEvent) {
+    const step = parseInt($(event.currentTarget).data('step') || '1');
+    if (step >= 1 && step <= 5) {
+      this.state.step = step;
+      this.render();
+    }
+  }
+
+  #onStepButton(event: JQuery.ClickEvent) {
+    const direction = $(event.currentTarget).data('direction');
+    if (direction === 'next' && this.state.step < 5) {
+      this.state.step++;
+      this.render();
+    } else if (direction === 'prev' && this.state.step > 1) {
+      this.state.step--;
+      this.render();
+    }
+  }
+
+  #onAttributeIncrease(event: JQuery.ClickEvent) {
+    const attribute = $(event.currentTarget).data('attribute');
+    const current = this.state.attributes[attribute] || 0;
+    const masteryRank = ((this.actor as any).system.mastery?.rank || 2);
+
+    if (current < CREATION.MAX_ATTRIBUTE_AT_CREATION && this.state.attributePointsSpent < CREATION.ATTRIBUTE_POINTS) {
+      this.state.attributes[attribute] = current + 1;
+      this.state.attributePointsSpent++;
+      this.render();
+    }
+  }
+
+  #onAttributeDecrease(event: JQuery.ClickEvent) {
+    const attribute = $(event.currentTarget).data('attribute');
+    const current = this.state.attributes[attribute] || 0;
+    const masteryRank = ((this.actor as any).system.mastery?.rank || 2);
+
+    if (current > masteryRank && this.state.attributePointsSpent > 0) {
+      this.state.attributes[attribute] = current - 1;
+      this.state.attributePointsSpent--;
+      this.render();
+    }
+  }
+
+  #onSkillIncrease(event: JQuery.ClickEvent) {
+    const skill = $(event.currentTarget).data('skill');
+    const current = this.state.skills[skill] || 0;
+    const skillPointsConfig = (CONFIG as any).MASTERY?.creation?.skillPoints || CREATION.SKILL_POINTS;
+
+    if (current < CREATION.MAX_SKILL_AT_CREATION && this.state.skillPointsSpent < skillPointsConfig) {
+      this.state.skills[skill] = current + 1;
+      this.state.skillPointsSpent++;
+      this.render();
+    }
+  }
+
+  #onSkillDecrease(event: JQuery.ClickEvent) {
+    const skill = $(event.currentTarget).data('skill');
+    const current = this.state.skills[skill] || 0;
+
+    if (current > 0 && this.state.skillPointsSpent > 0) {
+      this.state.skills[skill] = current - 1;
+      this.state.skillPointsSpent--;
+      this.render();
+    }
+  }
+
+  #onDisadvantageAdd(event: JQuery.ClickEvent) {
+    const disadvantageId = $(event.currentTarget).data('disadvantage-id');
+    const def = getDisadvantageDefinition(disadvantageId);
+    if (!def) return;
+
+    // Open dialog to configure disadvantage
+    this.#openDisadvantageDialog(def);
+  }
+
+  #onDisadvantageRemove(event: JQuery.ClickEvent) {
+    const index = parseInt($(event.currentTarget).data('index') || '0');
+    if (index >= 0 && index < this.state.disadvantages.length) {
+      const removed = this.state.disadvantages.splice(index, 1)[0];
+      this.state.disadvantagePointsSpent -= removed.points;
+      this.render();
+    }
+  }
+
+  #onDisadvantageEdit(event: JQuery.ClickEvent) {
+    const index = parseInt($(event.currentTarget).data('index') || '0');
+    if (index >= 0 && index < this.state.disadvantages.length) {
+      const selection = this.state.disadvantages[index];
+      const def = getDisadvantageDefinition(selection.id);
+      if (def) {
+        this.#openDisadvantageDialog(def, index, selection.details);
+      }
+    }
+  }
+
+  async #openDisadvantageDialog(
+    def: any,
+    editIndex?: number,
+    existingDetails?: Record<string, any>
+  ) {
+    const content = await renderTemplate('systems/mastery-system/templates/dialogs/disadvantage-config.hbs', {
+      disadvantage: def,
+      details: existingDetails || {}
+    });
+
+    new Dialog({
+      title: `${editIndex !== undefined ? 'Edit' : 'Add'} ${def.name}`,
+      content,
+      buttons: {
+        save: {
+          icon: '<i class="fas fa-check"></i>',
+          label: 'Save',
+          callback: (html: JQuery) => {
+            const details: Record<string, any> = {};
+            for (const field of def.fields || []) {
+              if (field.type === 'number') {
+                details[field.name] = parseInt($(html).find(`[name="${field.name}"]`).val() as string) || 0;
+              } else if (field.type === 'select') {
+                details[field.name] = $(html).find(`[name="${field.name}"]`).val() as string;
+              } else {
+                details[field.name] = $(html).find(`[name="${field.name}"]`).val() as string || '';
+              }
+            }
+
+            const points = calculateDisadvantagePoints(def.id, details);
+            const validation = validateDisadvantageSelection([
+              ...this.state.disadvantages.filter((_, i) => i !== editIndex),
+              { id: def.id, details }
+            ]);
+
+            if (!validation.valid) {
+              ui.notifications?.error(validation.error || 'Invalid disadvantage selection');
+              return false;
+            }
+
+            if (editIndex !== undefined) {
+              // Edit existing
+              const oldPoints = this.state.disadvantages[editIndex].points;
+              this.state.disadvantages[editIndex] = {
+                id: def.id,
+                name: def.name,
+                points,
+                details,
+                description: def.description
+              };
+              this.state.disadvantagePointsSpent = this.state.disadvantagePointsSpent - oldPoints + points;
+            } else {
+              // Add new
+              this.state.disadvantages.push({
+                id: def.id,
+                name: def.name,
+                points,
+                details,
+                description: def.description
+              });
+              this.state.disadvantagePointsSpent += points;
+            }
+
+            this.render();
+          }
+        },
+        cancel: {
+          icon: '<i class="fas fa-times"></i>',
+          label: 'Cancel'
+        }
+      },
+      default: 'save'
+    }).render(true);
+  }
+
+  async #onFinalize() {
+    // Validate all steps
+    const skillPointsConfig = (CONFIG as any).MASTERY?.creation?.skillPoints || CREATION.SKILL_POINTS;
+    if (this.state.attributePointsSpent !== CREATION.ATTRIBUTE_POINTS) {
+      ui.notifications?.error(`Must spend exactly ${CREATION.ATTRIBUTE_POINTS} attribute points.`);
+      return;
+    }
+    if (this.state.skillPointsSpent !== skillPointsConfig) {
+      ui.notifications?.error(`Must spend exactly ${skillPointsConfig} skill points.`);
+      return;
+    }
+
+    const validation = validateDisadvantageSelection(this.state.disadvantages);
+    if (!validation.valid) {
+      ui.notifications?.error(validation.error || 'Invalid disadvantage selection');
+      return;
+    }
+
+    // Apply changes to actor
+    const updateData: any = {
+      'system.attributes': {},
+      'system.skills': {},
+      'system.disadvantages': this.state.disadvantages,
+      'system.creation.complete': true
+    };
+
+    // Update attributes
+    for (const [key, value] of Object.entries(this.state.attributes)) {
+      updateData[`system.attributes.${key}.value`] = value;
+    }
+
+    // Update skills
+    for (const [key, value] of Object.entries(this.state.skills)) {
+      if (value > 0) {
+        updateData[`system.skills.${key}`] = value;
+      }
+    }
+
+    // Sync Faith Fractures
+    const disadvantagePoints = this.state.disadvantagePointsSpent;
+    const currentFF = ((this.actor as any).system.faithFractures?.current || 0);
+    const maxFF = ((this.actor as any).system.faithFractures?.maximum || 10);
+
+    updateData['system.faithFractures.current'] = Math.min(disadvantagePoints, maxFF);
+    updateData['system.faithFractures.maximum'] = Math.max(disadvantagePoints, maxFF);
+
+    try {
+      await this.actor.update(updateData);
+      ui.notifications?.info('Character creation complete!');
+      this.close();
+      
+      // Re-render the actor sheet
+      if (this.actor.sheet?.rendered) {
+        this.actor.sheet.render();
+      }
+    } catch (error) {
+      console.error('Mastery System | Failed to finalize character creation', error);
+      ui.notifications?.error('Failed to finalize character creation');
+    }
+  }
+}
+
+/**
+ * Open the Character Creation Wizard for an actor
+ */
+export function openCharacterCreationWizard(actor: MasteryActor) {
+  const wizard = new CharacterCreationWizard(actor);
+  wizard.render(true);
+  return wizard;
+}
+

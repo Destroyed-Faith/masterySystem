@@ -147,6 +147,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     context.system = actorData.system;
     context.flags = actorData.flags;
     
+    // Check if character creation is complete
+    context.creationComplete = context.system.creation?.complete !== false;
+    
     // Get Mastery Rank from settings (per player or global default)
     const playerMasteryRanks = (game as any).settings.get('mastery-system', 'playerMasteryRanks') || {};
     const defaultMasteryRank = (game as any).settings.get('mastery-system', 'defaultMasteryRank') || 2;
@@ -177,6 +180,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     // Add skills list (sorted alphabetically)
     context.skills = this.#prepareSkills(context.system.skills);
+    
+    // Prepare disadvantages
+    context.disadvantages = context.system.disadvantages || [];
+    context.disadvantagePointsTotal = context.disadvantages.reduce((sum: number, d: any) => sum + (d.points || 0), 0);
     
     // Ensure token image is available
     if (!context.actor.prototypeToken?.texture?.src) {
@@ -327,6 +334,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       htmlLength: html.length,
       actorName: this.actor?.name
     });
+    
+    // Character Creation Wizard button
+    html.find('.open-creation-wizard').on('click', this.#onOpenCreationWizard.bind(this));
+    html.find('.force-unlock-creation').on('click', this.#onForceUnlockCreation.bind(this));
+    
+    // Check if creation is incomplete and lock sheet
+    const creationComplete = (this.actor as any).system?.creation?.complete !== false;
+    if (!creationComplete) {
+      this.#lockSheetForCreation(html);
+    }
     
     // Roll buttons work for everyone
     html.find('.attribute-roll').on('click', this.#onAttributeRoll.bind(this));
@@ -1092,6 +1109,69 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         ui.notifications?.error('Failed to display image.');
       }
     }
+  }
+
+  /**
+   * Lock sheet when character creation is incomplete
+   */
+  #lockSheetForCreation(html: JQuery) {
+    // Disable all input fields
+    html.find('input, textarea, select').prop('disabled', true);
+    
+    // Disable buttons (except creation wizard button)
+    html.find('button:not(.open-creation-wizard):not(.force-unlock-creation)').prop('disabled', true);
+    
+    // Add CSS class for styling
+    html.addClass('creation-incomplete');
+  }
+
+  /**
+   * Open Character Creation Wizard
+   */
+  async #onOpenCreationWizard(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    try {
+      const { openCharacterCreationWizard } = await import('./character-creation-wizard');
+      openCharacterCreationWizard(this.actor as MasteryActor);
+    } catch (error) {
+      console.error('Mastery System | Failed to open character creation wizard', error);
+      ui.notifications?.error('Failed to open Character Creation Wizard');
+    }
+  }
+
+  /**
+   * Force unlock creation (GM only)
+   */
+  async #onForceUnlockCreation(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    if (!(game as any).user?.isGM) {
+      ui.notifications?.warn('Only the GM can force unlock character creation.');
+      return;
+    }
+
+    const confirmed = await Dialog.confirm({
+      title: 'Force Unlock Character Creation',
+      content: '<p>Are you sure you want to mark this character\'s creation as complete? This will unlock the sheet for editing.</p>'
+    });
+
+    if (confirmed) {
+      await this.actor.update({ 'system.creation.complete': true });
+      ui.notifications?.info('Character creation marked as complete.');
+      this.render();
+    }
+  }
+
+  /** @override */
+  async _onSubmit(event: Event, options?: any) {
+    // Block updates if creation is incomplete
+    const creationComplete = (this.actor as any).system?.creation?.complete !== false;
+    if (!creationComplete && !(game as any).user?.isGM) {
+      event.preventDefault();
+      ui.notifications?.warn('Character creation is incomplete. Please complete character creation first.');
+      return false;
+    }
+    
+    return super._onSubmit(event, options);
   }
 }
 

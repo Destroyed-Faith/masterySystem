@@ -63,6 +63,24 @@
     </div>
   </header>
 
+  <!-- Character Creation Lock Overlay -->
+  {{#unless creationComplete}}
+  <div class="creation-lock-overlay">
+    <div class="creation-lock-banner">
+      <h2><i class="fas fa-lock"></i> Character Creation Incomplete</h2>
+      <p>You must allocate points to unlock the sheet.</p>
+      <button type="button" class="open-creation-wizard">
+        <i class="fas fa-wizard"></i> Open Character Creation
+      </button>
+      {{#if (userIsGM)}}
+      <button type="button" class="force-unlock-creation" title="GM Only: Force unlock character creation">
+        <i class="fas fa-unlock"></i> Force Unlock
+      </button>
+      {{/if}}
+    </div>
+  </div>
+  {{/unless}}
+
   <!-- Tabs Navigation (Right Side Bookmarks) -->
   <nav class="sheet-tabs tabs" data-group="primary">
     <a class="item" data-tab="attributes"><i class="fas fa-fist-raised"></i> Attributes</a>
@@ -70,6 +88,7 @@
     <a class="item" data-tab="powers"><i class="fas fa-magic"></i> Powers</a>
     <a class="item" data-tab="magic"><i class="fas fa-hat-wizard"></i> Magic</a>
     <a class="item" data-tab="equipment"><i class="fas fa-shield-alt"></i> Equipment</a>
+    <a class="item" data-tab="disadvantages"><i class="fas fa-exclamation-triangle"></i> Disadvantages</a>
     <a class="item" data-tab="biography"><i class="fas fa-scroll"></i> Bio</a>
   </nav>
 
@@ -685,6 +704,58 @@
         {{/if}}
       </div>
       
+    </div>
+    
+    <!-- DISADVANTAGES TAB -->
+    <div class="tab disadvantages" data-group="primary" data-tab="disadvantages">
+      <div class="disadvantages-overview">
+        <h3><i class="fas fa-exclamation-triangle"></i> Disadvantages</h3>
+        <div class="disadvantages-summary">
+          <div class="summary-item">
+            <label>Total Disadvantage Points:</label>
+            <span class="summary-value">{{default disadvantagePointsTotal 0}} / 8</span>
+          </div>
+          <div class="summary-item">
+            <label>Faith Fractures:</label>
+            <span class="summary-value">
+              {{default system.faithFractures.current 0}} / {{default system.faithFractures.maximum 10}}
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      {{#if disadvantages.length}}
+      <div class="disadvantages-list">
+        {{#each disadvantages as |disadvantage|}}
+        <div class="disadvantage-card-sheet">
+          <div class="disadvantage-header-sheet">
+            <h4>{{disadvantage.name}}</h4>
+            <span class="disadvantage-points-sheet">{{disadvantage.points}} pts</span>
+          </div>
+          {{#if disadvantage.description}}
+          <p class="disadvantage-description-sheet">{{disadvantage.description}}</p>
+          {{/if}}
+          {{#if disadvantage.details}}
+          <div class="disadvantage-details-sheet">
+            {{#each disadvantage.details as |value key|}}
+            <div class="detail-item-sheet">
+              <strong>{{capitalize key}}:</strong> {{value}}
+            </div>
+            {{/each}}
+          </div>
+          {{/if}}
+        </div>
+        {{/each}}
+      </div>
+      {{else}}
+      <p class="empty-message">No disadvantages selected.</p>
+      {{/if}}
+      
+      {{#unless creationComplete}}
+      <div class="creation-note">
+        <p><i class="fas fa-info-circle"></i> Disadvantages can be selected during character creation.</p>
+      </div>
+      {{/unless}}
     </div>
     
     <!-- BIOGRAPHY TAB -->

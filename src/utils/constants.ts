@@ -39,3 +39,12 @@ export const INITIATIVE_SHOP = {
     }
 };
 
+// Character Creation
+export const CREATION = {
+    ATTRIBUTE_POINTS: 16,
+    SKILL_POINTS: 16,      // Configurable via CONFIG.creation.skillPoints
+    MAX_ATTRIBUTE_AT_CREATION: 8,
+    MAX_SKILL_AT_CREATION: 4,
+    MAX_DISADVANTAGE_POINTS: 8
+};
+
