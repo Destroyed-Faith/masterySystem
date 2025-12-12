@@ -70,13 +70,21 @@ export async function showDamageDialog(
   };
   
   return new Promise((resolve) => {
-    const dialog = new DamageDialog(dialogData, resolve);
-    console.log('Mastery System | DEBUG: Creating DamageDialog', {
+    console.log('Mastery System | DEBUG: showDamageDialog - creating dialog', {
       hasData: !!dialogData,
       raises: dialogData.raises,
-      template: (DamageDialog as any).defaultOptions.template
+      baseDamage: dialogData.baseDamage,
+      availableSpecials: dialogData.availableSpecials?.length || 0
     });
-    dialog.render(true);
+    try {
+      const dialog = new DamageDialog(dialogData, resolve);
+      console.log('Mastery System | DEBUG: showDamageDialog - dialog created, rendering...');
+      dialog.render(true);
+      console.log('Mastery System | DEBUG: showDamageDialog - render called');
+    } catch (error) {
+      console.error('Mastery System | DEBUG: showDamageDialog - error creating dialog', error);
+      throw error;
+    }
   });
 }
 
@@ -85,16 +93,22 @@ export async function showDamageDialog(
  */
 async function calculatePassiveDamage(actor: Actor): Promise<string> {
   try {
+    console.log('Mastery System | DEBUG: calculatePassiveDamage - starting', { actorName: (actor as any).name });
     // Import passive functions to get slots (try multiple paths)
     let passivesModule;
     try {
+      console.log('Mastery System | DEBUG: calculatePassiveDamage - trying ../../dist/powers/passives.js');
       passivesModule = await import('../../dist/powers/passives.js' as any);
+      console.log('Mastery System | DEBUG: calculatePassiveDamage - loaded passives module', { hasModule: !!passivesModule });
     } catch (e) {
+      console.warn('Mastery System | DEBUG: calculatePassiveDamage - first import failed', e);
       // Try alternative path
       try {
+        console.log('Mastery System | DEBUG: calculatePassiveDamage - trying ../../utils/powers/passives.js');
         passivesModule = await import('../../utils/powers/passives.js' as any);
+        console.log('Mastery System | DEBUG: calculatePassiveDamage - loaded passives module from utils', { hasModule: !!passivesModule });
       } catch (e2) {
-        console.warn('Mastery System | Could not load passives module, skipping passive damage');
+        console.warn('Mastery System | Could not load passives module, skipping passive damage', e2);
         return '0';
       }
     }
@@ -162,15 +176,21 @@ async function collectAvailableSpecials(actor: Actor, weapon: any | null): Promi
   
   // Get passives that can be used on attack (from passive slots)
   try {
+    console.log('Mastery System | DEBUG: collectAvailableSpecials - loading passives module');
     // Try multiple paths for passives module
     let passivesModule;
     try {
+      console.log('Mastery System | DEBUG: collectAvailableSpecials - trying ../../dist/powers/passives.js');
       passivesModule = await import('../../dist/powers/passives.js' as any);
+      console.log('Mastery System | DEBUG: collectAvailableSpecials - loaded passives module', { hasModule: !!passivesModule });
     } catch (e) {
+      console.warn('Mastery System | DEBUG: collectAvailableSpecials - first import failed', e);
       try {
+        console.log('Mastery System | DEBUG: collectAvailableSpecials - trying ../../utils/powers/passives.js');
         passivesModule = await import('../../utils/powers/passives.js' as any);
+        console.log('Mastery System | DEBUG: collectAvailableSpecials - loaded passives module from utils', { hasModule: !!passivesModule });
       } catch (e2) {
-        console.warn('Mastery System | Could not load passives module for specials');
+        console.warn('Mastery System | Could not load passives module for specials', e2);
         return specials; // Return what we have so far
       }
     }
@@ -235,7 +255,8 @@ class DamageDialog extends Application {
   }
   
   static override get defaultOptions(): any {
-    const opts = super.defaultOptions;
+    const opts = super.defaultOptions || {};
+    console.log('Mastery System | DEBUG: DamageDialog defaultOptions - super.defaultOptions', super.defaultOptions);
     opts.id = 'mastery-damage-dialog';
     opts.title = 'Calculate Damage';
     opts.template = 'systems/mastery-system/templates/dice/damage-dialog.hbs';
@@ -244,11 +265,19 @@ class DamageDialog extends Application {
     opts.resizable = true;
     opts.classes = ['mastery-damage-dialog'];
     opts.popOut = true;
-    console.log('Mastery System | DEBUG: DamageDialog defaultOptions', opts);
+    console.log('Mastery System | DEBUG: DamageDialog defaultOptions - final opts', opts);
     return opts;
   }
   
   override async getData(): Promise<any> {
+    console.log('Mastery System | DEBUG: DamageDialog getData() - called', {
+      hasData: !!this.data,
+      raises: this.data?.raises,
+      baseDamage: this.data?.baseDamage,
+      availableSpecials: this.data?.availableSpecials?.length || 0,
+      attacker: (this.data?.attacker as any)?.name,
+      target: (this.data?.target as any)?.name
+    });
     const data = {
       ...this.data,
       raiseSelections: Array.from(this.raiseSelections.entries()).map(([index, selection]) => ({
@@ -256,11 +285,12 @@ class DamageDialog extends Application {
         ...selection
       }))
     };
-    console.log('Mastery System | DEBUG: DamageDialog getData()', {
-      hasData: !!this.data,
-      raises: this.data.raises,
-      baseDamage: this.data.baseDamage,
-      availableSpecials: this.data.availableSpecials?.length || 0
+    console.log('Mastery System | DEBUG: DamageDialog getData() - returning', {
+      hasData: !!data,
+      raises: data.raises,
+      baseDamage: data.baseDamage,
+      availableSpecials: data.availableSpecials?.length || 0,
+      raiseSelectionsCount: data.raiseSelections?.length || 0
     });
     return data;
   }
