@@ -558,11 +558,21 @@ Hooks.once('ready', () => {
           }
           
           // Get equipped weapon ID (just the ID, not the full object)
+          // First try to find it from actor items, then fall back to flags
           const items = (attacker as any).items || [];
           const equippedWeapon = items.find((item: any) => 
             item.type === 'weapon' && (item.system as any)?.equipped === true
           );
-          const weaponId = equippedWeapon ? equippedWeapon.id : null;
+          let weaponId = equippedWeapon ? equippedWeapon.id : null;
+          
+          // If weapon not found by equipped flag, use weaponId from flags
+          if (!weaponId && updatedFlags.weaponId) {
+            console.log('Mastery System | [BEFORE DAMAGE DIALOG] Weapon not found as equipped, using weaponId from flags', {
+              weaponIdFromFlags: updatedFlags.weaponId,
+              allItems: items.map((i: any) => ({ id: i.id, name: i.name, type: i.type, equipped: (i.system as any)?.equipped }))
+            });
+            weaponId = updatedFlags.weaponId;
+          }
           
           console.log('Mastery System | [BEFORE DAMAGE DIALOG] Weapon and power IDs', {
             messageId: messageId,

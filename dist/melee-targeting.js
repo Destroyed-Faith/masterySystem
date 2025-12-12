@@ -768,7 +768,21 @@ async function confirmMeleeTarget(targetToken, state) {
                         const powerId = $(this).val();
                         const selectedOption = $(this).find('option:selected');
                         const powerLevel = parseInt(selectedOption.data('level')) || 1;
-                        const powerSpecials = selectedOption.data('specials') || [];
+                        // Parse powerSpecials - it's stored as JSON string in data-specials attribute
+                        let powerSpecials = [];
+                        try {
+                            const specialsData = selectedOption.data('specials');
+                            if (typeof specialsData === 'string') {
+                                powerSpecials = JSON.parse(specialsData);
+                            }
+                            else if (Array.isArray(specialsData)) {
+                                powerSpecials = specialsData;
+                            }
+                        }
+                        catch (e) {
+                            console.warn('Mastery System | [POWER SELECTION] Could not parse powerSpecials', e);
+                            powerSpecials = [];
+                        }
                         const powerDamage = selectedOption.data('damage') || '';
                         console.log('Mastery System | [POWER SELECTION] Power selected in dropdown', {
                             messageId: message.id,
@@ -805,18 +819,46 @@ async function confirmMeleeTarget(targetToken, state) {
                                 weaponId: newFlags.weaponId,
                                 allNewFlagKeys: Object.keys(newFlags)
                             });
-                            await currentMessage.setFlag('mastery-system', newFlags);
-                            // Verify the flags were saved
-                            const verifyFlags = currentMessage.getFlag('mastery-system') || currentMessage.flags?.['mastery-system'];
-                            console.log('Mastery System | [POWER SELECTION] Verified flags after save', {
-                                messageId: message.id,
-                                selectedPowerId: verifyFlags?.selectedPowerId,
-                                selectedPowerLevel: verifyFlags?.selectedPowerLevel,
-                                selectedPowerSpecials: verifyFlags?.selectedPowerSpecials,
-                                selectedPowerDamage: verifyFlags?.selectedPowerDamage,
-                                weaponId: verifyFlags?.weaponId,
-                                allVerifiedFlagKeys: Object.keys(verifyFlags || {})
-                            });
+                            try {
+                                await currentMessage.setFlag('mastery-system', newFlags);
+                                console.log('Mastery System | [POWER SELECTION] setFlag called successfully', {
+                                    messageId: message.id,
+                                    flagsSet: newFlags
+                                });
+                                // Wait a bit for the flag to be saved
+                                await new Promise(resolve => setTimeout(resolve, 100));
+                                // Verify the flags were saved - try multiple methods
+                                let verifyFlags = currentMessage.getFlag('mastery-system');
+                                if (!verifyFlags) {
+                                    verifyFlags = currentMessage.flags?.['mastery-system'];
+                                }
+                                if (!verifyFlags) {
+                                    // Try to get the message again from the collection
+                                    const refreshedMessage = game.messages?.get(message.id);
+                                    if (refreshedMessage) {
+                                        verifyFlags = refreshedMessage.getFlag('mastery-system') || refreshedMessage.flags?.['mastery-system'];
+                                    }
+                                }
+                                console.log('Mastery System | [POWER SELECTION] Verified flags after save', {
+                                    messageId: message.id,
+                                    selectedPowerId: verifyFlags?.selectedPowerId,
+                                    selectedPowerLevel: verifyFlags?.selectedPowerLevel,
+                                    selectedPowerSpecials: verifyFlags?.selectedPowerSpecials,
+                                    selectedPowerDamage: verifyFlags?.selectedPowerDamage,
+                                    weaponId: verifyFlags?.weaponId,
+                                    allVerifiedFlagKeys: Object.keys(verifyFlags || {}),
+                                    flagsMatch: verifyFlags?.selectedPowerId === newFlags.selectedPowerId,
+                                    verificationMethod: verifyFlags ? 'found' : 'not found'
+                                });
+                            }
+                            catch (error) {
+                                console.error('Mastery System | [POWER SELECTION] ERROR setting flags', {
+                                    messageId: message.id,
+                                    error: error,
+                                    errorMessage: error.message,
+                                    errorStack: error.stack
+                                });
+                            }
                         }
                         else {
                             console.error('Mastery System | [POWER SELECTION] ERROR: Could not find message to update flags', {
