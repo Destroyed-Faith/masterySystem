@@ -69,43 +69,219 @@ export async function showDamageDialog(
   const availableSpecials = await collectAvailableSpecials(attacker, weapon);
   console.log('Mastery System | DEBUG: showDamageDialog - availableSpecials', availableSpecials.length);
   
-  const dialogData: DamageDialogData = {
-    attacker,
-    target,
-    weapon,
-    baseDamage: baseDamage || '0',
-    powerDamage: powerDamage || '0',
-    passiveDamage: passiveDamage || '0',
-    raises: raises || 0,
-    availableSpecials: availableSpecials || [],
-    weaponSpecials: weaponSpecials || []
-  };
+  // Create damage card as chat message instead of dialog
+  return new Promise((resolve) => {
+    const damageCardContent = createDamageCardContent(
+      attacker,
+      target,
+      baseDamage,
+      powerDamage,
+      passiveDamage,
+      raises,
+      availableSpecials,
+      weaponSpecials,
+      resolve
+    );
+    
+    const chatData: any = {
+      user: (game as any).user?.id,
+      speaker: ChatMessage.getSpeaker({ actor: attacker }),
+      content: damageCardContent,
+      style: CONST.CHAT_MESSAGE_STYLES.OTHER,
+      flags: {
+        'mastery-system': {
+          damageType: 'selection',
+          attackerId: (attacker as any).id,
+          targetId: (target as any).id,
+          baseDamage,
+          powerDamage,
+          passiveDamage,
+          raises,
+          availableSpecials,
+          weaponSpecials
+        }
+      }
+    };
+    
+    ChatMessage.create(chatData).then((message: any) => {
+      console.log('Mastery System | DEBUG: Damage card created in chat', message.id);
+      // Initialize the damage card UI
+      setTimeout(() => {
+        initializeDamageCard(message.id, resolve);
+      }, 100);
+    });
+  });
+}
+
+/**
+ * Create HTML content for damage card in chat
+ */
+function createDamageCardContent(
+  attacker: Actor,
+  target: Actor,
+  baseDamage: string,
+  powerDamage: string,
+  passiveDamage: string,
+  raises: number,
+  availableSpecials: SpecialOption[],
+  _weaponSpecials: string[],
+  _resolve: (result: DamageResult | null) => void
+): string {
+  let raisesSection = '';
+  if (raises > 0) {
+    const raiseItems = Array.from({ length: raises }, (_, i) => {
+      const raiseIndex = i;
+      let specialOptions = '';
+      if (availableSpecials.length > 0) {
+        specialOptions = availableSpecials.map(special => 
+          `<option value="${special.id}">${special.name} (${special.type})</option>`
+        ).join('');
+      }
+      
+      return `
+        <div class="raise-item" data-raise-index="${raiseIndex}">
+          <label>Raise ${raiseIndex + 1}:</label>
+          <select class="raise-selection" data-raise-index="${raiseIndex}">
+            <option value="">-- Select --</option>
+            <option value="damage">+1d8 Damage</option>
+            ${availableSpecials.length > 0 ? '<option value="special">Use Special</option>' : ''}
+          </select>
+          ${availableSpecials.length > 0 ? `
+            <select class="special-select" data-raise-index="${raiseIndex}" style="display: none;">
+              <option value="">-- Select Special --</option>
+              ${specialOptions}
+            </select>
+          ` : ''}
+        </div>
+      `;
+    }).join('');
+    
+    raisesSection = `
+      <div class="raises-section">
+        <h4><i class="fas fa-star"></i> Raises (${raises} available)</h4>
+        <p class="raises-description">Each raise can be used for a Special (once per raise) or 1d8 additional damage.</p>
+        <div class="raises-list">
+          ${raiseItems}
+        </div>
+      </div>
+    `;
+  }
   
-  console.log('Mastery System | DEBUG: showDamageDialog - dialogData prepared', {
-    baseDamage: dialogData.baseDamage,
-    powerDamage: dialogData.powerDamage,
-    passiveDamage: dialogData.passiveDamage,
-    raises: dialogData.raises,
-    availableSpecialsCount: dialogData.availableSpecials.length,
-    weaponSpecialsCount: dialogData.weaponSpecials.length
+  return `
+    <div class="mastery-damage-card">
+      <div class="damage-header">
+        <h3><i class="fas fa-sword"></i> Damage Calculation</h3>
+        <div class="damage-participants">
+          <strong>${(attacker as any).name}</strong> → <strong>${(target as any).name}</strong>
+        </div>
+      </div>
+      <div class="damage-details">
+        <div class="damage-row">
+          <span class="damage-label">Base Weapon Damage:</span>
+          <span class="damage-value">${baseDamage || '0'}</span>
+        </div>
+        <div class="damage-row">
+          <span class="damage-label">Power Damage:</span>
+          <span class="damage-value">${powerDamage || '0'}</span>
+        </div>
+        <div class="damage-row">
+          <span class="damage-label">Passive Damage:</span>
+          <span class="damage-value">${passiveDamage || '0'}</span>
+        </div>
+      </div>
+      ${raisesSection}
+      <div class="damage-actions">
+        <button class="roll-damage-btn" data-attacker-id="${(attacker as any).id}" data-target-id="${(target as any).id}">
+          <i class="fas fa-dice"></i> Roll Damage
+        </button>
+        <button class="cancel-damage-btn">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+/**
+ * Initialize damage card UI and event handlers
+ */
+function initializeDamageCard(messageId: string, resolve: (result: DamageResult | null) => void): void {
+  const messageElement = $(`.message[data-message-id="${messageId}"]`);
+  if (!messageElement.length) {
+    console.warn('Mastery System | Could not find damage card message element', messageId);
+    return;
+  }
+  
+  // Handle raise selection changes
+  messageElement.find('.raise-selection').on('change', function() {
+    const raiseIndex = parseInt($(this).data('raise-index'));
+    const selectionType = $(this).val() as string;
+    const specialSelect = messageElement.find(`.special-select[data-raise-index="${raiseIndex}"]`);
+    
+    if (selectionType === 'damage') {
+      specialSelect.hide();
+    } else if (selectionType === 'special') {
+      specialSelect.show();
+    } else {
+      specialSelect.hide();
+    }
   });
   
-  return new Promise((resolve) => {
-    console.log('Mastery System | DEBUG: showDamageDialog - creating dialog', {
-      hasData: !!dialogData,
-      raises: dialogData.raises,
-      baseDamage: dialogData.baseDamage,
-      availableSpecials: dialogData.availableSpecials?.length || 0
-    });
-    try {
-      const dialog = new DamageDialog(dialogData, resolve);
-      console.log('Mastery System | DEBUG: showDamageDialog - dialog created, rendering...');
-      dialog.render(true);
-      console.log('Mastery System | DEBUG: showDamageDialog - render called');
-    } catch (error) {
-      console.error('Mastery System | DEBUG: showDamageDialog - error creating dialog', error);
-      throw error;
+  // Handle roll damage button
+  messageElement.find('.roll-damage-btn').on('click', async function() {
+    const attackerId = $(this).data('attacker-id');
+    const targetId = $(this).data('target-id');
+    const attacker = (game as any).actors?.get(attackerId);
+    const target = (game as any).actors?.get(targetId);
+    
+    if (!attacker || !target) {
+      ui.notifications?.error('Could not find attacker or target');
+      return;
     }
+    
+    const message = (game as any).messages?.get(messageId);
+    if (!message) {
+      ui.notifications?.error('Could not find damage card message');
+      return;
+    }
+    
+    const flags = message.getFlag('mastery-system') || message.flags?.['mastery-system'];
+    if (!flags) {
+      ui.notifications?.error('Could not find damage card data');
+      return;
+    }
+    
+    // Collect raise selections
+    const raiseSelections: Map<number, { type: 'special' | 'damage'; value: string }> = new Map();
+    messageElement.find('.raise-selection').each(function() {
+      const raiseIndex = parseInt($(this).data('raise-index'));
+      const selectionType = $(this).val() as string;
+      if (selectionType === 'damage') {
+        raiseSelections.set(raiseIndex, { type: 'damage', value: '1d8' });
+      } else if (selectionType === 'special') {
+        const specialId = messageElement.find(`.special-select[data-raise-index="${raiseIndex}"]`).val() as string;
+        if (specialId) {
+          raiseSelections.set(raiseIndex, { type: 'special', value: specialId });
+        }
+      }
+    });
+    
+    // Calculate damage
+    const result = await calculateDamageResult(
+      flags.baseDamage,
+      flags.powerDamage,
+      flags.passiveDamage,
+      flags.raises,
+      raiseSelections,
+      flags.availableSpecials
+    );
+    
+    resolve(result);
+  });
+  
+  // Handle cancel button
+  messageElement.find('.cancel-damage-btn').on('click', function() {
+    resolve(null);
   });
 }
 
@@ -255,9 +431,85 @@ async function collectAvailableSpecials(actor: Actor, weapon: any | null): Promi
 }
 
 /**
- * Damage Dialog Application
- * Implements _renderHTML and _replaceHTML for Foundry VTT v13 compatibility
+ * Calculate damage result from selections
  */
+async function calculateDamageResult(
+  baseDamage: string,
+  powerDamage: string,
+  passiveDamage: string,
+  raises: number,
+  raiseSelections: Map<number, { type: 'special' | 'damage'; value: string }>,
+  availableSpecials: SpecialOption[]
+): Promise<DamageResult> {
+  // Roll base damage
+  const baseDamageRolled = await rollDice(baseDamage || '0');
+  
+  // Roll power damage
+  const powerDamageRolled = await rollDice(powerDamage || '0');
+  
+  // Roll passive damage
+  const passiveDamageRolled = await rollDice(passiveDamage || '0');
+  
+  // Calculate raise damage and collect specials
+  let raiseDamage = 0;
+  const specialsUsed: string[] = [];
+  
+  for (let i = 0; i < raises; i++) {
+    const selection = raiseSelections.get(i);
+    if (selection) {
+      if (selection.type === 'damage') {
+        raiseDamage += await rollDice('1d8');
+      } else if (selection.type === 'special') {
+        const special = availableSpecials.find(s => s.id === selection.value);
+        if (special) {
+          specialsUsed.push(special.name);
+        }
+      }
+    }
+  }
+  
+  const totalDamage = baseDamageRolled + powerDamageRolled + passiveDamageRolled + raiseDamage;
+  
+  return {
+    baseDamage: baseDamageRolled,
+    powerDamage: powerDamageRolled,
+    passiveDamage: passiveDamageRolled,
+    raiseDamage,
+    specialsUsed,
+    totalDamage
+  };
+}
+
+/**
+ * Roll dice from notation string
+ */
+async function rollDice(diceNotation: string): Promise<number> {
+  if (!diceNotation || diceNotation === '0') return 0;
+  
+  // Parse dice notation (e.g., "2d8+3" or "1d8")
+  const match = diceNotation.match(/(\d+)d(\d+)([+-]\d+)?/);
+  if (!match) {
+    // Try to parse as flat number
+    const num = parseInt(diceNotation);
+    return isNaN(num) ? 0 : num;
+  }
+  
+  const numDice = parseInt(match[1]);
+  const dieSize = parseInt(match[2]);
+  const modifier = match[3] ? parseInt(match[3]) : 0;
+  
+  let total = 0;
+  for (let i = 0; i < numDice; i++) {
+    total += Math.floor(Math.random() * dieSize) + 1;
+  }
+  
+  return total + modifier;
+}
+
+// DamageDialog class removed - now using chat messages instead
+// The following code is kept for reference but not used:
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/*
 class DamageDialog extends Application {
   private data: DamageDialogData;
   private resolve: (result: DamageResult | null) => void;
@@ -490,4 +742,4 @@ class DamageDialog extends Application {
     return total + modifier;
   }
 }
-
+*/
