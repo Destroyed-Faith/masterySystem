@@ -5,8 +5,8 @@
 import { SKILLS } from '../utils/skills.js';
 import { CREATION } from '../utils/constants.js';
 import { DISADVANTAGES, getDisadvantageDefinition, calculateDisadvantagePoints, validateDisadvantageSelection } from '../system/disadvantages.js';
-// Use ApplicationV2 if available, otherwise fall back to Application
-const BaseApplication = foundry?.applications?.api?.ApplicationV2 || Application;
+// Use Application (V1) for compatibility - ApplicationV2 requires mixins
+const BaseApplication = Application;
 export class CharacterCreationWizard extends BaseApplication {
     actor;
     state;

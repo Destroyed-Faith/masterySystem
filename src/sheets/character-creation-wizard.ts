@@ -13,8 +13,8 @@ import {
   validateDisadvantageSelection
 } from '../system/disadvantages';
 
-// Use ApplicationV2 if available, otherwise fall back to Application
-const BaseApplication: any = (foundry as any)?.applications?.api?.ApplicationV2 || Application;
+// Use Application (V1) for compatibility - ApplicationV2 requires mixins
+const BaseApplication: any = Application;
 
 export interface CreationState {
   step: number;
