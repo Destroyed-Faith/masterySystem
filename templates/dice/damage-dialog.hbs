@@ -1,0 +1,80 @@
+<form>
+  <div class="damage-dialog-content">
+    <div class="damage-summary">
+      <h3><i class="fas fa-sword"></i> Damage Calculation</h3>
+      
+      <div class="damage-breakdown">
+        <div class="damage-row">
+          <span class="damage-label">Base Weapon Damage:</span>
+          <span class="damage-value">{{baseDamage}}</span>
+        </div>
+        
+        {{#if powerDamage}}
+        <div class="damage-row">
+          <span class="damage-label">Power Damage:</span>
+          <span class="damage-value">{{powerDamage}}</span>
+        </div>
+        {{/if}}
+        
+        {{#if passiveDamage}}
+        <div class="damage-row">
+          <span class="damage-label">Passive Damage:</span>
+          <span class="damage-value">{{passiveDamage}}</span>
+        </div>
+        {{/if}}
+      </div>
+    </div>
+    
+    {{#if raises}}
+    <div class="raises-section">
+      <h3><i class="fas fa-star"></i> Raises ({{raises}} available)</h3>
+      <p class="raises-description">Each raise can be used for a Special (once per raise) or 1d8 additional damage.</p>
+      
+      <div class="raises-list">
+        {{#times raises}}
+        <div class="raise-item" data-raise-index="{{this}}">
+          <label>Raise {{inc this}}:</label>
+          <select class="raise-selection" data-raise-index="{{this}}">
+            <option value="">-- Select --</option>
+            <option value="damage">+1d8 Damage</option>
+            {{#if availableSpecials}}
+            <option value="special">Use Special</option>
+            {{/if}}
+          </select>
+          
+          {{#if availableSpecials}}
+          <select class="special-select" data-raise-index="{{this}}" style="display: none;">
+            <option value="">-- Select Special --</option>
+            {{#each availableSpecials}}
+            <option value="{{this.id}}">{{this.name}} ({{this.type}})</option>
+            {{/each}}
+          </select>
+          {{/if}}
+        </div>
+        {{/times}}
+      </div>
+    </div>
+    {{/if}}
+    
+    {{#if weaponSpecials}}
+    <div class="weapon-specials">
+      <h4>Weapon Specials Available:</h4>
+      <ul>
+        {{#each weaponSpecials}}
+        <li>{{this}}</li>
+        {{/each}}
+      </ul>
+    </div>
+    {{/if}}
+  </div>
+  
+  <div class="dialog-buttons">
+    <button type="button" class="roll-damage-btn">
+      <i class="fas fa-dice"></i> Roll Damage
+    </button>
+    <button type="button" class="cancel-btn">
+      <i class="fas fa-times"></i> Cancel
+    </button>
+  </div>
+</form>
+

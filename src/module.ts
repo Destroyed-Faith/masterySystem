@@ -468,6 +468,33 @@ Hooks.once('ready', () => {
       // Update button to show it was rolled
       button.html('<i class="fas fa-check"></i> Rolled').addClass('rolled');
       
+      // If attack was successful, show damage dialog
+      if (result.success && result.raises >= 0) {
+        const target = (game as any).actors?.get(flags.targetId);
+        if (target) {
+          // Get equipped weapon
+          const items = (attacker as any).items || [];
+          const equippedWeapon = items.find((item: any) => 
+            item.type === 'weapon' && (item.system as any)?.equipped === true
+          );
+          
+          // Import and show damage dialog
+          const { showDamageDialog } = await import('./dice/damage-dialog.js');
+          const damageResult = await showDamageDialog(
+            attacker,
+            target,
+            equippedWeapon,
+            result.raises,
+            flags
+          );
+          
+          if (damageResult) {
+            // Roll and display damage
+            await rollAndDisplayDamage(damageResult, attacker, target, flags);
+          }
+        }
+      }
+      
     } catch (error) {
       console.error('Mastery System | DEBUG: Error during roll', error);
       console.error('Mastery System | Error rolling attack:', error);
@@ -476,6 +503,80 @@ Hooks.once('ready', () => {
     }
   });
 });
+
+/**
+ * Roll and display damage in chat
+ */
+async function rollAndDisplayDamage(
+  damageResult: any,
+  attacker: Actor,
+  target: Actor,
+  _flags?: any
+): Promise<void> {
+  const damageBreakdown: string[] = [];
+  
+  if (damageResult.baseDamage > 0) {
+    damageBreakdown.push(`Base: ${damageResult.baseDamage}`);
+  }
+  if (damageResult.powerDamage > 0) {
+    damageBreakdown.push(`Power: ${damageResult.powerDamage}`);
+  }
+  if (damageResult.passiveDamage > 0) {
+    damageBreakdown.push(`Passive: ${damageResult.passiveDamage}`);
+  }
+  if (damageResult.raiseDamage > 0) {
+    damageBreakdown.push(`Raises: ${damageResult.raiseDamage}`);
+  }
+  
+  let content = `
+    <div class="mastery-damage-card">
+      <div class="damage-header">
+        <h3><i class="fas fa-sword"></i> Damage</h3>
+        <div class="damage-participants">
+          <strong>${(attacker as any).name}</strong> → <strong>${(target as any).name}</strong>
+        </div>
+      </div>
+      <div class="damage-details">
+        <div class="damage-total">
+          <span>Total Damage:</span>
+          <span><strong>${damageResult.totalDamage}</strong></span>
+        </div>
+        ${damageBreakdown.length > 0 ? `
+          <div class="damage-breakdown">
+            ${damageBreakdown.map(part => `<div class="damage-part">${part}</div>`).join('')}
+          </div>
+        ` : ''}
+        ${damageResult.specialsUsed.length > 0 ? `
+          <div class="damage-specials">
+            <span>Specials Used:</span>
+            <span>${damageResult.specialsUsed.join(', ')}</span>
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+  
+  const chatData: any = {
+    user: (game as any).user?.id,
+    speaker: ChatMessage.getSpeaker({ actor: attacker }),
+    content,
+    style: CONST.CHAT_MESSAGE_STYLES.OTHER,
+    flags: {
+      'mastery-system': {
+        damageType: 'melee',
+        totalDamage: damageResult.totalDamage,
+        specialsUsed: damageResult.specialsUsed
+      }
+    }
+  };
+  
+  await ChatMessage.create(chatData);
+  
+  // Apply damage to target
+  if (target && typeof (target as any).applyDamage === 'function') {
+    await (target as any).applyDamage(damageResult.totalDamage);
+  }
+}
 
 /**
  * Also handle renderChatLog to ensure handler is set up
