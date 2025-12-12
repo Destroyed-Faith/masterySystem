@@ -40,13 +40,15 @@ export async function showDamageDialog(
   target: Actor,
   weapon: any | null,
   raises: number,
-  _flags?: any
+  flags?: any
 ): Promise<DamageResult | null> {
   console.log('Mastery System | DEBUG: showDamageDialog - starting', {
     attackerName: (attacker as any).name,
     targetName: (target as any).name,
     hasWeapon: !!weapon,
-    raises
+    raises,
+    hasFlags: !!flags,
+    selectedPower: flags?.selectedPower
   });
   
   // Calculate base damage from weapon
@@ -57,8 +59,20 @@ export async function showDamageDialog(
   const weaponSpecials: string[] = weapon ? ((weapon.system as any)?.specials || []) : [];
   console.log('Mastery System | DEBUG: showDamageDialog - weaponSpecials', weaponSpecials);
   
-  // Calculate power damage (from powers used in attack - for now, we'll need to track this)
-  const powerDamage = '0'; // TODO: Get from attack flags if powers were used
+  // Calculate power damage from selected power
+  let powerDamage = '0';
+  let powerSpecials: string[] = [];
+  if (flags?.selectedPower) {
+    const selectedPower = flags.selectedPower;
+    powerDamage = selectedPower.damage || '0';
+    powerSpecials = selectedPower.specials || [];
+    console.log('Mastery System | DEBUG: showDamageDialog - powerDamage from selected power', {
+      powerName: selectedPower.name,
+      powerLevel: selectedPower.level,
+      powerDamage,
+      powerSpecials
+    });
+  }
   console.log('Mastery System | DEBUG: showDamageDialog - powerDamage', powerDamage);
   
   // Calculate passive damage (from equipped passives)
@@ -80,7 +94,8 @@ export async function showDamageDialog(
       raises,
       availableSpecials,
       weaponSpecials,
-      resolve
+      resolve,
+      flags?.selectedPower
     );
     
     const chatData: any = {
@@ -98,7 +113,8 @@ export async function showDamageDialog(
           passiveDamage,
           raises,
           availableSpecials,
-          weaponSpecials
+          weaponSpecials,
+          selectedPower: flags?.selectedPower || null
         }
       }
     };
@@ -125,7 +141,8 @@ function createDamageCardContent(
   raises: number,
   availableSpecials: SpecialOption[],
   _weaponSpecials: string[],
-  _resolve: (result: DamageResult | null) => void
+  _resolve: (result: DamageResult | null) => void,
+  selectedPower?: any
 ): string {
   let raisesSection = '';
   if (raises > 0) {
@@ -180,6 +197,18 @@ function createDamageCardContent(
           <span class="damage-label">Base Weapon Damage:</span>
           <span class="damage-value">${baseDamage || '0'}</span>
         </div>
+        ${selectedPower ? `
+          <div class="damage-row">
+            <span class="damage-label">Power:</span>
+            <span class="damage-value">${selectedPower.name} (Level ${selectedPower.level})</span>
+          </div>
+          ${selectedPower.specials && selectedPower.specials.length > 0 ? `
+            <div class="damage-row">
+              <span class="damage-label">Power Specials:</span>
+              <span class="damage-value">${selectedPower.specials.join(', ')}</span>
+            </div>
+          ` : ''}
+        ` : ''}
         <div class="damage-row">
           <span class="damage-label">Power Damage:</span>
           <span class="damage-value">${powerDamage || '0'}</span>
@@ -353,9 +382,9 @@ async function collectAvailableSpecials(actor: Actor, weapon: any | null): Promi
   const specials: SpecialOption[] = [];
   const items = (actor as any).items || [];
   
-  // Get attack powers
+  // Get attack powers (note: powers are stored as type 'special', not 'power')
   const attackPowers = items.filter((item: any) => 
-    item.type === 'power' && 
+    item.type === 'special' && 
     (item.system as any)?.powerType === 'active' &&
     (item.system as any)?.canUseOnAttack === true
   );

@@ -330,13 +330,280 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+/* ========== Power Selection ========== */
+.mastery-attack-card .power-selection-section {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 12px;
+}
 
+.mastery-attack-card .power-selection-section label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  cursor: pointer;
+}
 
+.mastery-attack-card .power-selection-section label span:first-child {
+  font-weight: bold;
+  color: #4a5568;
+  min-width: 60px;
+}
 
+.mastery-attack-card .power-select {
+  flex: 1;
+  padding: 4px 8px;
+  border: 1px solid #4a5568;
+  border-radius: 3px;
+  font-size: 14px;
+  background: #fff;
+  color: #333;
+  transition: all 0.2s ease;
+}
 
+.mastery-attack-card .power-select:focus {
+  outline: none;
+  border-color: #8b0000;
+  box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.2);
+}
 
+.mastery-attack-card .power-select:hover {
+  border-color: #8b0000;
+}
 
+/* ========== Damage Card ========== */
+.mastery-damage-card {
+  background: #f5f5f5;
+  border: 2px solid #8b0000;
+  border-radius: 5px;
+  padding: 12px;
+  font-family: 'Signika', sans-serif;
+  margin: 5px 0;
+}
 
+.mastery-damage-card .damage-header {
+  border-bottom: 2px solid #8b0000;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+}
+
+.mastery-damage-card .damage-header h3 {
+  margin: 0 0 5px 0;
+  color: #8b0000;
+  font-size: 18px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mastery-damage-card .damage-header h3 i {
+  color: #8b0000;
+}
+
+.mastery-damage-card .damage-participants {
+  font-size: 14px;
+  color: #333;
+  margin-top: 5px;
+}
+
+.mastery-damage-card .damage-details {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 12px;
+}
+
+.mastery-damage-card .damage-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+
+.mastery-damage-card .damage-row:last-child {
+  border-bottom: none;
+}
+
+.mastery-damage-card .damage-row .damage-label {
+  color: #666;
+}
+
+.mastery-damage-card .damage-row .damage-value {
+  font-weight: bold;
+  color: #8b0000;
+}
+
+.mastery-damage-card .raises-section {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 12px;
+}
+
+.mastery-damage-card .raises-section h4 {
+  margin: 0 0 8px 0;
+  color: #8b0000;
+  font-size: 16px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mastery-damage-card .raises-section h4 i {
+  color: #8b0000;
+}
+
+.mastery-damage-card .raises-description {
+  margin: 0 0 10px 0;
+  color: #666;
+  font-size: 13px;
+  font-style: italic;
+}
+
+.mastery-damage-card .raises-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mastery-damage-card .raise-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  background: #f9f9f9;
+  border-radius: 3px;
+}
+
+.mastery-damage-card .raise-item label {
+  font-weight: bold;
+  color: #8b0000;
+  min-width: 80px;
+  margin: 0;
+}
+
+.mastery-damage-card .raise-item select {
+  flex: 1;
+  padding: 4px 8px;
+  border: 1px solid #8b0000;
+  border-radius: 3px;
+  font-size: 14px;
+  background: #fff;
+  color: #333;
+  transition: all 0.2s ease;
+}
+
+.mastery-damage-card .raise-item select:focus {
+  outline: none;
+  border-color: #a00000;
+  box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.2);
+}
+
+.mastery-damage-card .raise-item select:hover {
+  border-color: #a00000;
+}
+
+.mastery-damage-card .special-select {
+  flex: 1;
+  padding: 4px 8px;
+  border: 1px solid #8b0000;
+  border-radius: 3px;
+  font-size: 14px;
+  background: #fff;
+  color: #333;
+  transition: all 0.2s ease;
+}
+
+.mastery-damage-card .special-select:focus {
+  outline: none;
+  border-color: #a00000;
+  box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.2);
+}
+
+.mastery-damage-card .special-select:hover {
+  border-color: #a00000;
+}
+
+.mastery-damage-card .damage-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.mastery-damage-card .roll-damage-btn {
+  background: linear-gradient(to bottom, #8b0000, #6b0000);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.mastery-damage-card .roll-damage-btn:hover {
+  background: linear-gradient(to bottom, #a00000, #8b0000);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transform: translateY(-1px);
+}
+
+.mastery-damage-card .roll-damage-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.mastery-damage-card .roll-damage-btn i {
+  font-size: 18px;
+}
+
+.mastery-damage-card .roll-damage-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.mastery-damage-card .cancel-damage-btn {
+  background: linear-gradient(to bottom, #666, #555);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.mastery-damage-card .cancel-damage-btn:hover {
+  background: linear-gradient(to bottom, #777, #666);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transform: translateY(-1px);
+}
+
+.mastery-damage-card .cancel-damage-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.mastery-damage-card .cancel-damage-btn i {
+  font-size: 18px;
+}
 
 
 

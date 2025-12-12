@@ -420,9 +420,23 @@ Hooks.once('ready', () => {
                     // Get equipped weapon
                     const items = attacker.items || [];
                     const equippedWeapon = items.find((item) => item.type === 'weapon' && item.system?.equipped === true);
+                    // Get selected power data from flags
+                    const selectedPowerId = flags.selectedPowerId;
+                    const selectedPower = selectedPowerId ? items.find((item) => item.id === selectedPowerId) : null;
+                    const selectedPowerData = selectedPower ? {
+                        id: selectedPower.id,
+                        name: selectedPower.name,
+                        level: flags.selectedPowerLevel || selectedPower.system?.level || 1,
+                        specials: flags.selectedPowerSpecials || selectedPower.system?.specials || [],
+                        damage: flags.selectedPowerDamage || selectedPower.system?.roll?.damage || ''
+                    } : null;
+                    console.log('Mastery System | DEBUG: Selected power data', selectedPowerData);
                     // Import and show damage dialog
                     const { showDamageDialog } = await import('./dice/damage-dialog.js');
-                    const damageResult = await showDamageDialog(attacker, target, equippedWeapon, result.raises, flags);
+                    const damageResult = await showDamageDialog(attacker, target, equippedWeapon, result.raises, {
+                        ...flags,
+                        selectedPower: selectedPowerData
+                    });
                     if (damageResult) {
                         // Roll and display damage
                         await rollAndDisplayDamage(damageResult, attacker, target, flags);

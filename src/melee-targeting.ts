@@ -647,6 +647,70 @@ async function confirmMeleeTarget(targetToken: any, state: MeleeTargetingState):
   // Get weapon damage for display
   const weaponDamage = equippedWeapon ? ((equippedWeapon.system as any)?.damage || (equippedWeapon.system as any)?.weaponDamage || '1d8') : '1d8';
   
+  // Get available attack powers (powers that can be used on attack)
+  const attackPowers = items.filter((item: any) => 
+    item.type === 'special' && 
+    (item.system as any)?.powerType === 'active' &&
+    (item.system as any)?.canUseOnAttack === true
+  );
+  
+  // Create power selection dropdown if powers are available
+  let powerSelectionSection = '';
+  if (attackPowers.length > 0) {
+      // Import power definitions to get level data
+      let powerDefinitions: any = null;
+      try {
+        const powersModule = await import('../../utils/powers/index.js' as any);
+        powerDefinitions = powersModule.ALL_MASTERY_POWERS || [];
+      } catch (e) {
+        console.warn('Mastery System | Could not load power definitions for level data', e);
+      }
+    
+    const powerOptions = await Promise.all(attackPowers.map(async (power: any) => {
+      const powerSystem = power.system as any;
+      const powerLevel = powerSystem.level || 1;
+      const powerTree = powerSystem.tree || '';
+      const powerName = power.name;
+      
+      // Try to get level-specific data from power definition
+      let powerSpecials: string[] = powerSystem.specials || [];
+      let powerDamage = powerSystem.roll?.damage || '';
+      
+      if (powerDefinitions) {
+        const powerDef = powerDefinitions.find((p: any) => 
+          p.name === powerName && p.tree === powerTree
+        );
+        if (powerDef && powerDef.levels) {
+          const levelData = powerDef.levels.find((l: any) => l.level === powerLevel);
+          if (levelData) {
+            // Use level-specific data if available
+            if (levelData.special) {
+              // Parse special string like "Bleed(1), Mark(1)" into array
+              powerSpecials = levelData.special.split(',').map((s: string) => s.trim());
+            }
+            if (levelData.roll?.damage) {
+              powerDamage = levelData.roll.damage;
+            }
+          }
+        }
+      }
+      
+      return `<option value="${power.id}" data-level="${powerLevel}" data-specials="${JSON.stringify(powerSpecials)}" data-damage="${powerDamage}">${power.name} (Level ${powerLevel})</option>`;
+    }));
+    
+    powerSelectionSection = `
+      <div class="power-selection-section">
+        <label for="power-select-${attacker.id}" style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+          <span style="font-weight: bold; color: #4a5568;">Power:</span>
+          <select class="power-select" id="power-select-${attacker.id}" data-attacker-id="${attacker.id}">
+            <option value="">-- No Power --</option>
+            ${powerOptions.join('')}
+          </select>
+        </label>
+      </div>
+    `;
+  }
+  
   // Create attack card in chat
   const attackCardContent = `
     <div class="mastery-attack-card">
@@ -677,6 +741,8 @@ async function confirmMeleeTarget(targetToken: any, state: MeleeTargetingState):
           </div>
         ` : ''}
       </div>
+      
+      ${powerSelectionSection}
       
       <div class="raises-section">
         <label for="raises-input-${attacker.id}" style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
@@ -724,7 +790,12 @@ async function confirmMeleeTarget(targetToken: any, state: MeleeTargetingState):
           masteryRank: masteryRank,
           targetEvade: targetEvade,
           weaponDamage: weaponDamage,
-          baseEvade: targetEvade
+          baseEvade: targetEvade,
+          weaponId: equippedWeapon ? equippedWeapon.id : null,
+          selectedPowerId: null,
+          selectedPowerLevel: null,
+          selectedPowerSpecials: [],
+          selectedPowerDamage: ''
         }
       }
     };
@@ -735,7 +806,7 @@ async function confirmMeleeTarget(targetToken: any, state: MeleeTargetingState):
       contentLength: attackCardContent.length
     });
     
-    // Initialize raises input handler
+    // Initialize raises input handler and power selection
     const initializeRaisesInput = () => {
       const messageElement = $(`[data-message-id="${message.id}"]`);
       console.log('Mastery System | DEBUG: Initializing raises input handler', {
@@ -745,6 +816,38 @@ async function confirmMeleeTarget(targetToken: any, state: MeleeTargetingState):
       });
       
       if (messageElement.length) {
+        // Initialize power selection handler
+        const powerSelect = messageElement.find(`.power-select[data-attacker-id="${attacker.id}"]`);
+        if (powerSelect.length) {
+          powerSelect.on('change', async function() {
+            const powerId = $(this).val() as string;
+            const selectedOption = $(this).find('option:selected');
+            const powerLevel = parseInt(selectedOption.data('level')) || 1;
+            const powerSpecials = selectedOption.data('specials') || [];
+            const powerDamage = selectedOption.data('damage') || '';
+            
+            console.log('Mastery System | DEBUG: Power selected', {
+              powerId,
+              powerLevel,
+              powerSpecials,
+              powerDamage
+            });
+            
+            // Update message flags with selected power data
+            const currentMessage = (game as any).messages?.get(message.id);
+            if (currentMessage) {
+              const currentFlags = currentMessage.getFlag('mastery-system') || currentMessage.flags?.['mastery-system'] || {};
+              await currentMessage.setFlag('mastery-system', {
+                ...currentFlags,
+                selectedPowerId: powerId || null,
+                selectedPowerLevel: powerId ? powerLevel : null,
+                selectedPowerSpecials: powerId ? powerSpecials : [],
+                selectedPowerDamage: powerId ? powerDamage : ''
+              });
+            }
+          });
+        }
+        
         const raisesInput = messageElement.find(`#raises-input-${attacker.id}`);
         const displayEvade = messageElement.find(`#display-evade-${attacker.id}`);
         const rollButton = messageElement.find(`[data-attacker-id="${attacker.id}"].roll-attack-btn`);

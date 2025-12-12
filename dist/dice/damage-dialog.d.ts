@@ -31,5 +31,5 @@ export interface DamageResult {
 /**
  * Show damage dialog after successful attack
  */
-export declare function showDamageDialog(attacker: Actor, target: Actor, weapon: any | null, raises: number, _flags?: any): Promise<DamageResult | null>;
+export declare function showDamageDialog(attacker: Actor, target: Actor, weapon: any | null, raises: number, flags?: any): Promise<DamageResult | null>;
 //# sourceMappingURL=damage-dialog.d.ts.map
