@@ -149,8 +149,8 @@ async function sendRollToChat(result, label, flavor, actorId) {
     // Create roll formula
     const formula = `${result.dice.length}d8${result.skill !== 0 ? ` + ${result.skill}` : ''}`;
     const roll = new Roll(formula);
-    // Evaluate the roll synchronously (async option removed in Foundry v13)
-    roll.evaluateSync();
+    // Evaluate the roll asynchronously (required in Foundry VTT v13)
+    await roll.evaluate();
     // Now replace the dice results with our actual rolled values
     // We need to modify the dice terms to show our actual results
     let dieIndex = 0;
