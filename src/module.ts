@@ -395,11 +395,22 @@ Hooks.once('ready', () => {
     const allFlags = message.flags;
     console.log('Mastery System | DEBUG: All message flags', allFlags);
     
-    const flags = message.getFlag('mastery-system');
+    // Try both methods to get flags (getFlag might not work in some Foundry versions)
+    const flags = message.getFlag?.('mastery-system') || message.flags?.['mastery-system'];
     console.log('Mastery System | DEBUG: Message flags (mastery-system)', flags);
+    console.log('Mastery System | DEBUG: Flags structure', {
+      hasGetFlag: typeof message.getFlag === 'function',
+      flagsDirect: message.flags?.['mastery-system'],
+      flagsViaGetFlag: message.getFlag?.('mastery-system')
+    });
     
     if (!flags || flags.attackType !== 'melee') {
-      console.warn('Mastery System | DEBUG: Invalid flags or not melee attack', { flags, attackType: flags?.attackType });
+      console.warn('Mastery System | DEBUG: Invalid flags or not melee attack', { 
+        flags, 
+        attackType: flags?.attackType,
+        allFlagsKeys: Object.keys(allFlags || {}),
+        masterySystemFlags: allFlags?.['mastery-system']
+      });
       return;
     }
     
