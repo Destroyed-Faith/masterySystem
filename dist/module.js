@@ -417,6 +417,21 @@ Hooks.once('ready', () => {
             if (result.success && result.raises >= 0) {
                 const target = game.actors?.get(flags.targetId);
                 if (target) {
+                    // Re-read flags from message to get updated power selection
+                    const currentMessage = game.messages?.get(messageId);
+                    let updatedFlags = flags;
+                    if (currentMessage) {
+                        const messageFlags = currentMessage.getFlag('mastery-system') || currentMessage.flags?.['mastery-system'];
+                        if (messageFlags) {
+                            updatedFlags = { ...flags, ...messageFlags };
+                            console.log('Mastery System | DEBUG: Updated flags from message', {
+                                originalSelectedPowerId: flags.selectedPowerId,
+                                updatedSelectedPowerId: updatedFlags.selectedPowerId,
+                                originalRaises: flags.raises,
+                                updatedRaises: updatedFlags.raises
+                            });
+                        }
+                    }
                     // Get equipped weapon
                     const items = attacker.items || [];
                     const equippedWeapon = items.find((item) => item.type === 'weapon' && item.system?.equipped === true);
@@ -430,28 +445,34 @@ Hooks.once('ready', () => {
                             equipped: equippedWeapon.system?.equipped
                         } : null
                     });
-                    // Get selected power data from flags
-                    const selectedPowerId = flags.selectedPowerId;
+                    // Get selected power data from updated flags
+                    const selectedPowerId = updatedFlags.selectedPowerId;
                     const selectedPower = selectedPowerId ? items.find((item) => item.id === selectedPowerId) : null;
                     const selectedPowerData = selectedPower ? {
                         id: selectedPower.id,
                         name: selectedPower.name,
-                        level: flags.selectedPowerLevel || selectedPower.system?.level || 1,
-                        specials: flags.selectedPowerSpecials || selectedPower.system?.specials || [],
-                        damage: flags.selectedPowerDamage || selectedPower.system?.roll?.damage || ''
+                        level: updatedFlags.selectedPowerLevel || selectedPower.system?.level || 1,
+                        specials: updatedFlags.selectedPowerSpecials || selectedPower.system?.specials || [],
+                        damage: updatedFlags.selectedPowerDamage || selectedPower.system?.roll?.damage || ''
                     } : null;
                     console.log('Mastery System | DEBUG: Selected power data', selectedPowerData);
-                    console.log('Mastery System | DEBUG: Raises value', {
+                    // result.raises is already calculated based on the adjusted TN (which includes manual raises)
+                    // So we just use result.raises directly
+                    const totalRaises = result.raises || 0;
+                    console.log('Mastery System | DEBUG: Raises calculation', {
                         resultRaises: result.raises,
+                        totalRaises: totalRaises,
                         resultRaisesType: typeof result.raises,
                         resultSuccess: result.success,
                         resultTotal: result.total,
-                        resultTN: result.tn
+                        resultTN: result.tn,
+                        currentTargetEvade: currentTargetEvade,
+                        baseEvade: flags.targetEvade
                     });
                     // Import and show damage dialog
                     const { showDamageDialog } = await import('./dice/damage-dialog.js');
-                    const damageResult = await showDamageDialog(attacker, target, equippedWeapon, result.raises, {
-                        ...flags,
+                    const damageResult = await showDamageDialog(attacker, target, equippedWeapon, totalRaises, {
+                        ...updatedFlags,
                         selectedPower: selectedPowerData
                     });
                     if (damageResult) {

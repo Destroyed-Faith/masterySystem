@@ -480,6 +480,22 @@ Hooks.once('ready', () => {
       if (result.success && result.raises >= 0) {
         const target = (game as any).actors?.get(flags.targetId);
         if (target) {
+          // Re-read flags from message to get updated power selection
+          const currentMessage = (game as any).messages?.get(messageId);
+          let updatedFlags = flags;
+          if (currentMessage) {
+            const messageFlags = currentMessage.getFlag('mastery-system') || currentMessage.flags?.['mastery-system'];
+            if (messageFlags) {
+              updatedFlags = { ...flags, ...messageFlags };
+              console.log('Mastery System | DEBUG: Updated flags from message', {
+                originalSelectedPowerId: flags.selectedPowerId,
+                updatedSelectedPowerId: updatedFlags.selectedPowerId,
+                originalRaises: flags.raises,
+                updatedRaises: updatedFlags.raises
+              });
+            }
+          }
+          
           // Get equipped weapon
           const items = (attacker as any).items || [];
           const equippedWeapon = items.find((item: any) => 
@@ -497,24 +513,32 @@ Hooks.once('ready', () => {
             } : null
           });
           
-          // Get selected power data from flags
-          const selectedPowerId = flags.selectedPowerId;
+          // Get selected power data from updated flags
+          const selectedPowerId = updatedFlags.selectedPowerId;
           const selectedPower = selectedPowerId ? items.find((item: any) => item.id === selectedPowerId) : null;
           const selectedPowerData = selectedPower ? {
             id: selectedPower.id,
             name: selectedPower.name,
-            level: flags.selectedPowerLevel || (selectedPower.system as any)?.level || 1,
-            specials: flags.selectedPowerSpecials || (selectedPower.system as any)?.specials || [],
-            damage: flags.selectedPowerDamage || (selectedPower.system as any)?.roll?.damage || ''
+            level: updatedFlags.selectedPowerLevel || (selectedPower.system as any)?.level || 1,
+            specials: updatedFlags.selectedPowerSpecials || (selectedPower.system as any)?.specials || [],
+            damage: updatedFlags.selectedPowerDamage || (selectedPower.system as any)?.roll?.damage || ''
           } : null;
           
           console.log('Mastery System | DEBUG: Selected power data', selectedPowerData);
-          console.log('Mastery System | DEBUG: Raises value', {
+          
+          // result.raises is already calculated based on the adjusted TN (which includes manual raises)
+          // So we just use result.raises directly
+          const totalRaises = result.raises || 0;
+          
+          console.log('Mastery System | DEBUG: Raises calculation', {
             resultRaises: result.raises,
+            totalRaises: totalRaises,
             resultRaisesType: typeof result.raises,
             resultSuccess: result.success,
             resultTotal: result.total,
-            resultTN: result.tn
+            resultTN: result.tn,
+            currentTargetEvade: currentTargetEvade,
+            baseEvade: flags.targetEvade
           });
           
           // Import and show damage dialog
@@ -523,9 +547,9 @@ Hooks.once('ready', () => {
             attacker,
             target,
             equippedWeapon,
-            result.raises,
+            totalRaises,
             {
-              ...flags,
+              ...updatedFlags,
               selectedPower: selectedPowerData
             }
           );
