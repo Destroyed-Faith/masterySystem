@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.99] - 2025-01-XX
+
+### Fixed
+- **Creation Power/Spell Buttons**: Fixed "Add Mastery Power" and "Add Spell" buttons being disabled during character creation
+  - Added buttons to whitelist in `#lockSheetForCreation` method
+  - Explicitly enable buttons after disabling other buttons
+  - Added debug logging to track button state
+  - Buttons should now be clickable during character creation
+
 ## [0.0.98] - 2025-01-XX
 
 ### Fixed
