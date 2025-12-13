@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.4] - 2025-01-XX
+
+### Changed
+- **Schticks System**: Changed from dropdown selection to free text input
+  - Players can now enter custom Schtick names instead of selecting from predefined list
+  - Text input field for each rank's Schtick name
+- **Button Styling**: Improved layout for Powers and Equipment buttons
+  - Powers & Magic header: fixed width 225px
+  - Powers controls: full width with height 6px
+  - Button heights: 28px and 30px for better visual consistency
+  - Same styling applied to Equipment buttons (Add Weapon, Add Armor, Add Shield)
+
+### Added
+- **Weapon Creation Dialog**: Added comprehensive CSS styling
+  - Dark theme matching Power Creation Dialog
+  - Styled select dropdowns, detail cards, and checkboxes
+  - Hover effects and smooth transitions
+  - Better visual hierarchy and readability
+
 ## [0.1.3] - 2025-01-XX
 
 ### Fixed
