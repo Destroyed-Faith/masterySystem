@@ -91,7 +91,7 @@
   "secondaryTokenAttribute": "stress",
   "url": "https://github.com/Destroyed-Faith/masterySystem",
   "manifest": "https://raw.githubusercontent.com/Destroyed-Faith/masterySystem/main/system.json",
-  "download": "https://github.com/Destroyed-Faith/masterySystem/archive/refs/tags/v0.1.4.zip",
+  "download": "https://github.com/Destroyed-Faith/masterySystem/archive/refs/heads/main.zip",
   "license": "LICENSE",
   "readme": "README.md",
   "bugs": "https://github.com/Destroyed-Faith/masterySystem/issues",
