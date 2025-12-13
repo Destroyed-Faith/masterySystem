@@ -310,7 +310,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             const rankData = schticksRanks.find((r) => r.rank === rank);
             schticksRows.push({
                 rank,
-                schtickId: rankData?.schtickId || null,
+                schtickName: rankData?.schtickName || '',
                 manifestation: rankData?.manifestation || ''
             });
         }
@@ -501,35 +501,34 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         return Array.from(trees);
     }
     /**
-     * Validate schticks per rank - each rank should have a schtick
+     * Validate schticks per rank - each rank should have a schtick name
      */
     #validateSchticksPerRank(rows, masteryRank) {
         for (let rank = 1; rank <= masteryRank; rank++) {
             const row = rows.find(r => r.rank === rank);
-            if (!row || !row.schtickId) {
+            if (!row || !row.schtickName || row.schtickName.trim() === '') {
                 return {
                     ok: false,
-                    message: `You must select a Schtick for Rank ${rank}.`
+                    message: `You must enter a Schtick name for Rank ${rank}.`
                 };
             }
         }
         return { ok: true };
     }
     /**
-     * Handle schtick selection per rank
+     * Handle schtick name change per rank
      */
-    async #onSchtickSelect(event) {
-        const select = event.currentTarget;
-        const rank = parseInt(select.dataset.rank || '0');
-        const schtickId = select.value;
+    async #onSchtickNameChange(event) {
+        const input = event.currentTarget;
+        const rank = parseInt(input.dataset.rank || '0');
+        const schtickName = input.value.trim();
         if (!rank || rank < 1) {
-            console.error('Mastery System | Invalid rank for schtick selection:', rank);
+            console.error('Mastery System | Invalid rank for schtick name:', rank);
             return;
         }
-        console.log('Mastery System | Schtick select:', {
+        console.log('Mastery System | Schtick name change:', {
             rank,
-            schtickId,
-            previousValue: select.dataset.previousValue
+            schtickName
         });
         const currentRanks = this.actor.system?.schticks?.ranks || [];
         const rankIndex = currentRanks.findIndex((r) => r.rank === rank);
@@ -537,30 +536,18 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (rankIndex >= 0) {
             // Update existing rank
             newRanks = [...currentRanks];
-            if (schtickId) {
-                newRanks[rankIndex] = {
-                    rank,
-                    schtickId,
-                    manifestation: newRanks[rankIndex].manifestation || ''
-                };
-            }
-            else {
-                // Remove schtick from this rank
-                newRanks.splice(rankIndex, 1);
-            }
+            newRanks[rankIndex] = {
+                ...newRanks[rankIndex],
+                schtickName: schtickName
+            };
         }
         else {
             // Add new rank entry
-            if (schtickId) {
-                newRanks = [...currentRanks, {
-                        rank,
-                        schtickId,
-                        manifestation: ''
-                    }];
-            }
-            else {
-                newRanks = currentRanks;
-            }
+            newRanks = [...currentRanks, {
+                    rank,
+                    schtickName: schtickName,
+                    manifestation: ''
+                }];
         }
         // Update actor
         await this.actor.update({
@@ -601,7 +588,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         else {
             // This shouldn't happen - manifestation without schtick
-            console.warn('Mastery System | Manifestation changed but no schtick selected for rank:', rank);
+            console.warn('Mastery System | Manifestation changed but no schtick name for rank:', rank);
             return;
         }
         // Update actor
@@ -701,7 +688,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('.skill-decrease').on('click', this.#onCreationSkillDecrease.bind(this));
         html.find('.finalize-creation').on('click', this.#onFinalizeCreation.bind(this));
         // Schticks selection (per rank)
-        html.find('.schtick-select').on('change', this.#onSchtickSelect.bind(this));
+        html.find('.schtick-input').on('blur', this.#onSchtickNameChange.bind(this));
         html.find('.schtick-manifestation-input').on('blur', this.#onSchtickManifestationChange.bind(this));
         // Disadvantages buttons (only during creation)
         const addDisadvantageBtn = html.find('.add-disadvantage-btn');
@@ -1923,7 +1910,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             const rankData = schticksRanks.find((r) => r.rank === rank);
             schticksRows.push({
                 rank,
-                schtickId: rankData?.schtickId || null,
+                schtickName: rankData?.schtickName || '',
                 manifestation: rankData?.manifestation || ''
             });
         }

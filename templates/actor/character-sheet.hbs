@@ -583,18 +583,14 @@
                 </span>
               </td>
               <td class="schtick-cell">
-                <select 
-                  class="schtick-select" 
+                <input 
+                  type="text" 
+                  class="schtick-input" 
                   data-rank="{{this.rank}}"
-                  title="Select a Schtick for Rank {{this.rank}}"
-                >
-                  <option value="">-- Select Schtick --</option>
-                  {{#each ../creation.availableSchticks}}
-                  <option value="{{this.id}}" {{#if (eq this.id ../schtickId)}}selected{{/if}}>
-                    {{this.name}}
-                  </option>
-                  {{/each}}
-                </select>
+                  value="{{this.schtickName}}"
+                  placeholder="Enter Schtick name..."
+                  title="Enter a Schtick name for Rank {{this.rank}}"
+                />
               </td>
               <td class="manifestation-cell">
                 <input 
@@ -628,20 +624,17 @@
           </thead>
           <tbody>
             {{#each system.schticks.ranks}}
-            {{#with (lookup ../creation.availableSchticksById this.schtickId)}}
             <tr class="schtick-row">
               <td class="rank-cell">
-                <span class="rank-number">{{../rank}}</span>
+                <span class="rank-number">{{this.rank}}</span>
               </td>
               <td class="schtick-cell">
-                <div class="schtick-name-display">{{this.name}}</div>
-                <div class="schtick-short-display">{{this.short}}</div>
+                <div class="schtick-name-display">{{this.schtickName}}</div>
               </td>
               <td class="manifestation-cell">
-                <div class="manifestation-display">{{../manifestation}}</div>
+                <div class="manifestation-display">{{this.manifestation}}</div>
               </td>
             </tr>
-            {{/with}}
             {{/each}}
           </tbody>
         </table>
@@ -713,12 +706,12 @@
       
       <!-- Buttons always visible -->
       <div class="powers-overview">
-        <h3><i class="fas fa-magic"></i> Powers & Magic</h3>
-        <div class="powers-controls">
-          <button type="button" class="add-power-creation-btn" title="Add Power from Mastery Tree">
+        <h3 style="width: 225px !important;"><i class="fas fa-magic"></i> Powers & Magic</h3>
+        <div class="powers-controls" style="width: 100%; height: 6px;">
+          <button type="button" class="add-power-creation-btn" title="Add Power from Mastery Tree" style="height: 28px;">
             <i class="fas fa-plus"></i> Add Mastery Power
           </button>
-          <button type="button" class="add-spell-creation-btn" title="Add Spell from Spell School">
+          <button type="button" class="add-spell-creation-btn" title="Add Spell from Spell School" style="height: 30px;">
             <i class="fas fa-plus"></i> Add Spell
           </button>
         </div>
@@ -866,15 +859,15 @@
     <div class="tab equipment" data-group="primary" data-tab="equipment">
       
       <div class="equipment-overview">
-        <h3><i class="fas fa-shield-alt"></i> Equipment</h3>
-        <div class="equipment-controls">
-          <button type="button" class="add-weapon-btn" title="Add Weapon">
+        <h3 style="width: 225px !important;"><i class="fas fa-shield-alt"></i> Equipment</h3>
+        <div class="equipment-controls" style="width: 100%; height: 6px;">
+          <button type="button" class="add-weapon-btn" title="Add Weapon" style="height: 28px;">
             <i class="fas fa-sword"></i> Add Weapon
           </button>
-          <button type="button" class="add-armor-btn" title="Add Armor">
+          <button type="button" class="add-armor-btn" title="Add Armor" style="height: 30px;">
             <i class="fas fa-shield"></i> Add Armor
           </button>
-          <button type="button" class="add-shield-btn" title="Add Shield">
+          <button type="button" class="add-shield-btn" title="Add Shield" style="height: 30px;">
             <i class="fas fa-shield-alt"></i> Add Shield
           </button>
         </div>

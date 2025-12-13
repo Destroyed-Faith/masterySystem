@@ -344,12 +344,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     });
     
     // Prepare schticks rows - one per mastery rank
-    const schticksRows: Array<{rank: number, schtickId: string | null, manifestation: string}> = [];
+    const schticksRows: Array<{rank: number, schtickName: string, manifestation: string}> = [];
     for (let rank = 1; rank <= masteryRank; rank++) {
       const rankData = schticksRanks.find((r: any) => r.rank === rank);
       schticksRows.push({
         rank,
-        schtickId: rankData?.schtickId || null,
+        schtickName: rankData?.schtickName || '',
         manifestation: rankData?.manifestation || ''
       });
     }
@@ -562,15 +562,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   /**
-   * Validate schticks per rank - each rank should have a schtick
+   * Validate schticks per rank - each rank should have a schtick name
    */
-  #validateSchticksPerRank(rows: Array<{rank: number, schtickId: string | null, manifestation: string}>, masteryRank: number): { ok: boolean; message?: string } {
+  #validateSchticksPerRank(rows: Array<{rank: number, schtickName: string, manifestation: string}>, masteryRank: number): { ok: boolean; message?: string } {
     for (let rank = 1; rank <= masteryRank; rank++) {
       const row = rows.find(r => r.rank === rank);
-      if (!row || !row.schtickId) {
+      if (!row || !row.schtickName || row.schtickName.trim() === '') {
         return {
           ok: false,
-          message: `You must select a Schtick for Rank ${rank}.`
+          message: `You must enter a Schtick name for Rank ${rank}.`
         };
       }
     }
@@ -578,52 +578,41 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   /**
-   * Handle schtick selection per rank
+   * Handle schtick name change per rank
    */
-  async #onSchtickSelect(event: JQuery.ChangeEvent) {
-    const select = event.currentTarget as HTMLSelectElement;
-    const rank = parseInt(select.dataset.rank || '0');
-    const schtickId = select.value;
+  async #onSchtickNameChange(event: JQuery.BlurEvent) {
+    const input = event.currentTarget as HTMLInputElement;
+    const rank = parseInt(input.dataset.rank || '0');
+    const schtickName = input.value.trim();
     
     if (!rank || rank < 1) {
-      console.error('Mastery System | Invalid rank for schtick selection:', rank);
+      console.error('Mastery System | Invalid rank for schtick name:', rank);
       return;
     }
     
-    console.log('Mastery System | Schtick select:', {
+    console.log('Mastery System | Schtick name change:', {
       rank,
-      schtickId,
-      previousValue: select.dataset.previousValue
+      schtickName
     });
     
     const currentRanks = (this.actor as any).system?.schticks?.ranks || [];
     const rankIndex = currentRanks.findIndex((r: any) => r.rank === rank);
     
-    let newRanks: Array<{rank: number, schtickId: string, manifestation: string}>;
+    let newRanks: Array<{rank: number, schtickName: string, manifestation: string}>;
     if (rankIndex >= 0) {
       // Update existing rank
       newRanks = [...currentRanks];
-      if (schtickId) {
-        newRanks[rankIndex] = {
-          rank,
-          schtickId,
-          manifestation: newRanks[rankIndex].manifestation || ''
-        };
-      } else {
-        // Remove schtick from this rank
-        newRanks.splice(rankIndex, 1);
-      }
+      newRanks[rankIndex] = {
+        ...newRanks[rankIndex],
+        schtickName: schtickName
+      };
     } else {
       // Add new rank entry
-      if (schtickId) {
-        newRanks = [...currentRanks, {
-          rank,
-          schtickId,
-          manifestation: ''
-        }];
-      } else {
-        newRanks = currentRanks;
-      }
+      newRanks = [...currentRanks, {
+        rank,
+        schtickName: schtickName,
+        manifestation: ''
+      }];
     }
     
     // Update actor
@@ -661,7 +650,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const currentRanks = (this.actor as any).system?.schticks?.ranks || [];
     const rankIndex = currentRanks.findIndex((r: any) => r.rank === rank);
     
-    let newRanks: Array<{rank: number, schtickId: string, manifestation: string}>;
+    let newRanks: Array<{rank: number, schtickName: string, manifestation: string}>;
     if (rankIndex >= 0) {
       // Update existing rank manifestation
       newRanks = [...currentRanks];
@@ -671,7 +660,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       };
     } else {
       // This shouldn't happen - manifestation without schtick
-      console.warn('Mastery System | Manifestation changed but no schtick selected for rank:', rank);
+      console.warn('Mastery System | Manifestation changed but no schtick name for rank:', rank);
       return;
     }
     
@@ -790,7 +779,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('.finalize-creation').on('click', this.#onFinalizeCreation.bind(this));
     
     // Schticks selection (per rank)
-    html.find('.schtick-select').on('change', this.#onSchtickSelect.bind(this));
+    html.find('.schtick-input').on('blur', this.#onSchtickNameChange.bind(this));
     html.find('.schtick-manifestation-input').on('blur', this.#onSchtickManifestationChange.bind(this));
     
     // Disadvantages buttons (only during creation)
@@ -2189,12 +2178,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     // Validate schticks per rank
     const schticksRanks = system.schticks?.ranks || [];
-    const schticksRows: Array<{rank: number, schtickId: string | null, manifestation: string}> = [];
+    const schticksRows: Array<{rank: number, schtickName: string, manifestation: string}> = [];
     for (let rank = 1; rank <= masteryRank; rank++) {
       const rankData = schticksRanks.find((r: any) => r.rank === rank);
       schticksRows.push({
         rank,
-        schtickId: rankData?.schtickId || null,
+        schtickName: rankData?.schtickName || '',
         manifestation: rankData?.manifestation || ''
       });
     }

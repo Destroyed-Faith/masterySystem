@@ -23,10 +23,10 @@ export async function showWeaponCreationDialog(actor: Actor): Promise<void> {
   };
   
   const content = `
-    <form>
-      <div class="form-group">
-        <label>Select Weapon:</label>
-        <select name="weapon" id="weapon-select" style="width: 100%; margin-bottom: 10px;">
+    <form class="weapon-creation-form">
+      <div class="form-group weapon-form-group">
+        <label class="weapon-form-label">Select Weapon:</label>
+        <select name="weapon" id="weapon-select" class="weapon-select">
           <option value="">-- Select a Weapon --</option>
           <optgroup label="One-Handed Melee">
             ${oneHanded.filter((w: any) => !w.innateAbilities.includes('Ranged')).map(createWeaponOption).join('')}
@@ -40,17 +40,17 @@ export async function showWeaponCreationDialog(actor: Actor): Promise<void> {
         </select>
       </div>
       
-      <div id="weapon-details" style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 4px; display: none;">
-        <div><strong>Damage:</strong> <span id="weapon-damage">—</span></div>
-        <div><strong>Hands:</strong> <span id="weapon-hands">—</span></div>
-        <div><strong>Properties:</strong> <span id="weapon-abilities">—</span></div>
-        <div><strong>Special:</strong> <span id="weapon-special">—</span></div>
-        <div style="margin-top: 8px;"><em id="weapon-description">—</em></div>
+      <div id="weapon-details" class="weapon-details-card" style="display: none;">
+        <div class="weapon-detail-item"><strong>Damage:</strong> <span id="weapon-damage">—</span></div>
+        <div class="weapon-detail-item"><strong>Hands:</strong> <span id="weapon-hands">—</span></div>
+        <div class="weapon-detail-item"><strong>Properties:</strong> <span id="weapon-abilities">—</span></div>
+        <div class="weapon-detail-item"><strong>Special:</strong> <span id="weapon-special">—</span></div>
+        <div class="weapon-description-text"><em id="weapon-description">—</em></div>
       </div>
       
-      <div class="form-group" style="margin-top: 15px;">
-        <label>
-          <input type="checkbox" name="equipped" id="weapon-equipped" />
+      <div class="form-group weapon-form-group weapon-checkbox-group">
+        <label class="weapon-checkbox-label">
+          <input type="checkbox" name="equipped" id="weapon-equipped" class="weapon-checkbox" />
           Equip this weapon immediately
         </label>
       </div>
@@ -84,14 +84,15 @@ export async function showWeaponCreationDialog(actor: Actor): Promise<void> {
     </script>
   `;
   
-  const dialog = new Dialog({
+  const dialog = new (foundry.applications as any).Dialog({
     title: 'Add Weapon',
     content: content,
+    classes: ['mastery-system', 'weapon-creation-dialog'],
     buttons: {
       add: {
         icon: '<i class="fas fa-check"></i>',
         label: 'Add Weapon',
-        callback: async (html) => {
+        callback: async (html: any) => {
           const $html = html as JQuery;
           const weaponName = $html.find('#weapon-select').val() as string;
           
