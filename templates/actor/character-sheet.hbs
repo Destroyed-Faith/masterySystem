@@ -827,19 +827,28 @@
         {{#if items.powers}}
           {{#each items.powers}}
             <div class="power-card" data-item-id="{{this.id}}">
-              <div class="power-header">
-                <h4 class="power-name">{{this.name}}</h4>
+              <div class="power-header-compact">
+                <div class="power-name-compact">{{this.name}}</div>
+                <div class="power-info-compact">
+                  <span class="power-damage-compact" title="Damage">
+                    <i class="fas fa-sword"></i> {{powerDamage (lookup this.system.roll 'damage')}}
+                  </span>
+                  <span class="power-special-compact" title="Special">
+                    <i class="fas fa-star"></i> {{powerSpecials this.system.specials}}
+                  </span>
+                  <span class="power-category-compact" title="Category">
+                    <i class="fas fa-crosshairs"></i> {{powerCategory this.system.range this.system.aoe}}
+                  </span>
+                  <span class="power-type-compact" title="Type">
+                    <i class="fas fa-bolt"></i> {{powerTypeDisplay this.system.powerType}}
+                  </span>
+                </div>
                 <div class="power-controls">
                   <button type="button" class="item-edit" title="Edit"><i class="fas fa-edit"></i></button>
                   <button type="button" class="item-delete" title="Delete"><i class="fas fa-trash"></i></button>
                 </div>
               </div>
-              <div class="power-details">
-                <span class="power-tree">{{default this.system.tree "No Tree"}}</span>
-                <span class="power-level">Level {{default this.system.level 1}}</span>
-                <span class="power-type">{{default this.system.powerType "Active"}}</span>
-              </div>
-              <div class="power-description">{{this.system.description}}</div>
+              <div class="power-description-compact">{{this.system.description}}</div>
               {{#if this.system.equipped}}
                 <button type="button" class="power-use-btn" data-power-id="{{this.id}}">
                   <i class="fas fa-bolt"></i> Use Power

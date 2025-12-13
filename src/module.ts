@@ -217,6 +217,48 @@ function registerHandlebarsHelpers() {
   Handlebars.registerHelper('typeof', function(value: any) {
     return typeof value;
   });
+
+  // Helper to determine power category (Melee/Melee AoE/Range/Range AoE)
+  Handlebars.registerHelper('powerCategory', function(range: string, aoe: string) {
+    const rangeStr = (range || '').toString().trim().toLowerCase();
+    const aoeStr = (aoe || '').toString().trim();
+    
+    // Check if it's ranged (has range value and not melee)
+    const hasRange = rangeStr !== '' && rangeStr !== '0m' && rangeStr !== '0' && !rangeStr.includes('melee') && !rangeStr.includes('touch');
+    // Check if it has AoE
+    const hasAoe = aoeStr !== '' && aoeStr !== '—' && aoeStr !== '-' && aoeStr !== 'none';
+    
+    if (hasRange && hasAoe) return 'Range AoE';
+    if (hasRange) return 'Range';
+    if (hasAoe) return 'Melee AoE';
+    return 'Melee';
+  });
+
+  // Helper to format power type display
+  Handlebars.registerHelper('powerTypeDisplay', function(powerType: string) {
+    if (!powerType) return 'Active';
+    const typeMap: Record<string, string> = {
+      'active': 'Active',
+      'buff': 'Active Buff',
+      'utility': 'Active',
+      'passive': 'Passive',
+      'reaction': 'Reaction',
+      'movement': 'Movement'
+    };
+    return typeMap[powerType.toLowerCase()] || 'Active';
+  });
+
+  // Helper to format damage display
+  Handlebars.registerHelper('powerDamage', function(damage: string) {
+    if (!damage || damage.trim() === '') return '—';
+    return damage;
+  });
+
+  // Helper to format specials display
+  Handlebars.registerHelper('powerSpecials', function(specials: string[]) {
+    if (!specials || !Array.isArray(specials) || specials.length === 0) return '—';
+    return specials.join(', ');
+  });
 }
 
 /**

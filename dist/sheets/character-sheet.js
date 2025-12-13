@@ -424,7 +424,51 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     /** @override */
     async render(force, options) {
         console.log('Mastery System | Character Sheet render called', { force, options });
+        // Save scroll positions for all tabs and the main window before rendering
+        const scrollPositions = {};
+        if (this.element && this.element.length > 0) {
+            // Save scroll position for each tab
+            const tabs = this.element.find('.tab');
+            tabs.each((index, tab) => {
+                const $tab = $(tab);
+                const tabName = $tab.attr('data-tab') || `tab-${index}`;
+                const scrollTop = $tab.scrollTop();
+                if (scrollTop !== undefined && scrollTop > 0) {
+                    scrollPositions[tabName] = scrollTop;
+                }
+            });
+            // Also save scroll position for the main sheet body (in case tabs don't have their own scroll)
+            const sheetBody = this.element.find('.sheet-body');
+            if (sheetBody.length > 0) {
+                const bodyScrollTop = sheetBody.scrollTop();
+                if (bodyScrollTop !== undefined && bodyScrollTop > 0) {
+                    scrollPositions['sheet-body'] = bodyScrollTop;
+                }
+            }
+        }
         const result = await super.render(force, options);
+        // Restore scroll positions after rendering
+        if (this.element && this.element.length > 0 && Object.keys(scrollPositions).length > 0) {
+            // Use requestAnimationFrame to ensure DOM is fully updated
+            requestAnimationFrame(() => {
+                // Restore tab scroll positions
+                const tabs = this.element.find('.tab');
+                tabs.each((index, tab) => {
+                    const $tab = $(tab);
+                    const tabName = $tab.attr('data-tab') || `tab-${index}`;
+                    if (scrollPositions[tabName] !== undefined) {
+                        $tab.scrollTop(scrollPositions[tabName]);
+                    }
+                });
+                // Restore sheet body scroll position
+                if (scrollPositions['sheet-body'] !== undefined) {
+                    const sheetBody = this.element.find('.sheet-body');
+                    if (sheetBody.length > 0) {
+                        sheetBody.scrollTop(scrollPositions['sheet-body']);
+                    }
+                }
+            });
+        }
         console.log('Mastery System | Character Sheet render completed');
         return result;
     }

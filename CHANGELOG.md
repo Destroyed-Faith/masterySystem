@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.5] - 2025-01-XX
+
+### Added
+- **Power Information Display**: Enhanced power cards with comprehensive information
+  - Damage, Special, Category (Melee/Melee AoE/Range/Range AoE), and Type (Active/Active Buff/Passive) displayed in compact single-line format
+  - Icons for better visual identification
+  - Compact layout to save space
+- **Mastery Tree Bonuses**: Added all tree bonuses to Mastery Trees
+  - All 27 Mastery Trees now have their tree bonuses defined
+  - Bonuses are automatically displayed in the "Selected Trees" section when a character has powers from those trees
+  - Includes passive abilities for Werewolf and Werebear shapechange forms
+
+### Fixed
+- **Scroll Position Preservation**: Fixed issue where character sheet would scroll to top after any update
+  - Scroll position is now preserved for all tabs (Attributes, Skills, Powers, Equipment) when form is saved
+  - Works for all input changes, button clicks, and automatic form submissions
+  - Uses requestAnimationFrame for reliable DOM updates
+
 ## [0.1.4] - 2025-01-XX
 
 ### Changed
