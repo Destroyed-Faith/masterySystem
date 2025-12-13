@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.9] - 2025-01-XX
+
+### Fixed
+- **Handlebars Helper Registration**: Fixed "Missing helper: default" error by registering helpers immediately before init hook
+- **XP Management Settings**: Added debug logging to troubleshoot settings menu registration
+  - Settings menu should appear as a button in the Mastery System settings tab
+  - Debug logs added to verify registration process
+
 ## [0.1.8] - 2025-01-XX
 
 ### Fixed
