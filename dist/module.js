@@ -167,6 +167,12 @@ function registerHandlebarsHelpers() {
     Handlebars.registerHelper('lookup', function (obj, key) {
         return obj && obj[key];
     });
+    // Helper to check if array contains value
+    Handlebars.registerHelper('contains', function (array, value) {
+        if (!Array.isArray(array))
+            return false;
+        return array.includes(value);
+    });
 }
 /**
  * Register system settings

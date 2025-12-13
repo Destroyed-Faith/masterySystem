@@ -34,6 +34,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      */
     async #onSpellAdd(event) {
         event.preventDefault();
+        const creationComplete = this.actor.system?.creation?.complete !== false;
+        if (!creationComplete) {
+            ui.notifications?.warn('Complete character creation first. Use the Powers & Magic tab during creation.');
+            return;
+        }
         await this.#openMagicPowerDialog();
     }
     /**
@@ -59,6 +64,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      */
     async #onPowerAdd(event) {
         event.preventDefault();
+        const creationComplete = this.actor.system?.creation?.complete !== false;
+        if (!creationComplete) {
+            ui.notifications?.warn('Complete character creation first. Use the Powers & Magic tab during creation.');
+            return;
+        }
         await this.#openPowerDialog();
     }
     /**
@@ -77,6 +87,61 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         catch (error) {
             console.error('Mastery System | Failed to open power dialog', error);
             ui.notifications?.error('Failed to open power selection dialog');
+        }
+    }
+    /**
+     * Add Power during character creation
+     */
+    async #onPowerAddCreation(event) {
+        event.preventDefault();
+        await this.#openPowerDialogCreation('mastery');
+    }
+    /**
+     * Add Spell during character creation
+     */
+    async #onSpellAddCreation(event) {
+        event.preventDefault();
+        await this.#openPowerDialogCreation('magic');
+    }
+    /**
+     * Open Power Creation Dialog with creation limits enforced
+     */
+    async #openPowerDialogCreation(context) {
+        try {
+            const dialogModule = await import('../../dist/sheets/character-sheet-power-dialog.js');
+            // Use the regular dialog - it now enforces creation limits automatically
+            await dialogModule.showPowerCreationDialog(this.actor, context);
+            // Re-render to update counters
+            this.render();
+        }
+        catch (error) {
+            console.error('Mastery System | Failed to open power creation dialog', error);
+            ui.notifications?.error('Failed to open power selection dialog');
+        }
+    }
+    /**
+     * Handle power rank change during creation
+     */
+    async #onPowerRankChange(event) {
+        event.preventDefault();
+        const $select = $(event.currentTarget);
+        const itemId = $select.data('item-id');
+        const newRank = parseInt($select.val());
+        const system = this.actor.system;
+        const masteryRank = system.mastery?.rank || 2;
+        if (newRank > masteryRank) {
+            ui.notifications?.error(`Power rank cannot exceed Mastery Rank ${masteryRank}`);
+            const item = this.actor.items.get(itemId);
+            if (item) {
+                const currentLevel = item.system.level || 1;
+                $select.val(currentLevel);
+            }
+            return;
+        }
+        const item = this.actor.items.get(itemId);
+        if (item) {
+            await item.update({ 'system.level': newRank });
+            this.render();
         }
     }
     /**
@@ -162,6 +227,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Check if disadvantages phase is reviewed (user has visited the tab or interacted with disadvantages)
         const disadvantagesReviewed = context.system.creation?.disadvantagesReviewed === true ||
             (context.system.disadvantages && Array.isArray(context.system.disadvantages));
+        // Calculate powers & magic creation status
+        const items = this.#prepareItems();
+        const powers = items.powers || [];
+        const selectedTrees = this.#getSelectedTrees(powers);
+        const selectedPowers = powers.filter((p) => {
+            const tree = p.system?.tree || '';
+            return selectedTrees.includes(tree);
+        });
+        const powersAtRank2 = selectedPowers.filter((p) => (p.system?.level || 1) === 2);
         // Always provide creation data for template (even if complete)
         context.creation = {
             masteryRank,
@@ -172,7 +246,20 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             skillPointsSpent,
             disadvantagePoints,
             disadvantagesReviewed,
-            canFinalize: attributePointsSpent === 16 && skillPointsSpent === skillPointsConfig && disadvantagesReviewed
+            powersSelected: selectedPowers.length,
+            powersRequired: 4,
+            treesSelected: selectedTrees.length,
+            treesRequired: 2,
+            powersAtRank2: powersAtRank2.length,
+            powersAtRank2Required: 2,
+            selectedTrees: selectedTrees,
+            powersValid: selectedTrees.length === 2 && selectedPowers.length === 4 && powersAtRank2.length === 2,
+            canFinalize: attributePointsSpent === 16 &&
+                skillPointsSpent === skillPointsConfig &&
+                disadvantagesReviewed &&
+                selectedTrees.length === 2 &&
+                selectedPowers.length === 4 &&
+                powersAtRank2.length === 2
         };
         // Get Mastery Rank from settings (per player or global default)
         const playerMasteryRanks = game.settings.get('mastery-system', 'playerMasteryRanks') || {};
@@ -269,6 +356,19 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             weapons,
             armor
         };
+    }
+    /**
+     * Get unique trees from selected powers (including spell schools)
+     */
+    #getSelectedTrees(powers) {
+        const trees = new Set();
+        for (const power of powers) {
+            const tree = power.system?.tree;
+            if (tree) {
+                trees.add(tree);
+            }
+        }
+        return Array.from(trees);
     }
     /**
      * Calculate derived values for display
@@ -513,6 +613,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('.skill-add').on('click', this.#onSkillAdd.bind(this));
         // Add power
         html.find('.add-power-btn').on('click', this.#onPowerAdd.bind(this));
+        html.find('.add-power-creation-btn').on('click', this.#onPowerAddCreation.bind(this));
+        html.find('.add-spell-creation-btn').on('click', this.#onSpellAddCreation.bind(this));
+        html.find('.power-rank-select').on('change', this.#onPowerRankChange.bind(this));
         // Equipment handlers
         html.find('.add-weapon-btn').on('click', this.#onWeaponAdd.bind(this));
         html.find('.add-armor-btn').on('click', this.#onArmorAdd.bind(this));
@@ -1510,13 +1613,39 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             skillPointsSpent += (typeof skillValue === 'number' ? skillValue : 0);
         }
         const disadvantagePoints = (system.disadvantages || []).reduce((sum, d) => sum + (d.points || 0), 0);
-        // Validate
+        // Validate powers & magic
+        const powers = this.actor.items.filter((item) => item.type === 'special');
+        const selectedTrees = this.#getSelectedTrees(powers);
+        const selectedPowers = powers.filter((p) => {
+            const tree = p.system?.tree || '';
+            return selectedTrees.includes(tree);
+        });
+        const powersAtRank2 = selectedPowers.filter((p) => (p.system?.level || 1) === 2);
+        // Validate all requirements
         if (attributePointsSpent !== 16) {
             ui.notifications?.error(`Must spend exactly 16 attribute points. Currently spent: ${attributePointsSpent}`);
             return;
         }
         if (skillPointsSpent !== skillPointsConfig) {
             ui.notifications?.error(`Must spend exactly ${skillPointsConfig} skill points. Currently spent: ${skillPointsSpent}`);
+            return;
+        }
+        if (selectedTrees.length !== 2) {
+            ui.notifications?.error(`Must select exactly 2 Mastery Trees or Spell Schools. Currently selected: ${selectedTrees.length}`);
+            return;
+        }
+        if (selectedPowers.length !== 4) {
+            ui.notifications?.error(`Must select exactly 4 Powers. Currently selected: ${selectedPowers.length}`);
+            return;
+        }
+        if (powersAtRank2.length !== 2) {
+            ui.notifications?.error(`Must assign Rank 2 to exactly 2 Powers. Currently at Rank 2: ${powersAtRank2.length}`);
+            return;
+        }
+        // Validate power ranks don't exceed Mastery Rank
+        const invalidPowers = selectedPowers.filter((p) => (p.system?.level || 1) > masteryRank);
+        if (invalidPowers.length > 0) {
+            ui.notifications?.error(`Power ranks cannot exceed Mastery Rank ${masteryRank}. Invalid: ${invalidPowers.map((p) => p.name).join(', ')}`);
             return;
         }
         // Sync Faith Fractures: Disadvantage Points = Starting Faith Fractures (both current and maximum)

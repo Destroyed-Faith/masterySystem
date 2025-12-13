@@ -39,10 +39,13 @@ export const DISADVANTAGES = [
         fields: [
             {
                 name: 'rank',
-                type: 'number',
-                label: 'Threat Rank (1-3 points)',
-                min: 1,
-                max: 3,
+                type: 'select',
+                label: 'Threat Rank',
+                options: [
+                    { value: '1', label: 'Rank 1 (1 point) - Single bounty hunter/rival' },
+                    { value: '2', label: 'Rank 2 (2 points) - Cult/Order/Nobility/Organization' },
+                    { value: '3', label: 'Rank 3 (3 points) - Demonic patron, witch circle, celestial warden' }
+                ],
                 required: true
             },
             {
@@ -111,10 +114,13 @@ export const DISADVANTAGES = [
         fields: [
             {
                 name: 'rank',
-                type: 'number',
-                label: 'Unluck Rank (1-3 points)',
-                min: 1,
-                max: 3,
+                type: 'select',
+                label: 'Unluck Rank',
+                options: [
+                    { value: '1', label: 'Rank 1 (1 point) - 1d8/2 misfortune tokens per session' },
+                    { value: '2', label: 'Rank 2 (2 points) - 1d8 misfortune tokens per session' },
+                    { value: '3', label: 'Rank 3 (3 points) - 2d8 misfortune tokens per session' }
+                ],
                 required: true
             }
         ],
@@ -159,7 +165,7 @@ export function calculateDisadvantagePoints(disadvantageId, details) {
     if (Array.isArray(def.basePoints)) {
         // Variable points - use the rank/value from details
         if (disadvantageId === 'hunted' || disadvantageId === 'unluck') {
-            const rank = details.rank || 1;
+            const rank = parseInt(details.rank) || 1; // Convert string to number for select fields
             return def.basePoints[rank - 1] || def.basePoints[0];
         }
         if (disadvantageId === 'physical-scars') {

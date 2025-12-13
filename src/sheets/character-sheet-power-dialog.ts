@@ -186,10 +186,52 @@ export async function showPowerCreationDialog(actor: Actor, context: 'mastery' |
             }
           };
           
+          // Check if we're in character creation mode
+          const system = (actor as any).system;
+          const creationComplete = system?.creation?.complete !== false;
+          
+          if (!creationComplete) {
+            // Enforce creation limits
+            const powers = (actor as any).items.filter((item: any) => item.type === 'special');
+            const selectedTrees = new Set<string>();
+            for (const p of powers) {
+              const t = p.system?.tree;
+              if (t) selectedTrees.add(t);
+            }
+            
+            const treeName = !isMastery ? school : tree;
+            const selectedPowers = powers.filter((p: any) => {
+              const t = p.system?.tree || '';
+              return selectedTrees.has(t);
+            });
+            
+            // Check tree limit (max 2)
+            if (!selectedTrees.has(treeName) && selectedTrees.size >= 2) {
+              ui.notifications?.error('You can only select up to 2 Mastery Trees or Spell Schools.');
+              return false;
+            }
+            
+            // Check power limit (exactly 4)
+            if (selectedPowers.length >= 4) {
+              ui.notifications?.error('You can only select exactly 4 Powers during character creation.');
+              return false;
+            }
+            
+            // Enforce max rank during creation (Mastery Rank 2)
+            const masteryRank = system.mastery?.rank || 2;
+            if (level > masteryRank) {
+              ui.notifications?.error(`Power rank cannot exceed Mastery Rank ${masteryRank} during character creation.`);
+              return false;
+            }
+            
+            // During creation, default to rank 1 (user can change later)
+            itemData.system.level = 1;
+          }
+          
           await (actor as any).createEmbeddedDocuments('Item', [itemData]);
           const sourceType = !isMastery ? 'Spell School' : 'Mastery Tree';
           const source = !isMastery ? school : tree;
-          ui.notifications?.info(`Created power: ${powerName} (Level ${level}) from ${source} ${sourceType}`);
+          ui.notifications?.info(`Created power: ${powerName} (Level ${itemData.system.level}) from ${source} ${sourceType}`);
           return true;
         }
       },

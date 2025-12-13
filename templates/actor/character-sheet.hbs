@@ -639,6 +639,94 @@
     <!-- POWERS TAB -->
     <div class="tab powers" data-group="primary" data-tab="powers">
       
+      {{#unless creationComplete}}
+      <!-- CHARACTER CREATION: Powers & Magic Selection -->
+      <div class="creation-powers-section">
+        <div class="creation-banner">
+          <h3><i class="fas fa-magic"></i> Powers & Magic Selection</h3>
+          <div class="creation-status">
+            <div class="status-item">
+              <label>Trees Selected:</label>
+              <span class="{{#if (eq creation.treesSelected creation.treesRequired)}}valid{{else}}invalid{{/if}}">
+                {{creation.treesSelected}} / {{creation.treesRequired}}
+              </span>
+            </div>
+            <div class="status-item">
+              <label>Powers Selected:</label>
+              <span class="{{#if (eq creation.powersSelected creation.powersRequired)}}valid{{else}}invalid{{/if}}">
+                {{creation.powersSelected}} / {{creation.powersRequired}}
+              </span>
+            </div>
+            <div class="status-item">
+              <label>Powers at Rank 2:</label>
+              <span class="{{#if (eq creation.powersAtRank2 creation.powersAtRank2Required)}}valid{{else}}invalid{{/if}}">
+                {{creation.powersAtRank2}} / {{creation.powersAtRank2Required}}
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="creation-instructions">
+          <p><strong>Character Creation Rules:</strong></p>
+          <ul>
+            <li>Select up to <strong>2 Mastery Trees or Spell Schools</strong> (total)</li>
+            <li>Select exactly <strong>4 Powers</strong> from your chosen trees</li>
+            <li>Assign <strong>Rank 2</strong> to exactly <strong>2 Powers</strong> (others remain Rank 1)</li>
+            <li>No power rank may exceed your Mastery Rank (currently {{creation.masteryRank}})</li>
+          </ul>
+        </div>
+        
+        <div class="creation-controls">
+          <button type="button" class="add-power-creation-btn" title="Add Power from Mastery Tree">
+            <i class="fas fa-plus"></i> Add Mastery Power
+          </button>
+          <button type="button" class="add-spell-creation-btn" title="Add Spell from Spell School">
+            <i class="fas fa-plus"></i> Add Spell
+          </button>
+        </div>
+        
+        {{#if creation.selectedTrees}}
+        <div class="selected-trees">
+          <h4>Selected Trees:</h4>
+          <ul>
+            {{#each creation.selectedTrees}}
+            <li>{{this}}</li>
+            {{/each}}
+          </ul>
+        </div>
+        {{/if}}
+        
+        <!-- Selected Powers List -->
+        <div class="creation-powers-list">
+          <h4>Selected Powers:</h4>
+          {{#if items.powers}}
+            {{#each items.powers}}
+              {{#if (contains ../creation.selectedTrees (default this.system.tree ""))}}
+              <div class="power-card creation-power" data-item-id="{{this.id}}">
+                <div class="power-header">
+                  <h4 class="power-name">{{this.name}}</h4>
+                  <div class="power-controls">
+                    <select class="power-rank-select" data-item-id="{{this.id}}" title="Select Power Rank">
+                      <option value="1" {{#if (eq this.system.level 1)}}selected{{/if}}>Rank 1</option>
+                      <option value="2" {{#if (eq this.system.level 2)}}selected{{/if}}>Rank 2</option>
+                    </select>
+                    <button type="button" class="item-delete" title="Remove Power"><i class="fas fa-trash"></i></button>
+                  </div>
+                </div>
+                <div class="power-details">
+                  <span class="power-tree">{{default this.system.tree "No Tree"}}</span>
+                  <span class="power-level">Level {{default this.system.level 1}}</span>
+                </div>
+              </div>
+              {{/if}}
+            {{/each}}
+          {{else}}
+            <p class="empty-message">No powers selected yet. Click "Add Mastery Power" or "Add Spell" to start.</p>
+          {{/if}}
+        </div>
+      </div>
+      {{else}}
+      <!-- NORMAL POWERS TAB (After Creation) -->
       <div class="powers-overview">
         <h3><i class="fas fa-magic"></i> Mastery Powers</h3>
         <button type="button" class="add-power-btn" title="Add New Power">
@@ -675,6 +763,7 @@
           <p class="empty-message">No powers yet. Click "Add Power" to start.</p>
         {{/if}}
       </div>
+      {{/unless}}
       
     </div>
     
