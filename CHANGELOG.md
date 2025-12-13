@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.1] - 2025-01-XX
+
+### Added
+- **Armor System**: Added Light, Medium, and Heavy armor types with armor values and skill penalties
+  - Light Armor: +4 Armor, no penalties
+  - Medium Armor: +8 Armor, Stealth Pool −2, Evade −2
+  - Heavy Armor: +12 Armor, Athletics −4, Acrobatics −4, Stealth Pool −4, Evade −4
+- **Shield System**: Added three shield types with shield values and evade bonuses/penalties
+  - Parry Shield: +1 Shield, +4 Evade, no penalties
+  - Medium Shield: +2 Shield, Evade −4
+  - Tower Shield: +4 Shield, Evade −8
+- Armor and Shield creation dialogs
+- Shield section in Equipment tab
+
+### Changed
+- **Weapon Reach System**: Changed from absolute reach values to bonus-based system
+  - Default melee reach is now 2m
+  - Weapons with "Reach (2 m)" changed to "Reach (+1 m)" (total: 3m)
+  - Weapons with "Reach (3 m)" changed to "Reach (+2 m)" (total: 4m)
+  - Updated melee targeting and radial menu to support new format
+- **Equipment Tab**: Improved styling and layout
+  - Red buttons for Add Weapon/Armor/Shield, displayed side-by-side
+  - Card-based layout for equipment items
+  - Better visual hierarchy and hover effects
+  - Responsive grid layout for equipment details
+
+### Fixed
+- Equipment tab now properly displays armor skill penalties
+- Shield values and evade bonuses correctly shown in equipment list
+
 ## [0.1.0] - 2025-01-XX
 
 ### Added
