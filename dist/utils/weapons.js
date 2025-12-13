@@ -79,7 +79,7 @@ export const WEAPONS = [
         name: 'Spear',
         weaponDamage: '2d8',
         hands: 1,
-        innateAbilities: ['Reach (2 m)'],
+        innateAbilities: ['Reach (+1 m)'],
         special: 'Reckless Strike',
         description: 'A long polearm that extends your reach and allows for powerful charges.'
     },
@@ -95,7 +95,7 @@ export const WEAPONS = [
         name: 'Whip',
         weaponDamage: '1d8',
         hands: 1,
-        innateAbilities: ['Finesse', 'Reach (2 m)'],
+        innateAbilities: ['Finesse', 'Reach (+1 m)'],
         special: 'Entangle(2)',
         description: 'A flexible weapon that can entangle enemies from a distance.'
     },
@@ -104,7 +104,7 @@ export const WEAPONS = [
         name: 'Glaive',
         weaponDamage: '3d8',
         hands: 2,
-        innateAbilities: ['Reach (3 m)', 'Heavy'],
+        innateAbilities: ['Reach (+2 m)', 'Heavy'],
         special: 'Brutal Impact(2)',
         description: 'A long polearm with a curved blade, extending your reach significantly.'
     },
@@ -136,7 +136,7 @@ export const WEAPONS = [
         name: 'Halberd',
         weaponDamage: '3d8',
         hands: 2,
-        innateAbilities: ['Reach (3 m)', 'Heavy'],
+        innateAbilities: ['Reach (+2 m)', 'Heavy'],
         special: 'Mark(2)',
         description: 'A versatile polearm combining an axe blade, spear point, and hook.'
     },
@@ -192,8 +192,8 @@ export const WEAPON_PROPERTIES = {
     'Versatile': 'When wielded two-handed, gain +1d6 weapon damage (you lose your shield).',
     'Brutal': 'You may reroll 1s on your weapon damage dice once per attack.',
     'Precise': 'Reroll 1d8 per attack after seeing the dice.',
-    'Reach (2 m)': 'Melee reach of 2 meters.',
-    'Reach (3 m)': 'Melee reach of 3 meters.',
+    'Reach (+1 m)': 'Increases melee reach by +1 m (to 3 m total).',
+    'Reach (+2 m)': 'Increases melee reach by +2 m (to 4 m total).',
     'Heavy': 'You get –10 to your Initiative roll.',
     'Ranged': 'Ranged weapon; cover and range are handled separately.',
     'Set': 'If you did not move this round: gain +1d8 weapon damage.',

@@ -555,69 +555,96 @@
       <!-- Schticks Selection (Character Creation) -->
       <div class="schticks-section">
         <h3><i class="fas fa-star"></i> Schticks</h3>
-        <div class="schticks-header">
-          <div class="schticks-counter">
-            <span class="counter-label">Schticks:</span>
-            <span class="counter-value {{#if (eq creation.schticksSelected creation.schticksRequired)}}valid{{else}}invalid{{/if}}">
-              {{creation.schticksSelected}} / {{creation.schticksRequired}}
-            </span>
-          </div>
-          {{#if (ne creation.schticksSelected creation.schticksRequired)}}
-          <div class="schticks-validation-message">
-            <i class="fas fa-exclamation-triangle"></i> Please select exactly {{creation.schticksRequired}} schticks.
-          </div>
-          {{/if}}
+        {{#unless creation.schticksValid}}
+        <div class="schticks-validation-message">
+          <i class="fas fa-exclamation-triangle"></i> Please select a Schtick for each Mastery Rank.
         </div>
+        {{/unless}}
         
-        <div class="schticks-list">
-          {{#each creation.availableSchticks}}
-          <div class="schtick-item">
-            <label class="schtick-checkbox-label">
-              <input 
-                type="checkbox" 
-                class="schtick-checkbox" 
-                data-schtick-id="{{this.id}}"
-                {{#if (contains ../creation.selectedSchticks this.id)}}checked{{/if}}
-                {{#if (and (not (contains ../creation.selectedSchticks this.id)) (eq ../creation.schticksSelected ../creation.schticksRequired))}}disabled{{/if}}
-              />
-              <div class="schtick-content">
-                <div class="schtick-name">{{this.name}}</div>
-                <div class="schtick-short">{{this.short}}</div>
-                {{#if this.relatedAttribute}}
-                <div class="schtick-attribute">
-                  <i class="fas fa-link"></i> Related to: {{this.relatedAttribute}}
-                </div>
-                {{/if}}
-              </div>
-            </label>
-          </div>
-          {{/each}}
-        </div>
+        <table class="schticks-table">
+          <thead>
+            <tr>
+              <th class="rank-column">
+                <span class="rank-header">Rank</span>
+              </th>
+              <th class="schtick-column">Schtick</th>
+              <th class="manifestation-column">Manifestation</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each creation.schticksRows}}
+            <tr class="schtick-row" data-rank="{{this.rank}}">
+              <td class="rank-cell">
+                <span 
+                  class="rank-number" 
+                  title="{{lookup (lookup ../creation.rankTooltips this.rank) 'description'}} | Example: {{lookup (lookup ../creation.rankTooltips this.rank) 'example'}}"
+                >
+                  {{this.rank}}
+                </span>
+              </td>
+              <td class="schtick-cell">
+                <select 
+                  class="schtick-select" 
+                  data-rank="{{this.rank}}"
+                  title="Select a Schtick for Rank {{this.rank}}"
+                >
+                  <option value="">-- Select Schtick --</option>
+                  {{#each ../creation.availableSchticks}}
+                  <option value="{{this.id}}" {{#if (eq this.id ../schtickId)}}selected{{/if}}>
+                    {{this.name}}
+                  </option>
+                  {{/each}}
+                </select>
+              </td>
+              <td class="manifestation-cell">
+                <input 
+                  type="text" 
+                  class="schtick-manifestation-input" 
+                  data-rank="{{this.rank}}"
+                  value="{{this.manifestation}}"
+                  placeholder="Describe the manifestation..."
+                  title="Describe how this Schtick manifests at Rank {{this.rank}}"
+                />
+              </td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
       </div>
       {{/unless}}
       
       {{#if creationComplete}}
       <!-- Schticks Display (After Creation) -->
-      {{#if system.schticks.selected}}
+      {{#if system.schticks.ranks}}
       <div class="schticks-section schticks-display">
         <h3><i class="fas fa-star"></i> Schticks</h3>
-        <div class="schticks-list">
-          {{#each system.schticks.selected}}
-          {{#with (lookup ../creation.availableSchticksById this)}}
-          <div class="schtick-item schtick-display-item">
-            <div class="schtick-content">
-              <div class="schtick-name">{{this.name}}</div>
-              <div class="schtick-short">{{this.short}}</div>
-              {{#if this.relatedAttribute}}
-              <div class="schtick-attribute">
-                <i class="fas fa-link"></i> Related to: {{this.relatedAttribute}}
-              </div>
-              {{/if}}
-            </div>
-          </div>
-          {{/with}}
-          {{/each}}
-        </div>
+        <table class="schticks-table schticks-display-table">
+          <thead>
+            <tr>
+              <th class="rank-column">Rank</th>
+              <th class="schtick-column">Schtick</th>
+              <th class="manifestation-column">Manifestation</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each system.schticks.ranks}}
+            {{#with (lookup ../creation.availableSchticksById this.schtickId)}}
+            <tr class="schtick-row">
+              <td class="rank-cell">
+                <span class="rank-number">{{../rank}}</span>
+              </td>
+              <td class="schtick-cell">
+                <div class="schtick-name-display">{{this.name}}</div>
+                <div class="schtick-short-display">{{this.short}}</div>
+              </td>
+              <td class="manifestation-cell">
+                <div class="manifestation-display">{{../manifestation}}</div>
+              </td>
+            </tr>
+            {{/with}}
+            {{/each}}
+          </tbody>
+        </table>
       </div>
       {{/if}}
       {{/if}}
@@ -847,6 +874,9 @@
           <button type="button" class="add-armor-btn" title="Add Armor">
             <i class="fas fa-shield"></i> Add Armor
           </button>
+          <button type="button" class="add-shield-btn" title="Add Shield">
+            <i class="fas fa-shield-alt"></i> Add Shield
+          </button>
         </div>
       </div>
       
@@ -924,12 +954,18 @@
                 <div class="equipment-details">
                   <div class="equipment-stat">
                     <span class="stat-label">Armor Value:</span>
-                    <span class="stat-value">{{default this.system.armorValue 0}}</span>
+                    <span class="stat-value">+{{default this.system.armorValue 0}}</span>
                   </div>
                   <div class="equipment-stat">
                     <span class="stat-label">Type:</span>
-                    <span class="stat-value">{{default this.system.type "light"}}</span>
+                    <span class="stat-value">{{capitalize (default this.system.type "light")}}</span>
                   </div>
+                  {{#if this.system.skillPenalty}}
+                  <div class="equipment-stat">
+                    <span class="stat-label">Skill Penalty:</span>
+                    <span class="stat-value">{{this.system.skillPenalty}}</span>
+                  </div>
+                  {{/if}}
                 </div>
                 {{#if this.system.description}}
                   <div class="equipment-description">{{this.system.description}}</div>
@@ -939,6 +975,56 @@
           </div>
         {{else}}
           <p class="empty-message">No armor yet. Click "Add Armor" to start.</p>
+        {{/if}}
+      </div>
+      
+      <!-- Shields Section -->
+      <div class="equipment-section">
+        <h4><i class="fas fa-shield-alt"></i> Shields</h4>
+        {{#if items.shields}}
+          <div class="shields-list">
+            {{#each items.shields}}
+              <div class="equipment-item" data-item-id="{{this.id}}">
+                <div class="equipment-header">
+                  <div class="equipment-name">
+                    <input type="checkbox" name="equipped" {{#if this.system.equipped}}checked{{/if}} data-item-id="{{this.id}}" />
+                    <label>{{this.name}}</label>
+                  </div>
+                  <div class="equipment-controls">
+                    <button type="button" class="item-edit" title="Edit"><i class="fas fa-edit"></i></button>
+                    <button type="button" class="item-delete" title="Delete"><i class="fas fa-trash"></i></button>
+                  </div>
+                </div>
+                <div class="equipment-details">
+                  <div class="equipment-stat">
+                    <span class="stat-label">Shield Value:</span>
+                    <span class="stat-value">+{{default this.system.shieldValue 0}}</span>
+                  </div>
+                  <div class="equipment-stat">
+                    <span class="stat-label">Type:</span>
+                    <span class="stat-value">{{capitalize (default this.system.type "parry")}}</span>
+                  </div>
+                  {{#if this.system.evadeBonus}}
+                  <div class="equipment-stat">
+                    <span class="stat-label">Evade Bonus:</span>
+                    <span class="stat-value">+{{this.system.evadeBonus}}</span>
+                  </div>
+                  {{/if}}
+                  {{#if this.system.skillPenalty}}
+                  <div class="equipment-stat">
+                    <span class="stat-label">Skill Penalty:</span>
+                    <span class="stat-value">{{this.system.skillPenalty}}</span>
+                  </div>
+                  {{/if}}
+                </div>
+                {{#if this.system.description}}
+                  <div class="equipment-description">{{this.system.description}}</div>
+                {{/if}}
+              </div>
+            {{/each}}
+          </div>
+        {{else}}
+          <p class="empty-message">No shields yet. Click "Add Shield" to start.</p>
         {{/if}}
       </div>
       

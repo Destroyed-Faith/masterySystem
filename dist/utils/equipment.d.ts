@@ -9,6 +9,14 @@ export interface ArmorDefinition {
     skillPenalty: string;
     description: string;
 }
+export interface ShieldDefinition {
+    name: string;
+    type: 'parry' | 'medium' | 'tower';
+    shieldValue: number;
+    evadeBonus: number;
+    skillPenalty: string;
+    description: string;
+}
 export interface WeaponDefinition {
     name: string;
     weaponType: 'melee' | 'ranged';
@@ -19,6 +27,7 @@ export interface WeaponDefinition {
     description?: string;
 }
 export declare const BASE_ARMOR: ArmorDefinition[];
+export declare const BASE_SHIELDS: ShieldDefinition[];
 export declare const BASE_WEAPONS: WeaponDefinition[];
 /**
  * Get all base armor
@@ -36,4 +45,12 @@ export declare function getWeaponsByType(type: 'melee' | 'ranged'): WeaponDefini
  * Get armor by type
  */
 export declare function getArmorByType(type: 'light' | 'medium' | 'heavy'): ArmorDefinition[];
+/**
+ * Get all base shields
+ */
+export declare function getAllShields(): ShieldDefinition[];
+/**
+ * Get shield by type
+ */
+export declare function getShieldByType(type: 'parry' | 'medium' | 'tower'): ShieldDefinition[];
 //# sourceMappingURL=equipment.d.ts.map

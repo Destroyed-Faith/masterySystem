@@ -135,12 +135,54 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
     }
     /**
-     * Add Armor → open armor dialog (placeholder for now)
+     * Add Armor → open armor dialog
      */
     async #onArmorAdd(event) {
         event.preventDefault();
-        ui.notifications?.info('Armor dialog coming soon!');
-        // TODO: Implement armor dialog
+        await this.#openArmorDialog();
+    }
+    /**
+     * Open the Armor Creation Dialog
+     */
+    async #openArmorDialog() {
+        try {
+            const dialogModule = await import('../../dist/sheets/character-sheet-armor-dialog.js');
+            if (dialogModule?.showArmorCreationDialog) {
+                await dialogModule.showArmorCreationDialog(this.actor);
+            }
+            else {
+                ui.notifications?.error('Armor dialog not found.');
+            }
+        }
+        catch (error) {
+            console.error('Mastery System | Error loading armor dialog:', error);
+            ui.notifications?.error('Failed to load armor dialog.');
+        }
+    }
+    /**
+     * Add Shield → open shield dialog
+     */
+    async #onShieldAdd(event) {
+        event.preventDefault();
+        await this.#openShieldDialog();
+    }
+    /**
+     * Open the Shield Creation Dialog
+     */
+    async #openShieldDialog() {
+        try {
+            const dialogModule = await import('../../dist/sheets/character-sheet-shield-dialog.js');
+            if (dialogModule?.showShieldCreationDialog) {
+                await dialogModule.showShieldCreationDialog(this.actor);
+            }
+            else {
+                ui.notifications?.error('Shield dialog not found.');
+            }
+        }
+        catch (error) {
+            console.error('Mastery System | Error loading shield dialog:', error);
+            ui.notifications?.error('Failed to load shield dialog.');
+        }
     }
     /**
      * Toggle equipment equipped status
@@ -254,16 +296,49 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             creationComplete: context.creationComplete,
             selectedTreesData: selectedTreesData
         });
-        // Schticks data
-        const schticksAllowed = CONFIG.MASTERY?.creation?.schticksAllowed || 2;
-        const selectedSchticks = context.system.schticks?.selected || [];
+        // Schticks data - per rank structure
+        const schticksRanks = context.system.schticks?.ranks || [];
         const availableSchticks = getAllSchticks();
-        const schticksValidation = this.#validateSchticksSelection(selectedSchticks, schticksAllowed);
         // Create lookup map for schticks by ID
         const availableSchticksById = {};
         availableSchticks.forEach((s) => {
             availableSchticksById[s.id] = s;
         });
+        // Prepare schticks rows - one per mastery rank
+        const schticksRows = [];
+        for (let rank = 1; rank <= masteryRank; rank++) {
+            const rankData = schticksRanks.find((r) => r.rank === rank);
+            schticksRows.push({
+                rank,
+                schtickId: rankData?.schtickId || null,
+                manifestation: rankData?.manifestation || ''
+            });
+        }
+        // Validate schticks - each rank should have a schtick selected
+        const schticksValidation = this.#validateSchticksPerRank(schticksRows, masteryRank);
+        // Tooltip texts for each rank
+        const rankTooltips = {
+            1: {
+                description: 'Subtle signs or small curiosities; a hint of what\'s to come.',
+                example: 'Eyes gleam pale blue; breath mists even indoors.'
+            },
+            2: {
+                description: 'Clear aesthetic or behavioral quirk visible to others.',
+                example: 'Tears fall as tiny snowflakes; touch feels cool as marble.'
+            },
+            3: {
+                description: 'Your power visibly marks your entire body or presence.',
+                example: 'Skin fades to icy blue; faint frost lines trace your veins.'
+            },
+            4: {
+                description: 'Your aura influences nearby objects or the air itself.',
+                example: 'Objects frost slightly when touched; cold lingers where you stand.'
+            },
+            5: {
+                description: 'Reality subtly bends around your nature; myth and truth blur.',
+                example: 'A halo of frost shimmers in moonlight; snow falls when you grieve.'
+            }
+        };
         // Always provide creation data for template (even if complete)
         context.creation = {
             masteryRank,
@@ -282,11 +357,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             powersAtRank2Required: 2,
             selectedTrees: selectedTrees,
             selectedTreesData: selectedTreesData,
-            schticksSelected: selectedSchticks.length,
-            schticksRequired: schticksAllowed,
-            selectedSchticks: selectedSchticks,
+            schticksRows: schticksRows,
             availableSchticks: availableSchticks,
             availableSchticksById: availableSchticksById,
+            rankTooltips: rankTooltips,
             schticksValid: schticksValidation.ok,
             powersValid: selectedTrees.length === 2 && selectedPowers.length === 4 && powersAtRank2.length === 2,
             canFinalize: attributePointsSpent === 16 &&
@@ -363,6 +437,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const schticks = [];
         const artifacts = [];
         const conditions = [];
+        const shields = [];
         const weapons = [];
         const armor = [];
         for (const item of this.actor.items) {
@@ -389,6 +464,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 case 'armor':
                     armor.push(itemData);
                     break;
+                case 'shield':
+                    shields.push(itemData);
+                    break;
             }
         }
         // Sort powers by tree and level
@@ -403,6 +481,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             echoes,
             schticks,
             artifacts,
+            shields,
             conditions,
             weapons,
             armor
@@ -422,70 +501,114 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         return Array.from(trees);
     }
     /**
-     * Validate schticks selection
+     * Validate schticks per rank - each rank should have a schtick
      */
-    #validateSchticksSelection(selected, allowed) {
-        if (selected.length < allowed) {
-            return {
-                ok: false,
-                message: `You must select exactly ${allowed} schticks. Currently selected: ${selected.length}`
-            };
-        }
-        if (selected.length > allowed) {
-            return {
-                ok: false,
-                message: `You can only select ${allowed} schticks. Currently selected: ${selected.length}`
-            };
+    #validateSchticksPerRank(rows, masteryRank) {
+        for (let rank = 1; rank <= masteryRank; rank++) {
+            const row = rows.find(r => r.rank === rank);
+            if (!row || !row.schtickId) {
+                return {
+                    ok: false,
+                    message: `You must select a Schtick for Rank ${rank}.`
+                };
+            }
         }
         return { ok: true };
     }
     /**
-     * Handle schtick checkbox toggle
+     * Handle schtick selection per rank
      */
-    async #onSchtickToggle(event) {
-        const checkbox = event.currentTarget;
-        const schtickId = checkbox.dataset.schtickId;
-        if (!schtickId)
+    async #onSchtickSelect(event) {
+        const select = event.currentTarget;
+        const rank = parseInt(select.dataset.rank || '0');
+        const schtickId = select.value;
+        if (!rank || rank < 1) {
+            console.error('Mastery System | Invalid rank for schtick selection:', rank);
             return;
-        const currentSelected = this.actor.system?.schticks?.selected || [];
-        const schticksAllowed = CONFIG.MASTERY?.creation?.schticksAllowed || 2;
-        console.log('Mastery System | Schtick toggle:', {
+        }
+        console.log('Mastery System | Schtick select:', {
+            rank,
             schtickId,
-            checked: checkbox.checked,
-            currentSelected: currentSelected.length,
-            allowed: schticksAllowed
+            previousValue: select.dataset.previousValue
         });
-        let newSelected;
-        if (checkbox.checked) {
-            // Add schtick
-            if (currentSelected.length >= schticksAllowed) {
-                ui.notifications?.warn(`You can only select ${schticksAllowed} schticks.`);
-                checkbox.checked = false;
-                return;
+        const currentRanks = this.actor.system?.schticks?.ranks || [];
+        const rankIndex = currentRanks.findIndex((r) => r.rank === rank);
+        let newRanks;
+        if (rankIndex >= 0) {
+            // Update existing rank
+            newRanks = [...currentRanks];
+            if (schtickId) {
+                newRanks[rankIndex] = {
+                    rank,
+                    schtickId,
+                    manifestation: newRanks[rankIndex].manifestation || ''
+                };
             }
-            newSelected = [...currentSelected, schtickId];
+            else {
+                // Remove schtick from this rank
+                newRanks.splice(rankIndex, 1);
+            }
         }
         else {
-            // Remove schtick
-            newSelected = currentSelected.filter((id) => id !== schtickId);
+            // Add new rank entry
+            if (schtickId) {
+                newRanks = [...currentRanks, {
+                        rank,
+                        schtickId,
+                        manifestation: ''
+                    }];
+            }
+            else {
+                newRanks = currentRanks;
+            }
         }
-        const validation = this.#validateSchticksSelection(newSelected, schticksAllowed);
-        if (!validation.ok && checkbox.checked) {
-            console.log('Mastery System | Schticks validation failed:', validation.message);
-            ui.notifications?.warn(validation.message || 'Invalid schticks selection');
-            checkbox.checked = false;
+        // Update actor
+        await this.actor.update({
+            'system.schticks.ranks': newRanks
+        });
+        console.log('Mastery System | Schticks ranks updated:', {
+            newRanks,
+            count: newRanks.length
+        });
+        // Re-render to update UI
+        this.render();
+    }
+    /**
+     * Handle schtick manifestation change
+     */
+    async #onSchtickManifestationChange(event) {
+        const input = event.currentTarget;
+        const rank = parseInt(input.dataset.rank || '0');
+        const manifestation = input.value.trim();
+        if (!rank || rank < 1) {
+            console.error('Mastery System | Invalid rank for manifestation:', rank);
+            return;
+        }
+        console.log('Mastery System | Schtick manifestation change:', {
+            rank,
+            manifestation
+        });
+        const currentRanks = this.actor.system?.schticks?.ranks || [];
+        const rankIndex = currentRanks.findIndex((r) => r.rank === rank);
+        let newRanks;
+        if (rankIndex >= 0) {
+            // Update existing rank manifestation
+            newRanks = [...currentRanks];
+            newRanks[rankIndex] = {
+                ...newRanks[rankIndex],
+                manifestation
+            };
+        }
+        else {
+            // This shouldn't happen - manifestation without schtick
+            console.warn('Mastery System | Manifestation changed but no schtick selected for rank:', rank);
             return;
         }
         // Update actor
         await this.actor.update({
-            'system.schticks.selected': newSelected
+            'system.schticks.ranks': newRanks
         });
-        console.log('Mastery System | Schticks updated:', {
-            newSelected,
-            count: newSelected.length
-        });
-        // Re-render to update UI
-        this.render();
+        console.log('Mastery System | Schtick manifestation updated for rank', rank);
     }
     /**
      * Calculate derived values for display
@@ -577,8 +700,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('.skill-increase').on('click', this.#onCreationSkillIncrease.bind(this));
         html.find('.skill-decrease').on('click', this.#onCreationSkillDecrease.bind(this));
         html.find('.finalize-creation').on('click', this.#onFinalizeCreation.bind(this));
-        // Schticks selection
-        html.find('.schtick-checkbox').on('change', this.#onSchtickToggle.bind(this));
+        // Schticks selection (per rank)
+        html.find('.schtick-select').on('change', this.#onSchtickSelect.bind(this));
+        html.find('.schtick-manifestation-input').on('blur', this.#onSchtickManifestationChange.bind(this));
         // Disadvantages buttons (only during creation)
         const addDisadvantageBtn = html.find('.add-disadvantage-btn');
         console.log('Mastery System | Setting up add-disadvantage-btn listener', {
@@ -738,6 +862,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Equipment handlers
         html.find('.add-weapon-btn').on('click', this.#onWeaponAdd.bind(this));
         html.find('.add-armor-btn').on('click', this.#onArmorAdd.bind(this));
+        html.find('.add-shield-btn').on('click', this.#onShieldAdd.bind(this));
         html.find('.equipment-item input[name="equipped"]').on('change', this.#onEquipmentToggle.bind(this));
         // Add spell
         // Removed add-spell-btn handler - using add-spell-creation-btn instead
@@ -1791,15 +1916,23 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ui.notifications?.error(`Power ranks cannot exceed Mastery Rank ${masteryRank}. Invalid: ${invalidPowers.map((p) => p.name).join(', ')}`);
             return;
         }
-        // Validate schticks
-        const schticksAllowed = CONFIG.MASTERY?.creation?.schticksAllowed || 2;
-        const selectedSchticks = system.schticks?.selected || [];
-        const schticksValidation = this.#validateSchticksSelection(selectedSchticks, schticksAllowed);
+        // Validate schticks per rank
+        const schticksRanks = system.schticks?.ranks || [];
+        const schticksRows = [];
+        for (let rank = 1; rank <= masteryRank; rank++) {
+            const rankData = schticksRanks.find((r) => r.rank === rank);
+            schticksRows.push({
+                rank,
+                schtickId: rankData?.schtickId || null,
+                manifestation: rankData?.manifestation || ''
+            });
+        }
+        const schticksValidation = this.#validateSchticksPerRank(schticksRows, masteryRank);
         if (!schticksValidation.ok) {
             ui.notifications?.error(schticksValidation.message || 'Invalid schticks selection');
             return;
         }
-        console.log('Mastery System | Finalizing character creation - persisting schticks:', selectedSchticks);
+        console.log('Mastery System | Finalizing character creation - persisting schticks:', schticksRanks);
         // Sync Faith Fractures: Disadvantage Points = Starting Faith Fractures (both current and maximum)
         const updateData = {
             'system.creation.complete': true,
@@ -1807,8 +1940,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             'system.faithFractures.maximum': disadvantagePoints
         };
         // Ensure schticks are persisted (they should already be set, but ensure they're in the update)
-        if (selectedSchticks.length > 0) {
-            updateData['system.schticks.selected'] = selectedSchticks;
+        if (schticksRanks.length > 0) {
+            updateData['system.schticks.ranks'] = schticksRanks;
         }
         try {
             await this.actor.update(updateData);

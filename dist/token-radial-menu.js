@@ -598,9 +598,19 @@ function showRadialInfoPanel(token, option) {
             const innateAbilities = weaponSystem.innateAbilities || [];
             const reachAbility = innateAbilities.find((a) => a.includes('Reach'));
             if (reachAbility) {
-                const reachMatch = reachAbility.match(/Reach\s*\((\d+)\s*m\)/i);
-                if (reachMatch) {
-                    reachText = `Reach: ${reachMatch[1]}m`;
+                // Match new format: "Reach (+1 m)" or "Reach (+2 m)"
+                const bonusMatch = reachAbility.match(/Reach\s*\(\+\s*(\d+)\s*m\)/i);
+                if (bonusMatch) {
+                    const bonus = parseInt(bonusMatch[1], 10);
+                    const totalReach = 2 + bonus; // 2m base + bonus
+                    reachText = `Reach: ${totalReach}m`;
+                }
+                else {
+                    // Legacy support: Match old format: "Reach (2 m)" or "Reach (3 m)"
+                    const legacyMatch = reachAbility.match(/Reach\s*\((\d+)\s*m\)/i);
+                    if (legacyMatch) {
+                        reachText = `Reach: ${legacyMatch[1]}m`;
+                    }
                 }
             }
             // Get special ability

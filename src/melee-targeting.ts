@@ -29,23 +29,31 @@ let isConfirmingTarget = false;
 
 /**
  * Parse reach from weapon innate abilities or option
- * @param innateAbilities - Array of ability strings like ["Reach (2 m)", "Finesse"]
- * @returns Reach in meters, or 2 if not found (default melee reach is now 2m)
+ * @param innateAbilities - Array of ability strings like ["Reach (+1 m)", "Finesse"]
+ * @returns Reach in meters (2m base + bonus from weapon)
  */
 function parseReachFromAbilities(innateAbilities: string[]): number {
+  const baseReach = 2; // Default melee reach is 2m
   if (!innateAbilities || !Array.isArray(innateAbilities)) {
-    return 2; // Default melee reach is now 2m
+    return baseReach;
   }
   
   for (const ability of innateAbilities) {
-    // Match "Reach (2 m)" or "Reach (3 m)"
-    const match = ability.match(/Reach\s*\((\d+)\s*m\)/i);
-    if (match) {
-      return parseInt(match[1], 10);
+    // Match "Reach (+1 m)" or "Reach (+2 m)" - new format
+    const bonusMatch = ability.match(/Reach\s*\(\+\s*(\d+)\s*m\)/i);
+    if (bonusMatch) {
+      const bonus = parseInt(bonusMatch[1], 10);
+      return baseReach + bonus; // 2m base + bonus
+    }
+    
+    // Legacy support: Match "Reach (2 m)" or "Reach (3 m)" - old format
+    const legacyMatch = ability.match(/Reach\s*\((\d+)\s*m\)/i);
+    if (legacyMatch) {
+      return parseInt(legacyMatch[1], 10);
     }
   }
   
-  return 2; // Default melee reach is now 2m
+  return baseReach; // Default melee reach is 2m
 }
 
 /**

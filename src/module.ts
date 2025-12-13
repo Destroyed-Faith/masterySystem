@@ -365,7 +365,7 @@ Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId:
     }
     // Initialize schticks if not present
     if (!data.system.schticks) {
-      data.system.schticks = { selected: [] };
+      data.system.schticks = { ranks: [] };
     }
     if (!data.system.creation) {
       data.system.creation = {};

@@ -25,6 +25,32 @@ export const BASE_ARMOR = [
         description: 'Heavy armor provides maximum protection but significantly restricts movement. Common examples include plate mail, full plate, or heavy chainmail.'
     }
 ];
+export const BASE_SHIELDS = [
+    {
+        name: 'Parry Shield',
+        type: 'parry',
+        shieldValue: 1,
+        evadeBonus: 4,
+        skillPenalty: '—',
+        description: 'A small, lightweight shield designed for parrying attacks. Provides a bonus to Evade while offering minimal protection.'
+    },
+    {
+        name: 'Medium Shield',
+        type: 'medium',
+        shieldValue: 2,
+        evadeBonus: 0,
+        skillPenalty: 'Evade −4',
+        description: 'A standard shield that balances protection and mobility. Offers decent defense but reduces Evade capability.'
+    },
+    {
+        name: 'Tower Shield',
+        type: 'tower',
+        shieldValue: 4,
+        evadeBonus: 0,
+        skillPenalty: 'Evade −8',
+        description: 'A large, heavy shield that provides excellent protection but significantly reduces Evade capability.'
+    }
+];
 export const BASE_WEAPONS = [
     // One-Handed Melee Weapons
     {
@@ -95,7 +121,7 @@ export const BASE_WEAPONS = [
         weaponType: 'melee',
         damage: '2d8',
         hands: 1,
-        innateAbilities: ['Reach (2 m)'],
+        innateAbilities: ['Reach (+1 m)'],
         special: 'Reckless Strike',
         description: 'A long polearm that extends your reach and allows for powerful charges.'
     },
@@ -113,7 +139,7 @@ export const BASE_WEAPONS = [
         weaponType: 'melee',
         damage: '1d8',
         hands: 1,
-        innateAbilities: ['Finesse', 'Reach (2 m)'],
+        innateAbilities: ['Finesse', 'Reach (+1 m)'],
         special: 'Entangle(2)',
         description: 'A flexible weapon that can entangle enemies from a distance.'
     },
@@ -123,7 +149,7 @@ export const BASE_WEAPONS = [
         weaponType: 'melee',
         damage: '3d8',
         hands: 2,
-        innateAbilities: ['Reach (3 m)', 'Heavy'],
+        innateAbilities: ['Reach (+2 m)', 'Heavy'],
         special: 'Brutal Impact(2)',
         description: 'A long polearm with a curved blade, extending your reach significantly.'
     },
@@ -159,7 +185,7 @@ export const BASE_WEAPONS = [
         weaponType: 'melee',
         damage: '3d8',
         hands: 2,
-        innateAbilities: ['Reach (3 m)', 'Heavy'],
+        innateAbilities: ['Reach (+2 m)', 'Heavy'],
         special: 'Mark(2)',
         description: 'A versatile polearm combining an axe blade, spear point, and hook.'
     },
@@ -233,5 +259,17 @@ export function getWeaponsByType(type) {
  */
 export function getArmorByType(type) {
     return BASE_ARMOR.filter(a => a.type === type);
+}
+/**
+ * Get all base shields
+ */
+export function getAllShields() {
+    return BASE_SHIELDS;
+}
+/**
+ * Get shield by type
+ */
+export function getShieldByType(type) {
+    return BASE_SHIELDS.filter(s => s.type === type);
 }
 //# sourceMappingURL=equipment.js.map
