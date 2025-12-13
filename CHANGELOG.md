@@ -2,6 +2,38 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.95] - 2025-01-XX
+
+### Fixed
+- **Character Sheet Scrolling**: Fixed scroll position reset when spending skill or attribute points
+  - Scroll position is now preserved when adding points to skills or attributes
+  - Prevents annoying jump to top of page during character advancement
+- **Disadvantages System**: Fixed disadvantage selection dialog not showing options
+  - Added debugging to identify loading issues
+  - Improved error messages when disadvantages fail to load
+  - Updated all disadvantage descriptions to match official rules exactly
+
+### Changed
+- **Character Creation**: Finalize button now requires Disadvantages phase completion
+  - Added `disadvantagesReviewed` flag to track if user has reviewed disadvantages tab
+  - Finalize button only appears when Attributes, Skills, AND Disadvantages are complete
+  - Flag is automatically set when user visits disadvantages tab or adds/removes disadvantages
+  - Updated creation banner to show all required steps clearly
+- **Disadvantages Display**: Clarified relationship between Disadvantage Points and Faith Fractures
+  - During creation, shows "Starting Faith Fractures = Disadvantage Points"
+  - After finalization, displays actual Faith Fractures values
+  - Updated all disadvantage descriptions with complete rule details
+
+### Updated
+- **Disadvantages Definitions**: All 7 disadvantages updated with complete rule descriptions
+  - Addiction: Complete withdrawal effects (1 day/1 week/1 month penalties)
+  - Berserker's Curse: Detailed berserk state mechanics
+  - Hunted: Threat rank descriptions (1-3 points)
+  - Physical Scars: All 4 scar types with point costs
+  - Mental Restrictions: TN values for Oath/Fear/Personality (6/8/16)
+  - Unluck: Misfortune token amounts per rank
+  - Vulnerability: Damage type selection
+
 ## [0.0.94] - 2025-01-XX
 
 ### Added

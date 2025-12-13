@@ -180,6 +180,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Calculate disadvantage points
     const disadvantagePoints = (context.system.disadvantages || []).reduce((sum: number, d: any) => sum + (d.points || 0), 0);
     
+    // Check if disadvantages phase is reviewed (user has visited the tab or interacted with disadvantages)
+    const disadvantagesReviewed = context.system.creation?.disadvantagesReviewed === true || 
+                                  (context.system.disadvantages && Array.isArray(context.system.disadvantages));
+    
     // Always provide creation data for template (even if complete)
     context.creation = {
       masteryRank,
@@ -189,7 +193,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       skillPointsRemaining: skillPointsConfig - skillPointsSpent,
       skillPointsSpent,
       disadvantagePoints,
-      canFinalize: attributePointsSpent === 16 && skillPointsSpent === skillPointsConfig
+      disadvantagesReviewed,
+      canFinalize: attributePointsSpent === 16 && skillPointsSpent === skillPointsConfig && disadvantagesReviewed
     };
     
     // Get Mastery Rank from settings (per player or global default)
@@ -414,6 +419,19 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('.disadvantage-edit-btn').on('click', this.#onEditDisadvantage.bind(this));
     html.find('.disadvantage-remove-btn').on('click', this.#onRemoveDisadvantage.bind(this));
     
+    // Mark disadvantages as reviewed when user visits the disadvantages tab
+    if (!creationComplete) {
+      // Use event delegation for tab clicks
+      html.on('click', 'a[data-tab="disadvantages"]', async () => {
+        const system = (this.actor as any).system;
+        if (!system.creation?.disadvantagesReviewed) {
+          await this.actor.update({ 'system.creation.disadvantagesReviewed': true });
+          // Re-render to update the banner
+          this.render();
+        }
+      });
+    }
+    
     // Profile image click handlers (work for everyone)
     // Use event delegation to handle clicks even if elements are added later
     const containers = html.find('.profile-img-container');
@@ -599,6 +617,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     if (!attributeName) return;
     
+    // Save scroll position
+    const attributesTab = this.element.find('.tab.attributes');
+    const scrollTop = attributesTab.scrollTop();
+    
     const currentValue = this.actor.system.attributes[attributeName]?.value || 0;
     const availablePoints = this.actor.system.points?.attribute || 0;
     const cost = this.#calculateAttributeCost(currentValue);
@@ -621,6 +643,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     updates['system.points.attribute'] = availablePoints - cost;
     
     await this.actor.update(updates);
+    
+    await this.render();
+    
+    // Restore scroll position
+    const newAttributesTab = this.element.find('.tab.attributes');
+    if (newAttributesTab.length) {
+      newAttributesTab.scrollTop(scrollTop);
+    }
     
     (ui as any).notifications?.info(`${attributeName.charAt(0).toUpperCase() + attributeName.slice(1)} increased to ${currentValue + 1}! (Cost: ${cost} points, Remaining: ${availablePoints - cost})`);
   }
@@ -692,6 +722,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     if (!skillKey) return;
     
+    // Save scroll position
+    const skillsTab = this.element.find('.tab.skills');
+    const scrollTop = skillsTab.scrollTop();
+    
     const currentValue = this.actor.system.skills?.[skillKey] || 0;
     const availablePoints = this.actor.system.points?.mastery || 0;
     const cost = currentValue; // Level N → N+1 costs N points
@@ -717,6 +751,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     updates['system.points.mastery'] = availablePoints - cost;
     
     await this.actor.update(updates);
+    
+    await this.render();
+    
+    // Restore scroll position
+    const newSkillsTab = this.element.find('.tab.skills');
+    if (newSkillsTab.length) {
+      newSkillsTab.scrollTop(scrollTop);
+    }
     
     const skillName = skillKey.charAt(0).toUpperCase() + skillKey.slice(1);
     (ui as any).notifications?.info(`${skillName} increased to ${currentValue + 1}! (Cost: ${cost} Mastery Points, Remaining: ${availablePoints - cost})`);
@@ -1372,21 +1414,34 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   async #onAddDisadvantage(event: JQuery.ClickEvent) {
     event.preventDefault();
     
+    // Debug: Check if DISADVANTAGES is loaded
+    console.log('Mastery System | DISADVANTAGES:', DISADVANTAGES);
+    console.log('Mastery System | DISADVANTAGES length:', DISADVANTAGES?.length || 0);
+    
+    if (!DISADVANTAGES || DISADVANTAGES.length === 0) {
+      ui.notifications?.error('Disadvantages list is not loaded. Please check the console for errors.');
+      console.error('Mastery System | DISADVANTAGES is empty or undefined!');
+      return;
+    }
+    
     // Show selection dialog
     const disadvantageOptions = DISADVANTAGES.map(d => ({
       value: d.id,
       label: `${d.name} (${Array.isArray(d.basePoints) ? d.basePoints.join('/') : d.basePoints} pts)`
     }));
     
+    console.log('Mastery System | Disadvantage options:', disadvantageOptions);
+    
     const content = `
       <form>
         <div class="form-group">
           <label>Select Disadvantage:</label>
-          <select name="disadvantageId" id="disadvantageId">
-            <option value="">-- Select --</option>
+          <select name="disadvantageId" id="disadvantageId" style="width: 100%;">
+            <option value="">-- Select a Disadvantage --</option>
             ${disadvantageOptions.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join('')}
           </select>
         </div>
+        ${disadvantageOptions.length === 0 ? '<p style="color: red;">No disadvantages available. Please check the console.</p>' : ''}
       </form>
     `;
     
@@ -1404,7 +1459,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             }
             
             const def = getDisadvantageDefinition(disadvantageId);
-            if (!def) return false;
+            if (!def) {
+              ui.notifications?.error(`Disadvantage definition not found for ID: ${disadvantageId}`);
+              return false;
+            }
             
             // Open configuration dialog
             await this.#openDisadvantageConfigDialog(def);
@@ -1454,7 +1512,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const removed = disadvantages[index];
     disadvantages.splice(index, 1);
     
-    await this.actor.update({ 'system.disadvantages': disadvantages });
+    // Mark disadvantages as reviewed
+    const updateData: any = { 'system.disadvantages': disadvantages };
+    if (!(this.actor as any).system.creation?.disadvantagesReviewed) {
+      updateData['system.creation.disadvantagesReviewed'] = true;
+    }
+    
+    await this.actor.update(updateData);
     ui.notifications?.info(`Removed ${removed.name}`);
     this.render();
   }
@@ -1528,7 +1592,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
               });
             }
 
-            await this.actor.update({ 'system.disadvantages': currentDisadvantages });
+            // Mark disadvantages as reviewed
+            const updateData: any = { 'system.disadvantages': currentDisadvantages };
+            if (!(this.actor as any).system.creation?.disadvantagesReviewed) {
+              updateData['system.creation.disadvantagesReviewed'] = true;
+            }
+            
+            await this.actor.update(updateData);
             ui.notifications?.info(`${editIndex !== undefined ? 'Updated' : 'Added'} ${def.name} (${points} points)`);
             this.render();
             return true;
@@ -1581,12 +1651,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       return;
     }
     
-    // Sync Faith Fractures
-    const maxFF = system.faithFractures?.maximum || 10;
+    // Sync Faith Fractures: Disadvantage Points = Starting Faith Fractures (both current and maximum)
     const updateData: any = {
       'system.creation.complete': true,
-      'system.faithFractures.current': Math.min(disadvantagePoints, maxFF),
-      'system.faithFractures.maximum': Math.max(disadvantagePoints, maxFF)
+      'system.faithFractures.current': disadvantagePoints,
+      'system.faithFractures.maximum': disadvantagePoints
     };
     
     try {

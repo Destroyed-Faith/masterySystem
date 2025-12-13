@@ -95,13 +95,17 @@
   <div class="creation-banner">
     <div class="creation-banner-content">
       <h3><i class="fas fa-user-edit"></i> Character Creation Mode</h3>
-      <p>Allocate your points: <strong>{{creation.attributePointsRemaining}}</strong> Attribute Points, <strong>{{creation.skillPointsRemaining}}</strong> Skill Points remaining.</p>
+      <p>Allocate your points: <strong>{{creation.attributePointsRemaining}}</strong> Attribute Points, <strong>{{creation.skillPointsRemaining}}</strong> Skill Points remaining. 
+      <strong>Disadvantages:</strong> <strong>{{creation.disadvantagePoints}}</strong> / 8 points (optional - sets starting Faith Fractures).</p>
       {{#if creation.canFinalize}}
       <button type="button" class="finalize-creation" title="Finalize character creation">
         <i class="fas fa-check-circle"></i> Finalize Character Creation
       </button>
       {{else}}
-      <span class="creation-status">Complete Attributes and Skills to finalize</span>
+      <span class="creation-status">
+        Complete: Attributes ({{creation.attributePointsRemaining}} remaining), Skills ({{creation.skillPointsRemaining}} remaining)
+        {{#unless creation.disadvantagesReviewed}}, Disadvantages (review required){{/unless}}.
+      </span>
       {{/if}}
       {{#if (userIsGM)}}
       <button type="button" class="force-unlock-creation" title="GM Only: Force unlock character creation">
@@ -835,9 +839,14 @@
             <span class="summary-value">{{default disadvantagePointsTotal 0}} / 8</span>
           </div>
           <div class="summary-item">
-            <label>Faith Fractures:</label>
+            <label>Starting Faith Fractures:</label>
             <span class="summary-value">
-              {{default system.faithFractures.current 0}} / {{default system.faithFractures.maximum 10}}
+              {{#unless creationComplete}}
+                {{default disadvantagePointsTotal 0}} / {{default disadvantagePointsTotal 0}}
+                <span class="info-text" style="font-size: 0.85em; color: #888; margin-left: 5px;">(Equal to Disadvantage Points)</span>
+              {{else}}
+                {{default system.faithFractures.current 0}} / {{default system.faithFractures.maximum 0}}
+              {{/unless}}
             </span>
           </div>
         </div>
