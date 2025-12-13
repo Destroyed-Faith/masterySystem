@@ -555,11 +555,6 @@
       <!-- Schticks Selection (Character Creation) -->
       <div class="schticks-section">
         <h3><i class="fas fa-star"></i> Schticks</h3>
-        {{#unless creation.schticksValid}}
-        <div class="schticks-validation-message">
-          <i class="fas fa-exclamation-triangle"></i> Please select a Schtick for each Mastery Rank.
-        </div>
-        {{/unless}}
         
         <table class="schticks-table">
           <thead>
@@ -1040,17 +1035,6 @@
           <div class="summary-item">
             <label>Total Disadvantage Points:</label>
             <span class="summary-value">{{default disadvantagePointsTotal 0}} / 8</span>
-          </div>
-          <div class="summary-item">
-            <label>Starting Faith Fractures:</label>
-            <span class="summary-value">
-              {{#unless creationComplete}}
-                {{default disadvantagePointsTotal 0}} / {{default disadvantagePointsTotal 0}}
-                <span class="info-text" style="font-size: 0.85em; color: #888; margin-left: 5px;">(Equal to Disadvantage Points)</span>
-              {{else}}
-                {{default system.faithFractures.current 0}} / {{default system.faithFractures.maximum 0}}
-              {{/unless}}
-            </span>
           </div>
         </div>
       </div>

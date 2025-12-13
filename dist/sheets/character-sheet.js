@@ -368,8 +368,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 disadvantagesReviewed &&
                 selectedTrees.length === 2 &&
                 selectedPowers.length === 4 &&
-                powersAtRank2.length === 2 &&
-                schticksValidation.ok
+                powersAtRank2.length === 2
         };
         console.log('Mastery System | getData - Final Context Check:', {
             creationComplete: context.creationComplete,
@@ -1958,11 +1957,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 manifestation: rankData?.manifestation || ''
             });
         }
-        const schticksValidation = this.#validateSchticksPerRank(schticksRows, masteryRank);
-        if (!schticksValidation.ok) {
-            ui.notifications?.error(schticksValidation.message || 'Invalid schticks selection');
-            return;
-        }
+        // Schticks validation removed - no longer required
         console.log('Mastery System | Finalizing character creation - persisting schticks:', schticksRanks);
         // Sync Faith Fractures: Disadvantage Points = Starting Faith Fractures (both current and maximum)
         const updateData = {

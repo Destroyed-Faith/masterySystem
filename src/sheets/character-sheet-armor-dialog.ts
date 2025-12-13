@@ -15,25 +15,25 @@ export async function showArmorCreationDialog(actor: any): Promise<void> {
   }).join('');
   
   const content = `
-    <form>
-      <div class="form-group">
-        <label>Select Armor:</label>
-        <select name="armor" id="armor-select" style="width: 100%; margin-bottom: 10px;">
+    <form class="armor-creation-form">
+      <div class="form-group armor-form-group">
+        <label class="armor-form-label">Select Armor:</label>
+        <select name="armor" id="armor-select" class="armor-form-select">
           <option value="">-- Select Armor --</option>
           ${armorOptions}
         </select>
       </div>
       
-      <div id="armor-details" style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 4px; display: none;">
-        <div><strong>Armor Value:</strong> <span id="armor-value">—</span></div>
-        <div><strong>Type:</strong> <span id="armor-type">—</span></div>
-        <div><strong>Skill Penalty:</strong> <span id="armor-penalty">—</span></div>
-        <div style="margin-top: 8px;"><em id="armor-description">—</em></div>
+      <div id="armor-details" class="armor-details-card" style="display: none;">
+        <div class="armor-detail-item"><strong>Armor Value:</strong> <span id="armor-value">—</span></div>
+        <div class="armor-detail-item"><strong>Type:</strong> <span id="armor-type">—</span></div>
+        <div class="armor-detail-item"><strong>Skill Penalty:</strong> <span id="armor-penalty">—</span></div>
+        <div class="armor-description-text"><em id="armor-description">—</em></div>
       </div>
       
-      <div class="form-group" style="margin-top: 15px;">
-        <label>
-          <input type="checkbox" name="equipped" id="armor-equipped" />
+      <div class="form-group armor-form-group armor-checkbox-group">
+        <label class="armor-checkbox-label">
+          <input type="checkbox" name="equipped" id="armor-equipped" class="armor-checkbox" />
           Equip this armor immediately
         </label>
       </div>

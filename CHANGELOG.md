@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.7] - 2025-01-XX
+
+### Added
+- **Character XP Management Settings**: New GM-only settings page for managing character XP
+  - View all player characters and their XP spending (Attribute XP and Mastery XP)
+  - See spent, available, and total XP for each character
+  - Grant XP allowances to individual characters or all characters at once
+  - Automatic calculation of spent XP based on attribute values and skill levels
+  - Accessible via System Settings → Character XP Management
+
+### Changed
+- **Equipment Dialog Styling**: Enhanced CSS for Weapon, Armor, and Shield creation dialogs
+  - Consistent dark theme with gradient backgrounds
+  - Improved form styling and hover effects
+  - Better visual hierarchy and readability
+
+### Fixed
+- **Schticks Validation**: Removed validation warning message (Schticks are now optional)
+- **Starting Faith Fractures Display**: Removed redundant "Starting Faith Fractures" display (same as Disadvantage Points)
+
 ## [0.1.6] - 2025-01-XX
 
 ### Fixed

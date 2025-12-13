@@ -18,26 +18,26 @@ export async function showShieldCreationDialog(actor: any): Promise<void> {
   }).join('');
   
   const content = `
-    <form>
-      <div class="form-group">
-        <label>Select Shield:</label>
-        <select name="shield" id="shield-select" style="width: 100%; margin-bottom: 10px;">
+    <form class="shield-creation-form">
+      <div class="form-group shield-form-group">
+        <label class="shield-form-label">Select Shield:</label>
+        <select name="shield" id="shield-select" class="shield-form-select">
           <option value="">-- Select Shield --</option>
           ${shieldOptions}
         </select>
       </div>
       
-      <div id="shield-details" style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 4px; display: none;">
-        <div><strong>Shield Value:</strong> <span id="shield-value">—</span></div>
-        <div><strong>Type:</strong> <span id="shield-type">—</span></div>
-        <div><strong>Evade Bonus:</strong> <span id="shield-evade">—</span></div>
-        <div><strong>Skill Penalty:</strong> <span id="shield-penalty">—</span></div>
-        <div style="margin-top: 8px;"><em id="shield-description">—</em></div>
+      <div id="shield-details" class="shield-details-card" style="display: none;">
+        <div class="shield-detail-item"><strong>Shield Value:</strong> <span id="shield-value">—</span></div>
+        <div class="shield-detail-item"><strong>Type:</strong> <span id="shield-type">—</span></div>
+        <div class="shield-detail-item"><strong>Evade Bonus:</strong> <span id="shield-evade">—</span></div>
+        <div class="shield-detail-item"><strong>Skill Penalty:</strong> <span id="shield-penalty">—</span></div>
+        <div class="shield-description-text"><em id="shield-description">—</em></div>
       </div>
       
-      <div class="form-group" style="margin-top: 15px;">
-        <label>
-          <input type="checkbox" name="equipped" id="shield-equipped" />
+      <div class="form-group shield-form-group shield-checkbox-group">
+        <label class="shield-checkbox-label">
+          <input type="checkbox" name="equipped" id="shield-equipped" class="shield-checkbox" />
           Equip this shield immediately
         </label>
       </div>

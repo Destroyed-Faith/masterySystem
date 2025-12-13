@@ -9,6 +9,7 @@ import { MasteryItem } from './documents/item.js';
 import { MasteryCharacterSheet } from './sheets/character-sheet.js';
 import { MasteryNpcSheet } from './sheets/npc-sheet.js';
 import { MasteryItemSheet } from './sheets/item-sheet.js';
+import { XpManagementSettings } from './settings/xp-management.js';
 // Combat hooks are imported dynamically to avoid build errors if dist/combat doesn't exist yet
 // import { initializeCombatHooks } from '../dist/combat/initiative.js';
 import { calculateStones } from './utils/calculations.js';
@@ -57,6 +58,8 @@ Hooks.once('init', async function () {
     console.log('Mastery System | Registered Item Sheet');
     // Register system settings
     registerSystemSettings();
+    // Register XP Management Settings
+    registerXpManagementSettings();
     // Register Handlebars helpers
     registerHandlebarsHelpers();
     // Register CONFIG constants
@@ -309,6 +312,20 @@ function registerSystemSettings() {
     });
 }
 /**
+ * Register XP Management Settings Application
+ */
+function registerXpManagementSettings() {
+    // Register menu button to open XP Management
+    game.settings.registerMenu('mastery-system', 'xpManagement', {
+        name: 'Character XP Management',
+        label: 'Character XP Management',
+        hint: 'View character XP spending and grant XP allowances',
+        icon: 'fas fa-coins',
+        type: XpManagementSettings,
+        restricted: true
+    });
+}
+/**
  * Preload Handlebars templates
  */
 async function preloadTemplates() {
@@ -321,7 +338,9 @@ async function preloadTemplates() {
         // Dice dialogs
         'systems/mastery-system/templates/dice/damage-dialog.hbs',
         // Character creation wizard
-        'systems/mastery-system/templates/dialogs/disadvantage-config.hbs'
+        'systems/mastery-system/templates/dialogs/disadvantage-config.hbs',
+        // Settings
+        'systems/mastery-system/templates/settings/xp-management.hbs'
     ];
     try {
         await foundry.applications.handlebars.loadTemplates(templatePaths);

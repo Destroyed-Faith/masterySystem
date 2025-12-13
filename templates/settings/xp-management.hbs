@@ -1,0 +1,100 @@
+<div class="mastery-xp-management">
+  <nav class="tabs" data-group="primary">
+    <a class="item active" data-tab="characters">
+      <i class="fas fa-users"></i> Characters
+    </a>
+  </nav>
+  
+  <section class="content">
+    <div class="tab active" data-tab="characters">
+      <div class="xp-management-header">
+        <h2><i class="fas fa-coins"></i> Character XP Management</h2>
+        <p class="hint">View XP spending and grant XP allowances to player characters.</p>
+      </div>
+      
+      <!-- Bulk Grant Section -->
+      <div class="bulk-grant-section">
+        <h3>Bulk Grant XP</h3>
+        <div class="bulk-grant-controls">
+          <div class="bulk-grant-group">
+            <label>Attribute XP:</label>
+            <input type="number" class="bulk-xp-amount" data-xp-type="attribute" min="0" value="0" />
+            <button type="button" class="bulk-grant-btn" data-xp-type="attribute">
+              <i class="fas fa-gift"></i> Grant to All
+            </button>
+          </div>
+          <div class="bulk-grant-group">
+            <label>Mastery XP:</label>
+            <input type="number" class="bulk-xp-amount" data-xp-type="mastery" min="0" value="0" />
+            <button type="button" class="bulk-grant-btn" data-xp-type="mastery">
+              <i class="fas fa-gift"></i> Grant to All
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Characters List -->
+      <div class="characters-list">
+        <table class="xp-table">
+          <thead>
+            <tr>
+              <th>Character</th>
+              <th>Player</th>
+              <th>Attribute XP</th>
+              <th>Mastery XP</th>
+              <th>Grant XP</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each characters}}
+            <tr data-character-id="{{this.id}}">
+              <td class="character-cell">
+                <img src="{{this.img}}" alt="{{this.name}}" class="character-avatar" />
+                <span class="character-name">{{this.name}}</span>
+              </td>
+              <td class="player-cell">{{this.player}}</td>
+              <td class="xp-cell attribute-xp">
+                <div class="xp-info">
+                  <span class="xp-spent">Spent: <strong>{{this.attributeXP.spent}}</strong></span>
+                  <span class="xp-available">Available: <strong>{{this.attributeXP.available}}</strong></span>
+                  <span class="xp-total">Total: <strong>{{this.attributeXP.total}}</strong></span>
+                </div>
+              </td>
+              <td class="xp-cell mastery-xp">
+                <div class="xp-info">
+                  <span class="xp-spent">Spent: <strong>{{this.masteryXP.spent}}</strong></span>
+                  <span class="xp-available">Available: <strong>{{this.masteryXP.available}}</strong></span>
+                  <span class="xp-total">Total: <strong>{{this.masteryXP.total}}</strong></span>
+                </div>
+              </td>
+              <td class="grant-cell">
+                <div class="grant-controls">
+                  <div class="grant-group">
+                    <input type="number" class="xp-amount-input" data-xp-type="attribute" data-character-id="{{this.id}}" min="0" value="0" placeholder="AP" />
+                    <button type="button" class="grant-xp-btn" data-character-id="{{this.id}}" data-xp-type="attribute" title="Grant Attribute XP">
+                      <i class="fas fa-plus"></i>
+                    </button>
+                  </div>
+                  <div class="grant-group">
+                    <input type="number" class="xp-amount-input" data-xp-type="mastery" data-character-id="{{this.id}}" min="0" value="0" placeholder="MP" />
+                    <button type="button" class="grant-xp-btn" data-character-id="{{this.id}}" data-xp-type="mastery" title="Grant Mastery XP">
+                      <i class="fas fa-plus"></i>
+                    </button>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            {{else}}
+            <tr>
+              <td colspan="5" class="empty-message">
+                <i class="fas fa-info-circle"></i> No player characters found.
+              </td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</div>
+
