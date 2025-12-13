@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.98] - 2025-01-XX
+
+### Fixed
+- **Character Creation UI**: Fixed Creation-UI not showing in Powers tab during character creation
+  - Fixed `creationComplete` logic to only be true when explicitly set to true
+  - Previously undefined values were treated as complete, preventing creation UI from showing
+  - Creation-UI now correctly displays with status counters and creation buttons
+  - Powers are now correctly filtered during creation (shows all powers when no trees selected yet)
+
 ## [0.0.97] - 2025-01-XX
 
 ### Added

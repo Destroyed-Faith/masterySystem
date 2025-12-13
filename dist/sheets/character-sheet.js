@@ -204,7 +204,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         context.system = actorData.system;
         context.flags = actorData.flags;
         // Check if character creation is complete
-        context.creationComplete = context.system.creation?.complete !== false;
+        // If complete is undefined, treat as incomplete (new character)
+        context.creationComplete = context.system.creation?.complete === true;
         // Calculate creation point counters (always calculate, but only show if not complete)
         const masteryRank = context.system.mastery?.rank || 2;
         const skillPointsConfig = CONFIG.MASTERY?.creation?.skillPoints || 16;
@@ -231,9 +232,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const items = this.#prepareItems();
         const powers = items.powers || [];
         const selectedTrees = this.#getSelectedTrees(powers);
+        // During creation, all powers from selected trees count
         const selectedPowers = powers.filter((p) => {
             const tree = p.system?.tree || '';
-            return selectedTrees.includes(tree);
+            return selectedTrees.length === 0 || selectedTrees.includes(tree);
         });
         const powersAtRank2 = selectedPowers.filter((p) => (p.system?.level || 1) === 2);
         // Always provide creation data for template (even if complete)
@@ -294,6 +296,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             context.actor.prototypeToken.texture = context.actor.prototypeToken.texture || {};
             context.actor.prototypeToken.texture.src = context.actor.img;
         }
+        // Add items to context (needed for template)
+        context.items = items;
         return context;
     }
     /** @override */
