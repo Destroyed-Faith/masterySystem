@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.3] - 2025-01-XX
+
+### Fixed
+- Committed all pending changes for Schticks table system, Powers buttons layout, and Equipment Armor/Shield functionality
+
 ## [0.1.2] - 2025-01-XX
 
 ### Changed
