@@ -2,28 +2,37 @@
  * XP Management Settings Styles
  */
 
+.mastery-xp-management-inline,
 .mastery-xp-management {
   padding: 1rem;
 }
 
+.mastery-xp-management-inline,
+.mastery-xp-management-inline .xp-management-header,
+.mastery-xp-management-inline,
 .mastery-xp-management .xp-management-header {
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
   border-bottom: 2px solid #8b0000;
 }
 
+.mastery-xp-management-inline,
+.mastery-xp-management-inline .xp-management-header h3,
+.mastery-xp-management-inline,
 .mastery-xp-management .xp-management-header h2 {
   margin: 0 0 0.5rem 0;
   color: #8b0000;
   font-size: 1.5rem;
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .xp-management-header .hint {
   color: #666;
   font-size: 0.9rem;
   margin: 0;
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .bulk-grant-section {
   background: #f5f5f5;
   padding: 1rem;
@@ -32,30 +41,35 @@
   border: 1px solid #ddd;
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .bulk-grant-section h3 {
   margin: 0 0 1rem 0;
   color: #333;
   font-size: 1.1rem;
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .bulk-grant-controls {
   display: flex;
   gap: 1.5rem;
   flex-wrap: wrap;
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .bulk-grant-group {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .bulk-grant-group label {
   font-weight: 600;
   color: #333;
   min-width: 100px;
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .bulk-xp-amount {
   width: 80px;
   padding: 0.5rem;
@@ -64,6 +78,7 @@
   text-align: center;
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .bulk-grant-btn {
   padding: 0.5rem 1rem;
   background: linear-gradient(135deg, #8b0000 0%, #a00000 100%);
@@ -75,12 +90,14 @@
   transition: all 0.2s ease;
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .bulk-grant-btn:hover {
   background: linear-gradient(135deg, #a00000 0%, #b00000 100%);
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .xp-table {
   width: 100%;
   border-collapse: collapse;
@@ -90,11 +107,13 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .xp-table thead {
   background: linear-gradient(135deg, #8b0000 0%, #a00000 100%);
   color: #fff;
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .xp-table th {
   padding: 0.75rem;
   text-align: left;
@@ -104,30 +123,36 @@
   letter-spacing: 0.5px;
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .xp-table tbody tr {
   border-bottom: 1px solid #eee;
   transition: background-color 0.2s ease;
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .xp-table tbody tr:hover {
   background-color: #f9f9f9;
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .xp-table tbody tr:last-child {
   border-bottom: none;
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .xp-table td {
   padding: 0.75rem;
   vertical-align: middle;
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .character-cell {
   display: flex;
   align-items: center;
   gap: 0.75rem;
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .character-avatar {
   width: 40px;
   height: 40px;
@@ -136,20 +161,24 @@
   border: 2px solid #ddd;
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .character-name {
   font-weight: 600;
   color: #333;
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .player-cell {
   color: #666;
   font-size: 0.9rem;
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .xp-cell {
   min-width: 200px;
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .xp-info {
   display: flex;
   flex-direction: column;
@@ -157,34 +186,42 @@
   font-size: 0.85rem;
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .xp-info .xp-spent,
+.mastery-xp-management-inline,
 .mastery-xp-management .xp-info .xp-available,
+.mastery-xp-management-inline,
 .mastery-xp-management .xp-info .xp-total {
   display: flex;
   justify-content: space-between;
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .xp-info strong {
   color: #8b0000;
   font-weight: 700;
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .grant-cell {
   min-width: 200px;
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .grant-controls {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .grant-group {
   display: flex;
   align-items: center;
   gap: 0.25rem;
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .xp-amount-input {
   width: 60px;
   padding: 0.4rem;
@@ -194,6 +231,7 @@
   font-size: 0.85rem;
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .grant-xp-btn {
   padding: 0.4rem 0.6rem;
   background: #8b0000;
@@ -204,12 +242,14 @@
   transition: all 0.2s ease;
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .grant-xp-btn:hover {
   background: #a00000;
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
+.mastery-xp-management-inline,
 .mastery-xp-management .empty-message {
   text-align: center;
   padding: 2rem;

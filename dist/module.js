@@ -9,7 +9,6 @@ import { MasteryItem } from './documents/item.js';
 import { MasteryCharacterSheet } from './sheets/character-sheet.js';
 import { MasteryNpcSheet } from './sheets/npc-sheet.js';
 import { MasteryItemSheet } from './sheets/item-sheet.js';
-import { XpManagementSettings } from './settings/xp-management.js';
 // Combat hooks are imported dynamically to avoid build errors if dist/combat doesn't exist yet
 // import { initializeCombatHooks } from '../dist/combat/initiative.js';
 import { calculateStones } from './utils/calculations.js';
@@ -61,8 +60,8 @@ Hooks.once('init', async function () {
     console.log('Mastery System | Registered Item Sheet');
     // Register system settings
     registerSystemSettings();
-    // Register XP Management Settings
-    registerXpManagementSettings();
+    // Setup XP Management inline in settings
+    setupXpManagementInline();
     // Handlebars helpers are already registered in registerHandlebarsHelpersImmediate()
     // No need to register again here
     // Register CONFIG constants
@@ -276,33 +275,15 @@ function registerSystemSettings() {
         type: Object,
         default: {}
     });
-    // Attribute Points distribution
-    game.settings.register('mastery-system', 'attributePointsPerLevel', {
-        name: 'Attribute Points per Level',
-        hint: 'How many Attribute Points characters receive per level/session',
+    // Character XP Management (inline in settings)
+    game.settings.register('mastery-system', 'characterXpManagement', {
+        name: 'Character XP Management',
+        hint: 'Manage Attribute XP and Mastery XP for all player characters',
         scope: 'world',
         config: true,
-        type: Number,
-        default: 1,
-        range: {
-            min: 0,
-            max: 10,
-            step: 1
-        }
-    });
-    // Mastery Points distribution
-    game.settings.register('mastery-system', 'masteryPointsPerLevel', {
-        name: 'Mastery Points per Level',
-        hint: 'How many Mastery Points characters receive per level/session',
-        scope: 'world',
-        config: true,
-        type: Number,
-        default: 1,
-        range: {
-            min: 0,
-            max: 10,
-            step: 1
-        }
+        type: Object,
+        default: {},
+        restricted: true
     });
     // Default scene background image
     game.settings.register('mastery-system', 'defaultSceneImage', {
@@ -316,27 +297,152 @@ function registerSystemSettings() {
     });
 }
 /**
- * Register XP Management Settings Application
+ * Setup XP Management inline in settings
  */
-function registerXpManagementSettings() {
-    try {
-        // Register menu button to open XP Management
-        console.log('Mastery System | Registering XP Management Settings...');
-        console.log('Mastery System | game available:', typeof game !== 'undefined');
-        console.log('Mastery System | game.settings available:', typeof game?.settings !== 'undefined');
-        game.settings.registerMenu('mastery-system', 'xpManagement', {
-            name: 'Character XP Management',
-            label: 'Character XP Management',
-            hint: 'View character XP spending and grant XP allowances',
-            icon: 'fas fa-coins',
-            type: XpManagementSettings,
-            restricted: true
+function setupXpManagementInline() {
+    // Hook into settings rendering to add custom UI
+    Hooks.on('renderSettingsConfig', (app, html, _data) => {
+        // Find the Character XP Management setting
+        const xpSetting = html.find('[name="mastery-system.characterXpManagement"]').closest('.form-group');
+        if (xpSetting.length === 0)
+            return;
+        // Replace the default input with our custom UI
+        const settingInput = xpSetting.find('input, select, textarea');
+        const customContainer = $('<div class="mastery-xp-management-inline"></div>');
+        // Get all player characters
+        const characters = game.actors?.filter((actor) => actor.type === 'character') || [];
+        // Build the UI
+        let htmlContent = '<div class="xp-management-header"><h3><i class="fas fa-coins"></i> Character XP Management</h3></div>';
+        // Bulk Grant Section
+        htmlContent += '<div class="bulk-grant-section"><h4>Bulk Grant XP</h4>';
+        htmlContent += '<div class="bulk-grant-controls">';
+        htmlContent += '<div class="bulk-grant-group"><label>Attribute XP:</label>';
+        htmlContent += '<input type="number" class="bulk-xp-amount" data-xp-type="attribute" min="0" value="0" />';
+        htmlContent += '<button type="button" class="bulk-grant-btn" data-xp-type="attribute"><i class="fas fa-gift"></i> Grant to All</button></div>';
+        htmlContent += '<div class="bulk-grant-group"><label>Mastery XP:</label>';
+        htmlContent += '<input type="number" class="bulk-xp-amount" data-xp-type="mastery" min="0" value="0" />';
+        htmlContent += '<button type="button" class="bulk-grant-btn" data-xp-type="mastery"><i class="fas fa-gift"></i> Grant to All</button></div>';
+        htmlContent += '</div></div>';
+        // Characters Table
+        htmlContent += '<div class="characters-list"><table class="xp-table"><thead><tr>';
+        htmlContent += '<th>Character</th><th>Player</th><th>Attribute XP</th><th>Mastery XP</th><th>Grant XP</th>';
+        htmlContent += '</tr></thead><tbody>';
+        if (characters.length === 0) {
+            htmlContent += '<tr><td colspan="5" class="empty-message"><i class="fas fa-info-circle"></i> No player characters found.</td></tr>';
+        }
+        else {
+            characters.forEach((actor) => {
+                const system = actor.system || {};
+                const points = system.points || {};
+                // Calculate spent XP
+                let attributeXPSpent = 0;
+                if (system.attributes) {
+                    Object.values(system.attributes).forEach((attr) => {
+                        if (attr && typeof attr.value === 'number') {
+                            const baseValue = 2;
+                            const currentValue = attr.value || baseValue;
+                            if (currentValue > baseValue) {
+                                for (let val = baseValue + 1; val <= currentValue; val++) {
+                                    let cost = 1;
+                                    if (val >= 9 && val <= 16)
+                                        cost = 2;
+                                    else if (val >= 17 && val <= 24)
+                                        cost = 3;
+                                    else if (val >= 25 && val <= 32)
+                                        cost = 4;
+                                    else if (val >= 33)
+                                        cost = 5;
+                                    attributeXPSpent += cost;
+                                }
+                            }
+                        }
+                    });
+                }
+                let masteryXPSpent = 0;
+                if (system.skills) {
+                    Object.values(system.skills).forEach((skillValue) => {
+                        if (typeof skillValue === 'number' && skillValue > 0) {
+                            for (let level = 1; level < skillValue; level++) {
+                                masteryXPSpent += level;
+                            }
+                        }
+                    });
+                }
+                const attributeXPAvailable = points.attribute || 0;
+                const masteryXPAvailable = points.mastery || 0;
+                const playerName = game.users?.find((u) => u.character?.id === actor.id)?.name || 'Unassigned';
+                htmlContent += `<tr data-character-id="${actor.id}">`;
+                htmlContent += `<td class="character-cell"><img src="${actor.img}" alt="${actor.name}" class="character-avatar" /><span class="character-name">${actor.name}</span></td>`;
+                htmlContent += `<td class="player-cell">${playerName}</td>`;
+                htmlContent += `<td class="xp-cell attribute-xp"><div class="xp-info">`;
+                htmlContent += `<span class="xp-spent">Spent: <strong>${attributeXPSpent}</strong></span> `;
+                htmlContent += `<span class="xp-available">Available: <strong>${attributeXPAvailable}</strong></span> `;
+                htmlContent += `<span class="xp-total">Total: <strong>${attributeXPSpent + attributeXPAvailable}</strong></span>`;
+                htmlContent += `</div></td>`;
+                htmlContent += `<td class="xp-cell mastery-xp"><div class="xp-info">`;
+                htmlContent += `<span class="xp-spent">Spent: <strong>${masteryXPSpent}</strong></span> `;
+                htmlContent += `<span class="xp-available">Available: <strong>${masteryXPAvailable}</strong></span> `;
+                htmlContent += `<span class="xp-total">Total: <strong>${masteryXPSpent + masteryXPAvailable}</strong></span>`;
+                htmlContent += `</div></td>`;
+                htmlContent += `<td class="grant-cell"><div class="grant-controls">`;
+                htmlContent += `<div class="grant-group"><input type="number" class="xp-amount-input" data-xp-type="attribute" data-character-id="${actor.id}" min="0" value="0" placeholder="AP" />`;
+                htmlContent += `<button type="button" class="grant-xp-btn" data-character-id="${actor.id}" data-xp-type="attribute" title="Grant Attribute XP"><i class="fas fa-plus"></i></button></div>`;
+                htmlContent += `<div class="grant-group"><input type="number" class="xp-amount-input" data-xp-type="mastery" data-character-id="${actor.id}" min="0" value="0" placeholder="MP" />`;
+                htmlContent += `<button type="button" class="grant-xp-btn" data-character-id="${actor.id}" data-xp-type="mastery" title="Grant Mastery XP"><i class="fas fa-plus"></i></button></div>`;
+                htmlContent += `</div></td></tr>`;
+            });
+        }
+        htmlContent += '</tbody></table></div>';
+        customContainer.html(htmlContent);
+        // Replace the input
+        settingInput.hide();
+        settingInput.after(customContainer);
+        // Add event listeners
+        customContainer.find('.grant-xp-btn').on('click', async (event) => {
+            const button = $(event.currentTarget);
+            const characterId = button.data('character-id');
+            const xpType = button.data('xp-type');
+            const amount = parseInt(button.siblings(`.xp-amount-input[data-xp-type="${xpType}"]`).val()) || 0;
+            if (amount <= 0) {
+                ui.notifications?.warn('Please enter a valid amount greater than 0.');
+                return;
+            }
+            const actor = game.actors?.get(characterId);
+            if (!actor) {
+                ui.notifications?.error('Character not found.');
+                return;
+            }
+            const currentPoints = (actor.system?.points?.[xpType] || 0);
+            await actor.update({
+                [`system.points.${xpType}`]: currentPoints + amount
+            });
+            ui.notifications?.info(`Granted ${amount} ${xpType === 'attribute' ? 'Attribute' : 'Mastery'} XP to ${actor.name}.`);
+            // Re-render settings to update display
+            app.render();
         });
-        console.log('Mastery System | XP Management Settings registered successfully');
-    }
-    catch (error) {
-        console.error('Mastery System | Failed to register XP Management Settings:', error);
-    }
+        // Bulk grant
+        customContainer.find('.bulk-grant-btn').on('click', async (event) => {
+            const button = $(event.currentTarget);
+            const xpType = button.data('xp-type');
+            const amount = parseInt(customContainer.find(`.bulk-xp-amount[data-xp-type="${xpType}"]`).val()) || 0;
+            if (amount <= 0) {
+                ui.notifications?.warn('Please enter a valid amount greater than 0.');
+                return;
+            }
+            const characters = game.actors?.filter((actor) => actor.type === 'character') || [];
+            let updated = 0;
+            for (const actor of characters) {
+                const currentPoints = (actor.system?.points?.[xpType] || 0);
+                await actor.update({
+                    [`system.points.${xpType}`]: currentPoints + amount
+                });
+                updated++;
+            }
+            ui.notifications?.info(`Granted ${amount} ${xpType === 'attribute' ? 'Attribute' : 'Mastery'} XP to ${updated} characters.`);
+            // Re-render settings to update display
+            app.render();
+        });
+    });
 }
 /**
  * Preload Handlebars templates
@@ -351,9 +457,7 @@ async function preloadTemplates() {
         // Dice dialogs
         'systems/mastery-system/templates/dice/damage-dialog.hbs',
         // Character creation wizard
-        'systems/mastery-system/templates/dialogs/disadvantage-config.hbs',
-        // Settings
-        'systems/mastery-system/templates/settings/xp-management.hbs'
+        'systems/mastery-system/templates/dialogs/disadvantage-config.hbs'
     ];
     try {
         await foundry.applications.handlebars.loadTemplates(templatePaths);
