@@ -3,8 +3,8 @@
  * PIXI-based radial menu that appears on the canvas around tokens
  * Replaces the dialog-based option selection
  */
-import { getAvailableManeuvers } from './system/combat-maneuvers';
-import { handleChosenCombatOption } from './token-action-selector';
+import { getAvailableManeuvers } from './system/combat-maneuvers.js';
+import { handleChosenCombatOption } from './token-action-selector.js';
 const MS_INNER_SEGMENTS = [
     { id: 'movement', color: 0xffe066, label: 'Move' },
     { id: 'attack', color: 0xff6666, label: 'Atk' },

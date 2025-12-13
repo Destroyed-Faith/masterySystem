@@ -98,7 +98,7 @@ export class XpManagementSettings extends BaseApplication {
     }
     // Implement required methods for ApplicationV2 with Handlebars
     async _renderHTML(_data) {
-        const template = this.constructor.defaultOptions.template || this.options.template;
+        const template = this.constructor.defaultOptions?.template || this.options.template;
         if (!template) {
             throw new Error('Template path is required');
         }
