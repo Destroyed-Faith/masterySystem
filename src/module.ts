@@ -365,15 +365,25 @@ function registerSystemSettings() {
  * Register XP Management Settings Application
  */
 function registerXpManagementSettings() {
-  // Register menu button to open XP Management
-  (game as any).settings.registerMenu('mastery-system', 'xpManagement', {
-    name: 'Character XP Management',
-    label: 'Character XP Management',
-    hint: 'View character XP spending and grant XP allowances',
-    icon: 'fas fa-coins',
-    type: XpManagementSettings,
-    restricted: true
-  });
+  try {
+    // Register menu button to open XP Management
+    console.log('Mastery System | Registering XP Management Settings...');
+    console.log('Mastery System | game available:', typeof game !== 'undefined');
+    console.log('Mastery System | game.settings available:', typeof (game as any)?.settings !== 'undefined');
+    
+    (game as any).settings.registerMenu('mastery-system', 'xpManagement', {
+      name: 'Character XP Management',
+      label: 'Character XP Management',
+      hint: 'View character XP spending and grant XP allowances',
+      icon: 'fas fa-coins',
+      type: XpManagementSettings,
+      restricted: true
+    });
+    
+    console.log('Mastery System | XP Management Settings registered successfully');
+  } catch (error) {
+    console.error('Mastery System | Failed to register XP Management Settings:', error);
+  }
 }
 
 /**
