@@ -2,6 +2,38 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.97] - 2025-01-XX
+
+### Added
+- **Character Creation: Powers & Magic System**: Complete implementation of character generation limits for Powers and Spell Schools
+  - Enforces selection of exactly 2 Mastery Trees or Spell Schools (total)
+  - Enforces selection of exactly 4 Powers from chosen trees
+  - Enforces assignment of Rank 2 to exactly 2 Powers (others remain Rank 1)
+  - Validates that no power rank exceeds Mastery Rank
+  - Creation UI in Powers tab with status counters and instructions
+  - Rank assignment dropdown for each selected power during creation
+  - Validation prevents finalization until all power requirements are met
+  - Power dialog automatically enforces limits during character creation
+  - Sheet locking prevents normal power/spell addition during creation
+
+### Updated
+- **Power Creation Dialog**: Now enforces character creation limits automatically
+  - Prevents selecting more than 2 trees
+  - Prevents selecting more than 4 powers
+  - Sets powers to Rank 1 by default during creation
+  - Validates against Mastery Rank limits
+- **Character Sheet**: Powers tab shows special creation UI during character creation
+  - Status display showing trees selected, powers selected, and rank 2 assignments
+  - Clear instructions for character creation rules
+  - Separate creation buttons for Mastery Powers and Spells
+  - Rank selection dropdown for each power
+- **Finalize Creation**: Now validates all power requirements before allowing finalization
+  - Checks for exactly 2 trees selected
+  - Checks for exactly 4 powers selected
+  - Checks for exactly 2 powers at Rank 2
+  - Validates power ranks don't exceed Mastery Rank
+- **Handlebars Helpers**: Added `contains` helper for array membership checks
+
 ## [0.0.96] - 2025-01-XX
 
 ### Fixed
