@@ -1236,27 +1236,51 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     #lockSheetForCreation(html) {
         console.log('Mastery System | #lockSheetForCreation called');
         // Disable non-creation inputs (name, bio, etc.)
-        html.find('input[name="name"], textarea, select').prop('disabled', true);
+        // But allow power-rank-select during creation
+        html.find('input[name="name"], textarea').prop('disabled', true);
+        html.find('select:not(.power-rank-select)').prop('disabled', true);
         // Disable buttons except creation controls
-        const buttonsToDisable = html.find('button:not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.force-unlock-creation):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn)');
+        const buttonsToDisable = html.find('button:not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.force-unlock-creation):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.add-power-creation-btn):not(.add-spell-creation-btn):not(.power-rank-select)');
         console.log('Mastery System | Disabling buttons:', buttonsToDisable.length);
         buttonsToDisable.prop('disabled', true);
         // Ensure creation buttons are enabled
-        const creationButtons = html.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .force-unlock-creation, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn');
+        const creationButtons = html.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .force-unlock-creation, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .add-power-creation-btn, .add-spell-creation-btn');
         console.log('Mastery System | Enabling creation buttons:', {
             total: creationButtons.length,
             addDisadvantageBtn: html.find('.add-disadvantage-btn').length,
-            addDisadvantageBtnDisabled: html.find('.add-disadvantage-btn').prop('disabled')
+            addPowerCreationBtn: html.find('.add-power-creation-btn').length,
+            addSpellCreationBtn: html.find('.add-spell-creation-btn').length,
+            addDisadvantageBtnDisabled: html.find('.add-disadvantage-btn').prop('disabled'),
+            addPowerCreationBtnDisabled: html.find('.add-power-creation-btn').prop('disabled'),
+            addSpellCreationBtnDisabled: html.find('.add-spell-creation-btn').prop('disabled')
         });
         creationButtons.prop('disabled', false);
-        // Double-check add-disadvantage-btn is enabled
-        const addBtn = html.find('.add-disadvantage-btn');
-        if (addBtn.length > 0) {
-            addBtn.prop('disabled', false);
-            console.log('Mastery System | add-disadvantage-btn explicitly enabled, final state:', addBtn.prop('disabled'));
+        // Also enable power rank selects (they're select elements, not buttons)
+        html.find('.power-rank-select').prop('disabled', false);
+        // Double-check all creation buttons are enabled
+        const addDisadvantageBtn = html.find('.add-disadvantage-btn');
+        const addPowerCreationBtn = html.find('.add-power-creation-btn');
+        const addSpellCreationBtn = html.find('.add-spell-creation-btn');
+        if (addDisadvantageBtn.length > 0) {
+            addDisadvantageBtn.prop('disabled', false);
+            console.log('Mastery System | add-disadvantage-btn explicitly enabled, final state:', addDisadvantageBtn.prop('disabled'));
         }
         else {
             console.warn('Mastery System | add-disadvantage-btn not found during lockSheetForCreation!');
+        }
+        if (addPowerCreationBtn.length > 0) {
+            addPowerCreationBtn.prop('disabled', false);
+            console.log('Mastery System | add-power-creation-btn explicitly enabled, final state:', addPowerCreationBtn.prop('disabled'));
+        }
+        else {
+            console.log('Mastery System | add-power-creation-btn not found (might be normal if creation complete)');
+        }
+        if (addSpellCreationBtn.length > 0) {
+            addSpellCreationBtn.prop('disabled', false);
+            console.log('Mastery System | add-spell-creation-btn explicitly enabled, final state:', addSpellCreationBtn.prop('disabled'));
+        }
+        else {
+            console.log('Mastery System | add-spell-creation-btn not found (might be normal if creation complete)');
         }
         // Add CSS class for styling
         html.addClass('creation-incomplete');
