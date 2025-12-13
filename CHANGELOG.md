@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.10] - 2025-01-XX
+
+### Fixed
+- **XP Management Settings defaultOptions**: Fixed mergeObject error by ensuring baseOptions is always an object
+  - Changed `super.defaultOptions` to `super.defaultOptions || {}` to handle undefined cases
+- **Version Display**: Updated version display from "0.0.78 (Alpha)" to "0.1.9" in console output
+
 ## [0.1.9] - 2025-01-XX
 
 ### Fixed
