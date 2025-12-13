@@ -2,7 +2,9 @@
  * XP Management Settings Application
  * Allows GM to view character XP spending and grant XP allowances
  */
-export class XpManagementSettings extends Application {
+// Use ApplicationV2 if available, otherwise fall back to Application
+const BaseApplication = foundry?.applications?.api?.ApplicationV2 || Application;
+export class XpManagementSettings extends BaseApplication {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
             id: 'mastery-xp-management',
@@ -20,8 +22,8 @@ export class XpManagementSettings extends Application {
             ]
         });
     }
-    getData(_options) {
-        const data = {};
+    getData(options) {
+        const data = super.getData ? super.getData(options) : {};
         // Get all player characters
         const characters = game.actors?.filter((actor) => actor.type === 'character') || [];
         // Prepare character data with XP information
