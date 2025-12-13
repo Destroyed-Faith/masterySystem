@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.8] - 2025-01-XX
+
+### Fixed
+- **Armor Calculation**: Updated armor calculation to include Mastery Rank as base armor
+  - Total Armor = Mastery Rank (base) + Armor Value (equipped armor) + Shield Value (equipped shield)
+  - Formula display updated to show "MR + Armor + Shield"
+  - Examples: No armor = MR (e.g., 2), Light Armor = MR + 4 (e.g., 6), With Shield = MR + Armor + Shield
+
 ## [0.1.7] - 2025-01-XX
 
 ### Added
