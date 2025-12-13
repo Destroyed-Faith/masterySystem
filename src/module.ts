@@ -207,6 +207,11 @@ function registerHandlebarsHelpers() {
     if (!Array.isArray(array)) return false;
     return array.includes(value);
   });
+
+  // Helper to get type of value
+  Handlebars.registerHelper('typeof', function(value: any) {
+    return typeof value;
+  });
 }
 
 /**

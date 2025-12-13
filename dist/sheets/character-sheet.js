@@ -295,10 +295,18 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 selectedPowers.length === 4 &&
                 powersAtRank2.length === 2
         };
-        console.log('Mastery System | getData - Creation Object:', {
+        console.log('Mastery System | getData - Final Context Check:', {
             creationComplete: context.creationComplete,
-            creation: context.creation,
-            itemsPowers: items.powers?.length || 0
+            creationCompleteType: typeof context.creationComplete,
+            creationCompleteValue: String(context.creationComplete),
+            systemCreationComplete: context.system.creation?.complete,
+            creation: {
+                treesSelected: context.creation?.treesSelected,
+                powersSelected: context.creation?.powersSelected,
+                powersAtRank2: context.creation?.powersAtRank2
+            },
+            itemsPowers: items.powers?.length || 0,
+            willShowCreationUI: !context.creationComplete
         });
         // Get Mastery Rank from settings (per player or global default)
         const playerMasteryRanks = game.settings.get('mastery-system', 'playerMasteryRanks') || {};

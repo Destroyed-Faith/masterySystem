@@ -639,7 +639,10 @@
     <!-- POWERS TAB -->
     <div class="tab powers" data-group="primary" data-tab="powers">
       
+      <!-- DEBUG: creationComplete = {{creationComplete}}, type = {{typeof creationComplete}}, system.creation.complete = {{system.creation.complete}} -->
+      
       {{#unless creationComplete}}
+      <!-- DEBUG: creationComplete is FALSE, showing creation UI -->
       <!-- CHARACTER CREATION: Powers & Magic Selection -->
       <div class="creation-powers-section">
         <div class="creation-banner">
@@ -725,7 +728,8 @@
           {{/if}}
         </div>
       </div>
-      {{else}}
+      {{/unless}}
+      {{#if creationComplete}}
       <!-- NORMAL POWERS TAB (After Creation) -->
       <div class="powers-overview">
         <h3><i class="fas fa-magic"></i> Mastery Powers</h3>
@@ -763,7 +767,7 @@
           <p class="empty-message">No powers yet. Click "Add Power" to start.</p>
         {{/if}}
       </div>
-      {{/unless}}
+      {{/if}}
       
     </div>
     

@@ -173,6 +173,10 @@ function registerHandlebarsHelpers() {
             return false;
         return array.includes(value);
     });
+    // Helper to get type of value
+    Handlebars.registerHelper('typeof', function (value) {
+        return typeof value;
+    });
 }
 /**
  * Register system settings
