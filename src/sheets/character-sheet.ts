@@ -415,7 +415,35 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('.finalize-creation').on('click', this.#onFinalizeCreation.bind(this));
     
     // Disadvantages buttons (only during creation)
-    html.find('.add-disadvantage-btn').on('click', this.#onAddDisadvantage.bind(this));
+    const addDisadvantageBtn = html.find('.add-disadvantage-btn');
+    console.log('Mastery System | Setting up add-disadvantage-btn listener', {
+      buttonFound: addDisadvantageBtn.length,
+      buttonElement: addDisadvantageBtn[0],
+      isDisabled: addDisadvantageBtn.prop('disabled'),
+      creationComplete: creationComplete
+    });
+    
+    if (addDisadvantageBtn.length > 0) {
+      addDisadvantageBtn.off('click.add-disadvantage').on('click.add-disadvantage', (e: JQuery.ClickEvent) => {
+        console.log('Mastery System | add-disadvantage-btn clicked!', {
+          event: e,
+          target: e.target,
+          currentTarget: e.currentTarget,
+          isDefaultPrevented: e.isDefaultPrevented()
+        });
+        this.#onAddDisadvantage(e);
+      });
+      // Also try direct binding as fallback
+      addDisadvantageBtn.on('click', (e: JQuery.ClickEvent) => {
+        console.log('Mastery System | add-disadvantage-btn clicked (direct binding)', e);
+        e.preventDefault();
+        e.stopPropagation();
+        this.#onAddDisadvantage(e);
+      });
+    } else {
+      console.warn('Mastery System | add-disadvantage-btn not found in HTML!');
+    }
+    
     html.find('.disadvantage-edit-btn').on('click', this.#onEditDisadvantage.bind(this));
     html.find('.disadvantage-remove-btn').on('click', this.#onRemoveDisadvantage.bind(this));
     
@@ -1218,14 +1246,33 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    * Only disable non-creation fields, allow creation controls
    */
   #lockSheetForCreation(html: JQuery) {
+    console.log('Mastery System | #lockSheetForCreation called');
+    
     // Disable non-creation inputs (name, bio, etc.)
     html.find('input[name="name"], textarea, select').prop('disabled', true);
     
     // Disable buttons except creation controls
-    html.find('button:not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.force-unlock-creation)').prop('disabled', true);
+    const buttonsToDisable = html.find('button:not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.force-unlock-creation):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn)');
+    console.log('Mastery System | Disabling buttons:', buttonsToDisable.length);
+    buttonsToDisable.prop('disabled', true);
     
     // Ensure creation buttons are enabled
-    html.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .force-unlock-creation').prop('disabled', false);
+    const creationButtons = html.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .force-unlock-creation, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn');
+    console.log('Mastery System | Enabling creation buttons:', {
+      total: creationButtons.length,
+      addDisadvantageBtn: html.find('.add-disadvantage-btn').length,
+      addDisadvantageBtnDisabled: html.find('.add-disadvantage-btn').prop('disabled')
+    });
+    creationButtons.prop('disabled', false);
+    
+    // Double-check add-disadvantage-btn is enabled
+    const addBtn = html.find('.add-disadvantage-btn');
+    if (addBtn.length > 0) {
+      addBtn.prop('disabled', false);
+      console.log('Mastery System | add-disadvantage-btn explicitly enabled, final state:', addBtn.prop('disabled'));
+    } else {
+      console.warn('Mastery System | add-disadvantage-btn not found during lockSheetForCreation!');
+    }
     
     // Add CSS class for styling
     html.addClass('creation-incomplete');
@@ -1412,17 +1459,44 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    * Add Disadvantage during Creation
    */
   async #onAddDisadvantage(event: JQuery.ClickEvent) {
+    console.log('Mastery System | ========== #onAddDisadvantage START ==========');
+    console.log('Mastery System | Event details:', {
+      type: event.type,
+      target: event.target,
+      currentTarget: event.currentTarget,
+      isDefaultPrevented: event.isDefaultPrevented(),
+      isPropagationStopped: event.isPropagationStopped()
+    });
+    
     event.preventDefault();
+    event.stopPropagation();
+    
+    console.log('Mastery System | Actor details:', {
+      actorId: this.actor.id,
+      actorName: this.actor.name,
+      isOwner: this.actor.isOwner,
+      system: this.actor.system
+    });
     
     // Debug: Check if DISADVANTAGES is loaded
-    console.log('Mastery System | DISADVANTAGES:', DISADVANTAGES);
-    console.log('Mastery System | DISADVANTAGES length:', DISADVANTAGES?.length || 0);
+    console.log('Mastery System | DISADVANTAGES check:', {
+      exists: typeof DISADVANTAGES !== 'undefined',
+      isArray: Array.isArray(DISADVANTAGES),
+      length: DISADVANTAGES?.length || 0,
+      content: DISADVANTAGES
+    });
     
     if (!DISADVANTAGES || DISADVANTAGES.length === 0) {
-      ui.notifications?.error('Disadvantages list is not loaded. Please check the console for errors.');
-      console.error('Mastery System | DISADVANTAGES is empty or undefined!');
+      const errorMsg = 'Disadvantages list is not loaded. Please check the console for errors.';
+      console.error('Mastery System | ERROR: DISADVANTAGES is empty or undefined!', {
+        DISADVANTAGES: DISADVANTAGES,
+        type: typeof DISADVANTAGES
+      });
+      ui.notifications?.error(errorMsg);
       return;
     }
+    
+    console.log('Mastery System | DISADVANTAGES loaded successfully, proceeding with dialog creation...');
     
     // Show selection dialog
     const disadvantageOptions = DISADVANTAGES.map(d => ({
@@ -1445,6 +1519,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       </form>
     `;
     
+    console.log('Mastery System | Creating Dialog with content:', {
+      contentLength: content.length,
+      optionsCount: disadvantageOptions.length,
+      firstOption: disadvantageOptions[0]
+    });
+    
     const dialog = new Dialog({
       title: 'Add Disadvantage',
       content,
@@ -1452,32 +1532,51 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         configure: {
           label: 'Configure',
           callback: async (html: JQuery) => {
+            console.log('Mastery System | Configure button clicked in dialog');
             const disadvantageId = html.find('[name="disadvantageId"]').val() as string;
+            console.log('Mastery System | Selected disadvantage ID:', disadvantageId);
+            
             if (!disadvantageId) {
               ui.notifications?.warn('Please select a disadvantage.');
               return false;
             }
             
             const def = getDisadvantageDefinition(disadvantageId);
+            console.log('Mastery System | Disadvantage definition:', def);
+            
             if (!def) {
               ui.notifications?.error(`Disadvantage definition not found for ID: ${disadvantageId}`);
               return false;
             }
             
             // Open configuration dialog
+            console.log('Mastery System | Opening configuration dialog for:', def.name);
             await this.#openDisadvantageConfigDialog(def);
             return true;
           }
         },
         cancel: {
           label: 'Cancel',
-          callback: () => {}
+          callback: () => {
+            console.log('Mastery System | Dialog cancelled');
+          }
         }
       },
-      default: 'configure'
+      default: 'configure',
+      render: (html: JQuery) => {
+        console.log('Mastery System | Dialog rendered, HTML:', html);
+      }
     } as any);
     
-    await dialog.render(true);
+    console.log('Mastery System | Dialog created, calling render(true)...');
+    try {
+      await dialog.render(true);
+      console.log('Mastery System | Dialog rendered successfully!');
+    } catch (error) {
+      console.error('Mastery System | ERROR rendering dialog:', error);
+      ui.notifications?.error('Failed to open disadvantage dialog. Check console for details.');
+    }
+    console.log('Mastery System | ========== #onAddDisadvantage END ==========');
   }
 
   /**

@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.96] - 2025-01-XX
+
+### Fixed
+- **Disadvantages Button**: Fixed "Add Disadvantage" button being disabled during character creation
+  - Updated `#lockSheetForCreation` to allow disadvantage buttons
+  - Added extensive debug logging to track button state and event handling
+  - Button now properly enabled and clickable during character creation
+
+### Added
+- **Debug Logging**: Comprehensive logging for disadvantage system
+  - Logs when button listeners are set up
+  - Logs button state (enabled/disabled)
+  - Logs when button is clicked
+  - Logs DISADVANTAGES array loading
+  - Logs dialog creation and rendering
+  - Helps diagnose issues with disadvantage selection
+
 ## [0.0.95] - 2025-01-XX
 
 ### Fixed

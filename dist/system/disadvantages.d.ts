@@ -25,6 +25,8 @@ export interface DisadvantageDefinition {
 }
 /**
  * All available Disadvantages
+ * Based on Mastery System rules - players can select 0-8 points of disadvantages
+ * Disadvantage Points = Starting Faith Fractures (both current and maximum)
  */
 export declare const DISADVANTAGES: DisadvantageDefinition[];
 /**
