@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.2] - 2025-01-XX
+
+### Changed
+- Updated Schticks system to use per-rank table format
+  - Schticks now displayed as table with Rank, Schtick, and Manifestation columns
+  - One row per Mastery Rank (1 to current rank)
+  - Rank column includes tooltips with rank-specific descriptions and examples
+  - Manifestation field for custom descriptions per rank
+
 ## [0.1.1] - 2025-01-XX
 
 ### Added
