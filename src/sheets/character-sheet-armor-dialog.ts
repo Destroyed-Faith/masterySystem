@@ -64,9 +64,10 @@ export async function showArmorCreationDialog(actor: any): Promise<void> {
     </script>
   `;
   
-  const dialog = new (foundry.applications as any).Dialog({
+  const dialog = new (Dialog as any)({
     title: 'Add Armor',
     content: content,
+    classes: ['mastery-system', 'armor-creation-dialog'],
     buttons: {
       add: {
         icon: '<i class="fas fa-check"></i>',

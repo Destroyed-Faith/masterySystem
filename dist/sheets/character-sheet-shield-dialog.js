@@ -67,9 +67,10 @@ export async function showShieldCreationDialog(actor) {
       })();
     </script>
   `;
-    const dialog = new foundry.applications.Dialog({
+    const dialog = new Dialog({
         title: 'Add Shield',
         content: content,
+        classes: ['mastery-system', 'shield-creation-dialog'],
         buttons: {
             add: {
                 icon: '<i class="fas fa-check"></i>',

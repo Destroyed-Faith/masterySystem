@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.6] - 2025-01-XX
+
+### Fixed
+- **Dialog Constructor Errors**: Fixed TypeError for Weapon, Armor, and Shield creation dialogs
+  - Changed from `foundry.applications.Dialog` to global `Dialog` constructor
+  - Added TypeScript type casting to resolve compilation errors
+  - All equipment dialogs now properly open and function correctly
+
 ## [0.1.5] - 2025-01-XX
 
 ### Added

@@ -79,7 +79,7 @@ export async function showWeaponCreationDialog(actor) {
       })();
     </script>
   `;
-    const dialog = new foundry.applications.Dialog({
+    const dialog = new Dialog({
         title: 'Add Weapon',
         content: content,
         classes: ['mastery-system', 'weapon-creation-dialog'],

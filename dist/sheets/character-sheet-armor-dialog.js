@@ -60,9 +60,10 @@ export async function showArmorCreationDialog(actor) {
       })();
     </script>
   `;
-    const dialog = new foundry.applications.Dialog({
+    const dialog = new Dialog({
         title: 'Add Armor',
         content: content,
+        classes: ['mastery-system', 'armor-creation-dialog'],
         buttons: {
             add: {
                 icon: '<i class="fas fa-check"></i>',

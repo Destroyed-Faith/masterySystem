@@ -71,9 +71,10 @@ export async function showShieldCreationDialog(actor: any): Promise<void> {
     </script>
   `;
   
-  const dialog = new (foundry.applications as any).Dialog({
+  const dialog = new (Dialog as any)({
     title: 'Add Shield',
     content: content,
+    classes: ['mastery-system', 'shield-creation-dialog'],
     buttons: {
       add: {
         icon: '<i class="fas fa-check"></i>',

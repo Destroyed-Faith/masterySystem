@@ -84,7 +84,7 @@ export async function showWeaponCreationDialog(actor: Actor): Promise<void> {
     </script>
   `;
   
-  const dialog = new (foundry.applications as any).Dialog({
+  const dialog = new (Dialog as any)({
     title: 'Add Weapon',
     content: content,
     classes: ['mastery-system', 'weapon-creation-dialog'],
