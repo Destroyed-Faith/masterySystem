@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.0] - 2025-01-XX
+
+### Added
+- **Schticks System**: Added Schticks selection during character creation
+  - Inline Schticks UI under Attributes section
+  - 10 predefined Schticks with short descriptions and optional attribute affinity
+  - Validation requiring exactly 2 Schticks to be selected
+  - Schticks counter and validation messages
+  - Schticks display after character creation is complete
+- **Tree Bonuses Display**: Enhanced "Selected Trees" section to show all tree bonuses, focus, and roles
+  - Tree cards with detailed information
+  - Bonus highlighting with visual styling
+  - Support for both Mastery Trees and Spell Schools
+- **Handlebars Helper**: Added `ne` (not equal) helper for template comparisons
+
+### Changed
+- **Powers Tab**: Unified Powers & Magic into single tab
+  - Removed separate Magic tab
+  - "Add Mastery Power" and "Add Spell" buttons always visible
+  - Creation and normal modes properly separated
+- **Power Creation Dialog**: Improved styling and dynamic sizing
+  - CSS classes for better styling
+  - Dynamic height/width based on content
+  - Better visual feedback and hover effects
+
+### Fixed
+- Character creation power/spell buttons now properly enabled during creation
+- Template structure corrected for creation vs normal mode display
+
 ## [0.0.99] - 2025-01-XX
 
 ### Fixed
