@@ -94,6 +94,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      */
     async #onPowerAddCreation(event) {
         event.preventDefault();
+        console.log('Mastery System | #onPowerAddCreation called', {
+            actorId: this.actor.id,
+            creationComplete: this.actor.system?.creation?.complete
+        });
         await this.#openPowerDialogCreation('mastery');
     }
     /**
@@ -101,16 +105,29 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      */
     async #onSpellAddCreation(event) {
         event.preventDefault();
+        console.log('Mastery System | #onSpellAddCreation called', {
+            actorId: this.actor.id,
+            creationComplete: this.actor.system?.creation?.complete
+        });
         await this.#openPowerDialogCreation('magic');
     }
     /**
      * Open Power Creation Dialog with creation limits enforced
      */
     async #openPowerDialogCreation(context) {
+        console.log('Mastery System | #openPowerDialogCreation called', {
+            context,
+            actorId: this.actor.id,
+            creationComplete: this.actor.system?.creation?.complete
+        });
         try {
             const dialogModule = await import('../../dist/sheets/character-sheet-power-dialog.js');
+            console.log('Mastery System | Power dialog module loaded', {
+                hasShowPowerCreationDialog: !!dialogModule?.showPowerCreationDialog
+            });
             // Use the regular dialog - it now enforces creation limits automatically
             await dialogModule.showPowerCreationDialog(this.actor, context);
+            console.log('Mastery System | Power dialog closed, re-rendering');
             // Re-render to update counters
             this.render();
         }
@@ -205,7 +222,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         context.flags = actorData.flags;
         // Check if character creation is complete
         // If complete is undefined, treat as incomplete (new character)
-        context.creationComplete = context.system.creation?.complete === true;
+        const creationCompleteRaw = context.system.creation?.complete;
+        context.creationComplete = creationCompleteRaw === true;
+        console.log('Mastery System | getData - Creation Status:', {
+            creationCompleteRaw,
+            creationComplete: context.creationComplete,
+            systemCreation: context.system.creation,
+            hasCreation: !!context.system.creation
+        });
         // Calculate creation point counters (always calculate, but only show if not complete)
         const masteryRank = context.system.mastery?.rank || 2;
         const skillPointsConfig = CONFIG.MASTERY?.creation?.skillPoints || 16;
@@ -238,6 +262,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             return selectedTrees.length === 0 || selectedTrees.includes(tree);
         });
         const powersAtRank2 = selectedPowers.filter((p) => (p.system?.level || 1) === 2);
+        console.log('Mastery System | getData - Powers Status:', {
+            totalPowers: powers.length,
+            selectedTrees: selectedTrees,
+            selectedTreesCount: selectedTrees.length,
+            selectedPowersCount: selectedPowers.length,
+            powersAtRank2Count: powersAtRank2.length,
+            creationComplete: context.creationComplete
+        });
         // Always provide creation data for template (even if complete)
         context.creation = {
             masteryRank,
@@ -263,6 +295,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 selectedPowers.length === 4 &&
                 powersAtRank2.length === 2
         };
+        console.log('Mastery System | getData - Creation Object:', {
+            creationComplete: context.creationComplete,
+            creation: context.creation,
+            itemsPowers: items.powers?.length || 0
+        });
         // Get Mastery Rank from settings (per player or global default)
         const playerMasteryRanks = game.settings.get('mastery-system', 'playerMasteryRanks') || {};
         const defaultMasteryRank = game.settings.get('mastery-system', 'defaultMasteryRank') || 2;
