@@ -15,7 +15,8 @@ else {
 }
 export class XpManagementSettings extends BaseApplication {
     static get defaultOptions() {
-        return foundry.utils.mergeObject(super.defaultOptions, {
+        const baseOptions = super.defaultOptions || {};
+        return foundry.utils.mergeObject(baseOptions, {
             id: 'mastery-xp-management',
             title: 'Character XP Management',
             template: 'systems/mastery-system/templates/settings/xp-management.hbs',
