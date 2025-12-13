@@ -427,11 +427,17 @@ function setupXpManagementInline() {
         htmlContent += `<span class="xp-spent">Spent: <strong>${attributeXPSpent}</strong></span> `;
         htmlContent += `<span class="xp-available">Available: <strong>${attributeXPAvailable}</strong></span> `;
         htmlContent += `<span class="xp-total">Total: <strong>${attributeXPSpent + attributeXPAvailable}</strong></span>`;
+        if (attributeXPAvailable > 0) {
+          htmlContent += `<button type="button" class="remove-xp-btn" data-character-id="${actor.id}" data-xp-type="attribute" data-amount="${attributeXPAvailable}" title="Remove all available Attribute XP"><i class="fas fa-minus"></i> Remove All</button>`;
+        }
         htmlContent += `</div></td>`;
         htmlContent += `<td class="xp-cell mastery-xp"><div class="xp-info">`;
         htmlContent += `<span class="xp-spent">Spent: <strong>${masteryXPSpent}</strong></span> `;
         htmlContent += `<span class="xp-available">Available: <strong>${masteryXPAvailable}</strong></span> `;
         htmlContent += `<span class="xp-total">Total: <strong>${masteryXPSpent + masteryXPAvailable}</strong></span>`;
+        if (masteryXPAvailable > 0) {
+          htmlContent += `<button type="button" class="remove-xp-btn" data-character-id="${actor.id}" data-xp-type="mastery" data-amount="${masteryXPAvailable}" title="Remove all available Mastery XP"><i class="fas fa-minus"></i> Remove All</button>`;
+        }
         htmlContent += `</div></td>`;
         htmlContent += `<td class="grant-cell"><div class="grant-controls">`;
         htmlContent += `<div class="grant-group"><input type="number" class="xp-amount-input" data-xp-type="attribute" data-character-id="${actor.id}" min="0" value="0" placeholder="AP" />`;
@@ -501,6 +507,36 @@ function setupXpManagementInline() {
       }
       
       ui.notifications?.info(`Granted ${amount} ${xpType === 'attribute' ? 'Attribute' : 'Mastery'} XP to ${updated} characters.`);
+      
+      // Re-render settings to update display
+      app.render();
+    });
+    
+    // Handle remove XP buttons
+    customContainer.find('.remove-xp-btn').on('click', async (event) => {
+      const button = $(event.currentTarget);
+      const characterId = button.data('character-id');
+      const xpType = button.data('xp-type');
+      const amount = parseInt(button.data('amount') as string) || 0;
+      
+      if (amount <= 0) {
+        ui.notifications?.warn('No XP to remove.');
+        return;
+      }
+      
+      const actor = (game as any).actors?.get(characterId);
+      if (!actor) {
+        ui.notifications?.error('Character not found.');
+        return;
+      }
+      
+      const currentPoints = (actor.system?.points?.[xpType] || 0);
+      const newPoints = Math.max(0, currentPoints - amount);
+      await actor.update({
+        [`system.points.${xpType}`]: newPoints
+      });
+      
+      ui.notifications?.info(`Removed ${amount} ${xpType === 'attribute' ? 'Attribute' : 'Mastery'} XP from ${actor.name}.`);
       
       // Re-render settings to update display
       app.render();
