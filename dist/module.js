@@ -17,6 +17,9 @@ import { initializeTokenActionSelector } from './token-action-selector.js';
 import { initializeTurnIndicator } from './turn-indicator.js';
 // Dice roller functions are imported in sheets where needed
 console.log('Mastery System | All imports completed');
+// Register Handlebars helpers immediately (before init hook)
+// This ensures they are available when templates are first rendered
+registerHandlebarsHelpersImmediate();
 /**
  * Initialize the Mastery System
  * This hook is called once when Foundry first starts up
@@ -60,8 +63,8 @@ Hooks.once('init', async function () {
     registerSystemSettings();
     // Register XP Management Settings
     registerXpManagementSettings();
-    // Register Handlebars helpers
-    registerHandlebarsHelpers();
+    // Handlebars helpers are already registered in registerHandlebarsHelpersImmediate()
+    // No need to register again here
     // Register CONFIG constants
     registerConfigConstants();
     // Initialize combat hooks (dynamically imported to avoid build errors)
@@ -89,9 +92,10 @@ Hooks.once('init', async function () {
     console.log('Mastery System | System initialized');
 });
 /**
- * Register Handlebars helpers
+ * Register Handlebars helpers immediately (before init)
+ * This ensures helpers are available when templates are first rendered
  */
-function registerHandlebarsHelpers() {
+function registerHandlebarsHelpersImmediate() {
     // Default/fallback helper: {{default value fallback}}
     Handlebars.registerHelper('default', function (value, fallback) {
         return value !== undefined && value !== null ? value : fallback;

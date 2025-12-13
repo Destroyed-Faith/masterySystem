@@ -22,6 +22,10 @@ import { initializeTurnIndicator } from './turn-indicator';
 
 console.log('Mastery System | All imports completed');
 
+// Register Handlebars helpers immediately (before init hook)
+// This ensures they are available when templates are first rendered
+registerHandlebarsHelpersImmediate();
+
 /**
  * Initialize the Mastery System
  * This hook is called once when Foundry first starts up
@@ -75,8 +79,8 @@ Hooks.once('init', async function() {
   // Register XP Management Settings
   registerXpManagementSettings();
   
-  // Register Handlebars helpers
-  registerHandlebarsHelpers();
+  // Handlebars helpers are already registered in registerHandlebarsHelpersImmediate()
+  // No need to register again here
 
   // Register CONFIG constants
   registerConfigConstants();
@@ -110,9 +114,10 @@ Hooks.once('init', async function() {
 });
 
 /**
- * Register Handlebars helpers
+ * Register Handlebars helpers immediately (before init)
+ * This ensures helpers are available when templates are first rendered
  */
-function registerHandlebarsHelpers() {
+function registerHandlebarsHelpersImmediate() {
   // Default/fallback helper: {{default value fallback}}
   Handlebars.registerHelper('default', function (value: any, fallback: any) {
     return value !== undefined && value !== null ? value : fallback;
