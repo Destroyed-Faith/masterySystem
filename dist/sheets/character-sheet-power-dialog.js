@@ -32,27 +32,27 @@ export async function showPowerCreationDialog(actor, context = 'mastery') {
     const categorySelectId = isMastery ? 'power-tree-select' : 'spell-school-select';
     const categoryGroupId = isMastery ? 'mastery-tree-group' : 'spell-school-group';
     const content = `
-    <form>
-      <div class="form-group" id="${categoryGroupId}">
-        <label>${categoryLabel}:</label>
-        <select name="${isMastery ? 'tree' : 'school'}" id="${categorySelectId}" style="width: 100%; margin-bottom: 10px;">
+    <form class="power-creation-form">
+      <div class="form-group power-form-group" id="${categoryGroupId}">
+        <label class="power-form-label">${categoryLabel}:</label>
+        <select name="${isMastery ? 'tree' : 'school'}" id="${categorySelectId}" class="power-form-select">
           <option value="">-- Select a ${categoryLabel} --</option>
           ${categoryOptions}
         </select>
       </div>
-      <div class="form-group" id="power-select-group" style="display: none;">
-        <label>Power:</label>
-        <select name="power" id="power-select" style="width: 100%; margin-bottom: 10px;">
+      <div class="form-group power-form-group" id="power-select-group" style="display: none;">
+        <label class="power-form-label">Power:</label>
+        <select name="power" id="power-select" class="power-form-select">
           <option value="">-- Select a Power --</option>
         </select>
       </div>
-      <div class="form-group" id="power-details" style="display: none; margin-top: 15px; padding: 10px; background: #f5f5f5; border-radius: 5px;">
-        <div id="power-description" style="margin-bottom: 10px; font-style: italic; color: #666;"></div>
-        <div id="power-level-info" style="font-size: 0.9em; color: #333;"></div>
+      <div class="form-group power-details-group" id="power-details" style="display: none;">
+        <div id="power-description" class="power-description-text"></div>
+        <div id="power-level-info" class="power-level-info-text"></div>
       </div>
-      <div class="form-group" id="level-select-group" style="display: none;">
-        <label>Level:</label>
-        <select name="level" id="power-level-select" style="width: 100%; margin-bottom: 10px;">
+      <div class="form-group power-form-group" id="level-select-group" style="display: none;">
+        <label class="power-form-label">Level:</label>
+        <select name="level" id="power-level-select" class="power-form-select">
           <option value="1">Level 1</option>
           <option value="2">Level 2</option>
           <option value="3">Level 3</option>
@@ -220,11 +220,30 @@ export async function showPowerCreationDialog(actor, context = 'mastery') {
         },
         default: 'create',
         render: async (html) => {
-            // Set dialog height to 300px - use setTimeout to ensure DOM is ready
+            // Add CSS classes and make dialog size dynamic based on content
             setTimeout(() => {
                 const dialogElement = html.closest('.window-app.dialog');
                 if (dialogElement.length) {
-                    dialogElement.css('height', '300px');
+                    // Add CSS classes
+                    dialogElement.addClass('mastery-system power-creation-dialog');
+                    // Remove fixed height to allow dynamic sizing
+                    dialogElement.css({
+                        'height': 'auto',
+                        'min-height': '200px',
+                        'max-height': '90vh',
+                        'width': 'auto',
+                        'min-width': '400px',
+                        'max-width': '600px'
+                    });
+                    // Ensure content area adjusts
+                    const contentElement = dialogElement.find('.window-content');
+                    if (contentElement.length) {
+                        contentElement.css({
+                            'height': 'auto',
+                            'max-height': 'calc(90vh - 100px)',
+                            'overflow-y': 'auto'
+                        });
+                    }
                 }
             }, 0);
             // Register event handlers after dialog is rendered

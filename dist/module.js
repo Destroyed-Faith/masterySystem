@@ -147,6 +147,10 @@ function registerHandlebarsHelpers() {
     Handlebars.registerHelper('eq', function (a, b) {
         return a === b;
     });
+    // Helper for not equal comparison
+    Handlebars.registerHelper('ne', function (a, b) {
+        return a !== b;
+    });
     // Helper to check if value is an array
     Handlebars.registerHelper('isArray', function (value) {
         return Array.isArray(value);
@@ -292,6 +296,7 @@ function registerConfigConstants() {
         CONFIG.MASTERY = {};
     }
     CONFIG.MASTERY.creation = {
+        schticksAllowed: 2, // Number of schticks players must choose during creation
         attributePoints: 16,
         skillPoints: 16, // Configurable - can be changed later
         maxAttributeAtCreation: 8,
@@ -307,6 +312,10 @@ Hooks.on('preCreateActor', async (actor, data, _options, _userId) => {
     if (actor.type === 'character') {
         if (!data.system) {
             data.system = {};
+        }
+        // Initialize schticks if not present
+        if (!data.system.schticks) {
+            data.system.schticks = { selected: [] };
         }
         if (!data.system.creation) {
             data.system.creation = {};

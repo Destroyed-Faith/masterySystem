@@ -12,6 +12,9 @@ import {
   calculateDisadvantagePoints,
   validateDisadvantageSelection
 } from '../system/disadvantages';
+import { getAllMasteryTrees } from '../utils/mastery-trees';
+import { getAllSpellSchools } from '../utils/spell-schools';
+import { getAllSchticks } from '../utils/schticks';
 
 // Use namespaced ActorSheet when available to avoid deprecation warnings
 const BaseActorSheet: any = (foundry as any)?.appv1?.sheets?.ActorSheet || (ActorSheet as any);
@@ -42,62 +45,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   /**
    * Add Spell → open magic power dialog
    */
-  async #onSpellAdd(event: JQuery.ClickEvent) {
-    event.preventDefault();
-    const creationComplete = (this.actor as any).system?.creation?.complete !== false;
-    if (!creationComplete) {
-      ui.notifications?.warn('Complete character creation first. Use the Powers & Magic tab during creation.');
-      return;
-    }
-    await this.#openMagicPowerDialog();
-  }
-
-  /**
-   * Open the prebuilt Magic Power Creation Dialog (dropdown of schools/powers)
-   */
-  async #openMagicPowerDialog(): Promise<void> {
-    try {
-      const dialogModule = await import('../../dist/sheets/character-sheet-power-dialog.js' as any);
-      if (dialogModule?.showPowerCreationDialog) {
-        await dialogModule.showPowerCreationDialog(this.actor, 'magic');
-      } else {
-        ui.notifications?.error('Magic power dialog not found.');
-      }
-    } catch (error) {
-      console.error('Mastery System | Failed to open magic power dialog', error);
-      ui.notifications?.error('Failed to open magic power selection dialog');
-    }
-  }
-
-  /**
-   * Add a new Power → open power dialog (Mastery Trees)
-   */
-  async #onPowerAdd(event: JQuery.ClickEvent) {
-    event.preventDefault();
-    const creationComplete = (this.actor as any).system?.creation?.complete !== false;
-    if (!creationComplete) {
-      ui.notifications?.warn('Complete character creation first. Use the Powers & Magic tab during creation.');
-      return;
-    }
-    await this.#openPowerDialog();
-  }
-
-  /**
-   * Open the Power Creation Dialog (dropdown of Mastery Trees/Powers)
-   */
-  async #openPowerDialog(): Promise<void> {
-    try {
-      const dialogModule = await import('../../dist/sheets/character-sheet-power-dialog.js' as any);
-      if (dialogModule?.showPowerCreationDialog) {
-        await dialogModule.showPowerCreationDialog(this.actor, 'mastery');
-      } else {
-        ui.notifications?.error('Power dialog not found.');
-      }
-    } catch (error) {
-      console.error('Mastery System | Failed to open power dialog', error);
-      ui.notifications?.error('Failed to open power selection dialog');
-    }
-  }
+  // Removed #onSpellAdd, #onPowerAdd, #openMagicPowerDialog, #openPowerDialog
+  // Now using #onPowerAddCreation and #onSpellAddCreation for all power/spell additions
 
   /**
    * Add Power during character creation
@@ -292,13 +241,67 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     });
     const powersAtRank2 = selectedPowers.filter((p: any) => (p.system?.level || 1) === 2);
     
+    // Load tree/school data with bonuses for selected trees
+    const allTrees = getAllMasteryTrees();
+    const allSchools = getAllSpellSchools();
+    
+    const selectedTreesData = selectedTrees.map((treeName: string) => {
+      // Try to find in mastery trees first
+      let treeData = allTrees.find((t: any) => t.name === treeName);
+      
+      if (treeData) {
+        return {
+          name: treeData.name,
+          type: 'mastery',
+          bonus: treeData.bonus || null,
+          focus: treeData.focus,
+          roles: treeData.roles || []
+        };
+      }
+      
+      // Try spell schools
+      const schoolData = allSchools.find((s: any) => s.name === treeName || s.fullName === treeName);
+      
+      if (schoolData) {
+        return {
+          name: schoolData.name,
+          type: 'spell',
+          bonus: schoolData.bonus || null,
+          focus: schoolData.focus,
+          roles: schoolData.roles || []
+        };
+      }
+      
+      // Fallback if not found
+      return {
+        name: treeName,
+        type: 'unknown',
+        bonus: null,
+        focus: '',
+        roles: []
+      };
+    });
+    
     console.log('Mastery System | getData - Powers Status:', {
       totalPowers: powers.length,
       selectedTrees: selectedTrees,
       selectedTreesCount: selectedTrees.length,
       selectedPowersCount: selectedPowers.length,
       powersAtRank2Count: powersAtRank2.length,
-      creationComplete: context.creationComplete
+      creationComplete: context.creationComplete,
+      selectedTreesData: selectedTreesData
+    });
+    
+    // Schticks data
+    const schticksAllowed = (CONFIG as any).MASTERY?.creation?.schticksAllowed || 2;
+    const selectedSchticks = context.system.schticks?.selected || [];
+    const availableSchticks = getAllSchticks();
+    const schticksValidation = this.#validateSchticksSelection(selectedSchticks, schticksAllowed);
+    
+    // Create lookup map for schticks by ID
+    const availableSchticksById: Record<string, any> = {};
+    availableSchticks.forEach((s: any) => {
+      availableSchticksById[s.id] = s;
     });
     
     // Always provide creation data for template (even if complete)
@@ -318,13 +321,21 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       powersAtRank2: powersAtRank2.length,
       powersAtRank2Required: 2,
       selectedTrees: selectedTrees,
+      selectedTreesData: selectedTreesData,
+      schticksSelected: selectedSchticks.length,
+      schticksRequired: schticksAllowed,
+      selectedSchticks: selectedSchticks,
+      availableSchticks: availableSchticks,
+      availableSchticksById: availableSchticksById,
+      schticksValid: schticksValidation.ok,
       powersValid: selectedTrees.length === 2 && selectedPowers.length === 4 && powersAtRank2.length === 2,
       canFinalize: attributePointsSpent === 16 && 
                    skillPointsSpent === skillPointsConfig && 
                    disadvantagesReviewed &&
                    selectedTrees.length === 2 && 
                    selectedPowers.length === 4 && 
-                   powersAtRank2.length === 2
+                   powersAtRank2.length === 2 &&
+                   schticksValidation.ok
     };
     
     console.log('Mastery System | getData - Final Context Check:', {
@@ -470,6 +481,79 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   /**
+   * Validate schticks selection
+   */
+  #validateSchticksSelection(selected: string[], allowed: number): { ok: boolean; message?: string } {
+    if (selected.length < allowed) {
+      return {
+        ok: false,
+        message: `You must select exactly ${allowed} schticks. Currently selected: ${selected.length}`
+      };
+    }
+    if (selected.length > allowed) {
+      return {
+        ok: false,
+        message: `You can only select ${allowed} schticks. Currently selected: ${selected.length}`
+      };
+    }
+    return { ok: true };
+  }
+
+  /**
+   * Handle schtick checkbox toggle
+   */
+  async #onSchtickToggle(event: JQuery.ChangeEvent) {
+    const checkbox = event.currentTarget as HTMLInputElement;
+    const schtickId = checkbox.dataset.schtickId;
+    if (!schtickId) return;
+    
+    const currentSelected = (this.actor as any).system?.schticks?.selected || [];
+    const schticksAllowed = (CONFIG as any).MASTERY?.creation?.schticksAllowed || 2;
+    
+    console.log('Mastery System | Schtick toggle:', {
+      schtickId,
+      checked: checkbox.checked,
+      currentSelected: currentSelected.length,
+      allowed: schticksAllowed
+    });
+    
+    let newSelected: string[];
+    if (checkbox.checked) {
+      // Add schtick
+      if (currentSelected.length >= schticksAllowed) {
+        ui.notifications?.warn(`You can only select ${schticksAllowed} schticks.`);
+        checkbox.checked = false;
+        return;
+      }
+      newSelected = [...currentSelected, schtickId];
+    } else {
+      // Remove schtick
+      newSelected = currentSelected.filter((id: string) => id !== schtickId);
+    }
+    
+    const validation = this.#validateSchticksSelection(newSelected, schticksAllowed);
+    if (!validation.ok && checkbox.checked) {
+      console.log('Mastery System | Schticks validation failed:', validation.message);
+      ui.notifications?.warn(validation.message || 'Invalid schticks selection');
+      checkbox.checked = false;
+      return;
+    }
+    
+    // Update actor
+    await (this.actor as any).update({
+      'system.schticks.selected': newSelected
+    });
+    
+    console.log('Mastery System | Schticks updated:', {
+      newSelected,
+      count: newSelected.length
+    });
+    
+    // Re-render to update UI
+    this.render();
+  }
+
+  /**
    * Calculate derived values for display
    */
   #calculateDerivedValues(system: any) {
@@ -574,6 +658,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('.skill-increase').on('click', this.#onCreationSkillIncrease.bind(this));
     html.find('.skill-decrease').on('click', this.#onCreationSkillDecrease.bind(this));
     html.find('.finalize-creation').on('click', this.#onFinalizeCreation.bind(this));
+    
+    // Schticks selection
+    html.find('.schtick-checkbox').on('change', this.#onSchtickToggle.bind(this));
     
     // Disadvantages buttons (only during creation)
     const addDisadvantageBtn = html.find('.add-disadvantage-btn');
@@ -748,7 +835,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('.skill-add').on('click', this.#onSkillAdd.bind(this));
 
     // Add power
-    html.find('.add-power-btn').on('click', this.#onPowerAdd.bind(this));
+    // Power/Spell creation buttons (always visible)
     html.find('.add-power-creation-btn').on('click', this.#onPowerAddCreation.bind(this));
     html.find('.add-spell-creation-btn').on('click', this.#onSpellAddCreation.bind(this));
     html.find('.power-rank-select').on('change', this.#onPowerRankChange.bind(this));
@@ -759,7 +846,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('.equipment-item input[name="equipped"]').on('change', this.#onEquipmentToggle.bind(this));
 
     // Add spell
-    html.find('.add-spell-btn').on('click', this.#onSpellAdd.bind(this));
+    // Removed add-spell-btn handler - using add-spell-creation-btn instead
     
     // Delete skill
     html.find('.skill-delete').on('click', this.#onSkillDelete.bind(this));
@@ -1968,12 +2055,28 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       return;
     }
     
+    // Validate schticks
+    const schticksAllowed = (CONFIG as any).MASTERY?.creation?.schticksAllowed || 2;
+    const selectedSchticks = system.schticks?.selected || [];
+    const schticksValidation = this.#validateSchticksSelection(selectedSchticks, schticksAllowed);
+    if (!schticksValidation.ok) {
+      ui.notifications?.error(schticksValidation.message || 'Invalid schticks selection');
+      return;
+    }
+    
+    console.log('Mastery System | Finalizing character creation - persisting schticks:', selectedSchticks);
+    
     // Sync Faith Fractures: Disadvantage Points = Starting Faith Fractures (both current and maximum)
     const updateData: any = {
       'system.creation.complete': true,
       'system.faithFractures.current': disadvantagePoints,
       'system.faithFractures.maximum': disadvantagePoints
     };
+    
+    // Ensure schticks are persisted (they should already be set, but ensure they're in the update)
+    if (selectedSchticks.length > 0) {
+      updateData['system.schticks.selected'] = selectedSchticks;
+    }
     
     try {
       await this.actor.update(updateData);

@@ -121,7 +121,6 @@
     <a class="item" data-tab="attributes"><i class="fas fa-fist-raised"></i> Attributes</a>
     <a class="item" data-tab="skills"><i class="fas fa-cogs"></i> Skills</a>
     <a class="item" data-tab="powers"><i class="fas fa-magic"></i> Powers</a>
-    <a class="item" data-tab="magic"><i class="fas fa-hat-wizard"></i> Magic</a>
     <a class="item" data-tab="equipment"><i class="fas fa-shield-alt"></i> Equipment</a>
     <a class="item" data-tab="disadvantages"><i class="fas fa-exclamation-triangle"></i> Disadvantages</a>
     <a class="item" data-tab="biography"><i class="fas fa-scroll"></i> Bio</a>
@@ -442,25 +441,6 @@
           {{/with}}
           
         </div>
-        
-        <!-- Total Stones Summary -->
-        <div class="stones-summary">
-          <div class="stones-summary-content">
-            <div class="stones-summary-item">
-              <h4><i class="fas fa-gem"></i> Total Stones</h4>
-              <div class="stones-total">
-                <span class="current">{{default resources.stones.current 0}}</span> / 
-                <span class="maximum">{{default resources.stones.maximum 0}}</span>
-              </div>
-            </div>
-            <div class="stones-summary-item">
-              <h4><i class="fas fa-sync-alt"></i> Regeneration</h4>
-              <div class="stones-regen">
-                {{default resources.stones.regeneration 2}} per round
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
       
       <!-- Combat Stats Section -->
@@ -569,13 +549,78 @@
             </button>
           </div>
         </div>
+      </div>
+      
+      {{#unless creationComplete}}
+      <!-- Schticks Selection (Character Creation) -->
+      <div class="schticks-section">
+        <h3><i class="fas fa-star"></i> Schticks</h3>
+        <div class="schticks-header">
+          <div class="schticks-counter">
+            <span class="counter-label">Schticks:</span>
+            <span class="counter-value {{#if (eq creation.schticksSelected creation.schticksRequired)}}valid{{else}}invalid{{/if}}">
+              {{creation.schticksSelected}} / {{creation.schticksRequired}}
+            </span>
+          </div>
+          {{#if (ne creation.schticksSelected creation.schticksRequired)}}
+          <div class="schticks-validation-message">
+            <i class="fas fa-exclamation-triangle"></i> Please select exactly {{creation.schticksRequired}} schticks.
+          </div>
+          {{/if}}
+        </div>
         
-        <div class="save-explanation">
-          <p><strong>Body:</strong> Resist poison, disease, exhaustion</p>
-          <p><strong>Mind:</strong> Resist fear, charm, confusion</p>
-          <p><strong>Spirit:</strong> Resist curses, divine effects</p>
+        <div class="schticks-list">
+          {{#each creation.availableSchticks}}
+          <div class="schtick-item">
+            <label class="schtick-checkbox-label">
+              <input 
+                type="checkbox" 
+                class="schtick-checkbox" 
+                data-schtick-id="{{this.id}}"
+                {{#if (contains ../creation.selectedSchticks this.id)}}checked{{/if}}
+                {{#if (and (not (contains ../creation.selectedSchticks this.id)) (eq ../creation.schticksSelected ../creation.schticksRequired))}}disabled{{/if}}
+              />
+              <div class="schtick-content">
+                <div class="schtick-name">{{this.name}}</div>
+                <div class="schtick-short">{{this.short}}</div>
+                {{#if this.relatedAttribute}}
+                <div class="schtick-attribute">
+                  <i class="fas fa-link"></i> Related to: {{this.relatedAttribute}}
+                </div>
+                {{/if}}
+              </div>
+            </label>
+          </div>
+          {{/each}}
         </div>
       </div>
+      {{/unless}}
+      
+      {{#if creationComplete}}
+      <!-- Schticks Display (After Creation) -->
+      {{#if system.schticks.selected}}
+      <div class="schticks-section schticks-display">
+        <h3><i class="fas fa-star"></i> Schticks</h3>
+        <div class="schticks-list">
+          {{#each system.schticks.selected}}
+          {{#with (lookup ../creation.availableSchticksById this)}}
+          <div class="schtick-item schtick-display-item">
+            <div class="schtick-content">
+              <div class="schtick-name">{{this.name}}</div>
+              <div class="schtick-short">{{this.short}}</div>
+              {{#if this.relatedAttribute}}
+              <div class="schtick-attribute">
+                <i class="fas fa-link"></i> Related to: {{this.relatedAttribute}}
+              </div>
+              {{/if}}
+            </div>
+          </div>
+          {{/with}}
+          {{/each}}
+        </div>
+      </div>
+      {{/if}}
+      {{/if}}
       
     </div>
     
@@ -639,14 +684,24 @@
     <!-- POWERS TAB -->
     <div class="tab powers" data-group="primary" data-tab="powers">
       
-      <!-- DEBUG: creationComplete = {{creationComplete}}, type = {{typeof creationComplete}}, system.creation.complete = {{system.creation.complete}} -->
+      <!-- Buttons always visible -->
+      <div class="powers-overview">
+        <h3><i class="fas fa-magic"></i> Powers & Magic</h3>
+        <div class="powers-controls">
+          <button type="button" class="add-power-creation-btn" title="Add Power from Mastery Tree">
+            <i class="fas fa-plus"></i> Add Mastery Power
+          </button>
+          <button type="button" class="add-spell-creation-btn" title="Add Spell from Spell School">
+            <i class="fas fa-plus"></i> Add Spell
+          </button>
+        </div>
+      </div>
       
       {{#unless creationComplete}}
-      <!-- DEBUG: creationComplete is FALSE, showing creation UI -->
-      <!-- CHARACTER CREATION: Powers & Magic Selection -->
+      <!-- CHARACTER CREATION: Powers & Magic Selection Status -->
       <div class="creation-powers-section">
         <div class="creation-banner">
-          <h3><i class="fas fa-magic"></i> Powers & Magic Selection</h3>
+          <h3><i class="fas fa-magic"></i> Character Creation: Powers & Magic Selection</h3>
           <div class="creation-status">
             <div class="status-item">
               <label>Trees Selected:</label>
@@ -679,27 +734,43 @@
           </ul>
         </div>
         
-        <div class="creation-controls">
-          <button type="button" class="add-power-creation-btn" title="Add Power from Mastery Tree">
-            <i class="fas fa-plus"></i> Add Mastery Power
-          </button>
-          <button type="button" class="add-spell-creation-btn" title="Add Spell from Spell School">
-            <i class="fas fa-plus"></i> Add Spell
-          </button>
-        </div>
-        
-        {{#if creation.selectedTrees}}
+        {{#if creation.selectedTreesData}}
         <div class="selected-trees">
           <h4>Selected Trees:</h4>
-          <ul>
-            {{#each creation.selectedTrees}}
-            <li>{{this}}</li>
+          <div class="trees-list">
+            {{#each creation.selectedTreesData}}
+            <div class="tree-card">
+              <div class="tree-header">
+                <h5 class="tree-name">{{this.name}}</h5>
+                <span class="tree-type">{{#if (eq this.type "spell")}}Spell School{{else}}Mastery Tree{{/if}}</span>
+              </div>
+              {{#if this.focus}}
+              <div class="tree-focus">
+                <strong>Focus:</strong> {{this.focus}}
+              </div>
+              {{/if}}
+              {{#if this.roles}}
+              <div class="tree-roles">
+                <strong>Roles:</strong> {{#each this.roles}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
+              </div>
+              {{/if}}
+              {{#if this.bonus}}
+              <div class="tree-bonus">
+                <strong>Tree Bonus:</strong>
+                <div class="bonus-text">{{this.bonus}}</div>
+              </div>
+              {{else}}
+              <div class="tree-bonus no-bonus">
+                <em>No tree bonus defined</em>
+              </div>
+              {{/if}}
+            </div>
             {{/each}}
-          </ul>
+          </div>
         </div>
         {{/if}}
         
-        <!-- Selected Powers List -->
+        <!-- Selected Powers List (Creation Mode) -->
         <div class="creation-powers-list">
           <h4>Selected Powers:</h4>
           {{#if items.powers}}
@@ -729,16 +800,9 @@
         </div>
       </div>
       {{/unless}}
-      {{#if creationComplete}}
-      <!-- NORMAL POWERS TAB (After Creation) -->
-      <div class="powers-overview">
-        <h3><i class="fas fa-magic"></i> Mastery Powers</h3>
-        <button type="button" class="add-power-btn" title="Add New Power">
-          <i class="fas fa-plus"></i> Add Power
-        </button>
-      </div>
       
-      <!-- Powers List -->
+      {{#if creationComplete}}
+      <!-- Powers List (Normal Mode) -->
       <div class="powers-list-section">
         {{#if items.powers}}
           {{#each items.powers}}
@@ -764,52 +828,10 @@
             </div>
           {{/each}}
         {{else}}
-          <p class="empty-message">No powers yet. Click "Add Power" to start.</p>
+          <p class="empty-message">No powers yet. Click "Add Mastery Power" or "Add Spell" to start.</p>
         {{/if}}
       </div>
       {{/if}}
-      
-    </div>
-    
-    <!-- MAGIC TAB -->
-    <div class="tab magic" data-group="primary" data-tab="magic">
-      
-      <div class="magic-overview">
-        <h3><i class="fas fa-hat-wizard"></i> Spell Schools</h3>
-        <button type="button" class="add-spell-btn" title="Add New Spell">
-          <i class="fas fa-plus"></i> Add Spell
-        </button>
-      </div>
-      
-      <!-- Spells List -->
-      <div class="spells-list-section">
-        {{#if items.spells}}
-          {{#each items.spells}}
-            <div class="spell-card" data-item-id="{{this.id}}">
-              <div class="spell-header">
-                <h4 class="spell-name">{{this.name}}</h4>
-                <div class="spell-controls">
-                  <button type="button" class="item-edit" title="Edit"><i class="fas fa-edit"></i></button>
-                  <button type="button" class="item-delete" title="Delete"><i class="fas fa-trash"></i></button>
-                </div>
-              </div>
-              <div class="spell-details">
-                <span class="spell-school">{{default this.system.school "No School"}}</span>
-                <span class="spell-level">Level {{default this.system.level 1}}</span>
-                <span class="spell-type">{{default this.system.spellType "Active"}}</span>
-              </div>
-              <div class="spell-description">{{this.system.description}}</div>
-              {{#if this.system.prepared}}
-                <button type="button" class="spell-cast-btn" data-spell-id="{{this.id}}">
-                  <i class="fas fa-magic"></i> Cast Spell
-                </button>
-              {{/if}}
-            </div>
-          {{/each}}
-        {{else}}
-          <p class="empty-message">No spells yet. Click "Add Spell" to start.</p>
-        {{/if}}
-      </div>
       
     </div>
     
