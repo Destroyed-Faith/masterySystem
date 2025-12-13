@@ -3,8 +3,16 @@
  * Allows GM to view character XP spending and grant XP allowances
  */
 
-// Use ApplicationV2 if available, otherwise fall back to Application
-const BaseApplication = (foundry as any)?.applications?.api?.ApplicationV2 || Application;
+// Use ApplicationV2 with HandlebarsApplicationMixin if available, otherwise fall back to Application
+let BaseApplication: any;
+if ((foundry as any)?.applications?.api?.ApplicationV2 && (foundry as any)?.applications?.api?.HandlebarsApplicationMixin) {
+  BaseApplication = (foundry as any).applications.api.ApplicationV2;
+  // Apply HandlebarsApplicationMixin
+  const HandlebarsMixin = (foundry as any).applications.api.HandlebarsApplicationMixin;
+  BaseApplication = HandlebarsMixin(BaseApplication);
+} else {
+  BaseApplication = Application;
+}
 
 export class XpManagementSettings extends BaseApplication {
   static get defaultOptions() {
@@ -91,6 +99,21 @@ export class XpManagementSettings extends BaseApplication {
     });
     
     return data;
+  }
+
+  // Implement required methods for ApplicationV2 with Handlebars
+  async _renderHTML(_data?: any) {
+    const template = this.constructor.defaultOptions.template || this.options.template;
+    if (!template) {
+      throw new Error('Template path is required');
+    }
+    const templateData = await this.getData();
+    const html = await foundry.applications.handlebars.renderTemplate(template, templateData);
+    return $(html);
+  }
+
+  async _replaceHTML(element: JQuery, html: JQuery) {
+    element.replaceWith(html);
   }
 
   activateListeners(html: JQuery) {
