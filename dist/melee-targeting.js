@@ -608,14 +608,32 @@ async function confirmMeleeTarget(targetToken, state) {
                 level: p.system?.level
             }))
         });
-        // Select first available power automatically (if any)
+        // Use the power from the radial menu option if available, otherwise use first available power
         let selectedPower = null;
         let selectedPowerLevel = 1;
         let selectedPowerSpecials = [];
         let selectedPowerDamage = '';
-        if (attackPowers.length > 0) {
-            // Use the first available power
+        // Check if a power was selected in the radial menu
+        if (state.option && state.option.source === 'power' && state.option.item) {
+            // Use the power from the radial menu selection
+            selectedPower = state.option.item;
+            console.log('Mastery System | [ATTACK CARD CREATION] Using power from radial menu', {
+                powerId: selectedPower.id,
+                powerName: selectedPower.name,
+                optionId: state.option.id,
+                optionName: state.option.name
+            });
+        }
+        else if (attackPowers.length > 0) {
+            // Fallback: Use the first available power if no power was selected in radial menu
             selectedPower = attackPowers[0];
+            console.log('Mastery System | [ATTACK CARD CREATION] No power selected in radial menu, using first available', {
+                powerId: selectedPower.id,
+                powerName: selectedPower.name,
+                totalAvailablePowers: attackPowers.length
+            });
+        }
+        if (selectedPower) {
             const powerSystem = selectedPower.system;
             selectedPowerLevel = powerSystem.level || 1;
             selectedPowerSpecials = powerSystem.specials || [];
@@ -648,7 +666,8 @@ async function confirmMeleeTarget(targetToken, state) {
                 powerName: selectedPower.name,
                 powerLevel: selectedPowerLevel,
                 powerSpecials: selectedPowerSpecials,
-                powerDamage: selectedPowerDamage
+                powerDamage: selectedPowerDamage,
+                source: state.option && state.option.source === 'power' ? 'radial-menu' : 'first-available'
             });
         }
         // Create attack card in chat
