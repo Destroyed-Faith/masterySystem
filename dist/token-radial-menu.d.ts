@@ -2,52 +2,22 @@
  * Radial Menu for Combat Action Selection
  * PIXI-based radial menu that appears on the canvas around tokens
  * Replaces the dialog-based option selection
+ *
+ * This file is the main entry point. The implementation is split into modules:
+ * - radial-menu/types.ts: Types, interfaces, and constants
+ * - radial-menu/options.ts: Option collection and parsing
+ * - radial-menu/range-preview.ts: Range preview and hex highlighting
+ * - radial-menu/info-panel.ts: Info panel display
+ * - radial-menu/rendering.ts: Rendering functions (slices, rings, segments)
  */
-import { CombatManeuver } from './system/combat-maneuvers';
-import type { CombatSlot } from './system/combat-maneuvers';
-/**
- * Range category for combat options
- */
-export type RangeCategory = 'melee' | 'ranged' | 'self' | 'area';
-/**
- * Target group for utility powers
- */
-export type TargetGroup = 'self' | 'ally' | 'enemy' | 'creature' | 'any';
-/**
- * AoE shape for utility powers
- */
-export type AoEShape = 'none' | 'radius' | 'cone' | 'line';
-/**
- * Combat option interface for the radial menu
- */
-export interface RadialCombatOption {
-    id: string;
-    name: string;
-    description: string;
-    slot: CombatSlot;
-    source: 'power' | 'maneuver';
-    range?: number;
-    rangeCategory?: RangeCategory;
-    meleeReachMeters?: number;
-    rangeMeters?: number;
-    aoeShape?: AoEShape;
-    aoeRadiusMeters?: number;
-    defaultTargetGroup?: TargetGroup;
-    allowManualTargetSelection?: boolean;
-    item?: any;
-    maneuver?: CombatManeuver;
-    powerType?: string;
-    tags?: string[];
-}
+import type { RadialCombatOption } from './radial-menu/types';
+import { getAllCombatOptionsForActor } from './radial-menu/options';
+export { getAllCombatOptionsForActor };
+export type { RadialCombatOption, InnerSegment, RangeCategory, TargetGroup, AoEShape } from './radial-menu/types';
 /**
  * Close the radial menu and clean up
  */
 export declare function closeRadialMenu(): void;
-/**
- * Get all combat options for an actor (all categories)
- * Collects all Powers and Maneuvers available to the actor
- */
-export declare function getAllCombatOptionsForActor(actor: any): Promise<RadialCombatOption[]>;
 /**
  * Open the radial menu for an actor's token
  */
