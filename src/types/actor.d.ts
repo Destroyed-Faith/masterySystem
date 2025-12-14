@@ -93,6 +93,41 @@ export interface CharacterData {
   };
 }
 
+// Status effect structure
+export interface StatusEffect {
+  name: string;
+  value?: number | null;
+  source?: string;
+  timestamp?: number;
+}
+
+// Attack Value structure for NPCs
+export interface AttackValue {
+  name: string;
+  attackDice: string; // e.g., "9"
+  damage: string; // e.g., "5d8"
+  special?: string; // e.g., "Bleed", "Ignite", "Freeze"
+  specialValue?: number; // e.g., 5
+}
+
+// Phase structure for Boss NPCs
+export interface BossPhase {
+  name: string; // e.g., "Phase 1", "Phase 2"
+  health: {
+    bars: HealthBar[];
+    currentBar: number;
+    tempHP: number;
+  };
+  combat: CombatData;
+  savingThrows?: {
+    body: number;
+    mind: number;
+    spirit: number;
+  };
+  attackValues?: AttackValue[];
+  statusEffects?: StatusEffect[];
+}
+
 // === NPC Data ===
 export interface NpcData {
   bio: {
@@ -121,7 +156,15 @@ export interface NpcData {
   combat: CombatData;
   resources: ResourcesData;
   skills: Record<string, number>;
+  savingThrows?: {
+    body: number;
+    mind: number;
+    spirit: number;
+  };
+  attackValues?: AttackValue[];
+  phases?: BossPhase[]; // For boss NPCs with multiple phases
   conditions: any[];
+  statusEffects?: StatusEffect[];
   notes: string;
 }
 

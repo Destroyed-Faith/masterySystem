@@ -1795,10 +1795,567 @@
   min-height: 700px;
 }
 
+.mastery-system.sheet.actor.npc .sheet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 15px;
+  background: linear-gradient(to bottom, #4a4a4a, #2a2a2a);
+  color: #fff;
+  border-bottom: 2px solid #8b0000;
+  min-height: 80px;
+  max-height: 80px;
+}
+
+.mastery-system.sheet.actor.npc .portrait-section {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.mastery-system.sheet.actor.npc .header-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: 1;
+}
+
+.mastery-system.sheet.actor.npc .mastery-rank-box {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 3px 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(139, 0, 0, 0.5);
+  border-radius: 4px;
+  min-width: 50px;
+  max-width: 60px;
+}
+
+.mastery-system.sheet.actor.npc .mastery-rank-box label {
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #ffd700;
+  text-align: center;
+  line-height: 1;
+}
+
+.mastery-system.sheet.actor.npc .mastery-rank-select {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(139, 0, 0, 0.5);
+  border-radius: 3px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  padding: 2px 4px;
+  cursor: pointer;
+}
+
+.mastery-system.sheet.actor.npc .mastery-rank-select:hover {
+  background: rgba(0, 0, 0, 0.5);
+  border-color: rgba(139, 0, 0, 0.8);
+}
+
+.mastery-system.sheet.actor.npc .mastery-rank-select:focus {
+  outline: none;
+  border-color: #8b0000;
+  box-shadow: 0 0 5px rgba(139, 0, 0, 0.5);
+}
+
+.mastery-system.sheet.actor.npc .character-name-box {
+  flex: 2;
+}
+
+.mastery-system.sheet.actor.npc .character-name-box input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  padding: 5px 0;
+  transition: border-color 0.3s;
+}
+
+.mastery-system.sheet.actor.npc .character-name-box input:focus {
+  outline: none;
+  border-bottom-color: #8b0000;
+}
+
+.mastery-system.sheet.actor.npc .character-name-box h1 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+}
+
 .mastery-system.sheet.actor.npc .sheet-body {
   display: flex;
   flex-direction: column;
   gap: 15px;
+}
+
+/* NPC Portrait/Token Images - Same as Character Sheet */
+.mastery-system.sheet.actor.npc .profile-img-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+}
+
+.mastery-system.sheet.actor.npc .profile-img-container {
+  position: relative;
+  display: inline-block;
+  width: 70px;
+  height: 70px;
+}
+
+.mastery-system.sheet.actor.npc .profile-img-container-token {
+  position: relative;
+  display: inline-block;
+  width: 70px;
+  height: 70px;
+}
+
+.mastery-system.sheet.actor.npc .profile-img-label {
+  writing-mode: vertical-lr;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  font-size: 10px;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 2px;
+  line-height: 1.2;
+  user-select: none;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.mastery-system.sheet.actor.npc .profile-img-container .profile-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  margin: 0;
+  cursor: default;
+}
+
+.mastery-system.sheet.actor.npc .profile-img-container .profile-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.mastery-system.sheet.actor.npc .profile-img-container:hover .profile-overlay {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.mastery-system.sheet.actor.npc .profile-img-container .profile-overlay:hover {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.mastery-system.sheet.actor.npc .profile-img-container .profile-zone {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  transition: background 0.2s ease;
+  pointer-events: auto;
+  z-index: 11;
+}
+
+.mastery-system.sheet.actor.npc .profile-img-container .profile-zone-edit {
+  top: 0;
+  height: 50%;
+  border-radius: 4px 4px 0 0;
+}
+
+.mastery-system.sheet.actor.npc .profile-img-container .profile-zone-show {
+  top: 50%;
+  height: 50%;
+  border-radius: 0 0 4px 4px;
+}
+
+.mastery-system.sheet.actor.npc .profile-img-container .profile-zone:hover {
+  background: rgba(139, 0, 0, 0.7);
+}
+
+.mastery-system.sheet.actor.npc .profile-img-container .zone-label {
+  color: #fff;
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.mastery-system.sheet.actor.npc .profile-img-container .profile-zone:hover .zone-label {
+  opacity: 1;
+}
+
+.mastery-system.sheet.actor.npc .profile-img-container.locked .profile-overlay {
+  display: none;
+}
+
+.mastery-system.sheet.actor.npc .status-effects-panel {
+  padding: 10px;
+  background: #f8f8f8;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.mastery-system.sheet.actor.npc .status-effects-panel h3 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #8b0000;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 5px;
+}
+
+.mastery-system.sheet.actor.npc .status-effects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.mastery-system.sheet.actor.npc .status-effect-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  border-left: 3px solid #8b0000;
+}
+
+.mastery-system.sheet.actor.npc .status-effect-item .effect-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+}
+
+.mastery-system.sheet.actor.npc .status-effect-item .effect-name i {
+  color: #8b0000;
+}
+
+.mastery-system.sheet.actor.npc .status-effect-item .effect-value {
+  color: #8b0000;
+  font-weight: 700;
+}
+
+.mastery-system.sheet.actor.npc .status-effect-item .effect-remove {
+  background: transparent;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 3px;
+  transition: all 0.2s;
+}
+
+.mastery-system.sheet.actor.npc .status-effect-item .effect-remove:hover {
+  background: #f0f0f0;
+  color: #8b0000;
+}
+
+.mastery-system.sheet.actor.npc .no-status-effects {
+  padding: 10px;
+  text-align: center;
+  color: #999;
+  font-style: italic;
+  font-size: 12px;
+}
+
+/* NPC Saves Panel */
+.mastery-system.sheet.actor.npc .saves-panel {
+  padding: 10px;
+  background: #f8f8f8;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.mastery-system.sheet.actor.npc .saves-panel h3 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #8b0000;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 5px;
+}
+
+.mastery-system.sheet.actor.npc .saves-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.mastery-system.sheet.actor.npc .save-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.mastery-system.sheet.actor.npc .save-stat label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+}
+
+.mastery-system.sheet.actor.npc .save-stat input {
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  font-size: 14px;
+}
+
+/* NPC Attack Values Panel */
+.mastery-system.sheet.actor.npc .attack-values-panel {
+  padding: 10px;
+  background: #f8f8f8;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.mastery-system.sheet.actor.npc .attack-values-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.mastery-system.sheet.actor.npc .attack-values-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #8b0000;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 5px;
+  flex: 1;
+}
+
+.mastery-system.sheet.actor.npc .attack-value-add {
+  background: #8b0000;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.mastery-system.sheet.actor.npc .attack-value-add:hover {
+  background: #a00000;
+}
+
+.mastery-system.sheet.actor.npc .attack-values-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mastery-system.sheet.actor.npc .attack-value-item {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+}
+
+.mastery-system.sheet.actor.npc .attack-value-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 0.8fr auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.mastery-system.sheet.actor.npc .attack-name-field,
+.mastery-system.sheet.actor.npc .attack-dice-field,
+.mastery-system.sheet.actor.npc .attack-damage-field,
+.mastery-system.sheet.actor.npc .attack-special-field,
+.mastery-system.sheet.actor.npc .attack-special-value-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.mastery-system.sheet.actor.npc .attack-name-field label,
+.mastery-system.sheet.actor.npc .attack-dice-field label,
+.mastery-system.sheet.actor.npc .attack-damage-field label,
+.mastery-system.sheet.actor.npc .attack-special-field label,
+.mastery-system.sheet.actor.npc .attack-special-value-field label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #666;
+}
+
+.mastery-system.sheet.actor.npc .attack-name-field input,
+.mastery-system.sheet.actor.npc .attack-dice-field input,
+.mastery-system.sheet.actor.npc .attack-damage-field input {
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  font-size: 13px;
+}
+
+.mastery-system.sheet.actor.npc .attack-special-field select,
+.mastery-system.sheet.actor.npc .attack-special-value-field select {
+  padding: 5px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  font-size: 13px;
+  background: #fff;
+}
+
+.mastery-system.sheet.actor.npc .attack-value-actions {
+  display: flex;
+  align-items: center;
+}
+
+.mastery-system.sheet.actor.npc .attack-value-delete {
+  background: transparent;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 3px;
+  transition: all 0.2s;
+}
+
+.mastery-system.sheet.actor.npc .attack-value-delete:hover {
+  background: #f0f0f0;
+  color: #8b0000;
+}
+
+.mastery-system.sheet.actor.npc .no-attack-values {
+  padding: 20px;
+  text-align: center;
+  color: #999;
+  font-style: italic;
+  font-size: 12px;
+}
+
+/* NPC Phase Controls */
+.mastery-system.sheet.actor.npc .phase-controls {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid #ccc;
+}
+
+.mastery-system.sheet.actor.npc .phase-add-btn {
+  background: #8b0000;
+  color: #fff;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.mastery-system.sheet.actor.npc .phase-add-btn:hover {
+  background: #a00000;
+}
+
+.mastery-system.sheet.actor.npc .sheet-tabs {
+  display: flex;
+  gap: 5px;
+  padding: 5px 10px;
+  background: #f0f0f0;
+  border-bottom: 2px solid #8b0000;
+}
+
+.mastery-system.sheet.actor.npc .sheet-tabs .item {
+  padding: 8px 15px;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  transition: all 0.2s;
+}
+
+.mastery-system.sheet.actor.npc .sheet-tabs .item:hover {
+  background: #f8f8f8;
+  color: #8b0000;
+}
+
+.mastery-system.sheet.actor.npc .sheet-tabs .item.active {
+  background: #8b0000;
+  color: #fff;
+  border-color: #8b0000;
+}
+
+.mastery-system.sheet.actor.npc .phase-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background: #f8f8f8;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 10px;
+}
+
+.mastery-system.sheet.actor.npc .phase-name-input {
+  flex: 1;
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #8b0000;
+  margin-right: 10px;
+}
+
+.mastery-system.sheet.actor.npc .phase-delete-btn {
+  background: #dc3545;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.mastery-system.sheet.actor.npc .phase-delete-btn:hover {
+  background: #c82333;
+}
+
+.mastery-system.sheet.actor.npc .phase-content {
+  display: none;
+}
+
+.mastery-system.sheet.actor.npc .phase-content.active {
+  display: block;
 }
 
 /* ========== Item Sheet Specific ========== */

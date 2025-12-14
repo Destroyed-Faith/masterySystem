@@ -4,9 +4,12 @@
  */
 import { MasteryCharacterSheet } from './character-sheet';
 export declare class MasteryNpcSheet extends MasteryCharacterSheet {
+    #private;
     /** @override */
     static get defaultOptions(): any;
     /** @override */
     get template(): string;
+    /** @override */
+    activateListeners(html: JQuery): void;
 }
 //# sourceMappingURL=npc-sheet.d.ts.map

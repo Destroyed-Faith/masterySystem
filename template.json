@@ -156,8 +156,8 @@
         "bars": [
           {
             "name": "Healthy",
-            "max": 0,
-            "current": 0,
+            "max": 30,
+            "current": 30,
             "penalty": 0
           }
         ],
@@ -165,7 +165,14 @@
         "tempHP": 0
       },
       "skills": {},
+      "savingThrows": {
+        "body": 0,
+        "mind": 0,
+        "spirit": 0
+      },
+      "attackValues": [],
       "conditions": [],
+      "statusEffects": [],
       "notes": ""
     },
     "summon": {

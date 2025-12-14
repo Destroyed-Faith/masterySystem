@@ -1,105 +1,383 @@
-<form class="{{cssClass}} flexcol" autocomplete="off">
+<form class="{{cssClass}}" autocomplete="off">
   {{!-- Sheet Header --}}
   <header class="sheet-header">
-    <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" height="80" width="80"/>
-    <div class="header-fields">
-      <h1 class="charname"><input name="name" type="text" value="{{actor.name}}" placeholder="NPC Name"/></h1>
-      <div class="resource-row">
-        <div class="resource">
-          <label>Type:</label>
-          <input type="text" name="system.bio.type" value="{{system.bio.type}}" placeholder="Monster, NPC, etc."/>
+    <div class="portrait-section">
+      <div class="profile-img-wrapper">
+        <div class="profile-img-container {{#unless editable}}locked{{/unless}}" data-image-type="portrait">
+          <img class="profile-img {{#if editable}}{{else}}locked{{/if}}" src="{{actor.img}}" title="{{actor.name}} Portrait" alt="{{actor.name}} Portrait" />
+          <div class="profile-overlay">
+            <div class="profile-zone profile-zone-edit" data-action="edit" data-img-type="portrait">
+              <span class="zone-label">EDIT</span>
+            </div>
+            <div class="profile-zone profile-zone-show" data-action="show" data-img-type="portrait">
+              <span class="zone-label">SHOW</span>
+            </div>
+          </div>
         </div>
-        <div class="resource">
-          <label>Faction:</label>
-          <input type="text" name="system.bio.faction" value="{{system.bio.faction}}" placeholder="Red Priests, etc."/>
+        <div class="profile-img-label">PORTRAIT</div>
+      </div>
+      <div class="profile-img-wrapper">
+        <div class="profile-img-container profile-img-container-token {{#unless editable}}locked{{/unless}}" data-image-type="token">
+          <img class="profile-img {{#if editable}}{{else}}locked{{/if}}" src="{{default actor.prototypeToken.texture.src actor.img}}" title="{{actor.name}} Token" alt="{{actor.name}} Token" />
+          <div class="profile-overlay">
+            <div class="profile-zone profile-zone-edit" data-action="edit" data-img-type="token">
+              <span class="zone-label">EDIT</span>
+            </div>
+            <div class="profile-zone profile-zone-show" data-action="show" data-img-type="token">
+              <span class="zone-label">SHOW</span>
+            </div>
+          </div>
         </div>
-        <div class="resource">
-          <label>Mastery Rank:</label>
-          <input type="number" name="system.mastery.rank" value="{{system.mastery.rank}}" data-dtype="Number" min="1" max="8"/>
-        </div>
+        <div class="profile-img-label">TOKEN</div>
+      </div>
+    </div>
+    
+    <div class="header-info">
+      <div class="mastery-rank-box" title="Mastery Rank">
+        <label>MR</label>
+        <select name="system.mastery.rank" class="mastery-rank-select" data-dtype="Number">
+          <option value="1" {{#if (eq system.mastery.rank 1)}}selected{{/if}}>1</option>
+          <option value="2" {{#if (eq system.mastery.rank 2)}}selected{{/if}}>2</option>
+          <option value="3" {{#if (eq system.mastery.rank 3)}}selected{{/if}}>3</option>
+          <option value="4" {{#if (eq system.mastery.rank 4)}}selected{{/if}}>4</option>
+          <option value="5" {{#if (eq system.mastery.rank 5)}}selected{{/if}}>5</option>
+          <option value="6" {{#if (eq system.mastery.rank 6)}}selected{{/if}}>6</option>
+          <option value="7" {{#if (eq system.mastery.rank 7)}}selected{{/if}}>7</option>
+          <option value="8" {{#if (eq system.mastery.rank 8)}}selected{{/if}}>8</option>
+        </select>
+      </div>
+      
+      <div class="character-name-box">
+        {{#if editable}}
+          <input name="name" type="text" value="{{actor.name}}" placeholder="NPC Name" />
+        {{else}}
+          <h1>{{actor.name}}</h1>
+        {{/if}}
       </div>
     </div>
   </header>
 
+  {{!-- Phase Tabs Navigation (if phases exist) --}}
+  {{#if system.phases}}
+  <nav class="sheet-tabs tabs" data-group="primary">
+    {{#each system.phases as |phase index|}}
+    <a class="item" data-tab="phase-{{index}}">{{phase.name}}</a>
+    {{/each}}
+    <button type="button" class="phase-add-btn" title="Add Phase">
+      <i class="fas fa-plus"></i> Add Phase
+    </button>
+  </nav>
+  {{else}}
+  <div class="phase-controls">
+    <button type="button" class="phase-add-btn" title="Convert to Boss with Phases">
+      <i class="fas fa-plus"></i> Add Phase (Convert to Boss)
+    </button>
+  </div>
+  {{/if}}
+
   {{!-- Sheet Body --}}
   <section class="sheet-body">
-    
-    {{!-- Combat Stats --}}
-    <div class="combat-panel">
-      <h3>Combat</h3>
-      <div class="combat-grid">
-        <div class="combat-stat">
-          <label>Initiative:</label>
-          <input type="number" name="system.combat.initiative" value="{{system.combat.initiative}}" data-dtype="Number"/>
-        </div>
-        <div class="combat-stat">
-          <label>Evade:</label>
-          <input type="number" name="system.combat.evade" value="{{system.combat.evade}}" data-dtype="Number"/>
-        </div>
-        <div class="combat-stat">
-          <label>Armor:</label>
-          <input type="number" name="system.combat.armor" value="{{system.combat.armor}}" data-dtype="Number"/>
-        </div>
-        <div class="combat-stat">
-          <label>Speed:</label>
-          <input type="number" name="system.combat.speed" value="{{system.combat.speed}}" data-dtype="Number"/>
-        </div>
-      </div>
-    </div>
-
-    {{!-- Health --}}
-    <div class="health-panel">
-      <h3>Health</h3>
-      <div class="health-display">
-        <label>HP:</label>
-        {{#each system.health.bars as |bar index|}}
-        <div class="health-bar {{#if (eq ../system.health.currentBar index)}}active{{/if}}">
-          <input type="number" name="system.health.bars.{{index}}.current" value="{{bar.current}}" data-dtype="Number"/> / 
-          <input type="number" name="system.health.bars.{{index}}.max" value="{{bar.max}}" data-dtype="Number"/>
-          <span class="bar-penalty">({{bar.penalty}})</span>
-        </div>
-        {{/each}}
-      </div>
-    </div>
-
-    {{!-- Attributes --}}
-    <div class="attributes-panel">
-      <h3>Attributes</h3>
-      <div class="attributes-grid">
-        {{#each system.attributes as |attr key|}}
-        <div class="attribute">
-          <label>{{key}}</label>
-          <input type="number" name="system.attributes.{{key}}.value" value="{{attr.value}}" data-dtype="Number" min="0"/>
-          <span class="stones">{{attr.stones}} <i class="fas fa-gem"></i></span>
-          <button type="button" class="attribute-roll" data-attribute="{{key}}">
-            <i class="fas fa-dice-d20"></i>
+    {{#if system.phases}}
+      {{!-- Phase Tabs Content --}}
+      {{#each system.phases as |phase phaseIndex|}}
+      <div class="tab phase-content" data-group="primary" data-tab="phase-{{phaseIndex}}">
+        
+        {{!-- Phase Header --}}
+        <div class="phase-header">
+          <input type="text" name="system.phases.{{phaseIndex}}.name" value="{{phase.name}}" placeholder="Phase Name" class="phase-name-input"/>
+          <button type="button" class="phase-delete-btn" data-phase-index="{{phaseIndex}}" title="Delete Phase">
+            <i class="fas fa-trash"></i> Delete Phase
           </button>
         </div>
-        {{/each}}
-      </div>
-    </div>
-
-    {{!-- Skills --}}
-    <div class="skills-panel">
-      <div class="skills-header">
-        <h3>Skills</h3>
-        <button type="button" class="skill-add"><i class="fas fa-plus"></i> Add</button>
-      </div>
-      <div class="skills-list">
-        {{#each skills as |skill|}}
-        <div class="skill">
-          <span class="skill-name">{{skill.label}}</span>
-          <input type="number" name="system.skills.{{skill.name}}" value="{{skill.value}}" data-dtype="Number" min="0"/>
-          <button type="button" class="skill-roll" data-skill="{{skill.name}}">
-            <i class="fas fa-dice-d20"></i>
-          </button>
-          <button type="button" class="skill-delete" data-skill="{{skill.name}}">
-            <i class="fas fa-trash"></i>
-          </button>
+        
+        <div class="combat-panel">
+          <h3>Combat</h3>
+          <div class="combat-grid">
+            <div class="combat-stat">
+              <label>Evade:</label>
+              <input type="number" name="system.phases.{{phaseIndex}}.combat.evade" value="{{default phase.combat.evade 10}}" data-dtype="Number"/>
+            </div>
+            <div class="combat-stat">
+              <label>Armor:</label>
+              <input type="number" name="system.phases.{{phaseIndex}}.combat.armor" value="{{default phase.combat.armor 0}}" data-dtype="Number"/>
+            </div>
+            <div class="combat-stat">
+              <label>Speed:</label>
+              <input type="number" name="system.phases.{{phaseIndex}}.combat.speed" value="{{default phase.combat.speed 6}}" data-dtype="Number"/>
+            </div>
+          </div>
         </div>
-        {{/each}}
+
+        {{!-- Saving Throws --}}
+        <div class="saves-panel">
+          <h3>Saving Throws</h3>
+          <div class="saves-grid">
+            <div class="save-stat">
+              <label>Body:</label>
+              <input type="number" name="system.phases.{{phaseIndex}}.savingThrows.body" value="{{default phase.savingThrows.body 0}}" data-dtype="Number"/>
+            </div>
+            <div class="save-stat">
+              <label>Mind:</label>
+              <input type="number" name="system.phases.{{phaseIndex}}.savingThrows.mind" value="{{default phase.savingThrows.mind 0}}" data-dtype="Number"/>
+            </div>
+            <div class="save-stat">
+              <label>Spirit:</label>
+              <input type="number" name="system.phases.{{phaseIndex}}.savingThrows.spirit" value="{{default phase.savingThrows.spirit 0}}" data-dtype="Number"/>
+            </div>
+          </div>
+        </div>
+
+        {{!-- Health --}}
+        <div class="health-panel">
+          <h3>Health</h3>
+          <div class="health-display">
+            <label>HP:</label>
+            {{#each phase.health.bars as |bar index|}}
+            <div class="health-bar {{#if (eq ../phase.health.currentBar index)}}active{{/if}}">
+              <input type="number" name="system.phases.{{../phaseIndex}}.health.bars.{{index}}.current" value="{{bar.current}}" data-dtype="Number"/> / 
+              <input type="number" name="system.phases.{{../phaseIndex}}.health.bars.{{index}}.max" value="{{bar.max}}" data-dtype="Number"/>
+              <span class="bar-penalty">({{bar.penalty}})</span>
+            </div>
+            {{/each}}
+          </div>
+        </div>
+
+        {{!-- Status Effects --}}
+        <div class="status-effects-panel">
+          <h3>Status Effects</h3>
+          <div class="status-effects-list">
+            {{#if phase.statusEffects}}
+              {{#each phase.statusEffects as |effect index|}}
+              <div class="status-effect-item" data-effect-index="{{index}}" data-phase-index="{{../phaseIndex}}">
+                <span class="effect-name">
+                  <i class="fas fa-exclamation-triangle"></i>
+                  {{effect.name}}
+                  {{#if effect.value}}
+                    <span class="effect-value">({{effect.value}})</span>
+                  {{/if}}
+                </span>
+                <button type="button" class="effect-remove" data-effect-index="{{index}}" data-phase-index="{{../phaseIndex}}" title="Remove Effect">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              {{/each}}
+            {{else}}
+              <div class="no-status-effects">No active status effects</div>
+            {{/if}}
+          </div>
+        </div>
+
+        {{!-- Attack Values --}}
+        <div class="attack-values-panel">
+          <div class="attack-values-header">
+            <h3>Attack Values</h3>
+            <button type="button" class="attack-value-add" data-phase-index="{{phaseIndex}}"><i class="fas fa-plus"></i> Add Attack</button>
+          </div>
+          <div class="attack-values-list">
+            {{#if phase.attackValues}}
+              {{#each phase.attackValues as |attack index|}}
+              <div class="attack-value-item" data-attack-index="{{index}}" data-phase-index="{{../phaseIndex}}">
+                <div class="attack-value-row">
+                  <div class="attack-name-field">
+                    <label>Attack Power Name:</label>
+                    <input type="text" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.name" value="{{attack.name}}" placeholder="e.g., Fire Fists"/>
+                  </div>
+                  <div class="attack-dice-field">
+                    <label>Attack Dice:</label>
+                    <input type="text" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.attackDice" value="{{attack.attackDice}}" placeholder="e.g., 9"/>
+                  </div>
+                  <div class="attack-damage-field">
+                    <label>Damage:</label>
+                    <input type="text" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.damage" value="{{attack.damage}}" placeholder="e.g., 5d8"/>
+                  </div>
+                  <div class="attack-special-field">
+                    <label>Special:</label>
+                    <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.special" class="special-select">
+                      <option value="">-- None --</option>
+                      <option value="Bleed" {{#if (eq attack.special "Bleed")}}selected{{/if}}>Bleed</option>
+                      <option value="Ignite" {{#if (eq attack.special "Ignite")}}selected{{/if}}>Ignite</option>
+                      <option value="Freeze" {{#if (eq attack.special "Freeze")}}selected{{/if}}>Freeze</option>
+                      <option value="Poison" {{#if (eq attack.special "Poison")}}selected{{/if}}>Poison</option>
+                      <option value="Stun" {{#if (eq attack.special "Stun")}}selected{{/if}}>Stun</option>
+                      <option value="Knockdown" {{#if (eq attack.special "Knockdown")}}selected{{/if}}>Knockdown</option>
+                    </select>
+                  </div>
+                  <div class="attack-special-value-field">
+                    <label>Value:</label>
+                    <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.specialValue" class="special-value-select">
+                      <option value="">--</option>
+                      <option value="1" {{#if (eq attack.specialValue 1)}}selected{{/if}}>1</option>
+                      <option value="2" {{#if (eq attack.specialValue 2)}}selected{{/if}}>2</option>
+                      <option value="3" {{#if (eq attack.specialValue 3)}}selected{{/if}}>3</option>
+                      <option value="4" {{#if (eq attack.specialValue 4)}}selected{{/if}}>4</option>
+                      <option value="5" {{#if (eq attack.specialValue 5)}}selected{{/if}}>5</option>
+                      <option value="6" {{#if (eq attack.specialValue 6)}}selected{{/if}}>6</option>
+                      <option value="7" {{#if (eq attack.specialValue 7)}}selected{{/if}}>7</option>
+                      <option value="8" {{#if (eq attack.specialValue 8)}}selected{{/if}}>8</option>
+                      <option value="9" {{#if (eq attack.specialValue 9)}}selected{{/if}}>9</option>
+                      <option value="10" {{#if (eq attack.specialValue 10)}}selected{{/if}}>10</option>
+                    </select>
+                  </div>
+                  <div class="attack-value-actions">
+                    <button type="button" class="attack-value-delete" data-attack-index="{{index}}" data-phase-index="{{../phaseIndex}}" title="Remove Attack">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              {{/each}}
+            {{else}}
+              <div class="no-attack-values">No attack values defined. Click "Add Attack" to create one.</div>
+            {{/if}}
+          </div>
+        </div>
       </div>
-    </div>
+      {{/each}}
+    {{else}}
+      {{!-- Normal NPC View (no phases) --}}
+      {{!-- Combat Stats --}}
+      <div class="combat-panel">
+        <h3>Combat</h3>
+        <div class="combat-grid">
+          <div class="combat-stat">
+            <label>Evade:</label>
+            <input type="number" name="system.combat.evade" value="{{system.combat.evade}}" data-dtype="Number"/>
+          </div>
+          <div class="combat-stat">
+            <label>Armor:</label>
+            <input type="number" name="system.combat.armor" value="{{system.combat.armor}}" data-dtype="Number"/>
+          </div>
+          <div class="combat-stat">
+            <label>Speed:</label>
+            <input type="number" name="system.combat.speed" value="{{system.combat.speed}}" data-dtype="Number"/>
+          </div>
+        </div>
+      </div>
+
+      {{!-- Saving Throws --}}
+      <div class="saves-panel">
+        <h3>Saving Throws</h3>
+        <div class="saves-grid">
+          <div class="save-stat">
+            <label>Body:</label>
+            <input type="number" name="system.savingThrows.body" value="{{default system.savingThrows.body 0}}" data-dtype="Number"/>
+          </div>
+          <div class="save-stat">
+            <label>Mind:</label>
+            <input type="number" name="system.savingThrows.mind" value="{{default system.savingThrows.mind 0}}" data-dtype="Number"/>
+          </div>
+          <div class="save-stat">
+            <label>Spirit:</label>
+            <input type="number" name="system.savingThrows.spirit" value="{{default system.savingThrows.spirit 0}}" data-dtype="Number"/>
+          </div>
+        </div>
+      </div>
+
+      {{!-- Health --}}
+      <div class="health-panel">
+        <h3>Health</h3>
+        <div class="health-display">
+          <label>HP:</label>
+          {{#each system.health.bars as |bar index|}}
+          <div class="health-bar {{#if (eq ../system.health.currentBar index)}}active{{/if}}">
+            <input type="number" name="system.health.bars.{{index}}.current" value="{{bar.current}}" data-dtype="Number"/> / 
+            <input type="number" name="system.health.bars.{{index}}.max" value="{{bar.max}}" data-dtype="Number"/>
+            <span class="bar-penalty">({{bar.penalty}})</span>
+          </div>
+          {{/each}}
+        </div>
+      </div>
+
+      {{!-- Status Effects --}}
+      <div class="status-effects-panel">
+        <h3>Status Effects</h3>
+        <div class="status-effects-list">
+          {{#if system.statusEffects}}
+            {{#each system.statusEffects as |effect index|}}
+            <div class="status-effect-item" data-effect-index="{{index}}">
+              <span class="effect-name">
+                <i class="fas fa-exclamation-triangle"></i>
+                {{effect.name}}
+                {{#if effect.value}}
+                  <span class="effect-value">({{effect.value}})</span>
+                {{/if}}
+              </span>
+              <button type="button" class="effect-remove" data-effect-index="{{index}}" title="Remove Effect">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            {{/each}}
+          {{else}}
+            <div class="no-status-effects">No active status effects</div>
+          {{/if}}
+        </div>
+      </div>
+
+      {{!-- Attack Values --}}
+      <div class="attack-values-panel">
+        <div class="attack-values-header">
+          <h3>Attack Values</h3>
+          <button type="button" class="attack-value-add"><i class="fas fa-plus"></i> Add Attack</button>
+        </div>
+        <div class="attack-values-list">
+          {{#if system.attackValues}}
+            {{#each system.attackValues as |attack index|}}
+            <div class="attack-value-item" data-attack-index="{{index}}">
+              <div class="attack-value-row">
+                <div class="attack-name-field">
+                  <label>Attack Power Name:</label>
+                  <input type="text" name="system.attackValues.{{index}}.name" value="{{attack.name}}" placeholder="e.g., Fire Fists"/>
+                </div>
+                <div class="attack-dice-field">
+                  <label>Attack Dice:</label>
+                  <input type="text" name="system.attackValues.{{index}}.attackDice" value="{{attack.attackDice}}" placeholder="e.g., 9"/>
+                </div>
+                <div class="attack-damage-field">
+                  <label>Damage:</label>
+                  <input type="text" name="system.attackValues.{{index}}.damage" value="{{attack.damage}}" placeholder="e.g., 5d8"/>
+                </div>
+                <div class="attack-special-field">
+                  <label>Special:</label>
+                  <select name="system.attackValues.{{index}}.special" class="special-select">
+                    <option value="">-- None --</option>
+                    <option value="Bleed" {{#if (eq attack.special "Bleed")}}selected{{/if}}>Bleed</option>
+                    <option value="Ignite" {{#if (eq attack.special "Ignite")}}selected{{/if}}>Ignite</option>
+                    <option value="Freeze" {{#if (eq attack.special "Freeze")}}selected{{/if}}>Freeze</option>
+                    <option value="Poison" {{#if (eq attack.special "Poison")}}selected{{/if}}>Poison</option>
+                    <option value="Stun" {{#if (eq attack.special "Stun")}}selected{{/if}}>Stun</option>
+                    <option value="Knockdown" {{#if (eq attack.special "Knockdown")}}selected{{/if}}>Knockdown</option>
+                  </select>
+                </div>
+                <div class="attack-special-value-field">
+                  <label>Value:</label>
+                  <select name="system.attackValues.{{index}}.specialValue" class="special-value-select">
+                    <option value="">--</option>
+                    <option value="1" {{#if (eq attack.specialValue 1)}}selected{{/if}}>1</option>
+                    <option value="2" {{#if (eq attack.specialValue 2)}}selected{{/if}}>2</option>
+                    <option value="3" {{#if (eq attack.specialValue 3)}}selected{{/if}}>3</option>
+                    <option value="4" {{#if (eq attack.specialValue 4)}}selected{{/if}}>4</option>
+                    <option value="5" {{#if (eq attack.specialValue 5)}}selected{{/if}}>5</option>
+                    <option value="6" {{#if (eq attack.specialValue 6)}}selected{{/if}}>6</option>
+                    <option value="7" {{#if (eq attack.specialValue 7)}}selected{{/if}}>7</option>
+                    <option value="8" {{#if (eq attack.specialValue 8)}}selected{{/if}}>8</option>
+                    <option value="9" {{#if (eq attack.specialValue 9)}}selected{{/if}}>9</option>
+                    <option value="10" {{#if (eq attack.specialValue 10)}}selected{{/if}}>10</option>
+                  </select>
+                </div>
+                <div class="attack-value-actions">
+                  <button type="button" class="attack-value-delete" data-attack-index="{{index}}" title="Remove Attack">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            {{/each}}
+          {{else}}
+            <div class="no-attack-values">No attack values defined. Click "Add Attack" to create one.</div>
+          {{/if}}
+        </div>
+      </div>
+    {{/if}}
 
     {{!-- Notes --}}
     <div class="notes-panel">

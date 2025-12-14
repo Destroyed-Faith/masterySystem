@@ -141,6 +141,16 @@ function registerHandlebarsHelpersImmediate() {
     Handlebars.registerHelper('inc', function (value) {
         return parseInt(String(value)) + 1;
     });
+    // Helper for creating a range array: {{#each (range 1 8)}}...{{/each}}
+    Handlebars.registerHelper('range', function (start, end) {
+        const startNum = Number(start) || 1;
+        const endNum = Number(end) || 8;
+        const result = [];
+        for (let i = startNum; i <= endNum; i++) {
+            result.push(i);
+        }
+        return result;
+    });
     // Helper for multiplication
     Handlebars.registerHelper('multiply', function (a, b) {
         return a * b;
@@ -561,6 +571,58 @@ Hooks.on('preCreateActor', async (actor, data, _options, _userId) => {
         }
         data.system.creation.complete = false;
         console.log('Mastery System | New character created - setting creationComplete=false');
+    }
+    // Initialize NPCs with 30 HP and health bar
+    if (actor.type === 'npc') {
+        if (!data.system) {
+            data.system = {};
+        }
+        // Initialize health with 30 HP
+        if (!data.system.health) {
+            data.system.health = {
+                bars: [
+                    {
+                        name: 'Healthy',
+                        max: 30,
+                        current: 30,
+                        penalty: 0
+                    }
+                ],
+                currentBar: 0,
+                tempHP: 0
+            };
+        }
+        else {
+            // Ensure health bars exist and are initialized
+            if (!data.system.health.bars || data.system.health.bars.length === 0) {
+                data.system.health.bars = [
+                    {
+                        name: 'Healthy',
+                        max: 30,
+                        current: 30,
+                        penalty: 0
+                    }
+                ];
+            }
+            else {
+                // Set first bar to 30 HP if max is 0
+                if (data.system.health.bars[0].max === 0) {
+                    data.system.health.bars[0].max = 30;
+                    data.system.health.bars[0].current = 30;
+                }
+            }
+            if (data.system.health.currentBar === undefined) {
+                data.system.health.currentBar = 0;
+            }
+            if (data.system.health.tempHP === undefined) {
+                data.system.health.tempHP = 0;
+            }
+        }
+        // Initialize statusEffects array
+        if (!data.system.statusEffects) {
+            data.system.statusEffects = [];
+        }
+        console.log('Mastery System | New NPC created - initialized with 30 HP and statusEffects');
     }
 });
 /**
