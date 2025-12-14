@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.11] - 2025-01-XX
+
+### Fixed
+- **XP Management inline in Settings**: Fixed `html.find is not a function` error in renderSettingsConfig hook
+  - Added robust handling for different html parameter types in Foundry VTT v13
+  - Improved jQuery object detection and conversion
+  - Added error handling and debug logging
+
 ## [0.1.10] - 2025-01-XX
 
 ### Fixed
