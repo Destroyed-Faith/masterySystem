@@ -608,58 +608,48 @@ async function confirmMeleeTarget(targetToken, state) {
                 level: p.system?.level
             }))
         });
-        // Create power selection dropdown if powers are available
-        let powerSelectionSection = '';
+        // Select first available power automatically (if any)
+        let selectedPower = null;
+        let selectedPowerLevel = 1;
+        let selectedPowerSpecials = [];
+        let selectedPowerDamage = '';
         if (attackPowers.length > 0) {
-            // Import power definitions to get level data
-            let powerDefinitions = null;
+            // Use the first available power
+            selectedPower = attackPowers[0];
+            const powerSystem = selectedPower.system;
+            selectedPowerLevel = powerSystem.level || 1;
+            selectedPowerSpecials = powerSystem.specials || [];
+            selectedPowerDamage = powerSystem.roll?.damage || '';
+            // Try to get level-specific data from power definitions
             try {
                 const powersModule = await import('../../utils/powers/index.js');
-                powerDefinitions = powersModule.ALL_MASTERY_POWERS || [];
+                const powerDefinitions = powersModule.ALL_MASTERY_POWERS || [];
+                const powerTree = powerSystem.tree || '';
+                const powerName = selectedPower.name;
+                const powerDef = powerDefinitions.find((p) => p.name === powerName && p.tree === powerTree);
+                if (powerDef && powerDef.levels) {
+                    const levelData = powerDef.levels.find((l) => l.level === selectedPowerLevel);
+                    if (levelData) {
+                        // Use level-specific data if available
+                        if (levelData.special) {
+                            selectedPowerSpecials = levelData.special.split(',').map((s) => s.trim());
+                        }
+                        if (levelData.roll?.damage) {
+                            selectedPowerDamage = levelData.roll.damage;
+                        }
+                    }
+                }
             }
             catch (e) {
                 console.warn('Mastery System | Could not load power definitions for level data', e);
             }
-            const powerOptions = await Promise.all(attackPowers.map(async (power) => {
-                const powerSystem = power.system;
-                const powerLevel = powerSystem.level || 1;
-                const powerTree = powerSystem.tree || '';
-                const powerName = power.name;
-                // Try to get level-specific data from power definition
-                let powerSpecials = powerSystem.specials || [];
-                let powerDamage = powerSystem.roll?.damage || '';
-                if (powerDefinitions) {
-                    const powerDef = powerDefinitions.find((p) => p.name === powerName && p.tree === powerTree);
-                    if (powerDef && powerDef.levels) {
-                        const levelData = powerDef.levels.find((l) => l.level === powerLevel);
-                        if (levelData) {
-                            // Use level-specific data if available
-                            if (levelData.special) {
-                                // Parse special string like "Bleed(1), Mark(1)" into array
-                                powerSpecials = levelData.special.split(',').map((s) => s.trim());
-                            }
-                            if (levelData.roll?.damage) {
-                                powerDamage = levelData.roll.damage;
-                            }
-                        }
-                    }
-                }
-                // Escape specials for HTML attribute (JSON.stringify already escapes quotes, but we need to escape HTML entities)
-                const specialsJson = JSON.stringify(powerSpecials);
-                const escapedSpecials = specialsJson.replace(/"/g, '&quot;');
-                return `<option value="${power.id}" data-level="${powerLevel}" data-specials="${escapedSpecials}" data-damage="${powerDamage || ''}">${power.name} (Level ${powerLevel})</option>`;
-            }));
-            powerSelectionSection = `
-      <div class="power-selection-section">
-        <label for="power-select-${attacker.id}" style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-          <span style="font-weight: bold; color: #4a5568;">Power:</span>
-          <select class="power-select" id="power-select-${attacker.id}" data-attacker-id="${attacker.id}">
-            <option value="">-- No Power --</option>
-            ${powerOptions.join('')}
-          </select>
-        </label>
-      </div>
-    `;
+            console.log('Mastery System | [ATTACK CARD CREATION] Selected power', {
+                powerId: selectedPower.id,
+                powerName: selectedPower.name,
+                powerLevel: selectedPowerLevel,
+                powerSpecials: selectedPowerSpecials,
+                powerDamage: selectedPowerDamage
+            });
         }
         // Create attack card in chat
         const attackCardContent = `
@@ -690,9 +680,13 @@ async function confirmMeleeTarget(targetToken, state) {
             <span><strong>${equippedWeapon.name}</strong> (${weaponDamage} damage)</span>
           </div>
         ` : ''}
+        ${selectedPower ? `
+          <div class="detail-row">
+            <span>Power:</span>
+            <span><strong>${selectedPower.name}</strong> (Level ${selectedPowerLevel})</span>
+          </div>
+        ` : ''}
       </div>
-      
-      ${powerSelectionSection}
       
       <div class="raises-section">
         <label for="raises-input-${attacker.id}" style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
@@ -771,130 +765,7 @@ async function confirmMeleeTarget(targetToken, state) {
                 messageElementHtml: messageElement.length > 0 ? messageElement.html()?.substring(0, 200) : 'not found'
             });
             if (messageElement.length) {
-                // Initialize power selection handler
-                const powerSelect = messageElement.find(`.power-select[data-attacker-id="${attacker.id}"]`);
-                if (powerSelect.length) {
-                    powerSelect.on('change', async function () {
-                        const powerId = $(this).val();
-                        const selectedOption = $(this).find('option:selected');
-                        const powerLevel = parseInt(selectedOption.data('level')) || 1;
-                        // Parse powerSpecials - it's stored as JSON string in data-specials attribute
-                        let powerSpecials = [];
-                        try {
-                            const specialsData = selectedOption.data('specials');
-                            console.log('Mastery System | [POWER SELECTION] Parsing powerSpecials', {
-                                specialsData: specialsData,
-                                specialsDataType: typeof specialsData,
-                                specialsDataLength: typeof specialsData === 'string' ? specialsData.length : 'N/A',
-                                isEmpty: typeof specialsData === 'string' ? specialsData.trim() === '' : false,
-                                isUndefined: specialsData === undefined,
-                                isNull: specialsData === null
-                            });
-                            if (typeof specialsData === 'string' && specialsData.trim() !== '') {
-                                // Unescape HTML entities first
-                                const unescaped = specialsData.replace(/&quot;/g, '"');
-                                powerSpecials = JSON.parse(unescaped);
-                            }
-                            else if (Array.isArray(specialsData)) {
-                                powerSpecials = specialsData;
-                            }
-                            else {
-                                // Empty string, undefined, null, or other - use empty array
-                                powerSpecials = [];
-                            }
-                        }
-                        catch (e) {
-                            console.warn('Mastery System | [POWER SELECTION] Could not parse powerSpecials', e);
-                            console.warn('Mastery System | [POWER SELECTION] specialsData value:', selectedOption.data('specials'));
-                            console.warn('Mastery System | [POWER SELECTION] specialsData type:', typeof selectedOption.data('specials'));
-                            powerSpecials = [];
-                        }
-                        const powerDamage = selectedOption.data('damage') || '';
-                        console.log('Mastery System | [POWER SELECTION] Power selected in dropdown', {
-                            messageId: message.id,
-                            powerId: powerId || 'none (deselected)',
-                            powerLevel,
-                            powerSpecials,
-                            powerDamage,
-                            powerIdType: typeof powerId,
-                            powerIdLength: powerId ? powerId.length : 0
-                        });
-                        // Update message flags with selected power data
-                        const currentMessage = game.messages?.get(message.id);
-                        if (currentMessage) {
-                            const currentFlags = currentMessage.getFlag('mastery-system') || currentMessage.flags?.['mastery-system'] || {};
-                            console.log('Mastery System | [POWER SELECTION] Current flags before update', {
-                                messageId: message.id,
-                                currentSelectedPowerId: currentFlags.selectedPowerId,
-                                currentWeaponId: currentFlags.weaponId,
-                                allCurrentFlagKeys: Object.keys(currentFlags)
-                            });
-                            const newFlags = {
-                                ...currentFlags,
-                                selectedPowerId: powerId || null,
-                                selectedPowerLevel: powerId ? powerLevel : null,
-                                selectedPowerSpecials: powerId ? powerSpecials : [],
-                                selectedPowerDamage: powerId ? powerDamage : ''
-                            };
-                            console.log('Mastery System | [POWER SELECTION] New flags to be saved', {
-                                messageId: message.id,
-                                selectedPowerId: newFlags.selectedPowerId,
-                                selectedPowerLevel: newFlags.selectedPowerLevel,
-                                selectedPowerSpecials: newFlags.selectedPowerSpecials,
-                                selectedPowerDamage: newFlags.selectedPowerDamage,
-                                weaponId: newFlags.weaponId,
-                                allNewFlagKeys: Object.keys(newFlags)
-                            });
-                            try {
-                                await currentMessage.setFlag('mastery-system', newFlags);
-                                console.log('Mastery System | [POWER SELECTION] setFlag called successfully', {
-                                    messageId: message.id,
-                                    flagsSet: newFlags
-                                });
-                                // Wait a bit for the flag to be saved
-                                await new Promise(resolve => setTimeout(resolve, 100));
-                                // Verify the flags were saved - try multiple methods
-                                let verifyFlags = currentMessage.getFlag('mastery-system');
-                                if (!verifyFlags) {
-                                    verifyFlags = currentMessage.flags?.['mastery-system'];
-                                }
-                                if (!verifyFlags) {
-                                    // Try to get the message again from the collection
-                                    const refreshedMessage = game.messages?.get(message.id);
-                                    if (refreshedMessage) {
-                                        verifyFlags = refreshedMessage.getFlag('mastery-system') || refreshedMessage.flags?.['mastery-system'];
-                                    }
-                                }
-                                console.log('Mastery System | [POWER SELECTION] Verified flags after save', {
-                                    messageId: message.id,
-                                    selectedPowerId: verifyFlags?.selectedPowerId,
-                                    selectedPowerLevel: verifyFlags?.selectedPowerLevel,
-                                    selectedPowerSpecials: verifyFlags?.selectedPowerSpecials,
-                                    selectedPowerDamage: verifyFlags?.selectedPowerDamage,
-                                    weaponId: verifyFlags?.weaponId,
-                                    allVerifiedFlagKeys: Object.keys(verifyFlags || {}),
-                                    flagsMatch: verifyFlags?.selectedPowerId === newFlags.selectedPowerId,
-                                    verificationMethod: verifyFlags ? 'found' : 'not found'
-                                });
-                            }
-                            catch (error) {
-                                console.error('Mastery System | [POWER SELECTION] ERROR setting flags', {
-                                    messageId: message.id,
-                                    error: error,
-                                    errorMessage: error.message,
-                                    errorStack: error.stack
-                                });
-                            }
-                        }
-                        else {
-                            console.error('Mastery System | [POWER SELECTION] ERROR: Could not find message to update flags', {
-                                messageId: message.id,
-                                allMessageIds: Array.from(game.messages?.keys() || []).slice(0, 10),
-                                totalMessages: game.messages?.size || 0
-                            });
-                        }
-                    });
-                }
+                // Power is now automatically selected, no dropdown handler needed
                 const raisesInput = messageElement.find(`#raises-input-${attacker.id}`);
                 const displayEvade = messageElement.find(`#display-evade-${attacker.id}`);
                 const rollButton = messageElement.find(`[data-attacker-id="${attacker.id}"].roll-attack-btn`);
