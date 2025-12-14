@@ -319,6 +319,12 @@ function refreshMovementPreview(state: MovementState, destX: number, destY: numb
   // Use Ruler if available
   if (state.ruler) {
     try {
+      console.log('Mastery System | [DEBUG] refreshMovementPreview: Using Ruler', {
+        hasRuler: !!state.ruler,
+        rulerType: state.ruler.constructor.name,
+        rulerMethods: Object.getOwnPropertyNames(Object.getPrototypeOf(state.ruler)).filter(m => typeof state.ruler[m] === 'function')
+      });
+      
       state.ruler.clear();
       state.ruler.waypoints = [
         { x: origin.x, y: origin.y },
@@ -326,13 +332,26 @@ function refreshMovementPreview(state: MovementState, destX: number, destY: numb
       ];
       
       // Measure the path - try v13 API
-      const measurement = state.ruler.measure(state.ruler.waypoints);
-      distanceInUnits = measurement?.distance || 0;
-      segments = measurement?.segments || [];
+      // In Foundry v13, Ruler.measure might not exist, use alternative methods
+      if (typeof state.ruler.measure === 'function') {
+        const measurement = state.ruler.measure(state.ruler.waypoints);
+        distanceInUnits = measurement?.distance || 0;
+        segments = measurement?.segments || [];
+        console.log('Mastery System | [DEBUG] Ruler.measure result', { distanceInUnits, segmentsCount: segments.length });
+      } else if (state.ruler.totalDistance !== undefined) {
+        // Alternative: use totalDistance property
+        distanceInUnits = state.ruler.totalDistance;
+        console.log('Mastery System | [DEBUG] Using ruler.totalDistance', distanceInUnits);
+      } else {
+        // Try to get distance from ruler's internal state
+        console.warn('Mastery System | [DEBUG] Ruler.measure not available, using fallback');
+      }
     } catch (error) {
-      console.warn('Mastery System | Ruler measure error', error);
+      console.warn('Mastery System | [DEBUG] Ruler measure error', error);
       // Fallback calculation below
     }
+  } else {
+    console.log('Mastery System | [DEBUG] refreshMovementPreview: No ruler available, using fallback');
   }
   
   // Fallback: simple distance calculation if Ruler failed
@@ -463,17 +482,29 @@ async function attemptCommitMovement(destX: number, destY: number, state: Moveme
   
   if (state.ruler) {
     try {
+      console.log('Mastery System | [DEBUG] attemptCommitMovement: Using Ruler');
       state.ruler.clear();
       state.ruler.waypoints = [
         { x: origin.x, y: origin.y },
         { x: dest.x, y: dest.y }
       ];
       
-      const measurement = state.ruler.measure(state.ruler.waypoints);
-      distanceInUnits = measurement?.distance || 0;
+      // Measure the path - try v13 API
+      if (typeof state.ruler.measure === 'function') {
+        const measurement = state.ruler.measure(state.ruler.waypoints);
+        distanceInUnits = measurement?.distance || 0;
+        console.log('Mastery System | [DEBUG] Ruler.measure result', distanceInUnits);
+      } else if (state.ruler.totalDistance !== undefined) {
+        distanceInUnits = state.ruler.totalDistance;
+        console.log('Mastery System | [DEBUG] Using ruler.totalDistance', distanceInUnits);
+      } else {
+        console.warn('Mastery System | [DEBUG] Ruler.measure not available, using fallback');
+      }
     } catch (error) {
-      console.warn('Mastery System | Ruler measure error', error);
+      console.warn('Mastery System | [DEBUG] Ruler measure error', error);
     }
+  } else {
+    console.log('Mastery System | [DEBUG] attemptCommitMovement: No ruler available, using fallback');
   }
   
   // Fallback calculation

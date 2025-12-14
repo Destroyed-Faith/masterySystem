@@ -181,88 +181,145 @@ function getValidMeleeTargets(attackerToken: any, reachGridUnits: number): any[]
  * Highlight reach area around the attacker
  */
 function highlightReachArea(state: MeleeTargetingState): void {
-  if (!canvas.grid || !state.previewGraphics) return;
+  console.log('Mastery System | [DEBUG] highlightReachArea called', {
+    hasGrid: !!canvas.grid,
+    hasPreviewGraphics: !!state.previewGraphics,
+    reachGridUnits: state.reachGridUnits,
+    reachMeters: state.reachMeters,
+    tokenName: state.token.name
+  });
+  
+  if (!canvas.grid || !state.previewGraphics) {
+    console.warn('Mastery System | [DEBUG] highlightReachArea: Missing grid or previewGraphics', {
+      hasGrid: !!canvas.grid,
+      hasPreviewGraphics: !!state.previewGraphics
+    });
+    return;
+  }
   
   const attackerCenter = state.token.center;
   const radiusPx = state.reachGridUnits * (canvas.grid.size || 1);
   
+  console.log('Mastery System | [DEBUG] highlightReachArea: Drawing circle', {
+    attackerCenter: { x: attackerCenter.x, y: attackerCenter.y },
+    radiusPx,
+    gridSize: canvas.grid.size,
+    gridType: canvas.grid.type
+  });
+  
   // Clear previous graphics
   state.previewGraphics.clear();
   
-  // Only draw circle if no grid is present, or as a fallback
-  // If grid is present, we'll highlight hexes instead
-  if (canvas.grid.type === CONST.GRID_TYPES.GRIDLESS) {
-    // Draw reach circle (semi-transparent red/orange) - make it more visible
-    state.previewGraphics.lineStyle(3, 0xff6666, 1.0); // Thicker, fully opaque border
-    state.previewGraphics.beginFill(0xff6666, 0.25); // Slightly more visible fill
-    state.previewGraphics.drawCircle(0, 0, radiusPx);
-    state.previewGraphics.endFill();
-    
-    // Add an inner ring for better visibility
-    state.previewGraphics.lineStyle(1, 0xff8888, 0.6);
-    state.previewGraphics.drawCircle(0, 0, radiusPx * 0.9);
-  }
+  // Always draw circle for visibility (even on hex grids)
+  state.previewGraphics.lineStyle(3, 0xff6666, 1.0); // Thicker, fully opaque border
+  state.previewGraphics.beginFill(0xff6666, 0.25); // Slightly more visible fill
+  state.previewGraphics.drawCircle(0, 0, radiusPx);
+  state.previewGraphics.endFill();
+  
+  // Add an inner ring for better visibility
+  state.previewGraphics.lineStyle(1, 0xff8888, 0.6);
+  state.previewGraphics.drawCircle(0, 0, radiusPx * 0.9);
   
   // Position at attacker center
   state.previewGraphics.position.set(attackerCenter.x, attackerCenter.y);
   
+  console.log('Mastery System | [DEBUG] highlightReachArea: Circle drawn, now attempting hex highlighting');
+  
   // Also highlight hexes within reach using grid highlight
   let highlight: any = null;
+  let highlightMethod = 'none';
   try {
     // Use new v13 API: canvas.interface.grid.highlight
     if (canvas.interface?.grid?.highlight) {
       highlight = canvas.interface.grid.highlight;
-      console.log('Mastery System | Using canvas.interface.grid.highlight for melee reach');
+      highlightMethod = 'canvas.interface.grid.highlight';
+      console.log('Mastery System | [DEBUG] Using canvas.interface.grid.highlight for melee reach');
     } else if (canvas.grid?.highlight) {
       // Fallback to old API for compatibility
       highlight = canvas.grid.highlight;
-      console.log('Mastery System | Using canvas.grid.highlight (fallback) for melee reach');
+      highlightMethod = 'canvas.grid.highlight';
+      console.log('Mastery System | [DEBUG] Using canvas.grid.highlight (fallback) for melee reach');
     } else if ((canvas.grid as any).getHighlightLayer) {
       highlight = (canvas.grid as any).getHighlightLayer(state.highlightId);
       if (!highlight && (canvas.grid as any).addHighlightLayer) {
         highlight = (canvas.grid as any).addHighlightLayer(state.highlightId);
       }
-      console.log('Mastery System | Using getHighlightLayer for melee reach');
+      highlightMethod = 'getHighlightLayer';
+      console.log('Mastery System | [DEBUG] Using getHighlightLayer for melee reach');
     }
   } catch (error) {
-    console.warn('Mastery System | Could not get highlight layer for melee reach', error);
+    console.warn('Mastery System | [DEBUG] Could not get highlight layer for melee reach', error);
   }
+  
+  console.log('Mastery System | [DEBUG] highlightReachArea: Highlight layer check', {
+    hasHighlight: !!highlight,
+    highlightMethod,
+    highlightType: highlight ? highlight.constructor.name : 'null',
+    highlightMethods: highlight ? Object.getOwnPropertyNames(Object.getPrototypeOf(highlight)).filter(m => typeof highlight[m] === 'function') : []
+  });
   
   if (highlight) {
     // Try to clear the highlight layer
     if (typeof highlight.clear === 'function') {
-      highlight.clear();
-      console.log('Mastery System | Highlight layer cleared for melee reach');
+      try {
+        highlight.clear();
+        console.log('Mastery System | [DEBUG] Highlight layer cleared for melee reach');
+      } catch (error) {
+        console.warn('Mastery System | [DEBUG] Error clearing highlight layer', error);
+      }
     } else {
-      console.log('Mastery System | Highlight layer found but no clear method');
+      console.log('Mastery System | [DEBUG] Highlight layer found but no clear method');
     }
   } else {
-    console.warn('Mastery System | No highlight layer available - hex highlighting will not work');
+    console.warn('Mastery System | [DEBUG] No highlight layer available - hex highlighting will not work');
   }
   
   // Highlight hexes within reach
   // For hex grids, we need to iterate through nearby hexes
   const maxHexDistance = Math.ceil(state.reachGridUnits);
   
+  console.log('Mastery System | [DEBUG] highlightReachArea: Getting grid position', {
+    maxHexDistance,
+    attackerCenter: { x: attackerCenter.x, y: attackerCenter.y }
+  });
+  
   // Get grid position of attacker using new v13 API
   let attackerGrid: { col: number; row: number } | null = null;
+  let gridPositionMethod = 'none';
   try {
     if (canvas.grid?.getOffset) {
       // New v13 API: getOffset returns {col, row}
       const offset = canvas.grid.getOffset(attackerCenter.x, attackerCenter.y);
       attackerGrid = { col: offset.col, row: offset.row };
+      gridPositionMethod = 'getOffset';
+      console.log('Mastery System | [DEBUG] Got grid position via getOffset', attackerGrid);
     } else if (canvas.grid?.getGridPositionFromPixels) {
       // Fallback to old API
       const oldGrid = canvas.grid.getGridPositionFromPixels(attackerCenter.x, attackerCenter.y);
       if (oldGrid) {
         attackerGrid = { col: oldGrid.x, row: oldGrid.y };
+        gridPositionMethod = 'getGridPositionFromPixels';
+        console.log('Mastery System | [DEBUG] Got grid position via getGridPositionFromPixels', attackerGrid);
       }
     }
   } catch (error) {
-    console.warn('Mastery System | Could not get grid position', error);
+    console.warn('Mastery System | [DEBUG] Could not get grid position', error);
   }
   
+  console.log('Mastery System | [DEBUG] highlightReachArea: Grid position result', {
+    attackerGrid,
+    gridPositionMethod,
+    hasHighlight: !!highlight
+  });
+  
   if (attackerGrid && highlight) {
+    console.log('Mastery System | [DEBUG] highlightReachArea: Starting hex iteration', {
+      attackerGrid,
+      maxHexDistance,
+      totalHexesToCheck: (maxHexDistance * 2 + 1) * (maxHexDistance * 2 + 1)
+    });
+    
+    let hexesHighlighted = 0;
     // For hex grids, use cube coordinates or axial coordinates
     // Simple approach: check all hexes in a square area and measure distance
     for (let q = -maxHexDistance; q <= maxHexDistance; q++) {
@@ -324,44 +381,74 @@ function highlightReachArea(state: MeleeTargetingState): void {
           
           if (distanceInUnits <= state.reachGridUnits) {
             // Try different methods to highlight the hex
+            let highlighted = false;
             try {
               // Foundry v13 API: highlight.highlightPosition(col, row, options)
               if (highlight && typeof highlight.highlightPosition === 'function') {
                 highlight.highlightPosition(gridCol, gridRow, { color: 0xff6666, alpha: 0.5 });
+                highlighted = true;
               } 
               // Alternative API: highlight.highlightGridPosition
               else if (highlight && typeof highlight.highlightGridPosition === 'function') {
                 highlight.highlightGridPosition(gridCol, gridRow, { color: 0xff6666, alpha: 0.5 });
+                highlighted = true;
               } 
               // Fallback: highlight.highlight
               else if (highlight && typeof highlight.highlight === 'function') {
                 highlight.highlight(gridCol, gridRow, { color: 0xff6666, alpha: 0.5 });
+                highlighted = true;
               }
               // Direct grid highlight (v13)
               else if (canvas.grid && typeof (canvas.grid as any).highlightPosition === 'function') {
                 (canvas.grid as any).highlightPosition(gridCol, gridRow, { color: 0xff6666, alpha: 0.5 });
+                highlighted = true;
               }
               // Last resort: try to add highlight directly
               else if (highlight && typeof highlight.add === 'function') {
                 highlight.add({ col: gridCol, row: gridRow, color: 0xff6666, alpha: 0.5 });
+                highlighted = true;
+              }
+              
+              if (highlighted) {
+                hexesHighlighted++;
               }
             } catch (error) {
-              console.warn('Mastery System | Could not highlight hex at', gridCol, gridRow, error);
+              console.warn('Mastery System | [DEBUG] Could not highlight hex at', gridCol, gridRow, error);
             }
           }
         }
       }
     }
+    
+    console.log('Mastery System | [DEBUG] highlightReachArea: Hex highlighting complete', {
+      hexesHighlighted,
+      totalHexesChecked: (maxHexDistance * 2 + 1) * (maxHexDistance * 2 + 1)
+    });
+  } else {
+    console.warn('Mastery System | [DEBUG] highlightReachArea: Skipping hex highlighting', {
+      hasAttackerGrid: !!attackerGrid,
+      hasHighlight: !!highlight
+    });
   }
+  
+  console.log('Mastery System | [DEBUG] highlightReachArea: Complete');
 }
 
 /**
  * Apply visual tint to valid target tokens
  */
 function highlightValidTargets(state: MeleeTargetingState): void {
+  console.log('Mastery System | [DEBUG] highlightValidTargets: Starting', {
+    reachGridUnits: state.reachGridUnits,
+    reachMeters: state.reachMeters,
+    tokenName: state.token.name
+  });
+  
   const validTargets = getValidMeleeTargets(state.token, state.reachGridUnits);
   
-  console.log('Mastery System | Melee targeting: Found', validTargets.length, 'valid targets within', state.reachMeters, 'm reach');
+  console.log('Mastery System | [DEBUG] highlightValidTargets: Found', validTargets.length, 'valid targets within', state.reachMeters, 'm reach', {
+    targetNames: validTargets.map(t => t.name)
+  });
   
   // Store original alphas and apply red tint
   state.originalTokenAlphas.clear();
@@ -392,9 +479,19 @@ function highlightValidTargets(state: MeleeTargetingState): void {
       overlay.position.set((target.w || 50) / 2, (target.h || 50) / 2);
       target.addChild(overlay);
       (target as any).msTargetOverlay = overlay;
-      console.log('Mastery System | Added red overlay to target:', target.name);
+      console.log('Mastery System | [DEBUG] Added red overlay to target:', target.name, {
+        radius,
+        overlayPosition: { x: overlay.position.x, y: overlay.position.y },
+        targetSize: { w: target.w, h: target.h }
+      });
+    } else {
+      console.log('Mastery System | [DEBUG] Target already has overlay:', target.name);
     }
   }
+  
+  console.log('Mastery System | [DEBUG] highlightValidTargets: Complete', {
+    targetsHighlighted: validTargets.length
+  });
 }
 
 /**
@@ -486,29 +583,47 @@ export function startMeleeTargeting(token: any, option: RadialCombatOption): voi
   
   // Attach event listeners - use capture phase to catch events before tokens handle them
   // Also listen on token layer directly for better token click detection
+  console.log('Mastery System | [DEBUG] startMeleeTargeting: Attaching event listeners', {
+    hasStage: !!canvas.stage,
+    hasTokens: !!canvas.tokens,
+    capturePhase: true
+  });
+  
   canvas.stage.on('pointerdown', state.onPointerDown, true);
   if (canvas.tokens) {
     (canvas.tokens as any).on('pointerdown', state.onPointerDown, true);
+    console.log('Mastery System | [DEBUG] Event listener attached to canvas.tokens');
   }
   window.addEventListener('keydown', state.onKeyDown);
   
+  console.log('Mastery System | [DEBUG] startMeleeTargeting: Event listeners attached');
+  
   // Draw reach area and highlight targets
+  console.log('Mastery System | [DEBUG] startMeleeTargeting: Calling highlightReachArea');
   highlightReachArea(state);
+  console.log('Mastery System | [DEBUG] startMeleeTargeting: Calling highlightValidTargets');
   highlightValidTargets(state);
   
   // Show notification to help user understand what's happening
   const validTargets = getValidMeleeTargets(token, reachGridUnits);
+  console.log('Mastery System | [DEBUG] startMeleeTargeting: Valid targets found', {
+    count: validTargets.length,
+    targetNames: validTargets.map(t => t.name)
+  });
+  
   if (validTargets.length > 0) {
     ui.notifications?.info(`Melee targeting active: ${reachMeters}m reach. ${validTargets.length} enemy(ies) in range. Click on an enemy to attack.`);
   } else {
     ui.notifications?.info(`Melee targeting active: ${reachMeters}m reach. No enemies in range. Move enemies within the red area to attack.`);
   }
   
-  console.log('Mastery System | Melee targeting mode active', {
+  console.log('Mastery System | [DEBUG] startMeleeTargeting: Complete', {
     reachMeters,
     reachGridUnits,
     token: token.name,
-    validTargets: validTargets.length
+    validTargets: validTargets.length,
+    previewGraphicsParent: state.previewGraphics?.parent?.constructor?.name,
+    previewGraphicsVisible: state.previewGraphics?.visible
   });
 }
 
@@ -517,11 +632,21 @@ export function startMeleeTargeting(token: any, option: RadialCombatOption): voi
  */
 function handleMeleePointerDown(ev: PIXI.FederatedPointerEvent): void {
   const state = activeMeleeTargeting;
-  if (!state) return;
+  if (!state) {
+    console.log('Mastery System | [DEBUG] handleMeleePointerDown: No active state');
+    return;
+  }
+  
+  console.log('Mastery System | [DEBUG] handleMeleePointerDown: Event received', {
+    button: ev.button,
+    target: ev.target?.constructor?.name,
+    currentTarget: ev.currentTarget?.constructor?.name,
+    eventType: ev.type
+  });
   
   // Right or middle click cancels
   if (ev.button === 2 || ev.button === 1) {
-    console.log('Mastery System | Melee targeting cancelled via mouse button', ev.button);
+    console.log('Mastery System | [DEBUG] Melee targeting cancelled via mouse button', ev.button);
     endMeleeTargeting(false);
     return;
   }
@@ -531,13 +656,21 @@ function handleMeleePointerDown(ev: PIXI.FederatedPointerEvent): void {
     // Get the clicked object from the event
     const clickedObject = ev.target;
     
+    console.log('Mastery System | [DEBUG] handleMeleePointerDown: Analyzing click', {
+      clickedObjectType: clickedObject?.constructor?.name,
+      hasDocument: !!(clickedObject as any)?.document,
+      documentType: (clickedObject as any)?.document?.type
+    });
+    
     // Try to find the token from the clicked object
     let clickedToken: any = null;
+    let detectionMethod = 'none';
     
     // Method 1: Check if the clicked object is a token
     if (clickedObject && (clickedObject as any).document && (clickedObject as any).document.type === 'Token') {
       clickedToken = clickedObject;
-      console.log('Mastery System | Found token via direct check:', clickedToken.name);
+      detectionMethod = 'direct';
+      console.log('Mastery System | [DEBUG] Found token via direct check:', clickedToken.name);
     }
     
     // Method 2: Check if clicked object is a child of a token
@@ -547,7 +680,8 @@ function handleMeleePointerDown(ev: PIXI.FederatedPointerEvent): void {
       while (parent && depth < 10) {
         if (parent.document && parent.document.type === 'Token') {
           clickedToken = parent;
-          console.log('Mastery System | Found token via parent traversal:', clickedToken.name);
+          detectionMethod = 'parent-traversal';
+          console.log('Mastery System | [DEBUG] Found token via parent traversal:', clickedToken.name, 'depth:', depth);
           break;
         }
         parent = parent.parent;
@@ -563,49 +697,77 @@ function handleMeleePointerDown(ev: PIXI.FederatedPointerEvent): void {
         if (canvas.tokens && ev.data) {
           try {
             worldPos = ev.data.getLocalPosition(canvas.tokens);
+            console.log('Mastery System | [DEBUG] Got world position via canvas.tokens:', worldPos);
           } catch (e) {
             // Fallback to stage coordinates
             worldPos = ev.data.getLocalPosition(canvas.app.stage);
+            console.log('Mastery System | [DEBUG] Got world position via stage (fallback):', worldPos);
           }
         } else if (ev.data) {
           worldPos = ev.data.getLocalPosition(canvas.app.stage);
+          console.log('Mastery System | [DEBUG] Got world position via stage:', worldPos);
         }
         
         if (worldPos) {
           const tokens = canvas.tokens?.placeables || [];
+          console.log('Mastery System | [DEBUG] Checking', tokens.length, 'tokens for position match');
+          
           clickedToken = tokens.find((token: any) => {
             if (!token.bounds) return false;
             // Check if point is within token bounds
             const bounds = token.bounds;
-            return bounds.contains(worldPos!.x, worldPos!.y);
+            const contains = bounds.contains(worldPos!.x, worldPos!.y);
+            if (contains) {
+              console.log('Mastery System | [DEBUG] Token', token.name, 'bounds contain click position');
+            }
+            return contains;
           });
           if (clickedToken) {
-            console.log('Mastery System | Found token via position check:', clickedToken.name);
+            detectionMethod = 'position-check';
+            console.log('Mastery System | [DEBUG] Found token via position check:', clickedToken.name);
+          } else {
+            console.log('Mastery System | [DEBUG] No token found at position', worldPos);
           }
         }
       } catch (error) {
-        console.warn('Mastery System | Could not get world position from click', error);
+        console.warn('Mastery System | [DEBUG] Could not get world position from click', error);
       }
     }
+    
+    console.log('Mastery System | [DEBUG] handleMeleePointerDown: Token detection result', {
+      clickedToken: clickedToken ? clickedToken.name : null,
+      clickedTokenId: clickedToken ? clickedToken.id : null,
+      detectionMethod,
+      isAttacker: clickedToken && clickedToken.id === state.token.id
+    });
     
     if (clickedToken && clickedToken.id !== state.token.id) {
       // Check if it's a valid target
       const validTargets = getValidMeleeTargets(state.token, state.reachGridUnits);
       const isValidTarget = validTargets.some(t => t.id === clickedToken.id);
       
+      console.log('Mastery System | [DEBUG] handleMeleePointerDown: Target validation', {
+        clickedTokenName: clickedToken.name,
+        validTargetsCount: validTargets.length,
+        validTargetNames: validTargets.map(t => t.name),
+        isValidTarget
+      });
+      
       if (isValidTarget) {
-        console.log('Mastery System | Valid melee target selected:', clickedToken.name);
+        console.log('Mastery System | [DEBUG] Valid melee target selected:', clickedToken.name);
         ev.stopPropagation();
         ev.stopImmediatePropagation();
         confirmMeleeTarget(clickedToken, state);
         return;
       } else {
-        console.log('Mastery System | Clicked token is not a valid target:', clickedToken.name);
+        console.log('Mastery System | [DEBUG] Clicked token is not a valid target:', clickedToken.name);
       }
+    } else if (clickedToken && clickedToken.id === state.token.id) {
+      console.log('Mastery System | [DEBUG] Clicked on attacker token, ignoring');
     }
     
     // Clicked outside any valid target - cancel
-    console.log('Mastery System | Clicked outside valid target, cancelling melee targeting');
+    console.log('Mastery System | [DEBUG] Clicked outside valid target, cancelling melee targeting');
     endMeleeTargeting(false);
   }
 }
