@@ -990,6 +990,23 @@ Hooks.once('ready', () => {
           });
           
           // Import and show damage dialog - pass only IDs, not full objects
+          console.log('Mastery System | [BEFORE DAMAGE DIALOG] Final check before calling showDamageDialog', {
+            messageId: messageId,
+            weaponId: weaponId,
+            weaponIdType: typeof weaponId,
+            selectedPowerId: updatedFlags.selectedPowerId,
+            selectedPowerIdType: typeof updatedFlags.selectedPowerId,
+            selectedPowerIdValue: updatedFlags.selectedPowerId,
+            totalRaises: totalRaises,
+            totalRaisesType: typeof totalRaises,
+            hasFlags: !!updatedFlags,
+            allFlagKeys: Object.keys(updatedFlags || {}),
+            flagsSelectedPowerId: updatedFlags?.selectedPowerId,
+            flagsWeaponId: updatedFlags?.weaponId,
+            attackerItems: (attacker as any).items?.length || 0,
+            attackerPowers: (attacker as any).items?.filter((i: any) => i.type === 'special').map((i: any) => ({ id: i.id, name: i.name })) || []
+          });
+          
           const { showDamageDialog } = await import('./dice/damage-dialog.js');
           const damageResult = await showDamageDialog(
             attacker,
@@ -1000,9 +1017,20 @@ Hooks.once('ready', () => {
             updatedFlags
           );
           
+          console.log('Mastery System | [AFTER DAMAGE DIALOG] showDamageDialog returned', {
+            hasResult: !!damageResult,
+            resultType: damageResult ? typeof damageResult : 'null',
+            resultKeys: damageResult ? Object.keys(damageResult) : [],
+            resultTotalDamage: damageResult?.totalDamage,
+            resultBaseDamage: damageResult?.baseDamage,
+            resultPowerDamage: damageResult?.powerDamage
+          });
+          
           if (damageResult) {
             // Roll and display damage
             await rollAndDisplayDamage(damageResult, attacker, target, flags);
+          } else {
+            console.warn('Mastery System | [AFTER DAMAGE DIALOG] No damage result returned from showDamageDialog');
           }
         }
       }

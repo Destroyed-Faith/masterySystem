@@ -174,6 +174,14 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         };
         ChatMessage.create(chatData).then((message) => {
             console.log('Mastery System | DEBUG: Damage card created in chat', message.id);
+            console.log('Mastery System | [DAMAGE CARD CREATED] Message flags check', {
+                messageId: message.id,
+                messageFlags: message.flags,
+                masterySystemFlags: message.flags?.['mastery-system'],
+                selectedPowerId: message.flags?.['mastery-system']?.selectedPowerId,
+                weaponId: message.flags?.['mastery-system']?.weaponId,
+                raises: message.flags?.['mastery-system']?.raises
+            });
             // Initialize the damage card UI
             setTimeout(() => {
                 initializeDamageCard(message.id, resolve);
@@ -322,21 +330,54 @@ function initializeDamageCard(messageId, resolve) {
     });
     // Handle roll damage button
     messageElement.find('.roll-damage-btn').on('click', async function () {
+        console.log('Mastery System | [ROLL DAMAGE BUTTON] Button clicked', {
+            messageId: messageId,
+            buttonData: {
+                attackerId: $(this).data('attacker-id'),
+                targetId: $(this).data('target-id')
+            }
+        });
         const attackerId = $(this).data('attacker-id');
         const targetId = $(this).data('target-id');
         const attacker = game.actors?.get(attackerId);
         const target = game.actors?.get(targetId);
         if (!attacker || !target) {
+            console.error('Mastery System | [ROLL DAMAGE BUTTON] Could not find attacker or target', {
+                attackerId,
+                targetId,
+                attackerFound: !!attacker,
+                targetFound: !!target
+            });
             ui.notifications?.error('Could not find attacker or target');
             return;
         }
         const message = game.messages?.get(messageId);
         if (!message) {
+            console.error('Mastery System | [ROLL DAMAGE BUTTON] Could not find damage card message', {
+                messageId,
+                allMessageIds: Array.from(game.messages?.keys() || []).slice(0, 10)
+            });
             ui.notifications?.error('Could not find damage card message');
             return;
         }
         const flags = message.getFlag('mastery-system') || message.flags?.['mastery-system'];
+        console.log('Mastery System | [ROLL DAMAGE BUTTON] Flags retrieved', {
+            messageId,
+            hasFlags: !!flags,
+            flagsKeys: flags ? Object.keys(flags) : [],
+            baseDamage: flags?.baseDamage,
+            powerDamage: flags?.powerDamage,
+            passiveDamage: flags?.passiveDamage,
+            raises: flags?.raises,
+            raisesType: typeof flags?.raises,
+            availableSpecials: flags?.availableSpecials?.length || 0
+        });
         if (!flags) {
+            console.error('Mastery System | [ROLL DAMAGE BUTTON] Could not find damage card data', {
+                messageId,
+                messageFlags: message.flags,
+                messageFlagsKeys: Object.keys(message.flags || {})
+            });
             ui.notifications?.error('Could not find damage card data');
             return;
         }
@@ -355,8 +396,32 @@ function initializeDamageCard(messageId, resolve) {
                 }
             }
         });
+        console.log('Mastery System | [ROLL DAMAGE BUTTON] Raise selections collected', {
+            messageId,
+            raiseSelectionsSize: raiseSelections.size,
+            raiseSelections: Array.from(raiseSelections.entries())
+        });
         // Calculate damage
+        console.log('Mastery System | [ROLL DAMAGE BUTTON] Calling calculateDamageResult', {
+            messageId,
+            baseDamage: flags.baseDamage,
+            powerDamage: flags.powerDamage,
+            passiveDamage: flags.passiveDamage,
+            raises: flags.raises,
+            raisesType: typeof flags.raises,
+            availableSpecialsCount: flags.availableSpecials?.length || 0,
+            raiseSelectionsSize: raiseSelections.size
+        });
         const result = await calculateDamageResult(flags.baseDamage, flags.powerDamage, flags.passiveDamage, flags.raises, raiseSelections, flags.availableSpecials);
+        console.log('Mastery System | [ROLL DAMAGE BUTTON] calculateDamageResult returned', {
+            messageId,
+            hasResult: !!result,
+            resultKeys: result ? Object.keys(result) : [],
+            totalDamage: result?.totalDamage,
+            baseDamage: result?.baseDamage,
+            powerDamage: result?.powerDamage,
+            passiveDamage: result?.passiveDamage
+        });
         resolve(result);
     });
     // Handle cancel button
@@ -530,7 +595,15 @@ async function calculateDamageResult(baseDamage, powerDamage, passiveDamage, rai
         }
     }
     const totalDamage = baseDamageRolled + powerDamageRolled + passiveDamageRolled + raiseDamage;
-    return {
+    console.log('Mastery System | [CALCULATE DAMAGE] Final calculation', {
+        baseDamageRolled,
+        powerDamageRolled,
+        passiveDamageRolled,
+        raiseDamage,
+        totalDamage,
+        specialsUsed
+    });
+    const result = {
         baseDamage: baseDamageRolled,
         powerDamage: powerDamageRolled,
         passiveDamage: passiveDamageRolled,
@@ -538,6 +611,8 @@ async function calculateDamageResult(baseDamage, powerDamage, passiveDamage, rai
         specialsUsed,
         totalDamage
     };
+    console.log('Mastery System | [CALCULATE DAMAGE] Returning result', result);
+    return result;
 }
 /**
  * Roll dice from notation string

@@ -736,7 +736,10 @@ async function confirmMeleeTarget(targetToken: any, state: MeleeTargetingState):
         }
       }
       
-      return `<option value="${power.id}" data-level="${powerLevel}" data-specials="${JSON.stringify(powerSpecials)}" data-damage="${powerDamage}">${power.name} (Level ${powerLevel})</option>`;
+      // Escape specials for HTML attribute (JSON.stringify already escapes quotes, but we need to escape HTML entities)
+      const specialsJson = JSON.stringify(powerSpecials);
+      const escapedSpecials = specialsJson.replace(/"/g, '&quot;');
+      return `<option value="${power.id}" data-level="${powerLevel}" data-specials="${escapedSpecials}" data-damage="${powerDamage || ''}">${power.name} (Level ${powerLevel})</option>`;
     }));
     
     powerSelectionSection = `
@@ -880,13 +883,28 @@ async function confirmMeleeTarget(targetToken: any, state: MeleeTargetingState):
             let powerSpecials: string[] = [];
             try {
               const specialsData = selectedOption.data('specials');
-              if (typeof specialsData === 'string') {
-                powerSpecials = JSON.parse(specialsData);
+              console.log('Mastery System | [POWER SELECTION] Parsing powerSpecials', {
+                specialsData: specialsData,
+                specialsDataType: typeof specialsData,
+                specialsDataLength: typeof specialsData === 'string' ? specialsData.length : 'N/A',
+                isEmpty: typeof specialsData === 'string' ? specialsData.trim() === '' : false,
+                isUndefined: specialsData === undefined,
+                isNull: specialsData === null
+              });
+              if (typeof specialsData === 'string' && specialsData.trim() !== '') {
+                // Unescape HTML entities first
+                const unescaped = specialsData.replace(/&quot;/g, '"');
+                powerSpecials = JSON.parse(unescaped);
               } else if (Array.isArray(specialsData)) {
                 powerSpecials = specialsData;
+              } else {
+                // Empty string, undefined, null, or other - use empty array
+                powerSpecials = [];
               }
             } catch (e) {
               console.warn('Mastery System | [POWER SELECTION] Could not parse powerSpecials', e);
+              console.warn('Mastery System | [POWER SELECTION] specialsData value:', selectedOption.data('specials'));
+              console.warn('Mastery System | [POWER SELECTION] specialsData type:', typeof selectedOption.data('specials'));
               powerSpecials = [];
             }
             const powerDamage = selectedOption.data('damage') || '';
