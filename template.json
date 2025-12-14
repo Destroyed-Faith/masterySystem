@@ -79,6 +79,7 @@
     },
     "character": {
       "templates": ["base", "combatant"],
+      "bloodColor": "#8b0000",
       "bio": {
         "echo": "",
         "concept": "",
@@ -148,6 +149,7 @@
     },
     "npc": {
       "templates": ["base", "combatant"],
+      "bloodColor": "#8b0000",
       "bio": {
         "type": "",
         "faction": ""

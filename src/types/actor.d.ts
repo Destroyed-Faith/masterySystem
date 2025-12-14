@@ -57,6 +57,7 @@ export interface CharacterData {
     appearance: string;
     notes: string;
   };
+  bloodColor?: string; // Hex color for blood pools (e.g., "#8b0000" for dark red)
   attributes: {
     might: AttributeData;
     agility: AttributeData;
@@ -130,6 +131,7 @@ export interface BossPhase {
 
 // === NPC Data ===
 export interface NpcData {
+  bloodColor?: string; // Hex color for blood pools (e.g., "#8b0000" for dark red)
   bio: {
     name: string;
     type: string;

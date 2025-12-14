@@ -917,20 +917,22 @@ Hooks.once('ready', () => {
                         hasEquippedWeapon: !!equippedWeapon,
                         equippedWeaponName: equippedWeapon ? equippedWeapon.name : null
                     });
-                    // result.raises is already calculated based on the adjusted TN (which includes manual raises)
-                    // So we just use result.raises directly
-                    const totalRaises = result.raises || 0;
+                    // Get raises from button data (the manually entered raises)
+                    // result.raises is the number of successful raises (TN exceeded), not the input raises
+                    const inputRaises = parseInt(button.data('raises')) || 0;
+                    const totalRaises = inputRaises; // Use the input raises, not result.raises
                     console.log('Mastery System | [BEFORE DAMAGE DIALOG] Raises calculation', {
                         messageId: messageId,
-                        resultRaises: result.raises,
-                        totalRaises: totalRaises,
+                        resultRaises: result.raises, // Successful raises (TN exceeded)
+                        inputRaises: inputRaises, // Manually entered raises
+                        totalRaises: totalRaises, // Total raises to use for damage dialog
                         resultRaisesType: typeof result.raises,
                         resultSuccess: result.success,
                         resultTotal: result.total,
                         resultTN: result.tn,
                         currentTargetEvade: currentTargetEvade,
                         baseEvade: flags.targetEvade,
-                        raisesFromButton: parseInt(button.data('raises')) || 0
+                        raisesFromButton: inputRaises
                     });
                     console.log('Mastery System | [BEFORE DAMAGE DIALOG] Calling showDamageDialog with', {
                         messageId: messageId,

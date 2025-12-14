@@ -381,6 +381,15 @@
 
     {{!-- Notes --}}
     <div class="notes-panel">
+      <div class="form-group">
+        <label>Blood Color (Blutfarbe):</label>
+        <div class="blood-color-input-group">
+          <input type="color" name="system.bloodColor" value="{{default system.bloodColor '#8b0000'}}" title="Choose the color for blood pools when this NPC takes damage"/>
+          <input type="text" name="system.bloodColor" value="{{default system.bloodColor '#8b0000'}}" placeholder="#8b0000" class="blood-color-text" pattern="^#[0-9A-Fa-f]{6}$" title="Hex color code (e.g., #8b0000 for dark red, #ff0000 for red, #0000ff for blue)"/>
+        </div>
+        <p class="hint"><i class="fas fa-info-circle"></i> This color will be used for blood pools when this NPC takes damage.</p>
+      </div>
+      
       <label>Description:</label>
       {{editor system.bio.description target="system.bio.description" button=true owner=owner editable=editable}}
       

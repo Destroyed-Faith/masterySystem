@@ -1093,7 +1093,36 @@
     
     <!-- BIOGRAPHY TAB -->
     <div class="tab biography" data-group="primary" data-tab="biography">
-      <p style="padding: 20px; text-align: center; color: #666;">Biography tab - Background, Notes</p>
+      <div class="biography-content">
+        <div class="form-group">
+          <label>Blood Color (Blutfarbe):</label>
+          <div class="blood-color-input-group">
+            <input type="color" name="system.bloodColor" value="{{default system.bloodColor '#8b0000'}}" title="Choose the color for blood pools when this character takes damage"/>
+            <input type="text" name="system.bloodColor" value="{{default system.bloodColor '#8b0000'}}" placeholder="#8b0000" class="blood-color-text" pattern="^#[0-9A-Fa-f]{6}$" title="Hex color code (e.g., #8b0000 for dark red, #ff0000 for red, #0000ff for blue)"/>
+          </div>
+          <p class="hint"><i class="fas fa-info-circle"></i> This color will be used for blood pools when this character takes damage.</p>
+        </div>
+        
+        <div class="form-group">
+          <label>Echo:</label>
+          {{editor system.bio.echo target="system.bio.echo" button=true owner=owner editable=editable}}
+        </div>
+        
+        <div class="form-group">
+          <label>Concept:</label>
+          {{editor system.bio.concept target="system.bio.concept" button=true owner=owner editable=editable}}
+        </div>
+        
+        <div class="form-group">
+          <label>Appearance:</label>
+          {{editor system.bio.appearance target="system.bio.appearance" button=true owner=owner editable=editable}}
+        </div>
+        
+        <div class="form-group">
+          <label>Notes:</label>
+          {{editor system.bio.notes target="system.bio.notes" button=true owner=owner editable=editable}}
+        </div>
+      </div>
     </div>
     
   </section>

@@ -4236,4 +4236,95 @@
   }
 }
 
+/* ========== Biography Tab ========== */
+.mastery-system.sheet.actor.character .biography-content {
+  padding: 20px;
+}
+
+.mastery-system.sheet.actor.character .biography-content .form-group {
+  margin-bottom: 20px;
+}
+
+.mastery-system.sheet.actor.character .biography-content .form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #fff;
+}
+
+.mastery-system.sheet.actor.character .blood-color-input-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.mastery-system.sheet.actor.character .blood-color-input-group input[type="color"] {
+  width: 60px;
+  height: 40px;
+  border: 2px solid #8b0000;
+  border-radius: 4px;
+  cursor: pointer;
+  background: transparent;
+}
+
+.mastery-system.sheet.actor.character .blood-color-input-group .blood-color-text {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #666;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-family: monospace;
+}
+
+.mastery-system.sheet.actor.character .biography-content .hint {
+  margin-top: 5px;
+  font-size: 11px;
+  color: #aaa;
+  font-style: italic;
+}
+
+.mastery-system.sheet.actor.character .biography-content .hint i {
+  margin-right: 5px;
+}
+
+/* NPC Sheet Blood Color */
+.mastery-system.sheet.actor.npc .notes-panel .blood-color-input-group {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.mastery-system.sheet.actor.npc .notes-panel .blood-color-input-group input[type="color"] {
+  width: 60px;
+  height: 40px;
+  border: 2px solid #8b0000;
+  border-radius: 4px;
+  cursor: pointer;
+  background: transparent;
+}
+
+.mastery-system.sheet.actor.npc .notes-panel .blood-color-input-group .blood-color-text {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #666;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-family: monospace;
+}
+
+.mastery-system.sheet.actor.npc .notes-panel .hint {
+  margin-top: 5px;
+  margin-bottom: 15px;
+  font-size: 11px;
+  color: #aaa;
+  font-style: italic;
+}
+
+.mastery-system.sheet.actor.npc .notes-panel .hint i {
+  margin-right: 5px;
+}
+
 

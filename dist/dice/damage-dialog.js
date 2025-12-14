@@ -29,7 +29,23 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         flagsRaises: flags?.raises
     });
     // Load weapon from actor by ID
-    const items = attacker.items || [];
+    // Handle both Collection and Array
+    let items = [];
+    if (attacker.items) {
+        if (Array.isArray(attacker.items)) {
+            items = attacker.items;
+        }
+        else if (attacker.items instanceof Map) {
+            items = Array.from(attacker.items.values());
+        }
+        else if (attacker.items.size !== undefined && attacker.items.values) {
+            // Foundry Collection-like object
+            items = Array.from(attacker.items.values());
+        }
+        else {
+            items = [];
+        }
+    }
     const weapon = weaponId ? items.find((item) => item.id === weaponId) : null;
     console.log('Mastery System | [DAMAGE DIALOG] Weapon loading', {
         weaponId: weaponId,
@@ -45,10 +61,27 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
     let baseDamage = '1d8';
     if (weapon) {
         const weaponSystem = weapon.system;
+        // Priority: damage > weaponDamage > roll.damage > default
         baseDamage = weaponSystem?.damage ||
             weaponSystem?.weaponDamage ||
             weaponSystem?.roll?.damage ||
             '1d8';
+    }
+    else {
+        // If weapon not found by ID, try to find equipped weapon as fallback
+        console.warn('Mastery System | [DAMAGE DIALOG] Weapon not found by ID, trying equipped weapon fallback', { weaponId });
+        const equippedWeapon = items.find((item) => item.type === 'weapon' && item.system?.equipped === true);
+        if (equippedWeapon) {
+            const weaponSystem = equippedWeapon.system;
+            baseDamage = weaponSystem?.damage ||
+                weaponSystem?.weaponDamage ||
+                weaponSystem?.roll?.damage ||
+                '1d8';
+            console.log('Mastery System | [DAMAGE DIALOG] Using equipped weapon as fallback', {
+                weaponName: equippedWeapon.name,
+                baseDamage
+            });
+        }
     }
     console.log('Mastery System | [DAMAGE DIALOG] Base damage calculated', {
         weaponId,
@@ -60,19 +93,47 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         weaponSystemRollDamage: weapon ? weapon.system?.roll?.damage : null,
         weaponSystemFull: weapon ? JSON.stringify(weapon.system, null, 2) : null
     });
-    // Get weapon specials
-    const weaponSpecials = weapon ? (weapon.system?.specials || []) : [];
-    console.log('Mastery System | DEBUG: showDamageDialog - weaponSpecials', weaponSpecials);
+    // Get weapon specials - use the found weapon or fallback to equipped weapon
+    let weaponForSpecials = weapon;
+    if (!weaponForSpecials && weaponId) {
+        // Try to find weapon again or use equipped weapon
+        weaponForSpecials = items.find((item) => (item.id === weaponId && item.type === 'weapon') ||
+            (item.type === 'weapon' && item.system?.equipped === true));
+    }
+    const weaponSpecials = weaponForSpecials ? (weaponForSpecials.system?.specials || []) : [];
+    console.log('Mastery System | DEBUG: showDamageDialog - weaponSpecials', {
+        weaponSpecials,
+        weaponName: weaponForSpecials ? weaponForSpecials.name : 'none',
+        weaponSystemSpecials: weaponForSpecials ? weaponForSpecials.system?.specials : null,
+        weaponSystemFull: weaponForSpecials ? JSON.stringify(weaponForSpecials.system, null, 2) : null
+    });
     // Load selected power from actor by ID and get its data
     let powerDamage = '0';
     let powerSpecials = [];
     let selectedPowerData = null;
+    // Ensure items is an array for power loading too
+    let powerItems = [];
+    if (attacker.items) {
+        if (Array.isArray(attacker.items)) {
+            powerItems = attacker.items;
+        }
+        else if (attacker.items instanceof Map) {
+            powerItems = Array.from(attacker.items.values());
+        }
+        else if (attacker.items.size !== undefined && attacker.items.values) {
+            // Foundry Collection-like object
+            powerItems = Array.from(attacker.items.values());
+        }
+        else {
+            powerItems = [];
+        }
+    }
     console.log('Mastery System | [DAMAGE DIALOG] Power loading', {
         selectedPowerId: selectedPowerId,
         hasSelectedPowerId: !!selectedPowerId,
-        totalItems: items.length,
-        specialItems: items.filter((item) => item.type === 'special').length,
-        allSpecialIds: items.filter((item) => item.type === 'special').map((item) => ({
+        totalItems: powerItems.length,
+        specialItems: powerItems.filter((item) => item.type === 'special').length,
+        allSpecialIds: powerItems.filter((item) => item.type === 'special').map((item) => ({
             id: item.id,
             name: item.name,
             powerType: item.system?.powerType
@@ -169,7 +230,8 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
     const passiveDamage = await calculatePassiveDamage(attacker);
     console.log('Mastery System | DEBUG: showDamageDialog - passiveDamage', passiveDamage);
     // Collect available specials (include power specials from selected power)
-    const availableSpecials = await collectAvailableSpecials(attacker, weapon, selectedPowerData);
+    // Use weaponForSpecials (found weapon or fallback) to ensure weapon specials are included
+    const availableSpecials = await collectAvailableSpecials(attacker, weaponForSpecials, selectedPowerData);
     console.log('Mastery System | DEBUG: showDamageDialog - availableSpecials', {
         count: availableSpecials.length,
         specials: availableSpecials.map(s => ({ id: s.id, name: s.name, type: s.type }))
@@ -683,25 +745,67 @@ async function applyDamageToTarget(target, damage, attacker) {
             attackerName: attacker.name,
             damage
         });
-        // Use the actor's applyDamage method if available
-        if (target.applyDamage) {
-            await target.applyDamage(damage);
-        }
-        else {
-            // Fallback: manually apply damage
-            const system = target.system;
-            if (system.health && system.health.bars) {
-                const currentBar = system.health.bars[system.health.currentBar || 0];
-                if (currentBar) {
-                    currentBar.current = Math.max(currentBar.current - damage, 0);
-                    await target.update({ 'system.health': system.health });
+        // Create blood pool at target token position (if token exists on canvas)
+        if (damage > 0 && canvas?.ready) {
+            const targetToken = target.getActiveTokens?.()?.[0] ||
+                game.scenes?.active?.tokens?.find((t) => t.actor?.id === target.id);
+            if (targetToken) {
+                try {
+                    // Import blood pool function
+                    const { createBloodPool } = await import('../utils/blood-pool');
+                    // Get blood color from actor
+                    const actorSystem = target.system;
+                    const bloodColor = actorSystem?.bloodColor;
+                    // Create persistent blood pool (as Tile) with custom color
+                    await createBloodPool(targetToken, damage, true, bloodColor);
+                }
+                catch (error) {
+                    console.warn('Mastery System | Could not create blood pool', error);
                 }
             }
         }
+        // Get current health data
+        const system = target.system;
+        if (!system.health || !system.health.bars || system.health.bars.length === 0) {
+            console.error('Mastery System | [APPLY DAMAGE] Target has no health bars', {
+                targetId: target.id,
+                hasHealth: !!system.health,
+                hasBars: !!(system.health && system.health.bars),
+                barsLength: system.health?.bars?.length || 0
+            });
+            return;
+        }
+        const currentBarIndex = system.health.currentBar || 0;
+        const currentBar = system.health.bars[currentBarIndex];
+        if (!currentBar) {
+            console.error('Mastery System | [APPLY DAMAGE] Current health bar not found', {
+                targetId: target.id,
+                currentBarIndex,
+                barsLength: system.health.bars.length
+            });
+            return;
+        }
+        // Calculate new current HP
+        const oldCurrent = currentBar.current;
+        const newCurrent = Math.max(oldCurrent - damage, 0);
+        currentBar.current = newCurrent;
+        // Update the actor with the new health
+        const updateData = {};
+        updateData[`system.health.bars.${currentBarIndex}.current`] = newCurrent;
+        await target.update(updateData);
         console.log('Mastery System | [APPLY DAMAGE] Damage applied', {
             targetId: target.id,
-            damage
+            targetName: target.name,
+            damage,
+            oldCurrent,
+            newCurrent,
+            barIndex: currentBarIndex
         });
+        // Refresh the actor sheet if it's open
+        const sheet = target.sheet;
+        if (sheet && sheet.rendered) {
+            sheet.render(false);
+        }
     }
     catch (error) {
         console.error('Mastery System | [APPLY DAMAGE] Error applying damage', error);
