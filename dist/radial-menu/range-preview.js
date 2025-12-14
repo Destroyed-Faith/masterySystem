@@ -262,24 +262,24 @@ function highlightRangeHexes(center, rangeUnits, highlightId, color = 0xffe066, 
         if (canvas.grid?.getOffset) {
             // New v13 API: getOffset returns {col, row}
             const offset = canvas.grid.getOffset(center.x, center.y);
-            console.log('Mastery System | [DEBUG] highlightRangeHexes: getOffset raw result', {
-                offset,
-                offsetType: typeof offset,
-                offsetIsNull: offset === null,
-                offsetIsUndefined: offset === undefined,
-                offsetKeys: offset ? Object.keys(offset) : [],
-                offsetCol: offset?.col,
-                offsetRow: offset?.row,
-                offsetX: offset?.x,
-                offsetY: offset?.y,
-                offsetQ: offset?.q,
-                offsetR: offset?.r,
-                offsetStringified: JSON.stringify(offset),
-                centerX: center.x,
-                centerY: center.y,
-                gridType: canvas.grid.type,
-                gridSize: canvas.grid.size
-            });
+            // Log detailed offset information
+            console.log('Mastery System | [DEBUG] highlightRangeHexes: getOffset raw result');
+            console.log('  offset:', offset);
+            console.log('  offsetType:', typeof offset);
+            console.log('  offsetIsNull:', offset === null);
+            console.log('  offsetIsUndefined:', offset === undefined);
+            console.log('  offsetKeys:', offset ? Object.keys(offset) : []);
+            console.log('  offsetCol:', offset?.col);
+            console.log('  offsetRow:', offset?.row);
+            console.log('  offsetX:', offset?.x);
+            console.log('  offsetY:', offset?.y);
+            console.log('  offsetQ:', offset?.q);
+            console.log('  offsetR:', offset?.r);
+            console.log('  offsetStringified:', JSON.stringify(offset));
+            console.log('  centerX:', center.x);
+            console.log('  centerY:', center.y);
+            console.log('  gridType:', canvas.grid.type);
+            console.log('  gridSize:', canvas.grid.size);
             // Try different property names
             if (offset) {
                 // Check for col/row (standard)
@@ -307,11 +307,10 @@ function highlightRangeHexes(center, rangeUnits, highlightId, color = 0xffe066, 
                         gridPositionMethod = 'getOffset (any col/row)';
                     }
                 }
-                console.log('Mastery System | [DEBUG] highlightRangeHexes: After parsing offset', {
-                    centerGrid,
-                    gridPositionMethod,
-                    offsetParsed: !!centerGrid
-                });
+                console.log('Mastery System | [DEBUG] highlightRangeHexes: After parsing offset');
+                console.log('  centerGrid:', centerGrid);
+                console.log('  gridPositionMethod:', gridPositionMethod);
+                console.log('  offsetParsed:', !!centerGrid);
             }
             else {
                 console.warn('Mastery System | [DEBUG] highlightRangeHexes: getOffset returned null/undefined', {
@@ -370,16 +369,18 @@ function highlightRangeHexes(center, rangeUnits, highlightId, color = 0xffe066, 
         console.warn('Mastery System | [DEBUG] highlightRangeHexes: Could not get grid position', error);
         return;
     }
-    console.log('Mastery System | [DEBUG] highlightRangeHexes: Grid position result', {
-        centerGrid,
-        gridPositionMethod,
-        hasValidPosition: centerGrid && centerGrid.col !== undefined && centerGrid.row !== undefined
-    });
+    console.log('Mastery System | [DEBUG] highlightRangeHexes: Grid position result');
+    console.log('  centerGrid:', centerGrid);
+    console.log('  gridPositionMethod:', gridPositionMethod);
+    console.log('  hasValidPosition:', centerGrid && centerGrid.col !== undefined && centerGrid.row !== undefined);
+    console.log('  centerGrid?.col:', centerGrid?.col);
+    console.log('  centerGrid?.row:', centerGrid?.row);
     if (!centerGrid || centerGrid.col === undefined || centerGrid.row === undefined) {
-        console.warn('Mastery System | [DEBUG] highlightRangeHexes: No valid grid position, aborting', {
-            centerGrid,
-            center
-        });
+        console.warn('Mastery System | [DEBUG] highlightRangeHexes: No valid grid position, aborting');
+        console.warn('  centerGrid:', centerGrid);
+        console.warn('  center:', center);
+        console.warn('  centerGrid?.col:', centerGrid?.col);
+        console.warn('  centerGrid?.row:', centerGrid?.row);
         return;
     }
     console.log('Mastery System | [DEBUG] highlightRangeHexes: Starting hex iteration', {
@@ -579,18 +580,20 @@ export function showRadialMenuRange(token) {
     });
     // Check if grid is actually enabled (not gridless)
     const isGridless = !canvas.grid || canvas.grid.type === CONST.GRID_TYPES.GRIDLESS;
-    console.log('Mastery System | [DEBUG] showRadialMenuRange: Grid check', {
-        hasGrid: !!canvas.grid,
-        gridType: canvas.grid?.type,
-        gridTypeName: canvas.grid?.type === CONST.GRID_TYPES.GRIDLESS ? 'GRIDLESS' :
-            canvas.grid?.type === CONST.GRID_TYPES.SQUARE ? 'SQUARE' :
-                canvas.grid?.type === CONST.GRID_TYPES.HEXAGONAL ? 'HEXAGONAL' :
-                    `UNKNOWN (${canvas.grid?.type})`,
-        isGridless,
-        CONST_GRID_TYPES_GRIDLESS: CONST.GRID_TYPES.GRIDLESS,
-        CONST_GRID_TYPES_SQUARE: CONST.GRID_TYPES.SQUARE,
-        CONST_GRID_TYPES_HEXAGONAL: CONST.GRID_TYPES.HEXAGONAL
-    });
+    console.log('Mastery System | [DEBUG] showRadialMenuRange: Grid check');
+    console.log('  hasGrid:', !!canvas.grid);
+    console.log('  gridType:', canvas.grid?.type);
+    const gridTypeName = canvas.grid?.type === CONST.GRID_TYPES.GRIDLESS ? 'GRIDLESS' :
+        canvas.grid?.type === CONST.GRID_TYPES.SQUARE ? 'SQUARE' :
+            canvas.grid?.type === CONST.GRID_TYPES.HEXAGONAL ? 'HEXAGONAL' :
+                `UNKNOWN (${canvas.grid?.type})`;
+    console.log('  gridTypeName:', gridTypeName);
+    console.log('  isGridless:', isGridless);
+    console.log('  CONST_GRID_TYPES_GRIDLESS:', CONST.GRID_TYPES.GRIDLESS);
+    console.log('  CONST_GRID_TYPES_SQUARE:', CONST.GRID_TYPES.SQUARE);
+    console.log('  CONST_GRID_TYPES_HEXAGONAL:', CONST.GRID_TYPES.HEXAGONAL);
+    console.log('  gridType === GRIDLESS:', canvas.grid?.type === CONST.GRID_TYPES.GRIDLESS);
+    console.log('  !canvas.grid:', !canvas.grid);
     // If grid is enabled, highlight grid fields
     if (!isGridless) {
         console.log('Mastery System | [DEBUG] showRadialMenuRange: Grid enabled, highlighting fields', {
