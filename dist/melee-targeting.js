@@ -170,20 +170,9 @@ function highlightReachArea(state) {
     });
     // Clear previous graphics
     state.previewGraphics.clear();
-    // Always draw circle for visibility (even on hex grids)
-    state.previewGraphics.lineStyle(3, 0xff6666, 1.0); // Thicker, fully opaque border
-    state.previewGraphics.beginFill(0xff6666, 0.25); // Slightly more visible fill
-    state.previewGraphics.drawCircle(0, 0, radiusPx);
-    state.previewGraphics.endFill();
-    // Add an inner ring for better visibility
-    state.previewGraphics.lineStyle(1, 0xff8888, 0.6);
-    state.previewGraphics.drawCircle(0, 0, radiusPx * 0.9);
-    // Position at attacker center
-    state.previewGraphics.position.set(attackerCenter.x, attackerCenter.y);
-    // Ensure graphics are visible and renderable
-    state.previewGraphics.visible = true;
-    state.previewGraphics.renderable = true;
-    state.previewGraphics.alpha = 1.0;
+    // Don't draw circle - we'll use hex highlighting instead
+    // Only draw circle as fallback if hex highlighting fails
+    let shouldDrawCircle = true;
     console.log('Mastery System | [DEBUG] highlightReachArea: Circle drawn', {
         radiusPx,
         position: { x: state.previewGraphics.position.x, y: state.previewGraphics.position.y },
@@ -231,10 +220,12 @@ function highlightReachArea(state) {
         hasHighlight: !!highlight,
         highlightMethod,
         highlightType: highlight ? highlight.constructor.name : 'null',
-        highlightMethods: highlight ? Object.getOwnPropertyNames(Object.getPrototypeOf(highlight)).filter(m => typeof highlight[m] === 'function') : []
+        highlightMethods: highlight ? Object.getOwnPropertyNames(Object.getPrototypeOf(highlight)).filter(m => typeof highlight[m] === 'function') : [],
+        highlightProperties: highlight ? Object.keys(highlight) : []
     });
+    // Try to clear previous highlights - use different methods
     if (highlight) {
-        // Try to clear the highlight layer
+        // Method 1: Try clear method
         if (typeof highlight.clear === 'function') {
             try {
                 highlight.clear();
@@ -244,8 +235,33 @@ function highlightReachArea(state) {
                 console.warn('Mastery System | [DEBUG] Error clearing highlight layer', error);
             }
         }
+        // Method 2: Try clearAll
+        else if (typeof highlight.clearAll === 'function') {
+            try {
+                highlight.clearAll();
+                console.log('Mastery System | [DEBUG] Highlight layer cleared via clearAll');
+            }
+            catch (error) {
+                console.warn('Mastery System | [DEBUG] Error clearing highlight layer via clearAll', error);
+            }
+        }
+        // Method 3: Try to clear by setting empty array or object
+        else if (highlight.highlights && Array.isArray(highlight.highlights)) {
+            highlight.highlights.length = 0;
+            console.log('Mastery System | [DEBUG] Highlight layer cleared via array clear');
+        }
+        // Method 4: Try to remove all children if it's a container
+        else if (highlight.removeChildren && typeof highlight.removeChildren === 'function') {
+            try {
+                highlight.removeChildren();
+                console.log('Mastery System | [DEBUG] Highlight layer cleared via removeChildren');
+            }
+            catch (error) {
+                console.warn('Mastery System | [DEBUG] Error clearing highlight layer via removeChildren', error);
+            }
+        }
         else {
-            console.log('Mastery System | [DEBUG] Highlight layer found but no clear method');
+            console.log('Mastery System | [DEBUG] Highlight layer found but no clear method - will overwrite highlights');
         }
     }
     else {
@@ -287,13 +303,14 @@ function highlightReachArea(state) {
         gridPositionMethod,
         hasHighlight: !!highlight
     });
+    // Declare hexesHighlighted at function level
+    let hexesHighlighted = 0;
     if (attackerGrid && highlight) {
         console.log('Mastery System | [DEBUG] highlightReachArea: Starting hex iteration', {
             attackerGrid,
             maxHexDistance,
             totalHexesToCheck: (maxHexDistance * 2 + 1) * (maxHexDistance * 2 + 1)
         });
-        let hexesHighlighted = 0;
         // For hex grids, use cube coordinates or axial coordinates
         // Simple approach: check all hexes in a square area and measure distance
         for (let q = -maxHexDistance; q <= maxHexDistance; q++) {
@@ -357,33 +374,49 @@ function highlightReachArea(state) {
                         // Try different methods to highlight the hex
                         let highlighted = false;
                         try {
-                            // Foundry v13 API: highlight.highlightPosition(col, row, options)
+                            // Method 1: Foundry v13 API: highlight.highlightPosition(col, row, options)
                             if (highlight && typeof highlight.highlightPosition === 'function') {
                                 highlight.highlightPosition(gridCol, gridRow, { color: 0xff6666, alpha: 0.5 });
                                 highlighted = true;
                             }
-                            // Alternative API: highlight.highlightGridPosition
+                            // Method 2: Alternative API: highlight.highlightGridPosition
                             else if (highlight && typeof highlight.highlightGridPosition === 'function') {
                                 highlight.highlightGridPosition(gridCol, gridRow, { color: 0xff6666, alpha: 0.5 });
                                 highlighted = true;
                             }
-                            // Fallback: highlight.highlight
+                            // Method 3: Fallback: highlight.highlight
                             else if (highlight && typeof highlight.highlight === 'function') {
                                 highlight.highlight(gridCol, gridRow, { color: 0xff6666, alpha: 0.5 });
                                 highlighted = true;
                             }
-                            // Direct grid highlight (v13)
+                            // Method 4: Direct grid highlight (v13)
                             else if (canvas.grid && typeof canvas.grid.highlightPosition === 'function') {
                                 canvas.grid.highlightPosition(gridCol, gridRow, { color: 0xff6666, alpha: 0.5 });
                                 highlighted = true;
                             }
-                            // Last resort: try to add highlight directly
+                            // Method 5: Try to add highlight directly with add method
                             else if (highlight && typeof highlight.add === 'function') {
                                 highlight.add({ col: gridCol, row: gridRow, color: 0xff6666, alpha: 0.5 });
                                 highlighted = true;
                             }
+                            // Method 6: Try to set highlights array directly
+                            else if (highlight && Array.isArray(highlight.highlights)) {
+                                highlight.highlights.push({ col: gridCol, row: gridRow, color: 0xff6666, alpha: 0.5 });
+                                highlighted = true;
+                            }
+                            // Method 7: Try to use set method
+                            else if (highlight && typeof highlight.set === 'function') {
+                                highlight.set(gridCol, gridRow, { color: 0xff6666, alpha: 0.5 });
+                                highlighted = true;
+                            }
+                            // Method 8: Try to use drawHighlight method
+                            else if (highlight && typeof highlight.drawHighlight === 'function') {
+                                highlight.drawHighlight(gridCol, gridRow, 0xff6666, 0.5);
+                                highlighted = true;
+                            }
                             if (highlighted) {
                                 hexesHighlighted++;
+                                shouldDrawCircle = false; // Don't draw circle if hexes are being highlighted
                             }
                         }
                         catch (error) {
@@ -395,7 +428,8 @@ function highlightReachArea(state) {
         }
         console.log('Mastery System | [DEBUG] highlightReachArea: Hex highlighting complete', {
             hexesHighlighted,
-            totalHexesChecked: (maxHexDistance * 2 + 1) * (maxHexDistance * 2 + 1)
+            totalHexesChecked: (maxHexDistance * 2 + 1) * (maxHexDistance * 2 + 1),
+            shouldDrawCircle
         });
     }
     else {
@@ -404,7 +438,30 @@ function highlightReachArea(state) {
             hasHighlight: !!highlight
         });
     }
-    console.log('Mastery System | [DEBUG] highlightReachArea: Complete');
+    // Only draw circle if hex highlighting failed
+    if (shouldDrawCircle) {
+        state.previewGraphics.lineStyle(3, 0xff6666, 1.0);
+        state.previewGraphics.beginFill(0xff6666, 0.25);
+        state.previewGraphics.drawCircle(0, 0, radiusPx);
+        state.previewGraphics.endFill();
+        state.previewGraphics.lineStyle(1, 0xff8888, 0.6);
+        state.previewGraphics.drawCircle(0, 0, radiusPx * 0.9);
+        console.log('Mastery System | [DEBUG] highlightReachArea: Drawing fallback circle');
+    }
+    else {
+        console.log('Mastery System | [DEBUG] highlightReachArea: Hex highlighting successful, skipping circle');
+    }
+    // Position at attacker center
+    state.previewGraphics.position.set(attackerCenter.x, attackerCenter.y);
+    // Ensure graphics are visible and renderable
+    state.previewGraphics.visible = true;
+    state.previewGraphics.renderable = true;
+    state.previewGraphics.alpha = 1.0;
+    console.log('Mastery System | [DEBUG] highlightReachArea: Complete', {
+        hexesHighlighted,
+        shouldDrawCircle,
+        graphicsVisible: state.previewGraphics.visible
+    });
 }
 /**
  * Apply visual tint to valid target tokens
