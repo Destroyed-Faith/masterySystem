@@ -346,10 +346,38 @@ function registerSystemSettings() {
  */
 function setupXpManagementInline() {
   // Hook into settings rendering to add custom UI
-  Hooks.on('renderSettingsConfig', (app: any, html: JQuery, _data: any) => {
+  Hooks.on('renderSettingsConfig', (app: any, html: any, _data: any) => {
+    // In Foundry v13, html might be an HTMLElement, jQuery, or a different structure
+    // Convert to jQuery if needed
+    let $html: JQuery<HTMLElement>;
+    try {
+      if (html && typeof html === 'object') {
+        // Check if it's already a jQuery object
+        if (html.jquery !== undefined && html.find !== undefined) {
+          $html = html as JQuery<HTMLElement>;
+        } else if (html instanceof HTMLElement || html instanceof DocumentFragment) {
+          $html = $(html) as JQuery<HTMLElement>;
+        } else if (html.length !== undefined && html[0] instanceof HTMLElement) {
+          // Might be a jQuery-like object
+          $html = $(html) as JQuery<HTMLElement>;
+        } else {
+          // Try to wrap it
+          $html = $(html) as JQuery<HTMLElement>;
+        }
+      } else {
+        $html = $(html) as JQuery<HTMLElement>;
+      }
+    } catch (e) {
+      console.error('Mastery System | Error converting html to jQuery:', e);
+      return;
+    }
+    
     // Find the Character XP Management setting
-    const xpSetting = html.find('[name="mastery-system.characterXpManagement"]').closest('.form-group');
-    if (xpSetting.length === 0) return;
+    const xpSetting = $html.find('[name="mastery-system.characterXpManagement"]').closest('.form-group');
+    if (xpSetting.length === 0) {
+      console.log('Mastery System | XP Management setting not found in settings');
+      return;
+    }
     
     // Replace the default input with our custom UI
     const settingInput = xpSetting.find('input, select, textarea');

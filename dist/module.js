@@ -302,10 +302,41 @@ function registerSystemSettings() {
 function setupXpManagementInline() {
     // Hook into settings rendering to add custom UI
     Hooks.on('renderSettingsConfig', (app, html, _data) => {
-        // Find the Character XP Management setting
-        const xpSetting = html.find('[name="mastery-system.characterXpManagement"]').closest('.form-group');
-        if (xpSetting.length === 0)
+        // In Foundry v13, html might be an HTMLElement, jQuery, or a different structure
+        // Convert to jQuery if needed
+        let $html;
+        try {
+            if (html && typeof html === 'object') {
+                // Check if it's already a jQuery object
+                if (html.jquery !== undefined && html.find !== undefined) {
+                    $html = html;
+                }
+                else if (html instanceof HTMLElement || html instanceof DocumentFragment) {
+                    $html = $(html);
+                }
+                else if (html.length !== undefined && html[0] instanceof HTMLElement) {
+                    // Might be a jQuery-like object
+                    $html = $(html);
+                }
+                else {
+                    // Try to wrap it
+                    $html = $(html);
+                }
+            }
+            else {
+                $html = $(html);
+            }
+        }
+        catch (e) {
+            console.error('Mastery System | Error converting html to jQuery:', e);
             return;
+        }
+        // Find the Character XP Management setting
+        const xpSetting = $html.find('[name="mastery-system.characterXpManagement"]').closest('.form-group');
+        if (xpSetting.length === 0) {
+            console.log('Mastery System | XP Management setting not found in settings');
+            return;
+        }
         // Replace the default input with our custom UI
         const settingInput = xpSetting.find('input, select, textarea');
         const customContainer = $('<div class="mastery-xp-management-inline"></div>');
