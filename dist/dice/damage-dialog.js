@@ -19,10 +19,14 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         selectedPowerIdLength: selectedPowerId ? selectedPowerId.length : 0,
         raises: raises,
         raisesType: typeof raises,
+        raisesIsNumber: typeof raises === 'number',
+        raisesValue: raises,
+        raisesIsZero: raises === 0,
         hasFlags: !!flags,
         flagsKeys: flags ? Object.keys(flags) : [],
         flagsWeaponId: flags?.weaponId,
-        flagsSelectedPowerId: flags?.selectedPowerId
+        flagsSelectedPowerId: flags?.selectedPowerId,
+        flagsRaises: flags?.raises
     });
     // Load weapon from actor by ID
     const items = attacker.items || [];
