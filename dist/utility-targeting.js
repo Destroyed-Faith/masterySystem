@@ -250,18 +250,30 @@ function highlightRadiusArea(state) {
                     if (distanceInUnits <= radiusInUnits) {
                         // Try different methods to highlight the hex
                         try {
+                            // Foundry v13 API: highlight.highlightPosition(col, row, options)
                             if (highlight && typeof highlight.highlightPosition === 'function') {
                                 highlight.highlightPosition(gridCol, gridRow, { color: 0x66aaff, alpha: 0.3 });
                             }
+                            // Alternative API: highlight.highlightGridPosition
                             else if (highlight && typeof highlight.highlightGridPosition === 'function') {
                                 highlight.highlightGridPosition(gridCol, gridRow, { color: 0x66aaff, alpha: 0.3 });
                             }
+                            // Fallback: highlight.highlight
                             else if (highlight && typeof highlight.highlight === 'function') {
                                 highlight.highlight(gridCol, gridRow, { color: 0x66aaff, alpha: 0.3 });
+                            }
+                            // Direct grid highlight (v13)
+                            else if (canvas.grid && typeof canvas.grid.highlightPosition === 'function') {
+                                canvas.grid.highlightPosition(gridCol, gridRow, { color: 0x66aaff, alpha: 0.3 });
+                            }
+                            // Last resort: try to add highlight directly
+                            else if (highlight && typeof highlight.add === 'function') {
+                                highlight.add({ col: gridCol, row: gridRow, color: 0x66aaff, alpha: 0.3 });
                             }
                         }
                         catch (error) {
                             // Silently fail if highlighting doesn't work
+                            console.warn('Mastery System | Could not highlight hex at', gridCol, gridRow, error);
                         }
                     }
                 }

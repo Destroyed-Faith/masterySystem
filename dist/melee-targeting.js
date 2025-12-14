@@ -287,15 +287,30 @@ function highlightReachArea(state) {
                     }
                     if (distanceInUnits <= state.reachGridUnits) {
                         // Try different methods to highlight the hex
-                        if (highlight && typeof highlight.highlightPosition === 'function') {
-                            highlight.highlightPosition(gridCol, gridRow, { color: 0xff6666, alpha: 0.5 });
+                        try {
+                            // Foundry v13 API: highlight.highlightPosition(col, row, options)
+                            if (highlight && typeof highlight.highlightPosition === 'function') {
+                                highlight.highlightPosition(gridCol, gridRow, { color: 0xff6666, alpha: 0.5 });
+                            }
+                            // Alternative API: highlight.highlightGridPosition
+                            else if (highlight && typeof highlight.highlightGridPosition === 'function') {
+                                highlight.highlightGridPosition(gridCol, gridRow, { color: 0xff6666, alpha: 0.5 });
+                            }
+                            // Fallback: highlight.highlight
+                            else if (highlight && typeof highlight.highlight === 'function') {
+                                highlight.highlight(gridCol, gridRow, { color: 0xff6666, alpha: 0.5 });
+                            }
+                            // Direct grid highlight (v13)
+                            else if (canvas.grid && typeof canvas.grid.highlightPosition === 'function') {
+                                canvas.grid.highlightPosition(gridCol, gridRow, { color: 0xff6666, alpha: 0.5 });
+                            }
+                            // Last resort: try to add highlight directly
+                            else if (highlight && typeof highlight.add === 'function') {
+                                highlight.add({ col: gridCol, row: gridRow, color: 0xff6666, alpha: 0.5 });
+                            }
                         }
-                        else if (highlight && typeof highlight.highlightGridPosition === 'function') {
-                            highlight.highlightGridPosition(gridCol, gridRow, { color: 0xff6666, alpha: 0.5 });
-                        }
-                        else if (highlight && typeof highlight.highlight === 'function') {
-                            // Some versions use just 'highlight'
-                            highlight.highlight(gridCol, gridRow, { color: 0xff6666, alpha: 0.5 });
+                        catch (error) {
+                            console.warn('Mastery System | Could not highlight hex at', gridCol, gridRow, error);
                         }
                     }
                 }
@@ -413,8 +428,12 @@ export function startMeleeTargeting(token, option) {
         onKeyDown
     };
     activeMeleeTargeting = state;
-    // Attach event listeners
-    canvas.stage.on('pointerdown', state.onPointerDown);
+    // Attach event listeners - use capture phase to catch events before tokens handle them
+    // Also listen on token layer directly for better token click detection
+    canvas.stage.on('pointerdown', state.onPointerDown, true);
+    if (canvas.tokens) {
+        canvas.tokens.on('pointerdown', state.onPointerDown, true);
+    }
     window.addEventListener('keydown', state.onKeyDown);
     // Draw reach area and highlight targets
     highlightReachArea(state);
@@ -472,17 +491,35 @@ function handleMeleePointerDown(ev) {
                 depth++;
             }
         }
-        // Method 3: Find token by position (fallback)
+        // Method 3: Find token by position (fallback) - use token layer coordinates
         if (!clickedToken) {
             try {
-                const worldPos = ev.data.getLocalPosition(canvas.app.stage);
-                const tokens = canvas.tokens?.placeables || [];
-                clickedToken = tokens.find((token) => {
-                    const bounds = token.bounds;
-                    return bounds && bounds.contains(worldPos.x, worldPos.y);
-                });
-                if (clickedToken) {
-                    console.log('Mastery System | Found token via position check:', clickedToken.name);
+                // Try to get position in token layer coordinates
+                let worldPos = null;
+                if (canvas.tokens && ev.data) {
+                    try {
+                        worldPos = ev.data.getLocalPosition(canvas.tokens);
+                    }
+                    catch (e) {
+                        // Fallback to stage coordinates
+                        worldPos = ev.data.getLocalPosition(canvas.app.stage);
+                    }
+                }
+                else if (ev.data) {
+                    worldPos = ev.data.getLocalPosition(canvas.app.stage);
+                }
+                if (worldPos) {
+                    const tokens = canvas.tokens?.placeables || [];
+                    clickedToken = tokens.find((token) => {
+                        if (!token.bounds)
+                            return false;
+                        // Check if point is within token bounds
+                        const bounds = token.bounds;
+                        return bounds.contains(worldPos.x, worldPos.y);
+                    });
+                    if (clickedToken) {
+                        console.log('Mastery System | Found token via position check:', clickedToken.name);
+                    }
                 }
             }
             catch (error) {
@@ -907,7 +944,10 @@ export function endMeleeTargeting(success) {
         return;
     console.log('Mastery System | Ending melee targeting mode, success =', success);
     // Remove event listeners
-    canvas.stage.off('pointerdown', state.onPointerDown);
+    canvas.stage.off('pointerdown', state.onPointerDown, true);
+    if (canvas.tokens) {
+        canvas.tokens.off('pointerdown', state.onPointerDown, true);
+    }
     window.removeEventListener('keydown', state.onKeyDown);
     // Clear highlights using new v13 API
     let highlight = null;
