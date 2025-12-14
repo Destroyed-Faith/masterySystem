@@ -78,14 +78,24 @@ export async function showDamageDialog(
   });
   
   // Calculate base damage from weapon
-  const baseDamage = weapon ? ((weapon.system as any)?.damage || (weapon.system as any)?.weaponDamage || '1d8') : '1d8';
+  // Check both damage and weaponDamage fields, and also check roll.damage
+  let baseDamage = '1d8';
+  if (weapon) {
+    const weaponSystem = weapon.system as any;
+    baseDamage = weaponSystem?.damage || 
+                  weaponSystem?.weaponDamage || 
+                  weaponSystem?.roll?.damage || 
+                  '1d8';
+  }
   console.log('Mastery System | [DAMAGE DIALOG] Base damage calculated', {
     weaponId,
     weaponFound: !!weapon,
     weaponName: weapon ? weapon.name : 'none',
     baseDamage: baseDamage,
     weaponSystemDamage: weapon ? (weapon.system as any)?.damage : null,
-    weaponSystemWeaponDamage: weapon ? (weapon.system as any)?.weaponDamage : null
+    weaponSystemWeaponDamage: weapon ? (weapon.system as any)?.weaponDamage : null,
+    weaponSystemRollDamage: weapon ? (weapon.system as any)?.roll?.damage : null,
+    weaponSystemFull: weapon ? JSON.stringify(weapon.system, null, 2) : null
   });
   
   // Get weapon specials
@@ -203,9 +213,12 @@ export async function showDamageDialog(
   const passiveDamage = await calculatePassiveDamage(attacker);
   console.log('Mastery System | DEBUG: showDamageDialog - passiveDamage', passiveDamage);
   
-  // Collect available specials
-  const availableSpecials = await collectAvailableSpecials(attacker, weapon);
-  console.log('Mastery System | DEBUG: showDamageDialog - availableSpecials', availableSpecials.length);
+  // Collect available specials (include power specials from selected power)
+  const availableSpecials = await collectAvailableSpecials(attacker, weapon, selectedPowerData);
+  console.log('Mastery System | DEBUG: showDamageDialog - availableSpecials', {
+    count: availableSpecials.length,
+    specials: availableSpecials.map(s => ({ id: s.id, name: s.name, type: s.type }))
+  });
   
   // Create damage card as chat message instead of dialog
   return new Promise((resolve) => {
@@ -319,6 +332,8 @@ function createDamageCardContent(
     passiveDamage: passiveDamage,
     raises: raises,
     raisesType: typeof raises,
+    raisesIsNumber: typeof raises === 'number',
+    raisesIsGreaterThanZero: raises > 0,
     hasRaisesSection: !!raisesSection,
     raisesSectionLength: raisesSection.length,
     selectedPower: selectedPower ? {
