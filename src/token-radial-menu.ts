@@ -275,7 +275,7 @@ function highlightRangeHexes(center: { x: number; y: number }, rangeUnits: numbe
     return;
   }
   
-  // Clear previous highlights
+  // Clear previous highlights - try multiple methods
   if (typeof highlight.clear === 'function') {
     try {
       highlight.clear();
@@ -283,8 +283,25 @@ function highlightRangeHexes(center: { x: number; y: number }, rangeUnits: numbe
     } catch (error) {
       console.warn('Mastery System | [DEBUG] highlightRangeHexes: Error clearing highlights', error);
     }
+  } else if (typeof highlight.clearAll === 'function') {
+    try {
+      highlight.clearAll();
+      console.log('Mastery System | [DEBUG] highlightRangeHexes: Cleared via clearAll');
+    } catch (error) {
+      console.warn('Mastery System | [DEBUG] highlightRangeHexes: Error clearing via clearAll', error);
+    }
+  } else if (highlight.highlights && Array.isArray(highlight.highlights)) {
+    highlight.highlights.length = 0;
+    console.log('Mastery System | [DEBUG] highlightRangeHexes: Cleared via array clear');
+  } else if (highlight.removeChildren && typeof highlight.removeChildren === 'function') {
+    try {
+      highlight.removeChildren();
+      console.log('Mastery System | [DEBUG] highlightRangeHexes: Cleared via removeChildren');
+    } catch (error) {
+      console.warn('Mastery System | [DEBUG] highlightRangeHexes: Error clearing via removeChildren', error);
+    }
   } else {
-    console.warn('Mastery System | [DEBUG] highlightRangeHexes: Highlight layer has no clear method');
+    console.warn('Mastery System | [DEBUG] highlightRangeHexes: Highlight layer has no clear method - will overwrite');
   }
   
   // Get grid position of center using new v13 API
@@ -391,31 +408,50 @@ function highlightRangeHexes(center: { x: number; y: number }, rangeUnits: numbe
       // If hex is within range, highlight it
       if (distanceInUnits <= rangeUnits) {
         // Try different methods to highlight the hex
+        // Use yellow color (0xffe066) for movement preview to match movement segment color
+        const highlightColor = 0xffe066; // Yellow/gold color
+        const highlightAlpha = 0.5;
+        
         let highlighted = false;
         try {
-          // Foundry v13 API: highlight.highlightPosition(col, row, options)
+          // Method 1: Foundry v13 API: highlight.highlightPosition(col, row, options)
           if (highlight && typeof highlight.highlightPosition === 'function') {
-            highlight.highlightPosition(gridCol, gridRow, { color: 0x00ffff, alpha: 0.4 });
+            highlight.highlightPosition(gridCol, gridRow, { color: highlightColor, alpha: highlightAlpha });
             highlighted = true;
           } 
-          // Alternative API: highlight.highlightGridPosition
+          // Method 2: Alternative API: highlight.highlightGridPosition
           else if (highlight && typeof highlight.highlightGridPosition === 'function') {
-            highlight.highlightGridPosition(gridCol, gridRow, { color: 0x00ffff, alpha: 0.4 });
+            highlight.highlightGridPosition(gridCol, gridRow, { color: highlightColor, alpha: highlightAlpha });
             highlighted = true;
           } 
-          // Fallback: highlight.highlight
+          // Method 3: Fallback: highlight.highlight
           else if (highlight && typeof highlight.highlight === 'function') {
-            highlight.highlight(gridCol, gridRow, { color: 0x00ffff, alpha: 0.4 });
+            highlight.highlight(gridCol, gridRow, { color: highlightColor, alpha: highlightAlpha });
             highlighted = true;
           }
-          // Direct grid highlight (v13)
+          // Method 4: Direct grid highlight (v13)
           else if (canvas.grid && typeof (canvas.grid as any).highlightPosition === 'function') {
-            (canvas.grid as any).highlightPosition(gridCol, gridRow, { color: 0x00ffff, alpha: 0.4 });
+            (canvas.grid as any).highlightPosition(gridCol, gridRow, { color: highlightColor, alpha: highlightAlpha });
             highlighted = true;
           }
-          // Last resort: try to add highlight directly
+          // Method 5: Try to add highlight directly with add method
           else if (highlight && typeof highlight.add === 'function') {
-            highlight.add({ col: gridCol, row: gridRow, color: 0x00ffff, alpha: 0.4 });
+            highlight.add({ col: gridCol, row: gridRow, color: highlightColor, alpha: highlightAlpha });
+            highlighted = true;
+          }
+          // Method 6: Try to set highlights array directly
+          else if (highlight && Array.isArray(highlight.highlights)) {
+            highlight.highlights.push({ col: gridCol, row: gridRow, color: highlightColor, alpha: highlightAlpha });
+            highlighted = true;
+          }
+          // Method 7: Try to use set method
+          else if (highlight && typeof highlight.set === 'function') {
+            highlight.set(gridCol, gridRow, { color: highlightColor, alpha: highlightAlpha });
+            highlighted = true;
+          }
+          // Method 8: Try to use drawHighlight method
+          else if (highlight && typeof highlight.drawHighlight === 'function') {
+            highlight.drawHighlight(gridCol, gridRow, highlightColor, highlightAlpha);
             highlighted = true;
           }
           
@@ -432,7 +468,10 @@ function highlightRangeHexes(center: { x: number; y: number }, rangeUnits: numbe
   
   console.log('Mastery System | [DEBUG] highlightRangeHexes: Complete', {
     hexesHighlighted,
-    rangeUnits
+    rangeUnits,
+    totalHexesChecked: (maxHexDistance * 2 + 1) * (maxHexDistance * 2 + 1),
+    highlightMethod,
+    highlightType: highlight ? highlight.constructor.name : 'null'
   });
 }
 
@@ -1166,7 +1205,12 @@ function createRadialOptionSlice(
     wedge.lineTo(Math.cos(startAngle) * MS_OUTER_RING_OUTER, Math.sin(startAngle) * MS_OUTER_RING_OUTER);
     
     // Range preview
-    if (option.range !== undefined) {
+    // For movement options, always show 6 hex fields
+    if (option.slot === 'movement' || option.rangeCategory === 'self') {
+      // Movement: show 6 hex fields from token
+      const movementRange = option.range || 6; // Default to 6 if not specified
+      showRangePreview(token, movementRange);
+    } else if (option.range !== undefined) {
       showRangePreview(token, option.range);
     }
     
@@ -1305,7 +1349,8 @@ function renderOuterRing(
 function renderInnerSegments(
   root: PIXI.Container,
   getCurrentSegmentId: () => InnerSegment['id'],
-  setCurrentSegmentId: (id: InnerSegment['id']) => void
+  setCurrentSegmentId: (id: InnerSegment['id']) => void,
+  token?: any
 ): void {
   // Remove existing inner segments
   const toRemove: PIXI.DisplayObject[] = [];
@@ -1441,6 +1486,12 @@ function renderInnerSegments(
         gfx.arc(0, 0, MS_INNER_RADIUS, baseAngle, endAngle);
         gfx.lineTo(0, 0);
       }
+      
+      // Show movement preview when hovering over movement segment
+      if (seg.id === 'movement' && token) {
+        // Show 6 hex fields for movement
+        showRangePreview(token, 6);
+      }
     });
     
     container.on('pointerout', (_event: any) => {
@@ -1457,6 +1508,11 @@ function renderInnerSegments(
         gfx.moveTo(0, 0);
         gfx.arc(0, 0, MS_INNER_RADIUS, baseAngle, endAngle);
         gfx.lineTo(0, 0);
+      }
+      
+      // Clear movement preview when leaving movement segment
+      if (seg.id === 'movement') {
+        clearRangePreview();
       }
     });
     
@@ -1826,7 +1882,7 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
   // Render outer ring first, then inner segments
   // This ensures inner segments are on top and can receive clicks
   renderOuterRing(root, token, bySegment, currentSegmentId);
-  renderInnerSegments(root, getCurrentSegmentId, setCurrentSegmentId);
+  renderInnerSegments(root, getCurrentSegmentId, setCurrentSegmentId, token);
   
   // Move inner segments to the end of children list to ensure they're on top
   // This helps with event handling - elements rendered later are on top
