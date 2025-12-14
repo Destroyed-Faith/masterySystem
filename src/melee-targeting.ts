@@ -843,18 +843,32 @@ async function confirmMeleeTarget(targetToken: any, state: MeleeTargetingState):
     weaponDamage: weaponDamage,
     baseEvade: targetEvade,
     weaponId: equippedWeapon ? equippedWeapon.id : null,
-    selectedPowerId: null,
-    selectedPowerLevel: null,
-    selectedPowerSpecials: [],
-    selectedPowerDamage: ''
+    selectedPowerId: selectedPower ? selectedPower.id : null,
+    selectedPowerLevel: selectedPower ? selectedPowerLevel : null,
+    selectedPowerSpecials: selectedPower ? selectedPowerSpecials : [],
+    selectedPowerDamage: selectedPower ? selectedPowerDamage : ''
   };
   
   console.log('Mastery System | [ATTACK CARD CREATION] Initial flags being set', {
     weaponId: initialFlags.weaponId,
+    weaponIdType: typeof initialFlags.weaponId,
     selectedPowerId: initialFlags.selectedPowerId,
+    selectedPowerIdType: typeof initialFlags.selectedPowerId,
+    selectedPowerExists: !!selectedPower,
+    selectedPowerIdFromPower: selectedPower ? selectedPower.id : 'N/A',
+    selectedPowerLevel: initialFlags.selectedPowerLevel,
+    selectedPowerSpecials: initialFlags.selectedPowerSpecials,
+    selectedPowerDamage: initialFlags.selectedPowerDamage,
     targetEvade: initialFlags.targetEvade,
     baseEvade: initialFlags.baseEvade,
-    allFlagKeys: Object.keys(initialFlags)
+    allFlagKeys: Object.keys(initialFlags),
+    flagValues: {
+      weaponId: initialFlags.weaponId,
+      selectedPowerId: initialFlags.selectedPowerId,
+      selectedPowerLevel: initialFlags.selectedPowerLevel,
+      selectedPowerSpecials: JSON.stringify(initialFlags.selectedPowerSpecials),
+      selectedPowerDamage: initialFlags.selectedPowerDamage
+    }
   });
   
   // Create chat message
