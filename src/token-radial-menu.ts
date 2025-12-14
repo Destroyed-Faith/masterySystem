@@ -70,7 +70,7 @@ export function closeRadialMenu(): void {
  * Open the radial menu for an actor's token
  */
 export function openRadialMenuForActor(token: any, allOptions: RadialCombatOption[]): void {
-  closeRadialMenu();
+    closeRadialMenu();
   
   // Check if grid is enabled on the scene
   const gridEnabled = hasGridEnabled();
@@ -88,7 +88,13 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
   });
   
   // Show fixed 6-field radius around token
+  console.log('Mastery System | [DEBUG] openRadialMenuForActor: About to call showRadialMenuRange', {
+    tokenId: token?.id,
+    tokenName: token?.name,
+    hasTokenCenter: !!token?.center
+  });
   showRadialMenuRange(token);
+  console.log('Mastery System | [DEBUG] openRadialMenuForActor: showRadialMenuRange called');
   
   // Hide Token HUD to show only the radial menu
   // Find the Token HUD element for this token

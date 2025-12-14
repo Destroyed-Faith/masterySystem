@@ -181,7 +181,13 @@ function highlightRangeHexes(
     center,
     rangeUnits,
     highlightId,
-    hasGrid: !!canvas.grid
+    color: color.toString(16),
+    alpha,
+    hasGrid: !!canvas.grid,
+    gridType: canvas.grid?.type,
+    gridTypeName: canvas.grid?.type === CONST.GRID_TYPES.GRIDLESS ? 'GRIDLESS' : 
+                  canvas.grid?.type === CONST.GRID_TYPES.SQUARE ? 'SQUARE' : 
+                  canvas.grid?.type === CONST.GRID_TYPES.HEXAGONAL ? 'HEXAGONAL' : 'UNKNOWN'
   });
   
   if (!canvas.grid) {
@@ -260,19 +266,87 @@ function highlightRangeHexes(
   let centerGrid: { col: number; row: number } | null = null;
   let gridPositionMethod = 'none';
   try {
+    console.log('Mastery System | [DEBUG] highlightRangeHexes: Attempting to get grid position', {
+      center,
+      hasGetOffset: !!canvas.grid?.getOffset,
+      hasGetGridPositionFromPixels: !!canvas.grid?.getGridPositionFromPixels,
+      gridType: canvas.grid?.type,
+      gridSize: canvas.grid?.size
+    });
+    
     if (canvas.grid?.getOffset) {
       // New v13 API: getOffset returns {col, row}
       const offset = canvas.grid.getOffset(center.x, center.y);
-      centerGrid = { col: offset.col, row: offset.row };
-      gridPositionMethod = 'getOffset';
-      console.log('Mastery System | [DEBUG] highlightRangeHexes: Got grid position via getOffset', centerGrid);
-    } else if (canvas.grid?.getGridPositionFromPixels) {
-      // Fallback to old API
+      console.log('Mastery System | [DEBUG] highlightRangeHexes: getOffset raw result', {
+        offset,
+        offsetType: typeof offset,
+        offsetKeys: offset ? Object.keys(offset) : [],
+        offsetCol: offset?.col,
+        offsetRow: offset?.row,
+        offsetX: offset?.x,
+        offsetY: offset?.y
+      });
+      
+      // Try different property names
+      if (offset) {
+        if (offset.col !== undefined && offset.row !== undefined) {
+          centerGrid = { col: offset.col, row: offset.row };
+          gridPositionMethod = 'getOffset (col/row)';
+        } else if (offset.x !== undefined && offset.y !== undefined) {
+          centerGrid = { col: offset.x, row: offset.y };
+          gridPositionMethod = 'getOffset (x/y)';
+        } else if (typeof offset === 'object' && 'col' in offset && 'row' in offset) {
+          centerGrid = { col: (offset as any).col, row: (offset as any).row };
+          gridPositionMethod = 'getOffset (any col/row)';
+        }
+      }
+      
+      console.log('Mastery System | [DEBUG] highlightRangeHexes: Parsed grid position via getOffset', {
+        centerGrid,
+        gridPositionMethod
+      });
+    }
+    
+    // Fallback to old API if getOffset didn't work
+    if (!centerGrid && canvas.grid?.getGridPositionFromPixels) {
+      console.log('Mastery System | [DEBUG] highlightRangeHexes: Trying getGridPositionFromPixels fallback');
       const oldGrid = canvas.grid.getGridPositionFromPixels(center.x, center.y);
+      console.log('Mastery System | [DEBUG] highlightRangeHexes: getGridPositionFromPixels result', {
+        oldGrid,
+        oldGridType: typeof oldGrid,
+        oldGridKeys: oldGrid ? Object.keys(oldGrid) : []
+      });
+      
       if (oldGrid) {
-        centerGrid = { col: oldGrid.x, row: oldGrid.y };
-        gridPositionMethod = 'getGridPositionFromPixels';
-        console.log('Mastery System | [DEBUG] highlightRangeHexes: Got grid position via getGridPositionFromPixels', centerGrid);
+        if (oldGrid.x !== undefined && oldGrid.y !== undefined) {
+          centerGrid = { col: oldGrid.x, row: oldGrid.y };
+          gridPositionMethod = 'getGridPositionFromPixels (x/y)';
+        } else if (oldGrid.col !== undefined && oldGrid.row !== undefined) {
+          centerGrid = { col: oldGrid.col, row: oldGrid.row };
+          gridPositionMethod = 'getGridPositionFromPixels (col/row)';
+        }
+      }
+    }
+    
+    // Try alternative methods for hex grids
+    if (!centerGrid && canvas.grid) {
+      console.log('Mastery System | [DEBUG] highlightRangeHexes: Trying alternative grid position methods');
+      
+      // Try pixelsToOffset for hex grids
+      if ((canvas.grid as any).pixelsToOffset && typeof (canvas.grid as any).pixelsToOffset === 'function') {
+        try {
+          const hexOffset = (canvas.grid as any).pixelsToOffset(center.x, center.y);
+          console.log('Mastery System | [DEBUG] highlightRangeHexes: pixelsToOffset result', hexOffset);
+          if (hexOffset && (hexOffset.col !== undefined || hexOffset.x !== undefined)) {
+            centerGrid = {
+              col: hexOffset.col ?? hexOffset.x ?? 0,
+              row: hexOffset.row ?? hexOffset.y ?? 0
+            };
+            gridPositionMethod = 'pixelsToOffset';
+          }
+        } catch (error) {
+          console.warn('Mastery System | [DEBUG] highlightRangeHexes: pixelsToOffset failed', error);
+        }
       }
     }
   } catch (error) {
@@ -282,11 +356,15 @@ function highlightRangeHexes(
   
   console.log('Mastery System | [DEBUG] highlightRangeHexes: Grid position result', {
     centerGrid,
-    gridPositionMethod
+    gridPositionMethod,
+    hasValidPosition: centerGrid && centerGrid.col !== undefined && centerGrid.row !== undefined
   });
   
-  if (!centerGrid) {
-    console.warn('Mastery System | [DEBUG] highlightRangeHexes: No grid position, aborting');
+  if (!centerGrid || centerGrid.col === undefined || centerGrid.row === undefined) {
+    console.warn('Mastery System | [DEBUG] highlightRangeHexes: No valid grid position, aborting', {
+      centerGrid,
+      center
+    });
     return;
   }
   
@@ -365,10 +443,21 @@ function highlightRangeHexes(
         
         let highlighted = false;
         try {
+          console.log('Mastery System | [DEBUG] highlightRangeHexes: Attempting to highlight hex', {
+            gridCol,
+            gridRow,
+            distanceInUnits,
+            rangeUnits,
+            color: highlightColor.toString(16),
+            alpha: highlightAlpha,
+            highlightMethods: highlight ? Object.getOwnPropertyNames(Object.getPrototypeOf(highlight)).filter(m => typeof highlight[m] === 'function') : []
+          });
+          
           // Method 1: Foundry v13 API: highlight.highlightPosition(col, row, options)
           if (highlight && typeof highlight.highlightPosition === 'function') {
             highlight.highlightPosition(gridCol, gridRow, { color: highlightColor, alpha: highlightAlpha });
             highlighted = true;
+            console.log('Mastery System | [DEBUG] highlightRangeHexes: Highlighted via highlightPosition', { gridCol, gridRow });
           } 
           // Method 2: Alternative API: highlight.highlightGridPosition
           else if (highlight && typeof highlight.highlightGridPosition === 'function') {
@@ -408,10 +497,20 @@ function highlightRangeHexes(
           
           if (highlighted) {
             hexesHighlighted++;
+          } else {
+            console.warn('Mastery System | [DEBUG] highlightRangeHexes: No highlight method worked for hex', {
+              gridCol,
+              gridRow,
+              highlightAvailable: !!highlight,
+              highlightType: highlight?.constructor?.name,
+              hasHighlightPosition: typeof highlight?.highlightPosition === 'function',
+              hasHighlightGridPosition: typeof highlight?.highlightGridPosition === 'function',
+              hasHighlight: typeof highlight?.highlight === 'function'
+            });
           }
         } catch (error) {
           // Log errors for debugging
-          console.warn('Mastery System | [DEBUG] highlightRangeHexes: Could not highlight hex at', gridCol, gridRow, error);
+          console.warn('Mastery System | [DEBUG] highlightRangeHexes: Error highlighting hex at', gridCol, gridRow, error);
         }
       }
     }
@@ -422,8 +521,22 @@ function highlightRangeHexes(
     rangeUnits,
     totalHexesChecked: (maxHexDistance * 2 + 1) * (maxHexDistance * 2 + 1),
     highlightMethod,
-    highlightType: highlight ? highlight.constructor.name : 'null'
+    highlightType: highlight ? highlight.constructor.name : 'null',
+    centerGrid,
+    gridPositionMethod,
+    highlightAvailable: !!highlight,
+    highlightMethods: highlight ? Object.getOwnPropertyNames(Object.getPrototypeOf(highlight)).filter(m => typeof highlight[m] === 'function').slice(0, 10) : []
   });
+  
+  if (hexesHighlighted === 0) {
+    console.warn('Mastery System | [DEBUG] highlightRangeHexes: WARNING - No hexes were highlighted!', {
+      centerGrid,
+      rangeUnits,
+      maxHexDistance,
+      highlightAvailable: !!highlight,
+      highlightType: highlight?.constructor?.name
+    });
+  }
 }
 
 /**
@@ -432,18 +545,50 @@ function highlightRangeHexes(
  * @param token - The token to show the range around
  */
 export function showRadialMenuRange(token: any): void {
+  console.log('Mastery System | [DEBUG] showRadialMenuRange: Called', {
+    hasToken: !!token,
+    tokenId: token?.id,
+    tokenName: token?.name,
+    hasCanvas: !!canvas,
+    hasGrid: !!canvas.grid,
+    gridType: canvas.grid?.type,
+    gridTypeName: canvas.grid?.type === CONST.GRID_TYPES.GRIDLESS ? 'GRIDLESS' : 
+                  canvas.grid?.type === CONST.GRID_TYPES.SQUARE ? 'SQUARE' : 
+                  canvas.grid?.type === CONST.GRID_TYPES.HEXAGONAL ? 'HEXAGONAL' : 'UNKNOWN'
+  });
+  
   clearRadialMenuRange();
   
   const RANGE_UNITS = 6; // Fixed 6 fields
   const FIXED_COLOR = 0x00aaff; // Cyan/blue color (different from movement yellow)
   const FIXED_ALPHA = 0.4;
   
+  if (!token) {
+    console.warn('Mastery System | [DEBUG] showRadialMenuRange: No token provided');
+    return;
+  }
+  
   const tokenCenter = token.center;
+  console.log('Mastery System | [DEBUG] showRadialMenuRange: Token center', {
+    x: tokenCenter?.x,
+    y: tokenCenter?.y,
+    hasCenter: !!tokenCenter
+  });
   
   // If grid is enabled, highlight grid fields
   if (canvas.grid && canvas.grid.type !== CONST.GRID_TYPES.GRIDLESS) {
+    console.log('Mastery System | [DEBUG] showRadialMenuRange: Grid enabled, highlighting fields', {
+      gridType: canvas.grid.type,
+      rangeUnits: RANGE_UNITS,
+      color: FIXED_COLOR.toString(16),
+      alpha: FIXED_ALPHA
+    });
     highlightRangeHexes(tokenCenter, RANGE_UNITS, 'mastery-radial-menu-range', FIXED_COLOR, FIXED_ALPHA);
   } else {
+    console.log('Mastery System | [DEBUG] showRadialMenuRange: No grid or gridless, drawing circle', {
+      hasGrid: !!canvas.grid,
+      gridType: canvas.grid?.type
+    });
     // If no grid, draw a circle
     const radiusPx = unitsToPixels(RANGE_UNITS);
     const gfx = new PIXI.Graphics();
@@ -480,13 +625,33 @@ export function showRadialMenuRange(token: any): void {
       gfx.visible = true;
       gfx.renderable = true;
       gfx.alpha = 1.0;
+      
+      console.log('Mastery System | [DEBUG] showRadialMenuRange: Circle graphics added', {
+        containerName: effectsContainer.constructor.name,
+        graphicsPosition: { x: gfx.position.x, y: gfx.position.y },
+        graphicsVisible: gfx.visible,
+        graphicsRenderable: gfx.renderable,
+        graphicsAlpha: gfx.alpha,
+        graphicsWorldVisible: gfx.worldVisible,
+        graphicsParent: gfx.parent?.constructor?.name,
+        containerVisible: (effectsContainer as any).visible,
+        containerWorldVisible: (effectsContainer as any).worldVisible,
+        radiusPx
+      });
+    } else {
+      console.warn('Mastery System | [DEBUG] showRadialMenuRange: Could not find effects layer for circle', {
+        hasEffects: !!canvas.effects,
+        hasForeground: !!canvas.foreground,
+        hasTokens: !!canvas.tokens
+      });
     }
   }
   
-  console.log('Mastery System | Radial menu range preview shown', {
+  console.log('Mastery System | [DEBUG] showRadialMenuRange: Complete', {
     rangeUnits: RANGE_UNITS,
     color: FIXED_COLOR.toString(16),
-    hasGrid: !!(canvas.grid && canvas.grid.type !== CONST.GRID_TYPES.GRIDLESS)
+    hasGrid: !!(canvas.grid && canvas.grid.type !== CONST.GRID_TYPES.GRIDLESS),
+    hasGraphics: !!msRadialMenuRangeGfx
   });
 }
 

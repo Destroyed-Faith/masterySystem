@@ -72,7 +72,13 @@ export function openRadialMenuForActor(token, allOptions) {
         hasCanvasScene: !!canvas.scene
     });
     // Show fixed 6-field radius around token
+    console.log('Mastery System | [DEBUG] openRadialMenuForActor: About to call showRadialMenuRange', {
+        tokenId: token?.id,
+        tokenName: token?.name,
+        hasTokenCenter: !!token?.center
+    });
     showRadialMenuRange(token);
+    console.log('Mastery System | [DEBUG] openRadialMenuForActor: showRadialMenuRange called');
     // Hide Token HUD to show only the radial menu
     // Find the Token HUD element for this token
     const tokenHUD = canvas.hud?.token;
