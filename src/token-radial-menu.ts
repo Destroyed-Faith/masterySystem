@@ -111,24 +111,50 @@ function clearRangePreview(): void {
     msRangePreviewGfx.parent.removeChild(msRangePreviewGfx);
   }
   msRangePreviewGfx = null;
+  
+  // Also clear hex highlights
+  if (canvas.grid) {
+    let highlight: any = null;
+    try {
+      if (canvas.interface?.grid?.highlight) {
+        highlight = canvas.interface.grid.highlight;
+      } else if (canvas.grid?.highlight) {
+        highlight = canvas.grid.highlight;
+      } else if ((canvas.grid as any).getHighlightLayer) {
+        highlight = (canvas.grid as any).getHighlightLayer('mastery-range-preview');
+      }
+    } catch (error) {
+      // Ignore errors
+    }
+    
+    if (highlight && typeof highlight.clear === 'function') {
+      highlight.clear();
+    }
+  }
 }
 
 /**
  * Show range preview circle around token
+ * If a grid is present, also highlights hex fields within range
  */
 function showRangePreview(token: any, rangeUnits: number): void {
   clearRangePreview();
   
   if (!rangeUnits || rangeUnits <= 0) return;
   
+  const tokenCenter = token.center;
   const radiusPx = unitsToPixels(rangeUnits);
   const gfx = new PIXI.Graphics();
   
-  // Cyan circle with transparency
-  gfx.lineStyle(2, 0x00ffff, 0.8);
-  gfx.beginFill(0x00ffff, 0.1);
-  gfx.drawCircle(0, 0, radiusPx);
-  gfx.endFill();
+  // Only draw circle if no grid is present, or as a fallback
+  // If grid is present, we'll highlight hexes instead
+  if (!canvas.grid || canvas.grid.type === CONST.GRID_TYPES.GRIDLESS) {
+    // Cyan circle with transparency
+    gfx.lineStyle(2, 0x00ffff, 0.8);
+    gfx.beginFill(0x00ffff, 0.1);
+    gfx.drawCircle(0, 0, radiusPx);
+    gfx.endFill();
+  }
   
   msRangePreviewGfx = gfx;
   
@@ -159,10 +185,153 @@ function showRangePreview(token: any, rangeUnits: number): void {
   if (effectsContainer) {
     effectsContainer.addChild(gfx);
     // Position at token center
-    const tokenCenter = token.center;
     gfx.position.set(tokenCenter.x, tokenCenter.y);
   } else {
     console.warn('Mastery System | Could not find effects layer for range preview');
+  }
+  
+  // If grid is present, highlight hex fields within range
+  if (canvas.grid && canvas.grid.type !== CONST.GRID_TYPES.GRIDLESS) {
+    highlightRangeHexes(tokenCenter, rangeUnits, 'mastery-range-preview');
+  }
+}
+
+/**
+ * Highlight hex fields within range on the grid
+ * @param center - Center point in pixels
+ * @param rangeUnits - Range in grid units (1m = 1 hex)
+ * @param highlightId - Unique ID for this highlight layer
+ */
+function highlightRangeHexes(center: { x: number; y: number }, rangeUnits: number, highlightId: string): void {
+  if (!canvas.grid) return;
+  
+  // Get highlight layer
+  let highlight: any = null;
+  try {
+    // Use new v13 API: canvas.interface.grid.highlight
+    if (canvas.interface?.grid?.highlight) {
+      highlight = canvas.interface.grid.highlight;
+    } else if (canvas.grid?.highlight) {
+      // Fallback to old API for compatibility
+      highlight = canvas.grid.highlight;
+    } else if ((canvas.grid as any).getHighlightLayer) {
+      highlight = (canvas.grid as any).getHighlightLayer(highlightId);
+      if (!highlight && (canvas.grid as any).addHighlightLayer) {
+        highlight = (canvas.grid as any).addHighlightLayer(highlightId);
+      }
+    }
+  } catch (error) {
+    console.warn('Mastery System | Could not get highlight layer for range preview', error);
+    return;
+  }
+  
+  if (!highlight) {
+    console.warn('Mastery System | No highlight layer available for range preview');
+    return;
+  }
+  
+  // Clear previous highlights
+  if (typeof highlight.clear === 'function') {
+    highlight.clear();
+  }
+  
+  // Get grid position of center using new v13 API
+  let centerGrid: { col: number; row: number } | null = null;
+  try {
+    if (canvas.grid?.getOffset) {
+      // New v13 API: getOffset returns {col, row}
+      const offset = canvas.grid.getOffset(center.x, center.y);
+      centerGrid = { col: offset.col, row: offset.row };
+    } else if (canvas.grid?.getGridPositionFromPixels) {
+      // Fallback to old API
+      const oldGrid = canvas.grid.getGridPositionFromPixels(center.x, center.y);
+      if (oldGrid) {
+        centerGrid = { col: oldGrid.x, row: oldGrid.y };
+      }
+    }
+  } catch (error) {
+    console.warn('Mastery System | Could not get grid position for range preview', error);
+    return;
+  }
+  
+  if (!centerGrid) return;
+  
+  // Calculate max hex distance (round up to include all hexes within range)
+  const maxHexDistance = Math.ceil(rangeUnits);
+  
+  // Iterate through all hexes within range
+  for (let q = -maxHexDistance; q <= maxHexDistance; q++) {
+    for (let r = -maxHexDistance; r <= maxHexDistance; r++) {
+      const gridCol = centerGrid.col + q;
+      const gridRow = centerGrid.row + r;
+      
+      // Get hex center position
+      let hexCenter: { x: number; y: number } | null = null;
+      try {
+        if (canvas.grid?.getTopLeftPoint) {
+          // New v13 API: getTopLeftPoint(col, row) returns center point
+          hexCenter = canvas.grid.getTopLeftPoint(gridCol, gridRow);
+        } else if (canvas.grid?.getPixelsFromGridPosition) {
+          // Fallback to old API
+          hexCenter = canvas.grid.getPixelsFromGridPosition(gridCol, gridRow);
+        }
+      } catch (error) {
+        // Skip this hex if we can't get its position
+        continue;
+      }
+      
+      if (!hexCenter) continue;
+      
+      // Calculate distance from center to this hex
+      const dx = hexCenter.x - center.x;
+      const dy = hexCenter.y - center.y;
+      const pixelDistance = Math.sqrt(dx * dx + dy * dy);
+      const gridDistance = pixelDistance / (canvas.grid.size || 1);
+      
+      // Use Foundry's distance measurement if available (for hex grids)
+      let distanceInUnits = gridDistance;
+      try {
+        if (canvas.grid?.measurePath) {
+          // New v13 API: measurePath returns array of distances
+          const waypoints = [
+            { x: center.x, y: center.y },
+            { x: hexCenter.x, y: hexCenter.y }
+          ];
+          const measurement = canvas.grid.measurePath(waypoints, {});
+          if (measurement && measurement.length > 0) {
+            distanceInUnits = measurement[0];
+          }
+        } else if (canvas.grid?.measureDistances) {
+          // Fallback to old API
+          const waypoints = [
+            { x: center.x, y: center.y },
+            { x: hexCenter.x, y: hexCenter.y }
+          ];
+          const measurement = canvas.grid.measureDistances(waypoints, {});
+          if (measurement && measurement.length > 0) {
+            distanceInUnits = measurement[0];
+          }
+        }
+      } catch (error) {
+        // Use fallback distance
+      }
+      
+      // If hex is within range, highlight it
+      if (distanceInUnits <= rangeUnits) {
+        // Try different methods to highlight the hex
+        try {
+          if (highlight && typeof highlight.highlightPosition === 'function') {
+            highlight.highlightPosition(gridCol, gridRow, { color: 0x00ffff, alpha: 0.4 });
+          } else if (highlight && typeof highlight.highlightGridPosition === 'function') {
+            highlight.highlightGridPosition(gridCol, gridRow, { color: 0x00ffff, alpha: 0.4 });
+          } else if (highlight && typeof highlight.highlight === 'function') {
+            highlight.highlight(gridCol, gridRow, { color: 0x00ffff, alpha: 0.4 });
+          }
+        } catch (error) {
+          // Silently fail if highlighting doesn't work
+        }
+      }
+    }
   }
 }
 

@@ -4277,6 +4277,11 @@
   font-family: monospace;
 }
 
+.mastery-system.sheet.actor.character .blood-color-input-group .blood-color-text.invalid {
+  border-color: #ff0000;
+  background: rgba(255, 0, 0, 0.1);
+}
+
 .mastery-system.sheet.actor.character .biography-content .hint {
   margin-top: 5px;
   font-size: 11px;
@@ -4313,6 +4318,11 @@
   background: rgba(255, 255, 255, 0.1);
   color: #fff;
   font-family: monospace;
+}
+
+.mastery-system.sheet.actor.npc .notes-panel .blood-color-input-group .blood-color-text.invalid {
+  border-color: #ff0000;
+  background: rgba(255, 0, 0, 0.1);
 }
 
 .mastery-system.sheet.actor.npc .notes-panel .hint {

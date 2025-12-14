@@ -630,6 +630,60 @@ function registerConfigConstants() {
 /**
  * Character Creation Hooks
  */
+/**
+ * Normalize health.bars from object to array format
+ * This ensures health bars are always stored as arrays, not objects
+ */
+function normalizeHealthBars(health: any): any {
+  if (!health || !health.bars) {
+    return health;
+  }
+  
+  const bars = health.bars;
+  // If bars is an object (not an array), convert to array
+  if (!Array.isArray(bars) && typeof bars === 'object') {
+    const barsArray = Object.keys(bars)
+      .sort((a, b) => parseInt(a) - parseInt(b))
+      .map(key => bars[key]);
+    health.bars = barsArray;
+  }
+  
+  // Ensure each bar has required fields
+  if (Array.isArray(health.bars)) {
+    health.bars = health.bars.map((bar: any, index: number) => ({
+      name: bar.name || `Bar ${index + 1}`,
+      max: bar.max || 30,
+      current: bar.current ?? (bar.max ?? 30),
+      penalty: bar.penalty || 0
+    }));
+  }
+  
+  return health;
+}
+
+/**
+ * Hook to normalize health.bars before actor updates
+ * Ensures health.bars is always stored as an array, not an object
+ */
+Hooks.on('preUpdateActor', (actor: any, updateData: any, _options: any, _userId: string) => {
+  if (actor.type === 'npc') {
+    // Normalize main health bars
+    if (updateData.system?.health?.bars) {
+      updateData.system.health = normalizeHealthBars(updateData.system.health);
+    }
+    
+    // Normalize phase health bars
+    if (updateData.system?.phases && Array.isArray(updateData.system.phases)) {
+      updateData.system.phases = updateData.system.phases.map((phase: any) => {
+        if (phase.health?.bars) {
+          phase.health = normalizeHealthBars(phase.health);
+        }
+        return phase;
+      });
+    }
+  }
+});
+
 Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId: string) => {
   // Set creationComplete=false for new character actors
   if (actor.type === 'character') {

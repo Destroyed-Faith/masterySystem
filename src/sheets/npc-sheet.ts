@@ -29,8 +29,125 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
   }
 
   /** @override */
+  getData(options?: any) {
+    const context: any = super.getData(options);
+    
+    // Normalize health.bars: convert object to array if needed
+    if (context.system?.health?.bars) {
+      const bars = context.system.health.bars;
+      // Check if bars is an object (not an array)
+      if (!Array.isArray(bars) && typeof bars === 'object') {
+        // Convert object with numeric keys to array
+        const barsArray = Object.keys(bars)
+          .sort((a, b) => parseInt(a) - parseInt(b))
+          .map(key => bars[key]);
+        context.system.health.bars = barsArray;
+      }
+      
+      // Ensure each bar has required fields
+      if (Array.isArray(context.system.health.bars)) {
+        context.system.health.bars = context.system.health.bars.map((bar: any, index: number) => ({
+          name: bar.name || `Bar ${index + 1}`,
+          max: bar.max || 30,
+          current: bar.current ?? (bar.max ?? 30),
+          penalty: bar.penalty || 0
+        }));
+      }
+    }
+    
+    // Normalize phases health bars too
+    if (context.system?.phases && Array.isArray(context.system.phases)) {
+      context.system.phases = context.system.phases.map((phase: any) => {
+        if (phase.health?.bars) {
+          const phaseBars = phase.health.bars;
+          if (!Array.isArray(phaseBars) && typeof phaseBars === 'object') {
+            // Convert object with numeric keys to array
+            const barsArray = Object.keys(phaseBars)
+              .sort((a, b) => parseInt(a) - parseInt(b))
+              .map(key => phaseBars[key]);
+            phase.health.bars = barsArray;
+          }
+          // Ensure each bar has required fields
+          if (Array.isArray(phase.health.bars)) {
+            phase.health.bars = phase.health.bars.map((bar: any, index: number) => ({
+              name: bar.name || `Bar ${index + 1}`,
+              max: bar.max || 30,
+              current: bar.current ?? (bar.max ?? 30),
+              penalty: bar.penalty || 0
+            }));
+          }
+        }
+        return phase;
+      });
+    }
+    
+    return context;
+  }
+
+  /** @override */
   activateListeners(html: JQuery) {
     super.activateListeners(html);
+    
+    // Blood color picker synchronization
+    // When color picker changes, update text field
+    const syncColorPickerToText = (e: any) => {
+      const colorPicker = $(e.currentTarget);
+      const textInput = colorPicker.siblings('.blood-color-text');
+      const colorValue = colorPicker.val() as string;
+      if (textInput.length > 0 && colorValue) {
+        textInput.val(colorValue);
+        textInput.data('last-valid-value', colorValue);
+        textInput.removeClass('invalid');
+      }
+    };
+    
+    html.find('.blood-color-picker, input[type="color"][name="system.bloodColor"]')
+      .on('input' as any, syncColorPickerToText)
+      .on('change', syncColorPickerToText);
+    
+    // When text field changes, update color picker and validate
+    const syncTextToColorPicker = (e: any) => {
+      const textInput = $(e.currentTarget);
+      const colorPicker = textInput.siblings('.blood-color-picker, input[type="color"][name="system.bloodColor"]');
+      const colorValue = (textInput.val() as string || '').trim();
+      
+      // Validate hex color format
+      if (/^#[0-9A-Fa-f]{6}$/.test(colorValue)) {
+        if (colorPicker.length > 0) {
+          colorPicker.val(colorValue);
+          // Trigger change on the named input to ensure it's saved
+          colorPicker.trigger('change');
+        }
+        textInput.data('last-valid-value', colorValue);
+        textInput.removeClass('invalid');
+      } else if (colorValue.length > 0) {
+        // Invalid format, mark as invalid but don't revert yet (user might still be typing)
+        textInput.addClass('invalid');
+      }
+    };
+    
+    html.find('.blood-color-text')
+      .on('input' as any, syncTextToColorPicker)
+      .on('change', syncTextToColorPicker);
+    
+    // On blur, revert to last valid value if current is invalid
+    html.find('.blood-color-text').on('blur', (e: JQuery.BlurEvent) => {
+      const textInput = $(e.currentTarget);
+      const colorValue = (textInput.val() as string || '').trim();
+      
+      if (!/^#[0-9A-Fa-f]{6}$/.test(colorValue)) {
+        // Invalid format, revert to last valid value or default
+        const lastValid = textInput.data('last-valid-value') || '#8b0000';
+        textInput.val(lastValid);
+        textInput.removeClass('invalid');
+        
+        const colorPicker = textInput.siblings('.blood-color-picker, input[type="color"][name="system.bloodColor"]');
+        if (colorPicker.length > 0) {
+          colorPicker.val(lastValid);
+          colorPicker.trigger('change');
+        }
+      }
+    });
     
     // Status effect removal (both normal and phase-based)
     html.find('.effect-remove').on('click', this.#onRemoveStatusEffect.bind(this));

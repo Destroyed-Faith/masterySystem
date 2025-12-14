@@ -140,11 +140,15 @@ function highlightRadiusArea(state) {
     const radiusPx = (state.radiusMeters / (canvas.grid.distance || 1)) * (canvas.grid.size || 1);
     // Clear previous graphics
     state.previewGraphics.clear();
-    // Draw radius circle (semi-transparent blue/teal for utilities)
-    state.previewGraphics.lineStyle(2, 0x66aaff, 0.8);
-    state.previewGraphics.beginFill(0x66aaff, 0.15);
-    state.previewGraphics.drawCircle(0, 0, radiusPx);
-    state.previewGraphics.endFill();
+    // Only draw circle if no grid is present, or as a fallback
+    // If grid is present, we'll highlight hexes instead
+    if (canvas.grid.type === CONST.GRID_TYPES.GRIDLESS) {
+        // Draw radius circle (semi-transparent blue/teal for utilities)
+        state.previewGraphics.lineStyle(2, 0x66aaff, 0.8);
+        state.previewGraphics.beginFill(0x66aaff, 0.15);
+        state.previewGraphics.drawCircle(0, 0, radiusPx);
+        state.previewGraphics.endFill();
+    }
     // Position at center
     state.previewGraphics.position.set(center.x, center.y);
     // Highlight hexes within radius
@@ -213,13 +217,51 @@ function highlightRadiusArea(state) {
                     continue; // Skip this hex if we can't get its position
                 }
                 if (hexCenter) {
-                    const distance = getDistanceInGridUnits(center, hexCenter);
-                    if (distance <= state.radiusMeters / (canvas.grid.distance || 1)) {
-                        if (highlight.highlightPosition) {
-                            highlight.highlightPosition(gridCol, gridRow, { color: 0x66aaff, alpha: 0.3 });
+                    // Calculate distance using Foundry's measurement API for accurate hex distance
+                    let distanceInUnits = getDistanceInGridUnits(center, hexCenter);
+                    try {
+                        if (canvas.grid?.measurePath) {
+                            // New v13 API: measurePath returns array of distances
+                            const waypoints = [
+                                { x: center.x, y: center.y },
+                                { x: hexCenter.x, y: hexCenter.y }
+                            ];
+                            const measurement = canvas.grid.measurePath(waypoints, {});
+                            if (measurement && measurement.length > 0) {
+                                distanceInUnits = measurement[0];
+                            }
                         }
-                        else if (highlight.highlightGridPosition) {
-                            highlight.highlightGridPosition(gridCol, gridRow, { color: 0x66aaff, alpha: 0.3 });
+                        else if (canvas.grid?.measureDistances) {
+                            // Fallback to old API
+                            const waypoints = [
+                                { x: center.x, y: center.y },
+                                { x: hexCenter.x, y: hexCenter.y }
+                            ];
+                            const measurement = canvas.grid.measureDistances(waypoints, {});
+                            if (measurement && measurement.length > 0) {
+                                distanceInUnits = measurement[0];
+                            }
+                        }
+                    }
+                    catch (error) {
+                        // Use fallback distance
+                    }
+                    const radiusInUnits = state.radiusMeters / (canvas.grid.distance || 1);
+                    if (distanceInUnits <= radiusInUnits) {
+                        // Try different methods to highlight the hex
+                        try {
+                            if (highlight && typeof highlight.highlightPosition === 'function') {
+                                highlight.highlightPosition(gridCol, gridRow, { color: 0x66aaff, alpha: 0.3 });
+                            }
+                            else if (highlight && typeof highlight.highlightGridPosition === 'function') {
+                                highlight.highlightGridPosition(gridCol, gridRow, { color: 0x66aaff, alpha: 0.3 });
+                            }
+                            else if (highlight && typeof highlight.highlight === 'function') {
+                                highlight.highlight(gridCol, gridRow, { color: 0x66aaff, alpha: 0.3 });
+                            }
+                        }
+                        catch (error) {
+                            // Silently fail if highlighting doesn't work
                         }
                     }
                 }

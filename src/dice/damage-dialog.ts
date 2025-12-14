@@ -94,60 +94,53 @@ export async function showDamageDialog(
     allWeaponIds: items.filter((item: any) => item.type === 'weapon').map((item: any) => item.id)
   });
   
+  // Find weapon (by ID or fallback to equipped weapon) - use same weapon for both damage and specials
+  let weaponForDamage = weapon;
+  if (!weaponForDamage && weaponId) {
+    // If weapon not found by ID, try to find equipped weapon as fallback
+    console.warn('Mastery System | [DAMAGE DIALOG] Weapon not found by ID, trying equipped weapon fallback', { weaponId });
+    weaponForDamage = items.find((item: any) => 
+      item.type === 'weapon' && (item.system as any)?.equipped === true
+    );
+    if (weaponForDamage) {
+      console.log('Mastery System | [DAMAGE DIALOG] Using equipped weapon as fallback', {
+        weaponName: weaponForDamage.name,
+        weaponId: weaponForDamage.id
+      });
+    }
+  }
+  
   // Calculate base damage from weapon
   // Check both damage and weaponDamage fields, and also check roll.damage
   let baseDamage = '1d8';
-  if (weapon) {
-    const weaponSystem = weapon.system as any;
+  if (weaponForDamage) {
+    const weaponSystem = weaponForDamage.system as any;
     // Priority: damage > weaponDamage > roll.damage > default
     baseDamage = weaponSystem?.damage || 
                   weaponSystem?.weaponDamage || 
                   weaponSystem?.roll?.damage || 
                   '1d8';
-  } else {
-    // If weapon not found by ID, try to find equipped weapon as fallback
-    console.warn('Mastery System | [DAMAGE DIALOG] Weapon not found by ID, trying equipped weapon fallback', { weaponId });
-    const equippedWeapon = items.find((item: any) => 
-      item.type === 'weapon' && (item.system as any)?.equipped === true
-    );
-    if (equippedWeapon) {
-      const weaponSystem = equippedWeapon.system as any;
-      baseDamage = weaponSystem?.damage || 
-                    weaponSystem?.weaponDamage || 
-                    weaponSystem?.roll?.damage || 
-                    '1d8';
-      console.log('Mastery System | [DAMAGE DIALOG] Using equipped weapon as fallback', {
-        weaponName: equippedWeapon.name,
-        baseDamage
-      });
-    }
   }
+  
   console.log('Mastery System | [DAMAGE DIALOG] Base damage calculated', {
     weaponId,
     weaponFound: !!weapon,
-    weaponName: weapon ? weapon.name : 'none',
+    weaponForDamageFound: !!weaponForDamage,
+    weaponName: weaponForDamage ? weaponForDamage.name : 'none',
     baseDamage: baseDamage,
-    weaponSystemDamage: weapon ? (weapon.system as any)?.damage : null,
-    weaponSystemWeaponDamage: weapon ? (weapon.system as any)?.weaponDamage : null,
-    weaponSystemRollDamage: weapon ? (weapon.system as any)?.roll?.damage : null,
-    weaponSystemFull: weapon ? JSON.stringify(weapon.system, null, 2) : null
+    weaponSystemDamage: weaponForDamage ? (weaponForDamage.system as any)?.damage : null,
+    weaponSystemWeaponDamage: weaponForDamage ? (weaponForDamage.system as any)?.weaponDamage : null,
+    weaponSystemRollDamage: weaponForDamage ? (weaponForDamage.system as any)?.roll?.damage : null,
+    weaponSystemFull: weaponForDamage ? JSON.stringify(weaponForDamage.system, null, 2) : null
   });
   
-  // Get weapon specials - use the found weapon or fallback to equipped weapon
-  let weaponForSpecials = weapon;
-  if (!weaponForSpecials && weaponId) {
-    // Try to find weapon again or use equipped weapon
-    weaponForSpecials = items.find((item: any) => 
-      (item.id === weaponId && item.type === 'weapon') ||
-      (item.type === 'weapon' && (item.system as any)?.equipped === true)
-    );
-  }
-  const weaponSpecials: string[] = weaponForSpecials ? ((weaponForSpecials.system as any)?.specials || []) : [];
+  // Get weapon specials - use weaponForDamage (found weapon or fallback)
+  const weaponSpecials: string[] = weaponForDamage ? ((weaponForDamage.system as any)?.specials || []) : [];
   console.log('Mastery System | DEBUG: showDamageDialog - weaponSpecials', {
     weaponSpecials,
-    weaponName: weaponForSpecials ? weaponForSpecials.name : 'none',
-    weaponSystemSpecials: weaponForSpecials ? (weaponForSpecials.system as any)?.specials : null,
-    weaponSystemFull: weaponForSpecials ? JSON.stringify(weaponForSpecials.system, null, 2) : null
+    weaponName: weaponForDamage ? weaponForDamage.name : 'none',
+    weaponSystemSpecials: weaponForDamage ? (weaponForDamage.system as any)?.specials : null,
+    weaponSystemFull: weaponForDamage ? JSON.stringify(weaponForDamage.system, null, 2) : null
   });
   
   // Load selected power from actor by ID and get its data
@@ -277,8 +270,8 @@ export async function showDamageDialog(
   console.log('Mastery System | DEBUG: showDamageDialog - passiveDamage', passiveDamage);
   
   // Collect available specials (include power specials from selected power)
-  // Use weaponForSpecials (found weapon or fallback) to ensure weapon specials are included
-  const availableSpecials = await collectAvailableSpecials(attacker, weaponForSpecials, selectedPowerData);
+  // Use weaponForDamage (found weapon or fallback) to ensure weapon specials are included
+  const availableSpecials = await collectAvailableSpecials(attacker, weaponForDamage, selectedPowerData);
   console.log('Mastery System | DEBUG: showDamageDialog - availableSpecials', {
     count: availableSpecials.length,
     specials: availableSpecials.map(s => ({ id: s.id, name: s.name, type: s.type }))

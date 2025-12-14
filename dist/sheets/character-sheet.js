@@ -780,6 +780,60 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         html.find('.disadvantage-edit-btn').on('click', this.#onEditDisadvantage.bind(this));
         html.find('.disadvantage-remove-btn').on('click', this.#onRemoveDisadvantage.bind(this));
+        // Blood color picker synchronization
+        // When color picker changes, update text field
+        const syncColorPickerToText = (e) => {
+            const colorPicker = $(e.currentTarget);
+            const textInput = colorPicker.siblings('.blood-color-text');
+            const colorValue = colorPicker.val();
+            if (textInput.length > 0 && colorValue) {
+                textInput.val(colorValue);
+                textInput.data('last-valid-value', colorValue);
+                textInput.removeClass('invalid');
+            }
+        };
+        html.find('.blood-color-picker, input[type="color"][name="system.bloodColor"]')
+            .on('input', syncColorPickerToText)
+            .on('change', syncColorPickerToText);
+        // When text field changes, update color picker and validate
+        const syncTextToColorPicker = (e) => {
+            const textInput = $(e.currentTarget);
+            const colorPicker = textInput.siblings('.blood-color-picker, input[type="color"][name="system.bloodColor"]');
+            const colorValue = (textInput.val() || '').trim();
+            // Validate hex color format
+            if (/^#[0-9A-Fa-f]{6}$/.test(colorValue)) {
+                if (colorPicker.length > 0) {
+                    colorPicker.val(colorValue);
+                    // Trigger change on the named input to ensure it's saved
+                    colorPicker.trigger('change');
+                }
+                textInput.data('last-valid-value', colorValue);
+                textInput.removeClass('invalid');
+            }
+            else if (colorValue.length > 0) {
+                // Invalid format, mark as invalid but don't revert yet (user might still be typing)
+                textInput.addClass('invalid');
+            }
+        };
+        html.find('.blood-color-text')
+            .on('input', syncTextToColorPicker)
+            .on('change', syncTextToColorPicker);
+        // On blur, revert to last valid value if current is invalid
+        html.find('.blood-color-text').on('blur', (e) => {
+            const textInput = $(e.currentTarget);
+            const colorValue = (textInput.val() || '').trim();
+            if (!/^#[0-9A-Fa-f]{6}$/.test(colorValue)) {
+                // Invalid format, revert to last valid value or default
+                const lastValid = textInput.data('last-valid-value') || '#8b0000';
+                textInput.val(lastValid);
+                textInput.removeClass('invalid');
+                const colorPicker = textInput.siblings('.blood-color-picker, input[type="color"][name="system.bloodColor"]');
+                if (colorPicker.length > 0) {
+                    colorPicker.val(lastValid);
+                    colorPicker.trigger('change');
+                }
+            }
+        });
         // Mark disadvantages as reviewed when user visits the disadvantages tab
         if (!creationComplete) {
             // Use event delegation for tab clicks

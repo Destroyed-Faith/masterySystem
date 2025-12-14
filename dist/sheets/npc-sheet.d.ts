@@ -10,6 +10,8 @@ export declare class MasteryNpcSheet extends MasteryCharacterSheet {
     /** @override */
     get template(): string;
     /** @override */
+    getData(options?: any): any;
+    /** @override */
     activateListeners(html: JQuery): void;
 }
 //# sourceMappingURL=npc-sheet.d.ts.map

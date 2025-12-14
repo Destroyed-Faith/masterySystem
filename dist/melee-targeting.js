@@ -152,14 +152,18 @@ function highlightReachArea(state) {
     const radiusPx = state.reachGridUnits * (canvas.grid.size || 1);
     // Clear previous graphics
     state.previewGraphics.clear();
-    // Draw reach circle (semi-transparent red/orange) - make it more visible
-    state.previewGraphics.lineStyle(3, 0xff6666, 1.0); // Thicker, fully opaque border
-    state.previewGraphics.beginFill(0xff6666, 0.25); // Slightly more visible fill
-    state.previewGraphics.drawCircle(0, 0, radiusPx);
-    state.previewGraphics.endFill();
-    // Add an inner ring for better visibility
-    state.previewGraphics.lineStyle(1, 0xff8888, 0.6);
-    state.previewGraphics.drawCircle(0, 0, radiusPx * 0.9);
+    // Only draw circle if no grid is present, or as a fallback
+    // If grid is present, we'll highlight hexes instead
+    if (canvas.grid.type === CONST.GRID_TYPES.GRIDLESS) {
+        // Draw reach circle (semi-transparent red/orange) - make it more visible
+        state.previewGraphics.lineStyle(3, 0xff6666, 1.0); // Thicker, fully opaque border
+        state.previewGraphics.beginFill(0xff6666, 0.25); // Slightly more visible fill
+        state.previewGraphics.drawCircle(0, 0, radiusPx);
+        state.previewGraphics.endFill();
+        // Add an inner ring for better visibility
+        state.previewGraphics.lineStyle(1, 0xff8888, 0.6);
+        state.previewGraphics.drawCircle(0, 0, radiusPx * 0.9);
+    }
     // Position at attacker center
     state.previewGraphics.position.set(attackerCenter.x, attackerCenter.y);
     // Also highlight hexes within reach using grid highlight
