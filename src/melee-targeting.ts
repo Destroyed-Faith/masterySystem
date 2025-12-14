@@ -223,7 +223,27 @@ function highlightReachArea(state: MeleeTargetingState): void {
   // Position at attacker center
   state.previewGraphics.position.set(attackerCenter.x, attackerCenter.y);
   
-  console.log('Mastery System | [DEBUG] highlightReachArea: Circle drawn, now attempting hex highlighting');
+  // Ensure graphics are visible and renderable
+  state.previewGraphics.visible = true;
+  state.previewGraphics.renderable = true;
+  state.previewGraphics.alpha = 1.0;
+  
+  console.log('Mastery System | [DEBUG] highlightReachArea: Circle drawn', {
+    radiusPx,
+    position: { x: state.previewGraphics.position.x, y: state.previewGraphics.position.y },
+    visible: state.previewGraphics.visible,
+    renderable: state.previewGraphics.renderable,
+    alpha: state.previewGraphics.alpha,
+    parent: state.previewGraphics.parent?.constructor?.name,
+    worldVisible: state.previewGraphics.worldVisible,
+    worldAlpha: state.previewGraphics.worldAlpha,
+    graphicsBounds: state.previewGraphics.getBounds(),
+    hasParent: !!state.previewGraphics.parent,
+    parentVisible: state.previewGraphics.parent ? (state.previewGraphics.parent as any).visible : false,
+    parentWorldVisible: state.previewGraphics.parent ? (state.previewGraphics.parent as any).worldVisible : false
+  });
+  
+  console.log('Mastery System | [DEBUG] highlightReachArea: Now attempting hex highlighting');
   
   // Also highlight hexes within reach using grid highlight
   let highlight: any = null;
@@ -551,9 +571,28 @@ export function startMeleeTargeting(token: any, option: RadialCombatOption): voi
     effectsContainer.addChild(previewGraphics);
     // Ensure it's on top
     effectsContainer.setChildIndex(previewGraphics, effectsContainer.children.length - 1);
-    console.log('Mastery System | Melee reach circle added to container:', effectsContainer.constructor.name);
+    console.log('Mastery System | [DEBUG] Melee reach circle added to container:', {
+      containerName: effectsContainer.constructor.name,
+      containerType: typeof effectsContainer,
+      previewGraphicsParent: previewGraphics.parent?.constructor?.name,
+      previewGraphicsVisible: previewGraphics.visible,
+      previewGraphicsAlpha: previewGraphics.alpha,
+      previewGraphicsWorldVisible: previewGraphics.worldVisible,
+      previewGraphicsRenderable: previewGraphics.renderable,
+      containerChildren: effectsContainer.children.length,
+      previewGraphicsIndex: effectsContainer.getChildIndex(previewGraphics),
+      containerVisible: effectsContainer.visible,
+      containerWorldVisible: effectsContainer.worldVisible
+    });
   } else {
-    console.warn('Mastery System | Could not find container for melee reach preview');
+    console.warn('Mastery System | [DEBUG] Could not find container for melee reach preview', {
+      hasEffects: !!canvas.effects,
+      hasForeground: !!canvas.foreground,
+      hasTokens: !!canvas.tokens,
+      effectsType: canvas.effects ? typeof canvas.effects : 'null',
+      foregroundType: canvas.foreground ? typeof canvas.foreground : 'null',
+      tokensType: canvas.tokens ? typeof canvas.tokens : 'null'
+    });
   }
   
   const highlightId = 'mastery-melee';
@@ -586,21 +625,59 @@ export function startMeleeTargeting(token: any, option: RadialCombatOption): voi
   console.log('Mastery System | [DEBUG] startMeleeTargeting: Attaching event listeners', {
     hasStage: !!canvas.stage,
     hasTokens: !!canvas.tokens,
-    capturePhase: true
+    capturePhase: true,
+    stageType: canvas.stage ? typeof canvas.stage : 'null',
+    tokensType: canvas.tokens ? typeof canvas.tokens : 'null',
+    stageInteractive: canvas.stage ? (canvas.stage as any).interactive : false,
+    stageEventMode: canvas.stage ? (canvas.stage as any).eventMode : 'unknown'
   });
   
-  canvas.stage.on('pointerdown', state.onPointerDown, true);
-  if (canvas.tokens) {
-    (canvas.tokens as any).on('pointerdown', state.onPointerDown, true);
-    console.log('Mastery System | [DEBUG] Event listener attached to canvas.tokens');
+  try {
+    canvas.stage.on('pointerdown', state.onPointerDown, true);
+    console.log('Mastery System | [DEBUG] Event listener attached to canvas.stage (capture phase)');
+  } catch (error) {
+    console.error('Mastery System | [DEBUG] Failed to attach listener to canvas.stage', error);
   }
-  window.addEventListener('keydown', state.onKeyDown);
   
-  console.log('Mastery System | [DEBUG] startMeleeTargeting: Event listeners attached');
+  if (canvas.tokens) {
+    try {
+      (canvas.tokens as any).on('pointerdown', state.onPointerDown, true);
+      console.log('Mastery System | [DEBUG] Event listener attached to canvas.tokens (capture phase)');
+    } catch (error) {
+      console.warn('Mastery System | [DEBUG] Failed to attach listener to canvas.tokens', error);
+    }
+  }
+  
+  try {
+    window.addEventListener('keydown', state.onKeyDown);
+    console.log('Mastery System | [DEBUG] Keyboard listener attached');
+  } catch (error) {
+    console.error('Mastery System | [DEBUG] Failed to attach keyboard listener', error);
+  }
+  
+  // Verify listeners are attached
+  const stageListeners = (canvas.stage as any)._events?.pointerdown || [];
+  const tokensListeners = canvas.tokens ? ((canvas.tokens as any)._events?.pointerdown || []) : [];
+  console.log('Mastery System | [DEBUG] startMeleeTargeting: Event listeners attached', {
+    stageListenersCount: stageListeners.length,
+    tokensListenersCount: tokensListeners.length,
+    hasKeydownListener: true // Can't easily verify window listeners
+  });
   
   // Draw reach area and highlight targets
-  console.log('Mastery System | [DEBUG] startMeleeTargeting: Calling highlightReachArea');
+  console.log('Mastery System | [DEBUG] startMeleeTargeting: Calling highlightReachArea', {
+    previewGraphicsParent: state.previewGraphics?.parent?.constructor?.name,
+    previewGraphicsVisible: state.previewGraphics?.visible,
+    previewGraphicsPosition: state.previewGraphics ? { x: state.previewGraphics.position.x, y: state.previewGraphics.position.y } : null
+  });
   highlightReachArea(state);
+  console.log('Mastery System | [DEBUG] startMeleeTargeting: After highlightReachArea', {
+    previewGraphicsParent: state.previewGraphics?.parent?.constructor?.name,
+    previewGraphicsVisible: state.previewGraphics?.visible,
+    previewGraphicsWorldVisible: state.previewGraphics?.worldVisible,
+    previewGraphicsAlpha: state.previewGraphics?.alpha,
+    previewGraphicsPosition: state.previewGraphics ? { x: state.previewGraphics.position.x, y: state.previewGraphics.position.y } : null
+  });
   console.log('Mastery System | [DEBUG] startMeleeTargeting: Calling highlightValidTargets');
   highlightValidTargets(state);
   
@@ -623,7 +700,27 @@ export function startMeleeTargeting(token: any, option: RadialCombatOption): voi
     token: token.name,
     validTargets: validTargets.length,
     previewGraphicsParent: state.previewGraphics?.parent?.constructor?.name,
-    previewGraphicsVisible: state.previewGraphics?.visible
+    previewGraphicsVisible: state.previewGraphics?.visible,
+    previewGraphicsWorldVisible: state.previewGraphics?.worldVisible,
+    previewGraphicsRenderable: state.previewGraphics?.renderable,
+    previewGraphicsAlpha: state.previewGraphics?.alpha,
+    canvasRenderer: canvas.app?.renderer ? {
+      type: canvas.app.renderer.type,
+      width: canvas.app.renderer.width,
+      height: canvas.app.renderer.height,
+      resolution: canvas.app.renderer.resolution,
+      autoDensity: canvas.app.renderer.autoDensity
+    } : 'no renderer',
+    canvasStage: canvas.stage ? {
+      visible: canvas.stage.visible,
+      worldVisible: canvas.stage.worldVisible,
+      children: canvas.stage.children.length
+    } : 'no stage',
+    effectsLayer: canvas.effects ? {
+      visible: (canvas.effects as any).visible,
+      worldVisible: (canvas.effects as any).worldVisible,
+      children: (canvas.effects as any).children?.length || 0
+    } : 'no effects layer'
   });
 }
 
@@ -641,7 +738,16 @@ function handleMeleePointerDown(ev: PIXI.FederatedPointerEvent): void {
     button: ev.button,
     target: ev.target?.constructor?.name,
     currentTarget: ev.currentTarget?.constructor?.name,
-    eventType: ev.type
+    eventType: ev.type,
+    pointerId: ev.pointerId,
+    isPrimary: ev.isPrimary,
+    globalX: ev.globalX,
+    globalY: ev.globalY,
+    worldX: ev.data ? ev.data.getLocalPosition(canvas.app.stage).x : 'N/A',
+    worldY: ev.data ? ev.data.getLocalPosition(canvas.app.stage).y : 'N/A',
+    targetDocument: (ev.target as any)?.document?.type,
+    targetId: (ev.target as any)?.id,
+    targetName: (ev.target as any)?.name
   });
   
   // Right or middle click cancels

@@ -186,8 +186,30 @@ function showRangePreview(token: any, rangeUnits: number): void {
     effectsContainer.addChild(gfx);
     // Position at token center
     gfx.position.set(tokenCenter.x, tokenCenter.y);
+    
+    // Ensure graphics are visible
+    gfx.visible = true;
+    gfx.renderable = true;
+    gfx.alpha = 1.0;
+    
+    console.log('Mastery System | [DEBUG] showRangePreview: Graphics added', {
+      containerName: effectsContainer.constructor.name,
+      graphicsPosition: { x: gfx.position.x, y: gfx.position.y },
+      graphicsVisible: gfx.visible,
+      graphicsRenderable: gfx.renderable,
+      graphicsAlpha: gfx.alpha,
+      graphicsWorldVisible: gfx.worldVisible,
+      graphicsParent: gfx.parent?.constructor?.name,
+      containerVisible: (effectsContainer as any).visible,
+      containerWorldVisible: (effectsContainer as any).worldVisible,
+      rangeUnits
+    });
   } else {
-    console.warn('Mastery System | Could not find effects layer for range preview');
+    console.warn('Mastery System | [DEBUG] Could not find effects layer for range preview', {
+      hasEffects: !!canvas.effects,
+      hasForeground: !!canvas.foreground,
+      hasTokens: !!canvas.tokens
+    });
   }
   
   // If grid is present, highlight hex fields within range
