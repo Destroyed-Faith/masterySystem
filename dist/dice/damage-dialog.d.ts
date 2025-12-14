@@ -16,9 +16,10 @@ export interface DamageDialogData {
 export interface SpecialOption {
     id: string;
     name: string;
-    type: 'power' | 'passive' | 'weapon';
+    type: 'power' | 'passive' | 'weapon' | 'power-special';
     description: string;
     effect?: string;
+    value?: number;
 }
 export interface DamageResult {
     baseDamage: number;

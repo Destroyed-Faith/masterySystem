@@ -18,9 +18,10 @@ export interface DamageDialogData {
 export interface SpecialOption {
   id: string;
   name: string;
-  type: 'power' | 'passive' | 'weapon';
+  type: 'power' | 'passive' | 'weapon' | 'power-special';
   description: string;
   effect?: string;
+  value?: number; // For power specials like "Bleeding(3)" where 3 is the value
 }
 
 export interface DamageResult {
@@ -108,6 +109,13 @@ export async function showDamageDialog(
     }))
   });
   
+  // Helper function to clean power damage string (remove "Weapon DMG +" prefix)
+  const cleanPowerDamage = (damageStr: string): string => {
+    if (!damageStr) return '0';
+    // Remove "Weapon DMG +" or "Weapon Damage +" prefixes
+    return damageStr.replace(/^Weapon\s+(DMG|Damage)\s*\+\s*/i, '').trim() || '0';
+  };
+  
   if (selectedPowerId) {
     const selectedPower = items.find((item: any) => item.id === selectedPowerId);
     console.log('Mastery System | [DAMAGE DIALOG] Power search result', {
@@ -138,14 +146,16 @@ export async function showDamageDialog(
       
       // Use level-specific data if available, otherwise fall back to system data
       if (levelData) {
-        powerDamage = levelData.roll?.damage || powerSystem.roll?.damage || '0';
+        const rawPowerDamage = levelData.roll?.damage || powerSystem.roll?.damage || '0';
+        powerDamage = cleanPowerDamage(rawPowerDamage);
         if (levelData.special) {
           powerSpecials = levelData.special.split(',').map((s: string) => s.trim());
         } else {
           powerSpecials = powerSystem.specials || [];
         }
       } else {
-        powerDamage = powerSystem.roll?.damage || '0';
+        const rawPowerDamage = powerSystem.roll?.damage || '0';
+        powerDamage = cleanPowerDamage(rawPowerDamage);
         powerSpecials = powerSystem.specials || [];
       }
       
@@ -269,12 +279,14 @@ function createDamageCardContent(
 ): string {
   let raisesSection = '';
   if (raises > 0) {
+    // Create raise items with all specials directly in the dropdown
     const raiseItems = Array.from({ length: raises }, (_, i) => {
       const raiseIndex = i;
+      // Include all available specials directly in the main dropdown
       let specialOptions = '';
       if (availableSpecials.length > 0) {
         specialOptions = availableSpecials.map(special => 
-          `<option value="${special.id}">${special.name} (${special.type})</option>`
+          `<option value="special:${special.id}">${special.name}</option>`
         ).join('');
       }
       
@@ -284,14 +296,8 @@ function createDamageCardContent(
           <select class="raise-selection" data-raise-index="${raiseIndex}">
             <option value="">-- Select --</option>
             <option value="damage">+1d8 Damage</option>
-            ${availableSpecials.length > 0 ? '<option value="special">Use Special</option>' : ''}
+            ${specialOptions}
           </select>
-          ${availableSpecials.length > 0 ? `
-            <select class="special-select" data-raise-index="${raiseIndex}" style="display: none;">
-              <option value="">-- Select Special --</option>
-              ${specialOptions}
-            </select>
-          ` : ''}
         </div>
       `;
     }).join('');
@@ -475,14 +481,12 @@ function initializeDamageCard(messageId: string, resolve: (result: DamageResult 
     const raiseSelections: Map<number, { type: 'special' | 'damage'; value: string }> = new Map();
     messageElement.find('.raise-selection').each(function() {
       const raiseIndex = parseInt($(this).data('raise-index'));
-      const selectionType = $(this).val() as string;
-      if (selectionType === 'damage') {
+      const selectionValue = $(this).val() as string;
+      if (selectionValue === 'damage') {
         raiseSelections.set(raiseIndex, { type: 'damage', value: '1d8' });
-      } else if (selectionType === 'special') {
-        const specialId = messageElement.find(`.special-select[data-raise-index="${raiseIndex}"]`).val() as string;
-        if (specialId) {
-          raiseSelections.set(raiseIndex, { type: 'special', value: specialId });
-        }
+      } else if (selectionValue && selectionValue.startsWith('special:')) {
+        const specialId = selectionValue.replace('special:', '');
+        raiseSelections.set(raiseIndex, { type: 'special', value: specialId });
       }
     });
     
@@ -510,7 +514,9 @@ function initializeDamageCard(messageId: string, resolve: (result: DamageResult 
       flags.passiveDamage,
       flags.raises,
       raiseSelections,
-      flags.availableSpecials
+      flags.availableSpecials,
+      attacker,
+      target
     );
     
     console.log('Mastery System | [ROLL DAMAGE BUTTON] calculateDamageResult returned', {
@@ -595,10 +601,40 @@ async function calculatePassiveDamage(actor: Actor): Promise<string> {
 
 /**
  * Collect all available specials (powers, passives, weapon specials)
+ * Now includes power specials (e.g., "Bleeding(3)") as individual options
  */
-async function collectAvailableSpecials(actor: Actor, weapon: any | null): Promise<SpecialOption[]> {
+async function collectAvailableSpecials(actor: Actor, weapon: any | null, selectedPower?: any): Promise<SpecialOption[]> {
   const specials: SpecialOption[] = [];
   const items = (actor as any).items || [];
+  
+  // Get power specials from selected power (e.g., "Bleeding(3)")
+  if (selectedPower && selectedPower.specials && selectedPower.specials.length > 0) {
+    for (const specialName of selectedPower.specials) {
+      // Parse special name like "Bleeding(3)" to extract name and value
+      const match = specialName.match(/^([^(]+)(?:\((\d+)\))?$/);
+      if (match) {
+        const specialNameOnly = match[1].trim();
+        const specialValue = match[2] ? parseInt(match[2]) : null;
+        specials.push({
+          id: `power-special-${specialNameOnly.toLowerCase().replace(/\s+/g, '-')}`,
+          name: specialName, // Keep full name like "Bleeding(3)"
+          type: 'power-special',
+          description: `Power special: ${specialName}`,
+          effect: specialName,
+          value: specialValue ?? undefined
+        });
+      } else {
+        // Fallback if no match
+        specials.push({
+          id: `power-special-${specialName.toLowerCase().replace(/\s+/g, '-')}`,
+          name: specialName,
+          type: 'power-special',
+          description: `Power special: ${specialName}`,
+          effect: specialName
+        });
+      }
+    }
+  }
   
   // Get attack powers (note: powers are stored as type 'special', not 'power')
   const attackPowers = items.filter((item: any) => 
@@ -678,6 +714,99 @@ async function collectAvailableSpecials(actor: Actor, weapon: any | null): Promi
 }
 
 /**
+ * Apply status effects from specials to target actor
+ */
+async function applyStatusEffectsToTarget(target: Actor, specialsUsed: string[]): Promise<void> {
+  try {
+    console.log('Mastery System | [APPLY STATUS EFFECTS] Applying to target', {
+      targetId: (target as any).id,
+      targetName: (target as any).name,
+      specialsUsed
+    });
+    
+    // Get current status effects from target
+    const system = (target as any).system;
+    if (!system.statusEffects) {
+      system.statusEffects = [];
+    }
+    
+    // Add new status effects from specials
+    for (const specialName of specialsUsed) {
+      // Parse special name like "Bleeding(3)" to extract name and value
+      const match = specialName.match(/^([^(]+)(?:\((\d+)\))?$/);
+      if (match) {
+        const effectName = match[1].trim();
+        const effectValue = match[2] ? parseInt(match[2]) : null;
+        
+        // Check if effect already exists
+        const existingEffect = system.statusEffects.find((e: any) => e.name === effectName);
+        if (existingEffect) {
+          // Update existing effect (e.g., increase stack)
+          if (effectValue !== null) {
+            existingEffect.value = (existingEffect.value || 0) + effectValue;
+          }
+        } else {
+          // Add new effect
+          system.statusEffects.push({
+            name: effectName,
+            value: effectValue,
+            source: 'combat',
+            timestamp: Date.now()
+          });
+        }
+      }
+    }
+    
+    // Update target actor
+    await (target as any).update({ 'system.statusEffects': system.statusEffects });
+    
+    console.log('Mastery System | [APPLY STATUS EFFECTS] Status effects applied', {
+      targetId: (target as any).id,
+      statusEffects: system.statusEffects
+    });
+  } catch (error) {
+    console.error('Mastery System | [APPLY STATUS EFFECTS] Error applying status effects', error);
+  }
+}
+
+/**
+ * Apply damage to target actor
+ */
+async function applyDamageToTarget(target: Actor, damage: number, attacker: Actor): Promise<void> {
+  try {
+    console.log('Mastery System | [APPLY DAMAGE] Applying damage to target', {
+      targetId: (target as any).id,
+      targetName: (target as any).name,
+      attackerId: (attacker as any).id,
+      attackerName: (attacker as any).name,
+      damage
+    });
+    
+    // Use the actor's applyDamage method if available
+    if ((target as any).applyDamage) {
+      await (target as any).applyDamage(damage);
+    } else {
+      // Fallback: manually apply damage
+      const system = (target as any).system;
+      if (system.health && system.health.bars) {
+        const currentBar = system.health.bars[system.health.currentBar || 0];
+        if (currentBar) {
+          currentBar.current = Math.max(currentBar.current - damage, 0);
+          await (target as any).update({ 'system.health': system.health });
+        }
+      }
+    }
+    
+    console.log('Mastery System | [APPLY DAMAGE] Damage applied', {
+      targetId: (target as any).id,
+      damage
+    });
+  } catch (error) {
+    console.error('Mastery System | [APPLY DAMAGE] Error applying damage', error);
+  }
+}
+
+/**
  * Calculate damage result from selections
  */
 async function calculateDamageResult(
@@ -686,7 +815,9 @@ async function calculateDamageResult(
   passiveDamage: string,
   raises: number,
   raiseSelections: Map<number, { type: 'special' | 'damage'; value: string }>,
-  availableSpecials: SpecialOption[]
+  availableSpecials: SpecialOption[],
+  attacker: Actor,
+  target: Actor
 ): Promise<DamageResult> {
   // Roll base damage
   const baseDamageRolled = await rollDice(baseDamage || '0');
@@ -715,7 +846,8 @@ async function calculateDamageResult(
     }
   }
   
-  const totalDamage = baseDamageRolled + powerDamageRolled + passiveDamageRolled + raiseDamage;
+  // Total damage = Base Weapon + Power Damage + Raises (Passives separate)
+  const totalDamage = baseDamageRolled + powerDamageRolled + raiseDamage;
   
   console.log('Mastery System | [CALCULATE DAMAGE] Final calculation', {
     baseDamageRolled,
@@ -723,8 +855,19 @@ async function calculateDamageResult(
     passiveDamageRolled,
     raiseDamage,
     totalDamage,
-    specialsUsed
+    specialsUsed,
+    calculation: `Base (${baseDamageRolled}) + Power (${powerDamageRolled}) + Raises (${raiseDamage}) = ${totalDamage}`
   });
+  
+  // Apply status effects from specials to target
+  if (specialsUsed.length > 0 && target) {
+    await applyStatusEffectsToTarget(target, specialsUsed);
+  }
+  
+  // Apply damage to target
+  if (target) {
+    await applyDamageToTarget(target, totalDamage, attacker);
+  }
   
   const result = {
     baseDamage: baseDamageRolled,
