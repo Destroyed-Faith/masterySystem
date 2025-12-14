@@ -54,4 +54,19 @@ export declare const MS_INNER_SEGMENTS: InnerSegment[];
 export declare const MS_INNER_RADIUS = 60;
 export declare const MS_OUTER_RING_INNER = 80;
 export declare const MS_OUTER_RING_OUTER = 140;
+/**
+ * Check if grid is enabled on the current scene
+ * @returns true if grid is enabled and not gridless
+ */
+export declare function hasGridEnabled(): boolean;
+/**
+ * Get the grid type of the current scene
+ * @returns Grid type constant or null if no grid
+ */
+export declare function getGridType(): number | null;
+/**
+ * Get grid type name as string
+ * @returns Human-readable grid type name
+ */
+export declare function getGridTypeName(): string;
 //# sourceMappingURL=types.d.ts.map

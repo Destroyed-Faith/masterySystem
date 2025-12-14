@@ -5,6 +5,7 @@
  * Global state for range preview graphics
  */
 let msRangePreviewGfx = null;
+let msRadialMenuRangeGfx = null;
 /**
  * Convert system units (meters) to pixels
  */
@@ -33,6 +34,36 @@ export function clearRangePreview() {
             }
             else if (canvas.grid.getHighlightLayer) {
                 highlight = canvas.grid.getHighlightLayer('mastery-range-preview');
+            }
+        }
+        catch (error) {
+            // Ignore errors
+        }
+        if (highlight && typeof highlight.clear === 'function') {
+            highlight.clear();
+        }
+    }
+}
+/**
+ * Clear the radial menu range preview (6 fields)
+ */
+export function clearRadialMenuRange() {
+    if (msRadialMenuRangeGfx && msRadialMenuRangeGfx.parent) {
+        msRadialMenuRangeGfx.parent.removeChild(msRadialMenuRangeGfx);
+    }
+    msRadialMenuRangeGfx = null;
+    // Also clear hex highlights for radial menu
+    if (canvas.grid) {
+        let highlight = null;
+        try {
+            if (canvas.interface?.grid?.highlight) {
+                highlight = canvas.interface.grid.highlight;
+            }
+            else if (canvas.grid?.highlight) {
+                highlight = canvas.grid.highlight;
+            }
+            else if (canvas.grid.getHighlightLayer) {
+                highlight = canvas.grid.getHighlightLayer('mastery-radial-menu-range');
             }
         }
         catch (error) {
@@ -124,8 +155,10 @@ export function showRangePreview(token, rangeUnits) {
  * @param center - Center point in pixels
  * @param rangeUnits - Range in grid units (1m = 1 hex)
  * @param highlightId - Unique ID for this highlight layer
+ * @param color - Optional color override (default: yellow for movement)
+ * @param alpha - Optional alpha override (default: 0.5)
  */
-function highlightRangeHexes(center, rangeUnits, highlightId) {
+function highlightRangeHexes(center, rangeUnits, highlightId, color = 0xffe066, alpha = 0.5) {
     console.log('Mastery System | [DEBUG] highlightRangeHexes: Called', {
         center,
         rangeUnits,
@@ -308,10 +341,9 @@ function highlightRangeHexes(center, rangeUnits, highlightId) {
             }
             // If hex is within range, highlight it
             if (distanceInUnits <= rangeUnits) {
-                // Try different methods to highlight the hex
-                // Use yellow color (0xffe066) for movement preview to match movement segment color
-                const highlightColor = 0xffe066; // Yellow/gold color
-                const highlightAlpha = 0.5;
+                // Use provided color and alpha (defaults to yellow for movement preview)
+                const highlightColor = color;
+                const highlightAlpha = alpha;
                 let highlighted = false;
                 try {
                     // Method 1: Foundry v13 API: highlight.highlightPosition(col, row, options)
@@ -371,6 +403,62 @@ function highlightRangeHexes(center, rangeUnits, highlightId) {
         totalHexesChecked: (maxHexDistance * 2 + 1) * (maxHexDistance * 2 + 1),
         highlightMethod,
         highlightType: highlight ? highlight.constructor.name : 'null'
+    });
+}
+/**
+ * Show a fixed 6-field radius around the token when radial menu opens
+ * Uses a fixed color (cyan/blue) to distinguish from movement preview
+ * @param token - The token to show the range around
+ */
+export function showRadialMenuRange(token) {
+    clearRadialMenuRange();
+    const RANGE_UNITS = 6; // Fixed 6 fields
+    const FIXED_COLOR = 0x00aaff; // Cyan/blue color (different from movement yellow)
+    const FIXED_ALPHA = 0.4;
+    const tokenCenter = token.center;
+    // If grid is enabled, highlight grid fields
+    if (canvas.grid && canvas.grid.type !== CONST.GRID_TYPES.GRIDLESS) {
+        highlightRangeHexes(tokenCenter, RANGE_UNITS, 'mastery-radial-menu-range', FIXED_COLOR, FIXED_ALPHA);
+    }
+    else {
+        // If no grid, draw a circle
+        const radiusPx = unitsToPixels(RANGE_UNITS);
+        const gfx = new PIXI.Graphics();
+        gfx.lineStyle(3, FIXED_COLOR, 0.8);
+        gfx.beginFill(FIXED_COLOR, 0.15);
+        gfx.drawCircle(0, 0, radiusPx);
+        gfx.endFill();
+        msRadialMenuRangeGfx = gfx;
+        // Add to effects layer
+        let effectsContainer = null;
+        if (canvas.effects) {
+            if (canvas.effects.container && typeof canvas.effects.container.addChild === 'function') {
+                effectsContainer = canvas.effects.container;
+            }
+            else if (typeof canvas.effects.addChild === 'function') {
+                effectsContainer = canvas.effects;
+            }
+        }
+        if (!effectsContainer && canvas.foreground) {
+            if (canvas.foreground.container && typeof canvas.foreground.container.addChild === 'function') {
+                effectsContainer = canvas.foreground.container;
+            }
+            else if (typeof canvas.foreground.addChild === 'function') {
+                effectsContainer = canvas.foreground;
+            }
+        }
+        if (effectsContainer) {
+            effectsContainer.addChild(gfx);
+            gfx.position.set(tokenCenter.x, tokenCenter.y);
+            gfx.visible = true;
+            gfx.renderable = true;
+            gfx.alpha = 1.0;
+        }
+    }
+    console.log('Mastery System | Radial menu range preview shown', {
+        rangeUnits: RANGE_UNITS,
+        color: FIXED_COLOR.toString(16),
+        hasGrid: !!(canvas.grid && canvas.grid.type !== CONST.GRID_TYPES.GRIDLESS)
     });
 }
 //# sourceMappingURL=range-preview.js.map

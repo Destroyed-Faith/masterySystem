@@ -12,9 +12,9 @@
  */
 
 import type { RadialCombatOption, InnerSegment } from './radial-menu/types';
-import { MS_OUTER_RING_OUTER } from './radial-menu/types';
+import { MS_OUTER_RING_OUTER, hasGridEnabled, getGridType, getGridTypeName } from './radial-menu/types';
 import { getAllCombatOptionsForActor, getSegmentIdForOption } from './radial-menu/options';
-import { clearRangePreview } from './radial-menu/range-preview';
+import { clearRangePreview, showRadialMenuRange, clearRadialMenuRange } from './radial-menu/range-preview';
 import { hideRadialInfoPanel } from './radial-menu/info-panel';
 import { renderOuterRing, renderInnerSegments, refreshInnerSegmentsVisual } from './radial-menu/rendering';
 
@@ -33,6 +33,7 @@ let msCurrentTokenId: string | null = null; // ID of token with open radial menu
  */
 export function closeRadialMenu(): void {
   clearRangePreview();
+  clearRadialMenuRange();
   hideRadialInfoPanel();
   
   const previousTokenId = msCurrentTokenId;
@@ -70,6 +71,24 @@ export function closeRadialMenu(): void {
  */
 export function openRadialMenuForActor(token: any, allOptions: RadialCombatOption[]): void {
   closeRadialMenu();
+  
+  // Check if grid is enabled on the scene
+  const gridEnabled = hasGridEnabled();
+  const gridType = getGridType();
+  const gridTypeName = getGridTypeName();
+  const sceneGridType = canvas.scene?.gridType;
+  
+  console.log('Mastery System | Grid Status:', {
+    gridEnabled,
+    gridType,
+    gridTypeName,
+    sceneGridType,
+    hasCanvasGrid: !!canvas.grid,
+    hasCanvasScene: !!canvas.scene
+  });
+  
+  // Show fixed 6-field radius around token
+  showRadialMenuRange(token);
   
   // Hide Token HUD to show only the radial menu
   // Find the Token HUD element for this token
