@@ -393,12 +393,20 @@ function highlightRangeHexes(center, rangeUnits, highlightId, color = 0xffe066, 
                     if (centerGrid.i !== undefined && centerGrid.j !== undefined) {
                         const hexI = centerGrid.i + q;
                         const hexJ = centerGrid.j + r;
-                        // Calculate pixel coordinates for pointy-top hexes
+                        // Calculate pixel coordinates for pointy-top hexes (relative to grid origin)
                         // x = size * (sqrt(3) * i + sqrt(3)/2 * j)
                         // y = size * (3/2 * j)
-                        const pixelX = gridSize * (sqrt3 * hexI + sqrt3 / 2 * hexJ);
-                        const pixelY = gridSize * (3 / 2 * hexJ);
-                        // Hex center is at the calculated pixel coordinates (for pointy-top, center = calculated position)
+                        const pixelXRelative = gridSize * (sqrt3 * hexI + sqrt3 / 2 * hexJ);
+                        const pixelYRelative = gridSize * (3 / 2 * hexJ);
+                        // Calculate pixel coordinates for center hex (0,0) to get offset
+                        const centerPixelXRelative = gridSize * (sqrt3 * centerGrid.i + sqrt3 / 2 * centerGrid.j);
+                        const centerPixelYRelative = gridSize * (3 / 2 * centerGrid.j);
+                        // Convert to scene coordinates by adding the center token position offset
+                        // The center token is at (center.x, center.y) in scene coordinates
+                        // So we need to add the difference between the hex position and center hex position
+                        const pixelX = center.x + (pixelXRelative - centerPixelXRelative);
+                        const pixelY = center.y + (pixelYRelative - centerPixelYRelative);
+                        // Hex center is at the calculated pixel coordinates
                         hexCenter = { x: pixelX, y: pixelY };
                         positionMethod = 'calculated from offset coordinates (i,j)';
                         // Log first few for debugging
@@ -406,13 +414,15 @@ function highlightRangeHexes(center, rangeUnits, highlightId, color = 0xffe066, 
                             console.log('Mastery System | [DEBUG] highlightRangeHexes: Calculated hex center from offset coordinates');
                             console.log('  gridCol:', gridCol, 'gridRow:', gridRow);
                             console.log('  hexI:', hexI, 'hexJ:', hexJ);
+                            console.log('  pixelXRelative:', pixelXRelative, 'pixelYRelative:', pixelYRelative);
+                            console.log('  centerPixelXRelative:', centerPixelXRelative, 'centerPixelYRelative:', centerPixelYRelative);
                             console.log('  pixelX:', pixelX, 'pixelY:', pixelY);
                             console.log('  hexCenterX:', hexCenter.x, 'hexCenterY:', hexCenter.y);
                             console.log('  gridSize:', gridSize, 'gridType:', canvas.grid.type);
                             console.log('  positionMethod:', positionMethod);
                             console.log('  centerX:', center.x, 'centerY:', center.y);
-                            console.log('  calculation: x =', gridSize, '* (sqrt(3) *', hexI, '+ sqrt(3)/2 *', hexJ, ') =', pixelX);
-                            console.log('  calculation: y =', gridSize, '* (3/2 *', hexJ, ') =', pixelY);
+                            console.log('  calculation: x =', center.x, '+ (', pixelXRelative, '-', centerPixelXRelative, ') =', pixelX);
+                            console.log('  calculation: y =', center.y, '+ (', pixelYRelative, '-', centerPixelYRelative, ') =', pixelY);
                         }
                     }
                     else {
@@ -566,24 +576,19 @@ function highlightRangeHexes(center, rangeUnits, highlightId, color = 0xffe066, 
             }
             // Log distance calculation for first few hexes
             if (hexesWithPosition <= 3) {
-                console.log('Mastery System | [DEBUG] highlightRangeHexes: Distance calculation', {
-                    gridCol,
-                    gridRow,
-                    hexCenterX: hexCenter.x,
-                    hexCenterY: hexCenter.y,
-                    centerX: center.x,
-                    centerY: center.y,
-                    dx,
-                    dy,
-                    pixelDistance,
-                    gridDistance,
-                    distanceInUnits,
-                    rangeUnits,
-                    withinRange: distanceInUnits <= rangeUnits,
-                    gridSize: canvas.grid?.size,
-                    hasMeasurePath: !!canvas.grid?.measurePath,
-                    hasMeasureDistances: !!canvas.grid?.measureDistances
-                });
+                console.log('Mastery System | [DEBUG] highlightRangeHexes: Distance calculation');
+                console.log('  gridCol:', gridCol, 'gridRow:', gridRow);
+                console.log('  hexCenterX:', hexCenter.x, 'hexCenterY:', hexCenter.y);
+                console.log('  centerX:', center.x, 'centerY:', center.y);
+                console.log('  dx:', dx, 'dy:', dy);
+                console.log('  pixelDistance:', pixelDistance);
+                console.log('  gridDistance:', gridDistance);
+                console.log('  distanceInUnits:', distanceInUnits);
+                console.log('  rangeUnits:', rangeUnits);
+                console.log('  withinRange:', distanceInUnits <= rangeUnits);
+                console.log('  gridSize:', canvas.grid?.size);
+                console.log('  hasMeasurePath:', !!canvas.grid?.measurePath);
+                console.log('  hasMeasureDistances:', !!canvas.grid?.measureDistances);
             }
             // If hex is within range, highlight it
             if (distanceInUnits <= rangeUnits) {
