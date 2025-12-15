@@ -1,84 +1,70 @@
 /**
- * Hex Highlighting Utilities
- * Uses BFS (Breadth-First Search) to find and highlight hex fields within range
+ * Foundry V13 – Reliable Hex Range Highlight
+ * - Uses grid.getOffset(token.center) => {i,j}
+ * - BFS via grid.getAdjacentOffsets / grid.getNeighbors
+ * - Draws via canvas.interface.grid.highlightPosition(layerId, {x,y,color,alpha})
+ * - Uses grid.getTopLeftPoint(offsetObj) where offsetObj is {i,j}
  */
-function normalizeOffset(o) {
-    const cand = o?.offset ? o.offset : o;
-    if (!cand)
-        return null;
-    const col = cand.col ?? cand.i ?? cand.x ?? cand.q;
-    const row = cand.row ?? cand.j ?? cand.y ?? cand.r;
-    if (typeof col !== "number" || typeof row !== "number")
-        return null;
-    return { col, row };
+function getNeighborFn(grid) {
+    if (typeof grid.getAdjacentOffsets === "function")
+        return (o) => grid.getAdjacentOffsets(o) ?? [];
+    if (typeof grid.getNeighbors === "function")
+        return (o) => grid.getNeighbors(o) ?? [];
+    return null;
 }
-/**
- * Highlight hex fields within range using BFS algorithm
- * @param tokenId - The ID of the token to use as center
- * @param rangeUnits - Range in grid units (meters)
- * @param highlightLayerId - Unique ID for the highlight layer
- * @param color - Color for highlights (default: green)
- * @param alpha - Alpha transparency (default: 0.35)
- */
+function toIJ(n) {
+    if (n?.i !== undefined && n?.j !== undefined)
+        return { i: Number(n.i), j: Number(n.j) };
+    if (n?.offset?.i !== undefined && n?.offset?.j !== undefined)
+        return { i: Number(n.offset.i), j: Number(n.offset.j) };
+    return null;
+}
 export function highlightHexesInRange(tokenId, rangeUnits, highlightLayerId, color = 0x00ff00, alpha = 0.35) {
     const token = canvas.tokens.get(tokenId);
-    if (!token)
-        return console.warn("MS | highlightHexesInRange: Token not found", tokenId);
+    if (!token) {
+        console.warn("MS | highlightHexesInRange: Token not found", tokenId);
+        return;
+    }
     const grid = canvas.grid;
     const gridUI = canvas.interface?.grid;
-    if (!grid || !gridUI)
-        return console.warn("MS | highlightHexesInRange: grid/gridUI missing");
-    const maxSteps = Math.floor(Number(rangeUnits));
-    if (!Number.isFinite(maxSteps) || maxSteps < 0)
+    if (!grid || !gridUI) {
+        console.warn("MS | highlightHexesInRange: grid/gridUI missing", { grid: !!grid, gridUI: !!gridUI });
         return;
-    // getOffset signature differs by Foundry versions; support both point and x/y.
-    let startOffset;
-    try {
-        startOffset = grid.getOffset?.(token.center?.x, token.center?.y);
     }
-    catch {
-        // ignore
-    }
-    if (!startOffset) {
-        try {
-            startOffset = grid.getOffset?.(token.center);
-        }
-        catch {
-            // ignore
-        }
-    }
-    const startNorm = normalizeOffset(startOffset);
-    console.log("MS | highlightHexesInRange start", {
+    const RANGE = Math.max(0, Math.floor(Number(rangeUnits)));
+    if (!Number.isFinite(RANGE))
+        return;
+    const startRaw = grid.getOffset(token.center);
+    const start = (startRaw?.i !== undefined && startRaw?.j !== undefined)
+        ? { i: Number(startRaw.i), j: Number(startRaw.j) }
+        : null;
+    console.log("[MS][HL] start", {
         tokenId,
         tokenName: token.name,
-        rangeUnits,
+        RANGE,
         gridType: grid.type,
         gridSize: grid.size,
-        start: startOffset
+        start: startRaw
     });
-    if (!startNorm) {
-        console.error("MS | highlightHexesInRange: getOffset did not return a usable offset", startOffset);
+    if (!start) {
+        console.error("[MS][HL] getOffset failed (expected {i,j})", startRaw);
         return;
     }
-    // Neighbor API (feature detect)
-    const getNeighbors = typeof grid.getAdjacentOffsets === "function" ? (o) => grid.getAdjacentOffsets(o) :
-        typeof grid.getNeighbors === "function" ? (o) => grid.getNeighbors(o) :
-            null;
+    const getNeighbors = getNeighborFn(grid);
     if (!getNeighbors) {
-        console.error("MS | highlightHexesInRange: No neighbor API on grid");
+        console.error("[MS][HL] No neighbor API found on grid (getAdjacentOffsets/getNeighbors)");
         return;
     }
-    // BFS
-    const key = (o) => `${o.col},${o.row}`;
-    const visited = new Set([key(startNorm)]);
-    let frontier = [startNorm];
-    const all = [startNorm];
-    for (let step = 1; step <= maxSteps; step++) {
+    // BFS rings (exact steps)
+    const key = (o) => `${o.i},${o.j}`;
+    const visited = new Set([key(start)]);
+    let frontier = [start];
+    const all = [start];
+    for (let step = 1; step <= RANGE; step++) {
         const next = [];
         for (const o of frontier) {
-            const neighbors = getNeighbors(o) ?? [];
-            for (const n of neighbors) {
-                const cand = normalizeOffset(n);
+            for (const n of getNeighbors(o)) {
+                const cand = toIJ(n);
                 if (!cand)
                     continue;
                 const k = key(cand);
@@ -89,82 +75,28 @@ export function highlightHexesInRange(tokenId, rangeUnits, highlightLayerId, col
                 all.push(cand);
             }
         }
-        console.log(`MS | highlightHexesInRange step ${step}`, { added: next.length, frontier: next.length });
+        console.log(`[MS][HL] step ${step}`, { frontier: frontier.length, added: next.length });
         frontier = next;
     }
-    // Highlight layer
-    const createdLayer = gridUI.addHighlightLayer?.(highlightLayerId);
+    console.log("[MS][HL] total", { hexes: all.length, unique: visited.size });
+    // Highlight layer (the reliable way you already used successfully)
+    gridUI.addHighlightLayer?.(highlightLayerId);
     gridUI.clearHighlightLayer?.(highlightLayerId);
-    const layer = createdLayer ??
-        gridUI.highlightLayers?.[highlightLayerId] ??
-        gridUI.getHighlightLayer?.(highlightLayerId) ??
-        null;
     let highlighted = 0;
     let tlFail = 0;
     for (const o of all) {
-        // Best effort: v13+ prefers layer.highlightPosition(col,row,{color,alpha})
-        if (layer && typeof layer.highlightPosition === "function") {
-            try {
-                layer.highlightPosition(o.col, o.row, { color, alpha });
-                highlighted++;
-                continue;
-            }
-            catch {
-                // fallthrough
-            }
-        }
-        // Fallback: older API via gridUI.highlightPosition(layerId,{x,y,color,alpha})
-        let tl = null;
-        try {
-            if (typeof grid.getTopLeftPoint === "function") {
-                // Some versions accept (col,row), others accept offset-like objects
-                tl = grid.getTopLeftPoint(o.col, o.row);
-            }
-        }
-        catch {
-            // fallthrough
-        }
-        if (!tl) {
-            try {
-                if (typeof grid.getTopLeftPoint === "function") {
-                    tl = grid.getTopLeftPoint({ i: o.col, j: o.row });
-                }
-            }
-            catch {
-                // ignore
-            }
-        }
+        const tl = grid.getTopLeftPoint(o);
         if (!tl || tl.x === undefined || tl.y === undefined) {
             tlFail++;
             continue;
         }
-        try {
-            gridUI.highlightPosition?.(highlightLayerId, { x: tl.x, y: tl.y, color, alpha });
-            highlighted++;
-        }
-        catch {
-            // ignore
-        }
+        gridUI.highlightPosition?.(highlightLayerId, { x: tl.x, y: tl.y, color, alpha });
+        highlighted++;
     }
-    console.log("MS | highlightHexesInRange complete", {
-        tokenId,
-        rangeUnits,
-        totalHexes: all.length,
-        highlighted,
-        tlFail
-    });
+    console.log("[MS][HL] done", { highlighted, tlFail });
 }
 export function clearHexHighlight(highlightLayerId) {
     const gridUI = canvas.interface?.grid;
     gridUI?.clearHighlightLayer?.(highlightLayerId);
-    const layer = gridUI?.highlightLayers?.[highlightLayerId] ??
-        gridUI?.getHighlightLayer?.(highlightLayerId) ??
-        null;
-    if (layer && typeof layer.clear === "function") {
-        try {
-            layer.clear();
-        }
-        catch { /* ignore */ }
-    }
 }
 //# sourceMappingURL=hex-highlighting.js.map

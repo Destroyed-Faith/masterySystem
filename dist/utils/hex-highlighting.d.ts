@@ -1,14 +1,9 @@
 /**
- * Hex Highlighting Utilities
- * Uses BFS (Breadth-First Search) to find and highlight hex fields within range
- */
-/**
- * Highlight hex fields within range using BFS algorithm
- * @param tokenId - The ID of the token to use as center
- * @param rangeUnits - Range in grid units (meters)
- * @param highlightLayerId - Unique ID for the highlight layer
- * @param color - Color for highlights (default: green)
- * @param alpha - Alpha transparency (default: 0.35)
+ * Foundry V13 – Reliable Hex Range Highlight
+ * - Uses grid.getOffset(token.center) => {i,j}
+ * - BFS via grid.getAdjacentOffsets / grid.getNeighbors
+ * - Draws via canvas.interface.grid.highlightPosition(layerId, {x,y,color,alpha})
+ * - Uses grid.getTopLeftPoint(offsetObj) where offsetObj is {i,j}
  */
 export declare function highlightHexesInRange(tokenId: string, rangeUnits: number, highlightLayerId: string, color?: number, alpha?: number): void;
 export declare function clearHexHighlight(highlightLayerId: string): void;
