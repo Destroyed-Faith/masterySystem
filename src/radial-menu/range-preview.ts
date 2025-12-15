@@ -408,17 +408,31 @@ function highlightRangeHexes(
         }
         // Try getTopLeftPoint (for square grids, or if getCenterPoint doesn't exist)
         else if (canvas.grid?.getTopLeftPoint) {
-          // For hex grids, getTopLeftPoint might return top-left, not center
-          // We might need to adjust it
           const topLeft = canvas.grid.getTopLeftPoint(gridCol, gridRow);
           if (topLeft) {
-            // For hex grids, center is offset from top-left
-            // Try to get center point if available
-            if ((canvas.grid as any)?.getCenterFromTopLeft && typeof (canvas.grid as any).getCenterFromTopLeft === 'function') {
-              hexCenter = (canvas.grid as any).getCenterFromTopLeft(topLeft.x, topLeft.y);
+            // For hexagonal grids, getTopLeftPoint returns top-left corner, not center
+            // We need to calculate the center point
+            if (canvas.grid.type === 2) { // Hexagonal grid
+              // For hex grids, calculate center from top-left
+              // Hex center is at: x = topLeft.x + size/2, y = topLeft.y + size * sqrt(3) / 4
+              const gridSize = canvas.grid.size || 100;
+              const hexCenterX = topLeft.x + gridSize / 2;
+              const hexCenterY = topLeft.y + gridSize * Math.sqrt(3) / 4;
+              hexCenter = { x: hexCenterX, y: hexCenterY };
+              
+              // Log first few for debugging
+              if (hexesWithPosition < 3) {
+                console.log('Mastery System | [DEBUG] highlightRangeHexes: Calculated hex center from topLeft', {
+                  gridCol,
+                  gridRow,
+                  topLeft,
+                  hexCenter,
+                  gridSize,
+                  gridType: canvas.grid.type
+                });
+              }
             } else {
-              // For hex grids, center is typically at (topLeft.x + size/2, topLeft.y + size/2)
-              // But this is approximate - we should use the proper API if available
+              // For square grids, topLeft is the center
               hexCenter = topLeft;
             }
           }
