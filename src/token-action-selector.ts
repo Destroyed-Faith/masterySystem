@@ -657,21 +657,21 @@ async function attemptCommitMovement(destX: number, destY: number, state: Moveme
     return;
   }
   
-    // Move the token using Foundry's movement animation
-    const token = state.token;
+  // Move the token using Foundry's movement animation
+  const token = state.token;
+  
+  try {
+    // Use v13 API: token.document.update with animate option
+    await token.document.update(
+      { x: dest.x, y: dest.y },
+      { animate: true }
+    );
     
-    try {
-      // Use v13 API: token.document.update with animate option
-      await token.document.update(
-        { x: dest.x, y: dest.y },
-        { animate: true }
-      );
-      
-      console.log('Mastery System | Movement completed', {
-        option: state.option.name,
-        distance: distanceInUnits.toFixed(1),
-        maxRange: state.maxRange
-      });
+    console.log('Mastery System | Movement completed', {
+      option: state.option.name,
+      distance: distanceInUnits.toFixed(1),
+      maxRange: state.maxRange
+    });
       
       // Update turn state if this costs movement
       if (state.option.costsMovement && token.actor) {
@@ -684,15 +684,15 @@ async function attemptCommitMovement(destX: number, destY: number, state: Moveme
           console.warn('Mastery System | Could not set turnState:', error);
         }
       }
-      
-      // End movement mode successfully
-      endGuidedMovement(true);
-      
-    } catch (error) {
-      console.error('Mastery System | Error during token movement', error);
-      ui.notifications.error('Failed to move token');
-      endGuidedMovement(false);
-    }
+    
+    // End movement mode successfully
+    endGuidedMovement(true);
+    
+  } catch (error) {
+    console.error('Mastery System | Error during token movement', error);
+    ui.notifications.error('Failed to move token');
+    endGuidedMovement(false);
+  }
 }
 
 /**
