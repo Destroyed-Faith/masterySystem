@@ -427,19 +427,42 @@ function highlightRangeHexes(
           }
           
           if (hexesWithPosition < 3) {
+            const hexI = isHexGrid && centerGrid.i !== undefined ? centerGrid.i + q : undefined;
+            const hexJ = isHexGrid && centerGrid.j !== undefined ? centerGrid.j + r : undefined;
             console.log('Mastery System | [DEBUG] highlightRangeHexes: Using getCenterPoint', {
               gridCol,
               gridRow,
-              hexI: isHexGrid && centerGrid.i !== undefined ? centerGrid.i + q : undefined,
-              hexJ: isHexGrid && centerGrid.j !== undefined ? centerGrid.j + r : undefined,
+              hexI,
+              hexJ,
               hexCenter,
               hexCenterX: hexCenter?.x,
               hexCenterY: hexCenter?.y,
               centerX: center.x,
               centerY: center.y,
-              distance: hexCenter ? Math.sqrt(Math.pow(hexCenter.x - center.x, 2) + Math.pow(hexCenter.y - center.y, 2)) : null,
-              positionMethod
+              dx: hexCenter ? hexCenter.x - center.x : null,
+              dy: hexCenter ? hexCenter.y - center.y : null,
+              pixelDistance: hexCenter ? Math.sqrt(Math.pow(hexCenter.x - center.x, 2) + Math.pow(hexCenter.y - center.y, 2)) : null,
+              gridSize: canvas.grid?.size,
+              positionMethod,
+              getCenterPointExists: !!(canvas.grid as any)?.getCenterPoint,
+              getCenterPointType: typeof (canvas.grid as any)?.getCenterPoint
             });
+            
+            // Also try getTopLeftPoint to compare
+            if (canvas.grid?.getTopLeftPoint && hexesWithPosition === 1) {
+              try {
+                const topLeft = canvas.grid.getTopLeftPoint(gridCol, gridRow);
+                console.log('Mastery System | [DEBUG] highlightRangeHexes: Comparison - getTopLeftPoint', {
+                  gridCol,
+                  gridRow,
+                  topLeft,
+                  topLeftX: topLeft?.x,
+                  topLeftY: topLeft?.y
+                });
+              } catch (e) {
+                console.warn('Mastery System | [DEBUG] highlightRangeHexes: getTopLeftPoint error', e);
+              }
+            }
           }
         }
         // Try getTopLeftPoint (for square grids, or if getCenterPoint doesn't exist)
@@ -562,11 +585,20 @@ function highlightRangeHexes(
         console.log('Mastery System | [DEBUG] highlightRangeHexes: Distance calculation', {
           gridCol,
           gridRow,
+          hexCenterX: hexCenter.x,
+          hexCenterY: hexCenter.y,
+          centerX: center.x,
+          centerY: center.y,
+          dx,
+          dy,
           pixelDistance,
           gridDistance,
           distanceInUnits,
           rangeUnits,
-          withinRange: distanceInUnits <= rangeUnits
+          withinRange: distanceInUnits <= rangeUnits,
+          gridSize: canvas.grid?.size,
+          hasMeasurePath: !!canvas.grid?.measurePath,
+          hasMeasureDistances: !!canvas.grid?.measureDistances
         });
       }
       
