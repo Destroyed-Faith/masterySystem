@@ -175,6 +175,91 @@ async function openMasteryActionRadialMenu(token: any) {
 
 
 /**
+ * Get hex center position for a token (for hexagonal grids)
+ * Uses the same calculation as range-preview.ts
+ */
+function getTokenHexCenter(token: any): { x: number; y: number } {
+  if (!token || !canvas.grid) {
+    return { x: token?.x || 0, y: token?.y || 0 };
+  }
+  
+  const center = token.center || { x: token.x, y: token.y };
+  const isHexGrid = canvas.grid.type === CONST.GRID_TYPES.HEXAGONAL;
+  
+  if (!isHexGrid) {
+    // For non-hex grids, use token center
+    return center;
+  }
+  
+  // For hex grids, calculate the hex center
+  try {
+    if (canvas.grid?.getOffset) {
+      const offset = canvas.grid.getOffset(center.x, center.y) as any;
+      if (offset && (offset.i !== undefined || offset.col !== undefined)) {
+        // Calibration offset (from range-preview.ts)
+        // This adjusts the token center to the actual hex center position
+        const calibrationDeltaX = -50;
+        const calibrationDeltaY = -59.7350269189626;
+        
+        // The hex center is at: token center + calibration offset
+        // This aligns the origin with the center of the hex the token is in
+        const hexCenterX = center.x + calibrationDeltaX;
+        const hexCenterY = center.y + calibrationDeltaY;
+        
+        return { x: hexCenterX, y: hexCenterY };
+      }
+    }
+  } catch (error) {
+    console.warn('Mastery System | Could not calculate hex center, using token center', error);
+  }
+  
+  // Fallback to token center
+  return center;
+}
+
+/**
+ * Get all hexes along a path between two hex coordinates (for hexagonal grids)
+ * Uses line drawing algorithm for hex grids (offset coordinates)
+ */
+function getHexesAlongPath(startI: number, startJ: number, endI: number, endJ: number): Array<{ i: number; j: number }> {
+  const hexes: Array<{ i: number; j: number }> = [];
+  
+  // For offset coordinates (i, j), we can use a simple line drawing algorithm
+  // Calculate distance in hex coordinates
+  const di = endI - startI;
+  const dj = endJ - startJ;
+  
+  // Calculate the number of steps needed
+  const distance = Math.max(Math.abs(di), Math.abs(dj), Math.abs(di + dj));
+  
+  if (distance === 0) {
+    return [{ i: startI, j: startJ }];
+  }
+  
+  // Linear interpolation for each step
+  for (let step = 0; step <= distance; step++) {
+    const t = step / distance;
+    const i = Math.round(startI + di * t);
+    const j = Math.round(startJ + dj * t);
+    
+    hexes.push({ i, j });
+  }
+  
+  // Remove duplicates
+  const uniqueHexes: Array<{ i: number; j: number }> = [];
+  const seen = new Set<string>();
+  for (const hex of hexes) {
+    const key = `${hex.i},${hex.j}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      uniqueHexes.push(hex);
+    }
+  }
+  
+  return uniqueHexes;
+}
+
+/**
  * Get default movement range for an option
  */
 function getDefaultMovementRange(token: any, option: RadialCombatOption): number {
@@ -205,7 +290,8 @@ export function startGuidedMovement(token: any, option: RadialCombatOption): voi
   // Ensure token is controlled by this user
   token.control({ releaseOthers: false });
   
-  const origin = { x: token.x, y: token.y };
+  // Get hex center as origin (for hex grids, this is the center of the hex the token is in)
+  const origin = getTokenHexCenter(token);
   const maxRange = getDefaultMovementRange(token, option);
   const originalAlpha = token.alpha;
   
@@ -367,24 +453,25 @@ function refreshMovementPreview(state: MovementState, destX: number, destY: numb
   const lineColor = isValid ? 0x00ff00 : 0xff0000; // Green if valid, red if not
   const fillColor = isValid ? 0x00ff00 : 0xff0000;
   
-  // Get highlight layer
-  let highlight: any = null;
+  // Get highlight layer (use v13 API)
+  let highlightLayer: any = null;
   try {
-    if (canvas.grid.highlight) {
-      highlight = canvas.grid.highlight;
-    } else if ((canvas.grid as any).getHighlightLayer) {
-      highlight = (canvas.grid as any).getHighlightLayer(state.highlightId);
-      if (!highlight && (canvas.grid as any).addHighlightLayer) {
-        highlight = (canvas.grid as any).addHighlightLayer(state.highlightId);
-      }
+    if (canvas.interface?.grid?.highlightLayers && canvas.interface.grid.highlightLayers[state.highlightId]) {
+      highlightLayer = canvas.interface.grid.highlightLayers[state.highlightId];
+    } else if (canvas.interface?.grid && typeof canvas.interface.grid.addHighlightLayer === 'function') {
+      highlightLayer = canvas.interface.grid.addHighlightLayer(state.highlightId);
     }
   } catch (error) {
     console.warn('Mastery System | Could not get highlight layer', error);
   }
   
   // Clear previous highlights
-  if (highlight && highlight.clear) {
-    highlight.clear();
+  if (highlightLayer) {
+    if (typeof highlightLayer.clear === 'function') {
+      highlightLayer.clear();
+    } else if (highlightLayer.removeChildren && typeof highlightLayer.removeChildren === 'function') {
+      highlightLayer.removeChildren();
+    }
   }
   
   // Draw path line
@@ -404,50 +491,88 @@ function refreshMovementPreview(state: MovementState, destX: number, destY: numb
   state.previewGraphics.drawCircle(dest.x, dest.y, canvas.grid.size * 0.3);
   state.previewGraphics.endFill();
   
-  // Highlight grid positions along the path
-  if (highlight && segments.length > 0) {
-    for (const segment of segments) {
-      if (segment.positions && Array.isArray(segment.positions)) {
-        for (const pos of segment.positions) {
-          if (canvas.grid?.getOffset) {
-            const offset = canvas.grid.getOffset(pos.x, pos.y) as any;
-            if (offset) {
-              const col = offset.col ?? offset.i ?? offset.x ?? offset.q ?? 0;
-              const row = offset.row ?? offset.j ?? offset.y ?? offset.r ?? 0;
-              if (highlight.highlightPosition) {
-                highlight.highlightPosition(col, row, { color: fillColor, alpha: 0.3 });
-              } else if (highlight.highlightGridPosition) {
-                highlight.highlightGridPosition(col, row, { color: fillColor, alpha: 0.3 });
-              }
+  // For hexagonal grids, highlight all hexes along the path
+  const isHexGrid = canvas.grid.type === CONST.GRID_TYPES.HEXAGONAL;
+  if (isHexGrid && canvas.grid?.getOffset && highlightLayer) {
+    try {
+      // Get hex coordinates for origin and destination
+      const originOffset = canvas.grid.getOffset(origin.x, origin.y) as any;
+      const destOffset = canvas.grid.getOffset(dest.x, dest.y) as any;
+      
+      if (originOffset && destOffset) {
+        const originI = originOffset.i ?? originOffset.col ?? originOffset.x ?? originOffset.q ?? 0;
+        const originJ = originOffset.j ?? originOffset.row ?? originOffset.y ?? originOffset.r ?? 0;
+        const destI = destOffset.i ?? destOffset.col ?? destOffset.x ?? destOffset.q ?? 0;
+        const destJ = destOffset.j ?? destOffset.row ?? destOffset.y ?? destOffset.r ?? 0;
+        
+        // Get all hexes along the path
+        const pathHexes = getHexesAlongPath(originI, originJ, destI, destJ);
+        
+        // Calculate hex center positions and highlight them
+        const gridSize = canvas.grid.size || 100;
+        const sqrt3 = Math.sqrt(3);
+        const calibrationDeltaX = -50;
+        const calibrationDeltaY = -59.7350269189626;
+        
+        for (const hex of pathHexes) {
+          // Calculate pixel coordinates for this hex
+          const pixelXRelative = gridSize * (sqrt3 * hex.i + sqrt3 / 2 * hex.j);
+          const pixelYRelative = gridSize * (3/2 * hex.j);
+          
+          // Calculate pixel coordinates for origin hex
+          const originPixelXRelative = gridSize * (sqrt3 * originI + sqrt3 / 2 * originJ);
+          const originPixelYRelative = gridSize * (3/2 * originJ);
+          
+          // Convert to scene coordinates
+          const hexCenterX = origin.x + (pixelXRelative - originPixelXRelative) + calibrationDeltaX;
+          const hexCenterY = origin.y + (pixelYRelative - originPixelYRelative) + calibrationDeltaY;
+          
+          // Highlight this hex (green for valid path)
+          if (canvas.interface?.grid && typeof (canvas.interface.grid as any).highlightPosition === 'function') {
+            try {
+              (canvas.interface.grid as any).highlightPosition(state.highlightId, {
+                x: hexCenterX,
+                y: hexCenterY,
+                color: isValid ? 0x00ff00 : 0xff0000, // Green if valid, red if not
+                alpha: 0.5
+              });
+            } catch (e) {
+              // Ignore errors for individual hex highlights
             }
           }
         }
       }
+    } catch (error) {
+      console.warn('Mastery System | Error highlighting hex path', error);
     }
-  }
-  
-  // Also highlight origin and destination
-  if (canvas.grid?.getOffset && highlight) {
+  } else if (highlightLayer && canvas.grid?.getOffset) {
+    // For non-hex grids or fallback, highlight origin and destination
     const originOffset = canvas.grid.getOffset(origin.x, origin.y) as any;
     const destOffset = canvas.grid.getOffset(dest.x, dest.y) as any;
     
-    if (originOffset) {
-      const originCol = originOffset.col ?? originOffset.i ?? originOffset.x ?? originOffset.q ?? 0;
-      const originRow = originOffset.row ?? originOffset.j ?? originOffset.y ?? originOffset.r ?? 0;
-      if (highlight.highlightPosition) {
-        highlight.highlightPosition(originCol, originRow, { color: 0x00ffff, alpha: 0.5 });
-      } else if (highlight.highlightGridPosition) {
-        highlight.highlightGridPosition(originCol, originRow, { color: 0x00ffff, alpha: 0.5 });
+    if (originOffset && canvas.interface?.grid && typeof (canvas.interface.grid as any).highlightPosition === 'function') {
+      try {
+        (canvas.interface.grid as any).highlightPosition(state.highlightId, {
+          x: origin.x,
+          y: origin.y,
+          color: 0x00ffff,
+          alpha: 0.5
+        });
+      } catch (e) {
+        // Ignore
       }
     }
     
-    if (destOffset) {
-      const destCol = destOffset.col ?? destOffset.i ?? destOffset.x ?? destOffset.q ?? 0;
-      const destRow = destOffset.row ?? destOffset.j ?? destOffset.y ?? destOffset.r ?? 0;
-      if (highlight.highlightPosition) {
-        highlight.highlightPosition(destCol, destRow, { color: 0x00ffff, alpha: 0.5 });
-      } else if (highlight.highlightGridPosition) {
-        highlight.highlightGridPosition(destCol, destRow, { color: 0x00ffff, alpha: 0.5 });
+    if (destOffset && canvas.interface?.grid && typeof (canvas.interface.grid as any).highlightPosition === 'function') {
+      try {
+        (canvas.interface.grid as any).highlightPosition(state.highlightId, {
+          x: dest.x,
+          y: dest.y,
+          color: isValid ? 0x00ff00 : 0xff0000,
+          alpha: 0.5
+        });
+      } catch (e) {
+        // Ignore
       }
     }
   }
