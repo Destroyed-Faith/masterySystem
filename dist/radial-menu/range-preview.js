@@ -375,10 +375,19 @@ function highlightRangeHexes(center, rangeUnits, highlightId, color = 0xffe066, 
             // Get hex center position
             // For hexagonal grids, we need to use getCenterPoint or calculate from offset
             let hexCenter = null;
+            let positionMethod = 'none';
             try {
                 // Try getCenterPoint first (for hex grids)
                 if (canvas.grid?.getCenterPoint && typeof canvas.grid.getCenterPoint === 'function') {
                     hexCenter = canvas.grid.getCenterPoint(gridCol, gridRow);
+                    positionMethod = 'getCenterPoint';
+                    if (hexesWithPosition < 3) {
+                        console.log('Mastery System | [DEBUG] highlightRangeHexes: Using getCenterPoint', {
+                            gridCol,
+                            gridRow,
+                            hexCenter
+                        });
+                    }
                 }
                 // Try getTopLeftPoint (for square grids, or if getCenterPoint doesn't exist)
                 else if (canvas.grid?.getTopLeftPoint) {
@@ -393,6 +402,7 @@ function highlightRangeHexes(center, rangeUnits, highlightId, color = 0xffe066, 
                             const hexCenterX = topLeft.x + gridSize / 2;
                             const hexCenterY = topLeft.y + gridSize * Math.sqrt(3) / 4;
                             hexCenter = { x: hexCenterX, y: hexCenterY };
+                            positionMethod = 'getTopLeftPoint (calculated center)';
                             // Log first few for debugging
                             if (hexesWithPosition < 3) {
                                 console.log('Mastery System | [DEBUG] highlightRangeHexes: Calculated hex center from topLeft', {
@@ -401,19 +411,22 @@ function highlightRangeHexes(center, rangeUnits, highlightId, color = 0xffe066, 
                                     topLeft,
                                     hexCenter,
                                     gridSize,
-                                    gridType: canvas.grid.type
+                                    gridType: canvas.grid.type,
+                                    calculation: `x = ${topLeft.x} + ${gridSize}/2 = ${hexCenterX}, y = ${topLeft.y} + ${gridSize} * sqrt(3)/4 = ${hexCenterY}`
                                 });
                             }
                         }
                         else {
                             // For square grids, topLeft is the center
                             hexCenter = topLeft;
+                            positionMethod = 'getTopLeftPoint (square grid)';
                         }
                     }
                 }
                 else if (canvas.grid?.getPixelsFromGridPosition) {
                     // Fallback to old API
                     hexCenter = canvas.grid.getPixelsFromGridPosition(gridCol, gridRow);
+                    positionMethod = 'getPixelsFromGridPosition';
                 }
             }
             catch (error) {
@@ -451,6 +464,7 @@ function highlightRangeHexes(center, rangeUnits, highlightId, color = 0xffe066, 
                     gridRow,
                     hexCenter,
                     center,
+                    positionMethod,
                     distance: Math.sqrt(Math.pow(hexCenter.x - center.x, 2) + Math.pow(hexCenter.y - center.y, 2))
                 });
             }
