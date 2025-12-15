@@ -385,36 +385,37 @@ function highlightRangeHexes(center, rangeUnits, highlightId, color = 0xffe066, 
             try {
                 // For hexagonal grids, use getTopLeftPoint and calculate center (getCenterPoint returns wrong values)
                 if (isHexGrid && canvas.grid?.getTopLeftPoint) {
-                    // For hex grids, try with i/j if available, otherwise use col/row
+                    // For hex grids, try both i/j and col/row to see which works
                     let topLeft = null;
                     let topLeftWithColRow = null;
                     let topLeftWithIJ = null;
-                    if (centerGrid.i !== undefined && centerGrid.j !== undefined) {
-                        // Try with i/j coordinates
-                        const hexI = centerGrid.i + q;
-                        const hexJ = centerGrid.j + r;
-                        try {
-                            topLeftWithIJ = canvas.grid.getTopLeftPoint(hexI, hexJ);
-                            topLeft = topLeftWithIJ;
-                            positionMethod = 'getTopLeftPoint(i,j) (calculated center)';
-                        }
-                        catch (e) {
-                            // Fallback to col/row
-                            topLeftWithColRow = canvas.grid.getTopLeftPoint(gridCol, gridRow);
-                            topLeft = topLeftWithColRow;
-                            positionMethod = 'getTopLeftPoint(col,row) (calculated center)';
-                        }
-                    }
-                    else {
+                    // Always try col/row first (this is what getTopLeftPoint expects for hex grids)
+                    try {
                         topLeftWithColRow = canvas.grid.getTopLeftPoint(gridCol, gridRow);
                         topLeft = topLeftWithColRow;
                         positionMethod = 'getTopLeftPoint(col,row) (calculated center)';
                     }
-                    // Also try getPixelsFromGridPosition if available
-                    let pixelsFromGrid = null;
-                    if (canvas.grid?.getPixelsFromGridPosition && hexesWithPosition < 3) {
+                    catch (e) {
+                        // If col/row fails, try i/j
+                        if (centerGrid.i !== undefined && centerGrid.j !== undefined) {
+                            const hexI = centerGrid.i + q;
+                            const hexJ = centerGrid.j + r;
+                            try {
+                                topLeftWithIJ = canvas.grid.getTopLeftPoint(hexI, hexJ);
+                                topLeft = topLeftWithIJ;
+                                positionMethod = 'getTopLeftPoint(i,j) (calculated center)';
+                            }
+                            catch (e2) {
+                                // Both failed
+                            }
+                        }
+                    }
+                    // Also try i/j if we haven't already, for comparison
+                    if (centerGrid.i !== undefined && centerGrid.j !== undefined && !topLeftWithIJ) {
+                        const hexI = centerGrid.i + q;
+                        const hexJ = centerGrid.j + r;
                         try {
-                            pixelsFromGrid = canvas.grid.getPixelsFromGridPosition(gridCol, gridRow);
+                            topLeftWithIJ = canvas.grid.getTopLeftPoint(hexI, hexJ);
                         }
                         catch (e) {
                             // Ignore
@@ -441,7 +442,6 @@ function highlightRangeHexes(center, rangeUnits, highlightId, color = 0xffe066, 
                                 topLeftY: topLeft.y,
                                 topLeftWithIJ: topLeftWithIJ ? { x: topLeftWithIJ.x, y: topLeftWithIJ.y } : null,
                                 topLeftWithColRow: topLeftWithColRow ? { x: topLeftWithColRow.x, y: topLeftWithColRow.y } : null,
-                                pixelsFromGrid,
                                 hexCenter,
                                 hexCenterX,
                                 hexCenterY,

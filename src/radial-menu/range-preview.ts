@@ -412,36 +412,37 @@ function highlightRangeHexes(
       try {
         // For hexagonal grids, use getTopLeftPoint and calculate center (getCenterPoint returns wrong values)
         if (isHexGrid && canvas.grid?.getTopLeftPoint) {
-          // For hex grids, try with i/j if available, otherwise use col/row
+          // For hex grids, try both i/j and col/row to see which works
           let topLeft: { x: number; y: number } | null = null;
           let topLeftWithColRow: { x: number; y: number } | null = null;
           let topLeftWithIJ: { x: number; y: number } | null = null;
           
-          if (centerGrid.i !== undefined && centerGrid.j !== undefined) {
-            // Try with i/j coordinates
+          // Always try col/row first (this is what getTopLeftPoint expects for hex grids)
+          try {
+            topLeftWithColRow = canvas.grid.getTopLeftPoint(gridCol, gridRow);
+            topLeft = topLeftWithColRow;
+            positionMethod = 'getTopLeftPoint(col,row) (calculated center)';
+          } catch (e) {
+            // If col/row fails, try i/j
+            if (centerGrid.i !== undefined && centerGrid.j !== undefined) {
+              const hexI = centerGrid.i + q;
+              const hexJ = centerGrid.j + r;
+              try {
+                topLeftWithIJ = canvas.grid.getTopLeftPoint(hexI, hexJ);
+                topLeft = topLeftWithIJ;
+                positionMethod = 'getTopLeftPoint(i,j) (calculated center)';
+              } catch (e2) {
+                // Both failed
+              }
+            }
+          }
+          
+          // Also try i/j if we haven't already, for comparison
+          if (centerGrid.i !== undefined && centerGrid.j !== undefined && !topLeftWithIJ) {
             const hexI = centerGrid.i + q;
             const hexJ = centerGrid.j + r;
             try {
               topLeftWithIJ = canvas.grid.getTopLeftPoint(hexI, hexJ);
-              topLeft = topLeftWithIJ;
-              positionMethod = 'getTopLeftPoint(i,j) (calculated center)';
-            } catch (e) {
-              // Fallback to col/row
-              topLeftWithColRow = canvas.grid.getTopLeftPoint(gridCol, gridRow);
-              topLeft = topLeftWithColRow;
-              positionMethod = 'getTopLeftPoint(col,row) (calculated center)';
-            }
-          } else {
-            topLeftWithColRow = canvas.grid.getTopLeftPoint(gridCol, gridRow);
-            topLeft = topLeftWithColRow;
-            positionMethod = 'getTopLeftPoint(col,row) (calculated center)';
-          }
-          
-          // Also try getPixelsFromGridPosition if available
-          let pixelsFromGrid: { x: number; y: number } | null = null;
-          if (canvas.grid?.getPixelsFromGridPosition && hexesWithPosition < 3) {
-            try {
-              pixelsFromGrid = canvas.grid.getPixelsFromGridPosition(gridCol, gridRow);
             } catch (e) {
               // Ignore
             }
@@ -469,7 +470,6 @@ function highlightRangeHexes(
                 topLeftY: topLeft.y,
                 topLeftWithIJ: topLeftWithIJ ? { x: topLeftWithIJ.x, y: topLeftWithIJ.y } : null,
                 topLeftWithColRow: topLeftWithColRow ? { x: topLeftWithColRow.x, y: topLeftWithColRow.y } : null,
-                pixelsFromGrid,
                 hexCenter,
                 hexCenterX,
                 hexCenterY,
