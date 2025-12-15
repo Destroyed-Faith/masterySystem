@@ -283,13 +283,29 @@ function highlightRangeHexes(center, rangeUnits, highlightId, color = 0xffe066, 
             console.log('  gridSize:', canvas.grid.size);
             // Try different property names
             if (offset) {
+                // Debug: Check what properties are actually available
+                const hasCol = 'col' in offset && offset.col !== undefined;
+                const hasRow = 'row' in offset && offset.row !== undefined;
+                const hasI = 'i' in offset && offset.i !== undefined;
+                const hasJ = 'j' in offset && offset.j !== undefined;
+                const hasX = 'x' in offset && offset.x !== undefined;
+                const hasY = 'y' in offset && offset.y !== undefined;
+                const hasQ = 'q' in offset && offset.q !== undefined;
+                const hasR = 'r' in offset && offset.r !== undefined;
+                console.log('Mastery System | [DEBUG] highlightRangeHexes: Property checks', {
+                    hasCol, hasRow, hasI, hasJ, hasX, hasY, hasQ, hasR,
+                    iValue: offset.i,
+                    jValue: offset.j,
+                    iType: typeof offset.i,
+                    jType: typeof offset.j
+                });
                 // Check for col/row (standard)
-                if (offset.col !== undefined && offset.row !== undefined) {
+                if (hasCol && hasRow) {
                     centerGrid = { col: offset.col, row: offset.row };
                     gridPositionMethod = 'getOffset (col/row)';
                 }
                 // Check for i/j (hexagonal grid format in v13)
-                else if (offset.i !== undefined && offset.j !== undefined) {
+                else if (hasI && hasJ) {
                     centerGrid = { col: offset.i, row: offset.j };
                     gridPositionMethod = 'getOffset (i/j hex)';
                 }
