@@ -406,63 +406,53 @@ function highlightRangeHexes(
       hexesChecked++;
       
       // Get hex center position
-      // For hexagonal grids, we need to use getCenterPoint or calculate from offset
+      // For hexagonal grids, getCenterPoint doesn't work correctly, so we use getTopLeftPoint and calculate center
       let hexCenter: { x: number; y: number } | null = null;
       let positionMethod = 'none';
       try {
-        // Try getCenterPoint first (for hex grids)
-        // For hexagonal grids, getCenterPoint might expect {i, j} coordinates
-        if ((canvas.grid as any)?.getCenterPoint && typeof (canvas.grid as any).getCenterPoint === 'function') {
-          // For hex grids, use i/j if available, otherwise use col/row
-          if (isHexGrid && centerGrid.i !== undefined && centerGrid.j !== undefined) {
-            // Calculate i/j for this hex
-            const hexI = centerGrid.i + q;
-            const hexJ = centerGrid.j + r;
-            hexCenter = (canvas.grid as any).getCenterPoint(hexI, hexJ);
-            positionMethod = 'getCenterPoint(i,j)';
-          } else {
-            // Use col/row for non-hex grids or if i/j not available
-            hexCenter = (canvas.grid as any).getCenterPoint(gridCol, gridRow);
-            positionMethod = 'getCenterPoint(col,row)';
+        // For hexagonal grids, use getTopLeftPoint and calculate center (getCenterPoint returns wrong values)
+        if (isHexGrid && canvas.grid?.getTopLeftPoint) {
+          const topLeft = canvas.grid.getTopLeftPoint(gridCol, gridRow);
+          if (topLeft) {
+            // For hex grids, calculate center from top-left
+            // Hex center is at: x = topLeft.x + size/2, y = topLeft.y + size * sqrt(3) / 4
+            const gridSize = canvas.grid.size || 100;
+            const hexCenterX = topLeft.x + gridSize / 2;
+            const hexCenterY = topLeft.y + gridSize * Math.sqrt(3) / 4;
+            hexCenter = { x: hexCenterX, y: hexCenterY };
+            positionMethod = 'getTopLeftPoint (calculated center)';
+            
+            // Log first few for debugging
+            if (hexesWithPosition < 3) {
+              console.log('Mastery System | [DEBUG] highlightRangeHexes: Calculated hex center from topLeft', {
+                gridCol,
+                gridRow,
+                topLeft,
+                hexCenter,
+                gridSize,
+                gridType: canvas.grid.type,
+                calculation: `x = ${topLeft.x} + ${gridSize}/2 = ${hexCenterX}, y = ${topLeft.y} + ${gridSize} * sqrt(3)/4 = ${hexCenterY}`
+              });
+            }
           }
+        }
+        // Try getCenterPoint for non-hex grids
+        else if ((canvas.grid as any)?.getCenterPoint && typeof (canvas.grid as any).getCenterPoint === 'function') {
+          // Use col/row for non-hex grids
+          hexCenter = (canvas.grid as any).getCenterPoint(gridCol, gridRow);
+          positionMethod = 'getCenterPoint(col,row)';
           
           if (hexesWithPosition < 3) {
-            const hexI = isHexGrid && centerGrid.i !== undefined ? centerGrid.i + q : undefined;
-            const hexJ = isHexGrid && centerGrid.j !== undefined ? centerGrid.j + r : undefined;
             console.log('Mastery System | [DEBUG] highlightRangeHexes: Using getCenterPoint', {
               gridCol,
               gridRow,
-              hexI,
-              hexJ,
               hexCenter,
               hexCenterX: hexCenter?.x,
               hexCenterY: hexCenter?.y,
               centerX: center.x,
               centerY: center.y,
-              dx: hexCenter ? hexCenter.x - center.x : null,
-              dy: hexCenter ? hexCenter.y - center.y : null,
-              pixelDistance: hexCenter ? Math.sqrt(Math.pow(hexCenter.x - center.x, 2) + Math.pow(hexCenter.y - center.y, 2)) : null,
-              gridSize: canvas.grid?.size,
-              positionMethod,
-              getCenterPointExists: !!(canvas.grid as any)?.getCenterPoint,
-              getCenterPointType: typeof (canvas.grid as any)?.getCenterPoint
+              positionMethod
             });
-            
-            // Also try getTopLeftPoint to compare
-            if (canvas.grid?.getTopLeftPoint && hexesWithPosition === 1) {
-              try {
-                const topLeft = canvas.grid.getTopLeftPoint(gridCol, gridRow);
-                console.log('Mastery System | [DEBUG] highlightRangeHexes: Comparison - getTopLeftPoint', {
-                  gridCol,
-                  gridRow,
-                  topLeft,
-                  topLeftX: topLeft?.x,
-                  topLeftY: topLeft?.y
-                });
-              } catch (e) {
-                console.warn('Mastery System | [DEBUG] highlightRangeHexes: getTopLeftPoint error', e);
-              }
-            }
           }
         }
         // Try getTopLeftPoint (for square grids, or if getCenterPoint doesn't exist)
