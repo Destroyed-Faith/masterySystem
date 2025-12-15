@@ -389,33 +389,42 @@ function highlightRangeHexes(center, rangeUnits, highlightId, color = 0xffe066, 
                     let topLeft = null;
                     let topLeftWithColRow = null;
                     let topLeftWithIJ = null;
-                    // Always try col/row first (this is what getTopLeftPoint expects for hex grids)
-                    try {
-                        topLeftWithColRow = canvas.grid.getTopLeftPoint(gridCol, gridRow);
-                        topLeft = topLeftWithColRow;
-                        positionMethod = 'getTopLeftPoint(col,row) (calculated center)';
-                    }
-                    catch (e) {
-                        // If col/row fails, try i/j
-                        if (centerGrid.i !== undefined && centerGrid.j !== undefined) {
-                            const hexI = centerGrid.i + q;
-                            const hexJ = centerGrid.j + r;
+                    // Try i/j first if available (this is what getOffset returns for hex grids)
+                    if (centerGrid.i !== undefined && centerGrid.j !== undefined) {
+                        const hexI = centerGrid.i + q;
+                        const hexJ = centerGrid.j + r;
+                        try {
+                            topLeftWithIJ = canvas.grid.getTopLeftPoint(hexI, hexJ);
+                            topLeft = topLeftWithIJ;
+                            positionMethod = 'getTopLeftPoint(i,j) (calculated center)';
+                        }
+                        catch (e) {
+                            // i/j failed, try col/row
                             try {
-                                topLeftWithIJ = canvas.grid.getTopLeftPoint(hexI, hexJ);
-                                topLeft = topLeftWithIJ;
-                                positionMethod = 'getTopLeftPoint(i,j) (calculated center)';
+                                topLeftWithColRow = canvas.grid.getTopLeftPoint(gridCol, gridRow);
+                                topLeft = topLeftWithColRow;
+                                positionMethod = 'getTopLeftPoint(col,row) (calculated center)';
                             }
                             catch (e2) {
                                 // Both failed
                             }
                         }
                     }
-                    // Also try i/j if we haven't already, for comparison
-                    if (centerGrid.i !== undefined && centerGrid.j !== undefined && !topLeftWithIJ) {
-                        const hexI = centerGrid.i + q;
-                        const hexJ = centerGrid.j + r;
+                    else {
+                        // No i/j available, try col/row
                         try {
-                            topLeftWithIJ = canvas.grid.getTopLeftPoint(hexI, hexJ);
+                            topLeftWithColRow = canvas.grid.getTopLeftPoint(gridCol, gridRow);
+                            topLeft = topLeftWithColRow;
+                            positionMethod = 'getTopLeftPoint(col,row) (calculated center)';
+                        }
+                        catch (e) {
+                            // Failed
+                        }
+                    }
+                    // Also try col/row if we haven't already, for comparison
+                    if (!topLeftWithColRow && topLeftWithIJ) {
+                        try {
+                            topLeftWithColRow = canvas.grid.getTopLeftPoint(gridCol, gridRow);
                         }
                         catch (e) {
                             // Ignore
@@ -437,17 +446,19 @@ function highlightRangeHexes(center, rangeUnits, highlightId, color = 0xffe066, 
                                 gridRow,
                                 hexI,
                                 hexJ,
-                                topLeft,
                                 topLeftX: topLeft.x,
                                 topLeftY: topLeft.y,
-                                topLeftWithIJ: topLeftWithIJ ? { x: topLeftWithIJ.x, y: topLeftWithIJ.y } : null,
-                                topLeftWithColRow: topLeftWithColRow ? { x: topLeftWithColRow.x, y: topLeftWithColRow.y } : null,
-                                hexCenter,
+                                topLeftWithIJ_X: topLeftWithIJ ? topLeftWithIJ.x : null,
+                                topLeftWithIJ_Y: topLeftWithIJ ? topLeftWithIJ.y : null,
+                                topLeftWithColRow_X: topLeftWithColRow ? topLeftWithColRow.x : null,
+                                topLeftWithColRow_Y: topLeftWithColRow ? topLeftWithColRow.y : null,
                                 hexCenterX,
                                 hexCenterY,
                                 gridSize,
                                 gridType: canvas.grid.type,
                                 positionMethod,
+                                centerX: center.x,
+                                centerY: center.y,
                                 calculation: `x = ${topLeft.x} + ${gridSize}/2 = ${hexCenterX}, y = ${topLeft.y} + ${gridSize} * sqrt(3)/4 = ${hexCenterY}`
                             });
                         }
