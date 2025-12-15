@@ -290,6 +290,8 @@ function highlightRangeHexes(
       console.log('  offsetY:', offset?.y);
       console.log('  offsetQ:', offset?.q);
       console.log('  offsetR:', offset?.r);
+      console.log('  offsetI:', offset?.i);
+      console.log('  offsetJ:', offset?.j);
       console.log('  offsetStringified:', JSON.stringify(offset));
       console.log('  centerX:', center.x);
       console.log('  centerY:', center.y);
@@ -303,6 +305,11 @@ function highlightRangeHexes(
           centerGrid = { col: offset.col, row: offset.row };
           gridPositionMethod = 'getOffset (col/row)';
         } 
+        // Check for i/j (hexagonal grid format in v13)
+        else if (offset.i !== undefined && offset.j !== undefined) {
+          centerGrid = { col: offset.i, row: offset.j };
+          gridPositionMethod = 'getOffset (i/j hex)';
+        }
         // Check for x/y (alternative)
         else if (offset.x !== undefined && offset.y !== undefined) {
           centerGrid = { col: offset.x, row: offset.y };
