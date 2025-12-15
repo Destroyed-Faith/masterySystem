@@ -412,7 +412,25 @@ function highlightRangeHexes(
       try {
         // For hexagonal grids, use getTopLeftPoint and calculate center (getCenterPoint returns wrong values)
         if (isHexGrid && canvas.grid?.getTopLeftPoint) {
-          const topLeft = canvas.grid.getTopLeftPoint(gridCol, gridRow);
+          // For hex grids, try with i/j if available, otherwise use col/row
+          let topLeft: { x: number; y: number } | null = null;
+          if (centerGrid.i !== undefined && centerGrid.j !== undefined) {
+            // Try with i/j coordinates
+            const hexI = centerGrid.i + q;
+            const hexJ = centerGrid.j + r;
+            try {
+              topLeft = canvas.grid.getTopLeftPoint(hexI, hexJ);
+              positionMethod = 'getTopLeftPoint(i,j) (calculated center)';
+            } catch (e) {
+              // Fallback to col/row
+              topLeft = canvas.grid.getTopLeftPoint(gridCol, gridRow);
+              positionMethod = 'getTopLeftPoint(col,row) (calculated center)';
+            }
+          } else {
+            topLeft = canvas.grid.getTopLeftPoint(gridCol, gridRow);
+            positionMethod = 'getTopLeftPoint(col,row) (calculated center)';
+          }
+          
           if (topLeft) {
             // For hex grids, calculate center from top-left
             // Hex center is at: x = topLeft.x + size/2, y = topLeft.y + size * sqrt(3) / 4
@@ -420,17 +438,25 @@ function highlightRangeHexes(
             const hexCenterX = topLeft.x + gridSize / 2;
             const hexCenterY = topLeft.y + gridSize * Math.sqrt(3) / 4;
             hexCenter = { x: hexCenterX, y: hexCenterY };
-            positionMethod = 'getTopLeftPoint (calculated center)';
             
             // Log first few for debugging
             if (hexesWithPosition < 3) {
+              const hexI = centerGrid.i !== undefined ? centerGrid.i + q : undefined;
+              const hexJ = centerGrid.j !== undefined ? centerGrid.j + r : undefined;
               console.log('Mastery System | [DEBUG] highlightRangeHexes: Calculated hex center from topLeft', {
                 gridCol,
                 gridRow,
+                hexI,
+                hexJ,
                 topLeft,
+                topLeftX: topLeft.x,
+                topLeftY: topLeft.y,
                 hexCenter,
+                hexCenterX,
+                hexCenterY,
                 gridSize,
                 gridType: canvas.grid.type,
+                positionMethod,
                 calculation: `x = ${topLeft.x} + ${gridSize}/2 = ${hexCenterX}, y = ${topLeft.y} + ${gridSize} * sqrt(3)/4 = ${hexCenterY}`
               });
             }
