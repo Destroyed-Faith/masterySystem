@@ -721,6 +721,8 @@ export function handleChosenCombatOption(token, option) {
     console.log('Mastery System | Is melee attack option?', isMeleeAttack, { slot: option.slot, rangeCategory: option.rangeCategory });
     if (isMeleeAttack) {
         console.log('Mastery System | Starting melee targeting for', token.name, option);
+        // Close radial menu when attack option is selected
+        closeRadialMenu();
         startMeleeTargeting(token, option);
         return;
     }

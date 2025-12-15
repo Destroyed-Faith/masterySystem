@@ -843,6 +843,8 @@ export function handleChosenCombatOption(token: any, option: RadialCombatOption)
   
   if (isMeleeAttack) {
     console.log('Mastery System | Starting melee targeting for', token.name, option);
+    // Close radial menu when attack option is selected
+    closeRadialMenu();
     startMeleeTargeting(token, option);
     return;
   }

@@ -6,6 +6,7 @@
  */
 
 import type { RadialCombatOption } from './token-radial-menu';
+import { highlightHexesInRange } from './utils/hex-highlighting';
 
 /**
  * Melee targeting state interface
@@ -197,325 +198,30 @@ function highlightReachArea(state: MeleeTargetingState): void {
     return;
   }
   
-  const attackerCenter = state.token.center;
-  const radiusPx = state.reachGridUnits * (canvas.grid.size || 1);
-  
-  console.log('Mastery System | [DEBUG] highlightReachArea: Drawing circle', {
-    attackerCenter: { x: attackerCenter.x, y: attackerCenter.y },
-    radiusPx,
-    gridSize: canvas.grid.size,
-    gridType: canvas.grid.type
-  });
-  
-  // Clear previous graphics
+  // Clear previous graphics (for fallback circle)
   state.previewGraphics.clear();
   
-  // Don't draw circle - we'll use hex highlighting instead
-  // Only draw circle as fallback if hex highlighting fails
-  let shouldDrawCircle = true;
-  
-  console.log('Mastery System | [DEBUG] highlightReachArea: Circle drawn', {
-    radiusPx,
-    position: { x: state.previewGraphics.position.x, y: state.previewGraphics.position.y },
-    visible: state.previewGraphics.visible,
-    renderable: state.previewGraphics.renderable,
-    alpha: state.previewGraphics.alpha,
-    parent: state.previewGraphics.parent?.constructor?.name,
-    worldVisible: state.previewGraphics.worldVisible,
-    worldAlpha: state.previewGraphics.worldAlpha,
-    graphicsBounds: state.previewGraphics.getBounds(),
-    hasParent: !!state.previewGraphics.parent,
-    parentVisible: state.previewGraphics.parent ? (state.previewGraphics.parent as any).visible : false,
-    parentWorldVisible: state.previewGraphics.parent ? (state.previewGraphics.parent as any).worldVisible : false
-  });
-  
-  console.log('Mastery System | [DEBUG] highlightReachArea: Now attempting hex highlighting');
-  
-  // Also highlight hexes within reach using grid highlight
-  let highlight: any = null;
-  let highlightMethod = 'none';
-  try {
-    // Use new v13 API: canvas.interface.grid.highlight
-    if (canvas.interface?.grid?.highlight) {
-      highlight = canvas.interface.grid.highlight;
-      highlightMethod = 'canvas.interface.grid.highlight';
-      console.log('Mastery System | [DEBUG] Using canvas.interface.grid.highlight for melee reach');
-    } else if (canvas.grid?.highlight) {
-      // Fallback to old API for compatibility
-      highlight = canvas.grid.highlight;
-      highlightMethod = 'canvas.grid.highlight';
-      console.log('Mastery System | [DEBUG] Using canvas.grid.highlight (fallback) for melee reach');
-    } else if ((canvas.grid as any).getHighlightLayer) {
-      highlight = (canvas.grid as any).getHighlightLayer(state.highlightId);
-      if (!highlight && (canvas.grid as any).addHighlightLayer) {
-        highlight = (canvas.grid as any).addHighlightLayer(state.highlightId);
-      }
-      highlightMethod = 'getHighlightLayer';
-      console.log('Mastery System | [DEBUG] Using getHighlightLayer for melee reach');
-    }
-  } catch (error) {
-    console.warn('Mastery System | [DEBUG] Could not get highlight layer for melee reach', error);
-  }
-  
-  console.log('Mastery System | [DEBUG] highlightReachArea: Highlight layer check', {
-    hasHighlight: !!highlight,
-    highlightMethod,
-    highlightType: highlight ? highlight.constructor.name : 'null',
-    highlightMethods: highlight ? Object.getOwnPropertyNames(Object.getPrototypeOf(highlight)).filter(m => typeof highlight[m] === 'function') : [],
-    highlightProperties: highlight ? Object.keys(highlight) : []
-  });
-  
-  // Try to clear previous highlights - use different methods
-  if (highlight) {
-    // Method 1: Try clear method
-    if (typeof highlight.clear === 'function') {
-      try {
-        highlight.clear();
-        console.log('Mastery System | [DEBUG] Highlight layer cleared for melee reach');
-      } catch (error) {
-        console.warn('Mastery System | [DEBUG] Error clearing highlight layer', error);
-      }
-    }
-    // Method 2: Try clearAll
-    else if (typeof highlight.clearAll === 'function') {
-      try {
-        highlight.clearAll();
-        console.log('Mastery System | [DEBUG] Highlight layer cleared via clearAll');
-      } catch (error) {
-        console.warn('Mastery System | [DEBUG] Error clearing highlight layer via clearAll', error);
-      }
-    }
-    // Method 3: Try to clear by setting empty array or object
-    else if (highlight.highlights && Array.isArray(highlight.highlights)) {
-      highlight.highlights.length = 0;
-      console.log('Mastery System | [DEBUG] Highlight layer cleared via array clear');
-    }
-    // Method 4: Try to remove all children if it's a container
-    else if (highlight.removeChildren && typeof highlight.removeChildren === 'function') {
-      try {
-        highlight.removeChildren();
-        console.log('Mastery System | [DEBUG] Highlight layer cleared via removeChildren');
-      } catch (error) {
-        console.warn('Mastery System | [DEBUG] Error clearing highlight layer via removeChildren', error);
-      }
-    }
-    else {
-      console.log('Mastery System | [DEBUG] Highlight layer found but no clear method - will overwrite highlights');
-    }
+  // Use the new BFS-based hex highlighting method
+  if (canvas.grid && canvas.grid.type !== CONST.GRID_TYPES.GRIDLESS && state.token?.id) {
+    // Use red color for melee reach (different from movement yellow)
+    highlightHexesInRange(state.token.id, state.reachGridUnits, state.highlightId, 0xff6666, 0.5);
   } else {
-    console.warn('Mastery System | [DEBUG] No highlight layer available - hex highlighting will not work');
-  }
-  
-  // Highlight hexes within reach
-  // For hex grids, we need to iterate through nearby hexes
-  const maxHexDistance = Math.ceil(state.reachGridUnits);
-  
-  console.log('Mastery System | [DEBUG] highlightReachArea: Getting grid position', {
-    maxHexDistance,
-    attackerCenter: { x: attackerCenter.x, y: attackerCenter.y }
-  });
-  
-  // Get grid position of attacker using new v13 API
-  let attackerGrid: { col: number; row: number } | null = null;
-  let gridPositionMethod = 'none';
-  try {
-    if (canvas.grid?.getOffset) {
-      // New v13 API: getOffset returns {col, row} or {i, j} for hex grids
-      const offset = canvas.grid.getOffset(attackerCenter.x, attackerCenter.y) as any;
-      if (offset) {
-        // Handle different offset formats
-        if (offset.col !== undefined && offset.row !== undefined) {
-          attackerGrid = { col: offset.col, row: offset.row };
-          gridPositionMethod = 'getOffset (col/row)';
-        } else if (offset.i !== undefined && offset.j !== undefined) {
-          // Hexagonal grid format in v13
-          attackerGrid = { col: offset.i, row: offset.j };
-          gridPositionMethod = 'getOffset (i/j hex)';
-        } else if (offset.x !== undefined && offset.y !== undefined) {
-          attackerGrid = { col: offset.x, row: offset.y };
-          gridPositionMethod = 'getOffset (x/y)';
-        } else if (offset.q !== undefined && offset.r !== undefined) {
-          attackerGrid = { col: offset.q, row: offset.r };
-          gridPositionMethod = 'getOffset (q/r hex)';
-        }
-      }
-      console.log('Mastery System | [DEBUG] Got grid position via getOffset', attackerGrid);
-    }
-  } catch (error) {
-    console.warn('Mastery System | [DEBUG] Could not get grid position', error);
-  }
-  
-  console.log('Mastery System | [DEBUG] highlightReachArea: Grid position result', {
-    attackerGrid,
-    gridPositionMethod,
-    hasHighlight: !!highlight
-  });
-  
-  // Declare hexesHighlighted at function level
-  let hexesHighlighted = 0;
-  
-  if (attackerGrid && highlight) {
-    console.log('Mastery System | [DEBUG] highlightReachArea: Starting hex iteration', {
-      attackerGrid,
-      maxHexDistance,
-      totalHexesToCheck: (maxHexDistance * 2 + 1) * (maxHexDistance * 2 + 1)
-    });
-    // For hex grids, use cube coordinates or axial coordinates
-    // Simple approach: check all hexes in a square area and measure distance
-    for (let q = -maxHexDistance; q <= maxHexDistance; q++) {
-      for (let r = -maxHexDistance; r <= maxHexDistance; r++) {
-        // For hex grids, calculate distance using hex distance formula
-        // In axial coordinates: distance = (|q| + |r| + |q + r|) / 2
-        // But we need to check if this hex is within reach
-        const gridCol = attackerGrid.col + q;
-        const gridRow = attackerGrid.row + r;
-        
-        // Measure actual distance from attacker to this hex using new v13 API
-        let hexCenter: { x: number; y: number } | null = null;
-        try {
-          if (canvas.grid?.getTopLeftPoint) {
-            // New v13 API: getTopLeftPoint(col, row) returns center point
-            hexCenter = canvas.grid.getTopLeftPoint(gridCol, gridRow);
-          } else if (canvas.grid?.getPixelsFromGridPosition) {
-            // Fallback to old API
-            hexCenter = canvas.grid.getPixelsFromGridPosition(gridCol, gridRow);
-          }
-        } catch (error) {
-          // Skip this hex if we can't get its position
-          continue;
-        }
-        
-        if (hexCenter) {
-          const dx = hexCenter.x - attackerCenter.x;
-          const dy = hexCenter.y - attackerCenter.y;
-          const pixelDistance = Math.sqrt(dx * dx + dy * dy);
-          const gridDistance = pixelDistance / (canvas.grid.size || 1);
-          
-          // Use Foundry's distance measurement if available (new v13 API)
-          let distanceInUnits = gridDistance;
-          try {
-            if (canvas.grid?.measurePath) {
-              // New v13 API: measurePath returns array of distances
-              const waypoints = [
-                { x: attackerCenter.x, y: attackerCenter.y },
-                { x: hexCenter.x, y: hexCenter.y }
-              ];
-              const measurement = canvas.grid.measurePath(waypoints, {});
-              if (measurement && measurement.length > 0) {
-                distanceInUnits = measurement[0];
-              }
-            } else if (canvas.grid?.measureDistances) {
-              // Fallback to old API
-              const waypoints = [
-                { x: attackerCenter.x, y: attackerCenter.y },
-                { x: hexCenter.x, y: hexCenter.y }
-              ];
-              const measurement = canvas.grid.measureDistances(waypoints, {});
-              if (measurement && measurement.length > 0) {
-                distanceInUnits = measurement[0];
-              }
-            }
-          } catch (error) {
-            // Use fallback
-          }
-          
-          if (distanceInUnits <= state.reachGridUnits) {
-            // Try different methods to highlight the hex
-            let highlighted = false;
-            try {
-              // Method 1: Foundry v13 API: highlight.highlightPosition(col, row, options)
-              if (highlight && typeof highlight.highlightPosition === 'function') {
-                highlight.highlightPosition(gridCol, gridRow, { color: 0xff6666, alpha: 0.5 });
-                highlighted = true;
-              } 
-              // Method 2: Alternative API: highlight.highlightGridPosition
-              else if (highlight && typeof highlight.highlightGridPosition === 'function') {
-                highlight.highlightGridPosition(gridCol, gridRow, { color: 0xff6666, alpha: 0.5 });
-                highlighted = true;
-              } 
-              // Method 3: Fallback: highlight.highlight
-              else if (highlight && typeof highlight.highlight === 'function') {
-                highlight.highlight(gridCol, gridRow, { color: 0xff6666, alpha: 0.5 });
-                highlighted = true;
-              }
-              // Method 4: Direct grid highlight (v13)
-              else if (canvas.grid && typeof (canvas.grid as any).highlightPosition === 'function') {
-                (canvas.grid as any).highlightPosition(gridCol, gridRow, { color: 0xff6666, alpha: 0.5 });
-                highlighted = true;
-              }
-              // Method 5: Try to add highlight directly with add method
-              else if (highlight && typeof highlight.add === 'function') {
-                highlight.add({ col: gridCol, row: gridRow, color: 0xff6666, alpha: 0.5 });
-                highlighted = true;
-              }
-              // Method 6: Try to set highlights array directly
-              else if (highlight && Array.isArray(highlight.highlights)) {
-                highlight.highlights.push({ col: gridCol, row: gridRow, color: 0xff6666, alpha: 0.5 });
-                highlighted = true;
-              }
-              // Method 7: Try to use set method
-              else if (highlight && typeof highlight.set === 'function') {
-                highlight.set(gridCol, gridRow, { color: 0xff6666, alpha: 0.5 });
-                highlighted = true;
-              }
-              // Method 8: Try to use drawHighlight method
-              else if (highlight && typeof highlight.drawHighlight === 'function') {
-                highlight.drawHighlight(gridCol, gridRow, 0xff6666, 0.5);
-                highlighted = true;
-              }
-              
-              if (highlighted) {
-                hexesHighlighted++;
-                shouldDrawCircle = false; // Don't draw circle if hexes are being highlighted
-              }
-            } catch (error) {
-              console.warn('Mastery System | [DEBUG] Could not highlight hex at', gridCol, gridRow, error);
-            }
-          }
-        }
-      }
-    }
+    // Fallback: draw circle if no grid or gridless
+    const attackerCenter = state.token.center;
+    const radiusPx = state.reachGridUnits * (canvas.grid?.size || 100);
     
-    console.log('Mastery System | [DEBUG] highlightReachArea: Hex highlighting complete', {
-      hexesHighlighted,
-      totalHexesChecked: (maxHexDistance * 2 + 1) * (maxHexDistance * 2 + 1),
-      shouldDrawCircle
-    });
-  } else {
-    console.warn('Mastery System | [DEBUG] highlightReachArea: Skipping hex highlighting', {
-      hasAttackerGrid: !!attackerGrid,
-      hasHighlight: !!highlight
-    });
-  }
-  
-  // Only draw circle if hex highlighting failed
-  if (shouldDrawCircle) {
     state.previewGraphics.lineStyle(3, 0xff6666, 1.0);
     state.previewGraphics.beginFill(0xff6666, 0.25);
     state.previewGraphics.drawCircle(0, 0, radiusPx);
     state.previewGraphics.endFill();
     
-    state.previewGraphics.lineStyle(1, 0xff8888, 0.6);
-    state.previewGraphics.drawCircle(0, 0, radiusPx * 0.9);
-    
-    console.log('Mastery System | [DEBUG] highlightReachArea: Drawing fallback circle');
-  } else {
-    console.log('Mastery System | [DEBUG] highlightReachArea: Hex highlighting successful, skipping circle');
+    state.previewGraphics.position.set(attackerCenter.x, attackerCenter.y);
+    state.previewGraphics.visible = true;
+    state.previewGraphics.renderable = true;
+    state.previewGraphics.alpha = 1.0;
   }
   
-  // Position at attacker center
-  state.previewGraphics.position.set(attackerCenter.x, attackerCenter.y);
-  
-  // Ensure graphics are visible and renderable
-  state.previewGraphics.visible = true;
-  state.previewGraphics.renderable = true;
-  state.previewGraphics.alpha = 1.0;
-  
-  console.log('Mastery System | [DEBUG] highlightReachArea: Complete', {
-    hexesHighlighted,
-    shouldDrawCircle,
-    graphicsVisible: state.previewGraphics.visible
-  });
+  console.log('Mastery System | [DEBUG] highlightReachArea: Complete');
 }
 
 /**
