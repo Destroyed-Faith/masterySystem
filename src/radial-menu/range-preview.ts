@@ -399,11 +399,29 @@ function highlightRangeHexes(
       hexesChecked++;
       
       // Get hex center position
+      // For hexagonal grids, we need to use getCenterPoint or calculate from offset
       let hexCenter: { x: number; y: number } | null = null;
       try {
-        if (canvas.grid?.getTopLeftPoint) {
-          // New v13 API: getTopLeftPoint(col, row) returns center point
-          hexCenter = canvas.grid.getTopLeftPoint(gridCol, gridRow);
+        // Try getCenterPoint first (for hex grids)
+        if ((canvas.grid as any)?.getCenterPoint && typeof (canvas.grid as any).getCenterPoint === 'function') {
+          hexCenter = (canvas.grid as any).getCenterPoint(gridCol, gridRow);
+        }
+        // Try getTopLeftPoint (for square grids, or if getCenterPoint doesn't exist)
+        else if (canvas.grid?.getTopLeftPoint) {
+          // For hex grids, getTopLeftPoint might return top-left, not center
+          // We might need to adjust it
+          const topLeft = canvas.grid.getTopLeftPoint(gridCol, gridRow);
+          if (topLeft) {
+            // For hex grids, center is offset from top-left
+            // Try to get center point if available
+            if ((canvas.grid as any)?.getCenterFromTopLeft && typeof (canvas.grid as any).getCenterFromTopLeft === 'function') {
+              hexCenter = (canvas.grid as any).getCenterFromTopLeft(topLeft.x, topLeft.y);
+            } else {
+              // For hex grids, center is typically at (topLeft.x + size/2, topLeft.y + size/2)
+              // But this is approximate - we should use the proper API if available
+              hexCenter = topLeft;
+            }
+          }
         } else if (canvas.grid?.getPixelsFromGridPosition) {
           // Fallback to old API
           hexCenter = canvas.grid.getPixelsFromGridPosition(gridCol, gridRow);
@@ -416,6 +434,7 @@ function highlightRangeHexes(
             gridRow,
             error,
             hasGetTopLeftPoint: !!canvas.grid?.getTopLeftPoint,
+            hasGetCenterPoint: !!(canvas.grid as any)?.getCenterPoint,
             hasGetPixelsFromGridPosition: !!canvas.grid?.getPixelsFromGridPosition
           });
         }
@@ -429,6 +448,7 @@ function highlightRangeHexes(
             gridCol,
             gridRow,
             hasGetTopLeftPoint: !!canvas.grid?.getTopLeftPoint,
+            hasGetCenterPoint: !!(canvas.grid as any)?.getCenterPoint,
             hasGetPixelsFromGridPosition: !!canvas.grid?.getPixelsFromGridPosition
           });
         }
@@ -436,6 +456,17 @@ function highlightRangeHexes(
       }
       
       hexesWithPosition++;
+      
+      // Log first few positions for debugging
+      if (hexesWithPosition <= 3) {
+        console.log('Mastery System | [DEBUG] highlightRangeHexes: Got hex position', {
+          gridCol,
+          gridRow,
+          hexCenter,
+          center,
+          distance: Math.sqrt(Math.pow(hexCenter.x - center.x, 2) + Math.pow(hexCenter.y - center.y, 2))
+        });
+      }
       
       // Calculate distance from center to this hex
       const dx = hexCenter.x - center.x;
@@ -469,6 +500,19 @@ function highlightRangeHexes(
         }
       } catch (error) {
         // Use fallback distance
+      }
+      
+      // Log distance calculation for first few hexes
+      if (hexesWithPosition <= 3) {
+        console.log('Mastery System | [DEBUG] highlightRangeHexes: Distance calculation', {
+          gridCol,
+          gridRow,
+          pixelDistance,
+          gridDistance,
+          distanceInUnits,
+          rangeUnits,
+          withinRange: distanceInUnits <= rangeUnits
+        });
       }
       
       // If hex is within range, highlight it

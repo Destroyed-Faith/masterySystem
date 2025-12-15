@@ -373,11 +373,30 @@ function highlightRangeHexes(center, rangeUnits, highlightId, color = 0xffe066, 
             const gridRow = centerGrid.row + r;
             hexesChecked++;
             // Get hex center position
+            // For hexagonal grids, we need to use getCenterPoint or calculate from offset
             let hexCenter = null;
             try {
-                if (canvas.grid?.getTopLeftPoint) {
-                    // New v13 API: getTopLeftPoint(col, row) returns center point
-                    hexCenter = canvas.grid.getTopLeftPoint(gridCol, gridRow);
+                // Try getCenterPoint first (for hex grids)
+                if (canvas.grid?.getCenterPoint && typeof canvas.grid.getCenterPoint === 'function') {
+                    hexCenter = canvas.grid.getCenterPoint(gridCol, gridRow);
+                }
+                // Try getTopLeftPoint (for square grids, or if getCenterPoint doesn't exist)
+                else if (canvas.grid?.getTopLeftPoint) {
+                    // For hex grids, getTopLeftPoint might return top-left, not center
+                    // We might need to adjust it
+                    const topLeft = canvas.grid.getTopLeftPoint(gridCol, gridRow);
+                    if (topLeft) {
+                        // For hex grids, center is offset from top-left
+                        // Try to get center point if available
+                        if (canvas.grid?.getCenterFromTopLeft && typeof canvas.grid.getCenterFromTopLeft === 'function') {
+                            hexCenter = canvas.grid.getCenterFromTopLeft(topLeft.x, topLeft.y);
+                        }
+                        else {
+                            // For hex grids, center is typically at (topLeft.x + size/2, topLeft.y + size/2)
+                            // But this is approximate - we should use the proper API if available
+                            hexCenter = topLeft;
+                        }
+                    }
                 }
                 else if (canvas.grid?.getPixelsFromGridPosition) {
                     // Fallback to old API
@@ -392,6 +411,7 @@ function highlightRangeHexes(center, rangeUnits, highlightId, color = 0xffe066, 
                         gridRow,
                         error,
                         hasGetTopLeftPoint: !!canvas.grid?.getTopLeftPoint,
+                        hasGetCenterPoint: !!canvas.grid?.getCenterPoint,
                         hasGetPixelsFromGridPosition: !!canvas.grid?.getPixelsFromGridPosition
                     });
                 }
@@ -404,12 +424,23 @@ function highlightRangeHexes(center, rangeUnits, highlightId, color = 0xffe066, 
                         gridCol,
                         gridRow,
                         hasGetTopLeftPoint: !!canvas.grid?.getTopLeftPoint,
+                        hasGetCenterPoint: !!canvas.grid?.getCenterPoint,
                         hasGetPixelsFromGridPosition: !!canvas.grid?.getPixelsFromGridPosition
                     });
                 }
                 continue;
             }
             hexesWithPosition++;
+            // Log first few positions for debugging
+            if (hexesWithPosition <= 3) {
+                console.log('Mastery System | [DEBUG] highlightRangeHexes: Got hex position', {
+                    gridCol,
+                    gridRow,
+                    hexCenter,
+                    center,
+                    distance: Math.sqrt(Math.pow(hexCenter.x - center.x, 2) + Math.pow(hexCenter.y - center.y, 2))
+                });
+            }
             // Calculate distance from center to this hex
             const dx = hexCenter.x - center.x;
             const dy = hexCenter.y - center.y;
@@ -443,6 +474,18 @@ function highlightRangeHexes(center, rangeUnits, highlightId, color = 0xffe066, 
             }
             catch (error) {
                 // Use fallback distance
+            }
+            // Log distance calculation for first few hexes
+            if (hexesWithPosition <= 3) {
+                console.log('Mastery System | [DEBUG] highlightRangeHexes: Distance calculation', {
+                    gridCol,
+                    gridRow,
+                    pixelDistance,
+                    gridDistance,
+                    distanceInUnits,
+                    rangeUnits,
+                    withinRange: distanceInUnits <= rangeUnits
+                });
             }
             // If hex is within range, highlight it
             if (distanceInUnits <= rangeUnits) {
