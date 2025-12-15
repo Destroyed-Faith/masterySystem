@@ -263,14 +263,18 @@ function highlightRangeHexes(
   }
   
   // Get grid position of center using new v13 API
-  let centerGrid: { col: number; row: number } | null = null;
+  // For hexagonal grids, we need to preserve {i, j} format
+  let centerGrid: { col: number; row: number; i?: number; j?: number } | null = null;
   let gridPositionMethod = 'none';
+  const isHexGrid = canvas.grid?.type === 2;
+  
   try {
     console.log('Mastery System | [DEBUG] highlightRangeHexes: Attempting to get grid position', {
       center,
       hasGetOffset: !!canvas.grid?.getOffset,
       gridType: canvas.grid?.type,
-      gridSize: canvas.grid?.size
+      gridSize: canvas.grid?.size,
+      isHexGrid
     });
     
     if (canvas.grid?.getOffset) {
@@ -324,7 +328,8 @@ function highlightRangeHexes(
         } 
         // Check for i/j (hexagonal grid format in v13)
         else if (hasI && hasJ) {
-          centerGrid = { col: offset.i, row: offset.j };
+          // For hex grids, preserve both col/row (for iteration) and i/j (for getCenterPoint)
+          centerGrid = { col: offset.i, row: offset.j, i: offset.i, j: offset.j };
           gridPositionMethod = 'getOffset (i/j hex)';
         }
         // Check for x/y (alternative)
@@ -367,6 +372,8 @@ function highlightRangeHexes(
   console.log('  hasValidPosition:', centerGrid && centerGrid.col !== undefined && centerGrid.row !== undefined);
   console.log('  centerGrid?.col:', centerGrid?.col);
   console.log('  centerGrid?.row:', centerGrid?.row);
+  console.log('  centerGrid?.i:', centerGrid?.i);
+  console.log('  centerGrid?.j:', centerGrid?.j);
   
   if (!centerGrid || centerGrid.col === undefined || centerGrid.row === undefined) {
     console.warn('Mastery System | [DEBUG] highlightRangeHexes: No valid grid position, aborting');
@@ -404,14 +411,34 @@ function highlightRangeHexes(
       let positionMethod = 'none';
       try {
         // Try getCenterPoint first (for hex grids)
+        // For hexagonal grids, getCenterPoint might expect {i, j} coordinates
         if ((canvas.grid as any)?.getCenterPoint && typeof (canvas.grid as any).getCenterPoint === 'function') {
-          hexCenter = (canvas.grid as any).getCenterPoint(gridCol, gridRow);
-          positionMethod = 'getCenterPoint';
+          // For hex grids, use i/j if available, otherwise use col/row
+          if (isHexGrid && centerGrid.i !== undefined && centerGrid.j !== undefined) {
+            // Calculate i/j for this hex
+            const hexI = centerGrid.i + q;
+            const hexJ = centerGrid.j + r;
+            hexCenter = (canvas.grid as any).getCenterPoint(hexI, hexJ);
+            positionMethod = 'getCenterPoint(i,j)';
+          } else {
+            // Use col/row for non-hex grids or if i/j not available
+            hexCenter = (canvas.grid as any).getCenterPoint(gridCol, gridRow);
+            positionMethod = 'getCenterPoint(col,row)';
+          }
+          
           if (hexesWithPosition < 3) {
             console.log('Mastery System | [DEBUG] highlightRangeHexes: Using getCenterPoint', {
               gridCol,
               gridRow,
-              hexCenter
+              hexI: isHexGrid && centerGrid.i !== undefined ? centerGrid.i + q : undefined,
+              hexJ: isHexGrid && centerGrid.j !== undefined ? centerGrid.j + r : undefined,
+              hexCenter,
+              hexCenterX: hexCenter?.x,
+              hexCenterY: hexCenter?.y,
+              centerX: center.x,
+              centerY: center.y,
+              distance: hexCenter ? Math.sqrt(Math.pow(hexCenter.x - center.x, 2) + Math.pow(hexCenter.y - center.y, 2)) : null,
+              positionMethod
             });
           }
         }
