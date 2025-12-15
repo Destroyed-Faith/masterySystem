@@ -626,9 +626,9 @@ function highlightRangeHexes(center, rangeUnits, highlightId, color = 0xffe066, 
                         highlight.highlight(gridCol, gridRow, { color: highlightColor, alpha: highlightAlpha });
                         highlighted = true;
                     }
-                    // Method 4: Direct grid highlight (v13)
-                    else if (canvas.grid && typeof canvas.grid.highlightPosition === 'function') {
-                        canvas.grid.highlightPosition(gridCol, gridRow, { color: highlightColor, alpha: highlightAlpha });
+                    // Method 4: Direct grid highlight (v13) - use canvas.interface.grid.highlightPosition instead of deprecated canvas.grid.highlightPosition
+                    else if (canvas.interface?.grid && typeof canvas.interface.grid.highlightPosition === 'function') {
+                        canvas.interface.grid.highlightPosition(gridCol, gridRow, { color: highlightColor, alpha: highlightAlpha });
                         highlighted = true;
                     }
                     // Method 5: Try to add highlight directly with add method
