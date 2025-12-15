@@ -840,15 +840,8 @@ function highlightRangeHexes(
       highlightLayer.renderable = true;
       console.log('Mastery System | [DEBUG] highlightRangeHexes: Set highlightLayer.renderable = true');
     }
-    // Try to render/refresh the highlight layer if needed
-    if (typeof highlightLayer.render === 'function') {
-      try {
-        highlightLayer.render();
-        console.log('Mastery System | [DEBUG] highlightRangeHexes: Called highlightLayer.render()');
-      } catch (e) {
-        console.warn('Mastery System | [DEBUG] highlightRangeHexes: Error calling highlightLayer.render()', e);
-      }
-    }
+    // Note: Foundry v13 automatically renders the highlight layer when it's part of the display tree
+    // No need to manually call render() - it will be rendered by the canvas renderer
   }
   
   console.log('Mastery System | [DEBUG] highlightRangeHexes: Complete', {
