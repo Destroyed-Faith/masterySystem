@@ -279,20 +279,29 @@ function highlightReachArea(state) {
     let gridPositionMethod = 'none';
     try {
         if (canvas.grid?.getOffset) {
-            // New v13 API: getOffset returns {col, row}
+            // New v13 API: getOffset returns {col, row} or {i, j} for hex grids
             const offset = canvas.grid.getOffset(attackerCenter.x, attackerCenter.y);
-            attackerGrid = { col: offset.col, row: offset.row };
-            gridPositionMethod = 'getOffset';
-            console.log('Mastery System | [DEBUG] Got grid position via getOffset', attackerGrid);
-        }
-        else if (canvas.grid?.getGridPositionFromPixels) {
-            // Fallback to old API
-            const oldGrid = canvas.grid.getGridPositionFromPixels(attackerCenter.x, attackerCenter.y);
-            if (oldGrid) {
-                attackerGrid = { col: oldGrid.x, row: oldGrid.y };
-                gridPositionMethod = 'getGridPositionFromPixels';
-                console.log('Mastery System | [DEBUG] Got grid position via getGridPositionFromPixels', attackerGrid);
+            if (offset) {
+                // Handle different offset formats
+                if (offset.col !== undefined && offset.row !== undefined) {
+                    attackerGrid = { col: offset.col, row: offset.row };
+                    gridPositionMethod = 'getOffset (col/row)';
+                }
+                else if (offset.i !== undefined && offset.j !== undefined) {
+                    // Hexagonal grid format in v13
+                    attackerGrid = { col: offset.i, row: offset.j };
+                    gridPositionMethod = 'getOffset (i/j hex)';
+                }
+                else if (offset.x !== undefined && offset.y !== undefined) {
+                    attackerGrid = { col: offset.x, row: offset.y };
+                    gridPositionMethod = 'getOffset (x/y)';
+                }
+                else if (offset.q !== undefined && offset.r !== undefined) {
+                    attackerGrid = { col: offset.q, row: offset.r };
+                    gridPositionMethod = 'getOffset (q/r hex)';
+                }
             }
+            console.log('Mastery System | [DEBUG] Got grid position via getOffset', attackerGrid);
         }
     }
     catch (error) {

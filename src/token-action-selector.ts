@@ -409,12 +409,16 @@ function refreshMovementPreview(state: MovementState, destX: number, destY: numb
     for (const segment of segments) {
       if (segment.positions && Array.isArray(segment.positions)) {
         for (const pos of segment.positions) {
-          const gridPos = canvas.grid.getGridPositionFromPixels(pos.x, pos.y);
-          if (gridPos) {
-            if (highlight.highlightPosition) {
-              highlight.highlightPosition(gridPos.x, gridPos.y, { color: fillColor, alpha: 0.3 });
-            } else if (highlight.highlightGridPosition) {
-              highlight.highlightGridPosition(gridPos.x, gridPos.y, { color: fillColor, alpha: 0.3 });
+          if (canvas.grid?.getOffset) {
+            const offset = canvas.grid.getOffset(pos.x, pos.y) as any;
+            if (offset) {
+              const col = offset.col ?? offset.i ?? offset.x ?? offset.q ?? 0;
+              const row = offset.row ?? offset.j ?? offset.y ?? offset.r ?? 0;
+              if (highlight.highlightPosition) {
+                highlight.highlightPosition(col, row, { color: fillColor, alpha: 0.3 });
+              } else if (highlight.highlightGridPosition) {
+                highlight.highlightGridPosition(col, row, { color: fillColor, alpha: 0.3 });
+              }
             }
           }
         }
@@ -423,22 +427,28 @@ function refreshMovementPreview(state: MovementState, destX: number, destY: numb
   }
   
   // Also highlight origin and destination
-  const originGrid = canvas.grid.getGridPositionFromPixels(origin.x, origin.y);
-  const destGrid = canvas.grid.getGridPositionFromPixels(dest.x, dest.y);
-  
-  if (highlight && originGrid) {
-    if (highlight.highlightPosition) {
-      highlight.highlightPosition(originGrid.x, originGrid.y, { color: 0x00ffff, alpha: 0.5 });
-    } else if (highlight.highlightGridPosition) {
-      highlight.highlightGridPosition(originGrid.x, originGrid.y, { color: 0x00ffff, alpha: 0.5 });
+  if (canvas.grid?.getOffset && highlight) {
+    const originOffset = canvas.grid.getOffset(origin.x, origin.y) as any;
+    const destOffset = canvas.grid.getOffset(dest.x, dest.y) as any;
+    
+    if (originOffset) {
+      const originCol = originOffset.col ?? originOffset.i ?? originOffset.x ?? originOffset.q ?? 0;
+      const originRow = originOffset.row ?? originOffset.j ?? originOffset.y ?? originOffset.r ?? 0;
+      if (highlight.highlightPosition) {
+        highlight.highlightPosition(originCol, originRow, { color: 0x00ffff, alpha: 0.5 });
+      } else if (highlight.highlightGridPosition) {
+        highlight.highlightGridPosition(originCol, originRow, { color: 0x00ffff, alpha: 0.5 });
+      }
     }
-  }
-  
-  if (highlight && destGrid) {
-    if (highlight.highlightPosition) {
-      highlight.highlightPosition(destGrid.x, destGrid.y, { color: fillColor, alpha: 0.5 });
-    } else if (highlight.highlightGridPosition) {
-      highlight.highlightGridPosition(destGrid.x, destGrid.y, { color: fillColor, alpha: 0.5 });
+    
+    if (destOffset) {
+      const destCol = destOffset.col ?? destOffset.i ?? destOffset.x ?? destOffset.q ?? 0;
+      const destRow = destOffset.row ?? destOffset.j ?? destOffset.y ?? destOffset.r ?? 0;
+      if (highlight.highlightPosition) {
+        highlight.highlightPosition(destCol, destRow, { color: 0x00ffff, alpha: 0.5 });
+      } else if (highlight.highlightGridPosition) {
+        highlight.highlightGridPosition(destCol, destRow, { color: 0x00ffff, alpha: 0.5 });
+      }
     }
   }
 }

@@ -321,7 +321,7 @@ function highlightReachArea(state: MeleeTargetingState): void {
   try {
     if (canvas.grid?.getOffset) {
       // New v13 API: getOffset returns {col, row} or {i, j} for hex grids
-      const offset = canvas.grid.getOffset(attackerCenter.x, attackerCenter.y);
+      const offset = canvas.grid.getOffset(attackerCenter.x, attackerCenter.y) as any;
       if (offset) {
         // Handle different offset formats
         if (offset.col !== undefined && offset.row !== undefined) {
@@ -340,14 +340,6 @@ function highlightReachArea(state: MeleeTargetingState): void {
         }
       }
       console.log('Mastery System | [DEBUG] Got grid position via getOffset', attackerGrid);
-    } else if (canvas.grid?.getGridPositionFromPixels) {
-      // Fallback to old API
-      const oldGrid = canvas.grid.getGridPositionFromPixels(attackerCenter.x, attackerCenter.y);
-      if (oldGrid) {
-        attackerGrid = { col: oldGrid.x, row: oldGrid.y };
-        gridPositionMethod = 'getGridPositionFromPixels';
-        console.log('Mastery System | [DEBUG] Got grid position via getGridPositionFromPixels', attackerGrid);
-      }
     }
   } catch (error) {
     console.warn('Mastery System | [DEBUG] Could not get grid position', error);

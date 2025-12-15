@@ -243,7 +243,7 @@ function highlightRadiusArea(state: UtilityTargetingState): void {
   try {
     if (canvas.grid?.getOffset) {
       // New v13 API: getOffset returns {col, row} or {i, j} for hex grids
-      const offset = canvas.grid.getOffset(center.x, center.y);
+      const offset = canvas.grid.getOffset(center.x, center.y) as any;
       if (offset) {
         // Handle different offset formats
         if (offset.col !== undefined && offset.row !== undefined) {
@@ -256,12 +256,6 @@ function highlightRadiusArea(state: UtilityTargetingState): void {
         } else if (offset.q !== undefined && offset.r !== undefined) {
           centerGrid = { col: offset.q, row: offset.r };
         }
-      }
-    } else if (canvas.grid?.getGridPositionFromPixels) {
-      // Fallback to old API
-      const oldGrid = canvas.grid.getGridPositionFromPixels(center.x, center.y);
-      if (oldGrid) {
-        centerGrid = { col: oldGrid.x, row: oldGrid.y };
       }
     }
   } catch (error) {

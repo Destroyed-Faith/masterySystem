@@ -181,15 +181,23 @@ function highlightRadiusArea(state) {
     let centerGrid = null;
     try {
         if (canvas.grid?.getOffset) {
-            // New v13 API: getOffset returns {col, row}
+            // New v13 API: getOffset returns {col, row} or {i, j} for hex grids
             const offset = canvas.grid.getOffset(center.x, center.y);
-            centerGrid = { col: offset.col, row: offset.row };
-        }
-        else if (canvas.grid?.getGridPositionFromPixels) {
-            // Fallback to old API
-            const oldGrid = canvas.grid.getGridPositionFromPixels(center.x, center.y);
-            if (oldGrid) {
-                centerGrid = { col: oldGrid.x, row: oldGrid.y };
+            if (offset) {
+                // Handle different offset formats
+                if (offset.col !== undefined && offset.row !== undefined) {
+                    centerGrid = { col: offset.col, row: offset.row };
+                }
+                else if (offset.i !== undefined && offset.j !== undefined) {
+                    // Hexagonal grid format in v13
+                    centerGrid = { col: offset.i, row: offset.j };
+                }
+                else if (offset.x !== undefined && offset.y !== undefined) {
+                    centerGrid = { col: offset.x, row: offset.y };
+                }
+                else if (offset.q !== undefined && offset.r !== undefined) {
+                    centerGrid = { col: offset.q, row: offset.r };
+                }
             }
         }
     }

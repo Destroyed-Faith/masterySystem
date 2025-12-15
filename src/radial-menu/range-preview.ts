@@ -269,14 +269,13 @@ function highlightRangeHexes(
     console.log('Mastery System | [DEBUG] highlightRangeHexes: Attempting to get grid position', {
       center,
       hasGetOffset: !!canvas.grid?.getOffset,
-      hasGetGridPositionFromPixels: !!canvas.grid?.getGridPositionFromPixels,
       gridType: canvas.grid?.type,
       gridSize: canvas.grid?.size
     });
     
     if (canvas.grid?.getOffset) {
-      // New v13 API: getOffset returns {col, row}
-      const offset = canvas.grid.getOffset(center.x, center.y);
+      // New v13 API: getOffset returns {col, row} or {i, j} for hex grids
+      const offset = canvas.grid.getOffset(center.x, center.y) as any;
       // Log detailed offset information
       console.log('Mastery System | [DEBUG] highlightRangeHexes: getOffset raw result');
       console.log('  offset:', offset);
@@ -322,14 +321,6 @@ function highlightRangeHexes(
           centerGrid = { col: offset.q, row: offset.r };
           gridPositionMethod = 'getOffset (q/r hex)';
         }
-        // Try any object with col/row properties
-        else if (typeof offset === 'object' && 'col' in offset) {
-          const anyOffset = offset as any;
-          if (anyOffset.col !== undefined && anyOffset.row !== undefined) {
-            centerGrid = { col: anyOffset.col, row: anyOffset.row };
-            gridPositionMethod = 'getOffset (any col/row)';
-          }
-        }
         
         console.log('Mastery System | [DEBUG] highlightRangeHexes: After parsing offset');
         console.log('  centerGrid:', centerGrid);
@@ -346,49 +337,6 @@ function highlightRangeHexes(
         centerGrid,
         gridPositionMethod
       });
-    }
-    
-    // Fallback to old API if getOffset didn't work
-    if (!centerGrid && canvas.grid?.getGridPositionFromPixels) {
-      console.log('Mastery System | [DEBUG] highlightRangeHexes: Trying getGridPositionFromPixels fallback');
-      const oldGrid = canvas.grid.getGridPositionFromPixels(center.x, center.y);
-      console.log('Mastery System | [DEBUG] highlightRangeHexes: getGridPositionFromPixels result', {
-        oldGrid,
-        oldGridType: typeof oldGrid,
-        oldGridKeys: oldGrid ? Object.keys(oldGrid) : []
-      });
-      
-      if (oldGrid) {
-        if (oldGrid.x !== undefined && oldGrid.y !== undefined) {
-          centerGrid = { col: oldGrid.x, row: oldGrid.y };
-          gridPositionMethod = 'getGridPositionFromPixels (x/y)';
-        } else if (oldGrid.col !== undefined && oldGrid.row !== undefined) {
-          centerGrid = { col: oldGrid.col, row: oldGrid.row };
-          gridPositionMethod = 'getGridPositionFromPixels (col/row)';
-        }
-      }
-    }
-    
-    // Try alternative methods for hex grids
-    if (!centerGrid && canvas.grid) {
-      console.log('Mastery System | [DEBUG] highlightRangeHexes: Trying alternative grid position methods');
-      
-      // Try pixelsToOffset for hex grids
-      if ((canvas.grid as any).pixelsToOffset && typeof (canvas.grid as any).pixelsToOffset === 'function') {
-        try {
-          const hexOffset = (canvas.grid as any).pixelsToOffset(center.x, center.y);
-          console.log('Mastery System | [DEBUG] highlightRangeHexes: pixelsToOffset result', hexOffset);
-          if (hexOffset && (hexOffset.col !== undefined || hexOffset.x !== undefined)) {
-            centerGrid = {
-              col: hexOffset.col ?? hexOffset.x ?? 0,
-              row: hexOffset.row ?? hexOffset.y ?? 0
-            };
-            gridPositionMethod = 'pixelsToOffset';
-          }
-        } catch (error) {
-          console.warn('Mastery System | [DEBUG] highlightRangeHexes: pixelsToOffset failed', error);
-        }
-      }
     }
   } catch (error) {
     console.warn('Mastery System | [DEBUG] highlightRangeHexes: Could not get grid position', error);
