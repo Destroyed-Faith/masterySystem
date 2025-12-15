@@ -35,6 +35,8 @@ export interface RadialCombatOption {
     maneuver?: CombatManeuver;
     powerType?: string;
     tags?: string[];
+    costsMovement?: boolean;
+    costsAction?: boolean;
 }
 /**
  * Inner segment definition

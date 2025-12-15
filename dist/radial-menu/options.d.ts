@@ -10,6 +10,7 @@ export declare function getSegmentIdForOption(option: RadialCombatOption): Inner
 /**
  * Get all combat options for an actor (all categories)
  * Collects all Powers and Maneuvers available to the actor
+ * Builds movement segment with proper ordering: core maneuvers first, then powers, then other maneuvers
  */
 export declare function getAllCombatOptionsForActor(actor: any): Promise<RadialCombatOption[]>;
 //# sourceMappingURL=options.d.ts.map

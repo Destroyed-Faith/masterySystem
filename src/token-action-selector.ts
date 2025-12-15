@@ -532,30 +532,42 @@ async function attemptCommitMovement(destX: number, destY: number, state: Moveme
     return;
   }
   
-  // Move the token using Foundry's movement animation
-  const token = state.token;
-  
-  try {
-    // Use v13 API: token.document.update with animate option
-    await token.document.update(
-      { x: dest.x, y: dest.y },
-      { animate: true }
-    );
+    // Move the token using Foundry's movement animation
+    const token = state.token;
     
-    console.log('Mastery System | Movement completed', {
-      option: state.option.name,
-      distance: distanceInUnits.toFixed(1),
-      maxRange: state.maxRange
-    });
-    
-    // End movement mode successfully
-    endGuidedMovement(true);
-    
-  } catch (error) {
-    console.error('Mastery System | Error during token movement', error);
-    ui.notifications.error('Failed to move token');
-    endGuidedMovement(false);
-  }
+    try {
+      // Use v13 API: token.document.update with animate option
+      await token.document.update(
+        { x: dest.x, y: dest.y },
+        { animate: true }
+      );
+      
+      console.log('Mastery System | Movement completed', {
+        option: state.option.name,
+        distance: distanceInUnits.toFixed(1),
+        maxRange: state.maxRange
+      });
+      
+      // Update turn state if this costs movement
+      if (state.option.costsMovement && token.actor) {
+        try {
+          const turnState = token.actor.getFlag('mastery-system', 'turnState') || {};
+          turnState.usedMovement = true;
+          await token.actor.setFlag('mastery-system', 'turnState', turnState);
+          console.log('Mastery System | Set usedMovement flag');
+        } catch (error) {
+          console.warn('Mastery System | Could not set turnState:', error);
+        }
+      }
+      
+      // End movement mode successfully
+      endGuidedMovement(true);
+      
+    } catch (error) {
+      console.error('Mastery System | Error during token movement', error);
+      ui.notifications.error('Failed to move token');
+      endGuidedMovement(false);
+    }
 }
 
 /**
@@ -611,6 +623,26 @@ export function endGuidedMovement(success: boolean): void {
 }
 
 /**
+ * Get turn state flags for an actor/token
+ * @param token - The token to check
+ * @returns Object with usedMovement and usedAction flags
+ */
+function getTurnState(token: any): { usedMovement: boolean; usedAction: boolean } {
+  if (!token || !token.actor) {
+    return { usedMovement: false, usedAction: false };
+  }
+  
+  const flags = token.actor.flags || {};
+  const masteryFlags = flags['mastery-system'] || {};
+  const turnState = masteryFlags.turnState || {};
+  
+  return {
+    usedMovement: turnState.usedMovement === true,
+    usedAction: turnState.usedAction === true
+  };
+}
+
+/**
  * Handle the chosen combat option
  * Can trigger rolls, chat cards, or other mechanics based on the selection
  * Made available globally so the radial menu can call it
@@ -624,14 +656,57 @@ export function handleChosenCombatOption(token: any, option: RadialCombatOption)
     segment: (option as any).segment,
     source: option.source,
     name: option.name,
-    rangeCategory: option.rangeCategory
+    rangeCategory: option.rangeCategory,
+    costsMovement: option.costsMovement,
+    costsAction: option.costsAction
   });
+
+  // Check turn state gating
+  const turnState = getTurnState(token);
+  
+  if (option.costsMovement && turnState.usedMovement) {
+    ui.notifications.warn('Movement has already been used this turn.');
+    return;
+  }
+  
+  if (option.costsAction && turnState.usedAction) {
+    ui.notifications.warn('Attack Action has already been used this turn.');
+    return;
+  }
 
   // Check if this is a movement option - check both segment and slot
   const isMovement = option.slot === 'movement' || (option as any).segment === 'movement';
   console.log('Mastery System | Is movement option?', isMovement, { slot: option.slot, segment: (option as any).segment });
   
   if (isMovement) {
+    // Handle stand-up differently (it's an immediate action, not movement)
+    if (option.id === 'stand-up' || option.maneuver?.id === 'stand-up') {
+      console.log('Mastery System | Executing Stand Up for', token.name);
+      // Stand Up is immediate - just execute it
+      executeStandUp(token, option);
+      return;
+    }
+    
+    // For movement powers, check if they're teleport-type or move-type
+    if (option.source === 'power' && option.powerType === 'movement') {
+      // Check if it's a teleport (by tags or description)
+      const isTeleport = option.tags?.includes('teleport') || 
+                        option.description?.toLowerCase().includes('teleport') ||
+                        option.name?.toLowerCase().includes('teleport');
+      
+      if (isTeleport) {
+        console.log('Mastery System | Starting teleport targeting for', token.name, option);
+        // TODO: Implement teleport targeting mode (for now, use guided movement)
+        startGuidedMovement(token, option);
+      } else {
+        // Regular movement power - use guided movement
+        console.log('Mastery System | Starting guided movement for movement power', token.name, option);
+        startGuidedMovement(token, option);
+      }
+      return;
+    }
+    
+    // Regular movement maneuver
     console.log('Mastery System | Starting guided movement for', token.name, option);
     startGuidedMovement(token, option);
     return;
@@ -694,4 +769,98 @@ export function handleChosenCombatOption(token: any, option: RadialCombatOption)
     // - Set flags for movement modifications
     // - Trigger rolls if needed
   }
+}
+
+/**
+ * Execute Stand Up action
+ * @param token - The token standing up
+ * @param option - The stand-up option
+ */
+async function executeStandUp(token: any, option: RadialCombatOption): Promise<void> {
+  if (!token || !token.actor) {
+    ui.notifications.error('Cannot stand up: invalid token');
+    return;
+  }
+  
+  // Import isActorProne to verify
+  let isActorProne: ((actor: any, token?: any) => boolean) | null = null;
+  try {
+    const actorHelpers = await import('./utils/actor-helpers.js' as any);
+    isActorProne = actorHelpers.isActorProne;
+  } catch (error) {
+    console.warn('Mastery System | Could not load actor helpers:', error);
+  }
+  
+  // Verify actor is prone
+  if (isActorProne && !isActorProne(token.actor, token)) {
+    ui.notifications.warn('Actor is not prone.');
+    return;
+  }
+  
+  // Remove prone condition
+  // Method 1: Remove from effects
+  if (token.actor.effects) {
+    const proneEffects = token.actor.effects.filter((e: any) => {
+      const name = (e.name || '').toLowerCase();
+      const label = (e.label || '').toLowerCase();
+      return name.includes('prone') || label.includes('prone');
+    });
+    
+    for (const effect of proneEffects) {
+      try {
+        await effect.delete();
+      } catch (error) {
+        console.warn('Mastery System | Could not remove prone effect:', error);
+      }
+    }
+  }
+  
+  // Method 2: Remove from statuses (Foundry v13)
+  if ((token.actor as any).statuses) {
+    const statuses = (token.actor as any).statuses;
+    if (statuses.has && statuses.has(CONST.STATUS_EFFECTS.PRONE)) {
+      try {
+        await token.actor.toggleStatusEffect(CONST.STATUS_EFFECTS.PRONE);
+      } catch (error) {
+        console.warn('Mastery System | Could not toggle prone status:', error);
+      }
+    }
+  }
+  
+  // Method 3: Clear flags
+  try {
+    await token.actor.unsetFlag('mastery-system', 'prone');
+    const conditions = token.actor.getFlag('mastery-system', 'conditions') || {};
+    if (conditions.prone) {
+      delete conditions.prone;
+      await token.actor.setFlag('mastery-system', 'conditions', conditions);
+    }
+  } catch (error) {
+    console.warn('Mastery System | Could not clear prone flags:', error);
+  }
+  
+  // Set usedAction flag
+  try {
+    const turnState = token.actor.getFlag('mastery-system', 'turnState') || {};
+    turnState.usedAction = true;
+    await token.actor.setFlag('mastery-system', 'turnState', turnState);
+  } catch (error) {
+    console.warn('Mastery System | Could not set turnState:', error);
+  }
+  
+  // Create chat message
+  const chatData: any = {
+    speaker: ChatMessage.getSpeaker({ actor: token.actor, token: token.document }),
+    content: `<div class="mastery-system-action"><h3>${option.name}</h3><p>${option.description || option.maneuver?.effect || ''}</p></div>`,
+    type: CONST.CHAT_MESSAGE_TYPES.OTHER
+  };
+  
+  try {
+    await ChatMessage.create(chatData);
+  } catch (error) {
+    console.warn('Mastery System | Could not create chat message:', error);
+  }
+  
+  ui.notifications.info(`${token.actor.name} stands up.`);
+  console.log('Mastery System | Stand Up executed for', token.actor.name);
 }

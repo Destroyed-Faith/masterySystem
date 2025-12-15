@@ -407,17 +407,25 @@ function highlightRangeHexes(
   let hexesWithPosition = 0;
   let hexesInRange = 0;
   
-  for (let q = -maxHexDistance; q <= maxHexDistance; q++) {
-    for (let r = -maxHexDistance; r <= maxHexDistance; r++) {
-      const gridCol = centerGrid.col + q;
-      const gridRow = centerGrid.row + r;
-      hexesChecked++;
-      
-      // Get hex center position
-      // For hexagonal grids, getCenterPoint doesn't work correctly, so we use getTopLeftPoint and calculate center
-      let hexCenter: { x: number; y: number } | null = null;
-      let positionMethod = 'none';
-      try {
+  // For hexagonal grids, use hexagonal iteration to cover all hexes in radius
+  // For rectangular/square grids, use rectangular iteration
+  if (isHexGrid) {
+    // Hexagonal iteration: for each q, r must satisfy the hex distance constraint
+    // In axial coordinates (i, j), we iterate q from -radius to radius
+    // and for each q, r from max(-radius, -q-radius) to min(radius, -q+radius)
+    for (let q = -maxHexDistance; q <= maxHexDistance; q++) {
+      const rMin = Math.max(-maxHexDistance, -q - maxHexDistance);
+      const rMax = Math.min(maxHexDistance, -q + maxHexDistance);
+      for (let r = rMin; r <= rMax; r++) {
+        const gridCol = centerGrid.col + q;
+        const gridRow = centerGrid.row + r;
+        hexesChecked++;
+        
+        // Get hex center position
+        // For hexagonal grids, getCenterPoint doesn't work correctly, so we use getTopLeftPoint and calculate center
+        let hexCenter: { x: number; y: number } | null = null;
+        let positionMethod = 'none';
+        try {
         // For hexagonal grids, calculate pixel coordinates directly from offset coordinates
         // getTopLeftPoint returns wrong values for all hexes, so we calculate manually
         if (isHexGrid) {
@@ -442,9 +450,15 @@ function highlightRangeHexes(
             
             // Convert to scene coordinates by adding the center token position offset
             // The center token is at (center.x, center.y) in scene coordinates
-            // So we need to add the difference between the hex position and center hex position
-            const pixelX = center.x + (pixelXRelative - centerPixelXRelative);
-            const pixelY = center.y + (pixelYRelative - centerPixelYRelative);
+            // We need to add the difference between the hex position and center hex position
+            // Plus a calibration offset to align with Foundry's grid system
+            // Calibration: Hex (0,0) at token center (2300, 924.735...) should be at (2250, 865)
+            // Delta: (-50, -59.735...)
+            const calibrationDeltaX = -50; // Foundry's grid offset for hex (0,0)
+            const calibrationDeltaY = -59.7350269189626; // Foundry's grid offset for hex (0,0)
+            
+            const pixelX = center.x + (pixelXRelative - centerPixelXRelative) + calibrationDeltaX;
+            const pixelY = center.y + (pixelYRelative - centerPixelYRelative) + calibrationDeltaY;
             
             // Hex center is at the calculated pixel coordinates
             hexCenter = { x: pixelX, y: pixelY };
@@ -514,7 +528,6 @@ function highlightRangeHexes(
               const hexCenterX = topLeft.x + gridSize / 2;
               const hexCenterY = topLeft.y + gridSize * Math.sqrt(3) / 4;
               hexCenter = { x: hexCenterX, y: hexCenterY };
-              positionMethod = 'getTopLeftPoint (calculated center)';
               
               // Log first few for debugging
               if (hexesWithPosition < 3) {
@@ -717,6 +730,96 @@ function highlightRangeHexes(
                 highlightLayerType: highlightLayer?.constructor?.name,
                 hasHighlightPosition: typeof (canvas.interface?.grid as any)?.highlightPosition === 'function'
               });
+            }
+          }
+        } catch (error) {
+          // Log errors for debugging
+          console.warn('Mastery System | [DEBUG] highlightRangeHexes: Error highlighting hex at', gridCol, gridRow, error);
+        }
+      }
+      }
+    }
+  } else {
+    // For non-hexagonal grids, use rectangular iteration
+    for (let q = -maxHexDistance; q <= maxHexDistance; q++) {
+      for (let r = -maxHexDistance; r <= maxHexDistance; r++) {
+        const gridCol = centerGrid.col + q;
+        const gridRow = centerGrid.row + r;
+        hexesChecked++;
+        
+        // Get hex center position (same logic as above, but for non-hex grids)
+        let hexCenter: { x: number; y: number } | null = null;
+        try {
+          // For non-hex grids, use standard methods
+          if (canvas.grid?.getCenterPoint) {
+            hexCenter = canvas.grid.getCenterPoint(gridCol, gridRow);
+          } else if (canvas.grid?.getTopLeftPoint) {
+            const topLeft = canvas.grid.getTopLeftPoint(gridCol, gridRow);
+            if (topLeft) {
+              const gridSize = canvas.grid.size || 100;
+              hexCenter = { x: topLeft.x + gridSize / 2, y: topLeft.y + gridSize / 2 };
+            }
+          }
+          
+          if (hexCenter) {
+            hexesWithPosition++;
+            
+            // Calculate distance
+            const dx = hexCenter.x - center.x;
+            const dy = hexCenter.y - center.y;
+            const pixelDistance = Math.sqrt(dx * dx + dy * dy);
+            const gridDistance = pixelDistance / (canvas.grid.size || 100);
+            let distanceInUnits = gridDistance;
+            
+            // Use Foundry's measurement API if available
+            try {
+              if (canvas.grid?.measurePath) {
+                const waypoints = [{ x: center.x, y: center.y }, { x: hexCenter.x, y: hexCenter.y }];
+                const measurement = canvas.grid.measurePath(waypoints, {});
+                if (measurement && measurement.length > 0) {
+                  distanceInUnits = measurement[0];
+                }
+              } else if (canvas.grid?.measureDistances) {
+                const waypoints = [{ x: center.x, y: center.y }, { x: hexCenter.x, y: hexCenter.y }];
+                const measurement = canvas.grid.measureDistances(waypoints, {});
+                if (measurement && measurement.length > 0) {
+                  distanceInUnits = measurement[0];
+                }
+              }
+            } catch (e) {
+              // Use fallback distance
+            }
+            
+            const withinRange = distanceInUnits <= rangeUnits;
+            if (withinRange) {
+              hexesInRange++;
+              
+              // Highlight the hex
+              const highlightColor = color;
+              const highlightAlpha = alpha;
+              let highlighted = false;
+              
+              try {
+                if (canvas.interface?.grid && typeof (canvas.interface.grid as any).highlightPosition === 'function') {
+                  try {
+                    (canvas.interface.grid as any).highlightPosition(highlightId, {
+                      x: hexCenter.x,
+                      y: hexCenter.y,
+                      color: highlightColor,
+                      alpha: highlightAlpha
+                    });
+                    highlighted = true;
+                  } catch (e) {
+                    // Failed
+                  }
+                }
+                
+                if (highlighted) {
+                  hexesHighlighted++;
+                }
+              } catch (error) {
+                // Log errors
+              }
             }
           }
         } catch (error) {

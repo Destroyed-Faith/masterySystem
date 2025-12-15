@@ -197,6 +197,7 @@ export function getSegmentIdForOption(option) {
 /**
  * Get all combat options for an actor (all categories)
  * Collects all Powers and Maneuvers available to the actor
+ * Builds movement segment with proper ordering: core maneuvers first, then powers, then other maneuvers
  */
 export async function getAllCombatOptionsForActor(actor) {
     const options = [];
@@ -204,17 +205,33 @@ export async function getAllCombatOptionsForActor(actor) {
         console.warn('Mastery System | getAllCombatOptionsForActor: No actor provided');
         return options;
     }
+    // Import isActorProne helper
+    let isActorProne = null;
+    try {
+        const actorHelpers = await import('../utils/actor-helpers.js');
+        isActorProne = actorHelpers.isActorProne;
+    }
+    catch (error) {
+        console.warn('Mastery System | Could not load actor helpers:', error);
+    }
+    // Get token for prone check
+    const token = canvas.tokens?.placeables?.find((t) => t.actor?.id === actor.id);
+    const isProne = isActorProne ? isActorProne(actor, token) : false;
     // Pre-load power definitions for range lookup
     let getPowerFn = null;
     try {
-        // Foundry resolves dynamic imports relative to the current file location
-        // From dist/radial-menu/options.js to dist/utils/powers/index.js
         const powerModule = await import('../utils/powers/index.js');
         getPowerFn = powerModule.getPower;
     }
     catch (error) {
         console.warn('Mastery System | Could not load power definitions module:', error);
     }
+    // Get actor's speed for movement maneuvers
+    const actorSpeed = actor.system?.combat?.speed || 6; // Default to 6m if not set
+    // --- COLLECT ALL OPTIONS (separate by source) ---
+    const movementPowers = [];
+    const allManeuvers = [];
+    const nonMovementOptions = [];
     // --- POWERS (from Actor items) ---
     const items = actor.items || [];
     for (const item of items) {
@@ -225,8 +242,6 @@ export async function getAllCombatOptionsForActor(actor) {
         if (!powerType)
             continue;
         // Only include combat-usable powers
-        // Include: movement, active, active-buff, buff, utility, reaction
-        // Exclude: passive (these are not combat actions)
         if (!['movement', 'active', 'active-buff', 'buff', 'utility', 'reaction'].includes(powerType)) {
             continue;
         }
@@ -237,7 +252,6 @@ export async function getAllCombatOptionsForActor(actor) {
         let range = parseRange(rangeStr);
         let levelData = undefined;
         // If range is missing or empty, try to get it from the power definition
-        // This handles cases where the level was changed but range wasn't updated
         if ((!rangeStr || !range) && getPowerFn) {
             const treeName = item.system?.tree;
             const powerName = item.name;
@@ -254,7 +268,6 @@ export async function getAllCombatOptionsForActor(actor) {
                     }
                 }
                 catch (error) {
-                    // If lookup fails, just use the existing range (or undefined)
                     console.warn('Mastery System | Could not lookup power definition for range:', error);
                 }
             }
@@ -266,22 +279,23 @@ export async function getAllCombatOptionsForActor(actor) {
         let aoeRadiusMeters = undefined;
         let rangeMeters = range;
         if (slot === 'utility' || powerType === 'utility') {
-            // Get AoE from system or level data
             let aoeStr = item.system?.aoe;
             if (!aoeStr && levelData && levelData.aoe) {
                 aoeStr = levelData.aoe;
             }
             aoeShape = parseAoEShape(aoeStr);
             aoeRadiusMeters = parseAoERadius(aoeStr);
-            // For utilities, rangeMeters is the max distance to center
             rangeMeters = range;
-            // If range is "Self" or 0 and has AoE, it's a self-aura
             if ((!rangeStr || rangeStr.toLowerCase() === 'self' || range === 0) && aoeShape !== 'none') {
-                rangeMeters = 0; // Self-aura
+                rangeMeters = 0;
             }
         }
-        // Get tags if available
+        // Get tags and cost information
         const tags = item.system?.tags || [];
+        const cost = item.system?.cost || {};
+        // Determine costs
+        const costsMovement = powerType === 'movement' && cost.movement !== false; // Movement powers cost movement by default
+        const costsAction = cost.action === true || cost.actions === true;
         const option = {
             id: item.id,
             name: item.name,
@@ -292,7 +306,9 @@ export async function getAllCombatOptionsForActor(actor) {
             rangeCategory: rangeCategory,
             item: item,
             powerType: powerType,
-            tags: Array.isArray(tags) ? tags : []
+            tags: Array.isArray(tags) ? tags : [],
+            costsMovement: costsMovement,
+            costsAction: costsAction
         };
         // Add utility targeting fields if this is a utility
         if (slot === 'utility' || powerType === 'utility') {
@@ -300,38 +316,37 @@ export async function getAllCombatOptionsForActor(actor) {
             option.aoeShape = aoeShape;
             option.aoeRadiusMeters = aoeRadiusMeters;
             option.defaultTargetGroup = determineTargetGroup(option);
-            option.allowManualTargetSelection = true; // Default true for utilities
+            option.allowManualTargetSelection = true;
         }
-        options.push(option);
+        // Separate movement powers from others
+        if (slot === 'movement' || powerType === 'movement') {
+            movementPowers.push(option);
+        }
+        else {
+            nonMovementOptions.push(option);
+        }
     }
     // --- MANEUVERS (generic combat maneuvers) ---
-    // Get available maneuvers for this actor (filters by requirements)
     const availableManeuvers = getAvailableManeuvers(actor);
-    // Get actor's speed for movement maneuvers
-    const actorSpeed = actor.system?.combat?.speed || 6; // Default to 6m if not set
+    // Core movement maneuver IDs (must appear first in movement segment)
+    const CORE_MOVEMENT_MANEUVER_IDS = ['move', 'dash', 'disengage', 'stand-up'];
     for (const maneuver of availableManeuvers) {
-        // Filter out Multiattacks from the radial menu
+        // Filter out Multiattacks
         if (maneuver.tags?.includes('multiattack') || maneuver.id?.includes('multiattack')) {
-            continue; // Skip Multiattack maneuvers
+            continue;
         }
-        // For attack slot: only allow Weapon Attack and the two main stances (Parry Stance and Dodge Stance)
+        // For attack slot: only allow Weapon Attack and the two main stances
         if (maneuver.slot === 'attack') {
-            // Only allow Parry Stance and Dodge Stance
             if (maneuver.id !== 'parry-stance' && maneuver.id !== 'dodge-stance') {
-                // Check if it's a "Weapon Attack" - this might be a special case or we need to add it
-                // For now, skip all other attack maneuvers except the two stances
                 continue;
             }
         }
-        // Maneuvers have their slot defined in the maneuver data
-        // For "move" maneuver, use the actor's speed as range
+        // Calculate maneuver range
         let maneuverRange = undefined;
         if (maneuver.id === 'move') {
             maneuverRange = actorSpeed;
         }
-        // Other movement maneuvers might also benefit from speed-based range
         else if (maneuver.slot === 'movement' && maneuver.tags?.includes('speed')) {
-            // For maneuvers that mention speed (like Dash), calculate based on speed
             if (maneuver.id === 'dash') {
                 maneuverRange = actorSpeed * 2;
             }
@@ -339,16 +354,22 @@ export async function getAllCombatOptionsForActor(actor) {
                 maneuverRange = actorSpeed * 3;
             }
         }
-        // Determine range category for maneuvers
-        let maneuverRangeCategory = 'melee'; // Default
+        // Determine range category
+        let maneuverRangeCategory = 'melee';
         if (maneuver.id === 'move' || maneuver.slot === 'movement') {
             maneuverRangeCategory = 'self';
         }
         else if (maneuver.slot === 'attack') {
-            // Weapon Attack and melee stances are melee
             maneuverRangeCategory = 'melee';
         }
-        options.push({
+        // Determine costs
+        const costsMovement = maneuver.slot === 'movement' && maneuver.id !== 'stand-up';
+        const costsAction = maneuver.id === 'stand-up' || maneuver.slot === 'attack';
+        // Filter stand-up: only show if prone
+        if (maneuver.id === 'stand-up' && !isProne) {
+            continue;
+        }
+        const maneuverOption = {
             id: maneuver.id,
             name: maneuver.name,
             description: maneuver.description || (maneuver.effect || ''),
@@ -357,22 +378,23 @@ export async function getAllCombatOptionsForActor(actor) {
             range: maneuverRange,
             rangeCategory: maneuverRangeCategory,
             maneuver: maneuver,
-            tags: maneuver.tags || []
-        });
+            tags: maneuver.tags || [],
+            costsMovement: costsMovement,
+            costsAction: costsAction
+        };
+        allManeuvers.push(maneuverOption);
     }
-    // Add "Weapon Attack" as a standard attack option if not already present
-    // Check if we already have a weapon attack option
-    const hasWeaponAttack = options.some(opt => opt.slot === 'attack' && (opt.id === 'weapon-attack' || opt.name.toLowerCase() === 'weapon attack'));
+    // Add "Weapon Attack" if not present
+    const hasWeaponAttack = allManeuvers.some(opt => opt.slot === 'attack' && (opt.id === 'weapon-attack' || opt.name.toLowerCase() === 'weapon attack'));
     if (!hasWeaponAttack) {
-        // Add Weapon Attack as a standard maneuver option
-        options.push({
+        allManeuvers.push({
             id: 'weapon-attack',
             name: 'Weapon Attack',
             description: 'Make a standard attack with your equipped weapon.',
             slot: 'attack',
             source: 'maneuver',
             range: undefined,
-            rangeCategory: 'melee', // Weapon Attack is melee
+            rangeCategory: 'melee',
             maneuver: {
                 id: 'weapon-attack',
                 name: 'Weapon Attack',
@@ -382,9 +404,43 @@ export async function getAllCombatOptionsForActor(actor) {
                 tags: ['attack', 'weapon'],
                 effect: 'Make a standard attack with your equipped weapon. Roll attack dice against the target\'s Evade.'
             },
-            tags: ['attack', 'weapon']
+            tags: ['attack', 'weapon'],
+            costsAction: true
         });
     }
+    // --- BUILD MOVEMENT SEGMENT WITH PROPER ORDERING ---
+    const movementOptions = [];
+    // 1. Core movement maneuvers (in order: move, dash, disengage, stand-up if prone)
+    for (const coreId of CORE_MOVEMENT_MANEUVER_IDS) {
+        const coreManeuver = allManeuvers.find(m => m.id === coreId && m.slot === 'movement');
+        if (coreManeuver) {
+            movementOptions.push(coreManeuver);
+        }
+    }
+    // 2. Movement powers (sorted by name or actor sheet order)
+    const sortedMovementPowers = [...movementPowers].sort((a, b) => {
+        // Try to preserve actor sheet order if available (by item sort)
+        const aSort = a.item?.sort || 0;
+        const bSort = b.item?.sort || 0;
+        if (aSort !== bSort)
+            return aSort - bSort;
+        // Otherwise sort by name
+        return a.name.localeCompare(b.name);
+    });
+    movementOptions.push(...sortedMovementPowers);
+    // 3. Other movement maneuvers (excluding core ones)
+    const otherMovementManeuvers = allManeuvers.filter(m => m.slot === 'movement' && !CORE_MOVEMENT_MANEUVER_IDS.includes(m.id));
+    movementOptions.push(...otherMovementManeuvers);
+    // Add all movement options to main options array
+    options.push(...movementOptions);
+    // Add all non-movement options
+    options.push(...nonMovementOptions);
+    // Add non-movement maneuvers
+    const nonMovementManeuvers = allManeuvers.filter(m => m.slot !== 'movement');
+    options.push(...nonMovementManeuvers);
+    // Logging
+    console.log(`Mastery System | Collected movement powers: ${movementPowers.length}`);
+    console.log(`Mastery System | Movement segment final options: [${movementOptions.map(o => o.id).join(', ')}]`);
     console.log(`Mastery System | Collected ${options.length} combat options for actor:`, {
         powers: options.filter(o => o.source === 'power').length,
         maneuvers: options.filter(o => o.source === 'maneuver').length,

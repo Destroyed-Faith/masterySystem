@@ -41,6 +41,8 @@ export interface RadialCombatOption {
   maneuver?: CombatManeuver;  // The maneuver definition if source is 'maneuver'
   powerType?: string; // e.g. "active" | "active-buff" | "movement" | "utility" | "reaction"
   tags?: string[];  // Tags for additional filtering (e.g. ["buff", "stance"])
+  costsMovement?: boolean; // Whether this option consumes Movement resource
+  costsAction?: boolean; // Whether this option consumes Attack Action resource
 }
 
 /**

@@ -62,13 +62,13 @@ export const COMBAT_MANEUVERS = [
         id: "stand-up",
         name: "Stand Up",
         description: "Rise from prone position",
-        slot: "movement",
+        slot: "movement", // Still in movement segment, but costs Action
         category: "movement",
         tags: ["movement", "prone"],
         requirements: {
             requiresProne: true
         },
-        effect: "Stand up from prone position. Uses half your Movement."
+        effect: "Stand up from prone position. Costs 1 Attack Action. Does not limit movement. Standing up itself does not provoke OA."
     },
     {
         id: "charge",
