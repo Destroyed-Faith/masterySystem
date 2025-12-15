@@ -23,11 +23,34 @@ export function highlightHexesInRange(tokenId, rangeUnits, highlightLayerId, col
         return;
     }
     const center = token.center;
-    const start = grid.getOffset(center); // {i, j}
-    if (start?.i === undefined || start?.j === undefined) {
-        console.error('Mastery System | highlightHexesInRange: getOffset failed', start);
+    const startOffset = grid.getOffset(center.x, center.y);
+    // Handle different offset formats (col/row, i/j, x/y, q/r)
+    let startCol;
+    let startRow;
+    if (startOffset) {
+        if (startOffset.col !== undefined && startOffset.row !== undefined) {
+            startCol = startOffset.col;
+            startRow = startOffset.row;
+        }
+        else if (startOffset.i !== undefined && startOffset.j !== undefined) {
+            // Hexagonal grid format in v13
+            startCol = startOffset.i;
+            startRow = startOffset.j;
+        }
+        else if (startOffset.x !== undefined && startOffset.y !== undefined) {
+            startCol = startOffset.x;
+            startRow = startOffset.y;
+        }
+        else if (startOffset.q !== undefined && startOffset.r !== undefined) {
+            startCol = startOffset.q;
+            startRow = startOffset.r;
+        }
+    }
+    if (startCol === undefined || startRow === undefined) {
+        console.error('Mastery System | highlightHexesInRange: getOffset failed', startOffset);
         return;
     }
+    const start = { col: startCol, row: startRow, i: startCol, j: startRow };
     // Neighbor API (feature detect)
     const getNeighbors = typeof grid.getAdjacentOffsets === "function" ? (o) => grid.getAdjacentOffsets(o) :
         typeof grid.getNeighbors === "function" ? (o) => grid.getNeighbors(o) :
@@ -37,7 +60,11 @@ export function highlightHexesInRange(tokenId, rangeUnits, highlightLayerId, col
         return;
     }
     // BFS rings
-    const key = (o) => `${o.i},${o.j}`;
+    const key = (o) => {
+        const col = o.col ?? o.i ?? o.x ?? o.q ?? 0;
+        const row = o.row ?? o.j ?? o.y ?? o.r ?? 0;
+        return `${col},${row}`;
+    };
     const visited = new Set([key(start)]);
     let frontier = [start];
     const all = [start];
@@ -47,8 +74,10 @@ export function highlightHexesInRange(tokenId, rangeUnits, highlightLayerId, col
             const neighbors = getNeighbors(o) || [];
             for (const n of neighbors) {
                 const cand = (n?.i !== undefined && n?.j !== undefined) ? n :
-                    (n?.offset?.i !== undefined && n?.offset?.j !== undefined) ? n.offset :
-                        null;
+                    (n?.col !== undefined && n?.row !== undefined) ? n :
+                        (n?.offset?.i !== undefined && n?.offset?.j !== undefined) ? n.offset :
+                            (n?.offset?.col !== undefined && n?.offset?.row !== undefined) ? n.offset :
+                                null;
                 if (!cand)
                     continue;
                 const k = key(cand);
@@ -67,7 +96,19 @@ export function highlightHexesInRange(tokenId, rangeUnits, highlightLayerId, col
     let highlighted = 0;
     let tlFail = 0;
     for (const o of all) {
-        const tl = grid.getTopLeftPoint(o); // pixel top-left for that hex
+        // Extract col/row from various formats
+        const col = o.col ?? o.i ?? o.x ?? o.q ?? 0;
+        const row = o.row ?? o.j ?? o.y ?? o.r ?? 0;
+        // getTopLeftPoint expects (col, row) as separate parameters in v13
+        let tl = null;
+        try {
+            if (grid.getTopLeftPoint) {
+                tl = grid.getTopLeftPoint(col, row);
+            }
+        }
+        catch (error) {
+            console.warn('Mastery System | highlightHexesInRange: getTopLeftPoint failed', { col, row, error });
+        }
         if (!tl || tl.x === undefined || tl.y === undefined) {
             tlFail++;
             continue;
