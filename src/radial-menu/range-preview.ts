@@ -467,26 +467,17 @@ function highlightRangeHexes(
             if (hexesWithPosition < 3) {
               const hexI = centerGrid.i !== undefined ? centerGrid.i + q : undefined;
               const hexJ = centerGrid.j !== undefined ? centerGrid.j + r : undefined;
-              console.log('Mastery System | [DEBUG] highlightRangeHexes: Calculated hex center from topLeft', {
-                gridCol,
-                gridRow,
-                hexI,
-                hexJ,
-                topLeftX: topLeft.x,
-                topLeftY: topLeft.y,
-                topLeftWithIJ_X: topLeftWithIJ ? topLeftWithIJ.x : null,
-                topLeftWithIJ_Y: topLeftWithIJ ? topLeftWithIJ.y : null,
-                topLeftWithColRow_X: topLeftWithColRow ? topLeftWithColRow.x : null,
-                topLeftWithColRow_Y: topLeftWithColRow ? topLeftWithColRow.y : null,
-                hexCenterX,
-                hexCenterY,
-                gridSize,
-                gridType: canvas.grid.type,
-                positionMethod,
-                centerX: center.x,
-                centerY: center.y,
-                calculation: `x = ${topLeft.x} + ${gridSize}/2 = ${hexCenterX}, y = ${topLeft.y} + ${gridSize} * sqrt(3)/4 = ${hexCenterY}`
-              });
+              console.log('Mastery System | [DEBUG] highlightRangeHexes: Calculated hex center from topLeft');
+              console.log('  gridCol:', gridCol, 'gridRow:', gridRow);
+              console.log('  hexI:', hexI, 'hexJ:', hexJ);
+              console.log('  topLeftX:', topLeft.x, 'topLeftY:', topLeft.y);
+              console.log('  topLeftWithIJ_X:', topLeftWithIJ ? topLeftWithIJ.x : null, 'topLeftWithIJ_Y:', topLeftWithIJ ? topLeftWithIJ.y : null);
+              console.log('  topLeftWithColRow_X:', topLeftWithColRow ? topLeftWithColRow.x : null, 'topLeftWithColRow_Y:', topLeftWithColRow ? topLeftWithColRow.y : null);
+              console.log('  hexCenterX:', hexCenterX, 'hexCenterY:', hexCenterY);
+              console.log('  gridSize:', gridSize, 'gridType:', canvas.grid.type);
+              console.log('  positionMethod:', positionMethod);
+              console.log('  centerX:', center.x, 'centerY:', center.y);
+              console.log('  calculation: x =', topLeft.x, '+', gridSize, '/2 =', hexCenterX, ', y =', topLeft.y, '+', gridSize, '* sqrt(3)/4 =', hexCenterY);
             }
           }
         }
