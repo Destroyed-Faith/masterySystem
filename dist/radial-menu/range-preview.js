@@ -597,12 +597,18 @@ function highlightRangeHexes(center, rangeUnits, highlightId, color = 0xffe066, 
                 const highlightColor = color;
                 const highlightAlpha = alpha;
                 let highlighted = false;
+                let usedMethod = 'none';
                 try {
+                    // For hex grids, try with i/j coordinates if available
+                    const hexI = centerGrid.i !== undefined ? centerGrid.i + q : gridCol;
+                    const hexJ = centerGrid.j !== undefined ? centerGrid.j + r : gridRow;
                     // Only log first few attempts to avoid spam
                     if (hexesInRange <= 3) {
                         console.log('Mastery System | [DEBUG] highlightRangeHexes: Attempting to highlight hex', {
                             gridCol,
                             gridRow,
+                            hexI,
+                            hexJ,
                             distanceInUnits,
                             rangeUnits,
                             color: highlightColor.toString(16),
@@ -611,45 +617,168 @@ function highlightRangeHexes(center, rangeUnits, highlightId, color = 0xffe066, 
                         });
                     }
                     // Method 1: Foundry v13 API: highlight.highlightPosition(col, row, options)
+                    // For hex grids, try with i/j first, then fallback to col/row
                     if (highlight && typeof highlight.highlightPosition === 'function') {
-                        highlight.highlightPosition(gridCol, gridRow, { color: highlightColor, alpha: highlightAlpha });
-                        highlighted = true;
-                        console.log('Mastery System | [DEBUG] highlightRangeHexes: Highlighted via highlightPosition', { gridCol, gridRow });
+                        try {
+                            if (isHexGrid && centerGrid.i !== undefined && centerGrid.j !== undefined) {
+                                highlight.highlightPosition(hexI, hexJ, { color: highlightColor, alpha: highlightAlpha });
+                                usedMethod = 'highlightPosition(i,j)';
+                            }
+                            else {
+                                highlight.highlightPosition(gridCol, gridRow, { color: highlightColor, alpha: highlightAlpha });
+                                usedMethod = 'highlightPosition(col,row)';
+                            }
+                            highlighted = true;
+                            if (hexesInRange <= 3) {
+                                console.log('Mastery System | [DEBUG] highlightRangeHexes: Highlighted via highlightPosition', { gridCol, gridRow, hexI, hexJ, usedMethod });
+                            }
+                        }
+                        catch (e) {
+                            // Try fallback with col/row if i/j fails
+                            try {
+                                highlight.highlightPosition(gridCol, gridRow, { color: highlightColor, alpha: highlightAlpha });
+                                usedMethod = 'highlightPosition(col,row fallback)';
+                                highlighted = true;
+                            }
+                            catch (e2) {
+                                if (hexesInRange <= 3) {
+                                    console.warn('Mastery System | [DEBUG] highlightRangeHexes: highlightPosition failed', { gridCol, gridRow, hexI, hexJ, error: e2 });
+                                }
+                            }
+                        }
                     }
                     // Method 2: Alternative API: highlight.highlightGridPosition
                     else if (highlight && typeof highlight.highlightGridPosition === 'function') {
-                        highlight.highlightGridPosition(gridCol, gridRow, { color: highlightColor, alpha: highlightAlpha });
-                        highlighted = true;
+                        try {
+                            if (isHexGrid && centerGrid.i !== undefined && centerGrid.j !== undefined) {
+                                highlight.highlightGridPosition(hexI, hexJ, { color: highlightColor, alpha: highlightAlpha });
+                                usedMethod = 'highlightGridPosition(i,j)';
+                            }
+                            else {
+                                highlight.highlightGridPosition(gridCol, gridRow, { color: highlightColor, alpha: highlightAlpha });
+                                usedMethod = 'highlightGridPosition(col,row)';
+                            }
+                            highlighted = true;
+                        }
+                        catch (e) {
+                            if (hexesInRange <= 3) {
+                                console.warn('Mastery System | [DEBUG] highlightRangeHexes: highlightGridPosition failed', { gridCol, gridRow, hexI, hexJ, error: e });
+                            }
+                        }
                     }
                     // Method 3: Fallback: highlight.highlight
                     else if (highlight && typeof highlight.highlight === 'function') {
-                        highlight.highlight(gridCol, gridRow, { color: highlightColor, alpha: highlightAlpha });
-                        highlighted = true;
+                        try {
+                            if (isHexGrid && centerGrid.i !== undefined && centerGrid.j !== undefined) {
+                                highlight.highlight(hexI, hexJ, { color: highlightColor, alpha: highlightAlpha });
+                                usedMethod = 'highlight(i,j)';
+                            }
+                            else {
+                                highlight.highlight(gridCol, gridRow, { color: highlightColor, alpha: highlightAlpha });
+                                usedMethod = 'highlight(col,row)';
+                            }
+                            highlighted = true;
+                        }
+                        catch (e) {
+                            if (hexesInRange <= 3) {
+                                console.warn('Mastery System | [DEBUG] highlightRangeHexes: highlight failed', { gridCol, gridRow, hexI, hexJ, error: e });
+                            }
+                        }
                     }
                     // Method 4: Direct grid highlight (v13) - use canvas.interface.grid.highlightPosition instead of deprecated canvas.grid.highlightPosition
                     else if (canvas.interface?.grid && typeof canvas.interface.grid.highlightPosition === 'function') {
-                        canvas.interface.grid.highlightPosition(gridCol, gridRow, { color: highlightColor, alpha: highlightAlpha });
-                        highlighted = true;
+                        try {
+                            if (isHexGrid && centerGrid.i !== undefined && centerGrid.j !== undefined) {
+                                canvas.interface.grid.highlightPosition(hexI, hexJ, { color: highlightColor, alpha: highlightAlpha });
+                                usedMethod = 'canvas.interface.grid.highlightPosition(i,j)';
+                            }
+                            else {
+                                canvas.interface.grid.highlightPosition(gridCol, gridRow, { color: highlightColor, alpha: highlightAlpha });
+                                usedMethod = 'canvas.interface.grid.highlightPosition(col,row)';
+                            }
+                            highlighted = true;
+                        }
+                        catch (e) {
+                            if (hexesInRange <= 3) {
+                                console.warn('Mastery System | [DEBUG] highlightRangeHexes: canvas.interface.grid.highlightPosition failed', { gridCol, gridRow, hexI, hexJ, error: e });
+                            }
+                        }
                     }
                     // Method 5: Try to add highlight directly with add method
                     else if (highlight && typeof highlight.add === 'function') {
-                        highlight.add({ col: gridCol, row: gridRow, color: highlightColor, alpha: highlightAlpha });
-                        highlighted = true;
+                        try {
+                            if (isHexGrid && centerGrid.i !== undefined && centerGrid.j !== undefined) {
+                                highlight.add({ i: hexI, j: hexJ, col: gridCol, row: gridRow, color: highlightColor, alpha: highlightAlpha });
+                                usedMethod = 'add(i,j)';
+                            }
+                            else {
+                                highlight.add({ col: gridCol, row: gridRow, color: highlightColor, alpha: highlightAlpha });
+                                usedMethod = 'add(col,row)';
+                            }
+                            highlighted = true;
+                        }
+                        catch (e) {
+                            if (hexesInRange <= 3) {
+                                console.warn('Mastery System | [DEBUG] highlightRangeHexes: add failed', { gridCol, gridRow, hexI, hexJ, error: e });
+                            }
+                        }
                     }
                     // Method 6: Try to set highlights array directly
                     else if (highlight && Array.isArray(highlight.highlights)) {
-                        highlight.highlights.push({ col: gridCol, row: gridRow, color: highlightColor, alpha: highlightAlpha });
-                        highlighted = true;
+                        try {
+                            if (isHexGrid && centerGrid.i !== undefined && centerGrid.j !== undefined) {
+                                highlight.highlights.push({ i: hexI, j: hexJ, col: gridCol, row: gridRow, color: highlightColor, alpha: highlightAlpha });
+                                usedMethod = 'highlights.push(i,j)';
+                            }
+                            else {
+                                highlight.highlights.push({ col: gridCol, row: gridRow, color: highlightColor, alpha: highlightAlpha });
+                                usedMethod = 'highlights.push(col,row)';
+                            }
+                            highlighted = true;
+                        }
+                        catch (e) {
+                            if (hexesInRange <= 3) {
+                                console.warn('Mastery System | [DEBUG] highlightRangeHexes: highlights.push failed', { gridCol, gridRow, hexI, hexJ, error: e });
+                            }
+                        }
                     }
                     // Method 7: Try to use set method
                     else if (highlight && typeof highlight.set === 'function') {
-                        highlight.set(gridCol, gridRow, { color: highlightColor, alpha: highlightAlpha });
-                        highlighted = true;
+                        try {
+                            if (isHexGrid && centerGrid.i !== undefined && centerGrid.j !== undefined) {
+                                highlight.set(hexI, hexJ, { color: highlightColor, alpha: highlightAlpha });
+                                usedMethod = 'set(i,j)';
+                            }
+                            else {
+                                highlight.set(gridCol, gridRow, { color: highlightColor, alpha: highlightAlpha });
+                                usedMethod = 'set(col,row)';
+                            }
+                            highlighted = true;
+                        }
+                        catch (e) {
+                            if (hexesInRange <= 3) {
+                                console.warn('Mastery System | [DEBUG] highlightRangeHexes: set failed', { gridCol, gridRow, hexI, hexJ, error: e });
+                            }
+                        }
                     }
                     // Method 8: Try to use drawHighlight method
                     else if (highlight && typeof highlight.drawHighlight === 'function') {
-                        highlight.drawHighlight(gridCol, gridRow, highlightColor, highlightAlpha);
-                        highlighted = true;
+                        try {
+                            if (isHexGrid && centerGrid.i !== undefined && centerGrid.j !== undefined) {
+                                highlight.drawHighlight(hexI, hexJ, highlightColor, highlightAlpha);
+                                usedMethod = 'drawHighlight(i,j)';
+                            }
+                            else {
+                                highlight.drawHighlight(gridCol, gridRow, highlightColor, highlightAlpha);
+                                usedMethod = 'drawHighlight(col,row)';
+                            }
+                            highlighted = true;
+                        }
+                        catch (e) {
+                            if (hexesInRange <= 3) {
+                                console.warn('Mastery System | [DEBUG] highlightRangeHexes: drawHighlight failed', { gridCol, gridRow, hexI, hexJ, error: e });
+                            }
+                        }
                     }
                     if (highlighted) {
                         hexesHighlighted++;
@@ -660,6 +789,8 @@ function highlightRangeHexes(center, rangeUnits, highlightId, color = 0xffe066, 
                             console.warn('Mastery System | [DEBUG] highlightRangeHexes: No highlight method worked for hex', {
                                 gridCol,
                                 gridRow,
+                                hexI,
+                                hexJ,
                                 highlightAvailable: !!highlight,
                                 highlightType: highlight?.constructor?.name,
                                 hasHighlightPosition: typeof highlight?.highlightPosition === 'function',
