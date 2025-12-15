@@ -410,74 +410,55 @@ function highlightRangeHexes(
       let hexCenter: { x: number; y: number } | null = null;
       let positionMethod = 'none';
       try {
-        // For hexagonal grids, use getTopLeftPoint and calculate center (getCenterPoint returns wrong values)
-        if (isHexGrid && canvas.grid?.getTopLeftPoint) {
-          // For hex grids, try both i/j and col/row to see which works
-          let topLeft: { x: number; y: number } | null = null;
-          let topLeftWithColRow: { x: number; y: number } | null = null;
-          let topLeftWithIJ: { x: number; y: number } | null = null;
+        // For hexagonal grids, calculate pixel coordinates directly from offset coordinates
+        // getTopLeftPoint returns wrong values for all hexes, so we calculate manually
+        if (isHexGrid) {
+          const gridSize = canvas.grid.size || 100;
+          const sqrt3 = Math.sqrt(3);
           
-          // Try i/j first if available (this is what getOffset returns for hex grids)
+          // For pointy-top hexes (Foundry default for type 2), calculate pixel coordinates from offset coordinates
+          // Offset coordinates: i = column, j = row
           if (centerGrid.i !== undefined && centerGrid.j !== undefined) {
             const hexI = centerGrid.i + q;
             const hexJ = centerGrid.j + r;
-            try {
-              topLeftWithIJ = canvas.grid.getTopLeftPoint(hexI, hexJ);
-              topLeft = topLeftWithIJ;
-              positionMethod = 'getTopLeftPoint(i,j) (calculated center)';
-            } catch (e) {
-              // i/j failed, try col/row
-              try {
-                topLeftWithColRow = canvas.grid.getTopLeftPoint(gridCol, gridRow);
-                topLeft = topLeftWithColRow;
-                positionMethod = 'getTopLeftPoint(col,row) (calculated center)';
-              } catch (e2) {
-                // Both failed
-              }
-            }
-          } else {
-            // No i/j available, try col/row
-            try {
-              topLeftWithColRow = canvas.grid.getTopLeftPoint(gridCol, gridRow);
-              topLeft = topLeftWithColRow;
-              positionMethod = 'getTopLeftPoint(col,row) (calculated center)';
-            } catch (e) {
-              // Failed
-            }
-          }
-          
-          // Also try col/row if we haven't already, for comparison
-          if (!topLeftWithColRow && topLeftWithIJ) {
-            try {
-              topLeftWithColRow = canvas.grid.getTopLeftPoint(gridCol, gridRow);
-            } catch (e) {
-              // Ignore
-            }
-          }
-          
-          if (topLeft) {
-            // For hex grids, calculate center from top-left
-            // Hex center is at: x = topLeft.x + size/2, y = topLeft.y + size * sqrt(3) / 4
-            const gridSize = canvas.grid.size || 100;
-            const hexCenterX = topLeft.x + gridSize / 2;
-            const hexCenterY = topLeft.y + gridSize * Math.sqrt(3) / 4;
-            hexCenter = { x: hexCenterX, y: hexCenterY };
+            
+            // Calculate pixel coordinates for pointy-top hexes
+            // x = size * (sqrt(3) * i + sqrt(3)/2 * j)
+            // y = size * (3/2 * j)
+            const pixelX = gridSize * (sqrt3 * hexI + sqrt3 / 2 * hexJ);
+            const pixelY = gridSize * (3/2 * hexJ);
+            
+            // Hex center is at the calculated pixel coordinates (for pointy-top, center = calculated position)
+            hexCenter = { x: pixelX, y: pixelY };
+            positionMethod = 'calculated from offset coordinates (i,j)';
             
             // Log first few for debugging
             if (hexesWithPosition < 3) {
-              const hexI = centerGrid.i !== undefined ? centerGrid.i + q : undefined;
-              const hexJ = centerGrid.j !== undefined ? centerGrid.j + r : undefined;
-              console.log('Mastery System | [DEBUG] highlightRangeHexes: Calculated hex center from topLeft');
+              console.log('Mastery System | [DEBUG] highlightRangeHexes: Calculated hex center from offset coordinates');
               console.log('  gridCol:', gridCol, 'gridRow:', gridRow);
               console.log('  hexI:', hexI, 'hexJ:', hexJ);
-              console.log('  topLeftX:', topLeft.x, 'topLeftY:', topLeft.y);
-              console.log('  topLeftWithIJ_X:', topLeftWithIJ ? topLeftWithIJ.x : null, 'topLeftWithIJ_Y:', topLeftWithIJ ? topLeftWithIJ.y : null);
-              console.log('  topLeftWithColRow_X:', topLeftWithColRow ? topLeftWithColRow.x : null, 'topLeftWithColRow_Y:', topLeftWithColRow ? topLeftWithColRow.y : null);
-              console.log('  hexCenterX:', hexCenterX, 'hexCenterY:', hexCenterY);
+              console.log('  pixelX:', pixelX, 'pixelY:', pixelY);
+              console.log('  hexCenterX:', hexCenter.x, 'hexCenterY:', hexCenter.y);
               console.log('  gridSize:', gridSize, 'gridType:', canvas.grid.type);
               console.log('  positionMethod:', positionMethod);
               console.log('  centerX:', center.x, 'centerY:', center.y);
-              console.log('  calculation: x =', topLeft.x, '+', gridSize, '/2 =', hexCenterX, ', y =', topLeft.y, '+', gridSize, '* sqrt(3)/4 =', hexCenterY);
+              console.log('  calculation: x =', gridSize, '* (sqrt(3) *', hexI, '+ sqrt(3)/2 *', hexJ, ') =', pixelX);
+              console.log('  calculation: y =', gridSize, '* (3/2 *', hexJ, ') =', pixelY);
+            }
+          } else {
+            // Fallback: try getTopLeftPoint if i/j not available
+            if (canvas.grid?.getTopLeftPoint) {
+              try {
+                const topLeft = canvas.grid.getTopLeftPoint(gridCol, gridRow);
+                if (topLeft) {
+                  const hexCenterX = topLeft.x + gridSize / 2;
+                  const hexCenterY = topLeft.y + gridSize * sqrt3 / 4;
+                  hexCenter = { x: hexCenterX, y: hexCenterY };
+                  positionMethod = 'getTopLeftPoint(col,row) fallback (calculated center)';
+                }
+              } catch (e) {
+                // Failed
+              }
             }
           }
         }
