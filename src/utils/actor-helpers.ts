@@ -25,8 +25,11 @@ export function isActorProne(actor: any, _token?: any): boolean {
   // Method 2: Check actor's statuses (Foundry v13)
   if ((actor as any).statuses) {
     const statuses = (actor as any).statuses;
-    if (statuses.has && statuses.has(CONST.STATUS_EFFECTS.PRONE)) {
-      return true;
+    // Check if CONST.STATUS_EFFECTS exists and has PRONE
+    if (statuses.has && CONST.STATUS_EFFECTS && (CONST.STATUS_EFFECTS as any).PRONE) {
+      if (statuses.has((CONST.STATUS_EFFECTS as any).PRONE)) {
+        return true;
+      }
     }
     // Also check by name
     if (statuses.size > 0) {

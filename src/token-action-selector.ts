@@ -818,11 +818,31 @@ async function executeStandUp(token: any, option: RadialCombatOption): Promise<v
   // Method 2: Remove from statuses (Foundry v13)
   if ((token.actor as any).statuses) {
     const statuses = (token.actor as any).statuses;
-    if (statuses.has && statuses.has(CONST.STATUS_EFFECTS.PRONE)) {
-      try {
-        await token.actor.toggleStatusEffect(CONST.STATUS_EFFECTS.PRONE);
-      } catch (error) {
-        console.warn('Mastery System | Could not toggle prone status:', error);
+    // Check if CONST.STATUS_EFFECTS exists and has PRONE
+    if (statuses.has && CONST.STATUS_EFFECTS && (CONST.STATUS_EFFECTS as any).PRONE) {
+      const proneStatusId = (CONST.STATUS_EFFECTS as any).PRONE;
+      if (statuses.has(proneStatusId)) {
+        try {
+          await token.actor.toggleStatusEffect(proneStatusId);
+        } catch (error) {
+          console.warn('Mastery System | Could not toggle prone status:', error);
+        }
+      }
+    }
+    // Also try to remove by name if constant doesn't exist
+    if (statuses.size > 0) {
+      for (const status of statuses) {
+        const name = (status.name || status.id || '').toLowerCase();
+        if (name.includes('prone')) {
+          try {
+            // Try to remove by status ID or name
+            if (typeof token.actor.toggleStatusEffect === 'function') {
+              await token.actor.toggleStatusEffect(status.id || status.name);
+            }
+          } catch (error) {
+            console.warn('Mastery System | Could not remove prone status by name:', error);
+          }
+        }
       }
     }
   }
