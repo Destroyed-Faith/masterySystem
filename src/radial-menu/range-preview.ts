@@ -388,10 +388,15 @@ function highlightRangeHexes(
   const maxHexDistance = Math.ceil(rangeUnits);
   
   // Iterate through all hexes within range
+  let hexesChecked = 0;
+  let hexesWithPosition = 0;
+  let hexesInRange = 0;
+  
   for (let q = -maxHexDistance; q <= maxHexDistance; q++) {
     for (let r = -maxHexDistance; r <= maxHexDistance; r++) {
       const gridCol = centerGrid.col + q;
       const gridRow = centerGrid.row + r;
+      hexesChecked++;
       
       // Get hex center position
       let hexCenter: { x: number; y: number } | null = null;
@@ -404,11 +409,33 @@ function highlightRangeHexes(
           hexCenter = canvas.grid.getPixelsFromGridPosition(gridCol, gridRow);
         }
       } catch (error) {
-        // Skip this hex if we can't get its position
+        // Log first few errors for debugging
+        if (hexesChecked <= 3) {
+          console.warn('Mastery System | [DEBUG] highlightRangeHexes: Error getting hex position', {
+            gridCol,
+            gridRow,
+            error,
+            hasGetTopLeftPoint: !!canvas.grid?.getTopLeftPoint,
+            hasGetPixelsFromGridPosition: !!canvas.grid?.getPixelsFromGridPosition
+          });
+        }
         continue;
       }
       
-      if (!hexCenter) continue;
+      if (!hexCenter) {
+        // Log first few missing positions
+        if (hexesChecked <= 3) {
+          console.warn('Mastery System | [DEBUG] highlightRangeHexes: No hex center position', {
+            gridCol,
+            gridRow,
+            hasGetTopLeftPoint: !!canvas.grid?.getTopLeftPoint,
+            hasGetPixelsFromGridPosition: !!canvas.grid?.getPixelsFromGridPosition
+          });
+        }
+        continue;
+      }
+      
+      hexesWithPosition++;
       
       // Calculate distance from center to this hex
       const dx = hexCenter.x - center.x;
@@ -446,21 +473,25 @@ function highlightRangeHexes(
       
       // If hex is within range, highlight it
       if (distanceInUnits <= rangeUnits) {
+        hexesInRange++;
         // Use provided color and alpha (defaults to yellow for movement preview)
         const highlightColor = color;
         const highlightAlpha = alpha;
         
         let highlighted = false;
         try {
-          console.log('Mastery System | [DEBUG] highlightRangeHexes: Attempting to highlight hex', {
+          // Only log first few attempts to avoid spam
+          if (hexesInRange <= 3) {
+            console.log('Mastery System | [DEBUG] highlightRangeHexes: Attempting to highlight hex', {
             gridCol,
             gridRow,
             distanceInUnits,
             rangeUnits,
             color: highlightColor.toString(16),
             alpha: highlightAlpha,
-            highlightMethods: highlight ? Object.getOwnPropertyNames(Object.getPrototypeOf(highlight)).filter(m => typeof highlight[m] === 'function') : []
-          });
+              highlightMethods: highlight ? Object.getOwnPropertyNames(Object.getPrototypeOf(highlight)).filter(m => typeof highlight[m] === 'function') : []
+            });
+          }
           
           // Method 1: Foundry v13 API: highlight.highlightPosition(col, row, options)
           if (highlight && typeof highlight.highlightPosition === 'function') {
@@ -507,15 +538,18 @@ function highlightRangeHexes(
           if (highlighted) {
             hexesHighlighted++;
           } else {
-            console.warn('Mastery System | [DEBUG] highlightRangeHexes: No highlight method worked for hex', {
-              gridCol,
-              gridRow,
-              highlightAvailable: !!highlight,
-              highlightType: highlight?.constructor?.name,
-              hasHighlightPosition: typeof highlight?.highlightPosition === 'function',
-              hasHighlightGridPosition: typeof highlight?.highlightGridPosition === 'function',
-              hasHighlight: typeof highlight?.highlight === 'function'
-            });
+            // Only log first few failures to avoid spam
+            if (hexesInRange <= 3) {
+              console.warn('Mastery System | [DEBUG] highlightRangeHexes: No highlight method worked for hex', {
+                gridCol,
+                gridRow,
+                highlightAvailable: !!highlight,
+                highlightType: highlight?.constructor?.name,
+                hasHighlightPosition: typeof highlight?.highlightPosition === 'function',
+                hasHighlightGridPosition: typeof highlight?.highlightGridPosition === 'function',
+                hasHighlight: typeof highlight?.highlight === 'function'
+              });
+            }
           }
         } catch (error) {
           // Log errors for debugging
@@ -527,6 +561,9 @@ function highlightRangeHexes(
   
   console.log('Mastery System | [DEBUG] highlightRangeHexes: Complete', {
     hexesHighlighted,
+    hexesChecked,
+    hexesWithPosition,
+    hexesInRange,
     rangeUnits,
     totalHexesChecked: (maxHexDistance * 2 + 1) * (maxHexDistance * 2 + 1),
     highlightMethod,
