@@ -782,6 +782,20 @@ function highlightRangeHexes(center, rangeUnits, highlightId, color = 0xffe066, 
                     }
                     if (highlighted) {
                         hexesHighlighted++;
+                        // Log which method was used for first few hexes
+                        if (hexesInRange <= 3) {
+                            console.log('Mastery System | [DEBUG] highlightRangeHexes: Successfully highlighted hex', {
+                                gridCol,
+                                gridRow,
+                                hexI,
+                                hexJ,
+                                usedMethod,
+                                highlightVisible: highlight?.visible !== false,
+                                highlightRenderable: highlight?.renderable !== false,
+                                highlightAlpha: highlight?.alpha,
+                                highlightChildren: highlight?.children?.length || 0
+                            });
+                        }
                     }
                     else {
                         // Only log first few failures to avoid spam
@@ -807,6 +821,27 @@ function highlightRangeHexes(center, rangeUnits, highlightId, color = 0xffe066, 
             }
         }
     }
+    // Ensure highlight layer is visible and renderable
+    if (highlight) {
+        if (highlight.visible === false) {
+            highlight.visible = true;
+            console.log('Mastery System | [DEBUG] highlightRangeHexes: Set highlight.visible = true');
+        }
+        if (highlight.renderable === false) {
+            highlight.renderable = true;
+            console.log('Mastery System | [DEBUG] highlightRangeHexes: Set highlight.renderable = true');
+        }
+        // Try to render/refresh the highlight layer
+        if (typeof highlight.render === 'function') {
+            try {
+                highlight.render();
+                console.log('Mastery System | [DEBUG] highlightRangeHexes: Called highlight.render()');
+            }
+            catch (e) {
+                console.warn('Mastery System | [DEBUG] highlightRangeHexes: Error calling highlight.render()', e);
+            }
+        }
+    }
     console.log('Mastery System | [DEBUG] highlightRangeHexes: Complete', {
         hexesHighlighted,
         hexesChecked,
@@ -819,6 +854,10 @@ function highlightRangeHexes(center, rangeUnits, highlightId, color = 0xffe066, 
         centerGrid,
         gridPositionMethod,
         highlightAvailable: !!highlight,
+        highlightVisible: highlight?.visible,
+        highlightRenderable: highlight?.renderable,
+        highlightAlpha: highlight?.alpha,
+        highlightChildren: highlight?.children?.length || 0,
         highlightMethods: highlight ? Object.getOwnPropertyNames(Object.getPrototypeOf(highlight)).filter(m => typeof highlight[m] === 'function').slice(0, 10) : []
     });
     if (hexesHighlighted === 0) {
