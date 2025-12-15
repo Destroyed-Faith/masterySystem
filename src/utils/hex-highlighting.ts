@@ -3,6 +3,27 @@
  * Uses BFS (Breadth-First Search) to find and highlight hex fields within range
  */
 
+type OffsetLike = {
+  i?: number; j?: number;
+  col?: number; row?: number;
+  x?: number; y?: number;
+  q?: number; r?: number;
+  offset?: any;
+};
+
+function normalizeOffset(o: OffsetLike): { col: number; row: number } | null {
+  const cand = (o as any)?.offset ? (o as any).offset : o;
+  if (!cand) return null;
+
+  const col =
+    cand.col ?? cand.i ?? cand.x ?? cand.q;
+  const row =
+    cand.row ?? cand.j ?? cand.y ?? cand.r;
+
+  if (typeof col !== "number" || typeof row !== "number") return null;
+  return { col, row };
+}
+
 /**
  * Highlight hex fields within range using BFS algorithm
  * @param tokenId - The ID of the token to use as center
@@ -25,10 +46,25 @@ export function highlightHexesInRange(
     const gridUI = canvas.interface?.grid;
     if (!grid || !gridUI) return console.warn("MS | highlightHexesInRange: grid/gridUI missing");
   
-    // IMPORTANT: pass the point object
-    const start = grid.getOffset(token.center) as any; // expected: {i,j} on hex
-    const si = start?.i;
-    const sj = start?.j;
+    const maxSteps = Math.floor(Number(rangeUnits));
+    if (!Number.isFinite(maxSteps) || maxSteps < 0) return;
+
+    // getOffset signature differs by Foundry versions; support both point and x/y.
+    let startOffset: any;
+    try {
+      startOffset = (grid as any).getOffset?.(token.center?.x, token.center?.y);
+    } catch {
+      // ignore
+    }
+    if (!startOffset) {
+      try {
+        startOffset = (grid as any).getOffset?.(token.center);
+      } catch {
+        // ignore
+      }
+    }
+
+    const startNorm = normalizeOffset(startOffset);
   
     console.log("MS | highlightHexesInRange start", {
       tokenId,
@@ -36,11 +72,11 @@ export function highlightHexesInRange(
       rangeUnits,
       gridType: grid.type,
       gridSize: grid.size,
-      start
+      start: startOffset
     });
   
-    if (si === undefined || sj === undefined) {
-      console.error("MS | highlightHexesInRange: getOffset did not return {i,j}", start);
+    if (!startNorm) {
+      console.error("MS | highlightHexesInRange: getOffset did not return a usable offset", startOffset);
       return;
     }
   
@@ -56,20 +92,17 @@ export function highlightHexesInRange(
     }
   
     // BFS
-    const key = (o: any) => `${o.i},${o.j}`;
-    const visited = new Set<string>([key(start)]);
-    let frontier: any[] = [start];
-    const all: any[] = [start];
+    const key = (o: { col: number; row: number }) => `${o.col},${o.row}`;
+    const visited = new Set<string>([key(startNorm)]);
+    let frontier: Array<{ col: number; row: number }> = [startNorm];
+    const all: Array<{ col: number; row: number }> = [startNorm];
   
-    for (let step = 1; step <= rangeUnits; step++) {
-      const next: any[] = [];
+    for (let step = 1; step <= maxSteps; step++) {
+      const next: Array<{ col: number; row: number }> = [];
       for (const o of frontier) {
         const neighbors = getNeighbors(o) ?? [];
         for (const n of neighbors) {
-          const cand =
-            (n?.i !== undefined && n?.j !== undefined) ? n :
-            (n?.offset?.i !== undefined && n?.offset?.j !== undefined) ? n.offset :
-            null;
+          const cand = normalizeOffset(n as any);
   
           if (!cand) continue;
   
@@ -86,19 +119,60 @@ export function highlightHexesInRange(
     }
   
     // Highlight layer
-    gridUI.addHighlightLayer?.(highlightLayerId);
-    gridUI.clearHighlightLayer?.(highlightLayerId);
+    const createdLayer = (gridUI as any).addHighlightLayer?.(highlightLayerId);
+    (gridUI as any).clearHighlightLayer?.(highlightLayerId);
+
+    const layer =
+      createdLayer ??
+      (gridUI as any).highlightLayers?.[highlightLayerId] ??
+      (gridUI as any).getHighlightLayer?.(highlightLayerId) ??
+      null;
 
     let highlighted = 0;
     let tlFail = 0;
   
     for (const o of all) {
-      // IMPORTANT: pass offset object, not (col,row)
-      const tl = grid.getTopLeftPoint(o);
-      if (!tl || tl.x === undefined || tl.y === undefined) { tlFail++; continue; }
-  
-      gridUI.highlightPosition?.(highlightLayerId, { x: tl.x, y: tl.y, color, alpha });
-      highlighted++;
+      // Best effort: v13+ prefers layer.highlightPosition(col,row,{color,alpha})
+      if (layer && typeof (layer as any).highlightPosition === "function") {
+        try {
+          (layer as any).highlightPosition(o.col, o.row, { color, alpha });
+          highlighted++;
+          continue;
+        } catch {
+          // fallthrough
+        }
+      }
+
+      // Fallback: older API via gridUI.highlightPosition(layerId,{x,y,color,alpha})
+      let tl: any = null;
+      try {
+        if (typeof (grid as any).getTopLeftPoint === "function") {
+          // Some versions accept (col,row), others accept offset-like objects
+          tl = (grid as any).getTopLeftPoint(o.col, o.row);
+        }
+      } catch {
+        // fallthrough
+      }
+      if (!tl) {
+        try {
+          if (typeof (grid as any).getTopLeftPoint === "function") {
+            tl = (grid as any).getTopLeftPoint({ i: o.col, j: o.row });
+          }
+        } catch {
+          // ignore
+        }
+      }
+      if (!tl || tl.x === undefined || tl.y === undefined) {
+        tlFail++;
+        continue;
+      }
+
+      try {
+        (gridUI as any).highlightPosition?.(highlightLayerId, { x: tl.x, y: tl.y, color, alpha });
+        highlighted++;
+      } catch {
+        // ignore
+      }
     }
   
     console.log("MS | highlightHexesInRange complete", {
@@ -111,5 +185,14 @@ export function highlightHexesInRange(
   }
   
   export function clearHexHighlight(highlightLayerId: string): void {
-    canvas.interface?.grid?.clearHighlightLayer?.(highlightLayerId);
+    const gridUI: any = canvas.interface?.grid;
+    gridUI?.clearHighlightLayer?.(highlightLayerId);
+
+    const layer =
+      gridUI?.highlightLayers?.[highlightLayerId] ??
+      gridUI?.getHighlightLayer?.(highlightLayerId) ??
+      null;
+    if (layer && typeof layer.clear === "function") {
+      try { layer.clear(); } catch { /* ignore */ }
+    }
   }

@@ -11,9 +11,5 @@
  * @param alpha - Alpha transparency (default: 0.35)
  */
 export declare function highlightHexesInRange(tokenId: string, rangeUnits: number, highlightLayerId: string, color?: number, alpha?: number): void;
-/**
- * Clear a highlight layer
- * @param highlightLayerId - The ID of the highlight layer to clear
- */
 export declare function clearHexHighlight(highlightLayerId: string): void;
 //# sourceMappingURL=hex-highlighting.d.ts.map
