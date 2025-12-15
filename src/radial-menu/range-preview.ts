@@ -414,21 +414,37 @@ function highlightRangeHexes(
         if (isHexGrid && canvas.grid?.getTopLeftPoint) {
           // For hex grids, try with i/j if available, otherwise use col/row
           let topLeft: { x: number; y: number } | null = null;
+          let topLeftWithColRow: { x: number; y: number } | null = null;
+          let topLeftWithIJ: { x: number; y: number } | null = null;
+          
           if (centerGrid.i !== undefined && centerGrid.j !== undefined) {
             // Try with i/j coordinates
             const hexI = centerGrid.i + q;
             const hexJ = centerGrid.j + r;
             try {
-              topLeft = canvas.grid.getTopLeftPoint(hexI, hexJ);
+              topLeftWithIJ = canvas.grid.getTopLeftPoint(hexI, hexJ);
+              topLeft = topLeftWithIJ;
               positionMethod = 'getTopLeftPoint(i,j) (calculated center)';
             } catch (e) {
               // Fallback to col/row
-              topLeft = canvas.grid.getTopLeftPoint(gridCol, gridRow);
+              topLeftWithColRow = canvas.grid.getTopLeftPoint(gridCol, gridRow);
+              topLeft = topLeftWithColRow;
               positionMethod = 'getTopLeftPoint(col,row) (calculated center)';
             }
           } else {
-            topLeft = canvas.grid.getTopLeftPoint(gridCol, gridRow);
+            topLeftWithColRow = canvas.grid.getTopLeftPoint(gridCol, gridRow);
+            topLeft = topLeftWithColRow;
             positionMethod = 'getTopLeftPoint(col,row) (calculated center)';
+          }
+          
+          // Also try getPixelsFromGridPosition if available
+          let pixelsFromGrid: { x: number; y: number } | null = null;
+          if (canvas.grid?.getPixelsFromGridPosition && hexesWithPosition < 3) {
+            try {
+              pixelsFromGrid = canvas.grid.getPixelsFromGridPosition(gridCol, gridRow);
+            } catch (e) {
+              // Ignore
+            }
           }
           
           if (topLeft) {
@@ -451,6 +467,9 @@ function highlightRangeHexes(
                 topLeft,
                 topLeftX: topLeft.x,
                 topLeftY: topLeft.y,
+                topLeftWithIJ: topLeftWithIJ ? { x: topLeftWithIJ.x, y: topLeftWithIJ.y } : null,
+                topLeftWithColRow: topLeftWithColRow ? { x: topLeftWithColRow.x, y: topLeftWithColRow.y } : null,
+                pixelsFromGrid,
                 hexCenter,
                 hexCenterX,
                 hexCenterY,
