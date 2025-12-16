@@ -126,11 +126,32 @@ export function registerAttackRollClickHandler(): void {
       const { masteryRoll } = await import('../dice/roll-handler.js');
       console.log('Mastery System | DEBUG: Roll handler imported');
       
-      // Get actor data
+      // Get actor data - always get fresh from game.actors
       const attacker = (game as any).actors?.get(flags.attackerId);
       if (!attacker) {
         throw new Error('Attacker not found');
       }
+      
+      // Ensure we have fresh actor reference (not stale) - reload from game.actors
+      const freshAttacker = (game as any).actors?.get(attacker.id) || attacker;
+      
+      // Debug: Log actor items to verify we have latest data
+      let attackerItems: any[] = [];
+      if (freshAttacker.items) {
+        if (Array.isArray(freshAttacker.items)) {
+          attackerItems = freshAttacker.items;
+        } else if (freshAttacker.items instanceof Map) {
+          attackerItems = Array.from(freshAttacker.items.values());
+        } else if (freshAttacker.items.size !== undefined && freshAttacker.items.values) {
+          attackerItems = Array.from(freshAttacker.items.values());
+        }
+      }
+      console.log('Mastery System | [ROLL ATTACK] Fresh attacker items', {
+        attackerId: freshAttacker.id,
+        itemsCount: attackerItems.length,
+        itemsTypes: attackerItems.map((i: any) => ({ id: i.id, name: i.name, type: i.type })),
+        weaponItemsCount: attackerItems.filter((i: any) => i.type === 'weapon').length
+      });
       
       // Get current values from button (including raises-adjusted TN)
       const currentTargetEvade = parseInt(button.data('target-evade')) || flags.targetEvade;
@@ -173,6 +194,8 @@ export function registerAttackRollClickHandler(): void {
       
       // If attack was successful, show damage dialog
       if (result.success && result.raises >= 0) {
+        // Always get fresh actors to ensure latest items
+        const freshAttackerForDialog = (game as any).actors?.get(flags.attackerId) || freshAttacker;
         const target = (game as any).actors?.get(flags.targetId);
         if (target) {
           // Re-read flags from message to get updated power selection
@@ -238,18 +261,26 @@ export function registerAttackRollClickHandler(): void {
           }
           
           // Get equipped weapon ID (just the ID, not the full object)
-          // IMPORTANT: Get fresh actor to ensure we have latest items
-          const freshAttacker = (game as any).actors?.get(attacker.id) || attacker;
+          // IMPORTANT: Use freshAttackerForDialog that was already loaded above
           let items: any[] = [];
-          if (freshAttacker.items) {
-            if (Array.isArray(freshAttacker.items)) {
-              items = freshAttacker.items;
-            } else if (freshAttacker.items instanceof Map) {
-              items = Array.from(freshAttacker.items.values());
-            } else if (freshAttacker.items.size !== undefined && freshAttacker.items.values) {
-              items = Array.from(freshAttacker.items.values());
+          if (freshAttackerForDialog.items) {
+            if (Array.isArray(freshAttackerForDialog.items)) {
+              items = freshAttackerForDialog.items;
+            } else if (freshAttackerForDialog.items instanceof Map) {
+              items = Array.from(freshAttackerForDialog.items.values());
+            } else if (freshAttackerForDialog.items.size !== undefined && freshAttackerForDialog.items.values) {
+              items = Array.from(freshAttackerForDialog.items.values());
             }
           }
+          
+          // Debug: Log all items to see what we have
+          console.log('Mastery System | [BEFORE DAMAGE DIALOG] Items from fresh attacker', {
+            attackerId: freshAttackerForDialog.id,
+            itemsCount: items.length,
+            itemsTypes: items.map((i: any) => ({ id: i.id, name: i.name, type: i.type, equipped: (i.system as any)?.equipped })),
+            weaponItemsCount: items.filter((i: any) => i.type === 'weapon').length,
+            allItemIds: items.map((i: any) => i.id)
+          });
           
           const equippedWeapon = items.find((item: any) => 
             item.type === 'weapon' && (item.system as any)?.equipped === true
@@ -265,6 +296,33 @@ export function registerAttackRollClickHandler(): void {
               weaponItemsCount: items.filter((i: any) => i.type === 'weapon').length
             });
             weaponId = updatedFlags.weaponId;
+          }
+          
+          // Also try direct lookup by ID if we have weaponId
+          if (weaponId && !equippedWeapon) {
+            let weaponItem: any = null;
+            if (freshAttackerForDialog.items?.get) {
+              weaponItem = freshAttackerForDialog.items.get(weaponId);
+            } else if (Array.isArray(freshAttackerForDialog.items)) {
+              weaponItem = freshAttackerForDialog.items.find((item: any) => item.id === weaponId);
+            }
+            
+            if (weaponItem) {
+              console.log('Mastery System | [BEFORE DAMAGE DIALOG] Found weapon via direct lookup', {
+                weaponId: weaponId,
+                weaponName: weaponItem.name,
+                weaponType: weaponItem.type
+              });
+            } else {
+              console.warn('Mastery System | [BEFORE DAMAGE DIALOG] Weapon ID in flags but not found in actor items', {
+                weaponId: weaponId,
+                itemsCount: items.length,
+                allItemIds: items.map((i: any) => i.id),
+                actorItemsType: typeof freshAttackerForDialog.items,
+                actorItemsIsMap: freshAttackerForDialog.items instanceof Map,
+                actorItemsSize: freshAttackerForDialog.items?.size
+              });
+            }
           }
           
           console.log('Mastery System | [BEFORE DAMAGE DIALOG] Weapon and power IDs', {
@@ -339,11 +397,10 @@ export function registerAttackRollClickHandler(): void {
           });
           
           const { showDamageDialog } = await import('../dice/damage-dialog.js');
-          // Use fresh actors to ensure we have latest items
-          const attackerToUse = (game as any).actors?.get(attacker.id) || attacker;
+          // Use freshAttackerForDialog that was already loaded above (ensures latest items)
           const targetToUse = (game as any).actors?.get(target.id) || target;
           const damageResult = await showDamageDialog(
-            attackerToUse,
+            freshAttackerForDialog,
             targetToUse,
             weaponId,
             updatedFlags.selectedPowerId || null,
