@@ -142,6 +142,10 @@ function createTargetRing(token: any): PIXI.Graphics {
   ring.renderable = true;
   ring.alpha = 1.0;
   
+  // IMPORTANT: Make ring non-interactive so it doesn't block clicks
+  ring.interactive = false;
+  ring.eventMode = 'none';
+  
   return ring;
 }
 
@@ -271,7 +275,13 @@ export function startMeleeTargeting(token: any, option: RadialCombatOption): voi
 
   activeMeleeTargeting = state;
 
+  // Use capture phase to catch clicks before they reach other handlers
   canvas.stage.on("pointerdown", state.onPointerDown, true);
+  // Also listen on tokens layer as fallback
+  if (canvas.tokens) {
+    const tokensLayer = (canvas.tokens as any).layer || canvas.tokens;
+    tokensLayer.on("pointerdown", state.onPointerDown, true);
+  }
   window.addEventListener("keydown", state.onKeyDown);
 
   highlightReachArea(state);
@@ -282,6 +292,11 @@ export function endMeleeTargeting(success: boolean): void {
   if (!state) return;
 
   canvas.stage.off("pointerdown", state.onPointerDown, true);
+  // Remove from tokens layer if added
+  if (canvas.tokens) {
+    const tokensLayer = (canvas.tokens as any).layer || canvas.tokens;
+    tokensLayer.off("pointerdown", state.onPointerDown, true);
+  }
   window.removeEventListener("keydown", state.onKeyDown);
 
   // CLEAR GRID HIGHLIGHT (IMPORTANT)
@@ -351,23 +366,133 @@ function handlePointerDown(ev: PIXI.FederatedPointerEvent): void {
   // Use the same method as utility-targeting: find token at click position
   const worldPos = ev.data.getLocalPosition(canvas.app.stage);
   const tokens = canvas.tokens?.placeables || [];
-  const clickedToken = tokens.find((t: any) => {
-    const bounds = t.bounds;
-    return bounds && bounds.contains(worldPos.x, worldPos.y);
+  
+  console.log('Mastery System | [MELEE TARGETING] Searching for token at click position', {
+    worldPos: { x: worldPos.x, y: worldPos.y },
+    totalTokens: tokens.length,
+    validTargets: Array.from(state.validTargets)
   });
+  
+  // Try multiple methods to find the clicked token
+  let clickedToken: any = null;
+  
+  // Method 1: Check bounds.contains (standard method)
+  for (const token of tokens) {
+    const bounds = token.bounds;
+    if (bounds && bounds.contains(worldPos.x, worldPos.y)) {
+      clickedToken = token;
+      console.log('Mastery System | [MELEE TARGETING] Found token via bounds.contains', {
+        tokenId: token.id,
+        tokenName: token.name,
+        bounds: { x: bounds.x, y: bounds.y, width: bounds.width, height: bounds.height }
+      });
+      break;
+    }
+  }
+  
+  // Method 2: If not found, check distance to token center (fallback)
+  if (!clickedToken) {
+    let closestToken: any = null;
+    let closestDistance = Infinity;
+    
+    for (const token of tokens) {
+      const tokenCenter = token.center;
+      const distance = Math.sqrt(
+        Math.pow(worldPos.x - tokenCenter.x, 2) + 
+        Math.pow(worldPos.y - tokenCenter.y, 2)
+      );
+      const tokenRadius = (token.w || token.width || 50) / 2;
+      
+      if (distance <= tokenRadius * 1.5) { // 1.5x radius for easier clicking
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestToken = token;
+        }
+      }
+    }
+    
+    if (closestToken) {
+      clickedToken = closestToken;
+      console.log('Mastery System | [MELEE TARGETING] Found token via distance check', {
+        tokenId: closestToken.id,
+        tokenName: closestToken.name,
+        distance: closestDistance.toFixed(2)
+      });
+    }
+  }
+  
+  // Method 3: Check if ev.target is a token or has a token ancestor
+  if (!clickedToken) {
+    let current: any = ev.target;
+    let depth = 0;
+    while (current && depth < 10) {
+      if (current.document && current.document.type === "Token") {
+        const tokenId = current.id || current.document?.id;
+        clickedToken = tokens.find((t: any) => t.id === tokenId);
+        if (clickedToken) {
+          console.log('Mastery System | [MELEE TARGETING] Found token via ev.target traversal', {
+            tokenId: clickedToken.id,
+            tokenName: clickedToken.name,
+            depth
+          });
+          break;
+        }
+      }
+      current = current.parent;
+      depth++;
+    }
+  }
 
   console.log('Mastery System | [MELEE TARGETING] Token search result', {
     worldPos: { x: worldPos.x, y: worldPos.y },
     clickedTokenId: clickedToken?.id,
     clickedTokenName: clickedToken?.name,
     totalTokens: tokens.length,
-    validTargets: Array.from(state.validTargets)
+    validTargets: Array.from(state.validTargets),
+    foundVia: clickedToken ? 'found' : 'not found'
   });
 
   if (!clickedToken) {
-    console.log('Mastery System | [MELEE TARGETING] No token found at click position, cancelling');
-    endMeleeTargeting(false);
-    return;
+    // Don't cancel immediately - might be clicking on empty space
+    // Only cancel if clicking outside the highlighted area
+    console.log('Mastery System | [MELEE TARGETING] No token found at click position', {
+      worldPos: { x: worldPos.x, y: worldPos.y },
+      validTargets: Array.from(state.validTargets),
+      allTokenPositions: tokens.slice(0, 5).map((t: any) => ({
+        id: t.id,
+        name: t.name,
+        center: t.center,
+        bounds: t.bounds ? { x: t.bounds.x, y: t.bounds.y, width: t.bounds.width, height: t.bounds.height } : null
+      }))
+    });
+    
+    // Check if click is on a valid target ring (clicked on ring, not token)
+    let clickedOnRing = false;
+    for (const [targetId, ring] of state.targetRings) {
+      const ringPos = ring.position;
+      const ringRadius = (ring as any).radius || 50;
+      const distance = Math.sqrt(
+        Math.pow(worldPos.x - ringPos.x, 2) + 
+        Math.pow(worldPos.y - ringPos.y, 2)
+      );
+      if (distance <= ringRadius) {
+        clickedOnRing = true;
+        // Get the token for this ring
+        clickedToken = canvas.tokens?.get(targetId);
+        console.log('Mastery System | [MELEE TARGETING] Clicked on ring, found token', {
+          targetId,
+          tokenId: clickedToken?.id,
+          tokenName: clickedToken?.name
+        });
+        break;
+      }
+    }
+    
+    if (!clickedToken && !clickedOnRing) {
+      console.log('Mastery System | [MELEE TARGETING] Clicked outside, cancelling');
+      endMeleeTargeting(false);
+      return;
+    }
   }
 
   if (clickedToken.id === state.token.id) {
