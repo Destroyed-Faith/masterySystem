@@ -119,28 +119,32 @@ function createTargetRing(token) {
 /**
  * Create an interactive overlay for clicking on targets
  */
-function createTargetOverlay(token, targetId, onClick) {
+function createTargetOverlay(token, tokenId, onClick) {
     const overlay = new PIXI.Container();
-    const radius = (token.w ?? token.width ?? 50) / 2 + 15; // Token radius + ring padding
-    // Create hit area (invisible circle)
-    const hitArea = new PIXI.Graphics();
-    hitArea.beginFill(0xffffff, 0); // Invisible
-    hitArea.drawCircle(0, 0, radius);
-    hitArea.endFill();
-    overlay.addChild(hitArea);
-    overlay.position.set(token.center.x, token.center.y);
-    overlay.hitArea = new PIXI.Circle(0, 0, radius);
-    // Make interactive
-    overlay.eventMode = "static";
-    overlay.cursor = "pointer";
-    // Store target ID for click handler
-    overlay.msTargetId = targetId;
-    // Click handler
-    overlay.on("pointerdown", (ev) => {
+    overlay.name = `ms-melee-overlay-${tokenId}`;
+    const cx = (token.w ?? token.width ?? 100) / 2;
+    const cy = (token.h ?? token.height ?? 100) / 2;
+    const radius = Math.max(cx, cy) + 18;
+    const hit = new PIXI.Graphics();
+    hit.beginFill(0xffffff, 0.001);
+    hit.drawCircle(0, 0, radius);
+    hit.endFill();
+    hit.position.set(cx, cy);
+    // ✅ IMPORTANT: hit is the interactive object
+    hit.eventMode = "static";
+    hit.cursor = "pointer";
+    hit.on("pointerdown", (ev) => {
+        ev.preventDefault?.();
         ev.stopPropagation();
         ev.stopImmediatePropagation();
-        onClick(targetId);
+        onClick(tokenId);
     });
+    hit.on("pointerover", () => (overlay.alpha = 0.85));
+    hit.on("pointerout", () => (overlay.alpha = 1.0));
+    overlay.addChild(hit);
+    // overlay itself should NOT steal events
+    overlay.eventMode = "passive";
+    overlay.targetTokenId = tokenId;
     return overlay;
 }
 /**
@@ -195,23 +199,22 @@ function markValidTargets(state) {
         const token = canvas.tokens?.get(targetId);
         if (!token)
             continue;
-        // Store original alpha
+        // original alpha speichern
         if (!state.originalTokenAlphas.has(targetId)) {
             state.originalTokenAlphas.set(targetId, token.alpha);
         }
-        // Slight emphasis
         token.alpha = Math.min(1.0, (token.alpha ?? 1.0) * 1.05);
-        // Create ring (non-interactive visual)
+        // Ring bleibt im effects/foreground container (rein visuell)
         const ring = createTargetRing(token);
         state.rings.set(targetId, ring);
         container.addChild(ring);
-        // Create overlay (interactive)
+        // Overlay muss IN den Token
         const overlay = createTargetOverlay(token, targetId, handleOverlayClick);
         state.overlays.set(targetId, overlay);
-        container.addChild(overlay);
-        // Ensure overlay is on top
-        container.sortableChildren = true;
-        overlay.zIndex = 1000;
+        token.sortableChildren = true;
+        overlay.zIndex = 999999;
+        token.addChild(overlay);
+        token.sortChildren();
     }
 }
 /**
@@ -234,8 +237,7 @@ function restoreTargetVisuals(state) {
  * This handles clicks on tokens themselves (not just overlays)
  */
 function findClickedTokenInReachArea(state, ev) {
-    const tokenLayer = canvas.tokens?.container ?? canvas.tokens;
-    const pos = ev.data.getLocalPosition(tokenLayer);
+    const pos = ev.data.getLocalPosition(canvas.stage);
     const tokens = canvas.tokens?.placeables ?? [];
     if (!tokens.length)
         return null;

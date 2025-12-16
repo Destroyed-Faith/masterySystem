@@ -148,18 +148,46 @@ export async function createMeleeAttackCard(attackerToken, targetToken, option) 
       <i class="fas fa-dice-d20"></i> Roll Attack
     </button>
   `;
+    // Build raises dropdown (1-8)
+    const raisesOptions = Array.from({ length: 8 }, (_, i) => {
+        const value = i + 1;
+        return `<option value="${value}">${value}</option>`;
+    }).join('');
+    const raisesDropdown = `
+    <div class="raises-input-group">
+      <label for="raises-select-${attacker.id}-${target.id}">Raises:</label>
+      <select id="raises-select-${attacker.id}-${target.id}" class="raises-select" data-message-id="">
+        <option value="0" selected>0</option>
+        ${raisesOptions}
+      </select>
+    </div>
+  `;
     const content = `
-    <div class="mastery-system-attack-card">
-      <h3>${optionName}</h3>
-      <p><strong>${attackerName}</strong> attacks <strong>${targetName}</strong></p>
-      <div class="attack-details">
-        <div>Attribute: ${attribute.charAt(0).toUpperCase() + attribute.slice(1)} (${attributeValue})</div>
-        <div>Mastery Rank: ${masteryRank}</div>
-        <div>Target Evade: ${targetEvade}</div>
-        ${weapon ? `<div>Weapon: ${weapon.name}</div>` : ''}
-        ${selectedPowerId ? `<div>Power: ${option.name}</div>` : ''}
+    <div class="mastery-attack-card">
+      <div class="attack-header">
+        <h3><i class="fas fa-sword"></i> ${optionName}</h3>
+        <p class="attack-participants"><strong>${attackerName}</strong> → <strong>${targetName}</strong></p>
       </div>
-      ${buttonHtml}
+      <div class="attack-details">
+        <div class="detail-row">
+          <span class="detail-label">Attribute:</span>
+          <span class="detail-value">${attribute.charAt(0).toUpperCase() + attribute.slice(1)} (${attributeValue})</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Mastery Rank:</span>
+          <span class="detail-value">${masteryRank}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Target Evade:</span>
+          <span class="detail-value">${targetEvade}</span>
+        </div>
+        ${weapon ? `<div class="detail-row"><span class="detail-label">Weapon:</span><span class="detail-value">${weapon.name}</span></div>` : ''}
+        ${selectedPowerId ? `<div class="detail-row"><span class="detail-label">Power:</span><span class="detail-value">${option.name}</span></div>` : ''}
+      </div>
+      <div class="attack-controls">
+        ${raisesDropdown}
+        ${buttonHtml}
+      </div>
     </div>
   `;
     // Create chat message
@@ -168,7 +196,7 @@ export async function createMeleeAttackCard(attackerToken, targetToken, option) 
         token: attackerToken.document
     });
     try {
-        await ChatMessage.create({
+        const message = await ChatMessage.create({
             speaker,
             content,
             type: CONST.CHAT_MESSAGE_TYPES.OTHER,
@@ -176,6 +204,24 @@ export async function createMeleeAttackCard(attackerToken, targetToken, option) 
                 'mastery-system': flagsObj
             }
         });
+        // Update the raises dropdown with the actual message ID and add change handler
+        if (message) {
+            const messageId = message.id;
+            // Wait a bit for the DOM to be ready
+            setTimeout(() => {
+                const messageElement = $(`.message[data-message-id="${messageId}"]`);
+                if (messageElement.length === 0) {
+                    // Try alternative selector
+                    const altElement = $(`[data-message-id="${messageId}"]`);
+                    if (altElement.length) {
+                        setupRaisesHandler(altElement, messageId, baseEvade);
+                    }
+                }
+                else {
+                    setupRaisesHandler(messageElement, messageId, baseEvade);
+                }
+            }, 100);
+        }
         console.log('Mastery System | [ATTACK EXECUTOR] Attack card created', {
             attackerId: attacker.id,
             targetId: target.id,
@@ -189,6 +235,29 @@ export async function createMeleeAttackCard(attackerToken, targetToken, option) 
     catch (error) {
         console.error('Mastery System | [ATTACK EXECUTOR] Failed to create attack card', error);
         ui.notifications?.error('Failed to create attack card');
+    }
+}
+/**
+ * Setup raises dropdown change handler
+ */
+function setupRaisesHandler(messageElement, messageId, baseEvade) {
+    const raisesSelect = messageElement.find('.raises-select');
+    if (raisesSelect.length) {
+        raisesSelect.attr('data-message-id', messageId);
+        // Add change handler to update button data-raises
+        raisesSelect.off('change').on('change', function () {
+            const raises = parseInt($(this).val()) || 0;
+            const button = messageElement.find('.roll-attack-btn');
+            button.attr('data-raises', raises.toString());
+            // Update target-evade based on raises (each raise adds +2 to TN)
+            const adjustedEvade = baseEvade + (raises * 2);
+            button.attr('data-target-evade', adjustedEvade.toString());
+            console.log('Mastery System | [ATTACK CARD] Raises updated', {
+                raises,
+                baseEvade,
+                adjustedEvade
+            });
+        });
     }
 }
 //# sourceMappingURL=attack-executor.js.map

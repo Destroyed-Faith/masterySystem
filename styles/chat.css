@@ -160,7 +160,8 @@
 }
 
 /* ========== Attack Card ========== */
-.mastery-attack-card {
+.mastery-attack-card,
+.mastery-system-attack-card {
   background: #f5f5f5;
   border: 2px solid #8b0000;
   border-radius: 5px;
@@ -328,6 +329,53 @@
   background: linear-gradient(to bottom, #228b22, #1a6b1a);
   transform: none;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* ========== Attack Controls ========== */
+.mastery-attack-card .attack-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.mastery-attack-card .raises-input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mastery-attack-card .raises-input-group label {
+  font-weight: bold;
+  color: #8b0000;
+  font-size: 14px;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.mastery-attack-card .raises-select {
+  padding: 6px 10px;
+  border: 1px solid #8b0000;
+  border-radius: 3px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #8b0000;
+  background: #fff;
+  cursor: pointer;
+  min-width: 70px;
+  transition: all 0.2s ease;
+}
+
+.mastery-attack-card .raises-select:focus {
+  outline: none;
+  border-color: #a00000;
+  box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.2);
+}
+
+.mastery-attack-card .raises-select:hover {
+  border-color: #a00000;
+  background: #fff5f5;
 }
 
 /* ========== Power Selection ========== */
