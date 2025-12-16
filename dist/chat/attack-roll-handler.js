@@ -217,15 +217,29 @@ export function registerAttackRollClickHandler() {
                         });
                     }
                     // Get equipped weapon ID (just the ID, not the full object)
-                    // First try to find it from actor items, then fall back to flags
-                    const items = attacker.items || [];
+                    // IMPORTANT: Get fresh actor to ensure we have latest items
+                    const freshAttacker = game.actors?.get(attacker.id) || attacker;
+                    let items = [];
+                    if (freshAttacker.items) {
+                        if (Array.isArray(freshAttacker.items)) {
+                            items = freshAttacker.items;
+                        }
+                        else if (freshAttacker.items instanceof Map) {
+                            items = Array.from(freshAttacker.items.values());
+                        }
+                        else if (freshAttacker.items.size !== undefined && freshAttacker.items.values) {
+                            items = Array.from(freshAttacker.items.values());
+                        }
+                    }
                     const equippedWeapon = items.find((item) => item.type === 'weapon' && item.system?.equipped === true);
                     let weaponId = equippedWeapon ? equippedWeapon.id : null;
                     // If weapon not found by equipped flag, use weaponId from flags
                     if (!weaponId && updatedFlags.weaponId) {
                         console.log('Mastery System | [BEFORE DAMAGE DIALOG] Weapon not found as equipped, using weaponId from flags', {
                             weaponIdFromFlags: updatedFlags.weaponId,
-                            allItems: items.map((i) => ({ id: i.id, name: i.name, type: i.type, equipped: i.system?.equipped }))
+                            allItems: items.map((i) => ({ id: i.id, name: i.name, type: i.type, equipped: i.system?.equipped })),
+                            itemsCount: items.length,
+                            weaponItemsCount: items.filter((i) => i.type === 'weapon').length
                         });
                         weaponId = updatedFlags.weaponId;
                     }
@@ -295,7 +309,10 @@ export function registerAttackRollClickHandler() {
                         weaponIdFromEquipped: weaponIdFromEquipped
                     });
                     const { showDamageDialog } = await import('../dice/damage-dialog.js');
-                    const damageResult = await showDamageDialog(attacker, target, weaponId, updatedFlags.selectedPowerId || null, totalRaises, updatedFlags);
+                    // Use fresh actors to ensure we have latest items
+                    const attackerToUse = game.actors?.get(attacker.id) || attacker;
+                    const targetToUse = game.actors?.get(target.id) || target;
+                    const damageResult = await showDamageDialog(attackerToUse, targetToUse, weaponId, updatedFlags.selectedPowerId || null, totalRaises, updatedFlags);
                     console.log('Mastery System | [AFTER DAMAGE DIALOG] showDamageDialog returned', {
                         hasResult: !!damageResult,
                         resultType: damageResult ? typeof damageResult : 'null',

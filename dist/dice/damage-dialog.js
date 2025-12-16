@@ -36,19 +36,6 @@ function sanitizeDiceNotation(str) {
     // Return original if no pattern matches (might be valid notation we don't recognize)
     return cleaned;
 }
-// Helper: Safely collect items from actor
-function collectActorItems(actor) {
-    if (!actor || !actor.items)
-        return [];
-    if (Array.isArray(actor.items))
-        return actor.items;
-    if (actor.items instanceof Map)
-        return Array.from(actor.items.values());
-    if (actor.items.size !== undefined && actor.items.values) {
-        return Array.from(actor.items.values());
-    }
-    return [];
-}
 // Helper: Resolve weapon base damage from weapon system
 function resolveWeaponBaseDamage(weapon) {
     if (!weapon || !weapon.system) {
@@ -103,21 +90,68 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         flagsSelectedPowerId: flags?.selectedPowerId,
         flagsRaises: flags?.raises
     });
-    // Load items from actor
-    const items = collectActorItems(attacker);
-    // Resolve weapon: first by ID, then fallback to equipped weapon, then first weapon
-    // Also check for weapon-like items with wrong type
+    // CRITICAL: Always get fresh actor from game to ensure we have latest items
+    // The attacker parameter might be a stale reference
+    const freshAttacker = attacker.id ? game.actors?.get(attacker.id) : attacker;
+    const actorToUse = freshAttacker || attacker;
+    // Load items from fresh actor - use multiple methods to ensure we get all items
+    let items = [];
+    if (actorToUse && actorToUse.items) {
+        if (Array.isArray(actorToUse.items)) {
+            items = actorToUse.items;
+        }
+        else if (actorToUse.items instanceof Map) {
+            items = Array.from(actorToUse.items.values());
+        }
+        else if (actorToUse.items.size !== undefined && actorToUse.items.values) {
+            items = Array.from(actorToUse.items.values());
+        }
+    }
+    // Debug: Log all items to see what we have
+    console.log('Mastery System | [DAMAGE DIALOG] Items collection', {
+        attackerId: attacker.id,
+        freshActorId: actorToUse?.id,
+        itemsCount: items.length,
+        itemsTypes: items.map((i) => ({ id: i.id, name: i.name, type: i.type })),
+        actorItemsType: typeof actorToUse?.items,
+        actorItemsIsArray: Array.isArray(actorToUse?.items),
+        actorItemsIsMap: actorToUse?.items instanceof Map,
+        actorItemsSize: actorToUse?.items?.size
+    });
+    // Resolve weapon: first by ID (try direct lookup first), then fallback to equipped weapon, then first weapon
     let weaponForDamage = null;
-    if (weaponId) {
+    // Method 1: Direct lookup by ID from fresh actor
+    if (weaponId && actorToUse) {
+        if (actorToUse.items?.get) {
+            weaponForDamage = actorToUse.items.get(weaponId);
+        }
+        else if (Array.isArray(actorToUse.items)) {
+            weaponForDamage = actorToUse.items.find((item) => item.id === weaponId);
+        }
+        else if (actorToUse.items instanceof Map) {
+            weaponForDamage = actorToUse.items.get(weaponId);
+        }
+        if (weaponForDamage) {
+            console.log('Mastery System | [DAMAGE DIALOG] Found weapon via direct actor lookup by ID', {
+                weaponId: weaponId,
+                weaponName: weaponForDamage.name,
+                weaponType: weaponForDamage.type
+            });
+        }
+    }
+    // Method 2: Find in items array by ID
+    if (!weaponForDamage && weaponId) {
         weaponForDamage = items.find((item) => item.id === weaponId);
     }
+    // Method 3: Find equipped weapon
     if (!weaponForDamage) {
         weaponForDamage = items.find((item) => item.type === 'weapon' && item.system?.equipped === true);
     }
+    // Method 4: Find any weapon
     if (!weaponForDamage) {
         weaponForDamage = items.find((item) => item.type === 'weapon');
     }
-    // Fallback: Look for items with weapon properties (in case type is wrong)
+    // Method 5: Fallback - Look for items with weapon properties (in case type is wrong)
     if (!weaponForDamage) {
         weaponForDamage = items.find((item) => {
             const system = item.system || {};
@@ -142,7 +176,8 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         weaponFound: !!weaponForDamage,
         weaponName: weaponForDamage?.name || 'none',
         weaponIdMatch: weaponForDamage ? weaponForDamage.id === weaponId : false,
-        allWeaponIds: items.filter((item) => item.type === 'weapon').map((item) => item.id)
+        allWeaponIds: items.filter((item) => item.type === 'weapon').map((item) => item.id),
+        usedFreshActor: !!freshAttacker
     });
     // Resolve base damage using helper (returns string directly)
     const baseDamage = resolveWeaponBaseDamage(weaponForDamage);

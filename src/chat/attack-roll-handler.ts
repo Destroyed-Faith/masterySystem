@@ -238,8 +238,19 @@ export function registerAttackRollClickHandler(): void {
           }
           
           // Get equipped weapon ID (just the ID, not the full object)
-          // First try to find it from actor items, then fall back to flags
-          const items = (attacker as any).items || [];
+          // IMPORTANT: Get fresh actor to ensure we have latest items
+          const freshAttacker = (game as any).actors?.get(attacker.id) || attacker;
+          let items: any[] = [];
+          if (freshAttacker.items) {
+            if (Array.isArray(freshAttacker.items)) {
+              items = freshAttacker.items;
+            } else if (freshAttacker.items instanceof Map) {
+              items = Array.from(freshAttacker.items.values());
+            } else if (freshAttacker.items.size !== undefined && freshAttacker.items.values) {
+              items = Array.from(freshAttacker.items.values());
+            }
+          }
+          
           const equippedWeapon = items.find((item: any) => 
             item.type === 'weapon' && (item.system as any)?.equipped === true
           );
@@ -249,7 +260,9 @@ export function registerAttackRollClickHandler(): void {
           if (!weaponId && updatedFlags.weaponId) {
             console.log('Mastery System | [BEFORE DAMAGE DIALOG] Weapon not found as equipped, using weaponId from flags', {
               weaponIdFromFlags: updatedFlags.weaponId,
-              allItems: items.map((i: any) => ({ id: i.id, name: i.name, type: i.type, equipped: (i.system as any)?.equipped }))
+              allItems: items.map((i: any) => ({ id: i.id, name: i.name, type: i.type, equipped: (i.system as any)?.equipped })),
+              itemsCount: items.length,
+              weaponItemsCount: items.filter((i: any) => i.type === 'weapon').length
             });
             weaponId = updatedFlags.weaponId;
           }
@@ -326,9 +339,12 @@ export function registerAttackRollClickHandler(): void {
           });
           
           const { showDamageDialog } = await import('../dice/damage-dialog.js');
+          // Use fresh actors to ensure we have latest items
+          const attackerToUse = (game as any).actors?.get(attacker.id) || attacker;
+          const targetToUse = (game as any).actors?.get(target.id) || target;
           const damageResult = await showDamageDialog(
-            attacker,
-            target,
+            attackerToUse,
+            targetToUse,
             weaponId,
             updatedFlags.selectedPowerId || null,
             totalRaises,
