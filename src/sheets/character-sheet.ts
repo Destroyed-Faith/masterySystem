@@ -205,14 +205,51 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    * Toggle equipment equipped status
    */
   async #onEquipmentToggle(event: JQuery.ChangeEvent) {
-    const itemId = $(event.currentTarget).data('item-id');
-    const equipped = $(event.currentTarget).is(':checked');
+    const $checkbox = $(event.currentTarget);
+    const itemId = $checkbox.data('item-id') || $checkbox.attr('data-item-id');
+    const equipped = $checkbox.is(':checked');
     
-    if (itemId) {
-      const item = this.actor.items.get(itemId);
-      if (item) {
-        await item.update({ 'system.equipped': equipped });
-      }
+    if (!itemId) {
+      console.warn('Mastery System | [EQUIP TOGGLE] Could not find item ID', {
+        checkbox: event.currentTarget,
+        checkboxData: $checkbox.data(),
+        checkboxAttrs: Array.from(event.currentTarget.attributes).map((attr: any) => ({
+          name: attr.name,
+          value: attr.value
+        }))
+      });
+      ui.notifications?.warn('Could not find item to equip/unequip.');
+      return;
+    }
+    
+    const item = this.actor.items.get(itemId);
+    
+    if (!item) {
+      console.warn('Mastery System | [EQUIP TOGGLE] Item not found in actor.items', {
+        itemId,
+        actorId: this.actor.id,
+        allItemIds: Array.from(this.actor.items.keys())
+      });
+      ui.notifications?.warn(`Item with ID ${itemId} not found.`);
+      return;
+    }
+    
+    try {
+      await item.update({ 'system.equipped': equipped });
+      console.log('Mastery System | [EQUIP TOGGLE] Updated item', {
+        itemId,
+        itemName: item.name,
+        equipped,
+        itemType: item.type
+      });
+      
+      // Re-render the sheet to update the display
+      this.render();
+    } catch (error) {
+      console.error('Mastery System | [EQUIP TOGGLE] Error updating item', error);
+      ui.notifications?.error(`Failed to update item: ${error}`);
+      // Revert checkbox state
+      $checkbox.prop('checked', !equipped);
     }
   }
 
@@ -472,8 +509,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       context.actor.prototypeToken.texture.src = context.actor.img;
     }
     
-    // Add items to context (needed for template)
-    context.items = items;
+    // Ensure context.items contains the prepared items structure (weapons, armor, shields, etc.)
+    // This is already set in line 453, but we ensure it's not overwritten
+    if (!context.items || !context.items.weapons) {
+      context.items = this.#prepareItems();
+    }
     
     return context;
   }
@@ -549,7 +589,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const weapons: any[] = [];
     const armor: any[] = [];
     
-    for (const item of this.actor.items) {
+    // Ensure we iterate over all items correctly (handle both Collection and Array)
+    const items = this.actor.items;
+    const itemsArray = Array.isArray(items) ? items : Array.from(items.values());
+    
+    for (const item of itemsArray) {
       const itemData = item;
       
       switch (item.type) {
@@ -1448,11 +1492,33 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    */
   async #onItemDelete(event: JQuery.ClickEvent) {
     event.preventDefault();
-    const element = event.currentTarget.closest('.item');
-    const itemId = element.dataset.itemId;
+    // Try to find the item ID from various possible element structures
+    const $button = $(event.currentTarget);
+    const $item = $button.closest('.item, .equipment-item');
+    const itemId = $item.data('item-id') || $item.attr('data-item-id') || $button.data('item-id') || $button.attr('data-item-id');
+    
+    if (!itemId) {
+      console.warn('Mastery System | [DELETE ITEM] Could not find item ID', {
+        button: event.currentTarget,
+        closestItem: $item[0],
+        buttonData: $button.data(),
+        itemData: $item.data()
+      });
+      ui.notifications?.warn('Could not find item to delete.');
+      return;
+    }
+    
     const item = this.actor.items.get(itemId);
     
-    if (!item) return;
+    if (!item) {
+      console.warn('Mastery System | [DELETE ITEM] Item not found in actor.items', {
+        itemId,
+        actorId: this.actor.id,
+        allItemIds: Array.from(this.actor.items.keys())
+      });
+      ui.notifications?.warn(`Item with ID ${itemId} not found.`);
+      return;
+    }
     
     const confirmed = await Dialog.confirm({
       title: 'Delete Item',
@@ -1461,6 +1527,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     if (confirmed) {
       await item.delete();
+      // Re-render the sheet to update the display
+      this.render();
     }
   }
 

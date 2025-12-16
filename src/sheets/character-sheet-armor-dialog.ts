@@ -96,8 +96,14 @@ export async function showArmorCreationDialog(actor: any): Promise<void> {
             }
           };
           
-          await (actor as any).createEmbeddedDocuments('Item', [itemData]);
+          const createdItems = await (actor as any).createEmbeddedDocuments('Item', [itemData]);
           ui.notifications?.info(`Added armor: ${armorName}`);
+          
+          // Re-render the actor sheet to show the new armor
+          if (actor.sheet && actor.sheet.rendered) {
+            actor.sheet.render();
+          }
+          
           return true;
         }
       },
