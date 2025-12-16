@@ -96,42 +96,27 @@ export async function showDamageDialog(
   
   // Find weapon (by ID or fallback to equipped weapon) - use same weapon for both damage and specials
   // Resolve weapon (by ID OR fallback to equipped weapon)
-  if (!weaponForDamage && weaponId) {
-    // If weapon not found by ID, try to find equipped weapon as fallback
-    console.warn('Mastery System | [DAMAGE DIALOG] Weapon not found by ID, trying equipped weapon fallback', { weaponId });
-    weaponForDamage = items.find((item: any) => 
-      item.type === 'weapon' && (item.system as any)?.equipped === true
-    );
-    if (weaponForDamage) {
-      console.log('Mastery System | [DAMAGE DIALOG] Using equipped weapon as fallback', {
-        weaponName: weaponForDamage.name,
-        weaponId: weaponForDamage.id
-      });
-    }
-  }
-  
-// 1) Weapon resolve (robust)
+  let weaponForDamage: any = weaponId ? items.find((i: any) => i.id === weaponId) : null;
 
+if (!weaponForDamage) {
+  weaponForDamage = items.find((i: any) => i.type === "weapon" && i.system?.equipped === true) ?? null;
+}
 
+const weaponSystem: any = weaponForDamage?.system ?? {};
 
+// Extract base damage (support string OR {value})
+const baseDamageRaw: any =
+  weaponSystem.damage ??
+  weaponSystem.weaponDamage ??
+  weaponSystem.roll?.damage ??
+  weaponSystem.damage?.value ??
+  weaponSystem.weaponDamage?.value ??
+  null;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  ? baseDamageRaw.trim()
-  : "1d8";
+const baseDamage: string =
+  (typeof baseDamageRaw === "string" && baseDamageRaw.trim().length)
+    ? baseDamageRaw.trim()
+    : "1d8";
 
 console.log("Mastery System | [DAMAGE DIALOG] Base damage resolved", {
   weaponId,
@@ -141,22 +126,10 @@ console.log("Mastery System | [DAMAGE DIALOG] Base damage resolved", {
   baseDamage
 });
 
+// Weapon specials should come from the same resolved weapon
+const weaponSpecials: string[] = weaponForDamage?.system?.specials ?? [];
 
-
-
-  // Hooks.call('masterySystem.damageDialogShown', {
-  // Calculate base damage from weapon
-  // Check both damage and weaponDamage fields, and also check roll.damage
-
-
-
-
-
-
-
-
-
-
+  
   console.log('Mastery System | [DAMAGE DIALOG] Base damage calculated', {
     weaponId,
     weaponFound: !!weapon,
@@ -169,14 +142,6 @@ console.log("Mastery System | [DAMAGE DIALOG] Base damage resolved", {
     weaponSystemFull: weaponForDamage ? JSON.stringify(weaponForDamage.system, null, 2) : null
   });
   
-  // Get weapon specials - use weaponForDamage (found weapon or fallback)
-  const weaponSpecials: string[] = weaponForDamage ? ((weaponForDamage.system as any)?.specials || []) : [];
-  console.log('Mastery System | DEBUG: showDamageDialog - weaponSpecials', {
-    weaponSpecials,
-    weaponName: weaponForDamage ? weaponForDamage.name : 'none',
-    weaponSystemSpecials: weaponForDamage ? (weaponForDamage.system as any)?.specials : null,
-    weaponSystemFull: weaponForDamage ? JSON.stringify(weaponForDamage.system, null, 2) : null
-  });
   
   // Load selected power from actor by ID and get its data
   let powerDamage = '0';

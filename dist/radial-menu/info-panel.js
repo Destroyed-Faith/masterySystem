@@ -1,7 +1,7 @@
 /**
  * Info Panel for Radial Menu
  */
-import { getSegmentIdForOption } from './options';
+import { getSegmentIdForOption } from './options.js';
 /**
  * Convert world coordinates to screen coordinates
  */

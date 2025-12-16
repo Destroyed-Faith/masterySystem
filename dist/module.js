@@ -12,10 +12,10 @@ import { MasteryItemSheet } from './sheets/item-sheet.js';
 // Combat hooks are imported dynamically to avoid build errors if dist/combat doesn't exist yet
 // import { initializeCombatHooks } from '../dist/combat/initiative.js';
 import { calculateStones } from './utils/calculations.js';
-import { initializeTokenActionSelector } from './token-action-selector';
-import { initializeTurnIndicator } from './turn-indicator';
-import { handleRadialMenuOpened, handleRadialMenuClosed } from './radial-menu/rendering';
-import { registerAttackRollClickHandler } from './chat/attack-roll-handler';
+import { initializeTokenActionSelector } from './token-action-selector.js';
+import { initializeTurnIndicator } from './turn-indicator.js';
+import { handleRadialMenuOpened, handleRadialMenuClosed } from './radial-menu/rendering.js';
+import { registerAttackRollClickHandler } from './chat/attack-roll-handler.js';
 // Dice roller functions are imported in sheets where needed
 console.log('Mastery System | All imports completed');
 // Register Handlebars helpers immediately (before init hook)
