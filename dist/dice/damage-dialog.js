@@ -118,9 +118,9 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         actorItemsIsMap: actorToUse?.items instanceof Map,
         actorItemsSize: actorToUse?.items?.size
     });
-    // Resolve weapon: first by ID (try direct lookup first), then fallback to equipped weapon, then first weapon
+    // Resolve weapon with priority: equipped melee weapon > equipped weapon > weaponId match > any weapon
     let weaponForDamage = null;
-    // Method 1: Direct lookup by ID from fresh actor
+    // Method 1: If weaponId is provided, try to find it first (but verify it's still valid)
     if (weaponId && actorToUse) {
         if (actorToUse.items?.get) {
             weaponForDamage = actorToUse.items.get(weaponId);
@@ -131,8 +131,30 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         else if (actorToUse.items instanceof Map) {
             weaponForDamage = actorToUse.items.get(weaponId);
         }
-        if (weaponForDamage) {
-            console.log('Mastery System | [DAMAGE DIALOG] Found weapon via direct actor lookup by ID', {
+        // If found by ID, verify it's still equipped (prefer equipped weapons)
+        if (weaponForDamage && weaponForDamage.system?.equipped !== true) {
+            // Weapon ID provided but not equipped - check if there's an equipped weapon instead
+            const equippedWeapon = items.find((item) => item.type === 'weapon' && item.system?.equipped === true);
+            if (equippedWeapon) {
+                console.log('Mastery System | [DAMAGE DIALOG] weaponId provided but weapon not equipped, using equipped weapon instead', {
+                    weaponId: weaponId,
+                    providedWeaponName: weaponForDamage.name,
+                    equippedWeaponName: equippedWeapon.name,
+                    equippedWeaponId: equippedWeapon.id
+                });
+                weaponForDamage = equippedWeapon;
+            }
+            else {
+                console.log('Mastery System | [DAMAGE DIALOG] Found weapon via direct actor lookup by ID', {
+                    weaponId: weaponId,
+                    weaponName: weaponForDamage.name,
+                    weaponType: weaponForDamage.type,
+                    equipped: weaponForDamage.system?.equipped
+                });
+            }
+        }
+        else if (weaponForDamage) {
+            console.log('Mastery System | [DAMAGE DIALOG] Found equipped weapon via direct actor lookup by ID', {
                 weaponId: weaponId,
                 weaponName: weaponForDamage.name,
                 weaponType: weaponForDamage.type
@@ -157,19 +179,39 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
             console.warn('Mastery System | [DAMAGE DIALOG] Error looking up weapon from game.items', e);
         }
     }
-    // Method 2: Find in items array by ID
+    // Method 2: Find in items array by ID (if not already found)
     if (!weaponForDamage && weaponId) {
         weaponForDamage = items.find((item) => item.id === weaponId);
     }
-    // Method 3: Find equipped weapon
+    // Method 3: PRIORITY - Find equipped MELEE weapon (preferred for melee attacks)
+    if (!weaponForDamage) {
+        weaponForDamage = items.find((item) => item.type === 'weapon' &&
+            item.system?.equipped === true &&
+            item.system?.weaponType === 'melee');
+        if (weaponForDamage) {
+            console.log('Mastery System | [DAMAGE DIALOG] Found equipped melee weapon', {
+                weaponId: weaponForDamage.id,
+                weaponName: weaponForDamage.name,
+                weaponType: weaponForDamage.system?.weaponType
+            });
+        }
+    }
+    // Method 4: Find any equipped weapon (if no melee weapon found)
     if (!weaponForDamage) {
         weaponForDamage = items.find((item) => item.type === 'weapon' && item.system?.equipped === true);
+        if (weaponForDamage) {
+            console.log('Mastery System | [DAMAGE DIALOG] Found equipped weapon (any type)', {
+                weaponId: weaponForDamage.id,
+                weaponName: weaponForDamage.name,
+                weaponType: weaponForDamage.system?.weaponType
+            });
+        }
     }
-    // Method 4: Find any weapon
+    // Method 5: Find any weapon (fallback)
     if (!weaponForDamage) {
         weaponForDamage = items.find((item) => item.type === 'weapon');
     }
-    // Method 5: Fallback - Look for items with weapon properties (in case type is wrong)
+    // Method 6: Fallback - Look for items with weapon properties (in case type is wrong)
     if (!weaponForDamage) {
         weaponForDamage = items.find((item) => {
             const system = item.system || {};

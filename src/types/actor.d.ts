@@ -34,6 +34,15 @@ export interface CombatData {
   evade: number;
   armor: number;
   speed: number;
+  // Derived fields (calculated from equipped items)
+  armorTotal?: number;
+  evadeTotal?: number;
+  armorName?: string;
+  shieldName?: string;
+  activeWeaponName?: string;
+  activeWeaponId?: string;
+  armorId?: string;
+  shieldId?: string;
 }
 
 // Resource tracking

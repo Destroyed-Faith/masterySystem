@@ -783,11 +783,156 @@ Hooks.on('getChatLogEntryContext', (_html, options) => {
  * Handle attack roll button clicks in chat
  * Use event delegation on the chat log container to catch all button clicks
  */
-Hooks.once('ready', () => {
+/**
+ * Equip Exclusivity Hook
+ * Ensures only one weapon/armor/shield can be equipped at a time
+ */
+Hooks.on('preUpdateItem', async (item, changes, _options, _userId) => {
+    // Only process if this is the updating user
+    if (_userId !== game.user?.id) {
+        return;
+    }
+    // Only process if item is embedded in an actor and equipped is being set to true
+    if (!item.parent || item.parent.documentName !== 'Actor') {
+        return;
+    }
+    const itemType = item.type;
+    if (!['weapon', 'armor', 'shield'].includes(itemType)) {
+        return;
+    }
+    if (changes.system?.equipped !== true) {
+        return;
+    }
+    const actor = item.parent;
+    const items = actor.items || [];
+    // Find all other items of the same type that are equipped
+    const otherEquippedItems = items.filter((otherItem) => {
+        return otherItem.id !== item.id &&
+            otherItem.type === itemType &&
+            otherItem.system?.equipped === true;
+    });
+    if (otherEquippedItems.length > 0) {
+        // Unequip all other items of the same type
+        const updates = otherEquippedItems.map((otherItem) => ({
+            _id: otherItem.id,
+            'system.equipped': false
+        }));
+        await actor.updateEmbeddedDocuments('Item', updates);
+        console.log(`Mastery System | Unequipped ${otherEquippedItems.length} other ${itemType}(s) when equipping ${item.name}`);
+    }
+});
+Hooks.once('ready', async () => {
     // Register attack roll click handler
     registerAttackRollClickHandler();
-    // Old handler code removed - moved to chat/attack-roll-handler.ts
-    // Keeping this hook for other ready-time initialization if needed
+    // Migration: Add default weapon to existing actors if missing
+    console.log('Mastery System | Running equipment migration...');
+    const actors = game.actors?.filter((a) => a.type === 'character' || a.type === 'npc') || [];
+    let migrated = 0;
+    for (const actor of actors) {
+        try {
+            const items = actor.items || [];
+            const hasWeapon = items.some((item) => item.type === 'weapon');
+            if (!hasWeapon) {
+                const unarmedWeapon = {
+                    name: 'Unarmed',
+                    type: 'weapon',
+                    system: {
+                        weaponType: 'melee',
+                        damage: '1d8',
+                        range: '0m',
+                        specials: [],
+                        equipped: true,
+                        hands: 1,
+                        innateAbilities: [],
+                        description: 'Basic unarmed strikes using fists, feet, or natural weapons.'
+                    }
+                };
+                await actor.createEmbeddedDocuments('Item', [unarmedWeapon]);
+                migrated++;
+                console.log(`Mastery System | Added default "Unarmed" weapon to ${actor.name}`);
+            }
+        }
+        catch (error) {
+            console.warn(`Mastery System | Could not migrate actor ${actor.name}:`, error);
+        }
+    }
+    if (migrated > 0) {
+        console.log(`Mastery System | Migrated ${migrated} actors (added default weapon)`);
+    }
+    // Optional: Try to backfill armor/shield items from system.combat.armorName/shieldName
+    // This is optional and only runs if utils/equipment.ts exists
+    try {
+        const equipmentModule = await import('./utils/equipment.js');
+        if (equipmentModule.getAllArmor && equipmentModule.getAllShields) {
+            let backfilled = 0;
+            for (const actor of actors) {
+                try {
+                    const system = actor.system;
+                    const combat = system?.combat || {};
+                    const items = actor.items || [];
+                    // Check for armor
+                    if (combat.armorName && !items.some((item) => item.type === 'armor')) {
+                        const allArmor = equipmentModule.getAllArmor();
+                        const matchingArmor = allArmor.find((a) => a.name === combat.armorName);
+                        if (matchingArmor) {
+                            const armorItem = {
+                                name: matchingArmor.name,
+                                type: 'armor',
+                                system: {
+                                    type: matchingArmor.type || 'light',
+                                    armorValue: matchingArmor.armorValue || 0,
+                                    skillPenalty: matchingArmor.skillPenalty || 0,
+                                    equipped: true,
+                                    description: matchingArmor.description || ''
+                                }
+                            };
+                            await actor.createEmbeddedDocuments('Item', [armorItem]);
+                            backfilled++;
+                            console.log(`Mastery System | Backfilled armor "${combat.armorName}" for ${actor.name}`);
+                        }
+                        else {
+                            console.warn(`Mastery System | Could not find armor definition for "${combat.armorName}" (actor: ${actor.name})`);
+                        }
+                    }
+                    // Check for shield
+                    if (combat.shieldName && !items.some((item) => item.type === 'shield')) {
+                        const allShields = equipmentModule.getAllShields();
+                        const matchingShield = allShields.find((s) => s.name === combat.shieldName);
+                        if (matchingShield) {
+                            const shieldItem = {
+                                name: matchingShield.name,
+                                type: 'shield',
+                                system: {
+                                    type: matchingShield.type || 'light',
+                                    shieldValue: matchingShield.shieldValue || 0,
+                                    evadeBonus: matchingShield.evadeBonus || 0,
+                                    skillPenalty: matchingShield.skillPenalty || 0,
+                                    equipped: true,
+                                    description: matchingShield.description || ''
+                                }
+                            };
+                            await actor.createEmbeddedDocuments('Item', [shieldItem]);
+                            backfilled++;
+                            console.log(`Mastery System | Backfilled shield "${combat.shieldName}" for ${actor.name}`);
+                        }
+                        else {
+                            console.warn(`Mastery System | Could not find shield definition for "${combat.shieldName}" (actor: ${actor.name})`);
+                        }
+                    }
+                }
+                catch (error) {
+                    console.warn(`Mastery System | Could not backfill equipment for ${actor.name}:`, error);
+                }
+            }
+            if (backfilled > 0) {
+                console.log(`Mastery System | Backfilled ${backfilled} equipment items`);
+            }
+        }
+    }
+    catch (error) {
+        // utils/equipment.ts doesn't exist or doesn't export the needed functions - that's okay
+        console.log('Mastery System | Equipment backfill skipped (utils/equipment.js not available)');
+    }
 });
 /**
  * Log system information

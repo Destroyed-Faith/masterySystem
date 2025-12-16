@@ -405,22 +405,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         context.items = this.#prepareItems();
         // Calculate derived values
         context.derivedValues = this.#calculateDerivedValues(context.system);
-        // Calculate total armor: Mastery Rank (base) + Armor Value + Shield Value
-        // Use already prepared items from above
-        const preparedItems = context.items;
-        // Find equipped armor
-        const equippedArmor = preparedItems.armor?.find((armor) => armor.system?.equipped) || null;
-        const armorValue = equippedArmor?.system?.armorValue || 0;
-        // Find equipped shield
-        const equippedShield = preparedItems.shields?.find((shield) => shield.system?.equipped) || null;
-        const shieldValue = equippedShield?.system?.shieldValue || 0;
-        // Total Armor = Mastery Rank (base) + Armor Value + Shield Value
-        const armorTotal = masteryRank + armorValue + shieldValue;
-        // Set combat.armorTotal if not already set
-        if (!context.system.combat) {
-            context.system.combat = {};
-        }
-        context.system.combat.armorTotal = armorTotal;
+        // Note: armorTotal and evadeTotal are now calculated in actor.prepareDerivedData()
+        // No need to calculate here - just use the derived values from system.combat
         // Add skills list (sorted alphabetically)
         context.skills = this.#prepareSkills(context.system.skills);
         // Prepare disadvantages

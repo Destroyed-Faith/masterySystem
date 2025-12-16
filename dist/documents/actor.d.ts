@@ -7,9 +7,13 @@ export declare class MasteryActor extends Actor {
      */
     prepareData(): void;
     /**
-     * Prepare base data for the actor
+     * Prepare base data for the actor (attributes, stones, etc.)
      */
     prepareBaseData(): void;
+    /**
+     * Prepare derived equipment data (armorTotal, evadeTotal, etc.)
+     */
+    prepareDerivedData(): void;
     /**
      * Heal the actor
      */

@@ -3,8 +3,8 @@
  */
 
 export interface MasteryItemData {
-  type: 'special' | 'masteryNode' | 'echo' | 'schtick' | 'artifact' | 'condition' | 'weapon' | 'armor';
-  system: SpecialData | MasteryNodeData | EchoData | SchtickData | ArtifactData | ConditionData | WeaponData | ArmorData;
+  type: 'special' | 'masteryNode' | 'echo' | 'schtick' | 'artifact' | 'condition' | 'weapon' | 'armor' | 'shield';
+  system: SpecialData | MasteryNodeData | EchoData | SchtickData | ArtifactData | ConditionData | WeaponData | ArmorData | ShieldData;
 }
 
 // === Special (Power) Data ===
@@ -106,20 +106,33 @@ export interface ConditionData {
 
 // === Weapon Data ===
 export interface WeaponData {
-  description: string;
   weaponType: 'melee' | 'ranged';
   damage: string;
   range: string;
   specials: string[];
   equipped: boolean;
+  hands: number;
+  innateAbilities: string[];
+  description: string;
 }
 
 // === Armor Data ===
 export interface ArmorData {
-  description: string;
-  armorValue: number;
   type: string;
+  armorValue: number;
+  skillPenalty?: number;
   equipped: boolean;
+  description: string;
+}
+
+// === Shield Data ===
+export interface ShieldData {
+  type: string;
+  shieldValue: number;
+  evadeBonus?: number;
+  skillPenalty?: number;
+  equipped: boolean;
+  description: string;
 }
 
 

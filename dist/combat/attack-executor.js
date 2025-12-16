@@ -50,13 +50,14 @@ function getMasteryRank(actor) {
 }
 /**
  * Get evade value from target actor
+ * Uses evadeTotal if available (includes shield bonus), otherwise falls back to base evade
  */
 function getTargetEvade(targetActor) {
     if (!targetActor || !targetActor.system)
         return 6; // Default
     const system = targetActor.system;
     const combat = system.combat || {};
-    return combat.evade || 6;
+    return combat.evadeTotal ?? combat.evade ?? 6;
 }
 /**
  * Determine which attribute to use for attack
