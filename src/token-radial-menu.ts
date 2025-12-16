@@ -14,7 +14,7 @@
 import type { RadialCombatOption, InnerSegment } from './radial-menu/types';
 import { MS_OUTER_RING_OUTER, hasGridEnabled, getGridType, getGridTypeName } from './radial-menu/types';
 import { getAllCombatOptionsForActor, getSegmentIdForOption } from './radial-menu/options';
-import { clearRangePreview, showRadialMenuRange, clearRadialMenuRange } from './radial-menu/range-preview';
+import { clearRangePreview, clearRadialMenuRange } from './radial-menu/range-preview';
 import { hideRadialInfoPanel } from './radial-menu/info-panel';
 import { renderOuterRing, renderInnerSegments, refreshInnerSegmentsVisual } from './radial-menu/rendering';
 
@@ -86,15 +86,6 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
     hasCanvasGrid: !!canvas.grid,
     hasCanvasScene: !!canvas.scene
   });
-  
-  // Show fixed 6-field radius around token
-  console.log('Mastery System | [DEBUG] openRadialMenuForActor: About to call showRadialMenuRange', {
-    tokenId: token?.id,
-    tokenName: token?.name,
-    hasTokenCenter: !!token?.center
-  });
-  showRadialMenuRange(token);
-  console.log('Mastery System | [DEBUG] openRadialMenuForActor: showRadialMenuRange called');
   
   // Hide Token HUD to show only the radial menu
   // Find the Token HUD element for this token
