@@ -27,18 +27,26 @@ function parseRange(rangeStr: string | undefined): number | undefined {
 }
 
 /**
+ * Get equipped weapon from actor
+ * @param actor - The actor to check for equipped weapon
+ * @returns The equipped weapon item or null
+ */
+function getEquippedWeapon(actor: any): any {
+  if (!actor) return null;
+  
+  const items = actor.items || [];
+  return items.find((item: any) => 
+    item.type === 'weapon' && (item.system as any)?.equipped === true
+  ) || null;
+}
+
+/**
  * Get reach bonus from equipped weapon
  * @param actor - The actor to check for equipped weapon
  * @returns Reach bonus in meters (0, 1, or 2)
  */
 function getReachBonus(actor: any): number {
-  if (!actor) return 0;
-  
-  const items = actor.items || [];
-  const equippedWeapon = items.find((item: any) => 
-    item.type === 'weapon' && (item.system as any)?.equipped === true
-  );
-  
+  const equippedWeapon = getEquippedWeapon(actor);
   if (!equippedWeapon) return 0;
   
   const weaponSystem = equippedWeapon.system as any;
@@ -61,6 +69,24 @@ function getReachBonus(actor: any): number {
   }
   
   return 0;
+}
+
+/**
+ * Get weapon range from equipped weapon
+ * @param actor - The actor to check for equipped weapon
+ * @returns Weapon range in meters or undefined
+ */
+function getWeaponRange(actor: any): number | undefined {
+  const equippedWeapon = getEquippedWeapon(actor);
+  if (!equippedWeapon) return undefined;
+  
+  const weaponSystem = equippedWeapon.system as any;
+  const weaponRangeStr = weaponSystem.range;
+  
+  if (!weaponRangeStr) return undefined;
+  
+  // Parse weapon range (e.g., "30m", "0m")
+  return parseRange(weaponRangeStr);
 }
 
 /**
@@ -97,18 +123,38 @@ function calculateRange(
     return actorSpeed * 2;
   }
   
-  // For melee attacks: 2m base + reach bonus
-  if (slot === 'attack') {
-    // Check if it's actually melee (not ranged)
-    const isMelee = !rangeStr || 
-                    rangeStr.toLowerCase() === 'self' || 
-                    rangeStr === '0m' ||
-                    rangeStr === '0' ||
-                    (levelData && levelData.type && levelData.type.toLowerCase() === 'melee');
-    
-    if (isMelee) {
-      const reachBonus = getReachBonus(actor);
-      return 2 + reachBonus; // Base 2m + reach bonus
+  // Check if it's a melee power/attack
+  const isMelee = !rangeStr || 
+                  rangeStr.toLowerCase() === 'self' || 
+                  rangeStr === '0m' ||
+                  rangeStr === '0' ||
+                  rangeStr.toLowerCase() === 'melee' ||
+                  rangeStr.toLowerCase() === 'touch' ||
+                  (levelData && levelData.type && levelData.type.toLowerCase() === 'melee');
+  
+  // For melee attacks/powers: use weapon range if available, otherwise 2m base + reach bonus
+  if (slot === 'attack' && isMelee) {
+    // First try to get weapon range
+    const weaponRange = getWeaponRange(actor);
+    if (weaponRange !== undefined) {
+      // If weapon is melee (0m), calculate with reach
+      if (weaponRange === 0) {
+        const reachBonus = getReachBonus(actor);
+        return 2 + reachBonus; // Base 2m + reach bonus
+      }
+      // If weapon is ranged, use weapon range
+      return weaponRange;
+    }
+    // No weapon equipped, use default melee range
+    const reachBonus = getReachBonus(actor);
+    return 2 + reachBonus; // Base 2m + reach bonus
+  }
+  
+  // For powers with no range specified: use weapon range if available
+  if (!rangeStr || rangeStr.trim() === '') {
+    const weaponRange = getWeaponRange(actor);
+    if (weaponRange !== undefined) {
+      return weaponRange;
     }
   }
   
@@ -118,6 +164,22 @@ function calculateRange(
   // If range is missing and we have levelData, try to get it from there
   if ((!rangeStr || !range) && levelData && levelData.range) {
     range = parseRange(levelData.range);
+    
+    // If parsed range is still missing and it's a melee power, try weapon range
+    if (!range && (levelData.type?.toLowerCase() === 'melee' || levelData.range?.toLowerCase() === 'melee')) {
+      const weaponRange = getWeaponRange(actor);
+      if (weaponRange !== undefined) {
+        return weaponRange;
+      }
+    }
+  }
+  
+  // If still no range and it's a melee power, use weapon range
+  if (!range && isMelee) {
+    const weaponRange = getWeaponRange(actor);
+    if (weaponRange !== undefined) {
+      return weaponRange;
+    }
   }
   
   return range;

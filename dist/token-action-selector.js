@@ -718,12 +718,26 @@ export function handleChosenCombatOption(token, option) {
     }
     // Check if this is a melee attack option
     // Melee attacks have range <= 4m (2m base + up to 2m reach)
+    // OR if it's an attack slot with no range specified (should use weapon range)
     const isMeleeAttack = option.slot === 'attack' &&
-        option.range !== undefined &&
-        option.range <= 4;
-    console.log('Mastery System | Is melee attack option?', isMeleeAttack, { slot: option.slot, range: option.range });
+        (option.range === undefined || option.range <= 4);
+    console.log('Mastery System | [ATTACK SELECTION] Checking if melee attack', {
+        isMeleeAttack,
+        slot: option.slot,
+        range: option.range,
+        optionId: option.id,
+        optionName: option.name,
+        source: option.source,
+        hasRange: option.range !== undefined,
+        rangeCheck: option.range !== undefined ? option.range <= 4 : 'undefined (treating as melee)'
+    });
     if (isMeleeAttack) {
-        console.log('Mastery System | Starting melee targeting for', token.name, option);
+        console.log('Mastery System | [ATTACK SELECTION] Starting melee targeting', {
+            tokenName: token.name,
+            optionId: option.id,
+            optionName: option.name,
+            range: option.range
+        });
         // Close radial menu when attack option is selected
         closeRadialMenu();
         startMeleeTargeting(token, option);

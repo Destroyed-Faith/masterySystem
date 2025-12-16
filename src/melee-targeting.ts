@@ -30,7 +30,30 @@ function metersToGridUnits(meters: number): number {
 }
 
 function getMeleeReachMeters(option: RadialCombatOption): number {
-  if (option.meleeReachMeters !== undefined) return option.meleeReachMeters;
+  // Use option.range if available (new unified range system)
+  if (option.range !== undefined) {
+    console.log('Mastery System | [MELEE TARGETING] Using option.range:', option.range, {
+      optionId: option.id,
+      optionName: option.name,
+      slot: option.slot,
+      source: option.source
+    });
+    return option.range;
+  }
+  
+  // Fallback to meleeReachMeters if set (legacy support)
+  if (option.meleeReachMeters !== undefined) {
+    console.log('Mastery System | [MELEE TARGETING] Using option.meleeReachMeters (legacy):', option.meleeReachMeters);
+    return option.meleeReachMeters;
+  }
+  
+  // Default fallback
+  console.warn('Mastery System | [MELEE TARGETING] No range found, using default 2m', {
+    optionId: option.id,
+    optionName: option.name,
+    hasRange: option.range !== undefined,
+    hasMeleeReachMeters: option.meleeReachMeters !== undefined
+  });
   return 2; // default melee reach
 }
 
@@ -78,12 +101,30 @@ function highlightReachArea(state: MeleeTargetingState): void {
 /* -------------------------------------------- */
 
 export function startMeleeTargeting(token: any, option: RadialCombatOption): void {
+  console.log('Mastery System | [MELEE TARGETING] startMeleeTargeting called', {
+    tokenId: token?.id,
+    tokenName: token?.name,
+    optionId: option.id,
+    optionName: option.name,
+    optionRange: option.range,
+    optionMeleeReachMeters: option.meleeReachMeters,
+    slot: option.slot,
+    source: option.source
+  });
+  
   endMeleeTargeting(false);
 
   token.control({ releaseOthers: false });
 
   const reachMeters = getMeleeReachMeters(option);
   const reachGridUnits = metersToGridUnits(reachMeters);
+  
+  console.log('Mastery System | [MELEE TARGETING] Calculated reach', {
+    reachMeters,
+    reachGridUnits,
+    gridDistance: canvas.grid?.distance,
+    gridType: canvas.grid?.type
+  });
 
   const previewGraphics =
     canvas.grid?.type === CONST.GRID_TYPES.GRIDLESS
@@ -157,20 +198,49 @@ function handleKeyDown(ev: KeyboardEvent): void {
 
 function handlePointerDown(ev: PIXI.FederatedPointerEvent): void {
   const state = activeMeleeTargeting;
-  if (!state) return;
+  if (!state) {
+    console.log('Mastery System | [MELEE TARGETING] handlePointerDown: No active targeting state');
+    return;
+  }
+
+  console.log('Mastery System | [MELEE TARGETING] handlePointerDown', {
+    button: ev.button,
+    targetType: ev.target?.constructor?.name,
+    targetDocumentType: (ev.target as any)?.document?.type,
+    targetId: (ev.target as any)?.id,
+    stateTokenId: state.token?.document?.id
+  });
 
   if (ev.button !== 0) {
+    console.log('Mastery System | [MELEE TARGETING] Non-left click, cancelling');
     endMeleeTargeting(false);
     return;
   }
 
   const target = ev.target as any;
   if (!target?.document || target.document.type !== "Token") {
+    console.log('Mastery System | [MELEE TARGETING] Clicked on non-token, cancelling', {
+      hasTarget: !!target,
+      hasDocument: !!target?.document,
+      documentType: target?.document?.type
+    });
     endMeleeTargeting(false);
     return;
   }
 
-  if (target.id === state.token.document?.id) return;
+  if (target.id === state.token.document?.id) {
+    console.log('Mastery System | [MELEE TARGETING] Clicked on own token, ignoring');
+    return;
+  }
+
+  console.log('Mastery System | [MELEE TARGETING] Valid target clicked', {
+    targetId: target.id,
+    targetName: target.document?.name,
+    attackerId: state.token.document?.id,
+    attackerName: state.token.document?.name,
+    reachMeters: state.reachMeters,
+    reachGridUnits: state.reachGridUnits
+  });
 
   // TODO: validate target distance / hostility here if needed
 
