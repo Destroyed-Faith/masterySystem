@@ -37,8 +37,78 @@ function getMeleeReachMeters(option) {
     return 2; // default melee reach
 }
 /* -------------------------------------------- */
-/*  Highlight Reach Area                        */
+/*  Find Valid Targets                          */
 /* -------------------------------------------- */
+/**
+ * Find all tokens within melee reach
+ */
+function findValidTargets(state) {
+    const validTargets = new Set();
+    const attackerToken = state.token;
+    const reachMeters = state.reachMeters;
+    const reachGridUnits = state.reachGridUnits;
+    if (!attackerToken || !canvas.grid) {
+        console.log('Mastery System | [MELEE TARGETING] Cannot find targets: missing token or grid');
+        return validTargets;
+    }
+    const attackerCenter = attackerToken.center;
+    const allTokens = canvas.tokens?.placeables || [];
+    const gridDistance = canvas.grid.distance || 1;
+    console.log('Mastery System | [MELEE TARGETING] Finding valid targets', {
+        reachMeters,
+        reachGridUnits,
+        gridDistance,
+        totalTokens: allTokens.length
+    });
+    for (const token of allTokens) {
+        // Skip own token
+        if (token.id === attackerToken.id)
+            continue;
+        // Skip tokens without actor
+        if (!token.actor)
+            continue;
+        // Calculate distance
+        const tokenCenter = token.center;
+        const distancePx = Math.sqrt(Math.pow(tokenCenter.x - attackerCenter.x, 2) +
+            Math.pow(tokenCenter.y - attackerCenter.y, 2));
+        // Convert to grid units
+        const distanceGridUnits = distancePx / (canvas.grid.size || 100);
+        const distanceMeters = distanceGridUnits * gridDistance;
+        // Check if within reach
+        if (distanceMeters <= reachMeters) {
+            validTargets.add(token.id);
+            console.log('Mastery System | [MELEE TARGETING] Valid target found', {
+                targetId: token.id,
+                targetName: token.name,
+                distanceMeters: distanceMeters.toFixed(2),
+                reachMeters
+            });
+        }
+    }
+    console.log('Mastery System | [MELEE TARGETING] Found valid targets', {
+        count: validTargets.size,
+        targetIds: Array.from(validTargets)
+    });
+    return validTargets;
+}
+/**
+ * Create a ring around a token to mark it as a valid target
+ */
+function createTargetRing(token) {
+    const ring = new PIXI.Graphics();
+    const radius = (token.w || token.width || 50) / 2 + 10; // Token radius + padding
+    // Red ring for valid targets
+    ring.lineStyle(3, 0xff0000, 1);
+    ring.drawCircle(0, 0, radius);
+    ring.position.set(token.center.x, token.center.y);
+    ring.visible = true;
+    ring.renderable = true;
+    ring.alpha = 1.0;
+    return ring;
+}
+/**
+ * Highlight reach area and mark valid targets
+ */
 function highlightReachArea(state) {
     const grid = canvas.grid;
     if (!grid)
@@ -50,20 +120,46 @@ function highlightReachArea(state) {
     // HEX GRID → Grid Highlight Layer ONLY
     if (grid.type !== CONST.GRID_TYPES.GRIDLESS) {
         highlightHexesInRange(tokenId, RANGE, state.highlightId, 0xff6666, 0.5);
-        return;
     }
     // GRIDLESS fallback → previewGraphics
-    if (!state.previewGraphics)
+    if (grid.type === CONST.GRID_TYPES.GRIDLESS && state.previewGraphics) {
+        state.previewGraphics.clear();
+        const c = state.token.center;
+        const radiusPx = RANGE * (grid.size || 100);
+        state.previewGraphics.lineStyle(3, 0xff6666, 1);
+        state.previewGraphics.beginFill(0xff6666, 0.25);
+        state.previewGraphics.drawCircle(0, 0, radiusPx);
+        state.previewGraphics.endFill();
+        state.previewGraphics.position.set(c.x, c.y);
+        state.previewGraphics.visible = true;
+    }
+    // Find and mark valid targets
+    state.validTargets = findValidTargets(state);
+    // Create rings around valid targets
+    const effectsLayer = canvas.effects || canvas.foreground;
+    if (!effectsLayer) {
+        console.warn('Mastery System | [MELEE TARGETING] No effects layer found for target rings');
         return;
-    state.previewGraphics.clear();
-    const c = state.token.center;
-    const radiusPx = RANGE * (grid.size || 100);
-    state.previewGraphics.lineStyle(3, 0xff6666, 1);
-    state.previewGraphics.beginFill(0xff6666, 0.25);
-    state.previewGraphics.drawCircle(0, 0, radiusPx);
-    state.previewGraphics.endFill();
-    state.previewGraphics.position.set(c.x, c.y);
-    state.previewGraphics.visible = true;
+    }
+    const container = effectsLayer.container || effectsLayer;
+    for (const targetId of state.validTargets) {
+        const targetToken = canvas.tokens?.get(targetId);
+        if (!targetToken)
+            continue;
+        // Store original alpha
+        if (!state.originalTokenAlphas.has(targetToken)) {
+            state.originalTokenAlphas.set(targetToken, targetToken.alpha);
+        }
+        // Create ring
+        const ring = createTargetRing(targetToken);
+        state.targetRings.set(targetId, ring);
+        container.addChild(ring);
+        // Highlight target token slightly
+        targetToken.alpha = Math.min(1.0, targetToken.alpha * 1.2);
+    }
+    console.log('Mastery System | [MELEE TARGETING] Target rings created', {
+        count: state.targetRings.size
+    });
 }
 /* -------------------------------------------- */
 /*  Start / End Targeting                       */
@@ -103,6 +199,8 @@ export function startMeleeTargeting(token, option) {
         highlightId: "mastery-melee",
         previewGraphics,
         originalTokenAlphas: new Map(),
+        targetRings: new Map(),
+        validTargets: new Set(),
         onPointerDown: handlePointerDown,
         onKeyDown: handleKeyDown
     };
@@ -123,6 +221,14 @@ export function endMeleeTargeting(success) {
     if (state.previewGraphics) {
         state.previewGraphics.destroy(true);
     }
+    // Remove target rings
+    for (const [_targetId, ring] of state.targetRings) {
+        if (ring.parent) {
+            ring.parent.removeChild(ring);
+        }
+        ring.destroy(true);
+    }
+    state.targetRings.clear();
     // Restore target visuals
     for (const [token, alpha] of state.originalTokenAlphas) {
         token.alpha = alpha;
@@ -176,17 +282,33 @@ function handlePointerDown(ev) {
         console.log('Mastery System | [MELEE TARGETING] Clicked on own token, ignoring');
         return;
     }
-    console.log('Mastery System | [MELEE TARGETING] Valid target clicked', {
+    // Check if target is in valid targets list
+    const targetTokenId = target.id;
+    if (!state.validTargets.has(targetTokenId)) {
+        console.log('Mastery System | [MELEE TARGETING] Target not in valid targets list', {
+            targetId: targetTokenId,
+            validTargets: Array.from(state.validTargets),
+            reachMeters: state.reachMeters
+        });
+        ui.notifications?.warn(`Target is out of range (${state.reachMeters}m)`);
+        return;
+    }
+    console.log('Mastery System | [MELEE TARGETING] Valid target clicked - starting attack', {
         targetId: target.id,
         targetName: target.document?.name,
         attackerId: state.token.document?.id,
         attackerName: state.token.document?.name,
         reachMeters: state.reachMeters,
-        reachGridUnits: state.reachGridUnits
+        reachGridUnits: state.reachGridUnits,
+        optionId: state.option.id,
+        optionName: state.option.name
     });
-    // TODO: validate target distance / hostility here if needed
     ev.stopPropagation();
     ev.stopImmediatePropagation();
+    // Start the attack
+    // TODO: Trigger actual attack roll here
+    // For now, just end targeting and notify
+    ui.notifications?.info(`Attacking ${target.document?.name || 'target'}`);
     endMeleeTargeting(true);
 }
 export function isMeleeTargetingActive() {
