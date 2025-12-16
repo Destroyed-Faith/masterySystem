@@ -259,17 +259,49 @@ export function registerAttackRollClickHandler() {
                         itemsCount: items.length,
                         itemsTypes: items.map((i) => ({ id: i.id, name: i.name, type: i.type, equipped: i.system?.equipped })),
                         weaponItemsCount: items.filter((i) => i.type === 'weapon').length,
-                        allItemIds: items.map((i) => i.id)
+                        allItemIds: items.map((i) => i.id),
+                        weaponIdFromFlags: updatedFlags.weaponId,
+                        weaponIdInItems: items.some((i) => i.id === updatedFlags.weaponId)
                     });
                     // PRIORITY: Use weaponId from flags if set (this is the weapon used when creating the attack card)
                     let weaponId = updatedFlags.weaponId || null;
                     // Verify the weapon from flags exists and is valid
                     if (weaponId) {
-                        const weaponFromFlags = items.find((item) => item.id === weaponId);
+                        let weaponFromFlags = items.find((item) => item.id === weaponId);
+                        // If not found in items array, try direct lookup from actor
+                        if (!weaponFromFlags && freshAttackerForDialog.items) {
+                            if (freshAttackerForDialog.items.get) {
+                                weaponFromFlags = freshAttackerForDialog.items.get(weaponId);
+                            }
+                            else if (Array.isArray(freshAttackerForDialog.items)) {
+                                weaponFromFlags = freshAttackerForDialog.items.find((item) => item.id === weaponId);
+                            }
+                        }
+                        // If still not found, try game.items
                         if (!weaponFromFlags) {
-                            console.warn('Mastery System | [BEFORE DAMAGE DIALOG] weaponId from flags not found in items, falling back to equipped weapon', {
+                            try {
+                                const gameItem = game.items?.get(weaponId);
+                                if (gameItem && gameItem.actor?.id === freshAttackerForDialog.id) {
+                                    weaponFromFlags = gameItem;
+                                    console.log('Mastery System | [BEFORE DAMAGE DIALOG] Found weapon from flags via game.items', {
+                                        weaponId: weaponId,
+                                        weaponName: weaponFromFlags.name,
+                                        weaponType: weaponFromFlags.type
+                                    });
+                                }
+                            }
+                            catch (e) {
+                                console.warn('Mastery System | [BEFORE DAMAGE DIALOG] Error looking up weapon from game.items', e);
+                            }
+                        }
+                        if (!weaponFromFlags) {
+                            console.warn('Mastery System | [BEFORE DAMAGE DIALOG] weaponId from flags not found anywhere, falling back to equipped weapon', {
                                 weaponIdFromFlags: weaponId,
-                                allItemIds: items.map((i) => i.id)
+                                allItemIds: items.map((i) => i.id),
+                                itemsCount: items.length,
+                                actorItemsType: typeof freshAttackerForDialog.items,
+                                actorItemsSize: freshAttackerForDialog.items?.size,
+                                actorItemsIsMap: freshAttackerForDialog.items instanceof Map
                             });
                             weaponId = null; // Will fall back to equipped weapon below
                         }
@@ -278,7 +310,9 @@ export function registerAttackRollClickHandler() {
                                 weaponId: weaponId,
                                 weaponName: weaponFromFlags.name,
                                 weaponType: weaponFromFlags.type,
-                                equipped: weaponFromFlags.system?.equipped
+                                equipped: weaponFromFlags.system?.equipped,
+                                foundVia: weaponFromFlags === items.find((i) => i.id === weaponId) ? 'items-array' :
+                                    (freshAttackerForDialog.items?.get?.(weaponId) === weaponFromFlags ? 'actor-items-get' : 'game-items')
                             });
                         }
                     }

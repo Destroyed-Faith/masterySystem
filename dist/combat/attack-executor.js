@@ -100,10 +100,16 @@ export async function createMeleeAttackCard(attackerToken, targetToken, option) 
     // Robust weapon resolution: equipped weapon first, then any weapon, then null
     const items = collectActorItems(attacker);
     // Try multiple strategies to find weapon:
-    // 1. type === 'weapon' && equipped === true
-    // 2. type === 'weapon' (any weapon)
-    // 3. Check if any item has weapon-like properties (damage, weaponDamage) even if type is wrong
-    let weapon = items.find((i) => i.type === 'weapon' && i.system?.equipped === true);
+    // 1. type === 'weapon' && equipped === true (prefer melee for melee attacks)
+    // 2. type === 'weapon' && equipped === true (any weapon type)
+    // 3. type === 'weapon' (any weapon)
+    // 4. Check if any item has weapon-like properties (damage, weaponDamage) even if type is wrong
+    let weapon = items.find((i) => i.type === 'weapon' &&
+        i.system?.equipped === true &&
+        i.system?.weaponType === 'melee');
+    if (!weapon) {
+        weapon = items.find((i) => i.type === 'weapon' && i.system?.equipped === true);
+    }
     if (!weapon) {
         weapon = items.find((i) => i.type === 'weapon');
     }
