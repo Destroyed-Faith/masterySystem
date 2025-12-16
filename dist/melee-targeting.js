@@ -268,25 +268,35 @@ function handlePointerDown(ev) {
         endMeleeTargeting(false);
         return;
     }
-    const target = ev.target;
-    if (!target?.document || target.document.type !== "Token") {
-        console.log('Mastery System | [MELEE TARGETING] Clicked on non-token, cancelling', {
-            hasTarget: !!target,
-            hasDocument: !!target?.document,
-            documentType: target?.document?.type
-        });
+    // Use the same method as utility-targeting: find token at click position
+    const worldPos = ev.data.getLocalPosition(canvas.app.stage);
+    const tokens = canvas.tokens?.placeables || [];
+    const clickedToken = tokens.find((t) => {
+        const bounds = t.bounds;
+        return bounds && bounds.contains(worldPos.x, worldPos.y);
+    });
+    console.log('Mastery System | [MELEE TARGETING] Token search result', {
+        worldPos: { x: worldPos.x, y: worldPos.y },
+        clickedTokenId: clickedToken?.id,
+        clickedTokenName: clickedToken?.name,
+        totalTokens: tokens.length,
+        validTargets: Array.from(state.validTargets)
+    });
+    if (!clickedToken) {
+        console.log('Mastery System | [MELEE TARGETING] No token found at click position, cancelling');
         endMeleeTargeting(false);
         return;
     }
-    if (target.id === state.token.document?.id) {
+    if (clickedToken.id === state.token.id) {
         console.log('Mastery System | [MELEE TARGETING] Clicked on own token, ignoring');
         return;
     }
     // Check if target is in valid targets list
-    const targetTokenId = target.id;
+    const targetTokenId = clickedToken.id;
     if (!state.validTargets.has(targetTokenId)) {
         console.log('Mastery System | [MELEE TARGETING] Target not in valid targets list', {
             targetId: targetTokenId,
+            targetName: clickedToken.name,
             validTargets: Array.from(state.validTargets),
             reachMeters: state.reachMeters
         });
@@ -294,10 +304,10 @@ function handlePointerDown(ev) {
         return;
     }
     console.log('Mastery System | [MELEE TARGETING] Valid target clicked - starting attack', {
-        targetId: target.id,
-        targetName: target.document?.name,
-        attackerId: state.token.document?.id,
-        attackerName: state.token.document?.name,
+        targetId: clickedToken.id,
+        targetName: clickedToken.name,
+        attackerId: state.token.id,
+        attackerName: state.token.name,
         reachMeters: state.reachMeters,
         reachGridUnits: state.reachGridUnits,
         optionId: state.option.id,
@@ -308,7 +318,7 @@ function handlePointerDown(ev) {
     // Start the attack
     // TODO: Trigger actual attack roll here
     // For now, just end targeting and notify
-    ui.notifications?.info(`Attacking ${target.document?.name || 'target'}`);
+    ui.notifications?.info(`Attacking ${clickedToken.name || 'target'}`);
     endMeleeTargeting(true);
 }
 export function isMeleeTargetingActive() {
