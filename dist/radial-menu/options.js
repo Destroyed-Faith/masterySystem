@@ -20,6 +20,82 @@ function parseRange(rangeStr) {
     return undefined;
 }
 /**
+ * Get reach bonus from equipped weapon
+ * @param actor - The actor to check for equipped weapon
+ * @returns Reach bonus in meters (0, 1, or 2)
+ */
+function getReachBonus(actor) {
+    if (!actor)
+        return 0;
+    const items = actor.items || [];
+    const equippedWeapon = items.find((item) => item.type === 'weapon' && item.system?.equipped === true);
+    if (!equippedWeapon)
+        return 0;
+    const weaponSystem = equippedWeapon.system;
+    const innateAbilities = weaponSystem.innateAbilities || [];
+    const reachAbility = innateAbilities.find((a) => a.includes('Reach'));
+    if (!reachAbility)
+        return 0;
+    // Match new format: "Reach (+1 m)" or "Reach (+2 m)"
+    const bonusMatch = reachAbility.match(/Reach\s*\(\+\s*(\d+)\s*m\)/i);
+    if (bonusMatch) {
+        return parseInt(bonusMatch[1], 10);
+    }
+    // Legacy support: Match old format: "Reach (2 m)" or "Reach (3 m)"
+    const legacyMatch = reachAbility.match(/Reach\s*\((\d+)\s*m\)/i);
+    if (legacyMatch) {
+        const totalReach = parseInt(legacyMatch[1], 10);
+        return Math.max(0, totalReach - 2); // Subtract base 2m
+    }
+    return 0;
+}
+/**
+ * Calculate range for a combat option
+ * @param actor - The actor
+ * @param optionId - Option ID (for special cases like disengage)
+ * @param slot - Combat slot
+ * @param rangeStr - Range string from power/maneuver
+ * @param levelData - Level data from power definition (optional)
+ * @returns Range in meters
+ */
+function calculateRange(actor, optionId, slot, rangeStr, levelData) {
+    // Special case: Disengage uses actor's movement
+    if (optionId === 'disengage') {
+        const actorSpeed = actor.system?.combat?.speed || 6;
+        return actorSpeed;
+    }
+    // Special case: Move uses actor's speed
+    if (optionId === 'move') {
+        const actorSpeed = actor.system?.combat?.speed || 6;
+        return actorSpeed;
+    }
+    // Special case: Dash uses 2x actor's speed
+    if (optionId === 'dash') {
+        const actorSpeed = actor.system?.combat?.speed || 6;
+        return actorSpeed * 2;
+    }
+    // For melee attacks: 2m base + reach bonus
+    if (slot === 'attack') {
+        // Check if it's actually melee (not ranged)
+        const isMelee = !rangeStr ||
+            rangeStr.toLowerCase() === 'self' ||
+            rangeStr === '0m' ||
+            rangeStr === '0' ||
+            (levelData && levelData.type && levelData.type.toLowerCase() === 'melee');
+        if (isMelee) {
+            const reachBonus = getReachBonus(actor);
+            return 2 + reachBonus; // Base 2m + reach bonus
+        }
+    }
+    // For other cases: parse from range string
+    let range = parseRange(rangeStr);
+    // If range is missing and we have levelData, try to get it from there
+    if ((!rangeStr || !range) && levelData && levelData.range) {
+        range = parseRange(levelData.range);
+    }
+    return range;
+}
+/**
  * Map power type to combat slot
  */
 function mapPowerTypeToSlot(powerType) {
@@ -97,54 +173,6 @@ function determineTargetGroup(option) {
         return 'ally';
     }
     return 'any';
-}
-/**
- * Determine range category from power/option data
- * @param rangeStr - Range string (e.g., "0m", "8m", "Self", "Self + Radius 5m")
- * @param powerType - Power type (e.g., "active", "movement")
- * @param levelData - Level data from power definition (optional)
- * @returns Range category
- */
-function determineRangeCategory(rangeStr, powerType, levelData) {
-    if (!rangeStr) {
-        // Default based on power type
-        if (powerType === 'movement') {
-            return 'self';
-        }
-        return 'melee'; // Default for attacks
-    }
-    const rangeLower = rangeStr.toLowerCase();
-    // Check for self-centered AoE
-    if (rangeLower.includes('self') && (rangeLower.includes('radius') || rangeLower.includes('area'))) {
-        return 'area';
-    }
-    // Check for "Self" or "0m" - melee
-    if (rangeLower === 'self' || rangeLower === '0m' || rangeStr === '0') {
-        return 'melee';
-    }
-    // Check level data type if available
-    if (levelData && levelData.type) {
-        const typeLower = levelData.type.toLowerCase();
-        if (typeLower === 'melee') {
-            return 'melee';
-        }
-        if (typeLower === 'ranged') {
-            return 'ranged';
-        }
-    }
-    // Parse numeric range
-    const match = rangeStr.match(/(\d+(?:\.\d+)?)\s*m/i);
-    if (match) {
-        const rangeMeters = parseFloat(match[1]);
-        if (rangeMeters === 0) {
-            return 'melee';
-        }
-        // For now, assume anything with range > 0 is ranged
-        // TODO: Could check if it's actually a ranged attack vs melee with reach
-        return 'ranged';
-    }
-    // Default fallback
-    return 'melee';
 }
 /**
  * Map an option to one of the 4 inner segment IDs
@@ -226,8 +254,6 @@ export async function getAllCombatOptionsForActor(actor) {
     catch (error) {
         console.warn('Mastery System | Could not load power definitions module:', error);
     }
-    // Get actor's speed for movement maneuvers
-    const actorSpeed = actor.system?.combat?.speed || 6; // Default to 6m if not set
     // --- COLLECT ALL OPTIONS (separate by source) ---
     const movementPowers = [];
     const allManeuvers = [];
@@ -249,10 +275,9 @@ export async function getAllCombatOptionsForActor(actor) {
         const slot = mapPowerTypeToSlot(powerType);
         // Parse range from system.range (e.g., "8m", "12m", "Self")
         let rangeStr = item.system?.range;
-        let range = parseRange(rangeStr);
         let levelData = undefined;
         // If range is missing or empty, try to get it from the power definition
-        if ((!rangeStr || !range) && getPowerFn) {
+        if (!rangeStr && getPowerFn) {
             const treeName = item.system?.tree;
             const powerName = item.name;
             const level = item.system?.level || 1;
@@ -263,7 +288,6 @@ export async function getAllCombatOptionsForActor(actor) {
                         levelData = powerDef.levels.find((l) => l.level === level);
                         if (levelData && levelData.range) {
                             rangeStr = levelData.range;
-                            range = parseRange(rangeStr);
                         }
                     }
                 }
@@ -272,8 +296,8 @@ export async function getAllCombatOptionsForActor(actor) {
                 }
             }
         }
-        // Determine range category
-        const rangeCategory = determineRangeCategory(rangeStr, powerType, levelData);
+        // Calculate range using the new function
+        const range = calculateRange(actor, item.id, slot, rangeStr, levelData);
         // Parse AoE information for utilities
         let aoeShape = 'none';
         let aoeRadiusMeters = undefined;
@@ -303,7 +327,6 @@ export async function getAllCombatOptionsForActor(actor) {
             slot: slot,
             source: 'power',
             range: range,
-            rangeCategory: rangeCategory,
             item: item,
             powerType: powerType,
             tags: Array.isArray(tags) ? tags : [],
@@ -345,27 +368,8 @@ export async function getAllCombatOptionsForActor(actor) {
                 continue;
             }
         }
-        // Calculate maneuver range
-        let maneuverRange = undefined;
-        if (maneuver.id === 'move') {
-            maneuverRange = actorSpeed;
-        }
-        else if (maneuver.slot === 'movement' && maneuver.tags?.includes('speed')) {
-            if (maneuver.id === 'dash') {
-                maneuverRange = actorSpeed * 2;
-            }
-            else if (maneuver.id === 'flee-you-fools') {
-                maneuverRange = actorSpeed * 3;
-            }
-        }
-        // Determine range category
-        let maneuverRangeCategory = 'melee';
-        if (maneuver.id === 'move' || maneuver.slot === 'movement') {
-            maneuverRangeCategory = 'self';
-        }
-        else if (maneuver.slot === 'attack') {
-            maneuverRangeCategory = 'melee';
-        }
+        // Calculate maneuver range using the new function
+        const maneuverRange = calculateRange(actor, maneuver.id, maneuver.slot, undefined, undefined);
         // Determine costs
         const costsMovement = maneuver.slot === 'movement' && maneuver.id !== 'stand-up';
         const costsAction = maneuver.id === 'stand-up' || maneuver.slot === 'attack';
@@ -380,7 +384,6 @@ export async function getAllCombatOptionsForActor(actor) {
             slot: maneuver.slot,
             source: 'maneuver',
             range: maneuverRange,
-            rangeCategory: maneuverRangeCategory,
             maneuver: maneuver,
             tags: maneuver.tags || [],
             costsMovement: costsMovement,
@@ -397,8 +400,7 @@ export async function getAllCombatOptionsForActor(actor) {
             description: 'Make a standard attack with your equipped weapon.',
             slot: 'attack',
             source: 'maneuver',
-            range: undefined,
-            rangeCategory: 'melee',
+            range: calculateRange(actor, 'weapon-attack', 'attack', undefined, undefined),
             maneuver: {
                 id: 'weapon-attack',
                 name: 'Weapon Attack',

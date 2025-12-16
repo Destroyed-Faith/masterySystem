@@ -3,10 +3,6 @@
  */
 import type { CombatSlot, CombatManeuver } from '../system/combat-maneuvers';
 /**
- * Range category for combat options
- */
-export type RangeCategory = 'melee' | 'ranged' | 'self' | 'area';
-/**
  * Target group for utility powers
  */
 export type TargetGroup = 'self' | 'ally' | 'enemy' | 'creature' | 'any';
@@ -24,7 +20,6 @@ export interface RadialCombatOption {
     slot: CombatSlot;
     source: 'power' | 'maneuver';
     range?: number;
-    rangeCategory?: RangeCategory;
     meleeReachMeters?: number;
     rangeMeters?: number;
     aoeShape?: AoEShape;

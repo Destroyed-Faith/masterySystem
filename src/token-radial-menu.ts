@@ -20,7 +20,7 @@ import { renderOuterRing, renderInnerSegments, refreshInnerSegmentsVisual } from
 
 // Re-export for external use
 export { getAllCombatOptionsForActor };
-export type { RadialCombatOption, InnerSegment, RangeCategory, TargetGroup, AoEShape } from './radial-menu/types';
+export type { RadialCombatOption, InnerSegment, TargetGroup, AoEShape } from './radial-menu/types';
 
 // Global state
 let msRadialMenu: PIXI.Container | null = null;

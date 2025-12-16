@@ -5,11 +5,6 @@
 import type { CombatSlot, CombatManeuver } from '../system/combat-maneuvers';
 
 /**
- * Range category for combat options
- */
-export type RangeCategory = 'melee' | 'ranged' | 'self' | 'area';
-
-/**
  * Target group for utility powers
  */
 export type TargetGroup = 'self' | 'ally' | 'enemy' | 'creature' | 'any';
@@ -28,8 +23,7 @@ export interface RadialCombatOption {
   description: string;
   slot: CombatSlot;  // "attack" | "movement" | "utility" | "reaction"
   source: 'power' | 'maneuver';
-  range?: number; // numeric range in meters
-  rangeCategory?: RangeCategory; // Category of range (melee, ranged, self, area)
+  range?: number; // numeric range in meters (always set for all options)
   meleeReachMeters?: number; // Optional override for melee reach in meters
   // Utility targeting fields
   rangeMeters?: number; // Max distance to center or target (for utilities)

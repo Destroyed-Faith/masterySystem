@@ -668,7 +668,7 @@ export function handleChosenCombatOption(token, option) {
         segment: option.segment,
         source: option.source,
         name: option.name,
-        rangeCategory: option.rangeCategory,
+        range: option.range,
         costsMovement: option.costsMovement,
         costsAction: option.costsAction
     });
@@ -717,8 +717,11 @@ export function handleChosenCombatOption(token, option) {
         return;
     }
     // Check if this is a melee attack option
-    const isMeleeAttack = option.slot === 'attack' && option.rangeCategory === 'melee';
-    console.log('Mastery System | Is melee attack option?', isMeleeAttack, { slot: option.slot, rangeCategory: option.rangeCategory });
+    // Melee attacks have range <= 4m (2m base + up to 2m reach)
+    const isMeleeAttack = option.slot === 'attack' &&
+        option.range !== undefined &&
+        option.range <= 4;
+    console.log('Mastery System | Is melee attack option?', isMeleeAttack, { slot: option.slot, range: option.range });
     if (isMeleeAttack) {
         console.log('Mastery System | Starting melee targeting for', token.name, option);
         // Close radial menu when attack option is selected

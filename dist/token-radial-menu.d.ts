@@ -13,7 +13,7 @@
 import type { RadialCombatOption } from './radial-menu/types';
 import { getAllCombatOptionsForActor } from './radial-menu/options';
 export { getAllCombatOptionsForActor };
-export type { RadialCombatOption, InnerSegment, RangeCategory, TargetGroup, AoEShape } from './radial-menu/types';
+export type { RadialCombatOption, InnerSegment, TargetGroup, AoEShape } from './radial-menu/types';
 /**
  * Close the radial menu and clean up
  */
