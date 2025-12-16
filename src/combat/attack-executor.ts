@@ -172,7 +172,7 @@ export async function createMeleeAttackCard(
             data-target-evade="${targetEvade}"
             data-base-evade="${baseEvade}"
             data-raises="0">
-      <i class="fas fa-dice-d20"></i> Roll Attack
+      <i class="fas fa-dice-d20"></i> Roll
     </button>
   `;
   

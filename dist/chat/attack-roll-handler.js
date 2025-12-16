@@ -298,7 +298,7 @@ export function registerAttackRollClickHandler() {
             console.error('Mastery System | DEBUG: Error during roll', error);
             console.error('Mastery System | Error rolling attack:', error);
             ui.notifications?.error('Failed to roll attack');
-            button.prop('disabled', false).html('<i class="fas fa-dice-d20"></i> Roll Attack');
+            button.prop('disabled', false).html('<i class="fas fa-dice-d20"></i> Roll');
         }
     });
 }

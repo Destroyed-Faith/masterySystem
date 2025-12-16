@@ -362,7 +362,7 @@ function createDamageCardContent(attacker, target, baseDamage, powerDamage, pass
       ${raisesSection}
       <div class="damage-actions">
         <button class="roll-damage-btn" data-attacker-id="${attacker.id}" data-target-id="${target.id}">
-          <i class="fas fa-dice"></i> Roll Damage
+          <i class="fas fa-dice"></i> Roll
         </button>
         <button class="cancel-damage-btn">
           <i class="fas fa-times"></i> Cancel

@@ -145,7 +145,7 @@ export async function createMeleeAttackCard(attackerToken, targetToken, option) 
             data-target-evade="${targetEvade}"
             data-base-evade="${baseEvade}"
             data-raises="0">
-      <i class="fas fa-dice-d20"></i> Roll Attack
+      <i class="fas fa-dice-d20"></i> Roll
     </button>
   `;
     // Build raises dropdown (1-8)
