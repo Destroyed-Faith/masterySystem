@@ -130,6 +130,22 @@ export async function createMeleeAttackCard(attackerToken, targetToken, option) 
         selectedPowerSpecials: selectedPowerSpecials,
         selectedPowerDamage: selectedPowerDamage || ''
     };
+    // Debug log before creating message
+    const weaponCandidateFromEquipped = weapon;
+    console.log('Mastery System | [WEAPON-ID DEBUG]', {
+        messageType: 'attack-card:create:before',
+        attackerId: attacker.id,
+        targetId: target.id,
+        weaponId: weaponId,
+        selectedPowerId: selectedPowerId,
+        raises: 0,
+        flagsKeys: Object.keys(flagsObj),
+        weaponCandidateFromEquipped: weaponCandidateFromEquipped ? {
+            id: weaponCandidateFromEquipped.id,
+            name: weaponCandidateFromEquipped.name,
+            type: weaponCandidateFromEquipped.type
+        } : null
+    });
     // Build chat card HTML
     const attackerName = attacker.name || 'Unknown';
     const targetName = target.name || 'Unknown';
@@ -203,6 +219,12 @@ export async function createMeleeAttackCard(attackerToken, targetToken, option) 
             flags: {
                 'mastery-system': flagsObj
             }
+        });
+        // Debug log after creating message
+        console.log('Mastery System | [WEAPON-ID DEBUG]', {
+            messageType: 'attack-card:create:after',
+            messageId: message.id,
+            createdFlags: message.flags?.['mastery-system']
         });
         // Update the raises dropdown with the actual message ID and add change handler
         if (message) {

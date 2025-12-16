@@ -6,6 +6,15 @@
  * Show damage dialog after successful attack
  */
 export async function showDamageDialog(attacker, target, weaponId, selectedPowerId, raises, flags) {
+    // Debug log at entry
+    console.log('Mastery System | [WEAPON-ID DEBUG]', {
+        messageType: 'damage-dialog:entry',
+        weaponIdArg: weaponId,
+        selectedPowerIdArg: selectedPowerId,
+        raisesArg: raises,
+        attackerId: attacker.id,
+        targetId: target.id
+    });
     console.log('Mastery System | [DAMAGE DIALOG] showDamageDialog - starting', {
         attackerId: attacker.id,
         attackerName: attacker.name,
@@ -73,6 +82,15 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
     const baseDamage = (typeof baseDamageRaw === "string" && baseDamageRaw.trim().length)
         ? baseDamageRaw.trim()
         : "1d8";
+    // Debug log after weapon resolve
+    console.log('Mastery System | [WEAPON-ID DEBUG]', {
+        messageType: 'damage-dialog:weapon-resolve',
+        weaponResolved: !!weaponForDamage,
+        weaponName: weaponForDamage?.name || null,
+        weaponIdResolved: weaponForDamage?.id || null,
+        weaponSystemKeys: weaponForDamage ? Object.keys(weaponForDamage.system || {}) : [],
+        baseDamageRawResolved: baseDamageRaw
+    });
     console.log("Mastery System | [DAMAGE DIALOG] Base damage resolved", {
         weaponId,
         weaponFound: !!weaponForDamage,

@@ -77,6 +77,19 @@ export function registerAttackRollClickHandler(): void {
     
     // Try both methods to get flags (getFlag might not work in some Foundry versions)
     const flags = message.getFlag?.('mastery-system') || message.flags?.['mastery-system'];
+    
+    // Debug log after flags read
+    console.log('Mastery System | [WEAPON-ID DEBUG]', {
+      messageType: 'roll-attack:flags-read',
+      messageId: messageId,
+      flagsWeaponId: flags?.weaponId,
+      flagsSelectedPowerId: flags?.selectedPowerId,
+      flagsRaises: flags?.raises,
+      flagsTargetId: flags?.targetId,
+      flagsAttackerId: flags?.attackerId,
+      allKeys: Object.keys(flags || {})
+    });
+    
     console.log('Mastery System | [ROLL BUTTON CLICK] Message flags (mastery-system)', {
       messageId: messageId,
       flags: flags,
@@ -300,6 +313,16 @@ export function registerAttackRollClickHandler(): void {
             flagsWeaponId: updatedFlags?.weaponId,
             attackerItems: (attacker as any).items?.length || 0,
             attackerPowers: (attacker as any).items?.filter((i: any) => i.type === 'special').map((i: any) => ({ id: i.id, name: i.name })) || []
+          });
+          
+          // Debug log before calling showDamageDialog
+          const weaponIdFromEquipped = equippedWeapon ? equippedWeapon.id : null;
+          console.log('Mastery System | [WEAPON-ID DEBUG]', {
+            messageType: 'roll-attack:before-damage-dialog',
+            weaponIdArg: weaponId,
+            selectedPowerIdArg: updatedFlags.selectedPowerId || null,
+            raisesArg: totalRaises,
+            weaponIdFromEquipped: weaponIdFromEquipped
           });
           
           const { showDamageDialog } = await import('../dice/damage-dialog.js');
