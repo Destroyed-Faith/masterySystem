@@ -105,9 +105,23 @@ export function initializeTokenActionSelector() {
             console.log('Mastery System | Cleared currentAction flag after movement');
         }
     });
-    // Note: The hook 'masterySystem.meleeTargetSelected' is called by melee-targeting.ts
-    // but executeAttack already calls handleChosenCombatOption directly, so we don't need
-    // a handler here. The hook is available for other modules that want to listen to melee target selection.
+    // Register hook listener for melee target selection
+    Hooks.on("masterySystem.meleeTargetSelected", async (payload) => {
+        try {
+            const attackerToken = canvas.tokens?.get(payload.attackerTokenId);
+            const targetToken = canvas.tokens?.get(payload.targetTokenId);
+            if (!attackerToken || !targetToken) {
+                console.warn("Mastery System | [TOKEN ACTION SELECTOR] Missing tokens in meleeTargetSelected hook", payload);
+                return;
+            }
+            // Import and call createMeleeAttackCard
+            const { createMeleeAttackCard } = await import("./combat/attack-executor.js");
+            await createMeleeAttackCard(attackerToken, targetToken, payload.option);
+        }
+        catch (e) {
+            console.error("Mastery System | [TOKEN ACTION SELECTOR] meleeTargetSelected hook failed", e);
+        }
+    });
 }
 /**
  * Open the radial menu for combat action selection

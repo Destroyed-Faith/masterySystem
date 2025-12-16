@@ -1,35 +1,30 @@
 /**
  * Melee Targeting – Foundry VTT v13 ONLY
- * - Hex-safe reach preview (via Grid Highlight Layer)
- * - Deterministic target clicking (token OR ring area)
- * - No per-target interactive overlays (avoids Pixi layer/eventMode pitfalls)
- * - Static import for attack execution (no dynamic import / 404)
+ * - Draws reach highlight area (hex highlight on grid, circle on gridless)
+ * - Shows interactive overlay for each valid target within reach
+ * - When user clicks any valid target (token OR ring/overlay area), fires hook with attacker/target ids + option, then ends targeting
+ * - Does NOT create chat messages, roll dice, or execute attacks directly
  */
 
 import type { RadialCombatOption } from "./token-radial-menu";
 import { highlightHexesInRange, clearHexHighlight } from "./utils/hex-highlighting";
 
-// IMPORTANT: Use .js extension for Foundry runtime in dist
-import { handleChosenCombatOption } from "./token-action-selector.js";
-
 interface MeleeTargetingState {
   attackerToken: any;
   option: RadialCombatOption;
-
   reachMeters: number;
   reachGridUnits: number;
-
   highlightId: string;
-
+  
   // Visuals
-  rings: Map<string, PIXI.Graphics>;
-  originalTokenAlpha: Map<string, number>;
-  originalTokenTint: Map<string, number>;
-
+  rings: Map<string, PIXI.Graphics>; // Red rings around targets (non-interactive)
+  overlays: Map<string, PIXI.Container>; // Interactive overlays for clicking
+  originalTokenAlphas: Map<string, number>;
+  
   // Valid target ids
   validTargetIds: Set<string>;
-
-  // handlers
+  
+  // Event handlers
   onPointerDown: (ev: PIXI.FederatedPointerEvent) => void;
   onKeyDown: (ev: KeyboardEvent) => void;
 }
@@ -42,22 +37,16 @@ let confirming = false;
 /* -------------------------------------------- */
 
 function metersToGridUnits(meters: number): number {
-  const d = canvas.grid?.distance ?? 1;
-  return meters / d;
+  const grid = canvas.grid;
+  if (!grid) return meters;
+  const distance = grid.distance ?? 1;
+  return meters / distance;
 }
 
 function getMeleeReachMeters(option: RadialCombatOption): number {
-  // Unified range system
   if (typeof option.range === "number") return option.range;
-  // Legacy
-  if (typeof (option as any).meleeReachMeters === "number") return (option as any).meleeReachMeters;
-  // Default
+  // Default melee range
   return 2;
-}
-
-function getTokenLayerForCoords(): any {
-  // In v13, token coords/bounds are best tested in the token layer space
-  return (canvas.tokens as any).container ?? canvas.tokens;
 }
 
 function distance(a: { x: number; y: number }, b: { x: number; y: number }): number {
@@ -67,146 +56,259 @@ function distance(a: { x: number; y: number }, b: { x: number; y: number }): num
 }
 
 /**
- * Find valid targets by distance. (Simple + deterministic)
- * You can swap this to grid measurePath later, but this works reliably.
+ * Find valid targets by distance
+ * Uses Foundry measurement where possible
  */
 function computeValidTargets(attackerToken: any, reachMeters: number): Set<string> {
   const out = new Set<string>();
   const tokens = canvas.tokens?.placeables ?? [];
-  const a = attackerToken?.center;
-  if (!a) return out;
+  const attackerCenter = attackerToken?.center;
+  if (!attackerCenter) return out;
 
-  for (const t of tokens) {
-    if (!t?.id || t.id === attackerToken.id) continue;
-    if (!t.actor) continue;
+  for (const token of tokens) {
+    if (!token?.id || token.id === attackerToken.id) continue;
+    if (!token.actor) continue;
 
-    const b = t.center;
-    const distPx = distance(a, b);
-    const gridSize = canvas.grid?.size ?? 100;
-    const gridUnits = distPx / gridSize;
-    const meters = gridUnits * (canvas.grid?.distance ?? 1);
+    const targetCenter = token.center;
+    
+    // Try to use Foundry grid measurement if available
+    let distanceMeters: number;
+    const grid = canvas.grid;
+    
+    if (grid && typeof grid.measurePath === 'function') {
+      try {
+        const path = grid.measurePath([attackerCenter, targetCenter], {});
+        distanceMeters = path.distance ?? (path.total ?? 0);
+      } catch {
+        // Fallback to pixel distance
+        const distPx = distance(attackerCenter, targetCenter);
+        const gridSize = grid.size ?? 100;
+        const gridUnits = distPx / gridSize;
+        distanceMeters = gridUnits * (grid.distance ?? 1);
+      }
+    } else {
+      // Fallback to pixel distance
+      const distPx = distance(attackerCenter, targetCenter);
+      const gridSize = grid?.size ?? 100;
+      const gridUnits = distPx / gridSize;
+      distanceMeters = gridUnits * (grid?.distance ?? 1);
+    }
 
-    if (meters <= reachMeters) out.add(t.id);
+    if (distanceMeters <= reachMeters) {
+      out.add(token.id);
+    }
   }
 
   return out;
-}
-
-function makeRingForToken(token: any, color = 0xff0000, alpha = 0.95, pad = 15): PIXI.Graphics {
-  const g = new PIXI.Graphics();
-  const radius = (token.w ?? token.width ?? 50) / 2 + pad;
-
-  (g as any).msRadius = radius;
-  (g as any).msTargetTokenId = token.id;
-
-  g.lineStyle(3, color, alpha);
-  g.drawCircle(0, 0, radius);
-  g.position.set(token.center.x, token.center.y);
-
-  // critical: do NOT intercept clicks
-  g.eventMode = "none";
-  g.interactive = false;
-  g.hitArea = null;
-
-  return g;
 }
 
 /* -------------------------------------------- */
 /*  Visuals                                     */
 /* -------------------------------------------- */
 
+/**
+ * Draw reach area highlight
+ * For gridded (hex/square): use hex highlighting
+ * For gridless: draw circle
+ */
 function drawReachArea(state: MeleeTargetingState): void {
   const grid = canvas.grid;
   if (!grid) return;
 
-  const RANGE = Math.max(0, Math.floor(Number(state.reachGridUnits) || 0));
   const attackerId = state.attackerToken?.document?.id ?? state.attackerToken?.id;
   if (!attackerId) return;
 
-  // Hex / square grids → highlight layer
+  const RANGE = Math.max(0, Math.floor(Number(state.reachGridUnits) || 0));
+
+  // Hex / square grids → highlight layer (v13 interface)
   if (grid.type !== CONST.GRID_TYPES.GRIDLESS) {
     highlightHexesInRange(attackerId, RANGE, state.highlightId, 0xff6666, 0.5);
+  } else {
+    // Gridless: draw circle with PIXI.Graphics
+    // This would need to be stored in state.previewGraphics for cleanup
+    // For now, we'll just use hex highlighting for gridded maps
+    console.log("Mastery System | [MELEE TARGETING] Gridless maps not yet supported for reach preview");
   }
 }
 
+/**
+ * Create a red ring around a token (non-interactive visual)
+ */
+function createTargetRing(token: any): PIXI.Graphics {
+  const ring = new PIXI.Graphics();
+  const radius = (token.w ?? token.width ?? 50) / 2 + 10; // Token radius + padding
+
+  ring.lineStyle(3, 0xff0000, 0.9);
+  ring.drawCircle(0, 0, radius);
+  ring.position.set(token.center.x, token.center.y);
+
+  // Critical: do NOT intercept clicks
+  ring.eventMode = "none";
+  ring.interactive = false;
+  ring.hitArea = null;
+
+  return ring;
+}
+
+/**
+ * Create an interactive overlay for clicking on targets
+ */
+function createTargetOverlay(token: any, targetId: string, onClick: (targetId: string) => void): PIXI.Container {
+  const overlay = new PIXI.Container();
+  const radius = (token.w ?? token.width ?? 50) / 2 + 15; // Token radius + ring padding
+
+  // Create hit area (invisible circle)
+  const hitArea = new PIXI.Graphics();
+  hitArea.beginFill(0xffffff, 0); // Invisible
+  hitArea.drawCircle(0, 0, radius);
+  hitArea.endFill();
+  overlay.addChild(hitArea);
+
+  overlay.position.set(token.center.x, token.center.y);
+  overlay.hitArea = new PIXI.Circle(0, 0, radius);
+
+  // Make interactive
+  overlay.eventMode = "static";
+  overlay.cursor = "pointer";
+
+  // Store target ID for click handler
+  (overlay as any).msTargetId = targetId;
+
+  // Click handler
+  overlay.on("pointerdown", (ev: PIXI.FederatedPointerEvent) => {
+    ev.stopPropagation();
+    ev.stopImmediatePropagation();
+    onClick(targetId);
+  });
+
+  return overlay;
+}
+
+/**
+ * Mark valid targets with rings and overlays
+ */
 function markValidTargets(state: MeleeTargetingState): void {
-  // clear existing rings
+  // Clear existing visuals
   for (const ring of state.rings.values()) {
     if (ring.parent) ring.parent.removeChild(ring);
     ring.destroy(true);
   }
   state.rings.clear();
 
-  const ids = state.validTargetIds;
+  for (const overlay of state.overlays.values()) {
+    if (overlay.parent) overlay.parent.removeChild(overlay);
+    overlay.destroy({ children: true });
+  }
+  state.overlays.clear();
 
   const layer: any = canvas.effects ?? canvas.foreground ?? canvas.tokens;
   const container: any = layer?.container ?? layer;
   if (!container?.addChild) return;
 
-  for (const id of ids) {
-    const t = canvas.tokens?.get(id);
-    if (!t) continue;
+  // Handler for overlay clicks
+  const handleOverlayClick = (targetId: string) => {
+    if (confirming) return;
+    const targetToken = canvas.tokens?.get(targetId);
+    if (!targetToken) return;
 
-    // store original visuals once
-    if (!state.originalTokenAlpha.has(id)) state.originalTokenAlpha.set(id, t.alpha);
-    if (!state.originalTokenTint.has(id)) state.originalTokenTint.set(id, t.tint ?? 0xffffff);
+    confirming = true;
+    try {
+      // Fire hook with attacker/target ids + option
+      Hooks.call("masterySystem.meleeTargetSelected", {
+        attackerTokenId: state.attackerToken.id,
+        targetTokenId: targetId,
+        option: state.option
+      });
 
-    // optional: subtle emphasis (keep this mild)
-    t.alpha = Math.min(1.0, (t.alpha ?? 1.0) * 1.05);
-    // tint is optional; comment out if you dislike it
-    t.tint = 0xffaaaa;
+      // End targeting
+      endMeleeTargeting(true);
+    } catch (err) {
+      console.error("Mastery System | [MELEE TARGETING] Overlay click failed", err);
+      ui.notifications?.error?.("Failed to select target");
+      endMeleeTargeting(false);
+    } finally {
+      confirming = false;
+    }
+  };
 
-    const ring = makeRingForToken(t, 0xff0000, 0.9, 15);
-    state.rings.set(id, ring);
+  for (const targetId of state.validTargetIds) {
+    const token = canvas.tokens?.get(targetId);
+    if (!token) continue;
+
+    // Store original alpha
+    if (!state.originalTokenAlphas.has(targetId)) {
+      state.originalTokenAlphas.set(targetId, token.alpha);
+    }
+
+    // Slight emphasis
+    token.alpha = Math.min(1.0, (token.alpha ?? 1.0) * 1.05);
+
+    // Create ring (non-interactive visual)
+    const ring = createTargetRing(token);
+    state.rings.set(targetId, ring);
     container.addChild(ring);
+
+    // Create overlay (interactive)
+    const overlay = createTargetOverlay(token, targetId, handleOverlayClick);
+    state.overlays.set(targetId, overlay);
+    container.addChild(overlay);
+
+    // Ensure overlay is on top
+    container.sortableChildren = true;
+    overlay.zIndex = 1000;
   }
 }
 
+/**
+ * Restore token visuals
+ */
 function restoreTargetVisuals(state: MeleeTargetingState): void {
-  for (const id of state.originalTokenAlpha.keys()) {
-    const t = canvas.tokens?.get(id);
-    if (!t) continue;
-
-    const a = state.originalTokenAlpha.get(id);
-    if (typeof a === "number") t.alpha = a;
-
-    const tint = state.originalTokenTint.get(id);
-    if (typeof tint === "number") t.tint = tint;
+  for (const [targetId, alpha] of state.originalTokenAlphas.entries()) {
+    const token = canvas.tokens?.get(targetId);
+    if (!token) continue;
+    token.alpha = alpha;
   }
-
-  state.originalTokenAlpha.clear();
-  state.originalTokenTint.clear();
+  state.originalTokenAlphas.clear();
 }
 
 /* -------------------------------------------- */
-/*  Click Detection                              */
+/*  Click Detection                             */
 /* -------------------------------------------- */
 
+/**
+ * Find clicked token in reach area
+ * This handles clicks on tokens themselves (not just overlays)
+ */
 function findClickedTokenInReachArea(state: MeleeTargetingState, ev: PIXI.FederatedPointerEvent): any | null {
-  const tokenLayer = getTokenLayerForCoords();
+  const tokenLayer = (canvas.tokens as any)?.container ?? canvas.tokens;
   const pos = ev.data.getLocalPosition(tokenLayer);
 
   const tokens = canvas.tokens?.placeables ?? [];
   if (!tokens.length) return null;
 
-  // 1) direct bounds check (most precise)
-  for (const t of tokens) {
-    if (!t?.bounds) continue;
-    if (t.bounds.contains(pos.x, pos.y)) return t;
+  // Direct bounds check
+  for (const token of tokens) {
+    if (!token?.bounds) continue;
+    if (token.bounds.contains(pos.x, pos.y)) {
+      // Check if it's a valid target
+      if (state.validTargetIds.has(token.id)) {
+        return token;
+      }
+    }
   }
 
-  // 2) nearest valid target within "ring radius" (token radius + padding)
+  // Fallback: nearest valid target within ring radius
   let best: any = null;
   let bestDist = Infinity;
 
-  for (const id of state.validTargetIds) {
-    const t = canvas.tokens?.get(id);
-    if (!t) continue;
+  for (const targetId of state.validTargetIds) {
+    const token = canvas.tokens?.get(targetId);
+    if (!token) continue;
 
-    const r = (t.w ?? 50) / 2 + 15; // must match ring pad
-    const d = Math.hypot(pos.x - t.center.x, pos.y - t.center.y);
+    const r = (token.w ?? 50) / 2 + 15; // Must match ring pad
+    const d = Math.hypot(pos.x - token.center.x, pos.y - token.center.y);
     if (d <= r && d < bestDist) {
-      best = t;
+      best = token;
       bestDist = d;
     }
   }
@@ -215,82 +317,61 @@ function findClickedTokenInReachArea(state: MeleeTargetingState, ev: PIXI.Federa
 }
 
 /* -------------------------------------------- */
-/*  Attack Execution                             */
-/* -------------------------------------------- */
-
-async function executeAttack(attackerToken: any, targetToken: any, option: RadialCombatOption): Promise<void> {
-  // Provide a hook so you can listen elsewhere
-  Hooks.call("masterySystem.meleeTargetSelected", {
-    attackerTokenId: attackerToken?.id,
-    targetTokenId: targetToken?.id,
-    optionId: option?.id,
-    optionName: option?.name,
-    option: option // Include full option object for handlers
-  });
-
-  // Pass target info to your normal handler
-  const optionWithTarget: any = {
-    ...option,
-    targetToken,
-    targetActor: targetToken?.actor
-  };
-
-  await handleChosenCombatOption(attackerToken, optionWithTarget);
-}
-
-/* -------------------------------------------- */
 /*  Input Handlers                               */
 /* -------------------------------------------- */
 
 function onKeyDown(ev: KeyboardEvent): void {
-  if (ev.key === "Escape") endMeleeTargeting(false);
+  if (ev.key === "Escape") {
+    endMeleeTargeting(false);
+  }
 }
 
 function onPointerDown(ev: PIXI.FederatedPointerEvent): void {
   const state = active;
   if (!state) return;
 
-  // right/middle click cancels
+  // Right/middle click cancels
   if (ev.button !== 0) {
     endMeleeTargeting(false);
     return;
   }
 
-  // ignore if already confirming
+  // Ignore if already confirming
   if (confirming) return;
 
+  // Check if click is on a valid target (token itself, not overlay)
   const clicked = findClickedTokenInReachArea(state, ev);
 
-  // click on empty space cancels
+  if (clicked && clicked.id !== state.attackerToken.id && state.validTargetIds.has(clicked.id)) {
+    ev.stopPropagation();
+    ev.stopImmediatePropagation();
+
+    confirming = true;
+    try {
+      // Fire hook with attacker/target ids + option
+      Hooks.call("masterySystem.meleeTargetSelected", {
+        attackerTokenId: state.attackerToken.id,
+        targetTokenId: clicked.id,
+        option: state.option
+      });
+
+      // End targeting
+      endMeleeTargeting(true);
+    } catch (err) {
+      console.error("Mastery System | [MELEE TARGETING] Token click failed", err);
+      ui.notifications?.error?.("Failed to select target");
+      endMeleeTargeting(false);
+    } finally {
+      confirming = false;
+    }
+    return;
+  }
+
+  // Click on empty space cancels
   if (!clicked) {
     endMeleeTargeting(false);
     return;
   }
-
-  // ignore attacker self
-  if (clicked.id === state.attackerToken.id) return;
-
-  // must be in valid list
-  if (!state.validTargetIds.has(clicked.id)) {
-    ui.notifications?.warn?.(`Target out of range (${state.reachMeters}m)`);
-    return;
-  }
-
-  ev.stopPropagation();
-  ev.stopImmediatePropagation();
-
-  confirming = true;
-  Promise.resolve()
-    .then(() => executeAttack(state.attackerToken, clicked, state.option))
-    .then(() => endMeleeTargeting(true))
-    .catch((err) => {
-      console.error("Mastery System | [MELEE TARGETING] Attack failed", err);
-      ui.notifications?.error?.(`Attack failed: ${String(err)}`);
-      endMeleeTargeting(false);
-    })
-    .finally(() => {
-      confirming = false;
-    });
 }
 
 /* -------------------------------------------- */
@@ -312,8 +393,8 @@ export function startMeleeTargeting(attackerToken: any, option: RadialCombatOpti
     reachGridUnits,
     highlightId: "mastery-melee",
     rings: new Map(),
-    originalTokenAlpha: new Map(),
-    originalTokenTint: new Map(),
+    overlays: new Map(),
+    originalTokenAlphas: new Map(),
     validTargetIds: new Set(),
     onPointerDown,
     onKeyDown
@@ -321,17 +402,15 @@ export function startMeleeTargeting(attackerToken: any, option: RadialCombatOpti
 
   active = state;
 
-  // Draw reach first
+  // Draw reach area
   drawReachArea(state);
 
-  // Compute + mark targets
+  // Compute valid targets
   state.validTargetIds = computeValidTargets(attackerToken, reachMeters);
   markValidTargets(state);
 
-  // Capture phase to beat other handlers
+  // Register event handlers
   canvas.stage.on("pointerdown", state.onPointerDown, true);
-  const tokenLayer: any = (canvas.tokens as any).layer ?? canvas.tokens;
-  tokenLayer?.on?.("pointerdown", state.onPointerDown, true);
   window.addEventListener("keydown", state.onKeyDown);
 
   ui.notifications?.info?.(
@@ -352,27 +431,36 @@ export function endMeleeTargeting(success: boolean): void {
   const state = active;
   if (!state) return;
 
+  // Remove event handlers
   canvas.stage.off("pointerdown", state.onPointerDown, true);
-  const tokenLayer: any = (canvas.tokens as any).layer ?? canvas.tokens;
-  tokenLayer?.off?.("pointerdown", state.onPointerDown, true);
   window.removeEventListener("keydown", state.onKeyDown);
 
-  // clear reach highlight
+  // Clear reach highlight
   clearHexHighlight(state.highlightId);
 
-  // remove rings
+  // Remove rings
   for (const ring of state.rings.values()) {
     if (ring.parent) ring.parent.removeChild(ring);
     ring.destroy(true);
   }
   state.rings.clear();
 
-  // restore token visuals
+  // Remove overlays
+  for (const overlay of state.overlays.values()) {
+    if (overlay.parent) overlay.parent.removeChild(overlay);
+    overlay.destroy({ children: true });
+  }
+  state.overlays.clear();
+
+  // Restore token visuals
   restoreTargetVisuals(state);
 
   active = null;
+  confirming = false;
 
-  if (!success) ui.notifications?.info?.("Melee targeting cancelled");
+  if (!success) {
+    ui.notifications?.info?.("Melee targeting cancelled");
+  }
 
   console.log("Mastery System | [MELEE TARGETING] ended", { success });
 }

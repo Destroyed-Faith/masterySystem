@@ -1,9 +1,9 @@
 /**
  * Melee Targeting – Foundry VTT v13 ONLY
- * - Hex-safe reach preview (via Grid Highlight Layer)
- * - Deterministic target clicking (token OR ring area)
- * - No per-target interactive overlays (avoids Pixi layer/eventMode pitfalls)
- * - Static import for attack execution (no dynamic import / 404)
+ * - Draws reach highlight area (hex highlight on grid, circle on gridless)
+ * - Shows interactive overlay for each valid target within reach
+ * - When user clicks any valid target (token OR ring/overlay area), fires hook with attacker/target ids + option, then ends targeting
+ * - Does NOT create chat messages, roll dice, or execute attacks directly
  */
 import type { RadialCombatOption } from "./token-radial-menu";
 export declare function startMeleeTargeting(attackerToken: any, option: RadialCombatOption): void;
