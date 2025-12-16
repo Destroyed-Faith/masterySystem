@@ -16,6 +16,7 @@ import { MasteryItemSheet } from './sheets/item-sheet.js';
 import { calculateStones } from './utils/calculations.js';
 import { initializeTokenActionSelector } from './token-action-selector';
 import { initializeTurnIndicator } from './turn-indicator';
+import { handleRadialMenuOpened, handleRadialMenuClosed } from './radial-menu/rendering';
 
 // Dice roller functions are imported in sheets where needed
 
@@ -105,6 +106,10 @@ Hooks.once('init', async function() {
   
   // Initialize turn indicator (blue ring around active combatant)
   initializeTurnIndicator();
+
+  // Register radial menu hooks for hover preview suppression
+  Hooks.on('masterySystem.radialMenuOpened', handleRadialMenuOpened);
+  Hooks.on('masterySystem.radialMenuClosed', handleRadialMenuClosed);
 
   // Preload Handlebars templates
   await preloadTemplates();

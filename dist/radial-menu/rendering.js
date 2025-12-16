@@ -7,6 +7,46 @@ import { showRangePreview, clearRangePreview } from './range-preview.js';
 import { showRadialInfoPanel, hideRadialInfoPanel } from './info-panel.js';
 import { handleChosenCombatOption } from '../token-action-selector.js';
 /**
+ * Foundry v13: When the radial menu spawns under the mouse cursor, PIXI can
+ * immediately fire pointerover for whichever slice is "under" the cursor.
+ * That created the "blue 6m" preview right on menu open.
+ *
+ * We suppress range preview (and info-panel) for a short time after the
+ * radial menu opens, using the masterySystem.radialMenuOpened/Closed hooks.
+ */
+let _msSuppressHoverPreviewUntil = 0;
+/**
+ * Handle radial menu opened - suppress hover previews for a short time
+ * Called from module.ts hooks
+ */
+export function handleRadialMenuOpened() {
+    _msSuppressHoverPreviewUntil = Date.now() + 200;
+    // Hard clear in case something was left behind
+    try {
+        clearRangePreview();
+    }
+    catch { /* ignore */ }
+    try {
+        hideRadialInfoPanel();
+    }
+    catch { /* ignore */ }
+}
+/**
+ * Handle radial menu closed - clear suppression
+ * Called from module.ts hooks
+ */
+export function handleRadialMenuClosed() {
+    _msSuppressHoverPreviewUntil = 0;
+    try {
+        clearRangePreview();
+    }
+    catch { /* ignore */ }
+    try {
+        hideRadialInfoPanel();
+    }
+    catch { /* ignore */ }
+}
+/**
  * Shorten option name for display
  */
 function shortenOptionName(name) {
@@ -105,18 +145,20 @@ function createRadialOptionSlice(option, startAngle, endAngle, token, ringColor)
         wedge.arc(0, 0, MS_OUTER_RING_INNER, endAngle, startAngle, true);
         wedge.moveTo(innerStartX, innerStartY);
         wedge.lineTo(Math.cos(startAngle) * MS_OUTER_RING_OUTER, Math.sin(startAngle) * MS_OUTER_RING_OUTER);
-        // Range preview
-        // For movement options, always show 6 hex fields
-        if (option.slot === 'movement' || option.rangeCategory === 'self') {
-            // Movement: show 6 hex fields from token
-            const movementRange = option.range || 6; // Default to 6 if not specified
-            showRangePreview(token, movementRange);
+        // Range preview (Foundry v13 - keep it explicit and predictable)
+        // We do NOT auto-default to 6m, and we do NOT treat special range categories.
+        // If you want a preview, ensure the option has an explicit numeric range.
+        if (Date.now() >= _msSuppressHoverPreviewUntil) {
+            const r = Number(option.range);
+            if (Number.isFinite(r) && r > 0) {
+                showRangePreview(token, Math.floor(r));
+            }
+            else {
+                clearRangePreview();
+            }
+            // Info panel (only after initial suppression window)
+            showRadialInfoPanel(token, option);
         }
-        else if (option.range !== undefined) {
-            showRangePreview(token, option.range);
-        }
-        // Info panel
-        showRadialInfoPanel(token, option);
     });
     container.on('pointerout', () => {
         // Restore default appearance
@@ -222,7 +264,7 @@ export function renderOuterRing(root, token, bySegment, segmentId) {
  * Render the inner segmented circle
  * The inner quadrants (Buff/Move/Util/Atk) act as clickable filters
  */
-export function renderInnerSegments(root, getCurrentSegmentId, setCurrentSegmentId, token) {
+export function renderInnerSegments(root, getCurrentSegmentId, setCurrentSegmentId, _token) {
     // Remove existing inner segments
     const toRemove = [];
     root.children.forEach((child) => {
@@ -337,11 +379,8 @@ export function renderInnerSegments(root, getCurrentSegmentId, setCurrentSegment
                 gfx.arc(0, 0, MS_INNER_RADIUS, baseAngle, endAngle);
                 gfx.lineTo(0, 0);
             }
-            // Show movement preview when hovering over movement segment
-            if (seg.id === 'movement' && token) {
-                // Show 6 hex fields for movement
-                showRangePreview(token, 6);
-            }
+            // No range preview on inner-segment hover.
+            // Range previews are shown when hovering a concrete option slice (outer ring).
         });
         container.on('pointerout', (_event) => {
             console.log(`Mastery System | [HOVER OUT] Inner segment "${seg.id}" hover out`);
@@ -358,10 +397,7 @@ export function renderInnerSegments(root, getCurrentSegmentId, setCurrentSegment
                 gfx.arc(0, 0, MS_INNER_RADIUS, baseAngle, endAngle);
                 gfx.lineTo(0, 0);
             }
-            // Clear movement preview when leaving movement segment
-            if (seg.id === 'movement') {
-                clearRangePreview();
-            }
+            // No preview handling on inner-segment hover-out.
         });
         // Add to root AFTER setting up all properties
         root.addChild(container);
