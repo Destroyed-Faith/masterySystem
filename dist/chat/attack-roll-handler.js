@@ -282,6 +282,24 @@ export function registerAttackRollClickHandler() {
                         else if (Array.isArray(freshAttackerForDialog.items)) {
                             weaponItem = freshAttackerForDialog.items.find((item) => item.id === weaponId);
                         }
+                        // If not found in actor items, try game.items
+                        if (!weaponItem && weaponId) {
+                            try {
+                                const gameItem = game.items?.get(weaponId);
+                                if (gameItem && gameItem.actor?.id === freshAttackerForDialog.id) {
+                                    weaponItem = gameItem;
+                                    console.log('Mastery System | [BEFORE DAMAGE DIALOG] Found weapon via game.items lookup', {
+                                        weaponId: weaponId,
+                                        weaponName: weaponItem.name,
+                                        weaponType: weaponItem.type,
+                                        actorId: gameItem.actor?.id
+                                    });
+                                }
+                            }
+                            catch (e) {
+                                console.warn('Mastery System | [BEFORE DAMAGE DIALOG] Error looking up weapon from game.items', e);
+                            }
+                        }
                         if (weaponItem) {
                             console.log('Mastery System | [BEFORE DAMAGE DIALOG] Found weapon via direct lookup', {
                                 weaponId: weaponId,

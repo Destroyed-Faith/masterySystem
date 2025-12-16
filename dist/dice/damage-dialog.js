@@ -139,6 +139,24 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
             });
         }
     }
+    // Method 1.5: If not found in actor items, try to get it directly from game.items
+    if (!weaponForDamage && weaponId) {
+        try {
+            const weaponItem = game.items?.get(weaponId);
+            if (weaponItem && weaponItem.actor?.id === actorToUse?.id) {
+                weaponForDamage = weaponItem;
+                console.log('Mastery System | [DAMAGE DIALOG] Found weapon via game.items lookup', {
+                    weaponId: weaponId,
+                    weaponName: weaponForDamage.name,
+                    weaponType: weaponForDamage.type,
+                    actorId: weaponItem.actor?.id
+                });
+            }
+        }
+        catch (e) {
+            console.warn('Mastery System | [DAMAGE DIALOG] Error looking up weapon from game.items', e);
+        }
+    }
     // Method 2: Find in items array by ID
     if (!weaponForDamage && weaponId) {
         weaponForDamage = items.find((item) => item.id === weaponId);
