@@ -653,9 +653,63 @@
   font-size: 18px;
 }
 
+/* ========== Damage Result Message ========== */
+.mastery-system-damage {
+  background: linear-gradient(to bottom, #f5f5f5, #e8e8e8);
+  border: 2px solid #8b0000;
+  border-radius: 8px;
+  padding: 15px;
+  font-family: 'Signika', sans-serif;
+  margin: 8px 0;
+  box-shadow: 0 2px 6px rgba(139, 0, 0, 0.15);
+}
 
+.mastery-system-damage h3 {
+  margin: 0 0 12px 0;
+  color: #8b0000;
+  font-size: 20px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 2px solid #8b0000;
+  padding-bottom: 8px;
+}
 
+.mastery-system-damage h3::before {
+  content: "⚔️";
+  font-size: 24px;
+}
 
+.mastery-system-damage p {
+  margin: 8px 0;
+  color: #333;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.mastery-system-damage p:first-of-type {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  margin: 12px 0;
+  font-weight: 500;
+  color: #555;
+}
+
+.mastery-system-damage p strong {
+  color: #8b0000;
+  font-weight: bold;
+}
+
+.mastery-system-damage p:last-child {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #ddd;
+  color: #666;
+  font-size: 13px;
+}
 
 
 

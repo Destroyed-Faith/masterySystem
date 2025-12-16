@@ -886,7 +886,7 @@
               <div class="equipment-item" data-item-id="{{this.id}}">
                 <div class="equipment-header">
                   <div class="equipment-name">
-                    <input type="checkbox" name="equipped" {{#if this.system.equipped}}checked{{/if}} data-item-id="{{this.id}}" />
+                    <input type="radio" name="equipped-weapon" value="{{this.id}}" {{#if this.system.equipped}}checked{{/if}} data-item-id="{{this.id}}" />
                     <label>{{this.name}}</label>
                   </div>
                   <div class="equipment-controls">
@@ -940,7 +940,7 @@
               <div class="equipment-item" data-item-id="{{this.id}}">
                 <div class="equipment-header">
                   <div class="equipment-name">
-                    <input type="checkbox" name="equipped" {{#if this.system.equipped}}checked{{/if}} data-item-id="{{this.id}}" />
+                    <input type="radio" name="equipped-armor" value="{{this.id}}" {{#if this.system.equipped}}checked{{/if}} data-item-id="{{this.id}}" />
                     <label>{{this.name}}</label>
                   </div>
                   <div class="equipment-controls">
@@ -984,7 +984,7 @@
               <div class="equipment-item" data-item-id="{{this.id}}">
                 <div class="equipment-header">
                   <div class="equipment-name">
-                    <input type="checkbox" name="equipped" {{#if this.system.equipped}}checked{{/if}} data-item-id="{{this.id}}" />
+                    <input type="radio" name="equipped-shield" value="{{this.id}}" {{#if this.system.equipped}}checked{{/if}} data-item-id="{{this.id}}" />
                     <label>{{this.name}}</label>
                   </div>
                   <div class="equipment-controls">

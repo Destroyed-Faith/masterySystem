@@ -4138,11 +4138,17 @@
   flex: 1;
 }
 
-.mastery-system.sheet.actor.character .equipment-name input[type="checkbox"] {
+.mastery-system.sheet.actor.character .equipment-name input[type="checkbox"],
+.mastery-system.sheet.actor.character .equipment-name input[type="radio"] {
   width: 18px;
   height: 18px;
   cursor: pointer;
   accent-color: #8b0000;
+  margin-right: 0.5rem;
+}
+
+.mastery-system.sheet.actor.character .equipment-name input[type="radio"] {
+  margin-right: 0.5rem;
 }
 
 .mastery-system.sheet.actor.character .equipment-name label {
