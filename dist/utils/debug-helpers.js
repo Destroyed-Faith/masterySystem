@@ -48,13 +48,28 @@ export function logActorItemSummary(actor, tag) {
             weaponDamageValue: system.weaponDamage?.value ?? null
         };
     });
+    // Build ALL item details for debugging (to find items that might be weapons but have wrong type)
+    const allItemDetails = items.map((item) => {
+        const system = item.system || {};
+        return {
+            id: item.id,
+            name: item.name,
+            type: item.type,
+            systemKeys: Object.keys(system),
+            equipped: system.equipped ?? false,
+            damage: system.damage ?? null,
+            weaponDamage: system.weaponDamage ?? null,
+            weaponType: system.weaponType ?? null
+        };
+    });
     console.log(`Mastery System | [${tag}] Actor Item Summary`, {
         actorId: actor.id,
         actorName: actor.name,
         itemsCount: items.length,
         itemTypes: itemTypes,
         weaponItemsCount: weaponItems.length,
-        weaponDetails: weaponDetails
+        weaponDetails: weaponDetails,
+        allItems: allItemDetails // Show ALL items to debug type mismatches
     });
 }
 //# sourceMappingURL=debug-helpers.js.map

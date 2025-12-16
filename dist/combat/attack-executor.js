@@ -98,9 +98,32 @@ export async function createMeleeAttackCard(attackerToken, targetToken, option) 
     logActorItemSummary(attacker, 'attack-card:create');
     // Robust weapon resolution: equipped weapon first, then any weapon, then null
     const items = collectActorItems(attacker);
-    const weapon = items.find((i) => i.type === 'weapon' && i.system?.equipped === true)
-        ?? items.find((i) => i.type === 'weapon')
-        ?? null;
+    // Try multiple strategies to find weapon:
+    // 1. type === 'weapon' && equipped === true
+    // 2. type === 'weapon' (any weapon)
+    // 3. Check if any item has weapon-like properties (damage, weaponDamage) even if type is wrong
+    let weapon = items.find((i) => i.type === 'weapon' && i.system?.equipped === true);
+    if (!weapon) {
+        weapon = items.find((i) => i.type === 'weapon');
+    }
+    // Fallback: Look for items with weapon properties (in case type is wrong)
+    if (!weapon) {
+        weapon = items.find((i) => {
+            const system = i.system || {};
+            return (system.damage || system.weaponDamage || system.weaponType) &&
+                (system.equipped === true || i.name?.toLowerCase().includes('axe') || i.name?.toLowerCase().includes('sword') || i.name?.toLowerCase().includes('weapon'));
+        });
+        if (weapon) {
+            console.warn('Mastery System | [ATTACK EXECUTOR] Found weapon-like item with wrong type', {
+                itemId: weapon.id,
+                itemName: weapon.name,
+                itemType: weapon.type,
+                hasDamage: !!weapon.system?.damage,
+                hasWeaponDamage: !!weapon.system?.weaponDamage,
+                equipped: weapon.system?.equipped
+            });
+        }
+    }
     const weaponId = weapon?.id ?? null;
     // Set flags with weaponId (always, even if null)
     if (!weapon) {

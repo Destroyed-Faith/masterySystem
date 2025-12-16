@@ -106,6 +106,7 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
     // Load items from actor
     const items = collectActorItems(attacker);
     // Resolve weapon: first by ID, then fallback to equipped weapon, then first weapon
+    // Also check for weapon-like items with wrong type
     let weaponForDamage = null;
     if (weaponId) {
         weaponForDamage = items.find((item) => item.id === weaponId);
@@ -115,6 +116,24 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
     }
     if (!weaponForDamage) {
         weaponForDamage = items.find((item) => item.type === 'weapon');
+    }
+    // Fallback: Look for items with weapon properties (in case type is wrong)
+    if (!weaponForDamage) {
+        weaponForDamage = items.find((item) => {
+            const system = item.system || {};
+            return (system.damage || system.weaponDamage || system.weaponType) &&
+                (system.equipped === true || item.name?.toLowerCase().includes('axe') || item.name?.toLowerCase().includes('sword') || item.name?.toLowerCase().includes('weapon'));
+        });
+        if (weaponForDamage) {
+            console.warn('Mastery System | [DAMAGE DIALOG] Found weapon-like item with wrong type', {
+                itemId: weaponForDamage.id,
+                itemName: weaponForDamage.name,
+                itemType: weaponForDamage.type,
+                hasDamage: !!weaponForDamage.system?.damage,
+                hasWeaponDamage: !!weaponForDamage.system?.weaponDamage,
+                equipped: weaponForDamage.system?.equipped
+            });
+        }
     }
     console.log('Mastery System | [DAMAGE DIALOG] Weapon loading', {
         weaponId: weaponId,
