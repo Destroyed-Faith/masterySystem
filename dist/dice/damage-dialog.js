@@ -8,10 +8,15 @@
 // Helper: Sanitize dice notation - extract dice expression from strings like "3d8 damage" or "Weapon DMG + 1d8"
 function sanitizeDiceNotation(str) {
     if (!str || typeof str !== 'string')
-        return str;
+        return str || '0';
+    // Handle cases like "+3d8" (leading +)
+    let cleaned = str.trim();
+    if (cleaned.startsWith('+')) {
+        cleaned = cleaned.substring(1).trim();
+    }
     // Match dice notation patterns: XdY, XdY+Z, XdY-Z, etc.
     const dicePattern = /(\d+d\d+(?:\s*[+\-]\s*\d+)?)/i;
-    const match = str.match(dicePattern);
+    const match = cleaned.match(dicePattern);
     if (match) {
         // Extract the dice notation and clean up whitespace
         return match[1].replace(/\s+/g, '');
@@ -19,12 +24,17 @@ function sanitizeDiceNotation(str) {
     // If no dice pattern found, try to extract numbers and operators
     // This handles cases like "+3" or "-2" modifiers
     const modifierPattern = /([+\-]\s*\d+)/;
-    const modifierMatch = str.match(modifierPattern);
+    const modifierMatch = cleaned.match(modifierPattern);
     if (modifierMatch) {
         return modifierMatch[1].replace(/\s+/g, '');
     }
-    // Return original if no pattern matches
-    return str.trim();
+    // Try to match just a number (flat damage)
+    const numberPattern = /^\d+$/;
+    if (numberPattern.test(cleaned)) {
+        return cleaned;
+    }
+    // Return original if no pattern matches (might be valid notation we don't recognize)
+    return cleaned;
 }
 // Helper: Safely collect items from actor
 function collectActorItems(actor) {
@@ -42,7 +52,7 @@ function collectActorItems(actor) {
 // Helper: Resolve weapon base damage from weapon system
 function resolveWeaponBaseDamage(weapon) {
     if (!weapon || !weapon.system) {
-        return { baseDamage: '1d8', baseDamageRaw: null };
+        return '1d8';
     }
     const weaponSystem = weapon.system;
     const baseDamageRaw = weaponSystem.damage ??
@@ -51,15 +61,15 @@ function resolveWeaponBaseDamage(weapon) {
         weaponSystem.damage?.value ??
         weaponSystem.weaponDamage?.value ??
         null;
-    let baseDamage = '1d8';
     if (typeof baseDamageRaw === 'string' && baseDamageRaw.trim().length > 0) {
-        baseDamage = baseDamageRaw.trim();
+        return baseDamageRaw.trim();
     }
     else if (baseDamageRaw !== null && baseDamageRaw !== undefined) {
         // Try to stringify if it's an object
-        baseDamage = String(baseDamageRaw).trim() || '1d8';
+        const str = String(baseDamageRaw).trim();
+        return str || '1d8';
     }
-    return { baseDamage, baseDamageRaw };
+    return '1d8';
 }
 export async function showDamageDialog(attacker, target, weaponId, selectedPowerId, raises, flags) {
     // Debug log at entry
@@ -115,9 +125,11 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         weaponIdMatch: weaponForDamage ? weaponForDamage.id === weaponId : false,
         allWeaponIds: items.filter((item) => item.type === 'weapon').map((item) => item.id)
     });
-    // Resolve base damage using helper
-    const { baseDamage, baseDamageRaw } = resolveWeaponBaseDamage(weaponForDamage);
-    // Weapon specials should come from the same resolved weapon
+    // Resolve base damage using helper (returns string directly)
+    const baseDamage = resolveWeaponBaseDamage(weaponForDamage);
+    // Sanitize base damage before use
+    const sanitizedBaseDamage = sanitizeDiceNotation(baseDamage);
+    // Weapon specials should come from the same resolved weapon (only once)
     const weaponSpecials = weaponForDamage?.system?.specials ?? [];
     // Debug log after weapon resolve
     console.log('Mastery System | [WEAPON-ID DEBUG]', {
@@ -126,14 +138,15 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         weaponName: weaponForDamage?.name || null,
         weaponIdResolved: weaponForDamage?.id || null,
         weaponSystemKeys: weaponForDamage ? Object.keys(weaponForDamage.system || {}) : [],
-        baseDamageRawResolved: baseDamageRaw
+        baseDamageRaw: baseDamage,
+        baseDamageSanitized: sanitizedBaseDamage
     });
     console.log("Mastery System | [DAMAGE DIALOG] Base damage resolved", {
         weaponId,
         weaponFound: !!weaponForDamage,
         weaponName: weaponForDamage?.name,
-        baseDamageRaw,
-        baseDamage
+        baseDamage: baseDamage,
+        baseDamageSanitized: sanitizedBaseDamage
     });
     // Load selected power from actor by ID and get its data
     let powerDamage = '0';
@@ -604,10 +617,11 @@ async function collectAvailableSpecials(actor, weapon, selectedPower) {
     // Note: getPassiveSlots doesn't exist in a separate module
     // For now, skip passive specials until passives module is properly implemented
     console.warn('Mastery System | [DAMAGE DIALOG] getPassiveSlots not available, skipping passive specials');
-    // Get weapon specials
+    // Get weapon specials (use the weaponSpecials already resolved above, not duplicate)
+    // Note: weaponSpecials is already set from weaponForDamage earlier in the function
     if (weapon && weapon.system?.specials) {
-        const weaponSpecialsArray = weapon.system.specials;
-        for (const special of weaponSpecialsArray) {
+        const weaponSpecialsFromWeapon = weapon.system.specials;
+        for (const special of weaponSpecialsFromWeapon) {
             specials.push({
                 id: `weapon-${special}`,
                 name: special,

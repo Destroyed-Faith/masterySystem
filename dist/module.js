@@ -627,7 +627,7 @@ Hooks.on('preCreateActor', async (actor, data, _options, _userId) => {
         console.log('Mastery System | New character created - setting creationComplete=false');
     }
     // Initialize NPCs with 30 HP and health bar
-    if (actor.type === 'npc') {
+    if (actor.type === 'npc' || actor.type === 'character') {
         if (!data.system) {
             data.system = {};
         }
@@ -677,6 +677,44 @@ Hooks.on('preCreateActor', async (actor, data, _options, _userId) => {
             data.system.statusEffects = [];
         }
         console.log('Mastery System | New NPC created - initialized with 30 HP and statusEffects');
+    }
+});
+// Post-create hook to add default weapon if needed
+Hooks.on('createActor', async (actor, _options, _userId) => {
+    // Only add default weapon for characters and NPCs
+    if (actor.type !== 'character' && actor.type !== 'npc') {
+        return;
+    }
+    // Only add if this is the creating user (not a sync from another client)
+    if (_userId !== game.user?.id) {
+        return;
+    }
+    try {
+        // Check if actor has any weapon items
+        const items = actor.items || [];
+        const hasWeapon = items.some((item) => item.type === 'weapon');
+        if (!hasWeapon) {
+            // Create default "Unarmed" weapon
+            const unarmedWeapon = {
+                name: 'Unarmed',
+                type: 'weapon',
+                system: {
+                    weaponType: 'melee',
+                    damage: '1d8',
+                    range: '0m',
+                    specials: [],
+                    equipped: true,
+                    hands: 1,
+                    innateAbilities: [],
+                    description: 'Basic unarmed strikes using fists, feet, or natural weapons.'
+                }
+            };
+            await actor.createEmbeddedDocuments('Item', [unarmedWeapon]);
+            console.log(`Mastery System | Added default "Unarmed" weapon to ${actor.name}`);
+        }
+    }
+    catch (error) {
+        console.warn('Mastery System | Could not add default weapon to actor:', error);
     }
 });
 /**

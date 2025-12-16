@@ -2,6 +2,7 @@
  * Attack Executor
  * Creates melee attack chat cards with proper flags for the roll handler
  */
+import { logActorItemSummary } from "../utils/debug-helpers.js";
 /**
  * Safely collect items from actor (handles Collection, Array, Map)
  */
@@ -19,26 +20,6 @@ function collectActorItems(actor) {
         return Array.from(actor.items.values());
     }
     return [];
-}
-/**
- * Get equipped weapon from actor with robust resolution
- * First tries equipped weapon, then falls back to first weapon found
- */
-function getEquippedWeapon(actor) {
-    if (!actor)
-        return null;
-    const items = collectActorItems(actor);
-    const weapons = items.filter((item) => item.type === 'weapon');
-    // First: try equipped weapon
-    const equippedWeapon = weapons.find((item) => item.system?.equipped === true);
-    if (equippedWeapon) {
-        return equippedWeapon;
-    }
-    // Fallback: first weapon found
-    if (weapons.length > 0) {
-        return weapons[0];
-    }
-    return null;
 }
 /**
  * Get attribute value from actor
@@ -113,22 +94,25 @@ export async function createMeleeAttackCard(attackerToken, targetToken, option) 
         });
         return;
     }
-    // Robust weapon resolution
+    // Log actor item summary for diagnostics
+    logActorItemSummary(attacker, 'attack-card:create');
+    // Robust weapon resolution: equipped weapon first, then any weapon, then null
     const items = collectActorItems(attacker);
-    const weapon = getEquippedWeapon(attacker);
+    const weapon = items.find((i) => i.type === 'weapon' && i.system?.equipped === true)
+        ?? items.find((i) => i.type === 'weapon')
+        ?? null;
     const weaponId = weapon?.id ?? null;
-    // Debug log: item counts and weapon resolution
-    const itemTypes = items.reduce((acc, item) => {
-        const type = item.type || 'unknown';
-        acc[type] = (acc[type] || 0) + 1;
-        return acc;
-    }, {});
-    if (!weapon && items.length > 0) {
-        console.warn('Mastery System | [ATTACK EXECUTOR] No weapon found for attacker', {
+    // Set flags with weaponId (always, even if null)
+    if (!weapon) {
+        console.warn('Mastery System | [ATTACK EXECUTOR] Actor has no weapon items; baseDamage will fallback.', {
             attackerId: attacker.id,
+            attackerName: attacker.name,
             totalItems: items.length,
-            itemTypes: itemTypes,
-            weaponItems: items.filter((i) => i.type === 'weapon').length
+            itemTypes: Object.keys(items.reduce((acc, item) => {
+                const type = item.type || 'unknown';
+                acc[type] = (acc[type] || 0) + 1;
+                return acc;
+            }, {}))
         });
     }
     console.log('Mastery System | [ATTACK EXECUTOR] Weapon resolution', {
