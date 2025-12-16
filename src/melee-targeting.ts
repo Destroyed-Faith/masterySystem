@@ -15,6 +15,7 @@ interface MeleeTargetingState {
   previewGraphics: PIXI.Graphics | null;
   originalTokenAlphas: Map<any, number>;
   targetRings: Map<string, PIXI.Graphics>; // Map of token ID to ring graphics
+  targetOverlays: Map<string, PIXI.Container>; // Map of token ID to interactive overlay
   validTargets: Set<string>; // Set of valid target token IDs
   onPointerDown: (ev: PIXI.FederatedPointerEvent) => void;
   onKeyDown: (ev: KeyboardEvent) => void;
@@ -150,6 +151,56 @@ function createTargetRing(token: any): PIXI.Graphics {
 }
 
 /**
+ * Create an interactive overlay over a token that stores the token ID
+ * This overlay will handle clicks and trigger the attack
+ */
+function createTargetOverlay(token: any, tokenId: string, onClick: (tokenId: string) => void): PIXI.Container {
+  const overlay = new PIXI.Container();
+  
+  // Get token bounds
+  const bounds = token.bounds;
+  const width = bounds.width || token.w || 100;
+  const height = bounds.height || token.h || 100;
+  
+  // Create a hit area that covers the token and ring area
+  const hitArea = new PIXI.Graphics();
+  const radius = Math.max(width, height) / 2 + 15; // Token radius + ring padding
+  hitArea.beginFill(0xffffff, 0); // Invisible but clickable
+  hitArea.drawCircle(0, 0, radius);
+  hitArea.endFill();
+  
+  overlay.addChild(hitArea);
+  overlay.position.set(token.center.x, token.center.y);
+  
+  // Make overlay interactive
+  overlay.interactive = true;
+  overlay.eventMode = 'static';
+  overlay.cursor = 'pointer';
+  
+  // Store token ID in overlay for easy access
+  (overlay as any).targetTokenId = tokenId;
+  
+  // Handle clicks
+  overlay.on('pointerdown', (ev: PIXI.FederatedPointerEvent) => {
+    ev.stopPropagation();
+    ev.stopImmediatePropagation();
+    console.log('Mastery System | [MELEE TARGETING] Overlay clicked for token', tokenId);
+    onClick(tokenId);
+  });
+  
+  // Visual feedback on hover
+  overlay.on('pointerover', () => {
+    overlay.alpha = 0.8;
+  });
+  
+  overlay.on('pointerout', () => {
+    overlay.alpha = 1.0;
+  });
+  
+  return overlay;
+}
+
+/**
  * Highlight reach area and mark valid targets
  */
 function highlightReachArea(state: MeleeTargetingState): void {
@@ -197,6 +248,36 @@ function highlightReachArea(state: MeleeTargetingState): void {
   
   const container = (effectsLayer as any).container || effectsLayer;
   
+  // Handler for overlay clicks
+  const handleOverlayClick = (targetTokenId: string) => {
+    const targetToken = canvas.tokens?.get(targetTokenId);
+    if (!targetToken) {
+      console.warn('Mastery System | [MELEE TARGETING] Target token not found for overlay click', targetTokenId);
+      return;
+    }
+    
+    if (!state.validTargets.has(targetTokenId)) {
+      console.warn('Mastery System | [MELEE TARGETING] Overlay clicked for invalid target', targetTokenId);
+      ui.notifications?.warn(`Target is out of range (${state.reachMeters}m)`);
+      return;
+    }
+    
+    console.log('Mastery System | [MELEE TARGETING] Overlay clicked - executing attack', {
+      targetId: targetTokenId,
+      targetName: targetToken.name,
+      attackerId: state.token.id,
+      attackerName: state.token.name,
+      optionId: state.option.id,
+      optionName: state.option.name
+    });
+    
+    // Execute the attack
+    executeMeleeAttack(state.token, targetToken, state.option);
+    
+    // End targeting
+    endMeleeTargeting(true);
+  };
+  
   for (const targetId of state.validTargets) {
     const targetToken = canvas.tokens?.get(targetId);
     if (!targetToken) continue;
@@ -206,17 +287,23 @@ function highlightReachArea(state: MeleeTargetingState): void {
       state.originalTokenAlphas.set(targetToken, targetToken.alpha);
     }
     
-    // Create ring
+    // Create ring (visual indicator)
     const ring = createTargetRing(targetToken);
     state.targetRings.set(targetId, ring);
     container.addChild(ring);
+    
+    // Create interactive overlay (handles clicks)
+    const overlay = createTargetOverlay(targetToken, targetId, handleOverlayClick);
+    state.targetOverlays.set(targetId, overlay);
+    container.addChild(overlay);
     
     // Highlight target token slightly
     targetToken.alpha = Math.min(1.0, targetToken.alpha * 1.2);
   }
   
-  console.log('Mastery System | [MELEE TARGETING] Target rings created', {
-    count: state.targetRings.size
+  console.log('Mastery System | [MELEE TARGETING] Target rings and overlays created', {
+    rings: state.targetRings.size,
+    overlays: state.targetOverlays.size
   });
 }
 
@@ -268,6 +355,7 @@ export function startMeleeTargeting(token: any, option: RadialCombatOption): voi
     previewGraphics,
     originalTokenAlphas: new Map(),
     targetRings: new Map(),
+    targetOverlays: new Map(),
     validTargets: new Set(),
     onPointerDown: handlePointerDown,
     onKeyDown: handleKeyDown
@@ -313,6 +401,14 @@ export function endMeleeTargeting(success: boolean): void {
       ring.parent.removeChild(ring);
     }
     ring.destroy(true);
+  }
+  
+  // Remove target overlays
+  for (const [_targetId, overlay] of state.targetOverlays) {
+    if (overlay.parent) {
+      overlay.parent.removeChild(overlay);
+    }
+    overlay.destroy({ children: true });
   }
   state.targetRings.clear();
 
@@ -527,12 +623,81 @@ function handlePointerDown(ev: PIXI.FederatedPointerEvent): void {
   ev.stopPropagation();
   ev.stopImmediatePropagation();
 
-  // Start the attack
-  // TODO: Trigger actual attack roll here
-  // For now, just end targeting and notify
-  ui.notifications?.info(`Attacking ${clickedToken.name || 'target'}`);
+  // Execute the attack
+  executeMeleeAttack(state.token, clickedToken, state.option);
   
+  // End targeting
   endMeleeTargeting(true);
+}
+
+/**
+ * Execute a melee attack with the selected target
+ */
+async function executeMeleeAttack(attackerToken: any, targetToken: any, option: RadialCombatOption): Promise<void> {
+  console.log('Mastery System | [MELEE TARGETING] Executing melee attack', {
+    attackerId: attackerToken.id,
+    attackerName: attackerToken.name,
+    targetId: targetToken.id,
+    targetName: targetToken.name,
+    optionId: option.id,
+    optionName: option.name,
+    optionSource: option.source
+  });
+  
+  const attacker = attackerToken.actor;
+  const target = targetToken.actor;
+  
+  if (!attacker || !target) {
+    console.error('Mastery System | [MELEE TARGETING] Missing actor data', {
+      hasAttacker: !!attacker,
+      hasTarget: !!target
+    });
+    ui.notifications?.error('Cannot execute attack: missing actor data');
+    return;
+  }
+  
+  // If it's a power, try to use the item's roll method
+  if (option.source === 'power' && option.item) {
+    try {
+      // Check if the item has a roll method that accepts targets
+      if (typeof option.item.roll === 'function') {
+        // Some Foundry systems support passing targets to roll()
+        const rollOptions: any = {
+          target: target,
+          createMessage: true
+        };
+        
+        // Try to call roll with target
+        await option.item.roll(rollOptions);
+        ui.notifications?.info(`Attacking ${targetToken.name || 'target'} with ${option.name}`);
+        return;
+      }
+    } catch (error) {
+      console.warn('Mastery System | [MELEE TARGETING] Error using item.roll(), trying alternative method', error);
+    }
+  }
+  
+  // Fallback: Call handleChosenCombatOption with target information
+  // This will trigger the normal attack flow
+  try {
+    // Import the handler
+    const { handleChosenCombatOption } = await import('./token-action-selector');
+    
+    // Store target info in option for the handler to use
+    const optionWithTarget = {
+      ...option,
+      targetToken: targetToken,
+      targetActor: target
+    };
+    
+    // Call the handler - it should handle the attack roll
+    await handleChosenCombatOption(attackerToken, optionWithTarget);
+    
+    ui.notifications?.info(`Attacking ${targetToken.name || 'target'} with ${option.name}`);
+  } catch (error) {
+    console.error('Mastery System | [MELEE TARGETING] Error executing attack', error);
+    ui.notifications?.error(`Failed to execute attack: ${error}`);
+  }
 }
 
 export function isMeleeTargetingActive(): boolean {
