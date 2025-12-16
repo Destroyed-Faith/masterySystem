@@ -261,20 +261,41 @@ export function registerAttackRollClickHandler() {
                         weaponItemsCount: items.filter((i) => i.type === 'weapon').length,
                         allItemIds: items.map((i) => i.id)
                     });
-                    const equippedWeapon = items.find((item) => item.type === 'weapon' && item.system?.equipped === true);
-                    let weaponId = equippedWeapon ? equippedWeapon.id : null;
-                    // If weapon not found by equipped flag, use weaponId from flags
-                    if (!weaponId && updatedFlags.weaponId) {
-                        console.log('Mastery System | [BEFORE DAMAGE DIALOG] Weapon not found as equipped, using weaponId from flags', {
-                            weaponIdFromFlags: updatedFlags.weaponId,
-                            allItems: items.map((i) => ({ id: i.id, name: i.name, type: i.type, equipped: i.system?.equipped })),
-                            itemsCount: items.length,
-                            weaponItemsCount: items.filter((i) => i.type === 'weapon').length
-                        });
-                        weaponId = updatedFlags.weaponId;
+                    // PRIORITY: Use weaponId from flags if set (this is the weapon used when creating the attack card)
+                    let weaponId = updatedFlags.weaponId || null;
+                    // Verify the weapon from flags exists and is valid
+                    if (weaponId) {
+                        const weaponFromFlags = items.find((item) => item.id === weaponId);
+                        if (!weaponFromFlags) {
+                            console.warn('Mastery System | [BEFORE DAMAGE DIALOG] weaponId from flags not found in items, falling back to equipped weapon', {
+                                weaponIdFromFlags: weaponId,
+                                allItemIds: items.map((i) => i.id)
+                            });
+                            weaponId = null; // Will fall back to equipped weapon below
+                        }
+                        else {
+                            console.log('Mastery System | [BEFORE DAMAGE DIALOG] Using weaponId from flags', {
+                                weaponId: weaponId,
+                                weaponName: weaponFromFlags.name,
+                                weaponType: weaponFromFlags.type,
+                                equipped: weaponFromFlags.system?.equipped
+                            });
+                        }
                     }
-                    // Also try direct lookup by ID if we have weaponId
-                    if (weaponId && !equippedWeapon) {
+                    // Fallback: If no weaponId in flags or weapon not found, use equipped weapon
+                    if (!weaponId) {
+                        const equippedWeapon = items.find((item) => item.type === 'weapon' && item.system?.equipped === true);
+                        weaponId = equippedWeapon ? equippedWeapon.id : null;
+                        if (weaponId) {
+                            console.log('Mastery System | [BEFORE DAMAGE DIALOG] Using equipped weapon as fallback', {
+                                weaponId: weaponId,
+                                weaponName: equippedWeapon.name,
+                                weaponType: equippedWeapon.type
+                            });
+                        }
+                    }
+                    // Verify weapon exists via direct lookup (if not already verified above)
+                    if (weaponId) {
                         let weaponItem = null;
                         if (freshAttackerForDialog.items?.get) {
                             weaponItem = freshAttackerForDialog.items.get(weaponId);
@@ -318,6 +339,8 @@ export function registerAttackRollClickHandler() {
                             });
                         }
                     }
+                    // Find equipped weapon for logging purposes
+                    const equippedWeaponForLog = items.find((item) => item.type === 'weapon' && item.system?.equipped === true);
                     console.log('Mastery System | [BEFORE DAMAGE DIALOG] Weapon and power IDs', {
                         messageId: messageId,
                         weaponId: weaponId,
@@ -326,8 +349,8 @@ export function registerAttackRollClickHandler() {
                         selectedPowerId: updatedFlags.selectedPowerId,
                         selectedPowerIdType: typeof updatedFlags.selectedPowerId,
                         selectedPowerIdLength: updatedFlags.selectedPowerId ? updatedFlags.selectedPowerId.length : 0,
-                        hasEquippedWeapon: !!equippedWeapon,
-                        equippedWeaponName: equippedWeapon ? equippedWeapon.name : null
+                        hasEquippedWeapon: !!equippedWeaponForLog,
+                        equippedWeaponName: equippedWeaponForLog ? equippedWeaponForLog.name : null
                     });
                     // Get raises from button data (the manually entered raises)
                     // result.raises is the number of successful raises (TN exceeded), not the input raises
@@ -375,13 +398,13 @@ export function registerAttackRollClickHandler() {
                         attackerPowers: attacker.items?.filter((i) => i.type === 'special').map((i) => ({ id: i.id, name: i.name })) || []
                     });
                     // Debug log before calling showDamageDialog
-                    const weaponIdFromEquipped = equippedWeapon ? equippedWeapon.id : null;
                     console.log('Mastery System | [WEAPON-ID DEBUG]', {
                         messageType: 'roll-attack:before-damage-dialog',
                         weaponIdArg: weaponId,
+                        weaponIdFromFlags: updatedFlags.weaponId,
+                        weaponIdMatch: weaponId === updatedFlags.weaponId,
                         selectedPowerIdArg: updatedFlags.selectedPowerId || null,
-                        raisesArg: totalRaises,
-                        weaponIdFromEquipped: weaponIdFromEquipped
+                        raisesArg: totalRaises
                     });
                     const { showDamageDialog } = await import('../dice/damage-dialog.js');
                     // Use freshAttackerForDialog that was already loaded above (ensures latest items)
