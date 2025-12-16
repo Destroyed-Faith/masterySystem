@@ -10,11 +10,11 @@
  * - radial-menu/info-panel.ts: Info panel display
  * - radial-menu/rendering.ts: Rendering functions (slices, rings, segments)
  */
-import { MS_OUTER_RING_OUTER, hasGridEnabled, getGridType, getGridTypeName } from './radial-menu/types.js';
-import { getAllCombatOptionsForActor, getSegmentIdForOption } from './radial-menu/options.js';
-import { clearRangePreview, clearRadialMenuRange } from './radial-menu/range-preview.js';
-import { hideRadialInfoPanel } from './radial-menu/info-panel.js';
-import { renderOuterRing, renderInnerSegments, refreshInnerSegmentsVisual } from './radial-menu/rendering.js';
+import { MS_OUTER_RING_OUTER, hasGridEnabled, getGridType, getGridTypeName } from './radial-menu/types';
+import { getAllCombatOptionsForActor, getSegmentIdForOption } from './radial-menu/options';
+import { clearRangePreview, clearRadialMenuRange } from './radial-menu/range-preview';
+import { hideRadialInfoPanel } from './radial-menu/info-panel';
+import { renderOuterRing, renderInnerSegments, refreshInnerSegmentsVisual } from './radial-menu/rendering';
 // Re-export for external use
 export { getAllCombatOptionsForActor };
 // Global state

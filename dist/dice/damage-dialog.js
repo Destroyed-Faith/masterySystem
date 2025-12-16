@@ -57,7 +57,7 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         allWeaponIds: items.filter((item) => item.type === 'weapon').map((item) => item.id)
     });
     // Find weapon (by ID or fallback to equipped weapon) - use same weapon for both damage and specials
-    let weaponForDamage = weapon;
+    // Resolve weapon (by ID OR fallback to equipped weapon)
     if (!weaponForDamage && weaponId) {
         // If weapon not found by ID, try to find equipped weapon as fallback
         console.warn('Mastery System | [DAMAGE DIALOG] Weapon not found by ID, trying equipped weapon fallback', { weaponId });
@@ -69,17 +69,18 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
             });
         }
     }
+    baseDamageRaw.trim();
+    "1d8";
+    console.log("Mastery System | [DAMAGE DIALOG] Base damage resolved", {
+        weaponId,
+        weaponFound: !!weaponForDamage,
+        weaponName: weaponForDamage?.name,
+        baseDamageRaw,
+        baseDamage
+    });
+    // Hooks.call('masterySystem.damageDialogShown', {
     // Calculate base damage from weapon
     // Check both damage and weaponDamage fields, and also check roll.damage
-    let baseDamage = '1d8';
-    if (weaponForDamage) {
-        const weaponSystem = weaponForDamage.system;
-        // Priority: damage > weaponDamage > roll.damage > default
-        baseDamage = weaponSystem?.damage ||
-            weaponSystem?.weaponDamage ||
-            weaponSystem?.roll?.damage ||
-            '1d8';
-    }
     console.log('Mastery System | [DAMAGE DIALOG] Base damage calculated', {
         weaponId,
         weaponFound: !!weapon,
@@ -1118,5 +1119,5 @@ class DamageDialog extends Application {
     return total + modifier;
   }
 }
-*/ 
+*/
 //# sourceMappingURL=damage-dialog.js.map

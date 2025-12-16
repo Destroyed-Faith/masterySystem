@@ -2,7 +2,7 @@
  * NPC Sheet for Mastery System
  * Simplified sheet for non-player characters
  */
-import { MasteryCharacterSheet } from './character-sheet.js';
+import { MasteryCharacterSheet } from './character-sheet';
 export class MasteryNpcSheet extends MasteryCharacterSheet {
     /** @override */
     static get defaultOptions() {
@@ -39,12 +39,13 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
                 context.system.health.bars = barsArray;
             }
             // Ensure each bar has required fields
+            // Only set defaults if the value is missing (undefined/null), not if it's 0
             if (Array.isArray(context.system.health.bars)) {
                 context.system.health.bars = context.system.health.bars.map((bar, index) => ({
                     name: bar.name || `Bar ${index + 1}`,
-                    max: bar.max || 30,
-                    current: bar.current ?? (bar.max ?? 30),
-                    penalty: bar.penalty || 0
+                    max: (bar.max !== undefined && bar.max !== null) ? bar.max : 30,
+                    current: (bar.current !== undefined && bar.current !== null) ? bar.current : ((bar.max !== undefined && bar.max !== null) ? bar.max : 30),
+                    penalty: (bar.penalty !== undefined && bar.penalty !== null) ? bar.penalty : 0
                 }));
             }
         }
@@ -61,12 +62,13 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
                         phase.health.bars = barsArray;
                     }
                     // Ensure each bar has required fields
+                    // Only set defaults if the value is missing (undefined/null), not if it's 0
                     if (Array.isArray(phase.health.bars)) {
                         phase.health.bars = phase.health.bars.map((bar, index) => ({
                             name: bar.name || `Bar ${index + 1}`,
-                            max: bar.max || 30,
-                            current: bar.current ?? (bar.max ?? 30),
-                            penalty: bar.penalty || 0
+                            max: (bar.max !== undefined && bar.max !== null) ? bar.max : 30,
+                            current: (bar.current !== undefined && bar.current !== null) ? bar.current : ((bar.max !== undefined && bar.max !== null) ? bar.max : 30),
+                            penalty: (bar.penalty !== undefined && bar.penalty !== null) ? bar.penalty : 0
                         }));
                     }
                 }
