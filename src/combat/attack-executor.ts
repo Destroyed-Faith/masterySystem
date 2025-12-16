@@ -6,14 +6,48 @@
 import type { RadialCombatOption } from "../token-radial-menu";
 
 /**
- * Get equipped weapon from actor
+ * Safely collect items from actor (handles Collection, Array, Map)
+ */
+function collectActorItems(actor: any): any[] {
+  if (!actor || !actor.items) return [];
+  
+  if (Array.isArray(actor.items)) {
+    return actor.items;
+  } else if (actor.items instanceof Map) {
+    return Array.from(actor.items.values());
+  } else if (actor.items.size !== undefined && actor.items.values) {
+    // Foundry Collection-like object
+    return Array.from(actor.items.values());
+  }
+  
+  return [];
+}
+
+/**
+ * Get equipped weapon from actor with robust resolution
+ * First tries equipped weapon, then falls back to first weapon found
  */
 function getEquippedWeapon(actor: any): any | null {
   if (!actor) return null;
-  const items = actor.items || [];
-  return items.find((item: any) => 
-    item.type === 'weapon' && (item.system as any)?.equipped === true
-  ) || null;
+  
+  const items = collectActorItems(actor);
+  const weapons = items.filter((item: any) => item.type === 'weapon');
+  
+  // First: try equipped weapon
+  const equippedWeapon = weapons.find((item: any) => 
+    (item.system as any)?.equipped === true
+  );
+  
+  if (equippedWeapon) {
+    return equippedWeapon;
+  }
+  
+  // Fallback: first weapon found
+  if (weapons.length > 0) {
+    return weapons[0];
+  }
+  
+  return null;
 }
 
 /**
@@ -103,9 +137,35 @@ export async function createMeleeAttackCard(
     return;
   }
   
-  // Get equipped weapon
+  // Robust weapon resolution
+  const items = collectActorItems(attacker);
   const weapon = getEquippedWeapon(attacker);
-  const weaponId = weapon?.id || null;
+  const weaponId = weapon?.id ?? null;
+  
+  // Debug log: item counts and weapon resolution
+  const itemTypes = items.reduce((acc: Record<string, number>, item: any) => {
+    const type = item.type || 'unknown';
+    acc[type] = (acc[type] || 0) + 1;
+    return acc;
+  }, {});
+  
+  if (!weapon && items.length > 0) {
+    console.warn('Mastery System | [ATTACK EXECUTOR] No weapon found for attacker', {
+      attackerId: attacker.id,
+      totalItems: items.length,
+      itemTypes: itemTypes,
+      weaponItems: items.filter((i: any) => i.type === 'weapon').length
+    });
+  }
+  
+  console.log('Mastery System | [ATTACK EXECUTOR] Weapon resolution', {
+    attackerId: attacker.id,
+    totalItems: items.length,
+    weaponItems: items.filter((i: any) => i.type === 'weapon').length,
+    weaponFound: !!weapon,
+    weaponId: weaponId,
+    weaponName: weapon?.name || null
+  });
   
   // Determine attack attribute
   const attribute = getAttackAttribute(attacker, weapon, option);

@@ -29,8 +29,5 @@ export interface DamageResult {
     specialsUsed: string[];
     totalDamage: number;
 }
-/**
- * Show damage dialog after successful attack
- */
 export declare function showDamageDialog(attacker: Actor, target: Actor, weaponId: string | null, selectedPowerId: string | null, raises: number, flags?: any): Promise<DamageResult | null>;
 //# sourceMappingURL=damage-dialog.d.ts.map

@@ -36,6 +36,68 @@ export interface DamageResult {
 /**
  * Show damage dialog after successful attack
  */
+// Helper: Sanitize dice notation - extract dice expression from strings like "3d8 damage" or "Weapon DMG + 1d8"
+function sanitizeDiceNotation(str: string): string {
+  if (!str || typeof str !== 'string') return str;
+  
+  // Match dice notation patterns: XdY, XdY+Z, XdY-Z, etc.
+  const dicePattern = /(\d+d\d+(?:\s*[+\-]\s*\d+)?)/i;
+  const match = str.match(dicePattern);
+  
+  if (match) {
+    // Extract the dice notation and clean up whitespace
+    return match[1].replace(/\s+/g, '');
+  }
+  
+  // If no dice pattern found, try to extract numbers and operators
+  // This handles cases like "+3" or "-2" modifiers
+  const modifierPattern = /([+\-]\s*\d+)/;
+  const modifierMatch = str.match(modifierPattern);
+  if (modifierMatch) {
+    return modifierMatch[1].replace(/\s+/g, '');
+  }
+  
+  // Return original if no pattern matches
+  return str.trim();
+}
+
+// Helper: Safely collect items from actor
+function collectActorItems(actor: any): any[] {
+  if (!actor || !actor.items) return [];
+  if (Array.isArray(actor.items)) return actor.items;
+  if (actor.items instanceof Map) return Array.from(actor.items.values());
+  if (actor.items.size !== undefined && actor.items.values) {
+    return Array.from(actor.items.values());
+  }
+  return [];
+}
+
+// Helper: Resolve weapon base damage from weapon system
+function resolveWeaponBaseDamage(weapon: any | null): { baseDamage: string; baseDamageRaw: any } {
+  if (!weapon || !weapon.system) {
+    return { baseDamage: '1d8', baseDamageRaw: null };
+  }
+  
+  const weaponSystem = weapon.system as any;
+  const baseDamageRaw: any =
+    weaponSystem.damage ??
+    weaponSystem.weaponDamage ??
+    weaponSystem.roll?.damage ??
+    weaponSystem.damage?.value ??
+    weaponSystem.weaponDamage?.value ??
+    null;
+  
+  let baseDamage: string = '1d8';
+  if (typeof baseDamageRaw === 'string' && baseDamageRaw.trim().length > 0) {
+    baseDamage = baseDamageRaw.trim();
+  } else if (baseDamageRaw !== null && baseDamageRaw !== undefined) {
+    // Try to stringify if it's an object
+    baseDamage = String(baseDamageRaw).trim() || '1d8';
+  }
+  
+  return { baseDamage, baseDamageRaw };
+}
+
 export async function showDamageDialog(
   attacker: Actor,
   target: Actor,
@@ -77,89 +139,55 @@ export async function showDamageDialog(
     flagsRaises: flags?.raises
   });
   
-  // Load weapon from actor by ID
-  // Handle both Collection and Array
-  let items: any[] = [];
-  if ((attacker as any).items) {
-    if (Array.isArray((attacker as any).items)) {
-      items = (attacker as any).items;
-    } else if ((attacker as any).items instanceof Map) {
-      items = Array.from((attacker as any).items.values());
-    } else if ((attacker as any).items.size !== undefined && (attacker as any).items.values) {
-      // Foundry Collection-like object
-      items = Array.from((attacker as any).items.values());
-    } else {
-      items = [];
-    }
+  // Load items from actor
+  const items = collectActorItems(attacker);
+  
+  // Resolve weapon: first by ID, then fallback to equipped weapon, then first weapon
+  let weaponForDamage: any = null;
+  if (weaponId) {
+    weaponForDamage = items.find((item: any) => item.id === weaponId);
   }
-  const weapon = weaponId ? items.find((item: any) => item.id === weaponId) : null;
+  if (!weaponForDamage) {
+    weaponForDamage = items.find((item: any) => 
+      item.type === 'weapon' && (item.system as any)?.equipped === true
+    );
+  }
+  if (!weaponForDamage) {
+    weaponForDamage = items.find((item: any) => item.type === 'weapon');
+  }
   
   console.log('Mastery System | [DAMAGE DIALOG] Weapon loading', {
     weaponId: weaponId,
     totalItems: items.length,
     weaponItems: items.filter((item: any) => item.type === 'weapon').length,
-    weaponFound: !!weapon,
-    weaponName: weapon ? weapon.name : 'none',
-    weaponIdMatch: weapon ? weapon.id === weaponId : false,
+    weaponFound: !!weaponForDamage,
+    weaponName: weaponForDamage?.name || 'none',
+    weaponIdMatch: weaponForDamage ? weaponForDamage.id === weaponId : false,
     allWeaponIds: items.filter((item: any) => item.type === 'weapon').map((item: any) => item.id)
   });
   
-  // Find weapon (by ID or fallback to equipped weapon) - use same weapon for both damage and specials
-  // Resolve weapon (by ID OR fallback to equipped weapon)
-  let weaponForDamage: any = weaponId ? items.find((i: any) => i.id === weaponId) : null;
+  // Resolve base damage using helper
+  const { baseDamage, baseDamageRaw } = resolveWeaponBaseDamage(weaponForDamage);
 
-if (!weaponForDamage) {
-  weaponForDamage = items.find((i: any) => i.type === "weapon" && i.system?.equipped === true) ?? null;
-}
-
-const weaponSystem: any = weaponForDamage?.system ?? {};
-
-// Extract base damage (support string OR {value})
-const baseDamageRaw: any =
-  weaponSystem.damage ??
-  weaponSystem.weaponDamage ??
-  weaponSystem.roll?.damage ??
-  weaponSystem.damage?.value ??
-  weaponSystem.weaponDamage?.value ??
-  null;
-
-const baseDamage: string =
-  (typeof baseDamageRaw === "string" && baseDamageRaw.trim().length)
-    ? baseDamageRaw.trim()
-    : "1d8";
-
-// Debug log after weapon resolve
-console.log('Mastery System | [WEAPON-ID DEBUG]', {
-  messageType: 'damage-dialog:weapon-resolve',
-  weaponResolved: !!weaponForDamage,
-  weaponName: weaponForDamage?.name || null,
-  weaponIdResolved: weaponForDamage?.id || null,
-  weaponSystemKeys: weaponForDamage ? Object.keys(weaponForDamage.system || {}) : [],
-  baseDamageRawResolved: baseDamageRaw
-});
-
-console.log("Mastery System | [DAMAGE DIALOG] Base damage resolved", {
-  weaponId,
-  weaponFound: !!weaponForDamage,
-  weaponName: weaponForDamage?.name,
-  baseDamageRaw,
-  baseDamage
-});
-
-// Weapon specials should come from the same resolved weapon
-const weaponSpecials: string[] = weaponForDamage?.system?.specials ?? [];
-
+  // Weapon specials should come from the same resolved weapon
+  const weaponSpecials: string[] = weaponForDamage?.system?.specials ?? [];
   
-  console.log('Mastery System | [DAMAGE DIALOG] Base damage calculated', {
+  // Debug log after weapon resolve
+  console.log('Mastery System | [WEAPON-ID DEBUG]', {
+    messageType: 'damage-dialog:weapon-resolve',
+    weaponResolved: !!weaponForDamage,
+    weaponName: weaponForDamage?.name || null,
+    weaponIdResolved: weaponForDamage?.id || null,
+    weaponSystemKeys: weaponForDamage ? Object.keys(weaponForDamage.system || {}) : [],
+    baseDamageRawResolved: baseDamageRaw
+  });
+  
+  console.log("Mastery System | [DAMAGE DIALOG] Base damage resolved", {
     weaponId,
-    weaponFound: !!weapon,
-    weaponForDamageFound: !!weaponForDamage,
-    weaponName: weaponForDamage ? weaponForDamage.name : 'none',
-    baseDamage: baseDamage,
-    weaponSystemDamage: weaponForDamage ? (weaponForDamage.system as any)?.damage : null,
-    weaponSystemWeaponDamage: weaponForDamage ? (weaponForDamage.system as any)?.weaponDamage : null,
-    weaponSystemRollDamage: weaponForDamage ? (weaponForDamage.system as any)?.roll?.damage : null,
-    weaponSystemFull: weaponForDamage ? JSON.stringify(weaponForDamage.system, null, 2) : null
+    weaponFound: !!weaponForDamage,
+    weaponName: weaponForDamage?.name,
+    baseDamageRaw,
+    baseDamage
   });
   
   
@@ -218,7 +246,7 @@ const weaponSpecials: string[] = weaponForDamage?.system?.specials ?? [];
       // Try to get level-specific data from power definitions
       let levelData: any = null;
       try {
-        const powersModule = await import('../../utils/powers/index.js' as any);
+        const powersModule = await import('../utils/powers/index.js' as any);
         const powerDefinitions = powersModule.ALL_MASTERY_POWERS || [];
         const powerDef = powerDefinitions.find((p: any) => 
           p.name === selectedPower.name && p.tree === powerSystem.tree
@@ -633,62 +661,11 @@ function initializeDamageCard(messageId: string, resolve: (result: DamageResult 
 /**
  * Calculate passive damage bonuses
  */
-async function calculatePassiveDamage(actor: Actor): Promise<string> {
-  try {
-    console.log('Mastery System | DEBUG: calculatePassiveDamage - starting', { actorName: (actor as any).name });
-    // Import passive functions to get slots (try multiple paths)
-    let passivesModule;
-    try {
-      console.log('Mastery System | DEBUG: calculatePassiveDamage - trying ../../dist/powers/passives.js');
-      passivesModule = await import('../../dist/powers/passives.js' as any);
-      console.log('Mastery System | DEBUG: calculatePassiveDamage - loaded passives module', { hasModule: !!passivesModule });
-    } catch (e) {
-      console.warn('Mastery System | DEBUG: calculatePassiveDamage - first import failed', e);
-      // Try alternative path
-      try {
-        console.log('Mastery System | DEBUG: calculatePassiveDamage - trying ../../utils/powers/passives.js');
-        passivesModule = await import('../../utils/powers/passives.js' as any);
-        console.log('Mastery System | DEBUG: calculatePassiveDamage - loaded passives module from utils', { hasModule: !!passivesModule });
-      } catch (e2) {
-        console.warn('Mastery System | Could not load passives module, skipping passive damage', e2);
-        return '0';
-      }
-    }
-    const { getPassiveSlots } = passivesModule;
-    
-    const slots = getPassiveSlots(actor);
-    const activePassives = slots.filter((slot: any) => slot.active && slot.passive);
-    
-  let totalDamage = 0;
-  let damageDice = '';
-  
-  // Check each active passive for damage bonuses
-  for (const slot of activePassives) {
-    const passive = slot.passive;
-    // Check if passive has damage bonus in its definition
-    if (passive.damageBonus) {
-      if (typeof passive.damageBonus === 'number') {
-        totalDamage += passive.damageBonus;
-      } else if (typeof passive.damageBonus === 'string') {
-        // Parse dice notation like "1d8"
-        damageDice += (damageDice ? ' + ' : '') + passive.damageBonus;
-      }
-    }
-  }
-  
-  if (damageDice && totalDamage > 0) {
-    return `${damageDice} + ${totalDamage}`;
-  } else if (damageDice) {
-    return damageDice;
-  } else if (totalDamage > 0) {
-    return totalDamage.toString();
-  }
-  
+async function calculatePassiveDamage(_actor: Actor): Promise<string> {
+  // Note: getPassiveSlots doesn't exist in a separate module
+  // For now, skip passive damage calculation until passives module is properly implemented
+  console.warn('Mastery System | [DAMAGE DIALOG] getPassiveSlots not available, skipping passive damage');
   return '0';
-  } catch (error) {
-    console.warn('Mastery System | Could not calculate passive damage:', error);
-    return '0';
-  }
 }
 
 /**
@@ -747,51 +724,14 @@ async function collectAvailableSpecials(actor: Actor, weapon: any | null, select
   }
   
   // Get passives that can be used on attack (from passive slots)
-  try {
-    console.log('Mastery System | DEBUG: collectAvailableSpecials - loading passives module');
-    // Try multiple paths for passives module
-    let passivesModule;
-    try {
-      console.log('Mastery System | DEBUG: collectAvailableSpecials - trying ../../dist/powers/passives.js');
-      passivesModule = await import('../../dist/powers/passives.js' as any);
-      console.log('Mastery System | DEBUG: collectAvailableSpecials - loaded passives module', { hasModule: !!passivesModule });
-    } catch (e) {
-      console.warn('Mastery System | DEBUG: collectAvailableSpecials - first import failed', e);
-      try {
-        console.log('Mastery System | DEBUG: collectAvailableSpecials - trying ../../utils/powers/passives.js');
-        passivesModule = await import('../../utils/powers/passives.js' as any);
-        console.log('Mastery System | DEBUG: collectAvailableSpecials - loaded passives module from utils', { hasModule: !!passivesModule });
-      } catch (e2) {
-        console.warn('Mastery System | Could not load passives module for specials', e2);
-        return specials; // Return what we have so far
-      }
-    }
-    const { getPassiveSlots } = passivesModule;
-    
-    const slots = getPassiveSlots(actor);
-    const activePassives = slots.filter((slot: any) => slot.active && slot.passive);
-    
-    for (const slot of activePassives) {
-      const passive = slot.passive;
-      // Check if passive can be used on attack (this would need to be defined in passive data)
-      if (passive.canUseOnAttack !== false) { // Default to true if not specified
-        specials.push({
-          id: `passive-${slot.slotIndex}`,
-          name: passive.name,
-          type: 'passive',
-          description: passive.description || '',
-          effect: passive.effect || ''
-        });
-      }
-    }
-  } catch (error) {
-    console.warn('Mastery System | Could not load passives for specials:', error);
-  }
+  // Note: getPassiveSlots doesn't exist in a separate module
+  // For now, skip passive specials until passives module is properly implemented
+  console.warn('Mastery System | [DAMAGE DIALOG] getPassiveSlots not available, skipping passive specials');
   
   // Get weapon specials
   if (weapon && (weapon.system as any)?.specials) {
-    const weaponSpecials = (weapon.system as any).specials as string[];
-    for (const special of weaponSpecials) {
+    const weaponSpecialsArray = (weapon.system as any).specials as string[];
+    for (const special of weaponSpecialsArray) {
       specials.push({
         id: `weapon-${special}`,
         name: special,
@@ -962,13 +902,18 @@ async function calculateDamageResult(
   target: Actor
 ): Promise<DamageResult> {
   // Roll base damage
-  const baseDamageRolled = await rollDice(baseDamage || '0');
+  // Sanitize dice notations before rolling
+  const sanitizedBaseDamage = sanitizeDiceNotation(baseDamage || '0');
+  const sanitizedPowerDamage = sanitizeDiceNotation(powerDamage || '0');
+  const sanitizedPassiveDamage = sanitizeDiceNotation(passiveDamage || '0');
+  
+  const baseDamageRolled = await rollDice(sanitizedBaseDamage);
   
   // Roll power damage
-  const powerDamageRolled = await rollDice(powerDamage || '0');
+  const powerDamageRolled = await rollDice(sanitizedPowerDamage);
   
   // Roll passive damage
-  const passiveDamageRolled = await rollDice(passiveDamage || '0');
+  const passiveDamageRolled = await rollDice(sanitizedPassiveDamage);
   
   // Calculate raise damage and collect specials
   let raiseDamage = 0;
@@ -1031,8 +976,11 @@ async function calculateDamageResult(
 async function rollDice(diceNotation: string): Promise<number> {
   if (!diceNotation || diceNotation === '0') return 0;
   
+  // Sanitize dice notation first (in case it wasn't already sanitized)
+  const sanitized = sanitizeDiceNotation(diceNotation);
+  
   // Parse dice notation (e.g., "2d8+3" or "1d8")
-  const match = diceNotation.match(/(\d+)d(\d+)([+-]\d+)?/);
+  const match = sanitized.match(/(\d+)d(\d+)([+-]\d+)?/);
   if (!match) {
     // Try to parse as flat number
     const num = parseInt(diceNotation);
@@ -1225,14 +1173,19 @@ class DamageDialog extends Application {
   }
   
   private async calculateDamage(): Promise<DamageResult> {
+    // Sanitize dice notations before rolling
+    const sanitizedBaseDamage = sanitizeDiceNotation(this.data.baseDamage);
+    const sanitizedPowerDamage = sanitizeDiceNotation(this.data.powerDamage || '0');
+    const sanitizedPassiveDamage = sanitizeDiceNotation(this.data.passiveDamage || '0');
+    
     // Roll base damage
-    const baseDamage = await this.rollDice(this.data.baseDamage);
+    const baseDamage = await this.rollDice(sanitizedBaseDamage);
     
     // Roll power damage
-    const powerDamage = await this.rollDice(this.data.powerDamage || '0');
+    const powerDamage = await this.rollDice(sanitizedPowerDamage);
     
     // Roll passive damage
-    const passiveDamage = await this.rollDice(this.data.passiveDamage || '0');
+    const passiveDamage = await this.rollDice(sanitizedPassiveDamage);
     
     // Calculate raise damage and collect specials
     let raiseDamage = 0;

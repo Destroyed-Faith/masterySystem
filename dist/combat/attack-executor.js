@@ -3,13 +3,42 @@
  * Creates melee attack chat cards with proper flags for the roll handler
  */
 /**
- * Get equipped weapon from actor
+ * Safely collect items from actor (handles Collection, Array, Map)
+ */
+function collectActorItems(actor) {
+    if (!actor || !actor.items)
+        return [];
+    if (Array.isArray(actor.items)) {
+        return actor.items;
+    }
+    else if (actor.items instanceof Map) {
+        return Array.from(actor.items.values());
+    }
+    else if (actor.items.size !== undefined && actor.items.values) {
+        // Foundry Collection-like object
+        return Array.from(actor.items.values());
+    }
+    return [];
+}
+/**
+ * Get equipped weapon from actor with robust resolution
+ * First tries equipped weapon, then falls back to first weapon found
  */
 function getEquippedWeapon(actor) {
     if (!actor)
         return null;
-    const items = actor.items || [];
-    return items.find((item) => item.type === 'weapon' && item.system?.equipped === true) || null;
+    const items = collectActorItems(actor);
+    const weapons = items.filter((item) => item.type === 'weapon');
+    // First: try equipped weapon
+    const equippedWeapon = weapons.find((item) => item.system?.equipped === true);
+    if (equippedWeapon) {
+        return equippedWeapon;
+    }
+    // Fallback: first weapon found
+    if (weapons.length > 0) {
+        return weapons[0];
+    }
+    return null;
 }
 /**
  * Get attribute value from actor
@@ -84,9 +113,32 @@ export async function createMeleeAttackCard(attackerToken, targetToken, option) 
         });
         return;
     }
-    // Get equipped weapon
+    // Robust weapon resolution
+    const items = collectActorItems(attacker);
     const weapon = getEquippedWeapon(attacker);
-    const weaponId = weapon?.id || null;
+    const weaponId = weapon?.id ?? null;
+    // Debug log: item counts and weapon resolution
+    const itemTypes = items.reduce((acc, item) => {
+        const type = item.type || 'unknown';
+        acc[type] = (acc[type] || 0) + 1;
+        return acc;
+    }, {});
+    if (!weapon && items.length > 0) {
+        console.warn('Mastery System | [ATTACK EXECUTOR] No weapon found for attacker', {
+            attackerId: attacker.id,
+            totalItems: items.length,
+            itemTypes: itemTypes,
+            weaponItems: items.filter((i) => i.type === 'weapon').length
+        });
+    }
+    console.log('Mastery System | [ATTACK EXECUTOR] Weapon resolution', {
+        attackerId: attacker.id,
+        totalItems: items.length,
+        weaponItems: items.filter((i) => i.type === 'weapon').length,
+        weaponFound: !!weapon,
+        weaponId: weaponId,
+        weaponName: weapon?.name || null
+    });
     // Determine attack attribute
     const attribute = getAttackAttribute(attacker, weapon, option);
     const attributeValue = getAttributeValue(attacker, attribute);
