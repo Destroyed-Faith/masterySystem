@@ -105,6 +105,9 @@ export function initializeTokenActionSelector() {
             console.log('Mastery System | Cleared currentAction flag after movement');
         }
     });
+    // Note: The hook 'masterySystem.meleeTargetSelected' is called by melee-targeting.ts
+    // but executeAttack already calls handleChosenCombatOption directly, so we don't need
+    // a handler here. The hook is available for other modules that want to listen to melee target selection.
 }
 /**
  * Open the radial menu for combat action selection
@@ -740,6 +743,16 @@ export function handleChosenCombatOption(token, option) {
         });
         // Close radial menu when attack option is selected
         closeRadialMenu();
+        // WENN target schon gewählt wurde (kommt vom Hook) -> execute sofort
+        const targetToken = option.targetToken;
+        if (targetToken) {
+            // hier NICHT importen. Du brauchst dafür eine “executeMeleeAttack” Funktion
+            // die NICHT in melee-targeting.ts liegt, sonst wieder Kreis.
+            // -> ich bau dir dafür gleich eine kleine attack-executor.ts (v13-only).
+            Hooks.call('masterySystem.executeMeleeAttack', { attackerTokenId: token.id, targetTokenId: targetToken.id, option });
+            return;
+        }
+        // sonst: targeting starten
         startMeleeTargeting(token, option);
         return;
     }
