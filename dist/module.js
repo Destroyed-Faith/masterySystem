@@ -69,16 +69,24 @@ Hooks.once('init', async function () {
     // Register CONFIG constants
     registerConfigConstants();
     // Initialize combat hooks (dynamically imported)
-    try {
-        const combatModule = await import('systems/mastery-system/dist/combat/initiative.js');
-        if (combatModule.initializeCombatHooks) {
-            combatModule.initializeCombatHooks();
-            console.log('Mastery System | Combat hooks initialized');
+    // Register combatStart hook directly here to avoid import issues
+    Hooks.on('combatStart', async (combat) => {
+        console.log('Mastery System | Combat started, showing passive selection overlay');
+        try {
+            // Step 1: Show Passive Selection Dialog
+            const { PassiveSelectionDialog } = await import('systems/mastery-system/dist/sheets/passive-selection-dialog.js');
+            await PassiveSelectionDialog.showForCombat(combat);
+            // Step 2: Wait a moment for players to finish selecting passives
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            // Step 3: Roll initiative for all combatants (NPCs auto, PCs with shop)
+            const { rollInitiativeForAllCombatants } = await import('systems/mastery-system/dist/combat/initiative-roll.js');
+            await rollInitiativeForAllCombatants(combat);
         }
-    }
-    catch (error) {
-        console.error('Mastery System | Combat hooks failed to load', error);
-    }
+        catch (error) {
+            console.error('Mastery System | Error in combat start sequence', error);
+        }
+    });
+    console.log('Mastery System | Combat hooks initialized');
     // Initialize token action selector
     initializeTokenActionSelector();
     // Initialize turn indicator (blue ring around active combatant)
