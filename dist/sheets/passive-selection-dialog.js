@@ -9,16 +9,17 @@ export class PassiveSelectionDialog extends Application {
     pcs;
     resolve;
     static get defaultOptions() {
-        const opts = super.defaultOptions;
-        opts.id = 'mastery-passive-selection';
-        opts.template = 'systems/mastery-system/templates/dialogs/passive-selection.hbs';
-        opts.classes = ['mastery-system', 'passive-selection'];
-        opts.width = 800;
-        opts.height = 'auto';
-        opts.title = 'Combat: Select Passives';
-        opts.popOut = true;
-        opts.resizable = false;
-        return opts;
+        const baseOptions = super.defaultOptions || {};
+        return foundry.utils.mergeObject(baseOptions, {
+            id: 'mastery-passive-selection',
+            template: 'systems/mastery-system/templates/dialogs/passive-selection.hbs',
+            classes: ['mastery-system', 'passive-selection'],
+            width: 800,
+            height: 'auto',
+            title: 'Combat: Select Passives',
+            popOut: true,
+            resizable: false
+        });
     }
     /**
      * Show passive selection dialog for all player-controlled combatants

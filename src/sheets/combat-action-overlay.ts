@@ -12,16 +12,17 @@ export class CombatActionOverlay extends Application {
   private actor: Actor;
 
   static override get defaultOptions(): any {
-    const opts = super.defaultOptions;
-    opts.id = 'mastery-combat-overlay';
-    opts.template = 'systems/mastery-system/templates/dialogs/combat-overlay.hbs';
-    opts.classes = ['mastery-system', 'combat-overlay'];
-    opts.width = 750;
-    opts.height = 'auto';
-    opts.popOut = true;
-    opts.title = 'Combat Actions';
-    opts.resizable = false;
-    return opts;
+    const baseOptions = super.defaultOptions || {};
+    return foundry.utils.mergeObject(baseOptions, {
+      id: 'mastery-combat-overlay',
+      template: 'systems/mastery-system/templates/dialogs/combat-overlay.hbs',
+      classes: ['mastery-system', 'combat-overlay'],
+      width: 750,
+      height: 'auto',
+      popOut: true,
+      title: 'Combat Actions',
+      resizable: false
+    });
   }
 
   /**
