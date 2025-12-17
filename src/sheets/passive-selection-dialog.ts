@@ -7,13 +7,15 @@
 
 import { getPassiveSlots, getAvailablePassives, slotPassive, activatePassive, unslotPassive } from '../powers/passives.js';
 
-export class PassiveSelectionDialog extends Application {
+const ApplicationV2 = (foundry.applications.api as any)?.ApplicationV2 || Application;
+
+export class PassiveSelectionDialog extends ApplicationV2 {
   private currentIndex: number;
   private pcs: Combatant[];
   private resolve?: () => void;
   private _preventAutoClose: boolean = false;
 
-  static override get defaultOptions(): any {
+  static get defaultOptions(): any {
     const baseOptions = super.defaultOptions || {};
     return foundry.utils.mergeObject(baseOptions, {
       id: 'mastery-passive-selection',
@@ -151,7 +153,7 @@ export class PassiveSelectionDialog extends Application {
     return this.currentCombatant?.actor ?? null;
   }
 
-  override async getData(): Promise<any> {
+  async getData(): Promise<any> {
     const actor = this.currentActor;
     if (!actor) return {};
 
@@ -277,7 +279,7 @@ export class PassiveSelectionDialog extends Application {
     }
   }
 
-  override activateListeners(html: JQuery): void {
+  activateListeners(html: JQuery): void {
     super.activateListeners(html);
 
     // Drag & Drop handlers
@@ -490,7 +492,7 @@ export class PassiveSelectionDialog extends Application {
     });
   }
 
-  override async close(options?: any): Promise<void> {
+  async close(options?: any): Promise<void> {
     console.log('Mastery System | [PASSIVE DIALOG DEBUG] close() called', {
       appId: this.id,
       rendered: this.rendered,

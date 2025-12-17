@@ -5,7 +5,8 @@
  * Supports multiple characters per player with step-by-step navigation.
  */
 import { getPassiveSlots, getAvailablePassives, slotPassive, activatePassive, unslotPassive } from '../powers/passives.js';
-export class PassiveSelectionDialog extends Application {
+const ApplicationV2 = foundry.applications.api?.ApplicationV2 || Application;
+export class PassiveSelectionDialog extends ApplicationV2 {
     currentIndex;
     pcs;
     resolve;

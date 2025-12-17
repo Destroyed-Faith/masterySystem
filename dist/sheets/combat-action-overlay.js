@@ -7,7 +7,8 @@
  * - Resource status (Stones, Vitality, Stress)
  * - Quick action buttons
  */
-export class CombatActionOverlay extends Application {
+const ApplicationV2 = foundry.applications.api?.ApplicationV2 || Application;
+export class CombatActionOverlay extends ApplicationV2 {
     actor;
     static get defaultOptions() {
         const baseOptions = super.defaultOptions || {};

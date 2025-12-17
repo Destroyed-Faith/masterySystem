@@ -6,6 +6,8 @@
 import { INITIATIVE_SHOP } from '../utils/constants.js';
 import { InitiativeRollBreakdown } from './initiative-roll.js';
 
+const ApplicationV2 = (foundry.applications.api as any)?.ApplicationV2 || Application;
+
 export interface InitiativeShopPurchase {
   extraMovement: number;      // Number of movement purchases (each = +2m)
   initiativeSwap: boolean;     // Unlock initiative swap
@@ -16,14 +18,14 @@ export interface InitiativeShopContext extends InitiativeRollBreakdown {
   // Context includes: baseInitiative, diceTotal, totalInitiative, masteryRank, rollResult
 }
 
-export class InitiativeShopDialog extends Application {
+export class InitiativeShopDialog extends ApplicationV2 {
   private combatant: Combatant;
   private combat: Combat;
   private context: InitiativeShopContext;
   private resolve?: (purchases: InitiativeShopPurchase | null) => void;
   private purchases: InitiativeShopPurchase;
 
-  static override get defaultOptions(): any {
+  static get defaultOptions(): any {
     const baseOptions = super.defaultOptions || {};
     return foundry.utils.mergeObject(baseOptions, {
       id: 'mastery-initiative-shop',
@@ -60,7 +62,7 @@ export class InitiativeShopDialog extends Application {
     };
   }
 
-  override async getData(): Promise<any> {
+  async getData(): Promise<any> {
     const actor = this.combatant.actor;
     if (!actor) return {};
 
@@ -170,7 +172,7 @@ export class InitiativeShopDialog extends Application {
     }
   }
 
-  override activateListeners(html: JQuery): void {
+  activateListeners(html: JQuery): void {
     super.activateListeners(html);
 
     // Buy extra movement (stepper +)
@@ -303,7 +305,7 @@ export class InitiativeShopDialog extends Application {
     this.close();
   }
 
-  override async close(options?: any): Promise<void> {
+  async close(options?: any): Promise<void> {
     // Clean up any stray initiative shop dialog elements
     $('body > .initiative-shop-dialog').remove();
     $('.initiative-shop-dialog').not(`#${this.id} .initiative-shop-dialog`).remove();

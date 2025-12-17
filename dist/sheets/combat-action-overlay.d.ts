@@ -7,7 +7,8 @@
  * - Resource status (Stones, Vitality, Stress)
  * - Quick action buttons
  */
-export declare class CombatActionOverlay extends Application {
+declare const ApplicationV2: any;
+export declare class CombatActionOverlay extends ApplicationV2 {
     private actor;
     static get defaultOptions(): any;
     /**
@@ -25,4 +26,5 @@ export declare class CombatActionOverlay extends Application {
     _replaceHTML(element: JQuery, html: JQuery): Promise<void>;
     activateListeners(html: JQuery): void;
 }
+export {};
 //# sourceMappingURL=combat-action-overlay.d.ts.map

@@ -3,6 +3,7 @@
  * Allows players to spend initiative points on bonuses
  */
 import { InitiativeRollBreakdown } from './initiative-roll.js';
+declare const ApplicationV2: any;
 export interface InitiativeShopPurchase {
     extraMovement: number;
     initiativeSwap: boolean;
@@ -10,7 +11,7 @@ export interface InitiativeShopPurchase {
 }
 export interface InitiativeShopContext extends InitiativeRollBreakdown {
 }
-export declare class InitiativeShopDialog extends Application {
+export declare class InitiativeShopDialog extends ApplicationV2 {
     private combatant;
     private combat;
     private context;
@@ -35,4 +36,5 @@ export declare class InitiativeShopDialog extends Application {
     private confirmPurchases;
     close(options?: any): Promise<void>;
 }
+export {};
 //# sourceMappingURL=initiative-shop-dialog.d.ts.map

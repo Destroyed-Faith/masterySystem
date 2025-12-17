@@ -2,7 +2,8 @@
  * Mastery Combat Carousel UI
  * Displays combatants as portrait cards with initiative, resources, and controls
  */
-export declare class CombatCarouselApp extends Application {
+declare const ApplicationV2: any;
+export declare class CombatCarouselApp extends ApplicationV2 {
     private static _instance;
     static get defaultOptions(): any;
     /**
@@ -26,4 +27,5 @@ export declare class CombatCarouselApp extends Application {
     _replaceHTML(element: JQuery, html: JQuery): Promise<void>;
     activateListeners(html: JQuery): void;
 }
+export {};
 //# sourceMappingURL=combat-carousel.d.ts.map

@@ -3,7 +3,8 @@
  * Allows players to spend initiative points on bonuses
  */
 import { INITIATIVE_SHOP } from '../utils/constants.js';
-export class InitiativeShopDialog extends Application {
+const ApplicationV2 = foundry.applications.api?.ApplicationV2 || Application;
+export class InitiativeShopDialog extends ApplicationV2 {
     combatant;
     combat;
     context;

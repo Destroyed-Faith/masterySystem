@@ -4,7 +4,8 @@
  * Shows an overlay at combat start where players select and activate their passive abilities.
  * Supports multiple characters per player with step-by-step navigation.
  */
-export declare class PassiveSelectionDialog extends Application {
+declare const ApplicationV2: any;
+export declare class PassiveSelectionDialog extends ApplicationV2 {
     private currentIndex;
     private pcs;
     private resolve?;
@@ -31,4 +32,5 @@ export declare class PassiveSelectionDialog extends Application {
     activateListeners(html: JQuery): void;
     close(options?: any): Promise<void>;
 }
+export {};
 //# sourceMappingURL=passive-selection-dialog.d.ts.map

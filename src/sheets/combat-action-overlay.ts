@@ -8,10 +8,12 @@
  * - Quick action buttons
  */
 
-export class CombatActionOverlay extends Application {
+const ApplicationV2 = (foundry.applications.api as any)?.ApplicationV2 || Application;
+
+export class CombatActionOverlay extends ApplicationV2 {
   private actor: Actor;
 
-  static override get defaultOptions(): any {
+  static get defaultOptions(): any {
     const baseOptions = super.defaultOptions || {};
     return foundry.utils.mergeObject(baseOptions, {
       id: 'mastery-combat-overlay',
@@ -101,7 +103,7 @@ export class CombatActionOverlay extends Application {
     return powers;
   }
 
-  override async getData(): Promise<any> {
+  async getData(): Promise<any> {
     const system = this.actor.system as any;
 
     const actions = system.actions ?? {
@@ -161,7 +163,7 @@ export class CombatActionOverlay extends Application {
     element.replaceWith(html);
   }
 
-  override activateListeners(html: JQuery): void {
+  activateListeners(html: JQuery): void {
     super.activateListeners(html);
 
     // Use a power

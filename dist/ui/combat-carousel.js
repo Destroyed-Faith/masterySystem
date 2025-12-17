@@ -2,7 +2,8 @@
  * Mastery Combat Carousel UI
  * Displays combatants as portrait cards with initiative, resources, and controls
  */
-export class CombatCarouselApp extends Application {
+const ApplicationV2 = foundry.applications.api?.ApplicationV2 || Application;
+export class CombatCarouselApp extends ApplicationV2 {
     static _instance = null;
     static get defaultOptions() {
         const baseOptions = super.defaultOptions || {};
@@ -82,13 +83,15 @@ export class CombatCarouselApp extends Application {
             // Get resources from tracked fields
             const resource1 = this.getResourceValue(actor, resource1Path);
             const resource2 = this.getResourceValue(actor, resource2Path);
-            // Get status icons from token effects or actor effects
+            // Get status icons from actor effects (ActiveEffect documents)
             const statusIcons = [];
-            if (token?.document?.effects) {
-                statusIcons.push(...token.document.effects.map((e) => e.icon || e.img || ''));
-            }
-            else if (actor.effects) {
-                statusIcons.push(...actor.effects.map((e) => e.icon || e.img || '').filter((i) => i));
+            if (actor.effects) {
+                // Use ActiveEffect documents from actor
+                const effects = actor.effects || [];
+                statusIcons.push(...effects.map((e) => {
+                    const icon = e.icon || e.img || '';
+                    return icon;
+                }).filter((i) => i));
             }
             combatants.push({
                 id: combatant.id,

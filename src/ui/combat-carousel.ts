@@ -3,10 +3,12 @@
  * Displays combatants as portrait cards with initiative, resources, and controls
  */
 
-export class CombatCarouselApp extends Application {
+const ApplicationV2 = (foundry.applications.api as any)?.ApplicationV2 || Application;
+
+export class CombatCarouselApp extends ApplicationV2 {
   private static _instance: CombatCarouselApp | null = null;
 
-  static override get defaultOptions(): any {
+  static get defaultOptions(): any {
     const baseOptions = super.defaultOptions || {};
     return foundry.utils.mergeObject(baseOptions, {
       id: 'mastery-combat-carousel',
@@ -54,7 +56,7 @@ export class CombatCarouselApp extends Application {
     return CombatCarouselApp._instance;
   }
 
-  override async getData(): Promise<any> {
+  async getData(): Promise<any> {
     const combat = game.combats?.active;
     
     console.log('Mastery System | [CAROUSEL] getData called', { 
@@ -95,12 +97,15 @@ export class CombatCarouselApp extends Application {
       const resource1 = this.getResourceValue(actor, resource1Path);
       const resource2 = this.getResourceValue(actor, resource2Path);
 
-      // Get status icons from token effects or actor effects
+      // Get status icons from actor effects (ActiveEffect documents)
       const statusIcons: string[] = [];
-      if (token?.document?.effects) {
-        statusIcons.push(...token.document.effects.map((e: any) => e.icon || e.img || ''));
-      } else if (actor.effects) {
-        statusIcons.push(...actor.effects.map((e: any) => e.icon || e.img || '').filter((i: string) => i));
+      if (actor.effects) {
+        // Use ActiveEffect documents from actor
+        const effects = actor.effects || [];
+        statusIcons.push(...effects.map((e: any) => {
+          const icon = e.icon || e.img || '';
+          return icon;
+        }).filter((i: string) => i));
       }
 
       combatants.push({
@@ -186,7 +191,7 @@ export class CombatCarouselApp extends Application {
     element.replaceWith(html);
   }
 
-  override activateListeners(html: JQuery): void {
+  activateListeners(html: JQuery): void {
     super.activateListeners(html);
 
     // Portrait click - pan to token
