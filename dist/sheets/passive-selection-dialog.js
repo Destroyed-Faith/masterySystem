@@ -162,9 +162,9 @@ export class PassiveSelectionDialog extends Application {
             pcsCount: this.pcs.length,
             stackTrace: new Error().stack?.split('\n').slice(0, 5).join('\n')
         });
-        // Cleanup any stray overlay elements before rendering
-        const removedOverlays = $('body > .passive-selection-overlay').length;
-        $('body > .passive-selection-overlay').remove();
+        // Cleanup ALL stray overlay elements before rendering (not just body >)
+        const removedOverlays = $('.passive-selection-overlay').length;
+        $('.passive-selection-overlay').remove();
         if (removedOverlays > 0) {
             console.log('Mastery System | [PASSIVE DIALOG DEBUG] Removed', removedOverlays, 'stray overlay elements');
         }
@@ -200,58 +200,44 @@ export class PassiveSelectionDialog extends Application {
             preventAutoClose: this._preventAutoClose,
             stackTrace: new Error().stack?.split('\n').slice(0, 8).join('\n')
         });
-        // Only replace if element exists and is part of this app
-        if (element.length > 0) {
-            // Check if element is within this app's window
-            const appElement = $(`#${this.id}`);
-            const isInApp = element.closest(`#${this.id}`).length > 0 || element.parent().closest(`#${this.id}`).length > 0;
-            console.log('Mastery System | [PASSIVE DIALOG DEBUG] Element check', {
-                appElementExists: appElement.length > 0,
-                isInApp: isInApp,
-                elementId: element.attr('id') || 'none',
-                elementData: {
-                    closestApp: element.closest(`#${this.id}`).length,
-                    parentClosestApp: element.parent().closest(`#${this.id}`).length
-                }
-            });
-            if (appElement.length > 0 && isInApp) {
-                console.log('Mastery System | [PASSIVE DIALOG DEBUG] Replacing element directly');
-                element.replaceWith(html);
-                console.log('Mastery System | [PASSIVE DIALOG DEBUG] Element replaced successfully');
+        // ALWAYS update the window content directly, never replace the element
+        // This prevents multiple overlay elements from being created
+        const appElement = $(`#${this.id}`);
+        // Remove ALL stray overlay elements first
+        const allOverlays = $('.passive-selection-overlay');
+        const overlayCount = allOverlays.length;
+        allOverlays.remove();
+        if (overlayCount > 0) {
+            console.log('Mastery System | [PASSIVE DIALOG DEBUG] Removed', overlayCount, 'stray overlay elements before replace');
+        }
+        if (appElement.length > 0) {
+            const windowContent = appElement.find('.window-content');
+            if (windowContent.length > 0) {
+                console.log('Mastery System | [PASSIVE DIALOG DEBUG] Updating window content directly');
+                windowContent.html(html.html() || '');
+                // Reactivate listeners on the new content
+                this.activateListeners(windowContent);
+                console.log('Mastery System | [PASSIVE DIALOG DEBUG] Window content updated and listeners reactivated');
             }
             else {
-                // If element is not part of this app, update the window content directly
-                console.log('Mastery System | [PASSIVE DIALOG DEBUG] Updating window content directly (element not in app)');
-                const windowContent = appElement.find('.window-content');
-                if (windowContent.length > 0) {
-                    windowContent.html(html.html() || '');
-                    console.log('Mastery System | [PASSIVE DIALOG DEBUG] Window content updated');
-                }
-                else {
-                    console.warn('Mastery System | [PASSIVE DIALOG DEBUG] Window content not found!');
+                console.warn('Mastery System | [PASSIVE DIALOG DEBUG] Window content not found!');
+                // Fallback: try to replace the element if window-content not found
+                if (element.length > 0) {
+                    element.replaceWith(html);
+                    this.activateListeners(html);
                 }
             }
         }
         else {
-            // If element is not found, update the app's window content
-            console.log('Mastery System | [PASSIVE DIALOG DEBUG] Element not found, updating window content');
-            const appElement = $(`#${this.id}`);
-            if (appElement.length > 0) {
-                const windowContent = appElement.find('.window-content');
-                if (windowContent.length > 0) {
-                    windowContent.html(html.html() || '');
-                    console.log('Mastery System | [PASSIVE DIALOG DEBUG] Window content updated (fallback)');
-                }
-                else {
-                    console.warn('Mastery System | [PASSIVE DIALOG DEBUG] Window content not found in fallback!');
-                }
-            }
-            else {
-                console.warn('Mastery System | [PASSIVE DIALOG DEBUG] App element not found!', {
-                    appId: this.id,
-                    allWindows: Object.keys(ui.windows || {}),
-                    bodyChildren: $('body').children().length
-                });
+            console.warn('Mastery System | [PASSIVE DIALOG DEBUG] App element not found!', {
+                appId: this.id,
+                allWindows: Object.keys(ui.windows || {}),
+                bodyChildren: $('body').children().length
+            });
+            // Last resort: replace the element directly
+            if (element.length > 0) {
+                element.replaceWith(html);
+                this.activateListeners(html);
             }
         }
     }
@@ -308,32 +294,26 @@ export class PassiveSelectionDialog extends Application {
             }
             console.log('Mastery System | [PASSIVE DIALOG DEBUG] Calling slotPassive');
             await slotPassive(actor, slotIndex, passiveId);
-            console.log('Mastery System | [PASSIVE DIALOG DEBUG] slotPassive completed, rendering...');
-            // Re-render to update the display - use minimal update to prevent closing
+            console.log('Mastery System | [PASSIVE DIALOG DEBUG] slotPassive completed, updating display...');
+            // Update display directly without using render() to prevent auto-close
             try {
-                console.log('Mastery System | [PASSIVE DIALOG DEBUG] Calling render(false)', {
-                    appId: this.id,
-                    rendered: this.rendered,
-                    preventAutoClose: this._preventAutoClose
-                });
-                await this.render(false);
-                console.log('Mastery System | [PASSIVE DIALOG DEBUG] Render completed successfully');
-            }
-            catch (error) {
-                console.error('Mastery System | [PASSIVE DIALOG DEBUG] Error re-rendering passive dialog after slot', error);
-                // If render fails, try to manually update the display
                 const templateData = await this.getData();
                 const template = this.constructor.defaultOptions?.template || this.options.template;
                 if (template) {
-                    console.log('Mastery System | [PASSIVE DIALOG DEBUG] Using fallback manual update');
+                    console.log('Mastery System | [PASSIVE DIALOG DEBUG] Manually updating display after slot');
                     const html = await foundry.applications.handlebars.renderTemplate(template, templateData);
                     const appElement = $(`#${this.id}`);
                     if (appElement.length > 0) {
+                        // Remove any stray overlays first
+                        $('.passive-selection-overlay').not(appElement.find('.passive-selection-overlay')).remove();
                         appElement.find('.window-content').html(html);
-                        this.activateListeners(appElement);
-                        console.log('Mastery System | [PASSIVE DIALOG DEBUG] Fallback update completed');
+                        this.activateListeners(appElement.find('.window-content'));
+                        console.log('Mastery System | [PASSIVE DIALOG DEBUG] Manual update completed');
                     }
                 }
+            }
+            catch (error) {
+                console.error('Mastery System | [PASSIVE DIALOG DEBUG] Error updating display after slot', error);
             }
         });
         // Toggle passive active/inactive
@@ -344,22 +324,24 @@ export class PassiveSelectionDialog extends Application {
                 return;
             const slotIndex = Number($(ev.currentTarget).data('slot-index') ?? 0);
             await activatePassive(actor, slotIndex);
+            console.log('Mastery System | [PASSIVE DIALOG DEBUG] activatePassive completed, updating display...');
             try {
-                await this.render(false);
-            }
-            catch (error) {
-                console.error('Mastery System | Error re-rendering passive dialog after activate', error);
-                // Manual update fallback
                 const templateData = await this.getData();
                 const template = this.constructor.defaultOptions?.template || this.options.template;
                 if (template) {
                     const html = await foundry.applications.handlebars.renderTemplate(template, templateData);
                     const appElement = $(`#${this.id}`);
                     if (appElement.length > 0) {
+                        // Remove any stray overlays first
+                        $('.passive-selection-overlay').not(appElement.find('.passive-selection-overlay')).remove();
                         appElement.find('.window-content').html(html);
-                        this.activateListeners(appElement);
+                        this.activateListeners(appElement.find('.window-content'));
+                        console.log('Mastery System | [PASSIVE DIALOG DEBUG] Display updated after toggle');
                     }
                 }
+            }
+            catch (error) {
+                console.error('Mastery System | [PASSIVE DIALOG DEBUG] Error updating display after activate', error);
             }
         });
         // Unslot a passive
@@ -379,31 +361,25 @@ export class PassiveSelectionDialog extends Application {
                 rendered: this.rendered
             });
             await unslotPassive(actor, slotIndex);
-            console.log('Mastery System | [PASSIVE DIALOG DEBUG] unslotPassive completed, rendering...');
+            console.log('Mastery System | [PASSIVE DIALOG DEBUG] unslotPassive completed, updating display...');
             try {
-                console.log('Mastery System | [PASSIVE DIALOG DEBUG] Calling render(false) after unslot', {
-                    appId: this.id,
-                    rendered: this.rendered,
-                    preventAutoClose: this._preventAutoClose
-                });
-                await this.render(false);
-                console.log('Mastery System | [PASSIVE DIALOG DEBUG] Render after unslot completed successfully');
-            }
-            catch (error) {
-                console.error('Mastery System | [PASSIVE DIALOG DEBUG] Error re-rendering passive dialog after unslot', error);
-                // Manual update fallback
                 const templateData = await this.getData();
                 const template = this.constructor.defaultOptions?.template || this.options.template;
                 if (template) {
-                    console.log('Mastery System | [PASSIVE DIALOG DEBUG] Using fallback manual update after unslot');
+                    console.log('Mastery System | [PASSIVE DIALOG DEBUG] Manually updating display after unslot');
                     const html = await foundry.applications.handlebars.renderTemplate(template, templateData);
                     const appElement = $(`#${this.id}`);
                     if (appElement.length > 0) {
+                        // Remove any stray overlays first
+                        $('.passive-selection-overlay').not(appElement.find('.passive-selection-overlay')).remove();
                         appElement.find('.window-content').html(html);
-                        this.activateListeners(appElement);
-                        console.log('Mastery System | [PASSIVE DIALOG DEBUG] Fallback update after unslot completed');
+                        this.activateListeners(appElement.find('.window-content'));
+                        console.log('Mastery System | [PASSIVE DIALOG DEBUG] Display updated after unslot');
                     }
                 }
+            }
+            catch (error) {
+                console.error('Mastery System | [PASSIVE DIALOG DEBUG] Error updating display after unslot', error);
             }
         });
         // Next character
@@ -411,7 +387,18 @@ export class PassiveSelectionDialog extends Application {
             ev.preventDefault();
             if (this.currentIndex < this.pcs.length - 1) {
                 this.currentIndex++;
-                await this.render(false);
+                // Update display directly
+                const templateData = await this.getData();
+                const template = this.constructor.defaultOptions?.template || this.options.template;
+                if (template) {
+                    const html = await foundry.applications.handlebars.renderTemplate(template, templateData);
+                    const appElement = $(`#${this.id}`);
+                    if (appElement.length > 0) {
+                        $('.passive-selection-overlay').not(appElement.find('.passive-selection-overlay')).remove();
+                        appElement.find('.window-content').html(html);
+                        this.activateListeners(appElement.find('.window-content'));
+                    }
+                }
             }
             else {
                 this.close({ _explicitClose: true, intentional: true });
@@ -422,7 +409,18 @@ export class PassiveSelectionDialog extends Application {
             ev.preventDefault();
             if (this.currentIndex > 0) {
                 this.currentIndex--;
-                await this.render(false);
+                // Update display directly
+                const templateData = await this.getData();
+                const template = this.constructor.defaultOptions?.template || this.options.template;
+                if (template) {
+                    const html = await foundry.applications.handlebars.renderTemplate(template, templateData);
+                    const appElement = $(`#${this.id}`);
+                    if (appElement.length > 0) {
+                        $('.passive-selection-overlay').not(appElement.find('.passive-selection-overlay')).remove();
+                        appElement.find('.window-content').html(html);
+                        this.activateListeners(appElement.find('.window-content'));
+                    }
+                }
             }
         });
         // GM skip all
