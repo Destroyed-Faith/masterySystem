@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.54] - 2025-01-XX
+
+### Fixed
+- **Dice Parsing**: Fixed dice notation parsing to support full Foundry Roll formulas
+  - Now correctly handles formulas like "1d8 + 1d8", "2d8 + 3d8 + 2", "Weapon DMG + 1d8 + 2"
+  - Removed silent truncation of complex dice expressions
+  - Uses Foundry Roll.evaluate() for proper formula evaluation instead of custom regex parser
+- **Damage Application**: Fixed damage application to properly handle tempHP and health bar overflow
+  - TempHP is now reduced first before applying damage to health bars
+  - Damage properly flows between health bars when a bar reaches 0
+  - Uses existing applyDamage helper from calculations.ts for consistent overflow handling
+- **Movement UX**: Fixed movement selection UX improvements
+  - Radial menu now closes immediately when Move/Dash/Disengage is selected
+  - Hex highlighting alignment fixed using Foundry grid APIs (getOffset/getTopLeftPoint)
+  - Removed hard-coded calibration offsets, now uses reliable grid API methods
+  - Path hexes correctly highlight in green (within range) or red (beyond range)
+- **Dice Visibility**: Fixed dice visibility for mastery rolls
+  - Dice now always appear in chat for masteryRoll
+  - Dice So Nice integration added (3D dice show when module is installed)
+  - Proper roll serialization using roll.toJSON() for Foundry v13 compatibility
+  - Added robust error handling with user-friendly notifications
+
 ## [0.1.11] - 2025-01-XX
 
 ### Fixed

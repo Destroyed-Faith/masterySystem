@@ -36,40 +36,34 @@ export interface DamageResult {
 /**
  * Show damage dialog after successful attack
  */
-// Helper: Sanitize dice notation - extract dice expression from strings like "3d8 damage" or "Weapon DMG + 1d8"
+// Helper: Sanitize dice notation - extract full Foundry Roll formula from strings
+// Supports full formulas like "1d8 + 1d8", "2d8 + 3d8 + 2", "Weapon DMG + 1d8 + 2"
 function sanitizeDiceNotation(str: string): string {
-  if (!str || typeof str !== 'string') return str || '0';
+  if (!str || typeof str !== 'string') return '0';
   
-  // Handle cases like "+3d8" (leading +)
   let cleaned = str.trim();
+  if (!cleaned) return '0';
+  
+  // Remove prefixes like "Weapon DMG +", "Weapon Damage +"
+  cleaned = cleaned.replace(/^Weapon\s+(DMG|Damage)\s*\+\s*/i, '');
+  
+  // Remove trailing words like "damage", "dmg" (case-insensitive, whole word)
+  cleaned = cleaned.replace(/\s+(damage|dmg)\s*$/i, '');
+  
+  // Keep only dice/math chars: digits, d/D, + - * / ( ) and whitespace
+  // Replace other chars with space, then collapse whitespace
+  cleaned = cleaned.replace(/[^\d\s+dD+\-*/()]/g, ' ');
+  cleaned = cleaned.replace(/\s+/g, ' ').trim();
+  
+  // Strip leading "+" if present
   if (cleaned.startsWith('+')) {
     cleaned = cleaned.substring(1).trim();
   }
   
-  // Match dice notation patterns: XdY, XdY+Z, XdY-Z, etc.
-  const dicePattern = /(\d+d\d+(?:\s*[+\-]\s*\d+)?)/i;
-  const match = cleaned.match(dicePattern);
+  // If nothing remains, return "0"
+  if (!cleaned) return '0';
   
-  if (match) {
-    // Extract the dice notation and clean up whitespace
-    return match[1].replace(/\s+/g, '');
-  }
-  
-  // If no dice pattern found, try to extract numbers and operators
-  // This handles cases like "+3" or "-2" modifiers
-  const modifierPattern = /([+\-]\s*\d+)/;
-  const modifierMatch = cleaned.match(modifierPattern);
-  if (modifierMatch) {
-    return modifierMatch[1].replace(/\s+/g, '');
-  }
-  
-  // Try to match just a number (flat damage)
-  const numberPattern = /^\d+$/;
-  if (numberPattern.test(cleaned)) {
-    return cleaned;
-  }
-  
-  // Return original if no pattern matches (might be valid notation we don't recognize)
+  // Return the cleaned formula (can be full expression like "1d8 + 1d8 + 2")
   return cleaned;
 }
 
@@ -947,6 +941,7 @@ async function applyStatusEffectsToTarget(target: Actor, specialsUsed: string[])
 
 /**
  * Apply damage to target actor
+ * Handles tempHP first, then applies remaining damage to health bars with overflow
  */
 async function applyDamageToTarget(target: Actor, damage: number, attacker: Actor): Promise<void> {
   try {
@@ -990,37 +985,70 @@ async function applyDamageToTarget(target: Actor, damage: number, attacker: Acto
       return;
     }
     
-    const currentBarIndex = system.health.currentBar || 0;
-    const currentBar = system.health.bars[currentBarIndex];
+    // Step 1: Reduce tempHP first
+    let remaining = damage;
+    let tempHP = system.health.tempHP || 0;
     
-    if (!currentBar) {
-      console.error('Mastery System | [APPLY DAMAGE] Current health bar not found', {
-        targetId: (target as any).id,
-        currentBarIndex,
-        barsLength: system.health.bars.length
+    if (tempHP > 0) {
+      const absorb = Math.min(tempHP, remaining);
+      tempHP -= absorb;
+      remaining -= absorb;
+      
+      console.log('Mastery System | [APPLY DAMAGE] TempHP absorbed', {
+        tempHPBefore: system.health.tempHP,
+        tempHPAfter: tempHP,
+        absorbed: absorb,
+        remaining
       });
-      return;
     }
     
-    // Calculate new current HP
-    const oldCurrent = currentBar.current;
-    const newCurrent = Math.max(oldCurrent - damage, 0);
-    currentBar.current = newCurrent;
-    
-    // Update the actor with the new health
-    const updateData: any = {};
-    updateData[`system.health.bars.${currentBarIndex}.current`] = newCurrent;
-    
-    await (target as any).update(updateData);
-    
-    console.log('Mastery System | [APPLY DAMAGE] Damage applied', {
-      targetId: (target as any).id,
-      targetName: (target as any).name,
-      damage,
-      oldCurrent,
-      newCurrent,
-      barIndex: currentBarIndex
-    });
+    // Step 2: Apply remaining damage to health bars with overflow
+    if (remaining > 0) {
+      // Import applyDamage helper from calculations.ts
+      const { applyDamage: applyDamageToBars } = await import('../utils/calculations');
+      
+      // Copy bars array to mutate
+      const bars = [...system.health.bars];
+      let barIndex = system.health.currentBar || 0;
+      
+      // Apply damage using helper function (handles overflow between bars)
+      barIndex = applyDamageToBars(bars, barIndex, remaining);
+      
+      // Clamp barIndex to valid range
+      if (barIndex >= bars.length) {
+        barIndex = bars.length - 1;
+      }
+      
+      // Update actor with new health state
+      await (target as any).update({
+        'system.health.tempHP': tempHP,
+        'system.health.currentBar': barIndex,
+        'system.health.bars': bars
+      });
+      
+      console.log('Mastery System | [APPLY DAMAGE] Damage applied to bars', {
+        targetId: (target as any).id,
+        targetName: (target as any).name,
+        damage,
+        remaining,
+        tempHPAbsorbed: damage - remaining,
+        oldBarIndex: system.health.currentBar || 0,
+        newBarIndex: barIndex,
+        barsAfter: bars.map((b, i) => ({ index: i, current: b.current, max: b.max }))
+      });
+    } else {
+      // Only tempHP was reduced, no bar damage
+      await (target as any).update({
+        'system.health.tempHP': tempHP
+      });
+      
+      console.log('Mastery System | [APPLY DAMAGE] Only tempHP reduced', {
+        targetId: (target as any).id,
+        tempHPBefore: system.health.tempHP,
+        tempHPAfter: tempHP,
+        damage
+      });
+    }
     
     // Refresh the actor sheet if it's open
     const sheet = (target as any).sheet;
@@ -1115,32 +1143,28 @@ async function calculateDamageResult(
 }
 
 /**
- * Roll dice from notation string
+ * Roll dice from notation string using Foundry Roll
+ * Supports full Foundry Roll formulas like "1d8 + 1d8", "2d8 + 3d8 + 2"
  */
 async function rollDice(diceNotation: string): Promise<number> {
   if (!diceNotation || diceNotation === '0') return 0;
   
-  // Sanitize dice notation first (in case it wasn't already sanitized)
-  const sanitized = sanitizeDiceNotation(diceNotation);
+  // Sanitize dice notation to get a valid Roll formula
+  const formula = sanitizeDiceNotation(diceNotation);
   
-  // Parse dice notation (e.g., "2d8+3" or "1d8")
-  const match = sanitized.match(/(\d+)d(\d+)([+-]\d+)?/);
-  if (!match) {
-    // Try to parse as flat number
-    const num = parseInt(diceNotation);
+  if (formula === '0') return 0;
+  
+  try {
+    // Use Foundry Roll to evaluate the full formula
+    const roll = new Roll(formula);
+    await roll.evaluate({ async: true });
+    return roll.total ?? 0;
+  } catch (error) {
+    console.warn('Mastery System | Error rolling dice formula:', formula, error);
+    // Fallback: try to parse as a simple number
+    const num = parseInt(formula);
     return isNaN(num) ? 0 : num;
   }
-  
-  const numDice = parseInt(match[1]);
-  const dieSize = parseInt(match[2]);
-  const modifier = match[3] ? parseInt(match[3]) : 0;
-  
-  let total = 0;
-  for (let i = 0; i < numDice; i++) {
-    total += Math.floor(Math.random() * dieSize) + 1;
-  }
-  
-  return total + modifier;
 }
 
 // DamageDialog class removed - now using chat messages instead

@@ -181,122 +181,140 @@ async function sendRollToChat(
   flavor: string,
   actorId?: string
 ): Promise<void> {
-  // Get actor if available
-  let actor = null;
-  if (actorId && (game as any).actors) {
-    actor = (game as any).actors.get(actorId);
-  }
-  
-  // Create a Foundry Roll object to display dice visually
-  const diceSum = result.total - result.skill;
-  
-  // Create roll formula
-  const formula = `${result.dice.length}d8${result.skill !== 0 ? ` + ${result.skill}` : ''}`;
-  const roll = new Roll(formula);
-  
-  // Evaluate the roll asynchronously (required in Foundry VTT v13)
-  await roll.evaluate();
-  
-  // Now replace the dice results with our actual rolled values
-  // We need to modify the dice terms to show our actual results
-  let dieIndex = 0;
-  for (const term of roll.terms as any[]) {
-    if (term instanceof foundry.dice.terms.Die) {
-      // Replace the results with our actual dice values
-      const actualValue = result.dice[dieIndex];
-      const isKept = result.kept.includes(actualValue);
-      const isExploded = result.exploded.includes(dieIndex);
-      
-      // Update the die results
-      term.results = [{
-        result: actualValue,
-        active: isKept,
-        discarded: !isKept,
-        rerolled: false
-      }];
-      
-      // Mark as exploded if needed (stored in flags)
-      if (isExploded) {
-        (term as any).options.explode = true;
-      }
-      
-      dieIndex++;
+  try {
+    // Get actor if available
+    let actor = null;
+    if (actorId && (game as any).actors) {
+      actor = (game as any).actors.get(actorId);
     }
-  }
-  
-  // Update the total
-  (roll as any)._total = result.total;
-  
-  // Build result display HTML
-  const successClass = result.success ? 'success' : 'failure';
-  
-  let content = `
-    <div class="mastery-roll">
-      <div class="roll-header">
-        <h3>${label}</h3>
-        ${flavor ? `<div class="flavor">${flavor}</div>` : ''}
-      </div>
-      
-      <div class="roll-details">
-        <div class="roll-breakdown">
-          <div class="breakdown-line">
-            <span>Rolled ${result.dice.length}d8, kept ${result.kept.length}</span>
-          </div>
-          <div class="breakdown-line">
-            <span>Dice Total:</span>
-            <span class="value">${diceSum}</span>
-          </div>
-          ${result.skill > 0 ? `
-            <div class="breakdown-line">
-              <span>Skill Bonus:</span>
-              <span class="value">+${result.skill}</span>
-            </div>
-          ` : ''}
-          <div class="breakdown-line total">
-            <span><strong>Final Total:</strong></span>
-            <span class="value"><strong>${result.total}</strong></span>
-          </div>
+    
+    // Create a Foundry Roll object to display dice visually
+    const diceSum = result.total - result.skill;
+    
+    // Create roll formula
+    const formula = `${result.dice.length}d8${result.skill !== 0 ? ` + ${result.skill}` : ''}`;
+    const roll = new Roll(formula);
+    
+    // Evaluate the roll asynchronously (required in Foundry VTT v13)
+    await roll.evaluate();
+    
+    // Now replace the dice results with our actual rolled values
+    // We need to modify the dice terms to show our actual results
+    let dieIndex = 0;
+    for (const term of roll.terms as any[]) {
+      if (term instanceof foundry.dice.terms.Die) {
+        // Replace the results with our actual dice values
+        const actualValue = result.dice[dieIndex];
+        const isKept = result.kept.includes(actualValue);
+        const isExploded = result.exploded.includes(dieIndex);
+        
+        // Update the die results
+        term.results = [{
+          result: actualValue,
+          active: isKept,
+          discarded: !isKept,
+          rerolled: false
+        }];
+        
+        // Mark as exploded if needed (stored in flags)
+        if (isExploded) {
+          (term as any).options.explode = true;
+        }
+        
+        dieIndex++;
+      }
+    }
+    
+    // Update the total
+    (roll as any)._total = result.total;
+    
+    // Dice So Nice integration - show 3D dice if module is installed and enabled
+    if ((game as any).dice3d?.showForRoll) {
+      try {
+        await (game as any).dice3d.showForRoll(roll, game.user, true);
+      } catch (dice3dError) {
+        console.warn('Mastery System | Dice So Nice integration failed:', dice3dError);
+        // Continue without 3D dice - not critical
+      }
+    }
+    
+    // Build result display HTML
+    const successClass = result.success ? 'success' : 'failure';
+    
+    let content = `
+      <div class="mastery-roll">
+        <div class="roll-header">
+          <h3>${label}</h3>
+          ${flavor ? `<div class="flavor">${flavor}</div>` : ''}
         </div>
         
-        ${result.tn > 0 ? `
-          <div class="roll-result ${successClass}">
-            <div class="result-line">
-              <span>Target Number:</span>
-              <span class="value">${result.tn}</span>
+        <div class="roll-details">
+          <div class="roll-breakdown">
+            <div class="breakdown-line">
+              <span>Rolled ${result.dice.length}d8, kept ${result.kept.length}</span>
             </div>
-            <div class="result-line">
-              <span><strong>Result:</strong></span>
-              <span class="value"><strong>${result.success ? 'SUCCESS' : 'FAILURE'}</strong></span>
+            <div class="breakdown-line">
+              <span>Dice Total:</span>
+              <span class="value">${diceSum}</span>
             </div>
-            ${result.raises > 0 ? `
-              <div class="result-line">
-                <span><strong>Raises:</strong></span>
-                <span class="value"><strong>${result.raises}</strong></span>
+            ${result.skill > 0 ? `
+              <div class="breakdown-line">
+                <span>Skill Bonus:</span>
+                <span class="value">+${result.skill}</span>
               </div>
             ` : ''}
+            <div class="breakdown-line total">
+              <span><strong>Final Total:</strong></span>
+              <span class="value"><strong>${result.total}</strong></span>
+            </div>
           </div>
-        ` : ''}
+          
+          ${result.tn > 0 ? `
+            <div class="roll-result ${successClass}">
+              <div class="result-line">
+                <span>Target Number:</span>
+                <span class="value">${result.tn}</span>
+              </div>
+              <div class="result-line">
+                <span><strong>Result:</strong></span>
+                <span class="value"><strong>${result.success ? 'SUCCESS' : 'FAILURE'}</strong></span>
+              </div>
+              ${result.raises > 0 ? `
+                <div class="result-line">
+                  <span><strong>Raises:</strong></span>
+                  <span class="value"><strong>${result.raises}</strong></span>
+                </div>
+              ` : ''}
+            </div>
+          ` : ''}
+        </div>
       </div>
-    </div>
-  `;
-  
-  // Create chat message with the Roll object (use rolls array instead of type in v13)
-  const chatData: any = {
-    user: (game as any).user?.id,
-    speaker: actor ? ChatMessage.getSpeaker({ actor }) : ChatMessage.getSpeaker(),
-    content,
-    style: CONST.CHAT_MESSAGE_STYLES.OTHER,
-    rolls: [roll],
-    sound: CONFIG.sounds.dice,
-    flags: {
-      'mastery-system': {
-        rollResult: result,
-        canReroll: true
+    `;
+    
+    // Create chat message with serialized Roll object (Foundry v13 expects serialized rolls)
+    // Use roll.toJSON() to serialize the roll properly
+    const chatData: any = {
+      user: (game as any).user?.id,
+      speaker: actor ? ChatMessage.getSpeaker({ actor }) : ChatMessage.getSpeaker(),
+      content,
+      // Do not force style to OTHER - let Foundry infer roll display from presence of rolls
+      rolls: [roll.toJSON()],
+      sound: CONFIG.sounds.dice,
+      flags: {
+        'mastery-system': {
+          rollResult: result,
+          canReroll: true
+        }
       }
-    }
-  };
-  
-  await ChatMessage.create(chatData);
+    };
+    
+    await ChatMessage.create(chatData);
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('Mastery System | Error sending roll to chat:', error);
+    ui.notifications.error(`Failed to send mastery roll to chat: ${errorMessage}`);
+    throw error;
+  }
 }
 
 /**
