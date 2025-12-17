@@ -108,6 +108,9 @@ export class PassiveSelectionDialog extends Application {
 
   // Implement required methods for Foundry VTT v13 Application
   async _renderHTML(_data?: any): Promise<JQuery> {
+    // Cleanup any stray overlay elements before rendering
+    $('body > .passive-selection-overlay').remove();
+    
     const template = (this.constructor as any).defaultOptions?.template || this.options.template;
     if (!template) {
       throw new Error('Template path is required');
