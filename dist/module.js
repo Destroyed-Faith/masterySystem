@@ -87,63 +87,6 @@ Hooks.once('init', async function () {
             console.error('Mastery System | Error in combat start sequence', error);
         }
     });
-    // Hook into initiative roll button clicks in combat tracker
-    Hooks.on('renderCombatTracker', (_app, html) => {
-        // Convert html to jQuery if needed (Foundry v13 compatibility)
-        let $html;
-        try {
-            if (html && typeof html === 'object') {
-                // Check if it's already a jQuery object
-                if (html.jquery !== undefined && html.find !== undefined) {
-                    $html = html;
-                }
-                else if (html instanceof HTMLElement || html instanceof DocumentFragment) {
-                    $html = $(html);
-                }
-                else if (html.length !== undefined && html[0] instanceof HTMLElement) {
-                    // Might be a jQuery-like object
-                    $html = $(html);
-                }
-                else {
-                    // Try to wrap it
-                    $html = $(html);
-                }
-            }
-            else {
-                $html = $(html);
-            }
-        }
-        catch (e) {
-            console.error('Mastery System | Error converting html to jQuery in renderCombatTracker:', e);
-            return;
-        }
-        // Remove any existing handlers to prevent duplicates
-        $html.find('button[data-action="rollInitiative"]').off('click.mastery-passive');
-        // Find all initiative roll buttons and add click handler
-        $html.find('button[data-action="rollInitiative"]').on('click.mastery-passive', async (ev) => {
-            ev.preventDefault();
-            ev.stopPropagation();
-            const combat = game.combat;
-            if (!combat)
-                return;
-            const button = $(ev.currentTarget);
-            const combatantId = button.closest('[data-combatant-id]').attr('data-combatant-id');
-            if (!combatantId)
-                return;
-            const combatant = combat.combatants.get(combatantId);
-            if (!combatant || !combatant.actor)
-                return;
-            // Only show passive dialog for player characters
-            if (combatant.actor.type === 'character') {
-                try {
-                    await PassiveSelectionDialog.showForCombat(combat);
-                }
-                catch (error) {
-                    console.error('Mastery System | Error showing passive selection dialog', error);
-                }
-            }
-        });
-    });
     console.log('Mastery System | Combat hooks initialized');
     // Initialize token action selector
     initializeTokenActionSelector();
