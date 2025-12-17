@@ -25,11 +25,15 @@ export class CombatCarouselApp extends Application {
    * Open the carousel (singleton pattern)
    */
   static open(): void {
+    console.log('Mastery System | [CAROUSEL] Opening carousel');
     if (!CombatCarouselApp._instance) {
+      console.log('Mastery System | [CAROUSEL] Creating new instance');
       CombatCarouselApp._instance = new CombatCarouselApp();
     }
+    console.log('Mastery System | [CAROUSEL] Rendering carousel');
     CombatCarouselApp._instance.render(true, { focus: false });
     document.body.classList.add('mastery-carousel-open');
+    console.log('Mastery System | [CAROUSEL] Carousel opened, body class added');
   }
 
   /**
@@ -53,7 +57,14 @@ export class CombatCarouselApp extends Application {
   override async getData(): Promise<any> {
     const combat = game.combats?.active;
     
+    console.log('Mastery System | [CAROUSEL] getData called', { 
+      hasCombat: !!combat,
+      combatId: combat?.id,
+      combatantsCount: combat?.combatants?.size || 0
+    });
+    
     if (!combat) {
+      console.log('Mastery System | [CAROUSEL] No active combat, returning inactive');
       return { active: false };
     }
 
@@ -154,12 +165,20 @@ export class CombatCarouselApp extends Application {
 
   // Implement required methods for Foundry VTT v13 Application
   async _renderHTML(_data?: any): Promise<JQuery> {
+    console.log('Mastery System | [CAROUSEL] _renderHTML called');
     const template = (this.constructor as any).defaultOptions?.template || this.options.template;
     if (!template) {
+      console.error('Mastery System | [CAROUSEL] Template path missing!');
       throw new Error('Template path is required');
     }
+    console.log('Mastery System | [CAROUSEL] Template path:', template);
     const templateData = await this.getData();
+    console.log('Mastery System | [CAROUSEL] Template data:', {
+      active: templateData.active,
+      combatantsCount: templateData.combatants?.length || 0
+    });
     const html = await foundry.applications.handlebars.renderTemplate(template, templateData);
+    console.log('Mastery System | [CAROUSEL] Template rendered, HTML length:', html.length);
     return $(html);
   }
 

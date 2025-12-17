@@ -481,6 +481,13 @@ export class PassiveSelectionDialog extends Application {
         this.close({ _explicitClose: true, intentional: true });
       }
     });
+
+    // Close button
+    html.find('.js-close-dialog').on('click', (ev) => {
+      ev.preventDefault();
+      console.log('Mastery System | [PASSIVE DIALOG DEBUG] Close button clicked');
+      this.close({ _explicitClose: true, intentional: true, force: true });
+    });
   }
 
   override async close(options?: any): Promise<void> {
