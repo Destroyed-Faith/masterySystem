@@ -99,11 +99,19 @@ export class PassiveSelectionDialog extends Application {
     }
     async _replaceHTML(element, html) {
         // Only replace if element exists and is part of this app
-        if (element.length > 0 && element.closest(`#${this.id}`).length > 0) {
-            element.replaceWith(html);
+        if (element.length > 0) {
+            // Check if element is within this app's window
+            const appElement = $(`#${this.id}`);
+            if (appElement.length > 0 && (element.closest(`#${this.id}`).length > 0 || element.parent().closest(`#${this.id}`).length > 0)) {
+                element.replaceWith(html);
+            }
+            else {
+                // If element is not part of this app, update the window content directly
+                appElement.find('.window-content').html(html.html() || '');
+            }
         }
         else {
-            // If element is not found, just append to the app's element
+            // If element is not found, update the app's window content
             const appElement = $(`#${this.id}`);
             if (appElement.length > 0) {
                 appElement.find('.window-content').html(html.html() || '');
@@ -201,6 +209,8 @@ export class PassiveSelectionDialog extends Application {
         });
     }
     async close(options) {
+        // Remove any leftover overlay elements from DOM
+        $('.passive-selection-overlay').remove();
         if (this.resolve) {
             this.resolve();
             this.resolve = undefined;
