@@ -21,14 +21,14 @@ export const STARTING_STONES = 8;
 // Initiative Shop costs
 export const INITIATIVE_SHOP = {
     MOVEMENT: {
-        COST: 1, // Per 2m of movement
+        COST: 4, // Per 2m of movement
         INCREMENT: 2 // Movement increases by 2m per purchase
     },
     SWAP: {
-        COST: 3 // Cost to unlock initiative swap
+        COST: 8 // Cost to unlock initiative swap (2 Raises, 1x/round)
     },
     EXTRA_ATTACK: {
-        COST: 5 // Cost for extra attack
+        COST: 20 // Cost for extra attack (1x/round)
     }
 };
 // Character Creation

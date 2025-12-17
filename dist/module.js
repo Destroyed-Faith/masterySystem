@@ -189,9 +189,9 @@ Hooks.once('init', async function () {
                         return;
                     }
                     const { rollInitiativeForCombatant } = await import('./combat/initiative-roll.js');
-                    const totalInitiative = await rollInitiativeForCombatant(combatant);
+                    const breakdown = await rollInitiativeForCombatant(combatant);
                     // Show initiative shop
-                    await InitiativeShopDialog.showForCombatant(combatant, totalInitiative);
+                    await InitiativeShopDialog.showForCombatant(combatant, breakdown, combat);
                 }
                 catch (error) {
                     console.error('Mastery System | [COMBAT TRACKER DEBUG] Error showing initiative shop', error);

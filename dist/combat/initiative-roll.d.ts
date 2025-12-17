@@ -8,10 +8,20 @@
  */
 export declare function calculateBaseInitiative(actor: any): number;
 /**
- * Roll initiative for a combatant
- * Returns the total initiative value (base + dice roll)
+ * Initiative roll breakdown
  */
-export declare function rollInitiativeForCombatant(combatant: Combatant): Promise<number>;
+export interface InitiativeRollBreakdown {
+    baseInitiative: number;
+    diceTotal: number;
+    totalInitiative: number;
+    masteryRank: number;
+    rollResult: any;
+}
+/**
+ * Roll initiative for a combatant
+ * Returns breakdown object with base, dice, total, and roll details
+ */
+export declare function rollInitiativeForCombatant(combatant: Combatant): Promise<InitiativeRollBreakdown>;
 /**
  * Roll initiative for all combatants in a combat
  * NPCs roll automatically, PCs get Initiative Shop dialog

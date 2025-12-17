@@ -8,7 +8,8 @@
    ======================================== */
 
 .mastery-system.passive-selection,
-.mastery-system.combat-overlay {
+.mastery-system.combat-overlay,
+.mastery-system.initiative-shop {
   font-family: 'Signika', sans-serif;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
   border: 2px solid #0f3460;
@@ -926,6 +927,303 @@
 .mastery-utility-panel .panel-info #selected-count {
   color: #66aaff;
   font-weight: bold;
+}
+
+/* ========================================
+   Initiative Shop Dialog
+   ======================================== */
+
+.mastery-system.initiative-shop .initiative-shop-dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  min-height: 400px;
+}
+
+/* Header */
+.mastery-system.initiative-shop .shop-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+  border-radius: 8px;
+  border-bottom: 2px solid #e94560;
+}
+
+.mastery-system.initiative-shop .header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.mastery-system.initiative-shop .actor-portrait {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid #e94560;
+  object-fit: cover;
+}
+
+.mastery-system.initiative-shop .actor-info h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #fff;
+}
+
+.mastery-system.initiative-shop .mastery-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background: rgba(233, 69, 96, 0.3);
+  border: 1px solid #e94560;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  color: #ffcccb;
+}
+
+.mastery-system.initiative-shop .remaining-pill {
+  text-align: center;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #e94560 0%, #c73650 100%);
+  border-radius: 12px;
+  border: 2px solid #fff;
+  box-shadow: 0 4px 12px rgba(233, 69, 96, 0.4);
+}
+
+.mastery-system.initiative-shop .remaining-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #fff;
+  line-height: 1;
+}
+
+.mastery-system.initiative-shop .remaining-label {
+  font-size: 0.75rem;
+  color: #ffcccb;
+  margin-top: 0.25rem;
+}
+
+/* Breakdown Section */
+.mastery-system.initiative-shop .breakdown-section {
+  margin: 0.5rem 0;
+}
+
+.mastery-system.initiative-shop .breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.mastery-system.initiative-shop .breakdown-card {
+  background: rgba(15, 52, 96, 0.4);
+  border: 1px solid #0f3460;
+  border-radius: 6px;
+  padding: 0.75rem;
+  text-align: center;
+}
+
+.mastery-system.initiative-shop .breakdown-label {
+  font-size: 0.75rem;
+  color: #aaa;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.mastery-system.initiative-shop .breakdown-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #66aaff;
+  margin-bottom: 0.25rem;
+}
+
+.mastery-system.initiative-shop .breakdown-subtitle {
+  font-size: 0.65rem;
+  color: #888;
+}
+
+/* Shop Items */
+.mastery-system.initiative-shop .shop-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.mastery-system.initiative-shop .shop-item {
+  background: rgba(15, 52, 96, 0.3);
+  border: 1px solid #0f3460;
+  border-radius: 6px;
+  padding: 0.75rem;
+}
+
+.mastery-system.initiative-shop .item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.mastery-system.initiative-shop .item-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mastery-system.initiative-shop .cost-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background: rgba(233, 69, 96, 0.3);
+  border: 1px solid #e94560;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: #ffcccb;
+}
+
+.mastery-system.initiative-shop .item-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.mastery-system.initiative-shop .stepper-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(102, 170, 255, 0.2);
+  border: 1px solid #66aaff;
+  border-radius: 4px;
+  color: #66aaff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mastery-system.initiative-shop .stepper-btn:hover:not(:disabled) {
+  background: rgba(102, 170, 255, 0.4);
+  border-color: #88ccff;
+}
+
+.mastery-system.initiative-shop .stepper-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.mastery-system.initiative-shop .purchase-count {
+  min-width: 2rem;
+  text-align: center;
+  font-weight: bold;
+  color: #fff;
+}
+
+.mastery-system.initiative-shop .item-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-left: auto;
+  font-size: 0.75rem;
+}
+
+.mastery-system.initiative-shop .subtotal {
+  color: #aaa;
+}
+
+.mastery-system.initiative-shop .effect {
+  color: #66ff66;
+  font-weight: bold;
+}
+
+.mastery-system.initiative-shop .subtitle {
+  color: #aaa;
+  font-size: 0.75rem;
+}
+
+.mastery-system.initiative-shop .toggle-btn {
+  padding: 0.5rem 1rem;
+  background: rgba(102, 170, 255, 0.2);
+  border: 1px solid #66aaff;
+  border-radius: 4px;
+  color: #66aaff;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mastery-system.initiative-shop .toggle-btn:hover:not(:disabled) {
+  background: rgba(102, 170, 255, 0.4);
+  border-color: #88ccff;
+}
+
+.mastery-system.initiative-shop .toggle-btn.purchased {
+  background: rgba(102, 255, 102, 0.3);
+  border-color: #66ff66;
+  color: #66ff66;
+}
+
+.mastery-system.initiative-shop .toggle-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Footer */
+.mastery-system.initiative-shop .shop-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(15, 52, 96, 0.5);
+  border-top: 2px solid #0f3460;
+  border-radius: 0 0 8px 8px;
+  position: sticky;
+  bottom: 0;
+  margin-top: auto;
+}
+
+.mastery-system.initiative-shop .btn-primary,
+.mastery-system.initiative-shop .btn-secondary {
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: none;
+}
+
+.mastery-system.initiative-shop .btn-primary {
+  background: linear-gradient(135deg, #66ff66 0%, #4dcc4d 100%);
+  color: #000;
+  flex: 1;
+  justify-content: center;
+}
+
+.mastery-system.initiative-shop .btn-primary:hover {
+  background: linear-gradient(135deg, #7fff7f 0%, #66ff66 100%);
+  box-shadow: 0 4px 12px rgba(102, 255, 102, 0.4);
+}
+
+.mastery-system.initiative-shop .btn-secondary {
+  background: rgba(170, 170, 170, 0.2);
+  border: 1px solid #aaa;
+  color: #aaa;
+}
+
+.mastery-system.initiative-shop .btn-secondary:hover {
+  background: rgba(170, 170, 170, 0.4);
+  border-color: #ccc;
+  color: #fff;
 }
 
 

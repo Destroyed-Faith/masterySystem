@@ -46,13 +46,19 @@ export function calculateBaseInitiative(actor) {
 }
 /**
  * Roll initiative for a combatant
- * Returns the total initiative value (base + dice roll)
+ * Returns breakdown object with base, dice, total, and roll details
  */
 export async function rollInitiativeForCombatant(combatant) {
     const actor = combatant.actor;
     if (!actor) {
         console.error('Mastery System | Cannot roll initiative: combatant has no actor');
-        return 0;
+        return {
+            baseInitiative: 0,
+            diceTotal: 0,
+            totalInitiative: 0,
+            masteryRank: 2,
+            rollResult: null
+        };
     }
     const baseInitiative = calculateBaseInitiative(actor);
     const masteryRank = getMasteryRank(actor);
@@ -77,7 +83,13 @@ export async function rollInitiativeForCombatant(combatant) {
         totalInitiative,
         masteryRank
     });
-    return totalInitiative;
+    return {
+        baseInitiative,
+        diceTotal,
+        totalInitiative,
+        masteryRank,
+        rollResult
+    };
 }
 /**
  * Roll initiative for all combatants in a combat
@@ -115,11 +127,11 @@ export async function rollInitiativeForAllCombatants(combat) {
             continue;
         // Only show shop to the owner or GM
         if (user.isGM || actor.isOwner) {
-            // Roll initiative first (returns total initiative = base + dice)
-            const totalInitiative = await rollInitiativeForCombatant(pc);
-            // Show Initiative Shop dialog (pass total initiative, not base)
+            // Roll initiative first (returns breakdown object)
+            const breakdown = await rollInitiativeForCombatant(pc);
+            // Show Initiative Shop dialog (pass breakdown context)
             try {
-                await InitiativeShopDialog.showForCombatant(pc, totalInitiative);
+                await InitiativeShopDialog.showForCombatant(pc, breakdown, combat);
             }
             catch (error) {
                 console.error('Mastery System | Failed to show Initiative Shop', error);
