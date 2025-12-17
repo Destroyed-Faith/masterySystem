@@ -16,6 +16,9 @@ import { initializeTokenActionSelector } from './token-action-selector.js';
 import { initializeTurnIndicator } from './turn-indicator.js';
 import { handleRadialMenuOpened, handleRadialMenuClosed } from './radial-menu/rendering.js';
 import { registerAttackRollClickHandler } from './chat/attack-roll-handler.js';
+// Import combat-related modules statically
+import { PassiveSelectionDialog } from './sheets/passive-selection-dialog.js';
+import { rollInitiativeForAllCombatants } from './combat/initiative-roll.js';
 // Dice roller functions are imported in sheets where needed
 console.log('Mastery System | All imports completed');
 // Register Handlebars helpers immediately (before init hook)
@@ -68,18 +71,16 @@ Hooks.once('init', async function () {
     // No need to register again here
     // Register CONFIG constants
     registerConfigConstants();
-    // Initialize combat hooks (dynamically imported)
-    // Register combatStart hook directly here to avoid import issues
+    // Initialize combat hooks
+    // Register combatStart hook directly here
     Hooks.on('combatStart', async (combat) => {
         console.log('Mastery System | Combat started, showing passive selection overlay');
         try {
             // Step 1: Show Passive Selection Dialog
-            const { PassiveSelectionDialog } = await import('systems/mastery-system/dist/sheets/passive-selection-dialog.js');
             await PassiveSelectionDialog.showForCombat(combat);
             // Step 2: Wait a moment for players to finish selecting passives
             await new Promise(resolve => setTimeout(resolve, 1000));
             // Step 3: Roll initiative for all combatants (NPCs auto, PCs with shop)
-            const { rollInitiativeForAllCombatants } = await import('systems/mastery-system/dist/combat/initiative-roll.js');
             await rollInitiativeForAllCombatants(combat);
         }
         catch (error) {
