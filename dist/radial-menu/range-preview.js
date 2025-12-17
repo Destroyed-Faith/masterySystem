@@ -1,7 +1,7 @@
 /**
  * Range Preview and Hex Highlighting for Radial Menu
  */
-import { highlightHexesInRange, clearHexHighlight } from '../utils/hex-highlighting.js';
+import { highlightHexesInRange, clearHexHighlight } from '../utils/hex-highlighting';
 /**
  * Global state for range preview graphics
  */

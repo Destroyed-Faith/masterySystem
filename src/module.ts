@@ -107,6 +107,37 @@ Hooks.once('init', async function() {
       console.error('Mastery System | Error in combat start sequence', error);
     }
   });
+
+  // Hook into initiative roll button clicks in combat tracker
+  Hooks.on('renderCombatTracker', (_app: any, html: JQuery) => {
+    // Remove any existing handlers to prevent duplicates
+    html.find('button[data-action="rollInitiative"]').off('click.mastery-passive');
+    
+    // Find all initiative roll buttons and add click handler
+    html.find('button[data-action="rollInitiative"]').on('click.mastery-passive', async (ev: JQuery.ClickEvent) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      
+      const combat = game.combat;
+      if (!combat) return;
+
+      const button = $(ev.currentTarget);
+      const combatantId = button.closest('[data-combatant-id]').attr('data-combatant-id');
+      if (!combatantId) return;
+
+      const combatant = combat.combatants.get(combatantId);
+      if (!combatant || !combatant.actor) return;
+
+      // Only show passive dialog for player characters
+      if (combatant.actor.type === 'character') {
+        try {
+          await PassiveSelectionDialog.showForCombat(combat);
+        } catch (error) {
+          console.error('Mastery System | Error showing passive selection dialog', error);
+        }
+      }
+    });
+  });
   
   console.log('Mastery System | Combat hooks initialized');
 

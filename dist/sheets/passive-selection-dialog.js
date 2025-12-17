@@ -31,6 +31,14 @@ export class PassiveSelectionDialog extends Application {
         const user = game.user;
         if (!user)
             return;
+        // Check if dialog is already open - use the app's ID to find it
+        const existingApp = ui.windows[`mastery-passive-selection`];
+        if (existingApp && existingApp.rendered) {
+            console.log('Mastery System | Passive selection dialog already open');
+            // Bring to front instead of creating new
+            existingApp.bringToTop();
+            return;
+        }
         // Get all player character combatants owned by current user
         const pcs = combat.combatants.filter((c) => c.actor?.type === 'character' &&
             (user.isGM || c.actor?.isOwner));
@@ -90,7 +98,17 @@ export class PassiveSelectionDialog extends Application {
         return $(html);
     }
     async _replaceHTML(element, html) {
-        element.replaceWith(html);
+        // Only replace if element exists and is part of this app
+        if (element.length > 0 && element.closest(`#${this.id}`).length > 0) {
+            element.replaceWith(html);
+        }
+        else {
+            // If element is not found, just append to the app's element
+            const appElement = $(`#${this.id}`);
+            if (appElement.length > 0) {
+                appElement.find('.window-content').html(html);
+            }
+        }
     }
     activateListeners(html) {
         super.activateListeners(html);
@@ -132,7 +150,8 @@ export class PassiveSelectionDialog extends Application {
                 return;
             }
             await slotPassive(actor, slotIndex, passiveId);
-            this.render(false);
+            // Re-render to update the display
+            await this.render(false);
         });
         // Toggle passive active/inactive
         html.find('.js-toggle-passive').on('click', async (ev) => {
@@ -142,7 +161,7 @@ export class PassiveSelectionDialog extends Application {
                 return;
             const slotIndex = Number($(ev.currentTarget).data('slot-index') ?? 0);
             await activatePassive(actor, slotIndex);
-            this.render(false);
+            await this.render(false);
         });
         // Unslot a passive
         html.find('.js-unslot-passive').on('click', async (ev) => {
@@ -152,25 +171,25 @@ export class PassiveSelectionDialog extends Application {
                 return;
             const slotIndex = Number($(ev.currentTarget).data('slot-index') ?? 0);
             await unslotPassive(actor, slotIndex);
-            this.render(false);
+            await this.render(false);
         });
         // Next character
-        html.find('.js-next-character').on('click', (ev) => {
+        html.find('.js-next-character').on('click', async (ev) => {
             ev.preventDefault();
             if (this.currentIndex < this.pcs.length - 1) {
                 this.currentIndex++;
-                this.render(false);
+                await this.render(false);
             }
             else {
                 this.close();
             }
         });
         // Previous character
-        html.find('.js-prev-character').on('click', (ev) => {
+        html.find('.js-prev-character').on('click', async (ev) => {
             ev.preventDefault();
             if (this.currentIndex > 0) {
                 this.currentIndex--;
-                this.render(false);
+                await this.render(false);
             }
         });
         // GM skip all

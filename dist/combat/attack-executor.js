@@ -2,7 +2,7 @@
  * Attack Executor
  * Creates melee attack chat cards with proper flags for the roll handler
  */
-import { logActorItemSummary } from "../utils/debug-helpers.js";
+import { logActorItemSummary } from "../utils/debug-helpers";
 /**
  * Safely collect items from actor (handles Collection, Array, Map)
  */

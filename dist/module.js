@@ -12,10 +12,10 @@ import { MasteryItemSheet } from './sheets/item-sheet.js';
 // Combat hooks are imported dynamically to avoid build errors if dist/combat doesn't exist yet
 // import { initializeCombatHooks } from '../dist/combat/initiative.js';
 import { calculateStones } from './utils/calculations.js';
-import { initializeTokenActionSelector } from './token-action-selector.js';
-import { initializeTurnIndicator } from './turn-indicator.js';
-import { handleRadialMenuOpened, handleRadialMenuClosed } from './radial-menu/rendering.js';
-import { registerAttackRollClickHandler } from './chat/attack-roll-handler.js';
+import { initializeTokenActionSelector } from './token-action-selector';
+import { initializeTurnIndicator } from './turn-indicator';
+import { handleRadialMenuOpened, handleRadialMenuClosed } from './radial-menu/rendering';
+import { registerAttackRollClickHandler } from './chat/attack-roll-handler';
 // Import combat-related modules statically
 import { PassiveSelectionDialog } from './sheets/passive-selection-dialog.js';
 import { rollInitiativeForAllCombatants } from './combat/initiative-roll.js';
@@ -86,6 +86,35 @@ Hooks.once('init', async function () {
         catch (error) {
             console.error('Mastery System | Error in combat start sequence', error);
         }
+    });
+    // Hook into initiative roll button clicks in combat tracker
+    Hooks.on('renderCombatTracker', (_app, html) => {
+        // Remove any existing handlers to prevent duplicates
+        html.find('button[data-action="rollInitiative"]').off('click.mastery-passive');
+        // Find all initiative roll buttons and add click handler
+        html.find('button[data-action="rollInitiative"]').on('click.mastery-passive', async (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            const combat = game.combat;
+            if (!combat)
+                return;
+            const button = $(ev.currentTarget);
+            const combatantId = button.closest('[data-combatant-id]').attr('data-combatant-id');
+            if (!combatantId)
+                return;
+            const combatant = combat.combatants.get(combatantId);
+            if (!combatant || !combatant.actor)
+                return;
+            // Only show passive dialog for player characters
+            if (combatant.actor.type === 'character') {
+                try {
+                    await PassiveSelectionDialog.showForCombat(combat);
+                }
+                catch (error) {
+                    console.error('Mastery System | Error showing passive selection dialog', error);
+                }
+            }
+        });
     });
     console.log('Mastery System | Combat hooks initialized');
     // Initialize token action selector
