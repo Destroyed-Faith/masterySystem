@@ -1,11 +1,11 @@
 /**
  * Rendering Functions for Radial Menu
  */
-import { MS_INNER_SEGMENTS, MS_INNER_RADIUS, MS_OUTER_RING_INNER, MS_OUTER_RING_OUTER } from './types';
-import { getSegmentIdForOption } from './options';
-import { showRangePreview, clearRangePreview } from './range-preview';
-import { showRadialInfoPanel, hideRadialInfoPanel } from './info-panel';
-import { handleChosenCombatOption } from '../token-action-selector';
+import { MS_INNER_SEGMENTS, MS_INNER_RADIUS, MS_OUTER_RING_INNER, MS_OUTER_RING_OUTER } from './types.js';
+import { getSegmentIdForOption } from './options.js';
+import { showRangePreview, clearRangePreview } from './range-preview.js';
+import { showRadialInfoPanel, hideRadialInfoPanel } from './info-panel.js';
+import { handleChosenCombatOption } from '../token-action-selector.js';
 /**
  * Foundry v13: When the radial menu spawns under the mouse cursor, PIXI can
  * immediately fire pointerover for whichever slice is "under" the cursor.

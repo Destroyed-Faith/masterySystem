@@ -106,7 +106,7 @@ export class PassiveSelectionDialog extends Application {
             // If element is not found, just append to the app's element
             const appElement = $(`#${this.id}`);
             if (appElement.length > 0) {
-                appElement.find('.window-content').html(html);
+                appElement.find('.window-content').html(html.html() || '');
             }
         }
     }

@@ -2,12 +2,12 @@
  * Character Sheet for Mastery System
  * Main player character sheet with tabs for attributes, skills, powers, etc.
  */
-import { quickRoll } from '../dice/roll-handler';
-import { SKILLS } from '../utils/skills';
-import { DISADVANTAGES, getDisadvantageDefinition, calculateDisadvantagePoints, validateDisadvantageSelection } from '../system/disadvantages';
-import { getAllMasteryTrees } from '../utils/mastery-trees';
-import { getAllSpellSchools } from '../utils/spell-schools';
-import { getAllSchticks } from '../utils/schticks';
+import { quickRoll } from '../dice/roll-handler.js';
+import { SKILLS } from '../utils/skills.js';
+import { DISADVANTAGES, getDisadvantageDefinition, calculateDisadvantagePoints, validateDisadvantageSelection } from '../system/disadvantages.js';
+import { getAllMasteryTrees } from '../utils/mastery-trees.js';
+import { getAllSpellSchools } from '../utils/spell-schools.js';
+import { getAllSchticks } from '../utils/schticks.js';
 // Use namespaced ActorSheet when available to avoid deprecation warnings
 const BaseActorSheet = foundry?.appv1?.sheets?.ActorSheet || ActorSheet;
 export class MasteryCharacterSheet extends BaseActorSheet {

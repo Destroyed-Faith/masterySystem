@@ -5,9 +5,9 @@
  *
  * Uses a PIXI-based radial menu for visual option selection
  */
-import { openRadialMenuForActor, getAllCombatOptionsForActor, closeRadialMenu } from './token-radial-menu';
-import { startMeleeTargeting } from './melee-targeting';
-import { startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting';
+import { openRadialMenuForActor, getAllCombatOptionsForActor, closeRadialMenu } from './token-radial-menu.js';
+import { startMeleeTargeting } from './melee-targeting.js';
+import { startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting.js';
 // Global movement state
 let activeMovementState = null;
 /**
