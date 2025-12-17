@@ -88,6 +88,29 @@ export class MasteryActor extends Actor {
         const baseEvade = system.combat.evade || 0;
         const shieldEvadeBonus = equippedShield?.system?.evadeBonus || 0;
         system.combat.evadeTotal = baseEvade + shieldEvadeBonus;
+        // Prepare tracked resources for Combat Carousel module
+        // These are derived fields that update automatically when actor data changes
+        system.tracked = system.tracked ?? {};
+        // HP: current health bar (for Carousel)
+        const bars = system.health?.bars ?? [];
+        const idx = Math.max(0, Math.min(Number(system.health?.currentBar ?? 0), bars.length - 1));
+        const bar = bars[idx] ?? { current: 0, max: 0 };
+        // Include tempHP in value ONLY (not in max)
+        const tempHP = Number(system.health?.tempHP ?? 0);
+        system.tracked.hp = {
+            value: Math.max(0, Number(bar.current ?? 0) + tempHP),
+            max: Math.max(0, Number(bar.max ?? 0))
+        };
+        // Stress: current/maximum stress
+        system.tracked.stress = {
+            value: Math.max(0, Number(system.stress?.current ?? 0)),
+            max: Math.max(0, Number(system.stress?.maximum ?? 0))
+        };
+        // Stones: current/maximum stones
+        system.tracked.stones = {
+            value: Math.max(0, Number(system.stones?.current ?? 0)),
+            max: Math.max(0, Number(system.stones?.maximum ?? 0))
+        };
     }
     /**
      * Heal the actor

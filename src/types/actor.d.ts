@@ -101,6 +101,12 @@ export interface CharacterData {
     faithFractures: string;
     background: string;
   };
+  // Derived tracked resources for Combat Carousel module
+  tracked?: {
+    hp?: ResourceData;
+    stress?: ResourceData;
+    stones?: ResourceData;
+  };
 }
 
 // Status effect structure
@@ -177,6 +183,12 @@ export interface NpcData {
   conditions: any[];
   statusEffects?: StatusEffect[];
   notes: string;
+  // Derived tracked resources for Combat Carousel module
+  tracked?: {
+    hp?: ResourceData;
+    stress?: ResourceData;
+    stones?: ResourceData;
+  };
 }
 
 // === Summon Data ===
