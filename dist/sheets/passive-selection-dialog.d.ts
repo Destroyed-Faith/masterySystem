@@ -11,6 +11,12 @@ export declare class PassiveSelectionDialog extends Application {
     private _preventAutoClose;
     static get defaultOptions(): any;
     /**
+     * Show passive selection dialog for a single combatant
+     * @param combatant - The combatant to show dialog for
+     * @returns Promise that resolves when selection is complete
+     */
+    static showForCombatant(combatant: Combatant): Promise<void>;
+    /**
      * Show passive selection dialog for all player-controlled combatants
      * @param combat - The active combat
      * @returns Promise that resolves when all players finish selection

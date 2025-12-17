@@ -24,6 +24,46 @@ export class PassiveSelectionDialog extends Application {
         });
     }
     /**
+     * Show passive selection dialog for a single combatant
+     * @param combatant - The combatant to show dialog for
+     * @returns Promise that resolves when selection is complete
+     */
+    static async showForCombatant(combatant) {
+        console.log('Mastery System | [PASSIVE DIALOG DEBUG] showForCombatant called', {
+            combatantId: combatant.id,
+            actorId: combatant.actor?.id,
+            actorName: combatant.actor?.name,
+            userId: game.user?.id,
+            isGM: game.user?.isGM
+        });
+        const user = game.user;
+        if (!user) {
+            console.log('Mastery System | [PASSIVE DIALOG DEBUG] No user found');
+            return;
+        }
+        // Check if user owns this combatant
+        if (!user.isGM && !combatant.actor?.isOwner) {
+            console.log('Mastery System | [PASSIVE DIALOG DEBUG] User does not own this combatant');
+            return;
+        }
+        // Check if dialog is already open
+        const existingApp = ui.windows[`mastery-passive-selection`];
+        if (existingApp && existingApp.rendered) {
+            console.log('Mastery System | [PASSIVE DIALOG DEBUG] Dialog already open, bringing to front');
+            existingApp.bringToTop();
+            return;
+        }
+        return new Promise(resolve => {
+            const app = new PassiveSelectionDialog([combatant], resolve);
+            app._preventAutoClose = true;
+            console.log('Mastery System | [PASSIVE DIALOG DEBUG] Rendering dialog for single combatant', {
+                appId: app.id,
+                preventAutoClose: app._preventAutoClose
+            });
+            app.render(true);
+        });
+    }
+    /**
      * Show passive selection dialog for all player-controlled combatants
      * @param combat - The active combat
      * @returns Promise that resolves when all players finish selection
@@ -119,7 +159,8 @@ export class PassiveSelectionDialog extends Application {
             appId: this.id,
             rendered: this.rendered,
             currentIndex: this.currentIndex,
-            pcsCount: this.pcs.length
+            pcsCount: this.pcs.length,
+            stackTrace: new Error().stack?.split('\n').slice(0, 5).join('\n')
         });
         // Cleanup any stray overlay elements before rendering
         const removedOverlays = $('body > .passive-selection-overlay').length;
@@ -129,26 +170,35 @@ export class PassiveSelectionDialog extends Application {
         }
         const template = this.constructor.defaultOptions?.template || this.options.template;
         if (!template) {
+            console.error('Mastery System | [PASSIVE DIALOG DEBUG] Template path is missing!');
             throw new Error('Template path is required');
         }
+        console.log('Mastery System | [PASSIVE DIALOG DEBUG] Getting template data...');
         const templateData = await this.getData();
         console.log('Mastery System | [PASSIVE DIALOG DEBUG] Template data prepared', {
             slotsCount: templateData.slots?.length || 0,
             availablePassivesCount: templateData.availablePassives?.length || 0,
-            currentActor: templateData.actor?.name
+            currentActor: templateData.actor?.name,
+            hasActor: !!templateData.actor
         });
+        console.log('Mastery System | [PASSIVE DIALOG DEBUG] Rendering template...');
         const html = await foundry.applications.handlebars.renderTemplate(template, templateData);
-        console.log('Mastery System | [PASSIVE DIALOG DEBUG] Template rendered', {
-            htmlLength: html.length
+        console.log('Mastery System | [PASSIVE DIALOG DEBUG] Template rendered successfully', {
+            htmlLength: html.length,
+            htmlPreview: html.substring(0, 200)
         });
         return $(html);
     }
     async _replaceHTML(element, html) {
         console.log('Mastery System | [PASSIVE DIALOG DEBUG] _replaceHTML called', {
             appId: this.id,
+            rendered: this.rendered,
             elementLength: element.length,
             htmlLength: html.length,
-            elementParent: element.parent().length > 0 ? element.parent()[0].tagName : 'none'
+            elementParent: element.parent().length > 0 ? element.parent()[0].tagName : 'none',
+            elementClasses: element.attr('class') || 'none',
+            preventAutoClose: this._preventAutoClose,
+            stackTrace: new Error().stack?.split('\n').slice(0, 8).join('\n')
         });
         // Only replace if element exists and is part of this app
         if (element.length > 0) {
@@ -157,16 +207,29 @@ export class PassiveSelectionDialog extends Application {
             const isInApp = element.closest(`#${this.id}`).length > 0 || element.parent().closest(`#${this.id}`).length > 0;
             console.log('Mastery System | [PASSIVE DIALOG DEBUG] Element check', {
                 appElementExists: appElement.length > 0,
-                isInApp: isInApp
+                isInApp: isInApp,
+                elementId: element.attr('id') || 'none',
+                elementData: {
+                    closestApp: element.closest(`#${this.id}`).length,
+                    parentClosestApp: element.parent().closest(`#${this.id}`).length
+                }
             });
             if (appElement.length > 0 && isInApp) {
                 console.log('Mastery System | [PASSIVE DIALOG DEBUG] Replacing element directly');
                 element.replaceWith(html);
+                console.log('Mastery System | [PASSIVE DIALOG DEBUG] Element replaced successfully');
             }
             else {
                 // If element is not part of this app, update the window content directly
-                console.log('Mastery System | [PASSIVE DIALOG DEBUG] Updating window content directly');
-                appElement.find('.window-content').html(html.html() || '');
+                console.log('Mastery System | [PASSIVE DIALOG DEBUG] Updating window content directly (element not in app)');
+                const windowContent = appElement.find('.window-content');
+                if (windowContent.length > 0) {
+                    windowContent.html(html.html() || '');
+                    console.log('Mastery System | [PASSIVE DIALOG DEBUG] Window content updated');
+                }
+                else {
+                    console.warn('Mastery System | [PASSIVE DIALOG DEBUG] Window content not found!');
+                }
             }
         }
         else {
@@ -174,12 +237,20 @@ export class PassiveSelectionDialog extends Application {
             console.log('Mastery System | [PASSIVE DIALOG DEBUG] Element not found, updating window content');
             const appElement = $(`#${this.id}`);
             if (appElement.length > 0) {
-                appElement.find('.window-content').html(html.html() || '');
+                const windowContent = appElement.find('.window-content');
+                if (windowContent.length > 0) {
+                    windowContent.html(html.html() || '');
+                    console.log('Mastery System | [PASSIVE DIALOG DEBUG] Window content updated (fallback)');
+                }
+                else {
+                    console.warn('Mastery System | [PASSIVE DIALOG DEBUG] Window content not found in fallback!');
+                }
             }
             else {
                 console.warn('Mastery System | [PASSIVE DIALOG DEBUG] App element not found!', {
                     appId: this.id,
-                    allWindows: Object.keys(ui.windows || {})
+                    allWindows: Object.keys(ui.windows || {}),
+                    bodyChildren: $('body').children().length
                 });
             }
         }

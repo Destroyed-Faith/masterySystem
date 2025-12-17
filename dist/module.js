@@ -19,6 +19,7 @@ import { registerAttackRollClickHandler } from './chat/attack-roll-handler.js';
 // Import combat-related modules statically
 import { PassiveSelectionDialog } from './sheets/passive-selection-dialog.js';
 import { rollInitiativeForAllCombatants } from './combat/initiative-roll.js';
+import { InitiativeShopDialog } from './combat/initiative-shop-dialog.js';
 // Dice roller functions are imported in sheets where needed
 console.log('Mastery System | All imports completed');
 // Register Handlebars helpers immediately (before init hook)
@@ -119,6 +120,85 @@ Hooks.once('init', async function () {
         }
         // Hide all initiative roll buttons
         $html.find('button[data-action="rollInitiative"]').css('display', 'none');
+        // Add buttons to each combatant row for passive and initiative dialogs
+        $html.find('.combatant').each((_index, combatantElement) => {
+            const $combatant = $(combatantElement);
+            const combatantId = $combatant.data('combatant-id') || $combatant.attr('data-combatant-id');
+            if (!combatantId) {
+                console.warn('Mastery System | [COMBAT TRACKER DEBUG] Combatant element has no ID', combatantElement);
+                return;
+            }
+            // Find the token-initiative div
+            const $initiativeDiv = $combatant.find('.token-initiative');
+            if ($initiativeDiv.length === 0) {
+                console.warn('Mastery System | [COMBAT TRACKER DEBUG] token-initiative div not found for combatant', combatantId);
+                return;
+            }
+            // Remove existing buttons to prevent duplicates
+            $initiativeDiv.find('.ms-passive-btn, .ms-initiative-btn').remove();
+            // Add Passive Selection button
+            const passiveBtn = $('<button type="button" class="combatant-control ms-passive-btn" data-action="selectPassives" data-combatant-id="' + combatantId + '" data-tooltip="Select Passives" aria-label="Select Passives" title="Select Passives"><i class="fa-solid fa-shield"></i></button>');
+            $initiativeDiv.append(passiveBtn);
+            // Add Initiative Shop button
+            const initiativeBtn = $('<button type="button" class="combatant-control ms-initiative-btn" data-action="openInitiativeShop" data-combatant-id="' + combatantId + '" data-tooltip="Initiative Shop" aria-label="Initiative Shop" title="Initiative Shop"><i class="fa-solid fa-shop"></i></button>');
+            $initiativeDiv.append(initiativeBtn);
+            // Add click handlers
+            passiveBtn.off('click.ms-passive').on('click.ms-passive', async (ev) => {
+                console.log('Mastery System | [COMBAT TRACKER DEBUG] Passive button clicked', { combatantId });
+                ev.preventDefault();
+                ev.stopPropagation();
+                const combat = game.combat;
+                if (!combat) {
+                    ui.notifications?.warn('No active combat encounter');
+                    return;
+                }
+                const combatant = combat.combatants.get(combatantId);
+                if (!combatant) {
+                    console.error('Mastery System | [COMBAT TRACKER DEBUG] Combatant not found', { combatantId });
+                    ui.notifications?.error('Combatant not found');
+                    return;
+                }
+                try {
+                    await PassiveSelectionDialog.showForCombatant(combatant);
+                }
+                catch (error) {
+                    console.error('Mastery System | [COMBAT TRACKER DEBUG] Error showing passive dialog', error);
+                    ui.notifications?.error('Failed to open passive selection dialog');
+                }
+            });
+            initiativeBtn.off('click.ms-initiative').on('click.ms-initiative', async (ev) => {
+                console.log('Mastery System | [COMBAT TRACKER DEBUG] Initiative button clicked', { combatantId });
+                ev.preventDefault();
+                ev.stopPropagation();
+                const combat = game.combat;
+                if (!combat) {
+                    ui.notifications?.warn('No active combat encounter');
+                    return;
+                }
+                const combatant = combat.combatants.get(combatantId);
+                if (!combatant) {
+                    console.error('Mastery System | [COMBAT TRACKER DEBUG] Combatant not found', { combatantId });
+                    ui.notifications?.error('Combatant not found');
+                    return;
+                }
+                try {
+                    // Calculate base initiative
+                    const actor = combatant.actor;
+                    if (!actor) {
+                        ui.notifications?.error('Actor not found');
+                        return;
+                    }
+                    const { rollInitiativeForCombatant } = await import('./combat/initiative-roll.js');
+                    const totalInitiative = await rollInitiativeForCombatant(combatant);
+                    // Show initiative shop
+                    await InitiativeShopDialog.showForCombatant(combatant, totalInitiative);
+                }
+                catch (error) {
+                    console.error('Mastery System | [COMBAT TRACKER DEBUG] Error showing initiative shop', error);
+                    ui.notifications?.error('Failed to open initiative shop');
+                }
+            });
+        });
         // Add "Select Passives" button to encounter controls
         const encounterControls = $html.find('.encounter-controls');
         if (encounterControls.length > 0) {
