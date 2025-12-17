@@ -151,19 +151,27 @@ Hooks.once('init', async function() {
         
         // Add click handler
         passiveBtn.off('click.ms-passive').on('click.ms-passive', async (ev: JQuery.ClickEvent) => {
+          console.log('Mastery System | [PASSIVE DIALOG DEBUG] Button clicked in combat tracker');
           ev.preventDefault();
           ev.stopPropagation();
           
           const combat = game.combat;
           if (!combat) {
+            console.log('Mastery System | [PASSIVE DIALOG DEBUG] No active combat');
             ui.notifications?.warn('No active combat encounter');
             return;
           }
 
+          console.log('Mastery System | [PASSIVE DIALOG DEBUG] Opening dialog from button', {
+            combatId: combat.id,
+            combatants: combat.combatants.size
+          });
+
           try {
             await PassiveSelectionDialog.showForCombat(combat);
+            console.log('Mastery System | [PASSIVE DIALOG DEBUG] Dialog opened successfully from button');
           } catch (error) {
-            console.error('Mastery System | Error showing passive selection dialog', error);
+            console.error('Mastery System | [PASSIVE DIALOG DEBUG] Error showing passive selection dialog', error);
             ui.notifications?.error('Failed to open passive selection dialog');
           }
         });
