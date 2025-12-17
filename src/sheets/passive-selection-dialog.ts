@@ -5,6 +5,8 @@
  * Supports multiple characters per player with step-by-step navigation.
  */
 
+import { getPassiveSlots, getAvailablePassives, slotPassive, activatePassive, unslotPassive } from '../powers/passives.js';
+
 export class PassiveSelectionDialog extends Application {
   private currentIndex: number;
   private pcs: Combatant[];
@@ -69,10 +71,6 @@ export class PassiveSelectionDialog extends Application {
     const actor = this.currentActor;
     if (!actor) return {};
 
-    // Import passive functions dynamically (they are compiled JS modules)
-    const passivesModule = await import('systems/mastery-system/dist/powers/passives.js' as any);
-    const { getPassiveSlots, getAvailablePassives } = passivesModule;
-
     const slots = getPassiveSlots(actor);
     const available = getAvailablePassives(actor);
     const masteryRank = (actor.system as any).mastery?.rank ?? 2;
@@ -128,8 +126,7 @@ export class PassiveSelectionDialog extends Application {
       
       if (!passiveId) return;
 
-      const passivesModule = await import('systems/mastery-system/dist/powers/passives.js' as any);
-      await passivesModule.slotPassive(actor, slotIndex, passiveId);
+      await slotPassive(actor, slotIndex, passiveId);
       this.render(false);
     });
 
@@ -141,8 +138,7 @@ export class PassiveSelectionDialog extends Application {
 
       const slotIndex = Number($(ev.currentTarget).data('slot-index') ?? 0);
       
-      const passivesModule = await import('systems/mastery-system/dist/powers/passives.js' as any);
-      await passivesModule.activatePassive(actor, slotIndex);
+      await activatePassive(actor, slotIndex);
       this.render(false);
     });
 
@@ -154,8 +150,7 @@ export class PassiveSelectionDialog extends Application {
 
       const slotIndex = Number($(ev.currentTarget).data('slot-index') ?? 0);
       
-      const passivesModule = await import('systems/mastery-system/dist/powers/passives.js' as any);
-      await passivesModule.unslotPassive(actor, slotIndex);
+      await unslotPassive(actor, slotIndex);
       this.render(false);
     });
 
