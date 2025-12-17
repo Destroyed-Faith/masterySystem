@@ -129,16 +129,16 @@ export async function showWeaponCreationDialog(actor: Actor): Promise<void> {
           ui.notifications?.info(`Added weapon: ${weaponName}`);
           
           // Re-render the actor sheet to show the new weapon
-          if (actor.sheet && actor.sheet.rendered) {
-            actor.sheet.render();
+          if ((actor as any).sheet && (actor as any).sheet.rendered) {
+            (actor as any).sheet.render();
           }
           
           console.log('Mastery System | [WEAPON DIALOG] Weapon created', {
             weaponName,
             itemId: createdItems[0]?.id,
-            actorId: actor.id,
-            itemsCount: actor.items.size,
-            allWeapons: Array.from(actor.items.values())
+            actorId: (actor as any).id,
+            itemsCount: (actor as any).items.size,
+            allWeapons: Array.from((actor as any).items.values())
               .filter((i: any) => i.type === 'weapon')
               .map((i: any) => ({
                 id: i.id,

@@ -115,8 +115,25 @@ export async function showWeaponCreationDialog(actor) {
                             description: option.dataset.description || ''
                         }
                     };
-                    await actor.createEmbeddedDocuments('Item', [itemData]);
+                    const createdItems = await actor.createEmbeddedDocuments('Item', [itemData]);
                     ui.notifications?.info(`Added weapon: ${weaponName}`);
+                    // Re-render the actor sheet to show the new weapon
+                    if (actor.sheet && actor.sheet.rendered) {
+                        actor.sheet.render();
+                    }
+                    console.log('Mastery System | [WEAPON DIALOG] Weapon created', {
+                        weaponName,
+                        itemId: createdItems[0]?.id,
+                        actorId: actor.id,
+                        itemsCount: actor.items.size,
+                        allWeapons: Array.from(actor.items.values())
+                            .filter((i) => i.type === 'weapon')
+                            .map((i) => ({
+                            id: i.id,
+                            name: i.name,
+                            equipped: i.system?.equipped
+                        }))
+                    });
                     return true;
                 }
             },

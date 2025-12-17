@@ -98,6 +98,10 @@ export async function showShieldCreationDialog(actor) {
                     };
                     await actor.createEmbeddedDocuments('Item', [itemData]);
                     ui.notifications?.info(`Added shield: ${shieldName}`);
+                    // Re-render the actor sheet to show the new shield
+                    if (actor.sheet && actor.sheet.rendered) {
+                        actor.sheet.render();
+                    }
                     return true;
                 }
             },

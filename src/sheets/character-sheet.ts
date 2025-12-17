@@ -207,7 +207,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   async #onEquipmentToggle(event: JQuery.ChangeEvent) {
     const $radio = $(event.currentTarget);
     const itemId = $radio.val() as string || $radio.data('item-id') || $radio.attr('data-item-id');
-    const itemType = $radio.attr('name'); // 'equipped-weapon', 'equipped-armor', or 'equipped-shield'
+    // const itemType = $radio.attr('name'); // 'equipped-weapon', 'equipped-armor', or 'equipped-shield' - unused
     const equipped = $radio.is(':checked');
     
     if (!itemId) {
@@ -245,7 +245,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         );
         
         if (equippedShield) {
-          ui.notifications?.warn(`Cannot equip 2-handed weapon "${item.name}" while shield "${equippedShield.name}" is equipped.`);
+          ui.notifications?.warn(`Cannot equip 2-handed weapon "${(item as any).name}" while shield "${(equippedShield as any).name}" is equipped.`);
           // Revert radio button
           $radio.prop('checked', false);
           return;
@@ -260,9 +260,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       );
       
       if (equippedWeapon) {
-        const weaponHands = (equippedWeapon.system as any)?.hands || 1;
+        const weaponHands = ((equippedWeapon as any).system as any)?.hands || 1;
         if (weaponHands === 2) {
-          ui.notifications?.warn(`Cannot equip shield "${item.name}" while 2-handed weapon "${equippedWeapon.name}" is equipped.`);
+          ui.notifications?.warn(`Cannot equip shield "${(item as any).name}" while 2-handed weapon "${(equippedWeapon as any).name}" is equipped.`);
           // Revert radio button
           $radio.prop('checked', false);
           return;

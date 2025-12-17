@@ -185,16 +185,95 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
     }
     /**
-     * Toggle equipment equipped status
+     * Toggle equipment equipped status (Radio button handler)
      */
     async #onEquipmentToggle(event) {
-        const itemId = $(event.currentTarget).data('item-id');
-        const equipped = $(event.currentTarget).is(':checked');
-        if (itemId) {
-            const item = this.actor.items.get(itemId);
-            if (item) {
-                await item.update({ 'system.equipped': equipped });
+        const $radio = $(event.currentTarget);
+        const itemId = $radio.val() || $radio.data('item-id') || $radio.attr('data-item-id');
+        // const itemType = $radio.attr('name'); // 'equipped-weapon', 'equipped-armor', or 'equipped-shield' - unused
+        const equipped = $radio.is(':checked');
+        if (!itemId) {
+            console.warn('Mastery System | [EQUIP TOGGLE] Could not find item ID', {
+                radio: event.currentTarget,
+                radioData: $radio.data(),
+                radioAttrs: Array.from(event.currentTarget.attributes).map((attr) => ({
+                    name: attr.name,
+                    value: attr.value
+                }))
+            });
+            ui.notifications?.warn('Could not find item to equip/unequip.');
+            return;
+        }
+        const item = this.actor.items.get(itemId);
+        if (!item) {
+            console.warn('Mastery System | [EQUIP TOGGLE] Item not found in actor.items', {
+                itemId,
+                actorId: this.actor.id,
+                allItemIds: Array.from(this.actor.items.keys())
+            });
+            ui.notifications?.warn(`Item with ID ${itemId} not found.`);
+            return;
+        }
+        // Validation: 2-handed weapons cannot be used with shields
+        if (item.type === 'weapon' && equipped) {
+            const weaponHands = item.system?.hands || 1;
+            if (weaponHands === 2) {
+                // Check if a shield is equipped
+                const equippedShield = Array.from(this.actor.items.values()).find((i) => i.type === 'shield' && i.system?.equipped === true);
+                if (equippedShield) {
+                    ui.notifications?.warn(`Cannot equip 2-handed weapon "${item.name}" while shield "${equippedShield.name}" is equipped.`);
+                    // Revert radio button
+                    $radio.prop('checked', false);
+                    return;
+                }
             }
+        }
+        // Validation: Shields cannot be equipped with 2-handed weapons
+        if (item.type === 'shield' && equipped) {
+            const equippedWeapon = Array.from(this.actor.items.values()).find((i) => i.type === 'weapon' && i.system?.equipped === true);
+            if (equippedWeapon) {
+                const weaponHands = equippedWeapon.system?.hands || 1;
+                if (weaponHands === 2) {
+                    ui.notifications?.warn(`Cannot equip shield "${item.name}" while 2-handed weapon "${equippedWeapon.name}" is equipped.`);
+                    // Revert radio button
+                    $radio.prop('checked', false);
+                    return;
+                }
+            }
+        }
+        try {
+            // First, unequip all other items of the same type
+            const updates = [];
+            for (const otherItem of this.actor.items) {
+                if (otherItem.id !== itemId && otherItem.type === item.type && otherItem.system?.equipped) {
+                    updates.push({ _id: otherItem.id, 'system.equipped': false });
+                }
+            }
+            // Then equip/unequip the selected item
+            if (equipped) {
+                updates.push({ _id: itemId, 'system.equipped': true });
+            }
+            else {
+                updates.push({ _id: itemId, 'system.equipped': false });
+            }
+            if (updates.length > 0) {
+                await this.actor.updateEmbeddedDocuments('Item', updates);
+                console.log('Mastery System | [EQUIP TOGGLE] Updated items', {
+                    itemId,
+                    itemName: item.name,
+                    equipped,
+                    itemType: item.type,
+                    updatesCount: updates.length
+                });
+                // Re-render the sheet to update the display
+                this.render();
+            }
+        }
+        catch (error) {
+            console.error('Mastery System | [EQUIP TOGGLE] Error updating item', error);
+            ui.notifications?.error(`Failed to update item: ${error}`);
+            // Revert radio button state
+            $radio.prop('checked', !equipped);
         }
     }
     /** @override */
@@ -418,8 +497,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             context.actor.prototypeToken.texture = context.actor.prototypeToken.texture || {};
             context.actor.prototypeToken.texture.src = context.actor.img;
         }
-        // Add items to context (needed for template)
-        context.items = items;
+        // Ensure context.items contains the prepared items structure (weapons, armor, shields, etc.)
+        // This is already set in line 453, but we ensure it's not overwritten
+        if (!context.items || !context.items.weapons) {
+            context.items = this.#prepareItems();
+        }
         return context;
     }
     /** @override */
@@ -485,7 +567,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const shields = [];
         const weapons = [];
         const armor = [];
-        for (const item of this.actor.items) {
+        // Ensure we iterate over all items correctly (handle both Collection and Array)
+        const items = this.actor.items;
+        const itemsArray = Array.isArray(items) ? items : Array.from(items.values());
+        for (const item of itemsArray) {
             const itemData = item;
             switch (item.type) {
                 case 'special':
@@ -949,7 +1034,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('.add-weapon-btn').on('click', this.#onWeaponAdd.bind(this));
         html.find('.add-armor-btn').on('click', this.#onArmorAdd.bind(this));
         html.find('.add-shield-btn').on('click', this.#onShieldAdd.bind(this));
-        html.find('.equipment-item input[name="equipped"]').on('change', this.#onEquipmentToggle.bind(this));
+        html.find('.equipment-item input[type="radio"][name^="equipped-"]').on('change', this.#onEquipmentToggle.bind(this));
         // Add spell
         // Removed add-spell-btn handler - using add-spell-creation-btn instead
         // Delete skill
@@ -1255,17 +1340,73 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      */
     async #onItemDelete(event) {
         event.preventDefault();
-        const element = event.currentTarget.closest('.item');
-        const itemId = element.dataset.itemId;
-        const item = this.actor.items.get(itemId);
-        if (!item)
+        event.stopPropagation();
+        // Try to find the item ID from various possible element structures
+        const $button = $(event.currentTarget);
+        const $item = $button.closest('.item, .equipment-item');
+        // Try multiple methods to get the item ID
+        let itemId = $item.data('item-id') ||
+            $item.attr('data-item-id') ||
+            $item.data('itemId') ||
+            $button.data('item-id') ||
+            $button.attr('data-item-id') ||
+            $button.data('itemId');
+        // If still not found, try to get from parent's data attributes
+        if (!itemId && $item.length > 0) {
+            const itemElement = $item[0];
+            itemId = itemElement.getAttribute('data-item-id') ||
+                itemElement.getAttribute('data-itemId');
+        }
+        if (!itemId) {
+            console.error('Mastery System | [DELETE ITEM] Could not find item ID', {
+                button: event.currentTarget,
+                buttonHtml: $button[0]?.outerHTML,
+                closestItem: $item[0],
+                closestItemHtml: $item[0]?.outerHTML,
+                buttonData: $button.data(),
+                itemData: $item.data(),
+                itemAttrs: $item.length > 0 ? Array.from($item[0].attributes).map((attr) => ({
+                    name: attr.name,
+                    value: attr.value
+                })) : []
+            });
+            ui.notifications?.error('Could not find item to delete. Please check the console for details.');
             return;
+        }
+        const item = this.actor.items.get(itemId);
+        if (!item) {
+            console.error('Mastery System | [DELETE ITEM] Item not found in actor.items', {
+                itemId,
+                actorId: this.actor.id,
+                allItemIds: Array.from(this.actor.items.keys()),
+                allItems: Array.from(this.actor.items.values()).map((i) => ({
+                    id: i.id,
+                    name: i.name,
+                    type: i.type
+                }))
+            });
+            ui.notifications?.error(`Item with ID ${itemId} not found in actor.`);
+            return;
+        }
         const confirmed = await Dialog.confirm({
             title: 'Delete Item',
             content: `<p>Are you sure you want to delete <strong>${item.name}</strong>?</p>`
         });
         if (confirmed) {
-            await item.delete();
+            try {
+                await item.delete();
+                console.log('Mastery System | [DELETE ITEM] Item deleted successfully', {
+                    itemId,
+                    itemName: item.name,
+                    itemType: item.type
+                });
+                // Re-render the sheet to update the display
+                this.render();
+            }
+            catch (error) {
+                console.error('Mastery System | [DELETE ITEM] Error deleting item', error);
+                ui.notifications?.error(`Failed to delete item: ${error}`);
+            }
         }
     }
     /**

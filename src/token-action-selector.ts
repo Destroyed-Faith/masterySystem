@@ -444,8 +444,6 @@ function refreshMovementPreview(state: MovementState, destX: number, destY: numb
   
   // For non-hex grids or if hex calculation failed, use Ruler/fallback
   if (distanceInUnits === 0) {
-    let segments: any[] = [];
-    
     // Use Ruler if available
     if (state.ruler) {
       try {
@@ -459,7 +457,6 @@ function refreshMovementPreview(state: MovementState, destX: number, destY: numb
         if (typeof state.ruler.measure === 'function') {
           const measurement = state.ruler.measure(state.ruler.waypoints);
           distanceInUnits = measurement?.distance || 0;
-          segments = measurement?.segments || [];
         } else if (state.ruler.totalDistance !== undefined) {
           distanceInUnits = state.ruler.totalDistance;
         }

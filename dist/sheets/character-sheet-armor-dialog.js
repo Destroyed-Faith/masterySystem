@@ -90,6 +90,10 @@ export async function showArmorCreationDialog(actor) {
                     };
                     await actor.createEmbeddedDocuments('Item', [itemData]);
                     ui.notifications?.info(`Added armor: ${armorName}`);
+                    // Re-render the actor sheet to show the new armor
+                    if (actor.sheet && actor.sheet.rendered) {
+                        actor.sheet.render();
+                    }
                     return true;
                 }
             },

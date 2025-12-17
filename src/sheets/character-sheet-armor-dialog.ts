@@ -96,7 +96,7 @@ export async function showArmorCreationDialog(actor: any): Promise<void> {
             }
           };
           
-          const createdItems = await (actor as any).createEmbeddedDocuments('Item', [itemData]);
+          await (actor as any).createEmbeddedDocuments('Item', [itemData]);
           ui.notifications?.info(`Added armor: ${armorName}`);
           
           // Re-render the actor sheet to show the new armor
