@@ -16,13 +16,14 @@ export interface PassiveAbility {
 }
 /**
  * Get all passive slots for an actor
+ * Returns only as many slots as the actor's Mastery Rank
  */
 export declare function getPassiveSlots(actor: Actor): PassiveSlot[];
 /**
  * Get all available passive abilities for an actor
- * This would typically come from the actor's mastery trees and powers
+ * Gets passives from actor's items (powers with type 'passive')
  */
-export declare function getAvailablePassives(_actor: Actor): PassiveAbility[];
+export declare function getAvailablePassives(actor: Actor): PassiveAbility[];
 /**
  * Slot a passive ability into a slot
  */

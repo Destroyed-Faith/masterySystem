@@ -4,13 +4,15 @@
  */
 /**
  * Get all passive slots for an actor
+ * Returns only as many slots as the actor's Mastery Rank
  */
 export function getPassiveSlots(actor) {
     const system = actor.system;
     const passives = system.passives || {};
+    const masteryRank = system.mastery?.rank || 2;
     const slots = [];
-    // Create 8 slots (standard passive slot count)
-    for (let i = 0; i < 8; i++) {
+    // Create slots based on Mastery Rank (not fixed 8)
+    for (let i = 0; i < masteryRank; i++) {
         const slotData = passives[`slot${i}`] || {};
         slots.push({
             slotIndex: i,
@@ -22,13 +24,26 @@ export function getPassiveSlots(actor) {
 }
 /**
  * Get all available passive abilities for an actor
- * This would typically come from the actor's mastery trees and powers
+ * Gets passives from actor's items (powers with type 'passive')
  */
-export function getAvailablePassives(_actor) {
+export function getAvailablePassives(actor) {
     const available = [];
-    // Get passives from equipped powers/items
-    // For now, return empty array - this should be populated from mastery trees
-    // TODO: Implement proper passive extraction from mastery trees
+    const items = actor.items || [];
+    // Get all items that are powers with type 'passive'
+    for (const item of items) {
+        const itemSystem = item.system || {};
+        if (item.type === 'power' && itemSystem.powerType === 'passive') {
+            // Extract category from power name or use a default
+            const category = itemSystem.category || 'General';
+            available.push({
+                id: item.id || item.name,
+                name: item.name || 'Unknown Passive',
+                description: itemSystem.description || itemSystem.effect || '',
+                category: category,
+                level: itemSystem.level || 1
+            });
+        }
+    }
     return available;
 }
 /**
@@ -43,14 +58,30 @@ export async function slotPassive(actor, slotIndex, passiveId) {
     if (!system.passives[slotKey]) {
         system.passives[slotKey] = {};
     }
-    // TODO: Get passive data from mastery trees based on passiveId
-    // For now, create a placeholder
-    system.passives[slotKey].passive = {
-        id: passiveId,
-        name: passiveId, // TODO: Get actual name
-        description: '', // TODO: Get actual description
-        category: '' // TODO: Get actual category
-    };
+    // Find the passive item by ID or name
+    const items = actor.items || [];
+    const passiveItem = items.find((item) => (item.id === passiveId || item.name === passiveId) &&
+        item.type === 'power' &&
+        item.system?.powerType === 'passive');
+    if (passiveItem) {
+        const itemSystem = passiveItem.system || {};
+        system.passives[slotKey].passive = {
+            id: passiveItem.id || passiveItem.name,
+            name: passiveItem.name || 'Unknown Passive',
+            description: itemSystem.description || itemSystem.effect || '',
+            category: itemSystem.category || 'General',
+            level: itemSystem.level || 1
+        };
+    }
+    else {
+        // Fallback if item not found
+        system.passives[slotKey].passive = {
+            id: passiveId,
+            name: passiveId,
+            description: '',
+            category: 'General'
+        };
+    }
     system.passives[slotKey].active = false;
     await actor.update({ 'system.passives': system.passives });
 }
