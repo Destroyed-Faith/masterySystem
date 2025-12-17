@@ -11,6 +11,7 @@ export class PassiveSelectionDialog extends Application {
   private currentIndex: number;
   private pcs: Combatant[];
   private resolve?: () => void;
+  private _preventAutoClose: boolean = false;
 
   static override get defaultOptions(): any {
     const baseOptions = super.defaultOptions || {};
@@ -57,6 +58,8 @@ export class PassiveSelectionDialog extends Application {
 
     return new Promise<void>(resolve => {
       const app = new PassiveSelectionDialog(pcs, resolve);
+      // Set a flag to prevent auto-closing on actor updates
+      (app as any)._preventAutoClose = true;
       app.render(true);
     });
   }
@@ -187,8 +190,23 @@ export class PassiveSelectionDialog extends Application {
       }
 
       await slotPassive(actor, slotIndex, passiveId);
-      // Re-render to update the display
-      await this.render(false);
+      // Re-render to update the display - use minimal update to prevent closing
+      try {
+        await this.render(false);
+      } catch (error) {
+        console.error('Mastery System | Error re-rendering passive dialog after slot', error);
+        // If render fails, try to manually update the display
+        const templateData = await this.getData();
+        const template = (this.constructor as any).defaultOptions?.template || this.options.template;
+        if (template) {
+          const html = await foundry.applications.handlebars.renderTemplate(template, templateData);
+          const appElement = $(`#${this.id}`);
+          if (appElement.length > 0) {
+            appElement.find('.window-content').html(html);
+            this.activateListeners(appElement);
+          }
+        }
+      }
     });
 
     // Toggle passive active/inactive
@@ -200,7 +218,22 @@ export class PassiveSelectionDialog extends Application {
       const slotIndex = Number($(ev.currentTarget).data('slot-index') ?? 0);
       
       await activatePassive(actor, slotIndex);
-      await this.render(false);
+      try {
+        await this.render(false);
+      } catch (error) {
+        console.error('Mastery System | Error re-rendering passive dialog after activate', error);
+        // Manual update fallback
+        const templateData = await this.getData();
+        const template = (this.constructor as any).defaultOptions?.template || this.options.template;
+        if (template) {
+          const html = await foundry.applications.handlebars.renderTemplate(template, templateData);
+          const appElement = $(`#${this.id}`);
+          if (appElement.length > 0) {
+            appElement.find('.window-content').html(html);
+            this.activateListeners(appElement);
+          }
+        }
+      }
     });
 
     // Unslot a passive
@@ -212,7 +245,22 @@ export class PassiveSelectionDialog extends Application {
       const slotIndex = Number($(ev.currentTarget).data('slot-index') ?? 0);
       
       await unslotPassive(actor, slotIndex);
-      await this.render(false);
+      try {
+        await this.render(false);
+      } catch (error) {
+        console.error('Mastery System | Error re-rendering passive dialog after unslot', error);
+        // Manual update fallback
+        const templateData = await this.getData();
+        const template = (this.constructor as any).defaultOptions?.template || this.options.template;
+        if (template) {
+          const html = await foundry.applications.handlebars.renderTemplate(template, templateData);
+          const appElement = $(`#${this.id}`);
+          if (appElement.length > 0) {
+            appElement.find('.window-content').html(html);
+            this.activateListeners(appElement);
+          }
+        }
+      }
     });
 
     // Next character
@@ -222,7 +270,7 @@ export class PassiveSelectionDialog extends Application {
         this.currentIndex++;
         await this.render(false);
       } else {
-        this.close();
+        this.close({ intentional: true });
       }
     });
 
@@ -239,12 +287,25 @@ export class PassiveSelectionDialog extends Application {
     html.find('.js-gm-skip').on('click', (ev) => {
       ev.preventDefault();
       if (game.user?.isGM) {
-        this.close();
+        this.close({ intentional: true });
       }
     });
   }
 
   override async close(options?: any): Promise<void> {
+    // Only close if not prevented
+    if (this._preventAutoClose && options?.force !== true) {
+      // Check if this is an intentional close (from button click)
+      const isIntentionalClose = options?.intentional === true || 
+                                 (options?.closeSource === 'user' || options?.closeSource === 'button');
+      
+      if (!isIntentionalClose) {
+        // This might be an auto-close from actor update - prevent it
+        console.log('Mastery System | Preventing auto-close of passive selection dialog');
+        return;
+      }
+    }
+
     // Remove any leftover overlay elements from DOM (both inside and outside the app window)
     $('.passive-selection-overlay').remove();
     $('body > .passive-selection-overlay').remove();
@@ -254,6 +315,8 @@ export class PassiveSelectionDialog extends Application {
     if (appElement.length > 0) {
       appElement.find('.passive-selection-overlay').remove();
     }
+    
+    this._preventAutoClose = false;
     
     if (this.resolve) {
       this.resolve();

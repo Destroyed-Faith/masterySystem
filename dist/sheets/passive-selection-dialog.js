@@ -9,6 +9,7 @@ export class PassiveSelectionDialog extends Application {
     currentIndex;
     pcs;
     resolve;
+    _preventAutoClose = false;
     static get defaultOptions() {
         const baseOptions = super.defaultOptions || {};
         return foundry.utils.mergeObject(baseOptions, {
@@ -48,6 +49,8 @@ export class PassiveSelectionDialog extends Application {
         }
         return new Promise(resolve => {
             const app = new PassiveSelectionDialog(pcs, resolve);
+            // Set a flag to prevent auto-closing on actor updates
+            app._preventAutoClose = true;
             app.render(true);
         });
     }
@@ -160,8 +163,24 @@ export class PassiveSelectionDialog extends Application {
                 return;
             }
             await slotPassive(actor, slotIndex, passiveId);
-            // Re-render to update the display
-            await this.render(false);
+            // Re-render to update the display - use minimal update to prevent closing
+            try {
+                await this.render(false);
+            }
+            catch (error) {
+                console.error('Mastery System | Error re-rendering passive dialog after slot', error);
+                // If render fails, try to manually update the display
+                const templateData = await this.getData();
+                const template = this.constructor.defaultOptions?.template || this.options.template;
+                if (template) {
+                    const html = await foundry.applications.handlebars.renderTemplate(template, templateData);
+                    const appElement = $(`#${this.id}`);
+                    if (appElement.length > 0) {
+                        appElement.find('.window-content').html(html);
+                        this.activateListeners(appElement);
+                    }
+                }
+            }
         });
         // Toggle passive active/inactive
         html.find('.js-toggle-passive').on('click', async (ev) => {
@@ -171,7 +190,23 @@ export class PassiveSelectionDialog extends Application {
                 return;
             const slotIndex = Number($(ev.currentTarget).data('slot-index') ?? 0);
             await activatePassive(actor, slotIndex);
-            await this.render(false);
+            try {
+                await this.render(false);
+            }
+            catch (error) {
+                console.error('Mastery System | Error re-rendering passive dialog after activate', error);
+                // Manual update fallback
+                const templateData = await this.getData();
+                const template = this.constructor.defaultOptions?.template || this.options.template;
+                if (template) {
+                    const html = await foundry.applications.handlebars.renderTemplate(template, templateData);
+                    const appElement = $(`#${this.id}`);
+                    if (appElement.length > 0) {
+                        appElement.find('.window-content').html(html);
+                        this.activateListeners(appElement);
+                    }
+                }
+            }
         });
         // Unslot a passive
         html.find('.js-unslot-passive').on('click', async (ev) => {
@@ -181,7 +216,23 @@ export class PassiveSelectionDialog extends Application {
                 return;
             const slotIndex = Number($(ev.currentTarget).data('slot-index') ?? 0);
             await unslotPassive(actor, slotIndex);
-            await this.render(false);
+            try {
+                await this.render(false);
+            }
+            catch (error) {
+                console.error('Mastery System | Error re-rendering passive dialog after unslot', error);
+                // Manual update fallback
+                const templateData = await this.getData();
+                const template = this.constructor.defaultOptions?.template || this.options.template;
+                if (template) {
+                    const html = await foundry.applications.handlebars.renderTemplate(template, templateData);
+                    const appElement = $(`#${this.id}`);
+                    if (appElement.length > 0) {
+                        appElement.find('.window-content').html(html);
+                        this.activateListeners(appElement);
+                    }
+                }
+            }
         });
         // Next character
         html.find('.js-next-character').on('click', async (ev) => {
@@ -191,7 +242,7 @@ export class PassiveSelectionDialog extends Application {
                 await this.render(false);
             }
             else {
-                this.close();
+                this.close({ intentional: true });
             }
         });
         // Previous character
@@ -206,11 +257,22 @@ export class PassiveSelectionDialog extends Application {
         html.find('.js-gm-skip').on('click', (ev) => {
             ev.preventDefault();
             if (game.user?.isGM) {
-                this.close();
+                this.close({ intentional: true });
             }
         });
     }
     async close(options) {
+        // Only close if not prevented
+        if (this._preventAutoClose && options?.force !== true) {
+            // Check if this is an intentional close (from button click)
+            const isIntentionalClose = options?.intentional === true ||
+                (options?.closeSource === 'user' || options?.closeSource === 'button');
+            if (!isIntentionalClose) {
+                // This might be an auto-close from actor update - prevent it
+                console.log('Mastery System | Preventing auto-close of passive selection dialog');
+                return;
+            }
+        }
         // Remove any leftover overlay elements from DOM (both inside and outside the app window)
         $('.passive-selection-overlay').remove();
         $('body > .passive-selection-overlay').remove();
@@ -219,6 +281,7 @@ export class PassiveSelectionDialog extends Application {
         if (appElement.length > 0) {
             appElement.find('.passive-selection-overlay').remove();
         }
+        this._preventAutoClose = false;
         if (this.resolve) {
             this.resolve();
             this.resolve = undefined;

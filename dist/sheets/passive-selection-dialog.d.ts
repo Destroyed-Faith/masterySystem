@@ -8,6 +8,7 @@ export declare class PassiveSelectionDialog extends Application {
     private currentIndex;
     private pcs;
     private resolve?;
+    private _preventAutoClose;
     static get defaultOptions(): any;
     /**
      * Show passive selection dialog for all player-controlled combatants

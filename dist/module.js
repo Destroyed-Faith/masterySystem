@@ -87,7 +87,7 @@ Hooks.once('init', async function () {
             console.error('Mastery System | Error in combat start sequence', error);
         }
     });
-    // Hide initiative roll button (d20) in combat tracker
+    // Hide initiative roll button (d20) and add passive selection button in combat tracker
     Hooks.on('renderCombatTracker', (_app, html) => {
         // Convert html to jQuery if needed (Foundry v13 compatibility)
         let $html;
@@ -119,6 +119,35 @@ Hooks.once('init', async function () {
         }
         // Hide all initiative roll buttons
         $html.find('button[data-action="rollInitiative"]').css('display', 'none');
+        // Add "Select Passives" button to encounter controls
+        const encounterControls = $html.find('.encounter-controls');
+        if (encounterControls.length > 0) {
+            // Remove any existing button to prevent duplicates
+            encounterControls.find('.ms-passive-selection-btn').remove();
+            // Add button to the left control buttons area
+            const leftControls = encounterControls.find('.control-buttons.left');
+            if (leftControls.length > 0) {
+                const passiveBtn = $('<button type="button" class="inline-control combat-control icon fa-solid fa-shield ms-passive-selection-btn" data-action="selectPassives" data-tooltip="Select Passives" aria-label="Select Passives"></button>');
+                leftControls.prepend(passiveBtn);
+                // Add click handler
+                passiveBtn.off('click.ms-passive').on('click.ms-passive', async (ev) => {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    const combat = game.combat;
+                    if (!combat) {
+                        ui.notifications?.warn('No active combat encounter');
+                        return;
+                    }
+                    try {
+                        await PassiveSelectionDialog.showForCombat(combat);
+                    }
+                    catch (error) {
+                        console.error('Mastery System | Error showing passive selection dialog', error);
+                        ui.notifications?.error('Failed to open passive selection dialog');
+                    }
+                });
+            }
+        }
     });
     // Cleanup: Remove any stray passive-selection-overlay elements from body
     Hooks.on('renderApplication', (app) => {
