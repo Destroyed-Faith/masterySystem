@@ -720,8 +720,8 @@
           <div class="creation-status">
             <div class="status-item">
               <label>Trees Selected:</label>
-              <span class="{{#if (eq creation.treesSelected creation.treesRequired)}}valid{{else}}invalid{{/if}}">
-                {{creation.treesSelected}} / {{creation.treesRequired}}
+              <span class="valid">
+                {{creation.treesSelected}} (optional)
               </span>
             </div>
             <div class="status-item">
@@ -732,8 +732,8 @@
             </div>
             <div class="status-item">
               <label>Powers at Rank 2:</label>
-              <span class="{{#if (eq creation.powersAtRank2 creation.powersAtRank2Required)}}valid{{else}}invalid{{/if}}">
-                {{creation.powersAtRank2}} / {{creation.powersAtRank2Required}}
+              <span class="{{#if (lte creation.powersAtRank2 creation.powersAtRank2Max)}}valid{{else}}invalid{{/if}}">
+                {{creation.powersAtRank2}} / {{creation.powersAtRank2Max}} (max)
               </span>
             </div>
           </div>
@@ -742,9 +742,8 @@
         <div class="creation-instructions">
           <p><strong>Character Creation Rules:</strong></p>
           <ul>
-            <li>Select up to <strong>2 Mastery Trees or Spell Schools</strong> (total)</li>
-            <li>Select exactly <strong>4 Powers</strong> from your chosen trees</li>
-            <li>Assign <strong>Rank 2</strong> to exactly <strong>2 Powers</strong> (others remain Rank 1)</li>
+            <li>Select exactly <strong>4 Powers</strong> (trees are optional)</li>
+            <li>Maximum <strong>2 Powers</strong> can be at <strong>Rank 2</strong> (others remain Rank 1)</li>
             <li>No power rank may exceed your Mastery Rank (currently {{creation.masteryRank}})</li>
           </ul>
         </div>

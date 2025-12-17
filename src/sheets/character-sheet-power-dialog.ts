@@ -40,9 +40,9 @@ export async function showPowerCreationDialog(actor: Actor, context: 'mastery' |
   const content = `
     <form class="power-creation-form">
       <div class="form-group power-form-group" id="${categoryGroupId}">
-        <label class="power-form-label">${categoryLabel}:</label>
+        <label class="power-form-label">${categoryLabel} <span style="font-weight: normal; color: #888;">(optional)</span>:</label>
         <select name="${isMastery ? 'tree' : 'school'}" id="${categorySelectId}" class="power-form-select">
-          <option value="">-- Select a ${categoryLabel} --</option>
+          <option value="">-- Select a ${categoryLabel} (optional) --</option>
           ${categoryOptions}
         </select>
       </div>
@@ -82,15 +82,8 @@ export async function showPowerCreationDialog(actor: Actor, context: 'mastery' |
           const selectedPowerName = $html.find('#power-select').val() as string;
           const level = parseInt(($html.find('#power-level-select').val() as string) || '1');
           
-          if (isMastery && !tree) {
-            ui.notifications?.warn('Please select a Mastery Tree');
-            return false;
-          }
-          
-          if (!isMastery && !school) {
-            ui.notifications?.warn('Please select a Spell School');
-            return false;
-          }
+          // Trees are now optional - no validation needed
+          // If no tree/school selected, we'll use empty string
           
           if (!selectedPowerName || selectedPowerName.trim() === '') {
             ui.notifications?.warn('Please select a power from the list');
@@ -102,27 +95,41 @@ export async function showPowerCreationDialog(actor: Actor, context: 'mastery' |
           let power: any = null;
           let levelData: any = null;
           
-          if (!isMastery) {
-            // Magic powers
-            try {
-              const magicModule = await import('../utils/magic-powers' as any);
-              if (magicModule?.getMagicPower) {
-                power = magicModule.getMagicPower(school!, powerName);
+          // If tree/school is selected, try to load from predefined list
+          if ((isMastery && tree) || (!isMastery && school)) {
+            if (!isMastery) {
+              // Magic powers
+              try {
+                const magicModule = await import('../utils/magic-powers' as any);
+                if (magicModule?.getMagicPower) {
+                  power = magicModule.getMagicPower(school!, powerName);
+                }
+              } catch (error) {
+                console.warn('Mastery System | Magic powers module not available');
+                ui.notifications?.error('Failed to load magic power data');
+                return false;
               }
-            } catch (error) {
-              console.warn('Mastery System | Magic powers module not available');
-              ui.notifications?.error('Failed to load magic power data');
+            } else {
+              // Mastery tree power
+              const { getPower } = await import('../utils/powers/index.js' as any);
+              power = getPower(tree!, powerName);
+            }
+            
+            if (!power) {
+              ui.notifications?.error('Power not found in predefined list');
               return false;
             }
           } else {
-            // Mastery tree power
-            const { getPower } = await import('../utils/powers/index.js' as any);
-            power = getPower(tree!, powerName);
-          }
-          
-          if (!power) {
-            ui.notifications?.error('Power not found in predefined list');
-            return false;
+            // No tree/school selected - allow manual power creation with basic data
+            // This allows creating powers without selecting a tree
+            power = {
+              name: powerName,
+              description: '',
+              levels: [
+                { level: 1, type: 'Active', effect: '', range: '', aoe: '', duration: '', special: '' },
+                { level: 2, type: 'Active', effect: '', range: '', aoe: '', duration: '', special: '' }
+              ]
+            };
           }
           
           // If power is found in predefined list, use its data
@@ -199,21 +206,18 @@ export async function showPowerCreationDialog(actor: Actor, context: 'mastery' |
               if (t) selectedTrees.add(t);
             }
             
-            const treeName = !isMastery ? school : tree;
-            const selectedPowers = powers.filter((p: any) => {
-              const t = p.system?.tree || '';
-              return selectedTrees.has(t);
-            });
+            // Trees are now optional - no limit check needed
             
-            // Check tree limit (max 2)
-            if (!selectedTrees.has(treeName) && selectedTrees.size >= 2) {
-              ui.notifications?.error('You can only select up to 2 Mastery Trees or Spell Schools.');
+            // Check power limit (exactly 4)
+            if (powers.length >= 4) {
+              ui.notifications?.error('You can only select exactly 4 Powers during character creation.');
               return false;
             }
             
-            // Check power limit (exactly 4)
-            if (selectedPowers.length >= 4) {
-              ui.notifications?.error('You can only select exactly 4 Powers during character creation.');
+            // Check rank 2 limit (max 2)
+            const powersAtRank2 = powers.filter((p: any) => (p.system?.level || 1) === 2);
+            if (level === 2 && powersAtRank2.length >= 2) {
+              ui.notifications?.error('Maximum 2 Powers can be at Rank 2 during character creation.');
               return false;
             }
             
@@ -224,8 +228,8 @@ export async function showPowerCreationDialog(actor: Actor, context: 'mastery' |
               return false;
             }
             
-            // During creation, default to rank 1 (user can change later)
-            itemData.system.level = 1;
+            // During creation, use the selected level (user can choose 1 or 2, max 2 at rank 2)
+            // Level is already set from the form selection
           }
           
           await (actor as any).createEmbeddedDocuments('Item', [itemData]);
@@ -297,7 +301,13 @@ export async function showPowerCreationDialog(actor: Actor, context: 'mastery' |
         powerDetails.hide();
         levelSelectGroup.hide();
         
-        if (!categoryName) return;
+        // If no category selected, still allow power selection (trees are optional)
+        // But we need a category to load powers, so we'll show a message
+        if (!categoryName) {
+          // Trees are optional, but we still need to select a tree to see powers
+          // User can select any tree to browse powers, but doesn't need to stick to one tree
+          return;
+        }
         
         try {
           if (isMastery) {

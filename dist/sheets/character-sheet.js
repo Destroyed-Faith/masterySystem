@@ -307,11 +307,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const items = this.#prepareItems();
         const powers = items.powers || [];
         const selectedTrees = this.#getSelectedTrees(powers);
-        // During creation, all powers from selected trees count
-        const selectedPowers = powers.filter((p) => {
-            const tree = p.system?.tree || '';
-            return selectedTrees.length === 0 || selectedTrees.includes(tree);
-        });
+        // During creation, all powers count (trees are optional)
+        const selectedPowers = powers;
         const powersAtRank2 = selectedPowers.filter((p) => (p.system?.level || 1) === 2);
         // Load tree/school data with bonuses for selected trees
         const allTrees = getAllMasteryTrees();
@@ -413,9 +410,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             powersSelected: selectedPowers.length,
             powersRequired: 4,
             treesSelected: selectedTrees.length,
-            treesRequired: 2,
+            treesRequired: 0, // Trees are now optional
             powersAtRank2: powersAtRank2.length,
-            powersAtRank2Required: 2,
+            powersAtRank2Required: 2, // Max 2, not exactly 2
+            powersAtRank2Max: 2,
             selectedTrees: selectedTrees,
             selectedTreesData: selectedTreesData,
             schticksRows: schticksRows,
@@ -423,13 +421,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             availableSchticksById: availableSchticksById,
             rankTooltips: rankTooltips,
             schticksValid: schticksValidation.ok,
-            powersValid: selectedTrees.length === 2 && selectedPowers.length === 4 && powersAtRank2.length === 2,
+            powersValid: selectedPowers.length === 4 && powersAtRank2.length <= 2,
             canFinalize: attributePointsSpent === 16 &&
                 skillPointsSpent === skillPointsConfig &&
                 disadvantagesReviewed &&
-                selectedTrees.length === 2 &&
                 selectedPowers.length === 4 &&
-                powersAtRank2.length === 2
+                powersAtRank2.length <= 2
         };
         console.log('Mastery System | getData - Final Context Check:', {
             creationComplete: context.creationComplete,
@@ -2095,12 +2092,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const disadvantagePoints = (system.disadvantages || []).reduce((sum, d) => sum + (d.points || 0), 0);
         // Validate powers & magic
         const powers = this.actor.items.filter((item) => item.type === 'power');
-        const selectedTrees = this.#getSelectedTrees(powers);
-        const selectedPowers = powers.filter((p) => {
-            const tree = p.system?.tree || '';
-            return selectedTrees.includes(tree);
-        });
-        const powersAtRank2 = selectedPowers.filter((p) => (p.system?.level || 1) === 2);
+        const powersAtRank2 = powers.filter((p) => (p.system?.level || 1) === 2);
         // Validate all requirements
         if (attributePointsSpent !== 16) {
             ui.notifications?.error(`Must spend exactly 16 attribute points. Currently spent: ${attributePointsSpent}`);
@@ -2110,20 +2102,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ui.notifications?.error(`Must spend exactly ${skillPointsConfig} skill points. Currently spent: ${skillPointsSpent}`);
             return;
         }
-        if (selectedTrees.length !== 2) {
-            ui.notifications?.error(`Must select exactly 2 Mastery Trees or Spell Schools. Currently selected: ${selectedTrees.length}`);
+        // Trees are now optional - no validation needed
+        if (powers.length !== 4) {
+            ui.notifications?.error(`Must select exactly 4 Powers. Currently selected: ${powers.length}`);
             return;
         }
-        if (selectedPowers.length !== 4) {
-            ui.notifications?.error(`Must select exactly 4 Powers. Currently selected: ${selectedPowers.length}`);
-            return;
-        }
-        if (powersAtRank2.length !== 2) {
-            ui.notifications?.error(`Must assign Rank 2 to exactly 2 Powers. Currently at Rank 2: ${powersAtRank2.length}`);
+        if (powersAtRank2.length > 2) {
+            ui.notifications?.error(`Maximum 2 Powers can be at Rank 2. Currently at Rank 2: ${powersAtRank2.length}`);
             return;
         }
         // Validate power ranks don't exceed Mastery Rank
-        const invalidPowers = selectedPowers.filter((p) => (p.system?.level || 1) > masteryRank);
+        const invalidPowers = powers.filter((p) => (p.system?.level || 1) > masteryRank);
         if (invalidPowers.length > 0) {
             ui.notifications?.error(`Power ranks cannot exceed Mastery Rank ${masteryRank}. Invalid: ${invalidPowers.map((p) => p.name).join(', ')}`);
             return;
