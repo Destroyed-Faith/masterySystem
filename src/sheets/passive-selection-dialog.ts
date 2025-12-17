@@ -98,6 +98,21 @@ export class PassiveSelectionDialog extends Application {
     };
   }
 
+  // Implement required methods for Foundry VTT v13 Application
+  async _renderHTML(_data?: any): Promise<JQuery> {
+    const template = (this.constructor as any).defaultOptions?.template || this.options.template;
+    if (!template) {
+      throw new Error('Template path is required');
+    }
+    const templateData = await this.getData();
+    const html = await foundry.applications.handlebars.renderTemplate(template, templateData);
+    return $(html);
+  }
+
+  async _replaceHTML(element: JQuery, html: JQuery): Promise<void> {
+    element.replaceWith(html);
+  }
+
   override activateListeners(html: JQuery): void {
     super.activateListeners(html);
 

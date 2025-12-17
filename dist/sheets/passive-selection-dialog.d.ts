@@ -19,6 +19,8 @@ export declare class PassiveSelectionDialog extends Application {
     get currentCombatant(): Combatant | null;
     get currentActor(): Actor | null;
     getData(): Promise<any>;
+    _renderHTML(_data?: any): Promise<JQuery>;
+    _replaceHTML(element: JQuery, html: JQuery): Promise<void>;
     activateListeners(html: JQuery): void;
     close(options?: any): Promise<void>;
 }

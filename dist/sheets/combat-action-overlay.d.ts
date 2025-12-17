@@ -21,6 +21,8 @@ export declare class CombatActionOverlay extends Application {
      */
     private prepareActivePowers;
     getData(): Promise<any>;
+    _renderHTML(_data?: any): Promise<JQuery>;
+    _replaceHTML(element: JQuery, html: JQuery): Promise<void>;
     activateListeners(html: JQuery): void;
 }
 //# sourceMappingURL=combat-action-overlay.d.ts.map

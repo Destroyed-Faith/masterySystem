@@ -126,6 +126,19 @@ export class CombatActionOverlay extends Application {
             isGM: game.user?.isGM ?? false
         };
     }
+    // Implement required methods for Foundry VTT v13 Application
+    async _renderHTML(_data) {
+        const template = this.constructor.defaultOptions?.template || this.options.template;
+        if (!template) {
+            throw new Error('Template path is required');
+        }
+        const templateData = await this.getData();
+        const html = await foundry.applications.handlebars.renderTemplate(template, templateData);
+        return $(html);
+    }
+    async _replaceHTML(element, html) {
+        element.replaceWith(html);
+    }
     activateListeners(html) {
         super.activateListeners(html);
         // Use a power
