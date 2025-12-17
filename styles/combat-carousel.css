@@ -1,0 +1,325 @@
+/**
+ * Mastery Combat Carousel Styles
+ */
+
+/* ========================================
+   Carousel Container
+   ======================================== */
+
+.mastery-carousel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  border-top: 2px solid #e94560;
+  padding: 0.5rem 1rem;
+  display: none;
+  align-items: center;
+  gap: 1rem;
+  min-height: 110px;
+  max-height: 140px;
+}
+
+.mastery-carousel.is-active {
+  display: flex;
+}
+
+/* ========================================
+   Combatants Row
+   ======================================== */
+
+.carousel-combatants {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: #e94560 rgba(255, 255, 255, 0.1);
+  padding: 0.5rem 0;
+}
+
+.carousel-combatants::-webkit-scrollbar {
+  height: 6px;
+}
+
+.carousel-combatants::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.carousel-combatants::-webkit-scrollbar-thumb {
+  background: #e94560;
+  border-radius: 3px;
+}
+
+.carousel-combatants::-webkit-scrollbar-thumb:hover {
+  background: #ff6b7f;
+}
+
+/* ========================================
+   Portrait Card
+   ======================================== */
+
+.carousel-portrait {
+  position: relative;
+  flex-shrink: 0;
+  width: 90px;
+  background: rgba(15, 52, 96, 0.6);
+  border: 2px solid rgba(233, 69, 96, 0.3);
+  border-radius: 8px;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  opacity: 0.8;
+}
+
+.carousel-portrait:hover {
+  opacity: 1;
+  border-color: #e94560;
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(233, 69, 96, 0.4);
+}
+
+.carousel-portrait.is-current {
+  border-color: #66ff66;
+  box-shadow: 0 0 12px rgba(102, 255, 102, 0.6);
+  opacity: 1;
+}
+
+.carousel-portrait.is-defeated {
+  opacity: 0.5;
+  filter: grayscale(100%);
+}
+
+.carousel-portrait.is-hidden {
+  opacity: 0.3;
+}
+
+/* Portrait Image */
+.portrait-image {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+}
+
+.portrait-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.current-indicator {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 16px;
+  height: 16px;
+  background: #66ff66;
+  border-radius: 50%;
+  border: 2px solid #000;
+  box-shadow: 0 0 8px rgba(102, 255, 102, 0.8);
+}
+
+/* Initiative Badge */
+.initiative-badge {
+  position: absolute;
+  top: 0.25rem;
+  left: 0.25rem;
+  background: rgba(233, 69, 96, 0.9);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 0.15rem 0.35rem;
+  border-radius: 4px;
+  border: 1px solid #fff;
+  z-index: 1;
+}
+
+/* Portrait Name */
+.portrait-name {
+  font-size: 0.7rem;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  font-weight: 500;
+}
+
+/* Resources */
+.portrait-resources {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.resource-bar {
+  width: 100%;
+}
+
+.resource-label {
+  font-size: 0.6rem;
+  color: #aaa;
+  margin-bottom: 0.1rem;
+}
+
+.resource-value {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.resource-bar-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #66ff66 0%, #4dcc4d 100%);
+  transition: width 0.3s;
+  border-radius: 4px;
+}
+
+.resource-2 .resource-bar-fill {
+  background: linear-gradient(90deg, #66aaff 0%, #4d88ff 100%);
+}
+
+.resource-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.55rem;
+  color: #fff;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  z-index: 1;
+}
+
+/* Status Icons */
+.status-icons {
+  display: flex;
+  gap: 0.2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 100%;
+}
+
+.status-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Portrait Controls (shown on hover) */
+.portrait-controls {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.carousel-portrait:hover .portrait-controls {
+  opacity: 1;
+}
+
+.portrait-control-btn {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  color: #fff;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.portrait-control-btn:hover {
+  background: rgba(233, 69, 96, 0.8);
+  border-color: #e94560;
+}
+
+/* ========================================
+   Carousel Controls (Left/Right)
+   ======================================== */
+
+.carousel-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.mastery-carousel:hover .carousel-controls {
+  opacity: 1;
+}
+
+.carousel-control-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(233, 69, 96, 0.8);
+  border: 2px solid #e94560;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.carousel-control-btn:hover {
+  background: #e94560;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(233, 69, 96, 0.6);
+}
+
+.carousel-control-btn.js-end-combat {
+  background: rgba(255, 102, 102, 0.8);
+  border-color: #ff6666;
+}
+
+.carousel-control-btn.js-end-combat:hover {
+  background: #ff6666;
+}
+
+/* ========================================
+   Scene Navigation Collapse
+   ======================================== */
+
+body.mastery-carousel-open #navigation {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.3s, opacity 0.3s;
+}
+

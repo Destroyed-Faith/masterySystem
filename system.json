@@ -25,7 +25,8 @@
     "styles/character-sheet.css",
     "styles/chat.css",
     "styles/overlays.css",
-    "styles/xp-management.css"
+    "styles/xp-management.css",
+    "styles/combat-carousel.css"
   ],
   "languages": [
     {

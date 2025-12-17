@@ -1,0 +1,106 @@
+<div class="mastery-carousel {{#if active}}is-active{{/if}}">
+  {{#if active}}
+    <!-- Left Controls (shown on hover) -->
+    <div class="carousel-controls carousel-controls-left">
+      <button type="button" class="carousel-control-btn js-prev-turn" data-tooltip="Previous Turn" aria-label="Previous Turn">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+    </div>
+
+    <!-- Combatants Row -->
+    <div class="carousel-combatants">
+      {{#each combatants as |combatant|}}
+        <div class="carousel-portrait {{#if combatant.isCurrent}}is-current{{/if}} {{#if combatant.defeated}}is-defeated{{/if}} {{#if combatant.hidden}}is-hidden{{/if}}" 
+             data-combatant-id="{{combatant.id}}">
+          <!-- Portrait Image -->
+          <div class="portrait-image">
+            <img src="{{combatant.img}}" alt="{{combatant.name}}" />
+            {{#if combatant.isCurrent}}
+              <div class="current-indicator"></div>
+            {{/if}}
+          </div>
+
+          <!-- Initiative Badge -->
+          <div class="initiative-badge">{{combatant.initiative}}</div>
+
+          <!-- Name -->
+          <div class="portrait-name">{{combatant.name}}</div>
+
+          <!-- Resources -->
+          <div class="portrait-resources">
+            <div class="resource-bar resource-1">
+              <div class="resource-label">{{combatant.resource1.label}}</div>
+              <div class="resource-value">
+                {{#if combatant.resource1.max}}
+                  {{#with (divide combatant.resource1.value combatant.resource1.max)}}
+                    <div class="resource-bar-fill" style="width: {{multiply this 100}}%"></div>
+                  {{/with}}
+                {{else}}
+                  <div class="resource-bar-fill" style="width: 0%"></div>
+                {{/if}}
+                <span class="resource-text">{{combatant.resource1.value}}/{{combatant.resource1.max}}</span>
+              </div>
+            </div>
+            <div class="resource-bar resource-2">
+              <div class="resource-label">{{combatant.resource2.label}}</div>
+              <div class="resource-value">
+                {{#if combatant.resource2.max}}
+                  {{#with (divide combatant.resource2.value combatant.resource2.max)}}
+                    <div class="resource-bar-fill" style="width: {{multiply this 100}}%"></div>
+                  {{/with}}
+                {{else}}
+                  <div class="resource-bar-fill" style="width: 0%"></div>
+                {{/if}}
+                <span class="resource-text">{{combatant.resource2.value}}/{{combatant.resource2.max}}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Status Icons -->
+          {{#if combatant.statusIcons}}
+            <div class="status-icons">
+              {{#each combatant.statusIcons as |icon|}}
+                <img src="{{icon}}" alt="Status" class="status-icon" />
+              {{/each}}
+            </div>
+          {{/if}}
+
+          <!-- Portrait Controls (shown on hover) -->
+          <div class="portrait-controls">
+            {{#if ../controlsAllowed}}
+              <button type="button" class="portrait-control-btn js-toggle-defeated" data-tooltip="Toggle Defeated" aria-label="Toggle Defeated">
+                <i class="fas fa-skull"></i>
+              </button>
+            {{/if}}
+            {{#if ../controlsAllowed}}
+              <button type="button" class="portrait-control-btn js-toggle-hidden" data-tooltip="Toggle Hidden" aria-label="Toggle Hidden">
+                <i class="fas fa-eye-slash"></i>
+              </button>
+            {{/if}}
+            {{#if combatant.hasToken}}
+              <button type="button" class="portrait-control-btn js-ping" data-tooltip="Ping Token" aria-label="Ping Token">
+                <i class="fas fa-bullseye"></i>
+              </button>
+            {{/if}}
+          </div>
+        </div>
+      {{/each}}
+    </div>
+
+    <!-- Right Controls (shown on hover) -->
+    <div class="carousel-controls carousel-controls-right">
+      <button type="button" class="carousel-control-btn js-next-turn" data-tooltip="Next Turn" aria-label="Next Turn">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+      <button type="button" class="carousel-control-btn js-next-round" data-tooltip="Next Round" aria-label="Next Round">
+        <i class="fas fa-forward"></i>
+      </button>
+      {{#if controlsAllowed}}
+        <button type="button" class="carousel-control-btn js-end-combat" data-tooltip="End Combat" aria-label="End Combat">
+          <i class="fas fa-stop"></i>
+        </button>
+      {{/if}}
+    </div>
+  {{/if}}
+</div>
+

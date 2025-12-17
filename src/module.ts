@@ -22,6 +22,7 @@ import { registerAttackRollClickHandler } from './chat/attack-roll-handler';
 import { PassiveSelectionDialog } from './sheets/passive-selection-dialog.js';
 import { rollInitiativeForAllCombatants } from './combat/initiative-roll.js';
 import { InitiativeShopDialog } from './combat/initiative-shop-dialog.js';
+import { CombatCarouselApp } from './ui/combat-carousel.js';
 
 // Dice roller functions are imported in sheets where needed
 
@@ -104,8 +105,55 @@ Hooks.once('init', async function() {
       
       // Step 3: Roll initiative for all combatants (NPCs auto, PCs with shop)
       await rollInitiativeForAllCombatants(combat);
+      
+      // Step 4: Open Combat Carousel
+      CombatCarouselApp.open();
     } catch (error) {
       console.error('Mastery System | Error in combat start sequence', error);
+    }
+  });
+
+  // Close carousel when combat ends
+  Hooks.on('combatEnd', () => {
+    console.log('Mastery System | Combat ended, closing carousel');
+    CombatCarouselApp.close();
+  });
+
+  // Update carousel when combat changes
+  Hooks.on('updateCombat', () => {
+    const carousel = CombatCarouselApp.instance;
+    if (carousel && carousel.rendered) {
+      carousel.render(false);
+    }
+  });
+
+  // Update carousel when combatants change
+  Hooks.on('createCombatant', () => {
+    const carousel = CombatCarouselApp.instance;
+    if (carousel && carousel.rendered) {
+      carousel.render(false);
+    }
+  });
+
+  Hooks.on('updateCombatant', () => {
+    const carousel = CombatCarouselApp.instance;
+    if (carousel && carousel.rendered) {
+      carousel.render(false);
+    }
+  });
+
+  Hooks.on('deleteCombatant', () => {
+    const carousel = CombatCarouselApp.instance;
+    if (carousel && carousel.rendered) {
+      carousel.render(false);
+    }
+  });
+
+  // Update carousel when canvas is ready (tokens might have changed)
+  Hooks.on('canvasReady', () => {
+    const carousel = CombatCarouselApp.instance;
+    if (carousel && carousel.rendered) {
+      carousel.render(false);
     }
   });
 
@@ -385,6 +433,12 @@ function registerHandlebarsHelpersImmediate() {
     return a * b;
   });
 
+  // Helper for division
+  Handlebars.registerHelper('divide', function(a: number, b: number) {
+    if (b === 0) return 0;
+    return a / b;
+  });
+
   // Helper to check if user is GM
   Handlebars.registerHelper('userIsGM', function() {
     return (game as any).user?.isGM ?? false;
@@ -523,6 +577,43 @@ function registerSystemSettings() {
     config: false,
     type: Object,
     default: {}
+  });
+
+  // Combat Carousel Settings
+  (game as any).settings.register('mastery-system', 'carouselResource1Path', {
+    name: 'Carousel Resource 1 Path',
+    hint: 'Path to first tracked resource (e.g., tracked.hp)',
+    scope: 'world',
+    config: true,
+    type: String,
+    default: 'tracked.hp'
+  });
+
+  (game as any).settings.register('mastery-system', 'carouselResource1Label', {
+    name: 'Carousel Resource 1 Label',
+    hint: 'Display label for first resource',
+    scope: 'world',
+    config: true,
+    type: String,
+    default: 'HP'
+  });
+
+  (game as any).settings.register('mastery-system', 'carouselResource2Path', {
+    name: 'Carousel Resource 2 Path',
+    hint: 'Path to second tracked resource (e.g., tracked.stress)',
+    scope: 'world',
+    config: true,
+    type: String,
+    default: 'tracked.stress'
+  });
+
+  (game as any).settings.register('mastery-system', 'carouselResource2Label', {
+    name: 'Carousel Resource 2 Label',
+    hint: 'Display label for second resource',
+    scope: 'world',
+    config: true,
+    type: String,
+    default: 'Stress'
   });
 
   // Character XP Management (inline in settings)
