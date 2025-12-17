@@ -169,6 +169,11 @@ function registerHandlebarsHelpersImmediate() {
     return (Number(a) || 0) <= (Number(b) || 0);
   });
 
+  // Helper for less than comparison
+  Handlebars.registerHelper('lt', function(a: number, b: number) {
+    return (Number(a) || 0) < (Number(b) || 0);
+  });
+
   // Helper for incrementing (for 1-based indexing)
   Handlebars.registerHelper('inc', function(value: number) {
     return parseInt(String(value)) + 1;

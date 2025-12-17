@@ -1,0 +1,93 @@
+<div class="initiative-shop-dialog">
+  <div class="dialog-header">
+    <h2><i class="fas fa-shopping-cart"></i> Initiative Shop - {{actor.name}}</h2>
+    <div class="initiative-display">
+      <div class="initiative-stat">
+        <label>Base Initiative:</label>
+        <span class="value">{{baseInitiative}}</span>
+      </div>
+      <div class="initiative-stat">
+        <label>Current Initiative:</label>
+        <span class="value">{{currentInitiative}}</span>
+      </div>
+      <div class="initiative-stat">
+        <label>Available:</label>
+        <span class="value {{#if (lt availableInitiative 0)}}negative{{/if}}">{{availableInitiative}}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="shop-items">
+    <div class="shop-item">
+      <div class="item-header">
+        <h3><i class="fas fa-running"></i> Extra Movement</h3>
+        <div class="item-cost">Cost: {{costs.movement}} Initiative</div>
+      </div>
+      <div class="item-description">
+        Gain +{{costs.movementIncrement}}m movement speed for this combat.
+      </div>
+      <div class="item-controls">
+        <button type="button" class="js-remove-movement" {{#unless purchases.extraMovement}}disabled{{/unless}}>
+          <i class="fas fa-minus"></i>
+        </button>
+        <span class="purchase-count">{{purchases.extraMovement}}</span>
+        <button type="button" class="js-buy-movement" {{#if (lt availableInitiative costs.movement)}}disabled{{/if}}>
+          <i class="fas fa-plus"></i>
+        </button>
+        <span class="total-cost">
+          ({{multiply purchases.extraMovement costs.movement}} Initiative)
+        </span>
+      </div>
+    </div>
+
+    <div class="shop-item">
+      <div class="item-header">
+        <h3><i class="fas fa-exchange-alt"></i> Initiative Swap</h3>
+        <div class="item-cost">Cost: {{costs.swap}} Initiative</div>
+      </div>
+      <div class="item-description">
+        Unlock the ability to swap initiative order with another combatant.
+      </div>
+      <div class="item-controls">
+        <button type="button" class="js-buy-swap {{#if purchases.initiativeSwap}}purchased{{/if}}" 
+                {{#if (lt availableInitiative costs.swap)}}disabled{{/if}}>
+          {{#if purchases.initiativeSwap}}
+            <i class="fas fa-check"></i> Purchased
+          {{else}}
+            <i class="fas fa-shopping-cart"></i> Purchase
+          {{/if}}
+        </button>
+      </div>
+    </div>
+
+    <div class="shop-item">
+      <div class="item-header">
+        <h3><i class="fas fa-sword"></i> Extra Attack</h3>
+        <div class="item-cost">Cost: {{costs.extraAttack}} Initiative</div>
+      </div>
+      <div class="item-description">
+        Gain one additional attack action this round.
+      </div>
+      <div class="item-controls">
+        <button type="button" class="js-buy-attack {{#if purchases.extraAttack}}purchased{{/if}}" 
+                {{#if (lt availableInitiative costs.extraAttack)}}disabled{{/if}}>
+          {{#if purchases.extraAttack}}
+            <i class="fas fa-check"></i> Purchased
+          {{else}}
+            <i class="fas fa-shopping-cart"></i> Purchase
+          {{/if}}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="dialog-footer">
+    <button type="button" class="js-confirm">
+      <i class="fas fa-check"></i> Confirm Purchases
+    </button>
+    <button type="button" class="js-skip">
+      <i class="fas fa-times"></i> Skip Shop
+    </button>
+  </div>
+</div>
+
