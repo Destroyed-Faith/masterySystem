@@ -4,6 +4,7 @@
  */
 
 import { masteryRoll } from '../dice/roll-handler.js';
+import { InitiativeShopDialog } from './initiative-shop-dialog.js';
 
 /**
  * Get attribute value from actor
@@ -133,7 +134,6 @@ export async function rollInitiativeForAllCombatants(combat: Combat): Promise<vo
       
       // Show Initiative Shop dialog (pass total initiative, not base)
       try {
-        const { InitiativeShopDialog } = await import('systems/mastery-system/dist/combat/initiative-shop-dialog.js' as any);
         await InitiativeShopDialog.showForCombatant(pc, totalInitiative);
       } catch (error) {
         console.error('Mastery System | Failed to show Initiative Shop', error);

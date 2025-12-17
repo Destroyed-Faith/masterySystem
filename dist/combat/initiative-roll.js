@@ -3,6 +3,7 @@
  * Handles initiative calculation and rolling for combatants
  */
 import { masteryRoll } from '../dice/roll-handler.js';
+import { InitiativeShopDialog } from './initiative-shop-dialog.js';
 /**
  * Get attribute value from actor
  */
@@ -118,7 +119,6 @@ export async function rollInitiativeForAllCombatants(combat) {
             const totalInitiative = await rollInitiativeForCombatant(pc);
             // Show Initiative Shop dialog (pass total initiative, not base)
             try {
-                const { InitiativeShopDialog } = await import('systems/mastery-system/dist/combat/initiative-shop-dialog.js');
                 await InitiativeShopDialog.showForCombatant(pc, totalInitiative);
             }
             catch (error) {

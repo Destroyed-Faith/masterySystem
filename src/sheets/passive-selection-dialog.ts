@@ -383,7 +383,7 @@ export class PassiveSelectionDialog extends Application {
         this.currentIndex++;
         await this.render(false);
       } else {
-        this.close({ intentional: true });
+        this.close({ _explicitClose: true, intentional: true });
       }
     });
 
@@ -400,7 +400,7 @@ export class PassiveSelectionDialog extends Application {
     html.find('.js-gm-skip').on('click', (ev) => {
       ev.preventDefault();
       if (game.user?.isGM) {
-        this.close({ intentional: true });
+        this.close({ _explicitClose: true, intentional: true });
       }
     });
   }
@@ -414,22 +414,23 @@ export class PassiveSelectionDialog extends Application {
       stackTrace: new Error().stack
     });
 
-    // Only close if not prevented
+    // Only close if not prevented AND it's explicitly from our own buttons
     if (this._preventAutoClose && options?.force !== true) {
-      // Check if this is an intentional close (from button click)
-      const isIntentionalClose = options?.intentional === true || 
-                                 (options?.closeSource === 'user' || options?.closeSource === 'button');
+      // Only allow close if it's explicitly marked as intentional from our own code
+      // Don't trust Foundry's automatic intentional flag, as it can be set by actor updates
+      const isExplicitClose = options?._explicitClose === true;
       
       console.log('Mastery System | [PASSIVE DIALOG DEBUG] Close prevention check', {
         preventAutoClose: this._preventAutoClose,
         force: options?.force,
         intentional: options?.intentional,
         closeSource: options?.closeSource,
-        isIntentionalClose
+        explicitClose: options?._explicitClose,
+        isExplicitClose
       });
       
-      if (!isIntentionalClose) {
-        // This might be an auto-close from actor update - prevent it
+      if (!isExplicitClose) {
+        // This might be an auto-close from actor update or Foundry - prevent it
         console.log('Mastery System | [PASSIVE DIALOG DEBUG] Preventing auto-close of passive selection dialog');
         return;
       }
