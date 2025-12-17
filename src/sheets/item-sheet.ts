@@ -44,7 +44,7 @@ export class MasteryItemSheet extends foundry.appv1.sheets.ItemSheet {
     
     // Add type-specific data
     switch (this.item.type) {
-      case 'special':
+      case 'power':
         context.powerTypes = ['active', 'buff', 'utility', 'passive', 'reaction', 'movement'];
         context.attributes = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
         break;

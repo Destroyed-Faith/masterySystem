@@ -8,14 +8,14 @@ export class MasteryItem extends Item {
     prepareData() {
         super.prepareData();
         // Add any item-specific derived data here
-        if (this.type === 'special') {
-            this.prepareSpecialData();
+        if (this.type === 'power') {
+            this.preparePowerData();
         }
     }
     /**
-     * Prepare Special (Power) specific data
+     * Prepare Power specific data
      */
-    prepareSpecialData() {
+    preparePowerData() {
         const system = this.system;
         // Ensure tags is an array
         if (!Array.isArray(system.tags)) {

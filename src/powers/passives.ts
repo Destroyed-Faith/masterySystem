@@ -42,17 +42,17 @@ export function getPassiveSlots(actor: Actor): PassiveSlot[] {
 
 /**
  * Get all available passive abilities for an actor
- * Gets passives from actor's items (specials with powerType 'passive')
+ * Gets passives from actor's items (powers with powerType 'passive')
  */
 export function getAvailablePassives(actor: Actor): PassiveAbility[] {
   const available: PassiveAbility[] = [];
   const items = (actor as any).items || [];
   
-  // Get all items that are specials with powerType 'passive'
+  // Get all items that are powers with powerType 'passive'
   for (const item of items) {
     const itemSystem = (item.system as any) || {};
-    // Items with type 'special' and powerType 'passive' are passive abilities
-    if (item.type === 'special' && itemSystem.powerType === 'passive') {
+    // Items with type 'power' and powerType 'passive' are passive abilities
+    if (item.type === 'power' && itemSystem.powerType === 'passive') {
       // Extract category from tree or use a default
       const category = itemSystem.tree || itemSystem.category || 'General';
       
@@ -87,7 +87,7 @@ export async function slotPassive(actor: Actor, slotIndex: number, passiveId: st
   const items = (actor as any).items || [];
   const passiveItem = items.find((item: any) => 
     (item.id === passiveId || item._id === passiveId || item.name === passiveId) && 
-    item.type === 'special' && 
+    item.type === 'power' && 
     (item.system as any)?.powerType === 'passive'
   );
   

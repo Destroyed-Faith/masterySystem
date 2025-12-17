@@ -3,12 +3,12 @@
  */
 
 export interface MasteryItemData {
-  type: 'special' | 'masteryNode' | 'echo' | 'schtick' | 'artifact' | 'condition' | 'weapon' | 'armor' | 'shield';
-  system: SpecialData | MasteryNodeData | EchoData | SchtickData | ArtifactData | ConditionData | WeaponData | ArmorData | ShieldData;
+  type: 'power' | 'masteryNode' | 'echo' | 'schtick' | 'artifact' | 'condition' | 'weapon' | 'armor' | 'shield' | 'gear';
+  system: PowerData | MasteryNodeData | EchoData | SchtickData | ArtifactData | ConditionData | WeaponData | ArmorData | ShieldData | GearData;
 }
 
-// === Special (Power) Data ===
-export interface SpecialData {
+// === Power Data ===
+export interface PowerData {
   description: string;
   powerType: 'active' | 'buff' | 'utility' | 'passive' | 'reaction' | 'movement';
   level: number;
@@ -131,6 +131,14 @@ export interface ShieldData {
   shieldValue: number;
   evadeBonus?: number;
   skillPenalty?: number;
+  equipped: boolean;
+  description: string;
+}
+
+// === Gear Data ===
+export interface GearData {
+  weight: number;
+  quantity: number;
   equipped: boolean;
   description: string;
 }

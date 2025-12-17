@@ -26,8 +26,7 @@ export function getAvailablePowers(actor: Actor): PowerDefinition[] {
   
   return items.filter((item: any) => 
     item.type === 'power' || 
-    item.type === 'spell' || 
-    item.type === 'special'
+    item.type === 'spell'
   );
 }
 

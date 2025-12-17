@@ -7,9 +7,9 @@ export declare class MasteryItem extends Item {
      */
     prepareData(): void;
     /**
-     * Prepare Special (Power) specific data
+     * Prepare Power specific data
      */
-    prepareSpecialData(): void;
+    preparePowerData(): void;
     /**
      * Check if this item can be used by an actor
      */

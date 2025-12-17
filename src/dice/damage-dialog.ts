@@ -352,8 +352,8 @@ export async function showDamageDialog(
     selectedPowerId: selectedPowerId,
     hasSelectedPowerId: !!selectedPowerId,
     totalItems: powerItems.length,
-    specialItems: powerItems.filter((item: any) => item.type === 'special').length,
-    allSpecialIds: powerItems.filter((item: any) => item.type === 'special').map((item: any) => ({
+    specialItems: powerItems.filter((item: any) => item.type === 'power').length,
+    allSpecialIds: powerItems.filter((item: any) => item.type === 'power').map((item: any) => ({
       id: item.id,
       name: item.name,
       powerType: (item.system as any)?.powerType
@@ -434,8 +434,8 @@ export async function showDamageDialog(
       console.error('Mastery System | [DAMAGE DIALOG] ERROR: Selected power not found in actor items', {
         selectedPowerId: selectedPowerId,
         totalItems: items.length,
-        specialItems: items.filter((item: any) => item.type === 'special').length,
-        allSpecialIds: items.filter((item: any) => item.type === 'special').map((item: any) => item.id)
+        specialItems: items.filter((item: any) => item.type === 'power').length,
+        allSpecialIds: items.filter((item: any) => item.type === 'power').map((item: any) => item.id)
       });
     }
   } else {
@@ -842,9 +842,9 @@ async function collectAvailableSpecials(actor: Actor, weapon: any | null, select
     }
   }
   
-  // Get attack powers (note: powers are stored as type 'special', not 'power')
+  // Get attack powers (powers are stored as type 'power')
   const attackPowers = items.filter((item: any) => 
-    item.type === 'special' && 
+    item.type === 'power' && 
     (item.system as any)?.powerType === 'active' &&
     (item.system as any)?.canUseOnAttack === true
   );

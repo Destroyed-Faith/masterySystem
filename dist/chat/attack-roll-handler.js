@@ -429,7 +429,7 @@ export function registerAttackRollClickHandler() {
                         flagsSelectedPowerId: updatedFlags?.selectedPowerId,
                         flagsWeaponId: updatedFlags?.weaponId,
                         attackerItems: attacker.items?.length || 0,
-                        attackerPowers: attacker.items?.filter((i) => i.type === 'special').map((i) => ({ id: i.id, name: i.name })) || []
+                        attackerPowers: attacker.items?.filter((i) => i.type === 'power').map((i) => ({ id: i.id, name: i.name })) || []
                     });
                     // Debug log before calling showDamageDialog
                     console.log('Mastery System | [WEAPON-ID DEBUG]', {

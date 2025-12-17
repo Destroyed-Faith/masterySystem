@@ -7,8 +7,7 @@
 export function getAvailablePowers(actor) {
     const items = actor.items || [];
     return items.filter((item) => item.type === 'power' ||
-        item.type === 'spell' ||
-        item.type === 'special');
+        item.type === 'spell');
 }
 /**
  * Check if a power can be used

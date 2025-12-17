@@ -651,8 +651,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const itemData = item;
       
       switch (item.type) {
-        case 'special':
+        case 'power':
           powers.push(itemData);
+          break;
+        case 'gear':
+          // Gear items are handled separately if needed
           break;
         case 'echo':
           echoes.push(itemData);
@@ -2411,7 +2414,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const disadvantagePoints = (system.disadvantages || []).reduce((sum: number, d: any) => sum + (d.points || 0), 0);
     
     // Validate powers & magic
-    const powers = this.actor.items.filter((item: any) => item.type === 'special');
+    const powers = this.actor.items.filter((item: any) => item.type === 'power');
     const selectedTrees = this.#getSelectedTrees(powers);
     const selectedPowers = powers.filter((p: any) => {
       const tree = p.system?.tree || '';

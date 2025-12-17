@@ -318,8 +318,8 @@ export async function getAllCombatOptionsForActor(actor) {
     // --- POWERS (from Actor items) ---
     const items = actor.items || [];
     for (const item of items) {
-        // Powers are stored as items with type "special"
-        if (item.type !== 'special')
+        // Powers are stored as items with type "power"
+        if (item.type !== 'power')
             continue;
         const powerType = item.system?.powerType;
         if (!powerType)

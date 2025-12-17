@@ -32,8 +32,8 @@ export function getAvailablePassives(actor) {
     // Get all items that are specials with powerType 'passive'
     for (const item of items) {
         const itemSystem = item.system || {};
-        // Items with type 'special' and powerType 'passive' are passive abilities
-        if (item.type === 'special' && itemSystem.powerType === 'passive') {
+        // Items with type 'power' and powerType 'passive' are passive abilities
+        if (item.type === 'power' && itemSystem.powerType === 'passive') {
             // Extract category from tree or use a default
             const category = itemSystem.tree || itemSystem.category || 'General';
             available.push({
@@ -62,7 +62,7 @@ export async function slotPassive(actor, slotIndex, passiveId) {
     // Find the passive item by ID or name
     const items = actor.items || [];
     const passiveItem = items.find((item) => (item.id === passiveId || item._id === passiveId || item.name === passiveId) &&
-        item.type === 'special' &&
+        item.type === 'power' &&
         item.system?.powerType === 'passive');
     if (passiveItem) {
         const itemSystem = passiveItem.system || {};

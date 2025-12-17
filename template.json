@@ -230,13 +230,13 @@
     }
   },
   "Item": {
-    "types": ["special", "masteryNode", "echo", "schtick", "artifact", "condition", "weapon", "armor"],
+    "types": ["power", "masteryNode", "echo", "schtick", "artifact", "condition", "weapon", "armor", "shield", "gear"],
     "templates": {
       "base": {
         "description": ""
       }
     },
-    "special": {
+    "power": {
       "templates": ["base"],
       "powerType": "active",
       "level": 1,
@@ -333,6 +333,18 @@
       "templates": ["base"],
       "armorValue": 0,
       "type": "light",
+      "equipped": false
+    },
+    "shield": {
+      "templates": ["base"],
+      "shieldValue": 0,
+      "type": "light",
+      "equipped": false
+    },
+    "gear": {
+      "templates": ["base"],
+      "weight": 0,
+      "quantity": 1,
       "equipped": false
     }
   }

@@ -135,7 +135,7 @@ export async function showPowerCreationDialog(actor, context = 'mastery') {
                     const mappedPowerType = levelData ? (powerTypeMap[levelData.type] || power?.powerType || 'active') : (power?.powerType || 'active');
                     const itemData = {
                         name: powerName,
-                        type: 'special',
+                        type: 'power',
                         system: {
                             tree: !isMastery ? school : tree,
                             isMagicPower: !isMastery,
@@ -174,7 +174,7 @@ export async function showPowerCreationDialog(actor, context = 'mastery') {
                     const creationComplete = system?.creation?.complete !== false;
                     if (!creationComplete) {
                         // Enforce creation limits
-                        const powers = actor.items.filter((item) => item.type === 'special');
+                        const powers = actor.items.filter((item) => item.type === 'power');
                         const selectedTrees = new Set();
                         for (const p of powers) {
                             const t = p.system?.tree;

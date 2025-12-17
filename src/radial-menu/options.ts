@@ -374,8 +374,8 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
   const items = actor.items || [];
   
   for (const item of items) {
-    // Powers are stored as items with type "special"
-    if (item.type !== 'special') continue;
+    // Powers are stored as items with type "power"
+    if (item.type !== 'power') continue;
     
     const powerType = (item.system as any)?.powerType;
     if (!powerType) continue;

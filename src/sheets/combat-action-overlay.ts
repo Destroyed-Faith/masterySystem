@@ -68,7 +68,7 @@ export class CombatActionOverlay extends ApplicationV2 {
     if (!actorItems) return powers;
 
     for (const item of actorItems) {
-      if (item.type !== 'special') continue;
+      if (item.type !== 'power') continue;
       
       const powerType = (item.system as any).powerType;
       

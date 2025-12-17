@@ -463,7 +463,7 @@ export function registerAttackRollClickHandler(): void {
             flagsSelectedPowerId: updatedFlags?.selectedPowerId,
             flagsWeaponId: updatedFlags?.weaponId,
             attackerItems: (attacker as any).items?.length || 0,
-            attackerPowers: (attacker as any).items?.filter((i: any) => i.type === 'special').map((i: any) => ({ id: i.id, name: i.name })) || []
+            attackerPowers: (attacker as any).items?.filter((i: any) => i.type === 'power').map((i: any) => ({ id: i.id, name: i.name })) || []
           });
           
           // Debug log before calling showDamageDialog
