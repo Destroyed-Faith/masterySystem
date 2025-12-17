@@ -87,6 +87,39 @@ Hooks.once('init', async function () {
             console.error('Mastery System | Error in combat start sequence', error);
         }
     });
+    // Hide initiative roll button (d20) in combat tracker
+    Hooks.on('renderCombatTracker', (_app, html) => {
+        // Convert html to jQuery if needed (Foundry v13 compatibility)
+        let $html;
+        try {
+            if (html && typeof html === 'object') {
+                // Check if it's already a jQuery object
+                if (html.jquery !== undefined && html.find !== undefined) {
+                    $html = html;
+                }
+                else if (html instanceof HTMLElement || html instanceof DocumentFragment) {
+                    $html = $(html);
+                }
+                else if (html.length !== undefined && html[0] instanceof HTMLElement) {
+                    // Might be a jQuery-like object
+                    $html = $(html);
+                }
+                else {
+                    // Try to wrap it
+                    $html = $(html);
+                }
+            }
+            else {
+                $html = $(html);
+            }
+        }
+        catch (e) {
+            console.error('Mastery System | Error converting html to jQuery in renderCombatTracker:', e);
+            return;
+        }
+        // Hide all initiative roll buttons
+        $html.find('button[data-action="rollInitiative"]').css('display', 'none');
+    });
     console.log('Mastery System | Combat hooks initialized');
     // Initialize token action selector
     initializeTokenActionSelector();

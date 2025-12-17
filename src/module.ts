@@ -108,6 +108,35 @@ Hooks.once('init', async function() {
     }
   });
 
+  // Hide initiative roll button (d20) in combat tracker
+  Hooks.on('renderCombatTracker', (_app: any, html: any) => {
+    // Convert html to jQuery if needed (Foundry v13 compatibility)
+    let $html: JQuery<HTMLElement>;
+    try {
+      if (html && typeof html === 'object') {
+        // Check if it's already a jQuery object
+        if (html.jquery !== undefined && html.find !== undefined) {
+          $html = html as JQuery<HTMLElement>;
+        } else if (html instanceof HTMLElement || html instanceof DocumentFragment) {
+          $html = $(html) as JQuery<HTMLElement>;
+        } else if (html.length !== undefined && html[0] instanceof HTMLElement) {
+          // Might be a jQuery-like object
+          $html = $(html) as JQuery<HTMLElement>;
+        } else {
+          // Try to wrap it
+          $html = $(html) as JQuery<HTMLElement>;
+        }
+      } else {
+        $html = $(html) as JQuery<HTMLElement>;
+      }
+    } catch (e) {
+      console.error('Mastery System | Error converting html to jQuery in renderCombatTracker:', e);
+      return;
+    }
+
+    // Hide all initiative roll buttons
+    $html.find('button[data-action="rollInitiative"]').css('display', 'none');
+  });
   
   console.log('Mastery System | Combat hooks initialized');
 
