@@ -8,6 +8,10 @@ import { DISADVANTAGES, getDisadvantageDefinition, calculateDisadvantagePoints, 
 import { getAllMasteryTrees } from '../utils/mastery-trees.js';
 import { getAllSpellSchools } from '../utils/spell-schools.js';
 import { getAllSchticks } from '../utils/schticks.js';
+import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
+import { showWeaponCreationDialog } from './character-sheet-weapon-dialog.js';
+import { showArmorCreationDialog } from './character-sheet-armor-dialog.js';
+import { showShieldCreationDialog } from './character-sheet-shield-dialog.js';
 // Use namespaced ActorSheet when available to avoid deprecation warnings
 const BaseActorSheet = foundry?.appv1?.sheets?.ActorSheet || ActorSheet;
 export class MasteryCharacterSheet extends BaseActorSheet {
@@ -69,12 +73,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             creationComplete: this.actor.system?.creation?.complete
         });
         try {
-            const dialogModule = await import('systems/mastery-system/dist/sheets/character-sheet-power-dialog.js');
-            console.log('Mastery System | Power dialog module loaded', {
-                hasShowPowerCreationDialog: !!dialogModule?.showPowerCreationDialog
-            });
             // Use the regular dialog - it now enforces creation limits automatically
-            await dialogModule.showPowerCreationDialog(this.actor, context);
+            await showPowerCreationDialog(this.actor, context);
             console.log('Mastery System | Power dialog closed, re-rendering');
             // Re-render to update counters
             this.render();
@@ -121,13 +121,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      */
     async #openWeaponDialog() {
         try {
-            const dialogModule = await import('systems/mastery-system/dist/sheets/character-sheet-weapon-dialog.js');
-            if (dialogModule?.showWeaponCreationDialog) {
-                await dialogModule.showWeaponCreationDialog(this.actor);
-            }
-            else {
-                ui.notifications?.error('Weapon dialog not found.');
-            }
+            await showWeaponCreationDialog(this.actor);
         }
         catch (error) {
             console.error('Mastery System | Failed to open weapon dialog', error);
@@ -146,13 +140,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      */
     async #openArmorDialog() {
         try {
-            const dialogModule = await import('systems/mastery-system/dist/sheets/character-sheet-armor-dialog.js');
-            if (dialogModule?.showArmorCreationDialog) {
-                await dialogModule.showArmorCreationDialog(this.actor);
-            }
-            else {
-                ui.notifications?.error('Armor dialog not found.');
-            }
+            await showArmorCreationDialog(this.actor);
         }
         catch (error) {
             console.error('Mastery System | Error loading armor dialog:', error);
@@ -171,13 +159,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      */
     async #openShieldDialog() {
         try {
-            const dialogModule = await import('systems/mastery-system/dist/sheets/character-sheet-shield-dialog.js');
-            if (dialogModule?.showShieldCreationDialog) {
-                await dialogModule.showShieldCreationDialog(this.actor);
-            }
-            else {
-                ui.notifications?.error('Shield dialog not found.');
-            }
+            await showShieldCreationDialog(this.actor);
         }
         catch (error) {
             console.error('Mastery System | Error loading shield dialog:', error);

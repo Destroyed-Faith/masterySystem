@@ -24,12 +24,12 @@ export function getPassiveSlots(actor) {
 }
 /**
  * Get all available passive abilities for an actor
- * Gets passives from actor's items (specials with powerType 'passive')
+ * Gets passives from actor's items (powers with powerType 'passive')
  */
 export function getAvailablePassives(actor) {
     const available = [];
     const items = actor.items || [];
-    // Get all items that are specials with powerType 'passive'
+    // Get all items that are powers with powerType 'passive'
     for (const item of items) {
         const itemSystem = item.system || {};
         // Items with type 'power' and powerType 'passive' are passive abilities

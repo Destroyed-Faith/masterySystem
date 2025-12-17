@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.55] - 2025-01-XX
+
+### Changed
+- **BREAKING CHANGE**: Renamed item type `special` to `power` throughout the entire system
+  - All item type checks (`item.type === 'special'`) updated to `item.type === 'power'`
+  - `SpecialData` interface renamed to `PowerData`
+  - `prepareSpecialData()` method renamed to `preparePowerData()`
+  - Template `special-sheet.hbs` renamed to `power-sheet.hbs`
+  - Updated all references in code, templates, and configuration files
+- Added new item type `gear` for everyday items
+  - Added `GearData` interface with `weight`, `quantity`, `equipped`, and `description` fields
+  - Added gear template to `template.json`
+  - Added gear to `system.json` document types
+- Migrated all Application classes to ApplicationV2 to resolve Foundry VTT v13 deprecation warnings
+  - `CombatCarouselApp`, `PassiveSelectionDialog`, `InitiativeShopDialog`, `CombatActionOverlay` now use `ApplicationV2`
+  - Removed `override` modifiers (not supported by ApplicationV2)
+  - Fixed `TokenDocument.effects` deprecated warning (now uses `Actor.effects`)
+
+### Fixed
+- Fixed Combat Carousel display issues with CSS positioning
+- Fixed Passive Selection Dialog close button functionality
+
 ## [0.1.54] - 2025-01-XX
 
 ### Fixed
