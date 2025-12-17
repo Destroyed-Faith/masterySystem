@@ -273,12 +273,15 @@ Hooks.once('init', async function() {
     }
   });
 
-  // Cleanup: Remove any stray passive-selection-overlay elements from body
+  // Cleanup: Remove any stray passive-selection-overlay and initiative-shop-dialog elements from body
   Hooks.on('renderApplication', (app: any) => {
     // If any application is rendered, check for stray overlay elements
     // This ensures cleanup even if the dialog wasn't closed properly
     if (app.id !== 'mastery-passive-selection') {
       $('body > .passive-selection-overlay').remove();
+    }
+    if (app.id !== 'mastery-initiative-shop') {
+      $('body > .initiative-shop-dialog').remove();
     }
   });
   

@@ -25,6 +25,11 @@ export declare class InitiativeShopDialog extends Application {
     getData(): Promise<any>;
     _renderHTML(_data?: any): Promise<JQuery>;
     _replaceHTML(element: JQuery, html: JQuery): Promise<void>;
+    /**
+     * Update window content directly without triggering full render cycle
+     * This prevents the dialog from closing automatically
+     */
+    private _updateWindowContent;
     activateListeners(html: JQuery): void;
     private calculateTotalCost;
     private confirmPurchases;

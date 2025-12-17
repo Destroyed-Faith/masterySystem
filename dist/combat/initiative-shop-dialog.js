@@ -76,6 +76,9 @@ export class InitiativeShopDialog extends Application {
     }
     // Implement required methods for Foundry VTT v13 Application
     async _renderHTML(_data) {
+        // Remove ALL stray initiative shop dialog elements before rendering
+        $('body > .initiative-shop-dialog').remove();
+        $('.initiative-shop-dialog').not(`#${this.id} .initiative-shop-dialog`).remove();
         const template = this.constructor.defaultOptions?.template || this.options.template;
         if (!template) {
             throw new Error('Template path is required');
@@ -85,33 +88,86 @@ export class InitiativeShopDialog extends Application {
         return $(html);
     }
     async _replaceHTML(element, html) {
-        element.replaceWith(html);
+        // Remove ALL stray initiative shop dialog elements first
+        $('body > .initiative-shop-dialog').remove();
+        $('.initiative-shop-dialog').not(`#${this.id} .initiative-shop-dialog`).remove();
+        // Always update the window content directly, never replace the element
+        const appElement = $(`#${this.id}`);
+        if (appElement.length > 0) {
+            const windowContent = appElement.find('.window-content');
+            if (windowContent.length > 0) {
+                windowContent.html(html.html() || '');
+                // Reactivate listeners on the new content
+                this.activateListeners(windowContent);
+                return;
+            }
+        }
+        // Fallback: replace the element if window-content not found
+        if (element.length > 0) {
+            element.replaceWith(html);
+            this.activateListeners(html);
+        }
+    }
+    /**
+     * Update window content directly without triggering full render cycle
+     * This prevents the dialog from closing automatically
+     */
+    async _updateWindowContent() {
+        try {
+            const template = this.constructor.defaultOptions?.template || this.options.template;
+            if (!template) {
+                throw new Error('Template path is required');
+            }
+            const templateData = await this.getData();
+            const html = await foundry.applications.handlebars.renderTemplate(template, templateData);
+            const appElement = $(`#${this.id}`);
+            if (appElement.length > 0) {
+                const windowContent = appElement.find('.window-content');
+                if (windowContent.length > 0) {
+                    windowContent.html(html);
+                    this.activateListeners(windowContent);
+                    return;
+                }
+            }
+            // Fallback: try render if direct update fails
+            await this.render(false);
+        }
+        catch (error) {
+            console.error('Mastery System | Error updating initiative shop window content', error);
+            // Fallback to render on error
+            try {
+                await this.render(false);
+            }
+            catch (renderError) {
+                console.error('Mastery System | Error rendering initiative shop', renderError);
+            }
+        }
     }
     activateListeners(html) {
         super.activateListeners(html);
         // Buy extra movement (stepper +)
-        html.find('.js-buy-movement').on('click', (ev) => {
+        html.find('.js-buy-movement').on('click', async (ev) => {
             ev.preventDefault();
             const totalCost = this.calculateTotalCost();
             const cost = INITIATIVE_SHOP.MOVEMENT.COST;
             if (totalCost + cost <= this.context.totalInitiative) {
                 this.purchases.extraMovement++;
-                this.render(false);
+                await this._updateWindowContent();
             }
             else {
                 ui.notifications.warn('Not enough initiative points!');
             }
         });
         // Remove movement purchase (stepper -)
-        html.find('.js-remove-movement').on('click', (ev) => {
+        html.find('.js-remove-movement').on('click', async (ev) => {
             ev.preventDefault();
             if (this.purchases.extraMovement > 0) {
                 this.purchases.extraMovement--;
-                this.render(false);
+                await this._updateWindowContent();
             }
         });
         // Buy initiative swap (toggle, max 1)
-        html.find('.js-buy-swap').on('click', (ev) => {
+        html.find('.js-buy-swap').on('click', async (ev) => {
             ev.preventDefault();
             if (this.purchases.initiativeSwap) {
                 this.purchases.initiativeSwap = false;
@@ -126,10 +182,10 @@ export class InitiativeShopDialog extends Application {
                     ui.notifications.warn('Not enough initiative points!');
                 }
             }
-            this.render(false);
+            await this._updateWindowContent();
         });
         // Buy extra attack (toggle, max 1)
-        html.find('.js-buy-attack').on('click', (ev) => {
+        html.find('.js-buy-attack').on('click', async (ev) => {
             ev.preventDefault();
             if (this.purchases.extraAttack) {
                 this.purchases.extraAttack = false;
@@ -144,7 +200,7 @@ export class InitiativeShopDialog extends Application {
                     ui.notifications.warn('Not enough initiative points!');
                 }
             }
-            this.render(false);
+            await this._updateWindowContent();
         });
         // Confirm purchases
         html.find('.js-confirm').on('click', async (ev) => {
@@ -209,6 +265,9 @@ export class InitiativeShopDialog extends Application {
         this.close();
     }
     async close(options) {
+        // Clean up any stray initiative shop dialog elements
+        $('body > .initiative-shop-dialog').remove();
+        $('.initiative-shop-dialog').not(`#${this.id} .initiative-shop-dialog`).remove();
         if (this.resolve) {
             // If closed via X or Skip, resolve with null (no purchases applied)
             if (options?.closeSource === 'user' || options?.closeSource === 'button') {
