@@ -8,10 +8,10 @@ export function initializeCombatHooks() {
         console.log('Mastery System | Combat started, showing passive selection overlay');
         try {
             // On each client: owners see their Passive Overlay
-            const { PassiveSelectionDialog } = await import(new URL('../sheets/passive-selection-dialog.js', import.meta.url).toString());
+            const { PassiveSelectionDialog } = await import('systems/mastery-system/dist/sheets/passive-selection-dialog.js');
             await PassiveSelectionDialog.showForCombat(combat);
             // Optional: directly after that Turn-Overlay for the first Combatant
-            // const { CombatActionOverlay } = await import(new URL('../sheets/combat-action-overlay.js', import.meta.url).toString());
+            // const { CombatActionOverlay } = await import('systems/mastery-system/dist/sheets/combat-action-overlay.js' as any);
             // await CombatActionOverlay.showForCurrentTurn(combat);
         }
         catch (error) {

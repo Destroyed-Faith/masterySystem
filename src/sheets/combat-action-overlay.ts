@@ -184,12 +184,12 @@ export class CombatActionOverlay extends Application {
       try {
         switch (powerType) {
           case 'movement':
-            const movementModule = await import(new URL('../powers/movement.js', import.meta.url).toString());
+            const movementModule = await import('systems/mastery-system/dist/powers/movement.js' as any);
             await movementModule.useMovementPower(this.actor, item);
             break;
           
           case 'utility':
-            const utilityModule = await import(new URL('../powers/utilities.js', import.meta.url).toString());
+            const utilityModule = await import('systems/mastery-system/dist/powers/utilities.js' as any);
             await utilityModule.activateUtility(this.actor, item, null);
             break;
           
@@ -213,7 +213,7 @@ export class CombatActionOverlay extends Application {
       
       if (!actionType) return;
 
-      const actionsModule = await import(new URL('../combat/actions.js', import.meta.url).toString());
+      const actionsModule = await import('systems/mastery-system/dist/combat/actions.js' as any);
       const success = await actionsModule.useAction(this.actor, actionType, 1);
       
       if (success) {

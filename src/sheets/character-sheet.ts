@@ -82,7 +82,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       creationComplete: (this.actor as any).system?.creation?.complete
     });
     try {
-      const dialogModule = await import(new URL('./character-sheet-power-dialog.js', import.meta.url).toString());
+      const dialogModule = await import('systems/mastery-system/dist/sheets/character-sheet-power-dialog.js' as any);
       console.log('Mastery System | Power dialog module loaded', {
         hasShowPowerCreationDialog: !!dialogModule?.showPowerCreationDialog
       });
@@ -139,7 +139,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    */
   async #openWeaponDialog(): Promise<void> {
     try {
-      const dialogModule = await import(new URL('./character-sheet-weapon-dialog.js', import.meta.url).toString());
+      const dialogModule = await import('systems/mastery-system/dist/sheets/character-sheet-weapon-dialog.js' as any);
       if (dialogModule?.showWeaponCreationDialog) {
         await dialogModule.showWeaponCreationDialog(this.actor);
       } else {
@@ -164,7 +164,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    */
   async #openArmorDialog(): Promise<void> {
     try {
-      const dialogModule = await import(new URL('./character-sheet-armor-dialog.js', import.meta.url).toString());
+      const dialogModule = await import('systems/mastery-system/dist/sheets/character-sheet-armor-dialog.js' as any);
       if (dialogModule?.showArmorCreationDialog) {
         await dialogModule.showArmorCreationDialog(this.actor);
       } else {
@@ -189,7 +189,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    */
   async #openShieldDialog(): Promise<void> {
     try {
-      const dialogModule = await import(new URL('./character-sheet-shield-dialog.js', import.meta.url).toString());
+      const dialogModule = await import('systems/mastery-system/dist/sheets/character-sheet-shield-dialog.js' as any);
       if (dialogModule?.showShieldCreationDialog) {
         await dialogModule.showShieldCreationDialog(this.actor);
       } else {

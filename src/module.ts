@@ -88,7 +88,7 @@ Hooks.once('init', async function() {
 
   // Initialize combat hooks (dynamically imported)
   try {
-    const combatModule = await import(new URL('./combat/initiative.js', import.meta.url).toString());
+    const combatModule = await import('systems/mastery-system/dist/combat/initiative.js' as any);
     if (combatModule.initializeCombatHooks) {
       combatModule.initializeCombatHooks();
       console.log('Mastery System | Combat hooks initialized');

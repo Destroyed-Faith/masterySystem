@@ -69,7 +69,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             creationComplete: this.actor.system?.creation?.complete
         });
         try {
-            const dialogModule = await import(new URL('./character-sheet-power-dialog.js', import.meta.url).toString());
+            const dialogModule = await import('systems/mastery-system/dist/sheets/character-sheet-power-dialog.js');
             console.log('Mastery System | Power dialog module loaded', {
                 hasShowPowerCreationDialog: !!dialogModule?.showPowerCreationDialog
             });
@@ -121,7 +121,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      */
     async #openWeaponDialog() {
         try {
-            const dialogModule = await import(new URL('./character-sheet-weapon-dialog.js', import.meta.url).toString());
+            const dialogModule = await import('systems/mastery-system/dist/sheets/character-sheet-weapon-dialog.js');
             if (dialogModule?.showWeaponCreationDialog) {
                 await dialogModule.showWeaponCreationDialog(this.actor);
             }
@@ -146,7 +146,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      */
     async #openArmorDialog() {
         try {
-            const dialogModule = await import(new URL('./character-sheet-armor-dialog.js', import.meta.url).toString());
+            const dialogModule = await import('systems/mastery-system/dist/sheets/character-sheet-armor-dialog.js');
             if (dialogModule?.showArmorCreationDialog) {
                 await dialogModule.showArmorCreationDialog(this.actor);
             }
@@ -171,7 +171,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      */
     async #openShieldDialog() {
         try {
-            const dialogModule = await import(new URL('./character-sheet-shield-dialog.js', import.meta.url).toString());
+            const dialogModule = await import('systems/mastery-system/dist/sheets/character-sheet-shield-dialog.js');
             if (dialogModule?.showShieldCreationDialog) {
                 await dialogModule.showShieldCreationDialog(this.actor);
             }

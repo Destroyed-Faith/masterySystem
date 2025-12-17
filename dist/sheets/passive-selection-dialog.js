@@ -59,7 +59,7 @@ export class PassiveSelectionDialog extends Application {
         if (!actor)
             return {};
         // Import passive functions dynamically (they are compiled JS modules)
-        const passivesModule = await import(new URL('../powers/passives.js', import.meta.url).toString());
+        const passivesModule = await import('systems/mastery-system/dist/powers/passives.js');
         const { getPassiveSlots, getAvailablePassives } = passivesModule;
         const slots = getPassiveSlots(actor);
         const available = getAvailablePassives(actor);
@@ -106,7 +106,7 @@ export class PassiveSelectionDialog extends Application {
             const passiveId = String($(ev.currentTarget).data('passive-id') ?? '');
             if (!passiveId)
                 return;
-            const passivesModule = await import(new URL('../powers/passives.js', import.meta.url).toString());
+            const passivesModule = await import('systems/mastery-system/dist/powers/passives.js');
             await passivesModule.slotPassive(actor, slotIndex, passiveId);
             this.render(false);
         });
@@ -117,7 +117,7 @@ export class PassiveSelectionDialog extends Application {
             if (!actor)
                 return;
             const slotIndex = Number($(ev.currentTarget).data('slot-index') ?? 0);
-            const passivesModule = await import(new URL('../powers/passives.js', import.meta.url).toString());
+            const passivesModule = await import('systems/mastery-system/dist/powers/passives.js');
             await passivesModule.activatePassive(actor, slotIndex);
             this.render(false);
         });
@@ -128,7 +128,7 @@ export class PassiveSelectionDialog extends Application {
             if (!actor)
                 return;
             const slotIndex = Number($(ev.currentTarget).data('slot-index') ?? 0);
-            const passivesModule = await import(new URL('../powers/passives.js', import.meta.url).toString());
+            const passivesModule = await import('systems/mastery-system/dist/powers/passives.js');
             await passivesModule.unslotPassive(actor, slotIndex);
             this.render(false);
         });
