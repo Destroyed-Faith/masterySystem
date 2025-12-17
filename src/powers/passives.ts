@@ -59,7 +59,7 @@ export function getAvailablePassives(actor: Actor): PassiveAbility[] {
       available.push({
         id: item.id || item._id || item.name,
         name: item.name || 'Unknown Passive',
-        description: itemSystem.description || itemSystem.effect || '',
+        description: itemSystem.effect || itemSystem.description || '',
         category: category,
         level: itemSystem.level || 1
       });
@@ -94,10 +94,10 @@ export async function slotPassive(actor: Actor, slotIndex: number, passiveId: st
   if (passiveItem) {
     const itemSystem = (passiveItem.system as any) || {};
     system.passives[slotKey].passive = {
-      id: passiveItem.id || passiveItem.name,
+      id: passiveItem.id || passiveItem._id || passiveItem.name,
       name: passiveItem.name || 'Unknown Passive',
-      description: itemSystem.description || itemSystem.effect || '',
-      category: itemSystem.category || 'General',
+      description: itemSystem.effect || itemSystem.description || '',
+      category: itemSystem.tree || itemSystem.category || 'General',
       level: itemSystem.level || 1
     };
   } else {

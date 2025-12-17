@@ -16,22 +16,19 @@
     <h3>Passive Slots</h3>
     <div class="slots-grid">
       {{#each slots as |slot|}}
-        <div class="passive-slot {{#if slot.active}}active{{/if}} {{#unless slot.passive}}empty{{/unless}}" data-slot-index="{{slot.slotIndex}}">
+        <div class="passive-slot {{#if slot.active}}active{{/if}} {{#unless slot.passive}}empty{{/unless}} droppable-slot" 
+             data-slot-index="{{slot.slotIndex}}">
           <div class="slot-header">
             <span class="slot-number">Slot {{inc slot.slotIndex}}</span>
-            {{#if slot.passive}}
-              <span class="passive-category">{{slot.passive.category}}</span>
-            {{/if}}
           </div>
           
           {{#if slot.passive}}
             <div class="slot-body">
               <h4>{{slot.passive.name}}</h4>
-              <p class="passive-description">{{slot.passive.description}}</p>
+              <p class="passive-effect">{{slot.passive.description}}</p>
               <div class="slot-actions">
                 <button class="js-toggle-passive btn-toggle" data-slot-index="{{slot.slotIndex}}" title="{{#if slot.active}}Deactivate{{else}}Activate{{/if}}">
                   <i class="fas {{#if slot.active}}fa-toggle-on{{else}}fa-toggle-off{{/if}}"></i>
-                  {{#if slot.active}}Active{{else}}Inactive{{/if}}
                 </button>
                 <button class="js-unslot-passive btn-remove" data-slot-index="{{slot.slotIndex}}" title="Remove from slot">
                   <i class="fas fa-times"></i>
@@ -40,8 +37,7 @@
             </div>
           {{else}}
             <div class="slot-body empty-slot">
-              <p><em>Empty slot</em></p>
-              <p class="hint">Select a passive below</p>
+              <p><em>Drop passive here</em></p>
             </div>
           {{/if}}
         </div>
@@ -54,24 +50,11 @@
     {{#if availablePassives}}
       <div class="passives-list">
         {{#each availablePassives as |passive|}}
-          <div class="passive-item">
-            <div class="passive-info">
-              <h4>{{passive.name}}</h4>
-              <span class="passive-category badge">{{passive.category}}</span>
-              <p class="passive-description">{{passive.description}}</p>
-            </div>
-            <div class="passive-actions">
-              {{#each ../slots as |slot|}}
-                {{#unless slot.passive}}
-                  <button class="js-slot-passive btn-slot" 
-                          data-slot-index="{{slot.slotIndex}}" 
-                          data-passive-id="{{../passive.id}}"
-                          title="Add to Slot {{inc slot.slotIndex}}">
-                    → Slot {{inc slot.slotIndex}}
-                  </button>
-                {{/unless}}
-              {{/each}}
-            </div>
+          <div class="passive-item draggable-passive" 
+               draggable="true"
+               data-passive-id="{{passive.id}}">
+            <h4>{{passive.name}}</h4>
+            <p class="passive-effect">{{passive.description}}</p>
           </div>
         {{/each}}
       </div>

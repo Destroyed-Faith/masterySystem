@@ -174,11 +174,18 @@
   font-size: 1.1rem;
 }
 
-.passive-slot .passive-description {
+.passive-slot .passive-description,
+.passive-slot .passive-effect {
   font-size: 0.9rem;
   color: #c7c7c7;
   margin: 0 0 0.75rem 0;
   line-height: 1.4;
+}
+
+.passive-slot.drag-over {
+  border-color: #e94560;
+  background: rgba(233, 69, 96, 0.1);
+  border-style: dashed;
 }
 
 .passive-slot .slot-actions {
@@ -211,43 +218,34 @@
   background: #16213e;
   border: 1px solid #0f3460;
   border-radius: 8px;
-  padding: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
+  padding: 0.75rem 1rem;
+  cursor: grab;
   transition: all 0.3s ease;
 }
 
 .passive-item:hover {
   border-color: #e94560;
   box-shadow: 0 4px 12px rgba(233, 69, 96, 0.2);
+  transform: translateY(-2px);
 }
 
-.passive-item .passive-info {
-  flex: 1;
+.passive-item.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
 }
 
 .passive-item h4 {
   margin: 0 0 0.5rem 0;
   color: #e94560;
-  font-size: 1.1rem;
+  font-size: 1rem;
+  font-weight: 600;
 }
 
-.passive-item .badge {
-  background: #0f3460;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  color: #a8dadc;
-  text-transform: capitalize;
-  margin-left: 0.5rem;
-}
-
-.passive-item .passive-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+.passive-item .passive-effect {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #c7c7c7;
+  line-height: 1.4;
 }
 
 .no-passives {

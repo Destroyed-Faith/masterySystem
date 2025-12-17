@@ -94,16 +94,43 @@ export class PassiveSelectionDialog extends Application {
     }
     activateListeners(html) {
         super.activateListeners(html);
-        // Slot a passive
-        html.find('.js-slot-passive').on('click', async (ev) => {
+        // Drag & Drop handlers
+        html.find('.draggable-passive').on('dragstart', (ev) => {
+            const passiveId = String($(ev.currentTarget).data('passive-id') ?? '');
+            if (ev.originalEvent?.dataTransfer) {
+                ev.originalEvent.dataTransfer.effectAllowed = 'move';
+                ev.originalEvent.dataTransfer.setData('text/plain', passiveId);
+            }
+            $(ev.currentTarget).addClass('dragging');
+        });
+        html.find('.draggable-passive').on('dragend', (ev) => {
+            $(ev.currentTarget).removeClass('dragging');
+            html.find('.droppable-slot').removeClass('drag-over');
+        });
+        html.find('.droppable-slot').on('dragover', (ev) => {
+            ev.preventDefault();
+            if (ev.originalEvent?.dataTransfer) {
+                ev.originalEvent.dataTransfer.dropEffect = 'move';
+            }
+            $(ev.currentTarget).addClass('drag-over');
+        });
+        html.find('.droppable-slot').on('dragleave', (ev) => {
+            $(ev.currentTarget).removeClass('drag-over');
+        });
+        html.find('.droppable-slot').on('drop', async (ev) => {
             ev.preventDefault();
             const actor = this.currentActor;
             if (!actor)
                 return;
             const slotIndex = Number($(ev.currentTarget).data('slot-index') ?? 0);
-            const passiveId = String($(ev.currentTarget).data('passive-id') ?? '');
+            const passiveId = ev.originalEvent?.dataTransfer?.getData('text/plain') || '';
             if (!passiveId)
                 return;
+            // Only allow dropping into empty slots
+            const slotElement = $(ev.currentTarget);
+            if (!slotElement.hasClass('empty')) {
+                return;
+            }
             await slotPassive(actor, slotIndex, passiveId);
             this.render(false);
         });
