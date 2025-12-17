@@ -242,8 +242,15 @@ export class PassiveSelectionDialog extends Application {
   }
 
   override async close(options?: any): Promise<void> {
-    // Remove any leftover overlay elements from DOM
+    // Remove any leftover overlay elements from DOM (both inside and outside the app window)
     $('.passive-selection-overlay').remove();
+    $('body > .passive-selection-overlay').remove();
+    
+    // Also remove from the app's element if it exists
+    const appElement = $(`#${this.id}`);
+    if (appElement.length > 0) {
+      appElement.find('.passive-selection-overlay').remove();
+    }
     
     if (this.resolve) {
       this.resolve();

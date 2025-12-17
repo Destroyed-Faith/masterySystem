@@ -120,6 +120,14 @@ Hooks.once('init', async function () {
         // Hide all initiative roll buttons
         $html.find('button[data-action="rollInitiative"]').css('display', 'none');
     });
+    // Cleanup: Remove any stray passive-selection-overlay elements from body
+    Hooks.on('renderApplication', (app) => {
+        // If any application is rendered, check for stray overlay elements
+        // This ensures cleanup even if the dialog wasn't closed properly
+        if (app.id !== 'mastery-passive-selection') {
+            $('body > .passive-selection-overlay').remove();
+        }
+    });
     console.log('Mastery System | Combat hooks initialized');
     // Initialize token action selector
     initializeTokenActionSelector();
