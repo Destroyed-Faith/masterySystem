@@ -86,20 +86,15 @@ Hooks.once('init', async function() {
   // Register CONFIG constants
   registerConfigConstants();
 
-  // Initialize combat hooks (dynamically imported to avoid build errors)
-  // Note: Combat hooks are optional - if the file doesn't exist, we continue without them
-  // The file may not exist, so we use a try-catch to handle this gracefully
+  // Initialize combat hooks (dynamically imported)
   try {
-    // Use a path that will resolve correctly at runtime from dist/module.js
-    // Since this is a dynamic import, we need to construct the path correctly
-    const combatPath = 'systems/mastery-system/dist/combat/initiative.js';
-    const combatModule = await import(combatPath as any);
+    const combatModule = await import(new URL('./combat/initiative.js', import.meta.url).toString());
     if (combatModule.initializeCombatHooks) {
       combatModule.initializeCombatHooks();
+      console.log('Mastery System | Combat hooks initialized');
     }
   } catch (error) {
-    // Combat hooks are optional - this is expected if the file doesn't exist
-    // Silently ignore - combat functionality will work without these hooks
+    console.error('Mastery System | Combat hooks failed to load', error);
   }
 
   // Initialize token action selector

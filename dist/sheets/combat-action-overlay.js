@@ -145,11 +145,11 @@ export class CombatActionOverlay extends Application {
             try {
                 switch (powerType) {
                     case 'movement':
-                        const movementModule = await import('../../dist/powers/movement.js');
+                        const movementModule = await import(new URL('../powers/movement.js', import.meta.url).toString());
                         await movementModule.useMovementPower(this.actor, item);
                         break;
                     case 'utility':
-                        const utilityModule = await import('../../dist/powers/utilities.js');
+                        const utilityModule = await import(new URL('../powers/utilities.js', import.meta.url).toString());
                         await utilityModule.activateUtility(this.actor, item, null);
                         break;
                     default:
@@ -170,7 +170,7 @@ export class CombatActionOverlay extends Application {
             const actionType = String($(ev.currentTarget).data('action-type') ?? '');
             if (!actionType)
                 return;
-            const actionsModule = await import('../../dist/combat/actions.js');
+            const actionsModule = await import(new URL('../combat/actions.js', import.meta.url).toString());
             const success = await actionsModule.useAction(this.actor, actionType, 1);
             if (success) {
                 this.render(false);
