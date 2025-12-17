@@ -21,7 +21,7 @@ export interface PassiveAbility {
 export declare function getPassiveSlots(actor: Actor): PassiveSlot[];
 /**
  * Get all available passive abilities for an actor
- * Gets passives from actor's items (powers with type 'passive')
+ * Gets passives from actor's items (specials with powerType 'passive')
  */
 export declare function getAvailablePassives(actor: Actor): PassiveAbility[];
 /**
