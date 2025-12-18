@@ -9,101 +9,15 @@
 
 import { 
   spendStoneAbility,
-  getRoundState,
-  setRoundState,
   type RoundState,
   type AttributeKey
 } from '../combat/action-economy.js';
 
-// AttributeKey is now imported from action-economy.ts
+// Import canonical stone powers definition
+import { STONE_POWERS, type StonePower } from './stone-powers.js';
 
-export interface StonePower {
-  id: string;
-  name: string;
-  attribute: AttributeKey | 'generic';  // generic requires user to choose attribute
-  category: 'action' | 'passive' | 'reaction';
-  description: string;
-  apply: (actor: Actor, combatant: Combatant) => Promise<void>;
-}
-
-/**
- * Registry of stone powers
- */
-export const STONE_POWERS: Record<string, StonePower> = {
-  'generic.extraAttack': {
-    id: 'generic.extraAttack',
-    name: 'Extra Attack',
-    attribute: 'generic',
-    category: 'action',
-    description: 'Gain +1 Attack action this round',
-    apply: async (actor, _combatant) => {
-      const combat = game.combat;
-      const roundState = getRoundState(actor, combat);
-      roundState.attackActions.total += 1;
-      if (!roundState.stoneBonuses) {
-        roundState.stoneBonuses = { extraAttacks: 0, extraReactions: 0, extraMoveMeters: 0 };
-      }
-      roundState.stoneBonuses.extraAttacks += 1;
-      await setRoundState(actor, roundState);
-    }
-  },
-  
-  'agility.extraReaction': {
-    id: 'agility.extraReaction',
-    name: 'Extra Reaction',
-    attribute: 'agility',
-    category: 'reaction',
-    description: 'Gain +1 Reaction this round',
-    apply: async (actor, _combatant) => {
-      const combat = game.combat;
-      const roundState = getRoundState(actor, combat);
-      roundState.reactionActions.total += 1;
-      if (!roundState.stoneBonuses) {
-        roundState.stoneBonuses = { extraAttacks: 0, extraReactions: 0, extraMoveMeters: 0 };
-      }
-      roundState.stoneBonuses.extraReactions += 1;
-      await setRoundState(actor, roundState);
-    }
-  },
-  
-  'generic.movePlus8m': {
-    id: 'generic.movePlus8m',
-    name: 'Extra Movement',
-    attribute: 'generic',
-    category: 'action',
-    description: 'Gain +8m movement this round',
-    apply: async (actor, _combatant) => {
-      const combat = game.combat;
-      const roundState = getRoundState(actor, combat);
-      roundState.moveBonusMeters += 8;
-      if (!roundState.stoneBonuses) {
-        roundState.stoneBonuses = { extraAttacks: 0, extraReactions: 0, extraMoveMeters: 0 };
-      }
-      roundState.stoneBonuses.extraMoveMeters += 8;
-      await setRoundState(actor, roundState);
-    }
-  },
-  
-  'intellect.extraSpell': {
-    id: 'intellect.extraSpell',
-    name: 'Extra Spell',
-    attribute: 'intellect',
-    category: 'action',
-    description: 'Gain +1 Attack action this round (spell attacks only)',
-    apply: async (actor, _combatant) => {
-      const combat = game.combat;
-      const roundState = getRoundState(actor, combat);
-      roundState.attackActions.total += 1;
-      if (!roundState.stoneBonuses) {
-        roundState.stoneBonuses = { extraAttacks: 0, extraReactions: 0, extraMoveMeters: 0 };
-      }
-      roundState.stoneBonuses.extraAttacks += 1;
-      await setRoundState(actor, roundState);
-      // Mark that this is spell-only (could be validated elsewhere)
-      await _combatant.setFlag('mastery-system', 'extraSpellAction', true);
-    }
-  }
-};
+// Re-export for backward compatibility
+export { STONE_POWERS, type StonePower };
 
 /**
  * Activate a stone power

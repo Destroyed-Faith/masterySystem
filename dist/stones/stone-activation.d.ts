@@ -7,18 +7,8 @@
  * - Pool deduction and round state updates
  */
 import { type AttributeKey } from '../combat/action-economy.js';
-export interface StonePower {
-    id: string;
-    name: string;
-    attribute: AttributeKey | 'generic';
-    category: 'action' | 'passive' | 'reaction';
-    description: string;
-    apply: (actor: Actor, combatant: Combatant) => Promise<void>;
-}
-/**
- * Registry of stone powers
- */
-export declare const STONE_POWERS: Record<string, StonePower>;
+import { STONE_POWERS, type StonePower } from './stone-powers.js';
+export { STONE_POWERS, type StonePower };
 /**
  * Activate a stone power
  *

@@ -36,11 +36,17 @@ export class StonePowersDialog extends BaseDialog {
         this.resolve = resolve;
     }
     async _prepareContext(_options) {
+        // Resolve combatant if not provided
+        if (!this.combatant && game.combat) {
+            this.combatant = game.combat.combatants.find((c) => c.actor?.id === this.actor.id) || null;
+        }
         const system = this.actor.system;
         const stonePools = system.stonePools || {};
         const availablePowers = getAvailableStonePowers(this.actor);
         const attributes = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence'];
-        const pools = attributes.map(attr => {
+        // Filter pools to only show those with max > 0
+        const pools = attributes
+            .map(attr => {
             const pool = stonePools[attr] || { current: 0, max: 0, sustained: 0 };
             return {
                 key: attr,
@@ -50,26 +56,57 @@ export class StonePowersDialog extends BaseDialog {
                 sustained: pool.sustained || 0,
                 available: pool.current - (pool.sustained || 0)
             };
-        });
+        })
+            .filter(pool => pool.max > 0); // Only show pools with stones
+        // Organize powers by attribute section
+        // Generic powers appear in EACH attribute section
         const powersByAttribute = {};
+        // First, add attribute-specific powers
         for (const power of availablePowers) {
-            const attr = power.attribute === 'generic' ? 'generic' : power.attribute;
+            if (power.attribute !== 'generic') {
+                const attr = power.attribute;
+                if (!powersByAttribute[attr]) {
+                    powersByAttribute[attr] = [];
+                }
+                // Only add if this attribute has a pool
+                if (pools.some(p => p.key === attr)) {
+                    powersByAttribute[attr].push({
+                        id: power.id,
+                        name: power.name,
+                        description: power.description,
+                        effect: power.effect,
+                        attribute: power.attribute,
+                        cost: 1 // Stone cost is calculated dynamically based on usage
+                    });
+                }
+            }
+        }
+        // Then, add generic powers to EACH attribute section that has a pool
+        const genericPowers = availablePowers.filter(p => p.attribute === 'generic');
+        for (const pool of pools) {
+            const attr = pool.key;
             if (!powersByAttribute[attr]) {
                 powersByAttribute[attr] = [];
             }
-            powersByAttribute[attr].push({
-                id: power.id,
-                name: power.name,
-                description: power.description,
-                attribute: power.attribute,
-                cost: 1 // Stone cost is calculated dynamically based on usage
-            });
+            // Add generic powers to this attribute section
+            for (const power of genericPowers) {
+                powersByAttribute[attr].push({
+                    id: power.id,
+                    name: power.name,
+                    description: power.description,
+                    effect: power.effect,
+                    attribute: power.attribute, // Keep as 'generic'
+                    cost: 1
+                });
+            }
         }
+        // Check if actor is in combat
+        const hasCombat = !!game.combat && !!this.combatant;
         return {
             actor: this.actor,
             pools,
             powersByAttribute,
-            hasCombat: !!this.combatant && !!game.combat
+            hasCombat
         };
     }
     async _onRender(_context, _options) {

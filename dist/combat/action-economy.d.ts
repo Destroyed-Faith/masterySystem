@@ -36,6 +36,15 @@ export interface RoundState {
         extraAttacks: number;
         extraReactions: number;
         extraMoveMeters: number;
+        damageBonus?: number;
+        armorPenetration?: number;
+        evadeBonus?: number;
+        critRaises?: number;
+        tempArmor?: number;
+        freeRaises?: number;
+        saveKeepBonus?: number;
+        spellPoolDice?: number;
+        spellKeepDice?: number;
     };
 }
 /**

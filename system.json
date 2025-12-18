@@ -27,7 +27,8 @@
     "styles/overlays.css",
     "styles/xp-management.css",
     "styles/combat-carousel.css",
-    "styles/combat-tracker.css"
+    "styles/combat-tracker.css",
+    "styles/stone-powers-dialog.css"
   ],
   "languages": [
     {

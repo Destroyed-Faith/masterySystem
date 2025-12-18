@@ -1,0 +1,266 @@
+/**
+ * Stone Powers Dialog Styles
+ */
+
+.stone-powers-dialog {
+  padding: 1rem;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.stone-powers-dialog .dialog-header {
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid #8b0000;
+}
+
+.stone-powers-dialog .dialog-header h2 {
+  margin: 0 0 0.5rem 0;
+  color: #fff;
+  font-size: 1.2rem;
+}
+
+.stone-powers-dialog .dialog-header p {
+  margin: 0;
+  color: #ccc;
+  font-size: 0.9rem;
+}
+
+/* Stone Pools Display */
+.stone-powers-dialog .stone-pools-display {
+  margin-bottom: 1.5rem;
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stone-powers-dialog .stone-pools-display h3 {
+  margin: 0 0 0.75rem 0;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.stone-powers-dialog .pools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.5rem;
+}
+
+.stone-powers-dialog .pool-item {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+  background: rgba(139, 0, 0, 0.2);
+  border-radius: 4px;
+  border: 1px solid rgba(139, 0, 0, 0.4);
+  text-align: center;
+}
+
+.stone-powers-dialog .pool-name {
+  font-size: 0.75rem;
+  color: #ccc;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.stone-powers-dialog .pool-value {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #fff;
+}
+
+.stone-powers-dialog .pool-sustained {
+  font-size: 0.7rem;
+  color: #ffaa00;
+  margin-top: 0.25rem;
+}
+
+/* Powers List with Accordion */
+.stone-powers-dialog .powers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.stone-powers-dialog .power-group {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.stone-powers-dialog .power-group summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  background: rgba(139, 0, 0, 0.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  transition: background 0.2s;
+}
+
+.stone-powers-dialog .power-group summary::-webkit-details-marker {
+  display: none;
+}
+
+.stone-powers-dialog .power-group summary:hover {
+  background: rgba(139, 0, 0, 0.4);
+}
+
+.stone-powers-dialog .power-group[open] summary {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.stone-powers-dialog .power-group[open] summary .fa-chevron-right {
+  transform: rotate(90deg);
+}
+
+.stone-powers-dialog .power-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stone-powers-dialog .power-group-header h4 {
+  margin: 0;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stone-powers-dialog .power-group-header .fa-chevron-right {
+  transition: transform 0.2s;
+  font-size: 0.8rem;
+}
+
+.stone-powers-dialog .power-group-header .power-count {
+  font-size: 0.85rem;
+  color: #999;
+  font-weight: normal;
+}
+
+.stone-powers-dialog .powers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+.stone-powers-dialog .power-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stone-powers-dialog .power-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.stone-powers-dialog .power-info strong {
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.stone-powers-dialog .power-desc {
+  margin: 0;
+  color: #ccc;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.stone-powers-dialog .power-effect {
+  margin: 0;
+  color: #aaa;
+  font-size: 0.8rem;
+  font-style: italic;
+  line-height: 1.3;
+  padding-left: 0.5rem;
+  border-left: 2px solid rgba(139, 0, 0, 0.5);
+}
+
+.stone-powers-dialog .power-cost {
+  color: #ffaa00;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.stone-powers-dialog .power-activate-btn {
+  padding: 0.5rem 1rem;
+  background: rgba(139, 0, 0, 0.8);
+  border: 1px solid #8b0000;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.stone-powers-dialog .power-activate-btn:hover:not(:disabled) {
+  background: #8b0000;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(139, 0, 0, 0.4);
+}
+
+.stone-powers-dialog .power-activate-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.stone-powers-dialog .power-activate-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: rgba(139, 0, 0, 0.3);
+}
+
+.stone-powers-dialog .power-activate-btn i {
+  margin: 0;
+}
+
+/* Dialog Footer */
+.stone-powers-dialog .dialog-footer {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.stone-powers-dialog .dialog-btn {
+  padding: 0.6rem 1.5rem;
+  background: rgba(139, 0, 0, 0.8);
+  border: 1px solid #8b0000;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stone-powers-dialog .dialog-btn:hover {
+  background: #8b0000;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(139, 0, 0, 0.4);
+}
+
+.stone-powers-dialog .dialog-btn:active {
+  transform: translateY(0);
+}
