@@ -142,7 +142,13 @@ export class CombatActionOverlay extends ApplicationV2 {
         element.replaceWith(html);
     }
     activateListeners(html) {
-        super.activateListeners(html);
+        try {
+            super.activateListeners(html);
+        }
+        catch (error) {
+            // ApplicationV2 or Application may not have activateListeners in this Foundry version
+            console.debug('Mastery System | activateListeners: parent class does not have activateListeners method', error);
+        }
         // Use a power
         html.find('.js-use-power').on('click', async (ev) => {
             ev.preventDefault();

@@ -424,7 +424,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             powersValid: selectedPowers.length === 4 && powersAtRank2.length <= 2,
             canFinalize: attributePointsSpent === 16 &&
                 skillPointsSpent === skillPointsConfig &&
-                disadvantagesReviewed &&
                 selectedPowers.length === 4 &&
                 powersAtRank2.length <= 2
         };
