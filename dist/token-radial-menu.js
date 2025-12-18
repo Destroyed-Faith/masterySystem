@@ -301,7 +301,7 @@ export function openRadialMenuForActor(token, allOptions) {
         renderOuterRing(root, token, bySegment, currentSegmentId);
         // Refresh inner segments visual state to highlight the active segment
         console.log(`Mastery System | [setCurrentSegmentId] Refreshing inner segments visual...`);
-        refreshInnerSegmentsVisual(root, getCurrentSegmentId);
+        refreshInnerSegmentsVisual(root, getCurrentSegmentId, token);
         // Ensure inner segments stay on top after re-rendering outer ring
         const innerSegments = [];
         root.children.forEach((child) => {

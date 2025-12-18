@@ -4,6 +4,7 @@
  *
  * Migrated to Foundry VTT v13 ApplicationV2 + HandlebarsApplicationMixin
  */
+import { requestEndTurn } from '../combat/end-turn.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
 const BaseCarousel = HandlebarsApplicationMixin(ApplicationV2);
@@ -271,6 +272,14 @@ export class CombatCarouselApp extends BaseCarousel {
                 if (token) {
                     canvas.ping(token.center);
                 }
+            };
+        });
+        // End Turn button (on current combatant card)
+        root.querySelectorAll('.js-end-turn').forEach((btn) => {
+            btn.onclick = async (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                await requestEndTurn();
             };
         });
     }

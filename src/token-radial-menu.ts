@@ -347,7 +347,7 @@ export function openRadialMenuForActor(token: any, allOptions: RadialCombatOptio
     
     // Refresh inner segments visual state to highlight the active segment
     console.log(`Mastery System | [setCurrentSegmentId] Refreshing inner segments visual...`);
-    refreshInnerSegmentsVisual(root, getCurrentSegmentId);
+    refreshInnerSegmentsVisual(root, getCurrentSegmentId, token);
     
     // Ensure inner segments stay on top after re-rendering outer ring
     const innerSegments: PIXI.DisplayObject[] = [];

@@ -6,6 +6,7 @@ import { getSegmentIdForOption } from './options.js';
 import { showRangePreview, clearRangePreview } from './range-preview.js';
 import { showRadialInfoPanel, hideRadialInfoPanel } from './info-panel.js';
 import { handleChosenCombatOption } from '../token-action-selector.js';
+import { getRoundState } from '../combat/action-economy.js';
 /**
  * Foundry v13: When the radial menu spawns under the mouse cursor, PIXI can
  * immediately fire pointerover for whichever slice is "under" the cursor.
@@ -263,8 +264,9 @@ export function renderOuterRing(root, token, bySegment, segmentId) {
 /**
  * Render the inner segmented circle
  * The inner quadrants (Buff/Move/Util/Atk) act as clickable filters
+ * Labels now show action counts from turn state
  */
-export function renderInnerSegments(root, getCurrentSegmentId, setCurrentSegmentId, _token) {
+export function renderInnerSegments(root, getCurrentSegmentId, setCurrentSegmentId, token) {
     // Remove existing inner segments
     const toRemove = [];
     root.children.forEach((child) => {
@@ -305,7 +307,50 @@ export function renderInnerSegments(root, getCurrentSegmentId, setCurrentSegment
         const labelRadius = MS_INNER_RADIUS * 0.6;
         const lx = Math.cos(midAngle) * labelRadius;
         const ly = Math.sin(midAngle) * labelRadius;
-        const text = new PIXI.Text(seg.label, {
+        // Get action counts from round state if available
+        let labelText = seg.label;
+        try {
+            const combat = game.combat;
+            const actor = token?.actor;
+            if (combat && actor) {
+                const roundState = getRoundState(actor, combat);
+                // Map segment to action type and get remaining/total
+                let remaining;
+                let total;
+                let moveBonus;
+                switch (seg.id) {
+                    case 'movement':
+                        remaining = roundState.movementActions.total - roundState.movementActions.used;
+                        total = roundState.movementActions.total;
+                        moveBonus = roundState.moveBonusMeters + (roundState.stoneBonuses?.extraMoveMeters || 0);
+                        break;
+                    case 'attack':
+                    case 'active-buff':
+                        // Both Attack and Buff use the shared attack pool
+                        remaining = roundState.attackActions.total - roundState.attackActions.used;
+                        total = roundState.attackActions.total;
+                        break;
+                    case 'utility':
+                        // Utility also uses attack pool
+                        remaining = roundState.attackActions.total - roundState.attackActions.used;
+                        total = roundState.attackActions.total;
+                        break;
+                }
+                if (remaining !== undefined && total !== undefined) {
+                    if (seg.id === 'movement' && moveBonus && moveBonus > 0) {
+                        labelText = `${seg.label} (${remaining}/${total}) +${moveBonus}m`;
+                    }
+                    else {
+                        labelText = `${seg.label} (${remaining}/${total})`;
+                    }
+                }
+            }
+        }
+        catch (error) {
+            // If round state lookup fails, just use base label
+            console.debug('Mastery System | Could not get round state for radial menu label', error);
+        }
+        const text = new PIXI.Text(labelText, {
             fontSize: 12,
             fill: 0x000000,
             align: 'center',
@@ -407,8 +452,9 @@ export function renderInnerSegments(root, getCurrentSegmentId, setCurrentSegment
 /**
  * Refresh inner segments visual state (update appearance based on active segment)
  * This is called when the segment changes to update the visual highlighting
+ * Also updates action counts in labels
  */
-export function refreshInnerSegmentsVisual(root, getCurrentSegmentId) {
+export function refreshInnerSegmentsVisual(root, getCurrentSegmentId, token) {
     const current = getCurrentSegmentId();
     console.log(`Mastery System | Refreshing inner segments visual, active: ${current}`);
     for (const child of root.children) {
@@ -446,6 +492,52 @@ export function refreshInnerSegmentsVisual(root, getCurrentSegmentId) {
         gfx.moveTo(0, 0);
         gfx.arc(0, 0, MS_INNER_RADIUS, baseAngle, endAngle);
         gfx.lineTo(0, 0);
+        // Update label with action count if available
+        if (text) {
+            try {
+                const combat = game.combat;
+                const actor = token?.actor;
+                if (combat && actor) {
+                    const roundState = getRoundState(actor, combat);
+                    let remaining;
+                    let total;
+                    let moveBonus;
+                    switch (segId) {
+                        case 'movement':
+                            remaining = roundState.movementActions.total - roundState.movementActions.used;
+                            total = roundState.movementActions.total;
+                            moveBonus = roundState.moveBonusMeters + (roundState.stoneBonuses?.extraMoveMeters || 0);
+                            break;
+                        case 'attack':
+                        case 'active-buff':
+                            remaining = roundState.attackActions.total - roundState.attackActions.used;
+                            total = roundState.attackActions.total;
+                            break;
+                        case 'utility':
+                            remaining = roundState.attackActions.total - roundState.attackActions.used;
+                            total = roundState.attackActions.total;
+                            break;
+                    }
+                    if (remaining !== undefined && total !== undefined) {
+                        if (segId === 'movement' && moveBonus && moveBonus > 0) {
+                            text.text = `${seg.label} (${remaining}/${total}) +${moveBonus}m`;
+                        }
+                        else {
+                            text.text = `${seg.label} (${remaining}/${total})`;
+                        }
+                    }
+                    else {
+                        text.text = seg.label;
+                    }
+                }
+                else {
+                    text.text = seg.label;
+                }
+            }
+            catch (error) {
+                text.text = seg.label;
+            }
+        }
         // Update text weight
         if (text) {
             text.style.fontWeight = isActive ? 'bold' : 'normal';

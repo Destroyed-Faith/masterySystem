@@ -24,6 +24,32 @@ export class MasteryActor extends Actor {
                     updateAttributeStones(attr);
                 }
             }
+            // NEW: Calculate per-attribute stone pools (floor(attribute / 8))
+            // For characters only (NPCs may have stones but don't use action bonuses)
+            if (this.type === 'character' && system.stonePools) {
+                const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence'];
+                for (const attrKey of attributeKeys) {
+                    const attrValue = system.attributes[attrKey]?.value || 0;
+                    const maxStones = Math.floor(attrValue / 8);
+                    // Initialize pool if missing
+                    if (!system.stonePools[attrKey]) {
+                        system.stonePools[attrKey] = {
+                            current: maxStones,
+                            max: maxStones,
+                            sustained: 0
+                        };
+                    }
+                    else {
+                        // Update max based on attribute
+                        system.stonePools[attrKey].max = maxStones;
+                        // Clamp current: can't exceed (max - sustained)
+                        const sustained = system.stonePools[attrKey].sustained || 0;
+                        const effectiveMax = maxStones - sustained;
+                        system.stonePools[attrKey].current = Math.max(0, Math.min(system.stonePools[attrKey].current || 0, effectiveMax));
+                    }
+                }
+            }
+            // OLD STONE SYSTEM: Keep for backwards compatibility / migration
             // Calculate total stones
             if (!system.stones) {
                 system.stones = {};

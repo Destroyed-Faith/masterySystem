@@ -21,6 +21,7 @@ import { PassiveSelectionDialog } from './sheets/passive-selection-dialog.js';
 import { rollInitiativeForAllCombatants } from './combat/initiative-roll.js';
 import { InitiativeShopDialog } from './combat/initiative-shop-dialog.js';
 import { CombatCarouselApp } from './ui/combat-carousel.js';
+import { initializeStoneHooks } from './stones/stone-hooks.js';
 // Dice roller functions are imported in sheets where needed
 console.log('Mastery System | All imports completed');
 // Register Handlebars helpers immediately (before init hook)
@@ -130,6 +131,7 @@ Hooks.once('init', async function () {
         }
     });
     // Hide initiative roll button (d20) and add passive selection button in combat tracker
+    // Also add End Turn button for current combatant
     Hooks.on('renderCombatTracker', (_app, html) => {
         // Convert html to jQuery if needed (Foundry v13 compatibility)
         let $html;
@@ -176,7 +178,21 @@ Hooks.once('init', async function () {
                 return;
             }
             // Remove existing buttons to prevent duplicates
-            $initiativeDiv.find('.ms-passive-btn, .ms-initiative-btn').remove();
+            $initiativeDiv.find('.ms-passive-btn, .ms-initiative-btn, .ms-end-turn-btn').remove();
+            // Check if this is the current combatant
+            const combat = game.combat;
+            const isCurrent = combat && combat.combatant?.id === combatantId;
+            // Add End Turn button for current combatant
+            if (isCurrent) {
+                const endTurnBtn = $('<button type="button" class="combatant-control ms-end-turn-btn" data-action="endTurn" data-combatant-id="' + combatantId + '" data-tooltip="End Turn" aria-label="End Turn" title="End Turn"><i class="fa-solid fa-hourglass-end"></i></button>');
+                $initiativeDiv.append(endTurnBtn);
+                endTurnBtn.off('click.ms-end-turn').on('click.ms-end-turn', async (ev) => {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    const { requestEndTurn } = await import('./combat/end-turn.js');
+                    await requestEndTurn();
+                });
+            }
             // Add Passive Selection button
             const passiveBtn = $('<button type="button" class="combatant-control ms-passive-btn" data-action="selectPassives" data-combatant-id="' + combatantId + '" data-tooltip="Select Passives" aria-label="Select Passives" title="Select Passives"><i class="fa-solid fa-shield"></i></button>');
             $initiativeDiv.append(passiveBtn);
@@ -289,6 +305,9 @@ Hooks.once('init', async function () {
         }
     });
     console.log('Mastery System | Combat hooks initialized');
+    // Initialize stone system hooks (turn state, regen, restore)
+    initializeStoneHooks();
+    console.log('Mastery System | Stone system hooks initialized');
     // Initialize token action selector
     initializeTokenActionSelector();
     // Initialize turn indicator (blue ring around active combatant)
@@ -967,22 +986,95 @@ Hooks.on('createActor', async (actor, _options, _userId) => {
 });
 /**
  * Migration hook - set creationComplete=true for existing characters without the flag
+ * Also migrate old stone system to new per-attribute stone pools
  */
 Hooks.once('ready', async function () {
     console.log('Mastery System | Running character creation migration...');
     // Get all character actors
     const characters = game.actors?.filter((a) => a.type === 'character') || [];
-    let migrated = 0;
+    let migratedCreation = 0;
+    let migratedStones = 0;
     for (const actor of characters) {
         const system = actor.system;
-        // If creation.complete is undefined or null, set it to true (existing character)
+        // Migration 1: creation.complete flag
         if (system?.creation?.complete === undefined || system?.creation?.complete === null) {
             await actor.update({ 'system.creation.complete': true });
-            migrated++;
+            migratedCreation++;
+        }
+        // Migration 2: Old stone system -> new stonePools
+        // Check if old system exists (system.stones.current/maximum) but new system doesn't (system.stonePools)
+        const hasOldStones = system?.stones && (system.stones.current !== undefined ||
+            system.stones.maximum !== undefined ||
+            system.stones.total !== undefined);
+        const hasNewStonePools = system?.stonePools &&
+            Object.keys(system.stonePools).length > 0 &&
+            system.stonePools.might !== undefined;
+        if (hasOldStones && !hasNewStonePools) {
+            console.log(`Mastery System | Migrating stone pools for ${actor.name}`);
+            // Get old stone values
+            const oldCurrent = system.stones?.current ?? 0;
+            const oldMaximum = system.stones?.maximum ?? system.stones?.total ?? 0;
+            // Initialize new stonePools structure
+            const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence'];
+            const updates = {};
+            // Calculate max for each pool based on attributes
+            for (const attrKey of attributeKeys) {
+                const attrValue = system.attributes?.[attrKey]?.value || 0;
+                const maxStones = Math.floor(attrValue / 8);
+                // Initialize pool
+                if (!system.stonePools) {
+                    updates['system.stonePools'] = {};
+                }
+                updates[`system.stonePools.${attrKey}`] = {
+                    current: 0,
+                    max: maxStones,
+                    sustained: 0
+                };
+            }
+            // Distribute old current stones evenly across all pools
+            // Strategy: Distribute proportionally based on max capacity, but at least 1 per pool if possible
+            const totalMax = attributeKeys.reduce((sum, key) => {
+                const attrValue = system.attributes?.[key]?.value || 0;
+                return sum + Math.floor(attrValue / 8);
+            }, 0);
+            if (totalMax > 0 && oldCurrent > 0) {
+                let remaining = oldCurrent;
+                for (const attrKey of attributeKeys) {
+                    const attrValue = system.attributes?.[attrKey]?.value || 0;
+                    const maxStones = Math.floor(attrValue / 8);
+                    // Proportional distribution
+                    const proportion = totalMax > 0 ? maxStones / totalMax : 0;
+                    const allocated = Math.floor(oldCurrent * proportion);
+                    // Ensure we don't exceed max for this pool
+                    const finalCurrent = Math.min(maxStones, allocated);
+                    updates[`system.stonePools.${attrKey}.current`] = finalCurrent;
+                    remaining -= finalCurrent;
+                }
+                // Distribute any remainder to pools that have capacity
+                if (remaining > 0) {
+                    for (const attrKey of attributeKeys) {
+                        if (remaining <= 0)
+                            break;
+                        const pool = updates[`system.stonePools.${attrKey}`];
+                        if (pool.current < pool.max) {
+                            const add = Math.min(remaining, pool.max - pool.current);
+                            pool.current += add;
+                            remaining -= add;
+                        }
+                    }
+                }
+            }
+            // Apply updates
+            await actor.update(updates);
+            migratedStones++;
+            console.log(`Mastery System | Migrated stones for ${actor.name}: ${oldCurrent}/${oldMaximum} -> distributed across ${attributeKeys.length} pools`);
         }
     }
-    if (migrated > 0) {
-        console.log(`Mastery System | Migrated ${migrated} existing characters (set creationComplete=true)`);
+    if (migratedCreation > 0) {
+        console.log(`Mastery System | Migrated ${migratedCreation} existing characters (set creationComplete=true)`);
+    }
+    if (migratedStones > 0) {
+        console.log(`Mastery System | Migrated ${migratedStones} characters from old stone system to per-attribute pools`);
     }
 });
 /**

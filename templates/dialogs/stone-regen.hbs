@@ -1,0 +1,52 @@
+<div class="stone-regen-dialog">
+  <div class="dialog-header">
+    <h2>{{actor.name}}: Stone Regeneration</h2>
+    <p>Allocate <strong>{{regenPoints}}</strong> regeneration points across your stone pools.</p>
+  </div>
+
+  <div class="regen-pools">
+    {{#each pools as |pool|}}
+      <div class="regen-pool {{#unless pool.canRegen}}disabled{{/unless}}">
+        <div class="pool-header">
+          <span class="pool-name">{{pool.name}}</span>
+          <span class="pool-current">{{pool.current}}/{{pool.effectiveMax}}</span>
+        </div>
+        
+        <div class="pool-controls">
+          <button type="button" class="pool-btn js-remove-point" data-attribute="{{pool.key}}" {{#if (eq pool.allocated 0)}}disabled{{/if}}>
+            <i class="fas fa-minus"></i>
+          </button>
+          
+          <span class="pool-allocated">+{{pool.allocated}}</span>
+          
+          <button type="button" class="pool-btn js-add-point" data-attribute="{{pool.key}}" {{#unless pool.canRegen}}disabled{{/unless}}>
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+        
+        {{#if pool.sustained}}
+          <div class="pool-note">
+            <i class="fas fa-lock"></i> {{pool.sustained}} sustained
+          </div>
+        {{/if}}
+      </div>
+    {{/each}}
+  </div>
+
+  <div class="dialog-footer">
+    <div class="remaining-points">
+      <span class="remaining-label">Remaining:</span>
+      <span class="remaining-value {{#if (gt remaining 0)}}warning{{/if}}">{{remaining}}</span>
+    </div>
+    
+    <div class="dialog-buttons">
+      <button type="button" class="dialog-btn js-skip">
+        <i class="fas fa-times"></i> Skip
+      </button>
+      <button type="button" class="dialog-btn primary js-confirm" {{#unless canConfirm}}disabled{{/unless}}>
+        <i class="fas fa-check"></i> Confirm
+      </button>
+    </div>
+  </div>
+</div>
+

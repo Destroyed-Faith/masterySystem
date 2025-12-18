@@ -65,6 +65,14 @@
             </div>
           {{/if}}
 
+          <!-- End Turn Button (only for current combatant) -->
+          {{#if combatant.isCurrent}}
+            <button type="button" class="portrait-end-turn js-end-turn" data-tooltip="End Turn" aria-label="End Turn">
+              <i class="fas fa-hourglass-end"></i>
+              <span>End Turn</span>
+            </button>
+          {{/if}}
+
           <!-- Portrait Controls (shown on hover) -->
           <div class="portrait-controls">
             {{#if ../controlsAllowed}}
