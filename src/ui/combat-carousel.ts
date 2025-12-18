@@ -1,41 +1,54 @@
 /**
  * Mastery Combat Carousel UI
  * Displays combatants as portrait cards with initiative, resources, and controls
+ * 
+ * Migrated to Foundry VTT v13 ApplicationV2 + HandlebarsApplicationMixin
  */
 
-const ApplicationV2 = (foundry.applications.api as any)?.ApplicationV2 || Application;
+const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
-export class CombatCarouselApp extends ApplicationV2 {
+// Type workaround for Mixin
+const BaseCarousel = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
+
+export class CombatCarouselApp extends BaseCarousel {
   private static _instance: CombatCarouselApp | null = null;
 
-  static get defaultOptions(): any {
-    const baseOptions = super.defaultOptions || {};
-    return foundry.utils.mergeObject(baseOptions, {
-      id: 'mastery-combat-carousel',
-      template: 'systems/mastery-system/templates/ui/combat-carousel.hbs',
-      classes: ['mastery-system', 'combat-carousel'],
-      popOut: false,
-      width: '100%',
-      height: 'auto',
+  static DEFAULT_OPTIONS = {
+    id: 'mastery-combat-carousel',
+    classes: ['mastery-system', 'combat-carousel'],
+    position: { width: 'auto' }, // Use CSS for full width instead of "100%"
+    window: {
+      title: 'Combat Carousel',
+      frame: false, // No window frame (ApplicationV2 equivalent of popOut: false)
+      positioned: false, // Let CSS handle positioning
       resizable: false,
-      minimizable: false,
-      title: 'Combat Carousel'
-    });
-  }
+      minimizable: false
+    }
+  };
+
+  static PARTS = {
+    content: { template: 'systems/mastery-system/templates/ui/combat-carousel.hbs' }
+  };
 
   /**
    * Open the carousel (singleton pattern)
    */
   static open(): void {
     console.log('Mastery System | [CAROUSEL] Opening carousel');
+    
+    // Check for existing instance
+    const existingApp = foundry.applications.instances.get('mastery-combat-carousel') as CombatCarouselApp | undefined;
+    if (existingApp) {
+      (existingApp as any).bringToFront();
+      return;
+    }
+    
     if (!CombatCarouselApp._instance) {
       console.log('Mastery System | [CAROUSEL] Creating new instance');
       CombatCarouselApp._instance = new CombatCarouselApp();
     }
     console.log('Mastery System | [CAROUSEL] Rendering carousel');
-    CombatCarouselApp._instance.render(true, { focus: false });
-    document.body.classList.add('mastery-carousel-open');
-    console.log('Mastery System | [CAROUSEL] Carousel opened, body class added');
+    (CombatCarouselApp._instance as any).render({ force: true, focus: false });
   }
 
   /**
@@ -43,10 +56,9 @@ export class CombatCarouselApp extends ApplicationV2 {
    */
   static close(): void {
     if (CombatCarouselApp._instance) {
-      CombatCarouselApp._instance.close();
+      (CombatCarouselApp._instance as any).close();
       CombatCarouselApp._instance = null;
     }
-    document.body.classList.remove('mastery-carousel-open');
   }
 
   /**
@@ -56,10 +68,10 @@ export class CombatCarouselApp extends ApplicationV2 {
     return CombatCarouselApp._instance;
   }
 
-  async getData(): Promise<any> {
+  async _prepareContext(_options: any): Promise<any> {
     const combat = game.combats?.active;
     
-    console.log('Mastery System | [CAROUSEL] getData called', { 
+    console.log('Mastery System | [CAROUSEL] _prepareContext called', { 
       hasCombat: !!combat,
       combatId: combat?.id,
       combatantsCount: combat?.combatants?.size || 0
@@ -139,6 +151,173 @@ export class CombatCarouselApp extends ApplicationV2 {
     };
   }
 
+  async _onRender(_context: any, _options: any): Promise<void> {
+    super._onRender?.(_context, _options);
+
+    const root = (this as any).element;
+    
+    // Add body class when carousel is rendered
+    document.body.classList.add('mastery-carousel-open');
+    console.log('Mastery System | [CAROUSEL] Carousel rendered, body class added');
+
+    // Portrait click - pan to token
+    root.querySelectorAll('.carousel-portrait').forEach((portrait: HTMLElement) => {
+      portrait.onclick = async (_ev: MouseEvent) => {
+        const combatantId = portrait.dataset.combatantId;
+        if (!combatantId) return;
+
+        const combat = game.combats?.active;
+        if (!combat) return;
+
+        const combatant = combat.combatants.get(combatantId);
+        if (!combatant) return;
+
+        const tokenId = combatant.tokenId || combatant.token?.id;
+        const token = tokenId ? canvas.tokens?.get(tokenId) : null;
+
+        if (token) {
+          token.control({ releaseOthers: true });
+          canvas.animatePan({
+            x: token.center.x,
+            y: token.center.y,
+            scale: canvas.stage.scale.x
+          });
+        }
+      };
+    });
+
+    // Combat controls - Previous Turn
+    root.querySelectorAll('.js-prev-turn').forEach((btn: HTMLElement) => {
+      btn.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        const combat = game.combats?.active;
+        if (combat) {
+          await combat.previousTurn();
+        }
+      };
+    });
+
+    // Combat controls - Next Turn
+    root.querySelectorAll('.js-next-turn').forEach((btn: HTMLElement) => {
+      btn.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        const combat = game.combats?.active;
+        if (combat) {
+          await combat.nextTurn();
+        }
+      };
+    });
+
+    // Combat controls - Next Round
+    root.querySelectorAll('.js-next-round').forEach((btn: HTMLElement) => {
+      btn.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        const combat = game.combats?.active;
+        if (combat) {
+          await combat.nextRound();
+        }
+      };
+    });
+
+    // Combat controls - End Combat
+    root.querySelectorAll('.js-end-combat').forEach((btn: HTMLElement) => {
+      btn.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        if (game.user?.isGM) {
+          const combat = game.combats?.active;
+          if (combat) {
+            await combat.endCombat();
+          }
+        }
+      };
+    });
+
+    // Portrait controls - Toggle Defeated
+    root.querySelectorAll('.js-toggle-defeated').forEach((btn: HTMLElement) => {
+      btn.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        
+        const portrait = (btn.closest('.carousel-portrait') as HTMLElement | null);
+        if (!portrait) return;
+        
+        const combatantId = portrait.dataset.combatantId;
+        if (!combatantId) return;
+
+        const combat = game.combats?.active;
+        if (!combat) return;
+
+        const combatant = combat.combatants.get(combatantId);
+        if (!combatant) return;
+
+        // Only GM or owner can toggle defeated
+        const actor = combatant.actor;
+        if (!game.user?.isGM && !actor?.isOwner) return;
+
+        await combatant.update({ defeated: !combatant.defeated });
+      };
+    });
+
+    // Portrait controls - Toggle Hidden
+    root.querySelectorAll('.js-toggle-hidden').forEach((btn: HTMLElement) => {
+      btn.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        
+        const portrait = (btn.closest('.carousel-portrait') as HTMLElement | null);
+        if (!portrait) return;
+        
+        const combatantId = portrait.dataset.combatantId;
+        if (!combatantId) return;
+
+        const combat = game.combats?.active;
+        if (!combat) return;
+
+        const combatant = combat.combatants.get(combatantId);
+        if (!combatant) return;
+
+        // Only GM can toggle hidden
+        if (!game.user?.isGM) return;
+
+        await combatant.update({ hidden: !combatant.hidden });
+      };
+    });
+
+    // Portrait controls - Ping
+    root.querySelectorAll('.js-ping').forEach((btn: HTMLElement) => {
+      btn.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        
+        const portrait = (btn.closest('.carousel-portrait') as HTMLElement | null);
+        if (!portrait) return;
+        
+        const combatantId = portrait.dataset.combatantId;
+        if (!combatantId) return;
+
+        const combat = game.combats?.active;
+        if (!combat) return;
+
+        const combatant = combat.combatants.get(combatantId);
+        if (!combatant) return;
+
+        const tokenId = combatant.tokenId || combatant.token?.id;
+        const token = tokenId ? canvas.tokens?.get(tokenId) : null;
+
+        if (token) {
+          canvas.ping(token.center);
+        }
+      };
+    });
+  }
+
+  async _onClose(_options: any): Promise<void> {
+    // Remove body class when carousel is closed
+    document.body.classList.remove('mastery-carousel-open');
+    console.log('Mastery System | [CAROUSEL] Carousel closed, body class removed');
+    return super._onClose(_options);
+  }
+
   /**
    * Safely get resource value from actor system using path
    */
@@ -167,154 +346,4 @@ export class CombatCarouselApp extends ApplicationV2 {
     }
     return { value: 0, max: 0 };
   }
-
-  // Implement required methods for Foundry VTT v13 Application
-  async _renderHTML(_data?: any): Promise<JQuery> {
-    console.log('Mastery System | [CAROUSEL] _renderHTML called');
-    const template = (this.constructor as any).defaultOptions?.template || this.options.template;
-    if (!template) {
-      console.error('Mastery System | [CAROUSEL] Template path missing!');
-      throw new Error('Template path is required');
-    }
-    console.log('Mastery System | [CAROUSEL] Template path:', template);
-    const templateData = await this.getData();
-    console.log('Mastery System | [CAROUSEL] Template data:', {
-      active: templateData.active,
-      combatantsCount: templateData.combatants?.length || 0
-    });
-    const html = await foundry.applications.handlebars.renderTemplate(template, templateData);
-    console.log('Mastery System | [CAROUSEL] Template rendered, HTML length:', html.length);
-    return $(html);
-  }
-
-  async _replaceHTML(element: JQuery, html: JQuery): Promise<void> {
-    element.replaceWith(html);
-  }
-
-  activateListeners(html: JQuery): void {
-    try {
-      super.activateListeners(html);
-    } catch (error) {
-      // ApplicationV2 or Application may not have activateListeners in this Foundry version
-      console.debug('Mastery System | activateListeners: parent class does not have activateListeners method', error);
-    }
-
-    // Portrait click - pan to token
-    html.find('.carousel-portrait').on('click', async (ev) => {
-      const combatantId = $(ev.currentTarget).data('combatant-id');
-      if (!combatantId) return;
-
-      const combat = game.combats?.active;
-      if (!combat) return;
-
-      const combatant = combat.combatants.get(combatantId);
-      if (!combatant) return;
-
-      const tokenId = combatant.tokenId || combatant.token?.id;
-      const token = tokenId ? canvas.tokens?.get(tokenId) : null;
-
-      if (token) {
-        token.control({ releaseOthers: true });
-        canvas.animatePan({
-          x: token.center.x,
-          y: token.center.y,
-          scale: canvas.stage.scale.x
-        });
-      }
-    });
-
-    // Combat controls
-    html.find('.js-prev-turn').on('click', async (ev) => {
-      ev.preventDefault();
-      const combat = game.combats?.active;
-      if (combat) {
-        await combat.previousTurn();
-      }
-    });
-
-    html.find('.js-next-turn').on('click', async (ev) => {
-      ev.preventDefault();
-      const combat = game.combats?.active;
-      if (combat) {
-        await combat.nextTurn();
-      }
-    });
-
-    html.find('.js-next-round').on('click', async (ev) => {
-      ev.preventDefault();
-      const combat = game.combats?.active;
-      if (combat) {
-        await combat.nextRound();
-      }
-    });
-
-    html.find('.js-end-combat').on('click', async (ev) => {
-      ev.preventDefault();
-      if (game.user?.isGM) {
-        const combat = game.combats?.active;
-        if (combat) {
-          await combat.endCombat();
-        }
-      }
-    });
-
-    // Portrait controls (shown on hover)
-    html.find('.js-toggle-defeated').on('click', async (ev) => {
-      ev.preventDefault();
-      ev.stopPropagation();
-      const combatantId = $(ev.currentTarget).closest('.carousel-portrait').data('combatant-id');
-      if (!combatantId) return;
-
-      const combat = game.combats?.active;
-      if (!combat) return;
-
-      const combatant = combat.combatants.get(combatantId);
-      if (!combatant) return;
-
-      // Only GM or owner can toggle defeated
-      const actor = combatant.actor;
-      if (!game.user?.isGM && !actor?.isOwner) return;
-
-      await combatant.update({ defeated: !combatant.defeated });
-    });
-
-    html.find('.js-toggle-hidden').on('click', async (ev) => {
-      ev.preventDefault();
-      ev.stopPropagation();
-      const combatantId = $(ev.currentTarget).closest('.carousel-portrait').data('combatant-id');
-      if (!combatantId) return;
-
-      const combat = game.combats?.active;
-      if (!combat) return;
-
-      const combatant = combat.combatants.get(combatantId);
-      if (!combatant) return;
-
-      // Only GM can toggle hidden
-      if (!game.user?.isGM) return;
-
-      await combatant.update({ hidden: !combatant.hidden });
-    });
-
-    html.find('.js-ping').on('click', async (ev) => {
-      ev.preventDefault();
-      ev.stopPropagation();
-      const combatantId = $(ev.currentTarget).closest('.carousel-portrait').data('combatant-id');
-      if (!combatantId) return;
-
-      const combat = game.combats?.active;
-      if (!combat) return;
-
-      const combatant = combat.combatants.get(combatantId);
-      if (!combatant) return;
-
-      const tokenId = combatant.tokenId || combatant.token?.id;
-      const token = tokenId ? canvas.tokens?.get(tokenId) : null;
-
-      if (token) {
-        canvas.ping(token.center);
-      }
-    });
-  }
 }
-

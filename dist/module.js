@@ -100,33 +100,33 @@ Hooks.once('init', async function () {
     Hooks.on('updateCombat', () => {
         const carousel = CombatCarouselApp.instance;
         if (carousel && carousel.rendered) {
-            carousel.render(false);
+            carousel.render({ force: false });
         }
     });
     // Update carousel when combatants change
     Hooks.on('createCombatant', () => {
         const carousel = CombatCarouselApp.instance;
         if (carousel && carousel.rendered) {
-            carousel.render(false);
+            carousel.render({ force: false });
         }
     });
     Hooks.on('updateCombatant', () => {
         const carousel = CombatCarouselApp.instance;
         if (carousel && carousel.rendered) {
-            carousel.render(false);
+            carousel.render({ force: false });
         }
     });
     Hooks.on('deleteCombatant', () => {
         const carousel = CombatCarouselApp.instance;
         if (carousel && carousel.rendered) {
-            carousel.render(false);
+            carousel.render({ force: false });
         }
     });
     // Update carousel when canvas is ready (tokens might have changed)
     Hooks.on('canvasReady', () => {
         const carousel = CombatCarouselApp.instance;
         if (carousel && carousel.rendered) {
-            carousel.render(false);
+            carousel.render({ force: false });
         }
     });
     // Hide initiative roll button (d20) and add passive selection button in combat tracker

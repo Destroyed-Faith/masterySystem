@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1] - 2025-01-XX
+
+### Changed
+- **BREAKING CHANGE**: Migrated CombatCarouselApp to Foundry VTT v13 ApplicationV2 + HandlebarsApplicationMixin
+  - Replaced Application v1 patterns with proper ApplicationV2 implementation
+  - Uses DEFAULT_OPTIONS and PARTS instead of defaultOptions/template
+  - Implements _prepareContext instead of getData
+  - Uses _onRender with native DOM API instead of jQuery-based activateListeners
+  - Removed _renderHTML and _replaceHTML overrides (handled by HandlebarsApplicationMixin)
+  - Fixed window options: popOut: false → window.frame: false and window.positioned: false
+  - Updated render() calls in module.ts to use object syntax ({ force: true/false })
+  - Body class management moved to _onRender and _onClose
+  - Carousel now properly renders and attaches event listeners in v13
+
 ## [0.2.0] - 2025-01-XX
 
 ### Changed

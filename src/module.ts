@@ -122,38 +122,38 @@ Hooks.once('init', async function() {
   // Update carousel when combat changes
   Hooks.on('updateCombat', () => {
     const carousel = CombatCarouselApp.instance;
-    if (carousel && carousel.rendered) {
-      carousel.render(false);
+    if (carousel && (carousel as any).rendered) {
+      (carousel as any).render({ force: false });
     }
   });
 
   // Update carousel when combatants change
   Hooks.on('createCombatant', () => {
     const carousel = CombatCarouselApp.instance;
-    if (carousel && carousel.rendered) {
-      carousel.render(false);
+    if (carousel && (carousel as any).rendered) {
+      (carousel as any).render({ force: false });
     }
   });
 
   Hooks.on('updateCombatant', () => {
     const carousel = CombatCarouselApp.instance;
-    if (carousel && carousel.rendered) {
-      carousel.render(false);
+    if (carousel && (carousel as any).rendered) {
+      (carousel as any).render({ force: false });
     }
   });
 
   Hooks.on('deleteCombatant', () => {
     const carousel = CombatCarouselApp.instance;
-    if (carousel && carousel.rendered) {
-      carousel.render(false);
+    if (carousel && (carousel as any).rendered) {
+      (carousel as any).render({ force: false });
     }
   });
 
   // Update carousel when canvas is ready (tokens might have changed)
   Hooks.on('canvasReady', () => {
     const carousel = CombatCarouselApp.instance;
-    if (carousel && carousel.rendered) {
-      carousel.render(false);
+    if (carousel && (carousel as any).rendered) {
+      (carousel as any).render({ force: false });
     }
   });
 
