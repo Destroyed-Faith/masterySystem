@@ -115,6 +115,27 @@ export class MasteryActor extends Actor {
                     };
                 }
                 else {
+                    // Ensure bars is an array (migrate from object if needed)
+                    if (!Array.isArray(system.stress.bars)) {
+                        // Convert object to array if needed
+                        if (system.stress.bars && typeof system.stress.bars === 'object' && system.stress.bars !== null) {
+                            const barsObj = system.stress.bars;
+                            // Check if it's an object with numeric keys (old format)
+                            const keys = Object.keys(barsObj);
+                            if (keys.length > 0 && keys.some((k) => !isNaN(parseInt(k)))) {
+                                system.stress.bars = Object.keys(barsObj)
+                                    .sort((a, b) => parseInt(a) - parseInt(b))
+                                    .map(key => barsObj[key]);
+                            }
+                            else {
+                                // Not a valid object format, initialize fresh
+                                system.stress.bars = initializeStressBars(resolve, wits);
+                            }
+                        }
+                        else {
+                            system.stress.bars = initializeStressBars(resolve, wits);
+                        }
+                    }
                     // Migrate old stress format to bars if needed
                     if (!system.stress.bars || system.stress.bars.length === 0) {
                         const oldCurrent = system.stress.current || 0;

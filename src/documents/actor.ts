@@ -139,39 +139,59 @@ export class MasteryActor extends Actor {
             currentBar: 0
           };
         } else {
-        // Migrate old stress format to bars if needed
-        if (!system.stress.bars || system.stress.bars.length === 0) {
-          const oldCurrent = system.stress.current || 0;
-          system.stress.bars = initializeStressBars(resolve, wits);
-          system.stress.currentBar = 0;
-          
-          // Distribute old stress value across bars
-          if (oldCurrent > 0) {
-            let remaining = oldCurrent;
-            for (let i = 0; i < system.stress.bars.length && remaining > 0; i++) {
-              if (remaining >= system.stress.bars[i].max) {
-                system.stress.bars[i].current = 0;
-                remaining -= system.stress.bars[i].max;
-                system.stress.currentBar = i + 1;
+          // Ensure bars is an array (migrate from object if needed)
+          if (!Array.isArray(system.stress.bars)) {
+            // Convert object to array if needed
+            if (system.stress.bars && typeof system.stress.bars === 'object' && system.stress.bars !== null) {
+              const barsObj = system.stress.bars as any;
+              // Check if it's an object with numeric keys (old format)
+              const keys = Object.keys(barsObj);
+              if (keys.length > 0 && keys.some((k: string) => !isNaN(parseInt(k)))) {
+                system.stress.bars = Object.keys(barsObj)
+                  .sort((a, b) => parseInt(a) - parseInt(b))
+                  .map(key => barsObj[key]);
               } else {
-                system.stress.bars[i].current = system.stress.bars[i].max - remaining;
-                remaining = 0;
+                // Not a valid object format, initialize fresh
+                system.stress.bars = initializeStressBars(resolve, wits);
               }
+            } else {
+              system.stress.bars = initializeStressBars(resolve, wits);
             }
           }
-        } else if (system.stress.bars.length < 5) {
-          // Add missing bars
-          const allBarNames = ['Healthy', 'Stressed', 'Not Well', 'Breaking', 'Breakdown'];
           
-          for (let i = system.stress.bars.length; i < 5; i++) {
-            system.stress.bars.push({
-              name: allBarNames[i],
-              max: maxStress,
-              current: maxStress,
-              penalty: 0
-            });
+          // Migrate old stress format to bars if needed
+          if (!system.stress.bars || system.stress.bars.length === 0) {
+            const oldCurrent = system.stress.current || 0;
+            system.stress.bars = initializeStressBars(resolve, wits);
+            system.stress.currentBar = 0;
+            
+            // Distribute old stress value across bars
+            if (oldCurrent > 0) {
+              let remaining = oldCurrent;
+              for (let i = 0; i < system.stress.bars.length && remaining > 0; i++) {
+                if (remaining >= system.stress.bars[i].max) {
+                  system.stress.bars[i].current = 0;
+                  remaining -= system.stress.bars[i].max;
+                  system.stress.currentBar = i + 1;
+                } else {
+                  system.stress.bars[i].current = system.stress.bars[i].max - remaining;
+                  remaining = 0;
+                }
+              }
+            }
+          } else if (system.stress.bars.length < 5) {
+            // Add missing bars
+            const allBarNames = ['Healthy', 'Stressed', 'Not Well', 'Breaking', 'Breakdown'];
+            
+            for (let i = system.stress.bars.length; i < 5; i++) {
+              system.stress.bars.push({
+                name: allBarNames[i],
+                max: maxStress,
+                current: maxStress,
+                penalty: 0
+              });
+            }
           }
-        }
           
           // Update max stress for all bars
           for (const bar of system.stress.bars) {

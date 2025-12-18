@@ -1,0 +1,41 @@
+/**
+ * Combat Tracker Styles for Mastery System
+ */
+
+/* Initiative Value Display */
+#combat .combatant .token-name .ms-initiative-value {
+  display: inline-block;
+  margin-right: 0.5rem;
+  padding: 0.15rem 0.4rem;
+  background: rgba(139, 0, 0, 0.3);
+  border: 1px solid rgba(139, 0, 0, 0.5);
+  border-radius: 4px;
+  color: #fff;
+  font-weight: bold;
+  font-size: 0.85rem;
+  font-family: monospace;
+  min-width: 2.5rem;
+  text-align: center;
+}
+
+/* Stone Powers Button */
+#combat .combatant .token-initiative .ms-stone-powers-btn {
+  background: rgba(139, 0, 0, 0.8);
+  border: 1px solid #8b0000;
+  color: #fff;
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+#combat .combatant .token-initiative .ms-stone-powers-btn:hover {
+  background: #8b0000;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(139, 0, 0, 0.4);
+}
+
+#combat .combatant .token-initiative .ms-stone-powers-btn i {
+  margin: 0;
+}

@@ -147,10 +147,11 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
   });
   
   // Create result object
-  const result: MasteryRollResult = {
+  const result: MasteryRollResult & { keptIndices?: number[] } = {
     total,
     dice,
     kept: keptValues,
+    keptIndices: keptIndices,  // Store indices for proper dice display
     skill,
     tn,
     raises,
@@ -200,19 +201,24 @@ async function sendRollToChat(
     
     // Now replace the dice results with our actual rolled values
     // We need to modify the dice terms to show our actual results
+    // IMPORTANT: Use keptIndices to properly identify which dice were kept
+    // (multiple dice can have the same value, so we can't rely on values alone)
+    const keptIndices = (result as any).keptIndices || [];
+    
     let dieIndex = 0;
     for (const term of roll.terms as any[]) {
       if (term instanceof foundry.dice.terms.Die) {
         // Replace the results with our actual dice values
         const actualValue = result.dice[dieIndex];
-        const isKept = result.kept.includes(actualValue);
+        const isKept = keptIndices.includes(dieIndex);
         const isExploded = result.exploded.includes(dieIndex);
         
         // Update the die results
+        // ALL dice should be active (shown), but kept ones are not discarded
         term.results = [{
           result: actualValue,
-          active: isKept,
-          discarded: !isKept,
+          active: true,  // Show ALL dice, not just kept ones
+          discarded: !isKept,  // Mark non-kept dice as discarded for visual distinction
           rerolled: false
         }];
         

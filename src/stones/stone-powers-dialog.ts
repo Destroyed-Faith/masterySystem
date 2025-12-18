@@ -1,0 +1,152 @@
+/**
+ * Stone Powers Activation Dialog
+ * 
+ * Allows players to activate stone powers during combat
+ */
+
+const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
+
+// Type workaround for Mixin
+const BaseDialog = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
+
+type AttributeKey = 'might' | 'agility' | 'vitality' | 'intellect' | 'resolve' | 'influence';
+
+import { STONE_POWERS, activateStonePower, getAvailableStonePowers } from './stone-activation.js';
+
+export class StonePowersDialog extends BaseDialog {
+  private actor: Actor;
+  private combatant: Combatant | null;
+  private resolve?: (success: boolean) => void;
+  
+  static DEFAULT_OPTIONS = {
+    id: "mastery-stone-powers",
+    classes: ["mastery-system", "stone-powers-dialog"],
+    position: { width: 600, height: 500 },
+    window: { title: "Activate Stone Powers", resizable: true }
+  };
+  
+  static PARTS = {
+    content: { template: "systems/mastery-system/templates/dialogs/stone-powers.hbs" }
+  };
+  
+  /**
+   * Show stone powers dialog for an actor
+   */
+  static async showForActor(actor: Actor, combatant?: Combatant | null): Promise<boolean> {
+    return new Promise(resolve => {
+      const app = new StonePowersDialog(actor, combatant || null, resolve);
+      (app as any).render({ force: true });
+    });
+  }
+  
+  constructor(actor: Actor, combatant: Combatant | null, resolve: (success: boolean) => void) {
+    super({});
+    this.actor = actor;
+    this.combatant = combatant;
+    this.resolve = resolve;
+  }
+  
+  async _prepareContext(_options: any): Promise<any> {
+    const system = (this.actor as any).system;
+    const stonePools = system.stonePools || {};
+    const availablePowers = getAvailableStonePowers(this.actor);
+    
+    const attributes: AttributeKey[] = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence'];
+    
+    const pools = attributes.map(attr => {
+      const pool = stonePools[attr] || { current: 0, max: 0, sustained: 0 };
+      return {
+        key: attr,
+        name: attr.charAt(0).toUpperCase() + attr.slice(1),
+        current: pool.current,
+        max: pool.max,
+        sustained: pool.sustained || 0,
+        available: pool.current - (pool.sustained || 0)
+      };
+    });
+    
+    const powersByAttribute: Record<string, any[]> = {};
+    for (const power of availablePowers) {
+      const attr = power.attribute === 'generic' ? 'generic' : power.attribute;
+      if (!powersByAttribute[attr]) {
+        powersByAttribute[attr] = [];
+      }
+        powersByAttribute[attr].push({
+          id: power.id,
+          name: power.name,
+          description: power.description,
+          attribute: power.attribute,
+          cost: 1 // Stone cost is calculated dynamically based on usage
+        });
+    }
+    
+    return {
+      actor: this.actor,
+      pools,
+      powersByAttribute,
+      hasCombat: !!this.combatant && !!game.combat
+    };
+  }
+  
+  async _onRender(_context: any, _options: any): Promise<void> {
+    super._onRender?.(_context, _options);
+    
+    const root = (this as any).element;
+    
+    // Activate power buttons
+    root.querySelectorAll('.js-activate-power').forEach((btn: HTMLElement) => {
+      btn.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        const powerId = btn.dataset.powerId;
+        const attributeKey = btn.dataset.attributeKey as AttributeKey;
+        
+        if (!powerId) return;
+        
+        if (!this.combatant || !game.combat) {
+          ui.notifications?.warn('Stone powers can only be activated during combat');
+          return;
+        }
+        
+        try {
+          const success = await activateStonePower({
+            actor: this.actor,
+            combatant: this.combatant,
+            abilityId: powerId,
+            attributeKey: attributeKey || undefined
+          });
+          
+          if (success) {
+            ui.notifications?.info(`Activated ${STONE_POWERS[powerId]?.name || powerId}`);
+            await (this as any).render({ force: true });
+          } else {
+            ui.notifications?.warn(`Failed to activate ${STONE_POWERS[powerId]?.name || powerId}`);
+          }
+        } catch (error) {
+          console.error('Mastery System | Error activating stone power', error);
+          ui.notifications?.error('Failed to activate stone power');
+        }
+      };
+    });
+    
+    // Close button
+    const closeBtn = root.querySelector('.js-close');
+    if (closeBtn) {
+      (closeBtn as HTMLElement).onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        if (this.resolve) {
+          this.resolve(false);
+          this.resolve = undefined;
+        }
+        await (this as any).close({ closeSource: "button" });
+      };
+    }
+  }
+  
+  async _onClose(_options: any): Promise<void> {
+    if (this.resolve) {
+      this.resolve(false);
+      this.resolve = undefined;
+    }
+    return super._onClose(_options);
+  }
+}

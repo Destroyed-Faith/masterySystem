@@ -490,64 +490,6 @@
         </div>
       </div>
       
-      <!-- Health & Stress Section -->
-      <div class="health-stress-section">
-        <h3><i class="fas fa-heart"></i> Health & Stress</h3>
-        
-        <!-- Health Bars -->
-        <div class="health-bars-container">
-          <h4>Health Bars (Vitality × 2 per bar)</h4>
-          <div class="health-bars-list">
-            {{#each system.health.bars as |bar index|}}
-            <div class="health-bar-row {{#if (eq index ../system.health.currentBar)}}active{{/if}}">
-              <div class="health-bar-info">
-                <span class="health-bar-name">{{bar.name}}</span>
-                <span class="health-bar-penalty">({{bar.penalty}} penalty)</span>
-              </div>
-              <div class="health-bar-inputs">
-                <input type="number" name="system.health.bars.{{index}}.current" value="{{bar.current}}" data-dtype="Number" min="0" max="{{bar.max}}" />
-                <span class="health-bar-separator">/</span>
-                <input type="number" name="system.health.bars.{{index}}.max" value="{{bar.max}}" data-dtype="Number" min="0" readonly />
-              </div>
-              <div class="health-bar-boxes">
-                {{#times bar.max}}
-                <span class="health-box {{#if (lt @index bar.current)}}filled{{else}}empty{{/if}}"></span>
-                {{/times}}
-              </div>
-            </div>
-            {{/each}}
-          </div>
-          <div class="health-temp-hp">
-            <label>Temp HP:</label>
-            <input type="number" name="system.health.tempHP" value="{{default system.health.tempHP 0}}" data-dtype="Number" min="0" />
-          </div>
-        </div>
-        
-        <!-- Stress Bars -->
-        <div class="stress-bars-container">
-          <h4>Stress Bars ((Resolve + Wits) × 2 per bar)</h4>
-          <div class="stress-bars-list">
-            {{#each system.stress.bars as |bar index|}}
-            <div class="stress-bar-row {{#if (eq index ../system.stress.currentBar)}}active{{/if}}">
-              <div class="stress-bar-info">
-                <span class="stress-bar-name">{{bar.name}}</span>
-              </div>
-              <div class="stress-bar-inputs">
-                <input type="number" name="system.stress.bars.{{index}}.current" value="{{bar.current}}" data-dtype="Number" min="0" max="{{bar.max}}" />
-                <span class="stress-bar-separator">/</span>
-                <input type="number" name="system.stress.bars.{{index}}.max" value="{{bar.max}}" data-dtype="Number" min="0" readonly />
-              </div>
-              <div class="stress-bar-boxes">
-                {{#times bar.max}}
-                <span class="stress-box {{#if (lt @index bar.current)}}filled{{else}}empty{{/if}}"></span>
-                {{/times}}
-              </div>
-            </div>
-            {{/each}}
-          </div>
-        </div>
-      </div>
-      
       <!-- Saving Throws Section -->
       <div class="saving-throws-section">
         <h3><i class="fas fa-dice-d20"></i> Saving Throws</h3>
@@ -606,6 +548,71 @@
               <i class="fas fa-dice-d20"></i> Roll Save
             </button>
           </div>
+        </div>
+      </div>
+      
+      <!-- Health & Stress Section (under Saving Throws) -->
+      <div class="health-stress-section">
+        <div class="health-stress-grid">
+          <!-- Health Bars -->
+          <div class="health-bars-container">
+            <h4><i class="fas fa-heart"></i> Health (Vitality × 2 per bar)</h4>
+            <div class="health-bars-list">
+              {{#each system.health.bars as |bar index|}}
+              <div class="health-bar-row {{#if (eq index ../system.health.currentBar)}}active{{/if}}">
+                <div class="health-bar-info">
+                  <span class="health-bar-name">{{bar.name}}</span>
+                  <span class="health-bar-penalty">({{bar.penalty}})</span>
+                </div>
+                <div class="health-bar-inputs">
+                  <input type="number" name="system.health.bars.{{index}}.current" value="{{bar.current}}" data-dtype="Number" min="0" max="{{bar.max}}" />
+                  <span class="health-bar-separator">/</span>
+                  <input type="number" name="system.health.bars.{{index}}.max" value="{{bar.max}}" data-dtype="Number" min="0" readonly />
+                </div>
+                <div class="health-bar-boxes">
+                  {{#times bar.max}}
+                  <span class="health-box {{#if (lt @index bar.current)}}filled{{else}}empty{{/if}}"></span>
+                  {{/times}}
+                </div>
+              </div>
+              {{/each}}
+            </div>
+            <div class="health-temp-hp">
+              <label>Temp HP:</label>
+              <input type="number" name="system.health.tempHP" value="{{default system.health.tempHP 0}}" data-dtype="Number" min="0" />
+            </div>
+          </div>
+          
+          <!-- Stress Bars -->
+          <div class="stress-bars-container">
+            <h4><i class="fas fa-brain"></i> Stress ((Resolve + Wits) × 2 per bar)</h4>
+            <div class="stress-bars-list">
+              {{#each system.stress.bars as |bar index|}}
+              <div class="stress-bar-row {{#if (eq index ../system.stress.currentBar)}}active{{/if}}">
+                <div class="stress-bar-info">
+                  <span class="stress-bar-name">{{bar.name}}</span>
+                </div>
+                <div class="stress-bar-inputs">
+                  <input type="number" name="system.stress.bars.{{index}}.current" value="{{bar.current}}" data-dtype="Number" min="0" max="{{bar.max}}" />
+                  <span class="stress-bar-separator">/</span>
+                  <input type="number" name="system.stress.bars.{{index}}.max" value="{{bar.max}}" data-dtype="Number" min="0" readonly />
+                </div>
+                <div class="stress-bar-boxes">
+                  {{#times bar.max}}
+                  <span class="stress-box {{#if (lt @index bar.current)}}filled{{else}}empty{{/if}}"></span>
+                  {{/times}}
+                </div>
+              </div>
+              {{/each}}
+            </div>
+          </div>
+        </div>
+        
+        <!-- Stone Powers Button -->
+        <div class="stone-powers-section">
+          <button type="button" class="stone-powers-btn" data-action="openStonePowers" title="Activate Stone Powers">
+            <i class="fas fa-gem"></i> Activate Stone Powers
+          </button>
         </div>
       </div>
       

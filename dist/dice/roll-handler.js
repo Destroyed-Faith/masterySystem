@@ -119,6 +119,7 @@ export async function masteryRoll(options) {
         total,
         dice,
         kept: keptValues,
+        keptIndices: keptIndices, // Store indices for proper dice display
         skill,
         tn,
         raises,

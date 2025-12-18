@@ -2550,6 +2550,214 @@
   font-size: 16px;
 }
 
+/* ========== Health & Stress Section ========== */
+.mastery-system.sheet.actor.character .health-stress-section {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mastery-system.sheet.actor.character .health-stress-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.mastery-system.sheet.actor.character .health-bars-container,
+.mastery-system.sheet.actor.character .stress-bars-container {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.75rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mastery-system.sheet.actor.character .health-bars-container h4,
+.mastery-system.sheet.actor.character .stress-bars-container h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.85rem;
+  color: #fff;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mastery-system.sheet.actor.character .health-bars-list,
+.mastery-system.sheet.actor.character .stress-bars-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.mastery-system.sheet.actor.character .health-bar-row,
+.mastery-system.sheet.actor.character .stress-bar-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.4rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s;
+}
+
+.mastery-system.sheet.actor.character .health-bar-row.active,
+.mastery-system.sheet.actor.character .stress-bar-row.active {
+  border-color: #66ff66;
+  background: rgba(102, 255, 102, 0.1);
+  box-shadow: 0 0 8px rgba(102, 255, 102, 0.3);
+}
+
+.mastery-system.sheet.actor.character .health-bar-info,
+.mastery-system.sheet.actor.character .stress-bar-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  color: #ccc;
+}
+
+.mastery-system.sheet.actor.character .health-bar-name,
+.mastery-system.sheet.actor.character .stress-bar-name {
+  font-weight: 600;
+  color: #fff;
+}
+
+.mastery-system.sheet.actor.character .health-bar-penalty {
+  color: #ff6b6b;
+  font-size: 0.7rem;
+}
+
+.mastery-system.sheet.actor.character .health-bar-inputs,
+.mastery-system.sheet.actor.character .stress-bar-inputs {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+}
+
+.mastery-system.sheet.actor.character .health-bar-inputs input,
+.mastery-system.sheet.actor.character .stress-bar-inputs input {
+  width: 3rem;
+  padding: 0.2rem 0.3rem;
+  font-size: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  text-align: center;
+}
+
+.mastery-system.sheet.actor.character .health-bar-inputs input[readonly],
+.mastery-system.sheet.actor.character .stress-bar-inputs input[readonly] {
+  background: rgba(0, 0, 0, 0.5);
+  color: #999;
+  cursor: not-allowed;
+}
+
+.mastery-system.sheet.actor.character .health-bar-separator,
+.mastery-system.sheet.actor.character .stress-bar-separator {
+  color: #999;
+  font-size: 0.75rem;
+}
+
+.mastery-system.sheet.actor.character .health-bar-boxes,
+.mastery-system.sheet.actor.character .stress-bar-boxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem;
+  margin-top: 0.25rem;
+}
+
+.mastery-system.sheet.actor.character .health-box,
+.mastery-system.sheet.actor.character .stress-box {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.2s;
+}
+
+.mastery-system.sheet.actor.character .health-box.filled {
+  background: #66ff66;
+  border-color: #4dcc4d;
+}
+
+.mastery-system.sheet.actor.character .health-box.empty {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.mastery-system.sheet.actor.character .stress-box.filled {
+  background: #66aaff;
+  border-color: #4d88ff;
+}
+
+.mastery-system.sheet.actor.character .stress-box.empty {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.mastery-system.sheet.actor.character .health-temp-hp {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.mastery-system.sheet.actor.character .health-temp-hp label {
+  color: #ccc;
+  font-weight: 600;
+}
+
+.mastery-system.sheet.actor.character .health-temp-hp input {
+  width: 3rem;
+  padding: 0.2rem 0.3rem;
+  font-size: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  text-align: center;
+}
+
+.mastery-system.sheet.actor.character .stone-powers-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+}
+
+.mastery-system.sheet.actor.character .stone-powers-btn {
+  padding: 0.6rem 1.2rem;
+  background: linear-gradient(135deg, #8b0000 0%, #a00000 100%);
+  border: 2px solid #fff;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(139, 0, 0, 0.4);
+}
+
+.mastery-system.sheet.actor.character .stone-powers-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 0, 0, 0.6);
+  background: linear-gradient(135deg, #a00000 0%, #8b0000 100%);
+}
+
+.mastery-system.sheet.actor.character .stone-powers-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(139, 0, 0, 0.4);
+}
+
+.mastery-system.sheet.actor.character .stone-powers-btn i {
+  margin-right: 0.5rem;
+}
+
 /* ========== Character Creation Banner ========== */
 .mastery-system.sheet.actor.character .creation-banner {
   background: linear-gradient(135deg, #8b0000 0%, #5a0000 100%);

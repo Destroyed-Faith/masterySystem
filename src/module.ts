@@ -206,11 +206,28 @@ Hooks.once('init', async function() {
       }
 
       // Remove existing buttons to prevent duplicates
-      $initiativeDiv.find('.ms-passive-btn, .ms-initiative-btn, .ms-end-turn-btn').remove();
+      $initiativeDiv.find('.ms-passive-btn, .ms-initiative-btn, .ms-end-turn-btn, .ms-stone-powers-btn').remove();
+      
+      // Get combatant data
+      const combat = game.combat;
+      if (!combat) return;
+      
+      const combatant = combat.combatants.get(combatantId);
+      if (!combatant) return;
+      
+      // Get initiative value and display it before the name
+      const initiativeValue = combatant.initiative ?? 0;
+      const $tokenName = $combatant.find('.token-name');
+      if ($tokenName.length > 0) {
+        // Remove existing initiative display to prevent duplicates
+        $tokenName.find('.ms-initiative-value').remove();
+        // Add initiative value before name
+        const $initiativeSpan = $('<span class="ms-initiative-value">[' + initiativeValue + ']</span>');
+        $tokenName.prepend($initiativeSpan);
+      }
       
       // Check if this is the current combatant
-      const combat = game.combat;
-      const isCurrent = combat && combat.combatant?.id === combatantId;
+      const isCurrent = combat.combatant?.id === combatantId;
       
       // Add End Turn button for current combatant
       if (isCurrent) {
@@ -233,6 +250,31 @@ Hooks.once('init', async function() {
       // Add Initiative Shop button
       const initiativeBtn = $('<button type="button" class="combatant-control ms-initiative-btn" data-action="openInitiativeShop" data-combatant-id="' + combatantId + '" data-tooltip="Initiative Shop" aria-label="Initiative Shop" title="Initiative Shop"><i class="fa-solid fa-shop"></i></button>');
       $initiativeDiv.append(initiativeBtn);
+      
+      // Add Stone Powers button (only for characters)
+      const actor = combatant.actor;
+      if (actor && actor.type === 'character') {
+        const stonePowersBtn = $('<button type="button" class="combatant-control ms-stone-powers-btn" data-action="openStonePowers" data-combatant-id="' + combatantId + '" data-tooltip="Stone Powers" aria-label="Stone Powers" title="Stone Powers"><i class="fa-solid fa-gem"></i></button>');
+        $initiativeDiv.append(stonePowersBtn);
+        
+        stonePowersBtn.off('click.ms-stone-powers').on('click.ms-stone-powers', async (ev: JQuery.ClickEvent) => {
+          ev.preventDefault();
+          ev.stopPropagation();
+          
+          if (!actor) {
+            ui.notifications?.error('Actor not found');
+            return;
+          }
+          
+          try {
+            const { StonePowersDialog } = await import('./stones/stone-powers-dialog.js');
+            await StonePowersDialog.showForActor(actor, combatant);
+          } catch (error) {
+            console.error('Mastery System | Error showing stone powers dialog', error);
+            ui.notifications?.error('Failed to open stone powers dialog');
+          }
+        });
+      }
 
       // Add click handlers
       passiveBtn.off('click.ms-passive').on('click.ms-passive', async (ev: JQuery.ClickEvent) => {

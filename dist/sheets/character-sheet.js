@@ -798,6 +798,18 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('.skill-increase').on('click', this.#onCreationSkillIncrease.bind(this));
         html.find('.skill-decrease').on('click', this.#onCreationSkillDecrease.bind(this));
         html.find('.finalize-creation').on('click', this.#onFinalizeCreation.bind(this));
+        // Stone Powers button handler
+        html.find('[data-action="openStonePowers"]').on('click', async (ev) => {
+            ev.preventDefault();
+            // Get current combatant if in combat
+            let combatant = null;
+            if (game.combat) {
+                const combatants = game.combat.combatants;
+                combatant = Array.from(combatants).find((c) => c.actor?.id === this.actor.id) || null;
+            }
+            const { StonePowersDialog } = await import('../stones/stone-powers-dialog.js');
+            await StonePowersDialog.showForActor(this.actor, combatant);
+        });
         // Schticks selection (per rank)
         html.find('.schtick-input').on('blur', this.#onSchtickNameChange.bind(this));
         html.find('.schtick-manifestation-input').on('blur', this.#onSchtickManifestationChange.bind(this));
