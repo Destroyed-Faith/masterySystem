@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.61] - 2025-01-XX
+
+### Fixed
+- **Dialog Rendering**: Fixed app element not found error in dialogs
+  - Added wait loop in `_replaceHTML()` to wait for app element to be available in DOM
+  - Prevents errors when dialog window hasn't been created yet when `_replaceHTML` is called
+  - Applied fix to both Passive Selection Dialog and Initiative Shop Dialog
+
 ## [0.1.60] - 2025-01-XX
 
 ### Fixed

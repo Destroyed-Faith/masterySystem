@@ -236,10 +236,9 @@ export class PassiveSelectionDialog extends ApplicationV2 {
       stackTrace: new Error().stack?.split('\n').slice(0, 8).join('\n')
     });
 
-    // ALWAYS update the window content directly, never replace the element
-    // This prevents multiple overlay elements from being created
-    const appElement = $(`#${this.id}`);
-    
+    // Ensure html is a jQuery object
+    const $html = html instanceof jQuery ? html : $(html);
+
     // Remove ALL stray overlay elements first
     const allOverlays = $('.passive-selection-overlay');
     const overlayCount = allOverlays.length;
@@ -248,36 +247,42 @@ export class PassiveSelectionDialog extends ApplicationV2 {
       console.log('Mastery System | [PASSIVE DIALOG DEBUG] Removed', overlayCount, 'stray overlay elements before replace');
     }
     
+    // Wait for app element to be available in DOM (max 10 attempts, 50ms each = 500ms max)
+    let appElement = $(`#${this.id}`);
+    let attempts = 0;
+    while (appElement.length === 0 && attempts < 10) {
+      await new Promise(resolve => setTimeout(resolve, 50));
+      appElement = $(`#${this.id}`);
+      attempts++;
+    }
+    
     if (appElement.length > 0) {
       const windowContent = appElement.find('.window-content');
       if (windowContent.length > 0) {
         console.log('Mastery System | [PASSIVE DIALOG DEBUG] Updating window content directly');
-        windowContent.html(html.html() || '');
+        windowContent.html($html.html() || '');
         
         // Reactivate listeners on the new content
         this.activateListeners(windowContent);
         console.log('Mastery System | [PASSIVE DIALOG DEBUG] Window content updated and listeners reactivated');
+        return;
       } else {
         console.warn('Mastery System | [PASSIVE DIALOG DEBUG] Window content not found!');
-        // Fallback: try to replace the element if window-content not found
-        if (element.length > 0) {
-          const $html = html instanceof jQuery ? html : $(html);
-          element.replaceWith($html);
-          this.activateListeners($html);
-        }
       }
     } else {
-      console.warn('Mastery System | [PASSIVE DIALOG DEBUG] App element not found!', {
+      console.warn('Mastery System | [PASSIVE DIALOG DEBUG] App element not found after waiting!', {
         appId: this.id,
         allWindows: Object.keys(ui.windows || {}),
-        bodyChildren: $('body').children().length
+        bodyChildren: $('body').children().length,
+        attempts
       });
-      // Last resort: replace the element directly, but ensure html is a jQuery object
-      if (element.length > 0) {
-        const $html = html instanceof jQuery ? html : $(html);
-        element.replaceWith($html);
-        this.activateListeners($html);
-      }
+    }
+    
+    // Fallback: replace the element directly if app element not found
+    if (element.length > 0) {
+      console.log('Mastery System | [PASSIVE DIALOG DEBUG] Using fallback: replacing element directly');
+      element.replaceWith($html);
+      this.activateListeners($html);
     }
   }
 

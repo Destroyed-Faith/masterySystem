@@ -111,17 +111,26 @@ export class InitiativeShopDialog extends ApplicationV2 {
   }
 
   async _replaceHTML(element: JQuery, html: JQuery): Promise<void> {
+    // Ensure html is a jQuery object
+    const $html = html instanceof jQuery ? html : $(html);
+
     // Remove ALL stray initiative shop dialog elements first
     $('body > .initiative-shop-dialog').remove();
     $('.initiative-shop-dialog').not(`#${this.id} .initiative-shop-dialog`).remove();
     
-    // Always update the window content directly, never replace the element
-    const appElement = $(`#${this.id}`);
+    // Wait for app element to be available in DOM (max 10 attempts, 50ms each = 500ms max)
+    let appElement = $(`#${this.id}`);
+    let attempts = 0;
+    while (appElement.length === 0 && attempts < 10) {
+      await new Promise(resolve => setTimeout(resolve, 50));
+      appElement = $(`#${this.id}`);
+      attempts++;
+    }
     
     if (appElement.length > 0) {
       const windowContent = appElement.find('.window-content');
       if (windowContent.length > 0) {
-        windowContent.html(html.html() || '');
+        windowContent.html($html.html() || '');
         // Reactivate listeners on the new content
         this.activateListeners(windowContent);
         return;
@@ -130,7 +139,6 @@ export class InitiativeShopDialog extends ApplicationV2 {
     
     // Fallback: replace the element if window-content not found
     if (element.length > 0) {
-      const $html = html instanceof jQuery ? html : $(html);
       element.replaceWith($html);
       this.activateListeners($html);
     }
