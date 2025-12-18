@@ -155,18 +155,22 @@ async function sendRollToChat(result, label, flavor, actorId) {
         await roll.evaluate();
         // Now replace the dice results with our actual rolled values
         // We need to modify the dice terms to show our actual results
+        // IMPORTANT: Use keptIndices to properly identify which dice were kept
+        // (multiple dice can have the same value, so we can't rely on values alone)
+        const keptIndices = result.keptIndices || [];
         let dieIndex = 0;
         for (const term of roll.terms) {
             if (term instanceof foundry.dice.terms.Die) {
                 // Replace the results with our actual dice values
                 const actualValue = result.dice[dieIndex];
-                const isKept = result.kept.includes(actualValue);
+                const isKept = keptIndices.includes(dieIndex);
                 const isExploded = result.exploded.includes(dieIndex);
                 // Update the die results
+                // ALL dice should be active (shown), but kept ones are not discarded
                 term.results = [{
                         result: actualValue,
-                        active: isKept,
-                        discarded: !isKept,
+                        active: true, // Show ALL dice, not just kept ones
+                        discarded: !isKept, // Mark non-kept dice as discarded for visual distinction
                         rerolled: false
                     }];
                 // Mark as exploded if needed (stored in flags)

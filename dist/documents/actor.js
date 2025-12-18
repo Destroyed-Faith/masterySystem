@@ -80,6 +80,27 @@ export class MasteryActor extends Actor {
                     };
                 }
                 else {
+                    // Ensure bars is an array (migrate from object if needed)
+                    if (!Array.isArray(system.health.bars)) {
+                        // Convert object to array if needed
+                        if (system.health.bars && typeof system.health.bars === 'object' && system.health.bars !== null) {
+                            const barsObj = system.health.bars;
+                            // Check if it's an object with numeric keys (old format)
+                            const keys = Object.keys(barsObj);
+                            if (keys.length > 0 && keys.some((k) => !isNaN(parseInt(k)))) {
+                                system.health.bars = Object.keys(barsObj)
+                                    .sort((a, b) => parseInt(a) - parseInt(b))
+                                    .map(key => barsObj[key]);
+                            }
+                            else {
+                                // Not a valid object format, initialize fresh
+                                system.health.bars = initializeHealthBars(vitality);
+                            }
+                        }
+                        else {
+                            system.health.bars = initializeHealthBars(vitality);
+                        }
+                    }
                     // Ensure we have 5 bars
                     if (!system.health.bars || system.health.bars.length === 0) {
                         system.health.bars = initializeHealthBars(vitality);
@@ -98,10 +119,13 @@ export class MasteryActor extends Actor {
                         }
                     }
                     // Update max HP for all bars based on current vitality
-                    for (const bar of system.health.bars) {
-                        const ratio = bar.max > 0 ? bar.current / bar.max : 1;
-                        bar.max = maxHP;
-                        bar.current = Math.min(Math.floor(maxHP * ratio), maxHP);
+                    // Only iterate if it's an array
+                    if (Array.isArray(system.health.bars)) {
+                        for (const bar of system.health.bars) {
+                            const ratio = bar.max > 0 ? bar.current / bar.max : 1;
+                            bar.max = maxHP;
+                            bar.current = Math.min(Math.floor(maxHP * ratio), maxHP);
+                        }
                     }
                 }
                 // Initialize stress bars (5 bars: Healthy, Stressed, Not Well, Breaking, Breakdown)
@@ -259,7 +283,7 @@ export class MasteryActor extends Actor {
      */
     async heal(amount) {
         const system = this.system;
-        if (system.health && system.health.bars) {
+        if (system.health && system.health.bars && Array.isArray(system.health.bars)) {
             const currentBar = system.health.bars[system.health.currentBar || 0];
             if (currentBar) {
                 currentBar.current = Math.min(currentBar.current + amount, currentBar.max);
@@ -272,7 +296,7 @@ export class MasteryActor extends Actor {
      */
     async applyDamage(amount) {
         const system = this.system;
-        if (system.health && system.health.bars) {
+        if (system.health && system.health.bars && Array.isArray(system.health.bars)) {
             const currentBar = system.health.bars[system.health.currentBar || 0];
             if (currentBar) {
                 currentBar.current = Math.max(currentBar.current - amount, 0);
