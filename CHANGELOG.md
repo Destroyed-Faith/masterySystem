@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.59] - 2025-01-XX
+
+### Fixed
+- **Dialog Rendering**: Fixed Passive Selection Dialog activateListeners error
+  - Added try-catch protection in dist file (temporary fix until TypeScript compilation issue is resolved)
+  - Dialog should now render correctly without crashing
+
 ## [0.1.58] - 2025-01-XX
 
 ### Fixed
