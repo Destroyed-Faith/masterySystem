@@ -261,8 +261,9 @@ export class PassiveSelectionDialog extends ApplicationV2 {
         console.warn('Mastery System | [PASSIVE DIALOG DEBUG] Window content not found!');
         // Fallback: try to replace the element if window-content not found
         if (element.length > 0) {
-          element.replaceWith(html);
-          this.activateListeners(html);
+          const $html = html instanceof jQuery ? html : $(html);
+          element.replaceWith($html);
+          this.activateListeners($html);
         }
       }
     } else {
@@ -271,10 +272,11 @@ export class PassiveSelectionDialog extends ApplicationV2 {
         allWindows: Object.keys(ui.windows || {}),
         bodyChildren: $('body').children().length
       });
-      // Last resort: replace the element directly
+      // Last resort: replace the element directly, but ensure html is a jQuery object
       if (element.length > 0) {
-        element.replaceWith(html);
-        this.activateListeners(html);
+        const $html = html instanceof jQuery ? html : $(html);
+        element.replaceWith($html);
+        this.activateListeners($html);
       }
     }
   }
@@ -287,8 +289,11 @@ export class PassiveSelectionDialog extends ApplicationV2 {
       console.debug('Mastery System | activateListeners: parent class does not have activateListeners method', error);
     }
 
+    // Ensure html is a jQuery object
+    const $html = html instanceof jQuery ? html : $(html);
+
     // Drag & Drop handlers
-    html.find('.draggable-passive').on('dragstart', (ev: JQuery.DragStartEvent) => {
+    $html.find('.draggable-passive').on('dragstart', (ev: JQuery.DragStartEvent) => {
       const passiveId = String($(ev.currentTarget).data('passive-id') ?? '');
       if (ev.originalEvent?.dataTransfer) {
         ev.originalEvent.dataTransfer.effectAllowed = 'move';
@@ -297,12 +302,12 @@ export class PassiveSelectionDialog extends ApplicationV2 {
       $(ev.currentTarget).addClass('dragging');
     });
 
-    html.find('.draggable-passive').on('dragend', (ev: JQuery.DragEndEvent) => {
+    $html.find('.draggable-passive').on('dragend', (ev: JQuery.DragEndEvent) => {
       $(ev.currentTarget).removeClass('dragging');
-      html.find('.droppable-slot').removeClass('drag-over');
+      $html.find('.droppable-slot').removeClass('drag-over');
     });
 
-    html.find('.droppable-slot').on('dragover', (ev: JQuery.DragOverEvent) => {
+    $html.find('.droppable-slot').on('dragover', (ev: JQuery.DragOverEvent) => {
       ev.preventDefault();
       if (ev.originalEvent?.dataTransfer) {
         ev.originalEvent.dataTransfer.dropEffect = 'move';
@@ -310,11 +315,11 @@ export class PassiveSelectionDialog extends ApplicationV2 {
       $(ev.currentTarget).addClass('drag-over');
     });
 
-    html.find('.droppable-slot').on('dragleave', (ev: JQuery.DragLeaveEvent) => {
+    $html.find('.droppable-slot').on('dragleave', (ev: JQuery.DragLeaveEvent) => {
       $(ev.currentTarget).removeClass('drag-over');
     });
 
-    html.find('.droppable-slot').on('drop', async (ev: JQuery.DropEvent) => {
+    $html.find('.droppable-slot').on('drop', async (ev: JQuery.DropEvent) => {
       console.log('Mastery System | [PASSIVE DIALOG DEBUG] Drop event triggered');
       ev.preventDefault();
       const actor = this.currentActor;
@@ -371,7 +376,7 @@ export class PassiveSelectionDialog extends ApplicationV2 {
     });
 
     // Toggle passive active/inactive
-    html.find('.js-toggle-passive').on('click', async (ev) => {
+    $html.find('.js-toggle-passive').on('click', async (ev) => {
       ev.preventDefault();
       const actor = this.currentActor;
       if (!actor) return;
@@ -400,7 +405,7 @@ export class PassiveSelectionDialog extends ApplicationV2 {
     });
 
     // Unslot a passive
-    html.find('.js-unslot-passive').on('click', async (ev) => {
+    $html.find('.js-unslot-passive').on('click', async (ev) => {
       console.log('Mastery System | [PASSIVE DIALOG DEBUG] Unslot button clicked');
       ev.preventDefault();
       const actor = this.currentActor;
@@ -440,7 +445,7 @@ export class PassiveSelectionDialog extends ApplicationV2 {
     });
 
     // Next character
-    html.find('.js-next-character').on('click', async (ev) => {
+    $html.find('.js-next-character').on('click', async (ev) => {
       ev.preventDefault();
       if (this.currentIndex < this.pcs.length - 1) {
         this.currentIndex++;
@@ -462,7 +467,7 @@ export class PassiveSelectionDialog extends ApplicationV2 {
     });
 
     // Previous character
-    html.find('.js-prev-character').on('click', async (ev) => {
+    $html.find('.js-prev-character').on('click', async (ev) => {
       ev.preventDefault();
       if (this.currentIndex > 0) {
         this.currentIndex--;
@@ -482,7 +487,7 @@ export class PassiveSelectionDialog extends ApplicationV2 {
     });
 
     // GM skip all
-    html.find('.js-gm-skip').on('click', (ev) => {
+    $html.find('.js-gm-skip').on('click', (ev) => {
       ev.preventDefault();
       if (game.user?.isGM) {
         this.close({ _explicitClose: true, intentional: true });
@@ -490,7 +495,7 @@ export class PassiveSelectionDialog extends ApplicationV2 {
     });
 
     // Close button
-    html.find('.js-close-dialog').on('click', (ev) => {
+    $html.find('.js-close-dialog').on('click', (ev) => {
       ev.preventDefault();
       console.log('Mastery System | [PASSIVE DIALOG DEBUG] Close button clicked');
       this.close({ _explicitClose: true, intentional: true, force: true });

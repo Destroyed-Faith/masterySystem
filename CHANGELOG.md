@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.60] - 2025-01-XX
+
+### Fixed
+- **Dialog Rendering**: Fixed jQuery object handling in Passive Selection Dialog and Initiative Shop Dialog
+  - Added jQuery object validation in `activateListeners()` methods
+  - Replaced all `html.find()` calls with `$html.find()` to ensure jQuery object usage
+  - Fixed "html.find is not a function" errors by ensuring html parameter is converted to jQuery object
+  - Improved fallback handling when app element is not found
+
 ## [0.1.59] - 2025-01-XX
 
 ### Fixed

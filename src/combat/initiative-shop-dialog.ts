@@ -130,8 +130,9 @@ export class InitiativeShopDialog extends ApplicationV2 {
     
     // Fallback: replace the element if window-content not found
     if (element.length > 0) {
-      element.replaceWith(html);
-      this.activateListeners(html);
+      const $html = html instanceof jQuery ? html : $(html);
+      element.replaceWith($html);
+      this.activateListeners($html);
     }
   }
 
@@ -180,8 +181,11 @@ export class InitiativeShopDialog extends ApplicationV2 {
       console.debug('Mastery System | activateListeners: parent class does not have activateListeners method', error);
     }
 
+    // Ensure html is a jQuery object
+    const $html = html instanceof jQuery ? html : $(html);
+
     // Buy extra movement (stepper +)
-    html.find('.js-buy-movement').on('click', async (ev) => {
+    $html.find('.js-buy-movement').on('click', async (ev) => {
       ev.preventDefault();
       const totalCost = this.calculateTotalCost();
       const cost = INITIATIVE_SHOP.MOVEMENT.COST;
@@ -195,7 +199,7 @@ export class InitiativeShopDialog extends ApplicationV2 {
     });
 
     // Remove movement purchase (stepper -)
-    html.find('.js-remove-movement').on('click', async (ev) => {
+    $html.find('.js-remove-movement').on('click', async (ev) => {
       ev.preventDefault();
       if (this.purchases.extraMovement > 0) {
         this.purchases.extraMovement--;
@@ -204,7 +208,7 @@ export class InitiativeShopDialog extends ApplicationV2 {
     });
 
     // Buy initiative swap (toggle, max 1)
-    html.find('.js-buy-swap').on('click', async (ev) => {
+    $html.find('.js-buy-swap').on('click', async (ev) => {
       ev.preventDefault();
       if (this.purchases.initiativeSwap) {
         this.purchases.initiativeSwap = false;
@@ -222,7 +226,7 @@ export class InitiativeShopDialog extends ApplicationV2 {
     });
 
     // Buy extra attack (toggle, max 1)
-    html.find('.js-buy-attack').on('click', async (ev) => {
+    $html.find('.js-buy-attack').on('click', async (ev) => {
       ev.preventDefault();
       if (this.purchases.extraAttack) {
         this.purchases.extraAttack = false;
@@ -240,13 +244,13 @@ export class InitiativeShopDialog extends ApplicationV2 {
     });
 
     // Confirm purchases
-    html.find('.js-confirm').on('click', async (ev) => {
+    $html.find('.js-confirm').on('click', async (ev) => {
       ev.preventDefault();
       await this.confirmPurchases();
     });
 
     // Skip shop (behaves like X button - no purchases applied)
-    html.find('.js-skip').on('click', (ev) => {
+    $html.find('.js-skip').on('click', (ev) => {
       ev.preventDefault();
       if (this.resolve) {
         this.resolve(null);
