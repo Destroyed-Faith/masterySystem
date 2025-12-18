@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.58] - 2025-01-XX
+
+### Fixed
+- **Dialog Rendering**: Fixed Passive Selection Dialog and Initiative Shop Dialog not appearing
+  - Added try-catch protection for `super.activateListeners()` calls in ApplicationV2 classes
+  - Prevents errors when ApplicationV2 or Application base class doesn't have activateListeners method
+  - Applied fix to PassiveSelectionDialog, InitiativeShopDialog, CombatActionOverlay, and CombatCarouselApp
+
 ## [0.1.57] - 2025-01-XX
 
 ### Fixed

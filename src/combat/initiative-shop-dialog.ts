@@ -173,7 +173,12 @@ export class InitiativeShopDialog extends ApplicationV2 {
   }
 
   activateListeners(html: JQuery): void {
-    super.activateListeners(html);
+    try {
+      super.activateListeners(html);
+    } catch (error) {
+      // ApplicationV2 or Application may not have activateListeners in this Foundry version
+      console.debug('Mastery System | activateListeners: parent class does not have activateListeners method', error);
+    }
 
     // Buy extra movement (stepper +)
     html.find('.js-buy-movement').on('click', async (ev) => {
