@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.57] - 2025-01-XX
+
+### Fixed
+- **Character Creation**: Fixed Finish button not appearing after selecting all attributes, skills, and 4 powers
+  - Removed `disadvantagesReviewed` requirement from `canFinalize` check since disadvantages are optional
+  - Finish button now appears when all required points are spent and 4 powers are selected
+
 ## [0.1.55] - 2025-01-XX
 
 ### Changed
