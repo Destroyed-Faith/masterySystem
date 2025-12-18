@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] - 2025-01-XX
+
+### Changed
+- **BREAKING CHANGE**: Migrated PassiveSelectionDialog and InitiativeShopDialog to Foundry VTT v13 ApplicationV2 + HandlebarsApplicationMixin
+  - Replaced Application v1 patterns with proper ApplicationV2 implementation
+  - Uses DEFAULT_OPTIONS and PARTS instead of defaultOptions/template
+  - Implements _prepareContext instead of getData
+  - Uses _onRender with native DOM API instead of jQuery-based activateListeners
+  - Singleton check now uses foundry.applications.instances instead of ui.windows
+  - Re-render uses this.render({ force: true }) instead of manual DOM manipulation
+  - Fixed all "activateListeners is not a function" and "html.find is not a function" errors
+  - Dialogs now open correctly without "App element not found" errors
+
 ## [0.1.61] - 2025-01-XX
 
 ### Fixed
