@@ -23,6 +23,8 @@ export declare function updateAttributeStones(attribute: AttributeData): void;
 export declare function calculateHealthBarMax(vitality: number): number;
 /**
  * Initialize health bars with proper max HP values
+ * 5 bars: Healthy, Bruised, Injured, Wounded, Incapacitated
+ * Each bar = Vitality × 2 boxes
  */
 export declare function initializeHealthBars(vitality: number): HealthBar[];
 /**
@@ -35,7 +37,8 @@ export declare function updateHealthBars(bars: HealthBar[], vitality: number): v
 export declare function getCurrentPenalty(bars: HealthBar[], currentBar: number): number;
 /**
  * Apply damage to health bars
- * Returns the new current bar index
+ * Returns the new current bar index (clamped to max bars - 1)
+ * Damage flows through bars: when a bar is depleted, overflow goes to next bar
  */
 export declare function applyDamage(bars: HealthBar[], currentBar: number, damage: number): number;
 /**
@@ -43,6 +46,26 @@ export declare function applyDamage(bars: HealthBar[], currentBar: number, damag
  * Healing never moves you to a higher bar
  */
 export declare function healDamage(bars: HealthBar[], currentBar: number, healing: number): void;
+/**
+ * Calculate Stress Bar maximum
+ * Each bar = (Resolve + Wits) × 2
+ */
+export declare function calculateStressBarMax(resolve: number, wits: number): number;
+/**
+ * Initialize stress bars with proper max values
+ * 5 bars: Healthy, Stressed, Not Well, Breaking, Breakdown
+ * Each bar = (Resolve + Wits) × 2 boxes
+ */
+export declare function initializeStressBars(resolve: number, wits: number): HealthBar[];
+/**
+ * Update stress bars when resolve or wits changes
+ */
+export declare function updateStressBars(bars: HealthBar[], resolve: number, wits: number): void;
+/**
+ * Apply stress damage to stress bars
+ * Returns the new current bar index
+ */
+export declare function applyStress(bars: HealthBar[], currentBar: number, stress: number): number;
 /**
  * Calculate maximum skill rank based on Mastery Rank
  * Max skill = 4 × Mastery Rank

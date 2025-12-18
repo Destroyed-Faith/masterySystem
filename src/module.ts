@@ -1013,41 +1013,71 @@ Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId:
     console.log('Mastery System | New character created - setting creationComplete=false');
   }
   
-  // Initialize NPCs with 30 HP and health bar
+  // Initialize NPCs with health bars (5 bars for characters, 1 for NPCs)
   if (actor.type === 'npc' || actor.type === 'character') {
     if (!data.system) {
       data.system = {};
     }
-    // Initialize health with 30 HP
+    
+    // Initialize health bars
     if (!data.system.health) {
-      data.system.health = {
-        bars: [
-          {
-            name: 'Healthy',
-            max: 30,
-            current: 30,
-            penalty: 0
-          }
-        ],
-        currentBar: 0,
-        tempHP: 0
-      };
-    } else {
-      // Ensure health bars exist and are initialized
-      if (!data.system.health.bars || data.system.health.bars.length === 0) {
-        data.system.health.bars = [
-          {
-            name: 'Healthy',
-            max: 30,
-            current: 30,
-            penalty: 0
-          }
-        ];
+      if (actor.type === 'character') {
+        // Characters: 5 bars (Healthy, Bruised, Injured, Wounded, Incapacitated)
+        const vitality = data.system.attributes?.vitality?.value || 2;
+        const maxHP = vitality * 2;
+        data.system.health = {
+          bars: [
+            { name: 'Healthy', max: maxHP, current: maxHP, penalty: 0 },
+            { name: 'Bruised', max: maxHP, current: maxHP, penalty: -1 },
+            { name: 'Injured', max: maxHP, current: maxHP, penalty: -2 },
+            { name: 'Wounded', max: maxHP, current: maxHP, penalty: -4 },
+            { name: 'Incapacitated', max: maxHP, current: maxHP, penalty: 0 }
+          ],
+          currentBar: 0,
+          tempHP: 0
+        };
       } else {
-        // Set first bar to 30 HP if max is 0
-        if (data.system.health.bars[0].max === 0) {
-          data.system.health.bars[0].max = 30;
-          data.system.health.bars[0].current = 30;
+        // NPCs: 1 bar
+        data.system.health = {
+          bars: [
+            { name: 'Healthy', max: 30, current: 30, penalty: 0 }
+          ],
+          currentBar: 0,
+          tempHP: 0
+        };
+      }
+    } else {
+      // Ensure health bars exist
+      if (!data.system.health.bars || data.system.health.bars.length === 0) {
+        if (actor.type === 'character') {
+          const vitality = data.system.attributes?.vitality?.value || 2;
+          const maxHP = vitality * 2;
+          data.system.health.bars = [
+            { name: 'Healthy', max: maxHP, current: maxHP, penalty: 0 },
+            { name: 'Bruised', max: maxHP, current: maxHP, penalty: -1 },
+            { name: 'Injured', max: maxHP, current: maxHP, penalty: -2 },
+            { name: 'Wounded', max: maxHP, current: maxHP, penalty: -4 },
+            { name: 'Incapacitated', max: maxHP, current: maxHP, penalty: 0 }
+          ];
+        } else {
+          data.system.health.bars = [
+            { name: 'Healthy', max: 30, current: 30, penalty: 0 }
+          ];
+        }
+      } else if (actor.type === 'character' && data.system.health.bars.length < 5) {
+        // Add missing bars for characters
+        const vitality = data.system.attributes?.vitality?.value || 2;
+        const maxHP = vitality * 2;
+        const allBarNames = ['Healthy', 'Bruised', 'Injured', 'Wounded', 'Incapacitated'];
+        const penalties = [0, -1, -2, -4, 0];
+        
+        for (let i = data.system.health.bars.length; i < 5; i++) {
+          data.system.health.bars.push({
+            name: allBarNames[i],
+            max: maxHP,
+            current: maxHP,
+            penalty: penalties[i]
+          });
         }
       }
       if (data.system.health.currentBar === undefined) {
@@ -1055,6 +1085,75 @@ Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId:
       }
       if (data.system.health.tempHP === undefined) {
         data.system.health.tempHP = 0;
+      }
+    }
+    
+    // Initialize stress bars for characters only
+    if (actor.type === 'character') {
+      if (!data.system.stress) {
+        const resolve = data.system.attributes?.resolve?.value || 2;
+        const wits = data.system.attributes?.wits?.value || 2;
+        const maxStress = (resolve + wits) * 2;
+        data.system.stress = {
+          bars: [
+            { name: 'Healthy', max: maxStress, current: maxStress, penalty: 0 },
+            { name: 'Stressed', max: maxStress, current: maxStress, penalty: 0 },
+            { name: 'Not Well', max: maxStress, current: maxStress, penalty: 0 },
+            { name: 'Breaking', max: maxStress, current: maxStress, penalty: 0 },
+            { name: 'Breakdown', max: maxStress, current: maxStress, penalty: 0 }
+          ],
+          currentBar: 0
+        };
+      } else {
+        // Migrate old format if needed
+        if (!data.system.stress.bars || data.system.stress.bars.length === 0) {
+          const resolve = data.system.attributes?.resolve?.value || 2;
+          const wits = data.system.attributes?.wits?.value || 2;
+          const maxStress = (resolve + wits) * 2;
+          const oldCurrent = data.system.stress.current || 0;
+          
+          data.system.stress.bars = [
+            { name: 'Healthy', max: maxStress, current: maxStress, penalty: 0 },
+            { name: 'Stressed', max: maxStress, current: maxStress, penalty: 0 },
+            { name: 'Not Well', max: maxStress, current: maxStress, penalty: 0 },
+            { name: 'Breaking', max: maxStress, current: maxStress, penalty: 0 },
+            { name: 'Breakdown', max: maxStress, current: maxStress, penalty: 0 }
+          ];
+          data.system.stress.currentBar = 0;
+          
+          // Distribute old stress
+          if (oldCurrent > 0) {
+            let remaining = oldCurrent;
+            for (let i = 0; i < data.system.stress.bars.length && remaining > 0; i++) {
+              if (remaining >= data.system.stress.bars[i].max) {
+                data.system.stress.bars[i].current = 0;
+                remaining -= data.system.stress.bars[i].max;
+                data.system.stress.currentBar = i + 1;
+              } else {
+                data.system.stress.bars[i].current = data.system.stress.bars[i].max - remaining;
+                remaining = 0;
+              }
+            }
+          }
+        } else if (data.system.stress.bars.length < 5) {
+          // Add missing bars
+          const resolve = data.system.attributes?.resolve?.value || 2;
+          const wits = data.system.attributes?.wits?.value || 2;
+          const maxStress = (resolve + wits) * 2;
+          const allBarNames = ['Healthy', 'Stressed', 'Not Well', 'Breaking', 'Breakdown'];
+          
+          for (let i = data.system.stress.bars.length; i < 5; i++) {
+            data.system.stress.bars.push({
+              name: allBarNames[i],
+              max: maxStress,
+              current: maxStress,
+              penalty: 0
+            });
+          }
+        }
+        if (data.system.stress.currentBar === undefined) {
+          data.system.stress.currentBar = 0;
+        }
       }
     }
     

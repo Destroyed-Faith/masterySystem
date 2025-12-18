@@ -814,7 +814,7 @@ async function applyDamageToTarget(target, damage, attacker) {
             if (targetToken) {
                 try {
                     // Import blood pool function
-                    const { createBloodPool } = await import('../utils/blood-pool');
+                    const { createBloodPool } = await import('../utils/blood-pool.js');
                     // Get blood color from actor
                     const actorSystem = target.system;
                     const bloodColor = actorSystem?.bloodColor;
@@ -854,7 +854,7 @@ async function applyDamageToTarget(target, damage, attacker) {
         // Step 2: Apply remaining damage to health bars with overflow
         if (remaining > 0) {
             // Import applyDamage helper from calculations.ts
-            const { applyDamage: applyDamageToBars } = await import('../utils/calculations');
+            const { applyDamage: applyDamageToBars } = await import('../utils/calculations.js');
             // Copy bars array to mutate
             const bars = [...system.health.bars];
             let barIndex = system.health.currentBar || 0;

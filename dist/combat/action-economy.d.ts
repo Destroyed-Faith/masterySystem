@@ -107,7 +107,7 @@ export declare function setStonePool(actor: Actor, attribute: AttributeKey, curr
 export declare function spendStoneAbility(actor: Actor, _combatant: Combatant, attribute: AttributeKey, abilityKey: string, applyEffect: (roundState: RoundState) => Promise<void>): Promise<boolean>;
 /**
  * Regenerate stones at end of round
- * Each attribute pool regens by mastery rank (distributed evenly or up to max)
+ * Shows dialog for each PC to allocate regen points (mastery rank per attribute)
  */
 export declare function regenStonesEndOfRound(combat: Combat): Promise<void>;
 /**

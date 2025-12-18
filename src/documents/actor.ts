@@ -5,7 +5,11 @@
 import { 
   calculateStones, 
   calculateTotalStones, 
-  updateAttributeStones 
+  updateAttributeStones,
+  initializeHealthBars,
+  initializeStressBars,
+  calculateHealthBarMax,
+  calculateStressBarMax
 } from '../utils/calculations.js';
 
 export class MasteryActor extends Actor {
@@ -85,6 +89,103 @@ export class MasteryActor extends Actor {
       } else {
         system.stones.current = Math.max(0, Math.min(system.stones.current, system.stones.maximum));
       }
+      
+      // Initialize health bars (5 bars: Healthy, Bruised, Injured, Wounded, Incapacitated)
+      if ((this as any).type === 'character') {
+        const vitality = system.attributes.vitality?.value || 2;
+        const maxHP = calculateHealthBarMax(vitality);
+        
+        if (!system.health) {
+          system.health = {
+            bars: initializeHealthBars(vitality),
+            currentBar: 0,
+            tempHP: 0
+          };
+        } else {
+          // Ensure we have 5 bars
+          if (!system.health.bars || system.health.bars.length === 0) {
+            system.health.bars = initializeHealthBars(vitality);
+          } else if (system.health.bars.length < 5) {
+            // Add missing bars
+            const allBarNames = ['Healthy', 'Bruised', 'Injured', 'Wounded', 'Incapacitated'];
+            const penalties = [0, -1, -2, -4, 0];
+            
+            for (let i = system.health.bars.length; i < 5; i++) {
+              system.health.bars.push({
+                name: allBarNames[i],
+                max: maxHP,
+                current: maxHP,
+                penalty: penalties[i]
+              });
+            }
+          }
+          
+          // Update max HP for all bars based on current vitality
+          for (const bar of system.health.bars) {
+            const ratio = bar.max > 0 ? bar.current / bar.max : 1;
+            bar.max = maxHP;
+            bar.current = Math.min(Math.floor(maxHP * ratio), maxHP);
+          }
+        }
+        
+        // Initialize stress bars (5 bars: Healthy, Stressed, Not Well, Breaking, Breakdown)
+        const resolve = system.attributes.resolve?.value || 2;
+        const wits = system.attributes.wits?.value || 2;
+        const maxStress = calculateStressBarMax(resolve, wits);
+        
+        if (!system.stress) {
+          system.stress = {
+            bars: initializeStressBars(resolve, wits),
+            currentBar: 0
+          };
+        } else {
+        // Migrate old stress format to bars if needed
+        if (!system.stress.bars || system.stress.bars.length === 0) {
+          const oldCurrent = system.stress.current || 0;
+          system.stress.bars = initializeStressBars(resolve, wits);
+          system.stress.currentBar = 0;
+          
+          // Distribute old stress value across bars
+          if (oldCurrent > 0) {
+            let remaining = oldCurrent;
+            for (let i = 0; i < system.stress.bars.length && remaining > 0; i++) {
+              if (remaining >= system.stress.bars[i].max) {
+                system.stress.bars[i].current = 0;
+                remaining -= system.stress.bars[i].max;
+                system.stress.currentBar = i + 1;
+              } else {
+                system.stress.bars[i].current = system.stress.bars[i].max - remaining;
+                remaining = 0;
+              }
+            }
+          }
+        } else if (system.stress.bars.length < 5) {
+          // Add missing bars
+          const allBarNames = ['Healthy', 'Stressed', 'Not Well', 'Breaking', 'Breakdown'];
+          
+          for (let i = system.stress.bars.length; i < 5; i++) {
+            system.stress.bars.push({
+              name: allBarNames[i],
+              max: maxStress,
+              current: maxStress,
+              penalty: 0
+            });
+          }
+        }
+          
+          // Update max stress for all bars
+          for (const bar of system.stress.bars) {
+            const ratio = bar.max > 0 ? bar.current / bar.max : 1;
+            bar.max = maxStress;
+            bar.current = Math.min(Math.floor(maxStress * ratio), maxStress);
+          }
+          
+          // Ensure currentBar exists
+          if (system.stress.currentBar === undefined || system.stress.currentBar === null) {
+            system.stress.currentBar = 0;
+          }
+        }
+      }
     }
   }
 
@@ -154,10 +255,14 @@ export class MasteryActor extends Actor {
       max: Math.max(0, Number(bar.max ?? 0))
     };
     
-    // Stress: current/maximum stress
+    // Stress: current stress bar (for Carousel)
+    const stressBars = system.stress?.bars ?? [];
+    const stressIdx = Math.max(0, Math.min(Number(system.stress?.currentBar ?? 0), stressBars.length - 1));
+    const stressBar = stressBars[stressIdx] ?? { current: 0, max: 0 };
+    
     system.tracked.stress = {
-      value: Math.max(0, Number(system.stress?.current ?? 0)),
-      max: Math.max(0, Number(system.stress?.maximum ?? 0))
+      value: Math.max(0, Number(stressBar.current ?? 0)),
+      max: Math.max(0, Number(stressBar.max ?? 0))
     };
     
     // Stones: current/maximum stones
