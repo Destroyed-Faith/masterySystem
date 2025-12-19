@@ -153,6 +153,13 @@ export class StonePowersDialog extends BaseDialog {
       // Only add if this attribute has a pool (was initialized above)
       if (powersByAttribute[attr]) {
         powersByAttribute[attr].push(preparePowerData(power, attr));
+      } else {
+        // Debug: log powers that don't match any pool
+        console.warn('Mastery System | Power not assigned - no pool for attribute:', {
+          powerId: power.id,
+          powerAttribute: power.attribute,
+          availablePools: Object.keys(powersByAttribute)
+        });
       }
     }
     
@@ -164,7 +171,18 @@ export class StonePowersDialog extends BaseDialog {
       attributeSpecificPowersCount: attributeSpecificPowers.length,
       generalPowersCount: generalPowers.length,
       powersByAttributeKeys: Object.keys(powersByAttribute),
-      powersByAttributeCounts: Object.entries(powersByAttribute).map(([key, arr]) => ({ attr: key, count: arr.length }))
+      powersByAttributeCounts: Object.entries(powersByAttribute).map(([key, arr]) => ({ attr: key, count: arr.length, powers: arr.map(p => p.id) }))
+    });
+    
+    // Additional detailed logging
+    console.log('Mastery System | Detailed Power Assignment:', {
+      spendableAttributesCount: spendableAttributes.length,
+      spendableAttributes: spendableAttributes,
+      defaultGeneralAttrKey: defaultGeneralAttrKey,
+      generalPowers: generalPowers.map(p => ({ id: p.id, name: p.name, selectedAttrKey: p.selectedAttrKey })),
+      mightPowers: powersByAttribute['might']?.map(p => ({ id: p.id, name: p.name })) || [],
+      vitalityPowers: powersByAttribute['vitality']?.map(p => ({ id: p.id, name: p.name })) || [],
+      attributeSpecificPowersSample: attributeSpecificPowers.slice(0, 5).map(p => ({ id: p.id, attribute: p.attribute, name: p.name }))
     });
     
     return {
