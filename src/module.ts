@@ -1204,6 +1204,27 @@ Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId:
       data.system.statusEffects = [];
     }
     
+    // Initialize stonePools for characters
+    if (actor.type === 'character') {
+      if (!data.system.stonePools) {
+        data.system.stonePools = {};
+      }
+      
+      // Initialize pools for all attributes (will be calculated properly in prepareBaseData)
+      const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence'] as const;
+      for (const attrKey of attributeKeys) {
+        if (!data.system.stonePools[attrKey]) {
+          const attrValue = data.system.attributes?.[attrKey]?.value || 0;
+          const maxStones = Math.floor(attrValue / 8);
+          data.system.stonePools[attrKey] = {
+            current: maxStones,
+            max: maxStones,
+            sustained: 0
+          };
+        }
+      }
+    }
+    
     console.log('Mastery System | New NPC created - initialized with 30 HP and statusEffects');
   }
 });

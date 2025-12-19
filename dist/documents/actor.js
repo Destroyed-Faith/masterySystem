@@ -26,7 +26,11 @@ export class MasteryActor extends Actor {
             }
             // NEW: Calculate per-attribute stone pools (floor(attribute / 8))
             // For characters only (NPCs may have stones but don't use action bonuses)
-            if (this.type === 'character' && system.stonePools) {
+            if (this.type === 'character') {
+                // Initialize stonePools if it doesn't exist (for new characters)
+                if (!system.stonePools) {
+                    system.stonePools = {};
+                }
                 const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence'];
                 for (const attrKey of attributeKeys) {
                     const attrValue = system.attributes[attrKey]?.value || 0;
