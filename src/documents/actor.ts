@@ -66,11 +66,18 @@ export class MasteryActor extends Actor {
             const sustained = system.stonePools[attrKey].sustained ?? 0;
             const effectiveMax = Math.max(0, maxStones - sustained);
             
-            // Initialize current if missing/undefined/null, otherwise clamp to valid range
-            if (system.stonePools[attrKey].current === undefined || system.stonePools[attrKey].current === null) {
+            // Initialize/refill current if:
+            // - missing/undefined/null -> set to effectiveMax
+            // - is 0 and maxStones > 0 and sustained === 0 -> refill to effectiveMax (character creation or reset case)
+            // - otherwise clamp to valid range
+            const current = system.stonePools[attrKey].current;
+            if (current === undefined || current === null) {
+              system.stonePools[attrKey].current = effectiveMax;
+            } else if (current === 0 && maxStones > 0 && sustained === 0) {
+              // Refill empty pools (character creation or after attribute increase)
               system.stonePools[attrKey].current = effectiveMax;
             } else {
-              system.stonePools[attrKey].current = Math.max(0, Math.min(system.stonePools[attrKey].current, effectiveMax));
+              system.stonePools[attrKey].current = Math.max(0, Math.min(current, effectiveMax));
             }
           }
         }
