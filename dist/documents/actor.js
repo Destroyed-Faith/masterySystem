@@ -42,10 +42,16 @@ export class MasteryActor extends Actor {
                     else {
                         // Update max based on attribute
                         system.stonePools[attrKey].max = maxStones;
-                        // Clamp current: can't exceed (max - sustained)
-                        const sustained = system.stonePools[attrKey].sustained || 0;
-                        const effectiveMax = maxStones - sustained;
-                        system.stonePools[attrKey].current = Math.max(0, Math.min(system.stonePools[attrKey].current || 0, effectiveMax));
+                        // Calculate effective max (max - sustained)
+                        const sustained = system.stonePools[attrKey].sustained ?? 0;
+                        const effectiveMax = Math.max(0, maxStones - sustained);
+                        // Initialize current if missing/undefined/null, otherwise clamp to valid range
+                        if (system.stonePools[attrKey].current === undefined || system.stonePools[attrKey].current === null) {
+                            system.stonePools[attrKey].current = effectiveMax;
+                        }
+                        else {
+                            system.stonePools[attrKey].current = Math.max(0, Math.min(system.stonePools[attrKey].current, effectiveMax));
+                        }
                     }
                 }
             }

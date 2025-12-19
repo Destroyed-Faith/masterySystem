@@ -43,6 +43,8 @@ export class StonePowersDialog extends BaseDialog {
             this.combatant = game.combat.combatants.find((c) => c.actor?.id === this.actor.id) || null;
         }
         const system = this.actor.system;
+        // Temporary debug log to verify pool values
+        console.log("STONE POOLS", this.actor.name, this.actor.system.stonePools);
         const stonePools = system.stonePools || {};
         const availablePowers = getAvailableStonePowers(this.actor);
         const attributes = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence'];

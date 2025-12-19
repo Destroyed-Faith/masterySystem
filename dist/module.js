@@ -1409,6 +1409,53 @@ Hooks.once('ready', async () => {
         // utils/equipment.ts doesn't exist or doesn't export the needed functions - that's okay
         console.log('Mastery System | Equipment backfill skipped (utils/equipment.js not available)');
     }
+    // Migration: Fix stone pool current values for existing actors
+    console.log('Mastery System | Running stone pool migration...');
+    const characterActors = game.actors?.filter((a) => a.type === 'character') || [];
+    let stonePoolsFixed = 0;
+    for (const actor of characterActors) {
+        try {
+            const system = actor.system;
+            const stonePools = system?.stonePools || {};
+            const attributes = system?.attributes || {};
+            const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence'];
+            const updates = {};
+            let needsUpdate = false;
+            for (const attrKey of attributeKeys) {
+                const pool = stonePools[attrKey];
+                if (!pool)
+                    continue;
+                const attrValue = attributes[attrKey]?.value || 0;
+                const maxStones = Math.floor(attrValue / 8);
+                const sustained = pool.sustained ?? 0;
+                const effectiveMax = Math.max(0, maxStones - sustained);
+                // Only fix if max > 0 (actor has stones)
+                if (maxStones > 0) {
+                    // Fix if current is undefined/null OR if current is 0 and actor is not in active combat
+                    const isInCombat = game.combat?.active && game.combat.combatants.some((c) => c.actor?.id === actor.id);
+                    const shouldFix = pool.current === undefined ||
+                        pool.current === null ||
+                        (pool.current === 0 && !isInCombat);
+                    if (shouldFix) {
+                        updates[`system.stonePools.${attrKey}.current`] = effectiveMax;
+                        updates[`system.stonePools.${attrKey}.max`] = maxStones;
+                        needsUpdate = true;
+                    }
+                }
+            }
+            if (needsUpdate) {
+                await actor.update(updates);
+                stonePoolsFixed++;
+                console.log(`Mastery System | Fixed stone pools for ${actor.name}`);
+            }
+        }
+        catch (error) {
+            console.warn(`Mastery System | Could not migrate stone pools for ${actor.name}:`, error);
+        }
+    }
+    if (stonePoolsFixed > 0) {
+        console.log(`Mastery System | Migrated ${stonePoolsFixed} actors (fixed stone pool current values)`);
+    }
 });
 /**
  * Log system information

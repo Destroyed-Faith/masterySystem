@@ -55,6 +55,10 @@ export class StonePowersDialog extends BaseDialog {
     }
     
     const system = (this.actor as any).system;
+    
+    // Temporary debug log to verify pool values
+    console.log("STONE POOLS", (this.actor as any).name, (this.actor as any).system.stonePools);
+    
     const stonePools = system.stonePools || {};
     const availablePowers = getAvailableStonePowers(this.actor);
     
