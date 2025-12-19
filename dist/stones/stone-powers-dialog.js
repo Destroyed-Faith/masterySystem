@@ -130,15 +130,30 @@ export class StonePowersDialog extends BaseDialog {
                 powersByAttribute[attr].push(preparePowerData(power, attr));
             }
             else {
-                // Debug: log powers that don't match any pool
-                console.warn('Mastery System | Power not assigned - no pool for attribute:', {
+                // Debug: log powers that don't match any pool (only for non-generic powers)
+                // This is normal for attributes without pools (agility, intellect, etc.)
+                // Changed to debug level to reduce console noise
+                console.debug('Mastery System | Power not assigned - no pool for attribute:', {
                     powerId: power.id,
                     powerAttribute: power.attribute,
                     availablePools: Object.keys(powersByAttribute)
                 });
             }
         }
+        // Log assignment results for debugging
+        console.log('Mastery System | Power Assignment Results:', {
+            mightCount: powersByAttribute['might']?.length || 0,
+            vitalityCount: powersByAttribute['vitality']?.length || 0,
+            mightPowers: powersByAttribute['might']?.map(p => p.id) || [],
+            vitalityPowers: powersByAttribute['vitality']?.map(p => p.id) || []
+        });
         // Debug logging to help diagnose issues
+        const powersByAttributeCounts = Object.entries(powersByAttribute).map(([key, arr]) => ({
+            attr: key,
+            count: arr.length,
+            powerIds: arr.map(p => p.id),
+            powerNames: arr.map(p => p.name)
+        }));
         console.log('Mastery System | Stone Powers Dialog Context:', {
             pools: pools.map(p => ({ key: p.key, current: p.current, max: p.max })),
             availablePowersCount: availablePowers.length,
@@ -146,7 +161,7 @@ export class StonePowersDialog extends BaseDialog {
             attributeSpecificPowersCount: attributeSpecificPowers.length,
             generalPowersCount: generalPowers.length,
             powersByAttributeKeys: Object.keys(powersByAttribute),
-            powersByAttributeCounts: Object.entries(powersByAttribute).map(([key, arr]) => ({ attr: key, count: arr.length, powers: arr.map(p => p.id) }))
+            powersByAttributeCounts: powersByAttributeCounts
         });
         // Additional detailed logging
         console.log('Mastery System | Detailed Power Assignment:', {
@@ -156,7 +171,13 @@ export class StonePowersDialog extends BaseDialog {
             generalPowers: generalPowers.map(p => ({ id: p.id, name: p.name, selectedAttrKey: p.selectedAttrKey })),
             mightPowers: powersByAttribute['might']?.map(p => ({ id: p.id, name: p.name })) || [],
             vitalityPowers: powersByAttribute['vitality']?.map(p => ({ id: p.id, name: p.name })) || [],
-            attributeSpecificPowersSample: attributeSpecificPowers.slice(0, 5).map(p => ({ id: p.id, attribute: p.attribute, name: p.name }))
+            attributeSpecificPowersByAttr: attributeSpecificPowers.reduce((acc, p) => {
+                const attr = p.attribute;
+                if (!acc[attr])
+                    acc[attr] = [];
+                acc[attr].push({ id: p.id, name: p.name });
+                return acc;
+            }, {})
         });
         return {
             actor: this.actor,
