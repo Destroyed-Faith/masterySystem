@@ -20,6 +20,48 @@
   </div>
 
   <div class="powers-list">
+    {{#if generalPowers.length}}
+    <details class="power-group is-general" open>
+      <summary class="power-group-header">
+        <h4>
+          <i class="fas fa-chevron-right"></i>
+          General Powers
+        </h4>
+        <span class="power-count">({{generalPowers.length}})</span>
+      </summary>
+      <div class="powers-grid">
+        {{#each generalPowers as |power|}}
+        <div class="power-row">
+          <div class="power-row-main">
+            <div class="power-title">
+              <strong class="power-name">{{power.name}}</strong>
+              <div class="general-controls">
+                <select class="js-general-attr-select" data-power-id="{{power.id}}">
+                  {{#each @root.spendableAttributes as |attr|}}
+                  <option value="{{attr.key}}" {{#if (eq attr.key power.selectedAttrKey)}}selected{{/if}}>
+                    {{attr.label}}
+                  </option>
+                  {{/each}}
+                </select>
+                <button type="button" 
+                        class="power-activate-btn js-activate-power" 
+                        data-power-id="{{power.id}}"
+                        data-attribute-key="{{power.selectedAttrKey}}"
+                        title="Activate (Cost: {{power.nextCost}})"
+                        {{#unless @root.hasCombat}}disabled title="Only available during combat"{{/unless}}
+                        {{#unless power.canAfford}}disabled title="Insufficient stones (Cost: {{power.nextCost}})"{{/unless}}>
+                  <i class="fas fa-gem"></i> {{power.nextCost}}
+                </button>
+              </div>
+            </div>
+            <div class="power-desc">{{power.description}}</div>
+          </div>
+        </div>
+        {{/each}}
+      </div>
+    </details>
+    {{/if}}
+    
     {{#each powersByAttribute as |powers attr|}}
     {{#if powers.length}}
     <details class="power-group" {{#if @first}}open{{/if}}>
@@ -35,16 +77,11 @@
         <div class="power-row">
           <div class="power-row-main">
             <div class="power-title">
-              <strong class="power-name">
-                {{power.name}}
-                {{#if power.isGeneric}}
-                <span class="power-tag is-generic">General</span>
-                {{/if}}
-              </strong>
+              <strong class="power-name">{{power.name}}</strong>
               <button type="button" 
                       class="power-activate-btn js-activate-power" 
                       data-power-id="{{power.id}}"
-                      data-attribute-key="{{#if (eq power.attribute 'generic')}}{{attr}}{{else}}{{power.attribute}}{{/if}}"
+                      data-attribute-key="{{power.attribute}}"
                       title="Activate (Cost: {{power.nextCost}})"
                       {{#unless @root.hasCombat}}disabled title="Only available during combat"{{/unless}}
                       {{#unless power.canAfford}}disabled title="Insufficient stones (Cost: {{power.nextCost}})"{{/unless}}>

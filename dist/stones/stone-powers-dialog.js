@@ -12,6 +12,7 @@ export class StonePowersDialog extends BaseDialog {
     actor;
     combatant;
     resolve;
+    _generalAttrSelection = {}; // Track selected attribute per generic power
     static DEFAULT_OPTIONS = {
         id: "mastery-stone-powers",
         classes: ["mastery-system", "stone-powers-dialog"],
@@ -59,23 +60,35 @@ export class StonePowersDialog extends BaseDialog {
             };
         })
             .filter(pool => pool.max > 0); // Only show pools with stones
-        // Organize powers by attribute section
-        // Generic powers appear in EACH attribute section
-        const powersByAttribute = {};
         // Check if actor is in combat
         const hasCombat = !!game.combat && !!this.combatant;
         const combat = game.combat;
+        // Prepare spendable attributes for General Powers selector
+        const spendableAttributes = pools.map(pool => ({
+            key: pool.key,
+            label: pool.name,
+            current: pool.current,
+            max: pool.max
+        }));
+        // Determine default attribute for generic powers
+        // First pool with current > 0, else first pool with max > 0
+        const defaultGeneralAttrKey = (() => {
+            const withCurrent = pools.find(p => p.current > 0);
+            if (withCurrent)
+                return withCurrent.key;
+            if (pools.length > 0)
+                return pools[0].key;
+            return 'might'; // Fallback
+        })();
         // Helper to prepare power data with cost calculation
         const preparePowerData = (power, attrKey) => {
-            // Determine which attribute pool to use
-            const poolAttribute = power.attribute === 'generic' ? attrKey : power.attribute;
             // Calculate next cost based on usage count
             const usesThisTurn = hasCombat && combat
-                ? getStoneUsageCount(this.actor, poolAttribute, power.id, combat)
+                ? getStoneUsageCount(this.actor, attrKey, power.id, combat)
                 : 0;
             const nextCost = calculateStoneCost(usesThisTurn);
             // Check if can afford
-            const pool = getStonePool(this.actor, poolAttribute);
+            const pool = getStonePool(this.actor, attrKey);
             const canAfford = pool.current >= nextCost && hasCombat;
             // Use description as primary, fallback to effect if description is empty
             const description = power.description || power.effect || '';
@@ -86,31 +99,27 @@ export class StonePowersDialog extends BaseDialog {
                 attribute: power.attribute,
                 nextCost: nextCost,
                 canAfford: canAfford,
-                isGeneric: power.attribute === 'generic'
+                selectedAttrKey: attrKey // For generic powers, this is the selected attribute
             };
         };
-        // First, add attribute-specific powers
-        for (const power of availablePowers) {
-            if (power.attribute !== 'generic') {
-                const attr = power.attribute;
-                if (!powersByAttribute[attr]) {
-                    powersByAttribute[attr] = [];
-                }
-                // Only add if this attribute has a pool
-                if (pools.some(p => p.key === attr)) {
-                    powersByAttribute[attr].push(preparePowerData(power, attr));
-                }
-            }
-        }
-        // Then, add generic powers to EACH attribute section that has a pool
+        // Separate generic and attribute-specific powers
         const genericPowers = availablePowers.filter(p => p.attribute === 'generic');
-        for (const pool of pools) {
-            const attr = pool.key;
+        const attributeSpecificPowers = availablePowers.filter(p => p.attribute !== 'generic');
+        // Prepare General Powers with selected attributes
+        const generalPowers = genericPowers.map(power => {
+            // Get selected attribute for this power, or use default
+            const selectedAttrKey = this._generalAttrSelection[power.id] || defaultGeneralAttrKey;
+            return preparePowerData(power, selectedAttrKey);
+        });
+        // Organize attribute-specific powers by attribute section
+        const powersByAttribute = {};
+        for (const power of attributeSpecificPowers) {
+            const attr = power.attribute;
             if (!powersByAttribute[attr]) {
                 powersByAttribute[attr] = [];
             }
-            // Add generic powers to this attribute section
-            for (const power of genericPowers) {
+            // Only add if this attribute has a pool
+            if (pools.some(p => p.key === attr)) {
                 powersByAttribute[attr].push(preparePowerData(power, attr));
             }
         }
@@ -118,12 +127,29 @@ export class StonePowersDialog extends BaseDialog {
             actor: this.actor,
             pools,
             powersByAttribute,
+            generalPowers,
+            spendableAttributes,
+            defaultGeneralAttrKey,
             hasCombat
         };
     }
     async _onRender(_context, _options) {
         super._onRender?.(_context, _options);
         const root = this.element;
+        // General Powers attribute selector change handlers
+        root.querySelectorAll('.js-general-attr-select').forEach((select) => {
+            select.onchange = async (ev) => {
+                ev.preventDefault();
+                const powerId = select.dataset.powerId;
+                const selectedAttrKey = select.value;
+                if (!powerId)
+                    return;
+                // Store selection
+                this._generalAttrSelection[powerId] = selectedAttrKey;
+                // Re-render to update costs and button states
+                await this.render({ force: true });
+            };
+        });
         // Activate power buttons
         root.querySelectorAll('.js-activate-power').forEach((btn) => {
             btn.onclick = async (ev) => {

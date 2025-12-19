@@ -9,6 +9,7 @@ export declare class StonePowersDialog extends BaseDialog {
     private actor;
     private combatant;
     private resolve?;
+    private _generalAttrSelection;
     static DEFAULT_OPTIONS: {
         id: string;
         classes: string[];
