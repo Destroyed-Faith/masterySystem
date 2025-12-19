@@ -21,36 +21,43 @@
 
   <div class="powers-list">
     {{#each powersByAttribute as |powers attr|}}
+    {{#if powers.length}}
     <details class="power-group" {{#if @first}}open{{/if}}>
       <summary class="power-group-header">
         <h4>
           <i class="fas fa-chevron-right"></i>
-          {{#if (eq attr 'generic')}}Generic Powers{{else}}{{attr}} Powers{{/if}}
+          {{attr}} Powers
         </h4>
         <span class="power-count">({{powers.length}})</span>
       </summary>
       <div class="powers-grid">
         {{#each powers as |power|}}
-        <div class="power-item">
-          <div class="power-info">
-            <strong>{{power.name}}</strong>
-            <p class="power-desc">{{power.description}}</p>
-            {{#if power.effect}}
-            <p class="power-effect">{{power.effect}}</p>
-            {{/if}}
-            <span class="power-cost">Cost: {{power.cost}} stone(s)</span>
+        <div class="power-row">
+          <div class="power-row-main">
+            <div class="power-title">
+              <strong class="power-name">
+                {{power.name}}
+                {{#if power.isGeneric}}
+                <span class="power-tag is-generic">General</span>
+                {{/if}}
+              </strong>
+              <button type="button" 
+                      class="power-activate-btn js-activate-power" 
+                      data-power-id="{{power.id}}"
+                      data-attribute-key="{{#if (eq power.attribute 'generic')}}{{attr}}{{else}}{{power.attribute}}{{/if}}"
+                      title="Activate (Cost: {{power.nextCost}})"
+                      {{#unless @root.hasCombat}}disabled title="Only available during combat"{{/unless}}
+                      {{#unless power.canAfford}}disabled title="Insufficient stones (Cost: {{power.nextCost}})"{{/unless}}>
+                <i class="fas fa-gem"></i> {{power.nextCost}}
+              </button>
+            </div>
+            <div class="power-desc">{{power.description}}</div>
           </div>
-          <button type="button" 
-                  class="power-activate-btn js-activate-power" 
-                  data-power-id="{{power.id}}"
-                  data-attribute-key="{{#if (eq power.attribute 'generic')}}{{attr}}{{else}}{{power.attribute}}{{/if}}"
-                  {{#unless @root.hasCombat}}disabled title="Only available during combat"{{/unless}}>
-            <i class="fas fa-gem"></i> Activate
-          </button>
         </div>
         {{/each}}
       </div>
     </details>
+    {{/if}}
     {{/each}}
   </div>
 

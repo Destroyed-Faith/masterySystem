@@ -7,6 +7,7 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
 import { STONE_POWERS, activateStonePower, getAvailableStonePowers } from './stone-activation.js';
+import { getStoneUsageCount, calculateStoneCost, getStonePool } from '../combat/action-economy.js';
 export class StonePowersDialog extends BaseDialog {
     actor;
     combatant;
@@ -61,6 +62,33 @@ export class StonePowersDialog extends BaseDialog {
         // Organize powers by attribute section
         // Generic powers appear in EACH attribute section
         const powersByAttribute = {};
+        // Check if actor is in combat
+        const hasCombat = !!game.combat && !!this.combatant;
+        const combat = game.combat;
+        // Helper to prepare power data with cost calculation
+        const preparePowerData = (power, attrKey) => {
+            // Determine which attribute pool to use
+            const poolAttribute = power.attribute === 'generic' ? attrKey : power.attribute;
+            // Calculate next cost based on usage count
+            const usesThisTurn = hasCombat && combat
+                ? getStoneUsageCount(this.actor, poolAttribute, power.id, combat)
+                : 0;
+            const nextCost = calculateStoneCost(usesThisTurn);
+            // Check if can afford
+            const pool = getStonePool(this.actor, poolAttribute);
+            const canAfford = pool.current >= nextCost && hasCombat;
+            // Use description as primary, fallback to effect if description is empty
+            const description = power.description || power.effect || '';
+            return {
+                id: power.id,
+                name: power.name,
+                description: description,
+                attribute: power.attribute,
+                nextCost: nextCost,
+                canAfford: canAfford,
+                isGeneric: power.attribute === 'generic'
+            };
+        };
         // First, add attribute-specific powers
         for (const power of availablePowers) {
             if (power.attribute !== 'generic') {
@@ -70,14 +98,7 @@ export class StonePowersDialog extends BaseDialog {
                 }
                 // Only add if this attribute has a pool
                 if (pools.some(p => p.key === attr)) {
-                    powersByAttribute[attr].push({
-                        id: power.id,
-                        name: power.name,
-                        description: power.description,
-                        effect: power.effect,
-                        attribute: power.attribute,
-                        cost: 1 // Stone cost is calculated dynamically based on usage
-                    });
+                    powersByAttribute[attr].push(preparePowerData(power, attr));
                 }
             }
         }
@@ -90,18 +111,9 @@ export class StonePowersDialog extends BaseDialog {
             }
             // Add generic powers to this attribute section
             for (const power of genericPowers) {
-                powersByAttribute[attr].push({
-                    id: power.id,
-                    name: power.name,
-                    description: power.description,
-                    effect: power.effect,
-                    attribute: power.attribute, // Keep as 'generic'
-                    cost: 1
-                });
+                powersByAttribute[attr].push(preparePowerData(power, attr));
             }
         }
-        // Check if actor is in combat
-        const hasCombat = !!game.combat && !!this.combatant;
         return {
             actor: this.actor,
             pools,
