@@ -63,14 +63,19 @@ export class StonePowersDialog extends BaseDialog {
     // Filter pools to only show those with max > 0
     const pools = attributes
       .map(attr => {
-        const pool = stonePools[attr] || { current: 0, max: 0, sustained: 0 };
+        const pool = stonePools[attr];
+        // Handle both object and direct value access
+        const current = (pool?.current ?? pool?.value ?? 0);
+        const max = (pool?.max ?? pool?.maximum ?? 0);
+        const sustained = (pool?.sustained ?? 0);
+        
         return {
           key: attr,
           name: attr.charAt(0).toUpperCase() + attr.slice(1),
-          current: pool.current,
-          max: pool.max,
-          sustained: pool.sustained || 0,
-          available: pool.current - (pool.sustained || 0)
+          current: Number(current) || 0,
+          max: Number(max) || 0,
+          sustained: Number(sustained) || 0,
+          available: (Number(current) || 0) - (Number(sustained) || 0)
         };
       })
       .filter(pool => pool.max > 0);  // Only show pools with stones
@@ -134,17 +139,33 @@ export class StonePowersDialog extends BaseDialog {
     });
     
     // Organize attribute-specific powers by attribute section
+    // Create entries for all attributes that have pools (max > 0)
     const powersByAttribute: Record<string, any[]> = {};
+    
+    // First, initialize arrays for all pools that exist
+    for (const pool of pools) {
+      powersByAttribute[pool.key] = [];
+    }
+    
+    // Then, add powers to their respective attribute sections
     for (const power of attributeSpecificPowers) {
       const attr = power.attribute as AttributeKey;
-      if (!powersByAttribute[attr]) {
-        powersByAttribute[attr] = [];
-      }
-      // Only add if this attribute has a pool
-      if (pools.some(p => p.key === attr)) {
+      // Only add if this attribute has a pool (was initialized above)
+      if (powersByAttribute[attr]) {
         powersByAttribute[attr].push(preparePowerData(power, attr));
       }
     }
+    
+    // Debug logging to help diagnose issues
+    console.log('Mastery System | Stone Powers Dialog Context:', {
+      pools: pools.map(p => ({ key: p.key, current: p.current, max: p.max })),
+      availablePowersCount: availablePowers.length,
+      genericPowersCount: genericPowers.length,
+      attributeSpecificPowersCount: attributeSpecificPowers.length,
+      generalPowersCount: generalPowers.length,
+      powersByAttributeKeys: Object.keys(powersByAttribute),
+      powersByAttributeCounts: Object.entries(powersByAttribute).map(([key, arr]) => ({ attr: key, count: arr.length }))
+    });
     
     return {
       actor: this.actor,
