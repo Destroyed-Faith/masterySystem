@@ -46,61 +46,122 @@ export function initializeSceneControls(): void {
     // In Foundry v13, controls is a Record (object), not an array
     // Add controls directly as properties
     
-    // Define tool handlers as separate functions to ensure they're properly bound
-    const handleThemePreview = async function() {
-      console.log('Mastery System | Theme Preview clicked');
-      await ThemePreviewApp.show();
+    // Define theme preview handlers for each theme
+    const handleThemePreviewRulebook = async function() {
+      console.log('Mastery System | Theme preview clicked: rulebook');
+      try {
+        await ThemePreviewApp.show('rulebook');
+      } catch (err) {
+        console.error('Mastery System | Theme preview failed', err);
+        ui.notifications?.error('Theme preview failed - see console');
+      }
+    };
+    
+    const handleThemePreviewEmber = async function() {
+      console.log('Mastery System | Theme preview clicked: ember');
+      try {
+        await ThemePreviewApp.show('ember');
+      } catch (err) {
+        console.error('Mastery System | Theme preview failed', err);
+        ui.notifications?.error('Theme preview failed - see console');
+      }
+    };
+    
+    const handleThemePreviewAshen = async function() {
+      console.log('Mastery System | Theme preview clicked: ashen');
+      try {
+        await ThemePreviewApp.show('ashen');
+      } catch (err) {
+        console.error('Mastery System | Theme preview failed', err);
+        ui.notifications?.error('Theme preview failed - see console');
+      }
+    };
+    
+    const handleThemePreviewBloodmoon = async function() {
+      console.log('Mastery System | Theme preview clicked: bloodmoon');
+      try {
+        await ThemePreviewApp.show('bloodmoon');
+      } catch (err) {
+        console.error('Mastery System | Theme preview failed', err);
+        ui.notifications?.error('Theme preview failed - see console');
+      }
+    };
+    
+    const handleThemePreviewCurrent = async function() {
+      const currentTheme = (game as any).settings?.get('mastery-system', 'uiTheme') || 'rulebook';
+      console.log(`Mastery System | Theme preview clicked: current (${currentTheme})`);
+      try {
+        await ThemePreviewApp.show();
+      } catch (err) {
+        console.error('Mastery System | Theme preview failed', err);
+        ui.notifications?.error('Theme preview failed - see console');
+      }
     };
     
     const handlePassiveSelection = async function() {
       console.log('Mastery System | Passive Selection clicked');
-      const actor = resolveActiveActor();
-      if (!actor) {
-        ui.notifications?.warn('Select a token or assign a User Character first.');
-        return;
-      }
+      try {
+        const actor = resolveActiveActor();
+        if (!actor) {
+          ui.notifications?.warn('Select a token or assign a User Character first.');
+          return;
+        }
 
-      // If in combat, use combatant; otherwise create dummy combatant for preview
-      const combatant = resolveCombatant(actor);
-      if (combatant) {
-        // In combat: use existing dialog
-        await PassiveSelectionDialog.showForCombatant(combatant, false);
-      } else {
-        // Not in combat: create dummy combatant for preview
-        ui.notifications?.info('Opening Passive Selection in preview mode (not in combat).');
-        ui.notifications?.warn('Passive Selection is only available during combat. Start a combat encounter first.');
+        // If in combat, use combatant; otherwise create dummy combatant for preview
+        const combatant = resolveCombatant(actor);
+        if (combatant) {
+          // In combat: use existing dialog
+          await PassiveSelectionDialog.showForCombatant(combatant, false);
+        } else {
+          // Not in combat: create dummy combatant for preview
+          ui.notifications?.info('Opening Passive Selection in preview mode (not in combat).');
+          ui.notifications?.warn('Passive Selection is only available during combat. Start a combat encounter first.');
+        }
+      } catch (err) {
+        console.error('Mastery System | Passive Selection failed', err);
+        ui.notifications?.error('Passive Selection failed - see console');
       }
     };
     
     const handleInitiativeShop = async function() {
       console.log('Mastery System | Initiative Shop clicked');
-      const actor = resolveActiveActor();
-      if (!actor) {
-        ui.notifications?.warn('Select a token or assign a User Character first.');
-        return;
-      }
+      try {
+        const actor = resolveActiveActor();
+        if (!actor) {
+          ui.notifications?.warn('Select a token or assign a User Character first.');
+          return;
+        }
 
-      const combatant = resolveCombatant(actor);
-      if (combatant && game.combat) {
-        // In combat: roll initiative and show shop
-        const breakdown = await rollInitiativeForCombatant(combatant);
-        await InitiativeShopDialog.showForCombatant(combatant, breakdown, game.combat);
-      } else {
-        // Not in combat: show preview with dummy context
-        ui.notifications?.info('Initiative Shop is only available during combat. Start a combat encounter first.');
+        const combatant = resolveCombatant(actor);
+        if (combatant && game.combat) {
+          // In combat: roll initiative and show shop
+          const breakdown = await rollInitiativeForCombatant(combatant);
+          await InitiativeShopDialog.showForCombatant(combatant, breakdown, game.combat);
+        } else {
+          // Not in combat: show preview with dummy context
+          ui.notifications?.info('Initiative Shop is only available during combat. Start a combat encounter first.');
+        }
+      } catch (err) {
+        console.error('Mastery System | Initiative Shop failed', err);
+        ui.notifications?.error('Initiative Shop failed - see console');
       }
     };
     
     const handleStonePowers = async function() {
       console.log('Mastery System | Stone Powers clicked');
-      const actor = resolveActiveActor();
-      if (!actor) {
-        ui.notifications?.warn('Select a token or assign a User Character first.');
-        return;
-      }
+      try {
+        const actor = resolveActiveActor();
+        if (!actor) {
+          ui.notifications?.warn('Select a token or assign a User Character first.');
+          return;
+        }
 
-      const combatant = resolveCombatant(actor);
-      await StonePowersDialog.showForActor(actor, combatant || null);
+        const combatant = resolveCombatant(actor);
+        await StonePowersDialog.showForActor(actor, combatant || null);
+      } catch (err) {
+        console.error('Mastery System | Stone Powers failed', err);
+        ui.notifications?.error('Stone Powers failed - see console');
+      }
     };
     
     const handleDamageDialogTest = async function() {
@@ -146,17 +207,24 @@ export function initializeSceneControls(): void {
     
     const handleCarouselRefresh = function() {
       console.log('Mastery System | Carousel Refresh clicked');
-      const instance = CombatCarouselApp.instance;
-      if (instance && (instance as any).rendered) {
-        CombatCarouselApp.refresh();
-        ui.notifications?.info('Combat Carousel refreshed.');
-      } else {
-        CombatCarouselApp.open();
-        ui.notifications?.info('Combat Carousel opened.');
+      try {
+        const instance = CombatCarouselApp.instance;
+        if (instance && (instance as any).rendered) {
+          CombatCarouselApp.refresh();
+          ui.notifications?.info('Combat Carousel refreshed.');
+        } else {
+          CombatCarouselApp.open();
+          ui.notifications?.info('Combat Carousel opened.');
+        }
+      } catch (err) {
+        console.error('Mastery System | Carousel Refresh failed', err);
+        ui.notifications?.error('Carousel Refresh failed - see console');
       }
     };
     
     // Add Mastery group directly to controls object
+    // IMPORTANT: Do NOT set button: true on the control group itself in Foundry v13
+    // Only set button: true on individual tools that should execute onClick immediately
     controls.mastery = {
       name: 'mastery',
       title: 'Mastery',
@@ -164,10 +232,38 @@ export function initializeSceneControls(): void {
       layer: 'TokenLayer',
       tools: [
         {
-          name: 'themePreview',
-          title: 'Theme Preview',
+          name: 'themePreviewRulebook',
+          title: 'Theme Preview: Rulebook',
+          icon: 'fas fa-scroll',
+          onClick: handleThemePreviewRulebook,
+          button: true
+        },
+        {
+          name: 'themePreviewEmber',
+          title: 'Theme Preview: Ember',
+          icon: 'fas fa-fire',
+          onClick: handleThemePreviewEmber,
+          button: true
+        },
+        {
+          name: 'themePreviewAshen',
+          title: 'Theme Preview: Ashen',
+          icon: 'fas fa-mountain',
+          onClick: handleThemePreviewAshen,
+          button: true
+        },
+        {
+          name: 'themePreviewBloodmoon',
+          title: 'Theme Preview: Bloodmoon',
+          icon: 'fas fa-moon',
+          onClick: handleThemePreviewBloodmoon,
+          button: true
+        },
+        {
+          name: 'themePreviewCurrent',
+          title: 'Theme Preview: Current',
           icon: 'fas fa-palette',
-          onClick: handleThemePreview,
+          onClick: handleThemePreviewCurrent,
           button: true
         },
         {
@@ -207,11 +303,12 @@ export function initializeSceneControls(): void {
         }
       ],
       activeTool: '',
-      visible: true,
-      button: true
+      visible: true
+      // DO NOT set button: true on the control group - only on individual tools
     };
     
     console.log('Mastery System | Scene controls added:', controls.mastery);
+    console.log('Mastery System | Tools with button:true:', controls.mastery.tools.filter((t: any) => t.button === true).map((t: any) => t.name));
   });
 }
 

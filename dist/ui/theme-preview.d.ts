@@ -22,7 +22,10 @@ export declare class ThemePreviewApp extends BaseApp {
             template: string;
         };
     };
-    static show(): Promise<void>;
+    private previewTheme?;
+    private originalTheme?;
+    static show(theme?: string): Promise<void>;
+    close(options?: any): Promise<this>;
     _prepareContext(_options: any): Promise<any>;
     _onRender(_context: any, _options: any): Promise<void>;
 }
