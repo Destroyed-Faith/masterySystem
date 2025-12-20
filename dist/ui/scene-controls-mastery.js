@@ -36,8 +36,25 @@ function resolveCombatant(actor) {
 export function initializeSceneControls() {
     console.log('Mastery System | Initializing scene controls');
     Hooks.on('getSceneControlButtons', (controls) => {
+        // In Foundry v13, controls might be a Map or array-like object
+        // Convert to array if needed
+        let controlsArray = [];
+        if (Array.isArray(controls)) {
+            controlsArray = controls;
+        }
+        else if (controls instanceof Map) {
+            controlsArray = Array.from(controls.values());
+        }
+        else if (controls && typeof controls === 'object') {
+            // Try to convert object/collection to array
+            controlsArray = Object.values(controls);
+        }
+        else {
+            console.error('Mastery System | Unknown controls structure:', controls);
+            return;
+        }
         // Find the tools control group (or create if needed)
-        let toolsControl = controls.find(c => c.name === 'tools');
+        let toolsControl = controlsArray.find((c) => c.name === 'tools');
         if (!toolsControl) {
             // Create tools control if it doesn't exist
             toolsControl = {
@@ -50,7 +67,7 @@ export function initializeSceneControls() {
                 visible: true,
                 button: true
             };
-            controls.push(toolsControl);
+            controlsArray.push(toolsControl);
         }
         // Add Mastery group
         const masteryControl = {
@@ -196,12 +213,20 @@ export function initializeSceneControls() {
             button: true
         };
         // Insert Mastery control after tools (or at end if tools not found)
-        const toolsIndex = controls.findIndex(c => c.name === 'tools');
+        const toolsIndex = controlsArray.findIndex((c) => c.name === 'tools');
         if (toolsIndex >= 0) {
-            controls.splice(toolsIndex + 1, 0, masteryControl);
+            controlsArray.splice(toolsIndex + 1, 0, masteryControl);
         }
         else {
-            controls.push(masteryControl);
+            controlsArray.push(masteryControl);
+        }
+        // If controls was a Map, update it
+        if (controls instanceof Map) {
+            controls.set('mastery', masteryControl);
+        }
+        else if (!Array.isArray(controls)) {
+            // If it was an object, update it
+            controls.mastery = masteryControl;
         }
     });
 }

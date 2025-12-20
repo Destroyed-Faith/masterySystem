@@ -565,6 +565,18 @@ function registerHandlebarsHelpersImmediate() {
     });
 }
 /**
+ * Apply theme class to document.body
+ */
+function applyThemeClass(theme) {
+    // Remove all existing theme classes
+    document.body.classList.remove('ms-theme-rulebook', 'ms-theme-ember', 'ms-theme-ashen', 'ms-theme-bloodmoon');
+    // Add new theme class
+    if (theme) {
+        document.body.classList.add(`ms-theme-${theme}`);
+        console.log(`Mastery System | Applied theme: ${theme}`);
+    }
+}
+/**
  * Register system settings
  */
 function registerSystemSettings() {
@@ -680,18 +692,6 @@ function registerSystemSettings() {
             applyThemeClass(value);
         }
     });
-}
-/**
- * Apply theme class to document.body
- */
-function applyThemeClass(theme) {
-    // Remove all existing theme classes
-    document.body.classList.remove('ms-theme-rulebook', 'ms-theme-ember', 'ms-theme-ashen', 'ms-theme-bloodmoon');
-    // Add new theme class
-    if (theme) {
-        document.body.classList.add(`ms-theme-${theme}`);
-        console.log(`Mastery System | Applied theme: ${theme}`);
-    }
 }
 /**
  * Setup XP Management inline in settings
