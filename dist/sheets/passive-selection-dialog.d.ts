@@ -12,6 +12,7 @@ export declare class PassiveSelectionDialog extends BaseDialog {
     private currentIndex;
     private pcs;
     private resolve?;
+    private readOnly;
     static DEFAULT_OPTIONS: {
         id: string;
         classes: string[];
@@ -30,13 +31,15 @@ export declare class PassiveSelectionDialog extends BaseDialog {
     };
     /**
      * Show passive selection dialog for a single combatant
+     * @param combatant The combatant to show the dialog for
+     * @param readOnly If true, dialog is read-only (view only, cannot change choices)
      */
-    static showForCombatant(combatant: Combatant): Promise<void>;
+    static showForCombatant(combatant: Combatant, readOnly?: boolean): Promise<void>;
     /**
      * Show passive selection dialog for all player-controlled combatants
      */
     static showForCombat(combat: Combat): Promise<void>;
-    constructor(pcs: Combatant[], resolve: () => void);
+    constructor(pcs: Combatant[], resolve: () => void, readOnly?: boolean);
     get currentCombatant(): Combatant | null;
     get currentActor(): Actor | null;
     protected _prepareContext(_options: any): Promise<any>;

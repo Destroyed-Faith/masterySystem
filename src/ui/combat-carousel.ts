@@ -14,6 +14,7 @@ const BaseCarousel = HandlebarsApplicationMixin(ApplicationV2) as typeof Applica
 
 export class CombatCarouselApp extends BaseCarousel {
   private static _instance: CombatCarouselApp | null = null;
+  private hooks: number[] = [];
 
   static DEFAULT_OPTIONS = {
     id: 'mastery-combat-carousel',
@@ -146,10 +147,13 @@ export class CombatCarouselApp extends BaseCarousel {
         }).filter((i: string) => i));
       }
 
+      // Use actor portrait, not token image
+      const portraitImg = actor.img || (actor.prototypeToken as any)?.texture?.src || combatant.img;
+      
       combatants.push({
         id: combatant.id,
         name: combatant.name || actor.name,
-        img: combatant.img || actor.img,
+        img: portraitImg,
         initiative: combatant.initiative ?? 0,
         isCurrent: combatant.id === combat.current?.combatantId,
         hidden: combatant.hidden || false,
@@ -185,6 +189,9 @@ export class CombatCarouselApp extends BaseCarousel {
     // Add body class when carousel is rendered
     document.body.classList.add('mastery-carousel-open');
     console.log('Mastery System | [CAROUSEL] Carousel rendered, body class added');
+
+    // Register hooks for live updates (only once per render)
+    this.registerUpdateHooks();
 
     // Portrait click - pan to token
     root.querySelectorAll('.carousel-portrait').forEach((portrait: HTMLElement) => {
@@ -348,10 +355,123 @@ export class CombatCarouselApp extends BaseCarousel {
   }
 
   async _onClose(_options: any): Promise<void> {
+    // Remove hooks
+    this.unregisterUpdateHooks();
+    
     // Remove body class when carousel is closed
     document.body.classList.remove('mastery-carousel-open');
     console.log('Mastery System | [CAROUSEL] Carousel closed, body class removed');
     return super._onClose(_options);
+  }
+
+  /**
+   * Register hooks for live HP/Stress updates
+   */
+  private registerUpdateHooks(): void {
+    // Unregister any existing hooks first
+    this.unregisterUpdateHooks();
+
+    // Hook: Update actor (for linked tokens)
+    const updateActorHook = Hooks.on('updateActor', (actor: any, updateData: any) => {
+      const actorId = actor?.id || actor?._id;
+      if (!actorId || !this.isRelevantActor(actorId)) return;
+      
+      // Check if HP/Stress fields changed
+      const hasRelevantChange = this.hasRelevantChange(updateData, 'actor');
+      if (hasRelevantChange) {
+        this.debouncedRefresh();
+      }
+    });
+    this.hooks.push(updateActorHook);
+
+    // Hook: Update token (for unlinked tokens)
+    const updateTokenHook = Hooks.on('updateToken', (tokenDoc: any, updateData: any) => {
+      if (!this.isRelevantToken(tokenDoc.id)) return;
+      
+      // Check if HP/Stress fields changed (in delta or actorData)
+      const hasRelevantChange = this.hasRelevantChange(updateData, 'token');
+      if (hasRelevantChange) {
+        this.debouncedRefresh();
+      }
+    });
+    this.hooks.push(updateTokenHook);
+  }
+
+  /**
+   * Unregister update hooks
+   */
+  private unregisterUpdateHooks(): void {
+    for (const hookId of this.hooks) {
+      Hooks.off('updateActor', hookId);
+      Hooks.off('updateToken', hookId);
+    }
+    this.hooks = [];
+  }
+
+  /**
+   * Check if an actor is relevant to any combatant in the carousel
+   */
+  private isRelevantActor(actorId: string): boolean {
+    const combat = game.combat;
+    if (!combat) return false;
+
+    for (const combatant of combat.combatants) {
+      if (combatant.actor?.id === actorId) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Check if a token is relevant to any combatant in the carousel
+   */
+  private isRelevantToken(tokenId: string): boolean {
+    const combat = game.combat;
+    if (!combat) return false;
+
+    for (const combatant of combat.combatants) {
+      const combatantTokenId = combatant.tokenId || (combatant.token as any)?.id;
+      if (combatantTokenId === tokenId) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Check if update data contains relevant HP/Stress changes
+   */
+  private hasRelevantChange(updateData: any, source: 'actor' | 'token'): boolean {
+    if (!updateData) return false;
+
+    // For simplicity, always refresh if system data changed
+    // (optimization: could check specific paths like system.tracked.hp, system.tracked.stress, system.health)
+    if (source === 'actor') {
+      return updateData.system !== undefined;
+    } else {
+      // For tokens, check delta.system or actorData.system
+      return updateData.delta?.system !== undefined || 
+             updateData.actorData?.system !== undefined ||
+             updateData.system !== undefined;
+    }
+  }
+
+  /**
+   * Debounced refresh to avoid excessive re-renders
+   */
+  private refreshTimeout: number | null = null;
+  private debouncedRefresh(): void {
+    if (this.refreshTimeout !== null) {
+      clearTimeout(this.refreshTimeout);
+    }
+    
+    this.refreshTimeout = window.setTimeout(() => {
+      if ((this as any).rendered) {
+        CombatCarouselApp.refresh();
+      }
+      this.refreshTimeout = null;
+    }, 150);
   }
 
   /**

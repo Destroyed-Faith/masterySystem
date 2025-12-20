@@ -196,7 +196,33 @@ export function registerAttackRollClickHandler(): void {
       if (result.success && result.raises >= 0) {
         // Always get fresh actors to ensure latest items
         const freshAttackerForDialog = (game as any).actors?.get(flags.attackerId) || freshAttacker;
-        const target = (game as any).actors?.get(flags.targetId);
+        
+        // Resolve target: prefer token actor if targetTokenId exists (for unlinked tokens)
+        let target: any = null;
+        if (flags.targetTokenId) {
+          // Try to get token document from current scene
+          const tokenDoc = canvas?.scene?.tokens?.get(flags.targetTokenId);
+          if (tokenDoc?.actor) {
+            target = tokenDoc.actor;
+            console.log('Mastery System | [ATTACK ROLL] Resolved target from token', {
+              targetTokenId: flags.targetTokenId,
+              targetId: (target as any).id,
+              targetName: (target as any).name,
+              isTokenActor: true
+            });
+          }
+        }
+        
+        // Fallback to base actor if token not found
+        if (!target) {
+          target = (game as any).actors?.get(flags.targetId) || null;
+          console.log('Mastery System | [ATTACK ROLL] Resolved target from base actor', {
+            targetId: flags.targetId,
+            targetName: target ? (target as any).name : null,
+            isTokenActor: false
+          });
+        }
+        
         if (target) {
           // Re-read flags from message to get updated power selection
           const currentMessage = (game as any).messages?.get(messageId);
@@ -477,11 +503,11 @@ export function registerAttackRollClickHandler(): void {
           });
           
           const { showDamageDialog } = await import('../dice/damage-dialog.js');
-          // Use freshAttackerForDialog that was already loaded above (ensures latest items)
-          const targetToUse = (game as any).actors?.get(target.id) || target;
+          // Use the resolved target (token actor if available, otherwise base actor)
+          // Do NOT replace with game.actors.get() as that would lose the token actor reference
           const damageResult = await showDamageDialog(
             freshAttackerForDialog,
-            targetToUse,
+            target,
             weaponId,
             updatedFlags.selectedPowerId || null,
             totalRaises,
@@ -499,7 +525,7 @@ export function registerAttackRollClickHandler(): void {
           
           if (damageResult) {
             // Roll and display damage
-            await rollAndDisplayDamage(damageResult, attacker, target, flags);
+            await rollAndDisplayDamage(damageResult, attacker as any, target, flags);
           } else {
             console.warn('Mastery System | [AFTER DAMAGE DIALOG] No damage result returned from showDamageDialog');
           }

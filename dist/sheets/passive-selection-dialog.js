@@ -14,6 +14,7 @@ export class PassiveSelectionDialog extends BaseDialog {
     currentIndex = 0;
     pcs;
     resolve;
+    readOnly = false;
     static DEFAULT_OPTIONS = {
         id: "mastery-passive-selection",
         classes: ["mastery-system", "passive-selection"],
@@ -25,11 +26,14 @@ export class PassiveSelectionDialog extends BaseDialog {
     };
     /**
      * Show passive selection dialog for a single combatant
+     * @param combatant The combatant to show the dialog for
+     * @param readOnly If true, dialog is read-only (view only, cannot change choices)
      */
-    static async showForCombatant(combatant) {
+    static async showForCombatant(combatant, readOnly = false) {
         console.log('Mastery System | [PASSIVE DIALOG] showForCombatant', {
             combatantId: combatant.id,
-            actorName: combatant.actor?.name
+            actorName: combatant.actor?.name,
+            readOnly
         });
         const user = game.user;
         if (!user || (!user.isGM && !combatant.actor?.isOwner)) {
@@ -42,7 +46,7 @@ export class PassiveSelectionDialog extends BaseDialog {
             return;
         }
         return new Promise(resolve => {
-            const app = new PassiveSelectionDialog([combatant], resolve);
+            const app = new PassiveSelectionDialog([combatant], resolve, readOnly);
             app.render(true);
         });
     }
@@ -74,10 +78,11 @@ export class PassiveSelectionDialog extends BaseDialog {
             app.render(true);
         });
     }
-    constructor(pcs, resolve) {
+    constructor(pcs, resolve, readOnly = false) {
         super({});
         this.pcs = pcs;
         this.resolve = resolve;
+        this.readOnly = readOnly;
     }
     get currentCombatant() {
         return this.pcs[this.currentIndex] ?? null;
@@ -106,75 +111,97 @@ export class PassiveSelectionDialog extends BaseDialog {
             total: this.pcs.length,
             isFirst: this.currentIndex === 0,
             isLast: this.currentIndex === this.pcs.length - 1,
-            isGM: game.user?.isGM ?? false
+            isGM: game.user?.isGM ?? false,
+            readOnly: this.readOnly
         };
     }
     async _onRender(_context, _options) {
         const root = this.element;
-        // Drag & Drop handlers
-        root.querySelectorAll('.draggable-passive').forEach(el => {
-            el.draggable = true;
-            el.ondragstart = (ev) => {
-                const passiveId = el.dataset.passiveId || '';
-                if (ev.dataTransfer) {
-                    ev.dataTransfer.effectAllowed = 'move';
-                    ev.dataTransfer.setData('text/plain', passiveId);
-                }
-                el.classList.add('dragging');
-            };
-            el.ondragend = () => {
-                el.classList.remove('dragging');
-                root.querySelectorAll('.droppable-slot').forEach(slot => slot.classList.remove('drag-over'));
-            };
-        });
-        // Drop zones
-        root.querySelectorAll('.droppable-slot').forEach(slot => {
-            slot.ondragover = (ev) => {
-                ev.preventDefault();
-                if (ev.dataTransfer)
-                    ev.dataTransfer.dropEffect = 'move';
-                slot.classList.add('drag-over');
-            };
-            slot.ondragleave = () => {
-                slot.classList.remove('drag-over');
-            };
-            slot.ondrop = async (ev) => {
-                ev.preventDefault();
-                const actor = this.currentActor;
-                if (!actor)
-                    return;
-                const slotIndex = Number(slot.dataset.slotIndex ?? 0);
-                const passiveId = ev.dataTransfer?.getData('text/plain') || '';
-                if (!passiveId || !slot.classList.contains('empty'))
-                    return;
-                await slotPassive(actor, slotIndex, passiveId);
-                await this.render({ force: true });
-            };
-        });
-        // Toggle passive active/inactive
-        root.querySelectorAll('.js-toggle-passive').forEach(btn => {
-            btn.onclick = async (ev) => {
-                ev.preventDefault();
-                const actor = this.currentActor;
-                if (!actor)
-                    return;
-                const slotIndex = Number(btn.dataset.slotIndex ?? 0);
-                await activatePassive(actor, slotIndex);
-                await this.render({ force: true });
-            };
-        });
-        // Unslot passive
-        root.querySelectorAll('.js-unslot-passive').forEach(btn => {
-            btn.onclick = async (ev) => {
-                ev.preventDefault();
-                const actor = this.currentActor;
-                if (!actor)
-                    return;
-                const slotIndex = Number(btn.dataset.slotIndex ?? 0);
-                await unslotPassive(actor, slotIndex);
-                await this.render({ force: true });
-            };
-        });
+        // If read-only, disable all interactive elements
+        if (this.readOnly) {
+            root.classList.add('read-only');
+            root.querySelectorAll('.draggable-passive').forEach(el => {
+                el.draggable = false;
+                el.style.opacity = '0.6';
+                el.style.cursor = 'not-allowed';
+            });
+            root.querySelectorAll('.droppable-slot').forEach(slot => {
+                slot.style.pointerEvents = 'none';
+                slot.style.opacity = '0.6';
+            });
+            root.querySelectorAll('.js-toggle-passive, .js-unslot-passive').forEach(btn => {
+                btn.style.display = 'none';
+            });
+            root.querySelectorAll('.available-passives-section').forEach(section => {
+                section.style.display = 'none';
+            });
+        }
+        else {
+            // Drag & Drop handlers
+            root.querySelectorAll('.draggable-passive').forEach(el => {
+                el.draggable = true;
+                el.ondragstart = (ev) => {
+                    const passiveId = el.dataset.passiveId || '';
+                    if (ev.dataTransfer) {
+                        ev.dataTransfer.effectAllowed = 'move';
+                        ev.dataTransfer.setData('text/plain', passiveId);
+                    }
+                    el.classList.add('dragging');
+                };
+                el.ondragend = () => {
+                    el.classList.remove('dragging');
+                    root.querySelectorAll('.droppable-slot').forEach(slot => slot.classList.remove('drag-over'));
+                };
+            });
+            // Drop zones
+            root.querySelectorAll('.droppable-slot').forEach(slot => {
+                slot.ondragover = (ev) => {
+                    ev.preventDefault();
+                    if (ev.dataTransfer)
+                        ev.dataTransfer.dropEffect = 'move';
+                    slot.classList.add('drag-over');
+                };
+                slot.ondragleave = () => {
+                    slot.classList.remove('drag-over');
+                };
+                slot.ondrop = async (ev) => {
+                    ev.preventDefault();
+                    const actor = this.currentActor;
+                    if (!actor)
+                        return;
+                    const slotIndex = Number(slot.dataset.slotIndex ?? 0);
+                    const passiveId = ev.dataTransfer?.getData('text/plain') || '';
+                    if (!passiveId || !slot.classList.contains('empty'))
+                        return;
+                    await slotPassive(actor, slotIndex, passiveId);
+                    await this.render({ force: true });
+                };
+            });
+            // Toggle passive active/inactive
+            root.querySelectorAll('.js-toggle-passive').forEach(btn => {
+                btn.onclick = async (ev) => {
+                    ev.preventDefault();
+                    const actor = this.currentActor;
+                    if (!actor)
+                        return;
+                    const slotIndex = Number(btn.dataset.slotIndex ?? 0);
+                    await activatePassive(actor, slotIndex);
+                    await this.render({ force: true });
+                };
+            });
+            // Unslot passive
+            root.querySelectorAll('.js-unslot-passive').forEach(btn => {
+                btn.onclick = async (ev) => {
+                    ev.preventDefault();
+                    const actor = this.currentActor;
+                    if (!actor)
+                        return;
+                    const slotIndex = Number(btn.dataset.slotIndex ?? 0);
+                    await unslotPassive(actor, slotIndex);
+                    await this.render({ force: true });
+                };
+            });
+        }
         // Navigation: Next
         const nextBtn = root.querySelector('.js-next-character');
         if (nextBtn) {

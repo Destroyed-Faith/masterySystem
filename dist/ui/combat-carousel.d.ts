@@ -8,6 +8,7 @@ declare const ApplicationV2: typeof import("@league-of-foundry-developers/foundr
 declare const BaseCarousel: typeof ApplicationV2;
 export declare class CombatCarouselApp extends BaseCarousel {
     private static _instance;
+    private hooks;
     static DEFAULT_OPTIONS: {
         id: string;
         classes: string[];
@@ -39,9 +40,38 @@ export declare class CombatCarouselApp extends BaseCarousel {
      * Get the singleton instance
      */
     static get instance(): CombatCarouselApp | null;
+    /**
+     * Refresh the carousel (re-render with current combat state)
+     */
+    static refresh(): void;
     _prepareContext(_options: any): Promise<any>;
     _onRender(_context: any, _options: any): Promise<void>;
     _onClose(_options: any): Promise<void>;
+    /**
+     * Register hooks for live HP/Stress updates
+     */
+    private registerUpdateHooks;
+    /**
+     * Unregister update hooks
+     */
+    private unregisterUpdateHooks;
+    /**
+     * Check if an actor is relevant to any combatant in the carousel
+     */
+    private isRelevantActor;
+    /**
+     * Check if a token is relevant to any combatant in the carousel
+     */
+    private isRelevantToken;
+    /**
+     * Check if update data contains relevant HP/Stress changes
+     */
+    private hasRelevantChange;
+    /**
+     * Debounced refresh to avoid excessive re-renders
+     */
+    private refreshTimeout;
+    private debouncedRefresh;
     /**
      * Safely get resource value from actor system using path
      */

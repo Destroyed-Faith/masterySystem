@@ -10,6 +10,7 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseCarousel = HandlebarsApplicationMixin(ApplicationV2);
 export class CombatCarouselApp extends BaseCarousel {
     static _instance = null;
+    hooks = [];
     static DEFAULT_OPTIONS = {
         id: 'mastery-combat-carousel',
         classes: ['mastery-system', 'combat-carousel'],
@@ -58,6 +59,16 @@ export class CombatCarouselApp extends BaseCarousel {
     static get instance() {
         return CombatCarouselApp._instance;
     }
+    /**
+     * Refresh the carousel (re-render with current combat state)
+     */
+    static refresh() {
+        const instance = CombatCarouselApp.instance;
+        if (instance && instance.rendered) {
+            console.log('Mastery System | [CAROUSEL] Refreshing carousel');
+            instance.render({ force: true });
+        }
+    }
     async _prepareContext(_options) {
         const combat = game.combats?.active;
         console.log('Mastery System | [CAROUSEL] _prepareContext called', {
@@ -76,11 +87,27 @@ export class CombatCarouselApp extends BaseCarousel {
         const resource2Label = game.settings.get('mastery-system', 'carouselResource2Label') || 'Stress';
         // Build combatants array
         const combatants = [];
-        // Use combat.turns if available, otherwise sort combatants by initiative
+        // Use combat.turns if available and has items, otherwise sort combatants by initiative
         let turns = combat.turns || [];
         if (turns.length === 0 && combat.combatants) {
+            // Sort by initiative descending (highest first)
             turns = Array.from(combat.combatants.values()).sort((a, b) => {
-                return (b.initiative ?? 0) - (a.initiative ?? 0);
+                const aInit = a.initiative ?? 0;
+                const bInit = b.initiative ?? 0;
+                // If initiatives are equal, maintain original order
+                if (aInit === bInit)
+                    return 0;
+                return bInit - aInit;
+            });
+        }
+        else if (turns.length > 0) {
+            // Ensure turns are sorted by initiative (in case Foundry didn't sort them)
+            turns = [...turns].sort((a, b) => {
+                const aInit = a.initiative ?? 0;
+                const bInit = b.initiative ?? 0;
+                if (aInit === bInit)
+                    return 0;
+                return bInit - aInit;
             });
         }
         for (const combatant of turns) {
@@ -102,10 +129,12 @@ export class CombatCarouselApp extends BaseCarousel {
                     return icon;
                 }).filter((i) => i));
             }
+            // Use actor portrait, not token image
+            const portraitImg = actor.img || actor.prototypeToken?.texture?.src || combatant.img;
             combatants.push({
                 id: combatant.id,
                 name: combatant.name || actor.name,
-                img: combatant.img || actor.img,
+                img: portraitImg,
                 initiative: combatant.initiative ?? 0,
                 isCurrent: combatant.id === combat.current?.combatantId,
                 hidden: combatant.hidden || false,
@@ -137,6 +166,8 @@ export class CombatCarouselApp extends BaseCarousel {
         // Add body class when carousel is rendered
         document.body.classList.add('mastery-carousel-open');
         console.log('Mastery System | [CAROUSEL] Carousel rendered, body class added');
+        // Register hooks for live updates (only once per render)
+        this.registerUpdateHooks();
         // Portrait click - pan to token
         root.querySelectorAll('.carousel-portrait').forEach((portrait) => {
             portrait.onclick = async (_ev) => {
@@ -284,10 +315,114 @@ export class CombatCarouselApp extends BaseCarousel {
         });
     }
     async _onClose(_options) {
+        // Remove hooks
+        this.unregisterUpdateHooks();
         // Remove body class when carousel is closed
         document.body.classList.remove('mastery-carousel-open');
         console.log('Mastery System | [CAROUSEL] Carousel closed, body class removed');
         return super._onClose(_options);
+    }
+    /**
+     * Register hooks for live HP/Stress updates
+     */
+    registerUpdateHooks() {
+        // Unregister any existing hooks first
+        this.unregisterUpdateHooks();
+        // Hook: Update actor (for linked tokens)
+        const updateActorHook = Hooks.on('updateActor', (actor, updateData) => {
+            const actorId = actor?.id || actor?._id;
+            if (!actorId || !this.isRelevantActor(actorId))
+                return;
+            // Check if HP/Stress fields changed
+            const hasRelevantChange = this.hasRelevantChange(updateData, 'actor');
+            if (hasRelevantChange) {
+                this.debouncedRefresh();
+            }
+        });
+        this.hooks.push(updateActorHook);
+        // Hook: Update token (for unlinked tokens)
+        const updateTokenHook = Hooks.on('updateToken', (tokenDoc, updateData) => {
+            if (!this.isRelevantToken(tokenDoc.id))
+                return;
+            // Check if HP/Stress fields changed (in delta or actorData)
+            const hasRelevantChange = this.hasRelevantChange(updateData, 'token');
+            if (hasRelevantChange) {
+                this.debouncedRefresh();
+            }
+        });
+        this.hooks.push(updateTokenHook);
+    }
+    /**
+     * Unregister update hooks
+     */
+    unregisterUpdateHooks() {
+        for (const hookId of this.hooks) {
+            Hooks.off('updateActor', hookId);
+            Hooks.off('updateToken', hookId);
+        }
+        this.hooks = [];
+    }
+    /**
+     * Check if an actor is relevant to any combatant in the carousel
+     */
+    isRelevantActor(actorId) {
+        const combat = game.combat;
+        if (!combat)
+            return false;
+        for (const combatant of combat.combatants) {
+            if (combatant.actor?.id === actorId) {
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
+     * Check if a token is relevant to any combatant in the carousel
+     */
+    isRelevantToken(tokenId) {
+        const combat = game.combat;
+        if (!combat)
+            return false;
+        for (const combatant of combat.combatants) {
+            const combatantTokenId = combatant.tokenId || combatant.token?.id;
+            if (combatantTokenId === tokenId) {
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
+     * Check if update data contains relevant HP/Stress changes
+     */
+    hasRelevantChange(updateData, source) {
+        if (!updateData)
+            return false;
+        // For simplicity, always refresh if system data changed
+        // (optimization: could check specific paths like system.tracked.hp, system.tracked.stress, system.health)
+        if (source === 'actor') {
+            return updateData.system !== undefined;
+        }
+        else {
+            // For tokens, check delta.system or actorData.system
+            return updateData.delta?.system !== undefined ||
+                updateData.actorData?.system !== undefined ||
+                updateData.system !== undefined;
+        }
+    }
+    /**
+     * Debounced refresh to avoid excessive re-renders
+     */
+    refreshTimeout = null;
+    debouncedRefresh() {
+        if (this.refreshTimeout !== null) {
+            clearTimeout(this.refreshTimeout);
+        }
+        this.refreshTimeout = window.setTimeout(() => {
+            if (this.rendered) {
+                CombatCarouselApp.refresh();
+            }
+            this.refreshTimeout = null;
+        }, 150);
     }
     /**
      * Safely get resource value from actor system using path

@@ -22,6 +22,7 @@ import { rollInitiativeForAllCombatants } from './combat/initiative-roll.js';
 import { InitiativeShopDialog } from './combat/initiative-shop-dialog.js';
 import { CombatCarouselApp } from './ui/combat-carousel.js';
 import { initializeStoneHooks } from './stones/stone-hooks.js';
+import { initializeEncounterStart, beginEncounter } from './combat/encounter-start.js';
 // Dice roller functions are imported in sheets where needed
 console.log('Mastery System | All imports completed');
 // Register Handlebars helpers immediately (before init hook)
@@ -294,16 +295,55 @@ Hooks.once('init', async function () {
                 }
             });
         });
-        // Add "Select Passives" button to encounter controls
+        // Add "Begin Encounter" and "Select Passives" buttons to encounter controls
         const encounterControls = $html.find('.encounter-controls');
         if (encounterControls.length > 0) {
-            // Remove any existing button to prevent duplicates
-            encounterControls.find('.ms-passive-selection-btn').remove();
+            // Remove any existing buttons to prevent duplicates
+            encounterControls.find('.ms-begin-encounter-btn, .ms-passive-selection-btn').remove();
             // Add button to the left control buttons area
             const leftControls = encounterControls.find('.control-buttons.left');
             if (leftControls.length > 0) {
+                const combat = game.combat;
+                // Add "Begin Encounter" button (GM only)
+                if (combat && game.user?.isGM) {
+                    // Check if encounter setup has started
+                    const flags = combat.flags['mastery-system'] || {};
+                    const setup = flags.encounterSetup;
+                    const isStarted = setup?.started === true || combat.round > 0;
+                    const beginBtn = $('<button type="button" class="inline-control combat-control icon fa-solid fa-play ms-begin-encounter-btn" data-action="beginEncounter" data-tooltip="Begin Encounter" aria-label="Begin Encounter"></button>');
+                    if (isStarted) {
+                        beginBtn.prop('disabled', true).addClass('disabled');
+                        beginBtn.attr('data-tooltip', 'Encounter already initialized');
+                    }
+                    leftControls.prepend(beginBtn);
+                    // Add click handler
+                    beginBtn.off('click.ms-begin').on('click.ms-begin', async (ev) => {
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                        const combat = game.combat;
+                        if (!combat) {
+                            ui.notifications?.warn('No active combat encounter');
+                            return;
+                        }
+                        // Check if already started
+                        const flags = combat.flags['mastery-system'] || {};
+                        const setup = flags.encounterSetup;
+                        if (setup?.started === true || combat.round > 0) {
+                            ui.notifications?.warn('Encounter already initialized');
+                            return;
+                        }
+                        try {
+                            await beginEncounter(combat);
+                        }
+                        catch (error) {
+                            console.error('Mastery System | Error beginning encounter', error);
+                            ui.notifications?.error('Failed to begin encounter');
+                        }
+                    });
+                }
+                // Add "Select Passives" button (legacy, for manual use)
                 const passiveBtn = $('<button type="button" class="inline-control combat-control icon fa-solid fa-shield ms-passive-selection-btn" data-action="selectPassives" data-tooltip="Select Passives" aria-label="Select Passives"></button>');
-                leftControls.prepend(passiveBtn);
+                leftControls.append(passiveBtn);
                 // Add click handler
                 passiveBtn.off('click.ms-passive').on('click.ms-passive', async (ev) => {
                     console.log('Mastery System | [PASSIVE DIALOG DEBUG] Button clicked in combat tracker');
@@ -346,6 +386,9 @@ Hooks.once('init', async function () {
     // Initialize stone system hooks (turn state, regen, restore)
     initializeStoneHooks();
     console.log('Mastery System | Stone system hooks initialized');
+    // Initialize encounter start system
+    initializeEncounterStart();
+    console.log('Mastery System | Encounter start system initialized');
     // Initialize token action selector
     initializeTokenActionSelector();
     // Initialize turn indicator (blue ring around active combatant)
