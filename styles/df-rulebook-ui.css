@@ -1,0 +1,632 @@
+/**
+ * Destroyed Faith / Rulebook UI Theme
+ * Cohesive dark fantasy theme for all Mastery System dialogs and combat carousel
+ * Scoped to mastery-system only - does not affect other systems
+ */
+
+/* ========================================
+   Font Imports
+   ======================================== */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cormorant+Garamond:wght@300;400;500;600;700&family=MedievalSharp&display=swap');
+
+/* ========================================
+   CSS Variables - Rulebook Palette
+   ======================================== */
+:root {
+  --df-bg-primary: #20272B;
+  --df-bg-panel: #2a3136;
+  --df-bg-header: #1b2124;
+  --df-text-primary: #d0d0d0;
+  --df-text-secondary: #a0a0a0;
+  --df-text-muted: #707070;
+  --df-border-primary: #3a3f44;
+  --df-border-subtle: rgba(255, 255, 255, 0.1);
+  --df-border-highlight: rgba(255, 255, 255, 0.2);
+  --df-accent-subtle: rgba(255, 255, 255, 0.15);
+  --df-shadow: rgba(0, 0, 0, 0.5);
+}
+
+/* ========================================
+   Global Dialog Styling
+   ======================================== */
+.application.mastery-system:not(.sheet) {
+  font-family: 'Cormorant Garamond', serif;
+  color: var(--df-text-primary);
+}
+
+.application.mastery-system:not(.sheet) .window-content {
+  background: var(--df-bg-primary);
+  color: var(--df-text-primary);
+  border: 1px solid var(--df-border-primary);
+}
+
+.application.mastery-system:not(.sheet) .window-header {
+  background: var(--df-bg-header);
+  border-bottom: 1px solid var(--df-border-primary);
+  padding: 0.5rem 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+.application.mastery-system:not(.sheet) .window-header .window-title {
+  color: var(--df-text-primary);
+  font-weight: 400;
+}
+
+.application.mastery-system:not(.sheet) .window-header .header-button {
+  color: var(--df-text-secondary);
+  opacity: 0.7;
+}
+
+.application.mastery-system:not(.sheet) .window-header .header-button:hover {
+  opacity: 1;
+  color: var(--df-text-primary);
+}
+
+/* ========================================
+   Typography
+   ======================================== */
+.application.mastery-system:not(.sheet) h1,
+.application.mastery-system:not(.sheet) h2,
+.application.mastery-system:not(.sheet) h3,
+.application.mastery-system:not(.sheet) h4 {
+  font-family: 'Cinzel Decorative', serif;
+  color: var(--df-text-primary);
+  font-weight: 400;
+  margin: 0.5rem 0;
+}
+
+.application.mastery-system:not(.sheet) h1 {
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.application.mastery-system:not(.sheet) h2 {
+  font-size: 1.3rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.application.mastery-system:not(.sheet) h3 {
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.application.mastery-system:not(.sheet) h4 {
+  font-size: 1rem;
+}
+
+.application.mastery-system:not(.sheet) p,
+.application.mastery-system:not(.sheet) span,
+.application.mastery-system:not(.sheet) div,
+.application.mastery-system:not(.sheet) label {
+  font-family: 'Cormorant Garamond', serif;
+  color: var(--df-text-primary);
+}
+
+.application.mastery-system:not(.sheet) .flavor-text,
+.application.mastery-system:not(.sheet) .quote,
+.application.mastery-system:not(.sheet) blockquote {
+  font-family: 'MedievalSharp', cursive;
+  font-style: italic;
+  color: var(--df-text-secondary);
+}
+
+/* ========================================
+   Buttons
+   ======================================== */
+.application.mastery-system:not(.sheet) button {
+  background: var(--df-bg-panel);
+  color: var(--df-text-primary);
+  border: 1px solid var(--df-border-primary);
+  padding: 0.5rem 1rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+
+.application.mastery-system:not(.sheet) button:hover:not(:disabled) {
+  background: var(--df-bg-header);
+  border-color: var(--df-border-highlight);
+  color: var(--df-text-primary);
+  box-shadow: 0 2px 4px var(--df-shadow);
+}
+
+.application.mastery-system:not(.sheet) button:disabled {
+  background: var(--df-bg-panel);
+  color: var(--df-text-muted);
+  border-color: var(--df-border-primary);
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.application.mastery-system:not(.sheet) button.danger,
+.application.mastery-system:not(.sheet) button[type="button"].danger {
+  background: var(--df-bg-panel);
+  border-color: var(--df-border-primary);
+  color: var(--df-text-secondary);
+}
+
+.application.mastery-system:not(.sheet) button.danger:hover:not(:disabled) {
+  background: var(--df-bg-header);
+  border-color: var(--df-border-highlight);
+  color: var(--df-text-primary);
+}
+
+.application.mastery-system:not(.sheet) button.success {
+  background: var(--df-bg-panel);
+  border-color: var(--df-border-primary);
+  color: var(--df-text-primary);
+}
+
+.application.mastery-system:not(.sheet) button.success:hover:not(:disabled) {
+  background: var(--df-bg-header);
+  border-color: var(--df-border-highlight);
+}
+
+/* ========================================
+   Inputs and Selects
+   ======================================== */
+.application.mastery-system:not(.sheet) input,
+.application.mastery-system:not(.sheet) select,
+.application.mastery-system:not(.sheet) textarea {
+  background: var(--df-bg-panel);
+  color: var(--df-text-primary);
+  border: 1px solid var(--df-border-primary);
+  padding: 0.4rem 0.6rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.95rem;
+}
+
+.application.mastery-system:not(.sheet) input:focus,
+.application.mastery-system:not(.sheet) select:focus,
+.application.mastery-system:not(.sheet) textarea:focus {
+  outline: none;
+  border-color: var(--df-border-highlight);
+  box-shadow: 0 0 0 2px var(--df-accent-subtle);
+}
+
+/* ========================================
+   Links
+   ======================================== */
+.application.mastery-system:not(.sheet) a {
+  color: var(--df-text-secondary);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.application.mastery-system:not(.sheet) a:hover {
+  color: var(--df-text-primary);
+  border-bottom-color: var(--df-border-subtle);
+}
+
+/* ========================================
+   Accordion (Details/Summary)
+   ======================================== */
+.application.mastery-system:not(.sheet) details {
+  margin: 0.5rem 0;
+  border: 1px solid var(--df-border-primary);
+  background: var(--df-bg-panel);
+  border-radius: 2px;
+}
+
+.application.mastery-system:not(.sheet) details summary {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500;
+  color: var(--df-text-primary);
+  background: var(--df-bg-panel);
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.application.mastery-system:not(.sheet) details summary:hover {
+  background: var(--df-bg-header);
+  color: var(--df-text-primary);
+}
+
+.application.mastery-system:not(.sheet) details summary:focus {
+  outline: 1px solid var(--df-border-highlight);
+  outline-offset: -1px;
+}
+
+.application.mastery-system:not(.sheet) details[open] summary {
+  border-bottom: 1px solid var(--df-border-primary);
+  background: var(--df-bg-header);
+}
+
+.application.mastery-system:not(.sheet) details .details-content {
+  padding: 1rem;
+  background: var(--df-bg-primary);
+}
+
+/* ========================================
+   Stone Powers Dialog Specific
+   ======================================== */
+.application.mastery-system:not(.sheet) .stone-powers-dialog {
+  background: var(--df-bg-primary);
+}
+
+.application.mastery-system:not(.sheet) .stone-powers-dialog .dialog-header {
+  border-bottom: 1px solid var(--df-border-primary);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.application.mastery-system:not(.sheet) .stone-powers-dialog .power-row {
+  background: var(--df-bg-panel);
+  border: 1px solid var(--df-border-primary);
+  border-radius: 2px;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.application.mastery-system:not(.sheet) .stone-powers-dialog .power-row:hover {
+  border-color: var(--df-border-highlight);
+  background: var(--df-bg-header);
+}
+
+.application.mastery-system:not(.sheet) .stone-powers-dialog .power-row:last-child {
+  margin-bottom: 0;
+}
+
+.application.mastery-system:not(.sheet) .stone-powers-dialog .power-name {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1rem;
+  color: var(--df-text-primary);
+  font-weight: 400;
+}
+
+.application.mastery-system:not(.sheet) .stone-powers-dialog .power-cost {
+  background: var(--df-bg-header);
+  border: 1px solid var(--df-border-primary);
+  color: var(--df-text-primary);
+  padding: 0.25rem 0.5rem;
+  border-radius: 2px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  min-width: 2.5rem;
+  text-align: center;
+  display: inline-block;
+}
+
+.application.mastery-system:not(.sheet) .stone-powers-dialog .power-cost:hover {
+  border-color: var(--df-border-highlight);
+  background: var(--df-bg-panel);
+}
+
+.application.mastery-system:not(.sheet) .stone-powers-dialog .power-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.application.mastery-system:not(.sheet) .stone-powers-dialog .power-tag {
+  background: var(--df-bg-header);
+  border: 1px solid var(--df-border-primary);
+  color: var(--df-text-secondary);
+  padding: 0.2rem 0.4rem;
+  border-radius: 2px;
+  font-size: 0.8rem;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+/* ========================================
+   Combat Carousel
+   ======================================== */
+#mastery-combat-carousel,
+.mastery-carousel {
+  background: var(--df-bg-primary) !important;
+  border-bottom: 1px solid var(--df-border-primary) !important;
+  box-shadow: 0 4px 8px var(--df-shadow) !important;
+}
+
+.mastery-carousel {
+  background: var(--df-bg-primary) !important;
+}
+
+.mastery-carousel.is-active {
+  display: flex !important;
+}
+
+#mastery-combat-carousel .window-content {
+  background: transparent !important;
+}
+
+.carousel-combatants {
+  scrollbar-color: var(--df-border-primary) var(--df-bg-panel);
+}
+
+.carousel-combatants::-webkit-scrollbar-track {
+  background: var(--df-bg-panel);
+}
+
+.carousel-combatants::-webkit-scrollbar-thumb {
+  background: var(--df-border-primary);
+}
+
+.carousel-combatants::-webkit-scrollbar-thumb:hover {
+  background: var(--df-border-highlight);
+}
+
+.carousel-portrait {
+  background: var(--df-bg-panel) !important;
+  border: 1px solid var(--df-border-primary) !important;
+}
+
+.carousel-portrait.current-turn {
+  border-color: var(--df-border-highlight) !important;
+  background: var(--df-bg-header) !important;
+  box-shadow: 0 0 8px var(--df-accent-subtle) !important;
+}
+
+.carousel-portrait .portrait-image {
+  border: 1px solid var(--df-border-primary);
+}
+
+.carousel-portrait .portrait-name {
+  color: var(--df-text-primary);
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.9rem;
+}
+
+.carousel-portrait .portrait-stats {
+  color: var(--df-text-secondary);
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.carousel-portrait .hp-bar,
+.carousel-portrait .stress-bar {
+  background: var(--df-bg-header);
+  border: 1px solid var(--df-border-primary);
+}
+
+.carousel-portrait .hp-bar-fill {
+  background: var(--df-text-secondary);
+}
+
+.carousel-portrait .stress-bar-fill {
+  background: var(--df-text-muted);
+}
+
+.carousel-portrait.current-turn .hp-bar-fill {
+  background: var(--df-text-primary);
+}
+
+.carousel-portrait.current-turn .stress-bar-fill {
+  background: var(--df-text-secondary);
+}
+
+/* Override bright colors in carousel */
+.carousel-portrait:hover {
+  border-color: var(--df-border-highlight) !important;
+  box-shadow: 0 4px 12px var(--df-shadow) !important;
+}
+
+.carousel-portrait.is-current {
+  border-color: var(--df-border-highlight) !important;
+  box-shadow: 0 0 12px var(--df-accent-subtle) !important;
+}
+
+.current-indicator {
+  background: var(--df-text-primary) !important;
+  border-color: var(--df-border-primary) !important;
+  box-shadow: 0 0 8px var(--df-accent-subtle) !important;
+}
+
+.initiative-badge {
+  background: var(--df-bg-header) !important;
+  color: var(--df-text-primary) !important;
+  border-color: var(--df-border-primary) !important;
+}
+
+.portrait-end-turn {
+  background: var(--df-bg-panel) !important;
+  border-color: var(--df-border-primary) !important;
+  color: var(--df-text-primary) !important;
+}
+
+.portrait-end-turn:hover:not(:disabled) {
+  background: var(--df-bg-header) !important;
+  border-color: var(--df-border-highlight) !important;
+  box-shadow: 0 2px 4px var(--df-shadow) !important;
+}
+
+/* ========================================
+   Initiative Shop Dialog
+   ======================================== */
+.application.mastery-system:not(.sheet).initiative-shop {
+  background: var(--df-bg-primary);
+}
+
+.application.mastery-system:not(.sheet).initiative-shop .shop-header {
+  background: var(--df-bg-header);
+  border-bottom: 1px solid var(--df-border-primary);
+  padding: 1rem;
+}
+
+.application.mastery-system:not(.sheet).initiative-shop .actor-info h2 {
+  font-family: 'Cinzel Decorative', serif;
+  color: var(--df-text-primary);
+}
+
+.application.mastery-system:not(.sheet).initiative-shop .mastery-badge {
+  background: var(--df-bg-panel);
+  border: 1px solid var(--df-border-primary);
+  color: var(--df-text-primary);
+}
+
+.application.mastery-system:not(.sheet).initiative-shop .remaining-pill {
+  background: var(--df-bg-panel);
+  border: 1px solid var(--df-border-primary);
+}
+
+.application.mastery-system:not(.sheet).initiative-shop .shop-item {
+  background: var(--df-bg-panel);
+  border: 1px solid var(--df-border-primary);
+}
+
+.application.mastery-system:not(.sheet).initiative-shop .shop-item:hover {
+  border-color: var(--df-border-highlight);
+  background: var(--df-bg-header);
+}
+
+.application.mastery-system:not(.sheet).initiative-shop .cost-badge {
+  background: var(--df-bg-header);
+  border: 1px solid var(--df-border-primary);
+  color: var(--df-text-primary);
+}
+
+.application.mastery-system:not(.sheet).initiative-shop .stepper-btn {
+  background: var(--df-bg-panel);
+  border: 1px solid var(--df-border-primary);
+  color: var(--df-text-primary);
+}
+
+.application.mastery-system:not(.sheet).initiative-shop .stepper-btn:hover:not(:disabled) {
+  background: var(--df-bg-header);
+  border-color: var(--df-border-highlight);
+}
+
+.application.mastery-system:not(.sheet).initiative-shop .toggle-btn {
+  background: var(--df-bg-panel);
+  border: 1px solid var(--df-border-primary);
+  color: var(--df-text-primary);
+}
+
+.application.mastery-system:not(.sheet).initiative-shop .toggle-btn:hover:not(:disabled) {
+  background: var(--df-bg-header);
+  border-color: var(--df-border-highlight);
+}
+
+.application.mastery-system:not(.sheet).initiative-shop .toggle-btn.purchased {
+  background: var(--df-bg-header);
+  border-color: var(--df-border-highlight);
+}
+
+/* ========================================
+   Passive Selection Dialog
+   ======================================== */
+.application.mastery-system:not(.sheet).passive-selection {
+  background: var(--df-bg-primary);
+}
+
+.application.mastery-system:not(.sheet).passive-selection .overlay-header {
+  background: var(--df-bg-header);
+  border-bottom: 1px solid var(--df-border-primary);
+}
+
+.application.mastery-system:not(.sheet).passive-selection .character-panel {
+  background: var(--df-bg-panel);
+  border: 1px solid var(--df-border-primary);
+}
+
+/* ========================================
+   Damage Dialog
+   ======================================== */
+.application.mastery-system:not(.sheet) .damage-dialog {
+  background: var(--df-bg-primary);
+}
+
+.application.mastery-system:not(.sheet) .damage-dialog .damage-header {
+  background: var(--df-bg-header);
+  border-bottom: 1px solid var(--df-border-primary);
+  padding: 1rem;
+}
+
+.application.mastery-system:not(.sheet) .damage-dialog .damage-options {
+  background: var(--df-bg-panel);
+  border: 1px solid var(--df-border-primary);
+}
+
+/* ========================================
+   Tables
+   ======================================== */
+.application.mastery-system:not(.sheet) table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--df-bg-panel);
+  border: 1px solid var(--df-border-primary);
+}
+
+.application.mastery-system:not(.sheet) thead {
+  background: var(--df-bg-header);
+}
+
+.application.mastery-system:not(.sheet) th {
+  padding: 0.75rem;
+  text-align: left;
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.9rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--df-text-primary);
+  border-bottom: 1px solid var(--df-border-primary);
+}
+
+.application.mastery-system:not(.sheet) td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--df-border-subtle);
+  color: var(--df-text-primary);
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.application.mastery-system:not(.sheet) tbody tr:nth-child(odd) {
+  background: var(--df-bg-panel);
+}
+
+.application.mastery-system:not(.sheet) tbody tr:nth-child(even) {
+  background: var(--df-bg-primary);
+}
+
+.application.mastery-system:not(.sheet) tbody tr:hover {
+  background: var(--df-bg-header);
+  border-color: var(--df-border-highlight);
+}
+
+/* ========================================
+   Badges, Pills, Chips
+   ======================================== */
+.application.mastery-system:not(.sheet) .badge,
+.application.mastery-system:not(.sheet) .pill,
+.application.mastery-system:not(.sheet) .chip {
+  background: var(--df-bg-header);
+  border: 1px solid var(--df-border-primary);
+  color: var(--df-text-primary);
+  font-family: 'Cormorant Garamond', serif;
+}
+
+/* ========================================
+   Overrides for Bright Colors
+   ======================================== */
+/* Remove any bright reds, blues, greens from dialogs */
+.application.mastery-system:not(.sheet) .btn-primary,
+.application.mastery-system:not(.sheet) button[type="submit"] {
+  background: var(--df-bg-panel);
+  border-color: var(--df-border-primary);
+  color: var(--df-text-primary);
+}
+
+.application.mastery-system:not(.sheet) .btn-primary:hover:not(:disabled),
+.application.mastery-system:not(.sheet) button[type="submit"]:hover:not(:disabled) {
+  background: var(--df-bg-header);
+  border-color: var(--df-border-highlight);
+  color: var(--df-text-primary);
+}
+
+/* Override any remaining bright colors - handled by specific selectors above */
