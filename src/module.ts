@@ -25,6 +25,7 @@ import { InitiativeShopDialog } from './combat/initiative-shop-dialog.js';
 import { CombatCarouselApp } from './ui/combat-carousel.js';
 import { initializeStoneHooks } from './stones/stone-hooks.js';
 import { initializeEncounterStart, beginEncounter } from './combat/encounter-start.js';
+import { initializeSceneControls, initializeTokenHUDButton } from './ui/scene-controls-mastery.js';
 
 // Dice roller functions are imported in sheets where needed
 
@@ -92,6 +93,10 @@ Hooks.once('init', async function() {
 
   // Register CONFIG constants
   registerConfigConstants();
+
+  // Initialize scene controls
+  initializeSceneControls();
+  initializeTokenHUDButton();
 
   // Initialize combat hooks
   // Register combatStart hook directly here
@@ -649,6 +654,20 @@ function registerHandlebarsHelpersImmediate() {
 }
 
 /**
+ * Apply theme class to document.body
+ */
+function applyThemeClass(theme: string): void {
+  // Remove all existing theme classes
+  document.body.classList.remove('ms-theme-rulebook', 'ms-theme-ember', 'ms-theme-ashen', 'ms-theme-bloodmoon');
+  
+  // Add new theme class
+  if (theme) {
+    document.body.classList.add(`ms-theme-${theme}`);
+    console.log(`Mastery System | Applied theme: ${theme}`);
+  }
+}
+
+/**
  * Register system settings
  */
 function registerSystemSettings() {
@@ -754,6 +773,25 @@ function registerSystemSettings() {
     type: String,
     default: 'systems/mastery-system/assets/banner.jpg',
     filePicker: 'image'
+  });
+
+  // UI Theme setting
+  (game as any).settings.register('mastery-system', 'uiTheme', {
+    name: 'UI Theme',
+    hint: 'Choose the visual theme for Mastery System dialogs and UI',
+    scope: 'world',
+    config: true,
+    type: String,
+    choices: {
+      'rulebook': 'Rulebook',
+      'ember': 'Ember',
+      'ashen': 'Ashen',
+      'bloodmoon': 'Bloodmoon'
+    },
+    default: 'rulebook',
+    onChange: (value: string) => {
+      applyThemeClass(value);
+    }
   });
 }
 

@@ -29,11 +29,33 @@ function collectActorItems(actor: any): any[] {
  * Get attribute value from actor
  */
 function getAttributeValue(actor: any, attributeName: string): number {
-  if (!actor || !actor.system) return 0;
+  if (!actor || !actor.system) {
+    console.warn('Mastery System | [ATTACK EXECUTOR] getAttributeValue: No actor or system', {
+      hasActor: !!actor,
+      hasSystem: !!actor?.system,
+      attributeName
+    });
+    return 0;
+  }
   const system = actor.system as any;
   const attributes = system.attributes || {};
-  const attr = attributes[attributeName.toLowerCase()] || {};
-  return attr.value || attr.stones || 0;
+  const attrKey = attributeName.toLowerCase();
+  const attr = attributes[attrKey] || {};
+  const value = attr.value ?? attr.stones ?? 0;
+  
+  // Debug logging
+  if (value === 0 || value < 2) {
+    console.warn('Mastery System | [ATTACK EXECUTOR] getAttributeValue: Low or zero value detected', {
+      attributeName,
+      attrKey,
+      attr,
+      value,
+      allAttributes: Object.keys(attributes),
+      attributesData: attributes
+    });
+  }
+  
+  return value;
 }
 
 /**
@@ -102,8 +124,31 @@ export async function createMeleeAttackCard(
   targetToken: any,
   option: RadialCombatOption
 ): Promise<void> {
+  // Use token actor (for unlinked tokens) or base actor
+  // For unlinked tokens, token.actor is a synthetic actor with delta data
+  // For linked tokens, token.actor is the base actor
   const attacker = attackerToken.actor;
   const target = targetToken.actor;
+  
+  // For unlinked tokens, we might need to merge token delta with base actor data
+  // But for now, use the token actor as-is and let the debug logs show what's happening
+  const isUnlinked = attackerToken.actorLink === false;
+  const baseActorId = attackerToken.actorLink ? null : (attackerToken as any).actorId;
+  const baseActor = baseActorId ? (game as any).actors?.get(baseActorId) : null;
+  
+  // Debug: Log actor information
+  console.log('Mastery System | [ATTACK EXECUTOR] Actor resolution', {
+    attackerTokenId: attackerToken.id,
+    attackerActorId: attacker?.id,
+    attackerActorType: attacker?.type,
+    attackerName: attacker?.name,
+    isUnlinked: isUnlinked,
+    baseActorId: baseActorId,
+    baseActorName: baseActor?.name,
+    tokenActorMight: (attacker?.system as any)?.attributes?.might?.value,
+    baseActorMight: (baseActor?.system as any)?.attributes?.might?.value,
+    actorSystem: (attacker?.system as any)?.attributes
+  });
   
   if (!attacker || !target) {
     console.error('Mastery System | [ATTACK EXECUTOR] Missing actor data', {
@@ -187,6 +232,18 @@ export async function createMeleeAttackCard(
   const attribute = getAttackAttribute(attacker, weapon, option);
   const attributeValue = getAttributeValue(attacker, attribute);
   const masteryRank = getMasteryRank(attacker);
+  
+  // Debug: Log attribute reading
+  console.log('Mastery System | [ATTACK EXECUTOR] Attribute calculation', {
+    attribute,
+    attributeValue,
+    masteryRank,
+    attackerId: attacker.id,
+    attackerName: attacker.name,
+    actorSystem: (attacker.system as any)?.attributes,
+    mightValue: (attacker.system as any)?.attributes?.might?.value,
+    mightStones: (attacker.system as any)?.attributes?.might?.stones
+  });
   
   // Get target evade
   const targetEvade = getTargetEvade(target);

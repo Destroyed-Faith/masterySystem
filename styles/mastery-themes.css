@@ -1,0 +1,315 @@
+/**
+ * Mastery System Theme Styles
+ * Premium rulebook theme and other theme variants
+ */
+
+/* ========================================
+   RULEBOOK THEME (ms-theme-rulebook)
+   ======================================== */
+
+.ms-theme-rulebook {
+  /* Base palette variables */
+  --ms-bg: #20272B;
+  --ms-panel: #2a3136;
+  --ms-panel2: #343b40;
+  --ms-text: #d0d0d0;
+  --ms-muted: #aeb5c0;
+  --ms-border: #3a3f44;
+  --ms-accent: #aeb5c0;
+  --ms-accent2: rgba(111, 168, 220, 0.35);
+  --ms-danger: #7b3a3a;
+  --ms-success: #3f6b54;
+  --ms-shadow: rgba(0, 0, 0, 0.55);
+  --ms-radius: 10px;
+  --ms-gap: 8px;
+  --ms-font-head: "Cinzel", "Cinzel Decorative", "Cormorant Garamond", "Garamond", serif;
+  --ms-font-body: "Cormorant Garamond", "Georgia", serif;
+
+  /* Subtle book/noise texture background */
+  background-image: 
+    linear-gradient(135deg, rgba(0, 0, 0, 0.02) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(0, 0, 0, 0.02) 25%, transparent 25%),
+    linear-gradient(45deg, rgba(0, 0, 0, 0.02) 25%, transparent 25%),
+    linear-gradient(315deg, rgba(0, 0, 0, 0.02) 25%, transparent 25%);
+  background-size: 20px 20px;
+  background-position: 0 0, 10px 0, 10px -10px, 0px 10px;
+  opacity: 0.3;
+}
+
+/* Apply theme to all mastery-system dialogs */
+.ms-theme-rulebook .mastery-system.application,
+.ms-theme-rulebook .mastery-system .window-content,
+.ms-theme-rulebook .mastery-system .window-header {
+  background-color: var(--ms-panel);
+  color: var(--ms-text);
+  border-color: var(--ms-border);
+}
+
+.ms-theme-rulebook .mastery-system .window-header {
+  background-color: var(--ms-panel2);
+  border-bottom: 1px solid var(--ms-border);
+  padding: var(--ms-gap);
+}
+
+.ms-theme-rulebook .mastery-system .window-content {
+  background-color: var(--ms-panel);
+  padding: calc(var(--ms-gap) * 2);
+}
+
+/* Headings (h1-h4) */
+.ms-theme-rulebook .mastery-system h1,
+.ms-theme-rulebook .mastery-system h2,
+.ms-theme-rulebook .mastery-system h3,
+.ms-theme-rulebook .mastery-system h4 {
+  font-family: var(--ms-font-head);
+  color: var(--ms-muted);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--ms-border);
+  padding-bottom: calc(var(--ms-gap) / 2);
+  margin-bottom: var(--ms-gap);
+  text-shadow: 0 1px 2px var(--ms-shadow);
+}
+
+.ms-theme-rulebook .mastery-system h1 {
+  font-size: 1.8em;
+  margin-bottom: calc(var(--ms-gap) * 2);
+}
+
+.ms-theme-rulebook .mastery-system h2 {
+  font-size: 1.5em;
+}
+
+.ms-theme-rulebook .mastery-system h3 {
+  font-size: 1.3em;
+}
+
+.ms-theme-rulebook .mastery-system h4 {
+  font-size: 1.1em;
+}
+
+/* Tables */
+.ms-theme-rulebook .mastery-system table {
+  border-collapse: collapse;
+  width: 100%;
+  border: 1px solid var(--ms-border);
+  margin: var(--ms-gap) 0;
+}
+
+.ms-theme-rulebook .mastery-system thead {
+  background-color: var(--ms-panel2);
+}
+
+.ms-theme-rulebook .mastery-system th {
+  padding: calc(var(--ms-gap) * 1.5);
+  text-align: left;
+  font-weight: bold;
+  color: var(--ms-muted);
+  border: 1px solid var(--ms-border);
+  font-family: var(--ms-font-head);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.9em;
+}
+
+.ms-theme-rulebook .mastery-system td {
+  padding: calc(var(--ms-gap) * 1.5);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  color: var(--ms-text);
+}
+
+.ms-theme-rulebook .mastery-system tbody tr:nth-child(odd) {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.ms-theme-rulebook .mastery-system tbody tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+.ms-theme-rulebook .mastery-system tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Buttons */
+.ms-theme-rulebook .mastery-system button {
+  background-color: #2a3136;
+  border: 1px solid var(--ms-border);
+  color: var(--ms-text);
+  padding: calc(var(--ms-gap) * 1.5) calc(var(--ms-gap) * 2);
+  border-radius: var(--ms-radius);
+  font-family: var(--ms-font-body);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px var(--ms-shadow);
+}
+
+.ms-theme-rulebook .mastery-system button:hover:not(:disabled) {
+  border-color: var(--ms-accent);
+  box-shadow: 0 0 8px var(--ms-accent2), 0 2px 4px var(--ms-shadow);
+  color: var(--ms-accent);
+}
+
+.ms-theme-rulebook .mastery-system button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.ms-theme-rulebook .mastery-system button.danger,
+.ms-theme-rulebook .mastery-system button[type="button"].danger {
+  background-color: var(--ms-danger);
+  border-color: var(--ms-danger);
+  color: #fff;
+}
+
+.ms-theme-rulebook .mastery-system button.danger:hover:not(:disabled) {
+  background-color: #8b4444;
+  border-color: #8b4444;
+  box-shadow: 0 0 8px rgba(123, 58, 58, 0.5), 0 2px 4px var(--ms-shadow);
+}
+
+.ms-theme-rulebook .mastery-system button.success {
+  background-color: var(--ms-success);
+  border-color: var(--ms-success);
+  color: #fff;
+}
+
+.ms-theme-rulebook .mastery-system button.success:hover:not(:disabled) {
+  background-color: #4a7a65;
+  border-color: #4a7a65;
+  box-shadow: 0 0 8px rgba(63, 107, 84, 0.5), 0 2px 4px var(--ms-shadow);
+}
+
+/* Inputs */
+.ms-theme-rulebook .mastery-system input,
+.ms-theme-rulebook .mastery-system select,
+.ms-theme-rulebook .mastery-system textarea {
+  background-color: var(--ms-panel2);
+  border: 1px solid var(--ms-border);
+  color: var(--ms-text);
+  padding: calc(var(--ms-gap) * 1.5);
+  border-radius: calc(var(--ms-radius) / 2);
+  font-family: var(--ms-font-body);
+}
+
+.ms-theme-rulebook .mastery-system input:focus,
+.ms-theme-rulebook .mastery-system select:focus,
+.ms-theme-rulebook .mastery-system textarea:focus {
+  outline: none;
+  border-color: var(--ms-accent);
+  box-shadow: 0 0 4px var(--ms-accent2);
+}
+
+/* Links */
+.ms-theme-rulebook .mastery-system a {
+  color: #b0b0b0;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.ms-theme-rulebook .mastery-system a:hover {
+  color: #f0f0f0;
+  text-decoration: underline;
+  text-decoration-color: var(--ms-accent2);
+}
+
+/* Details/Summary */
+.ms-theme-rulebook .mastery-system details {
+  border: 1px solid var(--ms-border);
+  border-radius: var(--ms-radius);
+  padding: var(--ms-gap);
+  margin: var(--ms-gap) 0;
+  background-color: var(--ms-panel2);
+}
+
+.ms-theme-rulebook .mastery-system details summary {
+  cursor: pointer;
+  font-family: var(--ms-font-head);
+  color: var(--ms-muted);
+  font-weight: bold;
+  padding: calc(var(--ms-gap) / 2);
+  user-select: none;
+}
+
+.ms-theme-rulebook .mastery-system details summary:hover {
+  color: var(--ms-accent);
+}
+
+.ms-theme-rulebook .mastery-system details[open] summary {
+  border-bottom: 1px solid var(--ms-border);
+  margin-bottom: var(--ms-gap);
+}
+
+/* Stone Powers specific styling */
+.ms-theme-rulebook .mastery-system .stone-powers-dialog .power-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: calc(var(--ms-gap) * 1.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+  min-height: 40px;
+}
+
+.ms-theme-rulebook .mastery-system .stone-powers-dialog .power-row:last-child {
+  border-bottom: none;
+}
+
+.ms-theme-rulebook .mastery-system .stone-powers-dialog .power-name {
+  flex: 1;
+  font-family: var(--ms-font-body);
+  color: var(--ms-text);
+}
+
+.ms-theme-rulebook .mastery-system .stone-powers-dialog .power-cost {
+  margin-left: var(--ms-gap);
+}
+
+.ms-theme-rulebook .mastery-system .stone-powers-dialog .power-tags {
+  display: flex;
+  gap: calc(var(--ms-gap) / 2);
+  margin-left: var(--ms-gap);
+}
+
+.ms-theme-rulebook .mastery-system .stone-powers-dialog .power-tag {
+  background-color: var(--ms-panel2);
+  border: 1px solid var(--ms-border);
+  color: var(--ms-muted);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-family: var(--ms-font-body);
+}
+
+/* Override Foundry default button colors */
+.ms-theme-rulebook .mastery-system button[type="submit"] {
+  background-color: #2a3136;
+  border-color: var(--ms-border);
+  color: var(--ms-text);
+}
+
+.ms-theme-rulebook .mastery-system button[type="submit"]:hover:not(:disabled) {
+  border-color: var(--ms-accent);
+  box-shadow: 0 0 8px var(--ms-accent2), 0 2px 4px var(--ms-shadow);
+  color: var(--ms-accent);
+}
+
+/* Ensure body uses theme background when theme is active */
+.ms-theme-rulebook body {
+  background-color: var(--ms-bg);
+}
+
+/* ========================================
+   PLACEHOLDER FOR OTHER THEMES
+   ======================================== */
+
+.ms-theme-ember {
+  /* TODO: Implement ember theme */
+}
+
+.ms-theme-ashen {
+  /* TODO: Implement ashen theme */
+}
+
+.ms-theme-bloodmoon {
+  /* TODO: Implement bloodmoon theme */
+}

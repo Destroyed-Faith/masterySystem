@@ -23,6 +23,7 @@ import { InitiativeShopDialog } from './combat/initiative-shop-dialog.js';
 import { CombatCarouselApp } from './ui/combat-carousel.js';
 import { initializeStoneHooks } from './stones/stone-hooks.js';
 import { initializeEncounterStart, beginEncounter } from './combat/encounter-start.js';
+import { initializeSceneControls, initializeTokenHUDButton } from './ui/scene-controls-mastery.js';
 // Dice roller functions are imported in sheets where needed
 console.log('Mastery System | All imports completed');
 // Register Handlebars helpers immediately (before init hook)
@@ -75,6 +76,9 @@ Hooks.once('init', async function () {
     // No need to register again here
     // Register CONFIG constants
     registerConfigConstants();
+    // Initialize scene controls
+    initializeSceneControls();
+    initializeTokenHUDButton();
     // Initialize combat hooks
     // Register combatStart hook directly here
     Hooks.on('combatStart', async (combat) => {
@@ -658,6 +662,36 @@ function registerSystemSettings() {
         default: 'systems/mastery-system/assets/banner.jpg',
         filePicker: 'image'
     });
+    // UI Theme setting
+    game.settings.register('mastery-system', 'uiTheme', {
+        name: 'UI Theme',
+        hint: 'Choose the visual theme for Mastery System dialogs and UI',
+        scope: 'world',
+        config: true,
+        type: String,
+        choices: {
+            'rulebook': 'Rulebook',
+            'ember': 'Ember',
+            'ashen': 'Ashen',
+            'bloodmoon': 'Bloodmoon'
+        },
+        default: 'rulebook',
+        onChange: (value) => {
+            applyThemeClass(value);
+        }
+    });
+}
+/**
+ * Apply theme class to document.body
+ */
+function applyThemeClass(theme) {
+    // Remove all existing theme classes
+    document.body.classList.remove('ms-theme-rulebook', 'ms-theme-ember', 'ms-theme-ashen', 'ms-theme-bloodmoon');
+    // Add new theme class
+    if (theme) {
+        document.body.classList.add(`ms-theme-${theme}`);
+        console.log(`Mastery System | Applied theme: ${theme}`);
+    }
 }
 /**
  * Setup XP Management inline in settings

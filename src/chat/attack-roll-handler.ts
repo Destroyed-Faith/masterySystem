@@ -157,6 +157,11 @@ export function registerAttackRollClickHandler(): void {
       const currentTargetEvade = parseInt(button.data('target-evade')) || flags.targetEvade;
       const raises = parseInt(button.data('raises')) || 0;
       
+      // Verify attribute value from flags matches actual actor value
+      const freshAttackerForCheck = (game as any).actors?.get(flags.attackerId);
+      const actualAttributeValue = freshAttackerForCheck ? 
+        ((freshAttackerForCheck.system as any)?.attributes?.[flags.attribute?.toLowerCase()]?.value ?? 0) : 0;
+      
       console.log('Mastery System | DEBUG: Roll parameters', {
         numDice: flags.attributeValue,
         keepDice: flags.masteryRank,
@@ -164,8 +169,23 @@ export function registerAttackRollClickHandler(): void {
         tn: currentTargetEvade,
         raises,
         baseEvade: flags.targetEvade,
-        adjustedEvade: currentTargetEvade
+        adjustedEvade: currentTargetEvade,
+        attributeFromFlags: flags.attribute,
+        attributeValueFromFlags: flags.attributeValue,
+        actualAttributeValue: actualAttributeValue,
+        valuesMatch: flags.attributeValue === actualAttributeValue,
+        masteryRankFromFlags: flags.masteryRank
       });
+      
+      // Warn if values don't match
+      if (flags.attributeValue !== actualAttributeValue && actualAttributeValue > 0) {
+        console.warn('Mastery System | [ATTACK ROLL] Attribute value mismatch!', {
+          flagsValue: flags.attributeValue,
+          actualValue: actualAttributeValue,
+          attribute: flags.attribute,
+          attackerId: flags.attackerId
+        });
+      }
       
       // Perform the attack roll with d8 dice (exploding 8s handled in roll-handler)
       console.log('Mastery System | DEBUG: Calling masteryRoll...');
