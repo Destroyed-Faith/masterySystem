@@ -1,5 +1,6 @@
 /**
  * Character sheet specific styles for Mastery System
+ * Uses theme CSS variables when theme is active
  */
 
 /* ========== Character Sheet Specific ========== */
@@ -20,11 +21,22 @@
   justify-content: space-between;
   align-items: center;
   padding: 8px 15px;
+  /* Default colors (fallback) */
   background: linear-gradient(to bottom, #4a4a4a, #2a2a2a);
   color: #fff;
   border-bottom: 2px solid #8b0000;
   min-height: 80px;
   max-height: 80px;
+}
+
+/* Theme-aware header styling */
+.ms-theme-rulebook .mastery-system.sheet.actor.character .sheet-header,
+.ms-theme-ember .mastery-system.sheet.actor.character .sheet-header,
+.ms-theme-ashen .mastery-system.sheet.actor.character .sheet-header,
+.ms-theme-bloodmoon .mastery-system.sheet.actor.character .sheet-header {
+  background: linear-gradient(to bottom, var(--ms-panel2, #2a2a2a), var(--ms-panel, #1a1a1a));
+  color: var(--ms-text, #fff);
+  border-bottom: 2px solid var(--ms-border, #3a3f44);
 }
 
 .mastery-system.sheet.actor.character .header-left {
@@ -58,6 +70,15 @@
   max-width: 50px;
 }
 
+.ms-theme-rulebook .mastery-system.sheet.actor.character .mastery-rank-box,
+.ms-theme-ember .mastery-system.sheet.actor.character .mastery-rank-box,
+.ms-theme-ashen .mastery-system.sheet.actor.character .mastery-rank-box,
+.ms-theme-bloodmoon .mastery-system.sheet.actor.character .mastery-rank-box {
+  background: var(--ms-accent2, rgba(255, 255, 255, 0.1));
+  border: 1px solid var(--ms-border, rgba(139, 0, 0, 0.5));
+  border-radius: calc(var(--ms-radius, 4px) / 2);
+}
+
 .mastery-system.sheet.actor.character .points-box {
   display: flex;
   flex-direction: column;
@@ -70,6 +91,15 @@
   max-width: 55px;
   justify-content: center;
   align-items: center;
+}
+
+.ms-theme-rulebook .mastery-system.sheet.actor.character .points-box,
+.ms-theme-ember .mastery-system.sheet.actor.character .points-box,
+.ms-theme-ashen .mastery-system.sheet.actor.character .points-box,
+.ms-theme-bloodmoon .mastery-system.sheet.actor.character .points-box {
+  background: var(--ms-accent2, rgba(255, 255, 255, 0.1));
+  border: 1px solid var(--ms-border, rgba(139, 0, 0, 0.5));
+  border-radius: calc(var(--ms-radius, 4px) / 2);
 }
 
 .mastery-system.sheet.actor.character .points-box .points-display {
@@ -90,6 +120,18 @@
   line-height: 1;
 }
 
+.ms-theme-rulebook .mastery-system.sheet.actor.character .mastery-rank-box label,
+.ms-theme-rulebook .mastery-system.sheet.actor.character .points-box label,
+.ms-theme-ember .mastery-system.sheet.actor.character .mastery-rank-box label,
+.ms-theme-ember .mastery-system.sheet.actor.character .points-box label,
+.ms-theme-ashen .mastery-system.sheet.actor.character .mastery-rank-box label,
+.ms-theme-ashen .mastery-system.sheet.actor.character .points-box label,
+.ms-theme-bloodmoon .mastery-system.sheet.actor.character .mastery-rank-box label,
+.ms-theme-bloodmoon .mastery-system.sheet.actor.character .points-box label {
+  color: var(--ms-accent, #ffd700);
+  font-family: var(--ms-font-head, inherit);
+}
+
 .mastery-system.sheet.actor.character .rank-value,
 .mastery-system.sheet.actor.character .points-value {
   font-size: 14px;
@@ -97,6 +139,18 @@
   color: #fff;
   text-align: center;
   line-height: 1.2;
+}
+
+.ms-theme-rulebook .mastery-system.sheet.actor.character .rank-value,
+.ms-theme-rulebook .mastery-system.sheet.actor.character .points-value,
+.ms-theme-ember .mastery-system.sheet.actor.character .rank-value,
+.ms-theme-ember .mastery-system.sheet.actor.character .points-value,
+.ms-theme-ashen .mastery-system.sheet.actor.character .rank-value,
+.ms-theme-ashen .mastery-system.sheet.actor.character .points-value,
+.ms-theme-bloodmoon .mastery-system.sheet.actor.character .rank-value,
+.ms-theme-bloodmoon .mastery-system.sheet.actor.character .points-value {
+  color: var(--ms-text, #fff);
+  font-family: var(--ms-font-body, inherit);
 }
 
 .mastery-system.sheet.actor.character .character-name-box {
@@ -114,11 +168,28 @@
   padding: 4px 8px;
 }
 
+.ms-theme-rulebook .mastery-system.sheet.actor.character .character-name-box input,
+.ms-theme-ember .mastery-system.sheet.actor.character .character-name-box input,
+.ms-theme-ashen .mastery-system.sheet.actor.character .character-name-box input,
+.ms-theme-bloodmoon .mastery-system.sheet.actor.character .character-name-box input {
+  border-bottom: 2px solid var(--ms-border, rgba(255, 255, 255, 0.3));
+  color: var(--ms-text, #fff);
+  font-family: var(--ms-font-head, inherit);
+}
+
 .mastery-system.sheet.actor.character .character-name-box h1 {
   margin: 0;
   font-size: 24px;
   font-weight: 700;
   color: #fff;
+}
+
+.ms-theme-rulebook .mastery-system.sheet.actor.character .character-name-box h1,
+.ms-theme-ember .mastery-system.sheet.actor.character .character-name-box h1,
+.ms-theme-ashen .mastery-system.sheet.actor.character .character-name-box h1,
+.ms-theme-bloodmoon .mastery-system.sheet.actor.character .character-name-box h1 {
+  color: var(--ms-text, #fff);
+  font-family: var(--ms-font-head, inherit);
 }
 
 .mastery-system.sheet.actor.character .profile-img {
@@ -384,11 +455,30 @@
   box-shadow: -2px 0 4px rgba(0,0,0,0.3);
 }
 
+.ms-theme-rulebook .mastery-system.sheet.actor.character .sheet-tabs .item,
+.ms-theme-ember .mastery-system.sheet.actor.character .sheet-tabs .item,
+.ms-theme-ashen .mastery-system.sheet.actor.character .sheet-tabs .item,
+.ms-theme-bloodmoon .mastery-system.sheet.actor.character .sheet-tabs .item {
+  background: var(--ms-panel, #3a3a3a);
+  border: 2px solid var(--ms-border, #555);
+  color: var(--ms-muted, #ccc);
+  font-family: var(--ms-font-head, inherit);
+}
+
 .mastery-system.sheet.actor.character .sheet-tabs .item:hover {
   background: #4a4a4a;
   color: #fff;
   transform: translateX(-5px);
   box-shadow: -4px 0 6px rgba(0,0,0,0.4);
+}
+
+.ms-theme-rulebook .mastery-system.sheet.actor.character .sheet-tabs .item:hover,
+.ms-theme-ember .mastery-system.sheet.actor.character .sheet-tabs .item:hover,
+.ms-theme-ashen .mastery-system.sheet.actor.character .sheet-tabs .item:hover,
+.ms-theme-bloodmoon .mastery-system.sheet.actor.character .sheet-tabs .item:hover {
+  background: var(--ms-panel2, #4a4a4a);
+  color: var(--ms-accent, #fff);
+  box-shadow: -4px 0 6px var(--ms-shadow, rgba(0,0,0,0.4));
 }
 
 .mastery-system.sheet.actor.character .sheet-tabs .item.active {
@@ -398,6 +488,16 @@
   transform: translateX(-8px);
   border-color: #8b0000;
   box-shadow: -6px 0 8px rgba(139,0,0,0.5);
+}
+
+.ms-theme-rulebook .mastery-system.sheet.actor.character .sheet-tabs .item.active,
+.ms-theme-ember .mastery-system.sheet.actor.character .sheet-tabs .item.active,
+.ms-theme-ashen .mastery-system.sheet.actor.character .sheet-tabs .item.active,
+.ms-theme-bloodmoon .mastery-system.sheet.actor.character .sheet-tabs .item.active {
+  background: var(--ms-accent, #8b0000);
+  color: var(--ms-text, #fff);
+  border-color: var(--ms-accent, #8b0000);
+  box-shadow: -6px 0 8px var(--ms-accent2, rgba(139,0,0,0.5));
 }
 
 /* ========== Attributes Grid Section ========== */
@@ -605,10 +705,32 @@
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
+.ms-theme-rulebook .mastery-system.sheet.actor.character .attribute-controls button,
+.ms-theme-ember .mastery-system.sheet.actor.character .attribute-controls button,
+.ms-theme-ashen .mastery-system.sheet.actor.character .attribute-controls button,
+.ms-theme-bloodmoon .mastery-system.sheet.actor.character .attribute-controls button {
+  background: var(--ms-panel2, linear-gradient(135deg, #8b0000 0%, #a00000 100%));
+  border: 1px solid var(--ms-border, transparent);
+  color: var(--ms-text, #fff);
+  border-radius: calc(var(--ms-radius, 6px) / 2);
+  font-family: var(--ms-font-body, inherit);
+  box-shadow: 0 2px 6px var(--ms-shadow, rgba(0,0,0,0.2));
+}
+
 .mastery-system.sheet.actor.character .attribute-controls button:hover {
   background: linear-gradient(135deg, #a00000 0%, #b00000 100%);
   transform: scale(1.1);
   box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+}
+
+.ms-theme-rulebook .mastery-system.sheet.actor.character .attribute-controls button:hover,
+.ms-theme-ember .mastery-system.sheet.actor.character .attribute-controls button:hover,
+.ms-theme-ashen .mastery-system.sheet.actor.character .attribute-controls button:hover,
+.ms-theme-bloodmoon .mastery-system.sheet.actor.character .attribute-controls button:hover {
+  background: var(--ms-panel, linear-gradient(135deg, #a00000 0%, #b00000 100%));
+  border-color: var(--ms-accent, #a00000);
+  box-shadow: 0 3px 8px var(--ms-accent2, rgba(0,0,0,0.3));
+  color: var(--ms-accent, #fff);
 }
 
 .mastery-system.sheet.actor.character .attribute-controls button:active {
@@ -626,6 +748,18 @@
   color: #333;
   background: #fff;
   transition: all 0.2s;
+}
+
+.ms-theme-rulebook .mastery-system.sheet.actor.character .attribute-controls input,
+.ms-theme-ember .mastery-system.sheet.actor.character .attribute-controls input,
+.ms-theme-ashen .mastery-system.sheet.actor.character .attribute-controls input,
+.ms-theme-bloodmoon .mastery-system.sheet.actor.character .attribute-controls input {
+  border: 2px solid var(--ms-border, #8b0000);
+  border-radius: calc(var(--ms-radius, 6px) / 2);
+  background: var(--ms-panel2, #fff);
+  color: var(--ms-text, #333);
+  font-family: var(--ms-font-body, inherit);
+}
 }
 
 .mastery-system.sheet.actor.character .attribute-controls input:focus {
