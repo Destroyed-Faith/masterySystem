@@ -38,6 +38,105 @@ export function initializeSceneControls() {
     Hooks.on('getSceneControlButtons', (controls) => {
         // In Foundry v13, controls is a Record (object), not an array
         // Add controls directly as properties
+        // Define tool handlers as separate functions to ensure they're properly bound
+        const handleThemePreview = async function () {
+            console.log('Mastery System | Theme Preview clicked');
+            await ThemePreviewApp.show();
+        };
+        const handlePassiveSelection = async function () {
+            console.log('Mastery System | Passive Selection clicked');
+            const actor = resolveActiveActor();
+            if (!actor) {
+                ui.notifications?.warn('Select a token or assign a User Character first.');
+                return;
+            }
+            // If in combat, use combatant; otherwise create dummy combatant for preview
+            const combatant = resolveCombatant(actor);
+            if (combatant) {
+                // In combat: use existing dialog
+                await PassiveSelectionDialog.showForCombatant(combatant, false);
+            }
+            else {
+                // Not in combat: create dummy combatant for preview
+                ui.notifications?.info('Opening Passive Selection in preview mode (not in combat).');
+                ui.notifications?.warn('Passive Selection is only available during combat. Start a combat encounter first.');
+            }
+        };
+        const handleInitiativeShop = async function () {
+            console.log('Mastery System | Initiative Shop clicked');
+            const actor = resolveActiveActor();
+            if (!actor) {
+                ui.notifications?.warn('Select a token or assign a User Character first.');
+                return;
+            }
+            const combatant = resolveCombatant(actor);
+            if (combatant && game.combat) {
+                // In combat: roll initiative and show shop
+                const breakdown = await rollInitiativeForCombatant(combatant);
+                await InitiativeShopDialog.showForCombatant(combatant, breakdown, game.combat);
+            }
+            else {
+                // Not in combat: show preview with dummy context
+                ui.notifications?.info('Initiative Shop is only available during combat. Start a combat encounter first.');
+            }
+        };
+        const handleStonePowers = async function () {
+            console.log('Mastery System | Stone Powers clicked');
+            const actor = resolveActiveActor();
+            if (!actor) {
+                ui.notifications?.warn('Select a token or assign a User Character first.');
+                return;
+            }
+            const combatant = resolveCombatant(actor);
+            await StonePowersDialog.showForActor(actor, combatant || null);
+        };
+        const handleDamageDialogTest = async function () {
+            console.log('Mastery System | Damage Dialog Test clicked');
+            const actor = resolveActiveActor();
+            if (!actor) {
+                ui.notifications?.warn('Select a token or assign a User Character first.');
+                return;
+            }
+            // Try to get a target
+            const targets = Array.from(canvas?.tokens?.controlled || []);
+            let targetActor = null;
+            if (targets.length > 1) {
+                // Use second selected token as target
+                targetActor = targets[1]?.actor || null;
+            }
+            else {
+                // Try to find a nearby token or use the same actor
+                targetActor = actor;
+            }
+            if (!targetActor) {
+                ui.notifications?.warn('Select a target token for damage testing.');
+                return;
+            }
+            // Open damage dialog with dummy data
+            try {
+                await showDamageDialog(actor, targetActor, null, // weaponId
+                null, // selectedPowerId
+                0, // raises
+                {} // flags
+                );
+            }
+            catch (error) {
+                console.error('Mastery System | Error opening damage dialog', error);
+                ui.notifications?.error('Failed to open damage dialog. Check console for details.');
+            }
+        };
+        const handleCarouselRefresh = function () {
+            console.log('Mastery System | Carousel Refresh clicked');
+            const instance = CombatCarouselApp.instance;
+            if (instance && instance.rendered) {
+                CombatCarouselApp.refresh();
+                ui.notifications?.info('Combat Carousel refreshed.');
+            }
+            else {
+                CombatCarouselApp.open();
+                ui.notifications?.info('Combat Carousel opened.');
+            }
+        };
         // Add Mastery group directly to controls object
         controls.mastery = {
             name: 'mastery',
@@ -49,137 +148,42 @@ export function initializeSceneControls() {
                     name: 'themePreview',
                     title: 'Theme Preview',
                     icon: 'fas fa-palette',
-                    onClick: async () => {
-                        console.log('Mastery System | Theme Preview clicked');
-                        await ThemePreviewApp.show();
-                    },
+                    onClick: handleThemePreview,
                     button: true
                 },
                 {
                     name: 'passiveSelection',
                     title: 'Passive Selection',
                     icon: 'fas fa-shield-halved',
-                    onClick: async () => {
-                        console.log('Mastery System | Passive Selection clicked');
-                        const actor = resolveActiveActor();
-                        if (!actor) {
-                            ui.notifications?.warn('Select a token or assign a User Character first.');
-                            return;
-                        }
-                        // If in combat, use combatant; otherwise create dummy combatant for preview
-                        const combatant = resolveCombatant(actor);
-                        if (combatant) {
-                            // In combat: use existing dialog
-                            await PassiveSelectionDialog.showForCombatant(combatant, false);
-                        }
-                        else {
-                            // Not in combat: create dummy combatant for preview
-                            ui.notifications?.info('Opening Passive Selection in preview mode (not in combat).');
-                            // For preview, we need to create a temporary combatant-like object
-                            // Since PassiveSelectionDialog requires a Combatant, we'll show a simplified version
-                            // or just show a notification that combat is required
-                            ui.notifications?.warn('Passive Selection is only available during combat. Start a combat encounter first.');
-                        }
-                    },
+                    onClick: handlePassiveSelection,
                     button: true
                 },
                 {
                     name: 'initiativeShop',
                     title: 'Initiative Shop',
                     icon: 'fas fa-dice-d20',
-                    onClick: async () => {
-                        console.log('Mastery System | Initiative Shop clicked');
-                        const actor = resolveActiveActor();
-                        if (!actor) {
-                            ui.notifications?.warn('Select a token or assign a User Character first.');
-                            return;
-                        }
-                        const combatant = resolveCombatant(actor);
-                        if (combatant && game.combat) {
-                            // In combat: roll initiative and show shop
-                            const breakdown = await rollInitiativeForCombatant(combatant);
-                            await InitiativeShopDialog.showForCombatant(combatant, breakdown, game.combat);
-                        }
-                        else {
-                            // Not in combat: show preview with dummy context
-                            ui.notifications?.info('Initiative Shop is only available during combat. Start a combat encounter first.');
-                        }
-                    },
+                    onClick: handleInitiativeShop,
                     button: true
                 },
                 {
                     name: 'stonePowers',
                     title: 'Stone Powers',
                     icon: 'fas fa-gem',
-                    onClick: async () => {
-                        console.log('Mastery System | Stone Powers clicked');
-                        const actor = resolveActiveActor();
-                        if (!actor) {
-                            ui.notifications?.warn('Select a token or assign a User Character first.');
-                            return;
-                        }
-                        const combatant = resolveCombatant(actor);
-                        await StonePowersDialog.showForActor(actor, combatant || null);
-                    },
+                    onClick: handleStonePowers,
                     button: true
                 },
                 {
                     name: 'damageDialogTest',
                     title: 'Damage Dialog Test',
                     icon: 'fas fa-burst',
-                    onClick: async () => {
-                        console.log('Mastery System | Damage Dialog Test clicked');
-                        const actor = resolveActiveActor();
-                        if (!actor) {
-                            ui.notifications?.warn('Select a token or assign a User Character first.');
-                            return;
-                        }
-                        // Try to get a target
-                        const targets = Array.from(canvas?.tokens?.controlled || []);
-                        let targetActor = null;
-                        if (targets.length > 1) {
-                            // Use second selected token as target
-                            targetActor = targets[1]?.actor || null;
-                        }
-                        else {
-                            // Try to find a nearby token or use the same actor
-                            targetActor = actor;
-                        }
-                        if (!targetActor) {
-                            ui.notifications?.warn('Select a target token for damage testing.');
-                            return;
-                        }
-                        // Open damage dialog with dummy data
-                        try {
-                            await showDamageDialog(actor, targetActor, null, // weaponId
-                            null, // selectedPowerId
-                            0, // raises
-                            {} // flags
-                            );
-                        }
-                        catch (error) {
-                            console.error('Mastery System | Error opening damage dialog', error);
-                            ui.notifications?.error('Failed to open damage dialog. Check console for details.');
-                        }
-                    },
+                    onClick: handleDamageDialogTest,
                     button: true
                 },
                 {
                     name: 'carouselRefresh',
                     title: 'Carousel Refresh',
                     icon: 'fas fa-arrows-rotate',
-                    onClick: () => {
-                        console.log('Mastery System | Carousel Refresh clicked');
-                        const instance = CombatCarouselApp.instance;
-                        if (instance && instance.rendered) {
-                            CombatCarouselApp.refresh();
-                            ui.notifications?.info('Combat Carousel refreshed.');
-                        }
-                        else {
-                            CombatCarouselApp.open();
-                            ui.notifications?.info('Combat Carousel opened.');
-                        }
-                    },
+                    onClick: handleCarouselRefresh,
                     button: true
                 }
             ],
