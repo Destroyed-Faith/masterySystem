@@ -70,6 +70,17 @@ export class CombatCarouselApp extends BaseCarousel {
     return CombatCarouselApp._instance;
   }
 
+  /**
+   * Refresh the carousel (re-render with current combat state)
+   */
+  static refresh(): void {
+    const instance = CombatCarouselApp.instance;
+    if (instance && (instance as any).rendered) {
+      console.log('Mastery System | [CAROUSEL] Refreshing carousel');
+      (instance as any).render({ force: true });
+    }
+  }
+
   async _prepareContext(_options: any): Promise<any> {
     const combat = game.combats?.active;
     
@@ -92,11 +103,24 @@ export class CombatCarouselApp extends BaseCarousel {
 
     // Build combatants array
     const combatants: any[] = [];
-    // Use combat.turns if available, otherwise sort combatants by initiative
+    // Use combat.turns if available and has items, otherwise sort combatants by initiative
     let turns = combat.turns || [];
     if (turns.length === 0 && combat.combatants) {
+      // Sort by initiative descending (highest first)
       turns = Array.from(combat.combatants.values()).sort((a: any, b: any) => {
-        return (b.initiative ?? 0) - (a.initiative ?? 0);
+        const aInit = a.initiative ?? 0;
+        const bInit = b.initiative ?? 0;
+        // If initiatives are equal, maintain original order
+        if (aInit === bInit) return 0;
+        return bInit - aInit;
+      });
+    } else if (turns.length > 0) {
+      // Ensure turns are sorted by initiative (in case Foundry didn't sort them)
+      turns = [...turns].sort((a: any, b: any) => {
+        const aInit = a.initiative ?? 0;
+        const bInit = b.initiative ?? 0;
+        if (aInit === bInit) return 0;
+        return bInit - aInit;
       });
     }
     

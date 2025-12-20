@@ -222,6 +222,9 @@ export class InitiativeShopDialog extends BaseDialog {
     // Update combatant initiative to remaining (this becomes initiative order)
     await this.combatant.update({ initiative: remainingInitiative });
 
+    // Store final initiative value in msInitiativeValue flag (for round tracking / UI)
+    await this.combatant.setFlag('mastery-system', 'msInitiativeValue', remainingInitiative);
+
     // Store purchases in combatant flags with round marker
     const shopData = {
       round: this.combat.round || 1,
@@ -250,6 +253,16 @@ export class InitiativeShopDialog extends BaseDialog {
       await ChatMessage.create({
         content: message,
         speaker: ChatMessage.getSpeaker({ actor: actor as any })
+      });
+    }
+
+    // Notify GM that initiative is confirmed (via socket if not GM)
+    if (!game.user?.isGM) {
+      game.socket?.emit('system.mastery-system', {
+        type: 'initiativeConfirmed',
+        combatId: this.combat.id,
+        combatantId: this.combatant.id,
+        finalInitiative: remainingInitiative
       });
     }
 
