@@ -36,41 +36,10 @@ function resolveCombatant(actor) {
 export function initializeSceneControls() {
     console.log('Mastery System | Initializing scene controls');
     Hooks.on('getSceneControlButtons', (controls) => {
-        // In Foundry v13, controls might be a Map or array-like object
-        // Convert to array if needed
-        let controlsArray = [];
-        if (Array.isArray(controls)) {
-            controlsArray = controls;
-        }
-        else if (controls instanceof Map) {
-            controlsArray = Array.from(controls.values());
-        }
-        else if (controls && typeof controls === 'object') {
-            // Try to convert object/collection to array
-            controlsArray = Object.values(controls);
-        }
-        else {
-            console.error('Mastery System | Unknown controls structure:', controls);
-            return;
-        }
-        // Find the tools control group (or create if needed)
-        let toolsControl = controlsArray.find((c) => c.name === 'tools');
-        if (!toolsControl) {
-            // Create tools control if it doesn't exist
-            toolsControl = {
-                name: 'tools',
-                title: 'Tools',
-                icon: 'fas fa-toolbox',
-                layer: 'TokenLayer',
-                tools: [],
-                activeTool: '',
-                visible: true,
-                button: true
-            };
-            controlsArray.push(toolsControl);
-        }
-        // Add Mastery group
-        const masteryControl = {
+        // In Foundry v13, controls is a Record (object), not an array
+        // Add controls directly as properties
+        // Add Mastery group directly to controls object
+        controls.mastery = {
             name: 'mastery',
             title: 'Mastery',
             icon: 'fas fa-gem',
@@ -81,6 +50,7 @@ export function initializeSceneControls() {
                     title: 'Theme Preview',
                     icon: 'fas fa-palette',
                     onClick: async () => {
+                        console.log('Mastery System | Theme Preview clicked');
                         await ThemePreviewApp.show();
                     },
                     button: true
@@ -90,6 +60,7 @@ export function initializeSceneControls() {
                     title: 'Passive Selection',
                     icon: 'fas fa-shield-halved',
                     onClick: async () => {
+                        console.log('Mastery System | Passive Selection clicked');
                         const actor = resolveActiveActor();
                         if (!actor) {
                             ui.notifications?.warn('Select a token or assign a User Character first.');
@@ -117,6 +88,7 @@ export function initializeSceneControls() {
                     title: 'Initiative Shop',
                     icon: 'fas fa-dice-d20',
                     onClick: async () => {
+                        console.log('Mastery System | Initiative Shop clicked');
                         const actor = resolveActiveActor();
                         if (!actor) {
                             ui.notifications?.warn('Select a token or assign a User Character first.');
@@ -140,6 +112,7 @@ export function initializeSceneControls() {
                     title: 'Stone Powers',
                     icon: 'fas fa-gem',
                     onClick: async () => {
+                        console.log('Mastery System | Stone Powers clicked');
                         const actor = resolveActiveActor();
                         if (!actor) {
                             ui.notifications?.warn('Select a token or assign a User Character first.');
@@ -155,6 +128,7 @@ export function initializeSceneControls() {
                     title: 'Damage Dialog Test',
                     icon: 'fas fa-burst',
                     onClick: async () => {
+                        console.log('Mastery System | Damage Dialog Test clicked');
                         const actor = resolveActiveActor();
                         if (!actor) {
                             ui.notifications?.warn('Select a token or assign a User Character first.');
@@ -195,6 +169,7 @@ export function initializeSceneControls() {
                     title: 'Carousel Refresh',
                     icon: 'fas fa-arrows-rotate',
                     onClick: () => {
+                        console.log('Mastery System | Carousel Refresh clicked');
                         const instance = CombatCarouselApp.instance;
                         if (instance && instance.rendered) {
                             CombatCarouselApp.refresh();
@@ -212,22 +187,7 @@ export function initializeSceneControls() {
             visible: true,
             button: true
         };
-        // Insert Mastery control after tools (or at end if tools not found)
-        const toolsIndex = controlsArray.findIndex((c) => c.name === 'tools');
-        if (toolsIndex >= 0) {
-            controlsArray.splice(toolsIndex + 1, 0, masteryControl);
-        }
-        else {
-            controlsArray.push(masteryControl);
-        }
-        // If controls was a Map, update it
-        if (controls instanceof Map) {
-            controls.set('mastery', masteryControl);
-        }
-        else if (!Array.isArray(controls)) {
-            // If it was an object, update it
-            controls.mastery = masteryControl;
-        }
+        console.log('Mastery System | Scene controls added:', controls.mastery);
     });
 }
 /**
