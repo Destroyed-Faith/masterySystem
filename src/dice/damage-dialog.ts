@@ -477,6 +477,22 @@ export async function showDamageDialog(
       selectedPowerData
     );
     
+    // Get targetTokenId if target is a token actor (for unlinked tokens)
+    let targetTokenId: string | null = null;
+    if ((target as any).isToken) {
+      // Target is already a token actor, find the token document
+      const tokenDoc = canvas?.scene?.tokens?.find((t: any) => t.actor?.id === (target as any).id);
+      if (tokenDoc) {
+        targetTokenId = tokenDoc.id;
+      }
+    } else {
+      // Target is base actor, try to find token on canvas
+      const tokenDoc = canvas?.scene?.tokens?.find((t: any) => t.actor?.id === (target as any).id);
+      if (tokenDoc) {
+        targetTokenId = tokenDoc.id;
+      }
+    }
+    
     const chatData: any = {
       user: (game as any).user?.id,
       speaker: ChatMessage.getSpeaker({ actor: attacker }),
@@ -487,6 +503,7 @@ export async function showDamageDialog(
           damageType: 'selection',
           attackerId: (attacker as any).id,
           targetId: (target as any).id,
+          targetTokenId: targetTokenId, // Store token ID for proper target resolution
           weaponId: weaponId,
           selectedPowerId: selectedPowerId,
           baseDamage,
@@ -685,22 +702,6 @@ function initializeDamageCard(messageId: string, resolve: (result: DamageResult 
       }
     });
     
-    const attackerId = $(this).data('attacker-id');
-    const targetId = $(this).data('target-id');
-    const attacker = (game as any).actors?.get(attackerId);
-    const target = (game as any).actors?.get(targetId);
-    
-    if (!attacker || !target) {
-      console.error('Mastery System | [ROLL DAMAGE BUTTON] Could not find attacker or target', {
-        attackerId,
-        targetId,
-        attackerFound: !!attacker,
-        targetFound: !!target
-      });
-      ui.notifications?.error('Could not find attacker or target');
-      return;
-    }
-    
     const message = (game as any).messages?.get(messageId);
     if (!message) {
       console.error('Mastery System | [ROLL DAMAGE BUTTON] Could not find damage card message', {
@@ -711,7 +712,50 @@ function initializeDamageCard(messageId: string, resolve: (result: DamageResult 
       return;
     }
     
+    // Get flags early so we can use targetTokenId for target resolution
     const flags = message.getFlag('mastery-system') || message.flags?.['mastery-system'];
+    
+    const attackerId = $(this).data('attacker-id');
+    const targetId = $(this).data('target-id');
+    const attacker = (game as any).actors?.get(attackerId);
+    
+    // Resolve target: prefer token actor if targetTokenId exists in flags (for unlinked tokens)
+    let target: any = null;
+    if (flags?.targetTokenId) {
+      // Try to get token document from current scene
+      const tokenDoc = canvas?.scene?.tokens?.get(flags.targetTokenId);
+      if (tokenDoc?.actor) {
+        target = tokenDoc.actor;
+        console.log('Mastery System | [ROLL DAMAGE BUTTON] Resolved target from token', {
+          targetTokenId: flags.targetTokenId,
+          targetId: (target as any).id,
+          targetName: (target as any).name,
+          isTokenActor: true
+        });
+      }
+    }
+    
+    // Fallback to base actor if token not found
+    if (!target) {
+      target = (game as any).actors?.get(targetId);
+      console.log('Mastery System | [ROLL DAMAGE BUTTON] Resolved target from base actor', {
+        targetId: targetId,
+        targetName: target ? (target as any).name : null,
+        isTokenActor: false
+      });
+    }
+    
+    if (!attacker || !target) {
+      console.error('Mastery System | [ROLL DAMAGE BUTTON] Could not find attacker or target', {
+        attackerId,
+        targetId,
+        attackerFound: !!attacker,
+        targetFound: !!target,
+        targetTokenId: flags?.targetTokenId
+      });
+      ui.notifications?.error('Could not find attacker or target');
+      return;
+    }
     console.log('Mastery System | [ROLL DAMAGE BUTTON] Flags retrieved', {
       messageId,
       hasFlags: !!flags,

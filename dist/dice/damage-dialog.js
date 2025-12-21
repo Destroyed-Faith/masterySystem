@@ -389,6 +389,22 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
     // Create damage card as chat message instead of dialog
     return new Promise((resolve) => {
         const damageCardContent = createDamageCardContent(attacker, target, baseDamage, powerDamage, passiveDamage, raises, availableSpecials, weaponSpecials, resolve, selectedPowerData);
+        // Get targetTokenId if target is a token actor (for unlinked tokens)
+        let targetTokenId = null;
+        if (target.isToken) {
+            // Target is already a token actor, find the token document
+            const tokenDoc = canvas?.scene?.tokens?.find((t) => t.actor?.id === target.id);
+            if (tokenDoc) {
+                targetTokenId = tokenDoc.id;
+            }
+        }
+        else {
+            // Target is base actor, try to find token on canvas
+            const tokenDoc = canvas?.scene?.tokens?.find((t) => t.actor?.id === target.id);
+            if (tokenDoc) {
+                targetTokenId = tokenDoc.id;
+            }
+        }
         const chatData = {
             user: game.user?.id,
             speaker: ChatMessage.getSpeaker({ actor: attacker }),
@@ -399,6 +415,7 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
                     damageType: 'selection',
                     attackerId: attacker.id,
                     targetId: target.id,
+                    targetTokenId: targetTokenId, // Store token ID for proper target resolution
                     weaponId: weaponId,
                     selectedPowerId: selectedPowerId,
                     baseDamage,
@@ -573,20 +590,6 @@ function initializeDamageCard(messageId, resolve) {
                 targetId: $(this).data('target-id')
             }
         });
-        const attackerId = $(this).data('attacker-id');
-        const targetId = $(this).data('target-id');
-        const attacker = game.actors?.get(attackerId);
-        const target = game.actors?.get(targetId);
-        if (!attacker || !target) {
-            console.error('Mastery System | [ROLL DAMAGE BUTTON] Could not find attacker or target', {
-                attackerId,
-                targetId,
-                attackerFound: !!attacker,
-                targetFound: !!target
-            });
-            ui.notifications?.error('Could not find attacker or target');
-            return;
-        }
         const message = game.messages?.get(messageId);
         if (!message) {
             console.error('Mastery System | [ROLL DAMAGE BUTTON] Could not find damage card message', {
@@ -596,7 +599,46 @@ function initializeDamageCard(messageId, resolve) {
             ui.notifications?.error('Could not find damage card message');
             return;
         }
+        // Get flags early so we can use targetTokenId for target resolution
         const flags = message.getFlag('mastery-system') || message.flags?.['mastery-system'];
+        const attackerId = $(this).data('attacker-id');
+        const targetId = $(this).data('target-id');
+        const attacker = game.actors?.get(attackerId);
+        // Resolve target: prefer token actor if targetTokenId exists in flags (for unlinked tokens)
+        let target = null;
+        if (flags?.targetTokenId) {
+            // Try to get token document from current scene
+            const tokenDoc = canvas?.scene?.tokens?.get(flags.targetTokenId);
+            if (tokenDoc?.actor) {
+                target = tokenDoc.actor;
+                console.log('Mastery System | [ROLL DAMAGE BUTTON] Resolved target from token', {
+                    targetTokenId: flags.targetTokenId,
+                    targetId: target.id,
+                    targetName: target.name,
+                    isTokenActor: true
+                });
+            }
+        }
+        // Fallback to base actor if token not found
+        if (!target) {
+            target = game.actors?.get(targetId);
+            console.log('Mastery System | [ROLL DAMAGE BUTTON] Resolved target from base actor', {
+                targetId: targetId,
+                targetName: target ? target.name : null,
+                isTokenActor: false
+            });
+        }
+        if (!attacker || !target) {
+            console.error('Mastery System | [ROLL DAMAGE BUTTON] Could not find attacker or target', {
+                attackerId,
+                targetId,
+                attackerFound: !!attacker,
+                targetFound: !!target,
+                targetTokenId: flags?.targetTokenId
+            });
+            ui.notifications?.error('Could not find attacker or target');
+            return;
+        }
         console.log('Mastery System | [ROLL DAMAGE BUTTON] Flags retrieved', {
             messageId,
             hasFlags: !!flags,

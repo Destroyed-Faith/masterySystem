@@ -149,7 +149,16 @@ Hooks.once('init', async function () {
         const freshCombatant = combat.combatants.get(combatant.id);
         if (!freshCombatant)
             return;
-        const initiativeValue = freshCombatant.initiative ?? 0;
+        // Try to get initiative from msInitiativeValue flag first (set by Initiative Shop)
+        // Fall back to combatant.initiative if flag is not set
+        const flagValue = freshCombatant.getFlag('mastery-system', 'msInitiativeValue');
+        const initiativeValue = (flagValue !== null && flagValue !== undefined) ? flagValue : (freshCombatant.initiative ?? 0);
+        console.log('Mastery System | [INITIATIVE DISPLAY] Updating tracker', {
+            combatantId: freshCombatant.id,
+            flagValue,
+            combatantInitiative: freshCombatant.initiative,
+            finalValue: initiativeValue
+        });
         // Find the combatant element - use provided HTML or find in tracker
         let $combatant;
         if ($html) {
