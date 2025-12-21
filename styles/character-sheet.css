@@ -719,8 +719,9 @@
 .mastery-system.sheet.actor.character .attributes-top-section {
   margin-bottom: 20px;
   padding: 20px;
-  background: #f9f9f9;
+  background: var(--df-bg-panel, #2a3136);
   border-radius: 8px;
+  border: 2px solid var(--df-border-primary, #3a3f44);
 }
 
 .mastery-system.sheet.actor.character .top-row {
@@ -747,23 +748,24 @@
   align-items: center;
   gap: 8px;
   padding: 12px;
-  background: #fff;
-  border: 2px solid #8b0000;
+  background: var(--df-bg-panel, #2a3136);
+  border: 2px solid var(--df-border-primary, #3a3f44);
   border-radius: 8px;
   min-width: 80px;
   transition: all 0.2s;
 }
 
 .mastery-system.sheet.actor.character .saving-throw-item:hover {
-  border-color: #a00000;
-  background: #fff5f5;
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
+  background: var(--df-bg-header, #1b2124);
 }
 
 .mastery-system.sheet.actor.character .saving-throw-item label {
   font-weight: bold;
   font-size: 14px;
-  color: #8b0000;
+  color: var(--df-text-primary, #d0d0d0);
   text-transform: uppercase;
+  font-family: 'Cinzel Decorative', serif;
 }
 
 .mastery-system.sheet.actor.character .saving-throw-value-group {
@@ -775,25 +777,29 @@
 .mastery-system.sheet.actor.character .saving-throw-value {
   font-size: 20px;
   font-weight: bold;
-  color: #333;
+  color: var(--df-text-primary, #d0d0d0);
   min-width: 30px;
   text-align: center;
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .mastery-system.sheet.actor.character .saving-throw-value-group button {
-  background: #8b0000;
-  border: none;
-  color: #fff;
+  background: var(--df-bg-panel, #2a3136);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  color: var(--df-text-primary, #d0d0d0);
   padding: 6px 10px;
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s;
   font-size: 12px;
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .mastery-system.sheet.actor.character .saving-throw-value-group button:hover {
-  background: #a00000;
+  background: var(--df-bg-header, #1b2124);
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
   transform: scale(1.1);
+  color: var(--df-text-primary, #d0d0d0);
 }
 
 .mastery-system.sheet.actor.character .combat-values-container {
@@ -808,8 +814,8 @@
   align-items: center;
   gap: 10px;
   padding: 12px;
-  background: #fff;
-  border: 2px solid #8b0000;
+  background: var(--df-bg-panel, #2a3136);
+  border: 2px solid var(--df-border-primary, #3a3f44);
   border-radius: 8px;
 }
 
@@ -817,19 +823,23 @@
 .mastery-system.sheet.actor.character .initiative-value-container label {
   font-weight: bold;
   font-size: 14px;
-  color: #8b0000;
+  color: var(--df-text-primary, #d0d0d0);
   min-width: 80px;
+  font-family: 'Cinzel Decorative', serif;
 }
 
 .mastery-system.sheet.actor.character .evade-value-container input,
 .mastery-system.sheet.actor.character .initiative-value-container input {
   width: 60px;
   padding: 6px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 4px;
   text-align: center;
   font-size: 16px;
   font-weight: bold;
+  background: var(--df-bg-panel, #2a3136);
+  color: var(--df-text-primary, #d0d0d0);
+  font-family: 'Cormorant Garamond', serif;
 }
 
 /* ========== Attributes in Circles ========== */
@@ -839,8 +849,9 @@
   gap: 25px;
   margin-bottom: 30px;
   padding: 20px;
-  background: #f9f9f9;
+  background: var(--df-bg-panel, #2a3136);
   border-radius: 8px;
+  border: 2px solid var(--df-border-primary, #3a3f44);
 }
 
 .mastery-system.sheet.actor.character .attribute-row {
@@ -854,11 +865,12 @@
   text-orientation: mixed;
   font-size: 14px;
   font-weight: bold;
-  color: #8b0000;
+  color: var(--df-text-primary, #d0d0d0);
   text-transform: uppercase;
   min-width: 30px;
   text-align: center;
   margin: 0;
+  font-family: 'Cinzel Decorative', serif;
 }
 
 .mastery-system.sheet.actor.character .attribute-circle-wrapper {
@@ -886,29 +898,31 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: #fff;
-  border: 3px solid #8b0000;
+  background: var(--df-bg-panel, #2a3136);
+  border: 3px solid var(--df-border-primary, #3a3f44);
   border-radius: 50%;
   width: 90px;
   height: 90px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 8px var(--df-shadow, rgba(0,0,0,0.5));
 }
 
 .mastery-system.sheet.actor.character .attribute-value-input {
   width: 50px;
   padding: 4px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 4px;
   text-align: center;
   font-size: 20px;
   font-weight: bold;
-  background: #fff;
+  background: var(--df-bg-header, #1b2124);
+  color: var(--df-text-primary, #d0d0d0);
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .mastery-system.sheet.actor.character .circle-center button {
-  background: #8b0000;
-  border: none;
-  color: #fff;
+  background: var(--df-bg-panel, #2a3136);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  color: var(--df-text-primary, #d0d0d0);
   padding: 2px 4px;
   border-radius: 4px;
   cursor: pointer;
@@ -922,8 +936,10 @@
 }
 
 .mastery-system.sheet.actor.character .circle-center button:hover {
-  background: #a00000;
+  background: var(--df-bg-header, #1b2124);
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
   transform: scale(1.1);
+  color: var(--df-text-primary, #d0d0d0);
 }
 
 .mastery-system.sheet.actor.character .circle-center button i {
@@ -946,13 +962,13 @@
   height: 28px;
   margin: calc(50% - 14px) 0 0 calc(50% - 14px);
   transform: rotate(var(--a, 0deg)) translate(50px) rotateX(40deg) scaleY(1.305);
-  box-shadow: inset 0 0 0 2px #8b0000;
-  background: #e0e0e0;
-  border: 2px solid #8b0000;
+  box-shadow: inset 0 0 0 2px var(--df-border-primary, #3a3f44);
+  background: var(--df-bg-panel, #2a3136);
+  border: 2px solid var(--df-border-primary, #3a3f44);
   border-radius: 3px;
   font: 900 10px/28px Arial, sans-serif;
   text-align: center;
-  color: #666;
+  color: var(--df-text-muted, #707070);
   transition: all 0.3s;
   display: flex;
   align-items: center;
@@ -961,10 +977,10 @@
 }
 
 .mastery-system.sheet.actor.character .stone-segment.filled {
-  background: #8b0000;
-  color: #fff;
-  border-color: #8b0000;
-  box-shadow: inset 0 0 0 2px #fff, 0 2px 8px rgba(139, 0, 0, 0.5);
+  background: var(--df-bg-header, #1b2124);
+  color: var(--df-text-primary, #d0d0d0);
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
+  box-shadow: inset 0 0 0 2px var(--df-text-primary, #d0d0d0), 0 2px 8px var(--df-shadow, rgba(0,0,0,0.5));
 }
 
 /* ========== Echo Tab ========== */
@@ -982,16 +998,19 @@
 
 .mastery-system.sheet.actor.character .echo-content .form-group label {
   font-weight: bold;
-  color: #8b0000;
+  color: var(--df-text-primary, #d0d0d0);
   font-size: 14px;
+  font-family: 'Cinzel Decorative', serif;
 }
 
 .mastery-system.sheet.actor.character .echo-content .form-group input[type="text"],
 .mastery-system.sheet.actor.character .echo-content .form-group textarea {
   padding: 8px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 4px;
-  background: #fff;
+  background: var(--df-bg-panel, #2a3136);
+  color: var(--df-text-primary, #d0d0d0);
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .mastery-system.sheet.actor.character .echo-content .form-group textarea {
@@ -1015,8 +1034,9 @@
 .mastery-system .artifacts-header h3,
 .mastery-system .weapons-header h3 {
   margin: 0;
-  color: #8b0000;
+  color: var(--df-text-primary, #d0d0d0);
   font-size: 18px;
+  font-family: 'Cinzel Decorative', serif;
 }
 
 /* Power and Spell Cards - Beautiful detailed styling */
@@ -1024,17 +1044,19 @@
 .mastery-system.sheet.actor.character .spell-card {
   margin-bottom: 15px;
   padding: 15px;
-  background: #fff;
-  border: 2px solid #8b0000;
+  background: var(--df-bg-panel, #2a3136);
+  border: 2px solid var(--df-border-primary, #3a3f44);
   border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px var(--df-shadow, rgba(0,0,0,0.5));
   transition: all 0.3s;
 }
 
 .mastery-system.sheet.actor.character .power-card:hover,
 .mastery-system.sheet.actor.character .spell-card:hover {
-  box-shadow: 0 4px 16px rgba(139, 0, 0, 0.2);
+  box-shadow: 0 4px 16px var(--df-shadow, rgba(0,0,0,0.5));
   transform: translateY(-2px);
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
+  background: var(--df-bg-header, #1b2124);
 }
 
 .mastery-system.sheet.actor.character .power-header,
@@ -1044,7 +1066,7 @@
   align-items: center;
   margin-bottom: 10px;
   padding-bottom: 10px;
-  border-bottom: 2px solid #8b0000;
+  border-bottom: 2px solid var(--df-border-primary, #3a3f44);
 }
 
 .mastery-system.sheet.actor.character .power-name,
@@ -1052,7 +1074,8 @@
   margin: 0;
   font-size: 16px;
   font-weight: bold;
-  color: #333;
+  color: var(--df-text-primary, #d0d0d0);
+  font-family: 'Cinzel Decorative', serif;
 }
 
 .mastery-system.sheet.actor.character .power-controls,
@@ -1064,20 +1087,25 @@
 .mastery-system.sheet.actor.character .item-edit,
 .mastery-system.sheet.actor.character .item-delete {
   padding: 6px 10px;
-  background: #666;
-  border: none;
-  color: #fff;
+  background: var(--df-bg-panel, #2a3136);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  color: var(--df-text-primary, #d0d0d0);
   border-radius: 4px;
   cursor: pointer;
   transition: all 0.2s;
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .mastery-system.sheet.actor.character .item-edit:hover {
-  background: #8b0000;
+  background: var(--df-bg-header, #1b2124);
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
+  color: var(--df-text-primary, #d0d0d0);
 }
 
 .mastery-system.sheet.actor.character .item-delete:hover {
-  background: #cc0000;
+  background: var(--df-bg-header, #1b2124);
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
+  color: var(--df-text-primary, #d0d0d0);
 }
 
 .mastery-system.sheet.actor.character .power-details,
@@ -1096,19 +1124,22 @@
 .mastery-system.sheet.actor.character .spell-type {
   font-size: 11px;
   padding: 4px 8px;
-  background: #f0f0f0;
+  background: var(--df-bg-header, #1b2124);
+  border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 4px;
-  color: #666;
+  color: var(--df-text-secondary, #a0a0a0);
   font-weight: 600;
   text-transform: uppercase;
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .mastery-system.sheet.actor.character .power-description,
 .mastery-system.sheet.actor.character .spell-description {
   font-size: 13px;
-  color: #666;
+  color: var(--df-text-secondary, #a0a0a0);
   margin-bottom: 10px;
   line-height: 1.4;
+  font-family: 'Cormorant Garamond', serif;
 }
 
 /* ========== Compact Power Display ========== */
@@ -1118,16 +1149,17 @@
   gap: 12px;
   margin-bottom: 8px;
   padding-bottom: 8px;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--df-border-primary, #3a3f44);
   flex-wrap: wrap;
 }
 
 .mastery-system.sheet.actor.character .power-name-compact {
   font-size: 15px;
   font-weight: bold;
-  color: #333;
+  color: var(--df-text-primary, #d0d0d0);
   min-width: 120px;
   flex-shrink: 0;
+  font-family: 'Cinzel Decorative', serif;
 }
 
 .mastery-system.sheet.actor.character .power-info-compact {
@@ -1137,7 +1169,8 @@
   flex: 1;
   flex-wrap: wrap;
   font-size: 11px;
-  color: #666;
+  color: var(--df-text-secondary, #a0a0a0);
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .mastery-system.sheet.actor.character .power-damage-compact,
@@ -1148,9 +1181,12 @@
   align-items: center;
   gap: 4px;
   padding: 3px 8px;
-  background: #f5f5f5;
+  background: var(--df-bg-header, #1b2124);
+  border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 4px;
   white-space: nowrap;
+  color: var(--df-text-secondary, #a0a0a0);
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .mastery-system.sheet.actor.character .power-damage-compact i,
@@ -1158,7 +1194,7 @@
 .mastery-system.sheet.actor.character .power-category-compact i,
 .mastery-system.sheet.actor.character .power-type-compact i {
   font-size: 10px;
-  color: #8b0000;
+  color: var(--df-text-primary, #d0d0d0);
 }
 
 .mastery-system.sheet.actor.character .power-special-compact {
@@ -1170,10 +1206,11 @@
 
 .mastery-system.sheet.actor.character .power-description-compact {
   font-size: 12px;
-  color: #666;
+  color: var(--df-text-secondary, #a0a0a0);
   margin-top: 6px;
   line-height: 1.4;
   font-style: italic;
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .mastery-system.sheet.actor.character .power-use-btn,
@@ -1204,49 +1241,58 @@
 .mastery-system.sheet.actor.character .empty-message {
   text-align: center;
   padding: 40px;
-  color: #999;
+  color: var(--df-text-muted, #707070);
   font-style: italic;
   font-size: 14px;
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .mastery-system .items-list .power {
-  background: linear-gradient(to right, #fff 0%, #ffe4e1 100%);
+  background: var(--df-bg-panel, #2a3136);
+  border: 1px solid var(--df-border-primary, #3a3f44);
 }
 
 .mastery-system .items-list .schtick {
-  background: linear-gradient(to right, #fff 0%, #e6f3ff 100%);
+  background: var(--df-bg-panel, #2a3136);
+  border: 1px solid var(--df-border-primary, #3a3f44);
 }
 
 .mastery-system .items-list .artifact {
-  background: linear-gradient(to right, #fff 0%, #fff8dc 100%);
+  background: var(--df-bg-panel, #2a3136);
+  border: 1px solid var(--df-border-primary, #3a3f44);
 }
 
 .mastery-system .items-list .item-tree {
   font-size: 12px;
-  color: #666;
+  color: var(--df-text-secondary, #a0a0a0);
   font-style: italic;
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .mastery-system .items-list .item-type {
   font-size: 11px;
-  color: #8b0000;
+  color: var(--df-text-primary, #d0d0d0);
   text-transform: uppercase;
-  background: #f0f0f0;
+  background: var(--df-bg-header, #1b2124);
+  border: 1px solid var(--df-border-primary, #3a3f44);
   padding: 2px 6px;
   border-radius: 3px;
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .mastery-system .items-list .item-description {
   flex: 1;
   font-size: 12px;
-  color: #666;
+  color: var(--df-text-secondary, #a0a0a0);
   font-style: italic;
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .mastery-system .items-list .item-damage {
   font-size: 13px;
   font-weight: bold;
-  color: #8b0000;
+  color: var(--df-text-primary, #d0d0d0);
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .mastery-system .items-list .item-equipped {
@@ -1258,39 +1304,42 @@
 .mastery-system.sheet.actor.character .skills-header {
   margin-bottom: 20px;
   padding: 15px;
-  background: #f9f9f9;
-  border: 2px solid #8b0000;
+  background: var(--df-bg-panel, #2a3136);
+  border: 2px solid var(--df-border-primary, #3a3f44);
   border-radius: 8px;
 }
 
 .mastery-system.sheet.actor.character .skills-header h3 {
   margin: 0 0 10px 0;
   font-size: 20px;
-  color: #8b0000;
+  color: var(--df-text-primary, #d0d0d0);
+  font-family: 'Cinzel Decorative', serif;
 }
 
 .mastery-system.sheet.actor.character .skills-description {
   margin: 0;
   font-size: 13px;
-  color: #666;
+  color: var(--df-text-secondary, #a0a0a0);
   font-style: italic;
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .mastery-system.sheet.actor.character .skill-category {
   margin-bottom: 30px;
   padding: 15px;
-  background: #fff;
-  border: 2px solid #8b0000;
+  background: var(--df-bg-panel, #2a3136);
+  border: 2px solid var(--df-border-primary, #3a3f44);
   border-radius: 8px;
 }
 
 .mastery-system.sheet.actor.character .category-header {
   margin: 0 0 15px 0;
   font-size: 18px;
-  color: #8b0000;
-  border-bottom: 2px solid #8b0000;
+  color: var(--df-text-primary, #d0d0d0);
+  border-bottom: 2px solid var(--df-border-primary, #3a3f44);
   padding-bottom: 8px;
   text-transform: uppercase;
+  font-family: 'Cinzel Decorative', serif;
 }
 
 .mastery-system.sheet.actor.character .skills-list {
@@ -1307,15 +1356,15 @@
   align-items: center;
   gap: 10px;
   padding: 10px;
-  background: #f9f9f9;
-  border: 1px solid #ddd;
+  background: var(--df-bg-panel, #2a3136);
+  border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 5px;
   transition: all 0.2s;
 }
 
 .mastery-system.sheet.actor.character .skill:hover {
-  background: #fff;
-  border-color: #8b0000;
+  background: var(--df-bg-header, #1b2124);
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
 }
 
 .mastery-system.sheet.actor.character .skill-info {
@@ -1328,7 +1377,8 @@
 .mastery-system.sheet.actor.character .skill-name {
   font-weight: bold;
   font-size: 14px;
-  color: #333;
+  color: var(--df-text-primary, #d0d0d0);
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .mastery-system.sheet.actor.character .skill-attributes {
@@ -1340,20 +1390,25 @@
 .mastery-system.sheet.actor.character .attribute-tag {
   font-size: 10px;
   padding: 2px 6px;
-  background: #e0e0e0;
+  background: var(--df-bg-header, #1b2124);
+  border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 3px;
-  color: #666;
+  color: var(--df-text-secondary, #a0a0a0);
   text-transform: capitalize;
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .mastery-system.sheet.actor.character .skill-value {
   width: 60px;
   padding: 6px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 4px;
   text-align: center;
   font-size: 16px;
   font-weight: bold;
+  background: var(--df-bg-panel, #2a3136);
+  color: var(--df-text-primary, #d0d0d0);
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .mastery-system.sheet.actor.character .skill-roll {
@@ -1371,24 +1426,25 @@
 .mastery-system.sheet.actor.character .skill-category-compact {
   margin-bottom: 20px;
   padding: 15px;
-  background: linear-gradient(135deg, #ffffff 0%, #f8f8f8 100%);
-  border: 2px solid #8b0000;
+  background: var(--df-bg-panel, #2a3136);
+  border: 2px solid var(--df-border-primary, #3a3f44);
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px var(--df-shadow, rgba(0, 0, 0, 0.5));
 }
 
 .mastery-system.sheet.actor.character .category-header-compact {
   margin: 0 0 12px 0;
   font-size: 16px;
   font-weight: 700;
-  color: #8b0000;
-  border-bottom: 2px solid #8b0000;
+  color: var(--df-text-primary, #d0d0d0);
+  border-bottom: 2px solid var(--df-border-primary, #3a3f44);
   padding-bottom: 8px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   display: flex;
   align-items: center;
   gap: 8px;
+  font-family: 'Cinzel Decorative', serif;
 }
 
 .mastery-system.sheet.actor.character .category-header-compact i {
@@ -1406,24 +1462,25 @@
   align-items: center;
   gap: 12px;
   padding: 10px 12px;
-  background: #f9f9f9;
-  border: 1px solid #ddd;
+  background: var(--df-bg-panel, #2a3136);
+  border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 6px;
   transition: all 0.2s;
 }
 
 .mastery-system.sheet.actor.character .skill-row-compact:hover {
-  background: #fff;
-  border-color: #8b0000;
-  box-shadow: 0 2px 6px rgba(139, 0, 0, 0.1);
+  background: var(--df-bg-header, #1b2124);
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
+  box-shadow: 0 2px 6px var(--df-shadow, rgba(0,0,0,0.5));
 }
 
 .mastery-system.sheet.actor.character .skill-name-compact {
   flex: 1;
   font-weight: 600;
   font-size: 14px;
-  color: #333;
+  color: var(--df-text-primary, #d0d0d0);
   min-width: 120px;
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .mastery-system.sheet.actor.character .skill-attrs-compact {
@@ -1436,12 +1493,14 @@
 .mastery-system.sheet.actor.character .attr-badge {
   font-size: 11px;
   padding: 4px 8px;
-  background: linear-gradient(135deg, #8b0000 0%, #a00000 100%);
+  background: var(--df-bg-header, #1b2124);
+  border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 4px;
-  color: #fff;
+  color: var(--df-text-primary, #d0d0d0);
   text-transform: capitalize;
   font-weight: 600;
   letter-spacing: 0.3px;
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .mastery-system.sheet.actor.character .skill-value-display-compact {
@@ -1453,26 +1512,27 @@
 .mastery-system.sheet.actor.character .skill-value-compact {
   width: 50px;
   padding: 6px;
-  border: 2px solid #8b0000;
+  border: 2px solid var(--df-border-primary, #3a3f44);
   border-radius: 4px;
   text-align: center;
   font-size: 16px;
   font-weight: 700;
-  color: #333;
-  background: #fff;
+  color: var(--df-text-primary, #d0d0d0);
+  background: var(--df-bg-panel, #2a3136);
   display: inline-block;
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .mastery-system.sheet.actor.character .skill-value-compact:focus {
   outline: none;
-  border-color: #a00000;
-  box-shadow: 0 0 0 3px rgba(139, 0, 0, 0.1);
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
+  box-shadow: 0 0 0 3px var(--df-accent-subtle, rgba(255, 255, 255, 0.15));
 }
 
 .mastery-system.sheet.actor.character .skill-spend-point {
-  background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
-  border: none;
-  color: #333;
+  background: var(--df-bg-panel, #2a3136);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  color: var(--df-text-primary, #d0d0d0);
   padding: 6px 10px;
   border-radius: 4px;
   cursor: pointer;
@@ -1485,19 +1545,23 @@
   display: flex;
   align-items: center;
   gap: 4px;
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .mastery-system.sheet.actor.character .skill-spend-point:hover {
-  background: linear-gradient(135deg, #ffaa00 0%, #ff8800 100%);
+  background: var(--df-bg-header, #1b2124);
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+  box-shadow: 0 4px 12px var(--df-shadow, rgba(0,0,0,0.5));
+  color: var(--df-text-primary, #d0d0d0);
 }
 
 .mastery-system.sheet.actor.character .skill-spend-point:disabled {
-  background: #ccc;
-  color: #666;
+  background: var(--df-bg-panel, #2a3136);
+  color: var(--df-text-muted, #707070);
   cursor: not-allowed;
   opacity: 0.5;
+  border-color: var(--df-border-primary, #3a3f44);
 }
 
 .mastery-system.sheet.actor.character .skill-roll-compact {
@@ -2458,16 +2522,18 @@
   align-items: center;
   gap: 12px;
   padding: 15px;
-  background: linear-gradient(135deg, #ffffff 0%, #f8f8f8 100%);
-  border: 2px solid #8b0000;
+  background: var(--df-bg-panel, #2a3136);
+  border: 2px solid var(--df-border-primary, #3a3f44);
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px var(--df-shadow, rgba(0, 0, 0, 0.5));
   transition: all 0.3s ease;
 }
 
 .mastery-system.sheet.actor.character .combat-stat-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 16px rgba(139, 0, 0, 0.2);
+  box-shadow: 0 6px 16px var(--df-shadow, rgba(0, 0, 0, 0.5));
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
+  background: var(--df-bg-header, #1b2124);
 }
 
 .mastery-system.sheet.actor.character .stat-icon {
@@ -2478,9 +2544,10 @@
   justify-content: center;
   border-radius: 50%;
   font-size: 24px;
-  color: #fff;
-  background: linear-gradient(135deg, #8b0000 0%, #a00000 100%);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  color: var(--df-text-primary, #d0d0d0);
+  background: var(--df-bg-header, #1b2124);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  box-shadow: 0 2px 6px var(--df-shadow, rgba(0, 0, 0, 0.5));
 }
 
 .mastery-system.sheet.actor.character .stat-content {
@@ -2491,24 +2558,27 @@
   display: block;
   font-size: 13px;
   font-weight: 700;
-  color: #8b0000;
+  color: var(--df-text-primary, #d0d0d0);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 4px;
+  font-family: 'Cinzel Decorative', serif;
 }
 
 .mastery-system.sheet.actor.character .stat-value {
   font-size: 24px;
   font-weight: 700;
-  color: #333;
+  color: var(--df-text-primary, #d0d0d0);
   line-height: 1;
   margin-bottom: 4px;
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .mastery-system.sheet.actor.character .stat-formula {
   font-size: 11px;
-  color: #666;
+  color: var(--df-text-secondary, #a0a0a0);
   font-style: italic;
+  font-family: 'Cormorant Garamond', serif;
 }
 
 /* ========== Saving Throws ========== */
@@ -2527,29 +2597,31 @@
 
 .mastery-system.sheet.actor.character .saving-throw-card {
   padding: 18px;
-  background: linear-gradient(135deg, #ffffff 0%, #f8f8f8 100%);
-  border: 2px solid #8b0000;
+  background: var(--df-bg-panel, #2a3136);
+  border: 2px solid var(--df-border-primary, #3a3f44);
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px var(--df-shadow, rgba(0, 0, 0, 0.5));
   transition: all 0.3s ease;
 }
 
 .mastery-system.sheet.actor.character .saving-throw-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 16px rgba(139, 0, 0, 0.2);
-  border-color: #a00000;
+  box-shadow: 0 6px 16px var(--df-shadow, rgba(0, 0, 0, 0.5));
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
+  background: var(--df-bg-header, #1b2124);
 }
 
 .mastery-system.sheet.actor.character .save-title {
   font-size: 16px;
   font-weight: 700;
-  color: #8b0000;
+  color: var(--df-text-primary, #d0d0d0);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 12px;
   display: flex;
   align-items: center;
   gap: 8px;
+  font-family: 'Cinzel Decorative', serif;
 }
 
 .mastery-system.sheet.actor.character .save-title i {
@@ -2559,13 +2631,14 @@
 .mastery-system.sheet.actor.character .save-pool {
   font-size: 20px;
   font-weight: 700;
-  color: #333;
+  color: var(--df-text-primary, #d0d0d0);
   text-align: center;
   padding: 12px;
-  background: #f0f0f0;
+  background: var(--df-bg-header, #1b2124);
   border-radius: 6px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--df-border-primary, #3a3f44);
   margin-bottom: 10px;
+  font-family: 'Cormorant Garamond', serif;
 }
 
 .mastery-system.sheet.actor.character .save-button {

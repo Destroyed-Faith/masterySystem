@@ -192,47 +192,77 @@ async function sendRollToChat(
     // Create a Foundry Roll object to display dice visually
     const diceSum = result.total - result.skill;
     
-    // Create roll formula
-    const formula = `${result.dice.length}d8${result.skill !== 0 ? ` + ${result.skill}` : ''}`;
+    // Create roll formula - use numDice for the pool (e.g., "8d8" for attribute 8)
+    // Do NOT use keep modifiers (kh/kl) - we handle keep selection ourselves
+    const numDice = result.dice.length;
+    const formula = `${numDice}d8${result.skill !== 0 ? ` + ${result.skill}` : ''}`;
     const roll = new Roll(formula);
     
     // Evaluate the roll asynchronously (required in Foundry VTT v13)
     await roll.evaluate();
     
     // Now replace the dice results with our actual rolled values
-    // We need to modify the dice terms to show our actual results
     // IMPORTANT: Use keptIndices to properly identify which dice were kept
     // (multiple dice can have the same value, so we can't rely on values alone)
     const keptIndices = (result as any).keptIndices || [];
     
-    let dieIndex = 0;
+    // Find the Die term and replace ALL results
+    // For "8d8", Foundry creates a single Die term with term.number = 8
+    // We need to set term.results to an array with 8 entries (one per die)
     for (const term of roll.terms as any[]) {
       if (term instanceof foundry.dice.terms.Die) {
-        // Replace the results with our actual dice values
-        const actualValue = result.dice[dieIndex];
-        const isKept = keptIndices.includes(dieIndex);
-        const isExploded = result.exploded.includes(dieIndex);
+        // Replace term.results with ALL dice results
+        // term.number should equal numDice (e.g., 8 for 8d8)
+        const expectedDiceCount = term.number || numDice;
         
-        // Update the die results
-        // ALL dice should be active (shown), but kept ones are not discarded
-        term.results = [{
-          result: actualValue,
-          active: true,  // Show ALL dice, not just kept ones
-          discarded: !isKept,  // Mark non-kept dice as discarded for visual distinction
-          rerolled: false
-        }];
-        
-        // Mark as exploded if needed (stored in flags)
-        if (isExploded) {
-          (term as any).options.explode = true;
+        // Build results array with ALL dice (not just kept ones)
+        term.results = [];
+        for (let i = 0; i < expectedDiceCount && i < result.dice.length; i++) {
+          const actualValue = result.dice[i];
+          const isKept = keptIndices.includes(i);
+          const isExploded = result.exploded.includes(i);
+          
+          // ALL dice should be active and NOT discarded (so Dice So Nice shows them all)
+          // Store kept/exploded status for HTML highlighting (not for Dice So Nice)
+          const resultObj: any = {
+            result: actualValue,
+            active: true,
+            discarded: false,  // DO NOT discard - we want Dice So Nice to show ALL dice
+            rerolled: false
+          };
+          // Add custom properties for HTML highlighting
+          if (isKept) {
+            resultObj.kept = true;
+          }
+          if (isExploded) {
+            resultObj.exploded = true;
+          }
+          term.results.push(resultObj);
         }
         
-        dieIndex++;
+        // Ensure we have the correct number of results
+        if (term.results.length !== expectedDiceCount) {
+          console.warn('Mastery System | Die term results count mismatch', {
+            expected: expectedDiceCount,
+            actual: term.results.length,
+            diceLength: result.dice.length
+          });
+        }
+        
+        break; // Only process the first Die term (should be the only one for "Nd8")
       }
     }
     
     // Update the total
     (roll as any)._total = result.total;
+    
+    // Debug log
+    console.log('Mastery System | Roll display built', {
+      numDice: numDice,
+      keptDice: keptIndices.length,
+      formula: formula,
+      dieTermResults: roll.terms.find((t: any) => t instanceof foundry.dice.terms.Die)?.results?.length || 0
+    });
     
     // Dice So Nice integration - show 3D dice if module is installed and enabled
     if ((game as any).dice3d?.showForRoll) {
@@ -260,7 +290,14 @@ async function sendRollToChat(
               <span>Rolled ${result.dice.length}d8, kept ${result.kept.length}</span>
             </div>
             <div class="breakdown-line">
-              <span>Dice Total:</span>
+              <span>Dice Rolled:</span>
+              <span class="value">${result.dice.map((d, i) => {
+                const isKept = keptIndices.includes(i);
+                return isKept ? `<strong>${d}</strong>` : d;
+              }).join(', ')}</span>
+            </div>
+            <div class="breakdown-line">
+              <span>Dice Total (kept):</span>
               <span class="value">${diceSum}</span>
             </div>
             ${result.skill > 0 ? `
@@ -338,7 +375,7 @@ export async function quickRoll(
   const actorData = actor.system as any;
   
   // Get attribute value (number of dice)
-  const numDice = actorData.attributes?.[attributeName]?.value || 0;
+  let numDice = actorData.attributes?.[attributeName]?.value || 0;
   
   // Get mastery rank (number to keep)
   const keepDice = actorData.mastery?.rank || 1;
@@ -346,9 +383,34 @@ export async function quickRoll(
   // Get skill bonus or use provided modifier
   const skill = modifier !== undefined ? modifier : (skillName ? (actorData.skills?.[skillName] || 0) : 0);
   
+  // Apply health penalty (reduces dice pool)
+  const { getCurrentPenalty } = await import('../utils/calculations.js');
+  const healthBars = actorData.health?.bars || [];
+  const currentBar = actorData.health?.currentBar ?? 0;
+  const healthPenalty = getCurrentPenalty(healthBars, currentBar);
+  
+  // Health penalty reduces the dice pool (numDice)
+  // Penalty is negative (e.g., -1, -2, -4), so we add it to reduce numDice
+  numDice = Math.max(1, numDice + healthPenalty); // Minimum 1 die
+  
   // Build label
   const rollLabel = label || `${attributeName.charAt(0).toUpperCase() + attributeName.slice(1)} Roll`;
-  const flavorText = skillName ? `with ${skillName} skill` : (modifier !== undefined ? `modifier: ${modifier >= 0 ? '+' : ''}${modifier}` : '');
+  let flavorText = skillName ? `with ${skillName} skill` : (modifier !== undefined ? `modifier: ${modifier >= 0 ? '+' : ''}${modifier}` : '');
+  
+  // Add health penalty to flavor if applicable
+  if (healthPenalty < 0) {
+    const penaltyText = healthPenalty === -1 ? '1' : healthPenalty === -2 ? '2' : healthPenalty === -4 ? '4' : String(Math.abs(healthPenalty));
+    flavorText = flavorText ? `${flavorText} (Health penalty: -${penaltyText} dice)` : `Health penalty: -${penaltyText} dice`;
+  }
+  
+  console.log('Mastery System | quickRoll with health penalty', {
+    attributeName,
+    baseNumDice: actorData.attributes?.[attributeName]?.value || 0,
+    healthPenalty,
+    adjustedNumDice: numDice,
+    currentBar,
+    healthBars: healthBars.map((b: any, i: number) => ({ index: i, name: b.name, current: b.current, max: b.max, penalty: b.penalty }))
+  });
   
   return await masteryRoll({
     numDice,

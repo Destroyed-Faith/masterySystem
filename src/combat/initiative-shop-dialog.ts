@@ -7,6 +7,7 @@
 
 import { INITIATIVE_SHOP } from '../utils/constants.js';
 import { InitiativeRollBreakdown } from './initiative-roll.js';
+import { resetRoundState } from './action-economy.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -232,8 +233,18 @@ export class InitiativeShopDialog extends BaseDialog {
     };
     await this.combatant.setFlag('mastery-system', 'initiativeShop', shopData);
 
-    // Send chat message
+    // Immediately update RoundState to apply initiative shop bonuses for this round
     const actor = this.combatant.actor;
+    if (actor) {
+      await resetRoundState(actor, this.combatant, this.combat);
+      console.log('Mastery System | [INITIATIVE SHOP] RoundState updated after purchases', {
+        actorName: actor.name,
+        purchases: this.purchases,
+        round: this.combat.round
+      });
+    }
+
+    // Send chat message
     if (actor) {
       const parts: string[] = [];
       if (this.purchases.extraMovement > 0) {

@@ -25,5 +25,5 @@ export declare function endGuidedMovement(success: boolean): void;
  * @param token - The token that selected the option
  * @param option - The chosen option (power or maneuver)
  */
-export declare function handleChosenCombatOption(token: any, option: RadialCombatOption): void;
+export declare function handleChosenCombatOption(token: any, option: RadialCombatOption): Promise<void>;
 //# sourceMappingURL=token-action-selector.d.ts.map

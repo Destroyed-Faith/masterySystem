@@ -113,6 +113,32 @@ export async function spendReactionAction(actor, combat) {
     return true;
 }
 /**
+ * Get available attack actions (remaining count)
+ */
+export function getAvailableAttackActions(actor, combat) {
+    const roundState = getRoundState(actor, combat);
+    return Math.max(0, roundState.attackActions.total - roundState.attackActions.used);
+}
+/**
+ * Get available movement actions (remaining count)
+ */
+export function getAvailableMovementActions(actor, combat) {
+    const roundState = getRoundState(actor, combat);
+    return Math.max(0, roundState.movementActions.total - roundState.movementActions.used);
+}
+/**
+ * Consume an attack action (alias for spendAttackAction)
+ */
+export async function consumeAttackAction(actor, combat) {
+    return await spendAttackAction(actor, combat);
+}
+/**
+ * Consume a movement action (alias for spendMovementAction)
+ */
+export async function consumeMovementAction(actor, combat) {
+    return await spendMovementAction(actor, combat);
+}
+/**
  * Get stone usage count for an ability this turn
  */
 export function getStoneUsageCount(actor, attribute, abilityKey, combat) {

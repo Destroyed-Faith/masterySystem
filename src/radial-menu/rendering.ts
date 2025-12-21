@@ -371,35 +371,31 @@ export function renderInnerSegments(
       if (combat && actor) {
         const roundState = getRoundState(actor, combat);
         
-        // Map segment to action type and get remaining/total
+        // Map segment to action type and get remaining
         let remaining: number | undefined;
-        let total: number | undefined;
         let moveBonus: number | undefined;
         
         switch (seg.id) {
           case 'movement':
             remaining = roundState.movementActions.total - roundState.movementActions.used;
-            total = roundState.movementActions.total;
             moveBonus = roundState.moveBonusMeters + (roundState.stoneBonuses?.extraMoveMeters || 0);
             break;
           case 'attack':
           case 'active-buff':
             // Both Attack and Buff use the shared attack pool
             remaining = roundState.attackActions.total - roundState.attackActions.used;
-            total = roundState.attackActions.total;
             break;
           case 'utility':
             // Utility also uses attack pool
             remaining = roundState.attackActions.total - roundState.attackActions.used;
-            total = roundState.attackActions.total;
             break;
         }
         
-        if (remaining !== undefined && total !== undefined) {
+        if (remaining !== undefined) {
           if (seg.id === 'movement' && moveBonus && moveBonus > 0) {
-            labelText = `${seg.label} (${remaining}/${total}) +${moveBonus}m`;
+            labelText = `${seg.label} ${remaining} (+${moveBonus}m)`;
           } else {
-            labelText = `${seg.label} (${remaining}/${total})`;
+            labelText = `${seg.label} ${remaining}`;
           }
         }
       }
@@ -584,31 +580,27 @@ export function refreshInnerSegmentsVisual(
           const roundState = getRoundState(actor, combat);
           
           let remaining: number | undefined;
-          let total: number | undefined;
           let moveBonus: number | undefined;
           
           switch (segId) {
             case 'movement':
               remaining = roundState.movementActions.total - roundState.movementActions.used;
-              total = roundState.movementActions.total;
               moveBonus = roundState.moveBonusMeters + (roundState.stoneBonuses?.extraMoveMeters || 0);
               break;
             case 'attack':
             case 'active-buff':
               remaining = roundState.attackActions.total - roundState.attackActions.used;
-              total = roundState.attackActions.total;
               break;
             case 'utility':
               remaining = roundState.attackActions.total - roundState.attackActions.used;
-              total = roundState.attackActions.total;
               break;
           }
           
-          if (remaining !== undefined && total !== undefined) {
+          if (remaining !== undefined) {
             if (segId === 'movement' && moveBonus && moveBonus > 0) {
-              text.text = `${seg.label} (${remaining}/${total}) +${moveBonus}m`;
+              text.text = `${seg.label} ${remaining} (+${moveBonus}m)`;
             } else {
-              text.text = `${seg.label} (${remaining}/${total})`;
+              text.text = `${seg.label} ${remaining}`;
             }
           } else {
             text.text = seg.label;

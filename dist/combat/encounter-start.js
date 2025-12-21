@@ -10,9 +10,9 @@
  * 5. Start combat after all PCs confirm initiative
  */
 import { PassiveSelectionDialog } from '../sheets/passive-selection-dialog.js';
-import { InitiativeShopDialog } from './initiative-shop-dialog.js';
-import { rollInitiativeForCombatant } from './initiative-roll.js';
 import { CombatCarouselApp } from '../ui/combat-carousel.js';
+import { openStonePowersForAllCombatants } from './stone-powers-flow.js';
+import { rollInitiativeForCombatant } from './initiative-roll.js';
 const SOCKET_NAME = 'system.mastery-system';
 /**
  * Get encounter setup state from combat flags
@@ -191,7 +191,8 @@ export async function beginEncounter(combat) {
                 try {
                     await PassiveSelectionDialog.showForCombatant(pc, isLocked);
                     await handlePassiveSelectionComplete(combat, actor.id, {});
-                    await openInitiativeShopForCombatant(combat, pc);
+                    // Note: Stone Powers and Initiative Shop will be opened after ALL passives are done
+                    // This is handled by checking when all passives are complete
                 }
                 catch (err) {
                     console.error('Mastery System | Error in GM passive selection', err);
@@ -215,8 +216,37 @@ export async function beginEncounter(combat) {
         // Small delay between rolls
         await new Promise(resolve => setTimeout(resolve, 200));
     }
-    // Note: PC initiative shops will be opened after passive selection completes
-    // This is handled via socket messages
+    // Step 3: After all passives are selected, open Stone Powers for all combatants (round 1)
+    // This will be triggered when all PCs have completed passive selection
+    // We check this in a function that monitors passive completion
+    // Don't await - let it run in background
+    checkAndOpenStonePowersAfterPassives(combat).catch(err => {
+        console.error('Mastery System | Error checking for stone powers after passives', err);
+    });
+}
+/**
+ * Check if all passives are done and open Stone Powers (round 1)
+ */
+async function checkAndOpenStonePowersAfterPassives(combat) {
+    // Wait a bit for all passive selections to complete
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    const setup = getEncounterSetup(combat);
+    const allPCs = Array.from(combat.combatants).filter((c) => c.actor?.type === 'character');
+    // Check if all PCs have completed passive selection
+    const allPassivesDone = allPCs.length > 0 && allPCs.every((pc) => {
+        const actorId = pc.actor?.id;
+        return setup.passives[actorId]?.locked === true;
+    });
+    if (allPassivesDone) {
+        console.log('Mastery System | All passives completed - opening Stone Powers for round 1');
+        // Open Stone Powers for all combatants (round 1)
+        // This will automatically open Initiative Shop after all Stone Powers are done
+        await openStonePowersForAllCombatants(combat, 1);
+    }
+    else {
+        // Retry after a delay (in case some players are still selecting)
+        setTimeout(() => checkAndOpenStonePowersAfterPassives(combat), 2000);
+    }
 }
 /**
  * Handle socket messages
@@ -241,10 +271,10 @@ async function handleSocketMessage(payload) {
             const isLocked = setup.passives[actorId]?.locked === true;
             try {
                 await PassiveSelectionDialog.showForCombatant(combatant, isLocked);
-                // After passive selection completes, mark as locked and open initiative shop
+                // After passive selection completes, mark as locked
                 await handlePassiveSelectionComplete(combat, actorId, {});
-                // Open initiative shop for this combatant
-                await openInitiativeShopForCombatant(combat, combatant);
+                // Note: Stone Powers and Initiative Shop will be opened after ALL passives are done
+                // This is handled by checking when all passives are complete
             }
             catch (err) {
                 console.error('Mastery System | Error in passive selection', err);
@@ -282,30 +312,6 @@ async function handleSocketMessage(payload) {
             break;
         }
     }
-}
-/**
- * Open initiative shop for a combatant (after passive selection)
- */
-async function openInitiativeShopForCombatant(combat, combatant) {
-    const actor = combatant.actor;
-    if (!actor)
-        return;
-    // Check if user owns this actor
-    const user = game.user;
-    if (!user || (!user.isGM && !actor.isOwner)) {
-        return;
-    }
-    // Auto-roll initiative first
-    const breakdown = await rollInitiativeForCombatant(combatant);
-    // Show initiative shop (it will handle storing msInitiativeValue and sending socket message)
-    await InitiativeShopDialog.showForCombatant(combatant, breakdown, combat);
-    // After shop closes, get final initiative and confirm
-    // The shop dialog sends a socket message, but if we're the GM, handle locally
-    if (game.user?.isGM) {
-        const finalInitiative = combatant.initiative ?? breakdown.totalInitiative;
-        await handleInitiativeConfirmed(combat, combatant.id, finalInitiative);
-    }
-    // For players, the socket message will be handled by the GM's socket handler
 }
 /**
  * Debounce helper for carousel refresh

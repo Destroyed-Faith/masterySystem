@@ -26,6 +26,7 @@ import { CombatCarouselApp } from './ui/combat-carousel.js';
 import { initializeStoneHooks } from './stones/stone-hooks.js';
 import { initializeEncounterStart, beginEncounter } from './combat/encounter-start.js';
 import { initializeSceneControls, initializeTokenHUDButton } from './ui/scene-controls-mastery.js';
+import { openStonePowersForAllCombatants as openStonePowers, initializeStonePowersFlow } from './combat/stone-powers-flow.js';
 
 // Dice roller functions are imported in sheets where needed
 
@@ -98,6 +99,9 @@ Hooks.once('init', async function() {
   initializeSceneControls();
   initializeTokenHUDButton();
 
+  // Initialize stone powers flow system
+  initializeStonePowersFlow();
+
   // Initialize combat hooks
   // Register combatStart hook directly here
   Hooks.on('combatStart', async (combat: Combat) => {
@@ -126,13 +130,82 @@ Hooks.once('init', async function() {
     CombatCarouselApp.close();
   });
 
+  // Track previous round to detect round changes
+  let previousRound: number = 0;
+
   // Update carousel when combat changes
-  Hooks.on('updateCombat', () => {
+  // Also detect round changes to open Stone Powers for new rounds
+  Hooks.on('updateCombat', async (combat: Combat) => {
+    // Update carousel
     const carousel = CombatCarouselApp.instance;
     if (carousel && (carousel as any).rendered) {
       (carousel as any).render({ force: false });
     }
+    
+    // Detect round changes
+    const currentRound = combat.round ?? 0;
+    
+    // Check if round has increased (new round started)
+    if (currentRound > previousRound && currentRound > 1) {
+      console.log('Mastery System | Round changed from', previousRound, 'to', currentRound);
+      
+      // Open Stone Powers for all combatants in the new round
+      // Only if combat has started (round > 0)
+      if (combat.started && currentRound > 1) {
+        try {
+          await openStonePowers(combat, currentRound);
+        } catch (error) {
+          console.error('Mastery System | Error opening stone powers for new round', error);
+        }
+      }
+    }
+    
+    // Update previous round
+    previousRound = currentRound;
   });
+
+  /**
+   * Update initiative display in combat tracker for a specific combatant
+   * @param combatant - The combatant to update
+   * @param $html - Optional jQuery object of the combat tracker HTML (for use in renderCombatTracker hook)
+   */
+  function updateInitiativeDisplayInTracker(combatant: any, $html?: JQuery<HTMLElement>): void {
+    if (!combatant || !combatant.id) return;
+    
+    // Get current initiative value - use fresh from combat.combatants
+    const combat = game.combat;
+    if (!combat) return;
+    
+    const freshCombatant = combat.combatants.get(combatant.id);
+    if (!freshCombatant) return;
+    
+    const initiativeValue = freshCombatant.initiative ?? 0;
+    
+    // Find the combatant element - use provided HTML or find in tracker
+    let $combatant: JQuery<HTMLElement>;
+    if ($html) {
+      // Use provided HTML (from renderCombatTracker hook)
+      $combatant = $html.find(`[data-combatant-id="${combatant.id}"]`);
+    } else {
+      // Find the combat tracker app
+      const combatTrackerApp = (ui as any).combat;
+      if (!combatTrackerApp || !combatTrackerApp.element) return;
+      const $tracker = $(combatTrackerApp.element);
+      $combatant = $tracker.find(`[data-combatant-id="${combatant.id}"]`);
+    }
+    
+    if ($combatant.length === 0) return;
+    
+    const $tokenName = $combatant.find('.token-name');
+    if ($tokenName.length === 0) return;
+    
+    // Remove existing initiative display
+    $tokenName.find('.ms-initiative-value').remove();
+    
+    // Add updated initiative value
+    const $initiativeSpan = $('<span class="ms-initiative-value">[' + initiativeValue + ']</span>');
+    $tokenName.prepend($initiativeSpan);
+  }
 
   // Update carousel when combatants change
   Hooks.on('createCombatant', () => {
@@ -142,11 +215,15 @@ Hooks.once('init', async function() {
     }
   });
 
-  Hooks.on('updateCombatant', () => {
+  Hooks.on('updateCombatant', (_combat: any, combatant: any) => {
+    // Update carousel
     const carousel = CombatCarouselApp.instance;
     if (carousel && (carousel as any).rendered) {
       (carousel as any).render({ force: false });
     }
+    
+    // Update initiative display in combat tracker
+    updateInitiativeDisplayInTracker(combatant);
   });
 
   Hooks.on('deleteCombatant', () => {
@@ -222,15 +299,9 @@ Hooks.once('init', async function() {
       if (!combatant) return;
       
       // Get initiative value and display it before the name
-      const initiativeValue = combatant.initiative ?? 0;
-      const $tokenName = $combatant.find('.token-name');
-      if ($tokenName.length > 0) {
-        // Remove existing initiative display to prevent duplicates
-        $tokenName.find('.ms-initiative-value').remove();
-        // Add initiative value before name
-        const $initiativeSpan = $('<span class="ms-initiative-value">[' + initiativeValue + ']</span>');
-        $tokenName.prepend($initiativeSpan);
-      }
+      // Use the shared function to ensure consistency
+      // Pass $html so the function can find the combatant in the rendered HTML
+      updateInitiativeDisplayInTracker(combatant, $html);
       
       // Check if this is the current combatant
       const isCurrent = combat.combatant?.id === combatantId;

@@ -33,6 +33,18 @@ export declare function initializeHealthBars(vitality: number): HealthBar[];
 export declare function updateHealthBars(bars: HealthBar[], vitality: number): void;
 /**
  * Get the current active health bar penalty
+ * Penalty applies when a health bar is broken (current < max)
+ * Returns the penalty value from the first broken bar (checking from bar 0 upwards)
+ *
+ * Rules:
+ * - Healthy (bar 0): No penalty (penalty = 0)
+ * - Bruised (bar 1): -1 penalty if current < max
+ * - Injured (bar 2): -2 penalty if current < max
+ * - Wounded (bar 3): -4 penalty if current < max
+ * - Incapacitated (bar 4): No penalty (special rules, penalty = 0)
+ *
+ * The penalty applies as soon as a bar is broken (current < max).
+ * We check from bar 0 upwards to find the first broken bar.
  */
 export declare function getCurrentPenalty(bars: HealthBar[], currentBar: number): number;
 /**

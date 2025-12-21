@@ -72,6 +72,33 @@ export function closeRadialMenu(): void {
 export function openRadialMenuForActor(token: any, allOptions: RadialCombatOption[]): void {
     closeRadialMenu();
   
+  // Debug: Log remaining actions when opening radial menu
+  const combat = game.combat;
+  const actor = token?.actor;
+  if (combat && actor) {
+    // Use dynamic import to avoid circular dependencies
+    (async () => {
+      try {
+        const { getRoundState, getAvailableAttackActions, getAvailableMovementActions } = await import('./combat/action-economy.js');
+        const roundState = getRoundState(actor, combat);
+        console.log('Mastery System | [RADIAL MENU OPEN] Remaining actions:', {
+          actorName: actor.name,
+          attack: getAvailableAttackActions(actor, combat),
+          movement: getAvailableMovementActions(actor, combat),
+          roundState: {
+            round: roundState.round,
+            attackTotal: roundState.attackActions.total,
+            attackUsed: roundState.attackActions.used,
+            movementTotal: roundState.movementActions.total,
+            movementUsed: roundState.movementActions.used
+          }
+        });
+      } catch (err) {
+        console.warn('Mastery System | Could not log action economy on radial menu open', err);
+      }
+    })();
+  }
+  
   // Check if grid is enabled on the scene
   const gridEnabled = hasGridEnabled();
   const gridType = getGridType();

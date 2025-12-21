@@ -789,6 +789,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('.attribute-roll').on('click', this.#onAttributeRoll.bind(this));
         html.find('.skill-roll').on('click', this.#onSkillRoll.bind(this));
         html.find('.skill-roll-compact').on('click', this.#onSkillRoll.bind(this));
+        html.find('.save-roll-btn').on('click', this.#onSavingThrowRoll.bind(this));
         // Point spending buttons (JavaScript will check permissions)
         html.find('.attribute-spend-point').on('click', this.#onAttributeSpendPoint.bind(this));
         html.find('.skill-spend-point').on('click', this.#onSkillSpendPoint.bind(this));
@@ -1128,6 +1129,71 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (tn === null)
             return;
         await quickRoll(this.actor, attribute, skill, tn, `${skill.charAt(0).toUpperCase() + skill.slice(1)} Check`);
+    }
+    /**
+     * Handle saving throw roll
+     */
+    async #onSavingThrowRoll(event) {
+        event.preventDefault();
+        const element = event.currentTarget;
+        const saveType = element.dataset.saveType; // 'body', 'mind', or 'spirit'
+        if (!saveType)
+            return;
+        const actorData = this.actor.system;
+        const vitality = actorData.attributes?.vitality?.value || 2;
+        // Calculate which attribute to use and numDice
+        let numDice;
+        if (saveType === 'body') {
+            const might = actorData.attributes?.might?.value || 2;
+            const agility = actorData.attributes?.agility?.value || 2;
+            numDice = Math.max(might, agility);
+        }
+        else if (saveType === 'mind') {
+            const intellect = actorData.attributes?.intellect?.value || 2;
+            const wits = actorData.attributes?.wits?.value || 2;
+            numDice = Math.max(intellect, wits);
+        }
+        else if (saveType === 'spirit') {
+            const resolve = actorData.attributes?.resolve?.value || 2;
+            const influence = actorData.attributes?.influence?.value || 2;
+            numDice = Math.max(resolve, influence);
+        }
+        else {
+            return;
+        }
+        // Get mastery rank (number to keep)
+        const keepDice = actorData.mastery?.rank || 2;
+        // Apply health penalty (reduces dice pool)
+        const { getCurrentPenalty } = await import('../utils/calculations.js');
+        const healthBars = actorData.health?.bars || [];
+        const currentBar = actorData.health?.currentBar ?? 0;
+        const healthPenalty = getCurrentPenalty(healthBars, currentBar);
+        // Health penalty reduces the dice pool (numDice)
+        numDice = Math.max(1, numDice + healthPenalty); // Minimum 1 die
+        // Skill bonus = Vitality
+        const skill = vitality;
+        // Prompt for TN
+        const tn = await this.#promptForTN();
+        if (tn === null)
+            return;
+        // Build label
+        const saveName = saveType.charAt(0).toUpperCase() + saveType.slice(1);
+        let flavorText = `+${vitality} (Vitality)`;
+        // Add health penalty to flavor if applicable
+        if (healthPenalty < 0) {
+            const penaltyText = healthPenalty === -1 ? '1' : healthPenalty === -2 ? '2' : healthPenalty === -4 ? '4' : String(Math.abs(healthPenalty));
+            flavorText += ` (Health penalty: -${penaltyText} dice)`;
+        }
+        const { masteryRoll } = await import('../dice/roll-handler.js');
+        await masteryRoll({
+            numDice,
+            keepDice,
+            skill,
+            tn,
+            label: `${saveName} Save`,
+            flavor: flavorText,
+            actorId: this.actor.id
+        });
     }
     /**
      * Handle spending mastery points on skills

@@ -562,7 +562,15 @@
               <div class="health-bar-row {{#if (eq index ../system.health.currentBar)}}active{{/if}}">
                 <div class="health-bar-info">
                   <span class="health-bar-name">{{bar.name}}</span>
-                  <span class="health-bar-penalty">({{bar.penalty}})</span>
+                  <span class="health-bar-penalty">
+                    {{#if (eq bar.name "Incapacitated")}}
+                      {{!-- Incapacitated has no penalty display --}}
+                    {{else if (eq bar.penalty 0)}}
+                      (No penalty)
+                    {{else}}
+                      ({{bar.penalty}} penalty)
+                    {{/if}}
+                  </span>
                 </div>
                 <div class="health-bar-inputs">
                   <input type="number" name="system.health.bars.{{index}}.current" value="{{bar.current}}" data-dtype="Number" min="0" max="{{bar.max}}" />
@@ -709,9 +717,6 @@
       
       <div class="skills-overview">
         <h3><i class="fas fa-cogs"></i> Skills</h3>
-        <p class="skills-description">
-          Skills provide <strong>flat bonuses</strong> added after your roll. Max: <strong>4 ├ù Mastery Rank</strong>
-        </p>
       </div>
       
       {{#each skills}}

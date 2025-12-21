@@ -8,6 +8,7 @@
 import { openRadialMenuForActor, getAllCombatOptionsForActor, closeRadialMenu } from './token-radial-menu.js';
 import { startMeleeTargeting } from './melee-targeting.js';
 import { startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting.js';
+import { getRoundState, getAvailableAttackActions, getAvailableMovementActions, consumeAttackAction, consumeMovementAction } from './combat/action-economy.js';
 // Global movement state
 let activeMovementState = null;
 /**
@@ -611,18 +612,8 @@ async function attemptCommitMovement(destX, destY, state) {
             distance: distanceInUnits.toFixed(1),
             maxRange: state.maxRange
         });
-        // Update turn state if this costs movement
-        if (state.option.costsMovement && token.actor) {
-            try {
-                const turnState = token.actor.getFlag('mastery-system', 'turnState') || {};
-                turnState.usedMovement = true;
-                await token.actor.setFlag('mastery-system', 'turnState', turnState);
-                console.log('Mastery System | Set usedMovement flag');
-            }
-            catch (error) {
-                console.warn('Mastery System | Could not set turnState:', error);
-            }
-        }
+        // Movement action consumption is already handled in handleChosenCombatOption
+        // before startGuidedMovement is called, so no need to consume again here
         // End movement mode successfully
         endGuidedMovement(true);
     }
@@ -668,23 +659,7 @@ export function endGuidedMovement(success) {
         ui.notifications.info('Movement cancelled');
     }
 }
-/**
- * Get turn state flags for an actor/token
- * @param token - The token to check
- * @returns Object with usedMovement and usedAction flags
- */
-function getTurnState(token) {
-    if (!token || !token.actor) {
-        return { usedMovement: false, usedAction: false };
-    }
-    const flags = token.actor.flags || {};
-    const masteryFlags = flags['mastery-system'] || {};
-    const turnState = masteryFlags.turnState || {};
-    return {
-        usedMovement: turnState.usedMovement === true,
-        usedAction: turnState.usedAction === true
-    };
-}
+// Removed getTurnState - now using RoundState from action-economy.ts
 /**
  * Handle the chosen combat option
  * Can trigger rolls, chat cards, or other mechanics based on the selection
@@ -692,7 +667,7 @@ function getTurnState(token) {
  * @param token - The token that selected the option
  * @param option - The chosen option (power or maneuver)
  */
-export function handleChosenCombatOption(token, option) {
+export async function handleChosenCombatOption(token, option) {
     console.log('Mastery System | Chosen combat option:', { token: token.name, option });
     console.log('Mastery System | Option details:', {
         slot: option.slot,
@@ -703,15 +678,56 @@ export function handleChosenCombatOption(token, option) {
         costsMovement: option.costsMovement,
         costsAction: option.costsAction
     });
-    // Check turn state gating
-    const turnState = getTurnState(token);
-    if (option.costsMovement && turnState.usedMovement) {
-        ui.notifications.warn('Movement has already been used this turn.');
+    // Check combat exists
+    const combat = game.combat;
+    if (!combat) {
+        ui.notifications?.warn('Not in combat!');
         return;
     }
-    if (option.costsAction && turnState.usedAction) {
-        ui.notifications.warn('Attack Action has already been used this turn.');
+    const actor = token.actor;
+    if (!actor) {
+        ui.notifications?.warn('No actor found for token!');
         return;
+    }
+    // Debug: Log remaining actions when opening radial
+    const roundState = getRoundState(actor, combat);
+    console.log('Mastery System | [ACTION ECONOMY] Remaining actions:', {
+        attack: getAvailableAttackActions(actor, combat),
+        movement: getAvailableMovementActions(actor, combat),
+        roundState: {
+            attackTotal: roundState.attackActions.total,
+            attackUsed: roundState.attackActions.used,
+            movementTotal: roundState.movementActions.total,
+            movementUsed: roundState.movementActions.used
+        }
+    });
+    // Check and consume movement action if needed
+    if (option.costsMovement) {
+        const available = getAvailableMovementActions(actor, combat);
+        if (available <= 0) {
+            ui.notifications?.warn('No Movement actions left this round.');
+            return; // Menu stays open
+        }
+        const consumed = await consumeMovementAction(actor, combat);
+        if (!consumed) {
+            ui.notifications?.warn('Failed to consume movement action.');
+            return;
+        }
+        console.log('Mastery System | [ACTION ECONOMY] Consumed movement action. Remaining:', getAvailableMovementActions(actor, combat));
+    }
+    // Check and consume attack action if needed
+    if (option.costsAction) {
+        const available = getAvailableAttackActions(actor, combat);
+        if (available <= 0) {
+            ui.notifications?.warn('No Actions left this round.');
+            return; // Menu stays open
+        }
+        const consumed = await consumeAttackAction(actor, combat);
+        if (!consumed) {
+            ui.notifications?.warn('Failed to consume attack action.');
+            return;
+        }
+        console.log('Mastery System | [ACTION ECONOMY] Consumed attack action. Remaining:', getAvailableAttackActions(actor, combat));
     }
     // Check if this is a movement option - check both segment and slot
     const isMovement = option.slot === 'movement' || option.segment === 'movement';
@@ -916,14 +932,14 @@ async function executeStandUp(token, option) {
     catch (error) {
         console.warn('Mastery System | Could not clear prone flags:', error);
     }
-    // Set usedAction flag
-    try {
-        const turnState = token.actor.getFlag('mastery-system', 'turnState') || {};
-        turnState.usedAction = true;
-        await token.actor.setFlag('mastery-system', 'turnState', turnState);
-    }
-    catch (error) {
-        console.warn('Mastery System | Could not set turnState:', error);
+    // Consume attack action (Stand Up costs an action)
+    const combat = game.combat;
+    if (combat) {
+        const { consumeAttackAction } = await import('./combat/action-economy.js');
+        const consumed = await consumeAttackAction(token.actor, combat);
+        if (consumed) {
+            console.log('Mastery System | [ACTION ECONOMY] Consumed attack action for Stand Up. Remaining:', (await import('./combat/action-economy.js')).getAvailableAttackActions(token.actor, combat));
+        }
     }
     // Create chat message
     const chatData = {

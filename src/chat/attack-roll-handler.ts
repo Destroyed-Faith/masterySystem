@@ -157,14 +157,32 @@ export function registerAttackRollClickHandler(): void {
       const currentTargetEvade = parseInt(button.data('target-evade')) || flags.targetEvade;
       const raises = parseInt(button.data('raises')) || 0;
       
-      // Verify attribute value from flags matches actual actor value
-      const freshAttackerForCheck = (game as any).actors?.get(flags.attackerId);
-      const actualAttributeValue = freshAttackerForCheck ? 
-        ((freshAttackerForCheck.system as any)?.attributes?.[flags.attribute?.toLowerCase()]?.value ?? 0) : 0;
+      // Compute numDice from ACTOR at click time (not from stale flags)
+      // This ensures we always use the current attribute value
+      const attackerForRoll = message.speaker?.actor ? 
+        (game as any).actors.get(message.speaker.actor) : 
+        ((game as any).actors?.get(flags.attackerId));
+      
+      const attributeKey = flags.attribute?.toLowerCase();
+      const liveAttr = attackerForRoll?.system?.attributes?.[attributeKey]?.value;
+      let numDice = Number.isFinite(liveAttr) && liveAttr > 0 ? liveAttr : (flags.attributeValue ?? 2);
+      
+      // Apply health penalty (reduces dice pool)
+      const { getCurrentPenalty } = await import('../utils/calculations.js');
+      const healthBars = attackerForRoll?.system?.health?.bars || [];
+      const currentBar = attackerForRoll?.system?.health?.currentBar ?? 0;
+      const healthPenalty = getCurrentPenalty(healthBars, currentBar);
+      
+      // Health penalty reduces the dice pool (numDice)
+      // Penalty is negative (e.g., -1, -2, -4), so we add it to reduce numDice
+      numDice = Math.max(1, numDice + healthPenalty); // Minimum 1 die
+      
+      // Get keepDice from flags (or compute from actor/mastery rank if needed)
+      const keepDice = flags.masteryRank ?? (attackerForRoll?.system?.mastery?.rank ?? 2);
       
       console.log('Mastery System | DEBUG: Roll parameters', {
-        numDice: flags.attributeValue,
-        keepDice: flags.masteryRank,
+        numDice: numDice,
+        keepDice: keepDice,
         skill: 0,
         tn: currentTargetEvade,
         raises,
@@ -172,30 +190,31 @@ export function registerAttackRollClickHandler(): void {
         adjustedEvade: currentTargetEvade,
         attributeFromFlags: flags.attribute,
         attributeValueFromFlags: flags.attributeValue,
-        actualAttributeValue: actualAttributeValue,
-        valuesMatch: flags.attributeValue === actualAttributeValue,
+        liveAttributeValue: liveAttr,
+        usingLiveValue: Number.isFinite(liveAttr) && liveAttr > 0,
         masteryRankFromFlags: flags.masteryRank
       });
       
-      // Warn if values don't match
-      if (flags.attributeValue !== actualAttributeValue && actualAttributeValue > 0) {
-        console.warn('Mastery System | [ATTACK ROLL] Attribute value mismatch!', {
+      // Warn if values don't match (for debugging)
+      if (flags.attributeValue !== numDice && flags.attributeValue > 0) {
+        console.warn('Mastery System | [ATTACK ROLL] Using live attribute value instead of flags', {
           flagsValue: flags.attributeValue,
-          actualValue: actualAttributeValue,
+          liveValue: numDice,
           attribute: flags.attribute,
           attackerId: flags.attackerId
         });
       }
       
       // Perform the attack roll with d8 dice (exploding 8s handled in roll-handler)
+      // Label should reflect "Roll N d8 keep K"
       console.log('Mastery System | DEBUG: Calling masteryRoll...');
       const result = await masteryRoll({
-        numDice: flags.attributeValue,
-        keepDice: flags.masteryRank,
+        numDice: numDice,
+        keepDice: keepDice,
         skill: 0,
         tn: currentTargetEvade,
         label: `Attack Roll (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`,
-        flavor: `vs ${(game as any).actors?.get(flags.targetId)?.name || 'Target'}'s Evade (${currentTargetEvade}${raises > 0 ? `, ${raises} raise${raises > 1 ? 's' : ''}` : ''})`,
+        flavor: `Roll ${numDice}d8 keep ${keepDice} vs ${(game as any).actors?.get(flags.targetId)?.name || 'Target'}'s Evade (${currentTargetEvade}${raises > 0 ? `, ${raises} raise${raises > 1 ? 's' : ''}` : ''})`,
         actorId: flags.attackerId
       });
       

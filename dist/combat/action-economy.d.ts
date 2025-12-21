@@ -81,6 +81,22 @@ export declare function spendMovementAction(actor: Actor, combat: Combat | null)
  */
 export declare function spendReactionAction(actor: Actor, combat: Combat | null): Promise<boolean>;
 /**
+ * Get available attack actions (remaining count)
+ */
+export declare function getAvailableAttackActions(actor: Actor, combat: Combat | null): number;
+/**
+ * Get available movement actions (remaining count)
+ */
+export declare function getAvailableMovementActions(actor: Actor, combat: Combat | null): number;
+/**
+ * Consume an attack action (alias for spendAttackAction)
+ */
+export declare function consumeAttackAction(actor: Actor, combat: Combat | null): Promise<boolean>;
+/**
+ * Consume a movement action (alias for spendMovementAction)
+ */
+export declare function consumeMovementAction(actor: Actor, combat: Combat | null): Promise<boolean>;
+/**
  * Get stone usage count for an ability this turn
  */
 export declare function getStoneUsageCount(actor: Actor, attribute: AttributeKey, abilityKey: string, combat: Combat | null): number;
