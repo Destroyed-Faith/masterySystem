@@ -1,840 +1,646 @@
-/**
- * Chat message styles for Mastery System
- */
+/* =========================================
+   Destroyed Faith / Rulebook Chat Theme
+   Applies when body has .ms-theme-rulebook
+   ========================================= */
 
-/* ========== Mastery Roll Card ========== */
-.mastery-roll {
-  background: #f5f5f5;
-  border: 2px solid #8b0000;
-  border-radius: 5px;
-  padding: 10px;
-  font-family: 'Signika', sans-serif;
+.ms-theme-rulebook #chat-log,
+.ms-theme-rulebook #chat-form,
+.ms-theme-rulebook #chat-controls {
+  font-family: var(--ms-font-body);
+  color: var(--ms-text);
 }
 
-.mastery-roll .roll-header {
-  border-bottom: 2px solid #8b0000;
-  padding-bottom: 8px;
-  margin-bottom: 10px;
+/* --- Base chat message container --- */
+.ms-theme-rulebook #chat-log .chat-message {
+  background: var(--ms-panel);
+  color: var(--ms-text);
+  border: 1px solid var(--ms-border);
+  border-radius: var(--ms-radius);
+  box-shadow: 0 2px 10px var(--ms-shadow);
+  overflow: hidden;
 }
 
-.mastery-roll .roll-header h3 {
-  margin: 0;
-  color: #8b0000;
-  font-size: 18px;
-  font-weight: bold;
+.ms-theme-rulebook #chat-log .chat-message + .chat-message {
+  margin-top: 6px;
 }
 
-.mastery-roll .roll-header .flavor {
-  font-style: italic;
-  color: #666;
-  font-size: 13px;
-  margin-top: 3px;
+.ms-theme-rulebook #chat-log .chat-message .message-header {
+  background: var(--ms-panel2);
+  border-bottom: 1px solid var(--ms-border);
+  padding: 6px 8px;
 }
 
-/* ========== Dice Pool ========== */
-.mastery-roll .dice-pool {
-  margin-bottom: 15px;
-}
-
-.mastery-roll .dice-pool .label {
+.ms-theme-rulebook #chat-log .chat-message .message-header .message-sender {
+  font-family: var(--ms-font-head);
+  color: var(--ms-muted);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
   font-size: 12px;
-  color: #666;
-  margin-bottom: 5px;
 }
 
-.mastery-roll .dice {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  margin-bottom: 10px;
-}
-
-.mastery-roll .die {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  background: #fff;
-  border: 2px solid #ccc;
-  border-radius: 4px;
-  font-size: 16px;
-  font-weight: bold;
-  color: #333;
-}
-
-.mastery-roll .die.kept {
-  background: #90ee90;
-  border-color: #228b22;
-  color: #000;
-  box-shadow: 0 0 8px rgba(34, 139, 34, 0.5);
-}
-
-.mastery-roll .die.exploded {
-  background: #ffd700;
-  border-color: #ff8c00;
-  color: #000;
-  box-shadow: 0 0 8px rgba(255, 140, 0, 0.5);
-}
-
-.mastery-roll .die.kept.exploded {
-  background: linear-gradient(135deg, #90ee90 50%, #ffd700 50%);
-  border-color: #ff8c00;
-}
-
-/* ========== Roll Breakdown ========== */
-.mastery-roll .roll-breakdown {
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 10px;
-  margin-bottom: 10px;
-}
-
-.mastery-roll .breakdown-line {
-  display: flex;
-  justify-content: space-between;
-  padding: 5px 0;
-  border-bottom: 1px solid #eee;
-}
-
-.mastery-roll .breakdown-line:last-child {
-  border-bottom: none;
-}
-
-.mastery-roll .breakdown-line.total {
-  border-top: 2px solid #8b0000;
-  margin-top: 5px;
-  padding-top: 10px;
-  font-size: 16px;
-}
-
-.mastery-roll .breakdown-line .value {
-  font-weight: bold;
-  color: #8b0000;
-}
-
-/* ========== Roll Result ========== */
-.mastery-roll .roll-result {
-  background: #fff;
-  border: 2px solid;
-  border-radius: 4px;
-  padding: 10px;
-}
-
-.mastery-roll .roll-result.success {
-  border-color: #228b22;
-  background: #f0fff0;
-}
-
-.mastery-roll .roll-result.failure {
-  border-color: #dc143c;
-  background: #fff5f5;
-}
-
-.mastery-roll .result-line {
-  display: flex;
-  justify-content: space-between;
-  padding: 5px 0;
-}
-
-.mastery-roll .result-line .value {
-  font-weight: bold;
-}
-
-.mastery-roll .roll-result.success .value {
-  color: #228b22;
-}
-
-.mastery-roll .roll-result.failure .value {
-  color: #dc143c;
-}
-
-/* ========== Responsive ========== */
-@media (max-width: 400px) {
-  .mastery-roll .die {
-    width: 35px;
-    height: 35px;
-    font-size: 14px;
-  }
-}
-
-/* ========== Attack Card ========== */
-.mastery-attack-card,
-.mastery-system-attack-card {
-  background: #f5f5f5;
-  border: 2px solid #8b0000;
-  border-radius: 5px;
-  padding: 12px;
-  font-family: 'Signika', sans-serif;
-  margin: 5px 0;
-}
-
-.mastery-attack-card .attack-header {
-  border-bottom: 2px solid #8b0000;
-  padding-bottom: 8px;
-  margin-bottom: 10px;
-}
-
-.mastery-attack-card .attack-header h3 {
-  margin: 0 0 5px 0;
-  color: #8b0000;
-  font-size: 18px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.mastery-attack-card .attack-header h3 i {
-  color: #8b0000;
-}
-
-.mastery-attack-card .attack-participants {
-  font-size: 14px;
-  color: #333;
-  margin-top: 5px;
-}
-
-.mastery-attack-card .attack-details {
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 10px;
-  margin-bottom: 12px;
-}
-
-.mastery-attack-card .detail-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 6px 0;
-  border-bottom: 1px solid #eee;
-  font-size: 14px;
-}
-
-.mastery-attack-card .detail-row:last-child {
-  border-bottom: none;
-}
-
-.mastery-attack-card .detail-row span:first-child {
-  color: #666;
-}
-
-.mastery-attack-card .detail-row span:last-child {
-  font-weight: bold;
-  color: #8b0000;
-}
-
-.mastery-attack-card .raises-input {
-  width: 60px;
-  text-align: center;
-  padding: 4px 8px;
-  border: 1px solid #8b0000;
-  border-radius: 3px;
-  font-size: 14px;
-  font-weight: bold;
-  color: #8b0000;
-  background: #fff;
-  transition: all 0.2s ease;
-}
-
-.mastery-attack-card .raises-input:focus {
-  outline: none;
-  border-color: #a00000;
-  box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.2);
-}
-
-.mastery-attack-card .raises-input:hover {
-  border-color: #a00000;
-}
-
-.mastery-attack-card .raises-hint {
-  margin-left: 5px;
-  color: #666;
-  font-size: 12px;
-  font-weight: normal;
-}
-
-.mastery-attack-card .raises-section {
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 10px;
-  margin-bottom: 12px;
-  display: flex;
-  flex-direction: column;
-}
-
-.mastery-attack-card .raises-section label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  cursor: pointer;
-}
-
-.mastery-attack-card .raises-section label span:first-child {
-  font-weight: bold;
-  color: #8b0000;
-  min-width: 60px;
-}
-
-.mastery-attack-card .attack-actions {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-}
-
-.mastery-attack-card .roll-attack-btn {
-  background: linear-gradient(to bottom, #8b0000, #6b0000);
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  padding: 10px 20px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.mastery-attack-card .roll-attack-btn:hover {
-  background: linear-gradient(to bottom, #a00000, #8b0000);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  transform: translateY(-1px);
-}
-
-.mastery-attack-card .roll-attack-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-.mastery-attack-card .roll-attack-btn i {
-  font-size: 18px;
-}
-
-.mastery-attack-card .roll-attack-btn:disabled {
+.ms-theme-rulebook #chat-log .chat-message .message-header .message-metadata {
+  color: var(--ms-muted);
+  font-size: 11px;
   opacity: 0.7;
-  cursor: not-allowed;
 }
 
-.mastery-attack-card .roll-attack-btn.rolled {
-  background: linear-gradient(to bottom, #228b22, #1a6b1a);
+.ms-theme-rulebook #chat-log .chat-message .message-content {
+  padding: 8px;
 }
 
-.mastery-attack-card .roll-attack-btn.rolled:hover {
-  background: linear-gradient(to bottom, #228b22, #1a6b1a);
-  transform: none;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+/* Links */
+.ms-theme-rulebook #chat-log .chat-message a {
+  color: var(--ms-accent);
+  text-decoration: none;
+}
+.ms-theme-rulebook #chat-log .chat-message a:hover {
+  color: var(--ms-accent);
+  text-decoration: underline;
+  text-decoration-color: var(--ms-accent2);
 }
 
-/* ========== Attack Controls ========== */
-.mastery-attack-card .attack-controls {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  justify-content: center;
-  margin-top: 10px;
+/* Inline rolls */
+.ms-theme-rulebook #chat-log .inline-roll,
+.ms-theme-rulebook #chat-log .inline-roll .dice-total {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--ms-border);
+  color: var(--ms-text);
+  border-radius: 6px;
 }
 
-.mastery-attack-card .raises-input-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+/* --- Dice roll block --- */
+.ms-theme-rulebook #chat-log .dice-roll {
+  background: rgba(0,0,0,0.18);
+  border: 1px solid var(--ms-border);
+  border-radius: 10px;
+  padding: 8px;
 }
 
-.mastery-attack-card .raises-input-group label {
-  font-weight: bold;
-  color: #8b0000;
-  font-size: 14px;
+.ms-theme-rulebook #chat-log .dice-roll .dice-formula {
+  background: transparent;
+  border: 0;
+  color: var(--ms-muted);
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.ms-theme-rulebook #chat-log .dice-roll .dice-tooltip {
+  background: rgba(0,0,0,0.25);
+  border: 1px solid var(--ms-border);
+  border-radius: 10px;
+}
+
+.ms-theme-rulebook #chat-log .dice-roll .dice-total {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--ms-border);
+  border-radius: 10px;
+  color: var(--ms-muted);
+  font-family: var(--ms-font-head);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  padding: 6px 8px;
+}
+
+/* Subtle crit/fumble (Foundry adds these classes in some contexts) */
+.ms-theme-rulebook #chat-log .dice-total.critical {
+  border-color: rgba(202, 178, 113, 0.55);
+  box-shadow: 0 0 0 1px rgba(202, 178, 113, 0.25) inset;
+}
+.ms-theme-rulebook #chat-log .dice-total.fumble {
+  border-color: rgba(156, 78, 78, 0.55);
+  box-shadow: 0 0 0 1px rgba(156, 78, 78, 0.25) inset;
+}
+
+/* --- Mastery Roll Card --- */
+.ms-theme-rulebook #chat-log .mastery-roll {
+  background: transparent;
+  border: 1px solid var(--ms-border);
+  border-radius: 12px;
+  padding: 8px;
+}
+
+.ms-theme-rulebook #chat-log .mastery-roll .roll-header {
+  background: rgba(0,0,0,0.18);
+  border-bottom: 1px solid var(--ms-border);
+  padding: 8px;
+  margin-bottom: 8px;
+}
+
+.ms-theme-rulebook #chat-log .mastery-roll .roll-header h3 {
+  font-family: var(--ms-font-head);
+  color: var(--ms-muted);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  font-size: 13px;
   margin: 0;
-  white-space: nowrap;
 }
 
-.mastery-attack-card .raises-select {
-  padding: 6px 10px;
-  border: 1px solid #8b0000;
-  border-radius: 3px;
-  font-size: 14px;
-  font-weight: bold;
-  color: #8b0000;
-  background: #fff;
-  cursor: pointer;
-  min-width: 70px;
-  transition: all 0.2s ease;
+.ms-theme-rulebook #chat-log .mastery-roll .roll-header .flavor {
+  color: var(--ms-muted);
+  font-size: 11px;
+  opacity: 0.7;
+  margin-top: 4px;
 }
 
-.mastery-attack-card .raises-select:focus {
-  outline: none;
-  border-color: #a00000;
-  box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.2);
+.ms-theme-rulebook #chat-log .mastery-roll .roll-breakdown {
+  background: rgba(0,0,0,0.12);
+  border: 1px solid var(--ms-border);
+  border-radius: 8px;
+  padding: 8px;
+  margin-bottom: 8px;
 }
 
-.mastery-attack-card .raises-select:hover {
-  border-color: #a00000;
-  background: #fff5f5;
+.ms-theme-rulebook #chat-log .mastery-roll .breakdown-line {
+  color: var(--ms-text);
+  border-bottom: 1px dashed rgba(255,255,255,0.08);
 }
 
-/* ========== Power Selection ========== */
-.mastery-attack-card .power-selection-section {
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 10px;
-  margin-bottom: 12px;
+.ms-theme-rulebook #chat-log .mastery-roll .breakdown-line.total {
+  border-top: 1px solid var(--ms-border);
+  border-bottom: 0;
+  color: var(--ms-muted);
+  font-family: var(--ms-font-head);
 }
 
-.mastery-attack-card .power-selection-section label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  cursor: pointer;
+.ms-theme-rulebook #chat-log .mastery-roll .breakdown-line .value {
+  color: var(--ms-muted);
+  font-weight: 600;
 }
 
-.mastery-attack-card .power-selection-section label span:first-child {
-  font-weight: bold;
-  color: #4a5568;
-  min-width: 60px;
+.ms-theme-rulebook #chat-log .mastery-roll .roll-result {
+  background: rgba(0,0,0,0.12);
+  border: 1px solid var(--ms-border);
+  border-radius: 8px;
+  padding: 8px;
 }
 
-.mastery-attack-card .power-select {
-  flex: 1;
-  padding: 4px 8px;
-  border: 1px solid #4a5568;
-  border-radius: 3px;
-  font-size: 14px;
-  background: #fff;
-  color: #333;
-  transition: all 0.2s ease;
+.ms-theme-rulebook #chat-log .mastery-roll .roll-result.success {
+  border-color: rgba(63, 107, 84, 0.4);
 }
 
-.mastery-attack-card .power-select:focus {
-  outline: none;
-  border-color: #8b0000;
-  box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.2);
+.ms-theme-rulebook #chat-log .mastery-roll .roll-result.failure {
+  border-color: rgba(123, 58, 58, 0.4);
 }
 
-.mastery-attack-card .power-select:hover {
-  border-color: #8b0000;
+.ms-theme-rulebook #chat-log .mastery-roll .result-line .value {
+  color: var(--ms-muted);
+  font-weight: 600;
 }
 
-/* ========== Damage Card ========== */
-.mastery-damage-card {
-  background: #f5f5f5;
-  border: 2px solid #8b0000;
-  border-radius: 5px;
-  padding: 12px;
-  font-family: 'Signika', sans-serif;
-  margin: 5px 0;
+/* --- Mastery Attack Card --- */
+.ms-theme-rulebook #chat-log .mastery-attack-card,
+.ms-theme-rulebook #chat-log .mastery-system-attack-card {
+  background: transparent;
+  border: 1px solid var(--ms-border);
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 0;
 }
 
-.mastery-damage-card .damage-header {
-  border-bottom: 2px solid #8b0000;
-  padding-bottom: 8px;
-  margin-bottom: 10px;
+.ms-theme-rulebook #chat-log .mastery-attack-card .attack-header {
+  background: rgba(0,0,0,0.18);
+  border-bottom: 1px solid var(--ms-border);
+  padding: 8px;
 }
 
-.mastery-damage-card .damage-header h3 {
-  margin: 0 0 5px 0;
-  color: #8b0000;
-  font-size: 18px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.ms-theme-rulebook #chat-log .mastery-attack-card .attack-header h3 {
+  font-family: var(--ms-font-head);
+  color: var(--ms-muted);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  font-size: 13px;
+  margin: 0 0 4px 0;
 }
 
-.mastery-damage-card .damage-header h3 i {
-  color: #8b0000;
+.ms-theme-rulebook #chat-log .mastery-attack-card .attack-header h3 i {
+  color: var(--ms-muted);
 }
 
-.mastery-damage-card .damage-participants {
-  font-size: 14px;
-  color: #333;
-  margin-top: 5px;
+.ms-theme-rulebook #chat-log .mastery-attack-card .attack-participants {
+  color: var(--ms-muted);
+  font-size: 11px;
+  opacity: 0.8;
+  margin-top: 2px;
 }
 
-.mastery-damage-card .damage-details {
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 10px;
-  margin-bottom: 12px;
+.ms-theme-rulebook #chat-log .mastery-attack-card .attack-details {
+  background: transparent;
+  border: 0;
+  padding: 8px;
 }
 
-.mastery-damage-card .damage-row {
+.ms-theme-rulebook #chat-log .mastery-attack-card .detail-row {
   display: flex;
   justify-content: space-between;
-  padding: 6px 0;
-  border-bottom: 1px solid #eee;
-  font-size: 14px;
+  gap: 10px;
+  padding: 5px 0;
+  border-bottom: 1px dashed rgba(255,255,255,0.08);
 }
 
-.mastery-damage-card .damage-row:last-child {
-  border-bottom: none;
+.ms-theme-rulebook #chat-log .mastery-attack-card .detail-row:last-child {
+  border-bottom: 0;
 }
 
-.mastery-damage-card .damage-row .damage-label {
-  color: #666;
+.ms-theme-rulebook #chat-log .mastery-attack-card .detail-row span:first-child,
+.ms-theme-rulebook #chat-log .mastery-attack-card .detail-label {
+  color: var(--ms-muted);
+  font-size: 12px;
 }
 
-.mastery-damage-card .damage-row .damage-value {
-  font-weight: bold;
-  color: #8b0000;
+.ms-theme-rulebook #chat-log .mastery-attack-card .detail-row span:last-child,
+.ms-theme-rulebook #chat-log .mastery-attack-card .detail-value {
+  color: var(--ms-text);
+  font-weight: 600;
+  font-size: 12px;
 }
 
-.mastery-damage-card .raises-section {
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 10px;
-  margin-bottom: 12px;
+.ms-theme-rulebook #chat-log .mastery-attack-card .attack-controls {
+  padding: 8px;
+  background: rgba(0,0,0,0.12);
+  border-top: 1px solid var(--ms-border);
 }
 
-.mastery-damage-card .raises-section h4 {
+/* --- Mastery Damage Cards / Blocks --- */
+.ms-theme-rulebook #chat-log .mastery-damage-card,
+.ms-theme-rulebook #chat-log .mastery-system-damage {
+  background: transparent;
+  border: 1px solid var(--ms-border);
+  border-radius: 12px;
+  padding: 8px;
+}
+
+.ms-theme-rulebook #chat-log .mastery-damage-card .damage-header,
+.ms-theme-rulebook #chat-log .mastery-system-damage h3,
+.ms-theme-rulebook #chat-log .mastery-system-damage h4 {
+  font-family: var(--ms-font-head);
+  color: var(--ms-muted);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding-bottom: 6px;
   margin: 0 0 8px 0;
-  color: #8b0000;
-  font-size: 16px;
-  font-weight: bold;
+}
+
+.ms-theme-rulebook #chat-log .mastery-damage-card .damage-header h3 i,
+.ms-theme-rulebook #chat-log .mastery-system-damage h3 i {
+  color: var(--ms-muted);
+}
+
+.ms-theme-rulebook #chat-log .mastery-damage-card .damage-participants {
+  color: var(--ms-muted);
+  font-size: 11px;
+  opacity: 0.8;
+  margin-top: 4px;
+}
+
+.ms-theme-rulebook #chat-log .mastery-damage-card .damage-details {
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+.ms-theme-rulebook #chat-log .mastery-damage-card .damage-row,
+.ms-theme-rulebook #chat-log .mastery-system-damage .damage-row {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px dashed rgba(255,255,255,0.08);
 }
 
-.mastery-damage-card .raises-section h4 i {
-  color: #8b0000;
+.ms-theme-rulebook #chat-log .mastery-damage-card .damage-row:last-child,
+.ms-theme-rulebook #chat-log .mastery-system-damage .damage-row:last-child {
+  border-bottom: 0;
 }
 
-.mastery-damage-card .raises-description {
-  margin: 0 0 10px 0;
-  color: #666;
+.ms-theme-rulebook #chat-log .mastery-damage-card .damage-label,
+.ms-theme-rulebook #chat-log .mastery-damage-card .damage-type,
+.ms-theme-rulebook #chat-log .mastery-system-damage .damage-type {
+  color: var(--ms-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  font-size: 11px;
+}
+
+.ms-theme-rulebook #chat-log .mastery-damage-card .damage-value,
+.ms-theme-rulebook #chat-log .mastery-damage-card .damage-amount,
+.ms-theme-rulebook #chat-log .mastery-system-damage .damage-amount {
+  color: var(--ms-muted);
+  font-family: var(--ms-font-head);
+  letter-spacing: 0.6px;
+  font-weight: 600;
+}
+
+.ms-theme-rulebook #chat-log .mastery-system-damage p {
+  color: var(--ms-text);
   font-size: 13px;
-  font-style: italic;
+  line-height: 1.6;
 }
 
-.mastery-damage-card .raises-list {
+.ms-theme-rulebook #chat-log .mastery-system-damage p:first-of-type {
+  background: rgba(0,0,0,0.12);
+  border: 1px solid var(--ms-border);
+  border-radius: 6px;
+  padding: 8px;
+  margin: 8px 0;
+}
+
+.ms-theme-rulebook #chat-log .mastery-system-damage p strong {
+  color: var(--ms-muted);
+  font-weight: 600;
+}
+
+.ms-theme-rulebook #chat-log .mastery-system-damage p:last-child {
+  border-top: 1px dashed rgba(255,255,255,0.08);
+  padding-top: 8px;
+  margin-top: 8px;
+  color: var(--ms-muted);
+  font-size: 12px;
+}
+
+/* --- Mastery Action / Info Messages --- */
+.ms-theme-rulebook #chat-log .mastery-system-action,
+.ms-theme-rulebook #chat-log .mastery-system-info {
+  background: transparent;
+  border: 1px solid var(--ms-border);
+  border-radius: 12px;
+  padding: 8px;
+}
+
+.ms-theme-rulebook #chat-log .mastery-system-action h3,
+.ms-theme-rulebook #chat-log .mastery-system-info h3 {
+  font-family: var(--ms-font-head);
+  color: var(--ms-muted);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding-bottom: 6px;
+  margin: 0 0 8px 0;
+  font-size: 13px;
+}
+
+.ms-theme-rulebook #chat-log .mastery-system-action h3 i,
+.ms-theme-rulebook #chat-log .mastery-system-info h3 i {
+  color: var(--ms-muted);
+}
+
+.ms-theme-rulebook #chat-log .mastery-system-action p,
+.ms-theme-rulebook #chat-log .mastery-system-info p {
+  color: var(--ms-text);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.ms-theme-rulebook #chat-log .mastery-system-action p {
+  background: rgba(0,0,0,0.12);
+  border: 1px solid var(--ms-border);
+  border-radius: 6px;
+  padding: 8px;
+}
+
+.ms-theme-rulebook #chat-log .mastery-system-info .info-details {
+  background: rgba(0,0,0,0.12);
+  border: 1px solid var(--ms-border);
+  border-radius: 6px;
+  padding: 8px;
+  margin: 8px 0;
+}
+
+.ms-theme-rulebook #chat-log .mastery-system-info .info-row {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px dashed rgba(255,255,255,0.08);
 }
 
-.mastery-damage-card .raise-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px;
-  background: #f9f9f9;
-  border-radius: 3px;
+.ms-theme-rulebook #chat-log .mastery-system-info .info-row:last-child {
+  border-bottom: 0;
 }
 
-.mastery-damage-card .raise-item label {
-  font-weight: bold;
-  color: #8b0000;
-  min-width: 80px;
-  margin: 0;
+.ms-theme-rulebook #chat-log .mastery-system-info .info-label {
+  color: var(--ms-muted);
+  font-size: 12px;
 }
 
-.mastery-damage-card .raise-item select {
-  flex: 1;
-  padding: 4px 8px;
-  border: 1px solid #8b0000;
-  border-radius: 3px;
-  font-size: 14px;
-  background: #fff;
-  color: #333;
-  transition: all 0.2s ease;
+.ms-theme-rulebook #chat-log .mastery-system-info .info-value {
+  color: var(--ms-text);
+  font-weight: 600;
+  font-size: 12px;
 }
 
-.mastery-damage-card .raise-item select:focus {
+/* --- Controls: selects, inputs --- */
+.ms-theme-rulebook #chat-log select,
+.ms-theme-rulebook #chat-log input[type="number"],
+.ms-theme-rulebook #chat-log input[type="text"],
+.ms-theme-rulebook #chat-log .raises-select,
+.ms-theme-rulebook #chat-log .raises-input,
+.ms-theme-rulebook #chat-log .power-select {
+  background: rgba(0,0,0,0.25);
+  color: var(--ms-text);
+  border: 1px solid var(--ms-border);
+  border-radius: 8px;
+  padding: 4px 6px;
+  font-family: var(--ms-font-body);
+  font-size: 12px;
+}
+
+.ms-theme-rulebook #chat-log select:focus,
+.ms-theme-rulebook #chat-log input:focus,
+.ms-theme-rulebook #chat-log .raises-select:focus,
+.ms-theme-rulebook #chat-log .raises-input:focus,
+.ms-theme-rulebook #chat-log .power-select:focus {
   outline: none;
-  border-color: #a00000;
-  box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.2);
+  border-color: var(--ms-accent);
+  box-shadow: 0 0 4px var(--ms-accent2);
 }
 
-.mastery-damage-card .raise-item select:hover {
-  border-color: #a00000;
+.ms-theme-rulebook #chat-log select:hover,
+.ms-theme-rulebook #chat-log input:hover,
+.ms-theme-rulebook #chat-log .raises-select:hover,
+.ms-theme-rulebook #chat-log .raises-input:hover,
+.ms-theme-rulebook #chat-log .power-select:hover {
+  border-color: var(--ms-accent);
 }
 
-.mastery-damage-card .special-select {
-  flex: 1;
-  padding: 4px 8px;
-  border: 1px solid #8b0000;
-  border-radius: 3px;
-  font-size: 14px;
-  background: #fff;
-  color: #333;
-  transition: all 0.2s ease;
+.ms-theme-rulebook #chat-log .raises-input-group label {
+  color: var(--ms-muted);
+  font-family: var(--ms-font-head);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
 }
 
-.mastery-damage-card .special-select:focus {
-  outline: none;
-  border-color: #a00000;
-  box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.2);
-}
-
-.mastery-damage-card .special-select:hover {
-  border-color: #a00000;
-}
-
-.mastery-damage-card .damage-actions {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-}
-
-.mastery-damage-card .roll-damage-btn {
-  background: linear-gradient(to bottom, #8b0000, #6b0000);
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  padding: 10px 20px;
-  font-size: 16px;
-  font-weight: bold;
+/* --- Buttons (attack, damage, apply etc.) --- */
+.ms-theme-rulebook #chat-log button,
+.ms-theme-rulebook #chat-log .roll-attack-btn,
+.ms-theme-rulebook #chat-log .roll-damage-btn,
+.ms-theme-rulebook #chat-log .apply-damage-btn,
+.ms-theme-rulebook #chat-log .apply-specials-btn,
+.ms-theme-rulebook #chat-log .apply-button,
+.ms-theme-rulebook #chat-log .cancel-damage-btn {
+  background: rgba(255,255,255,0.06);
+  color: var(--ms-text);
+  border: 1px solid var(--ms-border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-family: var(--ms-font-head);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  font-size: 11px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.mastery-damage-card .roll-damage-btn:hover {
-  background: linear-gradient(to bottom, #a00000, #8b0000);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  transform: translateY(-1px);
+.ms-theme-rulebook #chat-log button:hover,
+.ms-theme-rulebook #chat-log .roll-attack-btn:hover,
+.ms-theme-rulebook #chat-log .roll-damage-btn:hover,
+.ms-theme-rulebook #chat-log .apply-damage-btn:hover,
+.ms-theme-rulebook #chat-log .apply-specials-btn:hover,
+.ms-theme-rulebook #chat-log .apply-button:hover {
+  border-color: rgba(202, 178, 113, 0.55);
+  box-shadow: 0 0 0 1px rgba(202, 178, 113, 0.18) inset;
+  color: var(--ms-muted);
 }
 
-.mastery-damage-card .roll-damage-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+.ms-theme-rulebook #chat-log button:active,
+.ms-theme-rulebook #chat-log .roll-attack-btn:active,
+.ms-theme-rulebook #chat-log .roll-damage-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.3) inset;
 }
 
-.mastery-damage-card .roll-damage-btn i {
-  font-size: 18px;
-}
-
-.mastery-damage-card .roll-damage-btn:disabled {
-  opacity: 0.7;
+.ms-theme-rulebook #chat-log button:disabled,
+.ms-theme-rulebook #chat-log .roll-attack-btn:disabled,
+.ms-theme-rulebook #chat-log .roll-damage-btn:disabled,
+.ms-theme-rulebook #chat-log .apply-damage-btn:disabled,
+.ms-theme-rulebook #chat-log .apply-specials-btn:disabled,
+.ms-theme-rulebook #chat-log .apply-button:disabled {
+  opacity: 0.45;
   cursor: not-allowed;
 }
 
-.mastery-damage-card .cancel-damage-btn {
-  background: linear-gradient(to bottom, #666, #555);
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  padding: 10px 20px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+.ms-theme-rulebook #chat-log .roll-attack-btn.rolled,
+.ms-theme-rulebook #chat-log .roll-damage-btn.rolled {
+  border-color: rgba(63, 107, 84, 0.4);
+  background: rgba(63, 107, 84, 0.1);
 }
 
-.mastery-damage-card .cancel-damage-btn:hover {
-  background: linear-gradient(to bottom, #777, #666);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  transform: translateY(-1px);
+.ms-theme-rulebook #chat-log .roll-attack-btn.rolled:hover,
+.ms-theme-rulebook #chat-log .roll-damage-btn.rolled:hover {
+  border-color: rgba(63, 107, 84, 0.5);
+  box-shadow: 0 0 0 1px rgba(63, 107, 84, 0.2) inset;
 }
 
-.mastery-damage-card .cancel-damage-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+/* Optional: emphasize "danger" actions subtly, not bright red */
+.ms-theme-rulebook #chat-log .apply-damage-btn,
+.ms-theme-rulebook #chat-log .cancel-damage-btn {
+  border-color: rgba(156, 78, 78, 0.35);
 }
 
-.mastery-damage-card .cancel-damage-btn i {
-  font-size: 18px;
+.ms-theme-rulebook #chat-log .apply-damage-btn:hover,
+.ms-theme-rulebook #chat-log .cancel-damage-btn:hover {
+  border-color: rgba(156, 78, 78, 0.60);
+  box-shadow: 0 0 0 1px rgba(156, 78, 78, 0.18) inset;
 }
 
-/* ========== Damage Result Message ========== */
-.mastery-system-damage {
-  background: linear-gradient(to bottom, #f5f5f5, #e8e8e8);
-  border: 2px solid #8b0000;
+/* --- Raises section styling --- */
+.ms-theme-rulebook #chat-log .mastery-damage-card .raises-section,
+.ms-theme-rulebook #chat-log .mastery-attack-card .raises-section {
+  background: rgba(0,0,0,0.12);
+  border: 1px solid var(--ms-border);
   border-radius: 8px;
-  padding: 15px;
-  font-family: 'Signika', sans-serif;
-  margin: 8px 0;
-  box-shadow: 0 2px 6px rgba(139, 0, 0, 0.15);
+  padding: 8px;
+  margin-bottom: 8px;
 }
 
-.mastery-system-damage h3 {
-  margin: 0 0 12px 0;
-  color: #8b0000;
-  font-size: 20px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border-bottom: 2px solid #8b0000;
-  padding-bottom: 8px;
+.ms-theme-rulebook #chat-log .mastery-damage-card .raises-section h4 {
+  font-family: var(--ms-font-head);
+  color: var(--ms-muted);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  font-size: 11px;
+  margin: 0 0 6px 0;
 }
 
-.mastery-system-damage h3::before {
-  content: "⚔️";
-  font-size: 24px;
+.ms-theme-rulebook #chat-log .mastery-damage-card .raises-description {
+  color: var(--ms-muted);
+  font-size: 11px;
+  opacity: 0.7;
+  margin-bottom: 8px;
 }
 
-.mastery-system-damage p {
-  margin: 8px 0;
-  color: #333;
-  font-size: 14px;
-  line-height: 1.6;
+.ms-theme-rulebook #chat-log .mastery-damage-card .raise-item {
+  background: rgba(0,0,0,0.12);
+  border: 1px solid var(--ms-border);
+  border-radius: 6px;
+  padding: 6px;
 }
 
-.mastery-system-damage p:first-of-type {
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 10px;
-  margin: 12px 0;
-  font-weight: 500;
-  color: #555;
+.ms-theme-rulebook #chat-log .mastery-damage-card .raise-item label {
+  color: var(--ms-muted);
+  font-family: var(--ms-font-head);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.mastery-system-damage p strong {
-  color: #8b0000;
-  font-weight: bold;
-}
-
-.mastery-system-damage p:last-child {
-  margin-top: 12px;
-  padding-top: 10px;
-  border-top: 1px solid #ddd;
-  color: #666;
-  font-size: 13px;
-}
-
-/* ========== Action Message ========== */
-.mastery-system-action {
-  background: linear-gradient(to bottom, #f5f5f5, #e8e8e8);
-  border: 2px solid #8b0000;
+/* --- Power selection section --- */
+.ms-theme-rulebook #chat-log .mastery-attack-card .power-selection-section {
+  background: rgba(0,0,0,0.12);
+  border: 1px solid var(--ms-border);
   border-radius: 8px;
-  padding: 15px;
-  font-family: 'Signika', sans-serif;
-  margin: 8px 0;
-  box-shadow: 0 2px 6px rgba(139, 0, 0, 0.15);
+  padding: 8px;
+  margin-bottom: 8px;
 }
 
-.mastery-system-action h3 {
-  margin: 0 0 12px 0;
-  color: #8b0000;
-  font-size: 20px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border-bottom: 2px solid #8b0000;
-  padding-bottom: 8px;
+.ms-theme-rulebook #chat-log .mastery-attack-card .power-selection-section label span:first-child {
+  color: var(--ms-muted);
+  font-family: var(--ms-font-head);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.mastery-system-action h3::before {
-  content: "🎯";
-  font-size: 24px;
+/* --- Damage actions section --- */
+.ms-theme-rulebook #chat-log .mastery-damage-card .damage-actions {
+  padding: 8px;
+  background: rgba(0,0,0,0.12);
+  border-top: 1px solid var(--ms-border);
+  margin-top: 8px;
 }
 
-.mastery-system-action p {
-  margin: 8px 0;
-  color: #333;
-  font-size: 14px;
-  line-height: 1.6;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 10px;
+/* --- Dice pool styling for mastery rolls --- */
+.ms-theme-rulebook #chat-log .mastery-roll .dice-pool {
+  margin-bottom: 8px;
 }
 
-.mastery-system-action p:last-child {
-  margin-bottom: 0;
+.ms-theme-rulebook #chat-log .mastery-roll .dice-pool .label {
+  color: var(--ms-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-family: var(--ms-font-head);
 }
 
-/* ========== Info/System Message ========== */
-.mastery-system-info {
-  background: linear-gradient(to bottom, #f5f5f5, #e8e8e8);
-  border: 2px solid #8b0000;
-  border-radius: 8px;
-  padding: 15px;
-  font-family: 'Signika', sans-serif;
-  margin: 8px 0;
-  box-shadow: 0 2px 6px rgba(139, 0, 0, 0.15);
+.ms-theme-rulebook #chat-log .mastery-roll .die {
+  background: rgba(0,0,0,0.25);
+  border: 1px solid var(--ms-border);
+  color: var(--ms-text);
 }
 
-.mastery-system-info h3 {
-  margin: 0 0 12px 0;
-  color: #8b0000;
-  font-size: 18px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  border-bottom: 2px solid #8b0000;
-  padding-bottom: 8px;
+.ms-theme-rulebook #chat-log .mastery-roll .die.kept {
+  background: rgba(63, 107, 84, 0.2);
+  border-color: rgba(63, 107, 84, 0.4);
+  box-shadow: 0 0 4px rgba(63, 107, 84, 0.3);
 }
 
-.mastery-system-info h3::before {
-  content: "ℹ️";
-  font-size: 20px;
+.ms-theme-rulebook #chat-log .mastery-roll .die.exploded {
+  background: rgba(202, 178, 113, 0.2);
+  border-color: rgba(202, 178, 113, 0.4);
+  box-shadow: 0 0 4px rgba(202, 178, 113, 0.3);
 }
 
-.mastery-system-info p {
-  margin: 8px 0;
-  color: #333;
-  font-size: 14px;
-  line-height: 1.6;
+.ms-theme-rulebook #chat-log .mastery-roll .die.kept.exploded {
+  background: linear-gradient(135deg, rgba(63, 107, 84, 0.2) 50%, rgba(202, 178, 113, 0.2) 50%);
+  border-color: rgba(202, 178, 113, 0.4);
 }
-
-.mastery-system-info p:last-child {
-  margin-bottom: 0;
-}
-
-.mastery-system-info .info-details {
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 10px;
-  margin: 12px 0;
-}
-
-.mastery-system-info .info-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 6px 0;
-  border-bottom: 1px solid #eee;
-  font-size: 14px;
-}
-
-.mastery-system-info .info-row:last-child {
-  border-bottom: none;
-}
-
-.mastery-system-info .info-label {
-  color: #666;
-}
-
-.mastery-system-info .info-value {
-  font-weight: bold;
-  color: #8b0000;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
