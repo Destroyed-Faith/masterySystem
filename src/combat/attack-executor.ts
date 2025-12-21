@@ -381,7 +381,7 @@ export async function createMeleeAttackCard(
     const message = await ChatMessage.create({
       speaker,
       content,
-      type: CONST.CHAT_MESSAGE_TYPES.OTHER,
+      style: CONST.CHAT_MESSAGE_STYLES.OTHER,
       flags: {
         'mastery-system': flagsObj
       }

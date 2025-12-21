@@ -1100,8 +1100,11 @@ async function executeStandUp(token: any, option: RadialCombatOption): Promise<v
   // Create chat message
   const chatData: any = {
     speaker: ChatMessage.getSpeaker({ actor: token.actor, token: token.document }),
-    content: `<div class="mastery-system-action"><h3>${option.name}</h3><p>${option.description || option.maneuver?.effect || ''}</p></div>`,
-    type: CONST.CHAT_MESSAGE_TYPES.OTHER
+    content: `<div class="mastery-system-action">
+      <h3><i class="fas fa-hand-rock"></i> ${option.name}</h3>
+      <p>${option.description || option.maneuver?.effect || 'Action executed.'}</p>
+    </div>`,
+    style: CONST.CHAT_MESSAGE_STYLES.OTHER
   };
   
   try {

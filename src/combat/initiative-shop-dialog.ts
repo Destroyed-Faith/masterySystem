@@ -257,13 +257,51 @@ export class InitiativeShopDialog extends BaseDialog {
         parts.push('Extra Attack (1×/round)');
       }
 
-      const message = parts.length > 0
-        ? `${actor.name} spent ${totalCost} initiative on: ${parts.join(', ')}. Remaining Initiative: ${remainingInitiative}`
-        : `${actor.name} did not purchase anything. Initiative: ${remainingInitiative}`;
+      // Create styled chat message with card design
+      const messageContent = parts.length > 0
+        ? `<div class="mastery-system-info">
+            <h3><i class="fas fa-shop"></i> Initiative Shop Purchase</h3>
+            <div class="info-details">
+              <div class="info-row">
+                <span class="info-label">Actor:</span>
+                <span class="info-value">${actor.name}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Initiative Spent:</span>
+                <span class="info-value">${totalCost}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Purchases:</span>
+                <span class="info-value">${parts.join(', ')}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Remaining Initiative:</span>
+                <span class="info-value">${remainingInitiative}</span>
+              </div>
+            </div>
+          </div>`
+        : `<div class="mastery-system-info">
+            <h3><i class="fas fa-shop"></i> Initiative Shop</h3>
+            <div class="info-details">
+              <div class="info-row">
+                <span class="info-label">Actor:</span>
+                <span class="info-value">${actor.name}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">No Purchases</span>
+                <span class="info-value"></span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Initiative:</span>
+                <span class="info-value">${remainingInitiative}</span>
+              </div>
+            </div>
+          </div>`;
 
       await ChatMessage.create({
-        content: message,
-        speaker: ChatMessage.getSpeaker({ actor: actor as any })
+        content: messageContent,
+        speaker: ChatMessage.getSpeaker({ actor: actor as any }),
+        style: CONST.CHAT_MESSAGE_STYLES.OTHER
       });
     }
 

@@ -612,11 +612,11 @@ async function rollAndDisplayDamage(
   const chatData: any = {
     speaker: ChatMessage.getSpeaker({ actor: attacker, token: attackerToken }),
     content: `<div class="mastery-system-damage">
-      <h3>Damage: ${damageResult.totalDamage}</h3>
+      <h3><i class="fas fa-sword"></i> Damage: ${damageResult.totalDamage}</h3>
       <p>${damageText}</p>
       <p><strong>Target:</strong> ${(target as any).name}</p>
     </div>`,
-    type: CONST.CHAT_MESSAGE_TYPES.OTHER
+    style: CONST.CHAT_MESSAGE_STYLES.OTHER
   };
   
   try {
