@@ -493,6 +493,15 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
       continue;
     }
     
+    // Filter out specific reaction maneuvers that should not appear in radial menu
+    if (maneuver.id === 'readied-action' || 
+        maneuver.id === 'counter-attack' || 
+        maneuver.id === 'opportunity-attack' || 
+        maneuver.id === 'defensive-roll' || 
+        maneuver.id === 'cover-fire') {
+      continue;
+    }
+    
     // For attack slot: only allow Weapon Attack and the two main stances
     if (maneuver.slot === 'attack') {
       if (maneuver.id !== 'parry-stance' && maneuver.id !== 'dodge-stance') {

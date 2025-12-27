@@ -1080,7 +1080,7 @@ Hooks.on('preCreateActor', async (actor, data, _options, _userId) => {
         data.system.creation.complete = false;
         console.log('Mastery System | New character created - setting creationComplete=false');
     }
-    // Initialize NPCs with health bars (5 bars for characters, 1 for NPCs)
+    // Initialize NPCs with health bars (4 bars for characters, 1 for NPCs)
     if (actor.type === 'npc' || actor.type === 'character') {
         if (!data.system) {
             data.system = {};
