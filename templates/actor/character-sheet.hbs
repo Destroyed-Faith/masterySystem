@@ -561,14 +561,17 @@
               {{#each system.health.bars as |bar index|}}
               <div class="health-bar-row {{#if (eq index ../system.health.currentBar)}}active{{/if}}">
                 <div class="health-bar-info">
-                  <span class="health-bar-name">{{bar.name}}</span>
-                  <span class="health-bar-penalty">
-                    {{#if (eq bar.name "Incapacitated")}}
-                      {{!-- Incapacitated has no penalty display --}}
-                    {{else if (eq bar.penalty 0)}}
-                      (No penalty)
+                  <span class="health-bar-name">
+                    {{#if (eq bar.penalty 0)}}
+                      Healthy (0 penalty)
+                    {{else if (eq bar.penalty -1)}}
+                      Bruised (-1 penalty)
+                    {{else if (eq bar.penalty -2)}}
+                      Injured (-2 penalty)
+                    {{else if (eq bar.penalty -4)}}
+                      Wounded (-4 penalty)
                     {{else}}
-                      ({{bar.penalty}} penalty)
+                      {{bar.name}}{{#if bar.penalty}} ({{bar.penalty}} penalty){{/if}}
                     {{/if}}
                   </span>
                 </div>

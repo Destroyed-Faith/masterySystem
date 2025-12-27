@@ -2510,6 +2510,26 @@
 }
 
 /* ========== Combat Statistics ========== */
+.mastery-system.sheet.actor.character .combat-stats-section h3 {
+  font-family: var(--ms-font-head, 'Cinzel Decorative', serif);
+  color: var(--ms-muted, #aeb5c0);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 15px 0;
+  border-bottom: 1px solid var(--ms-border, #3a3f44);
+  padding-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mastery-system.sheet.actor.character .combat-stats-section h3 i {
+  color: var(--ms-muted, #aeb5c0);
+  font-size: 18px;
+}
+
 .mastery-system.sheet.actor.character .combat-stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -2582,6 +2602,26 @@
 }
 
 /* ========== Saving Throws ========== */
+.mastery-system.sheet.actor.character .saving-throws-section h3 {
+  font-family: var(--ms-font-head, 'Cinzel Decorative', serif);
+  color: var(--ms-muted, #aeb5c0);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 15px 0;
+  border-bottom: 1px solid var(--ms-border, #3a3f44);
+  padding-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mastery-system.sheet.actor.character .saving-throws-section h3 i {
+  color: var(--ms-muted, #aeb5c0);
+  font-size: 18px;
+}
+
 .mastery-system.sheet.actor.character .saving-throws-grid-three {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -2748,8 +2788,9 @@
 }
 
 .mastery-system.sheet.actor.character .health-bar-penalty {
-  color: #ff6b6b;
+  color: var(--ms-muted, #aeb5c0);
   font-size: 0.65rem;
+  opacity: 0.8;
 }
 
 .mastery-system.sheet.actor.character .health-bar-inputs,

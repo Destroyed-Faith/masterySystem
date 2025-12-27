@@ -1088,7 +1088,7 @@ Hooks.on('preCreateActor', async (actor, data, _options, _userId) => {
         // Initialize health bars
         if (!data.system.health) {
             if (actor.type === 'character') {
-                // Characters: 5 bars (Healthy, Bruised, Injured, Wounded, Incapacitated)
+                // Characters: 4 bars (Healthy, Bruised, Injured, Wounded)
                 const vitality = data.system.attributes?.vitality?.value || 2;
                 const maxHP = vitality * 2;
                 data.system.health = {
@@ -1096,8 +1096,7 @@ Hooks.on('preCreateActor', async (actor, data, _options, _userId) => {
                         { name: 'Healthy', max: maxHP, current: maxHP, penalty: 0 },
                         { name: 'Bruised', max: maxHP, current: maxHP, penalty: -1 },
                         { name: 'Injured', max: maxHP, current: maxHP, penalty: -2 },
-                        { name: 'Wounded', max: maxHP, current: maxHP, penalty: -4 },
-                        { name: 'Incapacitated', max: maxHP, current: maxHP, penalty: 0 }
+                        { name: 'Wounded', max: maxHP, current: maxHP, penalty: -4 }
                     ],
                     currentBar: 0,
                     tempHP: 0
@@ -1124,8 +1123,7 @@ Hooks.on('preCreateActor', async (actor, data, _options, _userId) => {
                         { name: 'Healthy', max: maxHP, current: maxHP, penalty: 0 },
                         { name: 'Bruised', max: maxHP, current: maxHP, penalty: -1 },
                         { name: 'Injured', max: maxHP, current: maxHP, penalty: -2 },
-                        { name: 'Wounded', max: maxHP, current: maxHP, penalty: -4 },
-                        { name: 'Incapacitated', max: maxHP, current: maxHP, penalty: 0 }
+                        { name: 'Wounded', max: maxHP, current: maxHP, penalty: -4 }
                     ];
                 }
                 else {
@@ -1134,19 +1132,32 @@ Hooks.on('preCreateActor', async (actor, data, _options, _userId) => {
                     ];
                 }
             }
-            else if (actor.type === 'character' && data.system.health.bars.length < 5) {
-                // Add missing bars for characters
+            else if (actor.type === 'character') {
+                // Ensure exactly 4 bars for characters (remove any extra bars)
                 const vitality = data.system.attributes?.vitality?.value || 2;
                 const maxHP = vitality * 2;
-                const allBarNames = ['Healthy', 'Bruised', 'Injured', 'Wounded', 'Incapacitated'];
-                const penalties = [0, -1, -2, -4, 0];
-                for (let i = data.system.health.bars.length; i < 5; i++) {
+                const allBarNames = ['Healthy', 'Bruised', 'Injured', 'Wounded'];
+                const penalties = [0, -1, -2, -4];
+                // Limit to 4 bars maximum
+                if (data.system.health.bars.length > 4) {
+                    data.system.health.bars = data.system.health.bars.slice(0, 4);
+                }
+                // Add missing bars if less than 4
+                for (let i = data.system.health.bars.length; i < 4; i++) {
                     data.system.health.bars.push({
                         name: allBarNames[i],
                         max: maxHP,
                         current: maxHP,
                         penalty: penalties[i]
                     });
+                }
+                // Update max HP for all bars if vitality changed
+                for (let i = 0; i < data.system.health.bars.length; i++) {
+                    const bar = data.system.health.bars[i];
+                    const ratio = bar.max > 0 ? bar.current / bar.max : 1;
+                    bar.max = maxHP;
+                    bar.current = Math.min(Math.floor(maxHP * ratio), maxHP);
+                    bar.penalty = penalties[i];
                 }
             }
             if (data.system.health.currentBar === undefined) {

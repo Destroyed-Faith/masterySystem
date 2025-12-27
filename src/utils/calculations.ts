@@ -41,7 +41,7 @@ export function calculateHealthBarMax(vitality: number): number {
 
 /**
  * Initialize health bars with proper max HP values
- * 5 bars: Healthy, Bruised, Injured, Wounded, Incapacitated
+ * 4 bars: Healthy (0 penalty), Bruised (-1 penalty), Injured (-2 penalty), Wounded (-4 penalty)
  * Each bar = Vitality × 2 boxes
  */
 export function initializeHealthBars(vitality: number): HealthBar[] {
@@ -71,12 +71,6 @@ export function initializeHealthBars(vitality: number): HealthBar[] {
       max: maxHP,
       current: maxHP,
       penalty: -4
-    },
-    {
-      name: 'Incapacitated',
-      max: maxHP,
-      current: maxHP,
-      penalty: 0 // Incapacitated has special rules (no actions, death saves)
     }
   ];
 }
@@ -104,7 +98,6 @@ export function updateHealthBars(bars: HealthBar[], vitality: number): void {
  * - Bruised (bar 1): -1 penalty if current < max
  * - Injured (bar 2): -2 penalty if current < max
  * - Wounded (bar 3): -4 penalty if current < max
- * - Incapacitated (bar 4): No penalty (special rules, penalty = 0)
  * 
  * The penalty applies as soon as a bar is broken (current < max).
  * We check from bar 0 upwards to find the first broken bar.
@@ -167,7 +160,7 @@ export function applyDamage(
   // Clamp final bar index (don't go beyond last bar)
   if (barIndex >= bars.length) {
     barIndex = bars.length - 1;
-    // If we're at Incapacitated (last bar) and it's also depleted, keep it at 0
+    // If we're at the last bar and it's also depleted, keep it at 0
     if (bars[barIndex]) {
       bars[barIndex].current = 0;
     }

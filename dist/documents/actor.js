@@ -86,7 +86,7 @@ export class MasteryActor extends Actor {
             else {
                 system.stones.current = Math.max(0, Math.min(system.stones.current, system.stones.maximum));
             }
-            // Initialize health bars (5 bars: Healthy, Bruised, Injured, Wounded, Incapacitated)
+            // Initialize health bars (4 bars: Healthy, Bruised, Injured, Wounded)
             if (this.type === 'character') {
                 const vitality = system.attributes.vitality?.value || 2;
                 const maxHP = calculateHealthBarMax(vitality);
@@ -119,21 +119,36 @@ export class MasteryActor extends Actor {
                             system.health.bars = initializeHealthBars(vitality);
                         }
                     }
-                    // Ensure we have 5 bars
+                    // Ensure we have exactly 4 bars (remove any extra bars)
                     if (!system.health.bars || system.health.bars.length === 0) {
                         system.health.bars = initializeHealthBars(vitality);
                     }
-                    else if (system.health.bars.length < 5) {
-                        // Add missing bars
-                        const allBarNames = ['Healthy', 'Bruised', 'Injured', 'Wounded', 'Incapacitated'];
-                        const penalties = [0, -1, -2, -4, 0];
-                        for (let i = system.health.bars.length; i < 5; i++) {
-                            system.health.bars.push({
-                                name: allBarNames[i],
-                                max: maxHP,
-                                current: maxHP,
-                                penalty: penalties[i]
-                            });
+                    else {
+                        // Limit to 4 bars maximum (remove any 5th bar)
+                        if (system.health.bars.length > 4) {
+                            system.health.bars = system.health.bars.slice(0, 4);
+                        }
+                        // Add missing bars if less than 4
+                        if (system.health.bars.length < 4) {
+                            const allBarNames = ['Healthy', 'Bruised', 'Injured', 'Wounded'];
+                            const penalties = [0, -1, -2, -4];
+                            for (let i = system.health.bars.length; i < 4; i++) {
+                                system.health.bars.push({
+                                    name: allBarNames[i],
+                                    max: maxHP,
+                                    current: maxHP,
+                                    penalty: penalties[i]
+                                });
+                            }
+                        }
+                        // Update max HP and penalties for all bars
+                        const penalties = [0, -1, -2, -4];
+                        for (let i = 0; i < system.health.bars.length && i < 4; i++) {
+                            const bar = system.health.bars[i];
+                            const ratio = bar.max > 0 ? bar.current / bar.max : 1;
+                            bar.max = maxHP;
+                            bar.current = Math.min(Math.floor(maxHP * ratio), maxHP);
+                            bar.penalty = penalties[i];
                         }
                     }
                     // Update max HP for all bars based on current vitality

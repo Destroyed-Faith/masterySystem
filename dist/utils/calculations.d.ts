@@ -23,7 +23,7 @@ export declare function updateAttributeStones(attribute: AttributeData): void;
 export declare function calculateHealthBarMax(vitality: number): number;
 /**
  * Initialize health bars with proper max HP values
- * 5 bars: Healthy, Bruised, Injured, Wounded, Incapacitated
+ * 4 bars: Healthy (0 penalty), Bruised (-1 penalty), Injured (-2 penalty), Wounded (-4 penalty)
  * Each bar = Vitality × 2 boxes
  */
 export declare function initializeHealthBars(vitality: number): HealthBar[];
@@ -41,7 +41,6 @@ export declare function updateHealthBars(bars: HealthBar[], vitality: number): v
  * - Bruised (bar 1): -1 penalty if current < max
  * - Injured (bar 2): -2 penalty if current < max
  * - Wounded (bar 3): -4 penalty if current < max
- * - Incapacitated (bar 4): No penalty (special rules, penalty = 0)
  *
  * The penalty applies as soon as a bar is broken (current < max).
  * We check from bar 0 upwards to find the first broken bar.
