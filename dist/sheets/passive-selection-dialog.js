@@ -237,14 +237,7 @@ export class PassiveSelectionDialog extends BaseDialog {
                 }
             };
         }
-        // Close button
-        const closeBtn = root.querySelector('.js-close-dialog');
-        if (closeBtn) {
-            closeBtn.onclick = async (ev) => {
-                ev.preventDefault();
-                await this._closeExplicit();
-            };
-        }
+        // Close button removed from footer - use header close button instead
     }
     async _closeExplicit() {
         if (this.resolve) {

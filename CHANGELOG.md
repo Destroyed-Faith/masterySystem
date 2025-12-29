@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.37] - 2025-01-XX
+
+### Fixed
+- **Dialog Close Buttons**: Fixed close button styling in all dialogs
+  - Improved header close button appearance with proper padding and hover effects
+  - Close button now has subtle background on hover
+  - Close button turns red on hover for better visual feedback
+  - Removed duplicate close button from Passive Selection Dialog footer
+
+### Changed
+- **Passive Selection Dialog**: Removed close button from footer
+  - Dialog now only uses the standard header close button
+  - Cleaner footer layout with only navigation buttons
+
 ## [0.2.36] - 2025-01-XX
 
 ### Changed

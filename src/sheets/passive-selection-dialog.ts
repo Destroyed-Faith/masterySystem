@@ -270,14 +270,7 @@ export class PassiveSelectionDialog extends BaseDialog {
       };
     }
 
-    // Close button
-    const closeBtn = root.querySelector<HTMLElement>('.js-close-dialog');
-    if (closeBtn) {
-      closeBtn.onclick = async (ev) => {
-        ev.preventDefault();
-        await this._closeExplicit();
-      };
-    }
+    // Close button removed from footer - use header close button instead
   }
 
   private async _closeExplicit(): Promise<void> {

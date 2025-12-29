@@ -66,6 +66,38 @@
   color: var(--df-text-primary);
 }
 
+/* Header Control Buttons (Close, etc.) */
+.application.mastery-system:not(.sheet) .window-header .header-control {
+  background: transparent;
+  border: none;
+  color: var(--df-text-secondary);
+  opacity: 0.7;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.application.mastery-system:not(.sheet) .window-header .header-control:hover {
+  background: var(--df-accent-subtle);
+  opacity: 1;
+  color: var(--df-text-primary);
+}
+
+.application.mastery-system:not(.sheet) .window-header .header-control.icon {
+  font-size: 1rem;
+  width: auto;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.application.mastery-system:not(.sheet) .window-header .header-control[data-action="close"]:hover {
+  background: rgba(255, 102, 102, 0.2);
+  color: #ff6666;
+}
+
 /* ========================================
    Typography
    ======================================== */
