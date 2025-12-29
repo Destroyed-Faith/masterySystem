@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.29] - 2025-01-XX
+
+### Fixed
+- **Handlebars Helper**: Added missing "length" helper for template rendering
+  - Fixes error "Missing helper: length" when rendering character sheet
+
 ## [0.2.28] - 2025-01-XX
 
 ### Fixed

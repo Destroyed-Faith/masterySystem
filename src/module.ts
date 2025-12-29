@@ -733,6 +733,20 @@ function registerHandlebarsHelpersImmediate() {
     if (!specials || !Array.isArray(specials) || specials.length === 0) return '—';
     return specials.join(', ');
   });
+
+  // Helper to get array/string length
+  Handlebars.registerHelper('length', function(value: any) {
+    if (Array.isArray(value)) {
+      return value.length;
+    }
+    if (typeof value === 'string') {
+      return value.length;
+    }
+    if (value && typeof value === 'object') {
+      return Object.keys(value).length;
+    }
+    return 0;
+  });
 }
 
 /**
