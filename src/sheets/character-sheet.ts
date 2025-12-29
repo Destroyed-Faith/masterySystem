@@ -551,23 +551,34 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     
     // Add active buffs data
-    const { getActiveBuffs } = await import('../utils/active-buffs.js');
-    context.activeBuffs = getActiveBuffs(this.actor).map((effect: any) => {
-      const flags = effect.flags?.['mastery-system'] || {};
-      const power = this.actor.items.get(flags.powerId);
-      return {
-        id: effect.id,
-        name: effect.name,
-        icon: effect.icon || effect.img || 'icons/svg/aura.svg',
-        description: effect.system?.description?.value || '',
-        powerId: flags.powerId,
-        powerName: flags.powerName || power?.name || effect.name,
-        masteryRank: flags.masteryRank || 2,
-        activatedRound: flags.activatedRound || 1,
-        currentRound: game.combat?.round || 1,
-        roundsRemaining: (flags.masteryRank || 2) - ((game.combat?.round || 1) - (flags.activatedRound || 1))
-      };
-    });
+    try {
+      const { getActiveBuffs } = await import('../utils/active-buffs.js');
+      context.activeBuffs = getActiveBuffs(this.actor).map((effect: any) => {
+        const flags = effect.flags?.['mastery-system'] || {};
+        const power = this.actor.items.get(flags.powerId);
+        return {
+          id: effect.id,
+          name: effect.name,
+          icon: effect.icon || effect.img || 'icons/svg/aura.svg',
+          description: effect.system?.description?.value || '',
+          powerId: flags.powerId,
+          powerName: flags.powerName || power?.name || effect.name,
+          masteryRank: flags.masteryRank || 2,
+          activatedRound: flags.activatedRound || 1,
+          currentRound: game.combat?.round || 1,
+          roundsRemaining: (flags.masteryRank || 2) - ((game.combat?.round || 1) - (flags.activatedRound || 1))
+        };
+      });
+    } catch (error) {
+      console.warn('Mastery System | Failed to load active buffs', error);
+      context.activeBuffs = [];
+    }
+    
+    // Ensure context is always an object
+    if (!context || typeof context !== 'object') {
+      console.error('Mastery System | getData returned invalid context', context);
+      return {};
+    }
     
     return context;
   }

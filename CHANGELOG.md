@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.31] - 2025-01-XX
+
+### Fixed
+- **Template Rendering**: Fixed "length" helper errors and mergeObject issues
+  - Simplified template conditionals to use "and" helper with proper array checks
+  - Added error handling in getData to ensure context is always a valid object
+  - Ensured specials is always an array to prevent template errors
+  - Added try-catch blocks around async imports in getData
+
 ## [0.2.30] - 2025-01-XX
 
 ### Fixed
