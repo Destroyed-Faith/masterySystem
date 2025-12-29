@@ -553,22 +553,30 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Add active buffs data
     try {
       const { getActiveBuffs } = await import('../utils/active-buffs.js');
-      context.activeBuffs = getActiveBuffs(this.actor).map((effect: any) => {
+      const activeBuffs = getActiveBuffs(this.actor);
+      console.log('Mastery System | Found active buffs:', activeBuffs.length, activeBuffs);
+      context.activeBuffs = activeBuffs.map((effect: any) => {
         const flags = effect.flags?.['mastery-system'] || {};
-        const power = this.actor.items.get(flags.powerId);
+        const power = flags.powerId ? this.actor.items.get(flags.powerId) : null;
+        const currentRound = game.combat?.round || 1;
+        const activatedRound = flags.activatedRound || 1;
+        const masteryRank = flags.masteryRank || 2;
+        const roundsRemaining = Math.max(0, masteryRank - (currentRound - activatedRound));
+        
         return {
           id: effect.id,
           name: effect.name,
           icon: effect.icon || effect.img || 'icons/svg/aura.svg',
-          description: effect.system?.description?.value || '',
+          description: effect.description || effect.system?.description?.value || effect.system?.description || '',
           powerId: flags.powerId,
           powerName: flags.powerName || power?.name || effect.name,
-          masteryRank: flags.masteryRank || 2,
-          activatedRound: flags.activatedRound || 1,
-          currentRound: game.combat?.round || 1,
-          roundsRemaining: (flags.masteryRank || 2) - ((game.combat?.round || 1) - (flags.activatedRound || 1))
+          masteryRank: masteryRank,
+          activatedRound: activatedRound,
+          currentRound: currentRound,
+          roundsRemaining: roundsRemaining
         };
       });
+      console.log('Mastery System | Processed active buffs for display:', context.activeBuffs);
     } catch (error) {
       console.warn('Mastery System | Failed to load active buffs', error);
       context.activeBuffs = [];

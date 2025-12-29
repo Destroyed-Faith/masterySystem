@@ -69,7 +69,7 @@ export async function activateActiveBuff(actor, power) {
     // Create ActiveEffect data - simplified structure for Foundry VTT
     const effectData = {
         name: power.name,
-        icon: power.img || 'icons/svg/aura.svg',
+        icon: power.img || power.system?.img || 'icons/svg/aura.svg',
         // Store original power data in flags
         flags: {
             'mastery-system': {
@@ -79,19 +79,30 @@ export async function activateActiveBuff(actor, power) {
                 masteryRank: masteryRank,
                 activatedRound: currentRound
             }
-        }
+        },
+        // Add description directly (not in system.description.value)
+        description: power.system?.description || power.system?.effect || ''
     };
     // Add duration if in combat
     if (game.combat) {
         effectData.duration = duration;
     }
-    // Add description if available
-    if (power.system?.description) {
-        effectData.description = power.system.description;
+    else {
+        // If not in combat, set a long duration so it doesn't expire immediately
+        effectData.duration = {
+            startRound: null,
+            startTurn: null,
+            rounds: masteryRank,
+            turns: null,
+            seconds: null,
+            combat: null
+        };
     }
     try {
+        console.log('Mastery System | Creating ActiveEffect:', effectData);
         // Create the effect on the actor
-        await actor.createEmbeddedDocuments('ActiveEffect', [effectData]);
+        const created = await actor.createEmbeddedDocuments('ActiveEffect', [effectData]);
+        console.log('Mastery System | ActiveEffect created:', created);
         ui.notifications?.info(`Activated ${power.name} (Duration: ${masteryRank} rounds)`);
         return true;
     }

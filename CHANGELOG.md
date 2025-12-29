@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.35] - 2025-01-XX
+
+### Fixed
+- **Active Buffs Display**: Fixed Active Buffs not showing in Character Sheet and Combat Carousel
+  - Fixed ActiveEffect creation to properly set icon from power image
+  - Fixed description storage (now stored directly in `description` field, not `system.description.value`)
+  - Fixed duration calculation for Active Buffs outside of combat
+  - Improved rounds remaining calculation (using Math.max to prevent negative values)
+  - Added debug logging to help diagnose Active Buff issues
+  - Character Sheet and Combat Carousel now refresh after activating an Active Buff
+
+### Changed
+- **Active Buff Activation**: Improved Active Buff activation flow
+  - Character Sheet and Combat Carousel are now automatically refreshed after activation
+  - Better error handling and user feedback
+
 ## [0.2.34] - 2025-01-XX
 
 ### Fixed

@@ -739,6 +739,16 @@ export async function handleChosenCombatOption(token, option) {
             if (token.hud) {
                 token.hud.render();
             }
+            // Refresh character sheet if open
+            const sheet = actor.sheet;
+            if (sheet && sheet.rendered) {
+                sheet.render();
+            }
+            // Refresh combat carousel if open
+            const carousel = window.masteryCombatCarousel;
+            if (carousel && carousel.rendered) {
+                carousel.render();
+            }
         }
         return;
     }

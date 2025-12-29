@@ -150,11 +150,14 @@ export class CombatCarouselApp extends BaseCarousel {
             
             if (isActiveBuff) {
               // For active buffs, include name and tooltip info
-              const roundsRemaining = (flags.masteryRank || 2) - ((game.combat?.round || 1) - (flags.activatedRound || 1));
+              const currentRound = game.combat?.round || 1;
+              const activatedRound = flags.activatedRound || 1;
+              const masteryRank = flags.masteryRank || 2;
+              const roundsRemaining = Math.max(0, masteryRank - (currentRound - activatedRound));
               statusIcons.push({
                 icon: icon,
                 name: effect.name,
-                tooltip: `${effect.name}\nDuration: ${roundsRemaining} rounds remaining`
+                tooltip: `${effect.name}\nDuration: ${roundsRemaining} round${roundsRemaining !== 1 ? 's' : ''} remaining`
               });
             } else {
               // Regular effect
