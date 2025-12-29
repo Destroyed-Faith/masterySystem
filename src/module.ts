@@ -90,7 +90,17 @@ Hooks.once('init', async function() {
   setupXpManagementInline();
   
   // Handlebars helpers are already registered in registerHandlebarsHelpersImmediate()
-  // No need to register again here
+  // Verify critical helpers are available
+  if (!Handlebars.helpers.length) {
+    console.warn('Mastery System | length helper not found, re-registering...');
+    Handlebars.registerHelper('length', function(value: any) {
+      if (value === null || value === undefined) return 0;
+      if (Array.isArray(value)) return value.length;
+      if (typeof value === 'string') return value.length;
+      if (typeof value === 'object') return Object.keys(value).length;
+      return 0;
+    });
+  }
 
   // Register CONFIG constants
   registerConfigConstants();
