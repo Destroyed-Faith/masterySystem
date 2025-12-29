@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.38] - 2025-01-XX
+
+### Fixed
+- **Active Buffs Import Error**: Fixed dynamic import path for active buffs module
+  - Changed import path from `../utils/active-buffs.js` to `./utils/active-buffs.js`
+  - Active buffs can now be activated correctly from the radial menu
+  - Active buffs now appear correctly in Character Sheet and Combat Carousel
+
 ## [0.2.37] - 2025-01-XX
 
 ### Fixed

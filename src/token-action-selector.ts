@@ -862,7 +862,7 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
     
     // Dynamic import for active buffs utilities
     // @ts-ignore - TypeScript doesn't recognize the .js extension in dynamic imports
-    const activeBuffsModule = await import('../utils/active-buffs.js');
+    const activeBuffsModule = await import('./utils/active-buffs.js');
     const { activateActiveBuff, isPowerActiveAsBuff } = activeBuffsModule;
     
     // Check if already active
