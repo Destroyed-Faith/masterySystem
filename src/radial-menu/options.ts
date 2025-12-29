@@ -287,6 +287,7 @@ export function getSegmentIdForOption(option: RadialCombatOption): InnerSegment[
   if (option.source === 'power' && option.item) {
     const powerType = option.powerType || (option.item.system as any)?.powerType;
     const cost = (option.item.system as any)?.cost;
+    const range = option.range || (option.item.system as any)?.range;
     
     // If it's explicitly an active-buff or buff power that requires an action, it's an active buff
     if ((powerType === 'active-buff' || powerType === 'buff') && cost?.action === true) {
@@ -304,6 +305,26 @@ export function getSegmentIdForOption(option: RadialCombatOption): InnerSegment[
     // Also check if power type is 'active' but has buff-like characteristics
     if (powerType === 'active' && option.slot === 'attack') {
       // Check if description or name suggests it's a buff
+      const nameLower = option.name.toLowerCase();
+      const descLower = (option.description || '').toLowerCase();
+      if (nameLower.includes('buff') || descLower.includes('buff') || 
+          nameLower.includes('stance') || descLower.includes('stance')) {
+        return 'active-buff';
+      }
+    }
+    
+    // Check if it's a utility that is Self-targeting (these are also active buffs)
+    if (powerType === 'utility' && cost?.action === true) {
+      const rangeStr = range?.toString().toLowerCase() || '';
+      // If range is "Self" or 0, it's a self-buff utility
+      if (rangeStr === 'self' || rangeStr === '0' || range === 0) {
+        return 'active-buff';
+      }
+      // Also check if it has buff-like tags or characteristics
+      if (tags.includes('active-buff') || tags.includes('buff') || tags.includes('stance')) {
+        return 'active-buff';
+      }
+      // Check name/description for buff indicators
       const nameLower = option.name.toLowerCase();
       const descLower = (option.description || '').toLowerCase();
       if (nameLower.includes('buff') || descLower.includes('buff') || 

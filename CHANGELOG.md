@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.40] - 2025-01-XX
+
+### Fixed
+- **Utilities as Active Buffs**: Fixed utilities not being recognized as active buffs
+  - Extended `isActiveBuff` function to recognize utilities with Self-targeting (Range: Self or 0)
+  - Utilities with buff-like tags or characteristics are now recognized as active buffs
+  - Updated `getSegmentIdForOption` to correctly identify utilities as active buffs in radial menu
+  - Utilities now appear correctly in Character Sheet and Combat Carousel when activated
+  - Self-targeting utilities are now automatically activated on self without targeting
+
 ## [0.2.39] - 2025-01-XX
 
 ### Changed
