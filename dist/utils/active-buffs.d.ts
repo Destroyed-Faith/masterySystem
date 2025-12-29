@@ -1,0 +1,22 @@
+/**
+ * Active Buff utilities for the Mastery System
+ * Active Buffs are powers that create effects lasting for "Mastery Rank rounds"
+ */
+/**
+ * Check if a power is an active buff
+ */
+export declare function isActiveBuff(power: any): boolean;
+/**
+ * Activate an active buff power
+ * Creates an ActiveEffect that lasts for Mastery Rank rounds
+ */
+export declare function activateActiveBuff(actor: Actor, power: any): Promise<boolean>;
+/**
+ * Get all active buffs on an actor
+ */
+export declare function getActiveBuffs(actor: Actor): any[];
+/**
+ * Check if a specific power is currently active as a buff
+ */
+export declare function isPowerActiveAsBuff(actor: Actor, powerId: string): boolean;
+//# sourceMappingURL=active-buffs.d.ts.map

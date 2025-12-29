@@ -767,6 +767,11 @@ function registerHandlebarsHelpersImmediate() {
     return 0;
   });
   
+  // Helper to check if value is an object (not array, not null)
+  Handlebars.registerHelper('isObject', function(value: any) {
+    return value !== null && typeof value === 'object' && !Array.isArray(value);
+  });
+  
   // Verify helper is registered
   if (!Handlebars.helpers.length) {
     console.error('Mastery System | Failed to register length helper!');
@@ -777,7 +782,9 @@ function registerHandlebarsHelpersImmediate() {
 
 /**
  * Register additional Handlebars helpers that need to be available after init
+ * @deprecated - Helpers are now registered in registerHandlebarsHelpersImmediate
  */
+// @ts-ignore - unused function kept for potential future use
 function registerAdditionalHandlebarsHelpers() {
   // Helper to get array/string length (if not already registered)
   if (!Handlebars.helpers.length) {

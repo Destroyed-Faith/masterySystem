@@ -1,7 +1,7 @@
 /**
  * Option Collection and Parsing for Radial Menu
  */
-import { getAvailableManeuvers } from '../system/combat-maneuvers.js';
+import { getAvailableManeuvers } from '../system/combat-maneuvers';
 /**
  * Parse range string (e.g., "8m", "12m", "Self") to numeric meters
  */
@@ -354,7 +354,16 @@ export async function getAllCombatOptionsForActor(actor) {
             }
         }
         // Calculate range using the new function
-        const range = calculateRange(actor, item.id, slot, rangeStr, levelData);
+        let range = calculateRange(actor, item.id, slot, rangeStr, levelData);
+        // Get tags and cost information
+        const tags = item.system?.tags || [];
+        const cost = item.system?.cost || {};
+        // Check if this is an active buff - active buffs are always Self (range 0)
+        const isActiveBuff = (powerType === 'active-buff' || powerType === 'buff') && cost?.action === true ||
+            (tags.includes('active-buff') || tags.includes('buff') || tags.includes('stance')) && cost?.action === true;
+        if (isActiveBuff) {
+            range = 0; // Active buffs are always Self
+        }
         // Parse AoE information for utilities
         let aoeShape = 'none';
         let aoeRadiusMeters = undefined;
@@ -371,9 +380,6 @@ export async function getAllCombatOptionsForActor(actor) {
                 rangeMeters = 0;
             }
         }
-        // Get tags and cost information
-        const tags = item.system?.tags || [];
-        const cost = item.system?.cost || {};
         // Determine costs
         const costsMovement = powerType === 'movement' && cost.movement !== false; // Movement powers cost movement by default
         const costsAction = cost.action === true || cost.actions === true;
@@ -417,6 +423,14 @@ export async function getAllCombatOptionsForActor(actor) {
         }
         // Filter out specific movement maneuvers that should not appear in radial menu
         if (maneuver.id === 'charge' || maneuver.id === 'flee-you-fools' || maneuver.id === 'tactical-retreat') {
+            continue;
+        }
+        // Filter out specific reaction maneuvers that should not appear in radial menu
+        if (maneuver.id === 'readied-action' ||
+            maneuver.id === 'counter-attack' ||
+            maneuver.id === 'opportunity-attack' ||
+            maneuver.id === 'defensive-roll' ||
+            maneuver.id === 'cover-fire') {
             continue;
         }
         // For attack slot: only allow Weapon Attack and the two main stances

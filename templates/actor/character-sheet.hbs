@@ -779,9 +779,9 @@
         <h3><i class="fas fa-shield-alt"></i> Active Buffs</h3>
         <div class="active-buffs-list">
           {{#each activeBuffs}}
-          <div class="active-buff-item" data-effect-id="{{this.id}}">
+          <div class="active-buff-item" data-effect-id="{{this.id}}" title="{{this.name}}&#10;Duration: {{#if (gt this.roundsRemaining 0)}}{{this.roundsRemaining}} round{{#if (gt this.roundsRemaining 1)}}s{{/if}} remaining{{else}}Expiring this round{{/if}}{{#if this.description}}&#10;&#10;{{this.description}}{{/if}}">
             <div class="active-buff-icon">
-              <img src="{{this.icon}}" alt="{{this.name}}" title="{{this.name}}" />
+              <img src="{{this.icon}}" alt="{{this.name}}" />
             </div>
             <div class="active-buff-info">
               <div class="active-buff-name">{{this.name}}</div>

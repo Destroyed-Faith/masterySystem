@@ -833,6 +833,55 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
     }
   });
 
+  // Check if this is an active buff FIRST - before consuming actions
+  // Active buffs should be activated directly on self, no targeting
+  const segmentId = getSegmentIdForOption(option);
+  const isActiveBuff = segmentId === 'active-buff';
+  
+  if (isActiveBuff && option.source === 'power' && option.item) {
+    console.log('Mastery System | [ACTIVE BUFF] Activating active buff:', option.name);
+    
+    // Check and consume attack action if needed (active buffs cost an action)
+    if (option.costsAction) {
+      const available = getAvailableAttackActions(actor, combat);
+      if (available <= 0) {
+        ui.notifications?.warn('No Actions left this round.');
+        return; // Menu stays open
+      }
+      
+      const consumed = await consumeAttackAction(actor, combat);
+      if (!consumed) {
+        ui.notifications?.warn('Failed to consume attack action.');
+        return;
+      }
+      
+      console.log('Mastery System | [ACTION ECONOMY] Consumed attack action for active buff. Remaining:', getAvailableAttackActions(actor, combat));
+    }
+    
+    closeRadialMenu();
+    
+    // Dynamic import for active buffs utilities
+    // @ts-ignore - TypeScript doesn't recognize the .js extension in dynamic imports
+    const activeBuffsModule = await import('../utils/active-buffs.js');
+    const { activateActiveBuff, isPowerActiveAsBuff } = activeBuffsModule;
+    
+    // Check if already active
+    if (isPowerActiveAsBuff(actor, option.item.id)) {
+      ui.notifications?.warn(`${option.name} is already active!`);
+      return;
+    }
+    
+    // Activate the buff directly on self
+    const success = await activateActiveBuff(actor, option.item);
+    if (success) {
+      // Refresh token HUD to show updated status
+      if (token.hud) {
+        token.hud.render();
+      }
+    }
+    return;
+  }
+
   // Check and consume movement action if needed
   if (option.costsMovement) {
     const available = getAvailableMovementActions(actor, combat);
@@ -905,33 +954,6 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
     // Regular movement maneuver
     console.log('Mastery System | Starting guided movement for', token.name, option);
     startGuidedMovement(token, option);
-    return;
-  }
-  
-  // Check if this is an active buff - these should be activated directly on self, no targeting
-  const segmentId = getSegmentIdForOption(option);
-  const isActiveBuff = segmentId === 'active-buff';
-  
-  if (isActiveBuff && option.source === 'power' && option.item) {
-    console.log('Mastery System | [ACTIVE BUFF] Activating active buff:', option.name);
-    closeRadialMenu();
-    
-    const { activateActiveBuff, isPowerActiveAsBuff } = await import('../utils/active-buffs.js');
-    
-    // Check if already active
-    if (isPowerActiveAsBuff(actor, option.item.id)) {
-      ui.notifications?.warn(`${option.name} is already active!`);
-      return;
-    }
-    
-    // Activate the buff directly on self
-    const success = await activateActiveBuff(actor, option.item);
-    if (success) {
-      // Refresh token HUD to show updated status
-      if (token.hud) {
-        token.hud.render();
-      }
-    }
     return;
   }
   

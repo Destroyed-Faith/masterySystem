@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.34] - 2025-01-XX
+
+### Fixed
+- **Active Buffs**: Fixed Active Buffs being treated as attacks
+  - Active Buffs are now checked and activated BEFORE action consumption
+  - Active Buffs no longer trigger targeting mode or damage calculations
+  - Active Buffs are directly activated on self when selected from radial menu
+- **Active Buff Display**: Enhanced Active Buff visualization
+  - Added hover tooltips in Combat Carousel showing buff name and remaining duration
+  - Improved hover tooltips in Character Sheet with full description
+  - Active Buff icons in Carousel have special styling (purple border, glow effect)
+  - Active Buff items in Character Sheet show detailed tooltip on hover
+- **Chat CSS**: Fixed chat message styling
+  - Added general chat styling that applies to all chat messages (not just theme-specific)
+  - Chat messages now have proper background, borders, and spacing regardless of theme
+  - Message headers and content are properly styled
+
+### Changed
+- **Combat Carousel**: Status icons now support both string icons and object icons with tooltips
+  - Active Buffs are displayed as special status icons with tooltips
+  - Regular effects are displayed as standard status icons
+- **Handlebars Helpers**: Added `isObject` helper for template conditionals
+
 ## [0.2.33] - 2025-01-XX
 
 ### Changed

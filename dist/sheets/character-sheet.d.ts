@@ -10,7 +10,7 @@ export declare class MasteryCharacterSheet extends BaseActorSheet {
     /** @override */
     get template(): string;
     /** @override */
-    getData(options?: any): any;
+    getData(options?: any): Promise<any>;
     /** @override */
     render(force?: boolean, options?: any): Promise<any>;
     /** @override */

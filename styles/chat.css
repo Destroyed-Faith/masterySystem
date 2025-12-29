@@ -1,4 +1,45 @@
 /* =========================================
+   General Chat Styling (applies to all chat messages)
+   ========================================= */
+
+#chat-log .chat-message {
+  background: var(--ms-panel, #2a3136);
+  color: var(--ms-text, #d0d0d0);
+  border: 1px solid var(--ms-border, #3a3f44);
+  border-radius: var(--ms-radius, 8px);
+  box-shadow: 0 2px 10px var(--ms-shadow, rgba(0, 0, 0, 0.5));
+  overflow: hidden;
+}
+
+#chat-log .chat-message + .chat-message {
+  margin-top: 6px;
+}
+
+#chat-log .chat-message .message-header {
+  background: var(--ms-panel2, #1b2124);
+  border-bottom: 1px solid var(--ms-border, #3a3f44);
+  padding: 6px 8px;
+}
+
+#chat-log .chat-message .message-header .message-sender {
+  font-family: var(--ms-font-head, 'Cinzel Decorative', serif);
+  color: var(--ms-muted, #a0a0a0);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+#chat-log .chat-message .message-header .message-metadata {
+  color: var(--ms-muted, #a0a0a0);
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+#chat-log .chat-message .message-content {
+  padding: 8px;
+}
+
+/* =========================================
    Destroyed Faith / Rulebook Chat Theme
    Applies when body has .ms-theme-rulebook
    ========================================= */

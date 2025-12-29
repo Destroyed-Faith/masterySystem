@@ -137,14 +137,34 @@ export class CombatCarouselApp extends BaseCarousel {
       const resource2 = this.getResourceValue(actor, resource2Path);
 
       // Get status icons from actor effects (ActiveEffect documents)
-      const statusIcons: string[] = [];
+      // Include active buffs with tooltip information
+      const statusIcons: Array<{icon: string, name?: string, tooltip?: string}> = [];
       if (actor.effects) {
         // Use ActiveEffect documents from actor
         const effects = actor.effects || [];
-        statusIcons.push(...effects.map((e: any) => {
-          const icon = e.icon || e.img || '';
-          return icon;
-        }).filter((i: string) => i));
+        for (const effect of effects) {
+          const icon = effect.icon || effect.img || '';
+          if (icon) {
+            const flags = effect.flags?.['mastery-system'];
+            const isActiveBuff = flags?.activeBuff === true;
+            
+            if (isActiveBuff) {
+              // For active buffs, include name and tooltip info
+              const roundsRemaining = (flags.masteryRank || 2) - ((game.combat?.round || 1) - (flags.activatedRound || 1));
+              statusIcons.push({
+                icon: icon,
+                name: effect.name,
+                tooltip: `${effect.name}\nDuration: ${roundsRemaining} rounds remaining`
+              });
+            } else {
+              // Regular effect
+              statusIcons.push({
+                icon: icon,
+                name: effect.name
+              });
+            }
+          }
+        }
       }
 
       // Use actor portrait, not token image
@@ -166,7 +186,7 @@ export class CombatCarouselApp extends BaseCarousel {
           ...resource2,
           label: resource2Label
         },
-        statusIcons: statusIcons.filter((icon: string) => icon),
+        statusIcons: statusIcons.filter((item: any) => item && item.icon),
         hasToken: !!token,
         tokenId: tokenId
       });

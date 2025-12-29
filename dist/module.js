@@ -12,10 +12,10 @@ import { MasteryItemSheet } from './sheets/item-sheet.js';
 // Combat hooks are imported dynamically to avoid build errors if dist/combat doesn't exist yet
 // import { initializeCombatHooks } from '../dist/combat/initiative.js';
 import { calculateStones } from './utils/calculations.js';
-import { initializeTokenActionSelector } from './token-action-selector.js';
-import { initializeTurnIndicator } from './turn-indicator.js';
-import { handleRadialMenuOpened, handleRadialMenuClosed } from './radial-menu/rendering.js';
-import { registerAttackRollClickHandler } from './chat/attack-roll-handler.js';
+import { initializeTokenActionSelector } from './token-action-selector';
+import { initializeTurnIndicator } from './turn-indicator';
+import { handleRadialMenuOpened, handleRadialMenuClosed } from './radial-menu/rendering';
+import { registerAttackRollClickHandler } from './chat/attack-roll-handler';
 // Import combat-related modules statically
 import { PassiveSelectionDialog } from './sheets/passive-selection-dialog.js';
 import { rollInitiativeForAllCombatants } from './combat/initiative-roll.js';
@@ -74,7 +74,21 @@ Hooks.once('init', async function () {
     // Setup XP Management inline in settings
     setupXpManagementInline();
     // Handlebars helpers are already registered in registerHandlebarsHelpersImmediate()
-    // No need to register again here
+    // Verify critical helpers are available
+    if (!Handlebars.helpers.length) {
+        console.warn('Mastery System | length helper not found, re-registering...');
+        Handlebars.registerHelper('length', function (value) {
+            if (value === null || value === undefined)
+                return 0;
+            if (Array.isArray(value))
+                return value.length;
+            if (typeof value === 'string')
+                return value.length;
+            if (typeof value === 'object')
+                return Object.keys(value).length;
+            return 0;
+        });
+    }
     // Register CONFIG constants
     registerConfigConstants();
     // Initialize scene controls
@@ -563,6 +577,12 @@ function registerHandlebarsHelpersImmediate() {
     Handlebars.registerHelper('ne', function (a, b) {
         return a !== b;
     });
+    // Logical AND helper
+    Handlebars.registerHelper('and', function (...args) {
+        // Remove the last argument (options object)
+        const values = args.slice(0, -1);
+        return values.every((v) => v);
+    });
     // Helper to check if value is an array
     Handlebars.registerHelper('isArray', function (value) {
         return Array.isArray(value);
@@ -615,8 +635,9 @@ function registerHandlebarsHelpersImmediate() {
             return 'Active';
         const typeMap = {
             'active': 'Active',
+            'active-buff': 'Active Buff',
             'buff': 'Active Buff',
-            'utility': 'Active',
+            'utility': 'Utility',
             'passive': 'Passive',
             'reaction': 'Reaction',
             'movement': 'Movement'
@@ -635,6 +656,55 @@ function registerHandlebarsHelpersImmediate() {
             return '—';
         return specials.join(', ');
     });
+    // Helper to get array/string length
+    // This must be registered before templates are compiled
+    Handlebars.registerHelper('length', function (value) {
+        if (value === null || value === undefined)
+            return 0;
+        if (Array.isArray(value)) {
+            return value.length;
+        }
+        if (typeof value === 'string') {
+            return value.length;
+        }
+        if (typeof value === 'object') {
+            return Object.keys(value).length;
+        }
+        return 0;
+    });
+    // Helper to check if value is an object (not array, not null)
+    Handlebars.registerHelper('isObject', function (value) {
+        return value !== null && typeof value === 'object' && !Array.isArray(value);
+    });
+    // Verify helper is registered
+    if (!Handlebars.helpers.length) {
+        console.error('Mastery System | Failed to register length helper!');
+    }
+    else {
+        console.log('Mastery System | length helper registered successfully');
+    }
+}
+/**
+ * Register additional Handlebars helpers that need to be available after init
+ * @deprecated - Helpers are now registered in registerHandlebarsHelpersImmediate
+ */
+// @ts-ignore - unused function kept for potential future use
+function registerAdditionalHandlebarsHelpers() {
+    // Helper to get array/string length (if not already registered)
+    if (!Handlebars.helpers.length) {
+        Handlebars.registerHelper('length', function (value) {
+            if (Array.isArray(value)) {
+                return value.length;
+            }
+            if (typeof value === 'string') {
+                return value.length;
+            }
+            if (value && typeof value === 'object') {
+                return Object.keys(value).length;
+            }
+            return 0;
+        });
+    }
 }
 /**
  * Apply theme class to document.body

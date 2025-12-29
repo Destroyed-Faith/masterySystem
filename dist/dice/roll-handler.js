@@ -2,7 +2,7 @@
  * Dice rolling handler for Mastery System
  * Implements Roll & Keep with exploding 8s
  */
-import { EXPLODE_VALUE, RAISE_INCREMENT } from '../utils/constants.js';
+import { EXPLODE_VALUE, RAISE_INCREMENT } from '../utils/constants';
 /**
  * Roll a single exploding d8
  * Returns the total value including any explosions

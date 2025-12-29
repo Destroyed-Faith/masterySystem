@@ -59,8 +59,16 @@
           <!-- Status Icons -->
           {{#if combatant.statusIcons}}
             <div class="status-icons">
-              {{#each combatant.statusIcons as |icon|}}
-                <img src="{{icon}}" alt="Status" class="status-icon" />
+              {{#each combatant.statusIcons as |statusIcon|}}
+                {{#if (isObject statusIcon)}}
+                  {{#if statusIcon.tooltip}}
+                  <img src="{{statusIcon.icon}}" alt="{{statusIcon.name}}" class="status-icon active-buff-icon" title="{{statusIcon.tooltip}}" />
+                  {{else}}
+                  <img src="{{statusIcon.icon}}" alt="{{statusIcon.name}}" class="status-icon" title="{{statusIcon.name}}" />
+                  {{/if}}
+                {{else}}
+                <img src="{{statusIcon}}" alt="Status" class="status-icon" />
+                {{/if}}
               {{/each}}
             </div>
           {{/if}}

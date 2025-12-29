@@ -5,10 +5,11 @@
  *
  * Uses a PIXI-based radial menu for visual option selection
  */
-import { openRadialMenuForActor, getAllCombatOptionsForActor, closeRadialMenu } from './token-radial-menu.js';
-import { startMeleeTargeting } from './melee-targeting.js';
-import { startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting.js';
-import { getRoundState, getAvailableAttackActions, getAvailableMovementActions, consumeAttackAction, consumeMovementAction } from './combat/action-economy.js';
+import { openRadialMenuForActor, getAllCombatOptionsForActor, closeRadialMenu } from './token-radial-menu';
+import { getSegmentIdForOption } from './radial-menu/options';
+import { startMeleeTargeting } from './melee-targeting';
+import { startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting';
+import { getRoundState, getAvailableAttackActions, getAvailableMovementActions, consumeAttackAction, consumeMovementAction } from './combat/action-economy';
 // Global movement state
 let activeMovementState = null;
 /**
@@ -701,6 +702,44 @@ export async function handleChosenCombatOption(token, option) {
             movementUsed: roundState.movementActions.used
         }
     });
+    // Check if this is an active buff FIRST - before consuming actions
+    // Active buffs should be activated directly on self, no targeting
+    const segmentId = getSegmentIdForOption(option);
+    const isActiveBuff = segmentId === 'active-buff';
+    if (isActiveBuff && option.source === 'power' && option.item) {
+        console.log('Mastery System | [ACTIVE BUFF] Activating active buff:', option.name);
+        // Check and consume attack action if needed (active buffs cost an action)
+        if (option.costsAction) {
+            const available = getAvailableAttackActions(actor, combat);
+            if (available <= 0) {
+                ui.notifications?.warn('No Actions left this round.');
+                return; // Menu stays open
+            }
+            const consumed = await consumeAttackAction(actor, combat);
+            if (!consumed) {
+                ui.notifications?.warn('Failed to consume attack action.');
+                return;
+            }
+            console.log('Mastery System | [ACTION ECONOMY] Consumed attack action for active buff. Remaining:', getAvailableAttackActions(actor, combat));
+        }
+        closeRadialMenu();
+        const activeBuffsModule = await import('../utils/active-buffs.js');
+        const { activateActiveBuff, isPowerActiveAsBuff } = activeBuffsModule;
+        // Check if already active
+        if (isPowerActiveAsBuff(actor, option.item.id)) {
+            ui.notifications?.warn(`${option.name} is already active!`);
+            return;
+        }
+        // Activate the buff directly on self
+        const success = await activateActiveBuff(actor, option.item);
+        if (success) {
+            // Refresh token HUD to show updated status
+            if (token.hud) {
+                token.hud.render();
+            }
+        }
+        return;
+    }
     // Check and consume movement action if needed
     if (option.costsMovement) {
         const available = getAvailableMovementActions(actor, combat);
@@ -768,7 +807,9 @@ export async function handleChosenCombatOption(token, option) {
     // Check if this is a melee attack option
     // Melee attacks have range <= 4m (2m base + up to 2m reach)
     // OR if it's an attack slot with no range specified (should use weapon range)
-    const isMeleeAttack = option.slot === 'attack' &&
+    // Exclude active buffs (they're handled above)
+    const isMeleeAttack = segmentId !== 'active-buff' &&
+        option.slot === 'attack' &&
         (option.range === undefined || option.range <= 4);
     console.log('Mastery System | [ATTACK SELECTION] Checking if melee attack', {
         isMeleeAttack,

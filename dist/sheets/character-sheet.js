@@ -2,12 +2,12 @@
  * Character Sheet for Mastery System
  * Main player character sheet with tabs for attributes, skills, powers, etc.
  */
-import { quickRoll } from '../dice/roll-handler.js';
-import { SKILLS } from '../utils/skills.js';
-import { DISADVANTAGES, getDisadvantageDefinition, calculateDisadvantagePoints, validateDisadvantageSelection } from '../system/disadvantages.js';
-import { getAllMasteryTrees } from '../utils/mastery-trees.js';
-import { getAllSpellSchools } from '../utils/spell-schools.js';
-import { getAllSchticks } from '../utils/schticks.js';
+import { quickRoll } from '../dice/roll-handler';
+import { SKILLS } from '../utils/skills';
+import { DISADVANTAGES, getDisadvantageDefinition, calculateDisadvantagePoints, validateDisadvantageSelection } from '../system/disadvantages';
+import { getAllMasteryTrees } from '../utils/mastery-trees';
+import { getAllSpellSchools } from '../utils/spell-schools';
+import { getAllSchticks } from '../utils/schticks';
 import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
 import { showWeaponCreationDialog } from './character-sheet-weapon-dialog.js';
 import { showArmorCreationDialog } from './character-sheet-armor-dialog.js';
@@ -265,8 +265,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         return templatePath;
     }
     /** @override */
-    getData(options) {
-        const context = super.getData(options);
+    async getData(options) {
+        const context = await super.getData(options);
         const actorData = context.actor;
         // Add system data
         context.system = actorData.system;
@@ -480,6 +480,35 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (!context.items || !context.items.weapons) {
             context.items = this.#prepareItems();
         }
+        // Add active buffs data
+        try {
+            const { getActiveBuffs } = await import('../utils/active-buffs.js');
+            context.activeBuffs = getActiveBuffs(this.actor).map((effect) => {
+                const flags = effect.flags?.['mastery-system'] || {};
+                const power = this.actor.items.get(flags.powerId);
+                return {
+                    id: effect.id,
+                    name: effect.name,
+                    icon: effect.icon || effect.img || 'icons/svg/aura.svg',
+                    description: effect.system?.description?.value || '',
+                    powerId: flags.powerId,
+                    powerName: flags.powerName || power?.name || effect.name,
+                    masteryRank: flags.masteryRank || 2,
+                    activatedRound: flags.activatedRound || 1,
+                    currentRound: game.combat?.round || 1,
+                    roundsRemaining: (flags.masteryRank || 2) - ((game.combat?.round || 1) - (flags.activatedRound || 1))
+                };
+            });
+        }
+        catch (error) {
+            console.warn('Mastery System | Failed to load active buffs', error);
+            context.activeBuffs = [];
+        }
+        // Ensure context is always an object
+        if (!context || typeof context !== 'object') {
+            console.error('Mastery System | getData returned invalid context', context);
+            return {};
+        }
         return context;
     }
     /** @override */
@@ -578,6 +607,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 case 'shield':
                     shields.push(itemData);
                     break;
+            }
+        }
+        // Enrich powers with level data from power definitions and ensure data integrity
+        // Note: Level data enrichment is done in getData where we have async context
+        for (const power of powers) {
+            // Ensure specials is always an array
+            if (power.system && !Array.isArray(power.system.specials)) {
+                power.system.specials = power.system.specials ? [power.system.specials] : [];
             }
         }
         // Sort powers by tree and level
@@ -1035,6 +1072,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('.skill-delete').on('click', this.#onSkillDelete.bind(this));
         // Power use
         html.find('.power-use').on('click', this.#onPowerUse.bind(this));
+        html.find('.power-use-btn').on('click', this.#onPowerUse.bind(this));
+        // Power details toggle
+        html.find('.power-toggle-details').on('click', this.#onPowerToggleDetails.bind(this));
+        // Active buff removal
+        html.find('.active-buff-remove').on('click', this.#onActiveBuffRemove.bind(this));
         // Item controls
         html.find('.item-create').on('click', this.#onItemCreate.bind(this));
         html.find('.item-edit').on('click', this.#onItemEdit.bind(this));
@@ -1362,12 +1404,77 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     async #onPowerUse(event) {
         event.preventDefault();
         const element = event.currentTarget;
-        const itemId = element.dataset.itemId;
+        const itemId = element.dataset.itemId || element.dataset.powerId;
         const item = this.actor.items.get(itemId);
         if (!item)
             return;
-        // TODO: Implement power usage logic
+        // Check if this is an active buff
+        const { isActiveBuff, activateActiveBuff, isPowerActiveAsBuff } = await import('../utils/active-buffs.js');
+        if (isActiveBuff(item)) {
+            // Check if already active
+            if (isPowerActiveAsBuff(this.actor, item.id)) {
+                ui.notifications?.warn(`${item.name} is already active!`);
+                return;
+            }
+            // Activate the buff
+            const success = await activateActiveBuff(this.actor, item);
+            if (success) {
+                // Re-render to show the active buff
+                this.render();
+            }
+            return;
+        }
+        // For non-buff powers, show notification (actual attack/utility logic handled elsewhere)
         ui.notifications?.info(`Using power: ${item.name}`);
+    }
+    /**
+     * Toggle power details expansion
+     */
+    #onActiveBuffRemove(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        const element = event.currentTarget;
+        const effectId = element.dataset.effectId;
+        if (!effectId) {
+            ui.notifications?.warn('No effect ID found.');
+            return;
+        }
+        const effect = this.actor.effects.get(effectId);
+        if (!effect) {
+            ui.notifications?.warn('Effect not found.');
+            return;
+        }
+        effect.delete().then(() => {
+            this.render();
+            ui.notifications?.info(`${effect.name} removed.`);
+        }).catch((error) => {
+            console.error('Mastery System | Failed to remove active buff', error);
+            ui.notifications?.error('Failed to remove active buff.');
+        });
+    }
+    #onPowerToggleDetails(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        const element = event.currentTarget;
+        const itemId = element.dataset.itemId;
+        if (!itemId)
+            return;
+        const powerCard = this.element.find(`.power-card[data-item-id="${itemId}"]`);
+        const detailsSection = powerCard.find('.power-details-expanded');
+        const compactDescription = powerCard.find('.power-description-compact');
+        const toggleIcon = element.find('i');
+        if (detailsSection.is(':visible')) {
+            // Collapse: hide details, show compact description
+            detailsSection.slideUp(200);
+            compactDescription.slideDown(200);
+            toggleIcon.removeClass('fa-chevron-up').addClass('fa-chevron-down');
+        }
+        else {
+            // Expand: hide compact description, show full details
+            compactDescription.slideUp(200);
+            detailsSection.slideDown(200);
+            toggleIcon.removeClass('fa-chevron-down').addClass('fa-chevron-up');
+        }
     }
     /**
      * Create a new item

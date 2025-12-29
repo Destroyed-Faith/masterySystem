@@ -300,8 +300,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   /** @override */
-  getData(options?: any) {
-    const context: any = super.getData(options);
+  async getData(options?: any) {
+    const context: any = await super.getData(options);
     const actorData = context.actor;
     
     // Add system data
@@ -693,35 +693,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     
     // Enrich powers with level data from power definitions and ensure data integrity
-    try {
-      const { getPower } = await import('../utils/powers/index.js');
-      for (const power of powers) {
-        // Ensure specials is always an array
-        if (power.system && !Array.isArray((power.system as any).specials)) {
-          (power.system as any).specials = (power.system as any).specials ? [(power.system as any).specials] : [];
-        }
-        
-        const treeName = (power.system as any)?.tree;
-        const powerName = power.name;
-        const level = (power.system as any)?.level || 1;
-        
-        if (treeName && powerName) {
-          try {
-            const powerDef = getPower(treeName, powerName);
-            if (powerDef && powerDef.levels) {
-              const levelData = powerDef.levels.find((l: any) => l.level === level);
-              if (levelData) {
-                // Add level data to power for template use
-                (power as any).levelData = levelData;
-              }
-            }
-          } catch (error) {
-            console.debug('Mastery System | Could not load power definition for', treeName, powerName, error);
-          }
-        }
+    // Note: Level data enrichment is done in getData where we have async context
+    for (const power of powers) {
+      // Ensure specials is always an array
+      if (power.system && !Array.isArray((power.system as any).specials)) {
+        (power.system as any).specials = (power.system as any).specials ? [(power.system as any).specials] : [];
       }
-    } catch (error) {
-      console.warn('Mastery System | Failed to enrich powers with level data', error);
     }
     
     // Sort powers by tree and level
@@ -1675,6 +1652,33 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   /**
    * Toggle power details expansion
    */
+  #onActiveBuffRemove(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const element = event.currentTarget;
+    const effectId = element.dataset.effectId;
+    
+    if (!effectId) {
+      ui.notifications?.warn('No effect ID found.');
+      return;
+    }
+    
+    const effect = this.actor.effects.get(effectId);
+    if (!effect) {
+      ui.notifications?.warn('Effect not found.');
+      return;
+    }
+    
+    effect.delete().then(() => {
+      this.render();
+      ui.notifications?.info(`${effect.name} removed.`);
+    }).catch((error: any) => {
+      console.error('Mastery System | Failed to remove active buff', error);
+      ui.notifications?.error('Failed to remove active buff.');
+    });
+  }
+
   #onPowerToggleDetails(event: JQuery.ClickEvent) {
     event.preventDefault();
     event.stopPropagation();
