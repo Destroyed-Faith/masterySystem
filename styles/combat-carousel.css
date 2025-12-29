@@ -8,7 +8,7 @@
 
 .mastery-carousel {
   position: fixed !important;
-  top: 10px !important;
+  top: -9px !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
   z-index: 100 !important;
@@ -21,7 +21,7 @@
   align-items: center;
   gap: 1rem;
   width: 50vw !important;
-  height: 20vh !important;
+  height: 30vh !important;
   min-height: 180px !important;
   margin: 0 !important;
 }
@@ -33,7 +33,7 @@
 /* Ensure the app window itself is positioned correctly */
 #mastery-combat-carousel {
   position: fixed !important;
-  top: 10px !important;
+  top: -9px !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
   width: 50vw !important;

@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.41] - 2025-01-XX
+
+### Changed
+- **Combat Carousel Positioning**: Adjusted carousel position and height
+  - Changed `top` from `10px` to `-9px` to better align with UI elements
+  - Increased `height` from `20vh` to `30vh` for better visibility
+  - Updated both `.mastery-carousel` and `#mastery-combat-carousel` for consistency
+
 ## [0.2.40] - 2025-01-XX
 
 ### Fixed
