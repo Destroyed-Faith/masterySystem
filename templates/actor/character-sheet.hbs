@@ -772,6 +772,38 @@
     <!-- POWERS TAB -->
     <div class="tab powers" data-group="primary" data-tab="powers">
       
+      <!-- Active Buffs Section -->
+      {{#if activeBuffs}}
+      {{#if activeBuffs.length}}
+      <div class="active-buffs-section">
+        <h3><i class="fas fa-shield-alt"></i> Active Buffs</h3>
+        <div class="active-buffs-list">
+          {{#each activeBuffs}}
+          <div class="active-buff-item" data-effect-id="{{this.id}}">
+            <div class="active-buff-icon">
+              <img src="{{this.icon}}" alt="{{this.name}}" title="{{this.name}}" />
+            </div>
+            <div class="active-buff-info">
+              <div class="active-buff-name">{{this.name}}</div>
+              <div class="active-buff-duration">
+                <i class="fas fa-clock"></i> 
+                {{#if (gt this.roundsRemaining 0)}}
+                  {{this.roundsRemaining}} round{{#if (gt this.roundsRemaining 1)}}s{{/if}} remaining
+                {{else}}
+                  Expiring this round
+                {{/if}}
+              </div>
+            </div>
+            <button type="button" class="active-buff-remove" data-effect-id="{{this.id}}" title="Remove Buff">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          {{/each}}
+        </div>
+      </div>
+      {{/if}}
+      {{/if}}
+      
       <!-- Buttons always visible -->
       <div class="powers-overview">
         <h3 style="width: 225px !important;"><i class="fas fa-magic"></i> Powers & Magic</h3>

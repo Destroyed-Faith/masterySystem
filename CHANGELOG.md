@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.27] - 2025-01-XX
+
+### Added
+- **Active Buffs System**: Implemented proper Active Buff tracking and display
+  - Active Buffs are now properly recognized as buffs (not attacks) and create ActiveEffects with duration = Mastery Rank rounds
+  - Added utility functions in `src/utils/active-buffs.ts` for detecting and activating active buffs
+  - Active Buffs are displayed with symbols/icons in the combat carousel (via status icons)
+  - Added Active Buffs section in character sheet showing active buffs with icons and remaining rounds
+  - Active Buffs can be manually removed from the character sheet
+  - When using a power that is an active buff, it creates an ActiveEffect instead of treating it as an attack
+
+### Changed
+- Updated `#onPowerUse` handler to detect active buffs and create ActiveEffects
+- Active Buffs now use Foundry's ActiveEffect system for proper tracking and display
+
 ## [0.2.1] - 2025-01-XX
 
 ### Changed

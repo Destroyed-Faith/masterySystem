@@ -1,6 +1,6 @@
 {
   "name": "mastery-system",
-  "version": "0.2.26",
+  "version": "0.2.27",
   "description": "Foundry VTT system for Mastery System / Destroyed Faith",
   "main": "dist/module.js",
   "scripts": {

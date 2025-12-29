@@ -1674,6 +1674,122 @@
   color: #8b0000;
 }
 
+/* Active Buffs Section */
+.mastery-system.sheet.actor.character .active-buffs-section {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: var(--df-bg-panel, #2a3136);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 8px;
+}
+
+.mastery-system.sheet.actor.character .active-buffs-section h3 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  color: var(--df-text-primary, #d0d0d0);
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mastery-system.sheet.actor.character .active-buffs-section h3 i {
+  color: #cc88ff;
+}
+
+.mastery-system.sheet.actor.character .active-buffs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mastery-system.sheet.actor.character .active-buff-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  background: var(--df-bg-primary, #20272B);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.mastery-system.sheet.actor.character .active-buff-item:hover {
+  background: var(--df-bg-header, #1b2124);
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
+  transform: translateX(2px);
+}
+
+.mastery-system.sheet.actor.character .active-buff-icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 2px solid #cc88ff;
+  background: rgba(204, 136, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mastery-system.sheet.actor.character .active-buff-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mastery-system.sheet.actor.character .active-buff-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mastery-system.sheet.actor.character .active-buff-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--df-text-primary, #d0d0d0);
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.mastery-system.sheet.actor.character .active-buff-duration {
+  font-size: 12px;
+  color: var(--df-text-secondary, #a0a0a0);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mastery-system.sheet.actor.character .active-buff-duration i {
+  color: #cc88ff;
+  font-size: 11px;
+}
+
+.mastery-system.sheet.actor.character .active-buff-remove {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 4px;
+  color: var(--df-text-secondary, #a0a0a0);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.mastery-system.sheet.actor.character .active-buff-remove:hover {
+  background: rgba(255, 0, 0, 0.2);
+  border-color: #ff4444;
+  color: #ff6666;
+  transform: scale(1.1);
+}
+
 .mastery-system.sheet.actor.character .powers-list-section {
   margin-top: 30px;
 }

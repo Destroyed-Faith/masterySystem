@@ -550,6 +550,25 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       context.items = this.#prepareItems();
     }
     
+    // Add active buffs data
+    const { getActiveBuffs } = await import('../utils/active-buffs.js');
+    context.activeBuffs = getActiveBuffs(this.actor).map((effect: any) => {
+      const flags = effect.flags?.['mastery-system'] || {};
+      const power = this.actor.items.get(flags.powerId);
+      return {
+        id: effect.id,
+        name: effect.name,
+        icon: effect.icon || effect.img || 'icons/svg/aura.svg',
+        description: effect.system?.description?.value || '',
+        powerId: flags.powerId,
+        powerName: flags.powerName || power?.name || effect.name,
+        masteryRank: flags.masteryRank || 2,
+        activatedRound: flags.activatedRound || 1,
+        currentRound: game.combat?.round || 1,
+        roundsRemaining: (flags.masteryRank || 2) - ((game.combat?.round || 1) - (flags.activatedRound || 1))
+      };
+    });
+    
     return context;
   }
 
@@ -1185,6 +1204,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     // Power use
     html.find('.power-use').on('click', this.#onPowerUse.bind(this));
+    html.find('.power-use-btn').on('click', this.#onPowerUse.bind(this));
+    
+    // Active buff removal
+    html.find('.active-buff-remove').on('click', this.#onActiveBuffRemove.bind(this));
     
     // Item controls
     html.find('.item-create').on('click', this.#onItemCreate.bind(this));
@@ -1575,12 +1598,31 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   async #onPowerUse(event: JQuery.ClickEvent) {
     event.preventDefault();
     const element = event.currentTarget;
-    const itemId = element.dataset.itemId;
+    const itemId = element.dataset.itemId || (element as HTMLElement).dataset.powerId;
     
     const item = this.actor.items.get(itemId);
     if (!item) return;
     
-    // TODO: Implement power usage logic
+    // Check if this is an active buff
+    const { isActiveBuff, activateActiveBuff, isPowerActiveAsBuff } = await import('../utils/active-buffs.js');
+    
+    if (isActiveBuff(item)) {
+      // Check if already active
+      if (isPowerActiveAsBuff(this.actor, item.id)) {
+        ui.notifications?.warn(`${item.name} is already active!`);
+        return;
+      }
+      
+      // Activate the buff
+      const success = await activateActiveBuff(this.actor, item);
+      if (success) {
+        // Re-render to show the active buff
+        this.render();
+      }
+      return;
+    }
+    
+    // For non-buff powers, show notification (actual attack/utility logic handled elsewhere)
     ui.notifications?.info(`Using power: ${item.name}`);
   }
 
