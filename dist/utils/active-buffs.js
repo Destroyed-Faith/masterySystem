@@ -3,7 +3,50 @@
  * Active Buffs are powers that create effects lasting for "Mastery Rank rounds"
  */
 /**
- * Check if a power is an active buff
+ * Check if a power is a utility (not a true active buff)
+ */
+export function isUtility(power) {
+    if (!power || power.type !== 'power')
+        return false;
+    const powerType = power.system?.powerType;
+    return powerType === 'utility';
+}
+/**
+ * Check if a power is a true active buff (not a utility)
+ */
+export function isTrueActiveBuff(power) {
+    if (!power || power.type !== 'power')
+        return false;
+    const powerType = power.system?.powerType;
+    const cost = power.system?.cost;
+    // Utilities are NOT true active buffs (they can stack)
+    if (powerType === 'utility') {
+        return false;
+    }
+    // Check if it's explicitly an active-buff or buff power that requires an action
+    if ((powerType === 'active-buff' || powerType === 'buff') && cost?.action === true) {
+        return true;
+    }
+    // Check tags for active-buff indicators
+    const tags = power.system?.tags || [];
+    if (tags.includes('active-buff') || tags.includes('buff') || tags.includes('stance')) {
+        if (cost?.action === true) {
+            return true;
+        }
+    }
+    // Check if power type is 'active' but has buff-like characteristics
+    if (powerType === 'active' && cost?.action === true) {
+        const nameLower = power.name?.toLowerCase() || '';
+        const descLower = (power.system?.description || '').toLowerCase();
+        if (nameLower.includes('buff') || descLower.includes('buff') ||
+            nameLower.includes('stance') || descLower.includes('stance')) {
+            return true;
+        }
+    }
+    return false;
+}
+/**
+ * Check if a power is an active buff (includes utilities)
  */
 export function isActiveBuff(power) {
     if (!power || power.type !== 'power')
@@ -65,13 +108,48 @@ function getCurrentRound() {
     return game.combat?.round || 1;
 }
 /**
+ * Get all true active buffs (excluding utilities) on an actor
+ */
+export function getTrueActiveBuffs(actor) {
+    const effects = actor.effects;
+    if (!effects)
+        return [];
+    return effects.filter((effect) => {
+        const flags = effect.flags?.['mastery-system'];
+        if (flags?.activeBuff !== true)
+            return false;
+        // Check if the original power was a utility
+        const powerId = flags.powerId;
+        if (powerId) {
+            const power = actor.items?.get(powerId);
+            if (power && isUtility(power)) {
+                return false; // Exclude utilities
+            }
+        }
+        return true;
+    });
+}
+/**
  * Activate an active buff power
  * Creates an ActiveEffect that lasts for Mastery Rank rounds
+ * Only one true active buff can be active at a time (utilities can stack)
  */
 export async function activateActiveBuff(actor, power) {
     if (!isActiveBuff(power)) {
         console.warn('Mastery System | activateActiveBuff called with non-buff power', power.name);
         return false;
+    }
+    // Check if this is a true active buff (not a utility)
+    const isTrueBuff = isTrueActiveBuff(power);
+    // If it's a true active buff, check if another one is already active
+    if (isTrueBuff) {
+        const existingTrueBuffs = getTrueActiveBuffs(actor);
+        if (existingTrueBuffs.length > 0) {
+            const existingBuff = existingTrueBuffs[0];
+            const existingName = existingBuff.name || 'Unknown';
+            ui.notifications?.warn(`Cannot activate ${power.name}: Another active buff (${existingName}) is already active. Only one active buff can be active at a time.`);
+            return false;
+        }
     }
     const masteryRank = getMasteryRank(actor);
     const currentRound = getCurrentRound();
@@ -97,7 +175,8 @@ export async function activateActiveBuff(actor, power) {
                 powerId: power.id,
                 powerName: power.name,
                 masteryRank: masteryRank,
-                activatedRound: currentRound
+                activatedRound: currentRound,
+                isUtility: isUtility(power) // Store whether this is a utility
             }
         },
         // Add description directly (not in system.description.value)

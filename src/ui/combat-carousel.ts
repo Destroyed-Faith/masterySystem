@@ -144,34 +144,42 @@ export class CombatCarouselApp extends BaseCarousel {
         const effects = actor.effects || [];
         console.log('Mastery System | [CAROUSEL] Checking effects for actor:', actor.name, 'Effects:', effects.length);
         for (const effect of effects) {
-          const icon = effect.icon || effect.img || '';
           const flags = effect.flags?.['mastery-system'];
           const isActiveBuff = flags?.activeBuff === true;
           
+          // Get icon - use effect icon, or try to get from original power, or use default
+          let icon = effect.icon || effect.img || '';
+          if (!icon && flags?.powerId) {
+            const power = actor.items.get(flags.powerId);
+            if (power) {
+              icon = power.img || (power.system as any)?.img || '';
+            }
+          }
+          // Use default icon if still no icon found
+          if (!icon) {
+            icon = 'icons/svg/aura.svg';
+          }
+          
           console.log('Mastery System | [CAROUSEL] Effect:', effect.name, 'Icon:', icon, 'IsActiveBuff:', isActiveBuff, 'Flags:', flags);
           
-          if (icon) {
-            if (isActiveBuff) {
-              // For active buffs, include name and tooltip info
-              const currentRound = game.combat?.round || 1;
-              const activatedRound = flags.activatedRound || 1;
-              const masteryRank = flags.masteryRank || 2;
-              const roundsRemaining = Math.max(0, masteryRank - (currentRound - activatedRound));
-              statusIcons.push({
-                icon: icon,
-                name: effect.name,
-                tooltip: `${effect.name}\nDuration: ${roundsRemaining} round${roundsRemaining !== 1 ? 's' : ''} remaining`
-              });
-              console.log('Mastery System | [CAROUSEL] Added active buff icon:', effect.name);
-            } else {
-              // Regular effect
-              statusIcons.push({
-                icon: icon,
-                name: effect.name
-              });
-            }
-          } else {
-            console.log('Mastery System | [CAROUSEL] Effect has no icon:', effect.name);
+          if (isActiveBuff) {
+            // For active buffs (including utilities), include name and tooltip info
+            const currentRound = game.combat?.round || 1;
+            const activatedRound = flags.activatedRound || 1;
+            const masteryRank = flags.masteryRank || 2;
+            const roundsRemaining = Math.max(0, masteryRank - (currentRound - activatedRound));
+            statusIcons.push({
+              icon: icon,
+              name: effect.name,
+              tooltip: `${effect.name}\nDuration: ${roundsRemaining} round${roundsRemaining !== 1 ? 's' : ''} remaining`
+            });
+            console.log('Mastery System | [CAROUSEL] Added active buff icon:', effect.name);
+          } else if (icon && icon !== 'icons/svg/aura.svg') {
+            // Regular effect (only if it has a custom icon)
+            statusIcons.push({
+              icon: icon,
+              name: effect.name
+            });
           }
         }
       }

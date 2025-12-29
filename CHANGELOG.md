@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.42] - 2025-01-XX
+
+### Fixed
+- **Active Buff Restrictions**: Only one true active buff can be active at a time
+  - Added `isTrueActiveBuff` function to distinguish between true active buffs and utilities
+  - Added `getTrueActiveBuffs` function to get only non-utility active buffs
+  - `activateActiveBuff` now prevents activating a second true active buff if one is already active
+  - Utilities can still stack (multiple utilities can be active simultaneously)
+  - True active buffs (non-utilities) are limited to one at a time
+
+### Changed
+- **Combat Carousel Active Buff Display**: Improved active buff icon display
+  - Active buffs (including utilities) now always show in carousel, even if effect has no icon
+  - Icon is now retrieved from original power if effect icon is missing
+  - Default icon (`icons/svg/aura.svg`) is used as fallback if no icon is found
+  - Better tooltip information for active buffs in carousel
+
 ## [0.2.41] - 2025-01-XX
 
 ### Changed

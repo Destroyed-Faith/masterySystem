@@ -3,12 +3,25 @@
  * Active Buffs are powers that create effects lasting for "Mastery Rank rounds"
  */
 /**
- * Check if a power is an active buff
+ * Check if a power is a utility (not a true active buff)
+ */
+export declare function isUtility(power: any): boolean;
+/**
+ * Check if a power is a true active buff (not a utility)
+ */
+export declare function isTrueActiveBuff(power: any): boolean;
+/**
+ * Check if a power is an active buff (includes utilities)
  */
 export declare function isActiveBuff(power: any): boolean;
 /**
+ * Get all true active buffs (excluding utilities) on an actor
+ */
+export declare function getTrueActiveBuffs(actor: Actor): any[];
+/**
  * Activate an active buff power
  * Creates an ActiveEffect that lasts for Mastery Rank rounds
+ * Only one true active buff can be active at a time (utilities can stack)
  */
 export declare function activateActiveBuff(actor: Actor, power: any): Promise<boolean>;
 /**
