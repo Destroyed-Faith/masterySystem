@@ -658,6 +658,13 @@ function registerHandlebarsHelpersImmediate() {
     return a !== b;
   });
 
+  // Logical AND helper
+  Handlebars.registerHelper('and', function(...args: any[]) {
+    // Remove the last argument (options object)
+    const values = args.slice(0, -1);
+    return values.every((v: any) => v);
+  });
+
   // Helper to check if value is an array
   Handlebars.registerHelper('isArray', function(value: any) {
     return Array.isArray(value);
@@ -747,6 +754,27 @@ function registerHandlebarsHelpersImmediate() {
     }
     return 0;
   });
+}
+
+/**
+ * Register additional Handlebars helpers that need to be available after init
+ */
+function registerAdditionalHandlebarsHelpers() {
+  // Helper to get array/string length (if not already registered)
+  if (!Handlebars.helpers.length) {
+    Handlebars.registerHelper('length', function(value: any) {
+      if (Array.isArray(value)) {
+        return value.length;
+      }
+      if (typeof value === 'string') {
+        return value.length;
+      }
+      if (value && typeof value === 'object') {
+        return Object.keys(value).length;
+      }
+      return 0;
+    });
+  }
 }
 
 /**

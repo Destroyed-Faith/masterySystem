@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.30] - 2025-01-XX
+
+### Fixed
+- **Handlebars Helpers**: Fixed "length" helper registration and added "and" helper
+  - Ensured length helper is properly registered in both immediate and additional registration
+  - Added "and" logical helper for template conditionals
+  - Fixed template conditionals that were causing mergeObject errors
+
 ## [0.2.29] - 2025-01-XX
 
 ### Fixed
