@@ -1211,6 +1211,11 @@
   line-height: 1.4;
   font-style: italic;
   font-family: 'Cormorant Garamond', serif;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .mastery-system.sheet.actor.character .power-effect-compact {

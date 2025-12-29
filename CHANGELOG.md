@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.33] - 2025-01-XX
+
+### Changed
+- **Power Details Display**: Improved power card expandable details
+  - Power details are now always collapsed by default
+  - Clicking toggle button shows full description with all level details
+  - Compact description is hidden when details are expanded
+  - Compact description now shows max 2 lines with ellipsis
+
 ## [0.2.32] - 2025-01-XX
 
 ### Fixed

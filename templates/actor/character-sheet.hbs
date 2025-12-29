@@ -965,9 +965,11 @@
                   <button type="button" class="item-delete" title="Delete"><i class="fas fa-trash"></i></button>
                 </div>
               </div>
+              
+              <!-- Compact Description (shown when collapsed) -->
               <div class="power-description-compact">{{this.system.description}}</div>
               
-              <!-- Expandable Power Details -->
+              <!-- Expandable Power Details (hidden by default) -->
               <div class="power-details-expanded" data-item-id="{{this.id}}" style="display: none;">
                 <div class="power-description-text">{{this.system.description}}</div>
                 {{#if this.levelData}}

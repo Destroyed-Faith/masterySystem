@@ -1686,12 +1686,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     const powerCard = this.element.find(`.power-card[data-item-id="${itemId}"]`);
     const detailsSection = powerCard.find('.power-details-expanded');
+    const compactDescription = powerCard.find('.power-description-compact');
     const toggleIcon = element.find('i');
     
     if (detailsSection.is(':visible')) {
+      // Collapse: hide details, show compact description
       detailsSection.slideUp(200);
+      compactDescription.slideDown(200);
       toggleIcon.removeClass('fa-chevron-up').addClass('fa-chevron-down');
     } else {
+      // Expand: hide compact description, show full details
+      compactDescription.slideUp(200);
       detailsSection.slideDown(200);
       toggleIcon.removeClass('fa-chevron-down').addClass('fa-chevron-up');
     }
