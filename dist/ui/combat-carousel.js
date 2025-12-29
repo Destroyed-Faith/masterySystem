@@ -125,11 +125,13 @@ export class CombatCarouselApp extends BaseCarousel {
             if (actor.effects) {
                 // Use ActiveEffect documents from actor
                 const effects = actor.effects || [];
+                console.log('Mastery System | [CAROUSEL] Checking effects for actor:', actor.name, 'Effects:', effects.length);
                 for (const effect of effects) {
                     const icon = effect.icon || effect.img || '';
+                    const flags = effect.flags?.['mastery-system'];
+                    const isActiveBuff = flags?.activeBuff === true;
+                    console.log('Mastery System | [CAROUSEL] Effect:', effect.name, 'Icon:', icon, 'IsActiveBuff:', isActiveBuff, 'Flags:', flags);
                     if (icon) {
-                        const flags = effect.flags?.['mastery-system'];
-                        const isActiveBuff = flags?.activeBuff === true;
                         if (isActiveBuff) {
                             // For active buffs, include name and tooltip info
                             const currentRound = game.combat?.round || 1;
@@ -141,6 +143,7 @@ export class CombatCarouselApp extends BaseCarousel {
                                 name: effect.name,
                                 tooltip: `${effect.name}\nDuration: ${roundsRemaining} round${roundsRemaining !== 1 ? 's' : ''} remaining`
                             });
+                            console.log('Mastery System | [CAROUSEL] Added active buff icon:', effect.name);
                         }
                         else {
                             // Regular effect
@@ -150,8 +153,12 @@ export class CombatCarouselApp extends BaseCarousel {
                             });
                         }
                     }
+                    else {
+                        console.log('Mastery System | [CAROUSEL] Effect has no icon:', effect.name);
+                    }
                 }
             }
+            console.log('Mastery System | [CAROUSEL] Final status icons:', statusIcons.length, statusIcons);
             // Use actor portrait, not token image
             const portraitImg = actor.img || actor.prototypeToken?.texture?.src || combatant.img;
             combatants.push({

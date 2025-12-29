@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.36] - 2025-01-XX
+
+### Changed
+- **Combat Carousel**: Moved carousel 10px lower to show initiative counter and other UI elements
+  - Carousel now positioned at `top: 10px` instead of `top: 0`
+  - Initiative counter and other top UI elements are now visible when carousel is open
+- **Status Icons in Carousel**: Enhanced status icon display
+  - Increased icon size from 16x16px to 20x20px for better visibility
+  - Improved hover effects with purple glow for Active Buffs
+  - Active Buff icons now have purple border and badge indicator
+  - Better tooltip display on hover
+
+### Added
+- **Status Effects Bar in Character Sheet**: Added status effects display above Character Attributes
+  - New status effects bar appears at the top of the Attributes tab
+  - Shows all active effects (including Active Buffs) as icons
+  - Hover over icons to see effect name, duration, and description
+  - Active Buffs have purple badge indicator
+  - Icons are 32x32px with hover effects for better visibility
+
+### Fixed
+- **Active Buffs Display**: Improved Active Buff detection and display
+  - Added comprehensive debug logging for troubleshooting
+  - Fixed status effects array initialization
+  - Improved icon and description extraction from ActiveEffects
+
 ## [0.2.35] - 2025-01-XX
 
 ### Fixed

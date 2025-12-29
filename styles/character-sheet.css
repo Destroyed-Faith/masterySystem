@@ -427,6 +427,65 @@
 }
 
 /* ========== Attributes Grid Section ========== */
+/* Status Effects Bar (above attributes) */
+.mastery-system.sheet.actor.character .status-effects-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  margin-bottom: 15px;
+  background: var(--df-bg-panel, #2a3136);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 6px;
+  min-height: 40px;
+  flex-wrap: wrap;
+}
+
+.mastery-system.sheet.actor.character .status-effect-icon {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 2px solid var(--df-border-primary, #3a3f44);
+  background: var(--df-bg-primary, #20272B);
+  cursor: help;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mastery-system.sheet.actor.character .status-effect-icon:hover {
+  transform: scale(1.15);
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
+  box-shadow: 0 0 8px rgba(204, 136, 255, 0.5);
+  z-index: 10;
+}
+
+.mastery-system.sheet.actor.character .status-effect-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mastery-system.sheet.actor.character .status-effect-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #cc88ff;
+  border: 1px solid var(--df-bg-primary, #20272B);
+  box-shadow: 0 0 4px rgba(204, 136, 255, 0.8);
+}
+
+.mastery-system.sheet.actor.character .status-effect-badge.active-buff-badge {
+  background: #cc88ff;
+  box-shadow: 0 0 6px rgba(204, 136, 255, 1);
+}
+
 .mastery-system.sheet.actor.character .attributes-grid-section {
   margin-bottom: 30px;
   padding: 25px;

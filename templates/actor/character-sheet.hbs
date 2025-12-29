@@ -131,7 +131,23 @@
     
     <!-- ATTRIBUTES TAB -->
     <div class="tab attributes" data-group="primary" data-tab="attributes">
-      
+
+      <!-- Status Effects Bar (Active Buffs/Effects) -->
+      {{#if statusEffects}}
+      {{#if (gt statusEffects.length 0)}}
+      <div class="status-effects-bar">
+        {{#each statusEffects}}
+        <div class="status-effect-icon" title="{{this.name}}{{#if this.tooltip}}&#10;{{this.tooltip}}{{/if}}{{#if this.description}}&#10;&#10;{{this.description}}{{/if}}">
+          <img src="{{this.icon}}" alt="{{this.name}}" />
+          {{#if this.isActiveBuff}}
+          <div class="status-effect-badge active-buff-badge"></div>
+          {{/if}}
+        </div>
+        {{/each}}
+      </div>
+      {{/if}}
+      {{/if}}
+
       <!-- Attributes Grid Section -->
       <div class="attributes-grid-section">
         <h3><i class="fas fa-fist-raised"></i> Character Attributes</h3>
@@ -774,7 +790,7 @@
       
       <!-- Active Buffs Section -->
       {{#if activeBuffs}}
-      {{#if activeBuffs.length}}
+      {{#if (gt activeBuffs.length 0)}}
       <div class="active-buffs-section">
         <h3><i class="fas fa-shield-alt"></i> Active Buffs</h3>
         <div class="active-buffs-list">

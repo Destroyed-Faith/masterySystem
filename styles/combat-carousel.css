@@ -8,7 +8,7 @@
 
 .mastery-carousel {
   position: fixed !important;
-  top: 0 !important;
+  top: 10px !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
   z-index: 100 !important;
@@ -33,7 +33,7 @@
 /* Ensure the app window itself is positioned correctly */
 #mastery-combat-carousel {
   position: fixed !important;
-  top: 0 !important;
+  top: 10px !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
   width: 50vw !important;
@@ -282,29 +282,45 @@
 }
 
 .status-icon {
-  width: 16px;
-  height: 16px;
-  border-radius: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
   border: 1px solid rgba(255, 255, 255, 0.3);
   cursor: help;
   transition: all 0.2s;
+  position: relative;
 }
 
 .status-icon:hover {
-  transform: scale(1.2);
-  border-color: rgba(233, 69, 96, 0.8);
-  box-shadow: 0 0 8px rgba(233, 69, 96, 0.5);
+  transform: scale(1.3);
+  border-color: rgba(204, 136, 255, 0.8);
+  box-shadow: 0 0 10px rgba(204, 136, 255, 0.6);
+  z-index: 10;
 }
 
 .status-icon.active-buff-icon {
-  border: 2px solid rgba(233, 69, 96, 0.6);
-  box-shadow: 0 0 4px rgba(233, 69, 96, 0.4);
+  border: 2px solid rgba(204, 136, 255, 0.7);
+  box-shadow: 0 0 6px rgba(204, 136, 255, 0.5);
+  position: relative;
+}
+
+.status-icon.active-buff-icon::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #cc88ff;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 4px rgba(204, 136, 255, 0.8);
 }
 
 .status-icon.active-buff-icon:hover {
-  border-color: rgba(233, 69, 96, 1);
-  box-shadow: 0 0 12px rgba(233, 69, 96, 0.7);
-  transform: scale(1.3);
+  border-color: rgba(204, 136, 255, 1);
+  box-shadow: 0 0 14px rgba(204, 136, 255, 0.9);
+  transform: scale(1.4);
 }
 
 /* Portrait Controls (shown on hover) */

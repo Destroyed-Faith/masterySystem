@@ -550,36 +550,83 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       context.items = this.#prepareItems();
     }
     
-    // Add active buffs data
+    // Add active buffs data - ALWAYS set as array, even if empty
+    context.activeBuffs = [];
     try {
       const { getActiveBuffs } = await import('../utils/active-buffs.js');
       const activeBuffs = getActiveBuffs(this.actor);
-      console.log('Mastery System | Found active buffs:', activeBuffs.length, activeBuffs);
-      context.activeBuffs = activeBuffs.map((effect: any) => {
-        const flags = effect.flags?.['mastery-system'] || {};
-        const power = flags.powerId ? this.actor.items.get(flags.powerId) : null;
-        const currentRound = game.combat?.round || 1;
-        const activatedRound = flags.activatedRound || 1;
-        const masteryRank = flags.masteryRank || 2;
-        const roundsRemaining = Math.max(0, masteryRank - (currentRound - activatedRound));
-        
-        return {
-          id: effect.id,
-          name: effect.name,
-          icon: effect.icon || effect.img || 'icons/svg/aura.svg',
-          description: effect.description || effect.system?.description?.value || effect.system?.description || '',
-          powerId: flags.powerId,
-          powerName: flags.powerName || power?.name || effect.name,
-          masteryRank: masteryRank,
-          activatedRound: activatedRound,
-          currentRound: currentRound,
-          roundsRemaining: roundsRemaining
-        };
-      });
-      console.log('Mastery System | Processed active buffs for display:', context.activeBuffs);
+      console.log('Mastery System | [CHARACTER SHEET] Found active buffs:', activeBuffs.length, activeBuffs);
+      
+      if (activeBuffs && activeBuffs.length > 0) {
+        context.activeBuffs = activeBuffs.map((effect: any) => {
+          const flags = effect.flags?.['mastery-system'] || {};
+          const power = flags.powerId ? this.actor.items.get(flags.powerId) : null;
+          const currentRound = game.combat?.round || 1;
+          const activatedRound = flags.activatedRound || 1;
+          const masteryRank = flags.masteryRank || 2;
+          const roundsRemaining = Math.max(0, masteryRank - (currentRound - activatedRound));
+          
+          const buffData = {
+            id: effect.id,
+            name: effect.name,
+            icon: effect.icon || effect.img || 'icons/svg/aura.svg',
+            description: effect.description || effect.system?.description?.value || effect.system?.description || '',
+            powerId: flags.powerId,
+            powerName: flags.powerName || power?.name || effect.name,
+            masteryRank: masteryRank,
+            activatedRound: activatedRound,
+            currentRound: currentRound,
+            roundsRemaining: roundsRemaining
+          };
+          
+          console.log('Mastery System | [CHARACTER SHEET] Processed buff:', buffData);
+          return buffData;
+        });
+      }
+      
+      console.log('Mastery System | [CHARACTER SHEET] Final activeBuffs array:', context.activeBuffs.length, context.activeBuffs);
     } catch (error) {
-      console.warn('Mastery System | Failed to load active buffs', error);
+      console.error('Mastery System | [CHARACTER SHEET] Failed to load active buffs', error);
       context.activeBuffs = [];
+    }
+    
+    // Add status effects for the status bar (includes active buffs and other effects)
+    context.statusEffects = [];
+    try {
+      if (this.actor.effects) {
+        const effects = this.actor.effects || [];
+        for (const effect of effects) {
+          const icon = effect.icon || effect.img || '';
+          if (icon) {
+            const flags = effect.flags?.['mastery-system'] || {};
+            const isActiveBuff = flags?.activeBuff === true;
+            
+            let tooltip = effect.name;
+            let description = effect.description || effect.system?.description?.value || effect.system?.description || '';
+            
+            if (isActiveBuff) {
+              const currentRound = game.combat?.round || 1;
+              const activatedRound = flags.activatedRound || 1;
+              const masteryRank = flags.masteryRank || 2;
+              const roundsRemaining = Math.max(0, masteryRank - (currentRound - activatedRound));
+              tooltip = `${effect.name}\nDuration: ${roundsRemaining} round${roundsRemaining !== 1 ? 's' : ''} remaining`;
+            }
+            
+            context.statusEffects.push({
+              id: effect.id,
+              name: effect.name,
+              icon: icon,
+              tooltip: tooltip,
+              description: description,
+              isActiveBuff: isActiveBuff
+            });
+          }
+        }
+      }
+      console.log('Mastery System | [CHARACTER SHEET] Status effects for bar:', context.statusEffects.length, context.statusEffects);
+    } catch (error) {
+      console.error('Mastery System | [CHARACTER SHEET] Failed to load status effects', error);
+      context.statusEffects = [];
     }
     
     // Ensure context is always an object
