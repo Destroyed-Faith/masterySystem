@@ -712,8 +712,9 @@ function registerHandlebarsHelpersImmediate() {
     if (!powerType) return 'Active';
     const typeMap: Record<string, string> = {
       'active': 'Active',
+      'active-buff': 'Active Buff',
       'buff': 'Active Buff',
-      'utility': 'Active',
+      'utility': 'Utility',
       'passive': 'Passive',
       'reaction': 'Reaction',
       'movement': 'Movement'

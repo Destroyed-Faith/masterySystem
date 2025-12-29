@@ -8,6 +8,7 @@
 
 import { openRadialMenuForActor, getAllCombatOptionsForActor, closeRadialMenu } from './token-radial-menu';
 import type { RadialCombatOption } from './token-radial-menu';
+import { getSegmentIdForOption } from './radial-menu/options';
 import { startMeleeTargeting } from './melee-targeting';
 import { startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting';
 import {
@@ -907,10 +908,39 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
     return;
   }
   
+  // Check if this is an active buff - these should be activated directly on self, no targeting
+  const segmentId = getSegmentIdForOption(option);
+  const isActiveBuff = segmentId === 'active-buff';
+  
+  if (isActiveBuff && option.source === 'power' && option.item) {
+    console.log('Mastery System | [ACTIVE BUFF] Activating active buff:', option.name);
+    closeRadialMenu();
+    
+    const { activateActiveBuff, isPowerActiveAsBuff } = await import('../utils/active-buffs.js');
+    
+    // Check if already active
+    if (isPowerActiveAsBuff(actor, option.item.id)) {
+      ui.notifications?.warn(`${option.name} is already active!`);
+      return;
+    }
+    
+    // Activate the buff directly on self
+    const success = await activateActiveBuff(actor, option.item);
+    if (success) {
+      // Refresh token HUD to show updated status
+      if (token.hud) {
+        token.hud.render();
+      }
+    }
+    return;
+  }
+  
   // Check if this is a melee attack option
   // Melee attacks have range <= 4m (2m base + up to 2m reach)
   // OR if it's an attack slot with no range specified (should use weapon range)
-  const isMeleeAttack = option.slot === 'attack' && 
+  // Exclude active buffs (they're handled above)
+  const isMeleeAttack = segmentId !== 'active-buff' &&
+                        option.slot === 'attack' && 
                         (option.range === undefined || option.range <= 4);
   
   console.log('Mastery System | [ATTACK SELECTION] Checking if melee attack', {

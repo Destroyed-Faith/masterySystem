@@ -681,6 +681,29 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       }
     }
     
+    // Enrich powers with level data from power definitions
+    const { getPower } = await import('../utils/powers/index.js');
+    for (const power of powers) {
+      const treeName = (power.system as any)?.tree;
+      const powerName = power.name;
+      const level = (power.system as any)?.level || 1;
+      
+      if (treeName && powerName) {
+        try {
+          const powerDef = getPower(treeName, powerName);
+          if (powerDef && powerDef.levels) {
+            const levelData = powerDef.levels.find((l: any) => l.level === level);
+            if (levelData) {
+              // Add level data to power for template use
+              (power as any).levelData = levelData;
+            }
+          }
+        } catch (error) {
+          console.debug('Mastery System | Could not load power definition for', treeName, powerName, error);
+        }
+      }
+    }
+    
     // Sort powers by tree and level
     powers.sort((a, b) => {
       const treeCompare = (a.system.tree || '').localeCompare(b.system.tree || '');
@@ -1206,6 +1229,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('.power-use').on('click', this.#onPowerUse.bind(this));
     html.find('.power-use-btn').on('click', this.#onPowerUse.bind(this));
     
+    // Power details toggle
+    html.find('.power-toggle-details').on('click', this.#onPowerToggleDetails.bind(this));
+    
     // Active buff removal
     html.find('.active-buff-remove').on('click', this.#onActiveBuffRemove.bind(this));
     
@@ -1624,6 +1650,31 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     // For non-buff powers, show notification (actual attack/utility logic handled elsewhere)
     ui.notifications?.info(`Using power: ${item.name}`);
+  }
+
+  /**
+   * Toggle power details expansion
+   */
+  #onPowerToggleDetails(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const element = event.currentTarget;
+    const itemId = element.dataset.itemId;
+    
+    if (!itemId) return;
+    
+    const powerCard = this.element.find(`.power-card[data-item-id="${itemId}"]`);
+    const detailsSection = powerCard.find('.power-details-expanded');
+    const toggleIcon = element.find('i');
+    
+    if (detailsSection.is(':visible')) {
+      detailsSection.slideUp(200);
+      toggleIcon.removeClass('fa-chevron-up').addClass('fa-chevron-down');
+    } else {
+      detailsSection.slideDown(200);
+      toggleIcon.removeClass('fa-chevron-down').addClass('fa-chevron-up');
+    }
   }
 
   /**

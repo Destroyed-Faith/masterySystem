@@ -415,7 +415,19 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
     }
     
     // Calculate range using the new function
-    const range = calculateRange(actor, item.id, slot, rangeStr, levelData);
+    let range = calculateRange(actor, item.id, slot, rangeStr, levelData);
+    
+    // Get tags and cost information
+    const tags = (item.system as any)?.tags || [];
+    const cost = (item.system as any)?.cost || {};
+    
+    // Check if this is an active buff - active buffs are always Self (range 0)
+    const isActiveBuff = (powerType === 'active-buff' || powerType === 'buff') && cost?.action === true ||
+                        (tags.includes('active-buff') || tags.includes('buff') || tags.includes('stance')) && cost?.action === true;
+    
+    if (isActiveBuff) {
+      range = 0; // Active buffs are always Self
+    }
     
     // Parse AoE information for utilities
     let aoeShape: AoEShape = 'none';
@@ -436,10 +448,6 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
         rangeMeters = 0;
       }
     }
-    
-    // Get tags and cost information
-    const tags = (item.system as any)?.tags || [];
-    const cost = (item.system as any)?.cost || {};
     
     // Determine costs
     const costsMovement = powerType === 'movement' && cost.movement !== false; // Movement powers cost movement by default

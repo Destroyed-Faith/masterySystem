@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.28] - 2025-01-XX
+
+### Fixed
+- **Active Buffs in Radial Menu**: Active Buffs are now properly activated directly on self without targeting mode
+  - Active Buffs no longer trigger melee targeting when selected from radial menu
+  - Active Buffs are automatically set to Range 0 (Self) when created as combat options
+  - Fixed issue where Active Buffs were treated as attacks requiring target selection
+
+### Changed
+- **Power Display in Character Sheet**: Enhanced power cards with better information display
+  - Utility powers now correctly display as "Utility" instead of "Active"
+  - Added Effect information display in power cards
+  - Added expandable details section with full level information (Type, Range, AoE, Duration, Effect, Special)
+  - Power level data is now loaded from power definitions and displayed in expandable section
+  - Improved power card layout with toggle button for detailed information
+  - Power details now show the same information as when purchasing powers
+
+### Improved
+- **Powers Overview Styling**: Updated powers overview section to use new CSS variable-based theme system
+  - Removed inline styles from template
+  - Consistent styling with rest of character sheet
+
 ## [0.2.27] - 2025-01-XX
 
 ### Added

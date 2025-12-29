@@ -1213,6 +1213,68 @@
   font-family: 'Cormorant Garamond', serif;
 }
 
+.mastery-system.sheet.actor.character .power-effect-compact {
+  font-size: 11px;
+  color: var(--df-text-secondary, #a0a0a0);
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mastery-system.sheet.actor.character .power-toggle-details {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 4px;
+  color: var(--df-text-secondary, #a0a0a0);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  margin-right: 4px;
+}
+
+.mastery-system.sheet.actor.character .power-toggle-details:hover {
+  background: var(--df-bg-header, #1b2124);
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
+  color: var(--df-text-primary, #d0d0d0);
+}
+
+.mastery-system.sheet.actor.character .power-details-expanded {
+  margin-top: 12px;
+  padding: 15px;
+  background: var(--df-bg-primary, #20272B);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 6px;
+}
+
+.mastery-system.sheet.actor.character .power-description-text {
+  font-size: 13px;
+  color: var(--df-text-primary, #d0d0d0);
+  line-height: 1.6;
+  margin-bottom: 12px;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+}
+
+.mastery-system.sheet.actor.character .power-level-info-text {
+  font-size: 12px;
+  color: var(--df-text-secondary, #a0a0a0);
+  line-height: 1.8;
+  font-family: 'Cormorant Garamond', serif;
+  padding-top: 12px;
+  border-top: 1px solid var(--df-border-primary, #3a3f44);
+}
+
+.mastery-system.sheet.actor.character .power-level-info-text strong {
+  color: var(--df-text-primary, #d0d0d0);
+  font-weight: 600;
+}
+
 .mastery-system.sheet.actor.character .power-use-btn,
 .mastery-system.sheet.actor.character .spell-cast-btn {
   width: 100%;
@@ -3808,28 +3870,39 @@
   align-items: center;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 2px solid #8b0000;
+  border-bottom: 2px solid var(--df-border-primary, #3a3f44);
 }
 
 .mastery-system.sheet.actor.character .powers-overview h3 {
   margin: 0;
-  color: #8b0000;
+  color: var(--df-text-primary, #d0d0d0);
   font-size: 1.2rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mastery-system.sheet.actor.character .powers-overview h3 i {
+  color: var(--df-text-primary, #d0d0d0);
 }
 
 .mastery-system.sheet.actor.character .powers-controls {
   display: flex;
   gap: 0.75rem;
   align-items: center;
+  flex: 1;
+  justify-content: flex-end;
 }
 
 .mastery-system.sheet.actor.character .add-power-creation-btn,
 .mastery-system.sheet.actor.character .add-spell-creation-btn {
   padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, #8b0000 0%, #a00000 100%);
-  border: 2px solid #8b0000;
+  background: var(--df-bg-panel, #2a3136);
+  border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 6px;
-  color: #fff;
+  color: var(--df-text-primary, #d0d0d0);
   font-weight: 600;
   font-size: 0.9rem;
   cursor: pointer;
@@ -3838,22 +3911,26 @@
   align-items: center;
   gap: 0.5rem;
   text-transform: none;
+  font-family: 'Cormorant Garamond', serif;
+  box-shadow: 0 2px 6px var(--df-shadow, rgba(0,0,0,0.5));
 }
 
 .mastery-system.sheet.actor.character .add-power-creation-btn:hover:not(:disabled),
 .mastery-system.sheet.actor.character .add-spell-creation-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #a00000 0%, #b00000 100%);
-  border-color: #a00000;
+  background: var(--df-bg-header, #1b2124);
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(139, 0, 0, 0.3);
+  box-shadow: 0 4px 12px var(--df-shadow, rgba(0,0,0,0.5));
+  color: var(--df-text-primary, #d0d0d0);
 }
 
 .mastery-system.sheet.actor.character .add-power-creation-btn:disabled,
 .mastery-system.sheet.actor.character .add-spell-creation-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  background: #ccc;
-  border-color: #999;
+  background: var(--df-bg-panel, #2a3136);
+  border-color: var(--df-border-primary, #3a3f44);
+  color: var(--df-text-secondary, #a0a0a0);
 }
 
 .mastery-system.sheet.actor.character .add-power-creation-btn i,

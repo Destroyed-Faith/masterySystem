@@ -806,12 +806,12 @@
       
       <!-- Buttons always visible -->
       <div class="powers-overview">
-        <h3 style="width: 225px !important;"><i class="fas fa-magic"></i> Powers & Magic</h3>
-        <div class="powers-controls" style="width: 100%; height: 6px;">
-          <button type="button" class="add-power-creation-btn" title="Add Power from Mastery Tree" style="height: 28px;">
+        <h3><i class="fas fa-magic"></i> Powers & Magic</h3>
+        <div class="powers-controls">
+          <button type="button" class="add-power-creation-btn" title="Add Power from Mastery Tree">
             <i class="fas fa-plus"></i> Add Mastery Power
           </button>
-          <button type="button" class="add-spell-creation-btn" title="Add Spell from Spell School" style="height: 30px;">
+          <button type="button" class="add-spell-creation-btn" title="Add Spell from Spell School">
             <i class="fas fa-plus"></i> Add Spell
           </button>
         </div>
@@ -929,25 +929,70 @@
               <div class="power-header-compact">
                 <div class="power-name-compact">{{this.name}}</div>
                 <div class="power-info-compact">
+                  {{#if (lookup this.system.roll 'damage')}}
                   <span class="power-damage-compact" title="Damage">
                     <i class="fas fa-sword"></i> {{powerDamage (lookup this.system.roll 'damage')}}
                   </span>
+                  {{/if}}
+                  {{#if this.system.specials}}
+                  {{#if (gt (length this.system.specials) 0)}}
                   <span class="power-special-compact" title="Power Special">
                     <i class="fas fa-star"></i> {{powerSpecials this.system.specials}}
                   </span>
+                  {{/if}}
+                  {{/if}}
                   <span class="power-category-compact" title="Category">
                     <i class="fas fa-crosshairs"></i> {{powerCategory this.system.range this.system.aoe}}
                   </span>
                   <span class="power-type-compact" title="Type">
                     <i class="fas fa-bolt"></i> {{powerTypeDisplay this.system.powerType}}
                   </span>
+                  {{#if this.system.effect}}
+                  <span class="power-effect-compact" title="Effect">
+                    <i class="fas fa-magic"></i> {{this.system.effect}}
+                  </span>
+                  {{/if}}
                 </div>
                 <div class="power-controls">
+                  <button type="button" class="power-toggle-details" data-item-id="{{this.id}}" title="Toggle Details">
+                    <i class="fas fa-chevron-down"></i>
+                  </button>
                   <button type="button" class="item-edit" title="Edit"><i class="fas fa-edit"></i></button>
                   <button type="button" class="item-delete" title="Delete"><i class="fas fa-trash"></i></button>
                 </div>
               </div>
               <div class="power-description-compact">{{this.system.description}}</div>
+              
+              <!-- Expandable Power Details -->
+              <div class="power-details-expanded" data-item-id="{{this.id}}" style="display: none;">
+                <div class="power-description-text">{{this.system.description}}</div>
+                {{#if this.levelData}}
+                <div class="power-level-info-text">
+                  <strong>Selected Level {{this.system.level}}:</strong><br>
+                  {{#if this.levelData.type}}Type: {{this.levelData.type}}<br>{{/if}}
+                  {{#if this.levelData.range}}Range: {{this.levelData.range}}<br>{{/if}}
+                  {{#if this.levelData.aoe}}AoE: {{this.levelData.aoe}}<br>{{/if}}
+                  {{#if this.levelData.duration}}Duration: {{this.levelData.duration}}<br>{{/if}}
+                  {{#if this.levelData.effect}}Effect: {{this.levelData.effect}}<br>{{/if}}
+                  {{#if this.levelData.special}}Special: {{this.levelData.special}}<br>{{/if}}
+                </div>
+                {{else}}
+                <div class="power-level-info-text">
+                  <strong>Level {{this.system.level}}:</strong><br>
+                  {{#if this.system.powerType}}Type: {{powerTypeDisplay this.system.powerType}}<br>{{/if}}
+                  {{#if this.system.range}}Range: {{this.system.range}}<br>{{/if}}
+                  {{#if this.system.aoe}}AoE: {{this.system.aoe}}<br>{{/if}}
+                  {{#if this.system.duration}}Duration: {{this.system.duration}}<br>{{/if}}
+                  {{#if this.system.effect}}Effect: {{this.system.effect}}<br>{{/if}}
+                  {{#if this.system.specials}}
+                  {{#if (gt (length this.system.specials) 0)}}
+                  Special: {{powerSpecials this.system.specials}}<br>
+                  {{/if}}
+                  {{/if}}
+                </div>
+                {{/if}}
+              </div>
+              
               {{#if this.system.equipped}}
                 <button type="button" class="power-use-btn" data-power-id="{{this.id}}">
                   <i class="fas fa-bolt"></i> Use Power
