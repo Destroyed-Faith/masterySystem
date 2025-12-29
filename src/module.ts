@@ -742,18 +742,27 @@ function registerHandlebarsHelpersImmediate() {
   });
 
   // Helper to get array/string length
+  // This must be registered before templates are compiled
   Handlebars.registerHelper('length', function(value: any) {
+    if (value === null || value === undefined) return 0;
     if (Array.isArray(value)) {
       return value.length;
     }
     if (typeof value === 'string') {
       return value.length;
     }
-    if (value && typeof value === 'object') {
+    if (typeof value === 'object') {
       return Object.keys(value).length;
     }
     return 0;
   });
+  
+  // Verify helper is registered
+  if (!Handlebars.helpers.length) {
+    console.error('Mastery System | Failed to register length helper!');
+  } else {
+    console.log('Mastery System | length helper registered successfully');
+  }
 }
 
 /**

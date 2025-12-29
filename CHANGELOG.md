@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.32] - 2025-01-XX
+
+### Fixed
+- **Template Rendering**: Fixed "length" helper registration and template usage
+  - Removed dependency on length helper in template by using #each with @first instead
+  - Added verification and fallback registration of length helper in init hook
+  - Improved length helper to handle null/undefined values safely
+  - Template now uses #each loop to check if array has elements instead of length helper
+
 ## [0.2.31] - 2025-01-XX
 
 ### Fixed

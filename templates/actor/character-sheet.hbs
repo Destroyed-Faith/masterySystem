@@ -934,10 +934,16 @@
                     <i class="fas fa-sword"></i> {{powerDamage (lookup this.system.roll 'damage')}}
                   </span>
                   {{/if}}
-                  {{#if (and this.system.specials (isArray this.system.specials) (gt (length this.system.specials) 0))}}
+                  {{#if this.system.specials}}
+                  {{#if (isArray this.system.specials)}}
+                  {{#each this.system.specials}}
+                  {{#if @first}}
                   <span class="power-special-compact" title="Power Special">
-                    <i class="fas fa-star"></i> {{powerSpecials this.system.specials}}
+                    <i class="fas fa-star"></i> {{powerSpecials ../this.system.specials}}
                   </span>
+                  {{/if}}
+                  {{/each}}
+                  {{/if}}
                   {{/if}}
                   <span class="power-category-compact" title="Category">
                     <i class="fas fa-crosshairs"></i> {{powerCategory this.system.range this.system.aoe}}
@@ -982,8 +988,14 @@
                   {{#if this.system.aoe}}AoE: {{this.system.aoe}}<br>{{/if}}
                   {{#if this.system.duration}}Duration: {{this.system.duration}}<br>{{/if}}
                   {{#if this.system.effect}}Effect: {{this.system.effect}}<br>{{/if}}
-                  {{#if (and this.system.specials (isArray this.system.specials) (gt (length this.system.specials) 0))}}
-                  Special: {{powerSpecials this.system.specials}}<br>
+                  {{#if this.system.specials}}
+                  {{#if (isArray this.system.specials)}}
+                  {{#each this.system.specials}}
+                  {{#if @first}}
+                  Special: {{powerSpecials ../this.system.specials}}<br>
+                  {{/if}}
+                  {{/each}}
+                  {{/if}}
                   {{/if}}
                 </div>
                 {{/if}}
