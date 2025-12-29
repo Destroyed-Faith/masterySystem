@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.39] - 2025-01-XX
+
+### Changed
+- **Chat Messages Styling**: Enhanced chat message appearance with df-rulebook-ui theme
+  - All chat messages now use consistent dark fantasy theme colors
+  - Improved visual hierarchy with better borders, shadows, and spacing
+  - Message headers styled with Cinzel Decorative font and uppercase text
+  - Attack cards, roll cards, damage cards, and info cards all styled consistently
+  - Better hover effects and transitions for interactive elements
+  - Consistent color scheme using df-* CSS variables
+  - Improved readability with proper contrast and spacing
+
 ## [0.2.38] - 2025-01-XX
 
 ### Fixed

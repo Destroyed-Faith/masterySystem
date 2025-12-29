@@ -662,3 +662,595 @@
 }
 
 /* Override any remaining bright colors - handled by specific selectors above */
+
+/* ========================================
+   Chat Messages Styling
+   ======================================== */
+
+/* Base chat message container */
+#chat-log .chat-message {
+  background: var(--df-bg-panel);
+  color: var(--df-text-primary);
+  border: 1px solid var(--df-border-primary);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px var(--df-shadow);
+  overflow: hidden;
+  margin-bottom: 6px;
+  transition: all 0.2s ease;
+}
+
+#chat-log .chat-message:hover {
+  border-color: var(--df-border-highlight);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+}
+
+/* Message header */
+#chat-log .chat-message .message-header {
+  background: var(--df-bg-header);
+  border-bottom: 1px solid var(--df-border-primary);
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#chat-log .chat-message .message-header .message-sender {
+  font-family: 'Cinzel Decorative', serif;
+  color: var(--df-text-secondary);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  font-weight: 400;
+  margin: 0;
+}
+
+#chat-log .chat-message .message-header .message-metadata {
+  color: var(--df-text-muted);
+  font-size: 0.75rem;
+  opacity: 0.8;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#chat-log .chat-message .message-header .message-delete {
+  color: var(--df-text-muted);
+  opacity: 0.6;
+  transition: all 0.2s ease;
+}
+
+#chat-log .chat-message .message-header .message-delete:hover {
+  color: #ff6666;
+  opacity: 1;
+}
+
+/* Message content */
+#chat-log .chat-message .message-content {
+  padding: 12px;
+  background: var(--df-bg-primary);
+}
+
+/* ========================================
+   Mastery Roll Cards
+   ======================================== */
+
+#chat-log .mastery-roll {
+  background: transparent;
+  border: 1px solid var(--df-border-primary);
+  border-radius: 8px;
+  padding: 0;
+  overflow: hidden;
+}
+
+#chat-log .mastery-roll .roll-header {
+  background: var(--df-bg-header);
+  border-bottom: 1px solid var(--df-border-primary);
+  padding: 10px 12px;
+}
+
+#chat-log .mastery-roll .roll-header h3 {
+  font-family: 'Cinzel Decorative', serif;
+  color: var(--df-text-secondary);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  font-weight: 400;
+  margin: 0 0 4px 0;
+}
+
+#chat-log .mastery-roll .roll-header .flavor {
+  color: var(--df-text-muted);
+  font-size: 0.8rem;
+  font-style: italic;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+#chat-log .mastery-roll .roll-details {
+  padding: 12px;
+  background: var(--df-bg-panel);
+}
+
+#chat-log .mastery-roll .roll-breakdown {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--df-border-primary);
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+#chat-log .mastery-roll .breakdown-line {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  color: var(--df-text-primary);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.9rem;
+  border-bottom: 1px dashed var(--df-border-subtle);
+}
+
+#chat-log .mastery-roll .breakdown-line:last-child {
+  border-bottom: none;
+}
+
+#chat-log .mastery-roll .breakdown-line.total {
+  border-top: 1px solid var(--df-border-primary);
+  border-bottom: none;
+  padding-top: 8px;
+  margin-top: 8px;
+  font-family: 'Cinzel Decorative', serif;
+  color: var(--df-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+#chat-log .mastery-roll .breakdown-line .value {
+  color: var(--df-text-secondary);
+  font-weight: 600;
+}
+
+#chat-log .mastery-roll .breakdown-line.total .value {
+  color: var(--df-text-primary);
+  font-size: 1.1rem;
+}
+
+#chat-log .mastery-roll .roll-result {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--df-border-primary);
+  border-radius: 6px;
+  padding: 10px;
+}
+
+#chat-log .mastery-roll .roll-result.success {
+  border-color: rgba(63, 107, 84, 0.5);
+  background: rgba(63, 107, 84, 0.1);
+}
+
+#chat-log .mastery-roll .roll-result.failure {
+  border-color: rgba(123, 58, 58, 0.5);
+  background: rgba(123, 58, 58, 0.1);
+}
+
+#chat-log .mastery-roll .result-line {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  color: var(--df-text-primary);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.9rem;
+}
+
+#chat-log .mastery-roll .result-line .value {
+  color: var(--df-text-secondary);
+  font-weight: 600;
+}
+
+/* ========================================
+   Mastery Attack Cards
+   ======================================== */
+
+#chat-log .mastery-attack-card {
+  background: transparent;
+  border: 1px solid var(--df-border-primary);
+  border-radius: 8px;
+  overflow: hidden;
+  padding: 0;
+}
+
+#chat-log .mastery-attack-card .attack-header {
+  background: var(--df-bg-header);
+  border-bottom: 1px solid var(--df-border-primary);
+  padding: 10px 12px;
+}
+
+#chat-log .mastery-attack-card .attack-header h3 {
+  font-family: 'Cinzel Decorative', serif;
+  color: var(--df-text-secondary);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  font-weight: 400;
+  margin: 0 0 6px 0;
+}
+
+#chat-log .mastery-attack-card .attack-header h3 i {
+  color: var(--df-text-muted);
+  margin-right: 6px;
+}
+
+#chat-log .mastery-attack-card .attack-participants {
+  color: var(--df-text-muted);
+  font-size: 0.8rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+}
+
+#chat-log .mastery-attack-card .attack-details {
+  padding: 12px;
+  background: var(--df-bg-panel);
+}
+
+#chat-log .mastery-attack-card .detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--df-border-subtle);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.9rem;
+}
+
+#chat-log .mastery-attack-card .detail-row:last-child {
+  border-bottom: none;
+}
+
+#chat-log .mastery-attack-card .detail-label {
+  color: var(--df-text-muted);
+}
+
+#chat-log .mastery-attack-card .detail-value {
+  color: var(--df-text-primary);
+  font-weight: 600;
+}
+
+#chat-log .mastery-attack-card .attack-controls {
+  padding: 12px;
+  background: var(--df-bg-header);
+  border-top: 1px solid var(--df-border-primary);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+#chat-log .mastery-attack-card .raises-input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#chat-log .mastery-attack-card .raises-input-group label {
+  color: var(--df-text-muted);
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+#chat-log .mastery-attack-card .raises-select {
+  background: var(--df-bg-panel);
+  border: 1px solid var(--df-border-primary);
+  border-radius: 4px;
+  padding: 4px 8px;
+  color: var(--df-text-primary);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.9rem;
+}
+
+#chat-log .mastery-attack-card .raises-select:hover {
+  border-color: var(--df-border-highlight);
+}
+
+#chat-log .mastery-attack-card .raises-select:focus {
+  outline: none;
+  border-color: var(--df-text-secondary);
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.1);
+}
+
+#chat-log .mastery-attack-card .roll-attack-btn {
+  background: var(--df-bg-panel);
+  border: 1px solid var(--df-border-primary);
+  border-radius: 6px;
+  padding: 8px 16px;
+  color: var(--df-text-primary);
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#chat-log .mastery-attack-card .roll-attack-btn:hover {
+  background: var(--df-bg-header);
+  border-color: var(--df-border-highlight);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+#chat-log .mastery-attack-card .roll-attack-btn i {
+  margin-right: 6px;
+}
+
+/* ========================================
+   Mastery Damage Cards
+   ======================================== */
+
+#chat-log .mastery-damage-card {
+  background: transparent;
+  border: 1px solid var(--df-border-primary);
+  border-radius: 8px;
+  overflow: hidden;
+  padding: 0;
+}
+
+#chat-log .mastery-damage-card .damage-header {
+  background: var(--df-bg-header);
+  border-bottom: 1px solid var(--df-border-primary);
+  padding: 10px 12px;
+}
+
+#chat-log .mastery-damage-card .damage-header h3 {
+  font-family: 'Cinzel Decorative', serif;
+  color: var(--df-text-secondary);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  font-weight: 400;
+  margin: 0 0 6px 0;
+}
+
+#chat-log .mastery-damage-card .damage-header h3 i {
+  color: var(--df-text-muted);
+  margin-right: 6px;
+}
+
+#chat-log .mastery-damage-card .damage-participants {
+  color: var(--df-text-muted);
+  font-size: 0.8rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+}
+
+#chat-log .mastery-damage-card .damage-details {
+  padding: 12px;
+  background: var(--df-bg-panel);
+}
+
+#chat-log .mastery-damage-card .damage-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--df-border-subtle);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.9rem;
+}
+
+#chat-log .mastery-damage-card .damage-row:last-child {
+  border-bottom: none;
+}
+
+#chat-log .mastery-damage-card .damage-label {
+  color: var(--df-text-muted);
+}
+
+#chat-log .mastery-damage-card .damage-value {
+  color: var(--df-text-primary);
+  font-weight: 600;
+}
+
+#chat-log .mastery-damage-card .raises-section {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--df-border-primary);
+  border-radius: 6px;
+  padding: 10px;
+  margin: 12px;
+}
+
+#chat-log .mastery-damage-card .raises-section h4 {
+  font-family: 'Cinzel Decorative', serif;
+  color: var(--df-text-secondary);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  font-weight: 400;
+  margin: 0 0 6px 0;
+}
+
+#chat-log .mastery-damage-card .raises-section h4 i {
+  color: var(--df-text-muted);
+  margin-right: 6px;
+}
+
+#chat-log .mastery-damage-card .raises-description {
+  color: var(--df-text-muted);
+  font-size: 0.8rem;
+  font-family: 'Cormorant Garamond', serif;
+  margin-bottom: 10px;
+}
+
+#chat-log .mastery-damage-card .raise-item {
+  background: var(--df-bg-primary);
+  border: 1px solid var(--df-border-primary);
+  border-radius: 4px;
+  padding: 8px;
+  margin-bottom: 6px;
+}
+
+#chat-log .mastery-damage-card .raise-item:last-child {
+  margin-bottom: 0;
+}
+
+#chat-log .mastery-damage-card .raise-item label {
+  color: var(--df-text-muted);
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: block;
+  margin-bottom: 4px;
+}
+
+#chat-log .mastery-damage-card .raise-selection {
+  width: 100%;
+  background: var(--df-bg-panel);
+  border: 1px solid var(--df-border-primary);
+  border-radius: 4px;
+  padding: 4px 8px;
+  color: var(--df-text-primary);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.9rem;
+}
+
+#chat-log .mastery-damage-card .raise-selection:hover {
+  border-color: var(--df-border-highlight);
+}
+
+#chat-log .mastery-damage-card .raise-selection:focus {
+  outline: none;
+  border-color: var(--df-text-secondary);
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.1);
+}
+
+#chat-log .mastery-damage-card .damage-actions {
+  padding: 12px;
+  background: var(--df-bg-header);
+  border-top: 1px solid var(--df-border-primary);
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+#chat-log .mastery-damage-card .roll-damage-btn,
+#chat-log .mastery-damage-card .cancel-damage-btn {
+  background: var(--df-bg-panel);
+  border: 1px solid var(--df-border-primary);
+  border-radius: 6px;
+  padding: 8px 16px;
+  color: var(--df-text-primary);
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+#chat-log .mastery-damage-card .roll-damage-btn:hover {
+  background: var(--df-bg-header);
+  border-color: var(--df-border-highlight);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+#chat-log .mastery-damage-card .cancel-damage-btn {
+  border-color: rgba(123, 58, 58, 0.5);
+}
+
+#chat-log .mastery-damage-card .cancel-damage-btn:hover {
+  background: rgba(123, 58, 58, 0.1);
+  border-color: rgba(123, 58, 58, 0.7);
+}
+
+#chat-log .mastery-damage-card .roll-damage-btn i,
+#chat-log .mastery-damage-card .cancel-damage-btn i {
+  margin-right: 6px;
+}
+
+/* ========================================
+   Mastery System Damage (Simple)
+   ======================================== */
+
+#chat-log .mastery-system-damage {
+  background: transparent;
+  border: 1px solid var(--df-border-primary);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+#chat-log .mastery-system-damage h3 {
+  font-family: 'Cinzel Decorative', serif;
+  color: var(--df-text-secondary);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  font-weight: 400;
+  margin: 0 0 8px 0;
+  border-bottom: 1px solid var(--df-border-primary);
+  padding-bottom: 6px;
+}
+
+#chat-log .mastery-system-damage p {
+  color: var(--df-text-primary);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.9rem;
+  margin: 6px 0;
+}
+
+#chat-log .mastery-system-damage p strong {
+  color: var(--df-text-secondary);
+  font-weight: 600;
+}
+
+/* ========================================
+   Mastery System Info Cards
+   ======================================== */
+
+#chat-log .mastery-system-info {
+  background: transparent;
+  border: 1px solid var(--df-border-primary);
+  border-radius: 8px;
+  padding: 0;
+  overflow: hidden;
+}
+
+#chat-log .mastery-system-info h3 {
+  font-family: 'Cinzel Decorative', serif;
+  color: var(--df-text-secondary);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  font-weight: 400;
+  margin: 0;
+  padding: 10px 12px;
+  background: var(--df-bg-header);
+  border-bottom: 1px solid var(--df-border-primary);
+}
+
+#chat-log .mastery-system-info h3 i {
+  color: var(--df-text-muted);
+  margin-right: 6px;
+}
+
+#chat-log .mastery-system-info .info-details {
+  padding: 12px;
+  background: var(--df-bg-panel);
+}
+
+#chat-log .mastery-system-info .info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px dashed var(--df-border-subtle);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.9rem;
+}
+
+#chat-log .mastery-system-info .info-row:last-child {
+  border-bottom: none;
+}
+
+#chat-log .mastery-system-info .info-label {
+  color: var(--df-text-muted);
+}
+
+#chat-log .mastery-system-info .info-value {
+  color: var(--df-text-primary);
+  font-weight: 600;
+}
