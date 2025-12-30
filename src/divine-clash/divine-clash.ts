@@ -51,62 +51,116 @@ async function updateSceneFlags(scene: Scene, updates: Partial<DivineClashSceneF
  * Find region by name pattern
  */
 function findRegion(scene: Scene, namePattern: string): RegionInfo | null {
-  // In Foundry V13, regions might be in different places
-  // Try scene.regions (if it's a collection), scene.data.regions, or scene.flags
+  console.log(`Mastery System | [FIND REGION] Looking for region: "${namePattern}"`);
+  // In Foundry V13, regions are placeables on the canvas
   let regions: any[] = [];
   
-  if ((scene as any).regions) {
-    // If it's a Collection, convert to array
-    if ((scene as any).regions instanceof Map || (scene as any).regions.size !== undefined) {
-      regions = Array.from((scene as any).regions.values());
-    } else if (Array.isArray((scene as any).regions)) {
-      regions = (scene as any).regions;
+  // Try canvas.regions.placeables first (V13 API)
+  if (canvas?.regions?.placeables) {
+    regions = Array.from(canvas.regions.placeables.values());
+    console.log(`Mastery System | [FIND REGION] Found ${regions.length} regions via canvas.regions.placeables`);
+  } else {
+    // Fallback: try scene.regions collection
+    if ((scene as any).regions) {
+      if ((scene as any).regions instanceof Map || (scene as any).regions.size !== undefined) {
+        regions = Array.from((scene as any).regions.values());
+        console.log(`Mastery System | [FIND REGION] Found ${regions.length} regions via scene.regions (Collection)`);
+      } else if (Array.isArray((scene as any).regions)) {
+        regions = (scene as any).regions;
+        console.log(`Mastery System | [FIND REGION] Found ${regions.length} regions via scene.regions (Array)`);
+      }
     }
-  } else if ((scene as any).data?.regions) {
-    regions = (scene as any).data.regions;
-  } else if ((scene as any).flags?.regions) {
-    regions = (scene as any).flags.regions;
   }
   
+  if (regions.length === 0) {
+    console.warn(`Mastery System | [FIND REGION] No regions found in any expected location`);
+    return null;
+  }
+  
+  console.log(`Mastery System | [FIND REGION] Available region names:`, regions.map((r: any) => {
+    const name = r.document?.name || r.name || r.document?.label || r.label || r.document?.id || r.id || 'unnamed';
+    return name;
+  }));
+  
   for (const region of regions) {
-    const regionName = region.name || region.label || region.id || '';
+    // In V13, region name is in region.document.name
+    const regionName = region.document?.name || region.name || region.document?.label || region.label || region.document?.id || region.id || '';
+    console.log(`Mastery System | [FIND REGION] Checking region "${regionName}" against pattern "${namePattern}"`);
+    
     if (regionName === namePattern || regionName.includes(namePattern)) {
       // Extract bounds from region
-      // Regions can have different shapes: rectangle, circle, polygon
-      const shape = region.shape || region;
+      // In V13, bounds are in region.bounds or region.document.shape
       let x = 0, y = 0, width = 100, height = 100;
       
-      // Rectangle shape
-      if (shape.x !== undefined && shape.y !== undefined) {
-        x = shape.x;
-        y = shape.y;
-        width = shape.width || 100;
-        height = shape.height || 100;
-      } else if (shape.x1 !== undefined && shape.y1 !== undefined) {
-        // Alternative format
-        x = shape.x1;
-        y = shape.y1;
-        width = (shape.x2 || shape.x1 + 100) - shape.x1;
-        height = (shape.y2 || shape.y1 + 100) - shape.y1;
-      } else if (shape.center) {
-        // Circle shape - approximate as square
-        x = shape.center.x - (shape.radius || 50);
-        y = shape.center.y - (shape.radius || 50);
-        width = (shape.radius || 50) * 2;
-        height = (shape.radius || 50) * 2;
+      // Try region.bounds first (PIXI Rectangle)
+      if (region.bounds) {
+        x = region.bounds.x;
+        y = region.bounds.y;
+        width = region.bounds.width;
+        height = region.bounds.height;
+        console.log(`Mastery System | [FIND REGION] Using region.bounds:`, { x, y, width, height });
+      } 
+      // Try region.document.shape
+      else if (region.document?.shape) {
+        const shape = region.document.shape;
+        if (shape.x !== undefined && shape.y !== undefined) {
+          x = shape.x;
+          y = shape.y;
+          width = shape.width || 100;
+          height = shape.height || 100;
+          console.log(`Mastery System | [FIND REGION] Using region.document.shape (x/y):`, { x, y, width, height });
+        } else if (shape.x1 !== undefined && shape.y1 !== undefined) {
+          x = shape.x1;
+          y = shape.y1;
+          width = (shape.x2 || shape.x1 + 100) - shape.x1;
+          height = (shape.y2 || shape.y1 + 100) - shape.y1;
+          console.log(`Mastery System | [FIND REGION] Using region.document.shape (x1/y1):`, { x, y, width, height });
+        } else if (shape.center) {
+          x = shape.center.x - (shape.radius || 50);
+          y = shape.center.y - (shape.radius || 50);
+          width = (shape.radius || 50) * 2;
+          height = (shape.radius || 50) * 2;
+          console.log(`Mastery System | [FIND REGION] Using region.document.shape (center):`, { x, y, width, height });
+        }
+      }
+      // Try region.shape (legacy)
+      else if (region.shape) {
+        const shape = region.shape;
+        if (shape.x !== undefined && shape.y !== undefined) {
+          x = shape.x;
+          y = shape.y;
+          width = shape.width || 100;
+          height = shape.height || 100;
+        } else if (shape.x1 !== undefined && shape.y1 !== undefined) {
+          x = shape.x1;
+          y = shape.y1;
+          width = (shape.x2 || shape.x1 + 100) - shape.x1;
+          height = (shape.y2 || shape.y1 + 100) - shape.y1;
+        }
+      }
+      // Try region.document.x/y (direct properties)
+      else if (region.document?.x !== undefined && region.document?.y !== undefined) {
+        x = region.document.x;
+        y = region.document.y;
+        width = region.document.width || 100;
+        height = region.document.height || 100;
+        console.log(`Mastery System | [FIND REGION] Using region.document.x/y:`, { x, y, width, height });
       }
       
-      return {
-        id: region.id || region._id || '',
+      const result = {
+        id: region.document?.id || region.id || region._id || '',
         name: regionName,
         x,
         y,
         width,
         height
       };
+      console.log(`Mastery System | [FIND REGION] Match found!`, result);
+      return result;
     }
   }
   
+  console.warn(`Mastery System | [FIND REGION] No match found for pattern "${namePattern}"`);
   return null;
 }
 
@@ -209,16 +263,29 @@ async function spawnStonesForSeat(
   powerStoneCount: number,
   vitalityStoneCount: number
 ): Promise<void> {
+  console.log(`Mastery System | [SPAWN STONES] Starting for seat ${seatIndex}:`, {
+    powerCount: powerStoneCount,
+    vitalityCount: vitalityStoneCount,
+    hasUser: !!user,
+    userId: user?.id
+  });
+  
   const seatRegion = findRegion(scene, getRegionName(seatIndex, 'READY'));
   if (!seatRegion) {
-    console.warn(`Mastery System | Seat ${seatIndex} READY region not found`);
+    console.error(`Mastery System | [SPAWN STONES] Seat ${seatIndex} READY region not found - cannot spawn stones`);
     return;
   }
+  console.log(`Mastery System | [SPAWN STONES] Found READY region for seat ${seatIndex}:`, seatRegion);
   
   // Spawn power stones
   if (powerStoneCount > 0 && user) {
+    console.log(`Mastery System | [SPAWN STONES] Spawning ${powerStoneCount} power stones for user ${user.name}`);
     const stoneActor = await ensurePlayerStoneActor(user, 'power');
     if (stoneActor) {
+      console.log(`Mastery System | [SPAWN STONES] Stone actor found/created:`, {
+        id: (stoneActor as any).id,
+        name: (stoneActor as any).name
+      });
       for (let i = 0; i < powerStoneCount; i++) {
         const pos = getRandomPointInRegion(seatRegion);
         const tokenData: any = {
@@ -243,16 +310,28 @@ async function spawnStonesForSeat(
         };
         
         try {
-          await scene.createEmbeddedDocuments('Token', [tokenData]);
+          const created = await scene.createEmbeddedDocuments('Token', [tokenData]);
+          console.log(`Mastery System | [SPAWN STONES] Created power stone ${i + 1}/${powerStoneCount}:`, {
+            id: created[0]?.id,
+            position: { x: pos.x, y: pos.y }
+          });
         } catch (error) {
-          console.error(`Mastery System | Failed to spawn power stone ${i + 1}`, error);
+          console.error(`Mastery System | [SPAWN STONES] Failed to spawn power stone ${i + 1}:`, error);
         }
       }
+    } else {
+      console.error(`Mastery System | [SPAWN STONES] Failed to get/create stone actor for user ${user.name}`);
     }
+  } else {
+    console.log(`Mastery System | [SPAWN STONES] Skipping power stones:`, {
+      powerCount: powerStoneCount,
+      hasUser: !!user
+    });
   }
   
   // Spawn vitality stones
   if (vitalityStoneCount > 0) {
+    console.log(`Mastery System | [SPAWN STONES] Spawning ${vitalityStoneCount} vitality stones`);
     const stoneActor = user 
       ? await ensurePlayerStoneActor(user, 'vitality')
       : null; // For enemy, we'll use a default actor or create one
@@ -260,6 +339,7 @@ async function spawnStonesForSeat(
     if (stoneActor || !user) {
       const vitalityRegion = findRegion(scene, getRegionName(seatIndex, 'VITALITY'));
       if (vitalityRegion) {
+        console.log(`Mastery System | [SPAWN STONES] Found VITALITY region for seat ${seatIndex}:`, vitalityRegion);
         for (let i = 0; i < vitalityStoneCount; i++) {
           const pos = getRandomPointInRegion(vitalityRegion);
           const tokenData: any = {
@@ -284,14 +364,26 @@ async function spawnStonesForSeat(
           };
           
           try {
-            await scene.createEmbeddedDocuments('Token', [tokenData]);
+            const created = await scene.createEmbeddedDocuments('Token', [tokenData]);
+            console.log(`Mastery System | [SPAWN STONES] Created vitality stone ${i + 1}/${vitalityStoneCount}:`, {
+              id: created[0]?.id,
+              position: { x: pos.x, y: pos.y }
+            });
           } catch (error) {
-            console.error(`Mastery System | Failed to spawn vitality stone ${i + 1}`, error);
+            console.error(`Mastery System | [SPAWN STONES] Failed to spawn vitality stone ${i + 1}:`, error);
           }
         }
+      } else {
+        console.error(`Mastery System | [SPAWN STONES] VITALITY region not found for seat ${seatIndex}`);
       }
+    } else {
+      console.warn(`Mastery System | [SPAWN STONES] Cannot spawn vitality stones: no stone actor and user exists`);
     }
+  } else {
+    console.log(`Mastery System | [SPAWN STONES] Skipping vitality stones: count is ${vitalityStoneCount}`);
   }
+  
+  console.log(`Mastery System | [SPAWN STONES] Completed spawning for seat ${seatIndex}`);
 }
 
 /**
@@ -349,10 +441,35 @@ async function spawnAvatarForSeat(scene: Scene, seatIndex: number, actor: Actor)
   console.log(`Mastery System | [SPAWN AVATAR] Token data:`, tokenData);
   
   try {
+    console.log(`Mastery System | [SPAWN AVATAR] Creating token document...`);
     const created = await scene.createEmbeddedDocuments('Token', [tokenData]);
-    console.log(`Mastery System | [SPAWN AVATAR] Successfully created avatar token for seat ${seatIndex}:`, created);
+    console.log(`Mastery System | [SPAWN AVATAR] Successfully created avatar token for seat ${seatIndex}:`, {
+      count: created.length,
+      tokenIds: created.map((t: any) => t.id),
+      tokenNames: created.map((t: any) => t.name),
+      tokenPositions: created.map((t: any) => ({ x: t.x, y: t.y }))
+    });
+    
+    // Wait a moment for token to render
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    // Verify token is visible on canvas
+    const canvasToken = canvas?.tokens?.placeables.find((t: any) => t.id === created[0].id);
+    if (canvasToken) {
+      console.log(`Mastery System | [SPAWN AVATAR] Token is visible on canvas at:`, {
+        x: canvasToken.x,
+        y: canvasToken.y,
+        visible: canvasToken.visible
+      });
+    } else {
+      console.warn(`Mastery System | [SPAWN AVATAR] Token created but not found on canvas yet`);
+    }
   } catch (error) {
     console.error(`Mastery System | [SPAWN AVATAR] Failed to spawn avatar for seat ${seatIndex}:`, error);
+    console.error(`Mastery System | [SPAWN AVATAR] Error details:`, {
+      message: (error as Error).message,
+      stack: (error as Error).stack
+    });
   }
 }
 
@@ -609,19 +726,40 @@ export async function startDivineClash(): Promise<void> {
   });
   
   // Pull players to scene
+  console.log('Mastery System | [DIVINE CLASH START] Pulling users to scene:', userIdsToPull);
   await pullUsersToScene(scene, userIdsToPull);
   
   // Switch GM to scene
+  console.log('Mastery System | [DIVINE CLASH START] Activating scene for GM');
   await scene.activate();
   
-  // Wait a moment for scene to load
-  await new Promise(resolve => setTimeout(resolve, 500));
+  // Wait for canvas to be ready
+  console.log('Mastery System | [DIVINE CLASH START] Waiting for canvas to be ready...');
+  let waitCount = 0;
+  while ((!canvas?.ready || canvas.scene?.id !== scene.id) && waitCount < 20) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+    waitCount++;
+  }
+  console.log(`Mastery System | [DIVINE CLASH START] Canvas ready: ${canvas?.ready}, Scene ID match: ${canvas?.scene?.id === scene.id}, Wait iterations: ${waitCount}`);
+  
+  // Additional wait for scene resources
+  await new Promise(resolve => setTimeout(resolve, 1000));
   
   // Spawn tokens for each seat
   console.log('Mastery System | [DIVINE CLASH START] Starting token spawning for', Object.keys(seats).length, 'seats');
+  console.log('Mastery System | [DIVINE CLASH START] Current scene:', {
+    id: scene.id,
+    name: scene.name,
+    active: scene.active,
+    canvasSceneId: canvas?.scene?.id,
+    canvasReady: canvas?.ready
+  });
+  
   for (const [seatIndexStr, seat] of Object.entries(seats)) {
     const seatIndex = parseInt(seatIndexStr);
-    console.log(`Mastery System | [DIVINE CLASH START] Processing seat ${seatIndex}:`, {
+    console.log(`Mastery System | [DIVINE CLASH START] ========== Processing seat ${seatIndex} ==========`);
+    console.log(`Mastery System | [DIVINE CLASH START] Seat data:`, {
+      seatIndex: seat.seatIndex,
       actorId: seat.actorId,
       userId: seat.userId,
       isEnemy: seat.isEnemy
@@ -629,46 +767,64 @@ export async function startDivineClash(): Promise<void> {
     
     const actor = (game as any).actors?.get(seat.actorId);
     if (!actor) {
-      console.warn(`Mastery System | [DIVINE CLASH START] Actor ${seat.actorId} not found for seat ${seatIndex}, skipping`);
+      console.error(`Mastery System | [DIVINE CLASH START] Actor ${seat.actorId} not found for seat ${seatIndex}, skipping`);
       continue;
     }
-    console.log(`Mastery System | [DIVINE CLASH START] Found actor for seat ${seatIndex}:`, {
-      id: actor.id,
-      name: actor.name,
-      type: actor.type
+    console.log(`Mastery System | [DIVINE CLASH START] Actor details:`, {
+      id: (actor as any).id,
+      name: (actor as any).name,
+      type: actor.type,
+      img: (actor as any).img
     });
     
     const user = seat.userId ? (game as any).users?.get(seat.userId) : null;
     if (user) {
-      console.log(`Mastery System | [DIVINE CLASH START] Found user for seat ${seatIndex}:`, {
+      console.log(`Mastery System | [DIVINE CLASH START] User details:`, {
         id: user.id,
-        name: user.name
+        name: user.name,
+        active: user.active,
+        character: (user as any).character?.id
       });
     } else if (!seat.isEnemy) {
       console.warn(`Mastery System | [DIVINE CLASH START] No user found for seat ${seatIndex} (not enemy)`);
+    } else {
+      console.log(`Mastery System | [DIVINE CLASH START] Enemy seat ${seatIndex} - no user (GM-only)`);
     }
     
     if (seat.isEnemy) {
       // Enemy: spawn avatar and stones (if configured)
-      console.log(`Mastery System | [DIVINE CLASH START] Spawning enemy avatar for seat ${seatIndex}`);
+      console.log(`Mastery System | [DIVINE CLASH START] >>> Spawning ENEMY avatar for seat ${seatIndex}`);
       await spawnAvatarForSeat(scene, seatIndex, actor);
+      console.log(`Mastery System | [DIVINE CLASH START] <<< Enemy avatar spawn complete for seat ${seatIndex}`);
       // Enemy stones optional - skip for now
     } else {
       // Player: spawn avatar, power stones, vitality stones
-      console.log(`Mastery System | [DIVINE CLASH START] Spawning player avatar for seat ${seatIndex}`);
+      console.log(`Mastery System | [DIVINE CLASH START] >>> Spawning PLAYER avatar for seat ${seatIndex}`);
       await spawnAvatarForSeat(scene, seatIndex, actor);
+      console.log(`Mastery System | [DIVINE CLASH START] <<< Player avatar spawn complete for seat ${seatIndex}`);
       
       const powerCount = calculatePowerStoneCount(actor);
       const vitalityCount = calculateVitalityStoneCount(actor);
       console.log(`Mastery System | [DIVINE CLASH START] Stone counts for seat ${seatIndex}:`, {
         power: powerCount,
-        vitality: vitalityCount
+        vitality: vitalityCount,
+        actorSystem: (actor.system as any)?.stonePools ? 'has stonePools' : 'no stonePools'
       });
       
+      console.log(`Mastery System | [DIVINE CLASH START] >>> Spawning stones for seat ${seatIndex}`);
       await spawnStonesForSeat(scene, seatIndex, actor, user, powerCount, vitalityCount);
+      console.log(`Mastery System | [DIVINE CLASH START] <<< Stone spawn complete for seat ${seatIndex}`);
     }
     
-    console.log(`Mastery System | [DIVINE CLASH START] Completed spawning for seat ${seatIndex}`);
+    // Verify tokens were created
+    const sceneTokens = scene.tokens || [];
+    const seatTokens = sceneTokens.filter((t: any) => {
+      const flags = t.document?.getFlag('mastery-system', 'divineClash');
+      return flags && (flags.seatIndex === seatIndex || (flags.isAvatar && seatIndex === seatIndex));
+    });
+    console.log(`Mastery System | [DIVINE CLASH START] Verification: Found ${seatTokens.length} tokens for seat ${seatIndex} on scene`);
+    
+    console.log(`Mastery System | [DIVINE CLASH START] ========== Completed seat ${seatIndex} ==========`);
   }
   
   ui.notifications?.info(`Divine Clash started with ${playerTokens.length} player(s)`);
