@@ -44,5 +44,23 @@ export function registerDivineClashSettings() {
         type: Boolean,
         default: false
     });
+    // Base Power Stone Actor ID
+    game.settings.register('mastery-system', 'divineClashBasePowerStoneActorId', {
+        name: 'Divine Clash: Base Power Stone Actor ID',
+        hint: 'Actor ID of the base Power Stone actor to use for all players. Leave empty to create per-user actors. You can select a stone actor and copy its ID from the actor sheet.',
+        scope: 'world',
+        config: true,
+        type: String,
+        default: ''
+    });
+    // Base Vitality Stone Actor ID
+    game.settings.register('mastery-system', 'divineClashBaseVitalityStoneActorId', {
+        name: 'Divine Clash: Base Vitality Stone Actor ID',
+        hint: 'Actor ID of the base Vitality Stone actor to use for all players. Leave empty to create per-user actors. You can select a stone actor and copy its ID from the actor sheet.',
+        scope: 'world',
+        config: true,
+        type: String,
+        default: ''
+    });
 }
 //# sourceMappingURL=divine-clash-settings.js.map

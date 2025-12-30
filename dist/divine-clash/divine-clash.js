@@ -199,18 +199,86 @@ function getTokenZone(scene, token, seatIndex) {
 }
 /**
  * Ensure player stone actor exists (one per user, per kind)
+ * First tries to find existing stone actors, then creates new ones if needed
  */
 async function ensurePlayerStoneActor(user, kind) {
     const actorName = `DC Stone (${kind === 'power' ? 'Power' : 'Vitality'}) - ${user.name}`;
-    // Check if actor already exists
-    const existing = game.actors?.find((a) => a.name === actorName && a.type === 'npc');
+    const kindName = kind === 'power' ? 'Power' : 'Vitality';
+    console.log(`Mastery System | [ENSURE STONE ACTOR] Looking for ${kindName} stone actor for user ${user.name}`);
+    // Strategy 0: Check for configured base stone actor (global basisstein)
+    const baseActorId = kind === 'power'
+        ? game.settings.get('mastery-system', 'divineClashBasePowerStoneActorId')
+        : game.settings.get('mastery-system', 'divineClashBaseVitalityStoneActorId');
+    if (baseActorId && baseActorId.trim() !== '') {
+        const baseActor = game.actors?.get(baseActorId);
+        if (baseActor) {
+            console.log(`Mastery System | [ENSURE STONE ACTOR] Using configured base stone actor: ${baseActor.name} (${baseActorId})`);
+            // Ensure user has OWNER permission (so they can move their stone tokens)
+            const currentOwnership = baseActor.ownership || {};
+            const userPermission = currentOwnership[user.id] || CONST.DOCUMENT_OWNERSHIP_LEVELS.NONE;
+            if (userPermission < CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER) {
+                const newOwnership = { ...currentOwnership, [user.id]: CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER };
+                await baseActor.update({ ownership: newOwnership });
+                console.log(`Mastery System | [ENSURE STONE ACTOR] Granted OWNER permission to user ${user.name}`);
+            }
+            return baseActor;
+        }
+        else {
+            console.warn(`Mastery System | [ENSURE STONE ACTOR] Configured base stone actor ID ${baseActorId} not found, falling back to per-user actors`);
+        }
+    }
+    // Strategy 1: Check for exact name match
+    let existing = game.actors?.find((a) => {
+        const name = a.name;
+        const type = a.type;
+        return name === actorName && type === 'npc';
+    });
     if (existing) {
+        console.log(`Mastery System | [ENSURE STONE ACTOR] Found exact match: ${existing.name}`);
         // Ensure ownership
         const ownership = { [user.id]: CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER };
         await existing.update({ ownership });
         return existing;
     }
-    // Create new actor
+    // Strategy 2: Find any stone actor owned by this user that matches the kind
+    const allActors = game.actors || [];
+    const userOwnedActors = allActors.filter((a) => {
+        const hasOwnership = a.testUserPermission?.(user, 'OWNER') ||
+            a.ownership?.[user.id] === CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER;
+        return hasOwnership && a.type === 'npc';
+    });
+    console.log(`Mastery System | [ENSURE STONE ACTOR] Found ${userOwnedActors.length} NPC actors owned by ${user.name}`);
+    // Look for actors with stone-related names
+    const stoneKeywords = kind === 'power'
+        ? ['power', 'stone', 'dc stone']
+        : ['vitality', 'stone', 'dc stone'];
+    existing = userOwnedActors.find((a) => {
+        const name = (a.name || '').toLowerCase();
+        return stoneKeywords.some(keyword => name.includes(keyword)) &&
+            (kind === 'power' ? !name.includes('vitality') : name.includes('vitality'));
+    });
+    if (existing) {
+        console.log(`Mastery System | [ENSURE STONE ACTOR] Found existing stone actor by name pattern: ${existing.name}`);
+        // Ensure ownership
+        const ownership = { [user.id]: CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER };
+        await existing.update({ ownership });
+        return existing;
+    }
+    // Strategy 3: If user has exactly one stone actor of the right kind, use it
+    // (This handles cases where the user has manually created stone actors)
+    const stoneActors = userOwnedActors.filter((a) => {
+        const name = (a.name || '').toLowerCase();
+        return name.includes('stone');
+    });
+    if (stoneActors.length === 1 && kind === 'power') {
+        // If only one stone actor exists and we need power, use it
+        console.log(`Mastery System | [ENSURE STONE ACTOR] Using single existing stone actor: ${stoneActors[0].name}`);
+        const ownership = { [user.id]: CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER };
+        await stoneActors[0].update({ ownership });
+        return stoneActors[0];
+    }
+    // Strategy 4: Create new actor if none found
+    console.log(`Mastery System | [ENSURE STONE ACTOR] No existing stone actor found, creating new one: ${actorName}`);
     const actorData = {
         name: actorName,
         type: 'npc',
@@ -221,11 +289,11 @@ async function ensurePlayerStoneActor(user, kind) {
     };
     try {
         const actor = await Actor.create(actorData);
-        console.log(`Mastery System | Created stone actor: ${actorName}`);
+        console.log(`Mastery System | [ENSURE STONE ACTOR] Created new stone actor: ${actorName}`);
         return actor;
     }
     catch (error) {
-        console.error(`Mastery System | Failed to create stone actor: ${actorName}`, error);
+        console.error(`Mastery System | [ENSURE STONE ACTOR] Failed to create stone actor: ${actorName}`, error);
         return null;
     }
 }
