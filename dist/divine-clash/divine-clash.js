@@ -267,16 +267,31 @@ async function spawnStonesForSeat(scene, seatIndex, actor, user, powerStoneCount
  * Spawn avatar token for a seat
  */
 async function spawnAvatarForSeat(scene, seatIndex, actor) {
+    console.log(`Mastery System | [SPAWN AVATAR] Starting for seat ${seatIndex}:`, {
+        actorId: actor.id,
+        actorName: actor.name,
+        actorType: actor.type
+    });
     // Find avatar position (use READY region center as fallback)
-    const seatRegion = findRegion(scene, getRegionName(seatIndex, 'READY'));
+    const regionName = getRegionName(seatIndex, 'READY');
+    console.log(`Mastery System | [SPAWN AVATAR] Looking for region: ${regionName}`);
+    const seatRegion = findRegion(scene, regionName);
     if (!seatRegion) {
-        console.warn(`Mastery System | Seat ${seatIndex} region not found for avatar`);
+        console.warn(`Mastery System | [SPAWN AVATAR] Seat ${seatIndex} region "${regionName}" not found for avatar`);
         return;
     }
+    console.log(`Mastery System | [SPAWN AVATAR] Found region:`, {
+        id: seatRegion.id,
+        x: seatRegion.x,
+        y: seatRegion.y,
+        width: seatRegion.width,
+        height: seatRegion.height
+    });
     const pos = {
         x: seatRegion.x + seatRegion.width / 2,
         y: seatRegion.y + seatRegion.height / 2
     };
+    console.log(`Mastery System | [SPAWN AVATAR] Calculated position:`, pos);
     const tokenData = {
         name: actor.name,
         actorId: actor.id,
@@ -294,11 +309,13 @@ async function spawnAvatarForSeat(scene, seatIndex, actor) {
         disposition: CONST.TOKEN_DISPOSITIONS.FRIENDLY,
         locked: false
     };
+    console.log(`Mastery System | [SPAWN AVATAR] Token data:`, tokenData);
     try {
-        await scene.createEmbeddedDocuments('Token', [tokenData]);
+        const created = await scene.createEmbeddedDocuments('Token', [tokenData]);
+        console.log(`Mastery System | [SPAWN AVATAR] Successfully created avatar token for seat ${seatIndex}:`, created);
     }
     catch (error) {
-        console.error(`Mastery System | Failed to spawn avatar for seat ${seatIndex}`, error);
+        console.error(`Mastery System | [SPAWN AVATAR] Failed to spawn avatar for seat ${seatIndex}:`, error);
     }
 }
 /**
@@ -379,11 +396,23 @@ function calculateVitalityStoneCount(actor) {
  * START: Initialize Divine Clash from selected tokens
  */
 export async function startDivineClash() {
+    console.log('Mastery System | [DIVINE CLASH START] Beginning startDivineClash');
     if (!game.user?.isGM) {
         ui.notifications?.warn('Only the GM can start Divine Clash');
         return;
     }
     const controlled = canvas?.tokens?.controlled || [];
+    console.log('Mastery System | [DIVINE CLASH START] Controlled tokens:', controlled.length);
+    controlled.forEach((token, idx) => {
+        console.log(`Mastery System | [DIVINE CLASH START] Token ${idx}:`, {
+            id: token.id,
+            name: token.name,
+            actorId: token.actor ? token.actor.id : null,
+            actorName: token.actor ? token.actor.name : null,
+            actorType: token.actor?.type,
+            hasActor: !!token.actor
+        });
+    });
     if (controlled.length === 0) {
         ui.notifications?.warn('Please select at least one character token to start Divine Clash');
         return;
@@ -392,18 +421,39 @@ export async function startDivineClash() {
     const playerTokens = [];
     let enemyToken = null;
     for (const token of controlled) {
-        if (!token.actor)
+        if (!token.actor) {
+            console.log('Mastery System | [DIVINE CLASH START] Token has no actor, skipping:', token.id);
             continue;
+        }
+        console.log('Mastery System | [DIVINE CLASH START] Processing token:', {
+            id: token.id,
+            name: token.name,
+            actorType: token.actor.type,
+            actorId: token.actor.id,
+            actorName: token.actor.name
+        });
         if (token.actor.type === 'character') {
             playerTokens.push(token);
+            console.log('Mastery System | [DIVINE CLASH START] Added as player token');
         }
         else if (token.actor.type === 'npc') {
             // First NPC is enemy
             if (!enemyToken) {
                 enemyToken = token;
+                console.log('Mastery System | [DIVINE CLASH START] Added as enemy token');
+            }
+            else {
+                console.log('Mastery System | [DIVINE CLASH START] NPC token ignored (enemy already set)');
             }
         }
+        else {
+            console.log('Mastery System | [DIVINE CLASH START] Unknown actor type, skipping:', token.actor.type);
+        }
     }
+    console.log('Mastery System | [DIVINE CLASH START] Summary:', {
+        playerTokens: playerTokens.length,
+        enemyToken: enemyToken ? enemyToken.actor?.name : null
+    });
     if (playerTokens.length === 0) {
         ui.notifications?.warn('Please select at least one character token');
         return;
@@ -418,6 +468,10 @@ export async function startDivineClash() {
     const seats = {};
     // Seat 0: Enemy (if selected)
     if (enemyToken && enemyToken.actor) {
+        console.log('Mastery System | [DIVINE CLASH START] Setting up enemy seat 0:', {
+            actorId: enemyToken.actor.id,
+            actorName: enemyToken.actor.name
+        });
         seats[0] = {
             seatIndex: 0,
             actorId: enemyToken.actor.id,
@@ -425,27 +479,52 @@ export async function startDivineClash() {
             isEnemy: true
         };
     }
+    else {
+        console.log('Mastery System | [DIVINE CLASH START] No enemy token selected, seat 0 will be empty');
+    }
     // Seats 1..N: Players
     const userIdsToPull = [];
     for (let i = 0; i < playerTokens.length; i++) {
         const token = playerTokens[i];
         const actor = token.actor;
-        if (!actor)
+        if (!actor) {
+            console.log(`Mastery System | [DIVINE CLASH START] Player token ${i} has no actor, skipping`);
             continue;
+        }
         const seatIndex = i + 1;
+        console.log(`Mastery System | [DIVINE CLASH START] Processing player ${i} for seat ${seatIndex}:`, {
+            tokenId: token.id,
+            actorId: actor.id,
+            actorName: actor.name,
+            actorType: actor.type
+        });
         // Find user for this actor
         let user = null;
         const characterUser = game.users?.find((u) => u.character?.id === actor.id);
+        console.log(`Mastery System | [DIVINE CLASH START] Character user search:`, {
+            found: !!characterUser,
+            userId: characterUser?.id,
+            userName: characterUser?.name
+        });
         if (characterUser) {
             user = characterUser;
+            console.log(`Mastery System | [DIVINE CLASH START] Found character user:`, user.name);
         }
         else {
             // Fallback: find first active owner
             const owners = game.users?.filter((u) => actor.testUserPermission(u, 'OWNER')) || [];
+            console.log(`Mastery System | [DIVINE CLASH START] Owner search:`, {
+                totalOwners: owners.length,
+                ownerIds: owners.map((u) => u.id),
+                ownerNames: owners.map((u) => u.name)
+            });
             user = owners.find((u) => u.active) || owners[0] || null;
+            if (user) {
+                console.log(`Mastery System | [DIVINE CLASH START] Using owner as fallback:`, user.name);
+            }
         }
         if (!user) {
-            console.warn(`Mastery System | No user found for actor ${actor.name}, skipping`);
+            console.warn(`Mastery System | [DIVINE CLASH START] No user found for actor ${actor.name}, skipping`);
             continue;
         }
         seats[seatIndex] = {
@@ -455,7 +534,18 @@ export async function startDivineClash() {
             isEnemy: false
         };
         userIdsToPull.push(user.id);
+        console.log(`Mastery System | [DIVINE CLASH START] Assigned seat ${seatIndex} to user ${user.name} (${user.id})`);
     }
+    console.log('Mastery System | [DIVINE CLASH START] Seat assignment complete:', {
+        seats: Object.keys(seats).length,
+        userIdsToPull: userIdsToPull.length,
+        seatDetails: Object.entries(seats).map(([_idx, seat]) => ({
+            seatIndex: seat.seatIndex,
+            actorId: seat.actorId,
+            userId: seat.userId,
+            isEnemy: seat.isEnemy
+        }))
+    });
     // Update scene flags
     await updateSceneFlags(scene, {
         phase: 'planning',
@@ -469,24 +559,53 @@ export async function startDivineClash() {
     // Wait a moment for scene to load
     await new Promise(resolve => setTimeout(resolve, 500));
     // Spawn tokens for each seat
+    console.log('Mastery System | [DIVINE CLASH START] Starting token spawning for', Object.keys(seats).length, 'seats');
     for (const [seatIndexStr, seat] of Object.entries(seats)) {
         const seatIndex = parseInt(seatIndexStr);
+        console.log(`Mastery System | [DIVINE CLASH START] Processing seat ${seatIndex}:`, {
+            actorId: seat.actorId,
+            userId: seat.userId,
+            isEnemy: seat.isEnemy
+        });
         const actor = game.actors?.get(seat.actorId);
-        if (!actor)
+        if (!actor) {
+            console.warn(`Mastery System | [DIVINE CLASH START] Actor ${seat.actorId} not found for seat ${seatIndex}, skipping`);
             continue;
+        }
+        console.log(`Mastery System | [DIVINE CLASH START] Found actor for seat ${seatIndex}:`, {
+            id: actor.id,
+            name: actor.name,
+            type: actor.type
+        });
         const user = seat.userId ? game.users?.get(seat.userId) : null;
+        if (user) {
+            console.log(`Mastery System | [DIVINE CLASH START] Found user for seat ${seatIndex}:`, {
+                id: user.id,
+                name: user.name
+            });
+        }
+        else if (!seat.isEnemy) {
+            console.warn(`Mastery System | [DIVINE CLASH START] No user found for seat ${seatIndex} (not enemy)`);
+        }
         if (seat.isEnemy) {
             // Enemy: spawn avatar and stones (if configured)
+            console.log(`Mastery System | [DIVINE CLASH START] Spawning enemy avatar for seat ${seatIndex}`);
             await spawnAvatarForSeat(scene, seatIndex, actor);
             // Enemy stones optional - skip for now
         }
         else {
             // Player: spawn avatar, power stones, vitality stones
+            console.log(`Mastery System | [DIVINE CLASH START] Spawning player avatar for seat ${seatIndex}`);
             await spawnAvatarForSeat(scene, seatIndex, actor);
             const powerCount = calculatePowerStoneCount(actor);
             const vitalityCount = calculateVitalityStoneCount(actor);
+            console.log(`Mastery System | [DIVINE CLASH START] Stone counts for seat ${seatIndex}:`, {
+                power: powerCount,
+                vitality: vitalityCount
+            });
             await spawnStonesForSeat(scene, seatIndex, actor, user, powerCount, vitalityCount);
         }
+        console.log(`Mastery System | [DIVINE CLASH START] Completed spawning for seat ${seatIndex}`);
     }
     ui.notifications?.info(`Divine Clash started with ${playerTokens.length} player(s)`);
 }
