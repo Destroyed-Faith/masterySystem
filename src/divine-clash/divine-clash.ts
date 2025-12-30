@@ -364,11 +364,17 @@ async function spawnStonesForSeat(
         id: (stoneActor as any).id,
         name: (stoneActor as any).name
       });
+      // Get image from actor or settings
+      const powerStoneImg = (stoneActor as any).img || 
+                            (game as any).settings.get('mastery-system', 'divineClashPowerStoneImg') || 
+                            'systems/mastery-system/icons/svg/power-stone.svg';
+      
       for (let i = 0; i < powerStoneCount; i++) {
         const pos = getRandomPointInRegion(seatRegion);
         const tokenData: any = {
           name: `Power Stone ${i + 1}`,
           actorId: (stoneActor as any).id,
+          img: powerStoneImg, // Explicitly set image for unlinked tokens
           x: pos.x,
           y: pos.y,
           flags: {
@@ -418,11 +424,18 @@ async function spawnStonesForSeat(
       const vitalityRegion = findRegion(scene, getRegionName(seatIndex, 'VITALITY'));
       if (vitalityRegion) {
         console.log(`Mastery System | [SPAWN STONES] Found VITALITY region for seat ${seatIndex}:`, vitalityRegion);
+        // Get image from actor or settings
+        const vitalityStoneImg = (stoneActor as any)?.img || 
+                                 (actor as any).img ||
+                                 (game as any).settings.get('mastery-system', 'divineClashVitalityStoneImg') || 
+                                 'systems/mastery-system/icons/svg/vitality-stone.svg';
+        
         for (let i = 0; i < vitalityStoneCount; i++) {
           const pos = getRandomPointInRegion(vitalityRegion);
           const tokenData: any = {
             name: `Vitality Stone ${i + 1}`,
             actorId: (stoneActor as any)?.id || (actor as any).id, // Fallback to character actor if no stone actor
+            img: vitalityStoneImg, // Explicitly set image for unlinked tokens
             x: pos.x,
             y: pos.y,
             flags: {
