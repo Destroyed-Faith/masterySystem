@@ -2,23 +2,8 @@
  * Scene Controls - Mastery Quick Access Menu
  * Adds a "Mastery" group to the left Scene Controls toolbar
  */
-import { CombatCarouselApp } from './combat-carousel.js';
-import { showDamageDialog } from '../dice/damage-dialog.js';
 import { StonePowersDialog } from '../stones/stone-powers-dialog.js';
 import { startDivineClash, revealDivineClash, endRoundDivineClash, resetDivineClash } from '../divine-clash/divine-clash.js';
-/**
- * Resolve the active actor from selected token or user character
- */
-function resolveActiveActor() {
-    const controlled = canvas?.tokens?.controlled || [];
-    if (controlled.length > 0 && controlled[0].actor) {
-        return controlled[0].actor;
-    }
-    if (game.user?.character) {
-        return game.user.character;
-    }
-    return null;
-}
 /**
  * Resolve combatant for active actor
  */
@@ -35,59 +20,6 @@ export function initializeSceneControls() {
     Hooks.on('getSceneControlButtons', (controls) => {
         // In Foundry v13, controls is a Record (object), not an array
         // Add controls directly as properties
-        const handleDamageDialogTest = async function () {
-            console.log('Mastery System | Damage Dialog Test clicked');
-            const actor = resolveActiveActor();
-            if (!actor) {
-                ui.notifications?.warn('Select a token or assign a User Character first.');
-                return;
-            }
-            // Try to get a target
-            const targets = Array.from(canvas?.tokens?.controlled || []);
-            let targetActor = null;
-            if (targets.length > 1) {
-                // Use second selected token as target
-                targetActor = targets[1]?.actor || null;
-            }
-            else {
-                // Try to find a nearby token or use the same actor
-                targetActor = actor;
-            }
-            if (!targetActor) {
-                ui.notifications?.warn('Select a target token for damage testing.');
-                return;
-            }
-            // Open damage dialog with dummy data
-            try {
-                await showDamageDialog(actor, targetActor, null, // weaponId
-                null, // selectedPowerId
-                0, // raises
-                {} // flags
-                );
-            }
-            catch (error) {
-                console.error('Mastery System | Error opening damage dialog', error);
-                ui.notifications?.error('Failed to open damage dialog. Check console for details.');
-            }
-        };
-        const handleCarouselRefresh = function () {
-            console.log('Mastery System | Carousel Refresh clicked');
-            try {
-                const instance = CombatCarouselApp.instance;
-                if (instance && instance.rendered) {
-                    CombatCarouselApp.refresh();
-                    ui.notifications?.info('Combat Carousel refreshed.');
-                }
-                else {
-                    CombatCarouselApp.open();
-                    ui.notifications?.info('Combat Carousel opened.');
-                }
-            }
-            catch (err) {
-                console.error('Mastery System | Carousel Refresh failed', err);
-                ui.notifications?.error('Carousel Refresh failed - see console');
-            }
-        };
         const handleDivineClashStart = async function () {
             if (!game.user?.isGM) {
                 ui.notifications?.warn('Only the GM can start Divine Clash');
@@ -149,20 +81,6 @@ export function initializeSceneControls() {
             icon: 'fas fa-gem',
             layer: 'TokenLayer',
             tools: [
-                {
-                    name: 'damageDialogTest',
-                    title: 'Damage Dialog Test',
-                    icon: 'fas fa-burst',
-                    onClick: handleDamageDialogTest,
-                    button: true
-                },
-                {
-                    name: 'carouselRefresh',
-                    title: 'Carousel Refresh',
-                    icon: 'fas fa-arrows-rotate',
-                    onClick: handleCarouselRefresh,
-                    button: true
-                },
                 {
                     name: 'divineClashStart',
                     title: 'Divine Clash: Start',
