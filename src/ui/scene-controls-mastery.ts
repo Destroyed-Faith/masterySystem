@@ -187,62 +187,85 @@ export function initializeSceneControls(): void {
     console.log('Mastery System | [DEBUG] Tools with button:true:', controls.mastery.tools.filter((t: any) => t.button === true).map((t: any) => t.name));
     console.log('Mastery System | [DEBUG] Full controls.mastery object:', JSON.stringify(controls.mastery, null, 2));
     
-    // Also hook into renderSceneControls to check if buttons are rendered and manually add them if needed
+    // Hook to inject buttons when the tools panel is rendered
+    // In Foundry V13, tools with button: true should appear in the tools panel when the control is active
     Hooks.on('renderSceneControls', () => {
       console.log('Mastery System | [DEBUG] renderSceneControls hook fired');
-      setTimeout(() => {
-        const masteryControl = document.querySelector('[data-control="mastery"]');
-        console.log('Mastery System | [DEBUG] Mastery control element found:', masteryControl);
-        if (masteryControl) {
-          // Check if buttons exist
-          let buttons = masteryControl.querySelectorAll('[data-tool="divineClashStart"], [data-tool="divineClashReveal"], [data-tool="divineClashEndRound"], [data-tool="divineClashReset"]');
-          console.log('Mastery System | [DEBUG] Divine Clash buttons found in DOM:', buttons.length);
+      
+      // Use a MutationObserver to watch for when the tools panel appears
+      const injectButtons = () => {
+        // Find the tools panel
+        const toolsPanel = document.querySelector('#scene-controls-tools');
+        if (!toolsPanel) {
+          return false;
+        }
+        
+        // Find the mastery tools container
+        const masteryToolsContainer = toolsPanel.querySelector('[data-control="mastery"]')?.closest('.control-tools') || 
+                                      toolsPanel.querySelector('.control-tools[data-control="mastery"]');
+        
+        if (!masteryToolsContainer) {
+          return false;
+        }
+        
+        // Check if buttons already exist
+        const existingButtons = masteryToolsContainer.querySelectorAll('[data-tool="divineClashStart"], [data-tool="divineClashReveal"], [data-tool="divineClashEndRound"], [data-tool="divineClashReset"]');
+        if (existingButtons.length > 0) {
+          console.log('Mastery System | [DEBUG] Buttons already exist in tools panel');
+          return true;
+        }
+        
+        console.log('Mastery System | [DEBUG] Injecting buttons into tools panel');
+        
+        // Create button configs
+        const buttonConfigs = [
+          { name: 'divineClashStart', title: 'Divine Clash: Start', icon: 'fas fa-chess', handler: handleDivineClashStart },
+          { name: 'divineClashReveal', title: 'Divine Clash: Reveal', icon: 'fas fa-eye', handler: handleDivineClashReveal },
+          { name: 'divineClashEndRound', title: 'Divine Clash: End Round', icon: 'fas fa-hourglass-end', handler: handleDivineClashEndRound },
+          { name: 'divineClashReset', title: 'Divine Clash: Reset', icon: 'fas fa-trash', handler: handleDivineClashReset }
+        ];
+        
+        buttonConfigs.forEach(config => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'control-tool';
+          btn.setAttribute('data-tool', config.name);
+          btn.setAttribute('data-tooltip', config.title);
+          btn.setAttribute('aria-label', config.title);
+          btn.innerHTML = `<i class="${config.icon}"></i>`;
+          btn.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            console.log(`Mastery System | [DEBUG] Manually injected button clicked: ${config.name}`);
+            config.handler();
+          });
           
-          // If buttons don't exist, try to find the tools container and add them manually
-          if (buttons.length === 0) {
-            console.log('Mastery System | [DEBUG] Buttons not found, attempting to find tools container');
-            const toolsContainer = masteryControl.querySelector('.control-tools') || masteryControl.querySelector('.tools');
-            console.log('Mastery System | [DEBUG] Tools container found:', toolsContainer);
-            
-            if (toolsContainer) {
-              // Try to manually inject buttons
-              const buttonConfigs = [
-                { name: 'divineClashStart', title: 'Divine Clash: Start', icon: 'fas fa-chess', handler: handleDivineClashStart },
-                { name: 'divineClashReveal', title: 'Divine Clash: Reveal', icon: 'fas fa-eye', handler: handleDivineClashReveal },
-                { name: 'divineClashEndRound', title: 'Divine Clash: End Round', icon: 'fas fa-hourglass-end', handler: handleDivineClashEndRound },
-                { name: 'divineClashReset', title: 'Divine Clash: Reset', icon: 'fas fa-trash', handler: handleDivineClashReset }
-              ];
-              
-              buttonConfigs.forEach(config => {
-                const existingBtn = toolsContainer.querySelector(`[data-tool="${config.name}"]`);
-                if (!existingBtn) {
-                  const btn = document.createElement('button');
-                  btn.type = 'button';
-                  btn.className = 'control-tool';
-                  btn.setAttribute('data-tool', config.name);
-                  btn.setAttribute('data-tooltip', config.title);
-                  btn.setAttribute('aria-label', config.title);
-                  btn.innerHTML = `<i class="${config.icon}"></i>`;
-                  btn.addEventListener('click', (ev) => {
-                    ev.preventDefault();
-                    ev.stopPropagation();
-                    console.log(`Mastery System | [DEBUG] Manually injected button clicked: ${config.name}`);
-                    config.handler();
-                  });
-                  toolsContainer.appendChild(btn);
-                  console.log(`Mastery System | [DEBUG] Manually injected button: ${config.name}`);
-                }
-              });
+          masteryToolsContainer.appendChild(btn);
+          console.log(`Mastery System | [DEBUG] Injected button: ${config.name}`);
+        });
+        
+        return true;
+      };
+      
+      // Try immediately
+      setTimeout(() => {
+        if (!injectButtons()) {
+          // If not found, set up a MutationObserver to watch for the tools panel
+          const observer = new MutationObserver(() => {
+            if (injectButtons()) {
+              observer.disconnect();
             }
-          } else {
-            // Buttons exist, add click listeners
-            buttons.forEach((btn, idx) => {
-              console.log(`Mastery System | [DEBUG] Button ${idx}:`, btn, 'data-tool:', btn.getAttribute('data-tool'));
-              // Add direct click listener for debugging
-              btn.addEventListener('click', (ev) => {
-                console.log('Mastery System | [DEBUG] Direct click event on button:', btn.getAttribute('data-tool'), ev);
-              });
+          });
+          
+          const sceneControls = document.querySelector('#scene-controls');
+          if (sceneControls) {
+            observer.observe(sceneControls, {
+              childList: true,
+              subtree: true
             });
+            
+            // Stop observing after 5 seconds
+            setTimeout(() => observer.disconnect(), 5000);
           }
         }
       }, 500);
