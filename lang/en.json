@@ -28,6 +28,20 @@
       "success": "SUCCESS",
       "failure": "FAILURE",
       "raises": "Raises"
+    },
+    "divineClash": {
+      "start": "Divine Clash: Start",
+      "reveal": "Divine Clash: Reveal",
+      "endRound": "Divine Clash: End Round",
+      "reset": "Divine Clash: Reset",
+      "started": "Divine Clash started",
+      "revealed": "Divine Clash revealed",
+      "roundEnded": "Round ended",
+      "resetComplete": "Divine Clash reset",
+      "notStarted": "Divine Clash not started",
+      "gmOnly": "Only the GM can perform this action",
+      "noScene": "Divine Clash scene not found",
+      "noTokens": "Please select at least one character token"
     }
   }
 }

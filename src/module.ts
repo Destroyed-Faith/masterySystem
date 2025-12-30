@@ -27,6 +27,8 @@ import { initializeStoneHooks } from './stones/stone-hooks.js';
 import { initializeEncounterStart, beginEncounter } from './combat/encounter-start.js';
 import { initializeSceneControls, initializeTokenHUDButton } from './ui/scene-controls-mastery.js';
 import { openStonePowersForAllCombatants as openStonePowers, initializeStonePowersFlow } from './combat/stone-powers-flow.js';
+import { registerDivineClashSettings } from './divine-clash/divine-clash-settings.js';
+import { initializeDivineClashHooks } from './divine-clash/divine-clash-hooks.js';
 
 // Dice roller functions are imported in sheets where needed
 
@@ -86,6 +88,9 @@ Hooks.once('init', async function() {
   // Register system settings
   registerSystemSettings();
   
+  // Register Divine Clash settings
+  registerDivineClashSettings();
+  
   // Setup XP Management inline in settings
   setupXpManagementInline();
   
@@ -108,9 +113,12 @@ Hooks.once('init', async function() {
   // Initialize scene controls
   initializeSceneControls();
   initializeTokenHUDButton();
-
+  
   // Initialize stone powers flow system
   initializeStonePowersFlow();
+  
+  // Initialize Divine Clash hooks
+  initializeDivineClashHooks();
 
   // Initialize combat hooks
   // Register combatStart hook directly here
