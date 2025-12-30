@@ -91,6 +91,73 @@ async function handleDivineClashReset() {
  */
 export function initializeSceneControls(): void {
   console.log('Mastery System | Initializing scene controls');
+  
+  // Set up event delegation for Divine Clash buttons as soon as DOM is ready
+  Hooks.once('ready', () => {
+    const setupEventDelegation = () => {
+      const sceneControls = document.querySelector('#scene-controls');
+      if (!sceneControls) {
+        // Try again after a short delay if not found
+        setTimeout(setupEventDelegation, 500);
+        return;
+      }
+      
+      // Remove any existing listeners to avoid duplicates
+      const existingListener = (sceneControls as any)._divineClashClickHandler;
+      if (existingListener) {
+        sceneControls.removeEventListener('click', existingListener);
+      }
+      
+      // Create a single delegated click handler
+      const clickHandler = (ev: Event) => {
+        const target = ev.target as HTMLElement;
+        const button = target.closest('[data-tool]') as HTMLElement;
+        
+        if (!button) {
+          return;
+        }
+        
+        const toolName = button.getAttribute('data-tool');
+        if (!toolName || !toolName.startsWith('divineClash')) {
+          return;
+        }
+        
+        console.log(`Mastery System | [DEBUG] Delegated click handler triggered for: ${toolName}`);
+        
+        ev.preventDefault();
+        ev.stopPropagation();
+        
+        // Call the appropriate handler
+        switch (toolName) {
+          case 'divineClashStart':
+            console.log('Mastery System | [DEBUG] Calling handleDivineClashStart');
+            handleDivineClashStart();
+            break;
+          case 'divineClashReveal':
+            console.log('Mastery System | [DEBUG] Calling handleDivineClashReveal');
+            handleDivineClashReveal();
+            break;
+          case 'divineClashEndRound':
+            console.log('Mastery System | [DEBUG] Calling handleDivineClashEndRound');
+            handleDivineClashEndRound();
+            break;
+          case 'divineClashReset':
+            console.log('Mastery System | [DEBUG] Calling handleDivineClashReset');
+            handleDivineClashReset();
+            break;
+        }
+      };
+      
+      // Store reference to remove later if needed
+      (sceneControls as any)._divineClashClickHandler = clickHandler;
+      
+      // Add event listener with capture to ensure we catch it before Foundry
+      sceneControls.addEventListener('click', clickHandler, true);
+      console.log('Mastery System | [DEBUG] Event delegation set up for Divine Clash buttons');
+    };
+    
+    setupEventDelegation();
+  });
 
   Hooks.on('getSceneControlButtons', (controls: any) => {
     console.log('Mastery System | [DEBUG] getSceneControlButtons hook called');
@@ -187,10 +254,78 @@ export function initializeSceneControls(): void {
     console.log('Mastery System | [DEBUG] Tools with button:true:', controls.mastery.tools.filter((t: any) => t.button === true).map((t: any) => t.name));
     console.log('Mastery System | [DEBUG] Full controls.mastery object:', JSON.stringify(controls.mastery, null, 2));
     
+    // Set up event delegation for Divine Clash buttons
+    // This ensures handlers work even if buttons are re-rendered by Foundry
+    const setupEventDelegation = () => {
+      const sceneControls = document.querySelector('#scene-controls');
+      if (!sceneControls) {
+        return;
+      }
+      
+      // Remove any existing listeners to avoid duplicates
+      const existingListener = (sceneControls as any)._divineClashClickHandler;
+      if (existingListener) {
+        sceneControls.removeEventListener('click', existingListener);
+      }
+      
+      // Create a single delegated click handler
+      const clickHandler = (ev: Event) => {
+        const target = ev.target as HTMLElement;
+        const button = target.closest('[data-tool]') as HTMLElement;
+        
+        if (!button) {
+          return;
+        }
+        
+        const toolName = button.getAttribute('data-tool');
+        if (!toolName || !toolName.startsWith('divineClash')) {
+          return;
+        }
+        
+        console.log(`Mastery System | [DEBUG] Delegated click handler triggered for: ${toolName}`);
+        
+        ev.preventDefault();
+        ev.stopPropagation();
+        
+        // Call the appropriate handler
+        switch (toolName) {
+          case 'divineClashStart':
+            console.log('Mastery System | [DEBUG] Calling handleDivineClashStart');
+            handleDivineClashStart();
+            break;
+          case 'divineClashReveal':
+            console.log('Mastery System | [DEBUG] Calling handleDivineClashReveal');
+            handleDivineClashReveal();
+            break;
+          case 'divineClashEndRound':
+            console.log('Mastery System | [DEBUG] Calling handleDivineClashEndRound');
+            handleDivineClashEndRound();
+            break;
+          case 'divineClashReset':
+            console.log('Mastery System | [DEBUG] Calling handleDivineClashReset');
+            handleDivineClashReset();
+            break;
+        }
+      };
+      
+      // Store reference to remove later if needed
+      (sceneControls as any)._divineClashClickHandler = clickHandler;
+      
+      // Add event listener with capture to ensure we catch it before Foundry
+      sceneControls.addEventListener('click', clickHandler, true);
+      console.log('Mastery System | [DEBUG] Event delegation set up for Divine Clash buttons');
+    };
+    
+    // Set up event delegation immediately and on every render
+    setupEventDelegation();
+    
     // Hook to inject buttons when the tools panel is rendered
     // In Foundry V13, tools with button: true should appear in the tools panel when the control is active
     Hooks.on('renderSceneControls', () => {
       console.log('Mastery System | [DEBUG] renderSceneControls hook fired');
+      
+      // Re-setup event delegation in case DOM was recreated
+      setupEventDelegation();
       
       // Use a MutationObserver to watch for when the tools panel appears
       const injectButtons = () => {
@@ -233,12 +368,9 @@ export function initializeSceneControls(): void {
           btn.setAttribute('data-tooltip', config.title);
           btn.setAttribute('aria-label', config.title);
           btn.innerHTML = `<i class="${config.icon}"></i>`;
-          btn.addEventListener('click', (ev) => {
-            ev.preventDefault();
-            ev.stopPropagation();
-            console.log(`Mastery System | [DEBUG] Manually injected button clicked: ${config.name}`);
-            config.handler();
-          });
+          
+          // Note: We don't add direct event listeners here anymore
+          // Event delegation handles all clicks
           
           masteryToolsContainer.appendChild(btn);
           console.log(`Mastery System | [DEBUG] Injected button: ${config.name}`);
