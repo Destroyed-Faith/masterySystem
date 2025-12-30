@@ -170,7 +170,7 @@ async function ensurePlayerStoneActor(user: User, kind: StoneKind): Promise<Acto
   const actorName = `DC Stone (${kind === 'power' ? 'Power' : 'Vitality'}) - ${user.name}`;
   
   // Check if actor already exists
-  const existing = (game as any).actors?.find((a: Actor) => a.name === actorName && a.type === 'npc');
+  const existing = (game as any).actors?.find((a: Actor) => (a as any).name === actorName && (a as any).type === 'npc');
   if (existing) {
     // Ensure ownership
     const ownership: Record<string, number> = { [user.id]: CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER };
@@ -223,7 +223,7 @@ async function spawnStonesForSeat(
         const pos = getRandomPointInRegion(seatRegion);
         const tokenData: any = {
           name: `Power Stone ${i + 1}`,
-          actorId: stoneActor.id,
+          actorId: (stoneActor as any).id,
           x: pos.x,
           y: pos.y,
           flags: {
@@ -264,7 +264,7 @@ async function spawnStonesForSeat(
           const pos = getRandomPointInRegion(vitalityRegion);
           const tokenData: any = {
             name: `Vitality Stone ${i + 1}`,
-            actorId: stoneActor?.id || actor.id, // Fallback to character actor if no stone actor
+            actorId: (stoneActor as any)?.id || (actor as any).id, // Fallback to character actor if no stone actor
             x: pos.x,
             y: pos.y,
             flags: {
@@ -311,8 +311,8 @@ async function spawnAvatarForSeat(scene: Scene, seatIndex: number, actor: Actor)
   };
   
   const tokenData: any = {
-    name: actor.name,
-    actorId: actor.id,
+    name: (actor as any).name,
+    actorId: (actor as any).id,
     x: pos.x,
     y: pos.y,
     flags: {
@@ -399,7 +399,7 @@ function calculatePowerStoneCount(actor: Actor): number {
  */
 function calculateVitalityStoneCount(actor: Actor): number {
   // Check flag first
-  const flagValue = actor.getFlag('mastery-system', 'divineClash.vitality') as number | undefined;
+  const flagValue = (actor as any).getFlag('mastery-system', 'divineClash.vitality') as number | undefined;
   if (flagValue !== undefined && flagValue !== null) {
     return flagValue;
   }
@@ -461,7 +461,7 @@ export async function startDivineClash(): Promise<void> {
   if (enemyToken && enemyToken.actor) {
     seats[0] = {
       seatIndex: 0,
-      actorId: enemyToken.actor.id,
+      actorId: (enemyToken.actor as any).id,
       userId: null, // GM-only
       isEnemy: true
     };
@@ -478,7 +478,7 @@ export async function startDivineClash(): Promise<void> {
     
     // Find user for this actor
     let user: User | null = null;
-    const characterUser = (game as any).users?.find((u: User) => (u as any).character?.id === actor.id);
+    const characterUser = (game as any).users?.find((u: User) => (u as any).character?.id === (actor as any).id);
     if (characterUser) {
       user = characterUser;
     } else {
@@ -488,13 +488,13 @@ export async function startDivineClash(): Promise<void> {
     }
     
     if (!user) {
-      console.warn(`Mastery System | No user found for actor ${actor.name}, skipping`);
+      console.warn(`Mastery System | No user found for actor ${(actor as any).name}, skipping`);
       continue;
     }
     
     seats[seatIndex] = {
       seatIndex,
-      actorId: actor.id,
+      actorId: (actor as any).id,
       userId: user.id,
       isEnemy: false
     };
@@ -575,12 +575,12 @@ export async function revealDivineClash(): Promise<void> {
   for (const [seatIndexStr, seat] of Object.entries(flags.seats)) {
     const seatIndex = parseInt(seatIndexStr);
     const actor = seat.actorId ? (game as any).actors?.get(seat.actorId) : null;
-    const actorName = actor?.name || `Seat ${seatIndex}`;
+    const actorName = (actor as any)?.name || `Seat ${seatIndex}`;
     
     // Find all stone tokens for this seat
     const tokens = scene.tokens || [];
-    const seatTokens = tokens.filter((token: Token) => {
-      const tokenFlags = token.getFlag('mastery-system', 'divineClash') as DivineClashTokenFlags | undefined;
+    const seatTokens = tokens.filter((token: any) => {
+      const tokenFlags = token.document?.getFlag('mastery-system', 'divineClash') as DivineClashTokenFlags | undefined;
       return tokenFlags?.isStone && tokenFlags.seatIndex === seatIndex && tokenFlags.stoneKind === 'power';
     });
     
@@ -644,8 +644,8 @@ export async function revealDivineClash(): Promise<void> {
     }
     
     // Count vitality stones
-    const vitalityTokens = tokens.filter((token: Token) => {
-      const tokenFlags = token.getFlag('mastery-system', 'divineClash') as DivineClashTokenFlags | undefined;
+    const vitalityTokens = tokens.filter((token: any) => {
+      const tokenFlags = token.document?.getFlag('mastery-system', 'divineClash') as DivineClashTokenFlags | undefined;
       return tokenFlags?.isStone && tokenFlags.seatIndex === seatIndex && tokenFlags.stoneKind === 'vitality';
     });
     vitality = vitalityTokens.length;
@@ -707,13 +707,13 @@ export async function endRoundDivineClash(): Promise<void> {
     
     // Find exhausted power stones for this seat
     const tokens = scene.tokens || [];
-    const exhaustedStones = tokens.filter((token: Token) => {
-      const tokenFlags = token.getFlag('mastery-system', 'divineClash') as DivineClashTokenFlags | undefined;
+    const exhaustedStones = tokens.filter((token: any) => {
+      const tokenFlags = token.document?.getFlag('mastery-system', 'divineClash') as DivineClashTokenFlags | undefined;
       return tokenFlags?.isStone &&
              tokenFlags.seatIndex === seatIndex &&
              tokenFlags.stoneKind === 'power' &&
              tokenFlags.state === 'exhausted' &&
-             token.document.locked;
+             token.document?.locked;
     });
     
     // Move up to regen stones to ready
@@ -725,14 +725,14 @@ export async function endRoundDivineClash(): Promise<void> {
       const token = exhaustedStones[i];
       const pos = getRandomPointInRegion(readyRegion);
       
-      await token.document.update({
+      await (token as any).document.update({
         x: pos.x,
         y: pos.y,
         locked: false,
         flags: {
           'mastery-system': {
             divineClash: {
-              ...(token.getFlag('mastery-system', 'divineClash') as DivineClashTokenFlags || {}),
+              ...((token as any).document?.getFlag('mastery-system', 'divineClash') as DivineClashTokenFlags || {}),
               state: 'ready'
             }
           }
@@ -742,7 +742,7 @@ export async function endRoundDivineClash(): Promise<void> {
     }
     
     if (moved > 0) {
-      regenMessages.push(`${actor.name}: +${moved} Ready`);
+      regenMessages.push(`${(actor as any).name}: +${moved} Ready`);
     }
   }
   
@@ -779,11 +779,11 @@ export async function resetDivineClash(): Promise<void> {
   const tokensToDelete: string[] = [];
   
   for (const token of tokens) {
-    const tokenFlags = token.getFlag('mastery-system', 'divineClash') as DivineClashTokenFlags | undefined;
+    const tokenFlags = (token as any).document?.getFlag('mastery-system', 'divineClash') as DivineClashTokenFlags | undefined;
     if (tokenFlags?.isStone) {
-      tokensToDelete.push(token.id);
+      tokensToDelete.push((token as any).id);
     } else if (tokenFlags?.isAvatar && cleanupAvatars) {
-      tokensToDelete.push(token.id);
+      tokensToDelete.push((token as any).id);
     }
   }
   

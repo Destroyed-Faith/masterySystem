@@ -353,6 +353,34 @@ export function initializeSceneControls(): void {
           icon: 'fas fa-arrows-rotate',
           onClick: handleCarouselRefresh,
           button: true
+        },
+        {
+          name: 'divineClashStart',
+          title: 'Divine Clash: Start',
+          icon: 'fas fa-chess',
+          onClick: handleDivineClashStart,
+          button: true
+        },
+        {
+          name: 'divineClashReveal',
+          title: 'Divine Clash: Reveal',
+          icon: 'fas fa-eye',
+          onClick: handleDivineClashReveal,
+          button: true
+        },
+        {
+          name: 'divineClashEndRound',
+          title: 'Divine Clash: End Round',
+          icon: 'fas fa-hourglass-end',
+          onClick: handleDivineClashEndRound,
+          button: true
+        },
+        {
+          name: 'divineClashReset',
+          title: 'Divine Clash: Reset',
+          icon: 'fas fa-trash',
+          onClick: handleDivineClashReset,
+          button: true
         }
       ],
       activeTool: '',

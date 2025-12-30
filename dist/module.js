@@ -25,6 +25,8 @@ import { initializeStoneHooks } from './stones/stone-hooks.js';
 import { initializeEncounterStart, beginEncounter } from './combat/encounter-start.js';
 import { initializeSceneControls, initializeTokenHUDButton } from './ui/scene-controls-mastery.js';
 import { openStonePowersForAllCombatants as openStonePowers, initializeStonePowersFlow } from './combat/stone-powers-flow.js';
+import { registerDivineClashSettings } from './divine-clash/divine-clash-settings.js';
+import { initializeDivineClashHooks } from './divine-clash/divine-clash-hooks.js';
 // Dice roller functions are imported in sheets where needed
 console.log('Mastery System | All imports completed');
 // Register Handlebars helpers immediately (before init hook)
@@ -71,6 +73,8 @@ Hooks.once('init', async function () {
     console.log('Mastery System | Registered Item Sheet');
     // Register system settings
     registerSystemSettings();
+    // Register Divine Clash settings
+    registerDivineClashSettings();
     // Setup XP Management inline in settings
     setupXpManagementInline();
     // Handlebars helpers are already registered in registerHandlebarsHelpersImmediate()
@@ -96,6 +100,8 @@ Hooks.once('init', async function () {
     initializeTokenHUDButton();
     // Initialize stone powers flow system
     initializeStonePowersFlow();
+    // Initialize Divine Clash hooks
+    initializeDivineClashHooks();
     // Initialize combat hooks
     // Register combatStart hook directly here
     Hooks.on('combatStart', async (combat) => {

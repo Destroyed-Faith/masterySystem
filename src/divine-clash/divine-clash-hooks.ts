@@ -4,15 +4,15 @@
  */
 
 import type { DivineClashTokenFlags } from './divine-clash-types.js';
-import { getDivineClashPhase, isDivineClashScene, getSceneFlags } from './divine-clash.js';
+import { getDivineClashPhase, isDivineClashScene } from './divine-clash.js';
 
 /**
  * Initialize Divine Clash hooks
  */
 export function initializeDivineClashHooks(): void {
   // Prevent unauthorized token movement
-  Hooks.on('preMoveToken', (token: Token, newPosition: { x: number; y: number }, _options: any) => {
-    const tokenFlags = token.getFlag('mastery-system', 'divineClash') as DivineClashTokenFlags | undefined;
+  Hooks.on('preMoveToken', (token: any, _newPosition: { x: number; y: number }, _options: any) => {
+    const tokenFlags = token.document?.getFlag('mastery-system', 'divineClash') as DivineClashTokenFlags | undefined;
     
     // Only check Divine Clash stones
     if (!tokenFlags?.isStone) {
@@ -60,8 +60,8 @@ export function initializeDivineClashHooks(): void {
   });
   
   // Update token state based on zone after movement
-  Hooks.on('moveToken', async (token: Token, _newPosition: { x: number; y: number }, _options: any) => {
-    const tokenFlags = token.getFlag('mastery-system', 'divineClash') as DivineClashTokenFlags | undefined;
+  Hooks.on('moveToken', async (token: any, _newPosition: { x: number; y: number }, _options: any) => {
+    const tokenFlags = token.document?.getFlag('mastery-system', 'divineClash') as DivineClashTokenFlags | undefined;
     
     // Only process Divine Clash stones
     if (!tokenFlags?.isStone) {

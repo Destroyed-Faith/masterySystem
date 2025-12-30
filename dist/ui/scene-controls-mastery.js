@@ -9,6 +9,7 @@ import { CombatCarouselApp } from './combat-carousel.js';
 import { ThemePreviewApp } from './theme-preview.js';
 import { rollInitiativeForCombatant } from '../combat/initiative-roll.js';
 import { showDamageDialog } from '../dice/damage-dialog.js';
+import { startDivineClash, revealDivineClash, endRoundDivineClash, resetDivineClash } from '../divine-clash/divine-clash.js';
 /**
  * Resolve the active actor from selected token or user character
  */
@@ -208,6 +209,58 @@ export function initializeSceneControls() {
                 ui.notifications?.error('Carousel Refresh failed - see console');
             }
         };
+        const handleDivineClashStart = async function () {
+            if (!game.user?.isGM) {
+                ui.notifications?.warn('Only the GM can start Divine Clash');
+                return;
+            }
+            try {
+                await startDivineClash();
+            }
+            catch (err) {
+                console.error('Mastery System | Divine Clash Start failed', err);
+                ui.notifications?.error('Divine Clash Start failed - see console');
+            }
+        };
+        const handleDivineClashReveal = async function () {
+            if (!game.user?.isGM) {
+                ui.notifications?.warn('Only the GM can reveal Divine Clash');
+                return;
+            }
+            try {
+                await revealDivineClash();
+            }
+            catch (err) {
+                console.error('Mastery System | Divine Clash Reveal failed', err);
+                ui.notifications?.error('Divine Clash Reveal failed - see console');
+            }
+        };
+        const handleDivineClashEndRound = async function () {
+            if (!game.user?.isGM) {
+                ui.notifications?.warn('Only the GM can end a round');
+                return;
+            }
+            try {
+                await endRoundDivineClash();
+            }
+            catch (err) {
+                console.error('Mastery System | Divine Clash End Round failed', err);
+                ui.notifications?.error('Divine Clash End Round failed - see console');
+            }
+        };
+        const handleDivineClashReset = async function () {
+            if (!game.user?.isGM) {
+                ui.notifications?.warn('Only the GM can reset Divine Clash');
+                return;
+            }
+            try {
+                await resetDivineClash();
+            }
+            catch (err) {
+                console.error('Mastery System | Divine Clash Reset failed', err);
+                ui.notifications?.error('Divine Clash Reset failed - see console');
+            }
+        };
         // Add Mastery group directly to controls object
         // IMPORTANT: Do NOT set button: true on the control group itself in Foundry v13
         // Only set button: true on individual tools that should execute onClick immediately
@@ -285,6 +338,34 @@ export function initializeSceneControls() {
                     title: 'Carousel Refresh',
                     icon: 'fas fa-arrows-rotate',
                     onClick: handleCarouselRefresh,
+                    button: true
+                },
+                {
+                    name: 'divineClashStart',
+                    title: 'Divine Clash: Start',
+                    icon: 'fas fa-chess',
+                    onClick: handleDivineClashStart,
+                    button: true
+                },
+                {
+                    name: 'divineClashReveal',
+                    title: 'Divine Clash: Reveal',
+                    icon: 'fas fa-eye',
+                    onClick: handleDivineClashReveal,
+                    button: true
+                },
+                {
+                    name: 'divineClashEndRound',
+                    title: 'Divine Clash: End Round',
+                    icon: 'fas fa-hourglass-end',
+                    onClick: handleDivineClashEndRound,
+                    button: true
+                },
+                {
+                    name: 'divineClashReset',
+                    title: 'Divine Clash: Reset',
+                    icon: 'fas fa-trash',
+                    onClick: handleDivineClashReset,
                     button: true
                 }
             ],
