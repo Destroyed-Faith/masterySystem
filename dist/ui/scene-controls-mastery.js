@@ -13,6 +13,65 @@ function resolveCombatant(actor) {
     return game.combat.combatants.find((c) => c.actor?.id === actor.id) || null;
 }
 /**
+ * Handler functions for Divine Clash buttons
+ */
+async function handleDivineClashStart() {
+    console.log('Mastery System | Divine Clash Start button clicked');
+    if (!game.user?.isGM) {
+        ui.notifications?.warn('Only the GM can start Divine Clash');
+        return;
+    }
+    try {
+        await startDivineClash();
+    }
+    catch (err) {
+        console.error('Mastery System | Divine Clash Start failed', err);
+        ui.notifications?.error('Divine Clash Start failed - see console');
+    }
+}
+async function handleDivineClashReveal() {
+    console.log('Mastery System | Divine Clash Reveal button clicked');
+    if (!game.user?.isGM) {
+        ui.notifications?.warn('Only the GM can reveal Divine Clash');
+        return;
+    }
+    try {
+        await revealDivineClash();
+    }
+    catch (err) {
+        console.error('Mastery System | Divine Clash Reveal failed', err);
+        ui.notifications?.error('Divine Clash Reveal failed - see console');
+    }
+}
+async function handleDivineClashEndRound() {
+    console.log('Mastery System | Divine Clash End Round button clicked');
+    if (!game.user?.isGM) {
+        ui.notifications?.warn('Only the GM can end a round');
+        return;
+    }
+    try {
+        await endRoundDivineClash();
+    }
+    catch (err) {
+        console.error('Mastery System | Divine Clash End Round failed', err);
+        ui.notifications?.error('Divine Clash End Round failed - see console');
+    }
+}
+async function handleDivineClashReset() {
+    console.log('Mastery System | Divine Clash Reset button clicked');
+    if (!game.user?.isGM) {
+        ui.notifications?.warn('Only the GM can reset Divine Clash');
+        return;
+    }
+    try {
+        await resetDivineClash();
+    }
+    catch (err) {
+        console.error('Mastery System | Divine Clash Reset failed', err);
+        ui.notifications?.error('Divine Clash Reset failed - see console');
+    }
+}
+/**
  * Initialize scene controls
  */
 export function initializeSceneControls() {
@@ -20,58 +79,6 @@ export function initializeSceneControls() {
     Hooks.on('getSceneControlButtons', (controls) => {
         // In Foundry v13, controls is a Record (object), not an array
         // Add controls directly as properties
-        const handleDivineClashStart = async function () {
-            if (!game.user?.isGM) {
-                ui.notifications?.warn('Only the GM can start Divine Clash');
-                return;
-            }
-            try {
-                await startDivineClash();
-            }
-            catch (err) {
-                console.error('Mastery System | Divine Clash Start failed', err);
-                ui.notifications?.error('Divine Clash Start failed - see console');
-            }
-        };
-        const handleDivineClashReveal = async function () {
-            if (!game.user?.isGM) {
-                ui.notifications?.warn('Only the GM can reveal Divine Clash');
-                return;
-            }
-            try {
-                await revealDivineClash();
-            }
-            catch (err) {
-                console.error('Mastery System | Divine Clash Reveal failed', err);
-                ui.notifications?.error('Divine Clash Reveal failed - see console');
-            }
-        };
-        const handleDivineClashEndRound = async function () {
-            if (!game.user?.isGM) {
-                ui.notifications?.warn('Only the GM can end a round');
-                return;
-            }
-            try {
-                await endRoundDivineClash();
-            }
-            catch (err) {
-                console.error('Mastery System | Divine Clash End Round failed', err);
-                ui.notifications?.error('Divine Clash End Round failed - see console');
-            }
-        };
-        const handleDivineClashReset = async function () {
-            if (!game.user?.isGM) {
-                ui.notifications?.warn('Only the GM can reset Divine Clash');
-                return;
-            }
-            try {
-                await resetDivineClash();
-            }
-            catch (err) {
-                console.error('Mastery System | Divine Clash Reset failed', err);
-                ui.notifications?.error('Divine Clash Reset failed - see console');
-            }
-        };
         // Add Mastery group directly to controls object
         // IMPORTANT: Do NOT set button: true on the control group itself in Foundry v13
         // Only set button: true on individual tools that should execute onClick immediately
@@ -85,28 +92,28 @@ export function initializeSceneControls() {
                     name: 'divineClashStart',
                     title: 'Divine Clash: Start',
                     icon: 'fas fa-chess',
-                    onClick: handleDivineClashStart,
+                    onClick: () => handleDivineClashStart(),
                     button: true
                 },
                 {
                     name: 'divineClashReveal',
                     title: 'Divine Clash: Reveal',
                     icon: 'fas fa-eye',
-                    onClick: handleDivineClashReveal,
+                    onClick: () => handleDivineClashReveal(),
                     button: true
                 },
                 {
                     name: 'divineClashEndRound',
                     title: 'Divine Clash: End Round',
                     icon: 'fas fa-hourglass-end',
-                    onClick: handleDivineClashEndRound,
+                    onClick: () => handleDivineClashEndRound(),
                     button: true
                 },
                 {
                     name: 'divineClashReset',
                     title: 'Divine Clash: Reset',
                     icon: 'fas fa-trash',
-                    onClick: handleDivineClashReset,
+                    onClick: () => handleDivineClashReset(),
                     button: true
                 }
             ],
@@ -116,6 +123,12 @@ export function initializeSceneControls() {
         };
         console.log('Mastery System | Scene controls added:', controls.mastery);
         console.log('Mastery System | Tools with button:true:', controls.mastery.tools.filter((t) => t.button === true).map((t) => t.name));
+        console.log('Mastery System | Handler functions:', {
+            start: typeof handleDivineClashStart,
+            reveal: typeof handleDivineClashReveal,
+            endRound: typeof handleDivineClashEndRound,
+            reset: typeof handleDivineClashReset
+        });
     });
 }
 /**
