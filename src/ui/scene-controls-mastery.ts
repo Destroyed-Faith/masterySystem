@@ -3,13 +3,9 @@
  * Adds a "Mastery" group to the left Scene Controls toolbar
  */
 
-import { PassiveSelectionDialog } from '../sheets/passive-selection-dialog.js';
-import { InitiativeShopDialog } from '../combat/initiative-shop-dialog.js';
-import { StonePowersDialog } from '../stones/stone-powers-dialog.js';
 import { CombatCarouselApp } from './combat-carousel.js';
-import { ThemePreviewApp } from './theme-preview.js';
-import { rollInitiativeForCombatant } from '../combat/initiative-roll.js';
 import { showDamageDialog } from '../dice/damage-dialog.js';
+import { StonePowersDialog } from '../stones/stone-powers-dialog.js';
 import { startDivineClash, revealDivineClash, endRoundDivineClash, resetDivineClash } from '../divine-clash/divine-clash.js';
 
 /**
@@ -46,124 +42,6 @@ export function initializeSceneControls(): void {
   Hooks.on('getSceneControlButtons', (controls: any) => {
     // In Foundry v13, controls is a Record (object), not an array
     // Add controls directly as properties
-    
-    // Define theme preview handlers for each theme
-    const handleThemePreviewRulebook = async function() {
-      console.log('Mastery System | Theme preview clicked: rulebook');
-      try {
-        await ThemePreviewApp.show('rulebook');
-      } catch (err) {
-        console.error('Mastery System | Theme preview failed', err);
-        ui.notifications?.error('Theme preview failed - see console');
-      }
-    };
-    
-    const handleThemePreviewEmber = async function() {
-      console.log('Mastery System | Theme preview clicked: ember');
-      try {
-        await ThemePreviewApp.show('ember');
-      } catch (err) {
-        console.error('Mastery System | Theme preview failed', err);
-        ui.notifications?.error('Theme preview failed - see console');
-      }
-    };
-    
-    const handleThemePreviewAshen = async function() {
-      console.log('Mastery System | Theme preview clicked: ashen');
-      try {
-        await ThemePreviewApp.show('ashen');
-      } catch (err) {
-        console.error('Mastery System | Theme preview failed', err);
-        ui.notifications?.error('Theme preview failed - see console');
-      }
-    };
-    
-    const handleThemePreviewBloodmoon = async function() {
-      console.log('Mastery System | Theme preview clicked: bloodmoon');
-      try {
-        await ThemePreviewApp.show('bloodmoon');
-      } catch (err) {
-        console.error('Mastery System | Theme preview failed', err);
-        ui.notifications?.error('Theme preview failed - see console');
-      }
-    };
-    
-    const handleThemePreviewCurrent = async function() {
-      const currentTheme = (game as any).settings?.get('mastery-system', 'uiTheme') || 'rulebook';
-      console.log(`Mastery System | Theme preview clicked: current (${currentTheme})`);
-      try {
-        await ThemePreviewApp.show();
-      } catch (err) {
-        console.error('Mastery System | Theme preview failed', err);
-        ui.notifications?.error('Theme preview failed - see console');
-      }
-    };
-    
-    const handlePassiveSelection = async function() {
-      console.log('Mastery System | Passive Selection clicked');
-      try {
-        const actor = resolveActiveActor();
-        if (!actor) {
-          ui.notifications?.warn('Select a token or assign a User Character first.');
-          return;
-        }
-
-        // If in combat, use combatant; otherwise create dummy combatant for preview
-        const combatant = resolveCombatant(actor);
-        if (combatant) {
-          // In combat: use existing dialog
-          await PassiveSelectionDialog.showForCombatant(combatant, false);
-        } else {
-          // Not in combat: create dummy combatant for preview
-          ui.notifications?.info('Opening Passive Selection in preview mode (not in combat).');
-          ui.notifications?.warn('Passive Selection is only available during combat. Start a combat encounter first.');
-        }
-      } catch (err) {
-        console.error('Mastery System | Passive Selection failed', err);
-        ui.notifications?.error('Passive Selection failed - see console');
-      }
-    };
-    
-    const handleInitiativeShop = async function() {
-      console.log('Mastery System | Initiative Shop clicked');
-      try {
-        const actor = resolveActiveActor();
-        if (!actor) {
-          ui.notifications?.warn('Select a token or assign a User Character first.');
-          return;
-        }
-
-        const combatant = resolveCombatant(actor);
-        if (combatant && game.combat) {
-          // In combat: roll initiative and show shop
-          const breakdown = await rollInitiativeForCombatant(combatant);
-          await InitiativeShopDialog.showForCombatant(combatant, breakdown, game.combat);
-        } else {
-          // Not in combat: show preview with dummy context
-          ui.notifications?.info('Initiative Shop is only available during combat. Start a combat encounter first.');
-        }
-      } catch (err) {
-        console.error('Mastery System | Initiative Shop failed', err);
-        ui.notifications?.error('Initiative Shop failed - see console');
-      }
-    };
-    
-    const handleStonePowers = async function() {
-      console.log('Mastery System | Stone Powers clicked');
-      try {
-        const actor = resolveActiveActor();
-        if (!actor) {
-          ui.notifications?.warn('Select a token or assign a User Character first.');
-          return;
-        }
-
-        const combatant = resolveCombatant(actor);
-        await StonePowersDialog.showForActor(actor, combatant || null);
-      } catch (err) {
-        console.error('Mastery System | Stone Powers failed', err);
-        ui.notifications?.error('Stone Powers failed - see console');
-      }
-    };
     
     const handleDamageDialogTest = async function() {
       console.log('Mastery System | Damage Dialog Test clicked');
@@ -284,62 +162,6 @@ export function initializeSceneControls(): void {
       icon: 'fas fa-gem',
       layer: 'TokenLayer',
       tools: [
-        {
-          name: 'themePreviewRulebook',
-          title: 'Theme Preview: Rulebook',
-          icon: 'fas fa-scroll',
-          onClick: handleThemePreviewRulebook,
-          button: true
-        },
-        {
-          name: 'themePreviewEmber',
-          title: 'Theme Preview: Ember',
-          icon: 'fas fa-fire',
-          onClick: handleThemePreviewEmber,
-          button: true
-        },
-        {
-          name: 'themePreviewAshen',
-          title: 'Theme Preview: Ashen',
-          icon: 'fas fa-mountain',
-          onClick: handleThemePreviewAshen,
-          button: true
-        },
-        {
-          name: 'themePreviewBloodmoon',
-          title: 'Theme Preview: Bloodmoon',
-          icon: 'fas fa-moon',
-          onClick: handleThemePreviewBloodmoon,
-          button: true
-        },
-        {
-          name: 'themePreviewCurrent',
-          title: 'Theme Preview: Current',
-          icon: 'fas fa-palette',
-          onClick: handleThemePreviewCurrent,
-          button: true
-        },
-        {
-          name: 'passiveSelection',
-          title: 'Passive Selection',
-          icon: 'fas fa-shield-halved',
-          onClick: handlePassiveSelection,
-          button: true
-        },
-        {
-          name: 'initiativeShop',
-          title: 'Initiative Shop',
-          icon: 'fas fa-dice-d20',
-          onClick: handleInitiativeShop,
-          button: true
-        },
-        {
-          name: 'stonePowers',
-          title: 'Stone Powers',
-          icon: 'fas fa-gem',
-          onClick: handleStonePowers,
-          button: true
-        },
         {
           name: 'damageDialogTest',
           title: 'Damage Dialog Test',
