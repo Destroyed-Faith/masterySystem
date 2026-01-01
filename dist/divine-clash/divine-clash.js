@@ -272,7 +272,9 @@ async function createStoneActorsForPlayer(user, kind, count, folderId) {
         return [];
     }
     // First, find all existing stone actors of this kind in the folder
-    const allActors = game.actors || [];
+    // In Foundry VTT, game.actors is a Collection, not an array
+    const actorsCollection = game.actors;
+    const allActors = actorsCollection ? (Array.isArray(actorsCollection) ? actorsCollection : Array.from(actorsCollection.values())) : [];
     const existingActors = allActors.filter((a) => {
         const aFolder = a.folder;
         const aName = a.name || '';
@@ -382,7 +384,9 @@ async function _ensurePlayerStoneActor(user, kind) {
         return existing;
     }
     // Strategy 2: Find any stone actor owned by this user that matches the kind
-    const allActors = game.actors || [];
+    // In Foundry VTT, game.actors is a Collection, not an array
+    const actorsCollection = game.actors;
+    const allActors = actorsCollection ? (Array.isArray(actorsCollection) ? actorsCollection : Array.from(actorsCollection.values())) : [];
     const userOwnedActors = allActors.filter((a) => {
         const hasOwnership = a.testUserPermission?.(user, 'OWNER') ||
             a.ownership?.[user.id] === CONST.DOCUMENT_OWNERSHIP_LEVELS.OWNER;
@@ -949,7 +953,9 @@ async function ensureStonesFolderForActor(actor) {
         hasParentFolder: !!actorFolder
     });
     // Check if folder already exists
-    const allFolders = game.folders || [];
+    // In Foundry VTT, game.folders is a Collection, not an array
+    const foldersCollection = game.folders;
+    const allFolders = foldersCollection ? (Array.isArray(foldersCollection) ? foldersCollection : Array.from(foldersCollection.values())) : [];
     console.log(`Mastery System | [ENSURE STONES FOLDER] Total folders in game: ${allFolders.length}`);
     const existingFolder = allFolders.find((f) => {
         const matches = f.name === folderName &&
@@ -1035,8 +1041,17 @@ async function copyStoneActor(baseActor, count, folderId, actorName) {
     }
     const actors = [];
     // Check for existing copies first
-    const allActors = game.actors || [];
+    // In Foundry VTT, game.actors is a Collection, not an array
+    const actorsCollection = game.actors;
+    const allActors = actorsCollection ? (Array.isArray(actorsCollection) ? actorsCollection : Array.from(actorsCollection.values())) : [];
     console.log(`Mastery System | [COPY STONE ACTOR] Total actors in game: ${allActors.length}`);
+    console.log(`Mastery System | [COPY STONE ACTOR] Actors collection type:`, {
+        isCollection: !!actorsCollection,
+        isArray: Array.isArray(actorsCollection),
+        hasValues: typeof actorsCollection?.values === 'function',
+        size: actorsCollection?.size,
+        length: actorsCollection?.length
+    });
     const existingActors = allActors.filter((a) => {
         const aFolder = a.folder;
         const aName = a.name || '';
@@ -1263,9 +1278,11 @@ export async function startDivineClash() {
         const sceneId = game.settings.get('mastery-system', 'divineClashSceneId');
         console.log(`Mastery System | [DIVINE CLASH START] Scene ID from settings:`, { sceneId, hasValue: !!sceneId, trimmed: sceneId?.trim() });
         let divineClashScene = null;
-        const allScenes = game.scenes || [];
-        console.log(`Mastery System | [DIVINE CLASH START] Total scenes available: ${allScenes.size || allScenes.length}`);
-        console.log(`Mastery System | [DIVINE CLASH START] Scene names:`, Array.from(allScenes.values() || allScenes).map((s) => ({ id: s.id, name: s.name })));
+        // In Foundry VTT, game.scenes is a Collection, not an array
+        const scenesCollection = game.scenes;
+        const allScenes = scenesCollection ? (Array.isArray(scenesCollection) ? scenesCollection : Array.from(scenesCollection.values())) : [];
+        console.log(`Mastery System | [DIVINE CLASH START] Total scenes available: ${allScenes.length}`);
+        console.log(`Mastery System | [DIVINE CLASH START] Scene names:`, allScenes.map((s) => ({ id: s.id, name: s.name })));
         if (sceneId && sceneId.trim() !== '') {
             divineClashScene = game.scenes?.get(sceneId);
             console.log(`Mastery System | [DIVINE CLASH START] Looking for scene by ID: ${sceneId}`, {

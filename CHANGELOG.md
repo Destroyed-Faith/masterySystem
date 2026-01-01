@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.68] - 2025-01-XX
+
+### Fixed
+- **Divine Clash: Fixed Collection access**: Fixed bug where `game.actors`, `game.folders`, and `game.scenes` were accessed as arrays instead of Collections
+  - Changed all Collection accesses to use `Array.from(collection.values())` to properly convert Foundry VTT Collections to arrays
+  - This fixes the issue where duplicate stone actors were created because existing actors couldn't be found
+  - Scene switching should now work correctly
+
 ## [0.2.67] - 2025-01-XX
 
 ### Fixed
