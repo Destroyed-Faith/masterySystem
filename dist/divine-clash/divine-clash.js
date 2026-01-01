@@ -1045,17 +1045,39 @@ async function copyStoneActor(baseActor, count, folderId, actorName) {
     const actorsCollection = game.actors;
     const allActors = actorsCollection ? (Array.isArray(actorsCollection) ? actorsCollection : Array.from(actorsCollection.values())) : [];
     console.log(`Mastery System | [COPY STONE ACTOR] Total actors in game: ${allActors.length}`);
-    console.log(`Mastery System | [COPY STONE ACTOR] Actors collection type:`, {
-        isCollection: !!actorsCollection,
-        isArray: Array.isArray(actorsCollection),
-        hasValues: typeof actorsCollection?.values === 'function',
-        size: actorsCollection?.size,
-        length: actorsCollection?.length
+    // Also check folder by getting it directly from game.folders
+    const folder = game.folders?.get(folderId);
+    console.log(`Mastery System | [COPY STONE ACTOR] Folder lookup:`, {
+        folderId: folderId,
+        folderExists: !!folder,
+        folderName: folder?.name,
+        folderIdType: typeof folderId
     });
+    // CRITICAL: Check if folder actually contains actors by querying the folder's contents
+    // In Foundry VTT, folders have a `contents` property that lists all documents in the folder
+    if (folder && folder.contents) {
+        const folderContents = folder.contents;
+        console.log(`Mastery System | [COPY STONE ACTOR] Folder contents (from folder.contents):`, {
+            total: folderContents?.length || 0,
+            actors: folderContents?.filter((c) => c?.documentName === 'Actor')?.length || 0
+        });
+    }
     // Debug: Log all actors in the folder to see what we're working with
     const actorsInFolder = allActors.filter((a) => {
         const aFolder = a.folder;
-        return aFolder === folderId;
+        const matches = aFolder === folderId;
+        if (matches) {
+            console.log(`Mastery System | [COPY STONE ACTOR] Found actor in folder:`, {
+                id: a.id,
+                name: a.name,
+                folder: aFolder,
+                folderId: folderId,
+                folderMatch: aFolder === folderId,
+                folderType: typeof aFolder,
+                folderIdType: typeof folderId
+            });
+        }
+        return matches;
     });
     console.log(`Mastery System | [COPY STONE ACTOR] Total actors in folder ${folderId}: ${actorsInFolder.length}`);
     if (actorsInFolder.length > 0) {
@@ -1065,6 +1087,10 @@ async function copyStoneActor(baseActor, count, folderId, actorName) {
             folder: a.folder,
             type: a.type
         })));
+    }
+    else {
+        console.warn(`Mastery System | [COPY STONE ACTOR] WARNING: No actors found in folder ${folderId}!`);
+        console.warn(`Mastery System | [COPY STONE ACTOR] This might mean actors were created in a different folder or the folder ID is wrong.`);
     }
     const existingActors = allActors.filter((a) => {
         const aFolder = a.folder;
