@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.69] - 2025-01-XX
+
+### Fixed
+- **Divine Clash: Enhanced debugging for duplicate detection and scene switching**
+  - Added detailed logging for all actors in the target folder to debug why existing actors aren't found
+  - Added more detailed scene switching logs with before/after comparison
+  - Increased scene activation wait time from 500ms to 1000ms
+  - Added warning if scene doesn't switch after activation
+- **Version display**: Made version number more prominent in console logs with a boxed display
+
 ## [0.2.68] - 2025-01-XX
 
 ### Fixed

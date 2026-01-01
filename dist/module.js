@@ -1473,8 +1473,11 @@ Hooks.once('ready', async function () {
  */
 Hooks.once('ready', async function () {
     console.log('Mastery System | System ready');
-    // Log system version
+    // Log system version prominently
     const system = game.system;
+    console.log(`╔═══════════════════════════════════════════════════════════╗`);
+    console.log(`║  MASTERY SYSTEM / DESTROYED FAITH - VERSION ${system.version.padEnd(10)} ║`);
+    console.log(`╚═══════════════════════════════════════════════════════════╝`);
     console.log(`Mastery System | Version ${system.version}`);
 });
 /**
