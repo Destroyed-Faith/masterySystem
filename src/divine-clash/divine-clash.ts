@@ -1438,12 +1438,16 @@ async function spawnTokensForPlayer(
   });
   
   // 1. Place player token in center
+  const playerActorImg = (playerActor as any).img || (playerActor as any).prototypeToken?.texture?.src || '';
   const playerTokenData: any = {
     name: playerName,
     actorId: (playerActor as any).id,
     x: baseX,
     y: baseY,
     actorLink: true,
+    texture: {
+      src: playerActorImg
+    },
     disposition: CONST.TOKEN_DISPOSITIONS.FRIENDLY,
     flags: {
       'mastery-system': {
@@ -1454,6 +1458,11 @@ async function spawnTokensForPlayer(
       }
     }
   };
+  
+  console.log(`Mastery System | [SPAWN TOKENS] Player token image:`, {
+    actorImg: playerActorImg,
+    actorId: (playerActor as any).id
+  });
   
   try {
     const playerTokens = await scene.createEmbeddedDocuments('Token', [playerTokenData]);
@@ -1468,6 +1477,7 @@ async function spawnTokensForPlayer(
   // 2. Place vitality stone token to the right of player
   if (stoneActors.vitalityStoneActors.length > 0) {
     const vitalityActor = stoneActors.vitalityStoneActors[0];
+    const vitalityActorImg = (vitalityActor as any).img || (vitalityActor as any).prototypeToken?.texture?.src || '';
     const vitalityX = baseX + gridSize * 1.5; // 1.5 grid units to the right
     const vitalityY = baseY;
     
@@ -1477,6 +1487,9 @@ async function spawnTokensForPlayer(
       x: vitalityX,
       y: vitalityY,
       actorLink: true,
+      texture: {
+        src: vitalityActorImg
+      },
       disposition: CONST.TOKEN_DISPOSITIONS.NEUTRAL,
       flags: {
         'mastery-system': {
@@ -1488,6 +1501,12 @@ async function spawnTokensForPlayer(
         }
       }
     };
+    
+    console.log(`Mastery System | [SPAWN TOKENS] Vitality stone token image:`, {
+      actorImg: vitalityActorImg,
+      actorId: (vitalityActor as any).id,
+      actorName: (vitalityActor as any).name
+    });
     
     try {
       const vitalityTokens = await scene.createEmbeddedDocuments('Token', [vitalityTokenData]);
@@ -1512,6 +1531,7 @@ async function spawnTokensForPlayer(
     
     for (let i = 0; i < stoneActors.powerStoneActors.length; i++) {
       const powerActor = stoneActors.powerStoneActors[i];
+      const powerActorImg = (powerActor as any).img || (powerActor as any).prototypeToken?.texture?.src || '';
       const powerX = startPowerX + (i * powerStoneSpacing);
       
       const powerTokenData: any = {
@@ -1520,6 +1540,9 @@ async function spawnTokensForPlayer(
         x: powerX,
         y: powerY,
         actorLink: true,
+        texture: {
+          src: powerActorImg
+        },
         disposition: CONST.TOKEN_DISPOSITIONS.NEUTRAL,
         flags: {
           'mastery-system': {
@@ -1532,6 +1555,12 @@ async function spawnTokensForPlayer(
           }
         }
       };
+      
+      console.log(`Mastery System | [SPAWN TOKENS] Power stone ${i + 1} token image:`, {
+        actorImg: powerActorImg,
+        actorId: (powerActor as any).id,
+        actorName: (powerActor as any).name
+      });
       
       powerStoneTokens.push(powerTokenData);
     }

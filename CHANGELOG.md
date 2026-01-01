@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.78] - 2025-01-XX
+
+### Fixed
+- **Divine Clash: Set token texture.src explicitly when creating tokens**
+  - **Critical fix**: Token `texture.src` is now explicitly set to the actor's image when creating tokens
+  - This ensures tokens display the correct image from their parent actor, not placeholder images
+  - Images are taken from `actor.img` or `actor.prototypeToken.texture.src`
+  - Added debug logging to show which image is used for each token
+
 ## [0.2.77] - 2025-01-XX
 
 ### Fixed
