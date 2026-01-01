@@ -1419,37 +1419,40 @@ export async function startDivineClash() {
                 try {
                     // Try multiple methods to switch scenes
                     console.log(`Mastery System | [DIVINE CLASH START] Attempting scene switch with multiple methods...`);
-                    // Method 1: Try game.scenes.view() if available
-                    if (game.scenes?.view) {
-                        console.log(`Mastery System | [DIVINE CLASH START] Method 1: Using game.scenes.view()`);
+                    // Method 1: Try ui.nav.activateScene() first (most reliable)
+                    if (ui.nav?.activateScene) {
+                        console.log(`Mastery System | [DIVINE CLASH START] Method 1: Using ui.nav.activateScene()`);
                         try {
-                            game.scenes.view(targetSceneId);
-                            console.log(`Mastery System | [DIVINE CLASH START] game.scenes.view() called successfully`);
-                        }
-                        catch (viewError) {
-                            console.warn(`Mastery System | [DIVINE CLASH START] game.scenes.view() failed:`, viewError);
-                        }
-                    }
-                    // Method 2: Try ui.webrtc.viewScene() if available
-                    if (ui.webrtc?.viewScene) {
-                        console.log(`Mastery System | [DIVINE CLASH START] Method 2: Using ui.webrtc.viewScene()`);
-                        try {
-                            ui.webrtc.viewScene(targetSceneId);
-                            console.log(`Mastery System | [DIVINE CLASH START] ui.webrtc.viewScene() called successfully`);
-                        }
-                        catch (webrtcError) {
-                            console.warn(`Mastery System | [DIVINE CLASH START] ui.webrtc.viewScene() failed:`, webrtcError);
-                        }
-                    }
-                    // Method 3: Try ui.nav if available (most reliable for scene navigation)
-                    if (ui.nav) {
-                        console.log(`Mastery System | [DIVINE CLASH START] Method 3: Using ui.nav`);
-                        try {
-                            ui.nav.activateScene(targetSceneId);
+                            await ui.nav.activateScene(targetSceneId);
                             console.log(`Mastery System | [DIVINE CLASH START] ui.nav.activateScene() called successfully`);
                         }
                         catch (navError) {
                             console.warn(`Mastery System | [DIVINE CLASH START] ui.nav.activateScene() failed:`, navError);
+                        }
+                    }
+                    // Method 2: Try ui.nav.scene if available
+                    if (ui.nav?.scene) {
+                        console.log(`Mastery System | [DIVINE CLASH START] Method 2: Using ui.nav.scene`);
+                        try {
+                            const navScene = ui.nav.scene;
+                            if (navScene && typeof navScene.view === 'function') {
+                                await navScene.view(targetSceneId);
+                                console.log(`Mastery System | [DIVINE CLASH START] ui.nav.scene.view() called successfully`);
+                            }
+                        }
+                        catch (navSceneError) {
+                            console.warn(`Mastery System | [DIVINE CLASH START] ui.nav.scene.view() failed:`, navSceneError);
+                        }
+                    }
+                    // Method 3: Try game.scenes.view() if available
+                    if (game.scenes?.view) {
+                        console.log(`Mastery System | [DIVINE CLASH START] Method 3: Using game.scenes.view()`);
+                        try {
+                            await game.scenes.view(targetSceneId);
+                            console.log(`Mastery System | [DIVINE CLASH START] game.scenes.view() called successfully`);
+                        }
+                        catch (viewError) {
+                            console.warn(`Mastery System | [DIVINE CLASH START] game.scenes.view() failed:`, viewError);
                         }
                     }
                     // Method 4: Try scene.activate() as fallback
@@ -1460,6 +1463,23 @@ export async function startDivineClash() {
                     }
                     catch (activateError) {
                         console.warn(`Mastery System | [DIVINE CLASH START] scene.activate() failed:`, activateError);
+                    }
+                    // Method 5: Last resort - try to trigger navigation via click event on scene navigation
+                    console.log(`Mastery System | [DIVINE CLASH START] Method 5: Attempting direct navigation trigger`);
+                    try {
+                        // Try to find and click the scene navigation button
+                        const sceneNavElement = document.querySelector(`[data-scene-id="${targetSceneId}"]`);
+                        if (sceneNavElement) {
+                            console.log(`Mastery System | [DIVINE CLASH START] Found scene navigation element, clicking...`);
+                            sceneNavElement.click();
+                            console.log(`Mastery System | [DIVINE CLASH START] Scene navigation element clicked`);
+                        }
+                        else {
+                            console.warn(`Mastery System | [DIVINE CLASH START] Scene navigation element not found for scene ${targetSceneId}`);
+                        }
+                    }
+                    catch (clickError) {
+                        console.warn(`Mastery System | [DIVINE CLASH START] Direct navigation trigger failed:`, clickError);
                     }
                     // Wait for scene to actually switch - poll until it changes
                     let attempts = 0;

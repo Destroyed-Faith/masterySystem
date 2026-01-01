@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.74] - 2025-01-XX
+
+### Fixed
+- **Divine Clash: Improved scene switching with multiple fallback methods**
+  - **Scene switching**: Reordered methods and added direct DOM click as last resort
+    - Method 1: `ui.nav.activateScene()` (now first, most reliable)
+    - Method 2: `ui.nav.scene.view()` (alternative navigation method)
+    - Method 3: `game.scenes.view()` (fallback)
+    - Method 4: `scene.activate()` (fallback)
+    - Method 5: Direct DOM click on scene navigation element (last resort)
+  - All methods now use `await` to ensure they complete before checking
+  - Added logging for each method attempt
+
 ## [0.2.73] - 2025-01-XX
 
 ### Fixed
