@@ -775,19 +775,39 @@ async function pullUsersToScene(scene: Scene, userIds: string[]): Promise<void> 
 }
 
 /**
- * Calculate power stone count from actor (sum of all pools except vitality)
+ * Calculate power stone count from actor (using system.stones)
  */
 function calculatePowerStoneCount(actor: Actor): number {
   const system = (actor.system as any) || {};
-  const stonePools = system.stonePools || {};
+  const stones = system.stones || {};
   
   console.log(`Mastery System | [CALCULATE POWER STONES] Starting calculation for actor:`, {
     actorId: (actor as any).id,
     actorName: (actor as any).name,
-    hasStonePools: !!stonePools,
-    stonePoolKeys: Object.keys(stonePools)
+    hasStones: !!stones,
+    stonesData: stones
   });
   
+  // Use system.stones if available (new system)
+  if (stones.total !== undefined && stones.vitality !== undefined) {
+    // Power stones = total - vitality (or current - vitality if current is set)
+    const totalStones = stones.current !== undefined ? stones.current : stones.total;
+    const vitality = stones.vitality || 0;
+    const powerStones = Math.max(0, totalStones - vitality);
+    
+    console.log(`Mastery System | [CALCULATE POWER STONES] Using system.stones:`, {
+      total: stones.total,
+      current: stones.current,
+      vitality: vitality,
+      powerStones: powerStones
+    });
+    
+    return powerStones;
+  }
+  
+  // Fallback to old stonePools system for backwards compatibility
+  console.log(`Mastery System | [CALCULATE POWER STONES] Falling back to stonePools`);
+  const stonePools = system.stonePools || {};
   let total = 0;
   for (const [key, pool] of Object.entries(stonePools)) {
     if (key === 'vitality') {
@@ -795,7 +815,6 @@ function calculatePowerStoneCount(actor: Actor): number {
       continue;
     }
     const poolData = pool as any;
-    // Use current value (actual stones available) instead of max - sustained (theoretical capacity)
     const current = poolData.current || 0;
     total += current;
     console.log(`Mastery System | [CALCULATE POWER STONES] Pool "${key}": current=${current}, runningTotal=${total}`);
@@ -806,20 +825,33 @@ function calculatePowerStoneCount(actor: Actor): number {
 }
 
 /**
- * Calculate vitality stone count from actor
+ * Calculate vitality stone count from actor (using system.stones)
  */
 function calculateVitalityStoneCount(actor: Actor): number {
   // Check flag first
   const flagValue = (actor as any).getFlag('mastery-system', 'divineClash.vitality') as number | undefined;
   if (flagValue !== undefined && flagValue !== null) {
+    console.log(`Mastery System | [CALCULATE VITALITY STONES] Using flag value: ${flagValue}`);
     return flagValue;
   }
   
-  // Fallback to stone pool
   const system = (actor.system as any) || {};
+  const stones = system.stones || {};
+  
+  // Use system.stones if available (new system)
+  if (stones.vitality !== undefined) {
+    const vitality = stones.vitality || 0;
+    console.log(`Mastery System | [CALCULATE VITALITY STONES] Using system.stones.vitality: ${vitality}`);
+    return vitality;
+  }
+  
+  // Fallback to old stonePools system for backwards compatibility
+  console.log(`Mastery System | [CALCULATE VITALITY STONES] Falling back to stonePools`);
   const stonePools = system.stonePools || {};
   const vitalityPool = stonePools.vitality || {};
-  return (vitalityPool as any).max || 10;
+  const fallback = (vitalityPool as any).max || 10;
+  console.log(`Mastery System | [CALCULATE VITALITY STONES] Using stonePools.vitality.max: ${fallback}`);
+  return fallback;
 }
 
 // Guard to prevent multiple simultaneous calls

@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.59] - 2025-01-XX
+
+### Changed
+- **Divine Clash: Stone Calculation**: Changed to use `system.stones` instead of `system.stonePools`
+  - Power Stones now calculated as `stones.current - stones.vitality` (or `stones.total - stones.vitality`)
+  - Vitality Stones now use `stones.vitality` directly
+  - Falls back to old `stonePools` system for backwards compatibility
+  - Better alignment with the actual stone system used in character sheets
+
 ## [0.2.58] - 2025-01-XX
 
 ### Fixed
