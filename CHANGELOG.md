@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.62] - 2025-01-XX
+
+### Fixed
+- **Divine Clash: Stone Reuse**: Prevent duplicate stone actors and tokens when starting Divine Clash multiple times
+  - Stone actors are now reused if they already exist in the player's folder
+  - Stone tokens are now reused if they already exist on the scene for the same actors
+  - Only missing actors/tokens are created, preventing duplicates
+  - Orphaned tokens (without matching actors) are automatically cleaned up
+  - Added detailed logging for reuse vs creation of stones
+
 ## [0.2.61] - 2025-01-XX
 
 ### Fixed
