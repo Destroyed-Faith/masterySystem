@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.56] - 2025-01-XX
+
+### Fixed
+- **Divine Clash: Power Stone Count**: Fixed incorrect stone count calculation
+  - Changed from using `available` (max - sustained) to `current` value
+  - Now correctly spawns only the actual stones the character has, not theoretical capacity
+- **Divine Clash: Duplicate Stones**: Fixed duplicate stone tokens being spawned
+  - Added cleanup function to remove existing stones for a seat before spawning new ones
+  - Prevents accumulation of stones when Divine Clash is started multiple times
+- **Divine Clash: Stone Image Priority**: Fixed placeholder images being used instead of settings image
+  - Settings image now always takes precedence if configured
+  - Added extensive debug logging for image selection process
+  - Logs all image sources (settings, actor, default) and decision process
+  - Helps diagnose image selection issues
+
+### Changed
+- **Divine Clash: Image Selection Logic**: Improved image resolution priority
+  - Settings image is now checked first and used if set (even if it's the default path)
+  - Actor images are only used if settings image is not configured
+  - Added `isValidImage()` helper function to detect placeholder images
+
 ## [0.2.42] - 2025-01-XX
 
 ### Fixed

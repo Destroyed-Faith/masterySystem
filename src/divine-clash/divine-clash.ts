@@ -331,6 +331,43 @@ async function ensurePlayerStoneActor(user: User, kind: StoneKind): Promise<Acto
 }
 
 /**
+ * Check if an image path is a valid non-placeholder image
+ */
+function isValidImage(img: string | undefined | null): boolean {
+  if (!img || img.trim() === '') return false;
+  // Check for common placeholder patterns (but allow default SVG files as they are valid images)
+  const placeholderPatterns = [
+    'placeholder',
+    'default-',
+    'mystery-man', // Foundry default placeholder
+    'icons/svg/mystery-man.svg'
+  ];
+  const imgLower = img.toLowerCase();
+  // Only reject if it's clearly a placeholder, not a valid default image
+  return !placeholderPatterns.some(pattern => imgLower.includes(pattern));
+}
+
+/**
+ * Clean up existing stones for a seat before spawning new ones
+ */
+async function cleanupExistingStonesForSeat(scene: Scene, seatIndex: number): Promise<void> {
+  const tokens = scene.tokens || [];
+  const tokensToDelete: string[] = [];
+  
+  for (const token of tokens) {
+    const tokenFlags = (token as any).document?.getFlag('mastery-system', 'divineClash') as DivineClashTokenFlags | undefined;
+    if (tokenFlags?.isStone && tokenFlags.seatIndex === seatIndex) {
+      tokensToDelete.push((token as any).id);
+    }
+  }
+  
+  if (tokensToDelete.length > 0) {
+    console.log(`Mastery System | [CLEANUP STONES] Removing ${tokensToDelete.length} existing stone(s) for seat ${seatIndex}`);
+    await scene.deleteEmbeddedDocuments('Token', tokensToDelete);
+  }
+}
+
+/**
  * Spawn stone tokens for a seat
  */
 async function spawnStonesForSeat(
@@ -348,6 +385,9 @@ async function spawnStonesForSeat(
     userId: user?.id
   });
   
+  // Clean up existing stones for this seat first
+  await cleanupExistingStonesForSeat(scene, seatIndex);
+  
   const seatRegion = findRegion(scene, getRegionName(seatIndex, 'READY'));
   if (!seatRegion) {
     console.error(`Mastery System | [SPAWN STONES] Seat ${seatIndex} READY region not found - cannot spawn stones`);
@@ -362,12 +402,46 @@ async function spawnStonesForSeat(
     if (stoneActor) {
       console.log(`Mastery System | [SPAWN STONES] Stone actor found/created:`, {
         id: (stoneActor as any).id,
-        name: (stoneActor as any).name
+        name: (stoneActor as any).name,
+        img: (stoneActor as any).img,
+        hasImg: !!(stoneActor as any).img
       });
-      // Get image from actor or settings
-      const powerStoneImg = (stoneActor as any).img || 
-                            (game as any).settings.get('mastery-system', 'divineClashPowerStoneImg') || 
-                            'systems/mastery-system/icons/svg/power-stone.svg';
+      // Get image from settings first (if set and not empty), then actor, then default
+      // Settings image always takes precedence if explicitly configured
+      const settingsImg = (game as any).settings.get('mastery-system', 'divineClashPowerStoneImg');
+      const actorImg = (stoneActor as any).img;
+      const defaultImg = 'systems/mastery-system/icons/svg/power-stone.svg';
+      
+      // Debug: Check all image sources
+      console.log(`Mastery System | [SPAWN STONES] [IMAGE DEBUG] Power stone image sources:`, {
+        settingsImg: settingsImg || '(not set)',
+        settingsImgTrimmed: settingsImg ? settingsImg.trim() : '(not set)',
+        settingsImgIsValid: settingsImg && settingsImg.trim() !== '',
+        actorImg: actorImg || '(not set)',
+        actorImgIsValid: actorImg ? isValidImage(actorImg) : false,
+        defaultImg: defaultImg
+      });
+      
+      // Prefer settings image if it's set (even if it's the default path), otherwise use actor image if valid, otherwise default
+      let powerStoneImg: string;
+      if (settingsImg && settingsImg.trim() !== '') {
+        powerStoneImg = settingsImg;
+        console.log(`Mastery System | [SPAWN STONES] [IMAGE DEBUG] Using SETTINGS image: ${powerStoneImg}`);
+      } else if (actorImg && isValidImage(actorImg)) {
+        powerStoneImg = actorImg;
+        console.log(`Mastery System | [SPAWN STONES] [IMAGE DEBUG] Using ACTOR image: ${powerStoneImg}`);
+      } else {
+        powerStoneImg = defaultImg;
+        console.log(`Mastery System | [SPAWN STONES] [IMAGE DEBUG] Using DEFAULT image: ${powerStoneImg}`);
+      }
+      
+      console.log(`Mastery System | [SPAWN STONES] Power stone image resolution:`, {
+        actorImg: actorImg || '(none)',
+        settingsImg: settingsImg || '(none)',
+        defaultImg: defaultImg,
+        finalImg: powerStoneImg,
+        decision: settingsImg && settingsImg.trim() !== '' ? 'settings' : (actorImg && isValidImage(actorImg) ? 'actor' : 'default')
+      });
       
       for (let i = 0; i < powerStoneCount; i++) {
         const pos = getRandomPointInRegion(seatRegion);
@@ -393,12 +467,46 @@ async function spawnStonesForSeat(
           locked: false
         };
         
+        console.log(`Mastery System | [SPAWN STONES] Creating power stone ${i + 1}/${powerStoneCount} with tokenData:`, {
+          name: tokenData.name,
+          actorId: tokenData.actorId,
+          img: tokenData.img,
+          imgSource: 'from stoneActor or settings',
+          position: { x: tokenData.x, y: tokenData.y },
+          actorLink: tokenData.actorLink
+        });
+        
         try {
           const created = await scene.createEmbeddedDocuments('Token', [tokenData]);
-          console.log(`Mastery System | [SPAWN STONES] Created power stone ${i + 1}/${powerStoneCount}:`, {
-            id: created[0]?.id,
-            position: { x: pos.x, y: pos.y }
-          });
+          const createdToken = created[0];
+          if (createdToken) {
+            // Verify the created token has the image
+            const createdImg = (createdToken as any).texture?.src || (createdToken as any).img || (createdToken as any).document?.img;
+            console.log(`Mastery System | [SPAWN STONES] Created power stone ${i + 1}/${powerStoneCount}:`, {
+              id: createdToken.id,
+              name: (createdToken as any).name,
+              position: { x: (createdToken as any).x || (createdToken as any).document?.x, y: (createdToken as any).y || (createdToken as any).document?.y },
+              imgInData: tokenData.img,
+              imgInCreated: createdImg,
+              imgMatch: tokenData.img === createdImg,
+              documentImg: (createdToken as any).document?.img,
+              textureSrc: (createdToken as any).texture?.src
+            });
+            
+            // Check if token document has img
+            const tokenDoc = (createdToken as any).document || createdToken;
+            if (tokenDoc) {
+              console.log(`Mastery System | [SPAWN STONES] Token document details:`, {
+                id: tokenDoc.id,
+                img: tokenDoc.img,
+                actorId: tokenDoc.actorId,
+                actorLink: tokenDoc.actorLink,
+                name: tokenDoc.name
+              });
+            }
+          } else {
+            console.error(`Mastery System | [SPAWN STONES] Created array is empty for power stone ${i + 1}`);
+          }
         } catch (error) {
           console.error(`Mastery System | [SPAWN STONES] Failed to spawn power stone ${i + 1}:`, error);
         }
@@ -424,11 +532,49 @@ async function spawnStonesForSeat(
       const vitalityRegion = findRegion(scene, getRegionName(seatIndex, 'VITALITY'));
       if (vitalityRegion) {
         console.log(`Mastery System | [SPAWN STONES] Found VITALITY region for seat ${seatIndex}:`, vitalityRegion);
-        // Get image from actor or settings
-        const vitalityStoneImg = (stoneActor as any)?.img || 
-                                 (actor as any).img ||
-                                 (game as any).settings.get('mastery-system', 'divineClashVitalityStoneImg') || 
-                                 'systems/mastery-system/icons/svg/vitality-stone.svg';
+        // Get image from settings first (if set and not empty), then stone actor, then character actor, then default
+        // Settings image always takes precedence if explicitly configured
+        const settingsImg = (game as any).settings.get('mastery-system', 'divineClashVitalityStoneImg');
+        const stoneActorImg = (stoneActor as any)?.img;
+        const actorImg = (actor as any).img;
+        const defaultImg = 'systems/mastery-system/icons/svg/vitality-stone.svg';
+        
+        // Debug: Check all image sources
+        console.log(`Mastery System | [SPAWN STONES] [IMAGE DEBUG] Vitality stone image sources:`, {
+          settingsImg: settingsImg || '(not set)',
+          settingsImgTrimmed: settingsImg ? settingsImg.trim() : '(not set)',
+          settingsImgIsValid: settingsImg && settingsImg.trim() !== '',
+          stoneActorImg: stoneActorImg || '(not set)',
+          stoneActorImgIsValid: stoneActorImg ? isValidImage(stoneActorImg) : false,
+          actorImg: actorImg || '(not set)',
+          actorImgIsValid: actorImg ? isValidImage(actorImg) : false,
+          defaultImg: defaultImg
+        });
+        
+        // Prefer settings image if it's set (even if it's the default path), otherwise use stone actor image if valid, then character actor, then default
+        let vitalityStoneImg: string;
+        if (settingsImg && settingsImg.trim() !== '') {
+          vitalityStoneImg = settingsImg;
+          console.log(`Mastery System | [SPAWN STONES] [IMAGE DEBUG] Using SETTINGS image: ${vitalityStoneImg}`);
+        } else if (stoneActorImg && isValidImage(stoneActorImg)) {
+          vitalityStoneImg = stoneActorImg;
+          console.log(`Mastery System | [SPAWN STONES] [IMAGE DEBUG] Using STONE ACTOR image: ${vitalityStoneImg}`);
+        } else if (actorImg && isValidImage(actorImg)) {
+          vitalityStoneImg = actorImg;
+          console.log(`Mastery System | [SPAWN STONES] [IMAGE DEBUG] Using CHARACTER ACTOR image: ${vitalityStoneImg}`);
+        } else {
+          vitalityStoneImg = defaultImg;
+          console.log(`Mastery System | [SPAWN STONES] [IMAGE DEBUG] Using DEFAULT image: ${vitalityStoneImg}`);
+        }
+        
+        console.log(`Mastery System | [SPAWN STONES] Vitality stone image resolution:`, {
+          stoneActorImg: stoneActorImg || '(none)',
+          actorImg: actorImg || '(none)',
+          settingsImg: settingsImg || '(none)',
+          defaultImg: defaultImg,
+          finalImg: vitalityStoneImg,
+          decision: settingsImg && settingsImg.trim() !== '' ? 'settings' : (stoneActorImg && isValidImage(stoneActorImg) ? 'stoneActor' : (actorImg && isValidImage(actorImg) ? 'actor' : 'default'))
+        });
         
         for (let i = 0; i < vitalityStoneCount; i++) {
           const pos = getRandomPointInRegion(vitalityRegion);
@@ -454,12 +600,46 @@ async function spawnStonesForSeat(
             locked: false
           };
           
+          console.log(`Mastery System | [SPAWN STONES] Creating vitality stone ${i + 1}/${vitalityStoneCount} with tokenData:`, {
+            name: tokenData.name,
+            actorId: tokenData.actorId,
+            img: tokenData.img,
+            imgSource: 'from stoneActor, actor, or settings',
+            position: { x: tokenData.x, y: tokenData.y },
+            actorLink: tokenData.actorLink
+          });
+          
           try {
             const created = await scene.createEmbeddedDocuments('Token', [tokenData]);
-            console.log(`Mastery System | [SPAWN STONES] Created vitality stone ${i + 1}/${vitalityStoneCount}:`, {
-              id: created[0]?.id,
-              position: { x: pos.x, y: pos.y }
-            });
+            const createdToken = created[0];
+            if (createdToken) {
+              // Verify the created token has the image
+              const createdImg = (createdToken as any).texture?.src || (createdToken as any).img || (createdToken as any).document?.img;
+              console.log(`Mastery System | [SPAWN STONES] Created vitality stone ${i + 1}/${vitalityStoneCount}:`, {
+                id: createdToken.id,
+                name: (createdToken as any).name,
+                position: { x: (createdToken as any).x || (createdToken as any).document?.x, y: (createdToken as any).y || (createdToken as any).document?.y },
+                imgInData: tokenData.img,
+                imgInCreated: createdImg,
+                imgMatch: tokenData.img === createdImg,
+                documentImg: (createdToken as any).document?.img,
+                textureSrc: (createdToken as any).texture?.src
+              });
+              
+              // Check if token document has img
+              const tokenDoc = (createdToken as any).document || createdToken;
+              if (tokenDoc) {
+                console.log(`Mastery System | [SPAWN STONES] Token document details:`, {
+                  id: tokenDoc.id,
+                  img: tokenDoc.img,
+                  actorId: tokenDoc.actorId,
+                  actorLink: tokenDoc.actorLink,
+                  name: tokenDoc.name
+                });
+              }
+            } else {
+              console.error(`Mastery System | [SPAWN STONES] Created array is empty for vitality stone ${i + 1}`);
+            }
           } catch (error) {
             console.error(`Mastery System | [SPAWN STONES] Failed to spawn vitality stone ${i + 1}:`, error);
           }
@@ -611,15 +791,27 @@ function calculatePowerStoneCount(actor: Actor): number {
   const system = (actor.system as any) || {};
   const stonePools = system.stonePools || {};
   
+  console.log(`Mastery System | [CALCULATE POWER STONES] Starting calculation for actor:`, {
+    actorId: (actor as any).id,
+    actorName: (actor as any).name,
+    hasStonePools: !!stonePools,
+    stonePoolKeys: Object.keys(stonePools)
+  });
+  
   let total = 0;
   for (const [key, pool] of Object.entries(stonePools)) {
-    if (key === 'vitality') continue;
+    if (key === 'vitality') {
+      console.log(`Mastery System | [CALCULATE POWER STONES] Skipping vitality pool`);
+      continue;
+    }
     const poolData = pool as any;
-    const max = poolData.max || 0;
-    const sustained = poolData.sustained || 0;
-    total += Math.max(0, max - sustained);
+    // Use current value (actual stones available) instead of max - sustained (theoretical capacity)
+    const current = poolData.current || 0;
+    total += current;
+    console.log(`Mastery System | [CALCULATE POWER STONES] Pool "${key}": current=${current}, runningTotal=${total}`);
   }
   
+  console.log(`Mastery System | [CALCULATE POWER STONES] Final total: ${total}`);
   return total;
 }
 
