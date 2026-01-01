@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.57] - 2025-01-XX
+
+### Fixed
+- **Divine Clash: Placeholder Images**: Fixed placeholder images still being displayed on stone tokens
+  - Added explicit image update after token creation to ensure correct image is used
+  - Token image is now verified and corrected if Foundry uses actor image instead
+  - Logs show image source and any corrections made
+- **Divine Clash: Multiple Simultaneous Calls**: Prevented duplicate Divine Clash start calls
+  - Added guard variable to prevent multiple simultaneous executions
+  - Prevents token duplication and performance issues
+
+### Changed
+- **Divine Clash: Image Handling**: Improved token image handling
+  - Token image is now explicitly updated after creation if it doesn't match expected image
+  - Better logging for image selection and correction process
+
 ## [0.2.56] - 2025-01-XX
 
 ### Fixed

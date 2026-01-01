@@ -480,29 +480,24 @@ async function spawnStonesForSeat(
           const created = await scene.createEmbeddedDocuments('Token', [tokenData]);
           const createdToken = created[0];
           if (createdToken) {
-            // Verify the created token has the image
-            const createdImg = (createdToken as any).texture?.src || (createdToken as any).img || (createdToken as any).document?.img;
+            const tokenDoc = (createdToken as any).document || createdToken;
+            const createdImg = tokenDoc?.img || (createdToken as any).img;
+            
             console.log(`Mastery System | [SPAWN STONES] Created power stone ${i + 1}/${powerStoneCount}:`, {
               id: createdToken.id,
               name: (createdToken as any).name,
-              position: { x: (createdToken as any).x || (createdToken as any).document?.x, y: (createdToken as any).y || (createdToken as any).document?.y },
+              position: { x: (createdToken as any).x || tokenDoc?.x, y: (createdToken as any).y || tokenDoc?.y },
               imgInData: tokenData.img,
-              imgInCreated: createdImg,
+              imgInDocument: createdImg,
               imgMatch: tokenData.img === createdImg,
-              documentImg: (createdToken as any).document?.img,
-              textureSrc: (createdToken as any).texture?.src
+              actorLink: tokenDoc?.actorLink
             });
             
-            // Check if token document has img
-            const tokenDoc = (createdToken as any).document || createdToken;
-            if (tokenDoc) {
-              console.log(`Mastery System | [SPAWN STONES] Token document details:`, {
-                id: tokenDoc.id,
-                img: tokenDoc.img,
-                actorId: tokenDoc.actorId,
-                actorLink: tokenDoc.actorLink,
-                name: tokenDoc.name
-              });
+            // Force update image if it doesn't match (Foundry sometimes uses actor image even with actorLink: false)
+            if (tokenDoc && createdImg !== powerStoneImg) {
+              console.log(`Mastery System | [SPAWN STONES] [IMAGE FIX] Token image mismatch, updating from "${createdImg}" to "${powerStoneImg}"`);
+              await tokenDoc.update({ img: powerStoneImg });
+              console.log(`Mastery System | [SPAWN STONES] [IMAGE FIX] Image updated successfully`);
             }
           } else {
             console.error(`Mastery System | [SPAWN STONES] Created array is empty for power stone ${i + 1}`);
@@ -613,29 +608,24 @@ async function spawnStonesForSeat(
             const created = await scene.createEmbeddedDocuments('Token', [tokenData]);
             const createdToken = created[0];
             if (createdToken) {
-              // Verify the created token has the image
-              const createdImg = (createdToken as any).texture?.src || (createdToken as any).img || (createdToken as any).document?.img;
+              const tokenDoc = (createdToken as any).document || createdToken;
+              const createdImg = tokenDoc?.img || (createdToken as any).img;
+              
               console.log(`Mastery System | [SPAWN STONES] Created vitality stone ${i + 1}/${vitalityStoneCount}:`, {
                 id: createdToken.id,
                 name: (createdToken as any).name,
-                position: { x: (createdToken as any).x || (createdToken as any).document?.x, y: (createdToken as any).y || (createdToken as any).document?.y },
+                position: { x: (createdToken as any).x || tokenDoc?.x, y: (createdToken as any).y || tokenDoc?.y },
                 imgInData: tokenData.img,
-                imgInCreated: createdImg,
+                imgInDocument: createdImg,
                 imgMatch: tokenData.img === createdImg,
-                documentImg: (createdToken as any).document?.img,
-                textureSrc: (createdToken as any).texture?.src
+                actorLink: tokenDoc?.actorLink
               });
               
-              // Check if token document has img
-              const tokenDoc = (createdToken as any).document || createdToken;
-              if (tokenDoc) {
-                console.log(`Mastery System | [SPAWN STONES] Token document details:`, {
-                  id: tokenDoc.id,
-                  img: tokenDoc.img,
-                  actorId: tokenDoc.actorId,
-                  actorLink: tokenDoc.actorLink,
-                  name: tokenDoc.name
-                });
+              // Force update image if it doesn't match (Foundry sometimes uses actor image even with actorLink: false)
+              if (tokenDoc && createdImg !== vitalityStoneImg) {
+                console.log(`Mastery System | [SPAWN STONES] [IMAGE FIX] Token image mismatch, updating from "${createdImg}" to "${vitalityStoneImg}"`);
+                await tokenDoc.update({ img: vitalityStoneImg });
+                console.log(`Mastery System | [SPAWN STONES] [IMAGE FIX] Image updated successfully`);
               }
             } else {
               console.error(`Mastery System | [SPAWN STONES] Created array is empty for vitality stone ${i + 1}`);
@@ -832,6 +822,9 @@ function calculateVitalityStoneCount(actor: Actor): number {
   return (vitalityPool as any).max || 10;
 }
 
+// Guard to prevent multiple simultaneous calls
+let isStartingDivineClash = false;
+
 /**
  * START: Initialize Divine Clash from selected tokens
  */
@@ -842,6 +835,16 @@ export async function startDivineClash(): Promise<void> {
     ui.notifications?.warn('Only the GM can start Divine Clash');
     return;
   }
+  
+  // Prevent multiple simultaneous calls
+  if (isStartingDivineClash) {
+    console.warn('Mastery System | [DIVINE CLASH START] Already in progress, ignoring duplicate call');
+    return;
+  }
+  
+  isStartingDivineClash = true;
+  
+  try {
   
   const controlled = canvas?.tokens?.controlled || [];
   console.log('Mastery System | [DIVINE CLASH START] Controlled tokens:', controlled.length);
@@ -1110,7 +1113,10 @@ export async function startDivineClash(): Promise<void> {
     console.log(`Mastery System | [DIVINE CLASH START] ========== Completed seat ${seatIndex} ==========`);
   }
   
-  ui.notifications?.info(`Divine Clash started with ${playerTokens.length} player(s)`);
+    ui.notifications?.info(`Divine Clash started with ${playerTokens.length} player(s)`);
+  } finally {
+    isStartingDivineClash = false;
+  }
 }
 
 /**
