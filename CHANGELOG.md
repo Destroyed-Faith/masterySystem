@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.76] - 2025-01-XX
+
+### Fixed
+- **Divine Clash: Preserve token selection across scene switch**
+  - **Critical fix**: Token selection is now saved BEFORE scene switch (selection is lost when scene changes in Foundry VTT)
+  - Added extensive debug logging to track token/actor selection throughout the process
+  - Now uses saved actors from before scene switch, combined with any newly selected tokens after switch
+  - Prevents "Please select at least one character token" error when tokens were selected before clicking Divine Clash Start
+
 ## [0.2.75] - 2025-01-XX
 
 ### Added
