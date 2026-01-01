@@ -3,12 +3,14 @@
  * Handles automation for the Divine Clash board system
  */
 
-import type { DivineClashPhase, StoneKind, StoneState, DivineClashSeat, DivineClashSceneFlags, DivineClashTokenFlags, RegionInfo } from './divine-clash-types.js';
+import type { DivineClashPhase, StoneKind, StoneState, DivineClashSceneFlags, DivineClashTokenFlags, RegionInfo } from './divine-clash-types.js';
 
 /**
  * Get Divine Clash scene (by ID or name)
+ * @deprecated Not used in new implementation
  */
-function getDivineClashScene(): Scene | null {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function _getDivineClashScene(): Scene | null {
   const sceneId = (game as any).settings.get('mastery-system', 'divineClashSceneId') as string;
   
   if (sceneId && sceneId.trim() !== '') {
@@ -323,9 +325,9 @@ async function createStoneActorsForPlayer(
   
   // Reuse existing actors first
   for (let i = 0; i < Math.min(existingActors.length, count); i++) {
-    const existingActor = existingActors[i];
-    console.log(`Mastery System | [CREATE STONE ACTORS] Reusing existing actor: ${(existingActor as any).name} (${(existingActor as any).id})`);
-    actors.push(existingActor);
+      const existingActor = existingActors[i];
+      console.log(`Mastery System | [CREATE STONE ACTORS] Reusing existing actor: ${(existingActor as any).name || 'Unknown'} (${(existingActor as any).id})`);
+      actors.push(existingActor);
   }
   
   // Create missing actors
@@ -378,9 +380,10 @@ async function createStoneActorsForPlayer(
 /**
  * Ensure player stone actor exists (one per user, per kind)
  * First tries to find existing stone actors, then creates new ones if needed
- * @deprecated Use createStoneActorsForPlayer instead for individual stone actors
+ * @deprecated Not used in new implementation
  */
-async function ensurePlayerStoneActor(user: User, kind: StoneKind): Promise<Actor | null> {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+async function _ensurePlayerStoneActor(user: User, kind: StoneKind): Promise<Actor | null> {
   const actorName = `DC Stone (${kind === 'power' ? 'Power' : 'Vitality'}) - ${user.name}`;
   const kindName = kind === 'power' ? 'Power' : 'Vitality';
   
@@ -491,8 +494,10 @@ async function ensurePlayerStoneActor(user: User, kind: StoneKind): Promise<Acto
 
 /**
  * Check if an image path is a valid non-placeholder image
+ * @deprecated Not used in new implementation
  */
-function isValidImage(img: string | undefined | null): boolean {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function _isValidImage(img: string | undefined | null): boolean {
   if (!img || img.trim() === '') return false;
   // Check for common placeholder patterns (but allow default SVG files as they are valid images)
   const placeholderPatterns = [
@@ -567,11 +572,13 @@ async function cleanupOrphanedStonesForSeat(scene: Scene, seatIndex: number, val
 
 /**
  * Spawn stone tokens for a seat
+ * @deprecated Not used in new implementation - only creates actors now
  */
-async function spawnStonesForSeat(
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+async function _spawnStonesForSeat(
   scene: Scene,
   seatIndex: number,
-  actor: Actor,
+  _actor: Actor,
   user: User | null,
   powerStoneCount: number,
   vitalityStoneCount: number
@@ -638,7 +645,7 @@ async function spawnStonesForSeat(
       const pos = getRandomPointInRegion(seatRegion);
       
       const tokenData: any = {
-        name: stoneActor.name,
+        name: (stoneActor as any).name,
         actorId: actorId,
         x: pos.x,
         y: pos.y,
@@ -743,7 +750,7 @@ async function spawnStonesForSeat(
       const pos = getRandomPointInRegion(vitalityRegion);
       
       const tokenData: any = {
-        name: stoneActor.name,
+        name: (stoneActor as any).name,
         actorId: actorId,
         x: pos.x,
         y: pos.y,
@@ -805,8 +812,10 @@ async function spawnStonesForSeat(
 
 /**
  * Spawn avatar token for a seat
+ * @deprecated Not used in new implementation
  */
-async function spawnAvatarForSeat(scene: Scene, seatIndex: number, actor: Actor): Promise<void> {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+async function _spawnAvatarForSeat(scene: Scene, seatIndex: number, actor: Actor): Promise<void> {
   console.log(`Mastery System | [SPAWN AVATAR] Starting for seat ${seatIndex}:`, {
     actorId: (actor as any).id,
     actorName: (actor as any).name,
@@ -892,8 +901,10 @@ async function spawnAvatarForSeat(scene: Scene, seatIndex: number, actor: Actor)
 
 /**
  * Pull users to scene (via socket or direct activation)
+ * @deprecated Not used in new implementation
  */
-async function pullUsersToScene(scene: Scene, userIds: string[]): Promise<void> {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+async function _pullUsersToScene(scene: Scene, userIds: string[]): Promise<void> {
   for (const userId of userIds) {
     try {
       const user = (game as any).users?.get(userId);
@@ -932,8 +943,10 @@ async function pullUsersToScene(scene: Scene, userIds: string[]): Promise<void> 
 
 /**
  * Calculate power stone count from actor (using system.stones)
+ * @deprecated Not used in new implementation - calculation is done inline
  */
-function calculatePowerStoneCount(actor: Actor): number {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function _calculatePowerStoneCount(actor: Actor): number {
   const system = (actor.system as any) || {};
   const stones = system.stones || {};
   
@@ -982,8 +995,10 @@ function calculatePowerStoneCount(actor: Actor): number {
 
 /**
  * Calculate vitality stone count from actor (using system.stones)
+ * @deprecated Not used in new implementation - calculation is done inline
  */
-function calculateVitalityStoneCount(actor: Actor): number {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function _calculateVitalityStoneCount(actor: Actor): number {
   // Check flag first
   const flagValue = (actor as any).getFlag('mastery-system', 'divineClash.vitality') as number | undefined;
   if (flagValue !== undefined && flagValue !== null) {
@@ -1222,6 +1237,7 @@ async function processPlayerActor(actor: Actor): Promise<void> {
 }
 
 export async function startDivineClash(): Promise<void> {
+  console.log('Mastery System | [DIVINE CLASH START] ===== NEW VERSION - ACTOR STRUCTURE ONLY =====');
   console.log('Mastery System | [DIVINE CLASH START] Beginning startDivineClash');
   
   if (!game.user?.isGM) {
@@ -1270,13 +1286,16 @@ export async function startDivineClash(): Promise<void> {
     }
     
     console.log(`Mastery System | [DIVINE CLASH START] Processing ${playerActors.length} player actor(s)`);
+    console.log('Mastery System | [DIVINE CLASH START] NO TOKENS WILL BE CREATED - ONLY ACTOR STRUCTURE');
     
     // Process each player actor
     for (const actor of playerActors) {
+      console.log(`Mastery System | [DIVINE CLASH START] Calling processPlayerActor for: ${(actor as any).name}`);
       await processPlayerActor(actor);
     }
     
     ui.notifications?.info(`Divine Clash: Created stone actors for ${playerActors.length} player(s)`);
+    console.log('Mastery System | [DIVINE CLASH START] ===== COMPLETED - NO TOKENS CREATED =====');
   } finally {
     isStartingDivineClash = false;
   }

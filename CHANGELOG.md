@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.64] - 2025-01-XX
+
+### Fixed
+- **Divine Clash: Removed all token rendering**: Completely removed token creation logic
+  - Added debug logs to confirm new version is running
+  - Ensured only actor structure is created, no tokens
+  - Fixed folder creation to work correctly
+
 ## [0.2.63] - 2025-01-XX
 
 ### Changed
