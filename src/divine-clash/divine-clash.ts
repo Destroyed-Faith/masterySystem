@@ -1299,6 +1299,15 @@ async function copyStoneActor(
         });
         console.log(`Mastery System | [COPY STONE ACTOR] Created copy ${i + 1}/${count}: ${copyName} (${copiedActor.id})`);
         actors.push(copiedActor);
+        
+        // IMPORTANT: After creating an actor, verify it's in the collection
+        // This helps debug why actors aren't found on subsequent runs
+        const verifyActor = (game as any).actors?.get(copiedActor.id);
+        if (verifyActor) {
+          console.log(`Mastery System | [COPY STONE ACTOR] Verified: Created actor is now in collection`);
+        } else {
+          console.warn(`Mastery System | [COPY STONE ACTOR] WARNING: Created actor not yet in collection (may need refresh)`);
+        }
       } catch (error) {
         console.error(`Mastery System | [COPY STONE ACTOR] Failed to create copy ${i + 1}/${count}: ${copyName}`, error);
         console.error(`Mastery System | [COPY STONE ACTOR] Error details:`, {
@@ -1525,21 +1534,46 @@ export async function startDivineClash(): Promise<void> {
         console.log(`Mastery System | [DIVINE CLASH START] Switching to Divine Clash scene: ${(divineClashScene as any).name} (${targetSceneId})`);
         console.log(`Mastery System | [DIVINE CLASH START] Current scene before switch: ${(currentScene as any)?.name} (${currentSceneId})`);
         try {
-          await divineClashScene.activate();
-          console.log(`Mastery System | [DIVINE CLASH START] Scene.activate() completed`);
-          // Wait longer for scene to fully load
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          const newCurrentScene = canvas?.scene;
-          const newCurrentSceneId = (newCurrentScene as any)?.id;
-          console.log(`Mastery System | [DIVINE CLASH START] Current scene after activation:`, {
-            id: newCurrentSceneId,
-            name: (newCurrentScene as any)?.name,
+          // Use viewScene method if available (more reliable than activate)
+          if ((ui as any).webrtc?.viewScene) {
+            console.log(`Mastery System | [DIVINE CLASH START] Using ui.webrtc.viewScene() method`);
+            (ui as any).webrtc.viewScene(targetSceneId);
+          } else {
+            // Fallback to activate
+            await divineClashScene.activate();
+          }
+          console.log(`Mastery System | [DIVINE CLASH START] Scene activation method completed`);
+          
+          // Wait for scene to actually switch - poll until it changes
+          let attempts = 0;
+          const maxAttempts = 20; // 2 seconds max wait
+          while (attempts < maxAttempts) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            const newCurrentScene = canvas?.scene;
+            const newCurrentSceneId = (newCurrentScene as any)?.id;
+            if (newCurrentSceneId === targetSceneId) {
+              console.log(`Mastery System | [DIVINE CLASH START] Scene successfully switched after ${attempts * 100}ms`);
+              break;
+            }
+            attempts++;
+          }
+          
+          const finalCurrentScene = canvas?.scene;
+          const finalCurrentSceneId = (finalCurrentScene as any)?.id;
+          console.log(`Mastery System | [DIVINE CLASH START] Final scene after activation:`, {
+            id: finalCurrentSceneId,
+            name: (finalCurrentScene as any)?.name,
             targetId: targetSceneId,
-            matches: newCurrentSceneId === targetSceneId,
-            switched: newCurrentSceneId !== currentSceneId
+            matches: finalCurrentSceneId === targetSceneId,
+            switched: finalCurrentSceneId !== currentSceneId
           });
-          if (newCurrentSceneId !== targetSceneId) {
-            console.warn(`Mastery System | [DIVINE CLASH START] WARNING: Scene did not switch! Expected ${targetSceneId}, got ${newCurrentSceneId}`);
+          if (finalCurrentSceneId !== targetSceneId) {
+            console.warn(`Mastery System | [DIVINE CLASH START] WARNING: Scene did not switch after ${maxAttempts * 100}ms! Expected ${targetSceneId}, got ${finalCurrentSceneId}`);
+            console.warn(`Mastery System | [DIVINE CLASH START] Attempting direct viewScene call...`);
+            // Last resort: try direct navigation
+            if ((game as any).scenes?.view) {
+              (game as any).scenes.view(targetSceneId);
+            }
           }
         } catch (error) {
           console.error(`Mastery System | [DIVINE CLASH START] Failed to activate scene:`, error);

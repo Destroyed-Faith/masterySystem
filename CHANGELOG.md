@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.70] - 2025-01-XX
+
+### Fixed
+- **Divine Clash: Fixed scene switching and actor detection**
+  - **Scene switching**: Changed from simple `activate()` to polling method that waits for scene to actually switch
+    - Uses `ui.webrtc.viewScene()` if available (more reliable)
+    - Polls every 100ms for up to 2 seconds to verify scene switch
+    - Falls back to `game.scenes.view()` if initial method fails
+  - **Actor detection**: Added folder verification and actor collection verification after creation
+    - Verifies created actors are immediately available in the collection
+    - Added detailed logging for folder lookup to debug why actors aren't found
+    - Logs all actors in the target folder before searching
+
 ## [0.2.69] - 2025-01-XX
 
 ### Fixed
