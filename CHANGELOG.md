@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.58] - 2025-01-XX
+
+### Fixed
+- **Divine Clash: Scene Switching**: Fixed scene not switching when starting Divine Clash
+  - Scene now switches even when only enemy token is selected (shows warning but still switches)
+  - Scene is retrieved before token validation, ensuring scene switch happens
+  - Improved error handling and guard logic
+
 ## [0.2.57] - 2025-01-XX
 
 ### Fixed

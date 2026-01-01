@@ -845,74 +845,76 @@ export async function startDivineClash(): Promise<void> {
   isStartingDivineClash = true;
   
   try {
-  
-  const controlled = canvas?.tokens?.controlled || [];
-  console.log('Mastery System | [DIVINE CLASH START] Controlled tokens:', controlled.length);
-  controlled.forEach((token: Token, idx: number) => {
-    console.log(`Mastery System | [DIVINE CLASH START] Token ${idx}:`, {
-      id: (token as any).id,
-      name: token.name,
-      actorId: token.actor ? (token.actor as any).id : null,
-      actorName: token.actor ? (token.actor as any).name : null,
-      actorType: token.actor?.type,
-      hasActor: !!token.actor
-    });
-  });
-  
-  if (controlled.length === 0) {
-    ui.notifications?.warn('Please select at least one character token to start Divine Clash');
-    return;
-  }
-  
-  // Separate players and enemy
-  const playerTokens: Token[] = [];
-  let enemyToken: Token | null = null;
-  
-  for (const token of controlled) {
-    if (!token.actor) {
-      console.log('Mastery System | [DIVINE CLASH START] Token has no actor, skipping:', (token as any).id);
-      continue;
-    }
-    console.log('Mastery System | [DIVINE CLASH START] Processing token:', {
-      id: token.id,
-      name: token.name,
-      actorType: token.actor.type,
-      actorId: token.actor.id,
-      actorName: token.actor.name
+    const controlled = canvas?.tokens?.controlled || [];
+    console.log('Mastery System | [DIVINE CLASH START] Controlled tokens:', controlled.length);
+    controlled.forEach((token: Token, idx: number) => {
+      console.log(`Mastery System | [DIVINE CLASH START] Token ${idx}:`, {
+        id: (token as any).id,
+        name: token.name,
+        actorId: token.actor ? (token.actor as any).id : null,
+        actorName: token.actor ? (token.actor as any).name : null,
+        actorType: token.actor?.type,
+        hasActor: !!token.actor
+      });
     });
     
-    if (token.actor.type === 'character') {
-      playerTokens.push(token);
-      console.log('Mastery System | [DIVINE CLASH START] Added as player token');
-    } else if (token.actor.type === 'npc') {
-      // First NPC is enemy
-      if (!enemyToken) {
-        enemyToken = token;
-        console.log('Mastery System | [DIVINE CLASH START] Added as enemy token');
-      } else {
-        console.log('Mastery System | [DIVINE CLASH START] NPC token ignored (enemy already set)');
-      }
-    } else {
-      console.log('Mastery System | [DIVINE CLASH START] Unknown actor type, skipping:', token.actor.type);
+    if (controlled.length === 0) {
+      ui.notifications?.warn('Please select at least one character token to start Divine Clash');
+      return;
     }
-  }
-  
-  console.log('Mastery System | [DIVINE CLASH START] Summary:', {
-    playerTokens: playerTokens.length,
-    enemyToken: enemyToken ? enemyToken.actor?.name : null
-  });
-  
-  if (playerTokens.length === 0) {
-    ui.notifications?.warn('Please select at least one character token');
-    return;
-  }
-  
-  // Get Divine Clash scene
-  const scene = getDivineClashScene();
-  if (!scene) {
-    ui.notifications?.error('Divine Clash scene not found. Please configure it in settings or create a scene named "Divine Clash"');
-    return;
-  }
+    
+    // Separate players and enemy
+    const playerTokens: Token[] = [];
+    let enemyToken: Token | null = null;
+    
+    for (const token of controlled) {
+      if (!token.actor) {
+        console.log('Mastery System | [DIVINE CLASH START] Token has no actor, skipping:', (token as any).id);
+        continue;
+      }
+      console.log('Mastery System | [DIVINE CLASH START] Processing token:', {
+        id: token.id,
+        name: token.name,
+        actorType: token.actor.type,
+        actorId: token.actor.id,
+        actorName: token.actor.name
+      });
+      
+      if (token.actor.type === 'character') {
+        playerTokens.push(token);
+        console.log('Mastery System | [DIVINE CLASH START] Added as player token');
+      } else if (token.actor.type === 'npc') {
+        // First NPC is enemy
+        if (!enemyToken) {
+          enemyToken = token;
+          console.log('Mastery System | [DIVINE CLASH START] Added as enemy token');
+        } else {
+          console.log('Mastery System | [DIVINE CLASH START] NPC token ignored (enemy already set)');
+        }
+      } else {
+        console.log('Mastery System | [DIVINE CLASH START] Unknown actor type, skipping:', token.actor.type);
+      }
+    }
+    
+    console.log('Mastery System | [DIVINE CLASH START] Summary:', {
+      playerTokens: playerTokens.length,
+      enemyToken: enemyToken ? enemyToken.actor?.name : null
+    });
+    
+    // Get Divine Clash scene first (before checking tokens, so we can switch even with only enemy)
+    const scene = getDivineClashScene();
+    if (!scene) {
+      ui.notifications?.error('Divine Clash scene not found. Please configure it in settings or create a scene named "Divine Clash"');
+      return;
+    }
+    
+    if (playerTokens.length === 0) {
+      ui.notifications?.warn('Please select at least one character token');
+      // Still switch to Divine Clash scene even if only enemy is selected
+      console.log('Mastery System | [DIVINE CLASH START] No player tokens, but switching to Divine Clash scene anyway');
+      await scene.activate();
+      return;
+    }
   
   // Initialize scene flags
   const seats: Record<number, DivineClashSeat> = {};
