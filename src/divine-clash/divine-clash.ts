@@ -1193,9 +1193,22 @@ async function copyStoneActor(
   });
   
   console.log(`Mastery System | [COPY STONE ACTOR] Found ${existingActors.length} existing copies in folder ${folderId}`);
+  console.log(`Mastery System | [COPY STONE ACTOR] Required count: ${count}, Existing count: ${existingActors.length}`);
+  
+  // If we already have enough or more actors, just return the first 'count' ones
+  if (existingActors.length >= count) {
+    console.log(`Mastery System | [COPY STONE ACTOR] Already have ${existingActors.length} actors, which is >= ${count} required. Reusing first ${count}.`);
+    for (let i = 0; i < count; i++) {
+      console.log(`Mastery System | [COPY STONE ACTOR] Reusing existing copy ${i + 1}: ${(existingActors[i] as any).name} (${(existingActors[i] as any).id})`);
+      actors.push(existingActors[i]);
+    }
+    console.log(`Mastery System | [COPY STONE ACTOR] Final result: ${actors.length}/${count} actors (all reused, 0 created)`);
+    console.log(`Mastery System | [COPY STONE ACTOR] ===== COMPLETED (no new actors needed) =====`);
+    return actors.slice(0, count);
+  }
   
   // Reuse existing copies
-  for (let i = 0; i < Math.min(existingActors.length, count); i++) {
+  for (let i = 0; i < existingActors.length; i++) {
     console.log(`Mastery System | [COPY STONE ACTOR] Reusing existing copy ${i + 1}: ${(existingActors[i] as any).name} (${(existingActors[i] as any).id})`);
     actors.push(existingActors[i]);
   }
@@ -1404,6 +1417,30 @@ export async function startDivineClash(): Promise<void> {
   isStartingDivineClash = true;
   
   try {
+    // Switch to Divine Clash scene first
+    const sceneId = (game as any).settings.get('mastery-system', 'divineClashSceneId') as string;
+    let divineClashScene: Scene | null = null;
+    
+    if (sceneId && sceneId.trim() !== '') {
+      divineClashScene = (game as any).scenes?.get(sceneId);
+      console.log(`Mastery System | [DIVINE CLASH START] Looking for scene by ID: ${sceneId}`, { found: !!divineClashScene });
+    }
+    
+    // Fallback: find by name
+    if (!divineClashScene) {
+      const scenes = (game as any).scenes || [];
+      divineClashScene = scenes.find((s: Scene) => s.name === 'Divine Clash') || null;
+      console.log(`Mastery System | [DIVINE CLASH START] Looking for scene by name "Divine Clash"`, { found: !!divineClashScene });
+    }
+    
+    if (divineClashScene) {
+      console.log(`Mastery System | [DIVINE CLASH START] Switching to Divine Clash scene: ${divineClashScene.name} (${divineClashScene.id})`);
+      await divineClashScene.activate();
+      console.log(`Mastery System | [DIVINE CLASH START] Scene activated`);
+    } else {
+      console.warn(`Mastery System | [DIVINE CLASH START] Divine Clash scene not found. Continuing anyway.`);
+    }
+    
     const controlled = canvas?.tokens?.controlled || [];
     console.log('Mastery System | [DIVINE CLASH START] Controlled tokens:', controlled.length);
     

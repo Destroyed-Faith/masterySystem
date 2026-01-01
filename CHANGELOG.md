@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.66] - 2025-01-XX
+
+### Fixed
+- **Divine Clash: Prevent duplicate stone actors**: Fixed issue where stone actors were added multiple times when starting Divine Clash repeatedly
+  - Now checks if enough actors already exist before creating new ones
+  - If enough actors exist, reuses them instead of creating duplicates
+  - Added scene switching when starting Divine Clash (switches to configured Divine Clash scene)
+
 ## [0.2.65] - 2025-01-XX
 
 ### Fixed
