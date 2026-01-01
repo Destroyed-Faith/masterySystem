@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.63] - 2025-01-XX
+
+### Changed
+- **Divine Clash: Complete Redesign - Actor Structure Only**: Completely rewrote Divine Clash start function
+  - No longer renders tokens or creates scene elements
+  - Only creates actor structure in the Actors sidebar
+  - Identifies player actors from selected tokens
+  - Checks `system.stones` for each player actor
+  - Creates folder structure: Actor → "Stones for Actor Name" (one level deeper than actor)
+  - Copies configured base Power and Vitality Stone actors into the folder
+  - Number of copies matches the stone count from `system.stones`
+  - Reuses existing stone actors if already present
+  - Clean, simple implementation focused on actor organization
+
 ## [0.2.62] - 2025-01-XX
 
 ### Fixed
