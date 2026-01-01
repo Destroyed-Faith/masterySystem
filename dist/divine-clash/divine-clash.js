@@ -1270,7 +1270,8 @@ async function spawnTokensForPlayer(scene, playerActor, stoneActors, playerIndex
         spacing
     });
     // 1. Place player token in center
-    const playerActorImg = playerActor.img || playerActor.prototypeToken?.texture?.src || '';
+    // Use token image (prototypeToken.texture.src) not portrait image (img)
+    const playerActorTokenImg = playerActor.prototypeToken?.texture?.src || playerActor.img || '';
     const playerTokenData = {
         name: playerName,
         actorId: playerActor.id,
@@ -1278,7 +1279,7 @@ async function spawnTokensForPlayer(scene, playerActor, stoneActors, playerIndex
         y: baseY,
         actorLink: true,
         texture: {
-            src: playerActorImg
+            src: playerActorTokenImg
         },
         disposition: CONST.TOKEN_DISPOSITIONS.FRIENDLY,
         flags: {
@@ -1291,7 +1292,8 @@ async function spawnTokensForPlayer(scene, playerActor, stoneActors, playerIndex
         }
     };
     console.log(`Mastery System | [SPAWN TOKENS] Player token image:`, {
-        actorImg: playerActorImg,
+        tokenImg: playerActorTokenImg,
+        portraitImg: playerActor.img,
         actorId: playerActor.id
     });
     try {
@@ -1307,7 +1309,8 @@ async function spawnTokensForPlayer(scene, playerActor, stoneActors, playerIndex
     // 2. Place vitality stone token to the right of player
     if (stoneActors.vitalityStoneActors.length > 0) {
         const vitalityActor = stoneActors.vitalityStoneActors[0];
-        const vitalityActorImg = vitalityActor.img || vitalityActor.prototypeToken?.texture?.src || '';
+        // Use token image (prototypeToken.texture.src) not portrait image (img)
+        const vitalityActorTokenImg = vitalityActor.prototypeToken?.texture?.src || vitalityActor.img || '';
         const vitalityX = baseX + gridSize * 1.5; // 1.5 grid units to the right
         const vitalityY = baseY;
         const vitalityTokenData = {
@@ -1317,7 +1320,7 @@ async function spawnTokensForPlayer(scene, playerActor, stoneActors, playerIndex
             y: vitalityY,
             actorLink: true,
             texture: {
-                src: vitalityActorImg
+                src: vitalityActorTokenImg
             },
             disposition: CONST.TOKEN_DISPOSITIONS.NEUTRAL,
             flags: {
@@ -1331,7 +1334,8 @@ async function spawnTokensForPlayer(scene, playerActor, stoneActors, playerIndex
             }
         };
         console.log(`Mastery System | [SPAWN TOKENS] Vitality stone token image:`, {
-            actorImg: vitalityActorImg,
+            tokenImg: vitalityActorTokenImg,
+            portraitImg: vitalityActor.img,
             actorId: vitalityActor.id,
             actorName: vitalityActor.name
         });
@@ -1356,7 +1360,8 @@ async function spawnTokensForPlayer(scene, playerActor, stoneActors, playerIndex
         const powerStoneTokens = [];
         for (let i = 0; i < stoneActors.powerStoneActors.length; i++) {
             const powerActor = stoneActors.powerStoneActors[i];
-            const powerActorImg = powerActor.img || powerActor.prototypeToken?.texture?.src || '';
+            // Use token image (prototypeToken.texture.src) not portrait image (img)
+            const powerActorTokenImg = powerActor.prototypeToken?.texture?.src || powerActor.img || '';
             const powerX = startPowerX + (i * powerStoneSpacing);
             const powerTokenData = {
                 name: powerActor.name,
@@ -1365,7 +1370,7 @@ async function spawnTokensForPlayer(scene, playerActor, stoneActors, playerIndex
                 y: powerY,
                 actorLink: true,
                 texture: {
-                    src: powerActorImg
+                    src: powerActorTokenImg
                 },
                 disposition: CONST.TOKEN_DISPOSITIONS.NEUTRAL,
                 flags: {
@@ -1380,7 +1385,8 @@ async function spawnTokensForPlayer(scene, playerActor, stoneActors, playerIndex
                 }
             };
             console.log(`Mastery System | [SPAWN TOKENS] Power stone ${i + 1} token image:`, {
-                actorImg: powerActorImg,
+                tokenImg: powerActorTokenImg,
+                portraitImg: powerActor.img,
                 actorId: powerActor.id,
                 actorName: powerActor.name
             });

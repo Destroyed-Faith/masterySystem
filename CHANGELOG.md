@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.79] - 2025-01-XX
+
+### Fixed
+- **Divine Clash: Use token images (prototypeToken.texture.src) instead of portrait images**
+  - **Critical fix**: Token `texture.src` now prioritizes `actor.prototypeToken.texture.src` (token image) over `actor.img` (portrait image)
+  - This ensures tokens display the correct token image, not the portrait image
+  - Fallback to portrait image if token image is not available
+  - Added debug logging to show both token and portrait images for comparison
+
 ## [0.2.78] - 2025-01-XX
 
 ### Fixed
