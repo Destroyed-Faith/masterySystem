@@ -1206,17 +1206,20 @@ async function copyStoneActor(
   }
   
   // Debug: Log all actors in the folder to see what we're working with
+  // CRITICAL: actor.folder can be either a string ID or a Folder object
   const actorsInFolder = allActors.filter((a: Actor) => {
-    const aFolder = (a as any).folder;
-    const matches = aFolder === folderId;
+    const aFolderRaw = (a as any).folder;
+    const aFolderId = typeof aFolderRaw === 'string' ? aFolderRaw : (aFolderRaw?.id || null);
+    const matches = aFolderId === folderId;
     if (matches) {
       console.log(`Mastery System | [COPY STONE ACTOR] Found actor in folder:`, {
         id: (a as any).id,
         name: (a as any).name,
-        folder: aFolder,
-        folderId: folderId,
-        folderMatch: aFolder === folderId,
-        folderType: typeof aFolder,
+        folderRaw: aFolderRaw,
+        folderId: aFolderId,
+        expectedFolderId: folderId,
+        folderMatch: aFolderId === folderId,
+        folderRawType: typeof aFolderRaw,
         folderIdType: typeof folderId
       });
     }
@@ -1235,27 +1238,31 @@ async function copyStoneActor(
     console.warn(`Mastery System | [COPY STONE ACTOR] This might mean actors were created in a different folder or the folder ID is wrong.`);
   }
   
+  // CRITICAL: actor.folder can be either a string ID or a Folder object
   const existingActors = allActors.filter((a: Actor) => {
-    const aFolder = (a as any).folder;
+    const aFolderRaw = (a as any).folder;
+    const aFolderId = typeof aFolderRaw === 'string' ? aFolderRaw : (aFolderRaw?.id || null);
     const aName = (a as any).name || '';
-    const matches = aFolder === folderId && aName.startsWith(actorName);
+    const matches = aFolderId === folderId && aName.startsWith(actorName);
     if (matches) {
       console.log(`Mastery System | [COPY STONE ACTOR] Found existing actor:`, {
         id: (a as any).id,
         name: aName,
-        folder: aFolder,
-        folderId: folderId,
-        folderMatch: aFolder === folderId,
+        folderRaw: aFolderRaw,
+        folderId: aFolderId,
+        expectedFolderId: folderId,
+        folderMatch: aFolderId === folderId,
         nameMatch: aName.startsWith(actorName),
         actorName: actorName
       });
-    } else if (aFolder === folderId) {
+    } else if (aFolderId === folderId) {
       // Log actors in the folder that don't match to help debug
       console.log(`Mastery System | [COPY STONE ACTOR] Actor in folder but doesn't match:`, {
         id: (a as any).id,
         name: aName,
-        folder: aFolder,
-        folderId: folderId,
+        folderRaw: aFolderRaw,
+        folderId: aFolderId,
+        expectedFolderId: folderId,
         startsWith: aName.startsWith(actorName),
         actorName: actorName
       });
@@ -1305,13 +1312,18 @@ async function copyStoneActor(
       // Create copy data
       const copyData = (foundry.utils?.duplicate || ((obj: any) => JSON.parse(JSON.stringify(obj))))(baseData);
       copyData.name = copyName;
-      copyData.folder = folderId;
+      // CRITICAL: folder must be a string ID, not an object
+      // Ensure folderId is a string, not null/undefined
+      copyData.folder = folderId || null;
       // Remove ID so a new one is generated
       delete copyData._id;
       
       console.log(`Mastery System | [COPY STONE ACTOR] Copy data:`, {
         name: copyData.name,
         folder: copyData.folder,
+        folderType: typeof copyData.folder,
+        folderId: folderId,
+        folderIdType: typeof folderId,
         hasId: !!copyData._id,
         type: copyData.type
       });
@@ -1331,16 +1343,21 @@ async function copyStoneActor(
         // This helps debug why actors aren't found on subsequent runs
         const verifyActor = (game as any).actors?.get(copiedActor.id);
         if (verifyActor) {
-          const verifyFolder = (verifyActor as any).folder;
+          // In Foundry VTT, actor.folder can be either a string ID or a Folder object
+          // We need to handle both cases
+          const verifyFolderRaw = (verifyActor as any).folder;
+          const verifyFolderId = typeof verifyFolderRaw === 'string' ? verifyFolderRaw : (verifyFolderRaw?.id || null);
           console.log(`Mastery System | [COPY STONE ACTOR] Verified: Created actor is now in collection`, {
             id: verifyActor.id,
             name: (verifyActor as any).name,
-            folder: verifyFolder,
+            folderRaw: verifyFolderRaw,
+            folderId: verifyFolderId,
+            folderRawType: typeof verifyFolderRaw,
             expectedFolder: folderId,
-            folderMatch: verifyFolder === folderId
+            folderMatch: verifyFolderId === folderId
           });
-          if (verifyFolder !== folderId) {
-            console.error(`Mastery System | [COPY STONE ACTOR] ERROR: Actor folder mismatch! Expected ${folderId}, got ${verifyFolder}`);
+          if (verifyFolderId !== folderId) {
+            console.error(`Mastery System | [COPY STONE ACTOR] ERROR: Actor folder mismatch! Expected ${folderId}, got ${verifyFolderId} (raw: ${verifyFolderRaw})`);
           }
         } else {
           console.warn(`Mastery System | [COPY STONE ACTOR] WARNING: Created actor not yet in collection (may need refresh)`);
@@ -1596,8 +1613,19 @@ export async function startDivineClash(): Promise<void> {
             }
           }
           
-          // Method 3: Try scene.activate() as fallback
-          console.log(`Mastery System | [DIVINE CLASH START] Method 3: Using scene.activate()`);
+          // Method 3: Try ui.nav if available (most reliable for scene navigation)
+          if ((ui as any).nav) {
+            console.log(`Mastery System | [DIVINE CLASH START] Method 3: Using ui.nav`);
+            try {
+              (ui as any).nav.activateScene(targetSceneId);
+              console.log(`Mastery System | [DIVINE CLASH START] ui.nav.activateScene() called successfully`);
+            } catch (navError) {
+              console.warn(`Mastery System | [DIVINE CLASH START] ui.nav.activateScene() failed:`, navError);
+            }
+          }
+          
+          // Method 4: Try scene.activate() as fallback
+          console.log(`Mastery System | [DIVINE CLASH START] Method 4: Using scene.activate()`);
           try {
             await divineClashScene.activate();
             console.log(`Mastery System | [DIVINE CLASH START] scene.activate() completed`);

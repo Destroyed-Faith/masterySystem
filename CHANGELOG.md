@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.73] - 2025-01-XX
+
+### Fixed
+- **Divine Clash: Fixed actor folder assignment and improved scene switching**
+  - **Actor folder fix**: Fixed critical bug where actors were created with Folder objects instead of folder IDs
+    - Now properly handles both string IDs and Folder objects when checking actor folders
+    - Fixed folder comparison to extract ID from Folder objects: `typeof folder === 'string' ? folder : folder?.id`
+    - This fixes the issue where actors were never found because folder comparison failed
+  - **Scene switching**: Added `ui.nav.activateScene()` as Method 3 (most reliable)
+    - Scene switching now tries: `game.scenes.view()` → `ui.webrtc.viewScene()` → `ui.nav.activateScene()` → `scene.activate()`
+
 ## [0.2.72] - 2025-01-XX
 
 ### Fixed
