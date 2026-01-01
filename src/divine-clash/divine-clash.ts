@@ -1571,17 +1571,38 @@ export async function startDivineClash(): Promise<void> {
         console.log(`Mastery System | [DIVINE CLASH START] Switching to Divine Clash scene: ${(divineClashScene as any).name} (${targetSceneId})`);
         console.log(`Mastery System | [DIVINE CLASH START] Current scene before switch: ${(currentScene as any)?.name} (${currentSceneId})`);
         try {
-          // Use game.scenes.view() directly - this is the most reliable method
-          console.log(`Mastery System | [DIVINE CLASH START] Using game.scenes.view() method`);
+          // Try multiple methods to switch scenes
+          console.log(`Mastery System | [DIVINE CLASH START] Attempting scene switch with multiple methods...`);
+          
+          // Method 1: Try game.scenes.view() if available
           if ((game as any).scenes?.view) {
-            (game as any).scenes.view(targetSceneId);
-            console.log(`Mastery System | [DIVINE CLASH START] game.scenes.view() called`);
-          } else if ((ui as any).webrtc?.viewScene) {
-            console.log(`Mastery System | [DIVINE CLASH START] Fallback: Using ui.webrtc.viewScene() method`);
-            (ui as any).webrtc.viewScene(targetSceneId);
-          } else {
-            console.log(`Mastery System | [DIVINE CLASH START] Fallback: Using scene.activate() method`);
+            console.log(`Mastery System | [DIVINE CLASH START] Method 1: Using game.scenes.view()`);
+            try {
+              (game as any).scenes.view(targetSceneId);
+              console.log(`Mastery System | [DIVINE CLASH START] game.scenes.view() called successfully`);
+            } catch (viewError) {
+              console.warn(`Mastery System | [DIVINE CLASH START] game.scenes.view() failed:`, viewError);
+            }
+          }
+          
+          // Method 2: Try ui.webrtc.viewScene() if available
+          if ((ui as any).webrtc?.viewScene) {
+            console.log(`Mastery System | [DIVINE CLASH START] Method 2: Using ui.webrtc.viewScene()`);
+            try {
+              (ui as any).webrtc.viewScene(targetSceneId);
+              console.log(`Mastery System | [DIVINE CLASH START] ui.webrtc.viewScene() called successfully`);
+            } catch (webrtcError) {
+              console.warn(`Mastery System | [DIVINE CLASH START] ui.webrtc.viewScene() failed:`, webrtcError);
+            }
+          }
+          
+          // Method 3: Try scene.activate() as fallback
+          console.log(`Mastery System | [DIVINE CLASH START] Method 3: Using scene.activate()`);
+          try {
             await divineClashScene.activate();
+            console.log(`Mastery System | [DIVINE CLASH START] scene.activate() completed`);
+          } catch (activateError) {
+            console.warn(`Mastery System | [DIVINE CLASH START] scene.activate() failed:`, activateError);
           }
           
           // Wait for scene to actually switch - poll until it changes
@@ -1592,7 +1613,7 @@ export async function startDivineClash(): Promise<void> {
             const newCurrentScene = canvas?.scene;
             const newCurrentSceneId = (newCurrentScene as any)?.id;
             if (newCurrentSceneId === targetSceneId) {
-              console.log(`Mastery System | [DIVINE CLASH START] Scene successfully switched after ${attempts * 100}ms`);
+              console.log(`Mastery System | [DIVINE CLASH START] ✓ Scene successfully switched after ${attempts * 100}ms`);
               break;
             }
             attempts++;
@@ -1608,8 +1629,15 @@ export async function startDivineClash(): Promise<void> {
             switched: finalCurrentSceneId !== currentSceneId
           });
           if (finalCurrentSceneId !== targetSceneId) {
-            console.error(`Mastery System | [DIVINE CLASH START] ERROR: Scene did not switch after ${maxAttempts * 100}ms! Expected ${targetSceneId}, got ${finalCurrentSceneId}`);
+            console.error(`Mastery System | [DIVINE CLASH START] ✗ ERROR: Scene did not switch after ${maxAttempts * 100}ms!`);
+            console.error(`Mastery System | [DIVINE CLASH START] Expected: ${targetSceneId} (${(divineClashScene as any).name})`);
+            console.error(`Mastery System | [DIVINE CLASH START] Got: ${finalCurrentSceneId} (${(finalCurrentScene as any)?.name})`);
             console.error(`Mastery System | [DIVINE CLASH START] This is a critical error - scene switching failed`);
+            console.error(`Mastery System | [DIVINE CLASH START] Available methods:`, {
+              hasGameScenesView: !!(game as any).scenes?.view,
+              hasWebrtcViewScene: !!(ui as any).webrtc?.viewScene,
+              hasSceneActivate: typeof divineClashScene.activate === 'function'
+            });
           }
         } catch (error) {
           console.error(`Mastery System | [DIVINE CLASH START] Failed to activate scene:`, error);

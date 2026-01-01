@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.72] - 2025-01-XX
+
+### Fixed
+- **Divine Clash: Try all scene switching methods and enhanced error reporting**
+  - **Scene switching**: Now tries all available methods in sequence:
+    - Method 1: `game.scenes.view()` (if available)
+    - Method 2: `ui.webrtc.viewScene()` (if available)
+    - Method 3: `scene.activate()` (fallback)
+  - Enhanced error logging shows which methods are available and which failed
+  - Better error messages showing expected vs actual scene IDs
+
 ## [0.2.71] - 2025-01-XX
 
 ### Fixed
