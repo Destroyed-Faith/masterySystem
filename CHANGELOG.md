@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.71] - 2025-01-XX
+
+### Fixed
+- **Divine Clash: Improved scene switching and actor detection debugging**
+  - **Scene switching**: Now uses `game.scenes.view()` as primary method (most reliable)
+    - Increased polling time from 2 seconds to 3 seconds
+    - Better error logging if scene doesn't switch
+  - **Actor detection**: Enhanced debugging to identify why actors aren't found
+    - Added folder contents check via `folder.contents` property
+    - Added type checking for folder IDs (string vs number mismatch detection)
+    - Added verification that created actors have the correct folder assigned
+    - Added warning if no actors are found in the expected folder
+
 ## [0.2.70] - 2025-01-XX
 
 ### Fixed
