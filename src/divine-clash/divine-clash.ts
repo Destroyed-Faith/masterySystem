@@ -223,10 +223,19 @@ function getTokenZone(scene: Scene, token: Token, seatIndex: number): StoneState
 async function ensurePlayerStoneFolder(user: User): Promise<string | null> {
   const folderName = `Divine Clash - ${user.name}`;
   
+  console.log(`Mastery System | [ENSURE FOLDER] Looking for folder: "${folderName}" for user: ${user.name} (${user.id})`);
+  
   // Check if folder already exists
-  const existingFolder = (game as any).folders?.find((f: any) => 
-    f.name === folderName && f.type === 'Actor'
-  );
+  const allFolders = (game as any).folders || [];
+  console.log(`Mastery System | [ENSURE FOLDER] Total folders in game: ${allFolders.length}`);
+  
+  const existingFolder = allFolders.find((f: any) => {
+    const matches = f.name === folderName && f.type === 'Actor';
+    if (matches) {
+      console.log(`Mastery System | [ENSURE FOLDER] Found matching folder: ${f.name} (${f.id})`);
+    }
+    return matches;
+  });
   
   if (existingFolder) {
     console.log(`Mastery System | [ENSURE FOLDER] Found existing folder: ${folderName} (${existingFolder.id})`);
@@ -234,6 +243,7 @@ async function ensurePlayerStoneFolder(user: User): Promise<string | null> {
   }
   
   // Create new folder
+  console.log(`Mastery System | [ENSURE FOLDER] Creating new folder: ${folderName}`);
   try {
     const folderData: any = {
       name: folderName,
@@ -251,11 +261,17 @@ async function ensurePlayerStoneFolder(user: User): Promise<string | null> {
       }
     };
     
+    console.log(`Mastery System | [ENSURE FOLDER] Folder data:`, folderData);
     const folder = await Folder.create(folderData);
-    console.log(`Mastery System | [ENSURE FOLDER] Created folder: ${folderName} (${folder.id})`);
+    console.log(`Mastery System | [ENSURE FOLDER] Successfully created folder: ${folderName} (${folder.id})`);
     return folder.id;
   } catch (error) {
     console.error(`Mastery System | [ENSURE FOLDER] Failed to create folder: ${folderName}`, error);
+    console.error(`Mastery System | [ENSURE FOLDER] Error details:`, {
+      message: (error as Error).message,
+      stack: (error as Error).stack,
+      error: error
+    });
     return null;
   }
 }
@@ -509,16 +525,19 @@ async function spawnStonesForSeat(
   }
   console.log(`Mastery System | [SPAWN STONES] Found READY region for seat ${seatIndex}:`, seatRegion);
   
-  // Spawn power stones
-  if (powerStoneCount > 0 && user) {
-    console.log(`Mastery System | [SPAWN STONES] Spawning ${powerStoneCount} power stones for user ${user.name}`);
-    
-    // Create folder for player's stones
-    const folderId = await ensurePlayerStoneFolder(user);
+  // Create folder for player's stones (always, even if no stones to spawn)
+  let folderId: string | null = null;
+  if (user) {
+    folderId = await ensurePlayerStoneFolder(user);
     if (!folderId) {
       console.error(`Mastery System | [SPAWN STONES] Failed to create/get folder for user ${user.name}`);
-      return;
+      // Continue anyway - folder creation is not critical
     }
+  }
+  
+  // Spawn power stones
+  if (powerStoneCount > 0 && user && folderId) {
+    console.log(`Mastery System | [SPAWN STONES] Spawning ${powerStoneCount} power stones for user ${user.name}`);
     
     // Create individual stone actors (one per stone)
     const stoneActors = await createStoneActorsForPlayer(user, 'power', powerStoneCount, folderId);
@@ -588,15 +607,10 @@ async function spawnStonesForSeat(
   }
   
   // Spawn vitality stones
-  if (vitalityStoneCount > 0 && user) {
+  if (vitalityStoneCount > 0 && user && folderId) {
     console.log(`Mastery System | [SPAWN STONES] Spawning ${vitalityStoneCount} vitality stones for user ${user.name}`);
     
-    // Create folder for player's stones (reuse if already created for power stones)
-    const folderId = await ensurePlayerStoneFolder(user);
-    if (!folderId) {
-      console.error(`Mastery System | [SPAWN STONES] Failed to create/get folder for user ${user.name}`);
-      return;
-    }
+    // Folder already created above, reuse folderId
     
     // Create individual stone actors (one per stone)
     const stoneActors = await createStoneActorsForPlayer(user, 'vitality', vitalityStoneCount, folderId);

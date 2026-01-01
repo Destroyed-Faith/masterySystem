@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.61] - 2025-01-XX
+
+### Fixed
+- **Divine Clash: Folder Creation**: Fixed folder not being created when character has 0 stones
+  - Folder is now always created for each player, even if no stones need to be spawned
+  - Added extensive debug logging for folder creation process
+  - Folder creation happens before stone spawning, ensuring folder exists
+
 ## [0.2.60] - 2025-01-XX
 
 ### Changed
