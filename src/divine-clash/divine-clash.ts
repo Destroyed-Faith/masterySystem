@@ -1186,7 +1186,11 @@ async function copyStoneActor(
       console.log(`Mastery System | [COPY STONE ACTOR] Found existing actor:`, {
         id: (a as any).id,
         name: aName,
-        folder: aFolder
+        folder: aFolder,
+        folderId: folderId,
+        folderMatch: aFolder === folderId,
+        nameMatch: aName.startsWith(actorName),
+        actorName: actorName
       });
     }
     return matches;
@@ -1194,12 +1198,14 @@ async function copyStoneActor(
   
   console.log(`Mastery System | [COPY STONE ACTOR] Found ${existingActors.length} existing copies in folder ${folderId}`);
   console.log(`Mastery System | [COPY STONE ACTOR] Required count: ${count}, Existing count: ${existingActors.length}`);
+  console.log(`Mastery System | [COPY STONE ACTOR] Comparison: ${existingActors.length} >= ${count} = ${existingActors.length >= count}`);
   
   // If we already have enough or more actors, just return the first 'count' ones
   if (existingActors.length >= count) {
+    console.log(`Mastery System | [COPY STONE ACTOR] ===== SKIPPING CREATION - ENOUGH ACTORS EXIST =====`);
     console.log(`Mastery System | [COPY STONE ACTOR] Already have ${existingActors.length} actors, which is >= ${count} required. Reusing first ${count}.`);
     for (let i = 0; i < count; i++) {
-      console.log(`Mastery System | [COPY STONE ACTOR] Reusing existing copy ${i + 1}: ${(existingActors[i] as any).name} (${(existingActors[i] as any).id})`);
+      console.log(`Mastery System | [COPY STONE ACTOR] Reusing existing copy ${i + 1}/${count}: ${(existingActors[i] as any).name} (${(existingActors[i] as any).id})`);
       actors.push(existingActors[i]);
     }
     console.log(`Mastery System | [COPY STONE ACTOR] Final result: ${actors.length}/${count} actors (all reused, 0 created)`);
@@ -1418,28 +1424,74 @@ export async function startDivineClash(): Promise<void> {
   
   try {
     // Switch to Divine Clash scene first
+    console.log(`Mastery System | [DIVINE CLASH START] ===== SCENE SWITCH START =====`);
     const sceneId = (game as any).settings.get('mastery-system', 'divineClashSceneId') as string;
+    console.log(`Mastery System | [DIVINE CLASH START] Scene ID from settings:`, { sceneId, hasValue: !!sceneId, trimmed: sceneId?.trim() });
+    
     let divineClashScene: Scene | null = null;
+    const allScenes = (game as any).scenes || [];
+    console.log(`Mastery System | [DIVINE CLASH START] Total scenes available: ${allScenes.size || allScenes.length}`);
+    console.log(`Mastery System | [DIVINE CLASH START] Scene names:`, Array.from(allScenes.values() || allScenes).map((s: Scene) => ({ id: (s as any).id, name: (s as any).name })));
     
     if (sceneId && sceneId.trim() !== '') {
       divineClashScene = (game as any).scenes?.get(sceneId);
-      console.log(`Mastery System | [DIVINE CLASH START] Looking for scene by ID: ${sceneId}`, { found: !!divineClashScene });
+      console.log(`Mastery System | [DIVINE CLASH START] Looking for scene by ID: ${sceneId}`, { 
+        found: !!divineClashScene,
+        sceneName: divineClashScene?.name,
+        sceneId: divineClashScene?.id
+      });
+    } else {
+      console.log(`Mastery System | [DIVINE CLASH START] No scene ID configured in settings`);
     }
     
     // Fallback: find by name
     if (!divineClashScene) {
-      const scenes = (game as any).scenes || [];
-      divineClashScene = scenes.find((s: Scene) => s.name === 'Divine Clash') || null;
-      console.log(`Mastery System | [DIVINE CLASH START] Looking for scene by name "Divine Clash"`, { found: !!divineClashScene });
+      const scenes = Array.from(allScenes.values ? allScenes.values() : allScenes);
+      console.log(`Mastery System | [DIVINE CLASH START] Searching ${scenes.length} scenes by name "Divine Clash"`);
+      divineClashScene = scenes.find((s: Scene) => (s as any).name === 'Divine Clash') || null;
+      console.log(`Mastery System | [DIVINE CLASH START] Looking for scene by name "Divine Clash"`, { 
+        found: !!divineClashScene,
+        sceneName: divineClashScene?.name,
+        sceneId: divineClashScene?.id
+      });
     }
     
     if (divineClashScene) {
-      console.log(`Mastery System | [DIVINE CLASH START] Switching to Divine Clash scene: ${divineClashScene.name} (${divineClashScene.id})`);
-      await divineClashScene.activate();
-      console.log(`Mastery System | [DIVINE CLASH START] Scene activated`);
+      console.log(`Mastery System | [DIVINE CLASH START] Found Divine Clash scene:`, {
+        id: (divineClashScene as any).id,
+        name: (divineClashScene as any).name,
+        active: (divineClashScene as any).active,
+        currentScene: canvas?.scene?.id
+      });
+      
+      const currentScene = canvas?.scene;
+      if (currentScene && (currentScene as any).id === (divineClashScene as any).id) {
+        console.log(`Mastery System | [DIVINE CLASH START] Already on Divine Clash scene, no need to switch`);
+      } else {
+        console.log(`Mastery System | [DIVINE CLASH START] Switching to Divine Clash scene: ${(divineClashScene as any).name} (${(divineClashScene as any).id})`);
+        try {
+          await divineClashScene.activate();
+          console.log(`Mastery System | [DIVINE CLASH START] Scene.activate() completed`);
+          // Wait a moment for scene to load
+          await new Promise(resolve => setTimeout(resolve, 500));
+          console.log(`Mastery System | [DIVINE CLASH START] Current scene after activation:`, {
+            id: canvas?.scene?.id,
+            name: canvas?.scene?.name,
+            matches: canvas?.scene?.id === (divineClashScene as any).id
+          });
+        } catch (error) {
+          console.error(`Mastery System | [DIVINE CLASH START] Failed to activate scene:`, error);
+          console.error(`Mastery System | [DIVINE CLASH START] Error details:`, {
+            message: (error as Error).message,
+            stack: (error as Error).stack
+          });
+        }
+      }
     } else {
       console.warn(`Mastery System | [DIVINE CLASH START] Divine Clash scene not found. Continuing anyway.`);
+      console.warn(`Mastery System | [DIVINE CLASH START] Available scenes:`, Array.from(allScenes.values ? allScenes.values() : allScenes).map((s: Scene) => (s as any).name));
     }
+    console.log(`Mastery System | [DIVINE CLASH START] ===== SCENE SWITCH END =====`);
     
     const controlled = canvas?.tokens?.controlled || [];
     console.log('Mastery System | [DIVINE CLASH START] Controlled tokens:', controlled.length);

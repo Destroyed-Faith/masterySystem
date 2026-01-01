@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.67] - 2025-01-XX
+
+### Fixed
+- **Divine Clash: Enhanced debug logging**: Added extensive debug logs for scene switching and duplicate prevention
+  - Added detailed scene search logging (by ID and name)
+  - Added scene activation verification with wait time
+  - Added comparison logging for duplicate actor detection
+  - Improved error handling for scene switching
+
 ## [0.2.66] - 2025-01-XX
 
 ### Fixed
