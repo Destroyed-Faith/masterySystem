@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.75] - 2025-01-XX
+
+### Added
+- **Divine Clash: Token placement on scene**
+  - **New feature**: Tokens are now automatically placed on the Divine Clash scene
+    - Player token placed in center position
+    - Vitality Stone token placed to the right of player (1.5 grid units)
+    - Power Stone tokens placed in a row in front of player (2 grid units up, spaced 1.2 grid units apart)
+  - Multiple players are spread horizontally across the scene (3 grid units spacing)
+  - All tokens are linked to their actors (`actorLink: true`)
+  - Tokens have proper flags for Divine Clash tracking
+
 ## [0.2.74] - 2025-01-XX
 
 ### Fixed

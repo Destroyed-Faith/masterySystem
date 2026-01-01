@@ -1229,7 +1229,133 @@ async function copyStoneActor(baseActor, count, folderId, actorName) {
     return actors.slice(0, count);
 }
 /**
+ * Spawn tokens for a player on the Divine Clash scene
+ * Layout: Player in center, Vitality Stone to the right, Power Stones in a row in front
+ */
+async function spawnTokensForPlayer(scene, playerActor, stoneActors, playerIndex, totalPlayers) {
+    const playerName = playerActor.name || 'Unknown';
+    console.log(`Mastery System | [SPAWN TOKENS] ===== START Spawning tokens for ${playerName} =====`);
+    // Calculate base position - spread players horizontally
+    const gridSize = scene.grid?.size || 100;
+    const spacing = gridSize * 3; // 3 grid units between players
+    const startX = scene.width / 2 - ((totalPlayers - 1) * spacing) / 2;
+    const baseX = startX + (playerIndex * spacing);
+    const baseY = scene.height / 2;
+    console.log(`Mastery System | [SPAWN TOKENS] Base position for ${playerName}:`, {
+        x: baseX,
+        y: baseY,
+        playerIndex,
+        totalPlayers,
+        gridSize,
+        spacing
+    });
+    // 1. Place player token in center
+    const playerTokenData = {
+        name: playerName,
+        actorId: playerActor.id,
+        x: baseX,
+        y: baseY,
+        actorLink: true,
+        disposition: CONST.TOKEN_DISPOSITIONS.FRIENDLY,
+        flags: {
+            'mastery-system': {
+                divineClash: {
+                    isPlayer: true,
+                    playerIndex: playerIndex
+                }
+            }
+        }
+    };
+    try {
+        const playerTokens = await scene.createEmbeddedDocuments('Token', [playerTokenData]);
+        console.log(`Mastery System | [SPAWN TOKENS] Created player token for ${playerName}:`, {
+            tokenId: playerTokens[0]?.id,
+            position: { x: baseX, y: baseY }
+        });
+    }
+    catch (error) {
+        console.error(`Mastery System | [SPAWN TOKENS] Failed to create player token:`, error);
+    }
+    // 2. Place vitality stone token to the right of player
+    if (stoneActors.vitalityStoneActors.length > 0) {
+        const vitalityActor = stoneActors.vitalityStoneActors[0];
+        const vitalityX = baseX + gridSize * 1.5; // 1.5 grid units to the right
+        const vitalityY = baseY;
+        const vitalityTokenData = {
+            name: vitalityActor.name,
+            actorId: vitalityActor.id,
+            x: vitalityX,
+            y: vitalityY,
+            actorLink: true,
+            disposition: CONST.TOKEN_DISPOSITIONS.NEUTRAL,
+            flags: {
+                'mastery-system': {
+                    divineClash: {
+                        isStone: true,
+                        stoneKind: 'vitality',
+                        playerIndex: playerIndex
+                    }
+                }
+            }
+        };
+        try {
+            const vitalityTokens = await scene.createEmbeddedDocuments('Token', [vitalityTokenData]);
+            console.log(`Mastery System | [SPAWN TOKENS] Created vitality stone token for ${playerName}:`, {
+                tokenId: vitalityTokens[0]?.id,
+                position: { x: vitalityX, y: vitalityY }
+            });
+        }
+        catch (error) {
+            console.error(`Mastery System | [SPAWN TOKENS] Failed to create vitality stone token:`, error);
+        }
+    }
+    // 3. Place power stone tokens in a row in front of player
+    if (stoneActors.powerStoneActors.length > 0) {
+        const powerStoneCount = stoneActors.powerStoneActors.length;
+        const powerStoneSpacing = gridSize * 1.2; // 1.2 grid units between power stones
+        const totalWidth = (powerStoneCount - 1) * powerStoneSpacing;
+        const startPowerX = baseX - totalWidth / 2;
+        const powerY = baseY - gridSize * 2; // 2 grid units in front of player
+        const powerStoneTokens = [];
+        for (let i = 0; i < stoneActors.powerStoneActors.length; i++) {
+            const powerActor = stoneActors.powerStoneActors[i];
+            const powerX = startPowerX + (i * powerStoneSpacing);
+            const powerTokenData = {
+                name: powerActor.name,
+                actorId: powerActor.id,
+                x: powerX,
+                y: powerY,
+                actorLink: true,
+                disposition: CONST.TOKEN_DISPOSITIONS.NEUTRAL,
+                flags: {
+                    'mastery-system': {
+                        divineClash: {
+                            isStone: true,
+                            stoneKind: 'power',
+                            playerIndex: playerIndex,
+                            stoneIndex: i
+                        }
+                    }
+                }
+            };
+            powerStoneTokens.push(powerTokenData);
+        }
+        try {
+            const createdPowerTokens = await scene.createEmbeddedDocuments('Token', powerStoneTokens);
+            console.log(`Mastery System | [SPAWN TOKENS] Created ${createdPowerTokens.length} power stone tokens for ${playerName}:`, {
+                tokenIds: createdPowerTokens.map((t) => t.id),
+                positions: createdPowerTokens.map((t) => ({ x: t.x, y: t.y }))
+            });
+        }
+        catch (error) {
+            console.error(`Mastery System | [SPAWN TOKENS] Failed to create power stone tokens:`, error);
+        }
+    }
+    console.log(`Mastery System | [SPAWN TOKENS] ===== COMPLETED Spawning tokens for ${playerName} =====`);
+}
+/**
  * Process a player actor: create stones folder and copy stone actors
+ * Returns the created stone actors for token placement
  */
 async function processPlayerActor(actor) {
     const actorName = actor.name || 'Unknown';
@@ -1260,7 +1386,7 @@ async function processPlayerActor(actor) {
     });
     if (powerCount === 0 && vitalityCount === 0) {
         console.log(`Mastery System | [PROCESS PLAYER] No stones for ${actorName}, skipping`);
-        return;
+        return null;
     }
     // Get actor's folder
     const actorFolder = getActorFolder(actor);
@@ -1279,7 +1405,7 @@ async function processPlayerActor(actor) {
     });
     if (!stonesFolderId) {
         console.error(`Mastery System | [PROCESS PLAYER] Failed to create stones folder for ${actorName}`);
-        return;
+        return null;
     }
     // Get base stone actors from settings
     const basePowerStoneId = game.settings.get('mastery-system', 'divineClashBasePowerStoneActorId');
@@ -1291,6 +1417,7 @@ async function processPlayerActor(actor) {
         hasVitalityStone: !!baseVitalityStoneId && baseVitalityStoneId.trim() !== ''
     });
     // Copy power stones
+    let powerStoneActors = [];
     if (powerCount > 0) {
         console.log(`Mastery System | [PROCESS PLAYER] Processing ${powerCount} power stones...`);
         if (!basePowerStoneId || basePowerStoneId.trim() === '') {
@@ -1308,16 +1435,17 @@ async function processPlayerActor(actor) {
             }
             else {
                 console.log(`Mastery System | [PROCESS PLAYER] Copying ${powerCount} power stones...`);
-                const copiedActors = await copyStoneActor(basePowerActor, powerCount, stonesFolderId, `Power Stone`);
+                powerStoneActors = await copyStoneActor(basePowerActor, powerCount, stonesFolderId, `Power Stone`);
                 console.log(`Mastery System | [PROCESS PLAYER] Power stones copied:`, {
                     requested: powerCount,
-                    copied: copiedActors.length,
-                    actorIds: copiedActors.map((a) => a.id)
+                    copied: powerStoneActors.length,
+                    actorIds: powerStoneActors.map((a) => a.id)
                 });
             }
         }
     }
     // Copy vitality stones
+    let vitalityStoneActors = [];
     if (vitalityCount > 0) {
         console.log(`Mastery System | [PROCESS PLAYER] Processing ${vitalityCount} vitality stones...`);
         if (!baseVitalityStoneId || baseVitalityStoneId.trim() === '') {
@@ -1335,16 +1463,22 @@ async function processPlayerActor(actor) {
             }
             else {
                 console.log(`Mastery System | [PROCESS PLAYER] Copying ${vitalityCount} vitality stones...`);
-                const copiedActors = await copyStoneActor(baseVitalityActor, vitalityCount, stonesFolderId, `Vitality Stone`);
+                vitalityStoneActors = await copyStoneActor(baseVitalityActor, vitalityCount, stonesFolderId, `Vitality Stone`);
                 console.log(`Mastery System | [PROCESS PLAYER] Vitality stones copied:`, {
                     requested: vitalityCount,
-                    copied: copiedActors.length,
-                    actorIds: copiedActors.map((a) => a.id)
+                    copied: vitalityStoneActors.length,
+                    actorIds: vitalityStoneActors.map((a) => a.id)
                 });
             }
         }
     }
     console.log(`Mastery System | [PROCESS PLAYER] ===== COMPLETED Processing ${actorName} =====`);
+    // Return the created stone actors for token placement
+    return {
+        playerActor: actor,
+        powerStoneActors: powerStoneActors,
+        vitalityStoneActors: vitalityStoneActors
+    };
 }
 export async function startDivineClash() {
     console.log('Mastery System | [DIVINE CLASH START] ===== NEW VERSION - ACTOR STRUCTURE ONLY =====');
@@ -1555,14 +1689,26 @@ export async function startDivineClash() {
             return;
         }
         console.log(`Mastery System | [DIVINE CLASH START] Processing ${playerActors.length} player actor(s)`);
-        console.log('Mastery System | [DIVINE CLASH START] NO TOKENS WILL BE CREATED - ONLY ACTOR STRUCTURE');
-        // Process each player actor
-        for (const actor of playerActors) {
-            console.log(`Mastery System | [DIVINE CLASH START] Calling processPlayerActor for: ${actor.name}`);
-            await processPlayerActor(actor);
+        // Get the Divine Clash scene for token placement
+        const targetScene = divineClashScene || canvas?.scene;
+        if (!targetScene) {
+            console.error(`Mastery System | [DIVINE CLASH START] No scene available for token placement`);
+            ui.notifications?.warn('No scene available for token placement');
+            return;
         }
-        ui.notifications?.info(`Divine Clash: Created stone actors for ${playerActors.length} player(s)`);
-        console.log('Mastery System | [DIVINE CLASH START] ===== COMPLETED - NO TOKENS CREATED =====');
+        // Process each player actor and place tokens
+        for (let playerIndex = 0; playerIndex < playerActors.length; playerIndex++) {
+            const actor = playerActors[playerIndex];
+            console.log(`Mastery System | [DIVINE CLASH START] Calling processPlayerActor for: ${actor.name}`);
+            // Create actor structure
+            const result = await processPlayerActor(actor);
+            // Place tokens on the scene
+            if (result) {
+                await spawnTokensForPlayer(targetScene, actor, result, playerIndex, playerActors.length);
+            }
+        }
+        ui.notifications?.info(`Divine Clash: Created stone actors and tokens for ${playerActors.length} player(s)`);
+        console.log('Mastery System | [DIVINE CLASH START] ===== COMPLETED - ACTORS AND TOKENS CREATED =====');
     }
     finally {
         isStartingDivineClash = false;
