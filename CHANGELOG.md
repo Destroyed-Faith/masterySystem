@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.77] - 2025-01-XX
+
+### Fixed
+- **Divine Clash: Fix placeholder images on stone tokens**
+  - **Critical fix**: Stone actor images are now taken from settings when copying, not from the base actor
+  - This prevents placeholder images from being copied from base actors to stone tokens
+  - Images are now properly set from `divineClashPowerStoneImg` and `divineClashVitalityStoneImg` settings
+  - Added debug logging to show image selection process
+
 ## [0.2.76] - 2025-01-XX
 
 ### Fixed

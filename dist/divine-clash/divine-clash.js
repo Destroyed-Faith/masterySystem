@@ -1021,6 +1021,7 @@ async function ensureStonesFolderForActor(actor) {
 }
 /**
  * Copy a base stone actor multiple times into a folder
+ * The image is taken from settings, not from the base actor (to avoid placeholder images)
  */
 async function copyStoneActor(baseActor, count, folderId, actorName) {
     console.log(`Mastery System | [COPY STONE ACTOR] ===== START Copying "${actorName}" ${count} times =====`);
@@ -1167,6 +1168,24 @@ async function copyStoneActor(baseActor, count, folderId, actorName) {
             copyData.folder = folderId || null;
             // Remove ID so a new one is generated
             delete copyData._id;
+            // CRITICAL: Override image from settings (not from base actor) to avoid placeholder images
+            // Determine stone kind from actor name or flags
+            const isPowerStone = actorName.toLowerCase().includes('power');
+            const settingsImg = isPowerStone
+                ? game.settings.get('mastery-system', 'divineClashPowerStoneImg')
+                : game.settings.get('mastery-system', 'divineClashVitalityStoneImg');
+            const defaultImg = isPowerStone
+                ? 'systems/mastery-system/icons/svg/power-stone.svg'
+                : 'systems/mastery-system/icons/svg/vitality-stone.svg';
+            const finalImg = (settingsImg && settingsImg.trim() !== '') ? settingsImg : defaultImg;
+            console.log(`Mastery System | [COPY STONE ACTOR] Image override:`, {
+                isPowerStone,
+                settingsImg,
+                defaultImg,
+                finalImg,
+                baseActorImg: baseData.img
+            });
+            copyData.img = finalImg;
             console.log(`Mastery System | [COPY STONE ACTOR] Copy data:`, {
                 name: copyData.name,
                 folder: copyData.folder,
@@ -1174,7 +1193,8 @@ async function copyStoneActor(baseActor, count, folderId, actorName) {
                 folderId: folderId,
                 folderIdType: typeof folderId,
                 hasId: !!copyData._id,
-                type: copyData.type
+                type: copyData.type,
+                img: copyData.img
             });
             try {
                 console.log(`Mastery System | [COPY STONE ACTOR] Calling Actor.create...`);

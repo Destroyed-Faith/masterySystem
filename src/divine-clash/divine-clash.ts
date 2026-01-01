@@ -1152,6 +1152,7 @@ async function ensureStonesFolderForActor(actor: Actor): Promise<string | null> 
 
 /**
  * Copy a base stone actor multiple times into a folder
+ * The image is taken from settings, not from the base actor (to avoid placeholder images)
  */
 async function copyStoneActor(
   baseActor: Actor,
@@ -1318,6 +1319,27 @@ async function copyStoneActor(
       // Remove ID so a new one is generated
       delete copyData._id;
       
+      // CRITICAL: Override image from settings (not from base actor) to avoid placeholder images
+      // Determine stone kind from actor name or flags
+      const isPowerStone = actorName.toLowerCase().includes('power');
+      const settingsImg = isPowerStone
+        ? (game as any).settings.get('mastery-system', 'divineClashPowerStoneImg')
+        : (game as any).settings.get('mastery-system', 'divineClashVitalityStoneImg');
+      const defaultImg = isPowerStone
+        ? 'systems/mastery-system/icons/svg/power-stone.svg'
+        : 'systems/mastery-system/icons/svg/vitality-stone.svg';
+      const finalImg = (settingsImg && settingsImg.trim() !== '') ? settingsImg : defaultImg;
+      
+      console.log(`Mastery System | [COPY STONE ACTOR] Image override:`, {
+        isPowerStone,
+        settingsImg,
+        defaultImg,
+        finalImg,
+        baseActorImg: baseData.img
+      });
+      
+      copyData.img = finalImg;
+      
       console.log(`Mastery System | [COPY STONE ACTOR] Copy data:`, {
         name: copyData.name,
         folder: copyData.folder,
@@ -1325,7 +1347,8 @@ async function copyStoneActor(
         folderId: folderId,
         folderIdType: typeof folderId,
         hasId: !!copyData._id,
-        type: copyData.type
+        type: copyData.type,
+        img: copyData.img
       });
       
       try {
@@ -1870,7 +1893,7 @@ export async function startDivineClash(): Promise<void> {
           let attempts = 0;
           const maxAttempts = 30; // 3 seconds max wait
           while (attempts < maxAttempts) {
-            await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 100));
             const newCurrentScene = canvas?.scene;
             const newCurrentSceneId = (newCurrentScene as any)?.id;
             if (newCurrentSceneId === targetSceneId) {
@@ -1970,8 +1993,8 @@ export async function startDivineClash(): Promise<void> {
     for (const [actorId, actor] of allActors.entries()) {
       console.log('Mastery System | [DIVINE CLASH START] Checking actor:', {
         id: actorId,
-        name: (actor as any).name,
-        type: actor.type,
+      name: (actor as any).name,
+      type: actor.type,
         isCharacter: actor.type === 'character'
       });
       
@@ -1981,7 +2004,7 @@ export async function startDivineClash(): Promise<void> {
           id: actorId,
           name: (actor as any).name
         });
-      } else {
+    } else {
         console.log('Mastery System | [DIVINE CLASH START] ✗ Skipped non-character actor:', {
           id: actorId,
           name: (actor as any).name,
