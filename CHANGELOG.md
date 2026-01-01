@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.65] - 2025-01-XX
+
+### Fixed
+- **Divine Clash: Added extensive debug logging**: Added detailed debug logs to track folder creation and actor copying
+  - Added debug logs to `processPlayerActor` to track actor processing
+  - Added debug logs to `ensureStonesFolderForActor` to track folder creation
+  - Added debug logs to `copyStoneActor` to track actor copying
+  - Fixed TypeScript compilation errors for deprecated functions
+
 ## [0.2.64] - 2025-01-XX
 
 ### Fixed

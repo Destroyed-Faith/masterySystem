@@ -3,9 +3,6 @@
  * Handles automation for the Divine Clash board system
  */
 import type { DivineClashPhase } from './divine-clash-types.js';
-/**
- * START: Initialize Divine Clash from selected tokens
- */
 export declare function startDivineClash(): Promise<void>;
 /**
  * REVEAL: Reveal attack/defense and move stones to exhausted
@@ -16,7 +13,7 @@ export declare function revealDivineClash(): Promise<void>;
  */
 export declare function endRoundDivineClash(): Promise<void>;
 /**
- * RESET: Cleanup all Divine Clash tokens
+ * RESET: Cleanup all Divine Clash tokens, actors, and folders
  */
 export declare function resetDivineClash(): Promise<void>;
 /**
