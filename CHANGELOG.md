@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.60] - 2025-01-XX
+
+### Changed
+- **Divine Clash: Stone Token Creation**: Complete redesign of stone token system
+  - Each player now gets a dedicated folder: "Divine Clash - [Player Name]"
+  - Individual stone actors are created (one per stone needed) as proper NPC actors
+  - Tokens are now created with `actorLink: true` (linked to individual stone actors)
+  - Each stone actor can have its own image configured
+  - No more placeholder images - stones use their actor images directly
+  - Cleanup function now removes folders and all stone actors on reset
+
+### Fixed
+- **Divine Clash: Placeholder Images**: Fixed by using proper linked actors
+  - Tokens are now properly linked to their stone actors
+  - Images come directly from the actor, not from token data
+  - Each stone is a real NPC actor that can be edited and configured
+
 ## [0.2.59] - 2025-01-XX
 
 ### Changed
