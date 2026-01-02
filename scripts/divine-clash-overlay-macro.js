@@ -1321,6 +1321,11 @@ async function initializeDivineClashOverlays() {
   registerHooks();
   
   const hostTokens = getHostTokens();
+  console.log(`Divine Clash | [DEBUG] Total host tokens selected: ${hostTokens.length}`);
+  hostTokens.forEach((token, idx) => {
+    console.log(`Divine Clash | [DEBUG] Token ${idx + 1}: name="${token.name}", actorType=${token.actor?.type || 'NO ACTOR'}, actorName=${token.actor?.name || 'NO NAME'}`);
+  });
+  
   if (hostTokens.length === 0) {
     ui.notifications.warn('Please select at least one host token (non-stone token)');
     return;
@@ -1328,18 +1333,26 @@ async function initializeDivineClashOverlays() {
   
   // Check for NPCs - only allow one NPC at a time
   const npcTokens = hostTokens.filter(token => token.actor && isNpc(token.actor));
+  const characterTokens = hostTokens.filter(token => token.actor && token.actor.type === 'character');
+  
+  console.log(`Divine Clash | [DEBUG] NPC tokens found: ${npcTokens.length}`);
+  console.log(`Divine Clash | [DEBUG] Character tokens found: ${characterTokens.length}`);
+  
   if (npcTokens.length > 1) {
     ui.notifications.warn('Please select only one NPC token for Divine Combat');
     return;
   }
   
-  // If there's an NPC, process only that one
-  const tokensToProcess = npcTokens.length > 0 ? npcTokens : hostTokens;
+  // Process ALL selected tokens (both NPCs and characters)
+  const tokensToProcess = hostTokens;
+  console.log(`Divine Clash | [DEBUG] Processing ${tokensToProcess.length} token(s): ${tokensToProcess.map(t => `${t.name} (${t.actor?.type || 'NO TYPE'})`).join(', ')}`);
   
   for (const hostToken of tokensToProcess) {
+    console.log(`Divine Clash | [DEBUG] Processing token: ${hostToken.name} (actor: ${hostToken.actor?.name || 'NO ACTOR'}, type: ${hostToken.actor?.type || 'NO TYPE'})`);
+    
     // Check if overlay already exists
     if (hostToken._dcOverlay) {
-      console.log(`Divine Clash | Overlay already exists for ${hostToken.name}`);
+      console.log(`Divine Clash | [DEBUG] Overlay already exists for ${hostToken.name}, skipping creation`);
       continue;
     }
     
@@ -1365,6 +1378,7 @@ async function initializeDivineClashOverlays() {
       
       if (isNpcActor) {
         // For NPCs: get Divine Combat data
+        console.log(`Divine Clash | [DEBUG] Processing NPC: ${actor.name}`);
         divineCombatData = getDivineCombatData(actor);
         if (!divineCombatData) {
           console.warn(`Divine Clash | NPC ${actor.name} has no Divine Combat data configured. Please set Starting Pool, Regeneration, Basis Attack, and Basis Defense in the NPC sheet.`);
@@ -1377,26 +1391,58 @@ async function initializeDivineClashOverlays() {
         console.log(`Divine Clash | NPC Divine Combat stats: Regeneration=${divineCombatData.regeneration}, Basis Attack=${divineCombatData.basisAttack}, Basis Defense=${divineCombatData.basisDefense}`);
       } else {
         // For characters: get power stone count
+        console.log(`Divine Clash | [DEBUG] Processing Character: ${actor.name}`);
+        const system = actor.system || {};
+        const stones = system.stones || {};
+        console.log(`Divine Clash | [DEBUG] Character ${actor.name} system.stones:`, JSON.stringify(stones));
         stoneCount = getPowerStoneCount(actor);
         console.log(`Divine Clash | Character ${actor.name} has ${stoneCount} power stones (from system.stones)`);
       }
       
       if (stoneCount === 0) {
-        console.warn(`Divine Clash | ${actor.name} has 0 stones, skipping overlay creation`);
+        console.warn(`Divine Clash | [DEBUG] ${actor.name} has 0 stones, skipping overlay creation`);
+        console.warn(`Divine Clash | [DEBUG] Actor system data:`, JSON.stringify(actor.system || {}, null, 2));
         ui.notifications.warn(`${actor.name} has no stones to display`);
         continue;
       }
       
       // Generate stone IDs (we'll create sprites for these)
-      const stoneIds = [];
-      for (let i = 0; i < stoneCount; i++) {
-        stoneIds.push(`generated-${actor.id}-${i}`);
+      const poolStoneIds = [];
+      const attackStoneIds = [];
+      const defenseStoneIds = [];
+      
+      if (isNpcActor && divineCombatData) {
+        // For NPCs: distribute stones based on basisAttack and basisDefense
+        // Remaining stones go to pool
+        const totalStones = divineCombatData.startingPool;
+        const attackStones = divineCombatData.basisAttack || 0;
+        const defenseStones = divineCombatData.basisDefense || 0;
+        const poolStones = Math.max(0, totalStones - attackStones - defenseStones);
+        
+        console.log(`Divine Clash | [DEBUG] NPC ${actor.name} stone distribution: Pool=${poolStones}, Attack=${attackStones}, Defense=${defenseStones} (total=${totalStones})`);
+        
+        // Generate stone IDs for each zone
+        let stoneIndex = 0;
+        for (let i = 0; i < poolStones; i++) {
+          poolStoneIds.push(`generated-${actor.id}-${stoneIndex++}`);
+        }
+        for (let i = 0; i < attackStones; i++) {
+          attackStoneIds.push(`generated-${actor.id}-${stoneIndex++}`);
+        }
+        for (let i = 0; i < defenseStones; i++) {
+          defenseStoneIds.push(`generated-${actor.id}-${stoneIndex++}`);
+        }
+      } else {
+        // For characters: all stones start in pool
+        for (let i = 0; i < stoneCount; i++) {
+          poolStoneIds.push(`generated-${actor.id}-${i}`);
+        }
       }
       
       flags = {
-        pool: stoneIds,
-        attack: [],
-        defense: [],
+        pool: poolStoneIds,
+        attack: attackStoneIds,
+        defense: defenseStoneIds,
         // Store Divine Combat data for NPCs
         ...(divineCombatData ? {
           divineCombat: {
@@ -1406,6 +1452,8 @@ async function initializeDivineClashOverlays() {
           }
         } : {})
       };
+      
+      console.log(`Divine Clash | [DEBUG] Initialized flags for ${actor.name}: pool=${poolStoneIds.length}, attack=${attackStoneIds.length}, defense=${defenseStoneIds.length}`);
       await hostToken.document.setFlag('mastery-system', 'divineClashOverlay', flags);
       
       console.log(`Divine Clash | Initialized ${stoneIds.length} stones for ${hostToken.name} from actor data`);
@@ -1431,9 +1479,8 @@ async function initializeDivineClashOverlays() {
     console.log(`Divine Clash | Overlay created for ${hostToken.name}, visible=${overlay.visible}, position=(${overlay.x}, ${overlay.y}), parent=${overlay.parent ? overlay.parent.constructor.name : 'none'}`);
   }
   
-  const message = npcTokens.length > 0 
-    ? `Divine Clash overlay initialized for NPC: ${npcTokens[0].name}`
-    : `Divine Clash overlays initialized for ${tokensToProcess.length} token(s)`;
+  console.log(`Divine Clash | [DEBUG] Processing complete. Processed ${tokensToProcess.length} token(s)`);
+  const message = `Divine Clash overlays initialized for ${tokensToProcess.length} token(s)`;
   ui.notifications.info(message);
 }
 
