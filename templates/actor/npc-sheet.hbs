@@ -108,6 +108,29 @@
           </div>
         </div>
 
+        {{!-- Divine Combat --}}
+        <div class="divine-combat-panel">
+          <h3>Divine Combat</h3>
+          <div class="divine-combat-grid">
+            <div class="divine-combat-stat">
+              <label>Starting Pool:</label>
+              <input type="number" name="system.phases.{{phaseIndex}}.divineCombat.startingPool" value="{{default phase.divineCombat.startingPool 0}}" data-dtype="Number" min="0"/>
+            </div>
+            <div class="divine-combat-stat">
+              <label>Regeneration:</label>
+              <input type="number" name="system.phases.{{phaseIndex}}.divineCombat.regeneration" value="{{default phase.divineCombat.regeneration 0}}" data-dtype="Number" min="0"/>
+            </div>
+            <div class="divine-combat-stat">
+              <label>Basis Attack:</label>
+              <input type="number" name="system.phases.{{phaseIndex}}.divineCombat.basisAttack" value="{{default phase.divineCombat.basisAttack 0}}" data-dtype="Number" min="0"/>
+            </div>
+            <div class="divine-combat-stat">
+              <label>Basis Defense:</label>
+              <input type="number" name="system.phases.{{phaseIndex}}.divineCombat.basisDefense" value="{{default phase.divineCombat.basisDefense 0}}" data-dtype="Number" min="0"/>
+            </div>
+          </div>
+        </div>
+
         {{!-- Saving Throws --}}
         <div class="saves-panel">
           <h3>Saving Throws</h3>
@@ -250,6 +273,29 @@
           <div class="combat-stat">
             <label>Speed:</label>
             <input type="number" name="system.combat.speed" value="{{system.combat.speed}}" data-dtype="Number"/>
+          </div>
+        </div>
+      </div>
+
+      {{!-- Divine Combat --}}
+      <div class="divine-combat-panel">
+        <h3>Divine Combat</h3>
+        <div class="divine-combat-grid">
+          <div class="divine-combat-stat">
+            <label>Starting Pool:</label>
+            <input type="number" name="system.divineCombat.startingPool" value="{{default system.divineCombat.startingPool 0}}" data-dtype="Number" min="0"/>
+          </div>
+          <div class="divine-combat-stat">
+            <label>Regeneration:</label>
+            <input type="number" name="system.divineCombat.regeneration" value="{{default system.divineCombat.regeneration 0}}" data-dtype="Number" min="0"/>
+          </div>
+          <div class="divine-combat-stat">
+            <label>Basis Attack:</label>
+            <input type="number" name="system.divineCombat.basisAttack" value="{{default system.divineCombat.basisAttack 0}}" data-dtype="Number" min="0"/>
+          </div>
+          <div class="divine-combat-stat">
+            <label>Basis Defense:</label>
+            <input type="number" name="system.divineCombat.basisDefense" value="{{default system.divineCombat.basisDefense 0}}" data-dtype="Number" min="0"/>
           </div>
         </div>
       </div>

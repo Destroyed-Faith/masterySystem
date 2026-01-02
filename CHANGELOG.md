@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.83] - 2025-01-XX
+
+### Added
+- **NPC Sheet: Divine Combat Configuration**
+  - Added "Divine Combat" panel to NPC sheets with four configurable fields:
+    - **Starting Pool**: Initial number of stones in the pool
+    - **Regeneration**: Stones regenerated per round
+    - **Basis Attack**: Base attack value for Divine Combat
+    - **Basis Defense**: Base defense value for Divine Combat
+  - Available for both normal NPCs and boss phases
+  - Values will be used when NPCs are targeted in Divine Combat encounters
+  - Styled consistently with existing combat panels
+
 ## [0.2.82] - 2025-01-XX
 
 ### Fixed

@@ -142,6 +142,12 @@ export interface BossPhase {
   };
   attackValues?: AttackValue[];
   statusEffects?: StatusEffect[];
+  divineCombat?: {
+    startingPool: number;
+    regeneration: number;
+    basisAttack: number;
+    basisDefense: number;
+  };
 }
 
 // === NPC Data ===
@@ -183,6 +189,12 @@ export interface NpcData {
   conditions: any[];
   statusEffects?: StatusEffect[];
   notes: string;
+  divineCombat?: {
+    startingPool: number;
+    regeneration: number;
+    basisAttack: number;
+    basisDefense: number;
+  };
   // Derived tracked resources for Combat Carousel module
   tracked?: {
     hp?: ResourceData;
