@@ -166,6 +166,8 @@ class DivineClashOverlay extends PIXI.Container {
   constructor(hostToken) {
     super();
     this.hostToken = hostToken;
+    this.actor = hostToken.actor;
+    this.isNpc = this.actor && isNpc(this.actor);
     this.zones = {}; // { pool: Graphics, attack: Graphics, defense: Graphics }
     this.zoneLabels = {}; // { pool: Text, attack: Text, defense: Text }
     this.stoneSprites = new Map(); // stoneTokenId -> Sprite
@@ -175,6 +177,7 @@ class DivineClashOverlay extends PIXI.Container {
     this.readyButton = null; // Ready button above pool
     this.poolButtons = null; // GM-only pool management buttons
     this.endRoundButton = null; // GM-only end round button
+    this.nameLabel = null; // NPC name label (left of overlay)
     
     this.eventMode = 'passive';
     this.interactiveChildren = true;
@@ -189,6 +192,9 @@ class DivineClashOverlay extends PIXI.Container {
     
     // Update position
     this.updateWorldPosition();
+    
+    // Update visibility based on user permissions
+    this.updateVisibility();
     
     // Attach to canvas.tokens layer (not token.mesh) to allow pointer events outside token bounds
     // Do this AFTER setting position so it's positioned correctly
@@ -206,30 +212,109 @@ class DivineClashOverlay extends PIXI.Container {
   }
   
   /**
-   * Update overlay position in canvas world coordinates based on host token position
+   * Update overlay position in canvas world coordinates
+   * NPCs: Center top of scene
+   * Characters: Bottom center, evenly distributed
    */
   updateWorldPosition() {
-    if (!this.hostToken) {
-      console.warn('Divine Clash | updateWorldPosition: hostToken is null');
+    if (!this.hostToken || !canvas) {
+      console.warn('Divine Clash | updateWorldPosition: hostToken or canvas is null');
       return;
     }
     
-    // Get token position from document or mesh
-    const tokenDoc = this.hostToken.document;
-    const tokenX = tokenDoc.x || this.hostToken.x || 0;
-    const tokenY = tokenDoc.y || this.hostToken.y || 0;
-    const tokenW = tokenDoc.width || this.hostToken.w || 1;
-    const tokenH = tokenDoc.height || this.hostToken.h || 1;
+    const scene = canvas.scene;
+    if (!scene) {
+      console.warn('Divine Clash | updateWorldPosition: scene is not available');
+      return;
+    }
     
-    // Calculate token center and bottom in canvas coordinates
-    const tokenCenterX = tokenX + (tokenW * canvas.grid.size) / 2;
-    const tokenBottomY = tokenY + (tokenH * canvas.grid.size);
+    // Get scene dimensions
+    const sceneWidth = scene.dimensions.width * canvas.grid.size;
+    const sceneHeight = scene.dimensions.height * canvas.grid.size;
     
-    // Calculate world position: token center X + offset X, token bottom Y + offset Y
-    this.x = tokenCenterX + OVERLAY_OFFSET_X;
-    this.y = tokenBottomY + OVERLAY_OFFSET_Y;
+    if (this.isNpc) {
+      // NPCs: Center top of scene
+      const centerX = sceneWidth / 2;
+      const topY = 50; // 50 pixels from top
+      
+      this.x = centerX - (POOL_WIDTH / 2);
+      this.y = topY;
+      
+      // Create/update NPC name label (left of overlay)
+      if (!this.nameLabel) {
+        this.nameLabel = new PIXI.Text(this.hostToken.name || 'NPC', {
+          fontFamily: 'Signika',
+          fontSize: 24,
+          fill: 0xFFFFFF,
+          fontWeight: 'bold',
+          stroke: 0x000000,
+          strokeThickness: 4
+        });
+        this.nameLabel.anchor.set(1, 0); // Right-aligned, top-aligned
+        this.addChild(this.nameLabel);
+      }
+      
+      // Position name label to the left of the overlay
+      this.nameLabel.x = -20; // 20 pixels to the left
+      this.nameLabel.y = 10; // Slightly below top
+      
+      console.log(`Divine Clash | NPC overlay positioned at center top: x=${this.x}, y=${this.y}`);
+    } else {
+      // Characters: Bottom center, evenly distributed
+      // Get all character overlays to calculate spacing
+      const allCharacterOverlays = [];
+      canvas.tokens?.placeables.forEach(token => {
+        if (token._dcOverlay && !token._dcOverlay.isNpc) {
+          allCharacterOverlays.push(token._dcOverlay);
+        }
+      });
+      
+      const totalCharacters = allCharacterOverlays.length;
+      const overlayWidth = POOL_WIDTH + 40; // Width of overlay + spacing
+      const totalWidth = totalCharacters * overlayWidth;
+      const startX = (sceneWidth / 2) - (totalWidth / 2) + (overlayWidth / 2);
+      
+      // Find index of this overlay
+      const myIndex = allCharacterOverlays.findIndex(ov => ov === this);
+      const bottomY = sceneHeight - 200; // 200 pixels from bottom
+      
+      this.x = startX + (myIndex * overlayWidth) - (POOL_WIDTH / 2);
+      this.y = bottomY;
+      
+      console.log(`Divine Clash | Character overlay positioned at bottom: x=${this.x}, y=${this.y} (index ${myIndex} of ${totalCharacters})`);
+    }
+  }
+  
+  /**
+   * Update visibility based on user permissions
+   * Players see only their own overlay, GM sees all
+   */
+  updateVisibility() {
+    if (!this.actor) {
+      this.visible = false;
+      return;
+    }
     
-    console.log(`Divine Clash | Updated overlay position for ${this.hostToken.name}: x=${this.x}, y=${this.y} (token: ${tokenX}, ${tokenY})`);
+    // GM sees all overlays
+    if (game.user.isGM) {
+      this.visible = true;
+      this.alpha = 1.0;
+      return;
+    }
+    
+    // Players see only their own character overlay
+    if (!this.isNpc) {
+      // Check if this actor belongs to the current user
+      const isOwner = this.actor.testUserPermission(game.user, 'OWNER');
+      this.visible = isOwner;
+      this.alpha = isOwner ? 1.0 : 0.0;
+    } else {
+      // Players don't see NPC overlays (only GM does)
+      this.visible = false;
+      this.alpha = 0.0;
+    }
+    
+    console.log(`Divine Clash | Visibility updated for ${this.hostToken.name}: visible=${this.visible}, isGM=${game.user.isGM}, isOwner=${this.actor?.testUserPermission(game.user, 'OWNER')}`);
   }
   
   /**
