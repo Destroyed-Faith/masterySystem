@@ -222,19 +222,20 @@ class DivineClashOverlay extends PIXI.Container {
       return;
     }
     
-    // Get visible canvas dimensions (viewport), not scene dimensions
-    // canvas.dimensions gives us the visible area in world coordinates
+    // Get visible canvas dimensions (viewport) in world coordinates
+    // canvas.dimensions gives us the visible area
     const visibleWidth = canvas.dimensions.width;
     const visibleHeight = canvas.dimensions.height;
     
-    // Get the current view position (top-left corner of visible area in world coordinates)
-    const viewX = canvas.stage.pivot.x - (canvas.dimensions.sceneWidth / 2);
-    const viewY = canvas.stage.pivot.y - (canvas.dimensions.sceneHeight / 2);
+    // Get the current view position in world coordinates
+    // canvas.stage.position is the center of the viewport in world coordinates
+    const viewCenterX = canvas.stage.position.x;
+    const viewCenterY = canvas.stage.position.y;
     
-    // Calculate center and edges of visible viewport in world coordinates
-    const visibleCenterX = viewX + (visibleWidth / 2);
-    const visibleTopY = viewY;
-    const visibleBottomY = viewY + visibleHeight;
+    // Calculate edges of visible viewport in world coordinates
+    const visibleCenterX = viewCenterX;
+    const visibleTopY = viewCenterY - (visibleHeight / 2);
+    const visibleBottomY = viewCenterY + (visibleHeight / 2);
     
     if (this.isNpc) {
       // NPCs: Center top of visible viewport
