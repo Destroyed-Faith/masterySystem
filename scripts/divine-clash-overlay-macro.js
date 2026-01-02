@@ -222,20 +222,24 @@ class DivineClashOverlay extends PIXI.Container {
       return;
     }
     
-    const scene = canvas.scene;
-    if (!scene) {
-      console.warn('Divine Clash | updateWorldPosition: scene is not available');
-      return;
-    }
+    // Get visible canvas dimensions (viewport), not scene dimensions
+    // canvas.dimensions gives us the visible area in world coordinates
+    const visibleWidth = canvas.dimensions.width;
+    const visibleHeight = canvas.dimensions.height;
     
-    // Get scene dimensions
-    const sceneWidth = scene.dimensions.width * canvas.grid.size;
-    const sceneHeight = scene.dimensions.height * canvas.grid.size;
+    // Get the current view position (top-left corner of visible area in world coordinates)
+    const viewX = canvas.stage.pivot.x - (canvas.dimensions.sceneWidth / 2);
+    const viewY = canvas.stage.pivot.y - (canvas.dimensions.sceneHeight / 2);
+    
+    // Calculate center and edges of visible viewport in world coordinates
+    const visibleCenterX = viewX + (visibleWidth / 2);
+    const visibleTopY = viewY;
+    const visibleBottomY = viewY + visibleHeight;
     
     if (this.isNpc) {
-      // NPCs: Center top of scene
-      const centerX = sceneWidth / 2;
-      const topY = 50; // 50 pixels from top
+      // NPCs: Center top of visible viewport
+      const centerX = visibleCenterX;
+      const topY = visibleTopY + 50; // 50 pixels from top of visible area
       
       this.x = centerX - (POOL_WIDTH / 2);
       this.y = topY;
@@ -258,9 +262,9 @@ class DivineClashOverlay extends PIXI.Container {
       this.nameLabel.x = -20; // 20 pixels to the left
       this.nameLabel.y = 10; // Slightly below top
       
-      console.log(`Divine Clash | NPC overlay positioned at center top: x=${this.x}, y=${this.y}`);
+      console.log(`Divine Clash | NPC overlay positioned at center top: x=${this.x}, y=${this.y} (visible viewport: ${visibleWidth}x${visibleHeight}, center: ${visibleCenterX})`);
     } else {
-      // Characters: Bottom center, evenly distributed
+      // Characters: Bottom center of visible viewport, evenly distributed
       // Get all character overlays to calculate spacing
       const allCharacterOverlays = [];
       canvas.tokens?.placeables.forEach(token => {
@@ -272,16 +276,16 @@ class DivineClashOverlay extends PIXI.Container {
       const totalCharacters = allCharacterOverlays.length;
       const overlayWidth = POOL_WIDTH + 40; // Width of overlay + spacing
       const totalWidth = totalCharacters * overlayWidth;
-      const startX = (sceneWidth / 2) - (totalWidth / 2) + (overlayWidth / 2);
+      const startX = visibleCenterX - (totalWidth / 2) + (overlayWidth / 2);
       
       // Find index of this overlay
       const myIndex = allCharacterOverlays.findIndex(ov => ov === this);
-      const bottomY = sceneHeight - 200; // 200 pixels from bottom
+      const bottomY = visibleBottomY - 200; // 200 pixels from bottom of visible area
       
       this.x = startX + (myIndex * overlayWidth) - (POOL_WIDTH / 2);
       this.y = bottomY;
       
-      console.log(`Divine Clash | Character overlay positioned at bottom: x=${this.x}, y=${this.y} (index ${myIndex} of ${totalCharacters})`);
+      console.log(`Divine Clash | Character overlay positioned at bottom: x=${this.x}, y=${this.y} (index ${myIndex} of ${totalCharacters}, visible viewport: ${visibleWidth}x${visibleHeight})`);
     }
   }
   
