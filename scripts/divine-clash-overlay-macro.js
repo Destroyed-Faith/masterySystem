@@ -290,7 +290,7 @@ class DivineClashOverlay extends PIXI.Container {
       this.x = startX + (myIndex * overlayWidth) - (POOL_WIDTH / 2);
       this.y = bottomY;
       
-      // Create/update character name label (left of Ready button)
+      // Create/update character name label (at left edge of pool)
       if (!this.nameLabel) {
         this.nameLabel = new PIXI.Text(this.hostToken.name || 'Character', {
           fontFamily: 'Signika',
@@ -300,12 +300,12 @@ class DivineClashOverlay extends PIXI.Container {
           stroke: 0x000000,
           strokeThickness: 4
         });
-        this.nameLabel.anchor.set(1, 0.5); // Right-aligned, center-vertical
+        this.nameLabel.anchor.set(0, 0.5); // Left-aligned, center-vertical
         this.addChild(this.nameLabel);
       }
       
-      // Position name label left of Ready button (which is at right edge of pool)
-      this.nameLabel.x = POOL_WIDTH - READY_BUTTON_WIDTH - 10; // 10px left of Ready button
+      // Position name label at left edge of pool
+      this.nameLabel.x = 10; // 10px from left edge of pool
       this.nameLabel.y = -READY_BUTTON_HEIGHT / 2; // Vertically centered with Ready button
       
       console.log(`Divine Clash | Character overlay positioned at bottom-middle: x=${this.x}, y=${this.y} (index ${myIndex} of ${totalCharacters})`);
