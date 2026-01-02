@@ -181,16 +181,27 @@ class DivineClashOverlay extends PIXI.Container {
     this.visible = true;
     this.alpha = 1.0;
     
-    // Attach to canvas.tokens layer (not token.mesh) to allow pointer events outside token bounds
-    if (canvas.tokens) {
-      canvas.tokens.addChild(this);
-    }
-    
     // Store reference
     hostToken._dcOverlay = this;
     
+    // Draw zones first
     this.drawZones();
+    
+    // Update position
     this.updateWorldPosition();
+    
+    // Attach to canvas.tokens layer (not token.mesh) to allow pointer events outside token bounds
+    // Do this AFTER setting position so it's positioned correctly
+    if (canvas.tokens) {
+      canvas.tokens.addChild(this);
+      this.visible = true;
+      this.alpha = 1.0;
+      this.zIndex = 1000; // Ensure it's on top
+      console.log(`Divine Clash | Overlay added to canvas.tokens for ${hostToken.name} at position (${this.x}, ${this.y}), visible=${this.visible}, alpha=${this.alpha}`);
+    } else {
+      console.error('Divine Clash | canvas.tokens is not available!');
+    }
+    
     // renderFromFlags will be called after flags are initialized
   }
   
@@ -198,15 +209,27 @@ class DivineClashOverlay extends PIXI.Container {
    * Update overlay position in canvas world coordinates based on host token position
    */
   updateWorldPosition() {
-    if (!this.hostToken || !this.hostToken.mesh) return;
+    if (!this.hostToken) {
+      console.warn('Divine Clash | updateWorldPosition: hostToken is null');
+      return;
+    }
     
-    const tokenBounds = this.hostToken.bounds;
-    const tokenCenterX = this.hostToken.center.x;
-    const tokenBottomY = tokenBounds.bottom;
+    // Get token position from document or mesh
+    const tokenDoc = this.hostToken.document;
+    const tokenX = tokenDoc.x || this.hostToken.x || 0;
+    const tokenY = tokenDoc.y || this.hostToken.y || 0;
+    const tokenW = tokenDoc.width || this.hostToken.w || 1;
+    const tokenH = tokenDoc.height || this.hostToken.h || 1;
+    
+    // Calculate token center and bottom in canvas coordinates
+    const tokenCenterX = tokenX + (tokenW * canvas.grid.size) / 2;
+    const tokenBottomY = tokenY + (tokenH * canvas.grid.size);
     
     // Calculate world position: token center X + offset X, token bottom Y + offset Y
     this.x = tokenCenterX + OVERLAY_OFFSET_X;
     this.y = tokenBottomY + OVERLAY_OFFSET_Y;
+    
+    console.log(`Divine Clash | Updated overlay position for ${this.hostToken.name}: x=${this.x}, y=${this.y} (token: ${tokenX}, ${tokenY})`);
   }
   
   /**
@@ -1025,6 +1048,12 @@ class DivineClashOverlay extends PIXI.Container {
     // Ready button is always visible and clickable
     // Update world position in case token moved
     this.updateWorldPosition();
+    
+    // Ensure overlay is visible
+    this.visible = true;
+    this.alpha = 1.0;
+    
+    console.log(`Divine Clash | Render complete for ${this.hostToken.name}, overlay visible=${this.visible}, position=(${this.x}, ${this.y}), parent=${this.parent ? this.parent.constructor.name : 'none'}`);
   }
   
   /**
@@ -1388,7 +1417,18 @@ async function initializeDivineClashOverlays() {
     const overlay = new DivineClashOverlay(hostToken);
     await overlay.renderFromFlags();
     
-    console.log(`Divine Clash | Overlay created for ${hostToken.name}`);
+    // Ensure overlay is visible and properly positioned
+    overlay.visible = true;
+    overlay.alpha = 1.0;
+    overlay.zIndex = 1000;
+    overlay.updateWorldPosition();
+    
+    // Force a canvas refresh
+    if (canvas.tokens && overlay.parent !== canvas.tokens) {
+      canvas.tokens.addChild(overlay);
+    }
+    
+    console.log(`Divine Clash | Overlay created for ${hostToken.name}, visible=${overlay.visible}, position=(${overlay.x}, ${overlay.y}), parent=${overlay.parent ? overlay.parent.constructor.name : 'none'}`);
   }
   
   const message = npcTokens.length > 0 
