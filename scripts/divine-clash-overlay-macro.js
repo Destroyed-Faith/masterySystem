@@ -279,7 +279,7 @@ class DivineClashOverlay extends PIXI.Container {
       });
       
       const totalCharacters = allCharacterOverlays.length;
-      const overlayWidth = POOL_WIDTH + 100; // Width of overlay + spacing (increased from 40 to 100)
+      const overlayWidth = POOL_WIDTH + 200; // Width of overlay + spacing (increased to 200 for more space)
       const totalWidth = totalCharacters * overlayWidth;
       const startX = bottomMiddle.x - (totalWidth / 2) + (overlayWidth / 2);
       
@@ -290,7 +290,7 @@ class DivineClashOverlay extends PIXI.Container {
       this.x = startX + (myIndex * overlayWidth) - (POOL_WIDTH / 2);
       this.y = bottomY;
       
-      // Create/update character name label (above overlay)
+      // Create/update character name label (left of Ready button)
       if (!this.nameLabel) {
         this.nameLabel = new PIXI.Text(this.hostToken.name || 'Character', {
           fontFamily: 'Signika',
@@ -300,13 +300,13 @@ class DivineClashOverlay extends PIXI.Container {
           stroke: 0x000000,
           strokeThickness: 4
         });
-        this.nameLabel.anchor.set(0.5, 1); // Center-aligned, bottom-aligned
+        this.nameLabel.anchor.set(1, 0.5); // Right-aligned, center-vertical
         this.addChild(this.nameLabel);
       }
       
-      // Position name label above the overlay, centered
-      this.nameLabel.x = POOL_WIDTH / 2; // Center of overlay
-      this.nameLabel.y = -10; // 10 pixels above the overlay
+      // Position name label left of Ready button (which is at right edge of pool)
+      this.nameLabel.x = POOL_WIDTH - READY_BUTTON_WIDTH - 10; // 10px left of Ready button
+      this.nameLabel.y = -READY_BUTTON_HEIGHT / 2; // Vertically centered with Ready button
       
       console.log(`Divine Clash | Character overlay positioned at bottom-middle: x=${this.x}, y=${this.y} (index ${myIndex} of ${totalCharacters})`);
     }
@@ -1177,8 +1177,8 @@ class DivineClashOverlay extends PIXI.Container {
     button.drawRoundedRect(0, 0, READY_BUTTON_WIDTH, READY_BUTTON_HEIGHT, 8);
     button.endFill();
     
-    // Position above pool zone, centered
-    button.x = (POOL_WIDTH - READY_BUTTON_WIDTH) / 2;
+    // Position at right edge of pool zone (left side)
+    button.x = POOL_WIDTH - READY_BUTTON_WIDTH;
     button.y = -READY_BUTTON_HEIGHT - 10; // Above the pool zone
     button.zIndex = 30; // Above sprites
     button.eventMode = 'static';
@@ -1249,13 +1249,20 @@ class DivineClashOverlay extends PIXI.Container {
     button.drawRoundedRect(0, 0, READY_BUTTON_WIDTH, READY_BUTTON_HEIGHT, 8);
     button.endFill();
     
-    // Position next to Ready button (to the right)
-    button.x = (POOL_WIDTH - READY_BUTTON_WIDTH) / 2 + READY_BUTTON_WIDTH + 10;
-    button.y = -READY_BUTTON_HEIGHT - 10; // Same height as Ready button
+    // Position at top of NPC overlay (only for NPCs)
+    if (this.isNpc) {
+      button.x = (POOL_WIDTH - READY_BUTTON_WIDTH) / 2; // Centered horizontally
+      button.y = -READY_BUTTON_HEIGHT - 10; // Above the pool zone
+      button.visible = game.user.isGM; // Only visible to GM
+    } else {
+      // For characters, don't show End Round button
+      button.x = 0;
+      button.y = 0;
+      button.visible = false;
+    }
     button.zIndex = 30; // Above sprites
     button.eventMode = 'static';
     button.cursor = 'pointer';
-    button.visible = game.user.isGM; // Only visible to GM
     
     const label = new PIXI.Text('END ROUND', {
       fontFamily: 'Signika',
