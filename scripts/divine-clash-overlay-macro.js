@@ -222,6 +222,28 @@ class DivineClashOverlay extends PIXI.Container {
       return;
     }
     
+    // Find the active scene from game.scenes
+    let activeScene = null;
+    if (game.scenes) {
+      // game.scenes is a Collection (HashMap-like) with key/value pairs
+      for (const [key, scene] of game.scenes.entries()) {
+        if (scene.active === true) {
+          activeScene = scene;
+          break;
+        }
+      }
+    }
+    
+    if (!activeScene) {
+      console.warn('Divine Clash | updateWorldPosition: No active scene found');
+      return;
+    }
+    
+    // Get dimensions from the active scene
+    const sceneDimensions = activeScene.dimensions || {};
+    const sceneWidth = (sceneDimensions.width || 0) * canvas.grid.size;
+    const sceneHeight = (sceneDimensions.height || 0) * canvas.grid.size;
+    
     // Get visible canvas dimensions (viewport) in world coordinates
     // canvas.dimensions gives us the visible area
     const visibleWidth = canvas.dimensions.width;
@@ -236,6 +258,8 @@ class DivineClashOverlay extends PIXI.Container {
     const visibleCenterX = viewCenterX;
     const visibleTopY = viewCenterY - (visibleHeight / 2);
     const visibleBottomY = viewCenterY + (visibleHeight / 2);
+    
+    console.log(`Divine Clash | [DEBUG] Active scene: ${activeScene.name}, dimensions: ${sceneWidth}x${sceneHeight}, viewport: ${visibleWidth}x${visibleHeight}, center: (${viewCenterX}, ${viewCenterY})`);
     
     if (this.isNpc) {
       // NPCs: Center top of visible viewport
