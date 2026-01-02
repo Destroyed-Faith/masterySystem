@@ -240,12 +240,13 @@ class DivineClashOverlay extends PIXI.Container {
     }
     
     // Get dimensions from the active scene
-    const sceneDimensions = activeScene.dimensions || {};
-    const sceneWidth = (sceneDimensions.width || 0) * canvas.grid.size;
-    const sceneHeight = (sceneDimensions.height || 0) * canvas.grid.size;
+    // activeScene.width and activeScene.height are in grid units
+    // Multiply by canvas.grid.size to get pixels
+    const sceneWidthPixels = (activeScene.width || 0) * canvas.grid.size;
+    const sceneHeightPixels = (activeScene.height || 0) * canvas.grid.size;
     
     // Get visible canvas dimensions (viewport) in world coordinates
-    // canvas.dimensions gives us the visible area
+    // canvas.dimensions gives us the visible area in pixels
     const visibleWidth = canvas.dimensions.width;
     const visibleHeight = canvas.dimensions.height;
     
@@ -255,16 +256,21 @@ class DivineClashOverlay extends PIXI.Container {
     const viewCenterY = canvas.stage.position.y;
     
     // Calculate edges of visible viewport in world coordinates
-    const visibleCenterX = viewCenterX;
-    const visibleTopY = viewCenterY - (visibleHeight / 2);
-    const visibleBottomY = viewCenterY + (visibleHeight / 2);
+    // Top-left corner of visible viewport
+    const viewportLeft = viewCenterX - (visibleWidth / 2);
+    const viewportTop = viewCenterY - (visibleHeight / 2);
+    const viewportRight = viewCenterX + (visibleWidth / 2);
+    const viewportBottom = viewCenterY + (visibleHeight / 2);
     
-    console.log(`Divine Clash | [DEBUG] Active scene: ${activeScene.name}, dimensions: ${sceneWidth}x${sceneHeight}, viewport: ${visibleWidth}x${visibleHeight}, center: (${viewCenterX}, ${viewCenterY})`);
+    console.log(`Divine Clash | [DEBUG] Active scene: ${activeScene.name}`);
+    console.log(`Divine Clash | [DEBUG] Scene dimensions: ${activeScene.width}x${activeScene.height} grid units = ${sceneWidthPixels}x${sceneHeightPixels} pixels`);
+    console.log(`Divine Clash | [DEBUG] Viewport: ${visibleWidth}x${visibleHeight} pixels, center: (${viewCenterX}, ${viewCenterY})`);
+    console.log(`Divine Clash | [DEBUG] Viewport bounds: left=${viewportLeft}, top=${viewportTop}, right=${viewportRight}, bottom=${viewportBottom}`);
     
     if (this.isNpc) {
       // NPCs: Center top of visible viewport
-      const centerX = visibleCenterX;
-      const topY = visibleTopY + 50; // 50 pixels from top of visible area
+      const centerX = viewCenterX; // Center of viewport
+      const topY = viewportTop + 50; // 50 pixels from top of visible viewport
       
       this.x = centerX - (POOL_WIDTH / 2);
       this.y = topY;
@@ -287,7 +293,7 @@ class DivineClashOverlay extends PIXI.Container {
       this.nameLabel.x = -20; // 20 pixels to the left
       this.nameLabel.y = 10; // Slightly below top
       
-      console.log(`Divine Clash | NPC overlay positioned at center top: x=${this.x}, y=${this.y} (visible viewport: ${visibleWidth}x${visibleHeight}, center: ${visibleCenterX})`);
+      console.log(`Divine Clash | NPC overlay positioned at center top: x=${this.x}, y=${this.y} (viewport center: ${viewCenterX}, top: ${viewportTop})`);
     } else {
       // Characters: Bottom center of visible viewport, evenly distributed
       // Get all character overlays to calculate spacing
@@ -301,16 +307,16 @@ class DivineClashOverlay extends PIXI.Container {
       const totalCharacters = allCharacterOverlays.length;
       const overlayWidth = POOL_WIDTH + 40; // Width of overlay + spacing
       const totalWidth = totalCharacters * overlayWidth;
-      const startX = visibleCenterX - (totalWidth / 2) + (overlayWidth / 2);
+      const startX = viewCenterX - (totalWidth / 2) + (overlayWidth / 2);
       
       // Find index of this overlay
       const myIndex = allCharacterOverlays.findIndex(ov => ov === this);
-      const bottomY = visibleBottomY - 200; // 200 pixels from bottom of visible area
+      const bottomY = viewportBottom - 200; // 200 pixels from bottom of visible viewport
       
       this.x = startX + (myIndex * overlayWidth) - (POOL_WIDTH / 2);
       this.y = bottomY;
       
-      console.log(`Divine Clash | Character overlay positioned at bottom: x=${this.x}, y=${this.y} (index ${myIndex} of ${totalCharacters}, visible viewport: ${visibleWidth}x${visibleHeight})`);
+      console.log(`Divine Clash | Character overlay positioned at bottom: x=${this.x}, y=${this.y} (index ${myIndex} of ${totalCharacters}, viewport bottom: ${viewportBottom})`);
     }
   }
   
