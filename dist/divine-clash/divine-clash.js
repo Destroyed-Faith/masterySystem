@@ -1368,7 +1368,111 @@ playerActor, stoneActors, playerIndex) {
             console.error(`Mastery System | [SPAWN TOKENS] Failed to create power stone tokens:`, error);
         }
     }
+    // 4. Create drawing rectangles around stones
+    await createStoneAreaDrawings(scene, baseX, baseY, gridSize, stoneActors, playerIndex);
     console.log(`Mastery System | [SPAWN TOKENS] ===== COMPLETED Spawning tokens for ${playerName} =====`);
+}
+/**
+ * Create drawing rectangles around Power Stones and Vitality Stone
+ */
+async function createStoneAreaDrawings(scene, baseX, baseY, gridSize, stoneActors, playerIndex) {
+    try {
+        const drawings = [];
+        const tokenSize = gridSize * 0.8; // Approximate token size
+        const padding = gridSize * 0.3; // Padding around tokens
+        // 1. Create rectangle around Power Stones (if any)
+        if (stoneActors.powerStoneActors.length > 0) {
+            const powerStoneCount = stoneActors.powerStoneActors.length;
+            const powerStoneSpacing = gridSize * 1.2;
+            const totalWidth = (powerStoneCount - 1) * powerStoneSpacing;
+            const startPowerX = baseX - totalWidth / 2;
+            const powerY = baseY - gridSize * 2;
+            // Rectangle dimensions
+            const powerRectX = startPowerX - padding;
+            const powerRectY = powerY - padding;
+            const powerRectWidth = totalWidth + tokenSize + (padding * 2);
+            const powerRectHeight = tokenSize + (padding * 2);
+            drawings.push({
+                type: 'r', // Rectangle
+                x: powerRectX,
+                y: powerRectY,
+                width: powerRectWidth,
+                height: powerRectHeight,
+                rotation: 0,
+                z: 100, // Below tokens
+                fillType: 0, // No fill
+                fillColor: '#000000',
+                fillAlpha: 0,
+                strokeWidth: 2,
+                strokeColor: '#00ff00', // Green for Power Stones
+                strokeAlpha: 0.6,
+                text: '',
+                fontFamily: 'Signika',
+                fontSize: 16,
+                textColor: '#ffffff',
+                textAlpha: 1,
+                hidden: false,
+                locked: false,
+                flags: {
+                    'mastery-system': {
+                        divineClash: {
+                            isStoneArea: true,
+                            stoneKind: 'power',
+                            playerIndex: playerIndex
+                        }
+                    }
+                }
+            });
+        }
+        // 2. Create rectangle around Vitality Stone (if any)
+        if (stoneActors.vitalityStoneActors.length > 0) {
+            const vitalityX = baseX + gridSize * 1.5;
+            const vitalityY = baseY;
+            // Rectangle dimensions
+            const vitalityRectX = vitalityX - padding;
+            const vitalityRectY = vitalityY - padding;
+            const vitalityRectWidth = tokenSize + (padding * 2);
+            const vitalityRectHeight = tokenSize + (padding * 2);
+            drawings.push({
+                type: 'r', // Rectangle
+                x: vitalityRectX,
+                y: vitalityRectY,
+                width: vitalityRectWidth,
+                height: vitalityRectHeight,
+                rotation: 0,
+                z: 100, // Below tokens
+                fillType: 0, // No fill
+                fillColor: '#000000',
+                fillAlpha: 0,
+                strokeWidth: 2,
+                strokeColor: '#ff0000', // Red for Vitality Stone
+                strokeAlpha: 0.6,
+                text: '',
+                fontFamily: 'Signika',
+                fontSize: 16,
+                textColor: '#ffffff',
+                textAlpha: 1,
+                hidden: false,
+                locked: false,
+                flags: {
+                    'mastery-system': {
+                        divineClash: {
+                            isStoneArea: true,
+                            stoneKind: 'vitality',
+                            playerIndex: playerIndex
+                        }
+                    }
+                }
+            });
+        }
+        if (drawings.length > 0) {
+            const createdDrawings = await scene.createEmbeddedDocuments('Drawing', drawings);
+            console.log(`Mastery System | [STONE AREAS] Created ${createdDrawings.length} drawing rectangle(s) for player ${playerIndex}`);
+        }
+    }
+    catch (error) {
+        console.error(`Mastery System | [STONE AREAS] Failed to create stone area drawings:`, error);
+    }
 }
 /**
  * Process a player actor: create stones folder and copy stone actors
