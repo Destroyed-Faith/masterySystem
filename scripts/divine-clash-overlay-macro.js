@@ -279,7 +279,10 @@ class DivineClashOverlay extends PIXI.Container {
       });
       
       const totalCharacters = allCharacterOverlays.length;
-      const overlayWidth = POOL_WIDTH + 200; // Width of overlay + spacing (increased to 200 for more space)
+      // Calculate total overlay width: Pool + spacing + Attack + spacing + Defense
+      const totalOverlayWidth = POOL_WIDTH + ZONE_SPACING + ATTACK_DEFENSE_WIDTH + ZONE_SPACING + ATTACK_DEFENSE_WIDTH;
+      const spacingBetweenOverlays = 200; // Spacing between complete overlays
+      const overlayWidth = totalOverlayWidth + spacingBetweenOverlays;
       const totalWidth = totalCharacters * overlayWidth;
       const startX = bottomMiddle.x - (totalWidth / 2) + (overlayWidth / 2);
       
@@ -287,6 +290,7 @@ class DivineClashOverlay extends PIXI.Container {
       const myIndex = allCharacterOverlays.findIndex(ov => ov === this);
       const bottomY = bottomMiddle.y - 200; // 200 pixels from bottom edge
       
+      // Position overlay so that pool starts at calculated position
       this.x = startX + (myIndex * overlayWidth) - (POOL_WIDTH / 2);
       this.y = bottomY;
       
