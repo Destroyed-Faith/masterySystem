@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.79] - 2025-01-XX
+## [0.2.80] - 2025-01-XX
 
 ### Changed
 - **Divine Clash: Simplified token placement workflow**
