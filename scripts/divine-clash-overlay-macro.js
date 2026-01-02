@@ -432,8 +432,8 @@ class DivineClashOverlay extends PIXI.Container {
     this.readyButton = this.createReadyButton();
     this.addChild(this.readyButton);
     
-    // GM-only End Round button (next to Ready button)
-    if (game.user.isGM) {
+    // GM-only End Round button (only for NPCs, positioned at top)
+    if (game.user.isGM && this.isNpc) {
       this.endRoundButton = this.createEndRoundButton();
       this.addChild(this.endRoundButton);
     }
