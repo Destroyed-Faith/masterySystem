@@ -1403,14 +1403,14 @@ async function createStoneAreaDrawings(scene, baseX, baseY, gridSize, stoneActor
                 fillType: 0, // No fill
                 fillColor: '#000000',
                 fillAlpha: 0,
-                strokeWidth: 2,
+                strokeWidth: 4, // Increased width to ensure visibility
                 strokeColor: '#00ff00', // Green for Power Stones
-                strokeAlpha: 0.6,
+                strokeAlpha: 1.0, // Fully visible
                 text: '',
                 fontFamily: 'Signika',
                 fontSize: 16,
                 textColor: '#ffffff',
-                textAlpha: 1,
+                textAlpha: 0, // No text
                 hidden: false,
                 locked: false,
                 flags: {
@@ -1444,14 +1444,14 @@ async function createStoneAreaDrawings(scene, baseX, baseY, gridSize, stoneActor
                 fillType: 0, // No fill
                 fillColor: '#000000',
                 fillAlpha: 0,
-                strokeWidth: 2,
+                strokeWidth: 4, // Increased width to ensure visibility
                 strokeColor: '#ff0000', // Red for Vitality Stone
-                strokeAlpha: 0.6,
+                strokeAlpha: 1.0, // Fully visible
                 text: '',
                 fontFamily: 'Signika',
                 fontSize: 16,
                 textColor: '#ffffff',
-                textAlpha: 1,
+                textAlpha: 0, // No text
                 hidden: false,
                 locked: false,
                 flags: {

@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.81] - 2025-01-XX
+
+### Added
+- **Divine Clash: Automatic drawing rectangles around stone areas**
+  - **New feature**: System now automatically creates drawing rectangles around Power Stones and Vitality Stone
+  - Green rectangle around Power Stones (all stones in a row)
+  - Red rectangle around Vitality Stone
+  - Rectangles are placed below tokens (z: 100) and are fully visible
+  - Rectangles can be manually moved/resized/deleted if needed
+  - Helps players identify stone placement areas visually
+
+### Fixed
+- **Divine Clash: Fixed drawing validation error**
+  - Fixed "Drawings must have visible text, a visible fill, or a visible line" error
+  - Increased stroke width from 2 to 4 pixels
+  - Set stroke alpha to 1.0 (fully visible) instead of 0.6
+  - Set text alpha to 0 (no text) to avoid validation issues
+
 ## [0.2.80] - 2025-01-XX
 
 ### Changed
