@@ -55,9 +55,12 @@ export interface RegionInfo {
 export interface DivineClashTokenFlags {
   isStone?: boolean;
   isAvatar?: boolean;
+  isPlayer?: boolean; // True for player character tokens
+  playerIndex?: number; // Index of the player (0-based)
   stoneKind?: StoneKind;
   seatIndex?: number;
   seatUserId?: string | null; // User who owns this stone (null for GM/enemy)
   state?: StoneState;
+  stoneIndex?: number; // Index of the stone (for power stones)
 }
 

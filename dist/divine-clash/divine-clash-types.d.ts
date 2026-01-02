@@ -48,9 +48,12 @@ export interface RegionInfo {
 export interface DivineClashTokenFlags {
     isStone?: boolean;
     isAvatar?: boolean;
+    isPlayer?: boolean;
+    playerIndex?: number;
     stoneKind?: StoneKind;
     seatIndex?: number;
     seatUserId?: string | null;
     state?: StoneState;
+    stoneIndex?: number;
 }
 //# sourceMappingURL=divine-clash-types.d.ts.map
