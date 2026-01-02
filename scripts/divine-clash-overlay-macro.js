@@ -177,7 +177,7 @@ class DivineClashOverlay extends PIXI.Container {
     this.readyButton = null; // Ready button above pool
     this.poolButtons = null; // GM-only pool management buttons
     this.endRoundButton = null; // GM-only end round button
-    this.nameLabel = null; // NPC name label (left of overlay)
+    this.nameLabel = null; // Name label (NPC: left of overlay, Character: above overlay)
     
     this.eventMode = 'passive';
     this.interactiveChildren = true;
@@ -279,7 +279,7 @@ class DivineClashOverlay extends PIXI.Container {
       });
       
       const totalCharacters = allCharacterOverlays.length;
-      const overlayWidth = POOL_WIDTH + 40; // Width of overlay + spacing
+      const overlayWidth = POOL_WIDTH + 100; // Width of overlay + spacing (increased from 40 to 100)
       const totalWidth = totalCharacters * overlayWidth;
       const startX = bottomMiddle.x - (totalWidth / 2) + (overlayWidth / 2);
       
@@ -289,6 +289,24 @@ class DivineClashOverlay extends PIXI.Container {
       
       this.x = startX + (myIndex * overlayWidth) - (POOL_WIDTH / 2);
       this.y = bottomY;
+      
+      // Create/update character name label (above overlay)
+      if (!this.nameLabel) {
+        this.nameLabel = new PIXI.Text(this.hostToken.name || 'Character', {
+          fontFamily: 'Signika',
+          fontSize: 24,
+          fill: 0xFFFFFF,
+          fontWeight: 'bold',
+          stroke: 0x000000,
+          strokeThickness: 4
+        });
+        this.nameLabel.anchor.set(0.5, 1); // Center-aligned, bottom-aligned
+        this.addChild(this.nameLabel);
+      }
+      
+      // Position name label above the overlay, centered
+      this.nameLabel.x = POOL_WIDTH / 2; // Center of overlay
+      this.nameLabel.y = -10; // 10 pixels above the overlay
       
       console.log(`Divine Clash | Character overlay positioned at bottom-middle: x=${this.x}, y=${this.y} (index ${myIndex} of ${totalCharacters})`);
     }
