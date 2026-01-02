@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.82] - 2025-01-XX
+
+### Fixed
+- **Divine Clash: Fixed drawing validation error (second attempt)**
+  - Changed `fillType` from 0 (no fill) to 1 (solid fill) to satisfy Foundry validation
+  - Added very transparent fill (alpha: 0.1) with matching stroke color
+  - Drawings now have both visible fill and visible stroke, passing validation
+  - Fill is barely visible (10% opacity) so it doesn't interfere with gameplay
+
 ## [0.2.81] - 2025-01-XX
 
 ### Added

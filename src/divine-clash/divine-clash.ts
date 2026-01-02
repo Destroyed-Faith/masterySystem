@@ -1438,8 +1438,8 @@ async function spawnTokensForPlayer(
   const tokenFlags = playerToken.document?.getFlag('mastery-system', 'divineClash') as DivineClashTokenFlags | undefined;
   if (!tokenFlags?.isPlayer) {
     await playerToken.document?.setFlag('mastery-system', 'divineClash', {
-      isPlayer: true,
-      playerIndex: playerIndex
+          isPlayer: true,
+          playerIndex: playerIndex
     });
     console.log(`Mastery System | [SPAWN TOKENS] Added Divine Clash flags to player token for ${playerName}`);
   }
@@ -1594,9 +1594,9 @@ async function createStoneAreaDrawings(
         height: powerRectHeight,
         rotation: 0,
         z: 100, // Below tokens
-        fillType: 0, // No fill
-        fillColor: '#000000',
-        fillAlpha: 0,
+        fillType: 1, // Solid fill (required for validation)
+        fillColor: '#00ff00', // Green for Power Stones
+        fillAlpha: 0.1, // Very transparent fill
         strokeWidth: 4, // Increased width to ensure visibility
         strokeColor: '#00ff00', // Green for Power Stones
         strokeAlpha: 1.0, // Fully visible
@@ -1638,9 +1638,9 @@ async function createStoneAreaDrawings(
         height: vitalityRectHeight,
         rotation: 0,
         z: 100, // Below tokens
-        fillType: 0, // No fill
-        fillColor: '#000000',
-        fillAlpha: 0,
+        fillType: 1, // Solid fill (required for validation)
+        fillColor: '#ff0000', // Red for Vitality Stone
+        fillAlpha: 0.1, // Very transparent fill
         strokeWidth: 4, // Increased width to ensure visibility
         strokeColor: '#ff0000', // Red for Vitality Stone
         strokeAlpha: 1.0, // Fully visible
@@ -1832,7 +1832,7 @@ export async function startDivineClash(): Promise<void> {
   
   try {
     // Use current scene (no scene switching - user must be on Divine Clash scene already)
-    const currentScene = canvas?.scene;
+  const currentScene = canvas?.scene;
     if (!currentScene) {
       ui.notifications?.warn('No active scene. Please switch to the Divine Clash scene first.');
       return;
@@ -1871,7 +1871,7 @@ export async function startDivineClash(): Promise<void> {
           actorName: (actor as any).name,
           position: { x: token.x || token.document?.x, y: token.y || token.document?.y }
         });
-      } else {
+    } else {
         console.log(`Mastery System | [DIVINE CLASH START] Skipped non-character token:`, {
           tokenId: token.id,
           actorType: actor?.type || 'NO ACTOR'

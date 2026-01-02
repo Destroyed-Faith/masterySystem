@@ -1400,9 +1400,9 @@ async function createStoneAreaDrawings(scene, baseX, baseY, gridSize, stoneActor
                 height: powerRectHeight,
                 rotation: 0,
                 z: 100, // Below tokens
-                fillType: 0, // No fill
-                fillColor: '#000000',
-                fillAlpha: 0,
+                fillType: 1, // Solid fill (required for validation)
+                fillColor: '#00ff00', // Green for Power Stones
+                fillAlpha: 0.1, // Very transparent fill
                 strokeWidth: 4, // Increased width to ensure visibility
                 strokeColor: '#00ff00', // Green for Power Stones
                 strokeAlpha: 1.0, // Fully visible
@@ -1441,9 +1441,9 @@ async function createStoneAreaDrawings(scene, baseX, baseY, gridSize, stoneActor
                 height: vitalityRectHeight,
                 rotation: 0,
                 z: 100, // Below tokens
-                fillType: 0, // No fill
-                fillColor: '#000000',
-                fillAlpha: 0,
+                fillType: 1, // Solid fill (required for validation)
+                fillColor: '#ff0000', // Red for Vitality Stone
+                fillAlpha: 0.1, // Very transparent fill
                 strokeWidth: 4, // Increased width to ensure visibility
                 strokeColor: '#ff0000', // Red for Vitality Stone
                 strokeAlpha: 1.0, // Fully visible
