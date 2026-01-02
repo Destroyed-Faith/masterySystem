@@ -1405,82 +1405,49 @@ async function copyStoneActor(
 
 /**
  * Spawn tokens for a player on the Divine Clash scene
- * Layout: Player in center, Vitality Stone to the right, Power Stones in a row in front
+ * Layout: Vitality Stone to the right, Power Stones in a row in front
+ * Uses existing player token position as anchor
  */
 async function spawnTokensForPlayer(
   scene: Scene,
+  playerToken: any, // The selected token on the scene
   playerActor: Actor,
   stoneActors: {
     playerActor: Actor;
     powerStoneActors: Actor[];
     vitalityStoneActors: Actor[];
   },
-  playerIndex: number,
-  totalPlayers: number
+  playerIndex: number
 ): Promise<void> {
   const playerName = (playerActor as any).name || 'Unknown';
   console.log(`Mastery System | [SPAWN TOKENS] ===== START Spawning tokens for ${playerName} =====`);
   
-  // Calculate base position - spread players horizontally
+  // Use existing token position as anchor
+  const baseX = playerToken.x || (playerToken.document?.x || 0);
+  const baseY = playerToken.y || (playerToken.document?.y || 0);
+  
+  console.log(`Mastery System | [SPAWN TOKENS] Using player token position for ${playerName} at:`, {
+    x: baseX,
+    y: baseY,
+    tokenId: playerToken.id
+  });
+  
   const gridSize = (scene as any).grid?.size || 100;
-  const spacing = gridSize * 3; // 3 grid units between players
-  const startX = (scene as any).width / 2 - ((totalPlayers - 1) * spacing) / 2;
-  const baseX = startX + (playerIndex * spacing);
-  const baseY = (scene as any).height / 2;
   
-  console.log(`Mastery System | [SPAWN TOKENS] Base position for ${playerName}:`, {
-    x: baseX,
-    y: baseY,
-    playerIndex,
-    totalPlayers,
-    gridSize,
-    spacing
-  });
-  
-  // 1. Place player token in center
-  // Use token image (prototypeToken.texture.src) not portrait image (img)
-  const playerActorTokenImg = (playerActor as any).prototypeToken?.texture?.src || (playerActor as any).img || '';
-  const playerTokenData: any = {
-    name: playerName,
-    actorId: (playerActor as any).id,
-    x: baseX,
-    y: baseY,
-    actorLink: true,
-    texture: {
-      src: playerActorTokenImg
-    },
-    disposition: CONST.TOKEN_DISPOSITIONS.FRIENDLY,
-    flags: {
-      'mastery-system': {
-        divineClash: {
-          isPlayer: true,
-          playerIndex: playerIndex
-        }
-      }
-    }
-  };
-  
-  console.log(`Mastery System | [SPAWN TOKENS] Player token image:`, {
-    tokenImg: playerActorTokenImg,
-    portraitImg: (playerActor as any).img,
-    actorId: (playerActor as any).id
-  });
-  
-  try {
-    const playerTokens = await scene.createEmbeddedDocuments('Token', [playerTokenData]);
-    console.log(`Mastery System | [SPAWN TOKENS] Created player token for ${playerName}:`, {
-      tokenId: playerTokens[0]?.id,
-      position: { x: baseX, y: baseY }
+  // Add flags to existing player token if needed
+  const tokenFlags = playerToken.document?.getFlag('mastery-system', 'divineClash') as DivineClashTokenFlags | undefined;
+  if (!tokenFlags?.isPlayer) {
+    await playerToken.document?.setFlag('mastery-system', 'divineClash', {
+      isPlayer: true,
+      playerIndex: playerIndex
     });
-  } catch (error) {
-    console.error(`Mastery System | [SPAWN TOKENS] Failed to create player token:`, error);
+    console.log(`Mastery System | [SPAWN TOKENS] Added Divine Clash flags to player token for ${playerName}`);
   }
   
   // 2. Place vitality stone token to the right of player
   if (stoneActors.vitalityStoneActors.length > 0) {
     const vitalityActor = stoneActors.vitalityStoneActors[0];
-    // Use token image (prototypeToken.texture.src) not portrait image (img)
-    const vitalityActorTokenImg = (vitalityActor as any).prototypeToken?.texture?.src || (vitalityActor as any).img || '';
+    const vitalityActorImg = (vitalityActor as any).img || (vitalityActor as any).prototypeToken?.texture?.src || '';
     const vitalityX = baseX + gridSize * 1.5; // 1.5 grid units to the right
     const vitalityY = baseY;
     
@@ -1491,7 +1458,7 @@ async function spawnTokensForPlayer(
       y: vitalityY,
       actorLink: true,
       texture: {
-        src: vitalityActorTokenImg
+        src: vitalityActorImg
       },
       disposition: CONST.TOKEN_DISPOSITIONS.NEUTRAL,
       flags: {
@@ -1506,8 +1473,7 @@ async function spawnTokensForPlayer(
     };
     
     console.log(`Mastery System | [SPAWN TOKENS] Vitality stone token image:`, {
-      tokenImg: vitalityActorTokenImg,
-      portraitImg: (vitalityActor as any).img,
+      actorImg: vitalityActorImg,
       actorId: (vitalityActor as any).id,
       actorName: (vitalityActor as any).name
     });
@@ -1535,8 +1501,7 @@ async function spawnTokensForPlayer(
     
     for (let i = 0; i < stoneActors.powerStoneActors.length; i++) {
       const powerActor = stoneActors.powerStoneActors[i];
-      // Use token image (prototypeToken.texture.src) not portrait image (img)
-      const powerActorTokenImg = (powerActor as any).prototypeToken?.texture?.src || (powerActor as any).img || '';
+      const powerActorImg = (powerActor as any).img || (powerActor as any).prototypeToken?.texture?.src || '';
       const powerX = startPowerX + (i * powerStoneSpacing);
       
       const powerTokenData: any = {
@@ -1546,7 +1511,7 @@ async function spawnTokensForPlayer(
         y: powerY,
         actorLink: true,
         texture: {
-          src: powerActorTokenImg
+          src: powerActorImg
         },
         disposition: CONST.TOKEN_DISPOSITIONS.NEUTRAL,
         flags: {
@@ -1562,8 +1527,7 @@ async function spawnTokensForPlayer(
       };
       
       console.log(`Mastery System | [SPAWN TOKENS] Power stone ${i + 1} token image:`, {
-        tokenImg: powerActorTokenImg,
-        portraitImg: (powerActor as any).img,
+        actorImg: powerActorImg,
         actorId: (powerActor as any).id,
         actorName: (powerActor as any).name
       });
@@ -1728,7 +1692,6 @@ async function processPlayerActor(actor: Actor): Promise<{
 }
 
 export async function startDivineClash(): Promise<void> {
-  console.log('Mastery System | [DIVINE CLASH START] ===== NEW VERSION - ACTOR STRUCTURE ONLY =====');
   console.log('Mastery System | [DIVINE CLASH START] Beginning startDivineClash');
   
   if (!game.user?.isGM) {
@@ -1744,353 +1707,106 @@ export async function startDivineClash(): Promise<void> {
   
   isStartingDivineClash = true;
   
-  // CRITICAL: Save selected tokens/actors BEFORE scene switch (selection is lost on scene change)
-  const currentScene = canvas?.scene;
-  const controlledTokensBeforeSwitch = canvas?.tokens?.controlled || [];
-  const controlledActorsBeforeSwitch: Actor[] = [];
-  
-  console.log('Mastery System | [DIVINE CLASH START] ===== SAVING SELECTION BEFORE SCENE SWITCH =====');
-  console.log('Mastery System | [DIVINE CLASH START] Current scene:', {
-    id: currentScene?.id,
-    name: (currentScene as any)?.name,
-    hasCanvas: !!canvas,
-    hasTokens: !!canvas?.tokens
-  });
-  console.log('Mastery System | [DIVINE CLASH START] Controlled tokens before switch:', {
-    count: controlledTokensBeforeSwitch.length,
-    tokens: controlledTokensBeforeSwitch.map((t: any) => ({
-      id: t.id,
-      name: t.name || t.document?.name,
-      actorId: t.actor?.id || t.document?.actorId,
-      actorName: t.actor?.name || (t.document?.actor ? (t.document.actor as any).name : 'NO ACTOR'),
-      actorType: t.actor?.type || (t.document?.actor ? (t.document.actor as any).type : 'NO ACTOR'),
-      hasActor: !!t.actor || !!t.document?.actor
-    }))
-  });
-  
-  // Collect actors from controlled tokens
-  for (const token of controlledTokensBeforeSwitch) {
-    const actor = token.actor || (token.document?.actor ? (token.document as any).actor : null);
-    if (actor) {
-      controlledActorsBeforeSwitch.push(actor);
-      console.log('Mastery System | [DIVINE CLASH START] Found actor from token:', {
-        tokenId: token.id,
-        tokenName: token.name || token.document?.name,
-        actorId: (actor as any).id,
-        actorName: (actor as any).name,
-        actorType: actor.type
-      });
-    } else {
-      console.warn('Mastery System | [DIVINE CLASH START] Token has no actor:', {
-        tokenId: token.id,
-        tokenName: token.name || token.document?.name
-      });
-    }
-  }
-  
-  console.log('Mastery System | [DIVINE CLASH START] Collected actors before switch:', {
-    count: controlledActorsBeforeSwitch.length,
-    actors: controlledActorsBeforeSwitch.map((a: Actor) => ({
-      id: (a as any).id,
-      name: (a as any).name,
-      type: a.type
-    }))
-  });
-  
   try {
-    // Switch to Divine Clash scene first
-    console.log(`Mastery System | [DIVINE CLASH START] ===== SCENE SWITCH START =====`);
-    const sceneId = (game as any).settings.get('mastery-system', 'divineClashSceneId') as string;
-    console.log(`Mastery System | [DIVINE CLASH START] Scene ID from settings:`, { sceneId, hasValue: !!sceneId, trimmed: sceneId?.trim() });
-    
-    let divineClashScene: Scene | null = null;
-    // In Foundry VTT, game.scenes is a Collection, not an array
-    const scenesCollection = (game as any).scenes;
-    const allScenes = scenesCollection ? (Array.isArray(scenesCollection) ? scenesCollection : Array.from(scenesCollection.values())) : [];
-    console.log(`Mastery System | [DIVINE CLASH START] Total scenes available: ${allScenes.length}`);
-    console.log(`Mastery System | [DIVINE CLASH START] Scene names:`, allScenes.map((s: Scene) => ({ id: (s as any).id, name: (s as any).name })));
-    
-    if (sceneId && sceneId.trim() !== '') {
-      divineClashScene = (game as any).scenes?.get(sceneId);
-      console.log(`Mastery System | [DIVINE CLASH START] Looking for scene by ID: ${sceneId}`, { 
-        found: !!divineClashScene,
-        sceneName: divineClashScene?.name,
-        sceneId: divineClashScene?.id
-      });
-    } else {
-      console.log(`Mastery System | [DIVINE CLASH START] No scene ID configured in settings`);
+    // Use current scene (no scene switching - user must be on Divine Clash scene already)
+    const currentScene = canvas?.scene;
+    if (!currentScene) {
+      ui.notifications?.warn('No active scene. Please switch to the Divine Clash scene first.');
+      return;
     }
     
-    // Fallback: find by name
-    if (!divineClashScene) {
-      const scenes = Array.from(allScenes.values ? allScenes.values() : allScenes);
-      console.log(`Mastery System | [DIVINE CLASH START] Searching ${scenes.length} scenes by name "Divine Clash"`);
-      divineClashScene = scenes.find((s: Scene) => (s as any).name === 'Divine Clash') || null;
-      console.log(`Mastery System | [DIVINE CLASH START] Looking for scene by name "Divine Clash"`, { 
-        found: !!divineClashScene,
-        sceneName: divineClashScene?.name,
-        sceneId: divineClashScene?.id
-      });
-    }
-    
-    if (divineClashScene) {
-      const currentScene = canvas?.scene;
-      const currentSceneId = (currentScene as any)?.id;
-      const targetSceneId = (divineClashScene as any).id;
-      
-      console.log(`Mastery System | [DIVINE CLASH START] Found Divine Clash scene:`, {
-        id: targetSceneId,
-        name: (divineClashScene as any).name,
-        active: (divineClashScene as any).active,
-        currentSceneId: currentSceneId,
-        currentSceneName: (currentScene as any)?.name
-      });
-      
-      console.log(`Mastery System | [DIVINE CLASH START] Scene comparison:`, {
-        currentSceneId: currentSceneId,
-        targetSceneId: targetSceneId,
-        areEqual: currentSceneId === targetSceneId,
-        currentSceneName: (currentScene as any)?.name,
-        targetSceneName: (divineClashScene as any).name
-      });
-      
-      if (currentSceneId === targetSceneId) {
-        console.log(`Mastery System | [DIVINE CLASH START] Already on Divine Clash scene, no need to switch`);
-    } else {
-        console.log(`Mastery System | [DIVINE CLASH START] Switching to Divine Clash scene: ${(divineClashScene as any).name} (${targetSceneId})`);
-        console.log(`Mastery System | [DIVINE CLASH START] Current scene before switch: ${(currentScene as any)?.name} (${currentSceneId})`);
-        try {
-          // Try multiple methods to switch scenes
-          console.log(`Mastery System | [DIVINE CLASH START] Attempting scene switch with multiple methods...`);
-          
-          // Method 1: Try ui.nav.activateScene() first (most reliable)
-          if ((ui as any).nav?.activateScene) {
-            console.log(`Mastery System | [DIVINE CLASH START] Method 1: Using ui.nav.activateScene()`);
-            try {
-              await (ui as any).nav.activateScene(targetSceneId);
-              console.log(`Mastery System | [DIVINE CLASH START] ui.nav.activateScene() called successfully`);
-            } catch (navError) {
-              console.warn(`Mastery System | [DIVINE CLASH START] ui.nav.activateScene() failed:`, navError);
-            }
-          }
-          
-          // Method 2: Try ui.nav.scene if available
-          if ((ui as any).nav?.scene) {
-            console.log(`Mastery System | [DIVINE CLASH START] Method 2: Using ui.nav.scene`);
-            try {
-              const navScene = (ui as any).nav.scene;
-              if (navScene && typeof navScene.view === 'function') {
-                await navScene.view(targetSceneId);
-                console.log(`Mastery System | [DIVINE CLASH START] ui.nav.scene.view() called successfully`);
-              }
-            } catch (navSceneError) {
-              console.warn(`Mastery System | [DIVINE CLASH START] ui.nav.scene.view() failed:`, navSceneError);
-            }
-          }
-          
-          // Method 3: Try game.scenes.view() if available
-          if ((game as any).scenes?.view) {
-            console.log(`Mastery System | [DIVINE CLASH START] Method 3: Using game.scenes.view()`);
-            try {
-              await (game as any).scenes.view(targetSceneId);
-              console.log(`Mastery System | [DIVINE CLASH START] game.scenes.view() called successfully`);
-            } catch (viewError) {
-              console.warn(`Mastery System | [DIVINE CLASH START] game.scenes.view() failed:`, viewError);
-            }
-          }
-          
-          // Method 4: Try scene.activate() as fallback
-          console.log(`Mastery System | [DIVINE CLASH START] Method 4: Using scene.activate()`);
-          try {
-            await divineClashScene.activate();
-            console.log(`Mastery System | [DIVINE CLASH START] scene.activate() completed`);
-          } catch (activateError) {
-            console.warn(`Mastery System | [DIVINE CLASH START] scene.activate() failed:`, activateError);
-          }
-          
-          // Method 5: Last resort - try to trigger navigation via click event on scene navigation
-          console.log(`Mastery System | [DIVINE CLASH START] Method 5: Attempting direct navigation trigger`);
-          try {
-            // Try to find and click the scene navigation button
-            const sceneNavElement = document.querySelector(`[data-scene-id="${targetSceneId}"]`);
-            if (sceneNavElement) {
-              console.log(`Mastery System | [DIVINE CLASH START] Found scene navigation element, clicking...`);
-              (sceneNavElement as HTMLElement).click();
-              console.log(`Mastery System | [DIVINE CLASH START] Scene navigation element clicked`);
-    } else {
-              console.warn(`Mastery System | [DIVINE CLASH START] Scene navigation element not found for scene ${targetSceneId}`);
-            }
-          } catch (clickError) {
-            console.warn(`Mastery System | [DIVINE CLASH START] Direct navigation trigger failed:`, clickError);
-          }
-          
-          // Wait for scene to actually switch - poll until it changes
-          let attempts = 0;
-          const maxAttempts = 30; // 3 seconds max wait
-          while (attempts < maxAttempts) {
-    await new Promise(resolve => setTimeout(resolve, 100));
-            const newCurrentScene = canvas?.scene;
-            const newCurrentSceneId = (newCurrentScene as any)?.id;
-            if (newCurrentSceneId === targetSceneId) {
-              console.log(`Mastery System | [DIVINE CLASH START] ✓ Scene successfully switched after ${attempts * 100}ms`);
-              break;
-            }
-            attempts++;
-          }
-          
-          const finalCurrentScene = canvas?.scene;
-          const finalCurrentSceneId = (finalCurrentScene as any)?.id;
-          console.log(`Mastery System | [DIVINE CLASH START] Final scene after activation:`, {
-            id: finalCurrentSceneId,
-            name: (finalCurrentScene as any)?.name,
-            targetId: targetSceneId,
-            matches: finalCurrentSceneId === targetSceneId,
-            switched: finalCurrentSceneId !== currentSceneId
-          });
-          if (finalCurrentSceneId !== targetSceneId) {
-            console.error(`Mastery System | [DIVINE CLASH START] ✗ ERROR: Scene did not switch after ${maxAttempts * 100}ms!`);
-            console.error(`Mastery System | [DIVINE CLASH START] Expected: ${targetSceneId} (${(divineClashScene as any).name})`);
-            console.error(`Mastery System | [DIVINE CLASH START] Got: ${finalCurrentSceneId} (${(finalCurrentScene as any)?.name})`);
-            console.error(`Mastery System | [DIVINE CLASH START] This is a critical error - scene switching failed`);
-            console.error(`Mastery System | [DIVINE CLASH START] Available methods:`, {
-              hasGameScenesView: !!(game as any).scenes?.view,
-              hasWebrtcViewScene: !!(ui as any).webrtc?.viewScene,
-              hasSceneActivate: typeof divineClashScene.activate === 'function'
-            });
-          }
-        } catch (error) {
-          console.error(`Mastery System | [DIVINE CLASH START] Failed to activate scene:`, error);
-          console.error(`Mastery System | [DIVINE CLASH START] Error details:`, {
-            message: (error as Error).message,
-            stack: (error as Error).stack
-          });
-        }
-      }
-    } else {
-      console.warn(`Mastery System | [DIVINE CLASH START] Divine Clash scene not found. Continuing anyway.`);
-      console.warn(`Mastery System | [DIVINE CLASH START] Available scenes:`, Array.from(allScenes.values ? allScenes.values() : allScenes).map((s: Scene) => (s as any).name));
-    }
-    console.log(`Mastery System | [DIVINE CLASH START] ===== SCENE SWITCH END =====`);
-    
-    // Use the actors we saved BEFORE the scene switch (selection is lost on scene change)
-    console.log('Mastery System | [DIVINE CLASH START] ===== USING SAVED ACTORS FROM BEFORE SCENE SWITCH =====');
-    console.log('Mastery System | [DIVINE CLASH START] Saved actors count:', controlledActorsBeforeSwitch.length);
-    
-    // Also check current selection (in case user selected tokens on the new scene)
-    const controlledAfterSwitch = canvas?.tokens?.controlled || [];
-    console.log('Mastery System | [DIVINE CLASH START] Controlled tokens after switch:', {
-      count: controlledAfterSwitch.length,
-      tokens: controlledAfterSwitch.map((t: any) => ({
-        id: t.id,
-        name: t.name || t.document?.name,
-        actorId: t.actor?.id || t.document?.actorId,
-        actorType: t.actor?.type || (t.document?.actor ? (t.document.actor as any).type : 'NO ACTOR')
-      }))
+    console.log(`Mastery System | [DIVINE CLASH START] Using current scene:`, {
+      id: currentScene.id,
+      name: (currentScene as any).name
     });
     
-    // Combine saved actors with any newly selected actors
-    const allActors = new Map<string, Actor>();
+    // Get selected tokens (user must select tokens on the scene)
+    const selectedTokens = canvas?.tokens?.controlled || [];
     
-    // Add saved actors
-    for (const actor of controlledActorsBeforeSwitch) {
-      const actorId = (actor as any).id;
-      if (actorId) {
-        allActors.set(actorId, actor);
-        console.log('Mastery System | [DIVINE CLASH START] Added saved actor:', {
-          id: actorId,
-          name: (actor as any).name,
-          type: actor.type
-        });
-      }
+    if (selectedTokens.length === 0) {
+      ui.notifications?.warn('Please select at least one character token to start Divine Clash.');
+      return;
     }
     
-    // Add actors from tokens selected after switch
-    for (const token of controlledAfterSwitch) {
-      const actor = token.actor || (token.document?.actor ? (token.document as any).actor : null);
-      if (actor) {
-        const actorId = (actor as any).id;
-        if (actorId) {
-          allActors.set(actorId, actor);
-          console.log('Mastery System | [DIVINE CLASH START] Added actor from token after switch:', {
-            id: actorId,
-            name: (actor as any).name,
-            type: actor.type
-          });
-        }
-      }
-    }
+    console.log(`Mastery System | [DIVINE CLASH START] Found ${selectedTokens.length} selected token(s)`);
     
-    console.log('Mastery System | [DIVINE CLASH START] Total unique actors:', allActors.size);
-    
-    // Identify player actors (character type)
+    // Filter to only character tokens
+    const characterTokens: any[] = [];
     const playerActors: Actor[] = [];
     
-    for (const [actorId, actor] of allActors.entries()) {
-      console.log('Mastery System | [DIVINE CLASH START] Checking actor:', {
-        id: actorId,
-      name: (actor as any).name,
-      type: actor.type,
-        isCharacter: actor.type === 'character'
-      });
-      
-      if (actor.type === 'character') {
-        playerActors.push(actor);
-        console.log('Mastery System | [DIVINE CLASH START] ✓ Added player actor:', {
-          id: actorId,
-          name: (actor as any).name
+    for (const token of selectedTokens) {
+      const actor = token.actor || (token.document?.actor ? (token.document as any).actor : null);
+      if (actor && actor.type === 'character') {
+        characterTokens.push(token);
+        // Avoid duplicates
+        if (!playerActors.find(a => (a as any).id === (actor as any).id)) {
+          playerActors.push(actor);
+        }
+        console.log(`Mastery System | [DIVINE CLASH START] Added character token:`, {
+          tokenId: token.id,
+          actorId: (actor as any).id,
+          actorName: (actor as any).name,
+          position: { x: token.x || token.document?.x, y: token.y || token.document?.y }
         });
-    } else {
-        console.log('Mastery System | [DIVINE CLASH START] ✗ Skipped non-character actor:', {
-          id: actorId,
-          name: (actor as any).name,
-          type: actor.type
+      } else {
+        console.log(`Mastery System | [DIVINE CLASH START] Skipped non-character token:`, {
+          tokenId: token.id,
+          actorType: actor?.type || 'NO ACTOR'
         });
       }
     }
     
-    console.log('Mastery System | [DIVINE CLASH START] Final player actors:', {
-      count: playerActors.length,
-      actors: playerActors.map((a: Actor) => ({
-        id: (a as any).id,
-        name: (a as any).name
-      }))
-    });
-    
-    if (playerActors.length === 0) {
-      console.error('Mastery System | [DIVINE CLASH START] No character actors found!');
-      console.error('Mastery System | [DIVINE CLASH START] Saved actors before switch:', controlledActorsBeforeSwitch.length);
-      console.error('Mastery System | [DIVINE CLASH START] Controlled tokens after switch:', controlledAfterSwitch.length);
-      console.error('Mastery System | [DIVINE CLASH START] Total unique actors:', allActors.size);
-      ui.notifications?.warn('Please select at least one character token to start Divine Clash');
+    if (characterTokens.length === 0) {
+      ui.notifications?.warn('No character tokens selected. Please select character tokens.');
       return;
     }
     
-    console.log(`Mastery System | [DIVINE CLASH START] Processing ${playerActors.length} player actor(s)`);
+    console.log(`Mastery System | [DIVINE CLASH START] Processing ${characterTokens.length} character token(s)`);
     
-    // Get the Divine Clash scene for token placement
-    const targetScene = divineClashScene || canvas?.scene;
-    if (!targetScene) {
-      console.error(`Mastery System | [DIVINE CLASH START] No scene available for token placement`);
-      ui.notifications?.warn('No scene available for token placement');
-      return;
-    }
-    
-    // Process each player actor and place tokens
-    for (let playerIndex = 0; playerIndex < playerActors.length; playerIndex++) {
-      const actor = playerActors[playerIndex];
-      console.log(`Mastery System | [DIVINE CLASH START] Calling processPlayerActor for: ${(actor as any).name}`);
+    // Initialize scene flags if needed
+    const flags = getSceneFlags(currentScene);
+    if (!flags.started) {
+      // Initialize seats
+      const seats: Record<number, any> = {};
+      for (let i = 0; i < playerActors.length; i++) {
+        const actor = playerActors[i];
+        const userId = (actor as any).ownership?.default ? Object.keys((actor as any).ownership).find((uid: string) => (actor as any).ownership[uid] === 1) : null;
+        seats[i + 1] = {
+          seatIndex: i + 1,
+          actorId: (actor as any).id,
+          userId: userId || null,
+          isEnemy: false
+        };
+      }
       
-      // Create actor structure
+      await updateSceneFlags(currentScene, {
+        started: true,
+        phase: 'planning',
+        seats: seats
+      });
+    }
+    
+    // Process each selected token and place stones
+    for (let playerIndex = 0; playerIndex < characterTokens.length; playerIndex++) {
+      const token = characterTokens[playerIndex];
+      const actor = token.actor || (token.document?.actor ? (token.document as any).actor : null);
+      
+      if (!actor) {
+        console.warn(`Mastery System | [DIVINE CLASH START] Token ${token.id} has no actor, skipping`);
+        continue;
+      }
+      
+      console.log(`Mastery System | [DIVINE CLASH START] Processing: ${(actor as any).name}`);
+      
       const result = await processPlayerActor(actor);
       
-      // Place tokens on the scene
       if (result) {
-        await spawnTokensForPlayer(targetScene, actor, result, playerIndex, playerActors.length);
+        await spawnTokensForPlayer(currentScene, token, actor, result, playerIndex);
       }
     }
     
-    ui.notifications?.info(`Divine Clash: Created stone actors and tokens for ${playerActors.length} player(s)`);
-    console.log('Mastery System | [DIVINE CLASH START] ===== COMPLETED - ACTORS AND TOKENS CREATED =====');
+    ui.notifications?.info(`Divine Clash: Created stone tokens for ${characterTokens.length} player(s)`);
+    console.log('Mastery System | [DIVINE CLASH START] ===== COMPLETED =====');
   } finally {
     isStartingDivineClash = false;
   }

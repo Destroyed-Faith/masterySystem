@@ -4,12 +4,17 @@ All notable changes to this project will be documented in this file.
 
 ## [0.2.79] - 2025-01-XX
 
-### Fixed
-- **Divine Clash: Use token images (prototypeToken.texture.src) instead of portrait images**
-  - **Critical fix**: Token `texture.src` now prioritizes `actor.prototypeToken.texture.src` (token image) over `actor.img` (portrait image)
-  - This ensures tokens display the correct token image, not the portrait image
-  - Fallback to portrait image if token image is not available
-  - Added debug logging to show both token and portrait images for comparison
+### Changed
+- **Divine Clash: Simplified token placement workflow**
+  - **Major change**: Removed automatic scene switching - user must manually switch to Divine Clash scene
+  - **Major change**: Removed automatic player token creation - user must place character tokens manually
+  - System now only generates stone tokens for selected character tokens on the current scene
+  - Stone tokens are placed relative to existing player token positions:
+    - Vitality Stone: 1.5 grid units to the right of player token
+    - Power Stones: In a row 2 grid units in front of player token, spaced 1.2 grid units apart
+  - All other tokens on the scene remain unchanged
+  - Simplified code by removing ~200 lines of scene switching logic
+  - Improved flexibility: GM has full control over token placement
 
 ## [0.2.78] - 2025-01-XX
 
