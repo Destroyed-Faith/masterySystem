@@ -1134,9 +1134,8 @@ class DivineClashOverlay extends PIXI.Container {
     // Update world position in case token moved
     this.updateWorldPosition();
     
-    // Ensure overlay is visible
-    this.visible = true;
-    this.alpha = 1.0;
+    // Update visibility based on permissions
+    this.updateVisibility();
     
     console.log(`Divine Clash | Render complete for ${this.hostToken.name}, overlay visible=${this.visible}, position=(${this.x}, ${this.y}), parent=${this.parent ? this.parent.constructor.name : 'none'}`);
   }
@@ -1388,10 +1387,28 @@ function registerHooks() {
       // Update world position (overlay is attached to canvas.tokens, not token.mesh)
       token._dcOverlay.updateWorldPosition();
       
+      // Update visibility
+      token._dcOverlay.updateVisibility();
+      
       // Ensure overlay is still attached to canvas.tokens
       if (token._dcOverlay.parent !== canvas.tokens && canvas.tokens) {
         canvas.tokens.addChild(token._dcOverlay);
       }
+    }
+  });
+  
+  // Re-position all character overlays when a new one is created (for even distribution)
+  Hooks.on('updateToken', (tokenDocument, updateData, options, userId) => {
+    // If a new overlay was just created, re-position all character overlays
+    if (updateData.flags?.['mastery-system']?.divineClashOverlay !== undefined) {
+      // Small delay to ensure all overlays are created
+      setTimeout(() => {
+        canvas.tokens?.placeables.forEach(token => {
+          if (token._dcOverlay && !token._dcOverlay.isNpc) {
+            token._dcOverlay.updateWorldPosition();
+          }
+        });
+      }, 100);
     }
   });
   
@@ -1550,11 +1567,10 @@ async function initializeDivineClashOverlays() {
     const overlay = new DivineClashOverlay(hostToken);
     await overlay.renderFromFlags();
     
-    // Ensure overlay is visible and properly positioned
-    overlay.visible = true;
-    overlay.alpha = 1.0;
+    // Ensure overlay is properly positioned and visible
     overlay.zIndex = 1000;
     overlay.updateWorldPosition();
+    overlay.updateVisibility();
     
     // Force a canvas refresh
     if (canvas.tokens && overlay.parent !== canvas.tokens) {
@@ -1563,6 +1579,15 @@ async function initializeDivineClashOverlays() {
     
     console.log(`Divine Clash | Overlay created for ${hostToken.name}, visible=${overlay.visible}, position=(${overlay.x}, ${overlay.y}), parent=${overlay.parent ? overlay.parent.constructor.name : 'none'}`);
   }
+  
+  // Re-position all character overlays to ensure even distribution
+  setTimeout(() => {
+    canvas.tokens?.placeables.forEach(token => {
+      if (token._dcOverlay && !token._dcOverlay.isNpc) {
+        token._dcOverlay.updateWorldPosition();
+      }
+    });
+  }, 100);
   
   console.log(`Divine Clash | [DEBUG] Processing complete. Processed ${tokensToProcess.length} token(s)`);
   const message = `Divine Clash overlays initialized for ${tokensToProcess.length} token(s)`;
