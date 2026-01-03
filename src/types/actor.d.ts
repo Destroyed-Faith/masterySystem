@@ -147,6 +147,7 @@ export interface BossPhase {
     regeneration: number;
     basisAttack: number;
     basisDefense: number;
+    vitality?: number;
   };
 }
 
@@ -194,6 +195,7 @@ export interface NpcData {
     regeneration: number;
     basisAttack: number;
     basisDefense: number;
+    vitality?: number;
   };
   // Derived tracked resources for Combat Carousel module
   tracked?: {

@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.84] - 2025-01-XX
+
+### Added
+- **Divine Clash Overlay: Group Selection Dropdown**
+  - Added dropdown menu below character overlays for group selection
+  - Options: "Solo" or "Join: <Character Name>" for each other PC on the scene
+  - Only interactive for token owners or GM
+  - Saves selection to token flag `mastery-system.divineClashParticipation`
+  - Position updates automatically on canvas pan/zoom and token refresh
+  - Dropdown positioned centered below all three zones (Pool, Attack, Defense)
+
+- **Divine Clash Overlay: Vitality Stones Zone**
+  - Added Vitality zone left of Pool zone for both NPCs and Characters
+  - Character Vitality Stones: Read from `system.stones.vitality` with +1 bonus (if vitality=1, displays 2)
+  - NPC Vitality Stones: New "Vitality" field in Divine Combat panel of NPC sheet
+  - Vitality zone only appears when stones are present
+  - Orange/yellow color scheme (0xFFAA00) to distinguish from other zones
+  - Layout automatically adjusts when vitality stones are present
+
+### Changed
+- **Divine Clash Overlay: Improved Character Overlay Spacing**
+  - Fixed spacing calculation to account for total overlay width (Vitality + Pool + Attack + Defense)
+  - Increased spacing between character overlays for better visibility
+  - Character name labels positioned at left edge of overlay
+
 ## [0.2.83] - 2025-01-XX
 
 ### Added

@@ -271,7 +271,13 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
                 spirit: 0
             },
             attackValues: [],
-            statusEffects: []
+            statusEffects: [],
+            divineCombat: {
+                startingPool: 0,
+                regeneration: 0,
+                basisAttack: 0,
+                basisDefense: 0
+            }
         };
         system.phases.push(newPhase);
         await this.actor.update({ 'system.phases': system.phases });

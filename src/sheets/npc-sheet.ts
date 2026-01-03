@@ -304,7 +304,8 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         startingPool: 0,
         regeneration: 0,
         basisAttack: 0,
-        basisDefense: 0
+        basisDefense: 0,
+        vitality: 0
       }
     };
     
