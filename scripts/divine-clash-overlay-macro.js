@@ -54,6 +54,19 @@ const DROPDOWN_HEIGHT = 30;
 const DROPDOWN_WIDTH = 200;
 const DROPDOWN_OFFSET_Y = 20; // Distance below overlay
 
+// Resolve Phase Configuration
+const ENABLE_GM_DEBUG_LOG = true; // GM-only debug whisper
+const ENABLE_RESOLVE_ANIMATIONS = true; // Visual animations on resolve
+
+// Animation settings
+const ANIMATION_PULSE_DURATION = 500; // ms
+const ANIMATION_FLOAT_DURATION = 1500; // ms
+const ANIMATION_PULSE_SCALE = 1.3; // Scale multiplier for pulse
+const ANIMATION_FLOAT_DISTANCE = 60; // Pixels to float upward
+
+// Track played animations to prevent duplicates
+const playedAnimations = new Set();
+
 // ============================================================================
 // UTILITY FUNCTIONS
 // ============================================================================
@@ -3044,6 +3057,24 @@ async function resolveRoundIfReady(npcToken) {
     combatantStats.set(combatant.id, { attackTotal, defenseTotal });
   }
   
+  // Build vitality before snapshot (BEFORE damage is applied)
+  const vitalityBefore = {};
+  for (const combatant of orderedCombatants) {
+    if (combatant.type === 'solo') {
+      const vitality = combatant.members[0].document.getFlag('mastery-system', 'divineClashVitality');
+      vitalityBefore[combatant.id] = vitality?.current || 0;
+    } else {
+      // Group: sum of members
+      let total = 0;
+      for (const member of combatant.members) {
+        const vitality = member.document.getFlag('mastery-system', 'divineClashVitality');
+        total += vitality?.current || 0;
+      }
+      vitalityBefore[combatant.id] = total;
+    }
+  }
+  const npcVitalityBefore = npcVitality.current;
+  
   // NPC -> PCs damage
   const npcSplit = {};
   const npcToPcDamage = {};
@@ -3176,8 +3207,128 @@ async function resolveRoundIfReady(npcToken) {
   }
   vitalityAfter['npc'] = npcVitality.current;
   
-  // Log round
+  // Build initiative order with attack stones and totals
+  const initiativeOrder = sortedByAttack.map(combatant => {
+    const stats = combatantStats.get(combatant.id);
+    let name = '';
+    let tokenId = '';
+    if (combatant.type === 'solo') {
+      name = combatant.members[0].name;
+      tokenId = combatant.members[0].id;
+    } else {
+      name = combatant.members.map(m => m.name).join(', ');
+      tokenId = combatant.members[0].id; // Use first member's token ID
+    }
+    
+    // Get attack stones count
+    let attackStones = 0;
+    for (const member of combatant.members) {
+      const memberFlags = member.document.getFlag('mastery-system', 'divineClashOverlay');
+      if (memberFlags) {
+        attackStones += (memberFlags.attack || []).length;
+      }
+    }
+    
+    return {
+      tokenId,
+      name,
+      attackStones,
+      attackTotal: stats.attackTotal
+    };
+  });
+  
+  // Build PC to NPC damage per actor (recalculate to get accurate damage contributed)
+  const pcToNpcPerActor = [];
+  let remainingDefense = npcDefense;
+  for (const combatant of sortedByAttack) {
+    const stats = combatantStats.get(combatant.id);
+    const alloc = stats.attackTotal;
+    const blocked = Math.min(alloc, remainingDefense);
+    remainingDefense -= blocked;
+    const dmg = alloc - blocked;
+    
+    if (dmg > 0) {
+      let name = '';
+      let tokenId = '';
+      if (combatant.type === 'solo') {
+        name = combatant.members[0].name;
+        tokenId = combatant.members[0].id;
+      } else {
+        name = combatant.members.map(m => m.name).join(', ');
+        tokenId = combatant.members[0].id;
+      }
+      
+      pcToNpcPerActor.push({
+        tokenId,
+        name,
+        attackTotal: stats.attackTotal,
+        damageContributed: dmg
+      });
+    }
+  }
+  
+  // Build NPC to PC distribution
+  const npcToPcDistribution = Object.entries(npcToPcDamage).map(([targetId, damage]) => {
+    const target = combatantMap.get(targetId);
+    if (!target) return null;
+    
+    let targetName = '';
+    let targetTokenId = '';
+    if (target.type === 'solo') {
+      targetName = target.members[0].name;
+      targetTokenId = target.members[0].id;
+    } else {
+      targetName = target.members.map(m => m.name).join(', ');
+      targetTokenId = target.members[0].id;
+    }
+    
+    return {
+      targetTokenId,
+      targetName,
+      damage
+    };
+  }).filter(d => d !== null);
+  
+  // Build groups array
+  const groups = orderedCombatants.filter(c => c.type === 'group').map(combatant => {
+    const members = combatant.members.map(member => ({
+      tokenId: member.id,
+      name: member.name
+    }));
+    
+    return {
+      groupId: combatant.id,
+      members,
+      vitalityBefore: vitalityBefore[combatant.id] || 0,
+      vitalityAfter: vitalityAfter[combatant.id] || 0
+    };
+  });
+  
+  // Log round with extended structure
   const roundLog = {
+    roundNumber: queue.round,
+    timestamp: Date.now(),
+    npc: {
+      tokenId: npcToken.id,
+      name: npcToken.name,
+      attackTotal: npcAttack,
+      defenseTotal: npcDefense,
+      vitalityBefore: npcVitalityBefore,
+      vitalityAfter: npcVitality.current
+    },
+    groups,
+    initiativeOrder,
+    pcToNpc: {
+      totalAttack: sortedByAttack.reduce((sum, c) => sum + combatantStats.get(c.id).attackTotal, 0),
+      npcDefenseApplied: npcDefense - npcDefenseRemain,
+      damageToNpcVitality: pcToNpcDamageTotal,
+      perActor: pcToNpcPerActor
+    },
+    npcToPc: {
+      totalNpcAttack: npcAttack,
+      distribution: npcToPcDistribution
+    },
+    // Legacy fields for backwards compatibility
     round: queue.round,
     queueOrder: queue.order,
     npcSplit: npcSplit,
@@ -3316,6 +3467,24 @@ async function resolveRoundIfReady(npcToken) {
   ui.notifications.info(`Round ${queue.round} resolved!\nNPC took ${pcToNpcDamageTotal} damage.\nPCs: ${damageSummary.join(', ')}`);
   console.log('Divine Clash | Round resolved:', roundLog);
   
+  // Post resolve chat and animations (only GM posts chat, but all clients can animate)
+  if (game.user.isGM) {
+    await postResolveChat(roundLog, { npcToken });
+    if (ENABLE_GM_DEBUG_LOG) {
+      await postGMDebugChat(roundLog, { npcToken });
+    }
+  }
+  
+  // Trigger animation on all clients via flag update
+  // The animation will be triggered by the Hook when the flag is updated
+  // We need to update the flag again to trigger the hook (it's already set above, so we update with a small delay)
+  if (ENABLE_RESOLVE_ANIMATIONS) {
+    // Small delay to ensure flag is saved first
+    setTimeout(() => {
+      playResolveAnimation(roundLog);
+    }, 100);
+  }
+  
   return roundLog;
 }
 
@@ -3424,6 +3593,330 @@ if (game.user.isGM) {
   
   console.log('Divine Clash | GM functions available: window.divineClashDrawQueue(), window.divineClashResolve(), and window.divineClashReset()');
 }
+
+// ============================================================================
+// RESOLVE PHASE: CHAT AND ANIMATIONS
+// ============================================================================
+
+/**
+ * Post resolve chat message to all players
+ */
+async function postResolveChat(roundLog, { npcToken }) {
+  if (!game.user.isGM) return;
+  
+  const roundNumber = roundLog.roundNumber || roundLog.round;
+  
+  // Build HTML content
+  let html = `<div class="divine-clash-resolve" style="border: 2px solid #8B4513; border-radius: 8px; padding: 12px; background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); color: #e0e0e0; font-family: 'Signika', sans-serif;">
+    <h3 style="margin: 0 0 12px 0; color: #FFD700; text-align: center; font-size: 18px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);">
+      ⚔️ Divine Clash — Resolve Runde ${roundNumber} ⚔️
+    </h3>`;
+  
+  // Initiative Order
+  if (roundLog.initiativeOrder && roundLog.initiativeOrder.length > 0) {
+    html += `<div style="margin-bottom: 12px;">
+      <strong style="color: #FFA500; font-size: 14px;">Initiative Order:</strong>
+      <ul style="margin: 6px 0; padding-left: 20px; list-style-type: none;">`;
+    roundLog.initiativeOrder.forEach((entry, index) => {
+      html += `<li style="margin: 4px 0; padding: 4px 8px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+        ${index + 1}. <strong>${entry.name}</strong>: ${entry.attackStones} Steine → ${entry.attackTotal} Attack
+      </li>`;
+    });
+    html += `</ul></div>`;
+  }
+  
+  // PC → NPC Damage
+  if (roundLog.pcToNpc) {
+    html += `<div style="margin-bottom: 12px; padding: 8px; background: rgba(0,255,0,0.1); border-left: 3px solid #00FF00; border-radius: 4px;">
+      <strong style="color: #00FF00; font-size: 14px;">PC → NPC:</strong><br>
+      Total Attack: <strong>${roundLog.pcToNpc.totalAttack}</strong> 
+      minus NPC Defense: <strong>${roundLog.pcToNpc.npcDefenseApplied}</strong> 
+      = <strong style="color: #FF6B6B; font-size: 16px;">${roundLog.pcToNpc.damageToNpcVitality} Damage</strong>`;
+    if (roundLog.pcToNpc.perActor && roundLog.pcToNpc.perActor.length > 0) {
+      html += `<div style="margin-top: 6px; font-size: 12px; color: #B0B0B0;">`;
+      roundLog.pcToNpc.perActor.forEach(actor => {
+        html += `• ${actor.name}: ${actor.attackTotal} Attack → ${actor.damageContributed} Damage<br>`;
+      });
+      html += `</div>`;
+    }
+    html += `</div>`;
+  }
+  
+  // NPC → PC Damage
+  if (roundLog.npcToPc && roundLog.npcToPc.distribution && roundLog.npcToPc.distribution.length > 0) {
+    html += `<div style="margin-bottom: 12px; padding: 8px; background: rgba(255,0,0,0.1); border-left: 3px solid #FF0000; border-radius: 4px;">
+      <strong style="color: #FF0000; font-size: 14px;">NPC → PC:</strong> (Total Attack: ${roundLog.npcToPc.totalNpcAttack})
+      <ul style="margin: 6px 0; padding-left: 20px; list-style-type: none;">`;
+    roundLog.npcToPc.distribution.forEach(dist => {
+      html += `<li style="margin: 4px 0; padding: 4px 8px; background: rgba(255,255,255,0.05); border-radius: 4px;">
+        <strong>${dist.targetName}</strong>: <span style="color: #FF6B6B;">${dist.damage} Damage</span>
+      </li>`;
+    });
+    html += `</ul></div>`;
+  }
+  
+  // Vitality After
+  html += `<div style="margin-top: 12px; padding: 8px; background: rgba(255,215,0,0.1); border-left: 3px solid #FFD700; border-radius: 4px;">
+    <strong style="color: #FFD700; font-size: 14px;">Vitality nach Resolve:</strong><br>`;
+  
+  // NPC Vitality
+  if (roundLog.npc) {
+    html += `<div style="margin-top: 6px;">
+      <strong>${roundLog.npc.name}</strong>: ${roundLog.npc.vitalityAfter} / ${roundLog.npc.vitalityBefore} Vitality
+    </div>`;
+  }
+  
+  // PC Vitality
+  if (roundLog.groups && roundLog.groups.length > 0) {
+    roundLog.groups.forEach(group => {
+      html += `<div style="margin-top: 6px;">
+        <strong>${group.members.map(m => m.name).join(', ')}</strong>: ${group.vitalityAfter} / ${group.vitalityBefore} Vitality
+      </div>`;
+    });
+  }
+  
+  // Solo combatants (not in groups) - get from initiative order or vitalityAfter
+  if (roundLog.vitalityAfter) {
+    for (const [combatantId, vitality] of Object.entries(roundLog.vitalityAfter)) {
+      if (combatantId !== 'npc' && !roundLog.groups?.some(g => g.groupId === combatantId)) {
+        // Try to find name from initiative order
+        const initiativeEntry = roundLog.initiativeOrder?.find(e => {
+          // We need to match by token ID, but we only have combatantId
+          // For now, just show the vitality value
+          return true;
+        });
+        const name = initiativeEntry?.name || `Combatant ${combatantId}`;
+        html += `<div style="margin-top: 6px;">
+          <strong>${name}</strong>: ${vitality} Vitality
+        </div>`;
+      }
+    }
+  }
+  
+  html += `</div></div>`;
+  
+  // Create chat message
+  const speaker = ChatMessage.getSpeaker({ token: npcToken });
+  await ChatMessage.create({
+    content: html,
+    speaker: speaker,
+    type: CONST.CHAT_MESSAGE_TYPES.OTHER
+  });
+  
+  console.log('Divine Clash | Posted resolve chat message');
+}
+
+/**
+ * Post GM-only debug chat whisper
+ */
+async function postGMDebugChat(roundLog, { npcToken }) {
+  if (!game.user.isGM) return;
+  
+  const recipients = ChatMessage.getWhisperRecipients("GM").map(u => u.id);
+  if (recipients.length === 0) return;
+  
+  let debugHtml = `<div class="divine-clash-debug" style="border: 1px solid #666; border-radius: 4px; padding: 8px; background: #1a1a1a; color: #aaa; font-family: monospace; font-size: 11px;">
+    <strong style="color: #888;">[DEBUG] Round Log:</strong><br>
+    <pre style="margin: 4px 0; white-space: pre-wrap; word-wrap: break-word;">${JSON.stringify(roundLog, null, 2)}</pre>
+  </div>`;
+  
+  const speaker = ChatMessage.getSpeaker({ token: npcToken });
+  await ChatMessage.create({
+    content: debugHtml,
+    speaker: speaker,
+    whisper: recipients,
+    type: CONST.CHAT_MESSAGE_TYPES.WHISPER
+  });
+  
+  console.log('Divine Clash | Posted GM debug whisper');
+}
+
+/**
+ * Play resolve animations on canvas
+ */
+async function playResolveAnimation(roundLog) {
+  if (!ENABLE_RESOLVE_ANIMATIONS) return;
+  
+  // Check if this animation was already played (prevent duplicates)
+  const animationKey = `resolve-${roundLog.roundNumber || roundLog.round}-${roundLog.timestamp}`;
+  if (playedAnimations.has(animationKey)) {
+    return;
+  }
+  playedAnimations.add(animationKey);
+  
+  // Clean up old animations (keep only last 10)
+  if (playedAnimations.size > 10) {
+    const entries = Array.from(playedAnimations);
+    entries.slice(0, entries.length - 10).forEach(key => playedAnimations.delete(key));
+  }
+  
+  // Create animation container
+  const animationContainer = new PIXI.Container();
+  animationContainer.zIndex = 10000; // Very high z-index
+  canvas.interface.addChild(animationContainer);
+  
+  // Animation sequence
+  const animations = [];
+  
+  // 1. Pulse animations for initiative order (PCs attacking NPC)
+  if (roundLog.initiativeOrder && roundLog.pcToNpc && roundLog.pcToNpc.perActor) {
+    const npcToken = canvas.tokens?.placeables.find(t => t.id === roundLog.npc?.tokenId);
+    if (npcToken) {
+      roundLog.pcToNpc.perActor.forEach((actor, index) => {
+        const delay = index * 200; // Stagger animations
+        animations.push(
+          new Promise(resolve => {
+            setTimeout(() => {
+              // Pulse on NPC token
+              pulseToken(npcToken, animationContainer, ANIMATION_PULSE_DURATION, 0xFF6B6B);
+              
+              // Float damage text over NPC
+              if (actor.damageContributed > 0) {
+                floatDamageText(npcToken, actor.damageContributed, animationContainer, ANIMATION_FLOAT_DURATION, 0xFF6B6B);
+              }
+              
+              resolve();
+            }, delay);
+          })
+        );
+      });
+    }
+  }
+  
+  // 2. Pulse and float animations for NPC → PC damage
+  if (roundLog.npcToPc && roundLog.npcToPc.distribution) {
+    roundLog.npcToPc.distribution.forEach((dist, index) => {
+      const delay = (roundLog.pcToNpc?.perActor?.length || 0) * 200 + index * 200;
+      animations.push(
+        new Promise(resolve => {
+          setTimeout(() => {
+            const targetToken = canvas.tokens?.placeables.find(t => t.id === dist.targetTokenId);
+            if (targetToken) {
+              // Pulse on target token
+              pulseToken(targetToken, animationContainer, ANIMATION_PULSE_DURATION, 0xFF0000);
+              
+              // Float damage text
+              if (dist.damage > 0) {
+                floatDamageText(targetToken, dist.damage, animationContainer, ANIMATION_FLOAT_DURATION, 0xFF0000);
+              }
+            }
+            resolve();
+          }, delay);
+        })
+      );
+    });
+  }
+  
+  // Wait for all animations to complete, then cleanup
+  await Promise.all(animations);
+  
+  // Remove container after all animations
+  setTimeout(() => {
+    if (animationContainer && animationContainer.parent) {
+      animationContainer.destroy({ children: true });
+    }
+  }, Math.max(ANIMATION_PULSE_DURATION, ANIMATION_FLOAT_DURATION) + 500);
+}
+
+/**
+ * Pulse animation on a token
+ */
+function pulseToken(token, container, duration, color) {
+  if (!token || !container) return;
+  
+  const center = token.center;
+  const pulse = new PIXI.Graphics();
+  pulse.lineStyle(3, color, 1.0);
+  pulse.drawCircle(0, 0, token.w / 2);
+  pulse.x = center.x;
+  pulse.y = center.y;
+  pulse.alpha = 0.8;
+  container.addChild(pulse);
+  
+  // Animate
+  const startTime = Date.now();
+  const animate = () => {
+    const elapsed = Date.now() - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    
+    // Scale and fade
+    const scale = 1 + (ANIMATION_PULSE_SCALE - 1) * (1 - Math.abs(progress * 2 - 1));
+    pulse.scale.set(scale);
+    pulse.alpha = 0.8 * (1 - progress);
+    
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      if (pulse.parent) {
+        pulse.destroy();
+      }
+    }
+  };
+  
+  animate();
+}
+
+/**
+ * Float damage text animation
+ */
+function floatDamageText(token, damage, container, duration, color) {
+  if (!token || !container) return;
+  
+  const center = token.center;
+  const text = new PIXI.Text(`-${damage}`, {
+    fontFamily: 'Signika',
+    fontSize: 32,
+    fill: color,
+    fontWeight: 'bold',
+    stroke: 0x000000,
+    strokeThickness: 4,
+    align: 'center'
+  });
+  text.anchor.set(0.5);
+  text.x = center.x;
+  text.y = center.y - token.h / 2 - 20;
+  text.alpha = 1.0;
+  container.addChild(text);
+  
+  // Animate
+  const startTime = Date.now();
+  const startY = text.y;
+  const animate = () => {
+    const elapsed = Date.now() - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    
+    // Move up and fade
+    text.y = startY - (ANIMATION_FLOAT_DISTANCE * progress);
+    text.alpha = 1 - progress;
+    
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      if (text.parent) {
+        text.destroy();
+      }
+    }
+  };
+  
+  animate();
+}
+
+// Register Hook for animation trigger on flag update
+Hooks.on('updateToken', async (tokenDocument, updateData, options, userId) => {
+  if (!ENABLE_RESOLVE_ANIMATIONS) return;
+  
+  // Check if divineClashRoundLog was updated
+  if (updateData.flags?.['mastery-system']?.divineClashRoundLog) {
+    const roundLogs = tokenDocument.getFlag('mastery-system', 'divineClashRoundLog') || [];
+    if (roundLogs.length > 0) {
+      const latestRoundLog = roundLogs[roundLogs.length - 1];
+      // Only play if this is a new round log (has timestamp)
+      if (latestRoundLog.timestamp && !playedAnimations.has(`resolve-${latestRoundLog.roundNumber || latestRoundLog.round}-${latestRoundLog.timestamp}`)) {
+        playResolveAnimation(latestRoundLog);
+      }
+    }
+  }
+});
 
 // ============================================================================
 // RUN MACRO
