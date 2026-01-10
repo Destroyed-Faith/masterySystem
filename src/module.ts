@@ -1396,14 +1396,13 @@ Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId:
       if (!data.system.stress) {
         const resolve = data.system.attributes?.resolve?.value || 2;
         const wits = data.system.attributes?.wits?.value || 2;
-        const maxStress = (resolve + wits) * 2;
+        const maxStress = resolve + wits;
         data.system.stress = {
           bars: [
             { name: 'Healthy', max: maxStress, current: maxStress, penalty: 0 },
             { name: 'Stressed', max: maxStress, current: maxStress, penalty: 0 },
             { name: 'Not Well', max: maxStress, current: maxStress, penalty: 0 },
-            { name: 'Breaking', max: maxStress, current: maxStress, penalty: 0 },
-            { name: 'Breakdown', max: maxStress, current: maxStress, penalty: 0 }
+            { name: 'Breaking', max: maxStress, current: maxStress, penalty: 0 }
           ],
           currentBar: 0
         };
@@ -1412,15 +1411,14 @@ Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId:
         if (!data.system.stress.bars || data.system.stress.bars.length === 0) {
           const resolve = data.system.attributes?.resolve?.value || 2;
           const wits = data.system.attributes?.wits?.value || 2;
-          const maxStress = (resolve + wits) * 2;
+          const maxStress = resolve + wits;
           const oldCurrent = data.system.stress.current || 0;
           
           data.system.stress.bars = [
             { name: 'Healthy', max: maxStress, current: maxStress, penalty: 0 },
             { name: 'Stressed', max: maxStress, current: maxStress, penalty: 0 },
             { name: 'Not Well', max: maxStress, current: maxStress, penalty: 0 },
-            { name: 'Breaking', max: maxStress, current: maxStress, penalty: 0 },
-            { name: 'Breakdown', max: maxStress, current: maxStress, penalty: 0 }
+            { name: 'Breaking', max: maxStress, current: maxStress, penalty: 0 }
           ];
           data.system.stress.currentBar = 0;
           
@@ -1438,20 +1436,26 @@ Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId:
               }
             }
           }
-        } else if (data.system.stress.bars.length < 5) {
-          // Add missing bars
+        } else if (data.system.stress.bars.length < 4) {
+          // Add missing bars (4 bars total)
           const resolve = data.system.attributes?.resolve?.value || 2;
           const wits = data.system.attributes?.wits?.value || 2;
-          const maxStress = (resolve + wits) * 2;
-          const allBarNames = ['Healthy', 'Stressed', 'Not Well', 'Breaking', 'Breakdown'];
+          const maxStress = resolve + wits;
+          const allBarNames = ['Healthy', 'Stressed', 'Not Well', 'Breaking'];
           
-          for (let i = data.system.stress.bars.length; i < 5; i++) {
+          for (let i = data.system.stress.bars.length; i < 4; i++) {
             data.system.stress.bars.push({
               name: allBarNames[i],
               max: maxStress,
               current: maxStress,
               penalty: 0
             });
+          }
+        } else if (data.system.stress.bars.length > 4) {
+          // Remove extra bars (keep only first 4)
+          data.system.stress.bars = data.system.stress.bars.slice(0, 4);
+          if (data.system.stress.currentBar >= 4) {
+            data.system.stress.currentBar = 3;
           }
         }
         if (data.system.stress.currentBar === undefined) {

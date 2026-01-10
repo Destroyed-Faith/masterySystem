@@ -3097,15 +3097,19 @@ async function resolveRoundIfReady(npcToken) {
     
     for (let index = 0; index < livingTargets.length; index++) {
       const target = livingTargets[index];
-      const alloc = allocations[index];
-      npcSplit[target.id] = alloc;
+      const allocated = allocations[index];
+      npcSplit[target.id] = allocated;
       
       const stats = combatantStats.get(target.id);
       const defenseRemain = stats.defenseTotal;
-      const blocked = Math.min(alloc, defenseRemain);
-      const dmg = alloc - blocked;
+      const blockedByDefense = Math.min(allocated, defenseRemain);
+      const dmg = allocated - blockedByDefense;
       
       npcToPcDamage[target.id] = dmg;
+      
+      // Log NPC -> PC damage per target
+      const targetName = target.type === 'solo' ? target.members[0].name : target.members.map(m => m.name).join(', ');
+      console.log(`Divine Clash | NPC -> ${targetName}: allocated=${allocated}, blockedByDefense=${blockedByDefense}, dmg=${dmg}`);
       
       // Apply damage to combatant
       if (target.type === 'solo') {
@@ -3155,9 +3159,15 @@ async function resolveRoundIfReady(npcToken) {
     }
   }
   
+  // Get NPC Armor (per hit, not consumed)
+  const npcCombatFlags = npcToken.document.getFlag('mastery-system', 'divineClashCombat');
+  const npcOverlayFlags = npcToken.document.getFlag('mastery-system', 'divineClashOverlay');
+  const npcArmor = npcCombatFlags?.armor ?? npcOverlayFlags?.divineCombat?.armor ?? 0;
+  
   // PCs -> NPC damage
-  let npcDefenseRemain = npcDefense;
+  let npcDefenseRemain = npcDefense; // NPC Defense is NOT scaled, it's a pool per round
   let pcToNpcDamageTotal = 0;
+  const pcToNpcDamageLog = []; // Log per combatant: {allocAttack, armorBlocked, defBlocked, dmg}
   
   // Sort by attack total ASC (option 2: "wenig Attack zuerst")
   const sortedByAttack = [...orderedCombatants].sort((a, b) => {
@@ -3172,19 +3182,49 @@ async function resolveRoundIfReady(npcToken) {
     return aIndex - bIndex;
   });
   
+  // Apply damage to NPC with armor per hit
   for (const combatant of sortedByAttack) {
     const stats = combatantStats.get(combatant.id);
-    const alloc = stats.attackTotal;
+    const allocAttack = stats.attackTotal;
     
-    const blocked = Math.min(alloc, npcDefenseRemain);
-    npcDefenseRemain -= blocked;
-    const dmg = alloc - blocked;
+    let remaining = allocAttack;
+    
+    // Step 1: Armor blocks (per hit, not consumed)
+    const armorBlocked = Math.min(npcArmor, remaining);
+    remaining -= armorBlocked;
+    
+    // Step 2: Defense blocks (consumed from pool)
+    const defBlocked = Math.min(npcDefenseRemain, remaining);
+    npcDefenseRemain -= defBlocked;
+    remaining -= defBlocked;
+    
+    // Step 3: Remaining is damage
+    const dmg = Math.max(0, remaining);
+    
+    // Log this combatant's damage breakdown
+    pcToNpcDamageLog.push({
+      combatantId: combatant.id,
+      combatantName: combatant.type === 'solo' ? combatant.members[0].name : combatant.members.map(m => m.name).join(', '),
+      allocAttack,
+      armorBlocked,
+      defBlocked,
+      dmg
+    });
     
     if (dmg > 0) {
       pcToNpcDamageTotal += dmg;
       npcVitality.current = Math.max(0, npcVitality.current - dmg);
     }
   }
+  
+  // Log damage breakdown
+  console.log('Divine Clash | PC -> NPC Damage Breakdown:', {
+    npcDefenseTotal: npcDefense,
+    npcArmor,
+    npcDefenseRemain,
+    totalDamage: pcToNpcDamageTotal,
+    perCombatant: pcToNpcDamageLog
+  });
   
   // Save NPC vitality
   await npcToken.document.setFlag('mastery-system', 'divineClashVitality', npcVitality);
@@ -3237,35 +3277,29 @@ async function resolveRoundIfReady(npcToken) {
     };
   });
   
-  // Build PC to NPC damage per actor (recalculate to get accurate damage contributed)
-  const pcToNpcPerActor = [];
-  let remainingDefense = npcDefense;
-  for (const combatant of sortedByAttack) {
-    const stats = combatantStats.get(combatant.id);
-    const alloc = stats.attackTotal;
-    const blocked = Math.min(alloc, remainingDefense);
-    remainingDefense -= blocked;
-    const dmg = alloc - blocked;
-    
-    if (dmg > 0) {
-      let name = '';
+  // Build PC to NPC damage per actor (use logged damage breakdown)
+  const pcToNpcPerActor = pcToNpcDamageLog
+    .filter(log => log.dmg > 0)
+    .map(log => {
+      const combatant = orderedCombatants.find(c => c.id === log.combatantId);
       let tokenId = '';
-      if (combatant.type === 'solo') {
-        name = combatant.members[0].name;
-        tokenId = combatant.members[0].id;
-      } else {
-        name = combatant.members.map(m => m.name).join(', ');
-        tokenId = combatant.members[0].id;
+      if (combatant) {
+        if (combatant.type === 'solo') {
+          tokenId = combatant.members[0].id;
+        } else {
+          tokenId = combatant.members[0].id;
+        }
       }
       
-      pcToNpcPerActor.push({
+      return {
         tokenId,
-        name,
-        attackTotal: stats.attackTotal,
-        damageContributed: dmg
-      });
-    }
-  }
+        name: log.combatantName,
+        attackTotal: log.allocAttack,
+        damageContributed: log.dmg,
+        armorBlocked: log.armorBlocked,
+        defBlocked: log.defBlocked
+      };
+    });
   
   // Build NPC to PC distribution
   const npcToPcDistribution = Object.entries(npcToPcDamage).map(([targetId, damage]) => {
@@ -3320,7 +3354,9 @@ async function resolveRoundIfReady(npcToken) {
     initiativeOrder,
     pcToNpc: {
       totalAttack: sortedByAttack.reduce((sum, c) => sum + combatantStats.get(c.id).attackTotal, 0),
+      npcDefenseTotal: npcDefense,
       npcDefenseApplied: npcDefense - npcDefenseRemain,
+      npcArmor: npcArmor,
       damageToNpcVitality: pcToNpcDamageTotal,
       perActor: pcToNpcPerActor
     },

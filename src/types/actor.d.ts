@@ -89,7 +89,7 @@ export interface CharacterData {
     tempHP: number;
   };
   stress: {
-    bars: HealthBar[]; // 5 bars: Healthy, Stressed, Not Well, Breaking, Breakdown
+    bars: HealthBar[]; // 4 bars: Healthy, Stressed, Not Well, Breaking
     currentBar: number;
   };
   combat: CombatData;
