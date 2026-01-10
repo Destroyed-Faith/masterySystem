@@ -1427,6 +1427,34 @@
 }
 
 /* ========== Skills Tab ========== */
+/* ========================================
+   Skills Overview
+   ======================================== */
+
+.mastery-system.sheet.actor.character .skills-overview {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--df-border-primary, #3a3f44);
+}
+
+.mastery-system.sheet.actor.character .skills-overview h3 {
+  margin: 0;
+  color: var(--df-text-primary, #d0d0d0);
+  font-size: 1.2rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mastery-system.sheet.actor.character .skills-overview h3 i {
+  color: var(--df-text-primary, #d0d0d0);
+}
+
 .mastery-system.sheet.actor.character .skills-header {
   margin-bottom: 20px;
   padding: 15px;
@@ -3226,6 +3254,133 @@
   font-size: 12px;
 }
 
+/* ========================================
+   Creation Powers Section
+   ======================================== */
+
+.mastery-system.sheet.actor.character .creation-powers-section {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: var(--df-bg-panel, #2a3136);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 8px;
+}
+
+.mastery-system.sheet.actor.character .creation-powers-section .creation-banner {
+  background: linear-gradient(135deg, #8b0000 0%, #5a0000 100%);
+  border-bottom: 2px solid #ffd700;
+  padding: 12px 20px;
+  margin: -1rem -1rem 1rem -1rem;
+  border-radius: 8px 8px 0 0;
+}
+
+.mastery-system.sheet.actor.character .creation-powers-section .creation-banner h3 {
+  margin: 0 0 1rem 0;
+  color: #ffd700;
+  font-size: 1.1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.mastery-system.sheet.actor.character .creation-powers-section .creation-banner h3 i {
+  color: #ffd700;
+}
+
+.mastery-system.sheet.actor.character .creation-powers-section .creation-status {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.mastery-system.sheet.actor.character .creation-powers-section .status-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.mastery-system.sheet.actor.character .creation-powers-section .status-item label {
+  color: #ffd700;
+  font-weight: 600;
+  min-width: 140px;
+}
+
+.mastery-system.sheet.actor.character .creation-powers-section .status-item span.valid {
+  color: #90ee90;
+  font-weight: 600;
+}
+
+.mastery-system.sheet.actor.character .creation-powers-section .status-item span.invalid {
+  color: #ff6b6b;
+  font-weight: 600;
+}
+
+.mastery-system.sheet.actor.character .creation-instructions {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 3px solid #ffd700;
+  border-radius: 4px;
+}
+
+.mastery-system.sheet.actor.character .creation-instructions p {
+  margin: 0 0 0.75rem 0;
+  color: var(--df-text-primary, #d0d0d0);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.mastery-system.sheet.actor.character .creation-instructions p strong {
+  color: #ffd700;
+}
+
+.mastery-system.sheet.actor.character .creation-instructions ul {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: var(--df-text-primary, #d0d0d0);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.mastery-system.sheet.actor.character .creation-instructions ul li {
+  margin-bottom: 0.5rem;
+  color: var(--df-text-primary, #d0d0d0);
+}
+
+.mastery-system.sheet.actor.character .creation-instructions ul li strong {
+  color: #ffd700;
+  font-weight: 600;
+}
+
+.mastery-system.sheet.actor.character .creation-powers-list {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 6px;
+}
+
+.mastery-system.sheet.actor.character .creation-powers-list h4 {
+  margin: 0 0 1rem 0;
+  color: var(--df-text-primary, #d0d0d0);
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.mastery-system.sheet.actor.character .creation-powers-list .empty-message {
+  color: var(--df-text-secondary, #999);
+  font-style: italic;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 1rem;
+}
+
 .mastery-system.sheet.actor.character .points-box.creation-points {
   min-width: 60px;
   max-width: 70px;
@@ -4698,13 +4853,22 @@
   align-items: center;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 2px solid #8b0000;
+  border-bottom: 2px solid var(--df-border-primary, #3a3f44);
 }
 
 .mastery-system.sheet.actor.character .equipment-overview h3 {
   margin: 0;
-  color: #8b0000;
+  color: var(--df-text-primary, #d0d0d0);
   font-size: 1.2rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mastery-system.sheet.actor.character .equipment-overview h3 i {
+  color: var(--df-text-primary, #d0d0d0);
 }
 
 .mastery-system.sheet.actor.character .equipment-controls {
@@ -4759,13 +4923,19 @@
 
 .mastery-system.sheet.actor.character .equipment-section h4 {
   margin: 0 0 1rem 0;
-  color: #8b0000;
+  color: var(--df-text-primary, #d0d0d0);
   font-size: 1.1rem;
-  border-bottom: 2px solid #8b0000;
+  border-bottom: 2px solid var(--df-border-primary, #3a3f44);
   padding-bottom: 0.5rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+}
+
+.mastery-system.sheet.actor.character .equipment-section h4 i {
+  color: var(--df-text-primary, #d0d0d0);
 }
 
 .mastery-system.sheet.actor.character .weapons-list,
