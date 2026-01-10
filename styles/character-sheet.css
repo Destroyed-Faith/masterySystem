@@ -4493,10 +4493,27 @@
 
 /* ========== Disadvantages Tab ========== */
 .mastery-system.sheet.actor.character .disadvantages-overview {
-  padding: 15px;
-  background: rgba(139, 0, 0, 0.1);
-  border-radius: 8px;
-  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--df-border-primary, #3a3f44);
+}
+
+.mastery-system.sheet.actor.character .disadvantages-overview h3 {
+  margin: 0;
+  color: var(--df-text-primary, #d0d0d0);
+  font-size: 1.2rem;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mastery-system.sheet.actor.character .disadvantages-overview h3 i {
+  color: var(--df-text-primary, #d0d0d0);
 }
 
 .mastery-system.sheet.actor.character .disadvantages-summary {
@@ -4514,14 +4531,14 @@
 .mastery-system.sheet.actor.character .summary-item label {
   font-size: 12px;
   font-weight: 600;
-  color: #666;
+  color: var(--df-text-secondary, #999);
   text-transform: uppercase;
 }
 
 .mastery-system.sheet.actor.character .summary-value {
   font-size: 18px;
   font-weight: 700;
-  color: #8b0000;
+  color: var(--df-text-primary, #d0d0d0);
 }
 
 .mastery-system.sheet.actor.character .disadvantages-list {
@@ -4531,11 +4548,11 @@
 }
 
 .mastery-system.sheet.actor.character .disadvantage-card-sheet {
-  background: #fff;
-  border: 2px solid #ddd;
+  background: var(--df-bg-panel, #2a3136);
+  border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 8px;
   padding: 15px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px var(--df-shadow, rgba(0, 0, 0, 0.3));
 }
 
 .mastery-system.sheet.actor.character .disadvantage-header-sheet {
@@ -4553,21 +4570,24 @@
 
 .mastery-system.sheet.actor.character .disadvantage-header-sheet h4 {
   margin: 0;
-  color: #8b0000;
+  color: var(--df-text-primary, #d0d0d0);
   font-size: 18px;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
 }
 
 .mastery-system.sheet.actor.character .disadvantage-points-sheet {
-  background: #8b0000;
-  color: #fff;
+  background: var(--df-bg-header, #1b2124);
+  color: var(--df-text-primary, #d0d0d0);
   padding: 4px 12px;
   border-radius: 12px;
   font-weight: 700;
   font-size: 14px;
+  border: 1px solid var(--df-border-primary, #3a3f44);
 }
 
 .mastery-system.sheet.actor.character .disadvantage-description-sheet {
-  color: #666;
+  color: var(--df-text-primary, #d0d0d0);
   margin: 10px 0;
   font-size: 14px;
   line-height: 1.5;
@@ -4576,13 +4596,18 @@
 .mastery-system.sheet.actor.character .disadvantage-details-sheet {
   margin-top: 10px;
   padding-top: 10px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--df-border-primary, #3a3f44);
 }
 
 .mastery-system.sheet.actor.character .detail-item-sheet {
   margin: 5px 0;
   font-size: 14px;
-  color: #444;
+  color: var(--df-text-primary, #d0d0d0);
+}
+
+.mastery-system.sheet.actor.character .detail-item-sheet strong {
+  color: var(--df-text-primary, #d0d0d0);
+  font-weight: 600;
 }
 
 .mastery-system.sheet.actor.character .disadvantages-creation-controls {
@@ -4591,10 +4616,10 @@
 
 .mastery-system.sheet.actor.character .add-disadvantage-btn {
   padding: 10px 20px;
-  background: linear-gradient(135deg, #8b0000 0%, #a00000 100%);
-  border: none;
+  background: var(--df-bg-panel, #2a3136);
+  border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 6px;
-  color: #fff;
+  color: var(--df-text-primary, #d0d0d0);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -4605,9 +4630,11 @@
 }
 
 .mastery-system.sheet.actor.character .add-disadvantage-btn:hover {
-  background: linear-gradient(135deg, #a00000 0%, #c00000 100%);
+  background: var(--df-bg-header, #1b2124);
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(139, 0, 0, 0.3);
+  box-shadow: 0 4px 12px var(--df-shadow, rgba(0,0,0,0.5));
+  color: var(--df-text-primary, #d0d0d0);
 }
 
 .mastery-system.sheet.actor.character .disadvantage-edit-btn,
