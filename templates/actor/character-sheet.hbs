@@ -738,6 +738,11 @@
       
       <div class="skills-overview">
         <h3><i class="fas fa-cogs"></i> Skills</h3>
+        {{#if creationComplete}}
+        <button type="button" class="safe-haven-rest" title="Rest at Safe Haven - Restore all Skill Points">
+          <i class="fas fa-bed"></i> Safe Haven Rest
+        </button>
+        {{/if}}
       </div>
       
       {{#each skills}}
@@ -762,6 +767,7 @@
                 <div class="skill-value-display-compact">
                   <span class="skill-value-compact">{{default this.value 0}}</span>
                   {{#if ../creationComplete}}
+                  <span class="skill-pool-display">Pool: {{default this.remaining 0}}/{{default this.value 0}}</span>
                   <button type="button" class="skill-spend-point" data-skill="{{this.key}}" title="Spend Mastery Point (Cost: {{default this.value 0}} pts)">
                     <i class="fas fa-arrow-up"></i>
                   </button>

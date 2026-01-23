@@ -1657,6 +1657,40 @@
   font-family: 'Cormorant Garamond', serif;
 }
 
+.mastery-system.sheet.actor.character .skill-pool-display {
+  font-size: 11px;
+  color: var(--df-text-secondary, #888);
+  margin-left: 6px;
+  font-style: italic;
+}
+
+.mastery-system.sheet.actor.character .safe-haven-rest {
+  background: rgba(202, 178, 113, 0.15);
+  border: 1px solid rgba(202, 178, 113, 0.4);
+  color: var(--df-text-primary, #d0d0d0);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-family: var(--df-font-head, 'Cinzel Decorative', serif);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: auto;
+}
+
+.mastery-system.sheet.actor.character .safe-haven-rest:hover {
+  border-color: rgba(202, 178, 113, 0.6);
+  box-shadow: 0 0 0 1px rgba(202, 178, 113, 0.25) inset;
+  background: rgba(202, 178, 113, 0.2);
+}
+
+.mastery-system.sheet.actor.character .skills-overview {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .mastery-system.sheet.actor.character .skill-value-display-compact {
   display: flex;
   align-items: center;

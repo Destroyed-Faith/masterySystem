@@ -49,10 +49,23 @@ const BUTTON_MARGIN = 5;
 const READY_BUTTON_WIDTH = 120;
 const READY_BUTTON_HEIGHT = 40;
 
-// Group dropdown styling
-const DROPDOWN_HEIGHT = 30;
-const DROPDOWN_WIDTH = 200;
-const DROPDOWN_OFFSET_Y = 20; // Distance below overlay
+// PC Overlay Row positioning
+const PC_ROW_SPACING = 200;
+const PC_ROW_FROM_BOTTOM = 200;
+const PC_ROW_NUDGE_X = 0; // Fine-tune horizontal position in px
+const PC_ROW_NUDGE_Y = 0; // Fine-tune vertical position in px
+
+// Team Vitality Display styling (HUD - centered on screen)
+const TEAM_VITALITY_HEIGHT = 40;
+const TEAM_VITALITY_WIDTH = 300;
+const TEAM_VITALITY_NUDGE_X = 0; // Fine-tune horizontal position in px
+const TEAM_VITALITY_NUDGE_Y = 0; // Fine-tune vertical position in px
+const TEAM_VITALITY_BOTTOM_OFFSET = 140; // px vom unteren Bildschirmrand (ggf. 110–180 anpassen)
+
+// DEBUG Helper for Team Vitality
+const DEBUG_TEAM_VITALITY = true;
+function tvLog(...args) { if (DEBUG_TEAM_VITALITY) console.log("Divine Clash | [TEAM VIT]", ...args); }
+function tvWarn(...args) { if (DEBUG_TEAM_VITALITY) console.warn("Divine Clash | [TEAM VIT]", ...args); }
 
 // Resolve Phase Configuration
 const ENABLE_GM_DEBUG_LOG = true; // GM-only debug whisper
@@ -254,213 +267,161 @@ function worldToScreen(worldX, worldY) {
 }
 
 /**
- * Get all PC tokens on the scene (excluding the host token)
+ * Position team vitality display at UI bottom center (fixed, not in scene)
  */
-function getOtherPCTokens(hostToken) {
-  if (!canvas || !canvas.tokens) {
-    return [];
-  }
-  
-  return canvas.tokens.placeables.filter(token => {
-    // Exclude host token
-    if (token.id === hostToken.id) {
-      return false;
-    }
-    
-    // Include if actor type is not NPC, or if explicitly marked as player
-    const actor = token.actor;
-    if (!actor) {
-      return false;
-    }
-    
-    const isPlayer = actor.type !== 'npc' || 
-                    (actor.getFlag && actor.getFlag('mastery-system', 'divineClash')?.isPlayer === true);
-    
-    return isPlayer;
+function positionTeamVitalityDisplay() {
+  const display = document.getElementById("dc-team-vitality");
+  if (!display) return;
+
+  // UI-fixed, mittig unten (außerhalb der Scene/World)
+  display.style.left = `calc(50% + ${TEAM_VITALITY_NUDGE_X}px)`;
+  display.style.bottom = `${TEAM_VITALITY_BOTTOM_OFFSET + TEAM_VITALITY_NUDGE_Y}px`;
+  display.style.top = ""; // sicherstellen, dass top nicht mehr greift
+  display.style.transform = "translateX(-50%)";
+
+  const r = display.getBoundingClientRect();
+  tvLog("positionTeamVitalityDisplay(UI-bottom):", {
+    bottomOffset: TEAM_VITALITY_BOTTOM_OFFSET,
+    rect: { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height) }
   });
 }
 
 /**
- * Create group selection dropdown for a character overlay
- * @param {Token} hostToken - The host token
- * @param {DivineClashOverlay} overlay - The overlay instance
+ * Create team vitality display (shows sum of all PC vitality)
+ * HUD-style: centered on screen, not attached to any overlay
  * @returns {Object} - { element, updatePosition(), destroy() }
  */
-function createGroupDropdown(hostToken, overlay) {
-  // Create select element
-  const select = document.createElement('select');
-  select.id = `dc-group-dropdown-${hostToken.id}`;
-  select.style.cssText = `
-    position: absolute;
-    z-index: 10000;
-    width: ${DROPDOWN_WIDTH}px;
-    height: ${DROPDOWN_HEIGHT}px;
+function createTeamVitalityDisplay() {
+  let display = document.getElementById("dc-team-vitality");
+  if (display) {
+    return {
+      element: display,
+      updatePosition: positionTeamVitalityDisplay,
+      destroy: () => display?.remove?.()
+    };
+  }
+
+  display = document.createElement("div");
+  display.id = "dc-team-vitality";
+
+  // Wichtig: an #interface oder body hängen (nicht #board, nicht ui-top)
+  const parent = document.getElementById("interface") || document.body;
+
+  tvLog("createTeamVitalityDisplay(): parent=", parent?.id || parent?.tagName);
+  parent.appendChild(display);
+
+  // Sichtbares HUD (immer über UI)
+  display.style.cssText = `
+    position: fixed;
+    left: 50%;
+    bottom: ${TEAM_VITALITY_BOTTOM_OFFSET}px;
+    transform: translateX(-50%);
+    z-index: 100000;
+    width: ${TEAM_VITALITY_WIDTH}px;
+    height: ${TEAM_VITALITY_HEIGHT}px;
     background-color: #1a1a1a;
     color: #ffffff;
-    border: 2px solid #4a4a4a;
-    border-radius: 4px;
-    padding: 4px 8px;
+    border: 2px solid #FFAA00;
+    border-radius: 6px;
+    padding: 8px 16px;
     font-family: 'Signika', sans-serif;
-    font-size: 14px;
-    cursor: pointer;
-    pointer-events: auto;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   `;
-  
-  // Check if user can interact (owner or GM)
-  const canInteract = hostToken.isOwner || game.user.isGM;
-  if (!canInteract) {
-    select.disabled = true;
-    select.style.opacity = '0.5';
-    select.style.cursor = 'not-allowed';
-  }
-  
-  // Add options
-  function populateOptions() {
-    // Clear existing options
-    select.innerHTML = '';
-    
-    // Add "Solo" option
-    const soloOption = document.createElement('option');
-    soloOption.value = 'solo';
-    soloOption.textContent = 'Solo';
-    select.appendChild(soloOption);
-    
-    // Add "Join: <name>" options for each other PC
-    const otherPCs = getOtherPCTokens(hostToken);
-    otherPCs.forEach(token => {
-      const option = document.createElement('option');
-      option.value = token.id;
-      option.textContent = `Join: ${token.name || token.actor?.name || 'Unknown'}`;
-      select.appendChild(option);
-    });
-  }
-  
-  // Populate options
-  populateOptions();
-  
-  // Load current selection from flag
-  async function loadCurrentSelection() {
-    try {
-      const flag = await hostToken.document.getFlag('mastery-system', 'divineClashParticipation');
-      if (flag) {
-        if (flag.mode === 'solo') {
-          select.value = 'solo';
-        } else if (flag.mode === 'join' && flag.joinTo) {
-          select.value = flag.joinTo;
-        }
-      }
-    } catch (error) {
-      console.warn('Divine Clash | Could not load group selection flag:', error);
-    }
-  }
-  
-  // Load initial selection
-  loadCurrentSelection();
-  
-  // Handle change event
-  select.addEventListener('change', async (event) => {
-    event.stopPropagation();
-    event.preventDefault();
-    
-    if (!canInteract) {
-      return;
-    }
-    
-    const selectedValue = select.value;
-    
-    // Get scene flag for npcTokenId
-    let npcTokenId = null;
-    try {
-      const sceneFlag = await canvas.scene.getFlag('mastery-system', 'divineClashActive');
-      if (sceneFlag && sceneFlag.npcTokenId) {
-        npcTokenId = sceneFlag.npcTokenId;
-      } else {
-        ui.notifications.warn('GM must set Active NPC');
-      }
-    } catch (error) {
-      console.warn('Divine Clash | Could not read scene flag:', error);
-    }
-    
-    // Prepare flag data
-    let mode, joinTo, notificationText;
-    
-    if (selectedValue === 'solo') {
-      mode = 'solo';
-      joinTo = null;
-      notificationText = 'Set to Solo';
-    } else {
-      mode = 'join';
-      joinTo = selectedValue;
-      const targetToken = canvas.tokens?.placeables.find(t => t.id === selectedValue);
-      const targetName = targetToken?.name || targetToken?.actor?.name || 'Unknown';
-      notificationText = `Joined ${targetName}`;
-    }
-    
-    // Save flag
-    try {
-      await hostToken.document.setFlag('mastery-system', 'divineClashParticipation', {
-        npcTokenId: npcTokenId,
-        mode: mode,
-        joinTo: joinTo
-      });
-      
-      ui.notifications.info(notificationText);
-    } catch (error) {
-      console.error('Divine Clash | Could not save group selection flag:', error);
-      ui.notifications.error('Failed to save group selection');
-    }
-  });
-  
-  // Stop propagation on all pointer events to prevent interference with stone dragging
-  ['pointerdown', 'pointerup', 'pointermove', 'click', 'mousedown', 'mouseup', 'mousemove'].forEach(eventType => {
-    select.addEventListener(eventType, (event) => {
-      event.stopPropagation();
-    });
-  });
-  
-  // Append to document body
-  document.body.appendChild(select);
-  
-  // Update position function
-  function updatePosition() {
-    if (!overlay || !canvas) {
-      return;
-    }
-    
-    // Calculate total overlay width: Vitality (always present) + spacing + Pool + spacing + Attack + spacing + Defense
-    const totalOverlayWidth = VITALITY_WIDTH + ZONE_SPACING + POOL_WIDTH + ZONE_SPACING + ATTACK_DEFENSE_WIDTH + ZONE_SPACING + ATTACK_DEFENSE_WIDTH;
-    
-    // Calculate dropdown position: below the overlay, centered under all three zones
-    const overlayCenterX = overlay.x + (totalOverlayWidth / 2);
-    const overlayBottomY = overlay.y + ZONE_HEIGHT;
-    const dropdownY = overlayBottomY + DROPDOWN_OFFSET_Y;
-    
-    // Convert to screen coordinates
-    const screenPos = worldToScreen(overlayCenterX, dropdownY);
-    
-    // Adjust for dropdown width (center it)
-    const screenX = screenPos.x - (DROPDOWN_WIDTH / 2);
-    const screenY = screenPos.y;
-    
-    select.style.left = `${screenX}px`;
-    select.style.top = `${screenY}px`;
-  }
-  
-  // Initial position update
-  updatePosition();
-  
-  // Destroy function
-  function destroy() {
-    if (select && select.parentNode) {
-      select.parentNode.removeChild(select);
-    }
-  }
-  
+
+  display.textContent = "TEAM VITALITY: 0 / 0";
+
+  // Initial position + logs
+  positionTeamVitalityDisplay();
+  const r = display.getBoundingClientRect();
+  tvLog("createTeamVitalityDisplay(): after-style rect=", { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height) });
+
   return {
-    element: select,
-    updatePosition: updatePosition,
-    destroy: destroy
+    element: display,
+    updatePosition: positionTeamVitalityDisplay,
+    destroy: () => display?.remove?.()
   };
+}
+
+/**
+ * Update team vitality display with sum of all PC vitality
+ * Only updates text content (position is fixed as HUD)
+ */
+function updateTeamVitalityDisplay() {
+  if (!canvas || !canvas.tokens) {
+    return;
+  }
+  
+  const display = document.getElementById('dc-team-vitality');
+  if (!display) {
+    return;
+  }
+  
+  // Get all PC tokens that are in divine clash (have any relevant flags)
+  const allTokens = canvas.tokens?.placeables || [];
+  const pcCandidates = allTokens.filter(t => t?.actor?.type === "character");
+  
+  const pcTokensInClash = pcCandidates.filter(token => {
+    const vitFlag = token.document.getFlag("mastery-system", "divineClashVitality");
+    const overlayFlag = token.document.getFlag("mastery-system", "divineClashOverlay");
+    const participation = token.document.getFlag("mastery-system", "divineClashParticipation");
+    return !!vitFlag || !!overlayFlag || !!participation;
+  });
+  
+  tvLog("updateTeamVitalityDisplay(): totalTokens=", allTokens.length, "pcCandidates=", pcCandidates.length, "pcInClash=", pcTokensInClash.length);
+  console.table(pcCandidates.map(t => ({
+    name: t.name,
+    isOwner: !!t.isOwner,
+    hasLocalOverlay: !!t._dcOverlay,
+    hasVitFlag: !!t.document.getFlag("mastery-system", "divineClashVitality"),
+    hasOverlayFlag: !!t.document.getFlag("mastery-system", "divineClashOverlay"),
+    hasParticipation: !!t.document.getFlag("mastery-system", "divineClashParticipation")
+  })));
+  
+  if (pcTokensInClash.length === 0) {
+    display.style.display = "none";
+    tvWarn("Hiding TEAM VITALITY (no PCs in clash)");
+    return;
+  }
+  
+  display.style.display = "block";
+  
+  // Sum vitality from all PCs
+  let sumCurrent = 0;
+  let sumMax = 0;
+  
+  for (const token of pcTokensInClash) {
+    let vit = token.document.getFlag('mastery-system', 'divineClashVitality');
+    
+    // If flag doesn't exist, initialize with getVitalityStoneCount
+    if (!vit) {
+      const actor = token.actor;
+      if (actor) {
+        const vitalityCount = getVitalityStoneCount(actor);
+        vit = { current: vitalityCount, max: vitalityCount };
+        // Optionally set the flag, but don't await to avoid blocking
+        token.document.setFlag('mastery-system', 'divineClashVitality', vit).catch(err => {
+          console.warn(`Divine Clash | Could not set vitality flag for ${token.name}:`, err);
+        });
+      } else {
+        vit = { current: 0, max: 0 };
+      }
+    }
+    
+    sumCurrent += (vit.current !== undefined ? vit.current : 0);
+    sumMax += (vit.max !== undefined ? vit.max : 0);
+  }
+  
+  // Update display text and reposition
+  display.textContent = `TEAM VITALITY: ${sumCurrent} / ${sumMax}`;
+  positionTeamVitalityDisplay();
+  const rr = display.getBoundingClientRect();
+  tvLog("updateTeamVitalityDisplay(): text=", display.textContent, "rect=", { x: Math.round(rr.x), y: Math.round(rr.y), w: Math.round(rr.width), h: Math.round(rr.height) });
 }
 
 // ============================================================================
@@ -486,7 +447,6 @@ class DivineClashOverlay extends PIXI.Container {
     this.resolveButton = null; // GM-only resolve button (appears when all PCs are ready)
     this.resetButton = null; // GM-only reset button (for NPCs, positioned left of overlay)
     this.nameLabel = null; // Name label (NPC: left of overlay, Character: above overlay)
-    this.groupDropdown = null; // Group selection dropdown (Character overlays only)
     
     this.eventMode = 'passive';
     this.interactiveChildren = true;
@@ -504,11 +464,6 @@ class DivineClashOverlay extends PIXI.Container {
     
     // Update visibility based on user permissions
     this.updateVisibility();
-    
-    // Create group dropdown for character overlays only
-    if (!this.isNpc) {
-      this.groupDropdown = createGroupDropdown(hostToken, this);
-    }
     
     // Attach to canvas.tokens layer (not token.mesh) to allow pointer events outside token bounds
     // Do this AFTER setting position so it's positioned correctly
@@ -586,32 +541,48 @@ class DivineClashOverlay extends PIXI.Container {
       console.log(`Divine Clash | NPC overlay positioned at top-middle: x=${this.x}, y=${this.y}`);
     } else {
       // Characters: Bottom-middle of the map, evenly distributed
-      // Get all character overlays to calculate spacing
-      const allCharacterOverlays = [];
+      // Collect only overlays that the current user can see
+      const visibleCharacterOverlays = [];
       canvas.tokens?.placeables.forEach(token => {
         if (token._dcOverlay && !token._dcOverlay.isNpc) {
-          allCharacterOverlays.push(token._dcOverlay);
+          // GM sees all PC overlays, players see only their own
+          if (game.user.isGM) {
+            visibleCharacterOverlays.push(token._dcOverlay);
+          } else {
+            // Player: only include if they own this token
+            const actor = token.actor;
+            if (actor && actor.testUserPermission(game.user, 'OWNER')) {
+              visibleCharacterOverlays.push(token._dcOverlay);
+            }
+          }
         }
       });
       
-      const totalCharacters = allCharacterOverlays.length;
-      // Calculate total overlay width: Vitality + spacing + Pool + spacing + Attack + spacing + Defense
-      const totalOverlayWidth = VITALITY_WIDTH + ZONE_SPACING + POOL_WIDTH + ZONE_SPACING + ATTACK_DEFENSE_WIDTH + ZONE_SPACING + ATTACK_DEFENSE_WIDTH;
-      const spacingBetweenOverlays = 200; // Spacing between complete overlays
-      const overlayWidth = totalOverlayWidth + spacingBetweenOverlays;
-      const totalWidth = totalCharacters * overlayWidth;
-      const startX = bottomMiddle.x - (totalWidth / 2) + (overlayWidth / 2);
+      const totalCharacters = visibleCharacterOverlays.length;
+      if (totalCharacters === 0) {
+        console.warn(`Divine Clash | No visible character overlays found for positioning`);
+        return;
+      }
       
-      // Find index of this overlay
-      const myIndex = allCharacterOverlays.findIndex(ov => ov === this);
-      const bottomY = bottomMiddle.y - 200; // 200 pixels from bottom edge
+      // Calculate overlay content width (without vitality zone)
+      const overlayContentWidth = POOL_WIDTH + ZONE_SPACING + ATTACK_DEFENSE_WIDTH + ZONE_SPACING + ATTACK_DEFENSE_WIDTH;
       
-      // Position overlay so that vitality starts at calculated position (for characters)
-      const poolX = VITALITY_WIDTH + ZONE_SPACING;
-      this.x = startX + (myIndex * overlayWidth) - poolX;
-      this.y = bottomY;
+      // Calculate row width
+      const rowWidth = totalCharacters * overlayContentWidth + Math.max(0, totalCharacters - 1) * PC_ROW_SPACING;
+      const startX = bottomMiddle.x - (rowWidth / 2);
       
-      // Create/update character name label (at left edge of vitality zone)
+      // Find index of this overlay in the visible list
+      const myIndex = visibleCharacterOverlays.findIndex(ov => ov === this);
+      if (myIndex === -1) {
+        // This overlay is not in the visible list for this user
+        return;
+      }
+      
+      // Position overlay (no vitality offset, no complex calculations)
+      this.x = startX + myIndex * (overlayContentWidth + PC_ROW_SPACING) + PC_ROW_NUDGE_X;
+      this.y = (bottomMiddle.y - PC_ROW_FROM_BOTTOM) + PC_ROW_NUDGE_Y;
+      
+      // Create/update character name label (at left edge of pool zone)
       if (!this.nameLabel) {
         this.nameLabel = new PIXI.Text(this.hostToken.name || 'Character', {
           fontFamily: 'Signika',
@@ -625,16 +596,11 @@ class DivineClashOverlay extends PIXI.Container {
         this.addChild(this.nameLabel);
       }
       
-      // Position name label at left edge of vitality zone
-      this.nameLabel.x = 10; // 10px from left edge of vitality zone
+      // Position name label at left edge of pool zone
+      this.nameLabel.x = 10; // 10px from left edge of pool zone
       this.nameLabel.y = -READY_BUTTON_HEIGHT / 2; // Vertically centered with Ready button
       
-      console.log(`Divine Clash | Character overlay positioned at bottom-middle: x=${this.x}, y=${this.y} (index ${myIndex} of ${totalCharacters})`);
-    }
-    
-    // Update dropdown position if it exists
-    if (this.groupDropdown) {
-      this.groupDropdown.updatePosition();
+      console.log(`Divine Clash | Character overlay positioned at bottom-middle: x=${this.x}, y=${this.y} (index ${myIndex} of ${totalCharacters} visible)`);
     }
   }
   
@@ -726,28 +692,36 @@ class DivineClashOverlay extends PIXI.Container {
       graphics.endFill();
     };
     
-    // Vitality zone (leftmost, ALWAYS displayed for both NPCs and Characters)
-    const vitalityZone = new PIXI.Graphics();
-    drawRoundedRect(vitalityZone, 0, 0, VITALITY_WIDTH, ZONE_HEIGHT, 8, VITALITY_COLOR, ZONE_FILL_ALPHA, VITALITY_COLOR, ZONE_STROKE_WIDTH);
-    vitalityZone.zIndex = 0;
-    vitalityZone.eventMode = 'none';
-    vitalityZone.cursor = 'default';
-    this.zones.vitality = vitalityZone;
-    this.addChild(vitalityZone);
+    // Vitality zone (leftmost, ONLY for NPCs)
+    const hasVitalityZone = this.isNpc;
+    const poolX = hasVitalityZone ? (VITALITY_WIDTH + ZONE_SPACING) : 0;
     
-    const vitalityLabel = new PIXI.Text('VITALITY', {
-      fontFamily: 'Signika',
-      fontSize: 18,
-      fill: VITALITY_COLOR,
-      fontWeight: 'bold'
-    });
-    vitalityLabel.x = 10;
-    vitalityLabel.y = 10;
-    this.zoneLabels.vitality = vitalityLabel;
-    this.addChild(vitalityLabel);
+    if (hasVitalityZone) {
+      const vitalityZone = new PIXI.Graphics();
+      drawRoundedRect(vitalityZone, 0, 0, VITALITY_WIDTH, ZONE_HEIGHT, 8, VITALITY_COLOR, ZONE_FILL_ALPHA, VITALITY_COLOR, ZONE_STROKE_WIDTH);
+      vitalityZone.zIndex = 0;
+      vitalityZone.eventMode = 'none';
+      vitalityZone.cursor = 'default';
+      this.zones.vitality = vitalityZone;
+      this.addChild(vitalityZone);
+      
+      const vitalityLabel = new PIXI.Text('VITALITY', {
+        fontFamily: 'Signika',
+        fontSize: 18,
+        fill: VITALITY_COLOR,
+        fontWeight: 'bold'
+      });
+      vitalityLabel.x = 10;
+      vitalityLabel.y = 10;
+      this.zoneLabels.vitality = vitalityLabel;
+      this.addChild(vitalityLabel);
+    } else {
+      // PC overlays don't have vitality zone
+      this.zones.vitality = null;
+      this.zoneLabels.vitality = null;
+    }
     
-    // Pool zone (always shifted right because vitality zone is always present)
-    const poolX = VITALITY_WIDTH + ZONE_SPACING;
+    // Pool zone (shifted right if vitality zone is present)
     const poolZone = new PIXI.Graphics();
     drawRoundedRect(poolZone, poolX, 0, POOL_WIDTH, ZONE_HEIGHT, 8, POOL_COLOR, ZONE_FILL_ALPHA, POOL_COLOR, ZONE_STROKE_WIDTH);
     poolZone.zIndex = 0;
@@ -777,6 +751,7 @@ class DivineClashOverlay extends PIXI.Container {
     }
     
     // Ready button - always visible, positioned above the pool zone
+    // Note: createReadyButton uses poolX internally, which is now calculated correctly above
     this.readyButton = this.createReadyButton();
     this.addChild(this.readyButton);
     
@@ -1065,10 +1040,15 @@ class DivineClashOverlay extends PIXI.Container {
    * Get which zone a point is in
    */
   getZoneAt(localPoint) {
-    // Calculate pool offset (0 for NPCs, VITALITY_WIDTH + ZONE_SPACING for characters)
-    const poolX = (!this.isNpc ? VITALITY_WIDTH + ZONE_SPACING : 0);
+    // Calculate pool offset (0 for PCs, VITALITY_WIDTH + ZONE_SPACING for NPCs)
+    const poolX = this.isNpc ? (VITALITY_WIDTH + ZONE_SPACING) : 0;
     
     for (const [zoneId, zone] of Object.entries(this.zones)) {
+      // Skip vitality zone for PCs (it doesn't exist)
+      if (zoneId === 'vitality' && !this.isNpc) {
+        continue;
+      }
+      
       // Get zone bounds manually (zones are drawn at specific positions)
       let zoneX, zoneY, zoneWidth, zoneHeight;
       if (zoneId === 'vitality') {
@@ -1371,8 +1351,13 @@ class DivineClashOverlay extends PIXI.Container {
       return;
     }
     
-    // Pool offset (always shifted right because vitality zone is always present)
-    const poolX = VITALITY_WIDTH + ZONE_SPACING;
+    // Skip vitality zone layout for PCs (it doesn't exist)
+    if (zoneId === 'vitality' && !this.isNpc) {
+      return;
+    }
+    
+    // Pool offset (shifted right only if vitality zone is present)
+    const poolX = this.isNpc ? (VITALITY_WIDTH + ZONE_SPACING) : 0;
     
     // Get zone position and size (zones are drawn at specific positions)
     let zoneX, zoneY, zoneWidth, zoneHeight;
@@ -1511,34 +1496,36 @@ class DivineClashOverlay extends PIXI.Container {
       return;
     }
     
-    // Update vitality stones based on current vitality value
-    const currentVitality = this.hostToken.document.getFlag('mastery-system', 'divineClashVitality');
-    if (currentVitality && currentVitality.current !== undefined) {
-      const currentVitalityCount = currentVitality.current;
-      const actor = this.hostToken.actor;
-      
-      // Generate vitality stone IDs based on current vitality
-      const vitalityStoneIds = [];
-      for (let i = 0; i < currentVitalityCount; i++) {
-        vitalityStoneIds.push(`generated-vitality-${actor.id}-${i}`);
+    // Update vitality stones based on current vitality value (ONLY for NPCs)
+    if (this.isNpc) {
+      const currentVitality = this.hostToken.document.getFlag('mastery-system', 'divineClashVitality');
+      if (currentVitality && currentVitality.current !== undefined) {
+        const currentVitalityCount = currentVitality.current;
+        const actor = this.hostToken.actor;
+        
+        // Generate vitality stone IDs based on current vitality
+        const vitalityStoneIds = [];
+        for (let i = 0; i < currentVitalityCount; i++) {
+          vitalityStoneIds.push(`generated-vitality-${actor.id}-${i}`);
+        }
+        
+        // Update flags with current vitality stones
+        flags.vitality = vitalityStoneIds;
+        await this.hostToken.document.setFlag('mastery-system', 'divineClashOverlay', flags);
+        
+        console.log(`Divine Clash | Updated vitality stones for ${this.hostToken.name}: ${currentVitalityCount} stones (was ${(flags.vitality || []).length})`);
       }
-      
-      // Update flags with current vitality stones
-      flags.vitality = vitalityStoneIds;
-      await this.hostToken.document.setFlag('mastery-system', 'divineClashOverlay', flags);
-      
-      console.log(`Divine Clash | Updated vitality stones for ${this.hostToken.name}: ${currentVitalityCount} stones (was ${(flags.vitality || []).length})`);
     }
     
-    // Get all stone IDs
+    // Get all stone IDs (exclude vitality for PCs)
     const allStoneIds = [
-      ...(flags.vitality || []),
+      ...(this.isNpc ? (flags.vitality || []) : []),
       ...(flags.pool || []),
       ...(flags.attack || []),
       ...(flags.defense || [])
     ];
     
-    console.log(`Divine Clash | Rendering ${allStoneIds.length} stones for ${this.hostToken.name}: vitality=${(flags.vitality || []).length}, pool=${(flags.pool || []).length}, attack=${(flags.attack || []).length}, defense=${(flags.defense || []).length}`);
+    console.log(`Divine Clash | Rendering ${allStoneIds.length} stones for ${this.hostToken.name}: vitality=${this.isNpc ? (flags.vitality || []).length : 0}, pool=${(flags.pool || []).length}, attack=${(flags.attack || []).length}, defense=${(flags.defense || []).length}`);
     
     // Get stone texture source once
     const textureSrc = getStoneTextureSrc();
@@ -1565,8 +1552,10 @@ class DivineClashOverlay extends PIXI.Container {
       }
     }
     
-    // Layout each zone (vitality zone is always present)
-    this.layoutZone('vitality', flags.vitality || []);
+    // Layout each zone (vitality zone only for NPCs)
+    if (this.isNpc) {
+      this.layoutZone('vitality', flags.vitality || []);
+    }
     this.layoutZone('pool', flags.pool || []);
     this.layoutZone('attack', flags.attack || []);
     this.layoutZone('defense', flags.defense || []);
@@ -1580,9 +1569,9 @@ class DivineClashOverlay extends PIXI.Container {
     }
     
     // Check vitality state (if 0, character is out for the round)
+    // For PCs, use divineClashVitality flag only (no vitality stones)
     const vitality = this.hostToken.document.getFlag('mastery-system', 'divineClashVitality');
-    const vitalityStones = flags.vitality || [];
-    const isOutOfRound = vitalityStones.length === 0 || (vitality && vitality.current !== undefined && vitality.current <= 0);
+    const isOutOfRound = (vitality && vitality.current !== undefined && vitality.current <= 0);
     
     // Check ready state and update interaction
     const isReady = this.hostToken.document.getFlag('mastery-system', 'divineClashReady') || false;
@@ -1641,8 +1630,8 @@ class DivineClashOverlay extends PIXI.Container {
     button.drawRoundedRect(0, 0, READY_BUTTON_WIDTH, READY_BUTTON_HEIGHT, 8);
     button.endFill();
     
-    // Pool offset (always shifted right because vitality zone is always present)
-    const poolX = VITALITY_WIDTH + ZONE_SPACING;
+    // Pool offset (shifted right only if vitality zone is present)
+    const poolX = this.isNpc ? (VITALITY_WIDTH + ZONE_SPACING) : 0;
     
     // Position at right edge of pool zone
     button.x = poolX + POOL_WIDTH - READY_BUTTON_WIDTH;
@@ -1757,9 +1746,9 @@ class DivineClashOverlay extends PIXI.Container {
     const isReady = this.hostToken.document.getFlag('mastery-system', 'divineClashReady') || false;
     
     // Check if vitality is 0 (character is out for the round)
+    // For PCs, use divineClashVitality flag only (no vitality stones)
     const vitality = this.hostToken.document.getFlag('mastery-system', 'divineClashVitality');
-    const vitalityStones = this.hostToken.document.getFlag('mastery-system', 'divineClashOverlay')?.vitality || [];
-    const isOutOfRound = vitalityStones.length === 0 || (vitality && vitality.current !== undefined && vitality.current <= 0);
+    const isOutOfRound = (vitality && vitality.current !== undefined && vitality.current <= 0);
     
     const shouldBlock = isReady || !enabled || isOutOfRound;
     
@@ -2308,12 +2297,6 @@ class DivineClashOverlay extends PIXI.Container {
     }
     this.stoneSprites.clear();
     
-    // Destroy group dropdown
-    if (this.groupDropdown) {
-      this.groupDropdown.destroy();
-      this.groupDropdown = null;
-    }
-    
     // Destroy unlock ready button
     if (this.unlockReadyButton) {
       this.unlockReadyButton.destroy();
@@ -2375,6 +2358,11 @@ function registerHooks() {
         }
       }
     }
+    
+    // Update team vitality display when vitality changes
+    if (updateData.flags?.['mastery-system']?.divineClashVitality !== undefined) {
+      updateTeamVitalityDisplay();
+    }
   });
   
   // Update overlay position when token refreshes or moves
@@ -2385,11 +2373,6 @@ function registerHooks() {
       
       // Update visibility
       token._dcOverlay.updateVisibility();
-      
-      // Update dropdown position
-      if (token._dcOverlay.groupDropdown) {
-        token._dcOverlay.groupDropdown.updatePosition();
-      }
       
       // Ensure overlay is still attached to canvas.tokens
       if (token._dcOverlay.parent !== canvas.tokens && canvas.tokens) {
@@ -2406,19 +2389,14 @@ function registerHooks() {
         }
       }
     }
+    
+    // Update team vitality display text (HUD position is fixed, only text updates)
+    updateTeamVitalityDisplay();
   });
   
-  // Update dropdown positions when canvas pans/zooms
-  Hooks.on('canvasPan', () => {
-    if (!canvas || !canvas.tokens) {
-      return;
-    }
-    
-    canvas.tokens.placeables.forEach(token => {
-      if (token._dcOverlay && token._dcOverlay.groupDropdown) {
-        token._dcOverlay.groupDropdown.updatePosition();
-      }
-    });
+  // Reposition team vitality display when canvas pans/zooms (world center changes)
+  Hooks.on("canvasPan", () => {
+    positionTeamVitalityDisplay();
   });
   
   // Re-position all character overlays when a new one is created (for even distribution)
@@ -2596,6 +2574,16 @@ async function initializeDivineClashOverlays() {
       console.log(`Divine Clash | [DEBUG] Initialized flags for ${actor.name}: vitality=${vitalityStoneIds.length}, pool=${poolStoneIds.length}, attack=${attackStoneIds.length}, defense=${defenseStoneIds.length}`);
       await hostToken.document.setFlag('mastery-system', 'divineClashOverlay', flags);
       
+      // Initialize divineClashVitality flag for both NPCs and PCs (vitalityCount already declared above)
+      const existingVitality = hostToken.document.getFlag('mastery-system', 'divineClashVitality');
+      if (!existingVitality) {
+        await hostToken.document.setFlag('mastery-system', 'divineClashVitality', {
+          current: vitalityCount,
+          max: vitalityCount
+        });
+        console.log(`Divine Clash | Initialized divineClashVitality for ${hostToken.name}: ${vitalityCount}`);
+      }
+      
       const totalStones = vitalityStoneIds.length + poolStoneIds.length + attackStoneIds.length + defenseStoneIds.length;
       console.log(`Divine Clash | Initialized ${totalStones} stones for ${hostToken.name} from actor data`);
     } else {
@@ -2643,6 +2631,10 @@ async function initializeDivineClashOverlays() {
         token._dcOverlay.updateWorldPosition();
       }
     });
+    
+    // Create and update team vitality display
+    createTeamVitalityDisplay();
+    updateTeamVitalityDisplay();
   }, 100);
   
   console.log(`Divine Clash | [DEBUG] Processing complete. Processed ${tokensToProcess.length} token(s)`);
@@ -2659,157 +2651,27 @@ async function initializeDivineClashOverlays() {
  * Returns array of { id, type:"solo"|"group", members:[Token], repToken:Token }
  */
 function buildCombatantsFromJoinFlags(npcToken) {
-  const combatants = [];
-  const processedTokens = new Set();
-  const tokenToCombatant = new Map();
-  
-  // Get all PC tokens on the scene (with overlays)
-  const allPCTokens = canvas.tokens?.placeables.filter(token => {
+  // Always return exactly 1 team combatant containing all PCs with overlays
+  const allPCTokensWithOverlay = canvas.tokens?.placeables.filter(token => {
     if (!token.actor) return false;
     const actor = token.actor;
-    return actor.type === 'character' && token._dcOverlay; // Only tokens with overlays
+    return actor.type === 'character' && token._dcOverlay;
   }) || [];
   
-  // First pass: build solo combatants and group roots
-  for (const token of allPCTokens) {
-    if (processedTokens.has(token.id)) continue;
-    
-    const participation = token.document.getFlag('mastery-system', 'divineClashParticipation');
-    if (!participation || !participation.npcTokenId || participation.npcTokenId !== npcToken.id) {
-      continue; // Not participating in this NPC's combat
-    }
-    
-    if (participation.mode === 'solo') {
-      // Solo combatant
-      const combatant = {
-        id: `solo-${token.id}`,
-        type: 'solo',
-        members: [token],
-        repToken: token
-      };
-      combatants.push(combatant);
-      tokenToCombatant.set(token.id, combatant);
-      processedTokens.add(token.id);
-    } else if (participation.mode === 'join' && participation.joinTo) {
-      // Group member - find root
-      let rootTokenId = participation.joinTo;
-      let currentToken = token;
-      
-      // Follow join chain to find root
-      const visited = new Set([token.id]);
-      while (rootTokenId && rootTokenId !== currentToken.id) {
-        if (visited.has(rootTokenId)) {
-          // Circular reference, use current token as root
-          break;
-        }
-        visited.add(rootTokenId);
-        
-        const targetToken = canvas.tokens?.placeables.find(t => t.id === rootTokenId);
-        if (!targetToken) break;
-        
-        const targetParticipation = targetToken.document.getFlag('mastery-system', 'divineClashParticipation');
-        if (!targetParticipation || targetParticipation.mode === 'solo') {
-          // Found root
-          break;
-        } else if (targetParticipation.mode === 'join' && targetParticipation.joinTo) {
-          rootTokenId = targetParticipation.joinTo;
-          currentToken = targetToken;
-        } else {
-          break;
-        }
-      }
-      
-      // Use rootTokenId as the group identifier
-      if (!tokenToCombatant.has(rootTokenId)) {
-        // Create new group
-        const combatant = {
-          id: `group-${rootTokenId}`,
-          type: 'group',
-          members: [],
-          repToken: null
-        };
-        combatants.push(combatant);
-        tokenToCombatant.set(rootTokenId, combatant);
-      }
-    }
+  if (allPCTokensWithOverlay.length === 0) {
+    console.log(`Divine Clash | buildCombatantsFromJoinFlags: No PC tokens with overlays found`);
+    return [];
   }
   
-  // Second pass: add all group members
-  for (const token of allPCTokens) {
-    if (processedTokens.has(token.id)) continue;
-    
-    const participation = token.document.getFlag('mastery-system', 'divineClashParticipation');
-    if (!participation || !participation.npcTokenId || participation.npcTokenId !== npcToken.id) {
-      continue;
-    }
-    
-    if (participation.mode === 'join' && participation.joinTo) {
-      // Find root
-      let rootTokenId = participation.joinTo;
-      let currentToken = token;
-      const visited = new Set([token.id]);
-      
-      while (rootTokenId && rootTokenId !== currentToken.id) {
-        if (visited.has(rootTokenId)) break;
-        visited.add(rootTokenId);
-        
-        const targetToken = canvas.tokens?.placeables.find(t => t.id === rootTokenId);
-        if (!targetToken) break;
-        
-        const targetParticipation = targetToken.document.getFlag('mastery-system', 'divineClashParticipation');
-        if (!targetParticipation || targetParticipation.mode === 'solo') {
-          break;
-        } else if (targetParticipation.mode === 'join' && targetParticipation.joinTo) {
-          rootTokenId = targetParticipation.joinTo;
-          currentToken = targetToken;
-        } else {
-          break;
-        }
-      }
-      
-      const combatant = tokenToCombatant.get(rootTokenId);
-      if (combatant && combatant.type === 'group') {
-        combatant.members.push(token);
-        if (!combatant.repToken) {
-          // Use root token as representative
-          combatant.repToken = canvas.tokens?.placeables.find(t => t.id === rootTokenId) || token;
-        }
-        processedTokens.add(token.id);
-      }
-    }
-  }
+  const combatant = {
+    id: 'team',
+    type: 'group',
+    members: allPCTokensWithOverlay,
+    repToken: allPCTokensWithOverlay[0]
+  };
   
-  // Set repToken for groups that don't have one
-  for (const combatant of combatants) {
-    if (combatant.type === 'group' && !combatant.repToken && combatant.members.length > 0) {
-      combatant.repToken = combatant.members[0];
-    }
-  }
-  
-  // Fallback: If no combatants found from flags, create solo combatants for all PC tokens with overlays
-  if (combatants.length === 0) {
-    const pcTokensWithOverlays = canvas.tokens?.placeables.filter(token => {
-      if (!token.actor) return false;
-      const actor = token.actor;
-      return actor.type === 'character' && token._dcOverlay;
-    }) || [];
-    
-    if (pcTokensWithOverlays.length > 0) {
-      console.log(`Divine Clash | buildCombatantsFromJoinFlags: No combatants from flags, creating solo combatants for ${pcTokensWithOverlays.length} PC(s)`);
-      for (const token of pcTokensWithOverlays) {
-        const combatant = {
-          id: `solo-${token.id}`,
-          type: 'solo',
-          members: [token],
-          repToken: token
-        };
-        combatants.push(combatant);
-      }
-    }
-  }
-  
-  console.log(`Divine Clash | buildCombatantsFromJoinFlags: Returning ${combatants.length} combatant(s)`);
-  return combatants;
+  console.log(`Divine Clash | buildCombatantsFromJoinFlags: Returning 1 team combatant with ${allPCTokensWithOverlay.length} member(s)`);
+  return [combatant];
 }
 
 /**
@@ -3584,6 +3446,12 @@ async function resetDivineClash() {
   if (queueMarkerContainer) {
     queueMarkerContainer.destroy();
     queueMarkerContainer = null;
+  }
+  
+  // Destroy team vitality display
+  const teamVitalityDisplay = document.getElementById('dc-team-vitality');
+  if (teamVitalityDisplay && teamVitalityDisplay.parentNode) {
+    teamVitalityDisplay.parentNode.removeChild(teamVitalityDisplay);
   }
   
   // Reinitialize all overlays

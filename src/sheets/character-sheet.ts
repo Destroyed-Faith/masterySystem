@@ -531,7 +531,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // No need to calculate here - just use the derived values from system.combat
     
     // Add skills list (sorted alphabetically)
-    context.skills = this.#prepareSkills(context.system.skills);
+    context.skills = this.#prepareSkills(context.system.skills || {}, context.system.skillsSpent || {});
     
     // Prepare disadvantages
     context.disadvantages = context.system.disadvantages || [];
@@ -918,7 +918,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   /**
    * Prepare skills for display
    */
-  #prepareSkills(skillValues: Record<string, number> = {}) {
+  #prepareSkills(skillValues: Record<string, number> = {}, skillsSpent: Record<string, number> = {}) {
     const skillsByCategory: Record<string, any[]> = {};
     
     // Group skills by category
@@ -928,12 +928,18 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         skillsByCategory[category] = [];
       }
       
+      const value = skillValues[key] || 0;
+      const spent = skillsSpent[key] || 0;
+      const remaining = Math.max(0, value - spent);
+      
       skillsByCategory[category].push({
         key,
         name: definition.name,
         category: definition.category,
         attributes: definition.attributes,
-        value: skillValues[key] || 0
+        value,
+        spent,
+        remaining
       });
     }
     
@@ -995,6 +1001,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('.skill-roll').on('click', this.#onSkillRoll.bind(this));
     html.find('.skill-roll-compact').on('click', this.#onSkillRoll.bind(this));
     html.find('.save-roll-btn').on('click', this.#onSavingThrowRoll.bind(this));
+    
+    // Safe Haven Rest button
+    html.find('.safe-haven-rest').on('click', this.#onSafeHavenRest.bind(this));
     
     // Point spending buttons (JavaScript will check permissions)
     html.find('.attribute-spend-point').on('click', this.#onAttributeSpendPoint.bind(this));
@@ -1396,24 +1405,147 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   async #onSkillRoll(event: JQuery.ClickEvent) {
     event.preventDefault();
     const element = event.currentTarget;
-    const skill = element.dataset.skill;
+    const skillName = element.dataset.skill;
     
-    if (!skill) return;
+    if (!skillName) return;
     
-    // Default to Wits for skill rolls (can be customized)
-    const attribute = 'wits';
+    // Get skill definition from SKILLS
+    const skillDef = SKILLS[skillName];
+    if (!skillDef) {
+      ui.notifications?.error(`Skill "${skillName}" not found in skill definitions.`);
+      return;
+    }
+    
+    // Determine attribute to use
+    let attribute: string;
+    if (skillDef.attributes.length === 1) {
+      // Single attribute - use it directly
+      attribute = skillDef.attributes[0];
+    } else {
+      // Multiple attributes - show dialog for selection
+      const selectedAttribute = await this.#promptForSkillAttribute(skillName, skillDef.attributes);
+      if (!selectedAttribute) return; // User cancelled
+      attribute = selectedAttribute;
+    }
     
     // Prompt for TN
     const tn = await this.#promptForTN();
     if (tn === null) return;
     
+    // Get remaining pool for flavor text
+    const system = (this.actor as any).system;
+    const skillRating = system.skills?.[skillName] || 0;
+    const skillsSpent = system.skillsSpent?.[skillName] || 0;
+    const remainingPool = Math.max(0, skillRating - skillsSpent);
+    
+    const flavorText = `Skill: ${skillDef.name} (Pool ${remainingPool}/${skillRating})`;
+    
     await quickRoll(
       this.actor,
       attribute,
-      skill,
+      skillName,
       tn,
-      `${skill.charAt(0).toUpperCase() + skill.slice(1)} Check`
+      `${skillDef.name} Check`,
+      undefined, // modifier
+      flavorText
     );
+  }
+  
+  /**
+   * Prompt for skill attribute selection when skill has multiple attributes
+   */
+  async #promptForSkillAttribute(skillName: string, attributes: string[]): Promise<string | null> {
+    const skillDef = SKILLS[skillName];
+    const skillLabel = skillDef?.name || skillName;
+    
+    const content = `
+      <form>
+        <div class="form-group">
+          <label>Select Attribute for ${skillLabel}:</label>
+          <div class="button-group">
+            ${attributes.map(attr => `
+              <button type="button" data-attribute="${attr}" class="attribute-select-btn">
+                ${attr.charAt(0).toUpperCase() + attr.slice(1)}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      </form>
+    `;
+    
+    return new Promise((resolve) => {
+      let selectedAttribute: string | null = null;
+      
+      const dialog = new Dialog({
+        title: `Select Attribute for ${skillLabel}`,
+        content,
+        buttons: {
+          cancel: {
+            label: 'Cancel',
+            callback: () => resolve(null)
+          }
+        },
+        default: 'cancel',
+        render: (html: JQuery) => {
+          html.find('.attribute-select-btn').on('click', (event) => {
+            selectedAttribute = event.currentTarget.dataset.attribute || null;
+            if (selectedAttribute) {
+              dialog.close();
+              resolve(selectedAttribute);
+            }
+          });
+        },
+        close: () => {
+          if (!selectedAttribute) {
+            resolve(null);
+          }
+        }
+      } as any);
+      
+      dialog.render(true);
+    });
+  }
+
+  /**
+   * Handle Safe Haven Rest - reset all skillsSpent to 0
+   */
+  async #onSafeHavenRest(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    
+    // Check if user is owner
+    if (!this.actor.isOwner) {
+      (ui as any).notifications?.warn('Only the owner can use Safe Haven Rest.');
+      return;
+    }
+    
+    const { SKILLS } = await import('../utils/skills.js');
+    const skillsSpent: Record<string, number> = {};
+    
+    // Reset all skills to 0 spent
+    for (const skillKey of Object.keys(SKILLS)) {
+      skillsSpent[skillKey] = 0;
+    }
+    
+    // Also reset any existing skills in actor.system.skills
+    const system = (this.actor as any).system;
+    if (system.skills && typeof system.skills === 'object') {
+      for (const skillKey of Object.keys(system.skills)) {
+        if (!skillsSpent.hasOwnProperty(skillKey)) {
+          skillsSpent[skillKey] = 0;
+        }
+      }
+    }
+    
+    await this.actor.update({ 'system.skillsSpent': skillsSpent });
+    
+    console.log('Mastery System | Safe Haven Rest: Reset all skill points', {
+      actorId: this.actor.id,
+      actorName: this.actor.name,
+      skillsReset: Object.keys(skillsSpent).length
+    });
+    
+    (ui as any).notifications?.info('All Skill Points restored!');
+    this.render();
   }
 
   /**

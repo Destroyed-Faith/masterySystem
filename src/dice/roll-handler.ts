@@ -9,11 +9,14 @@ import { EXPLODE_VALUE, RAISE_INCREMENT } from '../utils/constants';
 export interface RollOptions {
   numDice: number;          // Number of dice to roll (Attribute value)
   keepDice: number;         // Number of dice to keep (Mastery Rank)
-  skill: number;            // Skill bonus (flat addition)
+  skill: number;            // Skill bonus (flat addition) - DEPRECATED: now handled via skill spending
   tn?: number;              // Target Number (optional)
   label?: string;           // Label for the roll
   flavor?: string;          // Flavor text
   actorId?: string;         // Actor making the roll
+  skillKey?: string;        // Skill key for skill rolls (enables post-roll spending)
+  isSkillRoll?: boolean;    // Flag indicating this is a skill roll
+  baseModifier?: number;    // Base modifier (situational, not skill-based)
 }
 
 /**
@@ -147,7 +150,7 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
   });
   
   // Create result object
-  const result: MasteryRollResult & { keptIndices?: number[] } = {
+  const result: MasteryRollResult & { keptIndices?: number[], label?: string, flavor?: string } = {
     total,
     dice,
     kept: keptValues,
@@ -156,7 +159,9 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
     tn,
     raises,
     success,
-    exploded
+    exploded,
+    label,
+    flavor
   };
   
   console.log('Mastery System | DEBUG: Sending roll to chat', {
@@ -166,7 +171,7 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
   });
   
   // Send to chat
-  await sendRollToChat(result, label, flavor, options.actorId);
+  await sendRollToChat(result, label, flavor, options.actorId, options.skillKey, options.isSkillRoll, options.baseModifier);
   
   console.log('Mastery System | DEBUG: Roll complete, returning result', result);
   
@@ -180,13 +185,25 @@ async function sendRollToChat(
   result: MasteryRollResult,
   label: string,
   flavor: string,
-  actorId?: string
+  actorId?: string,
+  skillKey?: string,
+  isSkillRoll?: boolean,
+  baseModifier?: number
 ): Promise<void> {
   try {
     // Get actor if available
     let actor = null;
     if (actorId && (game as any).actors) {
       actor = (game as any).actors.get(actorId);
+    }
+    
+    // For skill rolls, get remaining skill pool
+    let remainingPool = 0;
+    if (isSkillRoll && skillKey && actor) {
+      const actorData = (actor as any).system;
+      const skillRating = actorData.skills?.[skillKey] || 0;
+      const skillsSpent = actorData.skillsSpent?.[skillKey] || 0;
+      remainingPool = Math.max(0, skillRating - skillsSpent);
     }
     
     // Create a Foundry Roll object to display dice visually
@@ -302,8 +319,14 @@ async function sendRollToChat(
             </div>
             ${result.skill > 0 ? `
               <div class="breakdown-line">
-                <span>Skill Bonus:</span>
+                <span>Skill Points Spent:</span>
                 <span class="value">+${result.skill}</span>
+              </div>
+            ` : ''}
+            ${baseModifier && baseModifier !== 0 ? `
+              <div class="breakdown-line">
+                <span>Modifier:</span>
+                <span class="value">${baseModifier >= 0 ? '+' : ''}${baseModifier}</span>
               </div>
             ` : ''}
             <div class="breakdown-line total">
@@ -331,6 +354,32 @@ async function sendRollToChat(
             </div>
           ` : ''}
         </div>
+        
+        ${isSkillRoll && skillKey && actorId ? `
+          <div class="skill-spend-panel">
+            <div class="skill-spend-header">
+              <h4>Spend Skill Points</h4>
+              <span class="skill-pool-info">Pool: ${remainingPool}/${(actor as any).system?.skills?.[skillKey] || 0}</span>
+            </div>
+            ${remainingPool > 0 ? `
+              <div class="skill-spend-buttons">
+                ${(() => {
+                  const MR = (actor as any).system?.mastery?.rank || 2;
+                  let buttons = '';
+                  // Generate step buttons: MR, 2MR, 3MR, ... up to remainingPool
+                  for (let step = MR; step <= remainingPool; step += MR) {
+                    buttons += `<button type="button" class="skill-spend-btn" data-action="spend-skill" data-spend="${step}" data-skill-key="${skillKey}" data-actor-id="${actorId}">Spend ${step}</button>`;
+                  }
+                  // Always show All-in button if there's remaining pool
+                  buttons += `<button type="button" class="skill-spend-btn skill-spend-allin" data-action="spend-skill-allin" data-spend="${remainingPool}" data-skill-key="${skillKey}" data-actor-id="${actorId}">All-in (${remainingPool})</button>`;
+                  return buttons;
+                })()}
+              </div>
+            ` : `
+              <div class="skill-spend-empty">No Skill Points remaining</div>
+            `}
+          </div>
+        ` : ''}
       </div>
     `;
     
@@ -346,7 +395,12 @@ async function sendRollToChat(
       flags: {
         'mastery-system': {
           rollResult: result,
-          canReroll: true
+          canReroll: true,
+          isSkillRoll: isSkillRoll || false,
+          skillKey: skillKey || null,
+          actorId: actorId || null,
+          baseModifier: baseModifier || 0,
+          skillSpentApplied: false
         }
       }
     };
@@ -370,7 +424,8 @@ export async function quickRoll(
   skillName?: string,
   tn?: number,
   label?: string,
-  modifier?: number
+  modifier?: number,
+  flavor?: string
 ): Promise<MasteryRollResult> {
   const actorData = actor.system as any;
   
@@ -380,8 +435,9 @@ export async function quickRoll(
   // Get mastery rank (number to keep)
   const keepDice = actorData.mastery?.rank || 1;
   
-  // Get skill bonus or use provided modifier
-  const skill = modifier !== undefined ? modifier : (skillName ? (actorData.skills?.[skillName] || 0) : 0);
+  // For skill rolls, do NOT auto-add skill bonus - it's now a consumable resource spent after the roll
+  // Only use provided modifier if explicitly given (for non-skill rolls or situational modifiers)
+  const skill = modifier !== undefined ? modifier : 0;
   
   // Apply health penalty (reduces dice pool)
   const { getCurrentPenalty } = await import('../utils/calculations.js');
@@ -395,7 +451,20 @@ export async function quickRoll(
   
   // Build label
   const rollLabel = label || `${attributeName.charAt(0).toUpperCase() + attributeName.slice(1)} Roll`;
-  let flavorText = skillName ? `with ${skillName} skill` : (modifier !== undefined ? `modifier: ${modifier >= 0 ? '+' : ''}${modifier}` : '');
+  let flavorText = flavor || '';
+  
+  // If no flavor provided, build default
+  if (!flavorText) {
+    if (skillName) {
+      // For skill rolls, show pool info
+      const skillRating = actorData.skills?.[skillName] || 0;
+      const skillsSpent = actorData.skillsSpent?.[skillName] || 0;
+      const remainingPool = Math.max(0, skillRating - skillsSpent);
+      flavorText = `Skill: ${skillName} (Pool ${remainingPool}/${skillRating})`;
+    } else if (modifier !== undefined) {
+      flavorText = `modifier: ${modifier >= 0 ? '+' : ''}${modifier}`;
+    }
+  }
   
   // Add health penalty to flavor if applicable
   if (healthPenalty < 0) {
@@ -405,6 +474,7 @@ export async function quickRoll(
   
   console.log('Mastery System | quickRoll with health penalty', {
     attributeName,
+    skillName,
     baseNumDice: actorData.attributes?.[attributeName]?.value || 0,
     healthPenalty,
     adjustedNumDice: numDice,
@@ -415,11 +485,14 @@ export async function quickRoll(
   return await masteryRoll({
     numDice,
     keepDice,
-    skill,
+    skill: 0, // Always 0 now - skill points are spent after roll
     tn,
     label: rollLabel,
     flavor: flavorText,
-    actorId: (actor as any).id
+    actorId: (actor as any).id,
+    skillKey: skillName,
+    isSkillRoll: !!skillName,
+    baseModifier: modifier
   });
 }
 

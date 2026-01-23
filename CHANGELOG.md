@@ -2,6 +2,51 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.90] - 2025-01-XX
+
+### Added
+- **Consumable Skill Points System**
+  - Skills are now consumable resources (Pool = Skill Rating)
+  - Skill Points can be spent AFTER rolling (post-roll decision)
+  - Spending rules: minimum MR, then in steps of MR (MR, 2MR, 3MR, ...)
+  - All-in option: spend entire remaining pool (even if < MR or not multiple of MR)
+  - Only 1 skill per roll
+  - All Skill Points refresh after "Safe Haven Rest" button click
+  - Added `skillsSpent` data model to track consumed skill points per skill
+  - Migration automatically initializes `skillsSpent` for all existing characters
+
+- **Character Sheet: Skill Pool Display**
+  - Shows "Pool: X/Y" next to each skill (remaining/total)
+  - Safe Haven Rest button in Skills tab to restore all skill points
+  - Visual feedback for remaining skill points
+
+- **Chat: Skill Spend UI**
+  - Skill rolls show "Spend Skill Points" panel in chat
+  - Buttons for spending in MR steps (MR, 2MR, 3MR, ...)
+  - All-in button to spend remaining pool
+  - Real-time pool display updates
+  - Final result = Sum of kept dice + spent Skill Points + base modifier
+
+### Changed
+- **Skill Rolls: Removed Auto-Add**
+  - Skill Rating no longer automatically added to rolls
+  - Skills must be spent manually after seeing the roll result
+  - Attribute selection dialog for skills with multiple attributes
+
+- **Initiative Calculation**
+  - Removed permanent initiative bonuses from Martial Skills
+  - Initiative = Agility + Wits (no longer includes Combat Reflexes)
+  - Martial Skills cannot permanently increase Initiative/Attack/Evade
+
+- **Skill Attribute Mappings**
+  - Empathy: now uses `['wits', 'influence']` (was `['wits', 'resolve']`)
+
+### Technical
+- Added `skill-spend-handler.ts` for chat message click handling
+- Extended `RollOptions` interface with `skillKey`, `isSkillRoll`, `baseModifier`
+- Updated `sendRollToChat` to include skill spend UI
+- Migration hook ensures all characters have `skillsSpent` initialized
+
 ## [0.2.84] - 2025-01-XX
 
 ### Added

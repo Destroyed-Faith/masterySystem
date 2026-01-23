@@ -120,7 +120,7 @@ export const SKILLS: Record<string, SkillDefinition> = {
   },
   empathy: {
     name: 'Empathy',
-    attributes: ['wits', 'resolve'], // Note: "Spirit" mapped to "resolve"
+    attributes: ['wits', 'influence'],
     category: SKILL_CATEGORIES.SOCIAL
   },
 

@@ -685,3 +685,98 @@
   background: linear-gradient(135deg, rgba(63, 107, 84, 0.2) 50%, rgba(202, 178, 113, 0.2) 50%);
   border-color: rgba(202, 178, 113, 0.4);
 }
+
+/* --- Skill Spend Panel --- */
+.ms-theme-rulebook #chat-log .skill-spend-panel {
+  background: rgba(0,0,0,0.12);
+  border: 1px solid var(--ms-border);
+  border-radius: 8px;
+  padding: 8px;
+  margin-top: 8px;
+}
+
+.ms-theme-rulebook #chat-log .skill-spend-panel .skill-spend-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed rgba(255,255,255,0.08);
+}
+
+.ms-theme-rulebook #chat-log .skill-spend-panel .skill-spend-header h4 {
+  font-family: var(--ms-font-head);
+  color: var(--ms-muted);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  font-size: 12px;
+  margin: 0;
+}
+
+.ms-theme-rulebook #chat-log .skill-spend-panel .skill-pool-info {
+  color: var(--ms-muted);
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.ms-theme-rulebook #chat-log .skill-spend-panel .skill-spend-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ms-theme-rulebook #chat-log .skill-spend-panel .skill-spend-btn {
+  background: rgba(255,255,255,0.06);
+  color: var(--ms-text);
+  border: 1px solid var(--ms-border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-family: var(--ms-font-head);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ms-theme-rulebook #chat-log .skill-spend-panel .skill-spend-btn:hover:not(:disabled) {
+  border-color: rgba(202, 178, 113, 0.55);
+  box-shadow: 0 0 0 1px rgba(202, 178, 113, 0.18) inset;
+  color: var(--ms-muted);
+}
+
+.ms-theme-rulebook #chat-log .skill-spend-panel .skill-spend-btn:disabled,
+.ms-theme-rulebook #chat-log .skill-spend-panel .skill-spend-btn.disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.ms-theme-rulebook #chat-log .skill-spend-panel .skill-spend-allin {
+  border-color: rgba(202, 178, 113, 0.4);
+  background: rgba(202, 178, 113, 0.1);
+}
+
+.ms-theme-rulebook #chat-log .skill-spend-panel .skill-spend-allin:hover:not(:disabled) {
+  border-color: rgba(202, 178, 113, 0.6);
+  box-shadow: 0 0 0 1px rgba(202, 178, 113, 0.25) inset;
+}
+
+.ms-theme-rulebook #chat-log .skill-spend-panel .skill-spend-empty {
+  color: var(--ms-muted);
+  font-size: 11px;
+  opacity: 0.7;
+  text-align: center;
+  padding: 8px;
+}
+
+.ms-theme-rulebook #chat-log .skill-spend-panel.skill-spend-applied {
+  border-color: rgba(63, 107, 84, 0.4);
+  background: rgba(63, 107, 84, 0.08);
+}
+
+.ms-theme-rulebook #chat-log .skill-spend-panel .skill-spend-applied-message {
+  color: var(--ms-muted);
+  font-size: 11px;
+  text-align: center;
+  padding: 4px 0;
+}

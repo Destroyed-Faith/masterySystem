@@ -153,6 +153,7 @@
         "maximum": 100
       },
       "skills": {},
+      "skillsSpent": {},
       "savingThrows": {
         "might": 0,
         "agility": 0,

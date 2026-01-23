@@ -1539,6 +1539,7 @@ Hooks.on('createActor', async (actor: any, _options: any, _userId: string) => {
 /**
  * Migration hook - set creationComplete=true for existing characters without the flag
  * Also migrate old stone system to new per-attribute stone pools
+ * Also migrate skillsSpent for new consumable skill system
  */
 Hooks.once('ready', async function() {
   console.log('Mastery System | Running character creation migration...');
@@ -1547,6 +1548,7 @@ Hooks.once('ready', async function() {
   const characters = (game as any).actors?.filter((a: any) => a.type === 'character') || [];
   let migratedCreation = 0;
   let migratedStones = 0;
+  let migratedSkillsSpent = 0;
   
   for (const actor of characters) {
     const system = (actor as any).system;
@@ -1555,6 +1557,59 @@ Hooks.once('ready', async function() {
     if (system?.creation?.complete === undefined || system?.creation?.complete === null) {
       await actor.update({ 'system.creation.complete': true });
       migratedCreation++;
+    }
+    
+    // Migration: skillsSpent initialization
+    if (!system?.skillsSpent || typeof system.skillsSpent !== 'object') {
+      console.log(`Mastery System | SkillsSpent migration: Initializing for ${actor.name}`);
+      const { SKILLS } = await import('./utils/skills.js');
+      const skillsSpent: Record<string, number> = {};
+      
+      // Initialize all skills from SKILLS with 0 spent
+      for (const skillKey of Object.keys(SKILLS)) {
+        skillsSpent[skillKey] = 0;
+      }
+      
+      // Also ensure any existing skills in actor.system.skills have entries
+      if (system.skills && typeof system.skills === 'object') {
+        for (const skillKey of Object.keys(system.skills)) {
+          if (!skillsSpent.hasOwnProperty(skillKey)) {
+            skillsSpent[skillKey] = 0;
+          }
+        }
+      }
+      
+      await actor.update({ 'system.skillsSpent': skillsSpent });
+      migratedSkillsSpent++;
+      console.log(`Mastery System | SkillsSpent migration: Initialized ${Object.keys(skillsSpent).length} skills for ${actor.name}`);
+    } else {
+      // Ensure all skills from SKILLS exist in skillsSpent
+      const { SKILLS } = await import('./utils/skills.js');
+      const skillsSpent = { ...(system.skillsSpent || {}) };
+      let needsUpdate = false;
+      
+      for (const skillKey of Object.keys(SKILLS)) {
+        if (!skillsSpent.hasOwnProperty(skillKey)) {
+          skillsSpent[skillKey] = 0;
+          needsUpdate = true;
+        }
+        // Clamp: 0 <= skillsSpent[skillKey] <= skills[skillKey]
+        const skillRating = system.skills?.[skillKey] || 0;
+        if (skillsSpent[skillKey] < 0) {
+          skillsSpent[skillKey] = 0;
+          needsUpdate = true;
+        }
+        if (skillsSpent[skillKey] > skillRating) {
+          skillsSpent[skillKey] = skillRating;
+          needsUpdate = true;
+        }
+      }
+      
+      if (needsUpdate) {
+        await actor.update({ 'system.skillsSpent': skillsSpent });
+        migratedSkillsSpent++;
+        console.log(`Mastery System | SkillsSpent migration: Updated skills for ${actor.name}`);
+      }
     }
     
     // Migration 2: Old stone system -> new stonePools
@@ -1650,6 +1705,10 @@ Hooks.once('ready', async function() {
   
   if (migratedStones > 0) {
     console.log(`Mastery System | Migrated ${migratedStones} characters from old stone system to per-attribute pools`);
+  }
+  
+  if (migratedSkillsSpent > 0) {
+    console.log(`Mastery System | SkillsSpent migration: Migrated ${migratedSkillsSpent} characters`);
   }
 });
 
@@ -1755,6 +1814,10 @@ Hooks.on('preUpdateItem', async (item: any, changes: any, _options: any, _userId
 Hooks.once('ready', async () => {
   // Register attack roll click handler
   registerAttackRollClickHandler();
+  
+  // Register skill spend click handler
+  const { registerSkillSpendClickHandler } = await import('./chat/skill-spend-handler.js');
+  registerSkillSpendClickHandler();
   
   // Migration: Add default weapon to existing actors if missing
   console.log('Mastery System | Running equipment migration...');
