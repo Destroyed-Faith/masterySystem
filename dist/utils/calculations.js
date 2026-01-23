@@ -162,15 +162,15 @@ export function healDamage(bars, currentBar, healing) {
 }
 /**
  * Calculate Stress Bar maximum
- * Each bar = (Resolve + Wits) × 2
+ * Each bar = Resolve + Wits (no multiplier)
  */
 export function calculateStressBarMax(resolve, wits) {
-    return (resolve + wits) * 2;
+    return resolve + wits;
 }
 /**
  * Initialize stress bars with proper max values
- * 5 bars: Healthy, Stressed, Not Well, Breaking, Breakdown
- * Each bar = (Resolve + Wits) × 2 boxes
+ * 4 bars: Healthy, Stressed, Not Well, Breaking
+ * Each bar = Resolve + Wits boxes
  */
 export function initializeStressBars(resolve, wits) {
     const maxStress = calculateStressBarMax(resolve, wits);
@@ -195,12 +195,6 @@ export function initializeStressBars(resolve, wits) {
         },
         {
             name: 'Breaking',
-            max: maxStress,
-            current: maxStress,
-            penalty: 0
-        },
-        {
-            name: 'Breakdown',
             max: maxStress,
             current: maxStress,
             penalty: 0

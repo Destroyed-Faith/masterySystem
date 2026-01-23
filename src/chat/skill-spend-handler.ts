@@ -183,7 +183,7 @@ export function registerSkillSpendClickHandler(): void {
               </div>
               <div class="breakdown-line">
                 <span>Dice Rolled:</span>
-                <span class="value">${rollResult.dice.map((d, i) => {
+                <span class="value">${rollResult.dice.map((d: number, i: number) => {
                   const isKept = keptIndices.includes(i);
                   return isKept ? `<strong>${d}</strong>` : d;
                 }).join(', ')}</span>

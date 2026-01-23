@@ -11,6 +11,9 @@ export interface RollOptions {
     label?: string;
     flavor?: string;
     actorId?: string;
+    skillKey?: string;
+    isSkillRoll?: boolean;
+    baseModifier?: number;
 }
 /**
  * Perform a Mastery System roll
@@ -22,7 +25,7 @@ export declare function masteryRoll(options: RollOptions): Promise<MasteryRollRe
  * Quick roll from actor
  * Helper function to make rolling easier
  */
-export declare function quickRoll(actor: Actor, attributeName: string, skillName?: string, tn?: number, label?: string, modifier?: number): Promise<MasteryRollResult>;
+export declare function quickRoll(actor: Actor, attributeName: string, skillName?: string, tn?: number, label?: string, modifier?: number, flavor?: string): Promise<MasteryRollResult>;
 declare const _default: {
     masteryRoll: typeof masteryRoll;
     quickRoll: typeof quickRoll;

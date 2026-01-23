@@ -4,7 +4,8 @@
  */
 /**
  * Calculate base initiative for an actor
- * Base = Agility + Wits + Combat Reflexes
+ * Base = Agility + Wits
+ * Note: Martial Skills (including Combat Reflexes) no longer provide permanent initiative bonuses
  */
 export declare function calculateBaseInitiative(actor: any): number;
 /**

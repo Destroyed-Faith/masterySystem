@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.91] - 2025-01-XX
+
+### Changed
+- **Skill Roll Dialog: Enhanced Options**
+  - Skill rolls now open a comprehensive dialog before rolling
+  - Attribute selection: Dropdown when skill has multiple attributes, auto-selected for single attribute
+  - Base Target Number: MR-scaled difficulties (Trivial/Easy/Standard/Challenging/Hard/Very Hard/Heroic) plus Custom option
+  - Raises input: Set raises (0..n) with live Final-TN display (Final-TN = Base-TN + Raises×4)
+  - Dicepool correctly uses selected attribute value (not hardcoded)
+
+- **Skill Point Spending: Post-Roll Dialog**
+  - When a skill roll fails, a "Spend Skill Points" dialog automatically opens
+  - Shows available pool, MR step size, and missing points to succeed
+  - Step buttons for spending in MR increments (MR, 2MR, 3MR, ...)
+  - All-in button to spend remaining pool (even if < MR or not multiple of MR)
+  - Validates spending rules: minimum MR, multiples of MR (except All-in)
+  - Skill points are persistently tracked in `system.skillsSpent[skillKey]`
+
+- **Followup Chat Messages**
+  - After spending skill points, a followup chat message shows:
+    - Skill name, attribute used, Base-TN, Raises, Final-TN
+    - Rolled total, skill points spent, final total
+    - Success/Failure result and raises achieved
+
+### Fixed
+- Skill rolls now correctly use the selected attribute's value for dicepool size
+- Multi-attribute skills properly show attribute selection dialog
+
 ## [0.2.90] - 2025-01-XX
 
 ### Added

@@ -110,7 +110,7 @@ export const SKILLS = {
     },
     empathy: {
         name: 'Empathy',
-        attributes: ['wits', 'resolve'], // Note: "Spirit" mapped to "resolve"
+        attributes: ['wits', 'influence'],
         category: SKILL_CATEGORIES.SOCIAL
     },
     // Survival Skills

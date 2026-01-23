@@ -767,7 +767,7 @@
                 <div class="skill-value-display-compact">
                   <span class="skill-value-compact">{{default this.value 0}}</span>
                   {{#if ../creationComplete}}
-                  <span class="skill-pool-display">Pool: {{default this.remaining 0}}/{{default this.value 0}}</span>
+                  <span class="skill-pool-display">{{default this.value 0}} ({{default this.remaining 0}} left)</span>
                   <button type="button" class="skill-spend-point" data-skill="{{this.key}}" title="Spend Mastery Point (Cost: {{default this.value 0}} pts)">
                     <i class="fas fa-arrow-up"></i>
                   </button>

@@ -96,7 +96,7 @@ function calculateRaises(total: number, tn: number): number {
  * Dice explode on 8
  */
 export async function masteryRoll(options: RollOptions): Promise<MasteryRollResult> {
-  const { numDice, keepDice, skill, tn = 0, label = 'Roll', flavor = '' } = options;
+  const { numDice, keepDice, skill = 0, tn = 0, label = 'Roll', flavor = '' } = options;
   
   console.log('Mastery System | DEBUG: masteryRoll called', {
     numDice,
@@ -133,7 +133,7 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
     totalBeforeSkill: diceTotal
   });
   
-  // Add skill bonus
+  // Add skill bonus (deprecated: now handled via skill spending, but kept for compatibility)
   const total = diceTotal + skill;
   
   // Calculate success and raises
@@ -437,7 +437,7 @@ export async function quickRoll(
   
   // For skill rolls, do NOT auto-add skill bonus - it's now a consumable resource spent after the roll
   // Only use provided modifier if explicitly given (for non-skill rolls or situational modifiers)
-  const skill = modifier !== undefined ? modifier : 0;
+  const skillBonus = modifier !== undefined ? modifier : 0;
   
   // Apply health penalty (reduces dice pool)
   const { getCurrentPenalty } = await import('../utils/calculations.js');
@@ -485,7 +485,7 @@ export async function quickRoll(
   return await masteryRoll({
     numDice,
     keepDice,
-    skill: 0, // Always 0 now - skill points are spent after roll
+    skill: skillBonus, // Use modifier if provided, otherwise 0 (for skill rolls, skill points are spent after roll)
     tn,
     label: rollLabel,
     flavor: flavorText,

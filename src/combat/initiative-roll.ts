@@ -17,15 +17,7 @@ function getAttributeValue(actor: any, attributeName: string): number {
   return attr.value || 0;
 }
 
-/**
- * Get skill value from actor
- */
-function getSkillValue(actor: any, skillName: string): number {
-  if (!actor || !actor.system) return 0;
-  const system = actor.system as any;
-  const skills = system.skills || {};
-  return skills[skillName] || 0;
-}
+// Removed getSkillValue - no longer needed after removing combatReflexes from initiative
 
 /**
  * Get mastery rank from actor

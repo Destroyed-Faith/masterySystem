@@ -59,13 +59,13 @@ export declare function applyDamage(bars: HealthBar[], currentBar: number, damag
 export declare function healDamage(bars: HealthBar[], currentBar: number, healing: number): void;
 /**
  * Calculate Stress Bar maximum
- * Each bar = (Resolve + Wits) × 2
+ * Each bar = Resolve + Wits (no multiplier)
  */
 export declare function calculateStressBarMax(resolve: number, wits: number): number;
 /**
  * Initialize stress bars with proper max values
- * 5 bars: Healthy, Stressed, Not Well, Breaking, Breakdown
- * Each bar = (Resolve + Wits) × 2 boxes
+ * 4 bars: Healthy, Stressed, Not Well, Breaking
+ * Each bar = Resolve + Wits boxes
  */
 export declare function initializeStressBars(resolve: number, wits: number): HealthBar[];
 /**

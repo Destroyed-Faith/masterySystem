@@ -15,16 +15,7 @@ function getAttributeValue(actor, attributeName) {
     const attr = attributes[attributeName.toLowerCase()] || {};
     return attr.value || 0;
 }
-/**
- * Get skill value from actor
- */
-function getSkillValue(actor, skillName) {
-    if (!actor || !actor.system)
-        return 0;
-    const system = actor.system;
-    const skills = system.skills || {};
-    return skills[skillName] || 0;
-}
+// Removed getSkillValue - no longer needed after removing combatReflexes from initiative
 /**
  * Get mastery rank from actor
  */
@@ -36,13 +27,13 @@ function getMasteryRank(actor) {
 }
 /**
  * Calculate base initiative for an actor
- * Base = Agility + Wits + Combat Reflexes
+ * Base = Agility + Wits
+ * Note: Martial Skills (including Combat Reflexes) no longer provide permanent initiative bonuses
  */
 export function calculateBaseInitiative(actor) {
     const agility = getAttributeValue(actor, 'agility');
     const wits = getAttributeValue(actor, 'wits');
-    const combatReflexes = getSkillValue(actor, 'combatReflexes');
-    return agility + wits + combatReflexes;
+    return agility + wits;
 }
 /**
  * Roll initiative for a combatant

@@ -1248,14 +1248,13 @@ Hooks.on('preCreateActor', async (actor, data, _options, _userId) => {
             if (!data.system.stress) {
                 const resolve = data.system.attributes?.resolve?.value || 2;
                 const wits = data.system.attributes?.wits?.value || 2;
-                const maxStress = (resolve + wits) * 2;
+                const maxStress = resolve + wits;
                 data.system.stress = {
                     bars: [
                         { name: 'Healthy', max: maxStress, current: maxStress, penalty: 0 },
                         { name: 'Stressed', max: maxStress, current: maxStress, penalty: 0 },
                         { name: 'Not Well', max: maxStress, current: maxStress, penalty: 0 },
-                        { name: 'Breaking', max: maxStress, current: maxStress, penalty: 0 },
-                        { name: 'Breakdown', max: maxStress, current: maxStress, penalty: 0 }
+                        { name: 'Breaking', max: maxStress, current: maxStress, penalty: 0 }
                     ],
                     currentBar: 0
                 };
@@ -1265,14 +1264,13 @@ Hooks.on('preCreateActor', async (actor, data, _options, _userId) => {
                 if (!data.system.stress.bars || data.system.stress.bars.length === 0) {
                     const resolve = data.system.attributes?.resolve?.value || 2;
                     const wits = data.system.attributes?.wits?.value || 2;
-                    const maxStress = (resolve + wits) * 2;
+                    const maxStress = resolve + wits;
                     const oldCurrent = data.system.stress.current || 0;
                     data.system.stress.bars = [
                         { name: 'Healthy', max: maxStress, current: maxStress, penalty: 0 },
                         { name: 'Stressed', max: maxStress, current: maxStress, penalty: 0 },
                         { name: 'Not Well', max: maxStress, current: maxStress, penalty: 0 },
-                        { name: 'Breaking', max: maxStress, current: maxStress, penalty: 0 },
-                        { name: 'Breakdown', max: maxStress, current: maxStress, penalty: 0 }
+                        { name: 'Breaking', max: maxStress, current: maxStress, penalty: 0 }
                     ];
                     data.system.stress.currentBar = 0;
                     // Distribute old stress
@@ -1291,19 +1289,26 @@ Hooks.on('preCreateActor', async (actor, data, _options, _userId) => {
                         }
                     }
                 }
-                else if (data.system.stress.bars.length < 5) {
-                    // Add missing bars
+                else if (data.system.stress.bars.length < 4) {
+                    // Add missing bars (4 bars total)
                     const resolve = data.system.attributes?.resolve?.value || 2;
                     const wits = data.system.attributes?.wits?.value || 2;
-                    const maxStress = (resolve + wits) * 2;
-                    const allBarNames = ['Healthy', 'Stressed', 'Not Well', 'Breaking', 'Breakdown'];
-                    for (let i = data.system.stress.bars.length; i < 5; i++) {
+                    const maxStress = resolve + wits;
+                    const allBarNames = ['Healthy', 'Stressed', 'Not Well', 'Breaking'];
+                    for (let i = data.system.stress.bars.length; i < 4; i++) {
                         data.system.stress.bars.push({
                             name: allBarNames[i],
                             max: maxStress,
                             current: maxStress,
                             penalty: 0
                         });
+                    }
+                }
+                else if (data.system.stress.bars.length > 4) {
+                    // Remove extra bars (keep only first 4)
+                    data.system.stress.bars = data.system.stress.bars.slice(0, 4);
+                    if (data.system.stress.currentBar >= 4) {
+                        data.system.stress.currentBar = 3;
                     }
                 }
                 if (data.system.stress.currentBar === undefined) {
@@ -1378,6 +1383,7 @@ Hooks.on('createActor', async (actor, _options, _userId) => {
 /**
  * Migration hook - set creationComplete=true for existing characters without the flag
  * Also migrate old stone system to new per-attribute stone pools
+ * Also migrate skillsSpent for new consumable skill system
  */
 Hooks.once('ready', async function () {
     console.log('Mastery System | Running character creation migration...');
@@ -1385,12 +1391,61 @@ Hooks.once('ready', async function () {
     const characters = game.actors?.filter((a) => a.type === 'character') || [];
     let migratedCreation = 0;
     let migratedStones = 0;
+    let migratedSkillsSpent = 0;
     for (const actor of characters) {
         const system = actor.system;
         // Migration 1: creation.complete flag
         if (system?.creation?.complete === undefined || system?.creation?.complete === null) {
             await actor.update({ 'system.creation.complete': true });
             migratedCreation++;
+        }
+        // Migration: skillsSpent initialization
+        if (!system?.skillsSpent || typeof system.skillsSpent !== 'object') {
+            console.log(`Mastery System | SkillsSpent migration: Initializing for ${actor.name}`);
+            const { SKILLS } = await import('./utils/skills.js');
+            const skillsSpent = {};
+            // Initialize all skills from SKILLS with 0 spent
+            for (const skillKey of Object.keys(SKILLS)) {
+                skillsSpent[skillKey] = 0;
+            }
+            // Also ensure any existing skills in actor.system.skills have entries
+            if (system.skills && typeof system.skills === 'object') {
+                for (const skillKey of Object.keys(system.skills)) {
+                    if (!skillsSpent.hasOwnProperty(skillKey)) {
+                        skillsSpent[skillKey] = 0;
+                    }
+                }
+            }
+            await actor.update({ 'system.skillsSpent': skillsSpent });
+            migratedSkillsSpent++;
+            console.log(`Mastery System | SkillsSpent migration: Initialized ${Object.keys(skillsSpent).length} skills for ${actor.name}`);
+        }
+        else {
+            // Ensure all skills from SKILLS exist in skillsSpent
+            const { SKILLS } = await import('./utils/skills.js');
+            const skillsSpent = { ...(system.skillsSpent || {}) };
+            let needsUpdate = false;
+            for (const skillKey of Object.keys(SKILLS)) {
+                if (!skillsSpent.hasOwnProperty(skillKey)) {
+                    skillsSpent[skillKey] = 0;
+                    needsUpdate = true;
+                }
+                // Clamp: 0 <= skillsSpent[skillKey] <= skills[skillKey]
+                const skillRating = system.skills?.[skillKey] || 0;
+                if (skillsSpent[skillKey] < 0) {
+                    skillsSpent[skillKey] = 0;
+                    needsUpdate = true;
+                }
+                if (skillsSpent[skillKey] > skillRating) {
+                    skillsSpent[skillKey] = skillRating;
+                    needsUpdate = true;
+                }
+            }
+            if (needsUpdate) {
+                await actor.update({ 'system.skillsSpent': skillsSpent });
+                migratedSkillsSpent++;
+                console.log(`Mastery System | SkillsSpent migration: Updated skills for ${actor.name}`);
+            }
         }
         // Migration 2: Old stone system -> new stonePools
         // Check if old system exists (system.stones.current/maximum) but new system doesn't (system.stonePools)
@@ -1466,6 +1521,9 @@ Hooks.once('ready', async function () {
     }
     if (migratedStones > 0) {
         console.log(`Mastery System | Migrated ${migratedStones} characters from old stone system to per-attribute pools`);
+    }
+    if (migratedSkillsSpent > 0) {
+        console.log(`Mastery System | SkillsSpent migration: Migrated ${migratedSkillsSpent} characters`);
     }
 });
 /**
@@ -1558,6 +1616,9 @@ Hooks.on('preUpdateItem', async (item, changes, _options, _userId) => {
 Hooks.once('ready', async () => {
     // Register attack roll click handler
     registerAttackRollClickHandler();
+    // Register skill spend click handler
+    const { registerSkillSpendClickHandler } = await import('./chat/skill-spend-handler.js');
+    registerSkillSpendClickHandler();
     // Migration: Add default weapon to existing actors if missing
     console.log('Mastery System | Running equipment migration...');
     const actors = game.actors?.filter((a) => a.type === 'character' || a.type === 'npc') || [];

@@ -1405,104 +1405,435 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   async #onSkillRoll(event: JQuery.ClickEvent) {
     event.preventDefault();
     const element = event.currentTarget;
-    const skillName = element.dataset.skill;
+    const skillKey = element.dataset.skill;
     
-    if (!skillName) return;
+    if (!skillKey) return;
     
     // Get skill definition from SKILLS
-    const skillDef = SKILLS[skillName];
+    const skillDef = SKILLS[skillKey];
     if (!skillDef) {
-      ui.notifications?.error(`Skill "${skillName}" not found in skill definitions.`);
+      ui.notifications?.error(`Skill "${skillKey}" not found in skill definitions.`);
       return;
     }
     
-    // Determine attribute to use
-    let attribute: string;
-    if (skillDef.attributes.length === 1) {
-      // Single attribute - use it directly
-      attribute = skillDef.attributes[0];
-    } else {
-      // Multiple attributes - show dialog for selection
-      const selectedAttribute = await this.#promptForSkillAttribute(skillName, skillDef.attributes);
-      if (!selectedAttribute) return; // User cancelled
-      attribute = selectedAttribute;
-    }
+    // Prompt for roll options (attribute, base TN, raises)
+    const rollOptions = await this.#promptForSkillRollOptions(skillKey, skillDef);
+    if (!rollOptions) return; // User cancelled
     
-    // Prompt for TN
-    const tn = await this.#promptForTN();
-    if (tn === null) return;
-    
-    // Get remaining pool for flavor text
+    // Perform the roll
     const system = (this.actor as any).system;
-    const skillRating = system.skills?.[skillName] || 0;
-    const skillsSpent = system.skillsSpent?.[skillName] || 0;
-    const remainingPool = Math.max(0, skillRating - skillsSpent);
+    const attributeValue = system.attributes?.[rollOptions.attributeKey]?.value || 0;
+    const masteryRank = system.mastery?.rank || 2;
     
-    const flavorText = `Skill: ${skillDef.name} (Pool ${remainingPool}/${skillRating})`;
+    const { masteryRoll } = await import('../dice/roll-handler.js');
+    const rollResult = await masteryRoll({
+      numDice: attributeValue,
+      keepDice: masteryRank,
+      skill: 0, // No auto skill bonus
+      tn: rollOptions.finalTN,
+      label: `${skillDef.name} Check`,
+      flavor: `Attribute: ${rollOptions.attributeKey.charAt(0).toUpperCase() + rollOptions.attributeKey.slice(1)}, Base TN: ${rollOptions.baseTN}, Raises: ${rollOptions.raises}`,
+      actorId: (this.actor as any).id,
+      skillKey: skillKey,
+      isSkillRoll: true,
+      baseModifier: 0
+    });
     
-    await quickRoll(
-      this.actor,
-      attribute,
-      skillName,
-      tn,
-      `${skillDef.name} Check`,
-      undefined, // modifier
-      flavorText
-    );
+    // If roll failed, prompt for skill point spending
+    if (!rollResult.success && rollResult.tn > 0) {
+      const spendAmount = await this.#promptSpendSkillPoints(
+        skillKey,
+        skillDef.name,
+        rollResult.total,
+        rollOptions.finalTN,
+        rollOptions.attributeKey,
+        rollOptions.baseTN,
+        rollOptions.raises
+      );
+      
+      if (spendAmount !== null && spendAmount > 0) {
+        // Update actor skillsSpent
+        const currentSpent = system.skillsSpent?.[skillKey] || 0;
+        const newSpent = currentSpent + spendAmount;
+        await this.actor.update({
+          [`system.skillsSpent.${skillKey}`]: newSpent
+        });
+        
+        // Calculate final total
+        const finalTotal = rollResult.total + spendAmount;
+        const finalSuccess = finalTotal >= rollOptions.finalTN;
+        const finalRaises = finalSuccess ? Math.floor((finalTotal - rollOptions.finalTN) / 4) : 0;
+        
+        // Post followup chat message
+        await this.#postSkillRollFollowup(
+          skillKey,
+          skillDef.name,
+          rollOptions.attributeKey,
+          rollOptions.baseTN,
+          rollOptions.raises,
+          rollOptions.finalTN,
+          rollResult.total,
+          spendAmount,
+          finalTotal,
+          finalSuccess,
+          finalRaises
+        );
+      }
+    }
   }
   
   /**
-   * Prompt for skill attribute selection when skill has multiple attributes
+   * Prompt for skill roll options (attribute, base TN, raises)
    */
-  async #promptForSkillAttribute(skillName: string, attributes: string[]): Promise<string | null> {
-    const skillDef = SKILLS[skillName];
-    const skillLabel = skillDef?.name || skillName;
+  async #promptForSkillRollOptions(_skillKey: string, skillDef: any): Promise<{attributeKey: string, baseTN: number, raises: number, finalTN: number} | null> {
+    const system = (this.actor as any).system;
+    const masteryRank = system.mastery?.rank || 2;
+    const standardTN = masteryRank * 8;
+    
+    // Calculate difficulty TNs based on MR
+    const difficulties = {
+      trivial: standardTN - 8,
+      easy: standardTN - 4,
+      standard: standardTN,
+      challenging: standardTN + 4,
+      hard: standardTN + 8,
+      veryHard: standardTN + 12,
+      heroic: standardTN + 16
+    };
+    
+    const hasMultipleAttributes = skillDef.attributes.length > 1;
+    const defaultAttribute = skillDef.attributes[0];
     
     const content = `
       <form>
+        ${hasMultipleAttributes ? `
+          <div class="form-group">
+            <label>Attribute:</label>
+            <select name="attribute" id="skill-roll-attribute" style="width: 100%;">
+              ${skillDef.attributes.map((attr: string) => `
+                <option value="${attr}" ${attr === defaultAttribute ? 'selected' : ''}>
+                  ${attr.charAt(0).toUpperCase() + attr.slice(1)} (${system.attributes?.[attr]?.value || 0})
+                </option>
+              `).join('')}
+            </select>
+          </div>
+        ` : `
+          <input type="hidden" name="attribute" value="${defaultAttribute}" />
+          <div class="form-group">
+            <label>Attribute:</label>
+            <div style="padding: 4px; color: var(--df-text-muted, #888);">
+              ${defaultAttribute.charAt(0).toUpperCase() + defaultAttribute.slice(1)} (${system.attributes?.[defaultAttribute]?.value || 0})
+            </div>
+          </div>
+        `}
+        
         <div class="form-group">
-          <label>Select Attribute for ${skillLabel}:</label>
-          <div class="button-group">
-            ${attributes.map(attr => `
-              <button type="button" data-attribute="${attr}" class="attribute-select-btn">
-                ${attr.charAt(0).toUpperCase() + attr.slice(1)}
-              </button>
-            `).join('')}
+          <label>Base Target Number:</label>
+          <select name="baseTN" id="skill-roll-baseTN" style="width: 100%;">
+            <option value="${difficulties.trivial}">Trivial (${difficulties.trivial})</option>
+            <option value="${difficulties.easy}">Easy (${difficulties.easy})</option>
+            <option value="${difficulties.standard}" selected>Standard (${difficulties.standard})</option>
+            <option value="${difficulties.challenging}">Challenging (${difficulties.challenging})</option>
+            <option value="${difficulties.hard}">Hard (${difficulties.hard})</option>
+            <option value="${difficulties.veryHard}">Very Hard (${difficulties.veryHard})</option>
+            <option value="${difficulties.heroic}">Heroic (${difficulties.heroic})</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+        
+        <div class="form-group" id="custom-tn-group" style="display: none;">
+          <label>Custom Target Number:</label>
+          <input type="number" name="customTN" id="skill-roll-customTN" value="${difficulties.standard}" min="0" step="1" style="width: 100%;" />
+        </div>
+        
+        <div class="form-group">
+          <label>Raises:</label>
+          <input type="number" name="raises" id="skill-roll-raises" value="0" min="0" step="1" style="width: 100%;" />
+          <div style="font-size: 11px; color: var(--df-text-muted, #888); margin-top: 4px;">
+            Final TN: <span id="final-tn-display">${difficulties.standard}</span>
           </div>
         </div>
       </form>
     `;
     
     return new Promise((resolve) => {
-      let selectedAttribute: string | null = null;
-      
       const dialog = new Dialog({
-        title: `Select Attribute for ${skillLabel}`,
+        title: `Roll ${skillDef.name}`,
         content,
         buttons: {
+          roll: {
+            label: 'Roll',
+            callback: (html: JQuery) => {
+              const attributeKey = html.find('[name="attribute"]').val() as string;
+              const baseTNSelect = html.find('[name="baseTN"]').val() as string;
+              let baseTN: number;
+              
+              if (baseTNSelect === 'custom') {
+                baseTN = parseInt(html.find('[name="customTN"]').val() as string) || 0;
+              } else {
+                baseTN = parseInt(baseTNSelect) || difficulties.standard;
+              }
+              
+              const raises = parseInt(html.find('[name="raises"]').val() as string) || 0;
+              const finalTN = baseTN + (raises * 4);
+              
+              resolve({
+                attributeKey,
+                baseTN,
+                raises,
+                finalTN
+              });
+            }
+          },
           cancel: {
             label: 'Cancel',
             callback: () => resolve(null)
           }
         },
-        default: 'cancel',
+        default: 'roll',
         render: (html: JQuery) => {
-          html.find('.attribute-select-btn').on('click', (event) => {
-            selectedAttribute = event.currentTarget.dataset.attribute || null;
-            if (selectedAttribute) {
-              dialog.close();
-              resolve(selectedAttribute);
-            }
+          // Show/hide custom TN input
+          html.find('[name="baseTN"]').on('change', function() {
+            const isCustom = $(this).val() === 'custom';
+            html.find('#custom-tn-group').toggle(isCustom);
           });
-        },
-        close: () => {
-          if (!selectedAttribute) {
-            resolve(null);
-          }
+          
+          // Update final TN display
+          const updateFinalTN = () => {
+            const baseTNSelect = html.find('[name="baseTN"]').val() as string;
+            let baseTN: number;
+            if (baseTNSelect === 'custom') {
+              baseTN = parseInt(html.find('[name="customTN"]').val() as string) || 0;
+            } else {
+              baseTN = parseInt(baseTNSelect) || difficulties.standard;
+            }
+            const raises = parseInt(html.find('[name="raises"]').val() as string) || 0;
+            const finalTN = baseTN + (raises * 4);
+            html.find('#final-tn-display').text(finalTN);
+          };
+          
+          html.find('[name="baseTN"], [name="customTN"], [name="raises"]').on('change input', updateFinalTN);
+          updateFinalTN();
         }
       } as any);
       
       dialog.render(true);
+    });
+  }
+  
+  /**
+   * Prompt for spending skill points after failed roll
+   */
+  async #promptSpendSkillPoints(
+    skillKey: string,
+    skillName: string,
+    currentTotal: number,
+    targetTN: number,
+    _attributeKey: string,
+    _baseTN: number,
+    _raises: number
+  ): Promise<number | null> {
+    const system = (this.actor as any).system;
+    const skillRating = system.skills?.[skillKey] || 0;
+    const currentSpent = system.skillsSpent?.[skillKey] || 0;
+    const available = Math.max(0, skillRating - currentSpent);
+    const MR = system.mastery?.rank || 2;
+    const missing = Math.max(0, targetTN - currentTotal);
+    
+    if (available === 0) {
+      ui.notifications?.warn(`No skill points available for ${skillName}.`);
+      return null;
+    }
+    
+    // Calculate step options
+    const stepOptions: number[] = [];
+    for (let step = MR; step <= available; step += MR) {
+      stepOptions.push(step);
+    }
+    
+    const content = `
+      <form>
+        <div class="form-group">
+          <label><strong>${skillName}</strong></label>
+          <div style="font-size: 11px; color: var(--df-text-muted, #888); margin: 4px 0;">
+            Available: <strong>${available}</strong> / ${skillRating}<br/>
+            MR Step: <strong>${MR}</strong><br/>
+            Missing: <strong>${missing}</strong> (need ${targetTN - currentTotal} to succeed)
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Spend Skill Points:</label>
+          <input type="number" name="spend" id="skill-spend-amount" value="${Math.min(available, Math.max(MR, missing))}" min="0" max="${available}" step="${MR}" style="width: 100%;" />
+        </div>
+        
+        <div class="form-group">
+          <div class="button-group" style="display: flex; gap: 6px; flex-wrap: wrap;">
+            ${stepOptions.map(step => `
+              <button type="button" class="spend-step-btn" data-step="${step}">Spend ${step}</button>
+            `).join('')}
+            ${available > 0 ? `
+              <button type="button" class="spend-allin-btn" data-step="${available}">All-in (${available})</button>
+            ` : ''}
+          </div>
+        </div>
+        
+        <div class="form-group" style="font-size: 11px; color: var(--df-text-muted, #888); margin-top: 8px;">
+          <div>Current Total: <strong>${currentTotal}</strong></div>
+          <div>After Spend: <strong><span id="after-spend-total">${currentTotal}</span></strong></div>
+          <div>Target TN: <strong>${targetTN}</strong></div>
+          <div>Result: <strong><span id="spend-result">-</span></span></div>
+        </div>
+      </form>
+    `;
+    
+    return new Promise((resolve) => {
+      const dialog = new Dialog({
+        title: `Spend Skill Points: ${skillName}`,
+        content,
+        buttons: {
+          spend: {
+            label: 'Spend',
+            callback: (html: JQuery) => {
+              const spendAmount = parseInt(html.find('[name="spend"]').val() as string) || 0;
+              
+              // Validation
+              if (spendAmount <= 0) {
+                ui.notifications?.warn('Must spend at least 1 skill point.');
+                return false;
+              }
+              
+              if (spendAmount > available) {
+                ui.notifications?.warn(`Cannot spend ${spendAmount} points. Only ${available} available.`);
+                return false;
+              }
+              
+              // Check if it's a valid step (multiple of MR) or all-in
+              const isAllIn = spendAmount === available;
+              const isValidStep = spendAmount % MR === 0;
+              
+              if (!isAllIn && !isValidStep) {
+                ui.notifications?.warn(`Must spend in multiples of ${MR} (Mastery Rank), or use All-in.`);
+                return false;
+              }
+              
+              if (!isAllIn && spendAmount < MR) {
+                ui.notifications?.warn(`Must spend at least ${MR} skill points (Mastery Rank).`);
+                return false;
+              }
+              
+              resolve(spendAmount);
+              return true;
+            }
+          },
+          cancel: {
+            label: 'Cancel',
+            callback: () => resolve(null)
+          }
+        },
+        default: 'spend',
+        render: (html: JQuery) => {
+          // Update display when spend amount changes
+          const updateDisplay = () => {
+            const spendAmount = parseInt(html.find('[name="spend"]').val() as string) || 0;
+            const afterTotal = currentTotal + spendAmount;
+            const success = afterTotal >= targetTN;
+            html.find('#after-spend-total').text(afterTotal);
+            html.find('#spend-result').text(success ? 'SUCCESS' : 'FAILURE').css('color', success ? '#3f6b54' : '#7b3a3a');
+          };
+          
+          html.find('[name="spend"]').on('input change', updateDisplay);
+          
+          // Step buttons
+          html.find('.spend-step-btn, .spend-allin-btn').on('click', function() {
+            const step = parseInt($(this).data('step') || '0');
+            html.find('[name="spend"]').val(step);
+            updateDisplay();
+          });
+          
+          updateDisplay();
+        }
+      } as any);
+      
+      dialog.render(true);
+    });
+  }
+  
+  /**
+   * Post followup chat message after skill point spending
+   */
+  async #postSkillRollFollowup(
+    _skillKey: string,
+    skillName: string,
+    attributeKey: string,
+    baseTN: number,
+    raises: number,
+    finalTN: number,
+    rolledTotal: number,
+    spendAmount: number,
+    finalTotal: number,
+    success: boolean,
+    finalRaises: number
+  ): Promise<void> {
+    const content = `
+      <div class="mastery-roll">
+        <div class="roll-header">
+          <h3>${skillName} - Skill Points Spent</h3>
+        </div>
+        
+        <div class="roll-details">
+          <div class="roll-breakdown">
+            <div class="breakdown-line">
+              <span>Attribute:</span>
+              <span class="value">${attributeKey.charAt(0).toUpperCase() + attributeKey.slice(1)}</span>
+            </div>
+            <div class="breakdown-line">
+              <span>Base TN:</span>
+              <span class="value">${baseTN}</span>
+            </div>
+            <div class="breakdown-line">
+              <span>Raises:</span>
+              <span class="value">${raises}</span>
+            </div>
+            <div class="breakdown-line">
+              <span>Final TN:</span>
+              <span class="value">${finalTN}</span>
+            </div>
+            <div class="breakdown-line">
+              <span>Rolled Total:</span>
+              <span class="value">${rolledTotal}</span>
+            </div>
+            <div class="breakdown-line">
+              <span>Skill Points Spent:</span>
+              <span class="value">+${spendAmount}</span>
+            </div>
+            <div class="breakdown-line total">
+              <span><strong>Final Total:</strong></span>
+              <span class="value"><strong>${finalTotal}</strong></span>
+            </div>
+          </div>
+          
+          <div class="roll-result ${success ? 'success' : 'failure'}">
+            <div class="result-line">
+              <span><strong>Result:</strong></span>
+              <span class="value"><strong>${success ? 'SUCCESS' : 'FAILURE'}</strong></span>
+            </div>
+            ${finalRaises > 0 ? `
+              <div class="result-line">
+                <span><strong>Raises:</strong></span>
+                <span class="value"><strong>${finalRaises}</strong></span>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+    
+    await ChatMessage.create({
+      user: (game as any).user?.id,
+      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+      content,
+      sound: CONFIG.sounds.dice
     });
   }
 

@@ -161,7 +161,7 @@ export class MasteryActor extends Actor {
                         }
                     }
                 }
-                // Initialize stress bars (5 bars: Healthy, Stressed, Not Well, Breaking, Breakdown)
+                // Initialize stress bars (4 bars: Healthy, Stressed, Not Well, Breaking)
                 const resolve = system.attributes.resolve?.value || 2;
                 const wits = system.attributes.wits?.value || 2;
                 const maxStress = calculateStressBarMax(resolve, wits);
@@ -214,16 +214,23 @@ export class MasteryActor extends Actor {
                             }
                         }
                     }
-                    else if (system.stress.bars.length < 5) {
-                        // Add missing bars
-                        const allBarNames = ['Healthy', 'Stressed', 'Not Well', 'Breaking', 'Breakdown'];
-                        for (let i = system.stress.bars.length; i < 5; i++) {
+                    else if (system.stress.bars.length < 4) {
+                        // Add missing bars (4 bars total)
+                        const allBarNames = ['Healthy', 'Stressed', 'Not Well', 'Breaking'];
+                        for (let i = system.stress.bars.length; i < 4; i++) {
                             system.stress.bars.push({
                                 name: allBarNames[i],
                                 max: maxStress,
                                 current: maxStress,
                                 penalty: 0
                             });
+                        }
+                    }
+                    else if (system.stress.bars.length > 4) {
+                        // Remove extra bars (keep only first 4)
+                        system.stress.bars = system.stress.bars.slice(0, 4);
+                        if (system.stress.currentBar >= 4) {
+                            system.stress.currentBar = 3;
                         }
                     }
                     // Update max stress for all bars
