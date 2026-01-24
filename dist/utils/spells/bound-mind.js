@@ -4,7 +4,7 @@
 export const BOUND_MIND_SPELLS = [
     {
         name: 'Telekinetic Manipulation',
-        school: 'Bound Mind',
+        school: 'School of the Bound Mind',
         spellType: 'active',
         description: 'Move or lift objects with the power of your mind.',
         levels: [
@@ -16,7 +16,7 @@ export const BOUND_MIND_SPELLS = [
     },
     {
         name: 'Telepathic Link',
-        school: 'Bound Mind',
+        school: 'School of the Bound Mind',
         spellType: 'utility',
         description: 'Establish a mental connection for silent communication.',
         levels: [
@@ -28,7 +28,7 @@ export const BOUND_MIND_SPELLS = [
     },
     {
         name: 'Veil of Invisibility',
-        school: 'Bound Mind',
+        school: 'School of the Bound Mind',
         spellType: 'utility',
         description: 'Become invisible to sight and other senses.',
         levels: [
@@ -40,7 +40,7 @@ export const BOUND_MIND_SPELLS = [
     },
     {
         name: 'Phantasmic Reflection',
-        school: 'Bound Mind',
+        school: 'School of the Bound Mind',
         spellType: 'active',
         description: 'Create illusory images that confuse attackers.',
         levels: [

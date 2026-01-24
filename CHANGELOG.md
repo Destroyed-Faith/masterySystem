@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.95] - 2025-01-XX
+
+### Fixed
+- **Spell Selection Dialog: Magic Powers Integration**
+  - Fixed 404 error when loading spells in the "Add Spell" dialog
+  - Updated `magic-powers.ts` to import and convert all spells from spell schools
+  - Converted `SpellDefinition` to `PowerDefinition` format for compatibility
+  - Fixed school name mapping for "School of the Bound Mind"
+  - All 38 spells are now available for selection in the character sheet
+
 ## [0.2.94] - 2025-01-XX
 
 ### Added

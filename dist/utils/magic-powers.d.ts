@@ -2,12 +2,11 @@
  * Magic Powers (Spell School Powers) Index
  *
  * This file provides access to magic powers organized by spell school.
- * Similar structure to mastery powers but for spell schools.
+ * Converts SpellDefinition to PowerDefinition format for compatibility.
  */
 import type { PowerDefinition } from './powers/types.js';
 /**
  * All magic powers from all spell schools
- * This will be populated as spell definitions are added
  */
 export declare const ALL_MAGIC_POWERS: PowerDefinition[];
 /**
