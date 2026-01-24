@@ -24,6 +24,8 @@ import { showShieldCreationDialog } from './character-sheet-shield-dialog.js';
 const BaseActorSheet: any = (foundry as any)?.appv1?.sheets?.ActorSheet || (ActorSheet as any);
 
 export class MasteryCharacterSheet extends BaseActorSheet {
+  private _showStash: boolean = false;
+
   /** @override */
   static get defaultOptions() {
     const baseOptions = super.defaultOptions || {};
@@ -39,7 +41,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           initial: 'attributes'
         }
       ],
-      dragDrop: [{ dragSelector: '.item-list .item', dropSelector: null }],
+      dragDrop: [
+        { dragSelector: '.item-list .item', dropSelector: null },
+        { dragSelector: '.df-draggable-item', dropSelector: '.df-dropzone' }
+      ],
       scrollY: ['.attributes', '.skills', '.powers', '.equipment']
     });
     console.log('Mastery System | Character Sheet defaultOptions:', options);
@@ -550,6 +555,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       context.items = this.#prepareItems();
     }
     
+    // Build Equipment UI Context
+    context.equipmentUi = this.#prepareEquipmentUi(context.items);
+    
     // Add active buffs data - ALWAYS set as array, even if empty
     context.activeBuffs = [];
     try {
@@ -708,6 +716,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const shields: any[] = [];
     const weapons: any[] = [];
     const armor: any[] = [];
+    const gear: any[] = [];
     
     // Ensure we iterate over all items correctly (handle both Collection and Array)
     const items = this.actor.items;
@@ -721,7 +730,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           powers.push(itemData);
           break;
         case 'gear':
-          // Gear items are handled separately if needed
+          gear.push(itemData);
           break;
         case 'echo':
           echoes.push(itemData);
@@ -771,7 +780,146 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       shields,
       conditions,
       weapons,
-      armor
+      armor,
+      gear
+    };
+  }
+
+  /**
+   * Prepare Equipment UI Context
+   */
+  #prepareEquipmentUi(items: any) {
+    const BAND_COLS = 8;
+    const BAND_ROWS = 7;
+    const BAND_SIZE = BAND_COLS * BAND_ROWS;
+    const STASH_COLS = 10;
+    const STASH_ROWS = 6;
+    const STASH_SIZE = STASH_COLS * STASH_ROWS;
+
+    // Collect all equipment items
+    const equipmentItems: any[] = [
+      ...(items.weapons || []),
+      ...(items.armor || []),
+      ...(items.shields || []),
+      ...(items.gear || []),
+      ...(items.artifacts || [])
+    ];
+
+    // Helper: convert items array to cells array
+    const toCells = (itemList: any[], size: number) => {
+      const cells = Array(size).fill(null);
+      let overflow = 0;
+      for (let i = 0; i < itemList.length; i++) {
+        if (i < size) {
+          cells[i] = itemList[i];
+        } else {
+          overflow++;
+        }
+      }
+      return { cells, overflow };
+    };
+
+    // Read flags and split items
+    const inventoryItems: any[] = [];
+    const stashItems: any[] = [];
+    const notItems: any[] = [];
+    const encItems: any[] = [];
+    const heavyItems: any[] = [];
+    const slotMap: Record<string, any> = {};
+
+    for (const item of equipmentItems) {
+      const flags = item.getFlag?.('mastery-system', 'equipment') || {};
+      const container = flags.container ?? 'inventory';
+      const band = flags.band ?? 'not';
+      const slot = flags.slot ?? null;
+
+      // Backward compatibility: if item.system.equipped is true and no slot flag
+      if (!slot && (item.system as any)?.equipped === true) {
+        if (item.type === 'weapon') {
+          slotMap['mainhand'] = item;
+          continue;
+        } else if (item.type === 'shield') {
+          slotMap['offhand'] = item;
+          continue;
+        } else if (item.type === 'armor') {
+          slotMap['chest'] = item;
+          continue;
+        }
+      }
+
+      if (slot) {
+        // Only first item per slot (ring1/ring2 handled separately)
+        if (!slotMap[slot] || (slot === 'ring1' || slot === 'ring2')) {
+          if (slot === 'ring1' || slot === 'ring2') {
+            if (!slotMap[slot]) {
+              slotMap[slot] = item;
+            }
+          } else {
+            slotMap[slot] = item;
+          }
+        }
+      } else if (container === 'stash') {
+        stashItems.push(item);
+      } else {
+        inventoryItems.push(item);
+        if (band === 'not') {
+          notItems.push(item);
+        } else if (band === 'enc') {
+          encItems.push(item);
+        } else if (band === 'heavy') {
+          heavyItems.push(item);
+        }
+      }
+    }
+
+    // Convert to cells
+    const notCellsData = toCells(notItems, BAND_SIZE);
+    const encCellsData = toCells(encItems, BAND_SIZE);
+    const heavyCellsData = toCells(heavyItems, BAND_SIZE);
+    const stashCellsData = toCells(stashItems, STASH_SIZE);
+
+    // Slot definitions
+    const slotDefs = [
+      { key: 'cloak', label: 'Cloak/Cape' },
+      { key: 'belt', label: 'Belt' },
+      { key: 'mainhand', label: 'Mainhand' },
+      { key: 'offhand', label: 'Offhand' },
+      { key: 'pouch', label: 'Potion/Pouch/Scroll' },
+      { key: 'helmet', label: 'Helmet' },
+      { key: 'shoulder', label: 'Shoulder' },
+      { key: 'chest', label: 'Chest' },
+      { key: 'wrist', label: 'Wrist' },
+      { key: 'glove', label: 'Glove' },
+      { key: 'waist', label: 'Waist' },
+      { key: 'leggings', label: 'Leggings' },
+      { key: 'boot', label: 'Boot' },
+      { key: 'necklace', label: 'Necklace' },
+      { key: 'ring1', label: 'Ring 1' },
+      { key: 'ring2', label: 'Ring 2' }
+    ];
+
+    return {
+      showStash: this._showStash,
+      bandCols: BAND_COLS,
+      bandRows: BAND_ROWS,
+      stashCols: STASH_COLS,
+      stashRows: STASH_ROWS,
+      inventory: {
+        notCells: notCellsData.cells,
+        encCells: encCellsData.cells,
+        heavyCells: heavyCellsData.cells,
+        notOverflow: notCellsData.overflow,
+        encOverflow: encCellsData.overflow,
+        heavyOverflow: heavyCellsData.overflow
+      },
+      stash: {
+        cells: stashCellsData.cells,
+        overflow: stashCellsData.overflow
+      },
+      equipSlots: slotDefs.map(def => ({
+        ...def,
+        item: slotMap[def.key] || null
+      }))
     };
   }
 
@@ -1278,7 +1426,21 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('.add-weapon-btn').on('click', this.#onWeaponAdd.bind(this));
     html.find('.add-armor-btn').on('click', this.#onArmorAdd.bind(this));
     html.find('.add-shield-btn').on('click', this.#onShieldAdd.bind(this));
+    
+    // Stash toggle
+    html.find('.df-stash-toggle').on('click', (ev: JQuery.ClickEvent) => {
+      ev.preventDefault();
+      this._showStash = !this._showStash;
+      this.render();
+    });
     html.find('.equipment-item input[type="radio"][name^="equipped-"]').on('change', this.#onEquipmentToggle.bind(this));
+    
+    // Stash toggle
+    html.find('.df-stash-toggle').on('click', (ev: JQuery.ClickEvent) => {
+      ev.preventDefault();
+      this._showStash = !this._showStash;
+      this.render();
+    });
 
     // Add spell
     // Removed add-spell-btn handler - using add-spell-creation-btn instead
@@ -2945,6 +3107,148 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     
     return super._onSubmit(event, options);
+  }
+
+  /**
+   * Handle drag and drop for equipment
+   */
+  async _onDrop(event: DragEvent): Promise<boolean> {
+    const TextEditorImpl = foundry.applications?.ux?.TextEditor?.implementation || TextEditor;
+    const data = TextEditorImpl.getDragEventData(event);
+    
+    const target = (event.target as HTMLElement)?.closest('[data-df-drop]') as HTMLElement | null;
+    if (!target) {
+      return super._onDrop(event);
+    }
+
+    // Get dropped item
+    let droppedItem: any = null;
+    if (data.uuid) {
+      droppedItem = await fromUuid(data.uuid);
+    } else if (data.data?._id) {
+      droppedItem = this.actor.items.get(data.data._id);
+    }
+
+    if (!droppedItem) {
+      // External item - let parent handle creation first
+      const itemCountBefore = this.actor.items.size;
+      const result = await super._onDrop(event);
+      if (!result) return false;
+      
+      // Wait a bit for item to be created, then find it
+      await new Promise(resolve => setTimeout(resolve, 100));
+      const itemCountAfter = this.actor.items.size;
+      
+      if (itemCountAfter > itemCountBefore) {
+        // Find the newly created item (last item in collection)
+        const itemsArray = Array.from(this.actor.items.values());
+        droppedItem = itemsArray[itemsArray.length - 1];
+        if (droppedItem) {
+          // New item created, now set flags
+          await this.#updateItemEquipmentFlags(droppedItem, target);
+        }
+      }
+      this.render();
+      return true;
+    }
+
+    // Internal item - update flags
+    await this.#updateItemEquipmentFlags(droppedItem, target);
+    this.render();
+    return true;
+  }
+
+  /**
+   * Helper: Update item equipment flags based on drop target
+   */
+  async #updateItemEquipmentFlags(item: any, target: HTMLElement): Promise<void> {
+    const dropType = target.dataset.dfDrop;
+    if (!dropType) return;
+
+    const currentFlags = item.getFlag('mastery-system', 'equipment') || {};
+    const newFlags: any = { ...currentFlags };
+
+    // Helper: Get item currently in a slot
+    const getSlotItem = (slotKey: string): any => {
+      const items = Array.from(this.actor.items.values());
+      for (const it of items) {
+        const flags = (it as any).getFlag('mastery-system', 'equipment') || {};
+        if (flags.slot === slotKey) {
+          return it;
+        }
+      }
+      // Backward compatibility
+      if (slotKey === 'mainhand') {
+        const weapons = items.filter((it: any) => it.type === 'weapon' && (it.system as any)?.equipped === true);
+        if (weapons.length > 0) return weapons[0];
+      } else if (slotKey === 'offhand') {
+        const shields = items.filter((it: any) => it.type === 'shield' && (it.system as any)?.equipped === true);
+        if (shields.length > 0) return shields[0];
+      } else if (slotKey === 'chest') {
+        const armor = items.filter((it: any) => it.type === 'armor' && (it.system as any)?.equipped === true);
+        if (armor.length > 0) return armor[0];
+      }
+      return null;
+    };
+
+    if (dropType === 'stash') {
+      newFlags.container = 'stash';
+      newFlags.band = null;
+      newFlags.slot = null;
+      await item.update({
+        'flags.mastery-system.equipment': newFlags,
+        'system.equipped': false
+      });
+    } else if (dropType === 'band') {
+      const band = target.dataset.band;
+      if (band === 'not' || band === 'enc' || band === 'heavy') {
+        newFlags.container = 'inventory';
+        newFlags.band = band;
+        newFlags.slot = null;
+        await item.update({
+          'flags.mastery-system.equipment': newFlags,
+          'system.equipped': false
+        });
+      }
+    } else if (dropType === 'equip-slot') {
+      const slot = target.dataset.slot;
+      if (!slot) return;
+
+      // Simple validation: 2H weapon vs shield
+      if (slot === 'mainhand' && item.type === 'weapon' && (item.system as any)?.hands === 2) {
+        const offhandItem = getSlotItem('offhand');
+        if (offhandItem) {
+          ui.notifications?.warn('Cannot equip 2-handed weapon while offhand is occupied.');
+          return;
+        }
+      } else if (slot === 'offhand' && item.type === 'shield') {
+        const mainhandItem = getSlotItem('mainhand');
+        if (mainhandItem && mainhandItem.type === 'weapon' && (mainhandItem.system as any)?.hands === 2) {
+          ui.notifications?.warn('Cannot equip shield while 2-handed weapon is equipped.');
+          return;
+        }
+      }
+
+      // Clear previous item in slot
+      const previousItem = getSlotItem(slot);
+      if (previousItem && previousItem.id !== item.id) {
+        const prevFlags = previousItem.getFlag('mastery-system', 'equipment') || {};
+        const newPrevFlags = { ...prevFlags, slot: null };
+        await previousItem.update({
+          'flags.mastery-system.equipment': newPrevFlags,
+          'system.equipped': false
+        });
+      }
+
+      // Set new item in slot
+      newFlags.container = 'inventory';
+      newFlags.slot = slot;
+      newFlags.band = newFlags.band || 'not';
+      await item.update({
+        'flags.mastery-system.equipment': newFlags,
+        'system.equipped': true
+      });
+    }
   }
 }
 

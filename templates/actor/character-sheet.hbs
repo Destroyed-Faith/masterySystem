@@ -1060,153 +1060,136 @@
         </div>
       </div>
       
-      <!-- Weapons Section -->
-      <div class="equipment-section">
-        <h4><i class="fas fa-sword"></i> Weapons</h4>
-        {{#if items.weapons}}
-          <div class="weapons-list">
-            {{#each items.weapons}}
-              <div class="equipment-item" data-item-id="{{this.id}}">
-                <div class="equipment-header">
-                  <div class="equipment-name">
-                    <input type="radio" name="equipped-weapon" value="{{this.id}}" {{#if this.system.equipped}}checked{{/if}} data-item-id="{{this.id}}" />
-                    <label>{{this.name}}</label>
-                  </div>
-                  <div class="equipment-controls">
-                    <button type="button" class="item-edit" title="Edit"><i class="fas fa-edit"></i></button>
-                    <button type="button" class="item-delete" title="Delete"><i class="fas fa-trash"></i></button>
-                  </div>
-                </div>
-                <div class="equipment-details">
-                  <div class="equipment-stat">
-                    <span class="stat-label">Damage:</span>
-                    <span class="stat-value">{{default this.system.damage "1d8"}}</span>
-                  </div>
-                  <div class="equipment-stat">
-                    <span class="stat-label">Type:</span>
-                    <span class="stat-value">{{default this.system.weaponType "melee"}}</span>
-                  </div>
-                  <div class="equipment-stat">
-                    <span class="stat-label">Hands:</span>
-                    <span class="stat-value">{{default this.system.hands 1}}</span>
-                  </div>
-                  {{#if this.system.innateAbilities}}
-                    <div class="equipment-stat">
-                      <span class="stat-label">Properties:</span>
-                      <span class="stat-value">{{this.system.innateAbilities.join ', '}}</span>
-                    </div>
-                  {{/if}}
-                  {{#if this.system.specials}}
-                    <div class="equipment-stat">
-                      <span class="stat-label">Special:</span>
-                      <span class="stat-value">{{this.system.specials.join ', '}}</span>
+      {{#if equipmentUi}}
+      <div class="df-equipment-layout">
+        <div class="df-enc-table">
+          <div class="df-enc-header">
+            <div class="df-enc-title">EQUIPMENT</div>
+            <div class="df-enc-coltitle">NOT ENCUMBERED</div>
+            <div class="df-enc-coltitle">ENCUMBERED</div>
+            <div class="df-enc-coltitle">HEAVILY ENCUMBERED</div>
+          </div>
+          
+          <div class="df-enc-grids">
+            <div class="df-enc-band df-dropzone" data-df-drop="band" data-band="not">
+              {{#each equipmentUi.inventory.notCells}}
+                <div class="df-cell">
+                  {{#if this}}
+                    <div class="df-item-tile item df-draggable-item" data-item-id="{{this.id}}" draggable="true" title="{{this.name}}">
+                      <img class="df-item-icon" src="{{this.img}}" />
+                      {{#if (eq this.type "gear")}}
+                        <div class="df-item-qty">{{default this.system.quantity 1}}</div>
+                      {{/if}}
+                      <div class="df-item-actions">
+                        <a class="item-edit" title="Edit"><i class="fas fa-edit"></i></a>
+                        <a class="item-delete" title="Delete"><i class="fas fa-trash"></i></a>
+                      </div>
                     </div>
                   {{/if}}
                 </div>
-                {{#if this.system.description}}
-                  <div class="equipment-description">{{this.system.description}}</div>
-                {{/if}}
-              </div>
-            {{/each}}
-          </div>
-        {{else}}
-          <p class="empty-message">No weapons yet. Click "Add Weapon" to start.</p>
-        {{/if}}
-      </div>
-      
-      <!-- Armor Section -->
-      <div class="equipment-section">
-        <h4><i class="fas fa-shield"></i> Armor</h4>
-        {{#if items.armor}}
-          <div class="armor-list">
-            {{#each items.armor}}
-              <div class="equipment-item" data-item-id="{{this.id}}">
-                <div class="equipment-header">
-                  <div class="equipment-name">
-                    <input type="radio" name="equipped-armor" value="{{this.id}}" {{#if this.system.equipped}}checked{{/if}} data-item-id="{{this.id}}" />
-                    <label>{{this.name}}</label>
-                  </div>
-                  <div class="equipment-controls">
-                    <button type="button" class="item-edit" title="Edit"><i class="fas fa-edit"></i></button>
-                    <button type="button" class="item-delete" title="Delete"><i class="fas fa-trash"></i></button>
-                  </div>
-                </div>
-                <div class="equipment-details">
-                  <div class="equipment-stat">
-                    <span class="stat-label">Armor Value:</span>
-                    <span class="stat-value">+{{default this.system.armorValue 0}}</span>
-                  </div>
-                  <div class="equipment-stat">
-                    <span class="stat-label">Type:</span>
-                    <span class="stat-value">{{capitalize (default this.system.type "light")}}</span>
-                  </div>
-                  {{#if this.system.skillPenalty}}
-                  <div class="equipment-stat">
-                    <span class="stat-label">Skill Penalty:</span>
-                    <span class="stat-value">{{this.system.skillPenalty}}</span>
-                  </div>
+              {{/each}}
+              {{#if equipmentUi.inventory.notOverflow}}
+                <div class="df-overflow">+{{equipmentUi.inventory.notOverflow}}</div>
+              {{/if}}
+            </div>
+            
+            <div class="df-enc-band df-dropzone" data-df-drop="band" data-band="enc">
+              {{#each equipmentUi.inventory.encCells}}
+                <div class="df-cell">
+                  {{#if this}}
+                    <div class="df-item-tile item df-draggable-item" data-item-id="{{this.id}}" draggable="true" title="{{this.name}}">
+                      <img class="df-item-icon" src="{{this.img}}" />
+                      {{#if (eq this.type "gear")}}
+                        <div class="df-item-qty">{{default this.system.quantity 1}}</div>
+                      {{/if}}
+                      <div class="df-item-actions">
+                        <a class="item-edit" title="Edit"><i class="fas fa-edit"></i></a>
+                        <a class="item-delete" title="Delete"><i class="fas fa-trash"></i></a>
+                      </div>
+                    </div>
                   {{/if}}
                 </div>
-                {{#if this.system.description}}
-                  <div class="equipment-description">{{this.system.description}}</div>
-                {{/if}}
-              </div>
-            {{/each}}
-          </div>
-        {{else}}
-          <p class="empty-message">No armor yet. Click "Add Armor" to start.</p>
-        {{/if}}
-      </div>
-      
-      <!-- Shields Section -->
-      <div class="equipment-section">
-        <h4><i class="fas fa-shield-alt"></i> Shields</h4>
-        {{#if items.shields}}
-          <div class="shields-list">
-            {{#each items.shields}}
-              <div class="equipment-item" data-item-id="{{this.id}}">
-                <div class="equipment-header">
-                  <div class="equipment-name">
-                    <input type="radio" name="equipped-shield" value="{{this.id}}" {{#if this.system.equipped}}checked{{/if}} data-item-id="{{this.id}}" />
-                    <label>{{this.name}}</label>
-                  </div>
-                  <div class="equipment-controls">
-                    <button type="button" class="item-edit" title="Edit"><i class="fas fa-edit"></i></button>
-                    <button type="button" class="item-delete" title="Delete"><i class="fas fa-trash"></i></button>
-                  </div>
-                </div>
-                <div class="equipment-details">
-                  <div class="equipment-stat">
-                    <span class="stat-label">Shield Value:</span>
-                    <span class="stat-value">+{{default this.system.shieldValue 0}}</span>
-                  </div>
-                  <div class="equipment-stat">
-                    <span class="stat-label">Type:</span>
-                    <span class="stat-value">{{capitalize (default this.system.type "parry")}}</span>
-                  </div>
-                  {{#if this.system.evadeBonus}}
-                  <div class="equipment-stat">
-                    <span class="stat-label">Evade Bonus:</span>
-                    <span class="stat-value">+{{this.system.evadeBonus}}</span>
-                  </div>
-                  {{/if}}
-                  {{#if this.system.skillPenalty}}
-                  <div class="equipment-stat">
-                    <span class="stat-label">Skill Penalty:</span>
-                    <span class="stat-value">{{this.system.skillPenalty}}</span>
-                  </div>
+              {{/each}}
+              {{#if equipmentUi.inventory.encOverflow}}
+                <div class="df-overflow">+{{equipmentUi.inventory.encOverflow}}</div>
+              {{/if}}
+            </div>
+            
+            <div class="df-enc-band df-dropzone" data-df-drop="band" data-band="heavy">
+              {{#each equipmentUi.inventory.heavyCells}}
+                <div class="df-cell">
+                  {{#if this}}
+                    <div class="df-item-tile item df-draggable-item" data-item-id="{{this.id}}" draggable="true" title="{{this.name}}">
+                      <img class="df-item-icon" src="{{this.img}}" />
+                      {{#if (eq this.type "gear")}}
+                        <div class="df-item-qty">{{default this.system.quantity 1}}</div>
+                      {{/if}}
+                      <div class="df-item-actions">
+                        <a class="item-edit" title="Edit"><i class="fas fa-edit"></i></a>
+                        <a class="item-delete" title="Delete"><i class="fas fa-trash"></i></a>
+                      </div>
+                    </div>
                   {{/if}}
                 </div>
-                {{#if this.system.description}}
-                  <div class="equipment-description">{{this.system.description}}</div>
-                {{/if}}
-              </div>
-            {{/each}}
+              {{/each}}
+              {{#if equipmentUi.inventory.heavyOverflow}}
+                <div class="df-overflow">+{{equipmentUi.inventory.heavyOverflow}}</div>
+              {{/if}}
+            </div>
           </div>
-        {{else}}
-          <p class="empty-message">No shields yet. Click "Add Shield" to start.</p>
-        {{/if}}
+        </div>
+        
+        <aside class="df-equipment-side">
+          <div class="df-side-header">
+            <button type="button" class="df-stash-toggle" title="Stash / Händler"><i class="fas fa-store"></i></button>
+          </div>
+          
+          <div class="df-equipped-panel">
+            <h4>Equipped</h4>
+            <div class="df-equipped-grid">
+              {{#each equipmentUi.equipSlots}}
+                <div class="df-equip-slot df-dropzone slot-{{this.key}}" data-df-drop="equip-slot" data-slot="{{this.key}}">
+                  <div class="df-slot-label">{{this.label}}</div>
+                  {{#if this.item}}
+                    <div class="df-item-tile item df-draggable-item" data-item-id="{{this.item.id}}" draggable="true" title="{{this.item.name}}">
+                      <img class="df-item-icon" src="{{this.item.img}}" />
+                      <div class="df-item-actions">
+                        <a class="item-edit" title="Edit"><i class="fas fa-edit"></i></a>
+                        <a class="item-delete" title="Delete"><i class="fas fa-trash"></i></a>
+                      </div>
+                    </div>
+                  {{else}}
+                    <div class="df-slot-empty">Drop</div>
+                  {{/if}}
+                </div>
+              {{/each}}
+            </div>
+          </div>
+          
+          <div class="df-stash-panel {{#unless equipmentUi.showStash}}collapsed{{/unless}}">
+            <h4>Stash</h4>
+            <div class="df-stash-grid df-dropzone" data-df-drop="stash">
+              {{#each equipmentUi.stash.cells}}
+                <div class="df-cell">
+                  {{#if this}}
+                    <div class="df-item-tile item df-draggable-item" data-item-id="{{this.id}}" draggable="true" title="{{this.name}}">
+                      <img class="df-item-icon" src="{{this.img}}" />
+                      <div class="df-item-actions">
+                        <a class="item-edit" title="Edit"><i class="fas fa-edit"></i></a>
+                        <a class="item-delete" title="Delete"><i class="fas fa-trash"></i></a>
+                      </div>
+                    </div>
+                  {{/if}}
+                </div>
+              {{/each}}
+              {{#if equipmentUi.stash.overflow}}
+                <div class="df-overflow">+{{equipmentUi.stash.overflow}}</div>
+              {{/if}}
+            </div>
+          </div>
+        </aside>
       </div>
+      {{/if}}
       
     </div>
     

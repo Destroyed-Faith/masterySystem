@@ -5,6 +5,7 @@
 declare const BaseActorSheet: any;
 export declare class MasteryCharacterSheet extends BaseActorSheet {
     #private;
+    private _showStash;
     /** @override */
     static get defaultOptions(): any;
     /** @override */
@@ -17,6 +18,10 @@ export declare class MasteryCharacterSheet extends BaseActorSheet {
     activateListeners(html: JQuery): void;
     /** @override */
     _onSubmit(event: Event, options?: any): Promise<any>;
+    /**
+     * Handle drag and drop for equipment
+     */
+    _onDrop(event: DragEvent): Promise<boolean>;
 }
 export {};
 //# sourceMappingURL=character-sheet.d.ts.map
