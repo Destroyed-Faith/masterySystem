@@ -197,13 +197,21 @@ async function sendRollToChat(
       actor = (game as any).actors.get(actorId);
     }
     
-    // For skill rolls, get remaining skill pool
+    // For skill rolls, get remaining skill pool and check if spending can still succeed
     let remainingPool = 0;
+    let canStillSucceed = false;
     if (isSkillRoll && skillKey && actor) {
       const actorData = (actor as any).system;
       const skillRating = actorData.skills?.[skillKey] || 0;
       const skillsSpent = actorData.skillsSpent?.[skillKey] || 0;
       remainingPool = Math.max(0, skillRating - skillsSpent);
+      
+      // Only show spend panel if all-in can still make it a success
+      // Check if remainingPool is enough to reach the target TN
+      if (result.tn > 0 && !result.success) {
+        const missing = result.tn - result.total;
+        canStillSucceed = remainingPool >= missing && missing > 0;
+      }
     }
     
     // Create a Foundry Roll object to display dice visually
@@ -239,12 +247,12 @@ async function sendRollToChat(
           const isKept = keptIndices.includes(i);
           const isExploded = result.exploded.includes(i);
           
-          // ALL dice should be active and NOT discarded (so Dice So Nice shows them all)
-          // Store kept/exploded status for HTML highlighting (not for Dice So Nice)
+          // ALL dice should be active and NOT discarded
+          // Store kept/exploded status for HTML highlighting
           const resultObj: any = {
             result: actualValue,
             active: true,
-            discarded: false,  // DO NOT discard - we want Dice So Nice to show ALL dice
+            discarded: false,  // DO NOT discard - show ALL dice
             rerolled: false
           };
           // Add custom properties for HTML highlighting
@@ -281,15 +289,6 @@ async function sendRollToChat(
       dieTermResults: roll.terms.find((t: any) => t instanceof foundry.dice.terms.Die)?.results?.length || 0
     });
     
-    // Dice So Nice integration - show 3D dice if module is installed and enabled
-    if ((game as any).dice3d?.showForRoll) {
-      try {
-        await (game as any).dice3d.showForRoll(roll, game.user, true);
-      } catch (dice3dError) {
-        console.warn('Mastery System | Dice So Nice integration failed:', dice3dError);
-        // Continue without 3D dice - not critical
-      }
-    }
     
     // Build result display HTML
     const successClass = result.success ? 'success' : 'failure';
@@ -355,7 +354,7 @@ async function sendRollToChat(
           ` : ''}
         </div>
         
-        ${isSkillRoll && skillKey && actorId ? `
+        ${isSkillRoll && skillKey && actorId && canStillSucceed && remainingPool > 0 ? `
           <div class="skill-spend-panel">
             <div class="skill-spend-header">
               <h4>Spend Skill Points</h4>

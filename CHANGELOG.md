@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.92] - 2025-01-XX
+
+### Changed
+- **Skill Spend Panel: Conditional Display**
+  - Skill Spend Panel in chat messages only shows when All-in can still make the roll succeed
+  - If remaining pool is insufficient to reach target TN, panel is hidden
+  - Prevents showing spend options when success is impossible
+
+### Removed
+- **Modal Skill Spending Dialog**
+  - Removed modal dialog that appeared after failed skill rolls
+  - All skill point spending now happens directly in chat via buttons
+  - Cleaner UX without interrupting popups
+
 ## [0.2.91] - 2025-01-XX
 
 ### Changed
