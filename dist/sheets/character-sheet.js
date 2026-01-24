@@ -1905,7 +1905,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         event.stopPropagation();
         // Try to find the item ID from various possible element structures
         const $button = $(event.currentTarget);
-        const $item = $button.closest('.item, .equipment-item');
+        const $item = $button.closest('.item, .equipment-item, .power-card, .creation-power');
         // Try multiple methods to get the item ID
         let itemId = $item.data('item-id') ||
             $item.attr('data-item-id') ||
@@ -1956,12 +1956,29 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         });
         if (confirmed) {
             try {
+                const itemType = item.type;
+                const itemName = item.name;
+                const isPower = itemType === 'power';
+                // Check if we're in character creation mode
+                const system = this.actor.system;
+                const creationComplete = system?.creation?.complete !== false;
+                const inCreationMode = !creationComplete;
                 await item.delete();
                 console.log('Mastery System | [DELETE ITEM] Item deleted successfully', {
                     itemId,
-                    itemName: item.name,
-                    itemType: item.type
+                    itemName,
+                    itemType,
+                    inCreationMode
                 });
+                // Show appropriate notification
+                if (isPower && inCreationMode) {
+                    // Count remaining powers
+                    const remainingPowers = this.actor.items.filter((i) => i.type === 'power');
+                    ui.notifications?.info(`Power "${itemName}" removed. ${remainingPowers.length} of 4 Powers selected.`);
+                }
+                else {
+                    ui.notifications?.info(`"${itemName}" deleted.`);
+                }
                 // Re-render the sheet to update the display
                 this.render();
             }
@@ -2224,11 +2241,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('input[name="name"], textarea').prop('disabled', true);
         html.find('select:not(.power-rank-select)').prop('disabled', true);
         // Disable buttons except creation controls
-        const buttonsToDisable = html.find('button:not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.force-unlock-creation):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.add-power-creation-btn):not(.add-spell-creation-btn):not(.power-rank-select)');
+        const buttonsToDisable = html.find('button:not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.force-unlock-creation):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.add-power-creation-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete)');
         console.log('Mastery System | Disabling buttons:', buttonsToDisable.length);
         buttonsToDisable.prop('disabled', true);
         // Ensure creation buttons are enabled
-        const creationButtons = html.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .force-unlock-creation, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .add-power-creation-btn, .add-spell-creation-btn');
+        const creationButtons = html.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .force-unlock-creation, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .add-power-creation-btn, .add-spell-creation-btn, .item-delete');
         console.log('Mastery System | Enabling creation buttons:', {
             total: creationButtons.length,
             addDisadvantageBtn: html.find('.add-disadvantage-btn').length,
