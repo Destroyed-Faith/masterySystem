@@ -100,7 +100,7 @@ export async function showPowerCreationDialog(actor: Actor, context: 'mastery' |
             if (!isMastery) {
               // Magic powers
               try {
-                const magicModule = await import('../utils/magic-powers' as any);
+                const magicModule = await import('../utils/magic-powers.js' as any);
                 if (magicModule?.getMagicPower) {
                   power = magicModule.getMagicPower(school!, powerName);
                 }
@@ -333,7 +333,7 @@ export async function showPowerCreationDialog(actor: Actor, context: 'mastery' |
             powerSelectGroup.show();
           } else {
             // Load magic powers
-            const magicModule = await import('../utils/magic-powers' as any);
+            const magicModule = await import('../utils/magic-powers.js' as any);
             if (magicModule?.getMagicPowersBySchool) {
               const powers = magicModule.getMagicPowersBySchool(categoryName);
               powersData = {};
