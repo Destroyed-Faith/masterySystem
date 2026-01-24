@@ -1426,7 +1426,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const masteryRank = system.mastery?.rank || 2;
     
     const { masteryRoll } = await import('../dice/roll-handler.js');
-    const rollResult = await masteryRoll({
+    await masteryRoll({
       numDice: attributeValue,
       keepDice: masteryRank,
       skill: 0, // No auto skill bonus

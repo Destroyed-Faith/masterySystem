@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.93] - 2025-01-XX
+
+### Changed
+- **Simplified Skill Spend UI: Single "Turn it into a success" Button**
+  - Replaced multiple skill spend buttons (Spend 2, Spend 4, All-in) with a single button
+  - Button shows exact skill points needed: "Turn it into a success (X Skill Points)"
+  - Automatically calculates required points rounded up to next MR step (MR 2 = 2-step increments, MR 3 = 3-step increments, etc.)
+  - Button only appears when spending can turn a failure into a success
+  - Cleaner, more intuitive interface
+
 ## [0.2.92] - 2025-01-XX
 
 ### Changed

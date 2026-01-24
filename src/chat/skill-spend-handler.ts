@@ -10,39 +10,35 @@ export function registerSkillSpendClickHandler(): void {
   console.log('Mastery System | Registering skill spend click handler');
   
   Hooks.on('renderChatMessageHTML', (message: ChatMessage, htmlEl: JQuery) => {
-    // Find skill spend buttons
-    const spendButtons = htmlEl.find('[data-action="spend-skill"], [data-action="spend-skill-allin"]');
+    // Find skill spend button
+    const spendButton = htmlEl.find('[data-action="spend-skill-success"]');
     
-    if (spendButtons.length === 0) return;
+    if (spendButton.length === 0) return;
     
     // Check if already processed (prevent duplicate handlers)
-    if (spendButtons.data('handler-attached')) return;
-    spendButtons.data('handler-attached', true);
+    if (spendButton.data('handler-attached')) return;
+    spendButton.data('handler-attached', true);
     
-    // Check if skill points already spent (disable buttons)
+    // Check if skill points already spent (disable button)
     const flags = message.flags?.['mastery-system'] || {};
     if (flags.skillSpentApplied === true) {
-      spendButtons.prop('disabled', true).addClass('disabled');
+      spendButton.prop('disabled', true).addClass('disabled');
       return;
     }
     
-    spendButtons.off('click.skill-spend').on('click.skill-spend', async (event: JQuery.ClickEvent) => {
+    spendButton.off('click.skill-spend').on('click.skill-spend', async (event: JQuery.ClickEvent) => {
       event.preventDefault();
       event.stopPropagation();
       
       const button = $(event.currentTarget);
-      const action = button.data('action');
       const skillKey = button.data('skill-key');
       const actorId = button.data('actor-id');
       const spendAmount = parseInt(button.data('spend') || '0');
-      const isAllIn = action === 'spend-skill-allin';
       
       console.log('SkillSpend | Click handler triggered', {
-        action,
         skillKey,
         actorId,
         spendAmount,
-        isAllIn,
         messageId: message.id
       });
       
@@ -74,7 +70,6 @@ export function registerSkillSpendClickHandler(): void {
       const skillRating = system.skills?.[skillKey] || 0;
       const currentSpent = system.skillsSpent?.[skillKey] || 0;
       const remaining = Math.max(0, skillRating - currentSpent);
-      const MR = system.mastery?.rank || 2;
       
       console.log('SkillSpend | Actor data', {
         actorId,
@@ -83,40 +78,21 @@ export function registerSkillSpendClickHandler(): void {
         skillRating,
         currentSpent,
         remaining,
-        MR
+        spendAmount
       });
       
-      // Validation
-      let finalSpend = spendAmount;
-      
-      if (isAllIn) {
-        // All-in: allow spending remaining pool (even if < MR, even if not multiple of MR)
-        finalSpend = remaining;
-      } else {
-        // Step spending: must be >= MR, multiple of MR, and <= remaining
-        if (finalSpend < MR) {
-          ui.notifications?.warn(`Must spend at least ${MR} skill points (Mastery Rank).`);
-          return;
-        }
-        if (finalSpend % MR !== 0) {
-          ui.notifications?.warn(`Must spend in multiples of ${MR} (Mastery Rank).`);
-          return;
-        }
-        if (finalSpend > remaining) {
-          ui.notifications?.warn(`Cannot spend ${finalSpend} points. Only ${remaining} remaining.`);
-          return;
-        }
-      }
-      
-      if (finalSpend <= 0) {
-        ui.notifications?.warn('Cannot spend 0 or negative skill points.');
+      // Validation: check if we have enough points
+      if (spendAmount <= 0) {
+        ui.notifications?.warn('Invalid skill point amount.');
         return;
       }
       
-      if (finalSpend > remaining) {
-        ui.notifications?.warn(`Cannot spend ${finalSpend} points. Only ${remaining} remaining.`);
+      if (spendAmount > remaining) {
+        ui.notifications?.warn(`Cannot spend ${spendAmount} points. Only ${remaining} remaining.`);
         return;
       }
+      
+      const finalSpend = spendAmount;
       
       // Update actor: increase skillsSpent
       const newSpent = Math.min(skillRating, currentSpent + finalSpend);

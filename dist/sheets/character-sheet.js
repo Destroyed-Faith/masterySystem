@@ -1234,7 +1234,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const attributeValue = system.attributes?.[rollOptions.attributeKey]?.value || 0;
         const masteryRank = system.mastery?.rank || 2;
         const { masteryRoll } = await import('../dice/roll-handler.js');
-        const rollResult = await masteryRoll({
+        await masteryRoll({
             numDice: attributeValue,
             keepDice: masteryRank,
             skill: 0, // No auto skill bonus
@@ -1246,24 +1246,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             isSkillRoll: true,
             baseModifier: 0
         });
-        // If roll failed, prompt for skill point spending
-        if (!rollResult.success && rollResult.tn > 0) {
-            const spendAmount = await this.#promptSpendSkillPoints(skillKey, skillDef.name, rollResult.total, rollOptions.finalTN, rollOptions.attributeKey, rollOptions.baseTN, rollOptions.raises);
-            if (spendAmount !== null && spendAmount > 0) {
-                // Update actor skillsSpent
-                const currentSpent = system.skillsSpent?.[skillKey] || 0;
-                const newSpent = currentSpent + spendAmount;
-                await this.actor.update({
-                    [`system.skillsSpent.${skillKey}`]: newSpent
-                });
-                // Calculate final total
-                const finalTotal = rollResult.total + spendAmount;
-                const finalSuccess = finalTotal >= rollOptions.finalTN;
-                const finalRaises = finalSuccess ? Math.floor((finalTotal - rollOptions.finalTN) / 4) : 0;
-                // Post followup chat message
-                await this.#postSkillRollFollowup(skillKey, skillDef.name, rollOptions.attributeKey, rollOptions.baseTN, rollOptions.raises, rollOptions.finalTN, rollResult.total, spendAmount, finalTotal, finalSuccess, finalRaises);
-            }
-        }
+        // Skill point spending is now handled via chat buttons (no modal dialog)
     }
     /**
      * Prompt for skill roll options (attribute, base TN, raises)
@@ -1393,185 +1376,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 }
             });
             dialog.render(true);
-        });
-    }
-    /**
-     * Prompt for spending skill points after failed roll
-     */
-    async #promptSpendSkillPoints(skillKey, skillName, currentTotal, targetTN, _attributeKey, _baseTN, _raises) {
-        const system = this.actor.system;
-        const skillRating = system.skills?.[skillKey] || 0;
-        const currentSpent = system.skillsSpent?.[skillKey] || 0;
-        const available = Math.max(0, skillRating - currentSpent);
-        const MR = system.mastery?.rank || 2;
-        const missing = Math.max(0, targetTN - currentTotal);
-        if (available === 0) {
-            ui.notifications?.warn(`No skill points available for ${skillName}.`);
-            return null;
-        }
-        // Calculate step options
-        const stepOptions = [];
-        for (let step = MR; step <= available; step += MR) {
-            stepOptions.push(step);
-        }
-        const content = `
-      <form>
-        <div class="form-group">
-          <label><strong>${skillName}</strong></label>
-          <div style="font-size: 11px; color: var(--df-text-muted, #888); margin: 4px 0;">
-            Available: <strong>${available}</strong> / ${skillRating}<br/>
-            MR Step: <strong>${MR}</strong><br/>
-            Missing: <strong>${missing}</strong> (need ${targetTN - currentTotal} to succeed)
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label>Spend Skill Points:</label>
-          <input type="number" name="spend" id="skill-spend-amount" value="${Math.min(available, Math.max(MR, missing))}" min="0" max="${available}" step="${MR}" style="width: 100%;" />
-        </div>
-        
-        <div class="form-group">
-          <div class="button-group" style="display: flex; gap: 6px; flex-wrap: wrap;">
-            ${stepOptions.map(step => `
-              <button type="button" class="spend-step-btn" data-step="${step}">Spend ${step}</button>
-            `).join('')}
-            ${available > 0 ? `
-              <button type="button" class="spend-allin-btn" data-step="${available}">All-in (${available})</button>
-            ` : ''}
-          </div>
-        </div>
-        
-        <div class="form-group" style="font-size: 11px; color: var(--df-text-muted, #888); margin-top: 8px;">
-          <div>Current Total: <strong>${currentTotal}</strong></div>
-          <div>After Spend: <strong><span id="after-spend-total">${currentTotal}</span></strong></div>
-          <div>Target TN: <strong>${targetTN}</strong></div>
-          <div>Result: <strong><span id="spend-result">-</span></span></div>
-        </div>
-      </form>
-    `;
-        return new Promise((resolve) => {
-            const dialog = new Dialog({
-                title: `Spend Skill Points: ${skillName}`,
-                content,
-                buttons: {
-                    spend: {
-                        label: 'Spend',
-                        callback: (html) => {
-                            const spendAmount = parseInt(html.find('[name="spend"]').val()) || 0;
-                            // Validation
-                            if (spendAmount <= 0) {
-                                ui.notifications?.warn('Must spend at least 1 skill point.');
-                                return false;
-                            }
-                            if (spendAmount > available) {
-                                ui.notifications?.warn(`Cannot spend ${spendAmount} points. Only ${available} available.`);
-                                return false;
-                            }
-                            // Check if it's a valid step (multiple of MR) or all-in
-                            const isAllIn = spendAmount === available;
-                            const isValidStep = spendAmount % MR === 0;
-                            if (!isAllIn && !isValidStep) {
-                                ui.notifications?.warn(`Must spend in multiples of ${MR} (Mastery Rank), or use All-in.`);
-                                return false;
-                            }
-                            if (!isAllIn && spendAmount < MR) {
-                                ui.notifications?.warn(`Must spend at least ${MR} skill points (Mastery Rank).`);
-                                return false;
-                            }
-                            resolve(spendAmount);
-                            return true;
-                        }
-                    },
-                    cancel: {
-                        label: 'Cancel',
-                        callback: () => resolve(null)
-                    }
-                },
-                default: 'spend',
-                render: (html) => {
-                    // Update display when spend amount changes
-                    const updateDisplay = () => {
-                        const spendAmount = parseInt(html.find('[name="spend"]').val()) || 0;
-                        const afterTotal = currentTotal + spendAmount;
-                        const success = afterTotal >= targetTN;
-                        html.find('#after-spend-total').text(afterTotal);
-                        html.find('#spend-result').text(success ? 'SUCCESS' : 'FAILURE').css('color', success ? '#3f6b54' : '#7b3a3a');
-                    };
-                    html.find('[name="spend"]').on('input change', updateDisplay);
-                    // Step buttons
-                    html.find('.spend-step-btn, .spend-allin-btn').on('click', function () {
-                        const step = parseInt($(this).data('step') || '0');
-                        html.find('[name="spend"]').val(step);
-                        updateDisplay();
-                    });
-                    updateDisplay();
-                }
-            });
-            dialog.render(true);
-        });
-    }
-    /**
-     * Post followup chat message after skill point spending
-     */
-    async #postSkillRollFollowup(_skillKey, skillName, attributeKey, baseTN, raises, finalTN, rolledTotal, spendAmount, finalTotal, success, finalRaises) {
-        const content = `
-      <div class="mastery-roll">
-        <div class="roll-header">
-          <h3>${skillName} - Skill Points Spent</h3>
-        </div>
-        
-        <div class="roll-details">
-          <div class="roll-breakdown">
-            <div class="breakdown-line">
-              <span>Attribute:</span>
-              <span class="value">${attributeKey.charAt(0).toUpperCase() + attributeKey.slice(1)}</span>
-            </div>
-            <div class="breakdown-line">
-              <span>Base TN:</span>
-              <span class="value">${baseTN}</span>
-            </div>
-            <div class="breakdown-line">
-              <span>Raises:</span>
-              <span class="value">${raises}</span>
-            </div>
-            <div class="breakdown-line">
-              <span>Final TN:</span>
-              <span class="value">${finalTN}</span>
-            </div>
-            <div class="breakdown-line">
-              <span>Rolled Total:</span>
-              <span class="value">${rolledTotal}</span>
-            </div>
-            <div class="breakdown-line">
-              <span>Skill Points Spent:</span>
-              <span class="value">+${spendAmount}</span>
-            </div>
-            <div class="breakdown-line total">
-              <span><strong>Final Total:</strong></span>
-              <span class="value"><strong>${finalTotal}</strong></span>
-            </div>
-          </div>
-          
-          <div class="roll-result ${success ? 'success' : 'failure'}">
-            <div class="result-line">
-              <span><strong>Result:</strong></span>
-              <span class="value"><strong>${success ? 'SUCCESS' : 'FAILURE'}</strong></span>
-            </div>
-            ${finalRaises > 0 ? `
-              <div class="result-line">
-                <span><strong>Raises:</strong></span>
-                <span class="value"><strong>${finalRaises}</strong></span>
-              </div>
-            ` : ''}
-          </div>
-        </div>
-      </div>
-    `;
-        await ChatMessage.create({
-            user: game.user?.id,
-            speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-            content,
-            sound: CONFIG.sounds.dice
         });
     }
     /**

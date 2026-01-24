@@ -148,13 +148,32 @@ async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillR
         if (actorId && game.actors) {
             actor = game.actors.get(actorId);
         }
-        // For skill rolls, get remaining skill pool
+        // For skill rolls, calculate required skill points to turn failure into success
         let remainingPool = 0;
+        let canStillSucceed = false;
+        let requiredSkillPoints = 0;
         if (isSkillRoll && skillKey && actor) {
             const actorData = actor.system;
             const skillRating = actorData.skills?.[skillKey] || 0;
             const skillsSpent = actorData.skillsSpent?.[skillKey] || 0;
             remainingPool = Math.max(0, skillRating - skillsSpent);
+            const MR = actorData.mastery?.rank || 2;
+            // Calculate required skill points to turn failure into success
+            if (result.tn > 0 && !result.success) {
+                const missing = result.tn - result.total;
+                if (missing > 0 && remainingPool > 0) {
+                    // Round up to next MR step
+                    requiredSkillPoints = Math.ceil(missing / MR) * MR;
+                    // Check if we have enough points available
+                    canStillSucceed = remainingPool >= requiredSkillPoints;
+                    // If we don't have enough for the rounded amount, check if we can use all-in
+                    if (!canStillSucceed && remainingPool >= missing) {
+                        // All-in is possible, use remaining pool
+                        requiredSkillPoints = remainingPool;
+                        canStillSucceed = true;
+                    }
+                }
+            }
         }
         // Create a Foundry Roll object to display dice visually
         const diceSum = result.total - result.skill;
@@ -183,12 +202,12 @@ async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillR
                     const actualValue = result.dice[i];
                     const isKept = keptIndices.includes(i);
                     const isExploded = result.exploded.includes(i);
-                    // ALL dice should be active and NOT discarded (so Dice So Nice shows them all)
-                    // Store kept/exploded status for HTML highlighting (not for Dice So Nice)
+                    // ALL dice should be active and NOT discarded
+                    // Store kept/exploded status for HTML highlighting
                     const resultObj = {
                         result: actualValue,
                         active: true,
-                        discarded: false, // DO NOT discard - we want Dice So Nice to show ALL dice
+                        discarded: false, // DO NOT discard - show ALL dice
                         rerolled: false
                     };
                     // Add custom properties for HTML highlighting
@@ -220,16 +239,6 @@ async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillR
             formula: formula,
             dieTermResults: roll.terms.find((t) => t instanceof foundry.dice.terms.Die)?.results?.length || 0
         });
-        // Dice So Nice integration - show 3D dice if module is installed and enabled
-        if (game.dice3d?.showForRoll) {
-            try {
-                await game.dice3d.showForRoll(roll, game.user, true);
-            }
-            catch (dice3dError) {
-                console.warn('Mastery System | Dice So Nice integration failed:', dice3dError);
-                // Continue without 3D dice - not critical
-            }
-        }
         // Build result display HTML
         const successClass = result.success ? 'success' : 'failure';
         let content = `
@@ -293,29 +302,17 @@ async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillR
           ` : ''}
         </div>
         
-        ${isSkillRoll && skillKey && actorId ? `
+        ${isSkillRoll && skillKey && actorId && canStillSucceed && requiredSkillPoints > 0 ? `
           <div class="skill-spend-panel">
             <div class="skill-spend-header">
-              <h4>Spend Skill Points</h4>
+              <h4>Turn it into a success</h4>
               <span class="skill-pool-info">Pool: ${remainingPool}/${actor.system?.skills?.[skillKey] || 0}</span>
             </div>
-            ${remainingPool > 0 ? `
-              <div class="skill-spend-buttons">
-                ${(() => {
-            const MR = actor.system?.mastery?.rank || 2;
-            let buttons = '';
-            // Generate step buttons: MR, 2MR, 3MR, ... up to remainingPool
-            for (let step = MR; step <= remainingPool; step += MR) {
-                buttons += `<button type="button" class="skill-spend-btn" data-action="spend-skill" data-spend="${step}" data-skill-key="${skillKey}" data-actor-id="${actorId}">Spend ${step}</button>`;
-            }
-            // Always show All-in button if there's remaining pool
-            buttons += `<button type="button" class="skill-spend-btn skill-spend-allin" data-action="spend-skill-allin" data-spend="${remainingPool}" data-skill-key="${skillKey}" data-actor-id="${actorId}">All-in (${remainingPool})</button>`;
-            return buttons;
-        })()}
-              </div>
-            ` : `
-              <div class="skill-spend-empty">No Skill Points remaining</div>
-            `}
+            <div class="skill-spend-buttons">
+              <button type="button" class="skill-spend-btn skill-spend-success" data-action="spend-skill-success" data-spend="${requiredSkillPoints}" data-skill-key="${skillKey}" data-actor-id="${actorId}">
+                Turn it into a success (${requiredSkillPoints} Skill Points)
+              </button>
+            </div>
           </div>
         ` : ''}
       </div>
@@ -337,6 +334,7 @@ async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillR
                     skillKey: skillKey || null,
                     actorId: actorId || null,
                     baseModifier: baseModifier || 0,
+                    requiredSkillPoints: requiredSkillPoints || 0,
                     skillSpentApplied: false
                 }
             }
