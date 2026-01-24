@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.94] - 2025-01-XX
+
+### Added
+- **Spell Schools: Complete Implementation**
+  - Created TypeScript structure for all Mastery Spell Schools
+  - Implemented 7 spell schools with all spells:
+    - **Pyromancy** (6 spells): Firebolt, Flame Weapon, Firewall, Blazing Burst, Scorching Ray, Blazing Speed
+    - **Malefic Arts** (7 spells): Eldritch Bolt, Blight Surge, Soul Drain, Agony Lash, Maddening Whisper, Void Maw, Rift Step
+    - **Old Pact** (8 spells): Entangle, Healing Pulse, Lightning of the Old Sky, Call Storm, Shapechange, Barkskin, Whispering Woods, Moonbeam
+    - **Thorn & Whisper** (4 spells): Beguiling Glance, Nightshade Cloud, Serpent's Kiss, Ivy Lash
+    - **Breach & Break** (4 spells): Arcane Pierce, Fang of Daggers, Call of Force, Force Hammer
+    - **Aegis & Benedictions** (5 spells): Aid, Bless, Beacon of Grace, Feather Fall, Wings of Faith
+    - **School of the Bound Mind** (4 spells): Telekinetic Manipulation, Telepathic Link, Veil of Invisibility, Phantasmic Reflection
+  - Each spell includes 4 levels with complete details (Range, AoE, Duration, Effect, Special, Raises)
+  - Added spell school bonuses and requirements to spell-schools.ts
+  - Structure mirrors Mastery Trees and Powers for consistency
+
 ## [0.2.93] - 2025-01-XX
 
 ### Changed
