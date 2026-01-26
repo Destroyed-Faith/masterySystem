@@ -201,10 +201,36 @@ export function initializeArtifactAwakening() {
         else {
             htmlJQuery = $(html);
         }
+        // Fallback to app.element if html is empty
+        if (!htmlJQuery || htmlJQuery.length === 0) {
+            if (app?.element) {
+                htmlJQuery = $(app.element);
+            }
+            else if (app?._element) {
+                htmlJQuery = $(app._element);
+            }
+        }
+        // Debug info for folder button rendering
+        console.log('Mastery System | renderItemDirectory (folder buttons)', {
+            isGM: game.user?.isGM,
+            htmlLength: (htmlJQuery && htmlJQuery.length) || 0,
+            appName: app?.constructor?.name,
+            hasAppElement: !!app?.element,
+            hasAppInternalElement: !!app?._element
+        });
         // Find all folder rows
-        htmlJQuery.find('.folder').each((_index, folder) => {
+        const folderRows = htmlJQuery.find('.directory-item.folder, .folder, [data-folder-id]');
+        console.log('Mastery System | Folder rows found', {
+            count: folderRows.length
+        });
+        folderRows.each((_index, folder) => {
             const $folder = $(folder);
-            const folderId = $folder.attr('data-folder-id');
+            const folderId = $folder.attr('data-folder-id') || $folder.data('folderId');
+            console.log('Mastery System | Folder row', {
+                folderId,
+                className: $folder.attr('class'),
+                hasExistingButton: $folder.find('.ms-open-artifact-builder-btn').length > 0
+            });
             if (!folderId)
                 return;
             // Check if button already exists
@@ -218,8 +244,10 @@ export function initializeArtifactAwakening() {
             const folderItems = game.items?.filter((item) => item.folder?.id === folderId &&
                 item.type === 'artifact' &&
                 item.name.includes('Level 1-1')) || [];
-            if (folderItems.length === 0)
+            if (folderItems.length === 0) {
+                console.log('Mastery System | No root artifact in folder', { folderId });
                 return;
+            }
             const builderBtn = $(`
         <button type="button" class="ms-open-artifact-builder-btn" title="Open Artifact Builder" data-folder-id="${folderId}">
           <i class="fas fa-gem"></i>
@@ -231,10 +259,16 @@ export function initializeArtifactAwakening() {
                 const folderId = $(e.currentTarget).data('folder-id');
                 await openArtifactBuilderForFolder(folderId);
             });
-            // Add button to folder header
-            const folderHeader = $folder.find('.folder-header');
+            // Add button to folder header (Foundry v13 uses folder-header/folder-name)
+            const folderHeader = $folder.find('.folder-header, .folder-name, .directory-item');
             if (folderHeader.length > 0) {
-                folderHeader.append(builderBtn);
+                folderHeader.first().append(builderBtn);
+                console.log('Mastery System | Builder button appended', { folderId });
+            }
+            else {
+                // Fallback: append directly to folder row
+                $folder.append(builderBtn);
+                console.log('Mastery System | Builder button appended to row', { folderId });
             }
         });
     });
