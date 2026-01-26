@@ -1159,8 +1159,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('.skill-spend-point').on('click', this.#onSkillSpendPoint.bind(this));
     
     // New attribute XP distribution system (with confirmation)
-    html.find('.attr-increase-xp').on('click', this.#onAttributeIncreaseXP.bind(this));
-    html.find('.attr-decrease-xp').on('click', this.#onAttributeDecreaseXP.bind(this));
+    const increaseButtons = html.find('.attr-increase-xp');
+    const decreaseButtons = html.find('.attr-decrease-xp');
+    console.log('Mastery System | Setting up attribute XP buttons', {
+      increaseButtonsCount: increaseButtons.length,
+      decreaseButtonsCount: decreaseButtons.length,
+      htmlLength: html.length
+    });
+    
+    increaseButtons.on('click', this.#onAttributeIncreaseXP.bind(this));
+    decreaseButtons.on('click', this.#onAttributeDecreaseXP.bind(this));
     html.find('.confirm-attribute-changes').on('click', this.#onConfirmAttributeChanges.bind(this));
     html.find('.cancel-attribute-changes').on('click', this.#onCancelAttributeChanges.bind(this));
     
@@ -1560,18 +1568,35 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     console.log('Mastery System | #onAttributeIncreaseXP called', {
       target: event.currentTarget,
-      attribute: $(event.currentTarget).data('attribute')
+      targetType: typeof event.currentTarget,
+      targetIsElement: event.currentTarget instanceof HTMLElement,
+      attribute: $(event.currentTarget).data('attribute'),
+      actorId: this.actor?.id,
+      actorName: this.actor?.name,
+      isOwner: this.actor?.isOwner
     });
     
     // Check if user is owner
     if (!this.actor.isOwner) {
+      console.warn('Mastery System | #onAttributeIncreaseXP: User is not owner');
       (ui as any).notifications?.warn('Only the owner can distribute Attribute Points.');
       return;
     }
     
-    const attributeName = $(event.currentTarget).data('attribute') as string;
+    const $target = $(event.currentTarget);
+    const attributeName = $target.data('attribute') as string;
+    console.log('Mastery System | #onAttributeIncreaseXP: Attribute name', {
+      attributeName,
+      targetData: $target.data(),
+      targetAttrs: Array.from((event.currentTarget as HTMLElement).attributes).map(a => `${a.name}="${a.value}"`)
+    });
+    
     if (!attributeName) {
-      console.error('Mastery System | #onAttributeIncreaseXP: No attribute name found');
+      console.error('Mastery System | #onAttributeIncreaseXP: No attribute name found', {
+        target: event.currentTarget,
+        targetData: $target.data(),
+        targetAttrs: Array.from((event.currentTarget as HTMLElement).attributes).map(a => `${a.name}="${a.value}"`)
+      });
       return;
     }
     
@@ -1579,14 +1604,27 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const pendingIncrease = this._pendingAttributeChanges[attributeName] || 0;
     const newValue = currentValue + pendingIncrease;
     
+    console.log('Mastery System | #onAttributeIncreaseXP: Current state', {
+      attributeName,
+      currentValue,
+      pendingIncrease,
+      newValue,
+      pendingChanges: this._pendingAttributeChanges
+    });
+    
     // Check max value
     if (newValue >= 80) {
+      console.warn('Mastery System | #onAttributeIncreaseXP: Max value reached', { newValue });
       (ui as any).notifications?.warn('This attribute cannot exceed maximum value (80).');
       return;
     }
     
     // Calculate cost for the next increase
     const cost = this.#calculateAttributeCost(newValue);
+    console.log('Mastery System | #onAttributeIncreaseXP: Cost calculation', {
+      newValue,
+      cost
+    });
     
     // Calculate total cost of all pending changes
     let totalPendingCost = 0;
@@ -1602,15 +1640,31 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     totalPendingCost += cost; // Add cost for this new increase
     
+    console.log('Mastery System | #onAttributeIncreaseXP: Cost check', {
+      totalPendingCost,
+      cost,
+      availablePoints: this.actor.system.points?.attribute || 0
+    });
+    
     // Check if we have enough points
     const availablePoints = this.actor.system.points?.attribute || 0;
     if (totalPendingCost > availablePoints) {
+      console.warn('Mastery System | #onAttributeIncreaseXP: Not enough points', {
+        totalPendingCost,
+        availablePoints
+      });
       (ui as any).notifications?.warn(`Not enough Attribute Points! This increase would cost ${cost} points, but you only have ${availablePoints - (totalPendingCost - cost)} remaining.`);
       return;
     }
     
     // Add pending increase
     this._pendingAttributeChanges[attributeName] = (this._pendingAttributeChanges[attributeName] || 0) + 1;
+    
+    console.log('Mastery System | #onAttributeIncreaseXP: Added pending increase', {
+      attributeName,
+      newPending: this._pendingAttributeChanges[attributeName],
+      allPendingChanges: this._pendingAttributeChanges
+    });
     
     // Update UI
     this.#updateAttributeXPUI();
@@ -1625,23 +1679,56 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     console.log('Mastery System | #onAttributeDecreaseXP called', {
       target: event.currentTarget,
-      attribute: $(event.currentTarget).data('attribute')
+      targetType: typeof event.currentTarget,
+      targetIsElement: event.currentTarget instanceof HTMLElement,
+      attribute: $(event.currentTarget).data('attribute'),
+      actorId: this.actor?.id,
+      actorName: this.actor?.name
     });
     
-    const attributeName = $(event.currentTarget).data('attribute') as string;
+    const $target = $(event.currentTarget);
+    const attributeName = $target.data('attribute') as string;
+    console.log('Mastery System | #onAttributeDecreaseXP: Attribute name', {
+      attributeName,
+      targetData: $target.data(),
+      targetAttrs: Array.from((event.currentTarget as HTMLElement).attributes).map(a => `${a.name}="${a.value}"`)
+    });
+    
     if (!attributeName) {
-      console.error('Mastery System | #onAttributeDecreaseXP: No attribute name found');
+      console.error('Mastery System | #onAttributeDecreaseXP: No attribute name found', {
+        target: event.currentTarget,
+        targetData: $target.data(),
+        targetAttrs: Array.from((event.currentTarget as HTMLElement).attributes).map(a => `${a.name}="${a.value}"`)
+      });
       return;
     }
     
     const pendingIncrease = this._pendingAttributeChanges[attributeName] || 0;
-    if (pendingIncrease <= 0) return;
+    console.log('Mastery System | #onAttributeDecreaseXP: Current pending', {
+      attributeName,
+      pendingIncrease,
+      allPendingChanges: this._pendingAttributeChanges
+    });
+    
+    if (pendingIncrease <= 0) {
+      console.warn('Mastery System | #onAttributeDecreaseXP: No pending increase to decrease', {
+        attributeName,
+        pendingIncrease
+      });
+      return;
+    }
     
     // Remove pending increase
     this._pendingAttributeChanges[attributeName] = pendingIncrease - 1;
     if (this._pendingAttributeChanges[attributeName] === 0) {
       delete this._pendingAttributeChanges[attributeName];
     }
+    
+    console.log('Mastery System | #onAttributeDecreaseXP: Removed pending increase', {
+      attributeName,
+      newPending: this._pendingAttributeChanges[attributeName],
+      allPendingChanges: this._pendingAttributeChanges
+    });
     
     // Update UI
     this.#updateAttributeXPUI();
@@ -2414,6 +2501,25 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       return;
     }
     
+    // Ensure this.element is a jQuery object
+    if (!this.element || typeof this.element.find !== 'function') {
+      console.error('Mastery System | [TOGGLE DETAILS] this.element is not a jQuery object', {
+        element: this.element,
+        elementType: typeof this.element,
+        hasFind: this.element && typeof this.element.find === 'function'
+      });
+      // Try to get element from the button's closest sheet
+      const $sheet = $button.closest('.sheet');
+      if ($sheet.length > 0) {
+        const powerCard = $sheet.find(`.power-card[data-item-id="${itemId}"]`);
+        if (powerCard.length > 0) {
+          this.#togglePowerDetails(powerCard, $button);
+          return;
+        }
+      }
+      return;
+    }
+    
     const powerCard = this.element.find(`.power-card[data-item-id="${itemId}"]`);
     
     if (powerCard.length === 0) {
@@ -2424,9 +2530,23 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       return;
     }
     
+    this.#togglePowerDetails(powerCard, $button);
+  }
+
+  /**
+   * Toggle power details visibility
+   */
+  #togglePowerDetails(powerCard: JQuery, $button: JQuery) {
     const detailsSection = powerCard.find('.power-details-expanded');
     const compactDescription = powerCard.find('.power-description-compact');
     const toggleIcon = $button.find('i');
+    
+    console.log('Mastery System | [TOGGLE DETAILS] Toggling details', {
+      itemId: powerCard.attr('data-item-id'),
+      detailsVisible: detailsSection.is(':visible'),
+      compactVisible: compactDescription.is(':visible'),
+      toggleIconLength: toggleIcon.length
+    });
     
     if (detailsSection.is(':visible')) {
       // Collapse: hide details, show compact description
