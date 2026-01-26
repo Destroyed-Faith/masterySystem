@@ -1,0 +1,63 @@
+<div class="artifact-builder">
+  <div class="builder-header">
+    <h2>{{rootItem.name}}</h2>
+    <div class="builder-actions">
+      <button type="button" class="refresh-tree"><i class="fas fa-sync"></i> Refresh</button>
+    </div>
+  </div>
+
+  <div class="builder-content">
+    <div class="tree-view">
+      <h3>Artifact Tree</h3>
+      <div class="nodes-container">
+        {{#each nodes}}
+        <div class="artifact-node" data-node-id="{{this.nodeId}}">
+          <div class="node-header">
+            {{#with (lookup ../artifactItems this.itemId)}}
+            <span class="node-name">{{this.name}}</span>
+            {{/with}}
+            <span class="node-level">Level {{this.level}}</span>
+          </div>
+          <div class="node-actions">
+            <button type="button" class="edit-node" data-node-id="{{this.nodeId}}" title="Edit Node">
+              <i class="fas fa-edit"></i>
+            </button>
+            {{#if (lt this.childIds.length 2)}}
+            <button type="button" class="add-child-node" data-node-id="{{this.nodeId}}" title="Add Child">
+              <i class="fas fa-plus"></i>
+            </button>
+            {{/if}}
+            {{#unless this.isRoot}}
+            <button type="button" class="remove-node" data-node-id="{{this.nodeId}}" title="Remove Node">
+              <i class="fas fa-trash"></i>
+            </button>
+            {{/unless}}
+          </div>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+
+    <div class="actor-assignments">
+      <h3>Actor Assignments</h3>
+      <div class="assignments-list">
+        {{#each actorLevels}}
+        <div class="assignment-item">
+          <label>{{actorName}}</label>
+          <input type="number" class="assign-actor-level" data-actor-id="{{actorId}}" value="{{level}}" min="0"/>
+        </div>
+        {{/each}}
+      </div>
+      <div class="add-assignment">
+        <select id="actor-select">
+          <option value="">Select Actor...</option>
+          {{#each availableActors}}
+          <option value="{{this.id}}">{{this.name}}</option>
+          {{/each}}
+        </select>
+        <button type="button" class="add-actor-assignment">Add Assignment</button>
+      </div>
+    </div>
+  </div>
+</div>
+

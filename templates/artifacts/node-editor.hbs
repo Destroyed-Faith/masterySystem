@@ -1,0 +1,48 @@
+<form class="node-editor-form">
+  <div class="form-group">
+    <label>Level</label>
+    <input type="number" id="node-level" value="{{level}}" disabled/>
+  </div>
+
+  <div class="form-group">
+    <label>Attack Bonus</label>
+    <input type="number" id="node-attack" value="{{bonuses.attack}}"/>
+  </div>
+
+  <div class="form-group">
+    <label>Defense Bonus</label>
+    <input type="number" id="node-defense" value="{{bonuses.defense}}"/>
+  </div>
+
+  <div class="form-group">
+    <label>Damage</label>
+    <input type="text" id="node-damage" value="{{bonuses.damage}}" placeholder="e.g., +1d6"/>
+  </div>
+
+  <div class="form-group">
+    <label>Specials (one per line)</label>
+    <textarea id="node-specials" rows="5">{{#each bonuses.specials}}{{this}}{{#unless @last}}
+{{/unless}}{{/each}}</textarea>
+  </div>
+
+  <div class="form-group">
+    <label>Lore</label>
+    <textarea id="node-lore" rows="5">{{lore}}</textarea>
+  </div>
+
+  <div class="form-group">
+    <label>Description</label>
+    <textarea id="node-description" rows="5">{{description}}</textarea>
+  </div>
+
+  <div class="form-group">
+    <label>Stones Required</label>
+    <input type="number" id="node-stones" value="{{requirements.stones}}" min="0"/>
+  </div>
+
+  <div class="form-group">
+    <label>Mastery Rank Required</label>
+    <input type="number" id="node-mastery-rank" value="{{requirements.masteryRank}}" min="1"/>
+  </div>
+</form>
+

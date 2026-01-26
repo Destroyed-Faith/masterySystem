@@ -29,6 +29,7 @@ import { initializeSceneControls, initializeTokenHUDButton } from './ui/scene-co
 import { openStonePowersForAllCombatants as openStonePowers, initializeStonePowersFlow } from './combat/stone-powers-flow.js';
 import { registerDivineClashSettings } from './divine-clash/divine-clash-settings.js';
 import { initializeDivineClashHooks } from './divine-clash/divine-clash-hooks.js';
+import { initializeArtifactAwakening } from './artifacts/artifact-awakening.js';
 
 // Dice roller functions are imported in sheets where needed
 
@@ -119,6 +120,9 @@ Hooks.once('init', async function() {
   
   // Initialize Divine Clash hooks
   initializeDivineClashHooks();
+
+  // Initialize Artifact Awakening system
+  initializeArtifactAwakening();
 
   // Initialize combat hooks
   // Register combatStart hook directly here

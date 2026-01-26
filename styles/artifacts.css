@@ -1,0 +1,263 @@
+/* Artifact Awakening System Styles */
+
+/* Item Directory Buttons */
+.ms-new-artifact-btn {
+  background: var(--df-bg-panel, #2a3136);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  color: var(--df-text-primary, #d0d0d0);
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: 8px;
+}
+
+.ms-new-artifact-btn:hover {
+  background: var(--df-bg-header, #1b2124);
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
+}
+
+.ms-open-artifact-builder-btn {
+  background: transparent;
+  border: none;
+  color: var(--df-text-primary, #d0d0d0);
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  opacity: 0.7;
+}
+
+.ms-open-artifact-builder-btn:hover {
+  opacity: 1;
+  color: #ffd700;
+}
+
+/* Actor Sheet Button */
+.ms-artifact-button {
+  background: var(--df-bg-panel, #2a3136);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  color: var(--df-text-primary, #d0d0d0);
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: 8px;
+}
+
+.ms-artifact-button:hover {
+  background: var(--df-bg-header, #1b2124);
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
+}
+
+/* Artifact Builder Application */
+.artifact-builder {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.artifact-builder .builder-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid var(--df-border-primary, #3a3f44);
+}
+
+.artifact-builder .builder-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.artifact-builder .tree-view {
+  flex: 2;
+  padding: 15px;
+  overflow-y: auto;
+  border-right: 1px solid var(--df-border-primary, #3a3f44);
+}
+
+.artifact-builder .nodes-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.artifact-builder .artifact-node {
+  background: var(--df-bg-panel, #2a3136);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.artifact-builder .node-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.artifact-builder .node-name {
+  font-weight: bold;
+  color: var(--df-text-primary, #d0d0d0);
+}
+
+.artifact-builder .node-level {
+  font-size: 12px;
+  color: var(--df-text-secondary, #a0a0a0);
+}
+
+.artifact-builder .node-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.artifact-builder .node-actions button {
+  background: var(--df-bg-header, #1b2124);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  color: var(--df-text-primary, #d0d0d0);
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.artifact-builder .node-actions button:hover {
+  background: var(--df-bg-panel, #2a3136);
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, #0.2));
+}
+
+.artifact-builder .actor-assignments {
+  flex: 1;
+  padding: 15px;
+  overflow-y: auto;
+}
+
+.artifact-builder .assignments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.artifact-builder .assignment-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  background: var(--df-bg-panel, #2a3136);
+  border-radius: 4px;
+}
+
+.artifact-builder .assignment-item label {
+  flex: 1;
+  color: var(--df-text-primary, #d0d0d0);
+}
+
+.artifact-builder .assignment-item input {
+  width: 80px;
+  padding: 4px;
+  background: var(--df-bg-header, #1b2124);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  color: var(--df-text-primary, #d0d0d0);
+  border-radius: 4px;
+}
+
+.artifact-builder .add-assignment {
+  display: flex;
+  gap: 8px;
+}
+
+.artifact-builder .add-assignment select {
+  flex: 1;
+  padding: 6px;
+  background: var(--df-bg-header, #1b2124);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  color: var(--df-text-primary, #d0d0d0);
+  border-radius: 4px;
+}
+
+.artifact-builder .add-assignment button {
+  padding: 6px 12px;
+  background: var(--df-bg-panel, #2a3136);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  color: var(--df-text-primary, #d0d0d0);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.artifact-builder .add-assignment button:hover {
+  background: var(--df-bg-header, #1b2124);
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
+}
+
+/* Node Editor Dialog */
+.node-editor-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.node-editor-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.node-editor-form label {
+  font-weight: bold;
+  color: var(--df-text-primary, #d0d0d0);
+}
+
+.node-editor-form input,
+.node-editor-form textarea {
+  padding: 6px;
+  background: var(--df-bg-header, #1b2124);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  color: var(--df-text-primary, #d0d0d0);
+  border-radius: 4px;
+}
+
+.node-editor-form textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Artifact Sheet */
+.mastery-system.sheet.item.artifact {
+  /* Inherit base item sheet styles */
+}
+
+.mastery-system.sheet.item.artifact .sheet-tabs {
+  margin-bottom: 10px;
+}
+
+.mastery-system.sheet.item.artifact .form-group {
+  margin-bottom: 15px;
+}
+
+.mastery-system.sheet.item.artifact label {
+  font-weight: bold;
+  color: var(--df-text-primary, #d0d0d0);
+  margin-bottom: 5px;
+  display: block;
+}
+
+.mastery-system.sheet.item.artifact input,
+.mastery-system.sheet.item.artifact textarea {
+  width: 100%;
+  padding: 6px;
+  background: var(--df-bg-header, #1b2124);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  color: var(--df-text-primary, #d0d0d0);
+  border-radius: 4px;
+}
+
+.mastery-system.sheet.item.artifact textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+

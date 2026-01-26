@@ -1,0 +1,296 @@
+#artifact-builder form {
+    font-family: Arial, sans-serif;
+}
+.activity button {
+    width: 100%;
+    text-align: left;
+}
+
+.level-buttons button {
+    margin: 0.25em;
+    min-width: 80px;
+}
+
+.level-buttons button {
+    margin: 0.25em;
+    min-width: 80px;
+}
+
+#passive-bonuses-section,
+#activities-section {
+    flex: none;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+#artifact-builder > header.window-header {
+    display: none;
+}
+
+.sheet-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.sheet-header .left,
+.sheet-header .middle,
+.sheet-header .right {
+    flex: none;
+}
+
+.sheet-header .left {
+    flex: 0 0 64px;
+}
+
+.sheet-header .left img {
+    width: 64px;
+    height: 64px;
+    border: 1px solid #999;
+    border-radius: 5px;
+}
+
+.sheet-header .middle {
+    flex: 2;
+}
+
+.sheet-header .middle input[name="name"] {
+    width: 100%;
+    font-size: 1.5em;
+}
+
+.sheet-header .middle select[name="rarity"] {
+    width: 100%;
+}
+
+.sheet-header .right {
+    flex: 0 0 150px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.sheet-header .right input[type="number"] {
+    width: 100%;
+}
+.item-descriptions {
+    margin-bottom: 1em;
+}
+
+
+.sheet-header {
+    max-height: 120px;  /* Oder 150px, je nach Geschmack */
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sheet-header .left img {
+    width: 64px;
+    height: 64px;
+}
+
+.sheet-header .middle input[name="name"] {
+    font-size: 1.5em;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sheet-header .right {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+#node-editor {
+    text-align: center;
+}
+
+.node {
+    margin: 10px;
+    padding: 10px;
+    border: 2px solid #666;
+    border-radius: 8px;
+    display: inline-block;
+}
+
+.root-node {
+    background-color: #ddd;
+}
+
+.child-node {
+    background-color: #eee;
+}
+#node-editor {
+    text-align: center;
+}
+
+.node {
+    margin: 10px;
+    padding: 10px;
+    border: 2px solid #666;
+    border-radius: 8px;
+    display: inline-block;
+    background-color: #eee;
+}
+
+.root-node {
+    background-color: #ccc;
+}
+
+.child-node {
+    background-color: #ddd;
+}
+
+.collapsible-content.collapsed {
+    display: none;
+}
+
+.tree-container {
+    text-align: center;
+}
+
+.node {
+    display: block;
+    border: 2px solid #666;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 10px;
+    background-color: #eee;
+    margin-left: auto;
+    width: 100px;
+    max-width: fit-content;
+    margin-right: auto;
+}
+
+.children {
+    margin-top: 10px;
+}
+
+
+.tree-container {
+    position: relative;
+}
+
+svg#connection-lines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 1px;
+    background: transparent;  /* Temporär, um zu sehen ob SVG sichtbar */
+    z-index: 50;
+}
+
+.children {
+    display: block;   /* sorgt für nebeneinander */
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.node {
+    display: inline-block;
+    margin: 5px;
+}
+
+.bonus-entry {
+    display: flex;
+    gap: 0.5em;
+    align-items: center;
+    margin-bottom: 0.3em;
+}
+
+.bonus-entry select,
+.bonus-entry input {
+    flex: 1;
+}
+
+.bonus-entry .delete-bonus {
+    color: darkred;
+    cursor: pointer;
+}
+
+#bonus-container {
+    margin-bottom: 0.5em;
+}
+#artifact-node-editor {
+    width: 520px !important;
+    height: 500px !important;
+}
+artifact-node-editor .window-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    overflow-y: auto;
+}
+
+#artifact-node-editor .bonus-entry {
+    display: flex;
+    gap: 0.5em;
+    align-items: center;
+}
+
+#artifact-node-editor select,
+#artifact-node-editor input {
+    flex: 1;
+}
+
+#artifact-node-editor .delete-bonus {
+    color: darkred;
+    cursor: pointer;
+}
+
+#artifact-node-editor button {
+    height: 32px;
+    min-width: 100px;
+}
+
+#artifact-node-editor #add-bonus {
+    margin-top: 0.5em;
+}
+
+/* "Item öffnen" unter dem Speichern-Button positionieren */
+#artifact-node-editor #open-item {
+    align-self: flex-start;
+    margin-top: 0.5em;
+}
+
+.actor-level-row select {
+    height: 28px; /* oder passend zu deinem Sheet */
+}
+
+.middle.identity-info {
+    height: 80px;
+    max-height: none;
+    overflow: visible;
+}
+
+#artifact-builder .identity-info .subtitles li::after {
+    content: none !important;
+}
+
+#artifact-builder input[name="name"] {
+    font-size: 1.5em;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: 36px;  /* oder je nach Design */
+    line-height: 36px;
+    padding: 2px 4px;
+    text-align: center;
+    font-family: var(--dnd5e-font-modesto);
+    font-size: var(--font-size-32);
+}
+#artifact-builder .dnd5e2.sheet.item .sheet-header {
+    min-height: unset;
+    height: auto;
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: auto;
+}
+
+
+
+

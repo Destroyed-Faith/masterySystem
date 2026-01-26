@@ -1,0 +1,21 @@
+<h2>Verfügbare Artefakte</h2>
+{{#if artifacts.length}}
+    <ul class="artifact-list">
+        {{#each artifacts}}
+           {{log this}}
+            <li style="display: flex; align-items: center; gap: 0.5em; align-items: center;">
+                <img src="{{this.img}}" width="32" height="32">
+                <span class="artifact-name" data-item-id="{{this.id}}"
+                      style="cursor: pointer; text-decoration: underline;"
+                      title="Klicke, um das Artefakt anzusehen">
+                    {{this.name}}
+                </span>
+                <button class="select-artifact-level" data-actor-id="{{actorId}}" data-artifact-id="{{id}}">
+                    Select
+                </button>
+            </li>
+        {{/each}}
+    </ul>
+{{else}}
+    <p>Aktuell sind keine Artefakte für diesen Actor verfügbar.</p>
+{{/if}}
