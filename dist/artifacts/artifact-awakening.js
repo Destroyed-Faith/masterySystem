@@ -8,6 +8,32 @@ import { ArtifactBuilder } from './artifact-builder.js';
  */
 export function initializeArtifactAwakening() {
     console.log('Mastery System | Initializing Artifact Awakening system');
+    // Debug: Expose debug function to global scope
+    globalThis.debugArtifactButton = function () {
+        console.log('=== Artifact Button Debug ===');
+        console.log('1. GM Status:', game.user?.isGM);
+        const itemDirectory = Object.values(ui.windows).find((w) => w.constructor.name === 'ItemDirectory');
+        if (!itemDirectory) {
+            console.log('❌ Item Directory ist nicht geöffnet!');
+            return;
+        }
+        const html = $(itemDirectory.element || itemDirectory._element);
+        const button = html.find('.ms-new-artifact-btn');
+        console.log('2. Button gefunden:', button.length > 0);
+        const actionButtons = html.find('.header-actions.action-buttons.flexrow');
+        console.log('3. Action Buttons Container:', actionButtons.length > 0);
+        if (actionButtons.length > 0) {
+            console.log('   Container Classes:', actionButtons.attr('class'));
+            console.log('   Buttons im Container:', actionButtons.find('button').length);
+        }
+        const createItemBtn = html.find('button[data-action="createEntry"]');
+        const createFolderBtn = html.find('button[data-action="createFolder"]');
+        console.log('4. Create Item Button:', createItemBtn.length > 0);
+        console.log('5. Create Folder Button:', createFolderBtn.length > 0);
+        const header = html.find('.directory-header');
+        console.log('6. Directory Header:', header.length > 0);
+        console.log('=== Debug Ende ===');
+    };
     // Hook into Item Directory to add "New Artifact" button (GM only)
     Hooks.on('renderItemDirectory', (_app, html, _data) => {
         if (!game.user?.isGM)
