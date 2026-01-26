@@ -25,6 +25,7 @@ const BaseActorSheet: any = (foundry as any)?.appv1?.sheets?.ActorSheet || (Acto
 
 export class MasteryCharacterSheet extends BaseActorSheet {
   private _showStash: boolean = false;
+  private _pendingAttributeChanges: Record<string, number> = {}; // Track pending attribute increases
 
   /** @override */
   static get defaultOptions() {
@@ -1157,6 +1158,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('.attribute-spend-point').on('click', this.#onAttributeSpendPoint.bind(this));
     html.find('.skill-spend-point').on('click', this.#onSkillSpendPoint.bind(this));
     
+    // New attribute XP distribution system (with confirmation)
+    html.find('.attr-increase-xp').on('click', this.#onAttributeIncreaseXP.bind(this));
+    html.find('.attr-decrease-xp').on('click', this.#onAttributeDecreaseXP.bind(this));
+    html.find('.confirm-attribute-changes').on('click', this.#onConfirmAttributeChanges.bind(this));
+    html.find('.cancel-attribute-changes').on('click', this.#onCancelAttributeChanges.bind(this));
+    
+    // Initialize pending changes tracking
+    this._pendingAttributeChanges = {};
+    
     // Character Creation mode buttons
     html.find('.attr-increase').on('click', this.#onCreationAttributeIncrease.bind(this));
     html.find('.attr-decrease').on('click', this.#onCreationAttributeDecrease.bind(this));
@@ -1536,6 +1546,226 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     
     (ui as any).notifications?.info(`${attributeName.charAt(0).toUpperCase() + attributeName.slice(1)} increased to ${currentValue + 1}! (Cost: ${cost} points, Remaining: ${availablePoints - cost})`);
+  }
+
+  /**
+   * Handle pending attribute increase (XP distribution mode)
+   */
+  #onAttributeIncreaseXP(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // Check if user is owner
+    if (!this.actor.isOwner) {
+      (ui as any).notifications?.warn('Only the owner can distribute Attribute Points.');
+      return;
+    }
+    
+    const attributeName = $(event.currentTarget).data('attribute') as string;
+    if (!attributeName) return;
+    
+    const currentValue = this.actor.system.attributes[attributeName]?.value || 0;
+    const pendingIncrease = this._pendingAttributeChanges[attributeName] || 0;
+    const newValue = currentValue + pendingIncrease;
+    
+    // Check max value
+    if (newValue >= 80) {
+      (ui as any).notifications?.warn('This attribute cannot exceed maximum value (80).');
+      return;
+    }
+    
+    // Calculate cost for the next increase
+    const cost = this.#calculateAttributeCost(newValue);
+    
+    // Calculate total cost of all pending changes
+    let totalPendingCost = 0;
+    for (const [attr, pending] of Object.entries(this._pendingAttributeChanges)) {
+      if (pending > 0) {
+        const attrCurrent = this.actor.system.attributes[attr]?.value || 0;
+        const attrPending = this._pendingAttributeChanges[attr] || 0;
+        for (let i = 0; i < pending; i++) {
+          const valueAtIncrease = attrCurrent + attrPending - i;
+          totalPendingCost += this.#calculateAttributeCost(valueAtIncrease);
+        }
+      }
+    }
+    totalPendingCost += cost; // Add cost for this new increase
+    
+    // Check if we have enough points
+    const availablePoints = this.actor.system.points?.attribute || 0;
+    if (totalPendingCost > availablePoints) {
+      (ui as any).notifications?.warn(`Not enough Attribute Points! This increase would cost ${cost} points, but you only have ${availablePoints - (totalPendingCost - cost)} remaining.`);
+      return;
+    }
+    
+    // Add pending increase
+    this._pendingAttributeChanges[attributeName] = (this._pendingAttributeChanges[attributeName] || 0) + 1;
+    
+    // Update UI
+    this.#updateAttributeXPUI();
+  }
+
+  /**
+   * Handle pending attribute decrease (XP distribution mode)
+   */
+  #onAttributeDecreaseXP(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const attributeName = $(event.currentTarget).data('attribute') as string;
+    if (!attributeName) return;
+    
+    const pendingIncrease = this._pendingAttributeChanges[attributeName] || 0;
+    if (pendingIncrease <= 0) return;
+    
+    // Remove pending increase
+    this._pendingAttributeChanges[attributeName] = pendingIncrease - 1;
+    if (this._pendingAttributeChanges[attributeName] === 0) {
+      delete this._pendingAttributeChanges[attributeName];
+    }
+    
+    // Update UI
+    this.#updateAttributeXPUI();
+  }
+
+  /**
+   * Update the attribute XP distribution UI
+   */
+  #updateAttributeXPUI() {
+    const html = this.element;
+    
+    // Calculate total pending cost
+    let totalPendingCost = 0;
+    for (const [attr, pending] of Object.entries(this._pendingAttributeChanges)) {
+      if (pending > 0) {
+        const attrCurrent = this.actor.system.attributes[attr]?.value || 0;
+        for (let i = 0; i < pending; i++) {
+          const valueAtIncrease = attrCurrent + pending - i;
+          totalPendingCost += this.#calculateAttributeCost(valueAtIncrease);
+        }
+      }
+    }
+    
+    const availablePoints = this.actor.system.points?.attribute || 0;
+    const remainingPoints = availablePoints - totalPendingCost;
+    
+    // Update pending changes count
+    const totalPendingChanges = Object.values(this._pendingAttributeChanges).reduce((sum, val) => sum + val, 0);
+    html.find('#pending-attribute-changes-count').text(totalPendingChanges);
+    html.find('#remaining-attribute-xp').text(Math.max(0, remainingPoints));
+    
+    // Update each attribute's pending display
+    const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
+    for (const attrKey of attributeKeys) {
+      const pending = this._pendingAttributeChanges[attrKey] || 0;
+      const pendingChangeEl = html.find(`.attribute-pending-change[data-attribute="${attrKey}"]`);
+      const pendingIncreaseEl = pendingChangeEl.find('.pending-increase');
+      
+      if (pending > 0) {
+        pendingChangeEl.show();
+        pendingIncreaseEl.text(pending);
+      } else {
+        pendingChangeEl.hide();
+      }
+      
+      // Update decrease button state
+      const decreaseBtn = html.find(`.attr-decrease-xp[data-attribute="${attrKey}"]`);
+      if (pending > 0) {
+        decreaseBtn.prop('disabled', false);
+      } else {
+        decreaseBtn.prop('disabled', true);
+      }
+      
+      // Update increase button state (check if we can afford another increase)
+      const increaseBtn = html.find(`.attr-increase-xp[data-attribute="${attrKey}"]`);
+      const currentValue = this.actor.system.attributes[attrKey]?.value || 0;
+      const newValue = currentValue + pending;
+      if (newValue >= 80) {
+        increaseBtn.prop('disabled', true);
+      } else {
+        const nextCost = this.#calculateAttributeCost(newValue);
+        increaseBtn.prop('disabled', remainingPoints < nextCost);
+      }
+    }
+    
+    // Update confirm/cancel buttons
+    const confirmBtn = html.find('#confirm-attribute-changes-btn');
+    const cancelBtn = html.find('#cancel-attribute-changes-btn');
+    if (totalPendingChanges > 0) {
+      confirmBtn.prop('disabled', false);
+      cancelBtn.prop('disabled', false);
+    } else {
+      confirmBtn.prop('disabled', true);
+      cancelBtn.prop('disabled', true);
+    }
+  }
+
+  /**
+   * Confirm and apply pending attribute changes
+   */
+  async #onConfirmAttributeChanges(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // Check if user is owner
+    if (!this.actor.isOwner) {
+      (ui as any).notifications?.warn('Only the owner can confirm Attribute Point changes.');
+      return;
+    }
+    
+    // Calculate total cost and validate
+    let totalCost = 0;
+    const updates: any = {};
+    const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
+    
+    for (const attrKey of attributeKeys) {
+      const pending = this._pendingAttributeChanges[attrKey] || 0;
+      if (pending > 0) {
+        const currentValue = this.actor.system.attributes[attrKey]?.value || 0;
+        let attrCost = 0;
+        for (let i = 0; i < pending; i++) {
+          const valueAtIncrease = currentValue + i;
+          attrCost += this.#calculateAttributeCost(valueAtIncrease);
+        }
+        totalCost += attrCost;
+        updates[`system.attributes.${attrKey}.value`] = currentValue + pending;
+      }
+    }
+    
+    const availablePoints = this.actor.system.points?.attribute || 0;
+    if (totalCost > availablePoints) {
+      (ui as any).notifications?.error(`Not enough Attribute Points! Total cost: ${totalCost}, Available: ${availablePoints}`);
+      return;
+    }
+    
+    // Apply updates
+    updates['system.points.attribute'] = availablePoints - totalCost;
+    await this.actor.update(updates);
+    
+    // Clear pending changes
+    this._pendingAttributeChanges = {};
+    
+    // Show notification
+    (ui as any).notifications?.info(`Attribute changes confirmed! Cost: ${totalCost} points, Remaining: ${availablePoints - totalCost}`);
+    
+    // Re-render
+    await this.render();
+  }
+
+  /**
+   * Cancel pending attribute changes
+   */
+  #onCancelAttributeChanges(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    // Clear pending changes
+    this._pendingAttributeChanges = {};
+    
+    // Update UI
+    this.#updateAttributeXPUI();
+    
+    (ui as any).notifications?.info('Pending attribute changes cancelled.');
   }
 
   /**
@@ -2108,15 +2338,76 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     event.preventDefault();
     event.stopPropagation();
     
-    const element = event.currentTarget;
-    const itemId = element.dataset.itemId;
+    // Safety check for null event target
+    if (!event.currentTarget) {
+      console.error('Mastery System | [TOGGLE DETAILS] event.currentTarget is null');
+      return;
+    }
     
-    if (!itemId) return;
+    const $button = $(event.currentTarget);
+    
+    // Try multiple methods to get the item ID - prioritize button's own data attribute
+    let itemId = $button.attr('data-item-id') || 
+                 $button.data('item-id') || 
+                 $button.data('itemId');
+    
+    // If still not found, try to get from the button element directly
+    if (!itemId && event.currentTarget) {
+      const buttonElement = event.currentTarget as HTMLElement;
+      if (buttonElement) {
+        // Check if dataset exists before accessing it
+        if (buttonElement.dataset) {
+          itemId = buttonElement.dataset.itemId || buttonElement.getAttribute('data-item-id');
+        } else {
+          itemId = buttonElement.getAttribute('data-item-id') || 
+                   buttonElement.getAttribute('data-itemId');
+        }
+      }
+    }
+    
+    // Also try to find from parent power-card
+    if (!itemId) {
+      const $powerCard = $button.closest('.power-card');
+      if ($powerCard.length > 0) {
+        itemId = $powerCard.attr('data-item-id') || 
+                 $powerCard.data('item-id') || 
+                 $powerCard.data('itemId');
+        if (!itemId && $powerCard[0]) {
+          const cardElement = $powerCard[0] as HTMLElement;
+          if (cardElement && cardElement.dataset) {
+            itemId = cardElement.dataset.itemId || cardElement.getAttribute('data-item-id');
+          } else if (cardElement) {
+            itemId = cardElement.getAttribute('data-item-id') || 
+                     cardElement.getAttribute('data-itemId');
+          }
+        }
+      }
+    }
+    
+    if (!itemId) {
+      console.error('Mastery System | [TOGGLE DETAILS] Could not find item ID', {
+        button: event.currentTarget,
+        buttonHtml: $button[0]?.outerHTML,
+        buttonData: $button.data(),
+        buttonAttrs: $button[0] ? Array.from(($button[0] as HTMLElement).attributes).map(a => `${a.name}="${a.value}"`).join(', ') : 'N/A',
+        parentCard: $button.closest('.power-card')[0]?.outerHTML
+      });
+      return;
+    }
     
     const powerCard = this.element.find(`.power-card[data-item-id="${itemId}"]`);
+    
+    if (powerCard.length === 0) {
+      console.error('Mastery System | [TOGGLE DETAILS] Power card not found', {
+        itemId,
+        allPowerCards: this.element.find('.power-card').map((i, el) => $(el).attr('data-item-id')).get()
+      });
+      return;
+    }
+    
     const detailsSection = powerCard.find('.power-details-expanded');
     const compactDescription = powerCard.find('.power-description-compact');
-    const toggleIcon = element.find('i');
+    const toggleIcon = $button.find('i');
     
     if (detailsSection.is(':visible')) {
       // Collapse: hide details, show compact description
@@ -2152,12 +2443,98 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    */
   #onItemEdit(event: JQuery.ClickEvent) {
     event.preventDefault();
-    const element = event.currentTarget.closest('.item');
-    const itemId = element.dataset.itemId;
+    event.stopPropagation();
+    
+    // Safety check for null event target
+    if (!event.currentTarget) {
+      console.error('Mastery System | [EDIT ITEM] event.currentTarget is null');
+      ui.notifications?.error('Could not find item to edit: invalid event target.');
+      return;
+    }
+    
+    // Try to find the item ID from various possible element structures
+    const $button = $(event.currentTarget);
+    
+    // First try to get from button's own data attribute
+    let itemId = $button.attr('data-item-id') || 
+                 $button.data('item-id') || 
+                 $button.data('itemId');
+    
+    // If still not found, try to get from button element directly
+    if (!itemId) {
+      const buttonElement = event.currentTarget as HTMLElement;
+      if (buttonElement) {
+        // Check if dataset exists before accessing it
+        if (buttonElement.dataset) {
+          itemId = buttonElement.dataset.itemId || buttonElement.getAttribute('data-item-id');
+        } else {
+          itemId = buttonElement.getAttribute('data-item-id') || 
+                   buttonElement.getAttribute('data-itemId');
+        }
+      }
+    }
+    
+    // Try to find from parent item containers
+    if (!itemId) {
+      const $item = $button.closest('.item, .equipment-item, .power-card, .creation-power, .df-item-tile');
+      if ($item.length > 0) {
+        itemId = $item.attr('data-item-id') || 
+                 $item.data('item-id') || 
+                 $item.data('itemId');
+        
+        // If still not found, try to get from parent's data attributes
+        if (!itemId && $item[0]) {
+          const itemElement = $item[0] as HTMLElement;
+          if (itemElement && itemElement.dataset) {
+            itemId = itemElement.dataset.itemId || itemElement.getAttribute('data-item-id');
+          } else if (itemElement) {
+            itemId = itemElement.getAttribute('data-item-id') || 
+                     itemElement.getAttribute('data-itemId');
+          }
+        }
+      }
+    }
+    
+    // Also try to find from the button's parent elements
+    if (!itemId) {
+      const buttonElement = event.currentTarget as HTMLElement;
+      if (buttonElement) {
+        let parent = buttonElement.parentElement;
+        let attempts = 0;
+        while (parent && attempts < 5) {
+          // Check if dataset exists before accessing it
+          if (parent && parent.dataset) {
+            itemId = parent.dataset.itemId || parent.getAttribute('data-item-id');
+          } else if (parent) {
+            itemId = parent.getAttribute('data-item-id') || 
+                     parent.getAttribute('data-itemId');
+          }
+          if (itemId) break;
+          parent = parent?.parentElement || null;
+          attempts++;
+        }
+      }
+    }
+    
+    if (!itemId) {
+      console.error('Mastery System | [EDIT ITEM] Could not find item ID', {
+        button: event.currentTarget,
+        buttonHtml: $button[0]?.outerHTML,
+        buttonAttrs: $button[0] ? Array.from(($button[0] as HTMLElement).attributes).map(a => `${a.name}="${a.value}"`).join(', ') : 'N/A',
+        closestItem: $button.closest('.item, .power-card')[0],
+        closestItemHtml: $button.closest('.item, .power-card')[0]?.outerHTML,
+        buttonParent: (event.currentTarget as HTMLElement)?.parentElement?.outerHTML
+      });
+      ui.notifications?.error('Could not find item to edit. Please check the console for details.');
+      return;
+    }
+    
     const item = this.actor.items.get(itemId);
     
     if (item) {
       item.sheet?.render(true);
+    } else {
+      ui.notifications?.error(`Item with ID ${itemId} not found in actor.`);
     }
   }
 

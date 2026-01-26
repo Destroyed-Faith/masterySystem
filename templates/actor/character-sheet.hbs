@@ -150,7 +150,25 @@
 
       <!-- Attributes Grid Section -->
       <div class="attributes-grid-section">
-        <h3><i class="fas fa-fist-raised"></i> Character Attributes</h3>
+        <div class="attributes-header-with-confirm">
+          <h3><i class="fas fa-fist-raised"></i> Character Attributes</h3>
+          {{#if creationComplete}}
+          {{#if (gt system.points.attribute 0)}}
+          <div class="attribute-xp-distribution-controls">
+            <div class="pending-attribute-changes-info">
+              <span class="pending-changes-text">Pending Changes: <span id="pending-attribute-changes-count">0</span></span>
+              <span class="remaining-xp-text">Remaining XP: <span id="remaining-attribute-xp">{{default system.points.attribute 0}}</span></span>
+            </div>
+            <button type="button" class="confirm-attribute-changes" id="confirm-attribute-changes-btn" disabled>
+              <i class="fas fa-check"></i> Confirm Changes
+            </button>
+            <button type="button" class="cancel-attribute-changes" id="cancel-attribute-changes-btn" disabled>
+              <i class="fas fa-times"></i> Cancel
+            </button>
+          </div>
+          {{/if}}
+          {{/if}}
+        </div>
         
         <!-- Row 1: Physical + Mental Attributes -->
         <div class="attributes-grid">
@@ -161,11 +179,21 @@
               <div class="attribute-card-header">
                 <h4 class="attribute-name"><i class="fas fa-dumbbell"></i> Might</h4>
                 <div class="attribute-value-with-button">
-                  <div class="attribute-value">{{default value 0}}</div>
+                  <div class="attribute-value">
+                    <span class="attribute-base-value">{{default value 0}}</span>
+                    <span class="attribute-pending-change" data-attribute="might" style="display: none;">+<span class="pending-increase">0</span></span>
+                  </div>
                   {{#if ../creationComplete}}
-                  <button type="button" class="attribute-spend-point" data-attribute="might" title="Spend Attribute Point">
-                    <i class="fas fa-arrow-up"></i>
-                  </button>
+                  {{#if (gt ../system.points.attribute 0)}}
+                  <div class="attribute-controls">
+                    <button type="button" class="attr-decrease-xp" data-attribute="might" title="Decrease Attribute (Pending)" disabled>
+                      <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="attr-increase-xp" data-attribute="might" title="Increase Attribute (Pending)">
+                      <i class="fas fa-plus"></i>
+                    </button>
+                  </div>
+                  {{/if}}
                   {{else}}
                   <div class="creation-controls">
                     <button type="button" class="attr-decrease" data-attribute="might" title="Decrease Attribute" {{#if (lte value ../creation.masteryRank)}}disabled{{/if}}>
@@ -205,11 +233,21 @@
               <div class="attribute-card-header">
                 <h4 class="attribute-name"><i class="fas fa-running"></i> Agility</h4>
                 <div class="attribute-value-with-button">
-                  <div class="attribute-value">{{default value 0}}</div>
+                  <div class="attribute-value">
+                    <span class="attribute-base-value">{{default value 0}}</span>
+                    <span class="attribute-pending-change" data-attribute="agility" style="display: none;">+<span class="pending-increase">0</span></span>
+                  </div>
                   {{#if ../creationComplete}}
-                  <button type="button" class="attribute-spend-point" data-attribute="agility" title="Spend Attribute Point">
-                    <i class="fas fa-arrow-up"></i>
-                  </button>
+                  {{#if (gt ../system.points.attribute 0)}}
+                  <div class="attribute-controls">
+                    <button type="button" class="attr-decrease-xp" data-attribute="agility" title="Decrease Attribute (Pending)" disabled>
+                      <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="attr-increase-xp" data-attribute="agility" title="Increase Attribute (Pending)">
+                      <i class="fas fa-plus"></i>
+                    </button>
+                  </div>
+                  {{/if}}
                   {{else}}
                   <div class="creation-controls">
                     <button type="button" class="attr-decrease" data-attribute="agility" title="Decrease Attribute" {{#if (lte value ../creation.masteryRank)}}disabled{{/if}}>
@@ -247,11 +285,21 @@
               <div class="attribute-card-header">
                 <h4 class="attribute-name"><i class="fas fa-heart"></i> Vitality</h4>
                 <div class="attribute-value-with-button">
-                  <div class="attribute-value">{{default value 0}}</div>
+                  <div class="attribute-value">
+                    <span class="attribute-base-value">{{default value 0}}</span>
+                    <span class="attribute-pending-change" data-attribute="vitality" style="display: none;">+<span class="pending-increase">0</span></span>
+                  </div>
                   {{#if ../creationComplete}}
-                  <button type="button" class="attribute-spend-point" data-attribute="vitality" title="Spend Attribute Point">
-                    <i class="fas fa-arrow-up"></i>
-                  </button>
+                  {{#if (gt ../system.points.attribute 0)}}
+                  <div class="attribute-controls">
+                    <button type="button" class="attr-decrease-xp" data-attribute="vitality" title="Decrease Attribute (Pending)" disabled>
+                      <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="attr-increase-xp" data-attribute="vitality" title="Increase Attribute (Pending)">
+                      <i class="fas fa-plus"></i>
+                    </button>
+                  </div>
+                  {{/if}}
                   {{else}}
                   <div class="creation-controls">
                     <button type="button" class="attr-decrease" data-attribute="vitality" title="Decrease Attribute" {{#if (lte value ../creation.masteryRank)}}disabled{{/if}}>
@@ -289,11 +337,21 @@
               <div class="attribute-card-header">
                 <h4 class="attribute-name"><i class="fas fa-brain"></i> Wits</h4>
                 <div class="attribute-value-with-button">
-                  <div class="attribute-value">{{default value 0}}</div>
+                  <div class="attribute-value">
+                    <span class="attribute-base-value">{{default value 0}}</span>
+                    <span class="attribute-pending-change" data-attribute="wits" style="display: none;">+<span class="pending-increase">0</span></span>
+                  </div>
                   {{#if ../creationComplete}}
-                  <button type="button" class="attribute-spend-point" data-attribute="wits" title="Spend Attribute Point">
-                    <i class="fas fa-arrow-up"></i>
-                  </button>
+                  {{#if (gt ../system.points.attribute 0)}}
+                  <div class="attribute-controls">
+                    <button type="button" class="attr-decrease-xp" data-attribute="wits" title="Decrease Attribute (Pending)" disabled>
+                      <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="attr-increase-xp" data-attribute="wits" title="Increase Attribute (Pending)">
+                      <i class="fas fa-plus"></i>
+                    </button>
+                  </div>
+                  {{/if}}
                   {{else}}
                   <div class="creation-controls">
                     <button type="button" class="attr-decrease" data-attribute="wits" title="Decrease Attribute" {{#if (lte value ../creation.masteryRank)}}disabled{{/if}}>
@@ -336,11 +394,21 @@
               <div class="attribute-card-header">
                 <h4 class="attribute-name"><i class="fas fa-book"></i> Intellect</h4>
                 <div class="attribute-value-with-button">
-                  <div class="attribute-value">{{default value 0}}</div>
+                  <div class="attribute-value">
+                    <span class="attribute-base-value">{{default value 0}}</span>
+                    <span class="attribute-pending-change" data-attribute="intellect" style="display: none;">+<span class="pending-increase">0</span></span>
+                  </div>
                   {{#if ../creationComplete}}
-                  <button type="button" class="attribute-spend-point" data-attribute="intellect" title="Spend Attribute Point">
-                    <i class="fas fa-arrow-up"></i>
-                  </button>
+                  {{#if (gt ../system.points.attribute 0)}}
+                  <div class="attribute-controls">
+                    <button type="button" class="attr-decrease-xp" data-attribute="intellect" title="Decrease Attribute (Pending)" disabled>
+                      <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="attr-increase-xp" data-attribute="intellect" title="Increase Attribute (Pending)">
+                      <i class="fas fa-plus"></i>
+                    </button>
+                  </div>
+                  {{/if}}
                   {{else}}
                   <div class="creation-controls">
                     <button type="button" class="attr-decrease" data-attribute="intellect" title="Decrease Attribute" {{#if (lte value ../creation.masteryRank)}}disabled{{/if}}>
@@ -378,11 +446,21 @@
               <div class="attribute-card-header">
                 <h4 class="attribute-name"><i class="fas fa-mountain"></i> Resolve</h4>
                 <div class="attribute-value-with-button">
-                  <div class="attribute-value">{{default value 0}}</div>
+                  <div class="attribute-value">
+                    <span class="attribute-base-value">{{default value 0}}</span>
+                    <span class="attribute-pending-change" data-attribute="resolve" style="display: none;">+<span class="pending-increase">0</span></span>
+                  </div>
                   {{#if ../creationComplete}}
-                  <button type="button" class="attribute-spend-point" data-attribute="resolve" title="Spend Attribute Point">
-                    <i class="fas fa-arrow-up"></i>
-                  </button>
+                  {{#if (gt ../system.points.attribute 0)}}
+                  <div class="attribute-controls">
+                    <button type="button" class="attr-decrease-xp" data-attribute="resolve" title="Decrease Attribute (Pending)" disabled>
+                      <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="attr-increase-xp" data-attribute="resolve" title="Increase Attribute (Pending)">
+                      <i class="fas fa-plus"></i>
+                    </button>
+                  </div>
+                  {{/if}}
                   {{else}}
                   <div class="creation-controls">
                     <button type="button" class="attr-decrease" data-attribute="resolve" title="Decrease Attribute" {{#if (lte value ../creation.masteryRank)}}disabled{{/if}}>
@@ -420,11 +498,21 @@
               <div class="attribute-card-header">
                 <h4 class="attribute-name"><i class="fas fa-users"></i> Influence</h4>
                 <div class="attribute-value-with-button">
-                  <div class="attribute-value">{{default value 0}}</div>
+                  <div class="attribute-value">
+                    <span class="attribute-base-value">{{default value 0}}</span>
+                    <span class="attribute-pending-change" data-attribute="influence" style="display: none;">+<span class="pending-increase">0</span></span>
+                  </div>
                   {{#if ../creationComplete}}
-                  <button type="button" class="attribute-spend-point" data-attribute="influence" title="Spend Attribute Point">
-                    <i class="fas fa-arrow-up"></i>
-                  </button>
+                  {{#if (gt ../system.points.attribute 0)}}
+                  <div class="attribute-controls">
+                    <button type="button" class="attr-decrease-xp" data-attribute="influence" title="Decrease Attribute (Pending)" disabled>
+                      <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="attr-increase-xp" data-attribute="influence" title="Increase Attribute (Pending)">
+                      <i class="fas fa-plus"></i>
+                    </button>
+                  </div>
+                  {{/if}}
                   {{else}}
                   <div class="creation-controls">
                     <button type="button" class="attr-decrease" data-attribute="influence" title="Decrease Attribute" {{#if (lte value ../creation.masteryRank)}}disabled{{/if}}>
@@ -951,7 +1039,10 @@
           {{#each items.powers}}
             <div class="power-card" data-item-id="{{this.id}}">
               <div class="power-header-compact">
-                <div class="power-name-compact">{{this.name}}</div>
+                <div class="power-name-compact">
+                  {{this.name}}
+                  <span class="power-level-badge" title="Power Level {{default this.system.level 1}}"><strong>Level {{default this.system.level 1}}</strong></span>
+                </div>
                 <div class="power-info-compact">
                   {{#if (lookup this.system.roll 'damage')}}
                   <span class="power-damage-compact" title="Damage">
@@ -985,8 +1076,8 @@
                   <button type="button" class="power-toggle-details" data-item-id="{{this.id}}" title="Toggle Details">
                     <i class="fas fa-chevron-down"></i>
                   </button>
-                  <button type="button" class="item-edit" title="Edit"><i class="fas fa-edit"></i></button>
-                  <button type="button" class="item-delete" title="Delete"><i class="fas fa-trash"></i></button>
+                  <button type="button" class="item-edit" data-item-id="{{this.id}}" title="Edit"><i class="fas fa-edit"></i></button>
+                  <button type="button" class="item-delete" data-item-id="{{this.id}}" title="Delete"><i class="fas fa-trash"></i></button>
                 </div>
               </div>
               

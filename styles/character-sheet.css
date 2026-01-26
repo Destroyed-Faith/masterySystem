@@ -708,6 +708,126 @@
   transform: scale(0.95);
 }
 
+.mastery-system.sheet.actor.character .attributes-header-with-confirm {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.mastery-system.sheet.actor.character .attribute-xp-distribution-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.mastery-system.sheet.actor.character .pending-attribute-changes-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--df-text-secondary, #a0a0a0);
+}
+
+.mastery-system.sheet.actor.character .pending-changes-text,
+.mastery-system.sheet.actor.character .remaining-xp-text {
+  font-weight: 600;
+}
+
+.mastery-system.sheet.actor.character .pending-changes-text span,
+.mastery-system.sheet.actor.character .remaining-xp-text span {
+  color: var(--df-text-primary, #d0d0d0);
+  font-weight: 700;
+}
+
+.mastery-system.sheet.actor.character .confirm-attribute-changes,
+.mastery-system.sheet.actor.character .cancel-attribute-changes {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mastery-system.sheet.actor.character .confirm-attribute-changes {
+  background: linear-gradient(135deg, #4a9e4a 0%, #3a7e3a 100%);
+  color: #fff;
+  border-color: #4a9e4a;
+}
+
+.mastery-system.sheet.actor.character .confirm-attribute-changes:hover:not(:disabled) {
+  background: linear-gradient(135deg, #5aae5a 0%, #4a8e4a 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(74, 158, 74, 0.4);
+}
+
+.mastery-system.sheet.actor.character .cancel-attribute-changes {
+  background: var(--df-bg-panel, #2a3136);
+  color: var(--df-text-primary, #d0d0d0);
+}
+
+.mastery-system.sheet.actor.character .cancel-attribute-changes:hover:not(:disabled) {
+  background: var(--df-bg-header, #1b2124);
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
+}
+
+.mastery-system.sheet.actor.character .confirm-attribute-changes:disabled,
+.mastery-system.sheet.actor.character .cancel-attribute-changes:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mastery-system.sheet.actor.character .attribute-pending-change {
+  color: #4a9e4a;
+  font-weight: 700;
+  margin-left: 5px;
+  font-size: 14px;
+}
+
+.mastery-system.sheet.actor.character .attr-increase-xp,
+.mastery-system.sheet.actor.character .attr-decrease-xp {
+  background: var(--df-bg-panel, #2a3136);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  color: var(--df-text-primary, #d0d0d0);
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px var(--df-shadow, rgba(0,0,0,0.5));
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.mastery-system.sheet.actor.character .attr-increase-xp:hover:not(:disabled),
+.mastery-system.sheet.actor.character .attr-decrease-xp:hover:not(:disabled) {
+  background: var(--df-bg-header, #1b2124);
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
+  transform: scale(1.1);
+  box-shadow: 0 3px 8px var(--df-shadow, rgba(0,0,0,0.5));
+}
+
+.mastery-system.sheet.actor.character .attr-increase-xp:active:not(:disabled),
+.mastery-system.sheet.actor.character .attr-decrease-xp:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.mastery-system.sheet.actor.character .attr-increase-xp:disabled,
+.mastery-system.sheet.actor.character .attr-decrease-xp:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .mastery-system.sheet.actor.character .attribute-controls input {
   width: 70px;
   padding: 8px;
@@ -1219,6 +1339,28 @@
   min-width: 120px;
   flex-shrink: 0;
   font-family: 'Cinzel Decorative', serif;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mastery-system.sheet.actor.character .power-level-badge {
+  font-size: 13px;
+  padding: 5px 10px;
+  background: linear-gradient(135deg, rgba(139, 0, 0, 0.6), rgba(100, 0, 0, 0.4));
+  border: 2px solid rgba(255, 100, 100, 0.7);
+  border-radius: 6px;
+  color: #ffcccc;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-family: 'Cormorant Garamond', serif;
+  white-space: nowrap;
+  margin-left: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.2);
+  letter-spacing: 0.5px;
+  display: inline-block;
+  min-width: 50px;
+  text-align: center;
 }
 
 .mastery-system.sheet.actor.character .power-info-compact {
@@ -1330,13 +1472,22 @@
   color: var(--df-text-secondary, #a0a0a0);
   line-height: 1.8;
   font-family: 'Cormorant Garamond', serif;
-  padding-top: 12px;
-  border-top: 1px solid var(--df-border-primary, #3a3f44);
+  padding: 10px;
+  background: rgba(139, 0, 0, 0.15);
+  border-left: 4px solid rgba(200, 0, 0, 0.6);
+  border-radius: 4px;
+  margin-top: 8px;
 }
 
 .mastery-system.sheet.actor.character .power-level-info-text strong {
-  color: var(--df-text-primary, #d0d0d0);
-  font-weight: 600;
+  color: var(--df-text-primary, #ffcccc);
+  font-weight: 700;
+  font-size: 14px;
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(139, 0, 0, 0.3);
+  border-radius: 3px;
+  margin-bottom: 4px;
 }
 
 .mastery-system.sheet.actor.character .power-use-btn,
