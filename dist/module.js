@@ -1791,7 +1791,7 @@ console.log(`
 ║  • Powers & Mastery Trees (L1-L4)                         ║
 ║  • Divine Clash late-game combat                          ║
 ║                                                           ║
-       ║  Version: 0.2.0                                            ║
+       ║  Version: 0.3.1                                            ║
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
 `);

@@ -1164,11 +1164,26 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     console.log('Mastery System | Setting up attribute XP buttons', {
       increaseButtonsCount: increaseButtons.length,
       decreaseButtonsCount: decreaseButtons.length,
-      htmlLength: html.length
+      htmlLength: html.length,
+      increaseButtons: increaseButtons.map((_i: number, el: HTMLElement) => ({
+        element: el,
+        attribute: $(el).data('attribute'),
+        disabled: $(el).prop('disabled')
+      })).get(),
+      decreaseButtons: decreaseButtons.map((_i: number, el: HTMLElement) => ({
+        element: el,
+        attribute: $(el).data('attribute'),
+        disabled: $(el).prop('disabled')
+      })).get()
     });
     
-    increaseButtons.on('click', this.#onAttributeIncreaseXP.bind(this));
-    decreaseButtons.on('click', this.#onAttributeDecreaseXP.bind(this));
+    // Use event delegation to ensure handlers work even if buttons are dynamically added
+    html.off('click', '.attr-increase-xp').on('click', '.attr-increase-xp', this.#onAttributeIncreaseXP.bind(this));
+    html.off('click', '.attr-decrease-xp').on('click', '.attr-decrease-xp', this.#onAttributeDecreaseXP.bind(this));
+    
+    // Also try direct binding as fallback
+    increaseButtons.off('click.attr-xp').on('click.attr-xp', this.#onAttributeIncreaseXP.bind(this));
+    decreaseButtons.off('click.attr-xp').on('click.attr-xp', this.#onAttributeDecreaseXP.bind(this));
     html.find('.confirm-attribute-changes').on('click', this.#onConfirmAttributeChanges.bind(this));
     html.find('.cancel-attribute-changes').on('click', this.#onCancelAttributeChanges.bind(this));
     
@@ -2444,6 +2459,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     event.preventDefault();
     event.stopPropagation();
     
+    console.log('Mastery System | [TOGGLE DETAILS] Handler called', {
+      currentTarget: event.currentTarget,
+      target: event.target
+    });
+    
     // Safety check for null event target
     if (!event.currentTarget) {
       console.error('Mastery System | [TOGGLE DETAILS] event.currentTarget is null');
@@ -2451,6 +2471,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     
     const $button = $(event.currentTarget);
+    console.log('Mastery System | [TOGGLE DETAILS] Button jQuery object', {
+      buttonLength: $button.length,
+      buttonIsJQuery: $button instanceof jQuery
+    });
     
     // Try multiple methods to get the item ID - prioritize button's own data attribute
     let itemId = $button.attr('data-item-id') || 
@@ -2525,7 +2549,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     if (powerCard.length === 0) {
       console.error('Mastery System | [TOGGLE DETAILS] Power card not found', {
         itemId,
-        allPowerCards: this.element.find('.power-card').map((i, el) => $(el).attr('data-item-id')).get()
+        allPowerCards: this.element.find('.power-card').map((_i: number, el: HTMLElement) => $(el).attr('data-item-id')).get()
       });
       return;
     }

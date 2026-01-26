@@ -6,6 +6,7 @@ declare const BaseActorSheet: any;
 export declare class MasteryCharacterSheet extends BaseActorSheet {
     #private;
     private _showStash;
+    private _pendingAttributeChanges;
     /** @override */
     static get defaultOptions(): any;
     /** @override */
