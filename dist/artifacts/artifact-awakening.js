@@ -23,43 +23,37 @@ export function initializeArtifactAwakening() {
         newArtifactBtn.on('click', async () => {
             await createNewArtifact();
         });
-        // Place button next to "Create Item" and "Create Folder" buttons
-        // Look for the header actions container where these buttons are
-        const headerActions = html.find('.directory-header .header-actions, .directory-header .action-buttons, .directory-header .controls');
-        if (headerActions.length > 0) {
-            // Insert after existing buttons
-            headerActions.append(newArtifactBtn);
+        // Place button in the header-actions.action-buttons.flexrow container
+        // This is where "Create Item" and "Create Folder" buttons are located
+        const actionButtons = html.find('.directory-header .header-actions.action-buttons.flexrow, .directory-header .action-buttons.flexrow');
+        if (actionButtons.length > 0) {
+            // Insert after Create Folder button (last button in the container)
+            actionButtons.append(newArtifactBtn);
             return;
         }
-        // Try to find where "Create Item" button is
-        const createItemBtn = html.find('button[data-action="createItem"], button.create-item, .create-entity');
+        // Fallback: Try to find Create Folder button and insert after it
+        const createFolderBtn = html.find('button[data-action="createFolder"], button.create-folder');
+        if (createFolderBtn.length > 0) {
+            createFolderBtn.after(newArtifactBtn);
+            return;
+        }
+        // Fallback: Try to find Create Item button and insert after it
+        const createItemBtn = html.find('button[data-action="createEntry"], button[data-action="createItem"], button.create-entry');
         if (createItemBtn.length > 0) {
-            // Insert after Create Item button
             createItemBtn.after(newArtifactBtn);
             return;
         }
-        // Try header directly
-        const header = html.find('.directory-header');
-        if (header.length > 0) {
-            // Create actions container if needed
-            let actionsContainer = header.find('.header-actions, .action-buttons');
-            if (actionsContainer.length === 0) {
-                actionsContainer = $('<div class="header-actions"></div>');
-                header.append(actionsContainer);
-            }
-            actionsContainer.append(newArtifactBtn);
+        // Fallback: Try header-actions container
+        const headerActions = html.find('.directory-header .header-actions');
+        if (headerActions.length > 0) {
+            headerActions.append(newArtifactBtn);
             return;
         }
-        // Fallback: try directory footer
+        // Last resort: try directory footer
         const footer = html.find('.directory-footer');
         if (footer.length > 0) {
             footer.append(newArtifactBtn);
             return;
-        }
-        // Last resort: prepend to window content
-        const windowContent = html.find('.window-content');
-        if (windowContent.length > 0) {
-            windowContent.prepend(newArtifactBtn);
         }
     });
     // Hook into Item Directory folder rows to add "Open Artifact Builder" button
