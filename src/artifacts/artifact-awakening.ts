@@ -281,8 +281,10 @@ export function initializeArtifactAwakening(): void {
       if ($folder.find('.ms-open-artifact-builder-btn').length > 0) return;
 
       // Check if this folder contains artifact root items
-      const folderData = (app as any).folders?.get(folderId);
-      if (!folderData) return;
+      const folderData = (app as any).folders?.get(folderId) || (game as any).folders?.get(folderId);
+      if (!folderData) {
+        console.warn('Mastery System | Folder data not found for row', { folderId });
+      }
 
       const allFolderItems = (game as any).items?.filter((item: any) => item.folder?.id === folderId) || [];
       console.log('Mastery System | Folder items snapshot', {
@@ -302,6 +304,12 @@ export function initializeArtifactAwakening(): void {
         const isRootFlag = (item as any).getFlag?.('mastery-system', 'isRoot') === true;
         const isRootName = typeof item.name === 'string' && item.name.includes('Level 1-1');
         return isRootFlag || isRootName;
+      });
+
+      console.log('Mastery System | Folder root items', {
+        folderId,
+        rootCount: folderItems.length,
+        rootNames: folderItems.map((item: any) => item.name)
       });
 
       if (folderItems.length === 0) {
@@ -485,11 +493,10 @@ async function openArtifactBuilderForFolder(folderId: string): Promise<void> {
     return;
   }
 
-  // Find root artifact item (Level 1-1)
+  // Find root artifact item (Level 1-1) - allow non-artifact type if name matches
   const rootItem = (game as any).items?.find((item: any) => 
     item.folder?.id === folderId && 
-    item.type === 'artifact' &&
-    item.name.includes('Level 1-1')
+    (item.name?.includes('Level 1-1') || (item as any).getFlag?.('mastery-system', 'isRoot') === true)
   );
 
   if (!rootItem) {

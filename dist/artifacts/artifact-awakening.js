@@ -255,9 +255,10 @@ export function initializeArtifactAwakening() {
             if ($folder.find('.ms-open-artifact-builder-btn').length > 0)
                 return;
             // Check if this folder contains artifact root items
-            const folderData = app.folders?.get(folderId);
-            if (!folderData)
-                return;
+            const folderData = app.folders?.get(folderId) || game.folders?.get(folderId);
+            if (!folderData) {
+                console.warn('Mastery System | Folder data not found for row', { folderId });
+            }
             const allFolderItems = game.items?.filter((item) => item.folder?.id === folderId) || [];
             console.log('Mastery System | Folder items snapshot', {
                 folderId,
@@ -276,6 +277,11 @@ export function initializeArtifactAwakening() {
                 const isRootFlag = item.getFlag?.('mastery-system', 'isRoot') === true;
                 const isRootName = typeof item.name === 'string' && item.name.includes('Level 1-1');
                 return isRootFlag || isRootName;
+            });
+            console.log('Mastery System | Folder root items', {
+                folderId,
+                rootCount: folderItems.length,
+                rootNames: folderItems.map((item) => item.name)
             });
             if (folderItems.length === 0) {
                 console.log('Mastery System | No root artifact in folder', {
@@ -449,10 +455,9 @@ async function openArtifactBuilderForFolder(folderId) {
         ui.notifications?.error('Folder not found.');
         return;
     }
-    // Find root artifact item (Level 1-1)
+    // Find root artifact item (Level 1-1) - allow non-artifact type if name matches
     const rootItem = game.items?.find((item) => item.folder?.id === folderId &&
-        item.type === 'artifact' &&
-        item.name.includes('Level 1-1'));
+        (item.name?.includes('Level 1-1') || item.getFlag?.('mastery-system', 'isRoot') === true));
     if (!rootItem) {
         ui.notifications?.error('Root artifact item not found in this folder.');
         return;
