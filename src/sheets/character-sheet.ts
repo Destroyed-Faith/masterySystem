@@ -1167,6 +1167,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Initialize pending changes tracking
     this._pendingAttributeChanges = {};
     
+    // Initialize UI state for attribute XP distribution
+    this.#updateAttributeXPUI();
+    
     // Character Creation mode buttons
     html.find('.attr-increase').on('click', this.#onCreationAttributeIncrease.bind(this));
     html.find('.attr-decrease').on('click', this.#onCreationAttributeDecrease.bind(this));
@@ -1555,6 +1558,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     event.preventDefault();
     event.stopPropagation();
     
+    console.log('Mastery System | #onAttributeIncreaseXP called', {
+      target: event.currentTarget,
+      attribute: $(event.currentTarget).data('attribute')
+    });
+    
     // Check if user is owner
     if (!this.actor.isOwner) {
       (ui as any).notifications?.warn('Only the owner can distribute Attribute Points.');
@@ -1562,7 +1570,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     
     const attributeName = $(event.currentTarget).data('attribute') as string;
-    if (!attributeName) return;
+    if (!attributeName) {
+      console.error('Mastery System | #onAttributeIncreaseXP: No attribute name found');
+      return;
+    }
     
     const currentValue = this.actor.system.attributes[attributeName]?.value || 0;
     const pendingIncrease = this._pendingAttributeChanges[attributeName] || 0;
@@ -1612,8 +1623,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     event.preventDefault();
     event.stopPropagation();
     
+    console.log('Mastery System | #onAttributeDecreaseXP called', {
+      target: event.currentTarget,
+      attribute: $(event.currentTarget).data('attribute')
+    });
+    
     const attributeName = $(event.currentTarget).data('attribute') as string;
-    if (!attributeName) return;
+    if (!attributeName) {
+      console.error('Mastery System | #onAttributeDecreaseXP: No attribute name found');
+      return;
+    }
     
     const pendingIncrease = this._pendingAttributeChanges[attributeName] || 0;
     if (pendingIncrease <= 0) return;

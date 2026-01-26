@@ -643,6 +643,11 @@
   justify-content: center;
 }
 
+.mastery-system.sheet.actor.character .attribute-controls-vertical {
+  flex-direction: column;
+  gap: 4px;
+}
+
 .mastery-system.sheet.actor.character .attribute-spend-point {
   background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
   border: none;
