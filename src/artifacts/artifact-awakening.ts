@@ -15,20 +15,6 @@ export function initializeArtifactAwakening(): void {
   Hooks.on('renderItemDirectory', (_app: any, html: JQuery, _data: any) => {
     if (!game.user?.isGM) return;
 
-    // Add "New Artifact" button to the directory header
-    let headerActions = html.find('.directory-header .header-actions');
-    if (headerActions.length === 0) {
-      // Create header-actions if it doesn't exist
-      const header = html.find('.directory-header');
-      if (header.length > 0) {
-        const actionsDiv = $('<div class="header-actions"></div>');
-        header.append(actionsDiv);
-        headerActions = actionsDiv;
-      } else {
-        return; // Can't find header
-      }
-    }
-
     // Check if button already exists
     if (html.find('.ms-new-artifact-btn').length > 0) return;
 
@@ -42,7 +28,38 @@ export function initializeArtifactAwakening(): void {
       await createNewArtifact();
     });
 
-    headerActions.append(newArtifactBtn);
+    // Try multiple locations to place the button
+    // 1. Try directory footer first (most common in v13)
+    const footer = html.find('.directory-footer');
+    if (footer.length > 0) {
+      footer.append(newArtifactBtn);
+      return;
+    }
+
+    // 2. Try header actions
+    let headerActions = html.find('.directory-header .header-actions');
+    if (headerActions.length > 0) {
+      headerActions.append(newArtifactBtn);
+      return;
+    }
+
+    // 3. Try creating header-actions if header exists
+    const header = html.find('.directory-header');
+    if (header.length > 0) {
+      const actionsDiv = $('<div class="header-actions"></div>');
+      header.append(actionsDiv);
+      actionsDiv.append(newArtifactBtn);
+      return;
+    }
+
+    // 4. Fallback: append to the main directory container
+    const directoryContent = html.find('.directory-list, .directory-content, .window-content');
+    if (directoryContent.length > 0) {
+      directoryContent.first().prepend(newArtifactBtn);
+    } else {
+      // Last resort: prepend to html
+      html.prepend(newArtifactBtn);
+    }
   });
 
   // Hook into Item Directory folder rows to add "Open Artifact Builder" button
