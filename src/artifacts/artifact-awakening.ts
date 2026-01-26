@@ -264,7 +264,8 @@ export function initializeArtifactAwakening(): void {
     // Find all folder rows
     const folderRows = htmlJQuery.find('.directory-item.folder, .folder, [data-folder-id]');
     console.log('Mastery System | Folder rows found', {
-      count: folderRows.length
+      count: folderRows.length,
+      totalItems: (game as any).items?.size || (game as any).items?.length || 0
     });
     folderRows.each((_index: number, folder: HTMLElement) => {
       const $folder = $(folder);
@@ -283,17 +284,32 @@ export function initializeArtifactAwakening(): void {
       const folderData = (app as any).folders?.get(folderId);
       if (!folderData) return;
 
-      // Check if folder has a root artifact (Level 1-1)
-      const folderItems = (game as any).items?.filter((item: any) => {
+      const allFolderItems = (game as any).items?.filter((item: any) => item.folder?.id === folderId) || [];
+      console.log('Mastery System | Folder items snapshot', {
+        folderId,
+        itemCount: allFolderItems.length,
+        items: allFolderItems.slice(0, 5).map((item: any) => ({
+          id: item.id,
+          name: item.name,
+          type: item.type,
+          isRootFlag: (item as any).getFlag?.('mastery-system', 'isRoot') === true
+        }))
+      });
+
+      // Check if folder has a root artifact (Level 1-1 or isRoot flag)
+      const folderItems = allFolderItems.filter((item: any) => {
         if (item.folder?.id !== folderId) return false;
         const isRootFlag = (item as any).getFlag?.('mastery-system', 'isRoot') === true;
-        const isArtifactType = item.type === 'artifact';
-        const isRootName = item.name?.includes('Level 1-1');
-        return (isArtifactType || isRootFlag) && isRootName;
-      }) || [];
+        const isRootName = typeof item.name === 'string' && item.name.includes('Level 1-1');
+        return isRootFlag || isRootName;
+      });
 
       if (folderItems.length === 0) {
-        console.log('Mastery System | No root artifact in folder', { folderId });
+        console.log('Mastery System | No root artifact in folder', {
+          folderId,
+          folderName: folderData?.name,
+          allFolderItemNames: allFolderItems.map((item: any) => item.name)
+        });
         return;
       }
 

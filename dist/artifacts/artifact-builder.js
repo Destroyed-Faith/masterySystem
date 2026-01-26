@@ -3,9 +3,8 @@
  * UI for managing artifact evolution tree nodes
  */
 import { NodeEditor } from './node-editor.js';
-// Use ApplicationV2 with HandlebarsApplicationMixin if available
-const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
-const BaseApplication = HandlebarsApplicationMixin ? HandlebarsApplicationMixin(ApplicationV2) : ApplicationV2;
+// Use V1 Application for reliable template rendering in v13
+const BaseApplication = foundry?.appv1?.Application || Application;
 export class ArtifactBuilder extends BaseApplication {
     rootItem;
     nodes = new Map();
@@ -14,7 +13,7 @@ export class ArtifactBuilder extends BaseApplication {
         this.rootItem = rootItem;
     }
     static get defaultOptions() {
-        return foundry.utils.mergeObject(super.defaultOptions, {
+        return foundry.utils.mergeObject(super.defaultOptions || {}, {
             id: 'artifact-builder',
             title: 'Artifact Builder',
             template: 'systems/mastery-system/templates/artifacts/builder.hbs',

@@ -14,9 +14,8 @@ interface ArtifactNodeData {
   isRoot?: boolean;
 }
 
-// Use ApplicationV2 with HandlebarsApplicationMixin if available
-const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
-const BaseApplication = HandlebarsApplicationMixin ? HandlebarsApplicationMixin(ApplicationV2) : ApplicationV2;
+// Use V1 Application for reliable template rendering in v13
+const BaseApplication: any = (foundry as any)?.appv1?.Application || (Application as any);
 
 export class ArtifactBuilder extends BaseApplication {
   private rootItem: Item;
@@ -28,7 +27,7 @@ export class ArtifactBuilder extends BaseApplication {
   }
 
   static get defaultOptions(): any {
-    return foundry.utils.mergeObject(super.defaultOptions, {
+    return foundry.utils.mergeObject(super.defaultOptions || {}, {
       id: 'artifact-builder',
       title: 'Artifact Builder',
       template: 'systems/mastery-system/templates/artifacts/builder.hbs',

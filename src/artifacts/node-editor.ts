@@ -3,9 +3,8 @@
  * Edit a single artifact node's data
  */
 
-// Use ApplicationV2 with HandlebarsApplicationMixin if available
-const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
-const BaseDialog = HandlebarsApplicationMixin ? HandlebarsApplicationMixin(ApplicationV2) : ApplicationV2;
+// Use V1 Application for reliable template rendering in v13
+const BaseDialog: any = (foundry as any)?.appv1?.Application || (Application as any);
 
 export class NodeEditor extends BaseDialog {
   private item: Item;
