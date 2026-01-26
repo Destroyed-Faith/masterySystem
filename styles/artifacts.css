@@ -54,95 +54,140 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  padding: 12px;
+  gap: 16px;
 }
 
-.artifact-builder .builder-header {
+.artifact-header {
   display: flex;
-  justify-content: space-between;
+  gap: 16px;
   align-items: center;
-  padding: 10px;
-  border-bottom: 1px solid var(--df-border-primary, #3a3f44);
 }
 
-.artifact-builder .builder-content {
-  display: flex;
+.artifact-header-left {
+  flex: 0 0 auto;
+}
+
+.artifact-image {
+  width: 64px;
+  height: 64px;
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 6px;
+  cursor: pointer;
+  object-fit: cover;
+}
+
+.artifact-header-main {
   flex: 1;
-  overflow: hidden;
-}
-
-.artifact-builder .tree-view {
-  flex: 2;
-  padding: 15px;
-  overflow-y: auto;
-  border-right: 1px solid var(--df-border-primary, #3a3f44);
-}
-
-.artifact-builder .nodes-container {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.artifact-builder .artifact-node {
-  background: var(--df-bg-panel, #2a3136);
-  border: 1px solid var(--df-border-primary, #3a3f44);
-  border-radius: 6px;
-  padding: 12px;
+.artifact-name-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 8px;
 }
 
-.artifact-builder .node-header {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.artifact-builder .node-name {
-  font-weight: bold;
+.artifact-name-input {
+  flex: 1;
+  padding: 6px 8px;
+  background: var(--df-bg-header, #1b2124);
+  border: 1px solid var(--df-border-primary, #3a3f44);
   color: var(--df-text-primary, #d0d0d0);
+  border-radius: 4px;
 }
 
-.artifact-builder .node-level {
-  font-size: 12px;
+.artifact-damage-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.artifact-damage-row label {
   color: var(--df-text-secondary, #a0a0a0);
 }
 
-.artifact-builder .node-actions {
+.artifact-damage-select,
+.artifact-damage-custom {
+  padding: 6px 8px;
+  background: var(--df-bg-header, #1b2124);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  color: var(--df-text-primary, #d0d0d0);
+  border-radius: 4px;
+}
+
+.artifact-damage-custom.hidden {
+  display: none;
+}
+
+.artifact-tree {
+  flex: 1;
+  overflow: auto;
+}
+
+.artifact-tree h3 {
+  margin: 0 0 10px 0;
+}
+
+.tree-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.node-level-row {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.node {
+  background: var(--df-bg-panel, #2a3136);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 6px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.node-content {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--df-text-primary, #d0d0d0);
+}
+
+.node-actions {
   display: flex;
   gap: 6px;
 }
 
-.artifact-builder .node-actions button {
-  background: var(--df-bg-header, #1b2124);
-  border: 1px solid var(--df-border-primary, #3a3f44);
-  color: var(--df-text-primary, #d0d0d0);
-  padding: 6px 10px;
-  border-radius: 4px;
+.node-actions button {
+  background: transparent;
+  border: none;
+  color: var(--df-text-secondary, #a0a0a0);
   cursor: pointer;
-  transition: all 0.2s;
 }
 
-.artifact-builder .node-actions button:hover {
-  background: var(--df-bg-panel, #2a3136);
-  border-color: var(--df-border-highlight, rgba(255, 255, 255, #0.2));
+.node-actions button:hover {
+  color: var(--df-text-primary, #d0d0d0);
 }
 
-.artifact-builder .actor-assignments {
-  flex: 1;
-  padding: 15px;
-  overflow-y: auto;
+.artifact-assignments {
+  border-top: 1px solid var(--df-border-primary, #3a3f44);
+  padding-top: 12px;
 }
 
-.artifact-builder .assignments-list {
+.artifact-assignments .assignments-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 12px;
 }
 
-.artifact-builder .assignment-item {
+.artifact-assignments .assignment-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -151,12 +196,12 @@
   border-radius: 4px;
 }
 
-.artifact-builder .assignment-item label {
+.artifact-assignments .assignment-item label {
   flex: 1;
   color: var(--df-text-primary, #d0d0d0);
 }
 
-.artifact-builder .assignment-item input {
+.artifact-assignments .assignment-item input {
   width: 80px;
   padding: 4px;
   background: var(--df-bg-header, #1b2124);
@@ -165,12 +210,12 @@
   border-radius: 4px;
 }
 
-.artifact-builder .add-assignment {
+.artifact-assignments .add-assignment {
   display: flex;
   gap: 8px;
 }
 
-.artifact-builder .add-assignment select {
+.artifact-assignments .add-assignment select {
   flex: 1;
   padding: 6px;
   background: var(--df-bg-header, #1b2124);
@@ -179,7 +224,7 @@
   border-radius: 4px;
 }
 
-.artifact-builder .add-assignment button {
+.artifact-assignments .add-assignment button {
   padding: 6px 12px;
   background: var(--df-bg-panel, #2a3136);
   border: 1px solid var(--df-border-primary, #3a3f44);
@@ -189,7 +234,7 @@
   transition: all 0.2s;
 }
 
-.artifact-builder .add-assignment button:hover {
+.artifact-assignments .add-assignment button:hover {
   background: var(--df-bg-header, #1b2124);
   border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
 }
