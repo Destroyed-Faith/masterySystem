@@ -1076,7 +1076,6 @@
                   <button type="button" class="power-toggle-details" data-item-id="{{this.id}}" title="Toggle Details">
                     <i class="fas fa-chevron-down"></i>
                   </button>
-                  <button type="button" class="item-edit" data-item-id="{{this.id}}" title="Edit"><i class="fas fa-edit"></i></button>
                   <button type="button" class="item-delete" data-item-id="{{this.id}}" title="Delete"><i class="fas fa-trash"></i></button>
                 </div>
               </div>
@@ -1086,36 +1085,6 @@
               
               <!-- Expandable Power Details (hidden by default) -->
               <div class="power-details-expanded" data-item-id="{{this.id}}" style="display: none;">
-                <div class="power-description-text">{{this.system.description}}</div>
-                {{#if this.levelData}}
-                <div class="power-level-info-text">
-                  <strong>Selected Level {{this.system.level}}:</strong><br>
-                  {{#if this.levelData.type}}Type: {{this.levelData.type}}<br>{{/if}}
-                  {{#if this.levelData.range}}Range: {{this.levelData.range}}<br>{{/if}}
-                  {{#if this.levelData.aoe}}AoE: {{this.levelData.aoe}}<br>{{/if}}
-                  {{#if this.levelData.duration}}Duration: {{this.levelData.duration}}<br>{{/if}}
-                  {{#if this.levelData.effect}}Effect: {{this.levelData.effect}}<br>{{/if}}
-                  {{#if this.levelData.special}}Special: {{this.levelData.special}}<br>{{/if}}
-                </div>
-                {{else}}
-                <div class="power-level-info-text">
-                  <strong>Level {{this.system.level}}:</strong><br>
-                  {{#if this.system.powerType}}Type: {{powerTypeDisplay this.system.powerType}}<br>{{/if}}
-                  {{#if this.system.range}}Range: {{this.system.range}}<br>{{/if}}
-                  {{#if this.system.aoe}}AoE: {{this.system.aoe}}<br>{{/if}}
-                  {{#if this.system.duration}}Duration: {{this.system.duration}}<br>{{/if}}
-                  {{#if this.system.effect}}Effect: {{this.system.effect}}<br>{{/if}}
-                  {{#if this.system.specials}}
-                  {{#if (isArray this.system.specials)}}
-                  {{#each this.system.specials}}
-                  {{#if @first}}
-                  Special: {{powerSpecials ../this.system.specials}}<br>
-                  {{/if}}
-                  {{/each}}
-                  {{/if}}
-                  {{/if}}
-                </div>
-                {{/if}}
               </div>
               
               {{#if this.system.equipped}}
