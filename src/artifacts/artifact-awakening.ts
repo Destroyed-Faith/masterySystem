@@ -84,10 +84,20 @@ export function initializeArtifactAwakening(): void {
   };
 
   // Hook into Item Directory to add "New Artifact" button (GM only)
-  Hooks.on('renderItemDirectory', (app: any, html: JQuery, _data: any) => {
+  Hooks.on('renderItemDirectory', (app: any, html: JQuery | HTMLElement, _data: any) => {
+    // Ensure html is a jQuery object
+    let htmlJQuery: JQuery;
+    if (html instanceof jQuery) {
+      htmlJQuery = html as JQuery;
+    } else if (html instanceof HTMLElement) {
+      htmlJQuery = $(html);
+    } else {
+      htmlJQuery = $(html as any);
+    }
+    
     // Get the correct HTML element from the app if html is empty
-    let actualHtml = html;
-    if (!html || html.length === 0) {
+    let actualHtml: JQuery = htmlJQuery;
+    if (!htmlJQuery || htmlJQuery.length === 0) {
       if (app?.element) {
         actualHtml = $(app.element);
       } else if (app?._element) {
@@ -104,9 +114,14 @@ export function initializeArtifactAwakening(): void {
       }
     }
     
+    // Ensure actualHtml is a jQuery object
+    if (!(actualHtml instanceof jQuery)) {
+      actualHtml = $(actualHtml as any);
+    }
+    
     console.log('Mastery System | renderItemDirectory Hook ausgelöst', {
       isGM: game.user?.isGM,
-      htmlLength: html.length,
+      htmlLength: htmlJQuery.length,
       actualHtmlLength: actualHtml.length,
       buttonExists: actualHtml.find('.ms-new-artifact-btn').length > 0,
       appName: app?.constructor?.name
@@ -203,11 +218,21 @@ export function initializeArtifactAwakening(): void {
   });
 
   // Hook into Item Directory folder rows to add "Open Artifact Builder" button
-  Hooks.on('renderItemDirectory', (app: any, html: JQuery, _data: any) => {
+  Hooks.on('renderItemDirectory', (app: any, html: JQuery | HTMLElement, _data: any) => {
     if (!game.user?.isGM) return;
 
+    // Ensure html is a jQuery object
+    let htmlJQuery: JQuery;
+    if (html instanceof jQuery) {
+      htmlJQuery = html as JQuery;
+    } else if (html instanceof HTMLElement) {
+      htmlJQuery = $(html);
+    } else {
+      htmlJQuery = $(html as any);
+    }
+
     // Find all folder rows
-    html.find('.folder').each((_index: number, folder: HTMLElement) => {
+    htmlJQuery.find('.folder').each((_index: number, folder: HTMLElement) => {
       const $folder = $(folder);
       const folderId = $folder.attr('data-folder-id');
       if (!folderId) return;
@@ -279,16 +304,25 @@ export function initializeArtifactAwakening(): void {
  * Create a new artifact (folder + root item)
  */
 async function createNewArtifact(): Promise<void> {
-  const dialog = new (Dialog as any)({
-    title: 'Create New Artifact',
-    content: `
+  // Use DialogV2 for Foundry v13
+  let content: string;
+  try {
+    content = await renderTemplate('systems/mastery-system/templates/artifacts/artifact-creation-dialog.hbs', {});
+  } catch (error) {
+    // Fallback if template doesn't exist
+    content = `
       <form class="artifact-creation-form">
         <div class="form-group">
           <label>Artifact Name:</label>
-          <input type="text" id="artifact-name" placeholder="Enter artifact name..." />
+          <input type="text" id="artifact-name" name="artifact-name" placeholder="Enter artifact name..." />
         </div>
       </form>
-    `,
+    `;
+  }
+  
+  new Dialog({
+    title: 'Create New Artifact',
+    content: content,
     buttons: {
       create: {
         icon: '<i class="fas fa-check"></i>',
@@ -358,9 +392,9 @@ async function createNewArtifact(): Promise<void> {
     },
     default: 'create',
     close: () => {}
-  });
-
-  dialog.render(true);
+  }, {
+    width: 400
+  }).render(true);
 }
 
 /**
@@ -438,7 +472,7 @@ async function showArtifactDialogForActor(actor: Actor): Promise<void> {
   }
   artifactListHtml += '</div>';
 
-  const dialog = new (Dialog as any)({
+  const dialog = new Dialog({
     title: `Artifacts: ${(actor as any).name}`,
     content: artifactListHtml,
     buttons: {
@@ -450,12 +484,17 @@ async function showArtifactDialogForActor(actor: Actor): Promise<void> {
     },
     default: 'close',
     close: () => {}
+  }, {
+    width: 500
   });
 
   dialog.render(true);
 
-  // Handle give artifact button
-  $(dialog.element).find('.give-artifact').on('click', async (e: JQuery.ClickEvent) => {
+  // Handle give artifact button - use setTimeout to ensure dialog is rendered
+  setTimeout(() => {
+    const dialogElement = dialog.element;
+    if (dialogElement) {
+      $(dialogElement).find('.give-artifact').on('click', async (e: JQuery.ClickEvent) => {
     const itemId = $(e.currentTarget).data('item-id');
     const item = (game as any).items?.get(itemId);
     if (!item) {
@@ -474,6 +513,8 @@ async function showArtifactDialogForActor(actor: Actor): Promise<void> {
     const itemData = (item as any).toObject();
     await (actor as any).createEmbeddedDocuments('Item', [itemData]);
     ui.notifications?.info(`Gave ${(item as any).name} to ${(actor as any).name}`);
-  });
+      });
+    }
+  }, 100);
 }
 

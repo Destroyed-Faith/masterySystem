@@ -69,9 +69,20 @@ export function initializeArtifactAwakening() {
     };
     // Hook into Item Directory to add "New Artifact" button (GM only)
     Hooks.on('renderItemDirectory', (app, html, _data) => {
+        // Ensure html is a jQuery object
+        let htmlJQuery;
+        if (html instanceof jQuery) {
+            htmlJQuery = html;
+        }
+        else if (html instanceof HTMLElement) {
+            htmlJQuery = $(html);
+        }
+        else {
+            htmlJQuery = $(html);
+        }
         // Get the correct HTML element from the app if html is empty
-        let actualHtml = html;
-        if (!html || html.length === 0) {
+        let actualHtml = htmlJQuery;
+        if (!htmlJQuery || htmlJQuery.length === 0) {
             if (app?.element) {
                 actualHtml = $(app.element);
             }
@@ -87,9 +98,13 @@ export function initializeArtifactAwakening() {
                 }
             }
         }
+        // Ensure actualHtml is a jQuery object
+        if (!(actualHtml instanceof jQuery)) {
+            actualHtml = $(actualHtml);
+        }
         console.log('Mastery System | renderItemDirectory Hook ausgelöst', {
             isGM: game.user?.isGM,
-            htmlLength: html.length,
+            htmlLength: htmlJQuery.length,
             actualHtmlLength: actualHtml.length,
             buttonExists: actualHtml.find('.ms-new-artifact-btn').length > 0,
             appName: app?.constructor?.name
@@ -175,8 +190,19 @@ export function initializeArtifactAwakening() {
     Hooks.on('renderItemDirectory', (app, html, _data) => {
         if (!game.user?.isGM)
             return;
+        // Ensure html is a jQuery object
+        let htmlJQuery;
+        if (html instanceof jQuery) {
+            htmlJQuery = html;
+        }
+        else if (html instanceof HTMLElement) {
+            htmlJQuery = $(html);
+        }
+        else {
+            htmlJQuery = $(html);
+        }
         // Find all folder rows
-        html.find('.folder').each((_index, folder) => {
+        htmlJQuery.find('.folder').each((_index, folder) => {
             const $folder = $(folder);
             const folderId = $folder.attr('data-folder-id');
             if (!folderId)
@@ -240,16 +266,25 @@ export function initializeArtifactAwakening() {
  * Create a new artifact (folder + root item)
  */
 async function createNewArtifact() {
-    const dialog = new Dialog({
-        title: 'Create New Artifact',
-        content: `
+    // Use DialogV2 for Foundry v13
+    let content;
+    try {
+        content = await renderTemplate('systems/mastery-system/templates/artifacts/artifact-creation-dialog.hbs', {});
+    }
+    catch (error) {
+        // Fallback if template doesn't exist
+        content = `
       <form class="artifact-creation-form">
         <div class="form-group">
           <label>Artifact Name:</label>
-          <input type="text" id="artifact-name" placeholder="Enter artifact name..." />
+          <input type="text" id="artifact-name" name="artifact-name" placeholder="Enter artifact name..." />
         </div>
       </form>
-    `,
+    `;
+    }
+    new Dialog({
+        title: 'Create New Artifact',
+        content: content,
         buttons: {
             create: {
                 icon: '<i class="fas fa-check"></i>',
@@ -317,8 +352,9 @@ async function createNewArtifact() {
         },
         default: 'create',
         close: () => { }
-    });
-    dialog.render(true);
+    }, {
+        width: 400
+    }).render(true);
 }
 /**
  * Open artifact builder for a folder
@@ -396,26 +432,33 @@ async function showArtifactDialogForActor(actor) {
         },
         default: 'close',
         close: () => { }
+    }, {
+        width: 500
     });
     dialog.render(true);
-    // Handle give artifact button
-    $(dialog.element).find('.give-artifact').on('click', async (e) => {
-        const itemId = $(e.currentTarget).data('item-id');
-        const item = game.items?.get(itemId);
-        if (!item) {
-            ui.notifications?.error('Item not found.');
-            return;
+    // Handle give artifact button - use setTimeout to ensure dialog is rendered
+    setTimeout(() => {
+        const dialogElement = dialog.element;
+        if (dialogElement) {
+            $(dialogElement).find('.give-artifact').on('click', async (e) => {
+                const itemId = $(e.currentTarget).data('item-id');
+                const item = game.items?.get(itemId);
+                if (!item) {
+                    ui.notifications?.error('Item not found.');
+                    return;
+                }
+                // Check if actor already has this item
+                const existingItem = actor.items.find((i) => i.name === item.name && i.type === 'artifact');
+                if (existingItem) {
+                    ui.notifications?.warn('Actor already has this artifact.');
+                    return;
+                }
+                // Create embedded item
+                const itemData = item.toObject();
+                await actor.createEmbeddedDocuments('Item', [itemData]);
+                ui.notifications?.info(`Gave ${item.name} to ${actor.name}`);
+            });
         }
-        // Check if actor already has this item
-        const existingItem = actor.items.find((i) => i.name === item.name && i.type === 'artifact');
-        if (existingItem) {
-            ui.notifications?.warn('Actor already has this artifact.');
-            return;
-        }
-        // Create embedded item
-        const itemData = item.toObject();
-        await actor.createEmbeddedDocuments('Item', [itemData]);
-        ui.notifications?.info(`Gave ${item.name} to ${actor.name}`);
-    });
+    }, 100);
 }
 //# sourceMappingURL=artifact-awakening.js.map
