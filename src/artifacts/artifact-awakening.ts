@@ -20,7 +20,7 @@ export function initializeArtifactAwakening(): void {
     const hooks = (Hooks as any)._hooks?.renderItemDirectory || [];
     console.log('2. Registrierte renderItemDirectory Hooks:', hooks.length);
     
-    const itemDirectory = Object.values(ui.windows).find((w: any) => 
+    const itemDirectory = ui.items || Object.values(ui.windows).find((w: any) => 
       w.constructor.name === 'ItemDirectory' || 
       (w as any).id === 'items' ||
       (w as any).title?.includes('Item')
@@ -35,7 +35,7 @@ export function initializeArtifactAwakening(): void {
     
     console.log('3. Item Directory gefunden:', itemDirectory.constructor.name);
     
-    const html = $(itemDirectory.element || (itemDirectory as any)._element);
+    const html = $(itemDirectory.element || (itemDirectory as any)._element || $('.sidebar-tab[data-tab="items"]'));
     const button = html.find('.ms-new-artifact-btn');
     console.log('4. Button gefunden:', button.length > 0);
     if (button.length > 0) {
@@ -230,12 +230,20 @@ export function initializeArtifactAwakening(): void {
     } else {
       htmlJQuery = $(html as any);
     }
-    // Fallback to app.element if html is empty
+    // Fallback to app.element or sidebar tab if html is empty
     if (!htmlJQuery || htmlJQuery.length === 0) {
       if (app?.element) {
         htmlJQuery = $(app.element);
       } else if (app?._element) {
         htmlJQuery = $(app._element);
+      } else if ((ui as any).items?.element) {
+        htmlJQuery = $((ui as any).items.element);
+      } else if ((ui as any).items?._element) {
+        htmlJQuery = $((ui as any).items._element);
+      } else if (app?.appId) {
+        htmlJQuery = $(`.window-app[data-appid="${app.appId}"]`);
+      } else {
+        htmlJQuery = $('.sidebar-tab[data-tab="items"]');
       }
     }
 
@@ -244,8 +252,10 @@ export function initializeArtifactAwakening(): void {
       isGM: game.user?.isGM,
       htmlLength: (htmlJQuery && htmlJQuery.length) || 0,
       appName: app?.constructor?.name,
+      appId: app?.appId,
       hasAppElement: !!app?.element,
-      hasAppInternalElement: !!app?._element
+      hasAppInternalElement: !!app?._element,
+      hasUiItemsElement: !!(ui as any).items?.element
     });
     if (!htmlJQuery || htmlJQuery.length === 0) {
       htmlJQuery = $('#items');

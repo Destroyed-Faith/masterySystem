@@ -15,7 +15,7 @@ export function initializeArtifactAwakening() {
         // Prüfe ob Hook registriert ist
         const hooks = Hooks._hooks?.renderItemDirectory || [];
         console.log('2. Registrierte renderItemDirectory Hooks:', hooks.length);
-        const itemDirectory = Object.values(ui.windows).find((w) => w.constructor.name === 'ItemDirectory' ||
+        const itemDirectory = ui.items || Object.values(ui.windows).find((w) => w.constructor.name === 'ItemDirectory' ||
             w.id === 'items' ||
             w.title?.includes('Item'));
         if (!itemDirectory) {
@@ -25,7 +25,7 @@ export function initializeArtifactAwakening() {
             return;
         }
         console.log('3. Item Directory gefunden:', itemDirectory.constructor.name);
-        const html = $(itemDirectory.element || itemDirectory._element);
+        const html = $(itemDirectory.element || itemDirectory._element || $('.sidebar-tab[data-tab="items"]'));
         const button = html.find('.ms-new-artifact-btn');
         console.log('4. Button gefunden:', button.length > 0);
         if (button.length > 0) {
@@ -201,7 +201,7 @@ export function initializeArtifactAwakening() {
         else {
             htmlJQuery = $(html);
         }
-        // Fallback to app.element if html is empty
+        // Fallback to app.element or sidebar tab if html is empty
         if (!htmlJQuery || htmlJQuery.length === 0) {
             if (app?.element) {
                 htmlJQuery = $(app.element);
@@ -209,14 +209,28 @@ export function initializeArtifactAwakening() {
             else if (app?._element) {
                 htmlJQuery = $(app._element);
             }
+            else if (ui.items?.element) {
+                htmlJQuery = $(ui.items.element);
+            }
+            else if (ui.items?._element) {
+                htmlJQuery = $(ui.items._element);
+            }
+            else if (app?.appId) {
+                htmlJQuery = $(`.window-app[data-appid="${app.appId}"]`);
+            }
+            else {
+                htmlJQuery = $('.sidebar-tab[data-tab="items"]');
+            }
         }
         // Debug info for folder button rendering
         console.log('Mastery System | renderItemDirectory (folder buttons)', {
             isGM: game.user?.isGM,
             htmlLength: (htmlJQuery && htmlJQuery.length) || 0,
             appName: app?.constructor?.name,
+            appId: app?.appId,
             hasAppElement: !!app?.element,
-            hasAppInternalElement: !!app?._element
+            hasAppInternalElement: !!app?._element,
+            hasUiItemsElement: !!ui.items?.element
         });
         if (!htmlJQuery || htmlJQuery.length === 0) {
             htmlJQuery = $('#items');
