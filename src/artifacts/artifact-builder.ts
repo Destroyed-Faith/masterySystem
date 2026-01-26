@@ -160,12 +160,36 @@ export class ArtifactBuilder extends BaseApplication {
     const parentItem = (game as any).items?.get(parentNode.itemId);
     if (!parentItem) return;
 
-    const parentLevel = (parentItem.system as any).level || 1;
+    const parentSystem = parentItem.system as any;
+    const parentLevel = parentSystem.level || 1;
     const newLevel = parentLevel + 1;
+
+    // Inherit bonuses from parent (artifact kind elements inheritance)
+    const parentBonuses = parentSystem.bonuses || {
+      attack: 0,
+      damage: '',
+      defense: 0,
+      specials: []
+    };
+    
+    // Inherit parent bonuses - children get parent's bonuses by default
+    const inheritedBonuses = {
+      attack: parentBonuses.attack || 0,
+      damage: parentBonuses.damage || '',
+      defense: parentBonuses.defense || 0,
+      specials: [...(parentBonuses.specials || [])] // Copy array
+    };
+
+    // Inherit requirements (can be adjusted later)
+    const parentRequirements = parentSystem.requirements || {
+      stones: 0,
+      masteryRank: 1
+    };
 
     // Create new artifact item
     const folderId = (this.rootItem as any).folder?.id;
-    const artifactName = (this.rootItem as any).name.replace('Level 1-1', `Level ${newLevel}-${parentNode.childIds.length + 1}`);
+    const rootName = (this.rootItem as any).name.replace(' - Level 1-1', '').trim();
+    const artifactName = `${rootName} - Level ${newLevel}-${parentNode.childIds.length + 1}`;
     const newNodeId = (foundry.utils as any).randomID();
 
     const newItemData = {
@@ -176,18 +200,13 @@ export class ArtifactBuilder extends BaseApplication {
         level: newLevel,
         equipped: false,
         effects: [],
-        bonuses: {
-          attack: 0,
-          damage: '',
-          defense: 0,
-          specials: []
-        },
-        lore: '',
+        bonuses: inheritedBonuses, // Inherited from parent
+        lore: parentSystem.lore || '', // Inherit lore
         requirements: {
-          stones: 0,
-          masteryRank: 1
+          stones: parentRequirements.stones || 0,
+          masteryRank: parentRequirements.masteryRank || 1
         },
-        description: ''
+        description: parentSystem.description || ''
       },
       flags: {
         'mastery-system': {
@@ -198,12 +217,15 @@ export class ArtifactBuilder extends BaseApplication {
       }
     };
 
-    await (Item as any).create(newItemData);
+    const newItem = await (Item as any).create(newItemData);
 
     // Update parent's childIds
-    const parentFlags = parentItem.getFlag('mastery-system', 'childIds') || [];
+    const parentFlags = (parentItem as any).getFlag('mastery-system', 'childIds') || [];
     parentFlags.push(newNodeId);
-    await parentItem.setFlag('mastery-system', 'childIds', parentFlags);
+    await (parentItem as any).setFlag('mastery-system', 'childIds', parentFlags);
+
+    // Sync inherited bonuses/abilities to all children recursively
+    await this.syncInheritedBonusesToChildren(newItem);
 
     // Re-render
     await (this as any).render();
@@ -267,6 +289,51 @@ export class ArtifactBuilder extends BaseApplication {
     }
     await (this.rootItem as any).setFlag('mastery-system', 'actorLevels', actorLevels);
     await (this as any).render();
+  }
+
+  /**
+   * Sync inherited bonuses/abilities from parent to children recursively
+   * This implements the artifact kind element inheritance system
+   */
+  async syncInheritedBonusesToChildren(parentItem: Item): Promise<void> {
+    const parentSystem = (parentItem.system as any);
+    const parentBonuses = parentSystem.bonuses || {
+      attack: 0,
+      damage: '',
+      defense: 0,
+      specials: []
+    };
+
+    const parentFlags = (parentItem as any).getFlag('mastery-system', 'childIds') || [];
+    if (parentFlags.length === 0) return;
+
+    // Get all child items
+    const childItems: Item[] = [];
+    for (const childNodeId of parentFlags) {
+      const childNode = this.nodes.get(childNodeId);
+      if (childNode) {
+        const childItem = (game as any).items?.get(childNode.itemId);
+        if (childItem) {
+          childItems.push(childItem);
+        }
+      }
+    }
+
+    // Update each child with inherited bonuses
+    for (const childItem of childItems) {
+      // Inherit bonuses from parent (children inherit parent's bonuses)
+      const updates: any = {
+        'system.bonuses.attack': parentBonuses.attack || 0,
+        'system.bonuses.damage': parentBonuses.damage || '',
+        'system.bonuses.defense': parentBonuses.defense || 0,
+        'system.bonuses.specials': [...(parentBonuses.specials || [])]
+      };
+
+      await childItem.update(updates);
+
+      // Recursively sync to grandchildren
+      await this.syncInheritedBonusesToChildren(childItem);
+    }
   }
 
   /**

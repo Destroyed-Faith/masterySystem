@@ -27,6 +27,11 @@ export declare class ArtifactBuilder extends BaseApplication {
      */
     assignActorLevel(actorId: string, level: number): Promise<void>;
     /**
+     * Sync inherited bonuses/abilities from parent to children recursively
+     * This implements the artifact kind element inheritance system
+     */
+    syncInheritedBonusesToChildren(parentItem: Item): Promise<void>;
+    /**
      * Calculate depth of a node
      */
     private calculateDepth;

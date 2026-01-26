@@ -296,6 +296,13 @@ async function createNewArtifact() {
                         return false;
                     }
                     try {
+                        // Get form values
+                        const attack = parseInt(html.find('#artifact-attack').val(), 10) || 0;
+                        const defense = parseInt(html.find('#artifact-defense').val(), 10) || 0;
+                        const damage = html.find('#artifact-damage').val() || '';
+                        const lore = html.find('#artifact-lore').val() || '';
+                        const stones = parseInt(html.find('#artifact-stones').val(), 10) || 0;
+                        const masteryRank = parseInt(html.find('#artifact-mastery-rank').val(), 10) || 1;
                         // Create folder
                         const folder = await Folder.create({
                             name: name.trim(),
@@ -312,15 +319,15 @@ async function createNewArtifact() {
                                 equipped: false,
                                 effects: [],
                                 bonuses: {
-                                    attack: 0,
-                                    damage: '',
-                                    defense: 0,
+                                    attack: attack,
+                                    damage: damage,
+                                    defense: defense,
                                     specials: []
                                 },
-                                lore: '',
+                                lore: lore,
                                 requirements: {
-                                    stones: 0,
-                                    masteryRank: 1
+                                    stones: stones,
+                                    masteryRank: masteryRank
                                 },
                                 description: ''
                             },
