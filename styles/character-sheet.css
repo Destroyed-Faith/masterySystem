@@ -731,8 +731,9 @@
 
 .mastery-system.sheet.actor.character .pending-attribute-changes-info {
   display: flex;
-  flex-direction: column;
-  gap: 5px;
+  flex-direction: row;
+  align-items: center;
+  gap: 15px;
   font-size: 13px;
   color: var(--df-text-secondary, #a0a0a0);
 }
@@ -1462,6 +1463,12 @@
   border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 6px;
   display: none;
+}
+
+.mastery-system.sheet.actor.character .power-details-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .mastery-system.sheet.actor.character .power-description-text {

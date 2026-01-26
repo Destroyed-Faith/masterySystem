@@ -1085,6 +1085,26 @@
               
               <!-- Expandable Power Details (hidden by default) -->
               <div class="power-details-expanded" data-item-id="{{this.id}}" style="display: none;">
+                <div class="form-group power-details-group" id="power-details">
+                  <div id="power-description" class="power-description-text">{{this.system.description}}</div>
+                  <div id="power-level-info" class="power-level-info-text">
+                    <strong>Selected Level {{default this.system.level 1}}:</strong><br>
+                    {{#if this.system.powerType}}Type: {{powerTypeDisplay this.system.powerType}}<br>{{/if}}
+                    {{#if this.system.range}}Range: {{this.system.range}}<br>{{/if}}
+                    {{#if this.system.aoe}}AoE: {{this.system.aoe}}<br>{{/if}}
+                    {{#if this.system.duration}}Duration: {{this.system.duration}}<br>{{/if}}
+                    {{#if this.system.effect}}Effect: {{this.system.effect}}<br>{{/if}}
+                    {{#if this.system.specials}}
+                    {{#if (isArray this.system.specials)}}
+                    {{#each this.system.specials}}
+                    {{#if @first}}
+                    Special: {{powerSpecials ../this.system.specials}}<br>
+                    {{/if}}
+                    {{/each}}
+                    {{/if}}
+                    {{/if}}
+                  </div>
+                </div>
               </div>
               
               {{#if this.system.equipped}}
