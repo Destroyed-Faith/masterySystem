@@ -247,6 +247,9 @@ export function initializeArtifactAwakening(): void {
       hasAppElement: !!app?.element,
       hasAppInternalElement: !!app?._element
     });
+    if (!htmlJQuery || htmlJQuery.length === 0) {
+      htmlJQuery = $('#items');
+    }
 
     // Find all folder rows
     const folderRows = htmlJQuery.find('.directory-item.folder, .folder, [data-folder-id]');
@@ -271,11 +274,13 @@ export function initializeArtifactAwakening(): void {
       if (!folderData) return;
 
       // Check if folder has a root artifact (Level 1-1)
-      const folderItems = (game as any).items?.filter((item: any) => 
-        item.folder?.id === folderId && 
-        item.type === 'artifact' &&
-        item.name.includes('Level 1-1')
-      ) || [];
+      const folderItems = (game as any).items?.filter((item: any) => {
+        if (item.folder?.id !== folderId) return false;
+        const isRootFlag = (item as any).getFlag?.('mastery-system', 'isRoot') === true;
+        const isArtifactType = item.type === 'artifact';
+        const isRootName = item.name?.includes('Level 1-1');
+        return (isArtifactType || isRootFlag) && isRootName;
+      }) || [];
 
       if (folderItems.length === 0) {
         console.log('Mastery System | No root artifact in folder', { folderId });
@@ -296,14 +301,19 @@ export function initializeArtifactAwakening(): void {
       });
 
       // Add button to folder header (Foundry v13 uses folder-header/folder-name)
-      const folderHeader = $folder.find('.folder-header, .folder-name, .directory-item');
+      const folderHeader = $folder.find('.folder-header');
       if (folderHeader.length > 0) {
-        folderHeader.first().append(builderBtn);
-        console.log('Mastery System | Builder button appended', { folderId });
+        const createEntryBtn = folderHeader.find('.create-entry, [data-action="createEntry"]').last();
+        if (createEntryBtn.length > 0) {
+          createEntryBtn.after(builderBtn);
+        } else {
+          folderHeader.append(builderBtn);
+        }
+        console.log('Mastery System | Builder button appended', { folderId, location: 'folder-header' });
       } else {
         // Fallback: append directly to folder row
         $folder.append(builderBtn);
-        console.log('Mastery System | Builder button appended to row', { folderId });
+        console.log('Mastery System | Builder button appended to row', { folderId, location: 'row' });
       }
     });
   });
