@@ -16,40 +16,91 @@ export function initializeArtifactAwakening(): void {
     console.log('=== Artifact Button Debug ===');
     console.log('1. GM Status:', game.user?.isGM);
     
-    const itemDirectory = Object.values(ui.windows).find((w: any) => w.constructor.name === 'ItemDirectory');
+    // Prüfe ob Hook registriert ist
+    const hooks = (Hooks as any)._hooks?.renderItemDirectory || [];
+    console.log('2. Registrierte renderItemDirectory Hooks:', hooks.length);
+    
+    const itemDirectory = Object.values(ui.windows).find((w: any) => 
+      w.constructor.name === 'ItemDirectory' || 
+      (w as any).id === 'items' ||
+      (w as any).title?.includes('Item')
+    );
+    
     if (!itemDirectory) {
       console.log('❌ Item Directory ist nicht geöffnet!');
+      console.log('   Tipp: Öffne das Item Directory (Items-Menü) und führe dann den Hook manuell aus:');
+      console.log('   Hooks.callAll("renderItemDirectory", ui.items, $(".window-app")');
       return;
     }
     
+    console.log('3. Item Directory gefunden:', itemDirectory.constructor.name);
+    
     const html = $(itemDirectory.element || (itemDirectory as any)._element);
     const button = html.find('.ms-new-artifact-btn');
-    console.log('2. Button gefunden:', button.length > 0);
+    console.log('4. Button gefunden:', button.length > 0);
+    if (button.length > 0) {
+      console.log('   Button HTML:', button[0].outerHTML);
+      console.log('   Button Parent:', button.parent().attr('class'));
+    }
     
-    const actionButtons = html.find('.header-actions.action-buttons.flexrow');
-    console.log('3. Action Buttons Container:', actionButtons.length > 0);
+    const actionButtons = html.find('.header-actions.action-buttons.flexrow, .action-buttons.flexrow');
+    console.log('5. Action Buttons Container:', actionButtons.length > 0);
     if (actionButtons.length > 0) {
       console.log('   Container Classes:', actionButtons.attr('class'));
       console.log('   Buttons im Container:', actionButtons.find('button').length);
+      actionButtons.find('button').each((i: number, btn: HTMLElement) => {
+        console.log(`   Button ${i + 1}:`, btn.className, btn.getAttribute('data-action') || btn.textContent?.trim());
+      });
     }
     
-    const createItemBtn = html.find('button[data-action="createEntry"]');
+    const createItemBtn = html.find('button[data-action="createEntry"], button[data-action="createItem"]');
     const createFolderBtn = html.find('button[data-action="createFolder"]');
-    console.log('4. Create Item Button:', createItemBtn.length > 0);
-    console.log('5. Create Folder Button:', createFolderBtn.length > 0);
+    console.log('6. Create Item Button:', createItemBtn.length > 0);
+    console.log('7. Create Folder Button:', createFolderBtn.length > 0);
     
     const header = html.find('.directory-header');
-    console.log('6. Directory Header:', header.length > 0);
+    console.log('8. Directory Header:', header.length > 0);
+    if (header.length > 0) {
+      console.log('   Header HTML (erste 500 Zeichen):', header[0].outerHTML.substring(0, 500));
+    }
+    
+    // Versuche Button manuell hinzuzufügen
+    if (button.length === 0 && actionButtons.length > 0) {
+      console.log('9. Versuche Button manuell hinzuzufügen...');
+      const testBtn = $(`
+        <button type="button" class="ms-new-artifact-btn" title="New Artifact" style="background: red; color: white; padding: 4px 8px;">
+          <i class="fas fa-gem"></i> New Artifact (TEST)
+        </button>
+      `);
+      testBtn.on('click', () => {
+        console.log('Test Button wurde geklickt!');
+        ui.notifications?.info('Test Button funktioniert!');
+      });
+      actionButtons.append(testBtn);
+      console.log('   ✅ Test Button hinzugefügt!');
+    }
     
     console.log('=== Debug Ende ===');
   };
 
   // Hook into Item Directory to add "New Artifact" button (GM only)
   Hooks.on('renderItemDirectory', (_app: any, html: JQuery, _data: any) => {
-    if (!game.user?.isGM) return;
+    console.log('Mastery System | renderItemDirectory Hook ausgelöst', {
+      isGM: game.user?.isGM,
+      htmlLength: html.length,
+      buttonExists: html.find('.ms-new-artifact-btn').length > 0
+    });
+    
+    if (!game.user?.isGM) {
+      console.log('Mastery System | Hook abgebrochen: Nicht GM');
+      return;
+    }
 
     // Check if button already exists
-    if (html.find('.ms-new-artifact-btn').length > 0) return;
+    if (html.find('.ms-new-artifact-btn').length > 0) {
+      console.log('Mastery System | Button existiert bereits');
+      return;
+    }
 
     const newArtifactBtn = $(`
       <button type="button" class="ms-new-artifact-btn" title="New Artifact">
@@ -65,9 +116,15 @@ export function initializeArtifactAwakening(): void {
     // This is where "Create Item" and "Create Folder" buttons are located
     const actionButtons = html.find('.directory-header .header-actions.action-buttons.flexrow, .directory-header .action-buttons.flexrow');
     
+    console.log('Mastery System | Suche nach Action Buttons Container', {
+      actionButtonsFound: actionButtons.length > 0,
+      headerFound: html.find('.directory-header').length > 0
+    });
+    
     if (actionButtons.length > 0) {
       // Insert after Create Folder button (last button in the container)
       actionButtons.append(newArtifactBtn);
+      console.log('Mastery System | Button zu Action Buttons Container hinzugefügt');
       return;
     }
 
@@ -75,6 +132,7 @@ export function initializeArtifactAwakening(): void {
     const createFolderBtn = html.find('button[data-action="createFolder"], button.create-folder');
     if (createFolderBtn.length > 0) {
       createFolderBtn.after(newArtifactBtn);
+      console.log('Mastery System | Button nach Create Folder Button hinzugefügt');
       return;
     }
 
@@ -82,6 +140,7 @@ export function initializeArtifactAwakening(): void {
     const createItemBtn = html.find('button[data-action="createEntry"], button[data-action="createItem"], button.create-entry');
     if (createItemBtn.length > 0) {
       createItemBtn.after(newArtifactBtn);
+      console.log('Mastery System | Button nach Create Item Button hinzugefügt');
       return;
     }
 
@@ -89,6 +148,7 @@ export function initializeArtifactAwakening(): void {
     const headerActions = html.find('.directory-header .header-actions');
     if (headerActions.length > 0) {
       headerActions.append(newArtifactBtn);
+      console.log('Mastery System | Button zu Header Actions hinzugefügt');
       return;
     }
 
@@ -96,8 +156,11 @@ export function initializeArtifactAwakening(): void {
     const footer = html.find('.directory-footer');
     if (footer.length > 0) {
       footer.append(newArtifactBtn);
+      console.log('Mastery System | Button zu Footer hinzugefügt');
       return;
     }
+    
+    console.warn('Mastery System | Button konnte nicht platziert werden - kein Container gefunden');
   });
 
   // Hook into Item Directory folder rows to add "Open Artifact Builder" button
