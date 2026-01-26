@@ -1503,6 +1503,108 @@
   margin-bottom: 4px;
 }
 
+.mastery-system.sheet.actor.character .power-level-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-right: 4px;
+}
+
+.mastery-system.sheet.actor.character .power-increase-level,
+.mastery-system.sheet.actor.character .power-decrease-level {
+  background: var(--df-bg-panel, #2a3136);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  color: var(--df-text-primary, #d0d0d0);
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mastery-system.sheet.actor.character .power-increase-level:hover:not(:disabled),
+.mastery-system.sheet.actor.character .power-decrease-level:hover:not(:disabled) {
+  background: var(--df-bg-header, #1b2124);
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
+  transform: scale(1.1);
+  box-shadow: 0 3px 8px var(--df-shadow, rgba(0,0,0,0.5));
+}
+
+.mastery-system.sheet.actor.character .power-increase-level:disabled,
+.mastery-system.sheet.actor.character .power-decrease-level:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mastery-system.sheet.actor.character .power-level-pending-change {
+  color: #ffd700;
+  font-weight: bold;
+  margin-left: 6px;
+  font-size: 14px;
+}
+
+.mastery-system.sheet.actor.character .power-level-distribution-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.mastery-system.sheet.actor.character .pending-power-level-changes-info {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 15px;
+  font-size: 13px;
+  color: var(--df-text-secondary, #a0a0a0);
+}
+
+.mastery-system.sheet.actor.character .confirm-power-level-changes,
+.mastery-system.sheet.actor.character .cancel-power-level-changes {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mastery-system.sheet.actor.character .confirm-power-level-changes {
+  background: linear-gradient(135deg, #4a9e4a 0%, #3a7e3a 100%);
+  color: #fff;
+  border-color: #4a9e4a;
+}
+
+.mastery-system.sheet.actor.character .confirm-power-level-changes:hover:not(:disabled) {
+  background: linear-gradient(135deg, #5aae5a 0%, #4a8e4a 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(74, 158, 74, 0.4);
+}
+
+.mastery-system.sheet.actor.character .cancel-power-level-changes {
+  background: var(--df-bg-panel, #2a3136);
+  color: var(--df-text-primary, #d0d0d0);
+}
+
+.mastery-system.sheet.actor.character .cancel-power-level-changes:hover:not(:disabled) {
+  background: var(--df-bg-header, #1b2124);
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
+}
+
+.mastery-system.sheet.actor.character .confirm-power-level-changes:disabled,
+.mastery-system.sheet.actor.character .cancel-power-level-changes:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .mastery-system.sheet.actor.character .power-use-btn,
 .mastery-system.sheet.actor.character .spell-cast-btn {
   width: 100%;

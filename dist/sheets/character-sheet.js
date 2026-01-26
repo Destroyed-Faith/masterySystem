@@ -17,6 +17,7 @@ const BaseActorSheet = foundry?.appv1?.sheets?.ActorSheet || ActorSheet;
 export class MasteryCharacterSheet extends BaseActorSheet {
     _showStash = false;
     _pendingAttributeChanges = {}; // Track pending attribute increases
+    _pendingPowerLevelChanges = {}; // Track pending power level increases
     /** @override */
     static get defaultOptions() {
         const baseOptions = super.defaultOptions || {};
@@ -1317,6 +1318,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('.power-use-btn').on('click', this.#onPowerUse.bind(this));
         // Power details toggle
         html.find('.power-toggle-details').on('click', this.#onPowerToggleDetails.bind(this));
+        // Power level increase/decrease (with confirmation)
+        html.off('click', '.power-increase-level').on('click', '.power-increase-level', this.#onPowerIncreaseLevel.bind(this));
+        html.off('click', '.power-decrease-level').on('click', '.power-decrease-level', this.#onPowerDecreaseLevel.bind(this));
+        html.find('.confirm-power-level-changes').on('click', this.#onConfirmPowerLevelChanges.bind(this));
+        html.find('.cancel-power-level-changes').on('click', this.#onCancelPowerLevelChanges.bind(this));
+        // Initialize pending power level changes tracking
+        this._pendingPowerLevelChanges = {};
+        // Initialize UI state for power level distribution
+        this.#updatePowerLevelUI();
         // Active buff removal
         html.find('.active-buff-remove').on('click', this.#onActiveBuffRemove.bind(this));
         // Item controls
@@ -1338,6 +1348,30 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const nextValue = currentValue + 1;
         const tier = Math.floor((nextValue - 1) / 8);
         return tier + 1;
+    }
+    /**
+     * Calculate cost to increase a power to a specific level
+     * Level 1: 2 MP, Level 2: 4 MP, Level 3: 8 MP, Level 4: 16 MP,
+     * Level 5: 24 MP, Level 6: 32 MP, Level 7-12: 40 MP per level
+     */
+    #calculatePowerLevelCost(targetLevel) {
+        if (targetLevel <= 0)
+            return 0;
+        if (targetLevel === 1)
+            return 2;
+        if (targetLevel === 2)
+            return 4;
+        if (targetLevel === 3)
+            return 8;
+        if (targetLevel === 4)
+            return 16;
+        if (targetLevel === 5)
+            return 24;
+        if (targetLevel === 6)
+            return 32;
+        if (targetLevel >= 7 && targetLevel <= 12)
+            return 40;
+        return 0; // Invalid level
     }
     /**
      * Handle spending attribute points
@@ -1654,6 +1688,271 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Update UI
         this.#updateAttributeXPUI();
         ui.notifications?.info('Pending attribute changes cancelled.');
+    }
+    /**
+     * Handle pending power level increase
+     */
+    #onPowerIncreaseLevel(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        console.log('Mastery System | #onPowerIncreaseLevel called', {
+            target: event.currentTarget,
+            itemId: $(event.currentTarget).data('item-id')
+        });
+        // Check if user is owner
+        if (!this.actor.isOwner) {
+            ui.notifications?.warn('Only the owner can distribute Mastery Points.');
+            return;
+        }
+        const $button = $(event.currentTarget);
+        const itemId = $button.data('item-id');
+        if (!itemId) {
+            console.error('Mastery System | #onPowerIncreaseLevel: No item ID found');
+            return;
+        }
+        const item = this.actor.items.get(itemId);
+        if (!item || item.type !== 'power') {
+            console.error('Mastery System | #onPowerIncreaseLevel: Item not found or not a power');
+            return;
+        }
+        const currentLevel = item.system.level || 1;
+        const pendingIncrease = this._pendingPowerLevelChanges[itemId] || 0;
+        const newLevel = currentLevel + pendingIncrease;
+        console.log('Mastery System | #onPowerIncreaseLevel: Current state', {
+            itemId,
+            currentLevel,
+            pendingIncrease,
+            newLevel
+        });
+        // Check max level (12)
+        if (newLevel >= 12) {
+            console.warn('Mastery System | #onPowerIncreaseLevel: Max level reached', { newLevel });
+            ui.notifications?.warn('This power cannot exceed maximum level (12).');
+            return;
+        }
+        // Calculate cost for the next level
+        const targetLevel = newLevel + 1;
+        const cost = this.#calculatePowerLevelCost(targetLevel);
+        // Calculate total cost of all pending changes
+        let totalPendingCost = 0;
+        for (const [powerId, pending] of Object.entries(this._pendingPowerLevelChanges)) {
+            if (pending > 0) {
+                const powerItem = this.actor.items.get(powerId);
+                if (powerItem) {
+                    const powerCurrentLevel = powerItem.system.level || 1;
+                    const powerPending = this._pendingPowerLevelChanges[powerId] || 0;
+                    for (let i = 0; i < pending; i++) {
+                        const levelAtIncrease = powerCurrentLevel + powerPending - i;
+                        const targetLevelForIncrease = levelAtIncrease + 1;
+                        totalPendingCost += this.#calculatePowerLevelCost(targetLevelForIncrease);
+                    }
+                }
+            }
+        }
+        totalPendingCost += cost; // Add cost for this new increase
+        console.log('Mastery System | #onPowerIncreaseLevel: Cost check', {
+            totalPendingCost,
+            cost,
+            availablePoints: this.actor.system.points?.mastery || 0
+        });
+        // Check if we have enough points
+        const availablePoints = this.actor.system.points?.mastery || 0;
+        if (totalPendingCost > availablePoints) {
+            console.warn('Mastery System | #onPowerIncreaseLevel: Not enough points', {
+                totalPendingCost,
+                availablePoints
+            });
+            ui.notifications?.warn(`Not enough Mastery Points! This increase would cost ${cost} points, but you only have ${availablePoints - (totalPendingCost - cost)} remaining.`);
+            return;
+        }
+        // Add pending increase
+        this._pendingPowerLevelChanges[itemId] = (this._pendingPowerLevelChanges[itemId] || 0) + 1;
+        console.log('Mastery System | #onPowerIncreaseLevel: Added pending increase', {
+            itemId,
+            newPending: this._pendingPowerLevelChanges[itemId],
+            allPendingChanges: this._pendingPowerLevelChanges
+        });
+        // Update UI
+        this.#updatePowerLevelUI();
+    }
+    /**
+     * Handle pending power level decrease
+     */
+    #onPowerDecreaseLevel(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        console.log('Mastery System | #onPowerDecreaseLevel called', {
+            target: event.currentTarget,
+            itemId: $(event.currentTarget).data('item-id')
+        });
+        const $button = $(event.currentTarget);
+        const itemId = $button.data('item-id');
+        if (!itemId) {
+            console.error('Mastery System | #onPowerDecreaseLevel: No item ID found');
+            return;
+        }
+        const pendingIncrease = this._pendingPowerLevelChanges[itemId] || 0;
+        console.log('Mastery System | #onPowerDecreaseLevel: Current pending', {
+            itemId,
+            pendingIncrease,
+            allPendingChanges: this._pendingPowerLevelChanges
+        });
+        if (pendingIncrease <= 0) {
+            console.warn('Mastery System | #onPowerDecreaseLevel: No pending increase to decrease', {
+                itemId,
+                pendingIncrease
+            });
+            return;
+        }
+        // Remove pending increase
+        this._pendingPowerLevelChanges[itemId] = pendingIncrease - 1;
+        if (this._pendingPowerLevelChanges[itemId] === 0) {
+            delete this._pendingPowerLevelChanges[itemId];
+        }
+        console.log('Mastery System | #onPowerDecreaseLevel: Removed pending increase', {
+            itemId,
+            newPending: this._pendingPowerLevelChanges[itemId],
+            allPendingChanges: this._pendingPowerLevelChanges
+        });
+        // Update UI
+        this.#updatePowerLevelUI();
+    }
+    /**
+     * Update the power level distribution UI
+     */
+    #updatePowerLevelUI() {
+        const html = this.element;
+        // Calculate total pending cost
+        let totalPendingCost = 0;
+        for (const [powerId, pending] of Object.entries(this._pendingPowerLevelChanges)) {
+            if (pending > 0) {
+                const powerItem = this.actor.items.get(powerId);
+                if (powerItem) {
+                    const powerCurrentLevel = powerItem.system.level || 1;
+                    for (let i = 0; i < pending; i++) {
+                        const levelAtIncrease = powerCurrentLevel + pending - i;
+                        const targetLevelForIncrease = levelAtIncrease + 1;
+                        totalPendingCost += this.#calculatePowerLevelCost(targetLevelForIncrease);
+                    }
+                }
+            }
+        }
+        const availablePoints = this.actor.system.points?.mastery || 0;
+        const remainingPoints = availablePoints - totalPendingCost;
+        // Update pending changes count
+        const totalPendingChanges = Object.values(this._pendingPowerLevelChanges).reduce((sum, val) => sum + val, 0);
+        html.find('#pending-power-level-changes-count').text(totalPendingChanges);
+        html.find('#remaining-power-level-mp').text(Math.max(0, remainingPoints));
+        // Update each power's pending display and button states
+        const powers = this.actor.items.filter((item) => item.type === 'power');
+        for (const power of powers) {
+            const itemId = power.id;
+            const pending = this._pendingPowerLevelChanges[itemId] || 0;
+            const currentLevel = power.system.level || 1;
+            const newLevel = currentLevel + pending;
+            // Update pending change display
+            const pendingChangeEl = html.find(`.power-level-pending-change[data-item-id="${itemId}"]`);
+            const pendingIncreaseEl = pendingChangeEl.find('.pending-increase');
+            if (pending > 0) {
+                pendingChangeEl.show();
+                pendingIncreaseEl.text(pending);
+            }
+            else {
+                pendingChangeEl.hide();
+            }
+            // Update decrease button state
+            const decreaseBtn = html.find(`.power-decrease-level[data-item-id="${itemId}"]`);
+            if (pending > 0) {
+                decreaseBtn.prop('disabled', false);
+            }
+            else {
+                decreaseBtn.prop('disabled', true);
+            }
+            // Update increase button state
+            const increaseBtn = html.find(`.power-increase-level[data-item-id="${itemId}"]`);
+            if (newLevel >= 12) {
+                increaseBtn.prop('disabled', true);
+            }
+            else {
+                const nextLevel = newLevel + 1;
+                const nextCost = this.#calculatePowerLevelCost(nextLevel);
+                increaseBtn.prop('disabled', remainingPoints < nextCost);
+            }
+        }
+        // Update confirm/cancel buttons
+        const confirmBtn = html.find('#confirm-power-level-changes-btn');
+        const cancelBtn = html.find('#cancel-power-level-changes-btn');
+        if (totalPendingChanges > 0) {
+            confirmBtn.prop('disabled', false);
+            cancelBtn.prop('disabled', false);
+        }
+        else {
+            confirmBtn.prop('disabled', true);
+            cancelBtn.prop('disabled', true);
+        }
+    }
+    /**
+     * Confirm and apply pending power level changes
+     */
+    async #onConfirmPowerLevelChanges(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        // Check if user is owner
+        if (!this.actor.isOwner) {
+            ui.notifications?.warn('Only the owner can confirm Power Level changes.');
+            return;
+        }
+        // Calculate total cost and validate
+        let totalCost = 0;
+        for (const [powerId, pending] of Object.entries(this._pendingPowerLevelChanges)) {
+            if (pending > 0) {
+                const powerItem = this.actor.items.get(powerId);
+                if (powerItem) {
+                    const currentLevel = powerItem.system.level || 1;
+                    let powerCost = 0;
+                    for (let i = 0; i < pending; i++) {
+                        const targetLevel = currentLevel + i + 1;
+                        powerCost += this.#calculatePowerLevelCost(targetLevel);
+                    }
+                    totalCost += powerCost;
+                }
+            }
+        }
+        const availablePoints = this.actor.system.points?.mastery || 0;
+        if (totalCost > availablePoints) {
+            ui.notifications?.error(`Not enough Mastery Points! Total cost: ${totalCost}, Available: ${availablePoints}`);
+            return;
+        }
+        // Apply updates
+        for (const [powerId, pending] of Object.entries(this._pendingPowerLevelChanges)) {
+            if (pending > 0) {
+                const powerItem = this.actor.items.get(powerId);
+                if (powerItem) {
+                    const currentLevel = powerItem.system.level || 1;
+                    await powerItem.update({ 'system.level': currentLevel + pending });
+                }
+            }
+        }
+        // Update mastery points
+        await this.actor.update({ 'system.points.mastery': availablePoints - totalCost });
+        // Clear pending changes
+        this._pendingPowerLevelChanges = {};
+        // Show notification
+        ui.notifications?.info(`Power level changes confirmed! Cost: ${totalCost} MP, Remaining: ${availablePoints - totalCost}`);
+        // Re-render
+        await this.render();
+    }
+    /**
+     * Cancel pending power level changes
+     */
+    #onCancelPowerLevelChanges(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        // Clear pending changes
+        this._pendingPowerLevelChanges = {};
+        // Update UI
+        this.#updatePowerLevelUI();
+        ui.notifications?.info('Pending power level changes cancelled.');
     }
     /**
      * Handle attribute roll
