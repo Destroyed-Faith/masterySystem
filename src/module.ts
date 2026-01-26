@@ -675,6 +675,14 @@ function registerHandlebarsHelpersImmediate() {
     return a === b;
   });
 
+  // Helper for equality comparison (block helper): {{#ifEquals a b}}...{{/ifEquals}}
+  Handlebars.registerHelper('ifEquals', function(this: any, a: any, b: any, options: any) {
+    if (a === b) {
+      return options.fn(this);
+    }
+    return options.inverse ? options.inverse(this) : '';
+  });
+
   // Helper for not equal comparison
   Handlebars.registerHelper('ne', function(a: any, b: any) {
     return a !== b;
