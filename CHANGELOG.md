@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.22] - 2025-01-XX
+
+### Fixed
+- **Artifact System: Restored Missing UI Elements**
+  - Fixed missing "New Artifact" button in Item Directory header
+  - Fixed missing diamond symbols (💎) on artifact folders
+  - Combined duplicate `renderItemDirectory` hooks into single unified hook
+  - Improved HTML element selection for Foundry v13 compatibility
+  - Both features now work correctly in the same hook execution
+
 ## [0.4.21] - 2025-01-XX
 
 ### Updated
