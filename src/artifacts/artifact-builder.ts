@@ -24,6 +24,16 @@ export class ArtifactBuilder extends BaseApplication {
   constructor(rootItem: Item) {
     super();
     this.rootItem = rootItem;
+    
+    // Ensure ifEquals helper is registered (fallback in case it wasn't registered early enough)
+    if (!Handlebars.helpers.ifEquals) {
+      Handlebars.registerHelper('ifEquals', function(this: any, a: any, b: any, options: any) {
+        if (a === b) {
+          return options.fn(this);
+        }
+        return options.inverse ? options.inverse(this) : '';
+      });
+    }
   }
 
   static get defaultOptions(): any {

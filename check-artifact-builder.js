@@ -7,7 +7,9 @@
   console.log("=== Artifact Builder Check ===");
   
   // Method 1: Check ui.windows (Foundry VTT standard way)
-  const windowById = ui.windows?.find((app) => app.id === 'artifact-builder');
+  // ui.windows is an object/Map, not an array, so we need Object.values()
+  const allWindows = Object.values(ui.windows || {});
+  const windowById = allWindows.find((app) => app.id === 'artifact-builder');
   
   if (windowById) {
     console.log("✓ Artifact Builder window found via ui.windows");
