@@ -1821,6 +1821,25 @@ Hooks.once('ready', async function() {
   console.log(`║  MASTERY SYSTEM / DESTROYED FAITH - VERSION ${system.version.padEnd(10)} ║`);
   console.log(`╚═══════════════════════════════════════════════════════════╝`);
   console.log(`Mastery System | Version ${system.version}`);
+  
+  // Re-initialize Artifact Awakening as fallback (in case init hook failed)
+  // Check if hook is registered
+  const hooks = (Hooks as any)._hooks?.renderItemDirectory || [];
+  const hasArtifactHook = hooks.some((hook: any) => 
+    hook.fn?.toString().includes('Mastery System | renderItemDirectory Hook TRIGGERED')
+  );
+  
+  if (!hasArtifactHook) {
+    console.warn('Mastery System | Artifact Awakening hook not found, re-initializing...');
+    try {
+      initializeArtifactAwakening();
+      console.log('✅ Mastery System | Artifact Awakening re-initialized in ready hook');
+    } catch (error) {
+      console.error('❌ Mastery System | Error re-initializing Artifact Awakening:', error);
+    }
+  } else {
+    console.log('✅ Mastery System | Artifact Awakening hook already registered');
+  }
 });
 
 /**

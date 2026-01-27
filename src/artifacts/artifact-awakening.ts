@@ -84,8 +84,10 @@ export function initializeArtifactAwakening(): void {
   };
 
   // Hook into Item Directory to add "New Artifact" button and folder diamond symbols (GM only)
+  // Register hook with explicit error handling
   try {
-    Hooks.on('renderItemDirectory', (app: any, html: JQuery | HTMLElement, _data: any) => {
+    console.log('Mastery System | Registering renderItemDirectory hook...');
+    const hookId = Hooks.on('renderItemDirectory', (app: any, html: JQuery | HTMLElement, _data: any) => {
     console.log('🔵 Mastery System | renderItemDirectory Hook TRIGGERED', {
       isGM: game.user?.isGM,
       hasApp: !!app,
@@ -444,9 +446,10 @@ export function initializeArtifactAwakening(): void {
     }, 500);
   });
   
-  console.log('✅ Mastery System | renderItemDirectory hook registered');
+  console.log('✅ Mastery System | renderItemDirectory hook registered with ID:', hookId);
   } catch (error) {
     console.error('❌ Mastery System | Error registering renderItemDirectory hook:', error);
+    console.error('Error details:', error);
   }
   
   // Additional hook: Listen for when items tab becomes active
