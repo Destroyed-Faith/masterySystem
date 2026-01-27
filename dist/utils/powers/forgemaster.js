@@ -10,7 +10,7 @@ export const FORGEMASTER_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -18,40 +18,36 @@ export const FORGEMASTER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'buff',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Unarmed strikes deal +2d8 Damage and inflict Shock(1)', dice: '2d8' },
-                specials: [{ key: 'Shock', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Shock', rank: 1 }]
             },
             '2': {
-                lvl: 2,
                 type: 'buff',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Unarmed strikes deal +4d8 Damage and inflict Shock(1)', dice: '4d8' },
-                specials: [{ key: 'Shock', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Shock', rank: 1 }]
             },
             '3': {
-                lvl: 3,
                 type: 'buff',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Unarmed strikes deal +6d8 Damage and inflict Shock(1)', dice: '6d8' },
-                specials: [{ key: 'Shock', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Shock', rank: 1 }]
             },
             '4': {
-                lvl: 4,
                 type: 'buff',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Unarmed strikes deal +8d8 Damage and inflict Shock(1)', dice: '8d8' },
-                specials: [{ key: 'Shock', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Shock', rank: 1 }]
             }
         }
     },
@@ -70,42 +66,38 @@ export const FORGEMASTER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'reaction',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
-                effect: { text: 'Gain 10 temporary HP', tempHpDice: '10' },
+                effect: { text: 'Gain 10 temporary HP' },
                 specials: [],
                 trigger: 'When struck'
             },
             '2': {
-                lvl: 2,
                 type: 'reaction',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
-                effect: { text: 'Gain 20 temporary HP', tempHpDice: '20' },
+                effect: { text: 'Gain 20 temporary HP' },
                 specials: [],
                 trigger: 'When struck'
             },
             '3': {
-                lvl: 3,
                 type: 'reaction',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
-                effect: { text: 'Gain 30 temporary HP', tempHpDice: '30' },
+                effect: { text: 'Gain 30 temporary HP' },
                 specials: [],
                 trigger: 'When struck'
             },
             '4': {
-                lvl: 4,
                 type: 'reaction',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
-                effect: { text: 'Gain 40 temporary HP', tempHpDice: '40' },
+                effect: { text: 'Gain 40 temporary HP' },
                 specials: [],
                 trigger: 'When struck'
             }
@@ -117,7 +109,7 @@ export const FORGEMASTER_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -125,40 +117,36 @@ export const FORGEMASTER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'utility',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 2 },
                 effect: { text: 'Weapon deals +1d8 Arcane Damage', dice: '1d8' },
-                specials: [{ key: 'Push', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Push', rank: 1 }]
             },
             '2': {
-                lvl: 2,
                 type: 'utility',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 2 },
                 effect: { text: 'Weapon deals +2d8 Arcane Damage', dice: '2d8' },
-                specials: [{ key: 'Push', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Push', rank: 2 }]
             },
             '3': {
-                lvl: 3,
                 type: 'utility',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 3 },
                 effect: { text: 'Weapon deals +3d8 Arcane Damage', dice: '3d8' },
-                specials: [{ key: 'Push', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Push', rank: 2 }]
             },
             '4': {
-                lvl: 4,
                 type: 'utility',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 3 },
                 effect: { text: 'Up to 2 Weapons deal +4d8 Arcane Damage', dice: '4d8' },
-                specials: [{ key: 'Push', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Push', rank: 2 }]
             }
         }
     },
@@ -168,7 +156,7 @@ export const FORGEMASTER_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -176,38 +164,34 @@ export const FORGEMASTER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'buff',
                 range: { kind: 'distance', m: 12 },
                 aoe: { shape: 'line', lengthM: 2, widthM: 1 },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Ranged attacks deal +2d8 Damage', dice: '2d8' },
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'buff',
                 range: { kind: 'distance', m: 15 },
                 aoe: { shape: 'line', lengthM: 3, widthM: 1 },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Ranged attacks deal +4d8 Damage', dice: '4d8' },
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'buff',
                 range: { kind: 'distance', m: 18 },
                 aoe: { shape: 'line', lengthM: 3, widthM: 1 },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Ranged attacks deal +6d8 Damage', dice: '6d8' },
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'buff',
                 range: { kind: 'distance', m: 20 },
                 aoe: { shape: 'line', lengthM: 4, widthM: 1 },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Ranged attacks deal +8d8 Damage', dice: '8d8' },
                 specials: []
             }
@@ -219,7 +203,7 @@ export const FORGEMASTER_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -227,39 +211,35 @@ export const FORGEMASTER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +3 Armor while wearing medium or heavy armor', flat: 3 },
+                effect: { text: 'Gain +3 Armor while wearing medium or heavy armor' },
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +5 Armor while wearing medium or heavy armor', flat: 5 },
+                effect: { text: 'Gain +5 Armor while wearing medium or heavy armor' },
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +8 Armor while wearing medium or heavy armor', flat: 8 },
+                effect: { text: 'Gain +8 Armor while wearing medium or heavy armor' },
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +10 Armor while wearing medium or heavy armor', flat: 10 },
+                effect: { text: 'Gain +10 Armor while wearing medium or heavy armor' },
                 specials: []
             }
         }
@@ -270,7 +250,7 @@ export const FORGEMASTER_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -278,39 +258,35 @@ export const FORGEMASTER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +3 Evade and +1 Armor', flat: 3 },
+                effect: { text: 'Gain +3 Evade and +1 Armor' },
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +5 Evade, +1 Armor, and +2m movement', flat: 5 },
+                effect: { text: 'Gain +5 Evade, +1 Armor, and +2m movement' },
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +8 Evade, +1 Armor, and +3m movement', flat: 8 },
+                effect: { text: 'Gain +8 Evade, +1 Armor, and +3m movement' },
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +10 Evade, +1 Armor, and +4m movement', flat: 10 },
+                effect: { text: 'Gain +10 Evade, +1 Armor, and +4m movement' },
                 specials: []
             }
         }

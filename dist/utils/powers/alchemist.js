@@ -19,40 +19,36 @@ export const ALCHEMIST_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'ranged',
                 range: { kind: 'distance', m: 8 },
-                aoe: { shape: 'radius', radiusM: 1 },
+                aoe: { shape: 'radius', m: 1 },
                 duration: { kind: 'instant' },
                 effect: { text: '2d8 damage', dice: '2d8' },
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'ranged',
                 range: { kind: 'distance', m: 12 },
-                aoe: { shape: 'radius', radiusM: 2 },
+                aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'instant' },
                 effect: { text: '3d8 damage', dice: '3d8' },
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'ranged',
                 range: { kind: 'distance', m: 16 },
-                aoe: { shape: 'radius', radiusM: 2 },
+                aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'instant' },
                 effect: { text: '4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Ignite', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Ignite', rank: 1 }]
             },
             '4': {
-                lvl: 4,
                 type: 'ranged',
                 range: { kind: 'distance', m: 20 },
-                aoe: { shape: 'radius', radiusM: 3 },
+                aoe: { shape: 'radius', m: 3 },
                 duration: { kind: 'instant' },
                 effect: { text: '5d8 damage', dice: '5d8' },
-                specials: [{ key: 'Ignite', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Ignite', rank: 2 }]
             }
         }
     },
@@ -71,40 +67,36 @@ export const ALCHEMIST_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'ranged',
                 range: { kind: 'distance', m: 8 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Corrode', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Corrode', rank: 1 }]
             },
             '2': {
-                lvl: 2,
                 type: 'ranged',
                 range: { kind: 'distance', m: 12 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Corrode', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Corrode', rank: 2 }]
             },
             '3': {
-                lvl: 3,
                 type: 'ranged',
                 range: { kind: 'distance', m: 16 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Corrode', value: 3, raiseCost: 3 }]
+                specials: [{ key: 'Corrode', rank: 3 }]
             },
             '4': {
-                lvl: 4,
                 type: 'ranged',
                 range: { kind: 'distance', m: 20 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '5d8 damage', dice: '5d8' },
-                specials: [{ key: 'Corrode', value: 4, raiseCost: 4 }]
+                specials: [{ key: 'Corrode', rank: 4 }]
             }
         }
     },
@@ -114,7 +106,7 @@ export const ALCHEMIST_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -122,7 +114,6 @@ export const ALCHEMIST_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'utility',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
@@ -131,7 +122,6 @@ export const ALCHEMIST_POWERS = [
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'utility',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
@@ -140,7 +130,6 @@ export const ALCHEMIST_POWERS = [
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'utility',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
@@ -149,7 +138,6 @@ export const ALCHEMIST_POWERS = [
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'utility',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
@@ -165,7 +153,7 @@ export const ALCHEMIST_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -173,39 +161,35 @@ export const ALCHEMIST_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'buff',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
-                effect: { text: 'Target gains +2 to one attribute', flat: 2 },
+                duration: { kind: 'masteryRounds' },
+                effect: { text: 'Target gains +2 to one attribute' },
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'buff',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
-                effect: { text: 'Target gains +3 to one attribute', flat: 3 },
+                duration: { kind: 'masteryRounds' },
+                effect: { text: 'Target gains +3 to one attribute' },
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'buff',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
-                effect: { text: 'Target gains +4 to one attribute and +2 Armor', flat: 4 },
+                duration: { kind: 'masteryRounds' },
+                effect: { text: 'Target gains +4 to one attribute and +2 Armor' },
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'buff',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
-                effect: { text: 'Target gains +5 to one attribute and +4 Armor', flat: 5 },
+                duration: { kind: 'masteryRounds' },
+                effect: { text: 'Target gains +5 to one attribute and +4 Armor' },
                 specials: []
             }
         }
@@ -216,7 +200,7 @@ export const ALCHEMIST_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -224,7 +208,6 @@ export const ALCHEMIST_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -233,7 +216,6 @@ export const ALCHEMIST_POWERS = [
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -242,7 +224,6 @@ export const ALCHEMIST_POWERS = [
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -251,7 +232,6 @@ export const ALCHEMIST_POWERS = [
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },

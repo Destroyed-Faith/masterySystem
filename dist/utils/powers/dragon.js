@@ -26,7 +26,6 @@ export const DRAGON_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
@@ -35,7 +34,6 @@ export const DRAGON_POWERS = [
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
@@ -44,7 +42,6 @@ export const DRAGON_POWERS = [
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
@@ -53,7 +50,6 @@ export const DRAGON_POWERS = [
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
@@ -79,43 +75,39 @@ export const DRAGON_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'reaction',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a Bite dealing Natural DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Mark', value: 1, raiseCost: 1 }],
+                specials: [{ key: 'Mark', rank: 1 }],
                 trigger: 'When you are hit by a melee attack'
             },
             '2': {
-                lvl: 2,
                 type: 'reaction',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a Bite dealing Natural DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Mark', value: 2, raiseCost: 2 }],
+                specials: [{ key: 'Mark', rank: 2 }],
                 trigger: 'When you are hit by a melee attack'
             },
             '3': {
-                lvl: 3,
                 type: 'reaction',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a Bite dealing Natural DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Mark', value: 3, raiseCost: 3 }],
+                specials: [{ key: 'Mark', rank: 3 }],
                 trigger: 'When you are hit by a melee attack'
             },
             '4': {
-                lvl: 4,
                 type: 'reaction',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a Bite dealing Natural DMG +5d8', dice: '5d8' },
-                specials: [{ key: 'Mark', value: 4, raiseCost: 4 }],
+                specials: [{ key: 'Mark', rank: 4 }],
                 trigger: 'When you are hit by a melee attack'
             }
         }
@@ -135,40 +127,36 @@ export const DRAGON_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'melee',
                 range: { kind: 'touch' },
-                aoe: { shape: 'radius', radiusM: 2 },
+                aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Tail Attack +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Push', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Push', rank: 2 }]
             },
             '2': {
-                lvl: 2,
                 type: 'melee',
                 range: { kind: 'touch' },
-                aoe: { shape: 'radius', radiusM: 3 },
+                aoe: { shape: 'radius', m: 3 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Tail Attack +3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Push', value: 4, raiseCost: 4 }, { key: 'Prone', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Push', rank: 4 }, { key: 'Prone', rank: 1 }]
             },
             '3': {
-                lvl: 3,
                 type: 'melee',
                 range: { kind: 'touch' },
-                aoe: { shape: 'radius', radiusM: 4 },
+                aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Tail Attack +4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Push', value: 6, raiseCost: 6 }, { key: 'Prone', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Push', rank: 6 }, { key: 'Prone', rank: 2 }]
             },
             '4': {
-                lvl: 4,
                 type: 'melee',
                 range: { kind: 'touch' },
-                aoe: { shape: 'radius', radiusM: 5 },
+                aoe: { shape: 'radius', m: 5 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Tail Attack +5d8 damage', dice: '5d8' },
-                specials: [{ key: 'Push', value: 8, raiseCost: 8 }, { key: 'Prone', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Push', rank: 8 }, { key: 'Prone', rank: 2 }]
             }
         }
     },
@@ -186,7 +174,6 @@ export const DRAGON_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'ranged',
                 range: { kind: 'distance', m: 6 },
                 aoe: { shape: 'cone', lengthM: 6, angleDeg: 60 },
@@ -195,7 +182,6 @@ export const DRAGON_POWERS = [
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'ranged',
                 range: { kind: 'distance', m: 8 },
                 aoe: { shape: 'cone', lengthM: 8, angleDeg: 60 },
@@ -204,7 +190,6 @@ export const DRAGON_POWERS = [
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'ranged',
                 range: { kind: 'distance', m: 10 },
                 aoe: { shape: 'cone', lengthM: 10, angleDeg: 60 },
@@ -213,7 +198,6 @@ export const DRAGON_POWERS = [
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'ranged',
                 range: { kind: 'distance', m: 12 },
                 aoe: { shape: 'cone', lengthM: 12, angleDeg: 60 },
@@ -229,7 +213,7 @@ export const DRAGON_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -237,37 +221,33 @@ export const DRAGON_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 4 },
+                aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Enemies within 4m are Frightened(1) while they can see or hear you' },
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 6 },
+                aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Enemies within 6m are Frightened(2) while they can see or hear you' },
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 8 },
+                aoe: { shape: 'radius', m: 8 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Enemies within 8m are Frightened(3) while they can see or hear you' },
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 10 },
+                aoe: { shape: 'radius', m: 10 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Enemies within 10m are Frightened(3) while they can see or hear you' },
                 specials: []
@@ -281,7 +261,7 @@ export const DRAGON_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -289,39 +269,35 @@ export const DRAGON_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +2 Armor and 2 Temp HP at the start of your turn (non-stacking; refreshes)', flat: 2, tempHpDice: '2' },
+                effect: { text: 'Gain +2 Armor and 2 Temp HP at the start of your turn (non-stacking; refreshes)' },
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +4 Armor and 4 Temp HP (refreshes)', flat: 4, tempHpDice: '4' },
+                effect: { text: 'Gain +4 Armor and 4 Temp HP (refreshes)' },
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +6 Armor and 6 Temp HP (refreshes)', flat: 6, tempHpDice: '6' },
+                effect: { text: 'Gain +6 Armor and 6 Temp HP (refreshes)' },
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +8 Armor and 8 Temp HP (refreshes)', flat: 8, tempHpDice: '8' },
+                effect: { text: 'Gain +8 Armor and 8 Temp HP (refreshes)' },
                 specials: []
             }
         }
@@ -341,42 +317,38 @@ export const DRAGON_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'reaction',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 1 },
-                effect: { text: 'Gain 2d8 Temp HP and +2 Evade', tempHpDice: '2d8', flat: 2 },
+                effect: { text: 'Gain 2d8 Temp HP and +2 Evade' },
                 specials: [],
                 trigger: 'When you are hit by an attack'
             },
             '2': {
-                lvl: 2,
                 type: 'reaction',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 1 },
-                effect: { text: 'Gain 4d8 Temp HP and +4 Evade', tempHpDice: '4d8', flat: 4 },
+                effect: { text: 'Gain 4d8 Temp HP and +4 Evade' },
                 specials: [],
                 trigger: 'When you are hit by an attack'
             },
             '3': {
-                lvl: 3,
                 type: 'reaction',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 1 },
-                effect: { text: 'Gain 6d8 Temp HP and +6 Evade', tempHpDice: '6d8', flat: 6 },
+                effect: { text: 'Gain 6d8 Temp HP and +6 Evade' },
                 specials: [],
                 trigger: 'When you are hit by an attack'
             },
             '4': {
-                lvl: 4,
                 type: 'reaction',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 1 },
-                effect: { text: 'Gain 8d8 Temp HP and +8 Evade', tempHpDice: '8d8', flat: 8 },
+                effect: { text: 'Gain 8d8 Temp HP and +8 Evade' },
                 specials: [],
                 trigger: 'When you are hit by an attack'
             }
@@ -388,7 +360,7 @@ export const DRAGON_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -396,40 +368,36 @@ export const DRAGON_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'utility',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Cleanse(4) on yourself' },
-                specials: [{ key: 'Cleanse', value: 4, raiseCost: 4 }]
+                specials: [{ key: 'Cleanse', rank: 4 }]
             },
             '2': {
-                lvl: 2,
                 type: 'utility',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Cleanse(8) on yourself' },
-                specials: [{ key: 'Cleanse', value: 8, raiseCost: 8 }]
+                specials: [{ key: 'Cleanse', rank: 8 }]
             },
             '3': {
-                lvl: 3,
                 type: 'utility',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Cleanse(12) on yourself' },
-                specials: [{ key: 'Cleanse', value: 12, raiseCost: 12 }]
+                specials: [{ key: 'Cleanse', rank: 12 }]
             },
             '4': {
-                lvl: 4,
                 type: 'utility',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Cleanse(16) on yourself' },
-                specials: [{ key: 'Cleanse', value: 16, raiseCost: 16 }]
+                specials: [{ key: 'Cleanse', rank: 16 }]
             }
         }
     },
@@ -439,7 +407,7 @@ export const DRAGON_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -447,7 +415,6 @@ export const DRAGON_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -456,7 +423,6 @@ export const DRAGON_POWERS = [
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -465,7 +431,6 @@ export const DRAGON_POWERS = [
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -474,7 +439,6 @@ export const DRAGON_POWERS = [
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -499,7 +463,6 @@ export const DRAGON_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'ranged',
                 range: { kind: 'distance', m: 10 },
                 aoe: { shape: 'line', lengthM: 10, widthM: 2 },
@@ -508,7 +471,6 @@ export const DRAGON_POWERS = [
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'ranged',
                 range: { kind: 'distance', m: 14 },
                 aoe: { shape: 'line', lengthM: 14, widthM: 2 },
@@ -517,7 +479,6 @@ export const DRAGON_POWERS = [
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'ranged',
                 range: { kind: 'distance', m: 18 },
                 aoe: { shape: 'line', lengthM: 18, widthM: 2 },
@@ -526,7 +487,6 @@ export const DRAGON_POWERS = [
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'ranged',
                 range: { kind: 'distance', m: 22 },
                 aoe: { shape: 'line', lengthM: 22, widthM: 2 },
@@ -542,7 +502,7 @@ export const DRAGON_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -550,7 +510,6 @@ export const DRAGON_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -559,7 +518,6 @@ export const DRAGON_POWERS = [
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -568,7 +526,6 @@ export const DRAGON_POWERS = [
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -577,7 +534,6 @@ export const DRAGON_POWERS = [
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -593,7 +549,7 @@ export const DRAGON_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -601,7 +557,6 @@ export const DRAGON_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'utility',
                 range: { kind: 'self' },
                 aoe: { shape: 'none', note: 'Same as your last Breath shape' },
@@ -610,7 +565,6 @@ export const DRAGON_POWERS = [
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'utility',
                 range: { kind: 'self' },
                 aoe: { shape: 'none', note: 'Same as your last Breath shape' },
@@ -619,7 +573,6 @@ export const DRAGON_POWERS = [
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'utility',
                 range: { kind: 'self' },
                 aoe: { shape: 'none', note: 'Same as your last Breath shape' },
@@ -628,7 +581,6 @@ export const DRAGON_POWERS = [
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'utility',
                 range: { kind: 'self' },
                 aoe: { shape: 'none', note: 'Same as your last Breath shape' },
@@ -653,40 +605,36 @@ export const DRAGON_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'ranged',
                 range: { kind: 'distance', m: 6, note: 'As Breath' },
                 aoe: { shape: 'cone', lengthM: 6, angleDeg: 60, note: 'As Breath' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Deal 4d8 elemental damage', dice: '4d8' },
-                specials: [{ key: 'Expose', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Expose', rank: 2 }]
             },
             '2': {
-                lvl: 2,
                 type: 'ranged',
                 range: { kind: 'distance', m: 8, note: 'As Breath' },
                 aoe: { shape: 'cone', lengthM: 8, angleDeg: 60, note: 'As Breath' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Deal 8d8 elemental damage', dice: '8d8' },
-                specials: [{ key: 'Expose', value: 3, raiseCost: 3 }]
+                specials: [{ key: 'Expose', rank: 3 }]
             },
             '3': {
-                lvl: 3,
                 type: 'ranged',
                 range: { kind: 'distance', m: 10, note: 'As Breath' },
                 aoe: { shape: 'cone', lengthM: 10, angleDeg: 60, note: 'As Breath' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Deal 12d8 elemental damage', dice: '12d8' },
-                specials: [{ key: 'Expose', value: 4, raiseCost: 4 }]
+                specials: [{ key: 'Expose', rank: 4 }]
             },
             '4': {
-                lvl: 4,
                 type: 'ranged',
                 range: { kind: 'distance', m: 12, note: 'As Breath' },
                 aoe: { shape: 'cone', lengthM: 12, angleDeg: 60, note: 'As Breath' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Deal 16d8 elemental damage', dice: '16d8' },
-                specials: [{ key: 'Expose', value: 5, raiseCost: 5 }]
+                specials: [{ key: 'Expose', rank: 5 }]
             }
         }
     },
@@ -697,7 +645,7 @@ export const DRAGON_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -705,39 +653,35 @@ export const DRAGON_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
-                effect: { text: 'Gain Flight (up to your Speed). While flying, gain +2 Evade', flat: 2 },
+                duration: { kind: 'masteryRounds' },
+                effect: { text: 'Gain Flight (up to your Speed). While flying, gain +2 Evade' },
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
-                effect: { text: 'Gain Flight (up to your Speed). While flying, gain +4 Evade', flat: 4 },
+                duration: { kind: 'masteryRounds' },
+                effect: { text: 'Gain Flight (up to your Speed). While flying, gain +4 Evade' },
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
-                effect: { text: 'Gain Flight (up to your Speed). While flying, gain +6 Evade', flat: 6 },
+                duration: { kind: 'masteryRounds' },
+                effect: { text: 'Gain Flight (up to your Speed). While flying, gain +6 Evade' },
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
-                effect: { text: 'Gain Flight (up to your Speed). While flying, gain +8 Evade', flat: 8 },
+                duration: { kind: 'masteryRounds' },
+                effect: { text: 'Gain Flight (up to your Speed). While flying, gain +8 Evade' },
                 specials: []
             }
         }
@@ -756,7 +700,6 @@ export const DRAGON_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'movement',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -765,7 +708,6 @@ export const DRAGON_POWERS = [
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'movement',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -774,7 +716,6 @@ export const DRAGON_POWERS = [
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'movement',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -783,7 +724,6 @@ export const DRAGON_POWERS = [
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'movement',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -807,40 +747,36 @@ export const DRAGON_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'movement',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 4 },
+                aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Reposition up to 6m (ground or vertical if flying)' },
-                specials: [{ key: 'Push', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Push', rank: 2 }]
             },
             '2': {
-                lvl: 2,
                 type: 'movement',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 6 },
+                aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Reposition 8m' },
-                specials: [{ key: 'Push', value: 4, raiseCost: 4 }]
+                specials: [{ key: 'Push', rank: 4 }]
             },
             '3': {
-                lvl: 3,
                 type: 'movement',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 8 },
+                aoe: { shape: 'radius', m: 8 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Reposition 10m' },
-                specials: [{ key: 'Push', value: 6, raiseCost: 6 }]
+                specials: [{ key: 'Push', rank: 6 }]
             },
             '4': {
-                lvl: 4,
                 type: 'movement',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 10 },
+                aoe: { shape: 'radius', m: 10 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Reposition 12m' },
-                specials: [{ key: 'Push', value: 8, raiseCost: 8 }]
+                specials: [{ key: 'Push', rank: 8 }]
             }
         }
     },
@@ -859,40 +795,36 @@ export const DRAGON_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'melee',
                 range: { kind: 'distance', m: 4 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Pull', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Pull', rank: 2 }]
             },
             '2': {
-                lvl: 2,
                 type: 'melee',
                 range: { kind: 'distance', m: 6 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack +3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Pull', value: 4, raiseCost: 4 }]
+                specials: [{ key: 'Pull', rank: 4 }]
             },
             '3': {
-                lvl: 3,
                 type: 'melee',
                 range: { kind: 'distance', m: 8 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack +4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Pull', value: 6, raiseCost: 6 }]
+                specials: [{ key: 'Pull', rank: 6 }]
             },
             '4': {
-                lvl: 4,
                 type: 'melee',
                 range: { kind: 'distance', m: 10 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack +5d8 damage', dice: '5d8' },
-                specials: [{ key: 'Pull', value: 8, raiseCost: 8 }]
+                specials: [{ key: 'Pull', rank: 8 }]
             }
         }
     },
@@ -903,7 +835,7 @@ export const DRAGON_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -911,40 +843,36 @@ export const DRAGON_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'utility',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 6 },
+                aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Allies in AoE gain Advantage on their next Attack; enemies must pass a Mind Save or gain Frightened(1)' },
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'utility',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 8 },
+                aoe: { shape: 'radius', m: 8 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Allies gain Advantage; enemies: Mind Save or Frightened(2)' },
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'utility',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 10 },
+                aoe: { shape: 'radius', m: 10 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Allies gain Advantage; enemies: Mind Save or Frightened(3)' },
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'utility',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 12 },
+                aoe: { shape: 'radius', m: 12 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Allies gain Advantage; enemies: Mind Save or Frightened(3) and Mark(1)' },
-                specials: [{ key: 'Mark', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Mark', rank: 1 }]
             }
         }
     },
@@ -954,7 +882,7 @@ export const DRAGON_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -962,7 +890,6 @@ export const DRAGON_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -971,7 +898,6 @@ export const DRAGON_POWERS = [
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -980,7 +906,6 @@ export const DRAGON_POWERS = [
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -989,7 +914,6 @@ export const DRAGON_POWERS = [
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -1015,40 +939,36 @@ export const DRAGON_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'ranged',
                 range: { kind: 'distance', m: 10 },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Target must make a Mind Save' },
-                specials: [{ key: 'Suppress', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Suppress', rank: 2 }]
             },
             '2': {
-                lvl: 2,
                 type: 'ranged',
                 range: { kind: 'distance', m: 14 },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Target must make a Mind Save' },
-                specials: [{ key: 'Suppress', value: 3, raiseCost: 3 }]
+                specials: [{ key: 'Suppress', rank: 3 }]
             },
             '3': {
-                lvl: 3,
                 type: 'ranged',
                 range: { kind: 'distance', m: 18 },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Target must make a Mind Save' },
-                specials: [{ key: 'Suppress', value: 4, raiseCost: 4 }]
+                specials: [{ key: 'Suppress', rank: 4 }]
             },
             '4': {
-                lvl: 4,
                 type: 'ranged',
                 range: { kind: 'distance', m: 22 },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Target must make a Mind Save' },
-                specials: [{ key: 'Suppress', value: 5, raiseCost: 5 }]
+                specials: [{ key: 'Suppress', rank: 5 }]
             }
         }
     },
@@ -1058,7 +978,7 @@ export const DRAGON_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -1066,40 +986,36 @@ export const DRAGON_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'utility',
                 range: { kind: 'distance', m: 12 },
-                aoe: { shape: 'radius', radiusM: 4 },
+                aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Enemies entering the area must pass a Mind Save or be Frightened(1) until end of their turn' },
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'utility',
                 range: { kind: 'distance', m: 14 },
-                aoe: { shape: 'radius', radiusM: 5 },
+                aoe: { shape: 'radius', m: 5 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Frightened(2)' },
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'utility',
                 range: { kind: 'distance', m: 16 },
-                aoe: { shape: 'radius', radiusM: 6 },
+                aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Frightened(3)' },
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'utility',
                 range: { kind: 'distance', m: 18 },
-                aoe: { shape: 'radius', radiusM: 7 },
+                aoe: { shape: 'radius', m: 7 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Frightened(3) and they are also Push(2) away (Body Save negates)' },
-                specials: [{ key: 'Push', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Push', rank: 2 }]
             }
         }
     },
@@ -1119,40 +1035,36 @@ export const DRAGON_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make 1 Extra Attack (0.5) with half Attack Dice; on hit deal +1d8', dice: '1d8' },
-                specials: [{ key: 'Bleeding', value: 1, raiseCost: 1, note: 'If target is Marked' }]
+                specials: [{ key: 'Bleeding', rank: 1, note: 'If target is Marked' }]
             },
             '2': {
-                lvl: 2,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Same, +2d8', dice: '2d8' },
-                specials: [{ key: 'Bleeding', value: 2, raiseCost: 2, note: 'If target is Marked' }]
+                specials: [{ key: 'Bleeding', rank: 2, note: 'If target is Marked' }]
             },
             '3': {
-                lvl: 3,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make 2 Extra Attacks (0.5 each); each hit +2d8', dice: '2d8' },
-                specials: [{ key: 'Bleeding', value: 2, raiseCost: 2, note: 'If target is Marked' }]
+                specials: [{ key: 'Bleeding', rank: 2, note: 'If target is Marked' }]
             },
             '4': {
-                lvl: 4,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '2 Extra Attacks; each hit +3d8', dice: '3d8' },
-                specials: [{ key: 'Bleeding', value: 3, raiseCost: 3, note: 'If target is Marked' }]
+                specials: [{ key: 'Bleeding', rank: 3, note: 'If target is Marked' }]
             }
         }
     },
@@ -1171,40 +1083,36 @@ export const DRAGON_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Grappled', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Grappled', rank: 1 }]
             },
             '2': {
-                lvl: 2,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack +3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Grappled', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Grappled', rank: 2 }]
             },
             '3': {
-                lvl: 3,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack +4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Grappled', value: 3, raiseCost: 3 }]
+                specials: [{ key: 'Grappled', rank: 3 }]
             },
             '4': {
-                lvl: 4,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack +5d8 damage', dice: '5d8' },
-                specials: [{ key: 'Grappled', value: 4, raiseCost: 4 }]
+                specials: [{ key: 'Grappled', rank: 4 }]
             }
         }
     },
@@ -1223,40 +1131,36 @@ export const DRAGON_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Natural Attack +3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Penetration', value: 2, raiseCost: 2, note: 'If target has Bleeding(2+) or Mark(2+)' }]
+                specials: [{ key: 'Penetration', rank: 2, note: 'If target has Bleeding(2+) or Mark(2+)' }]
             },
             '2': {
-                lvl: 2,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Natural Attack +4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Penetration', value: 3, raiseCost: 3, note: 'If Bleeding(3+) or Mark(3+)' }]
+                specials: [{ key: 'Penetration', rank: 3, note: 'If Bleeding(3+) or Mark(3+)' }]
             },
             '3': {
-                lvl: 3,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Natural Attack +5d8 damage', dice: '5d8' },
-                specials: [{ key: 'Penetration', value: 4, raiseCost: 4, note: 'If Bleeding(4+) or Mark(3+)' }]
+                specials: [{ key: 'Penetration', rank: 4, note: 'If Bleeding(4+) or Mark(3+)' }]
             },
             '4': {
-                lvl: 4,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Natural Attack +6d8 damage', dice: '6d8' },
-                specials: [{ key: 'Penetration', value: 5, raiseCost: 5, note: 'If Bleeding(5+) or Mark(4+)' }]
+                specials: [{ key: 'Penetration', rank: 5, note: 'If Bleeding(5+) or Mark(4+)' }]
             }
         }
     },
@@ -1266,7 +1170,7 @@ export const DRAGON_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -1274,7 +1178,6 @@ export const DRAGON_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -1283,7 +1186,6 @@ export const DRAGON_POWERS = [
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -1292,7 +1194,6 @@ export const DRAGON_POWERS = [
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -1301,7 +1202,6 @@ export const DRAGON_POWERS = [
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },

@@ -10,7 +10,7 @@ export const WITCHBANE_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -18,38 +18,34 @@ export const WITCHBANE_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'buff',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 3 },
-                duration: { kind: 'masteryRankRounds' },
+                aoe: { shape: 'radius', m: 3 },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Spells cast in the area suffer −1 die to their casting pool' },
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'buff',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 4 },
-                duration: { kind: 'masteryRankRounds' },
+                aoe: { shape: 'radius', m: 4 },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Spells cast in the area suffer −2 dice to their casting pool' },
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'buff',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 5 },
-                duration: { kind: 'masteryRankRounds' },
+                aoe: { shape: 'radius', m: 5 },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Spells cast in the area suffer −3 dice to their casting pool' },
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'buff',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 6 },
-                duration: { kind: 'masteryRankRounds' },
+                aoe: { shape: 'radius', m: 6 },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Spells cast in the area suffer −4 dice to their casting pool' },
                 specials: []
             }
@@ -70,7 +66,6 @@ export const WITCHBANE_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'reaction',
                 range: { kind: 'distance', m: 6 },
                 aoe: { shape: 'none' },
@@ -80,7 +75,6 @@ export const WITCHBANE_POWERS = [
                 trigger: 'When a spell is cast within 6m'
             },
             '2': {
-                lvl: 2,
                 type: 'reaction',
                 range: { kind: 'distance', m: 8 },
                 aoe: { shape: 'none' },
@@ -90,7 +84,6 @@ export const WITCHBANE_POWERS = [
                 trigger: 'When a spell is cast within 8m'
             },
             '3': {
-                lvl: 3,
                 type: 'reaction',
                 range: { kind: 'distance', m: 10 },
                 aoe: { shape: 'none' },
@@ -100,7 +93,6 @@ export const WITCHBANE_POWERS = [
                 trigger: 'When a spell is cast within 10m'
             },
             '4': {
-                lvl: 4,
                 type: 'reaction',
                 range: { kind: 'distance', m: 12 },
                 aoe: { shape: 'none' },
@@ -117,7 +109,7 @@ export const WITCHBANE_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -125,38 +117,34 @@ export const WITCHBANE_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Reflects the next Spell of Level 1 targeting you' },
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Reflects the next two Spells of Level 1 targeting you' },
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Reflects the next Spell of Level 2 or lower targeting you' },
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Reflects the next two Spells of Level 2 or lower targeting you' },
                 specials: []
             }
@@ -176,7 +164,6 @@ export const WITCHBANE_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'movement',
                 range: { kind: 'distance', m: 4 },
                 aoe: { shape: 'none' },
@@ -185,7 +172,6 @@ export const WITCHBANE_POWERS = [
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'movement',
                 range: { kind: 'distance', m: 6 },
                 aoe: { shape: 'none' },
@@ -194,7 +180,6 @@ export const WITCHBANE_POWERS = [
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'movement',
                 range: { kind: 'distance', m: 8 },
                 aoe: { shape: 'none' },
@@ -203,7 +188,6 @@ export const WITCHBANE_POWERS = [
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'movement',
                 range: { kind: 'distance', m: 10 },
                 aoe: { shape: 'none' },
@@ -219,7 +203,7 @@ export const WITCHBANE_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -227,37 +211,33 @@ export const WITCHBANE_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 3 },
+                aoe: { shape: 'radius', m: 3 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Detect active spells or enchantments within 3m' },
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 6 },
+                aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Detect magical items, traps, or curses within 6m' },
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 9 },
+                aoe: { shape: 'radius', m: 9 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Sense ongoing auras or hidden casters within 9m' },
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 12 },
+                aoe: { shape: 'radius', m: 12 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Automatically detect any spellcasting or teleportation within 12m' },
                 specials: []
@@ -270,7 +250,7 @@ export const WITCHBANE_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -278,7 +258,6 @@ export const WITCHBANE_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -287,7 +266,6 @@ export const WITCHBANE_POWERS = [
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -296,7 +274,6 @@ export const WITCHBANE_POWERS = [
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -305,7 +282,6 @@ export const WITCHBANE_POWERS = [
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
