@@ -11,6 +11,10 @@ export declare class MasteryItem extends Item {
      */
     preparePowerData(): void;
     /**
+     * Prepare Artifact specific data
+     */
+    prepareArtifactData(): void;
+    /**
      * Check if this item can be used by an actor
      */
     canUse(actor: Actor): boolean;

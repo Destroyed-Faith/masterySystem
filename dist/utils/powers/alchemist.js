@@ -1,67 +1,265 @@
 /**
  * Alchemist Mastery Tree Powers
+ *
+ * Migrated to new structure (v0.4.18+)
  */
 export const ALCHEMIST_POWERS = [
     {
         name: 'Alchemical Bomb',
-        tree: 'Alchemist',
-        powerType: 'active',
-        description: 'Hurl an explosive concoction.',
-        levels: [
-            { level: 1, type: 'Active', range: '8m', aoe: 'Radius 1m', duration: 'Instant', effect: '2d8 fire damage', cost: { action: true }, roll: { damage: '2d8', damageType: 'fire' } },
-            { level: 2, type: 'Active', range: '12m', aoe: 'Radius 2m', duration: 'Instant', effect: '3d8 fire damage', cost: { action: true }, roll: { damage: '3d8', damageType: 'fire' } },
-            { level: 3, type: 'Active', range: '16m', aoe: 'Radius 2m', duration: 'Instant', effect: '4d8 fire damage', special: 'Ignite(1)', cost: { action: true }, roll: { damage: '4d8', damageType: 'fire' } },
-            { level: 4, type: 'Active', range: '20m', aoe: 'Radius 3m', duration: 'Instant', effect: '5d8 fire damage', special: 'Ignite(2)', cost: { action: true }, roll: { damage: '5d8', damageType: 'fire' } }
-        ]
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'intellect'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'ranged',
+                range: { kind: 'distance', m: 8 },
+                aoe: { shape: 'radius', radiusM: 1 },
+                duration: { kind: 'instant' },
+                effect: { text: '2d8 damage', dice: '2d8' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'ranged',
+                range: { kind: 'distance', m: 12 },
+                aoe: { shape: 'radius', radiusM: 2 },
+                duration: { kind: 'instant' },
+                effect: { text: '3d8 damage', dice: '3d8' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'ranged',
+                range: { kind: 'distance', m: 16 },
+                aoe: { shape: 'radius', radiusM: 2 },
+                duration: { kind: 'instant' },
+                effect: { text: '4d8 damage', dice: '4d8' },
+                specials: [{ key: 'Ignite', value: 1, raiseCost: 1 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'ranged',
+                range: { kind: 'distance', m: 20 },
+                aoe: { shape: 'radius', radiusM: 3 },
+                duration: { kind: 'instant' },
+                effect: { text: '5d8 damage', dice: '5d8' },
+                specials: [{ key: 'Ignite', value: 2, raiseCost: 2 }]
+            }
+        }
     },
     {
         name: 'Acid Flask',
-        tree: 'Alchemist',
-        powerType: 'active',
-        description: 'Throw acid that corrodes armor.',
-        levels: [
-            { level: 1, type: 'Active', range: '8m', duration: 'Instant', effect: '2d8 acid damage', special: 'Corrode(1)', cost: { action: true }, roll: { damage: '2d8', damageType: 'acid' } },
-            { level: 2, type: 'Active', range: '12m', duration: 'Instant', effect: '3d8 acid damage', special: 'Corrode(2)', cost: { action: true }, roll: { damage: '3d8', damageType: 'acid' } },
-            { level: 3, type: 'Active', range: '16m', duration: 'Instant', effect: '4d8 acid damage', special: 'Corrode(3)', cost: { action: true }, roll: { damage: '4d8', damageType: 'acid' } },
-            { level: 4, type: 'Active', range: '20m', duration: 'Instant', effect: '5d8 acid damage', special: 'Corrode(4)', cost: { action: true }, roll: { damage: '5d8', damageType: 'acid' } }
-        ]
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'intellect'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'ranged',
+                range: { kind: 'distance', m: 8 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: '2d8 damage', dice: '2d8' },
+                specials: [{ key: 'Corrode', value: 1, raiseCost: 1 }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'ranged',
+                range: { kind: 'distance', m: 12 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: '3d8 damage', dice: '3d8' },
+                specials: [{ key: 'Corrode', value: 2, raiseCost: 2 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'ranged',
+                range: { kind: 'distance', m: 16 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: '4d8 damage', dice: '4d8' },
+                specials: [{ key: 'Corrode', value: 3, raiseCost: 3 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'ranged',
+                range: { kind: 'distance', m: 20 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: '5d8 damage', dice: '5d8' },
+                specials: [{ key: 'Corrode', value: 4, raiseCost: 4 }]
+            }
+        }
     },
     {
         name: 'Healing Elixir',
-        tree: 'Alchemist',
-        powerType: 'utility',
-        description: 'A potent healing brew.',
-        levels: [
-            { level: 1, type: 'Utility', range: 'Touch', duration: 'Instant', effect: 'Heal target for 2d8 HP', cost: { action: true } },
-            { level: 2, type: 'Utility', range: 'Touch', duration: 'Instant', effect: 'Heal target for 3d8 HP and grant Regeneration(1) for 2 rounds', cost: { action: true } },
-            { level: 3, type: 'Utility', range: 'Touch', duration: 'Instant', effect: 'Heal target for 4d8 HP and grant Regeneration(2) for 2 rounds', cost: { action: true } },
-            { level: 4, type: 'Utility', range: 'Touch', duration: 'Instant', effect: 'Heal target for 5d8 HP and grant Regeneration(3) for 3 rounds', cost: { action: true } }
-        ]
+        category: 'utility',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'utility',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Heal target for 2d8 HP', dice: '2d8' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'utility',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Heal target for 3d8 HP and grant Regeneration(1) for 2 rounds', dice: '3d8' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'utility',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Heal target for 4d8 HP and grant Regeneration(2) for 2 rounds', dice: '4d8' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'utility',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Heal target for 5d8 HP and grant Regeneration(3) for 3 rounds', dice: '5d8' },
+                specials: []
+            }
+        }
     },
     {
         name: 'Transmutation',
-        tree: 'Alchemist',
-        powerType: 'buff',
-        description: 'Enhance physical capabilities through alchemy.',
-        levels: [
-            { level: 1, type: 'Buff', range: 'Touch', duration: 'Mastery Rank Rounds', effect: 'Target gains +2 to one attribute', cost: { action: true } },
-            { level: 2, type: 'Buff', range: 'Touch', duration: 'Mastery Rank Rounds', effect: 'Target gains +3 to one attribute', cost: { action: true } },
-            { level: 3, type: 'Buff', range: 'Touch', duration: 'Mastery Rank Rounds', effect: 'Target gains +4 to one attribute and +2 Armor', cost: { action: true } },
-            { level: 4, type: 'Buff', range: 'Touch', duration: 'Mastery Rank Rounds', effect: 'Target gains +5 to one attribute and +4 Armor', cost: { action: true } }
-        ]
+        category: 'activeBuff',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'buff',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Target gains +2 to one attribute', flat: 2 },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'buff',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Target gains +3 to one attribute', flat: 3 },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'buff',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Target gains +4 to one attribute and +2 Armor', flat: 4 },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'buff',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Target gains +5 to one attribute and +4 Armor', flat: 5 },
+                specials: []
+            }
+        }
     },
     {
         name: 'Volatile Mixture',
-        tree: 'Alchemist',
-        powerType: 'passive',
-        passiveCategory: 'damage',
-        description: 'Your bombs and acids deal extra damage.',
-        levels: [
-            { level: 1, type: 'Passive', effect: 'Alchemical attacks deal +1d8 damage.' },
-            { level: 2, type: 'Passive', effect: 'Alchemical attacks deal +2d8 damage.' },
-            { level: 3, type: 'Passive', effect: 'Alchemical attacks deal +3d8 damage and ignore 2 Armor.' },
-            { level: 4, type: 'Passive', effect: 'Alchemical attacks deal +4d8 damage and ignore 4 Armor.' }
-        ]
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Alchemical attacks deal +1d8 damage', dice: '1d8' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Alchemical attacks deal +2d8 damage', dice: '2d8' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Alchemical attacks deal +3d8 damage and ignore 2 Armor', dice: '3d8' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Alchemical attacks deal +4d8 damage and ignore 4 Armor', dice: '4d8' },
+                specials: []
+            }
+        }
     }
 ];
 //# sourceMappingURL=alchemist.js.map

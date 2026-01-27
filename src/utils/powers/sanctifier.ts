@@ -1,70 +1,266 @@
 /**
  * Sanctifier Mastery Tree Powers
+ * 
+ * Migrated to new structure (v0.4.18+)
  */
 
-import type { PowerDefinition } from './types.js';
+import type { NewArtifactPowerData } from '../../types/item.js';
 
-export const SANCTIFIER_POWERS: PowerDefinition[] = [
+export const SANCTIFIER_POWERS: NewArtifactPowerData[] = [
     {
         name: 'Smite Evil',
-        tree: 'Sanctifier',
-        powerType: 'active',
-        description: 'Radiant strike against unholy foes.',
-        levels: [
-            { level: 1, type: 'Active', range: 'Melee', duration: 'Instant', effect: 'Weapon DMG + 2d8 radiant damage', special: 'Smite(1)', cost: { action: true }, roll: { damage: '+2d8', damageType: 'radiant' } },
-            { level: 2, type: 'Active', range: 'Melee', duration: 'Instant', effect: 'Weapon DMG + 3d8 radiant damage', special: 'Smite(2)', cost: { action: true }, roll: { damage: '+3d8', damageType: 'radiant' } },
-            { level: 3, type: 'Active', range: 'Melee', duration: 'Instant', effect: 'Weapon DMG + 4d8 radiant damage', special: 'Smite(2)', cost: { action: true }, roll: { damage: '+4d8', damageType: 'radiant' } },
-            { level: 4, type: 'Active', range: 'Melee', duration: 'Instant', effect: 'Weapon DMG + 5d8 radiant damage', special: 'Smite(3)', cost: { action: true }, roll: { damage: '+5d8', damageType: 'radiant' } }
-        ]
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'might'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
+                specials: [{ key: 'Smite', value: 1, raiseCost: 1 }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
+                specials: [{ key: 'Smite', value: 2, raiseCost: 2 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
+                specials: [{ key: 'Smite', value: 2, raiseCost: 2 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +5d8', dice: '5d8' },
+                specials: [{ key: 'Smite', value: 3, raiseCost: 3 }]
+            }
+        }
     },
     {
         name: 'Radiant Burst',
-        tree: 'Sanctifier',
-        powerType: 'active',
-        description: 'A burst of holy light that burns the unholy.',
-        levels: [
-            { level: 1, type: 'Active', range: 'Self', aoe: 'Radius 2m', duration: 'Instant', effect: '2d8 radiant damage to enemies', cost: { action: true }, roll: { damage: '2d8', damageType: 'radiant' } },
-            { level: 2, type: 'Active', range: 'Self', aoe: 'Radius 4m', duration: 'Instant', effect: '3d8 radiant damage to enemies', cost: { action: true }, roll: { damage: '3d8', damageType: 'radiant' } },
-            { level: 3, type: 'Active', range: 'Self', aoe: 'Radius 6m', duration: 'Instant', effect: '4d8 radiant damage to enemies', cost: { action: true }, roll: { damage: '4d8', damageType: 'radiant' } },
-            { level: 4, type: 'Active', range: 'Self', aoe: 'Radius 8m', duration: 'Instant', effect: '5d8 radiant damage to enemies', cost: { action: true }, roll: { damage: '5d8', damageType: 'radiant' } }
-        ]
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'ranged',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 2 },
+                duration: { kind: 'instant' },
+                effect: { text: '2d8 damage to enemies', dice: '2d8' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'ranged',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 4 },
+                duration: { kind: 'instant' },
+                effect: { text: '3d8 damage to enemies', dice: '3d8' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'ranged',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 6 },
+                duration: { kind: 'instant' },
+                effect: { text: '4d8 damage to enemies', dice: '4d8' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'ranged',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 8 },
+                duration: { kind: 'instant' },
+                effect: { text: '5d8 damage to enemies', dice: '5d8' },
+                specials: []
+            }
+        }
     },
     {
         name: 'Lay on Hands',
-        tree: 'Sanctifier',
-        powerType: 'utility',
-        description: 'Divine healing through touch.',
-        levels: [
-            { level: 1, type: 'Utility', range: 'Touch', duration: 'Instant', effect: 'Heal target for 2d8 HP', cost: { action: true } },
-            { level: 2, type: 'Utility', range: 'Touch', duration: 'Instant', effect: 'Heal target for 3d8 HP', special: 'Cleanse(1)', cost: { action: true } },
-            { level: 3, type: 'Utility', range: 'Touch', duration: 'Instant', effect: 'Heal target for 4d8 HP', special: 'Cleanse(2)', cost: { action: true } },
-            { level: 4, type: 'Utility', range: 'Touch', duration: 'Instant', effect: 'Heal target for 5d8 HP', special: 'Cleanse(3)', cost: { action: true } }
-        ]
+        category: 'utility',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'utility',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Heal target for 2d8 HP', dice: '2d8' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'utility',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Heal target for 3d8 HP', dice: '3d8' },
+                specials: [{ key: 'Cleanse', value: 1, raiseCost: 1 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'utility',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Heal target for 4d8 HP', dice: '4d8' },
+                specials: [{ key: 'Cleanse', value: 2, raiseCost: 2 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'utility',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Heal target for 5d8 HP', dice: '5d8' },
+                specials: [{ key: 'Cleanse', value: 3, raiseCost: 3 }]
+            }
+        }
     },
     {
         name: 'Divine Shield',
-        tree: 'Sanctifier',
-        powerType: 'buff',
-        description: 'A shimmering shield of holy light protects you and allies.',
-        levels: [
-            { level: 1, type: 'Buff', range: 'Touch', duration: 'Mastery Rank Rounds', effect: 'Target gains +3 Armor', cost: { action: true } },
-            { level: 2, type: 'Buff', range: 'Touch', duration: 'Mastery Rank Rounds', effect: 'Target gains +5 Armor', cost: { action: true } },
-            { level: 3, type: 'Buff', range: 'Touch', duration: 'Mastery Rank Rounds', effect: 'Target gains +7 Armor and Resistance to Necrotic', cost: { action: true } },
-            { level: 4, type: 'Buff', range: 'Touch', duration: 'Mastery Rank Rounds', effect: 'Target gains +10 Armor and Resistance to Necrotic', cost: { action: true } }
-        ]
+        category: 'activeBuff',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'buff',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Target gains +3 Armor', flat: 3 },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'buff',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Target gains +5 Armor', flat: 5 },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'buff',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Target gains +7 Armor and Resistance to Necrotic', flat: 7 },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'buff',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Target gains +10 Armor and Resistance to Necrotic', flat: 10 },
+                specials: []
+            }
+        }
     },
     {
         name: 'Aura of Purity',
-        tree: 'Sanctifier',
-        powerType: 'passive',
-        passiveCategory: 'healing',
-        description: 'Your presence cleanses and protects allies.',
-        levels: [
-            { level: 1, type: 'Passive', effect: 'Allies within 2m gain Regeneration(1).' },
-            { level: 2, type: 'Passive', effect: 'Allies within 4m gain Regeneration(2).' },
-            { level: 3, type: 'Passive', effect: 'Allies within 6m gain Regeneration(3) and +1 to Saves.' },
-            { level: 4, type: 'Passive', effect: 'Allies within 8m gain Regeneration(4) and +2 to Saves.' }
-        ]
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'aura', radiusM: 2 },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Allies within 2m gain Regeneration(1)' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'aura', radiusM: 4 },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Allies within 4m gain Regeneration(2)' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'aura', radiusM: 6 },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Allies within 6m gain Regeneration(3) and +1 to Saves' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'aura', radiusM: 8 },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Allies within 8m gain Regeneration(4) and +2 to Saves' },
+                specials: []
+            }
+        }
     }
 ];
-

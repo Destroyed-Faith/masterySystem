@@ -1,6 +1,7 @@
 /**
  * Extended Item document for Mastery System
  */
+import { migratePowerData, migrateArtifactPower, isOldPowerStructure } from '../utils/power-migration.js';
 export class MasteryItem extends Item {
     /**
      * Augment the basic item data with additional dynamic data
@@ -10,6 +11,9 @@ export class MasteryItem extends Item {
         // Add any item-specific derived data here
         if (this.type === 'power') {
             this.preparePowerData();
+        }
+        else if (this.type === 'artifact') {
+            this.prepareArtifactData();
         }
     }
     /**
@@ -24,6 +28,26 @@ export class MasteryItem extends Item {
         // Ensure specials is an array
         if (!Array.isArray(system.specials)) {
             system.specials = [];
+        }
+        // Migrate old power structure to new structure
+        if (system.powerType && !system.category) {
+            const migrated = migratePowerData(system);
+            Object.assign(system, migrated);
+        }
+    }
+    /**
+     * Prepare Artifact specific data
+     */
+    prepareArtifactData() {
+        const system = this.system;
+        // Migrate old artifact powers to new structure
+        if (system.powers && Array.isArray(system.powers)) {
+            system.powers = system.powers.map((power) => {
+                if (isOldPowerStructure(power)) {
+                    return migrateArtifactPower(power);
+                }
+                return power;
+            });
         }
     }
     /**

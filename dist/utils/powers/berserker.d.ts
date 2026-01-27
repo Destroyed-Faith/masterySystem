@@ -1,6 +1,8 @@
 /**
  * Berserker of the Blood Moon Mastery Tree Powers
+ *
+ * Migrated to new structure (v0.4.18+)
  */
-import type { PowerDefinition } from './types.js';
-export declare const BERSERKER_POWERS: PowerDefinition[];
+import type { NewArtifactPowerData } from '../../types/item.js';
+export declare const BERSERKER_POWERS: NewArtifactPowerData[];
 //# sourceMappingURL=berserker.d.ts.map

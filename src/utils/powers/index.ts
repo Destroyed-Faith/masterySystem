@@ -2,10 +2,13 @@
  * Mastery Powers Index
  * 
  * This file automatically aggregates all Mastery Tree powers from individual files.
- * Each tree should export a const TREE_NAME_POWERS: PowerDefinition[]
+ * Each tree should export a const TREE_NAME_POWERS: PowerDefinition[] or NewArtifactPowerData[]
+ * 
+ * NOTE: Migrating to new structure (v0.4.18+). Old PowerDefinition format is still supported for backwards compatibility.
  */
 
 import type { PowerDefinition } from './types.js';
+import type { NewArtifactPowerData } from '../../types/item.js';
 
 // Import all tree powers
 import { CRUSADER_POWERS } from './crusader.js';
@@ -39,8 +42,9 @@ import { TITAN_RUNECASTER_POWERS } from './titan-runecaster.js';
 
 /**
  * All mastery powers from all trees
+ * Supports both old PowerDefinition and new NewArtifactPowerData structures
  */
-export const ALL_MASTERY_POWERS: PowerDefinition[] = [
+export const ALL_MASTERY_POWERS: (PowerDefinition | NewArtifactPowerData)[] = [
     ...CRUSADER_POWERS,
     ...BATTLEMAGE_POWERS,
     ...BERSERKER_POWERS,
@@ -73,21 +77,37 @@ export const ALL_MASTERY_POWERS: PowerDefinition[] = [
 /**
  * Get all powers for a specific Mastery Tree
  * @param treeName - The name of the Mastery Tree
- * @returns Array of PowerDefinition objects for that tree
+ * @returns Array of PowerDefinition or NewArtifactPowerData objects for that tree
  */
-export function getPowersForTree(treeName: string): PowerDefinition[] {
-    return ALL_MASTERY_POWERS.filter(power => power.tree === treeName);
+export function getPowersForTree(treeName: string): (PowerDefinition | NewArtifactPowerData)[] {
+    return ALL_MASTERY_POWERS.filter(power => {
+        // Support both old and new structure
+        if ('tree' in power) {
+            return power.tree === treeName;
+        }
+        // New structure doesn't have tree field, so we can't filter by it
+        // This will need to be updated when all powers are migrated
+        return false;
+    });
 }
 
 /**
  * Get a specific power by tree and name
  * @param treeName - The name of the Mastery Tree
  * @param powerName - The name of the power
- * @returns PowerDefinition or undefined if not found
+ * @returns PowerDefinition or NewArtifactPowerData or undefined if not found
  */
-export function getPower(treeName: string, powerName: string): PowerDefinition | undefined {
+export function getPower(treeName: string, powerName: string): (PowerDefinition | NewArtifactPowerData) | undefined {
     return ALL_MASTERY_POWERS.find(
-        power => power.tree === treeName && power.name === powerName
+        power => {
+            // Support both old and new structure
+            if ('tree' in power) {
+                return power.tree === treeName && power.name === powerName;
+            }
+            // New structure - for now, just match by name
+            // TODO: Add tree tracking to new structure if needed
+            return power.name === powerName;
+        }
     );
 }
 

@@ -15,7 +15,89 @@ export interface BaseItemData {
   specials: string[]; // Maximum 3 specials
 }
 
-// === Artifact Power Data (powers embedded in artifacts) ===
+// === Power Structure Types (New Structure) ===
+
+export type PowerCategory = 'active' | 'activeBuff' | 'utility' | 'reaction' | 'passive' | 'movement';
+export type PowerActionCost = 'attack' | 'utility' | 'reaction' | 'movement' | 'full';
+export type PowerRollKind = 'attack' | 'contest' | 'check' | 'none';
+export type PowerLevelKey = '1' | '2' | '3' | '4';
+
+export interface RangeSpec {
+  kind: 'self' | 'touch' | 'distance';
+  m?: number;
+  note?: string;
+}
+
+export interface AoeSpec {
+  shape: 'none' | 'single' | 'line' | 'radius' | 'cone' | 'weapon' | 'aura';
+  radiusM?: number;
+  lengthM?: number;
+  widthM?: number;
+  angleDeg?: number;
+  targets?: number;
+  note?: string;
+}
+
+export interface DurationSpec {
+  kind: 'instant' | 'rounds' | 'masteryRankRounds' | 'untilNextTurn';
+  rounds?: number;
+  note?: string;
+}
+
+export interface EffectSpec {
+  text: string; // UI-Spalte "Effect" (z.B. "Weapon DMG +2d8", "+2d8 Heal", "-1 Attack Die", "Gain 20 Temp HP")
+  dice?: string; // optional untyped Xd8 (z.B. "2d8") wenn du es maschinenlesbar brauchst
+  tempHpDice?: string; // optional "1d8" etc (ebenfalls untyped)
+  flat?: number; // optional für +Armor/+Evade etc
+  notes?: string;
+}
+
+export interface PowerSpecial {
+  key: string; // z.B. "Push", "Shock", "Ignite", "Prone", "Bleeding", "Crit", "Mark"
+  value?: number; // Zahl in Klammern, z.B. Push(3) -> 3
+  raiseCost: number; // Kosten in Raises, i.d.R. = value, ABER NICHT erzwingen; wir speichern raiseCost explizit
+  note?: string;
+}
+
+export type RaiseUpgrade =
+  | { kind: 'rangePlus'; m: number; raiseCost: number }
+  | { kind: 'aoeRadiusPlus'; m: number; raiseCost: number }
+  | { kind: 'specialPlus'; key: string; delta: number; raiseCost: number }
+  | { kind: 'custom'; text: string; raiseCost: number };
+
+export interface PowerLevelRow {
+  lvl: 1 | 2 | 3 | 4; // redundant optional, aber praktisch
+  type: string; // exakt Tabellenspalte "Type": bei Actives typischerweise "melee"|"ranged"; bei utility "utility"; bei buff "buff"; reaction "reaction"
+  range: RangeSpec;
+  aoe: AoeSpec;
+  duration: DurationSpec;
+  effect: EffectSpec;
+  specials: PowerSpecial[]; // das sind die Specials, die über Raises wählbar sind
+  raiseUpgrades?: RaiseUpgrade[];
+  trigger?: string; // für Reactions: Trigger-Bedingung
+}
+
+export interface NewArtifactPowerData {
+  name: string;
+  category: PowerCategory;
+  tags: string[]; // z.B. ["spell","charged"]
+  rank: number; // 1–4, aktuelles Level der Power am Item/Char
+  trigger?: string; // für Reactions: Trigger-Bedingung
+  cost: {
+    action: PowerActionCost;
+    stones?: number;
+    charges?: number; // i.d.R. 1 wenn tag "charged"
+    note?: string;
+  };
+  roll: {
+    kind: PowerRollKind;
+    attribute?: string; // z.B. "intellect"
+    vs?: string; // z.B. "evade" oder "save:body" (nur als text, keine Logik erzwingen)
+  };
+  levels: Record<PowerLevelKey, PowerLevelRow>;
+}
+
+// === Legacy Artifact Power Data (for backwards compatibility) ===
 export interface ArtifactPowerData {
   name: string;
   powerType: 'active' | 'buff' | 'utility' | 'passive' | 'reaction' | 'movement';
@@ -48,35 +130,53 @@ export interface ArtifactPowerData {
   };
 }
 
-// === Power Data ===
+// === Power Data (Item-level Power, supports both old and new format) ===
 export interface PowerData extends BaseItemData {
-  powerType: 'active' | 'buff' | 'utility' | 'passive' | 'reaction' | 'movement';
-  level: number;
-  tree: string;
-  tags: string[];
-  range: string;
-  aoe: string;
-  duration: string;
-  effect: string;
-  ap: number;
-  cost: {
+  // Legacy fields (for backwards compatibility)
+  powerType?: 'active' | 'buff' | 'utility' | 'passive' | 'reaction' | 'movement';
+  level?: number;
+  tree?: string;
+  tags?: string[];
+  range?: string;
+  aoe?: string;
+  duration?: string;
+  effect?: string;
+  ap?: number;
+  cost?: {
     action: boolean;
     movement: boolean;
     reaction: boolean;
     stones: number;
     charges: number;
   };
-  roll: {
+  roll?: {
     attribute: string;
     tn: number;
     damage: string;
     healing: string;
     raises: string;
   };
-  requirements: {
+  requirements?: {
     masteryRank: number;
     other: string;
   };
+  
+  // New structure fields
+  category?: PowerCategory;
+  rank?: number; // 1–4, aktuelles Level der Power
+  trigger?: string; // für Reactions
+  newCost?: {
+    action: PowerActionCost;
+    stones?: number;
+    charges?: number;
+    note?: string;
+  };
+  newRoll?: {
+    kind: PowerRollKind;
+    attribute?: string;
+    vs?: string;
+  };
+  levels?: Record<PowerLevelKey, PowerLevelRow>;
 }
 
 // === Mastery Node Data ===
@@ -125,7 +225,7 @@ export interface ArtifactData extends BaseItemData {
     stones: number;
     masteryRank: number;
   };
-  powers: ArtifactPowerData[]; // Powers embedded in the artifact
+  powers: (NewArtifactPowerData | ArtifactPowerData)[]; // Powers embedded in the artifact (supports both old and new format)
 }
 
 // === Condition Data ===

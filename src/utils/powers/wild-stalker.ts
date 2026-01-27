@@ -1,108 +1,422 @@
 /**
  * Wild Stalker Mastery Tree Powers
+ * 
+ * Migrated to new structure (v0.4.18+)
  */
 
-import type { PowerDefinition } from './types.js';
+import type { NewArtifactPowerData } from '../../types/item.js';
 
-export const WILD_STALKER_POWERS: PowerDefinition[] = [
+export const WILD_STALKER_POWERS: NewArtifactPowerData[] = [
     {
         name: 'Shackles',
-        tree: 'Wild Stalker',
-        powerType: 'active',
-        description: 'Roots and vines bind your target, restricting movement.',
-        levels: [
-            { level: 1, type: 'Active', range: '8m', duration: 'Instant', effect: 'Weapon DMG + 1d8 damage', special: 'Entangled(2)', cost: { action: true }, roll: { damage: '+1d8', damageType: 'physical' } },
-            { level: 2, type: 'Active', range: '16m', duration: 'Instant', effect: 'Weapon DMG + 2d8 damage', special: 'Entangled(3)', cost: { action: true }, roll: { damage: '+2d8', damageType: 'physical' } },
-            { level: 3, type: 'Active', range: '24m', duration: 'Instant', effect: 'Weapon DMG + 3d8 damage', special: 'Entangled(4)', cost: { action: true }, roll: { damage: '+3d8', damageType: 'physical' } },
-            { level: 4, type: 'Active', range: '32m', duration: 'Instant', effect: 'Weapon DMG + 4d8 damage', special: 'Entangled(5), Prone(1)', cost: { action: true }, roll: { damage: '+4d8', damageType: 'physical' } }
-        ]
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'might'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'ranged',
+                range: { kind: 'distance', m: 8 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +1d8', dice: '1d8' },
+                specials: [{ key: 'Entangled', value: 2, raiseCost: 2 }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'ranged',
+                range: { kind: 'distance', m: 16 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
+                specials: [{ key: 'Entangled', value: 3, raiseCost: 3 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'ranged',
+                range: { kind: 'distance', m: 24 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
+                specials: [{ key: 'Entangled', value: 4, raiseCost: 4 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'ranged',
+                range: { kind: 'distance', m: 32 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
+                specials: [{ key: 'Entangled', value: 5, raiseCost: 5 }, { key: 'Prone', value: 1, raiseCost: 1 }]
+            }
+        }
     },
     {
         name: 'Verdant Shackles',
-        tree: 'Wild Stalker',
-        powerType: 'utility',
-        description: 'A pulse of entangling growth roots multiple enemies in place.',
-        levels: [
-            { level: 1, type: 'Utility', range: '8m', aoe: 'Radius 2m', duration: '1 Round', effect: 'Weapon DMG', special: 'Entangled(1)', cost: { action: true } },
-            { level: 2, type: 'Utility', range: '12m', aoe: 'Radius 3m', duration: '1 Round', effect: 'Weapon DMG + 1d8 damage', special: 'Entangled(2)', cost: { action: true }, roll: { damage: '+1d8', damageType: 'physical' } },
-            { level: 3, type: 'Utility', range: '16m', aoe: 'Radius 4m', duration: '1 Round', effect: 'Weapon DMG + 2d8 damage', special: 'Entangled(3)', cost: { action: true }, roll: { damage: '+2d8', damageType: 'physical' } },
-            { level: 4, type: 'Utility', range: '20m', aoe: 'Radius 4m', duration: '1 Round', effect: 'Weapon DMG + 3d8 damage', special: 'Entangled(4)', cost: { action: true }, roll: { damage: '+3d8', damageType: 'physical' } }
-        ]
+        category: 'utility',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'might'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'utility',
+                range: { kind: 'distance', m: 8 },
+                aoe: { shape: 'radius', radiusM: 2 },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'Weapon DMG' },
+                specials: [{ key: 'Entangled', value: 1, raiseCost: 1 }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'utility',
+                range: { kind: 'distance', m: 12 },
+                aoe: { shape: 'radius', radiusM: 3 },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'Weapon DMG +1d8', dice: '1d8' },
+                specials: [{ key: 'Entangled', value: 2, raiseCost: 2 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'utility',
+                range: { kind: 'distance', m: 16 },
+                aoe: { shape: 'radius', radiusM: 4 },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
+                specials: [{ key: 'Entangled', value: 3, raiseCost: 3 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'utility',
+                range: { kind: 'distance', m: 20 },
+                aoe: { shape: 'radius', radiusM: 4 },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
+                specials: [{ key: 'Entangled', value: 4, raiseCost: 4 }]
+            }
+        }
     },
     {
         name: 'Panic in Their Eyes',
-        tree: 'Wild Stalker',
-        powerType: 'active',
-        description: 'Fear takes root in those already bound by nature.',
-        levels: [
-            { level: 1, type: 'Active', range: '8m', duration: 'Instant', effect: 'Weapon DMG + 1d8 damage', special: 'Frightened(2) if target is Entangled', cost: { action: true }, roll: { damage: '+1d8', damageType: 'physical' } },
-            { level: 2, type: 'Active', range: '12m', duration: 'Instant', effect: 'Weapon DMG + 2d8 damage', special: 'Frightened(3) if Entangled', cost: { action: true }, roll: { damage: '+2d8', damageType: 'physical' } },
-            { level: 3, type: 'Active', range: '16m', duration: 'Instant', effect: 'Weapon DMG + 3d8 damage', special: 'Frightened(4) if Entangled', cost: { action: true }, roll: { damage: '+3d8', damageType: 'physical' } },
-            { level: 4, type: 'Active', range: '20m', duration: 'Instant', effect: 'Weapon DMG + 4d8 damage', special: 'Frightened(5) if Entangled', cost: { action: true }, roll: { damage: '+4d8', damageType: 'physical' } }
-        ]
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'might'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'ranged',
+                range: { kind: 'distance', m: 8 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +1d8', dice: '1d8' },
+                specials: [{ key: 'Frightened', value: 2, raiseCost: 2, note: 'if target is Entangled' }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'ranged',
+                range: { kind: 'distance', m: 12 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
+                specials: [{ key: 'Frightened', value: 3, raiseCost: 3, note: 'if Entangled' }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'ranged',
+                range: { kind: 'distance', m: 16 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
+                specials: [{ key: 'Frightened', value: 4, raiseCost: 4, note: 'if Entangled' }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'ranged',
+                range: { kind: 'distance', m: 20 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
+                specials: [{ key: 'Frightened', value: 5, raiseCost: 5, note: 'if Entangled' }]
+            }
+        }
     },
     {
         name: 'Predator\'s Gaze',
-        tree: 'Wild Stalker',
-        powerType: 'buff',
-        description: 'Your eyes lock onto terrified prey, making every strike count.',
-        levels: [
-            { level: 1, type: 'Buff', range: 'Self', duration: 'Mastery Rounds', effect: 'vs Frightened: −4 Evade + +1d8 damage.', cost: { action: true } },
-            { level: 2, type: 'Buff', range: 'Self', duration: 'Mastery Rounds', effect: 'vs Frightened: −6 Evade + +2d8 damage.', cost: { action: true } },
-            { level: 3, type: 'Buff', range: 'Self', duration: 'Mastery Rounds', effect: 'vs Frightened: −8 Evade + +3d8 damage + Crit(1).', cost: { action: true } },
-            { level: 4, type: 'Buff', range: 'Self', duration: 'Mastery Rounds', effect: 'vs Frightened: −10 Evade + +4d8 damage + Crit(2).', cost: { action: true } }
-        ]
+        category: 'activeBuff',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'vs Frightened: −4 Evade + +1d8 damage', dice: '1d8' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'vs Frightened: −6 Evade + +2d8 damage', dice: '2d8' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'vs Frightened: −8 Evade + +3d8 damage + Crit(1)', dice: '3d8' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'vs Frightened: −10 Evade + +4d8 damage + Crit(2)', dice: '4d8' },
+                specials: []
+            }
+        }
     },
     {
         name: 'Bullseye',
-        tree: 'Wild Stalker',
-        powerType: 'active',
-        description: 'A precision strike that pierces through defenses of controlled targets.',
-        levels: [
-            { level: 1, type: 'Active', range: 'Weapon', duration: 'Instant', effect: 'Weapon DMG + 2d8 damage', special: 'Penetration(1) + Crit(1) if target is Entangled or Frightened', cost: { action: true }, roll: { damage: '+2d8', damageType: 'physical' } },
-            { level: 2, type: 'Active', range: 'Weapon', duration: 'Instant', effect: 'Weapon DMG + 3d8 damage', special: 'Penetration(2) + Crit(1) if Ent/Fri', cost: { action: true }, roll: { damage: '+3d8', damageType: 'physical' } },
-            { level: 3, type: 'Active', range: 'Weapon', duration: 'Instant', effect: 'Weapon DMG + 4d8 damage', special: 'Penetration(3) + Crit(1) if Ent/Fri', cost: { action: true }, roll: { damage: '+4d8', damageType: 'physical' } },
-            { level: 4, type: 'Active', range: 'Weapon', duration: 'Instant', effect: 'Weapon DMG + 5d8 damage', special: 'Penetration(4) + Crit(1) if Ent/Fri', cost: { action: true }, roll: { damage: '+5d8', damageType: 'physical' } }
-        ]
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'might'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'ranged',
+                range: { kind: 'distance', m: 0, note: 'Weapon range' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
+                specials: [{ key: 'Penetration', value: 1, raiseCost: 1, note: 'if target is Entangled or Frightened' }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'ranged',
+                range: { kind: 'distance', m: 0, note: 'Weapon range' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
+                specials: [{ key: 'Penetration', value: 2, raiseCost: 2, note: 'if Entangled or Frightened' }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'ranged',
+                range: { kind: 'distance', m: 0, note: 'Weapon range' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
+                specials: [{ key: 'Penetration', value: 3, raiseCost: 3, note: 'if Entangled or Frightened' }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'ranged',
+                range: { kind: 'distance', m: 0, note: 'Weapon range' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +5d8', dice: '5d8' },
+                specials: [{ key: 'Penetration', value: 4, raiseCost: 4, note: 'if Entangled or Frightened' }]
+            }
+        }
     },
     {
         name: 'Green Hell',
-        tree: 'Wild Stalker',
-        powerType: 'passive',
-        passiveCategory: 'utility',
-        description: 'The forest itself turns against those who trespass.',
-        levels: [
-            { level: 1, type: 'Passive', effect: 'End of your turn: if you were Hidden and you dealt damage or applied Entangle, one affected enemy becomes Frightened(2).' },
-            { level: 2, type: 'Passive', effect: 'As above, plus Expose(1).' },
-            { level: 3, type: 'Passive', effect: 'As above, but Frightened(4) and Expose(4).' },
-            { level: 4, type: 'Passive', effect: 'As above, but Frightened(5) and Expose(6).' }
-        ]
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'End of your turn: if you were Hidden and you dealt damage or applied Entangle, one affected enemy becomes Frightened(2)' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'As above, plus Expose(1)' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'As above, but Frightened(4) and Expose(4)' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'As above, but Frightened(5) and Expose(6)' },
+                specials: []
+            }
+        }
     },
     {
         name: 'Camouflage',
-        tree: 'Wild Stalker',
-        powerType: 'passive',
-        passiveCategory: 'utility',
-        description: 'You blend into natural terrain, becoming nearly impossible to target.',
-        levels: [
-            { level: 1, type: 'Passive', effect: 'While Hidden, gain +4 Evade.' },
-            { level: 2, type: 'Passive', effect: 'While Hidden, gain +8 Evade.' },
-            { level: 3, type: 'Passive', effect: 'While Hidden, gain +13 Evade.' },
-            { level: 4, type: 'Passive', effect: 'While Hidden, gain +17 Evade.' }
-        ]
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'While Hidden, gain +4 Evade', flat: 4 },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'While Hidden, gain +8 Evade', flat: 8 },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'While Hidden, gain +13 Evade', flat: 13 },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'While Hidden, gain +17 Evade', flat: 17 },
+                specials: []
+            }
+        }
     },
     {
         name: 'Not Here!',
-        tree: 'Wild Stalker',
-        powerType: 'passive',
-        passiveCategory: 'roll',
-        description: 'You move like a ghost through the wilderness.',
-        levels: [
-            { level: 1, type: 'Passive', effect: 'Gain +3 Concealment and +4 Initiative.' },
-            { level: 2, type: 'Passive', effect: 'Gain +6 Concealment and +8 Initiative.' },
-            { level: 3, type: 'Passive', effect: 'Gain +9 Concealment and +12 Initiative.' },
-            { level: 4, type: 'Passive', effect: 'Gain +12 Concealment and +16 Initiative.' }
-        ]
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Gain +3 Concealment and +4 Initiative', flat: 4 },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Gain +6 Concealment and +8 Initiative', flat: 8 },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Gain +9 Concealment and +12 Initiative', flat: 12 },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Gain +12 Concealment and +16 Initiative', flat: 16 },
+                specials: []
+            }
+        }
     }
 ];
-

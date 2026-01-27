@@ -1,80 +1,319 @@
 /**
  * Witchbane Mastery Tree Powers
+ *
+ * Migrated to new structure (v0.4.18+)
  */
 export const WITCHBANE_POWERS = [
     {
         name: 'Null Field',
-        tree: 'Witchbane',
-        powerType: 'buff',
-        description: 'A zone of calm spreads around you, where magic flickers and dies.',
-        levels: [
-            { level: 1, type: 'Buff', range: 'Self', aoe: 'Radius 3m', duration: 'Mastery Rank rounds', effect: 'Spells cast in the area suffer −1 die to their casting pool.', cost: { action: true } },
-            { level: 2, type: 'Buff', range: 'Self', aoe: 'Radius 4m', duration: 'Mastery Rank rounds', effect: 'Spells cast in the area suffer −2 dice to their casting pool.', cost: { action: true } },
-            { level: 3, type: 'Buff', range: 'Self', aoe: 'Radius 5m', duration: 'Mastery Rank rounds', effect: 'Spells cast in the area suffer −3 dice to their casting pool.', cost: { action: true } },
-            { level: 4, type: 'Buff', range: 'Self', aoe: 'Radius 6m', duration: 'Mastery Rank rounds', effect: 'Spells cast in the area suffer −4 dice to their casting pool.', cost: { action: true } }
-        ]
+        category: 'activeBuff',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 3 },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Spells cast in the area suffer −1 die to their casting pool' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 4 },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Spells cast in the area suffer −2 dice to their casting pool' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 5 },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Spells cast in the area suffer −3 dice to their casting pool' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 6 },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Spells cast in the area suffer −4 dice to their casting pool' },
+                specials: []
+            }
+        }
     },
     {
         name: 'Dispel Pulse',
-        tree: 'Witchbane',
-        powerType: 'reaction',
-        description: 'You tear apart magic mid-casting, collapsing its pattern into silence.',
-        levels: [
-            { level: 1, type: 'Reaction', range: '6m', duration: 'Instant', effect: 'Spells must overcome +2 Raises to succeed.', cost: { reaction: true } },
-            { level: 2, type: 'Reaction', range: '8m', duration: 'Instant', effect: 'Spells must overcome +3 Raises to succeed.', cost: { reaction: true } },
-            { level: 3, type: 'Reaction', range: '10m', duration: 'Instant', effect: 'Spells must overcome +4 Raises to succeed.', cost: { reaction: true } },
-            { level: 4, type: 'Reaction', range: '12m', duration: 'Instant', effect: 'Spells must overcome +5 Raises to succeed.', cost: { reaction: true } }
-        ]
+        category: 'reaction',
+        tags: [],
+        rank: 1,
+        trigger: 'When a spell is cast within range',
+        cost: {
+            action: 'reaction',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'reaction',
+                range: { kind: 'distance', m: 6 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Spells must overcome +2 Raises to succeed' },
+                specials: [],
+                trigger: 'When a spell is cast within 6m'
+            },
+            '2': {
+                lvl: 2,
+                type: 'reaction',
+                range: { kind: 'distance', m: 8 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Spells must overcome +3 Raises to succeed' },
+                specials: [],
+                trigger: 'When a spell is cast within 8m'
+            },
+            '3': {
+                lvl: 3,
+                type: 'reaction',
+                range: { kind: 'distance', m: 10 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Spells must overcome +4 Raises to succeed' },
+                specials: [],
+                trigger: 'When a spell is cast within 10m'
+            },
+            '4': {
+                lvl: 4,
+                type: 'reaction',
+                range: { kind: 'distance', m: 12 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Spells must overcome +5 Raises to succeed' },
+                specials: [],
+                trigger: 'When a spell is cast within 12m'
+            }
+        }
     },
     {
         name: 'Spell Mirror',
-        tree: 'Witchbane',
-        powerType: 'buff',
-        description: 'You weave a shimmering shell of inverted resonance, reflecting hostile spells back to their source.',
-        levels: [
-            { level: 1, type: 'Buff', range: 'Self', duration: 'Mastery Rank rounds', effect: 'Reflects the next Spell of Level 1 targeting you.', cost: { action: true } },
-            { level: 2, type: 'Buff', range: 'Self', duration: 'Mastery Rank rounds', effect: 'Reflects the next two Spells of Level 1 targeting you.', cost: { action: true } },
-            { level: 3, type: 'Buff', range: 'Self', duration: 'Mastery Rank rounds', effect: 'Reflects the next Spell of Level 2 or lower targeting you.', cost: { action: true } },
-            { level: 4, type: 'Buff', range: 'Self', duration: 'Mastery Rank rounds', effect: 'Reflects the next two Spells of Level 2 or lower targeting you.', cost: { action: true } }
-        ]
+        category: 'activeBuff',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Reflects the next Spell of Level 1 targeting you' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Reflects the next two Spells of Level 1 targeting you' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Reflects the next Spell of Level 2 or lower targeting you' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Reflects the next two Spells of Level 2 or lower targeting you' },
+                specials: []
+            }
+        }
     },
     {
         name: 'Spellbreaker\'s Step',
-        tree: 'Witchbane',
-        powerType: 'movement',
-        description: 'You move through wards and curses as though through mist.',
-        levels: [
-            { level: 1, type: 'Movement', range: '4m', duration: 'Instant', effect: 'Move 4m, ignoring magical terrain or barriers from Spell Level 1.', cost: { movement: true } },
-            { level: 2, type: 'Movement', range: '6m', duration: 'Instant', effect: 'Move 6m, ignoring magical terrain or barriers from Spell Level 2.', cost: { movement: true } },
-            { level: 3, type: 'Movement', range: '8m', duration: 'Instant', effect: 'Move 8m, ignoring magical terrain or barriers from Spell Level 3.', cost: { movement: true } },
-            { level: 4, type: 'Movement', range: '10m', duration: 'Instant', effect: 'Move 10m, ignoring magical terrain or barriers from Spell Level 4.', cost: { movement: true } }
-        ]
+        category: 'movement',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'movement',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'movement',
+                range: { kind: 'distance', m: 4 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Move 4m, ignoring magical terrain or barriers from Spell Level 1' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'movement',
+                range: { kind: 'distance', m: 6 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Move 6m, ignoring magical terrain or barriers from Spell Level 2' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'movement',
+                range: { kind: 'distance', m: 8 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Move 8m, ignoring magical terrain or barriers from Spell Level 3' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'movement',
+                range: { kind: 'distance', m: 10 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Move 10m, ignoring magical terrain or barriers from Spell Level 4' },
+                specials: []
+            }
+        }
     },
     {
         name: 'Anti-Magic Sense',
-        tree: 'Witchbane',
-        powerType: 'passive',
-        passiveCategory: 'roll',
-        description: 'Your perception vibrates with distortions in the Fade.',
-        levels: [
-            { level: 1, type: 'Passive', effect: 'Detect active spells or enchantments within 3m.' },
-            { level: 2, type: 'Passive', effect: 'Detect magical items, traps, or curses within 6m.' },
-            { level: 3, type: 'Passive', effect: 'Sense ongoing auras or hidden casters within 9m.' },
-            { level: 4, type: 'Passive', effect: 'Automatically detect any spellcasting or teleportation within 12m.' }
-        ]
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'aura', radiusM: 3 },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Detect active spells or enchantments within 3m' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'aura', radiusM: 6 },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Detect magical items, traps, or curses within 6m' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'aura', radiusM: 9 },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Sense ongoing auras or hidden casters within 9m' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'aura', radiusM: 12 },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Automatically detect any spellcasting or teleportation within 12m' },
+                specials: []
+            }
+        }
     },
     {
         name: 'Fade-Tether',
-        tree: 'Witchbane',
-        powerType: 'passive',
-        passiveCategory: 'save',
-        description: 'You are anchored to the material plane — difficult to charm, curse, or displace.',
-        levels: [
-            { level: 1, type: 'Passive', effect: 'Gain +1d8 on Saves vs Mind and Spirit effects.' },
-            { level: 2, type: 'Passive', effect: 'Gain +2d8 on Saves vs Mind and Spirit effects.' },
-            { level: 3, type: 'Passive', effect: 'Gain +3d8 on Saves vs Mind and Spirit effects.' },
-            { level: 4, type: 'Passive', effect: 'Gain +4d8 on Saves vs Mind and Spirit effects.' }
-        ]
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Gain +1d8 on Saves vs Mind and Spirit effects', dice: '1d8' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Gain +2d8 on Saves vs Mind and Spirit effects', dice: '2d8' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Gain +3d8 on Saves vs Mind and Spirit effects', dice: '3d8' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Gain +4d8 on Saves vs Mind and Spirit effects', dice: '4d8' },
+                specials: []
+            }
+        }
     }
 ];
 //# sourceMappingURL=witchbane.js.map

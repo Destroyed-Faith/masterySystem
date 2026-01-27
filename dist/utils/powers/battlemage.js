@@ -1,107 +1,417 @@
 /**
  * Battlemage Mastery Tree Powers
+ *
+ * Migrated to new structure (v0.4.18+)
  */
 export const BATTLEMAGE_POWERS = [
     {
         name: 'Arcane Combustion',
-        tree: 'Battlemage',
-        powerType: 'passive',
-        passiveCategory: 'roll',
-        description: 'Your flames always find more fuel.',
-        levels: [
-            { level: 1, type: 'Passive', effect: 'All Spells with the Ignite Special gain +2 automatic Raises.' },
-            { level: 2, type: 'Passive', effect: 'All Spells with the Ignite Special gain +3 automatic Raises.' },
-            { level: 3, type: 'Passive', effect: 'All Spells with the Ignite Special gain +4 automatic Raises.' },
-            { level: 4, type: 'Passive', effect: 'All Spells with the Ignite Special gain +6 automatic Raises.' }
-        ]
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'All Spells with the Ignite Special gain +2 automatic Raises' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'All Spells with the Ignite Special gain +3 automatic Raises' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'All Spells with the Ignite Special gain +4 automatic Raises' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'All Spells with the Ignite Special gain +6 automatic Raises' },
+                specials: []
+            }
+        }
     },
     {
         name: 'Flameguard',
-        tree: 'Battlemage',
-        powerType: 'passive',
-        passiveCategory: 'armor',
-        description: 'The fire clings to you like a living shield.',
-        levels: [
-            { level: 1, type: 'Passive', effect: 'While you have Ignite on yourself, gain +3 Armor.' },
-            { level: 2, type: 'Passive', effect: 'While you have Ignite, gain +5 Armor.' },
-            { level: 3, type: 'Passive', effect: 'While you have Ignite, gain +7 Armor.' },
-            { level: 4, type: 'Passive', effect: 'While you have Ignite, gain +11 Armor.' }
-        ]
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'While you have Ignite on yourself, gain +3 Armor', flat: 3 },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'While you have Ignite, gain +5 Armor', flat: 5 },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'While you have Ignite, gain +7 Armor', flat: 7 },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'While you have Ignite, gain +11 Armor', flat: 11 },
+                specials: []
+            }
+        }
     },
     {
         name: 'Elemental Focus',
-        tree: 'Battlemage',
-        powerType: 'passive',
-        passiveCategory: 'roll',
-        description: 'Precision over raw fury — then both.',
-        levels: [
-            { level: 1, type: 'Passive', effect: 'Spells with the Ignite Special: +2 Pool to the Spell Roll.' },
-            { level: 2, type: 'Passive', effect: 'Spells with the Ignite Special: +4 Pool to the Spell Roll.' },
-            { level: 3, type: 'Passive', effect: 'Spells with the Ignite Special: +6 Pool to the Spell Roll.' },
-            { level: 4, type: 'Passive', effect: 'Spells with the Ignite Special: +8 Pool to the Spell Roll.' }
-        ]
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Spells with the Ignite Special: +2 Pool to the Spell Roll' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Spells with the Ignite Special: +4 Pool to the Spell Roll' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Spells with the Ignite Special: +6 Pool to the Spell Roll' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Spells with the Ignite Special: +8 Pool to the Spell Roll' },
+                specials: []
+            }
+        }
     },
     {
         name: 'Combustion Surge',
-        tree: 'Battlemage',
-        powerType: 'buff',
-        description: 'You superheat the matrix of your next spell.',
-        levels: [
-            { level: 1, type: 'Buff', range: 'Self', aoe: '—', duration: 'Mastery Rank Rounds', effect: 'Your next Spells with the Ignite Special deals +2d8 damage.', cost: { action: true } },
-            { level: 2, type: 'Buff', range: 'Self', aoe: '—', duration: 'Mastery Rank Rounds', effect: 'Your next Spells with the Ignite Special deals +4d8 damage.', cost: { action: true } },
-            { level: 3, type: 'Buff', range: 'Self', aoe: '—', duration: 'Mastery Rank Rounds', effect: 'Your next Spells with the Ignite Special deals +6d8 damage.', cost: { action: true } },
-            { level: 4, type: 'Buff', range: 'Self', aoe: '—', duration: 'Mastery Rank Rounds', effect: 'Your next Spells with the Ignite Special deals +8d8 damage.', cost: { action: true } }
-        ]
+        category: 'activeBuff',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Your next Spells with the Ignite Special deals +2d8 damage', dice: '2d8' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Your next Spells with the Ignite Special deals +4d8 damage', dice: '4d8' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Your next Spells with the Ignite Special deals +6d8 damage', dice: '6d8' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Your next Spells with the Ignite Special deals +8d8 damage', dice: '8d8' },
+                specials: []
+            }
+        }
     },
     {
         name: 'Inferno Core',
-        tree: 'Battlemage',
-        powerType: 'buff',
-        description: 'Your blaze swells nearby embers into a roaring inferno.',
-        levels: [
-            { level: 1, type: 'Buff', range: 'Self', aoe: 'Radius 4m', duration: 'Mastery Rank Rounds', effect: 'At the end of your round, each enemy in the radius that already has Ignite ≥ 1 increases their Ignite by +1.', cost: { action: true } },
-            { level: 2, type: 'Buff', range: 'Self', aoe: 'Radius 6m', duration: 'Mastery Rank Rounds', effect: 'At the end of your round, each enemy in the radius that already has Ignite ≥ 1 increases their Ignite by +2.', cost: { action: true } },
-            { level: 3, type: 'Buff', range: 'Self', aoe: 'Radius 8m', duration: 'Mastery Rank Rounds', effect: 'At the end of your round, each enemy in the radius that already has Ignite ≥ 1 increases their Ignite by +3.', cost: { action: true } },
-            { level: 4, type: 'Buff', range: 'Self', aoe: 'Radius 10m', duration: 'Mastery Rank Rounds', effect: 'At the end of your round, each enemy in the radius that already has Ignite ≥ 1 increases their Ignite by +4.', cost: { action: true } }
-        ]
+        category: 'activeBuff',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 4 },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'At the end of your round, each enemy in the radius that already has Ignite ≥ 1 increases their Ignite by +1' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 6 },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'At the end of your round, each enemy in the radius that already has Ignite ≥ 1 increases their Ignite by +2' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 8 },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'At the end of your round, each enemy in the radius that already has Ignite ≥ 1 increases their Ignite by +3' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 10 },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'At the end of your round, each enemy in the radius that already has Ignite ≥ 1 increases their Ignite by +4' },
+                specials: []
+            }
+        }
     },
     {
         name: 'Flamewave',
-        tree: 'Battlemage',
-        powerType: 'passive',
-        passiveCategory: 'damage',
-        description: 'Every flame you cast spreads to new fuel.',
-        levels: [
-            { level: 1, type: 'Passive', effect: 'Once per round, when you cast a Spell, also apply Ignite(1) to all affected enemies by the spell.' },
-            { level: 2, type: 'Passive', effect: 'Once per round, when you cast a Spell, also apply Ignite(2) to all affected enemies by the spell.' },
-            { level: 3, type: 'Passive', effect: 'Once per round, when you cast a Spell, also apply Ignite(4) to all affected enemies by the spell.' },
-            { level: 4, type: 'Passive', effect: 'Once per round, when you cast a Spell, also apply Ignite(5) to all affected enemies by the spell.' }
-        ]
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Once per round, when you cast a Spell, also apply Ignite(1) to all affected enemies by the spell' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Once per round, when you cast a Spell, also apply Ignite(2) to all affected enemies by the spell' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Once per round, when you cast a Spell, also apply Ignite(4) to all affected enemies by the spell' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Once per round, when you cast a Spell, also apply Ignite(5) to all affected enemies by the spell' },
+                specials: []
+            }
+        }
     },
     {
         name: 'Phoenix Mantle',
-        tree: 'Battlemage',
-        powerType: 'passive',
-        passiveCategory: 'healing',
-        description: 'Burn, and be reborn between every heartbeat.',
-        levels: [
-            { level: 1, type: 'Passive', effect: 'While you have Ignite ≥ 4, gain Regeneration(1) and +2 Armor.' },
-            { level: 2, type: 'Passive', effect: 'While you have Ignite ≥ 4, gain Regeneration(3) and +3 Armor.' },
-            { level: 3, type: 'Passive', effect: 'While you have Ignite ≥ 4, gain Regeneration(5) and +4 Armor.' },
-            { level: 4, type: 'Passive', effect: 'While you have Ignite ≥ 4, gain Regeneration(7) and +5 Armor.' }
-        ]
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'While you have Ignite ≥ 4, gain Regeneration(1) and +2 Armor', flat: 2 },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'While you have Ignite ≥ 4, gain Regeneration(3) and +3 Armor', flat: 3 },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'While you have Ignite ≥ 4, gain Regeneration(5) and +4 Armor', flat: 4 },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'While you have Ignite ≥ 4, gain Regeneration(7) and +5 Armor', flat: 5 },
+                specials: []
+            }
+        }
     },
     {
         name: 'Immolation Strike',
-        tree: 'Battlemage',
-        powerType: 'active',
-        description: 'You channel raw flame into your weapon, dealing fire damage.',
-        levels: [
-            { level: 1, type: 'Active', range: 'Melee', aoe: '—', duration: 'Instant', effect: 'Make a weapon attack. On hit, deal +1d8 Fire damage and apply Ignite(1).', cost: { action: true }, roll: { attribute: 'might', damage: '+1d8', damageType: 'fire' } },
-            { level: 2, type: 'Active', range: 'Melee', aoe: '—', duration: 'Instant', effect: 'Make a weapon attack. On hit, deal +2d8 Fire damage and apply Ignite(1).', cost: { action: true }, roll: { attribute: 'might', damage: '+2d8', damageType: 'fire' } },
-            { level: 3, type: 'Active', range: 'Melee', aoe: '—', duration: 'Instant', effect: 'Make a weapon attack. On hit, deal +3d8 Fire damage and apply Ignite(2).', cost: { action: true }, roll: { attribute: 'might', damage: '+3d8', damageType: 'fire' } },
-            { level: 4, type: 'Active', range: 'Melee', aoe: '—', duration: 'Instant', effect: 'Make a weapon attack. On hit, deal +4d8 Fire damage and apply Ignite(2).', cost: { action: true }, roll: { attribute: 'might', damage: '+4d8', damageType: 'fire' } }
-        ]
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'might'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Make a weapon attack. On hit, deal +1d8 damage and apply Ignite(1)', dice: '1d8' },
+                specials: [{ key: 'Ignite', value: 1, raiseCost: 1 }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Make a weapon attack. On hit, deal +2d8 damage and apply Ignite(1)', dice: '2d8' },
+                specials: [{ key: 'Ignite', value: 1, raiseCost: 1 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Make a weapon attack. On hit, deal +3d8 damage and apply Ignite(2)', dice: '3d8' },
+                specials: [{ key: 'Ignite', value: 2, raiseCost: 2 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Make a weapon attack. On hit, deal +4d8 damage and apply Ignite(2)', dice: '4d8' },
+                specials: [{ key: 'Ignite', value: 2, raiseCost: 2 }]
+            }
+        }
     }
 ];
 //# sourceMappingURL=battlemage.js.map

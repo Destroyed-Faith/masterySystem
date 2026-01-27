@@ -1,83 +1,319 @@
 /**
  * Juggernaut Mastery Tree Powers
+ * 
+ * Migrated to new structure (v0.4.18+)
  */
 
-import type { PowerDefinition } from './types.js';
+import type { NewArtifactPowerData } from '../../types/item.js';
 
-export const JUGGERNAUT_POWERS: PowerDefinition[] = [
+export const JUGGERNAUT_POWERS: NewArtifactPowerData[] = [
     {
         name: 'Iron Slam',
-        tree: 'Juggernaut',
-        powerType: 'active',
-        description: 'A piledriver smash that sends bodies flying, best used to punt foes off objectives or drive them back through their own ranks.',
-        levels: [
-            { level: 1, type: 'Active', range: 'Melee', duration: 'Instant', effect: 'Weapon DMG + 2d8 damage', special: 'Push(2)', cost: { action: true }, roll: { damage: '+2d8', damageType: 'physical' } },
-            { level: 2, type: 'Active', range: 'Melee', duration: 'Instant', effect: 'Weapon DMG + 3d8 damage', special: 'Push(8)', cost: { action: true }, roll: { damage: '+3d8', damageType: 'physical' } },
-            { level: 3, type: 'Active', range: 'Melee', duration: 'Instant', effect: 'Weapon DMG + 4d8 damage', special: 'Push(8), Prone(1)', cost: { action: true }, roll: { damage: '+4d8', damageType: 'physical' } },
-            { level: 4, type: 'Active', range: 'Melee', duration: 'Instant', effect: 'Weapon DMG + 5d8 damage', special: 'Push(12), Prone(1)', cost: { action: true }, roll: { damage: '+5d8', damageType: 'physical' } }
-        ]
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'might'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
+                specials: [{ key: 'Push', value: 2, raiseCost: 2 }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
+                specials: [{ key: 'Push', value: 8, raiseCost: 8 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
+                specials: [{ key: 'Push', value: 8, raiseCost: 8 }, { key: 'Prone', value: 1, raiseCost: 1 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +5d8', dice: '5d8' },
+                specials: [{ key: 'Push', value: 12, raiseCost: 12 }, { key: 'Prone', value: 1, raiseCost: 1 }]
+            }
+        }
     },
     {
         name: 'Earthshaker Stomp',
-        tree: 'Juggernaut',
-        powerType: 'active',
-        description: 'You quake the ground so nearby foes buckle and fall, best used when you are surrounded or want to stop a charge in place.',
-        levels: [
-            { level: 1, type: 'Active', range: 'Self', aoe: 'Radius 2m', duration: 'Instant', effect: 'Weapon DMG (no bonus dice)', special: 'Prone(1)', cost: { action: true } },
-            { level: 2, type: 'Active', range: 'Self', aoe: 'Radius 4m', duration: 'Instant', effect: 'Weapon DMG + 2d8 damage', special: 'Prone(1)', cost: { action: true }, roll: { damage: '+2d8', damageType: 'physical' } },
-            { level: 3, type: 'Active', range: 'Self', aoe: 'Radius 6m', duration: 'Instant', effect: 'Weapon DMG + 3d8 damage', special: 'Prone(1)', cost: { action: true }, roll: { damage: '+3d8', damageType: 'physical' } },
-            { level: 4, type: 'Active', range: 'Self', aoe: 'Radius 8m', duration: 'Instant', effect: 'Weapon DMG + 4d8 damage', special: 'Prone(1)', cost: { action: true }, roll: { damage: '+4d8', damageType: 'physical' } }
-        ]
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'might'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'melee',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 2 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG (no bonus dice)' },
+                specials: [{ key: 'Prone', value: 1, raiseCost: 1 }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'melee',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 4 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
+                specials: [{ key: 'Prone', value: 1, raiseCost: 1 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'melee',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 6 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
+                specials: [{ key: 'Prone', value: 1, raiseCost: 1 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'melee',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 8 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
+                specials: [{ key: 'Prone', value: 1, raiseCost: 1 }]
+            }
+        }
     },
     {
         name: 'Trample',
-        tree: 'Juggernaut',
-        powerType: 'movement',
-        description: 'You surge forward as living siege anything in your path is crushed, best used to cross the battlefield, clip multiple enemies and trigger your movement-based passives. Replaces your Movement this round; does not provoke Reactions.',
-        levels: [
-            { level: 1, type: 'Movement', aoe: 'Line 4m', duration: 'Instant', effect: 'Creatures you pass through take 1d8 damage (once per creature)', cost: { movement: true }, roll: { damage: '1d8', damageType: 'physical' } },
-            { level: 2, type: 'Movement', aoe: 'Line 8m', duration: 'Instant', effect: 'Creatures you pass through take 1d8 damage (once per creature)', cost: { movement: true }, roll: { damage: '1d8', damageType: 'physical' } },
-            { level: 3, type: 'Movement', aoe: 'Line 12m', duration: 'Instant', effect: 'Creatures you pass through take 2d8 damage (once per creature)', cost: { movement: true }, roll: { damage: '2d8', damageType: 'physical' } },
-            { level: 4, type: 'Movement', aoe: 'Line 16m', duration: 'Instant', effect: 'Creatures you pass through take 2d8 damage (once per creature)', cost: { movement: true }, roll: { damage: '2d8', damageType: 'physical' } }
-        ]
+        category: 'movement',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'movement',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'movement',
+                range: { kind: 'self' },
+                aoe: { shape: 'line', lengthM: 4, widthM: 1 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Creatures you pass through take 1d8 damage (once per creature)', dice: '1d8', notes: 'Replaces your Movement this round; does not provoke Reactions' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'movement',
+                range: { kind: 'self' },
+                aoe: { shape: 'line', lengthM: 8, widthM: 1 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Creatures you pass through take 1d8 damage (once per creature)', dice: '1d8', notes: 'Replaces your Movement this round; does not provoke Reactions' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'movement',
+                range: { kind: 'self' },
+                aoe: { shape: 'line', lengthM: 12, widthM: 1 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Creatures you pass through take 2d8 damage (once per creature)', dice: '2d8', notes: 'Replaces your Movement this round; does not provoke Reactions' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'movement',
+                range: { kind: 'self' },
+                aoe: { shape: 'line', lengthM: 16, widthM: 1 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Creatures you pass through take 2d8 damage (once per creature)', dice: '2d8', notes: 'Replaces your Movement this round; does not provoke Reactions' },
+                specials: []
+            }
+        }
     },
     {
         name: 'Juggernaut Shockline',
-        tree: 'Juggernaut',
-        powerType: 'active',
-        description: 'A rending shockwave tears a straight path through the battle line, best used to soften clustered enemies or carve a corridor for your allies.',
-        levels: [
-            { level: 1, type: 'Active', range: 'Self', aoe: 'Line 6m', duration: 'Instant', effect: 'Weapon DMG + 1d8 damage', cost: { action: true }, roll: { damage: '+1d8', damageType: 'physical' } },
-            { level: 2, type: 'Active', range: 'Self', aoe: 'Line 10m', duration: 'Instant', effect: 'Weapon DMG + 3d8 damage', cost: { action: true }, roll: { damage: '+3d8', damageType: 'physical' } },
-            { level: 3, type: 'Active', range: 'Self', aoe: 'Line 12m', duration: 'Instant', effect: 'Weapon DMG + 4d8 damage', cost: { action: true }, roll: { damage: '+4d8', damageType: 'physical' } },
-            { level: 4, type: 'Active', range: 'Self', aoe: 'Line 14m', duration: 'Instant', effect: 'Weapon DMG + 6d8 damage', cost: { action: true }, roll: { damage: '+6d8', damageType: 'physical' } }
-        ]
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'might'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'melee',
+                range: { kind: 'self' },
+                aoe: { shape: 'line', lengthM: 6, widthM: 1 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +1d8', dice: '1d8' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'melee',
+                range: { kind: 'self' },
+                aoe: { shape: 'line', lengthM: 10, widthM: 1 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'melee',
+                range: { kind: 'self' },
+                aoe: { shape: 'line', lengthM: 12, widthM: 1 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'melee',
+                range: { kind: 'self' },
+                aoe: { shape: 'line', lengthM: 14, widthM: 1 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +6d8', dice: '6d8' },
+                specials: []
+            }
+        }
     },
     {
         name: 'Momentum',
-        tree: 'Juggernaut',
-        powerType: 'passive',
-        passiveCategory: 'damage',
-        description: 'Your strikes hit harder once you\'ve built speed, best used when you chain long advances into heavy attacks every round.',
-        levels: [
-            { level: 1, type: 'Passive', effect: 'If you move ≥ 6 m in a straight line and end in an attack this turn, your attacks gain +1d8 damage this turn.' },
-            { level: 2, type: 'Passive', effect: 'As above, but +2d8 damage.' },
-            { level: 3, type: 'Passive', effect: 'As above, but +3d8 damage.' },
-            { level: 4, type: 'Passive', effect: 'As above, but +4d8 damage.' }
-        ]
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'If you move ≥6m in a straight line and end in an attack this turn, your attacks gain +1d8 damage this turn', dice: '1d8' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'As above, but +2d8 damage', dice: '2d8' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'As above, but +3d8 damage', dice: '3d8' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'As above, but +4d8 damage', dice: '4d8' },
+                specials: []
+            }
+        }
     },
     {
         name: 'Immovable Object',
-        tree: 'Juggernaut',
-        powerType: 'passive',
-        passiveCategory: 'armor',
-        description: 'Once you commit, nothing throws you off balance, best used when you expect heavy control effects as you crash through enemy lines.',
-        levels: [
-            { level: 1, type: 'Passive', effect: 'If you move ≥ 6 m in a straight line and end in an attack, you are immune to Prone until your next turn and heal 1d8 at the start of your next turn.' },
-            { level: 2, type: 'Passive', effect: 'As above, but also immune to Push until your next turn (still heal 1d8).' },
-            { level: 3, type: 'Passive', effect: 'As above, but also immune to Entangled; heal 2d8 at the start of your next turn.' },
-            { level: 4, type: 'Passive', effect: 'As above, but also immune to Stunned; heal 2d8 at the start of your next turn.' }
-        ]
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'If you move ≥6m in a straight line and end in an attack, you are immune to Prone until your next turn and heal 1d8 at the start of your next turn', dice: '1d8' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'As above, but also immune to Push until your next turn (still heal 1d8)', dice: '1d8' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'As above, but also immune to Entangled; heal 2d8 at the start of your next turn', dice: '2d8' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'As above, but also immune to Stunned; heal 2d8 at the start of your next turn', dice: '2d8' },
+                specials: []
+            }
+        }
     }
 ];
-

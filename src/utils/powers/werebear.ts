@@ -1,83 +1,915 @@
 /**
- * Werebear Mastery Tree Powers
+ * Werebear Mastery Tree Powers (Form Tree)
+ * 
+ * Migrated to new structure (v0.4.18+)
+ * 
+ * Form Tree Rules:
+ * - Requires Werebear form (curse, bloodline, ritual)
+ * - Cannot use weapons, armor, or shields while in form
+ * - Natural Weapons (Paws/Slam): 1d8 damage per 2 Werebear powers learned (up to 6d8)
+ * - Natural Armor: equal to the number of Werebear powers learned
  */
 
-import type { PowerDefinition } from './types.js';
+import type { NewArtifactPowerData } from '../../types/item.js';
 
-export const WEREBEAR_POWERS: PowerDefinition[] = [
+export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
+    // === CORE POWERS ===
     {
-        name: 'Maul',
-        tree: 'Werebear',
-        powerType: 'active',
-        description: 'A single swing that shakes the earth.',
-        levels: [
-            { level: 1, type: 'Active', range: 'Melee', aoe: 'Radius 2m', duration: 'Instant', effect: 'Weapon DMG + 2d8 damage; self −2 Initiative (next round)', special: 'Push(1)', cost: { action: true }, roll: { damage: '+2d8', damageType: 'physical' } },
-            { level: 2, type: 'Active', range: 'Melee', aoe: 'Radius 2m', duration: 'Instant', effect: 'Weapon DMG + 3d8 damage; self −4 Initiative (next round)', special: 'Push(1)', cost: { action: true }, roll: { damage: '+3d8', damageType: 'physical' } },
-            { level: 3, type: 'Active', range: 'Melee', aoe: 'Radius 2m', duration: 'Instant', effect: 'Weapon DMG + 4d8 damage; self −6 Initiative, −2 Evade', special: 'Push(1)', cost: { action: true }, roll: { damage: '+4d8', damageType: 'physical' } },
-            { level: 4, type: 'Active', range: 'Melee', aoe: 'Radius 2m', duration: 'Instant', effect: 'Weapon DMG + 5d8 damage; self −8 Initiative, −4 Evade', special: 'Push(1)', cost: { action: true }, roll: { damage: '+5d8', damageType: 'physical' } }
-        ]
+        name: 'Crushing Slam',
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'might'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Paw Attack +1d8 damage', dice: '1d8' },
+                specials: [{ key: 'Push', value: 3, raiseCost: 3 }, { key: 'Expose', value: 1, raiseCost: 1 }, { key: 'Mark', value: 1, raiseCost: 1 }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Paw Attack +2d8 damage', dice: '2d8' },
+                specials: [{ key: 'Push', value: 4, raiseCost: 4 }, { key: 'Expose', value: 2, raiseCost: 2 }, { key: 'Mark', value: 2, raiseCost: 2 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Paw Attack +3d8 damage', dice: '3d8' },
+                specials: [{ key: 'Push', value: 4, raiseCost: 4 }, { key: 'Expose', value: 2, raiseCost: 2 }, { key: 'Mark', value: 3, raiseCost: 3 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Paw Attack +4d8 damage', dice: '4d8' },
+                specials: [{ key: 'Push', value: 5, raiseCost: 5 }, { key: 'Expose', value: 2, raiseCost: 2 }, { key: 'Mark', value: 4, raiseCost: 4 }]
+            }
+        }
     },
     {
-        name: 'Earthshaker Roar',
-        tree: 'Werebear',
-        powerType: 'utility',
-        description: 'Your roar mends bone and spirit alike.',
-        levels: [
-            { level: 1, type: 'Utility', range: 'Self', aoe: 'Radius 2m', duration: 'Instant', effect: 'Allies heal 1d8 HP and Cleanse(1)', cost: { action: true } },
-            { level: 2, type: 'Utility', range: 'Self', aoe: 'Radius 3m', duration: 'Instant', effect: 'Allies heal 2d8 HP and Cleanse(1)', cost: { action: true } },
-            { level: 3, type: 'Utility', range: 'Self', aoe: 'Radius 4m', duration: 'Instant', effect: 'Allies heal 3d8 HP and Cleanse(1)', cost: { action: true } },
-            { level: 4, type: 'Utility', range: 'Self', aoe: 'Radius 5m', duration: 'Instant', effect: 'Allies heal 4d8 HP and Cleanse(2)', cost: { action: true } }
-        ]
+        name: 'Bear Hug',
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'might'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'On hit: target is held' },
+                specials: [{ key: 'Grappled', value: 1, raiseCost: 1 }, { key: 'Expose', value: 1, raiseCost: 1 }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'On hit: Paw DMG +1d8', dice: '1d8' },
+                specials: [{ key: 'Grappled', value: 2, raiseCost: 2 }, { key: 'Expose', value: 2, raiseCost: 2 }, { key: 'Push', value: 2, raiseCost: 2 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'On hit: Paw DMG +2d8', dice: '2d8' },
+                specials: [{ key: 'Grappled', value: 3, raiseCost: 3 }, { key: 'Expose', value: 2, raiseCost: 2 }, { key: 'Mark', value: 2, raiseCost: 2 }, { key: 'Push', value: 2, raiseCost: 2 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'On hit: Paw DMG +3d8', dice: '3d8' },
+                specials: [{ key: 'Grappled', value: 4, raiseCost: 4 }, { key: 'Expose', value: 3, raiseCost: 3 }, { key: 'Mark', value: 3, raiseCost: 3 }]
+            }
+        }
     },
     {
-        name: 'Living Fortress',
-        tree: 'Werebear',
-        powerType: 'passive',
-        passiveCategory: 'armor',
-        description: 'You are the wall.',
-        levels: [
-            { level: 1, type: 'Passive', effect: 'Gain +6 Armor; suffer −1 Initiative.' },
-            { level: 2, type: 'Passive', effect: 'Gain +12 Armor; suffer −2 Initiative.' },
-            { level: 3, type: 'Passive', effect: 'Gain +18 Armor; suffer −3 Initiative.' },
-            { level: 4, type: 'Passive', effect: 'Gain +24 Armor; suffer −4 Initiative.' }
-        ]
+        name: 'Territorial Roar',
+        category: 'utility',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'check',
+            attribute: 'intellect',
+            vs: 'save:mind'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'utility',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 4 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Enemies in AoE must make Mind Saves. On fail: Mark(1)' },
+                specials: [{ key: 'Mark', value: 1, raiseCost: 1 }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'utility',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 6 },
+                duration: { kind: 'instant' },
+                effect: { text: 'As above. On fail: Mark(2)' },
+                specials: [{ key: 'Mark', value: 2, raiseCost: 2 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'utility',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 8 },
+                duration: { kind: 'instant' },
+                effect: { text: 'As above. On fail: Mark(3)' },
+                specials: [{ key: 'Mark', value: 3, raiseCost: 3 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'utility',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 10 },
+                duration: { kind: 'instant' },
+                effect: { text: 'As above. On fail: Mark(3) and Suppress(1) (Mind Save negates Suppress)' },
+                specials: [{ key: 'Mark', value: 3, raiseCost: 3 }, { key: 'Suppress', value: 1, raiseCost: 1 }]
+            }
+        }
     },
     {
-        name: 'Regeneration',
-        tree: 'Werebear',
-        powerType: 'passive',
-        passiveCategory: 'healing',
-        description: 'The bear\'s wounds close before the blood can fall.',
-        levels: [
-            { level: 1, type: 'Passive', effect: 'Heal 1d8 HP each round.' },
-            { level: 2, type: 'Passive', effect: 'Heal 2d8 HP each round.' },
-            { level: 3, type: 'Passive', effect: 'Heal 3d8 HP each round.' },
-            { level: 4, type: 'Passive', effect: 'Heal 4d8 HP each round.' }
-        ]
+        name: 'Ursine Resilience',
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Gain +2 Armor and +1 Body Save Die while in Werebear form', flat: 2 },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Gain +3 Armor and +2 Body Save Dice', flat: 3 },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Gain +4 Armor, +3 Body Save Dice, and +1 Spirit Save Die', flat: 4 },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Gain +5 Armor, +4 Body Save Dice, and +2 Spirit Save Dice', flat: 5 },
+                specials: []
+            }
+        }
     },
     {
-        name: 'Rage Unleashed',
-        tree: 'Werebear',
-        powerType: 'buff',
-        description: 'You give up defense for unstoppable might.',
-        levels: [
-            { level: 1, type: 'Buff', range: 'Self', duration: 'Mastery Rank Rounds', effect: 'Attacks deal +2d8 damage', special: 'Self: −2 Armor, −2 Evade', cost: { action: true } },
-            { level: 2, type: 'Buff', range: 'Self', duration: 'Mastery Rank Rounds', effect: 'Attacks deal +3d8 damage', special: 'Self: −3 Armor, −3 Evade', cost: { action: true } },
-            { level: 3, type: 'Buff', range: 'Self', duration: 'Mastery Rank Rounds', effect: 'Attacks deal +4d8 damage', special: 'Self: −4 Armor, −4 Evade', cost: { action: true } },
-            { level: 4, type: 'Buff', range: 'Self', duration: 'Mastery Rank Rounds', effect: 'Attacks deal +5d8 damage', special: 'Self: −5 Armor, −5 Evade', cost: { action: true } }
-        ]
+        name: 'Protective Swipe',
+        category: 'reaction',
+        tags: [],
+        rank: 1,
+        trigger: 'A creature within range hits an ally within range of you',
+        cost: {
+            action: 'reaction',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'might'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'reaction',
+                range: { kind: 'distance', m: 2 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Make a Paw Attack dealing +1d8 damage', dice: '1d8' },
+                specials: [{ key: 'Mark', value: 1, raiseCost: 1 }],
+                trigger: 'A creature within 2m hits an ally within 4m of you'
+            },
+            '2': {
+                lvl: 2,
+                type: 'reaction',
+                range: { kind: 'distance', m: 2 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Paw Attack +2d8 damage', dice: '2d8' },
+                specials: [{ key: 'Mark', value: 2, raiseCost: 2 }],
+                trigger: 'A creature within 2m hits an ally within 4m of you'
+            },
+            '3': {
+                lvl: 3,
+                type: 'reaction',
+                range: { kind: 'distance', m: 2 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Paw Attack +3d8 damage', dice: '3d8' },
+                specials: [{ key: 'Mark', value: 2, raiseCost: 2 }],
+                trigger: 'A creature within 2m hits an ally within 4m of you'
+            },
+            '4': {
+                lvl: 4,
+                type: 'reaction',
+                range: { kind: 'distance', m: 2 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Paw Attack +4d8 damage', dice: '4d8' },
+                specials: [{ key: 'Mark', value: 3, raiseCost: 3 }],
+                trigger: 'A creature within 2m hits an ally within 4m of you'
+            }
+        }
+    },
+    // === GUARDIAN HIDE (requires 4+ Werebear powers) ===
+    {
+        name: 'Ironcoat Hide',
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Your Armor increases by +3 while in Werebear form', flat: 3 },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Armor increases by +5', flat: 5 },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Armor increases by +8', flat: 8 },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Armor increases by +10', flat: 10 },
+                specials: []
+            }
+        }
     },
     {
-        name: 'Earthen Grasp',
-        tree: 'Werebear',
-        powerType: 'active',
-        description: 'Stone and root rise at your command.',
-        levels: [
-            { level: 1, type: 'Active', range: 'Melee', aoe: 'Radius 2m', duration: 'Instant', effect: 'Weapon DMG + 1d8 damage', special: 'Entangle(1)', cost: { action: true }, roll: { damage: '+1d8', damageType: 'physical' } },
-            { level: 2, type: 'Active', range: 'Melee', aoe: 'Radius 2m', duration: 'Instant', effect: 'Weapon DMG + 1d8 damage', special: 'Entangle(2)', cost: { action: true }, roll: { damage: '+1d8', damageType: 'physical' } },
-            { level: 3, type: 'Active', range: 'Melee', aoe: 'Radius 2m', duration: 'Instant', effect: 'Weapon DMG + 1d8 damage', special: 'Entangle(2)', cost: { action: true }, roll: { damage: '+1d8', damageType: 'physical' } },
-            { level: 4, type: 'Active', range: 'Melee', aoe: 'Radius 2m', duration: 'Instant', effect: 'Weapon DMG + 1d8 damage', special: 'Entangle(3)', cost: { action: true }, roll: { damage: '+1d8', damageType: 'physical' } }
-        ]
+        name: 'Stand Like Stone',
+        category: 'reaction',
+        tags: [],
+        rank: 1,
+        trigger: 'You would be Pushed / Pulled / Proned',
+        cost: {
+            action: 'reaction',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'reaction',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'Gain Immovable (immune to Push & Prone)' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'reaction',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'Gain Immovable, 1d8 Temp HP, and +1 Armor', tempHpDice: '1d8', flat: 1 },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'reaction',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'Gain Immovable, 2d8 Temp HP, and +1 Armor', tempHpDice: '2d8', flat: 1 },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'reaction',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'Gain Immovable, 3d8 Temp HP, and +2 Armor', tempHpDice: '3d8', flat: 2 },
+                specials: []
+            }
+        }
+    },
+    {
+        name: 'Shelter the Small',
+        category: 'utility',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'utility',
+                range: { kind: 'distance', m: 8 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: '1 ally gains 1d8 Temp HP and +1 Armor', tempHpDice: '1d8', flat: 1 },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'utility',
+                range: { kind: 'distance', m: 10 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: '1 ally gains 2d8 Temp HP and +2 Armor', tempHpDice: '2d8', flat: 2 },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'utility',
+                range: { kind: 'distance', m: 12 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: '1 ally gains 3d8 Temp HP and +2 Armor', tempHpDice: '3d8', flat: 2 },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'utility',
+                range: { kind: 'distance', m: 16 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: '1 ally gains 4d8 Temp HP and +3 Armor', tempHpDice: '4d8', flat: 3 },
+                specials: []
+            }
+        }
+    },
+    {
+        name: 'Hold the Line',
+        category: 'activeBuff',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'check',
+            attribute: 'intellect',
+            vs: 'save:mind'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 2 },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'You gain Immovable and +1 Armor. Enemies that start their turn in the aura: Mind Save or gain Mark(1)', flat: 1 },
+                specials: [{ key: 'Mark', value: 1, raiseCost: 1 }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 4 },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'You gain Immovable and +2 Armor. Aura applies Mark(2)', flat: 2 },
+                specials: [{ key: 'Mark', value: 2, raiseCost: 2 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 6 },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'You gain Immovable and +4 Armor. Aura applies Mark(3)', flat: 4 },
+                specials: [{ key: 'Mark', value: 3, raiseCost: 3 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 8 },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'You gain Immovable and +4 Armor. Aura applies Mark(4)', flat: 4 },
+                specials: [{ key: 'Mark', value: 4, raiseCost: 4 }]
+            }
+        }
+    },
+    // === EARTHSHAKER (requires 4+ Werebear powers) ===
+    {
+        name: 'Seismic Clap',
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'check',
+            attribute: 'might',
+            vs: 'save:body'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'melee',
+                range: { kind: 'self' },
+                aoe: { shape: 'cone', lengthM: 4, angleDeg: 90 },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'Creatures in cone: Body Save or Prone(1)' },
+                specials: [{ key: 'Prone', value: 1, raiseCost: 1 }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'melee',
+                range: { kind: 'self' },
+                aoe: { shape: 'cone', lengthM: 6, angleDeg: 90 },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'Body Save or Prone(2)' },
+                specials: [{ key: 'Prone', value: 2, raiseCost: 2 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'melee',
+                range: { kind: 'self' },
+                aoe: { shape: 'cone', lengthM: 8, angleDeg: 90 },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'Body Save or Prone(2); on fail also Push(3)' },
+                specials: [{ key: 'Prone', value: 2, raiseCost: 2 }, { key: 'Push', value: 3, raiseCost: 3 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'melee',
+                range: { kind: 'self' },
+                aoe: { shape: 'cone', lengthM: 10, angleDeg: 90 },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'Creatures in cone take 1d8 damage, then Body Save or Prone(3); on fail also Expose(2)', dice: '1d8' },
+                specials: [{ key: 'Prone', value: 3, raiseCost: 3 }, { key: 'Expose', value: 2, raiseCost: 2 }]
+            }
+        }
+    },
+    {
+        name: 'Groundbreaker',
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'melee',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 2 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Enemies in AoE: Push(4) and Expose(2)' },
+                specials: [{ key: 'Push', value: 4, raiseCost: 4 }, { key: 'Expose', value: 2, raiseCost: 2 }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'melee',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 4 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Enemies in AoE take 1d8 damage, Push(5), Expose(2), Mark(1)', dice: '1d8' },
+                specials: [{ key: 'Push', value: 5, raiseCost: 5 }, { key: 'Expose', value: 2, raiseCost: 2 }, { key: 'Mark', value: 1, raiseCost: 1 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'melee',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 6 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Enemies in AoE take 2d8 damage, Push(6), Expose(3)', dice: '2d8' },
+                specials: [{ key: 'Push', value: 6, raiseCost: 6 }, { key: 'Expose', value: 3, raiseCost: 3 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'melee',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 8 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Enemies in AoE take 2d8 damage, Push(8), Expose(4), Mark(2)', dice: '2d8' },
+                specials: [{ key: 'Push', value: 8, raiseCost: 8 }, { key: 'Expose', value: 4, raiseCost: 4 }, { key: 'Mark', value: 2, raiseCost: 2 }]
+            }
+        }
+    },
+    {
+        name: 'Quake Punish',
+        category: 'reaction',
+        tags: [],
+        rank: 1,
+        trigger: 'A creature enters a space within range of you',
+        cost: {
+            action: 'reaction',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'might'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'reaction',
+                range: { kind: 'distance', m: 2 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Make a Paw Attack +1d8 damage; on hit Push(2)', dice: '1d8' },
+                specials: [{ key: 'Push', value: 2, raiseCost: 2 }],
+                trigger: 'A creature enters a space within 2m of you'
+            },
+            '2': {
+                lvl: 2,
+                type: 'reaction',
+                range: { kind: 'distance', m: 2 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Paw Attack +2d8 damage; on hit Push(3) and Expose(1)', dice: '2d8' },
+                specials: [{ key: 'Push', value: 3, raiseCost: 3 }, { key: 'Expose', value: 1, raiseCost: 1 }],
+                trigger: 'A creature enters a space within 2m of you'
+            },
+            '3': {
+                lvl: 3,
+                type: 'reaction',
+                range: { kind: 'distance', m: 2 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Paw Attack +3d8 damage; on hit Push(4) and Expose(1)', dice: '3d8' },
+                specials: [{ key: 'Push', value: 4, raiseCost: 4 }, { key: 'Expose', value: 1, raiseCost: 1 }],
+                trigger: 'A creature enters a space within 2m of you'
+            },
+            '4': {
+                lvl: 4,
+                type: 'reaction',
+                range: { kind: 'distance', m: 2 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Paw Attack +4d8 damage; on hit Push(5) and Expose(2)', dice: '4d8' },
+                specials: [{ key: 'Push', value: 5, raiseCost: 5 }, { key: 'Expose', value: 2, raiseCost: 2 }],
+                trigger: 'A creature enters a space within 2m of you'
+            }
+        }
+    },
+    {
+        name: 'Seismic Presence',
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'check',
+            attribute: 'might',
+            vs: 'save:body'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'aura', radiusM: 2 },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'While you are Immovable, enemies that start their turn within 2m must pass a Body Save or gain Expose(1) (1 round)' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'aura', radiusM: 4 },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'While Immovable, radius becomes 4m and Expose becomes Expose(2)' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'aura', radiusM: 6 },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'While Immovable, radius becomes 6m and enemies that fail also gain Suppress(1) (Mind Save negates Suppress)' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'aura', radiusM: 8 },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'While Immovable, radius becomes 8m and Suppress becomes Suppress(2) (Mind Save negates)' },
+                specials: []
+            }
+        }
+    },
+    // === GROVE ROAR (requires 8+ Werebear powers) ===
+    {
+        name: 'Grove Roar',
+        category: 'utility',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'utility',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 2 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Allies in AoE gain Regeneration(2)' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'utility',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 4 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Allies in AoE gain Regeneration(3)' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'utility',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 6 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Allies in AoE gain Regeneration(4)' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'utility',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 8 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Allies in AoE gain Regeneration(4)', notes: 'Cleanse(4)' },
+                specials: [{ key: 'Cleanse', value: 4, raiseCost: 4 }]
+            }
+        }
+    },
+    {
+        name: 'Gentle Reprieve',
+        category: 'utility',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'utility',
+                range: { kind: 'distance', m: 8 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Heal 1d8 HP', dice: '1d8' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'utility',
+                range: { kind: 'distance', m: 10 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Heal 2d8 HP', dice: '2d8' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'utility',
+                range: { kind: 'distance', m: 12 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Heal 3d8 HP', dice: '3d8' },
+                specials: [{ key: 'Cleanse', value: 4, raiseCost: 4 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'utility',
+                range: { kind: 'distance', m: 16 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Heal 4d8 HP', dice: '4d8' },
+                specials: [{ key: 'Cleanse', value: 4, raiseCost: 4 }]
+            }
+        }
+    },
+    {
+        name: 'Heartwood Ward',
+        category: 'activeBuff',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 2 },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Allies in aura gain +2 Armor. On cast: they gain 1d8 Temp HP', flat: 2, tempHpDice: '1d8' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 4 },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Allies gain +3 Armor. On cast: 2d8 Temp HP', flat: 3, tempHpDice: '2d8' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 6 },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Allies gain +4 Armor. On cast: 3d8 Temp HP', flat: 4, tempHpDice: '3d8' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 8 },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Allies gain +5 Armor. On cast: 4d8 Temp HP', flat: 5, tempHpDice: '4d8' },
+                specials: []
+            }
+        }
+    },
+    {
+        name: 'Shared Regrowth',
+        category: 'reaction',
+        tags: [],
+        rank: 1,
+        trigger: 'An ally within range takes damage',
+        cost: {
+            action: 'reaction',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'reaction',
+                range: { kind: 'distance', m: 8 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'That ally gains Regeneration(3)' },
+                specials: [],
+                trigger: 'An ally within 8m takes damage'
+            },
+            '2': {
+                lvl: 2,
+                type: 'reaction',
+                range: { kind: 'distance', m: 10 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Ally gains Regeneration(4) and 1d8 Temp HP', tempHpDice: '1d8' },
+                specials: [],
+                trigger: 'An ally within 10m takes damage'
+            },
+            '3': {
+                lvl: 3,
+                type: 'reaction',
+                range: { kind: 'distance', m: 12 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Ally gains Regeneration(5) and 1d8 Temp HP', tempHpDice: '1d8' },
+                specials: [],
+                trigger: 'An ally within 12m takes damage'
+            },
+            '4': {
+                lvl: 4,
+                type: 'reaction',
+                range: { kind: 'distance', m: 16 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Ally gains Regeneration(6) and 1d8 Temp HP', tempHpDice: '1d8' },
+                specials: [],
+                trigger: 'An ally within 16m takes damage'
+            }
+        }
     }
 ];
-

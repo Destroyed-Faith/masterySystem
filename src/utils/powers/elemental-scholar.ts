@@ -1,84 +1,319 @@
 /**
  * Elemental Scholar Mastery Tree Powers
+ * 
+ * Migrated to new structure (v0.4.18+)
  */
 
-import type { PowerDefinition } from './types.js';
+import type { NewArtifactPowerData } from '../../types/item.js';
 
-export const ELEMENTAL_SCHOLAR_POWERS: PowerDefinition[] = [
+export const ELEMENTAL_SCHOLAR_POWERS: NewArtifactPowerData[] = [
     {
         name: 'Way of the Fire',
-        tree: 'Elemental Scholar',
-        powerType: 'active',
-        description: 'You ignite your strikes with disciplined flame.',
-        levels: [
-            { level: 1, type: 'Active', range: 'Melee', duration: 'Instant', effect: 'Weapon DMG + 2d8 damage', special: 'Ignite(1)', cost: { action: true }, roll: { damage: '+2d8', damageType: 'fire' } },
-            { level: 2, type: 'Active', range: 'Melee', duration: 'Instant', effect: 'Weapon DMG + 3d8 damage', special: 'Ignite(2)', cost: { action: true }, roll: { damage: '+3d8', damageType: 'fire' } },
-            { level: 3, type: 'Active', range: 'Melee', duration: 'Instant', effect: 'Weapon DMG + 4d8 damage', special: 'Ignite(3)', cost: { action: true }, roll: { damage: '+4d8', damageType: 'fire' } },
-            { level: 4, type: 'Active', range: 'Melee', duration: 'Instant', effect: 'Weapon DMG + 5d8 damage', special: 'Ignite(4)', cost: { action: true }, roll: { damage: '+5d8', damageType: 'fire' } }
-        ]
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'might'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
+                specials: [{ key: 'Ignite', value: 1, raiseCost: 1 }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
+                specials: [{ key: 'Ignite', value: 2, raiseCost: 2 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
+                specials: [{ key: 'Ignite', value: 3, raiseCost: 3 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +5d8', dice: '5d8' },
+                specials: [{ key: 'Ignite', value: 4, raiseCost: 4 }]
+            }
+        }
     },
     {
         name: 'Way of the Air',
-        tree: 'Elemental Scholar',
-        powerType: 'active',
-        description: 'Your strike carries the will of the storm.',
-        levels: [
-            { level: 1, type: 'Active', range: 'Melee', duration: 'Instant', effect: 'Weapon DMG + 1d8 damage', special: 'Push(1), Shock(1)', cost: { action: true }, roll: { damage: '+1d8', damageType: 'lightning' } },
-            { level: 2, type: 'Active', range: 'Melee', duration: 'Instant', effect: 'Weapon DMG + 2d8 damage', special: 'Push(2), Shock(1)', cost: { action: true }, roll: { damage: '+2d8', damageType: 'lightning' } },
-            { level: 3, type: 'Active', range: 'Melee', duration: 'Instant', effect: 'Weapon DMG + 3d8 damage', special: 'Push(2), Shock(2)', cost: { action: true }, roll: { damage: '+3d8', damageType: 'lightning' } },
-            { level: 4, type: 'Active', range: 'Melee', duration: 'Instant', effect: 'Weapon DMG + 4d8 damage', special: 'Push(3), Shock(2)', cost: { action: true }, roll: { damage: '+4d8', damageType: 'lightning' } }
-        ]
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'might'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +1d8', dice: '1d8' },
+                specials: [{ key: 'Push', value: 1, raiseCost: 1 }, { key: 'Shock', value: 1, raiseCost: 1 }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
+                specials: [{ key: 'Push', value: 2, raiseCost: 2 }, { key: 'Shock', value: 1, raiseCost: 1 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
+                specials: [{ key: 'Push', value: 2, raiseCost: 2 }, { key: 'Shock', value: 2, raiseCost: 2 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
+                specials: [{ key: 'Push', value: 3, raiseCost: 3 }, { key: 'Shock', value: 2, raiseCost: 2 }]
+            }
+        }
     },
     {
         name: 'Way of the Earth',
-        tree: 'Elemental Scholar',
-        powerType: 'active',
-        description: 'You strike with the patience and weight of stone.',
-        levels: [
-            { level: 1, type: 'Active', range: 'Melee', duration: 'Instant', effect: 'Weapon DMG + 1d8 damage', special: 'Corrode(1)', cost: { action: true }, roll: { damage: '+1d8', damageType: 'acid' } },
-            { level: 2, type: 'Active', range: 'Melee', duration: 'Instant', effect: 'Weapon DMG + 2d8 damage', special: 'Corrode(2)', cost: { action: true }, roll: { damage: '+2d8', damageType: 'acid' } },
-            { level: 3, type: 'Active', range: 'Melee', duration: 'Instant', effect: 'Weapon DMG + 3d8 damage', special: 'Corrode(3)', cost: { action: true }, roll: { damage: '+3d8', damageType: 'acid' } },
-            { level: 4, type: 'Active', range: 'Melee', duration: 'Instant', effect: 'Weapon DMG + 4d8 damage', special: 'Corrode(4)', cost: { action: true }, roll: { damage: '+4d8', damageType: 'acid' } }
-        ]
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'might'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +1d8', dice: '1d8' },
+                specials: [{ key: 'Corrode', value: 1, raiseCost: 1 }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
+                specials: [{ key: 'Corrode', value: 2, raiseCost: 2 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
+                specials: [{ key: 'Corrode', value: 3, raiseCost: 3 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
+                specials: [{ key: 'Corrode', value: 4, raiseCost: 4 }]
+            }
+        }
     },
     {
         name: 'Elemental Stone Armor',
-        tree: 'Elemental Scholar',
-        powerType: 'passive',
-        passiveCategory: 'armor',
-        description: 'An unbreakable vow to endure.',
-        levels: [
-            { level: 1, type: 'Passive', effect: 'Gain +2 Armor for each unique elemental Special active on an opponent.' },
-            { level: 2, type: 'Passive', effect: 'Gain +4 Armor for each unique elemental Special active on an opponent.' },
-            { level: 3, type: 'Passive', effect: 'Gain +6 Armor for each unique elemental Special active on an opponent.' },
-            { level: 4, type: 'Passive', effect: 'Gain +8 Armor for each unique elemental Special active on an opponent.' }
-        ]
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Gain +2 Armor for each unique elemental Special active on an opponent', flat: 2 },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Gain +4 Armor for each unique elemental Special active on an opponent', flat: 4 },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Gain +6 Armor for each unique elemental Special active on an opponent', flat: 6 },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Gain +8 Armor for each unique elemental Special active on an opponent', flat: 8 },
+                specials: []
+            }
+        }
     },
     {
         name: 'Elemental Balance',
-        tree: 'Elemental Scholar',
-        powerType: 'passive',
-        passiveCategory: 'roll',
-        description: 'The scholar strikes when the elements align.',
-        levels: [
-            { level: 1, type: 'Passive', effect: 'If any opponent has 3+ unique elemental Specials, gain Extra Attack(1) for a Level 1 Power or Spell.' },
-            { level: 2, type: 'Passive', effect: 'If any opponent has 4+ unique elemental Specials, gain Extra Attack(1) for a Level 2 Power or Spell.' },
-            { level: 3, type: 'Passive', effect: 'If any opponent has 4+ unique elemental Specials, gain Extra Attack(1) for a Level 3 Power or Spell.' },
-            { level: 4, type: 'Passive', effect: 'If any opponent has 4+ unique elemental Specials, gain Extra Attack(1) for a Level 4 Power or Spell.' }
-        ]
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'If any opponent has 3+ unique elemental Specials, gain Extra Attack(1) for a Level 1 Power or Spell' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'If any opponent has 4+ unique elemental Specials, gain Extra Attack(1) for a Level 2 Power or Spell' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'If any opponent has 4+ unique elemental Specials, gain Extra Attack(1) for a Level 3 Power or Spell' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'If any opponent has 4+ unique elemental Specials, gain Extra Attack(1) for a Level 4 Power or Spell' },
+                specials: []
+            }
+        }
     },
     {
         name: 'Elemental Flow',
-        tree: 'Elemental Scholar',
-        powerType: 'passive',
-        passiveCategory: 'healing',
-        description: 'Balance restores what fury destroys.',
-        levels: [
-            { level: 1, type: 'Passive', effect: 'End of your round: if any opponent suffers from 2+ unique elemental Specials, heal 1d8 HP.' },
-            { level: 2, type: 'Passive', effect: 'As above, heal 2d8 HP.' },
-            { level: 3, type: 'Passive', effect: 'As above, heal 3d8 HP.' },
-            { level: 4, type: 'Passive', effect: 'As above, heal 4d8 HP.' }
-        ]
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'End of your round: if any opponent suffers from 2+ unique elemental Specials, heal 1d8 HP', dice: '1d8' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'As above, heal 2d8 HP', dice: '2d8' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'As above, heal 3d8 HP', dice: '3d8' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'As above, heal 4d8 HP', dice: '4d8' },
+                specials: []
+            }
+        }
     }
 ];
-

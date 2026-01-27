@@ -1,82 +1,316 @@
 /**
  * Titan Runecaster (Forged) Mastery Tree Powers
+ * 
+ * Migrated to new structure (v0.4.18+)
  */
 
-import type { PowerDefinition } from './types.js';
+import type { NewArtifactPowerData } from '../../types/item.js';
 
-export const TITAN_RUNECASTER_POWERS: PowerDefinition[] = [
+export const TITAN_RUNECASTER_POWERS: NewArtifactPowerData[] = [
     {
         name: 'Ember Rune',
-        tree: 'Titan Runecaster',
-        powerType: 'buff',
-        description: 'The rune of the deep forge burns upon your chest — molten light flowing through your veins.',
-        levels: [
-            { level: 1, type: 'Buff', range: 'Self', duration: 'Mastery Rank rounds', effect: 'Next damaging effect deals +2d8.', special: 'Ignite(1)', cost: { action: true } },
-            { level: 2, type: 'Buff', range: 'Self', duration: 'Mastery Rank rounds', effect: 'Next damaging effect deals +4d8.', special: 'Ignite(1)', cost: { action: true } },
-            { level: 3, type: 'Buff', range: 'Self', duration: 'Mastery Rank rounds', effect: 'Next damaging effect deals +6d8.', special: 'Ignite(2)', cost: { action: true } },
-            { level: 4, type: 'Buff', range: 'Self', duration: 'Mastery Rank rounds', effect: 'Next damaging effect deals +8d8.', special: 'Ignite(2)', cost: { action: true } }
-        ]
+        category: 'activeBuff',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Next damaging effect deals +2d8', dice: '2d8' },
+                specials: [{ key: 'Ignite', value: 1, raiseCost: 1 }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Next damaging effect deals +4d8', dice: '4d8' },
+                specials: [{ key: 'Ignite', value: 1, raiseCost: 1 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Next damaging effect deals +6d8', dice: '6d8' },
+                specials: [{ key: 'Ignite', value: 2, raiseCost: 2 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Next damaging effect deals +8d8', dice: '8d8' },
+                specials: [{ key: 'Ignite', value: 2, raiseCost: 2 }]
+            }
+        }
     },
     {
         name: 'Tempest Rune',
-        tree: 'Titan Runecaster',
-        powerType: 'buff',
-        description: 'The spiraling rune crackles with the living wrath of the storm.',
-        levels: [
-            { level: 1, type: 'Buff', range: 'Self', duration: 'Mastery Rank rounds', effect: 'Next damage roll gains +2d8.', special: 'Shock(1)', cost: { action: true } },
-            { level: 2, type: 'Buff', range: 'Self', duration: 'Mastery Rank rounds', effect: 'Next damage roll gains +3d8.', special: 'Shock(2)', cost: { action: true } },
-            { level: 3, type: 'Buff', range: 'Self', duration: 'Mastery Rank rounds', effect: 'Next damage roll gains +4d8.', special: 'Shock(2)', cost: { action: true } },
-            { level: 4, type: 'Buff', range: 'Self', duration: 'Mastery Rank rounds', effect: 'Next damage roll gains +5d8.', special: 'Shock(3)', cost: { action: true } }
-        ]
+        category: 'activeBuff',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Next damage roll gains +2d8', dice: '2d8' },
+                specials: [{ key: 'Shock', value: 1, raiseCost: 1 }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Next damage roll gains +3d8', dice: '3d8' },
+                specials: [{ key: 'Shock', value: 2, raiseCost: 2 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Next damage roll gains +4d8', dice: '4d8' },
+                specials: [{ key: 'Shock', value: 2, raiseCost: 2 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Next damage roll gains +5d8', dice: '5d8' },
+                specials: [{ key: 'Shock', value: 3, raiseCost: 3 }]
+            }
+        }
     },
     {
         name: 'Glacier Rune',
-        tree: 'Titan Runecaster',
-        powerType: 'buff',
-        description: 'Cold light ripples across your form — stillness made manifest.',
-        levels: [
-            { level: 1, type: 'Buff', range: 'Self', duration: 'Mastery Rank rounds', effect: 'Repeat an AoE effect next round at ½ damage.', cost: { action: true } },
-            { level: 2, type: 'Buff', range: 'Self', duration: 'Mastery Rank rounds', effect: 'Repeat an AoE effect next round at ½ damage.', special: 'Freeze(2)', cost: { action: true } },
-            { level: 3, type: 'Buff', range: 'Self', duration: 'Mastery Rank rounds', effect: 'Repeat an AoE effect next round at ½ damage.', special: 'Freeze(4)', cost: { action: true } },
-            { level: 4, type: 'Buff', range: 'Self', duration: 'Mastery Rank rounds', effect: 'Repeat an AoE effect next round at ½ damage.', special: 'Freeze(6)', cost: { action: true } }
-        ]
+        category: 'activeBuff',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Repeat an AoE effect next round at ½ damage' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Repeat an AoE effect next round at ½ damage' },
+                specials: [{ key: 'Freeze', value: 2, raiseCost: 2 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Repeat an AoE effect next round at ½ damage' },
+                specials: [{ key: 'Freeze', value: 4, raiseCost: 4 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Repeat an AoE effect next round at ½ damage' },
+                specials: [{ key: 'Freeze', value: 6, raiseCost: 6 }]
+            }
+        }
     },
     {
         name: 'Stoneheart Rune',
-        tree: 'Titan Runecaster',
-        powerType: 'buff',
-        description: 'The rune carved into your chest pulses with the rhythm of mountains.',
-        levels: [
-            { level: 1, type: 'Buff', range: 'Self', duration: 'Mastery Rank rounds', effect: 'Gain +1 Armor and 2d8 Temporary HP.', cost: { action: true } },
-            { level: 2, type: 'Buff', range: 'Self', duration: 'Mastery Rank rounds', effect: 'Gain +2 Armor and 3d8 Temporary HP.', cost: { action: true } },
-            { level: 3, type: 'Buff', range: 'Self', duration: 'Mastery Rank rounds', effect: 'Gain +3 Armor and 4d8 Temporary HP.', cost: { action: true } },
-            { level: 4, type: 'Buff', range: 'Self', duration: 'Mastery Rank rounds', effect: 'Gain +4 Armor and 5d8 Temporary HP.', cost: { action: true } }
-        ]
+        category: 'activeBuff',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Gain +1 Armor and 2d8 Temporary HP', flat: 1, tempHpDice: '2d8' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Gain +2 Armor and 3d8 Temporary HP', flat: 2, tempHpDice: '3d8' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Gain +3 Armor and 4d8 Temporary HP', flat: 3, tempHpDice: '4d8' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Gain +4 Armor and 5d8 Temporary HP', flat: 4, tempHpDice: '5d8' },
+                specials: []
+            }
+        }
     },
     {
         name: 'Rift Rune',
-        tree: 'Titan Runecaster',
-        powerType: 'buff',
-        description: 'A flowing rune of cloud and storm lets you twist distance and destiny.',
-        levels: [
-            { level: 1, type: 'Buff', range: 'Self', duration: 'Mastery Rank rounds', effect: 'When hit, you may Teleport 4m away; if out of reach, the attack misses.', cost: { action: true } },
-            { level: 2, type: 'Buff', range: 'Self', duration: 'Mastery Rank rounds', effect: 'When hit, Teleport 8m away; if out of reach, the attack misses.', cost: { action: true } },
-            { level: 3, type: 'Buff', range: 'Self', duration: 'Mastery Rank rounds', effect: 'When hit, Teleport 12m away; if out of reach, the attack misses.', cost: { action: true } },
-            { level: 4, type: 'Buff', range: 'Self', duration: 'Mastery Rank rounds', effect: 'When hit, Teleport 16m away; if out of reach, the attack misses.', cost: { action: true } }
-        ]
+        category: 'activeBuff',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'When hit, you may Teleport 4m away; if out of reach, the attack misses' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'When hit, Teleport 8m away; if out of reach, the attack misses' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'When hit, Teleport 12m away; if out of reach, the attack misses' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'When hit, Teleport 16m away; if out of reach, the attack misses' },
+                specials: []
+            }
+        }
     },
     {
         name: 'Titanic Resilience',
-        tree: 'Titan Runecaster',
-        powerType: 'passive',
-        passiveCategory: 'save',
-        description: 'The runes harden into truth — the Titan endures all storms.',
-        levels: [
-            { level: 1, type: 'Passive', effect: 'Once per round, if you fail a Save, you may reroll it.' },
-            { level: 2, type: 'Passive', effect: 'Twice per round, if you fail a Save, you may reroll it.' },
-            { level: 3, type: 'Passive', effect: 'Thrice per round, if you fail a Save, you may reroll it.' },
-            { level: 4, type: 'Passive', effect: 'Up to four times per round, if you fail a Save, you may reroll it.' }
-        ]
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Once per round, if you fail a Save, you may reroll it' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Twice per round, if you fail a Save, you may reroll it' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Thrice per round, if you fail a Save, you may reroll it' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Up to four times per round, if you fail a Save, you may reroll it' },
+                specials: []
+            }
+        }
     }
 ];
-

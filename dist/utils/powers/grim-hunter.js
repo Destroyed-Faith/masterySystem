@@ -1,105 +1,419 @@
 /**
  * Grim Hunter Mastery Tree Powers
+ *
+ * Migrated to new structure (v0.4.18+)
  */
 export const GRIM_HUNTER_POWERS = [
     {
         name: 'Hunter\'s Slash',
-        tree: 'Grim Hunter',
-        powerType: 'active',
-        description: 'A quick blade strike aimed at an exposed mark.',
-        levels: [
-            { level: 1, type: 'Active', range: 'Melee', duration: 'Instant', effect: 'Weapon DMG + 2d8 damage', special: 'Crit(1) if target is Marked', cost: { action: true }, roll: { damage: '+2d8', damageType: 'physical' } },
-            { level: 2, type: 'Active', range: 'Melee', duration: 'Instant', effect: 'Weapon DMG + 3d8 damage', special: 'Crit(1) if target is Marked', cost: { action: true }, roll: { damage: '+3d8', damageType: 'physical' } },
-            { level: 3, type: 'Active', range: 'Melee', duration: 'Instant', effect: 'Weapon DMG + 4d8 damage', special: 'Crit(1) if target is Marked', cost: { action: true }, roll: { damage: '+4d8', damageType: 'physical' } },
-            { level: 4, type: 'Active', range: 'Melee', duration: 'Instant', effect: 'Weapon DMG + 5d8 damage', special: 'Crit(1) if target is Marked', cost: { action: true }, roll: { damage: '+5d8', damageType: 'physical' } }
-        ]
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'might'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
+                specials: [{ key: 'Crit', value: 1, raiseCost: 1, note: 'if target is Marked' }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
+                specials: [{ key: 'Crit', value: 1, raiseCost: 1, note: 'if target is Marked' }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
+                specials: [{ key: 'Crit', value: 1, raiseCost: 1, note: 'if target is Marked' }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +5d8', dice: '5d8' },
+                specials: [{ key: 'Crit', value: 1, raiseCost: 1, note: 'if target is Marked' }]
+            }
+        }
     },
     {
         name: 'Mark the Prey',
-        tree: 'Grim Hunter',
-        powerType: 'active',
-        description: 'You brand a foe for death — everything after gets easier.',
-        levels: [
-            { level: 1, type: 'Active', range: '8m', duration: 'Instant', effect: 'Weapon DMG + 1d8 damage', special: 'Mark(1)', cost: { action: true }, roll: { damage: '+1d8', damageType: 'physical' } },
-            { level: 2, type: 'Active', range: '12m', duration: 'Instant', effect: 'Weapon DMG + 2d8 damage', special: 'Mark(2)', cost: { action: true }, roll: { damage: '+2d8', damageType: 'physical' } },
-            { level: 3, type: 'Active', range: '16m', duration: 'Instant', effect: 'Weapon DMG + 3d8 damage', special: 'Mark(3)', cost: { action: true }, roll: { damage: '+3d8', damageType: 'physical' } },
-            { level: 4, type: 'Active', range: '20m', duration: 'Instant', effect: 'Weapon DMG + 4d8 damage', special: 'Mark(4)', cost: { action: true }, roll: { damage: '+4d8', damageType: 'physical' } }
-        ]
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'might'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'ranged',
+                range: { kind: 'distance', m: 8 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +1d8', dice: '1d8' },
+                specials: [{ key: 'Mark', value: 1, raiseCost: 1 }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'ranged',
+                range: { kind: 'distance', m: 12 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
+                specials: [{ key: 'Mark', value: 2, raiseCost: 2 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'ranged',
+                range: { kind: 'distance', m: 16 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
+                specials: [{ key: 'Mark', value: 3, raiseCost: 3 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'ranged',
+                range: { kind: 'distance', m: 20 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
+                specials: [{ key: 'Mark', value: 4, raiseCost: 4 }]
+            }
+        }
     },
     {
         name: 'Flash Bomb',
-        tree: 'Grim Hunter',
-        powerType: 'active',
-        description: 'A searing burst of light that overwhelms the senses.',
-        levels: [
-            { level: 1, type: 'Active', range: '6m (thrown)', aoe: 'Radius 2m', duration: 'MR Rounds + 1', effect: '—', special: 'Blinded(1)', cost: { action: true } },
-            { level: 2, type: 'Active', range: '6m (thrown)', aoe: 'Radius 6m', duration: 'MR Rounds + 2', effect: '—', special: 'Blinded(2)', cost: { action: true } },
-            { level: 3, type: 'Active', range: '6m (thrown)', aoe: 'Radius 6m', duration: 'MR Rounds + 4', effect: '—', special: 'Blinded(4)', cost: { action: true } },
-            { level: 4, type: 'Active', range: '6m (thrown)', aoe: 'Radius 8m', duration: 'MR Rounds + 5', effect: '—', special: 'Blinded(5)', cost: { action: true } }
-        ]
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'ranged',
+                range: { kind: 'distance', m: 6, note: 'thrown' },
+                aoe: { shape: 'radius', radiusM: 2 },
+                duration: { kind: 'masteryRankRounds', rounds: 1, note: 'MR Rounds + 1' },
+                effect: { text: '—' },
+                specials: [{ key: 'Blinded', value: 1, raiseCost: 1 }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'ranged',
+                range: { kind: 'distance', m: 6, note: 'thrown' },
+                aoe: { shape: 'radius', radiusM: 6 },
+                duration: { kind: 'masteryRankRounds', rounds: 2, note: 'MR Rounds + 2' },
+                effect: { text: '—' },
+                specials: [{ key: 'Blinded', value: 2, raiseCost: 2 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'ranged',
+                range: { kind: 'distance', m: 6, note: 'thrown' },
+                aoe: { shape: 'radius', radiusM: 6 },
+                duration: { kind: 'masteryRankRounds', rounds: 4, note: 'MR Rounds + 4' },
+                effect: { text: '—' },
+                specials: [{ key: 'Blinded', value: 4, raiseCost: 4 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'ranged',
+                range: { kind: 'distance', m: 6, note: 'thrown' },
+                aoe: { shape: 'radius', radiusM: 8 },
+                duration: { kind: 'masteryRankRounds', rounds: 5, note: 'MR Rounds + 5' },
+                effect: { text: '—' },
+                specials: [{ key: 'Blinded', value: 5, raiseCost: 5 }]
+            }
+        }
     },
     {
         name: 'Relentless Weapons',
-        tree: 'Grim Hunter',
-        powerType: 'active',
-        description: 'At breath distance, your shots and blades become executions.',
-        levels: [
-            { level: 1, type: 'Active', range: '8m', duration: 'Instant', effect: '1d8 damage (+1d8 if target < 5 m)', special: 'Penetration(1)', cost: { action: true }, roll: { damage: '1d8', damageType: 'physical' } },
-            { level: 2, type: 'Active', range: '8m', duration: 'Instant', effect: '2d8 damage (+1d8 if target < 5 m)', special: 'Penetration(2)', cost: { action: true }, roll: { damage: '2d8', damageType: 'physical' } },
-            { level: 3, type: 'Active', range: '8m', duration: 'Instant', effect: '3d8 damage (+2d8 if target < 5 m)', special: 'Penetration(3)', cost: { action: true }, roll: { damage: '3d8', damageType: 'physical' } },
-            { level: 4, type: 'Active', range: '8m', duration: 'Instant', effect: '4d8 damage (+2d8 if target < 5 m)', special: 'Penetration(4)', cost: { action: true }, roll: { damage: '4d8', damageType: 'physical' } }
-        ]
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'might'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'ranged',
+                range: { kind: 'distance', m: 8 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: '1d8 damage (+1d8 if target < 5m)', dice: '1d8' },
+                specials: [{ key: 'Penetration', value: 1, raiseCost: 1 }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'ranged',
+                range: { kind: 'distance', m: 8 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: '2d8 damage (+1d8 if target < 5m)', dice: '2d8' },
+                specials: [{ key: 'Penetration', value: 2, raiseCost: 2 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'ranged',
+                range: { kind: 'distance', m: 8 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: '3d8 damage (+2d8 if target < 5m)', dice: '3d8' },
+                specials: [{ key: 'Penetration', value: 3, raiseCost: 3 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'ranged',
+                range: { kind: 'distance', m: 8 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: '4d8 damage (+2d8 if target < 5m)', dice: '4d8' },
+                specials: [{ key: 'Penetration', value: 4, raiseCost: 4 }]
+            }
+        }
     },
     {
         name: 'Predictable Movement',
-        tree: 'Grim Hunter',
-        powerType: 'buff',
-        description: 'You read your quarry\'s tells and are simply not where they swing.',
-        levels: [
-            { level: 1, type: 'Buff', range: 'Self', aoe: '4m', duration: 'MR Rounds', effect: 'Against Marked enemies\' attacks: gain +2 Armor and +4 Evade.', cost: { action: true } },
-            { level: 2, type: 'Buff', range: 'Self', aoe: '8m', duration: 'MR Rounds', effect: 'Against Marked enemies\' attacks: gain +4 Armor and +6 Evade.', cost: { action: true } },
-            { level: 3, type: 'Buff', range: 'Self', aoe: '12m', duration: 'MR Rounds', effect: 'Against Marked enemies\' attacks: gain +6 Armor and +8 Evade.', cost: { action: true } },
-            { level: 4, type: 'Buff', range: 'Self', aoe: '16m', duration: 'MR Rounds', effect: 'Against Marked enemies\' attacks: gain +8 Armor and +12 Evade.', cost: { action: true } }
-        ]
+        category: 'activeBuff',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'aura', radiusM: 4 },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Against Marked enemies\' attacks: gain +2 Armor and +4 Evade', flat: 2 },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'aura', radiusM: 8 },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Against Marked enemies\' attacks: gain +4 Armor and +6 Evade', flat: 4 },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'aura', radiusM: 12 },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Against Marked enemies\' attacks: gain +6 Armor and +8 Evade', flat: 6 },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'aura', radiusM: 16 },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Against Marked enemies\' attacks: gain +8 Armor and +12 Evade', flat: 8 },
+                specials: []
+            }
+        }
     },
     {
         name: 'Quickdraw',
-        tree: 'Grim Hunter',
-        powerType: 'passive',
-        passiveCategory: 'roll',
-        description: 'Your hand moves twice before anyone else moves once.',
-        levels: [
-            { level: 1, type: 'Passive', effect: 'Gain +4 Initiative. If you act first in a round, your first attack this turn gains Extra Attack(1, 0.25) — one extra strike at ¼ Attack Pool.' },
-            { level: 2, type: 'Passive', effect: 'Gain +8 Initiative. If you act first, your first attack this turn gains Extra Attack(2, 0.5) — one extra strike at ½ Attack Pool.' },
-            { level: 3, type: 'Passive', effect: 'Gain +12 Initiative. If you act first, your first attack this turn gains Extra Attack(2, 0.5) — one extra strike at ½ Attack Pool.' },
-            { level: 4, type: 'Passive', effect: 'Gain +16 Initiative. If you act first, your first attack this turn gains Extra Attack(3, 0.75) — one extra strike at ¾ Attack Pool.' }
-        ]
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Gain +4 Initiative. If you act first in a round, your first attack this turn gains Extra Attack(1, 0.25) — one extra strike at ¼ Attack Pool', flat: 4 },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Gain +8 Initiative. If you act first, your first attack this turn gains Extra Attack(2, 0.5) — one extra strike at ½ Attack Pool', flat: 8 },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Gain +12 Initiative. If you act first, your first attack this turn gains Extra Attack(2, 0.5) — one extra strike at ½ Attack Pool', flat: 12 },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Gain +16 Initiative. If you act first, your first attack this turn gains Extra Attack(3, 0.75) — one extra strike at ¾ Attack Pool', flat: 16 },
+                specials: []
+            }
+        }
     },
     {
         name: 'Sneak Attack',
-        tree: 'Grim Hunter',
-        powerType: 'passive',
-        passiveCategory: 'damage',
-        description: 'A moment of ruthless precision before the killing blow.',
-        levels: [
-            { level: 1, type: 'Passive', effect: 'If the target is Distracted (Flanked, Blinded, Marked, or Disoriented), your attacks this round gain +1d8 damage and Crit(1).' },
-            { level: 2, type: 'Passive', effect: 'As above, but +2d8 damage and Crit(1).' },
-            { level: 3, type: 'Passive', effect: 'As above, but +3d8 damage and Crit(2).' },
-            { level: 4, type: 'Passive', effect: 'As above, but +3d8 damage and Crit(2).' }
-        ]
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'If the target is Distracted (Flanked, Blinded, Marked, or Disoriented), your attacks this round gain +1d8 damage and Crit(1)', dice: '1d8' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'As above, but +2d8 damage and Crit(1)', dice: '2d8' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'As above, but +3d8 damage and Crit(2)', dice: '3d8' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'As above, but +3d8 damage and Crit(2)', dice: '3d8' },
+                specials: []
+            }
+        }
     },
     {
         name: 'Bloodhound',
-        tree: 'Grim Hunter',
-        powerType: 'passive',
-        passiveCategory: 'roll',
-        description: 'You track your marked prey with unerring precision.',
-        levels: [
-            { level: 1, type: 'Passive', effect: 'You gain +1 Attack Die against Marked targets.' },
-            { level: 2, type: 'Passive', effect: 'You gain +2 Attack Dice against Marked targets.' },
-            { level: 3, type: 'Passive', effect: 'You gain +4 Attack Dice against Marked targets.' },
-            { level: 4, type: 'Passive', effect: 'You gain +5 Attack Dice against Marked targets.' }
-        ]
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'You gain +1 Attack Die against Marked targets' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'You gain +2 Attack Dice against Marked targets' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'You gain +4 Attack Dice against Marked targets' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'You gain +5 Attack Dice against Marked targets' },
+                specials: []
+            }
+        }
     }
 ];
 //# sourceMappingURL=grim-hunter.js.map

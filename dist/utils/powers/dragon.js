@@ -1,116 +1,1315 @@
 /**
- * Dragon Mastery Tree Powers
+ * Dragon Mastery Tree Powers (Form Tree)
+ *
+ * Migrated to new structure (v0.4.18+)
+ *
+ * Form Tree Rules:
+ * - Requires Dragon form (bloodline, ritual, ancient spark)
+ * - Cannot use weapons, armor, or shields while in form
+ * - Natural Weapons: 1d8 damage per 2 Dragon powers learned (up to 4d8)
+ * - Natural Armor: Based on powers learned
  */
 export const DRAGON_POWERS = [
+    // === CORE POWERS ===
     {
         name: 'Claws',
-        tree: 'Dragon',
-        powerType: 'active',
-        description: 'You unleash rapid rakes, each strike a flash of scale and sinew.',
-        levels: [
-            { level: 1, type: 'Active', range: 'Melee', duration: 'Instant', effect: 'Make 1 Extra Attack(0.5) with half your Attack Dice, dealing Claw DMG + 1d8 and Bleed(1).', special: 'Bleed(1)', cost: { action: true }, roll: { damage: '+1d8', damageType: 'physical' } },
-            { level: 2, type: 'Active', range: 'Melee', duration: 'Instant', effect: 'Make 1 Extra Attack(0.5) with half your Attack Dice, dealing Claw DMG + 2d8 and Bleed(2).', special: 'Bleed(2)', cost: { action: true }, roll: { damage: '+2d8', damageType: 'physical' } },
-            { level: 3, type: 'Active', range: 'Melee', duration: 'Instant', effect: 'Make 2 Extra Attacks(each 0.5) with half your Attack Dice, each dealing Claw DMG + 2d8 and Bleed(2).', special: 'Bleed(2)', cost: { action: true }, roll: { damage: '+2d8', damageType: 'physical' } },
-            { level: 4, type: 'Active', range: 'Melee', duration: 'Instant', effect: 'Make 2 Extra Attacks(each 0.5) with half your Attack Dice, each dealing Claw DMG + 3d8 and Bleed(3).', special: 'Bleed(3)', cost: { action: true }, roll: { damage: '+3d8', damageType: 'physical' } }
-        ]
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'might'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Make 1 Extra Attack (0.5) using half your Attack Dice; on hit deal Natural DMG +1d8', dice: '1d8' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Make 1 Extra Attack (0.5) using half your Attack Dice; on hit deal Natural DMG +2d8', dice: '2d8' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Make 2 Extra Attacks (each 0.5) using half pool; each hit deals +2d8', dice: '2d8' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Make 2 Extra Attacks (each 0.5) using half pool; each hit deals +3d8', dice: '3d8' },
+                specials: []
+            }
+        }
     },
     {
         name: 'Bite',
-        tree: 'Dragon',
-        powerType: 'reaction',
-        description: 'A brutal snap of draconic jaws.',
-        levels: [
-            { level: 1, type: 'Reaction', range: 'Melee', duration: 'Instant', effect: 'Bite, −4 Attack Dice, + 2d8', special: 'Mark(1)', cost: { reaction: true }, roll: { damage: '+2d8', damageType: 'physical' } },
-            { level: 2, type: 'Reaction', range: 'Melee', duration: 'Instant', effect: 'Bite, −3 Attack Dice, + 3d8', special: 'Mark(1)', cost: { reaction: true }, roll: { damage: '+3d8', damageType: 'physical' } },
-            { level: 3, type: 'Reaction', range: 'Melee', duration: 'Instant', effect: 'Bite, −2 Attack Dice, + 4d8', special: 'Mark(2)', cost: { reaction: true }, roll: { damage: '+4d8', damageType: 'physical' } },
-            { level: 4, type: 'Reaction', range: 'Melee', duration: 'Instant', effect: 'Bite, + 5d8', special: 'Mark(2)', cost: { reaction: true }, roll: { damage: '+5d8', damageType: 'physical' } }
-        ]
+        category: 'reaction',
+        tags: [],
+        rank: 1,
+        trigger: 'When you are hit by a melee attack',
+        cost: {
+            action: 'reaction',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'might'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'reaction',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Make a Bite dealing Natural DMG +2d8', dice: '2d8' },
+                specials: [{ key: 'Mark', value: 1, raiseCost: 1 }],
+                trigger: 'When you are hit by a melee attack'
+            },
+            '2': {
+                lvl: 2,
+                type: 'reaction',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Make a Bite dealing Natural DMG +3d8', dice: '3d8' },
+                specials: [{ key: 'Mark', value: 2, raiseCost: 2 }],
+                trigger: 'When you are hit by a melee attack'
+            },
+            '3': {
+                lvl: 3,
+                type: 'reaction',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Make a Bite dealing Natural DMG +4d8', dice: '4d8' },
+                specials: [{ key: 'Mark', value: 3, raiseCost: 3 }],
+                trigger: 'When you are hit by a melee attack'
+            },
+            '4': {
+                lvl: 4,
+                type: 'reaction',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Make a Bite dealing Natural DMG +5d8', dice: '5d8' },
+                specials: [{ key: 'Mark', value: 4, raiseCost: 4 }],
+                trigger: 'When you are hit by a melee attack'
+            }
+        }
     },
     {
         name: 'Tail Strike',
-        tree: 'Dragon',
-        powerType: 'active',
-        description: 'A sweeping strike that crushes and scatters foes.',
-        levels: [
-            { level: 1, type: 'Active', range: 'Melee', aoe: '2m', duration: 'Instant', effect: 'Tail Attack + 2d8 damage', special: 'Prone(1)', cost: { action: true }, roll: { damage: '+2d8', damageType: 'physical' } },
-            { level: 2, type: 'Active', range: 'Melee', aoe: '3m', duration: 'Instant', effect: 'Tail Attack + 3d8 damage', special: 'Knockback(2), Prone(1)', cost: { action: true }, roll: { damage: '+3d8', damageType: 'physical' } },
-            { level: 3, type: 'Active', range: 'Melee', aoe: '4m', duration: 'Instant', effect: 'Tail Attack + 4d8 damage', special: 'Knockback(4), Prone(2)', cost: { action: true }, roll: { damage: '+4d8', damageType: 'physical' } },
-            { level: 4, type: 'Active', range: 'Melee', aoe: '5m', duration: 'Instant', effect: 'Tail Attack + 5d8 damage', special: 'Knockback(6), Prone(2)', cost: { action: true }, roll: { damage: '+5d8', damageType: 'physical' } }
-        ]
-    },
-    {
-        name: 'Dragon Roar',
-        tree: 'Dragon',
-        powerType: 'buff',
-        description: 'The dragon\'s roar emboldens allies and terrifies enemies.',
-        levels: [
-            { level: 1, type: 'Buff', range: 'Self', aoe: '6m', duration: '1 round', effect: 'Up to 2 allies gain Advantage on their next Attack.', cost: { action: true } },
-            { level: 2, type: 'Buff', range: 'Self', aoe: '8m', duration: '1 round', effect: 'Up to 3 allies gain Advantage; you gain +1 Attack Die.', cost: { action: true } },
-            { level: 3, type: 'Buff', range: 'Self', aoe: '10m', duration: '1 round', effect: 'Up to 3 allies gain Advantage; you gain +2 Attack Dice.', cost: { action: true } },
-            { level: 4, type: 'Buff', range: 'Self', aoe: '12m', duration: '1 round', effect: 'Up to 4 allies gain Advantage; you gain +3 Attack Dice.', cost: { action: true } }
-        ]
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'might'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'radius', radiusM: 2 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Tail Attack +2d8 damage', dice: '2d8' },
+                specials: [{ key: 'Push', value: 2, raiseCost: 2 }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'radius', radiusM: 3 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Tail Attack +3d8 damage', dice: '3d8' },
+                specials: [{ key: 'Push', value: 4, raiseCost: 4 }, { key: 'Prone', value: 1, raiseCost: 1 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'radius', radiusM: 4 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Tail Attack +4d8 damage', dice: '4d8' },
+                specials: [{ key: 'Push', value: 6, raiseCost: 6 }, { key: 'Prone', value: 2, raiseCost: 2 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'radius', radiusM: 5 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Tail Attack +5d8 damage', dice: '5d8' },
+                specials: [{ key: 'Push', value: 8, raiseCost: 8 }, { key: 'Prone', value: 2, raiseCost: 2 }]
+            }
+        }
     },
     {
         name: 'Breath Attack',
-        tree: 'Dragon',
-        powerType: 'active',
-        description: 'The iconic elemental exhalation of draconic power.',
-        levels: [
-            { level: 1, type: 'Active', range: '6m', aoe: '60° Cone', duration: 'Instant', effect: '2d8 elemental damage', cost: { action: true }, roll: { damage: '2d8', damageType: 'elemental' } },
-            { level: 2, type: 'Active', range: '8m', aoe: '60° Cone', duration: 'Instant', effect: '4d8 elemental damage', cost: { action: true }, roll: { damage: '4d8', damageType: 'elemental' } },
-            { level: 3, type: 'Active', range: '10m', aoe: '60° Cone', duration: 'Instant', effect: '6d8 elemental damage', cost: { action: true }, roll: { damage: '6d8', damageType: 'elemental' } },
-            { level: 4, type: 'Active', range: '12m', aoe: '60° Cone', duration: 'Instant', effect: '8d8 elemental damage', cost: { action: true }, roll: { damage: '8d8', damageType: 'elemental' } }
-        ]
-    },
-    {
-        name: 'Flyby',
-        tree: 'Dragon',
-        powerType: 'movement',
-        description: 'A deadly charge fueled by flight.',
-        levels: [
-            { level: 1, type: 'Movement', range: '4m', duration: 'Instant', effect: 'Move 4 m; your next attack deals +1d8 damage.', cost: { movement: true } },
-            { level: 2, type: 'Movement', range: '8m', duration: 'Instant', effect: 'Move 8 m; your next attack deals +2d8 damage.', cost: { movement: true } },
-            { level: 3, type: 'Movement', range: '12m', duration: 'Instant', effect: 'Move 12 m; your next attack deals +3d8 damage.', cost: { movement: true } },
-            { level: 4, type: 'Movement', range: '16m', duration: 'Instant', effect: 'Move 16 m; your next attack deals +4d8 damage.', cost: { movement: true } }
-        ]
-    },
-    {
-        name: 'Wingbeat',
-        tree: 'Dragon',
-        powerType: 'movement',
-        description: 'A mighty beat of wings scatters enemies.',
-        levels: [
-            { level: 1, type: 'Movement', range: 'Self', aoe: '4m', duration: 'Instant', effect: 'Ascend 8 m upward.', special: 'Knockback(2)', cost: { movement: true } },
-            { level: 2, type: 'Movement', range: 'Self', aoe: '6m', duration: 'Instant', effect: 'Ascend 12 m upward.', special: 'Knockback(4)', cost: { movement: true } },
-            { level: 3, type: 'Movement', range: 'Self', aoe: '8m', duration: 'Instant', effect: 'Ascend 16 m upward.', special: 'Knockback(6)', cost: { movement: true } },
-            { level: 4, type: 'Movement', range: 'Self', aoe: '10m', duration: 'Instant', effect: 'Ascend 20 m upward.', special: 'Knockback(8)', cost: { movement: true } }
-        ]
-    },
-    {
-        name: 'Dragon Scales',
-        tree: 'Dragon',
-        powerType: 'passive',
-        passiveCategory: 'armor',
-        description: 'Your scales deflect blades and mend wounds.',
-        levels: [
-            { level: 1, type: 'Passive', effect: 'Gain +2 Armor and 2 Temp HP each round (non-stacking; refreshes).' },
-            { level: 2, type: 'Passive', effect: 'Gain +4 Armor and 4 Temp HP each round (non-stacking; refreshes).' },
-            { level: 3, type: 'Passive', effect: 'Gain +6 Armor and 6 Temp HP each round; also Regenerate 1d8 HP each round.' },
-            { level: 4, type: 'Passive', effect: 'Gain +8 Armor and 8 Temp HP each round; also Regenerate 2d8 HP each round.' }
-        ]
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'ranged',
+                range: { kind: 'distance', m: 6 },
+                aoe: { shape: 'cone', lengthM: 6, angleDeg: 60 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Deal 2d8 elemental damage', dice: '2d8' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'ranged',
+                range: { kind: 'distance', m: 8 },
+                aoe: { shape: 'cone', lengthM: 8, angleDeg: 60 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Deal 4d8 elemental damage', dice: '4d8' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'ranged',
+                range: { kind: 'distance', m: 10 },
+                aoe: { shape: 'cone', lengthM: 10, angleDeg: 60 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Deal 6d8 elemental damage', dice: '6d8' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'ranged',
+                range: { kind: 'distance', m: 12 },
+                aoe: { shape: 'cone', lengthM: 12, angleDeg: 60 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Deal 8d8 elemental damage', dice: '8d8' },
+                specials: []
+            }
+        }
     },
     {
         name: 'Draconic Presence',
-        tree: 'Dragon',
-        powerType: 'passive',
-        passiveCategory: 'utility',
-        description: 'Your mere presence instills terror in lesser beings.',
-        levels: [
-            { level: 1, type: 'Passive', effect: 'Enemies within 4 m become Frightened(1) at the start of each round (Save negates).' },
-            { level: 2, type: 'Passive', effect: 'Enemies within 6 m become Frightened(2) at the start of each round (Save negates).' },
-            { level: 3, type: 'Passive', effect: 'Enemies within 8 m become Frightened(3) at the start of each round (Save negates).' },
-            { level: 4, type: 'Passive', effect: 'Enemies within 10 m become Frightened(3) at the start of each round (Save negates).' }
-        ]
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'aura', radiusM: 4 },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Enemies within 4m are Frightened(1) while they can see or hear you' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'aura', radiusM: 6 },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Enemies within 6m are Frightened(2) while they can see or hear you' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'aura', radiusM: 8 },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Enemies within 8m are Frightened(3) while they can see or hear you' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'aura', radiusM: 10 },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Enemies within 10m are Frightened(3) while they can see or hear you' },
+                specials: []
+            }
+        }
+    },
+    // === SCALES (requires 4+ Dragon powers) ===
+    {
+        name: 'Dragon Scales',
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Gain +2 Armor and 2 Temp HP at the start of your turn (non-stacking; refreshes)', flat: 2, tempHpDice: '2' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Gain +4 Armor and 4 Temp HP (refreshes)', flat: 4, tempHpDice: '4' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Gain +6 Armor and 6 Temp HP (refreshes)', flat: 6, tempHpDice: '6' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Gain +8 Armor and 8 Temp HP (refreshes)', flat: 8, tempHpDice: '8' },
+                specials: []
+            }
+        }
+    },
+    {
+        name: 'Scale Ward',
+        category: 'reaction',
+        tags: [],
+        rank: 1,
+        trigger: 'When you are hit by an attack',
+        cost: {
+            action: 'reaction',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'reaction',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'Gain 2d8 Temp HP and +2 Evade', tempHpDice: '2d8', flat: 2 },
+                specials: [],
+                trigger: 'When you are hit by an attack'
+            },
+            '2': {
+                lvl: 2,
+                type: 'reaction',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'Gain 4d8 Temp HP and +4 Evade', tempHpDice: '4d8', flat: 4 },
+                specials: [],
+                trigger: 'When you are hit by an attack'
+            },
+            '3': {
+                lvl: 3,
+                type: 'reaction',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'Gain 6d8 Temp HP and +6 Evade', tempHpDice: '6d8', flat: 6 },
+                specials: [],
+                trigger: 'When you are hit by an attack'
+            },
+            '4': {
+                lvl: 4,
+                type: 'reaction',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'Gain 8d8 Temp HP and +8 Evade', tempHpDice: '8d8', flat: 8 },
+                specials: [],
+                trigger: 'When you are hit by an attack'
+            }
+        }
+    },
+    {
+        name: 'Shed Scales',
+        category: 'utility',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'utility',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Cleanse(4) on yourself' },
+                specials: [{ key: 'Cleanse', value: 4, raiseCost: 4 }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'utility',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Cleanse(8) on yourself' },
+                specials: [{ key: 'Cleanse', value: 8, raiseCost: 8 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'utility',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Cleanse(12) on yourself' },
+                specials: [{ key: 'Cleanse', value: 12, raiseCost: 12 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'utility',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Cleanse(16) on yourself' },
+                specials: [{ key: 'Cleanse', value: 16, raiseCost: 16 }]
+            }
+        }
+    },
+    {
+        name: 'Immovable',
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Reduce all Push/Pull against you by 2m (min 0)' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Reduce Push/Pull by 4m' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Reduce Push/Pull by 6m' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Reduce Push/Pull by 8m' },
+                specials: []
+            }
+        }
+    },
+    // === BREATH (requires 4+ Dragon powers) ===
+    {
+        name: 'Dragonfire Line',
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'ranged',
+                range: { kind: 'distance', m: 10 },
+                aoe: { shape: 'line', lengthM: 10, widthM: 2 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Deal 2d8 elemental damage', dice: '2d8' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'ranged',
+                range: { kind: 'distance', m: 14 },
+                aoe: { shape: 'line', lengthM: 14, widthM: 2 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Deal 4d8 elemental damage', dice: '4d8' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'ranged',
+                range: { kind: 'distance', m: 18 },
+                aoe: { shape: 'line', lengthM: 18, widthM: 2 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Deal 6d8 elemental damage', dice: '6d8' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'ranged',
+                range: { kind: 'distance', m: 22 },
+                aoe: { shape: 'line', lengthM: 22, widthM: 2 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Deal 8d8 elemental damage', dice: '8d8' },
+                specials: []
+            }
+        }
+    },
+    {
+        name: 'Breath Mastery',
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Your Breath Attack and Dragonfire Line gain +2m Range' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Gain +4m Range' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Gain +6m Range' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Gain +8m Range' },
+                specials: []
+            }
+        }
+    },
+    {
+        name: 'Scalding Residue',
+        category: 'utility',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'utility',
+                range: { kind: 'self' },
+                aoe: { shape: 'none', note: 'Same as your last Breath shape' },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'Enemies that start their turn in the area take 1d8 elemental damage', dice: '1d8' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'utility',
+                range: { kind: 'self' },
+                aoe: { shape: 'none', note: 'Same as your last Breath shape' },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'Enemies that start their turn in the area take 2d8 elemental damage', dice: '2d8' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'utility',
+                range: { kind: 'self' },
+                aoe: { shape: 'none', note: 'Same as your last Breath shape' },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'Enemies that start their turn in the area take 3d8 elemental damage', dice: '3d8' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'utility',
+                range: { kind: 'self' },
+                aoe: { shape: 'none', note: 'Same as your last Breath shape' },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'Enemies that start their turn in the area take 4d8 elemental damage', dice: '4d8' },
+                specials: []
+            }
+        }
+    },
+    {
+        name: 'Overcharge Breath',
+        category: 'active',
+        tags: ['charged'],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0,
+            charges: 1
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'ranged',
+                range: { kind: 'distance', m: 6, note: 'As Breath' },
+                aoe: { shape: 'cone', lengthM: 6, angleDeg: 60, note: 'As Breath' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Deal 4d8 elemental damage', dice: '4d8' },
+                specials: [{ key: 'Expose', value: 2, raiseCost: 2 }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'ranged',
+                range: { kind: 'distance', m: 8, note: 'As Breath' },
+                aoe: { shape: 'cone', lengthM: 8, angleDeg: 60, note: 'As Breath' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Deal 8d8 elemental damage', dice: '8d8' },
+                specials: [{ key: 'Expose', value: 3, raiseCost: 3 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'ranged',
+                range: { kind: 'distance', m: 10, note: 'As Breath' },
+                aoe: { shape: 'cone', lengthM: 10, angleDeg: 60, note: 'As Breath' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Deal 12d8 elemental damage', dice: '12d8' },
+                specials: [{ key: 'Expose', value: 4, raiseCost: 4 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'ranged',
+                range: { kind: 'distance', m: 12, note: 'As Breath' },
+                aoe: { shape: 'cone', lengthM: 12, angleDeg: 60, note: 'As Breath' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Deal 16d8 elemental damage', dice: '16d8' },
+                specials: [{ key: 'Expose', value: 5, raiseCost: 5 }]
+            }
+        }
+    },
+    // === WINGS (requires 4+ Dragon powers) ===
+    {
+        name: 'Take Flight',
+        category: 'activeBuff',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Gain Flight (up to your Speed). While flying, gain +2 Evade', flat: 2 },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Gain Flight (up to your Speed). While flying, gain +4 Evade', flat: 4 },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Gain Flight (up to your Speed). While flying, gain +6 Evade', flat: 6 },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'buff',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Gain Flight (up to your Speed). While flying, gain +8 Evade', flat: 8 },
+                specials: []
+            }
+        }
+    },
+    {
+        name: 'Flyby',
+        category: 'movement',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'movement',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'movement',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Move 4m. Your next attack this round deals +1d8 damage', dice: '1d8' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'movement',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Move 6m. Next attack +2d8', dice: '2d8' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'movement',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Move 8m. Next attack +3d8', dice: '3d8' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'movement',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Move 10m. Next attack +4d8', dice: '4d8' },
+                specials: []
+            }
+        }
+    },
+    {
+        name: 'Wingbeat',
+        category: 'movement',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'movement',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'movement',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 4 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Reposition up to 6m (ground or vertical if flying)' },
+                specials: [{ key: 'Push', value: 2, raiseCost: 2 }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'movement',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 6 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Reposition 8m' },
+                specials: [{ key: 'Push', value: 4, raiseCost: 4 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'movement',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 8 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Reposition 10m' },
+                specials: [{ key: 'Push', value: 6, raiseCost: 6 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'movement',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 10 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Reposition 12m' },
+                specials: [{ key: 'Push', value: 8, raiseCost: 8 }]
+            }
+        }
+    },
+    {
+        name: 'Skyhook Snatch',
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'might'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'melee',
+                range: { kind: 'distance', m: 4 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Claw Attack +2d8 damage', dice: '2d8' },
+                specials: [{ key: 'Pull', value: 2, raiseCost: 2 }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'melee',
+                range: { kind: 'distance', m: 6 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Claw Attack +3d8 damage', dice: '3d8' },
+                specials: [{ key: 'Pull', value: 4, raiseCost: 4 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'melee',
+                range: { kind: 'distance', m: 8 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Claw Attack +4d8 damage', dice: '4d8' },
+                specials: [{ key: 'Pull', value: 6, raiseCost: 6 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'melee',
+                range: { kind: 'distance', m: 10 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Claw Attack +5d8 damage', dice: '5d8' },
+                specials: [{ key: 'Pull', value: 8, raiseCost: 8 }]
+            }
+        }
+    },
+    // === DOMINION (requires 8+ Dragon powers) ===
+    {
+        name: 'Tyrant\'s Roar',
+        category: 'utility',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'utility',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 6 },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'Allies in AoE gain Advantage on their next Attack; enemies must pass a Mind Save or gain Frightened(1)' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'utility',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 8 },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'Allies gain Advantage; enemies: Mind Save or Frightened(2)' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'utility',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 10 },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'Allies gain Advantage; enemies: Mind Save or Frightened(3)' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'utility',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 12 },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'Allies gain Advantage; enemies: Mind Save or Frightened(3) and Mark(1)' },
+                specials: [{ key: 'Mark', value: 1, raiseCost: 1 }]
+            }
+        }
+    },
+    {
+        name: 'Rule by Fear',
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Creatures that are Frightened by you also suffer Mark(1)' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Mark becomes Mark(2)' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Also, once per round when you hit a Frightened creature, apply Expose(2) (Body Save negates)' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Expose becomes Expose(3)' },
+                specials: []
+            }
+        }
+    },
+    {
+        name: 'Crushing Gaze',
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'check',
+            attribute: 'intellect',
+            vs: 'save:mind'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'ranged',
+                range: { kind: 'distance', m: 10 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Target must make a Mind Save' },
+                specials: [{ key: 'Suppress', value: 2, raiseCost: 2 }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'ranged',
+                range: { kind: 'distance', m: 14 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Target must make a Mind Save' },
+                specials: [{ key: 'Suppress', value: 3, raiseCost: 3 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'ranged',
+                range: { kind: 'distance', m: 18 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Target must make a Mind Save' },
+                specials: [{ key: 'Suppress', value: 4, raiseCost: 4 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'ranged',
+                range: { kind: 'distance', m: 22 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Target must make a Mind Save' },
+                specials: [{ key: 'Suppress', value: 5, raiseCost: 5 }]
+            }
+        }
+    },
+    {
+        name: 'Throne Zone',
+        category: 'utility',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'utility',
+                range: { kind: 'distance', m: 12 },
+                aoe: { shape: 'radius', radiusM: 4 },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'Enemies entering the area must pass a Mind Save or be Frightened(1) until end of their turn' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'utility',
+                range: { kind: 'distance', m: 14 },
+                aoe: { shape: 'radius', radiusM: 5 },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'Frightened(2)' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'utility',
+                range: { kind: 'distance', m: 16 },
+                aoe: { shape: 'radius', radiusM: 6 },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'Frightened(3)' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'utility',
+                range: { kind: 'distance', m: 18 },
+                aoe: { shape: 'radius', radiusM: 7 },
+                duration: { kind: 'rounds', rounds: 1 },
+                effect: { text: 'Frightened(3) and they are also Push(2) away (Body Save negates)' },
+                specials: [{ key: 'Push', value: 2, raiseCost: 2 }]
+            }
+        }
+    },
+    // === FANGS & TALONS (requires 8+ Dragon powers) ===
+    {
+        name: 'Rending Chain',
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'might'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Make 1 Extra Attack (0.5) with half Attack Dice; on hit deal +1d8', dice: '1d8' },
+                specials: [{ key: 'Bleeding', value: 1, raiseCost: 1, note: 'If target is Marked' }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Same, +2d8', dice: '2d8' },
+                specials: [{ key: 'Bleeding', value: 2, raiseCost: 2, note: 'If target is Marked' }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Make 2 Extra Attacks (0.5 each); each hit +2d8', dice: '2d8' },
+                specials: [{ key: 'Bleeding', value: 2, raiseCost: 2, note: 'If target is Marked' }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: '2 Extra Attacks; each hit +3d8', dice: '3d8' },
+                specials: [{ key: 'Bleeding', value: 3, raiseCost: 3, note: 'If target is Marked' }]
+            }
+        }
+    },
+    {
+        name: 'Predator\'s Grip',
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'might'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Claw Attack +2d8 damage', dice: '2d8' },
+                specials: [{ key: 'Grappled', value: 1, raiseCost: 1 }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Claw Attack +3d8 damage', dice: '3d8' },
+                specials: [{ key: 'Grappled', value: 2, raiseCost: 2 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Claw Attack +4d8 damage', dice: '4d8' },
+                specials: [{ key: 'Grappled', value: 3, raiseCost: 3 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Claw Attack +5d8 damage', dice: '5d8' },
+                specials: [{ key: 'Grappled', value: 4, raiseCost: 4 }]
+            }
+        }
+    },
+    {
+        name: 'Execute',
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'might'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Natural Attack +3d8 damage', dice: '3d8' },
+                specials: [{ key: 'Penetration', value: 2, raiseCost: 2, note: 'If target has Bleeding(2+) or Mark(2+)' }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Natural Attack +4d8 damage', dice: '4d8' },
+                specials: [{ key: 'Penetration', value: 3, raiseCost: 3, note: 'If Bleeding(3+) or Mark(3+)' }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Natural Attack +5d8 damage', dice: '5d8' },
+                specials: [{ key: 'Penetration', value: 4, raiseCost: 4, note: 'If Bleeding(4+) or Mark(3+)' }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'melee',
+                range: { kind: 'touch' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Natural Attack +6d8 damage', dice: '6d8' },
+                specials: [{ key: 'Penetration', value: 5, raiseCost: 5, note: 'If Bleeding(5+) or Mark(4+)' }]
+            }
+        }
+    },
+    {
+        name: 'Blood Scent',
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'You always know the direction of the nearest Bleeding creature within 20m (GM: blocked by sealed barriers)' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Range becomes 40m' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Also, your Opportunity Attacks vs Bleeding creatures gain +1d8 damage', dice: '1d8' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Bonus becomes +2d8 damage', dice: '2d8' },
+                specials: []
+            }
+        }
     }
 ];
 //# sourceMappingURL=dragon.js.map

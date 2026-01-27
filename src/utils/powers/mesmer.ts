@@ -1,70 +1,267 @@
 /**
  * Mesmer Mastery Tree Powers
+ * 
+ * Migrated to new structure (v0.4.18+)
  */
 
-import type { PowerDefinition } from './types.js';
+import type { NewArtifactPowerData } from '../../types/item.js';
 
-export const MESMER_POWERS: PowerDefinition[] = [
+export const MESMER_POWERS: NewArtifactPowerData[] = [
     {
         name: 'Mental Shackles',
-        tree: 'Mesmer',
-        powerType: 'active',
-        description: 'You bind the enemy\'s mind in invisible chains that crush thought and motion.',
-        levels: [
-            { level: 1, type: 'Active', range: '8m', duration: 'Instant', effect: '+1d8 damage', cost: { action: true }, roll: { damage: '+1d8', damageType: 'psychic' } },
-            { level: 2, type: 'Active', range: '8m', duration: 'Instant', effect: '+1d8 damage', special: 'Stunned(1)', cost: { action: true }, roll: { damage: '+1d8', damageType: 'psychic' } },
-            { level: 3, type: 'Active', range: '16m', duration: 'Instant', effect: '+1d8 damage', special: 'Stunned(1)', cost: { action: true }, roll: { damage: '+1d8', damageType: 'psychic' } },
-            { level: 4, type: 'Active', range: '24m', duration: 'Instant', effect: '+2d8 damage', special: 'Stunned(2)', cost: { action: true }, roll: { damage: '+2d8', damageType: 'psychic' } }
-        ]
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'intellect'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'ranged',
+                range: { kind: 'distance', m: 8 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: '+1d8 damage', dice: '1d8' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'ranged',
+                range: { kind: 'distance', m: 8 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: '+1d8 damage', dice: '1d8' },
+                specials: [{ key: 'Stunned', value: 1, raiseCost: 1 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'ranged',
+                range: { kind: 'distance', m: 16 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: '+1d8 damage', dice: '1d8' },
+                specials: [{ key: 'Stunned', value: 1, raiseCost: 1 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'ranged',
+                range: { kind: 'distance', m: 24 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: '+2d8 damage', dice: '2d8' },
+                specials: [{ key: 'Stunned', value: 2, raiseCost: 2 }]
+            }
+        }
     },
     {
         name: 'Nightmare Pulse',
-        tree: 'Mesmer',
-        powerType: 'active',
-        description: 'You unleash a psychic wave that forces foes to face their own terror.',
-        levels: [
-            { level: 1, type: 'Active', range: 'Self', aoe: 'Radius 2m', duration: 'Instant', effect: '—', special: 'Frightened(1)', cost: { action: true } },
-            { level: 2, type: 'Active', range: 'Self', aoe: 'Radius 4m', duration: 'Instant', effect: '+1d8 damage', special: 'Frightened(2)', cost: { action: true }, roll: { damage: '+1d8', damageType: 'psychic' } },
-            { level: 3, type: 'Active', range: 'Self', aoe: 'Radius 6m', duration: 'Instant', effect: '+1d8 damage', special: 'Frightened(3)', cost: { action: true }, roll: { damage: '+1d8', damageType: 'psychic' } },
-            { level: 4, type: 'Active', range: 'Self', aoe: 'Radius 8m', duration: 'Instant', effect: '+2d8 damage', special: 'Frightened(4)', cost: { action: true }, roll: { damage: '+2d8', damageType: 'psychic' } }
-        ]
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'ranged',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 2 },
+                duration: { kind: 'instant' },
+                effect: { text: '—' },
+                specials: [{ key: 'Frightened', value: 1, raiseCost: 1 }]
+            },
+            '2': {
+                lvl: 2,
+                type: 'ranged',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 4 },
+                duration: { kind: 'instant' },
+                effect: { text: '+1d8 damage', dice: '1d8' },
+                specials: [{ key: 'Frightened', value: 2, raiseCost: 2 }]
+            },
+            '3': {
+                lvl: 3,
+                type: 'ranged',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 6 },
+                duration: { kind: 'instant' },
+                effect: { text: '+1d8 damage', dice: '1d8' },
+                specials: [{ key: 'Frightened', value: 3, raiseCost: 3 }]
+            },
+            '4': {
+                lvl: 4,
+                type: 'ranged',
+                range: { kind: 'self' },
+                aoe: { shape: 'radius', radiusM: 8 },
+                duration: { kind: 'instant' },
+                effect: { text: '+2d8 damage', dice: '2d8' },
+                specials: [{ key: 'Frightened', value: 4, raiseCost: 4 }]
+            }
+        }
     },
     {
         name: 'Psychic Strike',
-        tree: 'Mesmer',
-        powerType: 'active',
-        description: 'A lance of psionic pain that keeps tearing the mind apart.',
-        levels: [
-            { level: 1, type: 'Active', range: '8m', duration: '2 Rounds', effect: '1d8 damage / round', cost: { action: true }, roll: { damage: '1d8', damageType: 'psychic' } },
-            { level: 2, type: 'Active', range: '12m', duration: '2 Rounds', effect: '2d8 damage / round', cost: { action: true }, roll: { damage: '2d8', damageType: 'psychic' } },
-            { level: 3, type: 'Active', range: '16m', duration: '3 Rounds', effect: '2d8 damage / round', cost: { action: true }, roll: { damage: '2d8', damageType: 'psychic' } },
-            { level: 4, type: 'Active', range: '20m', duration: '3 Rounds', effect: '3d8 damage / round', cost: { action: true }, roll: { damage: '3d8', damageType: 'psychic' } }
-        ]
+        category: 'active',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'attack',
+            stones: 0
+        },
+        roll: {
+            kind: 'attack',
+            attribute: 'intellect'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'ranged',
+                range: { kind: 'distance', m: 8 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 2 },
+                effect: { text: '1d8 damage / round', dice: '1d8' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'ranged',
+                range: { kind: 'distance', m: 12 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 2 },
+                effect: { text: '2d8 damage / round', dice: '2d8' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'ranged',
+                range: { kind: 'distance', m: 16 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 3 },
+                effect: { text: '2d8 damage / round', dice: '2d8' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'ranged',
+                range: { kind: 'distance', m: 20 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'rounds', rounds: 3 },
+                effect: { text: '3d8 damage / round', dice: '3d8' },
+                specials: []
+            }
+        }
     },
     {
         name: 'Mesmer Step',
-        tree: 'Mesmer',
-        powerType: 'movement',
-        description: 'You fold reality, stepping through a shimmer of thought.',
-        levels: [
-            { level: 1, type: 'Movement', range: '8m', duration: 'Instant', effect: 'Teleport up to 8 m (ignores AoO)', cost: { movement: true } },
-            { level: 2, type: 'Movement', range: '16m', duration: 'Instant', effect: 'Teleport up to 16 m (ignores AoO)', cost: { movement: true } },
-            { level: 3, type: 'Movement', range: '24m', duration: 'Instant', effect: 'Teleport up to 24 m (ignores AoO)', cost: { movement: true } },
-            { level: 4, type: 'Movement', range: '32m', duration: 'Instant', effect: 'Teleport up to 32 m (ignores AoO)', cost: { movement: true } }
-        ]
+        category: 'movement',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'movement',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'movement',
+                range: { kind: 'distance', m: 8 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Teleport up to 8m (ignores AoO)' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'movement',
+                range: { kind: 'distance', m: 16 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Teleport up to 16m (ignores AoO)' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'movement',
+                range: { kind: 'distance', m: 24 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Teleport up to 24m (ignores AoO)' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'movement',
+                range: { kind: 'distance', m: 32 },
+                aoe: { shape: 'none' },
+                duration: { kind: 'instant' },
+                effect: { text: 'Teleport up to 32m (ignores AoO)' },
+                specials: []
+            }
+        }
     },
     {
         name: 'Psychic Blindspot',
-        tree: 'Mesmer',
-        powerType: 'passive',
-        passiveCategory: 'roll',
-        description: 'Once you\'ve pierced a mind, nearby foes struggle to focus.',
-        levels: [
-            { level: 1, type: 'Passive', effect: 'Enemies within 2m suffer Disoriented(2).' },
-            { level: 2, type: 'Passive', effect: 'Enemies within 4m suffer Disoriented(3).' },
-            { level: 3, type: 'Passive', effect: 'Enemies within 6m suffer Disoriented(4).' },
-            { level: 4, type: 'Passive', effect: 'Enemies within 8m suffer Disoriented(6).' }
-        ]
+        category: 'passive',
+        tags: [],
+        rank: 1,
+        cost: {
+            action: 'utility',
+            stones: 0
+        },
+        roll: {
+            kind: 'none'
+        },
+        levels: {
+            '1': {
+                lvl: 1,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'aura', radiusM: 2 },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Enemies within 2m suffer Disoriented(2)' },
+                specials: []
+            },
+            '2': {
+                lvl: 2,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'aura', radiusM: 4 },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Enemies within 4m suffer Disoriented(3)' },
+                specials: []
+            },
+            '3': {
+                lvl: 3,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'aura', radiusM: 6 },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Enemies within 6m suffer Disoriented(4)' },
+                specials: []
+            },
+            '4': {
+                lvl: 4,
+                type: 'passive',
+                range: { kind: 'self' },
+                aoe: { shape: 'aura', radiusM: 8 },
+                duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
+                effect: { text: 'Enemies within 8m suffer Disoriented(6)' },
+                specials: []
+            }
+        }
     }
 ];
-

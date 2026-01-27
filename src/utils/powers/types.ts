@@ -1,7 +1,11 @@
 /**
  * Shared types for Mastery Powers
+ * 
+ * NOTE: These types are kept for backwards compatibility.
+ * New code should use the types from ../types/item.ts (NewArtifactPowerData, etc.)
  */
 
+// Legacy types (deprecated, use NewArtifactPowerData from ../types/item.ts)
 export interface PowerLevelDefinition {
   level: number;
   type: string;
@@ -34,4 +38,7 @@ export interface PowerDefinition {
   passiveCategory?: 'armor' | 'damage' | 'healing' | 'roll' | 'save' | 'utility';
   levels: PowerLevelDefinition[];
 }
+
+// Re-export new types for convenience
+export type { NewArtifactPowerData, PowerLevelRow, RangeSpec, AoeSpec, DurationSpec, EffectSpec, PowerSpecial, RaiseUpgrade, PowerCategory } from '../../types/item.js';
 
