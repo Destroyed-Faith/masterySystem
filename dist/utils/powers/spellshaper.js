@@ -10,7 +10,7 @@ export const SPELLSHAPER_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -18,7 +18,6 @@ export const SPELLSHAPER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -27,7 +26,6 @@ export const SPELLSHAPER_POWERS = [
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -36,7 +34,6 @@ export const SPELLSHAPER_POWERS = [
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -45,7 +42,6 @@ export const SPELLSHAPER_POWERS = [
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -61,7 +57,7 @@ export const SPELLSHAPER_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -69,7 +65,6 @@ export const SPELLSHAPER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -78,7 +73,6 @@ export const SPELLSHAPER_POWERS = [
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -87,7 +81,6 @@ export const SPELLSHAPER_POWERS = [
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -96,7 +89,6 @@ export const SPELLSHAPER_POWERS = [
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -112,7 +104,7 @@ export const SPELLSHAPER_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -120,7 +112,6 @@ export const SPELLSHAPER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -129,7 +120,6 @@ export const SPELLSHAPER_POWERS = [
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -138,7 +128,6 @@ export const SPELLSHAPER_POWERS = [
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -147,7 +136,6 @@ export const SPELLSHAPER_POWERS = [
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -163,7 +151,7 @@ export const SPELLSHAPER_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -171,7 +159,6 @@ export const SPELLSHAPER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -180,7 +167,6 @@ export const SPELLSHAPER_POWERS = [
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -189,7 +175,6 @@ export const SPELLSHAPER_POWERS = [
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -198,7 +183,6 @@ export const SPELLSHAPER_POWERS = [
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -214,7 +198,7 @@ export const SPELLSHAPER_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -222,7 +206,6 @@ export const SPELLSHAPER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -231,7 +214,6 @@ export const SPELLSHAPER_POWERS = [
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -240,7 +222,6 @@ export const SPELLSHAPER_POWERS = [
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -249,7 +230,6 @@ export const SPELLSHAPER_POWERS = [
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -265,7 +245,7 @@ export const SPELLSHAPER_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -273,7 +253,6 @@ export const SPELLSHAPER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -282,7 +261,6 @@ export const SPELLSHAPER_POWERS = [
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -291,7 +269,6 @@ export const SPELLSHAPER_POWERS = [
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -300,7 +277,6 @@ export const SPELLSHAPER_POWERS = [
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },

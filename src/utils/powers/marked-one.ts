@@ -22,40 +22,40 @@ export const MARKED_ONE_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'ranged',
                 range: { kind: 'distance', m: 12 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '+1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Hex', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Hex', rank: 2 }]
             },
             '2': {
-                lvl: 2,
+
                 type: 'ranged',
                 range: { kind: 'distance', m: 16 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '+2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Hex', value: 3, raiseCost: 3 }]
+                specials: [{ key: 'Hex', rank: 3 }]
             },
             '3': {
-                lvl: 3,
+
                 type: 'ranged',
                 range: { kind: 'distance', m: 20 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '+2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Hex', value: 4, raiseCost: 4 }]
+                specials: [{ key: 'Hex', rank: 4 }]
             },
             '4': {
-                lvl: 4,
+
                 type: 'ranged',
                 range: { kind: 'distance', m: 24 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '+2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Hex', value: 5, raiseCost: 5 }]
+                specials: [{ key: 'Hex', rank: 5 }]
             }
         }
     },
@@ -65,7 +65,7 @@ export const MARKED_ONE_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -73,7 +73,7 @@ export const MARKED_ONE_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -82,7 +82,7 @@ export const MARKED_ONE_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -91,7 +91,7 @@ export const MARKED_ONE_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -100,7 +100,7 @@ export const MARKED_ONE_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -116,7 +116,7 @@ export const MARKED_ONE_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -124,7 +124,7 @@ export const MARKED_ONE_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -133,7 +133,7 @@ export const MARKED_ONE_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -142,7 +142,7 @@ export const MARKED_ONE_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -151,7 +151,7 @@ export const MARKED_ONE_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -167,7 +167,7 @@ export const MARKED_ONE_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -175,39 +175,39 @@ export const MARKED_ONE_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +2 Armor and 1d8 Temporary HP at the start of combat', flat: 2, tempHpDice: '1d8' },
+                effect: { text: 'Gain +2 Armor and 1d8 Temporary HP at the start of combat'},
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +4 Armor and 1d8 Temporary HP at the start of combat', flat: 4, tempHpDice: '1d8' },
+                effect: { text: 'Gain +4 Armor and 1d8 Temporary HP at the start of combat'},
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +6 Armor and 2d8 Temporary HP at the start of combat', flat: 6, tempHpDice: '2d8' },
+                effect: { text: 'Gain +6 Armor and 2d8 Temporary HP at the start of combat'},
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +8 Armor and 2d8 Temporary HP at the start of combat', flat: 8, tempHpDice: '2d8' },
+                effect: { text: 'Gain +8 Armor and 2d8 Temporary HP at the start of combat'},
                 specials: []
             }
         }
@@ -218,7 +218,7 @@ export const MARKED_ONE_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -226,7 +226,7 @@ export const MARKED_ONE_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -235,7 +235,7 @@ export const MARKED_ONE_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -244,7 +244,7 @@ export const MARKED_ONE_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -253,7 +253,7 @@ export const MARKED_ONE_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -269,7 +269,7 @@ export const MARKED_ONE_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -277,38 +277,38 @@ export const MARKED_ONE_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Your next Spell deals +2d8 damage. Once per round', dice: '2d8' },
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Your next Spell deals +4d8 damage. Once per round', dice: '4d8' },
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Your next Spell deals +6d8 damage. Once per round', dice: '6d8' },
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Your next Spell deals +8d8 damage. Once per round', dice: '8d8' },
                 specials: []
             }
@@ -320,7 +320,7 @@ export const MARKED_ONE_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -328,38 +328,38 @@ export const MARKED_ONE_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Your Spells gain Penetration(4) vs. Hexed targets' },
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Your Spells gain Penetration(8) vs. Hexed targets' },
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Your Spells gain Penetration(12) vs. Hexed targets' },
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Your Spells gain Penetration(16) vs. Hexed targets' },
                 specials: []
             }

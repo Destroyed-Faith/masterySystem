@@ -19,40 +19,36 @@ export const CURSEWEAVER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'ranged',
                 range: { kind: 'distance', m: 8 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Curse', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Curse', rank: 1 }]
             },
             '2': {
-                lvl: 2,
                 type: 'ranged',
                 range: { kind: 'distance', m: 12 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Curse', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Curse', rank: 1 }]
             },
             '3': {
-                lvl: 3,
                 type: 'ranged',
                 range: { kind: 'distance', m: 16 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Curse', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Curse', rank: 2 }]
             },
             '4': {
-                lvl: 4,
                 type: 'ranged',
                 range: { kind: 'distance', m: 20 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '6d8 damage', dice: '6d8' },
-                specials: [{ key: 'Curse', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Curse', rank: 2 }]
             }
         }
     },
@@ -70,40 +66,36 @@ export const CURSEWEAVER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'ranged',
                 range: { kind: 'distance', m: 8 },
-                aoe: { shape: 'radius', radiusM: 2 },
+                aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Enemies suffer −1 Attack Die' },
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'ranged',
                 range: { kind: 'distance', m: 12 },
-                aoe: { shape: 'radius', radiusM: 4 },
+                aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Enemies suffer −2 Attack Dice, −1 Save Die' },
-                specials: [{ key: 'Mark', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Mark', rank: 1 }]
             },
             '3': {
-                lvl: 3,
                 type: 'ranged',
                 range: { kind: 'distance', m: 16 },
-                aoe: { shape: 'radius', radiusM: 6 },
+                aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Enemies suffer −2 Attack Dice, −1 Save Die' },
-                specials: [{ key: 'Mark', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Mark', rank: 2 }]
             },
             '4': {
-                lvl: 4,
                 type: 'ranged',
                 range: { kind: 'distance', m: 20 },
-                aoe: { shape: 'radius', radiusM: 8 },
+                aoe: { shape: 'radius', m: 8 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Enemies suffer −3 Attack Dice, −1 Save Die' },
-                specials: [{ key: 'Mark', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Mark', rank: 2 }]
             }
         }
     },
@@ -113,7 +105,7 @@ export const CURSEWEAVER_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -121,7 +113,6 @@ export const CURSEWEAVER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -130,7 +121,6 @@ export const CURSEWEAVER_POWERS = [
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -139,7 +129,6 @@ export const CURSEWEAVER_POWERS = [
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -148,7 +137,6 @@ export const CURSEWEAVER_POWERS = [
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -164,7 +152,7 @@ export const CURSEWEAVER_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -172,7 +160,6 @@ export const CURSEWEAVER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -181,7 +168,6 @@ export const CURSEWEAVER_POWERS = [
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -190,7 +176,6 @@ export const CURSEWEAVER_POWERS = [
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -199,7 +184,6 @@ export const CURSEWEAVER_POWERS = [
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -215,7 +199,7 @@ export const CURSEWEAVER_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -223,39 +207,35 @@ export const CURSEWEAVER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +2 Initiative and +2 Concealment while at least 1 enemy is Cursed', flat: 2 },
+                effect: { text: 'Gain +2 Initiative and +2 Concealment while at least 1 enemy is Cursed' },
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +4 Initiative and +4 Concealment while at least 1 enemy is Cursed', flat: 4 },
+                effect: { text: 'Gain +4 Initiative and +4 Concealment while at least 1 enemy is Cursed' },
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +6 Initiative and +6 Concealment while at least 2 enemies are Cursed or Marked', flat: 6 },
+                effect: { text: 'Gain +6 Initiative and +6 Concealment while at least 2 enemies are Cursed or Marked' },
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +8 Initiative and +8 Concealment while at least 3 enemies are Cursed or Marked', flat: 8 },
+                effect: { text: 'Gain +8 Initiative and +8 Concealment while at least 3 enemies are Cursed or Marked' },
                 specials: []
             }
         }

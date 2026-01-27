@@ -272,7 +272,7 @@ export function migrateArtifactPower(oldPower) {
         })
     };
     // Clone level 1 for levels 2-4, ensuring nulls are used instead of undefined
-    const cloneLevel = (levelNum) => ({
+    const cloneLevel = () => ({
         type: level1.type,
         range: level1.range === null ? null : { ...level1.range },
         aoe: level1.aoe === null ? null : { ...level1.aoe },
@@ -288,9 +288,9 @@ export function migrateArtifactPower(oldPower) {
         cost: convertCost(oldPower.cost || {}, oldPower.powerType),
         levels: {
             '1': level1,
-            '2': cloneLevel('2'),
-            '3': cloneLevel('3'),
-            '4': cloneLevel('4')
+            '2': cloneLevel(),
+            '3': cloneLevel(),
+            '4': cloneLevel()
         }
     };
     // Add trigger for reactions

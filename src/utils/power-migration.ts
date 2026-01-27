@@ -5,17 +5,16 @@
 
 import type {
   ArtifactPowerData,
-  NewArtifactPowerData,
   EmbeddedPowerData,
   PowerData,
   PowerCategory,
   PowerLevelRow,
+  PowerSpecial,
   RangeSpec,
   AoeSpec,
   DurationSpec,
   EffectSpec,
-  PowerCost,
-  PowerActionCost
+  PowerCost
 } from '../types/item.js';
 
 /**
@@ -286,7 +285,7 @@ function determineType(powerType: string, tags: string[], rangeStr: string): str
  * Generate a unique ID for a power
  */
 function generatePowerId(): string {
-  return foundry.utils.randomID();
+  return (foundry.utils as any).randomID();
 }
 
 /**
@@ -319,7 +318,7 @@ export function migrateArtifactPower(oldPower: ArtifactPowerData): EmbeddedPower
   };
   
   // Clone level 1 for levels 2-4, ensuring nulls are used instead of undefined
-  const cloneLevel = (levelNum: '2' | '3' | '4'): PowerLevelRow => ({
+  const cloneLevel = (): PowerLevelRow => ({
     type: level1.type,
     range: level1.range === null ? null : { ...level1.range },
     aoe: level1.aoe === null ? null : { ...level1.aoe },
@@ -336,9 +335,9 @@ export function migrateArtifactPower(oldPower: ArtifactPowerData): EmbeddedPower
     cost: convertCost(oldPower.cost || {}, oldPower.powerType),
     levels: {
       '1': level1,
-      '2': cloneLevel('2'),
-      '3': cloneLevel('3'),
-      '4': cloneLevel('4')
+      '2': cloneLevel(),
+      '3': cloneLevel(),
+      '4': cloneLevel()
     }
   };
   

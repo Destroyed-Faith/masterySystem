@@ -18,8 +18,9 @@ export interface BaseItemData {
 // === Power Structure Types (New Structure) ===
 
 export type PowerCategory = 'active' | 'activeBuff' | 'utility' | 'reaction' | 'passive' | 'movement';
-export type PowerActionCost = 'attack' | 'movement' | 'full' | 'reaction' | 'none';
+export type PowerActionCost = 'attack' | 'movement' | 'full' | 'reaction' | 'none' | 'utility';
 export type PowerLevelKey = '1' | '2' | '3' | '4';
+export type PowerRollKind = string;
 
 export interface RangeSpec {
   kind: 'self' | 'touch' | 'melee' | 'distance';
@@ -28,13 +29,18 @@ export interface RangeSpec {
 }
 
 export interface AoeSpec {
-  shape: 'radius' | 'cone' | 'line' | 'burst' | 'none';
+  shape: 'radius' | 'cone' | 'line' | 'burst' | 'none' | 'single' | 'weapon' | 'aura';
   m?: number;
+  radiusM?: number;
+  lengthM?: number;
+  widthM?: number;
+  angleDeg?: number;
+  targets?: number;
   note?: string;
 }
 
 export interface DurationSpec {
-  kind: 'instant' | 'rounds' | 'masteryRounds' | 'untilNextTurn' | 'scene';
+  kind: 'instant' | 'rounds' | 'masteryRounds' | 'masteryRankRounds' | 'untilNextTurn' | 'scene';
   rounds?: number;
   note?: string;
 }
@@ -47,6 +53,8 @@ export interface EffectSpec {
 export interface PowerSpecial {
   key: string;
   rank?: number; // Optional rank/value
+  value?: number;
+  raiseCost?: number;
   note?: string;
 }
 
@@ -62,7 +70,9 @@ export interface PowerLevelRow {
   aoe: AoeSpec | null;
   duration: DurationSpec;
   effect: EffectSpec;
-  specials: Array<{ key: string; rank?: number; note?: string }>;
+  specials: Array<{ key: string; rank?: number; value?: number; raiseCost?: number; note?: string }>;
+  trigger?: string;
+  lvl?: number;
 }
 
 export interface PowerCostLimit {
@@ -79,12 +89,17 @@ export interface PowerCost {
 
 // Embedded Power Data (for artifacts and trees)
 export interface EmbeddedPowerData {
-  id: string;
+  id?: string;
   name: string;
   category: PowerCategory;
   tags: string[]; // e.g. "spell", "charged", etc
   cost: PowerCost;
   trigger?: string; // mainly for reaction/passive
+  roll?: {
+    kind: PowerRollKind;
+    attribute?: string;
+    vs?: string;
+  };
   levels: Record<PowerLevelKey, PowerLevelRow>;
 }
 
@@ -162,7 +177,7 @@ export interface PowerData extends BaseItemData {
   rank?: number; // 1–4, aktuelles Level der Power
   trigger?: string; // für Reactions
   newCost?: {
-    action: PowerActionCost;
+    action?: PowerActionCost;
     stones?: number;
     charges?: number;
     note?: string;

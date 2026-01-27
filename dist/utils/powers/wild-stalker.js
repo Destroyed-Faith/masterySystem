@@ -19,40 +19,36 @@ export const WILD_STALKER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'ranged',
                 range: { kind: 'distance', m: 8 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8', dice: '1d8' },
-                specials: [{ key: 'Entangled', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Entangled', rank: 2 }]
             },
             '2': {
-                lvl: 2,
                 type: 'ranged',
                 range: { kind: 'distance', m: 16 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Entangled', value: 3, raiseCost: 3 }]
+                specials: [{ key: 'Entangled', rank: 3 }]
             },
             '3': {
-                lvl: 3,
                 type: 'ranged',
                 range: { kind: 'distance', m: 24 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Entangled', value: 4, raiseCost: 4 }]
+                specials: [{ key: 'Entangled', rank: 4 }]
             },
             '4': {
-                lvl: 4,
                 type: 'ranged',
                 range: { kind: 'distance', m: 32 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Entangled', value: 5, raiseCost: 5 }, { key: 'Prone', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Entangled', rank: 5 }, { key: 'Prone', rank: 1 }]
             }
         }
     },
@@ -62,7 +58,7 @@ export const WILD_STALKER_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -71,40 +67,36 @@ export const WILD_STALKER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'utility',
                 range: { kind: 'distance', m: 8 },
-                aoe: { shape: 'radius', radiusM: 2 },
+                aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Weapon DMG' },
-                specials: [{ key: 'Entangled', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Entangled', rank: 1 }]
             },
             '2': {
-                lvl: 2,
                 type: 'utility',
                 range: { kind: 'distance', m: 12 },
-                aoe: { shape: 'radius', radiusM: 3 },
+                aoe: { shape: 'radius', m: 3 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Weapon DMG +1d8', dice: '1d8' },
-                specials: [{ key: 'Entangled', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Entangled', rank: 2 }]
             },
             '3': {
-                lvl: 3,
                 type: 'utility',
                 range: { kind: 'distance', m: 16 },
-                aoe: { shape: 'radius', radiusM: 4 },
+                aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Entangled', value: 3, raiseCost: 3 }]
+                specials: [{ key: 'Entangled', rank: 3 }]
             },
             '4': {
-                lvl: 4,
                 type: 'utility',
                 range: { kind: 'distance', m: 20 },
-                aoe: { shape: 'radius', radiusM: 4 },
+                aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Entangled', value: 4, raiseCost: 4 }]
+                specials: [{ key: 'Entangled', rank: 4 }]
             }
         }
     },
@@ -123,40 +115,36 @@ export const WILD_STALKER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'ranged',
                 range: { kind: 'distance', m: 8 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8', dice: '1d8' },
-                specials: [{ key: 'Frightened', value: 2, raiseCost: 2, note: 'if target is Entangled' }]
+                specials: [{ key: 'Frightened', rank: 2, note: 'if target is Entangled' }]
             },
             '2': {
-                lvl: 2,
                 type: 'ranged',
                 range: { kind: 'distance', m: 12 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Frightened', value: 3, raiseCost: 3, note: 'if Entangled' }]
+                specials: [{ key: 'Frightened', rank: 3, note: 'if Entangled' }]
             },
             '3': {
-                lvl: 3,
                 type: 'ranged',
                 range: { kind: 'distance', m: 16 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Frightened', value: 4, raiseCost: 4, note: 'if Entangled' }]
+                specials: [{ key: 'Frightened', rank: 4, note: 'if Entangled' }]
             },
             '4': {
-                lvl: 4,
                 type: 'ranged',
                 range: { kind: 'distance', m: 20 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Frightened', value: 5, raiseCost: 5, note: 'if Entangled' }]
+                specials: [{ key: 'Frightened', rank: 5, note: 'if Entangled' }]
             }
         }
     },
@@ -166,7 +154,7 @@ export const WILD_STALKER_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -174,38 +162,34 @@ export const WILD_STALKER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'vs Frightened: −4 Evade + +1d8 damage', dice: '1d8' },
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'vs Frightened: −6 Evade + +2d8 damage', dice: '2d8' },
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'vs Frightened: −8 Evade + +3d8 damage + Crit(1)', dice: '3d8' },
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'vs Frightened: −10 Evade + +4d8 damage + Crit(2)', dice: '4d8' },
                 specials: []
             }
@@ -226,40 +210,36 @@ export const WILD_STALKER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'ranged',
                 range: { kind: 'distance', m: 0, note: 'Weapon range' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Penetration', value: 1, raiseCost: 1, note: 'if target is Entangled or Frightened' }]
+                specials: [{ key: 'Penetration', rank: 1, note: 'if target is Entangled or Frightened' }]
             },
             '2': {
-                lvl: 2,
                 type: 'ranged',
                 range: { kind: 'distance', m: 0, note: 'Weapon range' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Penetration', value: 2, raiseCost: 2, note: 'if Entangled or Frightened' }]
+                specials: [{ key: 'Penetration', rank: 2, note: 'if Entangled or Frightened' }]
             },
             '3': {
-                lvl: 3,
                 type: 'ranged',
                 range: { kind: 'distance', m: 0, note: 'Weapon range' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Penetration', value: 3, raiseCost: 3, note: 'if Entangled or Frightened' }]
+                specials: [{ key: 'Penetration', rank: 3, note: 'if Entangled or Frightened' }]
             },
             '4': {
-                lvl: 4,
                 type: 'ranged',
                 range: { kind: 'distance', m: 0, note: 'Weapon range' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +5d8', dice: '5d8' },
-                specials: [{ key: 'Penetration', value: 4, raiseCost: 4, note: 'if Entangled or Frightened' }]
+                specials: [{ key: 'Penetration', rank: 4, note: 'if Entangled or Frightened' }]
             }
         }
     },
@@ -269,7 +249,7 @@ export const WILD_STALKER_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -277,7 +257,6 @@ export const WILD_STALKER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -286,7 +265,6 @@ export const WILD_STALKER_POWERS = [
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -295,7 +273,6 @@ export const WILD_STALKER_POWERS = [
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -304,7 +281,6 @@ export const WILD_STALKER_POWERS = [
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -320,7 +296,7 @@ export const WILD_STALKER_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -328,39 +304,35 @@ export const WILD_STALKER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'While Hidden, gain +4 Evade', flat: 4 },
+                effect: { text: 'While Hidden, gain +4 Evade' },
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'While Hidden, gain +8 Evade', flat: 8 },
+                effect: { text: 'While Hidden, gain +8 Evade' },
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'While Hidden, gain +13 Evade', flat: 13 },
+                effect: { text: 'While Hidden, gain +13 Evade' },
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'While Hidden, gain +17 Evade', flat: 17 },
+                effect: { text: 'While Hidden, gain +17 Evade' },
                 specials: []
             }
         }
@@ -371,7 +343,7 @@ export const WILD_STALKER_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -379,39 +351,35 @@ export const WILD_STALKER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +3 Concealment and +4 Initiative', flat: 4 },
+                effect: { text: 'Gain +3 Concealment and +4 Initiative' },
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +6 Concealment and +8 Initiative', flat: 8 },
+                effect: { text: 'Gain +6 Concealment and +8 Initiative' },
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +9 Concealment and +12 Initiative', flat: 12 },
+                effect: { text: 'Gain +9 Concealment and +12 Initiative' },
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +12 Concealment and +16 Initiative', flat: 16 },
+                effect: { text: 'Gain +12 Concealment and +16 Initiative' },
                 specials: []
             }
         }

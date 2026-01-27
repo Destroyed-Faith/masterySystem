@@ -8,7 +8,10 @@ import type { RangeSpec, AoeSpec, DurationSpec, PowerSpecial, PowerLevelRow } fr
 /**
  * Render a RangeSpec to a human-readable string
  */
-export function renderRange(range: RangeSpec): string {
+export function renderRange(range: RangeSpec | null): string {
+  if (!range) {
+    return '—';
+  }
   if (range.kind === 'self') {
     return 'Self';
   }
@@ -27,7 +30,10 @@ export function renderRange(range: RangeSpec): string {
 /**
  * Render an AoeSpec to a human-readable string
  */
-export function renderAoe(aoe: AoeSpec): string {
+export function renderAoe(aoe: AoeSpec | null): string {
+  if (!aoe) {
+    return '—';
+  }
   if (aoe.shape === 'none' || aoe.shape === 'single') {
     return '—';
   }

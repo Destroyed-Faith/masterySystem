@@ -6,6 +6,9 @@
  * Render a RangeSpec to a human-readable string
  */
 export function renderRange(range) {
+    if (!range) {
+        return '—';
+    }
     if (range.kind === 'self') {
         return 'Self';
     }
@@ -24,6 +27,9 @@ export function renderRange(range) {
  * Render an AoeSpec to a human-readable string
  */
 export function renderAoe(aoe) {
+    if (!aoe) {
+        return '—';
+    }
     if (aoe.shape === 'none' || aoe.shape === 'single') {
         return '—';
     }

@@ -6,11 +6,11 @@ import type { RangeSpec, AoeSpec, DurationSpec, PowerSpecial, PowerLevelRow } fr
 /**
  * Render a RangeSpec to a human-readable string
  */
-export declare function renderRange(range: RangeSpec): string;
+export declare function renderRange(range: RangeSpec | null): string;
 /**
  * Render an AoeSpec to a human-readable string
  */
-export declare function renderAoe(aoe: AoeSpec): string;
+export declare function renderAoe(aoe: AoeSpec | null): string;
 /**
  * Render a DurationSpec to a human-readable string
  */

@@ -5,7 +5,6 @@
 
 import type { EmbeddedPowerData, ArtifactData, PowerLevelKey } from '../types/item.js';
 import { isOldPowerStructure, migrateArtifactPower } from '../utils/power-migration.js';
-import { validatePower } from '../utils/power-validation.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -95,7 +94,7 @@ export class ArtifactSheetV2 extends BaseSheet {
       item: this.item,
       system,
       powers,
-      isEditable: this.item.isOwner,
+      isEditable: (this.item as any).isOwner,
       categories: ['active', 'activeBuff', 'utility', 'movement', 'reaction', 'passive'] as const,
       actionCosts: ['attack', 'movement', 'full', 'reaction', 'none'] as const,
       rangeKinds: ['self', 'touch', 'melee', 'distance'] as const,
@@ -108,7 +107,7 @@ export class ArtifactSheetV2 extends BaseSheet {
   async _onRender(_element: HTMLElement, _options: any): Promise<void> {
     await super._onRender?.(_element, _options);
     
-    if (!this.item.isOwner) return;
+    if (!(this.item as any).isOwner) return;
     
     const html = this.element;
     if (!html) return;
@@ -148,11 +147,16 @@ export class ArtifactSheetV2 extends BaseSheet {
     event.stopPropagation();
     
     const system = this.item.system as ArtifactData;
-    const powers = [...(system.powers || [])];
+    const powers = (system.powers || []).map((power: any) => {
+      if (isOldPowerStructure(power)) {
+        return migrateArtifactPower(power);
+      }
+      return power;
+    });
     
     if (action === 'add-power') {
       const newPower: EmbeddedPowerData = {
-        id: foundry.utils.randomID(),
+        id: (foundry.utils as any).randomID(),
         name: 'New Power',
         category: 'active',
         tags: [],
@@ -173,7 +177,7 @@ export class ArtifactSheetV2 extends BaseSheet {
         const powerToClone = powers[index];
         const cloned: EmbeddedPowerData = {
           ...powerToClone,
-          id: foundry.utils.randomID(),
+          id: (foundry.utils as any).randomID(),
           name: `${powerToClone.name} (Copy)`
         };
         powers.splice(index + 1, 0, cloned);
@@ -188,7 +192,6 @@ export class ArtifactSheetV2 extends BaseSheet {
         await this.render();
       }
     } else if (action === 'toggle-power') {
-      const index = parseInt(target.dataset.index || '0');
       const powerElement = target.closest('.power-item');
       if (powerElement) {
         const editor = powerElement.querySelector('.power-editor');
@@ -349,7 +352,12 @@ export class ArtifactSheetV2 extends BaseSheet {
     const specialIndex = target.dataset.specialIndex ? parseInt(target.dataset.specialIndex) : undefined;
     
     const system = this.item.system as ArtifactData;
-    const powers = [...(system.powers || [])];
+    const powers = (system.powers || []).map((power: any) => {
+      if (isOldPowerStructure(power)) {
+        return migrateArtifactPower(power);
+      }
+      return power;
+    });
     
     if (powerIndex >= 0 && powerIndex < powers.length) {
       const power = { ...powers[powerIndex] };

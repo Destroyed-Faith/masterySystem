@@ -22,7 +22,7 @@ export const CRANE_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
@@ -31,7 +31,7 @@ export const CRANE_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
@@ -40,7 +40,7 @@ export const CRANE_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
@@ -49,7 +49,7 @@ export const CRANE_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
@@ -75,7 +75,7 @@ export const CRANE_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'reaction',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -85,7 +85,7 @@ export const CRANE_POWERS: NewArtifactPowerData[] = [
                 trigger: 'When you are attacked'
             },
             '2': {
-                lvl: 2,
+
                 type: 'reaction',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -95,23 +95,23 @@ export const CRANE_POWERS: NewArtifactPowerData[] = [
                 trigger: 'When you are attacked'
             },
             '3': {
-                lvl: 3,
+
                 type: 'reaction',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Attempt to Grapple with +3d8; on success, the target is Prone(1)', dice: '3d8' },
-                specials: [{ key: 'Prone', value: 1, raiseCost: 1 }],
+                specials: [{ key: 'Prone', rank: 1 }],
                 trigger: 'When you are attacked'
             },
             '4': {
-                lvl: 4,
+
                 type: 'reaction',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Attempt to Grapple with +4d8; on success, the target is Prone(1)', dice: '4d8' },
-                specials: [{ key: 'Prone', value: 1, raiseCost: 1 }],
+                specials: [{ key: 'Prone', rank: 1 }],
                 trigger: 'When you are attacked'
             }
         }
@@ -122,7 +122,7 @@ export const CRANE_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -130,39 +130,39 @@ export const CRANE_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
-                effect: { text: 'Gain +1 Might', flat: 1 },
+                duration: { kind: 'masteryRounds' },
+                effect: { text: 'Gain +1 Might'},
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
-                effect: { text: 'Gain +2 Might', flat: 2 },
+                duration: { kind: 'masteryRounds' },
+                effect: { text: 'Gain +2 Might'},
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
-                effect: { text: 'Gain +3 Might', flat: 3 },
+                duration: { kind: 'masteryRounds' },
+                effect: { text: 'Gain +3 Might'},
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
-                effect: { text: 'Gain +4 Might', flat: 4 },
+                duration: { kind: 'masteryRounds' },
+                effect: { text: 'Gain +4 Might'},
                 specials: []
             }
         }
@@ -173,7 +173,7 @@ export const CRANE_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -181,39 +181,39 @@ export const CRANE_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
-                effect: { text: 'Gain +1 Agility', flat: 1 },
+                duration: { kind: 'masteryRounds' },
+                effect: { text: 'Gain +1 Agility'},
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
-                effect: { text: 'Gain +2 Agility', flat: 2 },
+                duration: { kind: 'masteryRounds' },
+                effect: { text: 'Gain +2 Agility'},
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
-                effect: { text: 'Gain +3 Agility', flat: 3 },
+                duration: { kind: 'masteryRounds' },
+                effect: { text: 'Gain +3 Agility'},
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
-                effect: { text: 'Gain +4 Agility', flat: 4 },
+                duration: { kind: 'masteryRounds' },
+                effect: { text: 'Gain +4 Agility'},
                 specials: []
             }
         }
@@ -224,7 +224,7 @@ export const CRANE_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -232,7 +232,7 @@ export const CRANE_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -241,30 +241,30 @@ export const CRANE_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +1 Might and you may reroll one failed Body Save per round', flat: 1 },
+                effect: { text: 'Gain +1 Might and you may reroll one failed Body Save per round'},
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +1 Might and you may reroll two failed Body Saves per round', flat: 1 },
+                effect: { text: 'Gain +1 Might and you may reroll two failed Body Saves per round'},
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +2 Might and you may reroll two failed Body Saves per round', flat: 2 },
+                effect: { text: 'Gain +2 Might and you may reroll two failed Body Saves per round'},
                 specials: []
             }
         }
@@ -275,7 +275,7 @@ export const CRANE_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -283,7 +283,7 @@ export const CRANE_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -292,30 +292,30 @@ export const CRANE_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +1 Agility and you may reroll one failed Evade roll per round', flat: 1 },
+                effect: { text: 'Gain +1 Agility and you may reroll one failed Evade roll per round'},
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +1 Agility and you may reroll two failed Evade rolls per round', flat: 1 },
+                effect: { text: 'Gain +1 Agility and you may reroll two failed Evade rolls per round'},
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +2 Agility and you may reroll two failed Evade rolls per round', flat: 2 },
+                effect: { text: 'Gain +2 Agility and you may reroll two failed Evade rolls per round'},
                 specials: []
             }
         }
@@ -326,7 +326,7 @@ export const CRANE_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -334,39 +334,39 @@ export const CRANE_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: '+4 Evade', flat: 4 },
+                effect: { text: '+4 Evade'},
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: '+8 Evade', flat: 8 },
+                effect: { text: '+8 Evade'},
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: '+12 Evade', flat: 12 },
+                effect: { text: '+12 Evade'},
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: '+12 Evade; when unarmed, reduce ranged damage you take by 25%', flat: 12 },
+                effect: { text: '+12 Evade; when unarmed, reduce ranged damage you take by 25%'},
                 specials: []
             }
         }
@@ -377,7 +377,7 @@ export const CRANE_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -385,39 +385,39 @@ export const CRANE_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +1d8 on Perception rolls to detect danger and +2 Initiative', dice: '1d8', flat: 2 },
+                effect: { text: 'Gain +1d8 on Perception rolls to detect danger and +2 Initiative', dice: '1d8'},
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +2d8 on Perception rolls and +4 Initiative', dice: '2d8', flat: 4 },
+                effect: { text: 'Gain +2d8 on Perception rolls and +4 Initiative', dice: '2d8'},
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +3d8 on Perception rolls, +4 Initiative, and +2 Evade', dice: '3d8', flat: 6 },
+                effect: { text: 'Gain +3d8 on Perception rolls, +4 Initiative, and +2 Evade', dice: '3d8'},
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +4d8 on Perception rolls, +2 Initiative, and +2 Evade. You are immune to being surprised', dice: '4d8', flat: 4 },
+                effect: { text: 'Gain +4d8 on Perception rolls, +2 Initiative, and +2 Evade. You are immune to being surprised', dice: '4d8'},
                 specials: []
             }
         }

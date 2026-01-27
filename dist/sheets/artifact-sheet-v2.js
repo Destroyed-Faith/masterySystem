@@ -122,7 +122,12 @@ export class ArtifactSheetV2 extends BaseSheet {
         event.preventDefault();
         event.stopPropagation();
         const system = this.item.system;
-        const powers = [...(system.powers || [])];
+        const powers = (system.powers || []).map((power) => {
+            if (isOldPowerStructure(power)) {
+                return migrateArtifactPower(power);
+            }
+            return power;
+        });
         if (action === 'add-power') {
             const newPower = {
                 id: foundry.utils.randomID(),
@@ -164,7 +169,6 @@ export class ArtifactSheetV2 extends BaseSheet {
             }
         }
         else if (action === 'toggle-power') {
-            const index = parseInt(target.dataset.index || '0');
             const powerElement = target.closest('.power-item');
             if (powerElement) {
                 const editor = powerElement.querySelector('.power-editor');
@@ -329,7 +333,12 @@ export class ArtifactSheetV2 extends BaseSheet {
         const levelKey = target.dataset.levelKey;
         const specialIndex = target.dataset.specialIndex ? parseInt(target.dataset.specialIndex) : undefined;
         const system = this.item.system;
-        const powers = [...(system.powers || [])];
+        const powers = (system.powers || []).map((power) => {
+            if (isOldPowerStructure(power)) {
+                return migrateArtifactPower(power);
+            }
+            return power;
+        });
         if (powerIndex >= 0 && powerIndex < powers.length) {
             const power = { ...powers[powerIndex] };
             if (!power.levels) {

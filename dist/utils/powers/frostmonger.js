@@ -19,40 +19,36 @@ export const FROSTMONGER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'ranged',
                 range: { kind: 'distance', m: 8 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Freeze', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Freeze', rank: 1 }]
             },
             '2': {
-                lvl: 2,
                 type: 'ranged',
                 range: { kind: 'distance', m: 12 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Freeze', value: 3, raiseCost: 3 }]
+                specials: [{ key: 'Freeze', rank: 3 }]
             },
             '3': {
-                lvl: 3,
                 type: 'ranged',
                 range: { kind: 'distance', m: 16 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Freeze', value: 4, raiseCost: 4 }]
+                specials: [{ key: 'Freeze', rank: 4 }]
             },
             '4': {
-                lvl: 4,
                 type: 'ranged',
                 range: { kind: 'distance', m: 20 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '5d8 damage', dice: '5d8' },
-                specials: [{ key: 'Freeze', value: 5, raiseCost: 5 }]
+                specials: [{ key: 'Freeze', rank: 5 }]
             }
         }
     },
@@ -71,40 +67,36 @@ export const FROSTMONGER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'ranged',
                 range: { kind: 'distance', m: 8 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Freeze', value: 2, raiseCost: 2 }, { key: 'Entangled', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Freeze', rank: 2 }, { key: 'Entangled', rank: 2 }]
             },
             '2': {
-                lvl: 2,
                 type: 'ranged',
                 range: { kind: 'distance', m: 12 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Freeze', value: 3, raiseCost: 3 }, { key: 'Entangled', value: 3, raiseCost: 3 }]
+                specials: [{ key: 'Freeze', rank: 3 }, { key: 'Entangled', rank: 3 }]
             },
             '3': {
-                lvl: 3,
                 type: 'ranged',
                 range: { kind: 'distance', m: 16 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Freeze', value: 4, raiseCost: 4 }, { key: 'Entangled', value: 4, raiseCost: 4 }]
+                specials: [{ key: 'Freeze', rank: 4 }, { key: 'Entangled', rank: 4 }]
             },
             '4': {
-                lvl: 4,
                 type: 'ranged',
                 range: { kind: 'distance', m: 20 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Freeze', value: 5, raiseCost: 5 }, { key: 'Entangled', value: 5, raiseCost: 5 }]
+                specials: [{ key: 'Freeze', rank: 5 }, { key: 'Entangled', rank: 5 }]
             }
         }
     },
@@ -114,7 +106,7 @@ export const FROSTMONGER_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -122,7 +114,6 @@ export const FROSTMONGER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -131,7 +122,6 @@ export const FROSTMONGER_POWERS = [
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -140,7 +130,6 @@ export const FROSTMONGER_POWERS = [
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -149,7 +138,6 @@ export const FROSTMONGER_POWERS = [
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -165,7 +153,7 @@ export const FROSTMONGER_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -173,39 +161,35 @@ export const FROSTMONGER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +2 Armor (×2 vs. Fire)', flat: 2 },
+                effect: { text: 'Gain +2 Armor (×2 vs. Fire)' },
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +4 Armor (×2 vs. Fire)', flat: 4 },
+                effect: { text: 'Gain +4 Armor (×2 vs. Fire)' },
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +6 Armor (×2 vs. Fire)', flat: 6 },
+                effect: { text: 'Gain +6 Armor (×2 vs. Fire)' },
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +8 Armor (×2 vs. Fire) and become immune to Burn/Ignite', flat: 8 },
+                effect: { text: 'Gain +8 Armor (×2 vs. Fire) and become immune to Burn/Ignite' },
                 specials: []
             }
         }
@@ -216,7 +200,7 @@ export const FROSTMONGER_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -224,7 +208,6 @@ export const FROSTMONGER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -233,7 +216,6 @@ export const FROSTMONGER_POWERS = [
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -242,7 +224,6 @@ export const FROSTMONGER_POWERS = [
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -251,7 +232,6 @@ export const FROSTMONGER_POWERS = [
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -267,7 +247,7 @@ export const FROSTMONGER_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -275,37 +255,33 @@ export const FROSTMONGER_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 2 },
+                aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Enemies within 2m suffer −1 Attack Die' },
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 4 },
+                aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Enemies within 4m suffer −2 Attack Dice' },
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 6 },
+                aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Enemies within 6m suffer −2 Attack Dice and −1 Save Pool' },
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 8 },
+                aoe: { shape: 'radius', m: 8 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Enemies within 8m suffer −3 Attack Dice and −1 Save Pool' },
                 specials: []

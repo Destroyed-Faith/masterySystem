@@ -13,7 +13,7 @@ export const LOTUS_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -21,38 +21,38 @@ export const LOTUS_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'utility',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'At the end of each of your turns in which you dealt no damage, heal 1d8 and gain up to +1 Free Raise for your next roll (expires at end of your next turn)', dice: '1d8' },
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'utility',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'As above, but heal 2d8 and gain up to +2 Free Raises', dice: '2d8' },
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'utility',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'As above, but heal 3d8 and gain up to +3 Free Raises', dice: '3d8' },
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'utility',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'As above, but heal 4d8 and gain up to +4 Free Raises', dice: '4d8' },
                 specials: []
             }
@@ -64,7 +64,7 @@ export const LOTUS_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -72,38 +72,38 @@ export const LOTUS_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Your Spells and Unarmed Attacks gain +1 Free Raise' },
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'As above, but +2 Free Raises' },
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'As above, but +3 Free Raises' },
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'As above, but +4 Free Raises' },
                 specials: []
             }
@@ -115,7 +115,7 @@ export const LOTUS_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -123,38 +123,38 @@ export const LOTUS_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Gain +1 Resolve' },
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Gain +2 Resolve' },
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Gain +3 Resolve' },
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Gain +4 Resolve' },
                 specials: []
             }
@@ -166,7 +166,7 @@ export const LOTUS_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -174,38 +174,38 @@ export const LOTUS_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Gain +1 Intelligence' },
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Gain +2 Intelligence' },
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Gain +3 Intelligence' },
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Gain +4 Intelligence' },
                 specials: []
             }
@@ -217,7 +217,7 @@ export const LOTUS_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -225,7 +225,7 @@ export const LOTUS_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -234,7 +234,7 @@ export const LOTUS_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -243,7 +243,7 @@ export const LOTUS_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -252,7 +252,7 @@ export const LOTUS_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -268,7 +268,7 @@ export const LOTUS_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -276,7 +276,7 @@ export const LOTUS_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -285,7 +285,7 @@ export const LOTUS_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -294,7 +294,7 @@ export const LOTUS_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -303,7 +303,7 @@ export const LOTUS_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -319,7 +319,7 @@ export const LOTUS_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -327,7 +327,7 @@ export const LOTUS_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -336,7 +336,7 @@ export const LOTUS_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -345,7 +345,7 @@ export const LOTUS_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -354,7 +354,7 @@ export const LOTUS_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },

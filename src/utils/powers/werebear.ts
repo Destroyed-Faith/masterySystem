@@ -29,40 +29,40 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Paw Attack +1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Push', value: 3, raiseCost: 3 }, { key: 'Expose', value: 1, raiseCost: 1 }, { key: 'Mark', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Push', rank: 3 }, { key: 'Expose', rank: 1 }, { key: 'Mark', rank: 1 }]
             },
             '2': {
-                lvl: 2,
+
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Paw Attack +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Push', value: 4, raiseCost: 4 }, { key: 'Expose', value: 2, raiseCost: 2 }, { key: 'Mark', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Push', rank: 4 }, { key: 'Expose', rank: 2 }, { key: 'Mark', rank: 2 }]
             },
             '3': {
-                lvl: 3,
+
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Paw Attack +3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Push', value: 4, raiseCost: 4 }, { key: 'Expose', value: 2, raiseCost: 2 }, { key: 'Mark', value: 3, raiseCost: 3 }]
+                specials: [{ key: 'Push', rank: 4 }, { key: 'Expose', rank: 2 }, { key: 'Mark', rank: 3 }]
             },
             '4': {
-                lvl: 4,
+
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Paw Attack +4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Push', value: 5, raiseCost: 5 }, { key: 'Expose', value: 2, raiseCost: 2 }, { key: 'Mark', value: 4, raiseCost: 4 }]
+                specials: [{ key: 'Push', rank: 5 }, { key: 'Expose', rank: 2 }, { key: 'Mark', rank: 4 }]
             }
         }
     },
@@ -81,40 +81,40 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'On hit: target is held' },
-                specials: [{ key: 'Grappled', value: 1, raiseCost: 1 }, { key: 'Expose', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Grappled', rank: 1 }, { key: 'Expose', rank: 1 }]
             },
             '2': {
-                lvl: 2,
+
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'On hit: Paw DMG +1d8', dice: '1d8' },
-                specials: [{ key: 'Grappled', value: 2, raiseCost: 2 }, { key: 'Expose', value: 2, raiseCost: 2 }, { key: 'Push', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Grappled', rank: 2 }, { key: 'Expose', rank: 2 }, { key: 'Push', rank: 2 }]
             },
             '3': {
-                lvl: 3,
+
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'On hit: Paw DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Grappled', value: 3, raiseCost: 3 }, { key: 'Expose', value: 2, raiseCost: 2 }, { key: 'Mark', value: 2, raiseCost: 2 }, { key: 'Push', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Grappled', rank: 3 }, { key: 'Expose', rank: 2 }, { key: 'Mark', rank: 2 }, { key: 'Push', rank: 2 }]
             },
             '4': {
-                lvl: 4,
+
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'On hit: Paw DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Grappled', value: 4, raiseCost: 4 }, { key: 'Expose', value: 3, raiseCost: 3 }, { key: 'Mark', value: 3, raiseCost: 3 }]
+                specials: [{ key: 'Grappled', rank: 4 }, { key: 'Expose', rank: 3 }, { key: 'Mark', rank: 3 }]
             }
         }
     },
@@ -124,7 +124,7 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -134,40 +134,40 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'utility',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 4 },
+                aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in AoE must make Mind Saves. On fail: Mark(1)' },
-                specials: [{ key: 'Mark', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Mark', rank: 1 }]
             },
             '2': {
-                lvl: 2,
+
                 type: 'utility',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 6 },
+                aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'instant' },
                 effect: { text: 'As above. On fail: Mark(2)' },
-                specials: [{ key: 'Mark', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Mark', rank: 2 }]
             },
             '3': {
-                lvl: 3,
+
                 type: 'utility',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 8 },
+                aoe: { shape: 'radius', m: 8 },
                 duration: { kind: 'instant' },
                 effect: { text: 'As above. On fail: Mark(3)' },
-                specials: [{ key: 'Mark', value: 3, raiseCost: 3 }]
+                specials: [{ key: 'Mark', rank: 3 }]
             },
             '4': {
-                lvl: 4,
+
                 type: 'utility',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 10 },
+                aoe: { shape: 'radius', m: 10 },
                 duration: { kind: 'instant' },
                 effect: { text: 'As above. On fail: Mark(3) and Suppress(1) (Mind Save negates Suppress)' },
-                specials: [{ key: 'Mark', value: 3, raiseCost: 3 }, { key: 'Suppress', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Mark', rank: 3 }, { key: 'Suppress', rank: 1 }]
             }
         }
     },
@@ -177,7 +177,7 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -185,39 +185,39 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +2 Armor and +1 Body Save Die while in Werebear form', flat: 2 },
+                effect: { text: 'Gain +2 Armor and +1 Body Save Die while in Werebear form'},
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +3 Armor and +2 Body Save Dice', flat: 3 },
+                effect: { text: 'Gain +3 Armor and +2 Body Save Dice'},
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +4 Armor, +3 Body Save Dice, and +1 Spirit Save Die', flat: 4 },
+                effect: { text: 'Gain +4 Armor, +3 Body Save Dice, and +1 Spirit Save Die'},
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +5 Armor, +4 Body Save Dice, and +2 Spirit Save Dice', flat: 5 },
+                effect: { text: 'Gain +5 Armor, +4 Body Save Dice, and +2 Spirit Save Dice'},
                 specials: []
             }
         }
@@ -238,43 +238,43 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'reaction',
                 range: { kind: 'distance', m: 2 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a Paw Attack dealing +1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Mark', value: 1, raiseCost: 1 }],
+                specials: [{ key: 'Mark', rank: 1 }],
                 trigger: 'A creature within 2m hits an ally within 4m of you'
             },
             '2': {
-                lvl: 2,
+
                 type: 'reaction',
                 range: { kind: 'distance', m: 2 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Paw Attack +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Mark', value: 2, raiseCost: 2 }],
+                specials: [{ key: 'Mark', rank: 2 }],
                 trigger: 'A creature within 2m hits an ally within 4m of you'
             },
             '3': {
-                lvl: 3,
+
                 type: 'reaction',
                 range: { kind: 'distance', m: 2 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Paw Attack +3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Mark', value: 2, raiseCost: 2 }],
+                specials: [{ key: 'Mark', rank: 2 }],
                 trigger: 'A creature within 2m hits an ally within 4m of you'
             },
             '4': {
-                lvl: 4,
+
                 type: 'reaction',
                 range: { kind: 'distance', m: 2 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Paw Attack +4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Mark', value: 3, raiseCost: 3 }],
+                specials: [{ key: 'Mark', rank: 3 }],
                 trigger: 'A creature within 2m hits an ally within 4m of you'
             }
         }
@@ -286,7 +286,7 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -294,39 +294,39 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Your Armor increases by +3 while in Werebear form', flat: 3 },
+                effect: { text: 'Your Armor increases by +3 while in Werebear form'},
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Armor increases by +5', flat: 5 },
+                effect: { text: 'Armor increases by +5'},
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Armor increases by +8', flat: 8 },
+                effect: { text: 'Armor increases by +8'},
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Armor increases by +10', flat: 10 },
+                effect: { text: 'Armor increases by +10'},
                 specials: []
             }
         }
@@ -346,7 +346,7 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'reaction',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -355,30 +355,30 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'reaction',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 1 },
-                effect: { text: 'Gain Immovable, 1d8 Temp HP, and +1 Armor', tempHpDice: '1d8', flat: 1 },
+                effect: { text: 'Gain Immovable, 1d8 Temp HP, and +1 Armor'},
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'reaction',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 1 },
-                effect: { text: 'Gain Immovable, 2d8 Temp HP, and +1 Armor', tempHpDice: '2d8', flat: 1 },
+                effect: { text: 'Gain Immovable, 2d8 Temp HP, and +1 Armor'},
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'reaction',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 1 },
-                effect: { text: 'Gain Immovable, 3d8 Temp HP, and +2 Armor', tempHpDice: '3d8', flat: 2 },
+                effect: { text: 'Gain Immovable, 3d8 Temp HP, and +2 Armor'},
                 specials: []
             }
         }
@@ -389,7 +389,7 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -397,39 +397,39 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'utility',
                 range: { kind: 'distance', m: 8 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 1 },
-                effect: { text: '1 ally gains 1d8 Temp HP and +1 Armor', tempHpDice: '1d8', flat: 1 },
+                effect: { text: '1 ally gains 1d8 Temp HP and +1 Armor'},
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'utility',
                 range: { kind: 'distance', m: 10 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 1 },
-                effect: { text: '1 ally gains 2d8 Temp HP and +2 Armor', tempHpDice: '2d8', flat: 2 },
+                effect: { text: '1 ally gains 2d8 Temp HP and +2 Armor'},
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'utility',
                 range: { kind: 'distance', m: 12 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 1 },
-                effect: { text: '1 ally gains 3d8 Temp HP and +2 Armor', tempHpDice: '3d8', flat: 2 },
+                effect: { text: '1 ally gains 3d8 Temp HP and +2 Armor'},
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'utility',
                 range: { kind: 'distance', m: 16 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 1 },
-                effect: { text: '1 ally gains 4d8 Temp HP and +3 Armor', tempHpDice: '4d8', flat: 3 },
+                effect: { text: '1 ally gains 4d8 Temp HP and +3 Armor'},
                 specials: []
             }
         }
@@ -440,7 +440,7 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -450,40 +450,40 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'buff',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 2 },
-                duration: { kind: 'masteryRankRounds' },
-                effect: { text: 'You gain Immovable and +1 Armor. Enemies that start their turn in the aura: Mind Save or gain Mark(1)', flat: 1 },
-                specials: [{ key: 'Mark', value: 1, raiseCost: 1 }]
+                aoe: { shape: 'radius', m: 2 },
+                duration: { kind: 'masteryRounds' },
+                effect: { text: 'You gain Immovable and +1 Armor. Enemies that start their turn in the aura: Mind Save or gain Mark(1)'},
+                specials: [{ key: 'Mark', rank: 1 }]
             },
             '2': {
-                lvl: 2,
+
                 type: 'buff',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 4 },
-                duration: { kind: 'masteryRankRounds' },
-                effect: { text: 'You gain Immovable and +2 Armor. Aura applies Mark(2)', flat: 2 },
-                specials: [{ key: 'Mark', value: 2, raiseCost: 2 }]
+                aoe: { shape: 'radius', m: 4 },
+                duration: { kind: 'masteryRounds' },
+                effect: { text: 'You gain Immovable and +2 Armor. Aura applies Mark(2)'},
+                specials: [{ key: 'Mark', rank: 2 }]
             },
             '3': {
-                lvl: 3,
+
                 type: 'buff',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 6 },
-                duration: { kind: 'masteryRankRounds' },
-                effect: { text: 'You gain Immovable and +4 Armor. Aura applies Mark(3)', flat: 4 },
-                specials: [{ key: 'Mark', value: 3, raiseCost: 3 }]
+                aoe: { shape: 'radius', m: 6 },
+                duration: { kind: 'masteryRounds' },
+                effect: { text: 'You gain Immovable and +4 Armor. Aura applies Mark(3)'},
+                specials: [{ key: 'Mark', rank: 3 }]
             },
             '4': {
-                lvl: 4,
+
                 type: 'buff',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 8 },
-                duration: { kind: 'masteryRankRounds' },
-                effect: { text: 'You gain Immovable and +4 Armor. Aura applies Mark(4)', flat: 4 },
-                specials: [{ key: 'Mark', value: 4, raiseCost: 4 }]
+                aoe: { shape: 'radius', m: 8 },
+                duration: { kind: 'masteryRounds' },
+                effect: { text: 'You gain Immovable and +4 Armor. Aura applies Mark(4)'},
+                specials: [{ key: 'Mark', rank: 4 }]
             }
         }
     },
@@ -504,40 +504,40 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'melee',
                 range: { kind: 'self' },
                 aoe: { shape: 'cone', lengthM: 4, angleDeg: 90 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Creatures in cone: Body Save or Prone(1)' },
-                specials: [{ key: 'Prone', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Prone', rank: 1 }]
             },
             '2': {
-                lvl: 2,
+
                 type: 'melee',
                 range: { kind: 'self' },
                 aoe: { shape: 'cone', lengthM: 6, angleDeg: 90 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Body Save or Prone(2)' },
-                specials: [{ key: 'Prone', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Prone', rank: 2 }]
             },
             '3': {
-                lvl: 3,
+
                 type: 'melee',
                 range: { kind: 'self' },
                 aoe: { shape: 'cone', lengthM: 8, angleDeg: 90 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Body Save or Prone(2); on fail also Push(3)' },
-                specials: [{ key: 'Prone', value: 2, raiseCost: 2 }, { key: 'Push', value: 3, raiseCost: 3 }]
+                specials: [{ key: 'Prone', rank: 2 }, { key: 'Push', rank: 3 }]
             },
             '4': {
-                lvl: 4,
+
                 type: 'melee',
                 range: { kind: 'self' },
                 aoe: { shape: 'cone', lengthM: 10, angleDeg: 90 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Creatures in cone take 1d8 damage, then Body Save or Prone(3); on fail also Expose(2)', dice: '1d8' },
-                specials: [{ key: 'Prone', value: 3, raiseCost: 3 }, { key: 'Expose', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Prone', rank: 3 }, { key: 'Expose', rank: 2 }]
             }
         }
     },
@@ -555,40 +555,40 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'melee',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 2 },
+                aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in AoE: Push(4) and Expose(2)' },
-                specials: [{ key: 'Push', value: 4, raiseCost: 4 }, { key: 'Expose', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Push', rank: 4 }, { key: 'Expose', rank: 2 }]
             },
             '2': {
-                lvl: 2,
+
                 type: 'melee',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 4 },
+                aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in AoE take 1d8 damage, Push(5), Expose(2), Mark(1)', dice: '1d8' },
-                specials: [{ key: 'Push', value: 5, raiseCost: 5 }, { key: 'Expose', value: 2, raiseCost: 2 }, { key: 'Mark', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Push', rank: 5 }, { key: 'Expose', rank: 2 }, { key: 'Mark', rank: 1 }]
             },
             '3': {
-                lvl: 3,
+
                 type: 'melee',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 6 },
+                aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in AoE take 2d8 damage, Push(6), Expose(3)', dice: '2d8' },
-                specials: [{ key: 'Push', value: 6, raiseCost: 6 }, { key: 'Expose', value: 3, raiseCost: 3 }]
+                specials: [{ key: 'Push', rank: 6 }, { key: 'Expose', rank: 3 }]
             },
             '4': {
-                lvl: 4,
+
                 type: 'melee',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 8 },
+                aoe: { shape: 'radius', m: 8 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in AoE take 2d8 damage, Push(8), Expose(4), Mark(2)', dice: '2d8' },
-                specials: [{ key: 'Push', value: 8, raiseCost: 8 }, { key: 'Expose', value: 4, raiseCost: 4 }, { key: 'Mark', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Push', rank: 8 }, { key: 'Expose', rank: 4 }, { key: 'Mark', rank: 2 }]
             }
         }
     },
@@ -608,43 +608,43 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'reaction',
                 range: { kind: 'distance', m: 2 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a Paw Attack +1d8 damage; on hit Push(2)', dice: '1d8' },
-                specials: [{ key: 'Push', value: 2, raiseCost: 2 }],
+                specials: [{ key: 'Push', rank: 2 }],
                 trigger: 'A creature enters a space within 2m of you'
             },
             '2': {
-                lvl: 2,
+
                 type: 'reaction',
                 range: { kind: 'distance', m: 2 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Paw Attack +2d8 damage; on hit Push(3) and Expose(1)', dice: '2d8' },
-                specials: [{ key: 'Push', value: 3, raiseCost: 3 }, { key: 'Expose', value: 1, raiseCost: 1 }],
+                specials: [{ key: 'Push', rank: 3 }, { key: 'Expose', rank: 1 }],
                 trigger: 'A creature enters a space within 2m of you'
             },
             '3': {
-                lvl: 3,
+
                 type: 'reaction',
                 range: { kind: 'distance', m: 2 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Paw Attack +3d8 damage; on hit Push(4) and Expose(1)', dice: '3d8' },
-                specials: [{ key: 'Push', value: 4, raiseCost: 4 }, { key: 'Expose', value: 1, raiseCost: 1 }],
+                specials: [{ key: 'Push', rank: 4 }, { key: 'Expose', rank: 1 }],
                 trigger: 'A creature enters a space within 2m of you'
             },
             '4': {
-                lvl: 4,
+
                 type: 'reaction',
                 range: { kind: 'distance', m: 2 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Paw Attack +4d8 damage; on hit Push(5) and Expose(2)', dice: '4d8' },
-                specials: [{ key: 'Push', value: 5, raiseCost: 5 }, { key: 'Expose', value: 2, raiseCost: 2 }],
+                specials: [{ key: 'Push', rank: 5 }, { key: 'Expose', rank: 2 }],
                 trigger: 'A creature enters a space within 2m of you'
             }
         }
@@ -655,7 +655,7 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -665,37 +665,37 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 2 },
+                aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'While you are Immovable, enemies that start their turn within 2m must pass a Body Save or gain Expose(1) (1 round)' },
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 4 },
+                aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'While Immovable, radius becomes 4m and Expose becomes Expose(2)' },
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 6 },
+                aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'While Immovable, radius becomes 6m and enemies that fail also gain Suppress(1) (Mind Save negates Suppress)' },
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 8 },
+                aoe: { shape: 'radius', m: 8 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'While Immovable, radius becomes 8m and Suppress becomes Suppress(2) (Mind Save negates)' },
                 specials: []
@@ -709,7 +709,7 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -717,40 +717,40 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'utility',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 2 },
+                aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Allies in AoE gain Regeneration(2)' },
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'utility',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 4 },
+                aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Allies in AoE gain Regeneration(3)' },
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'utility',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 6 },
+                aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Allies in AoE gain Regeneration(4)' },
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'utility',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 8 },
+                aoe: { shape: 'radius', m: 8 },
                 duration: { kind: 'instant' },
-                effect: { text: 'Allies in AoE gain Regeneration(4)', notes: 'Cleanse(4)' },
-                specials: [{ key: 'Cleanse', value: 4, raiseCost: 4 }]
+                effect: { text: 'Allies in AoE gain Regeneration(4)'},
+                specials: [{ key: 'Cleanse', rank: 4 }]
             }
         }
     },
@@ -760,7 +760,7 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -768,7 +768,7 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'utility',
                 range: { kind: 'distance', m: 8 },
                 aoe: { shape: 'none' },
@@ -777,7 +777,7 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'utility',
                 range: { kind: 'distance', m: 10 },
                 aoe: { shape: 'none' },
@@ -786,22 +786,22 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'utility',
                 range: { kind: 'distance', m: 12 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Heal 3d8 HP', dice: '3d8' },
-                specials: [{ key: 'Cleanse', value: 4, raiseCost: 4 }]
+                specials: [{ key: 'Cleanse', rank: 4 }]
             },
             '4': {
-                lvl: 4,
+
                 type: 'utility',
                 range: { kind: 'distance', m: 16 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Heal 4d8 HP', dice: '4d8' },
-                specials: [{ key: 'Cleanse', value: 4, raiseCost: 4 }]
+                specials: [{ key: 'Cleanse', rank: 4 }]
             }
         }
     },
@@ -811,7 +811,7 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -819,39 +819,39 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'buff',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 2 },
-                duration: { kind: 'masteryRankRounds' },
-                effect: { text: 'Allies in aura gain +2 Armor. On cast: they gain 1d8 Temp HP', flat: 2, tempHpDice: '1d8' },
+                aoe: { shape: 'radius', m: 2 },
+                duration: { kind: 'masteryRounds' },
+                effect: { text: 'Allies in aura gain +2 Armor. On cast: they gain 1d8 Temp HP'},
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'buff',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 4 },
-                duration: { kind: 'masteryRankRounds' },
-                effect: { text: 'Allies gain +3 Armor. On cast: 2d8 Temp HP', flat: 3, tempHpDice: '2d8' },
+                aoe: { shape: 'radius', m: 4 },
+                duration: { kind: 'masteryRounds' },
+                effect: { text: 'Allies gain +3 Armor. On cast: 2d8 Temp HP'},
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'buff',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 6 },
-                duration: { kind: 'masteryRankRounds' },
-                effect: { text: 'Allies gain +4 Armor. On cast: 3d8 Temp HP', flat: 4, tempHpDice: '3d8' },
+                aoe: { shape: 'radius', m: 6 },
+                duration: { kind: 'masteryRounds' },
+                effect: { text: 'Allies gain +4 Armor. On cast: 3d8 Temp HP'},
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'buff',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 8 },
-                duration: { kind: 'masteryRankRounds' },
-                effect: { text: 'Allies gain +5 Armor. On cast: 4d8 Temp HP', flat: 5, tempHpDice: '4d8' },
+                aoe: { shape: 'radius', m: 8 },
+                duration: { kind: 'masteryRounds' },
+                effect: { text: 'Allies gain +5 Armor. On cast: 4d8 Temp HP'},
                 specials: []
             }
         }
@@ -871,7 +871,7 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'reaction',
                 range: { kind: 'distance', m: 8 },
                 aoe: { shape: 'none' },
@@ -881,32 +881,32 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
                 trigger: 'An ally within 8m takes damage'
             },
             '2': {
-                lvl: 2,
+
                 type: 'reaction',
                 range: { kind: 'distance', m: 10 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
-                effect: { text: 'Ally gains Regeneration(4) and 1d8 Temp HP', tempHpDice: '1d8' },
+                effect: { text: 'Ally gains Regeneration(4) and 1d8 Temp HP'},
                 specials: [],
                 trigger: 'An ally within 10m takes damage'
             },
             '3': {
-                lvl: 3,
+
                 type: 'reaction',
                 range: { kind: 'distance', m: 12 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
-                effect: { text: 'Ally gains Regeneration(5) and 1d8 Temp HP', tempHpDice: '1d8' },
+                effect: { text: 'Ally gains Regeneration(5) and 1d8 Temp HP'},
                 specials: [],
                 trigger: 'An ally within 12m takes damage'
             },
             '4': {
-                lvl: 4,
+
                 type: 'reaction',
                 range: { kind: 'distance', m: 16 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
-                effect: { text: 'Ally gains Regeneration(6) and 1d8 Temp HP', tempHpDice: '1d8' },
+                effect: { text: 'Ally gains Regeneration(6) and 1d8 Temp HP'},
                 specials: [],
                 trigger: 'An ally within 16m takes damage'
             }
