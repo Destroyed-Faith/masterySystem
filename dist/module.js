@@ -1637,83 +1637,47 @@ Hooks.once('ready', async function () {
     console.log(`║  MASTERY SYSTEM / DESTROYED FAITH - VERSION ${system.version.padEnd(10)} ║`);
     console.log(`╚═══════════════════════════════════════════════════════════╝`);
     console.log(`Mastery System | Version ${system.version}`);
-});
-/**
- * Set default scene background image when creating new scenes
- */
-Hooks.on('preCreateScene', (_scene, data, _options, _userId) => {
-    // Only set default if no background image is provided
-    if (!data.img && (!data.background || !data.background.src)) {
-        const defaultImage = game.settings.get('mastery-system', 'defaultSceneImage');
-        if (defaultImage && defaultImage.trim() !== '') {
-            // Set the background image - Foundry uses 'img' field for scene background
-            data.img = defaultImage;
-            console.log('Mastery System | Setting default scene background:', defaultImage);
+    // Re-initialize Artifact Awakening as fallback (in case init hook failed)
+    // Check if hook is registered
+    const hooks = Hooks._hooks?.renderItemDirectory || [];
+    const hasArtifactHook = hooks.some((hook) => hook.fn?.toString().includes('Mastery System | renderItemDirectory Hook TRIGGERED'));
+    if (!hasArtifactHook) {
+        console.warn('Mastery System | Artifact Awakening hook not found, re-initializing...');
+        try {
+            initializeArtifactAwakening();
+            console.log('✅ Mastery System | Artifact Awakening re-initialized in ready hook');
+            // Trigger the hook manually if Item Directory is already open
+            setTimeout(() => {
+                const itemDir = ui.items;
+                if (itemDir && itemDir.rendered) {
+                    console.log('Mastery System | Item Directory already rendered, triggering hook manually...');
+                    const html = $(itemDir.element || itemDir._element || '.sidebar-tab[data-tab="items"]');
+                    if (html.length > 0) {
+                        Hooks.callAll('renderItemDirectory', itemDir, html, {});
+                        console.log('✅ Mastery System | Hook triggered manually');
+                    }
+                }
+            }, 500);
+        }
+        catch (error) {
+            console.error('❌ Mastery System | Error re-initializing Artifact Awakening:', error);
         }
     }
-});
-/**
- * Add chat message context menu options
- */
-Hooks.on('getChatLogEntryContext', (_html, options) => {
-    // Add re-roll option for Mastery rolls
-    options.push({
-        name: 'Re-Roll',
-        icon: '<i class="fas fa-dice"></i>',
-        condition: (li) => {
-            const message = game.messages?.get(li.data('messageId'));
-            return message?.getFlag('mastery-system', 'canReroll') === true;
-        },
-        callback: (li) => {
-            const message = game.messages?.get(li.data('messageId'));
-            // TODO: Implement re-roll logic
-            console.log('Re-rolling:', message);
-        }
-    });
-});
-/**
- * Handle attack roll button clicks in chat
- * Use event delegation on the chat log container to catch all button clicks
- */
-/**
- * Equip Exclusivity Hook
- * Ensures only one weapon/armor/shield can be equipped at a time
- */
-Hooks.on('preUpdateItem', async (item, changes, _options, _userId) => {
-    // Only process if this is the updating user
-    if (_userId !== game.user?.id) {
-        return;
+    else {
+        console.log('✅ Mastery System | Artifact Awakening hook already registered');
+        // Even if hook is registered, trigger it if Item Directory is already open
+        setTimeout(() => {
+            const itemDir = ui.items;
+            if (itemDir && itemDir.rendered) {
+                console.log('Mastery System | Item Directory already rendered, triggering hook...');
+                const html = $(itemDir.element || itemDir._element || '.sidebar-tab[data-tab="items"]');
+                if (html.length > 0) {
+                    Hooks.callAll('renderItemDirectory', itemDir, html, {});
+                    console.log('✅ Mastery System | Hook triggered for existing Item Directory');
+                }
+            }
+        }, 500);
     }
-    // Only process if item is embedded in an actor and equipped is being set to true
-    if (!item.parent || item.parent.documentName !== 'Actor') {
-        return;
-    }
-    const itemType = item.type;
-    if (!['weapon', 'armor', 'shield'].includes(itemType)) {
-        return;
-    }
-    if (changes.system?.equipped !== true) {
-        return;
-    }
-    const actor = item.parent;
-    const items = actor.items || [];
-    // Find all other items of the same type that are equipped
-    const otherEquippedItems = items.filter((otherItem) => {
-        return otherItem.id !== item.id &&
-            otherItem.type === itemType &&
-            otherItem.system?.equipped === true;
-    });
-    if (otherEquippedItems.length > 0) {
-        // Unequip all other items of the same type
-        const updates = otherEquippedItems.map((otherItem) => ({
-            _id: otherItem.id,
-            'system.equipped': false
-        }));
-        await actor.updateEmbeddedDocuments('Item', updates);
-        console.log(`Mastery System | Unequipped ${otherEquippedItems.length} other ${itemType}(s) when equipping ${item.name}`);
-    }
-});
-Hooks.once('ready', async () => {
     // Register attack roll click handler
     registerAttackRollClickHandler();
     // Register skill spend click handler
@@ -1874,6 +1838,81 @@ Hooks.once('ready', async () => {
     }
     if (stonePoolsFixed > 0) {
         console.log(`Mastery System | Migrated ${stonePoolsFixed} actors (fixed stone pool current values)`);
+    }
+});
+/**
+ * Set default scene background image when creating new scenes
+ */
+Hooks.on('preCreateScene', (_scene, data, _options, _userId) => {
+    // Only set default if no background image is provided
+    if (!data.img && (!data.background || !data.background.src)) {
+        const defaultImage = game.settings.get('mastery-system', 'defaultSceneImage');
+        if (defaultImage && defaultImage.trim() !== '') {
+            // Set the background image - Foundry uses 'img' field for scene background
+            data.img = defaultImage;
+            console.log('Mastery System | Setting default scene background:', defaultImage);
+        }
+    }
+});
+/**
+ * Add chat message context menu options
+ */
+Hooks.on('getChatLogEntryContext', (_html, options) => {
+    // Add re-roll option for Mastery rolls
+    options.push({
+        name: 'Re-Roll',
+        icon: '<i class="fas fa-dice"></i>',
+        condition: (li) => {
+            const message = game.messages?.get(li.data('messageId'));
+            return message?.getFlag('mastery-system', 'canReroll') === true;
+        },
+        callback: (li) => {
+            const message = game.messages?.get(li.data('messageId'));
+            // TODO: Implement re-roll logic
+            console.log('Re-rolling:', message);
+        }
+    });
+});
+/**
+ * Handle attack roll button clicks in chat
+ * Use event delegation on the chat log container to catch all button clicks
+ */
+/**
+ * Equip Exclusivity Hook
+ * Ensures only one weapon/armor/shield can be equipped at a time
+ */
+Hooks.on('preUpdateItem', async (item, changes, _options, _userId) => {
+    // Only process if this is the updating user
+    if (_userId !== game.user?.id) {
+        return;
+    }
+    // Only process if item is embedded in an actor and equipped is being set to true
+    if (!item.parent || item.parent.documentName !== 'Actor') {
+        return;
+    }
+    const itemType = item.type;
+    if (!['weapon', 'armor', 'shield'].includes(itemType)) {
+        return;
+    }
+    if (changes.system?.equipped !== true) {
+        return;
+    }
+    const actor = item.parent;
+    const items = actor.items || [];
+    // Find all other items of the same type that are equipped
+    const otherEquippedItems = items.filter((otherItem) => {
+        return otherItem.id !== item.id &&
+            otherItem.type === itemType &&
+            otherItem.system?.equipped === true;
+    });
+    if (otherEquippedItems.length > 0) {
+        // Unequip all other items of the same type
+        const updates = otherEquippedItems.map((otherItem) => ({
+            _id: otherItem.id,
+            'system.equipped': false
+        }));
+        await actor.updateEmbeddedDocuments('Item', updates);
+        console.log(`Mastery System | Unequipped ${otherEquippedItems.length} other ${itemType}(s) when equipping ${item.name}`);
     }
 });
 /**

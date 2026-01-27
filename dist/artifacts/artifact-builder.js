@@ -11,6 +11,15 @@ export class ArtifactBuilder extends BaseApplication {
     constructor(rootItem) {
         super();
         this.rootItem = rootItem;
+        // Ensure ifEquals helper is registered (fallback in case it wasn't registered early enough)
+        if (!Handlebars.helpers.ifEquals) {
+            Handlebars.registerHelper('ifEquals', function (a, b, options) {
+                if (a === b) {
+                    return options.fn(this);
+                }
+                return options.inverse ? options.inverse(this) : '';
+            });
+        }
     }
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions || {}, {
