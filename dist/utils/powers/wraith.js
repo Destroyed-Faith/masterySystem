@@ -10,7 +10,7 @@ export const WRAITH_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -18,38 +18,34 @@ export const WRAITH_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Become Desolidified; move through walls and creatures; ignore the first attack that hits you' },
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'As above; ignore 2 attacks' },
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'As above; ignore 3 attacks' },
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'As above; ignore 4 attacks' },
                 specials: []
             }
@@ -61,7 +57,7 @@ export const WRAITH_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -69,37 +65,33 @@ export const WRAITH_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 2 },
+                aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'While Desolidified, enemies in Radius 2m suffer Freeze(2) at the start of their turn' },
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 2 },
+                aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'While Desolidified, enemies in Radius 2m suffer Freeze(3) at the start of their turn' },
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 2 },
+                aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'While Desolidified, enemies in Radius 2m suffer Freeze(4) at the start of their turn' },
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 3 },
+                aoe: { shape: 'radius', m: 3 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'While Desolidified, enemies in Radius 3m suffer Freeze(4) at the start of their turn' },
                 specials: []
@@ -121,40 +113,36 @@ export const WRAITH_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'ranged',
                 range: { kind: 'distance', m: 8 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Freeze', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Freeze', rank: 1 }]
             },
             '2': {
-                lvl: 2,
                 type: 'ranged',
                 range: { kind: 'distance', m: 12 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Freeze', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Freeze', rank: 2 }]
             },
             '3': {
-                lvl: 3,
                 type: 'ranged',
                 range: { kind: 'distance', m: 16 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Freeze', value: 3, raiseCost: 3 }]
+                specials: [{ key: 'Freeze', rank: 3 }]
             },
             '4': {
-                lvl: 4,
                 type: 'ranged',
                 range: { kind: 'distance', m: 20 },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '5d8 damage', dice: '5d8' },
-                specials: [{ key: 'Freeze', value: 4, raiseCost: 4 }]
+                specials: [{ key: 'Freeze', rank: 4 }]
             }
         }
     },
@@ -164,7 +152,7 @@ export const WRAITH_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -172,37 +160,33 @@ export const WRAITH_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 1, note: 'Adjacent' },
+                aoe: { shape: 'radius', m: 1, note: 'Adjacent' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Adjacent enemies suffer Frightened(1) while they remain adjacent' },
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 2 },
+                aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Enemies within Radius 2m suffer Frightened(2)' },
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 4 },
+                aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Enemies within Radius 4m suffer Frightened(4)' },
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 6 },
+                aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Enemies within Radius 6m suffer Frightened(6)' },
                 specials: []
@@ -215,7 +199,7 @@ export const WRAITH_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -223,7 +207,6 @@ export const WRAITH_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -232,7 +215,6 @@ export const WRAITH_POWERS = [
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -241,7 +223,6 @@ export const WRAITH_POWERS = [
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -250,7 +231,6 @@ export const WRAITH_POWERS = [
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -266,7 +246,7 @@ export const WRAITH_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -274,37 +254,33 @@ export const WRAITH_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 2 },
+                aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Enemies within 2m suffer −1 die on all Mind/Spirit Saves' },
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 4 },
+                aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Enemies within 4m suffer −2 dice on all Mind/Spirit Saves' },
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 6 },
+                aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Enemies within 6m suffer −2 dice on all Mind/Spirit Saves' },
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 8 },
+                aoe: { shape: 'radius', m: 8 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Enemies within 8m suffer −3 dice on all Mind/Spirit Saves' },
                 specials: []

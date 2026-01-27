@@ -13,7 +13,7 @@ export const BATTLEMAGE_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -21,7 +21,7 @@ export const BATTLEMAGE_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -30,7 +30,7 @@ export const BATTLEMAGE_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -39,7 +39,7 @@ export const BATTLEMAGE_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -48,7 +48,7 @@ export const BATTLEMAGE_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -64,7 +64,7 @@ export const BATTLEMAGE_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -72,39 +72,39 @@ export const BATTLEMAGE_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'While you have Ignite on yourself, gain +3 Armor', flat: 3 },
+                effect: { text: 'While you have Ignite on yourself, gain +3 Armor'},
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'While you have Ignite, gain +5 Armor', flat: 5 },
+                effect: { text: 'While you have Ignite, gain +5 Armor'},
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'While you have Ignite, gain +7 Armor', flat: 7 },
+                effect: { text: 'While you have Ignite, gain +7 Armor'},
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'While you have Ignite, gain +11 Armor', flat: 11 },
+                effect: { text: 'While you have Ignite, gain +11 Armor'},
                 specials: []
             }
         }
@@ -115,7 +115,7 @@ export const BATTLEMAGE_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -123,7 +123,7 @@ export const BATTLEMAGE_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -132,7 +132,7 @@ export const BATTLEMAGE_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -141,7 +141,7 @@ export const BATTLEMAGE_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -150,7 +150,7 @@ export const BATTLEMAGE_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -166,7 +166,7 @@ export const BATTLEMAGE_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -174,38 +174,38 @@ export const BATTLEMAGE_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Your next Spells with the Ignite Special deals +2d8 damage', dice: '2d8' },
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Your next Spells with the Ignite Special deals +4d8 damage', dice: '4d8' },
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Your next Spells with the Ignite Special deals +6d8 damage', dice: '6d8' },
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Your next Spells with the Ignite Special deals +8d8 damage', dice: '8d8' },
                 specials: []
             }
@@ -217,7 +217,7 @@ export const BATTLEMAGE_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -225,38 +225,38 @@ export const BATTLEMAGE_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'buff',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 4 },
-                duration: { kind: 'masteryRankRounds' },
+                aoe: { shape: 'radius', m: 4 },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'At the end of your round, each enemy in the radius that already has Ignite ≥ 1 increases their Ignite by +1' },
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'buff',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 6 },
-                duration: { kind: 'masteryRankRounds' },
+                aoe: { shape: 'radius', m: 6 },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'At the end of your round, each enemy in the radius that already has Ignite ≥ 1 increases their Ignite by +2' },
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'buff',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 8 },
-                duration: { kind: 'masteryRankRounds' },
+                aoe: { shape: 'radius', m: 8 },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'At the end of your round, each enemy in the radius that already has Ignite ≥ 1 increases their Ignite by +3' },
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'buff',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 10 },
-                duration: { kind: 'masteryRankRounds' },
+                aoe: { shape: 'radius', m: 10 },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'At the end of your round, each enemy in the radius that already has Ignite ≥ 1 increases their Ignite by +4' },
                 specials: []
             }
@@ -268,7 +268,7 @@ export const BATTLEMAGE_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -276,7 +276,7 @@ export const BATTLEMAGE_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -285,7 +285,7 @@ export const BATTLEMAGE_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -294,7 +294,7 @@ export const BATTLEMAGE_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -303,7 +303,7 @@ export const BATTLEMAGE_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -319,7 +319,7 @@ export const BATTLEMAGE_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -327,39 +327,39 @@ export const BATTLEMAGE_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'While you have Ignite ≥ 4, gain Regeneration(1) and +2 Armor', flat: 2 },
+                effect: { text: 'While you have Ignite ≥ 4, gain Regeneration(1) and +2 Armor'},
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'While you have Ignite ≥ 4, gain Regeneration(3) and +3 Armor', flat: 3 },
+                effect: { text: 'While you have Ignite ≥ 4, gain Regeneration(3) and +3 Armor'},
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'While you have Ignite ≥ 4, gain Regeneration(5) and +4 Armor', flat: 4 },
+                effect: { text: 'While you have Ignite ≥ 4, gain Regeneration(5) and +4 Armor'},
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'While you have Ignite ≥ 4, gain Regeneration(7) and +5 Armor', flat: 5 },
+                effect: { text: 'While you have Ignite ≥ 4, gain Regeneration(7) and +5 Armor'},
                 specials: []
             }
         }
@@ -379,40 +379,40 @@ export const BATTLEMAGE_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a weapon attack. On hit, deal +1d8 damage and apply Ignite(1)', dice: '1d8' },
-                specials: [{ key: 'Ignite', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Ignite', rank: 1 }]
             },
             '2': {
-                lvl: 2,
+
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a weapon attack. On hit, deal +2d8 damage and apply Ignite(1)', dice: '2d8' },
-                specials: [{ key: 'Ignite', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Ignite', rank: 1 }]
             },
             '3': {
-                lvl: 3,
+
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a weapon attack. On hit, deal +3d8 damage and apply Ignite(2)', dice: '3d8' },
-                specials: [{ key: 'Ignite', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Ignite', rank: 2 }]
             },
             '4': {
-                lvl: 4,
+
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a weapon attack. On hit, deal +4d8 damage and apply Ignite(2)', dice: '4d8' },
-                specials: [{ key: 'Ignite', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Ignite', rank: 2 }]
             }
         }
     }

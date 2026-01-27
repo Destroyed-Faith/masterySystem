@@ -22,40 +22,40 @@ export const JUGGERNAUT_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Push', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Push', rank: 2 }]
             },
             '2': {
-                lvl: 2,
+
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Push', value: 8, raiseCost: 8 }]
+                specials: [{ key: 'Push', rank: 8 }]
             },
             '3': {
-                lvl: 3,
+
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Push', value: 8, raiseCost: 8 }, { key: 'Prone', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Push', rank: 8 }, { key: 'Prone', rank: 1 }]
             },
             '4': {
-                lvl: 4,
+
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +5d8', dice: '5d8' },
-                specials: [{ key: 'Push', value: 12, raiseCost: 12 }, { key: 'Prone', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Push', rank: 12 }, { key: 'Prone', rank: 1 }]
             }
         }
     },
@@ -74,40 +74,40 @@ export const JUGGERNAUT_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'melee',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 2 },
+                aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG (no bonus dice)' },
-                specials: [{ key: 'Prone', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Prone', rank: 1 }]
             },
             '2': {
-                lvl: 2,
+
                 type: 'melee',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 4 },
+                aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Prone', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Prone', rank: 1 }]
             },
             '3': {
-                lvl: 3,
+
                 type: 'melee',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 6 },
+                aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Prone', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Prone', rank: 1 }]
             },
             '4': {
-                lvl: 4,
+
                 type: 'melee',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 8 },
+                aoe: { shape: 'radius', m: 8 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Prone', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Prone', rank: 1 }]
             }
         }
     },
@@ -125,39 +125,39 @@ export const JUGGERNAUT_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'movement',
                 range: { kind: 'self' },
                 aoe: { shape: 'line', lengthM: 4, widthM: 1 },
                 duration: { kind: 'instant' },
-                effect: { text: 'Creatures you pass through take 1d8 damage (once per creature)', dice: '1d8', notes: 'Replaces your Movement this round; does not provoke Reactions' },
+                effect: { text: 'Creatures you pass through take 1d8 damage (once per creature)', dice: '1d8'},
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'movement',
                 range: { kind: 'self' },
                 aoe: { shape: 'line', lengthM: 8, widthM: 1 },
                 duration: { kind: 'instant' },
-                effect: { text: 'Creatures you pass through take 1d8 damage (once per creature)', dice: '1d8', notes: 'Replaces your Movement this round; does not provoke Reactions' },
+                effect: { text: 'Creatures you pass through take 1d8 damage (once per creature)', dice: '1d8'},
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'movement',
                 range: { kind: 'self' },
                 aoe: { shape: 'line', lengthM: 12, widthM: 1 },
                 duration: { kind: 'instant' },
-                effect: { text: 'Creatures you pass through take 2d8 damage (once per creature)', dice: '2d8', notes: 'Replaces your Movement this round; does not provoke Reactions' },
+                effect: { text: 'Creatures you pass through take 2d8 damage (once per creature)', dice: '2d8'},
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'movement',
                 range: { kind: 'self' },
                 aoe: { shape: 'line', lengthM: 16, widthM: 1 },
                 duration: { kind: 'instant' },
-                effect: { text: 'Creatures you pass through take 2d8 damage (once per creature)', dice: '2d8', notes: 'Replaces your Movement this round; does not provoke Reactions' },
+                effect: { text: 'Creatures you pass through take 2d8 damage (once per creature)', dice: '2d8'},
                 specials: []
             }
         }
@@ -177,7 +177,7 @@ export const JUGGERNAUT_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'melee',
                 range: { kind: 'self' },
                 aoe: { shape: 'line', lengthM: 6, widthM: 1 },
@@ -186,7 +186,7 @@ export const JUGGERNAUT_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'melee',
                 range: { kind: 'self' },
                 aoe: { shape: 'line', lengthM: 10, widthM: 1 },
@@ -195,7 +195,7 @@ export const JUGGERNAUT_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'melee',
                 range: { kind: 'self' },
                 aoe: { shape: 'line', lengthM: 12, widthM: 1 },
@@ -204,7 +204,7 @@ export const JUGGERNAUT_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'melee',
                 range: { kind: 'self' },
                 aoe: { shape: 'line', lengthM: 14, widthM: 1 },
@@ -220,7 +220,7 @@ export const JUGGERNAUT_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -228,7 +228,7 @@ export const JUGGERNAUT_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -237,7 +237,7 @@ export const JUGGERNAUT_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -246,7 +246,7 @@ export const JUGGERNAUT_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -255,7 +255,7 @@ export const JUGGERNAUT_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -271,7 +271,7 @@ export const JUGGERNAUT_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -279,7 +279,7 @@ export const JUGGERNAUT_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -288,7 +288,7 @@ export const JUGGERNAUT_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -297,7 +297,7 @@ export const JUGGERNAUT_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -306,7 +306,7 @@ export const JUGGERNAUT_POWERS: NewArtifactPowerData[] = [
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },

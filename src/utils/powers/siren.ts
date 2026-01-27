@@ -13,7 +13,7 @@ export const SIREN_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -21,38 +21,38 @@ export const SIREN_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'buff',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 4 },
-                duration: { kind: 'masteryRankRounds' },
+                aoe: { shape: 'radius', m: 4 },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Enemies suffer −2 dice on Mind Saves' },
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'buff',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 6 },
-                duration: { kind: 'masteryRankRounds' },
+                aoe: { shape: 'radius', m: 6 },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Enemies suffer −3 dice on Mind Saves' },
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'buff',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 8 },
-                duration: { kind: 'masteryRankRounds' },
+                aoe: { shape: 'radius', m: 8 },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Enemies suffer −4 dice on Mind Saves' },
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'buff',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 10 },
-                duration: { kind: 'masteryRankRounds' },
+                aoe: { shape: 'radius', m: 10 },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Enemies suffer −6 dice on Mind Saves' },
                 specials: []
             }
@@ -74,40 +74,40 @@ export const SIREN_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'ranged',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 4 },
-                duration: { kind: 'masteryRankRounds' },
+                aoe: { shape: 'radius', m: 4 },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: '—' },
-                specials: [{ key: 'Charmed', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Charmed', rank: 1 }]
             },
             '2': {
-                lvl: 2,
+
                 type: 'ranged',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 6 },
-                duration: { kind: 'masteryRankRounds' },
+                aoe: { shape: 'radius', m: 6 },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: '—' },
-                specials: [{ key: 'Charmed', value: 4, raiseCost: 4 }]
+                specials: [{ key: 'Charmed', rank: 4 }]
             },
             '3': {
-                lvl: 3,
+
                 type: 'ranged',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 8 },
-                duration: { kind: 'masteryRankRounds' },
+                aoe: { shape: 'radius', m: 8 },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: '—' },
-                specials: [{ key: 'Charmed', value: 6, raiseCost: 6 }]
+                specials: [{ key: 'Charmed', rank: 6 }]
             },
             '4': {
-                lvl: 4,
+
                 type: 'ranged',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 10 },
-                duration: { kind: 'masteryRankRounds' },
+                aoe: { shape: 'radius', m: 10 },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: '—' },
-                specials: [{ key: 'Charmed', value: 9, raiseCost: 9 }]
+                specials: [{ key: 'Charmed', rank: 9 }]
             }
         }
     },
@@ -117,7 +117,7 @@ export const SIREN_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -125,37 +125,37 @@ export const SIREN_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 6 },
+                aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Once per round, 1 ally within 6m may reroll 1 die' },
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 6 },
+                aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Once per round, up to 2 allies may reroll 1 die each' },
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 6 },
+                aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Once per round, 1 ally rerolls 2 dice, or 2 allies reroll 1 die each' },
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 6 },
+                aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Once per round, up to 2 allies reroll 1 die each, or 1 ally rerolls 2 dice' },
                 specials: []
@@ -168,7 +168,7 @@ export const SIREN_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -176,39 +176,39 @@ export const SIREN_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: '+4 Evade', flat: 4 },
+                effect: { text: '+4 Evade'},
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: '+6 Evade, +2m movement', flat: 6 },
+                effect: { text: '+6 Evade, +2m movement'},
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: '+10 Evade, +2m movement', flat: 10 },
+                effect: { text: '+10 Evade, +2m movement'},
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: '+12 Evade, +4m movement', flat: 12 },
+                effect: { text: '+12 Evade, +4m movement'},
                 specials: []
             }
         }
@@ -219,7 +219,7 @@ export const SIREN_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -227,38 +227,38 @@ export const SIREN_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'buff',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 3 },
-                duration: { kind: 'masteryRankRounds' },
+                aoe: { shape: 'radius', m: 3 },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Allies in AoE gain +1 die on all Saves' },
                 specials: []
             },
             '2': {
-                lvl: 2,
+
                 type: 'buff',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 4 },
-                duration: { kind: 'masteryRankRounds' },
+                aoe: { shape: 'radius', m: 4 },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Allies in AoE gain +2 dice on all Saves' },
                 specials: []
             },
             '3': {
-                lvl: 3,
+
                 type: 'buff',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 5 },
-                duration: { kind: 'masteryRankRounds' },
+                aoe: { shape: 'radius', m: 5 },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Allies in AoE gain +3 dice on all Saves' },
                 specials: []
             },
             '4': {
-                lvl: 4,
+
                 type: 'buff',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 6 },
-                duration: { kind: 'masteryRankRounds' },
+                aoe: { shape: 'radius', m: 6 },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Allies in AoE gain +4 dice on all Saves' },
                 specials: []
             }
@@ -279,7 +279,7 @@ export const SIREN_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
+
                 type: 'reaction',
                 range: { kind: 'distance', m: 6 },
                 aoe: { shape: 'none' },
@@ -289,7 +289,7 @@ export const SIREN_POWERS: NewArtifactPowerData[] = [
                 trigger: 'When an ally within 6m would fail a roll or take damage'
             },
             '2': {
-                lvl: 2,
+
                 type: 'reaction',
                 range: { kind: 'distance', m: 8 },
                 aoe: { shape: 'none' },
@@ -299,7 +299,7 @@ export const SIREN_POWERS: NewArtifactPowerData[] = [
                 trigger: 'When an ally within 8m would fail a roll or take damage'
             },
             '3': {
-                lvl: 3,
+
                 type: 'reaction',
                 range: { kind: 'distance', m: 10 },
                 aoe: { shape: 'none' },
@@ -309,7 +309,7 @@ export const SIREN_POWERS: NewArtifactPowerData[] = [
                 trigger: 'When an ally within 10m would fail a roll or take damage'
             },
             '4': {
-                lvl: 4,
+
                 type: 'reaction',
                 range: { kind: 'distance', m: 10 },
                 aoe: { shape: 'none' },

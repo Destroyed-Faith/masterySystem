@@ -22,40 +22,36 @@ export const BERSERKER_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Bleeding', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Bleeding', rank: 1 }]
             },
             '2': {
-                lvl: 2,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Bleeding', value: 3, raiseCost: 3 }]
+                specials: [{ key: 'Bleeding', rank: 3 }]
             },
             '3': {
-                lvl: 3,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Bleeding', value: 4, raiseCost: 4 }]
+                specials: [{ key: 'Bleeding', rank: 4 }]
             },
             '4': {
-                lvl: 4,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +5d8', dice: '5d8' },
-                specials: [{ key: 'Bleeding', value: 5, raiseCost: 5 }]
+                specials: [{ key: 'Bleeding', rank: 5 }]
             }
         }
     },
@@ -74,40 +70,36 @@ export const BERSERKER_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'melee',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 1 },
+                aoe: { shape: 'radius', m: 1 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8', dice: '1d8' },
-                specials: [{ key: 'Bleeding', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Bleeding', rank: 1 }]
             },
             '2': {
-                lvl: 2,
                 type: 'melee',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 2 },
+                aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Bleeding', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Bleeding', rank: 2 }]
             },
             '3': {
-                lvl: 3,
                 type: 'melee',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 4 },
+                aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Bleeding', value: 3, raiseCost: 3 }]
+                specials: [{ key: 'Bleeding', rank: 3 }]
             },
             '4': {
-                lvl: 4,
                 type: 'melee',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 6 },
+                aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Bleeding', value: 4, raiseCost: 4 }]
+                specials: [{ key: 'Bleeding', rank: 4 }]
             }
         }
     },
@@ -126,40 +118,36 @@ export const BERSERKER_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Advantage', raiseCost: 0, note: 'Until the start of your next turn, attacks against you have Advantage' }]
+                specials: [{ key: 'Advantage', note: 'Until the start of your next turn, attacks against you have Advantage' }]
             },
             '2': {
-                lvl: 2,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +6d8', dice: '6d8' },
-                specials: [{ key: 'Advantage', raiseCost: 0, note: 'Until the start of your next turn, attacks against you have Advantage' }]
+                specials: [{ key: 'Advantage', note: 'Until the start of your next turn, attacks against you have Advantage' }]
             },
             '3': {
-                lvl: 3,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +8d8', dice: '8d8' },
-                specials: [{ key: 'Advantage', raiseCost: 0, note: 'Until the start of your next turn, attacks against you have Advantage' }]
+                specials: [{ key: 'Advantage', note: 'Until the start of your next turn, attacks against you have Advantage' }]
             },
             '4': {
-                lvl: 4,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +10d8', dice: '10d8' },
-                specials: [{ key: 'Advantage', raiseCost: 0, note: 'Until the start of your next turn, attacks against you have Advantage' }]
+                specials: [{ key: 'Advantage', note: 'Until the start of your next turn, attacks against you have Advantage' }]
             }
         }
     },
@@ -169,7 +157,7 @@ export const BERSERKER_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -177,38 +165,34 @@ export const BERSERKER_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Gain +3d8 damage, suffer Bleeding(1) (self) per Attack', dice: '3d8' },
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Gain +6d8 damage, suffer Bleeding(2) (self) per Attack', dice: '6d8' },
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Gain +8d8 damage, suffer Bleeding(3) (self) per Attack', dice: '8d8' },
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRankRounds' },
+                duration: { kind: 'masteryRounds' },
                 effect: { text: 'Gain +10d8 damage, suffer Bleeding(4) (self) per Attack', dice: '10d8' },
                 specials: []
             }
@@ -220,7 +204,7 @@ export const BERSERKER_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -228,40 +212,36 @@ export const BERSERKER_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'utility',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 2 },
+                aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Enemies in radius suffer -1 Attack Die until your next turn' },
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'utility',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 4 },
+                aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Enemies suffer -1 Attack Die until your next turn' },
-                specials: [{ key: 'Frightened', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Frightened', rank: 1 }]
             },
             '3': {
-                lvl: 3,
                 type: 'utility',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 6 },
+                aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Enemies suffer -2 Attack Dice until your next turn' },
-                specials: [{ key: 'Frightened', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Frightened', rank: 1 }]
             },
             '4': {
-                lvl: 4,
                 type: 'utility',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 8 },
+                aoe: { shape: 'radius', m: 8 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Enemies suffer -2 Attack Dice until your next turn' },
-                specials: [{ key: 'Frightened', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Frightened', rank: 1 }]
             }
         }
     },
@@ -271,7 +251,7 @@ export const BERSERKER_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -279,37 +259,33 @@ export const BERSERKER_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 2 },
+                aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'While any enemy within 2 m is Bleeding, your attacks gain +3d8 damage', dice: '3d8' },
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 4 },
+                aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'While any enemy within 4 m is Bleeding, your attacks gain +4d8 damage', dice: '4d8' },
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 6 },
+                aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'While any enemy within 6 m is Bleeding, your attacks gain +5d8 damage', dice: '5d8' },
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 8 },
+                aoe: { shape: 'radius', m: 8 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'While any enemy within 8 m is Bleeding, your attacks gain +6d8 damage', dice: '6d8' },
                 specials: []
@@ -322,7 +298,7 @@ export const BERSERKER_POWERS: NewArtifactPowerData[] = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -330,37 +306,33 @@ export const BERSERKER_POWERS: NewArtifactPowerData[] = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 2 },
+                aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'While any enemy or you within 2 m is Bleeding, gain Regeneration(5)' },
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 4 },
+                aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'While any enemy or you within 4 m is Bleeding, gain Regeneration(6)' },
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 6 },
+                aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'While any enemy or you within 6 m is Bleeding, gain Regeneration(7)' },
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 8 },
+                aoe: { shape: 'radius', m: 8 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'While any enemy or you within 8 m is Bleeding, gain Regeneration(8)' },
                 specials: []

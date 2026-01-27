@@ -19,40 +19,36 @@ export const ELEMENTAL_SCHOLAR_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Ignite', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Ignite', rank: 1 }]
             },
             '2': {
-                lvl: 2,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Ignite', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Ignite', rank: 2 }]
             },
             '3': {
-                lvl: 3,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Ignite', value: 3, raiseCost: 3 }]
+                specials: [{ key: 'Ignite', rank: 3 }]
             },
             '4': {
-                lvl: 4,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +5d8', dice: '5d8' },
-                specials: [{ key: 'Ignite', value: 4, raiseCost: 4 }]
+                specials: [{ key: 'Ignite', rank: 4 }]
             }
         }
     },
@@ -71,40 +67,36 @@ export const ELEMENTAL_SCHOLAR_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8', dice: '1d8' },
-                specials: [{ key: 'Push', value: 1, raiseCost: 1 }, { key: 'Shock', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Push', rank: 1 }, { key: 'Shock', rank: 1 }]
             },
             '2': {
-                lvl: 2,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Push', value: 2, raiseCost: 2 }, { key: 'Shock', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Push', rank: 2 }, { key: 'Shock', rank: 1 }]
             },
             '3': {
-                lvl: 3,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Push', value: 2, raiseCost: 2 }, { key: 'Shock', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Push', rank: 2 }, { key: 'Shock', rank: 2 }]
             },
             '4': {
-                lvl: 4,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Push', value: 3, raiseCost: 3 }, { key: 'Shock', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Push', rank: 3 }, { key: 'Shock', rank: 2 }]
             }
         }
     },
@@ -123,40 +115,36 @@ export const ELEMENTAL_SCHOLAR_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8', dice: '1d8' },
-                specials: [{ key: 'Corrode', value: 1, raiseCost: 1 }]
+                specials: [{ key: 'Corrode', rank: 1 }]
             },
             '2': {
-                lvl: 2,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Corrode', value: 2, raiseCost: 2 }]
+                specials: [{ key: 'Corrode', rank: 2 }]
             },
             '3': {
-                lvl: 3,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Corrode', value: 3, raiseCost: 3 }]
+                specials: [{ key: 'Corrode', rank: 3 }]
             },
             '4': {
-                lvl: 4,
                 type: 'melee',
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Corrode', value: 4, raiseCost: 4 }]
+                specials: [{ key: 'Corrode', rank: 4 }]
             }
         }
     },
@@ -166,7 +154,7 @@ export const ELEMENTAL_SCHOLAR_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -174,39 +162,35 @@ export const ELEMENTAL_SCHOLAR_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +2 Armor for each unique elemental Special active on an opponent', flat: 2 },
+                effect: { text: 'Gain +2 Armor for each unique elemental Special active on an opponent' },
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +4 Armor for each unique elemental Special active on an opponent', flat: 4 },
+                effect: { text: 'Gain +4 Armor for each unique elemental Special active on an opponent' },
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +6 Armor for each unique elemental Special active on an opponent', flat: 6 },
+                effect: { text: 'Gain +6 Armor for each unique elemental Special active on an opponent' },
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +8 Armor for each unique elemental Special active on an opponent', flat: 8 },
+                effect: { text: 'Gain +8 Armor for each unique elemental Special active on an opponent' },
                 specials: []
             }
         }
@@ -217,7 +201,7 @@ export const ELEMENTAL_SCHOLAR_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -225,7 +209,6 @@ export const ELEMENTAL_SCHOLAR_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -234,7 +217,6 @@ export const ELEMENTAL_SCHOLAR_POWERS = [
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -243,7 +225,6 @@ export const ELEMENTAL_SCHOLAR_POWERS = [
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -252,7 +233,6 @@ export const ELEMENTAL_SCHOLAR_POWERS = [
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -268,7 +248,7 @@ export const ELEMENTAL_SCHOLAR_POWERS = [
         tags: [],
         rank: 1,
         cost: {
-            action: 'utility',
+            action: 'none',
             stones: 0
         },
         roll: {
@@ -276,7 +256,6 @@ export const ELEMENTAL_SCHOLAR_POWERS = [
         },
         levels: {
             '1': {
-                lvl: 1,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -285,7 +264,6 @@ export const ELEMENTAL_SCHOLAR_POWERS = [
                 specials: []
             },
             '2': {
-                lvl: 2,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -294,7 +272,6 @@ export const ELEMENTAL_SCHOLAR_POWERS = [
                 specials: []
             },
             '3': {
-                lvl: 3,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
@@ -303,7 +280,6 @@ export const ELEMENTAL_SCHOLAR_POWERS = [
                 specials: []
             },
             '4': {
-                lvl: 4,
                 type: 'passive',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
