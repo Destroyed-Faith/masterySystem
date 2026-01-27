@@ -120,15 +120,21 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       ui.notifications?.error(`Power rank cannot exceed Mastery Rank ${masteryRank}`);
       const item = this.actor.items.get(itemId);
       if (item) {
-        const currentLevel = (item.system as any).level || 1;
-        $select.val(currentLevel);
+        const currentRank = (item.system as any).rank || (item.system as any).level || 1;
+        $select.val(currentRank);
       }
       return;
     }
     
     const item = this.actor.items.get(itemId);
     if (item) {
-      await item.update({ 'system.level': newRank });
+      // Update both rank (new structure) and level (legacy) for backwards compatibility
+      const updateData: any = {
+        'system.rank': newRank,
+        'system.level': newRank // Keep level for backwards compatibility
+      };
+      
+      await item.update(updateData);
       this.render();
     }
   }

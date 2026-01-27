@@ -3,6 +3,8 @@
  *
  * Shows a dialog where players can select and add Powers from Mastery Trees or Spell Schools.
  * Only allows selection from predefined powers (no manual entry).
+ *
+ * Updated for new power structure (v0.4.18+)
  */
 /**
  * Show the power creation dialog for an actor

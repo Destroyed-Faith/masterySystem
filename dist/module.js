@@ -670,7 +670,89 @@ function registerHandlebarsHelpersImmediate() {
     Handlebars.registerHelper('powerSpecials', function (specials) {
         if (!specials || !Array.isArray(specials) || specials.length === 0)
             return '—';
-        return specials.join(', ');
+        // Support both old (string[]) and new (PowerSpecial[]) structures
+        if (typeof specials[0] === 'string') {
+            return specials.join(', ');
+        }
+        // New structure: PowerSpecial[]
+        return specials.map((spec) => {
+            if (spec.value !== undefined) {
+                return `${spec.key}(${spec.value})`;
+            }
+            return spec.key;
+        }).join(', ');
+    });
+    // Helper to render RangeSpec
+    Handlebars.registerHelper('renderRange', function (range) {
+        if (!range || typeof range !== 'object')
+            return '—';
+        if (range.kind === 'self')
+            return 'Self';
+        if (range.kind === 'touch')
+            return 'Touch';
+        if (range.kind === 'distance') {
+            if (range.m !== undefined) {
+                return `${range.m}m${range.note ? ` (${range.note})` : ''}`;
+            }
+            return 'Distance';
+        }
+        return 'N/A';
+    });
+    // Helper to render AoeSpec
+    Handlebars.registerHelper('renderAoe', function (aoe) {
+        if (!aoe || typeof aoe !== 'object')
+            return '—';
+        if (aoe.shape === 'none' || aoe.shape === 'single')
+            return '—';
+        if (aoe.shape === 'line') {
+            if (aoe.lengthM !== undefined) {
+                return `Line ${aoe.lengthM}m${aoe.widthM ? ` × ${aoe.widthM}m` : ''}`;
+            }
+            return 'Line';
+        }
+        if (aoe.shape === 'radius') {
+            if (aoe.radiusM !== undefined) {
+                return `Radius ${aoe.radiusM}m`;
+            }
+            return 'Radius';
+        }
+        if (aoe.shape === 'cone') {
+            if (aoe.lengthM !== undefined) {
+                return `Cone ${aoe.lengthM}m${aoe.angleDeg ? ` (${aoe.angleDeg}°)` : ''}`;
+            }
+            return 'Cone';
+        }
+        if (aoe.shape === 'weapon')
+            return 'Weapon';
+        if (aoe.shape === 'aura') {
+            if (aoe.radiusM !== undefined) {
+                return `Aura ${aoe.radiusM}m`;
+            }
+            return 'Aura';
+        }
+        return aoe.note || '—';
+    });
+    // Helper to render DurationSpec
+    Handlebars.registerHelper('renderDuration', function (duration) {
+        if (!duration || typeof duration !== 'object')
+            return 'N/A';
+        if (duration.kind === 'instant')
+            return 'Instant';
+        if (duration.kind === 'rounds') {
+            if (duration.rounds !== undefined) {
+                return `${duration.rounds} Round${duration.rounds !== 1 ? 's' : ''}${duration.note ? ` (${duration.note})` : ''}`;
+            }
+            return 'Rounds';
+        }
+        if (duration.kind === 'masteryRankRounds')
+            return 'MR Rounds';
+        if (duration.kind === 'untilNextTurn')
+            return 'Until Next Turn';
+        return duration.note || 'N/A';
+    });
+    // Helper to check if power uses new structure
+    Handlebars.registerHelper('isNewPowerStructure', function (power) {
+        return power && typeof power === 'object' && power.levels && typeof power.levels === 'object' && !Array.isArray(power.levels);
     });
     // Helper to get array/string length
     // This must be registered before templates are compiled

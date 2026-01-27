@@ -1116,6 +1116,57 @@
               <div class="power-details-expanded" data-item-id="{{this.id}}" style="display: none;">
                 <div class="form-group power-details-group" id="power-details">
                   <div id="power-description" class="power-description-text">{{this.system.description}}</div>
+                  
+                  {{#if (isNewPowerStructure this.system)}}
+                  <!-- New Power Structure: Show table with all levels -->
+                  <div class="power-rank-selector" style="margin: 10px 0;">
+                    <label>Current Rank:</label>
+                    <select class="power-rank-select" data-item-id="{{this.id}}" title="Select Power Rank">
+                      <option value="1" {{#if (eq (default this.system.rank this.system.level) 1)}}selected{{/if}}>Rank 1</option>
+                      <option value="2" {{#if (eq (default this.system.rank this.system.level) 2)}}selected{{/if}}>Rank 2</option>
+                      <option value="3" {{#if (eq (default this.system.rank this.system.level) 3)}}selected{{/if}}>Rank 3</option>
+                      <option value="4" {{#if (eq (default this.system.rank this.system.level) 4)}}selected{{/if}}>Rank 4</option>
+                    </select>
+                  </div>
+                  
+                  <div class="power-level-table-container">
+                    <table class="power-level-table">
+                      <thead>
+                        <tr>
+                          <th>Level</th>
+                          <th>Type</th>
+                          <th>Range</th>
+                          <th>AoE</th>
+                          <th>Duration</th>
+                          <th>Effect</th>
+                          <th>Specials</th>
+                          {{#if (or (eq this.system.category 'reaction') this.system.trigger)}}
+                          <th>Trigger</th>
+                          {{/if}}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {{#each (array '1' '2' '3' '4')}}
+                        {{#with (lookup ../this.system.levels this)}}
+                        <tr class="power-level-row {{#if (eq ../this (default ../../this.system.rank ../../this.system.level))}}selected{{/if}}" data-level="{{../this}}">
+                          <td class="power-level-cell">{{../this}}</td>
+                          <td class="power-type-cell">{{this.type}}</td>
+                          <td class="power-range-cell">{{renderRange this.range}}</td>
+                          <td class="power-aoe-cell">{{renderAoe this.aoe}}</td>
+                          <td class="power-duration-cell">{{renderDuration this.duration}}</td>
+                          <td class="power-effect-cell">{{this.effect.text}}</td>
+                          <td class="power-specials-cell">{{powerSpecials this.specials}}</td>
+                          {{#if (or (eq ../../this.system.category 'reaction') ../../this.system.trigger)}}
+                          <td class="power-trigger-cell">{{default this.trigger ../../this.system.trigger '—'}}</td>
+                          {{/if}}
+                        </tr>
+                        {{/with}}
+                        {{/each}}
+                      </tbody>
+                    </table>
+                  </div>
+                  {{else}}
+                  <!-- Old Power Structure: Show simple info -->
                   <div id="power-level-info" class="power-level-info-text">
                     <strong>Selected Level {{default this.system.level 1}}:</strong><br>
                     {{#if this.system.powerType}}Type: {{powerTypeDisplay this.system.powerType}}<br>{{/if}}
@@ -1133,6 +1184,7 @@
                     {{/if}}
                     {{/if}}
                   </div>
+                  {{/if}}
                 </div>
               </div>
               
