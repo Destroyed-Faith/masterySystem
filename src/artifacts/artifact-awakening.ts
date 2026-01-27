@@ -97,72 +97,37 @@ export function initializeArtifactAwakening(): void {
     console.log('=== Debug Ende ===');
   };
 
-  // Hook into Item Directory to add "New Artifact" button and folder diamond symbols (GM only)
-  // Register hook with explicit error handling
-  try {
-    console.log('Mastery System | Registering renderItemDirectory hook...');
-    const hookId = Hooks.on('renderItemDirectory', (app: any, html: JQuery | HTMLElement, _data: any) => {
-    console.log('🔵 Mastery System | renderItemDirectory Hook TRIGGERED', {
-      isGM: game.user?.isGM,
-      hasApp: !!app,
-      appName: app?.constructor?.name,
-      htmlType: html?.constructor?.name,
-      htmlIsJQuery: html instanceof jQuery,
-      htmlIsHTMLElement: html instanceof HTMLElement,
-      timestamp: new Date().toISOString()
-    });
-
+  // Extract button addition logic into a reusable function
+  function addButtonsToItemDirectory(actualHtml: JQuery, app?: any): void {
     if (!game.user?.isGM) {
-      console.log('🔴 Mastery System | Hook abgebrochen: Nicht GM');
       return;
     }
-    
-    // DEBUG: Log full HTML structure
-    const isJQuery = html instanceof jQuery;
-    const isHTMLElement = html instanceof HTMLElement;
-    const htmlLength = isJQuery ? (html as JQuery).length : (isHTMLElement ? 1 : 0);
-    const htmlString = isJQuery ? ((html as JQuery)[0] as HTMLElement)?.outerHTML?.substring(0, 500) : (isHTMLElement ? (html as HTMLElement).outerHTML?.substring(0, 500) : 'NOT HTML');
-    const itemsTab = $('.sidebar-tab[data-tab="items"]');
-    const itemsTabHTML = itemsTab.length > 0 ? (itemsTab[0] as HTMLElement).outerHTML.substring(0, 300) : 'NOT FOUND';
-    console.log('🔍 Mastery System | DEBUG: HTML Structure Check', {
-      htmlLength,
-      htmlString,
-      hasItemsTab: itemsTab.length > 0,
-      itemsTabHTML
-    });
 
-    // CRITICAL: Always use the actual DOM element from the sidebar tab, not the passed html
-    // The passed html might be a window wrapper, not the actual sidebar tab
-    let actualHtml: JQuery = $('.sidebar-tab[data-tab="items"]');
-    
-    const isJQueryHtml = html instanceof jQuery;
-    const passedHtmlLength = isJQueryHtml ? (html as JQuery).length : (html instanceof HTMLElement ? 1 : 0);
-    console.log('🔵 Mastery System | HTML Processing', {
-      passedHtmlLength,
-      actualHtmlLength: actualHtml.length,
-      hasAppElement: !!app?.element,
-      hasAppInternalElement: !!app?._element,
-      hasUiItems: !!(ui as any).items,
-      hasUiItemsElement: !!(ui as any).items?.element,
-      sidebarTabExists: $('.sidebar-tab[data-tab="items"]').length > 0,
-      itemsSectionExists: $('#items').length > 0
-    });
-    
-    // If sidebar tab not found, try other selectors
+    // Ensure we have a valid HTML element
     if (actualHtml.length === 0) {
-      actualHtml = $('#items');
-      console.log('⚠️ Mastery System | Sidebar tab not found, trying #items');
+      // Try to find the items tab
+      actualHtml = $('.sidebar-tab[data-tab="items"]');
+      if (actualHtml.length === 0) {
+        actualHtml = $('#items');
+      }
+      if (actualHtml.length === 0 && app?.element) {
+        actualHtml = $(app.element);
+      }
+      if (actualHtml.length === 0 && (ui as any).items?.element) {
+        actualHtml = $((ui as any).items.element);
+      }
     }
-    
-    if (actualHtml.length === 0 && app?.element) {
-      actualHtml = $(app.element);
-      console.log('⚠️ Mastery System | Using app.element as fallback');
+
+    if (actualHtml.length === 0) {
+      console.warn('Mastery System | Could not find Item Directory element');
+      return;
     }
-    
-    if (actualHtml.length === 0 && (ui as any).items?.element) {
-      actualHtml = $((ui as any).items.element);
-      console.log('⚠️ Mastery System | Using ui.items.element as fallback');
-    }
+
+    console.log('🔵 Mastery System | addButtonsToItemDirectory called', {
+      actualHtmlLength: actualHtml.length,
+      hasApp: !!app,
+      appName: app?.constructor?.name
+    });
 
     console.log('🔵 Mastery System | Final HTML Element', {
       actualHtmlLength: actualHtml.length,
@@ -462,9 +427,31 @@ export function initializeArtifactAwakening(): void {
         }
       });
     }, 500);
-  });
+  }
+
+  // Hook into Item Directory to add "New Artifact" button and folder diamond symbols (GM only)
+  // Register hook with explicit error handling
+  try {
+    console.log('Mastery System | Registering renderItemDirectory hook...');
+    const hookId = Hooks.on('renderItemDirectory', (app: any, html: JQuery | HTMLElement, _data: any) => {
+      if (!game.user?.isGM) {
+        return;
+      }
+
+      // Get the actual HTML element
+      let actualHtml: JQuery = $('.sidebar-tab[data-tab="items"]');
+      if (actualHtml.length === 0) {
+        actualHtml = html instanceof jQuery ? (html as JQuery) : $(html);
+      }
+      if (actualHtml.length === 0 && app?.element) {
+        actualHtml = $(app.element);
+      }
+
+      // Call the reusable function
+      addButtonsToItemDirectory(actualHtml, app);
+    });
   
-  console.log('✅ Mastery System | renderItemDirectory hook registered with ID:', hookId);
+    console.log('✅ Mastery System | renderItemDirectory hook registered with ID:', hookId);
   } catch (error) {
     console.error('❌ Mastery System | Error registering renderItemDirectory hook:', error);
     console.error('Error details:', error);
@@ -478,33 +465,85 @@ export function initializeArtifactAwakening(): void {
     const tabName = tab.attr('data-tab');
     
     if (tabName === 'items') {
-      console.log('🔵 Mastery System | Items tab rendered/activated, checking for buttons...');
+      console.log('🔵 Mastery System | Items tab rendered/activated, adding buttons...');
       
-      // Trigger the renderItemDirectory logic after a short delay
+      // Trigger the button addition logic after a short delay
       setTimeout(() => {
         const itemsTab = $('.sidebar-tab[data-tab="items"]');
         if (itemsTab.length > 0) {
-          // Check and add header button
-          const existingBtn = itemsTab.find('.ms-new-artifact-btn');
-          if (existingBtn.length === 0) {
-            const actionButtons = itemsTab.find('.header-actions.action-buttons.flexrow');
-            if (actionButtons.length > 0) {
-              const newArtifactBtn = $(`
-                <button type="button" class="ms-new-artifact-btn" title="New Artifact">
-                  <i class="fas fa-gem"></i> New Artifact
-                </button>
-              `);
-              newArtifactBtn.on('click', async () => {
-                await createNewArtifact();
-              });
-              actionButtons.append(newArtifactBtn);
-              console.log('✅ Mastery System | Button added via renderSidebarTab hook');
-            }
-          }
+          addButtonsToItemDirectory(itemsTab);
         }
       }, 100);
     }
   });
+
+  // Hook into ready to ensure buttons are added if Item Directory is already open
+  Hooks.once('ready', () => {
+    if (!game.user?.isGM) return;
+    
+    console.log('🔵 Mastery System | Ready hook: Checking for Item Directory...');
+    
+    // Wait a bit for UI to fully initialize
+    setTimeout(() => {
+      const itemsTab = $('.sidebar-tab[data-tab="items"]');
+      if (itemsTab.length > 0) {
+        console.log('✅ Mastery System | Item Directory found in ready hook, adding buttons...');
+        addButtonsToItemDirectory(itemsTab);
+      }
+    }, 1000);
+  });
+
+  // Use MutationObserver to watch for DOM changes and add buttons when folders are added
+  if (typeof MutationObserver !== 'undefined') {
+    const observer = new MutationObserver((mutations) => {
+      if (!game.user?.isGM) return;
+      
+      let shouldCheck = false;
+      for (const mutation of mutations) {
+        if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+          // Check if any added nodes are folder elements
+          for (const node of Array.from(mutation.addedNodes)) {
+            if (node instanceof HTMLElement) {
+              const $node = $(node);
+              if ($node.hasClass('folder') || $node.hasClass('directory-item') || $node.find('.folder').length > 0) {
+                shouldCheck = true;
+                break;
+              }
+            }
+          }
+          if (shouldCheck) break;
+        }
+      }
+      
+      if (shouldCheck) {
+        setTimeout(() => {
+          const itemsTab = $('.sidebar-tab[data-tab="items"]');
+          if (itemsTab.length > 0) {
+            console.log('🔵 Mastery System | DOM changed, checking for missing buttons...');
+            addButtonsToItemDirectory(itemsTab);
+          }
+        }, 200);
+      }
+    });
+
+    // Start observing when Item Directory is available
+    const startObserving = () => {
+      const itemsTab = $('.sidebar-tab[data-tab="items"]');
+      if (itemsTab.length > 0) {
+        observer.observe(itemsTab[0], {
+          childList: true,
+          subtree: true
+        });
+        console.log('✅ Mastery System | MutationObserver started for Item Directory');
+      } else {
+        // Retry after a delay
+        setTimeout(startObserving, 500);
+      }
+    };
+
+    // Start observing after a delay to ensure DOM is ready
+    setTimeout(startObserving, 1000);
+  }
 
   // Hook into Actor Sheet to add "Artifact" button
   Hooks.on('renderActorSheet', (sheet: any, html: JQuery, _data: any) => {

@@ -5,7 +5,7 @@
  * - When user clicks any valid target (token OR ring/overlay area), fires hook with attacker/target ids + option, then ends targeting
  * - Does NOT create chat messages, roll dice, or execute attacks directly
  */
-import { highlightHexesInRange, clearHexHighlight } from "./utils/hex-highlighting.js";
+import { highlightHexesInRange, clearHexHighlight } from "./utils/hex-highlighting";
 let active = null;
 let confirming = false;
 /* -------------------------------------------- */
