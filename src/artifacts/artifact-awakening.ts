@@ -11,6 +11,20 @@ import { ArtifactBuilder } from './artifact-builder.js';
 export function initializeArtifactAwakening(): void {
   console.log('Mastery System | Initializing Artifact Awakening system');
   
+  // Register global event delegation for artifact builder buttons
+  // This ensures buttons work even if added dynamically
+  $(document).off('click.ms-artifact-builder').on('click.ms-artifact-builder', '.ms-open-artifact-builder-btn', async (e: JQuery.ClickEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const folderId = $(e.currentTarget).data('folder-id') || $(e.currentTarget).attr('data-folder-id');
+    if (!folderId) {
+      console.error('Mastery System | No folder ID found on button');
+      return;
+    }
+    console.log('🔵 Mastery System | Artifact builder button clicked for folder:', folderId);
+    await openArtifactBuilderForFolder(folderId);
+  });
+  
   // Debug: Expose debug function to global scope
   (globalThis as any).debugArtifactButton = function() {
     console.log('=== Artifact Button Debug ===');
@@ -377,12 +391,8 @@ export function initializeArtifactAwakening(): void {
         </button>
       `);
 
-      builderBtn.on('click', async (e: JQuery.ClickEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const folderId = $(e.currentTarget).data('folder-id');
-        await openArtifactBuilderForFolder(folderId);
-      });
+      // Note: Click handler is registered via event delegation in initializeArtifactAwakening()
+      // This ensures buttons work even if added dynamically or after DOM changes
 
       // Add button to folder header (Foundry v13 uses folder-header/folder-name)
       const folderHeader = $folder.find('.folder-header');
@@ -630,7 +640,7 @@ async function createNewArtifact(): Promise<void> {
 /**
  * Open artifact builder for a folder
  */
-async function openArtifactBuilderForFolder(folderId: string): Promise<void> {
+export async function openArtifactBuilderForFolder(folderId: string): Promise<void> {
   const folder = (game as any).folders?.get(folderId);
   if (!folder) {
     ui.notifications?.error('Folder not found.');
