@@ -83,12 +83,22 @@ function applyArtifactButtonsToDirectory(rootHtml: JQuery): void {
   }
 
   // Folder buttons
-  const folderRows = rootHtml.find('.directory-item.folder, .folder, [data-folder-id]');
+  const folderRows = rootHtml
+    .find('.directory-item.folder, .folder')
+    .filter((_index, el) => {
+      const $el = $(el);
+      if ($el.is('button') || $el.hasClass('ms-open-artifact-builder-btn')) return false;
+      return !!($el.attr('data-folder-id') || $el.data('folderId'));
+    });
   folderRows.each((_index: number, folder: HTMLElement) => {
     const $folder = $(folder);
     const folderId = $folder.attr('data-folder-id') || $folder.data('folderId');
     if (!folderId) return;
-    if ($folder.find('.ms-open-artifact-builder-btn').length > 0) return;
+    const existingButtons = $folder.find('.ms-open-artifact-builder-btn');
+    if (existingButtons.length > 1) {
+      existingButtons.slice(1).remove();
+    }
+    if (existingButtons.length > 0) return;
 
     const allFolderItems = (game as any).items?.filter((item: any) => item.folder?.id === folderId) || [];
     const folderItems = allFolderItems.filter((item: any) => {
@@ -462,7 +472,13 @@ export function initializeArtifactAwakening(): void {
     // ===== PART 2: Add diamond symbols to artifact folders =====
 
     // Find all folder rows
-    const folderRows = actualHtml.find('.directory-item.folder, .folder, [data-folder-id]');
+    const folderRows = actualHtml
+      .find('.directory-item.folder, .folder')
+      .filter((_index, el) => {
+        const $el = $(el);
+        if ($el.is('button') || $el.hasClass('ms-open-artifact-builder-btn')) return false;
+        return !!($el.attr('data-folder-id') || $el.data('folderId'));
+      });
     console.log('🔵 Mastery System | Folder rows found', {
       count: folderRows.length,
       totalItems: (game as any).items?.size || (game as any).items?.length || 0,
@@ -479,7 +495,11 @@ export function initializeArtifactAwakening(): void {
       if (!folderId) return;
 
       // Check if button already exists
-      if ($folder.find('.ms-open-artifact-builder-btn').length > 0) return;
+      const existingButtons = $folder.find('.ms-open-artifact-builder-btn');
+      if (existingButtons.length > 1) {
+        existingButtons.slice(1).remove();
+      }
+      if (existingButtons.length > 0) return;
 
       // Check if this folder contains artifact root items
       const folderData = (app as any).folders?.get(folderId) || (game as any).folders?.get(folderId);
