@@ -7,13 +7,21 @@ export interface MasteryItemData {
   system: PowerData | MasteryNodeData | EchoData | SchtickData | ArtifactData | ConditionData | WeaponData | ArmorData | ShieldData | GearData;
 }
 
-// === Power Data ===
-export interface PowerData {
+// === Base Item Data (common to all items) ===
+export interface BaseItemData {
   description: string;
+  inventorySize: string; // e.g., "1x1", "2x1", "L", "2x2", etc.
+  baseDamage: string; // e.g., "1d8", "2d8", "3d8", "4d8", "5d8" or empty
+  specials: string[]; // Maximum 3 specials
+}
+
+// === Artifact Power Data (powers embedded in artifacts) ===
+export interface ArtifactPowerData {
+  name: string;
   powerType: 'active' | 'buff' | 'utility' | 'passive' | 'reaction' | 'movement';
   level: number;
   tree: string;
-  tags: string[];
+  tags: string[]; // Can include "spell", "charged", etc.
   range: string;
   aoe: string;
   duration: string;
@@ -40,9 +48,39 @@ export interface PowerData {
   };
 }
 
+// === Power Data ===
+export interface PowerData extends BaseItemData {
+  powerType: 'active' | 'buff' | 'utility' | 'passive' | 'reaction' | 'movement';
+  level: number;
+  tree: string;
+  tags: string[];
+  range: string;
+  aoe: string;
+  duration: string;
+  effect: string;
+  ap: number;
+  cost: {
+    action: boolean;
+    movement: boolean;
+    reaction: boolean;
+    stones: number;
+    charges: number;
+  };
+  roll: {
+    attribute: string;
+    tn: number;
+    damage: string;
+    healing: string;
+    raises: string;
+  };
+  requirements: {
+    masteryRank: number;
+    other: string;
+  };
+}
+
 // === Mastery Node Data ===
-export interface MasteryNodeData {
-  description: string;
+export interface MasteryNodeData extends BaseItemData {
   tree: string;
   level: number;
   bonus: string;
@@ -53,8 +91,7 @@ export interface MasteryNodeData {
 }
 
 // === Echo Data ===
-export interface EchoData {
-  description: string;
+export interface EchoData extends BaseItemData {
   echoType: string;
   traits: string[];
   bonuses: {
@@ -66,16 +103,14 @@ export interface EchoData {
 }
 
 // === Schtick Data ===
-export interface SchtickData {
-  description: string;
+export interface SchtickData extends BaseItemData {
   manifestation: string;
   masteryRank: number;
   notes: string;
 }
 
 // === Artifact Data ===
-export interface ArtifactData {
-  description: string;
+export interface ArtifactData extends BaseItemData {
   level: number;
   equipped: boolean;
   effects: string[];
@@ -90,11 +125,11 @@ export interface ArtifactData {
     stones: number;
     masteryRank: number;
   };
+  powers: ArtifactPowerData[]; // Powers embedded in the artifact
 }
 
 // === Condition Data ===
-export interface ConditionData {
-  description: string;
+export interface ConditionData extends BaseItemData {
   conditionType: string;
   value: number;
   diminishing: boolean;
@@ -105,42 +140,37 @@ export interface ConditionData {
 }
 
 // === Weapon Data ===
-export interface WeaponData {
+export interface WeaponData extends BaseItemData {
   weaponType: 'melee' | 'ranged';
   damage: string;
   range: string;
-  specials: string[];
   equipped: boolean;
   hands: number;
   innateAbilities: string[];
-  description: string;
 }
 
 // === Armor Data ===
-export interface ArmorData {
+export interface ArmorData extends BaseItemData {
   type: string;
   armorValue: number;
   skillPenalty?: number;
   equipped: boolean;
-  description: string;
 }
 
 // === Shield Data ===
-export interface ShieldData {
+export interface ShieldData extends BaseItemData {
   type: string;
   shieldValue: number;
   evadeBonus?: number;
   skillPenalty?: number;
   equipped: boolean;
-  description: string;
 }
 
 // === Gear Data ===
-export interface GearData {
+export interface GearData extends BaseItemData {
   weight: number;
   quantity: number;
   equipped: boolean;
-  description: string;
 }
 
 

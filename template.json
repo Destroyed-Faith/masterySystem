@@ -260,7 +260,10 @@
     "types": ["power", "masteryNode", "echo", "schtick", "artifact", "condition", "weapon", "armor", "shield", "gear"],
     "templates": {
       "base": {
-        "description": ""
+        "description": "",
+        "inventorySize": "1x1",
+        "baseDamage": "",
+        "specials": []
       }
     },
     "power": {
@@ -336,7 +339,8 @@
       "requirements": {
         "stones": 0,
         "masteryRank": 1
-      }
+      },
+      "powers": []
     },
     "condition": {
       "templates": ["base"],

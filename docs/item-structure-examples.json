@@ -1,0 +1,314 @@
+{
+  "itemStructureExamples": {
+    "description": "Beispiele für die Item-Struktur im Mastery System",
+    
+    "baseItemFields": {
+      "description": "Diese Felder sind für ALLE Item-Typen verfügbar:",
+      "fields": {
+        "description": "string - Beschreibung des Items",
+        "inventorySize": "string - Größe im Inventar (z.B. '1x1', '2x1', 'L', '2x2', '3x1', etc.)",
+        "baseDamage": "string - Basis-Schaden von 1d8 bis 5d8 (z.B. '1d8', '2d8', '3d8', '4d8', '5d8' oder leer)",
+        "specials": "string[] - Array mit maximal 3 Specials"
+      }
+    },
+
+    "exampleWeapon": {
+      "name": "Schwert des Lichts",
+      "type": "weapon",
+      "system": {
+        "description": "Ein mächtiges Schwert, das Licht ausstrahlt",
+        "inventorySize": "2x1",
+        "baseDamage": "2d8",
+        "specials": [
+          "Leuchtet in Dunkelheit",
+          "Bonus gegen Untote"
+        ],
+        "weaponType": "melee",
+        "damage": "2d8",
+        "range": "0m",
+        "equipped": false,
+        "hands": 1,
+        "innateAbilities": []
+      }
+    },
+
+    "exampleGear": {
+      "name": "Rucksack",
+      "type": "gear",
+      "system": {
+        "description": "Ein großer Rucksack für Reisen",
+        "inventorySize": "L",
+        "baseDamage": "",
+        "specials": [
+          "Erhöht Inventar-Kapazität um 10"
+        ],
+        "weight": 2,
+        "quantity": 1,
+        "equipped": false
+      }
+    },
+
+    "exampleArtifact": {
+      "name": "Amulett der Macht",
+      "type": "artifact",
+      "system": {
+        "description": "Ein uraltes Amulett mit verborgenen Kräften",
+        "inventorySize": "1x1",
+        "baseDamage": "3d8",
+        "specials": [
+          "Immunität gegen Verzauberung",
+          "Regeneration +2 pro Runde"
+        ],
+        "level": 5,
+        "equipped": true,
+        "effects": [
+          "Ständiger Schutz vor Magie"
+        ],
+        "bonuses": {
+          "attack": 2,
+          "damage": "3d8",
+          "defense": 3,
+          "specials": [
+            "Immunität gegen Verzauberung"
+          ]
+        },
+        "lore": "Dieses Amulett wurde von den alten Göttern geschmiedet...",
+        "requirements": {
+          "stones": 5,
+          "masteryRank": 3
+        },
+        "powers": [
+          {
+            "name": "Blitzschlag",
+            "powerType": "active",
+            "level": 1,
+            "tree": "Elemental",
+            "tags": ["spell", "charged"],
+            "range": "30m",
+            "aoe": "5m Radius",
+            "duration": "instant",
+            "effect": "Verursacht Blitzschaden und betäubt Ziele",
+            "specials": [
+              "Betäubt Ziele für 1 Runde"
+            ],
+            "ap": 30,
+            "cost": {
+              "action": true,
+              "movement": false,
+              "reaction": false,
+              "stones": 2,
+              "charges": 1
+            },
+            "roll": {
+              "attribute": "intellect",
+              "tn": 15,
+              "damage": "4d8",
+              "healing": "",
+              "raises": ""
+            },
+            "requirements": {
+              "masteryRank": 2,
+              "other": ""
+            }
+          },
+          {
+            "name": "Schutzschild",
+            "powerType": "buff",
+            "level": 1,
+            "tree": "Defensive",
+            "tags": [],
+            "range": "Self",
+            "aoe": "",
+            "duration": "5 Runden",
+            "effect": "Erhöht Verteidigung um +5",
+            "specials": [],
+            "ap": 20,
+            "cost": {
+              "action": true,
+              "movement": false,
+              "reaction": false,
+              "stones": 1,
+              "charges": 0
+            },
+            "roll": {
+              "attribute": "resolve",
+              "tn": 0,
+              "damage": "",
+              "healing": "",
+              "raises": ""
+            },
+            "requirements": {
+              "masteryRank": 1,
+              "other": ""
+            }
+          },
+          {
+            "name": "Passive Regeneration",
+            "powerType": "passive",
+            "level": 1,
+            "tree": "Healing",
+            "tags": [],
+            "range": "Self",
+            "aoe": "",
+            "duration": "permanent",
+            "effect": "Regeneriert 2 HP pro Runde",
+            "specials": [],
+            "ap": 0,
+            "cost": {
+              "action": false,
+              "movement": false,
+              "reaction": false,
+              "stones": 0,
+              "charges": 0
+            },
+            "roll": {
+              "attribute": "",
+              "tn": 0,
+              "damage": "",
+              "healing": "2",
+              "raises": ""
+            },
+            "requirements": {
+              "masteryRank": 1,
+              "other": ""
+            }
+          },
+          {
+            "name": "Teleport",
+            "powerType": "utility",
+            "level": 2,
+            "tree": "Movement",
+            "tags": ["charged"],
+            "range": "50m",
+            "aoe": "",
+            "duration": "instant",
+            "effect": "Teleportiert den Träger an einen anderen Ort",
+            "specials": [
+              "Kann durch Wände teleportieren"
+            ],
+            "ap": 40,
+            "cost": {
+              "action": true,
+              "movement": false,
+              "reaction": false,
+              "stones": 3,
+              "charges": 2
+            },
+            "roll": {
+              "attribute": "wits",
+              "tn": 12,
+              "damage": "",
+              "healing": "",
+              "raises": ""
+            },
+            "requirements": {
+              "masteryRank": 3,
+              "other": ""
+            }
+          }
+        ]
+      }
+    },
+
+    "examplePower": {
+      "name": "Feuerball",
+      "type": "power",
+      "system": {
+        "description": "Ein mächtiger Feuerball-Angriff",
+        "inventorySize": "1x1",
+        "baseDamage": "4d8",
+        "specials": [
+          "Zündet Ziele an"
+        ],
+        "powerType": "active",
+        "level": 3,
+        "tree": "Pyromancy",
+        "tags": ["spell"],
+        "range": "50m",
+        "aoe": "10m Radius",
+        "duration": "instant",
+        "effect": "Verursacht massiven Feuerschaden",
+        "ap": 35,
+        "cost": {
+          "action": true,
+          "movement": false,
+          "reaction": false,
+          "stones": 3,
+          "charges": 0
+        },
+        "roll": {
+          "attribute": "intellect",
+          "tn": 18,
+          "damage": "4d8",
+          "healing": "",
+          "raises": ""
+        },
+        "requirements": {
+          "masteryRank": 2,
+          "other": "Pyromancy Level 3"
+        }
+      }
+    },
+
+    "exampleArmor": {
+      "name": "Plattenrüstung",
+      "type": "armor",
+      "system": {
+        "description": "Schwere Plattenrüstung aus Stahl",
+        "inventorySize": "2x2",
+        "baseDamage": "",
+        "specials": [
+          "Reduziert Bewegungsgeschwindigkeit um 2"
+        ],
+        "type": "heavy",
+        "armorValue": 8,
+        "skillPenalty": 2,
+        "equipped": false
+      }
+    },
+
+    "inventorySizeExamples": {
+      "description": "Mögliche Werte für inventorySize:",
+      "values": [
+        "1x1 - Standard-Größe (1 Feld)",
+        "2x1 - Horizontal (2 Felder nebeneinander)",
+        "1x2 - Vertikal (2 Felder übereinander)",
+        "2x2 - Quadrat (4 Felder)",
+        "L - L-förmig (3 Felder in L-Form)",
+        "3x1 - Horizontal lang (3 Felder)",
+        "1x3 - Vertikal lang (3 Felder)",
+        "3x2 - Rechteck (6 Felder)",
+        "2x3 - Rechteck vertikal (6 Felder)"
+      ]
+    },
+
+    "baseDamageExamples": {
+      "description": "Mögliche Werte für baseDamage (1d8 bis 5d8):",
+      "values": [
+        "1d8 - Minimaler Schaden",
+        "2d8 - Leichter Schaden",
+        "3d8 - Mittlerer Schaden",
+        "4d8 - Starker Schaden",
+        "5d8 - Maximaler Schaden",
+        "\"\" - Kein Basis-Schaden (leer)"
+      ]
+    },
+
+    "artifactPowerTypes": {
+      "description": "Power-Typen für Artefakt-Powers (wie normale Powers):",
+      "types": [
+        "active - Aktive Power, die eine Aktion kostet",
+        "buff - Buff-Power, die einen temporären Bonus gibt",
+        "utility - Utility-Power für spezielle Zwecke",
+        "passive - Passive Power, die ständig aktiv ist",
+        "reaction - Reaktions-Power, die als Reaktion verwendet wird",
+        "movement - Bewegungs-Power"
+      ],
+      "tags": [
+        "spell - Markiert die Power als Zauber",
+        "charged - Power hat Ladungen/Charges"
+      ]
+    }
+  }
+}
+
