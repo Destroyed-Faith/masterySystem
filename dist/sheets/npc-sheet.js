@@ -2,7 +2,7 @@
  * NPC Sheet for Mastery System
  * Simplified sheet for non-player characters
  */
-import { MasteryCharacterSheet } from './character-sheet';
+import { MasteryCharacterSheet } from './character-sheet.js';
 export class MasteryNpcSheet extends MasteryCharacterSheet {
     /** @override */
     static get defaultOptions() {

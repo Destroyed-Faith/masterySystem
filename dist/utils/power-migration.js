@@ -32,24 +32,24 @@ function convertPowerTypeToCategory(powerType) {
  * Convert old cost structure to new cost structure
  */
 function convertCost(oldCost, powerType) {
-    const cost = {};
+    let action = 'none';
     if (oldCost.reaction) {
-        cost.action = 'reaction';
+        action = 'reaction';
     }
     else if (oldCost.movement) {
-        cost.action = 'movement';
+        action = 'movement';
     }
     else if (oldCost.action) {
         if (powerType === 'utility' || powerType === 'buff') {
-            cost.action = 'none'; // Utility powers don't cost attack actions
+            action = 'none'; // Utility powers don't cost attack actions
         }
         else {
-            cost.action = 'attack';
+            action = 'attack';
         }
     }
-    else {
-        cost.action = 'none';
-    }
+    const cost = {
+        action
+    };
     if (oldCost.stones) {
         cost.stones = oldCost.stones;
     }
@@ -272,7 +272,7 @@ export function migrateArtifactPower(oldPower) {
         })
     };
     // Clone level 1 for levels 2-4, ensuring nulls are used instead of undefined
-    const cloneLevel = (levelNum) => ({
+    const cloneLevel = (_levelNum) => ({
         type: level1.type,
         range: level1.range === null ? null : { ...level1.range },
         aoe: level1.aoe === null ? null : { ...level1.aoe },
@@ -333,13 +333,11 @@ export function migratePowerData(oldPower) {
             if (match) {
                 return {
                     key: match[1],
-                    value: parseInt(match[2], 10),
-                    raiseCost: parseInt(match[2], 10)
+                    rank: parseInt(match[2], 10)
                 };
             }
             return {
-                key: spec,
-                raiseCost: 1
+                key: spec
             };
         })
     };

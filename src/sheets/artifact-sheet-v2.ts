@@ -4,8 +4,7 @@
  */
 
 import type { EmbeddedPowerData, ArtifactData, PowerLevelKey } from '../types/item.js';
-import { isOldPowerStructure, migrateArtifactPower } from '../utils/power-migration.js';
-import { validatePower } from '../utils/power-validation.js';
+import { isOldPowerStructure, migrateArtifactPower, isNewPowerStructure } from '../utils/power-migration.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -171,6 +170,10 @@ export class ArtifactSheetV2 extends BaseSheet {
       const index = parseInt(target.dataset.index || '0');
       if (index >= 0 && index < powers.length) {
         const powerToClone = powers[index];
+        // Only clone if it's the new structure
+        if (!isNewPowerStructure(powerToClone)) {
+          return;
+        }
         const cloned: EmbeddedPowerData = {
           ...powerToClone,
           id: foundry.utils.randomID(),
@@ -188,7 +191,6 @@ export class ArtifactSheetV2 extends BaseSheet {
         await this.render();
       }
     } else if (action === 'toggle-power') {
-      const index = parseInt(target.dataset.index || '0');
       const powerElement = target.closest('.power-item');
       if (powerElement) {
         const editor = powerElement.querySelector('.power-editor');
@@ -353,13 +355,10 @@ export class ArtifactSheetV2 extends BaseSheet {
     
     if (powerIndex >= 0 && powerIndex < powers.length) {
       const power = { ...powers[powerIndex] };
-      if (!power.levels) {
-        power.levels = {
-          '1': this._createEmptyLevel(),
-          '2': this._createEmptyLevel(),
-          '3': this._createEmptyLevel(),
-          '4': this._createEmptyLevel()
-        };
+      // Check if power uses new structure
+      if (!isNewPowerStructure(power)) {
+        // Old format - can't edit levels this way
+        return;
       }
       
       const level = { ...power.levels[levelKey] };

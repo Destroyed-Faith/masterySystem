@@ -15,11 +15,10 @@ function parseSpecial(specialStr) {
         const match = part.match(/(\w+)\((\d+)\)/);
         if (match) {
             const key = match[1];
-            const value = parseInt(match[2], 10);
+            const rank = parseInt(match[2], 10);
             specials.push({
                 key,
-                value,
-                raiseCost: value // Default: raiseCost = value
+                rank
             });
         }
         else {
@@ -27,18 +26,16 @@ function parseSpecial(specialStr) {
             const simpleMatch = part.match(/(\w+)(?:\((\d+)\))?/);
             if (simpleMatch) {
                 const key = simpleMatch[1];
-                const value = simpleMatch[2] ? parseInt(simpleMatch[2], 10) : undefined;
+                const rank = simpleMatch[2] ? parseInt(simpleMatch[2], 10) : undefined;
                 specials.push({
                     key,
-                    value,
-                    raiseCost: value || 1 // Default to 1 if no value
+                    rank
                 });
             }
             else {
                 // Fallback: use whole string as key
                 specials.push({
-                    key: part,
-                    raiseCost: 1
+                    key: part
                 });
             }
         }
@@ -106,7 +103,6 @@ function parseAoeFromString(aoeStr) {
     if (lower.includes('weapon')) {
         return {
             shape: 'weapon',
-            targets: 1,
             note: aoeStr
         };
     }
@@ -140,7 +136,7 @@ function parseDurationFromString(durationStr, powerType) {
             return { kind: 'rounds', rounds: parseInt(match[1], 10) };
         }
         if (lower.includes('mastery') || lower.includes('mr')) {
-            return { kind: 'masteryRankRounds', note: durationStr };
+            return { kind: 'masteryRounds', note: durationStr };
         }
         return { kind: 'rounds', rounds: 1, note: durationStr };
     }
@@ -152,7 +148,7 @@ function parseDurationFromString(durationStr, powerType) {
     }
     // Default based on power type
     if (powerType === 'buff') {
-        return { kind: 'masteryRankRounds', note: durationStr };
+        return { kind: 'masteryRounds', note: durationStr };
     }
     if (powerType === 'utility') {
         return { kind: 'rounds', rounds: 1, note: durationStr };
@@ -268,14 +264,14 @@ function convertCost(level, powerType) {
     }
     else if (cost.action) {
         if (powerType === 'utility' || powerType === 'buff') {
-            action = 'utility';
+            action = 'none'; // Utility and buff powers don't cost attack actions
         }
         else {
             action = 'attack';
         }
     }
     else {
-        action = 'utility';
+        action = 'none'; // Default to none if no action cost specified
     }
     return {
         action,
@@ -307,7 +303,7 @@ function convertRoll(level) {
  */
 function convertLevelToRow(level, powerType, lvl) {
     return {
-        lvl,
+        lvl, // Store level number for reference
         type: determineTypeFromLevel(level, powerType),
         range: parseRangeFromString(level.range),
         aoe: parseAoeFromString(level.aoe),
@@ -339,6 +335,7 @@ export function convertPowerDefinitionToNewStructure(power) {
         trigger = power.description || firstLevel.effect;
     }
     return {
+        id: foundry.utils.randomID(),
         name: power.name,
         category,
         tags: [],

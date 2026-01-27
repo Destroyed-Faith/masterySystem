@@ -74,7 +74,7 @@ export function renderDuration(duration: DurationSpec): string {
     }
     return 'Rounds';
   }
-  if (duration.kind === 'masteryRankRounds') {
+  if (duration.kind === 'masteryRounds') {
     return 'MR Rounds';
   }
   if (duration.kind === 'untilNextTurn') {
@@ -91,8 +91,8 @@ export function renderSpecials(specials: PowerSpecial[]): string {
     return '—';
   }
   return specials.map(spec => {
-    if (spec.value !== undefined) {
-      return `${spec.key}(${spec.value})${spec.note ? ` ${spec.note}` : ''}`;
+    if (spec.rank !== undefined) {
+      return `${spec.key}(${spec.rank})${spec.note ? ` ${spec.note}` : ''}`;
     }
     return spec.key + (spec.note ? ` ${spec.note}` : '');
   }).join(', ');
@@ -103,8 +103,8 @@ export function renderSpecials(specials: PowerSpecial[]): string {
  */
 export function renderPowerLevelRow(levelRow: PowerLevelRow, level: 1 | 2 | 3 | 4): string {
   const type = levelRow.type || '—';
-  const range = renderRange(levelRow.range);
-  const aoe = renderAoe(levelRow.aoe);
+  const range = levelRow.range ? renderRange(levelRow.range) : '—';
+  const aoe = levelRow.aoe ? renderAoe(levelRow.aoe) : '—';
   const duration = renderDuration(levelRow.duration);
   const effect = levelRow.effect?.text || '—';
   const specials = renderSpecials(levelRow.specials || []);

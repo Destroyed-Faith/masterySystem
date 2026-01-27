@@ -20,6 +20,7 @@ export interface BaseItemData {
 export type PowerCategory = 'active' | 'activeBuff' | 'utility' | 'reaction' | 'passive' | 'movement';
 export type PowerActionCost = 'attack' | 'movement' | 'full' | 'reaction' | 'none';
 export type PowerLevelKey = '1' | '2' | '3' | '4';
+export type PowerRollKind = 'none' | 'attack' | 'check' | 'contest';
 
 export interface RangeSpec {
   kind: 'self' | 'touch' | 'melee' | 'distance';
@@ -28,8 +29,12 @@ export interface RangeSpec {
 }
 
 export interface AoeSpec {
-  shape: 'radius' | 'cone' | 'line' | 'burst' | 'none';
+  shape: 'radius' | 'cone' | 'line' | 'burst' | 'none' | 'weapon' | 'aura' | 'single';
   m?: number;
+  radiusM?: number;
+  lengthM?: number;
+  widthM?: number;
+  angleDeg?: number;
   note?: string;
 }
 
@@ -63,6 +68,8 @@ export interface PowerLevelRow {
   duration: DurationSpec;
   effect: EffectSpec;
   specials: Array<{ key: string; rank?: number; note?: string }>;
+  trigger?: string; // For reaction powers
+  lvl?: number; // Level number (1-4), redundant with Record key but kept for compatibility
 }
 
 export interface PowerCostLimit {
@@ -89,8 +96,14 @@ export interface EmbeddedPowerData {
 }
 
 // Legacy alias for backwards compatibility
-export interface NewArtifactPowerData extends EmbeddedPowerData {
+export interface NewArtifactPowerData extends Omit<EmbeddedPowerData, 'id'> {
+  id?: string; // Optional - can be added when power is created
   rank?: number; // Legacy field - kept for backwards compatibility
+  roll?: {
+    kind: PowerRollKind;
+    attribute?: string;
+    vs?: string;
+  };
 }
 
 // === Legacy Artifact Power Data (for backwards compatibility) ===

@@ -2,7 +2,7 @@
  * Artifact Item Sheet V2 (Foundry v13 ApplicationV2)
  * Supports editing artifact powers with the new schema
  */
-import { isOldPowerStructure, migrateArtifactPower } from '../utils/power-migration.js';
+import { isOldPowerStructure, migrateArtifactPower, isNewPowerStructure } from '../utils/power-migration.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
 const BaseSheet = HandlebarsApplicationMixin(ApplicationV2);
@@ -145,6 +145,10 @@ export class ArtifactSheetV2 extends BaseSheet {
             const index = parseInt(target.dataset.index || '0');
             if (index >= 0 && index < powers.length) {
                 const powerToClone = powers[index];
+                // Only clone if it's the new structure
+                if (!isNewPowerStructure(powerToClone)) {
+                    return;
+                }
                 const cloned = {
                     ...powerToClone,
                     id: foundry.utils.randomID(),
@@ -164,7 +168,6 @@ export class ArtifactSheetV2 extends BaseSheet {
             }
         }
         else if (action === 'toggle-power') {
-            const index = parseInt(target.dataset.index || '0');
             const powerElement = target.closest('.power-item');
             if (powerElement) {
                 const editor = powerElement.querySelector('.power-editor');
@@ -332,13 +335,10 @@ export class ArtifactSheetV2 extends BaseSheet {
         const powers = [...(system.powers || [])];
         if (powerIndex >= 0 && powerIndex < powers.length) {
             const power = { ...powers[powerIndex] };
-            if (!power.levels) {
-                power.levels = {
-                    '1': this._createEmptyLevel(),
-                    '2': this._createEmptyLevel(),
-                    '3': this._createEmptyLevel(),
-                    '4': this._createEmptyLevel()
-                };
+            // Check if power uses new structure
+            if (!isNewPowerStructure(power)) {
+                // Old format - can't edit levels this way
+                return;
             }
             const level = { ...power.levels[levelKey] };
             const specials = [...(level.specials || [])];

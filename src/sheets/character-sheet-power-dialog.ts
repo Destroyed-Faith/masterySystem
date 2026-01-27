@@ -201,7 +201,7 @@ export async function showPowerCreationDialog(actor: Actor, context: 'mastery' |
                 aoe: renderAoe(levelRow.aoe),
                 duration: renderDuration(levelRow.duration),
                 effect: levelRow.effect.text,
-                specials: levelRow.specials.map((s: PowerSpecial) => s.value !== undefined ? `${s.key}(${s.value})` : s.key),
+                specials: levelRow.specials.map((s: PowerSpecial) => s.rank !== undefined ? `${s.key}(${s.rank})` : s.key),
                 ap: 30
               }
             };

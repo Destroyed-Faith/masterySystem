@@ -8,12 +8,14 @@ declare global {
     type: string;
     system: any;
     update(data: any): Promise<any>;
+    isOwner: boolean;
   }
 
   interface Item {
     type: string;
     system: any;
     update(data: any): Promise<any>;
+    isOwner: boolean;
   }
 
   namespace foundry {
@@ -21,6 +23,7 @@ declare global {
       function mergeObject(original: any, other: any, options?: any): any;
       function deepClone(original: any): any;
       function duplicate(original: any): any;
+      function randomID(): string;
     }
   }
 

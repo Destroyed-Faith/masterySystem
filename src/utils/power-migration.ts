@@ -5,7 +5,6 @@
 
 import type {
   ArtifactPowerData,
-  NewArtifactPowerData,
   EmbeddedPowerData,
   PowerData,
   PowerCategory,
@@ -14,8 +13,8 @@ import type {
   AoeSpec,
   DurationSpec,
   EffectSpec,
-  PowerCost,
-  PowerActionCost
+  PowerActionCost,
+  PowerSpecial
 } from '../types/item.js';
 
 /**
@@ -50,22 +49,24 @@ function convertPowerTypeToCategory(powerType: string): PowerCategory {
 /**
  * Convert old cost structure to new cost structure
  */
-function convertCost(oldCost: any, powerType: string): PowerCost {
-  const cost: PowerCost = {};
+function convertCost(oldCost: any, powerType: string): { action: PowerActionCost; stones?: number; charges?: number; note?: string } {
+  let action: PowerActionCost = 'none';
   
   if (oldCost.reaction) {
-    cost.action = 'reaction';
+    action = 'reaction';
   } else if (oldCost.movement) {
-    cost.action = 'movement';
+    action = 'movement';
   } else if (oldCost.action) {
     if (powerType === 'utility' || powerType === 'buff') {
-      cost.action = 'none'; // Utility powers don't cost attack actions
+      action = 'none'; // Utility powers don't cost attack actions
     } else {
-      cost.action = 'attack';
+      action = 'attack';
     }
-  } else {
-    cost.action = 'none';
   }
+  
+  const cost: { action: PowerActionCost; stones?: number; charges?: number; note?: string } = {
+    action
+  };
   
   if (oldCost.stones) {
     cost.stones = oldCost.stones;
@@ -319,7 +320,7 @@ export function migrateArtifactPower(oldPower: ArtifactPowerData): EmbeddedPower
   };
   
   // Clone level 1 for levels 2-4, ensuring nulls are used instead of undefined
-  const cloneLevel = (levelNum: '2' | '3' | '4'): PowerLevelRow => ({
+  const cloneLevel = (_levelNum: '2' | '3' | '4'): PowerLevelRow => ({
     type: level1.type,
     range: level1.range === null ? null : { ...level1.range },
     aoe: level1.aoe === null ? null : { ...level1.aoe },
@@ -388,13 +389,11 @@ export function migratePowerData(oldPower: PowerData): PowerData {
       if (match) {
         return {
           key: match[1],
-          value: parseInt(match[2], 10),
-          raiseCost: parseInt(match[2], 10)
+          rank: parseInt(match[2], 10)
         };
       }
       return {
-        key: spec,
-        raiseCost: 1
+        key: spec
       };
     })
   };

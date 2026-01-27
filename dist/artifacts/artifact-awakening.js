@@ -86,17 +86,20 @@ export function initializeArtifactAwakening() {
                 return;
             }
             // DEBUG: Log full HTML structure
+            const htmlJQuery1 = (html instanceof jQuery ? html : $(html));
+            const itemsTab = $('.sidebar-tab[data-tab="items"]');
             console.log('🔍 Mastery System | DEBUG: HTML Structure Check', {
-                htmlLength: html instanceof jQuery ? html.length : (html instanceof HTMLElement ? 1 : 0),
-                htmlString: html instanceof jQuery ? html[0]?.outerHTML?.substring(0, 500) : (html instanceof HTMLElement ? html.outerHTML?.substring(0, 500) : 'NOT HTML'),
-                hasItemsTab: $('.sidebar-tab[data-tab="items"]').length > 0,
-                itemsTabHTML: $('.sidebar-tab[data-tab="items"]').length > 0 ? $('.sidebar-tab[data-tab="items"]')[0].outerHTML.substring(0, 300) : 'NOT FOUND'
+                htmlLength: htmlJQuery1.length,
+                htmlString: htmlJQuery1.length > 0 ? htmlJQuery1[0]?.outerHTML?.substring(0, 500) : 'NOT HTML',
+                hasItemsTab: itemsTab.length > 0,
+                itemsTabHTML: itemsTab.length > 0 ? itemsTab[0].outerHTML.substring(0, 300) : 'NOT FOUND'
             });
             // CRITICAL: Always use the actual DOM element from the sidebar tab, not the passed html
             // The passed html might be a window wrapper, not the actual sidebar tab
             let actualHtml = $('.sidebar-tab[data-tab="items"]');
+            const htmlJQuery2 = (html instanceof jQuery ? html : $(html));
             console.log('🔵 Mastery System | HTML Processing', {
-                passedHtmlLength: html instanceof jQuery ? html.length : (html instanceof HTMLElement ? 1 : 0),
+                passedHtmlLength: htmlJQuery2.length,
                 actualHtmlLength: actualHtml.length,
                 hasAppElement: !!app?.element,
                 hasAppInternalElement: !!app?._element,
@@ -134,7 +137,7 @@ export function initializeArtifactAwakening() {
             if (headerActions.length > 0) {
                 console.log('✅ Mastery System | Found header-actions container:', {
                     html: headerActions[0].outerHTML.substring(0, 400),
-                    buttons: headerActions.find('button').map((i, el) => ({
+                    buttons: headerActions.find('button').map((_i, el) => ({
                         class: el.className,
                         dataAction: el.getAttribute('data-action'),
                         text: el.textContent?.trim()
@@ -281,7 +284,7 @@ export function initializeArtifactAwakening() {
             console.log('🔵 Mastery System | Folder rows found', {
                 count: folderRows.length,
                 totalItems: game.items?.size || game.items?.length || 0,
-                folderIds: folderRows.map((i, el) => $(el).attr('data-folder-id')).get()
+                folderIds: folderRows.map((_i, el) => $(el).attr('data-folder-id')).get()
             });
             folderRows.each((_index, folder) => {
                 const $folder = $(folder);
@@ -420,10 +423,10 @@ export function initializeArtifactAwakening() {
         console.error('Error details:', error);
     }
     // Additional hook: Listen for when items tab becomes active
-    Hooks.on('renderSidebarTab', (app, html, _data) => {
+    Hooks.on('renderSidebarTab', (_app, html, _data) => {
         if (!game.user?.isGM)
             return;
-        const tab = html instanceof jQuery ? html : $(html);
+        const tab = (html instanceof jQuery ? html : $(html));
         const tabName = tab.attr('data-tab');
         if (tabName === 'items') {
             console.log('🔵 Mastery System | Items tab rendered/activated, checking for buttons...');

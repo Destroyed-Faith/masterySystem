@@ -3,7 +3,7 @@
  * Validates power data according to schema rules
  */
 
-import type { EmbeddedPowerData, PowerCost } from '../types/item.js';
+import type { EmbeddedPowerData } from '../types/item.js';
 
 /**
  * Validate that a power has no damage type arrays
