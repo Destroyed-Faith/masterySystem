@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.21] - 2025-01-XX
+
+### Updated
+- **Documentation: Enhanced Power Structure Examples**
+  - Added comprehensive AoE examples with different shapes (cone, line, burst) in `docs/item-structure-examples.json`
+  - Added `note` fields to all AoE examples for consistency
+  - New power examples: "Eisstoß" (cone AoE), "Blitzlinie" (line AoE), "Giftwolke" (burst AoE with duration)
+  - All examples now demonstrate complete AoE radius and duration patterns
+
 ## [0.4.20] - 2025-01-XX
 
 ### Added

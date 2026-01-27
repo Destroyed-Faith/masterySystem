@@ -97,7 +97,8 @@
                 },
                 "aoe": {
                   "shape": "radius",
-                  "m": 5
+                  "m": 5,
+                  "note": "5m radius"
                 },
                 "duration": {
                   "kind": "instant"
@@ -122,7 +123,8 @@
                 },
                 "aoe": {
                   "shape": "radius",
-                  "m": 7
+                  "m": 7,
+                  "note": "7m radius"
                 },
                 "duration": {
                   "kind": "instant"
@@ -147,7 +149,8 @@
                 },
                 "aoe": {
                   "shape": "radius",
-                  "m": 10
+                  "m": 10,
+                  "note": "10m radius"
                 },
                 "duration": {
                   "kind": "instant"
@@ -172,7 +175,8 @@
                 },
                 "aoe": {
                   "shape": "radius",
-                  "m": 15
+                  "m": 15,
+                  "note": "15m radius"
                 },
                 "duration": {
                   "kind": "instant"
@@ -414,6 +418,330 @@
                     "key": "Ignite",
                     "rank": 5,
                     "note": "Ziele brennen für 6 Runden"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "power-004",
+            "name": "Eisstoß",
+            "category": "active",
+            "tags": ["spell"],
+            "cost": {
+              "action": "attack",
+              "stones": 2
+            },
+            "levels": {
+              "1": {
+                "type": "Ranged",
+                "range": {
+                  "kind": "distance",
+                  "m": 20
+                },
+                "aoe": {
+                  "shape": "cone",
+                  "m": 10,
+                  "note": "10m cone"
+                },
+                "duration": {
+                  "kind": "instant"
+                },
+                "effect": {
+                  "text": "Verursacht Eisschaden in einem Kegel",
+                  "dice": "3d8"
+                },
+                "specials": [
+                  {
+                    "key": "Slow",
+                    "rank": 1
+                  }
+                ]
+              },
+              "2": {
+                "type": "Ranged",
+                "range": {
+                  "kind": "distance",
+                  "m": 25
+                },
+                "aoe": {
+                  "shape": "cone",
+                  "m": 15,
+                  "note": "15m cone"
+                },
+                "duration": {
+                  "kind": "instant"
+                },
+                "effect": {
+                  "text": "Verursacht Eisschaden in einem Kegel",
+                  "dice": "4d8"
+                },
+                "specials": [
+                  {
+                    "key": "Slow",
+                    "rank": 2
+                  }
+                ]
+              },
+              "3": {
+                "type": "Ranged",
+                "range": {
+                  "kind": "distance",
+                  "m": 30
+                },
+                "aoe": {
+                  "shape": "cone",
+                  "m": 20,
+                  "note": "20m cone"
+                },
+                "duration": {
+                  "kind": "instant"
+                },
+                "effect": {
+                  "text": "Verursacht Eisschaden in einem Kegel",
+                  "dice": "5d8"
+                },
+                "specials": [
+                  {
+                    "key": "Slow",
+                    "rank": 3
+                  }
+                ]
+              },
+              "4": {
+                "type": "Ranged",
+                "range": {
+                  "kind": "distance",
+                  "m": 35
+                },
+                "aoe": {
+                  "shape": "cone",
+                  "m": 25,
+                  "note": "25m cone"
+                },
+                "duration": {
+                  "kind": "instant"
+                },
+                "effect": {
+                  "text": "Verursacht Eisschaden in einem Kegel",
+                  "dice": "6d8"
+                },
+                "specials": [
+                  {
+                    "key": "Slow",
+                    "rank": 4
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "power-005",
+            "name": "Blitzlinie",
+            "category": "active",
+            "tags": ["spell"],
+            "cost": {
+              "action": "attack",
+              "stones": 2
+            },
+            "levels": {
+              "1": {
+                "type": "Ranged",
+                "range": {
+                  "kind": "distance",
+                  "m": 30
+                },
+                "aoe": {
+                  "shape": "line",
+                  "m": 20,
+                  "note": "20m line"
+                },
+                "duration": {
+                  "kind": "instant"
+                },
+                "effect": {
+                  "text": "Verursacht Blitzschaden entlang einer Linie",
+                  "dice": "4d8"
+                },
+                "specials": []
+              },
+              "2": {
+                "type": "Ranged",
+                "range": {
+                  "kind": "distance",
+                  "m": 40
+                },
+                "aoe": {
+                  "shape": "line",
+                  "m": 30,
+                  "note": "30m line"
+                },
+                "duration": {
+                  "kind": "instant"
+                },
+                "effect": {
+                  "text": "Verursacht Blitzschaden entlang einer Linie",
+                  "dice": "5d8"
+                },
+                "specials": []
+              },
+              "3": {
+                "type": "Ranged",
+                "range": {
+                  "kind": "distance",
+                  "m": 50
+                },
+                "aoe": {
+                  "shape": "line",
+                  "m": 40,
+                  "note": "40m line"
+                },
+                "duration": {
+                  "kind": "instant"
+                },
+                "effect": {
+                  "text": "Verursacht Blitzschaden entlang einer Linie",
+                  "dice": "6d8"
+                },
+                "specials": []
+              },
+              "4": {
+                "type": "Ranged",
+                "range": {
+                  "kind": "distance",
+                  "m": 60
+                },
+                "aoe": {
+                  "shape": "line",
+                  "m": 50,
+                  "note": "50m line"
+                },
+                "duration": {
+                  "kind": "instant"
+                },
+                "effect": {
+                  "text": "Verursacht Blitzschaden entlang einer Linie",
+                  "dice": "8d8"
+                },
+                "specials": []
+              }
+            }
+          },
+          {
+            "id": "power-006",
+            "name": "Giftwolke",
+            "category": "active",
+            "tags": ["spell"],
+            "cost": {
+              "action": "attack",
+              "stones": 3
+            },
+            "levels": {
+              "1": {
+                "type": "Ranged",
+                "range": {
+                  "kind": "distance",
+                  "m": 25
+                },
+                "aoe": {
+                  "shape": "burst",
+                  "m": 5,
+                  "note": "5m burst"
+                },
+                "duration": {
+                  "kind": "rounds",
+                  "rounds": 2,
+                  "note": "Cloud persists for 2 rounds"
+                },
+                "effect": {
+                  "text": "Erzeugt eine Giftwolke, die Schaden über Zeit verursacht",
+                  "dice": "2d8"
+                },
+                "specials": [
+                  {
+                    "key": "Poison",
+                    "rank": 1
+                  }
+                ]
+              },
+              "2": {
+                "type": "Ranged",
+                "range": {
+                  "kind": "distance",
+                  "m": 30
+                },
+                "aoe": {
+                  "shape": "burst",
+                  "m": 7,
+                  "note": "7m burst"
+                },
+                "duration": {
+                  "kind": "rounds",
+                  "rounds": 3,
+                  "note": "Cloud persists for 3 rounds"
+                },
+                "effect": {
+                  "text": "Erzeugt eine Giftwolke, die Schaden über Zeit verursacht",
+                  "dice": "3d8"
+                },
+                "specials": [
+                  {
+                    "key": "Poison",
+                    "rank": 2
+                  }
+                ]
+              },
+              "3": {
+                "type": "Ranged",
+                "range": {
+                  "kind": "distance",
+                  "m": 35
+                },
+                "aoe": {
+                  "shape": "burst",
+                  "m": 10,
+                  "note": "10m burst"
+                },
+                "duration": {
+                  "kind": "rounds",
+                  "rounds": 4,
+                  "note": "Cloud persists for 4 rounds"
+                },
+                "effect": {
+                  "text": "Erzeugt eine Giftwolke, die Schaden über Zeit verursacht",
+                  "dice": "4d8"
+                },
+                "specials": [
+                  {
+                    "key": "Poison",
+                    "rank": 3
+                  }
+                ]
+              },
+              "4": {
+                "type": "Ranged",
+                "range": {
+                  "kind": "distance",
+                  "m": 40
+                },
+                "aoe": {
+                  "shape": "burst",
+                  "m": 15,
+                  "note": "15m burst"
+                },
+                "duration": {
+                  "kind": "rounds",
+                  "rounds": 5,
+                  "note": "Cloud persists for 5 rounds"
+                },
+                "effect": {
+                  "text": "Erzeugt eine Giftwolke, die Schaden über Zeit verursacht",
+                  "dice": "5d8"
+                },
+                "specials": [
+                  {
+                    "key": "Poison",
+                    "rank": 4
                   }
                 ]
               }
