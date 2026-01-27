@@ -67,8 +67,20 @@ export function initializeArtifactAwakening() {
         }
         console.log('=== Debug Ende ===');
     };
-    // Hook into Item Directory to add "New Artifact" button (GM only)
+    // Hook into Item Directory to add "New Artifact" button and folder diamond symbols (GM only)
     Hooks.on('renderItemDirectory', (app, html, _data) => {
+        console.log('🔵 Mastery System | renderItemDirectory Hook TRIGGERED', {
+            isGM: game.user?.isGM,
+            hasApp: !!app,
+            appName: app?.constructor?.name,
+            htmlType: html?.constructor?.name,
+            htmlIsJQuery: html instanceof jQuery,
+            htmlIsHTMLElement: html instanceof HTMLElement
+        });
+        if (!game.user?.isGM) {
+            console.log('🔴 Mastery System | Hook abgebrochen: Nicht GM');
+            return;
+        }
         // Ensure html is a jQuery object
         let htmlJQuery;
         if (html instanceof jQuery) {
@@ -80,166 +92,148 @@ export function initializeArtifactAwakening() {
         else {
             htmlJQuery = $(html);
         }
+        console.log('🔵 Mastery System | HTML Processing', {
+            htmlJQueryLength: htmlJQuery?.length || 0,
+            hasAppElement: !!app?.element,
+            hasAppInternalElement: !!app?._element,
+            hasUiItems: !!ui.items,
+            hasUiItemsElement: !!ui.items?.element
+        });
         // Get the correct HTML element from the app if html is empty
         let actualHtml = htmlJQuery;
         if (!htmlJQuery || htmlJQuery.length === 0) {
             if (app?.element) {
                 actualHtml = $(app.element);
+                console.log('✅ Mastery System | Using app.element');
             }
             else if (app?._element) {
                 actualHtml = $(app._element);
+                console.log('✅ Mastery System | Using app._element');
+            }
+            else if (ui.items?.element) {
+                actualHtml = $(ui.items.element);
+                console.log('✅ Mastery System | Using ui.items.element');
+            }
+            else if (ui.items?._element) {
+                actualHtml = $(ui.items._element);
+                console.log('✅ Mastery System | Using ui.items._element');
+            }
+            else if (app?.appId) {
+                actualHtml = $(`.window-app[data-appid="${app.appId}"]`);
+                console.log('✅ Mastery System | Using appId selector');
             }
             else {
-                // Try to find the Item Directory window
-                const itemDir = Object.values(ui.windows).find((w) => w.constructor.name === 'ItemDirectory' ||
-                    w.id === 'items');
-                if (itemDir) {
-                    actualHtml = $(itemDir.element || itemDir._element);
-                }
+                actualHtml = $('.sidebar-tab[data-tab="items"]');
+                console.log('✅ Mastery System | Using sidebar-tab selector');
             }
+        }
+        else {
+            actualHtml = htmlJQuery;
+            console.log('✅ Mastery System | Using provided html');
         }
         // Ensure actualHtml is a jQuery object
         if (!(actualHtml instanceof jQuery)) {
             actualHtml = $(actualHtml);
         }
-        console.log('Mastery System | renderItemDirectory Hook ausgelöst', {
-            isGM: game.user?.isGM,
-            htmlLength: htmlJQuery.length,
+        if (!actualHtml || actualHtml.length === 0) {
+            actualHtml = $('#items');
+            console.log('✅ Mastery System | Fallback to #items selector');
+        }
+        console.log('🔵 Mastery System | Final HTML Element', {
             actualHtmlLength: actualHtml.length,
-            buttonExists: actualHtml.find('.ms-new-artifact-btn').length > 0,
-            appName: app?.constructor?.name
-        });
-        if (!game.user?.isGM) {
-            console.log('Mastery System | Hook abgebrochen: Nicht GM');
-            return;
-        }
-        // Check if button already exists
-        if (actualHtml.find('.ms-new-artifact-btn').length > 0) {
-            console.log('Mastery System | Button existiert bereits');
-            return;
-        }
-        const newArtifactBtn = $(`
-      <button type="button" class="ms-new-artifact-btn" title="New Artifact">
-        <i class="fas fa-gem"></i> New Artifact
-      </button>
-    `);
-        newArtifactBtn.on('click', async () => {
-            await createNewArtifact();
-        });
-        // Place button in the header-actions.action-buttons.flexrow container
-        // This is where "Create Item" and "Create Folder" buttons are located
-        const actionButtons = actualHtml.find('.directory-header .header-actions.action-buttons.flexrow, .directory-header .action-buttons.flexrow');
-        console.log('Mastery System | Suche nach Action Buttons Container', {
-            actionButtonsFound: actionButtons.length > 0,
-            headerFound: actualHtml.find('.directory-header').length > 0,
-            allHeaders: actualHtml.find('.directory-header').length,
-            allActionButtons: actualHtml.find('.action-buttons').length
-        });
-        if (actionButtons.length > 0) {
-            // Insert after Create Folder button (last button in the container)
-            actionButtons.append(newArtifactBtn);
-            console.log('Mastery System | Button zu Action Buttons Container hinzugefügt');
-            return;
-        }
-        // Fallback: Try to find Create Folder button and insert after it
-        const createFolderBtn = actualHtml.find('button[data-action="createFolder"], button.create-folder');
-        if (createFolderBtn.length > 0) {
-            createFolderBtn.after(newArtifactBtn);
-            console.log('Mastery System | Button nach Create Folder Button hinzugefügt');
-            return;
-        }
-        // Fallback: Try to find Create Item button and insert after it
-        const createItemBtn = actualHtml.find('button[data-action="createEntry"], button[data-action="createItem"], button.create-entry');
-        if (createItemBtn.length > 0) {
-            createItemBtn.after(newArtifactBtn);
-            console.log('Mastery System | Button nach Create Item Button hinzugefügt');
-            return;
-        }
-        // Fallback: Try header-actions container
-        const headerActions = actualHtml.find('.directory-header .header-actions');
-        if (headerActions.length > 0) {
-            headerActions.append(newArtifactBtn);
-            console.log('Mastery System | Button zu Header Actions hinzugefügt');
-            return;
-        }
-        // Last resort: try directory footer
-        const footer = actualHtml.find('.directory-footer');
-        if (footer.length > 0) {
-            footer.append(newArtifactBtn);
-            console.log('Mastery System | Button zu Footer hinzugefügt');
-            return;
-        }
-        // Last last resort: try window-content
-        const windowContent = actualHtml.find('.window-content');
-        if (windowContent.length > 0) {
-            const header = windowContent.find('.directory-header');
-            if (header.length > 0) {
-                header.prepend(newArtifactBtn);
-                console.log('Mastery System | Button zu Window Content Header hinzugefügt');
-                return;
-            }
-        }
-        console.warn('Mastery System | Button konnte nicht platziert werden - kein Container gefunden', {
-            actualHtmlLength: actualHtml.length,
-            hasWindowContent: actualHtml.find('.window-content').length > 0,
             hasDirectoryHeader: actualHtml.find('.directory-header').length > 0,
-            allButtons: actualHtml.find('button').length
+            hasActionButtons: actualHtml.find('.action-buttons').length > 0,
+            hasFolderRows: actualHtml.find('.directory-item.folder').length > 0
         });
-    });
-    // Hook into Item Directory folder rows to add "Open Artifact Builder" button
-    Hooks.on('renderItemDirectory', (app, html, _data) => {
-        if (!game.user?.isGM)
-            return;
-        // Ensure html is a jQuery object
-        let htmlJQuery;
-        if (html instanceof jQuery) {
-            htmlJQuery = html;
-        }
-        else if (html instanceof HTMLElement) {
-            htmlJQuery = $(html);
-        }
-        else {
-            htmlJQuery = $(html);
-        }
-        // Fallback to app.element or sidebar tab if html is empty
-        if (!htmlJQuery || htmlJQuery.length === 0) {
-            if (app?.element) {
-                htmlJQuery = $(app.element);
-            }
-            else if (app?._element) {
-                htmlJQuery = $(app._element);
-            }
-            else if (ui.items?.element) {
-                htmlJQuery = $(ui.items.element);
-            }
-            else if (ui.items?._element) {
-                htmlJQuery = $(ui.items._element);
-            }
-            else if (app?.appId) {
-                htmlJQuery = $(`.window-app[data-appid="${app.appId}"]`);
+        // ===== PART 1: Add "New Artifact" button =====
+        const existingBtn = actualHtml.find('.ms-new-artifact-btn');
+        console.log('🔵 Mastery System | Checking for existing New Artifact Button', {
+            exists: existingBtn.length > 0
+        });
+        if (existingBtn.length === 0) {
+            console.log('🟢 Mastery System | Creating New Artifact Button');
+            const newArtifactBtn = $(`
+        <button type="button" class="ms-new-artifact-btn" title="New Artifact">
+          <i class="fas fa-gem"></i> New Artifact
+        </button>
+      `);
+            newArtifactBtn.on('click', async () => {
+                console.log('🟢 Mastery System | New Artifact Button clicked');
+                await createNewArtifact();
+            });
+            // Place button in the header-actions.action-buttons.flexrow container
+            const actionButtons = actualHtml.find('.directory-header .header-actions.action-buttons.flexrow, .directory-header .action-buttons.flexrow');
+            console.log('🔵 Mastery System | Searching for button container', {
+                actionButtonsFound: actionButtons.length > 0,
+                actionButtonsHTML: actionButtons.length > 0 ? actionButtons[0].outerHTML.substring(0, 200) : 'NOT FOUND'
+            });
+            if (actionButtons.length > 0) {
+                actionButtons.append(newArtifactBtn);
+                console.log('✅ Mastery System | New Artifact Button zu Action Buttons Container hinzugefügt');
             }
             else {
-                htmlJQuery = $('.sidebar-tab[data-tab="items"]');
+                // Fallback: Try to find Create Folder button and insert after it
+                const createFolderBtn = actualHtml.find('button[data-action="createFolder"], button.create-folder');
+                console.log('🔵 Mastery System | Searching for Create Folder button', {
+                    found: createFolderBtn.length > 0
+                });
+                if (createFolderBtn.length > 0) {
+                    createFolderBtn.after(newArtifactBtn);
+                    console.log('✅ Mastery System | New Artifact Button nach Create Folder Button hinzugefügt');
+                }
+                else {
+                    // Fallback: Try to find Create Item button and insert after it
+                    const createItemBtn = actualHtml.find('button[data-action="createEntry"], button[data-action="createItem"], button.create-entry');
+                    console.log('🔵 Mastery System | Searching for Create Item button', {
+                        found: createItemBtn.length > 0
+                    });
+                    if (createItemBtn.length > 0) {
+                        createItemBtn.after(newArtifactBtn);
+                        console.log('✅ Mastery System | New Artifact Button nach Create Item Button hinzugefügt');
+                    }
+                    else {
+                        // Fallback: Try header-actions container
+                        const headerActions = actualHtml.find('.directory-header .header-actions');
+                        console.log('🔵 Mastery System | Searching for header-actions', {
+                            found: headerActions.length > 0
+                        });
+                        if (headerActions.length > 0) {
+                            headerActions.append(newArtifactBtn);
+                            console.log('✅ Mastery System | New Artifact Button zu Header Actions hinzugefügt');
+                        }
+                        else {
+                            // Last resort: try directory footer
+                            const footer = actualHtml.find('.directory-footer');
+                            console.log('🔵 Mastery System | Searching for footer', {
+                                found: footer.length > 0
+                            });
+                            if (footer.length > 0) {
+                                footer.append(newArtifactBtn);
+                                console.log('✅ Mastery System | New Artifact Button zu Footer hinzugefügt');
+                            }
+                            else {
+                                console.error('❌ Mastery System | Could not find any container for New Artifact Button!');
+                                console.log('🔍 Mastery System | Available elements:', {
+                                    directoryHeader: actualHtml.find('.directory-header').length,
+                                    allButtons: actualHtml.find('button').length,
+                                    allActionButtons: actualHtml.find('.action-buttons').length
+                                });
+                            }
+                        }
+                    }
+                }
             }
         }
-        // Debug info for folder button rendering
-        console.log('Mastery System | renderItemDirectory (folder buttons)', {
-            isGM: game.user?.isGM,
-            htmlLength: (htmlJQuery && htmlJQuery.length) || 0,
-            appName: app?.constructor?.name,
-            appId: app?.appId,
-            hasAppElement: !!app?.element,
-            hasAppInternalElement: !!app?._element,
-            hasUiItemsElement: !!ui.items?.element
-        });
-        if (!htmlJQuery || htmlJQuery.length === 0) {
-            htmlJQuery = $('#items');
+        else {
+            console.log('⚠️ Mastery System | New Artifact Button already exists, skipping');
         }
+        // ===== PART 2: Add diamond symbols to artifact folders =====
         // Find all folder rows
-        const folderRows = htmlJQuery.find('.directory-item.folder, .folder, [data-folder-id]');
-        console.log('Mastery System | Folder rows found', {
+        const folderRows = actualHtml.find('.directory-item.folder, .folder, [data-folder-id]');
+        console.log('🔵 Mastery System | Folder rows found', {
             count: folderRows.length,
-            totalItems: game.items?.size || game.items?.length || 0
+            totalItems: game.items?.size || game.items?.length || 0,
+            folderIds: folderRows.map((i, el) => $(el).attr('data-folder-id')).get()
         });
         folderRows.each((_index, folder) => {
             const $folder = $(folder);
@@ -304,20 +298,26 @@ export function initializeArtifactAwakening() {
             });
             // Add button to folder header (Foundry v13 uses folder-header/folder-name)
             const folderHeader = $folder.find('.folder-header');
+            console.log('🔵 Mastery System | Adding diamond button to folder', {
+                folderId,
+                hasFolderHeader: folderHeader.length > 0,
+                folderHeaderHTML: folderHeader.length > 0 ? folderHeader[0].outerHTML.substring(0, 300) : 'NOT FOUND'
+            });
             if (folderHeader.length > 0) {
                 const createEntryBtn = folderHeader.find('.create-entry, [data-action="createEntry"]').last();
                 if (createEntryBtn.length > 0) {
                     createEntryBtn.after(builderBtn);
+                    console.log('✅ Mastery System | Builder button appended after create-entry', { folderId });
                 }
                 else {
                     folderHeader.append(builderBtn);
+                    console.log('✅ Mastery System | Builder button appended to folder-header', { folderId });
                 }
-                console.log('Mastery System | Builder button appended', { folderId, location: 'folder-header' });
             }
             else {
                 // Fallback: append directly to folder row
                 $folder.append(builderBtn);
-                console.log('Mastery System | Builder button appended to row', { folderId, location: 'row' });
+                console.log('✅ Mastery System | Builder button appended to row (fallback)', { folderId });
             }
         });
     });

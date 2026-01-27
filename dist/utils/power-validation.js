@@ -1,9 +1,9 @@
 /**
- * Power Validation Utilities
- * Validates power data according to system rules
+ * Power Data Validation Utilities
+ * Validates power data according to schema rules
  */
 /**
- * Validate that a power has no damage types
+ * Validate that a power has no damage type arrays
  */
 export function validateNoDamageTypes(power) {
     const errors = [];
@@ -13,21 +13,25 @@ export function validateNoDamageTypes(power) {
     }
     // Check for damage array
     if (Array.isArray(power.damage)) {
-        errors.push('Power contains forbidden "damage" array');
+        errors.push('Power contains forbidden "damage[]" array');
     }
     // Check in levels
     if (power.levels && typeof power.levels === 'object') {
-        for (const levelKey of ['1', '2', '3', '4']) {
-            const level = power.levels[levelKey];
-            if (level) {
-                if ('damageTypes' in level) {
-                    errors.push(`Level ${levelKey} contains forbidden "damageTypes" field`);
+        for (const [levelKey, levelData] of Object.entries(power.levels)) {
+            const level = levelData;
+            if ('damageTypes' in level) {
+                errors.push(`Level ${levelKey} contains forbidden "damageTypes" field`);
+            }
+            if (Array.isArray(level.damage)) {
+                errors.push(`Level ${levelKey} contains forbidden "damage[]" array`);
+            }
+            // Check in effect
+            if (level.effect && typeof level.effect === 'object') {
+                if ('damageTypes' in level.effect) {
+                    errors.push(`Level ${levelKey}.effect contains forbidden "damageTypes" field`);
                 }
-                if (Array.isArray(level.damage)) {
-                    errors.push(`Level ${levelKey} contains forbidden "damage" array`);
-                }
-                if (level.effect && 'damageTypes' in level.effect) {
-                    errors.push(`Level ${levelKey} effect contains forbidden "damageTypes" field`);
+                if (Array.isArray(level.effect.damage)) {
+                    errors.push(`Level ${levelKey}.effect contains forbidden "damage[]" array`);
                 }
             }
         }
@@ -38,13 +42,13 @@ export function validateNoDamageTypes(power) {
     };
 }
 /**
- * Validate that charged powers have charges cost
+ * Validate that charged powers have charges >= 1
  */
 export function validateChargedPower(power) {
     const errors = [];
-    if (power.tags && power.tags.includes('charged')) {
+    if (power.tags.includes('charged')) {
         if (!power.cost.charges || power.cost.charges < 1) {
-            errors.push('Power tagged as "charged" must have cost.charges >= 1');
+            errors.push('Power with "charged" tag must have cost.charges >= 1');
         }
     }
     return {
@@ -57,49 +61,42 @@ export function validateChargedPower(power) {
  */
 export function validatePower(power) {
     const errors = [];
-    // Check required fields
-    if (!power.name || typeof power.name !== 'string') {
-        errors.push('Power must have a name (string)');
+    // Check for damage types
+    const damageCheck = validateNoDamageTypes(power);
+    errors.push(...damageCheck.errors);
+    // Check charged validation if it's an EmbeddedPowerData
+    if (power.category && power.levels) {
+        const chargedCheck = validateChargedPower(power);
+        errors.push(...chargedCheck.errors);
     }
-    if (!power.category || !['active', 'activeBuff', 'utility', 'reaction', 'passive', 'movement'].includes(power.category)) {
-        errors.push('Power must have a valid category');
-    }
-    if (!power.levels || typeof power.levels !== 'object') {
-        errors.push('Power must have levels object');
-    }
-    else {
-        // Validate all 4 levels exist
-        for (const levelKey of ['1', '2', '3', '4']) {
-            if (!power.levels[levelKey]) {
-                errors.push(`Power must have level ${levelKey}`);
-            }
-            else {
-                const level = power.levels[levelKey];
-                if (!level.type || typeof level.type !== 'string') {
-                    errors.push(`Level ${levelKey} must have type (string)`);
-                }
-                if (!level.duration || !level.duration.kind) {
-                    errors.push(`Level ${levelKey} must have duration.kind`);
-                }
-                if (!level.effect || !level.effect.text) {
-                    errors.push(`Level ${levelKey} must have effect.text`);
-                }
-                if (!Array.isArray(level.specials)) {
-                    errors.push(`Level ${levelKey} must have specials array`);
-                }
-            }
+    // Ensure required fields exist
+    if (power.category && power.levels) {
+        if (!power.id) {
+            errors.push('Power missing required "id" field');
         }
-    }
-    // Check for forbidden fields
-    const noDamageTypes = validateNoDamageTypes(power);
-    if (!noDamageTypes.valid) {
-        errors.push(...noDamageTypes.errors);
-    }
-    // Check charged validation
-    if (power.tags && power.tags.includes('charged')) {
-        const charged = validateChargedPower(power);
-        if (!charged.valid) {
-            errors.push(...charged.errors);
+        if (!power.name) {
+            errors.push('Power missing required "name" field');
+        }
+        if (!power.category) {
+            errors.push('Power missing required "category" field');
+        }
+        if (!Array.isArray(power.tags)) {
+            errors.push('Power "tags" must be an array');
+        }
+        if (!power.cost || typeof power.cost !== 'object') {
+            errors.push('Power missing required "cost" field');
+        }
+        if (!power.levels || typeof power.levels !== 'object') {
+            errors.push('Power missing required "levels" field');
+        }
+        else {
+            // Validate all 4 levels exist
+            const levelKeys = ['1', '2', '3', '4'];
+            for (const key of levelKeys) {
+                if (!power.levels[key]) {
+                    errors.push(`Power missing required level "${key}"`);
+                }
+            }
         }
     }
     return {

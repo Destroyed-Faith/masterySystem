@@ -60,24 +60,15 @@ function convertCost(oldCost, powerType) {
 }
 /**
  * Convert old roll structure to new roll structure
+ * NOTE: This is only used for item-level PowerData, not EmbeddedPowerData
  */
 function convertRoll(oldRoll) {
-    let kind = 'none';
-    if (oldRoll.attribute) {
-        if (oldRoll.tn > 0) {
-            kind = 'contest';
-        }
-        else if (oldRoll.damage || oldRoll.healing) {
-            kind = 'attack';
-        }
-        else {
-            kind = 'check';
-        }
-    }
+    // This function is kept for backwards compatibility with item-level PowerData
+    // EmbeddedPowerData doesn't have a roll field - dice goes in effect.dice
     return {
-        kind,
-        attribute: oldRoll.attribute || undefined,
-        vs: oldRoll.tn > 0 ? `tn:${oldRoll.tn}` : undefined
+        kind: 'none',
+        attribute: oldRoll?.attribute || undefined,
+        vs: oldRoll?.tn > 0 ? `tn:${oldRoll.tn}` : undefined
     };
 }
 /**
@@ -109,18 +100,18 @@ function parseRange(rangeStr) {
     return { kind: 'distance', m: 0, note: rangeStr };
 }
 /**
- * Parse AoE string to AoeSpec
+ * Parse AoE string to AoeSpec or null
  */
 function parseAoe(aoeStr) {
     if (!aoeStr || aoeStr === '' || aoeStr.toLowerCase() === 'none') {
-        return { shape: 'none' };
+        return null;
     }
     const lower = aoeStr.toLowerCase();
     if (lower.includes('radius')) {
         const match = aoeStr.match(/(\d+)m?\s*radius/i);
         return {
             shape: 'radius',
-            radiusM: match ? parseInt(match[1], 10) : 5,
+            m: match ? parseInt(match[1], 10) : 5,
             note: aoeStr
         };
     }
@@ -128,8 +119,7 @@ function parseAoe(aoeStr) {
         const match = aoeStr.match(/(\d+)m?\s*cone/i);
         return {
             shape: 'cone',
-            lengthM: match ? parseInt(match[1], 10) : 10,
-            angleDeg: 45,
+            m: match ? parseInt(match[1], 10) : 10,
             note: aoeStr
         };
     }
@@ -137,14 +127,7 @@ function parseAoe(aoeStr) {
         const match = aoeStr.match(/(\d+)m?\s*line/i);
         return {
             shape: 'line',
-            lengthM: match ? parseInt(match[1], 10) : 10,
-            widthM: 1,
-            note: aoeStr
-        };
-    }
-    if (lower.includes('weapon')) {
-        return {
-            shape: 'weapon',
+            m: match ? parseInt(match[1], 10) : 10,
             note: aoeStr
         };
     }
@@ -288,6 +271,15 @@ export function migrateArtifactPower(oldPower) {
             };
         })
     };
+    // Clone level 1 for levels 2-4, ensuring nulls are used instead of undefined
+    const cloneLevel = (levelNum) => ({
+        type: level1.type,
+        range: level1.range === null ? null : { ...level1.range },
+        aoe: level1.aoe === null ? null : { ...level1.aoe },
+        duration: { ...level1.duration },
+        effect: { ...level1.effect },
+        specials: level1.specials.map(s => ({ ...s }))
+    });
     const newPower = {
         id: generatePowerId(),
         name: oldPower.name,
@@ -296,9 +288,9 @@ export function migrateArtifactPower(oldPower) {
         cost: convertCost(oldPower.cost || {}, oldPower.powerType),
         levels: {
             '1': level1,
-            '2': { ...level1 },
-            '3': { ...level1 },
-            '4': { ...level1 }
+            '2': cloneLevel('2'),
+            '3': cloneLevel('3'),
+            '4': cloneLevel('4')
         }
     };
     // Add trigger for reactions

@@ -1,19 +1,19 @@
 /**
- * Power Validation Utilities
- * Validates power data according to system rules
+ * Power Data Validation Utilities
+ * Validates power data according to schema rules
  */
-import type { EmbeddedPowerData, PowerData } from '../types/item.js';
+import type { EmbeddedPowerData } from '../types/item.js';
 /**
- * Validate that a power has no damage types
+ * Validate that a power has no damage type arrays
  */
 export declare function validateNoDamageTypes(power: any): {
     valid: boolean;
     errors: string[];
 };
 /**
- * Validate that charged powers have charges cost
+ * Validate that charged powers have charges >= 1
  */
-export declare function validateChargedPower(power: EmbeddedPowerData | PowerData): {
+export declare function validateChargedPower(power: EmbeddedPowerData): {
     valid: boolean;
     errors: string[];
 };

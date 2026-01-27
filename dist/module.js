@@ -9,6 +9,7 @@ import { MasteryItem } from './documents/item.js';
 import { MasteryCharacterSheet } from './sheets/character-sheet.js';
 import { MasteryNpcSheet } from './sheets/npc-sheet.js';
 import { MasteryItemSheet } from './sheets/item-sheet.js';
+import { ArtifactSheetV2 } from './sheets/artifact-sheet-v2.js';
 // Combat hooks are imported dynamically to avoid build errors if dist/combat doesn't exist yet
 // import { initializeCombatHooks } from '../dist/combat/initiative.js';
 import { calculateStones } from './utils/calculations.js';
@@ -72,6 +73,13 @@ Hooks.once('init', async function () {
         label: 'Mastery Item Sheet'
     });
     console.log('Mastery System | Registered Item Sheet');
+    // Register Artifact sheet V2 (for power editing) - override default for artifacts
+    foundry.documents.collections.Items.registerSheet('mastery-system', ArtifactSheetV2, {
+        types: ['artifact'],
+        makeDefault: true,
+        label: 'Artifact Sheet V2'
+    });
+    console.log('Mastery System | Registered Artifact Sheet V2');
     // Register system settings
     registerSystemSettings();
     // Register Divine Clash settings
