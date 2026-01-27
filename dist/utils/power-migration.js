@@ -6,7 +6,7 @@
  * Check if a power uses the new structure
  */
 export function isNewPowerStructure(power) {
-    return power && typeof power === 'object' && 'category' in power && 'levels' in power;
+    return power && typeof power === 'object' && 'category' in power && 'levels' in power && typeof power.levels === 'object' && !Array.isArray(power.levels);
 }
 /**
  * Check if a power uses the old structure
@@ -32,30 +32,31 @@ function convertPowerTypeToCategory(powerType) {
  * Convert old cost structure to new cost structure
  */
 function convertCost(oldCost, powerType) {
-    let action = 'attack';
+    const cost = {};
     if (oldCost.reaction) {
-        action = 'reaction';
+        cost.action = 'reaction';
     }
     else if (oldCost.movement) {
-        action = 'movement';
+        cost.action = 'movement';
     }
     else if (oldCost.action) {
         if (powerType === 'utility' || powerType === 'buff') {
-            action = 'utility';
+            cost.action = 'none'; // Utility powers don't cost attack actions
         }
         else {
-            action = 'attack';
+            cost.action = 'attack';
         }
     }
     else {
-        action = 'utility';
+        cost.action = 'none';
     }
-    return {
-        action,
-        stones: oldCost.stones || 0,
-        charges: oldCost.charges || 0,
-        note: undefined
-    };
+    if (oldCost.stones) {
+        cost.stones = oldCost.stones;
+    }
+    if (oldCost.charges) {
+        cost.charges = oldCost.charges;
+    }
+    return cost;
 }
 /**
  * Convert old roll structure to new roll structure
@@ -80,22 +81,28 @@ function convertRoll(oldRoll) {
     };
 }
 /**
- * Parse range string to RangeSpec
+ * Parse range string to RangeSpec or null
  */
 function parseRange(rangeStr) {
-    const lower = rangeStr.toLowerCase();
-    if (lower === 'self' || lower === '0m' || rangeStr === '') {
+    if (!rangeStr || rangeStr.trim() === '' || rangeStr === '—' || rangeStr === '-') {
+        return null;
+    }
+    const lower = rangeStr.toLowerCase().trim();
+    if (lower === 'self' || lower === '0m') {
         return { kind: 'self' };
     }
     if (lower.includes('touch')) {
         return { kind: 'touch' };
+    }
+    if (lower.includes('melee')) {
+        return { kind: 'melee' };
     }
     // Try to extract meters
     const match = rangeStr.match(/(\d+)m?/i);
     if (match) {
         const meters = parseInt(match[1], 10);
         if (meters <= 8) {
-            return { kind: 'distance', m: meters, note: meters <= 8 ? 'below 8m counts as melee' : undefined };
+            return { kind: 'melee', m: meters };
         }
         return { kind: 'distance', m: meters };
     }
@@ -141,15 +148,21 @@ function parseAoe(aoeStr) {
             note: aoeStr
         };
     }
-    if (lower.includes('aura')) {
-        const match = aoeStr.match(/(\d+)m?\s*aura/i);
+    if (lower.includes('burst')) {
+        const match = aoeStr.match(/(\d+)m?\s*burst/i);
         return {
-            shape: 'aura',
-            radiusM: match ? parseInt(match[1], 10) : 1,
+            shape: 'burst',
+            m: match ? parseInt(match[1], 10) : 5,
             note: aoeStr
         };
     }
-    return { shape: 'single', note: aoeStr };
+    // Default to radius if we can't determine
+    const match = aoeStr.match(/(\d+)m?/i);
+    return {
+        shape: 'radius',
+        m: match ? parseInt(match[1], 10) : 5,
+        note: aoeStr
+    };
 }
 /**
  * Parse duration string to DurationSpec
@@ -165,7 +178,7 @@ function parseDuration(durationStr, powerType) {
             return { kind: 'rounds', rounds: parseInt(match[1], 10) };
         }
         if (lower.includes('mastery') || lower.includes('mr')) {
-            return { kind: 'masteryRankRounds', note: durationStr };
+            return { kind: 'masteryRounds', note: durationStr };
         }
         return { kind: 'rounds', rounds: 1, note: durationStr };
     }
@@ -177,7 +190,13 @@ function parseDuration(durationStr, powerType) {
     }
     // Default based on power type
     if (powerType === 'activeBuff' || powerType === 'buff') {
-        return { kind: 'masteryRankRounds', note: durationStr };
+        return { kind: 'masteryRounds', note: durationStr };
+    }
+    if (lower.includes('scene')) {
+        return { kind: 'scene', note: durationStr };
+    }
+    if (lower === 'permanent') {
+        return { kind: 'scene', note: 'permanent' };
     }
     if (powerType === 'utility') {
         return { kind: 'rounds', rounds: 1, note: durationStr };
@@ -237,14 +256,18 @@ function determineType(powerType, tags, rangeStr) {
     return 'ranged'; // default
 }
 /**
- * Migrate old ArtifactPowerData to NewArtifactPowerData
+ * Generate a unique ID for a power
+ */
+function generatePowerId() {
+    return foundry.utils.randomID();
+}
+/**
+ * Migrate old ArtifactPowerData to EmbeddedPowerData
  */
 export function migrateArtifactPower(oldPower) {
     const category = convertPowerTypeToCategory(oldPower.powerType);
-    const rank = oldPower.level || 1;
     // Create level 1 row
     const level1 = {
-        lvl: 1,
         type: determineType(oldPower.powerType, oldPower.tags || [], oldPower.range || ''),
         range: parseRange(oldPower.range || ''),
         aoe: parseAoe(oldPower.aoe || ''),
@@ -256,33 +279,26 @@ export function migrateArtifactPower(oldPower) {
             if (match) {
                 return {
                     key: match[1],
-                    value: parseInt(match[2], 10),
-                    raiseCost: parseInt(match[2], 10)
+                    rank: parseInt(match[2], 10)
                 };
             }
             // Fallback: use whole string as key
             return {
-                key: spec,
-                raiseCost: 1
+                key: spec
             };
         })
     };
-    // For reactions, add trigger if available
-    if (category === 'reaction' && oldPower.requirements?.other) {
-        level1.trigger = oldPower.requirements.other;
-    }
     const newPower = {
+        id: generatePowerId(),
         name: oldPower.name,
         category,
         tags: oldPower.tags || [],
-        rank,
         cost: convertCost(oldPower.cost || {}, oldPower.powerType),
-        roll: convertRoll(oldPower.roll || {}),
         levels: {
             '1': level1,
-            '2': { ...level1, lvl: 2 },
-            '3': { ...level1, lvl: 3 },
-            '4': { ...level1, lvl: 4 }
+            '2': { ...level1 },
+            '3': { ...level1 },
+            '4': { ...level1 }
         }
     };
     // Add trigger for reactions
@@ -291,7 +307,9 @@ export function migrateArtifactPower(oldPower) {
     }
     // Handle charged tag
     if (oldPower.tags?.includes('charged')) {
-        newPower.cost.charges = 1;
+        if (!newPower.cost.charges || newPower.cost.charges < 1) {
+            newPower.cost.charges = 1;
+        }
     }
     return newPower;
 }

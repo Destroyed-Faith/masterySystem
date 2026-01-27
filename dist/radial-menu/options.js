@@ -1,7 +1,7 @@
 /**
  * Option Collection and Parsing for Radial Menu
  */
-import { getAvailableManeuvers } from '../system/combat-maneuvers.js';
+import { getAvailableManeuvers } from '../system/combat-maneuvers';
 /**
  * Parse range string (e.g., "8m", "12m", "Self") to numeric meters
  */

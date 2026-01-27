@@ -2,6 +2,49 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.20] - 2025-01-XX
+
+### Added
+- **Power System Schema Update: New Embedded Power Structure**
+  - Updated `EmbeddedPowerData` interface to support per-level power data (Levels 1-4)
+  - New schema includes: `id`, `name`, `category`, `tags`, `cost`, `trigger`, `levels` (Record<"1"|"2"|"3"|"4", PowerLevelRow>)
+  - Each `PowerLevelRow` contains: `type`, `range` (RangeSpec | null), `aoe` (AoeSpec | null), `duration` (DurationSpec), `effect` (EffectSpec with optional dice), `specials` (Array<{key, rank?, note?}>)
+  - No damage type arrays - uses `effect.dice` (optional string) instead
+  - Supports table columns: Level, Type, Range, AoE, Duration, Effect, Special (per level)
+
+### Changed
+- **Power Migration: Backwards Compatibility**
+  - Updated `migrateArtifactPower()` to convert old power structure to new schema
+  - Old powers with `powerType`, `roll.damage`, etc. are automatically migrated
+  - Migration runs in `MasteryItem.prepareArtifactData()` during item data preparation
+  - Ensures all 4 levels exist and uses `null` instead of `undefined` for optional fields
+  - `parseAoe()` now returns `AoeSpec | null` with correct schema (`shape`, `m`, `note`)
+
+### Added
+- **Power Validation: Schema Enforcement**
+  - Created `src/utils/power-validation.ts` with validation helpers:
+    - `validateNoDamageTypes()` - ensures no `damageTypes` or `damage[]` fields exist
+    - `validateChargedPower()` - ensures charged powers have `cost.charges >= 1`
+    - `validatePower()` - validates overall power structure
+
+### Added
+- **Artifact Sheet V2: Power Editor UI**
+  - Created `ArtifactSheetV2` using ApplicationV2 + HandlebarsApplicationMixin (Foundry v13)
+  - New "Powers" tab with Add/Duplicate/Delete functionality
+  - Expandable power editors with full level table (Levels 1-4)
+  - Columns: Level, Type, Range, AoE, Duration, Effect (text + optional dice), Specials
+  - GM-only editing (players can view but not edit)
+  - Form handling with debounced updates for better performance
+  - Registered as default sheet for artifact items
+
+### Updated
+- **Documentation: Power Structure Examples**
+  - Updated `docs/item-structure-examples.json` with new power structure examples:
+    - "Blitzschlag" - active power with AoE radius (5-15m) and dice damage
+    - "Schutzschild" - activeBuff with duration (5 rounds) and defense bonus
+    - "Feuersturm" - active power with AoE radius (10-25m) and duration (3-6 rounds)
+  - All examples show complete level 1-4 progression
+
 ## [0.2.95] - 2025-01-XX
 
 ### Fixed

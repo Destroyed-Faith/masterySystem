@@ -18,44 +18,35 @@ export interface BaseItemData {
 // === Power Structure Types (New Structure) ===
 
 export type PowerCategory = 'active' | 'activeBuff' | 'utility' | 'reaction' | 'passive' | 'movement';
-export type PowerActionCost = 'attack' | 'utility' | 'reaction' | 'movement' | 'full';
-export type PowerRollKind = 'attack' | 'contest' | 'check' | 'none';
+export type PowerActionCost = 'attack' | 'movement' | 'full' | 'reaction' | 'none';
 export type PowerLevelKey = '1' | '2' | '3' | '4';
 
 export interface RangeSpec {
-  kind: 'self' | 'touch' | 'distance';
+  kind: 'self' | 'touch' | 'melee' | 'distance';
   m?: number;
   note?: string;
 }
 
 export interface AoeSpec {
-  shape: 'none' | 'single' | 'line' | 'radius' | 'cone' | 'weapon' | 'aura';
-  radiusM?: number;
-  lengthM?: number;
-  widthM?: number;
-  angleDeg?: number;
-  targets?: number;
+  shape: 'radius' | 'cone' | 'line' | 'burst' | 'none';
+  m?: number;
   note?: string;
 }
 
 export interface DurationSpec {
-  kind: 'instant' | 'rounds' | 'masteryRankRounds' | 'untilNextTurn';
+  kind: 'instant' | 'rounds' | 'masteryRounds' | 'untilNextTurn' | 'scene';
   rounds?: number;
   note?: string;
 }
 
 export interface EffectSpec {
-  text: string; // UI-Spalte "Effect" (z.B. "Weapon DMG +2d8", "+2d8 Heal", "-1 Attack Die", "Gain 20 Temp HP")
-  dice?: string; // optional untyped Xd8 (z.B. "2d8") wenn du es maschinenlesbar brauchst
-  tempHpDice?: string; // optional "1d8" etc (ebenfalls untyped)
-  flat?: number; // optional für +Armor/+Evade etc
-  notes?: string;
+  text: string;
+  dice?: string; // OPTIONAL and has NO TYPE - just untyped dice like "4d8"
 }
 
 export interface PowerSpecial {
-  key: string; // z.B. "Push", "Shock", "Ignite", "Prone", "Bleeding", "Crit", "Mark"
-  value?: number; // Zahl in Klammern, z.B. Push(3) -> 3
-  raiseCost: number; // Kosten in Raises, i.d.R. = value, ABER NICHT erzwingen; wir speichern raiseCost explizit
+  key: string;
+  rank?: number; // Optional rank/value
   note?: string;
 }
 
@@ -66,35 +57,40 @@ export type RaiseUpgrade =
   | { kind: 'custom'; text: string; raiseCost: number };
 
 export interface PowerLevelRow {
-  lvl: 1 | 2 | 3 | 4; // redundant optional, aber praktisch
-  type: string; // exakt Tabellenspalte "Type": bei Actives typischerweise "melee"|"ranged"; bei utility "utility"; bei buff "buff"; reaction "reaction"
-  range: RangeSpec;
-  aoe: AoeSpec;
+  type: string; // Table "Type" column like "Melee", "Ranged", "Buff", or "Passive, Defensive" etc
+  range: RangeSpec | null;
+  aoe: AoeSpec | null;
   duration: DurationSpec;
   effect: EffectSpec;
-  specials: PowerSpecial[]; // das sind die Specials, die über Raises wählbar sind
-  raiseUpgrades?: RaiseUpgrade[];
-  trigger?: string; // für Reactions: Trigger-Bedingung
+  specials: Array<{ key: string; rank?: number; note?: string }>;
 }
 
-export interface NewArtifactPowerData {
+export interface PowerCostLimit {
+  per: 'round' | 'combat' | 'day' | 'week';
+  uses: number;
+}
+
+export interface PowerCost {
+  action?: PowerActionCost;
+  stones?: number;
+  charges?: number;
+  limit?: PowerCostLimit;
+}
+
+// Embedded Power Data (for artifacts and trees)
+export interface EmbeddedPowerData {
+  id: string;
   name: string;
   category: PowerCategory;
-  tags: string[]; // z.B. ["spell","charged"]
-  rank: number; // 1–4, aktuelles Level der Power am Item/Char
-  trigger?: string; // für Reactions: Trigger-Bedingung
-  cost: {
-    action: PowerActionCost;
-    stones?: number;
-    charges?: number; // i.d.R. 1 wenn tag "charged"
-    note?: string;
-  };
-  roll: {
-    kind: PowerRollKind;
-    attribute?: string; // z.B. "intellect"
-    vs?: string; // z.B. "evade" oder "save:body" (nur als text, keine Logik erzwingen)
-  };
+  tags: string[]; // e.g. "spell", "charged", etc
+  cost: PowerCost;
+  trigger?: string; // mainly for reaction/passive
   levels: Record<PowerLevelKey, PowerLevelRow>;
+}
+
+// Legacy alias for backwards compatibility
+export interface NewArtifactPowerData extends EmbeddedPowerData {
+  rank?: number; // Legacy field - kept for backwards compatibility
 }
 
 // === Legacy Artifact Power Data (for backwards compatibility) ===
@@ -225,7 +221,7 @@ export interface ArtifactData extends BaseItemData {
     stones: number;
     masteryRank: number;
   };
-  powers: (NewArtifactPowerData | ArtifactPowerData)[]; // Powers embedded in the artifact (supports both old and new format)
+  powers: (EmbeddedPowerData | NewArtifactPowerData | ArtifactPowerData)[]; // Powers embedded in the artifact (supports both old and new format)
 }
 
 // === Condition Data ===

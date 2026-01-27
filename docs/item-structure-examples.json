@@ -79,36 +79,188 @@
         },
         "powers": [
           {
+            "id": "power-001",
             "name": "Blitzschlag",
-            "powerType": "active",
-            "level": 1,
-            "tree": "Elemental",
+            "category": "active",
             "tags": ["spell", "charged"],
-            "range": "30m",
-            "aoe": "5m Radius",
-            "duration": "instant",
-            "effect": "Verursacht Blitzschaden und betäubt Ziele",
-            "specials": [
-              "Betäubt Ziele für 1 Runde"
-            ],
-            "ap": 30,
             "cost": {
-              "action": true,
-              "movement": false,
-              "reaction": false,
+              "action": "attack",
               "stones": 2,
               "charges": 1
             },
-            "roll": {
-              "attribute": "intellect",
-              "tn": 15,
-              "damage": "4d8",
-              "healing": "",
-              "raises": ""
+            "levels": {
+              "1": {
+                "type": "Ranged",
+                "range": {
+                  "kind": "distance",
+                  "m": 30
+                },
+                "aoe": {
+                  "shape": "radius",
+                  "m": 5
+                },
+                "duration": {
+                  "kind": "instant"
+                },
+                "effect": {
+                  "text": "Verursacht Blitzschaden und betäubt Ziele",
+                  "dice": "4d8"
+                },
+                "specials": [
+                  {
+                    "key": "Stun",
+                    "rank": 1,
+                    "note": "Betäubt Ziele für 1 Runde"
+                  }
+                ]
+              },
+              "2": {
+                "type": "Ranged",
+                "range": {
+                  "kind": "distance",
+                  "m": 40
+                },
+                "aoe": {
+                  "shape": "radius",
+                  "m": 7
+                },
+                "duration": {
+                  "kind": "instant"
+                },
+                "effect": {
+                  "text": "Verursacht Blitzschaden und betäubt Ziele",
+                  "dice": "5d8"
+                },
+                "specials": [
+                  {
+                    "key": "Stun",
+                    "rank": 2,
+                    "note": "Betäubt Ziele für 2 Runden"
+                  }
+                ]
+              },
+              "3": {
+                "type": "Ranged",
+                "range": {
+                  "kind": "distance",
+                  "m": 50
+                },
+                "aoe": {
+                  "shape": "radius",
+                  "m": 10
+                },
+                "duration": {
+                  "kind": "instant"
+                },
+                "effect": {
+                  "text": "Verursacht Blitzschaden und betäubt Ziele",
+                  "dice": "6d8"
+                },
+                "specials": [
+                  {
+                    "key": "Stun",
+                    "rank": 3,
+                    "note": "Betäubt Ziele für 3 Runden"
+                  }
+                ]
+              },
+              "4": {
+                "type": "Ranged",
+                "range": {
+                  "kind": "distance",
+                  "m": 60
+                },
+                "aoe": {
+                  "shape": "radius",
+                  "m": 15
+                },
+                "duration": {
+                  "kind": "instant"
+                },
+                "effect": {
+                  "text": "Verursacht Blitzschaden und betäubt Ziele",
+                  "dice": "8d8"
+                },
+                "specials": [
+                  {
+                    "key": "Stun",
+                    "rank": 4,
+                    "note": "Betäubt Ziele für 4 Runden"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "power-002",
+            "name": "Schutzschild",
+            "category": "activeBuff",
+            "tags": [],
+            "cost": {
+              "action": "none",
+              "stones": 1
             },
-            "requirements": {
-              "masteryRank": 2,
-              "other": ""
+            "levels": {
+              "1": {
+                "type": "Buff, Defensive",
+                "range": {
+                  "kind": "self"
+                },
+                "aoe": null,
+                "duration": {
+                  "kind": "rounds",
+                  "rounds": 5
+                },
+                "effect": {
+                  "text": "Erhöht Verteidigung um +5"
+                },
+                "specials": []
+              },
+              "2": {
+                "type": "Buff, Defensive",
+                "range": {
+                  "kind": "self"
+                },
+                "aoe": null,
+                "duration": {
+                  "kind": "rounds",
+                  "rounds": 5
+                },
+                "effect": {
+                  "text": "Erhöht Verteidigung um +7"
+                },
+                "specials": []
+              },
+              "3": {
+                "type": "Buff, Defensive",
+                "range": {
+                  "kind": "self"
+                },
+                "aoe": null,
+                "duration": {
+                  "kind": "rounds",
+                  "rounds": 5
+                },
+                "effect": {
+                  "text": "Erhöht Verteidigung um +10"
+                },
+                "specials": []
+              },
+              "4": {
+                "type": "Buff, Defensive",
+                "range": {
+                  "kind": "self"
+                },
+                "aoe": null,
+                "duration": {
+                  "kind": "rounds",
+                  "rounds": 5
+                },
+                "effect": {
+                  "text": "Erhöht Verteidigung um +15"
+                },
+                "specials": []
+              }
             }
           },
           {
@@ -143,67 +295,128 @@
             }
           },
           {
-            "name": "Passive Regeneration",
-            "powerType": "passive",
-            "level": 1,
-            "tree": "Healing",
-            "tags": [],
-            "range": "Self",
-            "aoe": "",
-            "duration": "permanent",
-            "effect": "Regeneriert 2 HP pro Runde",
-            "specials": [],
-            "ap": 0,
+            "id": "power-003",
+            "name": "Feuersturm",
+            "category": "active",
+            "tags": ["spell"],
             "cost": {
-              "action": false,
-              "movement": false,
-              "reaction": false,
-              "stones": 0,
-              "charges": 0
-            },
-            "roll": {
-              "attribute": "",
-              "tn": 0,
-              "damage": "",
-              "healing": "2",
-              "raises": ""
-            },
-            "requirements": {
-              "masteryRank": 1,
-              "other": ""
-            }
-          },
-          {
-            "name": "Teleport",
-            "powerType": "utility",
-            "level": 2,
-            "tree": "Movement",
-            "tags": ["charged"],
-            "range": "50m",
-            "aoe": "",
-            "duration": "instant",
-            "effect": "Teleportiert den Träger an einen anderen Ort",
-            "specials": [
-              "Kann durch Wände teleportieren"
-            ],
-            "ap": 40,
-            "cost": {
-              "action": true,
-              "movement": false,
-              "reaction": false,
+              "action": "attack",
               "stones": 3,
-              "charges": 2
+              "charges": 1
             },
-            "roll": {
-              "attribute": "wits",
-              "tn": 12,
-              "damage": "",
-              "healing": "",
-              "raises": ""
-            },
-            "requirements": {
-              "masteryRank": 3,
-              "other": ""
+            "levels": {
+              "1": {
+                "type": "Ranged",
+                "range": {
+                  "kind": "distance",
+                  "m": 50
+                },
+                "aoe": {
+                  "shape": "radius",
+                  "m": 10,
+                  "note": "10m radius area"
+                },
+                "duration": {
+                  "kind": "rounds",
+                  "rounds": 3,
+                  "note": "Burning effect lasts 3 rounds"
+                },
+                "effect": {
+                  "text": "Verursacht massiven Feuerschaden in einem großen Radius. Ziele brennen weiter.",
+                  "dice": "6d8"
+                },
+                "specials": [
+                  {
+                    "key": "Ignite",
+                    "rank": 2,
+                    "note": "Ziele brennen für 3 Runden"
+                  }
+                ]
+              },
+              "2": {
+                "type": "Ranged",
+                "range": {
+                  "kind": "distance",
+                  "m": 60
+                },
+                "aoe": {
+                  "shape": "radius",
+                  "m": 15,
+                  "note": "15m radius area"
+                },
+                "duration": {
+                  "kind": "rounds",
+                  "rounds": 4,
+                  "note": "Burning effect lasts 4 rounds"
+                },
+                "effect": {
+                  "text": "Verursacht massiven Feuerschaden in einem großen Radius. Ziele brennen weiter.",
+                  "dice": "8d8"
+                },
+                "specials": [
+                  {
+                    "key": "Ignite",
+                    "rank": 3,
+                    "note": "Ziele brennen für 4 Runden"
+                  }
+                ]
+              },
+              "3": {
+                "type": "Ranged",
+                "range": {
+                  "kind": "distance",
+                  "m": 70
+                },
+                "aoe": {
+                  "shape": "radius",
+                  "m": 20,
+                  "note": "20m radius area"
+                },
+                "duration": {
+                  "kind": "rounds",
+                  "rounds": 5,
+                  "note": "Burning effect lasts 5 rounds"
+                },
+                "effect": {
+                  "text": "Verursacht massiven Feuerschaden in einem großen Radius. Ziele brennen weiter.",
+                  "dice": "10d8"
+                },
+                "specials": [
+                  {
+                    "key": "Ignite",
+                    "rank": 4,
+                    "note": "Ziele brennen für 5 Runden"
+                  }
+                ]
+              },
+              "4": {
+                "type": "Ranged",
+                "range": {
+                  "kind": "distance",
+                  "m": 80
+                },
+                "aoe": {
+                  "shape": "radius",
+                  "m": 25,
+                  "note": "25m radius area"
+                },
+                "duration": {
+                  "kind": "rounds",
+                  "rounds": 6,
+                  "note": "Burning effect lasts 6 rounds"
+                },
+                "effect": {
+                  "text": "Verursacht massiven Feuerschaden in einem großen Radius. Ziele brennen weiter.",
+                  "dice": "12d8"
+                },
+                "specials": [
+                  {
+                    "key": "Ignite",
+                    "rank": 5,
+                    "note": "Ziele brennen für 6 Runden"
+                  }
+                ]
+              }
             }
           }
         ]
