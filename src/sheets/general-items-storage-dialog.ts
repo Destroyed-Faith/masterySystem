@@ -3,7 +3,7 @@
  * A modular window where players can drag items from storage to their inventory
  */
 
-import type { Actor, Item } from '@league-of-foundry-developers/foundry-vtt-types';
+// Types are available globally in Foundry VTT
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
@@ -25,13 +25,13 @@ export class GeneralItemsStorageDialog extends BaseDialog {
     content: { template: 'systems/mastery-system/templates/dialogs/general-items-storage.hbs' }
   };
 
-  constructor(actor: Actor, options: any = {}) {
+  constructor(actor: any, options: any = {}) {
     const mergedOptions = foundry.utils.mergeObject(GeneralItemsStorageDialog.DEFAULT_OPTIONS, options);
     super(mergedOptions);
     this._actor = actor;
   }
 
-  get actor(): Actor {
+  get actor(): any {
     return this._actor;
   }
 
@@ -42,11 +42,11 @@ export class GeneralItemsStorageDialog extends BaseDialog {
       f.name === 'General Items Storage' && f.type === 'Item'
     );
 
-    let storageItems: Item[] = [];
+    let storageItems: any[] = [];
     if (storageFolder) {
       storageItems = Array.from((game as any).items || []).filter((item: any) => 
         item.folder?.id === storageFolder.id
-      ) as Item[];
+      );
     }
 
     return {
@@ -124,7 +124,7 @@ export class GeneralItemsStorageDialog extends BaseDialog {
   /**
    * Show the dialog for an actor
    */
-  static async showForActor(actor: Actor): Promise<void> {
+  static async showForActor(actor: any): Promise<void> {
     // Close existing instance if open
     if (GeneralItemsStorageDialog._instance) {
       await GeneralItemsStorageDialog._instance.close();

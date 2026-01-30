@@ -4,7 +4,7 @@
  * Players can drag items from the store to their inventory
  */
 
-import type { Actor, Item } from '@league-of-foundry-developers/foundry-vtt-types';
+// Types are available globally in Foundry VTT
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
@@ -26,13 +26,13 @@ export class StoreDialog extends BaseDialog {
     content: { template: 'systems/mastery-system/templates/dialogs/store.hbs' }
   };
 
-  constructor(actor: Actor, options: any = {}) {
+  constructor(actor: any, options: any = {}) {
     const mergedOptions = foundry.utils.mergeObject(StoreDialog.DEFAULT_OPTIONS, options);
     super(mergedOptions);
     this._actor = actor;
   }
 
-  get actor(): Actor {
+  get actor(): any {
     return this._actor;
   }
 
@@ -51,11 +51,11 @@ export class StoreDialog extends BaseDialog {
       f.name === 'Store' && f.type === 'Item'
     );
 
-    let storeItems: Item[] = [];
+    let storeItems: any[] = [];
     if (storeFolder) {
       storeItems = Array.from((game as any).items || []).filter((item: any) => 
         item.folder?.id === storeFolder.id
-      ) as Item[];
+      );
     }
 
     return {
@@ -138,7 +138,7 @@ export class StoreDialog extends BaseDialog {
   /**
    * Show the dialog for an actor (GM only)
    */
-  static async showForActor(actor: Actor): Promise<void> {
+  static async showForActor(actor: any): Promise<void> {
     if (!game.user?.isGM) {
       ui.notifications?.warn('Only the GM can access the Store');
       return;

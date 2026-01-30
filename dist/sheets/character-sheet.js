@@ -2,16 +2,15 @@
  * Character Sheet for Mastery System
  * Main player character sheet with tabs for attributes, skills, powers, etc.
  */
-import { quickRoll } from '../dice/roll-handler';
-import { SKILLS } from '../utils/skills';
-import { DISADVANTAGES, getDisadvantageDefinition, calculateDisadvantagePoints, validateDisadvantageSelection } from '../system/disadvantages';
-import { getAllMasteryTrees } from '../utils/mastery-trees';
-import { getAllSpellSchools } from '../utils/spell-schools';
-import { getAllSchticks } from '../utils/schticks';
+import { quickRoll } from '../dice/roll-handler.js';
+import { SKILLS } from '../utils/skills.js';
+import { DISADVANTAGES, getDisadvantageDefinition, calculateDisadvantagePoints, validateDisadvantageSelection } from '../system/disadvantages.js';
+import { getAllMasteryTrees } from '../utils/mastery-trees.js';
+import { getAllSpellSchools } from '../utils/spell-schools.js';
+import { getAllSchticks } from '../utils/schticks.js';
 import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
-import { showWeaponCreationDialog } from './character-sheet-weapon-dialog.js';
-import { showArmorCreationDialog } from './character-sheet-armor-dialog.js';
-import { showShieldCreationDialog } from './character-sheet-shield-dialog.js';
+// Removed: showWeaponCreationDialog, showArmorCreationDialog, showShieldCreationDialog
+// Replaced with General Items Storage and Store dialogs
 // Use namespaced ActorSheet when available to avoid deprecation warnings
 const BaseActorSheet = foundry?.appv1?.sheets?.ActorSheet || ActorSheet;
 export class MasteryCharacterSheet extends BaseActorSheet {
@@ -121,60 +120,47 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
     }
     /**
-     * Add Weapon → open weapon dialog
+     * Open General Items Storage Dialog
      */
-    async #onWeaponAdd(event) {
+    async #onGeneralItemsClick(event) {
         event.preventDefault();
-        await this.#openWeaponDialog();
+        await this.#openGeneralItemsStorage();
     }
     /**
-     * Open the Weapon Creation Dialog
+     * Open General Items Storage Window
      */
-    async #openWeaponDialog() {
+    async #openGeneralItemsStorage() {
         try {
-            await showWeaponCreationDialog(this.actor);
+            const { GeneralItemsStorageDialog } = await import('./general-items-storage-dialog.js');
+            await GeneralItemsStorageDialog.showForActor(this.actor);
         }
         catch (error) {
-            console.error('Mastery System | Failed to open weapon dialog', error);
-            ui.notifications?.error('Failed to open weapon selection dialog');
+            console.error('Mastery System | Failed to open General Items Storage', error);
+            ui.notifications?.error('Failed to open General Items Storage');
         }
     }
     /**
-     * Add Armor → open armor dialog
+     * Open Store Dialog (GM only)
      */
-    async #onArmorAdd(event) {
+    async #onStoreClick(event) {
         event.preventDefault();
-        await this.#openArmorDialog();
+        if (!game.user?.isGM) {
+            ui.notifications?.warn('Only the GM can access the Store');
+            return;
+        }
+        await this.#openStore();
     }
     /**
-     * Open the Armor Creation Dialog
+     * Open Store Window (GM only)
      */
-    async #openArmorDialog() {
+    async #openStore() {
         try {
-            await showArmorCreationDialog(this.actor);
+            const { StoreDialog } = await import('./store-dialog.js');
+            await StoreDialog.showForActor(this.actor);
         }
         catch (error) {
-            console.error('Mastery System | Error loading armor dialog:', error);
-            ui.notifications?.error('Failed to load armor dialog.');
-        }
-    }
-    /**
-     * Add Shield → open shield dialog
-     */
-    async #onShieldAdd(event) {
-        event.preventDefault();
-        await this.#openShieldDialog();
-    }
-    /**
-     * Open the Shield Creation Dialog
-     */
-    async #openShieldDialog() {
-        try {
-            await showShieldCreationDialog(this.actor);
-        }
-        catch (error) {
-            console.error('Mastery System | Error loading shield dialog:', error);
-            ui.notifications?.error('Failed to load shield dialog.');
+            console.error('Mastery System | Failed to open Store', error);
+            ui.notifications?.error('Failed to open Store');
         }
     }
     /**
@@ -703,7 +689,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      */
     #prepareEquipmentUi(items) {
         const BAND_COLS = 8;
-        const BAND_ROWS = 7;
+        const BAND_ROWS = 9; // Changed from 7 to 9 as requested
         const BAND_SIZE = BAND_COLS * BAND_ROWS;
         const STASH_COLS = 10;
         const STASH_ROWS = 6;
@@ -1298,9 +1284,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('.add-spell-creation-btn').on('click', this.#onSpellAddCreation.bind(this));
         html.find('.power-rank-select').on('change', this.#onPowerRankChange.bind(this));
         // Equipment handlers
-        html.find('.add-weapon-btn').on('click', this.#onWeaponAdd.bind(this));
-        html.find('.add-armor-btn').on('click', this.#onArmorAdd.bind(this));
-        html.find('.add-shield-btn').on('click', this.#onShieldAdd.bind(this));
+        html.find('.general-items-btn').on('click', this.#onGeneralItemsClick.bind(this));
+        html.find('.store-btn').on('click', this.#onStoreClick.bind(this));
         // Stash toggle
         html.find('.df-stash-toggle').on('click', (ev) => {
             ev.preventDefault();

@@ -5,11 +5,11 @@
  *
  * Uses a PIXI-based radial menu for visual option selection
  */
-import { openRadialMenuForActor, getAllCombatOptionsForActor, closeRadialMenu } from './token-radial-menu';
-import { getSegmentIdForOption } from './radial-menu/options';
-import { startMeleeTargeting } from './melee-targeting';
-import { startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting';
-import { getRoundState, getAvailableAttackActions, getAvailableMovementActions, consumeAttackAction, consumeMovementAction } from './combat/action-economy';
+import { openRadialMenuForActor, getAllCombatOptionsForActor, closeRadialMenu } from './token-radial-menu.js';
+import { getSegmentIdForOption } from './radial-menu/options.js';
+import { startMeleeTargeting } from './melee-targeting.js';
+import { startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting.js';
+import { getRoundState, getAvailableAttackActions, getAvailableMovementActions, consumeAttackAction, consumeMovementAction } from './combat/action-economy.js';
 // Global movement state
 let activeMovementState = null;
 /**
