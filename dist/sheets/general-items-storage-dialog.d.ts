@@ -5,6 +5,7 @@
 declare const ApplicationV2: typeof import("@league-of-foundry-developers/foundry-vtt-types/src/foundry/client/applications/api/application.mjs").default;
 declare const BaseDialog: typeof ApplicationV2;
 export declare class GeneralItemsStorageDialog extends BaseDialog {
+    #private;
     private _actor;
     private static _instance;
     static DEFAULT_OPTIONS: {

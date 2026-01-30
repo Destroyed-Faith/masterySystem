@@ -743,6 +743,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     continue;
                 }
             }
+            // Treat backpack items as inventory items (they go into encumbrance bands)
+            // Backpack container flag is kept for future use, but items are displayed in bands
             if (slot) {
                 // Only first item per slot (ring1/ring2 handled separately)
                 if (!slotMap[slot] || (slot === 'ring1' || slot === 'ring2')) {
@@ -3560,21 +3562,21 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 droppedItem = itemsArray[itemsArray.length - 1];
                 if (droppedItem) {
                     // New item created, now set flags
-                    await this.#updateItemEquipmentFlags(droppedItem, target);
+                    await this.#updateItemEquipmentFlags(droppedItem, target, event);
                 }
             }
             this.render();
             return true;
         }
         // Internal item - update flags
-        await this.#updateItemEquipmentFlags(droppedItem, target);
+        await this.#updateItemEquipmentFlags(droppedItem, target, event);
         this.render();
         return true;
     }
     /**
      * Helper: Update item equipment flags based on drop target
      */
-    async #updateItemEquipmentFlags(item, target) {
+    async #updateItemEquipmentFlags(item, target, event) {
         const dropType = target.dataset.dfDrop;
         if (!dropType)
             return;

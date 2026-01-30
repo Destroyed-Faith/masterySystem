@@ -12,6 +12,7 @@ export interface WeaponDefinition {
   innateAbilities: string[]; // e.g., ["Finesse", "Light"], ["Reach (2 m)"]
   special: string; // e.g., "Penetration(4)", "Expose(2)"
   description?: string;
+  price?: number;
 }
 
 /**

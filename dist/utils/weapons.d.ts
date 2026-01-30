@@ -11,6 +11,7 @@ export interface WeaponDefinition {
     innateAbilities: string[];
     special: string;
     description?: string;
+    price?: number;
 }
 /**
  * All available weapons in the Mastery System

@@ -266,8 +266,15 @@ export function initializeArtifactAwakening() {
             }
         }, 500);
         // ===== PART 2: Add diamond symbols to artifact folders =====
-        // Find all folder rows
-        const folderRows = actualHtml.find('.directory-item.folder, .folder, [data-folder-id]');
+        // Find all folder rows (exclude buttons which also have data-folder-id)
+        const folderRows = actualHtml
+            .find('.directory-item.folder, .folder, [data-folder-id]')
+            .filter((_index, el) => {
+            const $el = $(el);
+            if ($el.is('button') || $el.hasClass('ms-open-artifact-builder-btn'))
+                return false;
+            return !!($el.attr('data-folder-id') || $el.data('folderId'));
+        });
         console.log('🔵 Mastery System | Folder rows found', {
             count: folderRows.length,
             totalItems: game.items?.size || game.items?.length || 0,
@@ -283,11 +290,15 @@ export function initializeArtifactAwakening() {
             });
             if (!folderId)
                 return;
-            // Check if button already exists
-            if ($folder.find('.ms-open-artifact-builder-btn').length > 0)
+            // Check if button already exists (keep only one)
+            const existingButtons = $folder.find('.ms-open-artifact-builder-btn');
+            if (existingButtons.length > 1) {
+                existingButtons.slice(1).remove();
+            }
+            if (existingButtons.length > 0)
                 return;
             // Check if this folder contains artifact root items
-            const folderData = app.folders?.get(folderId) || game.folders?.get(folderId);
+            const folderData = app?.folders?.get(folderId) || game.folders?.get(folderId);
             if (!folderData) {
                 console.warn('Mastery System | Folder data not found for row', { folderId });
             }
