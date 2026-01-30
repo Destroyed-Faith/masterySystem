@@ -78,10 +78,10 @@ function getWeaponInventorySize(hands: number, ranged: boolean, name: string): s
   return hands === 2 ? '1x5' : '1x3';
 }
 
-export async function seedGeneralItemsStorage(): Promise<boolean> {
+export async function seedGeneralItemsStorage(): Promise<any[]> {
   if (!game.user?.isGM) {
-    // Silently return false for non-GMs - they can't seed items
-    return false;
+    // Non-GMs cannot seed items
+    return [];
   }
 
   const existingFolder = (game as any).folders?.find((f: any) => f.name === STORAGE_FOLDER_NAME && f.type === 'Item');
@@ -173,15 +173,13 @@ export async function seedGeneralItemsStorage(): Promise<boolean> {
 
   if (itemsToCreate.length === 0) {
     // Items already exist, silently return
-    return false;
+    return [];
   }
 
-  await (Item as any).createDocuments(itemsToCreate, { render: false });
-  // Only notify if items were actually created
+  const createdItems = await (Item as any).createDocuments(itemsToCreate, { render: false });
   if (itemsToCreate.length > 0) {
     ui.notifications?.info(`Created ${itemsToCreate.length} items in General Items Storage.`);
   }
-  
-  return true; // Return true if items were created
+  return createdItems ?? [];
 }
 

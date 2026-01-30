@@ -39,13 +39,7 @@ export class GeneralItemsStorageDialog extends BaseDialog {
 
   async _prepareContext(_options: any): Promise<any> {
     // Automatically seed items if folder is empty or doesn't exist
-    const itemsCreated = await seedGeneralItemsStorage();
-    
-    // If items were created, wait a bit for the collection to update
-    // The items should be automatically added to game.items by Foundry
-    if (itemsCreated) {
-      await new Promise(resolve => setTimeout(resolve, 300));
-    }
+    const createdItems = await seedGeneralItemsStorage();
 
     // Get all items from General Items Storage (world-level folder or compendium)
     const storageFolder = (game as any).folders?.find((f: any) => 
@@ -53,8 +47,9 @@ export class GeneralItemsStorageDialog extends BaseDialog {
     );
 
     let storageItems: any[] = [];
-    if (storageFolder) {
-      // Get items from the collection - ensure we're getting the latest
+    if (createdItems.length > 0) {
+      storageItems = createdItems;
+    } else if (storageFolder) {
       const allItems = (game as any).items || [];
       storageItems = Array.from(allItems).filter((item: any) => 
         item.folder?.id === storageFolder.id

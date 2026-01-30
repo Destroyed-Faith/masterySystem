@@ -20,7 +20,11 @@
       {{else}}
         <div class="empty-message">
           <p><i class="fas fa-info-circle"></i> No items in General Items Storage.</p>
-          <p>Create a folder named "General Items Storage" and add items to it.</p>
+          {{#if isGM}}
+            <p>Items will be generated automatically for GMs on open.</p>
+          {{else}}
+            <p>Ask the GM to open this dialog once to seed the storage items.</p>
+          {{/if}}
         </div>
       {{/if}}
     </div>
