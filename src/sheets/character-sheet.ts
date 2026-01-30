@@ -750,6 +750,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         case 'shield':
           shields.push(itemData);
           break;
+        default: {
+          const equipmentFlags = item.getFlag?.('mastery-system', 'equipment');
+          if (equipmentFlags) {
+            gear.push(itemData);
+          }
+          break;
+        }
       }
     }
     
@@ -870,6 +877,26 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
       }
     }
+
+    const lastDroppedId = (this as any)._lastDroppedItemId as string | undefined;
+    if (lastDroppedId) {
+      const lastItem = equipmentItems.find(it => it.id === lastDroppedId);
+      console.log('Mastery System | [Equipment Drop] Last dropped item in UI', {
+        lastDroppedId,
+        found: !!lastItem,
+        lastItemType: lastItem?.type,
+        lastItemName: lastItem?.name,
+        lastItemFlags: lastItem?.getFlag?.('mastery-system', 'equipment') || null
+      });
+    }
+    console.log('Mastery System | [Equipment Drop] Equipment UI counts', {
+      equipmentTotal: equipmentItems.length,
+      notCount: notItems.length,
+      encCount: encItems.length,
+      heavyCount: heavyItems.length,
+      stashCount: stashItems.length,
+      slotCount: Object.keys(slotMap).length
+    });
 
     // Convert to cells
     const notCellsData = toCells(notItems, BAND_SIZE);
@@ -4181,6 +4208,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           });
           // New item created, now set flags
           await this.#updateItemEquipmentFlags(droppedItem, target, event);
+          (this as any)._lastDroppedItemId = droppedItem?.id;
+          (this as any)._lastDroppedItemName = droppedItem?.name;
         }
       }
       this.render();
@@ -4208,6 +4237,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
     // Internal item - update flags
     await this.#updateItemEquipmentFlags(droppedItem, target, event);
+    (this as any)._lastDroppedItemId = droppedItem?.id;
+    (this as any)._lastDroppedItemName = droppedItem?.name;
     this.render();
     return true;
   }
