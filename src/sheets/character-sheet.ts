@@ -1469,9 +1469,33 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (!target) return;
         const storageItem = target.closest('.storage-item');
         if (!storageItem) return;
+        const itemId = (storageItem as HTMLElement).dataset?.itemId;
         console.log('Mastery System | [Storage Debug] document dragstart', {
           targetClass: target.className,
-          itemId: (storageItem as HTMLElement).dataset?.itemId
+          itemId
+        });
+        const dataTransfer = ev.dataTransfer;
+        if (!dataTransfer) {
+          console.log('Mastery System | [Storage Debug] document dragstart missing dataTransfer', {
+            itemId
+          });
+          return;
+        }
+        const sourceItem = (game as any).items?.get(itemId);
+        if (!sourceItem) {
+          console.log('Mastery System | [Storage Debug] document dragstart missing source item', {
+            itemId
+          });
+          return;
+        }
+        const dragData = sourceItem.toDragData ? sourceItem.toDragData() : { type: 'Item', uuid: sourceItem.uuid };
+        const payload = JSON.stringify(dragData);
+        dataTransfer.effectAllowed = 'copy';
+        dataTransfer.setData('text/plain', payload);
+        dataTransfer.setData('application/json', payload);
+        console.log('Mastery System | [Storage Debug] document dragstart set dataTransfer', {
+          itemId,
+          types: Array.from(dataTransfer.types || [])
         });
       });
       document.addEventListener('drop', (ev: DragEvent) => {
