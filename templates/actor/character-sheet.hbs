@@ -1209,15 +1209,14 @@
       <div class="equipment-overview">
         <h3 style="width: 225px !important;"><i class="fas fa-shield-alt"></i> Equipment</h3>
         <div class="equipment-controls" style="width: 100%; height: 6px;">
-          <button type="button" class="add-weapon-btn" title="Add Weapon" style="height: 28px;">
-            <i class="fas fa-sword"></i> Add Weapon
+          <button type="button" class="general-items-btn" title="Open General Items Storage">
+            <i class="fas fa-box"></i> General Items
           </button>
-          <button type="button" class="add-armor-btn" title="Add Armor" style="height: 30px;">
-            <i class="fas fa-shield"></i> Add Armor
+          {{#if (userIsGM)}}
+          <button type="button" class="store-btn" title="Open Store (GM Only)">
+            <i class="fas fa-store"></i> Store
           </button>
-          <button type="button" class="add-shield-btn" title="Add Shield" style="height: 30px;">
-            <i class="fas fa-shield-alt"></i> Add Shield
-          </button>
+          {{/if}}
         </div>
       </div>
       

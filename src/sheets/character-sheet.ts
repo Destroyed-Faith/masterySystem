@@ -16,9 +16,8 @@ import { getAllMasteryTrees } from '../utils/mastery-trees';
 import { getAllSpellSchools } from '../utils/spell-schools';
 import { getAllSchticks } from '../utils/schticks';
 import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
-import { showWeaponCreationDialog } from './character-sheet-weapon-dialog.js';
-import { showArmorCreationDialog } from './character-sheet-armor-dialog.js';
-import { showShieldCreationDialog } from './character-sheet-shield-dialog.js';
+// Removed: showWeaponCreationDialog, showArmorCreationDialog, showShieldCreationDialog
+// Replaced with General Items Storage and Store dialogs
 
 // Use namespaced ActorSheet when available to avoid deprecation warnings
 const BaseActorSheet: any = (foundry as any)?.appv1?.sheets?.ActorSheet || (ActorSheet as any);
@@ -140,62 +139,48 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   /**
-   * Add Weapon → open weapon dialog
+   * Open General Items Storage Dialog
    */
-  async #onWeaponAdd(event: JQuery.ClickEvent) {
+  async #onGeneralItemsClick(event: JQuery.ClickEvent) {
     event.preventDefault();
-    await this.#openWeaponDialog();
+    await this.#openGeneralItemsStorage();
   }
 
   /**
-   * Open the Weapon Creation Dialog
+   * Open General Items Storage Window
    */
-  async #openWeaponDialog(): Promise<void> {
+  async #openGeneralItemsStorage(): Promise<void> {
     try {
-      await showWeaponCreationDialog(this.actor);
+      const { GeneralItemsStorageDialog } = await import('./general-items-storage-dialog.js');
+      await GeneralItemsStorageDialog.showForActor(this.actor);
     } catch (error) {
-      console.error('Mastery System | Failed to open weapon dialog', error);
-      ui.notifications?.error('Failed to open weapon selection dialog');
+      console.error('Mastery System | Failed to open General Items Storage', error);
+      ui.notifications?.error('Failed to open General Items Storage');
     }
   }
 
   /**
-   * Add Armor → open armor dialog
+   * Open Store Dialog (GM only)
    */
-  async #onArmorAdd(event: JQuery.ClickEvent) {
+  async #onStoreClick(event: JQuery.ClickEvent) {
     event.preventDefault();
-    await this.#openArmorDialog();
-  }
-
-  /**
-   * Open the Armor Creation Dialog
-   */
-  async #openArmorDialog(): Promise<void> {
-    try {
-      await showArmorCreationDialog(this.actor);
-    } catch (error) {
-      console.error('Mastery System | Error loading armor dialog:', error);
-      ui.notifications?.error('Failed to load armor dialog.');
+    if (!game.user?.isGM) {
+      ui.notifications?.warn('Only the GM can access the Store');
+      return;
     }
+    await this.#openStore();
   }
 
   /**
-   * Add Shield → open shield dialog
+   * Open Store Window (GM only)
    */
-  async #onShieldAdd(event: JQuery.ClickEvent) {
-    event.preventDefault();
-    await this.#openShieldDialog();
-  }
-
-  /**
-   * Open the Shield Creation Dialog
-   */
-  async #openShieldDialog(): Promise<void> {
+  async #openStore(): Promise<void> {
     try {
-      await showShieldCreationDialog(this.actor);
+      const { StoreDialog } = await import('./store-dialog.js');
+      await StoreDialog.showForActor(this.actor);
     } catch (error) {
-      console.error('Mastery System | Error loading shield dialog:', error);
-      ui.notifications?.error('Failed to load shield dialog.');
+      console.error('Mastery System | Failed to open Store', error);
+      ui.notifications?.error('Failed to open Store');
     }
   }
 
@@ -798,7 +783,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    */
   #prepareEquipmentUi(items: any) {
     const BAND_COLS = 8;
-    const BAND_ROWS = 7;
+    const BAND_ROWS = 9; // Changed from 7 to 9 as requested
     const BAND_SIZE = BAND_COLS * BAND_ROWS;
     const STASH_COLS = 10;
     const STASH_ROWS = 6;
@@ -1466,9 +1451,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('.power-rank-select').on('change', this.#onPowerRankChange.bind(this));
     
     // Equipment handlers
-    html.find('.add-weapon-btn').on('click', this.#onWeaponAdd.bind(this));
-    html.find('.add-armor-btn').on('click', this.#onArmorAdd.bind(this));
-    html.find('.add-shield-btn').on('click', this.#onShieldAdd.bind(this));
+    html.find('.general-items-btn').on('click', this.#onGeneralItemsClick.bind(this));
+    html.find('.store-btn').on('click', this.#onStoreClick.bind(this));
     
     // Stash toggle
     html.find('.df-stash-toggle').on('click', (ev: JQuery.ClickEvent) => {
