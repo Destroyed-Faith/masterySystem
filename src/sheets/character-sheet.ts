@@ -1489,6 +1489,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         slot: target?.dataset?.slot
       });
       const dragEvent = (ev.originalEvent ?? ev) as unknown as DragEvent;
+      (dragEvent as any).__msDropTarget = target || undefined;
       await this._onDrop(dragEvent);
     });
 
@@ -1547,6 +1548,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         });
         if (resolvedDropTarget) {
           const dragEvent = ev as DragEvent;
+          (dragEvent as any).__msDropTarget = resolvedDropTarget;
           console.log('Mastery System | [Equipment Drop] Global document drop invoking _onDrop', {
             dropType: resolvedDropTarget.dataset?.dfDrop,
             band: resolvedDropTarget.dataset?.band,
@@ -4123,14 +4125,22 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const TextEditorImpl = foundry.applications?.ux?.TextEditor?.implementation || TextEditor;
     const data = TextEditorImpl.getDragEventData(event);
     
-    const target = (event.target as HTMLElement)?.closest('[data-df-drop]') as HTMLElement | null;
+    const path = (event.composedPath?.() || []) as HTMLElement[];
+    const pathDropTarget = path.find(el => (el as HTMLElement)?.dataset?.dfDrop) as HTMLElement | undefined;
+    const resolvedTarget = ((event as any).__msDropTarget as HTMLElement | undefined)
+      || (event.target as HTMLElement)?.closest('[data-df-drop]')
+      || pathDropTarget
+      || null;
+    const target = resolvedTarget as HTMLElement | null;
     console.log('Mastery System | [Equipment Drop] Event', {
       hasTarget: !!target,
       dropType: target?.dataset?.dfDrop,
       band: target?.dataset?.band,
       slot: target?.dataset?.slot,
       dragData: data,
-      dataTransferTypes: Array.from(event.dataTransfer?.types || [])
+      dataTransferTypes: Array.from(event.dataTransfer?.types || []),
+      pathHasDropTarget: !!pathDropTarget,
+      hasOverrideTarget: !!(event as any).__msDropTarget
     });
     if (!target) {
       return super._onDrop(event);
@@ -4211,6 +4221,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
     const currentFlags = item.getFlag('mastery-system', 'equipment') || {};
     const newFlags: any = { ...currentFlags };
+    console.log('Mastery System | [Equipment Drop] Update flags start', {
+      itemId: item?.id,
+      itemName: item?.name,
+      dropType,
+      band: target.dataset?.band,
+      slot: target.dataset?.slot,
+      currentFlags
+    });
 
     // Helper: Get item currently in a slot
     const getSlotItem = (slotKey: string): any => {
@@ -4244,6 +4262,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         'flags.mastery-system.equipment': newFlags,
         'system.equipped': false
       });
+      console.log('Mastery System | [Equipment Drop] Update flags stash', { newFlags });
     } else if (dropType === 'band') {
       const band = target.dataset.band;
       if (band === 'not' || band === 'enc' || band === 'heavy') {
@@ -4254,6 +4273,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           'flags.mastery-system.equipment': newFlags,
           'system.equipped': false
         });
+        console.log('Mastery System | [Equipment Drop] Update flags band', { newFlags });
       }
     } else if (dropType === 'equip-slot') {
       const slot = target.dataset.slot;
@@ -4293,6 +4313,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         'flags.mastery-system.equipment': newFlags,
         'system.equipped': true
       });
+      console.log('Mastery System | [Equipment Drop] Update flags slot', { newFlags });
     }
   }
 }
