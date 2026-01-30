@@ -38,6 +38,11 @@ export class GeneralItemsStorageDialog extends BaseDialog {
   }
 
   async _prepareContext(_options: any): Promise<any> {
+    console.log('Mastery System | [Storage Debug] _prepareContext start', {
+      actorId: (this._actor as any)?.id,
+      actorName: (this._actor as any)?.name,
+      isGM: game.user?.isGM === true
+    });
     // Automatically seed items if folder is empty or doesn't exist
     const createdItems = await seedGeneralItemsStorage();
     console.log('Mastery System | General Items Storage seed result:', createdItems.length);
@@ -247,6 +252,11 @@ export class GeneralItemsStorageDialog extends BaseDialog {
     await super._onRender?.(element, _options);
     
     const html = $(element);
+    console.log('Mastery System | [Storage Debug] _onRender', {
+      elementExists: !!element,
+      storageItems: html.find('.storage-item').length,
+      actorId: (this._actor as any)?.id
+    });
     
     // Enable drag and drop for storage items
     html.find('.storage-item').each((_index, itemEl) => {
@@ -287,6 +297,11 @@ export class GeneralItemsStorageDialog extends BaseDialog {
         e.preventDefault();
         e.stopPropagation();
         $band.removeClass('drag-over');
+        console.log('Mastery System | [Storage Drop] Drop event', {
+          band,
+          actorId: (this._actor as any)?.id,
+          hasDataTransfer: !!e.originalEvent?.dataTransfer
+        });
 
         try {
           const TextEditorImpl = foundry.applications?.ux?.TextEditor?.implementation || TextEditor;
@@ -379,6 +394,11 @@ export class GeneralItemsStorageDialog extends BaseDialog {
       await GeneralItemsStorageDialog._instance.close();
     }
 
+    console.log('Mastery System | [Storage Debug] Opening General Items Storage', {
+      actorId: actor?.id,
+      actorName: actor?.name,
+      isGM: game.user?.isGM === true
+    });
     const dialog = new GeneralItemsStorageDialog(actor);
     GeneralItemsStorageDialog._instance = dialog;
     await dialog.render(true);

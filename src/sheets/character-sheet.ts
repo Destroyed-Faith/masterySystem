@@ -151,6 +151,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    */
   async #openGeneralItemsStorage(): Promise<void> {
     try {
+      console.log('Mastery System | [Storage Debug] CharacterSheet open storage', {
+        actorId: this.actor?.id,
+        actorName: this.actor?.name
+      });
       const { GeneralItemsStorageDialog } = await import('./general-items-storage-dialog.js');
       await GeneralItemsStorageDialog.showForActor(this.actor);
     } catch (error) {

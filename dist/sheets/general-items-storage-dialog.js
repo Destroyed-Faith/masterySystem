@@ -29,6 +29,11 @@ export class GeneralItemsStorageDialog extends BaseDialog {
         return this._actor;
     }
     async _prepareContext(_options) {
+        console.log('Mastery System | [Storage Debug] _prepareContext start', {
+            actorId: this._actor?.id,
+            actorName: this._actor?.name,
+            isGM: game.user?.isGM === true
+        });
         // Automatically seed items if folder is empty or doesn't exist
         const createdItems = await seedGeneralItemsStorage();
         console.log('Mastery System | General Items Storage seed result:', createdItems.length);
@@ -241,6 +246,11 @@ export class GeneralItemsStorageDialog extends BaseDialog {
     async _onRender(element, _options) {
         await super._onRender?.(element, _options);
         const html = $(element);
+        console.log('Mastery System | [Storage Debug] _onRender', {
+            elementExists: !!element,
+            storageItems: html.find('.storage-item').length,
+            actorId: this._actor?.id
+        });
         // Enable drag and drop for storage items
         html.find('.storage-item').each((_index, itemEl) => {
             const $item = $(itemEl);
@@ -276,6 +286,11 @@ export class GeneralItemsStorageDialog extends BaseDialog {
                 e.preventDefault();
                 e.stopPropagation();
                 $band.removeClass('drag-over');
+                console.log('Mastery System | [Storage Drop] Drop event', {
+                    band,
+                    actorId: this._actor?.id,
+                    hasDataTransfer: !!e.originalEvent?.dataTransfer
+                });
                 try {
                     const TextEditorImpl = foundry.applications?.ux?.TextEditor?.implementation || TextEditor;
                     const data = TextEditorImpl.getDragEventData(e.originalEvent ?? e);
@@ -366,6 +381,11 @@ export class GeneralItemsStorageDialog extends BaseDialog {
         if (GeneralItemsStorageDialog._instance) {
             await GeneralItemsStorageDialog._instance.close();
         }
+        console.log('Mastery System | [Storage Debug] Opening General Items Storage', {
+            actorId: actor?.id,
+            actorName: actor?.name,
+            isGM: game.user?.isGM === true
+        });
         const dialog = new GeneralItemsStorageDialog(actor);
         GeneralItemsStorageDialog._instance = dialog;
         await dialog.render(true);
