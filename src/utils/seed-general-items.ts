@@ -84,13 +84,16 @@ export async function seedGeneralItemsStorage(): Promise<any[]> {
     return [];
   }
 
+  console.log('Mastery System | Seeding General Items Storage...');
   const existingFolder = (game as any).folders?.find((f: any) => f.name === STORAGE_FOLDER_NAME && f.type === 'Item');
   const folder = existingFolder
     ? existingFolder
     : await (Folder as any).create({ name: STORAGE_FOLDER_NAME, type: 'Item' });
+  console.log('Mastery System | Storage folder resolved:', folder?.id, folder?.name);
 
   const existingItems = Array.from((game as any).items || []).filter((item: any) => item.folder?.id === folder.id);
   const existingNames = new Set(existingItems.map((item: any) => item.name));
+  console.log('Mastery System | Existing storage items:', existingItems.length);
 
   const itemsToCreate: any[] = [];
 
@@ -179,6 +182,11 @@ export async function seedGeneralItemsStorage(): Promise<any[]> {
   const createdItems = await (Item as any).createDocuments(itemsToCreate, { render: false });
   if (itemsToCreate.length > 0) {
     ui.notifications?.info(`Created ${itemsToCreate.length} items in General Items Storage.`);
+  }
+  if (!createdItems || createdItems.length === 0) {
+    console.warn('Mastery System | Seeding completed but no items were created.');
+  } else {
+    console.log('Mastery System | Seeded items:', createdItems.length);
   }
   return createdItems ?? [];
 }

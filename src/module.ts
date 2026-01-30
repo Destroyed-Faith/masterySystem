@@ -31,6 +31,7 @@ import { openStonePowersForAllCombatants as openStonePowers, initializeStonePowe
 import { registerDivineClashSettings } from './divine-clash/divine-clash-settings.js';
 import { initializeDivineClashHooks } from './divine-clash/divine-clash-hooks.js';
 import { initializeArtifactAwakening } from './artifacts/artifact-awakening.js';
+import { seedGeneralItemsStorage } from './utils/seed-general-items.js';
 
 // Dice roller functions are imported in sheets where needed
 
@@ -1821,6 +1822,18 @@ Hooks.once('ready', async function() {
   console.log(`║  MASTERY SYSTEM / DESTROYED FAITH - VERSION ${system.version.padEnd(10)} ║`);
   console.log(`╚═══════════════════════════════════════════════════════════╝`);
   console.log(`Mastery System | Version ${system.version}`);
+
+  // Seed General Items Storage once per world load (GM only)
+  if (game.user?.isGM) {
+    try {
+      const createdItems = await seedGeneralItemsStorage();
+      if (createdItems.length > 0) {
+        console.log(`Mastery System | Seeded ${createdItems.length} General Items Storage items on ready`);
+      }
+    } catch (error) {
+      console.warn('Mastery System | Failed to seed General Items Storage on ready', error);
+    }
+  }
   
   // Re-initialize Artifact Awakening as fallback (in case init hook failed)
   // Check if hook is registered

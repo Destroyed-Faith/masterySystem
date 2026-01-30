@@ -40,6 +40,7 @@ export class GeneralItemsStorageDialog extends BaseDialog {
   async _prepareContext(_options: any): Promise<any> {
     // Automatically seed items if folder is empty or doesn't exist
     const createdItems = await seedGeneralItemsStorage();
+    console.log('Mastery System | General Items Storage seed result:', createdItems.length);
 
     // Get all items from General Items Storage (world-level folder or compendium)
     const storageFolder = (game as any).folders?.find((f: any) => 
@@ -55,6 +56,7 @@ export class GeneralItemsStorageDialog extends BaseDialog {
         item.folder?.id === storageFolder.id
       );
     }
+    console.log('Mastery System | Storage items in dialog:', storageItems.length);
 
     // Prepare equipment UI using the same logic as character sheet
     const items = this.#prepareItems();
