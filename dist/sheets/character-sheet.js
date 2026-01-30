@@ -1292,6 +1292,54 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Equipment handlers
         html.find('.general-items-btn').on('click', this.#onGeneralItemsClick.bind(this));
         html.find('.store-btn').on('click', this.#onStoreClick.bind(this));
+        if (!window.__msGlobalDropDebugBound) {
+            window.__msGlobalDropDebugBound = true;
+            console.log('Mastery System | [Storage Debug] Global drag/drop listeners bound');
+            console.log('Mastery System | [Storage Debug] Global drop debug active');
+            document.addEventListener('dragstart', (ev) => {
+                const target = ev.target;
+                if (!target)
+                    return;
+                const storageItem = target.closest('.storage-item');
+                if (!storageItem)
+                    return;
+                console.log('Mastery System | [Storage Debug] document dragstart', {
+                    targetClass: target.className,
+                    itemId: storageItem.dataset?.itemId
+                });
+            });
+            document.addEventListener('drop', (ev) => {
+                const target = ev.target;
+                if (!target)
+                    return;
+                const dropTarget = target.closest('[data-df-drop]');
+                console.log('Mastery System | [Storage Debug] document drop', {
+                    targetClass: target.className,
+                    dropType: dropTarget?.dataset?.dfDrop,
+                    band: dropTarget?.dataset?.band,
+                    slot: dropTarget?.dataset?.slot,
+                    dataTransferTypes: Array.from(ev.dataTransfer?.types || [])
+                });
+            });
+            document.addEventListener('dragover', (ev) => {
+                const target = ev.target;
+                if (!target)
+                    return;
+                const dropTarget = target.closest('[data-df-drop]');
+                if (!dropTarget)
+                    return;
+                const last = window.__msLastDropTargetKey;
+                const key = `${dropTarget.dataset?.dfDrop || ''}:${dropTarget.dataset?.band || ''}:${dropTarget.dataset?.slot || ''}`;
+                if (last !== key) {
+                    window.__msLastDropTargetKey = key;
+                    console.log('Mastery System | [Storage Debug] document dragover target', {
+                        dropType: dropTarget?.dataset?.dfDrop,
+                        band: dropTarget?.dataset?.band,
+                        slot: dropTarget?.dataset?.slot
+                    });
+                }
+            });
+        }
         // Stash toggle
         html.find('.df-stash-toggle').on('click', (ev) => {
             ev.preventDefault();

@@ -259,22 +259,56 @@ export class GeneralItemsStorageDialog extends BaseDialog {
     });
     
     // Enable drag and drop for storage items
-    html.find('.storage-item').each((_index, itemEl) => {
+    const storageItems = html.find('.storage-item');
+    storageItems.each((_index, itemEl) => {
       const $item = $(itemEl);
-      $item.attr('draggable', 'true');
-      
-      $item.on('dragstart', (e: any) => {
-        const itemId = $item.data('item-id');
-        const sourceItem = (game as any).items?.get(itemId);
-        if (!sourceItem || !e.originalEvent?.dataTransfer) return;
-        console.log('Mastery System | [Storage DragStart]', {
+      $item.find('*').addBack().attr('draggable', 'true');
+    });
+    console.log('Mastery System | [Storage Debug] Drag handlers bound', {
+      storageItemCount: storageItems.length
+    });
+
+    html.off('mousedown.storage').on('mousedown.storage', '.storage-item, .storage-item *', (e: any) => {
+      const $item = $(e.target).closest('.storage-item');
+      console.log('Mastery System | [Storage MouseDown]', {
+        targetClass: (e.target as HTMLElement)?.className,
+        itemId: $item.data('item-id')
+      });
+    });
+
+    html.off('dragstart.storage').on('dragstart.storage', '.storage-item, .storage-item *', (e: any) => {
+      const $item = $(e.target).closest('.storage-item');
+      const itemId = $item.data('item-id');
+      const sourceItem = (game as any).items?.get(itemId);
+      const dataTransfer = e.originalEvent?.dataTransfer;
+      if (!sourceItem || !dataTransfer) {
+        console.log('Mastery System | [Storage DragStart] Missing source or dataTransfer', {
           itemId,
-          itemName: sourceItem?.name,
-          itemUuid: sourceItem?.uuid,
-          itemType: sourceItem?.type
+          hasSource: !!sourceItem,
+          hasDataTransfer: !!dataTransfer
         });
-        const dragData = sourceItem.toDragData ? sourceItem.toDragData() : { type: 'Item', uuid: sourceItem.uuid };
-        e.originalEvent.dataTransfer.setData('text/plain', JSON.stringify(dragData));
+        return;
+      }
+      console.log('Mastery System | [Storage DragStart]', {
+        itemId,
+        itemName: sourceItem?.name,
+        itemUuid: sourceItem?.uuid,
+        itemType: sourceItem?.type
+      });
+      const dragData = sourceItem.toDragData ? sourceItem.toDragData() : { type: 'Item', uuid: sourceItem.uuid };
+      const payload = JSON.stringify(dragData);
+      dataTransfer.effectAllowed = 'copy';
+      dataTransfer.setData('text/plain', payload);
+      dataTransfer.setData('application/json', payload);
+      console.log('Mastery System | [Storage DragStart] DataTransfer types', {
+        types: Array.from(dataTransfer.types || [])
+      });
+    });
+
+    html.off('dragend.storage').on('dragend.storage', '.storage-item, .storage-item *', (e: any) => {
+      const $item = $(e.target).closest('.storage-item');
+      console.log('Mastery System | [Storage DragEnd]', {
+        itemId: $item.data('item-id')
       });
     });
 
@@ -300,7 +334,8 @@ export class GeneralItemsStorageDialog extends BaseDialog {
         console.log('Mastery System | [Storage Drop] Drop event', {
           band,
           actorId: (this._actor as any)?.id,
-          hasDataTransfer: !!e.originalEvent?.dataTransfer
+          hasDataTransfer: !!e.originalEvent?.dataTransfer,
+          dataTransferTypes: Array.from(e.originalEvent?.dataTransfer?.types || [])
         });
 
         try {
