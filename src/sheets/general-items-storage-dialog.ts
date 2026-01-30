@@ -297,23 +297,43 @@ export class GeneralItemsStorageDialog extends BaseDialog {
 
           if (!droppedItem) return;
 
+          const targetBand = band || 'not';
           let item = droppedItem;
           if (!item.parent || item.parent.id !== (this._actor as any).id) {
-            const [created] = await (this._actor as any).createEmbeddedDocuments('Item', [droppedItem.toObject()]);
+            const itemData = foundry.utils.deepClone(droppedItem.toObject());
+            delete itemData._id;
+            delete itemData.folder;
+            itemData.flags = {
+              ...(itemData.flags || {}),
+              'mastery-system': {
+                ...(itemData.flags?.['mastery-system'] || {}),
+                equipment: {
+                  container: 'inventory',
+                  band: targetBand,
+                  slot: null
+                }
+              }
+            };
+            itemData.system = {
+              ...(itemData.system || {}),
+              equipped: false
+            };
+
+            const [created] = await (this._actor as any).createEmbeddedDocuments('Item', [itemData], { render: false });
             if (!created) return;
             item = created;
+          } else {
+            const currentFlags = item.getFlag?.('mastery-system', 'equipment') || {};
+            await item.update({
+              'flags.mastery-system.equipment': {
+                ...currentFlags,
+                container: 'inventory',
+                band: targetBand,
+                slot: null
+              },
+              'system.equipped': false
+            });
           }
-
-          const currentFlags = item.getFlag?.('mastery-system', 'equipment') || {};
-          await item.update({
-            'flags.mastery-system.equipment': {
-              ...currentFlags,
-              container: 'inventory',
-              band: band || 'not',
-              slot: null
-            },
-            'system.equipped': false
-          });
 
           await this.render();
         } catch (error) {
