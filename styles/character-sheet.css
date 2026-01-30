@@ -4636,61 +4636,6 @@
   border-style: solid;
 }
 
-.backpack-grid {
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  grid-template-rows: repeat(6, 1fr);
-  gap: 2px;
-  width: 100%;
-  min-height: 320px;
-  border: 2px solid var(--df-border-primary, #3a3f44);
-  border-radius: 8px;
-  padding: 6px;
-  background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
-    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
-    var(--df-bg-secondary, #1e2328);
-  background-size: calc(100% / 10) calc(100% / 6);
-}
-
-.backpack-grid.drag-over {
-  border-color: var(--df-accent, #8b0000);
-  box-shadow: 0 0 12px rgba(139, 0, 0, 0.4);
-}
-
-.df-grid-item {
-  position: relative;
-  border: 1px solid var(--df-border-primary, #3a3f44);
-  border-radius: 6px;
-  overflow: hidden;
-  background: var(--df-bg-panel, #2a3136);
-  cursor: grab;
-}
-
-.df-grid-item:active {
-  cursor: grabbing;
-}
-
-.df-grid-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0.65;
-}
-
-.df-grid-label {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  padding: 2px 4px;
-  font-size: 0.65rem;
-  line-height: 1.1;
-  text-align: center;
-  color: var(--df-text-primary, #d0d0d0);
-  background: rgba(0, 0, 0, 0.55);
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
-}
 
 .drop-hint {
   color: var(--df-text-secondary, #a0a0a0);
@@ -5787,17 +5732,6 @@
   display: flex;
   gap: 16px;
   align-items: flex-start;
-}
-
-.df-backpack-panel {
-  width: 320px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.df-backpack-panel h4 {
-  margin: 0;
 }
 
 .df-enc-table {

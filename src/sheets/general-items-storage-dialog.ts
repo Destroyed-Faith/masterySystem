@@ -5,19 +5,10 @@
 
 // Types are available globally in Foundry VTT
 
-import {
-  findFirstFit,
-  fitsInGrid,
-  parseInventorySize,
-  rectsOverlap
-} from '../utils/inventory-grid';
 import { seedGeneralItemsStorage } from '../utils/seed-general-items';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
-
-const BACKPACK_COLS = 10;
-const BACKPACK_ROWS = 6;
 
 export class GeneralItemsStorageDialog extends BaseDialog {
   private _actor: Actor;
@@ -48,7 +39,6 @@ export class GeneralItemsStorageDialog extends BaseDialog {
 
   async _prepareContext(_options: any): Promise<any> {
     // Get all items from General Items Storage (world-level folder or compendium)
-    // For now, we'll use a world-level folder named "General Items Storage"
     const storageFolder = (game as any).folders?.find((f: any) => 
       f.name === 'General Items Storage' && f.type === 'Item'
     );
@@ -60,28 +50,9 @@ export class GeneralItemsStorageDialog extends BaseDialog {
       );
     }
 
-    const backpackItems = Array.from((this._actor as any).items || []).reduce((items: any[], item: any) => {
-      const flags = item.getFlag?.('mastery-system', 'equipment') || {};
-      if (flags.container !== 'backpack') {
-        return items;
-      }
-
-      const { w, h } = parseInventorySize(item.system?.inventorySize);
-      const x = Number(flags.x) || 1;
-      const y = Number(flags.y) || 1;
-      const img = item.img || 'icons/svg/item-bag.svg';
-      items.push({
-        id: item.id,
-        name: item.name,
-        img,
-        isPlaceholder: !item.img || item.img.startsWith('icons/svg/'),
-        x,
-        y,
-        w,
-        h
-      });
-      return items;
-    }, []);
+    // Prepare equipment UI using the same logic as character sheet
+    const items = this.#prepareItems();
+    const equipmentUi = this.#prepareEquipmentUi(items);
 
     return {
       actor: this._actor,
@@ -92,11 +63,175 @@ export class GeneralItemsStorageDialog extends BaseDialog {
         type: item.type,
         system: item.system
       })),
-      backpackItems,
-      backpackCols: BACKPACK_COLS,
-      backpackRows: BACKPACK_ROWS,
+      equipmentUi,
       hasStorage: storageItems.length > 0,
       isGM: game.user?.isGM === true
+    };
+  }
+
+  /**
+   * Prepare items organized by type (same as character sheet)
+   */
+  #prepareItems() {
+    const powers: any[] = [];
+    const echoes: any[] = [];
+    const schticks: any[] = [];
+    const artifacts: any[] = [];
+    const conditions: any[] = [];
+    const shields: any[] = [];
+    const weapons: any[] = [];
+    const armor: any[] = [];
+    const gear: any[] = [];
+    
+    const items = (this._actor as any).items;
+    const itemsArray = Array.isArray(items) ? items : Array.from(items.values());
+    
+    for (const item of itemsArray) {
+      switch (item.type) {
+        case 'power': powers.push(item); break;
+        case 'gear': gear.push(item); break;
+        case 'echo': echoes.push(item); break;
+        case 'schtick': schticks.push(item); break;
+        case 'artifact': artifacts.push(item); break;
+        case 'condition': conditions.push(item); break;
+        case 'weapon': weapons.push(item); break;
+        case 'armor': armor.push(item); break;
+        case 'shield': shields.push(item); break;
+      }
+    }
+    
+    return { powers, echoes, schticks, artifacts, conditions, shields, weapons, armor, gear };
+  }
+
+  /**
+   * Prepare Equipment UI Context (same as character sheet)
+   */
+  #prepareEquipmentUi(items: any) {
+    const BAND_COLS = 8;
+    const BAND_ROWS = 9;
+    const BAND_SIZE = BAND_COLS * BAND_ROWS;
+    const STASH_COLS = 10;
+    const STASH_ROWS = 6;
+    const STASH_SIZE = STASH_COLS * STASH_ROWS;
+
+    const equipmentItems: any[] = [
+      ...(items.weapons || []),
+      ...(items.armor || []),
+      ...(items.shields || []),
+      ...(items.gear || []),
+      ...(items.artifacts || [])
+    ];
+
+    const toCells = (itemList: any[], size: number) => {
+      const cells = Array(size).fill(null);
+      let overflow = 0;
+      for (let i = 0; i < itemList.length; i++) {
+        if (i < size) {
+          cells[i] = itemList[i];
+        } else {
+          overflow++;
+        }
+      }
+      return { cells, overflow };
+    };
+
+    const inventoryItems: any[] = [];
+    const stashItems: any[] = [];
+    const notItems: any[] = [];
+    const encItems: any[] = [];
+    const heavyItems: any[] = [];
+    const slotMap: Record<string, any> = {};
+
+    for (const item of equipmentItems) {
+      const flags = item.getFlag?.('mastery-system', 'equipment') || {};
+      const container = flags.container ?? 'inventory';
+      const band = flags.band ?? 'not';
+      const slot = flags.slot ?? null;
+
+      if (!slot && (item.system as any)?.equipped === true) {
+        if (item.type === 'weapon') {
+          slotMap['mainhand'] = item;
+          continue;
+        } else if (item.type === 'shield') {
+          slotMap['offhand'] = item;
+          continue;
+        } else if (item.type === 'armor') {
+          slotMap['chest'] = item;
+          continue;
+        }
+      }
+
+      // Treat backpack items as inventory items (they go into encumbrance bands)
+      if (slot) {
+        if (!slotMap[slot] || (slot === 'ring1' || slot === 'ring2')) {
+          if (slot === 'ring1' || slot === 'ring2') {
+            if (!slotMap[slot]) {
+              slotMap[slot] = item;
+            }
+          } else {
+            slotMap[slot] = item;
+          }
+        }
+      } else if (container === 'stash') {
+        stashItems.push(item);
+      } else {
+        inventoryItems.push(item);
+        if (band === 'not') {
+          notItems.push(item);
+        } else if (band === 'enc') {
+          encItems.push(item);
+        } else if (band === 'heavy') {
+          heavyItems.push(item);
+        }
+      }
+    }
+
+    const notCellsData = toCells(notItems, BAND_SIZE);
+    const encCellsData = toCells(encItems, BAND_SIZE);
+    const heavyCellsData = toCells(heavyItems, BAND_SIZE);
+    const stashCellsData = toCells(stashItems, STASH_SIZE);
+
+    const slotDefs = [
+      { key: 'cloak', label: 'Cloak/Cape' },
+      { key: 'belt', label: 'Belt' },
+      { key: 'mainhand', label: 'Mainhand' },
+      { key: 'offhand', label: 'Offhand' },
+      { key: 'pouch', label: 'Potion/Pouch/Scroll' },
+      { key: 'helmet', label: 'Helmet' },
+      { key: 'shoulder', label: 'Shoulder' },
+      { key: 'chest', label: 'Chest' },
+      { key: 'wrist', label: 'Wrist' },
+      { key: 'glove', label: 'Glove' },
+      { key: 'waist', label: 'Waist' },
+      { key: 'leggings', label: 'Leggings' },
+      { key: 'boot', label: 'Boot' },
+      { key: 'necklace', label: 'Necklace' },
+      { key: 'ring1', label: 'Ring 1' },
+      { key: 'ring2', label: 'Ring 2' }
+    ];
+
+    return {
+      showStash: false,
+      bandCols: BAND_COLS,
+      bandRows: BAND_ROWS,
+      stashCols: STASH_COLS,
+      stashRows: STASH_ROWS,
+      inventory: {
+        notCells: notCellsData.cells,
+        encCells: encCellsData.cells,
+        heavyCells: heavyCellsData.cells,
+        notOverflow: notCellsData.overflow,
+        encOverflow: encCellsData.overflow,
+        heavyOverflow: heavyCellsData.overflow
+      },
+      stash: {
+        cells: stashCellsData.cells,
+        overflow: stashCellsData.overflow
+      },
+      equipSlots: slotDefs.map(def => ({
+        ...def,
+        item: slotMap[def.key] || null
+      }))
     };
   }
 
@@ -119,19 +254,6 @@ export class GeneralItemsStorageDialog extends BaseDialog {
       });
     });
 
-    // Enable drag for backpack items
-    html.find('.backpack-grid .df-grid-item').each((_index, itemEl) => {
-      const $item = $(itemEl);
-      $item.attr('draggable', 'true');
-      $item.on('dragstart', (e: any) => {
-        const itemId = $item.data('item-id');
-        const actorItem = (this._actor as any).items?.get(itemId);
-        if (!actorItem || !e.originalEvent?.dataTransfer) return;
-        const dragData = actorItem.toDragData ? actorItem.toDragData() : { type: 'Item', uuid: actorItem.uuid };
-        e.originalEvent.dataTransfer.setData('text/plain', JSON.stringify(dragData));
-      });
-    });
-
     // Seed button (GM only)
     html.find('.seed-general-items').on('click', async (e: any) => {
       e.preventDefault();
@@ -139,23 +261,25 @@ export class GeneralItemsStorageDialog extends BaseDialog {
       await this.render();
     });
 
-    // Make backpack grid a drop zone
-    const backpackGrid = html.find('.backpack-grid');
-    if (backpackGrid.length > 0) {
-      backpackGrid.on('dragover', (e: any) => {
+    // Enable drop on encumbrance bands
+    html.find('.df-enc-band').each((_index, bandEl) => {
+      const $band = $(bandEl);
+      const band = $band.data('band');
+      
+      $band.on('dragover', (e: any) => {
         e.preventDefault();
         e.stopPropagation();
-        backpackGrid.addClass('drag-over');
+        $band.addClass('drag-over');
       });
 
-      backpackGrid.on('dragleave', () => {
-        backpackGrid.removeClass('drag-over');
+      $band.on('dragleave', () => {
+        $band.removeClass('drag-over');
       });
 
-      backpackGrid.on('drop', async (e: any) => {
+      $band.on('drop', async (e: any) => {
         e.preventDefault();
         e.stopPropagation();
-        backpackGrid.removeClass('drag-over');
+        $band.removeClass('drag-over');
 
         try {
           const TextEditorImpl = foundry.applications?.ux?.TextEditor?.implementation || TextEditor;
@@ -179,61 +303,12 @@ export class GeneralItemsStorageDialog extends BaseDialog {
             item = created;
           }
 
-          const gridEl = backpackGrid[0] as HTMLElement;
-          const rect = gridEl.getBoundingClientRect();
-          const cols = Number(gridEl.dataset.cols) || BACKPACK_COLS;
-          const rows = Number(gridEl.dataset.rows) || BACKPACK_ROWS;
-          const clientX = e.originalEvent?.clientX ?? e.clientX;
-          const clientY = e.originalEvent?.clientY ?? e.clientY;
-          const cellW = rect.width / cols;
-          const cellH = rect.height / rows;
-          let x = Math.floor((clientX - rect.left) / cellW) + 1;
-          let y = Math.floor((clientY - rect.top) / cellH) + 1;
-
-          const { w, h } = parseInventorySize(item.system?.inventorySize);
-          const existingRects = Array.from((this._actor as any).items || [])
-            .filter((actorItem: any) => {
-              const flags = actorItem.getFlag?.('mastery-system', 'equipment') || {};
-              return flags.container === 'backpack' && actorItem.id !== item.id;
-            })
-            .map((actorItem: any) => {
-              const flags = actorItem.getFlag?.('mastery-system', 'equipment') || {};
-              const size = parseInventorySize(actorItem.system?.inventorySize);
-              return {
-                x: Number(flags.x) || 1,
-                y: Number(flags.y) || 1,
-                w: size.w,
-                h: size.h
-              };
-            });
-
           const currentFlags = item.getFlag?.('mastery-system', 'equipment') || {};
-          const isExistingBackpackItem =
-            item.parent?.id === (this._actor as any).id && currentFlags.container === 'backpack';
-
-          const candidate = { x, y, w, h };
-          const overlaps = existingRects.some(rect => rectsOverlap(rect, candidate));
-          if (!fitsInGrid(x, y, w, h, cols, rows) || overlaps) {
-            if (isExistingBackpackItem) {
-              ui.notifications?.warn('Invalid backpack placement.');
-              return;
-            }
-            const fit = findFirstFit(existingRects, w, h, cols, rows);
-            if (!fit) {
-              ui.notifications?.warn('No space available in the backpack.');
-              return;
-            }
-            x = fit.x;
-            y = fit.y;
-          }
-
           await item.update({
             'flags.mastery-system.equipment': {
               ...currentFlags,
-              container: 'backpack',
-              x,
-              y,
-              band: null,
+              container: 'inventory',
+              band: band || 'not',
               slot: null
             },
             'system.equipped': false
@@ -241,10 +316,10 @@ export class GeneralItemsStorageDialog extends BaseDialog {
 
           await this.render();
         } catch (error) {
-          console.error('Mastery System | Error dropping item into backpack', error);
+          console.error('Mastery System | Error dropping item into equipment band', error);
         }
       });
-    }
+    });
   }
 
   /**
