@@ -1292,6 +1292,23 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Equipment handlers
         html.find('.general-items-btn').on('click', this.#onGeneralItemsClick.bind(this));
         html.find('.store-btn').on('click', this.#onStoreClick.bind(this));
+        html.off('dragover.ms-equipment-drop').on('dragover.ms-equipment-drop', '[data-df-drop]', (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+        });
+        html.off('drop.ms-equipment-drop').on('drop.ms-equipment-drop', '[data-df-drop]', async (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            const target = ev.currentTarget;
+            console.log('Mastery System | [Equipment Drop] Delegated drop handler', {
+                targetClass: target?.className,
+                dropType: target?.dataset?.dfDrop,
+                band: target?.dataset?.band,
+                slot: target?.dataset?.slot
+            });
+            const dragEvent = (ev.originalEvent ?? ev);
+            await this._onDrop(dragEvent);
+        });
         if (!window.__msGlobalDropDebugBound) {
             window.__msGlobalDropDebugBound = true;
             console.log('Mastery System | [Storage Debug] Global drag/drop listeners bound');
