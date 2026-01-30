@@ -72,7 +72,7 @@ export class GeneralItemsStorageDialog extends BaseDialog {
       const $item = $(itemEl);
       $item.attr('draggable', 'true');
       
-      $item.on('dragstart', (e: JQuery.DragEvent) => {
+      $item.on('dragstart', (e: any) => {
         const itemId = $item.data('item-id');
         if (e.originalEvent?.dataTransfer) {
           e.originalEvent.dataTransfer.setData('text/plain', JSON.stringify({
@@ -87,7 +87,7 @@ export class GeneralItemsStorageDialog extends BaseDialog {
     // Make inventory area a drop zone
     const inventoryArea = html.find('.inventory-drop-zone');
     if (inventoryArea.length > 0) {
-      inventoryArea.on('dragover', (e: JQuery.DragEvent) => {
+      inventoryArea.on('dragover', (e: any) => {
         e.preventDefault();
         e.stopPropagation();
         inventoryArea.addClass('drag-over');
@@ -97,7 +97,7 @@ export class GeneralItemsStorageDialog extends BaseDialog {
         inventoryArea.removeClass('drag-over');
       });
 
-      inventoryArea.on('drop', async (e: JQuery.DragEvent) => {
+      inventoryArea.on('drop', async (e: any) => {
         e.preventDefault();
         e.stopPropagation();
         inventoryArea.removeClass('drag-over');
@@ -109,7 +109,7 @@ export class GeneralItemsStorageDialog extends BaseDialog {
             if (sourceItem) {
               // Create a copy in the actor's inventory
               const itemData = sourceItem.toObject();
-              await this._actor.createEmbeddedDocuments('Item', [itemData]);
+              await (this._actor as any).createEmbeddedDocuments('Item', [itemData]);
               ui.notifications?.info(`Added ${sourceItem.name} to inventory`);
               await this.render();
             }
