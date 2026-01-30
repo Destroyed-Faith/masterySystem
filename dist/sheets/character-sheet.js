@@ -3568,6 +3568,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             this.render();
             return true;
         }
+        // World/compendium item dropped on sheet - create embedded copy first
+        if (!droppedItem.parent || droppedItem.parent.id !== this.actor.id) {
+            const itemData = foundry.utils.deepClone(droppedItem.toObject());
+            delete itemData._id;
+            delete itemData.folder;
+            const [created] = await this.actor.createEmbeddedDocuments('Item', [itemData], { render: false });
+            if (!created)
+                return false;
+            droppedItem = created;
+        }
         // Internal item - update flags
         await this.#updateItemEquipmentFlags(droppedItem, target, event);
         this.render();
