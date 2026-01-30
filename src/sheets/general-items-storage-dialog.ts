@@ -38,6 +38,9 @@ export class GeneralItemsStorageDialog extends BaseDialog {
   }
 
   async _prepareContext(_options: any): Promise<any> {
+    // Automatically seed items if folder is empty or doesn't exist
+    await seedGeneralItemsStorage();
+
     // Get all items from General Items Storage (world-level folder or compendium)
     const storageFolder = (game as any).folders?.find((f: any) => 
       f.name === 'General Items Storage' && f.type === 'Item'
@@ -252,13 +255,6 @@ export class GeneralItemsStorageDialog extends BaseDialog {
         const dragData = sourceItem.toDragData ? sourceItem.toDragData() : { type: 'Item', uuid: sourceItem.uuid };
         e.originalEvent.dataTransfer.setData('text/plain', JSON.stringify(dragData));
       });
-    });
-
-    // Seed button (GM only)
-    html.find('.seed-general-items').on('click', async (e: any) => {
-      e.preventDefault();
-      await seedGeneralItemsStorage();
-      await this.render();
     });
 
     // Enable drop on encumbrance bands

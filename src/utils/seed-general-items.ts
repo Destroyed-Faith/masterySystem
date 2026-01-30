@@ -3,7 +3,7 @@ import { BASE_ARMOR, BASE_SHIELDS } from './equipment';
 
 const STORAGE_FOLDER_NAME = 'General Items Storage';
 
-const GEAR_ITEMS: Array<{ name: string; inventorySize: string }> = [
+const GEAR_ITEMS: Array<{ name: string; price?: number; weight?: number; inventorySize: string }> = [
   { name: 'Backpack', inventorySize: '2x3' },
   { name: 'Belt Pouch', inventorySize: '1x1' },
   { name: 'Bit and bridle', inventorySize: '2x2' },
@@ -104,9 +104,10 @@ export async function seedGeneralItemsStorage(): Promise<void> {
       system: {
         description: '',
         inventorySize: gear.inventorySize,
-        weight: 0,
+        weight: gear.weight ?? 0,
         quantity: 1,
-        equipped: false
+        equipped: false,
+        ...(gear.price !== undefined && { price: gear.price })
       }
     });
   }
@@ -130,7 +131,8 @@ export async function seedGeneralItemsStorage(): Promise<void> {
         hands: weapon.hands,
         innateAbilities: weapon.innateAbilities,
         specials,
-        equipped: false
+        equipped: false,
+        ...(weapon.price !== undefined && { price: weapon.price })
       }
     });
   }
@@ -170,11 +172,14 @@ export async function seedGeneralItemsStorage(): Promise<void> {
   }
 
   if (itemsToCreate.length === 0) {
-    ui.notifications?.info('General Items Storage is already seeded.');
+    // Items already exist, silently return
     return;
   }
 
   await (Item as any).createDocuments(itemsToCreate, { render: false });
-  ui.notifications?.info(`Seeded ${itemsToCreate.length} items into General Items Storage.`);
+  // Only notify if items were actually created
+  if (itemsToCreate.length > 0) {
+    ui.notifications?.info(`Created ${itemsToCreate.length} items in General Items Storage.`);
+  }
 }
 
