@@ -257,6 +257,12 @@ export class GeneralItemsStorageDialog extends BaseDialog {
         const itemId = $item.data('item-id');
         const sourceItem = (game as any).items?.get(itemId);
         if (!sourceItem || !e.originalEvent?.dataTransfer) return;
+        console.log('Mastery System | [Storage DragStart]', {
+          itemId,
+          itemName: sourceItem?.name,
+          itemUuid: sourceItem?.uuid,
+          itemType: sourceItem?.type
+        });
         const dragData = sourceItem.toDragData ? sourceItem.toDragData() : { type: 'Item', uuid: sourceItem.uuid };
         e.originalEvent.dataTransfer.setData('text/plain', JSON.stringify(dragData));
       });
@@ -285,6 +291,7 @@ export class GeneralItemsStorageDialog extends BaseDialog {
         try {
           const TextEditorImpl = foundry.applications?.ux?.TextEditor?.implementation || TextEditor;
           const data = TextEditorImpl.getDragEventData(e.originalEvent ?? e);
+          console.log('Mastery System | [Storage Drop] Drag data', data);
 
           let droppedItem: any = null;
           if (data?.uuid) {
@@ -295,6 +302,12 @@ export class GeneralItemsStorageDialog extends BaseDialog {
             droppedItem = (this._actor as any).items?.get(data.data._id);
           }
 
+          console.log('Mastery System | [Storage Drop] Resolved item', {
+            itemId: droppedItem?.id,
+            itemName: droppedItem?.name,
+            itemUuid: droppedItem?.uuid,
+            itemParent: droppedItem?.parent?.id
+          });
           if (!droppedItem) return;
 
           const targetBand = band || 'not';
@@ -303,6 +316,10 @@ export class GeneralItemsStorageDialog extends BaseDialog {
             const itemData = foundry.utils.deepClone(droppedItem.toObject());
             delete itemData._id;
             delete itemData.folder;
+            console.log('Mastery System | [Storage Drop] Creating embedded item copy', {
+              targetActor: (this._actor as any)?.id,
+              targetBand
+            });
             itemData.flags = {
               ...(itemData.flags || {}),
               'mastery-system': {
@@ -320,10 +337,20 @@ export class GeneralItemsStorageDialog extends BaseDialog {
             };
 
             const [created] = await (this._actor as any).createEmbeddedDocuments('Item', [itemData], { render: false });
+            console.log('Mastery System | [Storage Drop] Embedded create result', {
+              createdId: created?.id,
+              createdName: created?.name
+            });
             if (!created) return;
             item = created;
           } else {
             const currentFlags = item.getFlag?.('mastery-system', 'equipment') || {};
+            console.log('Mastery System | [Storage Drop] Updating flags for existing embedded item', {
+              itemId: item?.id,
+              itemName: item?.name,
+              currentFlags,
+              targetBand
+            });
             await item.update({
               'flags.mastery-system.equipment': {
                 ...currentFlags,

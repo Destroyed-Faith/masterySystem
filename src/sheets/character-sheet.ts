@@ -4007,6 +4007,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const data = TextEditorImpl.getDragEventData(event);
     
     const target = (event.target as HTMLElement)?.closest('[data-df-drop]') as HTMLElement | null;
+    console.log('Mastery System | [Equipment Drop] Event', {
+      hasTarget: !!target,
+      dropType: target?.dataset?.dfDrop,
+      band: target?.dataset?.band,
+      slot: target?.dataset?.slot,
+      dragData: data
+    });
     if (!target) {
       return super._onDrop(event);
     }
@@ -4018,6 +4025,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     } else if (data.data?._id) {
       droppedItem = this.actor.items.get(data.data._id);
     }
+    console.log('Mastery System | [Equipment Drop] Resolved item', {
+      itemId: droppedItem?.id,
+      itemName: droppedItem?.name,
+      itemUuid: droppedItem?.uuid,
+      itemParent: droppedItem?.parent?.id
+    });
 
     if (!droppedItem) {
       // External item - let parent handle creation first
@@ -4034,6 +4047,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const itemsArray = Array.from(this.actor.items.values());
         droppedItem = itemsArray[itemsArray.length - 1];
         if (droppedItem) {
+          console.log('Mastery System | [Equipment Drop] New embedded item created via super._onDrop', {
+            itemId: droppedItem.id,
+            itemName: droppedItem.name
+          });
           // New item created, now set flags
           await this.#updateItemEquipmentFlags(droppedItem, target, event);
         }
@@ -4047,7 +4064,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const itemData = foundry.utils.deepClone(droppedItem.toObject());
       delete itemData._id;
       delete itemData.folder;
+      console.log('Mastery System | [Equipment Drop] Creating embedded copy', {
+        sourceId: droppedItem?.id,
+        sourceName: droppedItem?.name,
+        targetActor: this.actor?.id
+      });
       const [created] = await this.actor.createEmbeddedDocuments('Item', [itemData], { render: false });
+      console.log('Mastery System | [Equipment Drop] Embedded create result', {
+        createdId: created?.id,
+        createdName: created?.name
+      });
       if (!created) return false;
       droppedItem = created;
     }
