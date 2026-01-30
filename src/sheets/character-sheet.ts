@@ -16,11 +16,20 @@ import { getAllMasteryTrees } from '../utils/mastery-trees';
 import { getAllSpellSchools } from '../utils/spell-schools';
 import { getAllSchticks } from '../utils/schticks';
 import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
+import {
+  findFirstFit,
+  fitsInGrid,
+  parseInventorySize,
+  rectsOverlap
+} from '../utils/inventory-grid';
 // Removed: showWeaponCreationDialog, showArmorCreationDialog, showShieldCreationDialog
 // Replaced with General Items Storage and Store dialogs
 
 // Use namespaced ActorSheet when available to avoid deprecation warnings
 const BaseActorSheet: any = (foundry as any)?.appv1?.sheets?.ActorSheet || (ActorSheet as any);
+
+const BACKPACK_COLS = 10;
+const BACKPACK_ROWS = 6;
 
 export class MasteryCharacterSheet extends BaseActorSheet {
   private _showStash: boolean = false;
@@ -788,6 +797,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const STASH_COLS = 10;
     const STASH_ROWS = 6;
     const STASH_SIZE = STASH_COLS * STASH_ROWS;
+    const backpackItems: any[] = [];
 
     // Collect all equipment items
     const equipmentItems: any[] = [
@@ -838,6 +848,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           slotMap['chest'] = item;
           continue;
         }
+      }
+
+      if (container === 'backpack') {
+        backpackItems.push(item);
+        continue;
       }
 
       if (slot) {
@@ -891,12 +906,33 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       { key: 'ring2', label: 'Ring 2' }
     ];
 
+    const backpackUiItems = backpackItems.map(item => {
+      const flags = item.getFlag?.('mastery-system', 'equipment') || {};
+      const size = parseInventorySize(item.system?.inventorySize);
+      const img = item.img || 'icons/svg/item-bag.svg';
+      return {
+        id: item.id,
+        name: item.name,
+        img,
+        isPlaceholder: !item.img || item.img.startsWith('icons/svg/'),
+        x: Number(flags.x) || 1,
+        y: Number(flags.y) || 1,
+        w: size.w,
+        h: size.h
+      };
+    });
+
     return {
       showStash: this._showStash,
       bandCols: BAND_COLS,
       bandRows: BAND_ROWS,
       stashCols: STASH_COLS,
       stashRows: STASH_ROWS,
+      backpack: {
+        cols: BACKPACK_COLS,
+        rows: BACKPACK_ROWS,
+        items: backpackUiItems
+      },
       inventory: {
         notCells: notCellsData.cells,
         encCells: encCellsData.cells,
@@ -4033,7 +4069,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         droppedItem = itemsArray[itemsArray.length - 1];
         if (droppedItem) {
           // New item created, now set flags
-          await this.#updateItemEquipmentFlags(droppedItem, target);
+          await this.#updateItemEquipmentFlags(droppedItem, target, event);
         }
       }
       this.render();
@@ -4041,7 +4077,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
 
     // Internal item - update flags
-    await this.#updateItemEquipmentFlags(droppedItem, target);
+    await this.#updateItemEquipmentFlags(droppedItem, target, event);
     this.render();
     return true;
   }
@@ -4049,7 +4085,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   /**
    * Helper: Update item equipment flags based on drop target
    */
-  async #updateItemEquipmentFlags(item: any, target: HTMLElement): Promise<void> {
+  async #updateItemEquipmentFlags(item: any, target: HTMLElement, event?: DragEvent): Promise<void> {
     const dropType = target.dataset.dfDrop;
     if (!dropType) return;
 
@@ -4078,6 +4114,64 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       }
       return null;
     };
+
+    if (dropType === 'backpack') {
+      if (!event) return;
+      const rect = target.getBoundingClientRect();
+      const cols = Number(target.dataset.cols) || BACKPACK_COLS;
+      const rows = Number(target.dataset.rows) || BACKPACK_ROWS;
+      const cellW = rect.width / cols;
+      const cellH = rect.height / rows;
+      const x = Math.floor((event.clientX - rect.left) / cellW) + 1;
+      const y = Math.floor((event.clientY - rect.top) / cellH) + 1;
+
+      const { w, h } = parseInventorySize(item.system?.inventorySize);
+      const existingRects = Array.from(this.actor.items.values())
+        .filter((actorItem: any) => {
+          const flags = actorItem.getFlag?.('mastery-system', 'equipment') || {};
+          return flags.container === 'backpack' && actorItem.id !== item.id;
+        })
+        .map((actorItem: any) => {
+          const flags = actorItem.getFlag?.('mastery-system', 'equipment') || {};
+          const size = parseInventorySize(actorItem.system?.inventorySize);
+          return {
+            x: Number(flags.x) || 1,
+            y: Number(flags.y) || 1,
+            w: size.w,
+            h: size.h
+          };
+        });
+
+      let targetX = x;
+      let targetY = y;
+      const candidate = { x: targetX, y: targetY, w, h };
+      const overlaps = existingRects.some(rect => rectsOverlap(rect, candidate));
+      const isExistingBackpackItem = currentFlags.container === 'backpack';
+      if (!fitsInGrid(targetX, targetY, w, h, cols, rows) || overlaps) {
+        if (isExistingBackpackItem) {
+          ui.notifications?.warn('Invalid backpack placement.');
+          return;
+        }
+        const fit = findFirstFit(existingRects, w, h, cols, rows);
+        if (!fit) {
+          ui.notifications?.warn('No space available in the backpack.');
+          return;
+        }
+        targetX = fit.x;
+        targetY = fit.y;
+      }
+
+      newFlags.container = 'backpack';
+      newFlags.x = targetX;
+      newFlags.y = targetY;
+      newFlags.band = null;
+      newFlags.slot = null;
+      await item.update({
+        'flags.mastery-system.equipment': newFlags,
+        'system.equipped': false
+      });
+      return;
+    }
 
     if (dropType === 'stash') {
       newFlags.container = 'stash';

@@ -1,7 +1,12 @@
 <div class="general-items-storage-dialog">
   <div class="storage-header">
     <h3><i class="fas fa-box"></i> General Items Storage</h3>
-    <p>Drag items from storage to your inventory below</p>
+    <p>Drag items from storage into your backpack grid</p>
+    {{#if isGM}}
+    <button type="button" class="seed-general-items" title="Seed General Items Storage">
+      <i class="fas fa-seedling"></i> Seed General Items Storage
+    </button>
+    {{/if}}
   </div>
 
   <div class="storage-content">
@@ -26,13 +31,29 @@
     </div>
 
     <div class="inventory-panel">
-      <h4>{{actor.name}}'s Inventory</h4>
-      <div class="inventory-drop-zone df-dropzone" data-df-drop="inventory">
-        <p class="drop-hint"><i class="fas fa-hand-pointer"></i> Drop items here to add them to your inventory</p>
-        <div class="current-inventory">
-          <p class="info-text">Items will appear in your Equipment tab after being added.</p>
-        </div>
+      <h4>{{actor.name}}'s Backpack</h4>
+      <div
+        class="backpack-grid df-dropzone"
+        data-df-drop="backpack"
+        data-cols="{{backpackCols}}"
+        data-rows="{{backpackRows}}"
+      >
+        {{#each backpackItems}}
+          <div
+            class="df-grid-item item df-draggable-item"
+            data-item-id="{{this.id}}"
+            draggable="true"
+            title="{{this.name}}"
+            style="grid-column: {{this.x}} / span {{this.w}}; grid-row: {{this.y}} / span {{this.h}};"
+          >
+            <img class="item-icon" src="{{this.img}}" alt="{{this.name}}" />
+            {{#if this.isPlaceholder}}
+              <div class="df-grid-label">{{this.name}}</div>
+            {{/if}}
+          </div>
+        {{/each}}
       </div>
+      <p class="drop-hint"><i class="fas fa-hand-pointer"></i> Drop items here to place them in your backpack</p>
     </div>
   </div>
 </div>

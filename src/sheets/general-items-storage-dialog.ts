@@ -5,8 +5,19 @@
 
 // Types are available globally in Foundry VTT
 
+import {
+  findFirstFit,
+  fitsInGrid,
+  parseInventorySize,
+  rectsOverlap
+} from '../utils/inventory-grid';
+import { seedGeneralItemsStorage } from '../utils/seed-general-items';
+
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
+
+const BACKPACK_COLS = 10;
+const BACKPACK_ROWS = 6;
 
 export class GeneralItemsStorageDialog extends BaseDialog {
   private _actor: Actor;
@@ -49,6 +60,29 @@ export class GeneralItemsStorageDialog extends BaseDialog {
       );
     }
 
+    const backpackItems = Array.from((this._actor as any).items || []).reduce((items: any[], item: any) => {
+      const flags = item.getFlag?.('mastery-system', 'equipment') || {};
+      if (flags.container !== 'backpack') {
+        return items;
+      }
+
+      const { w, h } = parseInventorySize(item.system?.inventorySize);
+      const x = Number(flags.x) || 1;
+      const y = Number(flags.y) || 1;
+      const img = item.img || 'icons/svg/item-bag.svg';
+      items.push({
+        id: item.id,
+        name: item.name,
+        img,
+        isPlaceholder: !item.img || item.img.startsWith('icons/svg/'),
+        x,
+        y,
+        w,
+        h
+      });
+      return items;
+    }, []);
+
     return {
       actor: this._actor,
       storageItems: storageItems.map((item: any) => ({
@@ -58,7 +92,11 @@ export class GeneralItemsStorageDialog extends BaseDialog {
         type: item.type,
         system: item.system
       })),
-      hasStorage: storageItems.length > 0
+      backpackItems,
+      backpackCols: BACKPACK_COLS,
+      backpackRows: BACKPACK_ROWS,
+      hasStorage: storageItems.length > 0,
+      isGM: game.user?.isGM === true
     };
   }
 
@@ -67,55 +105,143 @@ export class GeneralItemsStorageDialog extends BaseDialog {
     
     const html = $(element);
     
-    // Enable drag and drop
+    // Enable drag and drop for storage items
     html.find('.storage-item').each((_index, itemEl) => {
       const $item = $(itemEl);
       $item.attr('draggable', 'true');
       
       $item.on('dragstart', (e: any) => {
         const itemId = $item.data('item-id');
-        if (e.originalEvent?.dataTransfer) {
-          e.originalEvent.dataTransfer.setData('text/plain', JSON.stringify({
-            type: 'Item',
-            id: itemId,
-            source: 'general-items-storage'
-          }));
-        }
+        const sourceItem = (game as any).items?.get(itemId);
+        if (!sourceItem || !e.originalEvent?.dataTransfer) return;
+        const dragData = sourceItem.toDragData ? sourceItem.toDragData() : { type: 'Item', uuid: sourceItem.uuid };
+        e.originalEvent.dataTransfer.setData('text/plain', JSON.stringify(dragData));
       });
     });
 
-    // Make inventory area a drop zone
-    const inventoryArea = html.find('.inventory-drop-zone');
-    if (inventoryArea.length > 0) {
-      inventoryArea.on('dragover', (e: any) => {
+    // Enable drag for backpack items
+    html.find('.backpack-grid .df-grid-item').each((_index, itemEl) => {
+      const $item = $(itemEl);
+      $item.attr('draggable', 'true');
+      $item.on('dragstart', (e: any) => {
+        const itemId = $item.data('item-id');
+        const actorItem = (this._actor as any).items?.get(itemId);
+        if (!actorItem || !e.originalEvent?.dataTransfer) return;
+        const dragData = actorItem.toDragData ? actorItem.toDragData() : { type: 'Item', uuid: actorItem.uuid };
+        e.originalEvent.dataTransfer.setData('text/plain', JSON.stringify(dragData));
+      });
+    });
+
+    // Seed button (GM only)
+    html.find('.seed-general-items').on('click', async (e: any) => {
+      e.preventDefault();
+      await seedGeneralItemsStorage();
+      await this.render();
+    });
+
+    // Make backpack grid a drop zone
+    const backpackGrid = html.find('.backpack-grid');
+    if (backpackGrid.length > 0) {
+      backpackGrid.on('dragover', (e: any) => {
         e.preventDefault();
         e.stopPropagation();
-        inventoryArea.addClass('drag-over');
+        backpackGrid.addClass('drag-over');
       });
 
-      inventoryArea.on('dragleave', () => {
-        inventoryArea.removeClass('drag-over');
+      backpackGrid.on('dragleave', () => {
+        backpackGrid.removeClass('drag-over');
       });
 
-      inventoryArea.on('drop', async (e: any) => {
+      backpackGrid.on('drop', async (e: any) => {
         e.preventDefault();
         e.stopPropagation();
-        inventoryArea.removeClass('drag-over');
+        backpackGrid.removeClass('drag-over');
 
         try {
-          const data = JSON.parse(e.originalEvent?.dataTransfer?.getData('text/plain') || '{}');
-          if (data.source === 'general-items-storage' && data.id) {
-            const sourceItem = (game as any).items?.get(data.id);
-            if (sourceItem) {
-              // Create a copy in the actor's inventory
-              const itemData = sourceItem.toObject();
-              await (this._actor as any).createEmbeddedDocuments('Item', [itemData]);
-              ui.notifications?.info(`Added ${sourceItem.name} to inventory`);
-              await this.render();
-            }
+          const TextEditorImpl = foundry.applications?.ux?.TextEditor?.implementation || TextEditor;
+          const data = TextEditorImpl.getDragEventData(e.originalEvent ?? e);
+
+          let droppedItem: any = null;
+          if (data?.uuid) {
+            droppedItem = await fromUuid(data.uuid);
+          } else if (data?.type === 'Item' && data?.id) {
+            droppedItem = (game as any).items?.get(data.id);
+          } else if (data?.data?._id) {
+            droppedItem = (this._actor as any).items?.get(data.data._id);
           }
+
+          if (!droppedItem) return;
+
+          let item = droppedItem;
+          if (!item.parent || item.parent.id !== (this._actor as any).id) {
+            const [created] = await (this._actor as any).createEmbeddedDocuments('Item', [droppedItem.toObject()]);
+            if (!created) return;
+            item = created;
+          }
+
+          const gridEl = backpackGrid[0] as HTMLElement;
+          const rect = gridEl.getBoundingClientRect();
+          const cols = Number(gridEl.dataset.cols) || BACKPACK_COLS;
+          const rows = Number(gridEl.dataset.rows) || BACKPACK_ROWS;
+          const clientX = e.originalEvent?.clientX ?? e.clientX;
+          const clientY = e.originalEvent?.clientY ?? e.clientY;
+          const cellW = rect.width / cols;
+          const cellH = rect.height / rows;
+          let x = Math.floor((clientX - rect.left) / cellW) + 1;
+          let y = Math.floor((clientY - rect.top) / cellH) + 1;
+
+          const { w, h } = parseInventorySize(item.system?.inventorySize);
+          const existingRects = Array.from((this._actor as any).items || [])
+            .filter((actorItem: any) => {
+              const flags = actorItem.getFlag?.('mastery-system', 'equipment') || {};
+              return flags.container === 'backpack' && actorItem.id !== item.id;
+            })
+            .map((actorItem: any) => {
+              const flags = actorItem.getFlag?.('mastery-system', 'equipment') || {};
+              const size = parseInventorySize(actorItem.system?.inventorySize);
+              return {
+                x: Number(flags.x) || 1,
+                y: Number(flags.y) || 1,
+                w: size.w,
+                h: size.h
+              };
+            });
+
+          const currentFlags = item.getFlag?.('mastery-system', 'equipment') || {};
+          const isExistingBackpackItem =
+            item.parent?.id === (this._actor as any).id && currentFlags.container === 'backpack';
+
+          const candidate = { x, y, w, h };
+          const overlaps = existingRects.some(rect => rectsOverlap(rect, candidate));
+          if (!fitsInGrid(x, y, w, h, cols, rows) || overlaps) {
+            if (isExistingBackpackItem) {
+              ui.notifications?.warn('Invalid backpack placement.');
+              return;
+            }
+            const fit = findFirstFit(existingRects, w, h, cols, rows);
+            if (!fit) {
+              ui.notifications?.warn('No space available in the backpack.');
+              return;
+            }
+            x = fit.x;
+            y = fit.y;
+          }
+
+          await item.update({
+            'flags.mastery-system.equipment': {
+              ...currentFlags,
+              container: 'backpack',
+              x,
+              y,
+              band: null,
+              slot: null
+            },
+            'system.equipped': false
+          });
+
+          await this.render();
         } catch (error) {
-          console.error('Mastery System | Error dropping item', error);
+          console.error('Mastery System | Error dropping item into backpack', error);
         }
       });
     }

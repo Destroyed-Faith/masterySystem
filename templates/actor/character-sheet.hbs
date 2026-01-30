@@ -1222,6 +1222,30 @@
       
       {{#if equipmentUi}}
       <div class="df-equipment-layout">
+        <div class="df-backpack-panel">
+          <h4>Backpack</h4>
+          <div
+            class="backpack-grid df-dropzone"
+            data-df-drop="backpack"
+            data-cols="{{equipmentUi.backpack.cols}}"
+            data-rows="{{equipmentUi.backpack.rows}}"
+          >
+            {{#each equipmentUi.backpack.items}}
+              <div
+                class="df-grid-item item df-draggable-item"
+                data-item-id="{{this.id}}"
+                draggable="true"
+                title="{{this.name}}"
+                style="grid-column: {{this.x}} / span {{this.w}}; grid-row: {{this.y}} / span {{this.h}};"
+              >
+                <img class="df-item-icon" src="{{this.img}}" />
+                {{#if this.isPlaceholder}}
+                  <div class="df-grid-label">{{this.name}}</div>
+                {{/if}}
+              </div>
+            {{/each}}
+          </div>
+        </div>
         <div class="df-enc-table">
           <div class="df-enc-header">
             <div class="df-enc-title">EQUIPMENT</div>
