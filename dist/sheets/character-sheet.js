@@ -3738,9 +3738,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     await this.#updateItemEquipmentFlags(droppedItem, target, event);
                     this._lastDroppedItemId = droppedItem?.id;
                     this._lastDroppedItemName = droppedItem?.name;
+                    await new Promise(resolve => setTimeout(resolve, 0));
+                    await this.render(true);
                 }
             }
-            this.render();
             return true;
         }
         // World/compendium item dropped on sheet - create embedded copy first
@@ -3766,7 +3767,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         await this.#updateItemEquipmentFlags(droppedItem, target, event);
         this._lastDroppedItemId = droppedItem?.id;
         this._lastDroppedItemName = droppedItem?.name;
-        this.render();
+        await new Promise(resolve => setTimeout(resolve, 0));
+        await this.render(true);
         return true;
     }
     /**

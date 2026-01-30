@@ -397,7 +397,7 @@ export class GeneralItemsStorageDialog extends BaseDialog {
                             'system.equipped': false
                         });
                     }
-                    await this.render();
+                    await this.render(true);
                 }
                 catch (error) {
                     console.error('Mastery System | Error dropping item into equipment band', error);

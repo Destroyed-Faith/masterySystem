@@ -4210,9 +4210,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           await this.#updateItemEquipmentFlags(droppedItem, target, event);
           (this as any)._lastDroppedItemId = droppedItem?.id;
           (this as any)._lastDroppedItemName = droppedItem?.name;
+          await new Promise(resolve => setTimeout(resolve, 0));
+          await this.render(true);
         }
       }
-      this.render();
       return true;
     }
 
@@ -4239,7 +4240,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     await this.#updateItemEquipmentFlags(droppedItem, target, event);
     (this as any)._lastDroppedItemId = droppedItem?.id;
     (this as any)._lastDroppedItemName = droppedItem?.name;
-    this.render();
+    await new Promise(resolve => setTimeout(resolve, 0));
+    await this.render(true);
     return true;
   }
 
