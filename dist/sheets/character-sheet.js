@@ -1292,6 +1292,19 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Equipment handlers
         html.find('.general-items-btn').on('click', this.#onGeneralItemsClick.bind(this));
         html.find('.store-btn').on('click', this.#onStoreClick.bind(this));
+        const dropTargets = html.find('[data-df-drop]');
+        console.log('Mastery System | [Equipment Drop] Drop targets in sheet', {
+            count: dropTargets.length,
+            samples: dropTargets
+                .slice(0, 5)
+                .map((_i, el) => ({
+                dropType: el.dataset?.dfDrop,
+                band: el.dataset?.band,
+                slot: el.dataset?.slot,
+                className: el.className
+            }))
+                .toArray()
+        });
         html.off('dragover.ms-equipment-drop').on('dragover.ms-equipment-drop', '[data-df-drop]', (ev) => {
             ev.preventDefault();
             ev.stopPropagation();
@@ -1353,14 +1366,27 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 const target = ev.target;
                 if (!target)
                     return;
+                const path = (ev.composedPath?.() || []);
                 const dropTarget = target.closest('[data-df-drop]');
+                const pathDropTarget = path.find(el => el?.dataset?.dfDrop);
+                const resolvedDropTarget = dropTarget || pathDropTarget || null;
                 console.log('Mastery System | [Storage Debug] document drop', {
                     targetClass: target.className,
-                    dropType: dropTarget?.dataset?.dfDrop,
-                    band: dropTarget?.dataset?.band,
-                    slot: dropTarget?.dataset?.slot,
-                    dataTransferTypes: Array.from(ev.dataTransfer?.types || [])
+                    dropType: resolvedDropTarget?.dataset?.dfDrop,
+                    band: resolvedDropTarget?.dataset?.band,
+                    slot: resolvedDropTarget?.dataset?.slot,
+                    dataTransferTypes: Array.from(ev.dataTransfer?.types || []),
+                    pathHasDropTarget: !!pathDropTarget
                 });
+                if (resolvedDropTarget) {
+                    const dragEvent = ev;
+                    console.log('Mastery System | [Equipment Drop] Global document drop invoking _onDrop', {
+                        dropType: resolvedDropTarget.dataset?.dfDrop,
+                        band: resolvedDropTarget.dataset?.band,
+                        slot: resolvedDropTarget.dataset?.slot
+                    });
+                    this._onDrop(dragEvent);
+                }
             });
             document.addEventListener('dragover', (ev) => {
                 const target = ev.target;
@@ -3634,7 +3660,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             dropType: target?.dataset?.dfDrop,
             band: target?.dataset?.band,
             slot: target?.dataset?.slot,
-            dragData: data
+            dragData: data,
+            dataTransferTypes: Array.from(event.dataTransfer?.types || [])
         });
         if (!target) {
             return super._onDrop(event);
