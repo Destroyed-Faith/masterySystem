@@ -268,30 +268,33 @@ export class GeneralItemsStorageDialog extends BaseDialog {
       storageItemCount: storageItems.length
     });
 
-    const storagePanel = html.find('.storage-items-panel').first();
-    const resizeHandle = storagePanel.find('.storage-resize-handle').first();
-    resizeHandle.off('mousedown.storage-resize').on('mousedown.storage-resize', (e: JQuery.MouseDownEvent) => {
+    const appElement = element.closest('#mastery-general-items-storage') as HTMLElement | null;
+    const appJq = appElement ? $(appElement) : null;
+    if (appElement && appJq && appJq.find('> .storage-resize-handle').length === 0) {
+      appJq.append('<div class="storage-resize-handle" title="Resize storage window"></div>');
+    }
+    const resizeHandle = appJq?.find('> .storage-resize-handle').first();
+    resizeHandle?.off('mousedown.storage-resize').on('mousedown.storage-resize', (e: JQuery.MouseDownEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      const panelEl = storagePanel.get(0) as HTMLElement | undefined;
-      if (!panelEl) return;
+      if (!appElement) return;
       const startX = e.clientX;
       const startY = e.clientY;
-      const rect = panelEl.getBoundingClientRect();
+      const rect = appElement.getBoundingClientRect();
       const startWidth = rect.width;
       const startHeight = rect.height;
       const minWidth = 260;
       const minHeight = 240;
-      const maxWidth = Math.max(minWidth, Math.min(900, window.innerWidth - 80));
-      const maxHeight = Math.max(minHeight, Math.min(900, window.innerHeight - 120));
+      const maxWidth = Math.max(minWidth, Math.min(1200, window.innerWidth - 40));
+      const maxHeight = Math.max(minHeight, Math.min(window.innerHeight - 40, 1200));
 
       const onMove = (moveEvent: MouseEvent) => {
         const deltaX = moveEvent.clientX - startX;
         const deltaY = moveEvent.clientY - startY;
         const nextWidth = Math.min(maxWidth, Math.max(minWidth, startWidth - deltaX));
         const nextHeight = Math.min(maxHeight, Math.max(minHeight, startHeight + deltaY));
-        panelEl.style.width = `${nextWidth}px`;
-        panelEl.style.height = `${nextHeight}px`;
+        appElement.style.width = `${nextWidth}px`;
+        appElement.style.height = `${nextHeight}px`;
       };
 
       const onUp = () => {
