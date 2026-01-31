@@ -17,6 +17,7 @@ import { getAllSpellSchools } from '../utils/spell-schools';
 import { getAllSchticks } from '../utils/schticks';
 import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
 import { findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid';
+import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items';
 // Removed: showWeaponCreationDialog, showArmorCreationDialog, showShieldCreationDialog
 // Replaced with General Items Storage and Store dialogs
 
@@ -1689,8 +1690,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const sizeAttr = tileEl?.dataset?.inventorySize;
       const sourceItem = this.actor?.items?.get(itemId);
       if (sourceItem) {
-        (window as any).__msDragInventorySize = sourceItem.system?.inventorySize || sizeAttr || '1x1';
+        const computedSize = getDefaultInventorySizeForItemData(sourceItem);
+        const resolvedSize = sourceItem.system?.inventorySize || sizeAttr || computedSize || '1x1';
+        (window as any).__msDragInventorySize = resolvedSize;
         (window as any).__msDragItemId = sourceItem.id;
+        console.log('Mastery System | [Equipment Grid Debug] dragstart tile', {
+          itemId: sourceItem.id,
+          systemSize: sourceItem.system?.inventorySize,
+          sizeAttr,
+          computedSize,
+          resolvedSize
+        });
         return;
       }
 
@@ -1720,6 +1730,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         (window as any).__msLastDragSizeDebug = key;
         console.log('Mastery System | [Equipment Grid Debug] resolveDragSize', { source, ...details });
       };
+      const resolveSizeFromItem = (item: any, source: string, details: Record<string, unknown>) => {
+        const systemSize = item?.system?.inventorySize as string | undefined;
+        const computedSize = systemSize ? undefined : getDefaultInventorySizeForItemData(item);
+        const resolvedSize = systemSize || computedSize || undefined;
+        logDragSize(source, { ...details, systemSize, computedSize, resolvedSize });
+        return parseInventorySize(resolvedSize);
+      };
       const explicit = (window as any).__msDragInventorySize as string | undefined;
       if (explicit) {
         logDragSize('window', { explicit });
@@ -1732,31 +1749,25 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const data = TextEditorImpl.getDragEventData(dragEvent);
         if (data?.data?._id) {
           const actorItem = this.actor?.items?.get(data.data._id);
-          logDragSize('dragData.actorItem', {
+          return resolveSizeFromItem(actorItem, 'dragData.actorItem', {
             dataId: data.data._id,
-            itemId: actorItem?.id,
-            size: actorItem?.system?.inventorySize
+            itemId: actorItem?.id
           });
-          return parseInventorySize(actorItem?.system?.inventorySize);
         }
         if (data?.id) {
           const worldItem = (game as any).items?.get(data.id);
-          logDragSize('dragData.worldItem', {
+          return resolveSizeFromItem(worldItem, 'dragData.worldItem', {
             dataId: data.id,
-            itemId: worldItem?.id,
-            size: worldItem?.system?.inventorySize
+            itemId: worldItem?.id
           });
-          return parseInventorySize(worldItem?.system?.inventorySize);
         }
         if (typeof data?.uuid === 'string' && data.uuid.startsWith('Item.')) {
           const itemId = data.uuid.split('.')[1];
           const worldItem = (game as any).items?.get(itemId);
-          logDragSize('dragData.uuid', {
+          return resolveSizeFromItem(worldItem, 'dragData.uuid', {
             uuid: data.uuid,
-            itemId: worldItem?.id,
-            size: worldItem?.system?.inventorySize
+            itemId: worldItem?.id
           });
-          return parseInventorySize(worldItem?.system?.inventorySize);
         }
         logDragSize('dragData.unhandled', {
           dataId: data?.data?._id,
@@ -1768,11 +1779,20 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const targetTile = (ev?.target as HTMLElement | null)?.closest?.('.df-item-tile') as HTMLElement | null;
       if (targetTile) {
         const sizeAttr = (targetTile as HTMLElement).dataset?.inventorySize;
-        logDragSize('tile.dataset', {
-          itemId: (targetTile as HTMLElement).dataset?.itemId,
-          sizeAttr
-        });
-        return parseInventorySize(sizeAttr);
+        const tileItemId = (targetTile as HTMLElement).dataset?.itemId;
+        const tileActorItem = tileItemId ? this.actor?.items?.get(tileItemId) : undefined;
+        if (sizeAttr) {
+          logDragSize('tile.dataset', {
+            itemId: tileItemId,
+            sizeAttr
+          });
+          return parseInventorySize(sizeAttr);
+        }
+        if (tileActorItem) {
+          return resolveSizeFromItem(tileActorItem, 'tile.item', { itemId: tileItemId });
+        }
+        logDragSize('tile.dataset.missing', { itemId: tileItemId, sizeAttr });
+        return parseInventorySize(undefined);
       }
 
       logDragSize('fallback', { explicit });
