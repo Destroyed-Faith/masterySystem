@@ -795,7 +795,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    */
   #prepareEquipmentUi(items: any) {
     const BAND_COLS = 8;
-    const BAND_ROWS = 9; // Changed from 7 to 9 as requested
+    const BAND_ROWS = 27;
     const BAND_SIZE = BAND_COLS * BAND_ROWS;
     const STASH_COLS = 10;
     const STASH_ROWS = 6;
@@ -938,13 +938,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         stashItems.push(item);
       } else {
         inventoryItems.push(item);
-        if (band === 'not') {
-          notItems.push(item);
-        } else if (band === 'enc') {
-          encItems.push(item);
-        } else if (band === 'heavy') {
-          heavyItems.push(item);
-        }
+        notItems.push(item);
       }
     }
 
@@ -1623,6 +1617,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         dataTransfer.effectAllowed = 'copy';
         dataTransfer.setData('text/plain', payload);
         dataTransfer.setData('application/json', payload);
+        (window as any).__msDragInventorySize = sourceItem?.system?.inventorySize || '1x1';
+        (window as any).__msDragItemId = sourceItem?.id;
         console.log('Mastery System | [Storage Debug] document dragstart set dataTransfer', {
           itemId,
           types: Array.from(dataTransfer.types || [])
@@ -1686,6 +1682,69 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       this.render();
     });
     html.find('.equipment-item input[type="radio"][name^="equipped-"]').on('change', this.#onEquipmentToggle.bind(this));
+
+    html.off('dragstart.df-grid').on('dragstart.df-grid', '.df-item-tile', (ev: any) => {
+      const itemId = $(ev.currentTarget).data('item-id');
+      const sourceItem = this.actor?.items?.get(itemId);
+      if (sourceItem) {
+        (window as any).__msDragInventorySize = sourceItem.system?.inventorySize || '1x1';
+        (window as any).__msDragItemId = sourceItem.id;
+      }
+    });
+
+    const clearDropHighlight = () => {
+      html.find('.df-cell.df-drop-valid, .df-cell.df-drop-invalid')
+        .removeClass('df-drop-valid df-drop-invalid');
+    };
+
+    html.off('dragover.df-grid').on('dragover.df-grid', '.df-enc-band .df-cell, .df-enc-band', (ev: any) => {
+      ev.preventDefault();
+      const cellEl = (ev.target as HTMLElement)?.closest?.('.df-cell') as HTMLElement | null;
+      if (!cellEl) return;
+      const col = Number(cellEl.dataset?.col || 0);
+      const row = Number(cellEl.dataset?.row || 0);
+      if (!col || !row) return;
+
+      clearDropHighlight();
+
+      const size = parseInventorySize((window as any).__msDragInventorySize);
+      const BAND_COLS = 8;
+      const BAND_ROWS = 27;
+      const w = Math.min(BAND_COLS, size.w);
+      const h = Math.min(BAND_ROWS, size.h);
+      const candidate = { x: col, y: row, w, h };
+
+      const items = Array.from(this.actor.items.values()) as any[];
+      const rects = items
+        .filter((it: any) => it.id !== (window as any).__msDragItemId)
+        .map((it: any) => {
+          const flags = it.getFlag?.('mastery-system', 'equipment') || {};
+          if (flags.container !== 'inventory' || !flags.grid?.x || !flags.grid?.y) return null;
+          const s = parseInventorySize(it.system?.inventorySize);
+          return { x: flags.grid.x, y: flags.grid.y, w: Math.min(BAND_COLS, s.w), h: Math.min(BAND_ROWS, s.h) };
+        })
+        .filter(Boolean) as Array<{ x: number; y: number; w: number; h: number }>;
+
+      const fits = fitsInGrid(candidate.x, candidate.y, candidate.w, candidate.h, BAND_COLS, BAND_ROWS)
+        && !rects.some(rect => rectsOverlap(rect, candidate));
+
+      for (let dy = 0; dy < h; dy++) {
+        for (let dx = 0; dx < w; dx++) {
+          const targetCell = html.find(`.df-enc-band .df-cell[data-col="${col + dx}"][data-row="${row + dy}"]`).first();
+          if (targetCell.length > 0) {
+            targetCell.addClass(fits ? 'df-drop-valid' : 'df-drop-invalid');
+          }
+        }
+      }
+    });
+
+    html.off('dragleave.df-grid').on('dragleave.df-grid', '.df-enc-band', () => {
+      clearDropHighlight();
+    });
+
+    html.off('drop.df-grid').on('drop.df-grid', '.df-enc-band', () => {
+      clearDropHighlight();
+    });
     
     // Stash toggle
     html.find('.df-stash-toggle').on('click', (ev: JQuery.ClickEvent) => {
@@ -4390,7 +4449,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           const row = Number(cell.dataset?.row || 0);
           if (col > 0 && row > 0) {
             const BAND_COLS = 8;
-            const BAND_ROWS = 9;
+            const BAND_ROWS = 27;
             const size = parseInventorySize(item?.system?.inventorySize);
             const w = Math.min(BAND_COLS, size.w);
             const h = Math.min(BAND_ROWS, size.h);

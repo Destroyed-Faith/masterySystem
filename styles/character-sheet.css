@@ -5813,7 +5813,7 @@
 
 .df-enc-grids {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 0;
   border-top: 2px solid rgba(255, 255, 255, 0.25);
 }
@@ -5826,6 +5826,10 @@
   border-right: 2px solid rgba(255, 255, 255, 0.25);
 }
 
+.df-enc-band--single {
+  border-right: 2px solid rgba(255, 255, 255, 0.25);
+}
+
 .df-cell {
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(0, 0, 0, 0.10);
@@ -5835,6 +5839,20 @@
 
 .df-cell.df-cell--occupied {
   visibility: hidden;
+}
+
+.df-cell.df-cell--occupied.df-drop-valid,
+.df-cell.df-cell--occupied.df-drop-invalid {
+  visibility: visible;
+  opacity: 0.35;
+}
+
+.df-cell.df-drop-valid {
+  background: rgba(40, 120, 40, 0.45);
+}
+
+.df-cell.df-drop-invalid {
+  background: rgba(140, 30, 30, 0.5);
 }
 
 .df-cell.df-cell--item {
