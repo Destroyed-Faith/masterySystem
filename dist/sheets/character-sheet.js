@@ -700,8 +700,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      * Prepare Equipment UI Context
      */
     #prepareEquipmentUi(items) {
-        const BAND_COLS = 8;
-        const BAND_ROWS = 24;
+        const BAND_COLS = 24;
+        const BAND_ROWS = 9;
         const BAND_SIZE = BAND_COLS * BAND_ROWS;
         const STASH_COLS = 10;
         const STASH_ROWS = 6;
@@ -1535,8 +1535,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 return;
             clearDropHighlight();
             const size = parseInventorySize(window.__msDragInventorySize);
-            const BAND_COLS = 8;
-            const BAND_ROWS = 24;
+            const BAND_COLS = 24;
+            const BAND_ROWS = 9;
             const w = Math.min(BAND_COLS, size.w);
             const h = Math.min(BAND_ROWS, size.h);
             const candidate = { x: col, y: row, w, h };
