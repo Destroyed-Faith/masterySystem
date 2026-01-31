@@ -1524,6 +1524,33 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             html.find('.df-cell.df-drop-valid, .df-cell.df-drop-invalid')
                 .removeClass('df-drop-valid df-drop-invalid');
         };
+        const resolveDragSize = (ev) => {
+            const explicit = window.__msDragInventorySize;
+            if (explicit) {
+                return parseInventorySize(explicit);
+            }
+            const dataTransfer = ev?.originalEvent?.dataTransfer || ev?.dataTransfer;
+            if (dataTransfer) {
+                const raw = dataTransfer.getData('text/plain');
+                if (raw) {
+                    try {
+                        const parsed = JSON.parse(raw);
+                        if (parsed?.data?._id) {
+                            const actorItem = this.actor?.items?.get(parsed.data._id);
+                            return parseInventorySize(actorItem?.system?.inventorySize);
+                        }
+                        if (parsed?.id) {
+                            const worldItem = game.items?.get(parsed.id);
+                            return parseInventorySize(worldItem?.system?.inventorySize);
+                        }
+                    }
+                    catch {
+                        // ignore parse errors
+                    }
+                }
+            }
+            return parseInventorySize(undefined);
+        };
         html.off('dragover.df-grid').on('dragover.df-grid', '.df-enc-band .df-cell, .df-enc-band', (ev) => {
             ev.preventDefault();
             const cellEl = ev.target?.closest?.('.df-cell');
@@ -1534,7 +1561,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             if (!col || !row)
                 return;
             clearDropHighlight();
-            const size = parseInventorySize(window.__msDragInventorySize);
+            const size = resolveDragSize(ev);
             const BAND_COLS = 24;
             const BAND_ROWS = 9;
             const w = Math.min(BAND_COLS, size.w);
@@ -3967,8 +3994,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     const col = Number(cell.dataset?.col || 0);
                     const row = Number(cell.dataset?.row || 0);
                     if (col > 0 && row > 0) {
-                        const BAND_COLS = 8;
-                        const BAND_ROWS = 27;
+                        const BAND_COLS = 24;
+                        const BAND_ROWS = 9;
                         const size = parseInventorySize(item?.system?.inventorySize);
                         const w = Math.min(BAND_COLS, size.w);
                         const h = Math.min(BAND_ROWS, size.h);
@@ -3990,15 +4017,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                             newFlags.grid = { x: candidate.x, y: candidate.y };
                         }
                         else {
-                            delete newFlags.grid;
+                            ui.notifications?.warn('No space for this item at the target position.');
+                            return;
                         }
                     }
                     else {
-                        delete newFlags.grid;
+                        return;
                     }
                 }
                 else {
-                    delete newFlags.grid;
+                    return;
                 }
                 await item.update({
                     'flags.mastery-system.equipment': newFlags,
