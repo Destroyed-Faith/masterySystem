@@ -1714,8 +1714,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     };
 
     const resolveDragSize = (ev: any) => {
+      const logDragSize = (source: string, details: Record<string, unknown>) => {
+        const key = JSON.stringify({ source, ...details });
+        if ((window as any).__msLastDragSizeDebug === key) return;
+        (window as any).__msLastDragSizeDebug = key;
+        console.log('Mastery System | [Equipment Grid Debug] resolveDragSize', { source, ...details });
+      };
       const explicit = (window as any).__msDragInventorySize as string | undefined;
       if (explicit) {
+        logDragSize('window', { explicit });
         return parseInventorySize(explicit);
       }
 
@@ -1725,25 +1732,50 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const data = TextEditorImpl.getDragEventData(dragEvent);
         if (data?.data?._id) {
           const actorItem = this.actor?.items?.get(data.data._id);
+          logDragSize('dragData.actorItem', {
+            dataId: data.data._id,
+            itemId: actorItem?.id,
+            size: actorItem?.system?.inventorySize
+          });
           return parseInventorySize(actorItem?.system?.inventorySize);
         }
         if (data?.id) {
           const worldItem = (game as any).items?.get(data.id);
+          logDragSize('dragData.worldItem', {
+            dataId: data.id,
+            itemId: worldItem?.id,
+            size: worldItem?.system?.inventorySize
+          });
           return parseInventorySize(worldItem?.system?.inventorySize);
         }
         if (typeof data?.uuid === 'string' && data.uuid.startsWith('Item.')) {
           const itemId = data.uuid.split('.')[1];
           const worldItem = (game as any).items?.get(itemId);
+          logDragSize('dragData.uuid', {
+            uuid: data.uuid,
+            itemId: worldItem?.id,
+            size: worldItem?.system?.inventorySize
+          });
           return parseInventorySize(worldItem?.system?.inventorySize);
         }
+        logDragSize('dragData.unhandled', {
+          dataId: data?.data?._id,
+          id: data?.id,
+          uuid: data?.uuid
+        });
       }
 
       const targetTile = (ev?.target as HTMLElement | null)?.closest?.('.df-item-tile') as HTMLElement | null;
       if (targetTile) {
         const sizeAttr = (targetTile as HTMLElement).dataset?.inventorySize;
+        logDragSize('tile.dataset', {
+          itemId: (targetTile as HTMLElement).dataset?.itemId,
+          sizeAttr
+        });
         return parseInventorySize(sizeAttr);
       }
 
+      logDragSize('fallback', { explicit });
       return parseInventorySize(undefined);
     };
 
