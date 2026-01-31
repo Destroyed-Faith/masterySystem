@@ -4590,13 +4590,13 @@
 
 .mastery-system.general-items-storage .storage-resize-handle {
   position: absolute;
-  left: 8px;
-  bottom: 8px;
-  width: 14px;
-  height: 14px;
-  border-left: 2px solid var(--df-border-primary, #3a3f44);
-  border-bottom: 2px solid var(--df-border-primary, #3a3f44);
-  cursor: nesw-resize;
+  left: 50%;
+  bottom: 4px;
+  width: 80px;
+  height: 10px;
+  transform: translateX(-50%);
+  border-top: 2px solid var(--df-border-primary, #3a3f44);
+  cursor: ns-resize;
   opacity: 0.7;
   z-index: 1;
 }
