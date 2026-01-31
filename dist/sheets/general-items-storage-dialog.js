@@ -260,6 +260,38 @@ export class GeneralItemsStorageDialog extends BaseDialog {
         console.log('Mastery System | [Storage Debug] Drag handlers bound', {
             storageItemCount: storageItems.length
         });
+        const storagePanel = html.find('.storage-items-panel').first();
+        const resizeHandle = storagePanel.find('.storage-resize-handle').first();
+        resizeHandle.off('mousedown.storage-resize').on('mousedown.storage-resize', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const panelEl = storagePanel.get(0);
+            if (!panelEl)
+                return;
+            const startX = e.clientX;
+            const startY = e.clientY;
+            const rect = panelEl.getBoundingClientRect();
+            const startWidth = rect.width;
+            const startHeight = rect.height;
+            const minWidth = 260;
+            const minHeight = 240;
+            const maxWidth = Math.max(minWidth, Math.min(900, window.innerWidth - 80));
+            const maxHeight = Math.max(minHeight, Math.min(900, window.innerHeight - 120));
+            const onMove = (moveEvent) => {
+                const deltaX = moveEvent.clientX - startX;
+                const deltaY = moveEvent.clientY - startY;
+                const nextWidth = Math.min(maxWidth, Math.max(minWidth, startWidth - deltaX));
+                const nextHeight = Math.min(maxHeight, Math.max(minHeight, startHeight + deltaY));
+                panelEl.style.width = `${nextWidth}px`;
+                panelEl.style.height = `${nextHeight}px`;
+            };
+            const onUp = () => {
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('mouseup', onUp);
+            };
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+        });
         html.off('mousedown.storage').on('mousedown.storage', '.storage-item, .storage-item *', (e) => {
             const $item = $(e.target).closest('.storage-item');
             console.log('Mastery System | [Storage MouseDown]', {
