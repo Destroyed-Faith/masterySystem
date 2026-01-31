@@ -4588,23 +4588,32 @@
   min-height: 200px;
 }
 
-.mastery-system.general-items-storage .storage-resize-handle {
+.mastery-system.general-items-storage .window-resizable-handle {
   position: absolute;
   right: 8px;
   bottom: 8px;
-  width: 16px;
-  height: 16px;
-  border-right: 2px solid var(--df-border-primary, #3a3f44);
-  border-bottom: 2px solid var(--df-border-primary, #3a3f44);
-  background: rgba(0, 0, 0, 0.25);
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.35);
   cursor: nwse-resize;
-  opacity: 0.9;
-  z-index: 1;
+  opacity: 0.95;
+  z-index: 2;
 }
 
-.mastery-system.general-items-storage .storage-resize-handle:hover {
+.mastery-system.general-items-storage .window-resizable-handle:hover {
   opacity: 1;
   border-color: var(--df-accent, #8b0000);
+}
+
+.mastery-system.general-items-storage .window-resizable-handle i {
+  font-size: 0.7rem;
+  color: var(--df-text-secondary, #a0a0a0);
+  pointer-events: none;
 }
 
 .storage-item,

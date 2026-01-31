@@ -15,7 +15,10 @@ export class GeneralItemsStorageDialog extends BaseDialog {
         width: 800,
         height: 600,
         resizable: true,
-        title: 'General Items Storage'
+        title: 'General Items Storage',
+        window: {
+            title: 'General Items Storage'
+        }
     };
     static PARTS = {
         content: { template: 'systems/mastery-system/templates/dialogs/general-items-storage.hbs' }
@@ -263,10 +266,10 @@ export class GeneralItemsStorageDialog extends BaseDialog {
         const appElement = element.closest('#mastery-general-items-storage');
         const appJq = appElement ? $(appElement) : null;
         if (appElement && appJq) {
-            appJq.find('> .storage-resize-handle').remove();
-            appJq.append('<div class="storage-resize-handle" title="Resize storage window"></div>');
+            appJq.find('> .window-resizable-handle').remove();
+            appJq.append('<div class="window-resizable-handle" title="Resize storage window"><i inert class="fa-solid fa-left-right fa-rotate-by"></i></div>');
         }
-        const resizeHandle = appJq?.find('> .storage-resize-handle').first();
+        const resizeHandle = appJq?.find('> .window-resizable-handle').first();
         resizeHandle?.off('mousedown.storage-resize').on('mousedown.storage-resize', (e) => {
             e.preventDefault();
             e.stopPropagation();

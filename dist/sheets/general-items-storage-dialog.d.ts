@@ -15,6 +15,9 @@ export declare class GeneralItemsStorageDialog extends BaseDialog {
         height: number;
         resizable: boolean;
         title: string;
+        window: {
+            title: string;
+        };
     };
     static PARTS: {
         content: {
