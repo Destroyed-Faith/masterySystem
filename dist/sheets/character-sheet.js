@@ -1529,24 +1529,22 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             if (explicit) {
                 return parseInventorySize(explicit);
             }
-            const dataTransfer = ev?.originalEvent?.dataTransfer || ev?.dataTransfer;
-            if (dataTransfer) {
-                const raw = dataTransfer.getData('text/plain');
-                if (raw) {
-                    try {
-                        const parsed = JSON.parse(raw);
-                        if (parsed?.data?._id) {
-                            const actorItem = this.actor?.items?.get(parsed.data._id);
-                            return parseInventorySize(actorItem?.system?.inventorySize);
-                        }
-                        if (parsed?.id) {
-                            const worldItem = game.items?.get(parsed.id);
-                            return parseInventorySize(worldItem?.system?.inventorySize);
-                        }
-                    }
-                    catch {
-                        // ignore parse errors
-                    }
+            const dragEvent = (ev?.originalEvent ?? ev);
+            if (dragEvent) {
+                const TextEditorImpl = foundry.applications?.ux?.TextEditor?.implementation || TextEditor;
+                const data = TextEditorImpl.getDragEventData(dragEvent);
+                if (data?.data?._id) {
+                    const actorItem = this.actor?.items?.get(data.data._id);
+                    return parseInventorySize(actorItem?.system?.inventorySize);
+                }
+                if (data?.id) {
+                    const worldItem = game.items?.get(data.id);
+                    return parseInventorySize(worldItem?.system?.inventorySize);
+                }
+                if (typeof data?.uuid === 'string' && data.uuid.startsWith('Item.')) {
+                    const itemId = data.uuid.split('.')[1];
+                    const worldItem = game.items?.get(itemId);
+                    return parseInventorySize(worldItem?.system?.inventorySize);
                 }
             }
             return parseInventorySize(undefined);
