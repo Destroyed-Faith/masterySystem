@@ -9,6 +9,7 @@ import { getAllMasteryTrees } from '../utils/mastery-trees.js';
 import { getAllSpellSchools } from '../utils/spell-schools.js';
 import { getAllSchticks } from '../utils/schticks.js';
 import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
+import { findFirstFit, parseInventorySize } from '../utils/inventory-grid.js';
 // Removed: showWeaponCreationDialog, showArmorCreationDialog, showShieldCreationDialog
 // Replaced with General Items Storage and Store dialogs
 // Use namespaced ActorSheet when available to avoid deprecation warnings
@@ -714,15 +715,49 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ...(items.artifacts || [])
         ];
         // Helper: convert items array to cells array
-        const toCells = (itemList, size) => {
-            const cells = Array(size).fill(null);
-            let overflow = 0;
-            for (let i = 0; i < itemList.length; i++) {
-                if (i < size) {
-                    cells[i] = itemList[i];
+        const toCells = (itemList, cols, rows) => {
+            const cells = [];
+            for (let row = 1; row <= rows; row++) {
+                for (let col = 1; col <= cols; col++) {
+                    cells.push({
+                        row,
+                        col,
+                        item: null,
+                        occupied: false,
+                        spanW: 1,
+                        spanH: 1
+                    });
                 }
-                else {
+            }
+            let overflow = 0;
+            const rects = [];
+            const getIndex = (col, row) => (row - 1) * cols + (col - 1);
+            for (const item of itemList) {
+                const size = parseInventorySize(item?.system?.inventorySize);
+                const w = Math.min(cols, size.w);
+                const h = Math.min(rows, size.h);
+                const pos = findFirstFit(rects, w, h, cols, rows);
+                if (!pos) {
                     overflow++;
+                    continue;
+                }
+                rects.push({ x: pos.x, y: pos.y, w, h });
+                const topIndex = getIndex(pos.x, pos.y);
+                const topCell = cells[topIndex];
+                if (topCell) {
+                    topCell.item = item;
+                    topCell.spanW = w;
+                    topCell.spanH = h;
+                }
+                for (let dy = 0; dy < h; dy++) {
+                    for (let dx = 0; dx < w; dx++) {
+                        if (dx === 0 && dy === 0)
+                            continue;
+                        const idx = getIndex(pos.x + dx, pos.y + dy);
+                        if (cells[idx]) {
+                            cells[idx].occupied = true;
+                        }
+                    }
                 }
             }
             return { cells, overflow };
@@ -805,10 +840,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             slotCount: Object.keys(slotMap).length
         });
         // Convert to cells
-        const notCellsData = toCells(notItems, BAND_SIZE);
-        const encCellsData = toCells(encItems, BAND_SIZE);
-        const heavyCellsData = toCells(heavyItems, BAND_SIZE);
-        const stashCellsData = toCells(stashItems, STASH_SIZE);
+        const notCellsData = toCells(notItems, BAND_COLS, BAND_ROWS);
+        const encCellsData = toCells(encItems, BAND_COLS, BAND_ROWS);
+        const heavyCellsData = toCells(heavyItems, BAND_COLS, BAND_ROWS);
+        const stashCellsData = toCells(stashItems, STASH_COLS, STASH_ROWS);
         // Slot definitions
         const slotDefs = [
             { key: 'cloak', label: 'Cloak/Cape' },

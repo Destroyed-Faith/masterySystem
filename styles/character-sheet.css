@@ -5833,6 +5833,14 @@
   min-height: 26px;
 }
 
+.df-cell.df-cell--occupied {
+  visibility: hidden;
+}
+
+.df-cell.df-cell--item {
+  z-index: 1;
+}
+
 .df-overflow {
   padding: 6px;
   font-weight: 700;
