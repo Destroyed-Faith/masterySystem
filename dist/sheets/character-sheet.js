@@ -1393,6 +1393,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 const target = ev.target;
                 if (!target)
                     return;
+                // If drop happens inside the character sheet, let sheet handlers handle it.
+                if (target.closest('.mastery-system.sheet.actor.character')) {
+                    console.log('Mastery System | [Storage Debug] document drop skipped (sheet handled)', {
+                        targetClass: target.className
+                    });
+                    return;
+                }
                 const path = (ev.composedPath?.() || []);
                 const dropTarget = target.closest('[data-df-drop]');
                 const pathDropTarget = path.find(el => el?.dataset?.dfDrop);
