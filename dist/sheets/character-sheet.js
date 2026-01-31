@@ -3687,6 +3687,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      * Handle drag and drop for equipment
      */
     async _onDrop(event) {
+        if (event.__msDropHandled) {
+            console.log('Mastery System | [Equipment Drop] Skipping duplicate drop event');
+            return false;
+        }
+        event.__msDropHandled = true;
         const TextEditorImpl = foundry.applications?.ux?.TextEditor?.implementation || TextEditor;
         const data = TextEditorImpl.getDragEventData(event);
         const path = (event.composedPath?.() || []);
