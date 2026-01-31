@@ -1513,9 +1513,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         });
         html.find('.equipment-item input[type="radio"][name^="equipped-"]').on('change', this.#onEquipmentToggle.bind(this));
         html.off('dragstart.df-grid').on('dragstart.df-grid', '.df-item-tile', (ev) => {
-            const $tile = $(ev.currentTarget);
-            const itemId = $tile.data('item-id');
-            const sizeAttr = $tile.data('inventory-size');
+            const tileEl = ev.currentTarget;
+            const itemId = $(tileEl).data('item-id');
+            const sizeAttr = tileEl?.dataset?.inventorySize;
             const sourceItem = this.actor?.items?.get(itemId);
             if (sourceItem) {
                 window.__msDragInventorySize = sourceItem.system?.inventorySize || sizeAttr || '1x1';
