@@ -3739,7 +3739,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     this._lastDroppedItemId = droppedItem?.id;
                     this._lastDroppedItemName = droppedItem?.name;
                     await new Promise(resolve => setTimeout(resolve, 0));
-                    await this.render(true);
+                    await this.render(true, { focus: false });
                 }
             }
             return true;
@@ -3768,7 +3768,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         this._lastDroppedItemId = droppedItem?.id;
         this._lastDroppedItemName = droppedItem?.name;
         await new Promise(resolve => setTimeout(resolve, 0));
-        await this.render(true);
+        await this.render(true, { focus: false });
         return true;
     }
     /**
