@@ -1717,6 +1717,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
       }
     });
+    console.log('Mastery System | [Equipment Grid Debug] dragstart handler bound');
 
     const clearDropHighlight = () => {
       html.find('.df-cell.df-drop-valid, .df-cell.df-drop-invalid')
@@ -1815,6 +1816,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const w = Math.min(BAND_COLS, size.w);
       const h = Math.min(BAND_ROWS, size.h);
       const candidate = { x: col, y: row, w, h };
+      const debugKey = `${col}:${row}:${w}:${h}`;
+      if ((window as any).__msLastDragoverDebug !== debugKey) {
+        (window as any).__msLastDragoverDebug = debugKey;
+        console.log('Mastery System | [Equipment Grid Debug] dragover size', {
+          col,
+          row,
+          w,
+          h,
+          raw: (window as any).__msDragInventorySize
+        });
+      }
 
       const items = Array.from(this.actor.items.values()) as any[];
       const rects = items
