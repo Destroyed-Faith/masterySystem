@@ -272,6 +272,7 @@ export class GeneralItemsStorageDialog extends BaseDialog {
             e.stopPropagation();
             if (!appElement)
                 return;
+            const startX = e.clientX;
             const startY = e.clientY;
             const rect = appElement.getBoundingClientRect();
             const startWidth = rect.width;
@@ -281,9 +282,10 @@ export class GeneralItemsStorageDialog extends BaseDialog {
             const maxWidth = Math.max(minWidth, Math.min(1200, window.innerWidth - 40));
             const maxHeight = Math.max(minHeight, Math.min(window.innerHeight - 40, 1200));
             const onMove = (moveEvent) => {
+                const deltaX = moveEvent.clientX - startX;
                 const deltaY = moveEvent.clientY - startY;
+                const nextWidth = Math.min(maxWidth, Math.max(minWidth, startWidth + deltaX));
                 const nextHeight = Math.min(maxHeight, Math.max(minHeight, startHeight + deltaY));
-                const nextWidth = Math.min(maxWidth, Math.max(minWidth, startWidth));
                 appElement.style.width = `${nextWidth}px`;
                 appElement.style.height = `${nextHeight}px`;
             };
