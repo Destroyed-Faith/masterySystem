@@ -1578,13 +1578,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 return { x: flags.grid.x, y: flags.grid.y, w: Math.min(BAND_COLS, s.w), h: Math.min(BAND_ROWS, s.h) };
             })
                 .filter(Boolean);
-            const fits = fitsInGrid(candidate.x, candidate.y, candidate.w, candidate.h, BAND_COLS, BAND_ROWS)
-                && !rects.some(rect => rectsOverlap(rect, candidate));
+            const cellOccupied = (x, y) => rects.some(rect => rectsOverlap(rect, { x, y, w: 1, h: 1 }));
             for (let dy = 0; dy < h; dy++) {
                 for (let dx = 0; dx < w; dx++) {
-                    const targetCell = html.find(`.df-enc-band .df-cell[data-col="${col + dx}"][data-row="${row + dy}"]`).first();
+                    const x = col + dx;
+                    const y = row + dy;
+                    const targetCell = html.find(`.df-enc-band .df-cell[data-col="${x}"][data-row="${y}"]`).first();
                     if (targetCell.length > 0) {
-                        targetCell.addClass(fits ? 'df-drop-valid' : 'df-drop-invalid');
+                        const outOfBounds = !fitsInGrid(x, y, 1, 1, BAND_COLS, BAND_ROWS);
+                        const occupied = cellOccupied(x, y);
+                        targetCell.addClass(outOfBounds || occupied ? 'df-drop-invalid' : 'df-drop-valid');
                     }
                 }
             }
