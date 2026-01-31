@@ -1689,6 +1689,20 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       if (sourceItem) {
         (window as any).__msDragInventorySize = sourceItem.system?.inventorySize || '1x1';
         (window as any).__msDragItemId = sourceItem.id;
+        return;
+      }
+
+      const dragEvent = (ev?.originalEvent ?? ev) as DragEvent | undefined;
+      if (dragEvent) {
+        const TextEditorImpl = foundry.applications?.ux?.TextEditor?.implementation || TextEditor;
+        const data = TextEditorImpl.getDragEventData(dragEvent);
+        if (data?.data?._id) {
+          const actorItem = this.actor?.items?.get(data.data._id);
+          if (actorItem) {
+            (window as any).__msDragInventorySize = actorItem.system?.inventorySize || '1x1';
+            (window as any).__msDragItemId = actorItem.id;
+          }
+        }
       }
     });
 

@@ -1518,6 +1518,19 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             if (sourceItem) {
                 window.__msDragInventorySize = sourceItem.system?.inventorySize || '1x1';
                 window.__msDragItemId = sourceItem.id;
+                return;
+            }
+            const dragEvent = (ev?.originalEvent ?? ev);
+            if (dragEvent) {
+                const TextEditorImpl = foundry.applications?.ux?.TextEditor?.implementation || TextEditor;
+                const data = TextEditorImpl.getDragEventData(dragEvent);
+                if (data?.data?._id) {
+                    const actorItem = this.actor?.items?.get(data.data._id);
+                    if (actorItem) {
+                        window.__msDragInventorySize = actorItem.system?.inventorySize || '1x1';
+                        window.__msDragItemId = actorItem.id;
+                    }
+                }
             }
         });
         const clearDropHighlight = () => {
