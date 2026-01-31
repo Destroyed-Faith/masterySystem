@@ -10,6 +10,7 @@ import { getAllSpellSchools } from '../utils/spell-schools.js';
 import { getAllSchticks } from '../utils/schticks.js';
 import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
 import { findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid.js';
+import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items.js';
 // Removed: showWeaponCreationDialog, showArmorCreationDialog, showShieldCreationDialog
 // Replaced with General Items Storage and Store dialogs
 // Use namespaced ActorSheet when available to avoid deprecation warnings
@@ -1518,8 +1519,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             const sizeAttr = tileEl?.dataset?.inventorySize;
             const sourceItem = this.actor?.items?.get(itemId);
             if (sourceItem) {
-                window.__msDragInventorySize = sourceItem.system?.inventorySize || sizeAttr || '1x1';
+                const computedSize = getDefaultInventorySizeForItemData(sourceItem);
+                const resolvedSize = sourceItem.system?.inventorySize || sizeAttr || computedSize || '1x1';
+                window.__msDragInventorySize = resolvedSize;
                 window.__msDragItemId = sourceItem.id;
+                console.log('Mastery System | [Equipment Grid Debug] dragstart tile', {
+                    itemId: sourceItem.id,
+                    systemSize: sourceItem.system?.inventorySize,
+                    sizeAttr,
+                    computedSize,
+                    resolvedSize
+                });
                 return;
             }
             const dragEvent = (ev?.originalEvent ?? ev);
@@ -1535,13 +1545,29 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 }
             }
         });
+        console.log('Mastery System | [Equipment Grid Debug] dragstart handler bound');
         const clearDropHighlight = () => {
             html.find('.df-cell.df-drop-valid, .df-cell.df-drop-invalid')
                 .removeClass('df-drop-valid df-drop-invalid');
         };
         const resolveDragSize = (ev) => {
+            const logDragSize = (source, details) => {
+                const key = JSON.stringify({ source, ...details });
+                if (window.__msLastDragSizeDebug === key)
+                    return;
+                window.__msLastDragSizeDebug = key;
+                console.log('Mastery System | [Equipment Grid Debug] resolveDragSize', { source, ...details });
+            };
+            const resolveSizeFromItem = (item, source, details) => {
+                const systemSize = item?.system?.inventorySize;
+                const computedSize = systemSize ? undefined : getDefaultInventorySizeForItemData(item);
+                const resolvedSize = systemSize || computedSize || undefined;
+                logDragSize(source, { ...details, systemSize, computedSize, resolvedSize });
+                return parseInventorySize(resolvedSize);
+            };
             const explicit = window.__msDragInventorySize;
             if (explicit) {
+                logDragSize('window', { explicit });
                 return parseInventorySize(explicit);
             }
             const dragEvent = (ev?.originalEvent ?? ev);
@@ -1550,23 +1576,51 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 const data = TextEditorImpl.getDragEventData(dragEvent);
                 if (data?.data?._id) {
                     const actorItem = this.actor?.items?.get(data.data._id);
-                    return parseInventorySize(actorItem?.system?.inventorySize);
+                    return resolveSizeFromItem(actorItem, 'dragData.actorItem', {
+                        dataId: data.data._id,
+                        itemId: actorItem?.id
+                    });
                 }
                 if (data?.id) {
                     const worldItem = game.items?.get(data.id);
-                    return parseInventorySize(worldItem?.system?.inventorySize);
+                    return resolveSizeFromItem(worldItem, 'dragData.worldItem', {
+                        dataId: data.id,
+                        itemId: worldItem?.id
+                    });
                 }
                 if (typeof data?.uuid === 'string' && data.uuid.startsWith('Item.')) {
                     const itemId = data.uuid.split('.')[1];
                     const worldItem = game.items?.get(itemId);
-                    return parseInventorySize(worldItem?.system?.inventorySize);
+                    return resolveSizeFromItem(worldItem, 'dragData.uuid', {
+                        uuid: data.uuid,
+                        itemId: worldItem?.id
+                    });
                 }
+                logDragSize('dragData.unhandled', {
+                    dataId: data?.data?._id,
+                    id: data?.id,
+                    uuid: data?.uuid
+                });
             }
             const targetTile = ev?.target?.closest?.('.df-item-tile');
             if (targetTile) {
                 const sizeAttr = targetTile.dataset?.inventorySize;
-                return parseInventorySize(sizeAttr);
+                const tileItemId = targetTile.dataset?.itemId;
+                const tileActorItem = tileItemId ? this.actor?.items?.get(tileItemId) : undefined;
+                if (sizeAttr) {
+                    logDragSize('tile.dataset', {
+                        itemId: tileItemId,
+                        sizeAttr
+                    });
+                    return parseInventorySize(sizeAttr);
+                }
+                if (tileActorItem) {
+                    return resolveSizeFromItem(tileActorItem, 'tile.item', { itemId: tileItemId });
+                }
+                logDragSize('tile.dataset.missing', { itemId: tileItemId, sizeAttr });
+                return parseInventorySize(undefined);
             }
+            logDragSize('fallback', { explicit });
             return parseInventorySize(undefined);
         };
         html.off('dragover.df-grid').on('dragover.df-grid', '.df-enc-band .df-cell, .df-enc-band', (ev) => {
@@ -1585,6 +1639,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             const w = Math.min(BAND_COLS, size.w);
             const h = Math.min(BAND_ROWS, size.h);
             const candidate = { x: col, y: row, w, h };
+            const debugKey = `${col}:${row}:${w}:${h}`;
+            if (window.__msLastDragoverDebug !== debugKey) {
+                window.__msLastDragoverDebug = debugKey;
+                console.log('Mastery System | [Equipment Grid Debug] dragover size', {
+                    col,
+                    row,
+                    w,
+                    h,
+                    raw: window.__msDragInventorySize
+                });
+            }
             const items = Array.from(this.actor.items.values());
             const rects = items
                 .filter((it) => it.id !== window.__msDragItemId)
