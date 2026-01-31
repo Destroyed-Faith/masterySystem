@@ -49,6 +49,7 @@ const GEAR_ITEMS = [
     { name: 'Wineskin/Waterskin', inventorySize: '1x2' },
     { name: 'Winter blanket', inventorySize: '3x2' }
 ];
+const GEAR_SIZE_BY_NAME = Object.fromEntries(GEAR_ITEMS.map(item => [item.name.toLowerCase(), item.inventorySize]));
 const ARMOR_SIZES = {
     light: '2x4',
     medium: '4x4',
@@ -70,6 +71,30 @@ function getWeaponInventorySize(hands, ranged, name) {
         return '2x4';
     }
     return hands === 2 ? '1x5' : '1x3';
+}
+export function getDefaultInventorySizeForItemData(item) {
+    if (!item)
+        return null;
+    const type = item.type || item.system?.type;
+    const name = (item.name || '').toLowerCase();
+    if (type === 'gear') {
+        return GEAR_SIZE_BY_NAME[name] || null;
+    }
+    if (type === 'weapon') {
+        const hands = Number(item.system?.hands || 1);
+        const weaponType = (item.system?.weaponType || '').toString().toLowerCase();
+        const ranged = weaponType === 'ranged' || isRangedWeapon(item.system?.innateAbilities);
+        return getWeaponInventorySize(hands, ranged, item.name || '');
+    }
+    if (type === 'armor') {
+        const armorType = (item.system?.type || '').toString().toLowerCase();
+        return ARMOR_SIZES[armorType] || null;
+    }
+    if (type === 'shield') {
+        const shieldType = (item.system?.type || '').toString().toLowerCase();
+        return SHIELD_SIZES[shieldType] || null;
+    }
+    return null;
 }
 export async function seedGeneralItemsStorage() {
     if (!game.user?.isGM) {

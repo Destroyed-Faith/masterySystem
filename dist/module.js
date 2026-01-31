@@ -1731,6 +1731,44 @@ Hooks.once('ready', async function () {
     if (migrated > 0) {
         console.log(`Mastery System | Migrated ${migrated} actors (added default weapon)`);
     }
+    // Migration: Backfill inventory sizes for existing items (GM only)
+    if (game.user?.isGM) {
+        try {
+            console.log('Mastery System | Running inventory size migration...');
+            const { getDefaultInventorySizeForItemData } = await import('./utils/seed-general-items.js');
+            let updated = 0;
+            const worldItems = Array.from(game.items || []);
+            for (const item of worldItems) {
+                const currentSize = item.system?.inventorySize;
+                if (currentSize)
+                    continue;
+                const size = getDefaultInventorySizeForItemData(item);
+                if (!size)
+                    continue;
+                await item.update({ 'system.inventorySize': size });
+                updated++;
+            }
+            for (const actor of actors) {
+                const actorItems = Array.from(actor.items || []);
+                for (const item of actorItems) {
+                    const currentSize = item.system?.inventorySize;
+                    if (currentSize)
+                        continue;
+                    const size = getDefaultInventorySizeForItemData(item);
+                    if (!size)
+                        continue;
+                    await item.update({ 'system.inventorySize': size });
+                    updated++;
+                }
+            }
+            if (updated > 0) {
+                console.log(`Mastery System | Inventory size migration: Updated ${updated} items`);
+            }
+        }
+        catch (error) {
+            console.warn('Mastery System | Inventory size migration failed:', error);
+        }
+    }
     // Optional: Try to backfill armor/shield items from system.combat.armorName/shieldName
     // This is optional and only runs if utils/equipment.ts exists
     try {
