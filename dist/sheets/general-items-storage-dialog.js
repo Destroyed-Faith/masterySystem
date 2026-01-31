@@ -263,7 +263,9 @@ export class GeneralItemsStorageDialog extends BaseDialog {
         console.log('Mastery System | [Storage Debug] Drag handlers bound', {
             storageItemCount: storageItems.length
         });
-        const appElement = element.closest('#mastery-general-items-storage');
+        const rootEl = this.element?.[0];
+        const appElement = rootEl?.closest?.('#mastery-general-items-storage')
+            || document.getElementById('mastery-general-items-storage');
         const appJq = appElement ? $(appElement) : null;
         if (appElement && appJq) {
             appJq.find('> .window-resizable-handle').remove();

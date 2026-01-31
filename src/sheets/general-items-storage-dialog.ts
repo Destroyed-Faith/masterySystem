@@ -271,7 +271,9 @@ export class GeneralItemsStorageDialog extends BaseDialog {
       storageItemCount: storageItems.length
     });
 
-    const appElement = element.closest('#mastery-general-items-storage') as HTMLElement | null;
+    const rootEl = (this as any).element?.[0] as HTMLElement | undefined;
+    const appElement = (rootEl?.closest?.('#mastery-general-items-storage') as HTMLElement | null)
+      || (document.getElementById('mastery-general-items-storage') as HTMLElement | null);
     const appJq = appElement ? $(appElement) : null;
     if (appElement && appJq) {
       appJq.find('> .window-resizable-handle').remove();
