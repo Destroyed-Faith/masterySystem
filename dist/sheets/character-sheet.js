@@ -1513,10 +1513,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         });
         html.find('.equipment-item input[type="radio"][name^="equipped-"]').on('change', this.#onEquipmentToggle.bind(this));
         html.off('dragstart.df-grid').on('dragstart.df-grid', '.df-item-tile', (ev) => {
-            const itemId = $(ev.currentTarget).data('item-id');
+            const $tile = $(ev.currentTarget);
+            const itemId = $tile.data('item-id');
+            const sizeAttr = $tile.data('inventory-size');
             const sourceItem = this.actor?.items?.get(itemId);
             if (sourceItem) {
-                window.__msDragInventorySize = sourceItem.system?.inventorySize || '1x1';
+                window.__msDragInventorySize = sourceItem.system?.inventorySize || sizeAttr || '1x1';
                 window.__msDragItemId = sourceItem.id;
                 return;
             }
@@ -1527,7 +1529,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 if (data?.data?._id) {
                     const actorItem = this.actor?.items?.get(data.data._id);
                     if (actorItem) {
-                        window.__msDragInventorySize = actorItem.system?.inventorySize || '1x1';
+                        window.__msDragInventorySize = actorItem.system?.inventorySize || sizeAttr || '1x1';
                         window.__msDragItemId = actorItem.id;
                     }
                 }
@@ -1559,6 +1561,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     const worldItem = game.items?.get(itemId);
                     return parseInventorySize(worldItem?.system?.inventorySize);
                 }
+            }
+            const targetTile = ev?.target?.closest?.('.df-item-tile');
+            if (targetTile) {
+                const sizeAttr = targetTile.dataset?.inventorySize;
+                return parseInventorySize(sizeAttr);
             }
             return parseInventorySize(undefined);
         };

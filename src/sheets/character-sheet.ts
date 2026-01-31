@@ -1684,10 +1684,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('.equipment-item input[type="radio"][name^="equipped-"]').on('change', this.#onEquipmentToggle.bind(this));
 
     html.off('dragstart.df-grid').on('dragstart.df-grid', '.df-item-tile', (ev: any) => {
-      const itemId = $(ev.currentTarget).data('item-id');
+      const $tile = $(ev.currentTarget);
+      const itemId = $tile.data('item-id');
+      const sizeAttr = $tile.data('inventory-size');
       const sourceItem = this.actor?.items?.get(itemId);
       if (sourceItem) {
-        (window as any).__msDragInventorySize = sourceItem.system?.inventorySize || '1x1';
+        (window as any).__msDragInventorySize = sourceItem.system?.inventorySize || sizeAttr || '1x1';
         (window as any).__msDragItemId = sourceItem.id;
         return;
       }
@@ -1699,7 +1701,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (data?.data?._id) {
           const actorItem = this.actor?.items?.get(data.data._id);
           if (actorItem) {
-            (window as any).__msDragInventorySize = actorItem.system?.inventorySize || '1x1';
+            (window as any).__msDragInventorySize = actorItem.system?.inventorySize || sizeAttr || '1x1';
             (window as any).__msDragItemId = actorItem.id;
           }
         }
@@ -1734,6 +1736,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           const worldItem = (game as any).items?.get(itemId);
           return parseInventorySize(worldItem?.system?.inventorySize);
         }
+      }
+
+      const targetTile = (ev?.target as HTMLElement | null)?.closest?.('.df-item-tile') as HTMLElement | null;
+      if (targetTile) {
+        const sizeAttr = (targetTile as HTMLElement).dataset?.inventorySize;
+        return parseInventorySize(sizeAttr);
       }
 
       return parseInventorySize(undefined);

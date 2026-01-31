@@ -1233,7 +1233,7 @@
               {{#each equipmentUi.inventory.notCells}}
                 <div class="df-cell {{#if this.occupied}}df-cell--occupied{{/if}} {{#if this.item}}df-cell--item{{/if}}" data-col="{{this.col}}" data-row="{{this.row}}" style="grid-column: {{this.col}} / span {{default this.spanW 1}}; grid-row: {{this.row}} / span {{default this.spanH 1}};">
                   {{#if this.item}}
-                    <div class="df-item-tile item df-draggable-item" data-item-id="{{this.item.id}}" draggable="true" title="{{this.item.name}}">
+                    <div class="df-item-tile item df-draggable-item" data-item-id="{{this.item.id}}" data-inventory-size="{{this.item.system.inventorySize}}" draggable="true" title="{{this.item.name}}">
                       <img class="df-item-icon" src="{{this.item.img}}" />
                       {{#if (eq this.item.type "gear")}}
                         <div class="df-item-qty">{{default this.item.system.quantity 1}}</div>
@@ -1265,7 +1265,7 @@
                 <div class="df-equip-slot df-dropzone slot-{{this.key}}" data-df-drop="equip-slot" data-slot="{{this.key}}">
                   <div class="df-slot-label">{{this.label}}</div>
                   {{#if this.item}}
-                    <div class="df-item-tile item df-draggable-item" data-item-id="{{this.item.id}}" draggable="true" title="{{this.item.name}}">
+                    <div class="df-item-tile item df-draggable-item" data-item-id="{{this.item.id}}" data-inventory-size="{{this.item.system.inventorySize}}" draggable="true" title="{{this.item.name}}">
                       <img class="df-item-icon" src="{{this.item.img}}" />
                       <div class="df-item-actions">
                         <a class="item-edit" title="Edit"><i class="fas fa-edit"></i></a>
@@ -1286,7 +1286,7 @@
               {{#each equipmentUi.stash.cells}}
                 <div class="df-cell {{#if this.occupied}}df-cell--occupied{{/if}} {{#if this.item}}df-cell--item{{/if}}" data-col="{{this.col}}" data-row="{{this.row}}" style="grid-column: {{this.col}} / span {{default this.spanW 1}}; grid-row: {{this.row}} / span {{default this.spanH 1}};">
                   {{#if this.item}}
-                    <div class="df-item-tile item df-draggable-item" data-item-id="{{this.item.id}}" draggable="true" title="{{this.item.name}}">
+                    <div class="df-item-tile item df-draggable-item" data-item-id="{{this.item.id}}" data-inventory-size="{{this.item.system.inventorySize}}" draggable="true" title="{{this.item.name}}">
                       <img class="df-item-icon" src="{{this.item.img}}" />
                       <div class="df-item-actions">
                         <a class="item-edit" title="Edit"><i class="fas fa-edit"></i></a>
