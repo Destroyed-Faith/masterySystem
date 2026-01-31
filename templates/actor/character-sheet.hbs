@@ -1233,7 +1233,7 @@
           <div class="df-enc-grids">
             <div class="df-enc-band df-dropzone" data-df-drop="band" data-band="not">
               {{#each equipmentUi.inventory.notCells}}
-                <div class="df-cell {{#if this.occupied}}df-cell--occupied{{/if}} {{#if this.item}}df-cell--item{{/if}}" style="grid-column: {{this.col}} / span {{default this.spanW 1}}; grid-row: {{this.row}} / span {{default this.spanH 1}};">
+                <div class="df-cell {{#if this.occupied}}df-cell--occupied{{/if}} {{#if this.item}}df-cell--item{{/if}}" data-col="{{this.col}}" data-row="{{this.row}}" style="grid-column: {{this.col}} / span {{default this.spanW 1}}; grid-row: {{this.row}} / span {{default this.spanH 1}};">
                   {{#if this.item}}
                     <div class="df-item-tile item df-draggable-item" data-item-id="{{this.item.id}}" draggable="true" title="{{this.item.name}}">
                       <img class="df-item-icon" src="{{this.item.img}}" />
@@ -1255,7 +1255,7 @@
             
             <div class="df-enc-band df-dropzone" data-df-drop="band" data-band="enc">
               {{#each equipmentUi.inventory.encCells}}
-                <div class="df-cell {{#if this.occupied}}df-cell--occupied{{/if}} {{#if this.item}}df-cell--item{{/if}}" style="grid-column: {{this.col}} / span {{default this.spanW 1}}; grid-row: {{this.row}} / span {{default this.spanH 1}};">
+                <div class="df-cell {{#if this.occupied}}df-cell--occupied{{/if}} {{#if this.item}}df-cell--item{{/if}}" data-col="{{this.col}}" data-row="{{this.row}}" style="grid-column: {{this.col}} / span {{default this.spanW 1}}; grid-row: {{this.row}} / span {{default this.spanH 1}};">
                   {{#if this.item}}
                     <div class="df-item-tile item df-draggable-item" data-item-id="{{this.item.id}}" draggable="true" title="{{this.item.name}}">
                       <img class="df-item-icon" src="{{this.item.img}}" />
@@ -1277,7 +1277,7 @@
             
             <div class="df-enc-band df-dropzone" data-df-drop="band" data-band="heavy">
               {{#each equipmentUi.inventory.heavyCells}}
-                <div class="df-cell {{#if this.occupied}}df-cell--occupied{{/if}} {{#if this.item}}df-cell--item{{/if}}" style="grid-column: {{this.col}} / span {{default this.spanW 1}}; grid-row: {{this.row}} / span {{default this.spanH 1}};">
+                <div class="df-cell {{#if this.occupied}}df-cell--occupied{{/if}} {{#if this.item}}df-cell--item{{/if}}" data-col="{{this.col}}" data-row="{{this.row}}" style="grid-column: {{this.col}} / span {{default this.spanW 1}}; grid-row: {{this.row}} / span {{default this.spanH 1}};">
                   {{#if this.item}}
                     <div class="df-item-tile item df-draggable-item" data-item-id="{{this.item.id}}" draggable="true" title="{{this.item.name}}">
                       <img class="df-item-icon" src="{{this.item.img}}" />
@@ -1330,7 +1330,7 @@
             <h4>Stash</h4>
             <div class="df-stash-grid df-dropzone" data-df-drop="stash">
               {{#each equipmentUi.stash.cells}}
-                <div class="df-cell {{#if this.occupied}}df-cell--occupied{{/if}} {{#if this.item}}df-cell--item{{/if}}" style="grid-column: {{this.col}} / span {{default this.spanW 1}}; grid-row: {{this.row}} / span {{default this.spanH 1}};">
+                <div class="df-cell {{#if this.occupied}}df-cell--occupied{{/if}} {{#if this.item}}df-cell--item{{/if}}" data-col="{{this.col}}" data-row="{{this.row}}" style="grid-column: {{this.col}} / span {{default this.spanW 1}}; grid-row: {{this.row}} / span {{default this.spanH 1}};">
                   {{#if this.item}}
                     <div class="df-item-tile item df-draggable-item" data-item-id="{{this.item.id}}" draggable="true" title="{{this.item.name}}">
                       <img class="df-item-icon" src="{{this.item.img}}" />

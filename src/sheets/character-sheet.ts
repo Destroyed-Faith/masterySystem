@@ -16,7 +16,7 @@ import { getAllMasteryTrees } from '../utils/mastery-trees';
 import { getAllSpellSchools } from '../utils/spell-schools';
 import { getAllSchticks } from '../utils/schticks';
 import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
-import { findFirstFit, parseInventorySize } from '../utils/inventory-grid';
+import { findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid';
 // Removed: showWeaponCreationDialog, showArmorCreationDialog, showShieldCreationDialog
 // Replaced with General Items Storage and Store dialogs
 
@@ -828,8 +828,42 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       let overflow = 0;
       const rects: Array<{ x: number; y: number; w: number; h: number }> = [];
       const getIndex = (col: number, row: number) => (row - 1) * cols + (col - 1);
+      const unplaced: any[] = [];
 
       for (const item of itemList) {
+        const size = parseInventorySize(item?.system?.inventorySize);
+        const w = Math.min(cols, size.w);
+        const h = Math.min(rows, size.h);
+        const flags = item?.getFlag?.('mastery-system', 'equipment') || item?.flags?.['mastery-system']?.equipment || {};
+        const grid = flags?.grid;
+        if (grid?.x && grid?.y && fitsInGrid(grid.x, grid.y, w, h, cols, rows)) {
+          const candidate = { x: grid.x, y: grid.y, w, h };
+          const overlaps = rects.some(rect => rectsOverlap(rect, candidate));
+          if (!overlaps) {
+            rects.push(candidate);
+            const topIndex = getIndex(candidate.x, candidate.y);
+            const topCell = cells[topIndex];
+            if (topCell) {
+              topCell.item = item;
+              topCell.spanW = w;
+              topCell.spanH = h;
+            }
+            for (let dy = 0; dy < h; dy++) {
+              for (let dx = 0; dx < w; dx++) {
+                if (dx === 0 && dy === 0) continue;
+                const idx = getIndex(candidate.x + dx, candidate.y + dy);
+                if (cells[idx]) {
+                  cells[idx].occupied = true;
+                }
+              }
+            }
+            continue;
+          }
+        }
+        unplaced.push(item);
+      }
+
+      for (const item of unplaced) {
         const size = parseInventorySize(item?.system?.inventorySize);
         const w = Math.min(cols, size.w);
         const h = Math.min(rows, size.h);
@@ -4350,6 +4384,40 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         newFlags.container = 'inventory';
         newFlags.band = band;
         newFlags.slot = null;
+        const cell = (event?.target as HTMLElement | null)?.closest?.('.df-cell') as HTMLElement | null;
+        if (cell) {
+          const col = Number(cell.dataset?.col || 0);
+          const row = Number(cell.dataset?.row || 0);
+          if (col > 0 && row > 0) {
+            const BAND_COLS = 8;
+            const BAND_ROWS = 9;
+            const size = parseInventorySize(item?.system?.inventorySize);
+            const w = Math.min(BAND_COLS, size.w);
+            const h = Math.min(BAND_ROWS, size.h);
+            const candidate = { x: col, y: row, w, h };
+            const items = Array.from(this.actor.items.values()) as any[];
+            const rects = items
+              .filter((it: any) => it.id !== item.id)
+              .map((it: any) => {
+                const flags = it.getFlag?.('mastery-system', 'equipment') || {};
+                if (flags.container !== 'inventory' || flags.band !== band || !flags.grid?.x || !flags.grid?.y) return null;
+                const s = parseInventorySize(it.system?.inventorySize);
+                return { x: flags.grid.x, y: flags.grid.y, w: Math.min(BAND_COLS, s.w), h: Math.min(BAND_ROWS, s.h) };
+              })
+              .filter(Boolean) as Array<{ x: number; y: number; w: number; h: number }>;
+            const fits = fitsInGrid(candidate.x, candidate.y, candidate.w, candidate.h, BAND_COLS, BAND_ROWS)
+              && !rects.some(rect => rectsOverlap(rect, candidate));
+            if (fits) {
+              newFlags.grid = { x: candidate.x, y: candidate.y };
+            } else {
+              delete (newFlags as any).grid;
+            }
+          } else {
+            delete (newFlags as any).grid;
+          }
+        } else {
+          delete (newFlags as any).grid;
+        }
         await item.update({
           'flags.mastery-system.equipment': newFlags,
           'system.equipped': false
