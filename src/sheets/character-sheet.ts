@@ -1684,6 +1684,39 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     });
     html.find('.equipment-item input[type="radio"][name^="equipped-"]').on('change', this.#onEquipmentToggle.bind(this));
 
+    const sheetEl = html.get(0) as HTMLElement | undefined;
+    if (sheetEl) {
+      const existingHandler = (sheetEl as any).__msDragstartCaptureHandler as ((ev: DragEvent) => void) | undefined;
+      if (existingHandler) sheetEl.removeEventListener('dragstart', existingHandler, true);
+      const captureHandler = (ev: DragEvent) => {
+        const target = ev.target as HTMLElement | null;
+        const tileEl = target?.closest?.('.df-item-tile') as HTMLElement | null;
+        if (!tileEl) return;
+        const itemId = tileEl.dataset?.itemId || $(tileEl).data('item-id');
+        const sizeAttr = tileEl?.dataset?.inventorySize;
+        const sourceItem = itemId ? this.actor?.items?.get(itemId) : undefined;
+        const computedSize = sourceItem ? getDefaultInventorySizeForItemData(sourceItem) : undefined;
+        const resolvedSize = sourceItem?.system?.inventorySize || sizeAttr || computedSize || '1x1';
+        (window as any).__msDragInventorySize = resolvedSize;
+        (window as any).__msDragItemId = sourceItem?.id || itemId;
+        tileEl.dataset.dragging = 'true';
+        tileEl.dataset.dragSize = resolvedSize;
+        if (ev.dataTransfer) {
+          ev.dataTransfer.setData('application/x-mastery-inventory-size', resolvedSize);
+        }
+        console.log('Mastery System | [Equipment Grid Debug] dragstart capture', {
+          itemId: sourceItem?.id || itemId,
+          systemSize: sourceItem?.system?.inventorySize,
+          sizeAttr,
+          computedSize,
+          resolvedSize
+        });
+      };
+      (sheetEl as any).__msDragstartCaptureHandler = captureHandler;
+      sheetEl.addEventListener('dragstart', captureHandler, true);
+      console.log('Mastery System | [Equipment Grid Debug] dragstart capture bound');
+    }
+
     html.off('dragstart.df-grid').on('dragstart.df-grid', '.df-item-tile', (ev: any) => {
       const tileEl = ev.currentTarget as HTMLElement;
       const itemId = $(tileEl).data('item-id');
@@ -1840,7 +1873,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         });
       }
 
-      const draggingTile = html.find('.df-item-tile[data-dragging="true"]').get(0) as HTMLElement | undefined;
+      const draggingTile = html.find('.df-item-tile[data-dragging="true"]').get(0)
+        || (document.querySelector('.df-item-tile[data-dragging="true"]') as HTMLElement | null)
+        || undefined;
       if (draggingTile) {
         const dragSize = draggingTile.dataset?.dragSize || draggingTile.dataset?.inventorySize;
         const draggingItemId = draggingTile.dataset?.itemId;
