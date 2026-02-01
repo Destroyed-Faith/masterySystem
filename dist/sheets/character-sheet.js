@@ -1558,12 +1558,60 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 window.__msLastDragSizeDebug = key;
                 console.log('Mastery System | [Equipment Grid Debug] resolveDragSize', { source, ...details });
             };
+            const getDragDataFromDataTransfer = (dt) => {
+                if (!dt)
+                    return { types: [], raw: '', parsed: undefined };
+                const types = Array.from(dt.types || []);
+                const raw = dt.getData('application/json') || dt.getData('text/plain') || '';
+                let parsed = undefined;
+                if (raw) {
+                    try {
+                        parsed = JSON.parse(raw);
+                    }
+                    catch {
+                        parsed = undefined;
+                    }
+                }
+                return { types, raw, parsed };
+            };
             const resolveSizeFromItem = (item, source, details) => {
                 const systemSize = item?.system?.inventorySize;
                 const computedSize = systemSize ? undefined : getDefaultInventorySizeForItemData(item);
                 const resolvedSize = systemSize || computedSize || undefined;
                 logDragSize(source, { ...details, systemSize, computedSize, resolvedSize });
                 return parseInventorySize(resolvedSize);
+            };
+            const resolveSizeFromDragData = (data, source, details) => {
+                if (!data)
+                    return null;
+                const dataId = data?.data?._id || data?._id;
+                if (dataId) {
+                    const actorItem = this.actor?.items?.get(dataId);
+                    if (actorItem) {
+                        return resolveSizeFromItem(actorItem, `${source}.actorItem`, { ...details, dataId });
+                    }
+                }
+                const dataItemId = data?.id || data?.data?.id;
+                if (dataItemId) {
+                    const worldItem = game.items?.get(dataItemId);
+                    if (worldItem) {
+                        return resolveSizeFromItem(worldItem, `${source}.worldItem`, { ...details, dataId: dataItemId });
+                    }
+                }
+                const uuid = data?.uuid || data?.data?.uuid;
+                if (typeof uuid === 'string' && uuid.includes('.Item.')) {
+                    const itemId = uuid.split('.Item.')[1];
+                    const actorId = uuid.startsWith('Actor.') ? uuid.split('.')[1] : undefined;
+                    const actorItem = actorId && actorId === this.actor?.id ? this.actor?.items?.get(itemId) : undefined;
+                    if (actorItem) {
+                        return resolveSizeFromItem(actorItem, `${source}.uuid.actorItem`, { ...details, uuid, itemId, actorId });
+                    }
+                    const worldItem = game.items?.get(itemId);
+                    if (worldItem) {
+                        return resolveSizeFromItem(worldItem, `${source}.uuid.worldItem`, { ...details, uuid, itemId });
+                    }
+                }
+                return null;
             };
             const explicit = window.__msDragInventorySize;
             if (explicit) {
@@ -1574,32 +1622,26 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             if (dragEvent) {
                 const TextEditorImpl = foundry.applications?.ux?.TextEditor?.implementation || TextEditor;
                 const data = TextEditorImpl.getDragEventData(dragEvent);
-                if (data?.data?._id) {
-                    const actorItem = this.actor?.items?.get(data.data._id);
-                    return resolveSizeFromItem(actorItem, 'dragData.actorItem', {
-                        dataId: data.data._id,
-                        itemId: actorItem?.id
-                    });
-                }
-                if (data?.id) {
-                    const worldItem = game.items?.get(data.id);
-                    return resolveSizeFromItem(worldItem, 'dragData.worldItem', {
-                        dataId: data.id,
-                        itemId: worldItem?.id
-                    });
-                }
-                if (typeof data?.uuid === 'string' && data.uuid.startsWith('Item.')) {
-                    const itemId = data.uuid.split('.')[1];
-                    const worldItem = game.items?.get(itemId);
-                    return resolveSizeFromItem(worldItem, 'dragData.uuid', {
-                        uuid: data.uuid,
-                        itemId: worldItem?.id
-                    });
-                }
-                logDragSize('dragData.unhandled', {
+                const resolvedFromDragData = resolveSizeFromDragData(data, 'dragData', {
                     dataId: data?.data?._id,
                     id: data?.id,
                     uuid: data?.uuid
+                });
+                if (resolvedFromDragData)
+                    return resolvedFromDragData;
+                const dtInfo = getDragDataFromDataTransfer(dragEvent.dataTransfer ?? null);
+                const resolvedFromDataTransfer = resolveSizeFromDragData(dtInfo.parsed, 'dataTransfer', {
+                    types: dtInfo.types,
+                    raw: dtInfo.raw ? dtInfo.raw.slice(0, 200) : ''
+                });
+                if (resolvedFromDataTransfer)
+                    return resolvedFromDataTransfer;
+                logDragSize('dragData.unhandled', {
+                    dataId: data?.data?._id,
+                    id: data?.id,
+                    uuid: data?.uuid,
+                    dataTransferTypes: dtInfo.types,
+                    dataTransferRaw: dtInfo.raw ? dtInfo.raw.slice(0, 200) : ''
                 });
             }
             const targetTile = ev?.target?.closest?.('.df-item-tile');
