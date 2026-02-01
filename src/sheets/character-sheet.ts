@@ -1835,12 +1835,31 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         return null;
       };
+      // Priority 1: Check window global first (set by dragstart handlers)
       const explicit = (window as any).__msDragInventorySize as string | undefined;
       if (explicit) {
         logDragSize('window', { explicit });
         return parseInventorySize(explicit);
       }
 
+      // Priority 2: Check for dragging tile (the item being dragged)
+      const draggingTile = html.find('.df-item-tile[data-dragging="true"]').get(0)
+        || (document.querySelector('.df-item-tile[data-dragging="true"]') as HTMLElement | null)
+        || undefined;
+      if (draggingTile) {
+        const dragSize = draggingTile.dataset?.dragSize || draggingTile.dataset?.inventorySize;
+        const draggingItemId = draggingTile.dataset?.itemId;
+        const draggingItem = draggingItemId ? this.actor?.items?.get(draggingItemId) : undefined;
+        if (dragSize) {
+          logDragSize('dragging.tile', { itemId: draggingItemId, dragSize });
+          return parseInventorySize(dragSize);
+        }
+        if (draggingItem) {
+          return resolveSizeFromItem(draggingItem, 'dragging.tile.item', { itemId: draggingItemId });
+        }
+      }
+
+      // Priority 3: Check dataTransfer for size information
       const dragEvent = (ev?.originalEvent ?? ev) as DragEvent | undefined;
       if (dragEvent) {
         const dtInfo = getDragDataFromDataTransfer(dragEvent.dataTransfer ?? null);
@@ -1873,24 +1892,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         });
       }
 
-      const draggingTile = html.find('.df-item-tile[data-dragging="true"]').get(0)
-        || (document.querySelector('.df-item-tile[data-dragging="true"]') as HTMLElement | null)
-        || undefined;
-      if (draggingTile) {
-        const dragSize = draggingTile.dataset?.dragSize || draggingTile.dataset?.inventorySize;
-        const draggingItemId = draggingTile.dataset?.itemId;
-        const draggingItem = draggingItemId ? this.actor?.items?.get(draggingItemId) : undefined;
-        if (dragSize) {
-          logDragSize('dragging.tile', { itemId: draggingItemId, dragSize });
-          return parseInventorySize(dragSize);
-        }
-        if (draggingItem) {
-          return resolveSizeFromItem(draggingItem, 'dragging.tile.item', { itemId: draggingItemId });
-        }
-      }
-
+      // Priority 4 (LAST): Only check target tile if we're hovering over an existing item
+      // This should NOT be used for drag size of the item being dragged!
       const targetTile = (ev?.target as HTMLElement | null)?.closest?.('.df-item-tile') as HTMLElement | null;
-      if (targetTile) {
+      if (targetTile && !targetTile.dataset?.dragging) {
         const sizeAttr = (targetTile as HTMLElement).dataset?.inventorySize;
         const tileItemId = (targetTile as HTMLElement).dataset?.itemId;
         const tileActorItem = tileItemId ? this.actor?.items?.get(tileItemId) : undefined;

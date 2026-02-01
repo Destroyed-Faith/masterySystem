@@ -1513,6 +1513,40 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             this.render();
         });
         html.find('.equipment-item input[type="radio"][name^="equipped-"]').on('change', this.#onEquipmentToggle.bind(this));
+        const sheetEl = html.get(0);
+        if (sheetEl) {
+            const existingHandler = sheetEl.__msDragstartCaptureHandler;
+            if (existingHandler)
+                sheetEl.removeEventListener('dragstart', existingHandler, true);
+            const captureHandler = (ev) => {
+                const target = ev.target;
+                const tileEl = target?.closest?.('.df-item-tile');
+                if (!tileEl)
+                    return;
+                const itemId = tileEl.dataset?.itemId || $(tileEl).data('item-id');
+                const sizeAttr = tileEl?.dataset?.inventorySize;
+                const sourceItem = itemId ? this.actor?.items?.get(itemId) : undefined;
+                const computedSize = sourceItem ? getDefaultInventorySizeForItemData(sourceItem) : undefined;
+                const resolvedSize = sourceItem?.system?.inventorySize || sizeAttr || computedSize || '1x1';
+                window.__msDragInventorySize = resolvedSize;
+                window.__msDragItemId = sourceItem?.id || itemId;
+                tileEl.dataset.dragging = 'true';
+                tileEl.dataset.dragSize = resolvedSize;
+                if (ev.dataTransfer) {
+                    ev.dataTransfer.setData('application/x-mastery-inventory-size', resolvedSize);
+                }
+                console.log('Mastery System | [Equipment Grid Debug] dragstart capture', {
+                    itemId: sourceItem?.id || itemId,
+                    systemSize: sourceItem?.system?.inventorySize,
+                    sizeAttr,
+                    computedSize,
+                    resolvedSize
+                });
+            };
+            sheetEl.__msDragstartCaptureHandler = captureHandler;
+            sheetEl.addEventListener('dragstart', captureHandler, true);
+            console.log('Mastery System | [Equipment Grid Debug] dragstart capture bound');
+        }
         html.off('dragstart.df-grid').on('dragstart.df-grid', '.df-item-tile', (ev) => {
             const tileEl = ev.currentTarget;
             const itemId = $(tileEl).data('item-id');
@@ -1632,11 +1666,29 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 }
                 return null;
             };
+            // Priority 1: Check window global first (set by dragstart handlers)
             const explicit = window.__msDragInventorySize;
             if (explicit) {
                 logDragSize('window', { explicit });
                 return parseInventorySize(explicit);
             }
+            // Priority 2: Check for dragging tile (the item being dragged)
+            const draggingTile = html.find('.df-item-tile[data-dragging="true"]').get(0)
+                || document.querySelector('.df-item-tile[data-dragging="true"]')
+                || undefined;
+            if (draggingTile) {
+                const dragSize = draggingTile.dataset?.dragSize || draggingTile.dataset?.inventorySize;
+                const draggingItemId = draggingTile.dataset?.itemId;
+                const draggingItem = draggingItemId ? this.actor?.items?.get(draggingItemId) : undefined;
+                if (dragSize) {
+                    logDragSize('dragging.tile', { itemId: draggingItemId, dragSize });
+                    return parseInventorySize(dragSize);
+                }
+                if (draggingItem) {
+                    return resolveSizeFromItem(draggingItem, 'dragging.tile.item', { itemId: draggingItemId });
+                }
+            }
+            // Priority 3: Check dataTransfer for size information
             const dragEvent = (ev?.originalEvent ?? ev);
             if (dragEvent) {
                 const dtInfo = getDragDataFromDataTransfer(dragEvent.dataTransfer ?? null);
@@ -1667,21 +1719,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     dataTransferRaw: dtInfo.raw ? dtInfo.raw.slice(0, 200) : ''
                 });
             }
-            const draggingTile = html.find('.df-item-tile[data-dragging="true"]').get(0);
-            if (draggingTile) {
-                const dragSize = draggingTile.dataset?.dragSize || draggingTile.dataset?.inventorySize;
-                const draggingItemId = draggingTile.dataset?.itemId;
-                const draggingItem = draggingItemId ? this.actor?.items?.get(draggingItemId) : undefined;
-                if (dragSize) {
-                    logDragSize('dragging.tile', { itemId: draggingItemId, dragSize });
-                    return parseInventorySize(dragSize);
-                }
-                if (draggingItem) {
-                    return resolveSizeFromItem(draggingItem, 'dragging.tile.item', { itemId: draggingItemId });
-                }
-            }
+            // Priority 4 (LAST): Only check target tile if we're hovering over an existing item
+            // This should NOT be used for drag size of the item being dragged!
             const targetTile = ev?.target?.closest?.('.df-item-tile');
-            if (targetTile) {
+            if (targetTile && !targetTile.dataset?.dragging) {
                 const sizeAttr = targetTile.dataset?.inventorySize;
                 const tileItemId = targetTile.dataset?.itemId;
                 const tileActorItem = tileItemId ? this.actor?.items?.get(tileItemId) : undefined;
