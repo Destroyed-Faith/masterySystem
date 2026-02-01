@@ -1689,11 +1689,18 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const itemId = $(tileEl).data('item-id');
       const sizeAttr = tileEl?.dataset?.inventorySize;
       const sourceItem = this.actor?.items?.get(itemId);
+      const dragEvent = (ev?.originalEvent ?? ev) as DragEvent | undefined;
+      const dataTransfer = dragEvent?.dataTransfer ?? null;
       if (sourceItem) {
         const computedSize = getDefaultInventorySizeForItemData(sourceItem);
         const resolvedSize = sourceItem.system?.inventorySize || sizeAttr || computedSize || '1x1';
         (window as any).__msDragInventorySize = resolvedSize;
         (window as any).__msDragItemId = sourceItem.id;
+        tileEl.dataset.dragging = 'true';
+        tileEl.dataset.dragSize = resolvedSize;
+        if (dataTransfer) {
+          dataTransfer.setData('application/x-mastery-inventory-size', resolvedSize);
+        }
         console.log('Mastery System | [Equipment Grid Debug] dragstart tile', {
           itemId: sourceItem.id,
           systemSize: sourceItem.system?.inventorySize,
@@ -1704,18 +1711,29 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         return;
       }
 
-      const dragEvent = (ev?.originalEvent ?? ev) as DragEvent | undefined;
       if (dragEvent) {
         const TextEditorImpl = foundry.applications?.ux?.TextEditor?.implementation || TextEditor;
         const data = TextEditorImpl.getDragEventData(dragEvent);
         if (data?.data?._id) {
           const actorItem = this.actor?.items?.get(data.data._id);
           if (actorItem) {
-            (window as any).__msDragInventorySize = actorItem.system?.inventorySize || sizeAttr || '1x1';
+            const computedSize = getDefaultInventorySizeForItemData(actorItem);
+            const resolvedSize = actorItem.system?.inventorySize || sizeAttr || computedSize || '1x1';
+            (window as any).__msDragInventorySize = resolvedSize;
             (window as any).__msDragItemId = actorItem.id;
+            tileEl.dataset.dragging = 'true';
+            tileEl.dataset.dragSize = resolvedSize;
+            if (dataTransfer) {
+              dataTransfer.setData('application/x-mastery-inventory-size', resolvedSize);
+            }
           }
         }
       }
+    });
+    html.off('dragend.df-grid').on('dragend.df-grid', '.df-item-tile', () => {
+      html.find('.df-item-tile[data-dragging="true"]').removeAttr('data-dragging').removeAttr('data-drag-size');
+      delete (window as any).__msDragInventorySize;
+      delete (window as any).__msDragItemId;
     });
     console.log('Mastery System | [Equipment Grid Debug] dragstart handler bound');
 
@@ -1732,9 +1750,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         console.log('Mastery System | [Equipment Grid Debug] resolveDragSize', { source, ...details });
       };
       const getDragDataFromDataTransfer = (dt: DataTransfer | null) => {
-        if (!dt) return { types: [] as string[], raw: '', parsed: undefined as any };
+        if (!dt) return { types: [] as string[], raw: '', parsed: undefined as any, size: undefined as string | undefined };
         const types = Array.from(dt.types || []);
         const raw = dt.getData('application/json') || dt.getData('text/plain') || '';
+        const size = dt.getData('application/x-mastery-inventory-size') || undefined;
         let parsed: any = undefined;
         if (raw) {
           try {
@@ -1743,7 +1762,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             parsed = undefined;
           }
         }
-        return { types, raw, parsed };
+        return { types, raw, parsed, size };
       };
       const resolveSizeFromItem = (item: any, source: string, details: Record<string, unknown>) => {
         const systemSize = item?.system?.inventorySize as string | undefined;
@@ -1791,6 +1810,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
       const dragEvent = (ev?.originalEvent ?? ev) as DragEvent | undefined;
       if (dragEvent) {
+        const dtInfo = getDragDataFromDataTransfer(dragEvent.dataTransfer ?? null);
+        if (dtInfo.size) {
+          logDragSize('dataTransfer.size', { size: dtInfo.size, types: dtInfo.types });
+          return parseInventorySize(dtInfo.size);
+        }
+
         const TextEditorImpl = foundry.applications?.ux?.TextEditor?.implementation || TextEditor;
         const data = TextEditorImpl.getDragEventData(dragEvent);
         const resolvedFromDragData = resolveSizeFromDragData(data, 'dragData', {
@@ -1800,7 +1825,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         });
         if (resolvedFromDragData) return resolvedFromDragData;
 
-        const dtInfo = getDragDataFromDataTransfer(dragEvent.dataTransfer ?? null);
         const resolvedFromDataTransfer = resolveSizeFromDragData(dtInfo.parsed, 'dataTransfer', {
           types: dtInfo.types,
           raw: dtInfo.raw ? dtInfo.raw.slice(0, 200) : ''
@@ -1814,6 +1838,20 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           dataTransferTypes: dtInfo.types,
           dataTransferRaw: dtInfo.raw ? dtInfo.raw.slice(0, 200) : ''
         });
+      }
+
+      const draggingTile = html.find('.df-item-tile[data-dragging="true"]').get(0) as HTMLElement | undefined;
+      if (draggingTile) {
+        const dragSize = draggingTile.dataset?.dragSize || draggingTile.dataset?.inventorySize;
+        const draggingItemId = draggingTile.dataset?.itemId;
+        const draggingItem = draggingItemId ? this.actor?.items?.get(draggingItemId) : undefined;
+        if (dragSize) {
+          logDragSize('dragging.tile', { itemId: draggingItemId, dragSize });
+          return parseInventorySize(dragSize);
+        }
+        if (draggingItem) {
+          return resolveSizeFromItem(draggingItem, 'dragging.tile.item', { itemId: draggingItemId });
+        }
       }
 
       const targetTile = (ev?.target as HTMLElement | null)?.closest?.('.df-item-tile') as HTMLElement | null;
