@@ -20,6 +20,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     _pendingAttributeChanges = {}; // Track pending attribute increases
     _pendingPowerLevelChanges = {}; // Track pending power level increases
     _pendingSkillRankChanges = {}; // Track pending skill rank changes (signed)
+    #setHeaderXpDisplay(value) {
+        const html = this.element;
+        const el = html.find('#sheet-xp-display');
+        if (!el.length)
+            return;
+        const n = Number(value);
+        el.text(String(Number.isFinite(n) ? Math.max(0, Math.floor(n)) : 0));
+    }
     /** @override */
     static get defaultOptions() {
         const baseOptions = super.defaultOptions || {};
@@ -2163,6 +2171,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         const xpState = this.#getXpState(this.actor);
         const remainingPoints = xpState.available - totalPendingCost;
+        this.#setHeaderXpDisplay(remainingPoints);
         // Update pending changes count
         const totalPendingChanges = Object.values(this._pendingAttributeChanges).reduce((sum, val) => sum + val, 0);
         html.find('#pending-attribute-changes-count').text(totalPendingChanges);
@@ -2459,6 +2468,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const netPendingCost = this.#calculatePowerPendingNetCost(this._pendingPowerLevelChanges);
         const availableXP = this.actor.system.points?.xp || 0;
         const remainingXP = availableXP - netPendingCost; // Can be negative if refunding
+        this.#setHeaderXpDisplay(remainingXP);
         // Calculate total absolute pending changes (for display)
         const totalPendingChanges = Object.values(this._pendingPowerLevelChanges).reduce((sum, val) => sum + Math.abs(val), 0);
         // Update pending changes count and remaining XP
@@ -3023,6 +3033,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const availableXP = this.actor.system.points?.xp || 0;
         const netPendingCost = this.#calculateSkillPendingNetCost(this._pendingSkillRankChanges);
         const remainingXP = availableXP - netPendingCost;
+        this.#setHeaderXpDisplay(remainingXP);
         const totalPendingChanges = Object.values(this._pendingSkillRankChanges).reduce((sum, v) => sum + Math.abs(v), 0);
         html.find('#pending-skill-changes-count').text(totalPendingChanges);
         html.find('#remaining-skill-xp').text(Math.max(0, remainingXP));
