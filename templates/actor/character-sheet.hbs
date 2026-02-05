@@ -144,19 +144,20 @@
       <!-- Attributes Grid Section -->
       <div class="attributes-grid-section">
         <div class="attributes-header-with-confirm">
-          <h3><i class="fas fa-fist-raised"></i> Character Attributes</h3>
           {{#if creationComplete}}
           <div class="attribute-xp-distribution-controls" style="width: 230px;">
             <div class="pending-attribute-changes-info">
               <span class="pending-changes-text">Pending Changes: <span id="pending-attribute-changes-count">0</span></span>
               <span class="remaining-xp-text">Remaining XP: <span id="remaining-attribute-xp">{{default system.points.xp 0}}</span></span>
             </div>
-            <button type="button" class="confirm-attribute-changes" id="confirm-attribute-changes-btn" disabled style="width: 200px;">
-              <i class="fas fa-check"></i> Confirm Changes
-            </button>
-            <button type="button" class="cancel-attribute-changes" id="cancel-attribute-changes-btn" disabled style="width: 200px;">
-              <i class="fas fa-times"></i> Cancel
-            </button>
+            <div style="display: flex; gap: 0.5rem;">
+              <button type="button" class="confirm-attribute-changes" id="confirm-attribute-changes-btn" disabled style="flex: 1;">
+                <i class="fas fa-check"></i> Confirm Changes
+              </button>
+              <button type="button" class="cancel-attribute-changes" id="cancel-attribute-changes-btn" disabled style="flex: 1;">
+                <i class="fas fa-times"></i> Cancel
+              </button>
+            </div>
           </div>
           {{/if}}
         </div>
@@ -802,21 +803,22 @@
     <div class="tab skills" data-group="primary" data-tab="skills">
       
       <div class="skills-overview">
-        <h3><i class="fas fa-cogs"></i> Skills</h3>
         {{#if creationComplete}}
         <div class="skill-level-distribution-controls" style="width: 230px;">
           <div class="pending-skill-changes-info">
             <span class="pending-changes-text">Pending Changes: <span id="pending-skill-changes-count">0</span></span>
             <span class="remaining-xp-text">Remaining XP: <span id="remaining-skill-xp">{{default system.points.xp 0}}</span></span>
           </div>
-          <button type="button" class="confirm-skill-changes" id="confirm-skill-changes-btn" disabled style="width: 200px;">
-            <i class="fas fa-check"></i> Confirm Changes
-          </button>
-          <button type="button" class="cancel-skill-changes" id="cancel-skill-changes-btn" disabled style="width: 200px;">
-            <i class="fas fa-times"></i> Cancel
-          </button>
+          <div style="display: flex; gap: 0.5rem;">
+            <button type="button" class="confirm-skill-changes" id="confirm-skill-changes-btn" disabled style="flex: 1;">
+              <i class="fas fa-check"></i> Confirm Changes
+            </button>
+            <button type="button" class="cancel-skill-changes" id="cancel-skill-changes-btn" disabled style="flex: 1;">
+              <i class="fas fa-times"></i> Cancel
+            </button>
+          </div>
         </div>
-        <button type="button" class="safe-haven-rest" title="Rest at Safe Haven - Restore all Skill Points">
+        <button type="button" class="safe-haven-rest" title="Rest at Safe Haven - Restore all Skill Points" style="width: 200px;">
           <i class="fas fa-bed"></i> Safe Haven Rest
         </button>
         {{/if}}
