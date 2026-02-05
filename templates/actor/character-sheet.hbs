@@ -845,7 +845,7 @@
                 </div>
                 <div class="skill-value-display-compact">
                   <span class="skill-value-compact">{{default this.value 0}}</span>
-                  {{#if ../creationComplete}}
+                  {{#if @root.creationComplete}}
                   <span class="skill-pool-display">{{default this.value 0}} ({{default this.remaining 0}} left)</span>
                   <button type="button" class="skill-spend-point" data-skill="{{this.key}}" title="Spend XP (Cost: {{default this.value 0}} pts)">
                     <i class="fas fa-arrow-up"></i>
@@ -855,7 +855,7 @@
                     <button type="button" class="skill-decrease" data-skill="{{this.key}}" title="Decrease Skill" {{#if (lte this.value 0)}}disabled{{/if}}>
                       <i class="fas fa-minus"></i>
                     </button>
-                    <button type="button" class="skill-increase" data-skill="{{this.key}}" title="Increase Skill" {{#if (gte this.value 4)}}disabled{{/if}} {{#if (eq ../creation.skillPointsRemaining 0)}}disabled{{/if}}>
+                    <button type="button" class="skill-increase" data-skill="{{this.key}}" title="Increase Skill" {{#if (gte this.value 4)}}disabled{{/if}} {{#if (eq @root.creation.skillPointsRemaining 0)}}disabled{{/if}}>
                       <i class="fas fa-plus"></i>
                     </button>
                   </div>
