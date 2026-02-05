@@ -1116,6 +1116,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Point spending buttons (JavaScript will check permissions)
         html.find('.attribute-spend-point').on('click', this.#onAttributeSpendPoint.bind(this));
         html.find('.skill-spend-point').on('click', this.#onSkillSpendPoint.bind(this));
+        html.find('.skill-refund-point').on('click', this.#onSkillRefundPoint.bind(this));
         // New attribute XP distribution system (with confirmation)
         const increaseButtons = html.find('.attr-increase-xp');
         const decreaseButtons = html.find('.attr-decrease-xp');
@@ -3001,6 +3002,88 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         const skillName = skillKey.charAt(0).toUpperCase() + skillKey.slice(1);
         ui.notifications?.info(`${skillName} increased to ${newRank}! (Cost: ${cost} XP, Remaining: ${xpState.available - cost})`);
+    }
+    /**
+     * Decrease a skill rank and refund XP
+     * Refund model: dropping from rank R -> R-1 refunds (R * 2) XP (reverse of buy cost)
+     */
+    async #onSkillRefundPoint(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        // Check if user is owner
+        if (!this.actor.isOwner) {
+            ui.notifications?.warn('Only the owner can adjust skills.');
+            return;
+        }
+        const element = event.currentTarget;
+        const skillKey = element.dataset?.skill;
+        if (!skillKey)
+            return;
+        // Save scroll position
+        const skillsTab = this.element.find('.tab.skills');
+        const scrollTop = skillsTab.scrollTop();
+        const currentValueRaw = this.actor.system.skills?.[skillKey] ?? 0;
+        const currentValue = Number(currentValueRaw) || 0;
+        if (currentValue <= 0) {
+            ui.notifications?.warn('This skill is already at minimum value (0).');
+            return;
+        }
+        const refund = currentValue * 2;
+        const newRank = currentValue - 1;
+        // Confirm (prevents accidental respec)
+        const confirmed = await Dialog.confirm({
+            title: 'Refund Skill XP?',
+            content: `<p>Decrease <strong>${skillKey}</strong> from <strong>${currentValue}</strong> to <strong>${newRank}</strong> and refund <strong>${refund} XP</strong>?</p>`,
+            yes: () => true,
+            no: () => false,
+            defaultYes: false
+        });
+        if (!confirmed)
+            return;
+        const xpState = this.#getXpState(this.actor);
+        // Prepare before state for history
+        const beforeState = {
+            available: xpState.available,
+            totalEarned: xpState.totalEarned,
+            totalSpent: xpState.totalSpent,
+            spentAttributes: xpState.spentAttributes
+        };
+        // Apply updates (refund XP; do not reduce totalSpent, follow same approach as power refunds)
+        await this.actor.update({
+            [`system.skills.${skillKey}`]: newRank,
+            'system.points.xp': (xpState.available ?? 0) + refund
+        });
+        // History entry (if structure exists / is expected)
+        const user = game.user;
+        const historyEntry = {
+            ts: Date.now(),
+            userId: user?.id || '',
+            userName: user?.name || 'System',
+            kind: 'adjust',
+            category: 'skill',
+            amount: refund,
+            details: { skillKey, from: currentValue, to: newRank, refund },
+            note: 'refund via downgrade',
+            before: beforeState,
+            after: {
+                available: (xpState.available ?? 0) + refund,
+                totalEarned: xpState.totalEarned,
+                totalSpent: xpState.totalSpent,
+                spentAttributes: xpState.spentAttributes
+            }
+        };
+        this.#pushXpHistory(this.actor, historyEntry);
+        if (this.actor.system.xp?.history) {
+            await this.actor.update({ 'system.xp.history': this.actor.system.xp.history });
+        }
+        await this.render();
+        // Restore scroll position
+        const newSkillsTab = this.element.find('.tab.skills');
+        if (newSkillsTab.length) {
+            newSkillsTab.scrollTop(scrollTop);
+        }
+        const skillName = skillKey.charAt(0).toUpperCase() + skillKey.slice(1);
+        ui.notifications?.info(`${skillName} decreased to ${newRank}! (Refund: ${refund} XP)`);
     }
     /**
      * Prompt for Target Number
