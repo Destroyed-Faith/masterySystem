@@ -42,6 +42,7 @@
   cursor: pointer;
   transition: all 0.2s;
   margin-left: 8px;
+  width: 200px;
 }
 
 .ms-artifact-button:hover {
