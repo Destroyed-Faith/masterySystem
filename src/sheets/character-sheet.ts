@@ -3396,16 +3396,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const refund = currentValue * 2;
     const newRank = currentValue - 1;
     
-    // Confirm (prevents accidental respec)
-    const confirmed = await Dialog.confirm({
-      title: 'Refund Skill XP?',
-      content: `<p>Decrease <strong>${skillKey}</strong> from <strong>${currentValue}</strong> to <strong>${newRank}</strong> and refund <strong>${refund} XP</strong>?</p>`,
-      yes: () => true,
-      no: () => false,
-      defaultYes: false
-    });
-    if (!confirmed) return;
-    
     const xpState = this.#getXpState(this.actor);
     
     // Prepare before state for history

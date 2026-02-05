@@ -840,11 +840,11 @@
                   {{#if @root.creationComplete}}
                   <span class="skill-pool-display">{{default this.value 0}} ({{default this.remaining 0}} left)</span>
                   <div class="skill-progress-controls" style="display: flex; gap: 0.35rem;">
-                    <button type="button" class="skill-refund-point" data-skill="{{this.key}}" title="Decrease Skill (Refund XP)">
-                      <i class="fas fa-minus"></i>
-                    </button>
                     <button type="button" class="skill-spend-point" data-skill="{{this.key}}" title="Increase Skill (Spend XP)">
                       <i class="fas fa-plus"></i>
+                    </button>
+                    <button type="button" class="skill-refund-point" data-skill="{{this.key}}" title="Decrease Skill (Refund XP)">
+                      <i class="fas fa-minus"></i>
                     </button>
                   </div>
                   {{else}}
