@@ -3283,7 +3283,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const skillsTab = this.element.find('.tab.skills');
     const scrollTop = skillsTab.scrollTop();
     
-    const currentValue = this.actor.system.skills?.[skillKey] || 0;
+    // Skills may be stored as strings on some actors; always coerce to number
+    const currentValueRaw = this.actor.system.skills?.[skillKey] ?? 0;
+    const currentValue = Number(currentValueRaw) || 0;
     const newRank = currentValue + 1;
     const xpState = this.#getXpState(this.actor);
     
