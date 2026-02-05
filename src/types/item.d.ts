@@ -175,6 +175,7 @@ export interface PowerData extends BaseItemData {
   // New structure fields
   category?: PowerCategory;
   rank?: number; // 1–4, aktuelles Level der Power
+  minLevel?: number; // Minimum level allowed (baseline from character creation)
   trigger?: string; // für Reactions
   newCost?: {
     action?: PowerActionCost;

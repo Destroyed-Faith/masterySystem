@@ -197,6 +197,7 @@ export async function showPowerCreationDialog(actor: Actor, context: 'mastery' |
                 // Legacy fields for backwards compatibility (migrated from levelRow)
                 powerType: power.category === 'activeBuff' ? 'buff' : power.category,
                 level: rank, // Keep for backwards compatibility
+                minLevel: rank || 1, // Store baseline level from creation
                 range: renderRange(levelRow.range),
                 aoe: renderAoe(levelRow.aoe),
                 duration: renderDuration(levelRow.duration),
@@ -236,6 +237,7 @@ export async function showPowerCreationDialog(actor: Actor, context: 'mastery' |
                 isMagicPower: !isMastery,
                 powerType: mappedPowerType,
                 level: rank,
+                minLevel: rank || 1, // Store baseline level from creation
                 description: power.description || '',
                 tags: [],
                 range: levelData?.range || '',
