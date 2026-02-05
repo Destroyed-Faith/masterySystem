@@ -8,6 +8,7 @@ export declare class MasteryCharacterSheet extends BaseActorSheet {
     private _showStash;
     private _pendingAttributeChanges;
     private _pendingPowerLevelChanges;
+    private _pendingSkillRankChanges;
     /** @override */
     static get defaultOptions(): any;
     /** @override */

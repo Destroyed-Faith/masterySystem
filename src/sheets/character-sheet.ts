@@ -28,6 +28,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   private _showStash: boolean = false;
   private _pendingAttributeChanges: Record<string, number> = {}; // Track pending attribute increases
   private _pendingPowerLevelChanges: Record<string, number> = {}; // Track pending power level increases
+  private _pendingSkillRankChanges: Record<string, number> = {}; // Track pending skill rank changes (signed)
 
   /** @override */
   static get defaultOptions() {
@@ -1248,6 +1249,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('.attribute-spend-point').on('click', this.#onAttributeSpendPoint.bind(this));
     html.find('.skill-spend-point').on('click', this.#onSkillSpendPoint.bind(this));
     html.find('.skill-refund-point').on('click', this.#onSkillRefundPoint.bind(this));
+    html.find('.confirm-skill-changes').on('click', this.#onConfirmSkillChanges.bind(this));
+    html.find('.cancel-skill-changes').on('click', this.#onCancelSkillChanges.bind(this));
     
     // New attribute XP distribution system (with confirmation)
     const increaseButtons = html.find('.attr-increase-xp');
@@ -1280,9 +1283,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     // Initialize pending changes tracking
     this._pendingAttributeChanges = {};
+    this._pendingSkillRankChanges = {};
     
     // Initialize UI state for attribute XP distribution
     this.#updateAttributeXPUI();
+    this.#updateSkillXPUI();
     
     // Character Creation mode buttons
     html.find('.attr-increase').on('click', this.#onCreationAttributeIncrease.bind(this));
@@ -3279,89 +3284,28 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const skillKey = element.dataset.skill;
     
     if (!skillKey) return;
-    
-    // Save scroll position
-    const skillsTab = this.element.find('.tab.skills');
-    const scrollTop = skillsTab.scrollTop();
-    
-    // Skills may be stored as strings on some actors; always coerce to number
-    const currentValueRaw = this.actor.system.skills?.[skillKey] ?? 0;
-    const currentValue = Number(currentValueRaw) || 0;
-    const newRank = currentValue + 1;
-    const xpState = this.#getXpState(this.actor);
-    
-    // Cost: newRank * 2 (e.g., 0->1 costs 2, 1->2 costs 4, etc.)
-    const cost = newRank * 2;
-    
-    // Check if we have enough points
-    if (xpState.available < cost) {
-      (ui as any).notifications?.warn(`Not enough XP! You need ${cost} points, but only have ${xpState.available}.`);
-      return;
-    }
-    
-    // Check max value (4 × Mastery Rank)
+
+    const currentRaw = this.actor.system.skills?.[skillKey] ?? 0;
+    const current = Number(currentRaw) || 0;
+    const pending = this._pendingSkillRankChanges[skillKey] || 0;
+    const effective = current + pending;
+
     const masteryRank = this.actor.system.mastery?.rank || 2;
     const maxSkill = 4 * masteryRank;
-    
-    if (currentValue >= maxSkill) {
-      (ui as any).notifications?.warn(`This skill is already at maximum value (${maxSkill} = 4 × Mastery Rank ${masteryRank}).`);
+    if (effective >= maxSkill) return;
+
+    const simulateMap = { ...this._pendingSkillRankChanges, [skillKey]: pending + 1 };
+    const netCost = this.#calculateSkillPendingNetCost(simulateMap);
+    const availableXP = this.actor.system.points?.xp || 0;
+    if (netCost > availableXP) {
+      const nextCost = (effective + 1) * 2;
+      (ui as any).notifications?.warn(`Not enough XP! This increase would cost ${nextCost} XP, but you only have ${availableXP}.`);
       return;
     }
-    
-    // Prepare before state for history
-    const beforeState = {
-      available: xpState.available,
-      totalEarned: xpState.totalEarned,
-      totalSpent: xpState.totalSpent,
-      spentAttributes: xpState.spentAttributes
-    };
-    
-    // Update skill and spend points
-    const updates: any = {};
-    updates[`system.skills.${skillKey}`] = newRank;
-    updates['system.points.xp'] = xpState.available - cost;
-    updates['system.xp.totalSpent'] = xpState.totalSpent + cost;
-    
-    // Ensure XP structure exists
-    if (!this.actor.system.xp) {
-      updates['system.xp.totalEarned'] = xpState.totalEarned;
-      updates['system.xp.spentAttributes'] = 0;
-      updates['system.xp.history'] = [];
-    }
-    
-    await this.actor.update(updates);
-    
-    // Add history entry
-    const user = (game as any).user;
-    const historyEntry = {
-      ts: Date.now(),
-      userId: user?.id || '',
-      userName: user?.name || 'System',
-      kind: 'spend' as const,
-      category: 'skill' as const,
-      amount: cost,
-      details: { skillKey, from: currentValue, to: newRank, cost },
-      before: beforeState,
-      after: {
-        available: xpState.available - cost,
-        totalEarned: xpState.totalEarned,
-        totalSpent: xpState.totalSpent + cost,
-        spentAttributes: xpState.spentAttributes
-      }
-    };
-    this.#pushXpHistory(this.actor, historyEntry);
-    await this.actor.update({ 'system.xp.history': this.actor.system.xp.history });
-    
-    await this.render();
-    
-    // Restore scroll position
-    const newSkillsTab = this.element.find('.tab.skills');
-    if (newSkillsTab.length) {
-      newSkillsTab.scrollTop(scrollTop);
-    }
-    
-    const skillName = skillKey.charAt(0).toUpperCase() + skillKey.slice(1);
-    (ui as any).notifications?.info(`${skillName} increased to ${newRank}! (Cost: ${cost} XP, Remaining: ${xpState.available - cost})`);
+
+    this._pendingSkillRankChanges[skillKey] = pending + 1;
+    if (this._pendingSkillRankChanges[skillKey] === 0) delete this._pendingSkillRankChanges[skillKey];
+    this.#updateSkillXPUI();
   }
 
   /**
@@ -3382,23 +3326,148 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const skillKey = (element as any).dataset?.skill as string | undefined;
     if (!skillKey) return;
     
-    // Save scroll position
-    const skillsTab = this.element.find('.tab.skills');
-    const scrollTop = skillsTab.scrollTop();
+    const currentRaw = this.actor.system.skills?.[skillKey] ?? 0;
+    const current = Number(currentRaw) || 0;
+    const pending = this._pendingSkillRankChanges[skillKey] || 0;
+    const effective = current + pending;
+    if (effective <= 0) return;
     
-    const currentValueRaw = this.actor.system.skills?.[skillKey] ?? 0;
-    const currentValue = Number(currentValueRaw) || 0;
-    if (currentValue <= 0) {
-      (ui as any).notifications?.warn('This skill is already at minimum value (0).');
+    this._pendingSkillRankChanges[skillKey] = pending - 1;
+    if (this._pendingSkillRankChanges[skillKey] === 0) delete this._pendingSkillRankChanges[skillKey];
+    this.#updateSkillXPUI();
+  }
+
+  /**
+   * Calculate net pending cost (signed) for all pending skill rank changes.
+   * Increase to rank R costs (R * 2). Decrease from rank R refunds (R * 2).
+   */
+  #calculateSkillPendingNetCost(pendingMap: Record<string, number>): number {
+    let net = 0;
+    for (const [skillKey, pending] of Object.entries(pendingMap)) {
+      if (!pending) continue;
+      const currentRaw = this.actor.system.skills?.[skillKey] ?? 0;
+      const current = Number(currentRaw) || 0;
+      if (pending > 0) {
+        for (let i = 1; i <= pending; i++) {
+          const targetRank = current + i;
+          net += targetRank * 2;
+        }
+      } else {
+        const steps = Math.abs(pending);
+        for (let i = 0; i < steps; i++) {
+          const refundRank = current - i;
+          if (refundRank <= 0) break;
+          net -= refundRank * 2;
+        }
+      }
+    }
+    return net;
+  }
+
+  /**
+   * Update the skill XP distribution UI (pending/remaining + enable/disable buttons)
+   */
+  #updateSkillXPUI() {
+    const html = this.element;
+    const availableXP = this.actor.system.points?.xp || 0;
+    const netPendingCost = this.#calculateSkillPendingNetCost(this._pendingSkillRankChanges);
+    const remainingXP = availableXP - netPendingCost;
+    const totalPendingChanges = Object.values(this._pendingSkillRankChanges).reduce((sum, v) => sum + Math.abs(v), 0);
+    
+    html.find('#pending-skill-changes-count').text(totalPendingChanges);
+    html.find('#remaining-skill-xp').text(Math.max(0, remainingXP));
+    
+    // Enable/disable confirm/cancel
+    const confirmBtn = html.find('#confirm-skill-changes-btn');
+    const cancelBtn = html.find('#cancel-skill-changes-btn');
+    confirmBtn.prop('disabled', totalPendingChanges <= 0);
+    cancelBtn.prop('disabled', totalPendingChanges <= 0);
+    
+    // Enable/disable per-skill +/- buttons
+    const masteryRank = this.actor.system.mastery?.rank || 2;
+    const maxSkill = 4 * masteryRank;
+    for (const skillKey of Object.keys(SKILLS)) {
+      const currentRaw = this.actor.system.skills?.[skillKey] ?? 0;
+      const current = Number(currentRaw) || 0;
+      const pending = this._pendingSkillRankChanges[skillKey] || 0;
+      const effective = current + pending;
+      
+      const minusBtn = html.find(`.skill-refund-point[data-skill="${skillKey}"]`);
+      minusBtn.prop('disabled', effective <= 0);
+      
+      const plusBtn = html.find(`.skill-spend-point[data-skill="${skillKey}"]`);
+      if (effective >= maxSkill) {
+        plusBtn.prop('disabled', true);
+      } else {
+        const simulateMap = { ...this._pendingSkillRankChanges, [skillKey]: pending + 1 };
+        const simulateNet = this.#calculateSkillPendingNetCost(simulateMap);
+        plusBtn.prop('disabled', simulateNet > availableXP);
+      }
+    }
+  }
+
+  /**
+   * Confirm and apply pending skill rank changes
+   */
+  async #onConfirmSkillChanges(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    if (!this.actor.isOwner) {
+      (ui as any).notifications?.warn('Only the owner can confirm Skill changes.');
       return;
     }
     
-    const refund = currentValue * 2;
-    const newRank = currentValue - 1;
-    
     const xpState = this.#getXpState(this.actor);
+    const availableXP = this.actor.system.points?.xp || 0;
+    const netCost = this.#calculateSkillPendingNetCost(this._pendingSkillRankChanges);
     
-    // Prepare before state for history
+    if (netCost > availableXP) {
+      (ui as any).notifications?.error(`Not enough XP! Net cost: ${netCost}, Available: ${availableXP}`);
+      return;
+    }
+    
+    const masteryRank = this.actor.system.mastery?.rank || 2;
+    const maxSkill = 4 * masteryRank;
+    
+    const updates: any = {};
+    const changes: Array<{ skillKey: string; from: number; to: number; delta: number; cost: number }> = [];
+    
+    for (const [skillKey, pending] of Object.entries(this._pendingSkillRankChanges)) {
+      if (!pending) continue;
+      const currentRaw = this.actor.system.skills?.[skillKey] ?? 0;
+      const current = Number(currentRaw) || 0;
+      const target = Math.max(0, Math.min(maxSkill, current + pending));
+      if (target === current) continue;
+      updates[`system.skills.${skillKey}`] = target;
+      
+      // Per-skill net cost (signed)
+      let skillNet = 0;
+      if (pending > 0) {
+        for (let i = 1; i <= pending; i++) {
+          skillNet += (current + i) * 2;
+        }
+      } else {
+        for (let i = 0; i < Math.abs(pending); i++) {
+          const refundRank = current - i;
+          if (refundRank <= 0) break;
+          skillNet -= refundRank * 2;
+        }
+      }
+      changes.push({ skillKey, from: current, to: target, delta: pending, cost: skillNet });
+    }
+    
+    updates['system.points.xp'] = availableXP - netCost;
+    if (netCost > 0) {
+      updates['system.xp.totalSpent'] = xpState.totalSpent + netCost;
+    }
+    
+    if (!this.actor.system.xp) {
+      updates['system.xp.totalEarned'] = xpState.totalEarned;
+      updates['system.xp.spentAttributes'] = 0;
+      updates['system.xp.history'] = [];
+    }
+    
     const beforeState = {
       available: xpState.available,
       totalEarned: xpState.totalEarned,
@@ -3406,46 +3475,44 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       spentAttributes: xpState.spentAttributes
     };
     
-    // Apply updates (refund XP; do not reduce totalSpent, follow same approach as power refunds)
-    await this.actor.update({
-      [`system.skills.${skillKey}`]: newRank,
-      'system.points.xp': (xpState.available ?? 0) + refund
-    });
+    await this.actor.update(updates);
     
-    // History entry (if structure exists / is expected)
-    const user = (game as any).user;
-    const historyEntry = {
-      ts: Date.now(),
-      userId: user?.id || '',
-      userName: user?.name || 'System',
-      kind: 'adjust' as const,
-      category: 'skill' as const,
-      amount: refund,
-      details: { skillKey, from: currentValue, to: newRank, refund },
-      note: 'refund via downgrade',
-      before: beforeState,
-      after: {
-        available: (xpState.available ?? 0) + refund,
-        totalEarned: xpState.totalEarned,
-        totalSpent: xpState.totalSpent,
-        spentAttributes: xpState.spentAttributes
-      }
-    };
-    this.#pushXpHistory(this.actor, historyEntry);
-    if (this.actor.system.xp?.history) {
+    if (netCost !== 0) {
+      const user = (game as any).user;
+      const historyEntry = {
+        ts: Date.now(),
+        userId: user?.id || '',
+        userName: user?.name || 'System',
+        kind: (netCost > 0 ? 'spend' : 'adjust') as 'spend' | 'adjust',
+        category: 'skill' as const,
+        amount: Math.abs(netCost),
+        details: { changes, netCost },
+        note: netCost < 0 ? 'refund via downgrade' : undefined,
+        before: beforeState,
+        after: {
+          available: availableXP - netCost,
+          totalEarned: xpState.totalEarned,
+          totalSpent: netCost > 0 ? xpState.totalSpent + netCost : xpState.totalSpent,
+          spentAttributes: xpState.spentAttributes
+        }
+      };
+      this.#pushXpHistory(this.actor, historyEntry);
       await this.actor.update({ 'system.xp.history': this.actor.system.xp.history });
     }
     
+    this._pendingSkillRankChanges = {};
     await this.render();
-    
-    // Restore scroll position
-    const newSkillsTab = this.element.find('.tab.skills');
-    if (newSkillsTab.length) {
-      newSkillsTab.scrollTop(scrollTop);
-    }
-    
-    const skillName = skillKey.charAt(0).toUpperCase() + skillKey.slice(1);
-    (ui as any).notifications?.info(`${skillName} decreased to ${newRank}! (Refund: ${refund} XP)`);
+  }
+
+  /**
+   * Cancel pending skill rank changes
+   */
+  #onCancelSkillChanges(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    this._pendingSkillRankChanges = {};
+    this.#updateSkillXPUI();
+    (ui as any).notifications?.info('Pending skill changes cancelled.');
   }
 
   /**

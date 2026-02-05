@@ -738,6 +738,15 @@
   color: var(--df-text-secondary, #a0a0a0);
 }
 
+.mastery-system.sheet.actor.character .pending-skill-changes-info {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 15px;
+  font-size: 13px;
+  color: var(--df-text-secondary, #a0a0a0);
+}
+
 .mastery-system.sheet.actor.character .pending-changes-text,
 .mastery-system.sheet.actor.character .remaining-xp-text {
   font-weight: 600;
@@ -763,7 +772,27 @@
   gap: 6px;
 }
 
+.mastery-system.sheet.actor.character .confirm-skill-changes,
+.mastery-system.sheet.actor.character .cancel-skill-changes {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .mastery-system.sheet.actor.character .confirm-attribute-changes {
+  background: linear-gradient(135deg, #4a9e4a 0%, #3a7e3a 100%);
+  color: #fff;
+  border-color: #4a9e4a;
+}
+
+.mastery-system.sheet.actor.character .confirm-skill-changes {
   background: linear-gradient(135deg, #4a9e4a 0%, #3a7e3a 100%);
   color: #fff;
   border-color: #4a9e4a;
@@ -775,7 +804,18 @@
   box-shadow: 0 4px 12px rgba(74, 158, 74, 0.4);
 }
 
+.mastery-system.sheet.actor.character .confirm-skill-changes:hover:not(:disabled) {
+  background: linear-gradient(135deg, #5aae5a 0%, #4a8e4a 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(74, 158, 74, 0.4);
+}
+
 .mastery-system.sheet.actor.character .cancel-attribute-changes {
+  background: var(--df-bg-panel, #2a3136);
+  color: var(--df-text-primary, #d0d0d0);
+}
+
+.mastery-system.sheet.actor.character .cancel-skill-changes {
   background: var(--df-bg-panel, #2a3136);
   color: var(--df-text-primary, #d0d0d0);
 }
@@ -785,8 +825,19 @@
   border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
 }
 
+.mastery-system.sheet.actor.character .cancel-skill-changes:hover:not(:disabled) {
+  background: var(--df-bg-header, #1b2124);
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
+}
+
 .mastery-system.sheet.actor.character .confirm-attribute-changes:disabled,
 .mastery-system.sheet.actor.character .cancel-attribute-changes:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mastery-system.sheet.actor.character .confirm-skill-changes:disabled,
+.mastery-system.sheet.actor.character .cancel-skill-changes:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
