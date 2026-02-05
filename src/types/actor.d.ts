@@ -101,6 +101,27 @@ export interface CharacterData {
     faithFractures: string;
     background: string;
   };
+  // XP system (unified currency)
+  points?: {
+    xp?: number;
+  };
+  xp?: {
+    totalEarned: number;
+    totalSpent: number;
+    spentAttributes: number;
+    history: Array<{
+      ts: number;
+      userId: string;
+      userName: string;
+      kind: "grant" | "spend" | "adjust";
+      category: "xp" | "attribute" | "skill" | "power";
+      amount: number;
+      note?: string;
+      details?: any;
+      before: { available: number; totalEarned: number; totalSpent: number; spentAttributes: number; };
+      after: { available: number; totalEarned: number; totalSpent: number; spentAttributes: number; };
+    }>;
+  };
   // Derived tracked resources for Combat Carousel module
   tracked?: {
     hp?: ResourceData;

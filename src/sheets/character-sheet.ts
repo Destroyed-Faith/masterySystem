@@ -975,9 +975,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       { key: 'belt', label: 'Belt' },
       { key: 'mainhand', label: 'Mainhand' },
       { key: 'offhand', label: 'Offhand' },
-      { key: 'pouch', label: 'Potion/Pouch/Scroll' },
       { key: 'helmet', label: 'Helmet' },
-      { key: 'shoulder', label: 'Shoulder' },
       { key: 'chest', label: 'Chest' },
       { key: 'wrist', label: 'Wrist' },
       { key: 'glove', label: 'Glove' },
@@ -2059,6 +2057,43 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   /**
+   * Get XP state, ensuring all fields exist (backward compatibility)
+   */
+  #getXpState(actor: any): { available: number; totalEarned: number; totalSpent: number; spentAttributes: number; history: any[] } {
+    const system = actor.system || {};
+    const points = system.points || {};
+    const xp = system.xp || {};
+    
+    return {
+      available: points.xp ?? 0,
+      totalEarned: xp.totalEarned ?? 0,
+      totalSpent: xp.totalSpent ?? 0,
+      spentAttributes: xp.spentAttributes ?? 0,
+      history: xp.history ?? []
+    };
+  }
+
+  /**
+   * Push XP history entry and truncate to last 200 entries
+   */
+  #pushXpHistory(actor: any, entry: any): void {
+    const system = actor.system || {};
+    if (!system.xp) {
+      system.xp = { totalEarned: 0, totalSpent: 0, spentAttributes: 0, history: [] };
+    }
+    if (!system.xp.history) {
+      system.xp.history = [];
+    }
+    
+    system.xp.history.push(entry);
+    
+    // Truncate to last 200 entries
+    if (system.xp.history.length > 200) {
+      system.xp.history = system.xp.history.slice(-200);
+    }
+  }
+
+  /**
    * Handle spending attribute points
    */
   async #onAttributeSpendPoint(event: JQuery.ClickEvent) {
@@ -2080,12 +2115,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const scrollTop = attributesTab.scrollTop();
     
     const currentValue = this.actor.system.attributes[attributeName]?.value || 0;
-    const availablePoints = this.actor.system.points?.attribute || 0;
+    const xpState = this.#getXpState(this.actor);
     const cost = this.#calculateAttributeCost(currentValue);
     
     // Check if we have enough points
-    if (availablePoints < cost) {
-      (ui as any).notifications?.warn(`Not enough Attribute Points! You need ${cost} points, but only have ${availablePoints}.`);
+    if (xpState.available < cost) {
+      (ui as any).notifications?.warn(`Not enough XP! You need ${cost} points, but only have ${xpState.available}.`);
       return;
     }
     
@@ -2098,7 +2133,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Update attribute and spend points
     const updates: any = {};
     updates[`system.attributes.${attributeName}.value`] = currentValue + 1;
-    updates['system.points.attribute'] = availablePoints - cost;
+    updates['system.points.xp'] = xpState.available - cost;
     
     await this.actor.update(updates);
     
@@ -2194,20 +2229,20 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     totalPendingCost += cost; // Add cost for this new increase
     
+    const xpState = this.#getXpState(this.actor);
     console.log('Mastery System | #onAttributeIncreaseXP: Cost check', {
       totalPendingCost,
       cost,
-      availablePoints: this.actor.system.points?.attribute || 0
+      availablePoints: xpState.available
     });
     
     // Check if we have enough points
-    const availablePoints = this.actor.system.points?.attribute || 0;
-    if (totalPendingCost > availablePoints) {
+    if (totalPendingCost > xpState.available) {
       console.warn('Mastery System | #onAttributeIncreaseXP: Not enough points', {
         totalPendingCost,
-        availablePoints
+        availablePoints: xpState.available
       });
-      (ui as any).notifications?.warn(`Not enough Attribute Points! This increase would cost ${cost} points, but you only have ${availablePoints - (totalPendingCost - cost)} remaining.`);
+      (ui as any).notifications?.warn(`Not enough XP! This increase would cost ${cost} points, but you only have ${xpState.available - (totalPendingCost - cost)} remaining.`);
       return;
     }
     
@@ -2306,8 +2341,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       }
     }
     
-    const availablePoints = this.actor.system.points?.attribute || 0;
-    const remainingPoints = availablePoints - totalPendingCost;
+    const xpState = this.#getXpState(this.actor);
+    const remainingPoints = xpState.available - totalPendingCost;
     
     // Update pending changes count
     const totalPendingChanges = Object.values(this._pendingAttributeChanges).reduce((sum, val) => sum + val, 0);
@@ -2373,9 +2408,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       return;
     }
     
+    // Get XP state
+    const xpState = this.#getXpState(this.actor);
+    
     // Calculate total cost and validate
     let totalCost = 0;
     const updates: any = {};
+    const attributeChanges: Array<{attr: string; from: number; to: number; cost: number}> = [];
     const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
     
     for (const attrKey of attributeKeys) {
@@ -2389,24 +2428,78 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         totalCost += attrCost;
         updates[`system.attributes.${attrKey}.value`] = currentValue + pending;
+        attributeChanges.push({
+          attr: attrKey,
+          from: currentValue,
+          to: currentValue + pending,
+          cost: attrCost
+        });
       }
     }
     
-    const availablePoints = this.actor.system.points?.attribute || 0;
-    if (totalCost > availablePoints) {
-      (ui as any).notifications?.error(`Not enough Attribute Points! Total cost: ${totalCost}, Available: ${availablePoints}`);
+    // Check available XP
+    if (totalCost > xpState.available) {
+      (ui as any).notifications?.error(`Not enough XP! Total cost: ${totalCost}, Available: ${xpState.available}`);
       return;
     }
     
+    // Enforce 50% attribute cap (based on totalEarned)
+    const maxAttributeSpend = Math.floor(xpState.totalEarned / 2);
+    if ((xpState.spentAttributes + totalCost) > maxAttributeSpend) {
+      (ui as any).notifications?.error(
+        `Attribute XP cap reached! Spent: ${xpState.spentAttributes}, Max allowed: ${maxAttributeSpend} (50% of ${xpState.totalEarned} total earned). ` +
+        `Earn or spend more XP on non-attributes first.`
+      );
+      return;
+    }
+    
+    // Prepare before state for history
+    const beforeState = {
+      available: xpState.available,
+      totalEarned: xpState.totalEarned,
+      totalSpent: xpState.totalSpent,
+      spentAttributes: xpState.spentAttributes
+    };
+    
     // Apply updates
-    updates['system.points.attribute'] = availablePoints - totalCost;
+    updates['system.points.xp'] = xpState.available - totalCost;
+    updates['system.xp.totalSpent'] = xpState.totalSpent + totalCost;
+    updates['system.xp.spentAttributes'] = xpState.spentAttributes + totalCost;
+    
+    // Ensure XP structure exists
+    if (!this.actor.system.xp) {
+      updates['system.xp.totalEarned'] = xpState.totalEarned;
+      updates['system.xp.history'] = [];
+    }
+    
     await this.actor.update(updates);
+    
+    // Add history entry
+    const user = (game as any).user;
+    const historyEntry = {
+      ts: Date.now(),
+      userId: user?.id || '',
+      userName: user?.name || 'System',
+      kind: 'spend' as const,
+      category: 'attribute' as const,
+      amount: totalCost,
+      details: { changes: attributeChanges },
+      before: beforeState,
+      after: {
+        available: xpState.available - totalCost,
+        totalEarned: xpState.totalEarned,
+        totalSpent: xpState.totalSpent + totalCost,
+        spentAttributes: xpState.spentAttributes + totalCost
+      }
+    };
+    this.#pushXpHistory(this.actor, historyEntry);
+    await this.actor.update({ 'system.xp.history': this.actor.system.xp.history });
     
     // Clear pending changes
     this._pendingAttributeChanges = {};
     
     // Show notification
-    (ui as any).notifications?.info(`Attribute changes confirmed! Cost: ${totalCost} points, Remaining: ${availablePoints - totalCost}`);
+    (ui as any).notifications?.info(`Attribute changes confirmed! Cost: ${totalCost} XP, Remaining: ${xpState.available - totalCost}`);
     
     // Re-render
     await this.render();
@@ -2499,20 +2592,20 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     totalPendingCost += cost; // Add cost for this new increase
     
+    const xpState = this.#getXpState(this.actor);
     console.log('Mastery System | #onPowerIncreaseLevel: Cost check', {
       totalPendingCost,
       cost,
-      availablePoints: this.actor.system.points?.mastery || 0
+      availablePoints: xpState.available
     });
     
     // Check if we have enough points
-    const availablePoints = this.actor.system.points?.mastery || 0;
-    if (totalPendingCost > availablePoints) {
+    if (totalPendingCost > xpState.available) {
       console.warn('Mastery System | #onPowerIncreaseLevel: Not enough points', {
         totalPendingCost,
-        availablePoints
+        availablePoints: xpState.available
       });
-      (ui as any).notifications?.warn(`Not enough Mastery Points! This increase would cost ${cost} points, but you only have ${availablePoints - (totalPendingCost - cost)} remaining.`);
+      (ui as any).notifications?.warn(`Not enough XP! This increase would cost ${cost} points, but you only have ${xpState.available - (totalPendingCost - cost)} remaining.`);
       return;
     }
     
@@ -2601,8 +2694,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       }
     }
     
-    const availablePoints = this.actor.system.points?.mastery || 0;
-    const remainingPoints = availablePoints - totalPendingCost;
+    const xpState = this.#getXpState(this.actor);
+    const remainingPoints = xpState.available - totalPendingCost;
     
     // Update pending changes count
     const totalPendingChanges = Object.values(this._pendingPowerLevelChanges).reduce((sum, val) => sum + val, 0);
@@ -2672,8 +2765,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       return;
     }
     
+    // Get XP state
+    const xpState = this.#getXpState(this.actor);
+    
     // Calculate total cost and validate
     let totalCost = 0;
+    const powerChanges: Array<{powerId: string; powerName: string; from: number; to: number; cost: number}> = [];
     
     for (const [powerId, pending] of Object.entries(this._pendingPowerLevelChanges)) {
       if (pending > 0) {
@@ -2686,15 +2783,29 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             powerCost += this.#calculatePowerLevelCost(targetLevel);
           }
           totalCost += powerCost;
+          powerChanges.push({
+            powerId,
+            powerName: powerItem.name,
+            from: currentLevel,
+            to: currentLevel + pending,
+            cost: powerCost
+          });
         }
       }
     }
     
-    const availablePoints = this.actor.system.points?.mastery || 0;
-    if (totalCost > availablePoints) {
-      (ui as any).notifications?.error(`Not enough Mastery Points! Total cost: ${totalCost}, Available: ${availablePoints}`);
+    if (totalCost > xpState.available) {
+      (ui as any).notifications?.error(`Not enough XP! Total cost: ${totalCost}, Available: ${xpState.available}`);
       return;
     }
+    
+    // Prepare before state for history
+    const beforeState = {
+      available: xpState.available,
+      totalEarned: xpState.totalEarned,
+      totalSpent: xpState.totalSpent,
+      spentAttributes: xpState.spentAttributes
+    };
     
     // Apply updates
     for (const [powerId, pending] of Object.entries(this._pendingPowerLevelChanges)) {
@@ -2707,14 +2818,47 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       }
     }
     
-    // Update mastery points
-    await this.actor.update({ 'system.points.mastery': availablePoints - totalCost });
+    // Update XP
+    const updates: any = {
+      'system.points.xp': xpState.available - totalCost,
+      'system.xp.totalSpent': xpState.totalSpent + totalCost
+    };
+    
+    // Ensure XP structure exists
+    if (!this.actor.system.xp) {
+      updates['system.xp.totalEarned'] = xpState.totalEarned;
+      updates['system.xp.spentAttributes'] = 0;
+      updates['system.xp.history'] = [];
+    }
+    
+    await this.actor.update(updates);
+    
+    // Add history entry
+    const user = (game as any).user;
+    const historyEntry = {
+      ts: Date.now(),
+      userId: user?.id || '',
+      userName: user?.name || 'System',
+      kind: 'spend' as const,
+      category: 'power' as const,
+      amount: totalCost,
+      details: { changes: powerChanges },
+      before: beforeState,
+      after: {
+        available: xpState.available - totalCost,
+        totalEarned: xpState.totalEarned,
+        totalSpent: xpState.totalSpent + totalCost,
+        spentAttributes: xpState.spentAttributes
+      }
+    };
+    this.#pushXpHistory(this.actor, historyEntry);
+    await this.actor.update({ 'system.xp.history': this.actor.system.xp.history });
     
     // Clear pending changes
     this._pendingPowerLevelChanges = {};
     
     // Show notification
-    (ui as any).notifications?.info(`Power level changes confirmed! Cost: ${totalCost} MP, Remaining: ${availablePoints - totalCost}`);
+    (ui as any).notifications?.info(`Power level changes confirmed! Cost: ${totalCost} XP, Remaining: ${xpState.available - totalCost}`);
     
     // Re-render
     await this.render();
@@ -3066,7 +3210,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     // Check if user is owner
     if (!this.actor.isOwner) {
-      (ui as any).notifications?.warn('Only the owner can spend Mastery Points.');
+      (ui as any).notifications?.warn('Only the owner can spend XP.');
       return;
     }
     
@@ -3080,12 +3224,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const scrollTop = skillsTab.scrollTop();
     
     const currentValue = this.actor.system.skills?.[skillKey] || 0;
-    const availablePoints = this.actor.system.points?.mastery || 0;
-    const cost = currentValue; // Level N → N+1 costs N points
+    const newRank = currentValue + 1;
+    const xpState = this.#getXpState(this.actor);
+    
+    // Cost: newRank * 2 (e.g., 0->1 costs 2, 1->2 costs 4, etc.)
+    const cost = newRank * 2;
     
     // Check if we have enough points
-    if (availablePoints < cost) {
-      (ui as any).notifications?.warn(`Not enough Mastery Points! You need ${cost} points, but only have ${availablePoints}.`);
+    if (xpState.available < cost) {
+      (ui as any).notifications?.warn(`Not enough XP! You need ${cost} points, but only have ${xpState.available}.`);
       return;
     }
     
@@ -3098,12 +3245,49 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       return;
     }
     
+    // Prepare before state for history
+    const beforeState = {
+      available: xpState.available,
+      totalEarned: xpState.totalEarned,
+      totalSpent: xpState.totalSpent,
+      spentAttributes: xpState.spentAttributes
+    };
+    
     // Update skill and spend points
     const updates: any = {};
-    updates[`system.skills.${skillKey}`] = currentValue + 1;
-    updates['system.points.mastery'] = availablePoints - cost;
+    updates[`system.skills.${skillKey}`] = newRank;
+    updates['system.points.xp'] = xpState.available - cost;
+    updates['system.xp.totalSpent'] = xpState.totalSpent + cost;
+    
+    // Ensure XP structure exists
+    if (!this.actor.system.xp) {
+      updates['system.xp.totalEarned'] = xpState.totalEarned;
+      updates['system.xp.spentAttributes'] = 0;
+      updates['system.xp.history'] = [];
+    }
     
     await this.actor.update(updates);
+    
+    // Add history entry
+    const user = (game as any).user;
+    const historyEntry = {
+      ts: Date.now(),
+      userId: user?.id || '',
+      userName: user?.name || 'System',
+      kind: 'spend' as const,
+      category: 'skill' as const,
+      amount: cost,
+      details: { skillKey, from: currentValue, to: newRank, cost },
+      before: beforeState,
+      after: {
+        available: xpState.available - cost,
+        totalEarned: xpState.totalEarned,
+        totalSpent: xpState.totalSpent + cost,
+        spentAttributes: xpState.spentAttributes
+      }
+    };
+    this.#pushXpHistory(this.actor, historyEntry);
+    await this.actor.update({ 'system.xp.history': this.actor.system.xp.history });
     
     await this.render();
     
@@ -3114,7 +3298,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     
     const skillName = skillKey.charAt(0).toUpperCase() + skillKey.slice(1);
-    (ui as any).notifications?.info(`${skillName} increased to ${currentValue + 1}! (Cost: ${cost} Mastery Points, Remaining: ${availablePoints - cost})`);
+    (ui as any).notifications?.info(`${skillName} increased to ${newRank}! (Cost: ${cost} XP, Remaining: ${xpState.available - cost})`);
   }
 
   /**
@@ -4493,6 +4677,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       updateData['system.schticks.ranks'] = schticksRanks;
     }
     
+    // Initialize XP bookkeeping
+    updateData['system.points.xp'] = 0;
+    updateData['system.xp.totalEarned'] = 0;
+    updateData['system.xp.totalSpent'] = 0;
+    updateData['system.xp.spentAttributes'] = 0;
+    updateData['system.xp.history'] = [];
+    
     try {
       await this.actor.update(updateData);
       ui.notifications?.info('Character creation complete!');
@@ -4761,4 +4952,5 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
   }
 }
+
 

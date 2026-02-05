@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.78] - 2025-01-XX
+
+### Changed
+- **XP System: Unified Single Currency with History Tracking**
+  - Replaced dual-currency system (Attribute XP + Mastery XP) with single unified XP currency
+  - Added comprehensive XP tracking: `totalEarned`, `totalSpent`, `spentAttributes`
+  - Implemented 50% attribute spend cap enforcement (based on total XP earned)
+  - Added XP history tracking (last 200 entries, auto-truncated)
+  - History entries include: timestamp, user, kind (grant/spend/adjust), category, amount, details, before/after states
+  - Updated all character sheet UI to show single "XP" instead of "AP/MP"
+  - Fixed skill XP cost calculation to match rulebook: `newRank * 2` (was `currentValue`)
+  - Added History dialog in GM/Admin XP Management UI showing last 50 entries
+  - All XP spending (attributes, skills, powers) now tracked in unified history
+  - Backward compatible: gracefully handles missing XP fields on older actors
+
+### Files Changed
+- `src/types/actor.d.ts` - Added XP data model types
+- `src/sheets/character-sheet.ts` - Unified XP usage, history tracking, 50% cap enforcement
+- `templates/actor/character-sheet.hbs` - Updated UI to show single XP
+- `src/module.ts` - Updated inline XP Management UI
+- `src/settings/xp-management.ts` - Updated XP Management Settings app
+- `templates/settings/xp-management.hbs` - Updated XP Management template
+
 ## [0.4.22] - 2025-01-XX
 
 ### Fixed

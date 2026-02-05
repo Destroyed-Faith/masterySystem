@@ -17,16 +17,9 @@
         <h3>Bulk Grant XP</h3>
         <div class="bulk-grant-controls">
           <div class="bulk-grant-group">
-            <label>Attribute XP:</label>
-            <input type="number" class="bulk-xp-amount" data-xp-type="attribute" min="0" value="0" />
-            <button type="button" class="bulk-grant-btn" data-xp-type="attribute">
-              <i class="fas fa-gift"></i> Grant to All
-            </button>
-          </div>
-          <div class="bulk-grant-group">
-            <label>Mastery XP:</label>
-            <input type="number" class="bulk-xp-amount" data-xp-type="mastery" min="0" value="0" />
-            <button type="button" class="bulk-grant-btn" data-xp-type="mastery">
+            <label>XP:</label>
+            <input type="number" class="bulk-xp-amount" min="0" value="0" />
+            <button type="button" class="bulk-grant-btn">
               <i class="fas fa-gift"></i> Grant to All
             </button>
           </div>
@@ -40,9 +33,11 @@
             <tr>
               <th>Character</th>
               <th>Player</th>
-              <th>Attribute XP</th>
-              <th>Mastery XP</th>
-              <th>Grant XP</th>
+              <th>XP Spent</th>
+              <th>XP Available</th>
+              <th>XP Total Earned</th>
+              <th>Attribute Cap</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -53,40 +48,27 @@
                 <span class="character-name">{{this.name}}</span>
               </td>
               <td class="player-cell">{{this.player}}</td>
-              <td class="xp-cell attribute-xp">
-                <div class="xp-info">
-                  <span class="xp-spent">Spent: <strong>{{this.attributeXP.spent}}</strong></span>
-                  <span class="xp-available">Available: <strong>{{this.attributeXP.available}}</strong></span>
-                  <span class="xp-total">Total: <strong>{{this.attributeXP.total}}</strong></span>
-                </div>
-              </td>
-              <td class="xp-cell mastery-xp">
-                <div class="xp-info">
-                  <span class="xp-spent">Spent: <strong>{{this.masteryXP.spent}}</strong></span>
-                  <span class="xp-available">Available: <strong>{{this.masteryXP.available}}</strong></span>
-                  <span class="xp-total">Total: <strong>{{this.masteryXP.total}}</strong></span>
-                </div>
-              </td>
+              <td class="xp-cell"><strong>{{this.xp.spent}}</strong></td>
+              <td class="xp-cell"><strong>{{this.xp.available}}</strong></td>
+              <td class="xp-cell"><strong>{{this.xp.totalEarned}}</strong></td>
+              <td class="xp-cell">{{this.xp.spentAttributes}} / {{this.xp.maxAttributeSpend}}</td>
               <td class="grant-cell">
                 <div class="grant-controls">
                   <div class="grant-group">
-                    <input type="number" class="xp-amount-input" data-xp-type="attribute" data-character-id="{{this.id}}" min="0" value="0" placeholder="AP" />
-                    <button type="button" class="grant-xp-btn" data-character-id="{{this.id}}" data-xp-type="attribute" title="Grant Attribute XP">
+                    <input type="number" class="xp-amount-input" data-character-id="{{this.id}}" min="0" value="0" placeholder="XP" />
+                    <button type="button" class="grant-xp-btn" data-character-id="{{this.id}}" title="Grant XP">
                       <i class="fas fa-plus"></i>
                     </button>
                   </div>
-                  <div class="grant-group">
-                    <input type="number" class="xp-amount-input" data-xp-type="mastery" data-character-id="{{this.id}}" min="0" value="0" placeholder="MP" />
-                    <button type="button" class="grant-xp-btn" data-character-id="{{this.id}}" data-xp-type="mastery" title="Grant Mastery XP">
-                      <i class="fas fa-plus"></i>
-                    </button>
-                  </div>
+                  <button type="button" class="history-xp-btn" data-character-id="{{this.id}}" title="View XP History">
+                    <i class="fas fa-history"></i> History
+                  </button>
                 </div>
               </td>
             </tr>
             {{else}}
             <tr>
-              <td colspan="5" class="empty-message">
+              <td colspan="7" class="empty-message">
                 <i class="fas fa-info-circle"></i> No player characters found.
               </td>
             </tr>

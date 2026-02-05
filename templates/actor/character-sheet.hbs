@@ -40,17 +40,10 @@
       </div>
       
       {{#if creationComplete}}
-      <div class="points-box" title="Attribute Points">
-        <label>AP</label>
+      <div class="points-box" title="Experience Points">
+        <label>XP</label>
         <div class="points-display">
-          <span class="points-value">{{default system.points.attribute 0}}</span>
-        </div>
-      </div>
-      
-      <div class="points-box" title="Mastery Points">
-        <label>MP</label>
-        <div class="points-display">
-          <span class="points-value">{{default system.points.mastery 0}}</span>
+          <span class="points-value">{{default system.points.xp 0}}</span>
         </div>
       </div>
       {{else}}
@@ -153,11 +146,11 @@
         <div class="attributes-header-with-confirm">
           <h3><i class="fas fa-fist-raised"></i> Character Attributes</h3>
           {{#if creationComplete}}
-          {{#if (gt system.points.attribute 0)}}
+          {{#if (gt system.points.xp 0)}}
           <div class="attribute-xp-distribution-controls">
             <div class="pending-attribute-changes-info">
               <span class="pending-changes-text">Pending Changes: <span id="pending-attribute-changes-count">0</span></span>
-              <span class="remaining-xp-text">Remaining XP: <span id="remaining-attribute-xp">{{default system.points.attribute 0}}</span></span>
+              <span class="remaining-xp-text">Remaining XP: <span id="remaining-attribute-xp">{{default system.points.xp 0}}</span></span>
             </div>
             <button type="button" class="confirm-attribute-changes" id="confirm-attribute-changes-btn" disabled>
               <i class="fas fa-check"></i> Confirm Changes
@@ -184,7 +177,7 @@
                     <span class="attribute-pending-change" data-attribute="might" style="display: none;">+<span class="pending-increase">0</span></span>
                   </div>
                   {{#if ../creationComplete}}
-                  {{#if (gt ../system.points.attribute 0)}}
+                  {{#if (gt ../system.points.xp 0)}}
                   <div class="attribute-controls attribute-controls-vertical">
                     <button type="button" class="attr-increase-xp" data-attribute="might" title="Increase Attribute (Pending)">
                       <i class="fas fa-plus"></i>
@@ -920,11 +913,11 @@
       <div class="powers-overview">
         <h3><i class="fas fa-magic"></i> Powers & Magic</h3>
         {{#if creationComplete}}
-        {{#if (gt system.points.mastery 0)}}
+        {{#if (gt system.points.xp 0)}}
         <div class="power-level-distribution-controls">
           <div class="pending-power-level-changes-info">
             <span class="pending-changes-text">Pending Changes: <span id="pending-power-level-changes-count">0</span></span>
-            <span class="remaining-xp-text">Remaining MP: <span id="remaining-power-level-mp">{{default system.points.mastery 0}}</span></span>
+            <span class="remaining-xp-text">Remaining XP: <span id="remaining-power-level-mp">{{default system.points.xp 0}}</span></span>
           </div>
           <button type="button" class="confirm-power-level-changes" id="confirm-power-level-changes-btn" disabled>
             <i class="fas fa-check"></i> Confirm Changes
@@ -1091,7 +1084,7 @@
                 </div>
                 <div class="power-controls">
                   {{#if ../creationComplete}}
-                  {{#if (gt ../system.points.mastery 0)}}
+                  {{#if (gt ../system.points.xp 0)}}
                   <div class="power-level-controls">
                     <button type="button" class="power-increase-level" data-item-id="{{this.id}}" title="Increase Power Level (Pending)" {{#if (gte (default this.system.level 1) 12)}}disabled{{/if}}>
                       <i class="fas fa-plus"></i>
