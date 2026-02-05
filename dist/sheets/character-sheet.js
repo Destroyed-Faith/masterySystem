@@ -277,9 +277,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         context.system = actorData.system;
         context.flags = actorData.flags;
         // Check if character creation is complete
-        // If complete is undefined, treat as incomplete (new character)
+        // Treat undefined as complete (no migration, older actors should not be stuck in creation UI)
         const creationCompleteRaw = context.system.creation?.complete;
-        context.creationComplete = creationCompleteRaw === true;
+        context.creationComplete = creationCompleteRaw !== false;
         console.log('Mastery System | getData - Creation Status:', {
             creationCompleteRaw,
             creationComplete: context.creationComplete,

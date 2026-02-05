@@ -146,20 +146,18 @@
         <div class="attributes-header-with-confirm">
           <h3><i class="fas fa-fist-raised"></i> Character Attributes</h3>
           {{#if creationComplete}}
-          {{#if (gt system.points.xp 0)}}
-          <div class="attribute-xp-distribution-controls">
+          <div class="attribute-xp-distribution-controls" style="width: 230px;">
             <div class="pending-attribute-changes-info">
               <span class="pending-changes-text">Pending Changes: <span id="pending-attribute-changes-count">0</span></span>
               <span class="remaining-xp-text">Remaining XP: <span id="remaining-attribute-xp">{{default system.points.xp 0}}</span></span>
             </div>
-            <button type="button" class="confirm-attribute-changes" id="confirm-attribute-changes-btn" disabled>
+            <button type="button" class="confirm-attribute-changes" id="confirm-attribute-changes-btn" disabled style="width: 200px;">
               <i class="fas fa-check"></i> Confirm Changes
             </button>
-            <button type="button" class="cancel-attribute-changes" id="cancel-attribute-changes-btn" disabled>
+            <button type="button" class="cancel-attribute-changes" id="cancel-attribute-changes-btn" disabled style="width: 200px;">
               <i class="fas fa-times"></i> Cancel
             </button>
           </div>
-          {{/if}}
           {{/if}}
         </div>
         
@@ -177,7 +175,6 @@
                     <span class="attribute-pending-change" data-attribute="might" style="display: none;">+<span class="pending-increase">0</span></span>
                   </div>
                   {{#if ../creationComplete}}
-                  {{#if (gt ../system.points.xp 0)}}
                   <div class="attribute-controls attribute-controls-vertical">
                     <button type="button" class="attr-increase-xp" data-attribute="might" title="Increase Attribute (Pending)">
                       <i class="fas fa-plus"></i>
@@ -186,7 +183,6 @@
                       <i class="fas fa-minus"></i>
                     </button>
                   </div>
-                  {{/if}}
                   {{else}}
                   <div class="creation-controls">
                     <button type="button" class="attr-decrease" data-attribute="might" title="Decrease Attribute" {{#if (lte value ../creation.masteryRank)}}disabled{{/if}}>
@@ -231,7 +227,6 @@
                     <span class="attribute-pending-change" data-attribute="agility" style="display: none;">+<span class="pending-increase">0</span></span>
                   </div>
                   {{#if ../creationComplete}}
-                  {{#if (gt ../system.points.attribute 0)}}
                   <div class="attribute-controls attribute-controls-vertical">
                     <button type="button" class="attr-increase-xp" data-attribute="agility" title="Increase Attribute (Pending)">
                       <i class="fas fa-plus"></i>
@@ -240,7 +235,6 @@
                       <i class="fas fa-minus"></i>
                     </button>
                   </div>
-                  {{/if}}
                   {{else}}
                   <div class="creation-controls">
                     <button type="button" class="attr-decrease" data-attribute="agility" title="Decrease Attribute" {{#if (lte value ../creation.masteryRank)}}disabled{{/if}}>
@@ -283,7 +277,6 @@
                     <span class="attribute-pending-change" data-attribute="vitality" style="display: none;">+<span class="pending-increase">0</span></span>
                   </div>
                   {{#if ../creationComplete}}
-                  {{#if (gt ../system.points.attribute 0)}}
                   <div class="attribute-controls attribute-controls-vertical">
                     <button type="button" class="attr-increase-xp" data-attribute="vitality" title="Increase Attribute (Pending)">
                       <i class="fas fa-plus"></i>
@@ -292,7 +285,6 @@
                       <i class="fas fa-minus"></i>
                     </button>
                   </div>
-                  {{/if}}
                   {{else}}
                   <div class="creation-controls">
                     <button type="button" class="attr-decrease" data-attribute="vitality" title="Decrease Attribute" {{#if (lte value ../creation.masteryRank)}}disabled{{/if}}>
@@ -335,7 +327,6 @@
                     <span class="attribute-pending-change" data-attribute="wits" style="display: none;">+<span class="pending-increase">0</span></span>
                   </div>
                   {{#if ../creationComplete}}
-                  {{#if (gt ../system.points.attribute 0)}}
                   <div class="attribute-controls attribute-controls-vertical">
                     <button type="button" class="attr-increase-xp" data-attribute="wits" title="Increase Attribute (Pending)">
                       <i class="fas fa-plus"></i>
@@ -344,7 +335,6 @@
                       <i class="fas fa-minus"></i>
                     </button>
                   </div>
-                  {{/if}}
                   {{else}}
                   <div class="creation-controls">
                     <button type="button" class="attr-decrease" data-attribute="wits" title="Decrease Attribute" {{#if (lte value ../creation.masteryRank)}}disabled{{/if}}>
@@ -392,7 +382,6 @@
                     <span class="attribute-pending-change" data-attribute="intellect" style="display: none;">+<span class="pending-increase">0</span></span>
                   </div>
                   {{#if ../creationComplete}}
-                  {{#if (gt ../system.points.attribute 0)}}
                   <div class="attribute-controls">
                     <button type="button" class="attr-decrease-xp" data-attribute="intellect" title="Decrease Attribute (Pending)" disabled>
                       <i class="fas fa-minus"></i>
@@ -401,7 +390,6 @@
                       <i class="fas fa-plus"></i>
                     </button>
                   </div>
-                  {{/if}}
                   {{else}}
                   <div class="creation-controls">
                     <button type="button" class="attr-decrease" data-attribute="intellect" title="Decrease Attribute" {{#if (lte value ../creation.masteryRank)}}disabled{{/if}}>
@@ -444,7 +432,6 @@
                     <span class="attribute-pending-change" data-attribute="resolve" style="display: none;">+<span class="pending-increase">0</span></span>
                   </div>
                   {{#if ../creationComplete}}
-                  {{#if (gt ../system.points.attribute 0)}}
                   <div class="attribute-controls">
                     <button type="button" class="attr-decrease-xp" data-attribute="resolve" title="Decrease Attribute (Pending)" disabled>
                       <i class="fas fa-minus"></i>
@@ -453,7 +440,6 @@
                       <i class="fas fa-plus"></i>
                     </button>
                   </div>
-                  {{/if}}
                   {{else}}
                   <div class="creation-controls">
                     <button type="button" class="attr-decrease" data-attribute="resolve" title="Decrease Attribute" {{#if (lte value ../creation.masteryRank)}}disabled{{/if}}>
@@ -496,7 +482,6 @@
                     <span class="attribute-pending-change" data-attribute="influence" style="display: none;">+<span class="pending-increase">0</span></span>
                   </div>
                   {{#if ../creationComplete}}
-                  {{#if (gt ../system.points.attribute 0)}}
                   <div class="attribute-controls">
                     <button type="button" class="attr-decrease-xp" data-attribute="influence" title="Decrease Attribute (Pending)" disabled>
                       <i class="fas fa-minus"></i>
@@ -505,7 +490,6 @@
                       <i class="fas fa-plus"></i>
                     </button>
                   </div>
-                  {{/if}}
                   {{else}}
                   <div class="creation-controls">
                     <button type="button" class="attr-decrease" data-attribute="influence" title="Decrease Attribute" {{#if (lte value ../creation.masteryRank)}}disabled{{/if}}>
@@ -820,6 +804,18 @@
       <div class="skills-overview">
         <h3><i class="fas fa-cogs"></i> Skills</h3>
         {{#if creationComplete}}
+        <div class="skill-level-distribution-controls" style="width: 230px;">
+          <div class="pending-skill-changes-info">
+            <span class="pending-changes-text">Pending Changes: <span id="pending-skill-changes-count">0</span></span>
+            <span class="remaining-xp-text">Remaining XP: <span id="remaining-skill-xp">{{default system.points.xp 0}}</span></span>
+          </div>
+          <button type="button" class="confirm-skill-changes" id="confirm-skill-changes-btn" disabled style="width: 200px;">
+            <i class="fas fa-check"></i> Confirm Changes
+          </button>
+          <button type="button" class="cancel-skill-changes" id="cancel-skill-changes-btn" disabled style="width: 200px;">
+            <i class="fas fa-times"></i> Cancel
+          </button>
+        </div>
         <button type="button" class="safe-haven-rest" title="Rest at Safe Haven - Restore all Skill Points">
           <i class="fas fa-bed"></i> Safe Haven Rest
         </button>
@@ -849,7 +845,7 @@
                   <span class="skill-value-compact">{{default this.value 0}}</span>
                   {{#if ../creationComplete}}
                   <span class="skill-pool-display">{{default this.value 0}} ({{default this.remaining 0}} left)</span>
-                  <button type="button" class="skill-spend-point" data-skill="{{this.key}}" title="Spend Mastery Point (Cost: {{default this.value 0}} pts)">
+                  <button type="button" class="skill-spend-point" data-skill="{{this.key}}" title="Spend XP (Cost: {{default this.value 0}} pts)">
                     <i class="fas fa-arrow-up"></i>
                   </button>
                   {{else}}
@@ -911,17 +907,16 @@
       
       <!-- Buttons always visible -->
       <div class="powers-overview">
-        <h3><i class="fas fa-magic"></i> Powers & Magic</h3>
         {{#if creationComplete}}
-        <div class="power-level-distribution-controls">
+        <div class="power-level-distribution-controls" style="width: 230px;">
           <div class="pending-power-level-changes-info">
             <span class="pending-changes-text">Pending Changes: <span id="pending-power-level-changes-count">0</span></span>
             <span class="remaining-xp-text">Remaining XP: <span id="remaining-power-level-mp">{{default system.points.xp 0}}</span></span>
           </div>
-          <button type="button" class="confirm-power-level-changes" id="confirm-power-level-changes-btn" disabled>
+          <button type="button" class="confirm-power-level-changes" id="confirm-power-level-changes-btn" disabled style="width: 200px;">
             <i class="fas fa-check"></i> Confirm Changes
           </button>
-          <button type="button" class="cancel-power-level-changes" id="cancel-power-level-changes-btn" disabled>
+          <button type="button" class="cancel-power-level-changes" id="cancel-power-level-changes-btn" disabled style="width: 200px;">
             <i class="fas fa-times"></i> Cancel
           </button>
         </div>
