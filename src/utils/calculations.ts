@@ -188,19 +188,19 @@ export function healDamage(
 
 /**
  * Calculate Stress Bar maximum
- * Each bar = Resolve + Wits (no multiplier)
+ * Each bar = Resolve + Intellect
  */
-export function calculateStressBarMax(resolve: number, wits: number): number {
-  return resolve + wits;
+export function calculateStressBarMax(resolve: number, intellect: number): number {
+  return resolve + intellect;
 }
 
 /**
  * Initialize stress bars with proper max values
  * 4 bars: Healthy, Stressed, Not Well, Breaking
- * Each bar = Resolve + Wits boxes
+ * Each bar = Resolve + Intellect boxes
  */
-export function initializeStressBars(resolve: number, wits: number): HealthBar[] {
-  const maxStress = calculateStressBarMax(resolve, wits);
+export function initializeStressBars(resolve: number, intellect: number): HealthBar[] {
+  const maxStress = calculateStressBarMax(resolve, intellect);
   
   return [
     {
@@ -231,10 +231,10 @@ export function initializeStressBars(resolve: number, wits: number): HealthBar[]
 }
 
 /**
- * Update stress bars when resolve or wits changes
+ * Update stress bars when resolve or intellect changes
  */
-export function updateStressBars(bars: HealthBar[], resolve: number, wits: number): void {
-  const maxStress = calculateStressBarMax(resolve, wits);
+export function updateStressBars(bars: HealthBar[], resolve: number, intellect: number): void {
+  const maxStress = calculateStressBarMax(resolve, intellect);
   
   for (const bar of bars) {
     const ratio = bar.max > 0 ? bar.current / bar.max : 1;

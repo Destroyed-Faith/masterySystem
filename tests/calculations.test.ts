@@ -125,7 +125,7 @@ describe('Health Bar Calculations', () => {
 });
 
 describe('Stress Bar Calculations', () => {
-  it('calculates stress bar max as Resolve + Wits', () => {
+  it('calculates stress bar max as Resolve + Intellect', () => {
     expect(calculateStressBarMax(2, 2)).toBe(4);
     expect(calculateStressBarMax(8, 6)).toBe(14);
     expect(calculateStressBarMax(4, 8)).toBe(12);

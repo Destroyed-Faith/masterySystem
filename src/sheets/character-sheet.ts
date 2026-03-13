@@ -4763,6 +4763,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
               }
             }
 
+            // Validate required fields are not empty
+            for (const field of def.fields || []) {
+              if (field.required && !details[field.name]?.toString().trim()) {
+                ui.notifications?.warn(`"${field.label}" is required and cannot be empty.`);
+                return false;
+              }
+            }
+
             const points = calculateDisadvantagePoints(def.id, details);
             const system = (this.actor as any).system;
             const currentDisadvantages = [...(system.disadvantages || [])];

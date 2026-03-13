@@ -194,12 +194,12 @@ export class MasteryActor extends Actor {
         
         // Initialize stress bars (4 bars: Healthy, Stressed, Not Well, Breaking)
         const resolve = system.attributes.resolve?.value || 2;
-        const wits = system.attributes.wits?.value || 2;
-        const maxStress = calculateStressBarMax(resolve, wits);
+        const intellect = system.attributes.intellect?.value || 2;
+        const maxStress = calculateStressBarMax(resolve, intellect);
         
         if (!system.stress) {
           system.stress = {
-            bars: initializeStressBars(resolve, wits),
+            bars: initializeStressBars(resolve, intellect),
             currentBar: 0
           };
         } else {
@@ -216,17 +216,17 @@ export class MasteryActor extends Actor {
                   .map(key => barsObj[key]);
               } else {
                 // Not a valid object format, initialize fresh
-                system.stress.bars = initializeStressBars(resolve, wits);
+                system.stress.bars = initializeStressBars(resolve, intellect);
               }
             } else {
-              system.stress.bars = initializeStressBars(resolve, wits);
+              system.stress.bars = initializeStressBars(resolve, intellect);
             }
           }
           
           // Migrate old stress format to bars if needed
           if (!system.stress.bars || system.stress.bars.length === 0) {
             const oldCurrent = system.stress.current || 0;
-            system.stress.bars = initializeStressBars(resolve, wits);
+            system.stress.bars = initializeStressBars(resolve, intellect);
             system.stress.currentBar = 0;
             
             // Distribute old stress value across bars

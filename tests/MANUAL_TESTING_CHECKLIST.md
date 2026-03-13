@@ -7,18 +7,18 @@ Run these tests in a live Foundry VTT instance with the Mastery System loaded.
 ## 1. Character Creation
 
 ### 1.1 Attribute Point Buy
-- [ ] Create a new character actor
-- [ ] Verify all 7 attributes start at **2** (Mastery Rank base)
-- [ ] Verify **16 attribute points** are available
-- [ ] Distribute points and verify no attribute exceeds **8**
-- [ ] Verify remaining points counter decreases correctly
-- [ ] Verify Stone count updates: attribute reaching 8 shows **1 Stone**
-- [ ] Try to exceed 8 on an attribute - should be blocked
+- [X] Create a new character actor
+- [X] Verify all 7 attributes start at **2** (Mastery Rank base)
+- [X] Verify **16 attribute points** are available
+- [X] Distribute points and verify no attribute exceeds **8**
+- [X] Verify remaining points counter decreases correctly
+- [X] Verify Stone count updates: attribute reaching 8 shows **1 Stone**
+- [X] Try to exceed 8 on an attribute - should be blocked
 
 ### 1.2 Skill Point Buy
-- [ ] Verify **16 skill points** are available
-- [ ] Verify no single skill can exceed **4** at creation
-- [ ] Verify all 5 categories appear (Physical, Knowledge & Craft, Social, Survival, Martial)
+- [X] Verify **16 skill points** are available
+- [X] Verify no single skill can exceed **4** at creation
+- [X] Verify all 5 categories appear (Physical, Knowledge & Craft, Social, Survival, Martial)
 - [ ] Verify new skills appear: Negotiation, Seduction, Investigation, Etiquette, Artisanry, Herbalism
 - [ ] Verify renamed skill: Alchemy (was "Herbalism / Alchemy")
 - [ ] Verify Crafting shows Might as primary attribute (not Intellect)
@@ -26,14 +26,14 @@ Run these tests in a live Foundry VTT instance with the Mastery System loaded.
 - [ ] Verify Survival shows Vitality as primary attribute
 
 ### 1.3 Powers & Mastery Trees
-- [ ] Can select up to **2 Mastery Trees**
+- [ ] Can select up to **2 Mastery Trees** -> The power trees are not shown i get the error message: foundry.mjs:115132 No predefined powers found for this tree 
 - [ ] Can select **4 total Powers** across those trees
 - [ ] Can set **2 powers to Rank 2**
 - [ ] Power dialog shows correct tree and rank options
 
 ### 1.4 Disadvantages & Faith Fractures
-- [ ] Can add disadvantages
-- [ ] Total disadvantage points capped at **8**
+- [X] Can add disadvantages -> But the fields that explains what the addiction or the issue is can be empty that shouldnt be the case
+- [X] Total disadvantage points capped at **8**
 - [ ] Faith fractures field is visible
 
 ### 1.5 Schticks
@@ -50,20 +50,20 @@ Run these tests in a live Foundry VTT instance with the Mastery System loaded.
 ## 2. Derived Values
 
 ### 2.1 Health Bars
-- [ ] 4 bars visible: Healthy, Bruised, Injured, Wounded
-- [ ] Each bar max = **Vitality x 2**
-- [ ] Change Vitality and verify bars update proportionally
-- [ ] Bar penalties: Healthy=0, Bruised=-1, Injured=-2, Wounded=-4
+- [X] 4 bars visible: Healthy, Bruised, Injured, Wounded
+- [X] Each bar max = **Vitality x 2**
+- [X] Change Vitality and verify bars update proportionally
+- [X] Bar penalties: Healthy=0, Bruised=-1, Injured=-2, Wounded=-4
 
 ### 2.2 Stress Bars
-- [ ] 4 bars visible: Healthy, Stressed, Not Well, Breaking
-- [ ] Each bar max = **Resolve + Wits**
-- [ ] Change Resolve or Wits and verify bars update
+- [X] 4 bars visible: Healthy, Stressed, Not Well, Breaking
+- [ ] Each bar max = **Resolve + Intellect**
+- [ ] Change Resolve or Intellect and verify bars update
 
 ### 2.3 Stone Pools
-- [ ] All 7 attributes have stone pools (including **Wits**)
-- [ ] Pool max = **floor(attribute / 8)**
-- [ ] Attribute at 7 = 0 stones, at 8 = 1 stone, at 16 = 2 stones
+- [X] All 7 attributes have stone pools (including **Wits**)
+- [X] Pool max = **floor(attribute / 8)**
+- [X] Attribute at 7 = 0 stones, at 8 = 1 stone, at 16 = 2 stones
 
 ### 2.4 Armor Total
 - [ ] Total Armor = **Mastery Rank + Armor Value + Shield Value**
