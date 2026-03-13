@@ -21,7 +21,7 @@ export const SKILLS: Record<string, SkillDefinition> = {
   // Physical Skills
   athletics: {
     name: 'Athletics',
-    attributes: ['might', 'agility'],
+    attributes: ['might'],
     category: SKILL_CATEGORIES.PHYSICAL
   },
   acrobatics: {
@@ -56,13 +56,18 @@ export const SKILLS: Record<string, SkillDefinition> = {
     attributes: ['intellect'],
     category: SKILL_CATEGORIES.KNOWLEDGE_CRAFT
   },
-  herbalismAlchemy: {
-    name: 'Herbalism / Alchemy',
+  alchemy: {
+    name: 'Alchemy',
     attributes: ['intellect'],
     category: SKILL_CATEGORIES.KNOWLEDGE_CRAFT
   },
   crafting: {
     name: 'Crafting',
+    attributes: ['might'],
+    category: SKILL_CATEGORIES.KNOWLEDGE_CRAFT
+  },
+  artisanry: {
+    name: 'Artisanry',
     attributes: ['intellect'],
     category: SKILL_CATEGORIES.KNOWLEDGE_CRAFT
   },
@@ -78,12 +83,12 @@ export const SKILLS: Record<string, SkillDefinition> = {
   },
   navigation: {
     name: 'Navigation',
-    attributes: ['wits', 'intellect'],
+    attributes: ['wits'],
     category: SKILL_CATEGORIES.KNOWLEDGE_CRAFT
   },
   occultism: {
     name: 'Occultism',
-    attributes: ['wits', 'intellect'],
+    attributes: ['resolve'],
     category: SKILL_CATEGORIES.KNOWLEDGE_CRAFT
   },
 
@@ -95,17 +100,17 @@ export const SKILLS: Record<string, SkillDefinition> = {
   },
   deception: {
     name: 'Deception',
-    attributes: ['influence', 'wits'],
+    attributes: ['influence'],
     category: SKILL_CATEGORIES.SOCIAL
   },
   intimidation: {
     name: 'Intimidation',
-    attributes: ['might', 'influence'],
+    attributes: ['might'],
     category: SKILL_CATEGORIES.SOCIAL
   },
   leadership: {
     name: 'Leadership',
-    attributes: ['influence', 'resolve'],
+    attributes: ['resolve'],
     category: SKILL_CATEGORIES.SOCIAL
   },
   performance: {
@@ -115,29 +120,49 @@ export const SKILLS: Record<string, SkillDefinition> = {
   },
   streetwise: {
     name: 'Streetwise',
-    attributes: ['wits', 'influence'],
+    attributes: ['wits'],
     category: SKILL_CATEGORIES.SOCIAL
   },
   empathy: {
     name: 'Empathy',
-    attributes: ['wits', 'influence'],
+    attributes: ['resolve'],
+    category: SKILL_CATEGORIES.SOCIAL
+  },
+  negotiation: {
+    name: 'Negotiation',
+    attributes: ['resolve'],
+    category: SKILL_CATEGORIES.SOCIAL
+  },
+  seduction: {
+    name: 'Seduction',
+    attributes: ['influence'],
+    category: SKILL_CATEGORIES.SOCIAL
+  },
+  investigation: {
+    name: 'Investigation',
+    attributes: ['intellect'],
+    category: SKILL_CATEGORIES.SOCIAL
+  },
+  etiquette: {
+    name: 'Etiquette',
+    attributes: ['influence'],
     category: SKILL_CATEGORIES.SOCIAL
   },
 
   // Survival Skills
   perception: {
     name: 'Perception',
-    attributes: ['wits'],
+    attributes: ['wits', 'intellect', 'resolve'],
     category: SKILL_CATEGORIES.SURVIVAL
   },
   survival: {
     name: 'Survival',
-    attributes: ['wits', 'resolve'],
+    attributes: ['vitality'],
     category: SKILL_CATEGORIES.SURVIVAL
   },
   animalHandling: {
     name: 'Animal Handling',
-    attributes: ['wits', 'influence'],
+    attributes: ['resolve'],
     category: SKILL_CATEGORIES.SURVIVAL
   },
   tracking: {
@@ -145,14 +170,14 @@ export const SKILLS: Record<string, SkillDefinition> = {
     attributes: ['wits'],
     category: SKILL_CATEGORIES.SURVIVAL
   },
-  foraging: {
-    name: 'Foraging', // Note: Listed as "Herbalism" in Survival but different from Knowledge Herbalism
-    attributes: ['wits'],
+  herbalism: {
+    name: 'Herbalism',
+    attributes: ['intellect'],
     category: SKILL_CATEGORIES.SURVIVAL
   },
   weatherSense: {
     name: 'Weather Sense',
-    attributes: ['wits', 'intellect'],
+    attributes: ['wits'],
     category: SKILL_CATEGORIES.SURVIVAL
   },
 
@@ -179,7 +204,7 @@ export const SKILLS: Record<string, SkillDefinition> = {
   },
   combatReflexes: {
     name: 'Combat Reflexes',
-    attributes: ['wits'],
+    attributes: ['agility'],
     category: SKILL_CATEGORIES.MARTIAL
   }
 };

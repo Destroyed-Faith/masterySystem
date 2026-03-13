@@ -116,6 +116,11 @@
           "current": 0,
           "max": 0,
           "sustained": 0
+        },
+        "wits": {
+          "current": 0,
+          "max": 0,
+          "sustained": 0
         }
       },
       "health": {

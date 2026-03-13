@@ -287,7 +287,84 @@ export function validateSkillValue(skillValue: number, masteryRank: number): num
   return Math.min(skillValue, maxSkill);
 }
 
+// ============================================================
+// Attribute Scaling Passives (Player's Guide)
+// ============================================================
 
+/**
+ * Might Scaling: Melee Damage bonus = 2 * floor(Might / 8)
+ * Flat bonus applied per successful melee/unarmed hit.
+ */
+export function calculateMightDamageBonus(might: number): number {
+  return 2 * Math.floor(might / 8);
+}
+
+/**
+ * Agility Scaling: Evade bonus = floor(Agility / 8)
+ */
+export function calculateAgilityEvadeBonus(agility: number): number {
+  return Math.floor(agility / 8);
+}
+
+/**
+ * Agility Scaling: Range band extensions
+ * Short: +floor(Agility/8) m
+ * Medium: +2*floor(Agility/8) m
+ * Long: +floor(Agility/8) m
+ */
+export function calculateAgilityRangeBonus(agility: number): { short: number; medium: number; long: number } {
+  const bonus = Math.floor(agility / 8);
+  return {
+    short: bonus,
+    medium: bonus * 2,
+    long: bonus
+  };
+}
+
+/**
+ * Intellect Scaling: Saving throw TN increase against your spells = floor(Intellect / 8)
+ */
+export function calculateIntellectSaveTNBonus(intellect: number): number {
+  return Math.floor(intellect / 8);
+}
+
+/**
+ * Resolve Scaling: Stress Armor = floor(Resolve / 8)
+ * Reduces incoming stress by this amount (min 0).
+ * Does not apply to voluntary stress costs.
+ */
+export function calculateResolveStressArmor(resolve: number): number {
+  return Math.floor(resolve / 8);
+}
+
+/**
+ * Influence Scaling: +floor(Influence/8) bonus to two chosen skill rolls
+ */
+export function calculateInfluenceSkillBonus(influence: number): number {
+  return Math.floor(influence / 8);
+}
+
+/**
+ * Wits Scaling: Initiative bonus = floor(Wits / 8)
+ */
+export function calculateWitsInitiativeBonus(wits: number): number {
+  return Math.floor(wits / 8);
+}
+
+/**
+ * Armor Breaker (Might): Penetration = floor(Might / 8)
+ * Stacks with weapon penetration and power penetration.
+ */
+export function calculateArmorBreaker(might: number): number {
+  return Math.floor(might / 8);
+}
+
+/**
+ * Evade formula: MR * 4 + size mod + shield bonus + passives + agility scaling
+ */
+export function calculateBaseEvade(masteryRank: number): number {
+  return masteryRank * 4;
+}
 
 
 

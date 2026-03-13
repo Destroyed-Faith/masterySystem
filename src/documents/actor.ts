@@ -9,7 +9,16 @@ import {
   initializeHealthBars,
   initializeStressBars,
   calculateHealthBarMax,
-  calculateStressBarMax
+  calculateStressBarMax,
+  calculateMightDamageBonus,
+  calculateAgilityEvadeBonus,
+  calculateAgilityRangeBonus,
+  calculateIntellectSaveTNBonus,
+  calculateResolveStressArmor,
+  calculateInfluenceSkillBonus,
+  calculateWitsInitiativeBonus,
+  calculateArmorBreaker,
+  calculateBaseEvade
 } from '../utils/calculations.js';
 
 export class MasteryActor extends Actor {
@@ -45,7 +54,7 @@ export class MasteryActor extends Actor {
           system.stonePools = {};
         }
         
-        const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence'] as const;
+        const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'] as const;
         
         for (const attrKey of attributeKeys) {
           const attrValue = system.attributes[attrKey]?.value || 0;
@@ -314,10 +323,32 @@ export class MasteryActor extends Actor {
     const shieldValue = (equippedShield?.system as any)?.shieldValue || 0;
     system.combat.armorTotal = masteryRank + armorValue + shieldValue;
     
-    // Calculate evadeTotal = base evade + shield evadeBonus
+    // Calculate evadeTotal = base evade + shield evadeBonus + Agility scaling
     const baseEvade = system.combat.evade || 0;
     const shieldEvadeBonus = (equippedShield?.system as any)?.evadeBonus || 0;
-    system.combat.evadeTotal = baseEvade + shieldEvadeBonus;
+    const agilityValue = system.attributes?.agility?.value || 0;
+    const agilityEvadeBonus = calculateAgilityEvadeBonus(agilityValue);
+    system.combat.evadeTotal = baseEvade + shieldEvadeBonus + agilityEvadeBonus;
+    
+    // Attribute Scaling Passives
+    if (system.attributes) {
+      const might = system.attributes.might?.value || 0;
+      const intellect = system.attributes.intellect?.value || 0;
+      const resolve = system.attributes.resolve?.value || 0;
+      const influence = system.attributes.influence?.value || 0;
+      const wits = system.attributes.wits?.value || 0;
+      
+      if (!system.scaling) system.scaling = {};
+      system.scaling.mightDamageBonus = calculateMightDamageBonus(might);
+      system.scaling.agilityEvadeBonus = agilityEvadeBonus;
+      system.scaling.agilityRangeBonus = calculateAgilityRangeBonus(agilityValue);
+      system.scaling.intellectSaveTNBonus = calculateIntellectSaveTNBonus(intellect);
+      system.scaling.resolveStressArmor = calculateResolveStressArmor(resolve);
+      system.scaling.influenceSkillBonus = calculateInfluenceSkillBonus(influence);
+      system.scaling.witsInitiativeBonus = calculateWitsInitiativeBonus(wits);
+      system.scaling.armorBreaker = calculateArmorBreaker(might);
+      system.scaling.baseEvade = calculateBaseEvade(masteryRank);
+    }
     
     // Prepare tracked resources for Combat Carousel module
     // These are derived fields that update automatically when actor data changes
