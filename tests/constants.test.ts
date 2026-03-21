@@ -79,8 +79,9 @@ describe('Initiative Shop Costs (Player\'s Guide)', () => {
 });
 
 describe('Character Creation Constants', () => {
-  it('16 attribute points', () => {
-    expect(CREATION.ATTRIBUTE_POINTS).toBe(16);
+  it('attribute distribution is 2×8, 2×6, 2×4', () => {
+    expect(CREATION.ATTRIBUTE_DISTRIBUTION).toEqual([8, 8, 6, 6, 4, 4]);
+    expect(CREATION.ATTRIBUTE_ALLOWED_VALUES).toEqual([4, 6, 8]);
   });
 
   it('16 skill points', () => {

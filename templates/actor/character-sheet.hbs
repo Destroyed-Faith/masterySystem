@@ -47,12 +47,13 @@
         </div>
       </div>
       {{else}}
-      <!-- Character Creation Point Counters -->
-      <div class="points-box creation-points" title="Attribute Points Remaining">
-        <label>AP</label>
-        <div class="points-display">
-          <span class="points-value {{#if (eq creation.attributePointsRemaining 0)}}complete{{else}}remaining{{/if}}">{{creation.attributePointsRemaining}}</span>
-          <span class="points-label">/ 16</span>
+      <!-- Attribute Distribution Counter -->
+      <div class="points-box creation-points" title="Attribute Distribution: 2×8, 2×6, 2×4">
+        <label>Attr</label>
+        <div class="points-display attr-distribution-display">
+          <span class="attr-dist-item {{#if (eq creation.attrCount8 2)}}complete{{else}}remaining{{/if}}">8×{{creation.attrCount8}}/2</span>
+          <span class="attr-dist-item {{#if (eq creation.attrCount6 2)}}complete{{else}}remaining{{/if}}">6×{{creation.attrCount6}}/2</span>
+          <span class="attr-dist-item {{#if (eq creation.attrCount4 2)}}complete{{else}}remaining{{/if}}">4×{{creation.attrCount4}}/2</span>
         </div>
       </div>
       
@@ -88,15 +89,16 @@
   <div class="creation-banner">
     <div class="creation-banner-content">
       <h3><i class="fas fa-user-edit"></i> Character Creation Mode</h3>
-      <p>Allocate your points: <strong>{{creation.attributePointsRemaining}}</strong> Attribute Points, <strong>{{creation.skillPointsRemaining}}</strong> Skill Points remaining. 
-      <strong>Disadvantages:</strong> <strong>{{creation.disadvantagePoints}}</strong> / 8 points (optional - sets starting Faith Fractures).</p>
+      <p>Distribute attributes: <strong>2×8, 2×6, 2×4</strong> ({{#if creation.attributeDistributionValid}}done{{else}}{{creation.attrCount8}}/2×8, {{creation.attrCount6}}/2×6, {{creation.attrCount4}}/2×4{{/if}}). 
+      <strong>{{creation.skillPointsRemaining}}</strong> Skill Points remaining. 
+      <strong>Disadvantages:</strong> <strong>{{creation.disadvantagePoints}}</strong> / 8 points (optional).</p>
       {{#if creation.canFinalize}}
       <button type="button" class="finalize-creation" title="Finalize character creation">
         <i class="fas fa-check-circle"></i> Finalize Character Creation
       </button>
       {{else}}
       <span class="creation-status">
-        Complete: Attributes ({{creation.attributePointsRemaining}} remaining), Skills ({{creation.skillPointsRemaining}} remaining)
+        Remaining: Attributes ({{#if creation.attributeDistributionValid}}done{{else}}{{creation.attrCount8}}/2×8, {{creation.attrCount6}}/2×6, {{creation.attrCount4}}/2×4{{/if}}), Skills ({{creation.skillPointsRemaining}} remaining)
         {{#unless creation.disadvantagesReviewed}}, Disadvantages (review required){{/unless}}.
       </span>
       {{/if}}
@@ -181,14 +183,12 @@
                     </button>
                   </div>
                   {{else}}
-                  <div class="creation-controls">
-                    <button type="button" class="attr-decrease" data-attribute="might" title="Decrease Attribute" {{#if (lte value ../creation.masteryRank)}}disabled{{/if}}>
-                      <i class="fas fa-minus"></i>
-                    </button>
-                    <button type="button" class="attr-increase" data-attribute="might" title="Increase Attribute" {{#if (gte value 8)}}disabled{{/if}} {{#if (eq ../creation.attributePointsRemaining 0)}}disabled{{/if}}>
-                      <i class="fas fa-plus"></i>
-                    </button>
-                  </div>
+                  <select class="attr-creation-select" data-attribute="might">
+                    <option value="2" {{#if (eq value 2)}}selected{{/if}}>—</option>
+                    <option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>
+                    <option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>
+                    <option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>
+                  </select>
                   {{/if}}
                 </div>
               </div>
@@ -233,14 +233,12 @@
                     </button>
                   </div>
                   {{else}}
-                  <div class="creation-controls">
-                    <button type="button" class="attr-decrease" data-attribute="agility" title="Decrease Attribute" {{#if (lte value ../creation.masteryRank)}}disabled{{/if}}>
-                      <i class="fas fa-minus"></i>
-                    </button>
-                    <button type="button" class="attr-increase" data-attribute="agility" title="Increase Attribute" {{#if (gte value 8)}}disabled{{/if}} {{#if (eq ../creation.attributePointsRemaining 0)}}disabled{{/if}}>
-                      <i class="fas fa-plus"></i>
-                    </button>
-                  </div>
+                  <select class="attr-creation-select" data-attribute="agility">
+                    <option value="2" {{#if (eq value 2)}}selected{{/if}}>—</option>
+                    <option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>
+                    <option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>
+                    <option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>
+                  </select>
                   {{/if}}
                 </div>
               </div>
@@ -283,14 +281,12 @@
                     </button>
                   </div>
                   {{else}}
-                  <div class="creation-controls">
-                    <button type="button" class="attr-decrease" data-attribute="vitality" title="Decrease Attribute" {{#if (lte value ../creation.masteryRank)}}disabled{{/if}}>
-                      <i class="fas fa-minus"></i>
-                    </button>
-                    <button type="button" class="attr-increase" data-attribute="vitality" title="Increase Attribute" {{#if (gte value 8)}}disabled{{/if}} {{#if (eq ../creation.attributePointsRemaining 0)}}disabled{{/if}}>
-                      <i class="fas fa-plus"></i>
-                    </button>
-                  </div>
+                  <select class="attr-creation-select" data-attribute="vitality">
+                    <option value="2" {{#if (eq value 2)}}selected{{/if}}>—</option>
+                    <option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>
+                    <option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>
+                    <option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>
+                  </select>
                   {{/if}}
                 </div>
               </div>
@@ -333,14 +329,12 @@
                     </button>
                   </div>
                   {{else}}
-                  <div class="creation-controls">
-                    <button type="button" class="attr-decrease" data-attribute="wits" title="Decrease Attribute" {{#if (lte value ../creation.masteryRank)}}disabled{{/if}}>
-                      <i class="fas fa-minus"></i>
-                    </button>
-                    <button type="button" class="attr-increase" data-attribute="wits" title="Increase Attribute" {{#if (gte value 8)}}disabled{{/if}} {{#if (eq ../creation.attributePointsRemaining 0)}}disabled{{/if}}>
-                      <i class="fas fa-plus"></i>
-                    </button>
-                  </div>
+                  <select class="attr-creation-select" data-attribute="wits">
+                    <option value="2" {{#if (eq value 2)}}selected{{/if}}>—</option>
+                    <option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>
+                    <option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>
+                    <option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>
+                  </select>
                   {{/if}}
                 </div>
               </div>
@@ -388,14 +382,12 @@
                     </button>
                   </div>
                   {{else}}
-                  <div class="creation-controls">
-                    <button type="button" class="attr-decrease" data-attribute="intellect" title="Decrease Attribute" {{#if (lte value ../creation.masteryRank)}}disabled{{/if}}>
-                      <i class="fas fa-minus"></i>
-                    </button>
-                    <button type="button" class="attr-increase" data-attribute="intellect" title="Increase Attribute" {{#if (gte value 8)}}disabled{{/if}} {{#if (eq ../creation.attributePointsRemaining 0)}}disabled{{/if}}>
-                      <i class="fas fa-plus"></i>
-                    </button>
-                  </div>
+                  <select class="attr-creation-select" data-attribute="intellect">
+                    <option value="2" {{#if (eq value 2)}}selected{{/if}}>—</option>
+                    <option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>
+                    <option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>
+                    <option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>
+                  </select>
                   {{/if}}
                 </div>
               </div>
@@ -438,14 +430,12 @@
                     </button>
                   </div>
                   {{else}}
-                  <div class="creation-controls">
-                    <button type="button" class="attr-decrease" data-attribute="resolve" title="Decrease Attribute" {{#if (lte value ../creation.masteryRank)}}disabled{{/if}}>
-                      <i class="fas fa-minus"></i>
-                    </button>
-                    <button type="button" class="attr-increase" data-attribute="resolve" title="Increase Attribute" {{#if (gte value 8)}}disabled{{/if}} {{#if (eq ../creation.attributePointsRemaining 0)}}disabled{{/if}}>
-                      <i class="fas fa-plus"></i>
-                    </button>
-                  </div>
+                  <select class="attr-creation-select" data-attribute="resolve">
+                    <option value="2" {{#if (eq value 2)}}selected{{/if}}>—</option>
+                    <option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>
+                    <option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>
+                    <option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>
+                  </select>
                   {{/if}}
                 </div>
               </div>
@@ -488,14 +478,12 @@
                     </button>
                   </div>
                   {{else}}
-                  <div class="creation-controls">
-                    <button type="button" class="attr-decrease" data-attribute="influence" title="Decrease Attribute" {{#if (lte value ../creation.masteryRank)}}disabled{{/if}}>
-                      <i class="fas fa-minus"></i>
-                    </button>
-                    <button type="button" class="attr-increase" data-attribute="influence" title="Increase Attribute" {{#if (gte value 8)}}disabled{{/if}} {{#if (eq ../creation.attributePointsRemaining 0)}}disabled{{/if}}>
-                      <i class="fas fa-plus"></i>
-                    </button>
-                  </div>
+                  <select class="attr-creation-select" data-attribute="influence">
+                    <option value="2" {{#if (eq value 2)}}selected{{/if}}>—</option>
+                    <option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>
+                    <option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>
+                    <option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>
+                  </select>
                   {{/if}}
                 </div>
               </div>
@@ -870,6 +858,13 @@
                   </div>
                   {{/if}}
                 </div>
+                {{#if @root.creationComplete}}
+                <div class="skill-use-boxes" title="{{this.remaining}}/{{this.value}} uses remaining">
+                  {{#times 4}}
+                  <span class="skill-use-box {{#if (lt @index (default ../this.value 0))}}{{#if (lt @index (default ../this.remaining 0))}}available{{else}}spent{{/if}}{{else}}locked{{/if}}"></span>
+                  {{/times}}
+                </div>
+                {{/if}}
                 <button type="button" class="skill-roll-compact" data-skill="{{this.key}}" title="Roll {{this.name}}">
                   <i class="fas fa-dice-d20"></i>
                 </button>

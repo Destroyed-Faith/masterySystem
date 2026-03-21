@@ -2073,14 +2073,15 @@
   background: var(--df-bg-panel, #2a3136);
   border: 1px solid var(--df-border-primary, #3a3f44);
   color: var(--df-text-primary, #d0d0d0);
-  padding: 8px 12px;
-  border-radius: 4px;
+  padding: 3px 6px;
+  border-radius: 3px;
   cursor: pointer;
   transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 40px;
+  min-width: 24px;
+  font-size: 12px;
   font-family: 'Cormorant Garamond', serif;
 }
 
@@ -3383,6 +3384,81 @@
   background: transparent;
   border-color: var(--df-border-primary, #3a3f44);
   opacity: 0.4;
+}
+
+/* ========== Skill Use Boxes ========== */
+.mastery-system.sheet.actor.character .skill-use-boxes {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+  margin: 0 4px;
+}
+
+.mastery-system.sheet.actor.character .skill-use-box {
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  border: 2px solid var(--df-border-primary, #3a3f44);
+  display: inline-block;
+  transition: all 0.2s ease;
+}
+
+.mastery-system.sheet.actor.character .skill-use-box.available {
+  background: var(--ms-accent, #c0392b);
+  border-color: var(--ms-accent, #c0392b);
+  box-shadow: 0 0 3px rgba(192, 57, 43, 0.4);
+}
+
+.mastery-system.sheet.actor.character .skill-use-box.spent {
+  background: transparent;
+  border-color: var(--ms-accent, #c0392b);
+  opacity: 0.4;
+}
+
+.mastery-system.sheet.actor.character .skill-use-box.locked {
+  background: transparent;
+  border-color: var(--df-border-primary, #3a3f44);
+  opacity: 0.2;
+}
+
+/* ========== Attribute Creation Select ========== */
+.mastery-system.sheet.actor.character .attr-creation-select {
+  background: var(--df-bg-panel, #2a3136);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  color: var(--df-text-primary, #d0d0d0);
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'Cormorant Garamond', serif;
+  min-width: 48px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.mastery-system.sheet.actor.character .attr-creation-select:focus {
+  border-color: var(--ms-accent, #c0392b);
+  outline: none;
+}
+
+/* ========== Attribute Distribution Counter ========== */
+.mastery-system.sheet.actor.character .attr-distribution-display {
+  display: flex;
+  gap: 4px;
+  font-size: 10px;
+}
+
+.mastery-system.sheet.actor.character .attr-dist-item {
+  padding: 1px 3px;
+  border-radius: 2px;
+}
+
+.mastery-system.sheet.actor.character .attr-dist-item.complete {
+  color: #2ecc71;
+}
+
+.mastery-system.sheet.actor.character .attr-dist-item.remaining {
+  color: #e67e22;
 }
 
 /* ========== Health & Stress Section ========== */

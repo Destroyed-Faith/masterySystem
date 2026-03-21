@@ -339,15 +339,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const masteryRank = context.system.mastery?.rank || 2;
     const skillPointsConfig = (CONFIG as any).MASTERY?.creation?.skillPoints || 16;
     
-    // Calculate attribute points spent
-    let attributePointsSpent = 0;
+    // Calculate attribute distribution status (2×8, 2×6, 2×4 model)
     const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
-    for (const key of attributeKeys) {
-      const attrValue = context.system.attributes?.[key]?.value || masteryRank;
-      if (attrValue > masteryRank) {
-        attributePointsSpent += attrValue - masteryRank;
-      }
-    }
+    const attrValues = attributeKeys.map(key => context.system.attributes?.[key]?.value || masteryRank);
+    const assignedValues = attrValues.filter(v => [4, 6, 8].includes(v));
+    const count8 = assignedValues.filter(v => v === 8).length;
+    const count6 = assignedValues.filter(v => v === 6).length;
+    const count4 = assignedValues.filter(v => v === 4).length;
+    const attributeDistributionValid = count8 === 2 && count6 === 2 && count4 === 2;
     
     // Calculate skill points spent
     let skillPointsSpent = 0;
@@ -473,8 +472,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     context.creation = {
       masteryRank,
       skillPointsConfig,
-      attributePointsRemaining: 16 - attributePointsSpent,
-      attributePointsSpent,
+      attrCount8: count8,
+      attrCount6: count6,
+      attrCount4: count4,
+      attributeDistributionValid,
       skillPointsRemaining: skillPointsConfig - skillPointsSpent,
       skillPointsSpent,
       disadvantagePoints,
@@ -482,9 +483,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       powersSelected: selectedPowers.length,
       powersRequired: 4,
       treesSelected: selectedTrees.length,
-      treesRequired: 0, // Trees are now optional
+      treesRequired: 0,
       powersAtRank2: powersAtRank2.length,
-      powersAtRank2Required: 2, // Max 2, not exactly 2
+      powersAtRank2Required: 2,
       powersAtRank2Max: 2,
       selectedTrees: selectedTrees,
       selectedTreesData: selectedTreesData,
@@ -494,7 +495,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       rankTooltips: rankTooltips,
       schticksValid: schticksValidation.ok,
       powersValid: selectedPowers.length === 4 && powersAtRank2.length <= 2,
-      canFinalize: attributePointsSpent === 16 && 
+      canFinalize: attributeDistributionValid &&
                    skillPointsSpent === skillPointsConfig && 
                    selectedPowers.length === 4 && 
                    powersAtRank2.length <= 2
@@ -1298,8 +1299,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     this.#updateSkillXPUI();
     
     // Character Creation mode buttons
-    html.find('.attr-increase').on('click', this.#onCreationAttributeIncrease.bind(this));
-    html.find('.attr-decrease').on('click', this.#onCreationAttributeDecrease.bind(this));
+    html.find('.attr-creation-select').on('change', this.#onCreationAttributeChange.bind(this));
     html.find('.skill-increase').on('click', this.#onCreationSkillIncrease.bind(this));
     html.find('.skill-decrease').on('click', this.#onCreationSkillDecrease.bind(this));
     html.find('.finalize-creation').on('click', this.#onFinalizeCreation.bind(this));
@@ -4424,67 +4424,51 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   /**
-   * Character Creation: Increase Attribute
+   * Character Creation: Attribute value changed via select dropdown
    */
-  async #onCreationAttributeIncrease(event: JQuery.ClickEvent) {
-    event.preventDefault();
-    const attribute = $(event.currentTarget).data('attribute');
+  async #onCreationAttributeChange(event: JQuery.ChangeEvent) {
+    const select = event.currentTarget as HTMLSelectElement;
+    const attribute = select.dataset.attribute;
     if (!attribute) return;
-    
-    const system = (this.actor as any).system;
-    const masteryRank = system.mastery?.rank || 2;
-    const currentValue = system.attributes?.[attribute]?.value || masteryRank;
-    // Calculate current points spent
-    let attributePointsSpent = 0;
-    const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
-    for (const key of attributeKeys) {
-      const attrValue = system.attributes?.[key]?.value || masteryRank;
-      if (attrValue > masteryRank) {
-        attributePointsSpent += attrValue - masteryRank;
-      }
-    }
-    
-    // Validate
-    if (currentValue >= 8) {
-      ui.notifications?.warn('Attribute cannot exceed 8 during character creation.');
-      return;
-    }
-    if (attributePointsSpent >= 16) {
-      ui.notifications?.warn('All attribute points have been allocated.');
-      return;
-    }
-    
-    // Update
-    await this.actor.update({
-      [`system.attributes.${attribute}.value`]: currentValue + 1
-    });
-    
-    this.render();
-  }
 
-  /**
-   * Character Creation: Decrease Attribute
-   */
-  async #onCreationAttributeDecrease(event: JQuery.ClickEvent) {
-    event.preventDefault();
-    const attribute = $(event.currentTarget).data('attribute');
-    if (!attribute) return;
-    
+    const newValue = parseInt(select.value);
+    if (isNaN(newValue)) return;
+
     const system = (this.actor as any).system;
     const masteryRank = system.mastery?.rank || 2;
-    const currentValue = system.attributes?.[attribute]?.value || masteryRank;
-    
-    // Validate
-    if (currentValue <= masteryRank) {
-      ui.notifications?.warn('Attribute cannot go below Mastery Rank.');
+    const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
+
+    // Count how many of each value are already assigned (excluding current attribute)
+    let count8 = 0, count6 = 0, count4 = 0;
+    for (const key of attributeKeys) {
+      if (key === attribute) continue;
+      const v = system.attributes?.[key]?.value || masteryRank;
+      if (v === 8) count8++;
+      else if (v === 6) count6++;
+      else if (v === 4) count4++;
+    }
+
+    // Validate the new assignment doesn't exceed 2 per tier
+    if (newValue === 8 && count8 >= 2) {
+      ui.notifications?.warn('Already 2 attributes at 8. Choose a different value.');
+      this.render();
       return;
     }
-    
-    // Update
+    if (newValue === 6 && count6 >= 2) {
+      ui.notifications?.warn('Already 2 attributes at 6. Choose a different value.');
+      this.render();
+      return;
+    }
+    if (newValue === 4 && count4 >= 2) {
+      ui.notifications?.warn('Already 2 attributes at 4. Choose a different value.');
+      this.render();
+      return;
+    }
+
     await this.actor.update({
-      [`system.attributes.${attribute}.value`]: currentValue - 1
+      [`system.attributes.${attribute}.value`]: newValue
     });
-    
+
     this.render();
   }
 
@@ -4845,15 +4829,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const masteryRank = system.mastery?.rank || 2;
     const skillPointsConfig = (CONFIG as any).MASTERY?.creation?.skillPoints || 16;
     
-    // Calculate points spent
-    let attributePointsSpent = 0;
     const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
-    for (const key of attributeKeys) {
-      const attrValue = system.attributes?.[key]?.value || masteryRank;
-      if (attrValue > masteryRank) {
-        attributePointsSpent += attrValue - masteryRank;
-      }
-    }
     
     let skillPointsSpent = 0;
     for (const skillValue of Object.values(system.skills || {})) {
@@ -4866,9 +4842,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const powers = this.actor.items.filter((item: any) => item.type === 'power');
     const powersAtRank2 = powers.filter((p: any) => (p.system?.level || 1) === 2);
     
-    // Validate all requirements
-    if (attributePointsSpent !== 16) {
-      ui.notifications?.error(`Must spend exactly 16 attribute points. Currently spent: ${attributePointsSpent}`);
+    // Validate attribute distribution (2×8, 2×6, 2×4)
+    const attrValues = attributeKeys.map(key => system.attributes?.[key]?.value || masteryRank);
+    const c8 = attrValues.filter((v: number) => v === 8).length;
+    const c6 = attrValues.filter((v: number) => v === 6).length;
+    const c4 = attrValues.filter((v: number) => v === 4).length;
+    if (c8 !== 2 || c6 !== 2 || c4 !== 2) {
+      ui.notifications?.error(`Attributes must be distributed as 2×8, 2×6, 2×4. Currently: ${c8}×8, ${c6}×6, ${c4}×4`);
       return;
     }
     if (skillPointsSpent !== skillPointsConfig) {

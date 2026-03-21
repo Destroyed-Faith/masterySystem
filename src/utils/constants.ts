@@ -45,7 +45,8 @@ export const INITIATIVE_SHOP = {
 
 // Character Creation
 export const CREATION = {
-    ATTRIBUTE_POINTS: 16,
+    ATTRIBUTE_DISTRIBUTION: [8, 8, 6, 6, 4, 4] as readonly number[],
+    ATTRIBUTE_ALLOWED_VALUES: [4, 6, 8] as readonly number[],
     SKILL_POINTS: 16,
     MAX_ATTRIBUTE_AT_CREATION: 8,
     MAX_SKILL_AT_CREATION: 4,

@@ -31,7 +31,8 @@ export declare const INITIATIVE_SHOP: {
     };
 };
 export declare const CREATION: {
-    ATTRIBUTE_POINTS: number;
+    ATTRIBUTE_DISTRIBUTION: readonly number[];
+    ATTRIBUTE_ALLOWED_VALUES: readonly number[];
     SKILL_POINTS: number;
     MAX_ATTRIBUTE_AT_CREATION: number;
     MAX_SKILL_AT_CREATION: number;

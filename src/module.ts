@@ -1411,9 +1411,9 @@ function registerConfigConstants() {
   }
   
   (CONFIG as any).MASTERY.creation = {
-    schticksAllowed: 2, // Number of schticks players must choose during creation
-    attributePoints: 16,
-    skillPoints: 16,  // Configurable - can be changed later
+    schticksAllowed: 2,
+    attributeDistribution: [8, 8, 6, 6, 4, 4],
+    skillPoints: 16,
     maxAttributeAtCreation: 8,
     maxSkillAtCreation: 4,
     maxDisadvantagePoints: 8
