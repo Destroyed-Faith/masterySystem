@@ -3045,11 +3045,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const defaultAttribute = skillDef.attributes[0];
     
     const content = `
-      <form>
+      <form class="mastery-dialog-form">
         ${hasMultipleAttributes ? `
-          <div class="form-group">
-            <label>Attribute:</label>
-            <select name="attribute" id="skill-roll-attribute" style="width: 100%;">
+          <div class="md-group">
+            <label class="md-label">Attribute</label>
+            <select name="attribute" id="skill-roll-attribute" class="md-select">
               ${skillDef.attributes.map((attr: string) => `
                 <option value="${attr}" ${attr === defaultAttribute ? 'selected' : ''}>
                   ${attr.charAt(0).toUpperCase() + attr.slice(1)} (${system.attributes?.[attr]?.value || 0})
@@ -3059,17 +3059,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           </div>
         ` : `
           <input type="hidden" name="attribute" value="${defaultAttribute}" />
-          <div class="form-group">
-            <label>Attribute:</label>
-            <div style="padding: 4px; color: var(--df-text-muted, #888);">
+          <div class="md-group">
+            <label class="md-label">Attribute</label>
+            <div class="md-attr-display">
               ${defaultAttribute.charAt(0).toUpperCase() + defaultAttribute.slice(1)} (${system.attributes?.[defaultAttribute]?.value || 0})
             </div>
           </div>
         `}
         
-        <div class="form-group">
-          <label>Base Target Number:</label>
-          <select name="baseTN" id="skill-roll-baseTN" style="width: 100%;">
+        <div class="md-group">
+          <label class="md-label">Difficulty</label>
+          <select name="baseTN" id="skill-roll-baseTN" class="md-select">
             <option value="${difficulties.trivial}">Trivial (${difficulties.trivial})</option>
             <option value="${difficulties.easy}">Easy (${difficulties.easy})</option>
             <option value="${difficulties.standard}" selected>Standard (${difficulties.standard})</option>
@@ -3077,20 +3077,20 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             <option value="${difficulties.hard}">Hard (${difficulties.hard})</option>
             <option value="${difficulties.veryHard}">Very Hard (${difficulties.veryHard})</option>
             <option value="${difficulties.heroic}">Heroic (${difficulties.heroic})</option>
-            <option value="custom">Custom</option>
+            <option value="custom">Custom…</option>
           </select>
         </div>
         
-        <div class="form-group" id="custom-tn-group" style="display: none;">
-          <label>Custom Target Number:</label>
-          <input type="number" name="customTN" id="skill-roll-customTN" value="${difficulties.standard}" min="0" step="1" style="width: 100%;" />
+        <div class="md-group" id="custom-tn-group" style="display: none;">
+          <label class="md-label">Custom TN</label>
+          <input type="number" name="customTN" id="skill-roll-customTN" value="${difficulties.standard}" min="0" step="1" class="md-input" />
         </div>
         
-        <div class="form-group">
-          <label>Raises:</label>
-          <input type="number" name="raises" id="skill-roll-raises" value="0" min="0" step="1" style="width: 100%;" />
-          <div style="font-size: 11px; color: var(--df-text-muted, #888); margin-top: 4px;">
-            Final TN: <span id="final-tn-display">${difficulties.standard}</span>
+        <div class="md-group">
+          <label class="md-label">Raises <span class="md-sublabel">(+4 TN each)</span></label>
+          <input type="number" name="raises" id="skill-roll-raises" value="0" min="0" step="1" class="md-input" />
+          <div class="md-final-tn">
+            Final TN: <strong><span id="final-tn-display">${difficulties.standard}</span></strong>
           </div>
         </div>
       </form>
@@ -3102,7 +3102,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         content,
         buttons: {
           roll: {
-            label: 'Roll',
+            label: '<i class="fas fa-dice-d20"></i> Roll',
             callback: (html: JQuery) => {
               const attributeKey = html.find('[name="attribute"]').val() as string;
               const baseTNSelect = html.find('[name="baseTN"]').val() as string;
@@ -3132,27 +3132,32 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         },
         default: 'roll',
         render: (html: JQuery) => {
-          // Show/hide custom TN input
-          html.find('[name="baseTN"]').on('change', function() {
+          const $html = (html instanceof HTMLElement) ? $(html) : $(html as any);
+          
+          // Apply dialog class
+          setTimeout(() => {
+            $html.closest('.window-app.dialog').addClass('mastery-system mastery-roll-dialog');
+          }, 0);
+
+          $html.find('[name="baseTN"]').on('change', function() {
             const isCustom = $(this).val() === 'custom';
-            html.find('#custom-tn-group').toggle(isCustom);
+            $html.find('#custom-tn-group').toggle(isCustom);
           });
           
-          // Update final TN display
           const updateFinalTN = () => {
-            const baseTNSelect = html.find('[name="baseTN"]').val() as string;
+            const baseTNSelect = $html.find('[name="baseTN"]').val() as string;
             let baseTN: number;
             if (baseTNSelect === 'custom') {
-              baseTN = parseInt(html.find('[name="customTN"]').val() as string) || 0;
+              baseTN = parseInt($html.find('[name="customTN"]').val() as string) || 0;
             } else {
               baseTN = parseInt(baseTNSelect) || difficulties.standard;
             }
-            const raises = parseInt(html.find('[name="raises"]').val() as string) || 0;
+            const raises = parseInt($html.find('[name="raises"]').val() as string) || 0;
             const finalTN = baseTN + (raises * 4);
-            html.find('#final-tn-display').text(finalTN);
+            $html.find('#final-tn-display').text(finalTN);
           };
           
-          html.find('[name="baseTN"], [name="customTN"], [name="raises"]').on('change input', updateFinalTN);
+          $html.find('[name="baseTN"], [name="customTN"], [name="raises"]').on('change input', updateFinalTN);
           updateFinalTN();
         }
       } as any);
@@ -3538,21 +3543,30 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    * Prompt for Target Number
    */
   async #promptForTN(): Promise<number | null> {
+    const system = (this.actor as any).system;
+    const masteryRank = system.mastery?.rank || 2;
+    const standardTN = masteryRank * 8;
+
+    const presets = [
+      { label: 'Trivial', value: standardTN - 8 },
+      { label: 'Easy', value: standardTN - 4 },
+      { label: 'Standard', value: standardTN },
+      { label: 'Challenging', value: standardTN + 4 },
+      { label: 'Hard', value: standardTN + 8 },
+      { label: 'Very Hard', value: standardTN + 12 },
+      { label: 'Heroic', value: standardTN + 16 },
+    ];
+
     const content = `
-      <form>
-        <div class="form-group">
-          <label>Target Number:</label>
-          <input type="number" name="tn" value="16" step="1" min="0"/>
+      <form class="mastery-dialog-form">
+        <div class="md-group">
+          <label class="md-label">Target Number</label>
+          <input type="number" name="tn" value="${standardTN}" step="1" min="0" class="md-input" />
         </div>
-        <div class="form-group">
-          <label>Preset Difficulties:</label>
-          <div class="button-group">
-            <button type="button" data-tn="8">Trivial (8)</button>
-            <button type="button" data-tn="12">Easy (12)</button>
-            <button type="button" data-tn="16">Standard (16)</button>
-            <button type="button" data-tn="20">Challenging (20)</button>
-            <button type="button" data-tn="24">Difficult (24)</button>
-            <button type="button" data-tn="28">Extreme (28)</button>
+        <div class="md-group">
+          <label class="md-label">Quick Select</label>
+          <div class="md-tn-presets">
+            ${presets.map(p => `<button type="button" class="md-tn-btn${p.value === standardTN ? ' active' : ''}" data-tn="${p.value}">${p.label} (${p.value})</button>`).join('')}
           </div>
         </div>
       </form>
@@ -3564,9 +3578,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         content,
         buttons: {
           roll: {
-            label: 'Roll',
+            label: '<i class="fas fa-dice-d20"></i> Roll',
             callback: (html: JQuery) => {
-              const tn = parseInt(html.find('[name="tn"]').val() as string);
+              const $html = (html instanceof HTMLElement) ? $(html) : $(html as any);
+              const tn = parseInt($html.find('[name="tn"]').val() as string);
               resolve(tn);
             }
           },
@@ -3577,9 +3592,23 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         },
         default: 'roll',
         render: (html: JQuery) => {
-          html.find('[data-tn]').on('click', (event) => {
-            const tn = event.currentTarget.dataset.tn;
-            if (tn) html.find('[name="tn"]').val(tn);
+          const $html = (html instanceof HTMLElement) ? $(html) : $(html as any);
+
+          setTimeout(() => {
+            $html.closest('.window-app.dialog').addClass('mastery-system mastery-roll-dialog');
+          }, 0);
+
+          $html.find('.md-tn-btn').on('click', (event) => {
+            const tn = (event.currentTarget as HTMLElement).dataset.tn;
+            if (tn) {
+              $html.find('[name="tn"]').val(tn);
+              $html.find('.md-tn-btn').removeClass('active');
+              $(event.currentTarget).addClass('active');
+            }
+          });
+
+          $html.find('[name="tn"]').on('input', () => {
+            $html.find('.md-tn-btn').removeClass('active');
           });
         }
       }).render(true);
