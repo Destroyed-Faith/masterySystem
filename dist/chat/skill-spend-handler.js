@@ -7,8 +7,8 @@
  */
 export function registerSkillSpendClickHandler() {
     console.log('Mastery System | Registering skill spend click handler');
-    Hooks.on('renderChatMessageHTML', (message, htmlEl) => {
-        // Find skill spend button
+    Hooks.on('renderChatMessageHTML', (message, htmlRaw) => {
+        const htmlEl = (htmlRaw instanceof HTMLElement) ? $(htmlRaw) : htmlRaw;
         const spendButton = htmlEl.find('[data-action="spend-skill-success"]');
         if (spendButton.length === 0)
             return;
@@ -211,7 +211,8 @@ export function registerSkillSpendClickHandler() {
         });
     });
     // Handle Vitality spending for saves
-    Hooks.on('renderChatMessageHTML', (message, htmlEl) => {
+    Hooks.on('renderChatMessageHTML', (message, htmlRaw2) => {
+        const htmlEl = (htmlRaw2 instanceof HTMLElement) ? $(htmlRaw2) : htmlRaw2;
         const spendButton = htmlEl.find('[data-action="spend-vitality-save"]');
         if (spendButton.length === 0)
             return;

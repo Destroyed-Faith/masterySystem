@@ -751,6 +751,16 @@
   cursor: not-allowed;
 }
 
+.ms-theme-rulebook #chat-log .skill-spend-panel .skill-spend-success {
+  border-color: rgba(63, 107, 84, 0.6);
+  background: rgba(63, 107, 84, 0.15);
+}
+
+.ms-theme-rulebook #chat-log .skill-spend-panel .skill-spend-success:hover:not(:disabled) {
+  border-color: rgba(63, 107, 84, 0.8);
+  box-shadow: 0 0 0 1px rgba(63, 107, 84, 0.3) inset;
+}
+
 .ms-theme-rulebook #chat-log .skill-spend-panel .skill-spend-allin {
   border-color: rgba(202, 178, 113, 0.4);
   background: rgba(202, 178, 113, 0.1);

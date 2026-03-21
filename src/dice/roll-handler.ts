@@ -202,8 +202,7 @@ async function sendRollToChat(
     // For save rolls, calculate Vitality spending options
     let saveVitalityPool = 0;
     let saveVitalityUsesRemaining = 0;
-    let canSpendVitality = false;
-    let requiredVitality = 0;
+    let vitalitySpendOptions: Array<{amount: number, newTotal: number, success: boolean, raises: number, label: string}> = [];
     if (isSaveRoll && actor) {
       const actorData = (actor as any).system;
       const vitality = actorData.attributes?.vitality?.value || 0;
@@ -211,45 +210,51 @@ async function sendRollToChat(
       saveVitalityPool = Math.max(0, vitality - vitalitySpent);
       saveVitalityUsesRemaining = actorData.saves?.vitalityUsesRemaining ?? 4;
       const MR = actorData.mastery?.rank || 2;
-      
-      if (result.tn > 0 && !result.success && saveVitalityUsesRemaining > 0 && saveVitalityPool > 0) {
-        const missing = result.tn - result.total;
-        if (missing > 0) {
-          requiredVitality = Math.ceil(missing / MR) * MR;
-          canSpendVitality = saveVitalityPool >= requiredVitality;
-          if (!canSpendVitality && saveVitalityPool >= missing) {
-            requiredVitality = saveVitalityPool;
-            canSpendVitality = true;
-          }
+      const diceTotal = result.kept.reduce((sum: number, d: number) => sum + d, 0) + (baseModifier || 0);
+
+      if (saveVitalityUsesRemaining > 0 && saveVitalityPool > 0) {
+        const added = new Set<number>();
+        for (let amount = MR; amount <= saveVitalityPool; amount += MR) {
+          const newTotal = diceTotal + amount;
+          const success = result.tn > 0 ? newTotal >= result.tn : true;
+          const raises = result.tn > 0 && success ? Math.floor((newTotal - result.tn) / RAISE_INCREMENT) : 0;
+          vitalitySpendOptions.push({ amount, newTotal, success, raises, label: `${amount}` });
+          added.add(amount);
+        }
+        if (!added.has(saveVitalityPool)) {
+          const newTotal = diceTotal + saveVitalityPool;
+          const success = result.tn > 0 ? newTotal >= result.tn : true;
+          const raises = result.tn > 0 && success ? Math.floor((newTotal - result.tn) / RAISE_INCREMENT) : 0;
+          vitalitySpendOptions.push({ amount: saveVitalityPool, newTotal, success, raises, label: `All-in (${saveVitalityPool})` });
         }
       }
     }
-    
-    // For skill rolls, calculate required skill points to turn failure into success
+
+    // For skill rolls, calculate spending options (MR increments)
     let remainingPool = 0;
-    let canStillSucceed = false;
-    let requiredSkillPoints = 0;
+    let skillSpendOptions: Array<{amount: number, newTotal: number, success: boolean, raises: number, label: string}> = [];
     if (isSkillRoll && skillKey && actor) {
       const actorData = (actor as any).system;
       const skillRating = actorData.skills?.[skillKey] || 0;
       const skillsSpent = actorData.skillsSpent?.[skillKey] || 0;
       remainingPool = Math.max(0, skillRating - skillsSpent);
       const MR = actorData.mastery?.rank || 2;
-      
-      // Calculate required skill points to turn failure into success
-      if (result.tn > 0 && !result.success) {
-        const missing = result.tn - result.total;
-        if (missing > 0 && remainingPool > 0) {
-          // Round up to next MR step
-          requiredSkillPoints = Math.ceil(missing / MR) * MR;
-          // Check if we have enough points available
-          canStillSucceed = remainingPool >= requiredSkillPoints;
-          // If we don't have enough for the rounded amount, check if we can use all-in
-          if (!canStillSucceed && remainingPool >= missing) {
-            // All-in is possible, use remaining pool
-            requiredSkillPoints = remainingPool;
-            canStillSucceed = true;
-          }
+      const diceTotal = result.kept.reduce((sum: number, d: number) => sum + d, 0) + (baseModifier || 0);
+
+      if (remainingPool > 0) {
+        const added = new Set<number>();
+        for (let amount = MR; amount <= remainingPool; amount += MR) {
+          const newTotal = diceTotal + amount;
+          const success = result.tn > 0 ? newTotal >= result.tn : true;
+          const raises = result.tn > 0 && success ? Math.floor((newTotal - result.tn) / RAISE_INCREMENT) : 0;
+          skillSpendOptions.push({ amount, newTotal, success, raises, label: `${amount}` });
+          added.add(amount);
+        }
+        if (!added.has(remainingPool)) {
+          const newTotal = diceTotal + remainingPool;
+          const success = result.tn > 0 ? newTotal >= result.tn : true;
+          const raises = result.tn > 0 && success ? Math.floor((newTotal - result.tn) / RAISE_INCREMENT) : 0;
+          skillSpendOptions.push({ amount: remainingPool, newTotal, success, raises, label: `All-in (${remainingPool})` });
         }
       }
     }
@@ -394,29 +399,33 @@ async function sendRollToChat(
           ` : ''}
         </div>
         
-        ${isSkillRoll && skillKey && actorId && canStillSucceed && requiredSkillPoints > 0 ? `
+        ${isSkillRoll && skillKey && actorId && skillSpendOptions.length > 0 ? `
           <div class="skill-spend-panel">
             <div class="skill-spend-header">
-              <h4>Turn it into a success</h4>
+              <h4>Spend Skill Points</h4>
               <span class="skill-pool-info">Pool: ${remainingPool}/${(actor as any).system?.skills?.[skillKey] || 0}</span>
             </div>
             <div class="skill-spend-buttons">
-              <button type="button" class="skill-spend-btn skill-spend-success" data-action="spend-skill-success" data-spend="${requiredSkillPoints}" data-skill-key="${skillKey}" data-actor-id="${actorId}">
-                Turn it into a success (${requiredSkillPoints} Skill Points)
-              </button>
+              ${skillSpendOptions.map(opt => `
+                <button type="button" class="skill-spend-btn ${opt.success && !result.success ? 'skill-spend-success' : ''}" data-action="spend-skill-success" data-spend="${opt.amount}" data-skill-key="${skillKey}" data-actor-id="${actorId}">
+                  +${opt.label} → ${opt.newTotal}${result.tn > 0 ? (opt.success ? ` ✓${opt.raises > 0 ? ` (${opt.raises} raise${opt.raises > 1 ? 's' : ''})` : ''}` : ' ✗') : ''}
+                </button>
+              `).join('')}
             </div>
           </div>
         ` : ''}
-        ${isSaveRoll && actorId && canSpendVitality && requiredVitality > 0 ? `
+        ${isSaveRoll && actorId && vitalitySpendOptions.length > 0 ? `
           <div class="skill-spend-panel">
             <div class="skill-spend-header">
-              <h4>Spend Vitality to succeed</h4>
-              <span class="skill-pool-info">Vitality Pool: ${saveVitalityPool}/${(actor as any).system?.attributes?.vitality?.value || 0} (${saveVitalityUsesRemaining} uses left)</span>
+              <h4>Spend Vitality</h4>
+              <span class="skill-pool-info">Pool: ${saveVitalityPool}/${(actor as any).system?.attributes?.vitality?.value || 0} (${saveVitalityUsesRemaining} use${saveVitalityUsesRemaining !== 1 ? 's' : ''} left)</span>
             </div>
             <div class="skill-spend-buttons">
-              <button type="button" class="skill-spend-btn skill-spend-success" data-action="spend-vitality-save" data-spend="${requiredVitality}" data-actor-id="${actorId}">
-                Spend ${requiredVitality} Vitality (${saveVitalityUsesRemaining} uses left)
-              </button>
+              ${vitalitySpendOptions.map(opt => `
+                <button type="button" class="skill-spend-btn ${opt.success && !result.success ? 'skill-spend-success' : ''}" data-action="spend-vitality-save" data-spend="${opt.amount}" data-actor-id="${actorId}">
+                  +${opt.label} → ${opt.newTotal}${result.tn > 0 ? (opt.success ? ` ✓${opt.raises > 0 ? ` (${opt.raises} raise${opt.raises > 1 ? 's' : ''})` : ''}` : ' ✗') : ''}
+                </button>
+              `).join('')}
             </div>
           </div>
         ` : ''}
@@ -441,7 +450,6 @@ async function sendRollToChat(
           skillKey: skillKey || null,
           actorId: actorId || null,
           baseModifier: baseModifier || 0,
-          requiredSkillPoints: requiredSkillPoints || 0,
           skillSpentApplied: false,
           vitalitySpentApplied: false
         }

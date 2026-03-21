@@ -75,8 +75,8 @@ export async function showPowerCreationDialog(actor, context = 'mastery') {
             create: {
                 icon: '<i class="fas fa-check"></i>',
                 label: 'Create',
-                callback: async (html) => {
-                    const $html = html;
+                callback: async (htmlCb) => {
+                    const $html = (htmlCb instanceof HTMLElement) ? $(htmlCb) : $(htmlCb);
                     const tree = $html.find('#power-tree-select').val();
                     const school = $html.find('#spell-school-select').val();
                     const selectedPowerName = $html.find('#power-select').val();
@@ -286,7 +286,8 @@ export async function showPowerCreationDialog(actor, context = 'mastery') {
             }
         },
         default: 'create',
-        render: async (html) => {
+        render: async (htmlRaw) => {
+            const html = (htmlRaw instanceof HTMLElement) ? $(htmlRaw) : $(htmlRaw);
             // Add CSS classes and make dialog size dynamic based on content
             setTimeout(() => {
                 const dialogElement = html.closest('.window-app.dialog');
@@ -320,11 +321,18 @@ export async function showPowerCreationDialog(actor, context = 'mastery') {
             const powerLevelTableContainer = html.find('#power-level-table-container');
             const rankSelect = html.find('#power-rank-select')[0];
             const rankSelectGroup = html.find('#level-select-group');
+            console.log('Mastery System | Power dialog render', {
+                treeSelect: !!treeSelect,
+                schoolSelect: !!schoolSelect,
+                powerSelect: !!powerSelect,
+                isMastery
+            });
             let powersData = {};
             // Handle category selection (Tree or School based on context)
-            const categorySelect = isMastery ? treeSelect : schoolSelect;
-            categorySelect?.addEventListener('change', async function () {
+            const $categorySelect = isMastery ? html.find('#power-tree-select') : html.find('#spell-school-select');
+            $categorySelect.on('change', async function () {
                 const categoryName = this.value;
+                console.log('Mastery System | Power dialog category changed:', categoryName);
                 if (powerSelect) {
                     powerSelect.innerHTML = '<option value="">-- Select a Power --</option>';
                 }
@@ -339,6 +347,7 @@ export async function showPowerCreationDialog(actor, context = 'mastery') {
                         // Load mastery tree powers
                         const { getPowersForTree } = await import('../utils/powers/index.js');
                         const powers = getPowersForTree(categoryName);
+                        console.log('Mastery System | Loaded powers for tree', categoryName, '→', powers.length, 'powers');
                         powersData = {};
                         if (powers.length === 0) {
                             ui.notifications?.warn('No predefined powers found for this tree');
@@ -387,7 +396,7 @@ export async function showPowerCreationDialog(actor, context = 'mastery') {
                     ui.notifications?.error('Failed to load powers');
                 }
             });
-            powerSelect?.addEventListener('change', function () {
+            html.find('#power-select').on('change', function () {
                 const powerName = this.value;
                 if (!powerName || !powersData[powerName]) {
                     powerDetails.hide();
@@ -425,7 +434,7 @@ export async function showPowerCreationDialog(actor, context = 'mastery') {
                 updateRankInfo();
             });
             // Update rank details when rank changes
-            rankSelect?.addEventListener('change', function () {
+            html.find('#power-rank-select').on('change', function () {
                 updateRankInfo();
             });
             function updateRankInfo() {
