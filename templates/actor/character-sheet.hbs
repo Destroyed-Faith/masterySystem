@@ -531,8 +531,8 @@
             <div class="stat-icon evade-icon"><i class="fas fa-wind"></i></div>
             <div class="stat-content">
               <label>Evade</label>
-              <div class="stat-value">{{default system.combat.evadeTotal 10}}</div>
-              <div class="stat-formula">Agi + Def.Combat + (MR├ù2)</div>
+              <div class="stat-value">{{default system.combat.evadeTotal 8}}</div>
+              <div class="stat-formula">MR×4 + Agi + Shield + Armor</div>
             </div>
           </div>
           
@@ -574,8 +574,20 @@
       <div class="saving-throws-section">
         <h3><i class="fas fa-dice-d20"></i> Saving Throws</h3>
         
+        <!-- Vitality Pool for Saves -->
+        <div class="save-vitality-pool">
+          <span class="save-vitality-label">
+            <i class="fas fa-heart-pulse"></i> Vitality Pool ({{default system.attributes.vitality.value 2}} pts, {{default system.saves.vitalityUsesRemaining 4}}/4 uses)
+          </span>
+          <div class="save-vitality-uses">
+            {{#times 4}}
+            <span class="save-vitality-box {{#if (lt @index (default ../system.saves.vitalityUsesRemaining 4))}}available{{else}}spent{{/if}}"></span>
+            {{/times}}
+          </div>
+        </div>
+        
         <div class="saving-throws-grid-three">
-          <!-- Body Save: Max(Might, Agility) k Mastery + Vitality -->
+          <!-- Body Save: Max(Might, Agility) k Mastery -->
           <div class="saving-throw-card">
             <h4 class="save-title">
               <i class="fas fa-dumbbell"></i> Body Save
@@ -586,14 +598,14 @@
               {{else}}
                 {{system.attributes.agility.value}}d8
               {{/if}}
-              k {{default system.mastery.rank 2}} + {{default system.attributes.vitality.value 2}}
+              k {{default system.mastery.rank 2}}
             </div>
             <button type="button" class="save-roll-btn" data-save-type="body" title="Roll Body Save">
               <i class="fas fa-dice-d20"></i> Roll Save
             </button>
           </div>
           
-          <!-- Mind Save: Max(Intellect, Wits) k Mastery + Vitality -->
+          <!-- Mind Save: Max(Intellect, Wits) k Mastery -->
           <div class="saving-throw-card">
             <h4 class="save-title">
               <i class="fas fa-brain"></i> Mind Save
@@ -604,14 +616,14 @@
               {{else}}
                 {{system.attributes.wits.value}}d8
               {{/if}}
-              k {{default system.mastery.rank 2}} + {{default system.attributes.vitality.value 2}}
+              k {{default system.mastery.rank 2}}
             </div>
             <button type="button" class="save-roll-btn" data-save-type="mind" title="Roll Mind Save">
               <i class="fas fa-dice-d20"></i> Roll Save
             </button>
           </div>
           
-          <!-- Spirit Save: Max(Resolve, Influence) k Mastery + Vitality -->
+          <!-- Spirit Save: Max(Resolve, Influence) k Mastery -->
           <div class="saving-throw-card">
             <h4 class="save-title">
               <i class="fas fa-hands-praying"></i> Spirit Save
@@ -622,7 +634,7 @@
               {{else}}
                 {{system.attributes.influence.value}}d8
               {{/if}}
-              k {{default system.mastery.rank 2}} + {{default system.attributes.vitality.value 2}}
+              k {{default system.mastery.rank 2}}
             </div>
             <button type="button" class="save-roll-btn" data-save-type="spirit" title="Roll Spirit Save">
               <i class="fas fa-dice-d20"></i> Roll Save
@@ -676,7 +688,7 @@
           
           <!-- Stress Bars -->
           <div class="stress-bars-container">
-            <h4><i class="fas fa-brain"></i> Stress ((Resolve + Wits) × 2 per bar)</h4>
+            <h4><i class="fas fa-brain"></i> Stress (Resolve + Intellect per bar)</h4>
             <div class="stress-bars-list">
               {{#each system.stress.bars as |bar index|}}
               <div class="stress-bar-row {{#if (eq index ../system.stress.currentBar)}}active{{/if}}">

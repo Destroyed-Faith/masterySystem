@@ -7,6 +7,7 @@ export async function showArmorCreationDialog(actor) {
       value="${armor.name}" 
       data-type="${armor.type}"
       data-armor-value="${armor.armorValue}"
+      data-evade-modifier="${armor.evadeModifier}"
       data-skill-penalty="${armor.skillPenalty}"
       data-description="${armor.description || ''}"
     >${armor.name} (${typeLabel}, +${armor.armorValue} Armor)</option>`;
@@ -83,6 +84,7 @@ export async function showArmorCreationDialog(actor) {
                         system: {
                             type: option.dataset.type || 'light',
                             armorValue: parseInt(option.dataset.armorValue || '0', 10),
+                            evadeModifier: parseInt(option.dataset.evadeModifier || '0', 10),
                             skillPenalty: option.dataset.skillPenalty || '—',
                             equipped: equipped,
                             description: option.dataset.description || ''

@@ -82,11 +82,11 @@ function getTargetEvade(targetActor) {
  * Determine which attribute to use for attack
  */
 function getAttackAttribute(_actor, weapon, option) {
-    // If it's a power, check if it specifies an attribute
     if (option.source === 'power' && option.item) {
         const powerSystem = option.item.system || {};
-        if (powerSystem.attribute) {
-            return powerSystem.attribute.toLowerCase();
+        const attr = powerSystem.roll?.attribute || powerSystem.attribute;
+        if (attr) {
+            return attr.toLowerCase();
         }
     }
     // Check weapon for Finesse (uses Agility)

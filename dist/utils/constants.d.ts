@@ -1,23 +1,29 @@
 /**
  * Constants for the Mastery System
+ * Based on Player's Guide v0.5.26
  */
 export declare const EXPLODE_VALUE = 8;
-export declare const RAISE_INCREMENT = 5;
+export declare const RAISE_INCREMENT = 4;
 export declare const MIN_ATTRIBUTE = 0;
-export declare const MAX_ATTRIBUTE = 10;
-export declare const ACTIONS_PER_TURN = 2;
+export declare const MAX_ATTRIBUTE = 80;
+export declare const ATTACK_ACTIONS_PER_TURN = 1;
 export declare const REACTIONS_PER_ROUND = 1;
-export declare const MOVEMENT_POINTS_BASE = 6;
-export declare const HEALTH_BARS_COUNT = 3;
-export declare const DEFAULT_HEALTH_PER_BAR = 10;
-export declare const MAX_MASTERY_RANK = 4;
-export declare const STARTING_STONES = 8;
+export declare const MOVEMENT_PER_TURN = 1;
+export declare const HEALTH_BARS_COUNT = 4;
+export declare const HEALTH_PENALTIES: number[];
+export declare const MAX_MASTERY_RANK = 8;
 export declare const INITIATIVE_SHOP: {
     MOVEMENT: {
         COST: number;
         INCREMENT: number;
     };
     SWAP: {
+        COST: number;
+    };
+    EXTRA_REACTION: {
+        COST: number;
+    };
+    REMOVE_STRESS: {
         COST: number;
     };
     EXTRA_ATTACK: {
@@ -31,4 +37,28 @@ export declare const CREATION: {
     MAX_SKILL_AT_CREATION: number;
     MAX_DISADVANTAGE_POINTS: number;
 };
+export declare const XP_COSTS: {
+    ATTRIBUTE: {
+        min: number;
+        max: number;
+        cost: number;
+    }[];
+    SKILL_PER_RANK: number;
+    POWER_LEVEL: number[];
+    NEW_TREE: number;
+    ARTIFACT_ACCESS: number;
+    ARTIFACT_LEVEL: number;
+};
+export declare const MR_ADVANCEMENT: {
+    stones: number;
+    mr: number;
+    tier: string;
+}[];
+export declare const SAVING_THROWS: {
+    body: string[];
+    mind: string[];
+    spirit: string[];
+};
+export declare const SAVE_DC_BY_MR: Record<number, number>;
+export declare const ECHO_SPEEDS: Record<string, number>;
 //# sourceMappingURL=constants.d.ts.map

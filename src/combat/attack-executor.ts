@@ -92,11 +92,11 @@ function getTargetEvade(targetActor: any): number {
  * Determine which attribute to use for attack
  */
 function getAttackAttribute(_actor: any, weapon: any | null, option: RadialCombatOption): string {
-  // If it's a power, check if it specifies an attribute
   if (option.source === 'power' && option.item) {
     const powerSystem = (option.item.system as any) || {};
-    if (powerSystem.attribute) {
-      return powerSystem.attribute.toLowerCase();
+    const attr = powerSystem.roll?.attribute || powerSystem.attribute;
+    if (attr) {
+      return attr.toLowerCase();
     }
   }
   

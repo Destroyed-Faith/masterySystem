@@ -277,6 +277,17 @@ export class MasteryActor extends Actor {
         }
       }
     }
+
+    // Initialize saves tracking for Vitality spending
+    if (!system.saves) {
+      system.saves = { vitalitySpent: 0, vitalityUsesRemaining: 4 };
+    }
+    if (system.saves.vitalityUsesRemaining === undefined) {
+      system.saves.vitalityUsesRemaining = 4;
+    }
+    if (system.saves.vitalitySpent === undefined) {
+      system.saves.vitalitySpent = 0;
+    }
   }
 
   /**
@@ -323,12 +334,13 @@ export class MasteryActor extends Actor {
     const shieldValue = (equippedShield?.system as any)?.shieldValue || 0;
     system.combat.armorTotal = masteryRank + armorValue + shieldValue;
     
-    // Calculate evadeTotal = base evade + shield evadeBonus + Agility scaling
-    const baseEvade = system.combat.evade || 0;
+    // Calculate evadeTotal = MR×4 + shield evadeBonus + armor evadeModifier + Agility scaling
+    const baseEvade = calculateBaseEvade(masteryRank);
     const shieldEvadeBonus = (equippedShield?.system as any)?.evadeBonus || 0;
+    const armorEvadeModifier = (equippedArmor?.system as any)?.evadeModifier || 0;
     const agilityValue = system.attributes?.agility?.value || 0;
     const agilityEvadeBonus = calculateAgilityEvadeBonus(agilityValue);
-    system.combat.evadeTotal = baseEvade + shieldEvadeBonus + agilityEvadeBonus;
+    system.combat.evadeTotal = baseEvade + shieldEvadeBonus + armorEvadeModifier + agilityEvadeBonus;
     
     // Attribute Scaling Passives
     if (system.attributes) {

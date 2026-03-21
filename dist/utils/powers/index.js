@@ -36,69 +36,54 @@ import { WITCHBANE_POWERS } from './witchbane.js';
 import { TITAN_RUNECASTER_POWERS } from './titan-runecaster.js';
 // ... etc
 /**
- * All mastery powers from all trees
- * Supports both old PowerDefinition and new NewArtifactPowerData structures
+ * Map from tree display name to its power array.
+ * This is the single source of truth for which powers belong to which tree.
  */
-export const ALL_MASTERY_POWERS = [
-    ...CRUSADER_POWERS,
-    ...BATTLEMAGE_POWERS,
-    ...BERSERKER_POWERS,
-    ...SANCTIFIER_POWERS,
-    ...ALCHEMIST_POWERS,
-    ...CATALYST_POWERS,
-    ...JUGGERNAUT_POWERS,
-    ...GRIM_HUNTER_POWERS,
-    ...WILD_STALKER_POWERS,
-    ...ELEMENTAL_SCHOLAR_POWERS,
-    ...WEREWOLF_POWERS,
-    ...WEREBEAR_POWERS,
-    ...DRAGON_POWERS,
-    ...RAVENLORD_POWERS,
-    ...WRAITH_POWERS,
-    ...MESMER_POWERS,
-    ...MARKED_ONE_POWERS,
-    ...SPELLSHAPER_POWERS,
-    ...FROSTMONGER_POWERS,
-    ...SCOURGE_POWERS,
-    ...CURSEWEAVER_POWERS,
-    ...SIREN_POWERS,
-    ...CRANE_POWERS,
-    ...LOTUS_POWERS,
-    ...FORGEMASTER_POWERS,
-    ...WITCHBANE_POWERS,
-    ...TITAN_RUNECASTER_POWERS
-];
+const TREE_POWER_MAP = {
+    'Crusader': CRUSADER_POWERS,
+    'Battlemage': BATTLEMAGE_POWERS,
+    'Berserker of the Blood Moon': BERSERKER_POWERS,
+    'Sanctifier': SANCTIFIER_POWERS,
+    'Alchemist': ALCHEMIST_POWERS,
+    'Catalyst': CATALYST_POWERS,
+    'Juggernaut': JUGGERNAUT_POWERS,
+    'Grim Hunter': GRIM_HUNTER_POWERS,
+    'Wild Stalker': WILD_STALKER_POWERS,
+    'Elemental Scholar': ELEMENTAL_SCHOLAR_POWERS,
+    'Werewolf': WEREWOLF_POWERS,
+    'Werebear': WEREBEAR_POWERS,
+    'Dragon': DRAGON_POWERS,
+    'Ravenlord': RAVENLORD_POWERS,
+    'Wraith': WRAITH_POWERS,
+    'Mesmer': MESMER_POWERS,
+    'Marked One': MARKED_ONE_POWERS,
+    'Spellshaper': SPELLSHAPER_POWERS,
+    'Frostmonger': FROSTMONGER_POWERS,
+    'Scourge': SCOURGE_POWERS,
+    'Curseweaver': CURSEWEAVER_POWERS,
+    'Siren': SIREN_POWERS,
+    'Crane': CRANE_POWERS,
+    'Lotus': LOTUS_POWERS,
+    'Forgemaster': FORGEMASTER_POWERS,
+    'Witchbane': WITCHBANE_POWERS,
+    'Titan Runecaster': TITAN_RUNECASTER_POWERS,
+};
+/**
+ * All mastery powers from all trees (flat list)
+ */
+export const ALL_MASTERY_POWERS = Object.values(TREE_POWER_MAP).flat();
 /**
  * Get all powers for a specific Mastery Tree
- * @param treeName - The name of the Mastery Tree
- * @returns Array of PowerDefinition or NewArtifactPowerData objects for that tree
+ * @param treeName - The display name of the Mastery Tree (e.g. "Crusader")
  */
 export function getPowersForTree(treeName) {
-    return ALL_MASTERY_POWERS.filter(power => {
-        // Support both old and new structure
-        if ('tree' in power) {
-            return power.tree === treeName;
-        }
-        // New structure doesn't have tree field, so we can't filter by it
-        // This will need to be updated when all powers are migrated
-        return false;
-    });
+    return TREE_POWER_MAP[treeName] ?? [];
 }
 /**
  * Get a specific power by tree and name
- * @param treeName - The name of the Mastery Tree
- * @param powerName - The name of the power
- * @returns PowerDefinition or NewArtifactPowerData or undefined if not found
  */
 export function getPower(treeName, powerName) {
-    return ALL_MASTERY_POWERS.find(power => {
-        // Support both old and new structure
-        if ('tree' in power) {
-            return power.tree === treeName && power.name === powerName;
-        }
-        // New structure - for now, just match by name
-        // TODO: Add tree tracking to new structure if needed
-        return power.name === powerName;
-    });
+    const treePowers = getPowersForTree(treeName);
+    return treePowers.find(p => p.name === powerName);
 }
 //# sourceMappingURL=index.js.map

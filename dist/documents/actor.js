@@ -1,7 +1,7 @@
 /**
  * Extended Actor document for Mastery System
  */
-import { calculateStones, calculateTotalStones, updateAttributeStones, initializeHealthBars, initializeStressBars, calculateHealthBarMax, calculateStressBarMax } from '../utils/calculations.js';
+import { calculateStones, calculateTotalStones, updateAttributeStones, initializeHealthBars, initializeStressBars, calculateHealthBarMax, calculateStressBarMax, calculateMightDamageBonus, calculateAgilityEvadeBonus, calculateAgilityRangeBonus, calculateIntellectSaveTNBonus, calculateResolveStressArmor, calculateInfluenceSkillBonus, calculateWitsInitiativeBonus, calculateArmorBreaker, calculateBaseEvade } from '../utils/calculations.js';
 export class MasteryActor extends Actor {
     /**
      * Augment the basic actor data with additional dynamic data
@@ -31,7 +31,7 @@ export class MasteryActor extends Actor {
                 if (!system.stonePools) {
                     system.stonePools = {};
                 }
-                const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence'];
+                const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
                 for (const attrKey of attributeKeys) {
                     const attrValue = system.attributes[attrKey]?.value || 0;
                     const maxStones = Math.floor(attrValue / 8);
@@ -163,11 +163,11 @@ export class MasteryActor extends Actor {
                 }
                 // Initialize stress bars (4 bars: Healthy, Stressed, Not Well, Breaking)
                 const resolve = system.attributes.resolve?.value || 2;
-                const wits = system.attributes.wits?.value || 2;
-                const maxStress = calculateStressBarMax(resolve, wits);
+                const intellect = system.attributes.intellect?.value || 2;
+                const maxStress = calculateStressBarMax(resolve, intellect);
                 if (!system.stress) {
                     system.stress = {
-                        bars: initializeStressBars(resolve, wits),
+                        bars: initializeStressBars(resolve, intellect),
                         currentBar: 0
                     };
                 }
@@ -186,17 +186,17 @@ export class MasteryActor extends Actor {
                             }
                             else {
                                 // Not a valid object format, initialize fresh
-                                system.stress.bars = initializeStressBars(resolve, wits);
+                                system.stress.bars = initializeStressBars(resolve, intellect);
                             }
                         }
                         else {
-                            system.stress.bars = initializeStressBars(resolve, wits);
+                            system.stress.bars = initializeStressBars(resolve, intellect);
                         }
                     }
                     // Migrate old stress format to bars if needed
                     if (!system.stress.bars || system.stress.bars.length === 0) {
                         const oldCurrent = system.stress.current || 0;
-                        system.stress.bars = initializeStressBars(resolve, wits);
+                        system.stress.bars = initializeStressBars(resolve, intellect);
                         system.stress.currentBar = 0;
                         // Distribute old stress value across bars
                         if (oldCurrent > 0) {
@@ -246,6 +246,16 @@ export class MasteryActor extends Actor {
                 }
             }
         }
+        // Initialize saves tracking for Vitality spending
+        if (!system.saves) {
+            system.saves = { vitalitySpent: 0, vitalityUsesRemaining: 4 };
+        }
+        if (system.saves.vitalityUsesRemaining === undefined) {
+            system.saves.vitalityUsesRemaining = 4;
+        }
+        if (system.saves.vitalitySpent === undefined) {
+            system.saves.vitalitySpent = 0;
+        }
     }
     /**
      * Prepare derived equipment data (armorTotal, evadeTotal, etc.)
@@ -287,10 +297,32 @@ export class MasteryActor extends Actor {
         const armorValue = equippedArmor?.system?.armorValue || 0;
         const shieldValue = equippedShield?.system?.shieldValue || 0;
         system.combat.armorTotal = masteryRank + armorValue + shieldValue;
-        // Calculate evadeTotal = base evade + shield evadeBonus
-        const baseEvade = system.combat.evade || 0;
+        // Calculate evadeTotal = MR×4 + shield evadeBonus + armor evadeModifier + Agility scaling
+        const baseEvade = calculateBaseEvade(masteryRank);
         const shieldEvadeBonus = equippedShield?.system?.evadeBonus || 0;
-        system.combat.evadeTotal = baseEvade + shieldEvadeBonus;
+        const armorEvadeModifier = equippedArmor?.system?.evadeModifier || 0;
+        const agilityValue = system.attributes?.agility?.value || 0;
+        const agilityEvadeBonus = calculateAgilityEvadeBonus(agilityValue);
+        system.combat.evadeTotal = baseEvade + shieldEvadeBonus + armorEvadeModifier + agilityEvadeBonus;
+        // Attribute Scaling Passives
+        if (system.attributes) {
+            const might = system.attributes.might?.value || 0;
+            const intellect = system.attributes.intellect?.value || 0;
+            const resolve = system.attributes.resolve?.value || 0;
+            const influence = system.attributes.influence?.value || 0;
+            const wits = system.attributes.wits?.value || 0;
+            if (!system.scaling)
+                system.scaling = {};
+            system.scaling.mightDamageBonus = calculateMightDamageBonus(might);
+            system.scaling.agilityEvadeBonus = agilityEvadeBonus;
+            system.scaling.agilityRangeBonus = calculateAgilityRangeBonus(agilityValue);
+            system.scaling.intellectSaveTNBonus = calculateIntellectSaveTNBonus(intellect);
+            system.scaling.resolveStressArmor = calculateResolveStressArmor(resolve);
+            system.scaling.influenceSkillBonus = calculateInfluenceSkillBonus(influence);
+            system.scaling.witsInitiativeBonus = calculateWitsInitiativeBonus(wits);
+            system.scaling.armorBreaker = calculateArmorBreaker(might);
+            system.scaling.baseEvade = calculateBaseEvade(masteryRank);
+        }
         // Prepare tracked resources for Combat Carousel module
         // These are derived fields that update automatically when actor data changes
         system.tracked = system.tracked ?? {};

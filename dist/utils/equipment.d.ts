@@ -6,6 +6,7 @@ export interface ArmorDefinition {
     name: string;
     type: 'light' | 'medium' | 'heavy';
     armorValue: number;
+    evadeModifier: number;
     skillPenalty: string;
     description: string;
 }

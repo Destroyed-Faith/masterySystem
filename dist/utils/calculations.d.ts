@@ -59,19 +59,19 @@ export declare function applyDamage(bars: HealthBar[], currentBar: number, damag
 export declare function healDamage(bars: HealthBar[], currentBar: number, healing: number): void;
 /**
  * Calculate Stress Bar maximum
- * Each bar = Resolve + Wits (no multiplier)
+ * Each bar = Resolve + Intellect
  */
-export declare function calculateStressBarMax(resolve: number, wits: number): number;
+export declare function calculateStressBarMax(resolve: number, intellect: number): number;
 /**
  * Initialize stress bars with proper max values
  * 4 bars: Healthy, Stressed, Not Well, Breaking
- * Each bar = Resolve + Wits boxes
+ * Each bar = Resolve + Intellect boxes
  */
-export declare function initializeStressBars(resolve: number, wits: number): HealthBar[];
+export declare function initializeStressBars(resolve: number, intellect: number): HealthBar[];
 /**
- * Update stress bars when resolve or wits changes
+ * Update stress bars when resolve or intellect changes
  */
-export declare function updateStressBars(bars: HealthBar[], resolve: number, wits: number): void;
+export declare function updateStressBars(bars: HealthBar[], resolve: number, intellect: number): void;
 /**
  * Apply stress damage to stress bars
  * Returns the new current bar index
@@ -86,4 +86,51 @@ export declare function calculateMaxSkillRank(masteryRank: number): number;
  * Validate skill value against mastery rank
  */
 export declare function validateSkillValue(skillValue: number, masteryRank: number): number;
+/**
+ * Might Scaling: Melee Damage bonus = 2 * floor(Might / 8)
+ * Flat bonus applied per successful melee/unarmed hit.
+ */
+export declare function calculateMightDamageBonus(might: number): number;
+/**
+ * Agility Scaling: Evade bonus = floor(Agility / 8)
+ */
+export declare function calculateAgilityEvadeBonus(agility: number): number;
+/**
+ * Agility Scaling: Range band extensions
+ * Short: +floor(Agility/8) m
+ * Medium: +2*floor(Agility/8) m
+ * Long: +floor(Agility/8) m
+ */
+export declare function calculateAgilityRangeBonus(agility: number): {
+    short: number;
+    medium: number;
+    long: number;
+};
+/**
+ * Intellect Scaling: Saving throw TN increase against your spells = floor(Intellect / 8)
+ */
+export declare function calculateIntellectSaveTNBonus(intellect: number): number;
+/**
+ * Resolve Scaling: Stress Armor = floor(Resolve / 8)
+ * Reduces incoming stress by this amount (min 0).
+ * Does not apply to voluntary stress costs.
+ */
+export declare function calculateResolveStressArmor(resolve: number): number;
+/**
+ * Influence Scaling: +floor(Influence/8) bonus to two chosen skill rolls
+ */
+export declare function calculateInfluenceSkillBonus(influence: number): number;
+/**
+ * Wits Scaling: Initiative bonus = floor(Wits / 8)
+ */
+export declare function calculateWitsInitiativeBonus(wits: number): number;
+/**
+ * Armor Breaker (Might): Penetration = floor(Might / 8)
+ * Stacks with weapon penetration and power penetration.
+ */
+export declare function calculateArmorBreaker(might: number): number;
+/**
+ * Evade formula: MR * 4 + size mod + shield bonus + passives + agility scaling
+ */
+export declare function calculateBaseEvade(masteryRank: number): number;
 //# sourceMappingURL=calculations.d.ts.map

@@ -265,6 +265,7 @@ export interface WeaponData extends BaseItemData {
 export interface ArmorData extends BaseItemData {
   type: string;
   armorValue: number;
+  evadeModifier: number;
   skillPenalty?: number;
   equipped: boolean;
 }

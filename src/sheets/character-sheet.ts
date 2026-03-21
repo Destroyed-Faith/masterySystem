@@ -3192,15 +3192,19 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       }
     }
     
-    await this.actor.update({ 'system.skillsSpent': skillsSpent });
-    
-    console.log('Mastery System | Safe Haven Rest: Reset all skill points', {
+    await this.actor.update({
+      'system.skillsSpent': skillsSpent,
+      'system.saves.vitalitySpent': 0,
+      'system.saves.vitalityUsesRemaining': 4
+    });
+
+    console.log('Mastery System | Safe Haven Rest: Reset all skill points and Vitality save uses', {
       actorId: this.actor.id,
       actorName: this.actor.name,
       skillsReset: Object.keys(skillsSpent).length
     });
-    
-    (ui as any).notifications?.info('All Skill Points restored!');
+
+    (ui as any).notifications?.info('All Skill Points and Vitality save uses restored!');
     this.render();
   }
 
@@ -3276,7 +3280,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       tn,
       label: `${saveName} Save`,
       flavor: flavorText,
-      actorId: (this.actor as any).id
+      actorId: (this.actor as any).id,
+      isSaveRoll: true
     });
   }
 

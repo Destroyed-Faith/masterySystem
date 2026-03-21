@@ -168,6 +168,10 @@
         "influence": 0,
         "wits": 0
       },
+      "saves": {
+        "vitalitySpent": 0,
+        "vitalityUsesRemaining": 4
+      },
       "conditions": [],
       "notes": {
         "schticks": "",
@@ -368,12 +372,14 @@
     "armor": {
       "templates": ["base"],
       "armorValue": 0,
+      "evadeModifier": 0,
       "type": "light",
       "equipped": false
     },
     "shield": {
       "templates": ["base"],
       "shieldValue": 0,
+      "evadeBonus": 0,
       "type": "light",
       "equipped": false
     },

@@ -134,19 +134,43 @@ export async function masteryRoll(options) {
         flavor
     });
     // Send to chat
-    await sendRollToChat(result, label, flavor, options.actorId, options.skillKey, options.isSkillRoll, options.baseModifier);
+    await sendRollToChat(result, label, flavor, options.actorId, options.skillKey, options.isSkillRoll, options.baseModifier, options.isSaveRoll);
     console.log('Mastery System | DEBUG: Roll complete, returning result', result);
     return result;
 }
 /**
  * Send roll result to chat
  */
-async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillRoll, baseModifier) {
+async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillRoll, baseModifier, isSaveRoll) {
     try {
         // Get actor if available
         let actor = null;
         if (actorId && game.actors) {
             actor = game.actors.get(actorId);
+        }
+        // For save rolls, calculate Vitality spending options
+        let saveVitalityPool = 0;
+        let saveVitalityUsesRemaining = 0;
+        let canSpendVitality = false;
+        let requiredVitality = 0;
+        if (isSaveRoll && actor) {
+            const actorData = actor.system;
+            const vitality = actorData.attributes?.vitality?.value || 0;
+            const vitalitySpent = actorData.saves?.vitalitySpent || 0;
+            saveVitalityPool = Math.max(0, vitality - vitalitySpent);
+            saveVitalityUsesRemaining = actorData.saves?.vitalityUsesRemaining ?? 4;
+            const MR = actorData.mastery?.rank || 2;
+            if (result.tn > 0 && !result.success && saveVitalityUsesRemaining > 0 && saveVitalityPool > 0) {
+                const missing = result.tn - result.total;
+                if (missing > 0) {
+                    requiredVitality = Math.ceil(missing / MR) * MR;
+                    canSpendVitality = saveVitalityPool >= requiredVitality;
+                    if (!canSpendVitality && saveVitalityPool >= missing) {
+                        requiredVitality = saveVitalityPool;
+                        canSpendVitality = true;
+                    }
+                }
+            }
         }
         // For skill rolls, calculate required skill points to turn failure into success
         let remainingPool = 0;
@@ -315,6 +339,19 @@ async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillR
             </div>
           </div>
         ` : ''}
+        ${isSaveRoll && actorId && canSpendVitality && requiredVitality > 0 ? `
+          <div class="skill-spend-panel">
+            <div class="skill-spend-header">
+              <h4>Spend Vitality to succeed</h4>
+              <span class="skill-pool-info">Vitality Pool: ${saveVitalityPool}/${actor.system?.attributes?.vitality?.value || 0} (${saveVitalityUsesRemaining} uses left)</span>
+            </div>
+            <div class="skill-spend-buttons">
+              <button type="button" class="skill-spend-btn skill-spend-success" data-action="spend-vitality-save" data-spend="${requiredVitality}" data-actor-id="${actorId}">
+                Spend ${requiredVitality} Vitality (${saveVitalityUsesRemaining} uses left)
+              </button>
+            </div>
+          </div>
+        ` : ''}
       </div>
     `;
         // Create chat message with serialized Roll object (Foundry v13 expects serialized rolls)
@@ -331,11 +368,13 @@ async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillR
                     rollResult: result,
                     canReroll: true,
                     isSkillRoll: isSkillRoll || false,
+                    isSaveRoll: isSaveRoll || false,
                     skillKey: skillKey || null,
                     actorId: actorId || null,
                     baseModifier: baseModifier || 0,
                     requiredSkillPoints: requiredSkillPoints || 0,
-                    skillSpentApplied: false
+                    skillSpentApplied: false,
+                    vitalitySpentApplied: false
                 }
             }
         };

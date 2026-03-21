@@ -13,6 +13,7 @@ export interface RollOptions {
     actorId?: string;
     skillKey?: string;
     isSkillRoll?: boolean;
+    isSaveRoll?: boolean;
     baseModifier?: number;
 }
 /**

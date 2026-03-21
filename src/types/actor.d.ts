@@ -95,6 +95,11 @@ export interface CharacterData {
   combat: CombatData;
   resources: ResourcesData;
   skills: Record<string, number>;
+  skillsSpent: Record<string, number>;
+  saves: {
+    vitalitySpent: number;
+    vitalityUsesRemaining: number;
+  };
   conditions: any[];
   notes: {
     schticks: string;

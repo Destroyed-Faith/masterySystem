@@ -307,24 +307,48 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         if (selectedPower) {
             const powerSystem = selectedPower.system;
             const powerLevel = powerSystem.level || 1;
-            // Try to get level-specific data from power definitions
             let levelData = null;
             try {
                 const powersModule = await import('../utils/powers/index.js');
-                const powerDefinitions = powersModule.ALL_MASTERY_POWERS || [];
-                const powerDef = powerDefinitions.find((p) => p.name === selectedPower.name && p.tree === powerSystem.tree);
+                const treeName = powerSystem.tree;
+                let powerDef = null;
+                if (treeName && powersModule.getPower) {
+                    powerDef = powersModule.getPower(treeName, selectedPower.name);
+                }
+                if (!powerDef) {
+                    const defs = powersModule.ALL_MASTERY_POWERS || [];
+                    powerDef = defs.find((p) => p.name === selectedPower.name);
+                }
                 if (powerDef && powerDef.levels) {
-                    levelData = powerDef.levels.find((l) => l.level === powerLevel);
+                    if (Array.isArray(powerDef.levels)) {
+                        levelData = powerDef.levels.find((l) => l.level === powerLevel);
+                    }
+                    else {
+                        levelData = powerDef.levels[String(powerLevel)];
+                    }
                 }
             }
             catch (e) {
                 console.warn('Mastery System | Could not load power definitions for level data', e);
             }
-            // Use level-specific data if available, otherwise fall back to system data
             if (levelData) {
-                const rawPowerDamage = levelData.roll?.damage || powerSystem.roll?.damage || '0';
-                powerDamage = cleanPowerDamage(rawPowerDamage);
-                if (levelData.special) {
+                // New structure: effect.dice holds the bonus dice (e.g. "2d8")
+                if (levelData.effect?.dice) {
+                    powerDamage = cleanPowerDamage(levelData.effect.dice);
+                }
+                else if (levelData.roll?.damage) {
+                    powerDamage = cleanPowerDamage(levelData.roll.damage);
+                }
+                else {
+                    powerDamage = cleanPowerDamage(powerSystem.roll?.damage || '0');
+                }
+                // New structure: specials is array of { key, rank?, value? }
+                if (levelData.specials && Array.isArray(levelData.specials)) {
+                    powerSpecials = levelData.specials.map((s) => typeof s === 'string' ? s :
+                        s.value !== undefined ? `${s.key}(${s.value})` :
+                            s.rank !== undefined ? `${s.key}(${s.rank})` : s.key);
+                }
+                else if (levelData.special) {
                     powerSpecials = levelData.special.split(',').map((s) => s.trim());
                 }
                 else {
@@ -332,8 +356,16 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
                 }
             }
             else {
-                const rawPowerDamage = powerSystem.roll?.damage || '0';
-                powerDamage = cleanPowerDamage(rawPowerDamage);
+                // Fallback: try effect.dice from item system (set during creation for new powers)
+                const effectText = powerSystem.effect || '';
+                const diceMatch = effectText.match(/(\d+d\d+)/);
+                if (diceMatch) {
+                    powerDamage = diceMatch[1];
+                }
+                else {
+                    const rawPowerDamage = powerSystem.roll?.damage || '0';
+                    powerDamage = cleanPowerDamage(rawPowerDamage);
+                }
                 powerSpecials = powerSystem.specials || [];
             }
             selectedPowerData = {

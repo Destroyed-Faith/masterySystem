@@ -2859,17 +2859,24 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 }
             }
         }
-        await this.actor.update({ 'system.skillsSpent': skillsSpent });
-        console.log('Mastery System | Safe Haven Rest: Reset all skill points', {
+        await this.actor.update({
+            'system.skillsSpent': skillsSpent,
+            'system.saves.vitalitySpent': 0,
+            'system.saves.vitalityUsesRemaining': 4
+        });
+        console.log('Mastery System | Safe Haven Rest: Reset all skill points and Vitality save uses', {
             actorId: this.actor.id,
             actorName: this.actor.name,
             skillsReset: Object.keys(skillsSpent).length
         });
-        ui.notifications?.info('All Skill Points restored!');
+        ui.notifications?.info('All Skill Points and Vitality save uses restored!');
         this.render();
     }
     /**
      * Handle saving throw roll
+     * Per Player's Guide: Roll higher of two attributes in category, keep MR.
+     * Body = max(Might, Agility), Mind = max(Intellect, Wits), Spirit = max(Resolve, Influence)
+     * DC = source MR × 8 (prompted from user)
      */
     async #onSavingThrowRoll(event) {
         event.preventDefault();
@@ -2878,59 +2885,61 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (!saveType)
             return;
         const actorData = this.actor.system;
-        const vitality = actorData.attributes?.vitality?.value || 2;
-        // Calculate which attribute to use and numDice
         let numDice;
+        let usedAttr1;
+        let usedAttr2;
+        let chosenAttr;
         if (saveType === 'body') {
             const might = actorData.attributes?.might?.value || 2;
             const agility = actorData.attributes?.agility?.value || 2;
             numDice = Math.max(might, agility);
+            usedAttr1 = `Might ${might}`;
+            usedAttr2 = `Agility ${agility}`;
+            chosenAttr = might >= agility ? 'Might' : 'Agility';
         }
         else if (saveType === 'mind') {
             const intellect = actorData.attributes?.intellect?.value || 2;
             const wits = actorData.attributes?.wits?.value || 2;
             numDice = Math.max(intellect, wits);
+            usedAttr1 = `Intellect ${intellect}`;
+            usedAttr2 = `Wits ${wits}`;
+            chosenAttr = intellect >= wits ? 'Intellect' : 'Wits';
         }
         else if (saveType === 'spirit') {
             const resolve = actorData.attributes?.resolve?.value || 2;
             const influence = actorData.attributes?.influence?.value || 2;
             numDice = Math.max(resolve, influence);
+            usedAttr1 = `Resolve ${resolve}`;
+            usedAttr2 = `Influence ${influence}`;
+            chosenAttr = resolve >= influence ? 'Resolve' : 'Influence';
         }
         else {
             return;
         }
-        // Get mastery rank (number to keep)
         const keepDice = actorData.mastery?.rank || 2;
-        // Apply health penalty (reduces dice pool)
         const { getCurrentPenalty } = await import('../utils/calculations.js');
         const healthBars = actorData.health?.bars || [];
         const currentBar = actorData.health?.currentBar ?? 0;
         const healthPenalty = getCurrentPenalty(healthBars, currentBar);
-        // Health penalty reduces the dice pool (numDice)
-        numDice = Math.max(1, numDice + healthPenalty); // Minimum 1 die
-        // Skill bonus = Vitality
-        const skill = vitality;
-        // Prompt for TN
+        numDice = Math.max(1, numDice + healthPenalty);
         const tn = await this.#promptForTN();
         if (tn === null)
             return;
-        // Build label
         const saveName = saveType.charAt(0).toUpperCase() + saveType.slice(1);
-        let flavorText = `+${vitality} (Vitality)`;
-        // Add health penalty to flavor if applicable
+        let flavorText = `Using ${chosenAttr} (${usedAttr1} / ${usedAttr2})`;
         if (healthPenalty < 0) {
-            const penaltyText = healthPenalty === -1 ? '1' : healthPenalty === -2 ? '2' : healthPenalty === -4 ? '4' : String(Math.abs(healthPenalty));
-            flavorText += ` (Health penalty: -${penaltyText} dice)`;
+            flavorText += ` | Health penalty: ${healthPenalty} dice`;
         }
         const { masteryRoll } = await import('../dice/roll-handler.js');
         await masteryRoll({
             numDice,
             keepDice,
-            skill,
+            skill: 0,
             tn,
             label: `${saveName} Save`,
             flavor: flavorText,
-            actorId: this.actor.id
+            actorId: this.actor.id,
+            isSaveRoll: true
         });
     }
     /**
@@ -4267,6 +4276,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                             }
                             else {
                                 details[field.name] = $(html).find(`[name="${field.name}"]`).val() || '';
+                            }
+                        }
+                        // Validate required fields are not empty
+                        for (const field of def.fields || []) {
+                            if (field.required && !details[field.name]?.toString().trim()) {
+                                ui.notifications?.warn(`"${field.label}" is required and cannot be empty.`);
+                                return false;
                             }
                         }
                         const points = calculateDisadvantagePoints(def.id, details);

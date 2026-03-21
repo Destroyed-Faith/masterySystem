@@ -77,8 +77,8 @@ Run these tests in a live Foundry VTT instance with the Mastery System loaded.
 ## 3. XP Progression (Post-Creation)
 
 ### 3.1 Attribute XP Spending
-- [ ] Click + on an attribute to add pending increase
-- [ ] Verify XP cost: 1 XP per point (attr 0-8), 2 XP (9-16), 3 XP (17-24)
+- [X] Click + on an attribute to add pending increase
+- [X] Verify XP cost: 1 XP per point (attr 0-8), 2 XP (9-16), 3 XP (17-24)
 - [ ] Click - to remove pending increase (refund)
 - [ ] Confirm changes: attribute increases, XP decreases
 - [ ] Cancel changes: everything reverts

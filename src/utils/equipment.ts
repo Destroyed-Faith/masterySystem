@@ -7,6 +7,7 @@ export interface ArmorDefinition {
   name: string;
   type: 'light' | 'medium' | 'heavy';
   armorValue: number;
+  evadeModifier: number;
   skillPenalty: string;
   description: string;
 }
@@ -35,6 +36,7 @@ export const BASE_ARMOR: ArmorDefinition[] = [
     name: 'Light Armor',
     type: 'light',
     armorValue: 4,
+    evadeModifier: 0,
     skillPenalty: '—',
     description: 'Light armor provides basic protection without restricting movement. Common examples include leather armor, padded cloth, or light chainmail.'
   },
@@ -42,14 +44,16 @@ export const BASE_ARMOR: ArmorDefinition[] = [
     name: 'Medium Armor',
     type: 'medium',
     armorValue: 8,
-    skillPenalty: 'Stealth Pool −2, Evade −2',
+    evadeModifier: -2,
+    skillPenalty: '−1d8 to Physical Skill checks',
     description: 'Medium armor offers better protection but restricts movement slightly. Common examples include chainmail, scale mail, or reinforced leather.'
   },
   {
     name: 'Heavy Armor',
     type: 'heavy',
     armorValue: 12,
-    skillPenalty: 'Athletics, Acrobatics, Stealth Pool −4, Evade −4',
+    evadeModifier: -4,
+    skillPenalty: '−2d8 to Physical Skill checks',
     description: 'Heavy armor provides maximum protection but significantly restricts movement. Common examples include plate mail, full plate, or heavy chainmail.'
   }
 ];
@@ -60,24 +64,24 @@ export const BASE_SHIELDS: ShieldDefinition[] = [
     type: 'parry',
     shieldValue: 1,
     evadeBonus: 4,
-    skillPenalty: '—',
+    skillPenalty: '−1d8 to Physical Skill checks',
     description: 'A small, lightweight shield designed for parrying attacks. Provides a bonus to Evade while offering minimal protection.'
   },
   {
     name: 'Medium Shield',
     type: 'medium',
-    shieldValue: 2,
+    shieldValue: 4,
     evadeBonus: 0,
-    skillPenalty: 'Evade −4',
-    description: 'A standard shield that balances protection and mobility. Offers decent defense but reduces Evade capability.'
+    skillPenalty: '−2d8 to Physical Skill checks',
+    description: 'A standard shield that balances protection and mobility. Offers decent defense with a penalty to Physical checks.'
   },
   {
     name: 'Tower Shield',
     type: 'tower',
-    shieldValue: 4,
-    evadeBonus: 0,
-    skillPenalty: 'Evade −8',
-    description: 'A large, heavy shield that provides excellent protection but significantly reduces Evade capability.'
+    shieldValue: 8,
+    evadeBonus: -4,
+    skillPenalty: '−2d8 to Physical Skill checks',
+    description: 'A large, heavy shield that provides excellent protection but significantly reduces Evade and Initiative.'
   }
 ];
 

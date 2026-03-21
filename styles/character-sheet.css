@@ -3334,6 +3334,57 @@
   font-size: 16px;
 }
 
+/* Vitality Pool for Saves */
+.mastery-system.sheet.actor.character .save-vitality-pool {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 8px 16px;
+  margin-bottom: 12px;
+  background: var(--df-bg-header, #1b2124);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 6px;
+}
+
+.mastery-system.sheet.actor.character .save-vitality-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--df-text-primary, #d0d0d0);
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.mastery-system.sheet.actor.character .save-vitality-label i {
+  color: var(--ms-accent, #c0392b);
+  margin-right: 4px;
+}
+
+.mastery-system.sheet.actor.character .save-vitality-uses {
+  display: flex;
+  gap: 6px;
+}
+
+.mastery-system.sheet.actor.character .save-vitality-box {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  border: 2px solid var(--df-border-primary, #3a3f44);
+  display: inline-block;
+  transition: all 0.2s ease;
+}
+
+.mastery-system.sheet.actor.character .save-vitality-box.available {
+  background: var(--ms-accent, #c0392b);
+  border-color: var(--ms-accent, #c0392b);
+  box-shadow: 0 0 4px rgba(192, 57, 43, 0.4);
+}
+
+.mastery-system.sheet.actor.character .save-vitality-box.spent {
+  background: transparent;
+  border-color: var(--df-border-primary, #3a3f44);
+  opacity: 0.4;
+}
+
 /* ========== Health & Stress Section ========== */
 .mastery-system.sheet.actor.character .health-stress-section {
   margin-top: 0.75rem;

@@ -1427,8 +1427,8 @@ Hooks.on('preCreateActor', async (actor, data, _options, _userId) => {
         if (actor.type === 'character') {
             if (!data.system.stress) {
                 const resolve = data.system.attributes?.resolve?.value || 2;
-                const wits = data.system.attributes?.wits?.value || 2;
-                const maxStress = resolve + wits;
+                const intellect = data.system.attributes?.intellect?.value || 2;
+                const maxStress = resolve + intellect;
                 data.system.stress = {
                     bars: [
                         { name: 'Healthy', max: maxStress, current: maxStress, penalty: 0 },
@@ -1443,8 +1443,8 @@ Hooks.on('preCreateActor', async (actor, data, _options, _userId) => {
                 // Migrate old format if needed
                 if (!data.system.stress.bars || data.system.stress.bars.length === 0) {
                     const resolve = data.system.attributes?.resolve?.value || 2;
-                    const wits = data.system.attributes?.wits?.value || 2;
-                    const maxStress = resolve + wits;
+                    const intellect = data.system.attributes?.intellect?.value || 2;
+                    const maxStress = resolve + intellect;
                     const oldCurrent = data.system.stress.current || 0;
                     data.system.stress.bars = [
                         { name: 'Healthy', max: maxStress, current: maxStress, penalty: 0 },
@@ -1472,8 +1472,8 @@ Hooks.on('preCreateActor', async (actor, data, _options, _userId) => {
                 else if (data.system.stress.bars.length < 4) {
                     // Add missing bars (4 bars total)
                     const resolve = data.system.attributes?.resolve?.value || 2;
-                    const wits = data.system.attributes?.wits?.value || 2;
-                    const maxStress = resolve + wits;
+                    const intellect = data.system.attributes?.intellect?.value || 2;
+                    const maxStress = resolve + intellect;
                     const allBarNames = ['Healthy', 'Stressed', 'Not Well', 'Breaking'];
                     for (let i = data.system.stress.bars.length; i < 4; i++) {
                         data.system.stress.bars.push({
@@ -1578,6 +1578,48 @@ Hooks.once('ready', async function () {
         if (system?.creation?.complete === undefined || system?.creation?.complete === null) {
             await actor.update({ 'system.creation.complete': true });
             migratedCreation++;
+        }
+        // Migration: Rename old skill keys -> new skill keys
+        const skillKeyRenames = {
+            herbalismAlchemy: 'alchemy',
+            foraging: 'herbalism'
+        };
+        const newSkillKeys = ['negotiation', 'seduction', 'investigation', 'etiquette', 'artisanry'];
+        if (system?.skills && typeof system.skills === 'object') {
+            const updates = {};
+            let needsSkillKeyMigration = false;
+            for (const [oldKey, newKey] of Object.entries(skillKeyRenames)) {
+                if (system.skills[oldKey] !== undefined) {
+                    updates[`system.skills.${newKey}`] = system.skills[oldKey];
+                    updates[`system.skills.-=${oldKey}`] = null;
+                    if (system.skillsSpent?.[oldKey] !== undefined) {
+                        updates[`system.skillsSpent.${newKey}`] = system.skillsSpent[oldKey];
+                        updates[`system.skillsSpent.-=${oldKey}`] = null;
+                    }
+                    needsSkillKeyMigration = true;
+                }
+            }
+            for (const key of newSkillKeys) {
+                if (system.skills[key] === undefined) {
+                    updates[`system.skills.${key}`] = 0;
+                    needsSkillKeyMigration = true;
+                }
+                if (system.skillsSpent && system.skillsSpent[key] === undefined) {
+                    updates[`system.skillsSpent.${key}`] = 0;
+                }
+            }
+            if (needsSkillKeyMigration) {
+                await actor.update(updates);
+                console.log(`Mastery System | Skill key migration: Updated skill keys for ${actor.name}`);
+            }
+        }
+        // Migration: Initialize saves tracking for Vitality spending on saves
+        if (!system?.saves || system.saves.vitalityUsesRemaining === undefined) {
+            await actor.update({
+                'system.saves.vitalitySpent': 0,
+                'system.saves.vitalityUsesRemaining': 4
+            });
+            console.log(`Mastery System | Saves migration: Initialized Vitality save tracking for ${actor.name}`);
         }
         // Migration: skillsSpent initialization
         if (!system?.skillsSpent || typeof system.skillsSpent !== 'object') {
@@ -1870,6 +1912,7 @@ Hooks.once('ready', async function () {
                                 system: {
                                     type: matchingArmor.type || 'light',
                                     armorValue: matchingArmor.armorValue || 0,
+                                    evadeModifier: matchingArmor.evadeModifier || 0,
                                     skillPenalty: matchingArmor.skillPenalty || 0,
                                     equipped: true,
                                     description: matchingArmor.description || ''

@@ -424,9 +424,24 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
           const powerDef = getPowerFn(treeName, powerName);
           
           if (powerDef && powerDef.levels) {
-            levelData = powerDef.levels.find((l: any) => l.level === level);
-            if (levelData && levelData.range) {
-              rangeStr = levelData.range;
+            if (Array.isArray(powerDef.levels)) {
+              levelData = powerDef.levels.find((l: any) => l.level === level);
+            } else {
+              levelData = powerDef.levels[String(level)];
+            }
+            if (levelData) {
+              if (levelData.range) {
+                // Old structure: range is a string
+                if (typeof levelData.range === 'string') {
+                  rangeStr = levelData.range;
+                } else if (levelData.range.kind) {
+                  // New structure: range is a RangeSpec object
+                  const r = levelData.range;
+                  if (r.kind === 'distance' && r.m) rangeStr = `${r.m}m`;
+                  else if (r.kind === 'melee' || r.kind === 'touch') rangeStr = 'Touch';
+                  else if (r.kind === 'self') rangeStr = 'Self';
+                }
+              }
             }
           }
         } catch (error) {
@@ -470,9 +485,12 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
       }
     }
     
-    // Determine costs
-    const costsMovement = powerType === 'movement' && cost.movement !== false; // Movement powers cost movement by default
-    const costsAction = cost.action === true || cost.actions === true;
+    // Determine costs (new structure: cost.action is a string like 'attack'|'full'|'utility'; old: boolean)
+    const actionCost = cost.action;
+    const costsMovement = powerType === 'movement' && cost.movement !== false ||
+                          actionCost === 'movement';
+    const costsAction = actionCost === true || cost.actions === true ||
+                        (typeof actionCost === 'string' && ['attack', 'full', 'utility'].includes(actionCost));
     
     const option: RadialCombatOption = {
       id: item.id,
