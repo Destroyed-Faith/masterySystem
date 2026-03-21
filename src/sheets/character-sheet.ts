@@ -4365,10 +4365,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   #lockSheetForCreation(html: JQuery) {
     console.log('Mastery System | #lockSheetForCreation called');
     
-    // Disable non-creation inputs (name, bio, etc.)
-    // But allow power-rank-select during creation
     html.find('input[name="name"], textarea').prop('disabled', true);
-    html.find('select:not(.power-rank-select)').prop('disabled', true);
+    html.find('select:not(.power-rank-select):not(.attr-creation-select)').prop('disabled', true);
     
     // Disable buttons except creation controls
     const buttonsToDisable = html.find('button:not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.force-unlock-creation):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.add-power-creation-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete)');
