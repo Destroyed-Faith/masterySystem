@@ -4635,12 +4635,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       <form>
         <div class="form-group">
           <label>Select Disadvantage:</label>
-          <select name="disadvantageId" id="disadvantageId" style="width: 100%;">
+          <select name="disadvantageId" id="disadvantageId">
             <option value="">-- Select a Disadvantage --</option>
             ${disadvantageOptions.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join('')}
           </select>
         </div>
-        ${disadvantageOptions.length === 0 ? '<p style="color: red;">No disadvantages available. Please check the console.</p>' : ''}
+        ${disadvantageOptions.length === 0 ? '<p style="color: #8b0000; font-weight: 600;">No disadvantages available. Please check the console.</p>' : ''}
       </form>
     `;
     
@@ -4690,6 +4690,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       default: 'configure',
       render: (html: JQuery) => {
         console.log('Mastery System | Dialog rendered, HTML:', html);
+        setTimeout(() => {
+          const dialogElement = $(html).closest('.window-app.dialog');
+          if (dialogElement.length) {
+            dialogElement.addClass('mastery-system disadvantage-selection-dialog');
+          }
+        }, 0);
       }
     } as any);
     
@@ -4842,7 +4848,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           callback: () => {}
         }
       },
-      default: 'save'
+      default: 'save',
+      render: (html: JQuery) => {
+        setTimeout(() => {
+          const dialogElement = $(html).closest('.window-app.dialog');
+          if (dialogElement.length) {
+            dialogElement.addClass('mastery-system disadvantage-config-dialog-styled');
+          }
+        }, 0);
+      }
     } as any).render(true);
   }
 

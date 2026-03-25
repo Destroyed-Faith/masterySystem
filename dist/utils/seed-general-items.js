@@ -1,5 +1,6 @@
 import { WEAPONS } from './weapons.js';
 import { BASE_ARMOR, BASE_SHIELDS } from './equipment.js';
+import { getItemIcon } from './item-icons.js';
 const STORAGE_FOLDER_NAME = 'General Items Storage';
 const GEAR_ITEMS = [
     { name: 'Backpack', inventorySize: '2x3' },
@@ -118,7 +119,7 @@ export async function seedGeneralItemsStorage() {
             name: gear.name,
             type: 'gear',
             folder: folder.id,
-            img: 'icons/svg/item-bag.svg',
+            img: getItemIcon(gear.name, 'gear') || 'icons/svg/item-bag.svg',
             system: {
                 description: '',
                 inventorySize: gear.inventorySize,
@@ -139,7 +140,7 @@ export async function seedGeneralItemsStorage() {
             name: weapon.name,
             type: 'weapon',
             folder: folder.id,
-            img: ranged ? 'icons/svg/bow.svg' : 'icons/svg/sword.svg',
+            img: getItemIcon(weapon.name, 'weapon') || (ranged ? 'icons/svg/bow.svg' : 'icons/svg/sword.svg'),
             system: {
                 description: weapon.description || '',
                 inventorySize: getWeaponInventorySize(weapon.hands, ranged, weapon.name),
@@ -161,7 +162,7 @@ export async function seedGeneralItemsStorage() {
             name: armor.name,
             type: 'armor',
             folder: folder.id,
-            img: 'icons/svg/armor.svg',
+            img: getItemIcon(armor.name, 'armor') || 'icons/svg/armor.svg',
             system: {
                 description: armor.description || '',
                 inventorySize: ARMOR_SIZES[armor.type] || '2x4',
@@ -178,7 +179,7 @@ export async function seedGeneralItemsStorage() {
             name: shield.name,
             type: 'shield',
             folder: folder.id,
-            img: 'icons/svg/shield.svg',
+            img: getItemIcon(shield.name, 'shield') || 'icons/svg/shield.svg',
             system: {
                 description: shield.description || '',
                 inventorySize: SHIELD_SIZES[shield.type] || '2x2',

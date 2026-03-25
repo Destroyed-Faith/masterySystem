@@ -19,13 +19,13 @@ Run these tests in a live Foundry VTT instance with the Mastery System loaded.
 - [X] Verify **16 skill points** are available
 - [X] Verify no single skill can exceed **4** at creation
 - [X] Verify all 5 categories appear (Physical, Knowledge & Craft, Social, Survival, Martial)
-- [ ] Verify new skills appear: Negotiation, Seduction, Investigation, Etiquette, Artisanry, Herbalism
-- [ ] Verify renamed skill: Alchemy (was "Herbalism / Alchemy")
-- [ ] Verify Crafting shows Might as primary attribute (not Intellect)
-- [ ] Verify Occultism shows Resolve as primary attribute
-- [ ] Verify Survival shows Vitality as primary attribute
+- [ ] Verify new skills appear: Negotiation, Seduction, Investigation, Etiquette, Artisanry, Herbalism <- NOPE>
+- [ ] Verify renamed skill: Alchemy (was "Herbalism / Alchemy") NOPE
+- [ ] Verify Crafting shows Might as primary attribute (not Intellect) NOPE
+- [ ] Verify Occultism shows Resolve as primary attribute NOPE
+- [ ] Verify Survival shows Vitality as primary attribute NOPE
 
-### 1.3 Powers & Mastery Trees
+### 1.3 Powers & Mastery Trees Trees sind komplett kaputt kann nichts auswählen. No predefined powers for this tree
 - [ ] Can select up to **2 Mastery Trees** -> The power trees are not shown i get the error message: foundry.mjs:115132 No predefined powers found for this tree 
 - [ ] Can select **4 total Powers** across those trees
 - [ ] Can set **2 powers to Rank 2**
@@ -70,7 +70,10 @@ Run these tests in a live Foundry VTT instance with the Mastery System loaded.
 - [ ] Equip armor and shield, verify total updates
 
 ### 2.5 Evade
-- [ ] Verify evade includes base evade + shield evade bonus
+- [ ] Verify evade includes base evade + shield evade bonus NOPE
+
+### 2.6 Saves
+Bei Saves steht 2d8 K2 +2 <- wo kommen die +2 her>
 
 ---
 

@@ -32,6 +32,7 @@ import { registerDivineClashSettings } from './divine-clash/divine-clash-setting
 import { initializeDivineClashHooks } from './divine-clash/divine-clash-hooks.js';
 import { initializeArtifactAwakening } from './artifacts/artifact-awakening.js';
 import { seedGeneralItemsStorage } from './utils/seed-general-items.js';
+import { getItemIcon } from './utils/item-icons.js';
 
 // Dice roller functions are imported in sheets where needed
 
@@ -1474,6 +1475,16 @@ Hooks.on('preUpdateActor', (actor: any, updateData: any, _options: any, _userId:
         }
         return phase;
       });
+    }
+  }
+});
+
+Hooks.on('preCreateItem', (item: any, data: any, _options: any, _userId: string) => {
+  const isDefaultImg = !data.img || data.img === 'icons/svg/item-bag.svg' || data.img === 'icons/svg/mystery-man.svg';
+  if (isDefaultImg) {
+    const icon = getItemIcon(data.name || '', item.type || data.type || '');
+    if (icon) {
+      item.updateSource({ img: icon });
     }
   }
 });
