@@ -6365,9 +6365,12 @@
 }
 
 .df-item-icon {
-  width: 22px;
-  height: 22px;
+  max-width: 90%;
+  max-height: 90%;
+  width: auto;
+  height: auto;
   object-fit: contain;
+  image-rendering: auto;
 }
 
 .df-item-actions {

@@ -1757,6 +1757,47 @@ Hooks.once('ready', async function () {
     if (migratedSkillsSpent > 0) {
         console.log(`Mastery System | SkillsSpent migration: Migrated ${migratedSkillsSpent} characters`);
     }
+    // Migration: Update item icons from Foundry default SVGs to custom PNGs
+    const FOUNDRY_DEFAULT_ICONS = new Set([
+        'icons/svg/item-bag.svg',
+        'icons/svg/sword.svg',
+        'icons/svg/bow.svg',
+        'icons/svg/armor.svg',
+        'icons/svg/shield.svg',
+        'icons/svg/mystery-man.svg',
+        'icons/svg/aura.svg',
+        'icons/svg/chest.svg',
+        'icons/svg/lightning.svg',
+        'icons/svg/acid.svg',
+        'icons/svg/sound.svg',
+        'icons/svg/upgrade.svg',
+    ]);
+    let migratedIcons = 0;
+    const allWorldItems = Array.from(game.items || []);
+    for (const item of allWorldItems) {
+        if (FOUNDRY_DEFAULT_ICONS.has(item.img)) {
+            const icon = getItemIcon(item.name, item.type);
+            if (icon && icon !== item.img) {
+                await item.update({ img: icon });
+                migratedIcons++;
+            }
+        }
+    }
+    for (const actor of game.actors || []) {
+        for (const item of actor.items || []) {
+            if (FOUNDRY_DEFAULT_ICONS.has(item.img)) {
+                const icon = getItemIcon(item.name, item.type);
+                if (icon && icon !== item.img) {
+                    await item.update({ img: icon });
+                    migratedIcons++;
+                }
+            }
+        }
+    }
+    if (migratedIcons > 0) {
+        console.log(`Mastery System | Migrated ${migratedIcons} item icons from default SVGs to custom icons`);
+        ui.notifications?.info(`Updated ${migratedIcons} item icons.`);
+    }
 });
 /**
  * Ready hook - called when Foundry is fully loaded and ready
