@@ -6557,11 +6557,14 @@
   z-index: 0;
 }
 
-/* Paperdoll: [helmet sq | necklace wide] → row at chest height: mainhand | chest | narrow cloak | offhand | [glove | ring sq] → belt → leggings → boot */
+/* Paperdoll: helmet centered over chest col; necklace cols 3–5; torso row; belt & leggings & boots = chest width only; leggings tall as chest torso stack; boots 2× belt row */
 .df-equipped-grid {
   --df-paperdoll-helm: minmax(48px, 3.25rem);
   /* Torso is two equal rows; glove + ring are each one row tall → each square ≈ 50% of chest/cloak column height */
   --df-paperdoll-side-square: minmax(52px, 3.75rem);
+  --df-equip-belt-row-h: 44px;
+  /* Same vertical span as chest (two torso rows + gap between them) */
+  --df-equip-leggings-h: calc(2 * 3.75rem + 8px);
   position: relative;
   z-index: 1;
   display: grid;
@@ -6575,18 +6578,18 @@
     var(--df-paperdoll-helm)
     var(--df-paperdoll-side-square)
     var(--df-paperdoll-side-square)
-    minmax(44px, auto)
-    minmax(48px, auto)
-    minmax(44px, auto);
+    minmax(var(--df-equip-belt-row-h), auto)
+    minmax(var(--df-equip-leggings-h), auto)
+    minmax(calc(2 * var(--df-equip-belt-row-h)), auto);
   gap: 8px;
   align-items: stretch;
   grid-template-areas:
-    "helmet necklace necklace necklace necklace"
+    ". . necklace necklace necklace"
     "mainhand chest cloak offhand glove"
     "mainhand chest cloak offhand ring1"
-    ". belt belt belt ."
-    "leggings leggings leggings leggings leggings"
-    ". boot boot boot .";
+    ". belt . . ."
+    ". leggings . . ."
+    ". boot . . .";
 }
 
 .df-equipped-grid > .df-equip-slot {
@@ -6630,11 +6633,14 @@
 
 /* Slot -> Grid Areas */
 .df-equip-slot.slot-helmet {
-  grid-area: helmet;
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: center;
+  align-self: center;
+  width: min(100%, 3.25rem);
   aspect-ratio: 1;
   max-width: 100%;
-  justify-self: start;
-  width: 100%;
+  min-width: 0;
 }
 
 .df-equip-slot.slot-necklace {

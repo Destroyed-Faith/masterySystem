@@ -211,7 +211,7 @@ export class GeneralItemsStorageDialog extends BaseDialog {
       { key: 'helmet', label: 'Helmet' },
       { key: 'necklace', label: 'Necklace' },
       { key: 'chest', label: 'Chest' },
-      { key: 'cloak', label: 'Cloak/Cape' },
+      { key: 'cloak', label: 'Cloak' },
       { key: 'glove', label: 'Gloves' },
       { key: 'ring1', label: 'Ring' },
       { key: 'belt', label: 'Belt' },
