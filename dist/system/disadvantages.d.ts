@@ -38,6 +38,10 @@ export declare function getDisadvantageDefinition(id: string): DisadvantageDefin
  */
 export declare function getDisadvantageDefinitions(): DisadvantageDefinition[];
 /**
+ * Legacy mental-restrictions rows used a `type` field and flat 2 pts. Preselect Normal (2 pt) until the player picks a tier.
+ */
+export declare function detailsForMentalRestrictionsDialog(details?: Record<string, any>): Record<string, any>;
+/**
  * Calculate points for a disadvantage selection
  */
 export declare function calculateDisadvantagePoints(disadvantageId: string, details: Record<string, any>): number;

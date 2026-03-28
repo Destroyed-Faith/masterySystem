@@ -103,29 +103,36 @@ export const DISADVANTAGES: DisadvantageDefinition[] = [
   {
     id: 'mental-restrictions',
     name: 'Mental Restrictions',
-    basePoints: 2,
-    description: 'You have a mental restriction: an Oath, Fear, or Personality trait. To act against your restriction, you must make a Resolve k1 check. TN 6: Oath (small resistance). TN 8: Fear (strong inner conflict). TN 16: Personality (violates core belief).',
+    basePoints: [1, 2, 3],
+    description:
+      'Mental Restrictions (1–3 points). You are bound by your past, beliefs, or mind.\n\n' +
+      'Oaths (examples): No killing; Chivalric code (always fair, no helpless targets, no lying); Honor bound (always keeps promises).\n\n' +
+      'Fears (examples): Claustrophobia; Paranoia (“Just because you can’t see them…”); Hatred for a group – attacks on sight.\n\n' +
+      'Personality traits (examples): Arrogant – always needs to prove superiority; Coward – retreats from fights when wounded; Vengeful – cannot forgive; Gullible – big eyes and sad stories get to you easily; In love with XXX – acts irrationally if the loved one is in danger.\n\n' +
+      'Rule: To act against your flaw, make a Resolve k1 roll. Easy: TN 6 (minor resistance), 1 point. Normal: TN 10 (strong internal conflict), 2 points. Hard: TN 14 (violates a core belief), 3 points.',
     fields: [
       {
-        name: 'type',
+        name: 'severity',
         type: 'select',
-        label: 'Restriction Type',
+        label: 'Severity (TN when acting against the flaw)',
         options: [
-          { value: 'oath', label: 'Oath (TN 6) - e.g., "No killing", "Chivalric code", "Honor bound"' },
-          { value: 'fear', label: 'Fear (TN 8) - e.g., Claustrophobia, Paranoia, Hatred of group' },
-          { value: 'personality', label: 'Personality Trait (TN 16) - e.g., Arrogant, Coward, Vengeful, In love with XXX' }
+          { value: 'easy', label: 'Easy (1 pt) — TN 6: minor resistance' },
+          { value: 'normal', label: 'Normal (2 pt) — TN 10: strong internal conflict' },
+          { value: 'hard', label: 'Hard (3 pt) — TN 14: violates a core belief' }
         ],
         required: true
       },
       {
         name: 'restriction',
         type: 'text',
-        label: 'Restriction Description',
-        placeholder: 'e.g., "Never harm an innocent", "Fear of heights", "Always helps the weak", "In love with the princess"',
+        label: 'Your restriction',
+        placeholder:
+          'e.g., No killing, Chivalric code, Claustrophobia, Paranoia, Vengeful, In love with the captain',
         required: true
       }
     ],
-    effect: 'Act against restriction = Resolve k1: Oath TN 6, Fear TN 8, Personality TN 16'
+    effect:
+      'Against your flaw: Resolve k1. Easy TN 6 (1 pt), Normal TN 10 (2 pt), Hard TN 14 (3 pt).'
   },
   {
     id: 'unluck',
@@ -180,6 +187,15 @@ export function getDisadvantageDefinitions(): DisadvantageDefinition[] {
 }
 
 /**
+ * Legacy mental-restrictions rows used a `type` field and flat 2 pts. Preselect Normal (2 pt) until the player picks a tier.
+ */
+export function detailsForMentalRestrictionsDialog(details?: Record<string, any>): Record<string, any> {
+  const d = { ...(details || {}) };
+  if (!d.severity) d.severity = 'normal';
+  return d;
+}
+
+/**
  * Calculate points for a disadvantage selection
  */
 export function calculateDisadvantagePoints(
@@ -204,6 +220,14 @@ export function calculateDisadvantagePoints(
         'fragile-frame': 3
       };
       return scarPoints[scar] || 1;
+    }
+    if (disadvantageId === 'mental-restrictions') {
+      const severity = details.severity;
+      if (severity === 'easy') return 1;
+      if (severity === 'normal') return 2;
+      if (severity === 'hard') return 3;
+      // Legacy saves (old type + flat 2 pt): keep 2 points
+      return 2;
     }
     return def.basePoints[0];
   }

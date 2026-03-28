@@ -10,7 +10,8 @@ import {
   DISADVANTAGES,
   getDisadvantageDefinition,
   calculateDisadvantagePoints,
-  validateDisadvantageSelection
+  validateDisadvantageSelection,
+  detailsForMentalRestrictionsDialog
 } from '../system/disadvantages';
 import { getAllMasteryTrees } from '../utils/mastery-trees';
 import { getAllSpellSchools } from '../utils/spell-schools';
@@ -4965,7 +4966,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   ) {
     const content = await foundry.applications.handlebars.renderTemplate('systems/mastery-system/templates/dialogs/disadvantage-config.hbs', {
       disadvantage: def,
-      details: existingDetails || {}
+      details:
+        def.id === 'mental-restrictions'
+          ? detailsForMentalRestrictionsDialog(existingDetails)
+          : existingDetails || {}
     });
 
     const configDialog = new Dialog({

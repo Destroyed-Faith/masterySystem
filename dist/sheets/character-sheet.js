@@ -4,7 +4,7 @@
  */
 import { quickRoll } from '../dice/roll-handler.js';
 import { SKILLS } from '../utils/skills.js';
-import { DISADVANTAGES, getDisadvantageDefinition, calculateDisadvantagePoints, validateDisadvantageSelection } from '../system/disadvantages.js';
+import { DISADVANTAGES, getDisadvantageDefinition, calculateDisadvantagePoints, validateDisadvantageSelection, detailsForMentalRestrictionsDialog } from '../system/disadvantages.js';
 import { getAllMasteryTrees } from '../utils/mastery-trees.js';
 import { getAllSpellSchools } from '../utils/spell-schools.js';
 import { getAllSchticks } from '../utils/schticks.js';
@@ -4471,7 +4471,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     async #openDisadvantageConfigDialog(def, editIndex, existingDetails) {
         const content = await foundry.applications.handlebars.renderTemplate('systems/mastery-system/templates/dialogs/disadvantage-config.hbs', {
             disadvantage: def,
-            details: existingDetails || {}
+            details: def.id === 'mental-restrictions'
+                ? detailsForMentalRestrictionsDialog(existingDetails)
+                : existingDetails || {}
         });
         const configDialog = new Dialog({
             title: `${editIndex !== undefined ? 'Edit' : 'Add'} ${def.name}`,

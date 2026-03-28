@@ -4434,6 +4434,7 @@
   color: #666;
   line-height: 1.5;
   font-size: 0.9rem;
+  white-space: pre-line;
 }
 
 .mastery-system.disadvantage-config-dialog-styled .disadvantage-effect {
