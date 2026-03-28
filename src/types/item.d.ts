@@ -259,6 +259,8 @@ export interface WeaponData extends BaseItemData {
   equipped: boolean;
   hands: number;
   innateAbilities: string[];
+  /** Non-empty = may be equipped only to these paperdoll slots. Empty/missing = not equippable. */
+  equipSlots?: string[];
 }
 
 // === Armor Data ===
@@ -268,6 +270,7 @@ export interface ArmorData extends BaseItemData {
   evadeModifier: number;
   skillPenalty?: number;
   equipped: boolean;
+  equipSlots?: string[];
 }
 
 // === Shield Data ===
@@ -277,6 +280,7 @@ export interface ShieldData extends BaseItemData {
   evadeBonus?: number;
   skillPenalty?: number;
   equipped: boolean;
+  equipSlots?: string[];
 }
 
 // === Gear Data ===
@@ -284,6 +288,7 @@ export interface GearData extends BaseItemData {
   weight: number;
   quantity: number;
   equipped: boolean;
+  equipSlots?: string[];
 }
 
 

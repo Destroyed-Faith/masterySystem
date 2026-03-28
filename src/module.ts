@@ -1782,7 +1782,8 @@ Hooks.on('createActor', async (actor: any, _options: any, _userId: string) => {
           equipped: true,
           hands: 1,
           innateAbilities: [],
-          description: 'Basic unarmed strikes using fists, feet, or natural weapons.'
+          description: 'Basic unarmed strikes using fists, feet, or natural weapons.',
+          equipSlots: ['mainhand', 'offhand']
         }
       };
       
@@ -2167,7 +2168,8 @@ Hooks.once('ready', async function() {
             equipped: true,
             hands: 1,
             innateAbilities: [],
-            description: 'Basic unarmed strikes using fists, feet, or natural weapons.'
+            description: 'Basic unarmed strikes using fists, feet, or natural weapons.',
+            equipSlots: ['mainhand', 'offhand']
           }
         };
         
@@ -2218,6 +2220,46 @@ Hooks.once('ready', async function() {
       }
     } catch (error) {
       console.warn('Mastery System | Inventory size migration failed:', error);
+    }
+  }
+
+  // Migration: default system.equipSlots for legacy weapon / armor / shield (empty/missing only)
+  if (game.user?.isGM) {
+    try {
+      const { inferDefaultEquipSlotsForType } = await import('./utils/equip-slots.js');
+      let equipMigrated = 0;
+      const needsBackfill = (item: any) => {
+        if (!['weapon', 'armor', 'shield'].includes(item.type)) return false;
+        const raw = item.system?.equipSlots;
+        if (Array.isArray(raw) && raw.length > 0) return false;
+        return !!inferDefaultEquipSlotsForType(item);
+      };
+
+      const worldItems = Array.from((game as any).items || []) as any[];
+      for (const item of worldItems) {
+        if (!needsBackfill(item)) continue;
+        const def = inferDefaultEquipSlotsForType(item);
+        if (!def) continue;
+        await item.update({ 'system.equipSlots': def });
+        equipMigrated++;
+      }
+
+      for (const actor of actors) {
+        const actorItems = Array.from(actor.items || []) as any[];
+        for (const item of actorItems) {
+          if (!needsBackfill(item)) continue;
+          const def = inferDefaultEquipSlotsForType(item);
+          if (!def) continue;
+          await item.update({ 'system.equipSlots': def });
+          equipMigrated++;
+        }
+      }
+
+      if (equipMigrated > 0) {
+        console.log(`Mastery System | equipSlots migration: Updated ${equipMigrated} items`);
+      }
+    } catch (error) {
+      console.warn('Mastery System | equipSlots migration failed:', error);
     }
   }
   

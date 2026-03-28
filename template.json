@@ -367,6 +367,9 @@
       "damage": "1d8",
       "range": "0m",
       "specials": [],
+      "hands": 1,
+      "innateAbilities": [],
+      "equipSlots": ["mainhand", "offhand"],
       "equipped": false
     },
     "armor": {
@@ -374,6 +377,7 @@
       "armorValue": 0,
       "evadeModifier": 0,
       "type": "light",
+      "equipSlots": ["chest"],
       "equipped": false
     },
     "shield": {
@@ -381,12 +385,14 @@
       "shieldValue": 0,
       "evadeBonus": 0,
       "type": "light",
+      "equipSlots": ["offhand"],
       "equipped": false
     },
     "gear": {
       "templates": ["base"],
       "weight": 0,
       "quantity": 1,
+      "equipSlots": [],
       "equipped": false
     }
   }

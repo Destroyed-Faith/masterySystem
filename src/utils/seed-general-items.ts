@@ -144,6 +144,7 @@ export async function seedGeneralItemsStorage(): Promise<any[]> {
         weight: gear.weight ?? 0,
         quantity: 1,
         equipped: false,
+        equipSlots: [],
         ...(gear.price !== undefined && { price: gear.price })
       }
     });
@@ -169,6 +170,7 @@ export async function seedGeneralItemsStorage(): Promise<any[]> {
         innateAbilities: weapon.innateAbilities,
         specials,
         equipped: false,
+        equipSlots: weapon.hands === 2 ? ['mainhand'] : ['mainhand', 'offhand'],
         ...(weapon.price !== undefined && { price: weapon.price })
       }
     });
@@ -186,7 +188,8 @@ export async function seedGeneralItemsStorage(): Promise<any[]> {
         inventorySize: ARMOR_SIZES[armor.type] || '2x4',
         armorValue: armor.armorValue,
         type: armor.type,
-        equipped: false
+        equipped: false,
+        equipSlots: ['chest']
       }
     });
   }
@@ -203,7 +206,8 @@ export async function seedGeneralItemsStorage(): Promise<any[]> {
         inventorySize: SHIELD_SIZES[shield.type] || '2x2',
         shieldValue: shield.shieldValue,
         type: shield.type,
-        equipped: false
+        equipped: false,
+        equipSlots: ['offhand']
       }
     });
   }

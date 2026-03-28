@@ -12,6 +12,7 @@ import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
 import { findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid.js';
 import { buildPostCreationSnapshot } from '../utils/xp-post-creation.js';
 import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items.js';
+import { getNormalizedEquipSlots } from '../utils/equip-slots.js';
 // Removed: showWeaponCreationDialog, showArmorCreationDialog, showShieldCreationDialog
 // Replaced with General Items Storage and Store dialogs
 // Use namespaced ActorSheet when available to avoid deprecation warnings
@@ -4815,6 +4816,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ui.notifications?.warn('Item must be on this actor to equip.');
             return false;
         }
+        const allowed = getNormalizedEquipSlots(item);
+        if (!allowed) {
+            ui.notifications?.warn('This item cannot be equipped. Set system.equipSlots on the item (non-empty list of slot keys).');
+            return false;
+        }
+        if (!allowed.includes(slot)) {
+            ui.notifications?.warn(`This item can only be equipped in: ${allowed.join(', ')}`);
+            return false;
+        }
         if (slot === 'mainhand' && item.type === 'weapon' && item.system?.hands === 2) {
             const offhandItem = this.#getItemInEquipSlot('offhand');
             if (offhandItem) {
@@ -4890,7 +4900,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 group: 'quick',
                 condition: (target) => {
                     const item = this.#itemFromInventoryTileContextTarget(target);
-                    return !!item && item.type === 'weapon';
+                    return !!item && !!getNormalizedEquipSlots(item)?.includes('mainhand');
                 },
                 callback: async (target) => {
                     const item = this.#itemFromInventoryTileContextTarget(target);
@@ -4907,7 +4917,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 group: 'quick',
                 condition: (target) => {
                     const item = this.#itemFromInventoryTileContextTarget(target);
-                    return !!item && item.type === 'shield';
+                    return !!item && !!getNormalizedEquipSlots(item)?.includes('offhand');
                 },
                 callback: async (target) => {
                     const item = this.#itemFromInventoryTileContextTarget(target);
@@ -4924,7 +4934,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 group: 'quick',
                 condition: (target) => {
                     const item = this.#itemFromInventoryTileContextTarget(target);
-                    return !!item && item.type === 'armor';
+                    return !!item && !!getNormalizedEquipSlots(item)?.includes('chest');
                 },
                 callback: async (target) => {
                     const item = this.#itemFromInventoryTileContextTarget(target);
@@ -4941,6 +4951,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 name: `Equip: ${label}`,
                 icon: '<i class="fas fa-arrow-right"></i>',
                 group: 'slot',
+                condition: (target) => {
+                    const item = this.#itemFromInventoryTileContextTarget(target);
+                    return !!item && !!getNormalizedEquipSlots(item)?.includes(key);
+                },
                 callback: async (target) => {
                     const item = this.#itemFromInventoryTileContextTarget(target);
                     if (!item)
@@ -4951,6 +4965,18 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 }
             });
         }
+        entries.push({
+            name: 'Cannot equip (no equip slots on item)',
+            icon: '<i class="fas fa-info-circle"></i>',
+            group: 'info',
+            condition: (target) => {
+                const item = this.#itemFromInventoryTileContextTarget(target);
+                return !!item && !getNormalizedEquipSlots(item);
+            },
+            callback: () => {
+                ui.notifications?.info('Set system.equipSlots on this item to a non-empty array of slot keys (e.g. ["mainhand"], ["chest"], ["ring1"]).');
+            }
+        });
         return entries;
     }
     /**

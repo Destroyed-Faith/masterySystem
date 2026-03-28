@@ -108,6 +108,7 @@ export async function showWeaponCreationDialog(actor: Actor): Promise<void> {
           const abilities = option.dataset.abilities ? option.dataset.abilities.split('|') : [];
           const isRanged = abilities.includes('Ranged');
           
+          const hands = parseInt(option.dataset.hands || '1', 10);
           const itemData = {
             name: weaponName,
             type: 'weapon',
@@ -119,9 +120,10 @@ export async function showWeaponCreationDialog(actor: Actor): Promise<void> {
                 ? [option.dataset.special] 
                 : [],
               equipped: equipped,
-              hands: parseInt(option.dataset.hands || '1', 10),
+              hands,
               innateAbilities: abilities,
-              description: option.dataset.description || ''
+              description: option.dataset.description || '',
+              equipSlots: hands === 2 ? ['mainhand'] : ['mainhand', 'offhand']
             }
           };
           

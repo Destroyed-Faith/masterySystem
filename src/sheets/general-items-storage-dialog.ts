@@ -246,6 +246,73 @@ export class GeneralItemsStorageDialog extends BaseDialog {
     };
   }
 
+  /**
+   * Copy or move a world Item from General Items Storage onto the actor's inventory band (same as drag-drop onto sheet).
+   */
+  async #transferStorageItemToActorBand(worldItemId: string, targetBand: string): Promise<boolean> {
+    const droppedItem = (game as any).items?.get(worldItemId);
+    if (!droppedItem) {
+      ui.notifications?.error('Item not found.');
+      return false;
+    }
+
+    const actor = this._actor as any;
+    let item: any = droppedItem;
+
+    if (!item.parent || item.parent.id !== actor.id) {
+      const itemData = foundry.utils.deepClone(droppedItem.toObject());
+      delete itemData._id;
+      delete itemData.folder;
+      itemData.flags = {
+        ...(itemData.flags || {}),
+        'mastery-system': {
+          ...(itemData.flags?.['mastery-system'] || {}),
+          equipment: {
+            container: 'inventory',
+            band: targetBand,
+            slot: null
+          }
+        }
+      };
+      itemData.system = {
+        ...(itemData.system || {}),
+        equipped: false
+      };
+
+      const [created] = await actor.createEmbeddedDocuments('Item', [itemData], { render: false });
+      if (!created) {
+        ui.notifications?.error(`Could not add ${droppedItem.name} to the character.`);
+        return false;
+      }
+      item = created;
+    } else {
+      const currentFlags = item.getFlag?.('mastery-system', 'equipment') || {};
+      await item.update({
+        'flags.mastery-system.equipment': {
+          ...currentFlags,
+          container: 'inventory',
+          band: targetBand,
+          slot: null
+        },
+        'system.equipped': false
+      });
+    }
+
+    ui.notifications?.info(`Added ${item.name} to inventory.`);
+    if (actor.sheet?.rendered) {
+      actor.sheet.render(false);
+    }
+    return true;
+  }
+
+  #canModifyActorInventory(): boolean {
+    const u = (game as any).user;
+    const a = this._actor as any;
+    if (!u) return false;
+    if (u.isGM) return true;
+    return a.isOwner === true;
+  }
+
   async _onRender(element: HTMLElement, _options: any): Promise<void> {
     await super._onRender?.(element, _options);
     
@@ -353,6 +420,31 @@ export class GeneralItemsStorageDialog extends BaseDialog {
       });
     });
 
+    const ContextMenuCls = (foundry as any).applications?.ux?.ContextMenu;
+    if (ContextMenuCls && this.#canModifyActorInventory()) {
+      new ContextMenuCls(html, '.storage-item', [
+        {
+          name: 'Ins Inventar legen',
+          icon: '<i class="fas fa-box-open"></i>',
+          condition: () => this.#canModifyActorInventory(),
+          callback: async (target: unknown) => {
+            let el: HTMLElement | null = null;
+            if (target && typeof (target as any).jquery === 'string') {
+              el = ((target as JQuery)[0] as HTMLElement) || null;
+            } else if (target instanceof HTMLElement) {
+              el = target;
+            }
+            const tile = el?.closest?.('.storage-item') as HTMLElement | null;
+            const itemId = tile?.dataset?.itemId;
+            if (!itemId) return;
+            if (await this.#transferStorageItemToActorBand(itemId, 'not')) {
+              await this.render(true);
+            }
+          }
+        }
+      ] as any, { eventName: 'contextmenu' } as any);
+    }
+
     // Enable drop on encumbrance bands
     html.find('.df-enc-band').each((_index, bandEl) => {
       const $band = $(bandEl);
@@ -402,58 +494,8 @@ export class GeneralItemsStorageDialog extends BaseDialog {
           if (!droppedItem) return;
 
           const targetBand = band || 'not';
-          let item = droppedItem;
-          if (!item.parent || item.parent.id !== (this._actor as any).id) {
-            const itemData = foundry.utils.deepClone(droppedItem.toObject());
-            delete itemData._id;
-            delete itemData.folder;
-            console.log('Mastery System | [Storage Drop] Creating embedded item copy', {
-              targetActor: (this._actor as any)?.id,
-              targetBand
-            });
-            itemData.flags = {
-              ...(itemData.flags || {}),
-              'mastery-system': {
-                ...(itemData.flags?.['mastery-system'] || {}),
-                equipment: {
-                  container: 'inventory',
-                  band: targetBand,
-                  slot: null
-                }
-              }
-            };
-            itemData.system = {
-              ...(itemData.system || {}),
-              equipped: false
-            };
-
-            const [created] = await (this._actor as any).createEmbeddedDocuments('Item', [itemData], { render: false });
-            console.log('Mastery System | [Storage Drop] Embedded create result', {
-              createdId: created?.id,
-              createdName: created?.name
-            });
-            if (!created) return;
-            item = created;
-          } else {
-            const currentFlags = item.getFlag?.('mastery-system', 'equipment') || {};
-            console.log('Mastery System | [Storage Drop] Updating flags for existing embedded item', {
-              itemId: item?.id,
-              itemName: item?.name,
-              currentFlags,
-              targetBand
-            });
-            await item.update({
-              'flags.mastery-system.equipment': {
-                ...currentFlags,
-                container: 'inventory',
-                band: targetBand,
-                slot: null
-              },
-              'system.equipped': false
-            });
-          }
-
-          await this.render(true);
+          const ok = await this.#transferStorageItemToActorBand(droppedItem.id, targetBand);
+          if (ok) await this.render(true);
         } catch (error) {
           console.error('Mastery System | Error dropping item into equipment band', error);
         }
