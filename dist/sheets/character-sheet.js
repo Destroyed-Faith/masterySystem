@@ -922,18 +922,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const stashCellsData = toCells(stashItems, STASH_COLS, STASH_ROWS);
         // Slot definitions
         const slotDefs = [
+            { key: 'helmet', label: 'Helmet' },
+            { key: 'necklace', label: 'Necklace' },
+            { key: 'chest', label: 'Chest' },
             { key: 'cloak', label: 'Cloak/Cape' },
+            { key: 'glove', label: 'Gloves' },
+            { key: 'ring1', label: 'Ring' },
             { key: 'belt', label: 'Belt' },
             { key: 'mainhand', label: 'Mainhand' },
-            { key: 'offhand', label: 'Offhand' },
-            { key: 'helmet', label: 'Helmet' },
-            { key: 'chest', label: 'Chest' },
-            { key: 'glove', label: 'Glove' },
-            { key: 'waist', label: 'Waist' },
             { key: 'leggings', label: 'Leggings' },
-            { key: 'boot', label: 'Boot' },
-            { key: 'necklace', label: 'Necklace' },
-            { key: 'ring1', label: 'Ring 1' }
+            { key: 'offhand', label: 'Offhand' },
+            { key: 'boot', label: 'Boots' }
         ];
         return {
             showStash: this._showStash,
@@ -1461,6 +1460,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             dragEvent.__msDropTarget = target || undefined;
             await this._onDrop(dragEvent);
         });
+        const invEquipSelector = '.tab.equipment .df-enc-band .df-draggable-item, .tab.equipment .df-stash-grid .df-draggable-item';
+        const ContextMenuCls = foundry.applications?.ux?.ContextMenu;
+        if (ContextMenuCls) {
+            new ContextMenuCls(html, invEquipSelector, this.#inventoryEquipContextMenuEntries(), {
+                eventName: 'contextmenu'
+            });
+        }
         if (!window.__msGlobalDropDebugBound) {
             window.__msGlobalDropDebugBound = true;
             console.log('Mastery System | [Storage Debug] Global drag/drop listeners bound');
@@ -4774,6 +4780,179 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         await this.render(true, { focus: false });
         return true;
     }
+    /** Item currently occupying an equipment slot (flags + legacy equipped). */
+    #getItemInEquipSlot(slotKey) {
+        const items = Array.from(this.actor.items.values());
+        for (const it of items) {
+            const flags = it.getFlag('mastery-system', 'equipment') || {};
+            if (flags.slot === slotKey) {
+                return it;
+            }
+        }
+        if (slotKey === 'mainhand') {
+            const weapons = items.filter((it) => it.type === 'weapon' && it.system?.equipped === true);
+            if (weapons.length > 0)
+                return weapons[0];
+        }
+        else if (slotKey === 'offhand') {
+            const shields = items.filter((it) => it.type === 'shield' && it.system?.equipped === true);
+            if (shields.length > 0)
+                return shields[0];
+        }
+        else if (slotKey === 'chest') {
+            const armor = items.filter((it) => it.type === 'armor' && it.system?.equipped === true);
+            if (armor.length > 0)
+                return armor[0];
+        }
+        return null;
+    }
+    /**
+     * Move an embedded item into a paperdoll slot (same rules as drag-drop onto that slot).
+     * @returns whether the item was updated successfully
+     */
+    async #applyEquipToSlot(item, slot) {
+        if (!item?.id || item.parent?.id !== this.actor.id) {
+            ui.notifications?.warn('Item must be on this actor to equip.');
+            return false;
+        }
+        if (slot === 'mainhand' && item.type === 'weapon' && item.system?.hands === 2) {
+            const offhandItem = this.#getItemInEquipSlot('offhand');
+            if (offhandItem) {
+                ui.notifications?.warn('Cannot equip 2-handed weapon while offhand is occupied.');
+                return false;
+            }
+        }
+        else if (slot === 'offhand' && item.type === 'shield') {
+            const mainhandItem = this.#getItemInEquipSlot('mainhand');
+            if (mainhandItem && mainhandItem.type === 'weapon' && mainhandItem.system?.hands === 2) {
+                ui.notifications?.warn('Cannot equip shield while 2-handed weapon is equipped.');
+                return false;
+            }
+        }
+        const previousItem = this.#getItemInEquipSlot(slot);
+        if (previousItem && previousItem.id !== item.id) {
+            const prevFlags = previousItem.getFlag('mastery-system', 'equipment') || {};
+            const newPrevFlags = { ...prevFlags, slot: null };
+            await previousItem.update({
+                'flags.mastery-system.equipment': newPrevFlags,
+                'system.equipped': false
+            });
+        }
+        const currentFlags = item.getFlag('mastery-system', 'equipment') || {};
+        const newFlags = { ...currentFlags, container: 'inventory', slot, band: currentFlags.band || 'not' };
+        await item.update({
+            'flags.mastery-system.equipment': newFlags,
+            'system.equipped': true
+        });
+        console.log('Mastery System | [Equip] Applied slot', { itemId: item.id, slot });
+        return true;
+    }
+    /**
+     * Resolve actor Item from a context-menu target (jQuery or HTMLElement).
+     */
+    #itemFromInventoryTileContextTarget(target) {
+        let el = null;
+        if (target && typeof target.jquery === 'string') {
+            const jq = target;
+            el = jq[0] || null;
+        }
+        else if (target instanceof HTMLElement) {
+            el = target;
+        }
+        if (!el)
+            return null;
+        const tile = el.closest('.df-draggable-item');
+        const id = tile?.dataset?.itemId;
+        if (!id)
+            return null;
+        const item = this.actor.items.get(id);
+        return item?.parent?.id === this.actor.id ? item : null;
+    }
+    /** Right-click equip: slots shown in equipment tab inventory / stash grids. */
+    #inventoryEquipContextMenuEntries() {
+        const slots = [
+            { key: 'helmet', label: 'Helmet' },
+            { key: 'necklace', label: 'Necklace' },
+            { key: 'chest', label: 'Chest' },
+            { key: 'cloak', label: 'Cloak / Cape' },
+            { key: 'glove', label: 'Gloves' },
+            { key: 'ring1', label: 'Ring' },
+            { key: 'belt', label: 'Belt' },
+            { key: 'mainhand', label: 'Main hand' },
+            { key: 'leggings', label: 'Leggings' },
+            { key: 'offhand', label: 'Off hand' },
+            { key: 'boot', label: 'Boots' }
+        ];
+        const entries = [
+            {
+                name: 'Equip (main hand)',
+                icon: '<i class="fas fa-hand-fist"></i>',
+                group: 'quick',
+                condition: (target) => {
+                    const item = this.#itemFromInventoryTileContextTarget(target);
+                    return !!item && item.type === 'weapon';
+                },
+                callback: async (target) => {
+                    const item = this.#itemFromInventoryTileContextTarget(target);
+                    if (!item)
+                        return;
+                    if (await this.#applyEquipToSlot(item, 'mainhand')) {
+                        await this.render(true, { focus: false });
+                    }
+                }
+            },
+            {
+                name: 'Equip (off hand)',
+                icon: '<i class="fas fa-shield-alt"></i>',
+                group: 'quick',
+                condition: (target) => {
+                    const item = this.#itemFromInventoryTileContextTarget(target);
+                    return !!item && item.type === 'shield';
+                },
+                callback: async (target) => {
+                    const item = this.#itemFromInventoryTileContextTarget(target);
+                    if (!item)
+                        return;
+                    if (await this.#applyEquipToSlot(item, 'offhand')) {
+                        await this.render(true, { focus: false });
+                    }
+                }
+            },
+            {
+                name: 'Equip (chest)',
+                icon: '<i class="fas fa-tshirt"></i>',
+                group: 'quick',
+                condition: (target) => {
+                    const item = this.#itemFromInventoryTileContextTarget(target);
+                    return !!item && item.type === 'armor';
+                },
+                callback: async (target) => {
+                    const item = this.#itemFromInventoryTileContextTarget(target);
+                    if (!item)
+                        return;
+                    if (await this.#applyEquipToSlot(item, 'chest')) {
+                        await this.render(true, { focus: false });
+                    }
+                }
+            }
+        ];
+        for (const { key, label } of slots) {
+            entries.push({
+                name: `Equip: ${label}`,
+                icon: '<i class="fas fa-arrow-right"></i>',
+                group: 'slot',
+                callback: async (target) => {
+                    const item = this.#itemFromInventoryTileContextTarget(target);
+                    if (!item)
+                        return;
+                    if (await this.#applyEquipToSlot(item, key)) {
+                        await this.render(true, { focus: false });
+                    }
+                }
+            });
+        }
+        return entries;
+    }
     /**
      * Helper: Update item equipment flags based on drop target
      */
@@ -4791,33 +4970,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             slot: target.dataset?.slot,
             currentFlags
         });
-        // Helper: Get item currently in a slot
-        const getSlotItem = (slotKey) => {
-            const items = Array.from(this.actor.items.values());
-            for (const it of items) {
-                const flags = it.getFlag('mastery-system', 'equipment') || {};
-                if (flags.slot === slotKey) {
-                    return it;
-                }
-            }
-            // Backward compatibility
-            if (slotKey === 'mainhand') {
-                const weapons = items.filter((it) => it.type === 'weapon' && it.system?.equipped === true);
-                if (weapons.length > 0)
-                    return weapons[0];
-            }
-            else if (slotKey === 'offhand') {
-                const shields = items.filter((it) => it.type === 'shield' && it.system?.equipped === true);
-                if (shields.length > 0)
-                    return shields[0];
-            }
-            else if (slotKey === 'chest') {
-                const armor = items.filter((it) => it.type === 'armor' && it.system?.equipped === true);
-                if (armor.length > 0)
-                    return armor[0];
-            }
-            return null;
-        };
         if (dropType === 'stash') {
             newFlags.container = 'stash';
             newFlags.band = null;
@@ -4884,40 +5036,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             const slot = target.dataset.slot;
             if (!slot)
                 return;
-            // Simple validation: 2H weapon vs shield
-            if (slot === 'mainhand' && item.type === 'weapon' && item.system?.hands === 2) {
-                const offhandItem = getSlotItem('offhand');
-                if (offhandItem) {
-                    ui.notifications?.warn('Cannot equip 2-handed weapon while offhand is occupied.');
-                    return;
-                }
-            }
-            else if (slot === 'offhand' && item.type === 'shield') {
-                const mainhandItem = getSlotItem('mainhand');
-                if (mainhandItem && mainhandItem.type === 'weapon' && mainhandItem.system?.hands === 2) {
-                    ui.notifications?.warn('Cannot equip shield while 2-handed weapon is equipped.');
-                    return;
-                }
-            }
-            // Clear previous item in slot
-            const previousItem = getSlotItem(slot);
-            if (previousItem && previousItem.id !== item.id) {
-                const prevFlags = previousItem.getFlag('mastery-system', 'equipment') || {};
-                const newPrevFlags = { ...prevFlags, slot: null };
-                await previousItem.update({
-                    'flags.mastery-system.equipment': newPrevFlags,
-                    'system.equipped': false
-                });
-            }
-            // Set new item in slot
-            newFlags.container = 'inventory';
-            newFlags.slot = slot;
-            newFlags.band = newFlags.band || 'not';
-            await item.update({
-                'flags.mastery-system.equipment': newFlags,
-                'system.equipped': true
-            });
-            console.log('Mastery System | [Equipment Drop] Update flags slot', { newFlags });
+            await this.#applyEquipToSlot(item, slot);
         }
     }
 }

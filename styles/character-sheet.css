@@ -6373,7 +6373,7 @@
 }
 
 .df-equipment-side {
-  width: 320px;
+  width: 360px;
   max-width: 100%;
   display: flex;
   flex-direction: column;
@@ -6550,28 +6550,29 @@
   position: absolute;
   inset: 42px 8px 8px 8px;
   background:
-    radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.08), transparent 55%),
-    radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.06), transparent 60%),
-    radial-gradient(circle at 50% 75%, rgba(255, 255, 255, 0.05), transparent 55%);
+    radial-gradient(circle at 50% 12%, rgba(255, 255, 255, 0.08), transparent 50%),
+    radial-gradient(circle at 50% 38%, rgba(255, 255, 255, 0.06), transparent 55%),
+    radial-gradient(circle at 50% 68%, rgba(255, 255, 255, 0.05), transparent 55%);
   pointer-events: none;
   z-index: 0;
 }
 
+/* Paperdoll: helmet → necklace → (glove | chest wide | narrow cloak | ring) → belt under chest → hands/legs → boot */
 .df-equipped-grid {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  grid-template-rows: repeat(7, 64px);
+  /* Glove | Chest×3 (wide) | Cloak (narrower) | Ring */
+  grid-template-columns: minmax(52px, 0.95fr) minmax(56px, 1.2fr) minmax(56px, 1.2fr) minmax(56px, 1.2fr) minmax(48px, 0.75fr) minmax(52px, 0.95fr);
+  grid-template-rows: repeat(6, minmax(58px, auto));
   gap: 8px;
   grid-template-areas:
-    ".       helmet    helmet    necklace  necklace  cloak     ."
-    "shoulder shoulder chest     chest     chest     cloak     ring1"
-    ".        glove     chest     chest     chest     belt      ."
-    "mainhand mainhand  waist     waist     waist     pouch     offhand"
-    "mainhand mainhand  leggings  leggings  leggings  pouch     offhand"
-    ".        boot      boot      .         .         .         ."
-    ".        boot      boot      .         .         .         .";
+    ".        helmet   helmet   helmet   helmet   ."
+    ".        necklace necklace necklace necklace ."
+    "glove    chest    chest    chest    cloak    ring1"
+    ".        belt     belt     belt     .        ."
+    "mainhand mainhand leggings leggings offhand  offhand"
+    ".        boot     boot     boot     boot     .";
 }
 
 .df-equip-slot {
@@ -6622,10 +6623,6 @@
   grid-area: cloak;
 }
 
-.df-equip-slot.slot-shoulder {
-  grid-area: shoulder;
-}
-
 .df-equip-slot.slot-chest {
   grid-area: chest;
 }
@@ -6636,10 +6633,6 @@
 
 .df-equip-slot.slot-belt {
   grid-area: belt;
-}
-
-.df-equip-slot.slot-waist {
-  grid-area: waist;
 }
 
 .df-equip-slot.slot-leggings {
@@ -6656,10 +6649,6 @@
 
 .df-equip-slot.slot-offhand {
   grid-area: offhand;
-}
-
-.df-equip-slot.slot-pouch {
-  grid-area: pouch;
 }
 
 .df-equip-slot.slot-ring1 {

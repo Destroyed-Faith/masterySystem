@@ -208,18 +208,17 @@ export class GeneralItemsStorageDialog extends BaseDialog {
     const stashCellsData = toCells(stashItems, STASH_SIZE);
 
     const slotDefs = [
+      { key: 'helmet', label: 'Helmet' },
+      { key: 'necklace', label: 'Necklace' },
+      { key: 'chest', label: 'Chest' },
       { key: 'cloak', label: 'Cloak/Cape' },
+      { key: 'glove', label: 'Gloves' },
+      { key: 'ring1', label: 'Ring' },
       { key: 'belt', label: 'Belt' },
       { key: 'mainhand', label: 'Mainhand' },
-      { key: 'offhand', label: 'Offhand' },
-      { key: 'helmet', label: 'Helmet' },
-      { key: 'chest', label: 'Chest' },
-      { key: 'glove', label: 'Glove' },
-      { key: 'waist', label: 'Waist' },
       { key: 'leggings', label: 'Leggings' },
-      { key: 'boot', label: 'Boot' },
-      { key: 'necklace', label: 'Necklace' },
-      { key: 'ring1', label: 'Ring 1' }
+      { key: 'offhand', label: 'Offhand' },
+      { key: 'boot', label: 'Boots' }
     ];
 
     return {
