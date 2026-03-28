@@ -92,6 +92,9 @@
       <p>Distribute attributes: <strong>2×8, 2×6, 2×4, 1×2</strong> ({{#if creation.attributeDistributionValid}}done{{else}}{{creation.attrCount8}}/2×8, {{creation.attrCount6}}/2×6, {{creation.attrCount4}}/2×4, {{creation.attrCount2}}/1×2{{/if}}). 
       <strong>{{creation.skillPointsRemaining}}</strong> Skill Points remaining. 
       <strong>Disadvantages:</strong> <strong>{{creation.disadvantagePoints}}</strong> / 8 points (optional).</p>
+      <button type="button" class="reset-creation-attributes" title="Set all attributes to 2 so you can redistribute (fixes hidden dropdown options)">
+        <i class="fas fa-undo"></i> Reset attributes
+      </button>
       {{#if creation.canFinalize}}
       <button type="button" class="finalize-creation" title="Finalize character creation">
         <i class="fas fa-check-circle"></i> Finalize Character Creation

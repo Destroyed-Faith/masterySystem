@@ -3727,6 +3727,26 @@
   flex: 1;
 }
 
+.mastery-system.sheet.actor.character .creation-banner-content .reset-creation-attributes {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border: 2px solid rgba(255, 215, 0, 0.55);
+  padding: 8px 14px;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+  font-size: 13px;
+}
+
+.mastery-system.sheet.actor.character .creation-banner-content .reset-creation-attributes:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: #ffd700;
+}
+
 .mastery-system.sheet.actor.character .creation-banner-content .finalize-creation {
   background: #28a745;
   color: #fff;

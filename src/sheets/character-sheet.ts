@@ -1338,6 +1338,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('.skill-increase').on('click', this.#onCreationSkillIncrease.bind(this));
     html.find('.skill-decrease').on('click', this.#onCreationSkillDecrease.bind(this));
     html.find('.finalize-creation').on('click', this.#onFinalizeCreation.bind(this));
+    html.find('.reset-creation-attributes').on('click', this.#onResetCreationAttributes.bind(this));
     
     // Stone Powers button handler
     html.find('[data-action="openStonePowers"]').on('click', async (ev: JQuery.ClickEvent) => {
@@ -4472,12 +4473,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('select:not(.power-rank-select):not(.attr-creation-select)').prop('disabled', true);
     
     // Disable buttons except creation controls
-    const buttonsToDisable = html.find('button:not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.force-unlock-creation):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.add-power-creation-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete)');
+    const buttonsToDisable = html.find('button:not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.add-power-creation-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete)');
     console.log('Mastery System | Disabling buttons:', buttonsToDisable.length);
     buttonsToDisable.prop('disabled', true);
     
     // Ensure creation buttons are enabled
-    const creationButtons = html.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .force-unlock-creation, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .add-power-creation-btn, .add-spell-creation-btn, .item-delete');
+    const creationButtons = html.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .add-power-creation-btn, .add-spell-creation-btn, .item-delete');
     console.log('Mastery System | Enabling creation buttons:', {
       total: creationButtons.length,
       addDisadvantageBtn: html.find('.add-disadvantage-btn').length,
@@ -4551,6 +4552,44 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         ui.notifications?.error('Failed to unlock character creation.');
       }
     }
+  }
+
+  /**
+   * Character Creation: reset all attributes to 2 so dropdowns show full options again.
+   */
+  #onResetCreationAttributes(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!this.actor.isOwner) {
+      (ui as any).notifications?.warn('Only the character owner can reset attributes during creation.');
+      return;
+    }
+    const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
+    new Dialog({
+      title: 'Reset attributes?',
+      content:
+        '<p class="mastery-reset-attrs-msg">Set <strong>all seven attributes</strong> to <strong>2</strong>. You can then pick the distribution again (2×8, 2×6, 2×4, 1×2). Skills, powers, and disadvantages are unchanged.</p>',
+      buttons: {
+        reset: {
+          icon: '<i class="fas fa-undo"></i>',
+          label: 'Reset all to 2',
+          callback: async () => {
+            const updates: Record<string, any> = {};
+            for (const k of attributeKeys) {
+              updates[`system.attributes.${k}.value`] = 2;
+            }
+            await this.actor.update(updates);
+            (ui as any).notifications?.info('Attributes reset. Choose values again from the dropdowns.');
+            await this.render();
+          }
+        },
+        cancel: {
+          label: 'Cancel',
+          callback: () => {}
+        }
+      },
+      default: 'cancel'
+    } as any).render(true);
   }
 
   /**
