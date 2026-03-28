@@ -4474,12 +4474,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('select:not(.power-rank-select):not(.attr-creation-select)').prop('disabled', true);
     
     // Disable buttons except creation controls
-    const buttonsToDisable = html.find('button:not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.add-power-creation-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete)');
+    const buttonsToDisable = html.find('button:not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.add-power-creation-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.general-items-btn)');
     console.log('Mastery System | Disabling buttons:', buttonsToDisable.length);
     buttonsToDisable.prop('disabled', true);
     
     // Ensure creation buttons are enabled
-    const creationButtons = html.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .add-power-creation-btn, .add-spell-creation-btn, .item-delete');
+    const creationButtons = html.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .add-power-creation-btn, .add-spell-creation-btn, .item-delete, .general-items-btn');
     console.log('Mastery System | Enabling creation buttons:', {
       total: creationButtons.length,
       addDisadvantageBtn: html.find('.add-disadvantage-btn').length,
@@ -4518,6 +4518,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       console.log('Mastery System | add-spell-creation-btn explicitly enabled, final state:', addSpellCreationBtn.prop('disabled'));
     } else {
       console.log('Mastery System | add-spell-creation-btn not found (might be normal if creation complete)');
+    }
+
+    const generalItemsBtn = html.find('.general-items-btn');
+    if (generalItemsBtn.length > 0) {
+      generalItemsBtn.prop('disabled', false);
     }
     
     // Add CSS class for styling
