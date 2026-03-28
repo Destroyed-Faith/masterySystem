@@ -308,6 +308,38 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const count4 = assignedValues.filter(v => v === 4).length;
         const count2 = assignedValues.filter(v => v === 2).length;
         const attributeDistributionValid = count8 === 2 && count6 === 2 && count4 === 2 && count2 === 1;
+        /** Per-attribute dropdown: hide tier options already fully used elsewhere (2×8, 2×6, 2×4, 1×2). */
+        const attrTierMax = { 8: 2, 6: 2, 4: 2, 2: 1 };
+        const attrCreationSelect = {};
+        const attrs = context.system.attributes || {};
+        for (const ex of attributeKeys) {
+            let o2 = 0, o4 = 0, o6 = 0, o8 = 0;
+            for (const k of attributeKeys) {
+                if (k === ex)
+                    continue;
+                const v = attrs[k]?.value;
+                if (v === 8)
+                    o8++;
+                else if (v === 6)
+                    o6++;
+                else if (v === 4)
+                    o4++;
+                else if (v === 2)
+                    o2++;
+            }
+            const cur = attrs[ex]?.value;
+            const curInSet = cur === 2 || cur === 4 || cur === 6 || cur === 8;
+            const can = (val) => {
+                if (!curInSet)
+                    return true;
+                if (cur === val)
+                    return true;
+                const used = val === 8 ? o8 : val === 6 ? o6 : val === 4 ? o4 : o2;
+                const max = attrTierMax[val] ?? 0;
+                return used < max;
+            };
+            attrCreationSelect[ex] = { s2: can(2), s4: can(4), s6: can(6), s8: can(8) };
+        }
         // Calculate skill points spent
         let skillPointsSpent = 0;
         for (const skillValue of Object.values(context.system.skills || {})) {
@@ -420,6 +452,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             attrCount6: count6,
             attrCount4: count4,
             attrCount2: count2,
+            attrCreationSelect,
             attributeDistributionValid,
             skillPointsRemaining: skillPointsConfig - skillPointsSpent,
             skillPointsSpent,
@@ -4253,6 +4286,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const dialog = new Dialog({
             title: 'Add Disadvantage',
             content,
+            width: 440,
+            height: 320,
+            resizable: true,
             buttons: {
                 configure: {
                     label: 'Configure',
@@ -4286,12 +4322,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             default: 'configure',
             render: (html) => {
                 console.log('Mastery System | Dialog rendered, HTML:', html);
-                setTimeout(() => {
-                    const dialogElement = $(html).closest('.window-app.dialog');
-                    if (dialogElement.length) {
-                        dialogElement.addClass('mastery-system disadvantage-selection-dialog');
+                queueMicrotask(() => {
+                    let root = $(html).closest('.window-app.dialog, .application.dialog');
+                    if (!root.length)
+                        root = $(html).closest('.window-app, .application');
+                    if (root.length) {
+                        root.addClass('mastery-system disadvantage-selection-dialog');
+                        setTimeout(() => {
+                            this.#attachDisadvantageDialogResizeHandle(root, 360, 260);
+                        }, 80);
                     }
-                }, 0);
+                });
             }
         });
         console.log('Mastery System | Dialog created, calling render(true)...');
@@ -4343,6 +4384,43 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         this.render();
     }
     /**
+     * Legacy Dialog may not show a resize grip; add bottom-right resize if still missing after paint.
+     */
+    #attachDisadvantageDialogResizeHandle(root, minWidth, minHeight) {
+        if (!root?.length)
+            return;
+        if (root.find('> .window-resizable-handle').length)
+            return;
+        const appEl = root[0];
+        const handle = $('<div class="window-resizable-handle" title="Resize" role="presentation"></div>');
+        root.append(handle);
+        handle.on('mousedown.disadvantageResize', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const startX = e.clientX;
+            const startY = e.clientY;
+            const rect = appEl.getBoundingClientRect();
+            const startW = rect.width;
+            const startH = rect.height;
+            const maxW = Math.max(minWidth, Math.min(1000, window.innerWidth - 24));
+            const maxH = Math.max(minHeight, Math.min(900, window.innerHeight - 24));
+            const onMove = (move) => {
+                const dw = move.clientX - startX;
+                const dh = move.clientY - startY;
+                const w = Math.min(maxW, Math.max(minWidth, startW + dw));
+                const h = Math.min(maxH, Math.max(minHeight, startH + dh));
+                appEl.style.width = `${w}px`;
+                appEl.style.height = `${h}px`;
+            };
+            const onUp = () => {
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('mouseup', onUp);
+            };
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+        });
+    }
+    /**
      * Open Disadvantage Configuration Dialog
      */
     async #openDisadvantageConfigDialog(def, editIndex, existingDetails) {
@@ -4353,6 +4431,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         new Dialog({
             title: `${editIndex !== undefined ? 'Edit' : 'Add'} ${def.name}`,
             content,
+            width: 580,
+            height: 480,
+            resizable: true,
             buttons: {
                 save: {
                     icon: '<i class="fas fa-check"></i>',
@@ -4429,12 +4510,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             },
             default: 'save',
             render: (html) => {
-                setTimeout(() => {
-                    const dialogElement = $(html).closest('.window-app.dialog');
-                    if (dialogElement.length) {
-                        dialogElement.addClass('mastery-system disadvantage-config-dialog-styled');
+                queueMicrotask(() => {
+                    let root = $(html).closest('.window-app.dialog, .application.dialog');
+                    if (!root.length)
+                        root = $(html).closest('.window-app, .application');
+                    if (root.length) {
+                        root.addClass('mastery-system disadvantage-config-dialog-styled');
+                        setTimeout(() => {
+                            this.#attachDisadvantageDialogResizeHandle(root, 500, 340);
+                        }, 80);
                     }
-                }, 0);
+                });
             }
         }).render(true);
     }
