@@ -17,7 +17,7 @@ import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items.
 const BaseActorSheet = foundry?.appv1?.sheets?.ActorSheet || ActorSheet;
 export class MasteryCharacterSheet extends BaseActorSheet {
     _showStash = false;
-    _pendingAttributeChanges = {}; // Track pending attribute increases
+    _pendingAttributeChanges = {}; // Signed pending attribute deltas (XP mode)
     _pendingPowerLevelChanges = {}; // Track pending power level increases
     _pendingSkillRankChanges = {}; // Track pending skill rank changes (signed)
     #setHeaderXpDisplay(value) {
@@ -298,14 +298,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Calculate creation point counters (always calculate, but only show if not complete)
         const masteryRank = context.system.mastery?.rank || 2;
         const skillPointsConfig = CONFIG.MASTERY?.creation?.skillPoints || 16;
-        // Calculate attribute distribution status (2×8, 2×6, 2×4 model)
+        // Calculate attribute distribution status (2×8, 2×6, 2×4, 1×2 model)
         const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
         const attrValues = attributeKeys.map(key => context.system.attributes?.[key]?.value || masteryRank);
-        const assignedValues = attrValues.filter(v => [4, 6, 8].includes(v));
+        const assignedValues = attrValues.filter(v => [2, 4, 6, 8].includes(v));
         const count8 = assignedValues.filter(v => v === 8).length;
         const count6 = assignedValues.filter(v => v === 6).length;
         const count4 = assignedValues.filter(v => v === 4).length;
-        const attributeDistributionValid = count8 === 2 && count6 === 2 && count4 === 2;
+        const count2 = assignedValues.filter(v => v === 2).length;
+        const attributeDistributionValid = count8 === 2 && count6 === 2 && count4 === 2 && count2 === 1;
         // Calculate skill points spent
         let skillPointsSpent = 0;
         for (const skillValue of Object.values(context.system.skills || {})) {
@@ -417,6 +418,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             attrCount8: count8,
             attrCount6: count6,
             attrCount4: count4,
+            attrCount2: count2,
             attributeDistributionValid,
             skillPointsRemaining: skillPointsConfig - skillPointsSpent,
             skillPointsSpent,
@@ -602,6 +604,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             }
         }
         const result = await super.render(force, options);
+        void this.#migrateAttributeBaselinesIfNeeded();
         // Restore scroll positions after rendering
         if (this.element && this.element.length > 0 && Object.keys(scrollPositions).length > 0) {
             // Use requestAnimationFrame to ensure DOM is fully updated
@@ -1860,6 +1863,66 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const tier = Math.floor((nextValue - 1) / 8);
         return tier + 1;
     }
+    /** Floor for attribute value when refunding XP (set at creation finalize; migrated for older actors). */
+    #getAttributeXpBaseline(attributeKey) {
+        const system = this.actor.system;
+        const b = system.xp?.attributeBaselines?.[attributeKey];
+        if (typeof b === 'number' && !Number.isNaN(b))
+            return b;
+        return system.attributes?.[attributeKey]?.value ?? 2;
+    }
+    /** One-time: snapshot current attributes as XP refund floors for legacy completed characters. */
+    async #migrateAttributeBaselinesIfNeeded() {
+        const system = this.actor.system;
+        if (system.creation?.complete === false)
+            return;
+        if (!this.actor.isOwner)
+            return;
+        if (!system.xp)
+            return;
+        const keys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
+        const existing = system.xp.attributeBaselines;
+        if (existing && typeof existing === 'object' && keys.every(k => typeof existing[k] === 'number'))
+            return;
+        const baselines = {};
+        for (const k of keys)
+            baselines[k] = system.attributes?.[k]?.value ?? 2;
+        try {
+            await this.actor.update({ 'system.xp.attributeBaselines': baselines });
+        }
+        catch (e) {
+            console.warn('Mastery System | attributeBaselines migration failed', e);
+        }
+    }
+    /**
+     * Net XP effect of pending attribute deltas (positive = spend, negative = refund).
+     */
+    #calculateAttributePendingNetCost(pendingMap) {
+        let net = 0;
+        const keys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
+        for (const attr of keys) {
+            const pending = pendingMap[attr] || 0;
+            if (!pending)
+                continue;
+            const current = this.actor.system.attributes[attr]?.value || 0;
+            if (pending > 0) {
+                for (let i = 0; i < pending; i++) {
+                    net += this.#calculateAttributeCost(current + i);
+                }
+            }
+            else {
+                const baseline = this.#getAttributeXpBaseline(attr);
+                const steps = Math.abs(pending);
+                for (let i = 0; i < steps; i++) {
+                    const dropFrom = current - i;
+                    if (dropFrom <= baseline)
+                        break;
+                    net -= this.#calculateAttributeCost(dropFrom - 1);
+                }
+            }
+        }
+        return net;
+    }
     /**
      * Calculate cost to increase a power to a specific level
      * Level 1: 2 MP, Level 2: 4 MP, Level 3: 8 MP, Level 4: 16 MP,
@@ -2039,57 +2102,49 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             return;
         }
         const currentValue = this.actor.system.attributes[attributeName]?.value || 0;
-        const pendingIncrease = this._pendingAttributeChanges[attributeName] || 0;
-        const newValue = currentValue + pendingIncrease;
+        const pending = this._pendingAttributeChanges[attributeName] || 0;
+        const nextPending = pending + 1;
+        const effectiveAfter = currentValue + nextPending;
         console.log('Mastery System | #onAttributeIncreaseXP: Current state', {
             attributeName,
             currentValue,
-            pendingIncrease,
-            newValue,
+            pending,
+            nextPending,
+            effectiveAfter,
             pendingChanges: this._pendingAttributeChanges
         });
-        // Check max value
-        if (newValue >= 80) {
-            console.warn('Mastery System | #onAttributeIncreaseXP: Max value reached', { newValue });
+        if (effectiveAfter > 80) {
+            console.warn('Mastery System | #onAttributeIncreaseXP: Max value exceeded', { effectiveAfter });
             ui.notifications?.warn('This attribute cannot exceed maximum value (80).');
             return;
         }
-        // Calculate cost for the next increase
-        const cost = this.#calculateAttributeCost(newValue);
-        console.log('Mastery System | #onAttributeIncreaseXP: Cost calculation', {
-            newValue,
-            cost
-        });
-        // Calculate total cost of all pending changes
-        let totalPendingCost = 0;
-        for (const [attr, pending] of Object.entries(this._pendingAttributeChanges)) {
-            if (pending > 0) {
-                const attrCurrent = this.actor.system.attributes[attr]?.value || 0;
-                const attrPending = this._pendingAttributeChanges[attr] || 0;
-                for (let i = 0; i < pending; i++) {
-                    const valueAtIncrease = attrCurrent + attrPending - i;
-                    totalPendingCost += this.#calculateAttributeCost(valueAtIncrease);
-                }
-            }
-        }
-        totalPendingCost += cost; // Add cost for this new increase
+        const simulateMap = { ...this._pendingAttributeChanges, [attributeName]: nextPending };
+        if (simulateMap[attributeName] === 0)
+            delete simulateMap[attributeName];
+        const netPendingCost = this.#calculateAttributePendingNetCost(simulateMap);
         const xpState = this.#getXpState(this.actor);
         console.log('Mastery System | #onAttributeIncreaseXP: Cost check', {
-            totalPendingCost,
-            cost,
+            netPendingCost,
             availablePoints: xpState.available
         });
-        // Check if we have enough points
-        if (totalPendingCost > xpState.available) {
+        if (netPendingCost > xpState.available) {
             console.warn('Mastery System | #onAttributeIncreaseXP: Not enough points', {
-                totalPendingCost,
+                netPendingCost,
                 availablePoints: xpState.available
             });
-            ui.notifications?.warn(`Not enough XP! This increase would cost ${cost} points, but you only have ${xpState.available - (totalPendingCost - cost)} remaining.`);
+            ui.notifications?.warn(`Not enough XP for this change (net ${netPendingCost} vs ${xpState.available} available).`);
             return;
         }
-        // Add pending increase
-        this._pendingAttributeChanges[attributeName] = (this._pendingAttributeChanges[attributeName] || 0) + 1;
+        const maxAttributeSpend = Math.floor(xpState.totalEarned / 2);
+        if (xpState.spentAttributes + netPendingCost > maxAttributeSpend) {
+            ui.notifications?.warn(`Attribute XP cap: after this change you would have ${xpState.spentAttributes + netPendingCost} / ${maxAttributeSpend} ` +
+                `(max 50% of ${xpState.totalEarned} total earned XP on attributes). Spend XP on skills or powers first, or refund attribute XP with −.`);
+            return;
+        }
+        this._pendingAttributeChanges[attributeName] = nextPending;
+        if (this._pendingAttributeChanges[attributeName] === 0) {
+            delete this._pendingAttributeChanges[attributeName];
+        }
         console.log('Mastery System | #onAttributeIncreaseXP: Added pending increase', {
             attributeName,
             newPending: this._pendingAttributeChanges[attributeName],
@@ -2127,21 +2182,24 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             });
             return;
         }
-        const pendingIncrease = this._pendingAttributeChanges[attributeName] || 0;
+        const currentValue = this.actor.system.attributes[attributeName]?.value || 0;
+        const pending = this._pendingAttributeChanges[attributeName] || 0;
+        const baseline = this.#getAttributeXpBaseline(attributeName);
+        const nextPending = pending - 1;
+        const effectiveAfter = currentValue + nextPending;
         console.log('Mastery System | #onAttributeDecreaseXP: Current pending', {
             attributeName,
-            pendingIncrease,
+            pending,
+            nextPending,
+            effectiveAfter,
+            baseline,
             allPendingChanges: this._pendingAttributeChanges
         });
-        if (pendingIncrease <= 0) {
-            console.warn('Mastery System | #onAttributeDecreaseXP: No pending increase to decrease', {
-                attributeName,
-                pendingIncrease
-            });
+        if (effectiveAfter < baseline) {
+            ui.notifications?.warn(`Cannot lower ${attributeName} below ${baseline} (creation baseline). Ask the GM to unlock creation if you need a full rebuild.`);
             return;
         }
-        // Remove pending increase
-        this._pendingAttributeChanges[attributeName] = pendingIncrease - 1;
+        this._pendingAttributeChanges[attributeName] = nextPending;
         if (this._pendingAttributeChanges[attributeName] === 0) {
             delete this._pendingAttributeChanges[attributeName];
         }
@@ -2158,61 +2216,50 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      */
     #updateAttributeXPUI() {
         const html = this.element;
-        // Calculate total pending cost
-        let totalPendingCost = 0;
-        for (const [attr, pending] of Object.entries(this._pendingAttributeChanges)) {
-            if (pending > 0) {
-                const attrCurrent = this.actor.system.attributes[attr]?.value || 0;
-                for (let i = 0; i < pending; i++) {
-                    const valueAtIncrease = attrCurrent + pending - i;
-                    totalPendingCost += this.#calculateAttributeCost(valueAtIncrease);
-                }
-            }
-        }
+        const netPendingCost = this.#calculateAttributePendingNetCost(this._pendingAttributeChanges);
         const xpState = this.#getXpState(this.actor);
-        const remainingPoints = xpState.available - totalPendingCost;
+        const remainingPoints = xpState.available - netPendingCost;
         this.#setHeaderXpDisplay(remainingPoints);
-        // Update pending changes count
-        const totalPendingChanges = Object.values(this._pendingAttributeChanges).reduce((sum, val) => sum + val, 0);
-        html.find('#pending-attribute-changes-count').text(totalPendingChanges);
+        const totalAbsPending = Object.values(this._pendingAttributeChanges).reduce((sum, val) => sum + Math.abs(val), 0);
+        html.find('#pending-attribute-changes-count').text(totalAbsPending);
         html.find('#remaining-attribute-xp').text(Math.max(0, remainingPoints));
-        // Update each attribute's pending display
+        const maxAttributeSpend = Math.floor(xpState.totalEarned / 2);
         const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
         for (const attrKey of attributeKeys) {
             const pending = this._pendingAttributeChanges[attrKey] || 0;
             const pendingChangeEl = html.find(`.attribute-pending-change[data-attribute="${attrKey}"]`);
-            const pendingIncreaseEl = pendingChangeEl.find('.pending-increase');
-            if (pending > 0) {
+            const pendingDeltaEl = pendingChangeEl.find('.pending-delta');
+            if (pending !== 0) {
                 pendingChangeEl.show();
-                pendingIncreaseEl.text(pending);
+                pendingDeltaEl.text(pending > 0 ? `+${pending}` : `${pending}`);
             }
             else {
                 pendingChangeEl.hide();
+                pendingDeltaEl.text('');
             }
-            // Update decrease button state
-            const decreaseBtn = html.find(`.attr-decrease-xp[data-attribute="${attrKey}"]`);
-            if (pending > 0) {
-                decreaseBtn.prop('disabled', false);
-            }
-            else {
-                decreaseBtn.prop('disabled', true);
-            }
-            // Update increase button state (check if we can afford another increase)
-            const increaseBtn = html.find(`.attr-increase-xp[data-attribute="${attrKey}"]`);
             const currentValue = this.actor.system.attributes[attrKey]?.value || 0;
-            const newValue = currentValue + pending;
-            if (newValue >= 80) {
+            const baseline = this.#getAttributeXpBaseline(attrKey);
+            const decreaseBtn = html.find(`.attr-decrease-xp[data-attribute="${attrKey}"]`);
+            const canDecrease = currentValue + pending - 1 >= baseline;
+            decreaseBtn.prop('disabled', !canDecrease);
+            const increaseBtn = html.find(`.attr-increase-xp[data-attribute="${attrKey}"]`);
+            const nextPending = pending + 1;
+            const effectiveAfter = currentValue + nextPending;
+            if (effectiveAfter > 80) {
                 increaseBtn.prop('disabled', true);
             }
             else {
-                const nextCost = this.#calculateAttributeCost(newValue);
-                increaseBtn.prop('disabled', remainingPoints < nextCost);
+                const simulateMap = { ...this._pendingAttributeChanges, [attrKey]: nextPending };
+                if (simulateMap[attrKey] === 0)
+                    delete simulateMap[attrKey];
+                const simNet = this.#calculateAttributePendingNetCost(simulateMap);
+                const overCap = xpState.spentAttributes + simNet > maxAttributeSpend;
+                increaseBtn.prop('disabled', simNet > xpState.available || overCap);
             }
         }
-        // Update confirm/cancel buttons
         const confirmBtn = html.find('#confirm-attribute-changes-btn');
         const cancelBtn = html.find('#cancel-attribute-changes-btn');
-        if (totalPendingChanges > 0) {
+        if (totalAbsPending > 0) {
             confirmBtn.prop('disabled', false);
             cancelBtn.prop('disabled', false);
         }
@@ -2234,83 +2281,104 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         // Get XP state
         const xpState = this.#getXpState(this.actor);
-        // Calculate total cost and validate
-        let totalCost = 0;
+        let totalNetCost = 0;
         const updates = {};
         const attributeChanges = [];
         const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
         for (const attrKey of attributeKeys) {
             const pending = this._pendingAttributeChanges[attrKey] || 0;
-            if (pending > 0) {
-                const currentValue = this.actor.system.attributes[attrKey]?.value || 0;
-                let attrCost = 0;
-                for (let i = 0; i < pending; i++) {
-                    const valueAtIncrease = currentValue + i;
-                    attrCost += this.#calculateAttributeCost(valueAtIncrease);
-                }
-                totalCost += attrCost;
-                updates[`system.attributes.${attrKey}.value`] = currentValue + pending;
-                attributeChanges.push({
-                    attr: attrKey,
-                    from: currentValue,
-                    to: currentValue + pending,
-                    cost: attrCost
-                });
+            if (!pending)
+                continue;
+            const currentValue = this.actor.system.attributes[attrKey]?.value || 0;
+            const newValue = currentValue + pending;
+            const baseline = this.#getAttributeXpBaseline(attrKey);
+            if (newValue < baseline || newValue > 80) {
+                ui.notifications?.error(`Invalid attribute change for ${attrKey} (${currentValue} → ${newValue}).`);
+                return;
             }
+            let attrCost = 0;
+            if (pending > 0) {
+                for (let i = 0; i < pending; i++) {
+                    attrCost += this.#calculateAttributeCost(currentValue + i);
+                }
+            }
+            else {
+                for (let i = 0; i < Math.abs(pending); i++) {
+                    const dropFrom = currentValue - i;
+                    if (dropFrom <= baseline)
+                        break;
+                    attrCost -= this.#calculateAttributeCost(dropFrom - 1);
+                }
+            }
+            totalNetCost += attrCost;
+            updates[`system.attributes.${attrKey}.value`] = newValue;
+            attributeChanges.push({
+                attr: attrKey,
+                from: currentValue,
+                to: newValue,
+                cost: attrCost
+            });
         }
-        // Check available XP
-        if (totalCost > xpState.available) {
-            ui.notifications?.error(`Not enough XP! Total cost: ${totalCost}, Available: ${xpState.available}`);
+        if (totalNetCost > xpState.available) {
+            ui.notifications?.error(`Not enough XP! Net cost: ${totalNetCost}, Available: ${xpState.available}`);
             return;
         }
-        // Enforce 50% attribute cap (based on totalEarned)
         const maxAttributeSpend = Math.floor(xpState.totalEarned / 2);
-        if ((xpState.spentAttributes + totalCost) > maxAttributeSpend) {
-            ui.notifications?.error(`Attribute XP cap reached! Spent: ${xpState.spentAttributes}, Max allowed: ${maxAttributeSpend} (50% of ${xpState.totalEarned} total earned). ` +
-                `Earn or spend more XP on non-attributes first.`);
+        const newSpentAttributes = xpState.spentAttributes + totalNetCost;
+        if (newSpentAttributes > maxAttributeSpend || newSpentAttributes < 0) {
+            ui.notifications?.error(`Attribute XP limits violated. Would be ${newSpentAttributes} / ${maxAttributeSpend} (50% of ${xpState.totalEarned} total earned on attributes).`);
             return;
         }
-        // Prepare before state for history
         const beforeState = {
             available: xpState.available,
             totalEarned: xpState.totalEarned,
             totalSpent: xpState.totalSpent,
             spentAttributes: xpState.spentAttributes
         };
-        // Apply updates
-        updates['system.points.xp'] = xpState.available - totalCost;
-        updates['system.xp.totalSpent'] = xpState.totalSpent + totalCost;
-        updates['system.xp.spentAttributes'] = xpState.spentAttributes + totalCost;
-        // Ensure XP structure exists
+        updates['system.points.xp'] = xpState.available - totalNetCost;
+        updates['system.xp.totalSpent'] = Math.max(0, xpState.totalSpent + totalNetCost);
+        updates['system.xp.spentAttributes'] = newSpentAttributes;
         if (!this.actor.system.xp) {
             updates['system.xp.totalEarned'] = xpState.totalEarned;
             updates['system.xp.history'] = [];
         }
         await this.actor.update(updates);
-        // Add history entry
         const user = game.user;
-        const historyEntry = {
-            ts: Date.now(),
-            userId: user?.id || '',
-            userName: user?.name || 'System',
-            kind: 'spend',
-            category: 'attribute',
-            amount: totalCost,
-            details: { changes: attributeChanges },
-            before: beforeState,
-            after: {
-                available: xpState.available - totalCost,
-                totalEarned: xpState.totalEarned,
-                totalSpent: xpState.totalSpent + totalCost,
-                spentAttributes: xpState.spentAttributes + totalCost
-            }
-        };
-        this.#pushXpHistory(this.actor, historyEntry);
-        await this.actor.update({ 'system.xp.history': this.actor.system.xp.history });
-        // Clear pending changes
+        if (attributeChanges.length > 0) {
+            const historyEntry = {
+                ts: Date.now(),
+                userId: user?.id || '',
+                userName: user?.name || 'System',
+                kind: (totalNetCost > 0 ? 'spend' : 'adjust'),
+                category: 'attribute',
+                amount: Math.abs(totalNetCost),
+                details: { changes: attributeChanges, netCost: totalNetCost },
+                note: totalNetCost < 0
+                    ? 'refund via attribute decrease'
+                    : totalNetCost === 0
+                        ? 'attribute redistribution (0 net XP)'
+                        : undefined,
+                before: beforeState,
+                after: {
+                    available: xpState.available - totalNetCost,
+                    totalEarned: xpState.totalEarned,
+                    totalSpent: Math.max(0, xpState.totalSpent + totalNetCost),
+                    spentAttributes: newSpentAttributes
+                }
+            };
+            this.#pushXpHistory(this.actor, historyEntry);
+            await this.actor.update({ 'system.xp.history': this.actor.system.xp.history });
+        }
         this._pendingAttributeChanges = {};
-        // Show notification
-        ui.notifications?.info(`Attribute changes confirmed! Cost: ${totalCost} XP, Remaining: ${xpState.available - totalCost}`);
+        if (totalNetCost > 0) {
+            ui.notifications?.info(`Attribute changes confirmed! Cost: ${totalNetCost} XP, Remaining: ${xpState.available - totalNetCost}`);
+        }
+        else if (totalNetCost < 0) {
+            ui.notifications?.info(`Attribute changes confirmed! Refund: ${Math.abs(totalNetCost)} XP, Remaining: ${xpState.available - totalNetCost}`);
+        }
+        else {
+            ui.notifications?.info('Attribute changes confirmed.');
+        }
         // Re-render
         await this.render();
     }
@@ -4013,7 +4081,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const masteryRank = system.mastery?.rank || 2;
         const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
         // Count how many of each value are already assigned (excluding current attribute)
-        let count8 = 0, count6 = 0, count4 = 0;
+        let count8 = 0, count6 = 0, count4 = 0, count2 = 0;
         for (const key of attributeKeys) {
             if (key === attribute)
                 continue;
@@ -4024,8 +4092,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 count6++;
             else if (v === 4)
                 count4++;
+            else if (v === 2)
+                count2++;
         }
-        // Validate the new assignment doesn't exceed 2 per tier
+        // Validate the new assignment (2×8, 2×6, 2×4, 1×2)
         if (newValue === 8 && count8 >= 2) {
             ui.notifications?.warn('Already 2 attributes at 8. Choose a different value.');
             this.render();
@@ -4038,6 +4108,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         if (newValue === 4 && count4 >= 2) {
             ui.notifications?.warn('Already 2 attributes at 4. Choose a different value.');
+            this.render();
+            return;
+        }
+        if (newValue === 2 && count2 >= 1) {
+            ui.notifications?.warn('Already 1 attribute at 2. Choose a different value.');
             this.render();
             return;
         }
@@ -4379,13 +4454,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Validate powers & magic
         const powers = this.actor.items.filter((item) => item.type === 'power');
         const powersAtRank2 = powers.filter((p) => (p.system?.level || 1) === 2);
-        // Validate attribute distribution (2×8, 2×6, 2×4)
+        // Validate attribute distribution (2×8, 2×6, 2×4, 1×2)
         const attrValues = attributeKeys.map(key => system.attributes?.[key]?.value || masteryRank);
         const c8 = attrValues.filter((v) => v === 8).length;
         const c6 = attrValues.filter((v) => v === 6).length;
         const c4 = attrValues.filter((v) => v === 4).length;
-        if (c8 !== 2 || c6 !== 2 || c4 !== 2) {
-            ui.notifications?.error(`Attributes must be distributed as 2×8, 2×6, 2×4. Currently: ${c8}×8, ${c6}×6, ${c4}×4`);
+        const c2 = attrValues.filter((v) => v === 2).length;
+        if (c8 !== 2 || c6 !== 2 || c4 !== 2 || c2 !== 1) {
+            ui.notifications?.error(`Attributes must be 2×8, 2×6, 2×4, 1×2. Currently: ${c8}×8, ${c6}×6, ${c4}×4, ${c2}×2`);
             return;
         }
         if (skillPointsSpent !== skillPointsConfig) {
@@ -4430,11 +4506,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (schticksRanks.length > 0) {
             updateData['system.schticks.ranks'] = schticksRanks;
         }
+        const attributeBaselines = {};
+        for (const key of attributeKeys) {
+            attributeBaselines[key] = system.attributes?.[key]?.value ?? 2;
+        }
         // Initialize XP bookkeeping
         updateData['system.points.xp'] = 0;
         updateData['system.xp.totalEarned'] = 0;
         updateData['system.xp.totalSpent'] = 0;
         updateData['system.xp.spentAttributes'] = 0;
+        updateData['system.xp.attributeBaselines'] = attributeBaselines;
         updateData['system.xp.history'] = [];
         try {
             await this.actor.update(updateData);

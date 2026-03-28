@@ -1413,7 +1413,7 @@ function registerConfigConstants() {
   
   (CONFIG as any).MASTERY.creation = {
     schticksAllowed: 2,
-    attributeDistribution: [8, 8, 6, 6, 4, 4],
+    attributeDistribution: [8, 8, 6, 6, 4, 4, 2],
     skillPoints: 16,
     maxAttributeAtCreation: 8,
     maxSkillAtCreation: 4,

@@ -114,6 +114,8 @@ export interface CharacterData {
     totalEarned: number;
     totalSpent: number;
     spentAttributes: number;
+    /** Post-creation floor per attribute (set at finalize; used for XP refunds). */
+    attributeBaselines?: Record<string, number>;
     history: Array<{
       ts: number;
       userId: string;

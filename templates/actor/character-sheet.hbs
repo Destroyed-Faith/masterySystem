@@ -48,7 +48,7 @@
       </div>
       {{else}}
       <!-- Attribute Distribution Counter -->
-      <div class="points-box creation-points" title="Attribute Distribution: 2×8, 2×6, 2×4">
+      <div class="points-box creation-points" title="Attribute Distribution: 2×8, 2×6, 2×4, 1×2">
         <label>Attr</label>
         <div class="points-display attr-distribution-display">
           <span class="attr-dist-item {{#if (eq creation.attrCount8 2)}}complete{{else}}remaining{{/if}}">8×{{creation.attrCount8}}/2</span>
@@ -89,7 +89,7 @@
   <div class="creation-banner">
     <div class="creation-banner-content">
       <h3><i class="fas fa-user-edit"></i> Character Creation Mode</h3>
-      <p>Distribute attributes: <strong>2×8, 2×6, 2×4</strong> ({{#if creation.attributeDistributionValid}}done{{else}}{{creation.attrCount8}}/2×8, {{creation.attrCount6}}/2×6, {{creation.attrCount4}}/2×4{{/if}}). 
+      <p>Distribute attributes: <strong>2×8, 2×6, 2×4, 1×2</strong> ({{#if creation.attributeDistributionValid}}done{{else}}{{creation.attrCount8}}/2×8, {{creation.attrCount6}}/2×6, {{creation.attrCount4}}/2×4, {{creation.attrCount2}}/1×2{{/if}}). 
       <strong>{{creation.skillPointsRemaining}}</strong> Skill Points remaining. 
       <strong>Disadvantages:</strong> <strong>{{creation.disadvantagePoints}}</strong> / 8 points (optional).</p>
       {{#if creation.canFinalize}}
@@ -98,7 +98,7 @@
       </button>
       {{else}}
       <span class="creation-status">
-        Remaining: Attributes ({{#if creation.attributeDistributionValid}}done{{else}}{{creation.attrCount8}}/2×8, {{creation.attrCount6}}/2×6, {{creation.attrCount4}}/2×4{{/if}}), Skills ({{creation.skillPointsRemaining}} remaining)
+        Remaining: Attributes ({{#if creation.attributeDistributionValid}}done{{else}}{{creation.attrCount8}}/2×8, {{creation.attrCount6}}/2×6, {{creation.attrCount4}}/2×4, {{creation.attrCount2}}/1×2{{/if}}), Skills ({{creation.skillPointsRemaining}} remaining)
         {{#unless creation.disadvantagesReviewed}}, Disadvantages (review required){{/unless}}.
       </span>
       {{/if}}
@@ -171,7 +171,7 @@
                 <div class="attribute-value-with-button">
                   <div class="attribute-value">
                     <span class="attribute-base-value">{{default value 0}}</span>
-                    <span class="attribute-pending-change" data-attribute="might" style="display: none;">+<span class="pending-increase">0</span></span>
+                    <span class="attribute-pending-change" data-attribute="might" style="display: none;"><span class="pending-delta"></span></span>
                   </div>
                   {{#if ../creationComplete}}
                   <div class="attribute-controls attribute-controls-vertical">
@@ -184,7 +184,7 @@
                   </div>
                   {{else}}
                   <select class="attr-creation-select" data-attribute="might">
-                    <option value="2" {{#if (eq value 2)}}selected{{/if}}>—</option>
+                    <option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>
                     <option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>
                     <option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>
                     <option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>
@@ -221,7 +221,7 @@
                 <div class="attribute-value-with-button">
                   <div class="attribute-value">
                     <span class="attribute-base-value">{{default value 0}}</span>
-                    <span class="attribute-pending-change" data-attribute="agility" style="display: none;">+<span class="pending-increase">0</span></span>
+                    <span class="attribute-pending-change" data-attribute="agility" style="display: none;"><span class="pending-delta"></span></span>
                   </div>
                   {{#if ../creationComplete}}
                   <div class="attribute-controls attribute-controls-vertical">
@@ -234,7 +234,7 @@
                   </div>
                   {{else}}
                   <select class="attr-creation-select" data-attribute="agility">
-                    <option value="2" {{#if (eq value 2)}}selected{{/if}}>—</option>
+                    <option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>
                     <option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>
                     <option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>
                     <option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>
@@ -269,7 +269,7 @@
                 <div class="attribute-value-with-button">
                   <div class="attribute-value">
                     <span class="attribute-base-value">{{default value 0}}</span>
-                    <span class="attribute-pending-change" data-attribute="vitality" style="display: none;">+<span class="pending-increase">0</span></span>
+                    <span class="attribute-pending-change" data-attribute="vitality" style="display: none;"><span class="pending-delta"></span></span>
                   </div>
                   {{#if ../creationComplete}}
                   <div class="attribute-controls attribute-controls-vertical">
@@ -282,7 +282,7 @@
                   </div>
                   {{else}}
                   <select class="attr-creation-select" data-attribute="vitality">
-                    <option value="2" {{#if (eq value 2)}}selected{{/if}}>—</option>
+                    <option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>
                     <option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>
                     <option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>
                     <option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>
@@ -317,7 +317,7 @@
                 <div class="attribute-value-with-button">
                   <div class="attribute-value">
                     <span class="attribute-base-value">{{default value 0}}</span>
-                    <span class="attribute-pending-change" data-attribute="wits" style="display: none;">+<span class="pending-increase">0</span></span>
+                    <span class="attribute-pending-change" data-attribute="wits" style="display: none;"><span class="pending-delta"></span></span>
                   </div>
                   {{#if ../creationComplete}}
                   <div class="attribute-controls attribute-controls-vertical">
@@ -330,7 +330,7 @@
                   </div>
                   {{else}}
                   <select class="attr-creation-select" data-attribute="wits">
-                    <option value="2" {{#if (eq value 2)}}selected{{/if}}>—</option>
+                    <option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>
                     <option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>
                     <option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>
                     <option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>
@@ -370,7 +370,7 @@
                 <div class="attribute-value-with-button">
                   <div class="attribute-value">
                     <span class="attribute-base-value">{{default value 0}}</span>
-                    <span class="attribute-pending-change" data-attribute="intellect" style="display: none;">+<span class="pending-increase">0</span></span>
+                    <span class="attribute-pending-change" data-attribute="intellect" style="display: none;"><span class="pending-delta"></span></span>
                   </div>
                   {{#if ../creationComplete}}
                   <div class="attribute-controls">
@@ -383,7 +383,7 @@
                   </div>
                   {{else}}
                   <select class="attr-creation-select" data-attribute="intellect">
-                    <option value="2" {{#if (eq value 2)}}selected{{/if}}>—</option>
+                    <option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>
                     <option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>
                     <option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>
                     <option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>
@@ -418,7 +418,7 @@
                 <div class="attribute-value-with-button">
                   <div class="attribute-value">
                     <span class="attribute-base-value">{{default value 0}}</span>
-                    <span class="attribute-pending-change" data-attribute="resolve" style="display: none;">+<span class="pending-increase">0</span></span>
+                    <span class="attribute-pending-change" data-attribute="resolve" style="display: none;"><span class="pending-delta"></span></span>
                   </div>
                   {{#if ../creationComplete}}
                   <div class="attribute-controls">
@@ -431,7 +431,7 @@
                   </div>
                   {{else}}
                   <select class="attr-creation-select" data-attribute="resolve">
-                    <option value="2" {{#if (eq value 2)}}selected{{/if}}>—</option>
+                    <option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>
                     <option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>
                     <option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>
                     <option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>
@@ -466,7 +466,7 @@
                 <div class="attribute-value-with-button">
                   <div class="attribute-value">
                     <span class="attribute-base-value">{{default value 0}}</span>
-                    <span class="attribute-pending-change" data-attribute="influence" style="display: none;">+<span class="pending-increase">0</span></span>
+                    <span class="attribute-pending-change" data-attribute="influence" style="display: none;"><span class="pending-delta"></span></span>
                   </div>
                   {{#if ../creationComplete}}
                   <div class="attribute-controls">
@@ -479,7 +479,7 @@
                   </div>
                   {{else}}
                   <select class="attr-creation-select" data-attribute="influence">
-                    <option value="2" {{#if (eq value 2)}}selected{{/if}}>—</option>
+                    <option value="2" {{#if (eq value 2)}}selected{{/if}}>2</option>
                     <option value="4" {{#if (eq value 4)}}selected{{/if}}>4</option>
                     <option value="6" {{#if (eq value 6)}}selected{{/if}}>6</option>
                     <option value="8" {{#if (eq value 8)}}selected{{/if}}>8</option>
