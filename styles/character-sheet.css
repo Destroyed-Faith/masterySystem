@@ -6349,19 +6349,32 @@
 
 /* ========== Equipment UI - New Layout ========== */
 
-/* Layout */
+/* Layout: inventory full width on top; equipped + stash centered below */
 .df-equipment-layout {
   display: flex;
+  flex-direction: column;
   gap: 16px;
-  align-items: flex-start;
+  align-items: stretch;
+}
+
+.df-equipment-top {
+  width: 100%;
+}
+
+.df-equipment-bottom {
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
 
 .df-enc-table {
-  flex: 1 1 auto;
+  flex: 0 0 auto;
+  width: 100%;
 }
 
 .df-equipment-side {
   width: 320px;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -6554,7 +6567,7 @@
   grid-template-areas:
     ".       helmet    helmet    necklace  necklace  cloak     ."
     "shoulder shoulder chest     chest     chest     cloak     ring1"
-    "wrist    glove     chest     chest     chest     belt      ring2"
+    ".        glove     chest     chest     chest     belt      ."
     "mainhand mainhand  waist     waist     waist     pouch     offhand"
     "mainhand mainhand  leggings  leggings  leggings  pouch     offhand"
     ".        boot      boot      .         .         .         ."
@@ -6617,10 +6630,6 @@
   grid-area: chest;
 }
 
-.df-equip-slot.slot-wrist {
-  grid-area: wrist;
-}
-
 .df-equip-slot.slot-glove {
   grid-area: glove;
 }
@@ -6655,10 +6664,6 @@
 
 .df-equip-slot.slot-ring1 {
   grid-area: ring1;
-}
-
-.df-equip-slot.slot-ring2 {
-  grid-area: ring2;
 }
 
 /* Dropzone styling */

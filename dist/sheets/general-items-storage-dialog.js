@@ -211,14 +211,12 @@ export class GeneralItemsStorageDialog extends BaseDialog {
             { key: 'offhand', label: 'Offhand' },
             { key: 'helmet', label: 'Helmet' },
             { key: 'chest', label: 'Chest' },
-            { key: 'wrist', label: 'Wrist' },
             { key: 'glove', label: 'Glove' },
             { key: 'waist', label: 'Waist' },
             { key: 'leggings', label: 'Leggings' },
             { key: 'boot', label: 'Boot' },
             { key: 'necklace', label: 'Necklace' },
-            { key: 'ring1', label: 'Ring 1' },
-            { key: 'ring2', label: 'Ring 2' }
+            { key: 'ring1', label: 'Ring 1' }
         ];
         return {
             showStash: false,
