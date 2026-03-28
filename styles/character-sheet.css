@@ -742,9 +742,42 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 15px;
+  flex-wrap: wrap;
+  gap: 10px 15px;
   font-size: 13px;
   color: var(--df-text-secondary, #a0a0a0);
+}
+
+.mastery-system.sheet.actor.character .skill-xp-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  max-width: 720px;
+}
+
+.mastery-system.sheet.actor.character .skill-xp-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mastery-system.sheet.actor.character .skill-xp-toolbar-actions .confirm-skill-changes,
+.mastery-system.sheet.actor.character .skill-xp-toolbar-actions .cancel-skill-changes {
+  min-width: 140px;
+  padding: 8px 12px;
+}
+
+.mastery-system.sheet.actor.character .pending-skill-xp-net-wrap {
+  font-weight: 600;
+  color: var(--df-text-secondary, #a0a0a0);
+}
+
+.mastery-system.sheet.actor.character #pending-skill-xp-net {
+  color: var(--df-text-primary, #d0d0d0);
+  font-weight: 700;
 }
 
 .mastery-system.sheet.actor.character .pending-changes-text,
@@ -2012,6 +2045,41 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mastery-system.sheet.actor.character .skill-rank-block {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.mastery-system.sheet.actor.character .skill-rank-pending-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(202, 178, 113, 0.95);
+  min-height: 14px;
+  line-height: 1.2;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.mastery-system.sheet.actor.character .skill-pending-xp {
+  font-size: 11px;
+  color: var(--df-text-secondary, #888);
+  max-width: 168px;
+  line-height: 1.25;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.mastery-system.sheet.actor.character .skill-pending-xp.has-pending {
+  color: rgba(202, 178, 113, 0.95);
+  font-weight: 600;
+}
+
+.mastery-system.sheet.actor.character .skill-progress-controls {
+  display: flex;
+  gap: 0.35rem;
 }
 
 .mastery-system.sheet.actor.character .skill-value-compact {
@@ -2073,15 +2141,18 @@
   background: var(--df-bg-panel, #2a3136);
   border: 1px solid var(--df-border-primary, #3a3f44);
   color: var(--df-text-primary, #d0d0d0);
-  padding: 3px 6px;
+  padding: 2px 4px;
   border-radius: 3px;
   cursor: pointer;
   transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 24px;
-  font-size: 12px;
+  width: 22px;
+  min-width: 22px;
+  max-width: 22px;
+  box-sizing: border-box;
+  font-size: 11px;
   font-family: 'Cormorant Garamond', serif;
 }
 

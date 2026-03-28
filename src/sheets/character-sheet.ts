@@ -1324,10 +1324,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('.confirm-attribute-changes').on('click', this.#onConfirmAttributeChanges.bind(this));
     html.find('.cancel-attribute-changes').on('click', this.#onCancelAttributeChanges.bind(this));
     
-    // Initialize pending changes tracking
-    this._pendingAttributeChanges = {};
-    this._pendingSkillRankChanges = {};
-    
+    // Pending XP maps persist across re-renders until Confirm/Cancel (do not reset here).
+
     // Initialize UI state for attribute XP distribution
     this.#updateAttributeXPUI();
     this.#updateSkillXPUI();
@@ -3499,6 +3497,27 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     return net;
   }
 
+  /** Net XP cost (positive) or refund (negative) for one skill's pending rank delta only. */
+  #calculateSingleSkillPendingXpNet(skillKey: string, pending: number): number {
+    if (!pending) return 0;
+    const currentRaw = this.actor.system.skills?.[skillKey] ?? 0;
+    const current = Number(currentRaw) || 0;
+    let net = 0;
+    if (pending > 0) {
+      for (let i = 1; i <= pending; i++) {
+        net += (current + i) * 2;
+      }
+    } else {
+      const steps = Math.abs(pending);
+      for (let i = 0; i < steps; i++) {
+        const refundRank = current - i;
+        if (refundRank <= 0) break;
+        net -= refundRank * 2;
+      }
+    }
+    return net;
+  }
+
   /**
    * Update the skill XP distribution UI (pending/remaining + enable/disable buttons)
    */
@@ -3509,17 +3528,28 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const remainingXP = availableXP - netPendingCost;
     this.#setHeaderXpDisplay(remainingXP);
     const totalPendingChanges = Object.values(this._pendingSkillRankChanges).reduce((sum, v) => sum + Math.abs(v), 0);
-    
-    html.find('#pending-skill-changes-count').text(totalPendingChanges);
-    html.find('#remaining-skill-xp').text(Math.max(0, remainingXP));
-    
+
+    html.find('#pending-skill-changes-count').text(String(totalPendingChanges));
+    html.find('#remaining-skill-xp').text(String(Math.max(0, remainingXP)));
+
+    const netSummary = html.find('#pending-skill-xp-net');
+    if (netSummary.length) {
+      if (netPendingCost === 0) {
+        netSummary.text('0');
+      } else if (netPendingCost > 0) {
+        netSummary.text(`−${netPendingCost} spend`);
+      } else {
+        netSummary.text(`+${Math.abs(netPendingCost)} refund`);
+      }
+    }
+
     // Enable/disable confirm/cancel
     const confirmBtn = html.find('#confirm-skill-changes-btn');
     const cancelBtn = html.find('#cancel-skill-changes-btn');
     confirmBtn.prop('disabled', totalPendingChanges <= 0);
     cancelBtn.prop('disabled', totalPendingChanges <= 0);
-    
-    // Enable/disable per-skill +/- buttons
+
+    // Enable/disable per-skill +/- buttons + per-row pending labels
     const masteryRank = this.actor.system.mastery?.rank || 2;
     const maxSkill = 4 * masteryRank;
     for (const skillKey of Object.keys(SKILLS)) {
@@ -3527,10 +3557,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const current = Number(currentRaw) || 0;
       const pending = this._pendingSkillRankChanges[skillKey] || 0;
       const effective = current + pending;
-      
+
       const minusBtn = html.find(`.skill-refund-point[data-skill="${skillKey}"]`);
       minusBtn.prop('disabled', effective <= 0);
-      
+
       const plusBtn = html.find(`.skill-spend-point[data-skill="${skillKey}"]`);
       if (effective >= maxSkill) {
         plusBtn.prop('disabled', true);
@@ -3538,6 +3568,27 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const simulateMap = { ...this._pendingSkillRankChanges, [skillKey]: pending + 1 };
         const simulateNet = this.#calculateSkillPendingNetCost(simulateMap);
         plusBtn.prop('disabled', simulateNet > availableXP);
+      }
+
+      const pendingLine = html.find(`.skill-pending-xp[data-skill="${skillKey}"]`);
+      const rankBadge = html.find(`.skill-rank-pending-badge[data-skill="${skillKey}"]`);
+      if (pending === 0) {
+        pendingLine.text('').removeClass('has-pending').attr('title', 'XP reserved on this skill until Confirm');
+        rankBadge.text('');
+      } else {
+        const xpNet = this.#calculateSingleSkillPendingXpNet(skillKey, pending);
+        const rankLabel =
+          pending > 0
+            ? `+${pending} rank${pending === 1 ? '' : 's'}`
+            : `${pending} rank${pending === -1 ? '' : 's'}`;
+        let xpLabel = '';
+        if (xpNet > 0) {
+          xpLabel = ` · ${xpNet} XP`;
+        } else if (xpNet < 0) {
+          xpLabel = ` · +${Math.abs(xpNet)} XP back`;
+        }
+        pendingLine.text(`${rankLabel}${xpLabel}`).addClass('has-pending');
+        rankBadge.text(`→${effective}`);
       }
     }
   }

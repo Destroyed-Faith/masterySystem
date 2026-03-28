@@ -803,12 +803,17 @@
       
       <div class="skills-overview">
         {{#if creationComplete}}
-        <div class="attribute-xp-distribution-controls" style="width: 400px;">
-          <div style="display: flex; gap: 0.5rem; width: 319px;">
-            <button type="button" class="confirm-skill-changes" id="confirm-skill-changes-btn" disabled style="flex: 1;">
+        <div class="attribute-xp-distribution-controls skill-xp-toolbar">
+          <div class="pending-skill-changes-info">
+            <span class="remaining-xp-text">After pending: <span id="remaining-skill-xp">0</span> XP</span>
+            <span class="pending-changes-text">Steps: <span id="pending-skill-changes-count">0</span></span>
+            <span class="pending-skill-xp-net-wrap">Net: <span id="pending-skill-xp-net">0</span> XP</span>
+          </div>
+          <div class="skill-xp-toolbar-actions">
+            <button type="button" class="confirm-skill-changes" id="confirm-skill-changes-btn" disabled>
               <i class="fas fa-check"></i> Confirm Changes
             </button>
-            <button type="button" class="cancel-skill-changes" id="cancel-skill-changes-btn" disabled style="flex: 1;">
+            <button type="button" class="cancel-skill-changes" id="cancel-skill-changes-btn" disabled>
               <i class="fas fa-times"></i> Cancel
             </button>
           </div>
@@ -839,10 +844,16 @@
                   {{/each}}
                 </div>
                 <div class="skill-value-display-compact">
-                  <span class="skill-value-compact">{{default this.value 0}}</span>
+                  <div class="skill-rank-block">
+                    <span class="skill-value-compact">{{default this.value 0}}</span>
+                    {{#if @root.creationComplete}}
+                    <span class="skill-rank-pending-badge" data-skill="{{this.key}}" title="Rank after pending changes"></span>
+                    {{/if}}
+                  </div>
                   {{#if @root.creationComplete}}
-                  <span class="skill-pool-display">{{default this.value 0}} ({{default this.remaining 0}} left)</span>
-                  <div class="skill-progress-controls" style="display: flex; gap: 0.35rem;">
+                  <span class="skill-pool-display">{{default this.remaining 0}} / {{default this.value 0}} uses</span>
+                  <span class="skill-pending-xp" data-skill="{{this.key}}" title="XP reserved on this skill until Confirm"></span>
+                  <div class="skill-progress-controls">
                     <button type="button" class="skill-spend-point" data-skill="{{this.key}}" title="Increase Skill (Spend XP)">
                       <i class="fas fa-plus"></i>
                     </button>
