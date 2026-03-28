@@ -6373,7 +6373,7 @@
 }
 
 .df-equipment-side {
-  width: 360px;
+  width: min(420px, 100%);
   max-width: 100%;
   display: flex;
   flex-direction: column;
@@ -6557,22 +6557,40 @@
   z-index: 0;
 }
 
-/* Paperdoll: helmet → necklace → (glove | chest wide | narrow cloak | ring) → belt under chest → hands/legs → boot */
+/* Paperdoll: [helmet sq | necklace wide] → row at chest height: mainhand | chest | narrow cloak | offhand | [glove | ring sq] → belt → leggings → boot */
 .df-equipped-grid {
+  --df-paperdoll-helm: minmax(48px, 3.25rem);
+  /* Torso is two equal rows; glove + ring are each one row tall → each square ≈ 50% of chest/cloak column height */
+  --df-paperdoll-side-square: minmax(52px, 3.75rem);
   position: relative;
   z-index: 1;
   display: grid;
-  /* Glove | Chest×3 (wide) | Cloak (narrower) | Ring */
-  grid-template-columns: minmax(52px, 0.95fr) minmax(56px, 1.2fr) minmax(56px, 1.2fr) minmax(56px, 1.2fr) minmax(48px, 0.75fr) minmax(52px, 0.95fr);
-  grid-template-rows: repeat(6, minmax(58px, auto));
+  grid-template-columns:
+    var(--df-paperdoll-helm)
+    minmax(72px, 1.55fr)
+    minmax(34px, 0.5fr)
+    var(--df-paperdoll-helm)
+    var(--df-paperdoll-side-square);
+  grid-template-rows:
+    var(--df-paperdoll-helm)
+    var(--df-paperdoll-side-square)
+    var(--df-paperdoll-side-square)
+    minmax(44px, auto)
+    minmax(48px, auto)
+    minmax(44px, auto);
   gap: 8px;
+  align-items: stretch;
   grid-template-areas:
-    ".        helmet   helmet   helmet   helmet   ."
-    ".        necklace necklace necklace necklace ."
-    "glove    chest    chest    chest    cloak    ring1"
-    ".        belt     belt     belt     .        ."
-    "mainhand mainhand leggings leggings offhand  offhand"
-    ".        boot     boot     boot     boot     .";
+    "helmet necklace necklace necklace necklace"
+    "mainhand chest cloak offhand glove"
+    "mainhand chest cloak offhand ring1"
+    ". belt belt belt ."
+    "leggings leggings leggings leggings leggings"
+    ". boot boot boot .";
+}
+
+.df-equipped-grid > .df-equip-slot {
+  min-height: 0;
 }
 
 .df-equip-slot {
@@ -6581,7 +6599,7 @@
   border-radius: 10px;
   background: rgba(0, 0, 0, 0.25);
   overflow: hidden;
-  min-height: 64px;
+  min-height: 0;
 }
 
 .df-equip-slot:hover {
@@ -6613,10 +6631,15 @@
 /* Slot -> Grid Areas */
 .df-equip-slot.slot-helmet {
   grid-area: helmet;
+  aspect-ratio: 1;
+  max-width: 100%;
+  justify-self: start;
+  width: 100%;
 }
 
 .df-equip-slot.slot-necklace {
   grid-area: necklace;
+  min-height: 0;
 }
 
 .df-equip-slot.slot-cloak {
@@ -6629,6 +6652,20 @@
 
 .df-equip-slot.slot-glove {
   grid-area: glove;
+  aspect-ratio: 1;
+  align-self: stretch;
+  justify-self: stretch;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.df-equip-slot.slot-ring1 {
+  grid-area: ring1;
+  aspect-ratio: 1;
+  align-self: stretch;
+  justify-self: stretch;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .df-equip-slot.slot-belt {
@@ -6651,10 +6688,6 @@
   grid-area: offhand;
 }
 
-.df-equip-slot.slot-ring1 {
-  grid-area: ring1;
-}
-
 /* Dropzone styling */
 .df-dropzone {
   min-height: 26px;
@@ -6665,7 +6698,7 @@
 }
 
 .df-dropzone.df-equip-slot {
-  min-height: 64px;
+  min-height: 0;
 }
 
 .df-dropzone:hover {
