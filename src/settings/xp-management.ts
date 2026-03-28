@@ -3,6 +3,8 @@
  * Allows GM to view character XP spending and grant XP allowances
  */
 
+import { actorHasPostCreationSnapshot, resetActorProgressToPostCreation } from '../utils/xp-post-creation.js';
+
 // Use ApplicationV2 with HandlebarsApplicationMixin if available, otherwise fall back to Application
 let BaseApplication: any;
 if ((foundry as any)?.applications?.api?.ApplicationV2 && (foundry as any)?.applications?.api?.HandlebarsApplicationMixin) {
@@ -58,6 +60,7 @@ export class XpManagementSettings extends BaseApplication {
         name: actor.name,
         img: actor.img,
         player: (game as any).users?.find((u: any) => u.character?.id === actor.id)?.name || 'Unassigned',
+        hasPostCreationSnapshot: actorHasPostCreationSnapshot(actor),
         xp: {
           spent: totalSpent,
           available: available,
@@ -309,6 +312,53 @@ export class XpManagementSettings extends BaseApplication {
             html.closest('.dialog').find('.close').click();
           });
         }
+      }).render(true);
+    });
+
+    html.find('.reset-progress-xp-btn').on('click', async (event) => {
+      const button = $(event.currentTarget);
+      if (button.prop('disabled')) return;
+      if (!(game as any).user?.isGM) return;
+      const characterId = button.data('character-id');
+      const actor = (game as any).actors?.get(characterId);
+      if (!actor) {
+        ui.notifications?.error('Character not found.');
+        return;
+      }
+      if (!actorHasPostCreationSnapshot(actor)) {
+        ui.notifications?.warn(
+          'No post-creation snapshot for this actor. Complete character creation on the current system version.'
+        );
+        return;
+      }
+      const totalEarned = actor.system?.xp?.totalEarned ?? 0;
+      const user = (game as any).user;
+      new Dialog({
+        title: `Reset progression: ${actor.name}`,
+        content: `<p class="xp-reset-confirm">Restore <strong>attributes</strong>, <strong>skills</strong>, <strong>power levels</strong>, and <strong>skill session spend</strong> to the stored post-creation state. All <strong>${totalEarned}</strong> earned XP will be available again. A <strong>GM reset</strong> entry is appended to XP history.</p>`,
+        buttons: {
+          reset: {
+            icon: '<i class="fas fa-undo"></i>',
+            label: 'Reset progression',
+            callback: async () => {
+              const res = await resetActorProgressToPostCreation(actor, {
+                gmUserId: user?.id || '',
+                gmUserName: user?.name || 'GM'
+              });
+              if (!res.ok) {
+                ui.notifications?.error(res.error || 'Reset failed.');
+                return;
+              }
+              ui.notifications?.info(`Progression reset to post-creation for ${actor.name}.`);
+              (this as any).render();
+            }
+          },
+          cancel: {
+            label: 'Cancel',
+            callback: () => {}
+          }
+        },
+        default: 'cancel'
       }).render(true);
     });
   }

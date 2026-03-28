@@ -17,6 +17,7 @@ import { getAllSpellSchools } from '../utils/spell-schools';
 import { getAllSchticks } from '../utils/schticks';
 import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
 import { findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid';
+import { buildPostCreationSnapshot } from '../utils/xp-post-creation.js';
 import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items';
 // Removed: showWeaponCreationDialog, showArmorCreationDialog, showShieldCreationDialog
 // Replaced with General Items Storage and Store dialogs
@@ -5025,12 +5026,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       attributeBaselines[key] = system.attributes?.[key]?.value ?? 2;
     }
 
+    const postCreationProgress = buildPostCreationSnapshot(this.actor);
+
     // Initialize XP bookkeeping
     updateData['system.points.xp'] = 0;
     updateData['system.xp.totalEarned'] = 0;
     updateData['system.xp.totalSpent'] = 0;
     updateData['system.xp.spentAttributes'] = 0;
     updateData['system.xp.attributeBaselines'] = attributeBaselines;
+    updateData['system.xp.postCreationProgress'] = postCreationProgress;
     updateData['system.xp.history'] = [];
     
     try {

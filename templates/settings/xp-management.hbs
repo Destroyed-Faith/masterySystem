@@ -28,15 +28,15 @@
       
       <!-- Characters List -->
       <div class="characters-list">
-        <table class="xp-table">
+        <table class="xp-table xp-table-compact">
           <thead>
             <tr>
               <th>Character</th>
               <th>Player</th>
-              <th>XP Spent</th>
-              <th>XP Available</th>
-              <th>XP Total Earned</th>
-              <th>Attribute Cap</th>
+              <th>Spent</th>
+              <th>Avail.</th>
+              <th>Earned</th>
+              <th>Attr cap</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -55,14 +55,21 @@
               <td class="grant-cell">
                 <div class="grant-controls">
                   <div class="grant-group">
-                    <input type="number" class="xp-amount-input" data-character-id="{{this.id}}" min="0" value="0" placeholder="XP" />
+                    <input type="number" class="xp-amount-input" data-character-id="{{this.id}}" min="0" value="0" placeholder="+" title="Grant XP" />
                     <button type="button" class="grant-xp-btn" data-character-id="{{this.id}}" title="Grant XP">
                       <i class="fas fa-plus"></i>
                     </button>
                   </div>
-                  <button type="button" class="history-xp-btn" data-character-id="{{this.id}}" title="View XP History">
-                    <i class="fas fa-history"></i> History
-                  </button>
+                  <div class="xp-row-actions">
+                    <button type="button" class="history-xp-btn" data-character-id="{{this.id}}" title="XP History">
+                      <i class="fas fa-history"></i>
+                    </button>
+                    {{#if (userIsGM)}}
+                    <button type="button" class="reset-progress-xp-btn" data-character-id="{{this.id}}" title="Reset to post-creation (attributes, skills, powers). All earned XP becomes available." {{#unless this.hasPostCreationSnapshot}}disabled{{/unless}}>
+                      <i class="fas fa-undo"></i>
+                    </button>
+                    {{/if}}
+                  </div>
                 </div>
               </td>
             </tr>

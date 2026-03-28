@@ -116,6 +116,13 @@ export interface CharacterData {
     spentAttributes: number;
     /** Post-creation floor per attribute (set at finalize; used for XP refunds). */
     attributeBaselines?: Record<string, number>;
+    /** Immutable snapshot after creation (attributes, skills, powers); used for GM progression reset. */
+    postCreationProgress?: {
+      attributes: Record<string, number>;
+      skills: Record<string, number>;
+      skillsSpent: Record<string, number>;
+      powerLevels: Record<string, number>;
+    };
     history: Array<{
       ts: number;
       userId: string;

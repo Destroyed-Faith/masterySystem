@@ -31,6 +31,7 @@ import { initializeDivineClashHooks } from './divine-clash/divine-clash-hooks.js
 import { initializeArtifactAwakening } from './artifacts/artifact-awakening.js';
 import { seedGeneralItemsStorage } from './utils/seed-general-items.js';
 import { getItemIcon } from './utils/item-icons.js';
+import { actorHasPostCreationSnapshot, resetActorProgressToPostCreation } from './utils/xp-post-creation.js';
 // Dice roller functions are imported in sheets where needed
 console.log('Mastery System | All imports completed');
 // Register Handlebars helpers immediately (before init hook)
@@ -999,8 +1000,8 @@ function setupXpManagementInline() {
         htmlContent += '<button type="button" class="bulk-grant-btn"><i class="fas fa-gift"></i> Grant to All</button></div>';
         htmlContent += '</div></div>';
         // Characters Table
-        htmlContent += '<div class="characters-list"><table class="xp-table"><thead><tr>';
-        htmlContent += '<th>Character</th><th>Player</th><th>XP Spent</th><th>XP Available</th><th>XP Total Earned</th><th>Attribute Cap</th><th>Actions</th>';
+        htmlContent += '<div class="characters-list"><table class="xp-table xp-table-compact"><thead><tr>';
+        htmlContent += '<th>Character</th><th>Player</th><th>Spent</th><th>Avail.</th><th>Earned</th><th>Attr cap</th><th>Actions</th>';
         htmlContent += '</tr></thead><tbody>';
         if (characters.length === 0) {
             htmlContent += '<tr><td colspan="7" class="empty-message"><i class="fas fa-info-circle"></i> No player characters found.</td></tr>';
@@ -1017,6 +1018,11 @@ function setupXpManagementInline() {
                 const available = points.xp ?? 0;
                 const maxAttributeSpend = Math.floor(totalEarned / 2);
                 const playerName = game.users?.find((u) => u.character?.id === actor.id)?.name || 'Unassigned';
+                const isGM = game.user?.isGM;
+                const hasSnap = actorHasPostCreationSnapshot(actor);
+                const resetBtn = isGM
+                    ? `<button type="button" class="reset-progress-xp-btn" data-character-id="${actor.id}" title="Reset to post-creation (attributes, skills, powers). All earned XP becomes available."${hasSnap ? '' : ' disabled'}><i class="fas fa-undo"></i></button>`
+                    : '';
                 htmlContent += `<tr data-character-id="${actor.id}">`;
                 htmlContent += `<td class="character-cell"><img src="${actor.img}" alt="${actor.name}" class="character-avatar" /><span class="character-name">${actor.name}</span></td>`;
                 htmlContent += `<td class="player-cell">${playerName}</td>`;
@@ -1025,10 +1031,12 @@ function setupXpManagementInline() {
                 htmlContent += `<td class="xp-cell"><strong>${totalEarned}</strong></td>`;
                 htmlContent += `<td class="xp-cell">${spentAttributes} / ${maxAttributeSpend}</td>`;
                 htmlContent += `<td class="grant-cell"><div class="grant-controls">`;
-                htmlContent += `<div class="grant-group"><input type="number" class="xp-amount-input" data-character-id="${actor.id}" min="0" value="0" placeholder="XP" />`;
+                htmlContent += `<div class="grant-group"><input type="number" class="xp-amount-input" data-character-id="${actor.id}" min="0" value="0" placeholder="+" title="Grant XP" />`;
                 htmlContent += `<button type="button" class="grant-xp-btn" data-character-id="${actor.id}" title="Grant XP"><i class="fas fa-plus"></i></button></div>`;
-                htmlContent += `<button type="button" class="history-xp-btn" data-character-id="${actor.id}" title="View XP History"><i class="fas fa-history"></i> History</button>`;
-                htmlContent += `</div></td></tr>`;
+                htmlContent += `<div class="xp-row-actions">`;
+                htmlContent += `<button type="button" class="history-xp-btn" data-character-id="${actor.id}" title="XP History"><i class="fas fa-history"></i></button>`;
+                htmlContent += resetBtn;
+                htmlContent += `</div></div></td></tr>`;
             });
         }
         htmlContent += '</tbody></table></div>';
@@ -1227,6 +1235,52 @@ function setupXpManagementInline() {
                         html.closest('.dialog').find('.close').click();
                     });
                 }
+            }).render(true);
+        });
+        customContainer.find('.reset-progress-xp-btn').on('click', async (event) => {
+            const button = $(event.currentTarget);
+            if (button.prop('disabled'))
+                return;
+            if (!game.user?.isGM)
+                return;
+            const characterId = button.data('character-id');
+            const actor = game.actors?.get(characterId);
+            if (!actor) {
+                ui.notifications?.error('Character not found.');
+                return;
+            }
+            if (!actorHasPostCreationSnapshot(actor)) {
+                ui.notifications?.warn('No post-creation snapshot for this actor. Complete character creation on the current system version.');
+                return;
+            }
+            const totalEarned = actor.system?.xp?.totalEarned ?? 0;
+            const user = game.user;
+            new Dialog({
+                title: `Reset progression: ${actor.name}`,
+                content: `<p class="xp-reset-confirm">Restore <strong>attributes</strong>, <strong>skills</strong>, <strong>power levels</strong>, and <strong>skill session spend</strong> to the stored post-creation state. All <strong>${totalEarned}</strong> earned XP will be available again. A <strong>GM reset</strong> entry is appended to XP history.</p>`,
+                buttons: {
+                    reset: {
+                        icon: '<i class="fas fa-undo"></i>',
+                        label: 'Reset progression',
+                        callback: async () => {
+                            const res = await resetActorProgressToPostCreation(actor, {
+                                gmUserId: user?.id || '',
+                                gmUserName: user?.name || 'GM'
+                            });
+                            if (!res.ok) {
+                                ui.notifications?.error(res.error || 'Reset failed.');
+                                return;
+                            }
+                            ui.notifications?.info(`Progression reset to post-creation for ${actor.name}.`);
+                            app.render();
+                        }
+                    },
+                    cancel: {
+                        label: 'Cancel',
+                        callback: () => { }
+                    }
+                },
+                default: 'cancel'
             }).render(true);
         });
     });

@@ -272,3 +272,119 @@
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
+
+/* Compact XP table (settings inline + sheet app) */
+.mastery-xp-management-inline .xp-table-compact th,
+.mastery-xp-management-inline .xp-table-compact td,
+.mastery-xp-management .xp-table-compact th,
+.mastery-xp-management .xp-table-compact td {
+  padding: 0.35rem 0.45rem;
+  font-size: 0.78rem;
+  vertical-align: middle;
+}
+
+.mastery-xp-management-inline .xp-table-compact th,
+.mastery-xp-management .xp-table-compact th {
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.mastery-xp-management-inline .xp-table-compact .character-avatar,
+.mastery-xp-management .xp-table-compact .character-avatar {
+  width: 28px;
+  height: 28px;
+}
+
+.mastery-xp-management-inline .xp-table-compact .character-name,
+.mastery-xp-management .xp-table-compact .character-name {
+  font-size: 0.82rem;
+}
+
+.mastery-xp-management-inline .xp-table-compact .xp-cell,
+.mastery-xp-management-inline .xp-table-compact .grant-cell,
+.mastery-xp-management .xp-table-compact .xp-cell,
+.mastery-xp-management .xp-table-compact .grant-cell {
+  min-width: 0;
+}
+
+.mastery-xp-management-inline .xp-table-compact .grant-cell,
+.mastery-xp-management .xp-table-compact .grant-cell {
+  min-width: 132px;
+}
+
+.mastery-xp-management-inline .xp-row-actions,
+.mastery-xp-management .xp-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.mastery-xp-management-inline .history-xp-btn,
+.mastery-xp-management .history-xp-btn {
+  padding: 0.28rem 0.4rem;
+  min-width: 1.75rem;
+  background: #5c5c5c;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.72rem;
+  line-height: 1;
+}
+
+.mastery-xp-management-inline .history-xp-btn:hover,
+.mastery-xp-management .history-xp-btn:hover {
+  background: #444;
+}
+
+.mastery-xp-management-inline .reset-progress-xp-btn,
+.mastery-xp-management .reset-progress-xp-btn {
+  padding: 0.28rem 0.4rem;
+  min-width: 1.75rem;
+  background: #6b3a3a;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.72rem;
+  line-height: 1;
+}
+
+.mastery-xp-management-inline .reset-progress-xp-btn:hover:not(:disabled),
+.mastery-xp-management .reset-progress-xp-btn:hover:not(:disabled) {
+  background: #8b0000;
+}
+
+.mastery-xp-management-inline .reset-progress-xp-btn:disabled,
+.mastery-xp-management .reset-progress-xp-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.app.window-app .xp-reset-confirm {
+  margin: 0 0 0.5rem 0;
+  line-height: 1.45;
+  font-size: 0.9rem;
+}
+
+.mastery-xp-management-inline .bulk-grant-section {
+  padding: 0.55rem 0.65rem;
+  margin-bottom: 0.75rem;
+}
+
+.mastery-xp-management-inline .bulk-grant-section h4 {
+  margin-bottom: 0.45rem;
+  font-size: 0.95rem;
+}
+
+.mastery-xp-management-inline .xp-management-header {
+  margin-bottom: 0.65rem;
+  padding-bottom: 0.5rem;
+}
+
+.mastery-xp-management-inline .xp-management-header h3 {
+  font-size: 1.15rem;
+}
