@@ -4838,25 +4838,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           }
         }
       },
-      default: 'configure',
-      render: (html: JQuery) => {
-        console.log('Mastery System | Dialog rendered, HTML:', html);
-        queueMicrotask(() => {
-          let root = $(html).closest('.window-app.dialog, .application.dialog');
-          if (!root.length) root = $(html).closest('.window-app, .application');
-          if (root.length) {
-            root.addClass('mastery-system disadvantage-selection-dialog');
-            setTimeout(() => {
-              this.#attachDisadvantageDialogResizeHandle(root, 360, 260);
-            }, 80);
-          }
-        });
-      }
+      default: 'configure'
     } as any);
     
     console.log('Mastery System | Dialog created, calling render(true)...');
     try {
       await dialog.render(true);
+      this.#setupDisadvantageDialogChrome(dialog, 'selection');
       console.log('Mastery System | Dialog rendered successfully!');
     } catch (error) {
       console.error('Mastery System | ERROR rendering dialog:', error);
@@ -4909,6 +4897,29 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   /**
+   * Apply disadvantage dialog styling only to this Dialog's shell.
+   * Do not use $(innerHtml).closest('.application') — in v13 that can match Foundry's root UI and break the whole layout.
+   */
+  #setupDisadvantageDialogChrome(
+    dialog: { element: JQuery },
+    kind: 'selection' | 'config'
+  ): void {
+    const shell = dialog.element;
+    if (!shell?.length) return;
+    if (kind === 'selection') {
+      shell.addClass('mastery-system disadvantage-selection-dialog');
+      queueMicrotask(() => {
+        setTimeout(() => this.#attachDisadvantageDialogResizeHandle(shell, 360, 260), 80);
+      });
+    } else {
+      shell.addClass('mastery-system disadvantage-config-dialog-styled');
+      queueMicrotask(() => {
+        setTimeout(() => this.#attachDisadvantageDialogResizeHandle(shell, 500, 340), 80);
+      });
+    }
+  }
+
+  /**
    * Legacy Dialog may not show a resize grip; add bottom-right resize if still missing after paint.
    */
   #attachDisadvantageDialogResizeHandle(root: JQuery, minWidth: number, minHeight: number) {
@@ -4957,7 +4968,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       details: existingDetails || {}
     });
 
-    new Dialog({
+    const configDialog = new Dialog({
       title: `${editIndex !== undefined ? 'Edit' : 'Add'} ${def.name}`,
       content,
       width: 580,
@@ -5042,20 +5053,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           callback: () => {}
         }
       },
-      default: 'save',
-      render: (html: JQuery) => {
-        queueMicrotask(() => {
-          let root = $(html).closest('.window-app.dialog, .application.dialog');
-          if (!root.length) root = $(html).closest('.window-app, .application');
-          if (root.length) {
-            root.addClass('mastery-system disadvantage-config-dialog-styled');
-            setTimeout(() => {
-              this.#attachDisadvantageDialogResizeHandle(root, 500, 340);
-            }, 80);
-          }
-        });
-      }
-    } as any).render(true);
+      default: 'save'
+    } as any);
+    await configDialog.render(true);
+    this.#setupDisadvantageDialogChrome(configDialog, 'config');
   }
 
   /**

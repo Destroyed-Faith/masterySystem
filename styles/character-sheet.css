@@ -4319,11 +4319,6 @@
   min-height: 320px;
 }
 
-.mastery-system.disadvantage-config-dialog-styled,
-.mastery-system.disadvantage-selection-dialog {
-  position: relative;
-}
-
 .mastery-system.disadvantage-config-dialog-styled .window-resizable-handle,
 .mastery-system.disadvantage-selection-dialog .window-resizable-handle {
   display: block;
@@ -4361,31 +4356,52 @@
   margin: 0;
 }
 
-.mastery-system.disadvantage-selection-dialog select,
-.mastery-system.disadvantage-config-dialog-styled select,
-.mastery-system.disadvantage-config-dialog-styled input[type="text"],
-.mastery-system.disadvantage-config-dialog-styled input[type="number"] {
+/* Beat df-rulebook-ui `.application.mastery-system:not(.sheet) select` so closed field + options list stay readable */
+.application.mastery-system.disadvantage-selection-dialog.window-app select,
+.application.mastery-system.disadvantage-config-dialog-styled.window-app select,
+.application.mastery-system.disadvantage-selection-dialog.dialog select,
+.application.mastery-system.disadvantage-config-dialog-styled.dialog select,
+.application.mastery-system.disadvantage-config-dialog-styled.window-app input[type="text"],
+.application.mastery-system.disadvantage-config-dialog-styled.window-app input[type="number"],
+.application.mastery-system.disadvantage-config-dialog-styled.dialog input[type="text"],
+.application.mastery-system.disadvantage-config-dialog-styled.dialog input[type="number"] {
   width: 100%;
   padding: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 4px;
-  background: #fff;
+  background-color: #fff;
   font-size: 0.9rem;
-  color: #333;
+  color: #1a1a1a;
   transition: border-color 0.2s ease;
 }
 
-.mastery-system.disadvantage-selection-dialog select:hover,
-.mastery-system.disadvantage-config-dialog-styled select:hover,
-.mastery-system.disadvantage-config-dialog-styled input[type="text"]:hover,
-.mastery-system.disadvantage-config-dialog-styled input[type="number"]:hover {
+.application.mastery-system.disadvantage-selection-dialog.window-app select option,
+.application.mastery-system.disadvantage-config-dialog-styled.window-app select option,
+.application.mastery-system.disadvantage-selection-dialog.dialog select option,
+.application.mastery-system.disadvantage-config-dialog-styled.dialog select option {
+  background-color: #fff;
+  color: #1a1a1a;
+}
+
+.application.mastery-system.disadvantage-selection-dialog.window-app select:hover,
+.application.mastery-system.disadvantage-config-dialog-styled.window-app select:hover,
+.application.mastery-system.disadvantage-selection-dialog.dialog select:hover,
+.application.mastery-system.disadvantage-config-dialog-styled.dialog select:hover,
+.application.mastery-system.disadvantage-config-dialog-styled.window-app input[type="text"]:hover,
+.application.mastery-system.disadvantage-config-dialog-styled.window-app input[type="number"]:hover,
+.application.mastery-system.disadvantage-config-dialog-styled.dialog input[type="text"]:hover,
+.application.mastery-system.disadvantage-config-dialog-styled.dialog input[type="number"]:hover {
   border-color: #8b0000;
 }
 
-.mastery-system.disadvantage-selection-dialog select:focus,
-.mastery-system.disadvantage-config-dialog-styled select:focus,
-.mastery-system.disadvantage-config-dialog-styled input[type="text"]:focus,
-.mastery-system.disadvantage-config-dialog-styled input[type="number"]:focus {
+.application.mastery-system.disadvantage-selection-dialog.window-app select:focus,
+.application.mastery-system.disadvantage-config-dialog-styled.window-app select:focus,
+.application.mastery-system.disadvantage-selection-dialog.dialog select:focus,
+.application.mastery-system.disadvantage-config-dialog-styled.dialog select:focus,
+.application.mastery-system.disadvantage-config-dialog-styled.window-app input[type="text"]:focus,
+.application.mastery-system.disadvantage-config-dialog-styled.window-app input[type="number"]:focus,
+.application.mastery-system.disadvantage-config-dialog-styled.dialog input[type="text"]:focus,
+.application.mastery-system.disadvantage-config-dialog-styled.dialog input[type="number"]:focus {
   outline: none;
   border-color: #8b0000;
   box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.2);
