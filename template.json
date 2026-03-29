@@ -280,6 +280,7 @@
     },
     "power": {
       "templates": ["base"],
+      "fluff": "",
       "powerType": "active",
       "level": 1,
       "tree": "",

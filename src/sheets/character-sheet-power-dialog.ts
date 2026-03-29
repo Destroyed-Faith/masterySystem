@@ -181,6 +181,7 @@ export async function showPowerCreationDialog(actor: Actor, context: 'mastery' |
                 tags: power.tags || [],
                 rank: rank,
                 description: power.description || '',
+                fluff: power.fluff || '',
                 trigger: power.trigger || levelRow.trigger || undefined,
                 cost: {
                   action: power.cost.action,

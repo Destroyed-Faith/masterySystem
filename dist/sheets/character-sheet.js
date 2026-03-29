@@ -993,6 +993,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      * Handle schtick name change per rank
      */
     async #onSchtickNameChange(event) {
+        if (!this.actor.isOwner) {
+            ui.notifications?.warn('Only the owner can edit Schticks.');
+            return;
+        }
         const input = event.currentTarget;
         const rank = parseInt(input.dataset.rank || '0');
         const schtickName = input.value.trim();
@@ -1038,6 +1042,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      * Handle schtick manifestation change
      */
     async #onSchtickManifestationChange(event) {
+        if (!this.actor.isOwner) {
+            ui.notifications?.warn('Only the owner can edit Schticks.');
+            return;
+        }
         const input = event.currentTarget;
         const rank = parseInt(input.dataset.rank || '0');
         const manifestation = input.value.trim();

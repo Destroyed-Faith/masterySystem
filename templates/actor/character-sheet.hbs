@@ -710,11 +710,12 @@
         </div>
       </div>
       
-      {{#unless creationComplete}}
-      <!-- Schticks Selection (Character Creation) -->
+      <!-- Schticks (editable during and after character creation) -->
       <div class="schticks-section">
         <h3><i class="fas fa-star"></i> Schticks</h3>
-        
+        {{#if creationComplete}}
+        <p class="schticks-post-creation-hint">You can update Schticks and manifestations anytime; changes save when you leave a field.</p>
+        {{/if}}
         <table class="schticks-table">
           <thead>
             <tr>
@@ -744,6 +745,7 @@
                   value="{{this.schtickName}}"
                   placeholder="Enter Schtick name..."
                   title="Enter a Schtick name for Rank {{this.rank}}"
+                  {{#unless @root.editable}}readonly disabled{{/unless}}
                 />
               </td>
               <td class="manifestation-cell">
@@ -754,6 +756,7 @@
                   value="{{this.manifestation}}"
                   placeholder="Describe the manifestation..."
                   title="Describe how this Schtick manifests at Rank {{this.rank}}"
+                  {{#unless @root.editable}}readonly disabled{{/unless}}
                 />
               </td>
             </tr>
@@ -761,38 +764,6 @@
           </tbody>
         </table>
       </div>
-      {{/unless}}
-      
-      {{#if creationComplete}}
-      <!-- Schticks Display (After Creation) — use creation.schticksRows so data matches getData merge (system.schticks.ranks can be missing or empty array) -->
-      <div class="schticks-section schticks-display">
-        <h3><i class="fas fa-star"></i> Schticks</h3>
-        <table class="schticks-table schticks-display-table">
-          <thead>
-            <tr>
-              <th class="rank-column">Rank</th>
-              <th class="schtick-column">Schtick</th>
-              <th class="manifestation-column">Manifestation</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{#each @root.creation.schticksRows}}
-            <tr class="schtick-row">
-              <td class="rank-cell">
-                <span class="rank-number">{{this.rank}}</span>
-              </td>
-              <td class="schtick-cell">
-                <div class="schtick-name-display">{{default this.schtickName "—"}}</div>
-              </td>
-              <td class="manifestation-cell">
-                <div class="manifestation-display">{{default this.manifestation "—"}}</div>
-              </td>
-            </tr>
-            {{/each}}
-          </tbody>
-        </table>
-      </div>
-      {{/if}}
       
     </div>
     
@@ -1116,9 +1087,21 @@
               <!-- Expandable Power Details (hidden by default) -->
               <div class="power-details-expanded" data-item-id="{{this.id}}" style="display: none;">
                 <div class="form-group power-details-group" id="power-details">
-                  <div id="power-description" class="power-description-text">{{this.system.description}}</div>
-                  
                   {{#if (isNewPowerStructure this.system)}}
+                  <div class="power-narrative-above-table">
+                    {{#if this.system.fluff}}
+                    <div class="power-fluff-block is-flavor">
+                      <span class="power-fluff-heading">Flavor</span>
+                      <div class="power-fluff-body">{{this.system.fluff}}</div>
+                    </div>
+                    {{/if}}
+                    {{#if this.system.description}}
+                    <div class="power-fluff-block {{#if this.system.fluff}}after-fluff{{/if}}">
+                      <span class="power-fluff-heading">Description</span>
+                      <div class="power-fluff-body">{{this.system.description}}</div>
+                    </div>
+                    {{/if}}
+                  </div>
                   <!-- New Power Structure: effective rank comes from Power Level (+/−); table shows all ranks for reference -->
                   <p class="power-definition-rank-note">
                     Effects use <strong>rank {{powerDefinitionRank this.system}}</strong> from the table (power level {{default this.system.level 1}}; capped at the highest rank defined for this power).
@@ -1143,8 +1126,13 @@
                       <tbody>
                         {{#each (array '1' '2' '3' '4')}}
                         {{#with (lookup ../this.system.levels this)}}
-                        <tr class="power-level-row {{#if (selectedPowerTableRow ../this ../../this.system)}}selected{{/if}}" data-level="{{../this}}">
-                          <td class="power-level-cell">{{../this}}</td>
+                        <tr class="power-level-row {{#if (selectedPowerTableRow ../this ../../this.system)}}selected is-current-power-level{{/if}}" data-level="{{../this}}">
+                          <td class="power-level-cell {{#if (selectedPowerTableRow ../this ../../this.system)}}is-current{{/if}}">
+                            <span class="power-level-num">{{../this}}</span>
+                            {{#if (selectedPowerTableRow ../this ../../this.system)}}
+                            <span class="power-level-current-badge" title="Row used at your current power level">Current</span>
+                            {{/if}}
+                          </td>
                           <td class="power-type-cell">{{this.type}}</td>
                           <td class="power-range-cell">{{renderRange this.range}}</td>
                           <td class="power-aoe-cell">{{renderAoe this.aoe}}</td>
@@ -1161,6 +1149,7 @@
                     </table>
                   </div>
                   {{else}}
+                  <div id="power-description" class="power-description-text">{{this.system.description}}</div>
                   <!-- Old Power Structure: Show simple info -->
                   <div id="power-level-info" class="power-level-info-text">
                     <strong>Selected Level {{default this.system.level 1}}:</strong><br>

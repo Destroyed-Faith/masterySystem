@@ -91,6 +91,8 @@ export interface PowerCost {
 export interface EmbeddedPowerData {
   id?: string;
   name: string;
+  /** Narrative flavor copied to power items when added to a character */
+  fluff?: string;
   category: PowerCategory;
   tags: string[]; // e.g. "spell", "charged", etc
   cost: PowerCost;
@@ -189,6 +191,8 @@ export interface PowerData extends BaseItemData {
     vs?: string;
   };
   levels?: Record<PowerLevelKey, PowerLevelRow>;
+  /** Optional narrative flavor (shown above the rank table on the sheet) */
+  fluff?: string;
 }
 
 // === Mastery Node Data ===
