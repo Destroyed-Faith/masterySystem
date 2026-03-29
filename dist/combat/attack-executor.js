@@ -3,6 +3,7 @@
  * Creates melee/ranged attack chat cards with proper flags for the roll handler
  */
 import { logActorItemSummary } from "../utils/debug-helpers.js";
+import { getAttackAttributeForPowerTreeOrSchool } from "../utils/power-roll-attribute.js";
 import { evaluateThreatenedRanged } from "./threatened-ranged.js";
 /**
  * Safely collect items from actor (handles Collection, Array, Map)
@@ -116,27 +117,32 @@ function getTargetEvade(targetActor) {
     return combat.evadeTotal ?? combat.evade ?? 6;
 }
 /**
- * Determine which attribute to use for attack
+ * Determine which attribute to use for attack rolls.
+ * - Powers: attribute from mastery tree / spell school (`system.tree`) via fixed list; if unknown tree, fall back to `roll.attribute`.
+ * - Weapons with Finesse: Agility (melee or ranged).
+ * - Otherwise: Might for melee, Agility for ranged (weapon or maneuver).
  */
-function getAttackAttribute(_actor, weapon, option) {
-    if (option.source === 'power' && option.item) {
+function getAttackAttribute(_actor, weapon, option, attackType) {
+    if (option.source === "power" && option.item) {
         const powerSystem = option.item.system || {};
+        const fromTreeOrSchool = getAttackAttributeForPowerTreeOrSchool(powerSystem.tree);
+        if (fromTreeOrSchool) {
+            return fromTreeOrSchool;
+        }
         const attr = powerSystem.roll?.attribute || powerSystem.attribute;
         if (attr) {
-            return attr.toLowerCase();
+            return String(attr).toLowerCase();
         }
     }
-    // Check weapon for Finesse (uses Agility)
     if (weapon) {
         const weaponSystem = weapon.system;
         const innateAbilities = weaponSystem.innateAbilities || [];
-        const hasFinesse = innateAbilities.some((a) => a.toLowerCase().includes('finesse'));
+        const hasFinesse = innateAbilities.some((a) => String(a).toLowerCase().includes("finesse"));
         if (hasFinesse) {
-            return 'agility';
+            return "agility";
         }
     }
-    // Default to Might for melee attacks
-    return 'might';
+    return attackType === "ranged" ? "agility" : "might";
 }
 /**
  * Create a melee or ranged attack chat card with roll button (Threatened Ranged for qualifying ranged attacks).
@@ -216,7 +222,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         weaponName: weapon?.name || null
     });
     // Determine attack attribute
-    const attribute = getAttackAttribute(attacker, weapon, option);
+    const attribute = getAttackAttribute(attacker, weapon, option, attackType);
     const attributeValue = getAttributeValue(attacker, attribute);
     const masteryRank = getMasteryRank(attacker);
     // Debug: Log attribute reading

@@ -5,6 +5,7 @@
 
 import type { RadialCombatOption } from "../token-radial-menu";
 import { logActorItemSummary } from "../utils/debug-helpers";
+import { getAttackAttributeForPowerTreeOrSchool } from "../utils/power-roll-attribute.js";
 import { evaluateThreatenedRanged } from "./threatened-ranged.js";
 
 /**
@@ -138,31 +139,41 @@ function getTargetEvade(targetActor: any): number {
 }
 
 /**
- * Determine which attribute to use for attack
+ * Determine which attribute to use for attack rolls.
+ * - Powers: attribute from mastery tree / spell school (`system.tree`) via fixed list; if unknown tree, fall back to `roll.attribute`.
+ * - Weapons with Finesse: Agility (melee or ranged).
+ * - Otherwise: Might for melee, Agility for ranged (weapon or maneuver).
  */
-function getAttackAttribute(_actor: any, weapon: any | null, option: RadialCombatOption): string {
-  if (option.source === 'power' && option.item) {
+function getAttackAttribute(
+  _actor: any,
+  weapon: any | null,
+  option: RadialCombatOption,
+  attackType: "melee" | "ranged"
+): string {
+  if (option.source === "power" && option.item) {
     const powerSystem = (option.item.system as any) || {};
+    const fromTreeOrSchool = getAttackAttributeForPowerTreeOrSchool(powerSystem.tree);
+    if (fromTreeOrSchool) {
+      return fromTreeOrSchool;
+    }
     const attr = powerSystem.roll?.attribute || powerSystem.attribute;
     if (attr) {
-      return attr.toLowerCase();
+      return String(attr).toLowerCase();
     }
   }
-  
-  // Check weapon for Finesse (uses Agility)
+
   if (weapon) {
     const weaponSystem = weapon.system as any;
     const innateAbilities = weaponSystem.innateAbilities || [];
-    const hasFinesse = innateAbilities.some((a: string) => 
-      a.toLowerCase().includes('finesse')
+    const hasFinesse = innateAbilities.some((a: string) =>
+      String(a).toLowerCase().includes("finesse")
     );
     if (hasFinesse) {
-      return 'agility';
+      return "agility";
     }
   }
-  
-  // Default to Might for melee attacks
-  return 'might';
+
+  return attackType === "ranged" ? "agility" : "might";
 }
 
 /**
@@ -260,7 +271,7 @@ export async function createAttackCard(
   });
   
   // Determine attack attribute
-  const attribute = getAttackAttribute(attacker, weapon, option);
+  const attribute = getAttackAttribute(attacker, weapon, option, attackType);
   const attributeValue = getAttributeValue(attacker, attribute);
   const masteryRank = getMasteryRank(attacker);
   
