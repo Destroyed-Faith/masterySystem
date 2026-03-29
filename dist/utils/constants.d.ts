@@ -44,6 +44,7 @@ export declare const XP_COSTS: {
         max: number;
         cost: number;
     }[];
+    /** Multiplier for buying rank N: cost = N × SKILL_PER_RANK (1 → N XP per step). */
     SKILL_PER_RANK: number;
     POWER_LEVEL: number[];
     NEW_TREE: number;

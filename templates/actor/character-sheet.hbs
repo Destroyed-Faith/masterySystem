@@ -764,8 +764,7 @@
       {{/unless}}
       
       {{#if creationComplete}}
-      <!-- Schticks Display (After Creation) -->
-      {{#if system.schticks.ranks}}
+      <!-- Schticks Display (After Creation) — use creation.schticksRows so data matches getData merge (system.schticks.ranks can be missing or empty array) -->
       <div class="schticks-section schticks-display">
         <h3><i class="fas fa-star"></i> Schticks</h3>
         <table class="schticks-table schticks-display-table">
@@ -777,23 +776,22 @@
             </tr>
           </thead>
           <tbody>
-            {{#each system.schticks.ranks}}
+            {{#each @root.creation.schticksRows}}
             <tr class="schtick-row">
               <td class="rank-cell">
                 <span class="rank-number">{{this.rank}}</span>
               </td>
               <td class="schtick-cell">
-                <div class="schtick-name-display">{{this.schtickName}}</div>
+                <div class="schtick-name-display">{{default this.schtickName "—"}}</div>
               </td>
               <td class="manifestation-cell">
-                <div class="manifestation-display">{{this.manifestation}}</div>
+                <div class="manifestation-display">{{default this.manifestation "—"}}</div>
               </td>
             </tr>
             {{/each}}
           </tbody>
         </table>
       </div>
-      {{/if}}
       {{/if}}
       
     </div>
@@ -1332,6 +1330,15 @@
           <i class="fas fa-plus"></i> Add Disadvantage
         </button>
       </div>
+      {{else}}
+      {{#if (userIsGM)}}
+      <div class="disadvantages-gm-controls disadvantages-creation-controls">
+        <p class="hint gm-disadvantages-hint"><i class="fas fa-user-shield"></i> GM: Add, edit, or remove disadvantages (max 8 points total).</p>
+        <button type="button" class="add-disadvantage-btn" title="Add Disadvantage (GM)">
+          <i class="fas fa-plus"></i> Add Disadvantage
+        </button>
+      </div>
+      {{/if}}
       {{/unless}}
       
       {{#if disadvantages.length}}
@@ -1349,6 +1356,15 @@
               <button type="button" class="disadvantage-remove-btn" data-index="{{index}}" title="Remove">
                 <i class="fas fa-trash"></i>
               </button>
+              {{else}}
+              {{#if (userIsGM)}}
+              <button type="button" class="disadvantage-edit-btn" data-index="{{index}}" title="Edit (GM)">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button type="button" class="disadvantage-remove-btn" data-index="{{index}}" title="Remove (GM)">
+                <i class="fas fa-trash"></i>
+              </button>
+              {{/if}}
               {{/unless}}
             </div>
           </div>

@@ -173,6 +173,9 @@
         "vitalityUsesRemaining": 4
       },
       "conditions": [],
+      "schticks": {
+        "ranks": []
+      },
       "notes": {
         "schticks": "",
         "faithFractures": "",

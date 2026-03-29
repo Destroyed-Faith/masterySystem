@@ -4097,6 +4097,46 @@
   padding: 1rem;
 }
 
+/* Skill roll dialog: wider window + readable difficulty dropdown */
+.mastery-system.mastery-skill-roll-dialog.window-app {
+  min-width: 520px;
+}
+
+.mastery-system.mastery-skill-roll-dialog .window-content {
+  padding: 1.25rem 1.35rem;
+  overflow-x: visible;
+}
+
+.mastery-system.mastery-skill-roll-dialog .mastery-dialog-form {
+  gap: 1.05rem;
+  min-width: 0;
+}
+
+.mastery-system.mastery-skill-roll-dialog .mastery-dialog-form .md-group-difficulty .md-select-difficulty,
+.mastery-system.mastery-skill-roll-dialog .mastery-dialog-form .md-select-difficulty {
+  font-size: 1rem;
+  line-height: 1.4;
+  min-height: 2.65rem;
+  padding: 0.6rem 0.75rem;
+  box-sizing: border-box;
+}
+
+.mastery-system.mastery-skill-roll-dialog .mastery-dialog-form .md-group:not(.md-group-difficulty) .md-select {
+  font-size: 0.95rem;
+  min-height: 2.35rem;
+  padding: 0.5rem 0.65rem;
+}
+
+.mastery-system.mastery-skill-roll-dialog .mastery-dialog-form .md-input {
+  font-size: 0.95rem;
+  min-height: 2.35rem;
+  padding: 0.5rem 0.65rem;
+}
+
+.mastery-system.mastery-skill-roll-dialog .mastery-dialog-form .md-label {
+  font-size: 0.95rem;
+}
+
 .mastery-system.mastery-roll-dialog .mastery-dialog-form {
   display: flex;
   flex-direction: column;

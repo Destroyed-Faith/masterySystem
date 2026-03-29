@@ -63,22 +63,23 @@ describe('Attribute XP Costs', () => {
 });
 
 describe('Skill XP Costs', () => {
-  it('costs newRank * 2 XP', () => {
-    expect(getSkillXPCost(1)).toBe(2);
-    expect(getSkillXPCost(2)).toBe(4);
-    expect(getSkillXPCost(3)).toBe(6);
-    expect(getSkillXPCost(4)).toBe(8);
-    expect(getSkillXPCost(8)).toBe(16);
-    expect(getSkillXPCost(32)).toBe(64);
+  it('costs newRank * SKILL_PER_RANK XP (1 → newRank XP)', () => {
+    expect(getSkillXPCost(1)).toBe(1);
+    expect(getSkillXPCost(2)).toBe(2);
+    expect(getSkillXPCost(3)).toBe(3);
+    expect(getSkillXPCost(4)).toBe(4);
+    expect(getSkillXPCost(5)).toBe(5);
+    expect(getSkillXPCost(8)).toBe(8);
+    expect(getSkillXPCost(32)).toBe(32);
   });
 
-  it('total cost to raise skill from 0 to 4 is 20 XP', () => {
+  it('total cost to raise skill from 0 to 4 is 10 XP', () => {
     let total = 0;
     for (let r = 1; r <= 4; r++) {
       total += getSkillXPCost(r);
     }
-    expect(total).toBe(2 + 4 + 6 + 8);
-    expect(total).toBe(20);
+    expect(total).toBe(1 + 2 + 3 + 4);
+    expect(total).toBe(10);
   });
 });
 

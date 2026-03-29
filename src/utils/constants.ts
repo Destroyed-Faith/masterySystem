@@ -61,7 +61,8 @@ export const XP_COSTS = {
         { min: 17, max: 24, cost: 3 },
         { min: 25, max: 32, cost: 4 }
     ],
-    SKILL_PER_RANK: 2, // new_rank × 2
+    /** Multiplier for buying rank N: cost = N × SKILL_PER_RANK (1 → N XP per step). */
+    SKILL_PER_RANK: 1,
     POWER_LEVEL: [2, 4, 8, 16, 24, 32, 40, 40, 40, 40, 40, 40], // Levels 1-12
     NEW_TREE: 1,
     ARTIFACT_ACCESS: 1,

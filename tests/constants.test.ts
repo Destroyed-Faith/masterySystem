@@ -109,8 +109,8 @@ describe('XP Cost Tables (Player\'s Guide)', () => {
     expect(XP_COSTS.ATTRIBUTE[3]).toEqual({ min: 25, max: 32, cost: 4 });
   });
 
-  it('skill cost is new_rank * 2', () => {
-    expect(XP_COSTS.SKILL_PER_RANK).toBe(2);
+  it('skill cost multiplier is 1 (cost = new_rank × multiplier)', () => {
+    expect(XP_COSTS.SKILL_PER_RANK).toBe(1);
   });
 
   it('power level costs are correct', () => {

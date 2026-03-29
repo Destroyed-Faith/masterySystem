@@ -21,6 +21,7 @@ import { findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../u
 import { buildPostCreationSnapshot } from '../utils/xp-post-creation.js';
 import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items';
 import { getNormalizedEquipSlots } from '../utils/equip-slots.js';
+import { XP_COSTS } from '../utils/constants';
 // Removed: showWeaponCreationDialog, showArmorCreationDialog, showShieldCreationDialog
 // Replaced with General Items Storage and Store dialogs
 
@@ -3177,9 +3178,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           </div>
         `}
         
-        <div class="md-group">
+        <div class="md-group md-group-difficulty">
           <label class="md-label">Difficulty</label>
-          <select name="baseTN" id="skill-roll-baseTN" class="md-select">
+          <select name="baseTN" id="skill-roll-baseTN" class="md-select md-select-difficulty">
             <option value="${difficulties.trivial}">Trivial (${difficulties.trivial})</option>
             <option value="${difficulties.easy}">Easy (${difficulties.easy})</option>
             <option value="${difficulties.standard}" selected>Standard (${difficulties.standard})</option>
@@ -3207,7 +3208,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     `;
     
     return new Promise((resolve) => {
-      const dialog = new Dialog({
+      const dialog = new Dialog(
+        {
         title: `Roll ${skillDef.name}`,
         content,
         buttons: {
@@ -3246,7 +3248,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           
           // Apply dialog class
           setTimeout(() => {
-            $html.closest('.window-app.dialog').addClass('mastery-system mastery-roll-dialog');
+            $html
+              .closest('.window-app.dialog')
+              .addClass('mastery-system mastery-roll-dialog mastery-skill-roll-dialog');
           }, 0);
 
           $html.find('[name="baseTN"]').on('change', function() {
@@ -3270,8 +3274,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           $html.find('[name="baseTN"], [name="customTN"], [name="raises"]').on('change input', updateFinalTN);
           updateFinalTN();
         }
-      } as any);
-      
+        } as any,
+        {
+          width: 560,
+          height: 'auto'
+        } as any
+      );
+
       dialog.render(true);
     });
   }
@@ -3402,7 +3411,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
   /**
    * Handle spending mastery points on skills
-   * Cost: Level N → N+1 costs N points
+   * Cost for step onto rank R is R × SKILL_PER_RANK (default: R XP).
    */
   async #onSkillSpendPoint(event: JQuery.ClickEvent) {
     event.preventDefault();
@@ -3431,7 +3440,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const netCost = this.#calculateSkillPendingNetCost(simulateMap);
     const availableXP = this.actor.system.points?.xp || 0;
     if (netCost > availableXP) {
-      const nextCost = (effective + 1) * 2;
+      const nextCost = (effective + 1) * XP_COSTS.SKILL_PER_RANK;
       (ui as any).notifications?.warn(`Not enough XP! This increase would cost ${nextCost} XP, but you only have ${availableXP}.`);
       return;
     }
@@ -3443,7 +3452,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
   /**
    * Decrease a skill rank and refund XP
-   * Refund model: dropping from rank R -> R-1 refunds (R * 2) XP (reverse of buy cost)
+   * Refund model: dropping from rank R -> R-1 refunds (R × SKILL_PER_RANK) XP (reverse of buy cost)
    */
   async #onSkillRefundPoint(event: JQuery.ClickEvent) {
     event.preventDefault();
@@ -3472,9 +3481,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
   /**
    * Calculate net pending cost (signed) for all pending skill rank changes.
-   * Increase to rank R costs (R * 2). Decrease from rank R refunds (R * 2).
+   * Step onto rank R costs R × SKILL_PER_RANK (default: R XP). Refund symmetric.
    */
   #calculateSkillPendingNetCost(pendingMap: Record<string, number>): number {
+    const m = XP_COSTS.SKILL_PER_RANK;
     let net = 0;
     for (const [skillKey, pending] of Object.entries(pendingMap)) {
       if (!pending) continue;
@@ -3483,14 +3493,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       if (pending > 0) {
         for (let i = 1; i <= pending; i++) {
           const targetRank = current + i;
-          net += targetRank * 2;
+          net += targetRank * m;
         }
       } else {
         const steps = Math.abs(pending);
         for (let i = 0; i < steps; i++) {
           const refundRank = current - i;
           if (refundRank <= 0) break;
-          net -= refundRank * 2;
+          net -= refundRank * m;
         }
       }
     }
@@ -3500,19 +3510,20 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   /** Net XP cost (positive) or refund (negative) for one skill's pending rank delta only. */
   #calculateSingleSkillPendingXpNet(skillKey: string, pending: number): number {
     if (!pending) return 0;
+    const m = XP_COSTS.SKILL_PER_RANK;
     const currentRaw = this.actor.system.skills?.[skillKey] ?? 0;
     const current = Number(currentRaw) || 0;
     let net = 0;
     if (pending > 0) {
       for (let i = 1; i <= pending; i++) {
-        net += (current + i) * 2;
+        net += (current + i) * m;
       }
     } else {
       const steps = Math.abs(pending);
       for (let i = 0; i < steps; i++) {
         const refundRank = current - i;
         if (refundRank <= 0) break;
-        net -= refundRank * 2;
+        net -= refundRank * m;
       }
     }
     return net;
@@ -3630,15 +3641,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       
       // Per-skill net cost (signed)
       let skillNet = 0;
+      const m = XP_COSTS.SKILL_PER_RANK;
       if (pending > 0) {
         for (let i = 1; i <= pending; i++) {
-          skillNet += (current + i) * 2;
+          skillNet += (current + i) * m;
         }
       } else {
         for (let i = 0; i < Math.abs(pending); i++) {
           const refundRank = current - i;
           if (refundRank <= 0) break;
-          skillNet -= refundRank * 2;
+          skillNet -= refundRank * m;
         }
       }
       changes.push({ skillKey, from: current, to: target, delta: pending, cost: skillNet });
@@ -4807,6 +4819,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     event.preventDefault();
     event.stopPropagation();
+
+    const creationComplete = (this.actor as any).system?.creation?.complete !== false;
+    const isGm = (game as any).user?.isGM === true;
+    if (creationComplete && !isGm) {
+      (ui as any).notifications?.warn('Only a GM can add disadvantages after character creation.');
+      return;
+    }
     
     console.log('Mastery System | Actor details:', {
       actorId: this.actor.id,
@@ -4922,6 +4941,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    */
   async #onEditDisadvantage(event: JQuery.ClickEvent) {
     event.preventDefault();
+    const creationComplete = (this.actor as any).system?.creation?.complete !== false;
+    const isGm = (game as any).user?.isGM === true;
+    if (creationComplete && !isGm) {
+      (ui as any).notifications?.warn('Only a GM can edit disadvantages after character creation.');
+      return;
+    }
     const index = parseInt($(event.currentTarget).data('index') || '0');
     const system = (this.actor as any).system;
     const disadvantages = system.disadvantages || [];
@@ -4940,6 +4965,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    */
   async #onRemoveDisadvantage(event: JQuery.ClickEvent) {
     event.preventDefault();
+    const creationComplete = (this.actor as any).system?.creation?.complete !== false;
+    const isGm = (game as any).user?.isGM === true;
+    if (creationComplete && !isGm) {
+      (ui as any).notifications?.warn('Only a GM can remove disadvantages after character creation.');
+      return;
+    }
     const index = parseInt($(event.currentTarget).data('index') || '0');
     const system = (this.actor as any).system;
     const disadvantages = [...(system.disadvantages || [])];
@@ -5068,38 +5099,29 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             const points = calculateDisadvantagePoints(def.id, details);
             const system = (this.actor as any).system;
             const currentDisadvantages = [...(system.disadvantages || [])];
-            
-            // Remove the one being edited if editing
-            if (editIndex !== undefined) {
-              currentDisadvantages.splice(editIndex, 1);
-            }
-            
-            // Add new selection
             const newSelection = { id: def.id, details };
-            const validation = validateDisadvantageSelection([...currentDisadvantages, newSelection]);
+            const forValidation =
+              editIndex !== undefined
+                ? currentDisadvantages.filter((_: unknown, i: number) => i !== editIndex)
+                : [...currentDisadvantages];
+            const validation = validateDisadvantageSelection([...forValidation, newSelection]);
 
             if (!validation.valid) {
               ui.notifications?.error(validation.error || 'Invalid disadvantage selection');
               return false;
             }
 
-            // Update actor
+            const entry = {
+              id: def.id,
+              name: def.name,
+              points,
+              details,
+              description: def.description
+            };
             if (editIndex !== undefined) {
-              currentDisadvantages[editIndex] = {
-                id: def.id,
-                name: def.name,
-                points,
-                details,
-                description: def.description
-              };
+              currentDisadvantages[editIndex] = entry;
             } else {
-              currentDisadvantages.push({
-                id: def.id,
-                name: def.name,
-                points,
-                details,
-                description: def.description
-              });
+              currentDisadvantages.push(entry);
             }
 
             // Mark disadvantages as reviewed
@@ -5203,10 +5225,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       'system.faithFractures.maximum': disadvantagePoints
     };
     
-    // Ensure schticks are persisted (they should already be set, but ensure they're in the update)
-    if (schticksRanks.length > 0) {
-      updateData['system.schticks.ranks'] = schticksRanks;
-    }
+    // Always persist full per-rank schtick rows (merged 1..MR) so actor data matches the sheet after finalize
+    updateData['system.schticks.ranks'] = schticksRows;
     
     const attributeBaselines: Record<string, number> = {};
     for (const key of attributeKeys) {
