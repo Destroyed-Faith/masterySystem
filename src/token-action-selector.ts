@@ -10,13 +10,15 @@ import { openRadialMenuForActor, getAllCombatOptionsForActor, closeRadialMenu } 
 import type { RadialCombatOption } from './token-radial-menu';
 import { getSegmentIdForOption } from './radial-menu/options';
 import { startMeleeTargeting } from './melee-targeting';
+import { startRangedTargeting } from './ranged-targeting';
 import { startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting';
 import {
   getRoundState,
   getAvailableAttackActions,
   getAvailableMovementActions,
   consumeAttackAction,
-  consumeMovementAction
+  consumeMovementAction,
+  refundAttackAction
 } from './combat/action-economy';
 
 /**
@@ -155,21 +157,127 @@ export function initializeTokenActionSelector() {
   });
 
 
-  // Register hook listener for melee target selection
+  // Register hook listener for melee target selection (spend attack only after a target is confirmed)
   Hooks.on("masterySystem.meleeTargetSelected", async (payload: any) => {
+    let spentAttack = false;
     try {
       const attackerToken = canvas.tokens?.get(payload.attackerTokenId);
       const targetToken = canvas.tokens?.get(payload.targetTokenId);
       if (!attackerToken || !targetToken) {
-        console.warn("Mastery System | [TOKEN ACTION SELECTOR] Missing tokens in meleeTargetSelected hook", payload);
+        console.warn("Mastery System | [RADIAL FLOW] meleeTargetSelected: missing token(s)", {
+          attackerTokenId: payload.attackerTokenId,
+          targetTokenId: payload.targetTokenId,
+          hasAttacker: !!attackerToken,
+          hasTarget: !!targetToken
+        });
         return;
       }
 
-      // Import and call createMeleeAttackCard
+      const option = payload.option as RadialCombatOption;
+      const combat = game.combat;
+      const actor = attackerToken.actor;
+      if (!combat || !actor) {
+        console.warn("Mastery System | [RADIAL FLOW] meleeTargetSelected: no combat or attacker actor", {
+          hasCombat: !!combat,
+          hasActor: !!actor
+        });
+        return;
+      }
+
+      if (option.costsAction) {
+        const available = getAvailableAttackActions(actor, combat);
+        if (available <= 0) {
+          ui.notifications?.warn("No Actions left this round.");
+          console.warn("Mastery System | [RADIAL FLOW] meleeTargetSelected: blocked (no attack actions left)", {
+            actor: actor.name,
+            option: option.name
+          });
+          return;
+        }
+        const consumed = await consumeAttackAction(actor, combat);
+        if (!consumed) {
+          ui.notifications?.warn("Failed to consume attack action.");
+          console.warn("Mastery System | [RADIAL FLOW] meleeTargetSelected: consumeAttackAction failed", {
+            actor: actor.name
+          });
+          return;
+        }
+        spentAttack = true;
+        console.log("Mastery System | [RADIAL FLOW] meleeTargetSelected: consumed attack action", {
+          remaining: getAvailableAttackActions(actor, combat),
+          option: option.name,
+          target: targetToken.name
+        });
+      } else {
+        console.log("Mastery System | [RADIAL FLOW] meleeTargetSelected: no attack cost (costsAction=false)", {
+          option: option.name
+        });
+      }
+
       const { createMeleeAttackCard } = await import("./combat/attack-executor.js");
-      await createMeleeAttackCard(attackerToken, targetToken, payload.option);
+      try {
+        await createMeleeAttackCard(attackerToken, targetToken, option);
+      } catch (cardErr) {
+        if (spentAttack) {
+          await refundAttackAction(actor, combat);
+          console.warn("Mastery System | [RADIAL FLOW] meleeTargetSelected: attack card failed, refunded attack action", cardErr);
+        }
+        throw cardErr;
+      }
     } catch (e) {
       console.error("Mastery System | [TOKEN ACTION SELECTOR] meleeTargetSelected hook failed", e);
+    }
+  });
+
+  Hooks.on("masterySystem.rangedTargetSelected", async (payload: any) => {
+    let spentAttack = false;
+    try {
+      const attackerToken = canvas.tokens?.get(payload.attackerTokenId);
+      const targetToken = canvas.tokens?.get(payload.targetTokenId);
+      if (!attackerToken || !targetToken) {
+        console.warn("Mastery System | [RADIAL FLOW] rangedTargetSelected: missing token(s)", payload);
+        return;
+      }
+
+      const option = payload.option as RadialCombatOption;
+      const combat = game.combat;
+      const actor = attackerToken.actor;
+      if (!combat || !actor) {
+        console.warn("Mastery System | [RADIAL FLOW] rangedTargetSelected: no combat or attacker actor");
+        return;
+      }
+
+      if (option.costsAction) {
+        const available = getAvailableAttackActions(actor, combat);
+        if (available <= 0) {
+          ui.notifications?.warn("No Actions left this round.");
+          return;
+        }
+        const consumed = await consumeAttackAction(actor, combat);
+        if (!consumed) {
+          ui.notifications?.warn("Failed to consume attack action.");
+          return;
+        }
+        spentAttack = true;
+        console.log("Mastery System | [RADIAL FLOW] rangedTargetSelected: consumed attack action", {
+          remaining: getAvailableAttackActions(actor, combat),
+          option: option.name,
+          target: targetToken.name
+        });
+      }
+
+      const { createRangedAttackCard } = await import("./combat/attack-executor.js");
+      try {
+        await createRangedAttackCard(attackerToken, targetToken, option);
+      } catch (cardErr) {
+        if (spentAttack) {
+          await refundAttackAction(actor, combat);
+          console.warn("Mastery System | [RADIAL FLOW] rangedTargetSelected: card failed, refunded attack", cardErr);
+        }
+        throw cardErr;
+      }
+    } catch (e) {
+      console.error("Mastery System | [TOKEN ACTION SELECTOR] rangedTargetSelected hook failed", e);
     }
   });
 }
@@ -796,6 +904,18 @@ export function endGuidedMovement(success: boolean): void {
  * @param option - The chosen option (power or maneuver)
  */
 export async function handleChosenCombatOption(token: any, option: RadialCombatOption) {
+  console.log('Mastery System | [RADIAL FLOW] handleChosenCombatOption start', {
+    token: token?.name,
+    optionId: option.id,
+    name: option.name,
+    slot: option.slot,
+    segment: (option as any).segment,
+    source: option.source,
+    range: option.range,
+    costsMovement: option.costsMovement,
+    costsAction: option.costsAction,
+    aoeShape: option.aoeShape
+  });
   console.log('Mastery System | Chosen combat option:', { token: token.name, option });
   console.log('Mastery System | Option details:', {
     slot: option.slot,
@@ -868,11 +988,19 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
     // Check if already active
     if (isPowerActiveAsBuff(actor, option.item.id)) {
       ui.notifications?.warn(`${option.name} is already active!`);
+      if (option.costsAction) {
+        await refundAttackAction(actor, combat);
+        console.log('Mastery System | [RADIAL FLOW] active buff: refunded attack (already active)');
+      }
       return;
     }
     
     // Activate the buff directly on self
     const success = await activateActiveBuff(actor, option.item);
+    if (!success && option.costsAction) {
+      await refundAttackAction(actor, combat);
+      console.warn('Mastery System | [RADIAL FLOW] active buff: refunded attack (activation failed)');
+    }
     if (success) {
       // Refresh token HUD to show updated status
       if (token.hud) {
@@ -909,22 +1037,7 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
     console.log('Mastery System | [ACTION ECONOMY] Consumed movement action. Remaining:', getAvailableMovementActions(actor, combat));
   }
 
-  // Check and consume attack action if needed
-  if (option.costsAction) {
-    const available = getAvailableAttackActions(actor, combat);
-    if (available <= 0) {
-      ui.notifications?.warn('No Actions left this round.');
-      return; // Menu stays open
-    }
-    
-    const consumed = await consumeAttackAction(actor, combat);
-    if (!consumed) {
-      ui.notifications?.warn('Failed to consume attack action.');
-      return;
-    }
-    
-    console.log('Mastery System | [ACTION ECONOMY] Consumed attack action. Remaining:', getAvailableAttackActions(actor, combat));
-  }
+  // Attack actions are consumed only when an attack/utility actually resolves (see melee hook, utility confirm, active buff, stand-up).
 
   // Check if this is a movement option - check both segment and slot
   const isMovement = option.slot === 'movement' || (option as any).segment === 'movement';
@@ -987,6 +1100,24 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
   });
   
   if (isMeleeAttack) {
+    if (option.costsAction) {
+      const atkAvail = getAvailableAttackActions(actor, combat);
+      if (atkAvail <= 0) {
+        ui.notifications?.warn('No Actions left this round.');
+        console.warn('Mastery System | [RADIAL FLOW] melee branch blocked: no attack actions left', {
+          actor: actor.name,
+          option: option.name
+        });
+        return;
+      }
+    }
+    console.log('Mastery System | [RADIAL FLOW] branch: melee targeting (attack spent only after you pick a target)', {
+      tokenName: token.name,
+      optionId: option.id,
+      optionName: option.name,
+      range: option.range,
+      costsAction: option.costsAction
+    });
     console.log('Mastery System | [ATTACK SELECTION] Starting melee targeting', {
       tokenName: token.name,
       optionId: option.id,
@@ -996,26 +1127,80 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
     // Close radial menu when attack option is selected
     closeRadialMenu();
 
-    // WENN target schon gewählt wurde (kommt vom Hook) -> execute sofort
     const targetToken = (option as any).targetToken;
     if (targetToken) {
-      // hier NICHT importen. Du brauchst dafür eine “executeMeleeAttack” Funktion
-      // die NICHT in melee-targeting.ts liegt, sonst wieder Kreis.
-      // -> ich bau dir dafür gleich eine kleine attack-executor.ts (v13-only).
-      Hooks.call('masterySystem.executeMeleeAttack', { attackerTokenId: token.id, targetTokenId: targetToken.id, option });
+      Hooks.call('masterySystem.meleeTargetSelected', {
+        attackerTokenId: token.id,
+        targetTokenId: targetToken.id,
+        option
+      });
       return;
     }
-  
-    // sonst: targeting starten
+
     startMeleeTargeting(token, option);
     return;
   }
-  
+
+  const isRangedAttack =
+    segmentId !== "active-buff" &&
+    option.slot === "attack" &&
+    option.range !== undefined &&
+    option.range > 4;
+
+  if (isRangedAttack) {
+    if (option.costsAction) {
+      const atkAvail = getAvailableAttackActions(actor, combat);
+      if (atkAvail <= 0) {
+        ui.notifications?.warn("No Actions left this round.");
+        console.warn("Mastery System | [RADIAL FLOW] ranged branch blocked: no attack actions left", {
+          actor: actor.name,
+          option: option.name
+        });
+        return;
+      }
+    }
+    console.log("Mastery System | [RADIAL FLOW] branch: ranged targeting", {
+      range: option.range,
+      option: option.name,
+      costsAction: option.costsAction
+    });
+    closeRadialMenu();
+
+    const preTarget = (option as any).targetToken;
+    if (preTarget) {
+      Hooks.call("masterySystem.rangedTargetSelected", {
+        attackerTokenId: token.id,
+        targetTokenId: preTarget.id,
+        option
+      });
+      return;
+    }
+
+    startRangedTargeting(token, option);
+    return;
+  }
+
   // Check if this is a utility option
   const isUtility = option.slot === 'utility';
   console.log('Mastery System | Is utility option?', isUtility, { slot: option.slot, aoeShape: option.aoeShape });
   
   if (isUtility) {
+    if (option.costsAction) {
+      const atkAvail = getAvailableAttackActions(actor, combat);
+      if (atkAvail <= 0) {
+        ui.notifications?.warn('No Actions left this round.');
+        console.warn('Mastery System | [RADIAL FLOW] utility branch blocked: no attack actions left', {
+          actor: actor.name,
+          option: option.name
+        });
+        return;
+      }
+    }
+    console.log('Mastery System | [RADIAL FLOW] branch: utility (attack spent on Confirm, not on opening targeting)', {
+      aoeShape: option.aoeShape,
+      costsAction: option.costsAction
+    });
+    closeRadialMenu();
     if (option.aoeShape === 'none') {
       console.log('Mastery System | Starting single-target utility mode for', token.name, option);
       startUtilitySingleTargetMode(token, option);
@@ -1025,38 +1210,37 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
       startUtilityRadiusMode(token, option);
       return;
     } else if (option.aoeShape === 'cone') {
-      // TODO: Implement cone targeting later
       ui.notifications?.warn('Cone targeting not yet implemented');
+      console.warn('Mastery System | [RADIAL FLOW] utility cone not implemented — no action spent', {
+        option: option.name
+      });
       return;
     }
   }
 
   if (option.source === 'power' && option.item) {
-    // Handle power selection
-    // TODO: Integrate with existing power usage logic
-    // Example: option.item.roll() or trigger power activation
+    closeRadialMenu();
+    console.warn('Mastery System | [RADIAL FLOW] branch: non-melee attack power — no targeting/roll pipeline yet', {
+      name: option.name,
+      slot: option.slot,
+      range: option.range,
+      costsAction: option.costsAction,
+      note: 'Attack actions are NOT consumed here; use a melee-range power or weapon attack until ranged powers are wired up.'
+    });
     console.log('Mastery System | Power selected:', option.name, option.item);
-    
-    ui.notifications.info(`Action selected: ${option.name} (${option.slot})`);
-    
-    // You can add logic here to:
-    // - Show power details
-    // - Trigger a roll
-    // - Create a chat card
-    // - Activate the power
-    
+    ui.notifications?.warn(
+      `${option.name}: Fern-/Ranged-Angriff ist noch nicht angebunden — keine Aktion verbraucht. Nahkampf (Reichweite ≤4m) wählen oder später erneut testen.`
+    );
   } else if (option.source === 'maneuver' && option.maneuver) {
-    // Handle maneuver selection
-    // TODO: Integrate with existing maneuver execution logic
+    closeRadialMenu();
+    console.warn('Mastery System | [RADIAL FLOW] branch: maneuver fallback — no executor', {
+      name: option.name,
+      slot: option.slot,
+      range: option.range,
+      maneuverId: option.maneuver.id
+    });
     console.log('Mastery System | Maneuver selected:', option.name, option.maneuver);
-    
-    ui.notifications.info(`Action selected: ${option.name} (${option.slot})`);
-    
-    // You can add logic here to:
-    // - Execute the maneuver
-    // - Create a chat message
-    // - Set flags for movement modifications
-    // - Trigger rolls if needed
+    ui.notifications?.info(`Action selected: ${option.name} (${option.slot}) — Ausführung noch nicht implementiert (keine Aktion verbraucht).`);
   }
 }
 

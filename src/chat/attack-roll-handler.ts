@@ -107,9 +107,9 @@ export function registerAttackRollClickHandler(): void {
       flagsMatch: message.flags?.['mastery-system'] === message.getFlag?.('mastery-system')
     });
     
-    if (!flags || flags.attackType !== 'melee') {
-      console.warn('Mastery System | DEBUG: Invalid flags or not melee attack', { 
-        flags, 
+    if (!flags || (flags.attackType !== 'melee' && flags.attackType !== 'ranged')) {
+      console.warn('Mastery System | DEBUG: Invalid flags or unknown attack type', {
+        flags,
         attackType: flags?.attackType,
         allFlagsKeys: Object.keys(allFlags || {}),
         masterySystemFlags: allFlags?.['mastery-system']
@@ -177,12 +177,17 @@ export function registerAttackRollClickHandler(): void {
       // Penalty is negative (e.g., -1, -2, -4), so we add it to reduce numDice
       numDice = Math.max(1, numDice + healthPenalty); // Minimum 1 die
       
-      // Get keepDice from flags (or compute from actor/mastery rank if needed)
-      const keepDice = flags.masteryRank ?? (attackerForRoll?.system?.mastery?.rank ?? 2);
-      
+      let keepDice = flags.masteryRank ?? (attackerForRoll?.system?.mastery?.rank ?? 2);
+      const baseKeepDice = keepDice;
+      if (flags.rollDisadvantage) {
+        keepDice = Math.max(1, keepDice - 1);
+      }
+
       console.log('Mastery System | DEBUG: Roll parameters', {
         numDice: numDice,
         keepDice: keepDice,
+        baseKeepDice,
+        rollDisadvantage: !!flags.rollDisadvantage,
         skill: 0,
         tn: currentTargetEvade,
         raises,
@@ -208,13 +213,17 @@ export function registerAttackRollClickHandler(): void {
       // Perform the attack roll with d8 dice (exploding 8s handled in roll-handler)
       // Label should reflect "Roll N d8 keep K"
       console.log('Mastery System | DEBUG: Calling masteryRoll...');
+      const disadvantageNote = flags.rollDisadvantage
+        ? ` (Disadvantage: keep ${baseKeepDice} → ${keepDice})`
+        : '';
+      const attackKind = flags.attackType === 'ranged' ? 'Ranged' : 'Melee';
       const result = await masteryRoll({
         numDice: numDice,
         keepDice: keepDice,
         skill: 0,
         tn: currentTargetEvade,
-        label: `Attack Roll (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`,
-        flavor: `Roll ${numDice}d8 keep ${keepDice} vs ${(game as any).actors?.get(flags.targetId)?.name || 'Target'}'s Evade (${currentTargetEvade}${raises > 0 ? `, ${raises} raise${raises > 1 ? 's' : ''}` : ''})`,
+        label: `${attackKind} Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`,
+        flavor: `Roll ${numDice}d8 keep ${keepDice} vs ${(game as any).actors?.get(flags.targetId)?.name || 'Target'}'s Evade (${currentTargetEvade}${raises > 0 ? `, ${raises} raise${raises > 1 ? 's' : ''}` : ''})${disadvantageNote}`,
         actorId: flags.attackerId
       });
       

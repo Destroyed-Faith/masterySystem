@@ -133,6 +133,16 @@ export async function consumeAttackAction(actor, combat) {
     return await spendAttackAction(actor, combat);
 }
 /**
+ * Refund one attack action if any were spent this round (e.g. attack flow failed after spend).
+ */
+export async function refundAttackAction(actor, combat) {
+    const roundState = getRoundState(actor, combat);
+    if (roundState.attackActions.used <= 0)
+        return;
+    roundState.attackActions.used -= 1;
+    await setRoundState(actor, roundState);
+}
+/**
  * Consume a movement action (alias for spendMovementAction)
  */
 export async function consumeMovementAction(actor, combat) {

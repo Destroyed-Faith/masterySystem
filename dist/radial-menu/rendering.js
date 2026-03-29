@@ -198,6 +198,15 @@ function createRadialOptionSlice(option, startAngle, endAngle, token, ringColor)
             optionId: option.id,
             optionSource: option.source
         });
+        console.log('Mastery System | [RADIAL FLOW] outer ring pointertap → handleChosenCombatOption next', {
+            segment: segmentId,
+            optionId: option.id,
+            name: option.name,
+            source: option.source,
+            slot: option.slot,
+            range: option.range,
+            costsAction: option.costsAction
+        });
         console.log('Mastery System | Selected combat option:', {
             segment: segmentId,
             optionId: option.id,

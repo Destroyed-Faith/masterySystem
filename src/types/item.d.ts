@@ -150,6 +150,8 @@ export interface PowerData extends BaseItemData {
   level?: number;
   tree?: string;
   tags?: string[];
+  /** Ranged attack powers: opt in to Threatened Ranged (disadvantage + OA window) like weapons */
+  threatenedRanged?: boolean;
   range?: string;
   aoe?: string;
   duration?: string;

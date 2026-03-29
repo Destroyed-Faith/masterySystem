@@ -1,8 +1,9 @@
 /**
  * Attack Executor
- * Creates melee attack chat cards with proper flags for the roll handler
+ * Creates melee/ranged attack chat cards with proper flags for the roll handler
  */
 import { logActorItemSummary } from "../utils/debug-helpers.js";
+import { evaluateThreatenedRanged } from "./threatened-ranged.js";
 /**
  * Safely collect items from actor (handles Collection, Array, Map)
  */
@@ -20,6 +21,42 @@ function collectActorItems(actor) {
         return Array.from(actor.items.values());
     }
     return [];
+}
+function resolveWeaponForAttack(items, attackType) {
+    if (attackType === "ranged") {
+        let weapon = items.find((i) => i.type === "weapon" &&
+            i.system?.equipped === true &&
+            i.system?.weaponType === "ranged");
+        if (!weapon) {
+            weapon = items.find((i) => i.type === "weapon" && i.system?.weaponType === "ranged");
+        }
+        if (!weapon) {
+            weapon = items.find((i) => i.type === "weapon" && i.system?.equipped === true);
+        }
+        if (!weapon)
+            weapon = items.find((i) => i.type === "weapon");
+        return weapon || null;
+    }
+    let weapon = items.find((i) => i.type === "weapon" &&
+        i.system?.equipped === true &&
+        i.system?.weaponType === "melee");
+    if (!weapon) {
+        weapon = items.find((i) => i.type === "weapon" && i.system?.equipped === true);
+    }
+    if (!weapon) {
+        weapon = items.find((i) => i.type === "weapon");
+    }
+    if (!weapon) {
+        weapon = items.find((i) => {
+            const system = i.system || {};
+            return ((system.damage || system.weaponDamage || system.weaponType) &&
+                (system.equipped === true ||
+                    i.name?.toLowerCase().includes("axe") ||
+                    i.name?.toLowerCase().includes("sword") ||
+                    i.name?.toLowerCase().includes("weapon")));
+        });
+    }
+    return weapon || null;
 }
 /**
  * Get attribute value from actor
@@ -102,9 +139,9 @@ function getAttackAttribute(_actor, weapon, option) {
     return 'might';
 }
 /**
- * Create a melee attack chat card with roll button
+ * Create a melee or ranged attack chat card with roll button (Threatened Ranged for qualifying ranged attacks).
  */
-export async function createMeleeAttackCard(attackerToken, targetToken, option) {
+export async function createAttackCard(attackerToken, targetToken, option, attackType) {
     // Use token actor (for unlinked tokens) or base actor
     // For unlinked tokens, token.actor is a synthetic actor with delta data
     // For linked tokens, token.actor is the base actor
@@ -137,37 +174,22 @@ export async function createMeleeAttackCard(attackerToken, targetToken, option) 
     }
     // Log actor item summary for diagnostics
     logActorItemSummary(attacker, 'attack-card:create');
-    // Robust weapon resolution: equipped weapon first, then any weapon, then null
     const items = collectActorItems(attacker);
-    // Try multiple strategies to find weapon:
-    // 1. type === 'weapon' && equipped === true (prefer melee for melee attacks)
-    // 2. type === 'weapon' && equipped === true (any weapon type)
-    // 3. type === 'weapon' (any weapon)
-    // 4. Check if any item has weapon-like properties (damage, weaponDamage) even if type is wrong
-    let weapon = items.find((i) => i.type === 'weapon' &&
-        i.system?.equipped === true &&
-        i.system?.weaponType === 'melee');
-    if (!weapon) {
-        weapon = items.find((i) => i.type === 'weapon' && i.system?.equipped === true);
-    }
-    if (!weapon) {
-        weapon = items.find((i) => i.type === 'weapon');
-    }
-    // Fallback: Look for items with weapon properties (in case type is wrong)
-    if (!weapon) {
+    let weapon = resolveWeaponForAttack(items, attackType);
+    if (!weapon && attackType === "melee") {
         weapon = items.find((i) => {
             const system = i.system || {};
-            return (system.damage || system.weaponDamage || system.weaponType) &&
-                (system.equipped === true || i.name?.toLowerCase().includes('axe') || i.name?.toLowerCase().includes('sword') || i.name?.toLowerCase().includes('weapon'));
+            return ((system.damage || system.weaponDamage || system.weaponType) &&
+                (system.equipped === true ||
+                    i.name?.toLowerCase().includes("axe") ||
+                    i.name?.toLowerCase().includes("sword") ||
+                    i.name?.toLowerCase().includes("weapon")));
         });
         if (weapon) {
-            console.warn('Mastery System | [ATTACK EXECUTOR] Found weapon-like item with wrong type', {
+            console.warn("Mastery System | [ATTACK EXECUTOR] Found weapon-like item with wrong type", {
                 itemId: weapon.id,
                 itemName: weapon.name,
-                itemType: weapon.type,
-                hasDamage: !!weapon.system?.damage,
-                hasWeaponDamage: !!weapon.system?.weaponDamage,
-                equipped: weapon.system?.equipped
+                itemType: weapon.type
             });
         }
     }
@@ -230,9 +252,17 @@ export async function createMeleeAttackCard(attackerToken, targetToken, option) 
             }
         }
     }
-    // Build flags object
+    const tr = attackType === "ranged"
+        ? evaluateThreatenedRanged(attackerToken, option)
+        : {
+            appliesRule: false,
+            threatened: false,
+            threateningEnemyTokenIds: [],
+            opportunityEnemyTokenIds: [],
+            rollDisadvantage: false
+        };
     const flagsObj = {
-        attackType: 'melee',
+        attackType,
         attackerId: attacker.id,
         targetId: target.id,
         targetTokenId: targetToken.id,
@@ -245,7 +275,11 @@ export async function createMeleeAttackCard(attackerToken, targetToken, option) 
         selectedPowerId: selectedPowerId,
         selectedPowerLevel: selectedPowerLevel,
         selectedPowerSpecials: selectedPowerSpecials,
-        selectedPowerDamage: selectedPowerDamage || ''
+        selectedPowerDamage: selectedPowerDamage || "",
+        threatenedRanged: tr.threatened,
+        rollDisadvantage: tr.rollDisadvantage,
+        threateningEnemyTokenIds: tr.threateningEnemyTokenIds,
+        opportunityEnemyTokenIds: tr.opportunityEnemyTokenIds
     };
     // Debug log before creating message
     const weaponCandidateFromEquipped = weapon;
@@ -263,10 +297,21 @@ export async function createMeleeAttackCard(attackerToken, targetToken, option) 
             type: weaponCandidateFromEquipped.type
         } : null
     });
-    // Build chat card HTML
-    const attackerName = attacker.name || 'Unknown';
-    const targetName = target.name || 'Unknown';
-    const optionName = option.name || 'Attack';
+    const attackerName = attacker.name || "Unknown";
+    const targetName = target.name || "Unknown";
+    const optionName = option.name || "Attack";
+    const headerIcon = attackType === "ranged" ? "fa-bullseye" : "fa-sword";
+    const attackKindLabel = attackType === "ranged" ? "Ranged" : "Melee";
+    const oppNames = tr.opportunityEnemyTokenIds
+        .map((id) => canvas.tokens?.get(id)?.name)
+        .filter(Boolean);
+    const threatenedHtml = tr.threatened
+        ? `<div class="mastery-threatened-ranged" style="border-left:4px solid #c0392b;padding:8px;margin:8px 0;background:rgba(192,57,43,0.08);">
+          <p><strong>Threatened Ranged</strong></p>
+          <p><strong>Disadvantage:</strong> keep one fewer die on the attack roll.</p>
+          <p>After this declaration, these enemies in <em>your</em> melee reach may spend a <strong>Reaction</strong> for an <strong>Opportunity Attack</strong> against you: <strong>${oppNames.length ? oppNames.join(", ") : "(none in reach)"}</strong></p>
+        </div>`
+        : "";
     const buttonHtml = `
     <button class="roll-attack-btn" 
             data-attacker-id="${attacker.id}"
@@ -298,10 +343,15 @@ export async function createMeleeAttackCard(attackerToken, targetToken, option) 
     const content = `
     <div class="mastery-attack-card">
       <div class="attack-header">
-        <h3><i class="fas fa-sword"></i> ${optionName}</h3>
+        <h3><i class="fas ${headerIcon}"></i> ${optionName}</h3>
         <p class="attack-participants"><strong>${attackerName}</strong> → <strong>${targetName}</strong></p>
       </div>
+      ${threatenedHtml}
       <div class="attack-details">
+        <div class="detail-row">
+          <span class="detail-label">Attack:</span>
+          <span class="detail-value">${attackKindLabel}</span>
+        </div>
         <div class="detail-row">
           <span class="detail-label">Attribute:</span>
           <span class="detail-value">${attribute.charAt(0).toUpperCase() + attribute.slice(1)} (${attributeValue})</span>
@@ -310,12 +360,15 @@ export async function createMeleeAttackCard(attackerToken, targetToken, option) 
           <span class="detail-label">Mastery Rank:</span>
           <span class="detail-value">${masteryRank}</span>
         </div>
+        ${tr.rollDisadvantage
+        ? `<div class="detail-row"><span class="detail-label">Disadvantage:</span><span class="detail-value">Yes (Threatened Ranged)</span></div>`
+        : ""}
         <div class="detail-row">
           <span class="detail-label">Target Evade:</span>
           <span class="detail-value">${targetEvade}</span>
         </div>
-        ${weapon ? `<div class="detail-row"><span class="detail-label">Weapon:</span><span class="detail-value">${weapon.name}</span></div>` : ''}
-        ${selectedPowerId ? `<div class="detail-row"><span class="detail-label">Power:</span><span class="detail-value">${option.name}</span></div>` : ''}
+        ${weapon ? `<div class="detail-row"><span class="detail-label">Weapon:</span><span class="detail-value">${weapon.name}</span></div>` : ""}
+        ${selectedPowerId ? `<div class="detail-row"><span class="detail-label">Power:</span><span class="detail-value">${option.name}</span></div>` : ""}
       </div>
       <div class="attack-controls">
         ${raisesDropdown}
@@ -337,13 +390,22 @@ export async function createMeleeAttackCard(attackerToken, targetToken, option) 
                 'mastery-system': flagsObj
             }
         });
-        // Debug log after creating message
-        console.log('Mastery System | [WEAPON-ID DEBUG]', {
-            messageType: 'attack-card:create:after',
+        console.log("Mastery System | [WEAPON-ID DEBUG]", {
+            messageType: "attack-card:create:after",
             messageId: message.id,
-            createdFlags: message.flags?.['mastery-system']
+            createdFlags: message.flags?.["mastery-system"]
         });
-        // Update the raises dropdown with the actual message ID and add change handler
+        if (tr.threatened) {
+            Hooks.call("masterySystem.threatenedRangedDeclared", {
+                attackerTokenId: attackerToken.id,
+                attackerActorId: attacker.id,
+                threateningEnemyTokenIds: tr.threateningEnemyTokenIds,
+                opportunityEnemyTokenIds: tr.opportunityEnemyTokenIds,
+                targetTokenId: targetToken.id,
+                optionId: option.id
+            });
+            ui.notifications?.info?.(`Threatened Ranged: Nachteil auf den Fernangriff. Gelegenheitsangriff (Reaktion) für: ${oppNames.join(", ") || "—"}`);
+        }
         if (message) {
             const messageId = message.id;
             // Wait a bit for the DOM to be ready
@@ -361,20 +423,28 @@ export async function createMeleeAttackCard(attackerToken, targetToken, option) 
                 }
             }, 100);
         }
-        console.log('Mastery System | [ATTACK EXECUTOR] Attack card created', {
+        console.log("Mastery System | [ATTACK EXECUTOR] Attack card created", {
+            attackType,
             attackerId: attacker.id,
             targetId: target.id,
             optionId: option.id,
             attribute,
             attributeValue,
             masteryRank,
-            targetEvade
+            targetEvade,
+            threatenedRanged: tr.threatened
         });
     }
     catch (error) {
-        console.error('Mastery System | [ATTACK EXECUTOR] Failed to create attack card', error);
-        ui.notifications?.error('Failed to create attack card');
+        console.error("Mastery System | [ATTACK EXECUTOR] Failed to create attack card", error);
+        ui.notifications?.error("Failed to create attack card");
     }
+}
+export async function createMeleeAttackCard(attackerToken, targetToken, option) {
+    return createAttackCard(attackerToken, targetToken, option, "melee");
+}
+export async function createRangedAttackCard(attackerToken, targetToken, option) {
+    return createAttackCard(attackerToken, targetToken, option, "ranged");
 }
 /**
  * Setup raises dropdown change handler

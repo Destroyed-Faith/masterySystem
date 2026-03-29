@@ -93,6 +93,10 @@ export declare function getAvailableMovementActions(actor: Actor, combat: Combat
  */
 export declare function consumeAttackAction(actor: Actor, combat: Combat | null): Promise<boolean>;
 /**
+ * Refund one attack action if any were spent this round (e.g. attack flow failed after spend).
+ */
+export declare function refundAttackAction(actor: Actor, combat: Combat | null): Promise<void>;
+/**
  * Consume a movement action (alias for spendMovementAction)
  */
 export declare function consumeMovementAction(actor: Actor, combat: Combat | null): Promise<boolean>;

@@ -6,6 +6,7 @@
  */
 
 import type { RadialCombatOption, TargetGroup } from './token-radial-menu';
+import { consumeAttackAction, getAvailableAttackActions } from './combat/action-economy';
 
 /**
  * Utility target state for a candidate token
@@ -965,6 +966,41 @@ async function confirmUtilityTargets(state: UtilityTargetingState): Promise<void
     return candidate?.token;
   }).filter(t => t !== undefined);
   
+  const combat = game.combat;
+  const actor = state.casterToken?.actor;
+  if (state.option.costsAction) {
+    if (!combat || !actor) {
+      ui.notifications?.warn('Cannot resolve utility: not in combat or missing actor.');
+      console.warn('Mastery System | [RADIAL FLOW] utility confirm blocked: no combat/actor', {
+        option: state.option.name
+      });
+      return;
+    }
+    const available = getAvailableAttackActions(actor, combat);
+    if (available <= 0) {
+      ui.notifications?.warn('No Actions left this round.');
+      console.warn('Mastery System | [RADIAL FLOW] utility confirm blocked: no attack actions', {
+        option: state.option.name
+      });
+      return;
+    }
+    const consumed = await consumeAttackAction(actor, combat);
+    if (!consumed) {
+      ui.notifications?.warn('Failed to consume attack action.');
+      return;
+    }
+    console.log('Mastery System | [RADIAL FLOW] utility confirm: consumed attack action', {
+      remaining: getAvailableAttackActions(actor, combat),
+      option: state.option.name,
+      targetCount: targets.length
+    });
+  } else {
+    console.log('Mastery System | [RADIAL FLOW] utility confirm: no attack cost', {
+      option: state.option.name,
+      targetCount: targets.length
+    });
+  }
+
   console.log('Mastery System | Utility confirmed:', {
     caster: state.casterToken.name,
     option: state.option.name,
