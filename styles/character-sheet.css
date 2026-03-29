@@ -1328,6 +1328,13 @@
   background: var(--df-bg-header, #1b2124);
 }
 
+.mastery-system.sheet.actor.character .power-definition-rank-note {
+  margin: 8px 0 12px;
+  font-size: 13px;
+  color: var(--df-text-secondary, #aaa);
+  line-height: 1.4;
+}
+
 .mastery-system.sheet.actor.character .power-header,
 .mastery-system.sheet.actor.character .spell-header {
   display: flex;

@@ -5,6 +5,7 @@
 import type { CombatSlot, CombatManeuver } from '../system/combat-maneuvers';
 import { getAvailableManeuvers } from '../system/combat-maneuvers';
 import type { RadialCombatOption, TargetGroup, AoEShape, InnerSegment } from './types';
+import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 
 /**
  * Parse range string (e.g., "8m", "12m", "Self") to numeric meters
@@ -417,17 +418,19 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
     if (!rangeStr && getPowerFn) {
       const treeName = (item.system as any)?.tree;
       const powerName = item.name;
-      const level = (item.system as any)?.level || 1;
+      const rawLevel = (item.system as any)?.level || 1;
       
       if (treeName && powerName) {
         try {
           const powerDef = getPowerFn(treeName, powerName);
           
           if (powerDef && powerDef.levels) {
+            const sys = item.system as any;
+            const definitionRank = getPowerDefinitionRank(rawLevel, sys.levels || powerDef.levels);
             if (Array.isArray(powerDef.levels)) {
-              levelData = powerDef.levels.find((l: any) => l.level === level);
+              levelData = powerDef.levels.find((l: any) => l.level === definitionRank);
             } else {
-              levelData = powerDef.levels[String(level)];
+              levelData = powerDef.levels[String(definitionRank)];
             }
             if (levelData) {
               if (levelData.range) {

@@ -2,6 +2,7 @@
  * Option Collection and Parsing for Radial Menu
  */
 import { getAvailableManeuvers } from '../system/combat-maneuvers.js';
+import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 /**
  * Parse range string (e.g., "8m", "12m", "Self") to numeric meters
  */
@@ -357,16 +358,18 @@ export async function getAllCombatOptionsForActor(actor) {
         if (!rangeStr && getPowerFn) {
             const treeName = item.system?.tree;
             const powerName = item.name;
-            const level = item.system?.level || 1;
+            const rawLevel = item.system?.level || 1;
             if (treeName && powerName) {
                 try {
                     const powerDef = getPowerFn(treeName, powerName);
                     if (powerDef && powerDef.levels) {
+                        const sys = item.system;
+                        const definitionRank = getPowerDefinitionRank(rawLevel, sys.levels || powerDef.levels);
                         if (Array.isArray(powerDef.levels)) {
-                            levelData = powerDef.levels.find((l) => l.level === level);
+                            levelData = powerDef.levels.find((l) => l.level === definitionRank);
                         }
                         else {
-                            levelData = powerDef.levels[String(level)];
+                            levelData = powerDef.levels[String(definitionRank)];
                         }
                         if (levelData) {
                             if (levelData.range) {

@@ -34,6 +34,7 @@ import { initializeArtifactAwakening } from './artifacts/artifact-awakening.js';
 import { seedGeneralItemsStorage } from './utils/seed-general-items.js';
 import { getItemIcon } from './utils/item-icons.js';
 import { actorHasPostCreationSnapshot, resetActorProgressToPostCreation } from './utils/xp-post-creation.js';
+import { getPowerDefinitionRank } from './utils/power-definition-rank.js';
 
 // Dice roller functions are imported in sheets where needed
 
@@ -857,6 +858,17 @@ function registerHandlebarsHelpersImmediate() {
   // Helper to check if power uses new structure
   Handlebars.registerHelper('isNewPowerStructure', function(power: any) {
     return power && typeof power === 'object' && power.levels && typeof power.levels === 'object' && !Array.isArray(power.levels);
+  });
+
+  /** Rank row (1–4) used for definition lookup from actor power level */
+  Handlebars.registerHelper('powerDefinitionRank', function (system: any) {
+    return getPowerDefinitionRank(system?.level, system?.levels);
+  });
+
+  /** Whether this table row matches the effective definition rank for the actor's power level */
+  Handlebars.registerHelper('selectedPowerTableRow', function (rowKey: any, system: any) {
+    const r = getPowerDefinitionRank(system?.level, system?.levels);
+    return Number(rowKey) === r;
   });
 
   // Helper to get array/string length

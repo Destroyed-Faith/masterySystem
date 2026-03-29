@@ -22,6 +22,7 @@ import { buildPostCreationSnapshot } from '../utils/xp-post-creation.js';
 import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items';
 import { getNormalizedEquipSlots } from '../utils/equip-slots.js';
 import { XP_COSTS } from '../utils/constants';
+import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 // Removed: showWeaponCreationDialog, showArmorCreationDialog, showShieldCreationDialog
 // Replaced with General Items Storage and Store dialogs
 
@@ -2986,7 +2987,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             cost: powerCost
           });
           
-          await powerItem.update({ 'system.level': newLevel });
+          const sys = powerItem.system as any;
+          const powerUpdate: Record<string, unknown> = { 'system.level': newLevel };
+          if (sys.levels && typeof sys.levels === 'object' && !Array.isArray(sys.levels)) {
+            powerUpdate['system.rank'] = getPowerDefinitionRank(newLevel, sys.levels);
+          }
+          await powerItem.update(powerUpdate);
         }
       }
     }

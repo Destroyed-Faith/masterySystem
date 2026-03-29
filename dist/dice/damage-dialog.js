@@ -2,6 +2,7 @@
  * Damage Dialog for Mastery System
  * Appears after successful attack roll to calculate and apply damage
  */
+import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 /**
  * Show damage dialog after successful attack
  */
@@ -306,7 +307,7 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         });
         if (selectedPower) {
             const powerSystem = selectedPower.system;
-            const powerLevel = powerSystem.level || 1;
+            const rawLevel = powerSystem.level || 1;
             let levelData = null;
             try {
                 const powersModule = await import('../utils/powers/index.js');
@@ -320,11 +321,12 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
                     powerDef = defs.find((p) => p.name === selectedPower.name);
                 }
                 if (powerDef && powerDef.levels) {
+                    const definitionRank = getPowerDefinitionRank(rawLevel, powerSystem.levels || powerDef.levels);
                     if (Array.isArray(powerDef.levels)) {
-                        levelData = powerDef.levels.find((l) => l.level === powerLevel);
+                        levelData = powerDef.levels.find((l) => l.level === definitionRank);
                     }
                     else {
-                        levelData = powerDef.levels[String(powerLevel)];
+                        levelData = powerDef.levels[String(definitionRank)];
                     }
                 }
             }
@@ -371,14 +373,14 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
             selectedPowerData = {
                 id: selectedPower.id,
                 name: selectedPower.name,
-                level: powerLevel,
+                level: rawLevel,
                 specials: powerSpecials,
                 damage: powerDamage
             };
             console.log('Mastery System | [DAMAGE DIALOG] Power loaded from actor', {
                 powerId: selectedPowerId,
                 powerName: selectedPower.name,
-                powerLevel: powerLevel,
+                powerLevel: rawLevel,
                 powerDamage: powerDamage,
                 powerSpecials: powerSpecials,
                 hasLevelData: !!levelData,

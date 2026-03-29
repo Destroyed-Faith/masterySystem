@@ -1119,16 +1119,10 @@
                   <div id="power-description" class="power-description-text">{{this.system.description}}</div>
                   
                   {{#if (isNewPowerStructure this.system)}}
-                  <!-- New Power Structure: Show table with all levels -->
-                  <div class="power-rank-selector" style="margin: 10px 0;">
-                    <label>Current Rank:</label>
-                    <select class="power-rank-select" data-item-id="{{this.id}}" title="Select Power Rank">
-                      <option value="1" {{#if (eq (default this.system.rank this.system.level) 1)}}selected{{/if}}>Rank 1</option>
-                      <option value="2" {{#if (eq (default this.system.rank this.system.level) 2)}}selected{{/if}}>Rank 2</option>
-                      <option value="3" {{#if (eq (default this.system.rank this.system.level) 3)}}selected{{/if}}>Rank 3</option>
-                      <option value="4" {{#if (eq (default this.system.rank this.system.level) 4)}}selected{{/if}}>Rank 4</option>
-                    </select>
-                  </div>
+                  <!-- New Power Structure: effective rank comes from Power Level (+/−); table shows all ranks for reference -->
+                  <p class="power-definition-rank-note">
+                    Effects use <strong>rank {{powerDefinitionRank this.system}}</strong> from the table (power level {{default this.system.level 1}}; capped at the highest rank defined for this power).
+                  </p>
                   
                   <div class="power-level-table-container">
                     <table class="power-level-table">
@@ -1149,7 +1143,7 @@
                       <tbody>
                         {{#each (array '1' '2' '3' '4')}}
                         {{#with (lookup ../this.system.levels this)}}
-                        <tr class="power-level-row {{#if (eq ../this (default ../../this.system.rank ../../this.system.level))}}selected{{/if}}" data-level="{{../this}}">
+                        <tr class="power-level-row {{#if (selectedPowerTableRow ../this ../../this.system)}}selected{{/if}}" data-level="{{../this}}">
                           <td class="power-level-cell">{{../this}}</td>
                           <td class="power-type-cell">{{this.type}}</td>
                           <td class="power-range-cell">{{renderRange this.range}}</td>

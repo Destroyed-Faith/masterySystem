@@ -3,6 +3,8 @@
  * Appears after successful attack roll to calculate and apply damage
  */
 
+import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
+
 export interface DamageDialogData {
   attacker: Actor;
   target: Actor;
@@ -378,7 +380,7 @@ export async function showDamageDialog(
     
     if (selectedPower) {
       const powerSystem = selectedPower.system as any;
-      const powerLevel = powerSystem.level || 1;
+      const rawLevel = powerSystem.level || 1;
       
       let levelData: any = null;
       try {
@@ -395,10 +397,14 @@ export async function showDamageDialog(
         }
 
         if (powerDef && powerDef.levels) {
+          const definitionRank = getPowerDefinitionRank(
+            rawLevel,
+            powerSystem.levels || powerDef.levels
+          );
           if (Array.isArray(powerDef.levels)) {
-            levelData = powerDef.levels.find((l: any) => l.level === powerLevel);
+            levelData = powerDef.levels.find((l: any) => l.level === definitionRank);
           } else {
-            levelData = powerDef.levels[String(powerLevel)];
+            levelData = powerDef.levels[String(definitionRank)];
           }
         }
       } catch (e) {
@@ -443,7 +449,7 @@ export async function showDamageDialog(
       selectedPowerData = {
         id: selectedPower.id,
         name: selectedPower.name,
-        level: powerLevel,
+        level: rawLevel,
         specials: powerSpecials,
         damage: powerDamage
       };
@@ -451,7 +457,7 @@ export async function showDamageDialog(
       console.log('Mastery System | [DAMAGE DIALOG] Power loaded from actor', {
         powerId: selectedPowerId,
         powerName: selectedPower.name,
-        powerLevel: powerLevel,
+        powerLevel: rawLevel,
         powerDamage: powerDamage,
         powerSpecials: powerSpecials,
         hasLevelData: !!levelData,
