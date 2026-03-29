@@ -108,9 +108,8 @@ export function initializeTokenActionSelector() {
             console.log('Mastery System | Cleared currentAction flag after movement');
         }
     });
-    // Register hook listener for melee target selection (spend attack only after a target is confirmed)
+    // Melee/ranged: attack action is spent when the player clicks Roll on the chat card (see attack-roll-handler).
     Hooks.on("masterySystem.meleeTargetSelected", async (payload) => {
-        let spentAttack = false;
         try {
             const attackerToken = canvas.tokens?.get(payload.attackerTokenId);
             const targetToken = canvas.tokens?.get(payload.targetTokenId);
@@ -124,63 +123,18 @@ export function initializeTokenActionSelector() {
                 return;
             }
             const option = payload.option;
-            const combat = game.combat;
-            const actor = attackerToken.actor;
-            if (!combat || !actor) {
-                console.warn("Mastery System | [RADIAL FLOW] meleeTargetSelected: no combat or attacker actor", {
-                    hasCombat: !!combat,
-                    hasActor: !!actor
-                });
+            if (!attackerToken.actor) {
+                console.warn("Mastery System | [RADIAL FLOW] meleeTargetSelected: no attacker actor");
                 return;
             }
-            if (option.costsAction) {
-                const available = getAvailableAttackActions(actor, combat);
-                if (available <= 0) {
-                    ui.notifications?.warn("No Actions left this round.");
-                    console.warn("Mastery System | [RADIAL FLOW] meleeTargetSelected: blocked (no attack actions left)", {
-                        actor: actor.name,
-                        option: option.name
-                    });
-                    return;
-                }
-                const consumed = await consumeAttackAction(actor, combat);
-                if (!consumed) {
-                    ui.notifications?.warn("Failed to consume attack action.");
-                    console.warn("Mastery System | [RADIAL FLOW] meleeTargetSelected: consumeAttackAction failed", {
-                        actor: actor.name
-                    });
-                    return;
-                }
-                spentAttack = true;
-                console.log("Mastery System | [RADIAL FLOW] meleeTargetSelected: consumed attack action", {
-                    remaining: getAvailableAttackActions(actor, combat),
-                    option: option.name,
-                    target: targetToken.name
-                });
-            }
-            else {
-                console.log("Mastery System | [RADIAL FLOW] meleeTargetSelected: no attack cost (costsAction=false)", {
-                    option: option.name
-                });
-            }
             const { createMeleeAttackCard } = await import("./combat/attack-executor.js");
-            try {
-                await createMeleeAttackCard(attackerToken, targetToken, option);
-            }
-            catch (cardErr) {
-                if (spentAttack) {
-                    await refundAttackAction(actor, combat);
-                    console.warn("Mastery System | [RADIAL FLOW] meleeTargetSelected: attack card failed, refunded attack action", cardErr);
-                }
-                throw cardErr;
-            }
+            await createMeleeAttackCard(attackerToken, targetToken, option);
         }
         catch (e) {
             console.error("Mastery System | [TOKEN ACTION SELECTOR] meleeTargetSelected hook failed", e);
         }
     });
     Hooks.on("masterySystem.rangedTargetSelected", async (payload) => {
-        let spentAttack = false;
         try {
             const attackerToken = canvas.tokens?.get(payload.attackerTokenId);
             const targetToken = canvas.tokens?.get(payload.targetTokenId);
@@ -189,41 +143,12 @@ export function initializeTokenActionSelector() {
                 return;
             }
             const option = payload.option;
-            const combat = game.combat;
-            const actor = attackerToken.actor;
-            if (!combat || !actor) {
-                console.warn("Mastery System | [RADIAL FLOW] rangedTargetSelected: no combat or attacker actor");
+            if (!attackerToken.actor) {
+                console.warn("Mastery System | [RADIAL FLOW] rangedTargetSelected: no attacker actor");
                 return;
             }
-            if (option.costsAction) {
-                const available = getAvailableAttackActions(actor, combat);
-                if (available <= 0) {
-                    ui.notifications?.warn("No Actions left this round.");
-                    return;
-                }
-                const consumed = await consumeAttackAction(actor, combat);
-                if (!consumed) {
-                    ui.notifications?.warn("Failed to consume attack action.");
-                    return;
-                }
-                spentAttack = true;
-                console.log("Mastery System | [RADIAL FLOW] rangedTargetSelected: consumed attack action", {
-                    remaining: getAvailableAttackActions(actor, combat),
-                    option: option.name,
-                    target: targetToken.name
-                });
-            }
             const { createRangedAttackCard } = await import("./combat/attack-executor.js");
-            try {
-                await createRangedAttackCard(attackerToken, targetToken, option);
-            }
-            catch (cardErr) {
-                if (spentAttack) {
-                    await refundAttackAction(actor, combat);
-                    console.warn("Mastery System | [RADIAL FLOW] rangedTargetSelected: card failed, refunded attack", cardErr);
-                }
-                throw cardErr;
-            }
+            await createRangedAttackCard(attackerToken, targetToken, option);
         }
         catch (e) {
             console.error("Mastery System | [TOKEN ACTION SELECTOR] rangedTargetSelected hook failed", e);

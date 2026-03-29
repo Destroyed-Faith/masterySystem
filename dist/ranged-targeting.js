@@ -3,24 +3,13 @@
  * but uses option.range (meters) and fires masterySystem.rangedTargetSelected.
  */
 import { highlightHexesInRange, clearHexHighlight } from "./utils/hex-highlighting.js";
+import { gridStepsFromMeters, measureSceneDistanceBetweenPoints, metersToSceneDistance } from "./utils/grid-range.js";
 let active = null;
 let confirming = false;
-function metersToGridUnits(meters) {
-    const grid = canvas.grid;
-    if (!grid)
-        return meters;
-    const distance = grid.distance ?? 1;
-    return meters / distance;
-}
 function getRangedMaxMeters(option) {
     if (typeof option.range === "number" && option.range > 0)
         return option.range;
     return 30;
-}
-function distance(a, b) {
-    const dx = a.x - b.x;
-    const dy = a.y - b.y;
-    return Math.hypot(dx, dy);
 }
 function computeValidTargets(attackerToken, rangeMeters) {
     const out = new Set();
@@ -28,33 +17,15 @@ function computeValidTargets(attackerToken, rangeMeters) {
     const attackerCenter = attackerToken?.center;
     if (!attackerCenter)
         return out;
+    const maxScene = metersToSceneDistance(rangeMeters);
     for (const token of tokens) {
         if (!token?.id || token.id === attackerToken.id)
             continue;
         if (!token.actor)
             continue;
         const targetCenter = token.center;
-        let distanceMeters;
-        const grid = canvas.grid;
-        if (grid && typeof grid.measurePath === "function") {
-            try {
-                const path = grid.measurePath([attackerCenter, targetCenter], {});
-                distanceMeters = path.distance ?? (path.total ?? 0);
-            }
-            catch {
-                const distPx = distance(attackerCenter, targetCenter);
-                const gridSize = grid.size ?? 100;
-                const gridUnits = distPx / gridSize;
-                distanceMeters = gridUnits * (grid.distance ?? 1);
-            }
-        }
-        else {
-            const distPx = distance(attackerCenter, targetCenter);
-            const gridSize = grid?.size ?? 100;
-            const gridUnits = distPx / gridSize;
-            distanceMeters = gridUnits * (grid?.distance ?? 1);
-        }
-        if (distanceMeters <= rangeMeters) {
+        const dScene = measureSceneDistanceBetweenPoints(attackerCenter, targetCenter);
+        if (dScene <= maxScene + 0.01) {
             out.add(token.id);
         }
     }
@@ -67,7 +38,7 @@ function drawRangeArea(state) {
     const attackerId = state.attackerToken?.document?.id ?? state.attackerToken?.id;
     if (!attackerId)
         return;
-    const RANGE = Math.max(0, Math.floor(Number(state.rangeGridUnits) || 0));
+    const RANGE = gridStepsFromMeters(state.rangeMeters);
     if (grid.type !== CONST.GRID_TYPES.GRIDLESS) {
         highlightHexesInRange(attackerId, RANGE, state.highlightId, 0xff8833, 0.35);
     }
@@ -254,12 +225,11 @@ export function startRangedTargeting(attackerToken, option) {
     endRangedTargeting(false);
     attackerToken?.control?.({ releaseOthers: false });
     const rangeMeters = getRangedMaxMeters(option);
-    const rangeGridUnits = metersToGridUnits(rangeMeters);
     const state = {
         attackerToken,
         option,
         rangeMeters,
-        rangeGridUnits,
+        rangeGridUnits: gridStepsFromMeters(rangeMeters),
         highlightId: "mastery-ranged",
         rings: new Map(),
         overlays: new Map(),

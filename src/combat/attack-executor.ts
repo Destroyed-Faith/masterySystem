@@ -315,6 +315,7 @@ export async function createAttackCard(
 
   const flagsObj: any = {
     attackType,
+    costsAction: option.costsAction !== false,
     attackerId: attacker.id,
     targetId: target.id,
     targetTokenId: targetToken.id,

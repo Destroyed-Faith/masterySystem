@@ -81,32 +81,33 @@ function createTurnRing({
  */
 export function clearTurnRing(): void {
   if (!activeTurnRing) return;
-  
+
   console.log('Mastery System | Clearing turn ring');
-  
+
+  const ring = activeTurnRing;
+  activeTurnRing = null;
+  activeTurnTokenId = null;
+
   // Remove ticker animation
   if (turnRingTickerFn) {
     const ticker = PIXI.Ticker.shared;
     ticker.remove(turnRingTickerFn);
     turnRingTickerFn = null;
   }
-  
-  // Also check if there's a ticker stored on the graphics object
-  const tickFn = (activeTurnRing as any).msTurnRingTicker;
+
+  const tickFn = (ring as any).msTurnRingTicker;
   if (tickFn) {
-    const ticker = PIXI.Ticker.shared;
-    ticker.remove(tickFn);
+    PIXI.Ticker.shared.remove(tickFn);
   }
-  
-  // Remove from parent
-  if (activeTurnRing.parent) {
-    activeTurnRing.parent.removeChild(activeTurnRing);
+
+  try {
+    if (ring.parent) {
+      ring.parent.removeChild(ring);
+    }
+    ring.destroy({ children: true });
+  } catch (e) {
+    console.warn('Mastery System | Turn ring cleanup skipped (already destroyed or invalid)', e);
   }
-  
-  // Destroy graphics
-  activeTurnRing.destroy({ children: true });
-  activeTurnRing = null;
-  activeTurnTokenId = null;
 }
 
 /**
@@ -157,10 +158,16 @@ export function showTurnRingForToken(token: any, radius?: number): void {
       // Radius changed significantly, recreate ring
       clearTurnRing();
     } else {
-      // Just update position (token might have moved)
-      const tokenCenter = token.center;
-      activeTurnRing.position.set(tokenCenter.x, tokenCenter.y);
-      return;
+      try {
+        const tokenCenter = token.center;
+        if (tokenCenter && activeTurnRing?.position) {
+          activeTurnRing.position.set(tokenCenter.x, tokenCenter.y);
+        }
+      } catch (e) {
+        console.warn('Mastery System | Turn ring position update failed, recreating', e);
+        clearTurnRing();
+      }
+      if (activeTurnRing) return;
     }
   } else {
     // Different token or no ring, clear old one
@@ -291,11 +298,16 @@ export function initializeTurnIndicator(): void {
   
   // Update ring position when token moves
   Hooks.on('updateToken', (tokenDoc: any) => {
-    if (activeTurnRing && activeTurnTokenId === tokenDoc.id) {
+    if (!activeTurnRing || activeTurnTokenId !== tokenDoc.id) return;
+    try {
       const token = tokenDoc.object;
-      if (token && token.center) {
-        activeTurnRing.position.set(token.center.x, token.center.y);
+      if (!token || (token as any).destroyed) return;
+      const c = token.center;
+      if (c && activeTurnRing?.position) {
+        activeTurnRing.position.set(c.x, c.y);
       }
+    } catch (e) {
+      console.warn('Mastery System | Turn ring: updateToken position skipped', e);
     }
   });
   

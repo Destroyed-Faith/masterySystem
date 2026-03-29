@@ -117,10 +117,17 @@ export function registerAttackRollClickHandler(): void {
       return;
     }
     
+    const resetRollButton = () => {
+      button.prop('disabled', false).html('<i class="fas fa-dice-d20"></i> Roll');
+    };
+
     // Disable button during roll
     button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Rolling...');
     console.log('Mastery System | DEBUG: Starting attack roll...');
-    
+
+    let spentActionOnRoll = false;
+    let actorToRefund: any = null;
+
     try {
       // Import the roll handler (must use .js extension for ES modules in Foundry VTT)
       const { masteryRoll } = await import('../dice/roll-handler.js');
@@ -134,6 +141,30 @@ export function registerAttackRollClickHandler(): void {
       
       // Ensure we have fresh actor reference (not stale) - reload from game.actors
       const freshAttacker = (game as any).actors?.get(attacker.id) || attacker;
+
+      const costsAction = flags.costsAction !== false;
+      if (costsAction) {
+        const combat = (game as any).combat;
+        if (!combat) {
+          ui.notifications?.warn('Not in combat.');
+          resetRollButton();
+          return;
+        }
+        const { getAvailableAttackActions, consumeAttackAction } = await import('../combat/action-economy.js');
+        if (getAvailableAttackActions(freshAttacker, combat) <= 0) {
+          ui.notifications?.warn('No Actions left this round.');
+          resetRollButton();
+          return;
+        }
+        const consumed = await consumeAttackAction(freshAttacker, combat);
+        if (!consumed) {
+          ui.notifications?.warn('Failed to consume attack action.');
+          resetRollButton();
+          return;
+        }
+        spentActionOnRoll = true;
+        actorToRefund = freshAttacker;
+      }
       
       // Debug: Log actor items to verify we have latest data
       let attackerItems: any[] = [];
@@ -581,10 +612,18 @@ export function registerAttackRollClickHandler(): void {
       }
       
     } catch (error) {
+      if (spentActionOnRoll && actorToRefund) {
+        try {
+          const { refundAttackAction } = await import('../combat/action-economy.js');
+          await refundAttackAction(actorToRefund, (game as any).combat);
+        } catch (refundErr) {
+          console.warn('Mastery System | Could not refund attack action after failed roll', refundErr);
+        }
+      }
       console.error('Mastery System | DEBUG: Error during roll', error);
       console.error('Mastery System | Error rolling attack:', error);
       ui.notifications?.error('Failed to roll attack');
-      button.prop('disabled', false).html('<i class="fas fa-dice-d20"></i> Roll');
+      resetRollButton();
     }
   });
 }

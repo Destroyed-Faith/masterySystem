@@ -5,6 +5,11 @@
 
 import type { RadialCombatOption } from "./token-radial-menu";
 import { highlightHexesInRange, clearHexHighlight } from "./utils/hex-highlighting";
+import {
+  gridStepsFromMeters,
+  measureSceneDistanceBetweenPoints,
+  metersToSceneDistance
+} from "./utils/grid-range";
 
 interface RangedTargetingState {
   attackerToken: any;
@@ -23,22 +28,9 @@ interface RangedTargetingState {
 let active: RangedTargetingState | null = null;
 let confirming = false;
 
-function metersToGridUnits(meters: number): number {
-  const grid = canvas.grid;
-  if (!grid) return meters;
-  const distance = grid.distance ?? 1;
-  return meters / distance;
-}
-
 function getRangedMaxMeters(option: RadialCombatOption): number {
   if (typeof option.range === "number" && option.range > 0) return option.range;
   return 30;
-}
-
-function distance(a: { x: number; y: number }, b: { x: number; y: number }): number {
-  const dx = a.x - b.x;
-  const dy = a.y - b.y;
-  return Math.hypot(dx, dy);
 }
 
 function computeValidTargets(attackerToken: any, rangeMeters: number): Set<string> {
@@ -47,32 +39,15 @@ function computeValidTargets(attackerToken: any, rangeMeters: number): Set<strin
   const attackerCenter = attackerToken?.center;
   if (!attackerCenter) return out;
 
+  const maxScene = metersToSceneDistance(rangeMeters);
+
   for (const token of tokens) {
     if (!token?.id || token.id === attackerToken.id) continue;
     if (!token.actor) continue;
 
     const targetCenter = token.center;
-    let distanceMeters: number;
-    const grid = canvas.grid;
-
-    if (grid && typeof grid.measurePath === "function") {
-      try {
-        const path = grid.measurePath([attackerCenter, targetCenter], {});
-        distanceMeters = path.distance ?? (path.total ?? 0);
-      } catch {
-        const distPx = distance(attackerCenter, targetCenter);
-        const gridSize = grid.size ?? 100;
-        const gridUnits = distPx / gridSize;
-        distanceMeters = gridUnits * (grid.distance ?? 1);
-      }
-    } else {
-      const distPx = distance(attackerCenter, targetCenter);
-      const gridSize = grid?.size ?? 100;
-      const gridUnits = distPx / gridSize;
-      distanceMeters = gridUnits * (grid?.distance ?? 1);
-    }
-
-    if (distanceMeters <= rangeMeters) {
+    const dScene = measureSceneDistanceBetweenPoints(attackerCenter, targetCenter);
+    if (dScene <= maxScene + 0.01) {
       out.add(token.id);
     }
   }
@@ -87,7 +62,7 @@ function drawRangeArea(state: RangedTargetingState): void {
   const attackerId = state.attackerToken?.document?.id ?? state.attackerToken?.id;
   if (!attackerId) return;
 
-  const RANGE = Math.max(0, Math.floor(Number(state.rangeGridUnits) || 0));
+  const RANGE = gridStepsFromMeters(state.rangeMeters);
 
   if (grid.type !== CONST.GRID_TYPES.GRIDLESS) {
     highlightHexesInRange(attackerId, RANGE, state.highlightId, 0xff8833, 0.35);
@@ -285,13 +260,12 @@ export function startRangedTargeting(attackerToken: any, option: RadialCombatOpt
   attackerToken?.control?.({ releaseOthers: false });
 
   const rangeMeters = getRangedMaxMeters(option);
-  const rangeGridUnits = metersToGridUnits(rangeMeters);
 
   const state: RangedTargetingState = {
     attackerToken,
     option,
     rangeMeters,
-    rangeGridUnits,
+    rangeGridUnits: gridStepsFromMeters(rangeMeters),
     highlightId: "mastery-ranged",
     rings: new Map(),
     overlays: new Map(),

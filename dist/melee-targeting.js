@@ -6,28 +6,17 @@
  * - Does NOT create chat messages, roll dice, or execute attacks directly
  */
 import { highlightHexesInRange, clearHexHighlight } from "./utils/hex-highlighting.js";
+import { gridStepsFromMeters, measureSceneDistanceBetweenPoints, metersToSceneDistance } from "./utils/grid-range.js";
 let active = null;
 let confirming = false;
 /* -------------------------------------------- */
 /*  Helpers                                     */
 /* -------------------------------------------- */
-function metersToGridUnits(meters) {
-    const grid = canvas.grid;
-    if (!grid)
-        return meters;
-    const distance = grid.distance ?? 1;
-    return meters / distance;
-}
 function getMeleeReachMeters(option) {
     if (typeof option.range === "number")
         return option.range;
     // Default melee range
     return 2;
-}
-function distance(a, b) {
-    const dx = a.x - b.x;
-    const dy = a.y - b.y;
-    return Math.hypot(dx, dy);
 }
 /**
  * Find valid targets by distance
@@ -39,36 +28,15 @@ function computeValidTargets(attackerToken, reachMeters) {
     const attackerCenter = attackerToken?.center;
     if (!attackerCenter)
         return out;
+    const maxScene = metersToSceneDistance(reachMeters);
     for (const token of tokens) {
         if (!token?.id || token.id === attackerToken.id)
             continue;
         if (!token.actor)
             continue;
         const targetCenter = token.center;
-        // Try to use Foundry grid measurement if available
-        let distanceMeters;
-        const grid = canvas.grid;
-        if (grid && typeof grid.measurePath === 'function') {
-            try {
-                const path = grid.measurePath([attackerCenter, targetCenter], {});
-                distanceMeters = path.distance ?? (path.total ?? 0);
-            }
-            catch {
-                // Fallback to pixel distance
-                const distPx = distance(attackerCenter, targetCenter);
-                const gridSize = grid.size ?? 100;
-                const gridUnits = distPx / gridSize;
-                distanceMeters = gridUnits * (grid.distance ?? 1);
-            }
-        }
-        else {
-            // Fallback to pixel distance
-            const distPx = distance(attackerCenter, targetCenter);
-            const gridSize = grid?.size ?? 100;
-            const gridUnits = distPx / gridSize;
-            distanceMeters = gridUnits * (grid?.distance ?? 1);
-        }
-        if (distanceMeters <= reachMeters) {
+        const dScene = measureSceneDistanceBetweenPoints(attackerCenter, targetCenter);
+        if (dScene <= maxScene + 0.01) {
             out.add(token.id);
         }
     }
@@ -89,7 +57,7 @@ function drawReachArea(state) {
     const attackerId = state.attackerToken?.document?.id ?? state.attackerToken?.id;
     if (!attackerId)
         return;
-    const RANGE = Math.max(0, Math.floor(Number(state.reachGridUnits) || 0));
+    const RANGE = gridStepsFromMeters(state.reachMeters);
     // Hex / square grids → highlight layer (v13 interface)
     if (grid.type !== CONST.GRID_TYPES.GRIDLESS) {
         highlightHexesInRange(attackerId, RANGE, state.highlightId, 0xff6666, 0.5);
@@ -327,12 +295,11 @@ export function startMeleeTargeting(attackerToken, option) {
     endMeleeTargeting(false);
     attackerToken?.control?.({ releaseOthers: false });
     const reachMeters = getMeleeReachMeters(option);
-    const reachGridUnits = metersToGridUnits(reachMeters);
     const state = {
         attackerToken,
         option,
         reachMeters,
-        reachGridUnits,
+        reachGridUnits: gridStepsFromMeters(reachMeters),
         highlightId: "mastery-melee",
         rings: new Map(),
         overlays: new Map(),
@@ -356,7 +323,7 @@ export function startMeleeTargeting(attackerToken, option) {
     console.log("Mastery System | [MELEE TARGETING] started", {
         attacker: attackerToken?.name,
         reachMeters,
-        reachGridUnits,
+        reachGridUnits: state.reachGridUnits,
         validTargets: Array.from(state.validTargetIds)
     });
     if (state.validTargetIds.size === 0) {

@@ -152,7 +152,7 @@ function createRadialOptionSlice(option, startAngle, endAngle, token, ringColor)
         if (Date.now() >= _msSuppressHoverPreviewUntil) {
             const r = Number(option.range);
             if (Number.isFinite(r) && r > 0) {
-                showRangePreview(token, Math.floor(r));
+                showRangePreview(token, r);
             }
             else {
                 clearRangePreview();

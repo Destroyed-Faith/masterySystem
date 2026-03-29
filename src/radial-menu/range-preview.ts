@@ -3,6 +3,7 @@
  */
 
 import { highlightHexesInRange, clearHexHighlight } from '../utils/hex-highlighting';
+import { gridStepsFromMeters } from '../utils/grid-range';
 
 /**
  * Global state for range preview graphics
@@ -10,13 +11,9 @@ import { highlightHexesInRange, clearHexHighlight } from '../utils/hex-highlight
 let msRangePreviewGfx: PIXI.Graphics | null = null;
 let msRadialMenuRangeGfx: PIXI.Graphics | null = null;
 
-/**
- * Convert system units (meters) to pixels
- */
-function unitsToPixels(units: number): number {
-  // 1 unit = 1 grid square
-  // canvas.grid.size = pixels per square
-  return units * (canvas.grid?.size || 100);
+/** Grid steps → pixels (gridless circle). */
+function gridStepsToPixels(steps: number): number {
+  return steps * (canvas.grid?.size || 100);
 }
 
 /**
@@ -47,15 +44,16 @@ export function clearRadialMenuRange(): void {
 
 /**
  * Show range preview circle around token
- * If a grid is present, also highlights hex fields within range
+ * @param rangeMeters - Power/option range in meters (Mastery System)
  */
-export function showRangePreview(token: any, rangeUnits: number): void {
+export function showRangePreview(token: any, rangeMeters: number): void {
   clearRangePreview();
   
-  if (!rangeUnits || rangeUnits <= 0) return;
+  if (!rangeMeters || rangeMeters <= 0) return;
   
   const tokenCenter = token.center;
-  const radiusPx = unitsToPixels(rangeUnits);
+  const gridSteps = gridStepsFromMeters(rangeMeters);
+  const radiusPx = gridStepsToPixels(gridSteps);
   const gfx = new PIXI.Graphics();
   
   // Only draw circle if no grid is present, or as a fallback
@@ -114,7 +112,8 @@ export function showRangePreview(token: any, rangeUnits: number): void {
       graphicsParent: gfx.parent?.constructor?.name,
       containerVisible: (effectsContainer as any).visible,
       containerWorldVisible: (effectsContainer as any).worldVisible,
-      rangeUnits
+      rangeMeters,
+      gridSteps
     });
   } else {
     console.warn('Mastery System | [DEBUG] Could not find effects layer for range preview', {
@@ -126,7 +125,7 @@ export function showRangePreview(token: any, rangeUnits: number): void {
   
   // If grid is present, highlight hex fields within range
   if (canvas.grid && canvas.grid.type !== CONST.GRID_TYPES.GRIDLESS && token?.id) {
-    highlightHexesInRange(token.id, rangeUnits, 'mastery-range-preview', 0xffe066, 0.5);
+    highlightHexesInRange(token.id, gridSteps, "mastery-range-preview", 0xffe066, 0.5);
   }
 }
 
@@ -134,11 +133,8 @@ export function showRangePreview(token: any, rangeUnits: number): void {
 // The old function was replaced with the BFS-based implementation in utils/hex-highlighting.ts
 
 /**
- * Show a fixed 6-field radius around the token when radial menu opens
-
-/**
- * Show a fixed 6-field radius around the token when radial menu opens
- * Uses a fixed color (cyan/blue) to distinguish from movement preview
+ * Show a fixed 6-field radius around the token when radial menu opens.
+ * Uses a fixed color (cyan/blue) to distinguish from movement preview.
  * @param token - The token to show the range around
  */
 export function showRadialMenuRange(token: any): void {
@@ -208,7 +204,7 @@ export function showRadialMenuRange(token: any): void {
       isGridless
     });
     // If no grid, draw a circle
-    const radiusPx = unitsToPixels(RANGE_UNITS);
+    const radiusPx = gridStepsToPixels(RANGE_UNITS);
     const gfx = new PIXI.Graphics();
     
     gfx.lineStyle(3, FIXED_COLOR, 0.8);
