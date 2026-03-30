@@ -1237,15 +1237,15 @@ async function calculateDamageResult(
   
   const rollDetails: string[] = [];
 
-  const baseRoll = rollDiceWithDetail(sanitizedBaseDamage, 'Base weapon');
+  const baseRoll = await rollDiceWithDetail(sanitizedBaseDamage, 'Base weapon');
   const baseDamageRolled = baseRoll.total;
   if (baseRoll.line) rollDetails.push(baseRoll.line);
 
-  const powerRoll = rollDiceWithDetail(sanitizedPowerDamage, 'Power');
+  const powerRoll = await rollDiceWithDetail(sanitizedPowerDamage, 'Power');
   const powerDamageRolled = powerRoll.total;
   if (powerRoll.line) rollDetails.push(powerRoll.line);
 
-  const passiveRoll = rollDiceWithDetail(sanitizedPassiveDamage, 'Passive');
+  const passiveRoll = await rollDiceWithDetail(sanitizedPassiveDamage, 'Passive');
   const passiveDamageRolled = passiveRoll.total;
   if (passiveRoll.line) rollDetails.push(passiveRoll.line);
   
@@ -1259,7 +1259,7 @@ async function calculateDamageResult(
     if (selection) {
       if (selection.type === 'damage') {
         raiseDiceCount += 1;
-        const r = rollDiceWithDetail('1d8', `Raise ${raiseDiceCount} (+1d8)`);
+        const r = await rollDiceWithDetail('1d8', `Raise ${raiseDiceCount} (+1d8)`);
         raiseDamage += r.total;
         if (r.line) rollDetails.push(r.line);
       } else if (selection.type === 'special') {
@@ -1333,9 +1333,12 @@ function summarizeRollDiceFaces(roll: any): string {
 }
 
 /**
- * Roll one damage pool synchronously; returns total and a chat line (omit line when 0 and no roll).
+ * Roll one damage pool (Foundry v13+: must evaluate asynchronously — sync mode throws for standard dice).
  */
-function rollDiceWithDetail(diceNotation: string, label: string): { total: number; line: string } {
+async function rollDiceWithDetail(
+  diceNotation: string,
+  label: string
+): Promise<{ total: number; line: string }> {
   if (!diceNotation || diceNotation === "0") {
     return { total: 0, line: "" };
   }
@@ -1350,11 +1353,7 @@ function rollDiceWithDetail(diceNotation: string, label: string): { total: numbe
   try {
     const RollCtor = (globalThis as any).Roll;
     const roll = new RollCtor(formula);
-    if (typeof roll.evaluateSync === "function") {
-      roll.evaluateSync();
-    } else {
-      roll.evaluate({ async: false });
-    }
+    await roll.evaluate();
     const total = roll.total ?? 0;
     const detail = summarizeRollDiceFaces(roll);
     const line = `${label}: ${detail} → ${total}`;
@@ -1370,7 +1369,7 @@ function rollDiceWithDetail(diceNotation: string, label: string): { total: numbe
  * Supports full Foundry Roll formulas like "1d8 + 1d8", "2d8 + 3d8 + 2"
  */
 async function rollDice(diceNotation: string): Promise<number> {
-  return rollDiceWithDetail(diceNotation, "Roll").total;
+  return (await rollDiceWithDetail(diceNotation, "Roll")).total;
 }
 
 // DamageDialog class removed - now using chat messages instead
