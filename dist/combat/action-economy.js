@@ -15,7 +15,12 @@ export function isPC(actor) {
  */
 export function getRoundState(actor, combat) {
     const stored = actor.getFlag('mastery-system', 'roundState');
-    if (stored && stored.round === (combat?.round || 1)) {
+    const combatId = combat?.id ?? '';
+    const round = combat?.round ?? 1;
+    // Must match encounter AND round — a new combat can start again at round 1 with a clean tracker.
+    if (stored &&
+        stored.round === round &&
+        stored.combatId === combatId) {
         return stored;
     }
     // Create default state
@@ -26,6 +31,7 @@ export function getRoundState(actor, combat) {
         reactionActions: { total: 1, used: 0 }
     };
     return {
+        combatId,
         round: combat?.round || 1,
         turn: combat?.turn || 0,
         isPC,
@@ -91,6 +97,7 @@ export async function applyInitiativeShopBonuses(actor, combatant, combat) {
         return; // No shop data for this round
     }
     const roundState = getRoundState(actor, combat);
+    roundState.combatId = combat.id ?? '';
     // Apply extra attack
     if (shopData.extraAttack) {
         roundState.attackActions.total += 1;
@@ -403,6 +410,7 @@ export async function initializeCombatRoundState(combat) {
  */
 export async function resetTurnState(actor, combat) {
     const roundState = getRoundState(actor, combat);
+    roundState.combatId = combat?.id ?? '';
     // Reset used counts
     roundState.movementActions.used = 0;
     roundState.attackActions.used = 0;
@@ -427,6 +435,7 @@ export async function resetRoundState(actor, combatant, combat) {
     // Create fresh round state
     const isPC = actor.type === 'character';
     const roundState = {
+        combatId: combat.id ?? '',
         round: combat.round || 1,
         turn: combat.turn || 0,
         isPC,
@@ -449,6 +458,7 @@ export async function resetRoundState(actor, combatant, combat) {
         Object.assign(roundState, updated);
     }
     roundState.usedPowerIdsThisRound = [];
+    roundState.combatId = combat.id ?? '';
     await setRoundState(actor, roundState);
 }
 //# sourceMappingURL=action-economy.js.map

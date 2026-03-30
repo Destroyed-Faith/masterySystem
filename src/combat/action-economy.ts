@@ -14,6 +14,8 @@ export type AttributeKey = 'might' | 'agility' | 'vitality' | 'intellect' | 'res
  * Tracks action budgets, bonuses, and stone usage per round
  */
 export interface RoundState {
+  /** Foundry combat document id — stale state from a previous encounter is never reused. */
+  combatId?: string;
   round: number;
   turn: number;
   isPC: boolean;
@@ -62,11 +64,18 @@ export function isPC(actor: Actor | null | undefined): boolean {
  */
 export function getRoundState(actor: Actor, combat: Combat | null): RoundState {
   const stored = (actor as any).getFlag('mastery-system', 'roundState') as RoundState | undefined;
-  
-  if (stored && stored.round === (combat?.round || 1)) {
+  const combatId = (combat as any)?.id ?? '';
+  const round = combat?.round ?? 1;
+
+  // Must match encounter AND round — a new combat can start again at round 1 with a clean tracker.
+  if (
+    stored &&
+    stored.round === round &&
+    stored.combatId === combatId
+  ) {
     return stored;
   }
-  
+
   // Create default state
   const isPC = actor.type === 'character';
   const baseActions = {
@@ -74,8 +83,9 @@ export function getRoundState(actor: Actor, combat: Combat | null): RoundState {
     attackActions: { total: 1, used: 0 },
     reactionActions: { total: 1, used: 0 }
   };
-  
+
   return {
+    combatId,
     round: combat?.round || 1,
     turn: combat?.turn || 0,
     isPC,
@@ -159,17 +169,18 @@ export async function applyInitiativeShopBonuses(
   }
   
   const roundState = getRoundState(actor, combat);
-  
+  roundState.combatId = (combat as any).id ?? '';
+
   // Apply extra attack
   if (shopData.extraAttack) {
     roundState.attackActions.total += 1;
   }
-  
+
   // Apply extra movement (adds to distance bonus, not action count)
   if (shopData.extraMovement > 0) {
     roundState.moveBonusMeters += shopData.extraMovement * 2; // Each purchase = +2m
   }
-  
+
   // Store shop data in round state
   roundState.initiativeShop = {
     round: shopData.round,
@@ -553,7 +564,8 @@ export async function initializeCombatRoundState(combat: Combat): Promise<void> 
  */
 export async function resetTurnState(actor: Actor, combat: Combat | null): Promise<void> {
   const roundState = getRoundState(actor, combat);
-  
+  roundState.combatId = (combat as any)?.id ?? '';
+
   // Reset used counts
   roundState.movementActions.used = 0;
   roundState.attackActions.used = 0;
@@ -582,6 +594,7 @@ export async function resetRoundState(actor: Actor, combatant: Combatant, combat
   // Create fresh round state
   const isPC = actor.type === 'character';
   const roundState: RoundState = {
+    combatId: (combat as any).id ?? '',
     round: combat.round || 1,
     turn: combat.turn || 0,
     isPC,
@@ -606,6 +619,7 @@ export async function resetRoundState(actor: Actor, combatant: Combatant, combat
   }
 
   roundState.usedPowerIdsThisRound = [];
-  
+  roundState.combatId = (combat as any).id ?? '';
+
   await setRoundState(actor, roundState);
 }

@@ -10,6 +10,8 @@ export type AttributeKey = 'might' | 'agility' | 'vitality' | 'intellect' | 'res
  * Tracks action budgets, bonuses, and stone usage per round
  */
 export interface RoundState {
+    /** Foundry combat document id — stale state from a previous encounter is never reused. */
+    combatId?: string;
     round: number;
     turn: number;
     isPC: boolean;
