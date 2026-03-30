@@ -15,6 +15,7 @@ import { getAllCombatOptionsForActor, getSegmentIdForOption } from './radial-men
 import { clearRangePreview, clearRadialMenuRange } from './radial-menu/range-preview.js';
 import { hideRadialInfoPanel } from './radial-menu/info-panel.js';
 import { renderOuterRing, renderInnerSegments, refreshInnerSegmentsVisual } from './radial-menu/rendering.js';
+import { getActionEconomyActor } from './combat/action-economy.js';
 // Re-export for external use
 export { getAllCombatOptionsForActor };
 // Global state
@@ -31,7 +32,11 @@ export function refreshRadialMenuActionLabelsIfOpenForActor(actor) {
     if (!msRadialMenu || !msCurrentTokenId || !msRadialGetCurrentSegmentId)
         return;
     const token = canvas.tokens?.get(msCurrentTokenId);
-    if (!token?.actor || token.actor.id !== actor.id)
+    if (!token?.actor)
+        return;
+    const menuOwner = getActionEconomyActor(token.actor) ?? token.actor;
+    const updateOwner = getActionEconomyActor(actor) ?? actor;
+    if (menuOwner.id !== updateOwner.id)
         return;
     refreshInnerSegmentsVisual(msRadialMenu, msRadialGetCurrentSegmentId, token);
 }

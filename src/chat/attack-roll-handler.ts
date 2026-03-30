@@ -151,23 +151,28 @@ export function registerAttackRollClickHandler(): void {
           resetRollButton();
           return;
         }
-        const { getAvailableAttackActions, consumeAttackAction } = await import('../combat/action-economy.js');
-        if (getAvailableAttackActions(freshAttacker, combat) <= 0) {
+        const {
+          getAvailableAttackActions,
+          consumeAttackAction,
+          getActionEconomyActor
+        } = await import('../combat/action-economy.js');
+        const economyAttacker = getActionEconomyActor(freshAttacker) ?? freshAttacker;
+        if (getAvailableAttackActions(economyAttacker, combat) <= 0) {
           ui.notifications?.warn('No Actions left this round.');
           resetRollButton();
           return;
         }
-        const consumed = await consumeAttackAction(freshAttacker, combat);
+        const consumed = await consumeAttackAction(economyAttacker, combat);
         if (!consumed) {
           ui.notifications?.warn('Failed to consume attack action.');
           resetRollButton();
           return;
         }
         spentActionOnRoll = true;
-        actorToRefund = freshAttacker;
+        actorToRefund = economyAttacker;
         if (flags.selectedPowerId) {
           const { markPowerUsedThisRound } = await import('../combat/action-economy.js');
-          await markPowerUsedThisRound(freshAttacker, combat, flags.selectedPowerId);
+          await markPowerUsedThisRound(economyAttacker, combat, flags.selectedPowerId);
           markedPowerIdForRoll = flags.selectedPowerId;
         }
       }

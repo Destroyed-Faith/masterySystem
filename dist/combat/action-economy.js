@@ -11,10 +11,31 @@ export function isPC(actor) {
     return actor?.type === 'character';
 }
 /**
+ * Actor document that owns `mastery-system` roundState / stoneUsage flags for action economy.
+ *
+ * Unlinked PC tokens use a synthetic `token.actor`; stone powers opened from the combat tracker
+ * and other flows often update the **world** actor. Without this, the radial can show stone bonuses
+ * while chat attack rolls consume a different document (wrong used/total; powers "still available").
+ * NPCs keep per-token state so multiple unlinked copies of the same actor stay independent.
+ */
+export function getActionEconomyActor(actor) {
+    if (!actor)
+        return null;
+    const anyA = actor;
+    if (anyA.type !== 'character')
+        return actor;
+    const doc = anyA.token?.document;
+    if (!doc || doc.actorLink !== false)
+        return actor;
+    const world = game.actors?.get(doc.actorId);
+    return world || actor;
+}
+/**
  * Get round state from actor flags
  */
 export function getRoundState(actor, combat) {
-    const stored = actor.getFlag('mastery-system', 'roundState');
+    const owner = (getActionEconomyActor(actor) ?? actor);
+    const stored = owner.getFlag('mastery-system', 'roundState');
     const combatId = combat?.id ?? '';
     const round = combat?.round ?? 1;
     // Must match encounter AND round — a new combat can start again at round 1 with a clean tracker.
@@ -24,7 +45,7 @@ export function getRoundState(actor, combat) {
         return stored;
     }
     // Create default state
-    const isPC = actor.type === 'character';
+    const isPC = owner.type === 'character';
     const baseActions = {
         movementActions: { total: 1, used: 0 },
         attackActions: { total: 1, used: 0 },
@@ -49,8 +70,10 @@ export function getRoundState(actor, combat) {
  * Set round state on actor
  */
 export async function setRoundState(actor, state) {
-    await actor.setFlag('mastery-system', 'roundState', state);
-    Hooks.callAll('masterySystem.roundStateUpdated', { actorId: actor.id });
+    const owner = getActionEconomyActor(actor) ?? actor;
+    const o = owner;
+    await o.setFlag('mastery-system', 'roundState', state);
+    Hooks.callAll('masterySystem.roundStateUpdated', { actorId: o.id });
 }
 /**
  * Whether this power item has already been used this round (combat powers only).
@@ -194,22 +217,26 @@ export async function consumeMovementAction(actor, combat) {
  * Get stone usage count for an ability this turn
  */
 export function getStoneUsageCount(actor, attribute, abilityKey, combat) {
+    const owner = getActionEconomyActor(actor) ?? actor;
+    const o = owner;
     const round = combat?.round || 1;
     const turn = combat?.turn || 0;
     const usageKey = `${attribute}:${abilityKey}:${round}:${turn}`;
-    const stoneUsage = actor.getFlag('mastery-system', 'stoneUsage');
+    const stoneUsage = o.getFlag('mastery-system', 'stoneUsage');
     return stoneUsage?.[usageKey] || 0;
 }
 /**
  * Increment stone usage count for an ability this turn
  */
 export async function incrementStoneUsage(actor, attribute, abilityKey, combat) {
+    const owner = getActionEconomyActor(actor) ?? actor;
+    const o = owner;
     const round = combat?.round || 1;
     const turn = combat?.turn || 0;
     const usageKey = `${attribute}:${abilityKey}:${round}:${turn}`;
-    const stoneUsage = actor.getFlag('mastery-system', 'stoneUsage') || {};
+    const stoneUsage = o.getFlag('mastery-system', 'stoneUsage') || {};
     stoneUsage[usageKey] = (stoneUsage[usageKey] || 0) + 1;
-    await actor.setFlag('mastery-system', 'stoneUsage', stoneUsage);
+    await o.setFlag('mastery-system', 'stoneUsage', stoneUsage);
 }
 /**
  * Calculate exponential stone cost: 2^(usesThisTurn)
@@ -397,8 +424,9 @@ export async function initializeCombatRoundState(combat) {
         // Reset round state
         const roundState = getRoundState(actor, combat);
         await setRoundState(actor, roundState);
-        // Reset stone usage
-        await actor.setFlag('mastery-system', 'stoneUsage', {});
+        // Reset stone usage (same owner as roundState for unlinked PCs)
+        const flagOwner = getActionEconomyActor(actor) ?? actor;
+        await flagOwner.setFlag('mastery-system', 'stoneUsage', {});
         // For PCs: apply initiative shop bonuses if any
         if (isPC(actor)) {
             await applyInitiativeShopBonuses(actor, combatant, combat);
@@ -410,6 +438,8 @@ export async function initializeCombatRoundState(combat) {
  * Resets used counts but keeps totals and bonuses
  */
 export async function resetTurnState(actor, combat) {
+    const owner = getActionEconomyActor(actor) ?? actor;
+    const o = owner;
     const roundState = getRoundState(actor, combat);
     roundState.combatId = combat?.id ?? '';
     // Reset used counts
@@ -417,7 +447,7 @@ export async function resetTurnState(actor, combat) {
     roundState.attackActions.used = 0;
     roundState.reactionActions.used = 0;
     // Clear stone usage for this turn (keep round-level usage)
-    const stoneUsage = actor.getFlag('mastery-system', 'stoneUsage') || {};
+    const stoneUsage = o.getFlag('mastery-system', 'stoneUsage') || {};
     const round = combat?.round || 1;
     const turn = combat?.turn || 0;
     // Remove all keys for this turn
@@ -425,7 +455,7 @@ export async function resetTurnState(actor, combat) {
     for (const key of keysToRemove) {
         delete stoneUsage[key];
     }
-    await actor.setFlag('mastery-system', 'stoneUsage', stoneUsage);
+    await o.setFlag('mastery-system', 'stoneUsage', stoneUsage);
     await setRoundState(actor, roundState);
 }
 /**

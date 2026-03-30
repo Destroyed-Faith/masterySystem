@@ -60,6 +60,15 @@ export type StoneUsageKey = string;
  */
 export declare function isPC(actor: Actor | null | undefined): boolean;
 /**
+ * Actor document that owns `mastery-system` roundState / stoneUsage flags for action economy.
+ *
+ * Unlinked PC tokens use a synthetic `token.actor`; stone powers opened from the combat tracker
+ * and other flows often update the **world** actor. Without this, the radial can show stone bonuses
+ * while chat attack rolls consume a different document (wrong used/total; powers "still available").
+ * NPCs keep per-token state so multiple unlinked copies of the same actor stay independent.
+ */
+export declare function getActionEconomyActor(actor: Actor | null | undefined): Actor | null;
+/**
  * Get round state from actor flags
  */
 export declare function getRoundState(actor: Actor, combat: Combat | null): RoundState;
