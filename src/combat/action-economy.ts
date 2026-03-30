@@ -60,21 +60,59 @@ export function isPC(actor: Actor | null | undefined): boolean {
 }
 
 /**
+ * Find a placed token document for this actor id (combat first, then canvas).
+ * `game.actors.get(id)` often has no `actor.token`, so we cannot detect unlinked from it alone.
+ */
+function findPlacedTokenDocumentForActorId(actorId: string): any | null {
+  const combat = (game as any).combat;
+  if (combat?.combatants?.size) {
+    for (const c of combat.combatants) {
+      const t = (c as any).token;
+      if (!t) continue;
+      const ca = (c as any).actor;
+      if (ca?.id === actorId || t.actorId === actorId) return t;
+    }
+  }
+  const placeables = (canvas as any)?.tokens?.placeables;
+  if (placeables?.length) {
+    for (const tok of placeables) {
+      const td = tok.document;
+      if (tok.actor?.id === actorId || td?.actorId === actorId) return td;
+    }
+  }
+  return null;
+}
+
+/**
  * Actor document that owns `mastery-system` roundState / stoneUsage flags for action economy.
  *
- * Unlinked PC tokens use a synthetic `token.actor`; stone powers opened from the combat tracker
- * and other flows often update the **world** actor. Without this, the radial can show stone bonuses
- * while chat attack rolls consume a different document (wrong used/total; powers "still available").
- * NPCs keep per-token state so multiple unlinked copies of the same actor stay independent.
+ * Unlinked PC tokens use a synthetic `token.actor` on the canvas; stone powers and `game.actors.get`
+ * often refer to the **prototype** actor. Only `actorLink === true` is treated as linked; any other
+ * value (false / undefined) uses the prototype so tracker, radial, and chat agree.
+ * NPCs stay per-actor (no redirect) so multiple unlinked copies remain independent.
  */
 export function getActionEconomyActor(actor: Actor | null | undefined): Actor | null {
   if (!actor) return null;
   const anyA = actor as any;
   if (anyA.type !== 'character') return actor;
-  const doc = anyA.token?.document;
-  if (!doc || doc.actorLink !== false) return actor;
-  const world = (game as any).actors?.get(doc.actorId);
-  return (world as Actor) || actor;
+
+  let doc = anyA.token?.document;
+  if (!doc) {
+    doc = findPlacedTokenDocumentForActorId(anyA.id);
+  }
+
+  if (doc?.actorLink === true) {
+    return actor;
+  }
+
+  const baseId: string | undefined = doc?.actorId ?? anyA.id;
+  if (baseId) {
+    const world = (game as any).actors?.get(baseId);
+    if (world && (world as any).type === 'character') {
+      return world as Actor;
+    }
+  }
+  return actor;
 }
 
 /**
