@@ -6,7 +6,7 @@
  */
 
 import type { RadialCombatOption, TargetGroup } from './token-radial-menu';
-import { consumeAttackAction, getAvailableAttackActions } from './combat/action-economy';
+import { consumeAttackAction, getAvailableAttackActions, markPowerUsedThisRound } from './combat/action-economy';
 
 /**
  * Utility target state for a candidate token
@@ -999,6 +999,10 @@ async function confirmUtilityTargets(state: UtilityTargetingState): Promise<void
       option: state.option.name,
       targetCount: targets.length
     });
+  }
+
+  if (state.option.source === 'power' && state.option.item?.id && actor && combat) {
+    await markPowerUsedThisRound(actor, combat, state.option.item.id);
   }
 
   console.log('Mastery System | Utility confirmed:', {

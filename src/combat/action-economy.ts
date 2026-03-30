@@ -27,6 +27,8 @@ export interface RoundState {
     initiativeSwap: boolean;
     extraAttack: boolean;
   };
+  /** Power item IDs already used this combat round (max one use per power per round). */
+  usedPowerIdsThisRound?: string[];
   stoneBonuses?: {
     extraAttacks: number;
     extraReactions: number;
@@ -79,6 +81,7 @@ export function getRoundState(actor: Actor, combat: Combat | null): RoundState {
     isPC,
     ...baseActions,
     moveBonusMeters: 0,
+    usedPowerIdsThisRound: [],
     stoneBonuses: {
       extraAttacks: 0,
       extraReactions: 0,
@@ -92,6 +95,51 @@ export function getRoundState(actor: Actor, combat: Combat | null): RoundState {
  */
 export async function setRoundState(actor: Actor, state: RoundState): Promise<void> {
   await (actor as any).setFlag('mastery-system', 'roundState', state);
+  Hooks.callAll('masterySystem.roundStateUpdated', { actorId: (actor as any).id });
+}
+
+/**
+ * Whether this power item has already been used this round (combat powers only).
+ */
+export function hasPowerBeenUsedThisRound(
+  actor: Actor,
+  combat: Combat | null,
+  powerItemId: string
+): boolean {
+  const rs = getRoundState(actor, combat);
+  return (rs.usedPowerIdsThisRound ?? []).includes(powerItemId);
+}
+
+/**
+ * Record a power as used this round. No-op if already recorded.
+ */
+export async function markPowerUsedThisRound(
+  actor: Actor,
+  combat: Combat | null,
+  powerItemId: string
+): Promise<void> {
+  if (!powerItemId) return;
+  const rs = getRoundState(actor, combat);
+  const arr = rs.usedPowerIdsThisRound ?? [];
+  if (arr.includes(powerItemId)) return;
+  rs.usedPowerIdsThisRound = [...arr, powerItemId];
+  await setRoundState(actor, rs);
+}
+
+/**
+ * Undo mark (e.g. attack roll failed after spending an action).
+ */
+export async function unmarkPowerUsedThisRound(
+  actor: Actor,
+  combat: Combat | null,
+  powerItemId: string
+): Promise<void> {
+  if (!powerItemId) return;
+  const rs = getRoundState(actor, combat);
+  const arr = rs.usedPowerIdsThisRound ?? [];
+  if (!arr.length) return;
+  rs.usedPowerIdsThisRound = arr.filter((id) => id !== powerItemId);
+  await setRoundState(actor, rs);
 }
 
 /**
@@ -541,6 +589,7 @@ export async function resetRoundState(actor: Actor, combatant: Combatant, combat
     attackActions: { total: 1, used: 0 },
     reactionActions: { total: 1, used: 0 },
     moveBonusMeters: 0,
+    usedPowerIdsThisRound: [],
     stoneBonuses: {
       extraAttacks: 0,
       extraReactions: 0,
@@ -555,6 +604,8 @@ export async function resetRoundState(actor: Actor, combatant: Combatant, combat
     const updated = getRoundState(actor, combat);
     Object.assign(roundState, updated);
   }
+
+  roundState.usedPowerIdsThisRound = [];
   
   await setRoundState(actor, roundState);
 }

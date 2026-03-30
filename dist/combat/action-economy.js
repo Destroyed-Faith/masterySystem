@@ -31,6 +31,7 @@ export function getRoundState(actor, combat) {
         isPC,
         ...baseActions,
         moveBonusMeters: 0,
+        usedPowerIdsThisRound: [],
         stoneBonuses: {
             extraAttacks: 0,
             extraReactions: 0,
@@ -43,6 +44,40 @@ export function getRoundState(actor, combat) {
  */
 export async function setRoundState(actor, state) {
     await actor.setFlag('mastery-system', 'roundState', state);
+    Hooks.callAll('masterySystem.roundStateUpdated', { actorId: actor.id });
+}
+/**
+ * Whether this power item has already been used this round (combat powers only).
+ */
+export function hasPowerBeenUsedThisRound(actor, combat, powerItemId) {
+    const rs = getRoundState(actor, combat);
+    return (rs.usedPowerIdsThisRound ?? []).includes(powerItemId);
+}
+/**
+ * Record a power as used this round. No-op if already recorded.
+ */
+export async function markPowerUsedThisRound(actor, combat, powerItemId) {
+    if (!powerItemId)
+        return;
+    const rs = getRoundState(actor, combat);
+    const arr = rs.usedPowerIdsThisRound ?? [];
+    if (arr.includes(powerItemId))
+        return;
+    rs.usedPowerIdsThisRound = [...arr, powerItemId];
+    await setRoundState(actor, rs);
+}
+/**
+ * Undo mark (e.g. attack roll failed after spending an action).
+ */
+export async function unmarkPowerUsedThisRound(actor, combat, powerItemId) {
+    if (!powerItemId)
+        return;
+    const rs = getRoundState(actor, combat);
+    const arr = rs.usedPowerIdsThisRound ?? [];
+    if (!arr.length)
+        return;
+    rs.usedPowerIdsThisRound = arr.filter((id) => id !== powerItemId);
+    await setRoundState(actor, rs);
 }
 /**
  * Apply initiative shop bonuses to round state
@@ -399,6 +434,7 @@ export async function resetRoundState(actor, combatant, combat) {
         attackActions: { total: 1, used: 0 },
         reactionActions: { total: 1, used: 0 },
         moveBonusMeters: 0,
+        usedPowerIdsThisRound: [],
         stoneBonuses: {
             extraAttacks: 0,
             extraReactions: 0,
@@ -412,6 +448,7 @@ export async function resetRoundState(actor, combatant, combat) {
         const updated = getRoundState(actor, combat);
         Object.assign(roundState, updated);
     }
+    roundState.usedPowerIdsThisRound = [];
     await setRoundState(actor, roundState);
 }
 //# sourceMappingURL=action-economy.js.map

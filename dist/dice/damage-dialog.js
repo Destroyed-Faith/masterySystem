@@ -592,6 +592,38 @@ function createDamageCardContent(attacker, target, baseDamage, powerDamage, pass
     return html;
 }
 /**
+ * Each raise can spend a given Special at most once across all raise dropdowns.
+ */
+function refreshRaiseSpecialExclusivity(messageElement) {
+    const $selects = messageElement.find(".raise-selection");
+    $selects.each(function () {
+        const $sel = $(this);
+        const myVal = $sel.val() || "";
+        const takenElsewhere = new Set();
+        $selects.each(function () {
+            if (this === $sel[0])
+                return;
+            const v = $(this).val() || "";
+            if (v.startsWith("special:"))
+                takenElsewhere.add(v);
+        });
+        $sel.find("option").each(function () {
+            const $opt = $(this);
+            const val = $opt.attr("value") || "";
+            if (!val.startsWith("special:")) {
+                $opt.prop("disabled", false);
+                return;
+            }
+            const blocked = takenElsewhere.has(val) && val !== myVal;
+            $opt.prop("disabled", blocked);
+        });
+        const $chosen = $sel.find("option:selected");
+        if ($chosen.length && $chosen.prop("disabled")) {
+            $sel.val("");
+        }
+    });
+}
+/**
  * Initialize damage card UI and event handlers
  */
 function initializeDamageCard(messageId, resolve) {
@@ -600,7 +632,7 @@ function initializeDamageCard(messageId, resolve) {
         console.warn('Mastery System | Could not find damage card message element', messageId);
         return;
     }
-    // Handle raise selection changes
+    // Handle raise selection changes (legacy nested special-select + exclusivity for inline specials)
     messageElement.find('.raise-selection').on('change', function () {
         const raiseIndex = parseInt($(this).data('raise-index'));
         const selectionType = $(this).val();
@@ -614,7 +646,9 @@ function initializeDamageCard(messageId, resolve) {
         else {
             specialSelect.hide();
         }
+        refreshRaiseSpecialExclusivity(messageElement);
     });
+    refreshRaiseSpecialExclusivity(messageElement);
     // Handle roll damage button
     messageElement.find('.roll-damage-btn').on('click', async function () {
         console.log('Mastery System | [ROLL DAMAGE BUTTON] Button clicked', {
@@ -988,19 +1022,32 @@ async function calculateDamageResult(baseDamage, powerDamage, passiveDamage, rai
     const sanitizedBaseDamage = sanitizeDiceNotation(baseDamage || '0');
     const sanitizedPowerDamage = sanitizeDiceNotation(powerDamage || '0');
     const sanitizedPassiveDamage = sanitizeDiceNotation(passiveDamage || '0');
-    const baseDamageRolled = await rollDice(sanitizedBaseDamage);
-    // Roll power damage
-    const powerDamageRolled = await rollDice(sanitizedPowerDamage);
-    // Roll passive damage
-    const passiveDamageRolled = await rollDice(sanitizedPassiveDamage);
+    const rollDetails = [];
+    const baseRoll = rollDiceWithDetail(sanitizedBaseDamage, 'Base weapon');
+    const baseDamageRolled = baseRoll.total;
+    if (baseRoll.line)
+        rollDetails.push(baseRoll.line);
+    const powerRoll = rollDiceWithDetail(sanitizedPowerDamage, 'Power');
+    const powerDamageRolled = powerRoll.total;
+    if (powerRoll.line)
+        rollDetails.push(powerRoll.line);
+    const passiveRoll = rollDiceWithDetail(sanitizedPassiveDamage, 'Passive');
+    const passiveDamageRolled = passiveRoll.total;
+    if (passiveRoll.line)
+        rollDetails.push(passiveRoll.line);
     // Calculate raise damage and collect specials
     let raiseDamage = 0;
     const specialsUsed = [];
+    let raiseDiceCount = 0;
     for (let i = 0; i < raises; i++) {
         const selection = raiseSelections.get(i);
         if (selection) {
             if (selection.type === 'damage') {
-                raiseDamage += await rollDice('1d8');
+                raiseDiceCount += 1;
+                const r = rollDiceWithDetail('1d8', `Raise ${raiseDiceCount} (+1d8)`);
+                raiseDamage += r.total;
+                if (r.line)
+                    rollDetails.push(r.line);
             }
             else if (selection.type === 'special') {
                 const special = availableSpecials.find(s => s.id === selection.value);
@@ -1019,6 +1066,7 @@ async function calculateDamageResult(baseDamage, powerDamage, passiveDamage, rai
         raiseDamage,
         totalDamage,
         specialsUsed,
+        rollDetails,
         calculation: `Base (${baseDamageRolled}) + Power (${powerDamageRolled}) + Raises (${raiseDamage}) = ${totalDamage}`
     });
     // Apply status effects from specials to target
@@ -1035,34 +1083,75 @@ async function calculateDamageResult(baseDamage, powerDamage, passiveDamage, rai
         passiveDamage: passiveDamageRolled,
         raiseDamage,
         specialsUsed,
-        totalDamage
+        totalDamage,
+        rollDetails: rollDetails.length ? rollDetails : undefined
     };
     console.log('Mastery System | [CALCULATE DAMAGE] Returning result', result);
     return result;
+}
+/** Short text of individual dice results for chat (Foundry Roll v13). */
+function summarizeRollDiceFaces(roll) {
+    const formula = roll?.formula ?? '';
+    try {
+        const chunks = [];
+        for (const term of roll.terms || []) {
+            const results = term?.results;
+            if (Array.isArray(results) && results.length > 0) {
+                const faces = term.faces ?? "?";
+                const vals = results
+                    .filter((r) => r && r.active !== false)
+                    .map((r) => r.result);
+                if (vals.length)
+                    chunks.push(`${vals.length}d${faces}: [${vals.join(", ")}]`);
+            }
+        }
+        if (chunks.length)
+            return `${formula} → ${chunks.join(" + ")}`;
+    }
+    catch {
+        /* ignore */
+    }
+    return formula || "—";
+}
+/**
+ * Roll one damage pool synchronously; returns total and a chat line (omit line when 0 and no roll).
+ */
+function rollDiceWithDetail(diceNotation, label) {
+    if (!diceNotation || diceNotation === "0") {
+        return { total: 0, line: "" };
+    }
+    const formula = sanitizeDiceNotation(diceNotation);
+    if (formula === "0") {
+        return { total: 0, line: "" };
+    }
+    try {
+        const RollCtor = globalThis.Roll;
+        const roll = new RollCtor(formula);
+        if (typeof roll.evaluateSync === "function") {
+            roll.evaluateSync();
+        }
+        else {
+            roll.evaluate({ async: false });
+        }
+        const total = roll.total ?? 0;
+        const detail = summarizeRollDiceFaces(roll);
+        const line = `${label}: ${detail} → ${total}`;
+        return { total, line };
+    }
+    catch (error) {
+        console.warn("Mastery System | Error rolling dice formula:", formula, error);
+        const num = parseInt(formula, 10);
+        if (!isNaN(num))
+            return { total: num, line: `${label}: ${num} (flat)` };
+        return { total: 0, line: "" };
+    }
 }
 /**
  * Roll dice from notation string using Foundry Roll
  * Supports full Foundry Roll formulas like "1d8 + 1d8", "2d8 + 3d8 + 2"
  */
 async function rollDice(diceNotation) {
-    if (!diceNotation || diceNotation === '0')
-        return 0;
-    // Sanitize dice notation to get a valid Roll formula
-    const formula = sanitizeDiceNotation(diceNotation);
-    if (formula === '0')
-        return 0;
-    try {
-        // Use Foundry Roll to evaluate the full formula
-        const roll = new Roll(formula);
-        await roll.evaluate({ async: true });
-        return roll.total ?? 0;
-    }
-    catch (error) {
-        console.warn('Mastery System | Error rolling dice formula:', formula, error);
-        // Fallback: try to parse as a simple number
-        const num = parseInt(formula);
-        return isNaN(num) ? 0 : num;
-    }
+    return rollDiceWithDetail(diceNotation, "Roll").total;
 }
 // DamageDialog class removed - now using chat messages instead
 // The following code is kept for reference but not used:

@@ -15,6 +15,10 @@ import { getAllCombatOptionsForActor } from './radial-menu/options';
 export { getAllCombatOptionsForActor };
 export type { RadialCombatOption, InnerSegment, TargetGroup, AoEShape } from './radial-menu/types';
 /**
+ * Refresh inner-segment action labels if the radial menu is open for this actor's token.
+ */
+export declare function refreshRadialMenuActionLabelsIfOpenForActor(actor: Actor): void;
+/**
  * Close the radial menu and clean up
  */
 export declare function closeRadialMenu(): void;

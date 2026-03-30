@@ -127,6 +127,7 @@ export function registerAttackRollClickHandler(): void {
 
     let spentActionOnRoll = false;
     let actorToRefund: any = null;
+    let markedPowerIdForRoll: string | null = null;
 
     try {
       // Import the roll handler (must use .js extension for ES modules in Foundry VTT)
@@ -164,6 +165,11 @@ export function registerAttackRollClickHandler(): void {
         }
         spentActionOnRoll = true;
         actorToRefund = freshAttacker;
+        if (flags.selectedPowerId) {
+          const { markPowerUsedThisRound } = await import('../combat/action-economy.js');
+          await markPowerUsedThisRound(freshAttacker, combat, flags.selectedPowerId);
+          markedPowerIdForRoll = flags.selectedPowerId;
+        }
       }
       
       // Debug: Log actor items to verify we have latest data
@@ -614,8 +620,11 @@ export function registerAttackRollClickHandler(): void {
     } catch (error) {
       if (spentActionOnRoll && actorToRefund) {
         try {
-          const { refundAttackAction } = await import('../combat/action-economy.js');
+          const { refundAttackAction, unmarkPowerUsedThisRound } = await import('../combat/action-economy.js');
           await refundAttackAction(actorToRefund, (game as any).combat);
+          if (markedPowerIdForRoll) {
+            await unmarkPowerUsedThisRound(actorToRefund, (game as any).combat, markedPowerIdForRoll);
+          }
         } catch (refundErr) {
           console.warn('Mastery System | Could not refund attack action after failed roll', refundErr);
         }
@@ -655,13 +664,24 @@ async function rollAndDisplayDamage(
   const damageText = damageBreakdown.length > 0 
     ? damageBreakdown.join(', ') 
     : `${damageResult.totalDamage} damage`;
+
+  const details = Array.isArray(damageResult.rollDetails) ? (damageResult.rollDetails as string[]) : [];
+  const esc = (s: string) =>
+    s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  const rollsHtml =
+    details.length > 0
+      ? `<div class="mastery-damage-rolls"><strong>Rolled</strong><ul class="mastery-damage-roll-list">${details
+          .map((line) => `<li>${esc(line)}</li>`)
+          .join("")}</ul></div>`
+      : "";
   
   const attackerToken = (attacker as any).getActiveTokens?.()?.[0]?.document || null;
   const chatData: any = {
     speaker: ChatMessage.getSpeaker({ actor: attacker, token: attackerToken }),
     content: `<div class="mastery-system-damage">
       <h3><i class="fas fa-sword"></i> Damage: ${damageResult.totalDamage}</h3>
-      <p>${damageText}</p>
+      ${rollsHtml}
+      <p class="mastery-damage-summary">${damageText}</p>
       <p><strong>Target:</strong> ${(target as any).name}</p>
     </div>`,
     style: CONST.CHAT_MESSAGE_STYLES.OTHER

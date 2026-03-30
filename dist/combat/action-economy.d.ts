@@ -32,6 +32,8 @@ export interface RoundState {
         initiativeSwap: boolean;
         extraAttack: boolean;
     };
+    /** Power item IDs already used this combat round (max one use per power per round). */
+    usedPowerIdsThisRound?: string[];
     stoneBonuses?: {
         extraAttacks: number;
         extraReactions: number;
@@ -63,6 +65,18 @@ export declare function getRoundState(actor: Actor, combat: Combat | null): Roun
  * Set round state on actor
  */
 export declare function setRoundState(actor: Actor, state: RoundState): Promise<void>;
+/**
+ * Whether this power item has already been used this round (combat powers only).
+ */
+export declare function hasPowerBeenUsedThisRound(actor: Actor, combat: Combat | null, powerItemId: string): boolean;
+/**
+ * Record a power as used this round. No-op if already recorded.
+ */
+export declare function markPowerUsedThisRound(actor: Actor, combat: Combat | null, powerItemId: string): Promise<void>;
+/**
+ * Undo mark (e.g. attack roll failed after spending an action).
+ */
+export declare function unmarkPowerUsedThisRound(actor: Actor, combat: Combat | null, powerItemId: string): Promise<void>;
 /**
  * Apply initiative shop bonuses to round state
  * Called when shop purchases are made or at start of round

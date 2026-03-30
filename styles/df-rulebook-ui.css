@@ -1198,6 +1198,30 @@
   font-weight: 600;
 }
 
+#chat-log .mastery-system-damage .mastery-damage-rolls {
+  margin: 8px 0;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.85rem;
+  color: var(--df-text-primary);
+}
+
+#chat-log .mastery-system-damage .mastery-damage-rolls strong {
+  color: var(--df-text-secondary);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+#chat-log .mastery-system-damage .mastery-damage-roll-list {
+  margin: 4px 0 0 0;
+  padding-left: 1.2rem;
+  list-style: disc;
+}
+
+#chat-log .mastery-system-damage .mastery-damage-roll-list li {
+  margin: 2px 0;
+}
+
 /* ========================================
    Mastery System Info Cards
    ======================================== */

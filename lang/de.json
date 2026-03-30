@@ -1,0 +1,50 @@
+{
+  "MASTERY": {
+    "system": {
+      "name": "Mastery System / Destroyed Faith",
+      "version": "0.0.2"
+    },
+    "attributes": {
+      "might": "Macht",
+      "agility": "Agilität",
+      "vitality": "Vitalität",
+      "intellect": "Intellekt",
+      "resolve": "Entschlossenheit",
+      "influence": "Einfluss",
+      "wits": "Scharfsinn"
+    },
+    "resources": {
+      "stones": "Steine",
+      "vitality": "Vitalität",
+      "health": "Gesundheit",
+      "stress": "Stress"
+    },
+    "ui": {
+      "addSkill": "Fertigkeit hinzufügen",
+      "deleteSkill": "Fertigkeit löschen",
+      "addPower": "Power hinzufügen",
+      "roll": "Wurf",
+      "targetNumber": "Zielwert",
+      "success": "ERFOLG",
+      "failure": "MISSERFOLG",
+      "raises": "Raises"
+    },
+    "divineClash": {
+      "start": "Göttliches Aufeinandertreffen: Start",
+      "reveal": "Göttliches Aufeinandertreffen: Aufdecken",
+      "endRound": "Göttliches Aufeinandertreffen: Runde beenden",
+      "reset": "Göttliches Aufeinandertreffen: Zurücksetzen",
+      "started": "Göttliches Aufeinandertreffen gestartet",
+      "revealed": "Göttliches Aufeinandertreffen aufgedeckt",
+      "roundEnded": "Runde beendet",
+      "resetComplete": "Göttliches Aufeinandertreffen zurückgesetzt",
+      "notStarted": "Göttliches Aufeinandertreffen nicht gestartet",
+      "gmOnly": "Nur die SL kann diese Aktion ausführen",
+      "noScene": "Szene für Göttliches Aufeinandertreffen nicht gefunden",
+      "noTokens": "Bitte mindestens einen Charaktertoken auswählen"
+    },
+    "combat": {
+      "powerAlreadyUsedThisRound": "Diese Power wurde in dieser Runde bereits genutzt."
+    }
+  }
+}

@@ -42,6 +42,9 @@
       "gmOnly": "Only the GM can perform this action",
       "noScene": "Divine Clash scene not found",
       "noTokens": "Please select at least one character token"
+    },
+    "combat": {
+      "powerAlreadyUsedThisRound": "This power has already been used this round."
     }
   }
 }

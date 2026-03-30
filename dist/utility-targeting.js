@@ -4,7 +4,7 @@
  * Provides targeting preview and selection for utility powers, especially AoE utilities
  * Supports single-target and radius AoE with manual target selection
  */
-import { consumeAttackAction, getAvailableAttackActions } from './combat/action-economy.js';
+import { consumeAttackAction, getAvailableAttackActions, markPowerUsedThisRound } from './combat/action-economy.js';
 // Global utility targeting state
 let activeUtilityTargeting = null;
 /**
@@ -877,6 +877,9 @@ async function confirmUtilityTargets(state) {
             option: state.option.name,
             targetCount: targets.length
         });
+    }
+    if (state.option.source === 'power' && state.option.item?.id && actor && combat) {
+        await markPowerUsedThisRound(actor, combat, state.option.item.id);
     }
     console.log('Mastery System | Utility confirmed:', {
         caster: state.casterToken.name,

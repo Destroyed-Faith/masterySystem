@@ -22,6 +22,19 @@ let msRadialMenu = null;
 let msRadialCloseHandler = null;
 let msTokenHUD = null; // Reference to the Token HUD element to hide/show
 let msCurrentTokenId = null; // ID of token with open radial menu
+/** Segment getter for the open menu — used to refresh action-count labels when round state changes. */
+let msRadialGetCurrentSegmentId = null;
+/**
+ * Refresh inner-segment action labels if the radial menu is open for this actor's token.
+ */
+export function refreshRadialMenuActionLabelsIfOpenForActor(actor) {
+    if (!msRadialMenu || !msCurrentTokenId || !msRadialGetCurrentSegmentId)
+        return;
+    const token = canvas.tokens?.get(msCurrentTokenId);
+    if (!token?.actor || token.actor.id !== actor.id)
+        return;
+    refreshInnerSegmentsVisual(msRadialMenu, msRadialGetCurrentSegmentId, token);
+}
 /**
  * Close the radial menu and clean up
  */
@@ -35,6 +48,7 @@ export function closeRadialMenu() {
         msRadialMenu.parent.removeChild(msRadialMenu);
     }
     msRadialMenu = null;
+    msRadialGetCurrentSegmentId = null;
     if (msRadialCloseHandler) {
         window.removeEventListener('mousedown', msRadialCloseHandler, true);
         msRadialCloseHandler = null;
@@ -311,6 +325,7 @@ export function openRadialMenuForActor(token, allOptions) {
     root.position.set(tokenCenter.x, tokenCenter.y);
     // State management functions
     const getCurrentSegmentId = () => currentSegmentId;
+    msRadialGetCurrentSegmentId = getCurrentSegmentId;
     const setCurrentSegmentId = (id) => {
         console.log(`Mastery System | [setCurrentSegmentId] Called with id="${id}", current="${currentSegmentId}"`);
         if (currentSegmentId === id) {

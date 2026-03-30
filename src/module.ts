@@ -16,6 +16,7 @@ import { ArtifactSheetV2 } from './sheets/artifact-sheet-v2.js';
 // import { initializeCombatHooks } from '../dist/combat/initiative.js';
 import { calculateStones } from './utils/calculations.js';
 import { initializeTokenActionSelector } from './token-action-selector.js';
+import { refreshRadialMenuActionLabelsIfOpenForActor } from './token-radial-menu.js';
 import { initializeTurnIndicator } from './turn-indicator.js';
 import { handleRadialMenuOpened, handleRadialMenuClosed } from './radial-menu/rendering.js';
 import { registerAttackRollClickHandler } from './chat/attack-roll-handler.js';
@@ -576,6 +577,12 @@ Hooks.once('init', async function() {
 
   // Initialize token action selector
   initializeTokenActionSelector();
+
+  // Keep radial inner labels (Move / Atk / … counts) in sync when round state changes elsewhere (e.g. chat roll)
+  Hooks.on('masterySystem.roundStateUpdated', ({ actorId }: { actorId: string }) => {
+    const actor = game.actors?.get(actorId) as Actor | undefined;
+    if (actor) refreshRadialMenuActionLabelsIfOpenForActor(actor);
+  });
   
   // Initialize turn indicator (blue ring around active combatant)
   initializeTurnIndicator();

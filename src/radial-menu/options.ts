@@ -6,6 +6,7 @@ import type { CombatSlot, CombatManeuver } from '../system/combat-maneuvers';
 import { getAvailableManeuvers } from '../system/combat-maneuvers';
 import type { RadialCombatOption, TargetGroup, AoEShape, InnerSegment } from './types';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
+import { hasPowerBeenUsedThisRound } from '../combat/action-economy.js';
 
 /**
  * Parse range string (e.g., "8m", "12m", "Self") to numeric meters
@@ -404,6 +405,11 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
     
     // Only include combat-usable powers
     if (!['movement', 'active', 'active-buff', 'buff', 'utility', 'reaction'].includes(powerType)) {
+      continue;
+    }
+
+    const combat = game.combat;
+    if (combat && hasPowerBeenUsedThisRound(actor as Actor, combat, item.id)) {
       continue;
     }
     

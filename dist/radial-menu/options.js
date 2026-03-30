@@ -3,6 +3,7 @@
  */
 import { getAvailableManeuvers } from '../system/combat-maneuvers.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
+import { hasPowerBeenUsedThisRound } from '../combat/action-economy.js';
 /**
  * Parse range string (e.g., "8m", "12m", "Self") to numeric meters
  */
@@ -347,6 +348,10 @@ export async function getAllCombatOptionsForActor(actor) {
             continue;
         // Only include combat-usable powers
         if (!['movement', 'active', 'active-buff', 'buff', 'utility', 'reaction'].includes(powerType)) {
+            continue;
+        }
+        const combat = game.combat;
+        if (combat && hasPowerBeenUsedThisRound(actor, combat, item.id)) {
             continue;
         }
         // Map power type to slot

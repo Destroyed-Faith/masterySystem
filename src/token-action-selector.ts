@@ -18,7 +18,9 @@ import {
   getAvailableMovementActions,
   consumeAttackAction,
   consumeMovementAction,
-  refundAttackAction
+  refundAttackAction,
+  markPowerUsedThisRound,
+  hasPowerBeenUsedThisRound
 } from './combat/action-economy';
 
 /**
@@ -811,13 +813,21 @@ export function endGuidedMovement(success: boolean): void {
   
   // Reset token alpha
   state.token.alpha = state.originalAlpha;
-  
-  // Clear state
-  activeMovementState = null;
-  
-  if (!success) {
+
+  if (success) {
+    const opt = state.option;
+    if (opt.source === 'power' && opt.item?.id) {
+      const combat = game.combat;
+      const act = state.token?.actor;
+      if (combat && act) {
+        void markPowerUsedThisRound(act, combat, opt.item.id);
+      }
+    }
+  } else {
     ui.notifications.info('Movement cancelled');
   }
+
+  activeMovementState = null;
 }
 
 // Removed getTurnState - now using RoundState from action-economy.ts
@@ -863,6 +873,18 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
   const actor = token.actor;
   if (!actor) {
     ui.notifications?.warn('No actor found for token!');
+    return;
+  }
+
+  if (
+    option.source === 'power' &&
+    option.item?.id &&
+    hasPowerBeenUsedThisRound(actor, combat, option.item.id)
+  ) {
+    ui.notifications?.warn(
+      game?.i18n?.localize('MASTERY.combat.powerAlreadyUsedThisRound') ??
+        'This power has already been used this round.'
+    );
     return;
   }
 
@@ -928,6 +950,9 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
       console.warn('Mastery System | [RADIAL FLOW] active buff: refunded attack (activation failed)');
     }
     if (success) {
+      if (option.item?.id) {
+        await markPowerUsedThisRound(actor, combat, option.item.id);
+      }
       // Refresh token HUD to show updated status
       if (token.hud) {
         token.hud.render();

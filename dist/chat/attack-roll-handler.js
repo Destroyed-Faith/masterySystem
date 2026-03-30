@@ -112,6 +112,7 @@ export function registerAttackRollClickHandler() {
         console.log('Mastery System | DEBUG: Starting attack roll...');
         let spentActionOnRoll = false;
         let actorToRefund = null;
+        let markedPowerIdForRoll = null;
         try {
             // Import the roll handler (must use .js extension for ES modules in Foundry VTT)
             const { masteryRoll } = await import('../dice/roll-handler.js');
@@ -145,6 +146,11 @@ export function registerAttackRollClickHandler() {
                 }
                 spentActionOnRoll = true;
                 actorToRefund = freshAttacker;
+                if (flags.selectedPowerId) {
+                    const { markPowerUsedThisRound } = await import('../combat/action-economy.js');
+                    await markPowerUsedThisRound(freshAttacker, combat, flags.selectedPowerId);
+                    markedPowerIdForRoll = flags.selectedPowerId;
+                }
             }
             // Debug: Log actor items to verify we have latest data
             let attackerItems = [];
@@ -558,8 +564,11 @@ export function registerAttackRollClickHandler() {
         catch (error) {
             if (spentActionOnRoll && actorToRefund) {
                 try {
-                    const { refundAttackAction } = await import('../combat/action-economy.js');
+                    const { refundAttackAction, unmarkPowerUsedThisRound } = await import('../combat/action-economy.js');
                     await refundAttackAction(actorToRefund, game.combat);
+                    if (markedPowerIdForRoll) {
+                        await unmarkPowerUsedThisRound(actorToRefund, game.combat, markedPowerIdForRoll);
+                    }
                 }
                 catch (refundErr) {
                     console.warn('Mastery System | Could not refund attack action after failed roll', refundErr);
@@ -592,12 +601,20 @@ async function rollAndDisplayDamage(damageResult, attacker, target, _flags) {
     const damageText = damageBreakdown.length > 0
         ? damageBreakdown.join(', ')
         : `${damageResult.totalDamage} damage`;
+    const details = Array.isArray(damageResult.rollDetails) ? damageResult.rollDetails : [];
+    const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    const rollsHtml = details.length > 0
+        ? `<div class="mastery-damage-rolls"><strong>Rolled</strong><ul class="mastery-damage-roll-list">${details
+            .map((line) => `<li>${esc(line)}</li>`)
+            .join("")}</ul></div>`
+        : "";
     const attackerToken = attacker.getActiveTokens?.()?.[0]?.document || null;
     const chatData = {
         speaker: ChatMessage.getSpeaker({ actor: attacker, token: attackerToken }),
         content: `<div class="mastery-system-damage">
       <h3><i class="fas fa-sword"></i> Damage: ${damageResult.totalDamage}</h3>
-      <p>${damageText}</p>
+      ${rollsHtml}
+      <p class="mastery-damage-summary">${damageText}</p>
       <p><strong>Target:</strong> ${target.name}</p>
     </div>`,
         style: CONST.CHAT_MESSAGE_STYLES.OTHER

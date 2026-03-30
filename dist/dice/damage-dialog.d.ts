@@ -28,6 +28,8 @@ export interface DamageResult {
     raiseDamage: number;
     specialsUsed: string[];
     totalDamage: number;
+    /** One line per rolled pool (base / power / passive / each raise d8) for chat */
+    rollDetails?: string[];
 }
 export declare function showDamageDialog(attacker: Actor, target: Actor, weaponId: string | null, selectedPowerId: string | null, raises: number, flags?: any): Promise<DamageResult | null>;
 //# sourceMappingURL=damage-dialog.d.ts.map
