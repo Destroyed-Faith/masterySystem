@@ -71,6 +71,40 @@ function sanitizeDiceNotation(str: string): string {
   return cleaned;
 }
 
+const MAX_MASTERY_DAMAGE_DICE = 99;
+
+/**
+ * Mastery damage uses d8 only: a lone positive integer N (number or digit-only string)
+ * means Nd8, never N flat. Formulas that already contain dice notation are unchanged.
+ */
+function masteryCoercePlainNumberToNd8(sanitizedFormula: string): string {
+  const t = (sanitizedFormula || '').trim();
+  if (!t || t === '0') return '0';
+  if (/^\d+$/.test(t)) {
+    const n = parseInt(t, 10);
+    if (!Number.isFinite(n) || n <= 0) return '0';
+    return `${Math.min(n, MAX_MASTERY_DAMAGE_DICE)}d8`;
+  }
+  return t;
+}
+
+function weaponOrPowerNumericToNd8(raw: unknown): string | null {
+  if (typeof raw === 'number' && Number.isFinite(raw)) {
+    const n = Math.floor(raw);
+    if (n <= 0) return '0';
+    return `${Math.min(n, MAX_MASTERY_DAMAGE_DICE)}d8`;
+  }
+  if (typeof raw === 'string') {
+    const tr = raw.trim();
+    if (/^\d+$/.test(tr)) {
+      const n = parseInt(tr, 10);
+      if (n <= 0) return '0';
+      return `${Math.min(n, MAX_MASTERY_DAMAGE_DICE)}d8`;
+    }
+  }
+  return null;
+}
+
 // Helper: Resolve weapon base damage from weapon system
 function resolveWeaponBaseDamage(weapon: any | null): string {
   if (!weapon || !weapon.system) {
@@ -85,12 +119,16 @@ function resolveWeaponBaseDamage(weapon: any | null): string {
     weaponSystem.damage?.value ??
     weaponSystem.weaponDamage?.value ??
     null;
+
+  const asNd8 = weaponOrPowerNumericToNd8(baseDamageRaw);
+  if (asNd8 !== null) return asNd8;
   
   if (typeof baseDamageRaw === 'string' && baseDamageRaw.trim().length > 0) {
     return baseDamageRaw.trim();
   } else if (baseDamageRaw !== null && baseDamageRaw !== undefined) {
-    // Try to stringify if it's an object
     const str = String(baseDamageRaw).trim();
+    const fromStr = weaponOrPowerNumericToNd8(str);
+    if (fromStr !== null) return fromStr;
     return str || '1d8';
   }
   
@@ -365,10 +403,13 @@ export async function showDamageDialog(
   });
   
   // Helper function to clean power damage string (remove "Weapon DMG +" prefix)
-  const cleanPowerDamage = (damageStr: string): string => {
-    if (!damageStr) return '0';
+  const cleanPowerDamage = (damageStr: string | number): string => {
+    if (damageStr === null || damageStr === undefined || damageStr === '') return '0';
+    const raw = typeof damageStr === 'number' ? String(damageStr) : damageStr;
     // Remove "Weapon DMG +" or "Weapon Damage +" prefixes
-    return damageStr.replace(/^Weapon\s+(DMG|Damage)\s*\+\s*/i, '').trim() || '0';
+    const stripped = raw.replace(/^Weapon\s+(DMG|Damage)\s*\+\s*/i, '').trim() || '0';
+    const asNd8 = weaponOrPowerNumericToNd8(stripped);
+    return asNd8 !== null ? asNd8 : stripped;
   };
   
   if (selectedPowerId) {
@@ -1298,7 +1339,11 @@ function rollDiceWithDetail(diceNotation: string, label: string): { total: numbe
   if (!diceNotation || diceNotation === "0") {
     return { total: 0, line: "" };
   }
-  const formula = sanitizeDiceNotation(diceNotation);
+  let formula = sanitizeDiceNotation(diceNotation);
+  if (formula === "0") {
+    return { total: 0, line: "" };
+  }
+  formula = masteryCoercePlainNumberToNd8(formula);
   if (formula === "0") {
     return { total: 0, line: "" };
   }
@@ -1316,8 +1361,6 @@ function rollDiceWithDetail(diceNotation: string, label: string): { total: numbe
     return { total, line };
   } catch (error) {
     console.warn("Mastery System | Error rolling dice formula:", formula, error);
-    const num = parseInt(formula, 10);
-    if (!isNaN(num)) return { total: num, line: `${label}: ${num} (flat)` };
     return { total: 0, line: "" };
   }
 }

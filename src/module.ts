@@ -583,6 +583,21 @@ Hooks.once('init', async function() {
     const actor = game.actors?.get(actorId) as Actor | undefined;
     if (actor) refreshRadialMenuActionLabelsIfOpenForActor(actor);
   });
+
+  // Same as above: custom hook can miss some flag sync paths; document updates always reach the client.
+  Hooks.on('updateActor', (actor: Actor, changed: any) => {
+    if (changed.flags?.['mastery-system'] !== undefined) {
+      refreshRadialMenuActionLabelsIfOpenForActor(actor);
+    }
+  });
+
+  Hooks.on('updateToken', (tokenDoc: any, changed: any) => {
+    const ms =
+      changed.actorData?.flags?.['mastery-system'] ?? changed.flags?.['mastery-system'];
+    if (ms === undefined) return;
+    const token = canvas.tokens?.get(tokenDoc.id);
+    if (token?.actor) refreshRadialMenuActionLabelsIfOpenForActor(token.actor);
+  });
   
   // Initialize turn indicator (blue ring around active combatant)
   initializeTurnIndicator();

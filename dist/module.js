@@ -509,6 +509,20 @@ Hooks.once('init', async function () {
         if (actor)
             refreshRadialMenuActionLabelsIfOpenForActor(actor);
     });
+    // Same as above: custom hook can miss some flag sync paths; document updates always reach the client.
+    Hooks.on('updateActor', (actor, changed) => {
+        if (changed.flags?.['mastery-system'] !== undefined) {
+            refreshRadialMenuActionLabelsIfOpenForActor(actor);
+        }
+    });
+    Hooks.on('updateToken', (tokenDoc, changed) => {
+        const ms = changed.actorData?.flags?.['mastery-system'] ?? changed.flags?.['mastery-system'];
+        if (ms === undefined)
+            return;
+        const token = canvas.tokens?.get(tokenDoc.id);
+        if (token?.actor)
+            refreshRadialMenuActionLabelsIfOpenForActor(token.actor);
+    });
     // Initialize turn indicator (blue ring around active combatant)
     initializeTurnIndicator();
     // Register radial menu hooks for hover preview suppression
