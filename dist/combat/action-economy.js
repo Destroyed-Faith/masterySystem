@@ -279,8 +279,9 @@ export async function spendStoneAbility(actor, _combatant, attribute, abilityKey
         await setStonePool(actor, attribute, pool.current - cost);
         // Increment usage counter
         await incrementStoneUsage(actor, attribute, abilityKey, combat);
-        // Save updated round state
-        await setRoundState(actor, roundState);
+        // Do not call setRoundState(actor, roundState) here: `roundState` is the pre-effect snapshot.
+        // Stone powers call getRoundState + setRoundState inside apply(); saving this snapshot would
+        // overwrite extra attacks / move bonuses / reactions just granted.
         ui.notifications?.info(`Spent ${cost} ${attribute} stones. (${pool.current - cost} remaining)`);
         return true;
     }

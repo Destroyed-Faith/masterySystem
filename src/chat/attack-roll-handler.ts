@@ -676,17 +676,32 @@ async function rollAndDisplayDamage(
       : "";
   
   const attackerToken = (attacker as any).getActiveTokens?.()?.[0]?.document || null;
+  const chatRolls = Array.isArray(damageResult.damageChatRolls) ? damageResult.damageChatRolls : [];
+  const serializedRolls =
+    chatRolls.length > 0
+      ? chatRolls
+          .map((r: any) => (typeof r?.toJSON === 'function' ? r.toJSON() : r))
+          .filter(Boolean)
+      : [];
+
   const chatData: any = {
+    user: (game as any).user?.id,
     speaker: ChatMessage.getSpeaker({ actor: attacker, token: attackerToken }),
     content: `<div class="mastery-system-damage">
       <h3><i class="fas fa-sword"></i> Damage: ${damageResult.totalDamage}</h3>
       ${rollsHtml}
       <p class="mastery-damage-summary">${damageText}</p>
       <p><strong>Target:</strong> ${(target as any).name}</p>
-    </div>`,
-    style: CONST.CHAT_MESSAGE_STYLES.OTHER
+    </div>`
   };
-  
+
+  if (serializedRolls.length > 0) {
+    chatData.rolls = serializedRolls;
+    chatData.sound = CONFIG.sounds.dice;
+  } else {
+    chatData.style = CONST.CHAT_MESSAGE_STYLES.OTHER;
+  }
+
   try {
     await ChatMessage.create(chatData);
   } catch (error) {

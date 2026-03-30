@@ -35,6 +35,11 @@ export interface DamageResult {
   totalDamage: number;
   /** One line per rolled pool (base / power / passive / each raise d8) for chat */
   rollDetails?: string[];
+  /**
+   * Evaluated Foundry `Roll` instances (base, power, passive, raise d8s) for chat + 3D dice.
+   * Ephemeral — not stored on documents.
+   */
+  damageChatRolls?: any[];
 }
 
 /**
@@ -1236,18 +1241,22 @@ async function calculateDamageResult(
   const sanitizedPassiveDamage = sanitizeDiceNotation(passiveDamage || '0');
   
   const rollDetails: string[] = [];
+  const damageChatRolls: any[] = [];
 
   const baseRoll = await rollDiceWithDetail(sanitizedBaseDamage, 'Base weapon');
   const baseDamageRolled = baseRoll.total;
   if (baseRoll.line) rollDetails.push(baseRoll.line);
+  if (baseRoll.roll) damageChatRolls.push(baseRoll.roll);
 
   const powerRoll = await rollDiceWithDetail(sanitizedPowerDamage, 'Power');
   const powerDamageRolled = powerRoll.total;
   if (powerRoll.line) rollDetails.push(powerRoll.line);
+  if (powerRoll.roll) damageChatRolls.push(powerRoll.roll);
 
   const passiveRoll = await rollDiceWithDetail(sanitizedPassiveDamage, 'Passive');
   const passiveDamageRolled = passiveRoll.total;
   if (passiveRoll.line) rollDetails.push(passiveRoll.line);
+  if (passiveRoll.roll) damageChatRolls.push(passiveRoll.roll);
   
   // Calculate raise damage and collect specials
   let raiseDamage = 0;
@@ -1262,6 +1271,7 @@ async function calculateDamageResult(
         const r = await rollDiceWithDetail('1d8', `Raise ${raiseDiceCount} (+1d8)`);
         raiseDamage += r.total;
         if (r.line) rollDetails.push(r.line);
+        if (r.roll) damageChatRolls.push(r.roll);
       } else if (selection.type === 'special') {
         const special = availableSpecials.find(s => s.id === selection.value);
         if (special) {
@@ -1302,7 +1312,8 @@ async function calculateDamageResult(
     raiseDamage,
     specialsUsed,
     totalDamage,
-    rollDetails: rollDetails.length ? rollDetails : undefined
+    rollDetails: rollDetails.length ? rollDetails : undefined,
+    damageChatRolls: damageChatRolls.length ? damageChatRolls : undefined
   };
   
   console.log('Mastery System | [CALCULATE DAMAGE] Returning result', result);
@@ -1338,17 +1349,17 @@ function summarizeRollDiceFaces(roll: any): string {
 async function rollDiceWithDetail(
   diceNotation: string,
   label: string
-): Promise<{ total: number; line: string }> {
+): Promise<{ total: number; line: string; roll: any | null }> {
   if (!diceNotation || diceNotation === "0") {
-    return { total: 0, line: "" };
+    return { total: 0, line: "", roll: null };
   }
   let formula = sanitizeDiceNotation(diceNotation);
   if (formula === "0") {
-    return { total: 0, line: "" };
+    return { total: 0, line: "", roll: null };
   }
   formula = masteryCoercePlainNumberToNd8(formula);
   if (formula === "0") {
-    return { total: 0, line: "" };
+    return { total: 0, line: "", roll: null };
   }
   try {
     const RollCtor = (globalThis as any).Roll;
@@ -1357,10 +1368,10 @@ async function rollDiceWithDetail(
     const total = roll.total ?? 0;
     const detail = summarizeRollDiceFaces(roll);
     const line = `${label}: ${detail} → ${total}`;
-    return { total, line };
+    return { total, line, roll };
   } catch (error) {
     console.warn("Mastery System | Error rolling dice formula:", formula, error);
-    return { total: 0, line: "" };
+    return { total: 0, line: "", roll: null };
   }
 }
 

@@ -1066,18 +1066,25 @@ async function calculateDamageResult(baseDamage, powerDamage, passiveDamage, rai
     const sanitizedPowerDamage = sanitizeDiceNotation(powerDamage || '0');
     const sanitizedPassiveDamage = sanitizeDiceNotation(passiveDamage || '0');
     const rollDetails = [];
+    const damageChatRolls = [];
     const baseRoll = await rollDiceWithDetail(sanitizedBaseDamage, 'Base weapon');
     const baseDamageRolled = baseRoll.total;
     if (baseRoll.line)
         rollDetails.push(baseRoll.line);
+    if (baseRoll.roll)
+        damageChatRolls.push(baseRoll.roll);
     const powerRoll = await rollDiceWithDetail(sanitizedPowerDamage, 'Power');
     const powerDamageRolled = powerRoll.total;
     if (powerRoll.line)
         rollDetails.push(powerRoll.line);
+    if (powerRoll.roll)
+        damageChatRolls.push(powerRoll.roll);
     const passiveRoll = await rollDiceWithDetail(sanitizedPassiveDamage, 'Passive');
     const passiveDamageRolled = passiveRoll.total;
     if (passiveRoll.line)
         rollDetails.push(passiveRoll.line);
+    if (passiveRoll.roll)
+        damageChatRolls.push(passiveRoll.roll);
     // Calculate raise damage and collect specials
     let raiseDamage = 0;
     const specialsUsed = [];
@@ -1091,6 +1098,8 @@ async function calculateDamageResult(baseDamage, powerDamage, passiveDamage, rai
                 raiseDamage += r.total;
                 if (r.line)
                     rollDetails.push(r.line);
+                if (r.roll)
+                    damageChatRolls.push(r.roll);
             }
             else if (selection.type === 'special') {
                 const special = availableSpecials.find(s => s.id === selection.value);
@@ -1127,7 +1136,8 @@ async function calculateDamageResult(baseDamage, powerDamage, passiveDamage, rai
         raiseDamage,
         specialsUsed,
         totalDamage,
-        rollDetails: rollDetails.length ? rollDetails : undefined
+        rollDetails: rollDetails.length ? rollDetails : undefined,
+        damageChatRolls: damageChatRolls.length ? damageChatRolls : undefined
     };
     console.log('Mastery System | [CALCULATE DAMAGE] Returning result', result);
     return result;
@@ -1161,15 +1171,15 @@ function summarizeRollDiceFaces(roll) {
  */
 async function rollDiceWithDetail(diceNotation, label) {
     if (!diceNotation || diceNotation === "0") {
-        return { total: 0, line: "" };
+        return { total: 0, line: "", roll: null };
     }
     let formula = sanitizeDiceNotation(diceNotation);
     if (formula === "0") {
-        return { total: 0, line: "" };
+        return { total: 0, line: "", roll: null };
     }
     formula = masteryCoercePlainNumberToNd8(formula);
     if (formula === "0") {
-        return { total: 0, line: "" };
+        return { total: 0, line: "", roll: null };
     }
     try {
         const RollCtor = globalThis.Roll;
@@ -1178,11 +1188,11 @@ async function rollDiceWithDetail(diceNotation, label) {
         const total = roll.total ?? 0;
         const detail = summarizeRollDiceFaces(roll);
         const line = `${label}: ${detail} → ${total}`;
-        return { total, line };
+        return { total, line, roll };
     }
     catch (error) {
         console.warn("Mastery System | Error rolling dice formula:", formula, error);
-        return { total: 0, line: "" };
+        return { total: 0, line: "", roll: null };
     }
 }
 /**
