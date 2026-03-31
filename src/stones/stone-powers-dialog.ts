@@ -103,17 +103,25 @@ function escapeCssIdentForSelector(value: string): string {
 }
 
 /**
- * Sichtbare Felder für die laufende Zahlung: Baum 1→3→7… **plus** genug Leerfelder für alle
- * verbleibenden Steine (`acc + remaining`), damit nie nur ein gelbes Feld übrig bleibt, obwohl noch
- * 2+ Steine fehlen (sonst nur Doppel-Drop auf dieselbe Zelle möglich).
+ * Erst **ein** gelbes Feld; sobald der erste Stein liegt, mindestens **zwei** weitere leere Felder
+ * (sofern noch ≥2 Steine offen sind — sonst `remaining`). Zusätzlich der Baum 1→3→7… (`tree`).
+ * Obergrenze `acc + remaining` (= Kosten dieser Aktivierung), damit beim letzten Stein nicht 7 Slots
+ * aufpoppen.
  */
 function progressivePaymentWaveSlotCount(accumulated: number, nextCost: number): number {
   if (nextCost <= 0) return 0;
   const acc = Math.min(Math.max(0, accumulated), nextCost);
   if (acc >= nextCost) return nextCost;
-  const tree = Math.pow(2, Math.ceil(Math.log2(acc + 2))) - 1;
   const remaining = nextCost - acc;
-  return Math.max(tree, acc + remaining);
+  const tree = Math.pow(2, Math.ceil(Math.log2(acc + 2))) - 1;
+  const cap = acc + remaining;
+
+  const lower =
+    acc === 0
+      ? Math.max(1, tree)
+      : Math.max(tree, acc + Math.min(2, remaining));
+
+  return Math.min(lower, cap);
 }
 
 /**
@@ -158,13 +166,16 @@ function buildStoneDropSlots(
   }
 
   if (DEBUG_STONE_WAVE && debugLabel) {
+    const rem = nextCost - acc;
     dlogStoneWave({
       label: debugLabel,
       usesThisTurn,
       nextCost,
       accumulated: acc,
-      remaining: nextCost - acc,
+      remaining: rem,
       treeWave: acc >= nextCost ? nextCost : treeOnly,
+      minAfterFirstStone: acc === 0 ? 1 : acc + Math.min(2, rem),
+      capWave: acc >= nextCost ? nextCost : acc + rem,
       waveFinal: wave,
       emptySlots: wave - acc,
       spendableNet,
