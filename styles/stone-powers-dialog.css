@@ -395,20 +395,60 @@
   min-height: 0;
 }
 
-/* Pro logischem Slot: oben zwei Zellen, darunter eine dritte unter der rechten */
-.stone-powers-dialog .ms-stone-drop-slot-pair {
+/* Pro logischem Slot: [1] | [2][3] | [4][5] / [6][7] mit vertikalen Trennlinien */
+.stone-powers-dialog .ms-stone-drop-slot-cluster {
   display: inline-grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: auto 1px auto 1px minmax(0, 1fr) minmax(0, 1fr);
   grid-template-rows: auto auto;
-  gap: 0.22rem;
+  column-gap: 0.28rem;
+  row-gap: 0.22rem;
   align-items: stretch;
   flex: 0 0 auto;
 }
 
-.stone-powers-dialog .ms-stone-drop-slot-pair-spacer {
-  min-width: 0;
-  min-height: 0;
-  pointer-events: none;
+.stone-powers-dialog .ms-stone-cluster-col-a {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stone-powers-dialog .ms-stone-cluster-vsep {
+  grid-row: 1 / span 2;
+  width: 1px;
+  min-height: 2rem;
+  background: rgba(255, 255, 255, 0.28);
+  border-radius: 1px;
+  justify-self: center;
+  align-self: stretch;
+}
+
+.stone-powers-dialog .ms-stone-cluster-vsep-1 {
+  grid-column: 2;
+}
+
+.stone-powers-dialog .ms-stone-cluster-vsep-2 {
+  grid-column: 4;
+}
+
+.stone-powers-dialog .ms-stone-cluster-col-mid {
+  grid-column: 3;
+  grid-row: 1 / span 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.22rem;
+  justify-content: center;
+}
+
+.stone-powers-dialog .ms-stone-cluster-col-quad {
+  grid-column: 5 / 7;
+  grid-row: 1 / span 2;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 0.22rem;
+  align-content: center;
 }
 
 /* Nur General: flache Drop-Zellen */
