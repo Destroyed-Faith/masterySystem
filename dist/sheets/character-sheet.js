@@ -1473,7 +1473,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const ContextMenuCls = foundry.applications?.ux?.ContextMenu;
         if (ContextMenuCls) {
             new ContextMenuCls(html, invEquipSelector, this.#inventoryEquipContextMenuEntries(), {
-                eventName: 'contextmenu'
+                eventName: 'contextmenu',
+                jQuery: false
             });
         }
         if (!window.__msGlobalDropDebugBound) {

@@ -1,7 +1,6 @@
 <div class="stone-powers-dialog">
   <div class="dialog-header">
-    <h2>{{actor.name}}: Stone Powers</h2>
-    <p class="dialog-header-hint">Oben: <strong>jede Zeile ist ein Attribut‑Pool</strong> (Vitality zeigt immer Vitality‑Steine, Resolve immer Resolve — das ändert sich nicht am Dropdown). Bei General Powers wählt das Dropdown nur, <strong>welcher Pool bezahlt</strong>. Ziehe passende Steine auf ein <strong>aktives</strong> Ablagefeld (gelb); Zahl = Kosten. Kosten &gt; 1: mehrmals denselben Stein‑Typ auf dasselbe Feld ziehen.</p>
+    <h2>{{actor.name}}: Steinmächte</h2>
   </div>
 
   {{#unless combatActive}}
@@ -94,7 +93,6 @@
               </div>
             </div>
             <div class="power-drop-slots-row">
-              <span class="drop-slots-label">Ablage</span>
               <div class="power-drop-slots" data-power-id="{{power.id}}">
                 {{#each power.dropSlots as |slot|}}
                 <div class="ms-stone-drop-slot slot-{{slot.state}}{{#unless @root.dragStonesEnabled}} slot-no-drag{{/unless}}"
@@ -146,7 +144,6 @@
               </button>
             </div>
             <div class="power-drop-slots-row">
-              <span class="drop-slots-label">Ablage</span>
               <div class="power-drop-slots">
                 {{#each power.dropSlots as |slot|}}
                 <div class="ms-stone-drop-slot slot-{{slot.state}}{{#unless @root.dragStonesEnabled}} slot-no-drag{{/unless}}"

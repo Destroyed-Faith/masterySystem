@@ -87,7 +87,7 @@ export class StonePowersDialog extends BaseDialog {
     static DEFAULT_OPTIONS = {
         id: "mastery-stone-powers",
         classes: ["mastery-system", "stone-powers-dialog"],
-        position: { width: 720, height: 520 },
+        position: { width: 760, height: 480 },
         window: { title: 'Steinmächte', resizable: true }
     };
     static PARTS = {
@@ -218,16 +218,7 @@ export class StonePowersDialog extends BaseDialog {
             if (powersByAttribute[attr]) {
                 powersByAttribute[attr].push(preparePowerData(power, attr));
             }
-            else {
-                // Debug: log powers that don't match any pool (only for non-generic powers)
-                // This is normal for attributes without pools (agility, intellect, etc.)
-                // Changed to debug level to reduce console noise
-                console.debug('Mastery System | Power not assigned - no pool for attribute:', {
-                    powerId: power.id,
-                    powerAttribute: power.attribute,
-                    availablePools: Object.keys(powersByAttribute)
-                });
-            }
+            /* Keine Pool-Zeile für dieses Attribut: Macht wird nicht gelistet (z. B. ohne Steintyp). */
         }
         return {
             actor: this.actor,
@@ -373,7 +364,7 @@ export class StonePowersDialog extends BaseDialog {
                     return;
                 }
                 if (!canExecute) {
-                    ui.notifications?.warn('Steine kannst du ziehen; die Macht wirkt erst bei einem aktiven Kampf, wenn die Figur im Tracker steht.');
+                    /* Kein Toast: Hinweis steht im Banner oben; Drop üben ohne Kampf soll nicht spammen. */
                     return;
                 }
                 if (!slot.classList.contains('slot-active'))
