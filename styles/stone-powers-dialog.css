@@ -247,11 +247,12 @@
   cursor: default;
 }
 
+/* Hell hervorheben (nicht rot — das wirkt wie „Drop verboten“) */
 .stone-powers-dialog .ms-stone-drop-slot.is-drag-over {
-  outline: 2px solid #fff;
+  outline: 2px solid rgba(255, 255, 255, 0.95);
   outline-offset: 1px;
-  background: rgba(139, 0, 0, 0.35);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 235, 120, 0.45);
+  border-color: rgba(255, 255, 255, 0.85);
 }
 
 .stone-powers-dialog .pool-name {

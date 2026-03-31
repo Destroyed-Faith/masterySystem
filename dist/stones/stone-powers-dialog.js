@@ -104,6 +104,8 @@ export class StonePowersDialog extends BaseDialog {
     _generalAttrSelection = {}; // Track selected attribute per generic power
     /** Partial drops toward multi-stone cost: key `${powerId}:${attr}:${uses}` */
     _stoneDropAccumulators = new Map();
+    /** Entfernt Root‑Listener von #bindStoneDragAndDrop (bei jedem Render neu binden). */
+    _stoneDndCleanup;
     static DEFAULT_OPTIONS = {
         id: "mastery-stone-powers",
         classes: ["mastery-system", "stone-powers-dialog"],
@@ -401,11 +403,16 @@ export class StonePowersDialog extends BaseDialog {
         }
     }
     #bindStoneDragAndDrop(root) {
+        this._stoneDndCleanup?.();
+        this._stoneDndCleanup = undefined;
         const combat = game.combat;
         const canExecute = !!combat && !!this.combatant;
         const locked = !!(combat && this.combatant && isStonePowersConfigurationLocked(this.actor, combat));
         const allowDrag = !locked;
         const poolKeys = getActorStonePoolKeysWithMax(this.actor);
+        const clearDragOver = () => {
+            root.querySelectorAll('.ms-stone-drop-slot.is-drag-over').forEach((n) => n.classList.remove('is-drag-over'));
+        };
         root.querySelectorAll('.js-stone-draggable').forEach((el) => {
             const gem = el;
             gem.draggable = allowDrag;
@@ -422,125 +429,152 @@ export class StonePowersDialog extends BaseDialog {
             };
             gem.ondragend = () => {
                 gem.classList.remove('is-dragging');
+                clearDragOver();
             };
         });
-        const clearDragOver = () => {
-            root.querySelectorAll('.ms-stone-drop-slot.is-drag-over').forEach((n) => n.classList.remove('is-drag-over'));
+        const resolveDropSlot = (ev) => {
+            const raw = ev.target;
+            const el = raw instanceof Element
+                ? raw
+                : raw && raw.parentElement instanceof Element
+                    ? raw.parentElement
+                    : null;
+            if (!el || !root.contains(el))
+                return null;
+            const slot = el.closest('.ms-stone-drop-slot');
+            return slot && root.contains(slot) ? slot : null;
         };
-        root.querySelectorAll('.ms-stone-drop-slot').forEach((el) => {
-            const slot = el;
-            slot.ondragenter = (ev) => {
-                if (slot.classList.contains('slot-active') && allowDrag) {
-                    ev.preventDefault();
-                }
-            };
-            slot.ondragover = (ev) => {
-                if (slot.classList.contains('slot-active') && allowDrag) {
-                    ev.preventDefault();
-                    if (ev.dataTransfer)
-                        ev.dataTransfer.dropEffect = 'copy';
-                    clearDragOver();
-                    slot.classList.add('is-drag-over');
-                }
-            };
-            slot.ondragleave = () => slot.classList.remove('is-drag-over');
-            slot.ondrop = async (ev) => {
-                ev.preventDefault();
+        /** Ein Listener auf dem Content‑Root: vermeidet, dass Kind‑Elemente dragover „schlucken“. */
+        const onRootDragOver = (ev) => {
+            if (!allowDrag || locked)
+                return;
+            const slot = resolveDropSlot(ev);
+            if (!slot?.classList.contains('slot-active')) {
                 clearDragOver();
-                if (locked) {
-                    ui.notifications?.warn('Diese Runde ist für Steinmächte gesperrt.');
+                return;
+            }
+            ev.preventDefault();
+            if (ev.dataTransfer)
+                ev.dataTransfer.dropEffect = 'copy';
+            clearDragOver();
+            slot.classList.add('is-drag-over');
+        };
+        const onRootDragLeave = (ev) => {
+            const rel = ev.relatedTarget;
+            if (rel && root.contains(rel))
+                return;
+            clearDragOver();
+        };
+        const onRootDrop = async (ev) => {
+            const slot = resolveDropSlot(ev);
+            if (!slot) {
+                if (msLastDraggedStoneAttribute)
+                    ev.preventDefault();
+                return;
+            }
+            ev.preventDefault();
+            clearDragOver();
+            if (locked) {
+                ui.notifications?.warn('Diese Runde ist für Steinmächte gesperrt.');
+                return;
+            }
+            if (!slot.classList.contains('slot-active'))
+                return;
+            const dragged = ev.dataTransfer?.getData(STONE_DRAG_MIME) ||
+                ev.dataTransfer?.getData('text/plain') ||
+                msLastDraggedStoneAttribute ||
+                '';
+            const powerId = slot.dataset.powerId || '';
+            const isGeneric = slot.dataset.isGeneric === 'true';
+            let payAttr;
+            if (isGeneric) {
+                payAttr = dragged;
+                if (!powerId || !dragged)
+                    return;
+                if (!poolKeys.has(dragged)) {
+                    ui.notifications?.warn('Dieser Stein gehört zu keinem Pool auf diesem Bogen.');
                     return;
                 }
-                if (!slot.classList.contains('slot-active'))
+                for (const [k, v] of this._stoneDropAccumulators) {
+                    if (v <= 0 || !k.startsWith(`${powerId}:`))
+                        continue;
+                    const rest = k.slice(powerId.length + 1);
+                    const i = rest.lastIndexOf(':');
+                    const existingAttr = i > 0 ? rest.slice(0, i) : '';
+                    if (existingAttr && existingAttr !== dragged) {
+                        ui.notifications?.warn('Für diese Aktivierung denselben Stein-Typ verwenden.');
+                        return;
+                    }
+                    break;
+                }
+                this._generalAttrSelection[powerId] = payAttr;
+            }
+            else {
+                payAttr = (slot.dataset.payAttribute || '');
+                if (!powerId || !payAttr)
                     return;
-                const dragged = ev.dataTransfer?.getData(STONE_DRAG_MIME) ||
-                    ev.dataTransfer?.getData('text/plain') ||
-                    msLastDraggedStoneAttribute ||
-                    '';
-                const powerId = slot.dataset.powerId || '';
-                const isGeneric = slot.dataset.isGeneric === 'true';
-                let payAttr;
-                if (isGeneric) {
-                    payAttr = dragged;
-                    if (!powerId || !dragged)
-                        return;
-                    if (!poolKeys.has(dragged)) {
-                        ui.notifications?.warn('Dieser Stein gehört zu keinem Pool auf diesem Bogen.');
-                        return;
-                    }
-                    for (const [k, v] of this._stoneDropAccumulators) {
-                        if (v <= 0 || !k.startsWith(`${powerId}:`))
-                            continue;
-                        const rest = k.slice(powerId.length + 1);
-                        const i = rest.lastIndexOf(':');
-                        const existingAttr = i > 0 ? rest.slice(0, i) : '';
-                        if (existingAttr && existingAttr !== dragged) {
-                            ui.notifications?.warn('Für diese Aktivierung denselben Stein-Typ verwenden.');
-                            return;
-                        }
-                        break;
-                    }
-                    this._generalAttrSelection[powerId] = payAttr;
+                if (dragged !== payAttr) {
+                    ui.notifications?.warn('Falscher Stein — Attribut passt nicht zu diesem Feld.');
+                    return;
+                }
+            }
+            const uses = getStoneUsageCount(this.actor, payAttr, powerId, combat);
+            const nextCost = calculateStoneCost(uses);
+            const accKey = `${powerId}:${payAttr}:${uses}`;
+            const cur = this._stoneDropAccumulators.get(accKey) || 0;
+            if (cur >= nextCost) {
+                return;
+            }
+            const next = cur + 1;
+            this._stoneDropAccumulators.set(accKey, next);
+            this.#syncAccumulatorGems(root);
+            if (next < nextCost) {
+                return;
+            }
+            if (!canExecute) {
+                return;
+            }
+            this._stoneDropAccumulators.delete(accKey);
+            this.#syncAccumulatorGems(root);
+            try {
+                const success = await activateStonePower({
+                    actor: this.actor,
+                    combatant: this.combatant,
+                    abilityId: powerId,
+                    attributeKey: payAttr
+                });
+                if (success) {
+                    ui.notifications?.info(`${STONE_POWERS[powerId]?.name || powerId} aktiviert`);
+                    await this.render({ force: true });
                 }
                 else {
-                    payAttr = (slot.dataset.payAttribute || '');
-                    if (!powerId || !payAttr)
-                        return;
-                    if (dragged !== payAttr) {
-                        ui.notifications?.warn('Falscher Stein — Attribut passt nicht zu diesem Feld.');
-                        return;
-                    }
-                }
-                const uses = getStoneUsageCount(this.actor, payAttr, powerId, combat);
-                const nextCost = calculateStoneCost(uses);
-                const accKey = `${powerId}:${payAttr}:${uses}`;
-                const cur = this._stoneDropAccumulators.get(accKey) || 0;
-                if (cur >= nextCost) {
-                    return;
-                }
-                const next = cur + 1;
-                this._stoneDropAccumulators.set(accKey, next);
-                this.#syncAccumulatorGems(root);
-                if (next < nextCost) {
-                    return;
-                }
-                if (!canExecute) {
-                    /* Stein bleibt sichtbar; wirken tut die Macht erst mit Kampf + Tracker (siehe Banner). */
-                    return;
-                }
-                this._stoneDropAccumulators.delete(accKey);
-                this.#syncAccumulatorGems(root);
-                try {
-                    const success = await activateStonePower({
-                        actor: this.actor,
-                        combatant: this.combatant,
-                        abilityId: powerId,
-                        attributeKey: payAttr
-                    });
-                    if (success) {
-                        ui.notifications?.info(`${STONE_POWERS[powerId]?.name || powerId} aktiviert`);
-                        await this.render({ force: true });
-                    }
-                    else {
-                        if (next > 1)
-                            this._stoneDropAccumulators.set(accKey, next - 1);
-                        else
-                            this._stoneDropAccumulators.delete(accKey);
-                        this.#syncAccumulatorGems(root);
-                        ui.notifications?.warn('Aktivierung fehlgeschlagen.');
-                    }
-                }
-                catch (error) {
-                    console.error('Mastery System | stone drop activate', error);
                     if (next > 1)
                         this._stoneDropAccumulators.set(accKey, next - 1);
                     else
                         this._stoneDropAccumulators.delete(accKey);
                     this.#syncAccumulatorGems(root);
-                    ui.notifications?.error('Steinmacht konnte nicht aktiviert werden.');
+                    ui.notifications?.warn('Aktivierung fehlgeschlagen.');
                 }
-            };
-        });
+            }
+            catch (error) {
+                console.error('Mastery System | stone drop activate', error);
+                if (next > 1)
+                    this._stoneDropAccumulators.set(accKey, next - 1);
+                else
+                    this._stoneDropAccumulators.delete(accKey);
+                this.#syncAccumulatorGems(root);
+                ui.notifications?.error('Steinmacht konnte nicht aktiviert werden.');
+            }
+        };
+        const cap = true;
+        root.addEventListener('dragover', onRootDragOver, cap);
+        root.addEventListener('dragleave', onRootDragLeave);
+        root.addEventListener('drop', onRootDrop, cap);
+        this._stoneDndCleanup = () => {
+            root.removeEventListener('dragover', onRootDragOver, cap);
+            root.removeEventListener('dragleave', onRootDragLeave);
+            root.removeEventListener('drop', onRootDrop, cap);
+        };
     }
     async #saveStonePowersPrefs(root) {
         const doc = getActionEconomyActor(this.actor) ?? this.actor;
@@ -559,6 +593,8 @@ export class StonePowersDialog extends BaseDialog {
         ui.notifications?.info('Steinmacht-Standard gespeichert (wird bei neuen Runden übernommen, solange aktiviert).');
     }
     async _onClose(_options) {
+        this._stoneDndCleanup?.();
+        this._stoneDndCleanup = undefined;
         if (this.resolve) {
             this.resolve(false);
             this.resolve = undefined;
