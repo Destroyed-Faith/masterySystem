@@ -15,6 +15,8 @@ export declare class StonePowersDialog extends BaseDialog {
     private _stoneDropAccumulators;
     /** Entfernt Root‑Listener von #bindStoneDragAndDrop (bei jedem Render neu binden). */
     private _stoneDndCleanup?;
+    /** Attribut des aktuellen Zugs — Foundry/Electron liefert oft kein dataTransfer.getData beim drop. */
+    private _stoneDragAttribute;
     static DEFAULT_OPTIONS: {
         id: string;
         classes: string[];

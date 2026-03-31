@@ -135,6 +135,8 @@ export class StonePowersDialog extends BaseDialog {
   private _stoneDropAccumulators = new Map<string, number>();
   /** Entfernt Root‑Listener von #bindStoneDragAndDrop (bei jedem Render neu binden). */
   private _stoneDndCleanup?: () => void;
+  /** Attribut des aktuellen Zugs — Foundry/Electron liefert oft kein dataTransfer.getData beim drop. */
+  private _stoneDragAttribute: string | null = null;
 
   static DEFAULT_OPTIONS = {
     id: "mastery-stone-powers",
@@ -510,6 +512,7 @@ export class StonePowersDialog extends BaseDialog {
           return;
         }
         const attr = gem.dataset.attributeKey || '';
+        this._stoneDragAttribute = attr;
         msLastDraggedStoneAttribute = attr;
         ev.dataTransfer.setData(STONE_DRAG_MIME, attr);
         ev.dataTransfer.setData('text/plain', attr);
@@ -521,7 +524,13 @@ export class StonePowersDialog extends BaseDialog {
         gem.classList.remove('is-dragging');
         clearDragOver();
         lastDragOverLogKey = '';
-        dlogStoneDnD('dragend', { msLastDraggedStoneAttribute });
+        dlogStoneDnD('dragend', {
+          msLastDraggedStoneAttribute,
+          dialogDragAttr: this._stoneDragAttribute
+        });
+        queueMicrotask(() => {
+          this._stoneDragAttribute = null;
+        });
       };
     });
 
@@ -598,6 +607,7 @@ export class StonePowersDialog extends BaseDialog {
         dataTypes: ev.dataTransfer ? [...(ev.dataTransfer.types || [])] : [],
         mime: ev.dataTransfer?.getData(STONE_DRAG_MIME),
         plain: ev.dataTransfer?.getData('text/plain'),
+        dialogDragAttr: this._stoneDragAttribute,
         msLastDraggedStoneAttribute
       });
 
@@ -620,6 +630,7 @@ export class StonePowersDialog extends BaseDialog {
       }
 
       const dragged =
+        this._stoneDragAttribute ||
         ev.dataTransfer?.getData(STONE_DRAG_MIME) ||
         ev.dataTransfer?.getData('text/plain') ||
         msLastDraggedStoneAttribute ||
@@ -761,6 +772,7 @@ export class StonePowersDialog extends BaseDialog {
   }
   
   async _onClose(_options: any): Promise<void> {
+    this._stoneDragAttribute = null;
     this._stoneDndCleanup?.();
     this._stoneDndCleanup = undefined;
     if (this.resolve) {
