@@ -236,6 +236,13 @@
   font-size: 0.85rem;
 }
 
+.stone-powers-dialog .ms-stone-drop-slot.slot-filled {
+  border-style: solid;
+  border-color: rgba(102, 187, 106, 0.75);
+  background: rgba(76, 175, 80, 0.14);
+  color: #a5d6a7;
+}
+
 .stone-powers-dialog .ms-stone-drop-slot.slot-active {
   border-style: solid;
   border-color: rgba(255, 213, 79, 0.85);
@@ -406,6 +413,10 @@
   height: 11px;
 }
 
+.stone-powers-dialog .powers-grid-general .ms-stone-drop-slot.slot-filled {
+  min-width: 20px;
+}
+
 .stone-powers-dialog .power-title-general {
   flex: 1 1 auto;
   display: flex;
@@ -441,46 +452,11 @@
   gap: 0.35rem;
 }
 
-.stone-powers-dialog .powers-attr-block {
-  padding-top: 0.2rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.stone-powers-dialog .powers-attr-heading {
-  font-size: 0.68rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #c9b8a8;
-  margin: 0 0 0.18rem 0;
-  padding: 0 0.1rem;
-}
-
 .stone-powers-dialog .power-card-placeholder {
   visibility: hidden;
   pointer-events: none;
   min-height: 60px;
   border: 1px dashed transparent;
-}
-
-.stone-powers-dialog .power-title-general-attr {
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.12rem;
-}
-
-.stone-powers-dialog .power-activate-btn-compact {
-  height: 20px;
-  min-width: 38px;
-  padding: 0 5px;
-  font-size: 0.62rem;
-  gap: 0.2rem;
-  border-radius: 3px;
-}
-
-.stone-powers-dialog .power-activate-btn-compact i {
-  font-size: 0.55rem;
 }
 
 .stone-powers-dialog .power-row {

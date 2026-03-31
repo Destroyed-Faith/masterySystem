@@ -63,7 +63,7 @@
                    data-power-id="{{../id}}"
                    data-is-generic="true"
                    data-slot-index="{{slot.index}}"
-                   title="{{#if (eq slot.state 'active')}}Passenden Stein hier ablegen{{/if}}{{#if (eq slot.state 'done')}}Genutzt{{/if}}{{#if (eq slot.state 'locked')}}{{#if ../canAfford}}Später{{else}}Zu wenig Steine in diesem Pool{{/if}}{{/if}}">
+                   title="{{#if (eq slot.state 'active')}}Passenden Stein hier ablegen{{/if}}{{#if (eq slot.state 'filled')}}Gelegt — zum Freigeben in den Pool ziehen{{/if}}{{#if (eq slot.state 'done')}}Genutzt{{/if}}{{#if (eq slot.state 'locked')}}{{#if ../canAfford}}Später{{else}}Zu wenig Steine in diesem Pool{{/if}}{{/if}}">
                 <div class="ms-stone-slot-fill">
                   {{#if (eq slot.state 'done')}}
                   <span class="ms-stone-gem-chip ms-slot-gem-done"
@@ -85,8 +85,6 @@
     {{/if}}
 
     {{#each attributePowerMatrix}}
-    <div class="powers-attr-block" data-attr-key="{{attrKey}}">
-      <div class="powers-attr-heading">{{label}}</div>
       <div class="powers-grid powers-grid-general powers-grid-attr-matrix">
         {{#each cells}}
           {{#if this}}
@@ -98,7 +96,7 @@
                    data-power-id="{{../id}}"
                    data-pay-attribute="{{../attribute}}"
                    data-slot-index="{{slot.index}}"
-                   title="{{#if (eq slot.state 'active')}}Passenden {{../attribute}}-Stein ablegen{{/if}}{{#if (eq slot.state 'done')}}Genutzt{{/if}}{{#if (eq slot.state 'locked')}}{{#if ../canAfford}}Später{{else}}Nicht genug Steine{{/if}}{{/if}}">
+                   title="{{#if (eq slot.state 'active')}}Passenden {{../attribute}}-Stein ablegen{{/if}}{{#if (eq slot.state 'filled')}}Gelegt — zum Freigeben in den Pool ziehen{{/if}}{{#if (eq slot.state 'done')}}Genutzt{{/if}}{{#if (eq slot.state 'locked')}}{{#if ../canAfford}}Später{{else}}Nicht genug Steine{{/if}}{{/if}}">
                 <div class="ms-stone-slot-fill">
                   {{#if (eq slot.state 'done')}}
                   <span class="ms-stone-gem-chip ms-slot-gem-done"
@@ -110,18 +108,8 @@
               {{/each}}
             </div>
           </div>
-          <div class="power-title power-title-general power-title-general-attr">
+          <div class="power-title power-title-general">
             <strong class="power-name" title="{{effectLong}}">{{name}}</strong>
-            <button type="button"
-                    class="power-activate-btn power-activate-btn-compact js-activate-power"
-                    data-power-id="{{id}}"
-                    data-attribute-key="{{attribute}}"
-                    {{#if @root.stonePlanLocked}}title="Gesperrt"{{else}}title="Ohne Ziehen aktivieren ({{nextCost}})"{{/if}}
-                    {{#unless @root.hasCombat}}disabled{{/unless}}
-                    {{#if @root.stonePlanLocked}}disabled{{/if}}
-                    {{#unless canAfford}}disabled title="Zu wenig Steine"{{/unless}}>
-              <i class="fas fa-bolt"></i> {{nextCost}}
-            </button>
           </div>
         </div>
           {{else}}
@@ -129,7 +117,6 @@
           {{/if}}
         {{/each}}
       </div>
-    </div>
     {{/each}}
     </div>
   </div>

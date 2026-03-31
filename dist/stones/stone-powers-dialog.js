@@ -70,40 +70,55 @@ function resolveStonePowersCombatant(actor, combat) {
     }
     return null;
 }
-/** Max number of tier slots to show: 2^n − 1 ≤ spendable */
-function visibleStoneDropSlotCount(spendable) {
-    if (spendable <= 0)
-        return 0;
-    return Math.floor(Math.log2(spendable + 1));
+function escapeCssIdentForSelector(value) {
+    const CSS = globalThis.CSS;
+    if (CSS && typeof CSS.escape === 'function')
+        return CSS.escape(value);
+    return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 }
-/** Slot visuals: active whenever genug Steine und nicht gesperrt — auch ohne laufenden Kampf (Aktivierung erst beim Drop/Button). */
-function buildStoneDropSlots(usesThisTurn, spendable, nextCost, planLocked) {
-    const visible = visibleStoneDropSlotCount(spendable);
-    const count = Math.max(visible, usesThisTurn);
+/**
+ * Sichtbare Ablagefelder für die laufende Zahlung: 1 → nach 1 Stein 3 → nach 3 Steinen 7 → 15 …
+ * (2^ceil(log2(acc+2)) − 1), gedeckelt durch nextCost.
+ */
+function progressivePaymentWaveSlotCount(accumulated, nextCost) {
+    if (nextCost <= 0)
+        return 0;
+    const acc = Math.min(Math.max(0, accumulated), nextCost);
+    const tree = Math.pow(2, Math.ceil(Math.log2(acc + 2))) - 1;
+    return Math.min(nextCost, tree);
+}
+/**
+ * Pro Macht: abgeschlossene Aktivierungen (je 1 Feld) + Welle für aktuelle Zahlung (mehrere parallele Ablagen).
+ * spendableNet = Pool minus bereits in Feldern liegende Steine (Akku).
+ */
+function buildStoneDropSlots(usesThisTurn, spendableNet, nextCost, planLocked, accumulated) {
     const slots = [];
-    for (let k = 0; k < count; k++) {
-        const displayCost = calculateStoneCost(k);
-        let state;
-        if (k < usesThisTurn)
-            state = 'done';
-        else if (k === usesThisTurn) {
+    const acc = Math.min(Math.max(0, accumulated), nextCost);
+    for (let k = 0; k < usesThisTurn; k++) {
+        slots.push({
+            index: k,
+            displayCost: calculateStoneCost(k),
+            state: 'done'
+        });
+    }
+    const wave = progressivePaymentWaveSlotCount(acc, nextCost);
+    const base = usesThisTurn;
+    const displayCost = calculateStoneCost(usesThisTurn);
+    for (let j = 0; j < wave; j++) {
+        const idx = base + j;
+        if (j < acc) {
+            slots.push({ index: idx, displayCost, state: 'filled' });
+        }
+        else {
+            let state;
             if (planLocked)
                 state = 'locked';
-            else if (spendable >= nextCost)
+            else if (spendableNet >= 1)
                 state = 'active';
             else
                 state = 'locked';
+            slots.push({ index: idx, displayCost, state });
         }
-        else
-            state = 'locked';
-        slots.push({ index: k, displayCost, state });
-    }
-    if (slots.length === 0) {
-        const cost = calculateStoneCost(usesThisTurn);
-        let state = 'locked';
-        if (!planLocked && spendable >= cost)
-            state = 'active';
-        slots.push({ index: usesThisTurn, displayCost: cost, state });
     }
     return slots;
 }
@@ -216,9 +231,13 @@ export class StonePowersDialog extends BaseDialog {
             const nextCost = calculateStoneCost(usesThisTurn);
             const pool = getStonePool(this.actor, attrKey);
             const canAfford = pool.current >= nextCost && hasCombat;
-            const spendable = spendableForAttr(attrKey);
+            const gross = spendableForAttr(attrKey);
+            const reserved = this.#reservedStonesInDialogForAttr(attrKey);
+            const spendableNet = Math.max(0, gross - reserved);
             const description = power.description || power.effect || '';
-            const dropSlots = buildStoneDropSlots(usesThisTurn, spendable, nextCost, stonePlanLocked);
+            const accKey = `${power.id}:${attrKey}:${usesThisTurn}`;
+            const accumulated = this._stoneDropAccumulators.get(accKey) || 0;
+            const dropSlots = buildStoneDropSlots(usesThisTurn, spendableNet, nextCost, stonePlanLocked, accumulated);
             const gem = getStoneGemStyle(attrKey);
             return {
                 id: power.id,
@@ -279,7 +298,11 @@ export class StonePowersDialog extends BaseDialog {
             const pool = getStonePool(this.actor, attrKey);
             const canAfford = pool.current >= nextCost && hasCombat;
             const description = power.description || power.effect || '';
-            const dropSlots = buildStoneDropSlots(usesThisTurn, spendable, nextCost, stonePlanLocked);
+            const reserved = this.#reservedStonesInDialogForAttr(attrKey);
+            const spendableNet = Math.max(0, spendable - reserved);
+            const accKey = `${power.id}:${attrKey}:${usesThisTurn}`;
+            const accumulated = this._stoneDropAccumulators.get(accKey) || 0;
+            const dropSlots = buildStoneDropSlots(usesThisTurn, spendableNet, nextCost, stonePlanLocked, accumulated);
             const gem = getStoneGemStyle(attrKey);
             const sp = STONE_POWERS[power.id];
             return {
@@ -332,7 +355,6 @@ export class StonePowersDialog extends BaseDialog {
             }
             return {
                 attrKey: attr,
-                label: pool.name,
                 cells
             };
         })
@@ -380,41 +402,6 @@ export class StonePowersDialog extends BaseDialog {
                 await this.#saveStonePowersPrefs(root);
             };
         }
-        root.querySelectorAll('.js-activate-power').forEach((el) => {
-            const btn = el;
-            btn.onclick = async (ev) => {
-                ev.preventDefault();
-                if (btn.disabled)
-                    return;
-                const powerId = btn.dataset.powerId;
-                const attributeKey = btn.dataset.attributeKey;
-                if (!powerId)
-                    return;
-                if (!this.combatant || !game.combat) {
-                    ui.notifications?.warn('Stonepowers kannst du nur aktivieren, wenn ein Kampf läuft und die Figur im Tracker steht.');
-                    return;
-                }
-                try {
-                    const success = await activateStonePower({
-                        actor: this.actor,
-                        combatant: this.combatant,
-                        abilityId: powerId,
-                        attributeKey: attributeKey || undefined
-                    });
-                    if (success) {
-                        ui.notifications?.info(`Activated ${STONE_POWERS[powerId]?.name || powerId}`);
-                        await this.render({ force: true });
-                    }
-                    else {
-                        ui.notifications?.warn(`Failed to activate ${STONE_POWERS[powerId]?.name || powerId}`);
-                    }
-                }
-                catch (error) {
-                    console.error('Mastery System | Error activating stone power', error);
-                    ui.notifications?.error('Failed to activate stone power');
-                }
-            };
-        });
         // Close button
         const closeBtn = root.querySelector('.js-close');
         if (closeBtn) {
@@ -479,7 +466,7 @@ export class StonePowersDialog extends BaseDialog {
             }
         }
     }
-    /** Zeigt Steine im aktiven Ablagefeld während Teil-Aktivierung (Kosten größer 1). */
+    /** Zeigt Steine in `slot-filled`-Zellen (ein Stein pro Feld, zurück zum Pool ziehbar). */
     #syncAccumulatorGems(root) {
         const combat = game.combat;
         const locked = !!(combat && this.combatant && isStonePowersConfigurationLocked(this.actor, combat));
@@ -496,16 +483,19 @@ export class StonePowersDialog extends BaseDialog {
             if (!payAttrRaw)
                 continue;
             const payAttr = payAttrRaw;
-            const slot = root.querySelector(`.ms-stone-drop-slot.slot-active[data-power-id="${powerId}"]`);
-            if (!slot)
-                continue;
-            const fill = slot.querySelector('.ms-stone-slot-fill');
-            if (!fill)
-                continue;
+            const usesRound = Number(accKey.slice(accKey.lastIndexOf(':') + 1)) || 0;
+            const esc = escapeCssIdentForSelector(powerId);
             const style = getStoneGemStyle(payAttr);
             const fillC = style?.fill ?? '#888888';
             const strokeC = style?.stroke ?? '#aaaaaa';
             for (let i = 0; i < count; i++) {
+                const slotIndex = usesRound + i;
+                const slot = root.querySelector(`.ms-stone-drop-slot.slot-filled[data-power-id="${esc}"][data-slot-index="${slotIndex}"]`);
+                if (!slot)
+                    continue;
+                const fill = slot.querySelector('.ms-stone-slot-fill');
+                if (!fill)
+                    continue;
                 const gem = document.createElement('span');
                 gem.className = 'ms-stone-gem-chip ms-slot-gem-partial js-stone-returnable';
                 gem.setAttribute('data-acc-key', accKey);
@@ -726,6 +716,7 @@ export class StonePowersDialog extends BaseDialog {
                     this._stoneDropAccumulators.set(accKeyReturn, next);
                 dlogStoneReturn('OK: Stein zurück im Pool (Akku--)', { accKeyReturn, next });
                 this.#syncAccumulatorGems(bindTarget);
+                await this.render({ force: true });
                 return;
             }
             const slot = resolveDropSlot(ev, true);
@@ -814,6 +805,7 @@ export class StonePowersDialog extends BaseDialog {
             this.#syncAccumulatorGems(bindTarget);
             dlogStoneDnD('drop Akku+1', { accKey, next, nextCost, partial: next < nextCost });
             if (next < nextCost) {
+                await this.render({ force: true });
                 return;
             }
             if (!canExecute) {
@@ -841,6 +833,7 @@ export class StonePowersDialog extends BaseDialog {
                     else
                         this._stoneDropAccumulators.delete(accKey);
                     this.#syncAccumulatorGems(bindTarget);
+                    await this.render({ force: true });
                     ui.notifications?.warn('Aktivierung fehlgeschlagen.');
                 }
             }
@@ -851,6 +844,7 @@ export class StonePowersDialog extends BaseDialog {
                 else
                     this._stoneDropAccumulators.delete(accKey);
                 this.#syncAccumulatorGems(bindTarget);
+                await this.render({ force: true });
                 ui.notifications?.error('Steinmacht konnte nicht aktiviert werden.');
             }
         };
