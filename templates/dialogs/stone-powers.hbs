@@ -63,32 +63,30 @@
         </h4>
         <span class="power-count">({{generalPowers.length}})</span>
       </summary>
-      <div class="powers-grid">
+      <div class="powers-grid powers-grid-general">
         {{#each generalPowers as |power|}}
-        <div class="power-row">
-          <div class="power-row-main">
-            <div class="power-title">
-              <strong class="power-name" title="{{power.description}}">{{power.name}}</strong>
-            </div>
-            <div class="power-drop-slots-row">
-              <div class="power-drop-slots" data-power-id="{{power.id}}">
-                {{#each power.dropSlots as |slot|}}
-                <div class="ms-stone-drop-slot slot-{{slot.state}}{{#unless @root.dragStonesEnabled}} slot-no-drag{{/unless}}"
-                     data-power-id="{{../power.id}}"
-                     data-is-generic="true"
-                     data-slot-index="{{slot.index}}"
-                     title="{{#if (eq slot.state 'active')}}Passenden Stein hier ablegen{{/if}}{{#if (eq slot.state 'done')}}Genutzt{{/if}}{{#if (eq slot.state 'locked')}}{{#if ../power.canAfford}}Später{{else}}Zu wenig Steine in diesem Pool{{/if}}{{/if}}">
-                  <div class="ms-stone-slot-fill">
-                    {{#if (eq slot.state 'done')}}
-                    <span class="ms-stone-gem-chip ms-slot-gem-done"
-                      style="background: {{../power.slotGemStyle.fill}}; box-shadow: 0 0 0 2px {{../power.slotGemStyle.stroke}} inset, 0 1px 3px rgba(0,0,0,0.45);"
-                      aria-hidden="true"></span>
-                    {{/if}}
-                  </div>
+        <div class="power-card power-card-general">
+          <div class="power-drop-slots-row power-drop-slots-row-general">
+            <div class="power-drop-slots power-drop-slots-general" data-power-id="{{power.id}}">
+              {{#each power.dropSlots as |slot|}}
+              <div class="ms-stone-drop-slot slot-{{slot.state}}{{#unless @root.dragStonesEnabled}} slot-no-drag{{/unless}}"
+                   data-power-id="{{../power.id}}"
+                   data-is-generic="true"
+                   data-slot-index="{{slot.index}}"
+                   title="{{#if (eq slot.state 'active')}}Passenden Stein hier ablegen{{/if}}{{#if (eq slot.state 'done')}}Genutzt{{/if}}{{#if (eq slot.state 'locked')}}{{#if ../power.canAfford}}Später{{else}}Zu wenig Steine in diesem Pool{{/if}}{{/if}}">
+                <div class="ms-stone-slot-fill">
+                  {{#if (eq slot.state 'done')}}
+                  <span class="ms-stone-gem-chip ms-slot-gem-done"
+                    style="background: {{../power.slotGemStyle.fill}}; box-shadow: 0 0 0 2px {{../power.slotGemStyle.stroke}} inset, 0 1px 3px rgba(0,0,0,0.45);"
+                    aria-hidden="true"></span>
+                  {{/if}}
                 </div>
-                {{/each}}
               </div>
+              {{/each}}
             </div>
+          </div>
+          <div class="power-title power-title-general">
+            <strong class="power-name" title="{{power.description}}">{{power.name}}</strong>
           </div>
         </div>
         {{/each}}

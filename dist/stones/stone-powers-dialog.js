@@ -105,7 +105,7 @@ export class StonePowersDialog extends BaseDialog {
     static DEFAULT_OPTIONS = {
         id: "mastery-stone-powers",
         classes: ["mastery-system", "stone-powers-dialog"],
-        position: { width: 760, height: 480 },
+        position: { width: 920, height: 520 },
         window: { title: 'Steinmächte', resizable: true }
     };
     static PARTS = {
@@ -440,10 +440,6 @@ export class StonePowersDialog extends BaseDialog {
                     ui.notifications?.warn('Diese Runde ist für Steinmächte gesperrt.');
                     return;
                 }
-                if (!canExecute) {
-                    /* Kein Toast: Hinweis steht im Banner oben; Drop üben ohne Kampf soll nicht spammen. */
-                    return;
-                }
                 if (!slot.classList.contains('slot-active'))
                     return;
                 const dragged = ev.dataTransfer?.getData(STONE_DRAG_MIME) || ev.dataTransfer?.getData('text/plain') || '';
@@ -484,15 +480,25 @@ export class StonePowersDialog extends BaseDialog {
                 const uses = getStoneUsageCount(this.actor, payAttr, powerId, combat);
                 const nextCost = calculateStoneCost(uses);
                 const accKey = `${powerId}:${payAttr}:${uses}`;
-                const next = (this._stoneDropAccumulators.get(accKey) || 0) + 1;
+                const cur = this._stoneDropAccumulators.get(accKey) || 0;
+                if (cur >= nextCost) {
+                    return;
+                }
+                const next = cur + 1;
                 this._stoneDropAccumulators.set(accKey, next);
+                const shell = slot.closest('.stone-powers-dialog');
+                if (shell)
+                    this.#syncAccumulatorGems(shell);
                 if (next < nextCost) {
-                    const shell = slot.closest('.stone-powers-dialog');
-                    if (shell)
-                        this.#syncAccumulatorGems(shell);
+                    return;
+                }
+                if (!canExecute) {
+                    /* Stein bleibt sichtbar; wirken tut die Macht erst mit Kampf + Tracker (siehe Banner). */
                     return;
                 }
                 this._stoneDropAccumulators.delete(accKey);
+                if (shell)
+                    this.#syncAccumulatorGems(shell);
                 try {
                     const success = await activateStonePower({
                         actor: this.actor,
@@ -505,11 +511,23 @@ export class StonePowersDialog extends BaseDialog {
                         await this.render({ force: true });
                     }
                     else {
+                        if (next > 1)
+                            this._stoneDropAccumulators.set(accKey, next - 1);
+                        else
+                            this._stoneDropAccumulators.delete(accKey);
+                        if (shell)
+                            this.#syncAccumulatorGems(shell);
                         ui.notifications?.warn('Aktivierung fehlgeschlagen.');
                     }
                 }
                 catch (error) {
                     console.error('Mastery System | stone drop activate', error);
+                    if (next > 1)
+                        this._stoneDropAccumulators.set(accKey, next - 1);
+                    else
+                        this._stoneDropAccumulators.delete(accKey);
+                    if (shell)
+                        this.#syncAccumulatorGems(shell);
                     ui.notifications?.error('Steinmacht konnte nicht aktiviert werden.');
                 }
             };
