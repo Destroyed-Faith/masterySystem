@@ -10,6 +10,8 @@ import { STONE_POWERS, activateStonePower, getAvailableStonePowers } from './sto
 import { getStoneUsageCount, calculateStoneCost, getStonePool, isStonePowersConfigurationLocked, getActionEconomyActor } from '../combat/action-economy.js';
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
 const STONE_DRAG_MIME = 'application/x-mastery-stone-attribute';
+/** Fallback wenn getData im Drop leer bleibt (z. B. Chromium/Foundry) */
+let msLastDraggedStoneAttribute = '';
 const ALL_STONE_ATTRS = [
     'might',
     'agility',
@@ -105,7 +107,7 @@ export class StonePowersDialog extends BaseDialog {
     static DEFAULT_OPTIONS = {
         id: "mastery-stone-powers",
         classes: ["mastery-system", "stone-powers-dialog"],
-        position: { width: 920, height: 520 },
+        position: { width: 900, height: 380 },
         window: { title: 'Steinmächte', resizable: true }
     };
     static PARTS = {
@@ -412,22 +414,31 @@ export class StonePowersDialog extends BaseDialog {
                 if (!allowDrag || !ev.dataTransfer)
                     return;
                 const attr = gem.dataset.attributeKey || '';
+                msLastDraggedStoneAttribute = attr;
                 ev.dataTransfer.setData(STONE_DRAG_MIME, attr);
                 ev.dataTransfer.setData('text/plain', attr);
                 ev.dataTransfer.effectAllowed = 'copy';
                 gem.classList.add('is-dragging');
             };
-            gem.ondragend = () => gem.classList.remove('is-dragging');
+            gem.ondragend = () => {
+                gem.classList.remove('is-dragging');
+            };
         });
         const clearDragOver = () => {
             root.querySelectorAll('.ms-stone-drop-slot.is-drag-over').forEach((n) => n.classList.remove('is-drag-over'));
         };
         root.querySelectorAll('.ms-stone-drop-slot').forEach((el) => {
             const slot = el;
+            slot.ondragenter = (ev) => {
+                if (slot.classList.contains('slot-active') && allowDrag) {
+                    ev.preventDefault();
+                }
+            };
             slot.ondragover = (ev) => {
                 if (slot.classList.contains('slot-active') && allowDrag) {
                     ev.preventDefault();
-                    ev.dataTransfer.dropEffect = 'copy';
+                    if (ev.dataTransfer)
+                        ev.dataTransfer.dropEffect = 'copy';
                     clearDragOver();
                     slot.classList.add('is-drag-over');
                 }
@@ -442,7 +453,10 @@ export class StonePowersDialog extends BaseDialog {
                 }
                 if (!slot.classList.contains('slot-active'))
                     return;
-                const dragged = ev.dataTransfer?.getData(STONE_DRAG_MIME) || ev.dataTransfer?.getData('text/plain') || '';
+                const dragged = ev.dataTransfer?.getData(STONE_DRAG_MIME) ||
+                    ev.dataTransfer?.getData('text/plain') ||
+                    msLastDraggedStoneAttribute ||
+                    '';
                 const powerId = slot.dataset.powerId || '';
                 const isGeneric = slot.dataset.isGeneric === 'true';
                 let payAttr;
@@ -486,9 +500,7 @@ export class StonePowersDialog extends BaseDialog {
                 }
                 const next = cur + 1;
                 this._stoneDropAccumulators.set(accKey, next);
-                const shell = slot.closest('.stone-powers-dialog');
-                if (shell)
-                    this.#syncAccumulatorGems(shell);
+                this.#syncAccumulatorGems(root);
                 if (next < nextCost) {
                     return;
                 }
@@ -497,8 +509,7 @@ export class StonePowersDialog extends BaseDialog {
                     return;
                 }
                 this._stoneDropAccumulators.delete(accKey);
-                if (shell)
-                    this.#syncAccumulatorGems(shell);
+                this.#syncAccumulatorGems(root);
                 try {
                     const success = await activateStonePower({
                         actor: this.actor,
@@ -515,8 +526,7 @@ export class StonePowersDialog extends BaseDialog {
                             this._stoneDropAccumulators.set(accKey, next - 1);
                         else
                             this._stoneDropAccumulators.delete(accKey);
-                        if (shell)
-                            this.#syncAccumulatorGems(shell);
+                        this.#syncAccumulatorGems(root);
                         ui.notifications?.warn('Aktivierung fehlgeschlagen.');
                     }
                 }
@@ -526,8 +536,7 @@ export class StonePowersDialog extends BaseDialog {
                         this._stoneDropAccumulators.set(accKey, next - 1);
                     else
                         this._stoneDropAccumulators.delete(accKey);
-                    if (shell)
-                        this.#syncAccumulatorGems(shell);
+                    this.#syncAccumulatorGems(root);
                     ui.notifications?.error('Steinmacht konnte nicht aktiviert werden.');
                 }
             };

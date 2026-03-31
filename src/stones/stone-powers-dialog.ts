@@ -23,6 +23,9 @@ import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
 
 const STONE_DRAG_MIME = 'application/x-mastery-stone-attribute';
 
+/** Fallback wenn getData im Drop leer bleibt (z. B. Chromium/Foundry) */
+let msLastDraggedStoneAttribute = '';
+
 const ALL_STONE_ATTRS: AttributeKey[] = [
   'might',
   'agility',
@@ -123,7 +126,7 @@ export class StonePowersDialog extends BaseDialog {
   static DEFAULT_OPTIONS = {
     id: "mastery-stone-powers",
     classes: ["mastery-system", "stone-powers-dialog"],
-    position: { width: 920, height: 520 },
+    position: { width: 900, height: 380 },
     window: { title: 'Steinmächte', resizable: true }
   };
   
@@ -464,12 +467,15 @@ export class StonePowersDialog extends BaseDialog {
       gem.ondragstart = (ev: DragEvent) => {
         if (!allowDrag || !ev.dataTransfer) return;
         const attr = gem.dataset.attributeKey || '';
+        msLastDraggedStoneAttribute = attr;
         ev.dataTransfer.setData(STONE_DRAG_MIME, attr);
         ev.dataTransfer.setData('text/plain', attr);
         ev.dataTransfer.effectAllowed = 'copy';
         gem.classList.add('is-dragging');
       };
-      gem.ondragend = () => gem.classList.remove('is-dragging');
+      gem.ondragend = () => {
+        gem.classList.remove('is-dragging');
+      };
     });
 
     const clearDragOver = () => {
@@ -479,10 +485,15 @@ export class StonePowersDialog extends BaseDialog {
     root.querySelectorAll('.ms-stone-drop-slot').forEach((el: Element) => {
       const slot = el as HTMLElement;
 
+      slot.ondragenter = (ev: DragEvent) => {
+        if (slot.classList.contains('slot-active') && allowDrag) {
+          ev.preventDefault();
+        }
+      };
       slot.ondragover = (ev: DragEvent) => {
         if (slot.classList.contains('slot-active') && allowDrag) {
           ev.preventDefault();
-          ev.dataTransfer!.dropEffect = 'copy';
+          if (ev.dataTransfer) ev.dataTransfer.dropEffect = 'copy';
           clearDragOver();
           slot.classList.add('is-drag-over');
         }
@@ -498,7 +509,10 @@ export class StonePowersDialog extends BaseDialog {
         if (!slot.classList.contains('slot-active')) return;
 
         const dragged =
-          ev.dataTransfer?.getData(STONE_DRAG_MIME) || ev.dataTransfer?.getData('text/plain') || '';
+          ev.dataTransfer?.getData(STONE_DRAG_MIME) ||
+          ev.dataTransfer?.getData('text/plain') ||
+          msLastDraggedStoneAttribute ||
+          '';
         const powerId = slot.dataset.powerId || '';
         const isGeneric = slot.dataset.isGeneric === 'true';
         let payAttr: AttributeKey;
@@ -540,8 +554,7 @@ export class StonePowersDialog extends BaseDialog {
         const next = cur + 1;
         this._stoneDropAccumulators.set(accKey, next);
 
-        const shell = slot.closest('.stone-powers-dialog') as HTMLElement | null;
-        if (shell) this.#syncAccumulatorGems(shell);
+        this.#syncAccumulatorGems(root);
 
         if (next < nextCost) {
           return;
@@ -553,7 +566,7 @@ export class StonePowersDialog extends BaseDialog {
         }
 
         this._stoneDropAccumulators.delete(accKey);
-        if (shell) this.#syncAccumulatorGems(shell);
+        this.#syncAccumulatorGems(root);
 
         try {
           const success = await activateStonePower({
@@ -568,14 +581,14 @@ export class StonePowersDialog extends BaseDialog {
           } else {
             if (next > 1) this._stoneDropAccumulators.set(accKey, next - 1);
             else this._stoneDropAccumulators.delete(accKey);
-            if (shell) this.#syncAccumulatorGems(shell);
+            this.#syncAccumulatorGems(root);
             ui.notifications?.warn('Aktivierung fehlgeschlagen.');
           }
         } catch (error) {
           console.error('Mastery System | stone drop activate', error);
           if (next > 1) this._stoneDropAccumulators.set(accKey, next - 1);
           else this._stoneDropAccumulators.delete(accKey);
-          if (shell) this.#syncAccumulatorGems(shell);
+          this.#syncAccumulatorGems(root);
           ui.notifications?.error('Steinmacht konnte nicht aktiviert werden.');
         }
       };
