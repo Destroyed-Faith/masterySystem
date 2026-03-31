@@ -6,8 +6,7 @@
  */
 import { getRoundState, setRoundState } from '../combat/action-economy.js';
 /**
- * Generic Powers - Available for EVERY attribute pool
- * Cost is paid from the CURRENT attribute section pool
+ * Generic Powers — jeder Pool kann zahlen; Nutzung/Kostenstufen sind pro Macht (nicht pro Farbe).
  */
 const GENERIC_POWERS = [
     {

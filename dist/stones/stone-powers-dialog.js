@@ -16,9 +16,11 @@ const STONE_RETURN_MIME = 'application/x-mastery-stone-return-acc';
  * Konsole nach `StoneDnD` filtern.
  * Abschalten: in F12 `CONFIG.masterySystemDebugStoneDnD = false` (Standard ist an, bis ihr es dauerhaft ausmacht).
  * Rückgabe Pool↔Feld: zusätzlich `CONFIG.masterySystemDebugStoneReturn = true` (Standard aus), dann [StoneReturn]-Logs.
+ * Ablage-Raster (wave/acc/nextCost): `CONFIG.masterySystemDebugStoneWave = true` → [StoneWave]-Logs.
  */
 const DEBUG_STONE_POWERS_DND = globalThis.CONFIG?.masterySystemDebugStoneDnD !== false;
 const DEBUG_STONE_RETURN = globalThis.CONFIG?.masterySystemDebugStoneReturn === true;
+const DEBUG_STONE_WAVE = globalThis.CONFIG?.masterySystemDebugStoneWave === true;
 function dlogStoneDnD(...args) {
     if (!DEBUG_STONE_POWERS_DND)
         return;
@@ -28,6 +30,9 @@ function dlogStoneReturn(...args) {
     if (!DEBUG_STONE_RETURN)
         return;
     console.log('Mastery System | [StoneReturn]', ...args);
+}
+function dlogStoneWave(payload) {
+    console.log('Mastery System | [StoneWave]', payload);
 }
 /** Fallback wenn getData im Drop leer bleibt (z. B. Chromium/Foundry) */
 let msLastDraggedStoneAttribute = '';
@@ -77,25 +82,25 @@ function escapeCssIdentForSelector(value) {
     return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 }
 /**
- * Sichtbare Ablagefelder für die laufende Zahlung: 1 → nach 1 Stein 3 → nach 3 Steinen 7 …
- * Solange noch bezahlt wird (acc < nextCost), **nicht** mit nextCost kappen — sonst z. B. bei Kosten 2
- * nach dem ersten Stein nur 2 statt 3 Felder (keine „zwei neuen gelben Boxen“).
- * Abgeschlossene Zahlung im Akku: genau nextCost Felder.
+ * Sichtbare Felder für die laufende Zahlung: Baum 1→3→7… **plus** genug Leerfelder für alle
+ * verbleibenden Steine (`acc + remaining`), damit nie nur ein gelbes Feld übrig bleibt, obwohl noch
+ * 2+ Steine fehlen (sonst nur Doppel-Drop auf dieselbe Zelle möglich).
  */
 function progressivePaymentWaveSlotCount(accumulated, nextCost) {
     if (nextCost <= 0)
         return 0;
     const acc = Math.min(Math.max(0, accumulated), nextCost);
-    const tree = Math.pow(2, Math.ceil(Math.log2(acc + 2))) - 1;
     if (acc >= nextCost)
         return nextCost;
-    return tree;
+    const tree = Math.pow(2, Math.ceil(Math.log2(acc + 2))) - 1;
+    const remaining = nextCost - acc;
+    return Math.max(tree, acc + remaining);
 }
 /**
  * Pro Macht: abgeschlossene Aktivierungen (je 1 Feld) + Welle für aktuelle Zahlung (mehrere parallele Ablagen).
  * spendableNet = Pool minus bereits in Feldern liegende Steine (Akku).
  */
-function buildStoneDropSlots(usesThisTurn, spendableNet, nextCost, planLocked, accumulated) {
+function buildStoneDropSlots(usesThisTurn, spendableNet, nextCost, planLocked, accumulated, debugLabel) {
     const slots = [];
     const acc = Math.min(Math.max(0, accumulated), nextCost);
     for (let k = 0; k < usesThisTurn; k++) {
@@ -108,6 +113,7 @@ function buildStoneDropSlots(usesThisTurn, spendableNet, nextCost, planLocked, a
     const wave = progressivePaymentWaveSlotCount(acc, nextCost);
     const base = usesThisTurn;
     const displayCost = calculateStoneCost(usesThisTurn);
+    const treeOnly = Math.pow(2, Math.ceil(Math.log2(acc + 2))) - 1;
     for (let j = 0; j < wave; j++) {
         const idx = base + j;
         if (j < acc) {
@@ -123,6 +129,21 @@ function buildStoneDropSlots(usesThisTurn, spendableNet, nextCost, planLocked, a
                 state = 'locked';
             slots.push({ index: idx, displayCost, state });
         }
+    }
+    if (DEBUG_STONE_WAVE && debugLabel) {
+        dlogStoneWave({
+            label: debugLabel,
+            usesThisTurn,
+            nextCost,
+            accumulated: acc,
+            remaining: nextCost - acc,
+            treeWave: acc >= nextCost ? nextCost : treeOnly,
+            waveFinal: wave,
+            emptySlots: wave - acc,
+            spendableNet,
+            planLocked,
+            slotCount: slots.length
+        });
     }
     return slots;
 }
@@ -251,7 +272,7 @@ export class StonePowersDialog extends BaseDialog {
             const description = power.description || power.effect || '';
             const accKey = `${power.id}:${attrKey}:${usesThisTurn}`;
             const accumulated = this._stoneDropAccumulators.get(accKey) || 0;
-            const dropSlots = buildStoneDropSlots(usesThisTurn, spendableNet, nextCost, stonePlanLocked, accumulated);
+            const dropSlots = buildStoneDropSlots(usesThisTurn, spendableNet, nextCost, stonePlanLocked, accumulated, `${power.id}/${attrKey}`);
             const gem = getStoneGemStyle(attrKey);
             return {
                 id: power.id,
@@ -314,7 +335,7 @@ export class StonePowersDialog extends BaseDialog {
                 accumulated = n;
                 break;
             }
-            const dropSlots = buildStoneDropSlots(usesThisTurn, spendableNet, nextCost, stonePlanLocked, accumulated);
+            const dropSlots = buildStoneDropSlots(usesThisTurn, spendableNet, nextCost, stonePlanLocked, accumulated, `${power.id}/general`);
             const gem = getStoneGemStyle(attrKey);
             const sp = STONE_POWERS[power.id];
             return {
