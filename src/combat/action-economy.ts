@@ -11,6 +11,60 @@ import { healStressFromBars } from '../utils/calculations.js';
 
 export type AttributeKey = 'might' | 'agility' | 'vitality' | 'intellect' | 'resolve' | 'influence';
 
+const STONE_USAGE_ATTR_KEYS: AttributeKey[] = [
+  'might',
+  'agility',
+  'vitality',
+  'intellect',
+  'resolve',
+  'influence'
+];
+
+function genericStoneUsageFlagKey(abilityKey: string, round: number, turn: number): string {
+  return `generic:${abilityKey}:${round}:${turn}`;
+}
+
+/**
+ * Nutzungszähler für General-Stonepowers (generic.*): ein Wert pro Macht/Zug — unabhängig davon,
+ * welcher Pool bezahlt hat. Sonst startet jede Farbe wieder bei Kosten 1 und die UI bleibt leer.
+ */
+export function getGenericStonePowerUsageCount(
+  actor: Actor,
+  abilityKey: string,
+  combat: Combat | null
+): number {
+  const owner = getActionEconomyActor(actor) ?? actor;
+  const round = combat?.round || 1;
+  const turn = combat?.turn || 0;
+  const usageKey = genericStoneUsageFlagKey(abilityKey, round, turn);
+  const stoneUsage = (owner as any).getFlag('mastery-system', 'stoneUsage') as
+    | Record<string, number>
+    | undefined;
+  if (stoneUsage && Object.prototype.hasOwnProperty.call(stoneUsage, usageKey)) {
+    return stoneUsage[usageKey] || 0;
+  }
+  let legacy = 0;
+  for (const attr of STONE_USAGE_ATTR_KEYS) {
+    legacy += getStoneUsageCount(actor, attr, abilityKey, combat);
+  }
+  return legacy;
+}
+
+export async function incrementGenericStonePowerUsage(
+  actor: Actor,
+  abilityKey: string,
+  combat: Combat | null
+): Promise<void> {
+  const owner = getActionEconomyActor(actor) ?? actor;
+  const round = combat?.round || 1;
+  const turn = combat?.turn || 0;
+  const usageKey = genericStoneUsageFlagKey(abilityKey, round, turn);
+  const stoneUsage =
+    ((owner as any).getFlag('mastery-system', 'stoneUsage') as Record<string, number>) || {};
+  stoneUsage[usageKey] = (stoneUsage[usageKey] || 0) + 1;
+  await (owner as any).setFlag('mastery-system', 'stoneUsage', stoneUsage);
+}
+
 /**
  * Round state stored on actor flags
  * Tracks action budgets, bonuses, and stone usage per round
@@ -515,9 +569,12 @@ export async function spendStoneAbility(
     ui.notifications?.warn('Not in combat!');
     return false;
   }
-  
+
+  const isGenericStoneAbility = abilityKey.startsWith('generic.');
   // Get current usage count and calculate cost
-  const uses = getStoneUsageCount(actor, attribute, abilityKey, combat);
+  const uses = isGenericStoneAbility
+    ? getGenericStonePowerUsageCount(actor, abilityKey, combat)
+    : getStoneUsageCount(actor, attribute, abilityKey, combat);
   const cost = calculateStoneCost(uses);
   
   // Get stone pool
@@ -540,9 +597,13 @@ export async function spendStoneAbility(
     
     // Deduct stones
     await setStonePool(actor, attribute, pool.current - cost);
-    
-    // Increment usage counter
-    await incrementStoneUsage(actor, attribute, abilityKey, combat);
+
+    // Increment usage counter (General Powers: ein Zähler pro Macht, nicht pro Pool-Farbe)
+    if (isGenericStoneAbility) {
+      await incrementGenericStonePowerUsage(actor, abilityKey, combat);
+    } else {
+      await incrementStoneUsage(actor, attribute, abilityKey, combat);
+    }
     
     // Do not call setRoundState(actor, roundState) here: `roundState` is the pre-effect snapshot.
     // Stone powers call getRoundState + setRoundState inside apply(); saving this snapshot would

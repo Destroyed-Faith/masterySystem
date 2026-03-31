@@ -8,7 +8,7 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
 import { STONE_POWERS, activateStonePower, getAvailableStonePowers } from './stone-activation.js';
 import { STONE_POWERS_BY_ATTRIBUTE } from './stone-powers.js';
-import { getStoneUsageCount, calculateStoneCost, getStonePool, isStonePowersConfigurationLocked, getActionEconomyActor } from '../combat/action-economy.js';
+import { getStoneUsageCount, getGenericStonePowerUsageCount, calculateStoneCost, getStonePool, isStonePowersConfigurationLocked, getActionEconomyActor } from '../combat/action-economy.js';
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
 const STONE_DRAG_MIME = 'application/x-mastery-stone-attribute';
 const STONE_RETURN_MIME = 'application/x-mastery-stone-return-acc';
@@ -230,6 +230,16 @@ export class StonePowersDialog extends BaseDialog {
             return 'might'; // Fallback
         })();
         const spendableForAttr = (key) => pools.find((p) => p.key === key)?.available ?? 0;
+        const totalSpendableNetAllPools = () => {
+            let sum = 0;
+            for (const attr of ALL_STONE_ATTRS) {
+                const gross = spendableForAttr(attr);
+                const reserved = this.#reservedStonesInDialogForAttr(attr);
+                sum += Math.max(0, gross - reserved);
+            }
+            return sum;
+        };
+        const canAffordGenericNextCost = (cost) => hasCombat && ALL_STONE_ATTRS.some((a) => getStonePool(this.actor, a).current >= cost);
         const preparePowerData = (power, attrKey) => {
             const usesThisTurn = hasCombat && combat ? getStoneUsageCount(this.actor, attrKey, power.id, combat) : 0;
             const nextCost = calculateStoneCost(usesThisTurn);
@@ -257,6 +267,7 @@ export class StonePowersDialog extends BaseDialog {
             };
         };
         const resolveGenericAttrAndStats = (powerId) => {
+            const usesThisTurn = hasCombat && combat ? getGenericStonePowerUsageCount(this.actor, powerId, combat) : 0;
             let attrKey = null;
             for (const [accKey, n] of this._stoneDropAccumulators) {
                 if (n <= 0 || !accKey.startsWith(`${powerId}:`))
@@ -264,6 +275,9 @@ export class StonePowersDialog extends BaseDialog {
                 const rest = accKey.slice(powerId.length + 1);
                 const i = rest.lastIndexOf(':');
                 if (i <= 0)
+                    continue;
+                const tierUses = Number(rest.slice(i + 1));
+                if (tierUses !== usesThisTurn)
                     continue;
                 attrKey = rest.slice(0, i);
                 break;
@@ -274,23 +288,8 @@ export class StonePowersDialog extends BaseDialog {
                 if (!pools.some((p) => p.key === attrKey))
                     attrKey = defaultGeneralAttrKey;
             }
-            let usesThisTurn = hasCombat && combat ? getStoneUsageCount(this.actor, attrKey, powerId, combat) : 0;
-            let spendable = spendableForAttr(attrKey);
-            let nextCost = calculateStoneCost(usesThisTurn);
-            const hasPartial = [...this._stoneDropAccumulators].some(([k, n]) => n > 0 && k.startsWith(`${powerId}:`));
-            if (!hasPartial &&
-                !stonePlanLocked &&
-                spendable < nextCost &&
-                pools.some((p) => spendableForAttr(p.key) >= nextCost)) {
-                const alt = pools.find((p) => spendableForAttr(p.key) >= nextCost);
-                if (alt) {
-                    attrKey = alt.key;
-                    spendable = spendableForAttr(attrKey);
-                    usesThisTurn =
-                        hasCombat && combat ? getStoneUsageCount(this.actor, attrKey, powerId, combat) : 0;
-                    nextCost = calculateStoneCost(usesThisTurn);
-                }
-            }
+            const nextCost = calculateStoneCost(usesThisTurn);
+            const spendable = spendableForAttr(attrKey);
             this._generalAttrSelection[powerId] = attrKey;
             return { attrKey, usesThisTurn, spendable, nextCost };
         };
@@ -298,14 +297,23 @@ export class StonePowersDialog extends BaseDialog {
         const genericPowers = availablePowers.filter(p => p.attribute === 'generic');
         const attributeSpecificPowers = availablePowers.filter(p => p.attribute !== 'generic');
         const generalPowers = genericPowers.map((power) => {
-            const { attrKey, usesThisTurn, spendable, nextCost } = resolveGenericAttrAndStats(power.id);
-            const pool = getStonePool(this.actor, attrKey);
-            const canAfford = pool.current >= nextCost && hasCombat;
+            const { attrKey, usesThisTurn, nextCost } = resolveGenericAttrAndStats(power.id);
+            const canAfford = canAffordGenericNextCost(nextCost);
             const description = power.description || power.effect || '';
-            const reserved = this.#reservedStonesInDialogForAttr(attrKey);
-            const spendableNet = Math.max(0, spendable - reserved);
-            const accKey = `${power.id}:${attrKey}:${usesThisTurn}`;
-            const accumulated = this._stoneDropAccumulators.get(accKey) || 0;
+            const spendableNet = totalSpendableNetAllPools();
+            let accumulated = 0;
+            for (const [k, n] of this._stoneDropAccumulators) {
+                if (n <= 0 || !k.startsWith(`${power.id}:`))
+                    continue;
+                const rest = k.slice(power.id.length + 1);
+                const i = rest.lastIndexOf(':');
+                if (i <= 0)
+                    continue;
+                if (Number(rest.slice(i + 1)) !== usesThisTurn)
+                    continue;
+                accumulated = n;
+                break;
+            }
             const dropSlots = buildStoneDropSlots(usesThisTurn, spendableNet, nextCost, stonePlanLocked, accumulated);
             const gem = getStoneGemStyle(attrKey);
             const sp = STONE_POWERS[power.id];
@@ -808,7 +816,9 @@ export class StonePowersDialog extends BaseDialog {
                     return;
                 }
             }
-            const uses = getStoneUsageCount(this.actor, payAttr, powerId, combat);
+            const uses = isGeneric
+                ? getGenericStonePowerUsageCount(this.actor, powerId, combat)
+                : getStoneUsageCount(this.actor, payAttr, powerId, combat);
             const nextCost = calculateStoneCost(uses);
             const accKey = `${powerId}:${payAttr}:${uses}`;
             const cur = this._stoneDropAccumulators.get(accKey) || 0;

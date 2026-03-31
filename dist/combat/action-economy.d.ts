@@ -6,6 +6,12 @@
  */
 export type AttributeKey = 'might' | 'agility' | 'vitality' | 'intellect' | 'resolve' | 'influence';
 /**
+ * Nutzungszähler für General-Stonepowers (generic.*): ein Wert pro Macht/Zug — unabhängig davon,
+ * welcher Pool bezahlt hat. Sonst startet jede Farbe wieder bei Kosten 1 und die UI bleibt leer.
+ */
+export declare function getGenericStonePowerUsageCount(actor: Actor, abilityKey: string, combat: Combat | null): number;
+export declare function incrementGenericStonePowerUsage(actor: Actor, abilityKey: string, combat: Combat | null): Promise<void>;
+/**
  * Round state stored on actor flags
  * Tracks action budgets, bonuses, and stone usage per round
  */
