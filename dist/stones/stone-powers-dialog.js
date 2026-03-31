@@ -121,8 +121,8 @@ export class StonePowersDialog extends BaseDialog {
     static DEFAULT_OPTIONS = {
         id: "mastery-stone-powers",
         classes: ["mastery-system", "stone-powers-dialog"],
-        position: { width: 900, height: 380 },
-        window: { title: 'Steinmächte', resizable: true }
+        position: { width: 900, height: 300 },
+        window: { title: 'Stonepowers', resizable: true }
     };
     static PARTS = {
         content: { template: "systems/mastery-system/templates/dialogs/stone-powers.hbs" }
@@ -167,8 +167,10 @@ export class StonePowersDialog extends BaseDialog {
             const max = pool?.max ?? pool?.maximum ?? 0;
             const sustained = pool?.sustained ?? 0;
             const available = (Number(current) || 0) - (Number(sustained) || 0);
+            const reserved = this.#reservedStonesInDialogForAttr(attr);
+            const poolDisplay = Math.max(0, available - reserved);
             const gemStyle = getStoneGemStyle(attr) ?? { fill: '#888888', stroke: '#aaaaaa' };
-            const gemSlots = Array.from({ length: Math.max(0, available) }, (_, i) => ({ index: i }));
+            const gemSlots = Array.from({ length: poolDisplay }, (_, i) => ({ index: i }));
             return {
                 key: attr,
                 name: attr.charAt(0).toUpperCase() + attr.slice(1),
@@ -345,7 +347,7 @@ export class StonePowersDialog extends BaseDialog {
                 if (!powerId)
                     return;
                 if (!this.combatant || !game.combat) {
-                    ui.notifications?.warn('Steinmächte kannst du nur aktivieren, wenn ein Kampf läuft und die Figur im Tracker steht.');
+                    ui.notifications?.warn('Stonepowers kannst du nur aktivieren, wenn ein Kampf läuft und die Figur im Tracker steht.');
                     return;
                 }
                 try {
@@ -382,21 +384,71 @@ export class StonePowersDialog extends BaseDialog {
             };
         }
     }
+    /** payAttr aus Schlüssel `powerId:payAttr:uses` (powerId kann Punkte, keine weiteren `:`). */
+    #parseAccKeyPayAttr(accKey) {
+        const i = accKey.indexOf(':');
+        if (i < 0)
+            return null;
+        const rest = accKey.slice(i + 1);
+        const j = rest.lastIndexOf(':');
+        if (j <= 0)
+            return null;
+        return rest.slice(0, j);
+    }
+    #reservedStonesInDialogForAttr(attr) {
+        let sum = 0;
+        for (const [accKey, count] of this._stoneDropAccumulators) {
+            if (count <= 0)
+                continue;
+            if (this.#parseAccKeyPayAttr(accKey) === attr)
+                sum += count;
+        }
+        return sum;
+    }
+    #actorPoolSpendable(attr) {
+        const system = this.actor.system;
+        const stonePools = system?.stonePools || {};
+        const pool = stonePools[attr];
+        if (!pool)
+            return 0;
+        const current = pool?.current ?? pool?.value ?? 0;
+        const sustained = pool?.sustained ?? 0;
+        return Math.max(0, (Number(current) || 0) - (Number(sustained) || 0));
+    }
+    /** Entfernt Pool-Chips, die bereits in Ablagefeldern (Akku) stecken — inkl. Teilbelegung. */
+    #syncPoolGemChips(root) {
+        for (const attr of ALL_STONE_ATTRS) {
+            const poolGems = root.querySelector(`.pool-gems[data-attribute-key="${attr}"]`);
+            if (!poolGems)
+                continue;
+            const spendable = this.#actorPoolSpendable(attr);
+            const reserved = this.#reservedStonesInDialogForAttr(attr);
+            const want = Math.max(0, spendable - reserved);
+            const chips = Array.from(poolGems.querySelectorAll('.js-stone-draggable')).filter((c) => !c.classList.contains('is-dragging'));
+            while (chips.length > want) {
+                const el = chips.pop();
+                el?.remove();
+            }
+            if (chips.length < want) {
+                void this.render({ force: true });
+                return;
+            }
+        }
+    }
     /** Zeigt Steine im aktiven Ablagefeld während Teil-Aktivierung (Kosten größer 1). */
     #syncAccumulatorGems(root) {
         root.querySelectorAll('.ms-stone-slot-fill .ms-slot-gem-partial').forEach((n) => n.remove());
         for (const [accKey, count] of this._stoneDropAccumulators) {
             if (count <= 0)
                 continue;
-            const firstColon = accKey.indexOf(':');
-            if (firstColon < 0)
+            const fc = accKey.indexOf(':');
+            if (fc < 0)
                 continue;
-            const powerId = accKey.slice(0, firstColon);
-            const rest = accKey.slice(firstColon + 1);
-            const lastColon = rest.lastIndexOf(':');
-            if (lastColon <= 0)
+            const powerId = accKey.slice(0, fc);
+            const payAttrRaw = this.#parseAccKeyPayAttr(accKey);
+            if (!payAttrRaw)
                 continue;
-            const payAttr = rest.slice(0, lastColon);
+            const payAttr = payAttrRaw;
             const slot = root.querySelector(`.ms-stone-drop-slot.slot-active[data-power-id="${powerId}"]`);
             if (!slot)
                 continue;
@@ -414,6 +466,7 @@ export class StonePowersDialog extends BaseDialog {
                 fill.appendChild(gem);
             }
         }
+        this.#syncPoolGemChips(root);
     }
     /**
      * @param root Content-Part (Queries für Buttons)
@@ -468,6 +521,7 @@ export class StonePowersDialog extends BaseDialog {
                 gem.classList.remove('is-dragging');
                 clearDragOver();
                 lastDragOverLogKey = '';
+                this.#syncPoolGemChips(bindTarget);
                 dlogStoneDnD('dragend', {
                     msLastDraggedStoneAttribute,
                     dialogDragAttr: this._stoneDragAttribute
@@ -563,7 +617,7 @@ export class StonePowersDialog extends BaseDialog {
             clearDragOver();
             if (locked) {
                 dlogStoneDnD('drop abort: stonePlanLocked');
-                ui.notifications?.warn('Diese Runde ist für Steinmächte gesperrt.');
+                ui.notifications?.warn('Diese Runde ist für Stonepowers gesperrt.');
                 return;
             }
             if (!slot.classList.contains('slot-active')) {
