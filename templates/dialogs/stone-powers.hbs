@@ -70,14 +70,14 @@
             <div class="power-drop-slots power-drop-slots-general" data-power-id="{{power.id}}">
               {{#each power.dropSlots as |slot|}}
               <div class="ms-stone-drop-slot slot-{{slot.state}}{{#unless @root.dragStonesEnabled}} slot-no-drag{{/unless}}"
-                   data-power-id="{{../power.id}}"
+                   data-power-id="{{../id}}"
                    data-is-generic="true"
                    data-slot-index="{{slot.index}}"
-                   title="{{#if (eq slot.state 'active')}}Passenden Stein hier ablegen{{/if}}{{#if (eq slot.state 'done')}}Genutzt{{/if}}{{#if (eq slot.state 'locked')}}{{#if ../power.canAfford}}Später{{else}}Zu wenig Steine in diesem Pool{{/if}}{{/if}}">
+                   title="{{#if (eq slot.state 'active')}}Passenden Stein hier ablegen{{/if}}{{#if (eq slot.state 'done')}}Genutzt{{/if}}{{#if (eq slot.state 'locked')}}{{#if ../canAfford}}Später{{else}}Zu wenig Steine in diesem Pool{{/if}}{{/if}}">
                 <div class="ms-stone-slot-fill">
                   {{#if (eq slot.state 'done')}}
                   <span class="ms-stone-gem-chip ms-slot-gem-done"
-                    style="background: {{../power.slotGemStyle.fill}}; box-shadow: 0 0 0 2px {{../power.slotGemStyle.stroke}} inset, 0 1px 3px rgba(0,0,0,0.45);"
+                    style="background: {{../slotGemStyle.fill}}; box-shadow: 0 0 0 2px {{../slotGemStyle.stroke}} inset, 0 1px 3px rgba(0,0,0,0.45);"
                     aria-hidden="true"></span>
                   {{/if}}
                 </div>
@@ -125,14 +125,14 @@
               <div class="power-drop-slots">
                 {{#each power.dropSlots as |slot|}}
                 <div class="ms-stone-drop-slot slot-{{slot.state}}{{#unless @root.dragStonesEnabled}} slot-no-drag{{/unless}}"
-                     data-power-id="{{../power.id}}"
-                     data-pay-attribute="{{../power.attribute}}"
+                     data-power-id="{{../id}}"
+                     data-pay-attribute="{{../attribute}}"
                      data-slot-index="{{slot.index}}"
-                     title="{{#if (eq slot.state 'active')}}Passenden {{../power.attribute}}-Stein ablegen{{/if}}{{#if (eq slot.state 'done')}}Genutzt{{/if}}{{#if (eq slot.state 'locked')}}{{#if ../power.canAfford}}Später{{else}}Nicht genug Steine{{/if}}{{/if}}">
+                     title="{{#if (eq slot.state 'active')}}Passenden {{../attribute}}-Stein ablegen{{/if}}{{#if (eq slot.state 'done')}}Genutzt{{/if}}{{#if (eq slot.state 'locked')}}{{#if ../canAfford}}Später{{else}}Nicht genug Steine{{/if}}{{/if}}">
                   <div class="ms-stone-slot-fill">
                     {{#if (eq slot.state 'done')}}
                     <span class="ms-stone-gem-chip ms-slot-gem-done"
-                      style="background: {{../power.slotGemStyle.fill}}; box-shadow: 0 0 0 2px {{../power.slotGemStyle.stroke}} inset, 0 1px 3px rgba(0,0,0,0.45);"
+                      style="background: {{../slotGemStyle.fill}}; box-shadow: 0 0 0 2px {{../slotGemStyle.stroke}} inset, 0 1px 3px rgba(0,0,0,0.45);"
                       aria-hidden="true"></span>
                     {{/if}}
                   </div>

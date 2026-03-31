@@ -484,7 +484,9 @@ export class StonePowersDialog extends BaseDialog {
                 ev.dataTransfer?.getData('text/plain') ||
                 msLastDraggedStoneAttribute ||
                 '';
-            const powerId = slot.dataset.powerId || '';
+            const powerId = slot.dataset.powerId ||
+                slot.closest('.power-drop-slots')?.dataset.powerId ||
+                '';
             const isGeneric = slot.dataset.isGeneric === 'true';
             let payAttr;
             if (isGeneric) {

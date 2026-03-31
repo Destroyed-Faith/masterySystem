@@ -341,22 +341,22 @@
   padding: 0.5rem 0;
 }
 
-/* General Powers: Karten nebeneinander, Ablage oben, Name unten */
+/* General Powers: kompaktes Raster, Ablage oben, Name unten */
 .stone-powers-dialog .powers-grid-general {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(124px, 1fr));
-  gap: 0.35rem 0.45rem;
-  padding: 0.35rem 0.45rem 0.45rem;
+  grid-template-columns: repeat(auto-fit, minmax(108px, 1fr));
+  gap: 0.2rem 0.3rem;
+  padding: 0.2rem 0.3rem 0.25rem;
 }
 
 .stone-powers-dialog .power-card-general {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 0.3rem;
-  padding: 0.32rem 0.35rem;
+  gap: 0.12rem;
+  padding: 0.18rem 0.22rem 0.2rem;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 8px;
+  border-radius: 5px;
   background: rgba(0, 0, 0, 0.22);
   min-width: 0;
 }
@@ -371,7 +371,25 @@
 .stone-powers-dialog .power-drop-slots-general {
   justify-content: center;
   width: 100%;
-  min-height: 28px;
+  min-height: 0;
+}
+
+/* Nur General: flache Drop-Zellen */
+.stone-powers-dialog .powers-grid-general .ms-stone-drop-slot {
+  min-width: 26px;
+  min-height: 20px;
+  padding: 1px 3px;
+}
+
+.stone-powers-dialog .powers-grid-general .ms-stone-slot-fill {
+  min-height: 14px;
+  gap: 2px;
+}
+
+.stone-powers-dialog .powers-grid-general .ms-stone-drop-slot .ms-slot-gem-done,
+.stone-powers-dialog .powers-grid-general .ms-stone-drop-slot .ms-slot-gem-partial {
+  width: 13px;
+  height: 13px;
 }
 
 .stone-powers-dialog .power-title-general {
@@ -379,14 +397,19 @@
   justify-content: center;
   text-align: center;
   width: 100%;
+  margin-top: 0;
 }
 
 .stone-powers-dialog .power-title-general .power-name {
-  font-size: 0.8rem;
+  font-size: 0.68rem;
   font-weight: 600;
-  line-height: 1.25;
+  line-height: 1.12;
   display: block;
   width: 100%;
+}
+
+.stone-powers-dialog .power-group.is-general summary {
+  padding: 0.32rem 0.5rem;
 }
 
 .stone-powers-dialog .power-row {
