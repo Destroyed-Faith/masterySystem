@@ -17,6 +17,8 @@ export declare class StonePowersDialog extends BaseDialog {
     private _stoneDndCleanup?;
     /** Attribut des aktuellen Zugs — Foundry/Electron liefert oft kein dataTransfer.getData beim drop. */
     private _stoneDragAttribute;
+    /** Akku-Schlüssel beim Ziehen eines Steins aus dem Feld zurück in den Pool. */
+    private _stoneReturnAccKey;
     static DEFAULT_OPTIONS: {
         id: string;
         classes: string[];

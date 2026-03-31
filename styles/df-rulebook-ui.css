@@ -290,12 +290,6 @@
   background: var(--df-bg-primary);
 }
 
-.application.mastery-system:not(.sheet) .stone-powers-dialog .dialog-header {
-  border-bottom: 1px solid var(--df-border-primary);
-  padding-bottom: 0.75rem;
-  margin-bottom: 1rem;
-}
-
 .application.mastery-system:not(.sheet) .stone-powers-dialog .power-row {
   background: var(--df-bg-panel);
   border: 1px solid var(--df-border-primary);
@@ -319,6 +313,17 @@
   font-size: 1rem;
   color: var(--df-text-primary);
   font-weight: 400;
+}
+
+/* General-Stonepowers-Kacheln: feste 60px — Schrift klein halten */
+.application.mastery-system:not(.sheet)
+  .stone-powers-dialog
+  .powers-grid-general
+  .power-title-general
+  .power-name {
+  font-size: 0.6rem;
+  line-height: 1.05;
+  font-weight: 600;
 }
 
 .application.mastery-system:not(.sheet) .stone-powers-dialog .power-cost {

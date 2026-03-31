@@ -10,15 +10,23 @@ import { STONE_POWERS, activateStonePower, getAvailableStonePowers } from './sto
 import { getStoneUsageCount, calculateStoneCost, getStonePool, isStonePowersConfigurationLocked, getActionEconomyActor } from '../combat/action-economy.js';
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
 const STONE_DRAG_MIME = 'application/x-mastery-stone-attribute';
+const STONE_RETURN_MIME = 'application/x-mastery-stone-return-acc';
 /**
  * Konsole nach `StoneDnD` filtern.
  * Abschalten: in F12 `CONFIG.masterySystemDebugStoneDnD = false` (Standard ist an, bis ihr es dauerhaft ausmacht).
+ * Rückgabe Pool↔Feld: zusätzlich `CONFIG.masterySystemDebugStoneReturn = true` (Standard aus), dann [StoneReturn]-Logs.
  */
 const DEBUG_STONE_POWERS_DND = globalThis.CONFIG?.masterySystemDebugStoneDnD !== false;
+const DEBUG_STONE_RETURN = globalThis.CONFIG?.masterySystemDebugStoneReturn === true;
 function dlogStoneDnD(...args) {
     if (!DEBUG_STONE_POWERS_DND)
         return;
     console.log('Mastery System | [StoneDnD]', ...args);
+}
+function dlogStoneReturn(...args) {
+    if (!DEBUG_STONE_RETURN)
+        return;
+    console.log('Mastery System | [StoneReturn]', ...args);
 }
 /** Fallback wenn getData im Drop leer bleibt (z. B. Chromium/Foundry) */
 let msLastDraggedStoneAttribute = '';
@@ -118,6 +126,8 @@ export class StonePowersDialog extends BaseDialog {
     _stoneDndCleanup;
     /** Attribut des aktuellen Zugs — Foundry/Electron liefert oft kein dataTransfer.getData beim drop. */
     _stoneDragAttribute = null;
+    /** Akku-Schlüssel beim Ziehen eines Steins aus dem Feld zurück in den Pool. */
+    _stoneReturnAccKey = null;
     static DEFAULT_OPTIONS = {
         id: "mastery-stone-powers",
         classes: ["mastery-system", "stone-powers-dialog"],
@@ -437,6 +447,9 @@ export class StonePowersDialog extends BaseDialog {
     }
     /** Zeigt Steine im aktiven Ablagefeld während Teil-Aktivierung (Kosten größer 1). */
     #syncAccumulatorGems(root) {
+        const combat = game.combat;
+        const locked = !!(combat && this.combatant && isStonePowersConfigurationLocked(this.actor, combat));
+        const allowReturnDrag = !locked;
         root.querySelectorAll('.ms-stone-slot-fill .ms-slot-gem-partial').forEach((n) => n.remove());
         for (const [accKey, count] of this._stoneDropAccumulators) {
             if (count <= 0)
@@ -460,7 +473,13 @@ export class StonePowersDialog extends BaseDialog {
             const strokeC = style?.stroke ?? '#aaaaaa';
             for (let i = 0; i < count; i++) {
                 const gem = document.createElement('span');
-                gem.className = 'ms-stone-gem-chip ms-slot-gem-partial';
+                gem.className = 'ms-stone-gem-chip ms-slot-gem-partial js-stone-returnable';
+                gem.setAttribute('data-acc-key', accKey);
+                gem.title = allowReturnDrag
+                    ? 'Zurück in den passenden Pool ziehen'
+                    : 'Runde gesperrt — Rückgabe nicht möglich';
+                gem.draggable = allowReturnDrag;
+                gem.classList.toggle('is-drag-disabled', !allowReturnDrag);
                 gem.style.background = fillC;
                 gem.style.boxShadow = `0 0 0 2px ${strokeC} inset, 0 1px 3px rgba(0,0,0,0.45)`;
                 fill.appendChild(gem);
@@ -493,7 +512,11 @@ export class StonePowersDialog extends BaseDialog {
             poolKeys: [...poolKeys]
         });
         let lastDragOverLogKey = '';
+        const clearPoolReturnHighlight = () => {
+            bindTarget.querySelectorAll('.pool-gems.is-pool-drag-over').forEach((n) => n.classList.remove('is-pool-drag-over'));
+        };
         const clearDragOver = () => {
+            clearPoolReturnHighlight();
             bindTarget.querySelectorAll('.ms-stone-drop-slot.is-drag-over').forEach((n) => n.classList.remove('is-drag-over'));
         };
         root.querySelectorAll('.js-stone-draggable').forEach((el) => {
@@ -505,6 +528,7 @@ export class StonePowersDialog extends BaseDialog {
                     dlogStoneDnD('dragstart skipped', { allowDrag, hasDT: !!ev.dataTransfer });
                     return;
                 }
+                this._stoneReturnAccKey = null;
                 const attr = gem.dataset.attributeKey ||
                     gem.closest('.pool-gems')?.dataset?.attributeKey ||
                     gem.closest('.pool-item')?.dataset?.attribute ||
@@ -562,9 +586,38 @@ export class StonePowersDialog extends BaseDialog {
             }
             return slot;
         };
-        /** Ein Listener auf dem Content‑Root: vermeidet, dass Kind‑Elemente dragover „schlucken“. */
-        const onRootDragOver = (ev) => {
+        /** Slot: Pool→Feld; Return-Drag: Feld→Pool (nutzt `_stoneReturnAccKey`, da types in dragover unzuverlässig sind). */
+        const onBindDragOver = (ev) => {
             if (!allowDrag || locked) {
+                return;
+            }
+            if (this._stoneReturnAccKey) {
+                const poolGems = ev.target?.closest?.('.pool-gems');
+                if (poolGems && bindTarget.contains(poolGems)) {
+                    const payAttr = this.#parseAccKeyPayAttr(this._stoneReturnAccKey);
+                    const poolAttr = poolGems.dataset.attributeKey || '';
+                    if (payAttr && poolAttr === payAttr) {
+                        ev.preventDefault();
+                        if (ev.dataTransfer)
+                            ev.dataTransfer.dropEffect = 'move';
+                        bindTarget.querySelectorAll('.ms-stone-drop-slot.is-drag-over').forEach((n) => n.classList.remove('is-drag-over'));
+                        clearPoolReturnHighlight();
+                        poolGems.classList.add('is-pool-drag-over');
+                        const k = `return-pool:${poolAttr}`;
+                        if (k !== lastDragOverLogKey) {
+                            lastDragOverLogKey = k;
+                            dlogStoneReturn('dragover → pool OK', {
+                                poolAttr,
+                                accKey: this._stoneReturnAccKey,
+                                types: ev.dataTransfer ? [...(ev.dataTransfer.types || [])] : []
+                            });
+                        }
+                        return;
+                    }
+                    dlogStoneReturn('dragover → pool mismatch', { payAttr, poolAttr, accKey: this._stoneReturnAccKey });
+                }
+                clearPoolReturnHighlight();
+                dlogStoneReturn('dragover return: not over matching pool, skip slot highlight');
                 return;
             }
             const slot = resolveDropSlot(ev, false);
@@ -597,15 +650,50 @@ export class StonePowersDialog extends BaseDialog {
             const pathTags = (ev.composedPath?.() || [])
                 .slice(0, 12)
                 .map((n) => (n instanceof Element ? n.tagName + (n.id ? `#${n.id}` : '') : String(n)));
+            const accKeyReturn = this._stoneReturnAccKey ||
+                ev.dataTransfer?.getData(STONE_RETURN_MIME) ||
+                '';
             dlogStoneDnD('drop event', {
                 target: ev.target instanceof Element ? ev.target.tagName + '.' + ev.target.className?.toString?.()?.slice(0, 80) : ev.target,
                 pathHead: pathTags,
                 dataTypes: ev.dataTransfer ? [...(ev.dataTransfer.types || [])] : [],
                 mime: ev.dataTransfer?.getData(STONE_DRAG_MIME),
                 plain: ev.dataTransfer?.getData('text/plain'),
+                returnMime: ev.dataTransfer?.getData(STONE_RETURN_MIME),
                 dialogDragAttr: this._stoneDragAttribute,
+                returnAccKeyField: this._stoneReturnAccKey,
+                accKeyReturnResolved: accKeyReturn,
                 msLastDraggedStoneAttribute
             });
+            const poolGemsDrop = ev.target?.closest?.('.pool-gems');
+            if (accKeyReturn) {
+                ev.preventDefault();
+                clearDragOver();
+                if (!poolGemsDrop || !bindTarget.contains(poolGemsDrop)) {
+                    dlogStoneReturn('abort: Rückgabe nur auf Pool-Zeile', { accKeyReturn, hasPoolEl: !!poolGemsDrop });
+                    return;
+                }
+                const payAttr = this.#parseAccKeyPayAttr(accKeyReturn);
+                const poolAttr = poolGemsDrop.dataset.attributeKey || '';
+                dlogStoneReturn('drop auf Pool prüfen', { accKeyReturn, payAttr, poolAttr });
+                if (!payAttr || poolAttr !== payAttr) {
+                    dlogStoneReturn('abort: falscher Pool für diesen Stein', { payAttr, poolAttr });
+                    return;
+                }
+                const cur = this._stoneDropAccumulators.get(accKeyReturn) || 0;
+                if (cur <= 0) {
+                    dlogStoneReturn('abort: Akku schon leer', { accKeyReturn });
+                    return;
+                }
+                const next = cur - 1;
+                if (next <= 0)
+                    this._stoneDropAccumulators.delete(accKeyReturn);
+                else
+                    this._stoneDropAccumulators.set(accKeyReturn, next);
+                dlogStoneReturn('OK: Stein zurück im Pool (Akku--)', { accKeyReturn, next });
+                this.#syncAccumulatorGems(bindTarget);
+                return;
+            }
             const slot = resolveDropSlot(ev, true);
             if (!slot) {
                 dlogStoneDnD('drop abort: kein Slot (resolveDropSlot null)');
@@ -732,12 +820,55 @@ export class StonePowersDialog extends BaseDialog {
                 ui.notifications?.error('Steinmacht konnte nicht aktiviert werden.');
             }
         };
+        const onDelegateReturnDragStart = (ev) => {
+            const t = ev.target;
+            if (!t?.classList?.contains('js-stone-returnable'))
+                return;
+            if (!allowDrag || !ev.dataTransfer || locked) {
+                ev.preventDefault();
+                dlogStoneReturn('dragstart blocked', { allowDrag, locked });
+                return;
+            }
+            const accKey = t.getAttribute('data-acc-key') || t.dataset.accKey || '';
+            if (!accKey) {
+                ev.preventDefault();
+                dlogStoneReturn('dragstart abort: keine accKey am Element');
+                return;
+            }
+            this._stoneReturnAccKey = accKey;
+            this._stoneDragAttribute = null;
+            ev.dataTransfer.setData(STONE_RETURN_MIME, accKey);
+            ev.dataTransfer.setData('text/plain', accKey);
+            ev.dataTransfer.effectAllowed = 'move';
+            t.classList.add('is-dragging');
+            lastDragOverLogKey = '';
+            const fc = accKey.indexOf(':');
+            dlogStoneReturn('dragstart', { accKey, powerId: fc >= 0 ? accKey.slice(0, fc) : accKey });
+        };
+        const onDelegateReturnDragEnd = (ev) => {
+            const t = ev.target;
+            if (!t?.classList?.contains('js-stone-returnable'))
+                return;
+            t.classList.remove('is-dragging');
+            clearDragOver();
+            lastDragOverLogKey = '';
+            this.#syncPoolGemChips(bindTarget);
+            const acc = this._stoneReturnAccKey;
+            dlogStoneReturn('dragend', { hadAccKey: acc });
+            queueMicrotask(() => {
+                this._stoneReturnAccKey = null;
+            });
+        };
         const useCapture = true;
-        bindTarget.addEventListener('dragover', onRootDragOver, useCapture);
+        bindTarget.addEventListener('dragstart', onDelegateReturnDragStart, useCapture);
+        bindTarget.addEventListener('dragend', onDelegateReturnDragEnd, useCapture);
+        bindTarget.addEventListener('dragover', onBindDragOver, useCapture);
         bindTarget.addEventListener('dragleave', onBindDragLeave);
         bindTarget.addEventListener('drop', onBindDrop, useCapture);
         this._stoneDndCleanup = () => {
-            bindTarget.removeEventListener('dragover', onRootDragOver, useCapture);
+            bindTarget.removeEventListener('dragstart', onDelegateReturnDragStart, useCapture);
+            bindTarget.removeEventListener('dragend', onDelegateReturnDragEnd, useCapture);
+            bindTarget.removeEventListener('dragover', onBindDragOver, useCapture);
             bindTarget.removeEventListener('dragleave', onBindDragLeave);
             bindTarget.removeEventListener('drop', onBindDrop, useCapture);
         };
@@ -760,6 +891,7 @@ export class StonePowersDialog extends BaseDialog {
     }
     async _onClose(_options) {
         this._stoneDragAttribute = null;
+        this._stoneReturnAccKey = null;
         this._stoneDndCleanup?.();
         this._stoneDndCleanup = undefined;
         if (this.resolve) {
