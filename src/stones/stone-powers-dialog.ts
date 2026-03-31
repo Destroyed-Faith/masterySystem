@@ -23,6 +23,17 @@ import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
 
 const STONE_DRAG_MIME = 'application/x-mastery-stone-attribute';
 
+/**
+ * Konsole nach `StoneDnD` filtern.
+ * Abschalten: in F12 `CONFIG.masterySystemDebugStoneDnD = false` (Standard ist an, bis ihr es dauerhaft ausmacht).
+ */
+const DEBUG_STONE_POWERS_DND = (globalThis as any).CONFIG?.masterySystemDebugStoneDnD !== false;
+
+function dlogStoneDnD(...args: unknown[]): void {
+  if (!DEBUG_STONE_POWERS_DND) return;
+  console.log('Mastery System | [StoneDnD]', ...args);
+}
+
 /** Fallback wenn getData im Drop leer bleibt (z. B. Chromium/Foundry) */
 let msLastDraggedStoneAttribute = '';
 
@@ -469,6 +480,21 @@ export class StonePowersDialog extends BaseDialog {
     const allowDrag = !locked;
     const poolKeys = getActorStonePoolKeysWithMax(this.actor);
 
+    dlogStoneDnD('bind DnD', {
+      bindTarget: {
+        tag: bindTarget.tagName,
+        id: bindTarget.id,
+        cls: bindTarget.className?.toString?.()?.slice(0, 120)
+      },
+      root: { tag: root.tagName, cls: root.className?.toString?.()?.slice(0, 80) },
+      allowDrag,
+      locked,
+      canExecute,
+      poolKeys: [...poolKeys]
+    });
+
+    let lastDragOverLogKey = '';
+
     const clearDragOver = () => {
       bindTarget.querySelectorAll('.ms-stone-drop-slot.is-drag-over').forEach((n) => n.classList.remove('is-drag-over'));
     };
@@ -479,21 +505,27 @@ export class StonePowersDialog extends BaseDialog {
       gem.classList.toggle('is-drag-disabled', !allowDrag);
 
       gem.ondragstart = (ev: DragEvent) => {
-        if (!allowDrag || !ev.dataTransfer) return;
+        if (!allowDrag || !ev.dataTransfer) {
+          dlogStoneDnD('dragstart skipped', { allowDrag, hasDT: !!ev.dataTransfer });
+          return;
+        }
         const attr = gem.dataset.attributeKey || '';
         msLastDraggedStoneAttribute = attr;
         ev.dataTransfer.setData(STONE_DRAG_MIME, attr);
         ev.dataTransfer.setData('text/plain', attr);
         ev.dataTransfer.effectAllowed = 'copy';
         gem.classList.add('is-dragging');
+        dlogStoneDnD('dragstart', { attr, types: ev.dataTransfer.types ? [...ev.dataTransfer.types] : [] });
       };
       gem.ondragend = () => {
         gem.classList.remove('is-dragging');
         clearDragOver();
+        lastDragOverLogKey = '';
+        dlogStoneDnD('dragend', { msLastDraggedStoneAttribute });
       };
     });
 
-    const resolveDropSlot = (ev: DragEvent): HTMLElement | null => {
+    const resolveDropSlot = (ev: DragEvent, logMiss: boolean): HTMLElement | null => {
       const raw = ev.target;
       const el =
         raw instanceof Element
@@ -501,15 +533,36 @@ export class StonePowersDialog extends BaseDialog {
           : raw && (raw as Node).parentElement instanceof Element
             ? ((raw as Node).parentElement as Element)
             : null;
-      if (!el || !bindTarget.contains(el)) return null;
+      if (!el) {
+        if (logMiss) dlogStoneDnD('resolveDropSlot: no element', { rawType: raw?.constructor?.name });
+        return null;
+      }
+      if (!bindTarget.contains(el)) {
+        if (logMiss)
+          dlogStoneDnD('resolveDropSlot: target outside bindTarget', {
+            elTag: el.tagName,
+            inBind: bindTarget.contains(el)
+          });
+        return null;
+      }
       const slot = el.closest('.ms-stone-drop-slot') as HTMLElement | null;
-      return slot && bindTarget.contains(slot) ? slot : null;
+      if (!slot || !bindTarget.contains(slot)) {
+        if (logMiss)
+          dlogStoneDnD('resolveDropSlot: no .ms-stone-drop-slot ancestor', {
+            elTag: el.tagName,
+            elClass: (el as HTMLElement).className
+          });
+        return null;
+      }
+      return slot;
     };
 
     /** Ein Listener auf dem Content‑Root: vermeidet, dass Kind‑Elemente dragover „schlucken“. */
     const onRootDragOver = (ev: DragEvent) => {
-      if (!allowDrag || locked) return;
-      const slot = resolveDropSlot(ev);
+      if (!allowDrag || locked) {
+        return;
+      }
+      const slot = resolveDropSlot(ev, false);
       if (!slot?.classList.contains('slot-active')) {
         clearDragOver();
         return;
@@ -518,6 +571,15 @@ export class StonePowersDialog extends BaseDialog {
       if (ev.dataTransfer) ev.dataTransfer.dropEffect = 'copy';
       clearDragOver();
       slot.classList.add('is-drag-over');
+      const k = `${slot.dataset.powerId ?? ''}:${slot.dataset.slotIndex ?? ''}`;
+      if (k !== lastDragOverLogKey) {
+        lastDragOverLogKey = k;
+        dlogStoneDnD('dragover → highlight', {
+          powerId: slot.dataset.powerId,
+          slotIndex: slot.dataset.slotIndex,
+          state: Array.from(slot.classList).filter((c) => c.startsWith('slot-'))
+        });
+      }
     };
 
     const onBindDragLeave = (ev: DragEvent) => {
@@ -527,18 +589,35 @@ export class StonePowersDialog extends BaseDialog {
     };
 
     const onBindDrop = async (ev: DragEvent) => {
-      const slot = resolveDropSlot(ev);
+      const pathTags = (ev.composedPath?.() || [])
+        .slice(0, 12)
+        .map((n) => (n instanceof Element ? n.tagName + (n.id ? `#${n.id}` : '') : String(n)));
+      dlogStoneDnD('drop event', {
+        target: ev.target instanceof Element ? ev.target.tagName + '.' + (ev.target as HTMLElement).className?.toString?.()?.slice(0, 80) : ev.target,
+        pathHead: pathTags,
+        dataTypes: ev.dataTransfer ? [...(ev.dataTransfer.types || [])] : [],
+        mime: ev.dataTransfer?.getData(STONE_DRAG_MIME),
+        plain: ev.dataTransfer?.getData('text/plain'),
+        msLastDraggedStoneAttribute
+      });
+
+      const slot = resolveDropSlot(ev, true);
       if (!slot) {
+        dlogStoneDnD('drop abort: kein Slot (resolveDropSlot null)');
         if (msLastDraggedStoneAttribute) ev.preventDefault();
         return;
       }
       ev.preventDefault();
       clearDragOver();
       if (locked) {
+        dlogStoneDnD('drop abort: stonePlanLocked');
         ui.notifications?.warn('Diese Runde ist für Steinmächte gesperrt.');
         return;
       }
-      if (!slot.classList.contains('slot-active')) return;
+      if (!slot.classList.contains('slot-active')) {
+        dlogStoneDnD('drop abort: Slot nicht slot-active', { classes: Array.from(slot.classList) });
+        return;
+      }
 
       const dragged =
         ev.dataTransfer?.getData(STONE_DRAG_MIME) ||
@@ -552,11 +631,22 @@ export class StonePowersDialog extends BaseDialog {
       const isGeneric =
         slot.dataset.isGeneric === 'true' ||
         slot.getAttribute('data-is-generic') === 'true';
+      dlogStoneDnD('drop resolved slot', {
+        powerId,
+        isGeneric,
+        dragged,
+        slotDataset: { ...slot.dataset }
+      });
+
       let payAttr: AttributeKey;
       if (isGeneric) {
         payAttr = dragged as AttributeKey;
-        if (!powerId || !dragged) return;
+        if (!powerId || !dragged) {
+          dlogStoneDnD('drop abort: generic ohne powerId oder dragged', { powerId, dragged });
+          return;
+        }
         if (!poolKeys.has(dragged)) {
+          dlogStoneDnD('drop abort: poolKeys hat dragged nicht', { dragged, poolKeys: [...poolKeys] });
           ui.notifications?.warn('Dieser Stein gehört zu keinem Pool auf diesem Bogen.');
           return;
         }
@@ -566,6 +656,7 @@ export class StonePowersDialog extends BaseDialog {
           const i = rest.lastIndexOf(':');
           const existingAttr = i > 0 ? rest.slice(0, i) : '';
           if (existingAttr && existingAttr !== dragged) {
+            dlogStoneDnD('drop abort: anderer Typ in Akku', { existingAttr, dragged, k });
             ui.notifications?.warn('Für diese Aktivierung denselben Stein-Typ verwenden.');
             return;
           }
@@ -574,8 +665,12 @@ export class StonePowersDialog extends BaseDialog {
         this._generalAttrSelection[powerId] = payAttr;
       } else {
         payAttr = (slot.dataset.payAttribute || '') as AttributeKey;
-        if (!powerId || !payAttr) return;
+        if (!powerId || !payAttr) {
+          dlogStoneDnD('drop abort: Attribut-Macht ohne powerId/payAttr', { powerId, payAttr });
+          return;
+        }
         if (dragged !== payAttr) {
+          dlogStoneDnD('drop abort: falscher Stein', { dragged, payAttr });
           ui.notifications?.warn('Falscher Stein — Attribut passt nicht zu diesem Feld.');
           return;
         }
@@ -586,23 +681,27 @@ export class StonePowersDialog extends BaseDialog {
       const accKey = `${powerId}:${payAttr}:${uses}`;
       const cur = this._stoneDropAccumulators.get(accKey) || 0;
       if (cur >= nextCost) {
+        dlogStoneDnD('drop abort: Akku schon voll', { accKey, cur, nextCost });
         return;
       }
       const next = cur + 1;
       this._stoneDropAccumulators.set(accKey, next);
 
       this.#syncAccumulatorGems(bindTarget);
+      dlogStoneDnD('drop Akku+1', { accKey, next, nextCost, partial: next < nextCost });
 
       if (next < nextCost) {
         return;
       }
 
       if (!canExecute) {
+        dlogStoneDnD('drop Ende Übung: canExecute false (kein Kampf/Tracker)', { canExecute });
         return;
       }
 
       this._stoneDropAccumulators.delete(accKey);
       this.#syncAccumulatorGems(bindTarget);
+      dlogStoneDnD('activateStonePower aufrufen', { powerId, payAttr });
 
       try {
         const success = await activateStonePower({
@@ -611,6 +710,7 @@ export class StonePowersDialog extends BaseDialog {
           abilityId: powerId,
           attributeKey: payAttr
         });
+        dlogStoneDnD('activateStonePower Ergebnis', { success });
         if (success) {
           ui.notifications?.info(`${STONE_POWERS[powerId]?.name || powerId} aktiviert`);
           await (this as any).render({ force: true });
