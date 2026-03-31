@@ -359,8 +359,9 @@ export class StonePowersDialog extends BaseDialog {
       return;
     }
 
-    this.#bindStoneDragAndDrop(root);
-    this.#syncAccumulatorGems(root);
+    const appWindow = ((this as any).element as HTMLElement | undefined) ?? root;
+    this.#bindStoneDragAndDrop(root, appWindow);
+    this.#syncAccumulatorGems(appWindow);
     
     const savePrefsBtn = root.querySelector('.js-save-stone-prefs') as HTMLElement | null;
     if (savePrefsBtn) {
@@ -454,7 +455,11 @@ export class StonePowersDialog extends BaseDialog {
     }
   }
 
-  #bindStoneDragAndDrop(root: HTMLElement): void {
+  /**
+   * @param root Content-Part (Queries für Buttons)
+   * @param bindTarget App-Fenster-Element: DnD hier binden (Foundry V2: Slots liegen zuverlässig darunter)
+   */
+  #bindStoneDragAndDrop(root: HTMLElement, bindTarget: HTMLElement): void {
     this._stoneDndCleanup?.();
     this._stoneDndCleanup = undefined;
 
@@ -465,7 +470,7 @@ export class StonePowersDialog extends BaseDialog {
     const poolKeys = getActorStonePoolKeysWithMax(this.actor);
 
     const clearDragOver = () => {
-      root.querySelectorAll('.ms-stone-drop-slot.is-drag-over').forEach((n) => n.classList.remove('is-drag-over'));
+      bindTarget.querySelectorAll('.ms-stone-drop-slot.is-drag-over').forEach((n) => n.classList.remove('is-drag-over'));
     };
 
     root.querySelectorAll('.js-stone-draggable').forEach((el: Element) => {
@@ -496,9 +501,9 @@ export class StonePowersDialog extends BaseDialog {
           : raw && (raw as Node).parentElement instanceof Element
             ? ((raw as Node).parentElement as Element)
             : null;
-      if (!el || !root.contains(el)) return null;
+      if (!el || !bindTarget.contains(el)) return null;
       const slot = el.closest('.ms-stone-drop-slot') as HTMLElement | null;
-      return slot && root.contains(slot) ? slot : null;
+      return slot && bindTarget.contains(slot) ? slot : null;
     };
 
     /** Ein Listener auf dem Content‑Root: vermeidet, dass Kind‑Elemente dragover „schlucken“. */
@@ -515,13 +520,13 @@ export class StonePowersDialog extends BaseDialog {
       slot.classList.add('is-drag-over');
     };
 
-    const onRootDragLeave = (ev: DragEvent) => {
+    const onBindDragLeave = (ev: DragEvent) => {
       const rel = ev.relatedTarget as Node | null;
-      if (rel && root.contains(rel)) return;
+      if (rel && bindTarget.contains(rel)) return;
       clearDragOver();
     };
 
-    const onRootDrop = async (ev: DragEvent) => {
+    const onBindDrop = async (ev: DragEvent) => {
       const slot = resolveDropSlot(ev);
       if (!slot) {
         if (msLastDraggedStoneAttribute) ev.preventDefault();
@@ -544,7 +549,9 @@ export class StonePowersDialog extends BaseDialog {
         slot.dataset.powerId ||
         (slot.closest('.power-drop-slots') as HTMLElement | null)?.dataset.powerId ||
         '';
-      const isGeneric = slot.dataset.isGeneric === 'true';
+      const isGeneric =
+        slot.dataset.isGeneric === 'true' ||
+        slot.getAttribute('data-is-generic') === 'true';
       let payAttr: AttributeKey;
       if (isGeneric) {
         payAttr = dragged as AttributeKey;
@@ -584,7 +591,7 @@ export class StonePowersDialog extends BaseDialog {
       const next = cur + 1;
       this._stoneDropAccumulators.set(accKey, next);
 
-      this.#syncAccumulatorGems(root);
+      this.#syncAccumulatorGems(bindTarget);
 
       if (next < nextCost) {
         return;
@@ -595,7 +602,7 @@ export class StonePowersDialog extends BaseDialog {
       }
 
       this._stoneDropAccumulators.delete(accKey);
-      this.#syncAccumulatorGems(root);
+      this.#syncAccumulatorGems(bindTarget);
 
       try {
         const success = await activateStonePower({
@@ -610,27 +617,27 @@ export class StonePowersDialog extends BaseDialog {
         } else {
           if (next > 1) this._stoneDropAccumulators.set(accKey, next - 1);
           else this._stoneDropAccumulators.delete(accKey);
-          this.#syncAccumulatorGems(root);
+          this.#syncAccumulatorGems(bindTarget);
           ui.notifications?.warn('Aktivierung fehlgeschlagen.');
         }
       } catch (error) {
         console.error('Mastery System | stone drop activate', error);
         if (next > 1) this._stoneDropAccumulators.set(accKey, next - 1);
         else this._stoneDropAccumulators.delete(accKey);
-        this.#syncAccumulatorGems(root);
+        this.#syncAccumulatorGems(bindTarget);
         ui.notifications?.error('Steinmacht konnte nicht aktiviert werden.');
       }
     };
 
-    const cap = true;
-    root.addEventListener('dragover', onRootDragOver, cap);
-    root.addEventListener('dragleave', onRootDragLeave);
-    root.addEventListener('drop', onRootDrop, cap);
+    const useCapture = true;
+    bindTarget.addEventListener('dragover', onRootDragOver, useCapture);
+    bindTarget.addEventListener('dragleave', onBindDragLeave);
+    bindTarget.addEventListener('drop', onBindDrop, useCapture);
 
     this._stoneDndCleanup = () => {
-      root.removeEventListener('dragover', onRootDragOver, cap);
-      root.removeEventListener('dragleave', onRootDragLeave);
-      root.removeEventListener('drop', onRootDrop, cap);
+      bindTarget.removeEventListener('dragover', onRootDragOver, useCapture);
+      bindTarget.removeEventListener('dragleave', onBindDragLeave);
+      bindTarget.removeEventListener('drop', onBindDrop, useCapture);
     };
   }
 

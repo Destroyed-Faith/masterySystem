@@ -310,8 +310,9 @@ export class StonePowersDialog extends BaseDialog {
             console.warn('Mastery System | StonePowersDialog: kein Content-Root für Event-Handler');
             return;
         }
-        this.#bindStoneDragAndDrop(root);
-        this.#syncAccumulatorGems(root);
+        const appWindow = this.element ?? root;
+        this.#bindStoneDragAndDrop(root, appWindow);
+        this.#syncAccumulatorGems(appWindow);
         const savePrefsBtn = root.querySelector('.js-save-stone-prefs');
         if (savePrefsBtn) {
             savePrefsBtn.onclick = async (ev) => {
@@ -402,7 +403,11 @@ export class StonePowersDialog extends BaseDialog {
             }
         }
     }
-    #bindStoneDragAndDrop(root) {
+    /**
+     * @param root Content-Part (Queries für Buttons)
+     * @param bindTarget App-Fenster-Element: DnD hier binden (Foundry V2: Slots liegen zuverlässig darunter)
+     */
+    #bindStoneDragAndDrop(root, bindTarget) {
         this._stoneDndCleanup?.();
         this._stoneDndCleanup = undefined;
         const combat = game.combat;
@@ -411,7 +416,7 @@ export class StonePowersDialog extends BaseDialog {
         const allowDrag = !locked;
         const poolKeys = getActorStonePoolKeysWithMax(this.actor);
         const clearDragOver = () => {
-            root.querySelectorAll('.ms-stone-drop-slot.is-drag-over').forEach((n) => n.classList.remove('is-drag-over'));
+            bindTarget.querySelectorAll('.ms-stone-drop-slot.is-drag-over').forEach((n) => n.classList.remove('is-drag-over'));
         };
         root.querySelectorAll('.js-stone-draggable').forEach((el) => {
             const gem = el;
@@ -439,10 +444,10 @@ export class StonePowersDialog extends BaseDialog {
                 : raw && raw.parentElement instanceof Element
                     ? raw.parentElement
                     : null;
-            if (!el || !root.contains(el))
+            if (!el || !bindTarget.contains(el))
                 return null;
             const slot = el.closest('.ms-stone-drop-slot');
-            return slot && root.contains(slot) ? slot : null;
+            return slot && bindTarget.contains(slot) ? slot : null;
         };
         /** Ein Listener auf dem Content‑Root: vermeidet, dass Kind‑Elemente dragover „schlucken“. */
         const onRootDragOver = (ev) => {
@@ -459,13 +464,13 @@ export class StonePowersDialog extends BaseDialog {
             clearDragOver();
             slot.classList.add('is-drag-over');
         };
-        const onRootDragLeave = (ev) => {
+        const onBindDragLeave = (ev) => {
             const rel = ev.relatedTarget;
-            if (rel && root.contains(rel))
+            if (rel && bindTarget.contains(rel))
                 return;
             clearDragOver();
         };
-        const onRootDrop = async (ev) => {
+        const onBindDrop = async (ev) => {
             const slot = resolveDropSlot(ev);
             if (!slot) {
                 if (msLastDraggedStoneAttribute)
@@ -487,7 +492,8 @@ export class StonePowersDialog extends BaseDialog {
             const powerId = slot.dataset.powerId ||
                 slot.closest('.power-drop-slots')?.dataset.powerId ||
                 '';
-            const isGeneric = slot.dataset.isGeneric === 'true';
+            const isGeneric = slot.dataset.isGeneric === 'true' ||
+                slot.getAttribute('data-is-generic') === 'true';
             let payAttr;
             if (isGeneric) {
                 payAttr = dragged;
@@ -529,7 +535,7 @@ export class StonePowersDialog extends BaseDialog {
             }
             const next = cur + 1;
             this._stoneDropAccumulators.set(accKey, next);
-            this.#syncAccumulatorGems(root);
+            this.#syncAccumulatorGems(bindTarget);
             if (next < nextCost) {
                 return;
             }
@@ -537,7 +543,7 @@ export class StonePowersDialog extends BaseDialog {
                 return;
             }
             this._stoneDropAccumulators.delete(accKey);
-            this.#syncAccumulatorGems(root);
+            this.#syncAccumulatorGems(bindTarget);
             try {
                 const success = await activateStonePower({
                     actor: this.actor,
@@ -554,7 +560,7 @@ export class StonePowersDialog extends BaseDialog {
                         this._stoneDropAccumulators.set(accKey, next - 1);
                     else
                         this._stoneDropAccumulators.delete(accKey);
-                    this.#syncAccumulatorGems(root);
+                    this.#syncAccumulatorGems(bindTarget);
                     ui.notifications?.warn('Aktivierung fehlgeschlagen.');
                 }
             }
@@ -564,18 +570,18 @@ export class StonePowersDialog extends BaseDialog {
                     this._stoneDropAccumulators.set(accKey, next - 1);
                 else
                     this._stoneDropAccumulators.delete(accKey);
-                this.#syncAccumulatorGems(root);
+                this.#syncAccumulatorGems(bindTarget);
                 ui.notifications?.error('Steinmacht konnte nicht aktiviert werden.');
             }
         };
-        const cap = true;
-        root.addEventListener('dragover', onRootDragOver, cap);
-        root.addEventListener('dragleave', onRootDragLeave);
-        root.addEventListener('drop', onRootDrop, cap);
+        const useCapture = true;
+        bindTarget.addEventListener('dragover', onRootDragOver, useCapture);
+        bindTarget.addEventListener('dragleave', onBindDragLeave);
+        bindTarget.addEventListener('drop', onBindDrop, useCapture);
         this._stoneDndCleanup = () => {
-            root.removeEventListener('dragover', onRootDragOver, cap);
-            root.removeEventListener('dragleave', onRootDragLeave);
-            root.removeEventListener('drop', onRootDrop, cap);
+            bindTarget.removeEventListener('dragover', onRootDragOver, useCapture);
+            bindTarget.removeEventListener('dragleave', onBindDragLeave);
+            bindTarget.removeEventListener('drop', onBindDrop, useCapture);
         };
     }
     async #saveStonePowersPrefs(root) {

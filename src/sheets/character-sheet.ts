@@ -1695,6 +1695,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       document.addEventListener('drop', (ev: DragEvent) => {
         const target = ev.target as HTMLElement | null;
         if (!target) return;
+        if (target.closest('.stone-powers-dialog')) return;
         // If drop happens inside the character sheet, let sheet handlers handle it.
         if (target.closest('.mastery-system.sheet.actor.character')) {
           console.log('Mastery System | [Storage Debug] document drop skipped (sheet handled)', {
