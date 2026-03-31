@@ -7,6 +7,7 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
 import { STONE_POWERS, activateStonePower, getAvailableStonePowers } from './stone-activation.js';
+import { STONE_POWERS_BY_ATTRIBUTE } from './stone-powers.js';
 import { getStoneUsageCount, calculateStoneCost, getStonePool, isStonePowersConfigurationLocked, getActionEconomyActor } from '../combat/action-economy.js';
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
 const STONE_DRAG_MIME = 'application/x-mastery-stone-attribute';
@@ -131,7 +132,7 @@ export class StonePowersDialog extends BaseDialog {
     static DEFAULT_OPTIONS = {
         id: "mastery-stone-powers",
         classes: ["mastery-system", "stone-powers-dialog"],
-        position: { width: 900, height: 300 },
+        position: { width: 920, height: 640 },
         window: { title: 'Stonepowers', resizable: true }
     };
     static PARTS = {
@@ -280,10 +281,12 @@ export class StonePowersDialog extends BaseDialog {
             const description = power.description || power.effect || '';
             const dropSlots = buildStoneDropSlots(usesThisTurn, spendable, nextCost, stonePlanLocked);
             const gem = getStoneGemStyle(attrKey);
+            const sp = STONE_POWERS[power.id];
             return {
                 id: power.id,
                 name: power.name,
                 description,
+                effectLong: sp?.effect || description,
                 attribute: power.attribute,
                 nextCost,
                 canAfford,
@@ -292,6 +295,43 @@ export class StonePowersDialog extends BaseDialog {
                 dropSlots,
                 slotGemStyle: gem ?? { fill: '#888888', stroke: '#aaaaaa' }
             };
+        });
+        const ATTR_MATRIX_COLS = 4;
+        const attributePowerMatrix = pools
+            .map((pool) => {
+            const attr = pool.key;
+            const defs = STONE_POWERS_BY_ATTRIBUTE[attr];
+            if (!defs?.length)
+                return null;
+            const preparedMap = new Map((powersByAttribute[attr] || []).map((p) => [p.id, p]));
+            const cells = [];
+            for (let i = 0; i < ATTR_MATRIX_COLS; i++) {
+                const def = defs[i];
+                if (!def) {
+                    cells.push(null);
+                    continue;
+                }
+                let p = preparedMap.get(def.id);
+                if (!p) {
+                    p = preparePowerData(def, attr);
+                }
+                cells.push({
+                    ...p,
+                    effectLong: def.effect || p.description || ''
+                });
+            }
+            return {
+                attrKey: attr,
+                label: pool.name,
+                cells
+            };
+        })
+            .filter((row) => {
+            if (!row)
+                return false;
+            const spendable = spendableForAttr(row.attrKey);
+            const reserved = this.#reservedStonesInDialogForAttr(row.attrKey);
+            return spendable > 0 || reserved > 0;
         });
         // Organize attribute-specific powers by attribute section
         // Create entries for all attributes that have pools (max > 0)
@@ -312,7 +352,7 @@ export class StonePowersDialog extends BaseDialog {
         return {
             actor: this.actor,
             pools,
-            powersByAttribute,
+            attributePowerMatrix,
             generalPowers,
             defaultGeneralAttrKey,
             combatActive,

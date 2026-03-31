@@ -50,6 +50,7 @@
   </div>
 
   <div class="powers-list">
+    <div class="powers-matrix" role="region" aria-label="Stone powers matrix">
     {{#if generalPowers.length}}
     <div class="power-group is-general" role="region" aria-label="General Powers">
       <div class="powers-grid powers-grid-general">
@@ -75,67 +76,62 @@
             </div>
           </div>
           <div class="power-title power-title-general">
-            <strong class="power-name" title="{{power.description}}">{{power.name}}</strong>
+            <strong class="power-name" title="{{power.effectLong}}">{{power.name}}</strong>
           </div>
         </div>
         {{/each}}
       </div>
     </div>
     {{/if}}
-    
-    {{#each powersByAttribute as |powers attr|}}
-    {{#if powers.length}}
-    <details class="power-group" {{#if @first}}open{{/if}}>
-      <summary class="power-group-header">
-        <h4>
-          <i class="fas fa-chevron-right"></i>
-          {{attr}} Powers
-        </h4>
-        <span class="power-count">({{powers.length}})</span>
-      </summary>
-      <div class="powers-grid">
-        {{#each powers as |power|}}
-        <div class="power-row">
-          <div class="power-row-main">
-            <div class="power-title">
-              <strong class="power-name" title="{{power.description}}">{{power.name}}</strong>
-              <button type="button"
-                      class="power-activate-btn js-activate-power"
-                      data-power-id="{{power.id}}"
-                      data-attribute-key="{{power.attribute}}"
-                      title="Ohne Ziehen aktivieren ({{power.nextCost}})"
-                      {{#unless @root.hasCombat}}disabled{{/unless}}
-                      {{#if @root.stonePlanLocked}}disabled title="Gesperrt"{{/if}}
-                      {{#unless power.canAfford}}disabled title="Zu wenig Steine"{{/unless}}>
-                <i class="fas fa-bolt"></i> {{power.nextCost}}
-              </button>
-            </div>
-            <div class="power-drop-slots-row">
-              <div class="power-drop-slots">
-                {{#each power.dropSlots as |slot|}}
-                <div class="ms-stone-drop-slot slot-{{slot.state}}{{#unless @root.dragStonesEnabled}} slot-no-drag{{/unless}}"
-                     data-power-id="{{../id}}"
-                     data-pay-attribute="{{../attribute}}"
-                     data-slot-index="{{slot.index}}"
-                     title="{{#if (eq slot.state 'active')}}Passenden {{../attribute}}-Stein ablegen{{/if}}{{#if (eq slot.state 'done')}}Genutzt{{/if}}{{#if (eq slot.state 'locked')}}{{#if ../canAfford}}Später{{else}}Nicht genug Steine{{/if}}{{/if}}">
-                  <div class="ms-stone-slot-fill">
-                    {{#if (eq slot.state 'done')}}
-                    <span class="ms-stone-gem-chip ms-slot-gem-done"
-                      style="background: {{../slotGemStyle.fill}}; box-shadow: 0 0 0 2px {{../slotGemStyle.stroke}} inset, 0 1px 3px rgba(0,0,0,0.45);"
-                      aria-hidden="true"></span>
-                    {{/if}}
-                  </div>
+
+    {{#each attributePowerMatrix}}
+    <div class="powers-attr-block" data-attr-key="{{attrKey}}">
+      <div class="powers-attr-heading">{{label}}</div>
+      <div class="powers-grid powers-grid-general powers-grid-attr-matrix">
+        {{#each cells}}
+          {{#if this}}
+        <div class="power-card power-card-general">
+          <div class="power-drop-slots-row power-drop-slots-row-general">
+            <div class="power-drop-slots power-drop-slots-general" data-power-id="{{id}}">
+              {{#each dropSlots as |slot|}}
+              <div class="ms-stone-drop-slot slot-{{slot.state}}{{#unless @root.dragStonesEnabled}} slot-no-drag{{/unless}}"
+                   data-power-id="{{../id}}"
+                   data-pay-attribute="{{../attribute}}"
+                   data-slot-index="{{slot.index}}"
+                   title="{{#if (eq slot.state 'active')}}Passenden {{../attribute}}-Stein ablegen{{/if}}{{#if (eq slot.state 'done')}}Genutzt{{/if}}{{#if (eq slot.state 'locked')}}{{#if ../canAfford}}Später{{else}}Nicht genug Steine{{/if}}{{/if}}">
+                <div class="ms-stone-slot-fill">
+                  {{#if (eq slot.state 'done')}}
+                  <span class="ms-stone-gem-chip ms-slot-gem-done"
+                    style="background: {{../slotGemStyle.fill}}; box-shadow: 0 0 0 2px {{../slotGemStyle.stroke}} inset, 0 1px 3px rgba(0,0,0,0.45);"
+                    aria-hidden="true"></span>
+                  {{/if}}
                 </div>
-                {{/each}}
               </div>
+              {{/each}}
             </div>
           </div>
+          <div class="power-title power-title-general power-title-general-attr">
+            <strong class="power-name" title="{{effectLong}}">{{name}}</strong>
+            <button type="button"
+                    class="power-activate-btn power-activate-btn-compact js-activate-power"
+                    data-power-id="{{id}}"
+                    data-attribute-key="{{attribute}}"
+                    {{#if @root.stonePlanLocked}}title="Gesperrt"{{else}}title="Ohne Ziehen aktivieren ({{nextCost}})"{{/if}}
+                    {{#unless @root.hasCombat}}disabled{{/unless}}
+                    {{#if @root.stonePlanLocked}}disabled{{/if}}
+                    {{#unless canAfford}}disabled title="Zu wenig Steine"{{/unless}}>
+              <i class="fas fa-bolt"></i> {{nextCost}}
+            </button>
+          </div>
         </div>
+          {{else}}
+        <div class="power-card power-card-general power-card-placeholder" aria-hidden="true"></div>
+          {{/if}}
         {{/each}}
       </div>
-    </details>
-    {{/if}}
+    </div>
     {{/each}}
+    </div>
   </div>
 
   <div class="dialog-footer stone-powers-footer">
