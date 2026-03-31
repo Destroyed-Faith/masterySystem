@@ -96,14 +96,17 @@ function escapeCssIdentForSelector(value: string): string {
 }
 
 /**
- * Sichtbare Ablagefelder für die laufende Zahlung: 1 → nach 1 Stein 3 → nach 3 Steinen 7 → 15 …
- * (2^ceil(log2(acc+2)) − 1), gedeckelt durch nextCost.
+ * Sichtbare Ablagefelder für die laufende Zahlung: 1 → nach 1 Stein 3 → nach 3 Steinen 7 …
+ * Solange noch bezahlt wird (acc < nextCost), **nicht** mit nextCost kappen — sonst z. B. bei Kosten 2
+ * nach dem ersten Stein nur 2 statt 3 Felder (keine „zwei neuen gelben Boxen“).
+ * Abgeschlossene Zahlung im Akku: genau nextCost Felder.
  */
 function progressivePaymentWaveSlotCount(accumulated: number, nextCost: number): number {
   if (nextCost <= 0) return 0;
   const acc = Math.min(Math.max(0, accumulated), nextCost);
   const tree = Math.pow(2, Math.ceil(Math.log2(acc + 2))) - 1;
-  return Math.min(nextCost, tree);
+  if (acc >= nextCost) return nextCost;
+  return tree;
 }
 
 /**
