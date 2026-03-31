@@ -341,6 +341,17 @@ export class StonePowersDialog extends BaseDialog {
       };
     });
 
+    const powersByAttribute: Record<string, any[]> = {};
+    for (const pool of pools) {
+      powersByAttribute[pool.key] = [];
+    }
+    for (const power of attributeSpecificPowers) {
+      const attr = power.attribute as AttributeKey;
+      if (powersByAttribute[attr]) {
+        powersByAttribute[attr].push(preparePowerData(power, attr));
+      }
+    }
+
     const ATTR_MATRIX_COLS = 4;
     const attributePowerMatrix = pools
       .map((pool) => {
@@ -378,26 +389,7 @@ export class StonePowersDialog extends BaseDialog {
         const reserved = this.#reservedStonesInDialogForAttr(row.attrKey);
         return spendable > 0 || reserved > 0;
       });
-    
-    // Organize attribute-specific powers by attribute section
-    // Create entries for all attributes that have pools (max > 0)
-    const powersByAttribute: Record<string, any[]> = {};
-    
-    // First, initialize arrays for all pools that exist
-    for (const pool of pools) {
-      powersByAttribute[pool.key] = [];
-    }
-    
-    // Then, add powers to their respective attribute sections
-    for (const power of attributeSpecificPowers) {
-      const attr = power.attribute as AttributeKey;
-      // Only add if this attribute has a pool (was initialized above)
-      if (powersByAttribute[attr]) {
-        powersByAttribute[attr].push(preparePowerData(power, attr));
-      }
-      /* Keine Pool-Zeile für dieses Attribut: Macht wird nicht gelistet (z. B. ohne Steintyp). */
-    }
-    
+
     return {
       actor: this.actor,
       pools,
