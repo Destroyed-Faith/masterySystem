@@ -4,7 +4,6 @@
  */
 
 import { MasteryActor } from '../documents/actor';
-import { quickRoll } from '../dice/roll-handler';
 import { SKILLS } from '../utils/skills';
 import {
   DISADVANTAGES,
@@ -3084,26 +3083,167 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   /**
-   * Handle attribute roll
+   * Handle attribute roll — same chat card as skill rolls (TN, success, raises; flavor lists base TN + raises)
    */
   async #onAttributeRoll(event: JQuery.ClickEvent) {
     event.preventDefault();
     const element = event.currentTarget;
     const attribute = element.dataset.attribute;
-    
+
     if (!attribute) return;
-    
-    // Prompt for TN
-    const tn = await this.#promptForTN();
-    if (tn === null) return;
-    
-    await quickRoll(
-      this.actor,
-      attribute,
-      undefined,
-      tn,
-      `${attribute.charAt(0).toUpperCase() + attribute.slice(1)} Check`
-    );
+
+    const rollOptions = await this.#promptForAttributeRollOptions(attribute);
+    if (!rollOptions) return;
+
+    const actorData = (this.actor as any).system;
+    let numDice = actorData.attributes?.[attribute]?.value || 0;
+    const keepDice = actorData.mastery?.rank || 2;
+    const { getCurrentPenalty } = await import('../utils/calculations.js');
+    const healthBars = actorData.health?.bars || [];
+    const currentBar = actorData.health?.currentBar ?? 0;
+    const healthPenalty = getCurrentPenalty(healthBars, currentBar);
+    numDice = Math.max(1, numDice + healthPenalty);
+
+    const attrLabel = attribute.charAt(0).toUpperCase() + attribute.slice(1);
+    let flavor = `Attribute: ${attrLabel}, Base TN: ${rollOptions.baseTN}, Raises: ${rollOptions.raises}`;
+    if (healthPenalty < 0) {
+      const penaltyText =
+        healthPenalty === -1 ? '1' : healthPenalty === -2 ? '2' : healthPenalty === -4 ? '4' : String(Math.abs(healthPenalty));
+      flavor += ` (Health penalty: -${penaltyText} dice)`;
+    }
+
+    const { masteryRoll } = await import('../dice/roll-handler.js');
+    await masteryRoll({
+      numDice,
+      keepDice,
+      skill: 0,
+      tn: rollOptions.finalTN,
+      label: `${attrLabel} Check`,
+      flavor,
+      actorId: (this.actor as any).id,
+      isSkillRoll: false,
+      baseModifier: 0
+    });
+  }
+
+  /**
+   * Prompt for attribute roll: difficulty, optional custom TN, raises (+4 TN each) — mirrors skill roll dialog
+   */
+  async #promptForAttributeRollOptions(
+    attributeKey: string
+  ): Promise<{ baseTN: number; raises: number; finalTN: number } | null> {
+    const system = (this.actor as any).system;
+    const masteryRank = system.mastery?.rank || 2;
+    const standardTN = masteryRank * 8;
+    const difficulties = {
+      trivial: standardTN - 8,
+      easy: standardTN - 4,
+      standard: standardTN,
+      challenging: standardTN + 4,
+      hard: standardTN + 8,
+      veryHard: standardTN + 12,
+      heroic: standardTN + 16
+    };
+    const attrLabel = attributeKey.charAt(0).toUpperCase() + attributeKey.slice(1);
+    const attrDice = system.attributes?.[attributeKey]?.value ?? 0;
+
+    const content = `
+      <form class="mastery-dialog-form">
+        <div class="md-group">
+          <label class="md-label">Attribute</label>
+          <div class="md-attr-display">
+            ${attrLabel} (${attrDice}d8, keep ${masteryRank})
+          </div>
+        </div>
+
+        <div class="md-group md-group-difficulty">
+          <label class="md-label">Difficulty</label>
+          <select name="baseTN" id="attr-roll-baseTN" class="md-select md-select-difficulty">
+            <option value="${difficulties.trivial}">Trivial (${difficulties.trivial})</option>
+            <option value="${difficulties.easy}">Easy (${difficulties.easy})</option>
+            <option value="${difficulties.standard}" selected>Standard (${difficulties.standard})</option>
+            <option value="${difficulties.challenging}">Challenging (${difficulties.challenging})</option>
+            <option value="${difficulties.hard}">Hard (${difficulties.hard})</option>
+            <option value="${difficulties.veryHard}">Very Hard (${difficulties.veryHard})</option>
+            <option value="${difficulties.heroic}">Heroic (${difficulties.heroic})</option>
+            <option value="custom">Custom…</option>
+          </select>
+        </div>
+
+        <div class="md-group" id="attr-custom-tn-group" style="display: none;">
+          <label class="md-label">Custom TN</label>
+          <input type="number" name="customTN" id="attr-roll-customTN" value="${difficulties.standard}" min="0" step="1" class="md-input" />
+        </div>
+
+        <div class="md-group">
+          <label class="md-label">Raises <span class="md-sublabel">(+4 TN each)</span></label>
+          <input type="number" name="raises" id="attr-roll-raises" value="0" min="0" step="1" class="md-input" />
+          <div class="md-final-tn">
+            Final TN: <strong><span id="attr-final-tn-display">${difficulties.standard}</span></strong>
+          </div>
+        </div>
+      </form>
+    `;
+
+    return new Promise((resolve) => {
+      const dialog = new Dialog(
+        {
+          title: `Roll ${attrLabel}`,
+          content,
+          buttons: {
+            roll: {
+              label: '<i class="fas fa-dice-d20"></i> Roll',
+              callback: (html: JQuery) => {
+                const baseTNSelect = html.find('[name="baseTN"]').val() as string;
+                let baseTN: number;
+                if (baseTNSelect === 'custom') {
+                  baseTN = parseInt(html.find('[name="customTN"]').val() as string) || 0;
+                } else {
+                  baseTN = parseInt(baseTNSelect) || difficulties.standard;
+                }
+                const raises = parseInt(html.find('[name="raises"]').val() as string) || 0;
+                const finalTN = baseTN + raises * 4;
+                resolve({ baseTN, raises, finalTN });
+              }
+            },
+            cancel: {
+              label: 'Cancel',
+              callback: () => resolve(null)
+            }
+          },
+          default: 'roll',
+          render: (html: JQuery) => {
+            const $html = html instanceof HTMLElement ? $(html) : $(html as any);
+            setTimeout(() => {
+              $html.closest('.window-app.dialog').addClass('mastery-system mastery-roll-dialog mastery-skill-roll-dialog');
+            }, 0);
+
+            $html.find('[name="baseTN"]').on('change', function () {
+              const isCustom = $(this).val() === 'custom';
+              $html.find('#attr-custom-tn-group').toggle(isCustom);
+            });
+
+            const updateFinalTN = () => {
+              const baseTNSelect = $html.find('[name="baseTN"]').val() as string;
+              let baseTN: number;
+              if (baseTNSelect === 'custom') {
+                baseTN = parseInt($html.find('[name="customTN"]').val() as string) || 0;
+              } else {
+                baseTN = parseInt(baseTNSelect) || difficulties.standard;
+              }
+              const raises = parseInt($html.find('[name="raises"]').val() as string) || 0;
+              const finalTN = baseTN + raises * 4;
+              $html.find('#attr-final-tn-display').text(String(finalTN));
+            };
+
+            $html.find('[name="baseTN"], [name="customTN"], [name="raises"]').on('change input', updateFinalTN);
+            updateFinalTN();
+          }
+        } as any,
+        { width: 560, height: 'auto' } as any
+      );
+      dialog.render(true);
+    });
   }
 
   /**
