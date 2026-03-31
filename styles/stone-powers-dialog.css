@@ -358,8 +358,7 @@
 .stone-powers-dialog .powers-grid-general {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
-  /* Zeile min. 60px, Karte darf mit mehreren Ablagefeldern nach unten wachsen */
-  grid-auto-rows: minmax(60px, auto);
+  grid-auto-rows: 60px;
   gap: 0.12rem 0.22rem;
   padding: 0.12rem 0.22rem 0.15rem;
   align-items: stretch;
@@ -372,15 +371,15 @@
   justify-content: space-between;
   gap: 0.04rem;
   box-sizing: border-box;
+  height: 100%;
+  max-height: 60px;
   min-height: 60px;
-  height: auto;
-  max-height: none;
   padding: 0.12rem 0.12rem 0.1rem;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 4px;
   background: rgba(0, 0, 0, 0.22);
   min-width: 0;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .stone-powers-dialog .power-drop-slots-row-general {

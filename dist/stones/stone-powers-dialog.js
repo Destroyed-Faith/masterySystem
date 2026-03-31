@@ -16,11 +16,11 @@ const STONE_RETURN_MIME = 'application/x-mastery-stone-return-acc';
  * Konsole nach `StoneDnD` filtern.
  * Abschalten: in F12 `CONFIG.masterySystemDebugStoneDnD = false` (Standard ist an, bis ihr es dauerhaft ausmacht).
  * Rückgabe Pool↔Feld: zusätzlich `CONFIG.masterySystemDebugStoneReturn = true` (Standard aus), dann [StoneReturn]-Logs.
- * Ablage-Raster: [StoneWave]-Logs (Standard an). Aus: `CONFIG.masterySystemDebugStoneWave = false`.
+ * Ablage-Raster (wave/acc/nextCost): `CONFIG.masterySystemDebugStoneWave = true` → [StoneWave]-Logs.
  */
 const DEBUG_STONE_POWERS_DND = globalThis.CONFIG?.masterySystemDebugStoneDnD !== false;
 const DEBUG_STONE_RETURN = globalThis.CONFIG?.masterySystemDebugStoneReturn === true;
-const DEBUG_STONE_WAVE = globalThis.CONFIG?.masterySystemDebugStoneWave !== false;
+const DEBUG_STONE_WAVE = globalThis.CONFIG?.masterySystemDebugStoneWave === true;
 function dlogStoneDnD(...args) {
     if (!DEBUG_STONE_POWERS_DND)
         return;
@@ -32,8 +32,6 @@ function dlogStoneReturn(...args) {
     console.log('Mastery System | [StoneReturn]', ...args);
 }
 function dlogStoneWave(payload) {
-    if (!DEBUG_STONE_WAVE)
-        return;
     console.log('Mastery System | [StoneWave]', payload);
 }
 /** Fallback wenn getData im Drop leer bleibt (z. B. Chromium/Foundry) */
@@ -137,7 +135,7 @@ function buildStoneDropSlots(usesThisTurn, spendableNet, nextCost, planLocked, a
             slots.push({ index: idx, displayCost, state });
         }
     }
-    if (debugLabel) {
+    if (DEBUG_STONE_WAVE && debugLabel) {
         const rem = nextCost - acc;
         dlogStoneWave({
             label: debugLabel,
@@ -408,21 +406,6 @@ export class StonePowersDialog extends BaseDialog {
             const reserved = this.#reservedStonesInDialogForAttr(row.attrKey);
             return spendable > 0 || reserved > 0;
         });
-        if (DEBUG_STONE_WAVE) {
-            const slotSummary = (p) => ({
-                id: p.id,
-                slotCount: p.dropSlots?.length ?? 0,
-                states: (p.dropSlots || []).map((s) => s.state),
-                usesThisTurn: p.usesThisTurn,
-                nextCost: p.nextCost
-            });
-            dlogStoneWave({
-                phase: 'prepareContext',
-                totalSpendableNetAllPools: totalSpendableNetAllPools(),
-                generalPowers: generalPowers.map(slotSummary),
-                note: 'Mehrere Slots pro Karte: CSS power-card darf nicht auf 60px/clippen (overflow sichtbar).'
-            });
-        }
         return {
             actor: this.actor,
             pools,
@@ -804,16 +787,7 @@ export class StonePowersDialog extends BaseDialog {
                 return;
             }
             if (!slot.classList.contains('slot-active')) {
-                const row = slot.closest('.power-drop-slots');
-                dlogStoneDnD('drop abort: Slot nicht slot-active', {
-                    classes: Array.from(slot.classList),
-                    slotIndex: slot.dataset.slotIndex,
-                    powerId: slot.dataset.powerId,
-                    rowSlotCount: row?.querySelectorAll('.ms-stone-drop-slot').length,
-                    rowActiveCount: row?.querySelectorAll('.ms-stone-drop-slot.slot-active').length,
-                    rowLockedCount: row?.querySelectorAll('.ms-stone-drop-slot.slot-locked').length,
-                    hint: 'locked = oft keine freien Steine im Pool (Akku/Reservierung) oder Runde gesperrt'
-                });
+                dlogStoneDnD('drop abort: Slot nicht slot-active', { classes: Array.from(slot.classList) });
                 return;
             }
             const dragged = this._stoneDragAttribute ||
