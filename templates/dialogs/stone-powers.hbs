@@ -78,6 +78,14 @@
                 </div>
               </div>
               {{/each}}
+              <div class="ms-stone-drop-slot-pair-spacer" aria-hidden="true"></div>
+              <div class="ms-stone-drop-slot slot-{{slot.state}}{{#unless @root.dragStonesEnabled}} slot-no-drag{{/unless}}"
+                   data-power-id="{{../id}}"
+                   data-is-generic="true"
+                   data-slot-index="{{slot.index}}"
+                   title="{{#if (eq slot.state 'active')}}Beliebigen Attribut-Stein hier ablegen{{/if}}{{#if (eq slot.state 'filled')}}Gelegt — zum Freigeben in den Pool ziehen{{/if}}{{#if (eq slot.state 'done')}}Genutzt{{/if}}{{#if (eq slot.state 'locked')}}{{#if ../canAfford}}Später{{else}}Nicht genug Steine in einem Pool{{/if}}{{/if}}">
+                <div class="ms-stone-slot-fill"></div>
+              </div>
               </div>
               {{/each}}
             </div>
@@ -118,6 +126,14 @@
                 </div>
               </div>
               {{/each}}
+              <div class="ms-stone-drop-slot-pair-spacer" aria-hidden="true"></div>
+              <div class="ms-stone-drop-slot slot-{{slot.state}}{{#unless @root.dragStonesEnabled}} slot-no-drag{{/unless}}"
+                   data-power-id="{{../id}}"
+                   data-pay-attribute="{{../attribute}}"
+                   data-slot-index="{{slot.index}}"
+                   title="{{#if (eq slot.state 'active')}}Passenden {{../attribute}}-Stein ablegen{{/if}}{{#if (eq slot.state 'filled')}}Gelegt — zum Freigeben in den Pool ziehen{{/if}}{{#if (eq slot.state 'done')}}Genutzt{{/if}}{{#if (eq slot.state 'locked')}}{{#if ../canAfford}}Später{{else}}Nicht genug Steine{{/if}}{{/if}}">
+                <div class="ms-stone-slot-fill"></div>
+              </div>
               </div>
               {{/each}}
             </div>

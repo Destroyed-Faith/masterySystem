@@ -395,14 +395,20 @@
   min-height: 0;
 }
 
-/* Zwei Ablage-Zellen pro logischem Slot, nebeneinander */
+/* Pro logischem Slot: oben zwei Zellen, darunter eine dritte unter der rechten */
 .stone-powers-dialog .ms-stone-drop-slot-pair {
-  display: inline-flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  align-items: stretch;
+  display: inline-grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto auto;
   gap: 0.22rem;
+  align-items: stretch;
   flex: 0 0 auto;
+}
+
+.stone-powers-dialog .ms-stone-drop-slot-pair-spacer {
+  min-width: 0;
+  min-height: 0;
+  pointer-events: none;
 }
 
 /* Nur General: flache Drop-Zellen */
