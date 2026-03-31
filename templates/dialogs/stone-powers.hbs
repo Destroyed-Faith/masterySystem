@@ -55,14 +55,7 @@
 
   <div class="powers-list">
     {{#if generalPowers.length}}
-    <details class="power-group is-general" open>
-      <summary class="power-group-header">
-        <h4>
-          <i class="fas fa-chevron-right"></i>
-          General Powers
-        </h4>
-        <span class="power-count">({{generalPowers.length}})</span>
-      </summary>
+    <div class="power-group is-general" role="region" aria-label="General Powers">
       <div class="powers-grid powers-grid-general">
         {{#each generalPowers as |power|}}
         <div class="power-card power-card-general">
@@ -91,7 +84,7 @@
         </div>
         {{/each}}
       </div>
-    </details>
+    </div>
     {{/if}}
     
     {{#each powersByAttribute as |powers attr|}}

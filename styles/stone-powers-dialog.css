@@ -408,8 +408,9 @@
   width: 100%;
 }
 
-.stone-powers-dialog .power-group.is-general summary {
-  padding: 0.32rem 0.5rem;
+/* General: kein Accordion-Header — nur Grid */
+.stone-powers-dialog .power-group.is-general {
+  overflow: visible;
 }
 
 .stone-powers-dialog .power-row {
