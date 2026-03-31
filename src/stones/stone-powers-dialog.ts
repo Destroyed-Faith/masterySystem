@@ -563,10 +563,25 @@ export class StonePowersDialog extends BaseDialog {
 
       for (let i = 0; i < count; i++) {
         const slotIndex = usesRound + i;
-        const slot = root.querySelector(
+        let slot = root.querySelector(
           `.ms-stone-drop-slot.slot-filled[data-power-id="${esc}"][data-slot-index="${slotIndex}"]`
         ) as HTMLElement | null;
-        if (!slot) continue;
+        if (!slot) {
+          slot = root.querySelector(
+            `.ms-stone-drop-slot.slot-active[data-power-id="${esc}"][data-slot-index="${slotIndex}"]`
+          ) as HTMLElement | null;
+        }
+        if (!slot) {
+          dlogStoneDnD('syncAccumulatorGems: kein Ziel-Slot', {
+            powerId,
+            slotIndex,
+            count,
+            i,
+            usesRound,
+            hint: 'fehlendes render() oder falsches data-power-id / data-slot-index'
+          });
+          continue;
+        }
         const fill = slot.querySelector('.ms-stone-slot-fill') as HTMLElement | null;
         if (!fill) continue;
 
@@ -901,8 +916,20 @@ export class StonePowersDialog extends BaseDialog {
         return;
       }
 
+      /**
+       * Letzter Stein der Zahlung: ohne render bleiben Slots `slot-active`, während #syncPoolGemChips
+       * den Chip schon abzieht → Stein „verschwindet“. Immer neu rendern bevor Übung/Kampf-Abbruch.
+       */
+      await (this as any).render({ force: true });
+
       if (!canExecute) {
-        dlogStoneDnD('drop Ende Übung: canExecute false (kein Kampf/Tracker)', { canExecute });
+        dlogStoneDnD('drop Ende Übung: canExecute false (kein Kampf/Tracker)', {
+          canExecute,
+          accKey,
+          next,
+          nextCost,
+          note: 'Akku bleibt; Felder sollten slot-filled + Teil-Steine zeigen'
+        });
         return;
       }
 

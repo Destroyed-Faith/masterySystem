@@ -490,9 +490,21 @@ export class StonePowersDialog extends BaseDialog {
             const strokeC = style?.stroke ?? '#aaaaaa';
             for (let i = 0; i < count; i++) {
                 const slotIndex = usesRound + i;
-                const slot = root.querySelector(`.ms-stone-drop-slot.slot-filled[data-power-id="${esc}"][data-slot-index="${slotIndex}"]`);
-                if (!slot)
+                let slot = root.querySelector(`.ms-stone-drop-slot.slot-filled[data-power-id="${esc}"][data-slot-index="${slotIndex}"]`);
+                if (!slot) {
+                    slot = root.querySelector(`.ms-stone-drop-slot.slot-active[data-power-id="${esc}"][data-slot-index="${slotIndex}"]`);
+                }
+                if (!slot) {
+                    dlogStoneDnD('syncAccumulatorGems: kein Ziel-Slot', {
+                        powerId,
+                        slotIndex,
+                        count,
+                        i,
+                        usesRound,
+                        hint: 'fehlendes render() oder falsches data-power-id / data-slot-index'
+                    });
                     continue;
+                }
                 const fill = slot.querySelector('.ms-stone-slot-fill');
                 if (!fill)
                     continue;
@@ -808,8 +820,19 @@ export class StonePowersDialog extends BaseDialog {
                 await this.render({ force: true });
                 return;
             }
+            /**
+             * Letzter Stein der Zahlung: ohne render bleiben Slots `slot-active`, während #syncPoolGemChips
+             * den Chip schon abzieht → Stein „verschwindet“. Immer neu rendern bevor Übung/Kampf-Abbruch.
+             */
+            await this.render({ force: true });
             if (!canExecute) {
-                dlogStoneDnD('drop Ende Übung: canExecute false (kein Kampf/Tracker)', { canExecute });
+                dlogStoneDnD('drop Ende Übung: canExecute false (kein Kampf/Tracker)', {
+                    canExecute,
+                    accKey,
+                    next,
+                    nextCost,
+                    note: 'Akku bleibt; Felder sollten slot-filled + Teil-Steine zeigen'
+                });
                 return;
             }
             this._stoneDropAccumulators.delete(accKey);
