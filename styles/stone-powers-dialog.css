@@ -395,10 +395,10 @@
   min-height: 0;
 }
 
-/* Pro logischem Slot: [1] | [2][3] | 2x2 Quad | 4x2 Oct (8) mit vertikalen Trennlinien */
+/* Pro logischem Slot: [1] | [2][3] | 2x2 Quad | | 4x2 Oct (8) — Trenner auch zwischen Quad und Oct */
 .stone-powers-dialog .ms-stone-drop-slot-cluster {
   display: inline-grid;
-  grid-template-columns: auto 1px auto 1px repeat(6, minmax(0, 1fr));
+  grid-template-columns: auto 1px auto 1px minmax(0, 1fr) minmax(0, 1fr) 1px minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
   grid-template-rows: auto auto;
   column-gap: 0.28rem;
   row-gap: 0.22rem;
@@ -432,6 +432,10 @@
   grid-column: 4;
 }
 
+.stone-powers-dialog .ms-stone-cluster-vsep-3 {
+  grid-column: 7;
+}
+
 .stone-powers-dialog .ms-stone-cluster-col-mid {
   grid-column: 3;
   grid-row: 1 / span 2;
@@ -452,7 +456,7 @@
 }
 
 .stone-powers-dialog .ms-stone-cluster-col-oct {
-  grid-column: 7 / 11;
+  grid-column: 8 / 12;
   grid-row: 1 / span 2;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -481,6 +485,18 @@
 
 .stone-powers-dialog .powers-grid-general .ms-stone-drop-slot.slot-filled {
   min-width: 20px;
+}
+
+/* Gelbe Ablage (active) etwas kompakter — grün (filled) wie bisher */
+.stone-powers-dialog .powers-grid-general .ms-stone-drop-slot.slot-active {
+  min-width: 17px;
+  min-height: 13px;
+  padding: 0 1px;
+  border-width: 1px;
+}
+
+.stone-powers-dialog .powers-grid-general .ms-stone-drop-slot.slot-active .ms-stone-slot-fill {
+  min-height: 10px;
 }
 
 .stone-powers-dialog .power-title-general {
