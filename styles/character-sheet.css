@@ -729,6 +729,23 @@
   flex-wrap: wrap;
 }
 
+.mastery-system.sheet.actor.character .attribute-xp-confirm-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.mastery-system.sheet.actor.character .attribute-xp-confirm-row .confirm-attribute-changes,
+.mastery-system.sheet.actor.character .attribute-xp-confirm-row .cancel-attribute-changes {
+  flex: 1;
+  min-width: 7.5rem;
+}
+
+.mastery-system.sheet.actor.character .attribute-xp-confirm-row .stone-powers-btn-header {
+  flex: 0 0 auto;
+}
+
 .mastery-system.sheet.actor.character .pending-attribute-changes-info {
   display: flex;
   flex-direction: row;
@@ -3855,13 +3872,6 @@
   text-align: center;
 }
 
-.mastery-system.sheet.actor.character .stone-powers-section {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  text-align: center;
-}
-
 .mastery-system.sheet.actor.character .stone-powers-btn {
   padding: 0.6rem 1.2rem;
   background: var(--df-bg-panel, #2a3136);
@@ -3891,6 +3901,11 @@
 
 .mastery-system.sheet.actor.character .stone-powers-btn i {
   margin-right: 0.5rem;
+}
+
+.mastery-system.sheet.actor.character .stone-powers-btn-header {
+  padding: 0.45rem 0.85rem;
+  font-size: 0.85rem;
 }
 
 /* ========== Character Creation Banner ========== */
