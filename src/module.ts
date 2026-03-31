@@ -51,6 +51,28 @@ registerHandlebarsHelpersImmediate();
 Hooks.once('init', async function() {
   console.log('Mastery System | Initializing Mastery System / Destroyed Faith');
 
+  const sysVer =
+    typeof game !== 'undefined' && (game as any).system?.version
+      ? String((game as any).system.version)
+      : '?.?.?';
+  const versionInner = `  Version: ${sysVer}`.slice(0, 57).padEnd(57);
+  console.log(`
+╔═══════════════════════════════════════════════════════════╗
+║                                                           ║
+║            MASTERY SYSTEM / DESTROYED FAITH               ║
+║                                                           ║
+║  A dark fantasy tabletop RPG system featuring:            ║
+║  • Roll & Keep d8 dice mechanics                          ║
+║  • Attribute Stones & Mastery Ranks                       ║
+║  • Health Bars with cumulative penalties                  ║
+║  • Powers & Mastery Trees (L1-L4)                         ║
+║  • Divine Clash late-game combat                          ║
+║                                                           ║
+║${versionInner}║
+║                                                           ║
+╚═══════════════════════════════════════════════════════════╝
+`);
+
   // Shim deprecated globals to the namespaced versions to suppress warnings (Foundry v13+)
   if (!(globalThis as any).FilePicker && (foundry as any)?.applications?.apps?.FilePicker?.implementation) {
     (globalThis as any).FilePicker = (foundry as any).applications.apps.FilePicker.implementation;
@@ -2517,25 +2539,3 @@ Hooks.on('preUpdateItem', async (item: any, changes: any, _options: any, _userId
     console.log(`Mastery System | Unequipped ${otherEquippedItems.length} other ${itemType}(s) when equipping ${item.name}`);
   }
 });
-
-
-/**
- * Log system information
- */
-console.log(`
-╔═══════════════════════════════════════════════════════════╗
-║                                                           ║
-║            MASTERY SYSTEM / DESTROYED FAITH               ║
-║                                                           ║
-║  A dark fantasy tabletop RPG system featuring:            ║
-║  • Roll & Keep d8 dice mechanics                          ║
-║  • Attribute Stones & Mastery Ranks                       ║
-║  • Health Bars with cumulative penalties                  ║
-║  • Powers & Mastery Trees (L1-L4)                         ║
-║  • Divine Clash late-game combat                          ║
-║                                                           ║
-       ║  Version: 0.3.1                                            ║
-║                                                           ║
-╚═══════════════════════════════════════════════════════════╝
-`);
-

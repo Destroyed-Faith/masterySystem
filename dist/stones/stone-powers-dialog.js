@@ -452,7 +452,10 @@ export class StonePowersDialog extends BaseDialog {
                     dlogStoneDnD('dragstart skipped', { allowDrag, hasDT: !!ev.dataTransfer });
                     return;
                 }
-                const attr = gem.dataset.attributeKey || '';
+                const attr = gem.dataset.attributeKey ||
+                    gem.closest('.pool-gems')?.dataset?.attributeKey ||
+                    gem.closest('.pool-item')?.dataset?.attribute ||
+                    '';
                 this._stoneDragAttribute = attr;
                 msLastDraggedStoneAttribute = attr;
                 ev.dataTransfer.setData(STONE_DRAG_MIME, attr);
