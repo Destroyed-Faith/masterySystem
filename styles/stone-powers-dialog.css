@@ -395,10 +395,10 @@
   min-height: 0;
 }
 
-/* Pro logischem Slot: [1] | [2][3] | [4][5] / [6][7] mit vertikalen Trennlinien */
+/* Pro logischem Slot: [1] | [2][3] | 2x2 Quad | 4x2 Oct (8) mit vertikalen Trennlinien */
 .stone-powers-dialog .ms-stone-drop-slot-cluster {
   display: inline-grid;
-  grid-template-columns: auto 1px auto 1px minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: auto 1px auto 1px repeat(6, minmax(0, 1fr));
   grid-template-rows: auto auto;
   column-gap: 0.28rem;
   row-gap: 0.22rem;
@@ -446,6 +446,16 @@
   grid-row: 1 / span 2;
   display: grid;
   grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 0.22rem;
+  align-content: center;
+}
+
+.stone-powers-dialog .ms-stone-cluster-col-oct {
+  grid-column: 7 / 11;
+  grid-row: 1 / span 2;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   grid-template-rows: auto auto;
   gap: 0.22rem;
   align-content: center;

@@ -112,6 +112,15 @@
                     <div class="ms-stone-slot-fill"></div>
                   </div>
                 </div>
+                <div class="ms-stone-cluster-col-oct">
+                  {{#each (range 1 8)}}
+                  <div class="ms-stone-drop-slot slot-{{../state}}{{#unless @root.dragStonesEnabled}} slot-no-drag{{/unless}}"
+                       data-power-id="{{../../id}}" data-is-generic="true" data-slot-index="{{../index}}"
+                       title="{{#if (eq ../state 'active')}}Beliebigen Attribut-Stein hier ablegen{{/if}}{{#if (eq ../state 'filled')}}Gelegt — zum Freigeben in den Pool ziehen{{/if}}{{#if (eq ../state 'done')}}Genutzt{{/if}}{{#if (eq ../state 'locked')}}{{#if ../../canAfford}}Später{{else}}Nicht genug Steine in einem Pool{{/if}}{{/if}}">
+                    <div class="ms-stone-slot-fill"></div>
+                  </div>
+                  {{/each}}
+                </div>
               </div>
               {{/each}}
             </div>
@@ -185,6 +194,15 @@
                        title="{{#if (eq slot.state 'active')}}Passenden {{../attribute}}-Stein ablegen{{/if}}{{#if (eq slot.state 'filled')}}Gelegt — zum Freigeben in den Pool ziehen{{/if}}{{#if (eq slot.state 'done')}}Genutzt{{/if}}{{#if (eq slot.state 'locked')}}{{#if ../canAfford}}Später{{else}}Nicht genug Steine{{/if}}{{/if}}">
                     <div class="ms-stone-slot-fill"></div>
                   </div>
+                </div>
+                <div class="ms-stone-cluster-col-oct">
+                  {{#each (range 1 8)}}
+                  <div class="ms-stone-drop-slot slot-{{../state}}{{#unless @root.dragStonesEnabled}} slot-no-drag{{/unless}}"
+                       data-power-id="{{../../id}}" data-pay-attribute="{{../../attribute}}" data-slot-index="{{../index}}"
+                       title="{{#if (eq ../state 'active')}}Passenden {{../../attribute}}-Stein ablegen{{/if}}{{#if (eq ../state 'filled')}}Gelegt — zum Freigeben in den Pool ziehen{{/if}}{{#if (eq ../state 'done')}}Genutzt{{/if}}{{#if (eq ../state 'locked')}}{{#if ../../canAfford}}Später{{else}}Nicht genug Steine{{/if}}{{/if}}">
+                    <div class="ms-stone-slot-fill"></div>
+                  </div>
+                  {{/each}}
                 </div>
               </div>
               {{/each}}
