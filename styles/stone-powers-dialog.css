@@ -26,6 +26,18 @@
   font-size: 0.9rem;
 }
 
+.stone-powers-dialog .dialog-header-hint {
+  font-size: 0.8rem;
+  color: #aaa;
+  line-height: 1.4;
+  max-width: 52rem;
+}
+
+.stone-powers-dialog .dialog-header-hint strong {
+  color: #ddd;
+  font-weight: 600;
+}
+
 .stone-powers-dialog .stone-plan-locked-banner {
   display: flex;
   align-items: flex-start;
@@ -53,6 +65,34 @@
 
 .stone-powers-dialog .stone-plan-locked-text strong {
   color: #fff;
+}
+
+.stone-powers-dialog .stone-combat-hint-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.55rem 0.75rem;
+  margin-bottom: 0.75rem;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.stone-powers-dialog .stone-combat-hint-banner.is-info {
+  border: 1px solid rgba(100, 181, 246, 0.45);
+  background: rgba(33, 150, 243, 0.12);
+  color: #90caf9;
+}
+
+.stone-powers-dialog .stone-combat-hint-banner.is-warn {
+  border: 1px solid rgba(255, 152, 0, 0.5);
+  background: rgba(255, 152, 0, 0.12);
+  color: #ffcc80;
+}
+
+.stone-powers-dialog .stone-combat-hint-banner i {
+  flex-shrink: 0;
+  margin-top: 0.12rem;
 }
 
 /* Stone Pools Display */
@@ -106,10 +146,108 @@
 
 .stone-powers-dialog .ms-stone-gem-chip {
   display: inline-block;
-  width: 15px;
-  height: 15px;
+  width: 18px;
+  height: 18px;
   border-radius: 35% 35% 45% 45%;
   flex-shrink: 0;
+}
+
+.stone-powers-dialog .js-stone-draggable:not(.is-drag-disabled) {
+  cursor: grab;
+  -webkit-user-drag: element;
+  touch-action: none;
+}
+
+.stone-powers-dialog .js-stone-draggable.is-drag-disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  filter: grayscale(0.35);
+}
+
+.stone-powers-dialog .js-stone-draggable.is-dragging {
+  opacity: 0.45;
+}
+
+.stone-powers-dialog .power-drop-slots-row {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.4rem;
+  padding-left: 0.15rem;
+}
+
+.stone-powers-dialog .drop-slots-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #888;
+  width: 3.2rem;
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+
+.stone-powers-dialog .power-drop-slots {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-height: 34px;
+}
+
+.stone-powers-dialog .ms-stone-drop-slot {
+  min-width: 38px;
+  height: 32px;
+  padding: 0 6px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 2px dashed rgba(255, 255, 255, 0.22);
+  color: #ddd;
+  transition: background 0.15s, border-color 0.15s, outline 0.15s;
+  box-sizing: border-box;
+}
+
+.stone-powers-dialog .ms-stone-drop-slot.slot-done {
+  border-style: solid;
+  border-color: rgba(76, 175, 80, 0.55);
+  background: rgba(76, 175, 80, 0.12);
+  color: #a5d6a7;
+}
+
+.stone-powers-dialog .ms-stone-drop-slot.slot-done .fa-check {
+  font-size: 0.85rem;
+}
+
+.stone-powers-dialog .ms-stone-drop-slot.slot-active {
+  border-style: solid;
+  border-color: rgba(255, 213, 79, 0.85);
+  background: rgba(255, 213, 79, 0.1);
+  color: #ffe082;
+  cursor: copy;
+}
+
+.stone-powers-dialog .ms-stone-drop-slot.slot-locked {
+  opacity: 0.42;
+  border-style: dashed;
+}
+
+.stone-powers-dialog .ms-stone-drop-slot.slot-no-drag.slot-active {
+  cursor: default;
+}
+
+.stone-powers-dialog .ms-stone-drop-slot.is-drag-over {
+  outline: 2px solid #fff;
+  outline-offset: 1px;
+  background: rgba(139, 0, 0, 0.35);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.stone-powers-dialog .ms-stone-drop-slot .slot-cost {
+  font-variant-numeric: tabular-nums;
 }
 
 .stone-powers-dialog .pool-name {

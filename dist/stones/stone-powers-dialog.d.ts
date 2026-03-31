@@ -11,6 +11,8 @@ export declare class StonePowersDialog extends BaseDialog {
     private combatant;
     private resolve?;
     private _generalAttrSelection;
+    /** Partial drops toward multi-stone cost: key `${powerId}:${attr}:${uses}` */
+    private _stoneDropAccumulators;
     static DEFAULT_OPTIONS: {
         id: string;
         classes: string[];

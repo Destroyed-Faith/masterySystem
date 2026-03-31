@@ -9,16 +9,86 @@ const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
 import { STONE_POWERS, activateStonePower, getAvailableStonePowers } from './stone-activation.js';
 import { getStoneUsageCount, calculateStoneCost, getStonePool, isStonePowersConfigurationLocked, getActionEconomyActor } from '../combat/action-economy.js';
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
+const STONE_DRAG_MIME = 'application/x-mastery-stone-attribute';
+/**
+ * Find the combatant row for this actor (linked sheet, prototype actor, or token document actorId).
+ */
+function resolveStonePowersCombatant(actor, combat) {
+    const owner = getActionEconomyActor(actor) ?? actor;
+    const sheetId = actor.id;
+    const worldId = owner.id;
+    const ids = new Set([sheetId, worldId].filter(Boolean));
+    for (const c of combat.combatants) {
+        const ca = c.actor;
+        if (ca && ids.has(ca.id))
+            return c;
+    }
+    for (const c of combat.combatants) {
+        const td = c.token;
+        const aid = td?.actorId;
+        if (aid && ids.has(aid))
+            return c;
+    }
+    return null;
+}
+/** Max number of tier slots to show: 2^n − 1 ≤ spendable */
+function visibleStoneDropSlotCount(spendable) {
+    if (spendable <= 0)
+        return 0;
+    return Math.floor(Math.log2(spendable + 1));
+}
+/** Slot visuals: active whenever genug Steine und nicht gesperrt — auch ohne laufenden Kampf (Aktivierung erst beim Drop/Button). */
+function buildStoneDropSlots(usesThisTurn, spendable, nextCost, planLocked) {
+    const visible = visibleStoneDropSlotCount(spendable);
+    const count = Math.max(visible, usesThisTurn);
+    const slots = [];
+    for (let k = 0; k < count; k++) {
+        const displayCost = calculateStoneCost(k);
+        let state;
+        if (k < usesThisTurn)
+            state = 'done';
+        else if (k === usesThisTurn) {
+            if (planLocked)
+                state = 'locked';
+            else if (spendable >= nextCost)
+                state = 'active';
+            else
+                state = 'locked';
+        }
+        else
+            state = 'locked';
+        slots.push({ index: k, displayCost, state });
+    }
+    if (slots.length === 0) {
+        const cost = calculateStoneCost(usesThisTurn);
+        let state = 'locked';
+        if (!planLocked && spendable >= cost)
+            state = 'active';
+        slots.push({ index: usesThisTurn, displayCost: cost, state });
+    }
+    return slots;
+}
+/** DOM root for listeners (ApplicationV2 legt Inhalt unter part=content / .window-content). */
+function getStonePowersContentRoot(app) {
+    const el = app?.element;
+    if (!el)
+        return null;
+    return (el.querySelector('[data-application-part="content"]') ||
+        el.querySelector('.window-content') ||
+        el);
+}
 export class StonePowersDialog extends BaseDialog {
     actor;
     combatant;
     resolve;
     _generalAttrSelection = {}; // Track selected attribute per generic power
+    /** Partial drops toward multi-stone cost: key `${powerId}:${attr}:${uses}` */
+    _stoneDropAccumulators = new Map();
     static DEFAULT_OPTIONS = {
         id: "mastery-stone-powers",
         classes: ["mastery-system", "stone-powers-dialog"],
-        position: { width: 600, height: 500 },
-        window: { title: "Activate Stone Powers", resizable: true }
+        position: { width: 720, height: 520 },
+        window: { title: 'Steinmächte', resizable: true }
     };
     static PARTS = {
         content: { template: "systems/mastery-system/templates/dialogs/stone-powers.hbs" }
@@ -47,9 +117,10 @@ export class StonePowersDialog extends BaseDialog {
         }
     }
     async _prepareContext(_options) {
-        // Resolve combatant if not provided
-        if (!this.combatant && game.combat) {
-            this.combatant = game.combat.combatants.find((c) => c.actor?.id === this.actor.id) || null;
+        const combat = game.combat;
+        const combatActive = !!combat;
+        if (!this.combatant && combat) {
+            this.combatant = resolveStonePowersCombatant(this.actor, combat);
         }
         const system = this.actor.system;
         const stonePools = system.stonePools || {};
@@ -77,8 +148,8 @@ export class StonePowersDialog extends BaseDialog {
             };
         })
             .filter((pool) => pool.max > 0);
-        const hasCombat = !!game.combat && !!this.combatant;
-        const combat = game.combat;
+        const combatMissingFromTracker = combatActive && !this.combatant;
+        const hasCombat = combatActive && !!this.combatant;
         const stonePlanLocked = !!(combat && this.combatant && isStonePowersConfigurationLocked(this.actor, combat));
         const prefsUseDefaults = !!(system.stonePowersPrefs?.useDefaultsEachRound);
         const user = game.user;
@@ -101,26 +172,25 @@ export class StonePowersDialog extends BaseDialog {
                 return pools[0].key;
             return 'might'; // Fallback
         })();
-        // Helper to prepare power data with cost calculation
+        const spendableForAttr = (key) => pools.find((p) => p.key === key)?.available ?? 0;
         const preparePowerData = (power, attrKey) => {
-            // Calculate next cost based on usage count
-            const usesThisTurn = hasCombat && combat
-                ? getStoneUsageCount(this.actor, attrKey, power.id, combat)
-                : 0;
+            const usesThisTurn = hasCombat && combat ? getStoneUsageCount(this.actor, attrKey, power.id, combat) : 0;
             const nextCost = calculateStoneCost(usesThisTurn);
-            // Check if can afford
             const pool = getStonePool(this.actor, attrKey);
             const canAfford = pool.current >= nextCost && hasCombat;
-            // Use description as primary, fallback to effect if description is empty
+            const spendable = spendableForAttr(attrKey);
             const description = power.description || power.effect || '';
+            const dropSlots = buildStoneDropSlots(usesThisTurn, spendable, nextCost, stonePlanLocked);
             return {
                 id: power.id,
                 name: power.name,
-                description: description,
+                description,
                 attribute: power.attribute,
-                nextCost: nextCost,
-                canAfford: canAfford,
-                selectedAttrKey: attrKey // For generic powers, this is the selected attribute
+                nextCost,
+                canAfford,
+                selectedAttrKey: attrKey,
+                usesThisTurn,
+                dropSlots
             };
         };
         // Separate generic and attribute-specific powers
@@ -166,8 +236,12 @@ export class StonePowersDialog extends BaseDialog {
             generalPowers,
             spendableAttributes,
             defaultGeneralAttrKey,
+            combatActive,
+            combatMissingFromTracker,
             hasCombat,
             stonePlanLocked,
+            /** Ziehen erlaubt sobald Runde nicht gesperrt (auch ohne Kampf — Ausführung nur im Kampf). */
+            dragStonesEnabled: !stonePlanLocked,
             prefsUseDefaults,
             canSavePrefs,
             combatRound: combat?.round,
@@ -176,8 +250,13 @@ export class StonePowersDialog extends BaseDialog {
     }
     async _onRender(_context, _options) {
         super._onRender?.(_context, _options);
-        const root = this.element;
-        root.querySelectorAll('.js-general-attr-select').forEach((select) => {
+        const root = getStonePowersContentRoot(this);
+        if (!root) {
+            console.warn('Mastery System | StonePowersDialog: kein Content-Root für Event-Handler');
+            return;
+        }
+        root.querySelectorAll('.js-general-attr-select').forEach((el) => {
+            const select = el;
             select.onchange = async (ev) => {
                 ev.preventDefault();
                 if (select.disabled)
@@ -186,10 +265,15 @@ export class StonePowersDialog extends BaseDialog {
                 const selectedAttrKey = select.value;
                 if (!powerId)
                     return;
+                for (const k of [...this._stoneDropAccumulators.keys()]) {
+                    if (k.startsWith(`${powerId}:`))
+                        this._stoneDropAccumulators.delete(k);
+                }
                 this._generalAttrSelection[powerId] = selectedAttrKey;
                 await this.render({ force: true });
             };
         });
+        this.#bindStoneDragAndDrop(root);
         const savePrefsBtn = root.querySelector('.js-save-stone-prefs');
         if (savePrefsBtn) {
             savePrefsBtn.onclick = async (ev) => {
@@ -199,7 +283,8 @@ export class StonePowersDialog extends BaseDialog {
                 await this.#saveStonePowersPrefs(root);
             };
         }
-        root.querySelectorAll('.js-activate-power').forEach((btn) => {
+        root.querySelectorAll('.js-activate-power').forEach((el) => {
+            const btn = el;
             btn.onclick = async (ev) => {
                 ev.preventDefault();
                 if (btn.disabled)
@@ -209,7 +294,7 @@ export class StonePowersDialog extends BaseDialog {
                 if (!powerId)
                     return;
                 if (!this.combatant || !game.combat) {
-                    ui.notifications?.warn('Stone powers can only be activated during combat');
+                    ui.notifications?.warn('Steinmächte kannst du nur aktivieren, wenn ein Kampf läuft und die Figur im Tracker steht.');
                     return;
                 }
                 try {
@@ -245,6 +330,94 @@ export class StonePowersDialog extends BaseDialog {
                 await this.close({ closeSource: "button" });
             };
         }
+    }
+    #bindStoneDragAndDrop(root) {
+        const combat = game.combat;
+        const canExecute = !!combat && !!this.combatant;
+        const locked = !!(combat && this.combatant && isStonePowersConfigurationLocked(this.actor, combat));
+        const allowDrag = !locked;
+        root.querySelectorAll('.js-stone-draggable').forEach((el) => {
+            const gem = el;
+            gem.draggable = allowDrag;
+            gem.classList.toggle('is-drag-disabled', !allowDrag);
+            gem.ondragstart = (ev) => {
+                if (!allowDrag || !ev.dataTransfer)
+                    return;
+                const attr = gem.dataset.attributeKey || '';
+                ev.dataTransfer.setData(STONE_DRAG_MIME, attr);
+                ev.dataTransfer.setData('text/plain', attr);
+                ev.dataTransfer.effectAllowed = 'copy';
+                gem.classList.add('is-dragging');
+            };
+            gem.ondragend = () => gem.classList.remove('is-dragging');
+        });
+        const clearDragOver = () => {
+            root.querySelectorAll('.ms-stone-drop-slot.is-drag-over').forEach((n) => n.classList.remove('is-drag-over'));
+        };
+        root.querySelectorAll('.ms-stone-drop-slot').forEach((el) => {
+            const slot = el;
+            slot.ondragover = (ev) => {
+                if (slot.classList.contains('slot-active') && allowDrag) {
+                    ev.preventDefault();
+                    ev.dataTransfer.dropEffect = 'copy';
+                    clearDragOver();
+                    slot.classList.add('is-drag-over');
+                }
+            };
+            slot.ondragleave = () => slot.classList.remove('is-drag-over');
+            slot.ondrop = async (ev) => {
+                ev.preventDefault();
+                clearDragOver();
+                if (locked) {
+                    ui.notifications?.warn('Diese Runde ist für Steinmächte gesperrt.');
+                    return;
+                }
+                if (!canExecute) {
+                    ui.notifications?.warn('Steine kannst du ziehen; die Macht wirkt erst bei einem aktiven Kampf, wenn die Figur im Tracker steht.');
+                    return;
+                }
+                if (!slot.classList.contains('slot-active'))
+                    return;
+                const dragged = ev.dataTransfer?.getData(STONE_DRAG_MIME) || ev.dataTransfer?.getData('text/plain') || '';
+                const payAttr = (slot.dataset.payAttribute || '');
+                const powerId = slot.dataset.powerId || '';
+                if (!powerId || !payAttr)
+                    return;
+                if (dragged !== payAttr) {
+                    ui.notifications?.warn('Falscher Stein — Attribut passt nicht zu diesem Feld.');
+                    return;
+                }
+                const uses = getStoneUsageCount(this.actor, payAttr, powerId, combat);
+                const nextCost = calculateStoneCost(uses);
+                const accKey = `${powerId}:${payAttr}:${uses}`;
+                const next = (this._stoneDropAccumulators.get(accKey) || 0) + 1;
+                this._stoneDropAccumulators.set(accKey, next);
+                if (next < nextCost) {
+                    ui.notifications?.info(`${next}/${nextCost} Steine für diese Aktivierung.`);
+                    return;
+                }
+                this._stoneDropAccumulators.delete(accKey);
+                try {
+                    const success = await activateStonePower({
+                        actor: this.actor,
+                        combatant: this.combatant,
+                        abilityId: powerId,
+                        attributeKey: payAttr
+                    });
+                    if (success) {
+                        ui.notifications?.info(`${STONE_POWERS[powerId]?.name || powerId} aktiviert`);
+                        await this.render({ force: true });
+                    }
+                    else {
+                        ui.notifications?.warn('Aktivierung fehlgeschlagen.');
+                    }
+                }
+                catch (error) {
+                    console.error('Mastery System | stone drop activate', error);
+                    ui.notifications?.error('Steinmacht konnte nicht aktiviert werden.');
+                }
+            };
+        });
     }
     async #saveStonePowersPrefs(root) {
         const doc = getActionEconomyActor(this.actor) ?? this.actor;
