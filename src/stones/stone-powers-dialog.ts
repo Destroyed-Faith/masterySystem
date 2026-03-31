@@ -608,11 +608,11 @@ export class StonePowersDialog extends BaseDialog {
       for (let i = 0; i < count; i++) {
         const slotIndex = usesRound + i;
         let slot = root.querySelector(
-          `.ms-stone-drop-slot.slot-filled[data-power-id="${esc}"][data-slot-index="${slotIndex}"]`
+          `.ms-stone-drop-slot[data-gem-anchor="true"].slot-filled[data-power-id="${esc}"][data-slot-index="${slotIndex}"]`
         ) as HTMLElement | null;
         if (!slot) {
           slot = root.querySelector(
-            `.ms-stone-drop-slot.slot-active[data-power-id="${esc}"][data-slot-index="${slotIndex}"]`
+            `.ms-stone-drop-slot[data-gem-anchor="true"].slot-active[data-power-id="${esc}"][data-slot-index="${slotIndex}"]`
           ) as HTMLElement | null;
         }
         if (!slot) {

@@ -531,9 +531,9 @@ export class StonePowersDialog extends BaseDialog {
             const strokeC = style?.stroke ?? '#aaaaaa';
             for (let i = 0; i < count; i++) {
                 const slotIndex = usesRound + i;
-                let slot = root.querySelector(`.ms-stone-drop-slot.slot-filled[data-power-id="${esc}"][data-slot-index="${slotIndex}"]`);
+                let slot = root.querySelector(`.ms-stone-drop-slot[data-gem-anchor="true"].slot-filled[data-power-id="${esc}"][data-slot-index="${slotIndex}"]`);
                 if (!slot) {
-                    slot = root.querySelector(`.ms-stone-drop-slot.slot-active[data-power-id="${esc}"][data-slot-index="${slotIndex}"]`);
+                    slot = root.querySelector(`.ms-stone-drop-slot[data-gem-anchor="true"].slot-active[data-power-id="${esc}"][data-slot-index="${slotIndex}"]`);
                 }
                 if (!slot) {
                     dlogStoneDnD('syncAccumulatorGems: kein Ziel-Slot', {
