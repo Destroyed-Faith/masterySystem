@@ -10,6 +10,8 @@ declare const BaseDialog: typeof ApplicationV2;
 export interface InitiativeShopPurchase {
     extraMovement: number;
     initiativeSwap: boolean;
+    extraReaction: boolean;
+    removeStress: boolean;
     extraAttack: boolean;
 }
 export interface InitiativeShopContext extends InitiativeRollBreakdown {

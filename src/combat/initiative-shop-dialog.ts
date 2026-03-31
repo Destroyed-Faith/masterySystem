@@ -1,7 +1,7 @@
 /**
  * Initiative Shop Dialog
  * Allows players to spend initiative points on bonuses
- * 
+ *
  * Migrated to Foundry VTT v13 ApplicationV2 + HandlebarsApplicationMixin
  */
 
@@ -15,14 +15,14 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
 
 export interface InitiativeShopPurchase {
-  extraMovement: number;      // Number of movement purchases (each = +2m)
-  initiativeSwap: boolean;     // Unlock initiative swap
-  extraAttack: boolean;        // Gain extra attack
+  extraMovement: number;
+  initiativeSwap: boolean;
+  extraReaction: boolean;
+  removeStress: boolean;
+  extraAttack: boolean;
 }
 
-export interface InitiativeShopContext extends InitiativeRollBreakdown {
-  // Context includes: baseInitiative, diceTotal, totalInitiative, masteryRank, rollResult
-}
+export interface InitiativeShopContext extends InitiativeRollBreakdown {}
 
 export class InitiativeShopDialog extends BaseDialog {
   private combatant: Combatant;
@@ -32,14 +32,14 @@ export class InitiativeShopDialog extends BaseDialog {
   private purchases: InitiativeShopPurchase;
 
   static DEFAULT_OPTIONS = {
-    id: "mastery-initiative-shop",
-    classes: ["mastery-system", "initiative-shop"],
-    position: { width: 500 },
-    window: { title: "Initiative Shop", resizable: false }
+    id: 'mastery-initiative-shop',
+    classes: ['mastery-system', 'initiative-shop'],
+    position: { width: 520 },
+    window: { title: 'Initiative Shop', resizable: false }
   };
 
   static PARTS = {
-    content: { template: "systems/mastery-system/templates/dialogs/initiative-shop.hbs" }
+    content: { template: 'systems/mastery-system/templates/dialogs/initiative-shop.hbs' }
   };
 
   /**
@@ -50,14 +50,13 @@ export class InitiativeShopDialog extends BaseDialog {
     context: InitiativeShopContext,
     combat: Combat
   ): Promise<InitiativeShopPurchase | null> {
-    // Check singleton
-    const existing = foundry.applications.instances.get("mastery-initiative-shop");
+    const existing = foundry.applications.instances.get('mastery-initiative-shop');
     if (existing) {
       (existing as any).bringToFront();
       return null;
     }
 
-    return new Promise<InitiativeShopPurchase | null>(resolve => {
+    return new Promise<InitiativeShopPurchase | null>((resolve) => {
       const app = new InitiativeShopDialog(combatant, context, combat, resolve);
       app.render(true);
     });
@@ -77,6 +76,8 @@ export class InitiativeShopDialog extends BaseDialog {
     this.purchases = {
       extraMovement: 0,
       initiativeSwap: false,
+      extraReaction: false,
+      removeStress: false,
       extraAttack: false
     };
   }
@@ -92,23 +93,20 @@ export class InitiativeShopDialog extends BaseDialog {
       actor,
       combatant: this.combatant,
       round: this.combat.round || 1,
-      // Breakdown display
-      baseInitiative: this.context.baseInitiative,
       diceTotal: this.context.diceTotal,
+      combatReflexesSpent: this.context.combatReflexesSpent,
       masteryRank: this.context.masteryRank,
       totalInitiative: this.context.totalInitiative,
-      // Remaining initiative (for order)
       remainingInitiative,
-      // Purchases
       purchases: this.purchases,
-      // Costs
       costs: {
         movement: INITIATIVE_SHOP.MOVEMENT.COST,
         movementIncrement: INITIATIVE_SHOP.MOVEMENT.INCREMENT,
         swap: INITIATIVE_SHOP.SWAP.COST,
+        extraReaction: INITIATIVE_SHOP.EXTRA_REACTION.COST,
+        removeStress: INITIATIVE_SHOP.REMOVE_STRESS.COST,
         extraAttack: INITIATIVE_SHOP.EXTRA_ATTACK.COST
       },
-      // Calculated values
       movementSpent: this.purchases.extraMovement * INITIATIVE_SHOP.MOVEMENT.COST,
       movementBonus: this.purchases.extraMovement * INITIATIVE_SHOP.MOVEMENT.INCREMENT
     };
@@ -117,13 +115,11 @@ export class InitiativeShopDialog extends BaseDialog {
   protected async _onRender(_context: any, _options: any): Promise<void> {
     const root = (this as any).element as HTMLElement;
 
-    // Buy extra movement (stepper +)
-    root.querySelectorAll<HTMLElement>('.js-buy-movement').forEach(btn => {
+    root.querySelectorAll<HTMLElement>('.js-buy-movement').forEach((btn) => {
       btn.onclick = async (ev) => {
         ev.preventDefault();
         const totalCost = this.calculateTotalCost();
         const cost = INITIATIVE_SHOP.MOVEMENT.COST;
-
         if (totalCost + cost <= this.context.totalInitiative) {
           this.purchases.extraMovement++;
           await (this as any).render({ force: true });
@@ -133,8 +129,7 @@ export class InitiativeShopDialog extends BaseDialog {
       };
     });
 
-    // Remove movement purchase (stepper -)
-    root.querySelectorAll<HTMLElement>('.js-remove-movement').forEach(btn => {
+    root.querySelectorAll<HTMLElement>('.js-remove-movement').forEach((btn) => {
       btn.onclick = async (ev) => {
         ev.preventDefault();
         if (this.purchases.extraMovement > 0) {
@@ -144,57 +139,43 @@ export class InitiativeShopDialog extends BaseDialog {
       };
     });
 
-    // Buy initiative swap (toggle, max 1)
-    root.querySelectorAll<HTMLElement>('.js-buy-swap').forEach(btn => {
-      btn.onclick = async (ev) => {
-        ev.preventDefault();
-        if (this.purchases.initiativeSwap) {
-          this.purchases.initiativeSwap = false;
-        } else {
-          const totalCost = this.calculateTotalCost();
-          const cost = INITIATIVE_SHOP.SWAP.COST;
-
-          if (totalCost + cost <= this.context.totalInitiative) {
-            this.purchases.initiativeSwap = true;
+    const bindToggle = (
+      sel: string,
+      key: 'initiativeSwap' | 'extraReaction' | 'removeStress' | 'extraAttack',
+      cost: number
+    ) => {
+      root.querySelectorAll<HTMLElement>(sel).forEach((btn) => {
+        btn.onclick = async (ev) => {
+          ev.preventDefault();
+          if (this.purchases[key]) {
+            (this.purchases as any)[key] = false;
           } else {
-            ui.notifications.warn('Not enough initiative points!');
+            const totalCost = this.calculateTotalCost();
+            if (totalCost + cost <= this.context.totalInitiative) {
+              (this.purchases as any)[key] = true;
+            } else {
+              ui.notifications.warn('Not enough initiative points!');
+            }
           }
-        }
-        await this.render({ force: true });
-      };
-    });
+          await this.render({ force: true });
+        };
+      });
+    };
 
-    // Buy extra attack (toggle, max 1)
-    root.querySelectorAll<HTMLElement>('.js-buy-attack').forEach(btn => {
-      btn.onclick = async (ev) => {
-        ev.preventDefault();
-        if (this.purchases.extraAttack) {
-          this.purchases.extraAttack = false;
-        } else {
-          const totalCost = this.calculateTotalCost();
-          const cost = INITIATIVE_SHOP.EXTRA_ATTACK.COST;
+    bindToggle('.js-buy-swap', 'initiativeSwap', INITIATIVE_SHOP.SWAP.COST);
+    bindToggle('.js-buy-reaction', 'extraReaction', INITIATIVE_SHOP.EXTRA_REACTION.COST);
+    bindToggle('.js-buy-stress', 'removeStress', INITIATIVE_SHOP.REMOVE_STRESS.COST);
+    bindToggle('.js-buy-attack', 'extraAttack', INITIATIVE_SHOP.EXTRA_ATTACK.COST);
 
-          if (totalCost + cost <= this.context.totalInitiative) {
-            this.purchases.extraAttack = true;
-          } else {
-            ui.notifications.warn('Not enough initiative points!');
-          }
-        }
-        await this.render({ force: true });
-      };
-    });
-
-    // Confirm purchases
     const confirmBtn = root.querySelector<HTMLElement>('.js-confirm');
     if (confirmBtn) {
-      confirmBtn.setAttribute('type', 'button'); // Prevent form submission if inside form
+      confirmBtn.setAttribute('type', 'button');
       confirmBtn.onclick = async (ev) => {
         ev.preventDefault();
         await this.confirmPurchases();
       };
     }
 
-    // Skip shop (no purchases applied)
     const skipBtn = root.querySelector<HTMLElement>('.js-skip');
     if (skipBtn) {
       skipBtn.onclick = async (ev) => {
@@ -203,7 +184,7 @@ export class InitiativeShopDialog extends BaseDialog {
           this.resolve(null);
           this.resolve = undefined;
         }
-        await this.close({ closeSource: "button" });
+        await this.close({ closeSource: 'button' });
       };
     }
   }
@@ -212,6 +193,8 @@ export class InitiativeShopDialog extends BaseDialog {
     let cost = 0;
     cost += this.purchases.extraMovement * INITIATIVE_SHOP.MOVEMENT.COST;
     if (this.purchases.initiativeSwap) cost += INITIATIVE_SHOP.SWAP.COST;
+    if (this.purchases.extraReaction) cost += INITIATIVE_SHOP.EXTRA_REACTION.COST;
+    if (this.purchases.removeStress) cost += INITIATIVE_SHOP.REMOVE_STRESS.COST;
     if (this.purchases.extraAttack) cost += INITIATIVE_SHOP.EXTRA_ATTACK.COST;
     return cost;
   }
@@ -220,20 +203,15 @@ export class InitiativeShopDialog extends BaseDialog {
     const totalCost = this.calculateTotalCost();
     const remainingInitiative = Math.max(0, this.context.totalInitiative - totalCost);
 
-    // Update combatant initiative to remaining (this becomes initiative order)
     await this.combatant.update({ initiative: remainingInitiative });
-
-    // Store final initiative value in msInitiativeValue flag (for round tracking / UI)
     await this.combatant.setFlag('mastery-system', 'msInitiativeValue', remainingInitiative);
 
-    // Store purchases in combatant flags with round marker
     const shopData = {
       round: this.combat.round || 1,
       ...this.purchases
     };
     await this.combatant.setFlag('mastery-system', 'initiativeShop', shopData);
 
-    // Immediately update RoundState to apply initiative shop bonuses for this round
     const actor = this.combatant.actor;
     if (actor) {
       await resetRoundState(actor, this.combatant, this.combat);
@@ -244,22 +222,27 @@ export class InitiativeShopDialog extends BaseDialog {
       });
     }
 
-    // Send chat message
     if (actor) {
       const parts: string[] = [];
       if (this.purchases.extraMovement > 0) {
-        parts.push(`+${this.purchases.extraMovement * INITIATIVE_SHOP.MOVEMENT.INCREMENT}m Movement this round`);
+        parts.push(`+${this.purchases.extraMovement * INITIATIVE_SHOP.MOVEMENT.INCREMENT}m movement this round`);
       }
       if (this.purchases.initiativeSwap) {
-        parts.push('Initiative Swap (2 Raises, 1×/round)');
+        parts.push('Initiative swap (consenting player; both scores update)');
+      }
+      if (this.purchases.extraReaction) {
+        parts.push('Extra reaction (1×/round)');
+      }
+      if (this.purchases.removeStress) {
+        parts.push('Remove 1d8 stress (rolled on apply)');
       }
       if (this.purchases.extraAttack) {
-        parts.push('Extra Attack (1×/round)');
+        parts.push('Extra attack (1×/round)');
       }
 
-      // Create styled chat message with card design
-      const messageContent = parts.length > 0
-        ? `<div class="mastery-system-info">
+      const messageContent =
+        parts.length > 0
+          ? `<div class="mastery-system-info">
             <h3><i class="fas fa-shop"></i> Initiative Shop Purchase</h3>
             <div class="info-details">
               <div class="info-row">
@@ -280,7 +263,7 @@ export class InitiativeShopDialog extends BaseDialog {
               </div>
             </div>
           </div>`
-        : `<div class="mastery-system-info">
+          : `<div class="mastery-system-info">
             <h3><i class="fas fa-shop"></i> Initiative Shop</h3>
             <div class="info-details">
               <div class="info-row">
@@ -305,7 +288,6 @@ export class InitiativeShopDialog extends BaseDialog {
       });
     }
 
-    // Notify GM that initiative is confirmed (via socket if not GM)
     if (!game.user?.isGM) {
       game.socket?.emit('system.mastery-system', {
         type: 'initiativeConfirmed',
@@ -320,16 +302,14 @@ export class InitiativeShopDialog extends BaseDialog {
       this.resolve = undefined;
     }
 
-    await this.close({ closeSource: "button" });
+    await this.close({ closeSource: 'button' });
   }
 
   async close(options?: any): Promise<this> {
     if (this.resolve) {
-      // If closed via X or Skip, resolve with null (no purchases applied)
       if (options?.closeSource === 'user' || options?.closeSource === 'button') {
         this.resolve(null);
       } else {
-        // Otherwise resolve with current purchases
         this.resolve(this.purchases);
       }
       this.resolve = undefined;

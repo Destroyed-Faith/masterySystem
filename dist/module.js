@@ -20,13 +20,12 @@ import { handleRadialMenuOpened, handleRadialMenuClosed } from './radial-menu/re
 import { registerAttackRollClickHandler } from './chat/attack-roll-handler.js';
 // Import combat-related modules statically
 import { PassiveSelectionDialog } from './sheets/passive-selection-dialog.js';
-import { rollInitiativeForAllCombatants } from './combat/initiative-roll.js';
 import { InitiativeShopDialog } from './combat/initiative-shop-dialog.js';
 import { CombatCarouselApp } from './ui/combat-carousel.js';
 import { initializeStoneHooks } from './stones/stone-hooks.js';
 import { initializeEncounterStart, beginEncounter } from './combat/encounter-start.js';
 import { initializeSceneControls, initializeTokenHUDButton } from './ui/scene-controls-mastery.js';
-import { openStonePowersForAllCombatants as openStonePowers, initializeStonePowersFlow } from './combat/stone-powers-flow.js';
+import { openStonePowersForAllCombatants, initializeStonePowersFlow } from './combat/stone-powers-flow.js';
 import { registerDivineClashSettings } from './divine-clash/divine-clash-settings.js';
 import { initializeDivineClashHooks } from './divine-clash/divine-clash-hooks.js';
 import { initializeArtifactAwakening } from './artifacts/artifact-awakening.js';
@@ -127,8 +126,9 @@ Hooks.once('init', async function () {
             await PassiveSelectionDialog.showForCombat(combat);
             // Step 2: Wait a moment for players to finish selecting passives
             await new Promise(resolve => setTimeout(resolve, 1000));
-            // Step 3: Roll initiative for all combatants (NPCs auto, PCs with shop)
-            await rollInitiativeForAllCombatants(combat);
+            // Step 3: Stone powers then initiative (dice + CR + shop), once stones finish for this round
+            const initRound = Math.max(1, combat.round ?? 1);
+            await openStonePowersForAllCombatants(combat, initRound);
             // Step 4: Open Combat Carousel
             CombatCarouselApp.open();
         }
@@ -160,7 +160,7 @@ Hooks.once('init', async function () {
             // Only if combat has started (round > 0)
             if (combat.started && currentRound > 1) {
                 try {
-                    await openStonePowers(combat, currentRound);
+                    await openStonePowersForAllCombatants(combat, currentRound);
                 }
                 catch (error) {
                     console.error('Mastery System | Error opening stone powers for new round', error);

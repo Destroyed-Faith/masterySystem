@@ -3,11 +3,9 @@
  * Handles opening Stone Powers dialogs for all combatants at the start of each round
  */
 /**
- * Open Stone Powers for all combatants in a round
+ * After stone powers for a round, roll initiative (dice + CR + shop) for all combatants once per round.
  */
+export declare function runInitiativePhaseAfterStones(combat: Combat, round: number): Promise<void>;
 export declare function openStonePowersForAllCombatants(combat: Combat, round: number): Promise<void>;
-/**
- * Initialize stone powers flow system
- */
 export declare function initializeStonePowersFlow(): void;
 //# sourceMappingURL=stone-powers-flow.d.ts.map

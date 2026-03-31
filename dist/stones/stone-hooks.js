@@ -6,7 +6,7 @@
  * - End-of-round regeneration
  * - Post-combat full restore
  */
-import { resetTurnState, resetRoundState, regenStonesEndOfRound, restoreStonesAfterCombat, initializeCombatRoundState } from '../combat/action-economy.js';
+import { resetTurnState, resetRoundState, regenStonesEndOfRound, restoreStonesAfterCombat, initializeCombatRoundState, clearStonePowersConfigurationLocksInCombat } from '../combat/action-economy.js';
 /**
  * Initialize stone system hooks
  */
@@ -30,6 +30,7 @@ export function initializeStoneHooks() {
         // Round changed - reset round state and trigger stone regeneration
         if (changes.round !== undefined) {
             const newRound = changes.round;
+            await clearStonePowersConfigurationLocksInCombat(combat);
             // Reset round state for all combatants
             for (const combatant of combat.combatants) {
                 const actor = combatant.actor;
@@ -47,11 +48,13 @@ export function initializeStoneHooks() {
     // Hook: Combat ended - restore stone pools to full
     Hooks.on('deleteCombat', async (combat, _options, _userId) => {
         console.log('Mastery System | Combat ended, restoring stone pools');
+        await clearStonePowersConfigurationLocksInCombat(combat);
         await restoreStonesAfterCombat(combat);
     });
     // Also trigger on explicit combatEnd
     Hooks.on('combatEnd', async (combat) => {
         console.log('Mastery System | Combat end hook, restoring stone pools');
+        await clearStonePowersConfigurationLocksInCombat(combat);
         await restoreStonesAfterCombat(combat);
     });
 }

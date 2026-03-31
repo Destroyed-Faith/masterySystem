@@ -5,14 +5,12 @@
  * Flow:
  * 1. GM clicks "Begin Encounter" button
  * 2. For all PC combatants: open passive selection (read-only if already done)
- * 3. After passive selection: open initiative shop, auto-roll, allow shopping
- * 4. For all NPC combatants: auto-roll initiative (roll&keep)
- * 5. Start combat after all PCs confirm initiative
+ * 3. After passive selection: stone powers (round 1), then initiative (dice + Combat Reflexes + shop) for all combatants
+ * 4. Start combat after all PCs confirm initiative (via shop confirm)
  */
 import { PassiveSelectionDialog } from '../sheets/passive-selection-dialog.js';
 import { CombatCarouselApp } from '../ui/combat-carousel.js';
 import { openStonePowersForAllCombatants } from './stone-powers-flow.js';
-import { rollInitiativeForCombatant } from './initiative-roll.js';
 const SOCKET_NAME = 'system.mastery-system';
 /**
  * Get encounter setup state from combat flags
@@ -39,27 +37,6 @@ async function updateEncounterSetup(combat, updates) {
     const current = getEncounterSetup(combat);
     const updated = { ...current, ...updates };
     await combat.setFlag('mastery-system', 'encounterSetup', updated);
-}
-/**
- * Auto-roll initiative for NPC combatant (roll&keep)
- */
-async function rollInitiativeForNPC(combatant) {
-    const actor = combatant.actor;
-    if (!actor) {
-        console.error('Mastery System | Cannot roll initiative for NPC: no actor');
-        return;
-    }
-    // Use existing rollInitiativeForCombatant which already does roll&keep
-    const breakdown = await rollInitiativeForCombatant(combatant);
-    // Store msInitiativeValue flag
-    await combatant.setFlag('mastery-system', 'msInitiativeValue', breakdown.totalInitiative);
-    console.log('Mastery System | NPC initiative rolled', {
-        actor: actor.name,
-        baseInitiative: breakdown.baseInitiative,
-        diceTotal: breakdown.diceTotal,
-        totalInitiative: breakdown.totalInitiative,
-        masteryRank: breakdown.masteryRank
-    });
 }
 /**
  * Handle passive selection completion for a combatant
@@ -160,18 +137,11 @@ export async function beginEncounter(combat) {
         // Mark as shown
         await updateEncounterSetup(combat, { carouselShown: true });
     }
-    // Separate PCs and NPCs
     const pcs = [];
-    const npcs = [];
     for (const combatant of combat.combatants) {
-        if (!combatant.actor)
+        if (!combatant.actor || combatant.actor.type !== 'character')
             continue;
-        if (combatant.actor.type === 'character') {
-            pcs.push(combatant);
-        }
-        else if (combatant.actor.type === 'npc' || combatant.actor.type === 'summon' || combatant.actor.type === 'divine') {
-            npcs.push(combatant);
-        }
+        pcs.push(combatant);
     }
     // Step 1: Open passive selection for all PCs (via socket to owning clients)
     // Also handle GM's own characters locally
@@ -210,13 +180,7 @@ export async function beginEncounter(combat) {
             }
         }
     }
-    // Step 2: Auto-roll initiative for all NPCs
-    for (const npc of npcs) {
-        await rollInitiativeForNPC(npc);
-        // Small delay between rolls
-        await new Promise(resolve => setTimeout(resolve, 200));
-    }
-    // Step 3: After all passives are selected, open Stone Powers for all combatants (round 1)
+    // Step 2: After all passives are selected, open Stone Powers for all combatants (round 1)
     // This will be triggered when all PCs have completed passive selection
     // We check this in a function that monitors passive completion
     // Don't await - let it run in background

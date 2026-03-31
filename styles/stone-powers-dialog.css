@@ -26,6 +26,35 @@
   font-size: 0.9rem;
 }
 
+.stone-powers-dialog .stone-plan-locked-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.65rem 0.85rem;
+  margin-bottom: 1rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 193, 7, 0.45);
+  background: rgba(255, 193, 7, 0.12);
+  color: #ffe082;
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
+.stone-powers-dialog .stone-plan-locked-banner .fa-lock {
+  margin-top: 0.1rem;
+  flex-shrink: 0;
+}
+
+.stone-powers-dialog .stone-plan-locked-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.stone-powers-dialog .stone-plan-locked-text strong {
+  color: #fff;
+}
+
 /* Stone Pools Display */
 .stone-powers-dialog .stone-pools-display {
   margin-bottom: 1.5rem;
@@ -52,21 +81,46 @@
   display: flex;
   flex-direction: column;
   padding: 0.5rem;
-  background: rgba(139, 0, 0, 0.2);
-  border-radius: 4px;
-  border: 1px solid rgba(139, 0, 0, 0.4);
+  background: rgba(20, 20, 24, 0.65);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   text-align: center;
+  gap: 0.35rem;
+}
+
+.stone-powers-dialog .pool-item-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.stone-powers-dialog .pool-gems {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  min-height: 22px;
+  padding: 2px 0;
+}
+
+.stone-powers-dialog .ms-stone-gem-chip {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  border-radius: 35% 35% 45% 45%;
+  flex-shrink: 0;
 }
 
 .stone-powers-dialog .pool-name {
   font-size: 0.75rem;
   color: #ccc;
   text-transform: uppercase;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0;
 }
 
 .stone-powers-dialog .pool-value {
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: bold;
   color: #fff;
 }
@@ -275,12 +329,62 @@
 }
 
 /* Dialog Footer */
-.stone-powers-dialog .dialog-footer {
+.stone-powers-dialog .dialog-footer.stone-powers-footer {
   margin-top: 1.5rem;
   padding-top: 1rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.75rem;
+}
+
+.stone-powers-dialog .stone-prefs-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  padding: 0.5rem 0.35rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.stone-powers-dialog .stone-prefs-label {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  color: #ccc;
+  cursor: pointer;
+  flex: 1;
+  min-width: 200px;
+}
+
+.stone-powers-dialog .stone-prefs-label input[type='checkbox'] {
+  flex-shrink: 0;
+}
+
+.stone-powers-dialog .dialog-footer .dialog-btn-secondary {
+  background: rgba(60, 60, 72, 0.95);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.stone-powers-dialog .dialog-footer .dialog-btn-secondary:hover:not(:disabled) {
+  background: rgba(80, 80, 95, 1);
+}
+
+.stone-powers-dialog .dialog-btn.is-disabled,
+.stone-powers-dialog .dialog-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.stone-powers-dialog .stone-powers-footer > .js-close {
+  align-self: flex-end;
 }
 
 .stone-powers-dialog .dialog-btn {

@@ -4,6 +4,8 @@
  * Manages per-round action budgets, stone spending, and initiative shop bonuses
  * for the Mastery System combat rules.
  */
+// Actor, Combatant, and Combat are global types in Foundry VTT v13
+import { healStressFromBars } from '../utils/calculations.js';
 /**
  * Check if an actor is a PC
  */
@@ -161,15 +163,31 @@ export async function applyInitiativeShopBonuses(actor, combatant, combat) {
     if (shopData.extraAttack) {
         roundState.attackActions.total += 1;
     }
+    if (shopData.extraReaction) {
+        roundState.reactionActions.total += 1;
+    }
     // Apply extra movement (adds to distance bonus, not action count)
     if (shopData.extraMovement > 0) {
         roundState.moveBonusMeters += shopData.extraMovement * 2; // Each purchase = +2m
+    }
+    const owner = (getActionEconomyActor(actor) ?? actor);
+    if (shopData.removeStress && owner.system?.stress?.bars?.length) {
+        const roll = await new Roll('1d8').evaluate({ async: true });
+        const amount = roll.total ?? 0;
+        const stress = owner.system.stress;
+        const healed = healStressFromBars(stress.bars, stress.currentBar ?? 0, amount);
+        await owner.update({
+            'system.stress.bars': healed.bars,
+            'system.stress.currentBar': healed.currentBar
+        });
     }
     // Store shop data in round state
     roundState.initiativeShop = {
         round: shopData.round,
         extraMovement: shopData.extraMovement || 0,
         initiativeSwap: shopData.initiativeSwap || false,
+        extraReaction: !!shopData.extraReaction,
+        removeStress: !!shopData.removeStress,
         extraAttack: shopData.extraAttack || false
     };
     await setRoundState(actor, roundState);
@@ -177,6 +195,43 @@ export async function applyInitiativeShopBonuses(actor, combatant, combat) {
 /**
  * Spend an attack action (used by Attack, Buff, Utility)
  */
+const STONE_POWERS_CONFIG_LOCK_FLAG = 'stonePowersConfigLock';
+/**
+ * True after this PC has spent movement, attack, or reaction in the current combat round
+ * (Stone Powers attribute defaults / activations are then read-only until the next round).
+ */
+export function isStonePowersConfigurationLocked(actor, combat) {
+    if (!combat)
+        return false;
+    const owner = (getActionEconomyActor(actor) ?? actor);
+    const lock = owner.getFlag('mastery-system', STONE_POWERS_CONFIG_LOCK_FLAG);
+    return !!(lock && lock.combatId === combat.id && lock.round === combat.round);
+}
+export async function lockStonePowersConfigurationForRound(actor, combat) {
+    if (!combat || !isPC(actor))
+        return;
+    const owner = (getActionEconomyActor(actor) ?? actor);
+    await owner.setFlag('mastery-system', STONE_POWERS_CONFIG_LOCK_FLAG, {
+        combatId: combat.id,
+        round: combat.round
+    });
+}
+export async function clearStonePowersConfigurationLock(actor) {
+    const owner = (getActionEconomyActor(actor) ?? actor);
+    await owner.unsetFlag('mastery-system', STONE_POWERS_CONFIG_LOCK_FLAG);
+}
+export async function clearStonePowersConfigurationLocksInCombat(combat) {
+    for (const c of combat.combatants) {
+        const a = c.actor;
+        if (a && a.type === 'character')
+            await clearStonePowersConfigurationLock(a);
+    }
+}
+async function maybeLockStonePowersAfterCombatAction(actor, combat) {
+    if (!combat || !isPC(actor))
+        return;
+    await lockStonePowersConfigurationForRound(actor, combat);
+}
 export async function spendAttackAction(actor, combat) {
     const roundState = getRoundState(actor, combat);
     if (roundState.attackActions.used >= roundState.attackActions.total) {
@@ -185,6 +240,7 @@ export async function spendAttackAction(actor, combat) {
     }
     roundState.attackActions.used += 1;
     await setRoundState(actor, roundState);
+    await maybeLockStonePowersAfterCombatAction(actor, combat);
     return true;
 }
 /**
@@ -198,6 +254,7 @@ export async function spendMovementAction(actor, combat) {
     }
     roundState.movementActions.used += 1;
     await setRoundState(actor, roundState);
+    await maybeLockStonePowersAfterCombatAction(actor, combat);
     return true;
 }
 /**
@@ -211,6 +268,7 @@ export async function spendReactionAction(actor, combat) {
     }
     roundState.reactionActions.used += 1;
     await setRoundState(actor, roundState);
+    await maybeLockStonePowersAfterCombatAction(actor, combat);
     return true;
 }
 /**

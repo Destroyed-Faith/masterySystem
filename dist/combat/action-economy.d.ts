@@ -32,6 +32,8 @@ export interface RoundState {
         round: number;
         extraMovement: number;
         initiativeSwap: boolean;
+        extraReaction: boolean;
+        removeStress: boolean;
         extraAttack: boolean;
     };
     /** Power item IDs already used this combat round (max one use per power per round). */
@@ -93,9 +95,18 @@ export declare function unmarkPowerUsedThisRound(actor: Actor, combat: Combat | 
  * Called when shop purchases are made or at start of round
  */
 export declare function applyInitiativeShopBonuses(actor: Actor, combatant: Combatant, combat: Combat): Promise<void>;
+export interface StonePowersConfigLockState {
+    combatId: string;
+    round: number;
+}
 /**
- * Spend an attack action (used by Attack, Buff, Utility)
+ * True after this PC has spent movement, attack, or reaction in the current combat round
+ * (Stone Powers attribute defaults / activations are then read-only until the next round).
  */
+export declare function isStonePowersConfigurationLocked(actor: Actor, combat: Combat | null): boolean;
+export declare function lockStonePowersConfigurationForRound(actor: Actor, combat: Combat | null): Promise<void>;
+export declare function clearStonePowersConfigurationLock(actor: Actor): Promise<void>;
+export declare function clearStonePowersConfigurationLocksInCombat(combat: Combat): Promise<void>;
 export declare function spendAttackAction(actor: Actor, combat: Combat | null): Promise<boolean>;
 /**
  * Spend a movement action

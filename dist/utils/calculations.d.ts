@@ -78,6 +78,13 @@ export declare function updateStressBars(bars: HealthBar[], resolve: number, int
  */
 export declare function applyStress(bars: HealthBar[], currentBar: number, stress: number): number;
 /**
+ * Heal (remove) stress from stress bars: fill capacity from the current bar backward.
+ */
+export declare function healStressFromBars(bars: HealthBar[], currentBar: number, amount: number): {
+    bars: HealthBar[];
+    currentBar: number;
+};
+/**
  * Calculate maximum skill rank based on Mastery Rank
  * Max skill = 4 × Mastery Rank
  */

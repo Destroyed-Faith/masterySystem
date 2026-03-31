@@ -12,7 +12,14 @@ const BaseDialog = HandlebarsApplicationMixin(ApplicationV2) as typeof Applicati
 type AttributeKey = 'might' | 'agility' | 'vitality' | 'intellect' | 'resolve' | 'influence';
 
 import { STONE_POWERS, activateStonePower, getAvailableStonePowers } from './stone-activation.js';
-import { getStoneUsageCount, calculateStoneCost, getStonePool } from '../combat/action-economy.js';
+import {
+  getStoneUsageCount,
+  calculateStoneCost,
+  getStonePool,
+  isStonePowersConfigurationLocked,
+  getActionEconomyActor
+} from '../combat/action-economy.js';
+import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
 
 export class StonePowersDialog extends BaseDialog {
   private actor: Actor;
@@ -46,6 +53,15 @@ export class StonePowersDialog extends BaseDialog {
     this.actor = actor;
     this.combatant = combatant;
     this.resolve = resolve;
+
+    const prefs = (actor as any).system?.stonePowersPrefs;
+    if (prefs?.useDefaultsEachRound && prefs.defaultAttributesByPowerId) {
+      for (const [powerId, attr] of Object.entries(prefs.defaultAttributesByPowerId)) {
+        if (typeof attr === 'string') {
+          this._generalAttrSelection[powerId] = attr as AttributeKey;
+        }
+      }
+    }
   }
   
   async _prepareContext(_options: any): Promise<any> {
@@ -55,10 +71,6 @@ export class StonePowersDialog extends BaseDialog {
     }
     
     const system = (this.actor as any).system;
-    
-    // Temporary debug log to verify pool values
-    console.log("STONE POOLS", (this.actor as any).name, (this.actor as any).system.stonePools);
-    
     const stonePools = system.stonePools || {};
     const availablePowers = getAvailableStonePowers(this.actor);
     
@@ -66,34 +78,43 @@ export class StonePowersDialog extends BaseDialog {
     
     // Filter pools to only show those with max > 0
     const pools = attributes
-      .map(attr => {
+      .map((attr) => {
         const pool = stonePools[attr];
-        // Handle both object and direct value access
-        const current = (pool?.current ?? pool?.value ?? 0);
-        const max = (pool?.max ?? pool?.maximum ?? 0);
-        const sustained = (pool?.sustained ?? 0);
-        
+        const current = pool?.current ?? pool?.value ?? 0;
+        const max = pool?.max ?? pool?.maximum ?? 0;
+        const sustained = pool?.sustained ?? 0;
+        const available = (Number(current) || 0) - (Number(sustained) || 0);
+        const gemStyle = getStoneGemStyle(attr) ?? { fill: '#888888', stroke: '#aaaaaa' };
+        const gemSlots = Array.from({ length: Math.max(0, available) }, (_, i) => ({ index: i }));
+
         return {
           key: attr,
           name: attr.charAt(0).toUpperCase() + attr.slice(1),
           current: Number(current) || 0,
           max: Number(max) || 0,
           sustained: Number(sustained) || 0,
-          available: (Number(current) || 0) - (Number(sustained) || 0)
+          available,
+          gemStyle,
+          gemSlots
         };
       })
-      .filter(pool => pool.max > 0);  // Only show pools with stones
+      .filter((pool) => pool.max > 0);
     
-    // Check if actor is in combat
     const hasCombat = !!game.combat && !!this.combatant;
     const combat = game.combat;
+    const stonePlanLocked = !!(combat && this.combatant && isStonePowersConfigurationLocked(this.actor, combat));
+    const prefsUseDefaults = !!(system.stonePowersPrefs?.useDefaultsEachRound);
+    const user = game.user;
+    const canSavePrefs =
+      !stonePlanLocked && !!user && (user.isGM || (this.actor as any).isOwner);
     
     // Prepare spendable attributes for General Powers selector
-    const spendableAttributes = pools.map(pool => ({
+    const spendableAttributes = pools.map((pool) => ({
       key: pool.key,
       label: pool.name,
       current: pool.current,
-      max: pool.max
+      max: pool.max,
+      gemStyle: pool.gemStyle
     }));
     
     // Determine default attribute for generic powers
@@ -135,10 +156,13 @@ export class StonePowersDialog extends BaseDialog {
     const genericPowers = availablePowers.filter(p => p.attribute === 'generic');
     const attributeSpecificPowers = availablePowers.filter(p => p.attribute !== 'generic');
     
-    // Prepare General Powers with selected attributes
-    const generalPowers = genericPowers.map(power => {
-      // Get selected attribute for this power, or use default
-      const selectedAttrKey = this._generalAttrSelection[power.id] || defaultGeneralAttrKey;
+    const generalPowers = genericPowers.map((power) => {
+      let selectedAttrKey =
+        (this._generalAttrSelection[power.id] as AttributeKey | undefined) || defaultGeneralAttrKey;
+      if (!pools.some((p) => p.key === selectedAttrKey)) {
+        selectedAttrKey = defaultGeneralAttrKey;
+      }
+      this._generalAttrSelection[power.id] = selectedAttrKey;
       return preparePowerData(power, selectedAttrKey);
     });
     
@@ -169,48 +193,6 @@ export class StonePowersDialog extends BaseDialog {
       }
     }
     
-    // Log assignment results for debugging
-    console.log('Mastery System | Power Assignment Results:', {
-      mightCount: powersByAttribute['might']?.length || 0,
-      vitalityCount: powersByAttribute['vitality']?.length || 0,
-      mightPowers: powersByAttribute['might']?.map(p => p.id) || [],
-      vitalityPowers: powersByAttribute['vitality']?.map(p => p.id) || []
-    });
-    
-    // Debug logging to help diagnose issues
-    const powersByAttributeCounts = Object.entries(powersByAttribute).map(([key, arr]) => ({ 
-      attr: key, 
-      count: arr.length, 
-      powerIds: arr.map(p => p.id),
-      powerNames: arr.map(p => p.name)
-    }));
-    
-    console.log('Mastery System | Stone Powers Dialog Context:', {
-      pools: pools.map(p => ({ key: p.key, current: p.current, max: p.max })),
-      availablePowersCount: availablePowers.length,
-      genericPowersCount: genericPowers.length,
-      attributeSpecificPowersCount: attributeSpecificPowers.length,
-      generalPowersCount: generalPowers.length,
-      powersByAttributeKeys: Object.keys(powersByAttribute),
-      powersByAttributeCounts: powersByAttributeCounts
-    });
-    
-    // Additional detailed logging
-    console.log('Mastery System | Detailed Power Assignment:', {
-      spendableAttributesCount: spendableAttributes.length,
-      spendableAttributes: spendableAttributes,
-      defaultGeneralAttrKey: defaultGeneralAttrKey,
-      generalPowers: generalPowers.map(p => ({ id: p.id, name: p.name, selectedAttrKey: p.selectedAttrKey })),
-      mightPowers: powersByAttribute['might']?.map(p => ({ id: p.id, name: p.name })) || [],
-      vitalityPowers: powersByAttribute['vitality']?.map(p => ({ id: p.id, name: p.name })) || [],
-      attributeSpecificPowersByAttr: attributeSpecificPowers.reduce((acc, p) => {
-        const attr = p.attribute;
-        if (!acc[attr]) acc[attr] = [];
-        acc[attr].push({ id: p.id, name: p.name });
-        return acc;
-      }, {} as Record<string, any[]>)
-    });
-    
     return {
       actor: this.actor,
       pools,
@@ -218,7 +200,12 @@ export class StonePowersDialog extends BaseDialog {
       generalPowers,
       spendableAttributes,
       defaultGeneralAttrKey,
-      hasCombat
+      hasCombat,
+      stonePlanLocked,
+      prefsUseDefaults,
+      canSavePrefs,
+      combatRound: combat?.round,
+      combatLabel: combat ? `Runde ${combat.round}` : ''
     };
   }
   
@@ -227,32 +214,39 @@ export class StonePowersDialog extends BaseDialog {
     
     const root = (this as any).element;
     
-    // General Powers attribute selector change handlers
     root.querySelectorAll('.js-general-attr-select').forEach((select: HTMLSelectElement) => {
       select.onchange = async (ev: Event) => {
         ev.preventDefault();
+        if (select.disabled) return;
         const powerId = select.dataset.powerId;
         const selectedAttrKey = select.value as AttributeKey;
-        
+
         if (!powerId) return;
-        
-        // Store selection
+
         this._generalAttrSelection[powerId] = selectedAttrKey;
-        
-        // Re-render to update costs and button states
+
         await (this as any).render({ force: true });
       };
     });
     
-    // Activate power buttons
+    const savePrefsBtn = root.querySelector('.js-save-stone-prefs') as HTMLElement | null;
+    if (savePrefsBtn) {
+      savePrefsBtn.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        if (savePrefsBtn.classList.contains('is-disabled')) return;
+        await this.#saveStonePowersPrefs(root);
+      };
+    }
+
     root.querySelectorAll('.js-activate-power').forEach((btn: HTMLElement) => {
       btn.onclick = async (ev: MouseEvent) => {
         ev.preventDefault();
+        if ((btn as HTMLButtonElement).disabled) return;
         const powerId = btn.dataset.powerId;
         const attributeKey = btn.dataset.attributeKey as AttributeKey;
-        
+
         if (!powerId) return;
-        
+
         if (!this.combatant || !game.combat) {
           ui.notifications?.warn('Stone powers can only be activated during combat');
           return;
@@ -291,6 +285,28 @@ export class StonePowersDialog extends BaseDialog {
         await (this as any).close({ closeSource: "button" });
       };
     }
+  }
+
+  async #saveStonePowersPrefs(root: HTMLElement): Promise<void> {
+    const doc = getActionEconomyActor(this.actor) ?? this.actor;
+    const useEl = root.querySelector('.js-stone-prefs-use-defaults') as HTMLInputElement | null;
+    const useDefaultsEachRound = !!useEl?.checked;
+    const map: Record<string, string> = {};
+
+    root.querySelectorAll('.js-general-attr-select').forEach((sel) => {
+      const s = sel as HTMLSelectElement;
+      const id = s.dataset.powerId;
+      if (id) map[id] = s.value;
+    });
+
+    await doc.update({
+      'system.stonePowersPrefs': {
+        useDefaultsEachRound,
+        defaultAttributesByPowerId: map
+      }
+    } as any);
+
+    ui.notifications?.info('Steinmacht-Standard gespeichert (wird bei neuen Runden übernommen, solange aktiviert).');
   }
   
   async _onClose(_options: any): Promise<void> {

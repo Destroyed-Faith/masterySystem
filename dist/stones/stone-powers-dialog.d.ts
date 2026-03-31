@@ -6,6 +6,7 @@
 declare const ApplicationV2: typeof import("@league-of-foundry-developers/foundry-vtt-types/src/foundry/client/applications/api/application.mjs").default;
 declare const BaseDialog: typeof ApplicationV2;
 export declare class StonePowersDialog extends BaseDialog {
+    #private;
     private actor;
     private combatant;
     private resolve?;

@@ -1,5 +1,4 @@
 <div class="initiative-shop-dialog">
-  <!-- HEADER -->
   <header class="shop-header flexrow">
     <div class="header-left flexrow">
       <img src="{{actor.img}}" alt="{{actor.name}}" class="actor-portrait">
@@ -16,30 +15,27 @@
     </div>
   </header>
 
-  <!-- BREAKDOWN -->
   <section class="breakdown-section">
     <div class="breakdown-grid">
       <div class="breakdown-card">
-        <div class="breakdown-label">Base</div>
-        <div class="breakdown-value">{{baseInitiative}}</div>
-        <div class="breakdown-subtitle">Agility + Wits + Combat Reflexes</div>
-      </div>
-      <div class="breakdown-card">
         <div class="breakdown-label">Mastery Roll</div>
         <div class="breakdown-value">{{diceTotal}}</div>
-        <div class="breakdown-subtitle">{{masteryRank}}d8 explode 8s</div>
+        <div class="breakdown-subtitle">{{masteryRank}}d8, keep all, 8s explode</div>
+      </div>
+      <div class="breakdown-card">
+        <div class="breakdown-label">Combat Reflexes</div>
+        <div class="breakdown-value">{{combatReflexesSpent}}</div>
+        <div class="breakdown-subtitle">Spent on this roll (≤ MR×4)</div>
       </div>
       <div class="breakdown-card">
         <div class="breakdown-label">Initiative Score</div>
         <div class="breakdown-value">{{totalInitiative}}</div>
-        <div class="breakdown-subtitle">Base + Roll</div>
+        <div class="breakdown-subtitle">Roll + CR (shop pool)</div>
       </div>
     </div>
   </section>
 
-  <!-- SHOP ITEMS -->
   <section class="shop-items">
-    <!-- Extra Movement -->
     <div class="shop-item">
       <div class="item-header flexrow">
         <h3><i class="fas fa-running"></i> Extra Movement</h3>
@@ -60,14 +56,13 @@
       </div>
     </div>
 
-    <!-- Initiative Swap -->
     <div class="shop-item">
       <div class="item-header flexrow">
         <h3><i class="fas fa-exchange-alt"></i> Initiative Swap</h3>
         <span class="cost-badge">{{costs.swap}}</span>
       </div>
       <div class="item-controls flexrow">
-        <button type="button" class="toggle-btn js-buy-swap {{#if purchases.initiativeSwap}}purchased{{/if}}" 
+        <button type="button" class="toggle-btn js-buy-swap {{#if purchases.initiativeSwap}}purchased{{/if}}"
                 {{#if (lt remainingInitiative costs.swap)}}disabled{{/if}}>
           {{#if purchases.initiativeSwap}}
             <i class="fas fa-check"></i> Purchased
@@ -76,19 +71,58 @@
           {{/if}}
         </button>
         <div class="item-details">
-          <span class="subtitle">2 Raises • 1×/round</span>
+          <span class="subtitle">Another player; if they consent, swap initiative scores</span>
         </div>
       </div>
     </div>
 
-    <!-- Extra Attack -->
+    <div class="shop-item">
+      <div class="item-header flexrow">
+        <h3><i class="fas fa-shield-alt"></i> Extra Reaction</h3>
+        <span class="cost-badge">{{costs.extraReaction}}</span>
+      </div>
+      <div class="item-controls flexrow">
+        <button type="button" class="toggle-btn js-buy-reaction {{#if purchases.extraReaction}}purchased{{/if}}"
+                {{#if (lt remainingInitiative costs.extraReaction)}}disabled{{/if}}>
+          {{#if purchases.extraReaction}}
+            <i class="fas fa-check"></i> Purchased
+          {{else}}
+            <i class="fas fa-shopping-cart"></i> Buy
+          {{/if}}
+        </button>
+        <div class="item-details">
+          <span class="subtitle">1×/round</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="shop-item">
+      <div class="item-header flexrow">
+        <h3><i class="fas fa-brain"></i> Remove Stress</h3>
+        <span class="cost-badge">{{costs.removeStress}}</span>
+      </div>
+      <div class="item-controls flexrow">
+        <button type="button" class="toggle-btn js-buy-stress {{#if purchases.removeStress}}purchased{{/if}}"
+                {{#if (lt remainingInitiative costs.removeStress)}}disabled{{/if}}>
+          {{#if purchases.removeStress}}
+            <i class="fas fa-check"></i> Purchased
+          {{else}}
+            <i class="fas fa-shopping-cart"></i> Buy
+          {{/if}}
+        </button>
+        <div class="item-details">
+          <span class="subtitle">Remove 1d8 stress from your stress bars</span>
+        </div>
+      </div>
+    </div>
+
     <div class="shop-item">
       <div class="item-header flexrow">
         <h3><i class="fas fa-sword"></i> Extra Attack</h3>
         <span class="cost-badge">{{costs.extraAttack}}</span>
       </div>
       <div class="item-controls flexrow">
-        <button type="button" class="toggle-btn js-buy-attack {{#if purchases.extraAttack}}purchased{{/if}}" 
+        <button type="button" class="toggle-btn js-buy-attack {{#if purchases.extraAttack}}purchased{{/if}}"
                 {{#if (lt remainingInitiative costs.extraAttack)}}disabled{{/if}}>
           {{#if purchases.extraAttack}}
             <i class="fas fa-check"></i> Purchased
@@ -103,7 +137,6 @@
     </div>
   </section>
 
-  <!-- FOOTER -->
   <footer class="shop-footer flexrow">
     <button type="button" class="btn-secondary js-skip">
       <i class="fas fa-times"></i> Skip

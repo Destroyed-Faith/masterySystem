@@ -1,104 +1,145 @@
 /**
  * Initiative Rolling System
- * Handles initiative calculation and rolling for combatants
+ * Each round: Mastery Rank d8 (keep all, 8s explode) + optional Combat Reflexes spend (≤ MR×4, pool-limited).
+ * Final score before the Initiative Shop = dice total + CR spent.
  */
 
 import { masteryRoll } from '../dice/roll-handler.js';
-import { InitiativeShopDialog } from './initiative-shop-dialog.js';
+import { calculateMaxSkillRank } from '../utils/calculations.js';
 
-/**
- * Get attribute value from actor
- */
-function getAttributeValue(actor: any, attributeName: string): number {
-  if (!actor || !actor.system) return 0;
-  const system = actor.system as any;
-  const attributes = system.attributes || {};
-  const attr = attributes[attributeName.toLowerCase()] || {};
-  return attr.value || 0;
-}
+const CR_SKILL_KEY = 'combatReflexes';
 
-// Removed getSkillValue - no longer needed after removing combatReflexes from initiative
-
-/**
- * Get mastery rank from actor
- */
 function getMasteryRank(actor: any): number {
   if (!actor || !actor.system) return 2;
   const system = actor.system as any;
   return system.mastery?.rank || 2;
 }
 
-/**
- * Calculate base initiative for an actor
- * Base = Agility + Wits
- * Note: Martial Skills (including Combat Reflexes) no longer provide permanent initiative bonuses
- */
-export function calculateBaseInitiative(actor: any): number {
-  const agility = getAttributeValue(actor, 'agility');
-  const wits = getAttributeValue(actor, 'wits');
-  
-  return agility + wits;
+export interface InitiativeRollOptions {
+  /** If false, no dialog; CR spend is 0 (e.g. non-owner client). */
+  promptCombatReflexes?: boolean;
 }
 
 /**
- * Initiative roll breakdown
+ * Initiative roll breakdown (pre–Initiative Shop).
  */
 export interface InitiativeRollBreakdown {
-  baseInitiative: number;
+  /** Sum of Mastery Rank d8 (exploding 8s). */
   diceTotal: number;
+  /** Combat Reflexes points added to this roll (also updates skillsSpent). */
+  combatReflexesSpent: number;
+  /** Dice + CR — pool for the shop; order uses points left after shopping. */
   totalInitiative: number;
   masteryRank: number;
   rollResult: any;
 }
 
+async function promptCombatReflexesSpend(actor: any, masteryRank: number): Promise<number> {
+  const rating = Number(actor.system?.skills?.[CR_SKILL_KEY] ?? 0);
+  const spent = Number(actor.system?.skillsSpent?.[CR_SKILL_KEY] ?? 0);
+  const remainingPool = Math.max(0, rating - spent);
+  const capPerRoll = calculateMaxSkillRank(masteryRank);
+  const maxThisRoll = Math.min(capPerRoll, remainingPool);
+  if (maxThisRoll <= 0) return 0;
+
+  return new Promise((resolve) => {
+    new Dialog({
+      title: 'Combat Reflexes (Initiative)',
+      content: `<form><div class="form-group">
+<label>Combat Reflexes to add to initiative (0–${maxThisRoll})</label>
+<input type="number" name="cr" min="0" max="${maxThisRoll}" value="0" step="1"/>
+<p class="notes">Pool remaining: <strong>${remainingPool}</strong>. Per roll cap: MR×4 (${capPerRoll}).</p>
+</div></form>`,
+      buttons: {
+        apply: {
+          label: 'Apply',
+          callback: (html: JQuery) => {
+            const raw = Number(html.find('[name="cr"]').val());
+            const v = Number.isFinite(raw) ? Math.max(0, Math.min(maxThisRoll, Math.floor(raw))) : 0;
+            resolve(v);
+          }
+        },
+        none: {
+          label: 'None',
+          callback: () => resolve(0)
+        }
+      },
+      default: 'apply'
+    }).render(true);
+  });
+}
+
 /**
- * Roll initiative for a combatant
- * Returns breakdown object with base, dice, total, and roll details
+ * Roll initiative for one combatant (dice + optional CR). Sets combatant.initiative to the pre-shop total.
+ * NPCs: dice only. PCs: may prompt to spend CR (owner/GM).
  */
-export async function rollInitiativeForCombatant(combatant: Combatant): Promise<InitiativeRollBreakdown> {
+export async function rollInitiativeForCombatant(
+  combatant: Combatant,
+  options: InitiativeRollOptions = {}
+): Promise<InitiativeRollBreakdown> {
+  const { promptCombatReflexes = true } = options;
   const actor = combatant.actor;
   if (!actor) {
     console.error('Mastery System | Cannot roll initiative: combatant has no actor');
     return {
-      baseInitiative: 0,
       diceTotal: 0,
+      combatReflexesSpent: 0,
       totalInitiative: 0,
       masteryRank: 2,
       rollResult: null
     };
   }
 
-  const baseInitiative = calculateBaseInitiative(actor);
   const masteryRank = getMasteryRank(actor);
-  
-  // Roll Mastery Rank d8 (exploding 8s)
-  // For initiative, we roll and keep all dice (keepDice = numDice)
+
   const rollResult = await masteryRoll({
     numDice: masteryRank,
     keepDice: masteryRank,
     skill: 0,
     label: 'Initiative Roll',
-    flavor: `${actor.name} (Base: ${baseInitiative})`,
+    flavor: `${actor.name}`,
     actorId: actor.id
   });
 
   const diceTotal = rollResult.total;
-  const totalInitiative = baseInitiative + diceTotal;
 
-  // Update combatant's initiative
+  let combatReflexesSpent = 0;
+  const isPc = actor.type === 'character';
+  const user = game.user;
+  const mayPromptCr =
+    isPc &&
+    promptCombatReflexes &&
+    user &&
+    (user.isGM || (actor as any).isOwner);
+
+  if (mayPromptCr) {
+    combatReflexesSpent = await promptCombatReflexesSpend(actor, masteryRank);
+    if (combatReflexesSpent > 0) {
+      const prevSpent = Number((actor.system as any)?.skillsSpent?.[CR_SKILL_KEY] ?? 0);
+      await actor.update({
+        [`system.skillsSpent.${CR_SKILL_KEY}`]: prevSpent + combatReflexesSpent
+      });
+    }
+  }
+
+  const totalInitiative = diceTotal + combatReflexesSpent;
   await combatant.update({ initiative: totalInitiative });
+
+  if (!isPc) {
+    await combatant.setFlag('mastery-system', 'msInitiativeValue', totalInitiative);
+  }
 
   console.log('Mastery System | Initiative rolled', {
     actor: actor.name,
-    baseInitiative,
     diceTotal,
+    combatReflexesSpent,
     totalInitiative,
     masteryRank
   });
 
   return {
-    baseInitiative,
     diceTotal,
+    combatReflexesSpent,
     totalInitiative,
     masteryRank,
     rollResult
@@ -106,66 +147,51 @@ export async function rollInitiativeForCombatant(combatant: Combatant): Promise<
 }
 
 /**
- * Roll initiative for all combatants in a combat
- * NPCs roll automatically, PCs get Initiative Shop dialog
+ * Full initiative phase: NPCs auto; PCs with owner/GM get shop; others auto roll without CR prompt.
  */
-export async function rollInitiativeForAllCombatants(combat: Combat): Promise<void> {
-  console.log('Mastery System | Rolling initiative for all combatants');
+export async function executeInitiativePhase(combat: Combat): Promise<void> {
+  const { InitiativeShopDialog } = await import('./initiative-shop-dialog.js');
 
-  // Separate NPCs and PCs
+  console.log('Mastery System | Initiative phase for combat', combat.id, 'round', combat.round);
+
   const npcs: Combatant[] = [];
   const pcs: Combatant[] = [];
 
   for (const combatant of combat.combatants) {
     if (!combatant.actor) continue;
-    
-    if (combatant.actor.type === 'npc' || combatant.actor.type === 'summon' || combatant.actor.type === 'divine') {
-      npcs.push(combatant);
-    } else if (combatant.actor.type === 'character') {
-      pcs.push(combatant);
-    }
+    const t = combatant.actor.type;
+    if (t === 'npc' || t === 'summon' || t === 'divine') npcs.push(combatant);
+    else if (t === 'character') pcs.push(combatant);
   }
 
-  // Roll for NPCs first (automatic, no shop)
   for (const npc of npcs) {
-    await rollInitiativeForCombatant(npc);
-    // Small delay between rolls for visual effect
-    await new Promise(resolve => setTimeout(resolve, 200));
+    await rollInitiativeForCombatant(npc, { promptCombatReflexes: false });
+    await new Promise((r) => setTimeout(r, 200));
   }
 
-  // Roll for PCs with Initiative Shop
   for (const pc of pcs) {
-    // Check if player owns this character
     const actor = pc.actor;
     if (!actor) continue;
-
     const user = game.user;
     if (!user) continue;
 
-    // Only show shop to the owner or GM
-    if (user.isGM || actor.isOwner) {
-      // Roll initiative first (returns breakdown object)
-      const breakdown = await rollInitiativeForCombatant(pc);
-      
-      // Show Initiative Shop dialog (pass breakdown context)
+    if (user.isGM || (actor as any).isOwner) {
+      const breakdown = await rollInitiativeForCombatant(pc, { promptCombatReflexes: true });
       try {
         await InitiativeShopDialog.showForCombatant(pc, breakdown, combat);
       } catch (error) {
         console.error('Mastery System | Failed to show Initiative Shop', error);
-        // Continue even if shop fails
       }
     } else {
-      // For non-owners, just roll automatically
-      await rollInitiativeForCombatant(pc);
+      await rollInitiativeForCombatant(pc, { promptCombatReflexes: false });
     }
-
-    // Small delay between players
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise((r) => setTimeout(r, 500));
   }
 
-  // Sort combat by initiative
   await combat.resetAll();
-  
-  console.log('Mastery System | Initiative rolling complete');
 }
 
+/** @deprecated Prefer executeInitiativePhase; kept for compatibility. */
+export async function rollInitiativeForAllCombatants(combat: Combat): Promise<void> {
+  await executeInitiativePhase(combat);
+}

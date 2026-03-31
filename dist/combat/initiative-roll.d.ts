@@ -1,31 +1,34 @@
 /**
  * Initiative Rolling System
- * Handles initiative calculation and rolling for combatants
+ * Each round: Mastery Rank d8 (keep all, 8s explode) + optional Combat Reflexes spend (≤ MR×4, pool-limited).
+ * Final score before the Initiative Shop = dice total + CR spent.
  */
+export interface InitiativeRollOptions {
+    /** If false, no dialog; CR spend is 0 (e.g. non-owner client). */
+    promptCombatReflexes?: boolean;
+}
 /**
- * Calculate base initiative for an actor
- * Base = Agility + Wits
- * Note: Martial Skills (including Combat Reflexes) no longer provide permanent initiative bonuses
- */
-export declare function calculateBaseInitiative(actor: any): number;
-/**
- * Initiative roll breakdown
+ * Initiative roll breakdown (pre–Initiative Shop).
  */
 export interface InitiativeRollBreakdown {
-    baseInitiative: number;
+    /** Sum of Mastery Rank d8 (exploding 8s). */
     diceTotal: number;
+    /** Combat Reflexes points added to this roll (also updates skillsSpent). */
+    combatReflexesSpent: number;
+    /** Dice + CR — pool for the shop; order uses points left after shopping. */
     totalInitiative: number;
     masteryRank: number;
     rollResult: any;
 }
 /**
- * Roll initiative for a combatant
- * Returns breakdown object with base, dice, total, and roll details
+ * Roll initiative for one combatant (dice + optional CR). Sets combatant.initiative to the pre-shop total.
+ * NPCs: dice only. PCs: may prompt to spend CR (owner/GM).
  */
-export declare function rollInitiativeForCombatant(combatant: Combatant): Promise<InitiativeRollBreakdown>;
+export declare function rollInitiativeForCombatant(combatant: Combatant, options?: InitiativeRollOptions): Promise<InitiativeRollBreakdown>;
 /**
- * Roll initiative for all combatants in a combat
- * NPCs roll automatically, PCs get Initiative Shop dialog
+ * Full initiative phase: NPCs auto; PCs with owner/GM get shop; others auto roll without CR prompt.
  */
+export declare function executeInitiativePhase(combat: Combat): Promise<void>;
+/** @deprecated Prefer executeInitiativePhase; kept for compatibility. */
 export declare function rollInitiativeForAllCombatants(combat: Combat): Promise<void>;
 //# sourceMappingURL=initiative-roll.d.ts.map

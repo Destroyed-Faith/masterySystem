@@ -96,6 +96,11 @@ export interface CharacterData {
   resources: ResourcesData;
   skills: Record<string, number>;
   skillsSpent: Record<string, number>;
+  /** Optional: default attribute pool per generic stone power; auto-filled each round when useDefaultsEachRound is true */
+  stonePowersPrefs?: {
+    useDefaultsEachRound?: boolean;
+    defaultAttributesByPowerId?: Record<string, string>;
+  };
   saves: {
     vitalitySpent: number;
     vitalityUsesRemaining: number;

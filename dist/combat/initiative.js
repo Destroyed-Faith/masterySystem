@@ -1,33 +1,9 @@
 /**
- * Combat Initiative Hooks
- * Handles combat start events, per-round initiative re-rolling,
- * and passive selection overlay.
+ * Combat Initiative Hooks (optional entry)
+ * Default module wiring uses stone-powers-flow + executeInitiativePhase after stones each round.
+ * Avoid registering duplicate initiative phases alongside module.ts / stone-powers-flow.
  */
 export function initializeCombatHooks() {
-    console.log('Mastery System | Initializing combat hooks');
-    Hooks.on('combatStart', async (combat) => {
-        console.log('Mastery System | Combat started, showing passive selection overlay');
-        try {
-            const { PassiveSelectionDialog } = await import('systems/mastery-system/dist/sheets/passive-selection-dialog.js');
-            await PassiveSelectionDialog.showForCombat(combat);
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            const { rollInitiativeForAllCombatants } = await import('systems/mastery-system/dist/combat/initiative-roll.js');
-            await rollInitiativeForAllCombatants(combat);
-        }
-        catch (error) {
-            console.error('Mastery System | Error in combat start sequence', error);
-        }
-    });
-    // Per-round initiative: re-roll initiative at the start of each new round
-    Hooks.on('combatRound', async (combat, _updateData, _updateOptions) => {
-        console.log('Mastery System | New combat round, re-rolling initiative for all combatants');
-        try {
-            const { rollInitiativeForAllCombatants } = await import('systems/mastery-system/dist/combat/initiative-roll.js');
-            await rollInitiativeForAllCombatants(combat);
-        }
-        catch (error) {
-            console.error('Mastery System | Error re-rolling per-round initiative', error);
-        }
-    });
+    console.log('Mastery System | initializeCombatHooks: no extra hooks (initiative runs after stone powers)');
 }
 //# sourceMappingURL=initiative.js.map

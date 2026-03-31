@@ -272,6 +272,42 @@ export function applyStress(
 }
 
 /**
+ * Heal (remove) stress from stress bars: fill capacity from the current bar backward.
+ */
+export function healStressFromBars(
+  bars: HealthBar[],
+  currentBar: number,
+  amount: number
+): { bars: HealthBar[]; currentBar: number } {
+  const clone = bars.map((b) => ({ ...b }));
+  let remaining = Math.max(0, amount);
+  let i = Math.min(Math.max(0, currentBar), clone.length - 1);
+
+  while (remaining > 0 && i >= 0) {
+    const bar = clone[i];
+    const headroom = bar.max - bar.current;
+    if (headroom <= 0) {
+      i--;
+      continue;
+    }
+    const add = Math.min(headroom, remaining);
+    bar.current += add;
+    remaining -= add;
+    if (remaining > 0) i--;
+  }
+
+  let newCurrentBar = 0;
+  for (let j = 0; j < clone.length; j++) {
+    if (clone[j].current < clone[j].max) {
+      newCurrentBar = j;
+      break;
+    }
+  }
+
+  return { bars: clone, currentBar: newCurrentBar };
+}
+
+/**
  * Calculate maximum skill rank based on Mastery Rank
  * Max skill = 4 × Mastery Rank
  */

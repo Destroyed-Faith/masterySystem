@@ -4,13 +4,33 @@
     <p>Activate stone powers using your attribute stone pools.</p>
   </div>
 
+  {{#if stonePlanLocked}}
+  <div class="stone-plan-locked-banner" role="status">
+    <i class="fas fa-lock" aria-hidden="true"></i>
+    <div class="stone-plan-locked-text">
+      <strong>{{combatLabel}}</strong>
+      <span>Steinzuordnung und Aktivieren sind für diese Runde gesperrt, sobald du Bewegung, einen Angriff oder eine Reaktion genutzt hast.</span>
+    </div>
+  </div>
+  {{/if}}
+
   <div class="stone-pools-display">
     <h3>Available Stones</h3>
     <div class="pools-grid">
       {{#each pools as |pool|}}
-      <div class="pool-item">
-        <span class="pool-name">{{pool.name}}</span>
-        <span class="pool-value">{{pool.available}}/{{pool.max}}</span>
+      <div class="pool-item" data-attribute="{{pool.key}}">
+        <div class="pool-item-header">
+          <span class="pool-name">{{pool.name}}</span>
+          <span class="pool-value">{{pool.available}}/{{pool.max}}</span>
+        </div>
+        <div class="pool-gems" title="{{pool.name}}: {{pool.available}} spendable">
+          {{#each pool.gemSlots}}
+          <span
+            class="ms-stone-gem-chip"
+            style="background: {{../gemStyle.fill}}; box-shadow: 0 0 0 2px {{../gemStyle.stroke}} inset, 0 1px 3px rgba(0,0,0,0.45);"
+            aria-hidden="true"></span>
+          {{/each}}
+        </div>
         {{#if pool.sustained}}
         <span class="pool-sustained">({{pool.sustained}} sustained)</span>
         {{/if}}
@@ -36,9 +56,11 @@
             <div class="power-title">
               <strong class="power-name">{{power.name}}</strong>
               <div class="general-controls">
-                <select class="js-general-attr-select" data-power-id="{{power.id}}">
+                <select class="js-general-attr-select" data-power-id="{{power.id}}"
+                        {{#if @root.stonePlanLocked}}disabled title="Gesperrt"{{/if}}>
                   {{#each @root.spendableAttributes as |attr|}}
-                  <option value="{{attr.key}}" {{#if (eq attr.key power.selectedAttrKey)}}selected{{/if}}>
+                  <option value="{{attr.key}}" {{#if (eq attr.key power.selectedAttrKey)}}selected{{/if}}
+                    data-stone-fill="{{attr.gemStyle.fill}}" data-stone-stroke="{{attr.gemStyle.stroke}}">
                     {{attr.label}}
                   </option>
                   {{/each}}
@@ -49,6 +71,7 @@
                         data-attribute-key="{{power.selectedAttrKey}}"
                         title="Activate (Cost: {{power.nextCost}})"
                         {{#unless @root.hasCombat}}disabled title="Only available during combat"{{/unless}}
+                        {{#if @root.stonePlanLocked}}disabled title="Gesperrt"{{/if}}
                         {{#unless power.canAfford}}disabled title="Insufficient stones (Cost: {{power.nextCost}})"{{/unless}}>
                   <i class="fas fa-gem"></i> {{power.nextCost}}
                 </button>
@@ -84,6 +107,7 @@
                       data-attribute-key="{{power.attribute}}"
                       title="Activate (Cost: {{power.nextCost}})"
                       {{#unless @root.hasCombat}}disabled title="Only available during combat"{{/unless}}
+                      {{#if @root.stonePlanLocked}}disabled title="Gesperrt"{{/if}}
                       {{#unless power.canAfford}}disabled title="Insufficient stones (Cost: {{power.nextCost}})"{{/unless}}>
                 <i class="fas fa-gem"></i> {{power.nextCost}}
               </button>
@@ -98,9 +122,22 @@
     {{/each}}
   </div>
 
-  <div class="dialog-footer">
+  <div class="dialog-footer stone-powers-footer">
+    <div class="stone-prefs-bar">
+      <label class="stone-prefs-label">
+        <input type="checkbox" class="js-stone-prefs-use-defaults"
+               {{#if prefsUseDefaults}}checked{{/if}}
+               {{#unless canSavePrefs}}disabled{{/unless}} />
+        <span>Standard pro Runde automatisch übernehmen (Attribute unter General Powers)</span>
+      </label>
+      <button type="button"
+              class="dialog-btn dialog-btn-secondary js-save-stone-prefs{{#unless canSavePrefs}} is-disabled{{/unless}}"
+              {{#unless canSavePrefs}}disabled title="Nur vor der ersten Aktion in der Runde oder außerhalb des Kampfes"{{/unless}}>
+        <i class="fas fa-save"></i> Standard speichern
+      </button>
+    </div>
     <button type="button" class="dialog-btn js-close">
-      <i class="fas fa-times"></i> Close
+      <i class="fas fa-times"></i> Schließen
     </button>
   </div>
 </div>
