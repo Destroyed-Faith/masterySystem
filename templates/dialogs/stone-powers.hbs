@@ -34,9 +34,8 @@
       <div class="pool-item" data-attribute="{{pool.key}}">
         <div class="pool-item-header">
           <span class="pool-name">{{pool.name}}</span>
-          <span class="pool-value">{{pool.available}}/{{pool.max}}</span>
         </div>
-        <div class="pool-gems" title="{{pool.name}}: {{pool.available}} — Steine zum Ziehen">
+        <div class="pool-gems" title="{{pool.name}} — Steine zum Ziehen">
           {{#each pool.gemSlots}}
           <span
             class="ms-stone-gem-chip js-stone-draggable{{#unless @root.dragStonesEnabled}} is-drag-disabled{{/unless}}"
@@ -70,41 +69,22 @@
           <div class="power-row-main">
             <div class="power-title">
               <strong class="power-name" title="{{power.description}}">{{power.name}}</strong>
-              <div class="general-controls">
-                <select class="js-general-attr-select" data-power-id="{{power.id}}"
-                        {{#if @root.stonePlanLocked}}disabled title="Gesperrt"{{/if}}>
-                  {{#each @root.spendableAttributes as |attr|}}
-                  <option value="{{attr.key}}" {{#if (eq attr.key power.selectedAttrKey)}}selected{{/if}}
-                    data-stone-fill="{{attr.gemStyle.fill}}" data-stone-stroke="{{attr.gemStyle.stroke}}">
-                    {{attr.label}}
-                  </option>
-                  {{/each}}
-                </select>
-                <button type="button"
-                        class="power-activate-btn js-activate-power"
-                        data-power-id="{{power.id}}"
-                        data-attribute-key="{{power.selectedAttrKey}}"
-                        title="Ohne Ziehen aktivieren ({{power.nextCost}})"
-                        {{#unless @root.hasCombat}}disabled{{/unless}}
-                        {{#if @root.stonePlanLocked}}disabled title="Gesperrt"{{/if}}
-                        {{#unless power.canAfford}}disabled title="Zu wenig Steine"{{/unless}}>
-                  <i class="fas fa-bolt"></i> {{power.nextCost}}
-                </button>
-              </div>
             </div>
             <div class="power-drop-slots-row">
               <div class="power-drop-slots" data-power-id="{{power.id}}">
                 {{#each power.dropSlots as |slot|}}
                 <div class="ms-stone-drop-slot slot-{{slot.state}}{{#unless @root.dragStonesEnabled}} slot-no-drag{{/unless}}"
                      data-power-id="{{../power.id}}"
-                     data-pay-attribute="{{../power.selectedAttrKey}}"
+                     data-is-generic="true"
                      data-slot-index="{{slot.index}}"
-                     title="{{#if (eq slot.state 'active')}}Aktiv: {{../power.nextCost}}× passenden Stein ablegen{{/if}}{{#if (eq slot.state 'done')}}Stufe erledigt{{/if}}{{#if (eq slot.state 'locked')}}{{#if ../power.canAfford}}Später / nächste Stufe{{else}}Nicht genug Steine im Pool ({{../power.selectedAttrKey}}){{/if}}{{/if}}">
-                  {{#if (eq slot.state 'done')}}
-                  <i class="fas fa-check" aria-hidden="true"></i>
-                  {{else}}
-                  <span class="slot-cost">{{#if (eq slot.state 'active')}}{{../power.nextCost}}{{else}}{{slot.displayCost}}{{/if}}</span>
-                  {{/if}}
+                     title="{{#if (eq slot.state 'active')}}Passenden Stein hier ablegen{{/if}}{{#if (eq slot.state 'done')}}Genutzt{{/if}}{{#if (eq slot.state 'locked')}}{{#if ../power.canAfford}}Später{{else}}Zu wenig Steine in diesem Pool{{/if}}{{/if}}">
+                  <div class="ms-stone-slot-fill">
+                    {{#if (eq slot.state 'done')}}
+                    <span class="ms-stone-gem-chip ms-slot-gem-done"
+                      style="background: {{../power.slotGemStyle.fill}}; box-shadow: 0 0 0 2px {{../power.slotGemStyle.stroke}} inset, 0 1px 3px rgba(0,0,0,0.45);"
+                      aria-hidden="true"></span>
+                    {{/if}}
+                  </div>
                 </div>
                 {{/each}}
               </div>
@@ -150,12 +130,14 @@
                      data-power-id="{{../power.id}}"
                      data-pay-attribute="{{../power.attribute}}"
                      data-slot-index="{{slot.index}}"
-                     title="{{#if (eq slot.state 'active')}}Aktiv: {{../power.nextCost}}× {{../power.attribute}}-Stein{{/if}}{{#if (eq slot.state 'done')}}Stufe erledigt{{/if}}{{#if (eq slot.state 'locked')}}{{#if ../power.canAfford}}Später{{else}}Nicht genug Steine{{/if}}{{/if}}">
-                  {{#if (eq slot.state 'done')}}
-                  <i class="fas fa-check" aria-hidden="true"></i>
-                  {{else}}
-                  <span class="slot-cost">{{#if (eq slot.state 'active')}}{{../power.nextCost}}{{else}}{{slot.displayCost}}{{/if}}</span>
-                  {{/if}}
+                     title="{{#if (eq slot.state 'active')}}Passenden {{../power.attribute}}-Stein ablegen{{/if}}{{#if (eq slot.state 'done')}}Genutzt{{/if}}{{#if (eq slot.state 'locked')}}{{#if ../power.canAfford}}Später{{else}}Nicht genug Steine{{/if}}{{/if}}">
+                  <div class="ms-stone-slot-fill">
+                    {{#if (eq slot.state 'done')}}
+                    <span class="ms-stone-gem-chip ms-slot-gem-done"
+                      style="background: {{../power.slotGemStyle.fill}}; box-shadow: 0 0 0 2px {{../power.slotGemStyle.stroke}} inset, 0 1px 3px rgba(0,0,0,0.45);"
+                      aria-hidden="true"></span>
+                    {{/if}}
+                  </div>
                 </div>
                 {{/each}}
               </div>
@@ -175,7 +157,7 @@
         <input type="checkbox" class="js-stone-prefs-use-defaults"
                {{#if prefsUseDefaults}}checked{{/if}}
                {{#unless canSavePrefs}}disabled{{/unless}} />
-        <span>Standard pro Runde automatisch übernehmen (Attribute unter General Powers)</span>
+        <span>Standard pro Runde automatisch übernehmen (zuletzt genutztes Attribut bei General Powers)</span>
       </label>
       <button type="button"
               class="dialog-btn dialog-btn-secondary js-save-stone-prefs{{#unless canSavePrefs}} is-disabled{{/unless}}"

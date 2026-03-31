@@ -10,6 +10,24 @@ import { STONE_POWERS, activateStonePower, getAvailableStonePowers } from './sto
 import { getStoneUsageCount, calculateStoneCost, getStonePool, isStonePowersConfigurationLocked, getActionEconomyActor } from '../combat/action-economy.js';
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
 const STONE_DRAG_MIME = 'application/x-mastery-stone-attribute';
+const ALL_STONE_ATTRS = [
+    'might',
+    'agility',
+    'vitality',
+    'intellect',
+    'resolve',
+    'influence'
+];
+function getActorStonePoolKeysWithMax(actor) {
+    const sp = (actor.system?.stonePools || {});
+    const keys = new Set();
+    for (const k of ALL_STONE_ATTRS) {
+        const max = Number(sp[k]?.max) || 0;
+        if (max > 0)
+            keys.add(k);
+    }
+    return keys;
+}
 /**
  * Find the combatant row for this actor (linked sheet, prototype actor, or token document actorId).
  */
@@ -125,9 +143,8 @@ export class StonePowersDialog extends BaseDialog {
         const system = this.actor.system;
         const stonePools = system.stonePools || {};
         const availablePowers = getAvailableStonePowers(this.actor);
-        const attributes = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence'];
         // Filter pools to only show those with max > 0
-        const pools = attributes
+        const pools = ALL_STONE_ATTRS
             .map((attr) => {
             const pool = stonePools[attr];
             const current = pool?.current ?? pool?.value ?? 0;
@@ -154,14 +171,6 @@ export class StonePowersDialog extends BaseDialog {
         const prefsUseDefaults = !!(system.stonePowersPrefs?.useDefaultsEachRound);
         const user = game.user;
         const canSavePrefs = !stonePlanLocked && !!user && (user.isGM || this.actor.isOwner);
-        // Prepare spendable attributes for General Powers selector
-        const spendableAttributes = pools.map((pool) => ({
-            key: pool.key,
-            label: pool.name,
-            current: pool.current,
-            max: pool.max,
-            gemStyle: pool.gemStyle
-        }));
         // Determine default attribute for generic powers
         // First pool with current > 0, else first pool with max > 0
         const defaultGeneralAttrKey = (() => {
@@ -181,6 +190,7 @@ export class StonePowersDialog extends BaseDialog {
             const spendable = spendableForAttr(attrKey);
             const description = power.description || power.effect || '';
             const dropSlots = buildStoneDropSlots(usesThisTurn, spendable, nextCost, stonePlanLocked);
+            const gem = getStoneGemStyle(attrKey);
             return {
                 id: power.id,
                 name: power.name,
@@ -190,19 +200,70 @@ export class StonePowersDialog extends BaseDialog {
                 canAfford,
                 selectedAttrKey: attrKey,
                 usesThisTurn,
-                dropSlots
+                dropSlots,
+                slotGemStyle: gem ?? { fill: '#888888', stroke: '#aaaaaa' }
             };
+        };
+        const resolveGenericAttrAndStats = (powerId) => {
+            let attrKey = null;
+            for (const [accKey, n] of this._stoneDropAccumulators) {
+                if (n <= 0 || !accKey.startsWith(`${powerId}:`))
+                    continue;
+                const rest = accKey.slice(powerId.length + 1);
+                const i = rest.lastIndexOf(':');
+                if (i <= 0)
+                    continue;
+                attrKey = rest.slice(0, i);
+                break;
+            }
+            if (!attrKey) {
+                attrKey =
+                    this._generalAttrSelection[powerId] || defaultGeneralAttrKey;
+                if (!pools.some((p) => p.key === attrKey))
+                    attrKey = defaultGeneralAttrKey;
+            }
+            let usesThisTurn = hasCombat && combat ? getStoneUsageCount(this.actor, attrKey, powerId, combat) : 0;
+            let spendable = spendableForAttr(attrKey);
+            let nextCost = calculateStoneCost(usesThisTurn);
+            const hasPartial = [...this._stoneDropAccumulators].some(([k, n]) => n > 0 && k.startsWith(`${powerId}:`));
+            if (!hasPartial &&
+                !stonePlanLocked &&
+                spendable < nextCost &&
+                pools.some((p) => spendableForAttr(p.key) >= nextCost)) {
+                const alt = pools.find((p) => spendableForAttr(p.key) >= nextCost);
+                if (alt) {
+                    attrKey = alt.key;
+                    spendable = spendableForAttr(attrKey);
+                    usesThisTurn =
+                        hasCombat && combat ? getStoneUsageCount(this.actor, attrKey, powerId, combat) : 0;
+                    nextCost = calculateStoneCost(usesThisTurn);
+                }
+            }
+            this._generalAttrSelection[powerId] = attrKey;
+            return { attrKey, usesThisTurn, spendable, nextCost };
         };
         // Separate generic and attribute-specific powers
         const genericPowers = availablePowers.filter(p => p.attribute === 'generic');
         const attributeSpecificPowers = availablePowers.filter(p => p.attribute !== 'generic');
         const generalPowers = genericPowers.map((power) => {
-            let selectedAttrKey = this._generalAttrSelection[power.id] || defaultGeneralAttrKey;
-            if (!pools.some((p) => p.key === selectedAttrKey)) {
-                selectedAttrKey = defaultGeneralAttrKey;
-            }
-            this._generalAttrSelection[power.id] = selectedAttrKey;
-            return preparePowerData(power, selectedAttrKey);
+            const { attrKey, usesThisTurn, spendable, nextCost } = resolveGenericAttrAndStats(power.id);
+            const pool = getStonePool(this.actor, attrKey);
+            const canAfford = pool.current >= nextCost && hasCombat;
+            const description = power.description || power.effect || '';
+            const dropSlots = buildStoneDropSlots(usesThisTurn, spendable, nextCost, stonePlanLocked);
+            const gem = getStoneGemStyle(attrKey);
+            return {
+                id: power.id,
+                name: power.name,
+                description,
+                attribute: power.attribute,
+                nextCost,
+                canAfford,
+                selectedAttrKey: attrKey,
+                usesThisTurn,
+                dropSlots,
+                slotGemStyle: gem ?? { fill: '#888888', stroke: '#aaaaaa' }
+            };
         });
         // Organize attribute-specific powers by attribute section
         // Create entries for all attributes that have pools (max > 0)
@@ -225,7 +286,6 @@ export class StonePowersDialog extends BaseDialog {
             pools,
             powersByAttribute,
             generalPowers,
-            spendableAttributes,
             defaultGeneralAttrKey,
             combatActive,
             combatMissingFromTracker,
@@ -246,25 +306,8 @@ export class StonePowersDialog extends BaseDialog {
             console.warn('Mastery System | StonePowersDialog: kein Content-Root für Event-Handler');
             return;
         }
-        root.querySelectorAll('.js-general-attr-select').forEach((el) => {
-            const select = el;
-            select.onchange = async (ev) => {
-                ev.preventDefault();
-                if (select.disabled)
-                    return;
-                const powerId = select.dataset.powerId;
-                const selectedAttrKey = select.value;
-                if (!powerId)
-                    return;
-                for (const k of [...this._stoneDropAccumulators.keys()]) {
-                    if (k.startsWith(`${powerId}:`))
-                        this._stoneDropAccumulators.delete(k);
-                }
-                this._generalAttrSelection[powerId] = selectedAttrKey;
-                await this.render({ force: true });
-            };
-        });
         this.#bindStoneDragAndDrop(root);
+        this.#syncAccumulatorGems(root);
         const savePrefsBtn = root.querySelector('.js-save-stone-prefs');
         if (savePrefsBtn) {
             savePrefsBtn.onclick = async (ev) => {
@@ -322,11 +365,45 @@ export class StonePowersDialog extends BaseDialog {
             };
         }
     }
+    /** Zeigt Steine im aktiven Ablagefeld während Teil-Aktivierung (Kosten größer 1). */
+    #syncAccumulatorGems(root) {
+        root.querySelectorAll('.ms-stone-slot-fill .ms-slot-gem-partial').forEach((n) => n.remove());
+        for (const [accKey, count] of this._stoneDropAccumulators) {
+            if (count <= 0)
+                continue;
+            const firstColon = accKey.indexOf(':');
+            if (firstColon < 0)
+                continue;
+            const powerId = accKey.slice(0, firstColon);
+            const rest = accKey.slice(firstColon + 1);
+            const lastColon = rest.lastIndexOf(':');
+            if (lastColon <= 0)
+                continue;
+            const payAttr = rest.slice(0, lastColon);
+            const slot = root.querySelector(`.ms-stone-drop-slot.slot-active[data-power-id="${powerId}"]`);
+            if (!slot)
+                continue;
+            const fill = slot.querySelector('.ms-stone-slot-fill');
+            if (!fill)
+                continue;
+            const style = getStoneGemStyle(payAttr);
+            const fillC = style?.fill ?? '#888888';
+            const strokeC = style?.stroke ?? '#aaaaaa';
+            for (let i = 0; i < count; i++) {
+                const gem = document.createElement('span');
+                gem.className = 'ms-stone-gem-chip ms-slot-gem-partial';
+                gem.style.background = fillC;
+                gem.style.boxShadow = `0 0 0 2px ${strokeC} inset, 0 1px 3px rgba(0,0,0,0.45)`;
+                fill.appendChild(gem);
+            }
+        }
+    }
     #bindStoneDragAndDrop(root) {
         const combat = game.combat;
         const canExecute = !!combat && !!this.combatant;
         const locked = !!(combat && this.combatant && isStonePowersConfigurationLocked(this.actor, combat));
         const allowDrag = !locked;
+        const poolKeys = getActorStonePoolKeysWithMax(this.actor);
         root.querySelectorAll('.js-stone-draggable').forEach((el) => {
             const gem = el;
             gem.draggable = allowDrag;
@@ -370,13 +447,39 @@ export class StonePowersDialog extends BaseDialog {
                 if (!slot.classList.contains('slot-active'))
                     return;
                 const dragged = ev.dataTransfer?.getData(STONE_DRAG_MIME) || ev.dataTransfer?.getData('text/plain') || '';
-                const payAttr = (slot.dataset.payAttribute || '');
                 const powerId = slot.dataset.powerId || '';
-                if (!powerId || !payAttr)
-                    return;
-                if (dragged !== payAttr) {
-                    ui.notifications?.warn('Falscher Stein — Attribut passt nicht zu diesem Feld.');
-                    return;
+                const isGeneric = slot.dataset.isGeneric === 'true';
+                let payAttr;
+                if (isGeneric) {
+                    payAttr = dragged;
+                    if (!powerId || !dragged)
+                        return;
+                    if (!poolKeys.has(dragged)) {
+                        ui.notifications?.warn('Dieser Stein gehört zu keinem Pool auf diesem Bogen.');
+                        return;
+                    }
+                    for (const [k, v] of this._stoneDropAccumulators) {
+                        if (v <= 0 || !k.startsWith(`${powerId}:`))
+                            continue;
+                        const rest = k.slice(powerId.length + 1);
+                        const i = rest.lastIndexOf(':');
+                        const existingAttr = i > 0 ? rest.slice(0, i) : '';
+                        if (existingAttr && existingAttr !== dragged) {
+                            ui.notifications?.warn('Für diese Aktivierung denselben Stein-Typ verwenden.');
+                            return;
+                        }
+                        break;
+                    }
+                    this._generalAttrSelection[powerId] = payAttr;
+                }
+                else {
+                    payAttr = (slot.dataset.payAttribute || '');
+                    if (!powerId || !payAttr)
+                        return;
+                    if (dragged !== payAttr) {
+                        ui.notifications?.warn('Falscher Stein — Attribut passt nicht zu diesem Feld.');
+                        return;
+                    }
                 }
                 const uses = getStoneUsageCount(this.actor, payAttr, powerId, combat);
                 const nextCost = calculateStoneCost(uses);
@@ -384,7 +487,9 @@ export class StonePowersDialog extends BaseDialog {
                 const next = (this._stoneDropAccumulators.get(accKey) || 0) + 1;
                 this._stoneDropAccumulators.set(accKey, next);
                 if (next < nextCost) {
-                    ui.notifications?.info(`${next}/${nextCost} Steine für diese Aktivierung.`);
+                    const shell = slot.closest('.stone-powers-dialog');
+                    if (shell)
+                        this.#syncAccumulatorGems(shell);
                     return;
                 }
                 this._stoneDropAccumulators.delete(accKey);
@@ -415,12 +520,9 @@ export class StonePowersDialog extends BaseDialog {
         const useEl = root.querySelector('.js-stone-prefs-use-defaults');
         const useDefaultsEachRound = !!useEl?.checked;
         const map = {};
-        root.querySelectorAll('.js-general-attr-select').forEach((sel) => {
-            const s = sel;
-            const id = s.dataset.powerId;
-            if (id)
-                map[id] = s.value;
-        });
+        for (const [pid, attr] of Object.entries(this._generalAttrSelection)) {
+            map[pid] = attr;
+        }
         await doc.update({
             'system.stonePowersPrefs': {
                 useDefaultsEachRound,
