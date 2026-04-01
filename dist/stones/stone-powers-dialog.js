@@ -17,10 +17,13 @@ const STONE_RETURN_MIME = 'application/x-mastery-stone-return-acc';
  * Abschalten: in F12 `CONFIG.masterySystemDebugStoneDnD = false` (Standard ist an, bis ihr es dauerhaft ausmacht).
  * Rückgabe Pool↔Feld: zusätzlich `CONFIG.masterySystemDebugStoneReturn = true` (Standard aus), dann [StoneReturn]-Logs.
  * Ablage-Raster (wave/acc/nextCost): `CONFIG.masterySystemDebugStoneWave = true` → [StoneWave]-Logs.
+ * Lane-UI / Akku / DOM: `CONFIG.masterySystemDebugStoneLanes = true` → [StoneLanes]-Logs.
  */
 const DEBUG_STONE_POWERS_DND = globalThis.CONFIG?.masterySystemDebugStoneDnD !== false;
 const DEBUG_STONE_RETURN = globalThis.CONFIG?.masterySystemDebugStoneReturn === true;
 const DEBUG_STONE_WAVE = globalThis.CONFIG?.masterySystemDebugStoneWave === true;
+/** F12: `CONFIG.masterySystemDebugStoneLanes = true` — Lane-Zustand, Akku-Keys, DOM nach Render. */
+const DEBUG_STONE_LANES = globalThis.CONFIG?.masterySystemDebugStoneLanes === true;
 function dlogStoneDnD(...args) {
     if (!DEBUG_STONE_POWERS_DND)
         return;
@@ -33,6 +36,11 @@ function dlogStoneReturn(...args) {
 }
 function dlogStoneWave(payload) {
     console.log('Mastery System | [StoneWave]', payload);
+}
+function dlogStoneLanes(...args) {
+    if (!DEBUG_STONE_LANES)
+        return;
+    console.log('Mastery System | [StoneLanes]', ...args);
 }
 /** Fallback wenn getData im Drop leer bleibt (z. B. Chromium/Foundry) */
 let msLastDraggedStoneAttribute = '';
@@ -263,7 +271,8 @@ export class StonePowersDialog extends BaseDialog {
         };
         const canAffordGenericNextCost = (cost) => hasCombat && ALL_STONE_ATTRS.some((a) => getStonePool(this.actor, a).current >= cost);
         const preparePowerData = (power, attrKey) => {
-            const usesThisTurn = hasCombat && combat ? getStoneUsageCount(this.actor, attrKey, power.id, combat) : 0;
+            /** Wie im Drop-Handler: immer mit `game.combat` zählen — nicht an `hasCombat` koppeln (sonst falscher accKey, `occupied` leer, kein slot-filled). */
+            const usesThisTurn = combat ? getStoneUsageCount(this.actor, attrKey, power.id, combat) : 0;
             const nextCost = calculateStoneCost(usesThisTurn);
             const pool = getStonePool(this.actor, attrKey);
             const canAfford = pool.current >= nextCost && hasCombat;
@@ -289,7 +298,7 @@ export class StonePowersDialog extends BaseDialog {
             };
         };
         const resolveGenericAttrAndStats = (powerId) => {
-            const usesThisTurn = hasCombat && combat ? getGenericStonePowerUsageCount(this.actor, powerId, combat) : 0;
+            const usesThisTurn = combat ? getGenericStonePowerUsageCount(this.actor, powerId, combat) : 0;
             let attrKey = null;
             for (const [accKey, lanes] of this._stoneDropAccumulators) {
                 if (!lanes?.length || !accKey.startsWith(`${powerId}:`))
@@ -399,6 +408,25 @@ export class StonePowersDialog extends BaseDialog {
             const reserved = this.#reservedStonesInDialogForAttr(row.attrKey);
             return spendable > 0 || reserved > 0;
         });
+        if (DEBUG_STONE_LANES) {
+            const accDump = Object.fromEntries([...this._stoneDropAccumulators.entries()].map(([k, v]) => [k, [...v].sort((a, b) => a - b)]));
+            dlogStoneLanes('_prepareContext', {
+                hasCombat,
+                combatMissingFromTracker,
+                combatRound: combat?.round,
+                combatTurn: combat?.turn,
+                stonePlanLocked,
+                accumulators: accDump,
+                generalPowersPreview: generalPowers.map((p) => ({
+                    id: p.id,
+                    attr: p.selectedAttrKey,
+                    usesThisTurn: p.usesThisTurn,
+                    accKey: `${p.id}:${p.selectedAttrKey}:${p.usesThisTurn}`,
+                    lane0state: p.paymentAnchor?.[0]?.state,
+                    occMatchInMap: accDump[`${p.id}:${p.selectedAttrKey}:${p.usesThisTurn}`] ?? null
+                }))
+            });
+        }
         return {
             actor: this.actor,
             pools,
@@ -427,6 +455,8 @@ export class StonePowersDialog extends BaseDialog {
         const appWindow = this.element ?? root;
         this.#bindStoneDragAndDrop(root, appWindow);
         this.#syncAccumulatorGems(appWindow);
+        if (DEBUG_STONE_LANES)
+            this.#logStoneLanesDom(appWindow);
         const savePrefsBtn = root.querySelector('.js-save-stone-prefs');
         if (savePrefsBtn) {
             savePrefsBtn.onclick = async (ev) => {
@@ -471,6 +501,29 @@ export class StonePowersDialog extends BaseDialog {
             this._stoneDropAccumulators.delete(accKey);
         else
             this._stoneDropAccumulators.set(accKey, [...lanes].sort((a, b) => a - b));
+        if (DEBUG_STONE_LANES) {
+            dlogStoneLanes('stoneOccSet', {
+                accKey,
+                lanes: [...lanes].sort((a, b) => a - b),
+                allKeys: [...this._stoneDropAccumulators.keys()]
+            });
+        }
+    }
+    /** Nur bei CONFIG.masterySystemDebugStoneLanes: Lane 0–2 Klassen im gerenderten DOM. */
+    #logStoneLanesDom(root) {
+        const rows = [];
+        root.querySelectorAll('.ms-stone-drop-slot[data-lane-index]').forEach((el) => {
+            const he = el;
+            const lane = he.dataset.laneIndex ?? '';
+            if (lane !== '0' && lane !== '1' && lane !== '2')
+                return;
+            rows.push({
+                powerId: he.dataset.powerId ?? '',
+                lane,
+                slotClasses: Array.from(he.classList).filter((c) => c.startsWith('slot-'))
+            });
+        });
+        dlogStoneLanes('DOM nach sync (Lanes 0–2)', { rowCount: rows.length, rows });
     }
     #reservedStonesInDialogForAttr(attr) {
         let sum = 0;
@@ -545,6 +598,17 @@ export class StonePowersDialog extends BaseDialog {
                         lanes,
                         hint: 'fehlendes render() oder data-power-id / data-lane-index'
                     });
+                    if (DEBUG_STONE_LANES) {
+                        const byPid = root.querySelectorAll(`[data-power-id="${esc}"]`).length;
+                        const byLane = root.querySelectorAll(`[data-lane-index="${lane}"]`).length;
+                        dlogStoneLanes('syncAccumulatorGems: Selector-Miss', {
+                            esc,
+                            powerId,
+                            lane,
+                            nodesWithPowerId: byPid,
+                            nodesWithLaneIndex: byLane
+                        });
+                    }
                     continue;
                 }
                 const fill = slot.querySelector('.ms-stone-slot-fill');
@@ -885,6 +949,9 @@ export class StonePowersDialog extends BaseDialog {
             const paid = nextOcc.length;
             this.#syncAccumulatorGems(bindTarget);
             dlogStoneDnD('drop Lane+1', { accKey, laneIndex, paid, nextCost, partial: paid < nextCost });
+            if (DEBUG_STONE_LANES) {
+                dlogStoneLanes('drop angenommen', { accKey, uses, laneIndex, nextOcc, nextCost, isGeneric });
+            }
             if (paid < nextCost) {
                 await this.render({ force: true });
                 return;
