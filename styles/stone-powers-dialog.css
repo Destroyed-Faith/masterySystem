@@ -250,29 +250,6 @@
   border-style: dashed;
 }
 
-/* Nicht Teil der aktuellen Kostenstufe (z. B. nur 1 Stein → nur Lane 0) */
-.stone-powers-dialog .ms-stone-drop-slot.slot-unused {
-  opacity: 0.22;
-  border-style: dotted;
-  border-color: rgba(255, 255, 255, 0.12);
-  background: rgba(0, 0, 0, 0.12);
-  cursor: help;
-}
-
-.stone-powers-dialog .ms-stone-cost-badge {
-  font-size: 0.52rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  color: rgba(255, 224, 130, 0.95);
-  border: 1px solid rgba(255, 213, 79, 0.4);
-  border-radius: 4px;
-  padding: 0.04rem 0.2rem;
-  white-space: nowrap;
-  flex-shrink: 0;
-  cursor: help;
-  line-height: 1.2;
-}
-
 .stone-powers-dialog .ms-stone-drop-slot.slot-no-drag.slot-active {
   cursor: default;
 }
@@ -537,10 +514,8 @@
 .stone-powers-dialog .power-title-general {
   flex: 1 1 auto;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.12rem;
   text-align: center;
   width: 100%;
   min-height: 0;
@@ -557,7 +532,6 @@
   -webkit-line-clamp: 2;
   overflow: hidden;
   width: 100%;
-  max-width: 100%;
   margin: 0;
 }
 
