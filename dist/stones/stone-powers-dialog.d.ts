@@ -11,8 +11,10 @@ export declare class StonePowersDialog extends BaseDialog {
     private combatant;
     private resolve?;
     private _generalAttrSelection;
-    /** Partial drops toward multi-stone cost: key `${powerId}:${attr}:${uses}` */
+    /** Belegte Zahlungs-Lanes (0..14) je laufender Zahlung: `${powerId}:${attr}:${uses}` */
     private _stoneDropAccumulators;
+    /** Lane des Steins bei Rückzug Pool←Feld (dragstart). */
+    private _stoneReturnLane;
     /** Entfernt Root‑Listener von #bindStoneDragAndDrop (bei jedem Render neu binden). */
     private _stoneDndCleanup?;
     /** Attribut des aktuellen Zugs — Foundry/Electron liefert oft kein dataTransfer.getData beim drop. */

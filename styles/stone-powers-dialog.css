@@ -390,8 +390,21 @@
 }
 
 .stone-powers-dialog .power-drop-slots-general {
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
+  gap: 0.2rem;
   width: 100%;
+  min-height: 0;
+}
+
+.stone-powers-dialog .ms-stone-past-uses-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 0.2rem;
   min-height: 0;
 }
 

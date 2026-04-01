@@ -102,89 +102,90 @@ function escapeCssIdentForSelector(value: string): string {
   return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 }
 
+/** Physische Zahlungs-Lanes im Cluster: 1 + 2 + 4 + 8. */
+const STONE_PAYMENT_LANE_COUNT = 15;
+
+type StonePayLaneCell = {
+  laneIndex: number;
+  slotIndex: number;
+  state: DropSlotState;
+};
+
 /**
- * Erst **ein** gelbes Feld; sobald der erste Stein liegt, mindestens **zwei** weitere leere Felder
- * (sofern noch ≥2 Steine offen sind — sonst `remaining`). Zusätzlich der Baum 1→3→7… (`tree`).
- * Obergrenze `acc + remaining` (= Kosten dieser Aktivierung), damit beim letzten Stein nicht 7 Slots
- * aufpoppen.
+ * Welche leeren Lanes dürfen als Nächstes belegt werden:
+ * zuerst nur Lane 0, nach Stein auf 0 die beiden Mittelfelder 1+2 (Reihenfolge frei),
+ * danach alle weiteren Lanes bis nextCost.
  */
-function progressivePaymentWaveSlotCount(accumulated: number, nextCost: number): number {
-  if (nextCost <= 0) return 0;
-  const acc = Math.min(Math.max(0, accumulated), nextCost);
-  if (acc >= nextCost) return nextCost;
-  const remaining = nextCost - acc;
-  const tree = Math.pow(2, Math.ceil(Math.log2(acc + 2))) - 1;
-  const cap = acc + remaining;
+function allowedPaymentDropLanes(occupied: number[], nextCost: number): Set<number> {
+  const o = new Set(occupied);
+  const inCost = (l: number) =>
+    l >= 0 && l < nextCost && l < STONE_PAYMENT_LANE_COUNT;
 
-  const lower =
-    acc === 0
-      ? Math.max(1, tree)
-      : Math.max(tree, acc + Math.min(2, remaining));
+  if (!o.has(0)) return inCost(0) ? new Set([0]) : new Set();
 
-  return Math.min(lower, cap);
+  const midsFree = [1, 2].filter((l) => inCost(l) && !o.has(l));
+  const hasBothMids = o.has(1) && o.has(2);
+  if (!hasBothMids && midsFree.length > 0) return new Set(midsFree);
+
+  const rest = new Set<number>();
+  for (let l = 3; l < nextCost && l < STONE_PAYMENT_LANE_COUNT; l++) {
+    if (!o.has(l)) rest.add(l);
+  }
+  return rest;
 }
 
-/**
- * Pro Macht: abgeschlossene Aktivierungen (je 1 Feld) + Welle für aktuelle Zahlung (mehrere parallele Ablagen).
- * spendableNet = Pool minus bereits in Feldern liegende Steine (Akku).
- */
-function buildStoneDropSlots(
+function buildStonePaymentLanes(
   usesThisTurn: number,
   spendableNet: number,
   nextCost: number,
   planLocked: boolean,
-  accumulated: number,
+  occupied: number[],
   debugLabel?: string
-): { index: number; displayCost: number; state: DropSlotState }[] {
-  const slots: { index: number; displayCost: number; state: DropSlotState }[] = [];
-  const acc = Math.min(Math.max(0, accumulated), nextCost);
+): {
+  paymentAnchor: StonePayLaneCell[];
+  paymentMid: StonePayLaneCell[];
+  paymentQuad: StonePayLaneCell[];
+  paymentOct: StonePayLaneCell[];
+} {
+  const o = new Set(occupied);
+  const allowed = allowedPaymentDropLanes(occupied, nextCost);
 
-  for (let k = 0; k < usesThisTurn; k++) {
-    slots.push({
-      index: k,
-      displayCost: calculateStoneCost(k),
-      state: 'done'
-    });
-  }
+  const laneState = (laneIndex: number): DropSlotState => {
+    if (laneIndex < 0 || laneIndex >= STONE_PAYMENT_LANE_COUNT) return 'locked';
+    if (laneIndex >= nextCost) return 'locked';
+    if (o.has(laneIndex)) return 'filled';
+    if (planLocked) return 'locked';
+    if (spendableNet < 1) return 'locked';
+    if (allowed.has(laneIndex)) return 'active';
+    return 'locked';
+  };
 
-  const wave = progressivePaymentWaveSlotCount(acc, nextCost);
-  const base = usesThisTurn;
-  const displayCost = calculateStoneCost(usesThisTurn);
-  const treeOnly = Math.pow(2, Math.ceil(Math.log2(acc + 2))) - 1;
+  const cell = (laneIndex: number): StonePayLaneCell => ({
+    laneIndex,
+    slotIndex: usesThisTurn + laneIndex,
+    state: laneState(laneIndex)
+  });
 
-  for (let j = 0; j < wave; j++) {
-    const idx = base + j;
-    if (j < acc) {
-      slots.push({ index: idx, displayCost, state: 'filled' });
-    } else {
-      let state: DropSlotState;
-      if (planLocked) state = 'locked';
-      else if (spendableNet >= 1) state = 'active';
-      else state = 'locked';
-      slots.push({ index: idx, displayCost, state });
-    }
-  }
+  const segments = {
+    paymentAnchor: [cell(0)],
+    paymentMid: [cell(1), cell(2)],
+    paymentQuad: [cell(3), cell(4), cell(5), cell(6)],
+    paymentOct: Array.from({ length: 8 }, (_, j) => cell(7 + j))
+  };
 
   if (DEBUG_STONE_WAVE && debugLabel) {
-    const rem = nextCost - acc;
     dlogStoneWave({
       label: debugLabel,
       usesThisTurn,
       nextCost,
-      accumulated: acc,
-      remaining: rem,
-      treeWave: acc >= nextCost ? nextCost : treeOnly,
-      minAfterFirstStone: acc === 0 ? 1 : acc + Math.min(2, rem),
-      capWave: acc >= nextCost ? nextCost : acc + rem,
-      waveFinal: wave,
-      emptySlots: wave - acc,
+      occupied: [...occupied].sort((a, b) => a - b),
+      allowedLanes: [...allowed],
       spendableNet,
-      planLocked,
-      slotCount: slots.length
+      planLocked
     });
   }
 
-  return slots;
+  return segments;
 }
 
 /** DOM root for listeners (ApplicationV2 legt Inhalt unter part=content / .window-content). */
@@ -203,8 +204,10 @@ export class StonePowersDialog extends BaseDialog {
   private combatant: Combatant | null;
   private resolve?: (success: boolean) => void;
   private _generalAttrSelection: Record<string, AttributeKey> = {}; // Track selected attribute per generic power
-  /** Partial drops toward multi-stone cost: key `${powerId}:${attr}:${uses}` */
-  private _stoneDropAccumulators = new Map<string, number>();
+  /** Belegte Zahlungs-Lanes (0..14) je laufender Zahlung: `${powerId}:${attr}:${uses}` */
+  private _stoneDropAccumulators = new Map<string, number[]>();
+  /** Lane des Steins bei Rückzug Pool←Feld (dragstart). */
+  private _stoneReturnLane: number | null = null;
   /** Entfernt Root‑Listener von #bindStoneDragAndDrop (bei jedem Render neu binden). */
   private _stoneDndCleanup?: () => void;
   /** Attribut des aktuellen Zugs — Foundry/Electron liefert oft kein dataTransfer.getData beim drop. */
@@ -330,16 +333,16 @@ export class StonePowersDialog extends BaseDialog {
       const spendableNet = Math.max(0, gross - reserved);
       const description = power.description || power.effect || '';
       const accKey = `${power.id}:${attrKey}:${usesThisTurn}`;
-      const accumulated = this._stoneDropAccumulators.get(accKey) || 0;
-      const dropSlots = buildStoneDropSlots(
+      const occupied = this.#stoneOccGet(accKey);
+      const gem = getStoneGemStyle(attrKey);
+      const laneSegs = buildStonePaymentLanes(
         usesThisTurn,
         spendableNet,
         nextCost,
         stonePlanLocked,
-        accumulated,
+        occupied,
         `${power.id}/${attrKey}`
       );
-      const gem = getStoneGemStyle(attrKey);
 
       return {
         id: power.id,
@@ -350,8 +353,8 @@ export class StonePowersDialog extends BaseDialog {
         canAfford,
         selectedAttrKey: attrKey,
         usesThisTurn,
-        dropSlots,
-        slotGemStyle: gem ?? { fill: '#888888', stroke: '#aaaaaa' }
+        slotGemStyle: gem ?? { fill: '#888888', stroke: '#aaaaaa' },
+        ...laneSegs
       };
     };
 
@@ -360,8 +363,8 @@ export class StonePowersDialog extends BaseDialog {
         hasCombat && combat ? getGenericStonePowerUsageCount(this.actor, powerId, combat) : 0;
 
       let attrKey: AttributeKey | null = null;
-      for (const [accKey, n] of this._stoneDropAccumulators) {
-        if (n <= 0 || !accKey.startsWith(`${powerId}:`)) continue;
+      for (const [accKey, lanes] of this._stoneDropAccumulators) {
+        if (!lanes?.length || !accKey.startsWith(`${powerId}:`)) continue;
         const rest = accKey.slice(powerId.length + 1);
         const i = rest.lastIndexOf(':');
         if (i <= 0) continue;
@@ -393,26 +396,26 @@ export class StonePowersDialog extends BaseDialog {
       const canAfford = canAffordGenericNextCost(nextCost);
       const description = power.description || power.effect || '';
       const spendableNet = totalSpendableNetAllPools();
-      let accumulated = 0;
-      for (const [k, n] of this._stoneDropAccumulators) {
-        if (n <= 0 || !k.startsWith(`${power.id}:`)) continue;
+      let occupied: number[] = [];
+      for (const [k, lanes] of this._stoneDropAccumulators) {
+        if (!lanes?.length || !k.startsWith(`${power.id}:`)) continue;
         const rest = k.slice(power.id.length + 1);
         const i = rest.lastIndexOf(':');
         if (i <= 0) continue;
         if (Number(rest.slice(i + 1)) !== usesThisTurn) continue;
-        accumulated = n;
+        occupied = [...lanes];
         break;
       }
-      const dropSlots = buildStoneDropSlots(
+      const gem = getStoneGemStyle(attrKey);
+      const sp = STONE_POWERS[power.id];
+      const laneSegs = buildStonePaymentLanes(
         usesThisTurn,
         spendableNet,
         nextCost,
         stonePlanLocked,
-        accumulated,
+        occupied,
         `${power.id}/general`
       );
-      const gem = getStoneGemStyle(attrKey);
-      const sp = STONE_POWERS[power.id];
       return {
         id: power.id,
         name: power.name,
@@ -423,8 +426,8 @@ export class StonePowersDialog extends BaseDialog {
         canAfford,
         selectedAttrKey: attrKey,
         usesThisTurn,
-        dropSlots,
-        slotGemStyle: gem ?? { fill: '#888888', stroke: '#aaaaaa' }
+        slotGemStyle: gem ?? { fill: '#888888', stroke: '#aaaaaa' },
+        ...laneSegs
       };
     });
 
@@ -541,11 +544,22 @@ export class StonePowersDialog extends BaseDialog {
     return rest.slice(0, j);
   }
 
+  #stoneOccGet(accKey: string): number[] {
+    const v = this._stoneDropAccumulators.get(accKey);
+    if (!v?.length) return [];
+    return [...v].sort((a, b) => a - b);
+  }
+
+  #stoneOccSet(accKey: string, lanes: number[]): void {
+    if (!lanes.length) this._stoneDropAccumulators.delete(accKey);
+    else this._stoneDropAccumulators.set(accKey, [...lanes].sort((a, b) => a - b));
+  }
+
   #reservedStonesInDialogForAttr(attr: string): number {
     let sum = 0;
-    for (const [accKey, count] of this._stoneDropAccumulators) {
-      if (count <= 0) continue;
-      if (this.#parseAccKeyPayAttr(accKey) === attr) sum += count;
+    for (const [accKey, lanes] of this._stoneDropAccumulators) {
+      if (!lanes?.length) continue;
+      if (this.#parseAccKeyPayAttr(accKey) === attr) sum += lanes.length;
     }
     return sum;
   }
@@ -591,38 +605,34 @@ export class StonePowersDialog extends BaseDialog {
     const allowReturnDrag = !locked;
 
     root.querySelectorAll('.ms-stone-slot-fill .ms-slot-gem-partial').forEach((n) => n.remove());
-    for (const [accKey, count] of this._stoneDropAccumulators) {
-      if (count <= 0) continue;
+    for (const [accKey, lanes] of this._stoneDropAccumulators) {
+      if (!lanes?.length) continue;
       const fc = accKey.indexOf(':');
       if (fc < 0) continue;
       const powerId = accKey.slice(0, fc);
       const payAttrRaw = this.#parseAccKeyPayAttr(accKey);
       if (!payAttrRaw) continue;
       const payAttr = payAttrRaw as AttributeKey;
-      const usesRound = Number(accKey.slice(accKey.lastIndexOf(':') + 1)) || 0;
       const esc = escapeCssIdentForSelector(powerId);
       const style = getStoneGemStyle(payAttr);
       const fillC = style?.fill ?? '#888888';
       const strokeC = style?.stroke ?? '#aaaaaa';
 
-      for (let i = 0; i < count; i++) {
-        const slotIndex = usesRound + i;
+      for (const lane of [...lanes].sort((a, b) => a - b)) {
         let slot = root.querySelector(
-          `.ms-stone-drop-slot[data-gem-anchor="true"].slot-filled[data-power-id="${esc}"][data-slot-index="${slotIndex}"]`
+          `.ms-stone-drop-slot.slot-filled[data-power-id="${esc}"][data-lane-index="${lane}"]`
         ) as HTMLElement | null;
         if (!slot) {
           slot = root.querySelector(
-            `.ms-stone-drop-slot[data-gem-anchor="true"].slot-active[data-power-id="${esc}"][data-slot-index="${slotIndex}"]`
+            `.ms-stone-drop-slot.slot-active[data-power-id="${esc}"][data-lane-index="${lane}"]`
           ) as HTMLElement | null;
         }
         if (!slot) {
           dlogStoneDnD('syncAccumulatorGems: kein Ziel-Slot', {
             powerId,
-            slotIndex,
-            count,
-            i,
-            usesRound,
-            hint: 'fehlendes render() oder falsches data-power-id / data-slot-index'
+            lane,
+            lanes,
+            hint: 'fehlendes render() oder data-power-id / data-lane-index'
           });
           continue;
         }
@@ -632,6 +642,7 @@ export class StonePowersDialog extends BaseDialog {
         const gem = document.createElement('span');
         gem.className = 'ms-stone-gem-chip ms-slot-gem-partial js-stone-returnable';
         gem.setAttribute('data-acc-key', accKey);
+        gem.setAttribute('data-lane-index', String(lane));
         gem.title = allowReturnDrag
           ? 'Zurück in den passenden Pool ziehen'
           : 'Runde gesperrt — Rückgabe nicht möglich';
@@ -851,15 +862,25 @@ export class StonePowersDialog extends BaseDialog {
           dlogStoneReturn('abort: falscher Pool für diesen Stein', { payAttr, poolAttr });
           return;
         }
-        const cur = this._stoneDropAccumulators.get(accKeyReturn) || 0;
-        if (cur <= 0) {
+        const occ = this.#stoneOccGet(accKeyReturn);
+        if (!occ.length) {
           dlogStoneReturn('abort: Akku schon leer', { accKeyReturn });
           return;
         }
-        const next = cur - 1;
-        if (next <= 0) this._stoneDropAccumulators.delete(accKeyReturn);
-        else this._stoneDropAccumulators.set(accKeyReturn, next);
-        dlogStoneReturn('OK: Stein zurück im Pool (Akku--)', { accKeyReturn, next });
+        const laneRm = this._stoneReturnLane;
+        let nextOcc: number[];
+        if (laneRm != null && occ.includes(laneRm)) {
+          nextOcc = occ.filter((l) => l !== laneRm);
+        } else {
+          const hi = Math.max(...occ);
+          nextOcc = occ.filter((l) => l !== hi);
+        }
+        this.#stoneOccSet(accKeyReturn, nextOcc);
+        dlogStoneReturn('OK: Stein zurück im Pool (Lane entfernt)', {
+          accKeyReturn,
+          laneRm,
+          nextOcc
+        });
         this.#syncAccumulatorGems(bindTarget);
         await (this as any).render({ force: true });
         return;
@@ -915,8 +936,8 @@ export class StonePowersDialog extends BaseDialog {
           ui.notifications?.warn('Dieser Stein gehört zu keinem Pool auf diesem Bogen.');
           return;
         }
-        for (const [k, v] of this._stoneDropAccumulators) {
-          if (v <= 0 || !k.startsWith(`${powerId}:`)) continue;
+        for (const [k, lanes] of this._stoneDropAccumulators) {
+          if (!lanes?.length || !k.startsWith(`${powerId}:`)) continue;
           const rest = k.slice(powerId.length + 1);
           const i = rest.lastIndexOf(':');
           const existingAttr = i > 0 ? rest.slice(0, i) : '';
@@ -946,18 +967,34 @@ export class StonePowersDialog extends BaseDialog {
         : getStoneUsageCount(this.actor, payAttr, powerId, combat);
       const nextCost = calculateStoneCost(uses);
       const accKey = `${powerId}:${payAttr}:${uses}`;
-      const cur = this._stoneDropAccumulators.get(accKey) || 0;
-      if (cur >= nextCost) {
-        dlogStoneDnD('drop abort: Akku schon voll', { accKey, cur, nextCost });
+      const laneRaw = slot.dataset.laneIndex;
+      const laneIndex = laneRaw !== undefined && laneRaw !== '' ? Number(laneRaw) : NaN;
+      if (!Number.isFinite(laneIndex)) {
+        dlogStoneDnD('drop abort: keine gültige data-lane-index', { laneRaw });
         return;
       }
-      const next = cur + 1;
-      this._stoneDropAccumulators.set(accKey, next);
+      const occ = this.#stoneOccGet(accKey);
+      if (occ.length >= nextCost) {
+        dlogStoneDnD('drop abort: Zahlung schon voll', { accKey, occ, nextCost });
+        return;
+      }
+      if (occ.includes(laneIndex)) {
+        dlogStoneDnD('drop abort: Lane schon belegt', { laneIndex, occ });
+        return;
+      }
+      if (!allowedPaymentDropLanes(occ, nextCost).has(laneIndex)) {
+        dlogStoneDnD('drop abort: Lane nicht als Nächstes erlaubt', { laneIndex, occ, nextCost });
+        return;
+      }
+
+      const nextOcc = [...occ, laneIndex];
+      this.#stoneOccSet(accKey, nextOcc);
+      const paid = nextOcc.length;
 
       this.#syncAccumulatorGems(bindTarget);
-      dlogStoneDnD('drop Akku+1', { accKey, next, nextCost, partial: next < nextCost });
+      dlogStoneDnD('drop Lane+1', { accKey, laneIndex, paid, nextCost, partial: paid < nextCost });
 
-      if (next < nextCost) {
+      if (paid < nextCost) {
         await (this as any).render({ force: true });
         return;
       }
@@ -972,13 +1009,14 @@ export class StonePowersDialog extends BaseDialog {
         dlogStoneDnD('drop Ende Übung: canExecute false (kein Kampf/Tracker)', {
           canExecute,
           accKey,
-          next,
+          paid,
           nextCost,
           note: 'Akku bleibt; Felder sollten slot-filled + Teil-Steine zeigen'
         });
         return;
       }
 
+      const paidSnapshot = [...nextOcc];
       this._stoneDropAccumulators.delete(accKey);
       this.#syncAccumulatorGems(bindTarget);
       dlogStoneDnD('activateStonePower aufrufen', { powerId, payAttr });
@@ -995,16 +1033,14 @@ export class StonePowersDialog extends BaseDialog {
           ui.notifications?.info(`${STONE_POWERS[powerId]?.name || powerId} aktiviert`);
           await (this as any).render({ force: true });
         } else {
-          if (next > 1) this._stoneDropAccumulators.set(accKey, next - 1);
-          else this._stoneDropAccumulators.delete(accKey);
+          this.#stoneOccSet(accKey, paidSnapshot);
           this.#syncAccumulatorGems(bindTarget);
           await (this as any).render({ force: true });
           ui.notifications?.warn('Aktivierung fehlgeschlagen.');
         }
       } catch (error) {
         console.error('Mastery System | stone drop activate', error);
-        if (next > 1) this._stoneDropAccumulators.set(accKey, next - 1);
-        else this._stoneDropAccumulators.delete(accKey);
+        this.#stoneOccSet(accKey, paidSnapshot);
         this.#syncAccumulatorGems(bindTarget);
         await (this as any).render({ force: true });
         ui.notifications?.error('Steinmacht konnte nicht aktiviert werden.');
@@ -1026,6 +1062,9 @@ export class StonePowersDialog extends BaseDialog {
         return;
       }
       this._stoneReturnAccKey = accKey;
+      const lr = t.getAttribute('data-lane-index') ?? t.dataset.laneIndex ?? '';
+      const ln = lr !== '' ? Number(lr) : NaN;
+      this._stoneReturnLane = Number.isFinite(ln) ? ln : null;
       this._stoneDragAttribute = null;
       ev.dataTransfer.setData(STONE_RETURN_MIME, accKey);
       ev.dataTransfer.setData('text/plain', accKey);
@@ -1047,6 +1086,7 @@ export class StonePowersDialog extends BaseDialog {
       dlogStoneReturn('dragend', { hadAccKey: acc });
       queueMicrotask(() => {
         this._stoneReturnAccKey = null;
+        this._stoneReturnLane = null;
       });
     };
 
