@@ -1,13 +1,12 @@
 /**
- * Stone Powers Activation Dialog
- *
- * Allows players to activate stone powers during combat
+ * Stone Powers Dialog — Steine pro Macht in Segmenten (1→2→4→8) verteilen.
+ * Sofortige Aktivierung per Drop ist entfernt; Plan bleibt im Akku bis spätere Abrechnung.
  */
 var _a;
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
-import { STONE_POWERS, activateStonePower, getAvailableStonePowers } from './stone-activation.js';
+import { STONE_POWERS, getAvailableStonePowers } from './stone-activation.js';
 import { STONE_POWERS_BY_ATTRIBUTE } from './stone-powers.js';
 import { getStoneUsageCount, getGenericStonePowerUsageCount, calculateStoneCost, getStonePool, isStonePowersConfigurationLocked, getActionEconomyActor } from '../combat/action-economy.js';
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
@@ -51,24 +50,71 @@ function dlogStonePayment(...args) {
         return;
     console.log('Mastery System | [StonePayment]', ...args);
 }
+/** Physische Zahlungs-Lanes im Cluster: 1 + 2 + 4 + 8. */
+const STONE_PAYMENT_LANE_COUNT = 15;
+/** Segment-Index für Lane: 0=Anchor(1), 1=Mid(2), 2=Quad(4), 3=Oct(8). */
+function segmentIndexForLane(laneIndex) {
+    if (laneIndex === 0)
+        return 0;
+    if (laneIndex <= 2)
+        return 1;
+    if (laneIndex <= 6)
+        return 2;
+    return 3;
+}
+/** Segment vollständig belegt (Voraussetzung für das nächste Segment). */
+function isStoneSegmentComplete(o, seg) {
+    if (seg === 0)
+        return o.has(0);
+    if (seg === 1)
+        return o.has(1) && o.has(2);
+    if (seg === 2)
+        return [3, 4, 5, 6].every((l) => o.has(l));
+    if (seg === 3)
+        return [7, 8, 9, 10, 11, 12, 13, 14].every((l) => o.has(l));
+    return false;
+}
+/** Leere Lane darf einen Stein annehmen (Segment-Freigabe 1 → 2 → 4 → 8). */
+function isLaneAllowedBySegmentUnlock(occupied, laneIndex) {
+    if (laneIndex < 0 || laneIndex >= STONE_PAYMENT_LANE_COUNT)
+        return false;
+    const o = new Set(occupied);
+    if (o.has(laneIndex))
+        return false;
+    const seg = segmentIndexForLane(laneIndex);
+    for (let s = 0; s < seg; s++) {
+        if (!isStoneSegmentComplete(o, s))
+            return false;
+    }
+    return true;
+}
+/** Alle leeren Lanes, die aktuell dropfähig sind. */
+function allowedSegmentDropLanes(occupied) {
+    const set = new Set();
+    for (let l = 0; l < STONE_PAYMENT_LANE_COUNT; l++) {
+        if (isLaneAllowedBySegmentUnlock(occupied, l))
+            set.add(l);
+    }
+    return set;
+}
 /** Warum ein leeres Feld nicht `slot-active` ist (Debug / Drop-Warn). */
-function explainLaneInactiveReason(laneIndex, occ, allowed, spendableNet, planLocked, nextCost) {
+function explainLaneInactiveReason(laneIndex, occ, allowed, spendableNet, planLocked) {
     const o = new Set(occ);
-    const paid = o.size;
     if (planLocked)
         return 'stonePlanLocked';
     if (o.has(laneIndex))
         return 'filled';
-    if (nextCost < 1)
-        return 'nextCost<1';
-    if (paid >= nextCost) {
-        return `Zahlung_voll (paid=${paid} nextCost=${nextCost}) — bei nextCost=1 nur Lane 0, keine Mittelfelder`;
-    }
     if (spendableNet < 1) {
         return `spendableNet=${spendableNet} (kein freier Pool-Stein; reservierte Felder zählen gegen den Pool)`;
     }
     if (!allowed.has(laneIndex)) {
-        return `Lane nicht in allowed=[${[...allowed].sort((a, b) => a - b)}] (Wellenfolge 0 → 1+2 → 3+…)`;
+        const seg = segmentIndexForLane(laneIndex);
+        for (let s = 0; s < seg; s++) {
+            if (!isStoneSegmentComplete(o, s)) {
+                return `Segment ${s} noch unvollständig — erst vorherigen Block voll belegen (Freigabe 1→2→4→8)`;
+            }
+        }
+        return `Lane ${laneIndex} nicht in allowed=[${[...allowed].sort((a, b) => a - b)}]`;
     }
     return 'sollte_active_sein';
 }
@@ -121,39 +167,13 @@ function resolveStonePowersCombatant(actor, combat) {
 function escapeAttrValueInCssSelector(value) {
     return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 }
-/** Physische Zahlungs-Lanes im Cluster: 1 + 2 + 4 + 8. */
-const STONE_PAYMENT_LANE_COUNT = 15;
 /**
- * Welche leeren Lanes dürfen als Nächstes belegt werden:
- * zuerst nur Lane 0, nach Stein auf 0 die beiden Mittelfelder 1+2 (Reihenfolge frei),
- * danach Lanes 3 … bis nextCost-1.
- *
- * Wichtig: Mids 1+2 nicht mit `l < nextCost` koppeln — bei nextCost 2 wäre Lane 2 sonst nie erlaubt,
- * und die „zwei Mittelfelder“-Phase würde fälschlich ausfallen.
+ * UI/Drop: Segment-Freigabe — erst Anchor (1), nach Stein die beiden Mitten (2), dann Quad (4), dann Oct (8).
+ * Innerhalb eines freigeschalteten Segments beliebige leere Lane; Reihenfolge innerhalb Mid/Quad/Oct frei.
  */
-function allowedPaymentDropLanes(occupied, nextCost) {
+function buildStonePaymentLanes(usesThisTurn, spendableNet, planLocked, occupied, debugLabel) {
     const o = new Set(occupied);
-    const paid = o.size;
-    if (paid >= nextCost || nextCost < 1)
-        return new Set();
-    if (!o.has(0))
-        return new Set([0]);
-    const hasBothMids = o.has(1) && o.has(2);
-    if (!hasBothMids) {
-        const midsFree = [1, 2].filter((l) => !o.has(l));
-        if (midsFree.length > 0)
-            return new Set(midsFree);
-    }
-    const rest = new Set();
-    for (let l = 3; l < nextCost && l < STONE_PAYMENT_LANE_COUNT; l++) {
-        if (!o.has(l))
-            rest.add(l);
-    }
-    return rest;
-}
-function buildStonePaymentLanes(usesThisTurn, spendableNet, nextCost, planLocked, occupied, debugLabel) {
-    const o = new Set(occupied);
-    const allowed = allowedPaymentDropLanes(occupied, nextCost);
+    const allowed = allowedSegmentDropLanes(occupied);
     const laneState = (laneIndex) => {
         if (laneIndex < 0 || laneIndex >= STONE_PAYMENT_LANE_COUNT)
             return 'locked';
@@ -182,7 +202,6 @@ function buildStonePaymentLanes(usesThisTurn, spendableNet, nextCost, planLocked
         dlogStoneWave({
             label: debugLabel,
             usesThisTurn,
-            nextCost,
             occupied: [...occupied].sort((a, b) => a - b),
             allowedLanes: [...allowed],
             spendableNet,
@@ -364,7 +383,7 @@ export class StonePowersDialog extends BaseDialog {
             const accKey = `${power.id}:${attrKey}:${usesThisTurn}`;
             const occupied = this.#stoneOccGet(accKey);
             const gem = getStoneGemStyle(attrKey);
-            const laneSegs = buildStonePaymentLanes(usesThisTurn, spendableNet, nextCost, stonePlanLocked, occupied, `${power.id}/${attrKey}`);
+            const laneSegs = buildStonePaymentLanes(usesThisTurn, spendableNet, stonePlanLocked, occupied, `${power.id}/${attrKey}`);
             return {
                 id: power.id,
                 name: power.name,
@@ -416,7 +435,7 @@ export class StonePowersDialog extends BaseDialog {
             const occupied = this.#stoneOccGet(`${power.id}:${attrKey}:${usesThisTurn}`);
             const gem = getStoneGemStyle(attrKey);
             const sp = STONE_POWERS[power.id];
-            const laneSegs = buildStonePaymentLanes(usesThisTurn, spendableNet, nextCost, stonePlanLocked, occupied, `${power.id}/general`);
+            const laneSegs = buildStonePaymentLanes(usesThisTurn, spendableNet, stonePlanLocked, occupied, `${power.id}/general`);
             return {
                 id: power.id,
                 name: power.name,
@@ -489,7 +508,7 @@ export class StonePowersDialog extends BaseDialog {
                 poolNetByAttr: poolSnapPay.perAttr,
                 generics: generalPowers.map((p) => {
                     const occ = this.#stoneOccGet(`${p.id}:${p.selectedAttrKey}:${p.usesThisTurn}`);
-                    const allowed = allowedPaymentDropLanes(occ, p.nextCost);
+                    const allowed = allowedSegmentDropLanes(occ);
                     return {
                         id: p.id,
                         payAttr: p.selectedAttrKey,
@@ -503,8 +522,8 @@ export class StonePowersDialog extends BaseDialog {
                             p.paymentMid?.[0]?.state,
                             p.paymentMid?.[1]?.state
                         ],
-                        whyLane1: explainLaneInactiveReason(1, occ, allowed, spendableNetAllPoolsCached, stonePlanLocked, p.nextCost),
-                        whyLane2: explainLaneInactiveReason(2, occ, allowed, spendableNetAllPoolsCached, stonePlanLocked, p.nextCost)
+                        whyLane1: explainLaneInactiveReason(1, occ, allowed, spendableNetAllPoolsCached, stonePlanLocked),
+                        whyLane2: explainLaneInactiveReason(2, occ, allowed, spendableNetAllPoolsCached, stonePlanLocked)
                     };
                 })
             });
@@ -521,7 +540,7 @@ export class StonePowersDialog extends BaseDialog {
                 accumulators: accDump,
                 generalPowersPreview: generalPowers.map((p) => {
                     const occ = this.#stoneOccGet(`${p.id}:${p.selectedAttrKey}:${p.usesThisTurn}`);
-                    const allowed = allowedPaymentDropLanes(occ, p.nextCost);
+                    const allowed = allowedSegmentDropLanes(occ);
                     return {
                         id: p.id,
                         attr: p.selectedAttrKey,
@@ -533,8 +552,8 @@ export class StonePowersDialog extends BaseDialog {
                         lane2state: p.paymentMid?.[1]?.state,
                         occupied: [...occ].sort((a, b) => a - b),
                         allowedLanes: [...allowed].sort((a, b) => a - b),
-                        whyLane1: explainLaneInactiveReason(1, occ, allowed, spendableNetAllPoolsCached, stonePlanLocked, p.nextCost),
-                        whyLane2: explainLaneInactiveReason(2, occ, allowed, spendableNetAllPoolsCached, stonePlanLocked, p.nextCost),
+                        whyLane1: explainLaneInactiveReason(1, occ, allowed, spendableNetAllPoolsCached, stonePlanLocked),
+                        whyLane2: explainLaneInactiveReason(2, occ, allowed, spendableNetAllPoolsCached, stonePlanLocked),
                         occMatchInMap: accDump[`${p.id}:${p.selectedAttrKey}:${p.usesThisTurn}`] ?? null
                     };
                 })
@@ -663,11 +682,11 @@ export class StonePowersDialog extends BaseDialog {
         const nextCost = calculateStoneCost(uses);
         const accKey = `${powerId}:${payAttr}:${uses}`;
         const occ = this.#stoneOccGet(accKey);
-        const allowed = allowedPaymentDropLanes(occ, nextCost);
+        const allowed = allowedSegmentDropLanes(occ);
         const { totalNet, perAttr } = this.#debugPaymentNetwork();
         const spendableNet = isGeneric ? totalNet : Math.max(0, perAttr[payAttr]?.net ?? 0);
         const why = Number.isFinite(laneIndex)
-            ? explainLaneInactiveReason(laneIndex, occ, allowed, spendableNet, planLocked, nextCost)
+            ? explainLaneInactiveReason(laneIndex, occ, allowed, spendableNet, planLocked)
             : 'ungültige_laneIndex';
         return {
             powerId,
@@ -1219,7 +1238,6 @@ export class StonePowersDialog extends BaseDialog {
             const uses = isGeneric
                 ? getGenericStonePowerUsageCount(this.actor, powerId, combat)
                 : getStoneUsageCount(this.actor, payAttr, powerId, combat);
-            const nextCost = calculateStoneCost(uses);
             const accKey = `${powerId}:${payAttr}:${uses}`;
             const laneRaw = slot.dataset.laneIndex;
             const laneIndex = laneRaw !== undefined && laneRaw !== '' ? Number(laneRaw) : NaN;
@@ -1228,16 +1246,12 @@ export class StonePowersDialog extends BaseDialog {
                 return;
             }
             const occ = this.#stoneOccGet(accKey);
-            if (occ.length >= nextCost) {
-                dlogStoneDnD('drop abort: Zahlung schon voll', { accKey, occ, nextCost });
-                return;
-            }
             if (occ.includes(laneIndex)) {
                 dlogStoneDnD('drop abort: Lane schon belegt', { laneIndex, occ });
                 return;
             }
-            if (!allowedPaymentDropLanes(occ, nextCost).has(laneIndex)) {
-                dlogStoneDnD('drop abort: Lane nicht als Nächstes erlaubt', { laneIndex, occ, nextCost });
+            if (!isLaneAllowedBySegmentUnlock(occ, laneIndex)) {
+                dlogStoneDnD('drop abort: Lane durch Segment-Freigabe blockiert', { laneIndex, occ });
                 return;
             }
             const nextOcc = [...occ, laneIndex];
@@ -1245,59 +1259,15 @@ export class StonePowersDialog extends BaseDialog {
             const paid = nextOcc.length;
             this.#reconcileFilledLaneClasses(bindTarget);
             this.#syncAccumulatorGems(bindTarget);
-            dlogStoneDnD('drop Lane+1', { accKey, laneIndex, paid, nextCost, partial: paid < nextCost });
+            dlogStoneDnD('drop Lane+1', { accKey, laneIndex, paid, segmentUnlock: true });
             if (DEBUG_STONE_LANES) {
-                dlogStoneLanes('drop angenommen', { accKey, uses, laneIndex, nextOcc, nextCost, isGeneric });
-            }
-            if (paid < nextCost) {
-                await this.render({ force: true });
-                return;
+                dlogStoneLanes('drop angenommen', { accKey, uses, laneIndex, nextOcc, isGeneric });
             }
             /**
-             * Letzter Stein der Zahlung: ohne render bleiben Slots `slot-active`, während #syncPoolGemChips
-             * den Chip schon abzieht → Stein „verschwindet“. Immer neu rendern bevor Übung/Kampf-Abbruch.
+             * Segment-Verteilung: kein sofortiges activateStonePower — Steine bleiben als Plan im Akku.
+             * Aktivierung/Abrechnung mit spendStoneAbility später separat anschließen.
              */
             await this.render({ force: true });
-            if (!canExecute) {
-                dlogStoneDnD('drop Ende Übung: canExecute false (kein Kampf/Tracker)', {
-                    canExecute,
-                    accKey,
-                    paid,
-                    nextCost,
-                    note: 'Akku bleibt; Felder sollten slot-filled + Teil-Steine zeigen'
-                });
-                return;
-            }
-            const paidSnapshot = [...nextOcc];
-            this.#stoneOccSet(accKey, []);
-            this.#syncAccumulatorGems(bindTarget);
-            dlogStoneDnD('activateStonePower aufrufen', { powerId, payAttr });
-            try {
-                const success = await activateStonePower({
-                    actor: this.actor,
-                    combatant: this.combatant,
-                    abilityId: powerId,
-                    attributeKey: payAttr
-                });
-                dlogStoneDnD('activateStonePower Ergebnis', { success });
-                if (success) {
-                    ui.notifications?.info(`${STONE_POWERS[powerId]?.name || powerId} aktiviert`);
-                    await this.render({ force: true });
-                }
-                else {
-                    this.#stoneOccSet(accKey, paidSnapshot);
-                    this.#syncAccumulatorGems(bindTarget);
-                    await this.render({ force: true });
-                    ui.notifications?.warn('Aktivierung fehlgeschlagen.');
-                }
-            }
-            catch (error) {
-                console.error('Mastery System | stone drop activate', error);
-                this.#stoneOccSet(accKey, paidSnapshot);
-                this.#syncAccumulatorGems(bindTarget);
-                await this.render({ force: true });
-                ui.notifications?.error('Steinmacht konnte nicht aktiviert werden.');
-            }
         };
         const onDelegateReturnDragStart = (ev) => {
             const t = ev.target;
