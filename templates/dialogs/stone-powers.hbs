@@ -1,17 +1,12 @@
 <div class="stone-powers-dialog">
-  {{#unless combatActive}}
-  <div class="stone-combat-hint-banner is-info" role="status">
-    <i class="fas fa-info-circle" aria-hidden="true"></i>
-    <span>Kein aktiver Kampf: Du kannst <strong>Steine ziehen</strong> und Standard speichern. Eine Macht <strong>wirkt erst</strong>, wenn ein Kampf läuft und die Figur im <strong>Initiative‑Tracker</strong> steht.</span>
-  </div>
-  {{else}}
+  {{#if combatActive}}
   {{#if combatMissingFromTracker}}
   <div class="stone-combat-hint-banner is-warn" role="alert">
     <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
     <span>Kampf läuft, aber diese Figur wurde im Tracker nicht gefunden (verknüpfter Token / falsches Blatt?). Steine ziehen und Aktivieren sind deaktiviert — Token in die Initiative ziehen oder vom Tracker öffnen.</span>
   </div>
   {{/if}}
-  {{/unless}}
+  {{/if}}
 
   {{#if stonePlanLocked}}
   <div class="stone-plan-locked-banner" role="status">

@@ -48,12 +48,6 @@
   line-height: 1.35;
 }
 
-.stone-powers-dialog .stone-combat-hint-banner.is-info {
-  border: 1px solid rgba(100, 181, 246, 0.45);
-  background: rgba(33, 150, 243, 0.12);
-  color: #90caf9;
-}
-
 .stone-powers-dialog .stone-combat-hint-banner.is-warn {
   border: 1px solid rgba(255, 152, 0, 0.5);
   background: rgba(255, 152, 0, 0.12);
