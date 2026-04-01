@@ -166,6 +166,43 @@ function getStonePowersContentRoot(app) {
         el.querySelector('.window-content') ||
         el);
 }
+/**
+ * Slot unter dem Mauszeiger — `ev.target` beim drop/dragover sitzt oft auf Kindern oder einer
+ * benachbarten Zelle; sonst akzeptiert der Browser den Drop auf `slot-locked` obwohl visuell „aktiv“ wirkte.
+ */
+function resolveMsStoneDropSlotUnderPointer(ev, bindTarget) {
+    const doc = (ev.view?.document ?? (typeof document !== 'undefined' ? document : null));
+    if (!doc?.elementsFromPoint)
+        return null;
+    try {
+        const stack = doc.elementsFromPoint(ev.clientX, ev.clientY);
+        for (const el of stack) {
+            if (!(el instanceof HTMLElement))
+                continue;
+            if (!bindTarget.contains(el))
+                continue;
+            const slot = el.closest('.ms-stone-drop-slot');
+            if (slot instanceof HTMLElement && bindTarget.contains(slot))
+                return slot;
+        }
+    }
+    catch {
+        /* ignore */
+    }
+    return null;
+}
+function applyStoneSlotDragOverVisual(slot) {
+    slot.classList.add('is-drag-over');
+    slot.style.setProperty('outline', '2px solid rgba(255, 255, 255, 0.98)', 'important');
+    slot.style.setProperty('outline-offset', '2px', 'important');
+    slot.style.setProperty('box-shadow', '0 0 0 3px rgba(255, 200, 60, 0.95), 0 0 14px rgba(255, 235, 120, 0.55)', 'important');
+}
+function clearStoneSlotDragOverVisual(slot) {
+    slot.classList.remove('is-drag-over');
+    slot.style.removeProperty('outline');
+    slot.style.removeProperty('outline-offset');
+    slot.style.removeProperty('box-shadow');
+}
 export class StonePowersDialog extends BaseDialog {
     /**
      * Teilzahlungs-Lanes überleben Foundry-V2-`render`/`_prepareContext`, falls die App-Instanz
@@ -734,7 +771,9 @@ export class StonePowersDialog extends BaseDialog {
         };
         const clearDragOver = () => {
             clearPoolReturnHighlight();
-            bindTarget.querySelectorAll('.ms-stone-drop-slot.is-drag-over').forEach((n) => n.classList.remove('is-drag-over'));
+            bindTarget.querySelectorAll('.ms-stone-drop-slot.is-drag-over').forEach((n) => {
+                clearStoneSlotDragOverVisual(n);
+            });
         };
         root.querySelectorAll('.js-stone-draggable').forEach((el) => {
             const gem = el;
@@ -817,7 +856,9 @@ export class StonePowersDialog extends BaseDialog {
                         ev.preventDefault();
                         if (ev.dataTransfer)
                             ev.dataTransfer.dropEffect = 'move';
-                        bindTarget.querySelectorAll('.ms-stone-drop-slot.is-drag-over').forEach((n) => n.classList.remove('is-drag-over'));
+                        bindTarget.querySelectorAll('.ms-stone-drop-slot.is-drag-over').forEach((n) => {
+                            clearStoneSlotDragOverVisual(n);
+                        });
                         clearPoolReturnHighlight();
                         poolGems.classList.add('is-pool-drag-over');
                         const k = `return-pool:${poolAttr}`;
@@ -837,7 +878,7 @@ export class StonePowersDialog extends BaseDialog {
                 dlogStoneReturn('dragover return: not over matching pool, skip slot highlight');
                 return;
             }
-            const slot = resolveDropSlot(ev, false);
+            const slot = resolveMsStoneDropSlotUnderPointer(ev, bindTarget) ?? resolveDropSlot(ev, false);
             if (!slot?.classList.contains('slot-active')) {
                 clearDragOver();
                 return;
@@ -846,7 +887,7 @@ export class StonePowersDialog extends BaseDialog {
             if (ev.dataTransfer)
                 ev.dataTransfer.dropEffect = 'copy';
             clearDragOver();
-            slot.classList.add('is-drag-over');
+            applyStoneSlotDragOverVisual(slot);
             const k = `${slot.dataset.powerId ?? ''}:${slot.dataset.slotIndex ?? ''}`;
             if (k !== lastDragOverLogKey) {
                 lastDragOverLogKey = k;
@@ -922,7 +963,7 @@ export class StonePowersDialog extends BaseDialog {
                 await this.render({ force: true });
                 return;
             }
-            const slot = resolveDropSlot(ev, true);
+            const slot = resolveMsStoneDropSlotUnderPointer(ev, bindTarget) ?? resolveDropSlot(ev, true);
             if (!slot) {
                 dlogStoneDnD('drop abort: kein Slot (resolveDropSlot null)');
                 if (msLastDraggedStoneAttribute)

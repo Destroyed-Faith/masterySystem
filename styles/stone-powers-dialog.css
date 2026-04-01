@@ -764,3 +764,16 @@
 .stone-powers-dialog .dialog-btn:active {
   transform: translateY(0);
 }
+
+/*
+ * Fallback ohne .stone-powers-dialog-Vorfahr (Foundry V2 / Theme): Highlight muss sichtbar sein.
+ */
+.ms-stone-drop-slot.is-drag-over {
+  outline: 2px solid rgba(255, 255, 255, 0.98) !important;
+  outline-offset: 2px !important;
+  box-shadow:
+    0 0 0 3px rgba(255, 200, 60, 0.95),
+    0 0 14px rgba(255, 235, 120, 0.55) !important;
+  background: rgba(255, 235, 120, 0.4) !important;
+  border-color: rgba(255, 255, 255, 0.9) !important;
+}
