@@ -84,6 +84,10 @@ function explainLaneInactiveReason(
   if (paid >= nextCost) {
     return `Zahlung_voll (paid=${paid} nextCost=${nextCost}) — bei nextCost=1 nur Lane 0, keine Mittelfelder`;
   }
+  const maxL = maxLaneIndexForPaymentWave(nextCost);
+  if (laneIndex > maxL) {
+    return `unused_lane (Lane ${laneIndex} > max ${maxL} für nextCost=${nextCost} — Feld gehört nicht zu dieser Kostenstufe)`;
+  }
   if (spendableNet < 1) {
     return `spendableNet=${spendableNet} (kein freier Pool-Stein; reservierte Felder zählen gegen den Pool)`;
   }
@@ -136,7 +140,7 @@ function resolveStonePowersCombatant(actor: Actor, combat: Combat): Combatant | 
   return null;
 }
 
-type DropSlotState = 'done' | 'filled' | 'active' | 'locked';
+type DropSlotState = 'done' | 'filled' | 'active' | 'locked' | 'unused';
 
 /**
  * Wert für Attribut-Selektoren `[data-power-id="…"]` in querySelector.
@@ -149,6 +153,30 @@ function escapeAttrValueInCssSelector(value: string): string {
 
 /** Physische Zahlungs-Lanes im Cluster: 1 + 2 + 4 + 8. */
 const STONE_PAYMENT_LANE_COUNT = 15;
+
+/**
+ * Höchster Lane-Index, der für diese Zahlung überhaupt vorkommen kann (Wellenmodell).
+ * nextCost 1 → nur Lane 0; 2 → bis Lane 2; ab 3 → bis nextCost−1.
+ */
+function maxLaneIndexForPaymentWave(nextCost: number): number {
+  if (nextCost <= 1) return 0;
+  if (nextCost === 2) return 2;
+  return nextCost - 1;
+}
+
+/** Kurztext + Tooltip: erklärt, warum bei nextCost 1 nur Lane 0 genutzt wird. */
+function stoneCostUiStrings(nextCost: number): { short: string; hint: string } {
+  if (nextCost <= 1) {
+    return {
+      short: '1 Stein',
+      hint: 'Diese Kostenstufe: genau 1 Stein — nur das linke Feld. Die mittleren Felder gehören zu dieser Stufe nicht (kein Bug). Ab der 2. Nutzung derselben Macht in dieser Runde steigt die Kosten auf 2 Steine — dann werden die Mittelfelder aktiv.'
+    };
+  }
+  return {
+    short: `${nextCost} Steine`,
+    hint: `Diese Kostenstufe: ${nextCost} Steine — Reihenfolge: zuerst links, dann die zwei Mittelfelder, dann weiter außen. Kosten pro weiterer Nutzung in derselben Runde: 1, 2, 4, 8, …`
+  };
+}
 
 type StonePayLaneCell = {
   laneIndex: number;
@@ -199,10 +227,12 @@ function buildStonePaymentLanes(
 } {
   const o = new Set(occupied);
   const allowed = allowedPaymentDropLanes(occupied, nextCost);
+  const maxLane = maxLaneIndexForPaymentWave(nextCost);
 
   const laneState = (laneIndex: number): DropSlotState => {
     if (laneIndex < 0 || laneIndex >= STONE_PAYMENT_LANE_COUNT) return 'locked';
     if (o.has(laneIndex)) return 'filled';
+    if (laneIndex > maxLane) return 'unused';
     if (planLocked) return 'locked';
     if (spendableNet < 1) return 'locked';
     if (allowed.has(laneIndex)) return 'active';
@@ -440,6 +470,7 @@ export class StonePowersDialog extends BaseDialog {
         occupied,
         `${power.id}/${attrKey}`
       );
+      const costUi = stoneCostUiStrings(nextCost);
 
       return {
         id: power.id,
@@ -447,6 +478,8 @@ export class StonePowersDialog extends BaseDialog {
         description,
         attribute: power.attribute,
         nextCost,
+        stoneCostShort: costUi.short,
+        stoneCostHint: costUi.hint,
         canAfford,
         selectedAttrKey: attrKey,
         usesThisTurn,
@@ -503,6 +536,7 @@ export class StonePowersDialog extends BaseDialog {
         occupied,
         `${power.id}/general`
       );
+      const costUi = stoneCostUiStrings(nextCost);
       return {
         id: power.id,
         name: power.name,
@@ -510,6 +544,8 @@ export class StonePowersDialog extends BaseDialog {
         effectLong: sp?.effect || description,
         attribute: power.attribute,
         nextCost,
+        stoneCostShort: costUi.short,
+        stoneCostHint: costUi.hint,
         canAfford,
         selectedAttrKey: attrKey,
         usesThisTurn,
@@ -818,6 +854,7 @@ export class StonePowersDialog extends BaseDialog {
       perAttrPoolNet: perAttr,
       stonePlanLocked: planLocked,
       classList: Array.from(slot.classList),
+      slotUnusedClass: slot.classList.contains('slot-unused'),
       whyInactive: why
     };
   }
@@ -1035,7 +1072,7 @@ export class StonePowersDialog extends BaseDialog {
           `.ms-stone-drop-slot[data-power-id="${attrEsc}"][data-lane-index="${lane}"]`
         ) as HTMLElement | null;
         if (!el) continue;
-        el.classList.remove('slot-active', 'slot-locked');
+        el.classList.remove('slot-active', 'slot-locked', 'slot-unused');
         el.classList.add('slot-filled');
         el.style.setProperty('background', 'rgba(76, 175, 80, 0.28)', 'important');
         el.style.setProperty('border-color', 'rgba(102, 187, 106, 0.95)', 'important');
