@@ -3,6 +3,7 @@
  *
  * Allows players to activate stone powers during combat
  */
+var _a;
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
@@ -166,6 +167,12 @@ function getStonePowersContentRoot(app) {
         el);
 }
 export class StonePowersDialog extends BaseDialog {
+    /**
+     * Teilzahlungs-Lanes überleben Foundry-V2-`render`/`_prepareContext`, falls die App-Instanz
+     * intern neu verdrahtet wird (Akku-Map sonst leer → nie slot-filled / kein Grün).
+     * Schlüssel: `${ownerActorId}\0${powerId}:${attr}:${uses}`
+     */
+    static _sessionStoneLanes = new Map();
     actor;
     combatant;
     resolve;
@@ -194,7 +201,7 @@ export class StonePowersDialog extends BaseDialog {
      */
     static async showForActor(actor, combatant) {
         return new Promise(resolve => {
-            const app = new StonePowersDialog(actor, combatant || null, resolve);
+            const app = new _a(actor, combatant || null, resolve);
             app.render({ force: true });
         });
     }
@@ -213,6 +220,7 @@ export class StonePowersDialog extends BaseDialog {
         }
     }
     async _prepareContext(_options) {
+        this.#pullSessionPartialsIntoInstance();
         const combat = game.combat;
         const combatActive = !!combat;
         if (!this.combatant && combat) {
@@ -449,6 +457,7 @@ export class StonePowersDialog extends BaseDialog {
     }
     async _onRender(_context, _options) {
         super._onRender?.(_context, _options);
+        this.#pullSessionPartialsIntoInstance();
         const root = getStonePowersContentRoot(this);
         if (!root) {
             console.warn('Mastery System | StonePowersDialog: kein Content-Root für Event-Handler');
@@ -493,24 +502,71 @@ export class StonePowersDialog extends BaseDialog {
             return null;
         return rest.slice(0, j);
     }
+    /** Gleicher Owner wie Stein-Nutzung (unverlinkter Token → Prototyp-Actor). */
+    #stoneLaneOwnerActorId() {
+        const owner = getActionEconomyActor(this.actor) ?? this.actor;
+        return String(owner?.id ?? '');
+    }
+    #sessionLaneCompositeKey(accKey) {
+        return `${this.#stoneLaneOwnerActorId()}\0${accKey}`;
+    }
+    /** Stellt den Akku aus dem sessionweiten Backup wieder her (wichtig nach jedem render). */
+    #pullSessionPartialsIntoInstance() {
+        const aid = this.#stoneLaneOwnerActorId();
+        if (!aid)
+            return;
+        const prefix = `${aid}\0`;
+        for (const [composite, lanes] of _a._sessionStoneLanes) {
+            if (!composite.startsWith(prefix) || !lanes?.length)
+                continue;
+            const accKey = composite.slice(prefix.length);
+            this._stoneDropAccumulators.set(accKey, [...lanes].sort((a, b) => a - b));
+        }
+    }
     #stoneOccGet(accKey) {
         const v = this._stoneDropAccumulators.get(accKey);
-        if (!v?.length)
-            return [];
-        return [...v].sort((a, b) => a - b);
+        if (v?.length)
+            return [...v].sort((a, b) => a - b);
+        const sk = this.#sessionLaneCompositeKey(accKey);
+        const fromS = _a._sessionStoneLanes.get(sk);
+        if (fromS?.length) {
+            const sorted = [...fromS].sort((a, b) => a - b);
+            this._stoneDropAccumulators.set(accKey, sorted);
+            return sorted;
+        }
+        return [];
     }
     #stoneOccSet(accKey, lanes) {
-        if (!lanes.length)
+        const sk = this.#sessionLaneCompositeKey(accKey);
+        if (!lanes.length) {
             this._stoneDropAccumulators.delete(accKey);
-        else
-            this._stoneDropAccumulators.set(accKey, [...lanes].sort((a, b) => a - b));
+            _a._sessionStoneLanes.delete(sk);
+        }
+        else {
+            const sorted = [...lanes].sort((a, b) => a - b);
+            this._stoneDropAccumulators.set(accKey, sorted);
+            _a._sessionStoneLanes.set(sk, sorted);
+        }
         if (DEBUG_STONE_LANES) {
             dlogStoneLanes('stoneOccSet', {
                 accKey,
+                sk,
                 lanes: [...lanes].sort((a, b) => a - b),
-                allKeys: [...this._stoneDropAccumulators.keys()]
+                instanceKeys: [...this._stoneDropAccumulators.keys()],
+                sessionSize: _a._sessionStoneLanes.size
             });
         }
+    }
+    #clearSessionStoneLanesForOwner() {
+        const aid = this.#stoneLaneOwnerActorId();
+        if (!aid)
+            return;
+        const prefix = `${aid}\0`;
+        for (const k of [..._a._sessionStoneLanes.keys()]) {
+            if (k.startsWith(prefix))
+                _a._sessionStoneLanes.delete(k);
+        }
+        this._stoneDropAccumulators.clear();
     }
     /** Nur bei CONFIG.masterySystemDebugStoneLanes: Lane 0–2 Klassen im gerenderten DOM. */
     #logStoneLanesDom(root) {
@@ -529,6 +585,7 @@ export class StonePowersDialog extends BaseDialog {
         dlogStoneLanes('DOM nach sync (Lanes 0–2)', { rowCount: rows.length, rows });
     }
     #reservedStonesInDialogForAttr(attr) {
+        this.#pullSessionPartialsIntoInstance();
         let sum = 0;
         for (const [accKey, lanes] of this._stoneDropAccumulators) {
             if (!lanes?.length)
@@ -574,6 +631,7 @@ export class StonePowersDialog extends BaseDialog {
         const locked = !!(combat && this.combatant && isStonePowersConfigurationLocked(this.actor, combat));
         const allowReturnDrag = !locked;
         root.querySelectorAll('.ms-stone-slot-fill .ms-slot-gem-partial').forEach((n) => n.remove());
+        this.#pullSessionPartialsIntoInstance();
         for (const [accKey, lanes] of this._stoneDropAccumulators) {
             if (!lanes?.length)
                 continue;
@@ -638,6 +696,7 @@ export class StonePowersDialog extends BaseDialog {
      * Verwendet dieselben data-Attribute wie das HBS; Werte wie bei #syncAccumulatorGems escapen.
      */
     #reconcileFilledLaneClasses(root) {
+        this.#pullSessionPartialsIntoInstance();
         for (const [accKey, lanes] of this._stoneDropAccumulators) {
             if (!lanes?.length)
                 continue;
@@ -652,6 +711,8 @@ export class StonePowersDialog extends BaseDialog {
                     continue;
                 el.classList.remove('slot-active', 'slot-locked');
                 el.classList.add('slot-filled');
+                el.style.setProperty('background', 'rgba(76, 175, 80, 0.28)', 'important');
+                el.style.setProperty('border-color', 'rgba(102, 187, 106, 0.95)', 'important');
             }
         }
     }
@@ -815,6 +876,7 @@ export class StonePowersDialog extends BaseDialog {
             clearDragOver();
         };
         const onBindDrop = async (ev) => {
+            this.#pullSessionPartialsIntoInstance();
             const pathTags = (ev.composedPath?.() || [])
                 .slice(0, 12)
                 .map((n) => (n instanceof Element ? n.tagName + (n.id ? `#${n.id}` : '') : String(n)));
@@ -998,7 +1060,7 @@ export class StonePowersDialog extends BaseDialog {
                 return;
             }
             const paidSnapshot = [...nextOcc];
-            this._stoneDropAccumulators.delete(accKey);
+            this.#stoneOccSet(accKey, []);
             this.#syncAccumulatorGems(bindTarget);
             dlogStoneDnD('activateStonePower aufrufen', { powerId, payAttr });
             try {
@@ -1102,6 +1164,7 @@ export class StonePowersDialog extends BaseDialog {
         ui.notifications?.info('Steinmacht-Standard gespeichert (wird bei neuen Runden übernommen, solange aktiviert).');
     }
     async _onClose(_options) {
+        this.#clearSessionStoneLanesForOwner();
         this._stoneDragAttribute = null;
         this._stoneReturnAccKey = null;
         this._stoneDndCleanup?.();
@@ -1113,4 +1176,5 @@ export class StonePowersDialog extends BaseDialog {
         return super._onClose(_options);
     }
 }
+_a = StonePowersDialog;
 //# sourceMappingURL=stone-powers-dialog.js.map

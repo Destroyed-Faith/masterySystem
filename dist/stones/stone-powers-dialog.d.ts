@@ -7,6 +7,12 @@ declare const ApplicationV2: typeof import("@league-of-foundry-developers/foundr
 declare const BaseDialog: typeof ApplicationV2;
 export declare class StonePowersDialog extends BaseDialog {
     #private;
+    /**
+     * Teilzahlungs-Lanes überleben Foundry-V2-`render`/`_prepareContext`, falls die App-Instanz
+     * intern neu verdrahtet wird (Akku-Map sonst leer → nie slot-filled / kein Grün).
+     * Schlüssel: `${ownerActorId}\0${powerId}:${attr}:${uses}`
+     */
+    private static _sessionStoneLanes;
     private actor;
     private combatant;
     private resolve?;
