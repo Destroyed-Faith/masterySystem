@@ -97,17 +97,24 @@ const STONE_PAYMENT_LANE_COUNT = 15;
 /**
  * Welche leeren Lanes dürfen als Nächstes belegt werden:
  * zuerst nur Lane 0, nach Stein auf 0 die beiden Mittelfelder 1+2 (Reihenfolge frei),
- * danach alle weiteren Lanes bis nextCost.
+ * danach Lanes 3 … bis nextCost-1.
+ *
+ * Wichtig: Mids 1+2 nicht mit `l < nextCost` koppeln — bei nextCost 2 wäre Lane 2 sonst nie erlaubt,
+ * und die „zwei Mittelfelder“-Phase würde fälschlich ausfallen.
  */
 function allowedPaymentDropLanes(occupied, nextCost) {
     const o = new Set(occupied);
-    const inCost = (l) => l >= 0 && l < nextCost && l < STONE_PAYMENT_LANE_COUNT;
+    const paid = o.size;
+    if (paid >= nextCost || nextCost < 1)
+        return new Set();
     if (!o.has(0))
-        return inCost(0) ? new Set([0]) : new Set();
-    const midsFree = [1, 2].filter((l) => inCost(l) && !o.has(l));
+        return new Set([0]);
     const hasBothMids = o.has(1) && o.has(2);
-    if (!hasBothMids && midsFree.length > 0)
-        return new Set(midsFree);
+    if (!hasBothMids) {
+        const midsFree = [1, 2].filter((l) => !o.has(l));
+        if (midsFree.length > 0)
+            return new Set(midsFree);
+    }
     const rest = new Set();
     for (let l = 3; l < nextCost && l < STONE_PAYMENT_LANE_COUNT; l++) {
         if (!o.has(l))
@@ -120,8 +127,6 @@ function buildStonePaymentLanes(usesThisTurn, spendableNet, nextCost, planLocked
     const allowed = allowedPaymentDropLanes(occupied, nextCost);
     const laneState = (laneIndex) => {
         if (laneIndex < 0 || laneIndex >= STONE_PAYMENT_LANE_COUNT)
-            return 'locked';
-        if (laneIndex >= nextCost)
             return 'locked';
         if (o.has(laneIndex))
             return 'filled';
