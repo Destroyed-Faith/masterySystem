@@ -120,6 +120,35 @@ function explainLaneInactiveReason(laneIndex, occ, allowed, spendableNet, planLo
 }
 /** Fallback wenn getData im Drop leer bleibt (z. B. Chromium/Foundry) */
 let msLastDraggedStoneAttribute = '';
+/** Mittelteil im Akku-Schlüssel: General Powers mit Steinen aus mehreren Attribut-Pools. */
+const STONE_GENERIC_UNIFIED_MARKER = 'msGenMulti';
+function accKeyPayAttrSegment(accKey) {
+    const i = accKey.indexOf(':');
+    if (i < 0)
+        return null;
+    const rest = accKey.slice(i + 1);
+    const j = rest.lastIndexOf(':');
+    if (j <= 0)
+        return null;
+    return rest.slice(0, j);
+}
+function accKeyUsesSegment(accKey) {
+    const j = accKey.lastIndexOf(':');
+    if (j < 0)
+        return null;
+    const n = Number(accKey.slice(j + 1));
+    return Number.isFinite(n) ? n : null;
+}
+function isGenericUnifiedAccKey(accKey) {
+    return accKeyPayAttrSegment(accKey) === STONE_GENERIC_UNIFIED_MARKER;
+}
+function genericUnifiedAccKey(powerId, uses) {
+    return `${powerId}:${STONE_GENERIC_UNIFIED_MARKER}:${uses}`;
+}
+function isGenericLaneOccArray(v) {
+    const x = v[0];
+    return x !== undefined && typeof x === 'object' && x !== null && 'lane' in x;
+}
 const ALL_STONE_ATTRS = [
     'might',
     'agility',
@@ -260,14 +289,14 @@ export class StonePowersDialog extends BaseDialog {
     /**
      * Teilzahlungs-Lanes überleben Foundry-V2-`render`/`_prepareContext`, falls die App-Instanz
      * intern neu verdrahtet wird (Akku-Map sonst leer → nie slot-filled / kein Grün).
-     * Schlüssel: `${ownerActorId}\0${powerId}:${attr}:${uses}`
+     * Schlüssel: `${ownerActorId}\\0${powerId}:${attr}:${uses}` oder unified `...:msGenMulti:${uses}`
      */
     static _sessionStoneLanes = new Map();
     actor;
     combatant;
     resolve;
     _generalAttrSelection = {}; // Track selected attribute per generic power
-    /** Belegte Zahlungs-Lanes (0..14) je laufender Zahlung: `${powerId}:${attr}:${uses}` */
+    /** Belegte Lanes: Attribut-Macht `number[]`; General `GenericLaneOcc[]` unter `genericUnifiedAccKey`. */
     _stoneDropAccumulators = new Map();
     /** Lane des Steins bei Rückzug Pool←Feld (dragstart). */
     _stoneReturnLane = null;
@@ -277,6 +306,8 @@ export class StonePowersDialog extends BaseDialog {
     _stoneDragAttribute = null;
     /** Akku-Schlüssel beim Ziehen eines Steins aus dem Feld zurück in den Pool. */
     _stoneReturnAccKey = null;
+    /** Pool-Zeile für Rückgabe (bei General-Multi aus data-return-attribute-key). */
+    _stoneReturnPoolAttr = null;
     static DEFAULT_OPTIONS = {
         id: "mastery-stone-powers",
         classes: ["mastery-system", "stone-powers-dialog"],
@@ -399,26 +430,15 @@ export class StonePowersDialog extends BaseDialog {
         };
         const resolveGenericAttrAndStats = (powerId) => {
             const usesThisTurn = getGenericStonePowerUsageCount(this.actor, powerId, combat);
-            let attrKey = null;
-            for (const [accKey, lanes] of this._stoneDropAccumulators) {
-                if (!lanes?.length || !accKey.startsWith(`${powerId}:`))
-                    continue;
-                const rest = accKey.slice(powerId.length + 1);
-                const i = rest.lastIndexOf(':');
-                if (i <= 0)
-                    continue;
-                const tierUses = Number(rest.slice(i + 1));
-                if (tierUses !== usesThisTurn)
-                    continue;
-                attrKey = rest.slice(0, i);
-                break;
-            }
-            if (!attrKey) {
-                attrKey =
-                    this._generalAttrSelection[powerId] || defaultGeneralAttrKey;
-                if (!pools.some((p) => p.key === attrKey))
-                    attrKey = defaultGeneralAttrKey;
-            }
+            this.#mergeLegacyGenericIntoUnified(powerId, usesThisTurn);
+            const unifiedKey = genericUnifiedAccKey(powerId, usesThisTurn);
+            const raw = this.#stoneOccGetRaw(unifiedKey);
+            const last = raw.length && isGenericLaneOccArray(raw) ? raw[raw.length - 1] : undefined;
+            let attrKey = last?.attr ||
+                this._generalAttrSelection[powerId] ||
+                defaultGeneralAttrKey;
+            if (!pools.some((p) => p.key === attrKey))
+                attrKey = defaultGeneralAttrKey;
             const nextCost = calculateStoneCost(usesThisTurn);
             const spendable = spendableForAttr(attrKey);
             this._generalAttrSelection[powerId] = attrKey;
@@ -432,7 +452,7 @@ export class StonePowersDialog extends BaseDialog {
             const canAfford = canAffordGenericNextCost(nextCost);
             const description = power.description || power.effect || '';
             const spendableNet = totalSpendableNetAllPools();
-            const occupied = this.#stoneOccGet(`${power.id}:${attrKey}:${usesThisTurn}`);
+            const occupied = this.#stoneOccGet(genericUnifiedAccKey(power.id, usesThisTurn));
             const gem = getStoneGemStyle(attrKey);
             const sp = STONE_POWERS[power.id];
             const laneSegs = buildStonePaymentLanes(usesThisTurn, spendableNet, stonePlanLocked, occupied, `${power.id}/general`);
@@ -507,14 +527,16 @@ export class StonePowersDialog extends BaseDialog {
                 totalSpendableNetAllPools: spendableNetAllPoolsCached,
                 poolNetByAttr: poolSnapPay.perAttr,
                 generics: generalPowers.map((p) => {
-                    const occ = this.#stoneOccGet(`${p.id}:${p.selectedAttrKey}:${p.usesThisTurn}`);
+                    this.#mergeLegacyGenericIntoUnified(p.id, p.usesThisTurn);
+                    const gk = genericUnifiedAccKey(p.id, p.usesThisTurn);
+                    const occ = this.#stoneOccGet(gk);
                     const allowed = allowedSegmentDropLanes(occ);
                     return {
                         id: p.id,
                         payAttr: p.selectedAttrKey,
                         usesThisTurn: p.usesThisTurn,
                         nextCost: p.nextCost,
-                        accKey: `${p.id}:${p.selectedAttrKey}:${p.usesThisTurn}`,
+                        accKey: gk,
                         occupied: [...occ].sort((a, b) => a - b),
                         allowedLanes: [...allowed].sort((a, b) => a - b),
                         lane012: [
@@ -529,7 +551,12 @@ export class StonePowersDialog extends BaseDialog {
             });
         }
         if (DEBUG_STONE_LANES) {
-            const accDump = Object.fromEntries([...this._stoneDropAccumulators.entries()].map(([k, v]) => [k, [...v].sort((a, b) => a - b)]));
+            const accDump = Object.fromEntries([...this._stoneDropAccumulators.entries()].map(([k, v]) => {
+                if (isGenericUnifiedAccKey(k) && isGenericLaneOccArray(v)) {
+                    return [k, [...v].sort((a, b) => a.lane - b.lane)];
+                }
+                return [k, [...v].sort((a, b) => a - b)];
+            }));
             dlogStoneLanes('_prepareContext', {
                 hasCombat,
                 combatMissingFromTracker,
@@ -539,14 +566,16 @@ export class StonePowersDialog extends BaseDialog {
                 totalSpendableNetAllPools: spendableNetAllPoolsCached,
                 accumulators: accDump,
                 generalPowersPreview: generalPowers.map((p) => {
-                    const occ = this.#stoneOccGet(`${p.id}:${p.selectedAttrKey}:${p.usesThisTurn}`);
+                    this.#mergeLegacyGenericIntoUnified(p.id, p.usesThisTurn);
+                    const gk = genericUnifiedAccKey(p.id, p.usesThisTurn);
+                    const occ = this.#stoneOccGet(gk);
                     const allowed = allowedSegmentDropLanes(occ);
                     return {
                         id: p.id,
                         attr: p.selectedAttrKey,
                         usesThisTurn: p.usesThisTurn,
                         nextCost: p.nextCost,
-                        accKey: `${p.id}:${p.selectedAttrKey}:${p.usesThisTurn}`,
+                        accKey: gk,
                         lane0state: p.paymentAnchor?.[0]?.state,
                         lane1state: p.paymentMid?.[0]?.state,
                         lane2state: p.paymentMid?.[1]?.state,
@@ -554,7 +583,7 @@ export class StonePowersDialog extends BaseDialog {
                         allowedLanes: [...allowed].sort((a, b) => a - b),
                         whyLane1: explainLaneInactiveReason(1, occ, allowed, spendableNetAllPoolsCached, stonePlanLocked),
                         whyLane2: explainLaneInactiveReason(2, occ, allowed, spendableNetAllPoolsCached, stonePlanLocked),
-                        occMatchInMap: accDump[`${p.id}:${p.selectedAttrKey}:${p.usesThisTurn}`] ?? null
+                        occMatchInMap: accDump[genericUnifiedAccKey(p.id, p.usesThisTurn)] ?? null
                     };
                 })
             });
@@ -615,14 +644,125 @@ export class StonePowersDialog extends BaseDialog {
     }
     /** payAttr aus Schlüssel `powerId:payAttr:uses` (powerId kann Punkte, keine weiteren `:`). */
     #parseAccKeyPayAttr(accKey) {
-        const i = accKey.indexOf(':');
-        if (i < 0)
-            return null;
-        const rest = accKey.slice(i + 1);
-        const j = rest.lastIndexOf(':');
-        if (j <= 0)
-            return null;
-        return rest.slice(0, j);
+        return accKeyPayAttrSegment(accKey);
+    }
+    /** Stellt den Akku aus dem sessionweiten Backup wieder her (wichtig nach jedem render). */
+    #pullSessionPartialsIntoInstance() {
+        const aid = this.#stoneLaneOwnerActorId();
+        if (!aid)
+            return;
+        const prefix = `${aid}\0`;
+        for (const [composite, lanes] of _a._sessionStoneLanes) {
+            if (!composite.startsWith(prefix) || !lanes?.length)
+                continue;
+            const accKey = composite.slice(prefix.length);
+            if (isGenericUnifiedAccKey(accKey) && isGenericLaneOccArray(lanes)) {
+                this._stoneDropAccumulators.set(accKey, [...lanes].sort((a, b) => a.lane - b.lane));
+            }
+            else if (!isGenericUnifiedAccKey(accKey)) {
+                const nums = lanes;
+                this._stoneDropAccumulators.set(accKey, [...nums].sort((a, b) => a - b));
+            }
+        }
+    }
+    /** Legacy `powerId:echtesAttr:uses` in einen Eintrag `genericUnifiedAccKey` zusammenführen. */
+    #mergeLegacyGenericIntoUnified(powerId, uses) {
+        this.#pullSessionPartialsIntoInstance();
+        const unifiedKey = genericUnifiedAccKey(powerId, uses);
+        const collected = [];
+        const rawU = this._stoneDropAccumulators.get(unifiedKey);
+        if (rawU?.length && isGenericLaneOccArray(rawU)) {
+            collected.push(...rawU);
+        }
+        const toDelete = [];
+        for (const [k, v] of [...this._stoneDropAccumulators.entries()]) {
+            if (!k.startsWith(`${powerId}:`))
+                continue;
+            if (accKeyUsesSegment(k) !== uses)
+                continue;
+            const mid = accKeyPayAttrSegment(k);
+            if (!mid || mid === STONE_GENERIC_UNIFIED_MARKER)
+                continue;
+            if (!v?.length || isGenericLaneOccArray(v))
+                continue;
+            for (const lane of v) {
+                if (!collected.some((c) => c.lane === lane)) {
+                    collected.push({ lane, attr: mid });
+                }
+            }
+            toDelete.push(k);
+        }
+        for (const k of toDelete) {
+            this.#stoneOccDelete(k);
+        }
+        collected.sort((a, b) => a.lane - b.lane);
+        if (collected.length) {
+            this.#stoneOccSet(unifiedKey, collected);
+        }
+    }
+    #stoneOccDelete(accKey) {
+        this._stoneDropAccumulators.delete(accKey);
+        _a._sessionStoneLanes.delete(this.#sessionLaneCompositeKey(accKey));
+    }
+    /** Rohwert aus Map/Session (Typ je nach Schlüssel). */
+    #stoneOccGetRaw(accKey) {
+        let v = this._stoneDropAccumulators.get(accKey);
+        if (!v?.length) {
+            const sk = this.#sessionLaneCompositeKey(accKey);
+            const fromS = _a._sessionStoneLanes.get(sk);
+            if (fromS?.length) {
+                if (isGenericUnifiedAccKey(accKey) && isGenericLaneOccArray(fromS)) {
+                    v = [...fromS].sort((a, b) => a.lane - b.lane);
+                }
+                else if (!isGenericUnifiedAccKey(accKey) && !isGenericLaneOccArray(fromS)) {
+                    v = [...fromS].sort((a, b) => a - b);
+                }
+                else {
+                    v = fromS;
+                }
+                this._stoneDropAccumulators.set(accKey, v);
+            }
+        }
+        return v ?? [];
+    }
+    /** Nur Lane-Indizes (Segment-Logik / Template). */
+    #stoneOccGet(accKey) {
+        if (isGenericUnifiedAccKey(accKey)) {
+            const raw = this.#stoneOccGetRaw(accKey);
+            if (!raw.length)
+                return [];
+            if (!isGenericLaneOccArray(raw))
+                return [];
+            return raw.map((x) => x.lane).sort((a, b) => a - b);
+        }
+        const raw = this.#stoneOccGetRaw(accKey);
+        return [...raw].sort((a, b) => a - b);
+    }
+    #stoneOccSet(accKey, value) {
+        const sk = this.#sessionLaneCompositeKey(accKey);
+        if (!value.length) {
+            this._stoneDropAccumulators.delete(accKey);
+            _a._sessionStoneLanes.delete(sk);
+        }
+        else if (isGenericUnifiedAccKey(accKey)) {
+            const sorted = [...value].sort((a, b) => a.lane - b.lane);
+            this._stoneDropAccumulators.set(accKey, sorted);
+            _a._sessionStoneLanes.set(sk, sorted);
+        }
+        else {
+            const sorted = [...value].sort((a, b) => a - b);
+            this._stoneDropAccumulators.set(accKey, sorted);
+            _a._sessionStoneLanes.set(sk, sorted);
+        }
+        if (DEBUG_STONE_LANES) {
+            dlogStoneLanes('stoneOccSet', {
+                accKey,
+                sk,
+                value,
+                instanceKeys: [...this._stoneDropAccumulators.keys()],
+                sessionSize: _a._sessionStoneLanes.size
+            });
+        }
     }
     /** Debug/Diagnose: Pool brutto, reserviert im Dialog, netto — pro Attribut + Summe. */
     #debugPaymentNetwork() {
@@ -656,17 +796,6 @@ export class StonePowersDialog extends BaseDialog {
         const planLocked = !!(combat && this.combatant && isStonePowersConfigurationLocked(this.actor, combat));
         let payAttr = (slot.dataset.payAttribute || '');
         if (isGeneric && powerId) {
-            if (!payAttr) {
-                for (const [k] of this._stoneDropAccumulators) {
-                    if (!k.startsWith(`${powerId}:`))
-                        continue;
-                    const parsed = this.#parseAccKeyPayAttr(k);
-                    if (parsed) {
-                        payAttr = parsed;
-                        break;
-                    }
-                }
-            }
             if (!payAttr)
                 payAttr = this._generalAttrSelection[powerId] || '';
         }
@@ -680,8 +809,17 @@ export class StonePowersDialog extends BaseDialog {
             ? getGenericStonePowerUsageCount(this.actor, powerId, combat ?? null)
             : getStoneUsageCount(this.actor, payAttr, powerId, combat ?? null);
         const nextCost = calculateStoneCost(uses);
-        const accKey = `${powerId}:${payAttr}:${uses}`;
-        const occ = this.#stoneOccGet(accKey);
+        let accKey;
+        let occ;
+        if (isGeneric && powerId) {
+            this.#mergeLegacyGenericIntoUnified(powerId, uses);
+            accKey = genericUnifiedAccKey(powerId, uses);
+            occ = this.#stoneOccGet(accKey);
+        }
+        else {
+            accKey = `${powerId}:${payAttr}:${uses}`;
+            occ = this.#stoneOccGet(accKey);
+        }
         const allowed = allowedSegmentDropLanes(occ);
         const { totalNet, perAttr } = this.#debugPaymentNetwork();
         const spendableNet = isGeneric ? totalNet : Math.max(0, perAttr[payAttr]?.net ?? 0);
@@ -714,53 +852,6 @@ export class StonePowersDialog extends BaseDialog {
     #sessionLaneCompositeKey(accKey) {
         return `${this.#stoneLaneOwnerActorId()}\0${accKey}`;
     }
-    /** Stellt den Akku aus dem sessionweiten Backup wieder her (wichtig nach jedem render). */
-    #pullSessionPartialsIntoInstance() {
-        const aid = this.#stoneLaneOwnerActorId();
-        if (!aid)
-            return;
-        const prefix = `${aid}\0`;
-        for (const [composite, lanes] of _a._sessionStoneLanes) {
-            if (!composite.startsWith(prefix) || !lanes?.length)
-                continue;
-            const accKey = composite.slice(prefix.length);
-            this._stoneDropAccumulators.set(accKey, [...lanes].sort((a, b) => a - b));
-        }
-    }
-    #stoneOccGet(accKey) {
-        const v = this._stoneDropAccumulators.get(accKey);
-        if (v?.length)
-            return [...v].sort((a, b) => a - b);
-        const sk = this.#sessionLaneCompositeKey(accKey);
-        const fromS = _a._sessionStoneLanes.get(sk);
-        if (fromS?.length) {
-            const sorted = [...fromS].sort((a, b) => a - b);
-            this._stoneDropAccumulators.set(accKey, sorted);
-            return sorted;
-        }
-        return [];
-    }
-    #stoneOccSet(accKey, lanes) {
-        const sk = this.#sessionLaneCompositeKey(accKey);
-        if (!lanes.length) {
-            this._stoneDropAccumulators.delete(accKey);
-            _a._sessionStoneLanes.delete(sk);
-        }
-        else {
-            const sorted = [...lanes].sort((a, b) => a - b);
-            this._stoneDropAccumulators.set(accKey, sorted);
-            _a._sessionStoneLanes.set(sk, sorted);
-        }
-        if (DEBUG_STONE_LANES) {
-            dlogStoneLanes('stoneOccSet', {
-                accKey,
-                sk,
-                lanes: [...lanes].sort((a, b) => a - b),
-                instanceKeys: [...this._stoneDropAccumulators.keys()],
-                sessionSize: _a._sessionStoneLanes.size
-            });
-        }
-    }
     #clearSessionStoneLanesForOwner() {
         const aid = this.#stoneLaneOwnerActorId();
         if (!aid)
@@ -791,11 +882,20 @@ export class StonePowersDialog extends BaseDialog {
     #reservedStonesInDialogForAttr(attr) {
         this.#pullSessionPartialsIntoInstance();
         let sum = 0;
-        for (const [accKey, lanes] of this._stoneDropAccumulators) {
-            if (!lanes?.length)
+        for (const [accKey, val] of this._stoneDropAccumulators) {
+            if (!val?.length)
                 continue;
-            if (this.#parseAccKeyPayAttr(accKey) === attr)
-                sum += lanes.length;
+            if (isGenericUnifiedAccKey(accKey)) {
+                if (!isGenericLaneOccArray(val))
+                    continue;
+                for (const a of val) {
+                    if (a.attr === attr)
+                        sum += 1;
+                }
+            }
+            else if (this.#parseAccKeyPayAttr(accKey) === attr) {
+                sum += val.length;
+            }
         }
         return sum;
     }
@@ -836,22 +936,18 @@ export class StonePowersDialog extends BaseDialog {
         const allowReturnDrag = !locked;
         root.querySelectorAll('.ms-stone-slot-fill .ms-slot-gem-partial').forEach((n) => n.remove());
         this.#pullSessionPartialsIntoInstance();
-        for (const [accKey, lanes] of this._stoneDropAccumulators) {
-            if (!lanes?.length)
+        for (const [accKey, lanesVal] of this._stoneDropAccumulators) {
+            if (!lanesVal?.length)
                 continue;
             const fc = accKey.indexOf(':');
             if (fc < 0)
                 continue;
             const powerId = accKey.slice(0, fc);
-            const payAttrRaw = this.#parseAccKeyPayAttr(accKey);
-            if (!payAttrRaw)
-                continue;
-            const payAttr = payAttrRaw;
             const esc = escapeAttrValueInCssSelector(powerId);
-            const style = getStoneGemStyle(payAttr);
-            const fillC = style?.fill ?? '#888888';
-            const strokeC = style?.stroke ?? '#aaaaaa';
-            for (const lane of [...lanes].sort((a, b) => a - b)) {
+            const placeGem = (lane, payAttr) => {
+                const style = getStoneGemStyle(payAttr);
+                const fillC = style?.fill ?? '#888888';
+                const strokeC = style?.stroke ?? '#aaaaaa';
                 let slot = root.querySelector(`.ms-stone-drop-slot.slot-filled[data-power-id="${esc}"][data-lane-index="${lane}"]`);
                 if (!slot) {
                     slot = root.querySelector(`.ms-stone-drop-slot.slot-active[data-power-id="${esc}"][data-lane-index="${lane}"]`);
@@ -860,7 +956,7 @@ export class StonePowersDialog extends BaseDialog {
                     dlogStoneDnD('syncAccumulatorGems: kein Ziel-Slot', {
                         powerId,
                         lane,
-                        lanes,
+                        lanesVal,
                         hint: 'fehlendes render() oder data-power-id / data-lane-index'
                     });
                     if (DEBUG_STONE_LANES) {
@@ -874,15 +970,16 @@ export class StonePowersDialog extends BaseDialog {
                             nodesWithLaneIndex: byLane
                         });
                     }
-                    continue;
+                    return;
                 }
                 const fill = slot.querySelector('.ms-stone-slot-fill');
                 if (!fill)
-                    continue;
+                    return;
                 const gem = document.createElement('span');
                 gem.className = 'ms-stone-gem-chip ms-slot-gem-partial js-stone-returnable';
                 gem.setAttribute('data-acc-key', accKey);
                 gem.setAttribute('data-lane-index', String(lane));
+                gem.setAttribute('data-return-attribute-key', payAttr);
                 gem.title = allowReturnDrag
                     ? 'Zurück in den passenden Pool ziehen'
                     : 'Runde gesperrt — Rückgabe nicht möglich';
@@ -891,6 +988,20 @@ export class StonePowersDialog extends BaseDialog {
                 gem.style.background = fillC;
                 gem.style.boxShadow = `0 0 0 2px ${strokeC} inset, 0 1px 3px rgba(0,0,0,0.45)`;
                 fill.appendChild(gem);
+            };
+            if (isGenericUnifiedAccKey(accKey) && isGenericLaneOccArray(lanesVal)) {
+                for (const { lane, attr } of lanesVal) {
+                    placeGem(lane, attr);
+                }
+            }
+            else if (!isGenericUnifiedAccKey(accKey)) {
+                const payAttrRaw = this.#parseAccKeyPayAttr(accKey);
+                if (!payAttrRaw)
+                    continue;
+                const payAttr = payAttrRaw;
+                for (const lane of [...lanesVal].sort((a, b) => a - b)) {
+                    placeGem(lane, payAttr);
+                }
             }
         }
         this.#syncPoolGemChips(root);
@@ -901,15 +1012,18 @@ export class StonePowersDialog extends BaseDialog {
      */
     #reconcileFilledLaneClasses(root) {
         this.#pullSessionPartialsIntoInstance();
-        for (const [accKey, lanes] of this._stoneDropAccumulators) {
-            if (!lanes?.length)
+        for (const [accKey, lanesVal] of this._stoneDropAccumulators) {
+            if (!lanesVal?.length)
                 continue;
             const fc = accKey.indexOf(':');
             if (fc < 0)
                 continue;
             const powerId = accKey.slice(0, fc);
             const attrEsc = escapeAttrValueInCssSelector(powerId);
-            for (const lane of lanes) {
+            const laneList = isGenericUnifiedAccKey(accKey) && isGenericLaneOccArray(lanesVal)
+                ? lanesVal.map((x) => x.lane)
+                : lanesVal;
+            for (const lane of laneList) {
                 const el = root.querySelector(`.ms-stone-drop-slot[data-power-id="${attrEsc}"][data-lane-index="${lane}"]`);
                 if (!el)
                     continue;
@@ -1029,7 +1143,9 @@ export class StonePowersDialog extends BaseDialog {
             if (this._stoneReturnAccKey) {
                 const poolGems = ev.target?.closest?.('.pool-gems');
                 if (poolGems && bindTarget.contains(poolGems)) {
-                    const payAttr = this.#parseAccKeyPayAttr(this._stoneReturnAccKey);
+                    const payAttr = this._stoneReturnPoolAttr ||
+                        this.#parseAccKeyPayAttr(this._stoneReturnAccKey) ||
+                        '';
                     const poolAttr = poolGems.dataset.attributeKey || '';
                     if (payAttr && poolAttr === payAttr) {
                         ev.preventDefault();
@@ -1111,32 +1227,51 @@ export class StonePowersDialog extends BaseDialog {
                     dlogStoneReturn('abort: Rückgabe nur auf Pool-Zeile', { accKeyReturn, hasPoolEl: !!poolGemsDrop });
                     return;
                 }
-                const payAttr = this.#parseAccKeyPayAttr(accKeyReturn);
+                const payAttr = this._stoneReturnPoolAttr ||
+                    this.#parseAccKeyPayAttr(accKeyReturn) ||
+                    '';
                 const poolAttr = poolGemsDrop.dataset.attributeKey || '';
                 dlogStoneReturn('drop auf Pool prüfen', { accKeyReturn, payAttr, poolAttr });
                 if (!payAttr || poolAttr !== payAttr) {
                     dlogStoneReturn('abort: falscher Pool für diesen Stein', { payAttr, poolAttr });
                     return;
                 }
-                const occ = this.#stoneOccGet(accKeyReturn);
-                if (!occ.length) {
-                    dlogStoneReturn('abort: Akku schon leer', { accKeyReturn });
-                    return;
-                }
                 const laneRm = this._stoneReturnLane;
-                let nextOcc;
-                if (laneRm != null && occ.includes(laneRm)) {
-                    nextOcc = occ.filter((l) => l !== laneRm);
+                if (isGenericUnifiedAccKey(accKeyReturn)) {
+                    const raw = this.#stoneOccGetRaw(accKeyReturn);
+                    if (!raw.length || !isGenericLaneOccArray(raw)) {
+                        dlogStoneReturn('abort: Akku schon leer', { accKeyReturn });
+                        return;
+                    }
+                    let nextAssign;
+                    if (laneRm != null) {
+                        nextAssign = raw.filter((a) => a.lane !== laneRm);
+                    }
+                    else {
+                        const hi = Math.max(...raw.map((a) => a.lane));
+                        nextAssign = raw.filter((a) => a.lane !== hi);
+                    }
+                    this.#stoneOccSet(accKeyReturn, nextAssign);
                 }
                 else {
-                    const hi = Math.max(...occ);
-                    nextOcc = occ.filter((l) => l !== hi);
+                    const occ = this.#stoneOccGet(accKeyReturn);
+                    if (!occ.length) {
+                        dlogStoneReturn('abort: Akku schon leer', { accKeyReturn });
+                        return;
+                    }
+                    let nextOcc;
+                    if (laneRm != null && occ.includes(laneRm)) {
+                        nextOcc = occ.filter((l) => l !== laneRm);
+                    }
+                    else {
+                        const hi = Math.max(...occ);
+                        nextOcc = occ.filter((l) => l !== hi);
+                    }
+                    this.#stoneOccSet(accKeyReturn, nextOcc);
                 }
-                this.#stoneOccSet(accKeyReturn, nextOcc);
                 dlogStoneReturn('OK: Stein zurück im Pool (Lane entfernt)', {
                     accKeyReturn,
-                    laneRm,
-                    nextOcc
+                    laneRm
                 });
                 this.#syncAccumulatorGems(bindTarget);
                 await this.render({ force: true });
@@ -1208,19 +1343,6 @@ export class StonePowersDialog extends BaseDialog {
                     ui.notifications?.warn('Dieser Stein gehört zu keinem Pool auf diesem Bogen.');
                     return;
                 }
-                for (const [k, lanes] of this._stoneDropAccumulators) {
-                    if (!lanes?.length || !k.startsWith(`${powerId}:`))
-                        continue;
-                    const rest = k.slice(powerId.length + 1);
-                    const i = rest.lastIndexOf(':');
-                    const existingAttr = i > 0 ? rest.slice(0, i) : '';
-                    if (existingAttr && existingAttr !== dragged) {
-                        dlogStoneDnD('drop abort: anderer Typ in Akku', { existingAttr, dragged, k });
-                        ui.notifications?.warn('Für diese Aktivierung denselben Stein-Typ verwenden.');
-                        return;
-                    }
-                    break;
-                }
                 this._generalAttrSelection[powerId] = payAttr;
             }
             else {
@@ -1238,30 +1360,60 @@ export class StonePowersDialog extends BaseDialog {
             const uses = isGeneric
                 ? getGenericStonePowerUsageCount(this.actor, powerId, combat)
                 : getStoneUsageCount(this.actor, payAttr, powerId, combat);
-            const accKey = `${powerId}:${payAttr}:${uses}`;
             const laneRaw = slot.dataset.laneIndex;
             const laneIndex = laneRaw !== undefined && laneRaw !== '' ? Number(laneRaw) : NaN;
             if (!Number.isFinite(laneIndex)) {
                 dlogStoneDnD('drop abort: keine gültige data-lane-index', { laneRaw });
                 return;
             }
-            const occ = this.#stoneOccGet(accKey);
-            if (occ.includes(laneIndex)) {
-                dlogStoneDnD('drop abort: Lane schon belegt', { laneIndex, occ });
-                return;
+            let accKey;
+            let occ;
+            let paid;
+            if (isGeneric) {
+                this.#mergeLegacyGenericIntoUnified(powerId, uses);
+                accKey = genericUnifiedAccKey(powerId, uses);
+                occ = this.#stoneOccGet(accKey);
+                if (occ.includes(laneIndex)) {
+                    dlogStoneDnD('drop abort: Lane schon belegt', { laneIndex, occ });
+                    return;
+                }
+                if (!isLaneAllowedBySegmentUnlock(occ, laneIndex)) {
+                    dlogStoneDnD('drop abort: Lane durch Segment-Freigabe blockiert', { laneIndex, occ });
+                    return;
+                }
+                const prev = this.#stoneOccGetRaw(accKey);
+                const base = prev.length && isGenericLaneOccArray(prev) ? [...prev] : [];
+                base.push({ lane: laneIndex, attr: payAttr });
+                base.sort((a, b) => a.lane - b.lane);
+                this.#stoneOccSet(accKey, base);
+                paid = base.length;
             }
-            if (!isLaneAllowedBySegmentUnlock(occ, laneIndex)) {
-                dlogStoneDnD('drop abort: Lane durch Segment-Freigabe blockiert', { laneIndex, occ });
-                return;
+            else {
+                accKey = `${powerId}:${payAttr}:${uses}`;
+                occ = this.#stoneOccGet(accKey);
+                if (occ.includes(laneIndex)) {
+                    dlogStoneDnD('drop abort: Lane schon belegt', { laneIndex, occ });
+                    return;
+                }
+                if (!isLaneAllowedBySegmentUnlock(occ, laneIndex)) {
+                    dlogStoneDnD('drop abort: Lane durch Segment-Freigabe blockiert', { laneIndex, occ });
+                    return;
+                }
+                const nextOcc = [...occ, laneIndex];
+                this.#stoneOccSet(accKey, nextOcc);
+                paid = nextOcc.length;
             }
-            const nextOcc = [...occ, laneIndex];
-            this.#stoneOccSet(accKey, nextOcc);
-            const paid = nextOcc.length;
             this.#reconcileFilledLaneClasses(bindTarget);
             this.#syncAccumulatorGems(bindTarget);
             dlogStoneDnD('drop Lane+1', { accKey, laneIndex, paid, segmentUnlock: true });
             if (DEBUG_STONE_LANES) {
-                dlogStoneLanes('drop angenommen', { accKey, uses, laneIndex, nextOcc, isGeneric });
+                dlogStoneLanes('drop angenommen', {
+                    accKey,
+                    uses,
+                    laneIndex,
+                    occAfter: this.#stoneOccGet(accKey),
+                    isGeneric
+                });
             }
             /**
              * Segment-Verteilung: kein sofortiges activateStonePower — Steine bleiben als Plan im Akku.
@@ -1285,6 +1437,11 @@ export class StonePowersDialog extends BaseDialog {
                 return;
             }
             this._stoneReturnAccKey = accKey;
+            this._stoneReturnPoolAttr =
+                t.getAttribute('data-return-attribute-key') ||
+                    t.dataset.returnAttributeKey ||
+                    this.#parseAccKeyPayAttr(accKey) ||
+                    null;
             const lr = t.getAttribute('data-lane-index') ?? t.dataset.laneIndex ?? '';
             const ln = lr !== '' ? Number(lr) : NaN;
             this._stoneReturnLane = Number.isFinite(ln) ? ln : null;
@@ -1309,6 +1466,7 @@ export class StonePowersDialog extends BaseDialog {
             dlogStoneReturn('dragend', { hadAccKey: acc });
             queueMicrotask(() => {
                 this._stoneReturnAccKey = null;
+                this._stoneReturnPoolAttr = null;
                 this._stoneReturnLane = null;
             });
         };

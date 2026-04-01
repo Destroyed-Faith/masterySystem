@@ -1,7 +1,6 @@
 /**
- * Stone Powers Activation Dialog
- *
- * Allows players to activate stone powers during combat
+ * Stone Powers Dialog — Steine pro Macht in Segmenten (1→2→4→8) verteilen.
+ * Sofortige Aktivierung per Drop ist entfernt; Plan bleibt im Akku bis spätere Abrechnung.
  */
 declare const ApplicationV2: typeof import("@league-of-foundry-developers/foundry-vtt-types/src/foundry/client/applications/api/application.mjs").default;
 declare const BaseDialog: typeof ApplicationV2;
@@ -10,14 +9,14 @@ export declare class StonePowersDialog extends BaseDialog {
     /**
      * Teilzahlungs-Lanes überleben Foundry-V2-`render`/`_prepareContext`, falls die App-Instanz
      * intern neu verdrahtet wird (Akku-Map sonst leer → nie slot-filled / kein Grün).
-     * Schlüssel: `${ownerActorId}\0${powerId}:${attr}:${uses}`
+     * Schlüssel: `${ownerActorId}\\0${powerId}:${attr}:${uses}` oder unified `...:msGenMulti:${uses}`
      */
     private static _sessionStoneLanes;
     private actor;
     private combatant;
     private resolve?;
     private _generalAttrSelection;
-    /** Belegte Zahlungs-Lanes (0..14) je laufender Zahlung: `${powerId}:${attr}:${uses}` */
+    /** Belegte Lanes: Attribut-Macht `number[]`; General `GenericLaneOcc[]` unter `genericUnifiedAccKey`. */
     private _stoneDropAccumulators;
     /** Lane des Steins bei Rückzug Pool←Feld (dragstart). */
     private _stoneReturnLane;
@@ -27,6 +26,8 @@ export declare class StonePowersDialog extends BaseDialog {
     private _stoneDragAttribute;
     /** Akku-Schlüssel beim Ziehen eines Steins aus dem Feld zurück in den Pool. */
     private _stoneReturnAccKey;
+    /** Pool-Zeile für Rückgabe (bei General-Multi aus data-return-attribute-key). */
+    private _stoneReturnPoolAttr;
     static DEFAULT_OPTIONS: {
         id: string;
         classes: string[];
