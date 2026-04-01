@@ -281,8 +281,8 @@ export class StonePowersDialog extends BaseDialog {
         };
         const canAffordGenericNextCost = (cost) => hasCombat && ALL_STONE_ATTRS.some((a) => getStonePool(this.actor, a).current >= cost);
         const preparePowerData = (power, attrKey) => {
-            /** Wie im Drop-Handler: immer mit `game.combat` zählen — nicht an `hasCombat` koppeln (sonst falscher accKey, `occupied` leer, kein slot-filled). */
-            const usesThisTurn = combat ? getStoneUsageCount(this.actor, attrKey, power.id, combat) : 0;
+            /** Wie im Drop-Handler: `getStoneUsageCount(..., combat)` — auch wenn `combat` null (dann Runde 1 / Zug 0). Nicht `combat ? … : 0`, sonst anderer accKey als beim Drop. */
+            const usesThisTurn = getStoneUsageCount(this.actor, attrKey, power.id, combat);
             const nextCost = calculateStoneCost(usesThisTurn);
             const pool = getStonePool(this.actor, attrKey);
             const canAfford = pool.current >= nextCost && hasCombat;
@@ -308,7 +308,7 @@ export class StonePowersDialog extends BaseDialog {
             };
         };
         const resolveGenericAttrAndStats = (powerId) => {
-            const usesThisTurn = combat ? getGenericStonePowerUsageCount(this.actor, powerId, combat) : 0;
+            const usesThisTurn = getGenericStonePowerUsageCount(this.actor, powerId, combat);
             let attrKey = null;
             for (const [accKey, lanes] of this._stoneDropAccumulators) {
                 if (!lanes?.length || !accKey.startsWith(`${powerId}:`))
@@ -342,19 +342,7 @@ export class StonePowersDialog extends BaseDialog {
             const canAfford = canAffordGenericNextCost(nextCost);
             const description = power.description || power.effect || '';
             const spendableNet = totalSpendableNetAllPools();
-            let occupied = [];
-            for (const [k, lanes] of this._stoneDropAccumulators) {
-                if (!lanes?.length || !k.startsWith(`${power.id}:`))
-                    continue;
-                const rest = k.slice(power.id.length + 1);
-                const i = rest.lastIndexOf(':');
-                if (i <= 0)
-                    continue;
-                if (Number(rest.slice(i + 1)) !== usesThisTurn)
-                    continue;
-                occupied = [...lanes];
-                break;
-            }
+            const occupied = this.#stoneOccGet(`${power.id}:${attrKey}:${usesThisTurn}`);
             const gem = getStoneGemStyle(attrKey);
             const sp = STONE_POWERS[power.id];
             const laneSegs = buildStonePaymentLanes(usesThisTurn, spendableNet, nextCost, stonePlanLocked, occupied, `${power.id}/general`);
