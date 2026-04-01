@@ -492,6 +492,10 @@
 
 .stone-powers-dialog .powers-grid-general .ms-stone-drop-slot.slot-filled {
   min-width: 20px;
+  border-style: solid;
+  border-color: rgba(102, 187, 106, 0.85);
+  background: rgba(76, 175, 80, 0.22);
+  color: #a5d6a7;
 }
 
 /* Gelbe Ablage (active) etwas kompakter — grün (filled) wie bisher */

@@ -104,9 +104,12 @@ function resolveStonePowersCombatant(actor: Actor, combat: Combat): Combatant | 
 
 type DropSlotState = 'done' | 'filled' | 'active' | 'locked';
 
-function escapeCssIdentForSelector(value: string): string {
-  const CSS = (globalThis as any).CSS;
-  if (CSS && typeof CSS.escape === 'function') return CSS.escape(value);
+/**
+ * Wert für Attribut-Selektoren `[data-power-id="…"]` in querySelector.
+ * Nicht `CSS.escape` verwenden: Macht-IDs enthalten Punkte (`generic.extraAttack`); als Ident escaped
+ * matcht der Selektor nicht das literal gesetzte HTML-Attribut → keine Zelle, kein grünes Feld / kein Gem.
+ */
+function escapeAttrValueInCssSelector(value: string): string {
   return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 }
 
@@ -538,6 +541,7 @@ export class StonePowersDialog extends BaseDialog {
 
     const appWindow = ((this as any).element as HTMLElement | undefined) ?? root;
     this.#bindStoneDragAndDrop(root, appWindow);
+    this.#reconcileFilledLaneClasses(appWindow);
     this.#syncAccumulatorGems(appWindow);
     if (DEBUG_STONE_LANES) this.#logStoneLanesDom(appWindow);
 
@@ -666,7 +670,7 @@ export class StonePowersDialog extends BaseDialog {
       const payAttrRaw = this.#parseAccKeyPayAttr(accKey);
       if (!payAttrRaw) continue;
       const payAttr = payAttrRaw as AttributeKey;
-      const esc = escapeCssIdentForSelector(powerId);
+      const esc = escapeAttrValueInCssSelector(powerId);
       const style = getStoneGemStyle(payAttr);
       const fillC = style?.fill ?? '#888888';
       const strokeC = style?.stroke ?? '#aaaaaa';
@@ -718,6 +722,28 @@ export class StonePowersDialog extends BaseDialog {
       }
     }
     this.#syncPoolGemChips(root);
+  }
+
+  /**
+   * Nach Template-Render: belegte Lanes am DOM kennzeichnen (slot-filled), falls Kontext/Theme abweicht.
+   * Verwendet dieselben data-Attribute wie das HBS; Werte wie bei #syncAccumulatorGems escapen.
+   */
+  #reconcileFilledLaneClasses(root: HTMLElement): void {
+    for (const [accKey, lanes] of this._stoneDropAccumulators) {
+      if (!lanes?.length) continue;
+      const fc = accKey.indexOf(':');
+      if (fc < 0) continue;
+      const powerId = accKey.slice(0, fc);
+      const attrEsc = escapeAttrValueInCssSelector(powerId);
+      for (const lane of lanes) {
+        const el = root.querySelector(
+          `.ms-stone-drop-slot[data-power-id="${attrEsc}"][data-lane-index="${lane}"]`
+        ) as HTMLElement | null;
+        if (!el) continue;
+        el.classList.remove('slot-active', 'slot-locked');
+        el.classList.add('slot-filled');
+      }
+    }
   }
 
   /**
@@ -1055,6 +1081,7 @@ export class StonePowersDialog extends BaseDialog {
       this.#stoneOccSet(accKey, nextOcc);
       const paid = nextOcc.length;
 
+      this.#reconcileFilledLaneClasses(bindTarget);
       this.#syncAccumulatorGems(bindTarget);
       dlogStoneDnD('drop Lane+1', { accKey, laneIndex, paid, nextCost, partial: paid < nextCost });
       if (DEBUG_STONE_LANES) {
