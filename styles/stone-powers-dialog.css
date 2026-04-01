@@ -429,6 +429,7 @@
   border-radius: 1px;
   justify-self: center;
   align-self: stretch;
+  pointer-events: none;
 }
 
 .stone-powers-dialog .ms-stone-cluster-vsep-1 {
@@ -776,4 +777,9 @@
     0 0 14px rgba(255, 235, 120, 0.55) !important;
   background: rgba(255, 235, 120, 0.4) !important;
   border-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Trennlinien fangen sonst Drops ab (kein .ms-stone-drop-slot als Vorfahr). */
+.ms-stone-cluster-vsep {
+  pointer-events: none;
 }

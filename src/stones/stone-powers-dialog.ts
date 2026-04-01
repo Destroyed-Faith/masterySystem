@@ -32,6 +32,7 @@ const STONE_RETURN_MIME = 'application/x-mastery-stone-return-acc';
  * Rückgabe Pool↔Feld: zusätzlich `CONFIG.masterySystemDebugStoneReturn = true` (Standard aus), dann [StoneReturn]-Logs.
  * Ablage-Raster (wave/acc/nextCost): `CONFIG.masterySystemDebugStoneWave = true` → [StoneWave]-Logs.
  * Lane-UI / Akku / DOM: `CONFIG.masterySystemDebugStoneLanes = true` → [StoneLanes]-Logs.
+ * Zahlungs-Wellen / spendableNet / warum Slot locked: `CONFIG.masterySystemDebugStonePayment = true` → [StonePayment]-Logs bei jedem Render + `console.warn` bei Drop auf locked (immer kurz, Details wenn Flag an).
  */
 const DEBUG_STONE_POWERS_DND = (globalThis as any).CONFIG?.masterySystemDebugStoneDnD !== false;
 const DEBUG_STONE_RETURN =
@@ -39,6 +40,8 @@ const DEBUG_STONE_RETURN =
 const DEBUG_STONE_WAVE = (globalThis as any).CONFIG?.masterySystemDebugStoneWave === true;
 /** F12: `CONFIG.masterySystemDebugStoneLanes = true` — Lane-Zustand, Akku-Keys, DOM nach Render. */
 const DEBUG_STONE_LANES = (globalThis as any).CONFIG?.masterySystemDebugStoneLanes === true;
+/** F12: `CONFIG.masterySystemDebugStonePayment = true` — volle Payment-Snapshots in _prepareContext ([StonePayment]). */
+const DEBUG_STONE_PAYMENT = (globalThis as any).CONFIG?.masterySystemDebugStonePayment === true;
 
 function dlogStoneDnD(...args: unknown[]): void {
   if (!DEBUG_STONE_POWERS_DND) return;
@@ -57,6 +60,37 @@ function dlogStoneWave(payload: Record<string, unknown>): void {
 function dlogStoneLanes(...args: unknown[]): void {
   if (!DEBUG_STONE_LANES) return;
   console.log('Mastery System | [StoneLanes]', ...args);
+}
+
+function dlogStonePayment(...args: unknown[]): void {
+  if (!DEBUG_STONE_PAYMENT) return;
+  console.log('Mastery System | [StonePayment]', ...args);
+}
+
+/** Warum ein leeres Feld nicht `slot-active` ist (Debug / Drop-Warn). */
+function explainLaneInactiveReason(
+  laneIndex: number,
+  occ: number[],
+  allowed: Set<number>,
+  spendableNet: number,
+  planLocked: boolean,
+  nextCost: number
+): string {
+  const o = new Set(occ);
+  const paid = o.size;
+  if (planLocked) return 'stonePlanLocked';
+  if (o.has(laneIndex)) return 'filled';
+  if (nextCost < 1) return 'nextCost<1';
+  if (paid >= nextCost) {
+    return `Zahlung_voll (paid=${paid} nextCost=${nextCost}) — bei nextCost=1 nur Lane 0, keine Mittelfelder`;
+  }
+  if (spendableNet < 1) {
+    return `spendableNet=${spendableNet} (kein freier Pool-Stein; reservierte Felder zählen gegen den Pool)`;
+  }
+  if (!allowed.has(laneIndex)) {
+    return `Lane nicht in allowed=[${[...allowed].sort((a, b) => a - b)}] (Wellenfolge 0 → 1+2 → 3+…)`;
+  }
+  return 'sollte_active_sein';
 }
 
 /** Fallback wenn getData im Drop leer bleibt (z. B. Chromium/Foundry) */
@@ -532,6 +566,54 @@ export class StonePowersDialog extends BaseDialog {
         return spendable > 0 || reserved > 0;
       });
 
+    const spendableNetAllPoolsCached = totalSpendableNetAllPools();
+
+    if (DEBUG_STONE_PAYMENT) {
+      const poolSnapPay = this.#debugPaymentNetwork();
+      dlogStonePayment('_prepareContext snapshot', {
+        stonePlanLocked,
+        combatRound: combat?.round,
+        combatTurn: combat?.turn,
+        hasCombat,
+        totalSpendableNetAllPools: spendableNetAllPoolsCached,
+        poolNetByAttr: poolSnapPay.perAttr,
+        generics: generalPowers.map((p: any) => {
+          const occ = this.#stoneOccGet(`${p.id}:${p.selectedAttrKey}:${p.usesThisTurn}`);
+          const allowed = allowedPaymentDropLanes(occ, p.nextCost);
+          return {
+            id: p.id,
+            payAttr: p.selectedAttrKey,
+            usesThisTurn: p.usesThisTurn,
+            nextCost: p.nextCost,
+            accKey: `${p.id}:${p.selectedAttrKey}:${p.usesThisTurn}`,
+            occupied: [...occ].sort((a, b) => a - b),
+            allowedLanes: [...allowed].sort((a, b) => a - b),
+            lane012: [
+              p.paymentAnchor?.[0]?.state,
+              p.paymentMid?.[0]?.state,
+              p.paymentMid?.[1]?.state
+            ],
+            whyLane1: explainLaneInactiveReason(
+              1,
+              occ,
+              allowed,
+              spendableNetAllPoolsCached,
+              stonePlanLocked,
+              p.nextCost
+            ),
+            whyLane2: explainLaneInactiveReason(
+              2,
+              occ,
+              allowed,
+              spendableNetAllPoolsCached,
+              stonePlanLocked,
+              p.nextCost
+            )
+          };
+        })
+      });
+    }
+
     if (DEBUG_STONE_LANES) {
       const accDump = Object.fromEntries(
         [...this._stoneDropAccumulators.entries()].map(([k, v]) => [k, [...v].sort((a, b) => a - b)])
@@ -542,15 +624,41 @@ export class StonePowersDialog extends BaseDialog {
         combatRound: combat?.round,
         combatTurn: combat?.turn,
         stonePlanLocked,
+        totalSpendableNetAllPools: spendableNetAllPoolsCached,
         accumulators: accDump,
-        generalPowersPreview: generalPowers.map((p: any) => ({
-          id: p.id,
-          attr: p.selectedAttrKey,
-          usesThisTurn: p.usesThisTurn,
-          accKey: `${p.id}:${p.selectedAttrKey}:${p.usesThisTurn}`,
-          lane0state: p.paymentAnchor?.[0]?.state,
-          occMatchInMap: accDump[`${p.id}:${p.selectedAttrKey}:${p.usesThisTurn}`] ?? null
-        }))
+        generalPowersPreview: generalPowers.map((p: any) => {
+          const occ = this.#stoneOccGet(`${p.id}:${p.selectedAttrKey}:${p.usesThisTurn}`);
+          const allowed = allowedPaymentDropLanes(occ, p.nextCost);
+          return {
+            id: p.id,
+            attr: p.selectedAttrKey,
+            usesThisTurn: p.usesThisTurn,
+            nextCost: p.nextCost,
+            accKey: `${p.id}:${p.selectedAttrKey}:${p.usesThisTurn}`,
+            lane0state: p.paymentAnchor?.[0]?.state,
+            lane1state: p.paymentMid?.[0]?.state,
+            lane2state: p.paymentMid?.[1]?.state,
+            occupied: [...occ].sort((a, b) => a - b),
+            allowedLanes: [...allowed].sort((a, b) => a - b),
+            whyLane1: explainLaneInactiveReason(
+              1,
+              occ,
+              allowed,
+              spendableNetAllPoolsCached,
+              stonePlanLocked,
+              p.nextCost
+            ),
+            whyLane2: explainLaneInactiveReason(
+              2,
+              occ,
+              allowed,
+              spendableNetAllPoolsCached,
+              stonePlanLocked,
+              p.nextCost
+            ),
+            occMatchInMap: accDump[`${p.id}:${p.selectedAttrKey}:${p.usesThisTurn}`] ?? null
+          };
+        })
       });
     }
 
@@ -621,6 +729,97 @@ export class StonePowersDialog extends BaseDialog {
     const j = rest.lastIndexOf(':');
     if (j <= 0) return null;
     return rest.slice(0, j);
+  }
+
+  /** Debug/Diagnose: Pool brutto, reserviert im Dialog, netto — pro Attribut + Summe. */
+  #debugPaymentNetwork(): {
+    totalNet: number;
+    perAttr: Record<string, { gross: number; reserved: number; net: number }>;
+  } {
+    this.#pullSessionPartialsIntoInstance();
+    const system = (this.actor as any).system;
+    const stonePools = system?.stonePools || {};
+    const perAttr: Record<string, { gross: number; reserved: number; net: number }> = {};
+    let totalNet = 0;
+    for (const attr of ALL_STONE_ATTRS) {
+      const pool = stonePools[attr];
+      const current = pool?.current ?? pool?.value ?? 0;
+      const sustained = pool?.sustained ?? 0;
+      const gross = Math.max(0, (Number(current) || 0) - (Number(sustained) || 0));
+      const reserved = this.#reservedStonesInDialogForAttr(attr);
+      const net = Math.max(0, gross - reserved);
+      perAttr[attr] = { gross, reserved, net };
+      totalNet += net;
+    }
+    return { totalNet, perAttr };
+  }
+
+  /** Drop auf slot-locked: vollständige Zahlungs-Sicht für Konsole. */
+  #slotInactiveDropDiag(slot: HTMLElement): Record<string, unknown> {
+    this.#pullSessionPartialsIntoInstance();
+    const combat = game.combat;
+    const powerId =
+      slot.dataset.powerId ||
+      (slot.closest('.power-drop-slots') as HTMLElement | null)?.dataset.powerId ||
+      '';
+    const isGeneric =
+      slot.dataset.isGeneric === 'true' || slot.getAttribute('data-is-generic') === 'true';
+    const laneRaw = slot.dataset.laneIndex;
+    const laneIndex = laneRaw !== undefined && laneRaw !== '' ? Number(laneRaw) : NaN;
+    const planLocked = !!(combat && this.combatant && isStonePowersConfigurationLocked(this.actor, combat));
+
+    let payAttr = (slot.dataset.payAttribute || '') as string;
+    if (isGeneric && powerId) {
+      if (!payAttr) {
+        for (const [k] of this._stoneDropAccumulators) {
+          if (!k.startsWith(`${powerId}:`)) continue;
+          const parsed = this.#parseAccKeyPayAttr(k);
+          if (parsed) {
+            payAttr = parsed;
+            break;
+          }
+        }
+      }
+      if (!payAttr) payAttr = (this._generalAttrSelection[powerId] as string) || '';
+    }
+
+    if (!powerId) {
+      return { error: 'no_powerId', laneIndex, classList: Array.from(slot.classList) };
+    }
+    if (!isGeneric && !payAttr) {
+      return { error: 'no_payAttr', powerId, isGeneric, laneIndex, classList: Array.from(slot.classList) };
+    }
+
+    const uses = isGeneric
+      ? getGenericStonePowerUsageCount(this.actor, powerId, combat ?? null)
+      : getStoneUsageCount(this.actor, payAttr as AttributeKey, powerId, combat ?? null);
+    const nextCost = calculateStoneCost(uses);
+    const accKey = `${powerId}:${payAttr}:${uses}`;
+    const occ = this.#stoneOccGet(accKey);
+    const allowed = allowedPaymentDropLanes(occ, nextCost);
+    const { totalNet, perAttr } = this.#debugPaymentNetwork();
+    const spendableNet = isGeneric ? totalNet : Math.max(0, perAttr[payAttr]?.net ?? 0);
+    const why = Number.isFinite(laneIndex)
+      ? explainLaneInactiveReason(laneIndex, occ, allowed, spendableNet, planLocked, nextCost)
+      : 'ungültige_laneIndex';
+
+    return {
+      powerId,
+      isGeneric,
+      payAttr,
+      laneIndex,
+      usesThisTurn: uses,
+      nextCost,
+      accKey,
+      occupied: [...occ].sort((a, b) => a - b),
+      allowedLanes: [...allowed].sort((a, b) => a - b),
+      spendableNet,
+      spendableNetAllPools: totalNet,
+      perAttrPoolNet: perAttr,
+      stonePlanLocked: planLocked,
+      classList: Array.from(slot.classList),
+      whyInactive: why
+    };
   }
 
   /** Gleicher Owner wie Stein-Nutzung (unverlinkter Token → Prototyp-Actor). */
@@ -1083,7 +1282,24 @@ export class StonePowersDialog extends BaseDialog {
       const slot =
         resolveMsStoneDropSlotUnderPointer(ev, bindTarget) ?? resolveDropSlot(ev, true);
       if (!slot) {
-        dlogStoneDnD('drop abort: kein Slot (resolveDropSlot null)');
+        const doc = (ev.view?.document ?? (typeof document !== 'undefined' ? document : null)) as Document | null;
+        let underStack: string[] = [];
+        try {
+          if (doc?.elementsFromPoint) {
+            underStack = doc.elementsFromPoint(ev.clientX, ev.clientY).slice(0, 10).map((e) => {
+              const h = e as HTMLElement;
+              return `${h.tagName}.${(h.className?.toString?.() || '').slice(0, 72)}`;
+            });
+          }
+        } catch {
+          /* ignore */
+        }
+        console.warn('Mastery System | [StonePayment] Drop ohne erkanntes Ablagefeld', {
+          clientX: ev.clientX,
+          clientY: ev.clientY,
+          elementsFromPoint: underStack
+        });
+        dlogStoneDnD('drop abort: kein Slot (resolveDropSlot null)', { elementsFromPoint: underStack });
         if (msLastDraggedStoneAttribute) ev.preventDefault();
         return;
       }
@@ -1095,7 +1311,9 @@ export class StonePowersDialog extends BaseDialog {
         return;
       }
       if (!slot.classList.contains('slot-active')) {
-        dlogStoneDnD('drop abort: Slot nicht slot-active', { classes: Array.from(slot.classList) });
+        const inactiveDiag = this.#slotInactiveDropDiag(slot);
+        console.warn('Mastery System | [StonePayment] Drop abgelehnt (Feld nicht slot-active)', inactiveDiag);
+        dlogStoneDnD('drop abort: Slot nicht slot-active', inactiveDiag);
         return;
       }
 
