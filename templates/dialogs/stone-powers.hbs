@@ -52,7 +52,7 @@
         {{#each generalPowers as |power|}}
         <div class="power-card power-card-general">
           <div class="power-drop-slots-row power-drop-slots-row-general">
-            <div class="power-drop-slots power-drop-slots-general" data-power-id="{{power.id}}">
+            <div class="power-drop-slots power-drop-slots-general" data-power-id="{{power.id}}" title="Klick: verfügbare Steine (beliebige Pools) automatisch einlegen — oder per Drag aus dem Pool ziehen">
               {{#if (gt power.usesThisTurn 0)}}
               <div class="ms-stone-past-uses-inline" role="list" aria-label="Bereits in dieser Runde genutzt">
                 {{#times power.usesThisTurn}}
@@ -123,7 +123,7 @@
           {{#if this}}
         <div class="power-card power-card-general">
           <div class="power-drop-slots-row power-drop-slots-row-general">
-            <div class="power-drop-slots power-drop-slots-general" data-power-id="{{id}}">
+            <div class="power-drop-slots power-drop-slots-general" data-power-id="{{id}}" title="Klick: {{attribute}}-Steine automatisch einlegen — oder per Drag aus dem Pool ziehen">
               {{#if (gt usesThisTurn 0)}}
               <div class="ms-stone-past-uses-inline" role="list" aria-label="Bereits in dieser Runde genutzt">
                 {{#times usesThisTurn}}

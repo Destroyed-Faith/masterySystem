@@ -1037,6 +1037,87 @@ export class StonePowersDialog extends BaseDialog {
     return Math.max(0, (Number(current) || 0) - (Number(sustained) || 0));
   }
 
+  /** Brutto-Pool minus bereits im Dialog reservierte Steine dieser Farbe. */
+  #spendableNetForAttr(attr: AttributeKey): number {
+    return Math.max(0, this.#actorPoolSpendable(attr) - this.#reservedStonesInDialogForAttr(attr));
+  }
+
+  /** General Power: erstes Attribut mit mindestens einem freien Stein (Reihenfolge ALL_STONE_ATTRS). */
+  #firstGenericAttrWithSpendable(poolKeys: Set<string>): AttributeKey | null {
+    for (const attr of ALL_STONE_ATTRS) {
+      if (!poolKeys.has(attr)) continue;
+      if (this.#spendableNetForAttr(attr) > 0) return attr;
+    }
+    return null;
+  }
+
+  /** Kleinste leere Lane, die die Segment-Freigabe erlaubt. */
+  #nextAutofillLaneIndex(occ: number[]): number | null {
+    const allowed = allowedSegmentDropLanes(occ);
+    if (!allowed.size) return null;
+    return Math.min(...allowed);
+  }
+
+  /**
+   * Klick-Befüllung: legt nacheinander Steine in erlaubte Lanes, bis kein Pool-Stein oder kein Slot mehr frei ist.
+   * Attribut-Macht: nur `fixedPayAttr`. General: jeweils erstes Attribut mit Netto > 0.
+   */
+  async #autoFillPowerCluster(
+    powerId: string,
+    isGeneric: boolean,
+    fixedPayAttr: AttributeKey | null,
+    poolKeys: Set<string>
+  ): Promise<void> {
+    const combat = game.combat;
+    if (!isGeneric && !fixedPayAttr) return;
+
+    const uses = isGeneric
+      ? getGenericStonePowerUsageCount(this.actor, powerId, combat)
+      : getStoneUsageCount(this.actor, fixedPayAttr!, powerId, combat);
+
+    if (isGeneric) {
+      this.#mergeLegacyGenericIntoUnified(powerId, uses);
+    }
+
+    const maxSteps = STONE_PAYMENT_LANE_COUNT + 2;
+    for (let step = 0; step < maxSteps; step++) {
+      this.#pullSessionPartialsIntoInstance();
+
+      const accKey = isGeneric
+        ? genericUnifiedAccKey(powerId, uses)
+        : `${powerId}:${fixedPayAttr!}:${uses}`;
+      const occ = this.#stoneOccGet(accKey);
+      const lane = this.#nextAutofillLaneIndex(occ);
+      if (lane === null) break;
+
+      let chosenAttr: AttributeKey;
+      if (isGeneric) {
+        const pick = this.#firstGenericAttrWithSpendable(poolKeys);
+        if (!pick) break;
+        chosenAttr = pick;
+      } else {
+        if (this.#spendableNetForAttr(fixedPayAttr!) < 1) break;
+        chosenAttr = fixedPayAttr!;
+      }
+
+      if (!isLaneAllowedBySegmentUnlock(occ, lane)) break;
+
+      if (isGeneric) {
+        const prev = this.#stoneOccGetRaw(accKey) as GenericLaneOcc[];
+        const base: GenericLaneOcc[] =
+          prev.length && isGenericLaneOccArray(prev) ? [...prev] : [];
+        base.push({ lane, attr: chosenAttr });
+        base.sort((a, b) => a.lane - b.lane);
+        this.#stoneOccSet(accKey, base);
+        this._generalAttrSelection[powerId] = chosenAttr;
+      } else {
+        this.#stoneOccSet(accKey, [...occ, lane].sort((a, b) => a - b));
+      }
+    }
+
+    dlogStoneDnD('autoFillPowerCluster', { powerId, isGeneric });
+  }
+
   /** Entfernt Pool-Chips, die bereits in Ablagefeldern (Akku) stecken — inkl. Teilbelegung. */
   #syncPoolGemChips(root: HTMLElement): void {
     for (const attr of ALL_STONE_ATTRS) {
@@ -1630,12 +1711,47 @@ export class StonePowersDialog extends BaseDialog {
       });
     };
 
+    /** Klick auf Ablage-Zeile (ohne Pool-Chip / Feld-Stein): alle erreichbaren Slots mit Pool-Steinen füllen. */
+    const onPowerDropSlotsClick = async (ev: MouseEvent) => {
+      if (!allowDrag || locked) return;
+      const t = ev.target as HTMLElement;
+      if (t.closest('.js-stone-draggable') || t.closest('.js-stone-returnable')) return;
+      if (t.closest('button, a, input, select, textarea, label')) return;
+      const slotsHost = t.closest('.power-drop-slots') as HTMLElement | null;
+      if (!slotsHost || !bindTarget.contains(slotsHost)) return;
+
+      const powerId = slotsHost.dataset.powerId || slotsHost.getAttribute('data-power-id');
+      if (!powerId) return;
+
+      const isGeneric = !!slotsHost.querySelector('.ms-stone-drop-slot[data-is-generic="true"]');
+
+      let fixedPayAttr: AttributeKey | null = null;
+      if (!isGeneric) {
+        const slotEl = t.closest('.ms-stone-drop-slot') as HTMLElement | null;
+        fixedPayAttr =
+          (slotEl?.dataset.payAttribute as AttributeKey | undefined) ||
+          (slotsHost
+            .querySelector('.ms-stone-drop-slot[data-pay-attribute]')
+            ?.getAttribute('data-pay-attribute') as AttributeKey | undefined) ||
+          null;
+        if (!fixedPayAttr) return;
+      }
+
+      ev.preventDefault();
+      ev.stopPropagation();
+      await this.#autoFillPowerCluster(powerId, isGeneric, fixedPayAttr, poolKeys);
+      this.#reconcileFilledLaneClasses(bindTarget);
+      this.#syncAccumulatorGems(bindTarget);
+      await (this as any).render({ force: true });
+    };
+
     const useCapture = true;
     bindTarget.addEventListener('dragstart', onDelegateReturnDragStart, useCapture);
     bindTarget.addEventListener('dragend', onDelegateReturnDragEnd, useCapture);
     bindTarget.addEventListener('dragover', onBindDragOver, useCapture);
     bindTarget.addEventListener('dragleave', onBindDragLeave);
     bindTarget.addEventListener('drop', onBindDrop, useCapture);
+    bindTarget.addEventListener('click', onPowerDropSlotsClick);
 
     this._stoneDndCleanup = () => {
       bindTarget.removeEventListener('dragstart', onDelegateReturnDragStart, useCapture);
@@ -1643,6 +1759,7 @@ export class StonePowersDialog extends BaseDialog {
       bindTarget.removeEventListener('dragover', onBindDragOver, useCapture);
       bindTarget.removeEventListener('dragleave', onBindDragLeave);
       bindTarget.removeEventListener('drop', onBindDrop, useCapture);
+      bindTarget.removeEventListener('click', onPowerDropSlotsClick);
     };
   }
 
