@@ -50,9 +50,9 @@
     <div class="power-group is-general" role="region" aria-label="General Powers">
       <div class="powers-grid powers-grid-general">
         {{#each generalPowers as |power|}}
-        <div class="power-card power-card-general">
+        <div class="power-card power-card-general" title="Linksklick: nächsten Block füllen (1, dann 2, dann 4, dann 8 Steine — je Pool-Verfügbarkeit) · Rechtsklick: alles leeren · Drag: aus dem Pool ziehen">
           <div class="power-drop-slots-row power-drop-slots-row-general">
-            <div class="power-drop-slots power-drop-slots-general" data-power-id="{{power.id}}" title="Klick: verfügbare Steine (beliebige Pools) automatisch einlegen — oder per Drag aus dem Pool ziehen">
+            <div class="power-drop-slots power-drop-slots-general" data-power-id="{{power.id}}">
               {{#if (gt power.usesThisTurn 0)}}
               <div class="ms-stone-past-uses-inline" role="list" aria-label="Bereits in dieser Runde genutzt">
                 {{#times power.usesThisTurn}}
@@ -121,9 +121,9 @@
       <div class="powers-grid powers-grid-general powers-grid-attr-matrix">
         {{#each cells}}
           {{#if this}}
-        <div class="power-card power-card-general">
+        <div class="power-card power-card-general" title="Linksklick: nächsten Block mit {{attribute}}-Steinen (1 → 2 → 4 → 8) · Rechtsklick: alles leeren · Drag: aus dem Pool ziehen">
           <div class="power-drop-slots-row power-drop-slots-row-general">
-            <div class="power-drop-slots power-drop-slots-general" data-power-id="{{id}}" title="Klick: {{attribute}}-Steine automatisch einlegen — oder per Drag aus dem Pool ziehen">
+            <div class="power-drop-slots power-drop-slots-general" data-power-id="{{id}}">
               {{#if (gt usesThisTurn 0)}}
               <div class="ms-stone-past-uses-inline" role="list" aria-label="Bereits in dieser Runde genutzt">
                 {{#times usesThisTurn}}

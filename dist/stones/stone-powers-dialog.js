@@ -97,6 +97,35 @@ function allowedSegmentDropLanes(occupied) {
     }
     return set;
 }
+/** Lane-Indizes pro Segment: 0=1, 1=2, 2=4, 3=8. */
+function lanesInStonePaymentSegment(segmentIndex) {
+    if (segmentIndex === 0)
+        return [0];
+    if (segmentIndex === 1)
+        return [1, 2];
+    if (segmentIndex === 2)
+        return [3, 4, 5, 6];
+    if (segmentIndex === 3)
+        return [7, 8, 9, 10, 11, 12, 13, 14];
+    return [];
+}
+/**
+ * Niedrigstes Segment mit freien Lanes, sobald alle vorherigen Segmente voll sind.
+ * Ein Linksklick füllt nur dieses Segment (teilweise, wenn der Pool nicht reicht).
+ */
+function nextStoneSegmentToFill(occupied) {
+    const o = new Set(occupied);
+    for (let seg = 0; seg <= 3; seg++) {
+        if (isStoneSegmentComplete(o, seg))
+            continue;
+        for (let s = 0; s < seg; s++) {
+            if (!isStoneSegmentComplete(o, s))
+                return null;
+        }
+        return seg;
+    }
+    return null;
+}
 /** Warum ein leeres Feld nicht `slot-active` ist (Debug / Drop-Warn). */
 function explainLaneInactiveReason(laneIndex, occ, allowed, spendableNet, planLocked) {
     const o = new Set(occ);
@@ -923,15 +952,8 @@ export class StonePowersDialog extends BaseDialog {
         }
         return null;
     }
-    /** Kleinste leere Lane, die die Segment-Freigabe erlaubt. */
-    #nextAutofillLaneIndex(occ) {
-        const allowed = allowedSegmentDropLanes(occ);
-        if (!allowed.size)
-            return null;
-        return Math.min(...allowed);
-    }
     /**
-     * Klick-Befüllung: legt nacheinander Steine in erlaubte Lanes, bis kein Pool-Stein oder kein Slot mehr frei ist.
+     * Klick-Befüllung: **ein** Segment pro Klick (1 → 2 → 4 → 8 Lanes), begrenzt durch Pool.
      * Attribut-Macht: nur `fixedPayAttr`. General: jeweils erstes Attribut mit Netto > 0.
      */
     async #autoFillPowerCluster(powerId, isGeneric, fixedPayAttr, poolKeys) {
@@ -944,15 +966,23 @@ export class StonePowersDialog extends BaseDialog {
         if (isGeneric) {
             this.#mergeLegacyGenericIntoUnified(powerId, uses);
         }
-        const maxSteps = STONE_PAYMENT_LANE_COUNT + 2;
-        for (let step = 0; step < maxSteps; step++) {
+        this.#pullSessionPartialsIntoInstance();
+        const accKey = isGeneric
+            ? genericUnifiedAccKey(powerId, uses)
+            : `${powerId}:${fixedPayAttr}:${uses}`;
+        let occ = this.#stoneOccGet(accKey);
+        const seg = nextStoneSegmentToFill(occ);
+        if (seg === null) {
+            dlogStoneDnD('autoFillPowerCluster', { powerId, isGeneric, segment: null, note: 'all_segments_full' });
+            return;
+        }
+        const occSet = new Set(occ);
+        const emptyInSeg = lanesInStonePaymentSegment(seg).filter((l) => !occSet.has(l));
+        emptyInSeg.sort((a, b) => a - b);
+        for (const lane of emptyInSeg) {
             this.#pullSessionPartialsIntoInstance();
-            const accKey = isGeneric
-                ? genericUnifiedAccKey(powerId, uses)
-                : `${powerId}:${fixedPayAttr}:${uses}`;
-            const occ = this.#stoneOccGet(accKey);
-            const lane = this.#nextAutofillLaneIndex(occ);
-            if (lane === null)
+            occ = this.#stoneOccGet(accKey);
+            if (!isLaneAllowedBySegmentUnlock(occ, lane))
                 break;
             let chosenAttr;
             if (isGeneric) {
@@ -966,8 +996,6 @@ export class StonePowersDialog extends BaseDialog {
                     break;
                 chosenAttr = fixedPayAttr;
             }
-            if (!isLaneAllowedBySegmentUnlock(occ, lane))
-                break;
             if (isGeneric) {
                 const prev = this.#stoneOccGetRaw(accKey);
                 const base = prev.length && isGenericLaneOccArray(prev) ? [...prev] : [];
@@ -980,7 +1008,42 @@ export class StonePowersDialog extends BaseDialog {
                 this.#stoneOccSet(accKey, [...occ, lane].sort((a, b) => a - b));
             }
         }
-        dlogStoneDnD('autoFillPowerCluster', { powerId, isGeneric });
+        dlogStoneDnD('autoFillPowerCluster', { powerId, isGeneric, segment: seg });
+    }
+    /** Alle Akku-Einträge dieser Macht für die aktuelle uses-Stufe leeren (inkl. Session-Backup). */
+    #clearPowerStonePlan(powerId, isGeneric, fixedPayAttr) {
+        this.#pullSessionPartialsIntoInstance();
+        const combat = game.combat;
+        if (!isGeneric && !fixedPayAttr)
+            return;
+        const uses = isGeneric
+            ? getGenericStonePowerUsageCount(this.actor, powerId, combat)
+            : getStoneUsageCount(this.actor, fixedPayAttr, powerId, combat);
+        const shouldDeleteAccKey = (accKey) => {
+            if (!accKey.startsWith(`${powerId}:`))
+                return false;
+            if (accKeyUsesSegment(accKey) !== uses)
+                return false;
+            if (isGeneric)
+                return true;
+            return accKeyPayAttrSegment(accKey) === fixedPayAttr;
+        };
+        for (const k of [...this._stoneDropAccumulators.keys()]) {
+            if (shouldDeleteAccKey(k))
+                this.#stoneOccDelete(k);
+        }
+        const aid = this.#stoneLaneOwnerActorId();
+        const prefix = `${aid}\0`;
+        for (const composite of [..._a._sessionStoneLanes.keys()]) {
+            if (!composite.startsWith(prefix))
+                continue;
+            const accKey = composite.slice(prefix.length);
+            if (shouldDeleteAccKey(accKey)) {
+                _a._sessionStoneLanes.delete(composite);
+                this._stoneDropAccumulators.delete(accKey);
+            }
+        }
+        dlogStoneDnD('clearPowerStonePlan', { powerId, isGeneric, uses });
     }
     /** Entfernt Pool-Chips, die bereits in Ablagefeldern (Akku) stecken — inkl. Teilbelegung. */
     #syncPoolGemChips(root) {
@@ -1543,8 +1606,30 @@ export class StonePowersDialog extends BaseDialog {
                 this._stoneReturnLane = null;
             });
         };
-        /** Klick auf Ablage-Zeile (ohne Pool-Chip / Feld-Stein): alle erreichbaren Slots mit Pool-Steinen füllen. */
-        const onPowerDropSlotsClick = async (ev) => {
+        const resolvePowerCardContext = (t) => {
+            const card = t.closest('.power-card.power-card-general:not(.power-card-placeholder)');
+            if (!card || !bindTarget.contains(card))
+                return null;
+            const slotsHost = card.querySelector('.power-drop-slots[data-power-id]');
+            const powerId = slotsHost?.dataset.powerId || slotsHost?.getAttribute('data-power-id') || '';
+            if (!powerId)
+                return null;
+            const isGeneric = !!card.querySelector('.ms-stone-drop-slot[data-is-generic="true"]');
+            let fixedPayAttr = null;
+            if (!isGeneric) {
+                fixedPayAttr =
+                    card
+                        .querySelector('.ms-stone-drop-slot[data-pay-attribute]')
+                        ?.getAttribute('data-pay-attribute') || null;
+                if (!fixedPayAttr)
+                    return null;
+            }
+            return { powerId, isGeneric, fixedPayAttr };
+        };
+        /** Linksklick auf ganze Power-Karte (inkl. Titel): Slots aus Pools füllen. */
+        const onPowerCardClick = async (ev) => {
+            if (ev.button !== 0)
+                return;
             if (!allowDrag || locked)
                 return;
             const t = ev.target;
@@ -1552,28 +1637,30 @@ export class StonePowersDialog extends BaseDialog {
                 return;
             if (t.closest('button, a, input, select, textarea, label'))
                 return;
-            const slotsHost = t.closest('.power-drop-slots');
-            if (!slotsHost || !bindTarget.contains(slotsHost))
+            const resolved = resolvePowerCardContext(t);
+            if (!resolved)
                 return;
-            const powerId = slotsHost.dataset.powerId || slotsHost.getAttribute('data-power-id');
-            if (!powerId)
-                return;
-            const isGeneric = !!slotsHost.querySelector('.ms-stone-drop-slot[data-is-generic="true"]');
-            let fixedPayAttr = null;
-            if (!isGeneric) {
-                const slotEl = t.closest('.ms-stone-drop-slot');
-                fixedPayAttr =
-                    slotEl?.dataset.payAttribute ||
-                        slotsHost
-                            .querySelector('.ms-stone-drop-slot[data-pay-attribute]')
-                            ?.getAttribute('data-pay-attribute') ||
-                        null;
-                if (!fixedPayAttr)
-                    return;
-            }
             ev.preventDefault();
             ev.stopPropagation();
+            const { powerId, isGeneric, fixedPayAttr } = resolved;
             await this.#autoFillPowerCluster(powerId, isGeneric, fixedPayAttr, poolKeys);
+            this.#reconcileFilledLaneClasses(bindTarget);
+            this.#syncAccumulatorGems(bindTarget);
+            await this.render({ force: true });
+        };
+        /** Rechtsklick: Stein-Zuordnung dieser Macht leeren. */
+        const onPowerCardContextMenu = async (ev) => {
+            if (!allowDrag || locked)
+                return;
+            const t = ev.target;
+            if (t.closest('.js-stone-draggable') || t.closest('.js-stone-returnable'))
+                return;
+            const resolved = resolvePowerCardContext(t);
+            if (!resolved)
+                return;
+            ev.preventDefault();
+            const { powerId, isGeneric, fixedPayAttr } = resolved;
+            this.#clearPowerStonePlan(powerId, isGeneric, fixedPayAttr);
             this.#reconcileFilledLaneClasses(bindTarget);
             this.#syncAccumulatorGems(bindTarget);
             await this.render({ force: true });
@@ -1584,14 +1671,16 @@ export class StonePowersDialog extends BaseDialog {
         bindTarget.addEventListener('dragover', onBindDragOver, useCapture);
         bindTarget.addEventListener('dragleave', onBindDragLeave);
         bindTarget.addEventListener('drop', onBindDrop, useCapture);
-        bindTarget.addEventListener('click', onPowerDropSlotsClick);
+        bindTarget.addEventListener('click', onPowerCardClick);
+        bindTarget.addEventListener('contextmenu', onPowerCardContextMenu);
         this._stoneDndCleanup = () => {
             bindTarget.removeEventListener('dragstart', onDelegateReturnDragStart, useCapture);
             bindTarget.removeEventListener('dragend', onDelegateReturnDragEnd, useCapture);
             bindTarget.removeEventListener('dragover', onBindDragOver, useCapture);
             bindTarget.removeEventListener('dragleave', onBindDragLeave);
             bindTarget.removeEventListener('drop', onBindDrop, useCapture);
-            bindTarget.removeEventListener('click', onPowerDropSlotsClick);
+            bindTarget.removeEventListener('click', onPowerCardClick);
+            bindTarget.removeEventListener('contextmenu', onPowerCardContextMenu);
         };
     }
     async #saveStonePowersPrefs(root) {
