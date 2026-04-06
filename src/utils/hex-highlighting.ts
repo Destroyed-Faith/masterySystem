@@ -20,6 +20,36 @@ function toIJ(n: any): IJ | null {
   return null;
 }
 
+const ijKey = (o: IJ) => `${o.i},${o.j}`;
+
+/** BFS: all hex offsets within exactly `rangeSteps` adjacency steps from `start` (inclusive). */
+function collectHexOffsetsWithinSteps(
+  start: IJ,
+  rangeSteps: number,
+  getNeighbors: (o: IJ) => any[],
+  keyFn: (o: IJ) => string
+): IJ[] {
+  const visited = new Set<string>([keyFn(start)]);
+  let frontier: IJ[] = [start];
+  const all: IJ[] = [start];
+  for (let step = 1; step <= rangeSteps; step++) {
+    const next: IJ[] = [];
+    for (const o of frontier) {
+      for (const n of getNeighbors(o)) {
+        const cand = toIJ(n);
+        if (!cand) continue;
+        const k = keyFn(cand);
+        if (visited.has(k)) continue;
+        visited.add(k);
+        next.push(cand);
+        all.push(cand);
+      }
+    }
+    frontier = next;
+  }
+  return all;
+}
+
 export function highlightHexesInRange(
   tokenId: string,
   rangeUnits: number,
@@ -69,30 +99,9 @@ export function highlightHexesInRange(
     return;
   }
 
-  // BFS rings (exact steps)
-  const key = (o: IJ) => `${o.i},${o.j}`;
-  const visited = new Set<string>([key(start)]);
-  let frontier: IJ[] = [start];
-  const all: IJ[] = [start];
+  const all = collectHexOffsetsWithinSteps(start, RANGE, getNeighbors, ijKey);
 
-  for (let step = 1; step <= RANGE; step++) {
-    const next: IJ[] = [];
-    for (const o of frontier) {
-      for (const n of getNeighbors(o)) {
-        const cand = toIJ(n);
-        if (!cand) continue;
-        const k = key(cand);
-        if (visited.has(k)) continue;
-        visited.add(k);
-        next.push(cand);
-        all.push(cand);
-      }
-    }
-    console.log(`[MS][HL] step ${step}`, { frontier: frontier.length, added: next.length });
-    frontier = next;
-  }
-
-  console.log("[MS][HL] total", { hexes: all.length, unique: visited.size });
+  console.log("[MS][HL] total", { hexes: all.length });
 
   // Highlight layer (the reliable way you already used successfully)
   gridUI.addHighlightLayer?.(highlightLayerId);
@@ -112,6 +121,49 @@ export function highlightHexesInRange(
   }
 
   console.log("[MS][HL] done", { highlighted, tlFail });
+}
+
+/** Hex keys (`"i,j"`) reachable from the token in `rangeSteps` BFS steps (same rules as `highlightHexesInRange`). */
+export function collectHexKeysInRangeForToken(tokenId: string, rangeSteps: number): Set<string> | null {
+  const token = canvas.tokens.get(tokenId);
+  if (!token) return null;
+  const grid: any = canvas.grid;
+  if (!grid) return null;
+  const RANGE = Math.max(0, Math.floor(Number(rangeSteps)));
+  if (!Number.isFinite(RANGE)) return null;
+  const startRaw = grid.getOffset(token.center);
+  const start: IJ | null =
+    startRaw?.i !== undefined && startRaw?.j !== undefined
+      ? { i: Number(startRaw.i), j: Number(startRaw.j) }
+      : null;
+  if (!start) return null;
+  const getNeighbors = getNeighborFn(grid);
+  if (!getNeighbors) return null;
+  const all = collectHexOffsetsWithinSteps(start, RANGE, getNeighbors, ijKey);
+  return new Set(all.map(ijKey));
+}
+
+/** Darken cells that are both in movement range and occupied by others (tabu destinations). */
+export function highlightTabuHexesOnLayer(
+  highlightLayerId: string,
+  tabuHexKeys: Set<string>,
+  reachableHexKeys: Set<string>,
+  color: number = 0x992222,
+  alpha: number = 0.55
+): void {
+  const grid: any = canvas.grid;
+  const gridUI: any = canvas.interface?.grid;
+  if (!grid || !gridUI) return;
+  for (const k of tabuHexKeys) {
+    if (!reachableHexKeys.has(k)) continue;
+    const parts = k.split(",");
+    const i = Number(parts[0]);
+    const j = Number(parts[1]);
+    if (!Number.isFinite(i) || !Number.isFinite(j)) continue;
+    const tl = grid.getTopLeftPoint({ i, j });
+    if (!tl || tl.x === undefined || tl.y === undefined) continue;
+    gridUI.highlightPosition?.(highlightLayerId, { x: tl.x, y: tl.y, color, alpha });
+  }
 }
 
 export function clearHexHighlight(highlightLayerId: string): void {

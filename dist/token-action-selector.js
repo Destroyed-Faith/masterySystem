@@ -11,6 +11,13 @@ import { startMeleeTargeting } from './melee-targeting.js';
 import { startRangedTargeting } from './ranged-targeting.js';
 import { startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting.js';
 import { getRoundState, getMovementRangeBonusMeters, getAvailableAttackActions, getAvailableMovementActions, consumeAttackAction, consumeMovementAction, refundAttackAction, markPowerUsedThisRound, hasPowerBeenUsedThisRound } from './combat/action-economy.js';
+import { gridStepsFromMeters, gridStepsBetweenCenters, measureSceneDistanceBetweenPoints, metersToSceneDistance } from './utils/grid-range.js';
+import { highlightHexesInRange, clearHexHighlight, collectHexKeysInRangeForToken, highlightTabuHexesOnLayer } from './utils/hex-highlighting.js';
+/** Same yellow tone as radial range preview (`range-preview.ts`). */
+const MOVEMENT_RANGE_COLOR = 0xffe066;
+const MOVEMENT_RANGE_ALPHA = 0.45;
+const TABU_OVERLAY_COLOR = 0x992222;
+const TABU_OVERLAY_ALPHA = 0.55;
 // Global movement state
 let activeMovementState = null;
 /**
@@ -213,39 +220,50 @@ function getTokenHexCenter(token) {
     // Fallback to token center
     return center;
 }
-/**
- * Get all hexes along a path between two hex coordinates (for hexagonal grids)
- * Uses line drawing algorithm for hex grids (offset coordinates)
- */
-function getHexesAlongPath(startI, startJ, endI, endJ) {
-    const hexes = [];
-    // For offset coordinates (i, j), we can use a simple line drawing algorithm
-    // Calculate distance in hex coordinates
-    const di = endI - startI;
-    const dj = endJ - startJ;
-    // Calculate the number of steps needed
-    const distance = Math.max(Math.abs(di), Math.abs(dj), Math.abs(di + dj));
-    if (distance === 0) {
-        return [{ i: startI, j: startJ }];
+/** Pixel center of the token if its top-left were `tl`. */
+function tokenCenterFromTopLeft(token, tl) {
+    const w = Number(token.w) || 0;
+    const h = Number(token.h) || 0;
+    return { x: tl.x + w / 2, y: tl.y + h / 2 };
+}
+/** Grid key `"i,j"` for the hex/square under the token's center at the given top-left. */
+function hexKeyUnderTokenAtTopLeft(token, topLeft) {
+    const grid = canvas.grid;
+    if (!grid?.getOffset)
+        return null;
+    const c = tokenCenterFromTopLeft(token, topLeft);
+    const o = grid.getOffset(c.x, c.y);
+    if (o?.i === undefined || o?.j === undefined)
+        return null;
+    return `${o.i},${o.j}`;
+}
+/** Hex keys of grid cells where other tokens (with an actor) have their center — cannot end movement here. */
+function collectBlockedHexKeysFromOtherTokens(movingToken) {
+    const keys = new Set();
+    const grid = canvas.grid;
+    if (!grid?.getOffset)
+        return keys;
+    const myId = movingToken.id;
+    for (const t of (canvas.tokens?.placeables ?? [])) {
+        if (!t || t.id === myId)
+            continue;
+        if (!t.actor)
+            continue;
+        const o = grid.getOffset(t.center);
+        if (o?.i !== undefined && o?.j !== undefined)
+            keys.add(`${o.i},${o.j}`);
     }
-    // Linear interpolation for each step
-    for (let step = 0; step <= distance; step++) {
-        const t = step / distance;
-        const i = Math.round(startI + di * t);
-        const j = Math.round(startJ + dj * t);
-        hexes.push({ i, j });
+    return keys;
+}
+function paintStaticMovementRange(state) {
+    const token = state.token;
+    if (!canvas.grid || canvas.grid.type === CONST.GRID_TYPES.GRIDLESS)
+        return;
+    highlightHexesInRange(token.id, state.maxRangeSteps, state.highlightIdRange, MOVEMENT_RANGE_COLOR, MOVEMENT_RANGE_ALPHA);
+    const reachable = collectHexKeysInRangeForToken(token.id, state.maxRangeSteps);
+    if (reachable) {
+        highlightTabuHexesOnLayer(state.highlightIdRange, state.blockedHexKeys, reachable, TABU_OVERLAY_COLOR, TABU_OVERLAY_ALPHA);
     }
-    // Remove duplicates
-    const uniqueHexes = [];
-    const seen = new Set();
-    for (const hex of hexes) {
-        const key = `${hex.i},${hex.j}`;
-        if (!seen.has(key)) {
-            seen.add(key);
-            uniqueHexes.push(hex);
-        }
-    }
-    return uniqueHexes;
 }
 /**
  * Get default movement range for an option
@@ -276,9 +294,11 @@ export function startGuidedMovement(token, option) {
     token.control({ releaseOthers: false });
     // Get hex center as origin (for hex grids, this is the center of the hex the token is in)
     const origin = getTokenHexCenter(token);
-    const maxRange = getDefaultMovementRange(token, option);
+    const maxRangeMeters = getDefaultMovementRange(token, option);
+    const maxRangeSteps = gridStepsFromMeters(maxRangeMeters);
+    const blockedHexKeys = collectBlockedHexKeysFromOtherTokens(token);
     const originalAlpha = token.alpha;
-    console.log('Mastery System | Guided movement start:', token.name, 'maxRange:', maxRange, 'option:', option);
+    console.log('Mastery System | Guided movement start:', token.name, 'maxRangeMeters:', maxRangeMeters, 'steps:', maxRangeSteps, 'option:', option);
     // Make the token slightly transparent to indicate "picked up"
     token.alpha = 0.6;
     // Create a Ruler bound to this user
@@ -290,7 +310,8 @@ export function startGuidedMovement(token, option) {
     catch (error) {
         console.warn('Mastery System | Could not create Ruler, using fallback', error);
     }
-    const highlightId = "mastery-move";
+    const highlightIdRange = 'mastery-move-range';
+    const highlightIdHover = 'mastery-move-hover';
     // Create preview graphics
     const previewGraphics = new PIXI.Graphics();
     // Add to effects layer (similar to range preview)
@@ -327,16 +348,20 @@ export function startGuidedMovement(token, option) {
         token,
         option,
         origin,
-        maxRange,
+        maxRangeMeters,
+        maxRangeSteps,
+        blockedHexKeys,
         originalAlpha,
         previewGraphics,
         ruler,
-        highlightId,
+        highlightIdRange,
+        highlightIdHover,
         onMove,
         onDown,
         onKeyDown
     };
     activeMovementState = state;
+    paintStaticMovementRange(state);
     // Attach mouse listeners to canvas stage
     canvas.stage.on("pointermove", state.onMove);
     canvas.stage.on("pointerdown", state.onDown);
@@ -344,7 +369,7 @@ export function startGuidedMovement(token, option) {
     window.addEventListener("keydown", state.onKeyDown);
     // Initial preview at origin (zero-length)
     refreshMovementPreview(state, origin.x, origin.y);
-    console.log('Mastery System | Guided movement mode active', { maxRange, origin });
+    console.log('Mastery System | Guided movement mode active', { maxRangeMeters, maxRangeSteps, origin });
 }
 /**
  * Handle pointer move during movement mode
@@ -354,198 +379,71 @@ function handleMovementPointerMove(ev, state) {
     if (!currentState || activeMovementState !== currentState)
         return;
     const worldPos = ev.data.getLocalPosition(canvas.app.stage);
-    const snapped = canvas.grid.getSnappedPosition(worldPos.x, worldPos.y, 1);
+    const grid = canvas.grid;
+    const snapped = grid && typeof grid.getSnappedPosition === 'function'
+        ? grid.getSnappedPosition(worldPos.x, worldPos.y, 1)
+        : { x: worldPos.x, y: worldPos.y };
     refreshMovementPreview(currentState, snapped.x, snapped.y);
 }
 /**
- * Refresh the movement preview path and highlights
+ * Preview line + Ziel-Feld (Hover-Layer). Gelbes Reichweiten-Raster bleibt auf `highlightIdRange`.
  */
 function refreshMovementPreview(state, destX, destY) {
-    if (!canvas.grid || !state.previewGraphics)
+    if (!state.previewGraphics)
         return;
-    // Clear previous graphics
     state.previewGraphics.clear();
-    // Measure path from origin to destination
     const origin = state.origin;
-    const dest = { x: destX, y: destY };
-    const isHexGrid = canvas.grid.type === CONST.GRID_TYPES.HEXAGONAL;
-    let distanceInUnits = 0;
+    const token = state.token;
+    const destTL = { x: destX, y: destY };
+    const destCenter = tokenCenterFromTopLeft(token, destTL);
+    const grid = canvas.grid;
+    const gridless = !grid || grid.type === CONST.GRID_TYPES.GRIDLESS;
+    const cellSize = grid?.size ?? 100;
     let isValid = false;
-    // For hex grids, calculate distance using path hexes (avoids wrong Euclidean distance)
-    if (isHexGrid && canvas.grid?.getOffset) {
-        try {
-            const originOffsetRaw = canvas.grid.getOffset(origin.x, origin.y);
-            const destOffsetRaw = canvas.grid.getOffset(dest.x, dest.y);
-            if (originOffsetRaw && destOffsetRaw) {
-                const originI = originOffsetRaw.i ?? originOffsetRaw.col ?? 0;
-                const originJ = originOffsetRaw.j ?? originOffsetRaw.row ?? 0;
-                const destI = destOffsetRaw.i ?? destOffsetRaw.col ?? 0;
-                const destJ = destOffsetRaw.j ?? destOffsetRaw.row ?? 0;
-                const pathHexes = getHexesAlongPath(originI, originJ, destI, destJ);
-                const steps = Math.max(0, pathHexes.length - 1);
-                distanceInUnits = steps;
-                isValid = steps <= state.maxRange;
-            }
-        }
-        catch (error) {
-            console.warn('Mastery System | Error calculating hex path distance', error);
-        }
-    }
-    // For non-hex grids or if hex calculation failed, use Ruler/fallback
-    if (distanceInUnits === 0) {
-        // Use Ruler if available
-        if (state.ruler) {
-            try {
-                state.ruler.clear();
-                state.ruler.waypoints = [
-                    { x: origin.x, y: origin.y },
-                    { x: dest.x, y: dest.y }
-                ];
-                // Measure the path - try v13 API
-                if (typeof state.ruler.measure === 'function') {
-                    const measurement = state.ruler.measure(state.ruler.waypoints);
-                    distanceInUnits = measurement?.distance || 0;
-                }
-                else if (state.ruler.totalDistance !== undefined) {
-                    distanceInUnits = state.ruler.totalDistance;
+    if (!gridless && grid?.getOffset) {
+        clearHexHighlight(state.highlightIdHover);
+        const gridUI = canvas.interface?.grid;
+        gridUI?.addHighlightLayer?.(state.highlightIdHover);
+        gridUI?.clearHighlightLayer?.(state.highlightIdHover);
+        const destKey = hexKeyUnderTokenAtTopLeft(token, destTL);
+        const tabuDest = destKey !== null && state.blockedHexKeys.has(destKey);
+        const steps = gridStepsBetweenCenters(origin, destCenter, state.maxRangeSteps);
+        isValid = !tabuDest && steps !== null && steps <= state.maxRangeSteps;
+        if (destKey && gridUI) {
+            const parts = destKey.split(',');
+            const i = Number(parts[0]);
+            const j = Number(parts[1]);
+            if (Number.isFinite(i) && Number.isFinite(j)) {
+                const tl = grid.getTopLeftPoint({ i, j });
+                if (tl && tl.x !== undefined && tl.y !== undefined) {
+                    gridUI.highlightPosition?.(state.highlightIdHover, {
+                        x: tl.x,
+                        y: tl.y,
+                        color: isValid ? 0x66dd66 : 0xff4444,
+                        alpha: 0.42
+                    });
                 }
             }
-            catch (error) {
-                console.warn('Mastery System | Ruler measure error', error);
-            }
-        }
-        // Fallback: simple distance calculation if Ruler failed
-        if (distanceInUnits === 0) {
-            const dx = dest.x - origin.x;
-            const dy = dest.y - origin.y;
-            const pixelDistance = Math.sqrt(dx * dx + dy * dy);
-            distanceInUnits = pixelDistance / (canvas.grid.size || 1);
-        }
-        isValid = distanceInUnits <= state.maxRange;
-    }
-    const lineColor = isValid ? 0x00ff00 : 0xff0000; // Green if valid, red if not
-    const fillColor = isValid ? 0x00ff00 : 0xff0000;
-    // Get highlight layer (use v13 API)
-    let highlightLayer = null;
-    try {
-        if (canvas.interface?.grid?.highlightLayers && canvas.interface.grid.highlightLayers[state.highlightId]) {
-            highlightLayer = canvas.interface.grid.highlightLayers[state.highlightId];
-        }
-        else if (canvas.interface?.grid && typeof canvas.interface.grid.addHighlightLayer === 'function') {
-            highlightLayer = canvas.interface.grid.addHighlightLayer(state.highlightId);
         }
     }
-    catch (error) {
-        console.warn('Mastery System | Could not get highlight layer', error);
+    else {
+        const maxScene = metersToSceneDistance(state.maxRangeMeters);
+        const d = measureSceneDistanceBetweenPoints(origin, destCenter);
+        isValid = d <= maxScene + 0.01;
     }
-    // Clear previous highlights
-    if (highlightLayer) {
-        if (typeof highlightLayer.clear === 'function') {
-            highlightLayer.clear();
-        }
-        else if (highlightLayer.removeChildren && typeof highlightLayer.removeChildren === 'function') {
-            highlightLayer.removeChildren();
-        }
-    }
-    // Draw path line
-    state.previewGraphics.lineStyle(3, lineColor, 0.8);
+    const lineColor = isValid ? 0x66ff99 : 0xff6666;
+    const fillColor = lineColor;
+    state.previewGraphics.lineStyle(3, lineColor, 0.88);
     state.previewGraphics.moveTo(origin.x, origin.y);
-    state.previewGraphics.lineTo(dest.x, dest.y);
-    // Draw origin marker (cyan circle)
-    state.previewGraphics.lineStyle(2, 0x00ffff, 0.9);
-    state.previewGraphics.beginFill(0x00ffff, 0.3);
-    state.previewGraphics.drawCircle(origin.x, origin.y, canvas.grid.size * 0.3);
+    state.previewGraphics.lineTo(destCenter.x, destCenter.y);
+    state.previewGraphics.lineStyle(2, 0x00ffff, 0.88);
+    state.previewGraphics.beginFill(0x00ffff, 0.22);
+    state.previewGraphics.drawCircle(origin.x, origin.y, cellSize * 0.28);
     state.previewGraphics.endFill();
-    // Draw destination marker
     state.previewGraphics.lineStyle(2, lineColor, 0.9);
-    state.previewGraphics.beginFill(fillColor, 0.3);
-    state.previewGraphics.drawCircle(dest.x, dest.y, canvas.grid.size * 0.3);
+    state.previewGraphics.beginFill(fillColor, 0.26);
+    state.previewGraphics.drawCircle(destCenter.x, destCenter.y, cellSize * 0.28);
     state.previewGraphics.endFill();
-    // Use Foundry grid APIs for hex highlighting (same approach as hex-highlighting.ts)
-    const gridUI = canvas.interface?.grid;
-    if (isHexGrid && gridUI && canvas.grid?.getOffset && canvas.grid?.getTopLeftPoint) {
-        try {
-            // Get hex coordinates using grid.getOffset (returns {i,j} in v13)
-            const originOffsetRaw = canvas.grid.getOffset(origin.x, origin.y);
-            const destOffsetRaw = canvas.grid.getOffset(dest.x, dest.y);
-            if (originOffsetRaw && destOffsetRaw) {
-                // Extract i,j coordinates (v13 hex grids return {i,j}, fallback to {col,row} mapping)
-                const originI = originOffsetRaw.i ?? originOffsetRaw.col ?? 0;
-                const originJ = originOffsetRaw.j ?? originOffsetRaw.row ?? 0;
-                const destI = destOffsetRaw.i ?? destOffsetRaw.col ?? 0;
-                const destJ = destOffsetRaw.j ?? destOffsetRaw.row ?? 0;
-                // Get all hexes along the path
-                const pathHexes = getHexesAlongPath(originI, originJ, destI, destJ);
-                // Set up highlight layer (same reliable approach as hex-highlighting.ts)
-                gridUI.addHighlightLayer?.(state.highlightId);
-                gridUI.clearHighlightLayer?.(state.highlightId);
-                // Highlight origin hex in cyan
-                const originTl = canvas.grid.getTopLeftPoint({ i: originI, j: originJ });
-                if (originTl && originTl.x !== undefined && originTl.y !== undefined) {
-                    gridUI.highlightPosition?.(state.highlightId, {
-                        x: originTl.x,
-                        y: originTl.y,
-                        color: 0x00ffff, // Cyan for origin
-                        alpha: 0.5
-                    });
-                }
-                // Highlight path hexes (green if valid, red if beyond range)
-                const pathColor = isValid ? 0x00ff00 : 0xff0000;
-                for (const hex of pathHexes) {
-                    const tl = canvas.grid.getTopLeftPoint({ i: hex.i, j: hex.j });
-                    if (tl && tl.x !== undefined && tl.y !== undefined) {
-                        gridUI.highlightPosition?.(state.highlightId, {
-                            x: tl.x,
-                            y: tl.y,
-                            color: pathColor,
-                            alpha: 0.5
-                        });
-                    }
-                }
-            }
-        }
-        catch (error) {
-            console.warn('Mastery System | Error highlighting hex path', error);
-        }
-    }
-    else if (gridUI && canvas.grid?.getOffset && canvas.grid?.getTopLeftPoint) {
-        // For non-hex grids, highlight origin and destination
-        try {
-            gridUI.addHighlightLayer?.(state.highlightId);
-            gridUI.clearHighlightLayer?.(state.highlightId);
-            const originOffsetRaw = canvas.grid.getOffset(origin.x, origin.y);
-            const destOffsetRaw = canvas.grid.getOffset(dest.x, dest.y);
-            if (originOffsetRaw) {
-                const originI = originOffsetRaw.i ?? originOffsetRaw.col ?? 0;
-                const originJ = originOffsetRaw.j ?? originOffsetRaw.row ?? 0;
-                const originTl = canvas.grid.getTopLeftPoint({ i: originI, j: originJ });
-                if (originTl && originTl.x !== undefined && originTl.y !== undefined) {
-                    gridUI.highlightPosition?.(state.highlightId, {
-                        x: originTl.x,
-                        y: originTl.y,
-                        color: 0x00ffff, // Cyan for origin
-                        alpha: 0.5
-                    });
-                }
-            }
-            if (destOffsetRaw) {
-                const destI = destOffsetRaw.i ?? destOffsetRaw.col ?? 0;
-                const destJ = destOffsetRaw.j ?? destOffsetRaw.row ?? 0;
-                const destTl = canvas.grid.getTopLeftPoint({ i: destI, j: destJ });
-                if (destTl && destTl.x !== undefined && destTl.y !== undefined) {
-                    gridUI.highlightPosition?.(state.highlightId, {
-                        x: destTl.x,
-                        y: destTl.y,
-                        color: isValid ? 0x00ff00 : 0xff0000,
-                        alpha: 0.5
-                    });
-                }
-            }
-        }
-        catch (error) {
-            console.warn('Mastery System | Error highlighting non-hex path', error);
-        }
-    }
 }
 /**
  * Handle pointer down during movement mode
@@ -563,7 +461,10 @@ function handleMovementPointerDown(ev, state) {
     // Left click -> attempt move
     if (ev.button === 0) {
         const worldPos = ev.data.getLocalPosition(canvas.app.stage);
-        const snapped = canvas.grid.getSnappedPosition(worldPos.x, worldPos.y, 1);
+        const grid = canvas.grid;
+        const snapped = grid && typeof grid.getSnappedPosition === 'function'
+            ? grid.getSnappedPosition(worldPos.x, worldPos.y, 1)
+            : { x: worldPos.x, y: worldPos.y };
         attemptCommitMovement(snapped.x, snapped.y, currentState)
             .catch(err => {
             console.error('Mastery System | Guided movement commit failed', err);
@@ -576,74 +477,43 @@ function handleMovementPointerDown(ev, state) {
  */
 async function attemptCommitMovement(destX, destY, state) {
     const origin = state.origin;
-    const dest = { x: destX, y: destY };
-    // Re-measure the path (same logic as in refreshMovementPreview)
-    const isHexGrid = canvas.grid.type === CONST.GRID_TYPES.HEXAGONAL;
-    let distanceInUnits = 0;
-    // For hex grids, calculate distance using path hexes (avoids wrong Euclidean distance)
-    if (isHexGrid && canvas.grid?.getOffset) {
-        try {
-            const originOffsetRaw = canvas.grid.getOffset(origin.x, origin.y);
-            const destOffsetRaw = canvas.grid.getOffset(dest.x, dest.y);
-            if (originOffsetRaw && destOffsetRaw) {
-                const originI = originOffsetRaw.i ?? originOffsetRaw.col ?? 0;
-                const originJ = originOffsetRaw.j ?? originOffsetRaw.row ?? 0;
-                const destI = destOffsetRaw.i ?? destOffsetRaw.col ?? 0;
-                const destJ = destOffsetRaw.j ?? destOffsetRaw.row ?? 0;
-                const pathHexes = getHexesAlongPath(originI, originJ, destI, destJ);
-                const steps = Math.max(0, pathHexes.length - 1);
-                distanceInUnits = steps;
-            }
-        }
-        catch (error) {
-            console.warn('Mastery System | Error calculating hex path distance in commit', error);
-        }
-    }
-    // For non-hex grids or if hex calculation failed, use Ruler/fallback
-    if (distanceInUnits === 0) {
-        if (state.ruler) {
-            try {
-                state.ruler.clear();
-                state.ruler.waypoints = [
-                    { x: origin.x, y: origin.y },
-                    { x: dest.x, y: dest.y }
-                ];
-                // Measure the path - try v13 API
-                if (typeof state.ruler.measure === 'function') {
-                    const measurement = state.ruler.measure(state.ruler.waypoints);
-                    distanceInUnits = measurement?.distance || 0;
-                }
-                else if (state.ruler.totalDistance !== undefined) {
-                    distanceInUnits = state.ruler.totalDistance;
-                }
-            }
-            catch (error) {
-                console.warn('Mastery System | Ruler measure error', error);
-            }
-        }
-        // Fallback calculation
-        if (distanceInUnits === 0) {
-            const dx = dest.x - origin.x;
-            const dy = dest.y - origin.y;
-            const pixelDistance = Math.sqrt(dx * dx + dy * dy);
-            distanceInUnits = pixelDistance / (canvas.grid.size || 1);
-        }
-    }
-    // Check if destination is within range
-    if (distanceInUnits > state.maxRange) {
-        ui.notifications.warn('Target is out of movement range.');
-        // Do not move the token; keep movement mode active
-        return;
-    }
-    // Move the token using Foundry's movement animation
     const token = state.token;
+    const destTL = { x: destX, y: destY };
+    const destCenter = tokenCenterFromTopLeft(token, destTL);
+    const grid = canvas.grid;
+    const gridless = !grid || grid.type === CONST.GRID_TYPES.GRIDLESS;
+    let distanceLabel = '';
+    if (!gridless && grid?.getOffset) {
+        const destKey = hexKeyUnderTokenAtTopLeft(token, destTL);
+        if (destKey && state.blockedHexKeys.has(destKey)) {
+            ui.notifications.warn(game.i18n?.localize('MASTERY.combat.moveTargetOccupied') ??
+                'Das Zielfeld ist durch eine andere Figur blockiert.');
+            return;
+        }
+        const steps = gridStepsBetweenCenters(origin, destCenter, state.maxRangeSteps);
+        if (steps === null || steps > state.maxRangeSteps) {
+            ui.notifications.warn(game.i18n?.localize('MASTERY.combat.moveOutOfRange') ??
+                'Ziel liegt außerhalb der Bewegungsreichweite.');
+            return;
+        }
+        distanceLabel = String(steps);
+    }
+    else {
+        const maxScene = metersToSceneDistance(state.maxRangeMeters);
+        const d = measureSceneDistanceBetweenPoints(origin, destCenter);
+        if (d > maxScene + 0.01) {
+            ui.notifications.warn('Target is out of movement range.');
+            return;
+        }
+        distanceLabel = d.toFixed(1);
+    }
     try {
-        // Use v13 API: token.document.update with animate option
-        await token.document.update({ x: dest.x, y: dest.y }, { animate: true });
+        await token.document.update({ x: destTL.x, y: destTL.y }, { animate: true });
         console.log('Mastery System | Movement completed', {
             option: state.option.name,
-            distance: distanceInUnits.toFixed(1),
-            maxRange: state.maxRange
+            distance: distanceLabel,
+            maxRangeMeters: state.maxRangeMeters,
+            maxRangeSteps: state.maxRangeSteps
         });
         // Movement action consumption is already handled in handleChosenCombatOption
         // before startGuidedMovement is called, so no need to consume again here
@@ -668,12 +538,12 @@ export function endGuidedMovement(success) {
     canvas.stage.off("pointermove", state.onMove);
     canvas.stage.off("pointerdown", state.onDown);
     window.removeEventListener("keydown", state.onKeyDown);
-    // Clear highlights using gridUI API (same reliable approach as hex-highlighting.ts)
     try {
-        canvas.interface?.grid?.clearHighlightLayer?.(state.highlightId);
+        clearHexHighlight(state.highlightIdRange);
+        clearHexHighlight(state.highlightIdHover);
     }
     catch (error) {
-        console.warn('Mastery System | Could not clear highlight layer', error);
+        console.warn('Mastery System | Could not clear movement highlight layers', error);
     }
     // Clear ruler
     if (state.ruler && state.ruler.clear) {
