@@ -905,6 +905,18 @@ export class StonePowersDialog extends BaseDialog {
         }
         return anyOk;
     }
+    /**
+     * Abrechnung erst nach dem nächsten Paint — bei Kosten 1 sonst: Akku leer, bevor der Teil-Stein
+     * im Slot gerendert wurde (Stein wirkt „über“ der Karte / nur Pool springt).
+     */
+    async #flushStonePaymentsAfterNextPaint() {
+        await new Promise((resolve) => {
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => resolve());
+            });
+        });
+        return this.#flushCompletedStonePaymentsFromAccumulators();
+    }
     /** Debug/Diagnose: Pool brutto, reserviert im Dialog, netto — pro Attribut + Summe. */
     #debugPaymentNetwork() {
         this.#pullSessionPartialsIntoInstance();
@@ -1667,7 +1679,7 @@ export class StonePowersDialog extends BaseDialog {
                 });
             }
             await this.render({ force: true });
-            if (await this.#flushCompletedStonePaymentsFromAccumulators()) {
+            if (await this.#flushStonePaymentsAfterNextPaint()) {
                 await this.render({ force: true });
             }
         };
@@ -1761,7 +1773,7 @@ export class StonePowersDialog extends BaseDialog {
             const { powerId, isGeneric, fixedPayAttr } = resolved;
             await this.#autoFillPowerCluster(powerId, isGeneric, fixedPayAttr, poolKeys);
             await this.render({ force: true });
-            if (await this.#flushCompletedStonePaymentsFromAccumulators()) {
+            if (await this.#flushStonePaymentsAfterNextPaint()) {
                 await this.render({ force: true });
             }
         };
