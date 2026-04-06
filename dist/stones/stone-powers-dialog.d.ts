@@ -1,6 +1,6 @@
 /**
  * Stone Powers Dialog — Steine pro Macht in Segmenten (1→2→4→8) verteilen.
- * UI bleibt wie bisher; ist eine Zahlungswelle vollständig, läuft Abrechnung im Hintergrund (Pools, RoundState, Radial).
+ * Voll bezahlte Wellen werden beim Schließen des Dialogs abgerechnet (Pools, RoundState, Radial); beim Klick/Drop bleiben Steine in den Slots.
  */
 declare const ApplicationV2: typeof import("@league-of-foundry-developers/foundry-vtt-types/src/foundry/client/applications/api/application.mjs").default;
 declare const BaseDialog: typeof ApplicationV2;

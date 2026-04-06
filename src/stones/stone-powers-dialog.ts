@@ -1,6 +1,6 @@
 /**
  * Stone Powers Dialog — Steine pro Macht in Segmenten (1→2→4→8) verteilen.
- * UI bleibt wie bisher; ist eine Zahlungswelle vollständig, läuft Abrechnung im Hintergrund (Pools, RoundState, Radial).
+ * Voll bezahlte Wellen werden beim Schließen des Dialogs abgerechnet (Pools, RoundState, Radial); beim Klick/Drop bleiben Steine in den Slots.
  */
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -1032,19 +1032,6 @@ export class StonePowersDialog extends BaseDialog {
     return anyOk;
   }
 
-  /**
-   * Abrechnung erst nach dem nächsten Paint — bei Kosten 1 sonst: Akku leer, bevor der Teil-Stein
-   * im Slot gerendert wurde (Stein wirkt „über“ der Karte / nur Pool springt).
-   */
-  async #flushStonePaymentsAfterNextPaint(): Promise<boolean> {
-    await new Promise<void>((resolve) => {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => resolve());
-      });
-    });
-    return this.#flushCompletedStonePaymentsFromAccumulators();
-  }
-
   /** Debug/Diagnose: Pool brutto, reserviert im Dialog, netto — pro Attribut + Summe. */
   #debugPaymentNetwork(): {
     totalNet: number;
@@ -1861,9 +1848,6 @@ export class StonePowersDialog extends BaseDialog {
       }
 
       await (this as any).render({ force: true });
-      if (await this.#flushStonePaymentsAfterNextPaint()) {
-        await (this as any).render({ force: true });
-      }
     };
 
     const onDelegateReturnDragStart = (ev: DragEvent) => {
@@ -1954,9 +1938,6 @@ export class StonePowersDialog extends BaseDialog {
       const { powerId, isGeneric, fixedPayAttr } = resolved;
       await this.#autoFillPowerCluster(powerId, isGeneric, fixedPayAttr, poolKeys);
       await (this as any).render({ force: true });
-      if (await this.#flushStonePaymentsAfterNextPaint()) {
-        await (this as any).render({ force: true });
-      }
     };
 
     /** Rechtsklick: Stein-Zuordnung dieser Macht leeren. */
@@ -2052,7 +2033,6 @@ export class StonePowersDialog extends BaseDialog {
     this._stoneDropAccumulators.clear();
     this.#pullSessionPartialsIntoInstance();
     this._stoneRoundPlanHydratedKey = hydrateKey;
-    await this.#flushCompletedStonePaymentsFromAccumulators();
   }
 
   async #persistStonePowersRoundPlan(): Promise<void> {
@@ -2111,6 +2091,8 @@ export class StonePowersDialog extends BaseDialog {
   }
   
   async _onClose(_options: any): Promise<void> {
+    this.#pullSessionPartialsIntoInstance();
+    await this.#flushCompletedStonePaymentsFromAccumulators();
     this.#clearSessionStoneLanesForOwner();
     this._stoneDragAttribute = null;
     this._stoneReturnAccKey = null;
