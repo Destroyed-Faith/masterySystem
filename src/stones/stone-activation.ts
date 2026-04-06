@@ -7,8 +7,9 @@
  * - Pool deduction and round state updates
  */
 
-import { 
+import {
   spendStoneAbility,
+  spendGenericStoneAbilityWithPerAttributeDeductions,
   type RoundState,
   type AttributeKey
 } from '../combat/action-economy.js';
@@ -63,6 +64,37 @@ export async function activateStonePower(options: {
     abilityId,
     async (_roundState: RoundState) => {
       // Apply power effect (modifies roundState)
+      await power.apply(actor, combatant);
+    }
+  );
+}
+
+/**
+ * General-Macht aktivieren, wenn die Zahlung über mehrere Stein-Pools verteilt ist (Dialog-Lanes).
+ */
+export async function activateGenericStonePowerMixed(options: {
+  actor: Actor;
+  combatant: Combatant;
+  abilityId: string;
+  perAttributeStones: Partial<Record<AttributeKey, number>>;
+}): Promise<boolean> {
+  const { actor, combatant, abilityId, perAttributeStones } = options;
+  const power = STONE_POWERS[abilityId];
+  if (!power) {
+    ui.notifications?.error(`Unknown stone power: ${abilityId}`);
+    return false;
+  }
+  if (power.attribute !== 'generic') {
+    ui.notifications?.error('activateGenericStonePowerMixed is only for generic powers');
+    return false;
+  }
+
+  return spendGenericStoneAbilityWithPerAttributeDeductions(
+    actor,
+    combatant,
+    abilityId,
+    perAttributeStones,
+    async (_roundState: RoundState) => {
       await power.apply(actor, combatant);
     }
   );

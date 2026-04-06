@@ -66,11 +66,8 @@ const GENERIC_POWERS: StonePower[] = [
     apply: async (actor, _combatant) => {
       const combat = game.combat;
       const roundState = getRoundState(actor, combat);
+      // Nur moveBonusMeters — getMovementRangeBonusMeters addiert extraMoveMeters sonst doppelt.
       roundState.moveBonusMeters += 8;
-      if (!roundState.stoneBonuses) {
-        roundState.stoneBonuses = { extraAttacks: 0, extraReactions: 0, extraMoveMeters: 0 };
-      }
-      roundState.stoneBonuses.extraMoveMeters += 8;
       await setRoundState(actor, roundState);
     }
   },

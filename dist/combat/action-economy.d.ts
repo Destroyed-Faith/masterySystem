@@ -179,6 +179,11 @@ export declare function setStonePool(actor: Actor, attribute: AttributeKey, curr
  */
 export declare function spendStoneAbility(actor: Actor, _combatant: Combatant, attribute: AttributeKey, abilityKey: string, applyEffect: (roundState: RoundState) => Promise<void>): Promise<boolean>;
 /**
+ * General-Stonepower mit Aufteilung auf mehrere Pool-Farben (wie im Dialog pro Lane).
+ * Summe pro Attribut muss exakt `calculateStoneCost(uses)` ergeben.
+ */
+export declare function spendGenericStoneAbilityWithPerAttributeDeductions(actor: Actor, _combatant: Combatant, abilityKey: string, perAttributeCounts: Partial<Record<AttributeKey, number>>, applyEffect: (roundState: RoundState) => Promise<void>): Promise<boolean>;
+/**
  * Regenerate stones at end of round
  * Shows dialog for each PC to allocate regen points (mastery rank per attribute)
  */

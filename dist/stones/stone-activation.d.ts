@@ -25,6 +25,15 @@ export declare function activateStonePower(options: {
     attributeKey?: AttributeKey;
 }): Promise<boolean>;
 /**
+ * General-Macht aktivieren, wenn die Zahlung über mehrere Stein-Pools verteilt ist (Dialog-Lanes).
+ */
+export declare function activateGenericStonePowerMixed(options: {
+    actor: Actor;
+    combatant: Combatant;
+    abilityId: string;
+    perAttributeStones: Partial<Record<AttributeKey, number>>;
+}): Promise<boolean>;
+/**
  * Get available stone powers for an actor
  * (could filter based on mastery rank, unlocked powers, etc.)
  */

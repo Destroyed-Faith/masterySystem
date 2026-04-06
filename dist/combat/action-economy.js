@@ -113,12 +113,13 @@ export function getActionEconomyActor(actor) {
 export function getRoundState(actor, combat) {
     const owner = (getActionEconomyActor(actor) ?? actor);
     const stored = owner.getFlag('mastery-system', 'roundState');
-    const combatId = combat?.id ?? '';
+    const combatId = String(combat?.id ?? '');
     const round = combat?.round ?? 1;
+    const storedCombatId = String(stored?.combatId ?? '');
     // Must match encounter AND round — a new combat can start again at round 1 with a clean tracker.
     if (stored &&
         stored.round === round &&
-        stored.combatId === combatId) {
+        storedCombatId === combatId) {
         return stored;
     }
     // Create default state
@@ -129,7 +130,7 @@ export function getRoundState(actor, combat) {
         reactionActions: { total: 1, used: 0 }
     };
     return {
-        combatId,
+        combatId: combatId || undefined,
         round: combat?.round || 1,
         turn: combat?.turn || 0,
         isPC,
@@ -154,7 +155,11 @@ export function getMovementRangeBonusMeters(actor, combat) {
 export async function setRoundState(actor, state) {
     const owner = getActionEconomyActor(actor) ?? actor;
     const o = owner;
-    await o.setFlag('mastery-system', 'roundState', state);
+    const toSave = { ...state };
+    if (toSave.combatId !== undefined) {
+        toSave.combatId = String(toSave.combatId);
+    }
+    await o.setFlag('mastery-system', 'roundState', toSave);
     Hooks.callAll('masterySystem.roundStateUpdated', { actorId: o.id });
 }
 /**
@@ -460,6 +465,68 @@ export async function spendStoneAbility(actor, _combatant, attribute, abilityKey
     }
     catch (error) {
         console.error('Mastery System | Error applying stone ability effect', error);
+        ui.notifications?.error('Failed to apply stone ability effect');
+        return false;
+    }
+}
+/**
+ * General-Stonepower mit Aufteilung auf mehrere Pool-Farben (wie im Dialog pro Lane).
+ * Summe pro Attribut muss exakt `calculateStoneCost(uses)` ergeben.
+ */
+export async function spendGenericStoneAbilityWithPerAttributeDeductions(actor, _combatant, abilityKey, perAttributeCounts, applyEffect) {
+    if (!isPC(actor)) {
+        ui.notifications?.warn('NPCs cannot use stone abilities for action bonuses');
+        return false;
+    }
+    const combat = game.combat;
+    if (!combat) {
+        ui.notifications?.warn('Not in combat!');
+        return false;
+    }
+    if (!abilityKey.startsWith('generic.')) {
+        ui.notifications?.error('Mixed pool spend is only for generic stone powers');
+        return false;
+    }
+    const uses = getGenericStonePowerUsageCount(actor, abilityKey, combat);
+    const cost = calculateStoneCost(uses);
+    let sum = 0;
+    const counts = {};
+    for (const attr of STONE_USAGE_ATTR_KEYS) {
+        const n = Math.max(0, Math.floor(Number(perAttributeCounts[attr]) || 0));
+        if (n > 0)
+            counts[attr] = n;
+        sum += n;
+    }
+    if (sum !== cost) {
+        ui.notifications?.warn(`Stone payment mismatch for ${abilityKey}: need ${cost} stones across pools, allocation sums to ${sum}`);
+        return false;
+    }
+    for (const attr of STONE_USAGE_ATTR_KEYS) {
+        const n = counts[attr] || 0;
+        if (!n)
+            continue;
+        const pool = getStonePool(actor, attr);
+        if (pool.current < n) {
+            ui.notifications?.warn(`Not enough ${attr} stones! Need ${n}, have ${pool.current}`);
+            return false;
+        }
+    }
+    const roundState = getRoundState(actor, combat);
+    try {
+        await applyEffect(roundState);
+        for (const attr of STONE_USAGE_ATTR_KEYS) {
+            const n = counts[attr] || 0;
+            if (!n)
+                continue;
+            const pool = getStonePool(actor, attr);
+            await setStonePool(actor, attr, pool.current - n);
+        }
+        await incrementGenericStonePowerUsage(actor, abilityKey, combat);
+        ui.notifications?.info(`Spent ${cost} stones (generic power, mixed pools).`);
+        return true;
+    }
+    catch (error) {
+        console.error('Mastery System | Error applying generic mixed stone ability', error);
         ui.notifications?.error('Failed to apply stone ability effect');
         return false;
     }

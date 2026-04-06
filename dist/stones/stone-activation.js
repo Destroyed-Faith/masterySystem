@@ -6,7 +6,7 @@
  * - Exponential cost calculation (1, 2, 4, 8, 16...)
  * - Pool deduction and round state updates
  */
-import { spendStoneAbility } from '../combat/action-economy.js';
+import { spendStoneAbility, spendGenericStoneAbilityWithPerAttributeDeductions } from '../combat/action-economy.js';
 // Import canonical stone powers definition
 import { STONE_POWERS } from './stone-powers.js';
 // Re-export for backward compatibility
@@ -43,6 +43,24 @@ export async function activateStonePower(options) {
     // Use the action economy system to handle stone spending
     return await spendStoneAbility(actor, combatant, poolAttribute, abilityId, async (_roundState) => {
         // Apply power effect (modifies roundState)
+        await power.apply(actor, combatant);
+    });
+}
+/**
+ * General-Macht aktivieren, wenn die Zahlung über mehrere Stein-Pools verteilt ist (Dialog-Lanes).
+ */
+export async function activateGenericStonePowerMixed(options) {
+    const { actor, combatant, abilityId, perAttributeStones } = options;
+    const power = STONE_POWERS[abilityId];
+    if (!power) {
+        ui.notifications?.error(`Unknown stone power: ${abilityId}`);
+        return false;
+    }
+    if (power.attribute !== 'generic') {
+        ui.notifications?.error('activateGenericStonePowerMixed is only for generic powers');
+        return false;
+    }
+    return spendGenericStoneAbilityWithPerAttributeDeductions(actor, combatant, abilityId, perAttributeStones, async (_roundState) => {
         await power.apply(actor, combatant);
     });
 }
