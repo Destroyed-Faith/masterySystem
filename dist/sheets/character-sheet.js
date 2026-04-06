@@ -4865,14 +4865,27 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             attributeBaselines[key] = system.attributes?.[key]?.value ?? 2;
         }
         const postCreationProgress = buildPostCreationSnapshot(this.actor);
-        // Initialize XP bookkeeping
-        updateData['system.points.xp'] = 0;
-        updateData['system.xp.totalEarned'] = 0;
-        updateData['system.xp.totalSpent'] = 0;
-        updateData['system.xp.spentAttributes'] = 0;
+        // XP: preserve GM-granted (or other) pool earned before finalize — do not zero the sheet on complete.
+        const points = system.points || {};
+        const xpExisting = system.xp || {};
+        let preservedAvailable = Math.max(0, Number(points.xp) || 0);
+        let preservedTotalEarned = Math.max(0, Number(xpExisting.totalEarned) || 0);
+        const preservedTotalSpent = Math.max(0, Number(xpExisting.totalSpent) || 0);
+        const preservedSpentAttributes = Math.max(0, Number(xpExisting.spentAttributes) || 0);
+        const preservedHistory = Array.isArray(xpExisting.history) ? [...xpExisting.history] : [];
+        if (preservedTotalEarned === 0 && preservedAvailable > 0) {
+            preservedTotalEarned = preservedAvailable;
+        }
+        if (preservedAvailable === 0 && preservedTotalEarned > preservedTotalSpent) {
+            preservedAvailable = preservedTotalEarned - preservedTotalSpent;
+        }
+        updateData['system.points.xp'] = preservedAvailable;
+        updateData['system.xp.totalEarned'] = preservedTotalEarned;
+        updateData['system.xp.totalSpent'] = preservedTotalSpent;
+        updateData['system.xp.spentAttributes'] = preservedSpentAttributes;
         updateData['system.xp.attributeBaselines'] = attributeBaselines;
         updateData['system.xp.postCreationProgress'] = postCreationProgress;
-        updateData['system.xp.history'] = [];
+        updateData['system.xp.history'] = preservedHistory;
         try {
             await this.actor.update(updateData);
             // Ensure all power items have minLevel set to their current level
