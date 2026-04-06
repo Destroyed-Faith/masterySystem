@@ -154,24 +154,7 @@ let msLastDraggedStoneAttribute = '';
 const STONE_GENERIC_UNIFIED_MARKER = 'msGenMulti';
 /** Actor-Flag: gespeicherter Steinplan pro Kampf/Runde (Kampf · Runde 1 „Speichern“). */
 const STONE_POWERS_ROUND_PLAN_FLAG = 'stonePowersRoundPlan';
-function accKeyPayAttrSegment(accKey) {
-    const i = accKey.indexOf(':');
-    if (i < 0)
-        return null;
-    const rest = accKey.slice(i + 1);
-    const j = rest.lastIndexOf(':');
-    if (j <= 0)
-        return null;
-    return rest.slice(0, j);
-}
-function accKeyUsesSegment(accKey) {
-    const j = accKey.lastIndexOf(':');
-    if (j < 0)
-        return null;
-    const n = Number(accKey.slice(j + 1));
-    return Number.isFinite(n) ? n : null;
-}
-/** `powerId:middle:uses` — powerId darf Punkte enthalten (z. B. generic.extraAttack). */
+/** `powerId:middle:uses` — powerId darf Punkte (und künftig Doppelpunkte) enthalten. */
 function parseStonePowerAccKey(accKey) {
     const j = accKey.lastIndexOf(':');
     if (j <= 0)
@@ -184,6 +167,16 @@ function parseStonePowerAccKey(accKey) {
     if (i <= 0)
         return null;
     return { powerId: rest.slice(0, i), middle: rest.slice(i + 1), uses };
+}
+function stonePowerAccKeyPowerId(accKey) {
+    return parseStonePowerAccKey(accKey)?.powerId ?? null;
+}
+function accKeyPayAttrSegment(accKey) {
+    return parseStonePowerAccKey(accKey)?.middle ?? null;
+}
+function accKeyUsesSegment(accKey) {
+    const p = parseStonePowerAccKey(accKey);
+    return p != null && Number.isFinite(p.uses) ? p.uses : null;
 }
 function isGenericUnifiedAccKey(accKey) {
     return accKeyPayAttrSegment(accKey) === STONE_GENERIC_UNIFIED_MARKER;
@@ -711,7 +704,7 @@ export class StonePowersDialog extends BaseDialog {
             };
         }
     }
-    /** payAttr aus Schlüssel `powerId:payAttr:uses` (powerId kann Punkte, keine weiteren `:`). */
+    /** payAttr / Marker aus Schlüssel `powerId:middle:uses` (vollständiger powerId über parseStonePowerAccKey). */
     #parseAccKeyPayAttr(accKey) {
         return accKeyPayAttrSegment(accKey);
     }
@@ -910,6 +903,7 @@ export class StonePowersDialog extends BaseDialog {
             const owner = getActionEconomyActor(this.actor) ?? this.actor;
             void refreshRadialMenuActionLabelsIfOpenForActor(owner);
         }
+        return anyOk;
     }
     /** Debug/Diagnose: Pool brutto, reserviert im Dialog, netto — pro Attribut + Summe. */
     #debugPaymentNetwork() {
@@ -1193,35 +1187,36 @@ export class StonePowersDialog extends BaseDialog {
         for (const [accKey, lanesVal] of this._stoneDropAccumulators) {
             if (!lanesVal?.length)
                 continue;
-            const fc = accKey.indexOf(':');
-            if (fc < 0)
+            const powerId = stonePowerAccKeyPowerId(accKey);
+            if (!powerId)
                 continue;
-            const powerId = accKey.slice(0, fc);
             const esc = escapeAttrValueInCssSelector(powerId);
+            const host = root.querySelector(`.power-drop-slots[data-power-id="${esc}"]`);
+            if (!host) {
+                dlogStoneDnD('syncAccumulatorGems: kein Slots-Host', { accKey, powerId, esc });
+                continue;
+            }
             const placeGem = (lane, payAttr) => {
                 const style = getStoneGemStyle(payAttr);
                 const fillC = style?.fill ?? '#888888';
                 const strokeC = style?.stroke ?? '#aaaaaa';
-                let slot = root.querySelector(`.ms-stone-drop-slot.slot-filled[data-power-id="${esc}"][data-lane-index="${lane}"]`);
+                let slot = host.querySelector(`.ms-stone-drop-slot.slot-filled[data-lane-index="${lane}"]`);
                 if (!slot) {
-                    slot = root.querySelector(`.ms-stone-drop-slot.slot-active[data-power-id="${esc}"][data-lane-index="${lane}"]`);
+                    slot = host.querySelector(`.ms-stone-drop-slot.slot-active[data-lane-index="${lane}"]`);
                 }
                 if (!slot) {
                     dlogStoneDnD('syncAccumulatorGems: kein Ziel-Slot', {
                         powerId,
                         lane,
                         lanesVal,
-                        hint: 'fehlendes render() oder data-power-id / data-lane-index'
+                        hint: 'fehlendes render() oder data-lane-index im Host'
                     });
                     if (DEBUG_STONE_LANES) {
-                        const byPid = root.querySelectorAll(`[data-power-id="${esc}"]`).length;
-                        const byLane = root.querySelectorAll(`[data-lane-index="${lane}"]`).length;
                         dlogStoneLanes('syncAccumulatorGems: Selector-Miss', {
                             esc,
                             powerId,
                             lane,
-                            nodesWithPowerId: byPid,
-                            nodesWithLaneIndex: byLane
+                            slotsInHost: host.querySelectorAll('.ms-stone-drop-slot').length
                         });
                     }
                     return;
@@ -1269,16 +1264,18 @@ export class StonePowersDialog extends BaseDialog {
         for (const [accKey, lanesVal] of this._stoneDropAccumulators) {
             if (!lanesVal?.length)
                 continue;
-            const fc = accKey.indexOf(':');
-            if (fc < 0)
+            const powerId = stonePowerAccKeyPowerId(accKey);
+            if (!powerId)
                 continue;
-            const powerId = accKey.slice(0, fc);
             const attrEsc = escapeAttrValueInCssSelector(powerId);
+            const host = root.querySelector(`.power-drop-slots[data-power-id="${attrEsc}"]`);
+            if (!host)
+                continue;
             const laneList = isGenericUnifiedAccKey(accKey) && isGenericLaneOccArray(lanesVal)
                 ? lanesVal.map((x) => x.lane)
                 : lanesVal;
             for (const lane of laneList) {
-                const el = root.querySelector(`.ms-stone-drop-slot[data-power-id="${attrEsc}"][data-lane-index="${lane}"]`);
+                const el = host.querySelector(`.ms-stone-drop-slot[data-lane-index="${lane}"]`);
                 if (!el)
                     continue;
                 el.classList.remove('slot-active', 'slot-locked');
@@ -1669,8 +1666,10 @@ export class StonePowersDialog extends BaseDialog {
                     isGeneric
                 });
             }
-            await this.#flushCompletedStonePaymentsFromAccumulators();
             await this.render({ force: true });
+            if (await this.#flushCompletedStonePaymentsFromAccumulators()) {
+                await this.render({ force: true });
+            }
         };
         const onDelegateReturnDragStart = (ev) => {
             const t = ev.target;
@@ -1702,8 +1701,10 @@ export class StonePowersDialog extends BaseDialog {
             ev.dataTransfer.effectAllowed = 'move';
             t.classList.add('is-dragging');
             lastDragOverLogKey = '';
-            const fc = accKey.indexOf(':');
-            dlogStoneReturn('dragstart', { accKey, powerId: fc >= 0 ? accKey.slice(0, fc) : accKey });
+            dlogStoneReturn('dragstart', {
+                accKey,
+                powerId: stonePowerAccKeyPowerId(accKey) ?? accKey
+            });
         };
         const onDelegateReturnDragEnd = (ev) => {
             const t = ev.target;
@@ -1759,10 +1760,10 @@ export class StonePowersDialog extends BaseDialog {
             ev.stopPropagation();
             const { powerId, isGeneric, fixedPayAttr } = resolved;
             await this.#autoFillPowerCluster(powerId, isGeneric, fixedPayAttr, poolKeys);
-            await this.#flushCompletedStonePaymentsFromAccumulators();
-            this.#reconcileFilledLaneClasses(bindTarget);
-            this.#syncAccumulatorGems(bindTarget);
             await this.render({ force: true });
+            if (await this.#flushCompletedStonePaymentsFromAccumulators()) {
+                await this.render({ force: true });
+            }
         };
         /** Rechtsklick: Stein-Zuordnung dieser Macht leeren. */
         const onPowerCardContextMenu = async (ev) => {
