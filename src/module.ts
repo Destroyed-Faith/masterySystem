@@ -579,13 +579,13 @@ Hooks.once('init', async function() {
   // Keep radial inner labels (Move / Atk / … counts) in sync when round state changes elsewhere (e.g. chat roll)
   Hooks.on('masterySystem.roundStateUpdated', ({ actorId }: { actorId: string }) => {
     const actor = game.actors?.get(actorId) as Actor | undefined;
-    if (actor) void refreshRadialMenuActionLabelsIfOpenForActor(actor);
+    if (actor) refreshRadialMenuActionLabelsIfOpenForActor(actor);
   });
 
   // Same as above: custom hook can miss some flag sync paths; document updates always reach the client.
   Hooks.on('updateActor', (actor: Actor, changed: any) => {
     if (changed.flags?.['mastery-system'] !== undefined) {
-      void refreshRadialMenuActionLabelsIfOpenForActor(actor);
+      refreshRadialMenuActionLabelsIfOpenForActor(actor);
     }
   });
 
@@ -594,7 +594,7 @@ Hooks.once('init', async function() {
       changed.actorData?.flags?.['mastery-system'] ?? changed.flags?.['mastery-system'];
     if (ms === undefined) return;
     const token = canvas.tokens?.get(tokenDoc.id);
-    if (token?.actor) void refreshRadialMenuActionLabelsIfOpenForActor(token.actor);
+    if (token?.actor) refreshRadialMenuActionLabelsIfOpenForActor(token.actor);
   });
   
   // Initialize turn indicator (blue ring around active combatant)

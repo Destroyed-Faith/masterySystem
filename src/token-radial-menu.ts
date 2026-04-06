@@ -31,49 +31,17 @@ let msCurrentTokenId: string | null = null; // ID of token with open radial menu
 /** Segment getter for the open menu — used to refresh action-count labels when round state changes. */
 let msRadialGetCurrentSegmentId: (() => InnerSegment['id']) | null = null;
 
-async function rebuildRadialBySegment(actor: Actor): Promise<Record<InnerSegment['id'], RadialCombatOption[]>> {
-  const allOptions = await getAllCombatOptionsForActor(actor);
-  const bySegment: Record<InnerSegment['id'], RadialCombatOption[]> = {
-    movement: [],
-    attack: [],
-    utility: [],
-    'active-buff': []
-  };
-  for (const option of allOptions) {
-    bySegment[getSegmentIdForOption(option)].push(option);
-  }
-  return bySegment;
-}
-
 /**
- * Refresh inner labels and rebuild the outer ring from live actor data (round state, ranges).
- * Matches economy owner, token actor, or token document actorId so unlinked/linked tokens stay in sync.
+ * Refresh inner-segment action labels if the radial menu is open for this actor's token.
  */
-export async function refreshRadialMenuActionLabelsIfOpenForActor(actor: Actor): Promise<void> {
+export function refreshRadialMenuActionLabelsIfOpenForActor(actor: Actor): void {
   if (!msRadialMenu || !msCurrentTokenId || !msRadialGetCurrentSegmentId) return;
   const token = canvas.tokens?.get(msCurrentTokenId);
   if (!token?.actor) return;
   const menuOwner = getActionEconomyActor(token.actor) ?? token.actor;
   const updateOwner = getActionEconomyActor(actor) ?? actor;
-  const updateId = (updateOwner as any).id as string;
-  const menuOwnerId = (menuOwner as any).id as string;
-  const tokenDocActorId = (token.document as { actorId?: string } | undefined)?.actorId;
-  if (updateId !== menuOwnerId && updateId !== tokenDocActorId) return;
-
+  if ((menuOwner as any).id !== (updateOwner as any).id) return;
   refreshInnerSegmentsVisual(msRadialMenu, msRadialGetCurrentSegmentId, token);
-
-  const bySegment = await rebuildRadialBySegment(menuOwner as Actor);
-  const seg = msRadialGetCurrentSegmentId();
-  renderOuterRing(msRadialMenu, token, bySegment, seg);
-
-  const innerSegments: PIXI.DisplayObject[] = [];
-  msRadialMenu.children.forEach((child: any) => {
-    if (child.msInnerSegment === true) innerSegments.push(child);
-  });
-  innerSegments.forEach((obj) => {
-    msRadialMenu!.removeChild(obj);
-    msRadialMenu!.addChild(obj);
-  });
 }
 
 /**

@@ -1,6 +1,6 @@
 /**
  * Stone Powers Dialog — Steine pro Macht in Segmenten (1→2→4→8) verteilen.
- * Ist die Zahl der gelegten Steine = `nextCost`, wird sofort `activateStonePower` / `spendStoneAbility` ausgeführt (Pool + RoundState).
+ * Sofortige Aktivierung per Drop ist entfernt; Plan bleibt im Akku bis spätere Abrechnung.
  */
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -10,7 +10,7 @@ const BaseDialog = HandlebarsApplicationMixin(ApplicationV2) as typeof Applicati
 
 type AttributeKey = 'might' | 'agility' | 'vitality' | 'intellect' | 'resolve' | 'influence';
 
-import { STONE_POWERS, activateStonePower, getAvailableStonePowers } from './stone-activation.js';
+import { STONE_POWERS, getAvailableStonePowers } from './stone-activation.js';
 import { STONE_POWERS_BY_ATTRIBUTE, type StonePower } from './stone-powers.js';
 import {
   getStoneUsageCount,
@@ -21,7 +21,6 @@ import {
   getActionEconomyActor
 } from '../combat/action-economy.js';
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
-import { refreshRadialMenuActionLabelsIfOpenForActor } from '../token-radial-menu.js';
 
 const STONE_DRAG_MIME = 'application/x-mastery-stone-attribute';
 const STONE_RETURN_MIME = 'application/x-mastery-stone-return-acc';
@@ -1181,69 +1180,6 @@ export class StonePowersDialog extends BaseDialog {
     dlogStoneDnD('autoFillPowerCluster', { powerId, isGeneric, segment: seg });
   }
 
-  /**
-   * Wenn der Akku für die aktuelle Nutzungsstufe vollständig bezahlt ist (`paid >= nextCost`),
-   * Steine abbuchen, Macht anwenden (z. B. Extra Attack → `attackActions.total`) und Akku leeren.
-   */
-  async #tryActivateStonePaymentIfComplete(
-    powerId: string,
-    isGeneric: boolean,
-    fixedPayAttr: AttributeKey | null
-  ): Promise<void> {
-    const combat = game.combat;
-    if (!combat || !this.combatant) return;
-    if (!STONE_POWERS[powerId]) return;
-
-    const uses = isGeneric
-      ? getGenericStonePowerUsageCount(this.actor, powerId, combat)
-      : getStoneUsageCount(this.actor, fixedPayAttr!, powerId, combat);
-    const nextCost = calculateStoneCost(uses);
-
-    let accKey: string;
-    let paid: number;
-    let genericSpendAttr: AttributeKey | undefined;
-
-    if (isGeneric) {
-      this.#mergeLegacyGenericIntoUnified(powerId, uses);
-      accKey = genericUnifiedAccKey(powerId, uses);
-      const raw = this.#stoneOccGetRaw(accKey);
-      if (!raw?.length || !isGenericLaneOccArray(raw)) return;
-      paid = raw.length;
-      genericSpendAttr =
-        (this._generalAttrSelection[powerId] as AttributeKey | undefined) || raw[0]?.attr;
-      if (!genericSpendAttr) return;
-    } else {
-      if (!fixedPayAttr) return;
-      accKey = `${powerId}:${fixedPayAttr}:${uses}`;
-      paid = this.#stoneOccGet(accKey).length;
-    }
-
-    if (paid < nextCost) return;
-
-    const ok = await activateStonePower({
-      actor: this.actor,
-      combatant: this.combatant,
-      abilityId: powerId,
-      ...(isGeneric ? { attributeKey: genericSpendAttr! } : {})
-    });
-
-    if (ok) {
-      this.#stoneOccSet(accKey, []);
-      void refreshRadialMenuActionLabelsIfOpenForActor(getActionEconomyActor(this.actor) ?? this.actor);
-    }
-  }
-
-  /** Nach Flag-Hydrate: voll bezahlte Mächte sofort abrechnen (sonst bliebe ein gespeicherter Plan „voll“ ohne Effekt). */
-  async #flushCompletedStonePaymentsFromAccumulators(): Promise<void> {
-    for (const p of getAvailableStonePowers(this.actor)) {
-      if (p.attribute === 'generic') {
-        await this.#tryActivateStonePaymentIfComplete(p.id, true, null);
-      } else {
-        await this.#tryActivateStonePaymentIfComplete(p.id, false, p.attribute);
-      }
-    }
-  }
-
   /** Alle Akku-Einträge dieser Macht für die aktuelle uses-Stufe leeren (inkl. Session-Backup). */
   #clearPowerStonePlan(
     powerId: string,
@@ -1819,11 +1755,10 @@ export class StonePowersDialog extends BaseDialog {
         });
       }
 
-      await this.#tryActivateStonePaymentIfComplete(
-        powerId,
-        isGeneric,
-        isGeneric ? null : payAttr
-      );
+      /**
+       * Segment-Verteilung: kein sofortiges activateStonePower — Steine bleiben als Plan im Akku.
+       * Aktivierung/Abrechnung mit spendStoneAbility später separat anschließen.
+       */
       await (this as any).render({ force: true });
     };
 
@@ -1912,7 +1847,6 @@ export class StonePowersDialog extends BaseDialog {
       ev.stopPropagation();
       const { powerId, isGeneric, fixedPayAttr } = resolved;
       await this.#autoFillPowerCluster(powerId, isGeneric, fixedPayAttr, poolKeys);
-      await this.#tryActivateStonePaymentIfComplete(powerId, isGeneric, fixedPayAttr);
       this.#reconcileFilledLaneClasses(bindTarget);
       this.#syncAccumulatorGems(bindTarget);
       await (this as any).render({ force: true });
@@ -2007,7 +1941,6 @@ export class StonePowersDialog extends BaseDialog {
     this._stoneDropAccumulators.clear();
     this.#pullSessionPartialsIntoInstance();
     this._stoneRoundPlanHydratedKey = hydrateKey;
-    await this.#flushCompletedStonePaymentsFromAccumulators();
   }
 
   async #persistStonePowersRoundPlan(): Promise<void> {
@@ -2066,7 +1999,6 @@ export class StonePowersDialog extends BaseDialog {
   }
   
   async _onClose(_options: any): Promise<void> {
-    void refreshRadialMenuActionLabelsIfOpenForActor(getActionEconomyActor(this.actor) ?? this.actor);
     this.#clearSessionStoneLanesForOwner();
     this._stoneDragAttribute = null;
     this._stoneReturnAccKey = null;

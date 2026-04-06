@@ -15,10 +15,9 @@ import { getAllCombatOptionsForActor } from './radial-menu/options';
 export { getAllCombatOptionsForActor };
 export type { RadialCombatOption, InnerSegment, TargetGroup, AoEShape } from './radial-menu/types';
 /**
- * Refresh inner labels and rebuild the outer ring from live actor data (round state, ranges).
- * Matches economy owner, token actor, or token document actorId so unlinked/linked tokens stay in sync.
+ * Refresh inner-segment action labels if the radial menu is open for this actor's token.
  */
-export declare function refreshRadialMenuActionLabelsIfOpenForActor(actor: Actor): Promise<void>;
+export declare function refreshRadialMenuActionLabelsIfOpenForActor(actor: Actor): void;
 /**
  * Close the radial menu and clean up
  */

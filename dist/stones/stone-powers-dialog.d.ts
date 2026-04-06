@@ -1,6 +1,6 @@
 /**
  * Stone Powers Dialog — Steine pro Macht in Segmenten (1→2→4→8) verteilen.
- * Ist die Zahl der gelegten Steine = `nextCost`, wird sofort `activateStonePower` / `spendStoneAbility` ausgeführt (Pool + RoundState).
+ * Sofortige Aktivierung per Drop ist entfernt; Plan bleibt im Akku bis spätere Abrechnung.
  */
 declare const ApplicationV2: typeof import("@league-of-foundry-developers/foundry-vtt-types/src/foundry/client/applications/api/application.mjs").default;
 declare const BaseDialog: typeof ApplicationV2;
