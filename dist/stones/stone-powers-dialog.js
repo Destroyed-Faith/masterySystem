@@ -462,7 +462,6 @@ export class StonePowersDialog extends BaseDialog {
             const description = power.description || power.effect || '';
             const accKey = `${power.id}:${attrKey}:${usesThisTurn}`;
             const occupied = this.#stoneOccGet(accKey);
-            const gem = getStoneGemStyle(attrKey);
             const laneSegs = buildStonePaymentLanes(usesThisTurn, spendableNet, stonePlanLocked, occupied, `${power.id}/${attrKey}`);
             return {
                 id: power.id,
@@ -473,7 +472,6 @@ export class StonePowersDialog extends BaseDialog {
                 canAfford,
                 selectedAttrKey: attrKey,
                 usesThisTurn,
-                slotGemStyle: gem ?? { fill: '#888888', stroke: '#aaaaaa' },
                 ...laneSegs
             };
         };
@@ -502,7 +500,6 @@ export class StonePowersDialog extends BaseDialog {
             const description = power.description || power.effect || '';
             const spendableNet = totalSpendableNetAllPools();
             const occupied = this.#stoneOccGet(genericUnifiedAccKey(power.id, usesThisTurn));
-            const gem = getStoneGemStyle(attrKey);
             const sp = STONE_POWERS[power.id];
             const laneSegs = buildStonePaymentLanes(usesThisTurn, spendableNet, stonePlanLocked, occupied, `${power.id}/general`);
             return {
@@ -515,7 +512,6 @@ export class StonePowersDialog extends BaseDialog {
                 canAfford,
                 selectedAttrKey: attrKey,
                 usesThisTurn,
-                slotGemStyle: gem ?? { fill: '#888888', stroke: '#aaaaaa' },
                 ...laneSegs
             };
         });

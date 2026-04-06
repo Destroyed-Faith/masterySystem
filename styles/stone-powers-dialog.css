@@ -417,16 +417,6 @@
   box-sizing: border-box;
 }
 
-.stone-powers-dialog .ms-stone-past-uses-inline {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.2rem;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 0.2rem;
-  min-height: 0;
-}
-
 /* Pro logischem Slot: [1] | [2][3] | 2x2 Quad | | 4x2 Oct (8) — Trenner auch zwischen Quad und Oct */
 .stone-powers-dialog .ms-stone-drop-slot-cluster {
   display: inline-grid;

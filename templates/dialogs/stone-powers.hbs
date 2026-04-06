@@ -62,15 +62,6 @@
         <div class="power-card power-card-general" title="Linksklick: nächsten Block füllen (1, dann 2, dann 4, dann 8 Steine — je Pool-Verfügbarkeit) · Rechtsklick: alles leeren · Drag: aus dem Pool ziehen">
           <div class="power-drop-slots-row power-drop-slots-row-general">
             <div class="power-drop-slots power-drop-slots-general" data-power-id="{{power.id}}">
-              {{#if (gt power.usesThisTurn 0)}}
-              <div class="ms-stone-past-uses-inline" role="list" aria-label="Bereits in dieser Runde genutzt">
-                {{#times power.usesThisTurn}}
-                <span class="ms-stone-gem-chip ms-slot-gem-done"
-                  style="background: {{../slotGemStyle.fill}}; box-shadow: 0 0 0 2px {{../slotGemStyle.stroke}} inset, 0 1px 3px rgba(0,0,0,0.45);"
-                  aria-hidden="true"></span>
-                {{/times}}
-              </div>
-              {{/if}}
               <div class="ms-stone-drop-slot-cluster" role="group">
                 <div class="ms-stone-cluster-col-a">
                   {{#each power.paymentAnchor as |ls|}}
@@ -133,15 +124,6 @@
         <div class="power-card power-card-general" title="Linksklick: nächsten Block mit {{attribute}}-Steinen (1 → 2 → 4 → 8) · Rechtsklick: alles leeren · Drag: aus dem Pool ziehen">
           <div class="power-drop-slots-row power-drop-slots-row-general">
             <div class="power-drop-slots power-drop-slots-general" data-power-id="{{id}}">
-              {{#if (gt usesThisTurn 0)}}
-              <div class="ms-stone-past-uses-inline" role="list" aria-label="Bereits in dieser Runde genutzt">
-                {{#times usesThisTurn}}
-                <span class="ms-stone-gem-chip ms-slot-gem-done"
-                  style="background: {{../slotGemStyle.fill}}; box-shadow: 0 0 0 2px {{../slotGemStyle.stroke}} inset, 0 1px 3px rgba(0,0,0,0.45);"
-                  aria-hidden="true"></span>
-                {{/times}}
-              </div>
-              {{/if}}
               <div class="ms-stone-drop-slot-cluster" role="group">
                 <div class="ms-stone-cluster-col-a">
                   {{#each paymentAnchor as |ls|}}
