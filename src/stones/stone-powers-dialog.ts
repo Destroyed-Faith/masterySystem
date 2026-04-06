@@ -168,6 +168,15 @@ type GenericLaneOcc = { lane: number; attr: AttributeKey };
 
 type StoneAccumulatorValue = number[] | GenericLaneOcc[];
 
+/** Actor-Flag: gespeicherter Steinplan pro Kampf/Runde (Kampf · Runde 1 „Speichern“). */
+const STONE_POWERS_ROUND_PLAN_FLAG = 'stonePowersRoundPlan';
+
+interface StonePowersRoundPlanStored {
+  combatId: string;
+  round: number;
+  lanes: { accKey: string; value: StoneAccumulatorValue }[];
+}
+
 function accKeyPayAttrSegment(accKey: string): string | null {
   const i = accKey.indexOf(':');
   if (i < 0) return null;
@@ -422,6 +431,8 @@ export class StonePowersDialog extends BaseDialog {
   }
   
   async _prepareContext(_options: any): Promise<any> {
+    await this.#syncStonePowersRoundPlanWithCombat();
+
     this.#pullSessionPartialsIntoInstance();
 
     const combat = game.combat;
@@ -467,6 +478,15 @@ export class StonePowersDialog extends BaseDialog {
     const user = game.user;
     const canSavePrefs =
       !stonePlanLocked && !!user && (user.isGM || (this.actor as any).isOwner);
+
+    const showCombatRound1Save =
+      !!combat &&
+      !!this.combatant &&
+      combat.round === 1 &&
+      !stonePlanLocked &&
+      !combatMissingFromTracker &&
+      !!user &&
+      (user.isGM || (this.actor as any).isOwner);
     
     // Determine default attribute for generic powers
     // First pool with current > 0, else first pool with max > 0
@@ -746,6 +766,7 @@ export class StonePowersDialog extends BaseDialog {
       dragStonesEnabled: !stonePlanLocked,
       prefsUseDefaults,
       canSavePrefs,
+      showCombatRound1Save,
       combatRound: combat?.round,
       combatLabel: combat ? `Runde ${combat.round}` : ''
     };
@@ -774,6 +795,14 @@ export class StonePowersDialog extends BaseDialog {
         ev.preventDefault();
         if (savePrefsBtn.classList.contains('is-disabled')) return;
         await this.#saveStonePowersPrefs(root);
+      };
+    }
+
+    const saveR1CombatBtn = root.querySelector('.js-save-stone-r1-combat-plan') as HTMLElement | null;
+    if (saveR1CombatBtn) {
+      saveR1CombatBtn.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        await this.#persistStonePowersRoundPlan();
       };
     }
 
@@ -1850,6 +1879,86 @@ export class StonePowersDialog extends BaseDialog {
       bindTarget.removeEventListener('click', onPowerCardClick);
       bindTarget.removeEventListener('contextmenu', onPowerCardContextMenu);
     };
+  }
+
+  #isValidLaneSnapshotValue(accKey: string, v: unknown): v is StoneAccumulatorValue {
+    if (!Array.isArray(v) || v.length === 0) return false;
+    if (isGenericUnifiedAccKey(accKey)) {
+      return isGenericLaneOccArray(v as StoneAccumulatorValue);
+    }
+    return (v as unknown[]).every((n) => typeof n === 'number' && Number.isFinite(n));
+  }
+
+  async #syncStonePowersRoundPlanWithCombat(): Promise<void> {
+    const ownerDoc = (getActionEconomyActor(this.actor) ?? this.actor) as any;
+    const combat = game.combat;
+    let plan = ownerDoc.getFlag('mastery-system', STONE_POWERS_ROUND_PLAN_FLAG) as
+      | StonePowersRoundPlanStored
+      | undefined
+      | null;
+
+    if (plan && (!combat || plan.combatId !== combat.id || plan.round !== combat.round)) {
+      try {
+        await ownerDoc.unsetFlag('mastery-system', STONE_POWERS_ROUND_PLAN_FLAG);
+      } catch (e) {
+        console.warn('Mastery System | Could not clear stale stone round plan', e);
+      }
+      plan = undefined;
+    }
+
+    if (!plan?.lanes?.length || !combat) return;
+
+    const aid = this.#stoneLaneOwnerActorId();
+    if (!aid) return;
+
+    const prefix = `${aid}\0`;
+    for (const k of [...StonePowersDialog._sessionStoneLanes.keys()]) {
+      if (k.startsWith(prefix)) StonePowersDialog._sessionStoneLanes.delete(k);
+    }
+
+    const dup = (foundry as any).utils?.duplicate as ((x: unknown) => unknown) | undefined;
+    for (const row of plan.lanes) {
+      if (!row?.accKey) continue;
+      const raw = dup ? dup(row.value) : JSON.parse(JSON.stringify(row.value));
+      if (!this.#isValidLaneSnapshotValue(row.accKey, raw)) continue;
+      StonePowersDialog._sessionStoneLanes.set(`${aid}\0${row.accKey}`, raw as StoneAccumulatorValue);
+    }
+  }
+
+  async #persistStonePowersRoundPlan(): Promise<void> {
+    const combat = game.combat;
+    if (!combat || combat.round !== 1) {
+      ui.notifications?.warn('Speichern ist nur in Kampf Runde 1 verfügbar.');
+      return;
+    }
+    if (!this.combatant) {
+      ui.notifications?.warn('Figur nicht im Initiative-Tracker — Steinplan kann nicht zugeordnet werden.');
+      return;
+    }
+    this.#pullSessionPartialsIntoInstance();
+    const ownerDoc = (getActionEconomyActor(this.actor) ?? this.actor) as any;
+    const aid = this.#stoneLaneOwnerActorId();
+    if (!aid) return;
+
+    const prefix = `${aid}\0`;
+    const lanes: { accKey: string; value: StoneAccumulatorValue }[] = [];
+    const dup = (foundry as any).utils?.duplicate as ((x: unknown) => unknown) | undefined;
+
+    for (const [composite, val] of StonePowersDialog._sessionStoneLanes) {
+      if (!composite.startsWith(prefix)) continue;
+      if (!val || !Array.isArray(val) || val.length === 0) continue;
+      const accKey = composite.slice(prefix.length);
+      const cloned = (dup ? dup(val) : JSON.parse(JSON.stringify(val))) as StoneAccumulatorValue;
+      lanes.push({ accKey, value: cloned });
+    }
+
+    await ownerDoc.setFlag('mastery-system', STONE_POWERS_ROUND_PLAN_FLAG, {
+      combatId: combat.id,
+      round: combat.round,
+      lanes
+    } as any);
+
+    ui.notifications?.info('Steinplan für Runde 1 gespeichert.');
   }
 
   async #saveStonePowersPrefs(root: HTMLElement): Promise<void> {

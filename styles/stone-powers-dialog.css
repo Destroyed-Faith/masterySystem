@@ -724,6 +724,36 @@
   flex-shrink: 0;
 }
 
+.stone-powers-dialog .stone-r1-save-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.5rem 0.4rem;
+  background: rgba(18, 48, 32, 0.35);
+  border-radius: 6px;
+  border: 1px solid rgba(90, 180, 120, 0.35);
+}
+
+.stone-powers-dialog .stone-r1-save-hint {
+  font-size: 0.8rem;
+  color: #b8d4c4;
+  flex: 1;
+  min-width: 180px;
+  line-height: 1.35;
+}
+
+.stone-powers-dialog .dialog-btn-stone-save {
+  flex-shrink: 0;
+  background: rgba(28, 95, 58, 0.95);
+  border-color: rgba(110, 200, 140, 0.55);
+}
+
+.stone-powers-dialog .dialog-btn-stone-save:hover {
+  background: rgba(38, 120, 72, 1);
+  border-color: rgba(130, 220, 160, 0.75);
+}
+
 .stone-powers-dialog .dialog-footer .dialog-btn-secondary {
   background: rgba(60, 60, 72, 0.95);
   border-color: rgba(255, 255, 255, 0.25);
