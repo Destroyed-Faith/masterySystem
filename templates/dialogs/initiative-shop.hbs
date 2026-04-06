@@ -1,50 +1,43 @@
 <div class="initiative-shop-dialog initiative-shop-lean">
-  <div class="shop-toolbar-top">
-    <button type="button" class="btn-primary btn-confirm-lean js-confirm" title="Initiative und Einkäufe übernehmen">
-      <i class="fas fa-check"></i> Bestätigen
-    </button>
-  </div>
-
-  <header class="shop-header shop-header-lean">
-    <div class="header-left flexrow">
-      <img src="{{actor.img}}" alt="{{actor.name}}" class="actor-portrait actor-portrait-lean">
-      <div class="actor-info">
-        <h2>{{actor.name}}</h2>
-        <span class="mastery-badge">MR {{masteryRank}}</span>
+  {{!-- Eine kompakte Leiste: Figur + Mastery/CR/Pool + Bestätigen --}}
+  <div class="shop-summary-bar">
+    <div class="shop-summary-actor">
+      <img src="{{actor.img}}" alt="" class="actor-portrait-summary" width="36" height="36">
+      <div class="shop-summary-actor-text">
+        <span class="shop-summary-name">{{actor.name}}</span>
+        <span class="shop-summary-mr">MR {{masteryRank}}</span>
       </div>
     </div>
-  </header>
-
-  <div class="lean-block">
-    <div class="lean-line mastery-roll-line" title="Summe aller gewürfelten W8 (8er explodieren)">
-      <span class="lean-label">Mastery Roll</span>
-      <span class="lean-sep">:</span>
-      <span class="lean-value">{{diceTotal}}</span>
-      <span class="lean-muted">({{masteryRank}}d8)</span>
+    <div class="shop-summary-stats" title="Initiative-Wurf, Combat Reflexes und Shop-Pool">
+      <span class="sum-seg">
+        <span class="sum-lbl">Mastery Roll</span><span class="sum-punct">:</span>
+        <strong class="sum-val">{{diceTotal}}</strong>
+        <span class="sum-muted">({{masteryRank}}d8)</span>
+      </span>
+      <span class="sum-div" aria-hidden="true">|</span>
+      <span class="sum-seg sum-seg-cr">
+        <span class="sum-lbl">Combat Reflexes</span><span class="sum-punct">:</span>
+        {{#if crSelectDisabled}}
+        <span class="sum-muted">0</span>
+        {{else}}
+        <select class="lean-select lean-select-inline js-cr-select" title="CR auf diese Initiative (max. {{crMax}}, Pool {{crPoolRemaining}})">
+          {{#each crOptions}}
+          <option value="{{value}}" {{#if selected}}selected{{/if}}>{{value}}</option>
+          {{/each}}
+        </select>
+        {{/if}}
+      </span>
+      <span class="sum-div" aria-hidden="true">|</span>
+      <span class="sum-seg">
+        <span class="sum-lbl">Shop-Pool</span><span class="sum-punct">:</span>
+        <strong class="sum-val">{{totalInitiative}}</strong>
+        <span class="sum-muted">Rest</span>
+        <strong class="sum-val sum-rest">{{remainingInitiative}}</strong>
+      </span>
     </div>
-
-    <div class="lean-line cr-line">
-      <label class="lean-label" for="init-shop-cr-{{actor.id}}">Combat Reflexes</label>
-      <span class="lean-sep">:</span>
-      {{#if crSelectDisabled}}
-      <span class="lean-muted">kein Pool / cap 0</span>
-      {{else}}
-      <select id="init-shop-cr-{{actor.id}}" class="lean-select js-cr-select" title="Wie viele Combat-Reflexes-Punkte auf diese Initiative legen? (max. {{crMax}}, Pool {{crPoolRemaining}}, Cap MR×4 = {{crCapPerRoll}})">
-        {{#each crOptions}}
-        <option value="{{value}}" {{#if selected}}selected{{/if}}>{{value}}</option>
-        {{/each}}
-      </select>
-      <span class="lean-muted lean-cr-hint">max. {{crMax}} · Pool {{crPoolRemaining}}</span>
-      {{/if}}
-    </div>
-
-    <div class="lean-line pool-line" title="Gesamt für den Shop; nach Einkäufen bleibt der Rest als Initiative">
-      <span class="lean-label">Shop-Pool</span>
-      <span class="lean-sep">:</span>
-      <span class="lean-value">{{totalInitiative}}</span>
-      <span class="lean-muted">· Rest nach Shop</span>
-      <span class="lean-value lean-rest">{{remainingInitiative}}</span>
-    </div>
+    <button type="button" class="btn-primary btn-confirm-summary js-confirm" title="Initiative und Einkäufe übernehmen">
+      <i class="fas fa-check"></i> Bestätigen
+    </button>
   </div>
 
   <section class="shop-lines" aria-label="Initiative Shop">

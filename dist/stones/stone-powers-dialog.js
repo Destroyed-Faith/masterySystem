@@ -674,6 +674,11 @@ export class StonePowersDialog extends BaseDialog {
             saveR1CombatBtn.onclick = async (ev) => {
                 ev.preventDefault();
                 await this.#persistStonePowersRoundPlan();
+                if (this.resolve) {
+                    this.resolve(false);
+                    this.resolve = undefined;
+                }
+                await this.close({ closeSource: 'button' });
             };
         }
         // Close button

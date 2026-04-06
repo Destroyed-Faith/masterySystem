@@ -19,7 +19,16 @@
   {{/if}}
 
   <div class="stone-pools-display">
-    <h3>Available Stones</h3>
+    <div class="stone-pools-header-row">
+      <h3>Available Stones</h3>
+      {{#if showCombatRound1Save}}
+      <button type="button"
+              class="dialog-btn dialog-btn-stone-save dialog-btn-stone-save-inline js-save-stone-r1-combat-plan"
+              title="Steinplan für Runde 1 sichern und Dialog schließen. Beim erneuten Öffnen in derselben Runde wird er wiederhergestellt.">
+        <i class="fas fa-floppy-disk"></i> Speichern
+      </button>
+      {{/if}}
+    </div>
     <div class="pools-grid">
       {{#each pools as |pool|}}
       <div class="pool-item" data-attribute="{{pool.key}}">
@@ -206,16 +215,6 @@
         <i class="fas fa-save"></i> Standard speichern
       </button>
     </div>
-    {{#if showCombatRound1Save}}
-    <div class="stone-r1-save-bar" role="region" aria-label="Kampf Runde 1">
-      <button type="button"
-              class="dialog-btn dialog-btn-stone-save js-save-stone-r1-combat-plan"
-              title="Speichert deinen Steinplan für diese Kampfrunde. Nach Schließen des Dialogs wird er beim erneuten Öffnen in derselben Runde wiederhergestellt.">
-        <i class="fas fa-floppy-disk"></i> Speichern
-      </button>
-      <span class="stone-r1-save-hint">Kampf · Runde 1: Steinplan für diesen Encounter sichern (bleibt bis zur nächsten Runde).</span>
-    </div>
-    {{/if}}
     <button type="button" class="dialog-btn js-close">
       <i class="fas fa-times"></i> Schließen
     </button>
