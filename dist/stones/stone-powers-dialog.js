@@ -339,6 +339,8 @@ export class StonePowersDialog extends BaseDialog {
     _stoneReturnAccKey = null;
     /** Pool-Zeile für Rückgabe (bei General-Multi aus data-return-attribute-key). */
     _stoneReturnPoolAttr = null;
+    /** Verhindert, dass jeder Render den Session-Steinplan aus dem Flag neu überschreibt (ungespeicherte UI ging verloren). */
+    _stoneRoundPlanHydratedKey = null;
     static DEFAULT_OPTIONS = {
         id: "mastery-stone-powers",
         classes: ["mastery-system", "stone-powers-dialog"],
@@ -1718,7 +1720,9 @@ export class StonePowersDialog extends BaseDialog {
         const ownerDoc = (getActionEconomyActor(this.actor) ?? this.actor);
         const combat = game.combat;
         let plan = ownerDoc.getFlag('mastery-system', STONE_POWERS_ROUND_PLAN_FLAG);
-        if (plan && (!combat || plan.combatId !== combat.id || plan.round !== combat.round)) {
+        // Nur bei **aktivem** Kampf verwerfen, wenn Encounter/Runde nicht mehr zum gespeicherten Plan passen.
+        // Ohne Kampf: Plan behalten (z. B. Sheet zwischen Szenen) — früheres `!combat` hat den Plan gelöscht und nie wieder geladen.
+        if (plan && combat && (plan.combatId !== combat.id || plan.round !== combat.round)) {
             try {
                 await ownerDoc.unsetFlag('mastery-system', STONE_POWERS_ROUND_PLAN_FLAG);
             }
@@ -1726,8 +1730,13 @@ export class StonePowersDialog extends BaseDialog {
                 console.warn('Mastery System | Could not clear stale stone round plan', e);
             }
             plan = undefined;
+            this._stoneRoundPlanHydratedKey = null;
+            this.#clearSessionStoneLanesForOwner();
         }
-        if (!plan?.lanes?.length || !combat)
+        if (!plan?.lanes?.length)
+            return;
+        const hydrateKey = `${plan.combatId}\0${plan.round}`;
+        if (this._stoneRoundPlanHydratedKey === hydrateKey)
             return;
         const aid = this.#stoneLaneOwnerActorId();
         if (!aid)
@@ -1746,6 +1755,9 @@ export class StonePowersDialog extends BaseDialog {
                 continue;
             _a._sessionStoneLanes.set(`${aid}\0${row.accKey}`, raw);
         }
+        this._stoneDropAccumulators.clear();
+        this.#pullSessionPartialsIntoInstance();
+        this._stoneRoundPlanHydratedKey = hydrateKey;
     }
     async #persistStonePowersRoundPlan() {
         const combat = game.combat;

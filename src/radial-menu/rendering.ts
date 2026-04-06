@@ -382,12 +382,10 @@ export function renderInnerSegments(
         
         // Map segment to action type and get remaining
         let remaining: number | undefined;
-        let moveBonus: number | undefined;
         
         switch (seg.id) {
           case 'movement':
             remaining = roundState.movementActions.total - roundState.movementActions.used;
-            moveBonus = roundState.moveBonusMeters + (roundState.stoneBonuses?.extraMoveMeters || 0);
             break;
           case 'attack':
           case 'active-buff':
@@ -401,11 +399,7 @@ export function renderInnerSegments(
         }
         
         if (remaining !== undefined) {
-          if (seg.id === 'movement' && moveBonus && moveBonus > 0) {
-            labelText = `${seg.label} ${remaining} (+${moveBonus}m)`;
-          } else {
-            labelText = `${seg.label} ${remaining}`;
-          }
+          labelText = `${seg.label} ${remaining}`;
         }
       }
     } catch (error) {
@@ -589,12 +583,10 @@ export function refreshInnerSegmentsVisual(
           const roundState = getRoundState(actor, combat);
           
           let remaining: number | undefined;
-          let moveBonus: number | undefined;
           
           switch (segId) {
             case 'movement':
               remaining = roundState.movementActions.total - roundState.movementActions.used;
-              moveBonus = roundState.moveBonusMeters + (roundState.stoneBonuses?.extraMoveMeters || 0);
               break;
             case 'attack':
             case 'active-buff':
@@ -606,11 +598,7 @@ export function refreshInnerSegmentsVisual(
           }
           
           if (remaining !== undefined) {
-            if (segId === 'movement' && moveBonus && moveBonus > 0) {
-              text.text = `${seg.label} ${remaining} (+${moveBonus}m)`;
-            } else {
-              text.text = `${seg.label} ${remaining}`;
-            }
+            text.text = `${seg.label} ${remaining}`;
           } else {
             text.text = seg.label;
           }

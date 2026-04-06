@@ -10,7 +10,7 @@ import { getSegmentIdForOption } from './radial-menu/options.js';
 import { startMeleeTargeting } from './melee-targeting.js';
 import { startRangedTargeting } from './ranged-targeting.js';
 import { startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting.js';
-import { getRoundState, getAvailableAttackActions, getAvailableMovementActions, consumeAttackAction, consumeMovementAction, refundAttackAction, markPowerUsedThisRound, hasPowerBeenUsedThisRound } from './combat/action-economy.js';
+import { getRoundState, getMovementRangeBonusMeters, getAvailableAttackActions, getAvailableMovementActions, consumeAttackAction, consumeMovementAction, refundAttackAction, markPowerUsedThisRound, hasPowerBeenUsedThisRound } from './combat/action-economy.js';
 // Global movement state
 let activeMovementState = null;
 /**
@@ -255,13 +255,15 @@ function getDefaultMovementRange(token, option) {
     if (option.range !== undefined && option.range > 0) {
         return option.range;
     }
-    // Fall back to actor's base movement/speed
+    // Fall back to actor's base movement/speed + round bonuses (initiative shop, stones)
     const actor = token.actor;
+    const combat = game.combat ?? null;
+    const bonusM = actor ? getMovementRangeBonusMeters(actor, combat) : 0;
     if (actor?.system?.combat?.speed) {
-        return actor.system.combat.speed;
+        return actor.system.combat.speed + bonusM;
     }
     // Default fallback
-    return 6; // Default movement in meters
+    return 6 + bonusM; // Default movement in meters
 }
 /**
  * Start guided movement mode for a token

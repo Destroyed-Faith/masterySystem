@@ -80,6 +80,8 @@ export declare function getActionEconomyActor(actor: Actor | null | undefined): 
  * Get round state from actor flags
  */
 export declare function getRoundState(actor: Actor, combat: Combat | null): RoundState;
+/** Extra movement distance (m) this round from initiative shop, stones, etc. — for range previews, not action counts. */
+export declare function getMovementRangeBonusMeters(actor: Actor, combat: Combat | null): number;
 /**
  * Set round state on actor
  */

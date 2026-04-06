@@ -28,6 +28,8 @@ export declare class StonePowersDialog extends BaseDialog {
     private _stoneReturnAccKey;
     /** Pool-Zeile für Rückgabe (bei General-Multi aus data-return-attribute-key). */
     private _stoneReturnPoolAttr;
+    /** Verhindert, dass jeder Render den Session-Steinplan aus dem Flag neu überschreibt (ungespeicherte UI ging verloren). */
+    private _stoneRoundPlanHydratedKey;
     static DEFAULT_OPTIONS: {
         id: string;
         classes: string[];

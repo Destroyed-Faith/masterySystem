@@ -14,6 +14,7 @@ import { startRangedTargeting } from './ranged-targeting';
 import { startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting';
 import {
   getRoundState,
+  getMovementRangeBonusMeters,
   getAvailableAttackActions,
   getAvailableMovementActions,
   consumeAttackAction,
@@ -329,14 +330,16 @@ function getDefaultMovementRange(token: any, option: RadialCombatOption): number
     return option.range;
   }
   
-  // Fall back to actor's base movement/speed
+  // Fall back to actor's base movement/speed + round bonuses (initiative shop, stones)
   const actor = token.actor;
+  const combat = game.combat ?? null;
+  const bonusM = actor ? getMovementRangeBonusMeters(actor, combat) : 0;
   if (actor?.system?.combat?.speed) {
-    return actor.system.combat.speed;
+    return actor.system.combat.speed + bonusM;
   }
   
   // Default fallback
-  return 6; // Default movement in meters
+  return 6 + bonusM; // Default movement in meters
 }
 
 /**

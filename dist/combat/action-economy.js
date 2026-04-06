@@ -143,6 +143,11 @@ export function getRoundState(actor, combat) {
         }
     };
 }
+/** Extra movement distance (m) this round from initiative shop, stones, etc. — for range previews, not action counts. */
+export function getMovementRangeBonusMeters(actor, combat) {
+    const rs = getRoundState(actor, combat);
+    return (Number(rs.moveBonusMeters) || 0) + (Number(rs.stoneBonuses?.extraMoveMeters) || 0);
+}
 /**
  * Set round state on actor
  */

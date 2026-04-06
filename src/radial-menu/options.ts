@@ -6,7 +6,7 @@ import type { CombatSlot, CombatManeuver } from '../system/combat-maneuvers';
 import { getAvailableManeuvers } from '../system/combat-maneuvers';
 import type { RadialCombatOption, TargetGroup, AoEShape, InnerSegment } from './types';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
-import { hasPowerBeenUsedThisRound } from '../combat/action-economy.js';
+import { getMovementRangeBonusMeters, hasPowerBeenUsedThisRound } from '../combat/action-economy.js';
 
 /**
  * Parse range string (e.g., "8m", "12m", "Self") to numeric meters
@@ -107,22 +107,24 @@ function calculateRange(
   rangeStr: string | undefined,
   levelData?: any
 ): number | undefined {
+  const moveBonus = getMovementRangeBonusMeters(actor, game.combat ?? null);
+
   // Special case: Disengage uses actor's movement
   if (optionId === 'disengage') {
     const actorSpeed = (actor.system as any)?.combat?.speed || 6;
-    return actorSpeed;
+    return actorSpeed + moveBonus;
   }
   
   // Special case: Move uses actor's speed
   if (optionId === 'move') {
     const actorSpeed = (actor.system as any)?.combat?.speed || 6;
-    return actorSpeed;
+    return actorSpeed + moveBonus;
   }
   
   // Special case: Dash uses 2x actor's speed
   if (optionId === 'dash') {
     const actorSpeed = (actor.system as any)?.combat?.speed || 6;
-    return actorSpeed * 2;
+    return actorSpeed * 2 + moveBonus;
   }
   
   // Check if it's a melee power/attack

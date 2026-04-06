@@ -325,11 +325,9 @@ export function renderInnerSegments(root, getCurrentSegmentId, setCurrentSegment
                 const roundState = getRoundState(actor, combat);
                 // Map segment to action type and get remaining
                 let remaining;
-                let moveBonus;
                 switch (seg.id) {
                     case 'movement':
                         remaining = roundState.movementActions.total - roundState.movementActions.used;
-                        moveBonus = roundState.moveBonusMeters + (roundState.stoneBonuses?.extraMoveMeters || 0);
                         break;
                     case 'attack':
                     case 'active-buff':
@@ -342,12 +340,7 @@ export function renderInnerSegments(root, getCurrentSegmentId, setCurrentSegment
                         break;
                 }
                 if (remaining !== undefined) {
-                    if (seg.id === 'movement' && moveBonus && moveBonus > 0) {
-                        labelText = `${seg.label} ${remaining} (+${moveBonus}m)`;
-                    }
-                    else {
-                        labelText = `${seg.label} ${remaining}`;
-                    }
+                    labelText = `${seg.label} ${remaining}`;
                 }
             }
         }
@@ -505,11 +498,9 @@ export function refreshInnerSegmentsVisual(root, getCurrentSegmentId, token) {
                 if (combat && actor) {
                     const roundState = getRoundState(actor, combat);
                     let remaining;
-                    let moveBonus;
                     switch (segId) {
                         case 'movement':
                             remaining = roundState.movementActions.total - roundState.movementActions.used;
-                            moveBonus = roundState.moveBonusMeters + (roundState.stoneBonuses?.extraMoveMeters || 0);
                             break;
                         case 'attack':
                         case 'active-buff':
@@ -520,12 +511,7 @@ export function refreshInnerSegmentsVisual(root, getCurrentSegmentId, token) {
                             break;
                     }
                     if (remaining !== undefined) {
-                        if (segId === 'movement' && moveBonus && moveBonus > 0) {
-                            text.text = `${seg.label} ${remaining} (+${moveBonus}m)`;
-                        }
-                        else {
-                            text.text = `${seg.label} ${remaining}`;
-                        }
+                        text.text = `${seg.label} ${remaining}`;
                     }
                     else {
                         text.text = seg.label;
