@@ -169,7 +169,8 @@
   cursor: pointer;
 }
 
-.stone-powers-dialog .power-drop-slots {
+/* Nur Nicht-General — sonst kollidiert wrap + column: Items springen in 2. Spalte (Stein „mitten im Feld“). */
+.stone-powers-dialog .power-drop-slots:not(.power-drop-slots-general) {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -402,13 +403,18 @@
   width: 100%;
 }
 
-.stone-powers-dialog .power-drop-slots-general {
+.stone-powers-dialog .power-drop-slots.power-drop-slots-general {
+  display: flex;
   flex-direction: column;
+  flex-wrap: nowrap;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  align-content: center;
   gap: 0.2rem;
   width: 100%;
   min-height: 0;
+  flex: 0 1 auto;
+  box-sizing: border-box;
 }
 
 .stone-powers-dialog .ms-stone-past-uses-inline {
