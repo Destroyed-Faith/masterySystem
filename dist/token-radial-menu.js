@@ -25,10 +25,24 @@ let msTokenHUD = null; // Reference to the Token HUD element to hide/show
 let msCurrentTokenId = null; // ID of token with open radial menu
 /** Segment getter for the open menu — used to refresh action-count labels when round state changes. */
 let msRadialGetCurrentSegmentId = null;
+async function rebuildRadialBySegment(actor) {
+    const allOptions = await getAllCombatOptionsForActor(actor);
+    const bySegment = {
+        movement: [],
+        attack: [],
+        utility: [],
+        'active-buff': []
+    };
+    for (const option of allOptions) {
+        bySegment[getSegmentIdForOption(option)].push(option);
+    }
+    return bySegment;
+}
 /**
- * Refresh inner-segment action labels if the radial menu is open for this actor's token.
+ * Refresh inner labels and rebuild the outer ring from live actor data (round state, ranges).
+ * Matches economy owner, token actor, or token document actorId so unlinked/linked tokens stay in sync.
  */
-export function refreshRadialMenuActionLabelsIfOpenForActor(actor) {
+export async function refreshRadialMenuActionLabelsIfOpenForActor(actor) {
     if (!msRadialMenu || !msCurrentTokenId || !msRadialGetCurrentSegmentId)
         return;
     const token = canvas.tokens?.get(msCurrentTokenId);
@@ -36,9 +50,24 @@ export function refreshRadialMenuActionLabelsIfOpenForActor(actor) {
         return;
     const menuOwner = getActionEconomyActor(token.actor) ?? token.actor;
     const updateOwner = getActionEconomyActor(actor) ?? actor;
-    if (menuOwner.id !== updateOwner.id)
+    const updateId = updateOwner.id;
+    const menuOwnerId = menuOwner.id;
+    const tokenDocActorId = token.document?.actorId;
+    if (updateId !== menuOwnerId && updateId !== tokenDocActorId)
         return;
     refreshInnerSegmentsVisual(msRadialMenu, msRadialGetCurrentSegmentId, token);
+    const bySegment = await rebuildRadialBySegment(menuOwner);
+    const seg = msRadialGetCurrentSegmentId();
+    renderOuterRing(msRadialMenu, token, bySegment, seg);
+    const innerSegments = [];
+    msRadialMenu.children.forEach((child) => {
+        if (child.msInnerSegment === true)
+            innerSegments.push(child);
+    });
+    innerSegments.forEach((obj) => {
+        msRadialMenu.removeChild(obj);
+        msRadialMenu.addChild(obj);
+    });
 }
 /**
  * Close the radial menu and clean up

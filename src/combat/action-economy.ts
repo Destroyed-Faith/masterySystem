@@ -179,14 +179,15 @@ export function getActionEconomyActor(actor: Actor | null | undefined): Actor | 
 export function getRoundState(actor: Actor, combat: Combat | null): RoundState {
   const owner = (getActionEconomyActor(actor) ?? actor) as any;
   const stored = owner.getFlag('mastery-system', 'roundState') as RoundState | undefined;
-  const combatId = (combat as any)?.id ?? '';
+  const combatId = String((combat as any)?.id ?? '');
   const round = combat?.round ?? 1;
+  const storedCombatId = String(stored?.combatId ?? '');
 
   // Must match encounter AND round — a new combat can start again at round 1 with a clean tracker.
   if (
     stored &&
     stored.round === round &&
-    stored.combatId === combatId
+    storedCombatId === combatId
   ) {
     return stored;
   }
@@ -200,7 +201,7 @@ export function getRoundState(actor: Actor, combat: Combat | null): RoundState {
   };
 
   return {
-    combatId,
+    combatId: combatId || undefined,
     round: combat?.round || 1,
     turn: combat?.turn || 0,
     isPC,
@@ -227,7 +228,11 @@ export function getMovementRangeBonusMeters(actor: Actor, combat: Combat | null)
 export async function setRoundState(actor: Actor, state: RoundState): Promise<void> {
   const owner = getActionEconomyActor(actor) ?? actor;
   const o = owner as any;
-  await o.setFlag('mastery-system', 'roundState', state);
+  const toSave: RoundState = { ...state };
+  if (toSave.combatId !== undefined) {
+    (toSave as any).combatId = String(toSave.combatId);
+  }
+  await o.setFlag('mastery-system', 'roundState', toSave);
   Hooks.callAll('masterySystem.roundStateUpdated', { actorId: o.id });
 }
 
