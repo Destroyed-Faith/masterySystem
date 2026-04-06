@@ -21,6 +21,14 @@ export interface InitiativeRollBreakdown {
     rollResult: any;
 }
 /**
+ * Limits for spending Combat Reflexes on initiative (used by Initiative Shop dropdown).
+ */
+export declare function getCombatReflexesInitiativeLimits(actor: any, masteryRank: number): {
+    maxThisRoll: number;
+    remainingPool: number;
+    capPerRoll: number;
+};
+/**
  * Roll initiative for one combatant (dice + optional CR). Sets combatant.initiative to the pre-shop total.
  * NPCs: dice only. PCs: may prompt to spend CR (owner/GM).
  */

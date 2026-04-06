@@ -1,8 +1,5 @@
 /**
- * Initiative Shop Dialog
- * Allows players to spend initiative points on bonuses
- *
- * Migrated to Foundry VTT v13 ApplicationV2 + HandlebarsApplicationMixin
+ * Initiative Shop Dialog — schlank: Mastery Roll + CR-Dropdown + Shop-Zeilen, kein CR-Popup.
  */
 import { InitiativeRollBreakdown } from './initiative-roll.js';
 declare const ApplicationV2: typeof import("@league-of-foundry-developers/foundry-vtt-types/src/foundry/client/applications/api/application.mjs").default;
@@ -22,6 +19,10 @@ export declare class InitiativeShopDialog extends BaseDialog {
     private context;
     private resolve?;
     private purchases;
+    /** CR-Punkte, die der Spieler im Dropdown wählt (Shop-Pool = Wurf + das). */
+    private crSpent;
+    /** Bereits vor diesem Dialog auf skillsSpent gebucht (Legacy / seltener Pfad). */
+    private crCommittedAtOpen;
     static DEFAULT_OPTIONS: {
         id: string;
         classes: string[];
@@ -38,11 +39,9 @@ export declare class InitiativeShopDialog extends BaseDialog {
             template: string;
         };
     };
-    /**
-     * Show initiative shop dialog for a combatant
-     */
     static showForCombatant(combatant: Combatant, context: InitiativeShopContext, combat: Combat): Promise<InitiativeShopPurchase | null>;
     constructor(combatant: Combatant, context: InitiativeShopContext, combat: Combat, resolve: (purchases: InitiativeShopPurchase | null) => void);
+    private getShopPool;
     protected _prepareContext(_options: any): Promise<any>;
     protected _onRender(_context: any, _options: any): Promise<void>;
     private calculateTotalCost;

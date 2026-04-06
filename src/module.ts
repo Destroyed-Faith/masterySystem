@@ -449,7 +449,9 @@ Hooks.once('init', async function() {
           }
 
           const { rollInitiativeForCombatant } = await import('./combat/initiative-roll.js');
-          const breakdown = await rollInitiativeForCombatant(combatant);
+          const breakdown = await rollInitiativeForCombatant(combatant, {
+            promptCombatReflexes: false
+          });
           
           // Show initiative shop
           await InitiativeShopDialog.showForCombatant(combatant, breakdown, combat);

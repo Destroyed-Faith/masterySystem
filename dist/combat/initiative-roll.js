@@ -12,46 +12,24 @@ function getMasteryRank(actor) {
     const system = actor.system;
     return system.mastery?.rank || 2;
 }
-async function promptCombatReflexesSpend(actor, masteryRank) {
-    const rating = Number(actor.system?.skills?.[CR_SKILL_KEY] ?? 0);
-    const spent = Number(actor.system?.skillsSpent?.[CR_SKILL_KEY] ?? 0);
+/**
+ * Limits for spending Combat Reflexes on initiative (used by Initiative Shop dropdown).
+ */
+export function getCombatReflexesInitiativeLimits(actor, masteryRank) {
+    const rating = Number(actor?.system?.skills?.[CR_SKILL_KEY] ?? 0);
+    const spent = Number(actor?.system?.skillsSpent?.[CR_SKILL_KEY] ?? 0);
     const remainingPool = Math.max(0, rating - spent);
     const capPerRoll = calculateMaxSkillRank(masteryRank);
     const maxThisRoll = Math.min(capPerRoll, remainingPool);
-    if (maxThisRoll <= 0)
-        return 0;
-    return new Promise((resolve) => {
-        new Dialog({
-            title: 'Combat Reflexes (Initiative)',
-            content: `<form><div class="form-group">
-<label>Combat Reflexes to add to initiative (0–${maxThisRoll})</label>
-<input type="number" name="cr" min="0" max="${maxThisRoll}" value="0" step="1"/>
-<p class="notes">Pool remaining: <strong>${remainingPool}</strong>. Per roll cap: MR×4 (${capPerRoll}).</p>
-</div></form>`,
-            buttons: {
-                apply: {
-                    label: 'Apply',
-                    callback: (html) => {
-                        const raw = Number(html.find('[name="cr"]').val());
-                        const v = Number.isFinite(raw) ? Math.max(0, Math.min(maxThisRoll, Math.floor(raw))) : 0;
-                        resolve(v);
-                    }
-                },
-                none: {
-                    label: 'None',
-                    callback: () => resolve(0)
-                }
-            },
-            default: 'apply'
-        }).render(true);
-    });
+    return { maxThisRoll, remainingPool, capPerRoll };
 }
 /**
  * Roll initiative for one combatant (dice + optional CR). Sets combatant.initiative to the pre-shop total.
  * NPCs: dice only. PCs: may prompt to spend CR (owner/GM).
  */
 export async function rollInitiativeForCombatant(combatant, options = {}) {
-    const { promptCombatReflexes = true } = options;
+    /** CR wird im Initiative-Shop per Dropdown gesetzt (kein separates Popup). */
+    const { promptCombatReflexes = false } = options;
     const actor = combatant.actor;
     if (!actor) {
         console.error('Mastery System | Cannot roll initiative: combatant has no actor');
@@ -81,7 +59,30 @@ export async function rollInitiativeForCombatant(combatant, options = {}) {
         user &&
         (user.isGM || actor.isOwner);
     if (mayPromptCr) {
-        combatReflexesSpent = await promptCombatReflexesSpend(actor, masteryRank);
+        const { maxThisRoll } = getCombatReflexesInitiativeLimits(actor, masteryRank);
+        if (maxThisRoll > 0) {
+            combatReflexesSpent = await new Promise((resolve) => {
+                new Dialog({
+                    title: 'Combat Reflexes (Initiative)',
+                    content: `<form><div class="form-group">
+<label>Combat Reflexes to add to initiative (0–${maxThisRoll})</label>
+<input type="number" name="cr" min="0" max="${maxThisRoll}" value="0" step="1"/>
+</div></form>`,
+                    buttons: {
+                        apply: {
+                            label: 'Apply',
+                            callback: (html) => {
+                                const raw = Number(html.find('[name="cr"]').val());
+                                const v = Number.isFinite(raw) ? Math.max(0, Math.min(maxThisRoll, Math.floor(raw))) : 0;
+                                resolve(v);
+                            }
+                        },
+                        none: { label: 'None', callback: () => resolve(0) }
+                    },
+                    default: 'apply'
+                }).render(true);
+            });
+        }
         if (combatReflexesSpent > 0) {
             const prevSpent = Number(actor.system?.skillsSpent?.[CR_SKILL_KEY] ?? 0);
             await actor.update({
@@ -138,7 +139,7 @@ export async function executeInitiativePhase(combat) {
         if (!user)
             continue;
         if (user.isGM || actor.isOwner) {
-            const breakdown = await rollInitiativeForCombatant(pc, { promptCombatReflexes: true });
+            const breakdown = await rollInitiativeForCombatant(pc, { promptCombatReflexes: false });
             try {
                 await InitiativeShopDialog.showForCombatant(pc, breakdown, combat);
             }

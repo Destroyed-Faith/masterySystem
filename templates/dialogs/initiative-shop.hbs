@@ -1,148 +1,116 @@
-<div class="initiative-shop-dialog">
-  <header class="shop-header flexrow">
+<div class="initiative-shop-dialog initiative-shop-lean">
+  <div class="shop-toolbar-top">
+    <button type="button" class="btn-primary btn-confirm-lean js-confirm" title="Initiative und Einkäufe übernehmen">
+      <i class="fas fa-check"></i> Bestätigen
+    </button>
+  </div>
+
+  <header class="shop-header shop-header-lean">
     <div class="header-left flexrow">
-      <img src="{{actor.img}}" alt="{{actor.name}}" class="actor-portrait">
+      <img src="{{actor.img}}" alt="{{actor.name}}" class="actor-portrait actor-portrait-lean">
       <div class="actor-info">
         <h2>{{actor.name}}</h2>
-        <span class="mastery-badge">Rank {{masteryRank}}</span>
-      </div>
-    </div>
-    <div class="header-right">
-      <div class="remaining-pill">
-        <div class="remaining-value">{{remainingInitiative}}</div>
-        <div class="remaining-label">= Initiative Order</div>
+        <span class="mastery-badge">MR {{masteryRank}}</span>
       </div>
     </div>
   </header>
 
-  <section class="breakdown-section">
-    <div class="breakdown-grid">
-      <div class="breakdown-card">
-        <div class="breakdown-label">Mastery Roll</div>
-        <div class="breakdown-value">{{diceTotal}}</div>
-        <div class="breakdown-subtitle">{{masteryRank}}d8, keep all, 8s explode</div>
-      </div>
-      <div class="breakdown-card">
-        <div class="breakdown-label">Combat Reflexes</div>
-        <div class="breakdown-value">{{combatReflexesSpent}}</div>
-        <div class="breakdown-subtitle">Spent on this roll (≤ MR×4)</div>
-      </div>
-      <div class="breakdown-card">
-        <div class="breakdown-label">Initiative Score</div>
-        <div class="breakdown-value">{{totalInitiative}}</div>
-        <div class="breakdown-subtitle">Roll + CR (shop pool)</div>
-      </div>
+  <div class="lean-block">
+    <div class="lean-line mastery-roll-line" title="Summe aller gewürfelten W8 (8er explodieren)">
+      <span class="lean-label">Mastery Roll</span>
+      <span class="lean-sep">:</span>
+      <span class="lean-value">{{diceTotal}}</span>
+      <span class="lean-muted">({{masteryRank}}d8)</span>
+    </div>
+
+    <div class="lean-line cr-line">
+      <label class="lean-label" for="init-shop-cr-{{actor.id}}">Combat Reflexes</label>
+      <span class="lean-sep">:</span>
+      {{#if crSelectDisabled}}
+      <span class="lean-muted">kein Pool / cap 0</span>
+      {{else}}
+      <select id="init-shop-cr-{{actor.id}}" class="lean-select js-cr-select" title="Wie viele Combat-Reflexes-Punkte auf diese Initiative legen? (max. {{crMax}}, Pool {{crPoolRemaining}}, Cap MR×4 = {{crCapPerRoll}})">
+        {{#each crOptions}}
+        <option value="{{value}}" {{#if selected}}selected{{/if}}>{{value}}</option>
+        {{/each}}
+      </select>
+      <span class="lean-muted lean-cr-hint">max. {{crMax}} · Pool {{crPoolRemaining}}</span>
+      {{/if}}
+    </div>
+
+    <div class="lean-line pool-line" title="Gesamt für den Shop; nach Einkäufen bleibt der Rest als Initiative">
+      <span class="lean-label">Shop-Pool</span>
+      <span class="lean-sep">:</span>
+      <span class="lean-value">{{totalInitiative}}</span>
+      <span class="lean-muted">· Rest nach Shop</span>
+      <span class="lean-value lean-rest">{{remainingInitiative}}</span>
+    </div>
+  </div>
+
+  <section class="shop-lines" aria-label="Initiative Shop">
+    <div class="shop-line" title="Je Kauf +{{costs.movementIncrement}}m Bewegung in dieser Runde; Kosten {{costs.movement}} Initiative-Punkte pro Stufe">
+      <span class="shop-line-text">
+        <span class="shop-name">Extra Movement</span><span class="shop-punct">:</span>
+        <span class="shop-cost-label">Cost</span><span class="shop-punct">:</span>
+        <span class="shop-cost-num">{{costs.movement}}</span>
+        <span class="shop-extra">· +{{costs.movementIncrement}}m · ×{{purchases.extraMovement}} → +{{movementBonus}}m</span>
+      </span>
+      <span class="shop-line-actions">
+        <button type="button" class="icon-btn js-remove-movement" title="Eine Stufe weniger" {{#unless purchases.extraMovement}}disabled{{/unless}}><i class="fas fa-minus"></i></button>
+        <button type="button" class="icon-btn js-buy-movement" title="Eine Stufe kaufen ({{costs.movement}})" {{#unless (gte remainingInitiative costs.movement)}}disabled{{/unless}}><i class="fas fa-plus"></i></button>
+      </span>
+    </div>
+
+    <div class="shop-line" title="Mit einvernehmlichem Spieler die Initiativewerte tauschen">
+      <span class="shop-line-text">
+        <span class="shop-name">Initiative Swap</span><span class="shop-punct">:</span>
+        <span class="shop-cost-label">Cost</span><span class="shop-punct">:</span>
+        <span class="shop-cost-num">{{costs.swap}}</span>
+      </span>
+      <button type="button" class="icon-btn icon-btn-toggle js-buy-swap {{#if purchases.initiativeSwap}}is-on{{/if}}"
+              title="{{#if purchases.initiativeSwap}}Entfernen{{else}}Kaufen ({{costs.swap}}){{/if}}"
+              {{#unless purchases.initiativeSwap}}{{#unless (gte remainingInitiative costs.swap)}}disabled{{/unless}}{{/unless}}>
+        <i class="fas fa-{{#if purchases.initiativeSwap}}check{{else}}cart-plus{{/if}}"></i>
+      </button>
+    </div>
+
+    <div class="shop-line" title="Eine zusätzliche Reaktion in dieser Runde">
+      <span class="shop-line-text">
+        <span class="shop-name">Extra Reaction</span><span class="shop-punct">:</span>
+        <span class="shop-cost-label">Cost</span><span class="shop-punct">:</span>
+        <span class="shop-cost-num">{{costs.extraReaction}}</span>
+      </span>
+      <button type="button" class="icon-btn icon-btn-toggle js-buy-reaction {{#if purchases.extraReaction}}is-on{{/if}}"
+              title="{{#if purchases.extraReaction}}Entfernen{{else}}Kaufen ({{costs.extraReaction}}){{/if}}"
+              {{#unless purchases.extraReaction}}{{#unless (gte remainingInitiative costs.extraReaction)}}disabled{{/unless}}{{/unless}}>
+        <i class="fas fa-{{#if purchases.extraReaction}}check{{else}}cart-plus{{/if}}"></i>
+      </button>
+    </div>
+
+    <div class="shop-line" title="1W8 Stress von den Stress-Leisten entfernen (beim Anwenden würfeln)">
+      <span class="shop-line-text">
+        <span class="shop-name">Remove Stress</span><span class="shop-punct">:</span>
+        <span class="shop-cost-label">Cost</span><span class="shop-punct">:</span>
+        <span class="shop-cost-num">{{costs.removeStress}}</span>
+      </span>
+      <button type="button" class="icon-btn icon-btn-toggle js-buy-stress {{#if purchases.removeStress}}is-on{{/if}}"
+              title="{{#if purchases.removeStress}}Entfernen{{else}}Kaufen ({{costs.removeStress}}){{/if}}"
+              {{#unless purchases.removeStress}}{{#unless (gte remainingInitiative costs.removeStress)}}disabled{{/unless}}{{/unless}}>
+        <i class="fas fa-{{#if purchases.removeStress}}check{{else}}cart-plus{{/if}}"></i>
+      </button>
+    </div>
+
+    <div class="shop-line" title="Einen zusätzlichen Angriff in dieser Runde">
+      <span class="shop-line-text">
+        <span class="shop-name">Extra Attack</span><span class="shop-punct">:</span>
+        <span class="shop-cost-label">Cost</span><span class="shop-punct">:</span>
+        <span class="shop-cost-num">{{costs.extraAttack}}</span>
+      </span>
+      <button type="button" class="icon-btn icon-btn-toggle js-buy-attack {{#if purchases.extraAttack}}is-on{{/if}}"
+              title="{{#if purchases.extraAttack}}Entfernen{{else}}Kaufen ({{costs.extraAttack}}){{/if}}"
+              {{#unless purchases.extraAttack}}{{#unless (gte remainingInitiative costs.extraAttack)}}disabled{{/unless}}{{/unless}}>
+        <i class="fas fa-{{#if purchases.extraAttack}}check{{else}}cart-plus{{/if}}"></i>
+      </button>
     </div>
   </section>
-
-  <section class="shop-items">
-    <div class="shop-item">
-      <div class="item-header flexrow">
-        <h3><i class="fas fa-running"></i> Extra Movement</h3>
-        <span class="cost-badge">{{costs.movement}}</span>
-      </div>
-      <div class="item-controls flexrow">
-        <button type="button" class="stepper-btn js-remove-movement" {{#unless purchases.extraMovement}}disabled{{/unless}}>
-          <i class="fas fa-minus"></i>
-        </button>
-        <span class="purchase-count">{{purchases.extraMovement}}</span>
-        <button type="button" class="stepper-btn js-buy-movement" {{#if (lt remainingInitiative costs.movement)}}disabled{{/if}}>
-          <i class="fas fa-plus"></i>
-        </button>
-        <div class="item-details">
-          <span class="subtotal">Spent: {{movementSpent}}</span>
-          <span class="effect">+{{movementBonus}}m this round</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="shop-item">
-      <div class="item-header flexrow">
-        <h3><i class="fas fa-exchange-alt"></i> Initiative Swap</h3>
-        <span class="cost-badge">{{costs.swap}}</span>
-      </div>
-      <div class="item-controls flexrow">
-        <button type="button" class="toggle-btn js-buy-swap {{#if purchases.initiativeSwap}}purchased{{/if}}"
-                {{#if (lt remainingInitiative costs.swap)}}disabled{{/if}}>
-          {{#if purchases.initiativeSwap}}
-            <i class="fas fa-check"></i> Purchased
-          {{else}}
-            <i class="fas fa-shopping-cart"></i> Buy
-          {{/if}}
-        </button>
-        <div class="item-details">
-          <span class="subtitle">Another player; if they consent, swap initiative scores</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="shop-item">
-      <div class="item-header flexrow">
-        <h3><i class="fas fa-shield-alt"></i> Extra Reaction</h3>
-        <span class="cost-badge">{{costs.extraReaction}}</span>
-      </div>
-      <div class="item-controls flexrow">
-        <button type="button" class="toggle-btn js-buy-reaction {{#if purchases.extraReaction}}purchased{{/if}}"
-                {{#if (lt remainingInitiative costs.extraReaction)}}disabled{{/if}}>
-          {{#if purchases.extraReaction}}
-            <i class="fas fa-check"></i> Purchased
-          {{else}}
-            <i class="fas fa-shopping-cart"></i> Buy
-          {{/if}}
-        </button>
-        <div class="item-details">
-          <span class="subtitle">1×/round</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="shop-item">
-      <div class="item-header flexrow">
-        <h3><i class="fas fa-brain"></i> Remove Stress</h3>
-        <span class="cost-badge">{{costs.removeStress}}</span>
-      </div>
-      <div class="item-controls flexrow">
-        <button type="button" class="toggle-btn js-buy-stress {{#if purchases.removeStress}}purchased{{/if}}"
-                {{#if (lt remainingInitiative costs.removeStress)}}disabled{{/if}}>
-          {{#if purchases.removeStress}}
-            <i class="fas fa-check"></i> Purchased
-          {{else}}
-            <i class="fas fa-shopping-cart"></i> Buy
-          {{/if}}
-        </button>
-        <div class="item-details">
-          <span class="subtitle">Remove 1d8 stress from your stress bars</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="shop-item">
-      <div class="item-header flexrow">
-        <h3><i class="fas fa-sword"></i> Extra Attack</h3>
-        <span class="cost-badge">{{costs.extraAttack}}</span>
-      </div>
-      <div class="item-controls flexrow">
-        <button type="button" class="toggle-btn js-buy-attack {{#if purchases.extraAttack}}purchased{{/if}}"
-                {{#if (lt remainingInitiative costs.extraAttack)}}disabled{{/if}}>
-          {{#if purchases.extraAttack}}
-            <i class="fas fa-check"></i> Purchased
-          {{else}}
-            <i class="fas fa-shopping-cart"></i> Buy
-          {{/if}}
-        </button>
-        <div class="item-details">
-          <span class="subtitle">1×/round</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <footer class="shop-footer flexrow">
-    <button type="button" class="btn-secondary js-skip">
-      <i class="fas fa-times"></i> Skip
-    </button>
-    <button type="button" class="btn-primary js-confirm">
-      <i class="fas fa-check"></i> Confirm • Remaining {{remainingInitiative}}
-    </button>
-  </footer>
 </div>
