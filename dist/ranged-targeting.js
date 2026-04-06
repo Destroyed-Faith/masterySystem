@@ -3,7 +3,7 @@
  * but uses option.range (meters) and fires masterySystem.rangedTargetSelected.
  */
 import { highlightHexesInRange, clearHexHighlight } from "./utils/hex-highlighting.js";
-import { gridStepsFromMeters, measureSceneDistanceBetweenPoints, metersToSceneDistance } from "./utils/grid-range.js";
+import { gridStepsFromMeters, isWithinRangeMeters } from "./utils/grid-range.js";
 let active = null;
 let confirming = false;
 function getRangedMaxMeters(option) {
@@ -17,15 +17,13 @@ function computeValidTargets(attackerToken, rangeMeters) {
     const attackerCenter = attackerToken?.center;
     if (!attackerCenter)
         return out;
-    const maxScene = metersToSceneDistance(rangeMeters);
     for (const token of tokens) {
         if (!token?.id || token.id === attackerToken.id)
             continue;
         if (!token.actor)
             continue;
         const targetCenter = token.center;
-        const dScene = measureSceneDistanceBetweenPoints(attackerCenter, targetCenter);
-        if (dScene <= maxScene + 0.01) {
+        if (isWithinRangeMeters(attackerCenter, targetCenter, rangeMeters)) {
             out.add(token.id);
         }
     }

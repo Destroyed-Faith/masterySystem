@@ -6,7 +6,7 @@
  * - Does NOT create chat messages, roll dice, or execute attacks directly
  */
 import { highlightHexesInRange, clearHexHighlight } from "./utils/hex-highlighting.js";
-import { gridStepsFromMeters, measureSceneDistanceBetweenPoints, metersToSceneDistance } from "./utils/grid-range.js";
+import { gridStepsFromMeters, isWithinRangeMeters } from "./utils/grid-range.js";
 let active = null;
 let confirming = false;
 /* -------------------------------------------- */
@@ -28,15 +28,13 @@ function computeValidTargets(attackerToken, reachMeters) {
     const attackerCenter = attackerToken?.center;
     if (!attackerCenter)
         return out;
-    const maxScene = metersToSceneDistance(reachMeters);
     for (const token of tokens) {
         if (!token?.id || token.id === attackerToken.id)
             continue;
         if (!token.actor)
             continue;
         const targetCenter = token.center;
-        const dScene = measureSceneDistanceBetweenPoints(attackerCenter, targetCenter);
-        if (dScene <= maxScene + 0.01) {
+        if (isWithinRangeMeters(attackerCenter, targetCenter, reachMeters)) {
             out.add(token.id);
         }
     }

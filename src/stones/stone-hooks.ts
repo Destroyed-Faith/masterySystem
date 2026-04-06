@@ -7,14 +7,13 @@
  * - Post-combat full restore
  */
 
-import { 
-  resetTurnState, 
-  resetRoundState,
-  regenStonesEndOfRound,
+import {
+  resetTurnState,
   restoreStonesAfterCombat,
   initializeCombatRoundState,
   clearStonePowersConfigurationLocksInCombat
 } from '../combat/action-economy.js';
+import { runMasteryCombatRoundAdvancePipeline } from '../combat/stone-powers-flow.js';
 
 /**
  * Initialize stone system hooks
@@ -40,25 +39,11 @@ export function initializeStoneHooks(): void {
       }
     }
     
-    // Round changed - reset round state and trigger stone regeneration
+    // Round changed: ein Pfad — Reset, ggf. Regen, dann Stone Powers (Runde 2+)
     if (changes.round !== undefined) {
       const newRound = changes.round;
-
-      await clearStonePowersConfigurationLocksInCombat(combat);
-      
-      // Reset round state for all combatants
-      for (const combatant of combat.combatants) {
-        const actor = combatant.actor;
-        if (actor) {
-          await resetRoundState(actor, combatant, combat);
-        }
-      }
-      
-      // Trigger stone regeneration if round > 1
-      if (newRound > 1) {
-        console.log(`Mastery System | Round changed to ${newRound}, triggering stone regen`);
-        await regenStonesEndOfRound(combat);
-      }
+      console.log(`Mastery System | Round changed to ${newRound}, running stone round pipeline`);
+      await runMasteryCombatRoundAdvancePipeline(combat, newRound);
     }
   });
   

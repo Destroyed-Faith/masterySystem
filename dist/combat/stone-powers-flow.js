@@ -1,9 +1,13 @@
 /**
  * Stone Powers Flow Management
  * Handles opening Stone Powers dialogs for all combatants at the start of each round
+ *
+ * Round advance (Runde 2+): Regeneration muss vor Stone Powers laufen — siehe
+ * `runMasteryCombatRoundAdvancePipeline` (ein Hook-Pfad, keine Race mit zweitem updateCombat).
  */
 import { StonePowersDialog } from '../stones/stone-powers-dialog.js';
 import { executeInitiativePhase } from './initiative-roll.js';
+import { clearStonePowersConfigurationLocksInCombat, regenStonesEndOfRound, resetRoundState } from './action-economy.js';
 const SOCKET_NAME = 'system.mastery-system';
 function getStonePowersState(combat) {
     const flags = combat.flags['mastery-system'] || {};
@@ -86,6 +90,26 @@ async function openStonePowersForCombatant(combat, combatant, round) {
     catch (error) {
         console.error('Mastery System | Error in stone powers dialog', error);
         await markStonePowersDone(combat, combatant.id, round);
+    }
+}
+/**
+ * Bei `updateCombat` mit neuem `round`: Locks für Stone-Powers-UI leeren, RoundState aller
+ * Combatants zurücksetzen; ab Runde 2 zuerst Regen-Dialoge, dann Stone Powers + Initiative
+ * (sofern `combat.started`). Runde 1: nur Reset — Stone Powers übernimmt `combatStart` /
+ * Encounter-Flow.
+ */
+export async function runMasteryCombatRoundAdvancePipeline(combat, newRound) {
+    await clearStonePowersConfigurationLocksInCombat(combat);
+    for (const combatant of combat.combatants) {
+        const actor = combatant.actor;
+        if (actor)
+            await resetRoundState(actor, combatant, combat);
+    }
+    if (newRound <= 1)
+        return;
+    await regenStonesEndOfRound(combat);
+    if (combat.started) {
+        await openStonePowersForAllCombatants(combat, newRound);
     }
 }
 export async function openStonePowersForAllCombatants(combat, round) {

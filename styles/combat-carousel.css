@@ -219,6 +219,40 @@
   font-size: 1rem;
 }
 
+/* Stone Powers (unter den Ressourcen) */
+.portrait-stone-powers {
+  width: 100%;
+  padding: 0.35rem 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  background: rgba(100, 149, 237, 0.25);
+  border: 1px solid rgba(147, 112, 219, 0.7);
+  border-radius: 6px;
+  color: #e8e4ff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.portrait-stone-powers:hover:not(:disabled) {
+  background: rgba(147, 112, 219, 0.35);
+  border-color: #c4a5ff;
+}
+
+.portrait-stone-powers.is-locked,
+.portrait-stone-powers:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.portrait-stone-powers i {
+  font-size: 0.85rem;
+  color: #b8a8ff;
+}
+
 /* Resources */
 .portrait-resources {
   width: 100%;

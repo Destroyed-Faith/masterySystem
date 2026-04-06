@@ -188,38 +188,12 @@ Hooks.once('init', async function() {
     CombatCarouselApp.close();
   });
 
-  // Track previous round to detect round changes
-  let previousRound: number = 0;
-
-  // Update carousel when combat changes
-  // Also detect round changes to open Stone Powers for new rounds
+  // Update carousel when combat changes (Stone Powers bei Rundenwechsel: stone-hooks Pipeline)
   Hooks.on('updateCombat', async (combat: Combat) => {
-    // Update carousel
     const carousel = CombatCarouselApp.instance;
     if (carousel && (carousel as any).rendered) {
       (carousel as any).render({ force: false });
     }
-    
-    // Detect round changes
-    const currentRound = combat.round ?? 0;
-    
-    // Check if round has increased (new round started)
-    if (currentRound > previousRound && currentRound > 1) {
-      console.log('Mastery System | Round changed from', previousRound, 'to', currentRound);
-      
-      // Open Stone Powers for all combatants in the new round
-      // Only if combat has started (round > 0)
-      if (combat.started && currentRound > 1) {
-        try {
-          await openStonePowersForAllCombatants(combat, currentRound);
-        } catch (error) {
-          console.error('Mastery System | Error opening stone powers for new round', error);
-        }
-      }
-    }
-    
-    // Update previous round
-    previousRound = currentRound;
   });
 
   /**

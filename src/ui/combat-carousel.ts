@@ -1,11 +1,18 @@
 /**
  * Mastery Combat Carousel UI
  * Displays combatants as portrait cards with initiative, resources, and controls
- * 
+ *
+ * Stone Powers: Pro PC-Karte ein Button (Owner/GM), solange die Zuordnung nicht durch
+ * `stonePowersConfigLock` gesperrt ist (erste Bewegung/Angriff/Reaktion in der Runde).
+ * Vorplanen für eine künftige Runde N+1 während Runde N ohne Rundenwechsel wäre ein
+ * separates Datenmodell — hier nicht umgesetzt.
+ *
  * Migrated to Foundry VTT v13 ApplicationV2 + HandlebarsApplicationMixin
  */
 
 import { requestEndTurn } from '../combat/end-turn.js';
+import { isStonePowersConfigurationLocked } from '../combat/action-economy.js';
+import { StonePowersDialog } from '../stones/stone-powers-dialog.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -206,7 +213,11 @@ export class CombatCarouselApp extends BaseCarousel {
         },
         statusIcons: statusIcons.filter((item: any) => item && item.icon),
         hasToken: !!token,
-        tokenId: tokenId
+        tokenId: tokenId,
+        showStonePowersButton:
+          actor.type === 'character' && !!(game.user?.isGM || actor.isOwner),
+        stonePlanLocked:
+          actor.type === 'character' && isStonePowersConfigurationLocked(actor, combat)
       });
     }
 
@@ -381,6 +392,33 @@ export class CombatCarouselApp extends BaseCarousel {
       };
     });
     
+    // Stone Powers (PC owners + GM)
+    root.querySelectorAll('.js-carousel-stone-powers').forEach((btn: HTMLElement) => {
+      btn.onclick = async (ev: MouseEvent) => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        if ((btn as HTMLButtonElement).disabled) return;
+
+        const combatantId = btn.dataset.combatantId;
+        if (!combatantId) return;
+
+        const combat = game.combats?.active;
+        if (!combat) return;
+
+        const combatant = combat.combatants.get(combatantId);
+        if (!combatant) return;
+
+        const actor = combatant.actor;
+        if (!actor || actor.type !== 'character') return;
+
+        try {
+          await StonePowersDialog.showForActor(actor as Actor, combatant);
+        } catch (e) {
+          console.error('Mastery System | Carousel Stone Powers failed', e);
+        }
+      };
+    });
+
     // End Turn button (on current combatant card)
     root.querySelectorAll('.js-end-turn').forEach((btn: HTMLElement) => {
       btn.onclick = async (ev: MouseEvent) => {
@@ -486,7 +524,10 @@ export class CombatCarouselApp extends BaseCarousel {
     // For simplicity, always refresh if system data changed
     // (optimization: could check specific paths like system.tracked.hp, system.tracked.stress, system.health)
     if (source === 'actor') {
-      return updateData.system !== undefined;
+      return (
+        updateData.system !== undefined ||
+        updateData.flags?.['mastery-system'] !== undefined
+      );
     } else {
       // For tokens, check delta.system or actorData.system
       return updateData.delta?.system !== undefined || 

@@ -8,11 +8,7 @@
 
 import type { RadialCombatOption } from "./token-radial-menu";
 import { highlightHexesInRange, clearHexHighlight } from "./utils/hex-highlighting";
-import {
-  gridStepsFromMeters,
-  measureSceneDistanceBetweenPoints,
-  metersToSceneDistance
-} from "./utils/grid-range";
+import { gridStepsFromMeters, isWithinRangeMeters } from "./utils/grid-range";
 
 interface MeleeTargetingState {
   attackerToken: any;
@@ -57,15 +53,12 @@ function computeValidTargets(attackerToken: any, reachMeters: number): Set<strin
   const attackerCenter = attackerToken?.center;
   if (!attackerCenter) return out;
 
-  const maxScene = metersToSceneDistance(reachMeters);
-
   for (const token of tokens) {
     if (!token?.id || token.id === attackerToken.id) continue;
     if (!token.actor) continue;
 
     const targetCenter = token.center;
-    const dScene = measureSceneDistanceBetweenPoints(attackerCenter, targetCenter);
-    if (dScene <= maxScene + 0.01) {
+    if (isWithinRangeMeters(attackerCenter, targetCenter, reachMeters)) {
       out.add(token.id);
     }
   }

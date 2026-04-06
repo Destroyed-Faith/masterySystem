@@ -378,7 +378,7 @@ async function maybeLockStonePowersAfterCombatAction(actor: Actor, combat: Comba
 
 export async function spendAttackAction(actor: Actor, combat: Combat | null): Promise<boolean> {
   const roundState = getRoundState(actor, combat);
-  
+
   if (roundState.attackActions.used >= roundState.attackActions.total) {
     ui.notifications?.warn('No attack actions remaining!');
     return false;
@@ -412,7 +412,7 @@ export async function spendMovementAction(actor: Actor, combat: Combat | null): 
  */
 export async function spendReactionAction(actor: Actor, combat: Combat | null): Promise<boolean> {
   const roundState = getRoundState(actor, combat);
-  
+
   if (roundState.reactionActions.used >= roundState.reactionActions.total) {
     ui.notifications?.warn('No reaction actions remaining!');
     return false;

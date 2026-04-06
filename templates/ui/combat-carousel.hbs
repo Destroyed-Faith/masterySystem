@@ -56,6 +56,18 @@
             </div>
           </div>
 
+          {{#if combatant.showStonePowersButton}}
+            <button type="button"
+                    class="portrait-stone-powers js-carousel-stone-powers{{#if combatant.stonePlanLocked}} is-locked{{/if}}"
+                    data-combatant-id="{{combatant.id}}"
+                    data-tooltip="{{#if combatant.stonePlanLocked}}Stein-Zuordnung gesperrt (Bewegung, Angriff oder Reaktion){{else}}Stone Powers{{/if}}"
+                    aria-label="Stone Powers"
+                    {{#if combatant.stonePlanLocked}}disabled title="Stein-Zuordnung ist gesperrt, sobald du in dieser Runde Bewegung, einen Angriff oder eine Reaktion nutzt."{{else}}title="Stone Powers: Steine auf Mächte legen"{{/if}}>
+              <i class="fas fa-gem" aria-hidden="true"></i>
+              <span>Steine</span>
+            </button>
+          {{/if}}
+
           <!-- Status Icons -->
           {{#if combatant.statusIcons}}
             <div class="status-icons">
