@@ -924,12 +924,6 @@
           <h3><i class="fas fa-magic"></i> Character Creation: Powers & Magic Selection</h3>
           <div class="creation-status">
             <div class="status-item">
-              <label>Trees Selected:</label>
-              <span class="valid">
-                {{creation.treesSelected}} (optional)
-              </span>
-            </div>
-            <div class="status-item">
               <label>Powers Selected:</label>
               <span class="{{#if (eq creation.powersSelected creation.powersRequired)}}valid{{else}}invalid{{/if}}">
                 {{creation.powersSelected}} / {{creation.powersRequired}}
@@ -953,42 +947,6 @@
           </ul>
         </div>
         
-        {{#if creation.selectedTreesData}}
-        <div class="selected-trees">
-          <h4>Selected Trees:</h4>
-          <div class="trees-list">
-            {{#each creation.selectedTreesData}}
-            <div class="tree-card">
-              <div class="tree-header">
-                <h5 class="tree-name">{{this.name}}</h5>
-                <span class="tree-type">{{#if (eq this.type "spell")}}Spell School{{else}}Mastery Tree{{/if}}</span>
-              </div>
-              {{#if this.focus}}
-              <div class="tree-focus">
-                <strong>Focus:</strong> {{this.focus}}
-              </div>
-              {{/if}}
-              {{#if this.roles}}
-              <div class="tree-roles">
-                <strong>Roles:</strong> {{#each this.roles}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}
-              </div>
-              {{/if}}
-              {{#if this.bonus}}
-              <div class="tree-bonus">
-                <strong>Tree Bonus:</strong>
-                <div class="bonus-text">{{this.bonus}}</div>
-              </div>
-              {{else}}
-              <div class="tree-bonus no-bonus">
-                <em>No tree bonus defined</em>
-              </div>
-              {{/if}}
-            </div>
-            {{/each}}
-          </div>
-        </div>
-        {{/if}}
-        
         <!-- Selected Powers List (Creation Mode) -->
         <div class="creation-powers-list">
           <h4>Selected Powers:</h4>
@@ -996,20 +954,140 @@
             {{#each items.powers}}
               {{#if (contains ../creation.selectedTrees (default this.system.tree ""))}}
               <div class="power-card creation-power" data-item-id="{{this.id}}">
-                <div class="power-header">
-                  <h4 class="power-name">{{this.name}}</h4>
+                <div class="power-header-compact">
+                  <div class="power-name-compact">
+                    {{this.name}}
+                    <span class="power-level-badge" title="Power Level {{default this.system.level 1}}"><strong>Level {{default this.system.level 1}}</strong></span>
+                  </div>
+                  <div class="power-info-compact">
+                    {{#if (lookup this.system.roll 'damage')}}
+                    <span class="power-damage-compact" title="Damage">
+                      <i class="fas fa-sword"></i> {{powerDamage (lookup this.system.roll 'damage')}}
+                    </span>
+                    {{/if}}
+                    {{#if this.system.specials}}
+                    {{#if (isArray this.system.specials)}}
+                    {{#each this.system.specials}}
+                    {{#if @first}}
+                    <span class="power-special-compact" title="Power Special">
+                      <i class="fas fa-star"></i> {{powerSpecials ../this.system.specials}}
+                    </span>
+                    {{/if}}
+                    {{/each}}
+                    {{/if}}
+                    {{/if}}
+                    <span class="power-category-compact" title="Category">
+                      <i class="fas fa-crosshairs"></i> {{powerCategory this.system.range this.system.aoe}}
+                    </span>
+                    <span class="power-type-compact" title="Type">
+                      <i class="fas fa-bolt"></i> {{powerTypeDisplay this.system.powerType}}
+                    </span>
+                    {{#if this.system.effect}}
+                    <span class="power-effect-compact" title="Effect">
+                      <i class="fas fa-magic"></i> {{this.system.effect}}
+                    </span>
+                    {{/if}}
+                  </div>
                   <div class="power-controls">
                     <select class="power-rank-select" data-item-id="{{this.id}}" title="Select Power Rank">
                       <option value="1" {{#if (eq this.system.level 1)}}selected{{/if}}>Rank 1</option>
                       <option value="2" {{#if (eq this.system.level 2)}}selected{{/if}}>Rank 2</option>
                     </select>
-                    <button type="button" class="item-delete" title="Remove Power"><i class="fas fa-trash"></i></button>
+                    <button type="button" class="power-toggle-details" data-item-id="{{this.id}}" title="Toggle Details">
+                      <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <button type="button" class="item-delete" data-item-id="{{this.id}}" title="Remove Power"><i class="fas fa-trash"></i></button>
                   </div>
                 </div>
-                <div class="power-details">
-                  <span class="power-tree">{{default this.system.tree "No Tree"}}</span>
-                  <span class="power-level">Level {{default this.system.level 1}}</span>
+                <div class="power-description-compact">{{this.system.description}}</div>
+                <div class="power-details-expanded" data-item-id="{{this.id}}" style="display: none;">
+                  <div class="form-group power-details-group" id="power-details">
+                    {{#if (isNewPowerStructure this.system)}}
+                    <div class="power-narrative-above-table">
+                      {{#if this.system.fluff}}
+                      <div class="power-fluff-block is-flavor">
+                        <span class="power-fluff-heading">Flavor</span>
+                        <div class="power-fluff-body">{{this.system.fluff}}</div>
+                      </div>
+                      {{/if}}
+                      {{#if this.system.description}}
+                      <div class="power-fluff-block {{#if this.system.fluff}}after-fluff{{/if}}">
+                        <span class="power-fluff-heading">Description</span>
+                        <div class="power-fluff-body">{{this.system.description}}</div>
+                      </div>
+                      {{/if}}
+                    </div>
+                    <p class="power-definition-rank-note">
+                      Effects use <strong>rank {{powerDefinitionRank this.system}}</strong> from the table (power level {{default this.system.level 1}}; capped at the highest rank defined for this power).
+                    </p>
+                    <div class="power-level-table-container">
+                      <table class="power-level-table">
+                        <thead>
+                          <tr>
+                            <th>Level</th>
+                            <th>Type</th>
+                            <th>Range</th>
+                            <th>AoE</th>
+                            <th>Duration</th>
+                            <th>Effect</th>
+                            <th>Specials</th>
+                            {{#if (or (eq this.system.category 'reaction') this.system.trigger)}}
+                            <th>Trigger</th>
+                            {{/if}}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {{#each (array '1' '2' '3' '4')}}
+                          {{#with (lookup ../this.system.levels this)}}
+                          <tr class="power-level-row {{#if (selectedPowerTableRow ../this ../../this.system)}}selected is-current-power-level{{/if}}" data-level="{{../this}}">
+                            <td class="power-level-cell {{#if (selectedPowerTableRow ../this ../../this.system)}}is-current{{/if}}">
+                              <span class="power-level-num">{{../this}}</span>
+                              {{#if (selectedPowerTableRow ../this ../../this.system)}}
+                              <span class="power-level-current-badge" title="Row used at your current power level">Current</span>
+                              {{/if}}
+                            </td>
+                            <td class="power-type-cell">{{this.type}}</td>
+                            <td class="power-range-cell">{{renderRange this.range}}</td>
+                            <td class="power-aoe-cell">{{renderAoe this.aoe}}</td>
+                            <td class="power-duration-cell">{{renderDuration this.duration}}</td>
+                            <td class="power-effect-cell">{{this.effect.text}}</td>
+                            <td class="power-specials-cell">{{powerSpecials this.specials}}</td>
+                            {{#if (or (eq ../../this.system.category 'reaction') ../../this.system.trigger)}}
+                            <td class="power-trigger-cell">{{default this.trigger ../../this.system.trigger '—'}}</td>
+                            {{/if}}
+                          </tr>
+                          {{/with}}
+                          {{/each}}
+                        </tbody>
+                      </table>
+                    </div>
+                    {{else}}
+                    <div id="power-description" class="power-description-text">{{this.system.description}}</div>
+                    <div id="power-level-info" class="power-level-info-text">
+                      <strong>Selected Level {{default this.system.level 1}}:</strong><br>
+                      {{#if this.system.powerType}}Type: {{powerTypeDisplay this.system.powerType}}<br>{{/if}}
+                      {{#if this.system.range}}Range: {{this.system.range}}<br>{{/if}}
+                      {{#if this.system.aoe}}AoE: {{this.system.aoe}}<br>{{/if}}
+                      {{#if this.system.duration}}Duration: {{this.system.duration}}<br>{{/if}}
+                      {{#if this.system.effect}}Effect: {{this.system.effect}}<br>{{/if}}
+                      {{#if this.system.specials}}
+                      {{#if (isArray this.system.specials)}}
+                      {{#each this.system.specials}}
+                      {{#if @first}}
+                      Special: {{powerSpecials ../this.system.specials}}<br>
+                      {{/if}}
+                      {{/each}}
+                      {{/if}}
+                      {{/if}}
+                    </div>
+                    {{/if}}
+                  </div>
                 </div>
+                {{#if this.system.equipped}}
+                <button type="button" class="power-use-btn" data-power-id="{{this.id}}">
+                  <i class="fas fa-bolt"></i> Use Power
+                </button>
+                {{/if}}
               </div>
               {{/if}}
             {{/each}}

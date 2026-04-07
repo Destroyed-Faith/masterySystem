@@ -4,8 +4,6 @@
  */
 import { SKILLS } from '../utils/skills.js';
 import { DISADVANTAGES, getDisadvantageDefinition, calculateDisadvantagePoints, validateDisadvantageSelection, detailsForMentalRestrictionsDialog } from '../system/disadvantages.js';
-import { getAllMasteryTrees } from '../utils/mastery-trees.js';
-import { getAllSpellSchools } from '../utils/spell-schools.js';
 import { getAllSchticks } from '../utils/schticks.js';
 import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
 import { findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid.js';
@@ -359,49 +357,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // During creation, all powers count (trees are optional)
         const selectedPowers = powers;
         const powersAtRank2 = selectedPowers.filter((p) => (p.system?.level || 1) === 2);
-        // Load tree/school data with bonuses for selected trees
-        const allTrees = getAllMasteryTrees();
-        const allSchools = getAllSpellSchools();
-        const selectedTreesData = selectedTrees.map((treeName) => {
-            // Try to find in mastery trees first
-            let treeData = allTrees.find((t) => t.name === treeName);
-            if (treeData) {
-                return {
-                    name: treeData.name,
-                    type: 'mastery',
-                    bonus: treeData.bonus || null,
-                    focus: treeData.focus,
-                    roles: treeData.roles || []
-                };
-            }
-            // Try spell schools
-            const schoolData = allSchools.find((s) => s.name === treeName || s.fullName === treeName);
-            if (schoolData) {
-                return {
-                    name: schoolData.name,
-                    type: 'spell',
-                    bonus: schoolData.bonus || null,
-                    focus: schoolData.focus,
-                    roles: schoolData.roles || []
-                };
-            }
-            // Fallback if not found
-            return {
-                name: treeName,
-                type: 'unknown',
-                bonus: null,
-                focus: '',
-                roles: []
-            };
-        });
         console.log('Mastery System | getData - Powers Status:', {
             totalPowers: powers.length,
             selectedTrees: selectedTrees,
             selectedTreesCount: selectedTrees.length,
             selectedPowersCount: selectedPowers.length,
             powersAtRank2Count: powersAtRank2.length,
-            creationComplete: context.creationComplete,
-            selectedTreesData: selectedTreesData
+            creationComplete: context.creationComplete
         });
         // Schticks data - per rank structure
         const schticksRanks = context.system.schticks?.ranks || [];
@@ -462,13 +424,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             disadvantagesReviewed,
             powersSelected: selectedPowers.length,
             powersRequired: 4,
-            treesSelected: selectedTrees.length,
-            treesRequired: 0,
             powersAtRank2: powersAtRank2.length,
             powersAtRank2Required: 2,
             powersAtRank2Max: 2,
             selectedTrees: selectedTrees,
-            selectedTreesData: selectedTreesData,
             schticksRows: schticksRows,
             availableSchticks: availableSchticks,
             availableSchticksById: availableSchticksById,
@@ -486,7 +445,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             creationCompleteValue: String(context.creationComplete),
             systemCreationComplete: context.system.creation?.complete,
             creation: {
-                treesSelected: context.creation?.treesSelected,
                 powersSelected: context.creation?.powersSelected,
                 powersAtRank2: context.creation?.powersAtRank2
             },
@@ -4248,7 +4206,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('input[name="name"], textarea').prop('disabled', true);
         html.find('select:not(.power-rank-select):not(.attr-creation-select)').prop('disabled', true);
         // Disable buttons except creation controls
-        const buttonsToDisable = html.find('button:not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.add-power-creation-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.general-items-btn)');
+        const buttonsToDisable = html.find('button:not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.add-power-creation-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.general-items-btn)');
         console.log('Mastery System | Disabling buttons:', buttonsToDisable.length);
         buttonsToDisable.prop('disabled', true);
         // Ensure creation buttons are enabled
