@@ -5414,6 +5414,80 @@
   min-height: 200px;
 }
 
+.mastery-system.general-items-storage .storage-category-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.mastery-system.general-items-storage .storage-category-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--df-text-secondary, #a0a0a0);
+}
+
+.mastery-system.general-items-storage .storage-category-filter {
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  background: var(--df-bg-header, #1b2124);
+  color: var(--df-text-primary, #d0d0d0);
+  font-family: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.mastery-system.general-items-storage .storage-category-filter:focus {
+  outline: 2px solid var(--df-accent, #8b0000);
+  outline-offset: 2px;
+}
+
+.mastery-system.general-items-storage .storage-category-panels {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex: 1;
+  min-height: 0;
+}
+
+.mastery-system.general-items-storage .storage-category-panel {
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 8px;
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.mastery-system.general-items-storage .storage-category-title {
+  margin: 0 0 0.65rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--df-text-primary, #d0d0d0);
+  border-bottom: 1px solid var(--df-border-primary, #3a3f44);
+  padding-bottom: 0.4rem;
+}
+
+.mastery-system.general-items-storage .storage-category-count {
+  font-weight: 500;
+  color: var(--df-text-secondary, #a0a0a0);
+  font-size: 0.9em;
+}
+
+.mastery-system.general-items-storage .storage-category-panel .storage-items-grid {
+  min-height: 0;
+  max-height: 280px;
+}
+
+.mastery-system.general-items-storage .storage-category-empty {
+  margin: 0;
+  padding: 0.5rem 0.25rem;
+  font-size: 0.85rem;
+  color: var(--df-text-secondary, #888);
+  font-style: italic;
+}
+
 .mastery-system.general-items-storage .window-resizable-handle {
   position: absolute;
   right: 8px;
@@ -5824,6 +5898,12 @@
   font-size: 18px;
   font-weight: 700;
   color: var(--df-text-primary, #d0d0d0);
+}
+
+.mastery-system.sheet.actor.character .disadvantages-range-hint {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--df-text-secondary, #a0a0a0);
 }
 
 .mastery-system.sheet.actor.character .disadvantages-list {

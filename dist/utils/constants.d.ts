@@ -36,6 +36,7 @@ export declare const CREATION: {
     SKILL_POINTS: number;
     MAX_ATTRIBUTE_AT_CREATION: number;
     MAX_SKILL_AT_CREATION: number;
+    MIN_DISADVANTAGE_POINTS: number;
     MAX_DISADVANTAGE_POINTS: number;
 };
 export declare const XP_COSTS: {

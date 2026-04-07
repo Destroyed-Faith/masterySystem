@@ -299,6 +299,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Calculate creation point counters (always calculate, but only show if not complete)
         const masteryRank = context.system.mastery?.rank || 2;
         const skillPointsConfig = CONFIG.MASTERY?.creation?.skillPoints || 16;
+        const maxDisadvantagePoints = CONFIG.MASTERY?.creation?.maxDisadvantagePoints ?? 8;
+        const minDisadvantagePoints = CONFIG.MASTERY?.creation?.minDisadvantagePoints ?? 2;
         // Calculate attribute distribution status (2×8, 2×6, 2×4, 1×2 model)
         const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
         const attrValues = attributeKeys.map(key => context.system.attributes?.[key]?.value || masteryRank);
@@ -347,6 +349,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         // Calculate disadvantage points
         const disadvantagePoints = (context.system.disadvantages || []).reduce((sum, d) => sum + (d.points || 0), 0);
+        const disadvantagesValid = disadvantagePoints >= minDisadvantagePoints && disadvantagePoints <= maxDisadvantagePoints;
         // Check if disadvantages phase is reviewed (user has visited the tab or interacted with disadvantages)
         const disadvantagesReviewed = context.system.creation?.disadvantagesReviewed === true ||
             (context.system.disadvantages && Array.isArray(context.system.disadvantages));
@@ -421,6 +424,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             skillPointsRemaining: skillPointsConfig - skillPointsSpent,
             skillPointsSpent,
             disadvantagePoints,
+            disadvantagePointsMin: minDisadvantagePoints,
+            disadvantagePointsMax: maxDisadvantagePoints,
+            disadvantagesValid,
             disadvantagesReviewed,
             powersSelected: selectedPowers.length,
             powersRequired: 4,
@@ -437,7 +443,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             canFinalize: attributeDistributionValid &&
                 skillPointsSpent === skillPointsConfig &&
                 selectedPowers.length === 4 &&
-                powersAtRank2.length <= 2
+                powersAtRank2.length <= 2 &&
+                disadvantagesValid
         };
         console.log('Mastery System | getData - Final Context Check:', {
             creationComplete: context.creationComplete,
@@ -4765,6 +4772,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             skillPointsSpent += (typeof skillValue === 'number' ? skillValue : 0);
         }
         const disadvantagePoints = (system.disadvantages || []).reduce((sum, d) => sum + (d.points || 0), 0);
+        const maxDisadvantagePts = CONFIG.MASTERY?.creation?.maxDisadvantagePoints ?? 8;
+        const minDisadvantagePts = CONFIG.MASTERY?.creation?.minDisadvantagePoints ?? 2;
         // Validate powers & magic
         const powers = this.actor.items.filter((item) => item.type === 'power');
         const powersAtRank2 = powers.filter((p) => (p.system?.level || 1) === 2);
@@ -4789,6 +4798,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         if (powersAtRank2.length > 2) {
             ui.notifications?.error(`Maximum 2 Powers can be at Rank 2. Currently at Rank 2: ${powersAtRank2.length}`);
+            return;
+        }
+        if (disadvantagePoints < minDisadvantagePts) {
+            ui.notifications?.error(`You must take at least ${minDisadvantagePts} points of disadvantages to finish creation (currently ${disadvantagePoints}).`);
+            return;
+        }
+        if (disadvantagePoints > maxDisadvantagePts) {
+            ui.notifications?.error(`Disadvantages cannot exceed ${maxDisadvantagePts} points (currently ${disadvantagePoints}).`);
             return;
         }
         // Validate power ranks don't exceed Mastery Rank

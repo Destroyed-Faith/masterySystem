@@ -25,7 +25,8 @@ export interface DisadvantageDefinition {
 
 /**
  * All available Disadvantages
- * Based on Mastery System rules - players can select 0-8 points of disadvantages
+ * Based on Mastery System rules - during character creation players must take at least
+ * CONFIG.MASTERY.creation.minDisadvantagePoints (default 2) and at most maxDisadvantagePoints (8).
  * Disadvantage Points = Starting Faith Fractures (both current and maximum)
  */
 export const DISADVANTAGES: DisadvantageDefinition[] = [

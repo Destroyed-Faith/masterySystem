@@ -51,18 +51,34 @@ export class GeneralItemsStorageDialog extends BaseDialog {
             storageItems = Array.from(allItems).filter((item) => item.folder?.id === storageFolder.id);
         }
         console.log('Mastery System | Storage items in dialog:', storageItems.length);
+        const mapStorageRow = (item) => ({
+            id: item.id,
+            name: item.name,
+            img: item.img,
+            type: item.type,
+            system: item.system
+        });
+        const byName = (a, b) => (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' });
+        const weapons = storageItems.filter((i) => i.type === 'weapon').sort(byName);
+        const armorItems = storageItems.filter((i) => i.type === 'armor').sort(byName);
+        const shieldsAndGear = storageItems
+            .filter((i) => i.type === 'shield' || i.type === 'gear')
+            .sort(byName);
+        const others = storageItems
+            .filter((i) => !['weapon', 'armor', 'shield', 'gear'].includes(i.type))
+            .sort(byName);
+        const storageCategories = [
+            { key: 'weapons', label: 'Weapons', items: weapons.map(mapStorageRow) },
+            { key: 'armor', label: 'Armor', items: armorItems.map(mapStorageRow) },
+            { key: 'shieldsSurvival', label: 'Shields and Survival Gear', items: shieldsAndGear.map(mapStorageRow) },
+            { key: 'others', label: 'Others', items: others.map(mapStorageRow) }
+        ];
         // Prepare equipment UI using the same logic as character sheet
         const items = this.#prepareItems();
         const equipmentUi = this.#prepareEquipmentUi(items);
         return {
             actor: this._actor,
-            storageItems: storageItems.map((item) => ({
-                id: item.id,
-                name: item.name,
-                img: item.img,
-                type: item.type,
-                system: item.system
-            })),
+            storageCategories,
             equipmentUi,
             hasStorage: storageItems.length > 0,
             isGM: game.user?.isGM === true
@@ -401,6 +417,20 @@ export class GeneralItemsStorageDialog extends BaseDialog {
                 itemId: $item.data('item-id')
             });
         });
+        const $catFilter = html.find('.storage-category-filter');
+        const applyCategoryFilter = () => {
+            const val = String($catFilter.val() || 'all');
+            html.find('.storage-category-panel').each((_i, el) => {
+                const $panel = $(el);
+                const key = String($panel.data('category') || '');
+                const show = val === 'all' || val === key;
+                $panel.toggle(show);
+            });
+        };
+        $catFilter.off('change.storage-cat').on('change.storage-cat', applyCategoryFilter);
+        if ($catFilter.length) {
+            applyCategoryFilter();
+        }
         const ContextMenuCls = foundry.applications?.ux?.ContextMenu;
         if (ContextMenuCls && this.#canModifyActorInventory()) {
             new ContextMenuCls(html, '.storage-item', [

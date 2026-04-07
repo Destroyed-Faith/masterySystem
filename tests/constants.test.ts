@@ -96,6 +96,10 @@ describe('Character Creation Constants', () => {
     expect(CREATION.MAX_SKILL_AT_CREATION).toBe(4);
   });
 
+  it('min disadvantage points at creation is 2', () => {
+    expect(CREATION.MIN_DISADVANTAGE_POINTS).toBe(2);
+  });
+
   it('max disadvantage points is 8', () => {
     expect(CREATION.MAX_DISADVANTAGE_POINTS).toBe(8);
   });

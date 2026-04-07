@@ -1351,6 +1351,7 @@ function registerConfigConstants() {
         skillPoints: 16,
         maxAttributeAtCreation: 8,
         maxSkillAtCreation: 4,
+        minDisadvantagePoints: 2,
         maxDisadvantagePoints: 8
     };
 }
