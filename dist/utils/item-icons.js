@@ -8,18 +8,33 @@ const WEAPON_ICONS = {
     shortbow: `${ICON_BASE}/weapons/Shortbow.png`,
     // No separate longbow art yet — same silhouette as shortbow
     longbow: `${ICON_BASE}/weapons/Shortbow.png`,
-    'light crossbow': `${ICON_BASE}/weapons/Bolts.png`,
-    'heavy crossbow': `${ICON_BASE}/weapons/Bolts.png`
+    /** Placeholder until dedicated crossbow art exists (Bolts.png is reserved for ammunition). */
+    'light crossbow': `${ICON_BASE}/weapons/Shortbow.png`,
+    'heavy crossbow': `${ICON_BASE}/weapons/Shortbow.png`,
+    arrows: `${ICON_BASE}/weapons/Arrow.png`,
+    'crossbow bolts': `${ICON_BASE}/weapons/Bolts.png`
 };
 const ARMOR_ICONS = {
     'light armor': `${ICON_BASE}/armor/Light Armor.png`,
     'medium armor': `${ICON_BASE}/armor/Armor Medium.png`,
-    'heavy armor': `${ICON_BASE}/armor/Heavy armor.png`
+    'heavy armor': `${ICON_BASE}/armor/Heavy Armor.png`
+};
+const ARMOR_BY_TIER = {
+    light: `${ICON_BASE}/armor/Light Armor.png`,
+    medium: `${ICON_BASE}/armor/Armor Medium.png`,
+    heavy: `${ICON_BASE}/armor/Heavy Armor.png`
 };
 const SHIELD_ICONS = {
     'parry shield': `${ICON_BASE}/shields/ShieldParry.png`,
     'medium shield': `${ICON_BASE}/shields/Medium Shield.png`,
-    'tower shield': `${ICON_BASE}/shields/tower shield.png`
+    'tower shield': `${ICON_BASE}/shields/Tower Shield.png`,
+    /** Common synonym for tower / large shield */
+    'heavy shield': `${ICON_BASE}/shields/Tower Shield.png`
+};
+const SHIELD_BY_TYPE = {
+    parry: `${ICON_BASE}/shields/ShieldParry.png`,
+    medium: `${ICON_BASE}/shields/Medium Shield.png`,
+    tower: `${ICON_BASE}/shields/Tower Shield.png`
 };
 const GEAR_ICONS = {
     'glass bottle or vial': `${ICON_BASE}/gear/Glass Bottle.png`,
@@ -40,8 +55,10 @@ const GEAR_ICONS = {
 };
 const DEFAULT_TYPE_ICONS = {
     weapon: `${ICON_BASE}/weapons/Dagger.png`,
-    armor: `${ICON_BASE}/armor/Light Armor.png`,
-    shield: `${ICON_BASE}/shields/Medium Shield.png`,
+    /** Generic armor only — never use a specific tier image here (would mis-label heavy/medium). */
+    armor: 'icons/svg/armor.svg',
+    /** Generic shield — avoid defaulting to “medium” art for tower/parry. */
+    shield: 'icons/svg/shield.svg',
     gear: `${ICON_BASE}/gear/Glass Bottle.png`,
     power: 'icons/svg/aura.svg',
     artifact: 'icons/svg/chest.svg',
@@ -52,16 +69,27 @@ const DEFAULT_TYPE_ICONS = {
 };
 /**
  * Resolve the best icon path for an item by name and type.
+ * For armor and shields, pass `system` (with `type` tier) so renamed items still match the correct art.
  * Returns null if no custom icon is available.
  */
-export function getItemIcon(name, type) {
+export function getItemIcon(name, type, system) {
     const key = name.toLowerCase().trim();
     if (type === 'weapon' && WEAPON_ICONS[key])
         return WEAPON_ICONS[key];
-    if (type === 'armor' && ARMOR_ICONS[key])
-        return ARMOR_ICONS[key];
-    if (type === 'shield' && SHIELD_ICONS[key])
-        return SHIELD_ICONS[key];
+    if (type === 'armor') {
+        if (ARMOR_ICONS[key])
+            return ARMOR_ICONS[key];
+        const tier = (system?.type || '').toString().toLowerCase();
+        if (tier && ARMOR_BY_TIER[tier])
+            return ARMOR_BY_TIER[tier];
+    }
+    if (type === 'shield') {
+        if (SHIELD_ICONS[key])
+            return SHIELD_ICONS[key];
+        const st = (system?.type || '').toString().toLowerCase();
+        if (st && SHIELD_BY_TYPE[st])
+            return SHIELD_BY_TYPE[st];
+    }
     if (type === 'gear' && GEAR_ICONS[key])
         return GEAR_ICONS[key];
     return DEFAULT_TYPE_ICONS[type] || null;

@@ -55,7 +55,7 @@ export class GeneralItemsStorageDialog extends BaseDialog {
         const mapStorageRow = (item) => {
             const rawImg = item.img != null ? String(item.img).trim() : '';
             const img = rawImg ||
-                getItemIcon(item.name, item.type) ||
+                getItemIcon(item.name, item.type, item.system) ||
                 'icons/svg/item-bag.svg';
             return {
                 id: item.id,
@@ -70,15 +70,11 @@ export class GeneralItemsStorageDialog extends BaseDialog {
         const armorItems = storageItems.filter((i) => i.type === 'armor').sort(byName);
         const shields = storageItems.filter((i) => i.type === 'shield').sort(byName);
         const gearItems = storageItems.filter((i) => i.type === 'gear').sort(byName);
-        const others = storageItems
-            .filter((i) => !['weapon', 'armor', 'shield', 'gear'].includes(i.type))
-            .sort(byName);
         const storageCategories = [
             { key: 'weapons', label: 'Weapons', items: weapons.map(mapStorageRow) },
             { key: 'armor', label: 'Armor', items: armorItems.map(mapStorageRow) },
             { key: 'shields', label: 'Shields', items: shields.map(mapStorageRow) },
-            { key: 'gear', label: 'Gear', items: gearItems.map(mapStorageRow) },
-            { key: 'others', label: 'Others', items: others.map(mapStorageRow) }
+            { key: 'gear', label: 'Gear', items: gearItems.map(mapStorageRow) }
         ];
         // Prepare equipment UI using the same logic as character sheet
         const items = this.#prepareItems();
@@ -339,23 +335,23 @@ export class GeneralItemsStorageDialog extends BaseDialog {
         if (typeof document !== 'undefined') {
             const win = document.getElementById('mastery-general-items-storage');
             const $fromWin = fromDialog(win);
-            if ($fromWin.find('.storage-category-filter').length)
+            if ($fromWin.length)
                 return $fromWin;
         }
         if (element) {
             if (element.classList?.contains('general-items-storage-dialog')) {
                 const $el = $(element);
-                if ($el.find('.storage-category-filter').length)
+                if ($el.length)
                     return $el;
             }
             const $fromEl = fromDialog(element);
-            if ($fromEl.find('.storage-category-filter').length)
+            if ($fromEl.length)
                 return $fromEl;
         }
         const rawApp = this.element;
         const appEl = rawApp && rawApp.jquery ? rawApp[0] : rawApp;
         const $fromApp = fromDialog(appEl ?? null);
-        if ($fromApp.find('.storage-category-filter').length)
+        if ($fromApp.length)
             return $fromApp;
         return element ? $(element) : $();
     }
@@ -365,7 +361,6 @@ export class GeneralItemsStorageDialog extends BaseDialog {
         console.log('Mastery System | [Storage Debug] _onRender', {
             elementExists: !!element,
             scopeResolved: $scope.length > 0,
-            hasFilter: $scope.find('.storage-category-filter').length,
             storageItems: $scope.find('.storage-item').length,
             actorId: this._actor?.id
         });
@@ -457,19 +452,6 @@ export class GeneralItemsStorageDialog extends BaseDialog {
                 itemId: $item.attr('data-item-id')
             });
         });
-        const $catFilter = $scope.find('.storage-category-filter');
-        const applyCategoryFilter = () => {
-            const val = String($catFilter.val() || 'all');
-            $scope.find('.storage-category-block').each((_i, el) => {
-                const key = el.getAttribute('data-category') || '';
-                const show = val === 'all' || val === key;
-                el.classList.toggle('storage-category--filtered-out', !show);
-            });
-        };
-        $catFilter.off('change.storage-cat').on('change.storage-cat', applyCategoryFilter);
-        if ($catFilter.length) {
-            applyCategoryFilter();
-        }
         const ContextMenuCls = foundry.applications?.ux?.ContextMenu;
         if (ContextMenuCls && this.#canModifyActorInventory() && $scope.length) {
             new ContextMenuCls($scope, '.storage-item', [

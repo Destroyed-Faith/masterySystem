@@ -62,13 +62,25 @@ const SHIELD_SIZES = {
     medium: '2x3',
     tower: '3x4'
 };
+/** Ammunition stored as `weapon` items so they appear under Weapons in storage. */
+const AMMO_WEAPON_ITEMS = [
+    { name: 'Arrows', inventorySize: '1x2' },
+    { name: 'Crossbow Bolts', inventorySize: '1x1' }
+];
+const WEAPON_INVENTORY_OVERRIDES = {
+    unarmed: '1x1',
+    spear: '1x3',
+    arrows: '1x2',
+    'crossbow bolts': '1x1'
+};
 function isRangedWeapon(innateAbilities) {
     return (innateAbilities || []).some(ability => ability.toLowerCase().includes('ranged'));
 }
 function getWeaponInventorySize(hands, ranged, name) {
-    if (name.toLowerCase() === 'unarmed') {
-        return '1x1';
-    }
+    const key = name.toLowerCase().trim();
+    const fixed = WEAPON_INVENTORY_OVERRIDES[key];
+    if (fixed)
+        return fixed;
     if (ranged) {
         return '2x4';
     }
@@ -83,6 +95,10 @@ export function getDefaultInventorySizeForItemData(item) {
         return GEAR_SIZE_BY_NAME[name] || null;
     }
     if (type === 'weapon') {
+        const overrideKey = (item.name || '').toLowerCase().trim();
+        if (WEAPON_INVENTORY_OVERRIDES[overrideKey]) {
+            return WEAPON_INVENTORY_OVERRIDES[overrideKey];
+        }
         const hands = Number(item.system?.hands || 1);
         const weaponType = (item.system?.weaponType || '').toString().toLowerCase();
         const ranged = weaponType === 'ranged' || isRangedWeapon(item.system?.innateAbilities);
@@ -158,6 +174,28 @@ export async function seedGeneralItemsStorage() {
             }
         });
     }
+    for (const ammo of AMMO_WEAPON_ITEMS) {
+        if (existingNames.has(ammo.name))
+            continue;
+        itemsToCreate.push({
+            name: ammo.name,
+            type: 'weapon',
+            folder: folder.id,
+            img: getItemIcon(ammo.name, 'weapon') || 'icons/svg/item-bag.svg',
+            system: {
+                description: '',
+                inventorySize: ammo.inventorySize,
+                weaponType: 'melee',
+                damage: '—',
+                range: '0m',
+                hands: 1,
+                innateAbilities: [],
+                specials: [],
+                equipped: false,
+                equipSlots: []
+            }
+        });
+    }
     for (const armor of BASE_ARMOR) {
         if (existingNames.has(armor.name))
             continue;
@@ -165,7 +203,7 @@ export async function seedGeneralItemsStorage() {
             name: armor.name,
             type: 'armor',
             folder: folder.id,
-            img: getItemIcon(armor.name, 'armor') || 'icons/svg/armor.svg',
+            img: getItemIcon(armor.name, 'armor', { type: armor.type }) || 'icons/svg/armor.svg',
             system: {
                 description: armor.description || '',
                 inventorySize: ARMOR_SIZES[armor.type] || '2x4',
@@ -183,7 +221,7 @@ export async function seedGeneralItemsStorage() {
             name: shield.name,
             type: 'shield',
             folder: folder.id,
-            img: getItemIcon(shield.name, 'shield') || 'icons/svg/shield.svg',
+            img: getItemIcon(shield.name, 'shield', { type: shield.type }) || 'icons/svg/shield.svg',
             system: {
                 description: shield.description || '',
                 inventorySize: SHIELD_SIZES[shield.type] || '2x2',

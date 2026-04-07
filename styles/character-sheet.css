@@ -5414,37 +5414,6 @@
   min-height: 200px;
 }
 
-.mastery-system.general-items-storage .storage-category-toolbar {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  margin-bottom: 1rem;
-}
-
-.mastery-system.general-items-storage .storage-category-label {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--df-text-secondary, #a0a0a0);
-}
-
-.mastery-system.general-items-storage .storage-category-filter {
-  width: 100%;
-  padding: 0.5rem 0.65rem;
-  border-radius: 6px;
-  border: 1px solid var(--df-border-primary, #3a3f44);
-  background: var(--df-bg-header, #1b2124);
-  color: var(--df-text-primary, #d0d0d0);
-  font-family: inherit;
-  font-size: 0.95rem;
-  cursor: pointer;
-}
-
-.mastery-system.general-items-storage .storage-category-filter:focus {
-  outline: 2px solid var(--df-accent, #8b0000);
-  outline-offset: 2px;
-}
-
 .mastery-system.general-items-storage .storage-category-panels {
   display: flex;
   flex-direction: column;
@@ -5459,10 +5428,6 @@
   padding: 0;
   background: rgba(0, 0, 0, 0.15);
   overflow: hidden;
-}
-
-.mastery-system.general-items-storage .storage-category-block.storage-category--filtered-out {
-  display: none !important;
 }
 
 .mastery-system.general-items-storage .storage-category-summary {

@@ -8,17 +8,6 @@
     <div class="storage-items-panel">
       <h4>Storage Items</h4>
       {{#if hasStorage}}
-        <div class="storage-category-toolbar">
-          <label class="storage-category-label" for="mastery-gis-category-filter">Category</label>
-          <select id="mastery-gis-category-filter" class="storage-category-filter" aria-label="Filter by item category">
-            <option value="all" selected>All categories</option>
-            <option value="weapons">Weapons</option>
-            <option value="armor">Armor</option>
-            <option value="shields">Shields</option>
-            <option value="gear">Gear</option>
-            <option value="others">Others</option>
-          </select>
-        </div>
         <div class="storage-category-panels">
           {{#each storageCategories}}
             <details class="storage-category-block" data-category="{{this.key}}" open>

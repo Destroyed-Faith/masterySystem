@@ -1410,7 +1410,7 @@ Hooks.on('preUpdateActor', (actor, updateData, _options, _userId) => {
 Hooks.on('preCreateItem', (item, data, _options, _userId) => {
     const isDefaultImg = !data.img || data.img === 'icons/svg/item-bag.svg' || data.img === 'icons/svg/mystery-man.svg';
     if (isDefaultImg) {
-        const icon = getItemIcon(data.name || '', item.type || data.type || '');
+        const icon = getItemIcon(data.name || '', item.type || data.type || '', data.system);
         if (icon) {
             item.updateSource({ img: icon });
         }
@@ -1861,24 +1861,60 @@ Hooks.once('ready', async function () {
     ]);
     let migratedIcons = 0;
     const allWorldItems = Array.from(game.items || []);
+    const fixHeavyArmorIcon = async (item) => {
+        if (item.type !== 'armor' || item.system?.type !== 'heavy')
+            return false;
+        const img = String(item.img || '');
+        const wrongLightArt = /light\s*armor\.png/i.test(img);
+        const legacyHeavyPath = img.includes('Heavy armor.png') && !img.includes('Heavy Armor.png');
+        if (!wrongLightArt && !legacyHeavyPath)
+            return false;
+        const icon = getItemIcon(item.name, 'armor', item.system);
+        if (!icon || icon === item.img)
+            return false;
+        await item.update({ img: icon });
+        return true;
+    };
+    const fixTowerShieldIcon = async (item) => {
+        if (item.type !== 'shield' || item.system?.type !== 'tower')
+            return false;
+        const img = String(item.img || '');
+        const wrongMediumArt = /medium\s*shield\.png/i.test(img);
+        const legacyTowerPath = img.includes('tower shield.png') && !img.includes('Tower Shield.png');
+        if (!wrongMediumArt && !legacyTowerPath)
+            return false;
+        const icon = getItemIcon(item.name, 'shield', item.system);
+        if (!icon || icon === item.img)
+            return false;
+        await item.update({ img: icon });
+        return true;
+    };
     for (const item of allWorldItems) {
         if (FOUNDRY_DEFAULT_ICONS.has(item.img)) {
-            const icon = getItemIcon(item.name, item.type);
+            const icon = getItemIcon(item.name, item.type, item.system);
             if (icon && icon !== item.img) {
                 await item.update({ img: icon });
                 migratedIcons++;
             }
         }
+        if (await fixHeavyArmorIcon(item))
+            migratedIcons++;
+        if (await fixTowerShieldIcon(item))
+            migratedIcons++;
     }
     for (const actor of game.actors || []) {
         for (const item of actor.items || []) {
             if (FOUNDRY_DEFAULT_ICONS.has(item.img)) {
-                const icon = getItemIcon(item.name, item.type);
+                const icon = getItemIcon(item.name, item.type, item.system);
                 if (icon && icon !== item.img) {
                     await item.update({ img: icon });
                     migratedIcons++;
                 }
             }
+            if (await fixHeavyArmorIcon(item))
+                migratedIcons++;
+            if (await fixTowerShieldIcon(item))
+                migratedIcons++;
         }
     }
     if (migratedIcons > 0) {
