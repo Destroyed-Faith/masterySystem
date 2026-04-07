@@ -729,32 +729,39 @@
   flex-wrap: wrap;
 }
 
-.mastery-system.sheet.actor.character .attribute-xp-confirm-row {
+/* Scoped via .sheet-body so layout still applies if sheet classes differ on the app root (e.g. Foundry v13). */
+.mastery-system .sheet-body .attribute-xp-confirm-row {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
   gap: 0.5rem;
   align-items: center;
   min-width: 0;
+  width: 100%;
 }
 
 /** Confirm + Cancel share width; Stone powers stays on the same row beside them */
-.mastery-system.sheet.actor.character .attribute-xp-confirm-pair {
+.mastery-system .sheet-body .attribute-xp-confirm-pair {
   display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   flex: 1 1 auto;
   gap: 0.5rem;
   align-items: center;
   min-width: 0;
 }
 
-.mastery-system.sheet.actor.character .attribute-xp-confirm-pair .confirm-attribute-changes,
-.mastery-system.sheet.actor.character .attribute-xp-confirm-pair .cancel-attribute-changes {
-  flex: 1 1 0;
-  min-width: 7.5rem;
+.mastery-system .sheet-body .attribute-xp-confirm-pair .confirm-attribute-changes,
+.mastery-system .sheet-body .attribute-xp-confirm-pair .cancel-attribute-changes {
+  flex: 1 1 auto;
+  min-width: min(7.5rem, 100%);
+  width: auto;
+  max-width: 100%;
 }
 
-.mastery-system.sheet.actor.character .attribute-xp-confirm-row .stone-powers-btn-header {
+.mastery-system .sheet-body .attribute-xp-confirm-row .stone-powers-btn-header {
   flex: 0 0 auto;
+  width: auto;
 }
 
 .mastery-system.sheet.actor.character .pending-attribute-changes-info {
