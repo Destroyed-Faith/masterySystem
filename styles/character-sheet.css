@@ -731,14 +731,25 @@
 
 .mastery-system.sheet.actor.character .attribute-xp-confirm-row {
   display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   gap: 0.5rem;
   align-items: center;
-  flex-wrap: wrap;
+  min-width: 0;
 }
 
-.mastery-system.sheet.actor.character .attribute-xp-confirm-row .confirm-attribute-changes,
-.mastery-system.sheet.actor.character .attribute-xp-confirm-row .cancel-attribute-changes {
-  flex: 1;
+/** Confirm + Cancel share width; Stone powers stays on the same row beside them */
+.mastery-system.sheet.actor.character .attribute-xp-confirm-pair {
+  display: flex;
+  flex: 1 1 auto;
+  gap: 0.5rem;
+  align-items: center;
+  min-width: 0;
+}
+
+.mastery-system.sheet.actor.character .attribute-xp-confirm-pair .confirm-attribute-changes,
+.mastery-system.sheet.actor.character .attribute-xp-confirm-pair .cancel-attribute-changes {
+  flex: 1 1 0;
   min-width: 7.5rem;
 }
 
