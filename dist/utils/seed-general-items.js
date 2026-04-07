@@ -39,6 +39,7 @@ const GEAR_ITEMS = [
     { name: 'Saddle, Pack', inventorySize: '3x3' },
     { name: 'Saddle, Riding', inventorySize: '3x3' },
     { name: 'Saddlebags, pair', inventorySize: '3x2' },
+    { name: 'Soap', inventorySize: '1x1' },
     { name: 'Spellbook', inventorySize: '2x2' },
     { name: 'Tent, Large', inventorySize: '4x3' },
     { name: 'Tent, Small', inventorySize: '3x2' },
