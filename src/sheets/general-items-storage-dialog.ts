@@ -6,6 +6,7 @@
 // Types are available globally in Foundry VTT
 
 import { seedGeneralItemsStorage } from '../utils/seed-general-items';
+import { getItemIcon } from '../utils/item-icons';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
@@ -66,21 +67,27 @@ export class GeneralItemsStorageDialog extends BaseDialog {
     }
     console.log('Mastery System | Storage items in dialog:', storageItems.length);
 
-    const mapStorageRow = (item: any) => ({
-      id: item.id,
-      name: item.name,
-      img: item.img,
-      type: item.type,
-      system: item.system
-    });
+    const mapStorageRow = (item: any) => {
+      const rawImg = item.img != null ? String(item.img).trim() : '';
+      const img =
+        rawImg ||
+        getItemIcon(item.name, item.type) ||
+        'icons/svg/item-bag.svg';
+      return {
+        id: item.id,
+        name: item.name,
+        img,
+        type: item.type,
+        system: item.system
+      };
+    };
 
     const byName = (a: any, b: any) => (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' });
 
     const weapons = storageItems.filter((i: any) => i.type === 'weapon').sort(byName);
     const armorItems = storageItems.filter((i: any) => i.type === 'armor').sort(byName);
-    const shieldsAndGear = storageItems
-      .filter((i: any) => i.type === 'shield' || i.type === 'gear')
-      .sort(byName);
+    const shields = storageItems.filter((i: any) => i.type === 'shield').sort(byName);
+    const gearItems = storageItems.filter((i: any) => i.type === 'gear').sort(byName);
     const others = storageItems
       .filter((i: any) => !['weapon', 'armor', 'shield', 'gear'].includes(i.type))
       .sort(byName);
@@ -88,7 +95,8 @@ export class GeneralItemsStorageDialog extends BaseDialog {
     const storageCategories = [
       { key: 'weapons', label: 'Weapons', items: weapons.map(mapStorageRow) },
       { key: 'armor', label: 'Armor', items: armorItems.map(mapStorageRow) },
-      { key: 'shieldsSurvival', label: 'Shields and Survival Gear', items: shieldsAndGear.map(mapStorageRow) },
+      { key: 'shields', label: 'Shields', items: shields.map(mapStorageRow) },
+      { key: 'gear', label: 'Gear', items: gearItems.map(mapStorageRow) },
       { key: 'others', label: 'Others', items: others.map(mapStorageRow) }
     ];
 
@@ -333,24 +341,59 @@ export class GeneralItemsStorageDialog extends BaseDialog {
     return a.isOwner === true;
   }
 
+  /**
+   * ApplicationV2 may pass a render root that does not contain our template; resolve the dialog content.
+   */
+  #getStorageScope(element: HTMLElement | undefined | null): JQuery {
+    const fromDialog = (root: ParentNode | null | undefined): JQuery => {
+      const dlg = root?.querySelector?.('.general-items-storage-dialog');
+      return dlg ? $(dlg as HTMLElement) : $();
+    };
+
+    if (typeof document !== 'undefined') {
+      const win = document.getElementById('mastery-general-items-storage');
+      const $fromWin = fromDialog(win);
+      if ($fromWin.find('.storage-category-filter').length) return $fromWin;
+    }
+
+    if (element) {
+      if (element.classList?.contains('general-items-storage-dialog')) {
+        const $el = $(element);
+        if ($el.find('.storage-category-filter').length) return $el;
+      }
+      const $fromEl = fromDialog(element);
+      if ($fromEl.find('.storage-category-filter').length) return $fromEl;
+    }
+
+    const rawApp = (this as any).element as HTMLElement | JQuery | undefined;
+    const appEl =
+      rawApp && (rawApp as JQuery).jquery ? (rawApp as JQuery)[0] : (rawApp as HTMLElement | undefined);
+    const $fromApp = fromDialog(appEl ?? null);
+    if ($fromApp.find('.storage-category-filter').length) return $fromApp;
+
+    return element ? $(element) : $();
+  }
+
   async _onRender(element: HTMLElement, _options: any): Promise<void> {
     await super._onRender?.(element, _options);
-    
-    const html = $(element);
+
+    const $scope = this.#getStorageScope(element);
     console.log('Mastery System | [Storage Debug] _onRender', {
       elementExists: !!element,
-      storageItems: html.find('.storage-item').length,
+      scopeResolved: $scope.length > 0,
+      hasFilter: $scope.find('.storage-category-filter').length,
+      storageItems: $scope.find('.storage-item').length,
       actorId: (this._actor as any)?.id
     });
-    
+
     // Enable drag and drop for storage items
-    const storageItems = html.find('.storage-item');
-    storageItems.each((_index, itemEl) => {
+    const storageItemEls = $scope.find('.storage-item');
+    storageItemEls.each((_index, itemEl) => {
       const $item = $(itemEl);
       $item.find('*').addBack().attr('draggable', 'true');
     });
     console.log('Mastery System | [Storage Debug] Drag handlers bound', {
-      storageItemCount: storageItems.length
+      storageItemCount: storageItemEls.length
     });
 
     const rootEl = (this as any).element?.[0] as HTMLElement | undefined;
@@ -396,17 +439,17 @@ export class GeneralItemsStorageDialog extends BaseDialog {
       document.addEventListener('mouseup', onUp);
     });
 
-    html.off('mousedown.storage').on('mousedown.storage', '.storage-item, .storage-item *', (e: any) => {
+    $scope.off('mousedown.storage').on('mousedown.storage', '.storage-item, .storage-item *', (e: any) => {
       const $item = $(e.target).closest('.storage-item');
       console.log('Mastery System | [Storage MouseDown]', {
         targetClass: (e.target as HTMLElement)?.className,
-        itemId: $item.data('item-id')
+        itemId: $item.attr('data-item-id')
       });
     });
 
-    html.off('dragstart.storage').on('dragstart.storage', '.storage-item, .storage-item *', (e: any) => {
+    $scope.off('dragstart.storage').on('dragstart.storage', '.storage-item, .storage-item *', (e: any) => {
       const $item = $(e.target).closest('.storage-item');
-      const itemId = $item.data('item-id');
+      const itemId = $item.attr('data-item-id');
       const sourceItem = (game as any).items?.get(itemId);
       const dataTransfer = e.originalEvent?.dataTransfer;
       if (!sourceItem || !dataTransfer) {
@@ -433,21 +476,20 @@ export class GeneralItemsStorageDialog extends BaseDialog {
       });
     });
 
-    html.off('dragend.storage').on('dragend.storage', '.storage-item, .storage-item *', (e: any) => {
+    $scope.off('dragend.storage').on('dragend.storage', '.storage-item, .storage-item *', (e: any) => {
       const $item = $(e.target).closest('.storage-item');
       console.log('Mastery System | [Storage DragEnd]', {
-        itemId: $item.data('item-id')
+        itemId: $item.attr('data-item-id')
       });
     });
 
-    const $catFilter = html.find('.storage-category-filter');
+    const $catFilter = $scope.find('.storage-category-filter');
     const applyCategoryFilter = () => {
       const val = String($catFilter.val() || 'all');
-      html.find('.storage-category-panel').each((_i, el) => {
-        const $panel = $(el);
-        const key = String($panel.data('category') || '');
+      $scope.find('.storage-category-block').each((_i, el) => {
+        const key = el.getAttribute('data-category') || '';
         const show = val === 'all' || val === key;
-        $panel.toggle(show);
+        el.classList.toggle('storage-category--filtered-out', !show);
       });
     };
     $catFilter.off('change.storage-cat').on('change.storage-cat', applyCategoryFilter);
@@ -456,8 +498,8 @@ export class GeneralItemsStorageDialog extends BaseDialog {
     }
 
     const ContextMenuCls = (foundry as any).applications?.ux?.ContextMenu;
-    if (ContextMenuCls && this.#canModifyActorInventory()) {
-      new ContextMenuCls(html, '.storage-item', [
+    if (ContextMenuCls && this.#canModifyActorInventory() && $scope.length) {
+      new ContextMenuCls($scope, '.storage-item', [
         {
           name: 'Ins Inventar legen',
           icon: '<i class="fas fa-box-open"></i>',
@@ -480,8 +522,8 @@ export class GeneralItemsStorageDialog extends BaseDialog {
       ] as any, { eventName: 'contextmenu' } as any);
     }
 
-    // Enable drop on encumbrance bands
-    html.find('.df-enc-band').each((_index, bandEl) => {
+    // Enable drop on encumbrance bands (if this dialog embeds equipment UI in the future)
+    $scope.find('.df-enc-band').each((_index, bandEl) => {
       const $band = $(bandEl);
       const band = $band.data('band');
       
