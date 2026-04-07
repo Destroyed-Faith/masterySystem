@@ -1,10 +1,21 @@
 const ICON_BASE = 'systems/mastery-system/assets/icons/items';
 
+/** Normalize weapon display names for icon lookup (hyphens, repeated spaces). */
+export function normalizeWeaponNameKey(name: string): string {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, ' ')
+    .replace(/-/g, ' ');
+}
+
 const WEAPON_ICONS: Record<string, string> = {
   dagger: `${ICON_BASE}/weapons/Dagger.png`,
   'short sword': `${ICON_BASE}/weapons/shortsword.png`,
-  rapier: `${ICON_BASE}/weapons/Rapier.png`,
-  spear: `${ICON_BASE}/weapons/Spear.png`,
+  /** One-word spelling / compendium variants */
+  shortsword: `${ICON_BASE}/weapons/shortsword.png`,
+  rapier: `${ICON_BASE}/weapons/rapier.png`,
+  spear: `${ICON_BASE}/weapons/spear.png`,
   whip: `${ICON_BASE}/weapons/Whip.png`,
   shortbow: `${ICON_BASE}/weapons/Shortbow.png`,
   // No separate longbow art yet — same silhouette as shortbow
@@ -17,29 +28,29 @@ const WEAPON_ICONS: Record<string, string> = {
 };
 
 const ARMOR_ICONS: Record<string, string> = {
-  'light armor': `${ICON_BASE}/armor/Light Armor.png`,
-  'medium armor': `${ICON_BASE}/armor/Armor Medium.png`,
-  'heavy armor': `${ICON_BASE}/armor/Heavy Armor.png`
+  'light armor': `${ICON_BASE}/armor/LightArmor.png`,
+  'medium armor': `${ICON_BASE}/armor/ArmorMedium.png`,
+  'heavy armor': `${ICON_BASE}/armor/HeavyArmor.png`
 };
 
 const ARMOR_BY_TIER: Record<string, string> = {
-  light: `${ICON_BASE}/armor/Light Armor.png`,
-  medium: `${ICON_BASE}/armor/Armor Medium.png`,
-  heavy: `${ICON_BASE}/armor/Heavy Armor.png`
+  light: `${ICON_BASE}/armor/LightArmor.png`,
+  medium: `${ICON_BASE}/armor/ArmorMedium.png`,
+  heavy: `${ICON_BASE}/armor/HeavyArmor.png`
 };
 
 const SHIELD_ICONS: Record<string, string> = {
   'parry shield': `${ICON_BASE}/shields/ShieldParry.png`,
-  'medium shield': `${ICON_BASE}/shields/Medium Shield.png`,
-  'tower shield': `${ICON_BASE}/shields/Tower Shield.png`,
+  'medium shield': `${ICON_BASE}/shields/MediumShield.png`,
+  'tower shield': `${ICON_BASE}/shields/TowerShield.png`,
   /** Common synonym for tower / large shield */
-  'heavy shield': `${ICON_BASE}/shields/Tower Shield.png`
+  'heavy shield': `${ICON_BASE}/shields/TowerShield.png`
 };
 
 const SHIELD_BY_TYPE: Record<string, string> = {
   parry: `${ICON_BASE}/shields/ShieldParry.png`,
-  medium: `${ICON_BASE}/shields/Medium Shield.png`,
-  tower: `${ICON_BASE}/shields/Tower Shield.png`
+  medium: `${ICON_BASE}/shields/MediumShield.png`,
+  tower: `${ICON_BASE}/shields/TowerShield.png`
 };
 
 const GEAR_ICONS: Record<string, string> = {
@@ -89,7 +100,10 @@ export function getItemIcon(
 ): string | null {
   const key = name.toLowerCase().trim();
 
-  if (type === 'weapon' && WEAPON_ICONS[key]) return WEAPON_ICONS[key];
+  if (type === 'weapon') {
+    const wkey = normalizeWeaponNameKey(name);
+    if (WEAPON_ICONS[wkey]) return WEAPON_ICONS[wkey];
+  }
   if (type === 'armor') {
     if (ARMOR_ICONS[key]) return ARMOR_ICONS[key];
     const tier = (system?.type || '').toString().toLowerCase();

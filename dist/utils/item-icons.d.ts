@@ -1,3 +1,5 @@
+/** Normalize weapon display names for icon lookup (hyphens, repeated spaces). */
+export declare function normalizeWeaponNameKey(name: string): string;
 export type ItemIconSystemHint = {
     type?: string;
 };

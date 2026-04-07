@@ -30,7 +30,7 @@ import { registerDivineClashSettings } from './divine-clash/divine-clash-setting
 import { initializeDivineClashHooks } from './divine-clash/divine-clash-hooks.js';
 import { initializeArtifactAwakening } from './artifacts/artifact-awakening.js';
 import { seedGeneralItemsStorage } from './utils/seed-general-items.js';
-import { getItemIcon } from './utils/item-icons.js';
+import { getItemIcon, normalizeWeaponNameKey } from './utils/item-icons.js';
 import { actorHasPostCreationSnapshot, resetActorProgressToPostCreation } from './utils/xp-post-creation.js';
 import { getPowerDefinitionRank } from './utils/power-definition-rank.js';
 // Dice roller functions are imported in sheets where needed
@@ -1861,30 +1861,62 @@ Hooks.once('ready', async function () {
     ]);
     let migratedIcons = 0;
     const allWorldItems = Array.from(game.items || []);
-    const fixHeavyArmorIcon = async (item) => {
-        if (item.type !== 'armor' || item.system?.type !== 'heavy')
+    /** Old filenames used spaces / mixed case; renamed to LightArmor.png, HeavyArmor.png, etc. */
+    const fixLegacyArmorIcon = async (item) => {
+        if (item.type !== 'armor')
             return false;
-        const img = String(item.img || '');
-        const wrongLightArt = /light\s*armor\.png/i.test(img);
-        const legacyHeavyPath = img.includes('Heavy armor.png') && !img.includes('Heavy Armor.png');
-        if (!wrongLightArt && !legacyHeavyPath)
+        const cur = String(item.img || '').replace(/\\/g, '/');
+        if (!cur.includes('/assets/icons/items/armor/'))
+            return false;
+        let normalized = cur;
+        try {
+            normalized = decodeURIComponent(cur.replace(/\+/g, ' '));
+        }
+        catch {
+            normalized = cur;
+        }
+        if (!/\/(Light Armor|Armor Medium|Heavy armor|Heavy Armor)\.png(\?|$)/i.test(normalized))
             return false;
         const icon = getItemIcon(item.name, 'armor', item.system);
-        if (!icon || icon === item.img)
+        if (!icon || cur === icon)
             return false;
         await item.update({ img: icon });
         return true;
     };
-    const fixTowerShieldIcon = async (item) => {
-        if (item.type !== 'shield' || item.system?.type !== 'tower')
+    const fixLegacyShieldIcon = async (item) => {
+        if (item.type !== 'shield')
             return false;
-        const img = String(item.img || '');
-        const wrongMediumArt = /medium\s*shield\.png/i.test(img);
-        const legacyTowerPath = img.includes('tower shield.png') && !img.includes('Tower Shield.png');
-        if (!wrongMediumArt && !legacyTowerPath)
+        const cur = String(item.img || '').replace(/\\/g, '/');
+        if (!cur.includes('/assets/icons/items/shields/'))
+            return false;
+        let normalized = cur;
+        try {
+            normalized = decodeURIComponent(cur.replace(/\+/g, ' '));
+        }
+        catch {
+            normalized = cur;
+        }
+        if (!/\/(Medium Shield|tower shield|Tower Shield)\.png(\?|$)/i.test(normalized))
             return false;
         const icon = getItemIcon(item.name, 'shield', item.system);
-        if (!icon || icon === item.img)
+        if (!icon || cur === icon)
+            return false;
+        await item.update({ img: icon });
+        return true;
+    };
+    const NAMED_WEAPON_ICON_REFRESH = new Set(['rapier', 'short sword', 'spear']);
+    const fixRapierShortSwordSpearIcon = async (item) => {
+        if (item.type !== 'weapon')
+            return false;
+        const nk = normalizeWeaponNameKey(item.name || '');
+        if (!NAMED_WEAPON_ICON_REFRESH.has(nk))
+            return false;
+        const icon = getItemIcon(item.name, 'weapon');
+        if (!icon)
+            return false;
+        const cur = String(item.img || '').replace(/\\/g, '/');
+        const exp = icon.replace(/\\/g, '/');
+        if (cur === exp)
             return false;
         await item.update({ img: icon });
         return true;
@@ -1897,9 +1929,11 @@ Hooks.once('ready', async function () {
                 migratedIcons++;
             }
         }
-        if (await fixHeavyArmorIcon(item))
+        if (await fixLegacyArmorIcon(item))
             migratedIcons++;
-        if (await fixTowerShieldIcon(item))
+        if (await fixLegacyShieldIcon(item))
+            migratedIcons++;
+        if (await fixRapierShortSwordSpearIcon(item))
             migratedIcons++;
     }
     for (const actor of game.actors || []) {
@@ -1911,9 +1945,11 @@ Hooks.once('ready', async function () {
                     migratedIcons++;
                 }
             }
-            if (await fixHeavyArmorIcon(item))
+            if (await fixLegacyArmorIcon(item))
                 migratedIcons++;
-            if (await fixTowerShieldIcon(item))
+            if (await fixLegacyShieldIcon(item))
+                migratedIcons++;
+            if (await fixRapierShortSwordSpearIcon(item))
                 migratedIcons++;
         }
     }
@@ -2059,6 +2095,32 @@ Hooks.once('ready', async function () {
             }
             if (updated > 0) {
                 console.log(`Mastery System | Inventory size migration: Updated ${updated} items`);
+            }
+            const WEAPON_SIZE_BY_NAME = {
+                rapier: '1x3',
+                spear: '1x4'
+            };
+            let sizeFixes = 0;
+            const applyWeaponSizeFix = async (item) => {
+                if (item.type !== 'weapon')
+                    return;
+                const nk = normalizeWeaponNameKey(item.name || '');
+                const want = WEAPON_SIZE_BY_NAME[nk];
+                if (!want || item.system?.inventorySize === want)
+                    return;
+                await item.update({ 'system.inventorySize': want });
+                sizeFixes++;
+            };
+            for (const item of worldItems) {
+                await applyWeaponSizeFix(item);
+            }
+            for (const actor of actors) {
+                for (const item of Array.from(actor.items || [])) {
+                    await applyWeaponSizeFix(item);
+                }
+            }
+            if (sizeFixes > 0) {
+                console.log(`Mastery System | Weapon inventory size fix (Rapier/Spear): Updated ${sizeFixes} items`);
             }
         }
         catch (error) {

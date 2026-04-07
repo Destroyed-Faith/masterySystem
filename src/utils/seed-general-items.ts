@@ -1,6 +1,6 @@
 import { WEAPONS } from './weapons';
 import { BASE_ARMOR, BASE_SHIELDS } from './equipment';
-import { getItemIcon } from './item-icons';
+import { getItemIcon, normalizeWeaponNameKey } from './item-icons';
 
 const STORAGE_FOLDER_NAME = 'General Items Storage';
 
@@ -78,7 +78,8 @@ const AMMO_WEAPON_ITEMS: Array<{ name: string; inventorySize: string }> = [
 
 const WEAPON_INVENTORY_OVERRIDES: Record<string, string> = {
   unarmed: '1x1',
-  spear: '1x3',
+  rapier: '1x3',
+  spear: '1x4',
   arrows: '1x2',
   'crossbow bolts': '1x1'
 };
@@ -88,7 +89,7 @@ function isRangedWeapon(innateAbilities: string[] | undefined): boolean {
 }
 
 function getWeaponInventorySize(hands: number, ranged: boolean, name: string): string {
-  const key = name.toLowerCase().trim();
+  const key = normalizeWeaponNameKey(name);
   const fixed = WEAPON_INVENTORY_OVERRIDES[key];
   if (fixed) return fixed;
   if (ranged) {
@@ -107,7 +108,7 @@ export function getDefaultInventorySizeForItemData(item: any): string | null {
   }
 
   if (type === 'weapon') {
-    const overrideKey = (item.name || '').toLowerCase().trim();
+    const overrideKey = normalizeWeaponNameKey(item.name || '');
     if (WEAPON_INVENTORY_OVERRIDES[overrideKey]) {
       return WEAPON_INVENTORY_OVERRIDES[overrideKey];
     }
