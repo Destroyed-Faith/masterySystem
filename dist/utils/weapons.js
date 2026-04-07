@@ -4,6 +4,7 @@
  *
  * This file is designed to be easily extensible - add new weapons here
  */
+import { normalizeWeaponNameKey } from './item-icons.js';
 /**
  * All available weapons in the Mastery System
  * Organized by category for easy reference
@@ -227,10 +228,22 @@ export function getWeaponsByType(type) {
     return WEAPONS.filter(w => !w.innateAbilities.includes('Ranged'));
 }
 /**
+ * Collapses internal spaces so e.g. "Short bow" matches catalog name "Shortbow".
+ */
+export function masteryWeaponCatalogKey(name) {
+    return normalizeWeaponNameKey(name).replace(/\s/g, '');
+}
+/**
  * Get a weapon by name
  */
 export function getWeapon(name) {
-    return WEAPONS.find(w => w.name.toLowerCase() === name.toLowerCase());
+    const key = masteryWeaponCatalogKey(name);
+    return WEAPONS.find(w => masteryWeaponCatalogKey(w.name) === key);
+}
+/** True if the name matches a Players Guide weapon (handles spacing / hyphens). */
+export function matchesMasteryWeaponCatalog(name) {
+    const key = masteryWeaponCatalogKey(name);
+    return WEAPONS.some(w => masteryWeaponCatalogKey(w.name) === key);
 }
 /**
  * Get weapons that have a specific property

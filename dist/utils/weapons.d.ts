@@ -37,9 +37,15 @@ export declare function getWeaponsByHands(hands: 1 | 2): WeaponDefinition[];
  */
 export declare function getWeaponsByType(type: 'melee' | 'ranged'): WeaponDefinition[];
 /**
+ * Collapses internal spaces so e.g. "Short bow" matches catalog name "Shortbow".
+ */
+export declare function masteryWeaponCatalogKey(name: string): string;
+/**
  * Get a weapon by name
  */
 export declare function getWeapon(name: string): WeaponDefinition | undefined;
+/** True if the name matches a Players Guide weapon (handles spacing / hyphens). */
+export declare function matchesMasteryWeaponCatalog(name: string): boolean;
 /**
  * Get weapons that have a specific property
  */

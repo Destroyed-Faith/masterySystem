@@ -1,4 +1,4 @@
-import { WEAPONS } from './weapons.js';
+import { WEAPONS, masteryWeaponCatalogKey } from './weapons.js';
 import { BASE_ARMOR, BASE_SHIELDS } from './equipment.js';
 import { getItemIcon, normalizeWeaponNameKey } from './item-icons.js';
 const STORAGE_FOLDER_NAME = 'General Items Storage';
@@ -12,6 +12,7 @@ const GEAR_ITEMS = [
     { name: 'Clothing, common', inventorySize: '2x2' },
     { name: 'Glass bottle or vial', inventorySize: '1x1' },
     { name: 'Grappling Hook', inventorySize: '2x2' },
+    { name: 'Herbs Pouch', inventorySize: '1x1' },
     { name: 'Holy Symbol', inventorySize: '1x1' },
     { name: 'Holy Water (vial)', inventorySize: '1x1' },
     { name: 'Horseshoes & shoeing', inventorySize: '2x2' },
@@ -90,12 +91,15 @@ function getWeaponInventorySize(hands, ranged, name) {
 export function getDefaultInventorySizeForItemData(item) {
     if (!item)
         return null;
-    const type = item.type || item.system?.type;
+    /** Document type only — never use `system.type` (armor/shield tier would mis-classify weapons). */
+    const docType = item.type;
+    if (!docType)
+        return null;
     const name = (item.name || '').toLowerCase();
-    if (type === 'gear') {
+    if (docType === 'gear') {
         return GEAR_SIZE_BY_NAME[name] || null;
     }
-    if (type === 'weapon') {
+    if (docType === 'weapon') {
         const overrideKey = normalizeWeaponNameKey(item.name || '');
         if (WEAPON_INVENTORY_OVERRIDES[overrideKey]) {
             return WEAPON_INVENTORY_OVERRIDES[overrideKey];
@@ -105,11 +109,11 @@ export function getDefaultInventorySizeForItemData(item) {
         const ranged = weaponType === 'ranged' || isRangedWeapon(item.system?.innateAbilities);
         return getWeaponInventorySize(hands, ranged, item.name || '');
     }
-    if (type === 'armor') {
+    if (docType === 'armor') {
         const armorType = (item.system?.type || '').toString().toLowerCase();
         return ARMOR_SIZES[armorType] || null;
     }
-    if (type === 'shield') {
+    if (docType === 'shield') {
         const shieldType = (item.system?.type || '').toString().toLowerCase();
         return SHIELD_SIZES[shieldType] || null;
     }
@@ -128,6 +132,7 @@ export async function seedGeneralItemsStorage() {
     console.log('Mastery System | Storage folder resolved:', folder?.id, folder?.name);
     const existingItems = Array.from(game.items || []).filter((item) => item.folder?.id === folder.id);
     const existingNames = new Set(existingItems.map((item) => item.name));
+    const existingWeaponCatalogKeys = new Set(existingItems.map((item) => masteryWeaponCatalogKey(item.name || '')));
     console.log('Mastery System | Existing storage items:', existingItems.length);
     const itemsToCreate = [];
     for (const gear of GEAR_ITEMS) {
@@ -151,6 +156,8 @@ export async function seedGeneralItemsStorage() {
     }
     for (const weapon of WEAPONS) {
         if (existingNames.has(weapon.name))
+            continue;
+        if (existingWeaponCatalogKeys.has(masteryWeaponCatalogKey(weapon.name)))
             continue;
         const ranged = isRangedWeapon(weapon.innateAbilities);
         const weaponType = ranged ? 'ranged' : 'melee';

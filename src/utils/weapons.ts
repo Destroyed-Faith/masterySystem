@@ -5,6 +5,8 @@
  * This file is designed to be easily extensible - add new weapons here
  */
 
+import { normalizeWeaponNameKey } from './item-icons';
+
 export interface WeaponDefinition {
   name: string;
   weaponDamage: string; // e.g., "1d8", "2d8", "3d8"
@@ -246,10 +248,24 @@ export function getWeaponsByType(type: 'melee' | 'ranged'): WeaponDefinition[] {
 }
 
 /**
+ * Collapses internal spaces so e.g. "Short bow" matches catalog name "Shortbow".
+ */
+export function masteryWeaponCatalogKey(name: string): string {
+  return normalizeWeaponNameKey(name).replace(/\s/g, '');
+}
+
+/**
  * Get a weapon by name
  */
 export function getWeapon(name: string): WeaponDefinition | undefined {
-  return WEAPONS.find(w => w.name.toLowerCase() === name.toLowerCase());
+  const key = masteryWeaponCatalogKey(name);
+  return WEAPONS.find(w => masteryWeaponCatalogKey(w.name) === key);
+}
+
+/** True if the name matches a Players Guide weapon (handles spacing / hyphens). */
+export function matchesMasteryWeaponCatalog(name: string): boolean {
+  const key = masteryWeaponCatalogKey(name);
+  return WEAPONS.some(w => masteryWeaponCatalogKey(w.name) === key);
 }
 
 /**

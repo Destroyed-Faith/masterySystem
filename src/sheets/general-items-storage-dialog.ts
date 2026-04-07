@@ -7,6 +7,7 @@
 
 import { seedGeneralItemsStorage } from '../utils/seed-general-items';
 import { getItemIcon } from '../utils/item-icons';
+import { matchesMasteryWeaponCatalog } from '../utils/weapons';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
@@ -84,10 +85,16 @@ export class GeneralItemsStorageDialog extends BaseDialog {
 
     const byName = (a: any, b: any) => (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' });
 
-    const weapons = storageItems.filter((i: any) => i.type === 'weapon').sort(byName);
+    const weapons = storageItems
+      .filter(
+        (i: any) => i.type === 'weapon' || (i.type === 'gear' && matchesMasteryWeaponCatalog(i.name || ''))
+      )
+      .sort(byName);
     const armorItems = storageItems.filter((i: any) => i.type === 'armor').sort(byName);
     const shields = storageItems.filter((i: any) => i.type === 'shield').sort(byName);
-    const gearItems = storageItems.filter((i: any) => i.type === 'gear').sort(byName);
+    const gearItems = storageItems
+      .filter((i: any) => i.type === 'gear' && !matchesMasteryWeaponCatalog(i.name || ''))
+      .sort(byName);
     const storageCategories = [
       { key: 'weapons', label: 'Weapons', items: weapons.map(mapStorageRow) },
       { key: 'armor', label: 'Armor', items: armorItems.map(mapStorageRow) },
@@ -127,15 +134,42 @@ export class GeneralItemsStorageDialog extends BaseDialog {
     
     for (const item of itemsArray) {
       switch (item.type) {
-        case 'power': powers.push(item); break;
-        case 'gear': gear.push(item); break;
-        case 'echo': echoes.push(item); break;
-        case 'schtick': schticks.push(item); break;
-        case 'artifact': artifacts.push(item); break;
-        case 'condition': conditions.push(item); break;
-        case 'weapon': weapons.push(item); break;
-        case 'armor': armor.push(item); break;
-        case 'shield': shields.push(item); break;
+        case 'power':
+          powers.push(item);
+          break;
+        case 'gear':
+          if (matchesMasteryWeaponCatalog(item.name || '')) {
+            weapons.push(item);
+          } else {
+            gear.push(item);
+          }
+          break;
+        case 'echo':
+          echoes.push(item);
+          break;
+        case 'schtick':
+          schticks.push(item);
+          break;
+        case 'artifact':
+          artifacts.push(item);
+          break;
+        case 'condition':
+          conditions.push(item);
+          break;
+        case 'weapon':
+          weapons.push(item);
+          break;
+        case 'armor':
+          armor.push(item);
+          break;
+        case 'shield':
+          shields.push(item);
+          break;
+        default:
+          if (matchesMasteryWeaponCatalog(item.name || '')) {
+            weapons.push(item);
+          }
+          break;
       }
     }
     

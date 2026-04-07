@@ -1,5 +1,7 @@
 /** Normalize weapon display names for icon lookup (hyphens, repeated spaces). */
 export declare function normalizeWeaponNameKey(name: string): string;
+/** Normalize gear keys so curly apostrophes match GEAR_ICONS (ASCII '). */
+export declare function normalizeGearIconKey(name: string): string;
 export type ItemIconSystemHint = {
     type?: string;
 };

@@ -7,22 +7,113 @@ export function normalizeWeaponNameKey(name) {
         .replace(/\s+/g, ' ')
         .replace(/-/g, ' ');
 }
+/**
+ * Gear name → icon path. Keys use ASCII apostrophe; lookup normalizes Unicode ’ to '.
+ * Custom PNGs under `assets/icons/items/gear/` should match what the file shows (bottle, rope, …).
+ * Where no PNG fits, Foundry core SVGs are used so we do not show misleading art.
+ */
+const GEAR_ICONS = {
+    // --- Liquids / small vessels → Glass Bottle.png ---
+    'glass bottle or vial': `${ICON_BASE}/gear/Glass Bottle.png`,
+    'holy water (vial)': `${ICON_BASE}/gear/Glass Bottle.png`,
+    'oil (flask)': `${ICON_BASE}/gear/Glass Bottle.png`,
+    'ink (jar)': `${ICON_BASE}/gear/Glass Bottle.png`,
+    'wineskin/waterskin': `${ICON_BASE}/gear/Glass Bottle.png`,
+    // --- Rope / line → Rope.png ---
+    'rope, hemp 50 ft.': `${ICON_BASE}/gear/Rope.png`,
+    'rope, silk 50 ft.': `${ICON_BASE}/gear/Rope.png`,
+    'grappling hook': `${ICON_BASE}/gear/Rope.png`,
+    // --- Bedding / shelter / fabric bundles → Bedroll.png ---
+    'winter blanket': `${ICON_BASE}/gear/Bedroll.png`,
+    'tent, small': `${ICON_BASE}/gear/Bedroll.png`,
+    'tent, large': `${ICON_BASE}/gear/Bedroll.png`,
+    'cloak': `${ICON_BASE}/gear/Bedroll.png`,
+    'clothing, common': `${ICON_BASE}/gear/Bedroll.png`,
+    'rations, dry, one week': `${ICON_BASE}/gear/Bedroll.png`,
+    // --- Small pouches → Herbs Pouch.png (pouch silhouette; not only herbs) ---
+    'herbs pouch': `${ICON_BASE}/gear/Herbs Pouch.png`,
+    'belt pouch': `${ICON_BASE}/gear/Herbs Pouch.png`,
+    'chalk, small bag': `${ICON_BASE}/gear/Herbs Pouch.png`,
+    // --- Dedicated art ---
+    whistle: `${ICON_BASE}/gear/Whistle.png`,
+    soap: `${ICON_BASE}/gear/Soap.png`,
+    // --- Ammunition container → Arrow.png (quiver) ---
+    'quiver or bolt case': `${ICON_BASE}/weapons/Arrow.png`,
+    // --- No matching PNG: only Foundry core paths used elsewhere in this system (no 404) ---
+    backpack: 'icons/svg/item-bag.svg',
+    'bit and bridle': 'icons/svg/item-bag.svg',
+    'candles, 12': 'icons/svg/lightning.svg',
+    'holy symbol': 'icons/svg/aura.svg',
+    'horseshoes & shoeing': 'icons/svg/item-bag.svg',
+    'iron spikes, 12': 'icons/svg/item-bag.svg',
+    'ladder, 10 ft.': 'icons/svg/item-bag.svg',
+    lantern: 'icons/svg/lightning.svg',
+    'lantern, bullseye': 'icons/svg/lightning.svg',
+    'lantern, hooded': 'icons/svg/lightning.svg',
+    manacles: 'icons/svg/item-bag.svg',
+    'map or scroll case': 'icons/svg/chest.svg',
+    'mirror, small metal': 'icons/svg/item-bag.svg',
+    padlock: 'icons/svg/item-bag.svg',
+    'paper (sheet)': 'icons/svg/chest.svg',
+    "pole, 10' wooden": 'icons/svg/item-bag.svg',
+    quill: 'icons/svg/item-bag.svg',
+    'quill knife': 'icons/svg/sword.svg',
+    'sack, large': 'icons/svg/item-bag.svg',
+    'sack, small': 'icons/svg/item-bag.svg',
+    'saddle, pack': 'icons/svg/item-bag.svg',
+    'saddle, riding': 'icons/svg/item-bag.svg',
+    'saddlebags, pair': 'icons/svg/item-bag.svg',
+    spellbook: 'icons/svg/chest.svg',
+    "thieves' picks and tools": 'icons/svg/item-bag.svg',
+    tinderbox: 'icons/svg/lightning.svg',
+    'torches, 6': 'icons/svg/lightning.svg',
+    whetstone: 'icons/svg/item-bag.svg'
+};
+/** Normalize gear keys so curly apostrophes match GEAR_ICONS (ASCII '). */
+export function normalizeGearIconKey(name) {
+    return name
+        .toLowerCase()
+        .trim()
+        .replace(/\u2019/g, "'")
+        .replace(/\u2018/g, "'");
+}
 const WEAPON_ICONS = {
+    /** No custom fist art yet */
+    unarmed: 'icons/svg/mystery-man.svg',
     dagger: `${ICON_BASE}/weapons/Dagger.png`,
     'short sword': `${ICON_BASE}/weapons/shortsword.png`,
-    /** One-word spelling / compendium variants */
     shortsword: `${ICON_BASE}/weapons/shortsword.png`,
     rapier: `${ICON_BASE}/weapons/rapier.png`,
     spear: `${ICON_BASE}/weapons/spear.png`,
     whip: `${ICON_BASE}/weapons/Whip.png`,
     shortbow: `${ICON_BASE}/weapons/Shortbow.png`,
-    // No separate longbow art yet — same silhouette as shortbow
+    'short bow': `${ICON_BASE}/weapons/Shortbow.png`,
     longbow: `${ICON_BASE}/weapons/Shortbow.png`,
-    /** Placeholder until dedicated crossbow art exists (Bolts.png is reserved for ammunition). */
+    'long bow': `${ICON_BASE}/weapons/Shortbow.png`,
+    /** Until Crossbow.png exists; not bolt ammo */
     'light crossbow': `${ICON_BASE}/weapons/Shortbow.png`,
     'heavy crossbow': `${ICON_BASE}/weapons/Shortbow.png`,
     arrows: `${ICON_BASE}/weapons/Arrow.png`,
-    'crossbow bolts': `${ICON_BASE}/weapons/Bolts.png`
+    'crossbow bolts': `${ICON_BASE}/weapons/Bolts.png`,
+    /**
+     * One-handed blades (no separate Longsword.png yet — art is a medium blade).
+     * Replace with dedicated files when assets match names.
+     */
+    longsword: `${ICON_BASE}/weapons/shortsword.png`,
+    handaxe: `${ICON_BASE}/weapons/shortsword.png`,
+    /** Axes / heavy chopping — placeholder until Battleaxe.png / Greataxe.png */
+    battleaxe: `${ICON_BASE}/weapons/shortsword.png`,
+    greataxe: `${ICON_BASE}/weapons/shortsword.png`,
+    /** Blunt — placeholder until hammer art */
+    warhammer: `${ICON_BASE}/weapons/shortsword.png`,
+    maul: `${ICON_BASE}/weapons/shortsword.png`,
+    /** Flexible / chain */
+    flail: `${ICON_BASE}/weapons/Whip.png`,
+    /** Polearms & staff — spear/stick silhouette */
+    glaive: `${ICON_BASE}/weapons/spear.png`,
+    halberd: `${ICON_BASE}/weapons/spear.png`,
+    quarterstaff: `${ICON_BASE}/weapons/spear.png`,
+    greatsword: `${ICON_BASE}/weapons/shortsword.png`
 };
 const ARMOR_ICONS = {
     'light armor': `${ICON_BASE}/armor/LightArmor.png`,
@@ -38,7 +129,6 @@ const SHIELD_ICONS = {
     'parry shield': `${ICON_BASE}/shields/ShieldParry.png`,
     'medium shield': `${ICON_BASE}/shields/MediumShield.png`,
     'tower shield': `${ICON_BASE}/shields/TowerShield.png`,
-    /** Common synonym for tower / large shield */
     'heavy shield': `${ICON_BASE}/shields/TowerShield.png`
 };
 const SHIELD_BY_TYPE = {
@@ -46,30 +136,14 @@ const SHIELD_BY_TYPE = {
     medium: `${ICON_BASE}/shields/MediumShield.png`,
     tower: `${ICON_BASE}/shields/TowerShield.png`
 };
-const GEAR_ICONS = {
-    'glass bottle or vial': `${ICON_BASE}/gear/Glass Bottle.png`,
-    'holy water (vial)': `${ICON_BASE}/gear/Glass Bottle.png`,
-    'oil (flask)': `${ICON_BASE}/gear/Glass Bottle.png`,
-    'ink (jar)': `${ICON_BASE}/gear/Glass Bottle.png`,
-    'wineskin/waterskin': `${ICON_BASE}/gear/Glass Bottle.png`,
-    'rope, hemp 50 ft.': `${ICON_BASE}/gear/Rope.png`,
-    'rope, silk 50 ft.': `${ICON_BASE}/gear/Rope.png`,
-    'grappling hook': `${ICON_BASE}/gear/Rope.png`,
-    'winter blanket': `${ICON_BASE}/gear/Bedroll.png`,
-    'tent, small': `${ICON_BASE}/gear/Bedroll.png`,
-    'tent, large': `${ICON_BASE}/gear/Bedroll.png`,
-    'herbs pouch': `${ICON_BASE}/gear/Herbs Pouch.png`,
-    whistle: `${ICON_BASE}/gear/Whistle.png`,
-    soap: `${ICON_BASE}/gear/Soap.png`,
-    'quiver or bolt case': `${ICON_BASE}/weapons/Arrow.png`
-};
 const DEFAULT_TYPE_ICONS = {
     weapon: `${ICON_BASE}/weapons/Dagger.png`,
     /** Generic armor only — never use a specific tier image here (would mis-label heavy/medium). */
     armor: 'icons/svg/armor.svg',
     /** Generic shield — avoid defaulting to “medium” art for tower/parry. */
     shield: 'icons/svg/shield.svg',
-    gear: `${ICON_BASE}/gear/Glass Bottle.png`,
+    /** Misc gear with no specific row in GEAR_ICONS */
+    gear: 'icons/svg/item-bag.svg',
     power: 'icons/svg/aura.svg',
     artifact: 'icons/svg/chest.svg',
     schtick: 'icons/svg/lightning.svg',
@@ -88,6 +162,9 @@ export function getItemIcon(name, type, system) {
         const wkey = normalizeWeaponNameKey(name);
         if (WEAPON_ICONS[wkey])
             return WEAPON_ICONS[wkey];
+        const collapsed = wkey.replace(/ /g, '');
+        if (collapsed !== wkey && WEAPON_ICONS[collapsed])
+            return WEAPON_ICONS[collapsed];
     }
     if (type === 'armor') {
         if (ARMOR_ICONS[key])
@@ -103,8 +180,11 @@ export function getItemIcon(name, type, system) {
         if (st && SHIELD_BY_TYPE[st])
             return SHIELD_BY_TYPE[st];
     }
-    if (type === 'gear' && GEAR_ICONS[key])
-        return GEAR_ICONS[key];
+    if (type === 'gear') {
+        const gkey = normalizeGearIconKey(name);
+        if (GEAR_ICONS[gkey])
+            return GEAR_ICONS[gkey];
+    }
     return DEFAULT_TYPE_ICONS[type] || null;
 }
 //# sourceMappingURL=item-icons.js.map

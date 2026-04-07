@@ -12,6 +12,7 @@ import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items.
 import { getNormalizedEquipSlots } from '../utils/equip-slots.js';
 import { XP_COSTS } from '../utils/constants.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
+import { matchesMasteryWeaponCatalog } from '../utils/weapons.js';
 // Removed: showWeaponCreationDialog, showArmorCreationDialog, showShieldCreationDialog
 // Replaced with General Items Storage and Store dialogs
 // Use namespaced ActorSheet when available to avoid deprecation warnings
@@ -654,7 +655,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     powers.push(itemData);
                     break;
                 case 'gear':
-                    gear.push(itemData);
+                    if (matchesMasteryWeaponCatalog(item.name || '')) {
+                        weapons.push(itemData);
+                    }
+                    else {
+                        gear.push(itemData);
+                    }
                     break;
                 case 'echo':
                     echoes.push(itemData);
@@ -678,6 +684,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     shields.push(itemData);
                     break;
                 default: {
+                    if (matchesMasteryWeaponCatalog(item.name || '')) {
+                        weapons.push(itemData);
+                        break;
+                    }
                     const equipmentFlags = item.getFlag?.('mastery-system', 'equipment');
                     if (equipmentFlags) {
                         gear.push(itemData);

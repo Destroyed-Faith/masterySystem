@@ -2331,6 +2331,51 @@ Hooks.once('ready', async function() {
       if (sizeFixes > 0) {
         console.log(`Mastery System | Weapon inventory size fix (Rapier/Spear): Updated ${sizeFixes} items`);
       }
+
+      const { getWeapon } = await import('./utils/weapons.js');
+      let gearToWeaponMigrations = 0;
+      const migrateCatalogWeaponFromGear = async (item: any) => {
+        if (item.type !== 'gear') return;
+        const def = getWeapon(item.name || '');
+        if (!def) return;
+        const ranged = (def.innateAbilities || []).some((a: string) => a.toLowerCase().includes('ranged'));
+        const specials = def.special && def.special !== '—' ? [def.special] : [];
+        const merged = foundry.utils.mergeObject(foundry.utils.deepClone(item.system || {}), {
+          weaponType: ranged ? 'ranged' : 'melee',
+          damage: def.weaponDamage,
+          range: ranged ? '10m' : '0m',
+          hands: def.hands,
+          innateAbilities: def.innateAbilities || [],
+          specials,
+          equipSlots: def.hands === 2 ? ['mainhand'] : ['mainhand', 'offhand']
+        });
+        if (!merged.inventorySize) {
+          merged.inventorySize =
+            getDefaultInventorySizeForItemData({ type: 'weapon', name: def.name, system: merged }) || '1x3';
+        }
+        try {
+          await item.update({ type: 'weapon', system: merged });
+          gearToWeaponMigrations++;
+        } catch (err) {
+          console.warn('Mastery System | Gear→weapon migration failed for', item.name, err);
+        }
+      };
+      for (const item of worldItems) {
+        await migrateCatalogWeaponFromGear(item);
+      }
+      for (const actor of actors) {
+        for (const item of Array.from(actor.items || []) as any[]) {
+          await migrateCatalogWeaponFromGear(item);
+        }
+      }
+      if (gearToWeaponMigrations > 0) {
+        console.log(
+          `Mastery System | Migrated ${gearToWeaponMigrations} catalog weapons from type gear to weapon`
+        );
+        ui.notifications?.info(
+          `Mastery System: ${gearToWeaponMigrations} item(s) set to type Weapon (Players Guide names).`
+        );
+      }
     } catch (error) {
       console.warn('Mastery System | Inventory size migration failed:', error);
     }

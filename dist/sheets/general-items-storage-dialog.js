@@ -5,6 +5,7 @@
 // Types are available globally in Foundry VTT
 import { seedGeneralItemsStorage } from '../utils/seed-general-items.js';
 import { getItemIcon } from '../utils/item-icons.js';
+import { matchesMasteryWeaponCatalog } from '../utils/weapons.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
 export class GeneralItemsStorageDialog extends BaseDialog {
@@ -66,10 +67,14 @@ export class GeneralItemsStorageDialog extends BaseDialog {
             };
         };
         const byName = (a, b) => (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' });
-        const weapons = storageItems.filter((i) => i.type === 'weapon').sort(byName);
+        const weapons = storageItems
+            .filter((i) => i.type === 'weapon' || (i.type === 'gear' && matchesMasteryWeaponCatalog(i.name || '')))
+            .sort(byName);
         const armorItems = storageItems.filter((i) => i.type === 'armor').sort(byName);
         const shields = storageItems.filter((i) => i.type === 'shield').sort(byName);
-        const gearItems = storageItems.filter((i) => i.type === 'gear').sort(byName);
+        const gearItems = storageItems
+            .filter((i) => i.type === 'gear' && !matchesMasteryWeaponCatalog(i.name || ''))
+            .sort(byName);
         const storageCategories = [
             { key: 'weapons', label: 'Weapons', items: weapons.map(mapStorageRow) },
             { key: 'armor', label: 'Armor', items: armorItems.map(mapStorageRow) },
@@ -108,7 +113,12 @@ export class GeneralItemsStorageDialog extends BaseDialog {
                     powers.push(item);
                     break;
                 case 'gear':
-                    gear.push(item);
+                    if (matchesMasteryWeaponCatalog(item.name || '')) {
+                        weapons.push(item);
+                    }
+                    else {
+                        gear.push(item);
+                    }
                     break;
                 case 'echo':
                     echoes.push(item);
@@ -130,6 +140,11 @@ export class GeneralItemsStorageDialog extends BaseDialog {
                     break;
                 case 'shield':
                     shields.push(item);
+                    break;
+                default:
+                    if (matchesMasteryWeaponCatalog(item.name || '')) {
+                        weapons.push(item);
+                    }
                     break;
             }
         }
