@@ -5,6 +5,16 @@
 
 import type { RangeSpec, AoeSpec, DurationSpec, PowerSpecial, PowerLevelRow } from '../types/item.js';
 
+/** Radius-style AoE: definitions use either `radiusM` or legacy `m`. */
+function aoeRadiusM(aoe: AoeSpec): number | undefined {
+  return aoe.radiusM ?? aoe.m;
+}
+
+/** Cone / line length: `lengthM` or legacy `m` (e.g. old migration). */
+function aoeLengthM(aoe: AoeSpec): number | undefined {
+  return aoe.lengthM ?? aoe.m;
+}
+
 /**
  * Render a RangeSpec to a human-readable string
  */
@@ -38,29 +48,40 @@ export function renderAoe(aoe: AoeSpec | null): string {
     return '—';
   }
   if (aoe.shape === 'line') {
-    if (aoe.lengthM !== undefined) {
-      return `Line ${aoe.lengthM}m${aoe.widthM ? ` × ${aoe.widthM}m` : ''}`;
+    const len = aoeLengthM(aoe);
+    if (len !== undefined) {
+      return `Line ${len}m${aoe.widthM ? ` × ${aoe.widthM}m` : ''}`;
     }
     return 'Line';
   }
   if (aoe.shape === 'radius') {
-    if (aoe.radiusM !== undefined) {
-      return `Radius ${aoe.radiusM}m`;
+    const r = aoeRadiusM(aoe);
+    if (r !== undefined) {
+      return `Radius ${r}m`;
     }
     return 'Radius';
   }
   if (aoe.shape === 'cone') {
-    if (aoe.lengthM !== undefined) {
-      return `Cone ${aoe.lengthM}m${aoe.angleDeg ? ` (${aoe.angleDeg}°)` : ''}`;
+    const len = aoeLengthM(aoe);
+    if (len !== undefined) {
+      return `Cone ${len}m${aoe.angleDeg ? ` (${aoe.angleDeg}°)` : ''}`;
     }
     return 'Cone';
+  }
+  if (aoe.shape === 'burst') {
+    const r = aoeRadiusM(aoe);
+    if (r !== undefined) {
+      return `Burst ${r}m`;
+    }
+    return 'Burst';
   }
   if (aoe.shape === 'weapon') {
     return 'Weapon';
   }
   if (aoe.shape === 'aura') {
-    if (aoe.radiusM !== undefined) {
-      return `Aura ${aoe.radiusM}m`;
+    const r = aoeRadiusM(aoe);
+    if (r !== undefined) {
+      return `Aura ${r}m`;
     }
     return 'Aura';
   }

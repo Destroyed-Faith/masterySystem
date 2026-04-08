@@ -832,28 +832,36 @@ function registerHandlebarsHelpersImmediate() {
   Handlebars.registerHelper('renderAoe', function(aoe: any) {
     if (!aoe || typeof aoe !== 'object') return '—';
     if (aoe.shape === 'none' || aoe.shape === 'single') return '—';
+    const radiusM = aoe.radiusM !== undefined ? aoe.radiusM : aoe.m;
+    const lengthM = aoe.lengthM !== undefined ? aoe.lengthM : aoe.m;
     if (aoe.shape === 'line') {
-      if (aoe.lengthM !== undefined) {
-        return `Line ${aoe.lengthM}m${aoe.widthM ? ` × ${aoe.widthM}m` : ''}`;
+      if (lengthM !== undefined) {
+        return `Line ${lengthM}m${aoe.widthM ? ` × ${aoe.widthM}m` : ''}`;
       }
       return 'Line';
     }
     if (aoe.shape === 'radius') {
-      if (aoe.radiusM !== undefined) {
-        return `Radius ${aoe.radiusM}m`;
+      if (radiusM !== undefined) {
+        return `Radius ${radiusM}m`;
       }
       return 'Radius';
     }
     if (aoe.shape === 'cone') {
-      if (aoe.lengthM !== undefined) {
-        return `Cone ${aoe.lengthM}m${aoe.angleDeg ? ` (${aoe.angleDeg}°)` : ''}`;
+      if (lengthM !== undefined) {
+        return `Cone ${lengthM}m${aoe.angleDeg ? ` (${aoe.angleDeg}°)` : ''}`;
       }
       return 'Cone';
     }
+    if (aoe.shape === 'burst') {
+      if (radiusM !== undefined) {
+        return `Burst ${radiusM}m`;
+      }
+      return 'Burst';
+    }
     if (aoe.shape === 'weapon') return 'Weapon';
     if (aoe.shape === 'aura') {
-      if (aoe.radiusM !== undefined) {
-        return `Aura ${aoe.radiusM}m`;
+      if (radiusM !== undefined) {
+        return `Aura ${radiusM}m`;
       }
       return 'Aura';
     }

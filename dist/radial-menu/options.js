@@ -173,26 +173,51 @@ function mapPowerTypeToSlot(powerType) {
             return 'attack';
     }
 }
+function isAoeSpecObject(aoe) {
+    return typeof aoe === 'object' && aoe !== null && 'shape' in aoe;
+}
 /**
- * Parse AoE radius from string (e.g., "Radius 2m", "Radius 4m")
+ * Parse AoE radius from string (e.g. "Radius 2m") or from AoeSpec (`radiusM` or legacy `m`).
  */
-function parseAoERadius(aoeStr) {
-    if (!aoeStr)
+function parseAoERadius(aoeInput) {
+    if (aoeInput === undefined || aoeInput === null || aoeInput === '') {
         return undefined;
-    const match = aoeStr.match(/radius\s*(\d+(?:\.\d+)?)\s*m/i);
+    }
+    if (isAoeSpecObject(aoeInput)) {
+        const o = aoeInput;
+        if (o.shape === 'radius' || o.shape === 'burst' || o.shape === 'aura') {
+            const r = o.radiusM ?? o.m;
+            return r !== undefined ? r : undefined;
+        }
+        return undefined;
+    }
+    const match = String(aoeInput).match(/radius\s*(\d+(?:\.\d+)?)\s*m/i);
     if (match) {
         return parseFloat(match[1]);
     }
     return undefined;
 }
 /**
- * Parse AoE shape from string
+ * Parse AoE shape from string or AoeSpec (object definitions use `m` instead of `radiusM`).
  */
-function parseAoEShape(aoeStr) {
-    if (!aoeStr)
+function parseAoEShape(aoeInput) {
+    if (aoeInput === undefined || aoeInput === null || aoeInput === '') {
         return 'none';
-    const lower = aoeStr.toLowerCase();
-    if (lower.includes('radius')) {
+    }
+    if (isAoeSpecObject(aoeInput)) {
+        const s = aoeInput.shape;
+        if (s === 'none' || s === 'single' || s === 'weapon')
+            return 'none';
+        if (s === 'radius' || s === 'burst' || s === 'aura')
+            return 'radius';
+        if (s === 'cone')
+            return 'cone';
+        if (s === 'line')
+            return 'line';
+        return 'none';
+    }
+    const lower = String(aoeInput).toLowerCase();
+    if (lower.includes('radius') || lower.includes('burst') || lower.includes('aura')) {
         return 'radius';
     }
     if (lower.includes('cone')) {

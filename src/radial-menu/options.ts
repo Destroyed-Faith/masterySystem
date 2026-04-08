@@ -5,6 +5,7 @@
 import type { CombatSlot, CombatManeuver } from '../system/combat-maneuvers';
 import { getAvailableManeuvers } from '../system/combat-maneuvers';
 import type { RadialCombatOption, TargetGroup, AoEShape, InnerSegment } from './types';
+import type { AoeSpec } from '../types/item.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { getMovementRangeBonusMeters, hasPowerBeenUsedThisRound } from '../combat/action-economy.js';
 
@@ -208,28 +209,49 @@ function mapPowerTypeToSlot(powerType: string): CombatSlot {
   }
 }
 
+function isAoeSpecObject(aoe: unknown): aoe is AoeSpec {
+  return typeof aoe === 'object' && aoe !== null && 'shape' in aoe;
+}
+
 /**
- * Parse AoE radius from string (e.g., "Radius 2m", "Radius 4m")
+ * Parse AoE radius from string (e.g. "Radius 2m") or from AoeSpec (`radiusM` or legacy `m`).
  */
-function parseAoERadius(aoeStr: string | undefined): number | undefined {
-  if (!aoeStr) return undefined;
-  
-  const match = aoeStr.match(/radius\s*(\d+(?:\.\d+)?)\s*m/i);
+function parseAoERadius(aoeInput: string | AoeSpec | undefined): number | undefined {
+  if (aoeInput === undefined || aoeInput === null || aoeInput === '') {
+    return undefined;
+  }
+  if (isAoeSpecObject(aoeInput)) {
+    const o = aoeInput;
+    if (o.shape === 'radius' || o.shape === 'burst' || o.shape === 'aura') {
+      const r = o.radiusM ?? o.m;
+      return r !== undefined ? r : undefined;
+    }
+    return undefined;
+  }
+  const match = String(aoeInput).match(/radius\s*(\d+(?:\.\d+)?)\s*m/i);
   if (match) {
     return parseFloat(match[1]);
   }
-  
   return undefined;
 }
 
 /**
- * Parse AoE shape from string
+ * Parse AoE shape from string or AoeSpec (object definitions use `m` instead of `radiusM`).
  */
-function parseAoEShape(aoeStr: string | undefined): AoEShape {
-  if (!aoeStr) return 'none';
-  
-  const lower = aoeStr.toLowerCase();
-  if (lower.includes('radius')) {
+function parseAoEShape(aoeInput: string | AoeSpec | undefined): AoEShape {
+  if (aoeInput === undefined || aoeInput === null || aoeInput === '') {
+    return 'none';
+  }
+  if (isAoeSpecObject(aoeInput)) {
+    const s = aoeInput.shape;
+    if (s === 'none' || s === 'single' || s === 'weapon') return 'none';
+    if (s === 'radius' || s === 'burst' || s === 'aura') return 'radius';
+    if (s === 'cone') return 'cone';
+    if (s === 'line') return 'line';
+    return 'none';
+  }
+  const lower = String(aoeInput).toLowerCase();
+  if (lower.includes('radius') || lower.includes('burst') || lower.includes('aura')) {
     return 'radius';
   }
   if (lower.includes('cone')) {
@@ -238,7 +260,6 @@ function parseAoEShape(aoeStr: string | undefined): AoEShape {
   if (lower.includes('line')) {
     return 'line';
   }
-  
   return 'none';
 }
 
