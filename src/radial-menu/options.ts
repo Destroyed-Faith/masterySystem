@@ -8,6 +8,7 @@ import type { RadialCombatOption, TargetGroup, AoEShape, InnerSegment } from './
 import type { AoeSpec } from '../types/item.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { getMovementRangeBonusMeters, hasPowerBeenUsedThisRound } from '../combat/action-economy.js';
+import { getMagicPower } from '../utils/magic-powers.js';
 
 /**
  * Parse range string (e.g., "8m", "12m", "Self") to numeric meters
@@ -443,42 +444,43 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
     let rangeStr = (item.system as any)?.range;
     let levelData: any = undefined;
     
-    // If range is missing or empty, try to get it from the power definition
-    if (!rangeStr && getPowerFn) {
-      const treeName = (item.system as any)?.tree;
-      const powerName = item.name;
-      const rawLevel = (item.system as any)?.level || 1;
-      
-      if (treeName && powerName) {
-        try {
-          const powerDef = getPowerFn(treeName, powerName);
-          
-          if (powerDef && powerDef.levels) {
-            const sys = item.system as any;
-            const definitionRank = getPowerDefinitionRank(rawLevel, sys.levels || powerDef.levels);
-            if (Array.isArray(powerDef.levels)) {
-              levelData = powerDef.levels.find((l: any) => l.level === definitionRank);
-            } else {
-              levelData = powerDef.levels[String(definitionRank)];
-            }
-            if (levelData) {
-              if (levelData.range) {
-                // Old structure: range is a string
-                if (typeof levelData.range === 'string') {
-                  rangeStr = levelData.range;
-                } else if (levelData.range.kind) {
-                  // New structure: range is a RangeSpec object
-                  const r = levelData.range;
-                  if (r.kind === 'distance' && r.m) rangeStr = `${r.m}m`;
-                  else if (r.kind === 'melee' || r.kind === 'touch') rangeStr = 'Touch';
-                  else if (r.kind === 'self') rangeStr = 'Self';
-                }
-              }
+    const treeName = (item.system as any)?.tree;
+    const powerName = item.name;
+    const rawLevel = (item.system as any)?.level || 1;
+    // Spell schools (e.g. Old Pact) are not in getPower() — load definition for utilities
+    // so AoE/range can fall back to data even when system.range is set but system.aoe is empty.
+    const needsDefinitionLookup =
+      getPowerFn &&
+      treeName &&
+      powerName &&
+      (!rangeStr || powerType === 'utility' || slot === 'utility');
+
+    if (needsDefinitionLookup) {
+      try {
+        const powerDefMastery = getPowerFn!(treeName, powerName);
+        const powerDef = powerDefMastery ?? getMagicPower(treeName, powerName);
+
+        if (powerDef && powerDef.levels) {
+          const sys = item.system as any;
+          const definitionRank = getPowerDefinitionRank(rawLevel, sys.levels || powerDef.levels);
+          if (Array.isArray(powerDef.levels)) {
+            levelData = powerDef.levels.find((l: any) => l.level === definitionRank);
+          } else {
+            levelData = powerDef.levels[String(definitionRank)];
+          }
+          if (levelData && !rangeStr && levelData.range) {
+            if (typeof levelData.range === 'string') {
+              rangeStr = levelData.range;
+            } else if (levelData.range.kind) {
+              const r = levelData.range;
+              if (r.kind === 'distance' && r.m) rangeStr = `${r.m}m`;
+              else if (r.kind === 'melee' || r.kind === 'touch') rangeStr = 'Touch';
+              else if (r.kind === 'self') rangeStr = 'Self';
             }
           }
-        } catch (error) {
-          console.warn('Mastery System | Could not lookup power definition for range:', error);
         }
+      } catch (error) {
+        console.warn('Mastery System | Could not lookup power definition:', error);
       }
     }
     

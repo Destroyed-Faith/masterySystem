@@ -192,26 +192,30 @@ function findCandidatesInRadius(
  * Highlight radius area on grid
  */
 function highlightRadiusArea(state: UtilityTargetingState): void {
-  if (!canvas.grid || !state.previewGraphics || !state.center) return;
-  
+  if (!state.previewGraphics || !state.center) return;
+
   const center = state.center;
-  const radiusPx = (state.radiusMeters / (canvas.grid.distance || 1)) * (canvas.grid.size || 1);
-  
-  // Clear previous graphics
+  const gridDist = canvas.grid?.distance || 1;
+  const gridSize = canvas.grid?.size || 1;
+  const radiusPx = (state.radiusMeters / gridDist) * gridSize;
+
   state.previewGraphics.clear();
-  
-  // Only draw circle if no grid is present, or as a fallback
-  // If grid is present, we'll highlight hexes instead
-  if (canvas.grid.type === CONST.GRID_TYPES.GRIDLESS) {
-    // Draw radius circle (semi-transparent blue/teal for utilities)
-    state.previewGraphics.lineStyle(2, 0x66aaff, 0.8);
-    state.previewGraphics.beginFill(0x66aaff, 0.15);
+
+  // Always draw the AoE disk on the canvas (square, hex, or gridless). Grid cell highlights
+  // are best-effort and often missing on newer Foundry APIs — without this, players only see
+  // the range line during placement and no visible area.
+  if (state.radiusMeters > 0 && radiusPx > 0) {
+    state.previewGraphics.lineStyle(2, 0x66aaff, 0.85);
+    state.previewGraphics.beginFill(0x66aaff, 0.14);
     state.previewGraphics.drawCircle(0, 0, radiusPx);
     state.previewGraphics.endFill();
   }
-  
-  // Position at center
+
   state.previewGraphics.position.set(center.x, center.y);
+
+  if (!canvas.grid || canvas.grid.type === CONST.GRID_TYPES.GRIDLESS) {
+    return;
+  }
   
   // Highlight hexes within radius
   let highlight: any = null;
@@ -787,15 +791,18 @@ export function startUtilityRadiusMode(token: any, option: RadialCombatOption): 
       state.rangeLineGraphics!.moveTo(casterCenter.x, casterCenter.y);
       state.rangeLineGraphics!.lineTo(snapped.x, snapped.y);
       
-      // Preview radius at mouse position if valid
       if (isValid) {
         state.previewGraphics!.clear();
-        const radiusPx = (radiusMeters / (canvas.grid.distance || 1)) * (canvas.grid.size || 1);
-        state.previewGraphics!.lineStyle(2, 0x66aaff, 0.6);
-        state.previewGraphics!.beginFill(0x66aaff, 0.1);
-        state.previewGraphics!.drawCircle(0, 0, radiusPx);
-        state.previewGraphics!.endFill();
+        const radiusPx = (radiusMeters / (canvas.grid?.distance || 1)) * (canvas.grid?.size || 1);
+        if (radiusMeters > 0 && radiusPx > 0) {
+          state.previewGraphics!.lineStyle(2, 0x66aaff, 0.75);
+          state.previewGraphics!.beginFill(0x66aaff, 0.12);
+          state.previewGraphics!.drawCircle(0, 0, radiusPx);
+          state.previewGraphics!.endFill();
+        }
         state.previewGraphics!.position.set(snapped.x, snapped.y);
+      } else {
+        state.previewGraphics!.clear();
       }
     }
   };
