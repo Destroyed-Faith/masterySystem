@@ -433,6 +433,8 @@ export class StonePowersDialog extends BaseDialog {
   private _stoneReturnPoolAttr: string | null = null;
   /** Verhindert, dass jeder Render den Session-Steinplan aus dem Flag neu überschreibt (ungespeicherte UI ging verloren). */
   private _stoneRoundPlanHydratedKey: string | null = null;
+  /** Scroll im Dialog-Inhalt vor Re-Render merken (Stein setzen sonst springt nach oben). */
+  private _stonePowersContentScrollTop = 0;
 
   /** Summons tab: Familiar builder (dialog-only, nicht persistiert). */
   private _familiarBuilder: {
@@ -528,6 +530,16 @@ export class StonePowersDialog extends BaseDialog {
     await (this as any).render({ force: true });
   }
 
+  /** Ritual-Feld leeren (Stein zurück logisch frei — wie Rückzug in den Pool). */
+  #clearRitualSlot(ritualId: string, slotIndex: number): void {
+    this.#pullSessionPartialsIntoInstance();
+    const entry = STONE_RITUALS_CATALOG.find((r) => r.id === ritualId);
+    if (!entry || slotIndex < 0 || slotIndex >= entry.slots.length) return;
+    const placed = this.#ritualEnsureSlots(entry);
+    if (!placed[slotIndex]) return;
+    placed[slotIndex] = null;
+  }
+
   #readFamiliarBuilderFromDom(root: HTMLElement): void {
     const form = root.querySelector('.stone-familiar-form') as HTMLElement | null;
     if (!form) return;
@@ -594,6 +606,12 @@ export class StonePowersDialog extends BaseDialog {
   }
 
   async _prepareContext(_options: any): Promise<any> {
+    const el = (this as any).element as HTMLElement | undefined;
+    const scrollRoot = el ? getStonePowersContentRoot(this as any) : null;
+    if (scrollRoot && scrollRoot.scrollTop > 0) {
+      this._stonePowersContentScrollTop = scrollRoot.scrollTop;
+    }
+
     await this.#syncStonePowersRoundPlanWithCombat();
 
     this.#pullSessionPartialsIntoInstance();
@@ -1012,7 +1030,6 @@ export class StonePowersDialog extends BaseDialog {
       familiarProgressionTable: getFamiliarProgressionTableRows(),
       familiarMasteryRank: masteryRankForFamiliar,
       familiarMasteryCap: masteryRankForFamiliar * 4,
-      familiarReferenceImage: 'systems/mastery-system/assets/familiar-progression-reference.png',
       prefsUseDefaults,
       canSavePrefs,
       showCombatRound1Save,
@@ -1025,6 +1042,14 @@ export class StonePowersDialog extends BaseDialog {
     super._onRender?.(_context, _options);
 
     this.#pullSessionPartialsIntoInstance();
+
+    const st = this._stonePowersContentScrollTop;
+    if (st > 0) {
+      requestAnimationFrame(() => {
+        const scrollRoot = getStonePowersContentRoot(this as any);
+        if (scrollRoot) scrollRoot.scrollTop = st;
+      });
+    }
 
     const root = getStonePowersContentRoot(this);
     if (!root) {
@@ -2278,11 +2303,31 @@ export class StonePowersDialog extends BaseDialog {
       await (this as any).render({ force: true });
     };
 
-    /** Rechtsklick: Stein-Zuordnung dieser Macht leeren. */
+    /** Rechtsklick: Ritual-Feld leeren (Stein freigeben) oder Kampf-Macht leeren. */
     const onPowerCardContextMenu = async (ev: MouseEvent) => {
       if (!allowDrag || locked) return;
       const t = ev.target as HTMLElement;
+
+      if (this._stonePowersMainTab === 'rituals') {
+        const rSlot = t.closest('.ms-ritual-drop-slot.slot-filled') as HTMLElement | null;
+        if (rSlot && bindTarget.contains(rSlot)) {
+          ev.preventDefault();
+          ev.stopPropagation();
+          const ritualId = rSlot.dataset.ritualId || '';
+          const idxRaw = rSlot.dataset.ritualSlotIndex;
+          const slotIndex = idxRaw !== undefined && idxRaw !== '' ? Number(idxRaw) : NaN;
+          if (ritualId && Number.isFinite(slotIndex)) {
+            this.#clearRitualSlot(ritualId, slotIndex);
+            this.#reconcileFilledLaneClasses(bindTarget);
+            this.#syncAccumulatorGems(bindTarget);
+            await (this as any).render({ force: true });
+          }
+          return;
+        }
+      }
+
       if (t.closest('.js-stone-draggable') || t.closest('.js-stone-returnable')) return;
+
       const resolved = resolvePowerCardContext(t);
       if (!resolved) return;
 

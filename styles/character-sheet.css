@@ -1599,6 +1599,7 @@
   margin: 8px 0 10px 0;
   font-weight: 700;
   cursor: pointer;
+  color: var(--df-text-primary, #e8e8e8);
 }
 
 .mastery-system.sheet.actor.character .radial-maneuver-hide-all-label input {
@@ -1611,7 +1612,8 @@
 
 .mastery-system.sheet.actor.character .radial-maneuver-prefs-hint {
   font-size: 12px;
-  opacity: 0.85;
+  color: var(--df-text-secondary, #c8c8c8);
+  opacity: 1;
   margin: 0 0 10px 0;
   line-height: 1.35;
 }
@@ -1625,7 +1627,8 @@
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  opacity: 0.75;
+  color: var(--df-text-secondary, #b8b8b8);
+  opacity: 1;
   margin-bottom: 6px;
 }
 
@@ -1642,6 +1645,7 @@
   margin: 0;
   font-size: 13px;
   cursor: pointer;
+  color: var(--df-text-primary, #e8e8e8);
 }
 
 .mastery-system.sheet.actor.character .radial-maneuver-item-label input {

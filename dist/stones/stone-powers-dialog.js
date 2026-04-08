@@ -361,6 +361,8 @@ export class StonePowersDialog extends BaseDialog {
     _stoneReturnPoolAttr = null;
     /** Verhindert, dass jeder Render den Session-Steinplan aus dem Flag neu überschreibt (ungespeicherte UI ging verloren). */
     _stoneRoundPlanHydratedKey = null;
+    /** Scroll im Dialog-Inhalt vor Re-Render merken (Stein setzen sonst springt nach oben). */
+    _stonePowersContentScrollTop = 0;
     /** Summons tab: Familiar builder (dialog-only, nicht persistiert). */
     _familiarBuilder = {
         name: '',
@@ -442,6 +444,17 @@ export class StonePowersDialog extends BaseDialog {
         placed[slotIndex] = pick;
         await this.render({ force: true });
     }
+    /** Ritual-Feld leeren (Stein zurück logisch frei — wie Rückzug in den Pool). */
+    #clearRitualSlot(ritualId, slotIndex) {
+        this.#pullSessionPartialsIntoInstance();
+        const entry = STONE_RITUALS_CATALOG.find((r) => r.id === ritualId);
+        if (!entry || slotIndex < 0 || slotIndex >= entry.slots.length)
+            return;
+        const placed = this.#ritualEnsureSlots(entry);
+        if (!placed[slotIndex])
+            return;
+        placed[slotIndex] = null;
+    }
     #readFamiliarBuilderFromDom(root) {
         const form = root.querySelector('.stone-familiar-form');
         if (!form)
@@ -505,6 +518,11 @@ export class StonePowersDialog extends BaseDialog {
         });
     }
     async _prepareContext(_options) {
+        const el = this.element;
+        const scrollRoot = el ? getStonePowersContentRoot(this) : null;
+        if (scrollRoot && scrollRoot.scrollTop > 0) {
+            this._stonePowersContentScrollTop = scrollRoot.scrollTop;
+        }
         await this.#syncStonePowersRoundPlanWithCombat();
         this.#pullSessionPartialsIntoInstance();
         const combat = game.combat;
@@ -857,7 +875,6 @@ export class StonePowersDialog extends BaseDialog {
             familiarProgressionTable: getFamiliarProgressionTableRows(),
             familiarMasteryRank: masteryRankForFamiliar,
             familiarMasteryCap: masteryRankForFamiliar * 4,
-            familiarReferenceImage: 'systems/mastery-system/assets/familiar-progression-reference.png',
             prefsUseDefaults,
             canSavePrefs,
             showCombatRound1Save,
@@ -868,6 +885,14 @@ export class StonePowersDialog extends BaseDialog {
     async _onRender(_context, _options) {
         super._onRender?.(_context, _options);
         this.#pullSessionPartialsIntoInstance();
+        const st = this._stonePowersContentScrollTop;
+        if (st > 0) {
+            requestAnimationFrame(() => {
+                const scrollRoot = getStonePowersContentRoot(this);
+                if (scrollRoot)
+                    scrollRoot.scrollTop = st;
+            });
+        }
         const root = getStonePowersContentRoot(this);
         if (!root) {
             console.warn('Mastery System | StonePowersDialog: kein Content-Root für Event-Handler');
@@ -2073,11 +2098,28 @@ export class StonePowersDialog extends BaseDialog {
             await this.#autoFillPowerCluster(powerId, isGeneric, fixedPayAttr, poolKeys);
             await this.render({ force: true });
         };
-        /** Rechtsklick: Stein-Zuordnung dieser Macht leeren. */
+        /** Rechtsklick: Ritual-Feld leeren (Stein freigeben) oder Kampf-Macht leeren. */
         const onPowerCardContextMenu = async (ev) => {
             if (!allowDrag || locked)
                 return;
             const t = ev.target;
+            if (this._stonePowersMainTab === 'rituals') {
+                const rSlot = t.closest('.ms-ritual-drop-slot.slot-filled');
+                if (rSlot && bindTarget.contains(rSlot)) {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    const ritualId = rSlot.dataset.ritualId || '';
+                    const idxRaw = rSlot.dataset.ritualSlotIndex;
+                    const slotIndex = idxRaw !== undefined && idxRaw !== '' ? Number(idxRaw) : NaN;
+                    if (ritualId && Number.isFinite(slotIndex)) {
+                        this.#clearRitualSlot(ritualId, slotIndex);
+                        this.#reconcileFilledLaneClasses(bindTarget);
+                        this.#syncAccumulatorGems(bindTarget);
+                        await this.render({ force: true });
+                    }
+                    return;
+                }
+            }
             if (t.closest('.js-stone-draggable') || t.closest('.js-stone-returnable'))
                 return;
             const resolved = resolvePowerCardContext(t);

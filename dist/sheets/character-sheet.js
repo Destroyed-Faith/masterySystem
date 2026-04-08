@@ -132,20 +132,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const id = el.dataset.maneuverId;
         if (!id)
             return;
-        const sys = this.actor.system;
-        const hideIds = { ...(sys.radialManeuverPrefs?.hideIds || {}) };
+        // Foundry verschachtelte Updates mergen hideIds — einzelne Keys per -= entfernen, sonst bleibt „ausblenden“ aktiv.
         if (el.checked) {
-            hideIds[id] = true;
+            await this.actor.update({
+                [`system.radialManeuverPrefs.hideIds.${id}`]: true
+            });
         }
         else {
-            delete hideIds[id];
+            await this.actor.update({
+                [`system.radialManeuverPrefs.hideIds.-=${id}`]: null
+            });
         }
-        await this.actor.update({
-            'system.radialManeuverPrefs': {
-                ...(sys.radialManeuverPrefs || {}),
-                hideIds
-            }
-        });
         this.render();
     }
     async #onPowerRadialCheckboxChange(event) {

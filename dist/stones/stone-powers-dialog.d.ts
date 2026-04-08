@@ -33,6 +33,8 @@ export declare class StonePowersDialog extends BaseDialog {
     private _stoneReturnPoolAttr;
     /** Verhindert, dass jeder Render den Session-Steinplan aus dem Flag neu überschreibt (ungespeicherte UI ging verloren). */
     private _stoneRoundPlanHydratedKey;
+    /** Scroll im Dialog-Inhalt vor Re-Render merken (Stein setzen sonst springt nach oben). */
+    private _stonePowersContentScrollTop;
     /** Summons tab: Familiar builder (dialog-only, nicht persistiert). */
     private _familiarBuilder;
     static DEFAULT_OPTIONS: {
