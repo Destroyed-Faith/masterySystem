@@ -5,6 +5,7 @@
  * Supports single-target and radius AoE with manual target selection
  */
 import { consumeAttackAction, getAvailableAttackActions, markPowerUsedThisRound } from './combat/action-economy.js';
+import { metersToSceneDistance, measureSceneDistanceBetweenPoints, gridStepsFromMeters } from './utils/grid-range.js';
 // Global utility targeting state
 let activeUtilityTargeting = null;
 /**
@@ -65,43 +66,10 @@ function matchesTargetGroup(casterToken, targetToken, group) {
     return false;
 }
 /**
- * Get distance between two points in grid units
+ * Distance between two canvas points in scene grid units (ft, m, …), same as Foundry ruler / measurePath.
  */
-function getDistanceInGridUnits(point1, point2) {
-    const dx = point2.x - point1.x;
-    const dy = point2.y - point1.y;
-    const pixelDistance = Math.sqrt(dx * dx + dy * dy);
-    const gridSize = canvas.grid?.size || 1;
-    const gridDistance = pixelDistance / gridSize;
-    // Use Foundry's distance measurement if available (for hex grids)
-    try {
-        if (canvas.grid?.measurePath) {
-            // New v13 API: measurePath returns array of distances
-            const waypoints = [
-                { x: point1.x, y: point1.y },
-                { x: point2.x, y: point2.y }
-            ];
-            const measurement = canvas.grid.measurePath(waypoints, {});
-            if (measurement && measurement.length > 0) {
-                return measurement[0];
-            }
-        }
-        else if (canvas.grid?.measureDistances) {
-            // Fallback to old API
-            const waypoints = [
-                { x: point1.x, y: point1.y },
-                { x: point2.x, y: point2.y }
-            ];
-            const measurement = canvas.grid.measureDistances(waypoints, {});
-            if (measurement && measurement.length > 0) {
-                return measurement[0];
-            }
-        }
-    }
-    catch (error) {
-        // Use fallback
-    }
-    return gridDistance;
+function sceneDistanceBetween(point1, point2) {
+    return measureSceneDistanceBetweenPoints(point1, point2);
 }
 /**
  * Find candidate tokens within radius
@@ -109,12 +77,11 @@ function getDistanceInGridUnits(point1, point2) {
 function findCandidatesInRadius(casterToken, center, radiusMeters, targetGroup) {
     const candidates = new Map();
     const allTokens = canvas.tokens?.placeables || [];
-    const gridSizeMeters = canvas.grid?.distance || 1;
-    const radiusGridUnits = radiusMeters / gridSizeMeters;
+    const maxRadiusScene = metersToSceneDistance(radiusMeters);
     for (const token of allTokens) {
         const tokenCenter = token.center;
-        const distance = getDistanceInGridUnits(center, tokenCenter);
-        if (distance <= radiusGridUnits) {
+        const distance = sceneDistanceBetween(center, tokenCenter);
+        if (distance <= maxRadiusScene + 0.01) {
             const isAllyToken = isAlly(casterToken, token);
             const isEnemyToken = isEnemy(casterToken, token);
             const matches = matchesTargetGroup(casterToken, token, targetGroup);
@@ -140,7 +107,7 @@ function highlightRadiusArea(state) {
     const center = state.center;
     const gridDist = canvas.grid?.distance || 1;
     const gridSize = canvas.grid?.size || 1;
-    const radiusPx = (state.radiusMeters / gridDist) * gridSize;
+    const radiusPx = (metersToSceneDistance(state.radiusMeters) / gridDist) * gridSize;
     state.previewGraphics.clear();
     // Always draw the AoE disk on the canvas (square, hex, or gridless). Grid cell highlights
     // are best-effort and often missing on newer Foundry APIs — without this, players only see
@@ -179,8 +146,7 @@ function highlightRadiusArea(state) {
     if (highlight && highlight.clear) {
         highlight.clear();
     }
-    // Highlight hexes within radius
-    const maxHexDistance = Math.ceil(state.radiusMeters / (canvas.grid.distance || 1));
+    const maxHexDistance = gridStepsFromMeters(state.radiusMeters);
     // Get grid position using new v13 API
     let centerGrid = null;
     try {
@@ -229,37 +195,9 @@ function highlightRadiusArea(state) {
                     continue; // Skip this hex if we can't get its position
                 }
                 if (hexCenter) {
-                    // Calculate distance using Foundry's measurement API for accurate hex distance
-                    let distanceInUnits = getDistanceInGridUnits(center, hexCenter);
-                    try {
-                        if (canvas.grid?.measurePath) {
-                            // New v13 API: measurePath returns array of distances
-                            const waypoints = [
-                                { x: center.x, y: center.y },
-                                { x: hexCenter.x, y: hexCenter.y }
-                            ];
-                            const measurement = canvas.grid.measurePath(waypoints, {});
-                            if (measurement && measurement.length > 0) {
-                                distanceInUnits = measurement[0];
-                            }
-                        }
-                        else if (canvas.grid?.measureDistances) {
-                            // Fallback to old API
-                            const waypoints = [
-                                { x: center.x, y: center.y },
-                                { x: hexCenter.x, y: hexCenter.y }
-                            ];
-                            const measurement = canvas.grid.measureDistances(waypoints, {});
-                            if (measurement && measurement.length > 0) {
-                                distanceInUnits = measurement[0];
-                            }
-                        }
-                    }
-                    catch (error) {
-                        // Use fallback distance
-                    }
-                    const radiusInUnits = state.radiusMeters / (canvas.grid.distance || 1);
-                    if (distanceInUnits <= radiusInUnits) {
+                    const distanceInUnits = sceneDistanceBetween(center, hexCenter);
+                    const radiusInUnits = metersToSceneDistance(state.radiusMeters);
+                    if (distanceInUnits <= radiusInUnits + 0.01) {
                         // Try different methods to highlight the hex
                         try {
                             // Foundry v13 API: highlight.highlightPosition(col, row, options)
@@ -482,9 +420,9 @@ export function startUtilitySingleTargetMode(token, option) {
         // Draw range line
         rangeLineGraphics.clear();
         const casterCenter = token.center;
-        const distance = getDistanceInGridUnits(casterCenter, snapped);
-        const maxRange = rangeMeters / (canvas.grid?.distance || 1);
-        const isValid = distance <= maxRange;
+        const distance = sceneDistanceBetween(casterCenter, snapped);
+        const maxScene = metersToSceneDistance(rangeMeters);
+        const isValid = distance <= maxScene + 0.01;
         rangeLineGraphics.lineStyle(2, isValid ? 0x66aaff : 0xff6666, 0.8);
         rangeLineGraphics.moveTo(casterCenter.x, casterCenter.y);
         rangeLineGraphics.lineTo(snapped.x, snapped.y);
@@ -494,8 +432,8 @@ export function startUtilitySingleTargetMode(token, option) {
             if (targetToken.id === token.id)
                 continue;
             const targetCenter = targetToken.center;
-            const targetDistance = getDistanceInGridUnits(casterCenter, targetCenter);
-            const isInRange = targetDistance <= maxRange;
+            const targetDistance = sceneDistanceBetween(casterCenter, targetCenter);
+            const isInRange = targetDistance <= maxScene + 0.01;
             const matches = matchesTargetGroup(token, targetToken, targetGroup);
             if (isInRange && matches) {
                 // Highlight valid target
@@ -535,10 +473,10 @@ export function startUtilitySingleTargetMode(token, option) {
             });
             if (clickedToken && clickedToken.id !== token.id) {
                 const casterCenter = token.center;
-                const distance = getDistanceInGridUnits(casterCenter, clickedToken.center);
-                const maxRange = rangeMeters / (canvas.grid?.distance || 1);
+                const distance = sceneDistanceBetween(casterCenter, clickedToken.center);
+                const maxScene = metersToSceneDistance(rangeMeters);
                 const matches = matchesTargetGroup(token, clickedToken, targetGroup);
-                if (distance <= maxRange && matches) {
+                if (distance <= maxScene + 0.01 && matches) {
                     console.log('Mastery System | Single-target utility confirmed:', clickedToken.name);
                     confirmUtilityTargets({
                         casterToken: token,
@@ -680,15 +618,15 @@ export function startUtilityRadiusMode(token, option) {
             // Draw range line
             state.rangeLineGraphics.clear();
             const casterCenter = token.center;
-            const distance = getDistanceInGridUnits(casterCenter, snapped);
-            const maxRange = rangeMeters / (canvas.grid?.distance || 1);
-            const isValid = distance <= maxRange;
+            const distance = sceneDistanceBetween(casterCenter, snapped);
+            const maxScene = metersToSceneDistance(rangeMeters);
+            const isValid = distance <= maxScene + 0.01;
             state.rangeLineGraphics.lineStyle(2, isValid ? 0x66aaff : 0xff6666, 0.8);
             state.rangeLineGraphics.moveTo(casterCenter.x, casterCenter.y);
             state.rangeLineGraphics.lineTo(snapped.x, snapped.y);
             if (isValid) {
                 state.previewGraphics.clear();
-                const radiusPx = (radiusMeters / (canvas.grid?.distance || 1)) * (canvas.grid?.size || 1);
+                const radiusPx = (metersToSceneDistance(radiusMeters) / (canvas.grid?.distance || 1)) * (canvas.grid?.size || 1);
                 if (radiusMeters > 0 && radiusPx > 0) {
                     state.previewGraphics.lineStyle(2, 0x66aaff, 0.75);
                     state.previewGraphics.beginFill(0x66aaff, 0.12);
@@ -740,9 +678,9 @@ export function startUtilityRadiusMode(token, option) {
                 const worldPos = ev.data.getLocalPosition(canvas.app.stage);
                 const snapped = canvas.grid.getSnappedPosition(worldPos.x, worldPos.y, 1);
                 const casterCenter = token.center;
-                const distance = getDistanceInGridUnits(casterCenter, snapped);
-                const maxRange = rangeMeters / (canvas.grid?.distance || 1);
-                if (distance <= maxRange) {
+                const distance = sceneDistanceBetween(casterCenter, snapped);
+                const maxScene = metersToSceneDistance(rangeMeters);
+                if (distance <= maxScene + 0.01) {
                     state.center = snapped;
                     if (state.center) {
                         state.candidates = findCandidatesInRadius(token, state.center, radiusMeters, targetGroup);

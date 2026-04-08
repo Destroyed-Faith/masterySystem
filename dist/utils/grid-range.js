@@ -4,7 +4,8 @@
  */
 /** Scene distance equivalent to `rangeMeters` (same units as canvas.grid.measurePath / grid.distance). */
 export function metersToSceneDistance(rangeMeters) {
-    const u = String(canvas.scene?.grid?.units ?? "m").toLowerCase();
+    const grid = canvas.grid;
+    const u = String(grid?.units ?? canvas.scene?.grid?.units ?? "m").toLowerCase();
     if (u === "ft" || u === "feet" || u === "foot")
         return rangeMeters / 0.3048;
     if (u === "yd" || u === "yards" || u === "yard")
