@@ -2,6 +2,7 @@
  * Option Collection and Parsing for Radial Menu
  */
 import { getAvailableManeuvers } from '../system/combat-maneuvers.js';
+import { isManeuverHiddenFromActorRadial } from '../utils/radial-maneuver-prefs.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { getMovementRangeBonusMeters, hasPowerBeenUsedThisRound } from '../combat/action-economy.js';
 import { getMagicPower } from '../utils/magic-powers.js';
@@ -574,6 +575,9 @@ export async function getAllCombatOptionsForActor(actor) {
         if (maneuver.id === 'stand-up' && !isProne) {
             continue;
         }
+        if (isManeuverHiddenFromActorRadial(actor, maneuver.id)) {
+            continue;
+        }
         const maneuverOption = {
             id: maneuver.id,
             name: maneuver.name,
@@ -590,7 +594,7 @@ export async function getAllCombatOptionsForActor(actor) {
     }
     // Add "Weapon Attack" if not present
     const hasWeaponAttack = allManeuvers.some(opt => opt.slot === 'attack' && (opt.id === 'weapon-attack' || opt.name.toLowerCase() === 'weapon attack'));
-    if (!hasWeaponAttack) {
+    if (!hasWeaponAttack && !isManeuverHiddenFromActorRadial(actor, 'weapon-attack')) {
         allManeuvers.push({
             id: 'weapon-attack',
             name: 'Weapon Attack',

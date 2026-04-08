@@ -48,6 +48,10 @@
         }
       },
       "combatant": {
+        "radialManeuverPrefs": {
+          "hideAllStandard": false,
+          "hideIds": {}
+        },
         "combat": {
           "initiative": 0,
           "evade": 10,

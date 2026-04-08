@@ -4,6 +4,7 @@
 
 import type { CombatSlot, CombatManeuver } from '../system/combat-maneuvers';
 import { getAvailableManeuvers } from '../system/combat-maneuvers';
+import { isManeuverHiddenFromActorRadial } from '../utils/radial-maneuver-prefs.js';
 import type { RadialCombatOption, TargetGroup, AoEShape, InnerSegment } from './types';
 import type { AoeSpec } from '../types/item.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
@@ -652,6 +653,10 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
       continue;
     }
     
+    if (isManeuverHiddenFromActorRadial(actor, maneuver.id)) {
+      continue;
+    }
+
     const maneuverOption: RadialCombatOption = {
       id: maneuver.id,
       name: maneuver.name,
@@ -664,16 +669,16 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
       costsMovement: costsMovement,
       costsAction: costsAction
     };
-    
+
     allManeuvers.push(maneuverOption);
   }
-  
+
   // Add "Weapon Attack" if not present
   const hasWeaponAttack = allManeuvers.some(opt => 
     opt.slot === 'attack' && (opt.id === 'weapon-attack' || opt.name.toLowerCase() === 'weapon attack')
   );
   
-  if (!hasWeaponAttack) {
+  if (!hasWeaponAttack && !isManeuverHiddenFromActorRadial(actor, 'weapon-attack')) {
     allManeuvers.push({
       id: 'weapon-attack',
       name: 'Weapon Attack',

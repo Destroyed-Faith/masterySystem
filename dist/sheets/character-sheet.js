@@ -13,6 +13,7 @@ import { getNormalizedEquipSlots } from '../utils/equip-slots.js';
 import { XP_COSTS } from '../utils/constants.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { matchesMasteryWeaponCatalog } from '../utils/weapons.js';
+import { buildRadialManeuverPrefsContext } from '../utils/radial-maneuver-prefs.js';
 // Removed: showWeaponCreationDialog, showArmorCreationDialog, showShieldCreationDialog
 // Replaced with General Items Storage and Store dialogs
 // Use namespaced ActorSheet when available to avoid deprecation warnings
@@ -105,6 +106,44 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     /**
      * Handle power rank change during creation
      */
+    async #onRadialManeuverHideAll(event) {
+        if (!this.isEditable)
+            return;
+        const el = event.currentTarget;
+        const sys = this.actor.system;
+        await this.actor.update({
+            'system.radialManeuverPrefs': {
+                ...(sys.radialManeuverPrefs || {}),
+                hideAllStandard: el.checked
+            }
+        });
+        this.render();
+    }
+    async #onRadialManeuverHideOne(event) {
+        if (!this.isEditable)
+            return;
+        const el = event.currentTarget;
+        if (el.disabled)
+            return;
+        const id = el.dataset.maneuverId;
+        if (!id)
+            return;
+        const sys = this.actor.system;
+        const hideIds = { ...(sys.radialManeuverPrefs?.hideIds || {}) };
+        if (el.checked) {
+            hideIds[id] = true;
+        }
+        else {
+            delete hideIds[id];
+        }
+        await this.actor.update({
+            'system.radialManeuverPrefs': {
+                ...(sys.radialManeuverPrefs || {}),
+                hideIds
+            }
+        });
+        this.render();
+    }
     async #onPowerRadialCheckboxChange(event) {
         event.stopPropagation();
         const el = event.currentTarget;
@@ -513,6 +552,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         // Build Equipment UI Context
         context.equipmentUi = this.#prepareEquipmentUi(context.items);
+        context.radialManeuverPrefsPanel = buildRadialManeuverPrefsContext(context.system);
         // Add active buffs data - ALWAYS set as array, even if empty
         context.activeBuffs = [];
         try {
@@ -1426,6 +1466,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html
             .off('change', '.power-radial-checkbox')
             .on('change', '.power-radial-checkbox', this.#onPowerRadialCheckboxChange.bind(this));
+        html
+            .off('change', '.radial-maneuver-hide-all')
+            .on('change', '.radial-maneuver-hide-all', this.#onRadialManeuverHideAll.bind(this));
+        html
+            .off('change', '.radial-maneuver-hide-one')
+            .on('change', '.radial-maneuver-hide-one', this.#onRadialManeuverHideOne.bind(this));
         // Equipment handlers
         html.find('.general-items-btn').on('click', this.#onGeneralItemsClick.bind(this));
         html.find('.store-btn').on('click', this.#onStoreClick.bind(this));

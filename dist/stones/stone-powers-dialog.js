@@ -11,6 +11,7 @@ import { STONE_POWERS_BY_ATTRIBUTE } from './stone-powers.js';
 import { getStoneUsageCount, getGenericStonePowerUsageCount, calculateStoneCost, getStonePool, isStonePowersConfigurationLocked, getActionEconomyActor } from '../combat/action-economy.js';
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
 import { refreshRadialMenuActionLabelsIfOpenForActor } from '../token-radial-menu.js';
+import { STONE_RITUALS_CATALOG } from './rituals-catalog.js';
 const STONE_DRAG_MIME = 'application/x-mastery-stone-attribute';
 const STONE_RETURN_MIME = 'application/x-mastery-stone-return-acc';
 /**
@@ -196,10 +197,17 @@ const ALL_STONE_ATTRS = [
     'resolve',
     'influence'
 ];
+/** Pools shown in the dialog (core six + optional Wits if the actor has a wits pool). */
+const POOL_DISPLAY_ATTRS = [...ALL_STONE_ATTRS, 'wits'];
+function poolDisplayName(key) {
+    if (key === 'wits')
+        return 'Wits';
+    return key.charAt(0).toUpperCase() + key.slice(1);
+}
 function getActorStonePoolKeysWithMax(actor) {
     const sp = (actor.system?.stonePools || {});
     const keys = new Set();
-    for (const k of ALL_STONE_ATTRS) {
+    for (const k of POOL_DISPLAY_ATTRS) {
         const max = Number(sp[k]?.max) || 0;
         if (max > 0)
             keys.add(k);
@@ -335,6 +343,9 @@ export class StonePowersDialog extends BaseDialog {
     combatant;
     resolve;
     _generalAttrSelection = {}; // Track selected attribute per generic power
+    _stonePowersMainTab = 'combat';
+    /** Fixed-cost ritual slots: ritual id → placed stone attribute per slot (null = empty). */
+    _ritualStonePlacements = new Map();
     /** Belegte Lanes: Attribut-Macht `number[]`; General `GenericLaneOcc[]` unter `genericUnifiedAccKey`. */
     _stoneDropAccumulators = new Map();
     /** Lane des Steins bei Rückzug Pool←Feld (dragstart). */
@@ -353,7 +364,7 @@ export class StonePowersDialog extends BaseDialog {
         id: "mastery-stone-powers",
         classes: ["mastery-system", "stone-powers-dialog"],
         position: { width: 920, height: 640 },
-        window: { title: 'Stonepowers', resizable: true }
+        window: { title: 'Stone Powers', resizable: true }
     };
     static PARTS = {
         content: { template: "systems/mastery-system/templates/dialogs/stone-powers.hbs" }
@@ -381,6 +392,15 @@ export class StonePowersDialog extends BaseDialog {
             }
         }
     }
+    #ritualEnsureSlots(entry) {
+        this.#pullSessionPartialsIntoInstance();
+        let arr = this._ritualStonePlacements.get(entry.id);
+        if (!arr || arr.length !== entry.slots.length) {
+            arr = Array(entry.slots.length).fill(null);
+            this._ritualStonePlacements.set(entry.id, arr);
+        }
+        return arr;
+    }
     async _prepareContext(_options) {
         await this.#syncStonePowersRoundPlanWithCombat();
         this.#pullSessionPartialsIntoInstance();
@@ -392,9 +412,8 @@ export class StonePowersDialog extends BaseDialog {
         const system = this.actor.system;
         const stonePools = system.stonePools || {};
         const availablePowers = getAvailableStonePowers(this.actor);
-        // Filter pools to only show those with max > 0
-        const pools = ALL_STONE_ATTRS
-            .map((attr) => {
+        // Filter pools to only show those with max > 0 (includes optional Wits)
+        const pools = POOL_DISPLAY_ATTRS.map((attr) => {
             const pool = stonePools[attr];
             const current = pool?.current ?? pool?.value ?? 0;
             const max = pool?.max ?? pool?.maximum ?? 0;
@@ -406,7 +425,7 @@ export class StonePowersDialog extends BaseDialog {
             const gemSlots = Array.from({ length: poolDisplay }, (_, i) => ({ index: i }));
             return {
                 key: attr,
-                name: attr.charAt(0).toUpperCase() + attr.slice(1),
+                name: poolDisplayName(attr),
                 current: Number(current) || 0,
                 max: Number(max) || 0,
                 sustained: Number(sustained) || 0,
@@ -419,6 +438,52 @@ export class StonePowersDialog extends BaseDialog {
         const combatMissingFromTracker = combatActive && !this.combatant;
         const hasCombat = combatActive && !!this.combatant;
         const stonePlanLocked = !!(combat && this.combatant && isStonePowersConfigurationLocked(this.actor, combat));
+        const mainTab = this._stonePowersMainTab;
+        const showStonePools = mainTab === 'combat' || mainTab === 'rituals';
+        const dragPoolEnabled = mainTab === 'rituals' || (mainTab === 'combat' && !stonePlanLocked);
+        const ritualDragEnabled = mainTab === 'rituals';
+        const tabCombatActive = mainTab === 'combat';
+        const tabRitualsActive = mainTab === 'rituals';
+        const tabSummonsActive = mainTab === 'summons';
+        const ritualRows = STONE_RITUALS_CATALOG.map((entry) => {
+            const placed = this.#ritualEnsureSlots(entry);
+            const slotsUi = entry.slots.map((rule, idx) => {
+                const p = placed[idx];
+                if (p) {
+                    const style = getStoneGemStyle(p) ?? { fill: '#888888', stroke: '#aaaaaa' };
+                    return {
+                        slotIndex: idx,
+                        state: 'filled',
+                        allowedCsv: rule.allow.join(','),
+                        placedKey: p,
+                        gemStyle: style,
+                        allowTitle: rule.allow.join(' or ')
+                    };
+                }
+                const canAny = rule.allow.some((a) => this.#spendableNetForAttr(a) >= 1);
+                const state = ritualDragEnabled && canAny ? 'active' : 'locked';
+                return {
+                    slotIndex: idx,
+                    state,
+                    allowedCsv: rule.allow.join(','),
+                    placedKey: null,
+                    gemStyle: null,
+                    allowTitle: rule.allow.join(' or ')
+                };
+            });
+            return {
+                id: entry.id,
+                name: entry.name,
+                roll: entry.roll,
+                duration: entry.duration,
+                requirement: entry.requirement,
+                intro: entry.intro,
+                raises: entry.raises,
+                danger: entry.danger,
+                lore: entry.lore,
+                slotsUi
+            };
+        });
         const prefsUseDefaults = !!(system.stonePowersPrefs?.useDefaultsEachRound);
         const user = game.user;
         const canSavePrefs = !stonePlanLocked && !!user && (user.isGM || this.actor.isOwner);
@@ -434,22 +499,22 @@ export class StonePowersDialog extends BaseDialog {
         const defaultGeneralAttrKey = (() => {
             const withCurrent = pools.find(p => p.current > 0);
             if (withCurrent)
-                return withCurrent.key;
+                return String(withCurrent.key);
             if (pools.length > 0)
-                return pools[0].key;
-            return 'might'; // Fallback
+                return String(pools[0].key);
+            return 'might';
         })();
         const spendableForAttr = (key) => pools.find((p) => p.key === key)?.available ?? 0;
         const totalSpendableNetAllPools = () => {
             let sum = 0;
-            for (const attr of ALL_STONE_ATTRS) {
-                const gross = spendableForAttr(attr);
-                const reserved = this.#reservedStonesInDialogForAttr(attr);
+            for (const p of pools) {
+                const gross = spendableForAttr(String(p.key));
+                const reserved = this.#reservedStonesInDialogForAttr(String(p.key));
                 sum += Math.max(0, gross - reserved);
             }
             return sum;
         };
-        const canAffordGenericNextCost = (cost) => hasCombat && ALL_STONE_ATTRS.some((a) => getStonePool(this.actor, a).current >= cost);
+        const canAffordGenericNextCost = (cost) => hasCombat && pools.some((p) => (Number(p.current) || 0) >= cost);
         const preparePowerData = (power, attrKey) => {
             /** Wie im Drop-Handler: `getStoneUsageCount(..., combat)` — auch wenn `combat` null (dann Runde 1 / Zug 0). Nicht `combat ? … : 0`, sonst anderer accKey als beim Drop. */
             const usesThisTurn = getStoneUsageCount(this.actor, attrKey, power.id, combat);
@@ -645,6 +710,14 @@ export class StonePowersDialog extends BaseDialog {
             stonePlanLocked,
             /** Ziehen erlaubt sobald Runde nicht gesperrt (auch ohne Kampf — Ausführung nur im Kampf). */
             dragStonesEnabled: !stonePlanLocked,
+            dragPoolEnabled,
+            ritualDragEnabled,
+            stonePowersMainTab: mainTab,
+            showStonePools,
+            tabCombatActive,
+            tabRitualsActive,
+            tabSummonsActive,
+            ritualRows,
             prefsUseDefaults,
             canSavePrefs,
             showCombatRound1Save,
@@ -666,6 +739,17 @@ export class StonePowersDialog extends BaseDialog {
         this.#syncAccumulatorGems(appWindow);
         if (DEBUG_STONE_LANES)
             this.#logStoneLanesDom(appWindow);
+        root.querySelectorAll('.js-stone-powers-tab').forEach((btn) => {
+            const el = btn;
+            el.onclick = (ev) => {
+                ev.preventDefault();
+                const tab = el.dataset.tab;
+                if (!tab || tab === this._stonePowersMainTab)
+                    return;
+                this._stonePowersMainTab = tab;
+                void this.render({ force: true });
+            };
+        });
         const savePrefsBtn = root.querySelector('.js-save-stone-prefs');
         if (savePrefsBtn) {
             savePrefsBtn.onclick = async (ev) => {
@@ -862,7 +946,7 @@ export class StonePowersDialog extends BaseDialog {
                 return false;
             if (raw.length !== nextCost)
                 return false;
-            perAttr[middle] = raw.length;
+            perAttr[String(middle)] = raw.length;
         }
         const combatant = this.combatant || resolveStonePowersCombatant(this.actor, combat);
         if (!combatant)
@@ -908,7 +992,7 @@ export class StonePowersDialog extends BaseDialog {
         const stonePools = system?.stonePools || {};
         const perAttr = {};
         let totalNet = 0;
-        for (const attr of ALL_STONE_ATTRS) {
+        for (const attr of POOL_DISPLAY_ATTRS) {
             const pool = stonePools[attr];
             const current = pool?.current ?? pool?.value ?? 0;
             const sustained = pool?.sustained ?? 0;
@@ -1034,6 +1118,12 @@ export class StonePowersDialog extends BaseDialog {
                 sum += val.length;
             }
         }
+        for (const slots of this._ritualStonePlacements.values()) {
+            for (const a of slots) {
+                if (a === attr)
+                    sum += 1;
+            }
+        }
         return sum;
     }
     #actorPoolSpendable(attr) {
@@ -1050,7 +1140,7 @@ export class StonePowersDialog extends BaseDialog {
     #spendableNetForAttr(attr) {
         return Math.max(0, this.#actorPoolSpendable(attr) - this.#reservedStonesInDialogForAttr(attr));
     }
-    /** General Power: erstes Attribut mit mindestens einem freien Stein (Reihenfolge ALL_STONE_ATTRS). */
+    /** General Power: erstes Attribut mit mindestens einem freien Stein (Kern-Attribute; Wits nur für Rituale). */
     #firstGenericAttrWithSpendable(poolKeys) {
         for (const attr of ALL_STONE_ATTRS) {
             if (!poolKeys.has(attr))
@@ -1155,10 +1245,11 @@ export class StonePowersDialog extends BaseDialog {
     }
     /** Entfernt Pool-Chips, die bereits in Ablagefeldern (Akku) stecken — inkl. Teilbelegung. */
     #syncPoolGemChips(root) {
-        for (const attr of ALL_STONE_ATTRS) {
-            const poolGems = root.querySelector(`.pool-gems[data-attribute-key="${attr}"]`);
-            if (!poolGems)
-                continue;
+        root.querySelectorAll('.pool-gems[data-attribute-key]').forEach((node) => {
+            const poolGems = node;
+            const attr = poolGems.dataset.attributeKey || '';
+            if (!attr)
+                return;
             const spendable = this.#actorPoolSpendable(attr);
             const reserved = this.#reservedStonesInDialogForAttr(attr);
             const want = Math.max(0, spendable - reserved);
@@ -1169,9 +1260,8 @@ export class StonePowersDialog extends BaseDialog {
             }
             if (chips.length < want) {
                 void this.render({ force: true });
-                return;
             }
-        }
+        });
     }
     /** Zeigt Steine in `slot-filled`-Zellen (ein Stein pro Feld, zurück zum Pool ziehbar). */
     #syncAccumulatorGems(root) {
@@ -1291,7 +1381,8 @@ export class StonePowersDialog extends BaseDialog {
         const combat = game.combat;
         const canExecute = !!combat && !!this.combatant;
         const locked = !!(combat && this.combatant && isStonePowersConfigurationLocked(this.actor, combat));
-        const allowDrag = !locked;
+        const mainTab = this._stonePowersMainTab;
+        const allowDrag = mainTab === 'rituals' || (mainTab === 'combat' && !locked);
         const poolKeys = getActorStonePoolKeysWithMax(this.actor);
         dlogStoneDnD('bind DnD', {
             bindTarget: {
@@ -1311,7 +1402,7 @@ export class StonePowersDialog extends BaseDialog {
         };
         const clearDragOver = () => {
             clearPoolReturnHighlight();
-            bindTarget.querySelectorAll('.ms-stone-drop-slot.is-drag-over').forEach((n) => {
+            bindTarget.querySelectorAll('.ms-stone-drop-slot.is-drag-over, .ms-ritual-drop-slot.is-drag-over').forEach((n) => {
                 clearStoneSlotDragOverVisual(n);
             });
         };
@@ -1483,6 +1574,29 @@ export class StonePowersDialog extends BaseDialog {
                     dlogStoneReturn('abort: falscher Pool für diesen Stein', { payAttr, poolAttr });
                     return;
                 }
+                if (accKeyReturn.startsWith('ritual-slot:')) {
+                    const m = /^ritual-slot:([^:]+):(\d+)$/.exec(accKeyReturn);
+                    if (!m) {
+                        dlogStoneReturn('abort: bad ritual-slot key', { accKeyReturn });
+                        return;
+                    }
+                    const ritualId = m[1];
+                    const slotIndex = Number(m[2]);
+                    const entry = STONE_RITUALS_CATALOG.find((r) => r.id === ritualId);
+                    if (!entry || !Number.isFinite(slotIndex) || slotIndex < 0 || slotIndex >= entry.slots.length) {
+                        return;
+                    }
+                    const placed = this.#ritualEnsureSlots(entry);
+                    const stone = placed[slotIndex];
+                    if (!stone || stone !== payAttr) {
+                        dlogStoneReturn('abort: ritual slot mismatch', { stone, payAttr, slotIndex });
+                        return;
+                    }
+                    placed[slotIndex] = null;
+                    dlogStoneReturn('OK: Ritual-Stein zurück im Pool', { ritualId, slotIndex });
+                    await this.render({ force: true });
+                    return;
+                }
                 const laneRm = this._stoneReturnLane;
                 if (isGenericUnifiedAccKey(accKeyReturn)) {
                     const raw = this.#stoneOccGetRaw(accKeyReturn);
@@ -1551,6 +1665,44 @@ export class StonePowersDialog extends BaseDialog {
             }
             ev.preventDefault();
             clearDragOver();
+            const ritualIdDrop = slot.dataset.ritualId;
+            if (ritualIdDrop) {
+                if (!slot.classList.contains('slot-active')) {
+                    ui.notifications?.warn('Dieses Ritual-Feld ist nicht verfügbar (kein passender Stein im Pool oder Feld schon belegt).');
+                    return;
+                }
+                const idxR = slot.dataset.ritualSlotIndex !== undefined && slot.dataset.ritualSlotIndex !== ''
+                    ? Number(slot.dataset.ritualSlotIndex)
+                    : NaN;
+                const draggedR = this._stoneDragAttribute ||
+                    ev.dataTransfer?.getData(STONE_DRAG_MIME) ||
+                    ev.dataTransfer?.getData('text/plain') ||
+                    msLastDraggedStoneAttribute ||
+                    '';
+                const entryDrop = STONE_RITUALS_CATALOG.find((r) => r.id === ritualIdDrop);
+                if (!entryDrop || !Number.isFinite(idxR) || idxR < 0 || idxR >= entryDrop.slots.length) {
+                    return;
+                }
+                const ruleDrop = entryDrop.slots[idxR];
+                if (!draggedR || !ruleDrop.allow.includes(draggedR)) {
+                    ui.notifications?.warn('Falscher Stein — Attribut passt nicht zu diesem Ritual-Feld.');
+                    return;
+                }
+                if (!poolKeys.has(draggedR)) {
+                    ui.notifications?.warn('Dieser Stein gehört zu keinem Pool auf diesem Bogen.');
+                    return;
+                }
+                const placedDrop = this.#ritualEnsureSlots(entryDrop);
+                if (placedDrop[idxR])
+                    return;
+                if (this.#spendableNetForAttr(draggedR) < 1) {
+                    ui.notifications?.warn('Kein freier Stein dieses Attributs im Pool.');
+                    return;
+                }
+                placedDrop[idxR] = draggedR;
+                await this.render({ force: true });
+                return;
+            }
             if (locked) {
                 dlogStoneDnD('drop abort: stonePlanLocked');
                 ui.notifications?.warn('Diese Runde ist für Stonepowers gesperrt.');

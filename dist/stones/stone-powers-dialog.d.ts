@@ -16,6 +16,9 @@ export declare class StonePowersDialog extends BaseDialog {
     private combatant;
     private resolve?;
     private _generalAttrSelection;
+    private _stonePowersMainTab;
+    /** Fixed-cost ritual slots: ritual id → placed stone attribute per slot (null = empty). */
+    private _ritualStonePlacements;
     /** Belegte Lanes: Attribut-Macht `number[]`; General `GenericLaneOcc[]` unter `genericUnifiedAccKey`. */
     private _stoneDropAccumulators;
     /** Lane des Steins bei Rückzug Pool←Feld (dragstart). */

@@ -809,3 +809,155 @@
 .ms-stone-cluster-vsep {
   pointer-events: none;
 }
+
+/* —— Tabs (Combat / Rituals / Summons) —— */
+.stone-powers-dialog .stone-powers-tabs-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin: 0.35rem 0 0.45rem;
+}
+
+.stone-powers-dialog .stone-powers-tab {
+  flex: 1 1 auto;
+  min-width: 5.5rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.35);
+  color: #e0e0e0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.stone-powers-dialog .stone-powers-tab:hover {
+  border-color: rgba(255, 200, 120, 0.45);
+  background: rgba(40, 20, 10, 0.5);
+}
+
+.stone-powers-dialog .stone-powers-tab.is-active {
+  border-color: rgba(183, 28, 28, 0.75);
+  background: rgba(80, 20, 20, 0.55);
+  color: #fff;
+}
+
+/* —— Rituals pane —— */
+.stone-powers-dialog .stone-rituals-pane {
+  margin-top: 0.2rem;
+}
+
+.stone-powers-dialog .stone-rituals-intro {
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: #cfd8dc;
+  margin-bottom: 0.65rem;
+  padding: 0.45rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.stone-powers-dialog .stone-rituals-intro p {
+  margin: 0 0 0.45rem;
+}
+
+.stone-powers-dialog .stone-rituals-intro p:last-child {
+  margin-bottom: 0;
+}
+
+.stone-powers-dialog .stone-rituals-lead {
+  color: #eceff1;
+}
+
+.stone-powers-dialog .stone-rituals-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.stone-powers-dialog .stone-ritual-card {
+  padding: 0.45rem 0.55rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.stone-powers-dialog .stone-ritual-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem 0.6rem;
+  margin-bottom: 0.35rem;
+}
+
+.stone-powers-dialog .stone-ritual-name {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #fff;
+}
+
+.stone-powers-dialog .stone-ritual-slots-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.28rem;
+}
+
+.stone-powers-dialog .stone-ritual-slots-row .ms-ritual-drop-slot {
+  width: 1.65rem;
+  height: 1.65rem;
+  min-width: 1.65rem;
+  min-height: 1.65rem;
+}
+
+.stone-powers-dialog .stone-ritual-meta,
+.stone-powers-dialog .stone-ritual-req,
+.stone-powers-dialog .stone-ritual-intro,
+.stone-powers-dialog .stone-ritual-danger,
+.stone-powers-dialog .stone-ritual-lore {
+  font-size: 0.78rem;
+  line-height: 1.4;
+  margin: 0.2rem 0;
+  color: #b0bec5;
+}
+
+.stone-powers-dialog .stone-ritual-details {
+  margin: 0.35rem 0 0;
+  font-size: 0.78rem;
+  color: #cfd8dc;
+}
+
+.stone-powers-dialog .stone-ritual-details summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #ffcc80;
+}
+
+.stone-powers-dialog .stone-ritual-raises {
+  margin: 0.35rem 0 0;
+  padding-left: 1.1rem;
+}
+
+.stone-powers-dialog .stone-ritual-raises li {
+  margin-bottom: 0.25rem;
+}
+
+.stone-powers-dialog .stone-summons-placeholder {
+  margin-top: 0.5rem;
+  padding: 1rem 0.75rem;
+  border-radius: 6px;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  text-align: center;
+  color: #90a4ae;
+  font-size: 0.88rem;
+}
+
+.stone-powers-dialog .stone-summons-placeholder-text {
+  margin: 0;
+}
