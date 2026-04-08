@@ -280,6 +280,7 @@
     },
     "power": {
       "templates": ["base"],
+      "showInRadialMenu": true,
       "fluff": "",
       "powerType": "active",
       "level": 1,

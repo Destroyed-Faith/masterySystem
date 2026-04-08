@@ -31,6 +31,10 @@ export interface RadialCombatOption {
   aoeRadiusMeters?: number; // For radius utilities
   defaultTargetGroup?: TargetGroup; // "ally" / "enemy" / "creature" / "any"
   allowManualTargetSelection?: boolean; // Default true for Utilities
+  /** Hex placement UX: utility (blue) vs hostile zone (orange). */
+  aoePlacementProfile?: 'utility' | 'hostile-zone';
+  /** Definition duration string for persistent zones (table tracking). */
+  zoneDurationNote?: string;
   item?: any;  // The item document if source is 'power'
   maneuver?: CombatManeuver;  // The maneuver definition if source is 'maneuver'
   powerType?: string; // e.g. "active" | "active-buff" | "movement" | "utility" | "reaction"

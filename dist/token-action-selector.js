@@ -800,6 +800,32 @@ export async function handleChosenCombatOption(token, option) {
         startMeleeTargeting(token, option);
         return;
     }
+    const isAttackHostileZonePlacement = option.source === "power" &&
+        option.slot === "attack" &&
+        option.powerType === "active" &&
+        option.aoeShape === "radius" &&
+        (option.aoeRadiusMeters ?? 0) > 0 &&
+        option.aoePlacementProfile === "hostile-zone";
+    if (isAttackHostileZonePlacement) {
+        if (option.costsAction) {
+            const atkAvail = getAvailableAttackActions(actor, combat);
+            if (atkAvail <= 0) {
+                ui.notifications?.warn("No Actions left this round.");
+                console.warn("Mastery System | [RADIAL FLOW] hostile zone branch blocked: no attack actions left", {
+                    actor: actor.name,
+                    option: option.name
+                });
+                return;
+            }
+        }
+        console.log("Mastery System | [RADIAL FLOW] branch: active zone hex placement (same UX as utility radius)", {
+            option: option.name,
+            costsAction: option.costsAction
+        });
+        closeRadialMenu();
+        startUtilityRadiusMode(token, option);
+        return;
+    }
     const isRangedAttack = segmentId !== "active-buff" &&
         option.slot === "attack" &&
         option.range !== undefined &&

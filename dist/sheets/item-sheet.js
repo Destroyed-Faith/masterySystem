@@ -38,6 +38,7 @@ export class MasteryItemSheet extends foundry.appv1.sheets.ItemSheet {
             case 'power':
                 context.powerTypes = ['active', 'buff', 'utility', 'passive', 'reaction', 'movement'];
                 context.attributes = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
+                context.radialMenuVisible = itemData.system?.showInRadialMenu !== false;
                 break;
             case 'echo':
                 context.echoTypes = ['human', 'elf', 'dwarf', 'titanborn', 'centaur', 'other'];

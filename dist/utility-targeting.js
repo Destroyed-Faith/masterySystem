@@ -7,7 +7,30 @@
 import { consumeAttackAction, getAvailableAttackActions, markPowerUsedThisRound } from './combat/action-economy.js';
 import { isWithinMasteryPowerRange, masteryAoERadiusPixels, masteryPowerMaxSteps } from './utils/grid-range.js';
 import { clearHexHighlight, highlightHexesWithinStepsFromPoint } from './utils/hex-highlighting.js';
-const UTILITY_AOE_PREVIEW_LAYER = 'mastery-utility-aoe-preview';
+function placementColorsFromOption(option) {
+    if (option.aoePlacementProfile === 'hostile-zone') {
+        return {
+            hex: 0xff8833,
+            hexAlpha: 0.35,
+            previewAlpha: 0.28,
+            lineValid: 0xffaa44,
+            lineInvalid: 0xff4444,
+            tokenTint: 0xff8833,
+            previewLine: 0xff8833,
+            previewFill: 0xff8833
+        };
+    }
+    return {
+        hex: 0x66aaff,
+        hexAlpha: 0.35,
+        previewAlpha: 0.28,
+        lineValid: 0x66aaff,
+        lineInvalid: 0xff6666,
+        tokenTint: 0x66aaff,
+        previewLine: 0x66aaff,
+        previewFill: 0x66aaff
+    };
+}
 // Global utility targeting state
 let activeUtilityTargeting = null;
 /**
@@ -102,11 +125,12 @@ function highlightRadiusArea(state) {
     const grid = canvas.grid;
     const gridless = !grid || grid.type === CONST.GRID_TYPES.GRIDLESS;
     state.previewGraphics.clear();
+    const c = state.placement;
     if (gridless) {
         const radiusPx = masteryAoERadiusPixels(state.radiusMeters);
         if (state.radiusMeters > 0 && radiusPx > 0) {
-            state.previewGraphics.lineStyle(2, 0x66aaff, 0.85);
-            state.previewGraphics.beginFill(0x66aaff, 0.14);
+            state.previewGraphics.lineStyle(2, c.previewLine, 0.85);
+            state.previewGraphics.beginFill(c.previewFill, 0.14);
             state.previewGraphics.drawCircle(0, 0, radiusPx);
             state.previewGraphics.endFill();
         }
@@ -117,7 +141,7 @@ function highlightRadiusArea(state) {
     const steps = masteryPowerMaxSteps(state.radiusMeters);
     clearHexHighlight(state.highlightId);
     if (steps > 0) {
-        highlightHexesWithinStepsFromPoint(center, steps, state.highlightId, 0x66aaff, 0.35);
+        highlightHexesWithinStepsFromPoint(center, steps, state.highlightId, c.hex, c.hexAlpha);
     }
 }
 /**
@@ -139,10 +163,9 @@ function updateCandidateVisuals(state) {
         }
         // Apply visual based on selection state
         if (candidate.selected) {
-            // Selected: full-color tint (teal/blue for utilities)
             token.alpha = Math.min(1.0, candidate.originalAlpha);
             const tintFilter = new PIXI.filters.ColorMatrixFilter();
-            tintFilter.tint(0x66aaff, false);
+            tintFilter.tint(state.placement.tokenTint, false);
             token.filters = [...(token.filters || []), tintFilter];
         }
         else {
@@ -155,6 +178,7 @@ function updateCandidateVisuals(state) {
  * Create UI panel for target selection
  */
 function createTargetSelectionPanel(state) {
+    const confirmLabel = state.option.aoePlacementProfile === 'hostile-zone' ? 'Zone bestätigen' : 'Confirm Utility';
     const panelContent = `
     <div class="mastery-utility-panel">
       <div class="panel-header">
@@ -174,7 +198,7 @@ function createTargetSelectionPanel(state) {
         </label>
       </div>
       <div class="panel-actions">
-        <button class="panel-btn confirm" data-action="confirm">Confirm Utility</button>
+        <button class="panel-btn confirm" data-action="confirm">${confirmLabel}</button>
         <button class="panel-btn cancel" data-action="cancel">Cancel</button>
       </div>
       <div class="panel-info">
@@ -302,6 +326,7 @@ export function startUtilitySingleTargetMode(token, option) {
         effectsContainer.addChild(rangeLineGraphics);
     }
     const highlightId = 'mastery-utility-single';
+    const placement = placementColorsFromOption(option);
     // Event handlers
     const onPointerMove = (ev) => {
         const worldPos = ev.data.getLocalPosition(canvas.app.stage);
@@ -310,7 +335,7 @@ export function startUtilitySingleTargetMode(token, option) {
         rangeLineGraphics.clear();
         const casterCenter = token.center;
         const isValid = isWithinMasteryPowerRange(casterCenter, snapped, rangeMeters);
-        rangeLineGraphics.lineStyle(2, isValid ? 0x66aaff : 0xff6666, 0.8);
+        rangeLineGraphics.lineStyle(2, isValid ? placement.lineValid : placement.lineInvalid, 0.8);
         rangeLineGraphics.moveTo(casterCenter.x, casterCenter.y);
         rangeLineGraphics.lineTo(snapped.x, snapped.y);
         // Highlight valid targets
@@ -326,7 +351,7 @@ export function startUtilitySingleTargetMode(token, option) {
                 targetToken.alpha = Math.min(1.0, targetToken.alpha);
                 if (!targetToken.filters) {
                     const tintFilter = new PIXI.filters.ColorMatrixFilter();
-                    tintFilter.tint(0x66aaff, false);
+                    tintFilter.tint(placement.tokenTint, false);
                     targetToken.filters = [tintFilter];
                 }
             }
@@ -378,6 +403,7 @@ export function startUtilitySingleTargetMode(token, option) {
                                 }]]),
                         selectedTargets: new Set([clickedToken.id]),
                         highlightId,
+                        placement,
                         previewGraphics,
                         rangeLineGraphics,
                         panelApp: null,
@@ -407,6 +433,7 @@ export function startUtilitySingleTargetMode(token, option) {
         candidates: new Map(),
         selectedTargets: new Set(),
         highlightId,
+        placement,
         previewGraphics,
         rangeLineGraphics,
         panelApp: null,
@@ -469,7 +496,9 @@ export function startUtilityRadiusMode(token, option) {
         effectsContainer.addChild(previewGraphics);
         effectsContainer.addChild(rangeLineGraphics);
     }
-    const highlightId = 'mastery-utility-radius';
+    const highlightId = `mastery-aoe-${option.id}`;
+    const placement = placementColorsFromOption(option);
+    const aoePreviewLayerId = `mastery-aoe-preview-${option.id}`;
     // Create state first (with placeholders for event handlers)
     const state = {
         casterToken: token,
@@ -480,6 +509,8 @@ export function startUtilityRadiusMode(token, option) {
         candidates: new Map(),
         selectedTargets: new Set(),
         highlightId,
+        aoePreviewLayerId,
+        placement,
         previewGraphics,
         rangeLineGraphics,
         panelApp: null,
@@ -503,7 +534,7 @@ export function startUtilityRadiusMode(token, option) {
             state.rangeLineGraphics.clear();
             const casterCenter = token.center;
             const isValid = isWithinMasteryPowerRange(casterCenter, snapped, rangeMeters);
-            state.rangeLineGraphics.lineStyle(2, isValid ? 0x66aaff : 0xff6666, 0.8);
+            state.rangeLineGraphics.lineStyle(2, isValid ? state.placement.lineValid : state.placement.lineInvalid, 0.8);
             state.rangeLineGraphics.moveTo(casterCenter.x, casterCenter.y);
             state.rangeLineGraphics.lineTo(snapped.x, snapped.y);
             if (isValid) {
@@ -513,8 +544,8 @@ export function startUtilityRadiusMode(token, option) {
                 if (gridless) {
                     const radiusPx = masteryAoERadiusPixels(radiusMeters);
                     if (radiusMeters > 0 && radiusPx > 0) {
-                        state.previewGraphics.lineStyle(2, 0x66aaff, 0.75);
-                        state.previewGraphics.beginFill(0x66aaff, 0.12);
+                        state.previewGraphics.lineStyle(2, state.placement.previewLine, 0.75);
+                        state.previewGraphics.beginFill(state.placement.previewFill, 0.12);
                         state.previewGraphics.drawCircle(0, 0, radiusPx);
                         state.previewGraphics.endFill();
                     }
@@ -523,16 +554,16 @@ export function startUtilityRadiusMode(token, option) {
                 else {
                     state.previewGraphics.position.set(0, 0);
                     if (radiusMeters > 0) {
-                        highlightHexesWithinStepsFromPoint(snapped, masteryPowerMaxSteps(radiusMeters), UTILITY_AOE_PREVIEW_LAYER, 0x66aaff, 0.28);
+                        highlightHexesWithinStepsFromPoint(snapped, masteryPowerMaxSteps(radiusMeters), state.aoePreviewLayerId, state.placement.hex, state.placement.previewAlpha);
                     }
                     else {
-                        clearHexHighlight(UTILITY_AOE_PREVIEW_LAYER);
+                        clearHexHighlight(state.aoePreviewLayerId);
                     }
                 }
             }
             else {
                 state.previewGraphics.clear();
-                clearHexHighlight(UTILITY_AOE_PREVIEW_LAYER);
+                clearHexHighlight(state.aoePreviewLayerId);
             }
         }
     };
@@ -576,7 +607,7 @@ export function startUtilityRadiusMode(token, option) {
                 const casterCenter = token.center;
                 if (isWithinMasteryPowerRange(casterCenter, snapped, rangeMeters)) {
                     state.center = snapped;
-                    clearHexHighlight(UTILITY_AOE_PREVIEW_LAYER);
+                    clearHexHighlight(state.aoePreviewLayerId);
                     if (state.center) {
                         state.candidates = findCandidatesInRadius(token, state.center, radiusMeters, targetGroup);
                     }
@@ -728,7 +759,11 @@ async function confirmUtilityTargets(state) {
     });
     // TODO: Call actual utility resolution function
     // For now, just show notification
-    ui.notifications?.info(`Utility ${state.option.name} applied to ${targets.length} target(s)`);
+    const dur = state.option.zoneDurationNote;
+    const isHostileZone = state.option.aoePlacementProfile === 'hostile-zone';
+    const durPart = dur ? ` — Dauer ${dur} (Zone am Tisch weiterverfolgen)` : '';
+    const kind = isHostileZone ? 'Zone' : 'Utility';
+    ui.notifications?.info(`${kind} ${state.option.name}: ${targets.length} Ziel(e)${durPart}`);
     // End targeting mode
     endUtilityTargeting(true);
 }
@@ -745,7 +780,9 @@ export function endUtilityTargeting(success) {
     canvas.stage.off('pointerdown', state.onPointerDown);
     window.removeEventListener('keydown', state.onKeyDown);
     clearHexHighlight(state.highlightId);
-    clearHexHighlight(UTILITY_AOE_PREVIEW_LAYER);
+    if (state.aoePreviewLayerId) {
+        clearHexHighlight(state.aoePreviewLayerId);
+    }
     // Clear preview graphics
     if (state.previewGraphics && state.previewGraphics.parent) {
         state.previewGraphics.parent.removeChild(state.previewGraphics);
@@ -781,11 +818,13 @@ export function endUtilityTargeting(success) {
             delete token._originalAlpha;
         }
     }
-    // Clear state
-    activeUtilityTargeting = null;
     if (!success) {
-        ui.notifications?.info('Utility targeting cancelled');
+        const msg = state.option.aoePlacementProfile === 'hostile-zone'
+            ? 'Zonenwahl abgebrochen'
+            : 'Utility targeting cancelled';
+        ui.notifications?.info(msg);
     }
+    activeUtilityTargeting = null;
 }
 /**
  * Check if utility targeting is currently active

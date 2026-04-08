@@ -26,6 +26,10 @@ export interface RadialCombatOption {
     aoeRadiusMeters?: number;
     defaultTargetGroup?: TargetGroup;
     allowManualTargetSelection?: boolean;
+    /** Hex placement UX: utility (blue) vs hostile zone (orange). */
+    aoePlacementProfile?: 'utility' | 'hostile-zone';
+    /** Definition duration string for persistent zones (table tracking). */
+    zoneDurationNote?: string;
     item?: any;
     maneuver?: CombatManeuver;
     powerType?: string;

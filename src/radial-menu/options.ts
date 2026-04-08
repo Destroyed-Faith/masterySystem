@@ -423,7 +423,11 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
   for (const item of items) {
     // Powers are stored as items with type "power"
     if (item.type !== 'power') continue;
-    
+
+    if ((item.system as any)?.showInRadialMenu === false) {
+      continue;
+    }
+
     const powerType = (item.system as any)?.powerType;
     if (!powerType) continue;
     
@@ -461,7 +465,7 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
       getPowerFn &&
       treeName &&
       powerName &&
-      (!rangeStr || powerType === 'utility' || slot === 'utility');
+      (!rangeStr || powerType === 'utility' || slot === 'utility' || powerType === 'active');
 
     if (needsDefinitionLookup) {
       try {
@@ -477,7 +481,11 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
           }
           // Utilities: always take range/AoE from definition for this rank — system.range on the
           // item is often stale (e.g. still "8 m" after the spell tier was raised to 4 / 16 m).
-          if (levelData && levelData.range && (powerType === 'utility' || slot === 'utility' || !rangeStr)) {
+          if (
+            levelData &&
+            levelData.range &&
+            (powerType === 'utility' || slot === 'utility' || !rangeStr || powerType === 'active')
+          ) {
             if (typeof levelData.range === 'string') {
               rangeStr = levelData.range;
             } else if (levelData.range.kind) {
@@ -508,23 +516,47 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
       range = 0; // Active buffs are always Self
     }
     
-    // Parse AoE information for utilities
+    // Parse AoE for utilities; for actives: any Ranged or Zone spell with radius AoE (hex center + burst)
     let aoeShape: AoEShape = 'none';
     let aoeRadiusMeters: number | undefined = undefined;
     let rangeMeters: number | undefined = range;
-    
+    let hostileZonePlacement = false;
+    let zoneDurationNote: string | undefined = undefined;
+
     if (slot === 'utility' || powerType === 'utility') {
       let aoeStr = (item.system as any)?.aoe;
       if (levelData && levelData.aoe) {
         aoeStr = levelData.aoe;
       }
-      
+
       aoeShape = parseAoEShape(aoeStr);
       aoeRadiusMeters = parseAoERadius(aoeStr);
       rangeMeters = range;
-      
+
       if ((!rangeStr || rangeStr.toLowerCase() === 'self' || range === 0) && aoeShape !== 'none') {
         rangeMeters = 0;
+      }
+    } else if (slot === 'attack' && powerType === 'active' && levelData) {
+      const typeStr = typeof levelData.type === 'string' ? levelData.type : '';
+      const looksRangedOrZone = /ranged/i.test(typeStr) || /zone/i.test(typeStr);
+      if (looksRangedOrZone) {
+        let aoeStr = (item.system as any)?.aoe;
+        if (levelData.aoe) {
+          aoeStr = levelData.aoe;
+        }
+        const shape = parseAoEShape(aoeStr);
+        const rad = parseAoERadius(aoeStr);
+        if (shape === 'radius' && rad !== undefined && rad > 0) {
+          aoeShape = 'radius';
+          aoeRadiusMeters = rad;
+          rangeMeters = range;
+          if (!rangeStr || rangeStr.toLowerCase() === 'self' || range === 0) {
+            rangeMeters = 0;
+          }
+          hostileZonePlacement = true;
+          zoneDurationNote =
+            typeof levelData.duration === 'string' ? levelData.duration : undefined;
+        }
       }
     }
     
@@ -556,6 +588,15 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
       option.aoeRadiusMeters = aoeRadiusMeters;
       option.defaultTargetGroup = determineTargetGroup(option);
       option.allowManualTargetSelection = true;
+      option.aoePlacementProfile = 'utility';
+    } else if (hostileZonePlacement) {
+      option.rangeMeters = rangeMeters;
+      option.aoeShape = aoeShape;
+      option.aoeRadiusMeters = aoeRadiusMeters;
+      option.defaultTargetGroup = 'enemy';
+      option.allowManualTargetSelection = true;
+      option.aoePlacementProfile = 'hostile-zone';
+      option.zoneDurationNote = zoneDurationNote;
     }
     
     // Separate movement powers from others

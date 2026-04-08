@@ -14,7 +14,41 @@ import {
 } from './utils/grid-range.js';
 import { clearHexHighlight, highlightHexesWithinStepsFromPoint } from './utils/hex-highlighting.js';
 
-const UTILITY_AOE_PREVIEW_LAYER = 'mastery-utility-aoe-preview';
+type PlacementColors = {
+  hex: number;
+  hexAlpha: number;
+  previewAlpha: number;
+  lineValid: number;
+  lineInvalid: number;
+  tokenTint: number;
+  previewLine: number;
+  previewFill: number;
+};
+
+function placementColorsFromOption(option: RadialCombatOption): PlacementColors {
+  if (option.aoePlacementProfile === 'hostile-zone') {
+    return {
+      hex: 0xff8833,
+      hexAlpha: 0.35,
+      previewAlpha: 0.28,
+      lineValid: 0xffaa44,
+      lineInvalid: 0xff4444,
+      tokenTint: 0xff8833,
+      previewLine: 0xff8833,
+      previewFill: 0xff8833
+    };
+  }
+  return {
+    hex: 0x66aaff,
+    hexAlpha: 0.35,
+    previewAlpha: 0.28,
+    lineValid: 0x66aaff,
+    lineInvalid: 0xff6666,
+    tokenTint: 0x66aaff,
+    previewLine: 0x66aaff,
+    previewFill: 0x66aaff
+  };
+}
 
 /**
  * Utility target state for a candidate token
@@ -40,6 +74,9 @@ interface UtilityTargetingState {
   candidates: Map<string, UtilityTargetState>;
   selectedTargets: Set<string>; // token IDs
   highlightId: string;
+  /** AoE preview while moving cursor (radius mode only). */
+  aoePreviewLayerId?: string;
+  placement: PlacementColors;
   previewGraphics: PIXI.Graphics | null;
   rangeLineGraphics: PIXI.Graphics | null;
   panelApp: any | null;
@@ -165,11 +202,12 @@ function highlightRadiusArea(state: UtilityTargetingState): void {
 
   state.previewGraphics.clear();
 
+  const c = state.placement;
   if (gridless) {
     const radiusPx = masteryAoERadiusPixels(state.radiusMeters);
     if (state.radiusMeters > 0 && radiusPx > 0) {
-      state.previewGraphics.lineStyle(2, 0x66aaff, 0.85);
-      state.previewGraphics.beginFill(0x66aaff, 0.14);
+      state.previewGraphics.lineStyle(2, c.previewLine, 0.85);
+      state.previewGraphics.beginFill(c.previewFill, 0.14);
       state.previewGraphics.drawCircle(0, 0, radiusPx);
       state.previewGraphics.endFill();
     }
@@ -182,7 +220,7 @@ function highlightRadiusArea(state: UtilityTargetingState): void {
   const steps = masteryPowerMaxSteps(state.radiusMeters);
   clearHexHighlight(state.highlightId);
   if (steps > 0) {
-    highlightHexesWithinStepsFromPoint(center, steps, state.highlightId, 0x66aaff, 0.35);
+    highlightHexesWithinStepsFromPoint(center, steps, state.highlightId, c.hex, c.hexAlpha);
   }
 }
 
@@ -208,10 +246,9 @@ function updateCandidateVisuals(state: UtilityTargetingState): void {
     
     // Apply visual based on selection state
     if (candidate.selected) {
-      // Selected: full-color tint (teal/blue for utilities)
       token.alpha = Math.min(1.0, candidate.originalAlpha);
       const tintFilter = new PIXI.filters.ColorMatrixFilter();
-      tintFilter.tint(0x66aaff, false);
+      tintFilter.tint(state.placement.tokenTint, false);
       token.filters = [...(token.filters || []), tintFilter];
     } else {
       // Not selected: faded
@@ -224,6 +261,8 @@ function updateCandidateVisuals(state: UtilityTargetingState): void {
  * Create UI panel for target selection
  */
 function createTargetSelectionPanel(state: UtilityTargetingState): any {
+  const confirmLabel =
+    state.option.aoePlacementProfile === 'hostile-zone' ? 'Zone bestätigen' : 'Confirm Utility';
   const panelContent = `
     <div class="mastery-utility-panel">
       <div class="panel-header">
@@ -243,7 +282,7 @@ function createTargetSelectionPanel(state: UtilityTargetingState): any {
         </label>
       </div>
       <div class="panel-actions">
-        <button class="panel-btn confirm" data-action="confirm">Confirm Utility</button>
+        <button class="panel-btn confirm" data-action="confirm">${confirmLabel}</button>
         <button class="panel-btn cancel" data-action="cancel">Cancel</button>
       </div>
       <div class="panel-info">
@@ -387,7 +426,8 @@ export function startUtilitySingleTargetMode(token: any, option: RadialCombatOpt
   }
   
   const highlightId = 'mastery-utility-single';
-  
+  const placement = placementColorsFromOption(option);
+
   // Event handlers
   const onPointerMove = (ev: PIXI.FederatedPointerEvent) => {
     const worldPos = ev.data.getLocalPosition(canvas.app.stage);
@@ -398,7 +438,7 @@ export function startUtilitySingleTargetMode(token: any, option: RadialCombatOpt
     const casterCenter = token.center;
     const isValid = isWithinMasteryPowerRange(casterCenter, snapped, rangeMeters);
     
-    rangeLineGraphics.lineStyle(2, isValid ? 0x66aaff : 0xff6666, 0.8);
+    rangeLineGraphics.lineStyle(2, isValid ? placement.lineValid : placement.lineInvalid, 0.8);
     rangeLineGraphics.moveTo(casterCenter.x, casterCenter.y);
     rangeLineGraphics.lineTo(snapped.x, snapped.y);
     
@@ -416,7 +456,7 @@ export function startUtilitySingleTargetMode(token: any, option: RadialCombatOpt
         targetToken.alpha = Math.min(1.0, targetToken.alpha);
         if (!targetToken.filters) {
           const tintFilter = new PIXI.filters.ColorMatrixFilter();
-          tintFilter.tint(0x66aaff, false);
+          tintFilter.tint(placement.tokenTint, false);
           targetToken.filters = [tintFilter];
         }
       } else {
@@ -471,6 +511,7 @@ export function startUtilitySingleTargetMode(token: any, option: RadialCombatOpt
             }]]),
             selectedTargets: new Set([clickedToken.id]),
             highlightId,
+            placement,
             previewGraphics,
             rangeLineGraphics,
             panelApp: null,
@@ -503,6 +544,7 @@ export function startUtilitySingleTargetMode(token: any, option: RadialCombatOpt
     candidates: new Map(),
     selectedTargets: new Set(),
     highlightId,
+    placement,
     previewGraphics,
     rangeLineGraphics,
     panelApp: null,
@@ -511,20 +553,20 @@ export function startUtilitySingleTargetMode(token: any, option: RadialCombatOpt
     onKeyDown,
     manualMode: false
   };
-  
+
   activeUtilityTargeting = state;
-  
+
   // Store original alphas
   const allTokens = canvas.tokens?.placeables || [];
   for (const t of allTokens) {
     (t as any)._originalAlpha = t.alpha;
   }
-  
+
   // Attach event listeners
   canvas.stage.on('pointermove', state.onPointerMove);
   canvas.stage.on('pointerdown', state.onPointerDown);
   window.addEventListener('keydown', state.onKeyDown);
-  
+
   console.log('Mastery System | Single-target utility mode active');
 }
 
@@ -575,8 +617,10 @@ export function startUtilityRadiusMode(token: any, option: RadialCombatOption): 
     effectsContainer.addChild(rangeLineGraphics);
   }
   
-  const highlightId = 'mastery-utility-radius';
-  
+  const highlightId = `mastery-aoe-${option.id}`;
+  const placement = placementColorsFromOption(option);
+  const aoePreviewLayerId = `mastery-aoe-preview-${option.id}`;
+
   // Create state first (with placeholders for event handlers)
   const state: UtilityTargetingState = {
     casterToken: token,
@@ -587,6 +631,8 @@ export function startUtilityRadiusMode(token: any, option: RadialCombatOption): 
     candidates: new Map(),
     selectedTargets: new Set(),
     highlightId,
+    aoePreviewLayerId,
+    placement,
     previewGraphics,
     rangeLineGraphics,
     panelApp: null,
@@ -615,7 +661,11 @@ export function startUtilityRadiusMode(token: any, option: RadialCombatOption): 
       const casterCenter = token.center;
       const isValid = isWithinMasteryPowerRange(casterCenter, snapped, rangeMeters);
       
-      state.rangeLineGraphics!.lineStyle(2, isValid ? 0x66aaff : 0xff6666, 0.8);
+      state.rangeLineGraphics!.lineStyle(
+        2,
+        isValid ? state.placement.lineValid : state.placement.lineInvalid,
+        0.8
+      );
       state.rangeLineGraphics!.moveTo(casterCenter.x, casterCenter.y);
       state.rangeLineGraphics!.lineTo(snapped.x, snapped.y);
       
@@ -626,8 +676,8 @@ export function startUtilityRadiusMode(token: any, option: RadialCombatOption): 
         if (gridless) {
           const radiusPx = masteryAoERadiusPixels(radiusMeters);
           if (radiusMeters > 0 && radiusPx > 0) {
-            state.previewGraphics!.lineStyle(2, 0x66aaff, 0.75);
-            state.previewGraphics!.beginFill(0x66aaff, 0.12);
+            state.previewGraphics!.lineStyle(2, state.placement.previewLine, 0.75);
+            state.previewGraphics!.beginFill(state.placement.previewFill, 0.12);
             state.previewGraphics!.drawCircle(0, 0, radiusPx);
             state.previewGraphics!.endFill();
           }
@@ -638,17 +688,17 @@ export function startUtilityRadiusMode(token: any, option: RadialCombatOption): 
             highlightHexesWithinStepsFromPoint(
               snapped,
               masteryPowerMaxSteps(radiusMeters),
-              UTILITY_AOE_PREVIEW_LAYER,
-              0x66aaff,
-              0.28
+              state.aoePreviewLayerId!,
+              state.placement.hex,
+              state.placement.previewAlpha
             );
           } else {
-            clearHexHighlight(UTILITY_AOE_PREVIEW_LAYER);
+            clearHexHighlight(state.aoePreviewLayerId!);
           }
         }
       } else {
         state.previewGraphics!.clear();
-        clearHexHighlight(UTILITY_AOE_PREVIEW_LAYER);
+        clearHexHighlight(state.aoePreviewLayerId!);
       }
     }
   };
@@ -697,7 +747,7 @@ export function startUtilityRadiusMode(token: any, option: RadialCombatOption): 
         
         if (isWithinMasteryPowerRange(casterCenter, snapped, rangeMeters)) {
           state.center = snapped;
-          clearHexHighlight(UTILITY_AOE_PREVIEW_LAYER);
+          clearHexHighlight(state.aoePreviewLayerId!);
           if (state.center) {
             state.candidates = findCandidatesInRadius(token, state.center, radiusMeters, targetGroup);
           }
@@ -865,7 +915,11 @@ async function confirmUtilityTargets(state: UtilityTargetingState): Promise<void
   
   // TODO: Call actual utility resolution function
   // For now, just show notification
-  ui.notifications?.info(`Utility ${state.option.name} applied to ${targets.length} target(s)`);
+  const dur = state.option.zoneDurationNote;
+  const isHostileZone = state.option.aoePlacementProfile === 'hostile-zone';
+  const durPart = dur ? ` — Dauer ${dur} (Zone am Tisch weiterverfolgen)` : '';
+  const kind = isHostileZone ? 'Zone' : 'Utility';
+  ui.notifications?.info(`${kind} ${state.option.name}: ${targets.length} Ziel(e)${durPart}`);
   
   // End targeting mode
   endUtilityTargeting(true);
@@ -886,7 +940,9 @@ export function endUtilityTargeting(success: boolean): void {
   window.removeEventListener('keydown', state.onKeyDown);
   
   clearHexHighlight(state.highlightId);
-  clearHexHighlight(UTILITY_AOE_PREVIEW_LAYER);
+  if (state.aoePreviewLayerId) {
+    clearHexHighlight(state.aoePreviewLayerId);
+  }
 
   // Clear preview graphics
   if (state.previewGraphics && state.previewGraphics.parent) {
@@ -929,12 +985,15 @@ export function endUtilityTargeting(success: boolean): void {
     }
   }
   
-  // Clear state
-  activeUtilityTargeting = null;
-  
   if (!success) {
-    ui.notifications?.info('Utility targeting cancelled');
+    const msg =
+      state.option.aoePlacementProfile === 'hostile-zone'
+        ? 'Zonenwahl abgebrochen'
+        : 'Utility targeting cancelled';
+    ui.notifications?.info(msg);
   }
+
+  activeUtilityTargeting = null;
 }
 
 /**

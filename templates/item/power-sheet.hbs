@@ -21,6 +21,12 @@
           <label>Tree:</label>
           <input type="text" name="system.tree" value="{{system.tree}}" placeholder="Crusader, Grim Hunter, etc."/>
         </div>
+        <div class="resource flexrow" style="align-items: center; margin-top: 4px;">
+          <label class="checkbox" style="display: flex; align-items: center; gap: 6px;">
+            <input type="checkbox" name="system.showInRadialMenu" {{#if radialMenuVisible}}checked{{/if}} data-dtype="Boolean"/>
+            Im Token-Radialmenü anzeigen
+          </label>
+        </div>
       </div>
     </div>
   </header>
