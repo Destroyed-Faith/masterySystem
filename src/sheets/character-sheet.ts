@@ -120,6 +120,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   /**
    * Handle power rank change during creation
    */
+  async #onPowerRadialCheckboxChange(event: JQuery.ChangeEvent) {
+    event.stopPropagation();
+    const el = event.currentTarget as HTMLInputElement;
+    const itemId = el.dataset.itemId;
+    if (!itemId) return;
+    const item = this.actor.items.get(itemId);
+    if (!item || item.type !== 'power') return;
+    await item.update({ 'system.showInRadialMenu': el.checked });
+    this.render();
+  }
+
   async #onPowerRankChange(event: JQuery.ChangeEvent) {
     event.preventDefault();
     const $select = $(event.currentTarget);
@@ -790,11 +801,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       }
     }
     
-    // Sort powers by tree and level
+    // Sort powers: alphabetical by name, then radial-menu visibility (shown in menu first)
     powers.sort((a, b) => {
-      const treeCompare = (a.system.tree || '').localeCompare(b.system.tree || '');
-      if (treeCompare !== 0) return treeCompare;
-      return (a.system.level || 0) - (b.system.level || 0);
+      const nameCmp = (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' });
+      if (nameCmp !== 0) return nameCmp;
+      const ra = (a.system as any)?.showInRadialMenu !== false ? 1 : 0;
+      const rb = (b.system as any)?.showInRadialMenu !== false ? 1 : 0;
+      return rb - ra;
     });
     
     return {
@@ -1572,6 +1585,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('.add-power-creation-btn').on('click', this.#onPowerAddCreation.bind(this));
     html.find('.add-spell-creation-btn').on('click', this.#onSpellAddCreation.bind(this));
     html.find('.power-rank-select').on('change', this.#onPowerRankChange.bind(this));
+    html
+      .off('change', '.power-radial-checkbox')
+      .on('change', '.power-radial-checkbox', this.#onPowerRadialCheckboxChange.bind(this));
     
     // Equipment handlers
     html.find('.general-items-btn').on('click', this.#onGeneralItemsClick.bind(this));
@@ -4688,6 +4704,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     // Also enable power rank selects (they're select elements, not buttons)
     html.find('.power-rank-select').prop('disabled', false);
+    html.find('.power-radial-checkbox').prop('disabled', false);
     
     // Double-check all creation buttons are enabled
     const addDisadvantageBtn = html.find('.add-disadvantage-btn');

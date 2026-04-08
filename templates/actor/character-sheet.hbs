@@ -957,7 +957,10 @@
               <div class="power-card creation-power" data-item-id="{{this.id}}">
                 <div class="power-header-compact">
                   <div class="power-name-compact">
-                    {{this.name}}
+                    <label class="power-radial-toggle-label" title="Im Token-Radialmenü anzeigen">
+                      <input type="checkbox" class="power-radial-checkbox" data-item-id="{{this.id}}" {{#unless (eq this.system.showInRadialMenu false)}}checked{{/unless}}/>
+                    </label>
+                    <span class="power-name-text">{{this.name}}</span>
                     <span class="power-level-badge" title="Power Level {{default this.system.level 1}}"><strong>Level {{default this.system.level 1}}</strong></span>
                   </div>
                   <div class="power-info-compact">
@@ -1107,7 +1110,10 @@
             <div class="power-card" data-item-id="{{this.id}}">
               <div class="power-header-compact">
                 <div class="power-name-compact">
-                  {{this.name}}
+                  <label class="power-radial-toggle-label" title="Im Token-Radialmenü anzeigen">
+                    <input type="checkbox" class="power-radial-checkbox" data-item-id="{{this.id}}" {{#unless (eq this.system.showInRadialMenu false)}}checked{{/unless}}/>
+                  </label>
+                  <span class="power-name-text">{{this.name}}</span>
                   <span class="power-level-badge" title="Power Level {{default this.system.level 1}}"><strong>Level {{default this.system.level 1}}</strong></span>
                   <span class="power-level-pending-change" data-item-id="{{this.id}}" style="display:none;">
                     <span class="pending-delta">+0</span>

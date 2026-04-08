@@ -1591,6 +1591,28 @@
   gap: 8px;
 }
 
+.mastery-system.sheet.actor.character .power-radial-toggle-label {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.mastery-system.sheet.actor.character .power-radial-checkbox {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: #66aaff;
+}
+
+.mastery-system.sheet.actor.character .power-name-text {
+  flex: 1;
+  min-width: 0;
+}
+
 .mastery-system.sheet.actor.character .power-level-badge {
   font-size: 13px;
   padding: 5px 10px;
@@ -3339,6 +3361,32 @@
   display: flex;
   gap: 15px;
   margin-top: 10px;
+}
+
+.mastery-system.sheet.item .item-name.item-name-with-radial {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mastery-system.sheet.item .item-name.item-name-with-radial .power-radial-header-label {
+  flex: 0 0 auto;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.mastery-system.sheet.item .item-name.item-name-with-radial .power-radial-header-label input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: #66aaff;
+}
+
+.mastery-system.sheet.item .item-name.item-name-with-radial input[name='name'] {
+  flex: 1;
+  min-width: 0;
 }
 
 /* ========== Scrollbars ========== */

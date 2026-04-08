@@ -105,6 +105,18 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     /**
      * Handle power rank change during creation
      */
+    async #onPowerRadialCheckboxChange(event) {
+        event.stopPropagation();
+        const el = event.currentTarget;
+        const itemId = el.dataset.itemId;
+        if (!itemId)
+            return;
+        const item = this.actor.items.get(itemId);
+        if (!item || item.type !== 'power')
+            return;
+        await item.update({ 'system.showInRadialMenu': el.checked });
+        this.render();
+    }
     async #onPowerRankChange(event) {
         event.preventDefault();
         const $select = $(event.currentTarget);
@@ -704,12 +716,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 power.system.specials = power.system.specials ? [power.system.specials] : [];
             }
         }
-        // Sort powers by tree and level
+        // Sort powers: alphabetical by name, then radial-menu visibility (shown in menu first)
         powers.sort((a, b) => {
-            const treeCompare = (a.system.tree || '').localeCompare(b.system.tree || '');
-            if (treeCompare !== 0)
-                return treeCompare;
-            return (a.system.level || 0) - (b.system.level || 0);
+            const nameCmp = (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' });
+            if (nameCmp !== 0)
+                return nameCmp;
+            const ra = a.system?.showInRadialMenu !== false ? 1 : 0;
+            const rb = b.system?.showInRadialMenu !== false ? 1 : 0;
+            return rb - ra;
         });
         return {
             powers,
@@ -1409,6 +1423,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('.add-power-creation-btn').on('click', this.#onPowerAddCreation.bind(this));
         html.find('.add-spell-creation-btn').on('click', this.#onSpellAddCreation.bind(this));
         html.find('.power-rank-select').on('change', this.#onPowerRankChange.bind(this));
+        html
+            .off('change', '.power-radial-checkbox')
+            .on('change', '.power-radial-checkbox', this.#onPowerRadialCheckboxChange.bind(this));
         // Equipment handlers
         html.find('.general-items-btn').on('click', this.#onGeneralItemsClick.bind(this));
         html.find('.store-btn').on('click', this.#onStoreClick.bind(this));
@@ -4240,6 +4257,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         creationButtons.prop('disabled', false);
         // Also enable power rank selects (they're select elements, not buttons)
         html.find('.power-rank-select').prop('disabled', false);
+        html.find('.power-radial-checkbox').prop('disabled', false);
         // Double-check all creation buttons are enabled
         const addDisadvantageBtn = html.find('.add-disadvantage-btn');
         const addPowerCreationBtn = html.find('.add-power-creation-btn');
