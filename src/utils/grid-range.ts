@@ -1,6 +1,13 @@
 /**
  * Mastery System powers use meters; Foundry scenes use grid.distance + grid.units (m, ft, …).
  * These helpers align highlight BFS steps and measurePath comparisons.
+ *
+ * **Tactical powers (utilities, zones on grid):** Stat values count as **grid spaces** (1:1):
+ * e.g. Healing Pulse 16 m reach = 16 hex/square steps, radius 4 m = within 4 steps of center.
+ * Use `isWithinMasteryPowerRange` / `masteryAoERadiusPixels` for that model.
+ *
+ * **Other helpers** (`metersToSceneDistance`, `isWithinRangeMeters`) try to reconcile SI-style
+ * meters with the scene grid (ft/m) for ranged/melee previews.
  */
 
 /** Scene distance equivalent to `rangeMeters` (same units as canvas.grid.measurePath / grid.distance). */
@@ -88,6 +95,42 @@ export function gridStepsBetweenCenters(
     if (!frontier.length) break;
   }
   return null;
+}
+
+/** Integer cap: stat "meters" = that many grid steps on the tactical map. */
+export function masteryPowerMaxSteps(statMeters: number): number {
+  return Math.max(0, Math.floor(Number(statMeters) || 0));
+}
+
+/**
+ * True if `to` is within `statMeters` **grid steps** of `from` (BFS on hex/square grid).
+ * Gridless: compares path distance to `statMeters * grid.distance`.
+ */
+export function isWithinMasteryPowerRange(
+  from: { x: number; y: number },
+  to: { x: number; y: number },
+  statMeters: number
+): boolean {
+  const maxSteps = masteryPowerMaxSteps(statMeters);
+  const grid: any = canvas.grid;
+  const perCell = Number(grid?.distance) || 1;
+
+  if (!grid || grid.type === CONST.GRID_TYPES.GRIDLESS) {
+    const maxScene = maxSteps * perCell;
+    const d = measureSceneDistanceBetweenPoints(from, to);
+    return Number.isFinite(d) && d <= maxScene + 0.01;
+  }
+
+  const steps = gridStepsBetweenCenters(from, to, maxSteps);
+  return steps !== null && steps <= maxSteps;
+}
+
+/** Pixel radius for AoE disk: one stat unit ≈ one grid cell across. */
+export function masteryAoERadiusPixels(radiusStat: number): number {
+  const grid: any = canvas.grid;
+  const size = Number(grid?.size) || 100;
+  const r = Math.max(0, Number(radiusStat) || 0);
+  return Math.max(0, r) * size;
 }
 
 /** True if target is within `rangeMeters` by grid steps (same cap as range highlight) or scene path distance. */

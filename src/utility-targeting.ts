@@ -8,9 +8,9 @@
 import type { RadialCombatOption, TargetGroup } from './token-radial-menu';
 import { consumeAttackAction, getAvailableAttackActions, markPowerUsedThisRound } from './combat/action-economy';
 import {
-  metersToSceneDistance,
-  measureSceneDistanceBetweenPoints,
-  gridStepsFromMeters
+  isWithinMasteryPowerRange,
+  masteryAoERadiusPixels,
+  masteryPowerMaxSteps
 } from './utils/grid-range.js';
 
 /**
@@ -115,16 +115,6 @@ function matchesTargetGroup(casterToken: any, targetToken: any, group: TargetGro
 }
 
 /**
- * Distance between two canvas points in scene grid units (ft, m, …), same as Foundry ruler / measurePath.
- */
-function sceneDistanceBetween(
-  point1: { x: number; y: number },
-  point2: { x: number; y: number }
-): number {
-  return measureSceneDistanceBetweenPoints(point1, point2);
-}
-
-/**
  * Find candidate tokens within radius
  */
 function findCandidatesInRadius(
@@ -135,13 +125,11 @@ function findCandidatesInRadius(
 ): Map<string, UtilityTargetState> {
   const candidates = new Map<string, UtilityTargetState>();
   const allTokens = canvas.tokens?.placeables || [];
-  const maxRadiusScene = metersToSceneDistance(radiusMeters);
 
   for (const token of allTokens) {
     const tokenCenter = token.center;
-    const distance = sceneDistanceBetween(center, tokenCenter);
 
-    if (distance <= maxRadiusScene + 0.01) {
+    if (isWithinMasteryPowerRange(center, tokenCenter, radiusMeters)) {
       const isAllyToken = isAlly(casterToken, token);
       const isEnemyToken = isEnemy(casterToken, token);
       const matches = matchesTargetGroup(casterToken, token, targetGroup);
@@ -169,9 +157,7 @@ function highlightRadiusArea(state: UtilityTargetingState): void {
   if (!state.previewGraphics || !state.center) return;
 
   const center = state.center;
-  const gridDist = canvas.grid?.distance || 1;
-  const gridSize = canvas.grid?.size || 1;
-  const radiusPx = (metersToSceneDistance(state.radiusMeters) / gridDist) * gridSize;
+  const radiusPx = masteryAoERadiusPixels(state.radiusMeters);
 
   state.previewGraphics.clear();
 
@@ -214,7 +200,7 @@ function highlightRadiusArea(state: UtilityTargetingState): void {
     highlight.clear();
   }
   
-  const maxHexDistance = gridStepsFromMeters(state.radiusMeters);
+  const maxHexDistance = masteryPowerMaxSteps(state.radiusMeters) + 2;
   
   // Get grid position using new v13 API
   let centerGrid: { col: number; row: number } | null = null;
@@ -261,9 +247,7 @@ function highlightRadiusArea(state: UtilityTargetingState): void {
         }
         
         if (hexCenter) {
-          const distanceInUnits = sceneDistanceBetween(center, hexCenter);
-          const radiusInUnits = metersToSceneDistance(state.radiusMeters);
-          if (distanceInUnits <= radiusInUnits + 0.01) {
+          if (isWithinMasteryPowerRange(center, hexCenter, state.radiusMeters)) {
             // Try different methods to highlight the hex
             try {
               // Foundry v13 API: highlight.highlightPosition(col, row, options)
@@ -507,9 +491,7 @@ export function startUtilitySingleTargetMode(token: any, option: RadialCombatOpt
     // Draw range line
     rangeLineGraphics.clear();
     const casterCenter = token.center;
-    const distance = sceneDistanceBetween(casterCenter, snapped);
-    const maxScene = metersToSceneDistance(rangeMeters);
-    const isValid = distance <= maxScene + 0.01;
+    const isValid = isWithinMasteryPowerRange(casterCenter, snapped, rangeMeters);
     
     rangeLineGraphics.lineStyle(2, isValid ? 0x66aaff : 0xff6666, 0.8);
     rangeLineGraphics.moveTo(casterCenter.x, casterCenter.y);
@@ -521,8 +503,7 @@ export function startUtilitySingleTargetMode(token: any, option: RadialCombatOpt
       if (targetToken.id === token.id) continue;
       
       const targetCenter = targetToken.center;
-      const targetDistance = sceneDistanceBetween(casterCenter, targetCenter);
-      const isInRange = targetDistance <= maxScene + 0.01;
+      const isInRange = isWithinMasteryPowerRange(casterCenter, targetCenter, rangeMeters);
       const matches = matchesTargetGroup(token, targetToken, targetGroup);
       
       if (isInRange && matches) {
@@ -565,11 +546,9 @@ export function startUtilitySingleTargetMode(token: any, option: RadialCombatOpt
       
       if (clickedToken && clickedToken.id !== token.id) {
         const casterCenter = token.center;
-        const distance = sceneDistanceBetween(casterCenter, clickedToken.center);
-        const maxScene = metersToSceneDistance(rangeMeters);
         const matches = matchesTargetGroup(token, clickedToken, targetGroup);
         
-        if (distance <= maxScene + 0.01 && matches) {
+        if (isWithinMasteryPowerRange(casterCenter, clickedToken.center, rangeMeters) && matches) {
           console.log('Mastery System | Single-target utility confirmed:', clickedToken.name);
           confirmUtilityTargets({
             casterToken: token,
@@ -729,9 +708,7 @@ export function startUtilityRadiusMode(token: any, option: RadialCombatOption): 
       // Draw range line
       state.rangeLineGraphics!.clear();
       const casterCenter = token.center;
-      const distance = sceneDistanceBetween(casterCenter, snapped);
-      const maxScene = metersToSceneDistance(rangeMeters);
-      const isValid = distance <= maxScene + 0.01;
+      const isValid = isWithinMasteryPowerRange(casterCenter, snapped, rangeMeters);
       
       state.rangeLineGraphics!.lineStyle(2, isValid ? 0x66aaff : 0xff6666, 0.8);
       state.rangeLineGraphics!.moveTo(casterCenter.x, casterCenter.y);
@@ -739,7 +716,7 @@ export function startUtilityRadiusMode(token: any, option: RadialCombatOption): 
       
       if (isValid) {
         state.previewGraphics!.clear();
-        const radiusPx = (metersToSceneDistance(radiusMeters) / (canvas.grid?.distance || 1)) * (canvas.grid?.size || 1);
+        const radiusPx = masteryAoERadiusPixels(radiusMeters);
         if (radiusMeters > 0 && radiusPx > 0) {
           state.previewGraphics!.lineStyle(2, 0x66aaff, 0.75);
           state.previewGraphics!.beginFill(0x66aaff, 0.12);
@@ -794,10 +771,8 @@ export function startUtilityRadiusMode(token: any, option: RadialCombatOption): 
         const snapped = canvas.grid.getSnappedPosition(worldPos.x, worldPos.y, 1);
         
         const casterCenter = token.center;
-        const distance = sceneDistanceBetween(casterCenter, snapped);
-        const maxScene = metersToSceneDistance(rangeMeters);
         
-        if (distance <= maxScene + 0.01) {
+        if (isWithinMasteryPowerRange(casterCenter, snapped, rangeMeters)) {
           state.center = snapped;
           if (state.center) {
             state.candidates = findCandidatesInRadius(token, state.center, radiusMeters, targetGroup);
