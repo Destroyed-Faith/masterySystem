@@ -446,7 +446,15 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
     
     const treeName = (item.system as any)?.tree;
     const powerName = item.name;
-    const rawLevel = (item.system as any)?.level || 1;
+    const sys = item.system as any;
+    const rawLevel = sys?.level || 1;
+    const explicitRank = sys?.rank;
+    const rankInput =
+      explicitRank != null &&
+      explicitRank !== '' &&
+      Number.isFinite(Number(explicitRank))
+        ? Number(explicitRank)
+        : rawLevel;
     // Spell schools (e.g. Old Pact) are not in getPower() — load definition for utilities
     // so AoE/range can fall back to data even when system.range is set but system.aoe is empty.
     const needsDefinitionLookup =
@@ -461,14 +469,15 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
         const powerDef = powerDefMastery ?? getMagicPower(treeName, powerName);
 
         if (powerDef && powerDef.levels) {
-          const sys = item.system as any;
-          const definitionRank = getPowerDefinitionRank(rawLevel, sys.levels || powerDef.levels);
+          const definitionRank = getPowerDefinitionRank(rankInput, sys.levels || powerDef.levels);
           if (Array.isArray(powerDef.levels)) {
             levelData = powerDef.levels.find((l: any) => l.level === definitionRank);
           } else {
             levelData = powerDef.levels[String(definitionRank)];
           }
-          if (levelData && !rangeStr && levelData.range) {
+          // Utilities: always take range/AoE from definition for this rank — system.range on the
+          // item is often stale (e.g. still "8 m" after the spell tier was raised to 4 / 16 m).
+          if (levelData && levelData.range && (powerType === 'utility' || slot === 'utility' || !rangeStr)) {
             if (typeof levelData.range === 'string') {
               rangeStr = levelData.range;
             } else if (levelData.range.kind) {
@@ -506,7 +515,7 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
     
     if (slot === 'utility' || powerType === 'utility') {
       let aoeStr = (item.system as any)?.aoe;
-      if (!aoeStr && levelData && levelData.aoe) {
+      if (levelData && levelData.aoe) {
         aoeStr = levelData.aoe;
       }
       

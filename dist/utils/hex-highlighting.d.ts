@@ -11,4 +11,12 @@ export declare function collectHexKeysInRangeForToken(tokenId: string, rangeStep
 /** Darken cells that are both in movement range and occupied by others (tabu destinations). */
 export declare function highlightTabuHexesOnLayer(highlightLayerId: string, tabuHexKeys: Set<string>, reachableHexKeys: Set<string>, color?: number, alpha?: number): void;
 export declare function clearHexHighlight(highlightLayerId: string): void;
+/**
+ * Highlight all grid cells within `rangeSteps` adjacency steps of a canvas point (AoE center, etc.).
+ * Uses the same v13 API as ranged/melee (`highlightPosition` + `getTopLeftPoint({i,j})`).
+ */
+export declare function highlightHexesWithinStepsFromPoint(center: {
+    x: number;
+    y: number;
+}, rangeSteps: number, highlightLayerId: string, color?: number, alpha?: number): void;
 //# sourceMappingURL=hex-highlighting.d.ts.map

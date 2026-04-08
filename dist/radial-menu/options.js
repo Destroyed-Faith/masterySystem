@@ -388,7 +388,14 @@ export async function getAllCombatOptionsForActor(actor) {
         let levelData = undefined;
         const treeName = item.system?.tree;
         const powerName = item.name;
-        const rawLevel = item.system?.level || 1;
+        const sys = item.system;
+        const rawLevel = sys?.level || 1;
+        const explicitRank = sys?.rank;
+        const rankInput = explicitRank != null &&
+            explicitRank !== '' &&
+            Number.isFinite(Number(explicitRank))
+            ? Number(explicitRank)
+            : rawLevel;
         // Spell schools (e.g. Old Pact) are not in getPower() — load definition for utilities
         // so AoE/range can fall back to data even when system.range is set but system.aoe is empty.
         const needsDefinitionLookup = getPowerFn &&
@@ -400,15 +407,16 @@ export async function getAllCombatOptionsForActor(actor) {
                 const powerDefMastery = getPowerFn(treeName, powerName);
                 const powerDef = powerDefMastery ?? getMagicPower(treeName, powerName);
                 if (powerDef && powerDef.levels) {
-                    const sys = item.system;
-                    const definitionRank = getPowerDefinitionRank(rawLevel, sys.levels || powerDef.levels);
+                    const definitionRank = getPowerDefinitionRank(rankInput, sys.levels || powerDef.levels);
                     if (Array.isArray(powerDef.levels)) {
                         levelData = powerDef.levels.find((l) => l.level === definitionRank);
                     }
                     else {
                         levelData = powerDef.levels[String(definitionRank)];
                     }
-                    if (levelData && !rangeStr && levelData.range) {
+                    // Utilities: always take range/AoE from definition for this rank — system.range on the
+                    // item is often stale (e.g. still "8 m" after the spell tier was raised to 4 / 16 m).
+                    if (levelData && levelData.range && (powerType === 'utility' || slot === 'utility' || !rangeStr)) {
                         if (typeof levelData.range === 'string') {
                             rangeStr = levelData.range;
                         }
@@ -445,7 +453,7 @@ export async function getAllCombatOptionsForActor(actor) {
         let rangeMeters = range;
         if (slot === 'utility' || powerType === 'utility') {
             let aoeStr = item.system?.aoe;
-            if (!aoeStr && levelData && levelData.aoe) {
+            if (levelData && levelData.aoe) {
                 aoeStr = levelData.aoe;
             }
             aoeShape = parseAoEShape(aoeStr);

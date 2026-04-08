@@ -37,10 +37,16 @@ export function gridStepsFromMeters(rangeMeters: number): number {
 
 type IJ = { i: number; j: number };
 
+function offsetToIJ(raw: any): IJ | null {
+  if (!raw) return null;
+  if (raw.i !== undefined && raw.j !== undefined) return { i: Number(raw.i), j: Number(raw.j) };
+  if (raw.col !== undefined && raw.row !== undefined) return { i: Number(raw.col), j: Number(raw.row) };
+  if (raw.x !== undefined && raw.y !== undefined) return { i: Number(raw.x), j: Number(raw.y) };
+  return null;
+}
+
 function centerToIJ(grid: any, center: { x: number; y: number }): IJ | null {
-  const raw = grid?.getOffset?.(center);
-  if (raw?.i === undefined || raw?.j === undefined) return null;
-  return { i: Number(raw.i), j: Number(raw.j) };
+  return offsetToIJ(grid?.getOffset?.(center));
 }
 
 function neighborFn(grid: any): ((o: IJ) => any[]) | null {

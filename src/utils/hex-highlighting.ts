@@ -8,6 +8,15 @@
 
 type IJ = { i: number; j: number };
 
+/** Normalize grid.getOffset() (hex i,j, square col/row, or x,y) to {i,j} for BFS + getTopLeftPoint. */
+function pixelOffsetToIJ(raw: any): IJ | null {
+  if (!raw) return null;
+  if (raw.i !== undefined && raw.j !== undefined) return { i: Number(raw.i), j: Number(raw.j) };
+  if (raw.col !== undefined && raw.row !== undefined) return { i: Number(raw.col), j: Number(raw.row) };
+  if (raw.x !== undefined && raw.y !== undefined) return { i: Number(raw.x), j: Number(raw.y) };
+  return null;
+}
+
 function getNeighborFn(grid: any): ((o: IJ) => any[]) | null {
   if (typeof grid.getAdjacentOffsets === "function") return (o: IJ) => grid.getAdjacentOffsets(o) ?? [];
   if (typeof grid.getNeighbors === "function") return (o: IJ) => grid.getNeighbors(o) ?? [];
@@ -75,9 +84,7 @@ export function highlightHexesInRange(
   if (!Number.isFinite(RANGE)) return;
 
   const startRaw = grid.getOffset(token.center);
-  const start: IJ | null = (startRaw?.i !== undefined && startRaw?.j !== undefined)
-    ? { i: Number(startRaw.i), j: Number(startRaw.j) }
-    : null;
+  const start: IJ | null = pixelOffsetToIJ(startRaw);
 
   console.log("[MS][HL] start", {
     tokenId,
@@ -132,10 +139,7 @@ export function collectHexKeysInRangeForToken(tokenId: string, rangeSteps: numbe
   const RANGE = Math.max(0, Math.floor(Number(rangeSteps)));
   if (!Number.isFinite(RANGE)) return null;
   const startRaw = grid.getOffset(token.center);
-  const start: IJ | null =
-    startRaw?.i !== undefined && startRaw?.j !== undefined
-      ? { i: Number(startRaw.i), j: Number(startRaw.j) }
-      : null;
+  const start: IJ | null = pixelOffsetToIJ(startRaw);
   if (!start) return null;
   const getNeighbors = getNeighborFn(grid);
   if (!getNeighbors) return null;
@@ -169,4 +173,41 @@ export function highlightTabuHexesOnLayer(
 export function clearHexHighlight(highlightLayerId: string): void {
   const gridUI: any = canvas.interface?.grid;
   gridUI?.clearHighlightLayer?.(highlightLayerId);
+}
+
+/**
+ * Highlight all grid cells within `rangeSteps` adjacency steps of a canvas point (AoE center, etc.).
+ * Uses the same v13 API as ranged/melee (`highlightPosition` + `getTopLeftPoint({i,j})`).
+ */
+export function highlightHexesWithinStepsFromPoint(
+  center: { x: number; y: number },
+  rangeSteps: number,
+  highlightLayerId: string,
+  color: number = 0x66aaff,
+  alpha: number = 0.35
+): void {
+  const grid: any = canvas.grid;
+  const gridUI: any = canvas.interface?.grid;
+  if (!grid || !gridUI || grid.type === CONST.GRID_TYPES.GRIDLESS) return;
+
+  const RANGE = Math.max(0, Math.floor(Number(rangeSteps)));
+  if (!Number.isFinite(RANGE)) return;
+
+  const startRaw = grid.getOffset(center);
+  const start: IJ | null = pixelOffsetToIJ(startRaw);
+  if (!start) return;
+
+  const getNeighbors = getNeighborFn(grid);
+  if (!getNeighbors) return;
+
+  const all = collectHexOffsetsWithinSteps(start, RANGE, getNeighbors, ijKey);
+
+  gridUI.addHighlightLayer?.(highlightLayerId);
+  gridUI.clearHighlightLayer?.(highlightLayerId);
+
+  for (const o of all) {
+    const tl = grid.getTopLeftPoint(o);
+    if (!tl || tl.x === undefined || tl.y === undefined) continue;
+    gridUI.highlightPosition?.(highlightLayerId, { x: tl.x, y: tl.y, color, alpha });
+  }
 }

@@ -6,6 +6,8 @@
  */
 import { consumeAttackAction, getAvailableAttackActions, markPowerUsedThisRound } from './combat/action-economy.js';
 import { isWithinMasteryPowerRange, masteryAoERadiusPixels, masteryPowerMaxSteps } from './utils/grid-range.js';
+import { clearHexHighlight, highlightHexesWithinStepsFromPoint } from './utils/hex-highlighting.js';
+const UTILITY_AOE_PREVIEW_LAYER = 'mastery-utility-aoe-preview';
 // Global utility targeting state
 let activeUtilityTargeting = null;
 /**
@@ -97,126 +99,25 @@ function highlightRadiusArea(state) {
     if (!state.previewGraphics || !state.center)
         return;
     const center = state.center;
-    const radiusPx = masteryAoERadiusPixels(state.radiusMeters);
+    const grid = canvas.grid;
+    const gridless = !grid || grid.type === CONST.GRID_TYPES.GRIDLESS;
     state.previewGraphics.clear();
-    // Always draw the AoE disk on the canvas (square, hex, or gridless). Grid cell highlights
-    // are best-effort and often missing on newer Foundry APIs — without this, players only see
-    // the range line during placement and no visible area.
-    if (state.radiusMeters > 0 && radiusPx > 0) {
-        state.previewGraphics.lineStyle(2, 0x66aaff, 0.85);
-        state.previewGraphics.beginFill(0x66aaff, 0.14);
-        state.previewGraphics.drawCircle(0, 0, radiusPx);
-        state.previewGraphics.endFill();
-    }
-    state.previewGraphics.position.set(center.x, center.y);
-    if (!canvas.grid || canvas.grid.type === CONST.GRID_TYPES.GRIDLESS) {
+    if (gridless) {
+        const radiusPx = masteryAoERadiusPixels(state.radiusMeters);
+        if (state.radiusMeters > 0 && radiusPx > 0) {
+            state.previewGraphics.lineStyle(2, 0x66aaff, 0.85);
+            state.previewGraphics.beginFill(0x66aaff, 0.14);
+            state.previewGraphics.drawCircle(0, 0, radiusPx);
+            state.previewGraphics.endFill();
+        }
+        state.previewGraphics.position.set(center.x, center.y);
         return;
     }
-    // Highlight hexes within radius
-    let highlight = null;
-    try {
-        // Use new v13 API: canvas.interface.grid.highlight
-        if (canvas.interface?.grid?.highlight) {
-            highlight = canvas.interface.grid.highlight;
-        }
-        else if (canvas.grid?.highlight) {
-            // Fallback to old API for compatibility
-            highlight = canvas.grid.highlight;
-        }
-        else if (canvas.grid.getHighlightLayer) {
-            highlight = canvas.grid.getHighlightLayer(state.highlightId);
-            if (!highlight && canvas.grid.addHighlightLayer) {
-                highlight = canvas.grid.addHighlightLayer(state.highlightId);
-            }
-        }
-    }
-    catch (error) {
-        console.warn('Mastery System | Could not get highlight layer for utility radius', error);
-    }
-    if (highlight && highlight.clear) {
-        highlight.clear();
-    }
-    const maxHexDistance = masteryPowerMaxSteps(state.radiusMeters) + 2;
-    // Get grid position using new v13 API
-    let centerGrid = null;
-    try {
-        if (canvas.grid?.getOffset) {
-            // New v13 API: getOffset returns {col, row} or {i, j} for hex grids
-            const offset = canvas.grid.getOffset(center.x, center.y);
-            if (offset) {
-                // Handle different offset formats
-                if (offset.col !== undefined && offset.row !== undefined) {
-                    centerGrid = { col: offset.col, row: offset.row };
-                }
-                else if (offset.i !== undefined && offset.j !== undefined) {
-                    // Hexagonal grid format in v13
-                    centerGrid = { col: offset.i, row: offset.j };
-                }
-                else if (offset.x !== undefined && offset.y !== undefined) {
-                    centerGrid = { col: offset.x, row: offset.y };
-                }
-                else if (offset.q !== undefined && offset.r !== undefined) {
-                    centerGrid = { col: offset.q, row: offset.r };
-                }
-            }
-        }
-    }
-    catch (error) {
-        console.warn('Mastery System | Could not get grid position for utility radius', error);
-    }
-    if (centerGrid && highlight) {
-        for (let q = -maxHexDistance; q <= maxHexDistance; q++) {
-            for (let r = -maxHexDistance; r <= maxHexDistance; r++) {
-                const gridCol = centerGrid.col + q;
-                const gridRow = centerGrid.row + r;
-                // Get hex center using new v13 API
-                let hexCenter = null;
-                try {
-                    if (canvas.grid?.getTopLeftPoint) {
-                        // New v13 API: getTopLeftPoint(col, row) returns center point
-                        hexCenter = canvas.grid.getTopLeftPoint(gridCol, gridRow);
-                    }
-                    else if (canvas.grid?.getPixelsFromGridPosition) {
-                        // Fallback to old API
-                        hexCenter = canvas.grid.getPixelsFromGridPosition(gridCol, gridRow);
-                    }
-                }
-                catch (error) {
-                    continue; // Skip this hex if we can't get its position
-                }
-                if (hexCenter) {
-                    if (isWithinMasteryPowerRange(center, hexCenter, state.radiusMeters)) {
-                        // Try different methods to highlight the hex
-                        try {
-                            // Foundry v13 API: highlight.highlightPosition(col, row, options)
-                            if (highlight && typeof highlight.highlightPosition === 'function') {
-                                highlight.highlightPosition(gridCol, gridRow, { color: 0x66aaff, alpha: 0.3 });
-                            }
-                            // Alternative API: highlight.highlightGridPosition
-                            else if (highlight && typeof highlight.highlightGridPosition === 'function') {
-                                highlight.highlightGridPosition(gridCol, gridRow, { color: 0x66aaff, alpha: 0.3 });
-                            }
-                            // Fallback: highlight.highlight
-                            else if (highlight && typeof highlight.highlight === 'function') {
-                                highlight.highlight(gridCol, gridRow, { color: 0x66aaff, alpha: 0.3 });
-                            }
-                            // Direct grid highlight (v13)
-                            else if (canvas.grid && typeof canvas.grid.highlightPosition === 'function') {
-                                canvas.grid.highlightPosition(gridCol, gridRow, { color: 0x66aaff, alpha: 0.3 });
-                            }
-                            // Last resort: try to add highlight directly
-                            else if (highlight && typeof highlight.add === 'function') {
-                                highlight.add({ col: gridCol, row: gridRow, color: 0x66aaff, alpha: 0.3 });
-                            }
-                        }
-                        catch (error) {
-                            // Silently fail if highlighting doesn't work
-                            console.warn('Mastery System | Could not highlight hex at', gridCol, gridRow, error);
-                        }
-                    }
-                }
-            }
-        }
+    state.previewGraphics.position.set(0, 0);
+    const steps = masteryPowerMaxSteps(state.radiusMeters);
+    clearHexHighlight(state.highlightId);
+    if (steps > 0) {
+        highlightHexesWithinStepsFromPoint(center, steps, state.highlightId, 0x66aaff, 0.35);
     }
 }
 /**
@@ -607,17 +508,31 @@ export function startUtilityRadiusMode(token, option) {
             state.rangeLineGraphics.lineTo(snapped.x, snapped.y);
             if (isValid) {
                 state.previewGraphics.clear();
-                const radiusPx = masteryAoERadiusPixels(radiusMeters);
-                if (radiusMeters > 0 && radiusPx > 0) {
-                    state.previewGraphics.lineStyle(2, 0x66aaff, 0.75);
-                    state.previewGraphics.beginFill(0x66aaff, 0.12);
-                    state.previewGraphics.drawCircle(0, 0, radiusPx);
-                    state.previewGraphics.endFill();
+                const grid = canvas.grid;
+                const gridless = !grid || grid.type === CONST.GRID_TYPES.GRIDLESS;
+                if (gridless) {
+                    const radiusPx = masteryAoERadiusPixels(radiusMeters);
+                    if (radiusMeters > 0 && radiusPx > 0) {
+                        state.previewGraphics.lineStyle(2, 0x66aaff, 0.75);
+                        state.previewGraphics.beginFill(0x66aaff, 0.12);
+                        state.previewGraphics.drawCircle(0, 0, radiusPx);
+                        state.previewGraphics.endFill();
+                    }
+                    state.previewGraphics.position.set(snapped.x, snapped.y);
                 }
-                state.previewGraphics.position.set(snapped.x, snapped.y);
+                else {
+                    state.previewGraphics.position.set(0, 0);
+                    if (radiusMeters > 0) {
+                        highlightHexesWithinStepsFromPoint(snapped, masteryPowerMaxSteps(radiusMeters), UTILITY_AOE_PREVIEW_LAYER, 0x66aaff, 0.28);
+                    }
+                    else {
+                        clearHexHighlight(UTILITY_AOE_PREVIEW_LAYER);
+                    }
+                }
             }
             else {
                 state.previewGraphics.clear();
+                clearHexHighlight(UTILITY_AOE_PREVIEW_LAYER);
             }
         }
     };
@@ -661,6 +576,7 @@ export function startUtilityRadiusMode(token, option) {
                 const casterCenter = token.center;
                 if (isWithinMasteryPowerRange(casterCenter, snapped, rangeMeters)) {
                     state.center = snapped;
+                    clearHexHighlight(UTILITY_AOE_PREVIEW_LAYER);
                     if (state.center) {
                         state.candidates = findCandidatesInRadius(token, state.center, radiusMeters, targetGroup);
                     }
@@ -828,27 +744,8 @@ export function endUtilityTargeting(success) {
     canvas.stage.off('pointermove', state.onPointerMove);
     canvas.stage.off('pointerdown', state.onPointerDown);
     window.removeEventListener('keydown', state.onKeyDown);
-    // Clear highlights using new v13 API
-    let highlight = null;
-    try {
-        // Use new v13 API: canvas.interface.grid.highlight
-        if (canvas.interface?.grid?.highlight) {
-            highlight = canvas.interface.grid.highlight;
-        }
-        else if (canvas.grid?.highlight) {
-            // Fallback to old API for compatibility
-            highlight = canvas.grid.highlight;
-        }
-        else if (canvas.grid && canvas.grid.getHighlightLayer) {
-            highlight = canvas.grid.getHighlightLayer(state.highlightId);
-        }
-    }
-    catch (error) {
-        // Ignore
-    }
-    if (highlight && highlight.clear) {
-        highlight.clear();
-    }
+    clearHexHighlight(state.highlightId);
+    clearHexHighlight(UTILITY_AOE_PREVIEW_LAYER);
     // Clear preview graphics
     if (state.previewGraphics && state.previewGraphics.parent) {
         state.previewGraphics.parent.removeChild(state.previewGraphics);

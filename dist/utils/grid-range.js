@@ -33,11 +33,19 @@ export function gridStepsFromMeters(rangeMeters) {
     const sceneDist = metersToSceneDistance(rangeMeters);
     return Math.max(1, Math.ceil(sceneDist / perCell));
 }
-function centerToIJ(grid, center) {
-    const raw = grid?.getOffset?.(center);
-    if (raw?.i === undefined || raw?.j === undefined)
+function offsetToIJ(raw) {
+    if (!raw)
         return null;
-    return { i: Number(raw.i), j: Number(raw.j) };
+    if (raw.i !== undefined && raw.j !== undefined)
+        return { i: Number(raw.i), j: Number(raw.j) };
+    if (raw.col !== undefined && raw.row !== undefined)
+        return { i: Number(raw.col), j: Number(raw.row) };
+    if (raw.x !== undefined && raw.y !== undefined)
+        return { i: Number(raw.x), j: Number(raw.y) };
+    return null;
+}
+function centerToIJ(grid, center) {
+    return offsetToIJ(grid?.getOffset?.(center));
 }
 function neighborFn(grid) {
     if (typeof grid.getAdjacentOffsets === "function")
