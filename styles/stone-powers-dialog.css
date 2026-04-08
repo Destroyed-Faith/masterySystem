@@ -916,6 +916,10 @@
   min-height: 1.65rem;
 }
 
+.stone-powers-dialog .stone-ritual-slots-row .ms-ritual-drop-slot.slot-active {
+  cursor: pointer;
+}
+
 .stone-powers-dialog .stone-ritual-meta,
 .stone-powers-dialog .stone-ritual-req,
 .stone-powers-dialog .stone-ritual-intro,
@@ -948,16 +952,215 @@
   margin-bottom: 0.25rem;
 }
 
-.stone-powers-dialog .stone-summons-placeholder {
-  margin-top: 0.5rem;
-  padding: 1rem 0.75rem;
-  border-radius: 6px;
-  border: 1px dashed rgba(255, 255, 255, 0.2);
-  text-align: center;
-  color: #90a4ae;
-  font-size: 0.88rem;
+/* —— Summons & Familiars tab —— */
+.stone-powers-dialog .stone-summons-pane {
+  margin-top: 0.35rem;
+  max-height: 70vh;
+  overflow-y: auto;
+  padding-right: 0.2rem;
 }
 
-.stone-powers-dialog .stone-summons-placeholder-text {
+.stone-powers-dialog .stone-summons-intro {
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: #cfd8dc;
+  margin-bottom: 0.55rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.stone-powers-dialog .stone-summons-hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.76rem;
+  color: #90a4ae;
+}
+
+.stone-powers-dialog .stone-summons-columns {
+  display: grid;
+  grid-template-columns: minmax(200px, 1fr) minmax(260px, 1.1fr);
+  gap: 0.65rem 0.85rem;
+  align-items: start;
+}
+
+@media (max-width: 780px) {
+  .stone-powers-dialog .stone-summons-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stone-powers-dialog .stone-summons-subtitle {
+  margin: 0 0 0.35rem;
+  font-size: 0.85rem;
+  color: #ffcc80;
+}
+
+.stone-powers-dialog .stone-summons-reference-col .stone-summons-ref-img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: block;
+}
+
+.stone-powers-dialog .stone-familiar-form {
+  font-size: 0.78rem;
+  color: #eceff1;
+}
+
+.stone-powers-dialog .stone-familiar-field {
+  margin-bottom: 0.55rem;
+}
+
+.stone-powers-dialog .stone-familiar-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+  color: #b0bec5;
+}
+
+.stone-powers-dialog .stone-familiar-meta {
+  font-weight: 400;
+  color: #78909c;
+  font-size: 0.72rem;
+}
+
+.stone-powers-dialog .stone-familiar-input {
+  width: 100%;
+  max-width: 22rem;
+  padding: 0.25rem 0.4rem;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+}
+
+.stone-powers-dialog .stone-familiar-movement-fieldset {
+  border: none;
+  padding: 0;
+  margin: 0 0 0.5rem;
+}
+
+.stone-powers-dialog .stone-familiar-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-right: 0.75rem;
+  cursor: pointer;
+}
+
+.stone-powers-dialog .stone-familiar-upgrade-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.35rem;
+}
+
+.stone-powers-dialog .stone-familiar-select {
+  min-width: 9.5rem;
+  padding: 0.2rem 0.35rem;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+}
+
+.stone-powers-dialog .stone-familiar-remove {
+  padding: 0.15rem 0.45rem;
+  min-width: auto;
+}
+
+.stone-powers-dialog .stone-familiar-add {
+  margin-top: 0.25rem;
+}
+
+.stone-powers-dialog .stone-familiar-sense-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(8rem, 1fr));
+  gap: 0.25rem 0.5rem;
+}
+
+.stone-powers-dialog .stone-familiar-check {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  cursor: pointer;
+}
+
+.stone-powers-dialog .stone-familiar-cap {
+  margin: 0.4rem 0 0;
+  font-size: 0.74rem;
+  color: #90a4ae;
+}
+
+.stone-powers-dialog .stone-familiar-output {
+  grid-column: 1 / -1;
+  padding: 0.45rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid rgba(76, 175, 80, 0.35);
+  background: rgba(20, 40, 25, 0.35);
+}
+
+.stone-powers-dialog .stone-familiar-dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.15rem 0.75rem;
   margin: 0;
+  font-size: 0.78rem;
+}
+
+.stone-powers-dialog .stone-familiar-dl dt {
+  color: #90a4ae;
+  margin: 0;
+}
+
+.stone-powers-dialog .stone-familiar-dl dd {
+  margin: 0;
+  color: #eceff1;
+}
+
+.stone-powers-dialog .stone-familiar-picks,
+.stone-powers-dialog .stone-familiar-senses {
+  margin: 0.35rem 0 0;
+  font-size: 0.74rem;
+  color: #b0bec5;
+}
+
+.stone-powers-dialog .stone-familiar-warnings {
+  margin: 0.4rem 0 0;
+  padding-left: 1.1rem;
+  color: #ffab91;
+  font-size: 0.76rem;
+}
+
+.stone-powers-dialog .stone-familiar-ref-table-wrap {
+  margin-top: 0.65rem;
+  overflow-x: auto;
+}
+
+.stone-powers-dialog .stone-familiar-grid-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.68rem;
+  color: #cfd8dc;
+}
+
+.stone-powers-dialog .stone-familiar-grid-table th,
+.stone-powers-dialog .stone-familiar-grid-table td {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.2rem 0.28rem;
+  text-align: center;
+}
+
+.stone-powers-dialog .stone-familiar-grid-table th[scope='row'] {
+  text-align: left;
+  white-space: nowrap;
+  color: #ffcc80;
+}
+
+.stone-powers-dialog .stone-familiar-grid-table tbody tr:nth-child(even) td {
+  background: rgba(255, 255, 255, 0.04);
 }

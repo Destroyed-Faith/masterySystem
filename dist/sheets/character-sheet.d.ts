@@ -5,6 +5,8 @@
 declare const BaseActorSheet: any;
 export declare class MasteryCharacterSheet extends BaseActorSheet {
     #private;
+    /** Preserves <details open> for Token-Radial prefs across re-renders (checkbox updates call render). */
+    private _radialManeuverPrefsDetailsOpen?;
     private _showStash;
     private _pendingAttributeChanges;
     private _pendingPowerLevelChanges;

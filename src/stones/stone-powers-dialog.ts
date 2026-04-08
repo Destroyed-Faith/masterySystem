@@ -32,6 +32,14 @@ import {
   type RitualCatalogEntry,
   type RitualPoolAttr
 } from './rituals-catalog.js';
+import {
+  buildFamiliarResult,
+  FAMILIAR_UPGRADE_CATEGORY_OPTIONS,
+  getFamiliarProgressionTableRows,
+  type FamiliarResult,
+  type SharedSenseGroup,
+  type UpgradeCategory
+} from './familiar-rules.js';
 
 const STONE_DRAG_MIME = 'application/x-mastery-stone-attribute';
 const STONE_RETURN_MIME = 'application/x-mastery-stone-return-acc';
@@ -426,10 +434,29 @@ export class StonePowersDialog extends BaseDialog {
   /** Verhindert, dass jeder Render den Session-Steinplan aus dem Flag neu überschreibt (ungespeicherte UI ging verloren). */
   private _stoneRoundPlanHydratedKey: string | null = null;
 
+  /** Summons tab: Familiar builder (dialog-only, nicht persistiert). */
+  private _familiarBuilder: {
+    name: string;
+    movementType: 'ground' | 'flying';
+    upgradeRows: { id: string; pickA: UpgradeCategory; pickB: UpgradeCategory }[];
+    sharedSight: boolean;
+    sharedHearing: boolean;
+    sharedTasteSmell: boolean;
+    sharedTouch: boolean;
+  } = {
+    name: '',
+    movementType: 'ground',
+    upgradeRows: [],
+    sharedSight: false,
+    sharedHearing: false,
+    sharedTasteSmell: false,
+    sharedTouch: false
+  };
+
   static DEFAULT_OPTIONS = {
     id: "mastery-stone-powers",
     classes: ["mastery-system", "stone-powers-dialog"],
-    position: { width: 920, height: 640 },
+    position: { width: 980, height: 680 },
     window: { title: 'Stone Powers', resizable: true }
   };
   
@@ -472,7 +499,100 @@ export class StonePowersDialog extends BaseDialog {
     }
     return arr;
   }
-  
+
+  /** Erstes erlaubtes Attribut mit mindestens einem freien Pool-Stein (Reihenfolge wie im Ritual-Katalog). */
+  #firstSpendableRitualAttr(allowed: RitualPoolAttr[]): RitualPoolAttr | null {
+    this.#pullSessionPartialsIntoInstance();
+    const poolKeys = getActorStonePoolKeysWithMax(this.actor);
+    for (const a of allowed) {
+      if (!poolKeys.has(a)) continue;
+      if (this.#spendableNetForAttr(a) >= 1) return a;
+    }
+    return null;
+  }
+
+  /** Leeres Ritual-Feld per Klick mit dem nächsten passenden Stein füllen (wie Drop, ohne Drag). */
+  async #autoFillRitualSlot(ritualId: string, slotIndex: number): Promise<void> {
+    this.#pullSessionPartialsIntoInstance();
+    const entry = STONE_RITUALS_CATALOG.find((r) => r.id === ritualId);
+    if (!entry || slotIndex < 0 || slotIndex >= entry.slots.length) return;
+    const placed = this.#ritualEnsureSlots(entry);
+    if (placed[slotIndex]) return;
+    const allowed = entry.slots[slotIndex].allow;
+    const pick = this.#firstSpendableRitualAttr(allowed);
+    if (!pick) {
+      ui.notifications?.warn('Kein freier Stein eines erlaubten Attributs.');
+      return;
+    }
+    placed[slotIndex] = pick;
+    await (this as any).render({ force: true });
+  }
+
+  #readFamiliarBuilderFromDom(root: HTMLElement): void {
+    const form = root.querySelector('.stone-familiar-form') as HTMLElement | null;
+    if (!form) return;
+    const name = (form.querySelector('.js-familiar-name') as HTMLInputElement)?.value ?? '';
+    const movRaw = (form.querySelector('input[name="familiarMovement"]:checked') as HTMLInputElement)?.value;
+    const movementType: 'ground' | 'flying' = movRaw === 'flying' ? 'flying' : 'ground';
+    const rows: { id: string; pickA: UpgradeCategory; pickB: UpgradeCategory }[] = [];
+    form.querySelectorAll('.js-familiar-upgrade-row').forEach((el) => {
+      const row = el as HTMLElement;
+      const id = row.dataset.rowId || '';
+      const a = (row.querySelector('.js-familiar-pick-a') as HTMLSelectElement | null)?.value as UpgradeCategory | undefined;
+      const b = (row.querySelector('.js-familiar-pick-b') as HTMLSelectElement | null)?.value as UpgradeCategory | undefined;
+      if (!id || !a || !b) return;
+      rows.push({ id, pickA: a, pickB: b });
+    });
+    this._familiarBuilder = {
+      name,
+      movementType,
+      upgradeRows: rows,
+      sharedSight: !!(form.querySelector('.js-familiar-sense-sight') as HTMLInputElement | null)?.checked,
+      sharedHearing: !!(form.querySelector('.js-familiar-sense-hearing') as HTMLInputElement | null)?.checked,
+      sharedTasteSmell: !!(form.querySelector('.js-familiar-sense-taste') as HTMLInputElement | null)?.checked,
+      sharedTouch: !!(form.querySelector('.js-familiar-sense-touch') as HTMLInputElement | null)?.checked
+    };
+  }
+
+  #bindFamiliarForm(root: HTMLElement): void {
+    const form = root.querySelector('.stone-familiar-form') as HTMLElement | null;
+    if (!form) return;
+
+    const rerender = () => {
+      this.#readFamiliarBuilderFromDom(root);
+      void (this as any).render({ force: true });
+    };
+
+    form.addEventListener('change', rerender);
+    form.querySelector('.js-familiar-name')?.addEventListener('input', rerender);
+
+    form.addEventListener('click', (ev: MouseEvent) => {
+      const t = ev.target as HTMLElement;
+      if (t.closest('.js-familiar-add-upgrade-stone')) {
+        ev.preventDefault();
+        this.#readFamiliarBuilderFromDom(root);
+        const id =
+          typeof (globalThis as any).foundry !== 'undefined' &&
+          (foundry as any).utils?.randomID
+            ? (foundry as any).utils.randomID()
+            : `u${Date.now()}`;
+        this._familiarBuilder.upgradeRows.push({ id, pickA: 'hp', pickB: 'armor' });
+        void (this as any).render({ force: true });
+        return;
+      }
+      const rm = t.closest('.js-familiar-remove-upgrade-stone') as HTMLElement | null;
+      if (rm) {
+        ev.preventDefault();
+        const rowId = rm.dataset.rowId || rm.closest('[data-row-id]')?.getAttribute('data-row-id');
+        this.#readFamiliarBuilderFromDom(root);
+        if (rowId) {
+          this._familiarBuilder.upgradeRows = this._familiarBuilder.upgradeRows.filter((r) => r.id !== rowId);
+        }
+        void (this as any).render({ force: true });
+      }
+    });
+  }
+
   async _prepareContext(_options: any): Promise<any> {
     await this.#syncStonePowersRoundPlanWithCombat();
 
@@ -839,6 +959,31 @@ export class StonePowersDialog extends BaseDialog {
       });
     }
 
+    const masteryRankForFamiliar = Math.max(1, Math.floor(Number(system.mastery?.rank) || 1));
+    const fb = this._familiarBuilder;
+    const upgradeStonesForRules = fb.upgradeRows.map((r) => ({
+      id: r.id,
+      picks: [r.pickA, r.pickB] as [UpgradeCategory, UpgradeCategory]
+    }));
+    const sharedSensesForRules: SharedSenseGroup[] = [];
+    if (fb.sharedSight) sharedSensesForRules.push('sight');
+    if (fb.sharedHearing) sharedSensesForRules.push('hearing');
+    if (fb.sharedTasteSmell) sharedSensesForRules.push('tasteSmell');
+    if (fb.sharedTouch) sharedSensesForRules.push('touchPressure');
+
+    let familiarResult: FamiliarResult | null = null;
+    try {
+      familiarResult = buildFamiliarResult({
+        familiarName: fb.name,
+        movementType: fb.movementType,
+        upgradeStones: upgradeStonesForRules,
+        sharedSenses: sharedSensesForRules,
+        masteryRank: masteryRankForFamiliar
+      });
+    } catch (e) {
+      console.warn('Mastery System | buildFamiliarResult failed', e);
+    }
+
     return {
       actor: this.actor,
       pools,
@@ -859,6 +1004,15 @@ export class StonePowersDialog extends BaseDialog {
       tabRitualsActive,
       tabSummonsActive,
       ritualRows,
+      familiarBuilder: fb,
+      familiarBuilderMovementIsGround: fb.movementType === 'ground',
+      familiarBuilderMovementIsFlying: fb.movementType === 'flying',
+      familiarUpgradeCategoryOptions: FAMILIAR_UPGRADE_CATEGORY_OPTIONS,
+      familiarResult,
+      familiarProgressionTable: getFamiliarProgressionTableRows(),
+      familiarMasteryRank: masteryRankForFamiliar,
+      familiarMasteryCap: masteryRankForFamiliar * 4,
+      familiarReferenceImage: 'systems/mastery-system/assets/familiar-progression-reference.png',
       prefsUseDefaults,
       canSavePrefs,
       showCombatRound1Save,
@@ -894,6 +1048,8 @@ export class StonePowersDialog extends BaseDialog {
         void (this as any).render({ force: true });
       };
     });
+
+    this.#bindFamiliarForm(root);
 
     const savePrefsBtn = root.querySelector('.js-save-stone-prefs') as HTMLElement | null;
     if (savePrefsBtn) {
@@ -2086,6 +2242,25 @@ export class StonePowersDialog extends BaseDialog {
       return { powerId, isGeneric, fixedPayAttr };
     };
 
+    /** Linksklick auf grünes Ritual-Feld: ersten passenden Stein automatisch legen. */
+    const onRitualSlotClick = async (ev: MouseEvent) => {
+      if (ev.button !== 0) return;
+      if (!allowDrag) return;
+      if (this._stonePowersMainTab !== 'rituals') return;
+      const t = ev.target as HTMLElement;
+      if (t.closest('.js-stone-draggable') || t.closest('.js-stone-returnable')) return;
+      if (t.closest('button, a, input, select, textarea, label')) return;
+      const slot = t.closest('.ms-ritual-drop-slot.slot-active') as HTMLElement | null;
+      if (!slot || !bindTarget.contains(slot)) return;
+      ev.preventDefault();
+      ev.stopImmediatePropagation();
+      const ritualId = slot.dataset.ritualId || '';
+      const idxRaw = slot.dataset.ritualSlotIndex;
+      const slotIndex = idxRaw !== undefined && idxRaw !== '' ? Number(idxRaw) : NaN;
+      if (!ritualId || !Number.isFinite(slotIndex)) return;
+      await this.#autoFillRitualSlot(ritualId, slotIndex);
+    };
+
     /** Linksklick auf ganze Power-Karte (inkl. Titel): Slots aus Pools füllen. */
     const onPowerCardClick = async (ev: MouseEvent) => {
       if (ev.button !== 0) return;
@@ -2125,6 +2300,7 @@ export class StonePowersDialog extends BaseDialog {
     bindTarget.addEventListener('dragover', onBindDragOver, useCapture);
     bindTarget.addEventListener('dragleave', onBindDragLeave);
     bindTarget.addEventListener('drop', onBindDrop, useCapture);
+    bindTarget.addEventListener('click', onRitualSlotClick);
     bindTarget.addEventListener('click', onPowerCardClick);
     bindTarget.addEventListener('contextmenu', onPowerCardContextMenu);
 
@@ -2134,6 +2310,7 @@ export class StonePowersDialog extends BaseDialog {
       bindTarget.removeEventListener('dragover', onBindDragOver, useCapture);
       bindTarget.removeEventListener('dragleave', onBindDragLeave);
       bindTarget.removeEventListener('drop', onBindDrop, useCapture);
+      bindTarget.removeEventListener('click', onRitualSlotClick);
       bindTarget.removeEventListener('click', onPowerCardClick);
       bindTarget.removeEventListener('contextmenu', onPowerCardContextMenu);
     };

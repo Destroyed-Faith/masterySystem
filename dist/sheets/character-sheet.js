@@ -19,6 +19,8 @@ import { buildRadialManeuverPrefsContext } from '../utils/radial-maneuver-prefs.
 // Use namespaced ActorSheet when available to avoid deprecation warnings
 const BaseActorSheet = foundry?.appv1?.sheets?.ActorSheet || ActorSheet;
 export class MasteryCharacterSheet extends BaseActorSheet {
+    /** Preserves <details open> for Token-Radial prefs across re-renders (checkbox updates call render). */
+    _radialManeuverPrefsDetailsOpen;
     _showStash = false;
     _pendingAttributeChanges = {}; // Signed pending attribute deltas (XP mode)
     _pendingPowerLevelChanges = {}; // Track pending power level increases
@@ -107,6 +109,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      * Handle power rank change during creation
      */
     async #onRadialManeuverHideAll(event) {
+        event.stopPropagation();
         if (!this.isEditable)
             return;
         const el = event.currentTarget;
@@ -120,6 +123,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         this.render();
     }
     async #onRadialManeuverHideOne(event) {
+        event.stopPropagation();
         if (!this.isEditable)
             return;
         const el = event.currentTarget;
@@ -553,6 +557,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Build Equipment UI Context
         context.equipmentUi = this.#prepareEquipmentUi(context.items);
         context.radialManeuverPrefsPanel = buildRadialManeuverPrefsContext(context.system);
+        context.radialManeuverPrefsDetailsOpen = this._radialManeuverPrefsDetailsOpen === true;
         // Add active buffs data - ALWAYS set as array, even if empty
         context.activeBuffs = [];
         try {
@@ -635,6 +640,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     /** @override */
     async render(force, options) {
         console.log('Mastery System | Character Sheet render called', { force, options });
+        if (this.element && this.element.length > 0) {
+            const det = this.element.find('.radial-maneuver-prefs-details')[0];
+            if (det instanceof HTMLDetailsElement) {
+                this._radialManeuverPrefsDetailsOpen = det.open;
+            }
+        }
         // Save scroll positions for all tabs and the main window before rendering
         const scrollPositions = {};
         if (this.element && this.element.length > 0) {

@@ -211,7 +211,7 @@
                  data-ritual-id="{{../id}}"
                  data-ritual-slot-index="{{slot.slotIndex}}"
                  data-allowed-attrs="{{slot.allowedCsv}}"
-                 title="{{#if (eq slot.state 'active')}}Allowed: {{slot.allowTitle}} — drop matching stone{{/if}}{{#if (eq slot.state 'filled')}}Placed — drag gem back to pool to clear{{/if}}{{#if (eq slot.state 'locked')}}No free stone of an allowed attribute{{/if}}">
+                 title="{{#if (eq slot.state 'active')}}Erlaubt: {{slot.allowTitle}} — Stein ziehen oder Feld anklicken{{/if}}{{#if (eq slot.state 'filled')}}Gelegt — Stein in den Pool zurückziehen{{/if}}{{#if (eq slot.state 'locked')}}Kein freier Stein eines erlaubten Attributs{{/if}}">
               <div class="ms-stone-slot-fill">
                 {{#if slot.placedKey}}
                 <span
@@ -251,8 +251,117 @@
   {{/if}}
 
   {{#if tabSummonsActive}}
-  <div class="stone-summons-placeholder" role="tabpanel">
-    <p class="stone-summons-placeholder-text">Summons — rules and stone layout will be added here (same dialog, third tab).</p>
+  <div class="stone-summons-pane" role="tabpanel" aria-label="Summons and Familiars">
+    <section class="stone-summons-intro">
+      <p><strong>Summons &amp; Familiars</strong> — Bound Stones leave your pool until the bond ends. Base Familiar: <strong>1</strong> Bound Stone; each further <strong>upgrade</strong> Stone grants <strong>two different</strong> picks from the upgrade list. <strong>Shared Sense</strong> Stones are Bound but grant <strong>no</strong> upgrade picks.</p>
+      <p class="stone-summons-hint">Initiative matches the owner; each round you choose whether the Familiar acts immediately before or after you. Binding on the actor sheet (persistent Bound Stones) is not automated here — this panel is a calculator.</p>
+    </section>
+
+    <div class="stone-summons-columns">
+      <div class="stone-summons-reference-col">
+        <h4 class="stone-summons-subtitle">Sheet reference</h4>
+        <img class="stone-summons-ref-img" src="{{familiarReferenceImage}}" alt="Familiar progression reference" loading="lazy" width="420" />
+      </div>
+
+      <form class="stone-familiar-form" autocomplete="off">
+        <h4 class="stone-summons-subtitle">Familiar builder</h4>
+        <div class="stone-familiar-field">
+          <label class="stone-familiar-label">Name</label>
+          <input type="text" class="js-familiar-name stone-familiar-input" name="familiarName" value="{{familiarBuilder.name}}" placeholder="Familiar name" />
+        </div>
+        <fieldset class="stone-familiar-field stone-familiar-movement-fieldset">
+          <legend class="stone-familiar-label">Movement (chosen at creation)</legend>
+          <label class="stone-familiar-radio"><input type="radio" name="familiarMovement" value="ground" {{#if familiarBuilderMovementIsGround}}checked{{/if}} /> Ground (base 8 m)</label>
+          <label class="stone-familiar-radio"><input type="radio" name="familiarMovement" value="flying" {{#if familiarBuilderMovementIsFlying}}checked{{/if}} /> Flying (base 4 m)</label>
+        </fieldset>
+
+        <div class="stone-familiar-field">
+          <span class="stone-familiar-label">Upgrade Stones <span class="stone-familiar-meta">(each Stone → 2 distinct picks)</span></span>
+          <div class="stone-familiar-upgrade-list">
+            {{#each familiarBuilder.upgradeRows as |row|}}
+            <div class="js-familiar-upgrade-row stone-familiar-upgrade-row" data-row-id="{{row.id}}">
+              <select class="js-familiar-pick-a stone-familiar-select" aria-label="First pick">
+                {{#each @root.familiarUpgradeCategoryOptions}}
+                <option value="{{this.value}}" {{#if (eq row.pickA this.value)}}selected{{/if}}>{{this.label}}</option>
+                {{/each}}
+              </select>
+              <select class="js-familiar-pick-b stone-familiar-select" aria-label="Second pick">
+                {{#each @root.familiarUpgradeCategoryOptions}}
+                <option value="{{this.value}}" {{#if (eq row.pickB this.value)}}selected{{/if}}>{{this.label}}</option>
+                {{/each}}
+              </select>
+              <button type="button" class="js-familiar-remove-upgrade-stone dialog-btn dialog-btn-secondary stone-familiar-remove" data-row-id="{{row.id}}" title="Remove this upgrade Stone">✕</button>
+            </div>
+            {{/each}}
+          </div>
+          <button type="button" class="js-familiar-add-upgrade-stone dialog-btn dialog-btn-secondary stone-familiar-add">+ Upgrade Stone</button>
+        </div>
+
+        <div class="stone-familiar-field">
+          <span class="stone-familiar-label">Shared senses <span class="stone-familiar-meta">(1 Bound Stone each, no upgrade picks)</span></span>
+          <div class="stone-familiar-sense-grid">
+            <label class="stone-familiar-check"><input type="checkbox" class="js-familiar-sense-sight" {{#if familiarBuilder.sharedSight}}checked{{/if}} /> Sight</label>
+            <label class="stone-familiar-check"><input type="checkbox" class="js-familiar-sense-hearing" {{#if familiarBuilder.sharedHearing}}checked{{/if}} /> Hearing</label>
+            <label class="stone-familiar-check"><input type="checkbox" class="js-familiar-sense-taste" {{#if familiarBuilder.sharedTasteSmell}}checked{{/if}} /> Taste/Smell</label>
+            <label class="stone-familiar-check"><input type="checkbox" class="js-familiar-sense-touch" {{#if familiarBuilder.sharedTouch}}checked{{/if}} /> Touch/Pressure</label>
+          </div>
+        </div>
+
+        <p class="stone-familiar-cap">Mastery {{familiarMasteryRank}} — max <strong>{{familiarMasteryCap}}</strong> Bound Stones per Familiar (shown in warnings if exceeded).</p>
+      </form>
+
+      {{#if familiarResult}}
+      <div class="stone-familiar-output">
+        <h4 class="stone-summons-subtitle">Result</h4>
+        <dl class="stone-familiar-dl">
+          <dt>Name</dt><dd>{{familiarResult.familiarName}}</dd>
+          <dt>Total Bound Stones</dt><dd>{{familiarResult.totalBoundStones}}</dd>
+          <dt>Upgrade Stones</dt><dd>{{familiarResult.upgradeStones}}</dd>
+          <dt>Shared Sense Stones</dt><dd>{{familiarResult.sharedSenseStones}}</dd>
+          <dt>Size</dt><dd>{{familiarResult.size}}</dd>
+          <dt>HP / Armor / Evade</dt><dd>{{familiarResult.finalStats.hp}} / {{familiarResult.finalStats.armor}} / {{familiarResult.finalStats.evade}}</dd>
+          <dt>Attack</dt><dd>{{familiarResult.finalStats.attack}}</dd>
+          <dt>Damage</dt><dd>{{familiarResult.finalStats.damage}}</dd>
+          <dt>Movement</dt><dd>{{familiarResult.finalStats.movementM}} m ({{familiarResult.movementType}})</dd>
+        </dl>
+        <p class="stone-familiar-picks">Picks — HP {{familiarResult.hpUpgrades}}, Armor {{familiarResult.armorUpgrades}}, Evade {{familiarResult.evadeUpgrades}}, Attack {{familiarResult.attackUpgrades}}, Damage {{familiarResult.damageUpgrades}}, Move {{familiarResult.movementUpgrades}}</p>
+        {{#if familiarResult.sharedSenses.length}}
+        <p class="stone-familiar-senses">Shared senses: {{#each familiarResult.sharedSenses}}{{#unless @first}}, {{/unless}}{{this}}{{/each}}</p>
+        {{/if}}
+        {{#if familiarResult.validationWarnings.length}}
+        <ul class="stone-familiar-warnings">
+          {{#each familiarResult.validationWarnings}}
+          <li>{{this}}</li>
+          {{/each}}
+        </ul>
+        {{/if}}
+      </div>
+      {{/if}}
+    </div>
+
+    <div class="stone-familiar-ref-table-wrap">
+      <h4 class="stone-summons-subtitle">Canonical progression (base + 8 upgrades)</h4>
+      <table class="stone-familiar-grid-table" role="grid">
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            <th scope="col">Base</th>
+            <th scope="col">+1</th><th scope="col">+2</th><th scope="col">+3</th><th scope="col">+4</th>
+            <th scope="col">+5</th><th scope="col">+6</th><th scope="col">+7</th><th scope="col">+8</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each familiarProgressionTable}}
+          <tr>
+            <th scope="row">{{this.label}}</th>
+            {{#each this.cells}}
+            <td>{{this}}</td>
+            {{/each}}
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
   </div>
   {{/if}}
 
