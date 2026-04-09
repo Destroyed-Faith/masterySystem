@@ -116,10 +116,129 @@
   </section>
   {{/if}}
 
+  {{#if canEdit}}
+  {{#if showQuickEdit}}
+  <section class="item-info-edit-panel" aria-label="Adjust item values">
+    <h3 class="item-info-section-title">Adjust values</h3>
+
+    {{#if isWeapon}}
+    <div class="item-info-field-row">
+      <label for="item-info-w-cat">Load from catalog</label>
+      <select id="item-info-w-cat" class="item-info-select js-item-info-weapon-catalog">
+        {{#each weaponEdit.catalogOptions}}
+        <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+        {{/each}}
+      </select>
+    </div>
+    <div class="item-info-field-row item-info-field-row-2">
+      <div>
+        <label for="item-info-w-dmg">Weapon damage</label>
+        <select id="item-info-w-dmg" class="item-info-select js-item-info-weapon-damage">
+          {{#each weaponEdit.damageOptions}}
+          <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <div>
+        <label for="item-info-w-hands">Hands</label>
+        <select id="item-info-w-hands" class="item-info-select js-item-info-weapon-hands">
+          {{#each weaponEdit.handsOptions}}
+          <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+          {{/each}}
+        </select>
+      </div>
+    </div>
+    <div class="item-info-field-row">
+      <label for="item-info-w-type">Melee / Ranged</label>
+      <select id="item-info-w-type" class="item-info-select js-item-info-weapon-type">
+        {{#each weaponEdit.weaponTypeOptions}}
+        <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+        {{/each}}
+      </select>
+    </div>
+    <div class="item-info-field-row">
+      <label for="item-info-w-range">Range</label>
+      <input id="item-info-w-range" type="text" class="item-info-input js-item-info-weapon-range" value="{{weaponEdit.range}}" placeholder="0m" />
+    </div>
+    <p class="item-info-edit-hint">Catalog load applies damage, hands, innates &amp; specials. Change any dropdown to save immediately.</p>
+    {{/if}}
+
+    {{#if isArmor}}
+    <div class="item-info-field-row">
+      <label for="item-info-a-type">Armor type</label>
+      <select id="item-info-a-type" class="item-info-select js-item-info-armor-type">
+        {{#each armorEdit.typeOptions}}
+        <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+        {{/each}}
+      </select>
+    </div>
+    <div class="item-info-field-row item-info-field-row-2">
+      <div>
+        <label for="item-info-a-val">Armor value</label>
+        <input id="item-info-a-val" type="number" class="item-info-input js-item-info-armor-value" value="{{armorEdit.armorValue}}" step="1" />
+      </div>
+      <div>
+        <label for="item-info-a-ev">Evade modifier</label>
+        <input id="item-info-a-ev" type="number" class="item-info-input js-item-info-armor-evade" value="{{armorEdit.evadeModifier}}" step="1" />
+      </div>
+    </div>
+    <p class="item-info-edit-hint">Choosing a type fills default armor &amp; evade; you can override the numbers.</p>
+    {{/if}}
+
+    {{#if isShield}}
+    <div class="item-info-field-row">
+      <label for="item-info-s-type">Shield type</label>
+      <select id="item-info-s-type" class="item-info-select js-item-info-shield-type">
+        {{#each shieldEdit.typeOptions}}
+        <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+        {{/each}}
+      </select>
+    </div>
+    <div class="item-info-field-row item-info-field-row-2">
+      <div>
+        <label for="item-info-s-val">Shield value</label>
+        <input id="item-info-s-val" type="number" class="item-info-input js-item-info-shield-value" value="{{shieldEdit.shieldValue}}" step="1" min="0" />
+      </div>
+      <div>
+        <label for="item-info-s-ev">Evade modifier</label>
+        <input id="item-info-s-ev" type="number" class="item-info-input js-item-info-shield-evade" value="{{shieldEdit.evadeBonus}}" step="1" />
+      </div>
+    </div>
+    <p class="item-info-edit-hint">Type sets default shield value &amp; evade; values can be tweaked below.</p>
+    {{/if}}
+
+    {{#if isGear}}
+    <div class="item-info-field-row">
+      <label for="item-info-g-size">Inventory size</label>
+      <select id="item-info-g-size" class="item-info-select js-item-info-gear-size">
+        {{#each gearEdit.sizeOptions}}
+        <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+        {{/each}}
+      </select>
+    </div>
+    <div class="item-info-field-row item-info-field-row-2">
+      <div>
+        <label for="item-info-g-qty">Quantity</label>
+        <input id="item-info-g-qty" type="number" class="item-info-input js-item-info-gear-qty" value="{{gearEdit.quantity}}" step="1" min="0" />
+      </div>
+      <div>
+        <label for="item-info-g-w">Weight</label>
+        <input id="item-info-g-w" type="number" class="item-info-input js-item-info-gear-weight" value="{{gearEdit.weight}}" step="0.1" min="0" />
+      </div>
+    </div>
+    <div class="item-info-field-row">
+      <label for="item-info-g-desc">Short description</label>
+      <textarea id="item-info-g-desc" class="item-info-textarea js-item-info-gear-desc" rows="3" placeholder="Plain text">{{gearEdit.descriptionPlain}}</textarea>
+    </div>
+    {{/if}}
+  </section>
+  {{/if}}
+  {{/if}}
+
   <footer class="item-info-footer">
-    {{#if showEditButton}}
-    <button type="button" class="dialog-btn dialog-btn-secondary js-item-info-edit">
-      <i class="fas fa-edit"></i> Edit item sheet
+    {{#if showAdvancedSheetLink}}
+    <button type="button" class="item-info-advanced-link js-item-info-advanced-sheet">
+      Advanced editor (full sheet)…
     </button>
     {{/if}}
     <button type="button" class="dialog-btn js-item-info-close">
