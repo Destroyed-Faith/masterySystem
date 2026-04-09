@@ -4,6 +4,10 @@
  */
 
 import { ArtifactBuilder } from './artifact-builder.js';
+import {
+  readActorArtifactProgress,
+  serializeActorArtifactProgress
+} from '../utils/artifact-actor-rules.js';
 
 /**
  * Initialize artifact awakening hooks
@@ -735,25 +739,13 @@ async function showArtifactDialogForActor(actor: Actor): Promise<void> {
     artifactListHtml += '<p>No artifacts assigned to this actor.</p>';
   } else {
     for (const artifact of assignedArtifacts) {
-      const actorLevels = artifact.getFlag('mastery-system', 'actorLevels') || {};
-      const level = actorLevels[(actor as any).id] || 1;
-      
-      // Find the item at this level
-      const folderId = artifact.folder?.id;
-      const levelItem = (game as any).items?.find((item: any) => 
-        item.folder?.id === folderId && 
-        item.type === 'artifact' &&
-        (item.system as any).level === level
-      );
-
+      const baseName = String(artifact.name || '').replace(/\s*-\s*Level\s*1-1\s*$/i, '').trim() || artifact.name;
       artifactListHtml += `
-        <div class="artifact-entry" data-artifact-id="${artifact.id}" data-level="${level}">
-          <h4>${artifact.name.replace(' - Level 1-1', '')} (Level ${level})</h4>
-          ${levelItem ? `
-            <button type="button" class="give-artifact" data-item-id="${levelItem.id}">
-              <i class="fas fa-gift"></i> Give to Actor
-            </button>
-          ` : '<p>Item not found for this level.</p>'}
+        <div class="artifact-entry" data-artifact-id="${artifact.id}">
+          <h4>${baseName}</h4>
+          <button type="button" class="give-artifact" data-root-artifact-id="${artifact.id}">
+            <i class="fas fa-gift"></i> Give Level 1 to Actor
+          </button>
         </div>
       `;
     }
@@ -783,24 +775,51 @@ async function showArtifactDialogForActor(actor: Actor): Promise<void> {
     const dialogElement = dialog.element;
     if (dialogElement) {
       $(dialogElement).find('.give-artifact').on('click', async (e: JQuery.ClickEvent) => {
-    const itemId = $(e.currentTarget).data('item-id');
-    const item = (game as any).items?.get(itemId);
-    if (!item) {
-      ui.notifications?.error('Item not found.');
-      return;
-    }
+        const rootId = String($(e.currentTarget).data('root-artifact-id') || '');
+        const rootItem = (game as any).items?.get(rootId);
+        if (!rootItem || rootItem.type !== 'artifact') {
+          ui.notifications?.error('Root artifact not found.');
+          return;
+        }
 
-    // Check if actor already has this item
-    const existingItem = (actor as any).items.find((i: any) => i.name === (item as any).name && i.type === 'artifact');
-    if (existingItem) {
-      ui.notifications?.warn('Actor already has this artifact.');
-      return;
-    }
+        const rootNodeId = rootItem.getFlag('mastery-system', 'nodeId') as string | undefined;
+        if (!rootNodeId) {
+          ui.notifications?.error('Root artifact has no nodeId.');
+          return;
+        }
 
-    // Create embedded item
-    const itemData = (item as any).toObject();
-    await (actor as any).createEmbeddedDocuments('Item', [itemData]);
-    ui.notifications?.info(`Gave ${(item as any).name} to ${(actor as any).name}`);
+        const existingItem = Array.from((actor as any).items).find(
+          (i: any) =>
+            i.type === 'artifact' && i.getFlag?.('mastery-system', 'evolutionRootItemId') === rootId
+        );
+        if (existingItem) {
+          ui.notifications?.warn('Actor already has this artifact (same tree).');
+          return;
+        }
+
+        const itemData = foundry.utils.duplicate((rootItem as any).toObject());
+        delete (itemData as any)._id;
+
+        const createdDocs = await (actor as any).createEmbeddedDocuments('Item', [itemData]);
+        const created = createdDocs?.[0];
+        if (!created) {
+          ui.notifications?.error('Failed to create item on actor.');
+          return;
+        }
+
+        await created.setFlag('mastery-system', 'evolutionRootItemId', rootId);
+        await created.setFlag('mastery-system', 'evolutionNodeId', rootNodeId);
+
+        const levels = { ...((rootItem as any).getFlag('mastery-system', 'actorLevels') || {}) };
+        const prev = readActorArtifactProgress(levels[(actor as any).id], rootNodeId);
+        levels[(actor as any).id] = serializeActorArtifactProgress({
+          nodeId: rootNodeId,
+          linked: prev.linked,
+          ultimateUnlocked: prev.ultimateUnlocked
+        });
+        await rootItem.setFlag('mastery-system', 'actorLevels', levels);
+
+        ui.notifications?.info(`Gave ${rootItem.name} to ${(actor as any).name}`);
       });
     }
   }, 100);

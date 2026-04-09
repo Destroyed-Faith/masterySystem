@@ -1143,3 +1143,160 @@
   min-height: 100px;
 }
 
+/* Artifact evolution dialog (actor) */
+.artifact-evolution-dialog .window-content {
+  padding: 0;
+}
+
+.artifact-evolution-dialog .ae-dialog {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.artifact-evolution-dialog .ae-intro {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--df-text-secondary, #a8b0b8);
+}
+
+.artifact-evolution-dialog .ae-card {
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 8px;
+  padding: 12px;
+  background: var(--df-bg-panel, #1e2428);
+}
+
+.artifact-evolution-dialog .ae-card-title {
+  margin: 0 0 6px 0;
+  font-size: 1.05rem;
+}
+
+.artifact-evolution-dialog .ae-card-meta,
+.artifact-evolution-dialog .ae-current {
+  margin: 0 0 8px 0;
+  font-size: 0.88rem;
+}
+
+.artifact-evolution-dialog .ae-warn {
+  color: #c9a227;
+}
+
+.artifact-evolution-dialog .ae-muted {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--df-text-secondary, #8a9399);
+}
+
+.artifact-evolution-dialog .ae-path-list {
+  list-style: none;
+  margin: 8px 0 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.artifact-evolution-dialog .ae-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  background: var(--df-bg-body, #14181b);
+  color: var(--df-text-primary, #e8eaed);
+  cursor: pointer;
+  font-size: 0.88rem;
+}
+
+.artifact-evolution-dialog .ae-btn:hover:not(:disabled) {
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
+}
+
+.artifact-evolution-dialog .ae-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.artifact-evolution-dialog .ae-btn-primary {
+  border-color: #4a7ab8;
+}
+
+.artifact-evolution-dialog .ae-btn-path {
+  text-align: left;
+  width: 100%;
+}
+
+.artifact-evolution-dialog .ae-btn-ultimate {
+  border-color: #8b5cf6;
+}
+
+.artifact-evolution-dialog .ae-path-reason {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--df-text-secondary, #8a9399);
+  margin-top: 4px;
+}
+
+.artifact-evolution-dialog .ae-footer {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--df-border-primary, #3a3f44);
+}
+
+.artifact-evolution-dialog .ae-empty {
+  margin: 0;
+  color: var(--df-text-secondary, #a0a0a0);
+}
+
+.artifact-evolution-dialog .ae-success {
+  margin: 8px 0 0 0;
+  color: #6bc46e;
+  font-size: 0.88rem;
+}
+
+/* Builder: actor allocation row */
+.artifact-builder .artifact-assignments-hint {
+  margin: 0 0 8px 0;
+  font-size: 0.82rem;
+  color: var(--df-text-secondary, #a0a0a0);
+  line-height: 1.4;
+}
+
+.artifact-builder .assignment-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.artifact-builder .assignment-actor-name {
+  font-weight: 600;
+  min-width: 8rem;
+}
+
+.artifact-builder .assignment-linked-badge {
+  font-size: 0.8rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--df-bg-body, #14181b);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  color: var(--df-text-secondary, #b8c0c6);
+}
+
+.artifact-builder .remove-actor-assignment {
+  padding: 4px 10px;
+  font-size: 0.85rem;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  background: var(--df-bg-header, #1b2124);
+  color: var(--df-text-primary, #d0d0d0);
+}
+
+.artifact-builder .remove-actor-assignment:hover {
+  border-color: #c44;
+  color: #f88;
+}
+

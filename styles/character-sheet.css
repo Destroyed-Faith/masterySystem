@@ -759,7 +759,8 @@
   max-width: 100%;
 }
 
-.mastery-system .sheet-body .attribute-xp-confirm-row .stone-powers-btn-header {
+.mastery-system .sheet-body .attribute-xp-confirm-row .stone-powers-btn-header,
+.mastery-system .sheet-body .attribute-xp-confirm-row .artifact-evolution-btn {
   flex: 0 0 auto;
   width: auto;
 }

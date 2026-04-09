@@ -162,12 +162,24 @@
               <button type="button" class="stone-powers-btn stone-powers-btn-header" data-action="openStonePowers" title="Stone powers">
                 <i class="fas fa-gem"></i> Stone powers
               </button>
+              {{#if hasArtifactEvolution}}
+              <button type="button" class="artifact-evolution-btn stone-powers-btn-header" data-action="openArtifactEvolution" title="Artifact evolution — link and upgrade along the tree">
+                <i class="fas fa-project-diagram"></i> Artifact evolution
+              </button>
+              {{/if}}
             </div>
           </div>
           {{else}}
+          <div class="attribute-xp-confirm-row">
           <button type="button" class="stone-powers-btn stone-powers-btn-header" data-action="openStonePowers" title="Stone powers">
             <i class="fas fa-gem"></i> Stone powers
           </button>
+          {{#if hasArtifactEvolution}}
+          <button type="button" class="artifact-evolution-btn stone-powers-btn-header" data-action="openArtifactEvolution" title="Artifact evolution — link and upgrade along the tree">
+            <i class="fas fa-project-diagram"></i> Artifact evolution
+          </button>
+          {{/if}}
+          </div>
           {{/if}}
         </div>
         

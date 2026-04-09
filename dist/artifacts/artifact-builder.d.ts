@@ -33,10 +33,9 @@ export declare class ArtifactBuilder extends BaseApplication {
      * Edit a node
      */
     editNode(nodeId: string): Promise<void>;
-    /**
-     * Assign artifact level to an actor
-     */
-    assignActorLevel(actorId: string, level: number): Promise<void>;
+    /** Register actor for this artifact tree (starts at root node when item is given). */
+    assignActorToTree(actorId: string): Promise<void>;
+    removeActorFromArtifact(actorId: string): Promise<void>;
     /**
      * Sync inherited bonuses/abilities from parent to children recursively
      * This implements the artifact kind element inheritance system

@@ -618,6 +618,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Build Equipment UI Context
     context.equipmentUi = this.#prepareEquipmentUi(context.items);
 
+    context.hasArtifactEvolution = Array.from(this.actor.items).some(
+      (i: any) => i.type === 'artifact' && i.getFlag?.('mastery-system', 'evolutionRootItemId')
+    );
+
     context.radialManeuverPrefsPanel = buildRadialManeuverPrefsContext(context.system);
     context.radialManeuverPrefsDetailsOpen = this._radialManeuverPrefsDetailsOpen === true;
 
@@ -1392,6 +1396,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       
       const { StonePowersDialog } = await import('../stones/stone-powers-dialog.js');
       await StonePowersDialog.showForActor(this.actor, combatant);
+    });
+
+    html.find('[data-action="openArtifactEvolution"]').on('click', async (ev: JQuery.ClickEvent) => {
+      ev.preventDefault();
+      if (!this.actor.isOwner) return;
+      const { openArtifactEvolutionDialog } = await import('../artifacts/artifact-evolution-dialog.js');
+      await openArtifactEvolutionDialog(this.actor);
     });
     
     // Schticks selection (per rank)

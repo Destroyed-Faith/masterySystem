@@ -5,6 +5,7 @@
 import { NodeEditor } from './node-editor.js';
 import { normalizePowersForEditor } from '../utils/embedded-power-ui-constants.js';
 import { syncArtifactInheritedFromParent } from '../utils/artifact-folder-sync.js';
+import { readActorArtifactProgress, serializeActorArtifactProgress } from '../utils/artifact-actor-rules.js';
 // Use V1 Application for reliable template rendering in v13
 const BaseApplication = foundry?.appv1?.Application || Application;
 export class ArtifactBuilder extends BaseApplication {
@@ -57,21 +58,23 @@ export class ArtifactBuilder extends BaseApplication {
             });
             itemMap.set(item.id, item);
         }
-        // Build actor assignments list
+        // Build actor assignments list (flag stores { nodeId, linked, ultimateUnlocked? } or legacy number)
         const actorLevels = this.rootItem.getFlag('mastery-system', 'actorLevels') || {};
+        const rootNodeId = this.rootItem.getFlag('mastery-system', 'nodeId');
         const assignments = [];
-        for (const [actorId, level] of Object.entries(actorLevels)) {
+        for (const [actorId] of Object.entries(actorLevels)) {
             const actor = game.actors?.get(actorId);
             if (actor) {
+                const prog = readActorArtifactProgress(actorLevels[actorId], rootNodeId);
                 assignments.push({
                     actorId,
                     actorName: actor.name,
-                    level
+                    linkedLabel: prog.linked ? 'Linked' : 'Not linked'
                 });
             }
         }
-        // Get available actors
-        const availableActors = (game.actors?.contents || []).filter((a) => a.type === 'character');
+        const assignedIds = new Set(Object.keys(actorLevels));
+        const availableActors = (game.actors?.contents || []).filter((a) => a.type === 'character' && !assignedIds.has(a.id));
         const artifactName = this.getBaseArtifactName(this.rootItem.name);
         data.rootItem = this.rootItem;
         data.nodes = Array.from(this.nodes.values());
@@ -125,20 +128,18 @@ export class ArtifactBuilder extends BaseApplication {
             const nodeId = $(e.currentTarget).data('node-id');
             await this.editNode(nodeId);
         });
-        // Actor assignment controls
-        html.find('.assign-actor-level').on('change', async (e) => {
-            const actorId = $(e.currentTarget).data('actor-id');
-            const level = parseInt($(e.currentTarget).val(), 10);
-            await this.assignActorLevel(actorId, level);
+        html.find('.remove-actor-assignment').on('click', async (e) => {
+            const actorId = String($(e.currentTarget).data('actor-id') || '');
+            await this.removeActorFromArtifact(actorId);
         });
-        // Add actor assignment
+        // Add actor assignment (eligible for Level 1 handout; evolution state lives on root flags)
         html.find('.add-actor-assignment').on('click', async () => {
             const actorId = html.find('#actor-select').val();
             if (!actorId) {
                 ui.notifications?.warn('Please select an actor.');
                 return;
             }
-            await this.assignActorLevel(actorId, 1);
+            await this.assignActorToTree(actorId);
         });
     }
     /**
@@ -449,17 +450,26 @@ export class ArtifactBuilder extends BaseApplication {
         });
         editor.render(true);
     }
-    /**
-     * Assign artifact level to an actor
-     */
-    async assignActorLevel(actorId, level) {
-        const actorLevels = this.rootItem.getFlag('mastery-system', 'actorLevels') || {};
-        if (level > 0) {
-            actorLevels[actorId] = level;
+    /** Register actor for this artifact tree (starts at root node when item is given). */
+    async assignActorToTree(actorId) {
+        const rootNodeId = this.rootItem.getFlag('mastery-system', 'nodeId');
+        if (!rootNodeId) {
+            ui.notifications?.error('Root artifact has no nodeId.');
+            return;
         }
-        else {
-            delete actorLevels[actorId];
-        }
+        const actorLevels = { ...(this.rootItem.getFlag('mastery-system', 'actorLevels') || {}) };
+        const prev = readActorArtifactProgress(actorLevels[actorId], rootNodeId);
+        actorLevels[actorId] = serializeActorArtifactProgress({
+            nodeId: rootNodeId,
+            linked: prev.linked,
+            ultimateUnlocked: prev.ultimateUnlocked
+        });
+        await this.rootItem.setFlag('mastery-system', 'actorLevels', actorLevels);
+        await this.render();
+    }
+    async removeActorFromArtifact(actorId) {
+        const actorLevels = { ...(this.rootItem.getFlag('mastery-system', 'actorLevels') || {}) };
+        delete actorLevels[actorId];
         await this.rootItem.setFlag('mastery-system', 'actorLevels', actorLevels);
         await this.render();
     }

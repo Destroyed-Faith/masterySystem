@@ -23,11 +23,13 @@
 
   <div class="artifact-assignments">
     <h3>Actor Allocation</h3>
+    <p class="artifact-assignments-hint">Assigned actors may receive the Level 1 item; linking and upgrades happen on the character sheet (Artifact evolution).</p>
     <div class="assignments-list">
       {{#each actorLevels}}
       <div class="assignment-item">
-        <label>{{actorName}}</label>
-        <input type="number" class="assign-actor-level" data-actor-id="{{actorId}}" value="{{level}}" min="0"/>
+        <span class="assignment-actor-name">{{actorName}}</span>
+        <span class="assignment-linked-badge">{{linkedLabel}}</span>
+        <button type="button" class="remove-actor-assignment" data-actor-id="{{actorId}}" title="Remove assignment">Remove</button>
       </div>
       {{/each}}
     </div>
