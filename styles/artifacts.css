@@ -87,40 +87,43 @@
 
 .artifact-name-row {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  align-items: stretch;
+  gap: 10px;
+  width: 100%;
 }
 
 .artifact-name-input {
-  flex: 1;
-  padding: 6px 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 40px;
+  padding: 10px 12px;
+  font-size: 1.05rem;
   background: var(--df-bg-header, #1b2124);
   border: 1px solid var(--df-border-primary, #3a3f44);
   color: var(--df-text-primary, #d0d0d0);
-  border-radius: 4px;
+  border-radius: 6px;
 }
 
-.artifact-damage-row {
-  display: flex;
+.artifact-name-row .save-artifact-name {
+  flex: 0 0 auto;
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  padding: 0;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-}
-
-.artifact-damage-row label {
-  color: var(--df-text-secondary, #a0a0a0);
-}
-
-.artifact-damage-select,
-.artifact-damage-custom {
-  padding: 6px 8px;
-  background: var(--df-bg-header, #1b2124);
+  justify-content: center;
+  background: var(--df-bg-panel, #2a3136);
   border: 1px solid var(--df-border-primary, #3a3f44);
-  color: var(--df-text-primary, #d0d0d0);
-  border-radius: 4px;
+  color: var(--df-accent, #c9a227);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
 }
 
-.artifact-damage-custom.hidden {
-  display: none;
+.artifact-name-row .save-artifact-name:hover {
+  background: var(--df-bg-header, #1b2124);
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
 }
 
 .artifact-tree {
@@ -216,23 +219,38 @@
   gap: 8px;
 }
 
-.artifact-assignments .add-assignment select {
-  flex: 1;
-  padding: 6px;
-  background: var(--df-bg-header, #1b2124);
+.artifact-assignments .add-assignment select,
+.artifact-assignments .add-assignment #actor-select {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 38px;
+  padding: 8px 10px;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  background: var(--df-bg-header, #1b2124) !important;
   border: 1px solid var(--df-border-primary, #3a3f44);
-  color: var(--df-text-primary, #d0d0d0);
-  border-radius: 4px;
+  color: var(--df-text-primary, #e8eaed) !important;
+  border-radius: 6px;
+  color-scheme: dark;
+}
+
+.artifact-assignments .add-assignment select option,
+.artifact-assignments .add-assignment #actor-select option {
+  background: var(--df-bg-header, #1b2124);
+  color: var(--df-text-primary, #e8eaed);
+  padding: 6px;
 }
 
 .artifact-assignments .add-assignment button {
-  padding: 6px 12px;
+  flex: 0 0 auto;
+  padding: 8px 14px;
   background: var(--df-bg-panel, #2a3136);
   border: 1px solid var(--df-border-primary, #3a3f44);
   color: var(--df-text-primary, #d0d0d0);
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .artifact-assignments .add-assignment button:hover {
@@ -241,35 +259,160 @@
 }
 
 /* Node Editor Dialog */
+.app.window-app.mastery-system.node-editor .window-content {
+  padding: 12px 14px;
+  background: var(--df-bg-primary, #20272b);
+}
+
 .node-editor-form {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 0;
+}
+
+.node-editor-form .node-editor-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 16px;
+  align-items: start;
+}
+
+.node-editor-form .node-editor-span2 {
+  grid-column: 1 / -1;
 }
 
 .node-editor-form .form-group {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
+  margin: 0;
 }
 
 .node-editor-form label {
-  font-weight: bold;
-  color: var(--df-text-primary, #d0d0d0);
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ms-muted, #aeb5c0);
+}
+
+.node-editor-form .node-editor-hint {
+  margin: 4px 0 0;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: var(--df-text-secondary, #a0a0a0);
+  font-weight: normal;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.node-editor-form .node-editor-hint-inline {
+  font-weight: normal;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--df-text-secondary, #a0a0a0);
+  font-size: 0.75rem;
 }
 
 .node-editor-form input,
+.node-editor-form select,
 .node-editor-form textarea {
-  padding: 6px;
+  padding: 8px 10px;
   background: var(--df-bg-header, #1b2124);
   border: 1px solid var(--df-border-primary, #3a3f44);
-  color: var(--df-text-primary, #d0d0d0);
-  border-radius: 4px;
+  color: var(--df-text-primary, #e8eaed);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color-scheme: dark;
 }
 
-.node-editor-form textarea {
-  resize: vertical;
-  min-height: 80px;
+.node-editor-form select option {
+  background: var(--df-bg-header, #1b2124);
+  color: var(--df-text-primary, #e8eaed);
+}
+
+.node-editor-form input:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+}
+
+.node-editor-form .node-profile-block {
+  padding: 12px;
+  background: var(--df-bg-panel, #2a3136);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 8px;
+}
+
+.node-editor-form .node-profile-block.hidden,
+.node-editor-form [data-profile].hidden {
+  display: none !important;
+}
+
+.node-editor-form .node-profile-title {
+  margin: 0 0 10px 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--df-text-primary, #d0d0d0);
+  border-bottom: 1px solid var(--df-border-primary, #3a3f44);
+  padding-bottom: 6px;
+}
+
+.node-editor-form .node-multi-select {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.node-editor-form .node-select-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.node-editor-form .node-select-row select {
+  flex: 1;
+  min-width: 0;
+}
+
+.node-editor-form .node-row-remove {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  line-height: 1;
+  background: var(--df-bg-header, #1b2124);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  color: var(--df-text-secondary, #a0a0a0);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1.1rem;
+}
+
+.node-editor-form .node-row-remove:hover {
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
+  color: var(--df-text-primary, #d0d0d0);
+}
+
+.node-editor-form .node-add-row {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  background: var(--df-bg-header, #1b2124);
+  border: 1px dashed var(--df-border-primary, #3a3f44);
+  color: var(--df-text-primary, #d0d0d0);
+  border-radius: 6px;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.node-editor-form .node-add-row:hover {
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.25));
+}
+
+.node-editor-form .node-weapon-damage-custom-wrap.hidden {
+  display: none !important;
 }
 
 /* Artifact Sheet */

@@ -1,48 +1,158 @@
 <form class="node-editor-form">
-  <div class="form-group">
-    <label>Level</label>
-    <input type="number" id="node-level" value="{{level}}" disabled/>
-  </div>
+  <div class="node-editor-grid">
+    <div class="form-group node-editor-span2">
+      <label>Level</label>
+      <input type="number" id="node-level" value="{{level}}" disabled />
+    </div>
 
-  <div class="form-group">
-    <label>Attack Bonus</label>
-    <input type="number" id="node-attack" value="{{bonuses.attack}}"/>
-  </div>
+    <div class="form-group node-editor-span2">
+      <label>Item type</label>
+      <select id="node-artifact-kind">
+        <option value="weapon" {{#if (eq artifactKind "weapon")}}selected{{/if}}>Weapon</option>
+        <option value="armor" {{#if (eq artifactKind "armor")}}selected{{/if}}>Armor</option>
+        <option value="shield" {{#if (eq artifactKind "shield")}}selected{{/if}}>Shield</option>
+        <option value="gear" {{#if (eq artifactKind "gear")}}selected{{/if}}>Gear (accessory)</option>
+      </select>
+      <p class="node-editor-hint">Weapon / armor / shield use standard equip slots. Gear picks a ring, belt, cloak, etc.</p>
+    </div>
 
-  <div class="form-group">
-    <label>Defense Bonus</label>
-    <input type="number" id="node-defense" value="{{bonuses.defense}}"/>
-  </div>
+    <div class="form-group node-editor-span2 {{#unless (eq artifactKind "gear")}}hidden{{/unless}}" data-profile="gear">
+      <label>Gear slot</label>
+      <select id="node-gear-slot">
+        <option value="">— Select slot —</option>
+        {{#each gearSlotOptions}}
+        <option value="{{this.value}}" {{#if (eq ../gearSlot this.value)}}selected{{/if}}>{{this.label}}</option>
+        {{/each}}
+      </select>
+    </div>
 
-  <div class="form-group">
-    <label>Damage</label>
-    <input type="text" id="node-damage" value="{{bonuses.damage}}" placeholder="e.g., +1d6"/>
-  </div>
+    <div class="node-profile-block node-editor-span2 {{#unless (eq artifactKind "weapon")}}hidden{{/unless}}" data-profile="weapon">
+      <h4 class="node-profile-title">Weapon</h4>
+      <div class="node-editor-grid">
+        <div class="form-group">
+          <label>Type</label>
+          <select id="node-weapon-type">
+            <option value="melee" {{#if (eq weaponProfile.weaponType "melee")}}selected{{/if}}>Melee</option>
+            <option value="ranged" {{#if (eq weaponProfile.weaponType "ranged")}}selected{{/if}}>Ranged</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Hands</label>
+          <input type="number" id="node-weapon-hands" value="{{weaponProfile.hands}}" min="1" max="2" step="1" />
+        </div>
+        <div class="form-group">
+          <label>Damage</label>
+          <select id="node-weapon-damage-preset">
+            {{#each damagePresetOptions}}
+            <option value="{{this.value}}" {{#if (eq this.value ../weaponDamagePreset)}}selected{{/if}}>{{this.label}}</option>
+            {{/each}}
+            <option value="__custom__" {{#if weaponDamageIsCustom}}selected{{/if}}>Custom…</option>
+          </select>
+        </div>
+        <div class="form-group node-weapon-damage-custom-wrap {{#unless weaponDamageIsCustom}}hidden{{/unless}}">
+          <label>Custom damage</label>
+          <input type="text" id="node-weapon-damage-custom" value="{{weaponProfile.damage}}" placeholder="e.g. 2d8+1" />
+        </div>
+        <div class="form-group node-editor-span2">
+          <label>Range</label>
+          <input type="text" id="node-weapon-range" value="{{weaponProfile.range}}" placeholder="0m or 8/16/32m" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Innate abilities</label>
+        <div id="node-weapon-innates" class="node-multi-select">
+          {{#each weaponInnateRows as |row|}}
+          <div class="node-select-row">
+            <select class="node-weapon-innate">
+              <option value="">—</option>
+              {{#each ../innateOptions as |opt|}}
+              <option value="{{opt}}" {{#if (eq row opt)}}selected{{/if}}>{{opt}}</option>
+              {{/each}}
+            </select>
+            <button type="button" class="node-row-remove" title="Remove row">×</button>
+          </div>
+          {{/each}}
+        </div>
+        <button type="button" class="node-add-row" data-target="innates">+ Add innate</button>
+      </div>
+      <div class="form-group">
+        <label>Specials</label>
+        <div id="node-weapon-specials" class="node-multi-select">
+          {{#each weaponSpecialRows as |row|}}
+          <div class="node-select-row">
+            <select class="node-weapon-special">
+              <option value="">—</option>
+              {{#each ../specialOptions as |opt|}}
+              <option value="{{opt}}" {{#if (eq row opt)}}selected{{/if}}>{{opt}}</option>
+              {{/each}}
+            </select>
+            <button type="button" class="node-row-remove" title="Remove row">×</button>
+          </div>
+          {{/each}}
+        </div>
+        <button type="button" class="node-add-row" data-target="specials">+ Add special</button>
+      </div>
+    </div>
 
-  <div class="form-group">
-    <label>Specials (one per line)</label>
-    <textarea id="node-specials" rows="5">{{#each bonuses.specials}}{{this}}{{#unless @last}}
-{{/unless}}{{/each}}</textarea>
-  </div>
+    <div class="node-profile-block node-editor-span2 {{#unless (eq artifactKind "armor")}}hidden{{/unless}}" data-profile="armor">
+      <h4 class="node-profile-title">Armor</h4>
+      <div class="node-editor-grid">
+        <div class="form-group">
+          <label>Armor type</label>
+          <select id="node-armor-type">
+            <option value="light" {{#if (eq armorProfile.type "light")}}selected{{/if}}>Light</option>
+            <option value="medium" {{#if (eq armorProfile.type "medium")}}selected{{/if}}>Medium</option>
+            <option value="heavy" {{#if (eq armorProfile.type "heavy")}}selected{{/if}}>Heavy</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Armor value</label>
+          <input type="number" id="node-armor-value" value="{{armorProfile.armorValue}}" min="0" step="1" />
+        </div>
+        <div class="form-group">
+          <label>Evade modifier</label>
+          <input type="number" id="node-armor-evade" value="{{armorProfile.evadeModifier}}" step="1" />
+        </div>
+        <div class="form-group node-editor-span2">
+          <label>Skill penalty <span class="node-editor-hint-inline">(empty = type default)</span></label>
+          <input type="text" id="node-armor-skill-penalty" value="{{armorProfile.skillPenalty}}" placeholder="e.g. −1d8 to Physical Skill checks" />
+        </div>
+      </div>
+    </div>
 
-  <div class="form-group">
-    <label>Lore</label>
-    <textarea id="node-lore" rows="5">{{lore}}</textarea>
-  </div>
+    <div class="node-profile-block node-editor-span2 {{#unless (eq artifactKind "shield")}}hidden{{/unless}}" data-profile="shield">
+      <h4 class="node-profile-title">Shield</h4>
+      <div class="node-editor-grid">
+        <div class="form-group">
+          <label>Shield type</label>
+          <select id="node-shield-type">
+            <option value="parry" {{#if (eq shieldProfile.type "parry")}}selected{{/if}}>Parry</option>
+            <option value="medium" {{#if (eq shieldProfile.type "medium")}}selected{{/if}}>Medium</option>
+            <option value="tower" {{#if (eq shieldProfile.type "tower")}}selected{{/if}}>Tower</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Shield value</label>
+          <input type="number" id="node-shield-value" value="{{shieldProfile.shieldValue}}" min="0" step="1" />
+        </div>
+        <div class="form-group">
+          <label>Evade bonus</label>
+          <input type="number" id="node-shield-evade" value="{{shieldProfile.evadeBonus}}" step="1" />
+        </div>
+        <div class="form-group node-editor-span2">
+          <label>Skill penalty</label>
+          <input type="text" id="node-shield-skill-penalty" value="{{shieldProfile.skillPenalty}}" placeholder="Optional override" />
+        </div>
+      </div>
+    </div>
 
-  <div class="form-group">
-    <label>Description</label>
-    <textarea id="node-description" rows="5">{{description}}</textarea>
-  </div>
-
-  <div class="form-group">
-    <label>Stones Required</label>
-    <input type="number" id="node-stones" value="{{requirements.stones}}" min="0"/>
-  </div>
-
-  <div class="form-group">
-    <label>Mastery Rank Required</label>
-    <input type="number" id="node-mastery-rank" value="{{requirements.masteryRank}}" min="1"/>
+    <div class="form-group">
+      <label>Stones required</label>
+      <input type="number" id="node-stones" value="{{requirements.stones}}" min="0" />
+    </div>
+    <div class="form-group">
+      <label>Mastery rank required</label>
+      <input type="number" id="node-mastery-rank" value="{{requirements.masteryRank}}" min="1" />
+    </div>
   </div>
 </form>
-

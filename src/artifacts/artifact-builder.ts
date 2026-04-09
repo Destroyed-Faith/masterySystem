@@ -94,21 +94,7 @@ export class ArtifactBuilder extends BaseApplication {
     // Get available actors
     const availableActors = ((game as any).actors?.contents || []).filter((a: any) => a.type === 'character');
 
-    const rootSystem = (this.rootItem.system as any) || {};
-    const rootBonuses = rootSystem.bonuses || { damage: '' };
     const artifactName = this.getBaseArtifactName((this.rootItem as any).name);
-    const artifactDamage = rootBonuses.damage || '';
-
-    const damageOptions = [
-      { value: '', label: 'None' },
-      { value: '1d4', label: '1d4' },
-      { value: '1d6', label: '1d6' },
-      { value: '1d8', label: '1d8' },
-      { value: '1d10', label: '1d10' },
-      { value: '1d12', label: '1d12' },
-      { value: '2d6', label: '2d6' }
-    ];
-    const damageIsCustom = artifactDamage !== '' && !damageOptions.some((opt) => opt.value === artifactDamage);
 
     data.rootItem = this.rootItem;
     data.nodes = Array.from(this.nodes.values());
@@ -117,9 +103,6 @@ export class ArtifactBuilder extends BaseApplication {
     data.availableActors = availableActors;
     data.artifactName = artifactName;
     data.artifactImage = (this.rootItem as any).img || 'icons/svg/mystery-man.svg';
-    data.artifactDamage = artifactDamage;
-    data.damageOptions = damageOptions;
-    data.damageIsCustom = damageIsCustom;
     data.treeHTML = this.buildTreeHtml();
     
     return data;
@@ -146,21 +129,6 @@ export class ArtifactBuilder extends BaseApplication {
         return;
       }
       await this.updateArtifactName(newName);
-    });
-
-    html.find('.artifact-damage-select').on('change', async (e: JQuery.ChangeEvent) => {
-      const value = $(e.currentTarget).val() as string;
-      if (value === 'custom') {
-        html.find('.artifact-damage-custom').removeClass('hidden').focus();
-      } else {
-        html.find('.artifact-damage-custom').addClass('hidden');
-        await this.updateArtifactDamage(value);
-      }
-    });
-
-    html.find('.artifact-damage-custom').on('change', async (e: JQuery.ChangeEvent) => {
-      const value = ($(e.currentTarget).val() as string || '').trim();
-      await this.updateArtifactDamage(value);
     });
 
     // Open node editor on node click
@@ -270,6 +238,17 @@ export class ArtifactBuilder extends BaseApplication {
     const artifactName = `${rootName} - Level ${newLevel}-${parentNode.childIds.length + 1}`;
     const newNodeId = (foundry.utils as any).randomID();
 
+    const defaultWeapon = {
+      weaponType: 'melee' as const,
+      damage: '1d8',
+      range: '0m',
+      hands: 1,
+      innateAbilities: [] as string[],
+      specials: [] as string[]
+    };
+    const defaultArmor = { type: 'light', armorValue: 0, evadeModifier: 0, skillPenalty: '' };
+    const defaultShield = { type: 'parry', shieldValue: 0, evadeBonus: 0, skillPenalty: '' };
+
     const newItemData = {
       name: artifactName,
       type: 'artifact',
@@ -278,8 +257,13 @@ export class ArtifactBuilder extends BaseApplication {
         level: newLevel,
         equipped: false,
         effects: [],
-        bonuses: inheritedBonuses, // Inherited from parent
-        lore: parentSystem.lore || '', // Inherit lore
+        artifactKind: parentSystem.artifactKind || 'weapon',
+        gearSlot: parentSystem.gearSlot || '',
+        artifactWeapon: foundry.utils.duplicate(parentSystem.artifactWeapon || defaultWeapon),
+        artifactArmor: foundry.utils.duplicate(parentSystem.artifactArmor || defaultArmor),
+        artifactShield: foundry.utils.duplicate(parentSystem.artifactShield || defaultShield),
+        bonuses: inheritedBonuses,
+        lore: parentSystem.lore || '',
         requirements: {
           stones: parentRequirements.stones || 0,
           masteryRank: parentRequirements.masteryRank || 1
@@ -332,14 +316,6 @@ export class ArtifactBuilder extends BaseApplication {
       await folder.update({ name: newName });
     }
 
-    await (this as any).render();
-  }
-
-  private async updateArtifactDamage(damage: string): Promise<void> {
-    await (this.rootItem as any).update({
-      'system.bonuses.damage': damage
-    });
-    await this.syncInheritedBonusesToChildren(this.rootItem);
     await (this as any).render();
   }
 
@@ -517,7 +493,7 @@ export class ArtifactBuilder extends BaseApplication {
    * This implements the artifact kind element inheritance system
    */
   async syncInheritedBonusesToChildren(parentItem: Item): Promise<void> {
-    const parentSystem = (parentItem.system as any);
+    const parentSystem = parentItem.system as any;
     const parentBonuses = parentSystem.bonuses || {
       attack: 0,
       damage: '',
@@ -525,10 +501,20 @@ export class ArtifactBuilder extends BaseApplication {
       specials: []
     };
 
+    const defaultWeapon = {
+      weaponType: 'melee' as const,
+      damage: '1d8',
+      range: '0m',
+      hands: 1,
+      innateAbilities: [] as string[],
+      specials: [] as string[]
+    };
+    const defaultArmor = { type: 'light', armorValue: 0, evadeModifier: 0, skillPenalty: '' };
+    const defaultShield = { type: 'parry', shieldValue: 0, evadeBonus: 0, skillPenalty: '' };
+
     const parentFlags = (parentItem as any).getFlag('mastery-system', 'childIds') || [];
     if (parentFlags.length === 0) return;
 
-    // Get all child items
     const childItems: Item[] = [];
     for (const childNodeId of parentFlags) {
       const childNode = this.nodes.get(childNodeId);
@@ -540,10 +526,13 @@ export class ArtifactBuilder extends BaseApplication {
       }
     }
 
-    // Update each child with inherited bonuses
     for (const childItem of childItems) {
-      // Inherit bonuses from parent (children inherit parent's bonuses)
       const updates: any = {
+        'system.artifactKind': parentSystem.artifactKind || 'weapon',
+        'system.gearSlot': parentSystem.gearSlot || '',
+        'system.artifactWeapon': foundry.utils.duplicate(parentSystem.artifactWeapon || defaultWeapon),
+        'system.artifactArmor': foundry.utils.duplicate(parentSystem.artifactArmor || defaultArmor),
+        'system.artifactShield': foundry.utils.duplicate(parentSystem.artifactShield || defaultShield),
         'system.bonuses.attack': parentBonuses.attack || 0,
         'system.bonuses.damage': parentBonuses.damage || '',
         'system.bonuses.defense': parentBonuses.defense || 0,
@@ -552,7 +541,6 @@ export class ArtifactBuilder extends BaseApplication {
 
       await childItem.update(updates);
 
-      // Recursively sync to grandchildren
       await this.syncInheritedBonusesToChildren(childItem);
     }
   }

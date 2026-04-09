@@ -347,6 +347,28 @@
       "level": 1,
       "equipped": false,
       "effects": [],
+      "artifactKind": "weapon",
+      "gearSlot": "",
+      "artifactWeapon": {
+        "weaponType": "melee",
+        "damage": "1d8",
+        "range": "0m",
+        "hands": 1,
+        "innateAbilities": [],
+        "specials": []
+      },
+      "artifactArmor": {
+        "type": "light",
+        "armorValue": 0,
+        "evadeModifier": 0,
+        "skillPenalty": ""
+      },
+      "artifactShield": {
+        "type": "parry",
+        "shieldValue": 0,
+        "evadeBonus": 0,
+        "skillPenalty": ""
+      },
       "bonuses": {
         "attack": 0,
         "damage": "",

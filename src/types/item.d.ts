@@ -227,11 +227,38 @@ export interface SchtickData extends BaseItemData {
   notes: string;
 }
 
+export type ArtifactKind = 'weapon' | 'armor' | 'shield' | 'gear';
+
+/** Weapon-shaped stats for an artifact tree node (edited in Node Editor). */
+export interface ArtifactWeaponProfile {
+  weaponType: 'melee' | 'ranged';
+  damage: string;
+  range: string;
+  hands: number;
+  innateAbilities: string[];
+  specials: string[];
+}
+
+export interface ArtifactArmorProfile {
+  type: string;
+  armorValue: number;
+  evadeModifier: number;
+  skillPenalty: string;
+}
+
+export interface ArtifactShieldProfile {
+  type: string;
+  shieldValue: number;
+  evadeBonus: number;
+  skillPenalty: string;
+}
+
 // === Artifact Data ===
 export interface ArtifactData extends BaseItemData {
   level: number;
   equipped: boolean;
   effects: string[];
+  /** Legacy flat bonuses; kept for migration / folder sync until fully unused. */
   bonuses: {
     attack: number;
     damage: string;
@@ -244,6 +271,13 @@ export interface ArtifactData extends BaseItemData {
     masteryRank: number;
   };
   powers: (EmbeddedPowerData | NewArtifactPowerData | ArtifactPowerData)[]; // Powers embedded in the artifact (supports both old and new format)
+  /** What kind of item this node represents (drives which profile fields apply). */
+  artifactKind?: ArtifactKind;
+  /** When artifactKind is gear: paperdoll slot key (helmet, ring1, belt, …). */
+  gearSlot?: string;
+  artifactWeapon?: ArtifactWeaponProfile;
+  artifactArmor?: ArtifactArmorProfile;
+  artifactShield?: ArtifactShieldProfile;
 }
 
 // === Condition Data ===

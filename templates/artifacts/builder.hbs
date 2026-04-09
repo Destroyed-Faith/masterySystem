@@ -5,22 +5,10 @@
     </div>
     <div class="artifact-header-main">
       <div class="artifact-name-row">
-        <input type="text" class="artifact-name-input" value="{{artifactName}}" placeholder="Artifact Name">
-        <button type="button" class="save-artifact-name" title="Save Name">
-          <i class="fas fa-check-circle"></i>
+        <input type="text" class="artifact-name-input" value="{{artifactName}}" placeholder="Artifact name" aria-label="Artifact name" />
+        <button type="button" class="save-artifact-name" title="Save name">
+          <i class="fas fa-check"></i>
         </button>
-      </div>
-      <div class="artifact-damage-row">
-        <label>Damage</label>
-        <select class="artifact-damage-select">
-          {{#each damageOptions}}
-          <option value="{{this.value}}" {{#ifEquals this.value ../artifactDamage}}selected{{/ifEquals}}>
-            {{this.label}}
-          </option>
-          {{/each}}
-          <option value="custom" {{#if damageIsCustom}}selected{{/if}}>Custom</option>
-        </select>
-        <input type="text" class="artifact-damage-custom {{#unless damageIsCustom}}hidden{{/unless}}" value="{{artifactDamage}}" placeholder="e.g., 2d6+1">
       </div>
     </div>
   </div>

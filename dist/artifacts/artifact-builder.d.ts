@@ -16,7 +16,6 @@ export declare class ArtifactBuilder extends BaseApplication {
     addChildNode(parentNodeId: string): Promise<void>;
     private getBaseArtifactName;
     private updateArtifactName;
-    private updateArtifactDamage;
     private updateArtifactImage;
     private buildTreeHtml;
     private disconnectParents;
