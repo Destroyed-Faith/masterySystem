@@ -319,7 +319,7 @@ export class MasteryActor extends Actor {
             },
             {
                 label: 'Agility',
-                detail: `${agilityValue} stones`,
+                detail: `${agilityValue} / 8`,
                 value: agilityEvadeBonus,
                 display: fmtEvadeContrib(agilityEvadeBonus)
             },
