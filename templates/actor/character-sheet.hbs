@@ -526,11 +526,8 @@
         
         <div class="combat-stats-grid">
           <!-- Evade -->
-          <div class="combat-stat-card combat-stat-card--breakdown">
-            <div class="stat-icon evade-icon"><i class="fas fa-wind"></i></div>
-            <div class="stat-content">
-              <label>Evade (total)</label>
-              <div class="stat-value">{{default system.combat.evadeTotal 8}}</div>
+          <div class="combat-stat-card combat-stat-card--tooltip">
+            <div class="combat-stat-tooltip" role="tooltip">
               <p class="stat-summary-hint">Only equipped armor &amp; shield count toward Shield / Armor lines.</p>
               {{#if system.combat.evadeBreakdownRows}}
               <ul class="combat-stat-breakdown">
@@ -543,14 +540,16 @@
               </ul>
               {{/if}}
             </div>
+            <div class="stat-icon evade-icon"><i class="fas fa-wind"></i></div>
+            <div class="stat-content">
+              <label>Evade (total) <i class="fas fa-info-circle combat-stat-hint-icon" aria-hidden="true"></i></label>
+              <div class="stat-value">{{default system.combat.evadeTotal 8}}</div>
+            </div>
           </div>
           
           <!-- Armor -->
-          <div class="combat-stat-card combat-stat-card--breakdown">
-            <div class="stat-icon armor-icon"><i class="fas fa-shield-alt"></i></div>
-            <div class="stat-content">
-              <label>Armor (total soak)</label>
-              <div class="stat-value">{{default system.combat.armorTotal 0}}</div>
+          <div class="combat-stat-card combat-stat-card--tooltip">
+            <div class="combat-stat-tooltip" role="tooltip">
               <p class="stat-summary-hint">MR + values on equipped chest armor + equipped shield.</p>
               {{#if system.combat.armorBreakdownRows}}
               <ul class="combat-stat-breakdown">
@@ -563,24 +562,16 @@
               </ul>
               {{/if}}
             </div>
-          </div>
-          
-          <!-- Speed -->
-          <div class="combat-stat-card">
-            <div class="stat-icon speed-icon"><i class="fas fa-running"></i></div>
+            <div class="stat-icon armor-icon"><i class="fas fa-shield-alt"></i></div>
             <div class="stat-content">
-              <label>Speed</label>
-              <div class="stat-value">{{default system.combat.speed 6}}m</div>
-              <div class="stat-formula">Base movement</div>
+              <label>Armor (total soak) <i class="fas fa-info-circle combat-stat-hint-icon" aria-hidden="true"></i></label>
+              <div class="stat-value">{{default system.combat.armorTotal 0}}</div>
             </div>
           </div>
           
           <!-- Initiative -->
-          <div class="combat-stat-card combat-stat-card--breakdown">
-            <div class="stat-icon initiative-icon"><i class="fas fa-bolt"></i></div>
-            <div class="stat-content">
-              <label>Initiative (basis)</label>
-              <div class="stat-value">{{default system.combat.initiativeMasteryRank 2}}d8</div>
+          <div class="combat-stat-card combat-stat-card--tooltip">
+            <div class="combat-stat-tooltip" role="tooltip">
               <p class="stat-summary-hint">Roll: sum of exploding d8s + optional Combat Reflexes + equipment modifier below.</p>
               {{#if system.combat.initiativeEquipmentRows}}
               <ul class="combat-stat-breakdown">
@@ -601,6 +592,11 @@
               <p class="stat-footnote-wits">Wits scaling: +{{default system.scaling.witsInitiativeBonus 0}} (reference only — not added by the system roll yet)</p>
               {{/if}}
               {{/if}}
+            </div>
+            <div class="stat-icon initiative-icon"><i class="fas fa-bolt"></i></div>
+            <div class="stat-content">
+              <label>Initiative (basis) <i class="fas fa-info-circle combat-stat-hint-icon" aria-hidden="true"></i></label>
+              <div class="stat-value">{{default system.combat.initiativeMasteryRank 2}}d8</div>
             </div>
           </div>
         </div>

@@ -3521,6 +3521,11 @@
   font-size: 18px;
 }
 
+.mastery-system.sheet.actor.character .combat-stats-section,
+.mastery-system.sheet.actor.character .combat-stats-grid {
+  overflow: visible;
+}
+
 .mastery-system.sheet.actor.character .combat-stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -3538,6 +3543,10 @@
   border-radius: 8px;
   box-shadow: 0 2px 8px var(--df-shadow, rgba(0, 0, 0, 0.5));
   transition: all 0.3s ease;
+}
+
+.mastery-system.sheet.actor.character .combat-stat-card--tooltip {
+  position: relative;
 }
 
 .mastery-system.sheet.actor.character .combat-stat-card:hover {
@@ -3592,19 +3601,60 @@
   font-family: 'Cormorant Garamond', serif;
 }
 
-.mastery-system.sheet.actor.character .combat-stat-card--breakdown {
-  align-items: flex-start;
+.mastery-system.sheet.actor.character .combat-stat-hint-icon {
+  font-size: 0.65em;
+  margin-left: 4px;
+  opacity: 0.45;
+  vertical-align: middle;
+  color: var(--df-text-secondary, #a0a0a0);
 }
 
-.mastery-system.sheet.actor.character .stat-summary-hint {
-  margin: 0 0 6px 0;
+.mastery-system.sheet.actor.character .combat-stat-tooltip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  transform: translateX(-50%);
+  z-index: 60;
+  min-width: 220px;
+  max-width: min(340px, calc(100vw - 24px));
+  padding: 10px 12px;
+  background: var(--df-bg-header, #1b2124);
+  border: 1px solid var(--df-border-highlight, rgba(255, 255, 255, 0.2));
+  border-radius: 8px;
+  box-shadow: 0 8px 24px var(--df-shadow, rgba(0, 0, 0, 0.65));
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 0.18s ease,
+    visibility 0.18s ease;
+}
+
+.mastery-system.sheet.actor.character .combat-stat-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -7px;
+  border: 7px solid transparent;
+  border-top-color: var(--df-bg-header, #1b2124);
+  filter: drop-shadow(0 2px 1px var(--df-shadow, rgba(0, 0, 0, 0.4)));
+}
+
+.mastery-system.sheet.actor.character .combat-stat-card--tooltip:hover .combat-stat-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.mastery-system.sheet.actor.character .combat-stat-tooltip .stat-summary-hint {
+  margin: 0 0 8px 0;
   font-size: 11px;
   line-height: 1.35;
   color: var(--df-text-secondary, #a0a0a0);
   font-family: 'Cormorant Garamond', serif;
 }
 
-.mastery-system.sheet.actor.character .stat-footnote-wits {
+.mastery-system.sheet.actor.character .combat-stat-tooltip .stat-footnote-wits {
   margin: 8px 0 0;
   font-size: 10px;
   line-height: 1.35;
