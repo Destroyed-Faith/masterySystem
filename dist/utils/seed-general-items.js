@@ -216,6 +216,8 @@ export async function seedGeneralItemsStorage() {
                 description: armor.description || '',
                 inventorySize: ARMOR_SIZES[armor.type] || '2x4',
                 armorValue: armor.armorValue,
+                evadeModifier: armor.evadeModifier,
+                skillPenalty: armor.skillPenalty === '—' ? '' : armor.skillPenalty,
                 type: armor.type,
                 equipped: false,
                 equipSlots: ['chest']

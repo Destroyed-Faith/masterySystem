@@ -274,7 +274,8 @@ export interface ArmorData extends BaseItemData {
   type: string;
   armorValue: number;
   evadeModifier: number;
-  skillPenalty?: number;
+  /** Free text (e.g. −1d8…). Empty uses skill penalty from armor type table. */
+  skillPenalty?: string;
   equipped: boolean;
   equipSlots?: string[];
 }
@@ -284,7 +285,7 @@ export interface ShieldData extends BaseItemData {
   type: string;
   shieldValue: number;
   evadeBonus?: number;
-  skillPenalty?: number;
+  skillPenalty?: string;
   equipped: boolean;
   equipSlots?: string[];
 }

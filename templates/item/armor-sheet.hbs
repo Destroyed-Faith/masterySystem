@@ -35,7 +35,11 @@
         <label>Evade modifier</label>
         <input type="number" name="system.evadeModifier" value="{{system.evadeModifier}}" data-dtype="Number" step="1" />
       </div>
-      <p class="notes">Initiative and skill penalties follow armor type in rules; keep these values aligned with the type table.</p>
+      <div class="form-group">
+        <label>Skill penalty <span class="hint">(plain text; empty = use type default)</span></label>
+        <input type="text" name="system.skillPenalty" value="{{system.skillPenalty}}" placeholder="e.g. −1d8 to Physical Skill checks" />
+      </div>
+      <p class="notes">Initiative follows armor type in rules unless you track it elsewhere; align values with your table.</p>
     </div>
   </section>
 </form>

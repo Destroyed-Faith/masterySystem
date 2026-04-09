@@ -83,6 +83,19 @@ function applyReachToInnates(innates, reachKey) {
         base.push('Reach (+2 m)');
     return base;
 }
+/** Item override or armor type table default for display. */
+function armorSkillPenaltyLabel(sys, def) {
+    const raw = sys.skillPenalty;
+    if (raw != null && String(raw).trim() !== '')
+        return String(raw);
+    return def?.skillPenalty || '—';
+}
+function armorSkillPenaltyEditValue(sys, def) {
+    const raw = sys.skillPenalty;
+    if (raw != null && String(raw).trim() !== '')
+        return String(raw);
+    return def?.skillPenalty ?? '';
+}
 export class ItemInfoDialog extends BaseDialog {
     _item;
     /** Preserve <details open> across re-renders after Save. */
@@ -227,7 +240,7 @@ export class ItemInfoDialog extends BaseDialog {
                 armorValue: fmtMod(sys.armorValue, '0'),
                 evade: fmtMod(sys.evadeModifier, '0'),
                 initiative: def ? fmtMod(def.initiativeModifier) : '—',
-                skillPenalty: def?.skillPenalty || '—',
+                skillPenalty: armorSkillPenaltyLabel(sys, def),
                 canonicalArmor: def ? String(def.armorValue) : null,
                 canonicalEvade: def ? fmtMod(def.evadeModifier, '0') : null,
                 ruleHint: 'Armor Value + Shield value + Mastery Rank = total armor subtracted from incoming damage (subject to rule exceptions).'
@@ -241,7 +254,8 @@ export class ItemInfoDialog extends BaseDialog {
                         selected: v === curType
                     })),
                     armorValue: sys.armorValue ?? 0,
-                    evadeModifier: sys.evadeModifier ?? 0
+                    evadeModifier: sys.evadeModifier ?? 0,
+                    skillPenaltyPlain: armorSkillPenaltyEditValue(sys, def)
                 };
                 base.showQuickEdit = true;
             }
@@ -384,12 +398,14 @@ export class ItemInfoDialog extends BaseDialog {
                 const armorType = root.querySelector('.js-item-info-armor-type');
                 const av = root.querySelector('.js-item-info-armor-value');
                 const ae = root.querySelector('.js-item-info-armor-evade');
-                if (!armorType || !av || !ae)
+                const asp = root.querySelector('.js-item-info-armor-skill-penalty');
+                if (!armorType || !av || !ae || !asp)
                     return;
                 await item.update({
                     'system.type': armorType.value,
                     'system.armorValue': parseInt(av.value, 10) || 0,
-                    'system.evadeModifier': parseInt(ae.value, 10) || 0
+                    'system.evadeModifier': parseInt(ae.value, 10) || 0,
+                    'system.skillPenalty': asp.value.trim()
                 });
             }
             else if (t === 'shield') {
@@ -480,9 +496,13 @@ export class ItemInfoDialog extends BaseDialog {
                 const def = getArmorDefinitionForType(armorType.value);
                 const av = root.querySelector('.js-item-info-armor-value');
                 const ae = root.querySelector('.js-item-info-armor-evade');
+                const asp = root.querySelector('.js-item-info-armor-skill-penalty');
                 if (def && av && ae) {
                     av.value = String(def.armorValue);
                     ae.value = String(def.evadeModifier);
+                }
+                if (def && asp) {
+                    asp.value = def.skillPenalty === '—' ? '' : def.skillPenalty;
                 }
             });
         }

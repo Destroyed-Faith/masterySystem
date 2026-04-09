@@ -385,6 +385,7 @@
       "templates": ["base"],
       "armorValue": 0,
       "evadeModifier": 0,
+      "skillPenalty": "",
       "type": "light",
       "equipSlots": ["chest"],
       "equipped": false

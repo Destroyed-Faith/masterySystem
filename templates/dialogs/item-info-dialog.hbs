@@ -55,7 +55,7 @@
       <dt>Armor value (on item)</dt><dd>{{armorBlock.armorValue}}</dd>
       <dt>Evade modifier</dt><dd>{{armorBlock.evade}}</dd>
       <dt>Initiative (type)</dt><dd>{{armorBlock.initiative}}</dd>
-      <dt>Skill penalty (type)</dt><dd>{{armorBlock.skillPenalty}}</dd>
+      <dt>Skill penalty</dt><dd>{{armorBlock.skillPenalty}}</dd>
     </dl>
     <p class="item-info-footnote">{{armorBlock.ruleHint}}</p>
   </section>
@@ -181,6 +181,10 @@
         <label for="item-info-a-ev">Evade modifier</label>
         <input id="item-info-a-ev" type="number" class="item-info-input js-item-info-armor-evade" value="{{armorEdit.evadeModifier}}" step="1" />
       </div>
+    </div>
+    <div class="item-info-field-row">
+      <label for="item-info-a-sk">Skill penalty</label>
+      <input id="item-info-a-sk" type="text" class="item-info-input js-item-info-armor-skill-penalty" value="{{armorEdit.skillPenaltyPlain}}" placeholder="Empty = type default" />
     </div>
     {{/if}}
 

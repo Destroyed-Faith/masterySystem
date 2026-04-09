@@ -2244,7 +2244,7 @@ Hooks.once('ready', async function () {
                                     type: matchingArmor.type || 'light',
                                     armorValue: matchingArmor.armorValue || 0,
                                     evadeModifier: matchingArmor.evadeModifier || 0,
-                                    skillPenalty: matchingArmor.skillPenalty || 0,
+                                    skillPenalty: matchingArmor.skillPenalty || '',
                                     equipped: true,
                                     description: matchingArmor.description || ''
                                 }
@@ -2269,7 +2269,7 @@ Hooks.once('ready', async function () {
                                     type: matchingShield.type || 'light',
                                     shieldValue: matchingShield.shieldValue || 0,
                                     evadeBonus: matchingShield.evadeBonus || 0,
-                                    skillPenalty: matchingShield.skillPenalty || 0,
+                                    skillPenalty: matchingShield.skillPenalty || '',
                                     equipped: true,
                                     description: matchingShield.description || ''
                                 }

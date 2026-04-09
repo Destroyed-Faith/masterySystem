@@ -89,6 +89,19 @@ function applyReachToInnates(innates: string[], reachKey: '0' | '1' | '2'): stri
   return base;
 }
 
+/** Item override or armor type table default for display. */
+function armorSkillPenaltyLabel(sys: any, def: ReturnType<typeof getArmorDefinitionForType>): string {
+  const raw = sys.skillPenalty;
+  if (raw != null && String(raw).trim() !== '') return String(raw);
+  return def?.skillPenalty || '—';
+}
+
+function armorSkillPenaltyEditValue(sys: any, def: ReturnType<typeof getArmorDefinitionForType>): string {
+  const raw = sys.skillPenalty;
+  if (raw != null && String(raw).trim() !== '') return String(raw);
+  return def?.skillPenalty ?? '';
+}
+
 export class ItemInfoDialog extends BaseDialog {
   private _item: any;
   /** Preserve <details open> across re-renders after Save. */
@@ -257,7 +270,7 @@ export class ItemInfoDialog extends BaseDialog {
         armorValue: fmtMod(sys.armorValue, '0'),
         evade: fmtMod(sys.evadeModifier, '0'),
         initiative: def ? fmtMod(def.initiativeModifier) : '—',
-        skillPenalty: def?.skillPenalty || '—',
+        skillPenalty: armorSkillPenaltyLabel(sys, def),
         canonicalArmor: def ? String(def.armorValue) : null,
         canonicalEvade: def ? fmtMod(def.evadeModifier, '0') : null,
         ruleHint:
@@ -273,7 +286,8 @@ export class ItemInfoDialog extends BaseDialog {
             selected: v === curType
           })),
           armorValue: sys.armorValue ?? 0,
-          evadeModifier: sys.evadeModifier ?? 0
+          evadeModifier: sys.evadeModifier ?? 0,
+          skillPenaltyPlain: armorSkillPenaltyEditValue(sys, def)
         };
         base.showQuickEdit = true;
       }
@@ -426,11 +440,13 @@ export class ItemInfoDialog extends BaseDialog {
         const armorType = root.querySelector('.js-item-info-armor-type') as HTMLSelectElement | null;
         const av = root.querySelector('.js-item-info-armor-value') as HTMLInputElement | null;
         const ae = root.querySelector('.js-item-info-armor-evade') as HTMLInputElement | null;
-        if (!armorType || !av || !ae) return;
+        const asp = root.querySelector('.js-item-info-armor-skill-penalty') as HTMLInputElement | null;
+        if (!armorType || !av || !ae || !asp) return;
         await item.update({
           'system.type': armorType.value,
           'system.armorValue': parseInt(av.value, 10) || 0,
-          'system.evadeModifier': parseInt(ae.value, 10) || 0
+          'system.evadeModifier': parseInt(ae.value, 10) || 0,
+          'system.skillPenalty': asp.value.trim()
         });
       } else if (t === 'shield') {
         const shieldType = root.querySelector('.js-item-info-shield-type') as HTMLSelectElement | null;
@@ -521,9 +537,13 @@ export class ItemInfoDialog extends BaseDialog {
         const def = getArmorDefinitionForType(armorType.value);
         const av = root.querySelector('.js-item-info-armor-value') as HTMLInputElement | null;
         const ae = root.querySelector('.js-item-info-armor-evade') as HTMLInputElement | null;
+        const asp = root.querySelector('.js-item-info-armor-skill-penalty') as HTMLInputElement | null;
         if (def && av && ae) {
           av.value = String(def.armorValue);
           ae.value = String(def.evadeModifier);
+        }
+        if (def && asp) {
+          asp.value = def.skillPenalty === '—' ? '' : def.skillPenalty;
         }
       });
     }
