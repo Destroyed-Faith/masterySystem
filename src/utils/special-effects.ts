@@ -30,9 +30,9 @@ export interface SpecialEffectReference {
 }
 
 /**
- * Helper function to get the base name without (X) suffix
+ * Display label without (X) suffix (e.g. "Bleeding(X)" → "Bleeding")
  */
-function getBaseName(name: string): string {
+export function getEffectBaseName(name: string): string {
   return name.replace(/\(X\)/gi, '').trim();
 }
 
@@ -40,7 +40,7 @@ function getBaseName(name: string): string {
  * Helper function to generate ID from name
  */
 function generateId(name: string): string {
-  return getBaseName(name).toLowerCase().replace(/\s+/g, '-');
+  return getEffectBaseName(name).toLowerCase().replace(/\s+/g, '-');
 }
 
 /**
@@ -165,6 +165,28 @@ export const PHYSICAL_EFFECTS: SpecialEffect[] = [
     duration: '1 Round',
     stacking: 'No',
     removal: 'Ends at end of next turn or on Body/Mind Save.',
+    hasValue: true
+  },
+  {
+    id: 'brace',
+    name: 'Brace(X)',
+    category: 'physical',
+    description:
+      'While Braced: Movement 0 m; shield Shield Value is doubled for Armor. X ticks down each round.',
+    duration: 'Diminishing (X→0)',
+    stacking: 'No',
+    removal: 'Ends when X reaches 0, you move, drop shield, or are knocked Prone.',
+    hasValue: true
+  },
+  {
+    id: 'bulwark',
+    name: 'Bulwark(X)',
+    category: 'physical',
+    description:
+      'Reaction when hit: reduce that attack’s final damage by 50% (after Armor); consume 1 charge (X→X−1).',
+    duration: 'Until used (charges)',
+    stacking: 'Yes',
+    removal: 'Charges end when X reaches 0.',
     hasValue: true
   }
 ];
@@ -354,6 +376,16 @@ export const SUPPORT_EFFECTS: SpecialEffect[] = [
     stacking: 'No',
     removal: 'Ends when stance/buff expires.',
     hasValue: false
+  },
+  {
+    id: 'dispel-magic',
+    name: 'Dispel Magic',
+    category: 'support',
+    description: 'End one ongoing effect with the Spell tag immediately.',
+    duration: 'Instant',
+    stacking: 'No',
+    removal: '—',
+    hasValue: false
   }
 ];
 
@@ -415,9 +447,9 @@ export function formatEffectReference(ref: SpecialEffectReference): string {
   }
   
   if (effect.hasValue && ref.value !== undefined) {
-    return `${getBaseName(effect.name)}(${ref.value})`;
+    return `${getEffectBaseName(effect.name)}(${ref.value})`;
   }
-  return getBaseName(effect.name);
+  return getEffectBaseName(effect.name);
 }
 
 /**

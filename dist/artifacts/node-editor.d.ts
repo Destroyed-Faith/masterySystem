@@ -2,6 +2,7 @@
  * Node Editor Dialog
  * Edit a single artifact node's data (kind + type-specific profile).
  */
+import type { ArtifactWeaponSpecialRef } from '../types/item.js';
 declare const BaseDialog: any;
 export declare class NodeEditor extends BaseDialog {
     private item;
@@ -10,6 +11,7 @@ export declare class NodeEditor extends BaseDialog {
     getData(options?: any): any;
     activateListeners(html: JQuery): void;
     collectSelectValues(html: JQuery, selectClass: string): string[];
+    collectWeaponSpecials(html: JQuery): ArtifactWeaponSpecialRef[];
     saveNode(html: JQuery): Promise<void>;
 }
 export {};

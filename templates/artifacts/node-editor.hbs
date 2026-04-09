@@ -40,22 +40,24 @@
           <label>Hands</label>
           <input type="number" id="node-weapon-hands" value="{{weaponProfile.hands}}" min="1" max="2" step="1" />
         </div>
-        <div class="form-group">
-          <label>Damage</label>
-          <select id="node-weapon-damage-preset">
-            {{#each damagePresetOptions}}
-            <option value="{{this.value}}" {{#if (eq this.value ../weaponDamagePreset)}}selected{{/if}}>{{this.label}}</option>
-            {{/each}}
-            <option value="__custom__" {{#if weaponDamageIsCustom}}selected{{/if}}>Custom…</option>
-          </select>
-        </div>
-        <div class="form-group node-weapon-damage-custom-wrap {{#unless weaponDamageIsCustom}}hidden{{/unless}}">
-          <label>Custom damage</label>
-          <input type="text" id="node-weapon-damage-custom" value="{{weaponProfile.damage}}" placeholder="e.g. 2d8+1" />
-        </div>
-        <div class="form-group node-editor-span2">
-          <label>Range</label>
-          <input type="text" id="node-weapon-range" value="{{weaponProfile.range}}" placeholder="0m or 8/16/32m" />
+        <div class="form-group node-editor-span2 node-weapon-damage-reach-row">
+          <div class="node-weapon-damage-stack">
+            <label>Damage</label>
+            <select id="node-weapon-damage-preset">
+              {{#each damagePresetOptions}}
+              <option value="{{this.value}}" {{#if (eq this.value ../weaponDamagePreset)}}selected{{/if}}>{{this.label}}</option>
+              {{/each}}
+              <option value="__custom__" {{#if weaponDamageIsCustom}}selected{{/if}}>Custom…</option>
+            </select>
+            <div class="form-group node-weapon-damage-custom-wrap {{#unless weaponDamageIsCustom}}hidden{{/unless}}">
+              <label>Custom damage</label>
+              <input type="text" id="node-weapon-damage-custom" value="{{weaponProfile.damage}}" placeholder="e.g. 2d8+1" />
+            </div>
+          </div>
+          <div class="form-group node-weapon-reach-col">
+            <label id="node-weapon-range-label">{{#if (eq weaponProfile.weaponType "ranged")}}Range{{else}}Reach{{/if}}</label>
+            <input type="text" id="node-weapon-range" value="{{weaponProfile.range}}" placeholder="{{#if (eq weaponProfile.weaponType "ranged")}}e.g. 8/16/32m{{else}}e.g. 0m, Reach (+1 m){{/if}}" />
+          </div>
         </div>
       </div>
       <div class="form-group">
@@ -77,15 +79,20 @@
       </div>
       <div class="form-group">
         <label>Specials</label>
+        <p class="node-editor-hint">Choose effect name and strength (X) where applicable.</p>
         <div id="node-weapon-specials" class="node-multi-select">
           {{#each weaponSpecialRows as |row|}}
-          <div class="node-select-row">
-            <select class="node-weapon-special">
+          <div class="node-select-row node-special-row">
+            <select class="node-weapon-special-id">
               <option value="">—</option>
-              {{#each ../specialOptions as |opt|}}
-              <option value="{{opt}}" {{#if (eq row opt)}}selected{{/if}}>{{opt}}</option>
+              {{#each ../specialSelectOptions as |opt|}}
+              <option value="{{opt.id}}" data-has-value="{{#if opt.hasValue}}true{{else}}false{{/if}}" {{#if (eq row.specialId opt.id)}}selected{{/if}}>{{opt.label}}</option>
               {{/each}}
             </select>
+            <div class="node-weapon-special-val-wrap {{#unless row.showValueInput}}hidden{{/unless}}">
+              <label class="node-special-strength-label">X</label>
+              <input type="number" class="node-weapon-special-val" min="0" max="99" step="1" value="{{row.valueStr}}" placeholder="0" title="Strength / rank" />
+            </div>
             <button type="button" class="node-row-remove" title="Remove row">×</button>
           </div>
           {{/each}}
@@ -153,6 +160,12 @@
     <div class="form-group">
       <label>Mastery rank required</label>
       <input type="number" id="node-mastery-rank" value="{{requirements.masteryRank}}" min="1" />
+    </div>
+
+    <div class="form-group node-editor-span2 node-embedded-powers-row">
+      <label>Embedded powers</label>
+      <p class="node-editor-hint">Edit structured artifact powers (range, AoE, duration, JSON import). Saves separately from this dialog.</p>
+      <button type="button" class="node-open-embedded-powers" data-action="open-embedded-powers">Edit embedded powers…</button>
     </div>
   </div>
 </form>

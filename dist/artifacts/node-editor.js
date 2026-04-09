@@ -2,7 +2,9 @@
  * Node Editor Dialog
  * Edit a single artifact node's data (kind + type-specific profile).
  */
-import { ARTIFACT_GEAR_SLOT_OPTIONS, getArtifactWeaponDamagePresets, getArtifactWeaponInnateOptions, getArtifactWeaponSpecialOptions } from '../utils/artifact-node-options.js';
+import { ARTIFACT_GEAR_SLOT_OPTIONS, getArtifactSpecialSelectOptions, getArtifactWeaponDamagePresets, getArtifactWeaponInnateOptions } from '../utils/artifact-node-options.js';
+import { getEffectById, parseEffectStrings } from '../utils/special-effects.js';
+import { EmbeddedPowerDialog } from './embedded-power-dialog.js';
 // Use V1 Application for reliable template rendering in v13
 const BaseDialog = foundry?.appv1?.Application || Application;
 const DAMAGE_PRESETS = getArtifactWeaponDamagePresets();
@@ -23,6 +25,24 @@ function defaultArmorProfile() {
 function defaultShieldProfile() {
     return { type: 'parry', shieldValue: 0, evadeBonus: 0, skillPenalty: '' };
 }
+function migrateWeaponSpecials(weaponSys, bonuses) {
+    const raw = weaponSys?.specials;
+    if (Array.isArray(raw) && raw.length > 0) {
+        const first = raw[0];
+        if (typeof first === 'object' && first !== null && 'specialId' in first) {
+            return raw
+                .map((x) => ({
+                specialId: String(x.specialId || '').trim(),
+                value: x.value != null && x.value !== '' ? Number(x.value) : undefined
+            }))
+                .filter((x) => x.specialId);
+        }
+        const strs = raw.map((s) => String(s).trim()).filter(Boolean);
+        return parseEffectStrings(strs);
+    }
+    const bonusStrs = (bonuses?.specials || []).map((s) => String(s).trim()).filter(Boolean);
+    return parseEffectStrings(bonusStrs);
+}
 /** Normalize legacy `bonuses` into profiles when new fields are missing. */
 function resolveProfiles(system) {
     const bonuses = system.bonuses || { attack: 0, damage: '', defense: 0, specials: [] };
@@ -36,10 +56,8 @@ function resolveProfiles(system) {
     if (!system.artifactWeapon) {
         if (bonuses.damage)
             weapon.damage = String(bonuses.damage);
-        if (Array.isArray(bonuses.specials) && bonuses.specials.length) {
-            weapon.specials = bonuses.specials.map((s) => String(s));
-        }
     }
+    weapon.specials = migrateWeaponSpecials(system.artifactWeapon, bonuses);
     const armor = system.artifactArmor
         ? foundry.utils.duplicate(system.artifactArmor)
         : defaultArmorProfile();
@@ -51,6 +69,36 @@ function resolveProfiles(system) {
 function rowsForStrings(values) {
     const v = (values || []).map((s) => String(s).trim()).filter(Boolean);
     return v.length ? v : [''];
+}
+function rowsForSpecialRefs(refs) {
+    if (!refs.length) {
+        return [{ specialId: '', valueStr: '', showValueInput: false }];
+    }
+    return refs.map((ref) => {
+        const ef = getEffectById(ref.specialId);
+        const hasVal = ef ? ef.hasValue : true;
+        return {
+            specialId: ref.specialId,
+            value: ref.value,
+            valueStr: ref.value != null && Number.isFinite(ref.value) ? String(ref.value) : '',
+            showValueInput: Boolean(ref.specialId && hasVal)
+        };
+    });
+}
+function syncWeaponRangeLabel(html) {
+    const melee = html.find('#node-weapon-type').val() === 'melee';
+    html.find('#node-weapon-range-label').text(melee ? 'Reach' : 'Range');
+    html
+        .find('#node-weapon-range')
+        .attr('placeholder', melee ? 'e.g. 0m, Reach (+1 m)' : 'e.g. 8/16/32m');
+}
+function syncSpecialRowValueVisibility($row) {
+    const $sel = $row.find('.node-weapon-special-id');
+    const id = String($sel.val() || '').trim();
+    const $opt = $sel.find('option:selected');
+    const dataHv = $opt.attr('data-has-value');
+    const hasValue = dataHv !== 'false' && id.length > 0;
+    $row.find('.node-weapon-special-val-wrap').toggleClass('hidden', !hasValue);
 }
 export class NodeEditor extends BaseDialog {
     item;
@@ -88,9 +136,9 @@ export class NodeEditor extends BaseDialog {
         data.weaponDamagePreset = weaponDamagePreset;
         data.weaponDamageIsCustom = weaponDamageIsCustom;
         data.innateOptions = getArtifactWeaponInnateOptions();
-        data.specialOptions = getArtifactWeaponSpecialOptions();
+        data.specialSelectOptions = getArtifactSpecialSelectOptions();
         data.weaponInnateRows = rowsForStrings(weapon.innateAbilities || []);
-        data.weaponSpecialRows = rowsForStrings(weapon.specials || []);
+        data.weaponSpecialRows = rowsForSpecialRefs(weapon.specials || []);
         data.requirements = system.requirements || { stones: 0, masteryRank: 1 };
         return data;
     }
@@ -110,24 +158,51 @@ export class NodeEditor extends BaseDialog {
             const v = $(e.currentTarget).val();
             html.find('.node-weapon-damage-custom-wrap').toggleClass('hidden', v !== '__custom__');
         });
-        const cloneRow = (containerSel, selectClass) => {
-            const $c = html.find(containerSel);
+        html.find('#node-weapon-type').on('change', () => syncWeaponRangeLabel(html));
+        syncWeaponRangeLabel(html);
+        const cloneInnateRow = () => {
+            const $c = html.find('#node-weapon-innates');
             const $first = $c.find('.node-select-row').first();
             const $clone = $first.clone();
-            $clone.find(selectClass).val('');
+            $clone.find('.node-weapon-innate').val('');
+            $c.append($clone);
+        };
+        const cloneSpecialRow = () => {
+            const $c = html.find('#node-weapon-specials');
+            const $first = $c.find('.node-special-row').first();
+            const $clone = $first.clone();
+            $clone.find('.node-weapon-special-id').val('');
+            $clone.find('.node-weapon-special-val').val('');
+            $clone.find('.node-weapon-special-val-wrap').addClass('hidden');
             $c.append($clone);
         };
         html.find('.node-add-row[data-target="innates"]').on('click', () => {
-            cloneRow('#node-weapon-innates', '.node-weapon-innate');
+            cloneInnateRow();
         });
         html.find('.node-add-row[data-target="specials"]').on('click', () => {
-            cloneRow('#node-weapon-specials', '.node-weapon-special');
+            cloneSpecialRow();
+        });
+        html.on('change', '.node-weapon-special-id', (e) => {
+            const $row = $(e.currentTarget).closest('.node-special-row');
+            syncSpecialRowValueVisibility($row);
+        });
+        html.find('.node-special-row').each((_i, el) => {
+            syncSpecialRowValueVisibility($(el));
         });
         html.on('click', '.node-row-remove', (e) => {
-            const $row = $(e.currentTarget).closest('.node-select-row');
+            const $row = $(e.currentTarget).closest('.node-select-row, .node-special-row');
             const $parent = $row.parent();
-            if ($parent.find('.node-select-row').length <= 1) {
-                $row.find('select').val('');
+            const isSpecial = $row.hasClass('node-special-row');
+            const minRows = 1;
+            if ($parent.find(isSpecial ? '.node-special-row' : '.node-select-row').length <= minRows) {
+                if (isSpecial) {
+                    $row.find('.node-weapon-special-id').val('');
+                    $row.find('.node-weapon-special-val').val('');
+                    $row.find('.node-weapon-special-val-wrap').addClass('hidden');
+                }
+                else {
+                    $row.find('.node-weapon-innate').val('');
+                }
                 return;
             }
             $row.remove();
@@ -140,6 +215,9 @@ export class NodeEditor extends BaseDialog {
         html.find('button[data-button="cancel"]').on('click', () => {
             this.close();
         });
+        html.find('[data-action="open-embedded-powers"]').on('click', () => {
+            new EmbeddedPowerDialog(this.item).render(true);
+        });
     }
     collectSelectValues(html, selectClass) {
         const out = [];
@@ -147,6 +225,27 @@ export class NodeEditor extends BaseDialog {
             const v = ($(el).val() || '').trim();
             if (v)
                 out.push(v);
+        });
+        return out;
+    }
+    collectWeaponSpecials(html) {
+        const out = [];
+        html.find('.node-special-row').each((_i, el) => {
+            const $r = $(el);
+            const id = String($r.find('.node-weapon-special-id').val() || '').trim();
+            if (!id)
+                return;
+            const ef = getEffectById(id);
+            let value;
+            if (ef?.hasValue) {
+                const raw = String($r.find('.node-weapon-special-val').val() || '').trim();
+                if (raw !== '') {
+                    const n = parseInt(raw, 10);
+                    if (Number.isFinite(n))
+                        value = n;
+                }
+            }
+            out.push({ specialId: id, value });
         });
         return out;
     }
@@ -162,7 +261,7 @@ export class NodeEditor extends BaseDialog {
             range: String(html.find('#node-weapon-range').val() || '0m').trim() || '0m',
             hands: Math.min(2, Math.max(1, parseInt(html.find('#node-weapon-hands').val(), 10) || 1)),
             innateAbilities: this.collectSelectValues(html, '.node-weapon-innate'),
-            specials: this.collectSelectValues(html, '.node-weapon-special')
+            specials: this.collectWeaponSpecials(html)
         };
         const artifactArmor = {
             type: String(html.find('#node-armor-type').val() || 'light'),

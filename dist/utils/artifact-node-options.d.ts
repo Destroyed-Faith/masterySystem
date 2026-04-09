@@ -1,8 +1,15 @@
 /**
- * Dropdown option lists for the artifact node editor (weapon catalog + properties).
+ * Dropdown option lists for the artifact node editor (weapon catalog + special effects + powers).
  */
-/** Combat specials parsed from the mastery weapon table (comma-separated). */
-export declare function getArtifactWeaponSpecialOptions(): string[];
+export type ArtifactSpecialSelectOption = {
+    id: string;
+    label: string;
+    hasValue: boolean;
+};
+/**
+ * All special IDs for artifact weapon rows: rulebook effects, weapon table, every mastery power definition.
+ */
+export declare function getArtifactSpecialSelectOptions(): ArtifactSpecialSelectOption[];
 /** Innate lines: catalog table + all keys from WEAPON_PROPERTIES. */
 export declare function getArtifactWeaponInnateOptions(): string[];
 /** Damage dice presets (matches former artifact builder). */

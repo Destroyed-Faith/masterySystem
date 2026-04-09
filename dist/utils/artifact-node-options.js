@@ -1,21 +1,108 @@
 /**
- * Dropdown option lists for the artifact node editor (weapon catalog + properties).
+ * Dropdown option lists for the artifact node editor (weapon catalog + special effects + powers).
  */
 import { WEAPONS, WEAPON_PROPERTIES } from './weapons.js';
-/** Combat specials parsed from the mastery weapon table (comma-separated). */
-export function getArtifactWeaponSpecialOptions() {
-    const set = new Set();
+import { ALL_SPECIAL_EFFECTS, getEffect, getEffectBaseName, getEffectById, parseEffectString } from './special-effects.js';
+import { ALL_MASTERY_POWERS } from './powers/index.js';
+function slugFromKey(key) {
+    return key.trim().toLowerCase().replace(/\s+/g, '-');
+}
+function addEffectToMap(map, id, label, hasValue) {
+    if (!id)
+        return;
+    if (!map.has(id)) {
+        map.set(id, { id, label, hasValue });
+    }
+}
+function addWeaponTableSpecials(map) {
     for (const w of WEAPONS) {
         const sp = w.special?.trim();
         if (!sp || sp === '—')
             continue;
         for (const part of sp.split(',')) {
-            const s = part.trim();
-            if (s)
-                set.add(s);
+            const piece = part.trim();
+            if (!piece)
+                continue;
+            const ref = parseEffectString(piece);
+            if (ref) {
+                const ef = getEffectById(ref.specialId);
+                if (ef) {
+                    addEffectToMap(map, ef.id, getEffectBaseName(ef.name), ef.hasValue);
+                }
+            }
+            else {
+                const m = piece.match(/^([^(]+)/);
+                if (m) {
+                    const ef = getEffect(m[1].trim());
+                    if (ef) {
+                        addEffectToMap(map, ef.id, getEffectBaseName(ef.name), ef.hasValue);
+                    }
+                }
+            }
         }
     }
-    return Array.from(set).sort((a, b) => a.localeCompare(b));
+}
+function collectSpecialKeysFromPowerLevel(row, map) {
+    if (!row)
+        return;
+    if (Array.isArray(row.specials)) {
+        for (const s of row.specials) {
+            const key = s?.key != null ? String(s.key).trim() : '';
+            if (!key)
+                continue;
+            const ef = getEffect(key);
+            if (ef) {
+                addEffectToMap(map, ef.id, getEffectBaseName(ef.name), ef.hasValue);
+            }
+            else {
+                const id = slugFromKey(key);
+                addEffectToMap(map, id, key, true);
+            }
+        }
+    }
+    if (typeof row.special === 'string' && row.special.trim()) {
+        for (const part of row.special.split(',')) {
+            const piece = part.trim();
+            if (!piece)
+                continue;
+            const ref = parseEffectString(piece);
+            if (ref) {
+                const ef = getEffectById(ref.specialId);
+                if (ef) {
+                    addEffectToMap(map, ef.id, getEffectBaseName(ef.name), ef.hasValue);
+                }
+            }
+        }
+    }
+}
+function collectFromMasteryPower(power, map) {
+    const levels = power?.levels;
+    if (!levels)
+        return;
+    if (typeof levels === 'object' && !Array.isArray(levels)) {
+        for (const row of Object.values(levels)) {
+            collectSpecialKeysFromPowerLevel(row, map);
+        }
+    }
+    else if (Array.isArray(levels)) {
+        for (const row of levels) {
+            collectSpecialKeysFromPowerLevel(row, map);
+        }
+    }
+}
+/**
+ * All special IDs for artifact weapon rows: rulebook effects, weapon table, every mastery power definition.
+ */
+export function getArtifactSpecialSelectOptions() {
+    const map = new Map();
+    for (const e of ALL_SPECIAL_EFFECTS) {
+        map.set(e.id, { id: e.id, label: getEffectBaseName(e.name), hasValue: e.hasValue });
+    }
+    addWeaponTableSpecials(map);
+    for (const power of ALL_MASTERY_POWERS) {
+        collectFromMasteryPower(power, map);
+    }
+    return Array.from(map.values()).sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: 'base' }));
 }
 /** Innate lines: catalog table + all keys from WEAPON_PROPERTIES. */
 export function getArtifactWeaponInnateOptions() {

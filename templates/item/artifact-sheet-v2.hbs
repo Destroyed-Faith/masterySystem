@@ -157,7 +157,6 @@
                     </td>
                     <td>
                       <select name="system.powers.{{../index}}.levels.{{key}}.aoe.shape">
-                        <option value="none">None</option>
                         {{#each ../../aoeShapes}}
                         <option value="{{this}}" {{#if (eq ../data.aoe.shape this)}}selected{{/if}}>{{this}}</option>
                         {{/each}}
@@ -173,7 +172,7 @@
                         <option value="{{this}}" {{#if (eq ../data.duration.kind this)}}selected{{/if}}>{{this}}</option>
                         {{/each}}
                       </select>
-                      {{#if (eq data.duration.kind 'rounds')}}
+                      {{#if (contains (array "rounds" "masteryRounds" "masteryRankRounds") data.duration.kind)}}
                       <input type="number" name="system.powers.{{../index}}.levels.{{key}}.duration.rounds" value="{{data.duration.rounds}}" placeholder="rounds" min="1" />
                       {{/if}}
                       <input type="text" name="system.powers.{{../index}}.levels.{{key}}.duration.note" value="{{data.duration.note}}" placeholder="note" />

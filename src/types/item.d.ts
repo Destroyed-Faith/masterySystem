@@ -229,6 +229,12 @@ export interface SchtickData extends BaseItemData {
 
 export type ArtifactKind = 'weapon' | 'armor' | 'shield' | 'gear';
 
+/** Weapon special line: effect id + optional rank/strength (same shape as SpecialEffectReference). */
+export interface ArtifactWeaponSpecialRef {
+  specialId: string;
+  value?: number;
+}
+
 /** Weapon-shaped stats for an artifact tree node (edited in Node Editor). */
 export interface ArtifactWeaponProfile {
   weaponType: 'melee' | 'ranged';
@@ -236,7 +242,7 @@ export interface ArtifactWeaponProfile {
   range: string;
   hands: number;
   innateAbilities: string[];
-  specials: string[];
+  specials: ArtifactWeaponSpecialRef[];
 }
 
 export interface ArtifactArmorProfile {

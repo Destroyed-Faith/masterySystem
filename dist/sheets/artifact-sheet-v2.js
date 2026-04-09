@@ -2,6 +2,7 @@
  * Artifact Item Sheet V2 (Foundry v13 ApplicationV2)
  * Supports editing artifact powers with the new schema
  */
+import { EMBEDDED_POWER_ACTION_COSTS, EMBEDDED_POWER_AOE_SHAPES, EMBEDDED_POWER_CATEGORIES, EMBEDDED_POWER_DURATION_KINDS, EMBEDDED_POWER_LIMIT_PERS, EMBEDDED_POWER_RANGE_KINDS, createDefaultEmbeddedPower, ensurePowerLevels } from '../utils/embedded-power-ui-constants.js';
 import { isOldPowerStructure, migrateArtifactPower } from '../utils/power-migration.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
@@ -55,15 +56,7 @@ export class ArtifactSheetV2 extends BaseSheet {
                 expanded: false, // UI state for expanded editor
                 tagsString: Array.isArray(power.tags) ? power.tags.join(', ') : ''
             };
-            // Ensure all 4 levels exist and prepare them as arrays for template
-            if (!powerData.levels) {
-                powerData.levels = {
-                    '1': { type: '', range: null, aoe: null, duration: { kind: 'instant' }, effect: { text: '' }, specials: [] },
-                    '2': { type: '', range: null, aoe: null, duration: { kind: 'instant' }, effect: { text: '' }, specials: [] },
-                    '3': { type: '', range: null, aoe: null, duration: { kind: 'instant' }, effect: { text: '' }, specials: [] },
-                    '4': { type: '', range: null, aoe: null, duration: { kind: 'instant' }, effect: { text: '' }, specials: [] }
-                };
-            }
+            powerData.levels = ensurePowerLevels(powerData);
             // Convert levels to array for easier template iteration
             powerData.levelsArray = [
                 { key: '1', data: powerData.levels['1'] },
@@ -78,12 +71,12 @@ export class ArtifactSheetV2 extends BaseSheet {
             system,
             powers,
             isEditable: this.item.isOwner,
-            categories: ['active', 'activeBuff', 'utility', 'movement', 'reaction', 'passive'],
-            actionCosts: ['attack', 'movement', 'full', 'reaction', 'none'],
-            rangeKinds: ['self', 'touch', 'melee', 'distance'],
-            aoeShapes: ['none', 'radius', 'cone', 'line', 'burst'],
-            durationKinds: ['instant', 'rounds', 'masteryRounds', 'untilNextTurn', 'scene'],
-            limitPers: ['round', 'combat', 'day', 'week']
+            categories: EMBEDDED_POWER_CATEGORIES,
+            actionCosts: EMBEDDED_POWER_ACTION_COSTS,
+            rangeKinds: EMBEDDED_POWER_RANGE_KINDS,
+            aoeShapes: EMBEDDED_POWER_AOE_SHAPES,
+            durationKinds: EMBEDDED_POWER_DURATION_KINDS,
+            limitPers: EMBEDDED_POWER_LIMIT_PERS
         };
     }
     async _onRender(_element, _options) {
@@ -129,19 +122,7 @@ export class ArtifactSheetV2 extends BaseSheet {
             return power;
         });
         if (action === 'add-power') {
-            const newPower = {
-                id: foundry.utils.randomID(),
-                name: 'New Power',
-                category: 'active',
-                tags: [],
-                cost: { action: 'attack' },
-                levels: {
-                    '1': { type: '', range: null, aoe: null, duration: { kind: 'instant' }, effect: { text: '' }, specials: [] },
-                    '2': { type: '', range: null, aoe: null, duration: { kind: 'instant' }, effect: { text: '' }, specials: [] },
-                    '3': { type: '', range: null, aoe: null, duration: { kind: 'instant' }, effect: { text: '' }, specials: [] },
-                    '4': { type: '', range: null, aoe: null, duration: { kind: 'instant' }, effect: { text: '' }, specials: [] }
-                }
-            };
+            const newPower = createDefaultEmbeddedPower(foundry.utils.randomID());
             powers.push(newPower);
             await this.item.update({ 'system.powers': powers });
             await this.render();

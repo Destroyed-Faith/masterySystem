@@ -26,6 +26,10 @@ export interface SpecialEffectReference {
     value?: number;
 }
 /**
+ * Display label without (X) suffix (e.g. "Bleeding(X)" → "Bleeding")
+ */
+export declare function getEffectBaseName(name: string): string;
+/**
  * Physical Effects
  */
 export declare const PHYSICAL_EFFECTS: SpecialEffect[];
