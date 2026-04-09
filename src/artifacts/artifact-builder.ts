@@ -141,18 +141,14 @@ export class ArtifactBuilder extends BaseApplication {
 
     // Add child node button
     html.on('click', '.add-child-node', async (e: JQuery.ClickEvent) => {
+      e.stopPropagation();
       const parentNodeId = $(e.currentTarget).data('node-id');
       await this.addChildNode(parentNodeId);
     });
 
-    // Disconnect parent links
-    html.on('click', '.disconnect-parent', async (e: JQuery.ClickEvent) => {
-      const nodeId = $(e.currentTarget).data('node-id');
-      await this.disconnectParents(nodeId);
-    });
-
-    // Remove node button
+    // Remove node (and entire subtree) — not shown for Level 1 root
     html.on('click', '.remove-node', async (e: JQuery.ClickEvent) => {
+      e.stopPropagation();
       const nodeId = $(e.currentTarget).data('node-id');
       await this.removeNode(nodeId);
     });
@@ -333,15 +329,69 @@ export class ArtifactBuilder extends BaseApplication {
     await (this as any).render();
   }
 
-  private buildTreeHtml(): string {
+  /** Stable labels: Level 1 (root), Level 2-1, Level 2-2, Level 3-1, … per tree row. */
+  private buildNodeLabelMap(): Map<string, string> {
+    const labels = new Map<string, string>();
     const nodes = Array.from(this.nodes.values());
-    if (nodes.length === 0) return '';
+    if (nodes.length === 0) return labels;
 
     const depthMap: Map<number, ArtifactNodeData[]> = new Map();
     for (const node of nodes) {
       const depth = this.calculateDepth(node.nodeId) - 1;
       if (!depthMap.has(depth)) depthMap.set(depth, []);
-      depthMap.get(depth)?.push(node);
+      depthMap.get(depth)!.push(node);
+    }
+
+    const sortedDepths = Array.from(depthMap.keys()).sort((a, b) => a - b);
+    for (const depth of sortedDepths) {
+      const levelNodes = depthMap.get(depth) || [];
+      levelNodes.sort((a, b) => {
+        const aItem = (game as any).items?.get(a.itemId);
+        const bItem = (game as any).items?.get(b.itemId);
+        return (aItem?.name || '').localeCompare(bItem?.name || '');
+      });
+      levelNodes.forEach((node, index) => {
+        const label = depth === 0 ? 'Level 1' : `Level ${depth + 1}-${index + 1}`;
+        labels.set(node.nodeId, label);
+      });
+    }
+    return labels;
+  }
+
+  private getNodeItemName(node: ArtifactNodeData): string {
+    const item = (game as any).items?.get(node.itemId);
+    return (item?.name as string) || node.nodeId;
+  }
+
+  /** Number of strict descendants (not counting the node itself). */
+  private countDescendantNodes(nodeId: string): number {
+    const node = this.nodes.get(nodeId);
+    if (!node) return 0;
+    let n = 0;
+    for (const cid of node.childIds) {
+      n += 1 + this.countDescendantNodes(cid);
+    }
+    return n;
+  }
+
+  private escapeAttr(text: string): string {
+    return String(text || '')
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
+  private buildTreeHtml(): string {
+    const nodes = Array.from(this.nodes.values());
+    if (nodes.length === 0) return '';
+
+    const labels = this.buildNodeLabelMap();
+    const depthMap: Map<number, ArtifactNodeData[]> = new Map();
+    for (const node of nodes) {
+      const depth = this.calculateDepth(node.nodeId) - 1;
+      if (!depthMap.has(depth)) depthMap.set(depth, []);
+      depthMap.get(depth)!.push(node);
     }
 
     const sortedDepths = Array.from(depthMap.keys()).sort((a, b) => a - b);
@@ -356,111 +406,107 @@ export class ArtifactBuilder extends BaseApplication {
       });
 
       html += `<div class="node-level-row level-${depth}">`;
-      levelNodes.forEach((node, index) => {
-        const label = depth === 0 ? `Level 1` : `Level ${depth + 1}-${index + 1}`;
+      for (const node of levelNodes) {
+        const label = labels.get(node.nodeId) || '?';
         const hasParents = node.parentIds.length > 0;
+        const primaryParentId = node.parentIds[0];
+        const parentLabel = primaryParentId ? labels.get(primaryParentId) : '';
+        const extraParents = node.parentIds.length > 1 ? ` (+${node.parentIds.length - 1})` : '';
         const canAddChild = node.childIds.length < 2;
+        const isTreeRoot = !hasParents;
+        const itemName = this.getNodeItemName(node);
+        const itemTitle = this.escapeAttr(itemName);
+
+        const parentHint =
+          hasParents && parentLabel
+            ? `<div class="node-parent-hint" title="Direkter Elternknoten im Baum / Direct parent in tree"><i class="fas fa-arrow-up" aria-hidden="true"></i><span>von <strong>${parentLabel}</strong>${extraParents}</span></div>`
+            : '';
+
+        const nameLine = itemName
+          ? `<div class="node-item-name" title="${itemTitle}">${this.escapeAttr(itemName)}</div>`
+          : '';
 
         html += `
           <div class="node" data-node-id="${node.nodeId}">
-            <div class="node-content">${label}</div>
+            <div class="node-main">
+              ${parentHint}
+              <div class="node-content" title="Knoten bearbeiten / Edit node — ${itemTitle}">${label}</div>
+              ${nameLine}
+            </div>
             <div class="node-actions">
-              ${canAddChild ? `<button type="button" class="add-child-node" data-node-id="${node.nodeId}" title="Add Child"><i class="fas fa-plus-circle"></i></button>` : ''}
-              ${hasParents ? `<button type="button" class="disconnect-parent" data-node-id="${node.nodeId}" title="Disconnect"><i class="fas fa-unlink"></i></button>` : ''}
+              ${
+                canAddChild
+                  ? `<button type="button" class="add-child-node" data-node-id="${node.nodeId}" title="Kindknoten hinzufügen / Add child"><i class="fas fa-plus-circle"></i></button>`
+                  : ''
+              }
+              ${
+                !isTreeRoot
+                  ? `<button type="button" class="remove-node" data-node-id="${node.nodeId}" title="Knoten und alle Nachkommen löschen / Remove this branch"><i class="fas fa-minus-circle"></i></button>`
+                  : ''
+              }
             </div>
           </div>
         `;
-      });
+      }
       html += `</div>`;
     }
 
     return html;
   }
 
-  private async disconnectParents(nodeId: string): Promise<void> {
-    const node = this.nodes.get(nodeId);
-    if (!node || node.parentIds.length === 0) return;
-
-    const parentOptions = node.parentIds.map((parentId) => {
-      const parentNode = this.nodes.get(parentId);
-      const parentItem = parentNode ? (game as any).items?.get(parentNode.itemId) : null;
-      const label = parentItem?.name || parentId;
-      return `<label><input type="checkbox" name="parentNode" value="${parentId}" checked> ${label}</label>`;
-    }).join('<br>');
-
-    const selectedParentIds = await new Promise<string[]>((resolve) => {
-      new Dialog({
-        title: 'Disconnect Parents',
-        content: `<form>${parentOptions}</form>`,
-        buttons: {
-          ok: {
-            label: 'Disconnect',
-            callback: (html: JQuery) => {
-              const selected = html.find('input[name="parentNode"]:checked').map((_i, el) => $(el).val()).get() as string[];
-              resolve(selected);
-            }
-          },
-          cancel: {
-            label: 'Cancel',
-            callback: () => resolve([])
-          }
-        },
-        default: 'ok'
-      }).render(true);
-    });
-
-    if (selectedParentIds.length === 0) return;
-    const childItem = (game as any).items?.get(node.itemId);
-    if (!childItem) return;
-
-    // Remove selected parents from child
-    const remainingParents = node.parentIds.filter((parentId) => !selectedParentIds.includes(parentId));
-    await (childItem as any).setFlag('mastery-system', 'parentIds', remainingParents);
-
-    // Remove child from each parent
-    for (const parentId of selectedParentIds) {
-      const parentNode = this.nodes.get(parentId);
-      if (!parentNode) continue;
-      const parentItem = (game as any).items?.get(parentNode.itemId);
-      if (!parentItem) continue;
-      const childIds = (parentItem as any).getFlag('mastery-system', 'childIds') || [];
-      const updatedChildIds = childIds.filter((id: string) => id !== nodeId);
-      await (parentItem as any).setFlag('mastery-system', 'childIds', updatedChildIds);
-    }
-
-    await (this as any).render();
-  }
-
   /**
-   * Remove a node (recursively delete children)
+   * Remove a node and all descendants; unlink from parents. Level 1 root cannot be removed here.
    */
   async removeNode(nodeId: string): Promise<void> {
+    await this.removeNodeBranch(nodeId, true, true);
+  }
+
+  private async removeNodeBranch(nodeId: string, askConfirm: boolean, doRender: boolean): Promise<void> {
     const node = this.nodes.get(nodeId);
     if (!node) return;
 
-    // Recursively remove children
-    for (const childId of node.childIds) {
-      await this.removeNode(childId);
+    if (node.parentIds.length === 0) {
+      if (askConfirm) {
+        ui.notifications?.warn(
+          'Der Level-1-Wurzelknoten kann hier nicht entfernt werden. Nutze die Item-Seitenleiste, um das Artefakt zu löschen. / The Level 1 root cannot be removed here; delete the artifact from the Items sidebar if needed.'
+        );
+      }
+      return;
     }
 
-    // Remove from parent's childIds
+    if (askConfirm) {
+      const descendants = this.countDescendantNodes(nodeId);
+      const totalDelete = 1 + descendants;
+      const name = this.getNodeItemName(node);
+      const confirmed = await Dialog.confirm({
+        title: 'Evolutionsknoten entfernen? / Remove evolution node?',
+        content: `<p><strong>${name}</strong> und <strong>${totalDelete}</strong> Knoten in diesem Ast (alle Nachkommen) unwiderruflich löschen?</p><p>Delete <strong>${totalDelete}</strong> node(s) in this branch (including all descendants)? This cannot be undone.</p>`
+      });
+      if (!confirmed) return;
+    }
+
+    for (const childId of [...node.childIds]) {
+      await this.removeNodeBranch(childId, false, false);
+    }
+
     for (const parentId of node.parentIds) {
-      const parentItem = (game as any).items?.get(this.nodes.get(parentId)?.itemId);
+      const parentNode = this.nodes.get(parentId);
+      const parentItem = parentNode ? ((game as any).items?.get(parentNode.itemId) as Item | undefined) : undefined;
       if (parentItem) {
-        const childIds = parentItem.getFlag('mastery-system', 'childIds') || [];
+        const childIds = ((parentItem as any).getFlag('mastery-system', 'childIds') as string[]) || [];
         const updated = childIds.filter((id: string) => id !== nodeId);
-        await parentItem.setFlag('mastery-system', 'childIds', updated);
+        await (parentItem as any).setFlag('mastery-system', 'childIds', updated);
       }
     }
 
-    // Delete the item
     const item = (game as any).items?.get(node.itemId);
     if (item) {
       await item.delete();
     }
 
-    // Re-render
-    await (this as any).render();
+    if (doRender) {
+      await (this as any).render();
+    }
   }
 
   /**
@@ -473,7 +519,12 @@ export class ArtifactBuilder extends BaseApplication {
     const item = (game as any).items?.get(node.itemId);
     if (!item) return;
 
-    const editor = new NodeEditor(item);
+    const self = this;
+    const editor = new NodeEditor(item, {
+      onSaved: async () => {
+        await (self as any).render();
+      }
+    });
     (editor as any).render(true);
   }
 

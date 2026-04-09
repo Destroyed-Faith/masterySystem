@@ -135,6 +135,14 @@
   margin: 0 0 10px 0;
 }
 
+.artifact-tree-hint {
+  margin: 0 0 12px 0;
+  font-size: 0.85rem;
+  line-height: 1.35;
+  color: var(--df-text-muted, #a8a8a8);
+  max-width: 52rem;
+}
+
 .tree-container {
   display: flex;
   flex-direction: column;
@@ -153,8 +161,43 @@
   border-radius: 6px;
   padding: 8px 10px;
   display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+}
+
+.node-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.node-parent-hint {
+  display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--df-accent, #c9a227);
+  opacity: 0.95;
+}
+
+.node-parent-hint .fa-arrow-up {
+  transform: rotate(0deg);
+  opacity: 0.9;
+}
+
+.node-item-name {
+  font-size: 0.7rem;
+  line-height: 1.2;
+  color: var(--df-text-muted, #a8a8a8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
 }
 
 .node-content {
@@ -166,6 +209,25 @@
 .node-actions {
   display: flex;
   gap: 6px;
+  flex: 0 0 auto;
+  align-items: flex-start;
+  padding-top: 2px;
+}
+
+.node-actions .remove-node {
+  color: var(--df-danger, #c04040);
+}
+
+.node-actions .remove-node:hover {
+  color: #ff6b6b;
+}
+
+.node-actions .add-child-node {
+  color: var(--df-accent, #6b9e3e);
+}
+
+.node-actions .add-child-node:hover {
+  filter: brightness(1.15);
 }
 
 .node-actions button {
@@ -541,6 +603,45 @@
   background: var(--df-bg-panel, #2a3136);
   border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 6px;
+}
+
+.node-editor-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--df-border-primary, #3a3f44);
+}
+
+.node-editor-btn-primary,
+.node-editor-btn-secondary {
+  padding: 8px 18px;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid var(--df-border-primary, #3a3f44);
+}
+
+.node-editor-btn-primary {
+  background: var(--df-accent, #c9a227);
+  color: #1a1a1a;
+  border-color: transparent;
+  font-weight: 600;
+}
+
+.node-editor-btn-primary:hover {
+  filter: brightness(1.08);
+}
+
+.node-editor-btn-secondary {
+  background: var(--df-bg-header, #1b2124);
+  color: var(--df-text-primary, #d0d0d0);
+}
+
+.node-editor-btn-secondary:hover {
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.2));
 }
 
 /* Embedded power dialog */

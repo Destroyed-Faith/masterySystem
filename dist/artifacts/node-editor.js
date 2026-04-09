@@ -150,9 +150,11 @@ function syncSpecialRowValueVisibility($row) {
 }
 export class NodeEditor extends BaseDialog {
     item;
-    constructor(item) {
+    _onSaved;
+    constructor(item, options) {
         super();
         this.item = item;
+        this._onSaved = options?.onSaved;
     }
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
@@ -271,8 +273,15 @@ export class NodeEditor extends BaseDialog {
         });
         html.find('button[data-button="save"]').on('click', async (e) => {
             e.preventDefault();
-            await this.saveNode(html);
-            this.close();
+            try {
+                await this.saveNode(html);
+                await Promise.resolve(this._onSaved?.());
+                this.close();
+            }
+            catch (err) {
+                console.error(err);
+                ui.notifications?.error('Could not save artifact node.');
+            }
         });
         html.find('button[data-button="cancel"]').on('click', () => {
             this.close();

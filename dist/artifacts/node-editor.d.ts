@@ -24,7 +24,10 @@ declare function resolveLineageForItem(item: Item): {
 };
 export declare class NodeEditor extends BaseDialog {
     private item;
-    constructor(item: Item);
+    private _onSaved?;
+    constructor(item: Item, options?: {
+        onSaved?: () => void | Promise<void>;
+    });
     static get defaultOptions(): any;
     getData(options?: any): any;
     activateListeners(html: JQuery): void;

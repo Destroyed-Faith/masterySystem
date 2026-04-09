@@ -17,12 +17,18 @@ export declare class ArtifactBuilder extends BaseApplication {
     private getBaseArtifactName;
     private updateArtifactName;
     private updateArtifactImage;
+    /** Stable labels: Level 1 (root), Level 2-1, Level 2-2, Level 3-1, … per tree row. */
+    private buildNodeLabelMap;
+    private getNodeItemName;
+    /** Number of strict descendants (not counting the node itself). */
+    private countDescendantNodes;
+    private escapeAttr;
     private buildTreeHtml;
-    private disconnectParents;
     /**
-     * Remove a node (recursively delete children)
+     * Remove a node and all descendants; unlink from parents. Level 1 root cannot be removed here.
      */
     removeNode(nodeId: string): Promise<void>;
+    private removeNodeBranch;
     /**
      * Edit a node
      */

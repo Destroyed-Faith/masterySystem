@@ -199,10 +199,12 @@ function syncSpecialRowValueVisibility($row: JQuery): void {
 
 export class NodeEditor extends BaseDialog {
   private item: Item;
+  private _onSaved?: () => void | Promise<void>;
 
-  constructor(item: Item) {
+  constructor(item: Item, options?: { onSaved?: () => void | Promise<void> }) {
     super();
     this.item = item;
+    this._onSaved = options?.onSaved;
   }
 
   static get defaultOptions(): any {
@@ -338,8 +340,14 @@ export class NodeEditor extends BaseDialog {
 
     html.find('button[data-button="save"]').on('click', async (e: JQuery.ClickEvent) => {
       e.preventDefault();
-      await this.saveNode(html);
-      (this as any).close();
+      try {
+        await this.saveNode(html);
+        await Promise.resolve(this._onSaved?.());
+        (this as any).close();
+      } catch (err) {
+        console.error(err);
+        ui.notifications?.error('Could not save artifact node.');
+      }
     });
 
     html.find('button[data-button="cancel"]').on('click', () => {

@@ -2,7 +2,7 @@
   "id": "mastery-system",
   "title": "Mastery System / Destroyed Faith",
   "description": "A dark fantasy tabletop RPG system featuring Roll & Keep dice mechanics, Attribute Stones, Mastery Ranks, and divine power progression.",
-  "version": "0.4.228",
+  "version": "0.4.229",
   "template": "template.json",
   "logo": "assets/logo.png",
   "banner": "assets/banner.jpg",
@@ -13,8 +13,15 @@
   "authors": [
     {
       "name": "Daniel Rodrigo Navarro Melendo",
-      "email": "",
-      "url": ""
+      "url": "https://github.com/Destroyed-Faith/masterySystem"
+    }
+  ],
+  "media": [
+    {
+      "type": "setup",
+      "url": "assets/banner.jpg",
+      "thumbnail": "assets/logo.png",
+      "caption": "Mastery System / Destroyed Faith"
     }
   ],
   "esmodules": [
