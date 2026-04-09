@@ -4,12 +4,7 @@
  */
 
 import { describeInnateAbility, getWeapon, WEAPONS } from '../utils/weapons.js';
-import {
-  BASE_SHIELDS,
-  getArmorDefinitionForType,
-  getShieldDefinitionForType,
-  normalizeShieldTypeKey
-} from '../utils/equipment.js';
+import { getArmorDefinitionForType, getShieldDefinitionForType, normalizeShieldTypeKey } from '../utils/equipment.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
@@ -57,8 +52,47 @@ function selectOptions(
   }));
 }
 
+/** Quick-edit only for items embedded on an actor (not world / compendium templates). */
+function isEmbeddedOnActor(item: any): boolean {
+  const p = item?.parent;
+  return !!(p && p.documentName === 'Actor');
+}
+
+/** Reach bonus from innate lines (matches radial-menu reach parsing). */
+function reachBonusKeyFromInnates(innates: string[]): '0' | '1' | '2' {
+  for (const a of innates) {
+    const m = a.match(/Reach\s*\(\+\s*(\d+)\s*m\)/i);
+    if (m) {
+      const n = parseInt(m[1], 10);
+      if (n >= 2) return '2';
+      if (n >= 1) return '1';
+    }
+    const leg = a.match(/Reach\s*\((\d+)\s*m\)/i);
+    if (leg) {
+      const total = parseInt(leg[1], 10);
+      const bonus = Math.max(0, total - 2);
+      if (bonus >= 2) return '2';
+      if (bonus >= 1) return '1';
+    }
+  }
+  return '0';
+}
+
+function innatesWithoutReach(innates: string[]): string[] {
+  return innates.filter((a) => !/^\s*reach\b/i.test(a));
+}
+
+function applyReachToInnates(innates: string[], reachKey: '0' | '1' | '2'): string[] {
+  const base = innatesWithoutReach(innates);
+  if (reachKey === '1') base.push('Reach (+1 m)');
+  else if (reachKey === '2') base.push('Reach (+2 m)');
+  return base;
+}
+
 export class ItemInfoDialog extends BaseDialog {
   private _item: any;
+  /** Preserve <details open> across re-renders after Save. */
+  private _quickEditOpen = false;
 
   static DEFAULT_OPTIONS = {
     id: 'mastery-item-info',
@@ -114,6 +148,7 @@ export class ItemInfoDialog extends BaseDialog {
 
     const canEdit = !!(game.user?.isGM || item.isOwner);
     const hasSheet = typeof (item.sheet as any)?.render === 'function';
+    const embeddedOnActor = isEmbeddedOnActor(item);
 
     const base: Record<string, unknown> = {
       item,
@@ -125,6 +160,8 @@ export class ItemInfoDialog extends BaseDialog {
         sys.description || ''
       ),
       canEdit,
+      embeddedOnActor,
+      quickEditOpen: this._quickEditOpen,
       showQuickEdit: false as boolean,
       showAdvancedSheetLink: false as boolean,
       isWeapon: t === 'weapon',
@@ -172,7 +209,7 @@ export class ItemInfoDialog extends BaseDialog {
         catalogNote: cat?.description || ''
       };
 
-      if (canEdit) {
+      if (canEdit && embeddedOnActor) {
         const dmgCur =
           sys.damage != null && String(sys.damage).trim() !== ''
             ? String(sys.damage)
@@ -181,16 +218,14 @@ export class ItemInfoDialog extends BaseDialog {
         if (!damages.includes(dmgCur)) damages.unshift(dmgCur);
         const handsCur = sys.hands === 2 ? 2 : 1;
         const wtCur = sys.weaponType === 'ranged' ? 'ranged' : 'melee';
-        const catalogOpts = [
-          { value: '', label: '— Keep current stats —', selected: true },
-          ...[...WEAPONS]
-            .sort((a, b) => a.name.localeCompare(b.name))
-            .map((w) => ({
-              value: w.name,
-              label: w.name,
-              selected: false
-            }))
-        ];
+        const innatesForReach: string[] = Array.isArray(sys.innateAbilities)
+          ? sys.innateAbilities.map((x: unknown) => String(x))
+          : [];
+        const reachKey = reachBonusKeyFromInnates(innatesForReach);
+        const rangedRange =
+          sys.range != null && String(sys.range).trim() !== ''
+            ? String(sys.range).trim()
+            : '8m';
         (base as any).weaponEdit = {
           damageOptions: selectOptions(damages, dmgCur),
           handsOptions: [
@@ -201,8 +236,13 @@ export class ItemInfoDialog extends BaseDialog {
             { value: 'melee', label: 'Melee', selected: wtCur === 'melee' },
             { value: 'ranged', label: 'Ranged', selected: wtCur === 'ranged' }
           ],
-          catalogOptions: catalogOpts,
-          range: sys.range != null ? String(sys.range) : ''
+          reachOptions: [
+            { value: '0', label: 'No extra reach (base 2 m melee)', selected: reachKey === '0' },
+            { value: '1', label: 'Reach (+1 m)', selected: reachKey === '1' },
+            { value: '2', label: 'Reach (+2 m)', selected: reachKey === '2' }
+          ],
+          initialRanged: wtCur === 'ranged',
+          range: rangedRange
         };
         base.showQuickEdit = true;
       }
@@ -224,7 +264,7 @@ export class ItemInfoDialog extends BaseDialog {
           'Armor Value + Shield value + Mastery Rank = total armor subtracted from incoming damage (subject to rule exceptions).'
       };
 
-      if (canEdit) {
+      if (canEdit && embeddedOnActor) {
         const curType = (sys.type || 'light').toLowerCase();
         (base as any).armorEdit = {
           typeOptions: ['light', 'medium', 'heavy'].map((v) => ({
@@ -254,7 +294,7 @@ export class ItemInfoDialog extends BaseDialog {
         ruleHint: 'Shield Value stacks with armor and Mastery for total armor (see core rules).'
       };
 
-      if (canEdit) {
+      if (canEdit && embeddedOnActor) {
         const sk = normalizeShieldTypeKey(sys.type) || 'parry';
         (base as any).shieldEdit = {
           typeOptions: [
@@ -276,7 +316,7 @@ export class ItemInfoDialog extends BaseDialog {
         inventorySize: sys.inventorySize || '1x1'
       };
 
-      if (canEdit) {
+      if (canEdit && embeddedOnActor) {
         const sizes = [
           '1x1',
           '1x2',
@@ -339,6 +379,96 @@ export class ItemInfoDialog extends BaseDialog {
     await (this as any).render({ force: true });
   }
 
+  async #saveQuickEditsFromRoot(root: HTMLElement): Promise<void> {
+    if (!isEmbeddedOnActor(this._item)) {
+      ui.notifications?.warn('Values can only be saved for items on a character (not world or compendium items).');
+      return;
+    }
+
+    const item = this._item;
+    const t = item.type;
+
+    try {
+      if (t === 'weapon') {
+        const dmgSel = root.querySelector('.js-item-info-weapon-damage') as HTMLSelectElement | null;
+        const handsSel = root.querySelector('.js-item-info-weapon-hands') as HTMLSelectElement | null;
+        const wtSel = root.querySelector('.js-item-info-weapon-type') as HTMLSelectElement | null;
+        const reachSel = root.querySelector('.js-item-info-weapon-reach') as HTMLSelectElement | null;
+        const rangeInp = root.querySelector('.js-item-info-weapon-range') as HTMLInputElement | null;
+        if (!dmgSel || !handsSel || !wtSel || !reachSel || !rangeInp) return;
+
+        const wt = wtSel.value === 'ranged' ? 'ranged' : 'melee';
+        const sysInnates: string[] = Array.isArray(item.system?.innateAbilities)
+          ? item.system.innateAbilities.map((x: unknown) => String(x))
+          : [];
+        const reachKey = (reachSel.value === '2' ? '2' : reachSel.value === '1' ? '1' : '0') as '0' | '1' | '2';
+        let innateAbilities = sysInnates;
+        if (wt === 'melee') {
+          innateAbilities = applyReachToInnates(sysInnates, reachKey);
+        } else {
+          innateAbilities = innatesWithoutReach(sysInnates);
+        }
+
+        const payload: Record<string, unknown> = {
+          'system.damage': dmgSel.value,
+          'system.hands': parseInt(handsSel.value, 10) || 1,
+          'system.weaponType': wt,
+          'system.innateAbilities': innateAbilities
+        };
+        if (wt === 'melee') {
+          payload['system.range'] = '0m';
+        } else {
+          const r = rangeInp.value.trim() || '8m';
+          payload['system.range'] = r;
+        }
+        await item.update(payload);
+      } else if (t === 'armor') {
+        const armorType = root.querySelector('.js-item-info-armor-type') as HTMLSelectElement | null;
+        const av = root.querySelector('.js-item-info-armor-value') as HTMLInputElement | null;
+        const ae = root.querySelector('.js-item-info-armor-evade') as HTMLInputElement | null;
+        if (!armorType || !av || !ae) return;
+        await item.update({
+          'system.type': armorType.value,
+          'system.armorValue': parseInt(av.value, 10) || 0,
+          'system.evadeModifier': parseInt(ae.value, 10) || 0
+        });
+      } else if (t === 'shield') {
+        const shieldType = root.querySelector('.js-item-info-shield-type') as HTMLSelectElement | null;
+        const sv = root.querySelector('.js-item-info-shield-value') as HTMLInputElement | null;
+        const se = root.querySelector('.js-item-info-shield-evade') as HTMLInputElement | null;
+        if (!shieldType || !sv || !se) return;
+        await item.update({
+          'system.type': shieldType.value,
+          'system.shieldValue': parseInt(sv.value, 10) || 0,
+          'system.evadeBonus': parseInt(se.value, 10) || 0
+        });
+      } else if (t === 'gear') {
+        const gSize = root.querySelector('.js-item-info-gear-size') as HTMLSelectElement | null;
+        const gQty = root.querySelector('.js-item-info-gear-qty') as HTMLInputElement | null;
+        const gW = root.querySelector('.js-item-info-gear-weight') as HTMLInputElement | null;
+        const gDesc = root.querySelector('.js-item-info-gear-desc') as HTMLTextAreaElement | null;
+        if (!gSize || !gQty || !gW || !gDesc) return;
+        await item.update({
+          'system.inventorySize': gSize.value,
+          'system.quantity': Math.max(0, parseInt(gQty.value, 10) || 0),
+          'system.weight': parseFloat(gW.value) || 0,
+          'system.description': gDesc.value
+        });
+      } else {
+        return;
+      }
+
+      const panel = root.querySelector('.item-info-edit-panel') as HTMLDetailsElement | null;
+      this._quickEditOpen = !!panel?.open;
+
+      ui.notifications?.info('Item updated.');
+      await this.#resyncItemAfterUpdate();
+    } catch (e) {
+      console.error(e);
+      ui.notifications?.error('Could not save item changes.');
+    }
+  }
+
   async _onRender(context: unknown, options: Record<string, unknown>): Promise<void> {
     await super._onRender?.(context, options);
     const root = (this as any).element as HTMLElement | undefined;
@@ -363,156 +493,59 @@ export class ItemInfoDialog extends BaseDialog {
       };
     }
 
-    const catSel = root.querySelector('.js-item-info-weapon-catalog') as HTMLSelectElement | null;
-    if (catSel) {
-      catSel.onchange = async () => {
-        const name = catSel.value?.trim();
-        if (!name) return;
-        const def = getWeapon(name);
-        if (!def) return;
-        const specialsArr =
-          def.special === '—' ? [] : def.special.split(',').map((s) => s.trim()).filter(Boolean);
-        const ranged = def.innateAbilities.some((a) => /^ranged/i.test(a.trim()));
-        await this._item.update({
-          'system.damage': def.weaponDamage,
-          'system.hands': def.hands,
-          'system.innateAbilities': [...def.innateAbilities],
-          'system.specials': specialsArr,
-          'system.weaponType': ranged ? 'ranged' : 'melee'
-        });
-        catSel.value = '';
-        await this.#resyncItemAfterUpdate();
-      };
-    }
-
-    const dmgSel = root.querySelector('.js-item-info-weapon-damage') as HTMLSelectElement | null;
-    if (dmgSel) {
-      dmgSel.onchange = async () => {
-        await this._item.update({ 'system.damage': dmgSel.value });
-        await this.#resyncItemAfterUpdate();
-      };
-    }
-
-    const handsSel = root.querySelector('.js-item-info-weapon-hands') as HTMLSelectElement | null;
-    if (handsSel) {
-      handsSel.onchange = async () => {
-        await this._item.update({ 'system.hands': parseInt(handsSel.value, 10) || 1 });
-        await this.#resyncItemAfterUpdate();
+    const saveBtn = root.querySelector('.js-item-info-save-edits') as HTMLButtonElement | null;
+    if (saveBtn) {
+      saveBtn.onclick = (ev) => {
+        ev.preventDefault();
+        void this.#saveQuickEditsFromRoot(root);
       };
     }
 
     const wtSel = root.querySelector('.js-item-info-weapon-type') as HTMLSelectElement | null;
+    const reachRow = root.querySelector('.js-item-info-weapon-reach-row') as HTMLElement | null;
+    const rangeRow = root.querySelector('.js-item-info-weapon-range-row') as HTMLElement | null;
+    const syncWeaponRows = () => {
+      if (!wtSel || !reachRow || !rangeRow) return;
+      const ranged = wtSel.value === 'ranged';
+      reachRow.classList.toggle('item-info-edit-hidden', ranged);
+      rangeRow.classList.toggle('item-info-edit-hidden', !ranged);
+    };
     if (wtSel) {
-      wtSel.onchange = async () => {
-        await this._item.update({ 'system.weaponType': wtSel.value });
-        await this.#resyncItemAfterUpdate();
-      };
-    }
-
-    const rangeInp = root.querySelector('.js-item-info-weapon-range') as HTMLInputElement | null;
-    if (rangeInp) {
-      rangeInp.onchange = async () => {
-        await this._item.update({ 'system.range': rangeInp.value.trim() || '0m' });
-        await this.#resyncItemAfterUpdate();
-      };
+      wtSel.addEventListener('change', syncWeaponRows);
+      syncWeaponRows();
     }
 
     const armorType = root.querySelector('.js-item-info-armor-type') as HTMLSelectElement | null;
     if (armorType) {
-      armorType.onchange = async () => {
+      armorType.addEventListener('change', () => {
         const def = getArmorDefinitionForType(armorType.value);
-        if (def) {
-          await this._item.update({
-            'system.type': armorType.value,
-            'system.armorValue': def.armorValue,
-            'system.evadeModifier': def.evadeModifier
-          });
-        } else {
-          await this._item.update({ 'system.type': armorType.value });
+        const av = root.querySelector('.js-item-info-armor-value') as HTMLInputElement | null;
+        const ae = root.querySelector('.js-item-info-armor-evade') as HTMLInputElement | null;
+        if (def && av && ae) {
+          av.value = String(def.armorValue);
+          ae.value = String(def.evadeModifier);
         }
-        await this.#resyncItemAfterUpdate();
-      };
-    }
-
-    const av = root.querySelector('.js-item-info-armor-value') as HTMLInputElement | null;
-    if (av) {
-      av.onchange = async () => {
-        await this._item.update({ 'system.armorValue': parseInt(av.value, 10) || 0 });
-        await this.#resyncItemAfterUpdate();
-      };
-    }
-
-    const ae = root.querySelector('.js-item-info-armor-evade') as HTMLInputElement | null;
-    if (ae) {
-      ae.onchange = async () => {
-        await this._item.update({ 'system.evadeModifier': parseInt(ae.value, 10) || 0 });
-        await this.#resyncItemAfterUpdate();
-      };
+      });
     }
 
     const shieldType = root.querySelector('.js-item-info-shield-type') as HTMLSelectElement | null;
     if (shieldType) {
-      shieldType.onchange = async () => {
-        const def = BASE_SHIELDS.find((s) => s.type === shieldType.value);
-        if (def) {
-          await this._item.update({
-            'system.type': shieldType.value,
-            'system.shieldValue': def.shieldValue,
-            'system.evadeBonus': def.evadeBonus
-          });
-        } else {
-          await this._item.update({ 'system.type': shieldType.value });
+      shieldType.addEventListener('change', () => {
+        const def = getShieldDefinitionForType(shieldType.value);
+        const sv = root.querySelector('.js-item-info-shield-value') as HTMLInputElement | null;
+        const se = root.querySelector('.js-item-info-shield-evade') as HTMLInputElement | null;
+        if (def && sv && se) {
+          sv.value = String(def.shieldValue);
+          se.value = String(def.evadeBonus ?? 0);
         }
-        await this.#resyncItemAfterUpdate();
-      };
+      });
     }
 
-    const sv = root.querySelector('.js-item-info-shield-value') as HTMLInputElement | null;
-    if (sv) {
-      sv.onchange = async () => {
-        await this._item.update({ 'system.shieldValue': parseInt(sv.value, 10) || 0 });
-        await this.#resyncItemAfterUpdate();
-      };
-    }
-
-    const se = root.querySelector('.js-item-info-shield-evade') as HTMLInputElement | null;
-    if (se) {
-      se.onchange = async () => {
-        await this._item.update({ 'system.evadeBonus': parseInt(se.value, 10) || 0 });
-        await this.#resyncItemAfterUpdate();
-      };
-    }
-
-    const gSize = root.querySelector('.js-item-info-gear-size') as HTMLSelectElement | null;
-    if (gSize) {
-      gSize.onchange = async () => {
-        await this._item.update({ 'system.inventorySize': gSize.value });
-        await this.#resyncItemAfterUpdate();
-      };
-    }
-
-    const gQty = root.querySelector('.js-item-info-gear-qty') as HTMLInputElement | null;
-    if (gQty) {
-      gQty.onchange = async () => {
-        await this._item.update({ 'system.quantity': Math.max(0, parseInt(gQty.value, 10) || 0) });
-        await this.#resyncItemAfterUpdate();
-      };
-    }
-
-    const gW = root.querySelector('.js-item-info-gear-weight') as HTMLInputElement | null;
-    if (gW) {
-      gW.onchange = async () => {
-        await this._item.update({ 'system.weight': parseFloat(gW.value) || 0 });
-        await this.#resyncItemAfterUpdate();
-      };
-    }
-
-    const gDesc = root.querySelector('.js-item-info-gear-desc') as HTMLTextAreaElement | null;
-    if (gDesc) {
-      gDesc.onchange = async () => {
-        await this._item.update({ 'system.description': gDesc.value });
-        await this.#resyncItemAfterUpdate();
-      };
+    const editPanel = root.querySelector('.item-info-edit-panel') as HTMLDetailsElement | null;
+    if (editPanel) {
+      editPanel.addEventListener('toggle', () => {
+        this._quickEditOpen = editPanel.open;
+      });
     }
   }
 }

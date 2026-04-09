@@ -118,18 +118,11 @@
 
   {{#if canEdit}}
   {{#if showQuickEdit}}
-  <section class="item-info-edit-panel" aria-label="Adjust item values">
-    <h3 class="item-info-section-title">Adjust values</h3>
+  <details class="item-info-edit-panel" {{#if quickEditOpen}}open{{/if}}>
+    <summary class="item-info-edit-summary">Edit values</summary>
+    <div class="item-info-edit-inner">
 
     {{#if isWeapon}}
-    <div class="item-info-field-row">
-      <label for="item-info-w-cat">Load from catalog</label>
-      <select id="item-info-w-cat" class="item-info-select js-item-info-weapon-catalog">
-        {{#each weaponEdit.catalogOptions}}
-        <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
-        {{/each}}
-      </select>
-    </div>
     <div class="item-info-field-row item-info-field-row-2">
       <div>
         <label for="item-info-w-dmg">Weapon damage</label>
@@ -156,11 +149,18 @@
         {{/each}}
       </select>
     </div>
-    <div class="item-info-field-row">
-      <label for="item-info-w-range">Range</label>
-      <input id="item-info-w-range" type="text" class="item-info-input js-item-info-weapon-range" value="{{weaponEdit.range}}" placeholder="0m" />
+    <div class="item-info-field-row js-item-info-weapon-reach-row{{#if weaponEdit.initialRanged}} item-info-edit-hidden{{/if}}">
+      <label for="item-info-w-reach">Melee reach (innate)</label>
+      <select id="item-info-w-reach" class="item-info-select js-item-info-weapon-reach">
+        {{#each weaponEdit.reachOptions}}
+        <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+        {{/each}}
+      </select>
     </div>
-    <p class="item-info-edit-hint">Catalog load applies damage, hands, innates &amp; specials. Change any dropdown to save immediately.</p>
+    <div class="item-info-field-row js-item-info-weapon-range-row{{#unless weaponEdit.initialRanged}} item-info-edit-hidden{{/unless}}">
+      <label for="item-info-w-range">Ranged distance</label>
+      <input id="item-info-w-range" type="text" class="item-info-input js-item-info-weapon-range" value="{{weaponEdit.range}}" placeholder="8m" />
+    </div>
     {{/if}}
 
     {{#if isArmor}}
@@ -182,7 +182,6 @@
         <input id="item-info-a-ev" type="number" class="item-info-input js-item-info-armor-evade" value="{{armorEdit.evadeModifier}}" step="1" />
       </div>
     </div>
-    <p class="item-info-edit-hint">Choosing a type fills default armor &amp; evade; you can override the numbers.</p>
     {{/if}}
 
     {{#if isShield}}
@@ -204,7 +203,6 @@
         <input id="item-info-s-ev" type="number" class="item-info-input js-item-info-shield-evade" value="{{shieldEdit.evadeBonus}}" step="1" />
       </div>
     </div>
-    <p class="item-info-edit-hint">Type sets default shield value &amp; evade; values can be tweaked below.</p>
     {{/if}}
 
     {{#if isGear}}
@@ -231,7 +229,15 @@
       <textarea id="item-info-g-desc" class="item-info-textarea js-item-info-gear-desc" rows="3" placeholder="Plain text">{{gearEdit.descriptionPlain}}</textarea>
     </div>
     {{/if}}
-  </section>
+
+    <div class="item-info-edit-actions">
+      <button type="button" class="dialog-btn dialog-btn-secondary js-item-info-save-edits">
+        <i class="fas fa-save"></i> Save
+      </button>
+    </div>
+    <p class="item-info-edit-hint">Only updates this item on the character. World storage items cannot be edited here.</p>
+    </div>
+  </details>
   {{/if}}
   {{/if}}
 

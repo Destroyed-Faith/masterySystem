@@ -7,6 +7,8 @@ declare const BaseDialog: typeof ApplicationV2;
 export declare class ItemInfoDialog extends BaseDialog {
     #private;
     private _item;
+    /** Preserve <details open> across re-renders after Save. */
+    private _quickEditOpen;
     static DEFAULT_OPTIONS: {
         id: string;
         classes: string[];

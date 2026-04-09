@@ -3,7 +3,7 @@
  * Unified layout for equipment clicks and future callers.
  */
 import { describeInnateAbility, getWeapon, WEAPONS } from '../utils/weapons.js';
-import { BASE_SHIELDS, getArmorDefinitionForType, getShieldDefinitionForType, normalizeShieldTypeKey } from '../utils/equipment.js';
+import { getArmorDefinitionForType, getShieldDefinitionForType, normalizeShieldTypeKey } from '../utils/equipment.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
 function typeLabel(t) {
@@ -44,8 +44,49 @@ function selectOptions(values, current) {
         selected: value === current
     }));
 }
+/** Quick-edit only for items embedded on an actor (not world / compendium templates). */
+function isEmbeddedOnActor(item) {
+    const p = item?.parent;
+    return !!(p && p.documentName === 'Actor');
+}
+/** Reach bonus from innate lines (matches radial-menu reach parsing). */
+function reachBonusKeyFromInnates(innates) {
+    for (const a of innates) {
+        const m = a.match(/Reach\s*\(\+\s*(\d+)\s*m\)/i);
+        if (m) {
+            const n = parseInt(m[1], 10);
+            if (n >= 2)
+                return '2';
+            if (n >= 1)
+                return '1';
+        }
+        const leg = a.match(/Reach\s*\((\d+)\s*m\)/i);
+        if (leg) {
+            const total = parseInt(leg[1], 10);
+            const bonus = Math.max(0, total - 2);
+            if (bonus >= 2)
+                return '2';
+            if (bonus >= 1)
+                return '1';
+        }
+    }
+    return '0';
+}
+function innatesWithoutReach(innates) {
+    return innates.filter((a) => !/^\s*reach\b/i.test(a));
+}
+function applyReachToInnates(innates, reachKey) {
+    const base = innatesWithoutReach(innates);
+    if (reachKey === '1')
+        base.push('Reach (+1 m)');
+    else if (reachKey === '2')
+        base.push('Reach (+2 m)');
+    return base;
+}
 export class ItemInfoDialog extends BaseDialog {
     _item;
+    /** Preserve <details open> across re-renders after Save. */
+    _quickEditOpen = false;
     static DEFAULT_OPTIONS = {
         id: 'mastery-item-info',
         classes: ['mastery-system', 'item-info-dialog'],
@@ -88,6 +129,7 @@ export class ItemInfoDialog extends BaseDialog {
         const t = item.type;
         const canEdit = !!(game.user?.isGM || item.isOwner);
         const hasSheet = typeof item.sheet?.render === 'function';
+        const embeddedOnActor = isEmbeddedOnActor(item);
         const base = {
             item,
             cssClass: 'item-info-dialog',
@@ -96,6 +138,8 @@ export class ItemInfoDialog extends BaseDialog {
             itemName: item.name,
             enrichedDescription: await foundry.applications.ux.TextEditor.implementation.enrichHTML(sys.description || ''),
             canEdit,
+            embeddedOnActor,
+            quickEditOpen: this._quickEditOpen,
             showQuickEdit: false,
             showAdvancedSheetLink: false,
             isWeapon: t === 'weapon',
@@ -137,7 +181,7 @@ export class ItemInfoDialog extends BaseDialog {
                 specialsNote: 'Weapon specials are typically chosen or enhanced using Raises during combat (when rules allow).',
                 catalogNote: cat?.description || ''
             };
-            if (canEdit) {
+            if (canEdit && embeddedOnActor) {
                 const dmgCur = sys.damage != null && String(sys.damage).trim() !== ''
                     ? String(sys.damage)
                     : String(cat?.weaponDamage ?? '1d8');
@@ -146,16 +190,13 @@ export class ItemInfoDialog extends BaseDialog {
                     damages.unshift(dmgCur);
                 const handsCur = sys.hands === 2 ? 2 : 1;
                 const wtCur = sys.weaponType === 'ranged' ? 'ranged' : 'melee';
-                const catalogOpts = [
-                    { value: '', label: '— Keep current stats —', selected: true },
-                    ...[...WEAPONS]
-                        .sort((a, b) => a.name.localeCompare(b.name))
-                        .map((w) => ({
-                        value: w.name,
-                        label: w.name,
-                        selected: false
-                    }))
-                ];
+                const innatesForReach = Array.isArray(sys.innateAbilities)
+                    ? sys.innateAbilities.map((x) => String(x))
+                    : [];
+                const reachKey = reachBonusKeyFromInnates(innatesForReach);
+                const rangedRange = sys.range != null && String(sys.range).trim() !== ''
+                    ? String(sys.range).trim()
+                    : '8m';
                 base.weaponEdit = {
                     damageOptions: selectOptions(damages, dmgCur),
                     handsOptions: [
@@ -166,8 +207,13 @@ export class ItemInfoDialog extends BaseDialog {
                         { value: 'melee', label: 'Melee', selected: wtCur === 'melee' },
                         { value: 'ranged', label: 'Ranged', selected: wtCur === 'ranged' }
                     ],
-                    catalogOptions: catalogOpts,
-                    range: sys.range != null ? String(sys.range) : ''
+                    reachOptions: [
+                        { value: '0', label: 'No extra reach (base 2 m melee)', selected: reachKey === '0' },
+                        { value: '1', label: 'Reach (+1 m)', selected: reachKey === '1' },
+                        { value: '2', label: 'Reach (+2 m)', selected: reachKey === '2' }
+                    ],
+                    initialRanged: wtCur === 'ranged',
+                    range: rangedRange
                 };
                 base.showQuickEdit = true;
             }
@@ -186,7 +232,7 @@ export class ItemInfoDialog extends BaseDialog {
                 canonicalEvade: def ? fmtMod(def.evadeModifier, '0') : null,
                 ruleHint: 'Armor Value + Shield value + Mastery Rank = total armor subtracted from incoming damage (subject to rule exceptions).'
             };
-            if (canEdit) {
+            if (canEdit && embeddedOnActor) {
                 const curType = (sys.type || 'light').toLowerCase();
                 base.armorEdit = {
                     typeOptions: ['light', 'medium', 'heavy'].map((v) => ({
@@ -213,7 +259,7 @@ export class ItemInfoDialog extends BaseDialog {
                 skillPenalty: def?.skillPenalty || '—',
                 ruleHint: 'Shield Value stacks with armor and Mastery for total armor (see core rules).'
             };
-            if (canEdit) {
+            if (canEdit && embeddedOnActor) {
                 const sk = normalizeShieldTypeKey(sys.type) || 'parry';
                 base.shieldEdit = {
                     typeOptions: [
@@ -233,7 +279,7 @@ export class ItemInfoDialog extends BaseDialog {
                 quantity: sys.quantity != null ? String(sys.quantity) : '1',
                 inventorySize: sys.inventorySize || '1x1'
             };
-            if (canEdit) {
+            if (canEdit && embeddedOnActor) {
                 const sizes = [
                     '1x1',
                     '1x2',
@@ -291,6 +337,100 @@ export class ItemInfoDialog extends BaseDialog {
         this.options.window = foundry.utils.mergeObject(this.options.window || {}, { title: this._item.name || 'Item' });
         await this.render({ force: true });
     }
+    async #saveQuickEditsFromRoot(root) {
+        if (!isEmbeddedOnActor(this._item)) {
+            ui.notifications?.warn('Values can only be saved for items on a character (not world or compendium items).');
+            return;
+        }
+        const item = this._item;
+        const t = item.type;
+        try {
+            if (t === 'weapon') {
+                const dmgSel = root.querySelector('.js-item-info-weapon-damage');
+                const handsSel = root.querySelector('.js-item-info-weapon-hands');
+                const wtSel = root.querySelector('.js-item-info-weapon-type');
+                const reachSel = root.querySelector('.js-item-info-weapon-reach');
+                const rangeInp = root.querySelector('.js-item-info-weapon-range');
+                if (!dmgSel || !handsSel || !wtSel || !reachSel || !rangeInp)
+                    return;
+                const wt = wtSel.value === 'ranged' ? 'ranged' : 'melee';
+                const sysInnates = Array.isArray(item.system?.innateAbilities)
+                    ? item.system.innateAbilities.map((x) => String(x))
+                    : [];
+                const reachKey = (reachSel.value === '2' ? '2' : reachSel.value === '1' ? '1' : '0');
+                let innateAbilities = sysInnates;
+                if (wt === 'melee') {
+                    innateAbilities = applyReachToInnates(sysInnates, reachKey);
+                }
+                else {
+                    innateAbilities = innatesWithoutReach(sysInnates);
+                }
+                const payload = {
+                    'system.damage': dmgSel.value,
+                    'system.hands': parseInt(handsSel.value, 10) || 1,
+                    'system.weaponType': wt,
+                    'system.innateAbilities': innateAbilities
+                };
+                if (wt === 'melee') {
+                    payload['system.range'] = '0m';
+                }
+                else {
+                    const r = rangeInp.value.trim() || '8m';
+                    payload['system.range'] = r;
+                }
+                await item.update(payload);
+            }
+            else if (t === 'armor') {
+                const armorType = root.querySelector('.js-item-info-armor-type');
+                const av = root.querySelector('.js-item-info-armor-value');
+                const ae = root.querySelector('.js-item-info-armor-evade');
+                if (!armorType || !av || !ae)
+                    return;
+                await item.update({
+                    'system.type': armorType.value,
+                    'system.armorValue': parseInt(av.value, 10) || 0,
+                    'system.evadeModifier': parseInt(ae.value, 10) || 0
+                });
+            }
+            else if (t === 'shield') {
+                const shieldType = root.querySelector('.js-item-info-shield-type');
+                const sv = root.querySelector('.js-item-info-shield-value');
+                const se = root.querySelector('.js-item-info-shield-evade');
+                if (!shieldType || !sv || !se)
+                    return;
+                await item.update({
+                    'system.type': shieldType.value,
+                    'system.shieldValue': parseInt(sv.value, 10) || 0,
+                    'system.evadeBonus': parseInt(se.value, 10) || 0
+                });
+            }
+            else if (t === 'gear') {
+                const gSize = root.querySelector('.js-item-info-gear-size');
+                const gQty = root.querySelector('.js-item-info-gear-qty');
+                const gW = root.querySelector('.js-item-info-gear-weight');
+                const gDesc = root.querySelector('.js-item-info-gear-desc');
+                if (!gSize || !gQty || !gW || !gDesc)
+                    return;
+                await item.update({
+                    'system.inventorySize': gSize.value,
+                    'system.quantity': Math.max(0, parseInt(gQty.value, 10) || 0),
+                    'system.weight': parseFloat(gW.value) || 0,
+                    'system.description': gDesc.value
+                });
+            }
+            else {
+                return;
+            }
+            const panel = root.querySelector('.item-info-edit-panel');
+            this._quickEditOpen = !!panel?.open;
+            ui.notifications?.info('Item updated.');
+            await this.#resyncItemAfterUpdate();
+        }
+        catch (e) {
+            console.error(e);
+            ui.notifications?.error('Could not save item changes.');
+        }
+    }
     async _onRender(context, options) {
         await super._onRender?.(context, options);
         const root = this.element;
@@ -313,145 +453,56 @@ export class ItemInfoDialog extends BaseDialog {
                 }
             };
         }
-        const catSel = root.querySelector('.js-item-info-weapon-catalog');
-        if (catSel) {
-            catSel.onchange = async () => {
-                const name = catSel.value?.trim();
-                if (!name)
-                    return;
-                const def = getWeapon(name);
-                if (!def)
-                    return;
-                const specialsArr = def.special === '—' ? [] : def.special.split(',').map((s) => s.trim()).filter(Boolean);
-                const ranged = def.innateAbilities.some((a) => /^ranged/i.test(a.trim()));
-                await this._item.update({
-                    'system.damage': def.weaponDamage,
-                    'system.hands': def.hands,
-                    'system.innateAbilities': [...def.innateAbilities],
-                    'system.specials': specialsArr,
-                    'system.weaponType': ranged ? 'ranged' : 'melee'
-                });
-                catSel.value = '';
-                await this.#resyncItemAfterUpdate();
-            };
-        }
-        const dmgSel = root.querySelector('.js-item-info-weapon-damage');
-        if (dmgSel) {
-            dmgSel.onchange = async () => {
-                await this._item.update({ 'system.damage': dmgSel.value });
-                await this.#resyncItemAfterUpdate();
-            };
-        }
-        const handsSel = root.querySelector('.js-item-info-weapon-hands');
-        if (handsSel) {
-            handsSel.onchange = async () => {
-                await this._item.update({ 'system.hands': parseInt(handsSel.value, 10) || 1 });
-                await this.#resyncItemAfterUpdate();
+        const saveBtn = root.querySelector('.js-item-info-save-edits');
+        if (saveBtn) {
+            saveBtn.onclick = (ev) => {
+                ev.preventDefault();
+                void this.#saveQuickEditsFromRoot(root);
             };
         }
         const wtSel = root.querySelector('.js-item-info-weapon-type');
+        const reachRow = root.querySelector('.js-item-info-weapon-reach-row');
+        const rangeRow = root.querySelector('.js-item-info-weapon-range-row');
+        const syncWeaponRows = () => {
+            if (!wtSel || !reachRow || !rangeRow)
+                return;
+            const ranged = wtSel.value === 'ranged';
+            reachRow.classList.toggle('item-info-edit-hidden', ranged);
+            rangeRow.classList.toggle('item-info-edit-hidden', !ranged);
+        };
         if (wtSel) {
-            wtSel.onchange = async () => {
-                await this._item.update({ 'system.weaponType': wtSel.value });
-                await this.#resyncItemAfterUpdate();
-            };
-        }
-        const rangeInp = root.querySelector('.js-item-info-weapon-range');
-        if (rangeInp) {
-            rangeInp.onchange = async () => {
-                await this._item.update({ 'system.range': rangeInp.value.trim() || '0m' });
-                await this.#resyncItemAfterUpdate();
-            };
+            wtSel.addEventListener('change', syncWeaponRows);
+            syncWeaponRows();
         }
         const armorType = root.querySelector('.js-item-info-armor-type');
         if (armorType) {
-            armorType.onchange = async () => {
+            armorType.addEventListener('change', () => {
                 const def = getArmorDefinitionForType(armorType.value);
-                if (def) {
-                    await this._item.update({
-                        'system.type': armorType.value,
-                        'system.armorValue': def.armorValue,
-                        'system.evadeModifier': def.evadeModifier
-                    });
+                const av = root.querySelector('.js-item-info-armor-value');
+                const ae = root.querySelector('.js-item-info-armor-evade');
+                if (def && av && ae) {
+                    av.value = String(def.armorValue);
+                    ae.value = String(def.evadeModifier);
                 }
-                else {
-                    await this._item.update({ 'system.type': armorType.value });
-                }
-                await this.#resyncItemAfterUpdate();
-            };
-        }
-        const av = root.querySelector('.js-item-info-armor-value');
-        if (av) {
-            av.onchange = async () => {
-                await this._item.update({ 'system.armorValue': parseInt(av.value, 10) || 0 });
-                await this.#resyncItemAfterUpdate();
-            };
-        }
-        const ae = root.querySelector('.js-item-info-armor-evade');
-        if (ae) {
-            ae.onchange = async () => {
-                await this._item.update({ 'system.evadeModifier': parseInt(ae.value, 10) || 0 });
-                await this.#resyncItemAfterUpdate();
-            };
+            });
         }
         const shieldType = root.querySelector('.js-item-info-shield-type');
         if (shieldType) {
-            shieldType.onchange = async () => {
-                const def = BASE_SHIELDS.find((s) => s.type === shieldType.value);
-                if (def) {
-                    await this._item.update({
-                        'system.type': shieldType.value,
-                        'system.shieldValue': def.shieldValue,
-                        'system.evadeBonus': def.evadeBonus
-                    });
+            shieldType.addEventListener('change', () => {
+                const def = getShieldDefinitionForType(shieldType.value);
+                const sv = root.querySelector('.js-item-info-shield-value');
+                const se = root.querySelector('.js-item-info-shield-evade');
+                if (def && sv && se) {
+                    sv.value = String(def.shieldValue);
+                    se.value = String(def.evadeBonus ?? 0);
                 }
-                else {
-                    await this._item.update({ 'system.type': shieldType.value });
-                }
-                await this.#resyncItemAfterUpdate();
-            };
+            });
         }
-        const sv = root.querySelector('.js-item-info-shield-value');
-        if (sv) {
-            sv.onchange = async () => {
-                await this._item.update({ 'system.shieldValue': parseInt(sv.value, 10) || 0 });
-                await this.#resyncItemAfterUpdate();
-            };
-        }
-        const se = root.querySelector('.js-item-info-shield-evade');
-        if (se) {
-            se.onchange = async () => {
-                await this._item.update({ 'system.evadeBonus': parseInt(se.value, 10) || 0 });
-                await this.#resyncItemAfterUpdate();
-            };
-        }
-        const gSize = root.querySelector('.js-item-info-gear-size');
-        if (gSize) {
-            gSize.onchange = async () => {
-                await this._item.update({ 'system.inventorySize': gSize.value });
-                await this.#resyncItemAfterUpdate();
-            };
-        }
-        const gQty = root.querySelector('.js-item-info-gear-qty');
-        if (gQty) {
-            gQty.onchange = async () => {
-                await this._item.update({ 'system.quantity': Math.max(0, parseInt(gQty.value, 10) || 0) });
-                await this.#resyncItemAfterUpdate();
-            };
-        }
-        const gW = root.querySelector('.js-item-info-gear-weight');
-        if (gW) {
-            gW.onchange = async () => {
-                await this._item.update({ 'system.weight': parseFloat(gW.value) || 0 });
-                await this.#resyncItemAfterUpdate();
-            };
-        }
-        const gDesc = root.querySelector('.js-item-info-gear-desc');
-        if (gDesc) {
-            gDesc.onchange = async () => {
-                await this._item.update({ 'system.description': gDesc.value });
-                await this.#resyncItemAfterUpdate();
-            };
+        const editPanel = root.querySelector('.item-info-edit-panel');
+        if (editPanel) {
+            editPanel.addEventListener('toggle', () => {
+                this._quickEditOpen = editPanel.open;
+            });
         }
     }
 }
