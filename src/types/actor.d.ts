@@ -37,6 +37,8 @@ export interface CombatData {
   // Derived fields (calculated from equipped items)
   armorTotal?: number;
   evadeTotal?: number;
+  /** Short breakdown for UI (equipped armor/shield only). */
+  evadeBreakdownHint?: string;
   armorName?: string;
   shieldName?: string;
   activeWeaponName?: string;

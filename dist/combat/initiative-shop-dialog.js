@@ -54,7 +54,9 @@ export class InitiativeShopDialog extends BaseDialog {
         this.crSpent = this.crCommittedAtOpen;
     }
     getShopPool() {
-        return this.context.diceTotal + this.crSpent;
+        return (this.context.diceTotal +
+            this.crSpent +
+            (this.context.equipmentInitiativeModifier ?? 0));
     }
     async _prepareContext(_options) {
         const actor = this.combatant.actor;
@@ -78,6 +80,7 @@ export class InitiativeShopDialog extends BaseDialog {
             round: this.combat.round || 1,
             diceTotal: this.context.diceTotal,
             crSpent: this.crSpent,
+            equipmentInitiativeModifier: this.context.equipmentInitiativeModifier ?? 0,
             masteryRank: this.context.masteryRank,
             totalInitiative,
             remainingInitiative,

@@ -84,7 +84,11 @@ export class InitiativeShopDialog extends BaseDialog {
   }
 
   private getShopPool(): number {
-    return this.context.diceTotal + this.crSpent;
+    return (
+      this.context.diceTotal +
+      this.crSpent +
+      (this.context.equipmentInitiativeModifier ?? 0)
+    );
   }
 
   protected async _prepareContext(_options: any): Promise<any> {
@@ -113,6 +117,7 @@ export class InitiativeShopDialog extends BaseDialog {
       round: this.combat.round || 1,
       diceTotal: this.context.diceTotal,
       crSpent: this.crSpent,
+      equipmentInitiativeModifier: this.context.equipmentInitiativeModifier ?? 0,
       masteryRank: this.context.masteryRank,
       totalInitiative,
       remainingInitiative,

@@ -6,6 +6,7 @@
 import type { RadialCombatOption } from "../token-radial-menu";
 import { logActorItemSummary } from "../utils/debug-helpers";
 import { getAttackAttributeForPowerTreeOrSchool } from "../utils/power-roll-attribute.js";
+import { resolveEquippedWeaponForAttackType } from "../utils/equipment-modifiers.js";
 import { evaluateThreatenedRanged } from "./threatened-ranged.js";
 
 /**
@@ -26,53 +27,16 @@ function collectActorItems(actor: any): any[] {
   return [];
 }
 
+function attackCardEsc(text: string): string {
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 function resolveWeaponForAttack(items: any[], attackType: "melee" | "ranged"): any | null {
-  if (attackType === "ranged") {
-    let weapon = items.find(
-      (i: any) =>
-        i.type === "weapon" &&
-        (i.system as any)?.equipped === true &&
-        (i.system as any)?.weaponType === "ranged"
-    );
-    if (!weapon) {
-      weapon = items.find((i: any) => i.type === "weapon" && (i.system as any)?.weaponType === "ranged");
-    }
-    if (!weapon) {
-      weapon = items.find((i: any) => i.type === "weapon" && (i.system as any)?.equipped === true);
-    }
-    if (!weapon) weapon = items.find((i: any) => i.type === "weapon");
-    return weapon || null;
-  }
-
-  let weapon = items.find(
-    (i: any) =>
-      i.type === "weapon" &&
-      (i.system as any)?.equipped === true &&
-      (i.system as any)?.weaponType === "melee"
-  );
-
-  if (!weapon) {
-    weapon = items.find((i: any) => i.type === "weapon" && (i.system as any)?.equipped === true);
-  }
-
-  if (!weapon) {
-    weapon = items.find((i: any) => i.type === "weapon");
-  }
-
-  if (!weapon) {
-    weapon = items.find((i: any) => {
-      const system = i.system || {};
-      return (
-        (system.damage || system.weaponDamage || system.weaponType) &&
-        (system.equipped === true ||
-          i.name?.toLowerCase().includes("axe") ||
-          i.name?.toLowerCase().includes("sword") ||
-          i.name?.toLowerCase().includes("weapon"))
-      );
-    });
-  }
-
-  return weapon || null;
+  return resolveEquippedWeaponForAttackType(items, attackType);
 }
 
 /**
@@ -223,27 +187,7 @@ export async function createAttackCard(
   logActorItemSummary(attacker, 'attack-card:create');
   
   const items = collectActorItems(attacker);
-  let weapon = resolveWeaponForAttack(items, attackType);
-
-  if (!weapon && attackType === "melee") {
-    weapon = items.find((i: any) => {
-      const system = i.system || {};
-      return (
-        (system.damage || system.weaponDamage || system.weaponType) &&
-        (system.equipped === true ||
-          i.name?.toLowerCase().includes("axe") ||
-          i.name?.toLowerCase().includes("sword") ||
-          i.name?.toLowerCase().includes("weapon"))
-      );
-    });
-    if (weapon) {
-      console.warn("Mastery System | [ATTACK EXECUTOR] Found weapon-like item with wrong type", {
-        itemId: weapon.id,
-        itemName: weapon.name,
-        itemType: weapon.type
-      });
-    }
-  }
+  const weapon = resolveWeaponForAttack(items, attackType);
 
   const weaponId = weapon?.id ?? null;
   
@@ -369,6 +313,21 @@ export async function createAttackCard(
   const headerIcon = attackType === "ranged" ? "fa-bullseye" : "fa-sword";
   const attackKindLabel = attackType === "ranged" ? "Ranged" : "Melee";
 
+  const innateLines: string[] = weapon
+    ? ([] as unknown[]).concat((weapon.system as any)?.innateAbilities || []).map((x) => String(x))
+    : [];
+  const weaponSpecialLines: string[] = weapon
+    ? ([] as unknown[]).concat((weapon.system as any)?.specials || []).map((x) => String(x))
+    : [];
+  const innatesHtml =
+    innateLines.length > 0
+      ? `<div class="detail-row"><span class="detail-label">Weapon innates:</span><span class="detail-value">${innateLines.map(attackCardEsc).join(", ")}</span></div>`
+      : "";
+  const weaponSpecialsHtml =
+    weaponSpecialLines.length > 0
+      ? `<div class="detail-row"><span class="detail-label">Weapon specials:</span><span class="detail-value">${weaponSpecialLines.map(attackCardEsc).join(", ")}</span></div>`
+      : "";
+
   const oppNames = tr.opportunityEnemyTokenIds
     .map((id: string) => (canvas as any).tokens?.get(id)?.name)
     .filter(Boolean) as string[];
@@ -441,8 +400,10 @@ export async function createAttackCard(
           <span class="detail-label">Target Evade:</span>
           <span class="detail-value">${targetEvade}</span>
         </div>
-        ${weapon ? `<div class="detail-row"><span class="detail-label">Weapon:</span><span class="detail-value">${weapon.name}</span></div>` : ""}
-        ${selectedPowerId ? `<div class="detail-row"><span class="detail-label">Power:</span><span class="detail-value">${option.name}</span></div>` : ""}
+        ${weapon ? `<div class="detail-row"><span class="detail-label">Weapon:</span><span class="detail-value">${attackCardEsc(weapon.name)}</span></div>` : ""}
+        ${innatesHtml}
+        ${weaponSpecialsHtml}
+        ${selectedPowerId ? `<div class="detail-row"><span class="detail-label">Power:</span><span class="detail-value">${attackCardEsc(option.name)}</span></div>` : ""}
       </div>
       <div class="attack-controls">
         ${raisesDropdown}

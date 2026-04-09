@@ -2,7 +2,8 @@
  * Character Sheet for Mastery System
  * Main player character sheet with tabs for attributes, skills, powers, etc.
  */
-import { SKILLS } from '../utils/skills.js';
+import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
+import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
 import { DISADVANTAGES, getDisadvantageDefinition, calculateDisadvantagePoints, validateDisadvantageSelection, detailsForMentalRestrictionsDialog } from '../system/disadvantages.js';
 import { getAllSchticks } from '../utils/schticks.js';
 import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
@@ -3034,14 +3035,23 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const system = this.actor.system;
         const attributeValue = system.attributes?.[rollOptions.attributeKey]?.value || 0;
         const masteryRank = system.mastery?.rank || 2;
+        let numDice = attributeValue;
+        let equipPenaltyFlavor = '';
+        if (skillDef.category === SKILL_CATEGORIES.PHYSICAL) {
+            const penDice = getEquippedPhysicalSkillPenaltyDice(this.actor);
+            if (penDice > 0) {
+                numDice = Math.max(1, numDice - penDice);
+                equipPenaltyFlavor = ` Equipped armor/shield physical penalty: −${penDice}d8 (rolling ${numDice} dice).`;
+            }
+        }
         const { masteryRoll } = await import('../dice/roll-handler.js');
         await masteryRoll({
-            numDice: attributeValue,
+            numDice,
             keepDice: masteryRank,
             skill: 0, // No auto skill bonus
             tn: rollOptions.finalTN,
             label: `${skillDef.name} Check`,
-            flavor: `Attribute: ${rollOptions.attributeKey.charAt(0).toUpperCase() + rollOptions.attributeKey.slice(1)}, Base TN: ${rollOptions.baseTN}, Raises: ${rollOptions.raises}`,
+            flavor: `Attribute: ${rollOptions.attributeKey.charAt(0).toUpperCase() + rollOptions.attributeKey.slice(1)}, Base TN: ${rollOptions.baseTN}, Raises: ${rollOptions.raises}.${equipPenaltyFlavor}`,
             actorId: this.actor.id,
             skillKey: skillKey,
             isSkillRoll: true,

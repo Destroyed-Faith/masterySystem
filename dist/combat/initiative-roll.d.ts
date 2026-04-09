@@ -17,6 +17,8 @@ export interface InitiativeRollBreakdown {
     combatReflexesSpent: number;
     /** Dice + CR — pool for the shop; order uses points left after shopping. */
     totalInitiative: number;
+    /** Flat modifier from equipped armor, shield, and weapon (e.g. Heavy). */
+    equipmentInitiativeModifier: number;
     masteryRank: number;
     rollResult: any;
 }

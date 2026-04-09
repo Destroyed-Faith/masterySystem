@@ -531,7 +531,7 @@
             <div class="stat-content">
               <label>Evade</label>
               <div class="stat-value">{{default system.combat.evadeTotal 8}}</div>
-              <div class="stat-formula">MR×4 + Agi + Shield + Armor</div>
+              <div class="stat-formula" title="From equipped armor/shield only">{{#if system.combat.evadeBreakdownHint}}{{system.combat.evadeBreakdownHint}}{{else}}MR×4 + Agi + Shield + Armor{{/if}}</div>
             </div>
           </div>
           

@@ -304,6 +304,14 @@ export class MasteryActor extends Actor {
         const agilityValue = system.attributes?.agility?.value || 0;
         const agilityEvadeBonus = calculateAgilityEvadeBonus(agilityValue);
         system.combat.evadeTotal = baseEvade + shieldEvadeBonus + armorEvadeModifier + agilityEvadeBonus;
+        const evadeParts = [`MR×4 ${baseEvade}`, `Agi ${agilityEvadeBonus >= 0 ? '+' : ''}${agilityEvadeBonus}`];
+        if (shieldEvadeBonus !== 0) {
+            evadeParts.push(`Shield ${shieldEvadeBonus >= 0 ? '+' : ''}${shieldEvadeBonus}`);
+        }
+        if (armorEvadeModifier !== 0) {
+            evadeParts.push(`Armor ${armorEvadeModifier >= 0 ? '+' : ''}${armorEvadeModifier}`);
+        }
+        system.combat.evadeBreakdownHint = evadeParts.join(' · ');
         // Attribute Scaling Passives
         if (system.attributes) {
             const might = system.attributes.might?.value || 0;

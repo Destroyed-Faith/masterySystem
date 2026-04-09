@@ -6,6 +6,7 @@
 
 import { masteryRoll } from '../dice/roll-handler.js';
 import { calculateMaxSkillRank } from '../utils/calculations.js';
+import { getEquippedEquipmentInitiativeModifier } from '../utils/equipment-modifiers.js';
 
 const CR_SKILL_KEY = 'combatReflexes';
 
@@ -30,6 +31,8 @@ export interface InitiativeRollBreakdown {
   combatReflexesSpent: number;
   /** Dice + CR — pool for the shop; order uses points left after shopping. */
   totalInitiative: number;
+  /** Flat modifier from equipped armor, shield, and weapon (e.g. Heavy). */
+  equipmentInitiativeModifier: number;
   masteryRank: number;
   rollResult: any;
 }
@@ -66,19 +69,25 @@ export async function rollInitiativeForCombatant(
       diceTotal: 0,
       combatReflexesSpent: 0,
       totalInitiative: 0,
+      equipmentInitiativeModifier: 0,
       masteryRank: 2,
       rollResult: null
     };
   }
 
   const masteryRank = getMasteryRank(actor);
+  const equipmentInitiativeModifier = getEquippedEquipmentInitiativeModifier(actor);
+  const equipFlavor =
+    equipmentInitiativeModifier !== 0
+      ? ` · Equipment ${equipmentInitiativeModifier >= 0 ? '+' : ''}${equipmentInitiativeModifier} (armor/shield/weapon)`
+      : '';
 
   const rollResult = await masteryRoll({
     numDice: masteryRank,
     keepDice: masteryRank,
     skill: 0,
     label: 'Initiative Roll',
-    flavor: `${actor.name}`,
+    flavor: `${actor.name}${equipFlavor}`,
     actorId: actor.id
   });
 
@@ -126,7 +135,7 @@ export async function rollInitiativeForCombatant(
     }
   }
 
-  const totalInitiative = diceTotal + combatReflexesSpent;
+  const totalInitiative = diceTotal + combatReflexesSpent + equipmentInitiativeModifier;
   await combatant.update({ initiative: totalInitiative });
 
   if (!isPc) {
@@ -137,6 +146,7 @@ export async function rollInitiativeForCombatant(
     actor: actor.name,
     diceTotal,
     combatReflexesSpent,
+    equipmentInitiativeModifier,
     totalInitiative,
     masteryRank
   });
@@ -145,6 +155,7 @@ export async function rollInitiativeForCombatant(
     diceTotal,
     combatReflexesSpent,
     totalInitiative,
+    equipmentInitiativeModifier,
     masteryRank,
     rollResult
   };

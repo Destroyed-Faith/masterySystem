@@ -5,6 +5,7 @@
  */
 import { masteryRoll } from '../dice/roll-handler.js';
 import { calculateMaxSkillRank } from '../utils/calculations.js';
+import { getEquippedEquipmentInitiativeModifier } from '../utils/equipment-modifiers.js';
 const CR_SKILL_KEY = 'combatReflexes';
 function getMasteryRank(actor) {
     if (!actor || !actor.system)
@@ -37,17 +38,22 @@ export async function rollInitiativeForCombatant(combatant, options = {}) {
             diceTotal: 0,
             combatReflexesSpent: 0,
             totalInitiative: 0,
+            equipmentInitiativeModifier: 0,
             masteryRank: 2,
             rollResult: null
         };
     }
     const masteryRank = getMasteryRank(actor);
+    const equipmentInitiativeModifier = getEquippedEquipmentInitiativeModifier(actor);
+    const equipFlavor = equipmentInitiativeModifier !== 0
+        ? ` · Equipment ${equipmentInitiativeModifier >= 0 ? '+' : ''}${equipmentInitiativeModifier} (armor/shield/weapon)`
+        : '';
     const rollResult = await masteryRoll({
         numDice: masteryRank,
         keepDice: masteryRank,
         skill: 0,
         label: 'Initiative Roll',
-        flavor: `${actor.name}`,
+        flavor: `${actor.name}${equipFlavor}`,
         actorId: actor.id
     });
     const diceTotal = rollResult.total;
@@ -90,7 +96,7 @@ export async function rollInitiativeForCombatant(combatant, options = {}) {
             });
         }
     }
-    const totalInitiative = diceTotal + combatReflexesSpent;
+    const totalInitiative = diceTotal + combatReflexesSpent + equipmentInitiativeModifier;
     await combatant.update({ initiative: totalInitiative });
     if (!isPc) {
         await combatant.setFlag('mastery-system', 'msInitiativeValue', totalInitiative);
@@ -99,6 +105,7 @@ export async function rollInitiativeForCombatant(combatant, options = {}) {
         actor: actor.name,
         diceTotal,
         combatReflexesSpent,
+        equipmentInitiativeModifier,
         totalInitiative,
         masteryRank
     });
@@ -106,6 +113,7 @@ export async function rollInitiativeForCombatant(combatant, options = {}) {
         diceTotal,
         combatReflexesSpent,
         totalInitiative,
+        equipmentInitiativeModifier,
         masteryRank,
         rollResult
     };

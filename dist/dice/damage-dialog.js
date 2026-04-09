@@ -3,6 +3,7 @@
  * Appears after successful attack roll to calculate and apply damage
  */
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
+import { resolveEquippedWeaponForAttackType } from '../utils/equipment-modifiers.js';
 /**
  * Show damage dialog after successful attack
  */
@@ -167,26 +168,21 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         else if (actorToUse.items instanceof Map) {
             weaponForDamage = actorToUse.items.get(weaponId);
         }
-        // If found by ID, verify it's still equipped (prefer equipped weapons)
+        // If found by ID but unequipped, use strict equipped weapon for this attack type only
         if (weaponForDamage && weaponForDamage.system?.equipped !== true) {
-            // Weapon ID provided but not equipped - check if there's an equipped weapon instead
-            const equippedWeapon = items.find((item) => item.type === 'weapon' && item.system?.equipped === true);
-            if (equippedWeapon) {
-                console.log('Mastery System | [DAMAGE DIALOG] weaponId provided but weapon not equipped, using equipped weapon instead', {
-                    weaponId: weaponId,
-                    providedWeaponName: weaponForDamage.name,
-                    equippedWeaponName: equippedWeapon.name,
-                    equippedWeaponId: equippedWeapon.id
+            const atk = flags?.attackType === 'ranged' ? 'ranged' : 'melee';
+            const strict = resolveEquippedWeaponForAttackType(items, atk);
+            if (strict) {
+                console.log('Mastery System | [DAMAGE DIALOG] weaponId not equipped; using equipped weapon for attack type', {
+                    weaponId,
+                    attackType: atk,
+                    strictWeaponId: strict.id,
+                    strictWeaponName: strict.name
                 });
-                weaponForDamage = equippedWeapon;
+                weaponForDamage = strict;
             }
             else {
-                console.log('Mastery System | [DAMAGE DIALOG] Found weapon via direct actor lookup by ID', {
-                    weaponId: weaponId,
-                    weaponName: weaponForDamage.name,
-                    weaponType: weaponForDamage.type,
-                    equipped: weaponForDamage.system?.equipped
-                });
+                weaponForDamage = null;
             }
         }
         else if (weaponForDamage) {
@@ -219,51 +215,29 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
     if (!weaponForDamage && weaponId) {
         weaponForDamage = items.find((item) => item.id === weaponId);
     }
-    // Method 3: PRIORITY - Find equipped MELEE weapon (preferred for melee attacks)
+    // Method 3: Equipped weapon matching attack type (from attack card flags)
+    if (!weaponForDamage && flags && (flags.attackType === 'melee' || flags.attackType === 'ranged')) {
+        weaponForDamage = resolveEquippedWeaponForAttackType(items, flags.attackType);
+        if (weaponForDamage) {
+            console.log('Mastery System | [DAMAGE DIALOG] Resolved weapon by attackType', {
+                attackType: flags.attackType,
+                weaponId: weaponForDamage.id,
+                weaponName: weaponForDamage.name
+            });
+        }
+    }
+    // Method 4: Legacy — equipped melee, then any equipped (if attackType missing, e.g. old messages)
     if (!weaponForDamage) {
         weaponForDamage = items.find((item) => item.type === 'weapon' &&
             item.system?.equipped === true &&
             item.system?.weaponType === 'melee');
-        if (weaponForDamage) {
-            console.log('Mastery System | [DAMAGE DIALOG] Found equipped melee weapon', {
-                weaponId: weaponForDamage.id,
-                weaponName: weaponForDamage.name,
-                weaponType: weaponForDamage.system?.weaponType
-            });
-        }
     }
-    // Method 4: Find any equipped weapon (if no melee weapon found)
     if (!weaponForDamage) {
         weaponForDamage = items.find((item) => item.type === 'weapon' && item.system?.equipped === true);
-        if (weaponForDamage) {
-            console.log('Mastery System | [DAMAGE DIALOG] Found equipped weapon (any type)', {
-                weaponId: weaponForDamage.id,
-                weaponName: weaponForDamage.name,
-                weaponType: weaponForDamage.system?.weaponType
-            });
-        }
     }
-    // Method 5: Find any weapon (fallback)
+    // Method 5: First weapon item on actor (last resort for base damage string)
     if (!weaponForDamage) {
         weaponForDamage = items.find((item) => item.type === 'weapon');
-    }
-    // Method 6: Fallback - Look for items with weapon properties (in case type is wrong)
-    if (!weaponForDamage) {
-        weaponForDamage = items.find((item) => {
-            const system = item.system || {};
-            return (system.damage || system.weaponDamage || system.weaponType) &&
-                (system.equipped === true || item.name?.toLowerCase().includes('axe') || item.name?.toLowerCase().includes('sword') || item.name?.toLowerCase().includes('weapon'));
-        });
-        if (weaponForDamage) {
-            console.warn('Mastery System | [DAMAGE DIALOG] Found weapon-like item with wrong type', {
-                itemId: weaponForDamage.id,
-                itemName: weaponForDamage.name,
-                itemType: weaponForDamage.type,
-                hasDamage: !!weaponForDamage.system?.damage,
-                hasWeaponDamage: !!weaponForDamage.system?.weaponDamage,
-                equipped: weaponForDamage.system?.equipped
-            });
-        }
     }
     console.log('Mastery System | [DAMAGE DIALOG] Weapon loading', {
         weaponId: weaponId,
@@ -463,9 +437,14 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         count: availableSpecials.length,
         specials: availableSpecials.map(s => ({ id: s.id, name: s.name, type: s.type }))
     });
+    const weaponInnateLines = weaponForDamage
+        ? []
+            .concat(weaponForDamage.system?.innateAbilities || [])
+            .map((x) => String(x))
+        : [];
     // Create damage card as chat message instead of dialog
     return new Promise((resolve) => {
-        const damageCardContent = createDamageCardContent(attacker, target, baseDamage, powerDamage, passiveDamage, raises, availableSpecials, weaponSpecials, resolve, selectedPowerData);
+        const damageCardContent = createDamageCardContent(attacker, target, baseDamage, powerDamage, passiveDamage, raises, availableSpecials, weaponSpecials, resolve, selectedPowerData, weaponInnateLines);
         // Get targetTokenId if target is a token actor (for unlinked tokens)
         let targetTokenId = null;
         if (target.isToken) {
@@ -521,10 +500,17 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         });
     });
 }
+function damageCardHtmlEsc(text) {
+    return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
 /**
  * Create HTML content for damage card in chat
  */
-function createDamageCardContent(attacker, target, baseDamage, powerDamage, passiveDamage, raises, availableSpecials, _weaponSpecials, _resolve, selectedPower) {
+function createDamageCardContent(attacker, target, baseDamage, powerDamage, passiveDamage, raises, availableSpecials, _weaponSpecials, _resolve, selectedPower, weaponInnateLines = []) {
     let raisesSection = '';
     if (raises > 0) {
         // Create raise items with all specials directly in the dropdown
@@ -590,6 +576,12 @@ function createDamageCardContent(attacker, target, baseDamage, powerDamage, pass
           <span class="damage-label">Base Weapon Damage:</span>
           <span class="damage-value">${baseDamage || '0'}</span>
         </div>
+        ${weaponInnateLines.length > 0
+        ? `<div class="damage-row">
+          <span class="damage-label">Weapon innates (reference):</span>
+          <span class="damage-value">${weaponInnateLines.map(damageCardHtmlEsc).join(', ')}</span>
+        </div>`
+        : ''}
         ${selectedPower ? `
           <div class="damage-row">
             <span class="damage-label">Power:</span>

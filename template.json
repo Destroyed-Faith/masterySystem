@@ -394,6 +394,7 @@
       "templates": ["base"],
       "shieldValue": 0,
       "evadeBonus": 0,
+      "skillPenalty": "",
       "type": "light",
       "equipSlots": ["offhand"],
       "equipped": false

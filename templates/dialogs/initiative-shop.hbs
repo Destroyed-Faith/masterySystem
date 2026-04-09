@@ -27,6 +27,13 @@
         </select>
         {{/if}}
       </span>
+      {{#if equipmentInitiativeModifier}}
+      <span class="sum-div" aria-hidden="true">|</span>
+      <span class="sum-seg" title="Armor, shield, weapon (e.g. Heavy)">
+        <span class="sum-lbl">Equipment</span><span class="sum-punct">:</span>
+        <strong class="sum-val">{{equipmentInitiativeModifier}}</strong>
+      </span>
+      {{/if}}
       <span class="sum-div" aria-hidden="true">|</span>
       <span class="sum-seg">
         <span class="sum-lbl">Shop-Pool</span><span class="sum-punct">:</span>
