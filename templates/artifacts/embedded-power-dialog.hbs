@@ -53,9 +53,25 @@
               {{/each}}
             </select>
           </div>
-          <div class="form-group ep-span2">
-            <label>Tags (comma-separated)</label>
-            <input type="text" id="ep-detail-tags" value="{{detail.tagsString}}" placeholder="spell, charged" />
+          <div class="form-group ep-span2 ep-tags-block">
+            <label>Tags</label>
+            <p class="ep-hint ep-tags-hint">Choose preset tags or <strong>Custom…</strong> and type your own. Empty rows are ignored.</p>
+            <div id="ep-tags-rows" class="ep-multi-rows">
+              {{#each detail.tagRows}}
+              <div class="ep-tag-row flexrow">
+                <select class="ep-tag-preset">
+                  <option value="">— None —</option>
+                  {{#each @root.tagPresetOptions}}
+                  <option value="{{this}}" {{#if (eq ../preset this)}}selected{{/if}}>{{this}}</option>
+                  {{/each}}
+                  <option value="__custom__" {{#if (eq preset "__custom__")}}selected{{/if}}>Custom…</option>
+                </select>
+                <input type="text" class="ep-tag-custom {{#unless (eq preset "__custom__")}}hidden{{/unless}}" value="{{customTag}}" placeholder="e.g. elemental" />
+                <button type="button" class="ep-tag-remove" title="Remove tag row">×</button>
+              </div>
+              {{/each}}
+            </div>
+            <button type="button" class="ep-btn ep-btn-small" data-action="ep-add-tag-row">+ Tag</button>
           </div>
         </div>
 
@@ -79,14 +95,20 @@
           </div>
         </div>
         <div class="form-group ep-limit-row">
-          <label class="ep-checkbox-label"><input type="checkbox" id="ep-limit-enabled" {{#if detail.limitEnabled}}checked{{/if}} /> Use limit</label>
+          <label class="ep-checkbox-label"><input type="checkbox" id="ep-limit-enabled" {{#if detail.limitEnabled}}checked{{/if}} /> Cap how often this power can be used</label>
+          <p class="ep-hint ep-limit-hint">When checked, you set a maximum number of uses per round, combat, day, or week (rules text for “limited” powers).</p>
           <div class="ep-limit-fields flexrow">
             <select id="ep-limit-per">
               {{#each limitPers}}
               <option value="{{this}}" {{#if (eq ../detail.cost.limit.per this)}}selected{{/if}}>{{this}}</option>
               {{/each}}
             </select>
-            <input type="number" id="ep-limit-uses" value="{{detail.cost.limit.uses}}" min="1" step="1" placeholder="uses" />
+            <label class="ep-limit-uses-label" for="ep-limit-uses">Max uses</label>
+            <select id="ep-limit-uses">
+              {{#each limitUseOptions}}
+              <option value="{{this}}" {{#if (eq ../detail.cost.limit.uses this)}}selected{{/if}}>{{this}}</option>
+              {{/each}}
+            </select>
           </div>
         </div>
 

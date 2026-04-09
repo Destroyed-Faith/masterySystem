@@ -31,6 +31,17 @@ export const EMBEDDED_POWER_CATEGORIES = [
 ];
 export const EMBEDDED_POWER_ACTION_COSTS = ['attack', 'movement', 'full', 'reaction', 'none', 'utility'];
 export const EMBEDDED_POWER_LIMIT_PERS = ['round', 'combat', 'day', 'week'];
+/** Common power tags for embedded-power UI (Custom… allows any string). */
+export const EMBEDDED_POWER_TAG_PRESETS = [
+    'spell',
+    'charged',
+    'stance',
+    'movement',
+    'summon',
+    'ritual',
+    'aura'
+];
+export const EMBEDDED_POWER_LIMIT_USE_MAX = 6;
 export function createEmptyPowerLevelRow() {
     return {
         type: '',

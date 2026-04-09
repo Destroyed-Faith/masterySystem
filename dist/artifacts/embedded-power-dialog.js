@@ -1,7 +1,7 @@
 /**
  * Structured editor for artifact Item embedded powers (EmbeddedPowerData).
  */
-import { EMBEDDED_POWER_ACTION_COSTS, EMBEDDED_POWER_AOE_SHAPES, EMBEDDED_POWER_CATEGORIES, EMBEDDED_POWER_DURATION_KINDS, EMBEDDED_POWER_LIMIT_PERS, EMBEDDED_POWER_RANGE_KINDS, createDefaultEmbeddedPower, normalizePowersForEditor } from '../utils/embedded-power-ui-constants.js';
+import { EMBEDDED_POWER_ACTION_COSTS, EMBEDDED_POWER_AOE_SHAPES, EMBEDDED_POWER_CATEGORIES, EMBEDDED_POWER_DURATION_KINDS, EMBEDDED_POWER_LIMIT_PERS, EMBEDDED_POWER_LIMIT_USE_MAX, EMBEDDED_POWER_RANGE_KINDS, EMBEDDED_POWER_TAG_PRESETS, createDefaultEmbeddedPower, normalizePowersForEditor } from '../utils/embedded-power-ui-constants.js';
 import { isOldPowerStructure, migrateArtifactPower } from '../utils/power-migration.js';
 const BaseDialog = foundry?.appv1?.Application || Application;
 const LEVEL_KEYS = ['1', '2', '3', '4'];
@@ -141,6 +141,23 @@ function parseImportedPayload(parsed) {
         return normalizePowersForEditor([migrated])[0];
     });
 }
+const PRESET_TAG_SET = new Set(EMBEDDED_POWER_TAG_PRESETS);
+function tagsToTagRows(tags) {
+    const rows = [];
+    for (const raw of tags || []) {
+        const t = String(raw).trim();
+        if (!t)
+            continue;
+        rows.push(PRESET_TAG_SET.has(t) ? { preset: t, customTag: '' } : { preset: '__custom__', customTag: t });
+    }
+    return rows.length ? rows : [{ preset: '', customTag: '' }];
+}
+function clampLimitUses(n) {
+    const u = Math.floor(Number(n));
+    if (!Number.isFinite(u) || u < 1)
+        return 1;
+    return Math.min(EMBEDDED_POWER_LIMIT_USE_MAX, u);
+}
 function assignFreshIds(added, existing) {
     const used = new Set(existing.map((p) => p.id).filter(Boolean));
     for (const p of added) {
@@ -154,9 +171,11 @@ export class EmbeddedPowerDialog extends BaseDialog {
     item;
     _workingPowers = [];
     _selectedIndex = 0;
-    constructor(item) {
+    _onSaved;
+    constructor(item, options) {
         super();
         this.item = item;
+        this._onSaved = options?.onSaved;
         const sys = item.system;
         this._workingPowers = normalizePowersForEditor(sys.powers || []);
     }
@@ -167,21 +186,23 @@ export class EmbeddedPowerDialog extends BaseDialog {
             template: 'systems/mastery-system/templates/artifacts/embedded-power-dialog.hbs',
             classes: ['mastery-system', 'embedded-power-dialog'],
             width: 960,
-            height: 820,
+            height: 900,
             resizable: true
         });
     }
     prepareDetail(power) {
-        const tagsString = (power.tags || []).join(', ');
         const limitEnabled = !!(power.cost?.limit);
         const roll = power.roll || {};
         const cost = {
             ...power.cost,
-            limit: power.cost?.limit || { per: 'day', uses: 1 }
+            limit: {
+                per: (power.cost?.limit?.per || 'day'),
+                uses: clampLimitUses(power.cost?.limit?.uses)
+            }
         };
         return {
             ...power,
-            tagsString,
+            tagRows: tagsToTagRows(power.tags || []),
             limitEnabled,
             cost,
             rollKind: roll.kind || '',
@@ -244,6 +265,8 @@ export class EmbeddedPowerDialog extends BaseDialog {
         data.categories = [...EMBEDDED_POWER_CATEGORIES];
         data.actionCosts = [...EMBEDDED_POWER_ACTION_COSTS];
         data.limitPers = [...EMBEDDED_POWER_LIMIT_PERS];
+        data.limitUseOptions = Array.from({ length: EMBEDDED_POWER_LIMIT_USE_MAX }, (_, i) => i + 1);
+        data.tagPresetOptions = [...EMBEDDED_POWER_TAG_PRESETS];
         data.isEditable = this.item.isOwner;
         return data;
     }
@@ -258,11 +281,7 @@ export class EmbeddedPowerDialog extends BaseDialog {
         const fluff = String(html.find('#ep-detail-fluff').val() || '').trim();
         prev.fluff = fluff || undefined;
         prev.category = String(html.find('#ep-detail-category').val() || 'active');
-        const tagsRaw = String(html.find('#ep-detail-tags').val() || '');
-        prev.tags = tagsRaw
-            .split(',')
-            .map((t) => t.trim())
-            .filter(Boolean);
+        prev.tags = this.collectTagsFromDom(html);
         prev.cost = {
             action: String(html.find('#ep-cost-action').val() || 'none'),
             stones: parseNum(String(html.find('#ep-cost-stones').val())),
@@ -276,7 +295,7 @@ export class EmbeddedPowerDialog extends BaseDialog {
         if (limitOn) {
             prev.cost.limit = {
                 per: String(html.find('#ep-limit-per').val() || 'day'),
-                uses: parseInt(String(html.find('#ep-limit-uses').val() || '1'), 10) || 1
+                uses: clampLimitUses(parseInt(String(html.find('#ep-limit-uses').val() || '1'), 10))
             };
         }
         else {
@@ -305,6 +324,28 @@ export class EmbeddedPowerDialog extends BaseDialog {
         prev.levels = levels;
         return prev;
     }
+    collectTagsFromDom(html) {
+        const tags = [];
+        html.find('#ep-tags-rows .ep-tag-row').each((_i, el) => {
+            const $r = $(el);
+            const preset = String($r.find('.ep-tag-preset').val() || '').trim();
+            if (!preset)
+                return;
+            if (preset === '__custom__') {
+                const c = String($r.find('.ep-tag-custom').val() || '').trim();
+                if (c)
+                    tags.push(c);
+            }
+            else {
+                tags.push(preset);
+            }
+        });
+        return tags;
+    }
+    static syncTagRowCustomField($row) {
+        const v = String($row.find('.ep-tag-preset').val() || '');
+        $row.find('.ep-tag-custom').toggleClass('hidden', v !== '__custom__');
+    }
     activateListeners(html) {
         super.activateListeners(html);
         html.find('[data-action="ep-cancel"]').on('click', () => {
@@ -317,6 +358,7 @@ export class EmbeddedPowerDialog extends BaseDialog {
             try {
                 await this.item.update({ 'system.powers': foundry.utils.deepClone(this._workingPowers) });
                 ui.notifications?.info('Embedded powers saved.');
+                this._onSaved?.();
                 this.close();
             }
             catch (e) {
@@ -382,6 +424,30 @@ export class EmbeddedPowerDialog extends BaseDialog {
         });
         html.on('click', '.ep-sp-remove', (e) => {
             $(e.currentTarget).closest('.ep-sp-row').remove();
+        });
+        html.find('#ep-tags-rows .ep-tag-row').each((_i, el) => {
+            EmbeddedPowerDialog.syncTagRowCustomField($(el));
+        });
+        html.on('change', '.ep-tag-preset', (e) => {
+            EmbeddedPowerDialog.syncTagRowCustomField($(e.currentTarget).closest('.ep-tag-row'));
+        });
+        html.find('[data-action="ep-add-tag-row"]').on('click', () => {
+            const $c = html.find('#ep-tags-rows');
+            const $first = $c.find('.ep-tag-row').first();
+            const $clone = $first.clone();
+            $clone.find('.ep-tag-preset').val('');
+            $clone.find('.ep-tag-custom').val('').addClass('hidden');
+            $c.append($clone);
+        });
+        html.on('click', '.ep-tag-remove', (e) => {
+            const $row = $(e.currentTarget).closest('.ep-tag-row');
+            const $parent = $row.parent();
+            if ($parent.find('.ep-tag-row').length <= 1) {
+                $row.find('.ep-tag-preset').val('');
+                $row.find('.ep-tag-custom').val('').addClass('hidden');
+                return;
+            }
+            $row.remove();
         });
     }
     runImport(html, mode) {

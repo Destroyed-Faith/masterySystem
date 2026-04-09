@@ -17,6 +17,7 @@ import {
   getArtifactWeaponInnateOptions
 } from '../utils/artifact-node-options.js';
 import { getEffectById, parseEffectStrings } from '../utils/special-effects.js';
+import { normalizePowersForEditor } from '../utils/embedded-power-ui-constants.js';
 import { EmbeddedPowerDialog } from './embedded-power-dialog.js';
 
 // Use V1 Application for reliable template rendering in v13
@@ -169,7 +170,9 @@ export class NodeEditor extends BaseDialog {
     data.artifactKind = artifactKind;
     data.gearSlot = gearSlot;
     data.gearSlotOptions = ARTIFACT_GEAR_SLOT_OPTIONS;
-    data.weaponProfile = { ...weapon, damage: damageStr || weapon.damage || '' };
+    const handsN = Math.min(2, Math.max(1, parseInt(String(weapon.hands ?? 1), 10) || 1));
+    data.weaponProfile = { ...weapon, damage: damageStr || weapon.damage || '', hands: handsN };
+    data.weaponHandsIsTwo = handsN === 2;
     data.armorProfile = armor;
     data.shieldProfile = shield;
     data.damagePresetOptions = [{ value: '', label: 'None' }, ...DAMAGE_PRESETS];
@@ -180,6 +183,12 @@ export class NodeEditor extends BaseDialog {
     data.weaponInnateRows = rowsForStrings(weapon.innateAbilities || []);
     data.weaponSpecialRows = rowsForSpecialRefs(weapon.specials || []);
     data.requirements = system.requirements || { stones: 0, masteryRank: 1 };
+
+    const emb = normalizePowersForEditor(system.powers);
+    data.embeddedPowersSummary =
+      emb.length === 0
+        ? 'No embedded powers on this item yet.'
+        : `${emb.length} power(s) on this item: ${emb.map((p) => p.name).join(', ')}`;
 
     return data;
   }
@@ -270,7 +279,9 @@ export class NodeEditor extends BaseDialog {
     });
 
     html.find('[data-action="open-embedded-powers"]').on('click', () => {
-      new EmbeddedPowerDialog(this.item).render(true);
+      new EmbeddedPowerDialog(this.item, {
+        onSaved: () => (this as any).render(false)
+      }).render(true);
     });
   }
 

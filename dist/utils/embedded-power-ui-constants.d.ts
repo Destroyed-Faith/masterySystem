@@ -8,6 +8,9 @@ export declare const EMBEDDED_POWER_DURATION_KINDS: readonly ["instant", "rounds
 export declare const EMBEDDED_POWER_CATEGORIES: readonly ["active", "activeBuff", "utility", "movement", "reaction", "passive"];
 export declare const EMBEDDED_POWER_ACTION_COSTS: readonly ["attack", "movement", "full", "reaction", "none", "utility"];
 export declare const EMBEDDED_POWER_LIMIT_PERS: readonly ["round", "combat", "day", "week"];
+/** Common power tags for embedded-power UI (Custom… allows any string). */
+export declare const EMBEDDED_POWER_TAG_PRESETS: readonly ["spell", "charged", "stance", "movement", "summon", "ritual", "aura"];
+export declare const EMBEDDED_POWER_LIMIT_USE_MAX = 6;
 export declare function createEmptyPowerLevelRow(): PowerLevelRow;
 /** Ensure all four level keys exist with sane defaults. */
 export declare function ensurePowerLevels(power: {

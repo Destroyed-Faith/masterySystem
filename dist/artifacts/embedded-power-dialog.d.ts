@@ -6,12 +6,17 @@ export declare class EmbeddedPowerDialog extends BaseDialog {
     private item;
     private _workingPowers;
     private _selectedIndex;
-    constructor(item: Item);
+    private _onSaved?;
+    constructor(item: Item, options?: {
+        onSaved?: () => void;
+    });
     static get defaultOptions(): any;
     private prepareDetail;
     getData(options?: any): any;
     private syncFromDom;
     private readCurrentPowerFromForm;
+    private collectTagsFromDom;
+    private static syncTagRowCustomField;
     activateListeners(html: JQuery): void;
     private runImport;
 }

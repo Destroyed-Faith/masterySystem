@@ -1,19 +1,22 @@
 <form class="node-editor-form">
   <div class="node-editor-grid">
-    <div class="form-group node-editor-span2">
-      <label>Level</label>
-      <input type="number" id="node-level" value="{{level}}" disabled />
-    </div>
-
-    <div class="form-group node-editor-span2">
-      <label>Item type</label>
-      <select id="node-artifact-kind">
-        <option value="weapon" {{#if (eq artifactKind "weapon")}}selected{{/if}}>Weapon</option>
-        <option value="armor" {{#if (eq artifactKind "armor")}}selected{{/if}}>Armor</option>
-        <option value="shield" {{#if (eq artifactKind "shield")}}selected{{/if}}>Shield</option>
-        <option value="gear" {{#if (eq artifactKind "gear")}}selected{{/if}}>Gear (accessory)</option>
-      </select>
-      <p class="node-editor-hint">Weapon / armor / shield use standard equip slots. Gear picks a ring, belt, cloak, etc.</p>
+    <div class="node-editor-span2 node-level-item-row">
+      <div class="node-level-item-grid">
+        <div class="form-group">
+          <label>Level</label>
+          <input type="number" id="node-level" value="{{level}}" disabled />
+        </div>
+        <div class="form-group">
+          <label>Item type</label>
+          <select id="node-artifact-kind">
+            <option value="weapon" {{#if (eq artifactKind "weapon")}}selected{{/if}}>Weapon</option>
+            <option value="armor" {{#if (eq artifactKind "armor")}}selected{{/if}}>Armor</option>
+            <option value="shield" {{#if (eq artifactKind "shield")}}selected{{/if}}>Shield</option>
+            <option value="gear" {{#if (eq artifactKind "gear")}}selected{{/if}}>Gear (accessory)</option>
+          </select>
+        </div>
+      </div>
+      <p class="node-editor-hint node-level-item-hint">Weapon / armor / shield use standard equip slots. Gear picks a ring, belt, cloak, etc.</p>
     </div>
 
     <div class="form-group node-editor-span2 {{#unless (eq artifactKind "gear")}}hidden{{/unless}}" data-profile="gear">
@@ -38,7 +41,10 @@
         </div>
         <div class="form-group">
           <label>Hands</label>
-          <input type="number" id="node-weapon-hands" value="{{weaponProfile.hands}}" min="1" max="2" step="1" />
+          <select id="node-weapon-hands">
+            <option value="1" {{#unless weaponHandsIsTwo}}selected{{/unless}}>1 hand</option>
+            <option value="2" {{#if weaponHandsIsTwo}}selected{{/if}}>2 hands</option>
+          </select>
         </div>
         <div class="form-group node-editor-span2 node-weapon-damage-reach-row">
           <div class="node-weapon-damage-stack">
@@ -79,7 +85,7 @@
       </div>
       <div class="form-group">
         <label>Specials</label>
-        <p class="node-editor-hint">Choose effect name and strength (X) where applicable.</p>
+        <p class="node-editor-hint">Pick an effect. If the rules use a variable number (often written as “X”), set <strong>Strength</strong> in the small field next to it.</p>
         <div id="node-weapon-specials" class="node-multi-select">
           {{#each weaponSpecialRows as |row|}}
           <div class="node-select-row node-special-row">
@@ -90,10 +96,10 @@
               {{/each}}
             </select>
             <div class="node-weapon-special-val-wrap {{#unless row.showValueInput}}hidden{{/unless}}">
-              <label class="node-special-strength-label">X</label>
-              <input type="number" class="node-weapon-special-val" min="0" max="99" step="1" value="{{row.valueStr}}" placeholder="0" title="Strength / rank" />
+              <label class="node-special-strength-label" title="Numeric strength or rank when the effect uses a value (e.g. Push 2)">Strength</label>
+              <input type="number" class="node-weapon-special-val" min="0" max="99" step="1" value="{{row.valueStr}}" placeholder="0" title="Strength / rank for this effect" />
             </div>
-            <button type="button" class="node-row-remove" title="Remove row">×</button>
+            <button type="button" class="node-row-remove" title="Remove this row">Remove</button>
           </div>
           {{/each}}
         </div>
@@ -164,7 +170,8 @@
 
     <div class="form-group node-editor-span2 node-embedded-powers-row">
       <label>Embedded powers</label>
-      <p class="node-editor-hint">Edit structured artifact powers (range, AoE, duration, JSON import). Saves separately from this dialog.</p>
+      <p class="node-editor-hint">Stored on this artifact item (<code>system.powers</code>), not in the fields above. Use the artifact item sheet “Powers” tab or the editor below. Saves in a separate window from this dialog.</p>
+      <p class="node-embedded-powers-summary" role="status">{{embeddedPowersSummary}}</p>
       <button type="button" class="node-open-embedded-powers" data-action="open-embedded-powers">Edit embedded powers…</button>
     </div>
   </div>
