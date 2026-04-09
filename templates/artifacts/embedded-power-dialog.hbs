@@ -13,7 +13,7 @@
     <aside class="ep-power-list">
       <div class="ep-power-list-header flexrow">
         <h4>Powers</h4>
-        <button type="button" class="ep-btn ep-btn-small" data-action="ep-add-power" title="Add power">+</button>
+        <button type="button" class="ep-btn ep-btn-small" data-action="ep-add-power" title="Add power" {{#if addPowerDisabled}}disabled{{/if}}>+</button>
       </div>
       {{#if powerList.length}}
         {{#each powerList}}
@@ -27,8 +27,8 @@
       {{/if}}
       {{#if hasPowers}}
       <div class="ep-power-list-actions">
-        <button type="button" class="ep-btn ep-btn-block" data-action="ep-duplicate-power">Duplicate</button>
-        <button type="button" class="ep-btn ep-btn-block ep-btn-danger" data-action="ep-delete-power">Delete</button>
+        <button type="button" class="ep-btn ep-btn-block" data-action="ep-duplicate-power" {{#if duplicatePowerDisabled}}disabled{{/if}}>Duplicate</button>
+        <button type="button" class="ep-btn ep-btn-block ep-btn-danger" data-action="ep-delete-power" {{#if selectedPowerDeleteLocked}}disabled{{/if}}>Delete</button>
       </div>
       {{/if}}
     </aside>

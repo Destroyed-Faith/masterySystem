@@ -3,6 +3,7 @@
  */
 import { EMBEDDED_POWER_ACTION_COSTS, EMBEDDED_POWER_AOE_SHAPES, EMBEDDED_POWER_CATEGORIES, EMBEDDED_POWER_DURATION_KINDS, EMBEDDED_POWER_LIMIT_PERS, EMBEDDED_POWER_LIMIT_USE_MAX, EMBEDDED_POWER_RANGE_KINDS, EMBEDDED_POWER_TAG_PRESETS, createDefaultEmbeddedPower, normalizePowersForEditor } from '../utils/embedded-power-ui-constants.js';
 import { isOldPowerStructure, migrateArtifactPower } from '../utils/power-migration.js';
+import { syncArtifactInheritedFromParent } from '../utils/artifact-folder-sync.js';
 const BaseDialog = foundry?.appv1?.Application || Application;
 const LEVEL_KEYS = ['1', '2', '3', '4'];
 function randomId() {
@@ -167,17 +168,35 @@ function assignFreshIds(added, existing) {
         used.add(p.id);
     }
 }
+function toLockedPowerIdSet(raw) {
+    if (!raw)
+        return new Set();
+    if (raw instanceof Set)
+        return new Set([...raw].filter(Boolean));
+    return new Set(raw.map((s) => String(s).trim()).filter(Boolean));
+}
 export class EmbeddedPowerDialog extends BaseDialog {
     item;
     _workingPowers = [];
+    _baselinePowers = [];
     _selectedIndex = 0;
     _onSaved;
+    _lineage;
     constructor(item, options) {
         super();
         this.item = item;
         this._onSaved = options?.onSaved;
+        const lin = options?.lineage;
+        this._lineage = {
+            isLineageRoot: lin?.isLineageRoot !== false,
+            lockedPowerIds: toLockedPowerIdSet(lin?.lockedPowerIds),
+            maxTotalPowers: lin?.maxTotalPowers != null && Number.isFinite(lin.maxTotalPowers)
+                ? lin.maxTotalPowers
+                : Number.POSITIVE_INFINITY
+        };
         const sys = item.system;
         this._workingPowers = normalizePowersForEditor(sys.powers || []);
+        this._baselinePowers = foundry.utils.deepClone(this._workingPowers);
     }
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions, {
@@ -268,7 +287,36 @@ export class EmbeddedPowerDialog extends BaseDialog {
         data.limitUseOptions = Array.from({ length: EMBEDDED_POWER_LIMIT_USE_MAX }, (_, i) => i + 1);
         data.tagPresetOptions = [...EMBEDDED_POWER_TAG_PRESETS];
         data.isEditable = this.item.isOwner;
+        const atCap = !this._lineage.isLineageRoot &&
+            Number.isFinite(this._lineage.maxTotalPowers) &&
+            powers.length >= this._lineage.maxTotalPowers;
+        data.addPowerDisabled = atCap;
+        data.duplicatePowerDisabled = atCap || !hasPowers;
+        const sel = hasPowers ? powers[this._selectedIndex] : null;
+        data.selectedPowerDeleteLocked = Boolean(sel &&
+            !this._lineage.isLineageRoot &&
+            sel.id &&
+            this._lineage.lockedPowerIds.has(String(sel.id)));
         return data;
+    }
+    finalizePowersForSave() {
+        let next = foundry.utils.deepClone(this._workingPowers);
+        if (!this._lineage.isLineageRoot) {
+            for (const id of this._lineage.lockedPowerIds) {
+                if (!id)
+                    continue;
+                if (!next.some((p) => p.id === id)) {
+                    const baseline = this._baselinePowers.find((p) => p.id === id);
+                    if (baseline)
+                        next.push(foundry.utils.deepClone(baseline));
+                }
+            }
+            if (Number.isFinite(this._lineage.maxTotalPowers) && next.length > this._lineage.maxTotalPowers) {
+                ui.notifications?.error(`Too many embedded powers for this tree node (max ${this._lineage.maxTotalPowers}).`);
+                return null;
+            }
+        }
+        return normalizePowersForEditor(next);
     }
     syncFromDom(html) {
         if (!this._workingPowers.length)
@@ -355,8 +403,15 @@ export class EmbeddedPowerDialog extends BaseDialog {
             if (!this.item.isOwner)
                 return;
             this.syncFromDom(html);
+            const finalized = this.finalizePowersForSave();
+            if (!finalized)
+                return;
             try {
-                await this.item.update({ 'system.powers': foundry.utils.deepClone(this._workingPowers) });
+                await this.item.update({ 'system.powers': finalized });
+                const childIds = this.item.getFlag('mastery-system', 'childIds') || [];
+                if (childIds.length > 0) {
+                    await syncArtifactInheritedFromParent(this.item);
+                }
                 ui.notifications?.info('Embedded powers saved.');
                 this._onSaved?.();
                 this.close();
@@ -376,6 +431,12 @@ export class EmbeddedPowerDialog extends BaseDialog {
         });
         html.find('[data-action="ep-add-power"]').on('click', () => {
             this.syncFromDom(html);
+            if (!this._lineage.isLineageRoot &&
+                Number.isFinite(this._lineage.maxTotalPowers) &&
+                this._workingPowers.length >= this._lineage.maxTotalPowers) {
+                ui.notifications?.warn('This node cannot add more embedded powers (tree cap reached).');
+                return;
+            }
             const np = createDefaultEmbeddedPower(randomId());
             this._workingPowers.push(np);
             this._selectedIndex = this._workingPowers.length - 1;
@@ -384,6 +445,12 @@ export class EmbeddedPowerDialog extends BaseDialog {
         html.find('[data-action="ep-duplicate-power"]').on('click', () => {
             if (!this._workingPowers.length)
                 return;
+            if (!this._lineage.isLineageRoot &&
+                Number.isFinite(this._lineage.maxTotalPowers) &&
+                this._workingPowers.length >= this._lineage.maxTotalPowers) {
+                ui.notifications?.warn('Cannot duplicate: tree embedded-power cap reached.');
+                return;
+            }
             this.syncFromDom(html);
             const cur = foundry.utils.deepClone(this._workingPowers[this._selectedIndex]);
             cur.id = randomId();
@@ -395,6 +462,13 @@ export class EmbeddedPowerDialog extends BaseDialog {
         html.find('[data-action="ep-delete-power"]').on('click', () => {
             if (!this._workingPowers.length)
                 return;
+            const cur = this._workingPowers[this._selectedIndex];
+            if (cur?.id &&
+                !this._lineage.isLineageRoot &&
+                this._lineage.lockedPowerIds.has(String(cur.id))) {
+                ui.notifications?.warn('This embedded power is inherited from an ancestor and cannot be removed.');
+                return;
+            }
             this.syncFromDom(html);
             this._workingPowers.splice(this._selectedIndex, 1);
             if (this._selectedIndex >= this._workingPowers.length) {

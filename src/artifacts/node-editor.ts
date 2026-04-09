@@ -13,18 +13,32 @@ import type {
 import {
   ARTIFACT_GEAR_SLOT_OPTIONS,
   getArtifactSpecialSelectOptions,
-  getArtifactWeaponDamagePresets,
+  getArtifactTreeWeaponDamagePresets,
   getArtifactWeaponInnateOptions
 } from '../utils/artifact-node-options.js';
-import { getEffectById, parseEffectStrings } from '../utils/special-effects.js';
+import { syncArtifactInheritedFromParent } from '../utils/artifact-folder-sync.js';
+import {
+  buildArtifactNodeIdMap,
+  findRootItem,
+  getAncestorChainRootFirst,
+  getLockedWeaponBasics,
+  getMaxTotalEmbeddedPowers,
+  getMergedAncestorPowerIds,
+  getTreeDepth,
+  isLineageRootItem,
+  mergeInnatesFromAncestors,
+  mergeSpecialRefsFromAncestors,
+  specialRefKey
+} from '../utils/artifact-tree-lineage.js';
 import { normalizePowersForEditor } from '../utils/embedded-power-ui-constants.js';
 import { EmbeddedPowerDialog } from './embedded-power-dialog.js';
+import { getEffectById, parseEffectStrings } from '../utils/special-effects.js';
 
 // Use V1 Application for reliable template rendering in v13
 const BaseDialog: any = (foundry as any)?.appv1?.Application || (Application as any);
 
-const DAMAGE_PRESETS = getArtifactWeaponDamagePresets();
-const PRESET_VALUES = new Set(DAMAGE_PRESETS.map((p) => p.value));
+const TREE_DAMAGE_PRESETS = getArtifactTreeWeaponDamagePresets();
+const TREE_PRESET_VALUES = new Set(TREE_DAMAGE_PRESETS.map((p) => p.value));
 
 function defaultWeaponProfile(): ArtifactWeaponProfile {
   return {
@@ -97,25 +111,73 @@ function resolveProfiles(system: any): {
   return { artifactKind, gearSlot, weapon, armor, shield };
 }
 
-function rowsForStrings(values: string[]): string[] {
-  const v = (values || []).map((s) => String(s).trim()).filter(Boolean);
-  return v.length ? v : [''];
+function getFolderArtifactItemsForItem(item: Item): Item[] {
+  const folderId = (item as any).folder?.id;
+  if (!folderId) return [];
+  return (
+    (game as any).items?.filter((it: any) => it.folder?.id === folderId && it.type === 'artifact') || []
+  );
 }
 
-function rowsForSpecialRefs(refs: ArtifactWeaponSpecialRef[]): any[] {
+function resolveLineageForItem(item: Item) {
+  const folderItems = getFolderArtifactItemsForItem(item);
+  const nodeIdMap = buildArtifactNodeIdMap(folderItems as any);
+  const isLineageRoot = folderItems.length === 0 || isLineageRootItem(item as any);
+  const ancestors = getAncestorChainRootFirst(item as any, nodeIdMap);
+  const rootItem = folderItems.length ? findRootItem(item as any, nodeIdMap) : item;
+  const rootSystem = (rootItem as Item).system as any;
+  const lockedBasics = getLockedWeaponBasics(rootSystem);
+  const { ordered: lockedInnateList, set: lockedInnateSet } = mergeInnatesFromAncestors(ancestors as any);
+  const { ordered: lockedSpecialList, keySet: lockedSpecialKeySet } = mergeSpecialRefsFromAncestors(ancestors as any);
+  const mergedAncestorPowerIds = getMergedAncestorPowerIds(ancestors as any);
+  const depth = folderItems.length ? getTreeDepth(item as any, nodeIdMap) : 1;
+  const maxTotalPowers = getMaxTotalEmbeddedPowers(isLineageRoot, depth, mergedAncestorPowerIds.size);
+  return {
+    isLineageRoot,
+    lockedBasics,
+    lockedInnateList,
+    lockedInnateSet,
+    lockedSpecialList,
+    lockedSpecialKeySet,
+    mergedAncestorPowerIds,
+    maxTotalPowers,
+    depth,
+    rootArmorType: rootSystem?.artifactArmor?.type || 'light',
+    rootShieldType: rootSystem?.artifactShield?.type || 'parry'
+  };
+}
+
+function buildInnateRows(innates: string[], lockedSet: Set<string>): { value: string; locked: boolean }[] {
+  const list = (innates || []).map((s) => String(s).trim()).filter(Boolean);
+  const rows: { value: string; locked: boolean }[] = list.map((value) => ({
+    value,
+    locked: lockedSet.has(value)
+  }));
+  return rows.length ? rows : [{ value: '', locked: false }];
+}
+
+function buildSpecialRows(refs: ArtifactWeaponSpecialRef[], lockedKeySet: Set<string>): any[] {
   if (!refs.length) {
-    return [{ specialId: '', valueStr: '', showValueInput: false }];
+    return [{ specialId: '', valueStr: '', showValueInput: false, locked: false }];
   }
   return refs.map((ref) => {
     const ef = getEffectById(ref.specialId);
     const hasVal = ef ? ef.hasValue : true;
+    const k = specialRefKey(ref);
     return {
       specialId: ref.specialId,
       value: ref.value,
       valueStr: ref.value != null && Number.isFinite(ref.value) ? String(ref.value) : '',
-      showValueInput: Boolean(ref.specialId && hasVal)
+      showValueInput: Boolean(ref.specialId && hasVal),
+      locked: lockedKeySet.has(k)
     };
   });
+}
+
+function coerceTreeDamage(damageStr: string): string {
+  const t = String(damageStr || '').trim();
+  if (TREE_PRESET_VALUES.has(t)) return t;
+  return '1d8';
 }
 
 function syncWeaponRangeLabel(html: JQuery): void {
@@ -160,10 +222,10 @@ export class NodeEditor extends BaseDialog {
     const system = this.item.system as any;
 
     const { artifactKind, gearSlot, weapon, armor, shield } = resolveProfiles(system);
+    const lineage = resolveLineageForItem(this.item);
 
     const damageStr = weapon.damage != null ? String(weapon.damage).trim() : '';
-    const weaponDamageIsCustom = damageStr !== '' && !PRESET_VALUES.has(damageStr);
-    const weaponDamagePreset = weaponDamageIsCustom ? '__custom__' : damageStr;
+    const weaponDamagePreset = coerceTreeDamage(damageStr);
 
     data.item = this.item;
     data.level = system.level || 1;
@@ -171,18 +233,22 @@ export class NodeEditor extends BaseDialog {
     data.gearSlot = gearSlot;
     data.gearSlotOptions = ARTIFACT_GEAR_SLOT_OPTIONS;
     const handsN = Math.min(2, Math.max(1, parseInt(String(weapon.hands ?? 1), 10) || 1));
-    data.weaponProfile = { ...weapon, damage: damageStr || weapon.damage || '', hands: handsN };
+    data.weaponProfile = { ...weapon, damage: weaponDamagePreset, hands: handsN };
     data.weaponHandsIsTwo = handsN === 2;
     data.armorProfile = armor;
     data.shieldProfile = shield;
-    data.damagePresetOptions = [{ value: '', label: 'None' }, ...DAMAGE_PRESETS];
+    data.damagePresetOptions = TREE_DAMAGE_PRESETS;
     data.weaponDamagePreset = weaponDamagePreset;
-    data.weaponDamageIsCustom = weaponDamageIsCustom;
     data.innateOptions = getArtifactWeaponInnateOptions();
     data.specialSelectOptions = getArtifactSpecialSelectOptions();
-    data.weaponInnateRows = rowsForStrings(weapon.innateAbilities || []);
-    data.weaponSpecialRows = rowsForSpecialRefs(weapon.specials || []);
+    data.weaponInnateRows = buildInnateRows(weapon.innateAbilities || [], lineage.lockedInnateSet);
+    data.weaponSpecialRows = buildSpecialRows(weapon.specials || [], lineage.lockedSpecialKeySet);
     data.requirements = system.requirements || { stones: 0, masteryRank: 1 };
+
+    data.isLineageRoot = lineage.isLineageRoot;
+    data.lineageHint = lineage.isLineageRoot
+      ? ''
+      : 'Tree child: item type, weapon type, hands, gear slot, and armor/shield type match the root node. Inherited innates/specials/powers cannot be removed; you can add more.';
 
     const emb = normalizePowersForEditor(system.powers);
     data.embeddedPowersSummary =
@@ -208,29 +274,30 @@ export class NodeEditor extends BaseDialog {
     html.find('#node-artifact-kind').on('change', syncKindUi);
     syncKindUi();
 
-    html.find('#node-weapon-damage-preset').on('change', (e: JQuery.ChangeEvent) => {
-      const v = $(e.currentTarget).val() as string;
-      html.find('.node-weapon-damage-custom-wrap').toggleClass('hidden', v !== '__custom__');
-    });
-
     html.find('#node-weapon-type').on('change', () => syncWeaponRangeLabel(html));
     syncWeaponRangeLabel(html);
 
     const cloneInnateRow = () => {
       const $c = html.find('#node-weapon-innates');
-      const $first = $c.find('.node-select-row').first();
-      const $clone = $first.clone();
-      $clone.find('.node-weapon-innate').val('');
+      const $first = $c.find('.node-select-row').not('.node-row-locked').first();
+      const $use = $first.length ? $first : $c.find('.node-select-row').first();
+      const $clone = $use.clone();
+      $clone.removeClass('node-row-locked');
+      $clone.find('.node-weapon-innate').prop('disabled', false).val('');
+      $clone.find('.node-row-remove').removeClass('hidden');
       $c.append($clone);
     };
 
     const cloneSpecialRow = () => {
       const $c = html.find('#node-weapon-specials');
-      const $first = $c.find('.node-special-row').first();
-      const $clone = $first.clone();
-      $clone.find('.node-weapon-special-id').val('');
+      const $first = $c.find('.node-special-row').not('.node-row-locked').first();
+      const $use = $first.length ? $first : $c.find('.node-special-row').first();
+      const $clone = $use.clone();
+      $clone.removeClass('node-row-locked');
+      $clone.find('.node-weapon-special-id').prop('disabled', false).val('');
       $clone.find('.node-weapon-special-val').val('');
       $clone.find('.node-weapon-special-val-wrap').addClass('hidden');
+      $clone.find('.node-row-remove').removeClass('hidden');
       $c.append($clone);
     };
 
@@ -252,6 +319,7 @@ export class NodeEditor extends BaseDialog {
 
     html.on('click', '.node-row-remove', (e: JQuery.ClickEvent) => {
       const $row = $(e.currentTarget).closest('.node-select-row, .node-special-row');
+      if ($row.hasClass('node-row-locked')) return;
       const $parent = $row.parent();
       const isSpecial = $row.hasClass('node-special-row');
       const minRows = 1;
@@ -279,8 +347,14 @@ export class NodeEditor extends BaseDialog {
     });
 
     html.find('[data-action="open-embedded-powers"]').on('click', () => {
+      const lin = resolveLineageForItem(this.item);
       new EmbeddedPowerDialog(this.item, {
-        onSaved: () => (this as any).render(false)
+        onSaved: () => (this as any).render(false),
+        lineage: {
+          isLineageRoot: lin.isLineageRoot,
+          lockedPowerIds: lin.mergedAncestorPowerIds,
+          maxTotalPowers: lin.maxTotalPowers
+        }
       }).render(true);
     });
   }
@@ -314,33 +388,78 @@ export class NodeEditor extends BaseDialog {
     return out;
   }
 
+  mergeInnatesForSave(html: JQuery, lineage: ReturnType<typeof resolveLineageForItem>): string[] {
+    const dom = this.collectSelectValues(html, '.node-weapon-innate');
+    const merged: string[] = [...lineage.lockedInnateList];
+    const seen = new Set(merged);
+    for (const v of dom) {
+      if (v && !lineage.lockedInnateSet.has(v) && !seen.has(v)) {
+        seen.add(v);
+        merged.push(v);
+      }
+    }
+    return merged;
+  }
+
+  mergeSpecialsForSave(html: JQuery, lineage: ReturnType<typeof resolveLineageForItem>): ArtifactWeaponSpecialRef[] {
+    const collected = this.collectWeaponSpecials(html);
+    const byKey = new Map(collected.map((r) => [specialRefKey(r), r]));
+    const merged: ArtifactWeaponSpecialRef[] = [];
+    for (const lock of lineage.lockedSpecialList) {
+      merged.push(byKey.get(specialRefKey(lock)) || lock);
+    }
+    for (const c of collected) {
+      if (!lineage.lockedSpecialKeySet.has(specialRefKey(c))) merged.push(c);
+    }
+    return merged;
+  }
+
   async saveNode(html: JQuery): Promise<void> {
-    const kind = html.find('#node-artifact-kind').val() as ArtifactKind;
-    const gearSlot = kind === 'gear' ? String(html.find('#node-gear-slot').val() || '').trim() : '';
+    const lineage = resolveLineageForItem(this.item);
+
+    let kind = html.find('#node-artifact-kind').val() as ArtifactKind;
+    let gearSlot = kind === 'gear' ? String(html.find('#node-gear-slot').val() || '').trim() : '';
+    let weaponType = (html.find('#node-weapon-type').val() as 'melee' | 'ranged') || 'melee';
+    let hands = Math.min(2, Math.max(1, parseInt(html.find('#node-weapon-hands').val() as string, 10) || 1));
+
+    if (!lineage.isLineageRoot) {
+      kind = lineage.lockedBasics.artifactKind;
+      gearSlot = lineage.lockedBasics.gearSlot;
+      weaponType = lineage.lockedBasics.weaponType;
+      hands = lineage.lockedBasics.hands;
+    }
 
     const preset = html.find('#node-weapon-damage-preset').val() as string;
-    const customDmg = String(html.find('#node-weapon-damage-custom').val() || '').trim();
-    const damage =
-      preset === '__custom__' ? customDmg : preset === '' ? '' : preset;
+    const damage = coerceTreeDamage(preset || '1d8');
+
+    const innateAbilities = this.mergeInnatesForSave(html, lineage);
+    const specials = this.mergeSpecialsForSave(html, lineage);
 
     const artifactWeapon: ArtifactWeaponProfile = {
-      weaponType: (html.find('#node-weapon-type').val() as 'melee' | 'ranged') || 'melee',
+      weaponType,
       damage,
       range: String(html.find('#node-weapon-range').val() || '0m').trim() || '0m',
-      hands: Math.min(2, Math.max(1, parseInt(html.find('#node-weapon-hands').val() as string, 10) || 1)),
-      innateAbilities: this.collectSelectValues(html, '.node-weapon-innate'),
-      specials: this.collectWeaponSpecials(html)
+      hands,
+      innateAbilities,
+      specials
     };
 
+    let armorType = String(html.find('#node-armor-type').val() || 'light');
+    let shieldType = String(html.find('#node-shield-type').val() || 'parry');
+    if (!lineage.isLineageRoot) {
+      armorType = lineage.rootArmorType;
+      shieldType = lineage.rootShieldType;
+    }
+
     const artifactArmor: ArtifactArmorProfile = {
-      type: String(html.find('#node-armor-type').val() || 'light'),
+      type: armorType,
       armorValue: parseInt(html.find('#node-armor-value').val() as string, 10) || 0,
       evadeModifier: parseInt(html.find('#node-armor-evade').val() as string, 10) || 0,
       skillPenalty: String(html.find('#node-armor-skill-penalty').val() || '').trim()
     };
 
     const artifactShield: ArtifactShieldProfile = {
-      type: String(html.find('#node-shield-type').val() || 'parry'),
+      type: shieldType,
       shieldValue: parseInt(html.find('#node-shield-value').val() as string, 10) || 0,
       evadeBonus: parseInt(html.find('#node-shield-evade').val() as string, 10) || 0,
       skillPenalty: String(html.find('#node-shield-skill-penalty').val() || '').trim()
@@ -364,6 +483,12 @@ export class NodeEditor extends BaseDialog {
     };
 
     await this.item.update(updates);
+
+    const childIds = ((this.item as any).getFlag('mastery-system', 'childIds') as string[]) || [];
+    if (childIds.length > 0) {
+      await syncArtifactInheritedFromParent(this.item);
+    }
+
     ui.notifications?.info('Artifact node updated.');
   }
 }

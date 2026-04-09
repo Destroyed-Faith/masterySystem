@@ -143,6 +143,15 @@ export function getArtifactWeaponDamagePresets(): { value: string; label: string
   ];
 }
 
+/** Artifact tree node editor: 1d8 … 8d8 only. */
+export function getArtifactTreeWeaponDamagePresets(): { value: string; label: string }[] {
+  return Array.from({ length: 8 }, (_, i) => {
+    const n = i + 1;
+    const v = `${n}d8`;
+    return { value: v, label: v };
+  });
+}
+
 /** Accessory slots aligned with character sheet equipment (non-weapon/armor/shield). */
 export const ARTIFACT_GEAR_SLOT_OPTIONS: { value: string; label: string }[] = [
   { value: 'helmet', label: 'Helmet' },

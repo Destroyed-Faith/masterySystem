@@ -16,9 +16,8 @@ export declare function createEmptyPowerLevelRow(): PowerLevelRow;
 export declare function ensurePowerLevels(power: {
     levels?: Record<string, unknown>;
 }): Record<PowerLevelKey, PowerLevelRow>;
-/**
- * Migrate legacy powers and normalize shape for the embedded-power editor.
- */
+/** Assign stable `id` to any embedded power missing one (required for tree inheritance locks). */
+export declare function ensureEmbeddedPowerIds(powers: EmbeddedPowerData[]): EmbeddedPowerData[];
 export declare function normalizePowersForEditor(powers: unknown[] | null | undefined): EmbeddedPowerData[];
 export declare function createDefaultEmbeddedPower(randomId?: string): EmbeddedPowerData;
 //# sourceMappingURL=embedded-power-ui-constants.d.ts.map

@@ -2,8 +2,26 @@
  * Node Editor Dialog
  * Edit a single artifact node's data (kind + type-specific profile).
  */
-import type { ArtifactWeaponSpecialRef } from '../types/item.js';
+import type { ArtifactKind, ArtifactWeaponSpecialRef } from '../types/item.js';
 declare const BaseDialog: any;
+declare function resolveLineageForItem(item: Item): {
+    isLineageRoot: boolean;
+    lockedBasics: {
+        artifactKind: ArtifactKind;
+        gearSlot: string;
+        weaponType: "melee" | "ranged";
+        hands: number;
+    };
+    lockedInnateList: string[];
+    lockedInnateSet: Set<string>;
+    lockedSpecialList: ArtifactWeaponSpecialRef[];
+    lockedSpecialKeySet: Set<string>;
+    mergedAncestorPowerIds: Set<string>;
+    maxTotalPowers: number;
+    depth: number;
+    rootArmorType: any;
+    rootShieldType: any;
+};
 export declare class NodeEditor extends BaseDialog {
     private item;
     constructor(item: Item);
@@ -12,6 +30,8 @@ export declare class NodeEditor extends BaseDialog {
     activateListeners(html: JQuery): void;
     collectSelectValues(html: JQuery, selectClass: string): string[];
     collectWeaponSpecials(html: JQuery): ArtifactWeaponSpecialRef[];
+    mergeInnatesForSave(html: JQuery, lineage: ReturnType<typeof resolveLineageForItem>): string[];
+    mergeSpecialsForSave(html: JQuery, lineage: ReturnType<typeof resolveLineageForItem>): ArtifactWeaponSpecialRef[];
     saveNode(html: JQuery): Promise<void>;
 }
 export {};

@@ -104,9 +104,33 @@ function cloneJson<T>(x: T): T {
 /**
  * Migrate legacy powers and normalize shape for the embedded-power editor.
  */
+function randomIdFallback(): string {
+  const fn = (globalThis as any).foundry?.utils?.randomID;
+  return typeof fn === 'function' ? fn() : `ep_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 9)}`;
+}
+
+/** Assign stable `id` to any embedded power missing one (required for tree inheritance locks). */
+export function ensureEmbeddedPowerIds(powers: EmbeddedPowerData[]): EmbeddedPowerData[] {
+  const used = new Set<string>();
+  for (const p of powers) {
+    const id = p.id && String(p.id).trim();
+    if (id) used.add(id);
+  }
+  return powers.map((p) => {
+    const id = p.id && String(p.id).trim();
+    if (id) return p;
+    let nid: string;
+    do {
+      nid = randomIdFallback();
+    } while (used.has(nid));
+    used.add(nid);
+    return { ...p, id: nid };
+  });
+}
+
 export function normalizePowersForEditor(powers: unknown[] | null | undefined): EmbeddedPowerData[] {
   const arr = Array.isArray(powers) ? powers : [];
-  return arr.map((p) => {
+  const mapped = arr.map((p) => {
     const base = isOldPowerStructure(p) ? migrateArtifactPower(p) : cloneJson(p as object);
     const raw = base as Record<string, any>;
     const x: EmbeddedPowerData = {
@@ -119,6 +143,7 @@ export function normalizePowersForEditor(powers: unknown[] | null | undefined): 
     };
     return x;
   });
+  return ensureEmbeddedPowerIds(mapped);
 }
 
 export function createDefaultEmbeddedPower(randomId?: string): EmbeddedPowerData {

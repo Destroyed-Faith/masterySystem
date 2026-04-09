@@ -4,6 +4,8 @@
  */
 
 import { NodeEditor } from './node-editor.js';
+import { normalizePowersForEditor } from '../utils/embedded-power-ui-constants.js';
+import { syncArtifactInheritedFromParent } from '../utils/artifact-folder-sync.js';
 
 interface ArtifactNodeData {
   nodeId: string;
@@ -268,7 +270,8 @@ export class ArtifactBuilder extends BaseApplication {
           stones: parentRequirements.stones || 0,
           masteryRank: parentRequirements.masteryRank || 1
         },
-        description: parentSystem.description || ''
+        description: parentSystem.description || '',
+        powers: normalizePowersForEditor(foundry.utils.duplicate(parentSystem.powers || []))
       },
       flags: {
         'mastery-system': {
@@ -286,8 +289,8 @@ export class ArtifactBuilder extends BaseApplication {
     parentFlags.push(newNodeId);
     await (parentItem as any).setFlag('mastery-system', 'childIds', parentFlags);
 
-    // Sync inherited bonuses/abilities to all children recursively
-    await this.syncInheritedBonusesToChildren(newItem);
+    // Push merged profile + powers from parent to all descendants (including the new child)
+    await this.syncInheritedBonusesToChildren(parentItem);
 
     // Re-render
     await (this as any).render();
@@ -493,56 +496,7 @@ export class ArtifactBuilder extends BaseApplication {
    * This implements the artifact kind element inheritance system
    */
   async syncInheritedBonusesToChildren(parentItem: Item): Promise<void> {
-    const parentSystem = parentItem.system as any;
-    const parentBonuses = parentSystem.bonuses || {
-      attack: 0,
-      damage: '',
-      defense: 0,
-      specials: []
-    };
-
-    const defaultWeapon = {
-      weaponType: 'melee' as const,
-      damage: '1d8',
-      range: '0m',
-      hands: 1,
-      innateAbilities: [] as string[],
-      specials: [] as string[]
-    };
-    const defaultArmor = { type: 'light', armorValue: 0, evadeModifier: 0, skillPenalty: '' };
-    const defaultShield = { type: 'parry', shieldValue: 0, evadeBonus: 0, skillPenalty: '' };
-
-    const parentFlags = (parentItem as any).getFlag('mastery-system', 'childIds') || [];
-    if (parentFlags.length === 0) return;
-
-    const childItems: Item[] = [];
-    for (const childNodeId of parentFlags) {
-      const childNode = this.nodes.get(childNodeId);
-      if (childNode) {
-        const childItem = (game as any).items?.get(childNode.itemId);
-        if (childItem) {
-          childItems.push(childItem);
-        }
-      }
-    }
-
-    for (const childItem of childItems) {
-      const updates: any = {
-        'system.artifactKind': parentSystem.artifactKind || 'weapon',
-        'system.gearSlot': parentSystem.gearSlot || '',
-        'system.artifactWeapon': foundry.utils.duplicate(parentSystem.artifactWeapon || defaultWeapon),
-        'system.artifactArmor': foundry.utils.duplicate(parentSystem.artifactArmor || defaultArmor),
-        'system.artifactShield': foundry.utils.duplicate(parentSystem.artifactShield || defaultShield),
-        'system.bonuses.attack': parentBonuses.attack || 0,
-        'system.bonuses.damage': parentBonuses.damage || '',
-        'system.bonuses.defense': parentBonuses.defense || 0,
-        'system.bonuses.specials': [...(parentBonuses.specials || [])]
-      };
-
-      await childItem.update(updates);
-
-      await this.syncInheritedBonusesToChildren(childItem);
-    }
+    await syncArtifactInheritedFromParent(parentItem);
   }
 
   /**

@@ -1,5 +1,8 @@
 <form class="node-editor-form">
   <div class="node-editor-grid">
+    {{#if lineageHint}}
+    <p class="node-editor-hint node-editor-span2 node-lineage-hint">{{lineageHint}}</p>
+    {{/if}}
     <div class="node-editor-span2 node-level-item-row">
       <div class="node-level-item-grid">
         <div class="form-group">
@@ -8,7 +11,7 @@
         </div>
         <div class="form-group">
           <label>Item type</label>
-          <select id="node-artifact-kind">
+          <select id="node-artifact-kind" {{#unless isLineageRoot}}disabled{{/unless}}>
             <option value="weapon" {{#if (eq artifactKind "weapon")}}selected{{/if}}>Weapon</option>
             <option value="armor" {{#if (eq artifactKind "armor")}}selected{{/if}}>Armor</option>
             <option value="shield" {{#if (eq artifactKind "shield")}}selected{{/if}}>Shield</option>
@@ -21,7 +24,7 @@
 
     <div class="form-group node-editor-span2 {{#unless (eq artifactKind "gear")}}hidden{{/unless}}" data-profile="gear">
       <label>Gear slot</label>
-      <select id="node-gear-slot">
+      <select id="node-gear-slot" {{#unless isLineageRoot}}disabled{{/unless}}>
         <option value="">— Select slot —</option>
         {{#each gearSlotOptions}}
         <option value="{{this.value}}" {{#if (eq ../gearSlot this.value)}}selected{{/if}}>{{this.label}}</option>
@@ -34,14 +37,14 @@
       <div class="node-editor-grid">
         <div class="form-group">
           <label>Type</label>
-          <select id="node-weapon-type">
+          <select id="node-weapon-type" {{#unless isLineageRoot}}disabled{{/unless}}>
             <option value="melee" {{#if (eq weaponProfile.weaponType "melee")}}selected{{/if}}>Melee</option>
             <option value="ranged" {{#if (eq weaponProfile.weaponType "ranged")}}selected{{/if}}>Ranged</option>
           </select>
         </div>
         <div class="form-group">
           <label>Hands</label>
-          <select id="node-weapon-hands">
+          <select id="node-weapon-hands" {{#unless isLineageRoot}}disabled{{/unless}}>
             <option value="1" {{#unless weaponHandsIsTwo}}selected{{/unless}}>1 hand</option>
             <option value="2" {{#if weaponHandsIsTwo}}selected{{/if}}>2 hands</option>
           </select>
@@ -53,12 +56,7 @@
               {{#each damagePresetOptions}}
               <option value="{{this.value}}" {{#if (eq this.value ../weaponDamagePreset)}}selected{{/if}}>{{this.label}}</option>
               {{/each}}
-              <option value="__custom__" {{#if weaponDamageIsCustom}}selected{{/if}}>Custom…</option>
             </select>
-            <div class="form-group node-weapon-damage-custom-wrap {{#unless weaponDamageIsCustom}}hidden{{/unless}}">
-              <label>Custom damage</label>
-              <input type="text" id="node-weapon-damage-custom" value="{{weaponProfile.damage}}" placeholder="e.g. 2d8+1" />
-            </div>
           </div>
           <div class="form-group node-weapon-reach-col">
             <label id="node-weapon-range-label">{{#if (eq weaponProfile.weaponType "ranged")}}Range{{else}}Reach{{/if}}</label>
@@ -70,14 +68,14 @@
         <label>Innate abilities</label>
         <div id="node-weapon-innates" class="node-multi-select">
           {{#each weaponInnateRows as |row|}}
-          <div class="node-select-row">
-            <select class="node-weapon-innate">
+          <div class="node-select-row {{#if row.locked}}node-row-locked{{/if}}">
+            <select class="node-weapon-innate" {{#if row.locked}}disabled{{/if}}>
               <option value="">—</option>
               {{#each ../innateOptions as |opt|}}
-              <option value="{{opt}}" {{#if (eq row opt)}}selected{{/if}}>{{opt}}</option>
+              <option value="{{opt}}" {{#if (eq row.value opt)}}selected{{/if}}>{{opt}}</option>
               {{/each}}
             </select>
-            <button type="button" class="node-row-remove" title="Remove row">×</button>
+            <button type="button" class="node-row-remove {{#if row.locked}}hidden{{/if}}" title="Remove row">×</button>
           </div>
           {{/each}}
         </div>
@@ -88,8 +86,8 @@
         <p class="node-editor-hint">Pick an effect. If the rules use a variable number (often written as “X”), set <strong>Strength</strong> in the small field next to it.</p>
         <div id="node-weapon-specials" class="node-multi-select">
           {{#each weaponSpecialRows as |row|}}
-          <div class="node-select-row node-special-row">
-            <select class="node-weapon-special-id">
+          <div class="node-select-row node-special-row {{#if row.locked}}node-row-locked{{/if}}">
+            <select class="node-weapon-special-id" {{#if row.locked}}disabled{{/if}}>
               <option value="">—</option>
               {{#each ../specialSelectOptions as |opt|}}
               <option value="{{opt.id}}" data-has-value="{{#if opt.hasValue}}true{{else}}false{{/if}}" {{#if (eq row.specialId opt.id)}}selected{{/if}}>{{opt.label}}</option>
@@ -97,9 +95,9 @@
             </select>
             <div class="node-weapon-special-val-wrap {{#unless row.showValueInput}}hidden{{/unless}}">
               <label class="node-special-strength-label" title="Numeric strength or rank when the effect uses a value (e.g. Push 2)">Strength</label>
-              <input type="number" class="node-weapon-special-val" min="0" max="99" step="1" value="{{row.valueStr}}" placeholder="0" title="Strength / rank for this effect" />
+              <input type="number" class="node-weapon-special-val" min="0" max="99" step="1" value="{{row.valueStr}}" placeholder="0" title="Strength / rank for this effect" {{#if row.locked}}disabled{{/if}} />
             </div>
-            <button type="button" class="node-row-remove" title="Remove this row">Remove</button>
+            <button type="button" class="node-row-remove {{#if row.locked}}hidden{{/if}}" title="Remove this row">Remove</button>
           </div>
           {{/each}}
         </div>
@@ -112,7 +110,7 @@
       <div class="node-editor-grid">
         <div class="form-group">
           <label>Armor type</label>
-          <select id="node-armor-type">
+          <select id="node-armor-type" {{#unless isLineageRoot}}disabled{{/unless}}>
             <option value="light" {{#if (eq armorProfile.type "light")}}selected{{/if}}>Light</option>
             <option value="medium" {{#if (eq armorProfile.type "medium")}}selected{{/if}}>Medium</option>
             <option value="heavy" {{#if (eq armorProfile.type "heavy")}}selected{{/if}}>Heavy</option>
@@ -138,7 +136,7 @@
       <div class="node-editor-grid">
         <div class="form-group">
           <label>Shield type</label>
-          <select id="node-shield-type">
+          <select id="node-shield-type" {{#unless isLineageRoot}}disabled{{/unless}}>
             <option value="parry" {{#if (eq shieldProfile.type "parry")}}selected{{/if}}>Parry</option>
             <option value="medium" {{#if (eq shieldProfile.type "medium")}}selected{{/if}}>Medium</option>
             <option value="tower" {{#if (eq shieldProfile.type "tower")}}selected{{/if}}>Tower</option>
