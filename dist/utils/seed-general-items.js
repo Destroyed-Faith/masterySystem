@@ -234,6 +234,7 @@ export async function seedGeneralItemsStorage() {
                 description: shield.description || '',
                 inventorySize: SHIELD_SIZES[shield.type] || '2x2',
                 shieldValue: shield.shieldValue,
+                evadeBonus: shield.evadeBonus,
                 type: shield.type,
                 equipped: false,
                 equipSlots: ['offhand']

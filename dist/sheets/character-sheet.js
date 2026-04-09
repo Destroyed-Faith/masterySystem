@@ -22,6 +22,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     /** Preserves <details open> for Token-Radial prefs across re-renders (checkbox updates call render). */
     _radialManeuverPrefsDetailsOpen;
     _showStash = false;
+    /** Last pointer-down on equipment tile (for click vs drag distinction). */
+    #itemInfoPointerDown = null;
     _pendingAttributeChanges = {}; // Signed pending attribute deltas (XP mode)
     _pendingPowerLevelChanges = {}; // Track pending power level increases
     _pendingSkillRankChanges = {}; // Track pending skill rank changes (signed)
@@ -1943,6 +1945,45 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('.item-create').on('click', this.#onItemCreate.bind(this));
         html.find('.item-edit').on('click', this.#onItemEdit.bind(this));
         html.find('.item-delete').on('click', this.#onItemDelete.bind(this));
+        html.off('pointerdown.iteminfo').on('pointerdown.iteminfo', '.tab.equipment .df-item-tile', (ev) => {
+            const t = ev.target;
+            if (t.closest('.item-edit, .item-delete, a, button'))
+                return;
+            const orig = ev.originalEvent;
+            if (!orig)
+                return;
+            const tile = ev.currentTarget;
+            const itemId = tile.dataset?.itemId;
+            if (!itemId)
+                return;
+            this.#itemInfoPointerDown = { itemId, x: orig.clientX, y: orig.clientY };
+        });
+        html.off('click.iteminfo').on('click.iteminfo', '.tab.equipment .df-item-tile', async (ev) => {
+            const t = ev.target;
+            if (t.closest('.item-edit, .item-delete, a, button'))
+                return;
+            const orig = ev.originalEvent;
+            if (!orig)
+                return;
+            const tile = ev.currentTarget;
+            const itemId = tile.dataset?.itemId;
+            if (!itemId || !this.#itemInfoPointerDown || this.#itemInfoPointerDown.itemId !== itemId) {
+                this.#itemInfoPointerDown = null;
+                return;
+            }
+            const dx = orig.clientX - this.#itemInfoPointerDown.x;
+            const dy = orig.clientY - this.#itemInfoPointerDown.y;
+            this.#itemInfoPointerDown = null;
+            if (Math.hypot(dx, dy) > 12)
+                return;
+            const item = this.actor.items.get(itemId);
+            if (!item)
+                return;
+            ev.preventDefault();
+            ev.stopPropagation();
+            const { ItemInfoDialog } = await import('./item-info-dialog.js');
+            await ItemInfoDialog.show(item);
+        });
         // HP adjustment
         html.find('.hp-adjust').on('click', this.#onHPAdjust.bind(this));
         // Stress adjustment

@@ -1,0 +1,53 @@
+<form class="{{cssClass}} flexcol mastery-item-sheet-weapon" autocomplete="off">
+  <header class="sheet-header">
+    <img class="profile-img" src="{{item.img}}" data-edit="img" alt="" height="64" width="64" />
+    <div class="header-fields">
+      <h1 class="item-name"><input name="name" type="text" value="{{item.name}}" placeholder="Weapon name" /></h1>
+      <div class="item-subtitle">
+        <div class="resource">
+          <label>Type</label>
+          <select name="system.weaponType" data-dtype="String">
+            <option value="melee" {{#if (eq system.weaponType "ranged")}}{{else}}selected{{/if}}>Melee</option>
+            <option value="ranged" {{#if (eq system.weaponType "ranged")}}selected{{/if}}>Ranged</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item" data-tab="description">Description</a>
+    <a class="item" data-tab="mechanics">Mechanics</a>
+  </nav>
+
+  <section class="sheet-body">
+    <div class="tab description" data-group="primary" data-tab="description">
+      <div class="editor-content">
+        {{editor system.description target="system.description" button=true owner=owner editable=editable}}
+      </div>
+    </div>
+
+    <div class="tab mechanics" data-group="primary" data-tab="mechanics">
+      <div class="form-group">
+        <label>Weapon damage (d8 dice)</label>
+        <input type="text" name="system.damage" value="{{system.damage}}" placeholder="e.g. 2d8" />
+      </div>
+      <div class="form-group">
+        <label>Hands</label>
+        <input type="number" name="system.hands" value="{{system.hands}}" data-dtype="Number" min="1" max="2" step="1" />
+      </div>
+      <div class="form-group">
+        <label>Range</label>
+        <input type="text" name="system.range" value="{{system.range}}" placeholder="0m" />
+      </div>
+      <div class="form-group">
+        <label>Innate abilities <span class="hint">(one per line)</span></label>
+        <textarea class="js-weapon-innates" rows="6" placeholder="Finesse&#10;Light">{{innateAbilitiesText}}</textarea>
+      </div>
+      <div class="form-group">
+        <label>Specials <span class="hint">(one per line; combat / Raises)</span></label>
+        <textarea class="js-weapon-specials" rows="4" placeholder="Expose(2)">{{specialsText}}</textarea>
+      </div>
+    </div>
+  </section>
+</form>

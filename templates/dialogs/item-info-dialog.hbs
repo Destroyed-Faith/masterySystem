@@ -1,0 +1,129 @@
+<div class="item-info-root" data-item-id="{{item.id}}">
+  <header class="item-info-header">
+    <img class="item-info-img" src="{{itemImg}}" alt="" />
+    <div class="item-info-header-text">
+      <h2 class="item-info-name">{{itemName}}</h2>
+      <p class="item-info-type-badge">{{typeLabel}}</p>
+    </div>
+  </header>
+
+  {{#if isWeapon}}
+  <section class="item-info-section item-info-weapon" aria-label="Weapon stats">
+    <h3 class="item-info-section-title">Weapon</h3>
+    <dl class="item-info-dl">
+      <dt>Weapon damage</dt><dd>{{weaponBlock.damage}}</dd>
+      <dt>Hands</dt><dd>{{weaponBlock.hands}}</dd>
+      <dt>Type</dt><dd>{{weaponBlock.weaponType}}</dd>
+    </dl>
+    {{#if weaponBlock.innateRows.length}}
+    <h4 class="item-info-subtitle">Innate abilities</h4>
+    <ul class="item-info-ability-list">
+      {{#each weaponBlock.innateRows}}
+      <li>
+        <span class="item-info-ability-name">{{this.label}}</span>
+        {{#if this.description}}
+        <span class="item-info-ability-desc">{{this.description}}</span>
+        {{/if}}
+      </li>
+      {{/each}}
+    </ul>
+    {{/if}}
+    {{#if weaponBlock.specials.length}}
+    <h4 class="item-info-subtitle">Specials</h4>
+    <ul class="item-info-special-list">
+      {{#each weaponBlock.specials}}
+      <li>{{this}}</li>
+      {{/each}}
+    </ul>
+    {{/if}}
+    <p class="item-info-footnote">{{weaponBlock.specialsNote}}</p>
+    {{#if weaponBlock.catalogNote}}
+    <p class="item-info-flavor"><em>{{weaponBlock.catalogNote}}</em></p>
+    {{/if}}
+    {{#if enrichedDescription}}
+    <h4 class="item-info-subtitle">Description</h4>
+    <div class="item-info-description prose">{{{enrichedDescription}}}</div>
+    {{/if}}
+  </section>
+  {{/if}}
+
+  {{#if isArmor}}
+  <section class="item-info-section item-info-armor" aria-label="Armor stats">
+    <h3 class="item-info-section-title">Armor — {{armorBlock.typeLabel}}</h3>
+    <p class="item-info-muted">{{armorBlock.name}}</p>
+    <dl class="item-info-dl item-info-dl-grid">
+      <dt>Armor value (on item)</dt><dd>{{armorBlock.armorValue}}</dd>
+      <dt>Evade modifier</dt><dd>{{armorBlock.evade}}</dd>
+      <dt>Initiative (type)</dt><dd>{{armorBlock.initiative}}</dd>
+      <dt>Skill penalty (type)</dt><dd>{{armorBlock.skillPenalty}}</dd>
+    </dl>
+    <p class="item-info-footnote">{{armorBlock.ruleHint}}</p>
+  </section>
+  {{/if}}
+
+  {{#if isShield}}
+  <section class="item-info-section item-info-shield" aria-label="Shield stats">
+    <h3 class="item-info-section-title">Shield — {{shieldBlock.typeLabel}}</h3>
+    <p class="item-info-muted">{{shieldBlock.name}}</p>
+    <dl class="item-info-dl item-info-dl-grid">
+      <dt>Shield value (on item)</dt><dd>{{shieldBlock.shieldValue}}</dd>
+      <dt>Evade modifier</dt><dd>{{shieldBlock.evade}}</dd>
+      <dt>Initiative (type)</dt><dd>{{shieldBlock.initiative}}</dd>
+      <dt>Skill penalty (type)</dt><dd>{{shieldBlock.skillPenalty}}</dd>
+    </dl>
+    <p class="item-info-footnote">{{shieldBlock.ruleHint}}</p>
+  </section>
+  {{/if}}
+
+  {{#if isGear}}
+  <section class="item-info-section item-info-gear" aria-label="Gear">
+    <h3 class="item-info-section-title">Gear</h3>
+    <dl class="item-info-dl">
+      <dt>Inventory size</dt><dd>{{gearBlock.inventorySize}}</dd>
+      <dt>Weight</dt><dd>{{gearBlock.weight}}</dd>
+      <dt>Quantity</dt><dd>{{gearBlock.quantity}}</dd>
+    </dl>
+    {{#if enrichedDescription}}
+    <div class="item-info-description prose">{{{enrichedDescription}}}</div>
+    {{/if}}
+  </section>
+  {{/if}}
+
+  {{#if isArtifact}}
+  <section class="item-info-section item-info-artifact" aria-label="Artifact">
+    <h3 class="item-info-section-title">Artifact</h3>
+    <dl class="item-info-dl">
+      <dt>Level</dt><dd>{{artifactBlock.level}}</dd>
+      <dt>Attack bonus</dt><dd>{{artifactBlock.attack}}</dd>
+      <dt>Defense bonus</dt><dd>{{artifactBlock.defense}}</dd>
+      <dt>Damage</dt><dd>{{artifactBlock.damage}}</dd>
+      <dt>Embedded powers</dt><dd>{{artifactBlock.powersCount}}</dd>
+    </dl>
+    {{#if artifactBlock.lore}}
+    <div class="item-info-lore">{{artifactBlock.lore}}</div>
+    {{/if}}
+  </section>
+  {{/if}}
+
+  {{#if isGeneric}}
+  <section class="item-info-section item-info-generic">
+    <h3 class="item-info-section-title">Description</h3>
+    {{#if enrichedDescription}}
+    <div class="item-info-description prose">{{{enrichedDescription}}}</div>
+    {{else}}
+    <p class="item-info-muted">No description.</p>
+    {{/if}}
+  </section>
+  {{/if}}
+
+  <footer class="item-info-footer">
+    {{#if showEditButton}}
+    <button type="button" class="dialog-btn dialog-btn-secondary js-item-info-edit">
+      <i class="fas fa-edit"></i> Edit item sheet
+    </button>
+    {{/if}}
+    <button type="button" class="dialog-btn js-item-info-close">
+      <i class="fas fa-times"></i> Close
+    </button>
+  </footer>
+</div>

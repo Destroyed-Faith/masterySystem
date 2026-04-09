@@ -1,0 +1,41 @@
+<form class="{{cssClass}} flexcol mastery-item-sheet-armor" autocomplete="off">
+  <header class="sheet-header">
+    <img class="profile-img" src="{{item.img}}" data-edit="img" alt="" height="64" width="64" />
+    <div class="header-fields">
+      <h1 class="item-name"><input name="name" type="text" value="{{item.name}}" placeholder="Armor name" /></h1>
+    </div>
+  </header>
+
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item" data-tab="description">Description</a>
+    <a class="item" data-tab="mechanics">Mechanics</a>
+  </nav>
+
+  <section class="sheet-body">
+    <div class="tab description" data-group="primary" data-tab="description">
+      <div class="editor-content">
+        {{editor system.description target="system.description" button=true owner=owner editable=editable}}
+      </div>
+    </div>
+
+    <div class="tab mechanics" data-group="primary" data-tab="mechanics">
+      <div class="form-group">
+        <label>Armor type</label>
+        <select name="system.type" data-dtype="String">
+          <option value="light" {{#if (eq system.type "light")}}selected{{/if}}>Light</option>
+          <option value="medium" {{#if (eq system.type "medium")}}selected{{/if}}>Medium</option>
+          <option value="heavy" {{#if (eq system.type "heavy")}}selected{{/if}}>Heavy</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Armor value</label>
+        <input type="number" name="system.armorValue" value="{{system.armorValue}}" data-dtype="Number" min="0" step="1" />
+      </div>
+      <div class="form-group">
+        <label>Evade modifier</label>
+        <input type="number" name="system.evadeModifier" value="{{system.evadeModifier}}" data-dtype="Number" step="1" />
+      </div>
+      <p class="notes">Initiative and skill penalties follow armor type in rules; keep these values aligned with the type table.</p>
+    </div>
+  </section>
+</form>

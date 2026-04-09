@@ -1,16 +1,12 @@
 /**
- * Weapons configuration for Mastery System
- * All weapons from the Players Guide
- *
- * This file is designed to be easily extensible - add new weapons here
+ * Weapons configuration for Mastery System (Players Guide table).
+ * Single source for catalog matching, migrations, and item info UI.
  */
 import { normalizeWeaponNameKey } from './item-icons.js';
 /**
- * All available weapons in the Mastery System
- * Organized by category for easy reference
+ * Canonical weapon table — align item.system with this for stock weapons.
  */
 export const WEAPONS = [
-    // Unarmed
     {
         name: 'Unarmed',
         weaponDamage: '1',
@@ -19,14 +15,13 @@ export const WEAPONS = [
         special: '—',
         description: 'Basic unarmed strikes using fists, feet, or natural weapons.'
     },
-    // One-Handed Melee Weapons
     {
         name: 'Dagger',
         weaponDamage: '1d8',
         hands: 1,
-        innateAbilities: ['Finesse', 'Light'],
+        innateAbilities: ['Finesse', 'Light', 'Thrown (4/8/16m)'],
         special: 'Penetration(4)',
-        description: 'A small, easily concealed blade perfect for close-quarters combat and throwing.'
+        description: 'A small blade for close work and throwing.'
     },
     {
         name: 'Short Sword',
@@ -42,7 +37,7 @@ export const WEAPONS = [
         hands: 1,
         innateAbilities: ['Finesse'],
         special: 'Precision(1)',
-        description: 'An elegant thrusting sword designed for precise strikes.'
+        description: 'An elegant thrusting sword for precise strikes.'
     },
     {
         name: 'Longsword',
@@ -50,205 +45,224 @@ export const WEAPONS = [
         hands: 1,
         innateAbilities: ['Versatile'],
         special: 'Expose(2)',
-        description: 'A versatile blade that can be wielded one-handed or two-handed.'
+        description: 'A versatile blade, one- or two-handed.'
     },
     {
         name: 'Battleaxe',
         weaponDamage: '2d8',
         hands: 1,
-        innateAbilities: ['Brutal'],
-        special: 'Corrode(2)',
-        description: 'A heavy axe designed for combat, capable of breaking through armor.'
+        innateAbilities: ['Versatile'],
+        special: 'Brutal Impact(3), Corrode(2)',
+        description: 'A heavy axe that rewards two-handed use.'
     },
     {
         name: 'Warhammer',
         weaponDamage: '2d8',
         hands: 1,
-        innateAbilities: ['Push(2)'],
-        special: 'Freeze(2)',
-        description: 'A heavy hammer that can knock enemies back and freeze them in place.'
+        innateAbilities: [],
+        special: 'Push(2), Freeze(2)',
+        description: 'A heavy hammer for impact and control.'
     },
     {
         name: 'Flail',
         weaponDamage: '2d8',
         hands: 1,
-        innateAbilities: ['Entangle'],
-        special: 'Shock(2)',
-        description: 'A chain weapon that can entangle enemies and deliver shocking blows.'
+        innateAbilities: [],
+        special: 'Prone(1), Shock(2)',
+        description: 'A chained head that unbalances foes.'
     },
     {
         name: 'Spear',
         weaponDamage: '2d8',
         hands: 1,
-        innateAbilities: ['Reach (+1 m)'],
-        special: 'Reckless Strike',
-        description: 'A long polearm that extends your reach and allows for powerful charges.'
+        innateAbilities: ['Reach (+1 m)', 'Set'],
+        special: 'Push(1)',
+        description: 'Reach and reward for holding position.'
+    },
+    {
+        name: 'Glaive',
+        weaponDamage: '4d8',
+        hands: 2,
+        innateAbilities: ['Reach (+2 m)', 'Heavy'],
+        special: 'Brutal Impact(4)',
+        description: 'A long polearm with a curved blade.'
+    },
+    {
+        name: 'Greataxe',
+        weaponDamage: '4d8',
+        hands: 2,
+        innateAbilities: ['Heavy'],
+        special: 'Brutal Impact(4), Corrode(2)',
+        description: 'A massive two-handed axe.'
+    },
+    {
+        name: 'Greatsword',
+        weaponDamage: '4d8',
+        hands: 2,
+        innateAbilities: ['Heavy', 'Balanced'],
+        special: 'Precision(2)',
+        description: 'A huge blade with manageable heft.'
+    },
+    {
+        name: 'Maul',
+        weaponDamage: '4d8',
+        hands: 2,
+        innateAbilities: ['Heavy'],
+        special: 'Brutal Impact(3), Push(2)',
+        description: 'A crushing two-handed hammer.'
+    },
+    {
+        name: 'Halberd',
+        weaponDamage: '4d8',
+        hands: 2,
+        innateAbilities: ['Reach (+2 m)', 'Heavy'],
+        special: 'Mark(2)',
+        description: 'Axe, spear point, and hook in one polearm.'
     },
     {
         name: 'Handaxe',
         weaponDamage: '1d8',
         hands: 1,
-        innateAbilities: ['Light', 'Thrown (4 m)'],
-        special: 'Reckless Strike',
-        description: 'A small axe that can be thrown or used in melee combat.'
+        innateAbilities: ['Light', 'Thrown (4/8/16m)'],
+        special: '—',
+        description: 'A light axe for melee or throwing.'
+    },
+    {
+        name: 'Shortbow',
+        weaponDamage: '2d8',
+        hands: 2,
+        innateAbilities: ['Ranged (8/16/32m)', 'Light'],
+        special: 'Expose(4)',
+        description: 'A compact bow for mobility.'
+    },
+    {
+        name: 'Longbow',
+        weaponDamage: '2d8',
+        hands: 2,
+        innateAbilities: ['Ranged (8/16/32m)', 'Set'],
+        special: 'Penetration(2), Expose(4)',
+        description: 'A powerful bow that rewards a planted shot.'
+    },
+    {
+        name: 'Light Crossbow',
+        weaponDamage: '2d8',
+        hands: 2,
+        innateAbilities: ['Ranged (8/16/32m)', 'Load'],
+        special: 'Penetration(4), Precision(2)',
+        description: 'A lighter crossbow; must be loaded between shots.'
+    },
+    {
+        name: 'Heavy Crossbow',
+        weaponDamage: '4d8',
+        hands: 2,
+        innateAbilities: ['Ranged (8/16/32m)', 'Load'],
+        special: 'Penetration(4), Precision(4)',
+        description: 'A devastating crossbow; slow to reload.'
     },
     {
         name: 'Whip',
         weaponDamage: '1d8',
         hands: 1,
         innateAbilities: ['Finesse', 'Reach (+1 m)'],
-        special: 'Entangle(2)',
-        description: 'A flexible weapon that can entangle enemies from a distance.'
-    },
-    // Two-Handed Melee Weapons
-    {
-        name: 'Glaive',
-        weaponDamage: '3d8',
-        hands: 2,
-        innateAbilities: ['Reach (+2 m)', 'Heavy'],
-        special: 'Brutal Impact(2)',
-        description: 'A long polearm with a curved blade, extending your reach significantly.'
-    },
-    {
-        name: 'Greataxe',
-        weaponDamage: '3d8',
-        hands: 2,
-        innateAbilities: ['Heavy', 'Brutal'],
-        special: 'Brutal Impact(3)',
-        description: 'A massive two-handed axe that delivers devastating blows.'
-    },
-    {
-        name: 'Greatsword',
-        weaponDamage: '3d8',
-        hands: 2,
-        innateAbilities: ['Heavy', 'Balanced'],
-        special: 'Precision(2)',
-        description: 'A massive two-handed sword that balances power and precision.'
-    },
-    {
-        name: 'Maul',
-        weaponDamage: '3d8',
-        hands: 2,
-        innateAbilities: ['Heavy', 'Brutal'],
-        special: 'Corrode(3)',
-        description: 'A massive two-handed hammer that can shatter armor and weapons.'
-    },
-    {
-        name: 'Halberd',
-        weaponDamage: '3d8',
-        hands: 2,
-        innateAbilities: ['Reach (+2 m)', 'Heavy'],
-        special: 'Mark(2)',
-        description: 'A versatile polearm combining an axe blade, spear point, and hook.'
+        special: 'Grappled(1)',
+        description: 'Flexible reach and control.'
     },
     {
         name: 'Quarterstaff',
         weaponDamage: '2d8',
         hands: 2,
-        innateAbilities: ['Defensive', 'Versatile'],
+        innateAbilities: ['Defensive'],
         special: 'Expose(1)',
-        description: 'A defensive staff that grants Evade bonuses while wielded.'
-    },
-    // Ranged Weapons
-    {
-        name: 'Shortbow',
-        weaponDamage: '2d8',
-        hands: 2,
-        innateAbilities: ['Ranged', 'Light'],
-        special: 'Expose(1)',
-        description: 'A compact bow designed for mobility and quick shots.'
+        description: 'A staff suited to defense when used two-handed.'
     },
     {
-        name: 'Longbow',
-        weaponDamage: '2d8',
-        hands: 2,
-        innateAbilities: ['Ranged', 'Set'],
-        special: 'Penetration(3)',
-        description: 'A powerful bow that deals extra damage when set and not moving.'
+        name: 'Wand',
+        weaponDamage: '1',
+        hands: 1,
+        innateAbilities: ['Spell Focus (+2d8)'],
+        special: '—',
+        description: 'Focuses spell damage.'
     },
     {
-        name: 'Light Crossbow',
-        weaponDamage: '2d8',
+        name: 'Runestaff',
+        weaponDamage: '1d8',
         hands: 2,
-        innateAbilities: ['Ranged', 'Load', 'Precise'],
-        special: 'Precision(1)',
-        description: 'A lighter crossbow that requires loading but offers precision.'
-    },
-    {
-        name: 'Heavy Crossbow',
-        weaponDamage: '3d8',
-        hands: 2,
-        innateAbilities: ['Ranged', 'Load', 'Brutal'],
-        special: 'Brutal Impact(2)',
-        description: 'A powerful crossbow that deals devastating damage but requires loading.'
+        innateAbilities: ['Spell Focus (+4d8)'],
+        special: '—',
+        description: 'A two-handed spell focus.'
     }
 ];
-/**
- * Weapon Properties Reference
- * These are the innate abilities that weapons can have
- */
+/** Exact-match descriptions for innate lines (and common variants). */
 export const WEAPON_PROPERTIES = {
-    'Finesse': 'Attack Roll uses Agility (for To-Hit only, not for damage).',
-    'Light': 'Usable in off-hand / two-weapon style.',
-    'Versatile': 'When wielded two-handed, gain +1d6 weapon damage (you lose your shield).',
-    'Brutal': 'You may reroll 1s on your weapon damage dice once per attack.',
-    'Precise': 'Reroll 1d8 per attack after seeing the dice.',
-    'Reach (+1 m)': 'Increases melee reach by +1 m (to 3 m total).',
-    'Reach (+2 m)': 'Increases melee reach by +2 m (to 4 m total).',
-    'Heavy': 'You get –10 to your Initiative roll.',
-    'Ranged': 'Ranged weapon; cover and range are handled separately.',
-    'Set': 'If you did not move this round: gain +1d8 weapon damage.',
-    'Defensive': 'While using a quarterstaff, you gain your Mastery (max +6) to your Evade.',
-    'Load': 'Requires loading before each shot (takes 1 Attack Action).',
-    'Balanced': 'Well-balanced weapon that offers stability and control.',
-    'Thrown (4 m)': 'Can be thrown up to 4 meters.',
-    'Entangle': 'Can entangle enemies, restricting their movement.',
-    'Push(2)': 'Can push enemies back 2 meters on hit.'
+    Finesse: 'Attack Roll uses Agility (for To-Hit only, not for damage).',
+    Light: 'Usable in off-hand (required for Full Dual-Wield).',
+    Versatile: 'When wielded two-handed, gain +2d8 weapon damage (you lose your shield / off-hand).',
+    'Reach (+1 m)': 'Your melee reach is 2 m by default; this increases it. Measured from the attacker’s token center.',
+    'Reach (+2 m)': 'Your melee reach is 2 m by default; this increases it. Measured from the attacker’s token center.',
+    Heavy: 'You get –10 to your Initiative roll.',
+    Balanced: 'If a weapon has Heavy + Balanced, reduce the Heavy penalty to –5 Initiative.',
+    Ranged: 'Ranged weapon; cover and range are handled separately.',
+    'Ranged (8/16/32m)': 'Ranged weapon; typical range bands 8 / 16 / 32 m (cover and range rules apply).',
+    Set: 'If you did not move this round: gain +1d8 weapon damage.',
+    'Thrown (4/8/16m)': 'You may make a ranged attack by throwing the weapon up to the listed increments (retrieve afterward unless a rule says otherwise).',
+    Load: 'After you fire, the weapon is Unloaded. To fire again you must Reload (1 Action) and you need one free hand to do so.',
+    Defensive: 'While wielding this weapon two-handed, add your Mastery (max +6) to your Evade.',
+    'Spell Focus (+2d8)': 'When you deal damage with a Power that has the Spell tag, add +2d8 bonus damage dice.',
+    'Spell Focus (+4d8)': 'When you deal damage with a Power that has the Spell tag, add +4d8 bonus damage dice.'
 };
+const SORTED_PROPERTY_KEYS = Object.keys(WEAPON_PROPERTIES).sort((a, b) => b.length - a.length);
 /**
- * Get all available weapons
+ * Best-effort explanation for one innate ability line on an item.
  */
+export function describeInnateAbility(ability) {
+    const trimmed = (ability || '').trim();
+    if (!trimmed)
+        return '';
+    if (WEAPON_PROPERTIES[trimmed])
+        return WEAPON_PROPERTIES[trimmed];
+    const lower = trimmed.toLowerCase();
+    for (const key of SORTED_PROPERTY_KEYS) {
+        if (lower.startsWith(key.toLowerCase()))
+            return WEAPON_PROPERTIES[key];
+    }
+    if (lower.startsWith('ranged'))
+        return WEAPON_PROPERTIES.Ranged;
+    if (lower.startsWith('thrown'))
+        return WEAPON_PROPERTIES['Thrown (4/8/16m)'];
+    if (lower.startsWith('reach'))
+        return WEAPON_PROPERTIES['Reach (+1 m)'];
+    if (lower.startsWith('spell focus')) {
+        if (trimmed.includes('+4'))
+            return WEAPON_PROPERTIES['Spell Focus (+4d8)'];
+        return WEAPON_PROPERTIES['Spell Focus (+2d8)'];
+    }
+    return '';
+}
 export function getAllWeapons() {
     return WEAPONS;
 }
-/**
- * Get weapons by hands requirement
- */
 export function getWeaponsByHands(hands) {
-    return WEAPONS.filter(w => w.hands === hands);
+    return WEAPONS.filter((w) => w.hands === hands);
 }
-/**
- * Get weapons by type (melee/ranged)
- * Note: This is inferred from the presence of "Ranged" in innateAbilities
- */
 export function getWeaponsByType(type) {
     if (type === 'ranged') {
-        return WEAPONS.filter(w => w.innateAbilities.includes('Ranged'));
+        return WEAPONS.filter((w) => w.innateAbilities.some((a) => /^ranged/i.test(a.trim())));
     }
-    return WEAPONS.filter(w => !w.innateAbilities.includes('Ranged'));
+    return WEAPONS.filter((w) => !w.innateAbilities.some((a) => /^ranged/i.test(a.trim())));
 }
-/**
- * Collapses internal spaces so e.g. "Short bow" matches catalog name "Shortbow".
- */
 export function masteryWeaponCatalogKey(name) {
     return normalizeWeaponNameKey(name).replace(/\s/g, '');
 }
-/**
- * Get a weapon by name
- */
 export function getWeapon(name) {
     const key = masteryWeaponCatalogKey(name);
-    return WEAPONS.find(w => masteryWeaponCatalogKey(w.name) === key);
+    return WEAPONS.find((w) => masteryWeaponCatalogKey(w.name) === key);
 }
-/** True if the name matches a Players Guide weapon (handles spacing / hyphens). */
 export function matchesMasteryWeaponCatalog(name) {
     const key = masteryWeaponCatalogKey(name);
-    return WEAPONS.some(w => masteryWeaponCatalogKey(w.name) === key);
+    return WEAPONS.some((w) => masteryWeaponCatalogKey(w.name) === key);
 }
-/**
- * Get weapons that have a specific property
- */
 export function getWeaponsWithProperty(property) {
-    return WEAPONS.filter(w => w.innateAbilities.some(ability => ability.toLowerCase().includes(property.toLowerCase())));
+    const p = property.toLowerCase();
+    return WEAPONS.filter((w) => w.innateAbilities.some((ability) => ability.toLowerCase().includes(p)));
 }
 //# sourceMappingURL=weapons.js.map

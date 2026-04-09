@@ -1,53 +1,32 @@
 /**
- * Weapons configuration for Mastery System
- * All weapons from the Players Guide
- *
- * This file is designed to be easily extensible - add new weapons here
+ * Weapons configuration for Mastery System (Players Guide table).
+ * Single source for catalog matching, migrations, and item info UI.
  */
 export interface WeaponDefinition {
     name: string;
     weaponDamage: string;
     hands: 1 | 2;
     innateAbilities: string[];
+    /** Combat specials (often bought with Raises in combat). */
     special: string;
     description?: string;
     price?: number;
 }
 /**
- * All available weapons in the Mastery System
- * Organized by category for easy reference
+ * Canonical weapon table — align item.system with this for stock weapons.
  */
 export declare const WEAPONS: WeaponDefinition[];
-/**
- * Weapon Properties Reference
- * These are the innate abilities that weapons can have
- */
+/** Exact-match descriptions for innate lines (and common variants). */
 export declare const WEAPON_PROPERTIES: Record<string, string>;
 /**
- * Get all available weapons
+ * Best-effort explanation for one innate ability line on an item.
  */
+export declare function describeInnateAbility(ability: string): string;
 export declare function getAllWeapons(): WeaponDefinition[];
-/**
- * Get weapons by hands requirement
- */
 export declare function getWeaponsByHands(hands: 1 | 2): WeaponDefinition[];
-/**
- * Get weapons by type (melee/ranged)
- * Note: This is inferred from the presence of "Ranged" in innateAbilities
- */
 export declare function getWeaponsByType(type: 'melee' | 'ranged'): WeaponDefinition[];
-/**
- * Collapses internal spaces so e.g. "Short bow" matches catalog name "Shortbow".
- */
 export declare function masteryWeaponCatalogKey(name: string): string;
-/**
- * Get a weapon by name
- */
 export declare function getWeapon(name: string): WeaponDefinition | undefined;
-/** True if the name matches a Players Guide weapon (handles spacing / hyphens). */
 export declare function matchesMasteryWeaponCatalog(name: string): boolean;
-/**
- * Get weapons that have a specific property
- */
 export declare function getWeaponsWithProperty(property: string): WeaponDefinition[];
 //# sourceMappingURL=weapons.d.ts.map

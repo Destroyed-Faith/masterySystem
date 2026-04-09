@@ -3,6 +3,8 @@
  * Generic sheet for all item types
  */
 
+import { normalizeShieldTypeKey } from '../utils/equipment.js';
+
 export class MasteryItemSheet extends foundry.appv1.sheets.ItemSheet {
   /** @override */
   static get defaultOptions() {
@@ -55,6 +57,22 @@ export class MasteryItemSheet extends foundry.appv1.sheets.ItemSheet {
       case 'condition':
         context.saveTypes = ['body', 'mind', 'spirit'];
         break;
+      case 'weapon': {
+        const ws = itemData.system as any;
+        context.innateAbilitiesText = (ws.innateAbilities || []).join('\n');
+        context.specialsText = (ws.specials || []).join('\n');
+        break;
+      }
+      case 'armor':
+        break;
+      case 'shield': {
+        const st = (itemData.system as any).type;
+        const k = normalizeShieldTypeKey(st);
+        (context as any).shieldTypeUi = k || 'parry';
+        break;
+      }
+      case 'gear':
+        break;
     }
     
     return context;
@@ -78,6 +96,23 @@ export class MasteryItemSheet extends foundry.appv1.sheets.ItemSheet {
     
     // Remove special
     html.find('.special-remove').on('click', this.#onSpecialRemove.bind(this));
+
+    if (this.item.type === 'weapon') {
+      html.find('.js-weapon-innates').on('change', this.#onWeaponInnatesChange.bind(this));
+      html.find('.js-weapon-specials').on('change', this.#onWeaponSpecialsChange.bind(this));
+    }
+  }
+
+  async #onWeaponInnatesChange(event: JQuery.ChangeEvent) {
+    const v = (event.currentTarget as HTMLTextAreaElement).value;
+    const arr = v.split(/\n/).map((s) => s.trim()).filter((s) => s.length > 0);
+    await this.item.update({ 'system.innateAbilities': arr });
+  }
+
+  async #onWeaponSpecialsChange(event: JQuery.ChangeEvent) {
+    const v = (event.currentTarget as HTMLTextAreaElement).value;
+    const arr = v.split(/\n/).map((s) => s.trim()).filter((s) => s.length > 0);
+    await this.item.update({ 'system.specials': arr });
   }
 
   /**
