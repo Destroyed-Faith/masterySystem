@@ -22,6 +22,13 @@ export declare function getEquippedPhysicalSkillPenaltyDice(actor: any): number;
 export declare function getEquippedWeaponInitiativePenalty(weaponItem: any): number;
 /** Flat initiative modifier from equipped armor + shield + weapon (Heavy). */
 export declare function getEquippedEquipmentInitiativeModifier(actor: any): number;
+/** Rows for character sheet: how armor / shield / weapon affect initiative (equipped only). */
+export declare function getInitiativeEquipmentRows(actor: any): Array<{
+    label: string;
+    detail: string;
+    value: number;
+    display: string;
+}>;
 /**
  * Strict equipped-only weapon for attack type (no unequipped / name fallbacks).
  * Multiple equipped weapons should not occur (preUpdateItem enforces one per type).

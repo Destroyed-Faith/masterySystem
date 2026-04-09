@@ -2,6 +2,7 @@
  * Extended Actor document for Mastery System
  */
 import { calculateStones, calculateTotalStones, updateAttributeStones, initializeHealthBars, initializeStressBars, calculateHealthBarMax, calculateStressBarMax, calculateMightDamageBonus, calculateAgilityEvadeBonus, calculateAgilityRangeBonus, calculateIntellectSaveTNBonus, calculateResolveStressArmor, calculateInfluenceSkillBonus, calculateWitsInitiativeBonus, calculateArmorBreaker, calculateBaseEvade } from '../utils/calculations.js';
+import { getInitiativeEquipmentRows, getEquippedEquipmentInitiativeModifier } from '../utils/equipment-modifiers.js';
 export class MasteryActor extends Actor {
     /**
      * Augment the basic actor data with additional dynamic data
@@ -304,14 +305,66 @@ export class MasteryActor extends Actor {
         const agilityValue = system.attributes?.agility?.value || 0;
         const agilityEvadeBonus = calculateAgilityEvadeBonus(agilityValue);
         system.combat.evadeTotal = baseEvade + shieldEvadeBonus + armorEvadeModifier + agilityEvadeBonus;
-        const evadeParts = [`MR×4 ${baseEvade}`, `Agi ${agilityEvadeBonus >= 0 ? '+' : ''}${agilityEvadeBonus}`];
-        if (shieldEvadeBonus !== 0) {
-            evadeParts.push(`Shield ${shieldEvadeBonus >= 0 ? '+' : ''}${shieldEvadeBonus}`);
-        }
-        if (armorEvadeModifier !== 0) {
-            evadeParts.push(`Armor ${armorEvadeModifier >= 0 ? '+' : ''}${armorEvadeModifier}`);
-        }
-        system.combat.evadeBreakdownHint = evadeParts.join(' · ');
+        const fmtEvadeContrib = (n) => {
+            if (n === 0)
+                return '0';
+            return n > 0 ? `+${n}` : `${n}`;
+        };
+        system.combat.evadeBreakdownRows = [
+            {
+                label: 'MR×4 base',
+                detail: `Mastery Rank ${masteryRank}`,
+                value: baseEvade,
+                display: String(baseEvade)
+            },
+            {
+                label: 'Agility',
+                detail: `${agilityValue} stones`,
+                value: agilityEvadeBonus,
+                display: fmtEvadeContrib(agilityEvadeBonus)
+            },
+            {
+                label: 'Shield',
+                detail: equippedShield?.name ?? 'Not equipped',
+                value: shieldEvadeBonus,
+                display: equippedShield ? fmtEvadeContrib(shieldEvadeBonus) : '—'
+            },
+            {
+                label: 'Armor',
+                detail: equippedArmor?.name ?? 'Not equipped',
+                value: armorEvadeModifier,
+                display: equippedArmor ? fmtEvadeContrib(armorEvadeModifier) : '—'
+            }
+        ];
+        system.combat.evadeBreakdownHint = system.combat.evadeBreakdownRows
+            .map((r) => `${r.label} ${r.display}`)
+            .join(' · ');
+        system.combat.armorBreakdownRows = [
+            {
+                label: 'Mastery Rank',
+                detail: 'Always in soak total',
+                value: masteryRank,
+                display: String(masteryRank)
+            },
+            {
+                label: 'Armor',
+                detail: equippedArmor?.name ?? 'Not equipped',
+                value: equippedArmor != null ? armorValue : null,
+                display: equippedArmor != null ? String(armorValue) : '—'
+            },
+            {
+                label: 'Shield',
+                detail: equippedShield?.name ?? 'Not equipped',
+                value: equippedShield != null ? shieldValue : null,
+                display: equippedShield != null ? String(shieldValue) : '—'
+            }
+        ];
+        const iniEq = getEquippedEquipmentInitiativeModifier(this);
+        system.combat.initiativeEquipmentRows = getInitiativeEquipmentRows(this);
+        system.combat.initiativeEquipmentTotal = iniEq;
+        system.combat.initiativeEquipmentTotalDisplay =
+            iniEq === 0 ? '0' : iniEq > 0 ? `+${iniEq}` : String(iniEq);
+        system.combat.initiativeMasteryRank = masteryRank;
         // Attribute Scaling Passives
         if (system.attributes) {
             const might = system.attributes.might?.value || 0;

@@ -39,6 +39,13 @@ export interface CombatData {
   evadeTotal?: number;
   /** Short breakdown for UI (equipped armor/shield only). */
   evadeBreakdownHint?: string;
+  /** Line items for combat stats UI */
+  evadeBreakdownRows?: Array<{ label: string; detail: string; value: number; display: string }>;
+  armorBreakdownRows?: Array<{ label: string; detail: string; value: number | null; display: string }>;
+  initiativeEquipmentRows?: Array<{ label: string; detail: string; value: number; display: string }>;
+  initiativeEquipmentTotal?: number;
+  initiativeEquipmentTotalDisplay?: string;
+  initiativeMasteryRank?: number;
   armorName?: string;
   shieldName?: string;
   activeWeaponName?: string;

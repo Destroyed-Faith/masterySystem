@@ -3523,7 +3523,7 @@
 
 .mastery-system.sheet.actor.character .combat-stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 15px;
   margin-top: 15px;
 }
@@ -3590,6 +3590,83 @@
   color: var(--df-text-secondary, #a0a0a0);
   font-style: italic;
   font-family: 'Cormorant Garamond', serif;
+}
+
+.mastery-system.sheet.actor.character .combat-stat-card--breakdown {
+  align-items: flex-start;
+}
+
+.mastery-system.sheet.actor.character .stat-summary-hint {
+  margin: 0 0 6px 0;
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--df-text-secondary, #a0a0a0);
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.mastery-system.sheet.actor.character .stat-footnote-wits {
+  margin: 8px 0 0;
+  font-size: 10px;
+  line-height: 1.35;
+  color: var(--ms-muted, #aeb5c0);
+  font-style: italic;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.mastery-system.sheet.actor.character .combat-stat-breakdown {
+  list-style: none;
+  margin: 0;
+  padding: 8px 0 0;
+  width: 100%;
+  border-top: 1px solid var(--df-border-primary, #3a3f44);
+}
+
+.mastery-system.sheet.actor.character .combat-stat-breakdown li {
+  margin-bottom: 8px;
+}
+
+.mastery-system.sheet.actor.character .combat-stat-breakdown li:last-child {
+  margin-bottom: 0;
+}
+
+.mastery-system.sheet.actor.character .combat-stat-breakdown .bd-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 12px;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.mastery-system.sheet.actor.character .combat-stat-breakdown .bd-label {
+  color: var(--df-text-primary, #d0d0d0);
+  font-weight: 600;
+}
+
+.mastery-system.sheet.actor.character .combat-stat-breakdown .bd-val {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--df-text-primary, #d0d0d0);
+}
+
+.mastery-system.sheet.actor.character .combat-stat-breakdown .bd-detail {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+  line-height: 1.3;
+  color: var(--df-text-secondary, #a0a0a0);
+}
+
+.mastery-system.sheet.actor.character .combat-stat-breakdown .combat-bd-total {
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--df-border-primary, #3a3f44);
+}
+
+.mastery-system.sheet.actor.character .combat-stat-breakdown .combat-bd-total .bd-label {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 11px;
 }
 
 /* ========== Saving Throws ========== */

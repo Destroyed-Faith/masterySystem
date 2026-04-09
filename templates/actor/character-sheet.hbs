@@ -526,22 +526,42 @@
         
         <div class="combat-stats-grid">
           <!-- Evade -->
-          <div class="combat-stat-card">
+          <div class="combat-stat-card combat-stat-card--breakdown">
             <div class="stat-icon evade-icon"><i class="fas fa-wind"></i></div>
             <div class="stat-content">
-              <label>Evade</label>
+              <label>Evade (total)</label>
               <div class="stat-value">{{default system.combat.evadeTotal 8}}</div>
-              <div class="stat-formula" title="From equipped armor/shield only">{{#if system.combat.evadeBreakdownHint}}{{system.combat.evadeBreakdownHint}}{{else}}MR×4 + Agi + Shield + Armor{{/if}}</div>
+              <p class="stat-summary-hint">Only equipped armor &amp; shield count toward Shield / Armor lines.</p>
+              {{#if system.combat.evadeBreakdownRows}}
+              <ul class="combat-stat-breakdown">
+                {{#each system.combat.evadeBreakdownRows}}
+                <li>
+                  <span class="bd-main"><span class="bd-label">{{this.label}}</span><span class="bd-val">{{this.display}}</span></span>
+                  <span class="bd-detail">{{this.detail}}</span>
+                </li>
+                {{/each}}
+              </ul>
+              {{/if}}
             </div>
           </div>
           
           <!-- Armor -->
-          <div class="combat-stat-card">
+          <div class="combat-stat-card combat-stat-card--breakdown">
             <div class="stat-icon armor-icon"><i class="fas fa-shield-alt"></i></div>
             <div class="stat-content">
-              <label>Armor</label>
+              <label>Armor (total soak)</label>
               <div class="stat-value">{{default system.combat.armorTotal 0}}</div>
-              <div class="stat-formula">MR + Armor + Shield</div>
+              <p class="stat-summary-hint">MR + values on equipped chest armor + equipped shield.</p>
+              {{#if system.combat.armorBreakdownRows}}
+              <ul class="combat-stat-breakdown">
+                {{#each system.combat.armorBreakdownRows}}
+                <li>
+                  <span class="bd-main"><span class="bd-label">{{this.label}}</span><span class="bd-val">{{this.display}}</span></span>
+                  <span class="bd-detail">{{this.detail}}</span>
+                </li>
+                {{/each}}
+              </ul>
+              {{/if}}
             </div>
           </div>
           
@@ -551,17 +571,36 @@
             <div class="stat-content">
               <label>Speed</label>
               <div class="stat-value">{{default system.combat.speed 6}}m</div>
-              <div class="stat-formula">Base Movement</div>
+              <div class="stat-formula">Base movement</div>
             </div>
           </div>
           
-          <!-- Initiative Bonus -->
-          <div class="combat-stat-card">
+          <!-- Initiative -->
+          <div class="combat-stat-card combat-stat-card--breakdown">
             <div class="stat-icon initiative-icon"><i class="fas fa-bolt"></i></div>
             <div class="stat-content">
-              <label>Initiative</label>
-              <div class="stat-value">+{{default system.combat.initiativeBonus 0}}</div>
-              <div class="stat-formula">Combat Reflexes</div>
+              <label>Initiative (basis)</label>
+              <div class="stat-value">{{default system.combat.initiativeMasteryRank 2}}d8</div>
+              <p class="stat-summary-hint">Roll: sum of exploding d8s + optional Combat Reflexes + equipment modifier below.</p>
+              {{#if system.combat.initiativeEquipmentRows}}
+              <ul class="combat-stat-breakdown">
+                {{#each system.combat.initiativeEquipmentRows}}
+                <li>
+                  <span class="bd-main"><span class="bd-label">{{this.label}}</span><span class="bd-val">{{this.display}}</span></span>
+                  <span class="bd-detail">{{this.detail}}</span>
+                </li>
+                {{/each}}
+                <li class="combat-bd-total">
+                  <span class="bd-main"><span class="bd-label">Equipment total</span><span class="bd-val">{{default system.combat.initiativeEquipmentTotalDisplay "0"}}</span></span>
+                  <span class="bd-detail">Applied on initiative roll (before Initiative Shop)</span>
+                </li>
+              </ul>
+              {{/if}}
+              {{#if system.scaling}}
+              {{#if (ne (default system.scaling.witsInitiativeBonus 0) 0)}}
+              <p class="stat-footnote-wits">Wits scaling: +{{default system.scaling.witsInitiativeBonus 0}} (reference only — not added by the system roll yet)</p>
+              {{/if}}
+              {{/if}}
             </div>
           </div>
         </div>

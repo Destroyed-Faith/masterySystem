@@ -134,6 +134,47 @@ export function getEquippedEquipmentInitiativeModifier(actor: any): number {
   );
 }
 
+function fmtInitiativeSigned(n: number): string {
+  if (n === 0) return '0';
+  return n > 0 ? `+${n}` : `${n}`;
+}
+
+/** Rows for character sheet: how armor / shield / weapon affect initiative (equipped only). */
+export function getInitiativeEquipmentRows(actor: any): Array<{
+  label: string;
+  detail: string;
+  value: number;
+  display: string;
+}> {
+  const armor = getEquippedArmor(actor);
+  const shield = getEquippedShield(actor);
+  const weapon = getEquippedWeapon(actor);
+  const av = initiativeModifierFromArmor(armor);
+  const sv = initiativeModifierFromShield(shield);
+  const wv = weapon ? getEquippedWeaponInitiativePenalty(weapon) : 0;
+
+  return [
+    {
+      label: 'Armor',
+      detail: armor?.name ?? 'Not equipped',
+      value: av,
+      display: armor ? fmtInitiativeSigned(av) : '—'
+    },
+    {
+      label: 'Shield',
+      detail: shield?.name ?? 'Not equipped',
+      value: sv,
+      display: shield ? fmtInitiativeSigned(sv) : '—'
+    },
+    {
+      label: 'Weapon',
+      detail: weapon ? (wv !== 0 ? `${weapon.name} (Heavy)` : weapon.name) : 'Not equipped',
+      value: wv,
+      display: weapon ? fmtInitiativeSigned(wv) : '—'
+    }
+  ];
+}
+
 /**
  * Strict equipped-only weapon for attack type (no unequipped / name fallbacks).
  * Multiple equipped weapons should not occur (preUpdateItem enforces one per type).
