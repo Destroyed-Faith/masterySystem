@@ -90,6 +90,8 @@ export interface PowerCost {
 // Embedded Power Data (for artifacts and trees)
 export interface EmbeddedPowerData {
   id?: string;
+  /** Tree depth (1 = root) where this power was first added; UI label only, optional. */
+  treeDepthDefined?: number;
   name: string;
   /** Narrative flavor copied to power items when added to a character */
   fluff?: string;

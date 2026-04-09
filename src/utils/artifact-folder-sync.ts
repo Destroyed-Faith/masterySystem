@@ -28,7 +28,7 @@ function findItemByNodeId(nodeId: string, items: Item[]): Item | undefined {
 }
 
 /**
- * Recursively merge parent → children (direct childIds only per step), preserving child damage/range and extra innates/specials/powers.
+ * Recursively merge parent → children (direct childIds only per step); weapon damage/range follow the parent; innates/specials/powers merge as in lineage helpers.
  */
 export async function syncArtifactInheritedFromParent(parentItem: Item): Promise<void> {
   const parentSystem = parentItem.system as any;

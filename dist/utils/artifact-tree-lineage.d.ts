@@ -35,9 +35,10 @@ export declare function mergeSpecialRefsFromAncestors(ancestors: LineageItemLike
 };
 /** All embedded power `id`s appearing on any ancestor item (root → parent). */
 export declare function getMergedAncestorPowerIds(ancestors: LineageItemLike[]): Set<string>;
+/** Non-root: ancestor power id union + tree depth (extra capacity per tier). Root: unlimited. */
 export declare function getMaxTotalEmbeddedPowers(isRoot: boolean, depth: number, ancestorUniquePowerIdCount: number): number;
 /**
- * Merge parent weapon into child: lock type/hands from parent; keep child damage/range;
+ * Merge parent weapon into child: lock type/hands from parent; **damage/range from parent** (propagate down the tree);
  * innates/specials = locked (from full ancestor chain) then child-only extras.
  */
 export declare function mergeArtifactWeaponForChildSync(parentWeapon: ArtifactWeaponProfile, childWeapon: ArtifactWeaponProfile, lockedInnateOrdered: string[], lockedInnateSet: Set<string>, lockedSpecialOrdered: ArtifactWeaponSpecialRef[], lockedSpecialKeySet: Set<string>): ArtifactWeaponProfile;

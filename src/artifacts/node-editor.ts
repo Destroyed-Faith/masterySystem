@@ -361,7 +361,8 @@ export class NodeEditor extends BaseDialog {
         lineage: {
           isLineageRoot: lin.isLineageRoot,
           lockedPowerIds: lin.mergedAncestorPowerIds,
-          maxTotalPowers: lin.maxTotalPowers
+          maxTotalPowers: lin.maxTotalPowers,
+          treeDepth: lin.depth
         }
       }).render(true);
     });

@@ -18,7 +18,11 @@
       {{#if powerList.length}}
         {{#each powerList}}
         <button type="button" class="ep-power-tab {{#if (eq i ../selectedIndex)}}active{{/if}}" data-action="ep-select-power" data-index="{{i}}">
-          <span class="ep-power-tab-name">{{name}}</span>
+          <span class="ep-power-tab-line">
+            {{#if inherited}}<span class="ep-power-badge ep-badge-inherited" title="Inherited / Vererbt">↑</span>{{/if}}
+            {{#if tierShort}}<span class="ep-power-badge ep-badge-tier" title="Defined at tree tier / Stufe">{{tierShort}}</span>{{/if}}
+            <span class="ep-power-tab-name">{{name}}</span>
+          </span>
           <span class="ep-power-tab-cat">{{category}}</span>
         </button>
         {{/each}}
@@ -36,6 +40,10 @@
     <div class="ep-detail">
       {{#if hasPowers}}
       <div class="ep-detail-scroll">
+        {{#if detailReadOnly}}
+        <p class="ep-hint ep-inherited-readonly-hint">Vererbt — nur lesen. Mit <strong>+</strong> eine neue Power für <strong>diese Baumstufe</strong> anlegen (wird an Kinder weitergegeben). / Inherited — read-only. Use <strong>+</strong> to add <strong>this tier’s</strong> power (propagates to children).</p>
+        {{/if}}
+        <fieldset class="ep-detail-fieldset" {{#if detailReadOnly}}disabled{{/if}}>
         <div class="form-group">
           <label>Name</label>
           <input type="text" id="ep-detail-name" value="{{detail.name}}" />
@@ -252,6 +260,7 @@
           </div>
         </details>
         {{/each}}
+        </fieldset>
       </div>
       {{else}}
       <p class="ep-empty">Add a power with <strong>+</strong> or use JSON import.</p>

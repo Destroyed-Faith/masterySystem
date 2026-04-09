@@ -102,18 +102,19 @@ describe('getMaxTotalEmbeddedPowers', () => {
     expect(getMaxTotalEmbeddedPowers(true, 99, 50)).toBe(Number.POSITIVE_INFINITY);
   });
 
-  it('uses ancestor count + depth - 1 for descendants', () => {
-    expect(getMaxTotalEmbeddedPowers(false, 2, 3)).toBe(4);
-    expect(getMaxTotalEmbeddedPowers(false, 1, 2)).toBe(2);
+  it('uses ancestor count + max(1, depth) for descendants', () => {
+    expect(getMaxTotalEmbeddedPowers(false, 2, 3)).toBe(5);
+    expect(getMaxTotalEmbeddedPowers(false, 3, 2)).toBe(5);
+    expect(getMaxTotalEmbeddedPowers(false, 1, 2)).toBe(3);
   });
 });
 
 describe('mergeArtifactWeaponForChildSync', () => {
-  it('keeps child damage and range; locks type and hands from parent', () => {
+  it('takes parent damage and range; locks type and hands from parent', () => {
     const parentW = {
       weaponType: 'melee' as const,
       hands: 2,
-      damage: '1d8',
+      damage: '4d8',
       range: '0m',
       innateAbilities: [] as string[],
       specials: [] as { specialId: string; value?: number }[]
@@ -131,8 +132,8 @@ describe('mergeArtifactWeaponForChildSync', () => {
     const merged = mergeArtifactWeaponForChildSync(parentW, childW, lockedInn.ordered, lockedInn.set, lockedSpec.ordered, lockedSpec.keySet);
     expect(merged.weaponType).toBe('melee');
     expect(merged.hands).toBe(2);
-    expect(merged.damage).toBe('3d8');
-    expect(merged.range).toBe('8/16m');
+    expect(merged.damage).toBe('4d8');
+    expect(merged.range).toBe('0m');
     expect(merged.innateAbilities).toContain('Extra');
   });
 });

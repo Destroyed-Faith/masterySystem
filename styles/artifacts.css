@@ -753,14 +753,59 @@
   background: rgba(107, 157, 195, 0.12);
 }
 
+.ep-power-tab-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+}
+
+.ep-power-badge {
+  flex: 0 0 auto;
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  line-height: 1.2;
+}
+
+.ep-badge-inherited {
+  background: rgba(201, 162, 39, 0.22);
+  color: var(--df-accent, #c9a227);
+}
+
+.ep-badge-tier {
+  background: rgba(107, 157, 195, 0.2);
+  color: var(--df-text-primary, #c8d8e8);
+}
+
 .ep-power-tab-name {
   font-weight: 600;
   font-size: 0.85rem;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .ep-power-tab-cat {
   font-size: 0.7rem;
   opacity: 0.75;
+}
+
+.ep-inherited-readonly-hint {
+  margin: 0 0 12px 0;
+  padding: 8px 10px 8px 12px;
+  border-left: 3px solid var(--df-accent, #c9a227);
+  background: rgba(201, 162, 39, 0.08);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.ep-detail-fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
 }
 
 .ep-power-list-actions {

@@ -182,11 +182,13 @@ export class EmbeddedPowerDialog extends BaseDialog {
     _selectedIndex = 0;
     _onSaved;
     _lineage;
+    _treeDepth;
     constructor(item, options) {
         super();
         this.item = item;
         this._onSaved = options?.onSaved;
         const lin = options?.lineage;
+        this._treeDepth = lin?.treeDepth != null && Number.isFinite(lin.treeDepth) ? Math.max(1, Math.floor(lin.treeDepth)) : undefined;
         this._lineage = {
             isLineageRoot: lin?.isLineageRoot !== false,
             lockedPowerIds: toLockedPowerIdSet(lin?.lockedPowerIds),
@@ -274,7 +276,19 @@ export class EmbeddedPowerDialog extends BaseDialog {
         }
         const current = hasPowers ? powers[this._selectedIndex] : null;
         data.item = this.item;
-        data.powerList = powers.map((p, i) => ({ i, name: p.name, category: p.category }));
+        data.powerList = powers.map((p, i) => {
+            const pid = p.id ? String(p.id) : '';
+            const inherited = !!pid && !this._lineage.isLineageRoot && this._lineage.lockedPowerIds.has(pid);
+            const tier = p.treeDepthDefined != null ? Math.floor(p.treeDepthDefined) : null;
+            const tierShort = tier != null ? `T${tier}` : '';
+            return {
+                i,
+                name: p.name,
+                category: p.category,
+                inherited,
+                tierShort
+            };
+        });
         data.hasPowers = hasPowers;
         data.selectedIndex = this._selectedIndex;
         data.detail = current ? this.prepareDetail(current) : null;
@@ -297,6 +311,10 @@ export class EmbeddedPowerDialog extends BaseDialog {
             !this._lineage.isLineageRoot &&
             sel.id &&
             this._lineage.lockedPowerIds.has(String(sel.id)));
+        data.detailReadOnly = Boolean(sel &&
+            !this._lineage.isLineageRoot &&
+            sel.id &&
+            this._lineage.lockedPowerIds.has(String(sel.id)));
         return data;
     }
     finalizePowersForSave() {
@@ -311,6 +329,15 @@ export class EmbeddedPowerDialog extends BaseDialog {
                         next.push(foundry.utils.deepClone(baseline));
                 }
             }
+            for (let i = 0; i < next.length; i++) {
+                const p = next[i];
+                const pid = p.id ? String(p.id) : '';
+                if (!pid || !this._lineage.lockedPowerIds.has(pid))
+                    continue;
+                const baseline = this._baselinePowers.find((b) => b.id && String(b.id) === pid);
+                if (baseline)
+                    next[i] = foundry.utils.deepClone(baseline);
+            }
             if (Number.isFinite(this._lineage.maxTotalPowers) && next.length > this._lineage.maxTotalPowers) {
                 ui.notifications?.error(`Too many embedded powers for this tree node (max ${this._lineage.maxTotalPowers}).`);
                 return null;
@@ -324,6 +351,13 @@ export class EmbeddedPowerDialog extends BaseDialog {
         this._workingPowers[this._selectedIndex] = this.readCurrentPowerFromForm(html);
     }
     readCurrentPowerFromForm(html) {
+        const cur = this._workingPowers[this._selectedIndex];
+        const curId = cur?.id ? String(cur.id) : '';
+        if (curId &&
+            !this._lineage.isLineageRoot &&
+            this._lineage.lockedPowerIds.has(curId)) {
+            return foundry.utils.deepClone(cur);
+        }
         const prev = foundry.utils.deepClone(this._workingPowers[this._selectedIndex]);
         prev.name = String(html.find('#ep-detail-name').val() || '').trim() || 'Unnamed';
         const fluff = String(html.find('#ep-detail-fluff').val() || '').trim();
@@ -438,6 +472,9 @@ export class EmbeddedPowerDialog extends BaseDialog {
                 return;
             }
             const np = createDefaultEmbeddedPower(randomId());
+            if (this._treeDepth != null && !this._lineage.isLineageRoot) {
+                np.treeDepthDefined = this._treeDepth;
+            }
             this._workingPowers.push(np);
             this._selectedIndex = this._workingPowers.length - 1;
             this.render(false);
@@ -455,6 +492,9 @@ export class EmbeddedPowerDialog extends BaseDialog {
             const cur = foundry.utils.deepClone(this._workingPowers[this._selectedIndex]);
             cur.id = randomId();
             cur.name = `${cur.name} (Copy)`;
+            if (this._treeDepth != null && !this._lineage.isLineageRoot) {
+                cur.treeDepthDefined = this._treeDepth;
+            }
             this._workingPowers.splice(this._selectedIndex + 1, 0, cur);
             this._selectedIndex += 1;
             this.render(false);

@@ -14,7 +14,7 @@ function findItemByNodeId(nodeId, items) {
     return items.find((it) => it.getFlag('mastery-system', 'nodeId') === nodeId);
 }
 /**
- * Recursively merge parent → children (direct childIds only per step), preserving child damage/range and extra innates/specials/powers.
+ * Recursively merge parent → children (direct childIds only per step); weapon damage/range follow the parent; innates/specials/powers merge as in lineage helpers.
  */
 export async function syncArtifactInheritedFromParent(parentItem) {
     const parentSystem = parentItem.system;

@@ -126,13 +126,14 @@ export function getMergedAncestorPowerIds(ancestors) {
     }
     return ids;
 }
+/** Non-root: ancestor power id union + tree depth (extra capacity per tier). Root: unlimited. */
 export function getMaxTotalEmbeddedPowers(isRoot, depth, ancestorUniquePowerIdCount) {
     if (isRoot)
         return Number.POSITIVE_INFINITY;
-    return ancestorUniquePowerIdCount + Math.max(0, depth - 1);
+    return ancestorUniquePowerIdCount + Math.max(1, depth);
 }
 /**
- * Merge parent weapon into child: lock type/hands from parent; keep child damage/range;
+ * Merge parent weapon into child: lock type/hands from parent; **damage/range from parent** (propagate down the tree);
  * innates/specials = locked (from full ancestor chain) then child-only extras.
  */
 export function mergeArtifactWeaponForChildSync(parentWeapon, childWeapon, lockedInnateOrdered, lockedInnateSet, lockedSpecialOrdered, lockedSpecialKeySet) {
@@ -140,12 +141,22 @@ export function mergeArtifactWeaponForChildSync(parentWeapon, childWeapon, locke
     const extraInnates = childInnates.filter((s) => !lockedInnateSet.has(s));
     const childSpecs = Array.isArray(childWeapon.specials) ? childWeapon.specials : [];
     const extraSpecs = childSpecs.filter((r) => r?.specialId && !lockedSpecialKeySet.has(specialRefKey(r)));
+    const dmg = parentWeapon.damage != null && String(parentWeapon.damage).trim() !== ''
+        ? String(parentWeapon.damage)
+        : childWeapon.damage != null
+            ? String(childWeapon.damage)
+            : '1d8';
+    const rng = parentWeapon.range != null && String(parentWeapon.range).trim() !== ''
+        ? String(parentWeapon.range)
+        : childWeapon.range != null
+            ? String(childWeapon.range)
+            : '0m';
     return {
         ...childWeapon,
         weaponType: parentWeapon.weaponType,
         hands: parentWeapon.hands,
-        damage: childWeapon.damage != null ? String(childWeapon.damage) : parentWeapon.damage,
-        range: childWeapon.range != null ? String(childWeapon.range) : parentWeapon.range,
+        damage: dmg,
+        range: rng,
         innateAbilities: [...lockedInnateOrdered, ...extraInnates],
         specials: [...lockedSpecialOrdered, ...extraSpecs]
     };
