@@ -4,6 +4,8 @@
  */
 import { ARTIFACT_GEAR_SLOT_OPTIONS, getArtifactSpecialSelectOptions, getArtifactTreeWeaponDamagePresets, getArtifactWeaponInnateOptions } from '../utils/artifact-node-options.js';
 import { syncArtifactInheritedFromParent } from '../utils/artifact-folder-sync.js';
+import { pushWorldArtifactNodeToEmbeddedActors } from '../utils/artifact-embedded-sync.js';
+import { inferArtifactEquipSlots } from '../utils/equip-slots.js';
 import { buildArtifactNodeIdMap, findRootItem, getAncestorChainRootFirst, getLockedWeaponBasics, getMaxTotalEmbeddedPowers, getMergedAncestorPowerIds, getTreeDepth, isLineageRootItem, mergeInnatesFromAncestors, mergeSpecialRefsFromAncestors, specialRefKey } from '../utils/artifact-tree-lineage.js';
 import { normalizePowersForEditor } from '../utils/embedded-power-ui-constants.js';
 import { EmbeddedPowerDialog } from './embedded-power-dialog.js';
@@ -420,6 +422,11 @@ export class NodeEditor extends BaseDialog {
         };
         const inventorySize = String(html.find('#node-inventory-size').val() || '1x1').trim() || '1x1';
         const clearedBonuses = { attack: 0, damage: '', defense: 0, specials: [] };
+        const equipSlots = inferArtifactEquipSlots({
+            artifactKind: kind,
+            gearSlot,
+            artifactWeapon
+        });
         const updates = {
             'system.artifactKind': kind,
             'system.gearSlot': gearSlot,
@@ -428,13 +435,15 @@ export class NodeEditor extends BaseDialog {
             'system.artifactShield': artifactShield,
             'system.bonuses': clearedBonuses,
             'system.requirements': requirements,
-            'system.inventorySize': inventorySize
+            'system.inventorySize': inventorySize,
+            ...(equipSlots ? { 'system.equipSlots': equipSlots } : {})
         };
         await this.item.update(updates);
         const childIds = this.item.getFlag('mastery-system', 'childIds') || [];
         if (childIds.length > 0) {
             await syncArtifactInheritedFromParent(this.item);
         }
+        await pushWorldArtifactNodeToEmbeddedActors(this.item);
         ui.notifications?.info('Artifact node updated.');
     }
 }

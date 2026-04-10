@@ -2389,22 +2389,26 @@ Hooks.once('ready', async function() {
     }
   }
 
-  // Migration: default system.equipSlots for legacy weapon / armor / shield (empty/missing only)
+  // Migration: default system.equipSlots for legacy weapon / armor / shield / artifact (empty/missing only)
   if (game.user?.isGM) {
     try {
-      const { inferDefaultEquipSlotsForType } = await import('./utils/equip-slots.js');
+      const { inferDefaultEquipSlotsForType, inferArtifactEquipSlots } = await import('./utils/equip-slots.js');
       let equipMigrated = 0;
+      const inferSlots = (item: any): string[] | null => {
+        if (item.type === 'artifact') return inferArtifactEquipSlots(item.system);
+        return inferDefaultEquipSlotsForType(item);
+      };
       const needsBackfill = (item: any) => {
-        if (!['weapon', 'armor', 'shield'].includes(item.type)) return false;
+        if (!['weapon', 'armor', 'shield', 'artifact'].includes(item.type)) return false;
         const raw = item.system?.equipSlots;
         if (Array.isArray(raw) && raw.length > 0) return false;
-        return !!inferDefaultEquipSlotsForType(item);
+        return !!inferSlots(item);
       };
 
       const worldItems = Array.from((game as any).items || []) as any[];
       for (const item of worldItems) {
         if (!needsBackfill(item)) continue;
-        const def = inferDefaultEquipSlotsForType(item);
+        const def = inferSlots(item);
         if (!def) continue;
         await item.update({ 'system.equipSlots': def });
         equipMigrated++;
@@ -2414,7 +2418,7 @@ Hooks.once('ready', async function() {
         const actorItems = Array.from(actor.items || []) as any[];
         for (const item of actorItems) {
           if (!needsBackfill(item)) continue;
-          const def = inferDefaultEquipSlotsForType(item);
+          const def = inferSlots(item);
           if (!def) continue;
           await item.update({ 'system.equipSlots': def });
           equipMigrated++;

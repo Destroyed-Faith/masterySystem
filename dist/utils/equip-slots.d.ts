@@ -21,4 +21,14 @@ export declare function inferDefaultEquipSlotsForType(item: {
         hands?: number;
     };
 }): string[] | null;
+/**
+ * Paperdoll slots for artifact items from artifactKind + profiles (matches weapon/shield/armor rules).
+ */
+export declare function inferArtifactEquipSlots(system: {
+    artifactKind?: string;
+    gearSlot?: string;
+    artifactWeapon?: {
+        hands?: number;
+    };
+} | null | undefined): string[] | null;
 //# sourceMappingURL=equip-slots.d.ts.map

@@ -380,7 +380,8 @@
         "stones": 0,
         "masteryRank": 1
       },
-      "powers": []
+      "powers": [],
+      "equipSlots": ["mainhand", "offhand"]
     },
     "condition": {
       "templates": ["base"],

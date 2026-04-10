@@ -4,6 +4,8 @@
  */
 import { normalizePowersForEditor } from './embedded-power-ui-constants.js';
 import { buildArtifactNodeIdMap, getAncestorChainRootFirst, mergeArtifactArmorForChildSync, mergeArtifactShieldForChildSync, mergeArtifactWeaponForChildSync, mergeInnatesFromAncestors, mergePowersParentToChild, mergeSpecialRefsFromAncestors } from './artifact-tree-lineage.js';
+import { pushWorldArtifactNodeToEmbeddedActors } from './artifact-embedded-sync.js';
+import { inferArtifactEquipSlots } from './equip-slots.js';
 function getFolderArtifactItems(parentItem) {
     const folderId = parentItem.folder?.id;
     if (!folderId)
@@ -67,7 +69,16 @@ export async function syncArtifactInheritedFromParent(parentItem) {
             'system.bonuses.specials': [...(parentBonuses.specials || [])],
             'system.powers': mergedPowers
         };
+        const inferredSlots = inferArtifactEquipSlots({
+            artifactKind: parentSystem.artifactKind || 'weapon',
+            gearSlot: parentSystem.gearSlot || '',
+            artifactWeapon: mergedWeapon
+        });
+        if (inferredSlots) {
+            updates['system.equipSlots'] = inferredSlots;
+        }
         await childItem.update(updates);
+        await pushWorldArtifactNodeToEmbeddedActors(childItem);
         await syncArtifactInheritedFromParent(childItem);
     }
 }

@@ -17,6 +17,8 @@ import {
   getArtifactWeaponInnateOptions
 } from '../utils/artifact-node-options.js';
 import { syncArtifactInheritedFromParent } from '../utils/artifact-folder-sync.js';
+import { pushWorldArtifactNodeToEmbeddedActors } from '../utils/artifact-embedded-sync.js';
+import { inferArtifactEquipSlots } from '../utils/equip-slots.js';
 import {
   buildArtifactNodeIdMap,
   findRootItem,
@@ -504,6 +506,12 @@ export class NodeEditor extends BaseDialog {
 
     const clearedBonuses = { attack: 0, damage: '', defense: 0, specials: [] as string[] };
 
+    const equipSlots = inferArtifactEquipSlots({
+      artifactKind: kind,
+      gearSlot,
+      artifactWeapon
+    });
+
     const updates: any = {
       'system.artifactKind': kind,
       'system.gearSlot': gearSlot,
@@ -512,7 +520,8 @@ export class NodeEditor extends BaseDialog {
       'system.artifactShield': artifactShield,
       'system.bonuses': clearedBonuses,
       'system.requirements': requirements,
-      'system.inventorySize': inventorySize
+      'system.inventorySize': inventorySize,
+      ...(equipSlots ? { 'system.equipSlots': equipSlots } : {})
     };
 
     await this.item.update(updates);
@@ -521,6 +530,8 @@ export class NodeEditor extends BaseDialog {
     if (childIds.length > 0) {
       await syncArtifactInheritedFromParent(this.item);
     }
+
+    await pushWorldArtifactNodeToEmbeddedActors(this.item);
 
     ui.notifications?.info('Artifact node updated.');
   }

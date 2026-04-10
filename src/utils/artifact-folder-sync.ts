@@ -14,6 +14,8 @@ import {
   mergePowersParentToChild,
   mergeSpecialRefsFromAncestors
 } from './artifact-tree-lineage.js';
+import { pushWorldArtifactNodeToEmbeddedActors } from './artifact-embedded-sync.js';
+import { inferArtifactEquipSlots } from './equip-slots.js';
 
 function getFolderArtifactItems(parentItem: Item): Item[] {
   const folderId = (parentItem as any).folder?.id;
@@ -100,7 +102,17 @@ export async function syncArtifactInheritedFromParent(parentItem: Item): Promise
       'system.powers': mergedPowers
     };
 
+    const inferredSlots = inferArtifactEquipSlots({
+      artifactKind: parentSystem.artifactKind || 'weapon',
+      gearSlot: parentSystem.gearSlot || '',
+      artifactWeapon: mergedWeapon
+    });
+    if (inferredSlots) {
+      updates['system.equipSlots'] = inferredSlots;
+    }
+
     await childItem.update(updates);
+    await pushWorldArtifactNodeToEmbeddedActors(childItem);
 
     await syncArtifactInheritedFromParent(childItem);
   }

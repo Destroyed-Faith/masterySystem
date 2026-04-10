@@ -263,6 +263,8 @@ export interface ArtifactShieldProfile {
 
 // === Artifact Data ===
 export interface ArtifactData extends BaseItemData {
+  /** Paperdoll slot keys this artifact may occupy (required for drag-equip). */
+  equipSlots?: string[];
   level: number;
   equipped: boolean;
   effects: string[];

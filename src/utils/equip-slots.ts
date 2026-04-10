@@ -47,3 +47,29 @@ export function inferDefaultEquipSlotsForType(item: {
   if (t === 'shield') return ['offhand'];
   return null;
 }
+
+/**
+ * Paperdoll slots for artifact items from artifactKind + profiles (matches weapon/shield/armor rules).
+ */
+export function inferArtifactEquipSlots(system: {
+  artifactKind?: string;
+  gearSlot?: string;
+  artifactWeapon?: { hands?: number };
+} | null | undefined): string[] | null {
+  if (!system) return null;
+  const kind = system.artifactKind || 'weapon';
+  if (kind === 'weapon') {
+    const h = Number(system.artifactWeapon?.hands ?? 1);
+    return h === 2 ? ['mainhand'] : ['mainhand', 'offhand'];
+  }
+  if (kind === 'armor') return ['chest'];
+  if (kind === 'shield') return ['offhand'];
+  if (kind === 'gear') {
+    let gs = String(system.gearSlot || '').trim();
+    // Paperdoll has one ring cell (ring1); "Ring (2)" maps to the same slot for equipping.
+    if (gs === 'ring2') gs = 'ring1';
+    if (gs && SLOT_SET.has(gs)) return [gs];
+    return null;
+  }
+  return null;
+}

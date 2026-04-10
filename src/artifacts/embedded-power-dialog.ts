@@ -17,6 +17,7 @@ import {
 } from '../utils/embedded-power-ui-constants.js';
 import { isOldPowerStructure, migrateArtifactPower } from '../utils/power-migration.js';
 import { syncArtifactInheritedFromParent } from '../utils/artifact-folder-sync.js';
+import { pushWorldArtifactNodeToEmbeddedActors } from '../utils/artifact-embedded-sync.js';
 
 const BaseDialog: any = (foundry as any)?.appv1?.Application || (Application as any);
 
@@ -471,6 +472,7 @@ export class EmbeddedPowerDialog extends BaseDialog {
         if (childIds.length > 0) {
           await syncArtifactInheritedFromParent(this.item);
         }
+        await pushWorldArtifactNodeToEmbeddedActors(this.item);
         ui.notifications?.info('Embedded powers saved.');
         this._onSaved?.();
         (this as any).close();

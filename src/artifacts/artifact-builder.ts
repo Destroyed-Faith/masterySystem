@@ -6,6 +6,8 @@
 import { NodeEditor } from './node-editor.js';
 import { normalizePowersForEditor } from '../utils/embedded-power-ui-constants.js';
 import { syncArtifactInheritedFromParent } from '../utils/artifact-folder-sync.js';
+import { pushWorldArtifactNodeToEmbeddedActors } from '../utils/artifact-embedded-sync.js';
+import { inferArtifactEquipSlots } from '../utils/equip-slots.js';
 import {
   readActorArtifactProgress,
   serializeActorArtifactProgress
@@ -257,6 +259,15 @@ export class ArtifactBuilder extends BaseApplication {
     const defaultArmor = { type: 'light', armorValue: 0, evadeModifier: 0, skillPenalty: '' };
     const defaultShield = { type: 'parry', shieldValue: 0, evadeBonus: 0, skillPenalty: '' };
 
+    const childWeapon = foundry.utils.duplicate(parentSystem.artifactWeapon || defaultWeapon);
+    const artifactKind = parentSystem.artifactKind || 'weapon';
+    const gearSlot = parentSystem.gearSlot || '';
+    const equipSlots = inferArtifactEquipSlots({
+      artifactKind,
+      gearSlot,
+      artifactWeapon: childWeapon
+    });
+
     const newItemData = {
       name: artifactName,
       type: 'artifact',
@@ -265,9 +276,9 @@ export class ArtifactBuilder extends BaseApplication {
         level: newLevel,
         equipped: false,
         effects: [],
-        artifactKind: parentSystem.artifactKind || 'weapon',
-        gearSlot: parentSystem.gearSlot || '',
-        artifactWeapon: foundry.utils.duplicate(parentSystem.artifactWeapon || defaultWeapon),
+        artifactKind,
+        gearSlot,
+        artifactWeapon: childWeapon,
         artifactArmor: foundry.utils.duplicate(parentSystem.artifactArmor || defaultArmor),
         artifactShield: foundry.utils.duplicate(parentSystem.artifactShield || defaultShield),
         bonuses: inheritedBonuses,
@@ -277,7 +288,8 @@ export class ArtifactBuilder extends BaseApplication {
           masteryRank: parentRequirements.masteryRank || 1
         },
         description: parentSystem.description || '',
-        powers: normalizePowersForEditor(foundry.utils.duplicate(parentSystem.powers || []))
+        powers: normalizePowersForEditor(foundry.utils.duplicate(parentSystem.powers || [])),
+        ...(equipSlots ? { equipSlots } : {})
       },
       flags: {
         'mastery-system': {
@@ -321,6 +333,10 @@ export class ArtifactBuilder extends BaseApplication {
       await item.update({ name: `${newName}${levelSuffix}` });
     }
 
+    for (const item of items) {
+      await pushWorldArtifactNodeToEmbeddedActors(item);
+    }
+
     if (folder && folder.name !== newName) {
       await folder.update({ name: newName });
     }
@@ -335,6 +351,9 @@ export class ArtifactBuilder extends BaseApplication {
     const items = (game as any).items?.filter((item: any) => item.folder?.id === folderId && item.type === 'artifact') || [];
     for (const item of items) {
       await item.update({ img: path });
+    }
+    for (const item of items) {
+      await pushWorldArtifactNodeToEmbeddedActors(item);
     }
     await (this as any).render();
   }

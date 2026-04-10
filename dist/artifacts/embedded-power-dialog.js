@@ -4,6 +4,7 @@
 import { EMBEDDED_POWER_ACTION_COSTS, EMBEDDED_POWER_AOE_SHAPES, EMBEDDED_POWER_CATEGORIES, EMBEDDED_POWER_DURATION_KINDS, EMBEDDED_POWER_LIMIT_PERS, EMBEDDED_POWER_LIMIT_USE_MAX, EMBEDDED_POWER_RANGE_KINDS, EMBEDDED_POWER_TAG_PRESETS, createDefaultEmbeddedPower, normalizePowersForEditor } from '../utils/embedded-power-ui-constants.js';
 import { isOldPowerStructure, migrateArtifactPower } from '../utils/power-migration.js';
 import { syncArtifactInheritedFromParent } from '../utils/artifact-folder-sync.js';
+import { pushWorldArtifactNodeToEmbeddedActors } from '../utils/artifact-embedded-sync.js';
 const BaseDialog = foundry?.appv1?.Application || Application;
 const LEVEL_KEYS = ['1', '2', '3', '4'];
 function randomId() {
@@ -446,6 +447,7 @@ export class EmbeddedPowerDialog extends BaseDialog {
                 if (childIds.length > 0) {
                     await syncArtifactInheritedFromParent(this.item);
                 }
+                await pushWorldArtifactNodeToEmbeddedActors(this.item);
                 ui.notifications?.info('Embedded powers saved.');
                 this._onSaved?.();
                 this.close();
