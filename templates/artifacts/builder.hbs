@@ -28,7 +28,7 @@
       {{#each actorLevels}}
       <div class="assignment-item">
         <span class="assignment-actor-name">{{actorName}}</span>
-        <span class="assignment-linked-badge">{{linkedLabel}}</span>
+        <span class="assignment-linked-badge">{{linkedLabel}}{{#if orphan}} — not in world{{/if}}</span>
         <button type="button" class="remove-actor-assignment" data-actor-id="{{actorId}}" title="Remove assignment">Remove</button>
       </div>
       {{/each}}

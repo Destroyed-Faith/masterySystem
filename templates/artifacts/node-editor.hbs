@@ -22,6 +22,16 @@
       <p class="node-editor-hint node-level-item-hint">Weapon / armor / shield use standard equip slots. Gear picks a ring, belt, cloak, etc.</p>
     </div>
 
+    <div class="form-group node-editor-span2">
+      <label>Inventory size</label>
+      <select id="node-inventory-size">
+        {{#each inventorySizeOptions}}
+        <option value="{{this}}" {{#if (eq ../inventorySize this)}}selected{{/if}}>{{this}}</option>
+        {{/each}}
+      </select>
+      <p class="node-editor-hint">Grid footprint on the character inventory (same presets as gear).</p>
+    </div>
+
     <div class="form-group node-editor-span2 {{#unless (eq artifactKind "gear")}}hidden{{/unless}}" data-profile="gear">
       <label>Gear slot</label>
       <select id="node-gear-slot" {{#unless isLineageRoot}}disabled{{/unless}}>

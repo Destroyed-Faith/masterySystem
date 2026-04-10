@@ -87,16 +87,15 @@ export class ArtifactBuilder extends BaseApplication {
     const actorLevels = (this.rootItem as any).getFlag('mastery-system', 'actorLevels') || {};
     const rootNodeId = (this.rootItem as any).getFlag('mastery-system', 'nodeId') as string;
     const assignments: any[] = [];
-    for (const [actorId] of Object.entries(actorLevels)) {
+    for (const [actorId, rawProg] of Object.entries(actorLevels)) {
       const actor = (game as any).actors?.get(actorId);
-      if (actor) {
-        const prog = readActorArtifactProgress(actorLevels[actorId], rootNodeId);
-        assignments.push({
-          actorId,
-          actorName: actor.name,
-          linkedLabel: prog.linked ? 'Linked' : 'Not linked'
-        });
-      }
+      const prog = readActorArtifactProgress(rawProg, rootNodeId);
+      assignments.push({
+        actorId,
+        actorName: actor ? actor.name : `Unknown actor (${actorId})`,
+        linkedLabel: prog.linked ? 'Linked' : 'Not linked',
+        orphan: !actor
+      });
     }
 
     const assignedIds = new Set(Object.keys(actorLevels));
@@ -167,8 +166,13 @@ export class ArtifactBuilder extends BaseApplication {
       await this.editNode(nodeId);
     });
 
-    html.find('.remove-actor-assignment').on('click', async (e: JQuery.ClickEvent) => {
-      const actorId = String($(e.currentTarget).data('actor-id') || '');
+    html.on('click', '.remove-actor-assignment', async (e: JQuery.ClickEvent) => {
+      e.preventDefault();
+      const actorId = String($(e.currentTarget).attr('data-actor-id') || '').trim();
+      if (!actorId) {
+        ui.notifications?.warn('Could not read actor id for this assignment.');
+        return;
+      }
       await this.removeActorFromArtifact(actorId);
     });
 

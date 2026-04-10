@@ -62,16 +62,15 @@ export class ArtifactBuilder extends BaseApplication {
         const actorLevels = this.rootItem.getFlag('mastery-system', 'actorLevels') || {};
         const rootNodeId = this.rootItem.getFlag('mastery-system', 'nodeId');
         const assignments = [];
-        for (const [actorId] of Object.entries(actorLevels)) {
+        for (const [actorId, rawProg] of Object.entries(actorLevels)) {
             const actor = game.actors?.get(actorId);
-            if (actor) {
-                const prog = readActorArtifactProgress(actorLevels[actorId], rootNodeId);
-                assignments.push({
-                    actorId,
-                    actorName: actor.name,
-                    linkedLabel: prog.linked ? 'Linked' : 'Not linked'
-                });
-            }
+            const prog = readActorArtifactProgress(rawProg, rootNodeId);
+            assignments.push({
+                actorId,
+                actorName: actor ? actor.name : `Unknown actor (${actorId})`,
+                linkedLabel: prog.linked ? 'Linked' : 'Not linked',
+                orphan: !actor
+            });
         }
         const assignedIds = new Set(Object.keys(actorLevels));
         const availableActors = (game.actors?.contents || []).filter((a) => a.type === 'character' && !assignedIds.has(a.id));
@@ -128,8 +127,13 @@ export class ArtifactBuilder extends BaseApplication {
             const nodeId = $(e.currentTarget).data('node-id');
             await this.editNode(nodeId);
         });
-        html.find('.remove-actor-assignment').on('click', async (e) => {
-            const actorId = String($(e.currentTarget).data('actor-id') || '');
+        html.on('click', '.remove-actor-assignment', async (e) => {
+            e.preventDefault();
+            const actorId = String($(e.currentTarget).attr('data-actor-id') || '').trim();
+            if (!actorId) {
+                ui.notifications?.warn('Could not read actor id for this assignment.');
+                return;
+            }
             await this.removeActorFromArtifact(actorId);
         });
         // Add actor assignment (eligible for Level 1 handout; evolution state lives on root flags)

@@ -40,6 +40,20 @@ const BaseDialog: any = (foundry as any)?.appv1?.Application || (Application as 
 const TREE_DAMAGE_PRESETS = getArtifactTreeWeaponDamagePresets();
 const TREE_PRESET_VALUES = new Set(TREE_DAMAGE_PRESETS.map((p) => p.value));
 
+/** Inventory grid presets (aligned with item-info-dialog gear sizes). */
+const INVENTORY_SIZE_PRESETS = [
+  '1x1',
+  '1x2',
+  '1x3',
+  '1x4',
+  '2x1',
+  '2x2',
+  '2x3',
+  '2x4',
+  '3x3',
+  '4x2'
+] as const;
+
 function defaultWeaponProfile(): ArtifactWeaponProfile {
   return {
     weaponType: 'melee',
@@ -246,6 +260,12 @@ export class NodeEditor extends BaseDialog {
     data.weaponInnateRows = buildInnateRows(weapon.innateAbilities || [], lineage.lockedInnateSet);
     data.weaponSpecialRows = buildSpecialRows(weapon.specials || [], lineage.lockedSpecialKeySet);
     data.requirements = system.requirements || { stones: 0, masteryRank: 1 };
+
+    const curInv = String(system.inventorySize || '1x1').trim() || '1x1';
+    data.inventorySize = curInv;
+    data.inventorySizeOptions = INVENTORY_SIZE_PRESETS.includes(curInv as (typeof INVENTORY_SIZE_PRESETS)[number])
+      ? [...INVENTORY_SIZE_PRESETS]
+      : [curInv, ...INVENTORY_SIZE_PRESETS];
 
     data.isLineageRoot = lineage.isLineageRoot;
     data.lineageHint = lineage.isLineageRoot
@@ -479,6 +499,9 @@ export class NodeEditor extends BaseDialog {
       masteryRank: parseInt(html.find('#node-mastery-rank').val() as string, 10) || 1
     };
 
+    const inventorySize =
+      String(html.find('#node-inventory-size').val() || '1x1').trim() || '1x1';
+
     const clearedBonuses = { attack: 0, damage: '', defense: 0, specials: [] as string[] };
 
     const updates: any = {
@@ -488,7 +511,8 @@ export class NodeEditor extends BaseDialog {
       'system.artifactArmor': artifactArmor,
       'system.artifactShield': artifactShield,
       'system.bonuses': clearedBonuses,
-      'system.requirements': requirements
+      'system.requirements': requirements,
+      'system.inventorySize': inventorySize
     };
 
     await this.item.update(updates);
