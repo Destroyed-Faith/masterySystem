@@ -46,6 +46,13 @@
           <span class="points-value" id="sheet-xp-display">{{default system.points.xp 0}}</span>
         </div>
       </div>
+      <div class="points-box points-box-faith" title="Faith Fractures: noch verfügbar zum Ändern des Würfelergebnisses (je 1 pro Reroll im Chat)">
+        <label>FF</label>
+        <div class="points-display faith-fractures-display">
+          <span class="points-value" id="sheet-faith-current">{{default system.faithFractures.current 0}}</span>
+          <span class="points-label">/ {{default system.faithFractures.maximum 0}}</span>
+        </div>
+      </div>
       {{else}}
       <!-- Attribute Distribution Counter -->
       <div class="points-box creation-points" title="Attribute Distribution: 2×8, 2×6, 2×4, 1×2">

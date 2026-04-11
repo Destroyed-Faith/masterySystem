@@ -81,6 +81,24 @@
   align-items: center;
 }
 
+.mastery-system.sheet.actor.character .points-box.points-box-faith {
+  min-width: 52px;
+  max-width: 68px;
+}
+
+.mastery-system.sheet.actor.character .points-box.points-box-faith .faith-fractures-display {
+  flex-wrap: nowrap;
+  gap: 2px;
+}
+
+.mastery-system.sheet.actor.character .points-box.points-box-faith .points-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--df-text-secondary, #a0a0a0);
+  line-height: 1.2;
+  font-family: 'Cormorant Garamond', serif;
+}
+
 .mastery-system.sheet.actor.character .points-box .points-display {
   display: flex;
   align-items: center;
@@ -111,7 +129,9 @@
 }
 
 .mastery-system.sheet.actor.character .character-name-box {
-  flex: 2;
+  flex: 1 1 auto;
+  min-width: 100px;
+  max-width: min(260px, 38vw);
 }
 
 .mastery-system.sheet.actor.character .character-name-box input {
