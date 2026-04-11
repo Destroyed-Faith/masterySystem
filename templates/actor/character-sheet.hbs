@@ -1491,7 +1491,13 @@
         {{#each disadvantages as |disadvantage index|}}
         <div class="disadvantage-card-sheet" data-index="{{index}}">
           <div class="disadvantage-header-sheet">
+            {{#if (eq disadvantage.cardMode "named")}}
+            <h4 class="disadvantage-title-named">
+              <span class="disadv-custom-title">{{#if disadvantage.details.name}}{{disadvantage.details.name}}{{else}}{{disadvantage.name}}{{/if}}</span><span class="disadv-category-paren"> ({{disadvantage.categoryShort}})</span>
+            </h4>
+            {{else}}
             <h4>{{disadvantage.name}}</h4>
+            {{/if}}
             <div class="disadvantage-controls">
               <span class="disadvantage-points-sheet">{{disadvantage.points}} pts</span>
               {{#unless ../creationComplete}}
@@ -1513,6 +1519,22 @@
               {{/unless}}
             </div>
           </div>
+          {{#if (eq disadvantage.cardMode "named")}}
+          {{#if disadvantage.details.context}}
+          <p class="disadvantage-context-sheet">{{disadvantage.details.context}}</p>
+          {{/if}}
+          {{#if disadvantage.summaryLine}}
+          <p class="disadvantage-severity-line">{{disadvantage.summaryLine}}</p>
+          {{/if}}
+          {{#if disadvantage.description}}
+          <details class="disadvantage-fold-rules">
+            <summary class="disadvantage-fold-rules-summary">{{disadvantage.name}} — rules &amp; description</summary>
+            <div class="disadvantage-fold-rules-body">
+              <p class="disadvantage-description-sheet">{{disadvantage.description}}</p>
+            </div>
+          </details>
+          {{/if}}
+          {{else}}
           {{#if disadvantage.description}}
           <p class="disadvantage-description-sheet">{{disadvantage.description}}</p>
           {{/if}}
@@ -1524,6 +1546,7 @@
             </div>
             {{/each}}
           </div>
+          {{/if}}
           {{/if}}
         </div>
         {{/each}}

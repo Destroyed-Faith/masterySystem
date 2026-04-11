@@ -599,8 +599,31 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Add skills list (sorted alphabetically)
     context.skills = this.#prepareSkills(context.system.skills || {}, context.system.skillsSpent || {});
     
-    // Prepare disadvantages
-    context.disadvantages = context.system.disadvantages || [];
+    // Prepare disadvantages (named-card layout for physical / mental limitations)
+    const rawDisadvantages = context.system.disadvantages || [];
+    context.disadvantages = rawDisadvantages.map((d: any) => {
+      const out = { ...d };
+      if (d.id === 'mental-restrictions') {
+        (out as any).cardMode = 'named';
+        (out as any).categoryShort = 'Mental Restriction';
+        const sev = d.details?.severity;
+        (out as any).summaryLine =
+          sev === 'easy'
+            ? '1 pt — Easy (Resolve k1 TN 6)'
+            : sev === 'hard'
+              ? '3 pt — Hard (Resolve k1 TN 14)'
+              : '2 pt — Normal (Resolve k1 TN 10)';
+      } else if (d.id === 'physical-scars') {
+        (out as any).cardMode = 'named';
+        (out as any).categoryShort = 'Physical Limitation';
+        const t = parseInt(String(d.details?.tier ?? '1'), 10);
+        (out as any).summaryLine =
+          t === 3 ? '3 pt — Severe' : t === 2 ? '2 pt — Significant' : '1 pt — Minor';
+      } else {
+        (out as any).cardMode = 'default';
+      }
+      return out;
+    });
     context.disadvantagePointsTotal = context.disadvantages.reduce((sum: number, d: any) => sum + (d.points || 0), 0);
     
     // Ensure token image is available
@@ -5279,15 +5302,28 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const presets = def?.examplePresets as Array<{ label: string; text: string }> | undefined;
     if (!presets?.length || !root?.length) return;
 
+    const $sel = root.find('.js-disadvantage-example-preset');
+    if (!$sel.length) return;
+
+    if (def.presetFillsNameAndContext) {
+      $sel.off('change.ms-preset').on('change.ms-preset', () => {
+        const raw = String($sel.val() ?? '');
+        const idx = parseInt(raw, 10);
+        if (!Number.isFinite(idx) || idx < 0 || idx >= presets.length) return;
+        const p = presets[idx];
+        if (!p) return;
+        root.find('[name="name"]').val(p.label);
+        root.find('[name="context"]').val(p.text || '');
+      });
+      return;
+    }
+
     let targetName = def.presetTargetField as string | undefined;
     if (!targetName) {
       const ta = (def.fields || []).find((f: any) => f.type === 'textarea');
       targetName = ta?.name;
     }
     if (!targetName) return;
-
-    const $sel = root.find('.js-disadvantage-example-preset');
-    if (!$sel.length) return;
 
     $sel.off('change.ms-preset').on('change.ms-preset', () => {
       const raw = String($sel.val() ?? '');
@@ -5375,12 +5411,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
               } else if (field.type === 'textarea') {
                 details[field.name] = String($(html).find(`[name="${field.name}"]`).val() || '').trim();
               } else {
-                details[field.name] = $(html).find(`[name="${field.name}"]`).val() as string || '';
+                details[field.name] = String($(html).find(`[name="${field.name}"]`).val() || '').trim();
               }
             }
 
-            if (def.id === 'physical-scars' && details.tier && String(details.description || '').trim()) {
+            if (def.id === 'physical-scars' && details.tier && String(details.name || '').trim()) {
               delete details.scar;
+              delete details.description;
+            }
+            if (def.id === 'mental-restrictions' && String(details.name || '').trim()) {
+              delete details.restriction;
+              delete details.type;
             }
 
             // Validate required fields are not empty

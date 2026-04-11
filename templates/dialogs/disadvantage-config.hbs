@@ -1,4 +1,87 @@
 <div class="disadvantage-config-dialog">
+  {{#if disadvantage.collapsibleRulesBelow}}
+  <div class="disadvantage-compact-intro">
+    <h3 class="disadvantage-kind-title">{{disadvantage.name}}</h3>
+    <p class="disadvantage-intro-one-liner">Your specific case goes in the fields below. Open the section at the bottom for full rules text and examples.</p>
+  </div>
+
+  {{#if disadvantage.examplePresets}}
+  <div class="form-group disadvantage-preset-row">
+    <label for="disadvantage-example-preset">Examples <span class="preset-hint">(optional — fills title &amp; note)</span></label>
+    <select id="disadvantage-example-preset" class="js-disadvantage-example-preset">
+      <option value="">— Choose an example —</option>
+      {{#each disadvantage.examplePresets as |ex i|}}
+      <option value="{{i}}">{{ex.label}}</option>
+      {{/each}}
+    </select>
+  </div>
+  {{/if}}
+
+  <div class="disadvantage-fields">
+    {{#each disadvantage.fields as |field|}}
+    <div class="form-group">
+      <label for="{{field.name}}">{{field.label}}{{#if field.required}} <span class="required">*</span>{{/if}}</label>
+
+      {{#if (eq field.type "select")}}
+      <select name="{{field.name}}" id="{{field.name}}" {{#if field.required}}required{{/if}}>
+        <option value="">-- Select --</option>
+        {{#each field.options as |option|}}
+        <option value="{{option.value}}" {{#if (eq option.value (lookup ../details field.name))}}selected{{/if}}>
+          {{option.label}}
+        </option>
+        {{/each}}
+      </select>
+      {{else if (eq field.type "number")}}
+      <input type="number"
+             name="{{field.name}}"
+             id="{{field.name}}"
+             value="{{lookup ../details field.name}}"
+             {{#if field.min}}min="{{field.min}}"{{/if}}
+             {{#if field.max}}max="{{field.max}}"{{/if}}
+             {{#if field.required}}required{{/if}}
+             placeholder="{{field.placeholder}}" />
+      {{else if (eq field.type "textarea")}}
+      <textarea name="{{field.name}}"
+                id="{{field.name}}"
+                rows="{{#if field.rows}}{{field.rows}}{{else}}4{{/if}}"
+                {{#if field.required}}required{{/if}}
+                placeholder="{{field.placeholder}}">{{lookup ../details field.name}}</textarea>
+      {{else}}
+      <input type="text"
+             name="{{field.name}}"
+             id="{{field.name}}"
+             value="{{lookup ../details field.name}}"
+             {{#if field.required}}required{{/if}}
+             placeholder="{{field.placeholder}}" />
+      {{/if}}
+    </div>
+    {{/each}}
+  </div>
+
+  <details class="disadvantage-rules-collapsible">
+    <summary class="disadvantage-rules-collapsible-summary">Rules, structure &amp; full description</summary>
+    <div class="disadvantage-rules-collapsible-body">
+      {{#if disadvantage.infoSections}}
+      <div class="disadvantage-info-sections">
+        {{#each disadvantage.infoSections as |sec|}}
+        <details class="disadvantage-info-details">
+          <summary class="disadvantage-info-summary">{{sec.title}}</summary>
+          <ul class="disadvantage-info-list">
+            {{#each sec.items as |item|}}
+            <li>{{item}}</li>
+            {{/each}}
+          </ul>
+        </details>
+        {{/each}}
+      </div>
+      {{/if}}
+      <p class="disadvantage-description">{{disadvantage.description}}</p>
+      {{#if disadvantage.effect}}
+      <p class="disadvantage-effect"><strong>Mechanics:</strong> {{disadvantage.effect}}</p>
+      {{/if}}
+    </div>
+  </details>
+  {{else}}
   <div class="disadvantage-info">
     <h3>{{disadvantage.name}}</h3>
 
@@ -34,12 +117,12 @@
     </select>
   </div>
   {{/if}}
-  
+
   <div class="disadvantage-fields">
     {{#each disadvantage.fields as |field|}}
     <div class="form-group">
       <label for="{{field.name}}">{{field.label}}{{#if field.required}} <span class="required">*</span>{{/if}}</label>
-      
+
       {{#if (eq field.type "select")}}
       <select name="{{field.name}}" id="{{field.name}}" {{#if field.required}}required{{/if}}>
         <option value="">-- Select --</option>
@@ -50,24 +133,24 @@
         {{/each}}
       </select>
       {{else if (eq field.type "number")}}
-      <input type="number" 
-             name="{{field.name}}" 
-             id="{{field.name}}" 
+      <input type="number"
+             name="{{field.name}}"
+             id="{{field.name}}"
              value="{{lookup ../details field.name}}"
              {{#if field.min}}min="{{field.min}}"{{/if}}
              {{#if field.max}}max="{{field.max}}"{{/if}}
              {{#if field.required}}required{{/if}}
              placeholder="{{field.placeholder}}" />
       {{else if (eq field.type "textarea")}}
-      <textarea name="{{field.name}}" 
-                id="{{field.name}}" 
+      <textarea name="{{field.name}}"
+                id="{{field.name}}"
                 rows="{{#if field.rows}}{{field.rows}}{{else}}4{{/if}}"
                 {{#if field.required}}required{{/if}}
                 placeholder="{{field.placeholder}}">{{lookup ../details field.name}}</textarea>
       {{else}}
-      <input type="text" 
-             name="{{field.name}}" 
-             id="{{field.name}}" 
+      <input type="text"
+             name="{{field.name}}"
+             id="{{field.name}}"
              value="{{lookup ../details field.name}}"
              {{#if field.required}}required{{/if}}
              placeholder="{{field.placeholder}}" />
@@ -75,4 +158,5 @@
     </div>
     {{/each}}
   </div>
+  {{/if}}
 </div>

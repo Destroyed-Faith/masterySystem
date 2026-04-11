@@ -540,8 +540,33 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // No need to calculate here - just use the derived values from system.combat
         // Add skills list (sorted alphabetically)
         context.skills = this.#prepareSkills(context.system.skills || {}, context.system.skillsSpent || {});
-        // Prepare disadvantages
-        context.disadvantages = context.system.disadvantages || [];
+        // Prepare disadvantages (named-card layout for physical / mental limitations)
+        const rawDisadvantages = context.system.disadvantages || [];
+        context.disadvantages = rawDisadvantages.map((d) => {
+            const out = { ...d };
+            if (d.id === 'mental-restrictions') {
+                out.cardMode = 'named';
+                out.categoryShort = 'Mental Restriction';
+                const sev = d.details?.severity;
+                out.summaryLine =
+                    sev === 'easy'
+                        ? '1 pt — Easy (Resolve k1 TN 6)'
+                        : sev === 'hard'
+                            ? '3 pt — Hard (Resolve k1 TN 14)'
+                            : '2 pt — Normal (Resolve k1 TN 10)';
+            }
+            else if (d.id === 'physical-scars') {
+                out.cardMode = 'named';
+                out.categoryShort = 'Physical Limitation';
+                const t = parseInt(String(d.details?.tier ?? '1'), 10);
+                out.summaryLine =
+                    t === 3 ? '3 pt — Severe' : t === 2 ? '2 pt — Significant' : '1 pt — Minor';
+            }
+            else {
+                out.cardMode = 'default';
+            }
+            return out;
+        });
         context.disadvantagePointsTotal = context.disadvantages.reduce((sum, d) => sum + (d.points || 0), 0);
         // Ensure token image is available
         if (!context.actor.prototypeToken?.texture?.src) {
@@ -4782,15 +4807,29 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const presets = def?.examplePresets;
         if (!presets?.length || !root?.length)
             return;
+        const $sel = root.find('.js-disadvantage-example-preset');
+        if (!$sel.length)
+            return;
+        if (def.presetFillsNameAndContext) {
+            $sel.off('change.ms-preset').on('change.ms-preset', () => {
+                const raw = String($sel.val() ?? '');
+                const idx = parseInt(raw, 10);
+                if (!Number.isFinite(idx) || idx < 0 || idx >= presets.length)
+                    return;
+                const p = presets[idx];
+                if (!p)
+                    return;
+                root.find('[name="name"]').val(p.label);
+                root.find('[name="context"]').val(p.text || '');
+            });
+            return;
+        }
         let targetName = def.presetTargetField;
         if (!targetName) {
             const ta = (def.fields || []).find((f) => f.type === 'textarea');
             targetName = ta?.name;
         }
         if (!targetName)
-            return;
-        const $sel = root.find('.js-disadvantage-example-preset');
-        if (!$sel.length)
             return;
         $sel.off('change.ms-preset').on('change.ms-preset', () => {
             const raw = String($sel.val() ?? '');
@@ -4873,11 +4912,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                                 details[field.name] = String($(html).find(`[name="${field.name}"]`).val() || '').trim();
                             }
                             else {
-                                details[field.name] = $(html).find(`[name="${field.name}"]`).val() || '';
+                                details[field.name] = String($(html).find(`[name="${field.name}"]`).val() || '').trim();
                             }
                         }
-                        if (def.id === 'physical-scars' && details.tier && String(details.description || '').trim()) {
+                        if (def.id === 'physical-scars' && details.tier && String(details.name || '').trim()) {
                             delete details.scar;
+                            delete details.description;
+                        }
+                        if (def.id === 'mental-restrictions' && String(details.name || '').trim()) {
+                            delete details.restriction;
+                            delete details.type;
                         }
                         // Validate required fields are not empty
                         for (const field of def.fields || []) {

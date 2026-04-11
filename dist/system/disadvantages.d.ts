@@ -24,7 +24,7 @@ export interface DisadvantageInfoSection {
 }
 export interface DisadvantageExamplePreset {
     label: string;
-    /** Inserted into the target text field when chosen from the dropdown */
+    /** Body text; with `presetFillsNameAndContext`, label → `name` and this → `context` */
     text: string;
 }
 export interface DisadvantageDefinition {
@@ -38,8 +38,12 @@ export interface DisadvantageDefinition {
     infoSections?: DisadvantageInfoSection[];
     /** Dropdown that inserts into the primary text field (wired in character sheet) */
     examplePresets?: DisadvantageExamplePreset[];
-    /** Field name to receive preset inserts (default: first textarea, else "restriction" / "description") */
+    /** Field name to receive preset inserts when not using presetFillsNameAndContext */
     presetTargetField?: string;
+    /** Preset option: set `name` from label and `context` from text */
+    presetFillsNameAndContext?: boolean;
+    /** Put long rules / info sections in a collapsible block below the form fields */
+    collapsibleRulesBelow?: boolean;
 }
 /**
  * All available Disadvantages
@@ -57,10 +61,10 @@ export declare function getDisadvantageDefinition(id: string): DisadvantageDefin
  */
 export declare function getDisadvantageDefinitions(): DisadvantageDefinition[];
 /**
- * Legacy mental-restrictions rows used a `type` field and flat 2 pts. Preselect Normal (2 pt) until the player picks a tier.
+ * Legacy mental-restrictions: `restriction` textarea, optional `type`, flat 2 pts until severity is set.
  */
 export declare function detailsForMentalRestrictionsDialog(details?: Record<string, any>): Record<string, any>;
-/** Migrate old physical-scars (scar select only) to tier + description when opening the dialog. */
+/** Migrate old physical-scars (scar / description only) to tier + name + context when opening the dialog. */
 export declare function detailsForPhysicalScarsDialog(details?: Record<string, any>): Record<string, any>;
 /**
  * Calculate points for a disadvantage selection

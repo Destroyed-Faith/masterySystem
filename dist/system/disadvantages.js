@@ -83,7 +83,8 @@ export const DISADVANTAGES = [
                 ]
             }
         ],
-        presetTargetField: 'description',
+        presetFillsNameAndContext: true,
+        collapsibleRulesBelow: true,
         examplePresets: [
             {
                 label: 'Deaf / hard of hearing (one ear)',
@@ -116,6 +117,21 @@ export const DISADVANTAGES = [
         ],
         fields: [
             {
+                name: 'name',
+                type: 'text',
+                label: 'Title — what it is (shown on your sheet)',
+                placeholder: 'e.g. Heavy sleeper, Deaf (left ear), Nightmares, Chronic pain',
+                required: true
+            },
+            {
+                name: 'context',
+                type: 'textarea',
+                rows: 3,
+                label: 'Note (optional) — background, how it shows in play',
+                placeholder: 'Optional: why, when it matters, anything you agreed with the GM.',
+                required: false
+            },
+            {
                 name: 'tier',
                 type: 'select',
                 label: 'Mechanical weight (points)',
@@ -124,14 +140,6 @@ export const DISADVANTAGES = [
                     { value: '2', label: '2 pt — Significant (one eye, heavy sleeper, strong limp, one good hand)' },
                     { value: '3', label: '3 pt — Severe (major limb/sensory loss, fragile-frame–style — GM agreement)' }
                 ],
-                required: true
-            },
-            {
-                name: 'description',
-                type: 'textarea',
-                rows: 5,
-                label: 'Describe the limitation (required)',
-                placeholder: 'Your own words: what happened, how it shows in play, and any agreed effects with the GM. Use the examples dropdown above only as a starting point.',
                 required: true
             }
         ],
@@ -170,7 +178,8 @@ export const DISADVANTAGES = [
                 ]
             }
         ],
-        presetTargetField: 'restriction',
+        presetFillsNameAndContext: true,
+        collapsibleRulesBelow: true,
         examplePresets: [
             {
                 label: 'No killing',
@@ -195,6 +204,21 @@ export const DISADVANTAGES = [
         ],
         fields: [
             {
+                name: 'name',
+                type: 'text',
+                label: 'Title — what it is (shown on your sheet)',
+                placeholder: 'e.g. Phobia, No killing, Vengeful, Chivalric oath',
+                required: true
+            },
+            {
+                name: 'context',
+                type: 'textarea',
+                rows: 3,
+                label: 'Note (optional) — details, triggers, why it matters',
+                placeholder: 'Optional: flesh out how it shows up at the table.',
+                required: false
+            },
+            {
                 name: 'severity',
                 type: 'select',
                 label: 'Severity — Resolve k1 when acting against the flaw',
@@ -203,14 +227,6 @@ export const DISADVANTAGES = [
                     { value: 'normal', label: 'Normal (2 pt) — TN 10: strong internal conflict' },
                     { value: 'hard', label: 'Hard (3 pt) — TN 14: violates a core belief' }
                 ],
-                required: true
-            },
-            {
-                name: 'restriction',
-                type: 'textarea',
-                rows: 5,
-                label: 'Your restriction (required)',
-                placeholder: 'Describe what binds your character. Use the example dropdown to pre-fill, then edit freely.',
                 required: true
             }
         ],
@@ -265,11 +281,29 @@ export function getDisadvantageDefinition(id) {
 export function getDisadvantageDefinitions() {
     return DISADVANTAGES;
 }
+/** First line → title; remainder → body (for migrating old single text fields). */
+function splitTitleBody(text) {
+    const t = String(text || '').trim();
+    if (!t)
+        return { title: '', rest: '' };
+    const nl = t.indexOf('\n');
+    if (nl === -1)
+        return { title: t, rest: '' };
+    return { title: t.slice(0, nl).trim(), rest: t.slice(nl + 1).trim() };
+}
 /**
- * Legacy mental-restrictions rows used a `type` field and flat 2 pts. Preselect Normal (2 pt) until the player picks a tier.
+ * Legacy mental-restrictions: `restriction` textarea, optional `type`, flat 2 pts until severity is set.
  */
 export function detailsForMentalRestrictionsDialog(details) {
     const d = { ...(details || {}) };
+    if (!String(d.name || '').trim() && String(d.restriction || '').trim()) {
+        const { title, rest } = splitTitleBody(String(d.restriction));
+        d.name = title;
+        const prev = String(d.context || '').trim();
+        d.context = [prev, rest].filter(Boolean).join('\n\n');
+    }
+    delete d.restriction;
+    delete d.type;
     if (!d.severity)
         d.severity = 'normal';
     return d;
@@ -286,21 +320,50 @@ const LEGACY_SCAR_DESCRIPTION = {
     'heavy-sleeper': 'Heavy sleeper — very hard to wake without damage or being physically shaken.',
     'fragile-frame': 'Fragile frame — fewer health boxes per level per GM.'
 };
-/** Migrate old physical-scars (scar select only) to tier + description when opening the dialog. */
+const LEGACY_SCAR_SHORT = {
+    'one-eyed': 'One-eyed',
+    'one-handed': 'One-handed',
+    'heavy-sleeper': 'Heavy sleeper',
+    'fragile-frame': 'Fragile frame'
+};
+/** Migrate old physical-scars (scar / description only) to tier + name + context when opening the dialog. */
 export function detailsForPhysicalScarsDialog(details) {
     const d = { ...(details || {}) };
-    if (d.tier && String(d.description || '').trim())
+    const hasName = String(d.name || '').trim().length > 0;
+    const hasTier = d.tier != null && String(d.tier).trim() !== '';
+    if (hasName && hasTier) {
+        delete d.scar;
+        delete d.description;
         return d;
+    }
     const scar = d.scar;
     if (scar && LEGACY_SCAR_TIER[scar]) {
-        d.tier = LEGACY_SCAR_TIER[scar];
-        if (!String(d.description || '').trim()) {
-            d.description = LEGACY_SCAR_DESCRIPTION[scar] || '';
+        if (!hasTier)
+            d.tier = LEGACY_SCAR_TIER[scar];
+        if (!hasName) {
+            d.name = LEGACY_SCAR_SHORT[scar] || scar.replace(/-/g, ' ');
+        }
+        const desc = String(d.description || '').trim();
+        if (!String(d.context || '').trim()) {
+            d.context = desc || LEGACY_SCAR_DESCRIPTION[scar] || '';
+        }
+        else if (desc) {
+            d.context = [String(d.context).trim(), desc].filter(Boolean).join('\n\n');
         }
     }
-    else if (!d.tier) {
-        d.tier = '1';
+    else {
+        if (!hasTier)
+            d.tier = '1';
+        const desc = String(d.description || '').trim();
+        if (!hasName && desc) {
+            const { title, rest } = splitTitleBody(desc);
+            d.name = title;
+            const prev = String(d.context || '').trim();
+            d.context = [prev, rest].filter(Boolean).join('\n\n');
+        }
     }
+    delete d.scar;
+    delete d.description;
     return d;
 }
 /**
