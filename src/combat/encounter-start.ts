@@ -198,10 +198,10 @@ export async function beginEncounter(combat: Combat): Promise<void> {
         const isLocked = localSetup.passives[actor.id]?.locked === true;
         
         try {
-          await PassiveSelectionDialog.showForCombatant(pc, isLocked);
-          await handlePassiveSelectionComplete(combat, actor.id, {});
-          // Note: Stone Powers and Initiative Shop will be opened after ALL passives are done
-          // This is handled by checking when all passives are complete
+          const outcome = await PassiveSelectionDialog.showForCombatant(pc, isLocked);
+          if (outcome.confirmed) {
+            await handlePassiveSelectionComplete(combat, actor.id, {});
+          }
         } catch (err) {
           console.error('Mastery System | Error in GM passive selection', err);
         }
@@ -280,11 +280,10 @@ async function handleSocketMessage(payload: any): Promise<void> {
       const isLocked = setup.passives[actorId]?.locked === true;
 
       try {
-        await PassiveSelectionDialog.showForCombatant(combatant, isLocked);
-        // After passive selection completes, mark as locked
-        await handlePassiveSelectionComplete(combat, actorId, {});
-        // Note: Stone Powers and Initiative Shop will be opened after ALL passives are done
-        // This is handled by checking when all passives are complete
+        const outcome = await PassiveSelectionDialog.showForCombatant(combatant, isLocked);
+        if (outcome.confirmed) {
+          await handlePassiveSelectionComplete(combat, actorId, {});
+        }
       } catch (err) {
         console.error('Mastery System | Error in passive selection', err);
       }

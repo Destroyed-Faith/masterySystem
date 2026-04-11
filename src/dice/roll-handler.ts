@@ -21,40 +21,38 @@ export interface RollOptions {
 }
 
 /**
- * Roll a single exploding d8
- * Returns the total value including any explosions
+ * Roll one pool die: exploding d8s while running total is divisible by 8 (Mastery rules).
+ * Returns each face for Foundry display (exploded flags) and the pool die total.
  */
-function rollExplodingDie(): { value: number; exploded: boolean } {
-  let value = Math.floor(Math.random() * 8) + 1;
+function rollExplodingDieChain(): { faces: number[]; total: number; exploded: boolean } {
+  const faces: number[] = [];
   let exploded = false;
-  
-  // Keep rolling while we get 8s
-  while (value % EXPLODE_VALUE === 0) {
+  while (true) {
+    faces.push(Math.floor(Math.random() * 8) + 1);
+    const sum = faces.reduce((a, b) => a + b, 0);
+    if (sum % EXPLODE_VALUE !== 0) break;
     exploded = true;
-    const nextRoll = Math.floor(Math.random() * 8) + 1;
-    value += nextRoll;
   }
-  
-  return { value, exploded };
+  const total = faces.reduce((a, b) => a + b, 0);
+  return { faces, total, exploded };
 }
 
 /**
- * Roll multiple exploding d8s
- * Returns array of die values (including explosions)
+ * Roll multiple exploding d8s (pool dice).
  */
-function rollDice(numDice: number): { dice: number[]; exploded: number[] } {
+function rollDice(numDice: number): { dice: number[]; exploded: number[]; dieChains: number[][] } {
   const dice: number[] = [];
   const exploded: number[] = [];
-  
+  const dieChains: number[][] = [];
+
   for (let i = 0; i < numDice; i++) {
-    const { value, exploded: didExplode } = rollExplodingDie();
-    dice.push(value);
-    if (didExplode) {
-      exploded.push(i);
-    }
+    const chain = rollExplodingDieChain();
+    dieChains.push(chain.faces);
+    dice.push(chain.total);
+    if (chain.exploded) exploded.push(i);
   }
-  
-  return { dice, exploded };
+
+  return { dice, exploded, dieChains };
 }
 
 /**
@@ -109,7 +107,7 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
   });
   
   // Roll the dice
-  const { dice, exploded } = rollDice(numDice);
+  const { dice, exploded, dieChains } = rollDice(numDice);
   console.log('Mastery System | DEBUG: Dice rolled', {
     numDice,
     dice,
@@ -151,7 +149,7 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
   });
   
   // Create result object
-  const result: MasteryRollResult & { keptIndices?: number[], label?: string, flavor?: string } = {
+  const result: MasteryRollResult & { keptIndices?: number[]; label?: string; flavor?: string } = {
     total,
     dice,
     kept: keptValues,
@@ -161,6 +159,7 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
     raises,
     success,
     exploded,
+    dieChains,
     label,
     flavor
   };
@@ -177,6 +176,56 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
   console.log('Mastery System | DEBUG: Roll complete, returning result', result);
   
   return result;
+}
+
+/**
+ * Build a Foundry Roll matching the already-evaluated mastery result (no second RNG).
+ * One `1d8`-equivalent Die per pool die so explosion faces appear as separate results (core + Dice So Nice).
+ */
+function buildMasteryDisplayRoll(
+  result: MasteryRollResult & { keptIndices?: number[] },
+  skillBonus: number
+): Roll {
+  const Die = foundry.dice.terms.Die;
+  const OperatorTerm = foundry.dice.terms.OperatorTerm;
+  const NumericTerm = foundry.dice.terms.NumericTerm;
+  const keptIdx = new Set(result.keptIndices ?? []);
+  const chains = result.dieChains;
+  const n = result.dice.length;
+  const terms: InstanceType<typeof foundry.dice.terms.RollTerm>[] = [];
+
+  for (let i = 0; i < n; i++) {
+    if (i > 0) terms.push(new OperatorTerm({ operator: '+' }));
+    const faces = chains?.[i]?.length ? chains[i]! : [result.dice[i]!];
+    const dieResults = faces.map((face, j) => {
+      const isLast = j === faces.length - 1;
+      const r: Record<string, unknown> = {
+        result: face,
+        active: true,
+        discarded: false,
+        exploded: !isLast,
+        rerolled: false
+      };
+      if (keptIdx.has(i)) (r as { kept?: boolean }).kept = true;
+      return r;
+    });
+    const die = new Die({ faces: 8, number: 1, results: dieResults as any });
+    (die as unknown as { _evaluated: boolean })._evaluated = true;
+    terms.push(die);
+  }
+
+  if (skillBonus !== 0) {
+    terms.push(new OperatorTerm({ operator: '+' }));
+    const num = new NumericTerm({ number: skillBonus });
+    (num as unknown as { _evaluated: boolean })._evaluated = true;
+    terms.push(num);
+  }
+
+  const RollCls = (globalThis as unknown as { Roll: typeof Roll }).Roll;
+  const roll = RollCls.fromTerms(terms);
+  (roll as unknown as { _evaluated: boolean; _total: number })._evaluated = true;
+  (roll as unknown as { _total: number })._total = result.total;
+  return roll;
 }
 
 /**
@@ -259,79 +308,19 @@ async function sendRollToChat(
       }
     }
     
-    // Create a Foundry Roll object to display dice visually
     const diceSum = result.total - result.skill;
-    
-    // Create roll formula - use numDice for the pool (e.g., "8d8" for attribute 8)
-    // Do NOT use keep modifiers (kh/kl) - we handle keep selection ourselves
-    const numDice = result.dice.length;
-    const formula = `${numDice}d8${result.skill !== 0 ? ` + ${result.skill}` : ''}`;
-    const roll = new Roll(formula);
-    
-    // Evaluate the roll asynchronously (required in Foundry VTT v13)
-    await roll.evaluate();
-    
-    // Now replace the dice results with our actual rolled values
-    // IMPORTANT: Use keptIndices to properly identify which dice were kept
-    // (multiple dice can have the same value, so we can't rely on values alone)
-    const keptIndices = (result as any).keptIndices || [];
-    
-    // Find the Die term and replace ALL results
-    // For "8d8", Foundry creates a single Die term with term.number = 8
-    // We need to set term.results to an array with 8 entries (one per die)
-    for (const term of roll.terms as any[]) {
-      if (term instanceof foundry.dice.terms.Die) {
-        // Replace term.results with ALL dice results
-        // term.number should equal numDice (e.g., 8 for 8d8)
-        const expectedDiceCount = term.number || numDice;
-        
-        // Build results array with ALL dice (not just kept ones)
-        term.results = [];
-        for (let i = 0; i < expectedDiceCount && i < result.dice.length; i++) {
-          const actualValue = result.dice[i];
-          const isKept = keptIndices.includes(i);
-          const isExploded = result.exploded.includes(i);
-          
-          // ALL dice should be active and NOT discarded
-          // Store kept/exploded status for HTML highlighting
-          const resultObj: any = {
-            result: actualValue,
-            active: true,
-            discarded: false,  // DO NOT discard - show ALL dice
-            rerolled: false
-          };
-          // Add custom properties for HTML highlighting
-          if (isKept) {
-            resultObj.kept = true;
-          }
-          if (isExploded) {
-            resultObj.exploded = true;
-          }
-          term.results.push(resultObj);
-        }
-        
-        // Ensure we have the correct number of results
-        if (term.results.length !== expectedDiceCount) {
-          console.warn('Mastery System | Die term results count mismatch', {
-            expected: expectedDiceCount,
-            actual: term.results.length,
-            diceLength: result.dice.length
-          });
-        }
-        
-        break; // Only process the first Die term (should be the only one for "Nd8")
-      }
-    }
-    
-    // Update the total
-    (roll as any)._total = result.total;
-    
-    // Debug log
+    const keptIndices = (result as MasteryRollResult & { keptIndices?: number[] }).keptIndices || [];
+
+    const roll = buildMasteryDisplayRoll(
+      result as MasteryRollResult & { keptIndices?: number[] },
+      result.skill
+    );
+
     console.log('Mastery System | Roll display built', {
-      numDice: numDice,
+      numDice: result.dice.length,
       keptDice: keptIndices.length,
-      formula: formula,
-      dieTermResults: roll.terms.find((t: any) => t instanceof foundry.dice.terms.Die)?.results?.length || 0
+      formula: roll.formula,
+      termCount: roll.terms.length
     });
     
     
@@ -354,7 +343,10 @@ async function sendRollToChat(
               <span>Dice Rolled:</span>
               <span class="value">${result.dice.map((d, i) => {
                 const isKept = keptIndices.includes(i);
-                return isKept ? `<strong>${d}</strong>` : d;
+                const ch = result.dieChains?.[i];
+                const label =
+                  ch && ch.length > 1 ? `${ch.join(' + ')} = ${d}` : String(d);
+                return isKept ? `<strong>${label}</strong>` : label;
               }).join(', ')}</span>
             </div>
             <div class="breakdown-line">

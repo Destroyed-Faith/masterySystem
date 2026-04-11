@@ -15,6 +15,8 @@ export interface MasteryRollResult {
   raises: number;
   success: boolean;
   exploded: number[];
+  /** Per pool die: individual d8 faces before summing (exploding 8s). Optional for older stored flags. */
+  dieChains?: number[][];
 }
 
 // System constants

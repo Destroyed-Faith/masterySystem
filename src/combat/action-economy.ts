@@ -711,76 +711,131 @@ export async function spendGenericStoneAbilityWithPerAttributeDeductions(
   }
 }
 
+function shuffleArray<T>(arr: T[]): void {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j]!, arr[i]!];
+  }
+}
+
 /**
- * Regenerate stones at end of round
- * Shows dialog for each PC to allocate regen points (mastery rank per attribute)
+ * End-of-round stone regen: Mastery Rank stones, automatic.
+ * Each stone goes to the next pool that can accept it, in order of attribute value (highest first);
+ * ties between equal attributes are shuffled randomly.
+ */
+export async function applyAutomaticStoneRegen(actor: Actor): Promise<void> {
+  const system = (actor.system as any);
+  const masteryRank = system.mastery?.rank || 2;
+  const regenPoints = masteryRank;
+  const attributeKeys: AttributeKey[] = [
+    'might',
+    'agility',
+    'vitality',
+    'intellect',
+    'resolve',
+    'influence'
+  ];
+
+  type Entry = { attr: AttributeKey; value: number };
+  const entries: Entry[] = attributeKeys.map((attr) => ({
+    attr,
+    value: Number(system.attributes?.[attr]?.value ?? 0)
+  }));
+  entries.sort((a, b) => b.value - a.value);
+
+  const priority: AttributeKey[] = [];
+  let i = 0;
+  while (i < entries.length) {
+    let j = i + 1;
+    while (j < entries.length && entries[j]!.value === entries[i]!.value) j++;
+    const group = entries.slice(i, j).map((e) => e.attr);
+    shuffleArray(group);
+    priority.push(...group);
+    i = j;
+  }
+
+  const simulated: Record<AttributeKey, number> = {} as Record<AttributeKey, number>;
+  for (const attr of attributeKeys) {
+    simulated[attr] = getStonePool(actor, attr).current;
+  }
+
+  for (let step = 0; step < regenPoints; step++) {
+    let placed = false;
+    for (const attr of priority) {
+      const pool = getStonePool(actor, attr);
+      const sustained = system.stonePools?.[attr]?.sustained || 0;
+      const effectiveMax = Math.max(0, pool.max - sustained);
+      if (simulated[attr] < effectiveMax) {
+        simulated[attr] += 1;
+        placed = true;
+        break;
+      }
+    }
+    if (!placed) break;
+  }
+
+  const updates: Record<string, number> = {};
+  for (const attr of attributeKeys) {
+    const oldC = getStonePool(actor, attr).current;
+    const newC = simulated[attr];
+    if (newC !== oldC) {
+      updates[`system.stonePools.${attr}.current`] = newC;
+    }
+  }
+
+  if (Object.keys(updates).length > 0) {
+    await actor.update(updates);
+    console.log(`Mastery System | Automatic stone regen for ${(actor as any).name}`, {
+      regenPoints,
+      updates
+    });
+  }
+}
+
+/**
+ * Regenerate stones at end of round (automatic; no player allocation dialog).
  */
 export async function regenStonesEndOfRound(combat: Combat): Promise<void> {
   const user = game.user;
   if (!user) return;
-  
-  // Get all PC combatants that this user owns (or all if GM)
+
   const pcCombatants = combat.combatants.filter((c: Combatant) => {
     const actor = c.actor;
     return actor && actor.type === 'character' && (user.isGM || actor.isOwner);
   });
-  
+
   if (pcCombatants.length === 0) {
     return;
   }
-  
-  console.log(`Mastery System | Showing stone regen for ${pcCombatants.length} PCs`);
-  
-  // Import stone regen dialog
-  const { StoneRegenDialog } = await import('../stones/stone-regen-dialog.js');
-  
-  // Show regen dialog for each PC sequentially
+
+  console.log(`Mastery System | Automatic stone regen for ${pcCombatants.length} PC combatant(s)`);
+
   for (const combatant of pcCombatants) {
     const actor = combatant.actor;
     if (!actor) continue;
-    
+
     const system = (actor.system as any);
-    const masteryRank = system.mastery?.rank || 2;
-    const regenPoints = masteryRank;
-    
-    // Check if any pools can actually regenerate
-    const attributeKeys: AttributeKey[] = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence'];
-    const canRegen = attributeKeys.some(attr => {
+    const attributeKeys: AttributeKey[] = [
+      'might',
+      'agility',
+      'vitality',
+      'intellect',
+      'resolve',
+      'influence'
+    ];
+    const canRegen = attributeKeys.some((attr) => {
       const pool = getStonePool(actor, attr);
-      const sustained = (system.stonePools?.[attr]?.sustained || 0);
+      const sustained = system.stonePools?.[attr]?.sustained || 0;
       const effectiveMax = pool.max - sustained;
       return pool.current < effectiveMax;
     });
-    
+
     if (!canRegen) {
       console.log(`Mastery System | ${(actor as any).name} stone pools already full, skipping regen`);
       continue;
     }
-    
-    // Show dialog
-    const allocation = await StoneRegenDialog.showForActor(actor, regenPoints);
-    
-    if (allocation) {
-      // Apply allocation
-      const updates: any = {};
-      for (const [attr, amount] of Object.entries(allocation)) {
-        if (amount === 0) continue;
-        
-        const pool = getStonePool(actor, attr as AttributeKey);
-        const sustained = (system.stonePools?.[attr]?.sustained || 0);
-        const effectiveMax = pool.max - sustained;
-        const newCurrent = Math.min(effectiveMax, pool.current + amount);
-        
-        updates[`system.stonePools.${attr}.current`] = newCurrent;
-      }
-      
-      if (Object.keys(updates).length > 0) {
-        await actor.update(updates);
-        console.log(`Mastery System | Applied stone regen for ${(actor as any).name}`, allocation);
-      }
-    } else {
-      console.log(`Mastery System | ${(actor as any).name} skipped stone regen`);
-    }
+
+    await applyAutomaticStoneRegen(actor);
   }
 }
 

@@ -102,6 +102,19 @@
   font-size: 1.3rem;
 }
 
+.passive-selection-overlay .overlay-footer {
+  flex-wrap: wrap;
+}
+
+.passive-selection-overlay .passive-footer-hint {
+  flex-basis: 100%;
+  order: -1;
+  margin: 0 0 0.5rem 0;
+  font-size: 0.82rem;
+  opacity: 0.85;
+  line-height: 1.35;
+}
+
 /* Passive Slots Section */
 
 .passive-slots-section,
@@ -1357,6 +1370,14 @@
 .mastery-system.initiative-shop .btn-confirm-summary:hover {
   filter: brightness(1.08);
   box-shadow: 0 2px 8px rgba(80, 200, 120, 0.45);
+}
+
+.mastery-system.initiative-shop .initiative-shop-footer-hint {
+  flex-basis: 100%;
+  margin: 0.35rem 0 0 0;
+  font-size: 0.72rem;
+  opacity: 0.82;
+  line-height: 1.3;
 }
 
 .mastery-system.initiative-shop .shop-toolbar-top {

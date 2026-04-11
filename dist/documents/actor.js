@@ -55,11 +55,13 @@ export class MasteryActor extends Actor {
                         // - is 0 and maxStones > 0 and sustained === 0 -> refill to effectiveMax (character creation or reset case)
                         // - otherwise clamp to valid range
                         const current = system.stonePools[attrKey].current;
+                        const inActiveCombat = !!game.combat?.active &&
+                            game.combat.combatants?.some((c) => c.actor?.id === this.id);
                         if (current === undefined || current === null) {
                             system.stonePools[attrKey].current = effectiveMax;
                         }
-                        else if (current === 0 && maxStones > 0 && sustained === 0) {
-                            // Refill empty pools (character creation or after attribute increase)
+                        else if (current === 0 && maxStones > 0 && sustained === 0 && !inActiveCombat) {
+                            // Refill empty pools only out of combat (in combat, 0 means spent — regen is end-of-round)
                             system.stonePools[attrKey].current = effectiveMax;
                         }
                         else {

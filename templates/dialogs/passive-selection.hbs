@@ -66,13 +66,14 @@
   </section>
 
   <footer class="overlay-footer">
+    <p class="passive-footer-hint">{{#unless readOnly}}Schließen mit ✕ zählt <strong>nicht</strong> als Bestätigung (Encounter wartet). Nutze „Weiter“ / „Bestätigen“.{{/unless}}</p>
     <button class="js-prev-character btn-nav" {{#if isFirst}}disabled{{/if}}>
       <i class="fas fa-chevron-left"></i> Previous
     </button>
     
     <button class="js-next-character btn-primary">
       {{#if isLast}}
-        Finish <i class="fas fa-check"></i>
+        Bestätigen <i class="fas fa-check"></i>
       {{else}}
         Next <i class="fas fa-chevron-right"></i>
       {{/if}}

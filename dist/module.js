@@ -20,7 +20,6 @@ import { handleRadialMenuOpened, handleRadialMenuClosed } from './radial-menu/re
 import { registerAttackRollClickHandler } from './chat/attack-roll-handler.js';
 // Import combat-related modules statically
 import { PassiveSelectionDialog } from './sheets/passive-selection-dialog.js';
-import { InitiativeShopDialog } from './combat/initiative-shop-dialog.js';
 import { CombatCarouselApp } from './ui/combat-carousel.js';
 import { initializeStoneHooks } from './stones/stone-hooks.js';
 import { initializeEncounterStart, beginEncounter } from './combat/encounter-start.js';
@@ -140,16 +139,18 @@ Hooks.once('init', async function () {
     // Initialize combat hooks
     // Register combatStart hook directly here
     Hooks.on('combatStart', async (combat) => {
-        console.log('Mastery System | Combat started, showing passive selection overlay');
+        const msFlags = combat.flags?.['mastery-system'] || {};
+        if (msFlags.encounterSetup?.started) {
+            console.log('Mastery System | combatStart: Begin Encounter flow already handled passives/stones — opening carousel only');
+            CombatCarouselApp.open();
+            return;
+        }
+        console.log('Mastery System | Combat started (legacy path), showing passive selection overlay');
         try {
-            // Step 1: Show Passive Selection Dialog
             await PassiveSelectionDialog.showForCombat(combat);
-            // Step 2: Wait a moment for players to finish selecting passives
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            // Step 3: Stone powers then initiative (dice + CR + shop), once stones finish for this round
+            await new Promise((resolve) => setTimeout(resolve, 1000));
             const initRound = Math.max(1, combat.round ?? 1);
             await openStonePowersForAllCombatants(combat, initRound);
-            // Step 4: Open Combat Carousel
             CombatCarouselApp.open();
         }
         catch (error) {
@@ -320,8 +321,18 @@ Hooks.once('init', async function () {
                     await requestEndTurn();
                 });
             }
-            // Add Passive Selection button
-            const passiveBtn = $('<button type="button" class="combatant-control ms-passive-btn" data-action="selectPassives" data-combatant-id="' + combatantId + '" data-tooltip="Select Passives" aria-label="Select Passives" title="Select Passives"><i class="fa-solid fa-shield"></i></button>');
+            const msFlagsRow = combat.flags?.['mastery-system'] || {};
+            const encSetup = msFlagsRow.encounterSetup;
+            const actorIdForPassives = combatant.actor?.id;
+            const passivesLocked = actorIdForPassives && encSetup?.passives?.[actorIdForPassives]?.locked === true;
+            const passiveTooltip = passivesLocked ? 'Passives ansehen (gesperrt)' : 'Passives wählen / bestätigen';
+            const passiveBtn = $('<button type="button" class="combatant-control ms-passive-btn" data-action="selectPassives" data-combatant-id="' +
+                combatantId +
+                '" data-tooltip="' +
+                passiveTooltip +
+                '" aria-label="Passives" title="' +
+                passiveTooltip +
+                '"><i class="fa-solid fa-shield"></i></button>');
             $initiativeDiv.append(passiveBtn);
             // Add Initiative Shop button
             const initiativeBtn = $('<button type="button" class="combatant-control ms-initiative-btn" data-action="openInitiativeShop" data-combatant-id="' + combatantId + '" data-tooltip="Initiative Shop" aria-label="Initiative Shop" title="Initiative Shop"><i class="fa-solid fa-shop"></i></button>');
@@ -365,7 +376,11 @@ Hooks.once('init', async function () {
                     return;
                 }
                 try {
-                    await PassiveSelectionDialog.showForCombatant(combatant);
+                    const f = combat.flags?.['mastery-system'] || {};
+                    const setupEnc = f.encounterSetup;
+                    const aid = combatant.actor?.id;
+                    const locked = aid && setupEnc?.passives?.[aid]?.locked === true;
+                    await PassiveSelectionDialog.showForCombatant(combatant, !!locked);
                 }
                 catch (error) {
                     console.error('Mastery System | [COMBAT TRACKER DEBUG] Error showing passive dialog', error);
@@ -388,18 +403,13 @@ Hooks.once('init', async function () {
                     return;
                 }
                 try {
-                    // Calculate base initiative
                     const actor = combatant.actor;
                     if (!actor) {
                         ui.notifications?.error('Actor not found');
                         return;
                     }
-                    const { rollInitiativeForCombatant } = await import('./combat/initiative-roll.js');
-                    const breakdown = await rollInitiativeForCombatant(combatant, {
-                        promptCombatReflexes: false
-                    });
-                    // Show initiative shop
-                    await InitiativeShopDialog.showForCombatant(combatant, breakdown, combat);
+                    const { openInitiativeShopForTrackerRescue } = await import('./combat/initiative-roll.js');
+                    await openInitiativeShopForTrackerRescue(combatant, combat);
                 }
                 catch (error) {
                     console.error('Mastery System | [COMBAT TRACKER DEBUG] Error showing initiative shop', error);

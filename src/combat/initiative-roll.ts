@@ -138,8 +138,16 @@ export async function rollInitiativeForCombatant(
   const totalInitiative = diceTotal + combatReflexesSpent + equipmentInitiativeModifier;
   await combatant.update({ initiative: totalInitiative });
 
-  if (!isPc) {
-    await combatant.setFlag('mastery-system', 'msInitiativeValue', totalInitiative);
+  await combatant.setFlag('mastery-system', 'msInitiativeValue', totalInitiative);
+
+  if (isPc) {
+    await combatant.setFlag('mastery-system', 'pendingInitiativeShop', {
+      diceTotal,
+      combatReflexesSpent,
+      totalInitiative,
+      equipmentInitiativeModifier,
+      masteryRank
+    });
   }
 
   console.log('Mastery System | Initiative rolled', {
@@ -203,10 +211,36 @@ export async function executeInitiativePhase(combat: Combat): Promise<void> {
     await new Promise((r) => setTimeout(r, 500));
   }
 
-  await combat.resetAll();
+  if (typeof (combat as any).setupTurns === 'function') {
+    await (combat as any).setupTurns();
+  }
 }
 
 /** @deprecated Prefer executeInitiativePhase; kept for compatibility. */
 export async function rollInitiativeForAllCombatants(combat: Combat): Promise<void> {
   await executeInitiativePhase(combat);
+}
+
+/**
+ * Open Initiative Shop from combat tracker: reuse pending roll context if shop not confirmed yet (encounter setup rescue).
+ */
+export async function openInitiativeShopForTrackerRescue(
+  combatant: Combatant,
+  combat: Combat
+): Promise<void> {
+  const { InitiativeShopDialog } = await import('./initiative-shop-dialog.js');
+
+  const setup = (combat.flags as any)?.['mastery-system']?.encounterSetup;
+  const confirmed = setup?.initiativeConfirmed?.[combatant.id] === true;
+  const pending = (await combatant.getFlag('mastery-system', 'pendingInitiativeShop')) as
+    | InitiativeRollBreakdown
+    | undefined;
+
+  if (!confirmed && pending && typeof pending.diceTotal === 'number') {
+    await InitiativeShopDialog.showForCombatant(combatant, pending, combat);
+    return;
+  }
+
+  const breakdown = await rollInitiativeForCombatant(combatant, { promptCombatReflexes: false });
+  await InitiativeShopDialog.showForCombatant(combatant, breakdown, combat);
 }

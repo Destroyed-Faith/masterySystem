@@ -318,16 +318,18 @@ export class InitiativeShopDialog extends BaseDialog {
       });
     }
 
+    await this.combatant.unsetFlag('mastery-system', 'pendingInitiativeShop');
+
     if (this.resolve) {
       this.resolve(this.purchases);
       this.resolve = undefined;
     }
 
-    await this.close({ closeSource: 'button' });
+    await super.close({ closeSource: 'button', committed: true } as any);
   }
 
   async close(options?: any): Promise<this> {
-    /** Schließen ohne vorheriges confirmPurchases → Abbruch (null). Nach Bestätigen ist resolve schon geleert. */
+    /** Schließen ohne confirmPurchases → Abbruch (null); pendingInitiativeShop bleibt für Rettung im Tracker. */
     if (this.resolve) {
       this.resolve(null);
       this.resolve = undefined;

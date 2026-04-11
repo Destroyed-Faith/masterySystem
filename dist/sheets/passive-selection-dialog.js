@@ -15,6 +15,7 @@ export class PassiveSelectionDialog extends BaseDialog {
     pcs;
     resolve;
     readOnly = false;
+    _outcomeResolved = false;
     static DEFAULT_OPTIONS = {
         id: "mastery-passive-selection",
         classes: ["mastery-system", "passive-selection"],
@@ -37,15 +38,14 @@ export class PassiveSelectionDialog extends BaseDialog {
         });
         const user = game.user;
         if (!user || (!user.isGM && !combatant.actor?.isOwner)) {
-            return;
+            return { confirmed: false };
         }
-        // Check singleton
         const existing = foundry.applications.instances.get("mastery-passive-selection");
         if (existing) {
             existing.bringToFront();
-            return;
+            return { confirmed: false };
         }
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             const app = new PassiveSelectionDialog([combatant], resolve, readOnly);
             app.render(true);
         });
@@ -60,21 +60,19 @@ export class PassiveSelectionDialog extends BaseDialog {
         });
         const user = game.user;
         if (!user)
-            return;
-        // Check singleton
+            return { confirmed: false };
         const existing = foundry.applications.instances.get("mastery-passive-selection");
         if (existing) {
             existing.bringToFront();
-            return;
+            return { confirmed: false };
         }
-        // Filter player characters owned by current user
         const pcs = combat.combatants.filter((c) => c.actor?.type === 'character' && (user.isGM || c.actor?.isOwner));
         if (pcs.length === 0) {
             console.log('Mastery System | [PASSIVE DIALOG] No player characters for passive selection');
-            return;
+            return { confirmed: false };
         }
-        return new Promise(resolve => {
-            const app = new PassiveSelectionDialog(pcs, resolve);
+        return new Promise((resolve) => {
+            const app = new PassiveSelectionDialog(pcs, resolve, false);
             app.render(true);
         });
     }
@@ -236,17 +234,23 @@ export class PassiveSelectionDialog extends BaseDialog {
         }
         // Close button removed from footer - use header close button instead
     }
-    async _closeExplicit() {
+    finishOutcome(confirmed) {
+        if (this._outcomeResolved)
+            return;
+        this._outcomeResolved = true;
         if (this.resolve) {
-            this.resolve();
+            this.resolve({ confirmed });
             this.resolve = undefined;
         }
-        await this.close({ closeSource: "button" });
+    }
+    async _closeExplicit() {
+        this.finishOutcome(true);
+        await super.close({ closeSource: 'button', committed: true });
     }
     async close(options) {
-        if (this.resolve) {
-            this.resolve();
-            this.resolve = undefined;
+        const committed = options?.committed === true;
+        if (!this._outcomeResolved) {
+            this.finishOutcome(committed);
         }
         return super.close(options);
     }

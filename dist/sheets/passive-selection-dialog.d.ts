@@ -8,11 +8,15 @@
  */
 declare const ApplicationV2: typeof import("@league-of-foundry-developers/foundry-vtt-types/src/foundry/client/applications/api/application.mjs").default;
 declare const BaseDialog: typeof ApplicationV2;
+export type PassiveSelectionOutcome = {
+    confirmed: boolean;
+};
 export declare class PassiveSelectionDialog extends BaseDialog {
     private currentIndex;
     private pcs;
     private resolve?;
     private readOnly;
+    private _outcomeResolved;
     static DEFAULT_OPTIONS: {
         id: string;
         classes: string[];
@@ -34,16 +38,17 @@ export declare class PassiveSelectionDialog extends BaseDialog {
      * @param combatant The combatant to show the dialog for
      * @param readOnly If true, dialog is read-only (view only, cannot change choices)
      */
-    static showForCombatant(combatant: Combatant, readOnly?: boolean): Promise<void>;
+    static showForCombatant(combatant: Combatant, readOnly?: boolean): Promise<PassiveSelectionOutcome>;
     /**
      * Show passive selection dialog for all player-controlled combatants
      */
-    static showForCombat(combat: Combat): Promise<void>;
-    constructor(pcs: Combatant[], resolve: () => void, readOnly?: boolean);
+    static showForCombat(combat: Combat): Promise<PassiveSelectionOutcome>;
+    constructor(pcs: Combatant[], resolve: (outcome: PassiveSelectionOutcome) => void, readOnly?: boolean);
     get currentCombatant(): Combatant | null;
     get currentActor(): Actor | null;
     protected _prepareContext(_options: any): Promise<any>;
     protected _onRender(_context: any, _options: any): Promise<void>;
+    private finishOutcome;
     private _closeExplicit;
     close(options?: any): Promise<this>;
 }

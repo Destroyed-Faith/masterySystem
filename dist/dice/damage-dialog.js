@@ -36,7 +36,7 @@ function sanitizeDiceNotation(str) {
 const MAX_MASTERY_DAMAGE_DICE = 99;
 /**
  * Mastery damage uses d8 only: a lone positive integer N (number or digit-only string)
- * means Nd8, never N flat. Formulas that already contain dice notation are unchanged.
+ * means Nd8 (exploding), never N flat. Formulas that already contain dice notation are unchanged.
  */
 function masteryCoercePlainNumberToNd8(sanitizedFormula) {
     const t = (sanitizedFormula || '').trim();
@@ -46,16 +46,22 @@ function masteryCoercePlainNumberToNd8(sanitizedFormula) {
         const n = parseInt(t, 10);
         if (!Number.isFinite(n) || n <= 0)
             return '0';
-        return `${Math.min(n, MAX_MASTERY_DAMAGE_DICE)}d8`;
+        return `${Math.min(n, MAX_MASTERY_DAMAGE_DICE)}d8x`;
     }
     return t;
+}
+/** Apply Mastery exploding d8 (Foundry `x`) to Nd8 terms not already marked d8x/d8X. Avoids touching d10, d12, d80, etc. */
+function masteryApplyExplodingD8(formula) {
+    if (!formula || formula === '0')
+        return formula;
+    return formula.replace(/(\d+)d8(?![xX0-9])/g, '$1d8x');
 }
 function weaponOrPowerNumericToNd8(raw) {
     if (typeof raw === 'number' && Number.isFinite(raw)) {
         const n = Math.floor(raw);
         if (n <= 0)
             return '0';
-        return `${Math.min(n, MAX_MASTERY_DAMAGE_DICE)}d8`;
+        return `${Math.min(n, MAX_MASTERY_DAMAGE_DICE)}d8x`;
     }
     if (typeof raw === 'string') {
         const tr = raw.trim();
@@ -63,7 +69,7 @@ function weaponOrPowerNumericToNd8(raw) {
             const n = parseInt(tr, 10);
             if (n <= 0)
                 return '0';
-            return `${Math.min(n, MAX_MASTERY_DAMAGE_DICE)}d8`;
+            return `${Math.min(n, MAX_MASTERY_DAMAGE_DICE)}d8x`;
         }
     }
     return null;
@@ -1197,6 +1203,7 @@ async function rollDiceWithDetail(diceNotation, label) {
     if (formula === "0") {
         return { total: 0, line: "", roll: null };
     }
+    formula = masteryApplyExplodingD8(formula);
     try {
         const RollCtor = globalThis.Roll;
         const roll = new RollCtor(formula);

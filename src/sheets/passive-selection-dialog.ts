@@ -21,11 +21,14 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
 
+export type PassiveSelectionOutcome = { confirmed: boolean };
+
 export class PassiveSelectionDialog extends BaseDialog {
   private currentIndex: number = 0;
   private pcs: Combatant[];
-  private resolve?: () => void;
+  private resolve?: (outcome: PassiveSelectionOutcome) => void;
   private readOnly: boolean = false;
+  private _outcomeResolved = false;
 
   static DEFAULT_OPTIONS = {
     id: "mastery-passive-selection",
@@ -43,7 +46,10 @@ export class PassiveSelectionDialog extends BaseDialog {
    * @param combatant The combatant to show the dialog for
    * @param readOnly If true, dialog is read-only (view only, cannot change choices)
    */
-  static async showForCombatant(combatant: Combatant, readOnly: boolean = false): Promise<void> {
+  static async showForCombatant(
+    combatant: Combatant,
+    readOnly: boolean = false
+  ): Promise<PassiveSelectionOutcome> {
     console.log('Mastery System | [PASSIVE DIALOG] showForCombatant', {
       combatantId: combatant.id,
       actorName: (combatant.actor as any)?.name,
@@ -52,17 +58,16 @@ export class PassiveSelectionDialog extends BaseDialog {
 
     const user = game.user;
     if (!user || (!user.isGM && !combatant.actor?.isOwner)) {
-      return;
+      return { confirmed: false };
     }
 
-    // Check singleton
     const existing = foundry.applications.instances.get("mastery-passive-selection") as PassiveSelectionDialog;
     if (existing) {
       existing.bringToFront();
-      return;
+      return { confirmed: false };
     }
 
-    return new Promise<void>(resolve => {
+    return new Promise<PassiveSelectionOutcome>((resolve) => {
       const app = new PassiveSelectionDialog([combatant], resolve, readOnly);
       app.render(true);
     });
@@ -71,39 +76,41 @@ export class PassiveSelectionDialog extends BaseDialog {
   /**
    * Show passive selection dialog for all player-controlled combatants
    */
-  static async showForCombat(combat: Combat): Promise<void> {
+  static async showForCombat(combat: Combat): Promise<PassiveSelectionOutcome> {
     console.log('Mastery System | [PASSIVE DIALOG] showForCombat', {
       combatId: combat.id,
       combatants: combat.combatants.size
     });
 
     const user = game.user;
-    if (!user) return;
+    if (!user) return { confirmed: false };
 
-    // Check singleton
     const existing = foundry.applications.instances.get("mastery-passive-selection");
     if (existing) {
       (existing as any).bringToFront();
-      return;
+      return { confirmed: false };
     }
 
-    // Filter player characters owned by current user
     const pcs = combat.combatants.filter((c: Combatant) =>
       c.actor?.type === 'character' && (user.isGM || c.actor?.isOwner)
     );
 
     if (pcs.length === 0) {
       console.log('Mastery System | [PASSIVE DIALOG] No player characters for passive selection');
-      return;
+      return { confirmed: false };
     }
 
-    return new Promise<void>(resolve => {
-      const app = new PassiveSelectionDialog(pcs, resolve);
+    return new Promise<PassiveSelectionOutcome>((resolve) => {
+      const app = new PassiveSelectionDialog(pcs, resolve, false);
       app.render(true);
     });
   }
 
-  constructor(pcs: Combatant[], resolve: () => void, readOnly: boolean = false) {
+  constructor(
+    pcs: Combatant[],
+    resolve: (outcome: PassiveSelectionOutcome) => void,
+    readOnly: boolean = false
+  ) {
     super({});
     this.pcs = pcs;
     this.resolve = resolve;
@@ -274,18 +281,24 @@ export class PassiveSelectionDialog extends BaseDialog {
     // Close button removed from footer - use header close button instead
   }
 
-  private async _closeExplicit(): Promise<void> {
+  private finishOutcome(confirmed: boolean): void {
+    if (this._outcomeResolved) return;
+    this._outcomeResolved = true;
     if (this.resolve) {
-      this.resolve();
+      this.resolve({ confirmed });
       this.resolve = undefined;
     }
-    await this.close({ closeSource: "button" });
+  }
+
+  private async _closeExplicit(): Promise<void> {
+    this.finishOutcome(true);
+    await super.close({ closeSource: 'button', committed: true } as any);
   }
 
   async close(options?: any): Promise<this> {
-    if (this.resolve) {
-      this.resolve();
-      this.resolve = undefined;
+    const committed = options?.committed === true;
+    if (!this._outcomeResolved) {
+      this.finishOutcome(committed);
     }
     return super.close(options);
   }

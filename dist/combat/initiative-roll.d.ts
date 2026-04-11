@@ -41,4 +41,8 @@ export declare function rollInitiativeForCombatant(combatant: Combatant, options
 export declare function executeInitiativePhase(combat: Combat): Promise<void>;
 /** @deprecated Prefer executeInitiativePhase; kept for compatibility. */
 export declare function rollInitiativeForAllCombatants(combat: Combat): Promise<void>;
+/**
+ * Open Initiative Shop from combat tracker: reuse pending roll context if shop not confirmed yet (encounter setup rescue).
+ */
+export declare function openInitiativeShopForTrackerRescue(combatant: Combatant, combat: Combat): Promise<void>;
 //# sourceMappingURL=initiative-roll.d.ts.map

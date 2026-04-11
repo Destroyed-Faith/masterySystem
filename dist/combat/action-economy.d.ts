@@ -184,8 +184,13 @@ export declare function spendStoneAbility(actor: Actor, _combatant: Combatant, a
  */
 export declare function spendGenericStoneAbilityWithPerAttributeDeductions(actor: Actor, _combatant: Combatant, abilityKey: string, perAttributeCounts: Partial<Record<AttributeKey, number>>, applyEffect: (roundState: RoundState) => Promise<void>): Promise<boolean>;
 /**
- * Regenerate stones at end of round
- * Shows dialog for each PC to allocate regen points (mastery rank per attribute)
+ * End-of-round stone regen: Mastery Rank stones, automatic.
+ * Each stone goes to the next pool that can accept it, in order of attribute value (highest first);
+ * ties between equal attributes are shuffled randomly.
+ */
+export declare function applyAutomaticStoneRegen(actor: Actor): Promise<void>;
+/**
+ * Regenerate stones at end of round (automatic; no player allocation dialog).
  */
 export declare function regenStonesEndOfRound(combat: Combat): Promise<void>;
 /**
