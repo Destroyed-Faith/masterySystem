@@ -224,22 +224,12 @@
               </div>
               
               {{#if ../creationComplete}}
-              <div class="minor-expressions-card" data-attribute="might">
-                <div class="minor-expressions-label">Minor Expressions</div>
-                {{#if (length @root.minorExpressionsDisplay.might)}}
-                <ul class="minor-expressions-names">
-                  {{#each @root.minorExpressionsDisplay.might}}<li>{{this}}</li>{{/each}}
-                </ul>
-                {{else}}
-                <p class="minor-expressions-names minor-expressions-names--empty">—</p>
-                {{/if}}
-                <button type="button" class="minor-expressions-open" data-attribute="might" title="Minor Expressions wählen">
-                  <i class="fas fa-wand-magic-sparkles"></i> Auswählen …
-                </button>
+              <div class="minor-expressions-card minor-expressions-card--button-only">
+                <button type="button" class="minor-expressions-open" data-attribute="might" title="Meine Expressions (Might)">meine Expressions</button>
               </div>
               {{else}}
               <div class="minor-expressions-card minor-expressions-card--muted">
-                <span>Minor Expressions nach Abschluss der Erstellung</span>
+                <span>Meine Expressions nach Abschluss der Erstellung</span>
               </div>
               {{/if}}
               
@@ -281,22 +271,12 @@
               </div>
               
               {{#if ../creationComplete}}
-              <div class="minor-expressions-card" data-attribute="agility">
-                <div class="minor-expressions-label">Minor Expressions</div>
-                {{#if (length @root.minorExpressionsDisplay.agility)}}
-                <ul class="minor-expressions-names">
-                  {{#each @root.minorExpressionsDisplay.agility}}<li>{{this}}</li>{{/each}}
-                </ul>
-                {{else}}
-                <p class="minor-expressions-names minor-expressions-names--empty">—</p>
-                {{/if}}
-                <button type="button" class="minor-expressions-open" data-attribute="agility" title="Minor Expressions wählen">
-                  <i class="fas fa-wand-magic-sparkles"></i> Auswählen …
-                </button>
+              <div class="minor-expressions-card minor-expressions-card--button-only">
+                <button type="button" class="minor-expressions-open" data-attribute="agility" title="Meine Expressions (Agility)">meine Expressions</button>
               </div>
               {{else}}
               <div class="minor-expressions-card minor-expressions-card--muted">
-                <span>Minor Expressions nach Abschluss der Erstellung</span>
+                <span>Meine Expressions nach Abschluss der Erstellung</span>
               </div>
               {{/if}}
               
@@ -337,7 +317,7 @@
               </div>
               
               <div class="minor-expressions-card minor-expressions-card--none">
-                <span class="minor-expressions-muted">Vitality hat keine Minor Expressions.</span>
+                <span class="minor-expressions-muted">Vitality hat keine meine Expressions.</span>
               </div>
               
               <button type="button" class="attribute-roll" data-attribute="vitality">
@@ -377,7 +357,7 @@
               </div>
               
               <div class="minor-expressions-card minor-expressions-card--soon">
-                <span class="minor-expressions-muted">Minor Expressions — demnächst</span>
+                <span class="minor-expressions-muted">Meine Expressions — demnächst</span>
               </div>
               
               <button type="button" class="attribute-roll" data-attribute="wits">
@@ -422,22 +402,12 @@
               </div>
               
               {{#if ../creationComplete}}
-              <div class="minor-expressions-card" data-attribute="intellect">
-                <div class="minor-expressions-label">Minor Expressions</div>
-                {{#if (length @root.minorExpressionsDisplay.intellect)}}
-                <ul class="minor-expressions-names">
-                  {{#each @root.minorExpressionsDisplay.intellect}}<li>{{this}}</li>{{/each}}
-                </ul>
-                {{else}}
-                <p class="minor-expressions-names minor-expressions-names--empty">—</p>
-                {{/if}}
-                <button type="button" class="minor-expressions-open" data-attribute="intellect" title="Minor Expressions wählen">
-                  <i class="fas fa-wand-magic-sparkles"></i> Auswählen …
-                </button>
+              <div class="minor-expressions-card minor-expressions-card--button-only">
+                <button type="button" class="minor-expressions-open" data-attribute="intellect" title="Meine Expressions (Intellect)">meine Expressions</button>
               </div>
               {{else}}
               <div class="minor-expressions-card minor-expressions-card--muted">
-                <span>Minor Expressions nach Abschluss der Erstellung</span>
+                <span>Meine Expressions nach Abschluss der Erstellung</span>
               </div>
               {{/if}}
               
@@ -478,22 +448,12 @@
               </div>
               
               {{#if ../creationComplete}}
-              <div class="minor-expressions-card" data-attribute="resolve">
-                <div class="minor-expressions-label">Minor Expressions</div>
-                {{#if (length @root.minorExpressionsDisplay.resolve)}}
-                <ul class="minor-expressions-names">
-                  {{#each @root.minorExpressionsDisplay.resolve}}<li>{{this}}</li>{{/each}}
-                </ul>
-                {{else}}
-                <p class="minor-expressions-names minor-expressions-names--empty">—</p>
-                {{/if}}
-                <button type="button" class="minor-expressions-open" data-attribute="resolve" title="Minor Expressions wählen">
-                  <i class="fas fa-wand-magic-sparkles"></i> Auswählen …
-                </button>
+              <div class="minor-expressions-card minor-expressions-card--button-only">
+                <button type="button" class="minor-expressions-open" data-attribute="resolve" title="Meine Expressions (Resolve)">meine Expressions</button>
               </div>
               {{else}}
               <div class="minor-expressions-card minor-expressions-card--muted">
-                <span>Minor Expressions nach Abschluss der Erstellung</span>
+                <span>Meine Expressions nach Abschluss der Erstellung</span>
               </div>
               {{/if}}
               
@@ -534,22 +494,12 @@
               </div>
               
               {{#if ../creationComplete}}
-              <div class="minor-expressions-card" data-attribute="influence">
-                <div class="minor-expressions-label">Minor Expressions</div>
-                {{#if (length @root.minorExpressionsDisplay.influence)}}
-                <ul class="minor-expressions-names">
-                  {{#each @root.minorExpressionsDisplay.influence}}<li>{{this}}</li>{{/each}}
-                </ul>
-                {{else}}
-                <p class="minor-expressions-names minor-expressions-names--empty">—</p>
-                {{/if}}
-                <button type="button" class="minor-expressions-open" data-attribute="influence" title="Minor Expressions wählen">
-                  <i class="fas fa-wand-magic-sparkles"></i> Auswählen …
-                </button>
+              <div class="minor-expressions-card minor-expressions-card--button-only">
+                <button type="button" class="minor-expressions-open" data-attribute="influence" title="Meine Expressions (Influence)">meine Expressions</button>
               </div>
               {{else}}
               <div class="minor-expressions-card minor-expressions-card--muted">
-                <span>Minor Expressions nach Abschluss der Erstellung</span>
+                <span>Meine Expressions nach Abschluss der Erstellung</span>
               </div>
               {{/if}}
               

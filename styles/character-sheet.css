@@ -667,6 +667,19 @@
   border-radius: 6px;
 }
 
+.mastery-system.sheet.actor.character .minor-expressions-card--button-only {
+  min-height: 0;
+  padding: 8px 6px;
+  justify-content: center;
+}
+
+.mastery-system.sheet.actor.character .minor-expressions-card--button-only .minor-expressions-open {
+  width: 100%;
+  margin-top: 0;
+  text-align: center;
+  justify-content: center;
+}
+
 .mastery-system.sheet.actor.character .minor-expressions-label {
   font-size: 9px;
   font-weight: 700;

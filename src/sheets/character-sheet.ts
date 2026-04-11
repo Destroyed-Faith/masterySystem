@@ -24,11 +24,7 @@ import { XP_COSTS } from '../utils/constants';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { matchesMasteryWeaponCatalog } from '../utils/weapons';
 import { buildRadialManeuverPrefsContext } from '../utils/radial-maneuver-prefs.js';
-import {
-  getMinorExpressionDefinition,
-  sanitizeMinorExpressionIds,
-  type MinorExpressionAttribute
-} from '../utils/minor-expressions.js';
+import type { MinorExpressionAttribute } from '../utils/minor-expressions.js';
 // Removed: showWeaponCreationDialog, showArmorCreationDialog, showShieldCreationDialog
 // Replaced with General Items Storage and Store dialogs
 
@@ -603,24 +599,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     // Add skills list (sorted alphabetically)
     context.skills = this.#prepareSkills(context.system.skills || {}, context.system.skillsSpent || {});
-
-    const meGetAttr = (k: string) =>
-      Math.floor(Number((context.system.attributes as any)?.[k]?.value) || 0);
-    const meMr = Math.max(0, Math.floor(Number(context.system.mastery?.rank) || 0));
-    const meClean = sanitizeMinorExpressionIds(context.system.minorExpressions, meGetAttr, meMr);
-    context.minorExpressionSlots = { used: meClean.length, max: meMr };
-    const meDisp: Record<MinorExpressionAttribute, string[]> = {
-      might: [],
-      agility: [],
-      intellect: [],
-      resolve: [],
-      influence: []
-    };
-    for (const id of meClean) {
-      const def = getMinorExpressionDefinition(id);
-      if (def) meDisp[def.attribute].push(def.name);
-    }
-    context.minorExpressionsDisplay = meDisp;
 
     // Prepare disadvantages (named-card layout for physical / mental limitations)
     const rawDisadvantages = context.system.disadvantages || [];
@@ -1382,12 +1360,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('.minor-expressions-open').on('click', async (ev: JQuery.ClickEvent) => {
       ev.preventDefault();
       if (!this.actor.isOwner) {
-        (ui as any).notifications?.warn('Nur der Besitzer kann Minor Expressions wählen.');
+        (ui as any).notifications?.warn('Nur der Besitzer kann Meine Expressions wählen.');
         return;
       }
       const attr = (ev.currentTarget as HTMLElement).dataset.attribute as MinorExpressionAttribute | undefined;
+      if (!attr) return;
       const { showMinorExpressionsDialog } = await import('./minor-expressions-dialog.js');
-      await showMinorExpressionsDialog(this.actor, attr ? { focusAttribute: attr } : undefined);
+      await showMinorExpressionsDialog(this.actor, { focusAttribute: attr });
       this.render(false);
     });
 
