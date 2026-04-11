@@ -5,6 +5,8 @@
 
 import { describeInnateAbility, getWeapon, WEAPONS } from '../utils/weapons.js';
 import { getArmorDefinitionForType, getShieldDefinitionForType, normalizeShieldTypeKey } from '../utils/equipment.js';
+import { formatEffectReference, type SpecialEffectReference } from '../utils/special-effects.js';
+import { ARTIFACT_GEAR_SLOT_OPTIONS } from '../utils/artifact-node-options.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
@@ -50,6 +52,45 @@ function selectOptions(
     label: value,
     selected: value === current
   }));
+}
+
+function formatArtifactWeaponSpecialLines(specials: unknown): string[] {
+  if (!Array.isArray(specials)) return [];
+  const out: string[] = [];
+  for (const s of specials) {
+    if (typeof s === 'string' && s.trim()) {
+      out.push(s.trim());
+      continue;
+    }
+    if (s && typeof s === 'object' && typeof (s as { specialId?: string }).specialId === 'string') {
+      out.push(formatEffectReference(s as SpecialEffectReference));
+    }
+  }
+  return out;
+}
+
+function artifactGearSlotLabel(value: string): string {
+  const v = String(value || '').trim();
+  if (!v) return '—';
+  const opt = ARTIFACT_GEAR_SLOT_OPTIONS.find((o) => o.value === v);
+  return opt?.label || v;
+}
+
+function embeddedArtifactPowerRows(
+  powers: unknown[]
+): { name: string; category?: string }[] {
+  const out: { name: string; category?: string }[] = [];
+  for (const p of powers) {
+    if (!p || typeof p !== 'object') continue;
+    const o = p as Record<string, unknown>;
+    const name = String(o.name ?? '').trim() || '—';
+    const cat = o.category;
+    out.push({
+      name,
+      category: typeof cat === 'string' && cat.trim() ? cat : undefined
+    });
+  }
+  return out;
 }
 
 /** Quick-edit only for items embedded on an actor (not world / compendium templates). */
@@ -357,15 +398,127 @@ export class ItemInfoDialog extends BaseDialog {
 
     if (t === 'artifact') {
       const bonuses = sys.bonuses || {};
-      const powers = Array.isArray(sys.powers) ? sys.powers : [];
-      base.artifactBlock = {
+      const atk = bonuses.attack != null ? Number(bonuses.attack) : 0;
+      const def = bonuses.defense != null ? Number(bonuses.defense) : 0;
+      const dmgLegacy = typeof bonuses.damage === 'string' ? bonuses.damage.trim() : '';
+      const showLegacyBonuses =
+        atk !== 0 || def !== 0 || (dmgLegacy !== '' && dmgLegacy !== '—');
+
+      const powersArr = Array.isArray(sys.powers) ? sys.powers : [];
+      const kindRaw = sys.artifactKind;
+      const kind =
+        kindRaw === 'weapon' || kindRaw === 'armor' || kindRaw === 'shield' || kindRaw === 'gear'
+          ? kindRaw
+          : 'weapon';
+
+      const aw = sys.artifactWeapon || {};
+      const innates: string[] = Array.isArray(aw.innateAbilities)
+        ? aw.innateAbilities.map((x: unknown) => String(x))
+        : [];
+      const innateRows = innates.map((label) => ({
+        label,
+        description: describeInnateAbility(label)
+      }));
+      const weaponSpecials = formatArtifactWeaponSpecialLines(aw.specials);
+      const wt = aw.weaponType === 'ranged' ? 'Ranged' : 'Melee';
+      const handsN = aw.hands === 2 ? 2 : 1;
+
+      const aa = sys.artifactArmor || {};
+      const armorTypeStr = aa.type ? String(aa.type) : '—';
+      const armorDef = getArmorDefinitionForType(aa.type);
+      const armorTypePretty = armorTypeStr !== '—' ? armorTypeStr.charAt(0).toUpperCase() + armorTypeStr.slice(1) : '—';
+
+      const ash = sys.artifactShield || {};
+      const shieldTypeKey = normalizeShieldTypeKey(ash.type) || 'parry';
+      const shieldDef = getShieldDefinitionForType(shieldTypeKey);
+      const shieldTypePretty =
+        shieldTypeKey === 'parry'
+          ? 'Parry'
+          : shieldTypeKey === 'medium'
+            ? 'Medium'
+            : shieldTypeKey === 'tower'
+              ? 'Tower'
+              : String(ash.type || '—');
+
+      const gearSlotRaw = typeof sys.gearSlot === 'string' ? sys.gearSlot : '';
+      const req = sys.requirements && typeof sys.requirements === 'object' ? sys.requirements : null;
+      const reqStones = req && (req as { stones?: number }).stones != null ? (req as { stones: number }).stones : null;
+      const reqMr = req && (req as { masteryRank?: number }).masteryRank != null ? (req as { masteryRank: number }).masteryRank : null;
+
+      base.artifactProfile = {
         level: sys.level ?? '—',
-        attack: bonuses.attack != null ? String(bonuses.attack) : '0',
-        defense: bonuses.defense != null ? String(bonuses.defense) : '0',
-        damage: bonuses.damage || '—',
         lore: sys.lore || '',
-        powersCount: powers.length,
-        requirements: sys.requirements || {}
+        requirements:
+          reqStones != null || reqMr != null
+            ? {
+                stones: reqStones ?? '—',
+                masteryRank: reqMr ?? '—'
+              }
+            : null,
+        inventorySize: sys.inventorySize || '—',
+        kind,
+        isWeapon: kind === 'weapon',
+        isArmor: kind === 'armor',
+        isShield: kind === 'shield',
+        isGear: kind === 'gear',
+        legacyBonuses: showLegacyBonuses
+          ? {
+              show: true,
+              attack: bonuses.attack != null ? String(bonuses.attack) : '0',
+              defense: bonuses.defense != null ? String(bonuses.defense) : '0',
+              damage: bonuses.damage || '—'
+            }
+          : { show: false },
+        embeddedPowers: embeddedArtifactPowerRows(powersArr),
+        weapon:
+          kind === 'weapon'
+            ? {
+                damage:
+                  aw.damage != null && String(aw.damage).trim() !== ''
+                    ? String(aw.damage)
+                    : '—',
+                hands: handsN,
+                handsLabel: handsN === 2 ? '2 hands' : '1 hand',
+                weaponType: wt,
+                rangeOrReach: aw.range != null && String(aw.range).trim() !== '' ? String(aw.range) : '—',
+                innateRows,
+                specials: weaponSpecials,
+                specialsNote:
+                  'Weapon specials are typically chosen or enhanced using Raises during combat (when rules allow).'
+              }
+            : null,
+        armor:
+          kind === 'armor'
+            ? {
+                typeLabel: armorTypePretty,
+                name: armorDef?.name || armorTypePretty,
+                armorValue: fmtMod(aa.armorValue, '0'),
+                evade: fmtMod(aa.evadeModifier, '0'),
+                initiative: armorDef ? fmtMod(armorDef.initiativeModifier) : '—',
+                skillPenalty: armorSkillPenaltyLabel(aa, armorDef),
+                ruleHint:
+                  'Armor Value + Shield value + Mastery Rank = total armor subtracted from incoming damage (subject to rule exceptions).'
+              }
+            : null,
+        shield:
+          kind === 'shield'
+            ? {
+                typeLabel: shieldTypePretty,
+                name: shieldDef?.name || shieldTypePretty,
+                shieldValue: fmtMod(ash.shieldValue, '0'),
+                evade: fmtMod(ash.evadeBonus, '0'),
+                initiative: shieldDef ? fmtMod(shieldDef.initiativeModifier) : '—',
+                skillPenalty: ash.skillPenalty != null && String(ash.skillPenalty).trim() !== '' ? String(ash.skillPenalty) : shieldDef?.skillPenalty || '—',
+                ruleHint: 'Shield Value stacks with armor and Mastery for total armor (see core rules).'
+              }
+            : null,
+        gear:
+          kind === 'gear'
+            ? {
+                slotLabel: artifactGearSlotLabel(gearSlotRaw),
+                slotKey: gearSlotRaw || '—'
+              }
+            : null
       };
     }
 

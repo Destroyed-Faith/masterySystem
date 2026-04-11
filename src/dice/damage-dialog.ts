@@ -186,6 +186,18 @@ export async function showDamageDialog(
   // The attacker parameter might be a stale reference
   const freshAttacker = (attacker as any).id ? (game as any).actors?.get((attacker as any).id) : attacker;
   const actorToUse = freshAttacker || attacker;
+
+  let stoneDamageBonusDice = 0;
+  try {
+    const { getRoundState } = await import('../combat/action-economy.js');
+    const combat = (game as any).combat;
+    if (actorToUse && combat) {
+      const rs = getRoundState(actorToUse as Actor, combat);
+      stoneDamageBonusDice = Math.max(0, Number(rs?.stoneBonuses?.damageBonus) || 0);
+    }
+  } catch (e) {
+    console.warn('Mastery System | [DAMAGE DIALOG] Could not read Might stone damage bonus', e);
+  }
   
   // Load items from fresh actor - use multiple methods to ensure we get all items
   let items: any[] = [];
@@ -570,6 +582,7 @@ export async function showDamageDialog(
           powerDamage,
           passiveDamage,
           raises,
+          stoneDamageBonusDice,
           availableSpecials,
           weaponSpecials
         }
@@ -927,7 +940,8 @@ function initializeDamageCard(messageId: string, resolve: (result: DamageResult 
       raiseSelections,
       flags.availableSpecials,
       attacker,
-      target
+      target,
+      Math.max(0, Number(flags.stoneDamageBonusDice) || 0)
     );
     
     console.log('Mastery System | [ROLL DAMAGE BUTTON] calculateDamageResult returned', {
@@ -1225,7 +1239,8 @@ async function calculateDamageResult(
   raiseSelections: Map<number, { type: 'special' | 'damage'; value: string }>,
   availableSpecials: SpecialOption[],
   attacker: Actor,
-  target: Actor
+  target: Actor,
+  stoneDamageBonusDice: number = 0
 ): Promise<DamageResult> {
   // Roll base damage
   // Sanitize dice notations before rolling
@@ -1240,6 +1255,14 @@ async function calculateDamageResult(
   const baseDamageRolled = baseRoll.total;
   if (baseRoll.line) rollDetails.push(baseRoll.line);
   if (baseRoll.roll) damageChatRolls.push(baseRoll.roll);
+
+  let stoneMightDamageRolled = 0;
+  if (stoneDamageBonusDice > 0) {
+    const stoneRoll = await rollDiceWithDetail(`${stoneDamageBonusDice}d8`, 'Might stones');
+    stoneMightDamageRolled = stoneRoll.total;
+    if (stoneRoll.line) rollDetails.push(stoneRoll.line);
+    if (stoneRoll.roll) damageChatRolls.push(stoneRoll.roll);
+  }
 
   const powerRoll = await rollDiceWithDetail(sanitizedPowerDamage, 'Power');
   const powerDamageRolled = powerRoll.total;
@@ -1274,18 +1297,20 @@ async function calculateDamageResult(
     }
   }
   
-  // Total damage = Base Weapon + Power Damage + Raises (Passives separate)
-  const totalDamage = baseDamageRolled + powerDamageRolled + raiseDamage;
+  // Total damage = Base Weapon + Might stone bonus + Power Damage + Raises (Passives separate)
+  const totalDamage = baseDamageRolled + stoneMightDamageRolled + powerDamageRolled + raiseDamage;
   
   console.log('Mastery System | [CALCULATE DAMAGE] Final calculation', {
     baseDamageRolled,
+    stoneMightDamageRolled,
+    stoneDamageBonusDice,
     powerDamageRolled,
     passiveDamageRolled,
     raiseDamage,
     totalDamage,
     specialsUsed,
     rollDetails,
-    calculation: `Base (${baseDamageRolled}) + Power (${powerDamageRolled}) + Raises (${raiseDamage}) = ${totalDamage}`
+    calculation: `Base (${baseDamageRolled}) + Might stones (${stoneMightDamageRolled}) + Power (${powerDamageRolled}) + Raises (${raiseDamage}) = ${totalDamage}`
   });
   
   // Apply status effects from specials to target

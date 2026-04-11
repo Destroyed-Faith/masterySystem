@@ -92,15 +92,113 @@
   {{#if isArtifact}}
   <section class="item-info-section item-info-artifact" aria-label="Artifact">
     <h3 class="item-info-section-title">Artifact</h3>
-    <dl class="item-info-dl">
-      <dt>Level</dt><dd>{{artifactBlock.level}}</dd>
-      <dt>Attack bonus</dt><dd>{{artifactBlock.attack}}</dd>
-      <dt>Defense bonus</dt><dd>{{artifactBlock.defense}}</dd>
-      <dt>Damage</dt><dd>{{artifactBlock.damage}}</dd>
-      <dt>Embedded powers</dt><dd>{{artifactBlock.powersCount}}</dd>
+    <dl class="item-info-dl item-info-dl-grid">
+      <dt>Level</dt><dd>{{artifactProfile.level}}</dd>
+      <dt>Inventory size</dt><dd>{{artifactProfile.inventorySize}}</dd>
+      {{#if artifactProfile.requirements}}
+      <dt>Requirements</dt>
+      <dd>Stones {{artifactProfile.requirements.stones}} · MR {{artifactProfile.requirements.masteryRank}}</dd>
+      {{/if}}
     </dl>
-    {{#if artifactBlock.lore}}
-    <div class="item-info-lore">{{artifactBlock.lore}}</div>
+    {{#if artifactProfile.legacyBonuses.show}}
+    <h4 class="item-info-subtitle">Legacy flat bonuses</h4>
+    <dl class="item-info-dl item-info-dl-grid">
+      <dt>Attack bonus</dt><dd>{{artifactProfile.legacyBonuses.attack}}</dd>
+      <dt>Defense bonus</dt><dd>{{artifactProfile.legacyBonuses.defense}}</dd>
+      <dt>Damage</dt><dd>{{artifactProfile.legacyBonuses.damage}}</dd>
+    </dl>
+    {{/if}}
+
+    {{#if artifactProfile.isWeapon}}
+    {{#if artifactProfile.weapon}}
+    <h4 class="item-info-subtitle">Weapon profile</h4>
+    <dl class="item-info-dl">
+      <dt>Damage</dt><dd>{{artifactProfile.weapon.damage}}</dd>
+      <dt>Hands</dt><dd>{{artifactProfile.weapon.handsLabel}}</dd>
+      <dt>Type</dt><dd>{{artifactProfile.weapon.weaponType}}</dd>
+      <dt>{{#if (eq artifactProfile.weapon.weaponType "Ranged")}}Range{{else}}Reach / range{{/if}}</dt><dd>{{artifactProfile.weapon.rangeOrReach}}</dd>
+    </dl>
+    {{#if artifactProfile.weapon.innateRows.length}}
+    <h4 class="item-info-subtitle">Innate abilities</h4>
+    <ul class="item-info-ability-list">
+      {{#each artifactProfile.weapon.innateRows}}
+      <li>
+        <span class="item-info-ability-name">{{this.label}}</span>
+        {{#if this.description}}
+        <span class="item-info-ability-desc">{{this.description}}</span>
+        {{/if}}
+      </li>
+      {{/each}}
+    </ul>
+    {{/if}}
+    {{#if artifactProfile.weapon.specials.length}}
+    <h4 class="item-info-subtitle">Specials</h4>
+    <ul class="item-info-special-list">
+      {{#each artifactProfile.weapon.specials}}
+      <li>{{this}}</li>
+      {{/each}}
+    </ul>
+    {{/if}}
+    <p class="item-info-footnote">{{artifactProfile.weapon.specialsNote}}</p>
+    {{/if}}
+    {{/if}}
+
+    {{#if artifactProfile.isArmor}}
+    {{#if artifactProfile.armor}}
+    <h4 class="item-info-subtitle">Armor — {{artifactProfile.armor.typeLabel}}</h4>
+    <p class="item-info-muted">{{artifactProfile.armor.name}}</p>
+    <dl class="item-info-dl item-info-dl-grid">
+      <dt>Armor value (on item)</dt><dd>{{artifactProfile.armor.armorValue}}</dd>
+      <dt>Evade modifier</dt><dd>{{artifactProfile.armor.evade}}</dd>
+      <dt>Initiative (type)</dt><dd>{{artifactProfile.armor.initiative}}</dd>
+      <dt>Skill penalty</dt><dd>{{artifactProfile.armor.skillPenalty}}</dd>
+    </dl>
+    <p class="item-info-footnote">{{artifactProfile.armor.ruleHint}}</p>
+    {{/if}}
+    {{/if}}
+
+    {{#if artifactProfile.isShield}}
+    {{#if artifactProfile.shield}}
+    <h4 class="item-info-subtitle">Shield — {{artifactProfile.shield.typeLabel}}</h4>
+    <p class="item-info-muted">{{artifactProfile.shield.name}}</p>
+    <dl class="item-info-dl item-info-dl-grid">
+      <dt>Shield value (on item)</dt><dd>{{artifactProfile.shield.shieldValue}}</dd>
+      <dt>Evade modifier</dt><dd>{{artifactProfile.shield.evade}}</dd>
+      <dt>Initiative (type)</dt><dd>{{artifactProfile.shield.initiative}}</dd>
+      <dt>Skill penalty (type)</dt><dd>{{artifactProfile.shield.skillPenalty}}</dd>
+    </dl>
+    <p class="item-info-footnote">{{artifactProfile.shield.ruleHint}}</p>
+    {{/if}}
+    {{/if}}
+
+    {{#if artifactProfile.isGear}}
+    {{#if artifactProfile.gear}}
+    <h4 class="item-info-subtitle">Gear slot</h4>
+    <dl class="item-info-dl">
+      <dt>Slot</dt><dd>{{artifactProfile.gear.slotLabel}} <span class="item-info-muted">({{artifactProfile.gear.slotKey}})</span></dd>
+    </dl>
+    {{/if}}
+    {{/if}}
+
+    {{#if artifactProfile.embeddedPowers.length}}
+    <h4 class="item-info-subtitle">Embedded powers</h4>
+    <ul class="item-info-ability-list">
+      {{#each artifactProfile.embeddedPowers}}
+      <li>
+        <span class="item-info-ability-name">{{this.name}}</span>
+        {{#if this.category}}
+        <span class="item-info-ability-desc">{{this.category}}</span>
+        {{/if}}
+      </li>
+      {{/each}}
+    </ul>
+    {{else}}
+    <p class="item-info-muted">No embedded powers on this artifact.</p>
+    {{/if}}
+
+    {{#if artifactProfile.lore}}
+    <h4 class="item-info-subtitle">Lore</h4>
+    <div class="item-info-lore">{{artifactProfile.lore}}</div>
     {{/if}}
   </section>
   {{/if}}

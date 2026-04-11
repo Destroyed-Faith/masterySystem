@@ -34,6 +34,7 @@ import { LOTUS_POWERS } from './lotus.js';
 import { FORGEMASTER_POWERS } from './forgemaster.js';
 import { WITCHBANE_POWERS } from './witchbane.js';
 import { TITAN_RUNECASTER_POWERS } from './titan-runecaster.js';
+import { THUNDERER_POWERS } from './thunderer.js';
 // ... etc
 /**
  * Map from tree display name to its power array.
@@ -67,6 +68,7 @@ const TREE_POWER_MAP = {
     'Forgemaster': FORGEMASTER_POWERS,
     'Witchbane': WITCHBANE_POWERS,
     'Titan Runecaster': TITAN_RUNECASTER_POWERS,
+    'Thunderer': THUNDERER_POWERS,
 };
 /**
  * All mastery powers from all trees (flat list)

@@ -4,6 +4,14 @@
  * Moved from module.ts to avoid circular dependencies
  */
 
+/** jQuery `.data()` caches parsed `data-*` on first read; dynamic `.attr()` updates won't match. */
+function readAttackButtonDataInt(button: JQuery, kebab: string, fallback: number): number {
+  const raw = button.attr(`data-${kebab}`);
+  if (raw === undefined || raw === '') return fallback;
+  const n = parseInt(String(raw), 10);
+  return Number.isFinite(n) ? n : fallback;
+}
+
 export function registerAttackRollClickHandler(): void {
   console.log('Mastery System | DEBUG: Setting up global roll-attack-btn handler on chat log');
   
@@ -42,8 +50,8 @@ export function registerAttackRollClickHandler(): void {
         attributeValue: button.data('attribute-value'),
         masteryRank: button.data('mastery-rank'),
         targetEvade: button.data('target-evade'),
-        raises: button.data('raises'),
-        baseEvade: button.data('base-evade')
+        raises: readAttackButtonDataInt(button, 'raises', 0),
+        baseEvade: readAttackButtonDataInt(button, 'base-evade', 0)
       },
       buttonHtml: button.html()
     });
@@ -195,9 +203,9 @@ export function registerAttackRollClickHandler(): void {
         weaponItemsCount: attackerItems.filter((i: any) => i.type === 'weapon').length
       });
       
-      // Get current values from button (including raises-adjusted TN)
-      const currentTargetEvade = parseInt(button.data('target-evade')) || flags.targetEvade;
-      const raises = parseInt(button.data('raises')) || 0;
+      // TN / declared raises: read from DOM attrs (dropdown updates .attr, not jQuery .data cache)
+      const currentTargetEvade = readAttackButtonDataInt(button, 'target-evade', flags.targetEvade ?? 0);
+      const declaredRaisesForTn = readAttackButtonDataInt(button, 'raises', 0);
       
       // Compute numDice from ACTOR at click time (not from stale flags)
       // This ensures we always use the current attribute value
@@ -232,7 +240,7 @@ export function registerAttackRollClickHandler(): void {
         rollDisadvantage: !!flags.rollDisadvantage,
         skill: 0,
         tn: currentTargetEvade,
-        raises,
+        raises: declaredRaisesForTn,
         baseEvade: flags.targetEvade,
         adjustedEvade: currentTargetEvade,
         attributeFromFlags: flags.attribute,
@@ -265,7 +273,7 @@ export function registerAttackRollClickHandler(): void {
         skill: 0,
         tn: currentTargetEvade,
         label: `${attackKind} Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`,
-        flavor: `Roll ${numDice}d8 keep ${keepDice} vs ${(game as any).actors?.get(flags.targetId)?.name || 'Target'}'s Evade (${currentTargetEvade}${raises > 0 ? `, ${raises} raise${raises > 1 ? 's' : ''}` : ''})${disadvantageNote}`,
+        flavor: `Roll ${numDice}d8 keep ${keepDice} vs ${(game as any).actors?.get(flags.targetId)?.name || 'Target'}'s Evade (${currentTargetEvade}${declaredRaisesForTn > 0 ? `, ${declaredRaisesForTn} raise${declaredRaisesForTn > 1 ? 's' : ''}` : ''})${disadvantageNote}`,
         actorId: flags.attackerId
       });
       
@@ -533,23 +541,30 @@ export function registerAttackRollClickHandler(): void {
             equippedWeaponName: equippedWeaponForLog ? equippedWeaponForLog.name : null
           });
           
-          // Get raises from button data (the manually entered raises)
-          // result.raises is the number of successful raises (TN exceeded), not the input raises
-          const inputRaises = parseInt(button.data('raises')) || 0;
-          const totalRaises = inputRaises; // Use the input raises, not result.raises
-          
+          // Damage raises = margin over final Evade TN from the roll, plus stone-granted free raises.
+          // (Dropdown "Raises" only bumps TN before the roll; it is not the spendable raise count.)
+          let damageRaises = Math.max(0, result.raises);
+          let freeRaisesFromStones = 0;
+          try {
+            const { getRoundState } = await import('../combat/action-economy.js');
+            const combatNow = (game as any).combat;
+            if (freshAttackerForDialog && combatNow) {
+              const rs = getRoundState(freshAttackerForDialog, combatNow);
+              freeRaisesFromStones = Math.max(0, Number(rs?.stoneBonuses?.freeRaises) || 0);
+              damageRaises += freeRaisesFromStones;
+            }
+          } catch (e) {
+            console.warn('Mastery System | [BEFORE DAMAGE DIALOG] Could not read roundState for free raises', e);
+          }
+
+          const totalRaises = damageRaises;
+
           console.log('Mastery System | [BEFORE DAMAGE DIALOG] Raises calculation', {
             messageId: messageId,
-            resultRaises: result.raises, // Successful raises (TN exceeded)
-            inputRaises: inputRaises, // Manually entered raises
-            totalRaises: totalRaises, // Total raises to use for damage dialog
-            resultRaisesType: typeof result.raises,
-            resultSuccess: result.success,
-            resultTotal: result.total,
-            resultTN: result.tn,
-            currentTargetEvade: currentTargetEvade,
-            baseEvade: flags.targetEvade,
-            raisesFromButton: inputRaises
+            resultRaises: result.raises,
+            freeRaisesFromStones,
+            totalRaisesForDamage: totalRaises,
+            declaredRaisesForTn: readAttackButtonDataInt(button, 'raises', 0)
           });
           
           console.log('Mastery System | [BEFORE DAMAGE DIALOG] Calling showDamageDialog with', {

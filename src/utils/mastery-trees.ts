@@ -24,6 +24,7 @@ export const MASTERY_TREES: Record<string, MasteryTreeDefinition> = {
   battlemage: { name: 'Battlemage' },
   markedOne: { name: 'Marked One' },
   spellshaper: { name: 'Spellshaper' },
+  thunderer: { name: 'Thunderer' },
   titanRunecaster: { name: 'Titan Runecaster' },
   frostmonger: { name: 'Frostmonger' },
   scourge: { name: 'Scourge' },

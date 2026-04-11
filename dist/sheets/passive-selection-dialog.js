@@ -6,7 +6,7 @@
  *
  * Migrated to Foundry VTT v13 ApplicationV2 + HandlebarsApplicationMixin
  */
-import { getPassiveSlots, getAvailablePassives, slotPassive, activatePassive, unslotPassive } from '../powers/passives.js';
+import { getPassiveSlots, getAvailablePassives, getSlottedPassiveIds, slotPassive, activatePassive, unslotPassive } from '../powers/passives.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
@@ -97,11 +97,8 @@ export class PassiveSelectionDialog extends BaseDialog {
         const slots = getPassiveSlots(actor);
         const available = getAvailablePassives(actor);
         const masteryRank = actor.system.mastery?.rank ?? 2;
-        // Get used categories to filter available passives
-        const usedCategories = slots
-            .filter((s) => s.passive)
-            .map((s) => s.passive.category);
-        const selectablePassives = available.filter((p) => !usedCategories.includes(p.category));
+        const slottedIds = getSlottedPassiveIds(actor);
+        const selectablePassives = available.filter((p) => !slottedIds.has(String(p.id)));
         return {
             actor,
             slots,

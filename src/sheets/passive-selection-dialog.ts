@@ -7,7 +7,14 @@
  * Migrated to Foundry VTT v13 ApplicationV2 + HandlebarsApplicationMixin
  */
 
-import { getPassiveSlots, getAvailablePassives, slotPassive, activatePassive, unslotPassive } from '../powers/passives.js';
+import {
+  getPassiveSlots,
+  getAvailablePassives,
+  getSlottedPassiveIds,
+  slotPassive,
+  activatePassive,
+  unslotPassive
+} from '../powers/passives.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -119,14 +126,8 @@ export class PassiveSelectionDialog extends BaseDialog {
     const available = getAvailablePassives(actor);
     const masteryRank = (actor.system as any).mastery?.rank ?? 2;
 
-    // Get used categories to filter available passives
-    const usedCategories = slots
-      .filter((s: any) => s.passive)
-      .map((s: any) => s.passive!.category);
-
-    const selectablePassives = available.filter((p: any) => 
-      !usedCategories.includes(p.category)
-    );
+    const slottedIds = getSlottedPassiveIds(actor);
+    const selectablePassives = available.filter((p: any) => !slottedIds.has(String(p.id)));
 
     return {
       actor,

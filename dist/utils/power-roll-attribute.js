@@ -18,6 +18,7 @@ const TREE_OR_SCHOOL_TO_ATTRIBUTE = {
     battlemage: "intellect",
     "marked one": "resolve",
     spellshaper: "intellect",
+    thunderer: "intellect",
     "titan - forged": "vitality",
     "titan-forged": "vitality",
     "titan runecaster": "vitality",

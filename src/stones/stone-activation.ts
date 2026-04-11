@@ -10,6 +10,7 @@
 import {
   spendStoneAbility,
   spendGenericStoneAbilityWithPerAttributeDeductions,
+  getActionEconomyActor,
   type RoundState,
   type AttributeKey
 } from '../combat/action-economy.js';
@@ -35,8 +36,9 @@ export async function activateStonePower(options: {
   abilityId: string;
   attributeKey?: AttributeKey;
 }): Promise<boolean> {
-  const { actor, combatant, abilityId, attributeKey } = options;
-  
+  const { combatant, abilityId, attributeKey } = options;
+  const actor = getActionEconomyActor(options.actor) ?? options.actor;
+
   // Get power definition
   const power = STONE_POWERS[abilityId];
   if (!power) {
@@ -78,7 +80,8 @@ export async function activateGenericStonePowerMixed(options: {
   abilityId: string;
   perAttributeStones: Partial<Record<AttributeKey, number>>;
 }): Promise<boolean> {
-  const { actor, combatant, abilityId, perAttributeStones } = options;
+  const { combatant, abilityId, perAttributeStones } = options;
+  const actor = getActionEconomyActor(options.actor) ?? options.actor;
   const power = STONE_POWERS[abilityId];
   if (!power) {
     ui.notifications?.error(`Unknown stone power: ${abilityId}`);

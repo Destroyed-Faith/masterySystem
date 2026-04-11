@@ -5176,6 +5176,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ui.notifications?.warn(`This item can only be equipped in: ${allowed.join(', ')}`);
             return false;
         }
+        if (slot === 'offhand' && item.type === 'weapon') {
+            ui.notifications?.warn('Weapons can only be equipped in the main hand. Use the off hand for a shield.');
+            return false;
+        }
         if (slot === 'mainhand' && item.type === 'weapon' && item.system?.hands === 2) {
             const offhandItem = this.#getItemInEquipSlot('offhand');
             if (offhandItem) {
@@ -5268,7 +5272,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 group: 'quick',
                 condition: (target) => {
                     const item = this.#itemFromInventoryTileContextTarget(target);
-                    return !!item && !!getNormalizedEquipSlots(item)?.includes('offhand');
+                    return (!!item &&
+                        item.type !== 'weapon' &&
+                        !!getNormalizedEquipSlots(item)?.includes('offhand'));
                 },
                 callback: async (target) => {
                     const item = this.#itemFromInventoryTileContextTarget(target);
@@ -5304,7 +5310,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 group: 'slot',
                 condition: (target) => {
                     const item = this.#itemFromInventoryTileContextTarget(target);
-                    return !!item && !!getNormalizedEquipSlots(item)?.includes(key);
+                    if (!item || !getNormalizedEquipSlots(item)?.includes(key))
+                        return false;
+                    if (key === 'offhand' && item.type === 'weapon')
+                        return false;
+                    return true;
                 },
                 callback: async (target) => {
                     const item = this.#itemFromInventoryTileContextTarget(target);

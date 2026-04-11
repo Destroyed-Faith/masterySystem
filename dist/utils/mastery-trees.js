@@ -19,6 +19,7 @@ export const MASTERY_TREES = {
     battlemage: { name: 'Battlemage' },
     markedOne: { name: 'Marked One' },
     spellshaper: { name: 'Spellshaper' },
+    thunderer: { name: 'Thunderer' },
     titanRunecaster: { name: 'Titan Runecaster' },
     frostmonger: { name: 'Frostmonger' },
     scourge: { name: 'Scourge' },

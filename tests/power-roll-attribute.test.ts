@@ -7,6 +7,7 @@ describe("getAttackAttributeForPowerTreeOrSchool", () => {
     expect(getAttackAttributeForPowerTreeOrSchool("Grim Hunter")).toBe("agility");
     expect(getAttackAttributeForPowerTreeOrSchool("Mesmer")).toBe("influence");
     expect(getAttackAttributeForPowerTreeOrSchool("Catalyst")).toBe("vitality");
+    expect(getAttackAttributeForPowerTreeOrSchool("Thunderer")).toBe("intellect");
   });
 
   it("maps spell schools", () => {

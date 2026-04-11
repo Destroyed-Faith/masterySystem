@@ -38,6 +38,7 @@ import { LOTUS_POWERS } from './lotus.js';
 import { FORGEMASTER_POWERS } from './forgemaster.js';
 import { WITCHBANE_POWERS } from './witchbane.js';
 import { TITAN_RUNECASTER_POWERS } from './titan-runecaster.js';
+import { THUNDERER_POWERS } from './thunderer.js';
 // ... etc
 
 /**
@@ -72,6 +73,7 @@ const TREE_POWER_MAP: Record<string, (PowerDefinition | NewArtifactPowerData)[]>
     'Forgemaster': FORGEMASTER_POWERS,
     'Witchbane': WITCHBANE_POWERS,
     'Titan Runecaster': TITAN_RUNECASTER_POWERS,
+    'Thunderer': THUNDERER_POWERS,
 };
 
 /**

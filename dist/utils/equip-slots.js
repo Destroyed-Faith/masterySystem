@@ -34,8 +34,8 @@ export function getNormalizedEquipSlots(item) {
 export function inferDefaultEquipSlotsForType(item) {
     const t = item?.type;
     if (t === 'weapon') {
-        const h = Number(item.system?.hands ?? 1);
-        return h === 2 ? ['mainhand'] : ['mainhand', 'offhand'];
+        // One weapon slot only (main hand); off-hand is for shields, not a second weapon.
+        return ['mainhand'];
     }
     if (t === 'armor')
         return ['chest'];
@@ -51,8 +51,7 @@ export function inferArtifactEquipSlots(system) {
         return null;
     const kind = system.artifactKind || 'weapon';
     if (kind === 'weapon') {
-        const h = Number(system.artifactWeapon?.hands ?? 1);
-        return h === 2 ? ['mainhand'] : ['mainhand', 'offhand'];
+        return ['mainhand'];
     }
     if (kind === 'armor')
         return ['chest'];

@@ -70,6 +70,21 @@ export function getAvailablePassives(actor: Actor): PassiveAbility[] {
 }
 
 /**
+ * Item ids (or legacy fallbacks stored on slotted passive) already placed in a passive slot.
+ * Used so the combat passive UI still lists other passives from the same tree.
+ */
+export function getSlottedPassiveIds(actor: Actor): Set<string> {
+  const ids = new Set<string>();
+  for (const slot of getPassiveSlots(actor)) {
+    const pid = slot.passive?.id;
+    if (pid != null && String(pid).length > 0) {
+      ids.add(String(pid));
+    }
+  }
+  return ids;
+}
+
+/**
  * Slot a passive ability into a slot
  */
 export async function slotPassive(actor: Actor, slotIndex: number, passiveId: string): Promise<void> {

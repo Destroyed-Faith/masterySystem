@@ -25,6 +25,11 @@ export declare function getPassiveSlots(actor: Actor): PassiveSlot[];
  */
 export declare function getAvailablePassives(actor: Actor): PassiveAbility[];
 /**
+ * Item ids (or legacy fallbacks stored on slotted passive) already placed in a passive slot.
+ * Used so the combat passive UI still lists other passives from the same tree.
+ */
+export declare function getSlottedPassiveIds(actor: Actor): Set<string>;
+/**
  * Slot a passive ability into a slot
  */
 export declare function slotPassive(actor: Actor, slotIndex: number, passiveId: string): Promise<void>;
