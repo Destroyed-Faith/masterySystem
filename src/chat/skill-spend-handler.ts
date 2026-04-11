@@ -10,6 +10,7 @@ export function registerSkillSpendClickHandler(): void {
   console.log('Mastery System | Registering skill spend click handler');
   
   Hooks.on('renderChatMessageHTML', (message: ChatMessage, htmlRaw: HTMLElement | JQuery) => {
+    try {
     const htmlEl = (htmlRaw instanceof HTMLElement) ? $(htmlRaw) : htmlRaw;
     const spendButton = htmlEl.find('[data-action="spend-skill-success"]');
     
@@ -237,10 +238,14 @@ export function registerSkillSpendClickHandler(): void {
       
       ui.notifications?.info(`Spent ${finalSpend} skill point${finalSpend !== 1 ? 's' : ''} from ${skillKey}. New total: ${newTotal}`);
     });
+    } catch (e) {
+      console.error('Mastery System | skill-spend renderChatMessageHTML (skill) failed', e);
+    }
   });
   
   // Handle Vitality spending for saves
   Hooks.on('renderChatMessageHTML', (message: ChatMessage, htmlRaw2: HTMLElement | JQuery) => {
+    try {
     const htmlEl = (htmlRaw2 instanceof HTMLElement) ? $(htmlRaw2) : htmlRaw2;
     const spendButton = htmlEl.find('[data-action="spend-vitality-save"]');
     
@@ -397,6 +402,9 @@ export function registerSkillSpendClickHandler(): void {
       
       ui.notifications?.info(`Spent ${spendAmount} Vitality on save. New total: ${newTotal}`);
     });
+    } catch (e) {
+      console.error('Mastery System | skill-spend renderChatMessageHTML (vitality) failed', e);
+    }
   });
   
   console.log('Mastery System | Skill spend click handler registered');

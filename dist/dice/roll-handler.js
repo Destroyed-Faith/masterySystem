@@ -371,6 +371,9 @@ async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillR
         ` : ''}
       </div>
     `;
+        // Flags: omit dieChains — they duplicate explosion data already in rolls[] and can bloat
+        // message flags (Forge / large pools), which may break chat create or sync after a few rolls.
+        const { dieChains: _omitDieChainsFromFlags, ...rollResultForFlags } = result;
         // Create chat message with serialized Roll object (Foundry v13 expects serialized rolls)
         // Use roll.toJSON() to serialize the roll properly
         const chatData = {
@@ -382,7 +385,7 @@ async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillR
             sound: CONFIG.sounds.dice,
             flags: {
                 'mastery-system': {
-                    rollResult: result,
+                    rollResult: rollResultForFlags,
                     canReroll: true,
                     rollRecipe: rollRecipe || null,
                     isSkillRoll: isSkillRoll || false,

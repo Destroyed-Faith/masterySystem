@@ -3,6 +3,8 @@
  */
 const SOCKET_NAME = 'system.mastery-system';
 const faithRerollLocks = new Set();
+/** Avoid duplicate socket listeners if init runs more than once */
+let faithFractureSocketRegistered = false;
 function userOwnsActor(user, actor) {
     if (!user)
         return false;
@@ -174,41 +176,47 @@ async function onFaithFractureRerollClick(message) {
     ui.notifications?.info('Requesting reroll from GM…');
 }
 function onRenderChatMessageFaithReroll(message, htmlRaw) {
-    const htmlEl = htmlRaw instanceof HTMLElement ? $(htmlRaw) : htmlRaw;
-    const root = htmlEl.find('.mastery-roll');
-    if (!root.length)
-        return;
-    const flags = message.flags?.['mastery-system'] || {};
-    if (flags.canReroll !== true || flags.faithRerollConsumed === true)
-        return;
-    if (!flags.rollRecipe)
-        return;
-    if (root.find('.faith-fracture-reroll-btn').length)
-        return;
-    const bar = $(`<div class="mastery-faith-reroll-bar">
+    try {
+        const $el = htmlRaw instanceof HTMLElement ? $(htmlRaw) : htmlRaw;
+        // v13: the hook node may be .mastery-roll itself — .find() would miss it
+        const root = $el.filter('.mastery-roll').add($el.find('.mastery-roll')).first();
+        if (!root.length)
+            return;
+        const flags = message.flags?.['mastery-system'] || {};
+        if (flags.canReroll !== true || flags.faithRerollConsumed === true)
+            return;
+        if (!flags.rollRecipe)
+            return;
+        if (root.find('.faith-fracture-reroll-btn').length)
+            return;
+        const bar = $(`<div class="mastery-faith-reroll-bar">
     <button type="button" class="faith-fracture-reroll-btn" title="Costs 1 Faith Fracture from a character you control. Each roll only once.">
       <i class="fas fa-sync-alt"></i> Reroll (1 Faith Fracture)
     </button>
     <span class="faith-fracture-reroll-hint">One reroll per roll, shared by the whole table.</span>
   </div>`);
-    root.append(bar);
-    bar.find('.faith-fracture-reroll-btn').on('click.faith-reroll', async (ev) => {
-        ev.preventDefault();
-        ev.stopPropagation();
-        const btn = bar.find('.faith-fracture-reroll-btn');
-        if (btn.prop('disabled'))
-            return;
-        btn.prop('disabled', true);
-        try {
-            await onFaithFractureRerollClick(message);
-        }
-        finally {
-            const fresh = game.messages?.get(message.id);
-            const f = fresh?.getFlag?.('mastery-system', 'faithRerollConsumed');
-            if (f !== true)
-                btn.prop('disabled', false);
-        }
-    });
+        root.append(bar);
+        bar.find('.faith-fracture-reroll-btn').on('click.faith-reroll', async (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            const btn = bar.find('.faith-fracture-reroll-btn');
+            if (btn.prop('disabled'))
+                return;
+            btn.prop('disabled', true);
+            try {
+                await onFaithFractureRerollClick(message);
+            }
+            finally {
+                const fresh = game.messages?.get(message.id);
+                const f = fresh?.getFlag?.('mastery-system', 'faithRerollConsumed');
+                if (f !== true)
+                    btn.prop('disabled', false);
+            }
+        });
+    }
+    catch (e) {
+        console.error('Mastery System | faith-fracture-reroll: renderChatMessageHTML failed (chat would break without this catch)', e);
+    }
 }
 async function onFaithFractureSocket(payload) {
     if (payload?.type === 'faithFractureRerollResult') {
@@ -232,6 +240,9 @@ async function onFaithFractureSocket(payload) {
 }
 export function registerFaithFractureRerollHandlers() {
     Hooks.on('renderChatMessageHTML', onRenderChatMessageFaithReroll);
-    game.socket?.on(SOCKET_NAME, onFaithFractureSocket);
+    if (!faithFractureSocketRegistered) {
+        faithFractureSocketRegistered = true;
+        game.socket?.on(SOCKET_NAME, onFaithFractureSocket);
+    }
 }
 //# sourceMappingURL=faith-fracture-reroll.js.map
