@@ -5,13 +5,27 @@
 
 export interface DisadvantageField {
   name: string;
-  type: 'text' | 'number' | 'select';
+  type: 'text' | 'number' | 'select' | 'textarea';
   label: string;
   placeholder?: string;
   options?: Array<{ value: string; label: string }>;
   required?: boolean;
   min?: number;
   max?: number;
+  /** For textarea */
+  rows?: number;
+}
+
+/** Optional collapsible sections in the config dialog (structure + examples). */
+export interface DisadvantageInfoSection {
+  title: string;
+  items: string[];
+}
+
+export interface DisadvantageExamplePreset {
+  label: string;
+  /** Inserted into the target text field when chosen from the dropdown */
+  text: string;
 }
 
 export interface DisadvantageDefinition {
@@ -21,6 +35,12 @@ export interface DisadvantageDefinition {
   description: string;
   fields?: DisadvantageField[];
   effect?: string;
+  /** Shown as <details> blocks above the long description */
+  infoSections?: DisadvantageInfoSection[];
+  /** Dropdown that inserts into the primary text field (wired in character sheet) */
+  examplePresets?: DisadvantageExamplePreset[];
+  /** Field name to receive preset inserts (default: first textarea, else "restriction" / "description") */
+  presetTargetField?: string;
 }
 
 /**
@@ -82,40 +102,147 @@ export const DISADVANTAGES: DisadvantageDefinition[] = [
   },
   {
     id: 'physical-scars',
-    name: 'Physical Scars',
+    name: 'Physical Limitations',
     basePoints: [1, 2, 3],
-    description: 'You bear physical scars that impose mechanical penalties. Choose one scar type. Each scar is purchased separately with its own point cost.',
+    description:
+      'Lasting physical issues (injury, birth, illness). Pick a mechanical weight with the GM, then describe your character’s specific condition in your own words. Examples below are suggestions only — you are not limited to the list.',
+    infoSections: [
+      {
+        title: 'What counts as “physical” here',
+        items: [
+          'Sensory: deaf or hard of hearing in one/both ears, reduced vision, one eye lost, light sensitivity.',
+          'Sleep & rest: light sleeper (wakes easily), heavy sleeper (hard to wake), nightmares / tormented sleep (often grouped with sleep; work out stress/fear with GM).',
+          'Mobility & pain: limp, missing fingers, chronic pain, reduced stamina.',
+          'Older rulebook scars (one-eyed, one-handed, fragile frame, etc.) can still be modeled by choosing the right tier and describing them.'
+        ]
+      },
+      {
+        title: 'Mechanical weight (tiers)',
+        items: [
+          '1 pt — Minor but noticeable (e.g. partial deafness one ear, light sleeper, mild chronic pain).',
+          '2 pt — Significant (e.g. one eye / blind one eye, heavy sleeper, serious limp, one functional hand).',
+          '3 pt — Severe (e.g. one hand/arm lost, fragile frame–style limits, major sensory loss) — align with GM.'
+        ]
+      }
+    ],
+    presetTargetField: 'description',
+    examplePresets: [
+      {
+        label: 'Deaf / hard of hearing (one ear)',
+        text: 'Hard of hearing on the left; disadvantage to notice quiet sounds or locate by hearing on that side; loud environments are exhausting.'
+      },
+      {
+        label: 'One eye lost / blind one eye',
+        text: 'Lost right eye; reduced depth perception; GM may impose penalties on ranged attacks and visual perception where it matters.'
+      },
+      {
+        label: 'Light sleeper',
+        text: 'Wakes at small noises; needs calm to rest; may suffer fatigue if sleep is interrupted often.'
+      },
+      {
+        label: 'Heavy sleeper',
+        text: 'Very hard to wake without strong stimulus (damage, shaking, loud alarm); may miss warnings while sleeping.'
+      },
+      {
+        label: 'Nightmares / tormented sleep',
+        text: 'Disturbing dreams most nights; poor rest; may start days with extra stress or fear checks after bad nights (detail with GM).'
+      },
+      {
+        label: 'Chronic pain',
+        text: 'Old wound aches constantly; harder to push through long marches or focus under strain (work mechanical detail with GM).'
+      },
+      {
+        label: 'Limp / old leg injury',
+        text: 'Slowed on rough ground; longer distances hurt; may affect chase scenes.'
+      }
+    ],
     fields: [
       {
-        name: 'scar',
+        name: 'tier',
         type: 'select',
-        label: 'Scar Type',
+        label: 'Mechanical weight (points)',
         options: [
-          { value: 'one-eyed', label: 'One-Eyed (1 point) - -1k0 to ranged attacks and perception checks' },
-          { value: 'one-handed', label: 'One-Handed (2 points) - Cannot dual wield or use shield+sword' },
-          { value: 'heavy-sleeper', label: 'Heavy Sleeper (1 point) - Cannot wake unless damaged or physically shaken' },
-          { value: 'fragile-frame', label: 'Fragile Frame (3 points) - Health track has one fewer box on every level' }
+          { value: '1', label: '1 pt — Minor (partial sensory, light sleeper, mild limitation)' },
+          { value: '2', label: '2 pt — Significant (one eye, heavy sleeper, strong limp, one good hand)' },
+          { value: '3', label: '3 pt — Severe (major limb/sensory loss, fragile-frame–style — GM agreement)' }
         ],
+        required: true
+      },
+      {
+        name: 'description',
+        type: 'textarea',
+        rows: 5,
+        label: 'Describe the limitation (required)',
+        placeholder:
+          'Your own words: what happened, how it shows in play, and any agreed effects with the GM. Use the examples dropdown above only as a starting point.',
         required: true
       }
     ],
-    effect: 'One-Eyed(1pt): -1k0 ranged/perception. One-Handed(2pt): no dual wield/shield+sword. Heavy Sleeper(1pt): wake only if damaged/shaken. Fragile Frame(3pt): -1 health box per level.'
+    effect:
+      'Tier sets points (1–3). Specific mechanics are agreed with the GM based on your description. Legacy “scar type” entries from older sheets still work until you edit them.'
   },
   {
     id: 'mental-restrictions',
     name: 'Mental Restrictions',
     basePoints: [1, 2, 3],
     description:
-      'Mental Restrictions (1–3 points). You are bound by your past, beliefs, or mind.\n\n' +
-      'Oaths (examples): No killing; Chivalric code (always fair, no helpless targets, no lying); Honor bound (always keeps promises).\n\n' +
-      'Fears (examples): Claustrophobia; Paranoia (“Just because you can’t see them…”); Hatred for a group – attacks on sight.\n\n' +
-      'Personality traits (examples): Arrogant – always needs to prove superiority; Coward – retreats from fights when wounded; Vengeful – cannot forgive; Gullible – big eyes and sad stories get to you easily; In love with XXX – acts irrationally if the loved one is in danger.\n\n' +
-      'Rule: To act against your flaw, make a Resolve k1 roll. Easy: TN 6 (minor resistance), 1 point. Normal: TN 10 (strong internal conflict), 2 points. Hard: TN 14 (violates a core belief), 3 points.',
+      'You are bound by oaths, fears, or personality. Choose severity with the GM, then describe the restriction in your own words. The examples are suggestions — you can write anything personal that fits your character.',
+    infoSections: [
+      {
+        title: 'Oaths (examples)',
+        items: [
+          'No killing',
+          'Chivalric code — fair fights, no helpless targets, no lying',
+          'Honor bound — always keeps promises'
+        ]
+      },
+      {
+        title: 'Fears (examples)',
+        items: [
+          'Claustrophobia',
+          'Paranoia — “they’re out there”',
+          'Hatred for a group — may attack on sight'
+        ]
+      },
+      {
+        title: 'Personality (examples)',
+        items: [
+          'Arrogant — must prove superiority',
+          'Coward — pulls back when wounded',
+          'Vengeful — cannot forgive',
+          'Gullible — swayed by sad stories',
+          'In love with … — irrational if they are in danger'
+        ]
+      }
+    ],
+    presetTargetField: 'restriction',
+    examplePresets: [
+      {
+        label: 'No killing',
+        text: 'Will not take a life except in absolute self-defense; must hesitate or use non-lethal options first.'
+      },
+      {
+        label: 'Chivalric code',
+        text: 'No striking downed or helpless foes; keeps word once given; refuses dirty tricks in a “fair” duel.'
+      },
+      {
+        label: 'Claustrophobia',
+        text: 'Panic in tight closed spaces; must fight to enter crawlspaces, cells, or collapsed tunnels.'
+      },
+      {
+        label: 'Vengeful',
+        text: 'Cannot let a serious wrong go; will pursue payback even when it is tactically stupid.'
+      },
+      {
+        label: 'In love (person)',
+        text: 'Acts irrationally when this person is threatened; may abandon the mission to protect them.'
+      }
+    ],
     fields: [
       {
         name: 'severity',
         type: 'select',
-        label: 'Severity (TN when acting against the flaw)',
+        label: 'Severity — Resolve k1 when acting against the flaw',
         options: [
           { value: 'easy', label: 'Easy (1 pt) — TN 6: minor resistance' },
           { value: 'normal', label: 'Normal (2 pt) — TN 10: strong internal conflict' },
@@ -125,15 +252,15 @@ export const DISADVANTAGES: DisadvantageDefinition[] = [
       },
       {
         name: 'restriction',
-        type: 'text',
-        label: 'Your restriction',
+        type: 'textarea',
+        rows: 5,
+        label: 'Your restriction (required)',
         placeholder:
-          'e.g., No killing, Chivalric code, Claustrophobia, Paranoia, Vengeful, In love with the captain',
+          'Describe what binds your character. Use the example dropdown to pre-fill, then edit freely.',
         required: true
       }
     ],
-    effect:
-      'Against your flaw: Resolve k1. Easy TN 6 (1 pt), Normal TN 10 (2 pt), Hard TN 14 (3 pt).'
+    effect: 'Against your flaw: Resolve k1. Easy TN 6 (1 pt), Normal TN 10 (2 pt), Hard TN 14 (3 pt).'
   },
   {
     id: 'unluck',
@@ -196,6 +323,36 @@ export function detailsForMentalRestrictionsDialog(details?: Record<string, any>
   return d;
 }
 
+const LEGACY_SCAR_TIER: Record<string, string> = {
+  'one-eyed': '1',
+  'heavy-sleeper': '1',
+  'one-handed': '2',
+  'fragile-frame': '3'
+};
+
+const LEGACY_SCAR_DESCRIPTION: Record<string, string> = {
+  'one-eyed': 'One-eyed — reduced depth perception / ranged and perception penalties per GM.',
+  'one-handed': 'One-handed — cannot effectively dual-wield or sword+shield per GM.',
+  'heavy-sleeper': 'Heavy sleeper — very hard to wake without damage or being physically shaken.',
+  'fragile-frame': 'Fragile frame — fewer health boxes per level per GM.'
+};
+
+/** Migrate old physical-scars (scar select only) to tier + description when opening the dialog. */
+export function detailsForPhysicalScarsDialog(details?: Record<string, any>): Record<string, any> {
+  const d = { ...(details || {}) };
+  if (d.tier && String(d.description || '').trim()) return d;
+  const scar = d.scar as string | undefined;
+  if (scar && LEGACY_SCAR_TIER[scar]) {
+    d.tier = LEGACY_SCAR_TIER[scar];
+    if (!String(d.description || '').trim()) {
+      d.description = LEGACY_SCAR_DESCRIPTION[scar] || '';
+    }
+  } else if (!d.tier) {
+    d.tier = '1';
+  }
+  return d;
+}
+
 /**
  * Calculate points for a disadvantage selection
  */
@@ -213,14 +370,17 @@ export function calculateDisadvantagePoints(
       return def.basePoints[rank - 1] || def.basePoints[0];
     }
     if (disadvantageId === 'physical-scars') {
-      const scar = details.scar;
+      const tier = parseInt(String(details.tier ?? ''), 10);
+      if (tier >= 1 && tier <= 3) return tier;
+      const scar = details.scar as string | undefined;
       const scarPoints: Record<string, number> = {
         'one-eyed': 1,
         'one-handed': 2,
         'heavy-sleeper': 1,
         'fragile-frame': 3
       };
-      return scarPoints[scar] || 1;
+      if (scar && scarPoints[scar] != null) return scarPoints[scar]!;
+      return 1;
     }
     if (disadvantageId === 'mental-restrictions') {
       const severity = details.severity;

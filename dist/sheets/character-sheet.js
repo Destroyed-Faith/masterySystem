@@ -4,7 +4,7 @@
  */
 import { SKILLS, SKILL_CATEGORIES } from '../utils/skills.js';
 import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifiers.js';
-import { DISADVANTAGES, getDisadvantageDefinition, calculateDisadvantagePoints, validateDisadvantageSelection, detailsForMentalRestrictionsDialog } from '../system/disadvantages.js';
+import { DISADVANTAGES, getDisadvantageDefinition, calculateDisadvantagePoints, validateDisadvantageSelection, detailsForMentalRestrictionsDialog, detailsForPhysicalScarsDialog } from '../system/disadvantages.js';
 import { getAllSchticks } from '../utils/schticks.js';
 import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
 import { findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid.js';
@@ -4778,6 +4778,31 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     /**
      * Legacy Dialog may not show a resize grip; add bottom-right resize if still missing after paint.
      */
+    #wireDisadvantageExamplePresets(root, def) {
+        const presets = def?.examplePresets;
+        if (!presets?.length || !root?.length)
+            return;
+        let targetName = def.presetTargetField;
+        if (!targetName) {
+            const ta = (def.fields || []).find((f) => f.type === 'textarea');
+            targetName = ta?.name;
+        }
+        if (!targetName)
+            return;
+        const $sel = root.find('.js-disadvantage-example-preset');
+        if (!$sel.length)
+            return;
+        $sel.off('change.ms-preset').on('change.ms-preset', () => {
+            const raw = String($sel.val() ?? '');
+            const idx = parseInt(raw, 10);
+            if (!Number.isFinite(idx) || idx < 0 || idx >= presets.length)
+                return;
+            const text = presets[idx]?.text;
+            if (text == null)
+                return;
+            root.find(`[name="${targetName}"]`).val(text);
+        });
+    }
     #attachDisadvantageDialogResizeHandle(root, minWidth, minHeight) {
         if (!root?.length)
             return;
@@ -4816,17 +4841,20 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      * Open Disadvantage Configuration Dialog
      */
     async #openDisadvantageConfigDialog(def, editIndex, existingDetails) {
+        const mergedDetails = def.id === 'mental-restrictions'
+            ? detailsForMentalRestrictionsDialog(existingDetails)
+            : def.id === 'physical-scars'
+                ? detailsForPhysicalScarsDialog(existingDetails)
+                : existingDetails || {};
         const content = await foundry.applications.handlebars.renderTemplate('systems/mastery-system/templates/dialogs/disadvantage-config.hbs', {
             disadvantage: def,
-            details: def.id === 'mental-restrictions'
-                ? detailsForMentalRestrictionsDialog(existingDetails)
-                : existingDetails || {}
+            details: mergedDetails
         });
         const configDialog = new Dialog({
             title: `${editIndex !== undefined ? 'Edit' : 'Add'} ${def.name}`,
             content,
-            width: 580,
-            height: 480,
+            width: 600,
+            height: 560,
             resizable: true,
             buttons: {
                 save: {
@@ -4841,9 +4869,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                             else if (field.type === 'select') {
                                 details[field.name] = $(html).find(`[name="${field.name}"]`).val();
                             }
+                            else if (field.type === 'textarea') {
+                                details[field.name] = String($(html).find(`[name="${field.name}"]`).val() || '').trim();
+                            }
                             else {
                                 details[field.name] = $(html).find(`[name="${field.name}"]`).val() || '';
                             }
+                        }
+                        if (def.id === 'physical-scars' && details.tier && String(details.description || '').trim()) {
+                            delete details.scar;
                         }
                         // Validate required fields are not empty
                         for (const field of def.fields || []) {
@@ -4897,6 +4931,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             default: 'save'
         });
         await configDialog.render(true);
+        this.#wireDisadvantageExamplePresets(configDialog.element, def);
         this.#setupDisadvantageDialogChrome(configDialog, 'config');
     }
     /**

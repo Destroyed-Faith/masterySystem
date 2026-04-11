@@ -4898,8 +4898,10 @@
 .application.mastery-system.disadvantage-config-dialog-styled.dialog select,
 .application.mastery-system.disadvantage-config-dialog-styled.window-app input[type="text"],
 .application.mastery-system.disadvantage-config-dialog-styled.window-app input[type="number"],
+.application.mastery-system.disadvantage-config-dialog-styled.window-app textarea,
 .application.mastery-system.disadvantage-config-dialog-styled.dialog input[type="text"],
-.application.mastery-system.disadvantage-config-dialog-styled.dialog input[type="number"] {
+.application.mastery-system.disadvantage-config-dialog-styled.dialog input[type="number"],
+.application.mastery-system.disadvantage-config-dialog-styled.dialog textarea {
   width: 100%;
   padding: 0.5rem;
   border: 1px solid #ccc;
@@ -4924,8 +4926,10 @@
 .application.mastery-system.disadvantage-config-dialog-styled.dialog select:hover,
 .application.mastery-system.disadvantage-config-dialog-styled.window-app input[type="text"]:hover,
 .application.mastery-system.disadvantage-config-dialog-styled.window-app input[type="number"]:hover,
+.application.mastery-system.disadvantage-config-dialog-styled.window-app textarea:hover,
 .application.mastery-system.disadvantage-config-dialog-styled.dialog input[type="text"]:hover,
-.application.mastery-system.disadvantage-config-dialog-styled.dialog input[type="number"]:hover {
+.application.mastery-system.disadvantage-config-dialog-styled.dialog input[type="number"]:hover,
+.application.mastery-system.disadvantage-config-dialog-styled.dialog textarea:hover {
   border-color: #8b0000;
 }
 
@@ -4935,8 +4939,10 @@
 .application.mastery-system.disadvantage-config-dialog-styled.dialog select:focus,
 .application.mastery-system.disadvantage-config-dialog-styled.window-app input[type="text"]:focus,
 .application.mastery-system.disadvantage-config-dialog-styled.window-app input[type="number"]:focus,
+.application.mastery-system.disadvantage-config-dialog-styled.window-app textarea:focus,
 .application.mastery-system.disadvantage-config-dialog-styled.dialog input[type="text"]:focus,
-.application.mastery-system.disadvantage-config-dialog-styled.dialog input[type="number"]:focus {
+.application.mastery-system.disadvantage-config-dialog-styled.dialog input[type="number"]:focus,
+.application.mastery-system.disadvantage-config-dialog-styled.dialog textarea:focus {
   outline: none;
   border-color: #8b0000;
   box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.2);
@@ -4976,6 +4982,53 @@
   margin: 0.5rem 0 0 0;
   font-size: 0.9rem;
   color: #333;
+}
+
+.mastery-system.disadvantage-config-dialog-styled .disadvantage-info-sections {
+  margin: 0 0 0.75rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.mastery-system.disadvantage-config-dialog-styled .disadvantage-info-details {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.mastery-system.disadvantage-config-dialog-styled .disadvantage-info-summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: #444;
+}
+
+.mastery-system.disadvantage-config-dialog-styled .disadvantage-info-list {
+  margin: 0.4rem 0 0.25rem 1.1rem;
+  padding: 0;
+  font-size: 0.82rem;
+  color: #555;
+  line-height: 1.45;
+}
+
+.mastery-system.disadvantage-config-dialog-styled .disadvantage-preset-row {
+  margin: 0 0 0.25rem 0;
+}
+
+.mastery-system.disadvantage-config-dialog-styled .disadvantage-preset-row .preset-hint {
+  font-weight: normal;
+  opacity: 0.85;
+  font-size: 0.82rem;
+}
+
+.mastery-system.disadvantage-config-dialog-styled .disadvantage-fields textarea {
+  width: 100%;
+  min-height: 5rem;
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.45;
 }
 
 .mastery-system.disadvantage-config-dialog-styled .disadvantage-fields {

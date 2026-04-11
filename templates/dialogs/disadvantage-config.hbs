@@ -1,11 +1,39 @@
 <div class="disadvantage-config-dialog">
   <div class="disadvantage-info">
     <h3>{{disadvantage.name}}</h3>
+
+    {{#if disadvantage.infoSections}}
+    <div class="disadvantage-info-sections">
+      {{#each disadvantage.infoSections as |sec|}}
+      <details class="disadvantage-info-details">
+        <summary class="disadvantage-info-summary">{{sec.title}}</summary>
+        <ul class="disadvantage-info-list">
+          {{#each sec.items as |item|}}
+          <li>{{item}}</li>
+          {{/each}}
+        </ul>
+      </details>
+      {{/each}}
+    </div>
+    {{/if}}
+
     <p class="disadvantage-description">{{disadvantage.description}}</p>
     {{#if disadvantage.effect}}
-    <p class="disadvantage-effect"><strong>Effect:</strong> {{disadvantage.effect}}</p>
+    <p class="disadvantage-effect"><strong>Mechanics:</strong> {{disadvantage.effect}}</p>
     {{/if}}
   </div>
+
+  {{#if disadvantage.examplePresets}}
+  <div class="form-group disadvantage-preset-row">
+    <label for="disadvantage-example-preset">Examples <span class="preset-hint">(optional — fills the text field below)</span></label>
+    <select id="disadvantage-example-preset" class="js-disadvantage-example-preset">
+      <option value="">— Choose to insert text —</option>
+      {{#each disadvantage.examplePresets as |ex i|}}
+      <option value="{{i}}">{{ex.label}}</option>
+      {{/each}}
+    </select>
+  </div>
+  {{/if}}
   
   <div class="disadvantage-fields">
     {{#each disadvantage.fields as |field|}}
@@ -30,6 +58,12 @@
              {{#if field.max}}max="{{field.max}}"{{/if}}
              {{#if field.required}}required{{/if}}
              placeholder="{{field.placeholder}}" />
+      {{else if (eq field.type "textarea")}}
+      <textarea name="{{field.name}}" 
+                id="{{field.name}}" 
+                rows="{{#if field.rows}}{{field.rows}}{{else}}4{{/if}}"
+                {{#if field.required}}required{{/if}}
+                placeholder="{{field.placeholder}}">{{lookup ../details field.name}}</textarea>
       {{else}}
       <input type="text" 
              name="{{field.name}}" 
@@ -42,4 +76,3 @@
     {{/each}}
   </div>
 </div>
-
