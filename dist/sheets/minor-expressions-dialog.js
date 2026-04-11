@@ -18,7 +18,7 @@ function buildSingleAttributeSection(attr, val, defs, selected) {
     html += `<section class="me-attr-section" id="me-section-${attr}" data-attr="${attr}">`;
     html += `<h4 class="me-attr-heading">${ATTR_LABEL[attr]} <span class="me-attr-value">(${val})</span></h4>`;
     if (!eligible) {
-        html += `<p class="me-attr-locked">Meine Expressions für dieses Attribut ab Wert ${MINOR_EXPRESSION_MIN_ATTRIBUTE} verfügbar.</p>`;
+        html += `<p class="me-attr-locked">Minor Expressions für dieses Attribut ab Wert ${MINOR_EXPRESSION_MIN_ATTRIBUTE} verfügbar.</p>`;
     }
     for (const def of defs) {
         const checked = selected.has(def.id) ? 'checked' : '';
@@ -56,12 +56,12 @@ export async function showMinorExpressionsDialog(actor, options) {
     const initialTotal = picksFromOtherAttrs.length + defs.filter((d) => selected.has(d.id)).length;
     const content = `
     <p class="me-slots-summary"><strong><span id="me-count">${initialTotal}</span></strong> von <strong>${mr}</strong> ausgewählt</p>
-    <p class="me-hint">Meine Expressions unterstützen und färben — sie ersetzen keine Powers.</p>
+    <p class="me-hint">Minor Expressions unterstützen und färben — sie ersetzen keine Powers.</p>
     ${buildSingleAttributeSection(focusAttribute, val, defs, selected)}
   `;
     return new Promise((resolve) => {
         const dialog = new Dialog({
-            title: `Meine Expressions — ${ATTR_LABEL[focusAttribute]}`,
+            title: `Minor Expressions — ${ATTR_LABEL[focusAttribute]}`,
             content,
             buttons: {
                 save: {
@@ -79,7 +79,7 @@ export async function showMinorExpressionsDialog(actor, options) {
                         const prev = JSON.stringify(sanitized);
                         const next = JSON.stringify(cleaned);
                         if (prev !== next && sanitized.length > cleaned.length) {
-                            globalThis.ui?.notifications?.info('Meine Expressions wurden an Mastery Rank oder Attributwerte angepasst.');
+                            globalThis.ui?.notifications?.info('Minor Expressions wurden an Mastery Rank oder Attributwerte angepasst.');
                         }
                         await actor.update({ 'system.minorExpressions': cleaned });
                         resolve();

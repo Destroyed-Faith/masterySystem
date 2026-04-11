@@ -1236,7 +1236,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('.minor-expressions-open').on('click', async (ev) => {
             ev.preventDefault();
             if (!this.actor.isOwner) {
-                ui.notifications?.warn('Nur der Besitzer kann Meine Expressions wählen.');
+                ui.notifications?.warn('Nur der Besitzer kann Minor Expressions wählen.');
                 return;
             }
             const attr = ev.currentTarget.dataset.attribute;
