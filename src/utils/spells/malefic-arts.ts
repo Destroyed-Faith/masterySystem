@@ -26,33 +26,33 @@ export const MALEFIC_ARTS_SPELLS: SpellDefinition[] = [
         type: 'Ranged (Spell)',
         range: '16 m',
         duration: 'Instant',
-        effect: '+2d8 damage',
+        effect: '+3d8 damage',
         special: 'Autofire (1)',
         raises: 'Range (+4m), additional targets up to autofire value (+1), +1d8 damage for two raises',
         cost: { action: true },
-        roll: { damage: '2d8', damageType: 'eldritch' }
+        roll: { damage: '3d8', damageType: 'eldritch' }
       },
       {
         level: 3,
         type: 'Ranged (Spell)',
         range: '24 m',
         duration: 'Instant',
-        effect: '+2d8 damage',
+        effect: '+4d8 damage',
         special: 'Autofire (2)',
         raises: 'Range (+4m), additional targets up to autofire value (+1), +1d8 damage for two raises',
         cost: { action: true },
-        roll: { damage: '2d8', damageType: 'eldritch' }
+        roll: { damage: '4d8', damageType: 'eldritch' }
       },
       {
         level: 4,
         type: 'Ranged (Spell)',
         range: '32 m',
         duration: 'Instant',
-        effect: '+2d8 damage',
+        effect: '+5d8 damage',
         special: 'Autofire (3)',
         raises: 'Range (+4m), additional targets up to autofire value (+1), +1d8 damage for two raises',
         cost: { action: true },
-        roll: { damage: '2d8', damageType: 'eldritch' }
+        roll: { damage: '5d8', damageType: 'eldritch' }
       }
     ]
   },

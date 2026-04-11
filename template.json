@@ -188,7 +188,8 @@
       "creation": {
         "complete": false
       },
-      "disadvantages": []
+      "disadvantages": [],
+      "minorExpressions": []
     },
     "npc": {
       "templates": ["base", "combatant"],

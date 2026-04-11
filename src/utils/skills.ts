@@ -10,6 +10,7 @@ export interface SkillDefinition {
 }
 
 export const SKILL_CATEGORIES = {
+  AWARENESS: 'Awareness',
   PHYSICAL: 'Physical',
   KNOWLEDGE_CRAFT: 'Knowledge & Craft',
   SOCIAL: 'Social',
@@ -149,12 +150,14 @@ export const SKILLS: Record<string, SkillDefinition> = {
     category: SKILL_CATEGORIES.SOCIAL
   },
 
-  // Survival Skills
+  // Awareness (pinned first on sheet — multi-attribute Perception)
   perception: {
     name: 'Perception',
     attributes: ['wits', 'intellect', 'resolve'],
-    category: SKILL_CATEGORIES.SURVIVAL
+    category: SKILL_CATEGORIES.AWARENESS
   },
+
+  // Survival Skills
   survival: {
     name: 'Survival',
     attributes: ['vitality'],

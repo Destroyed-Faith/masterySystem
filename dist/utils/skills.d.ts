@@ -8,6 +8,7 @@ export interface SkillDefinition {
     category: string;
 }
 export declare const SKILL_CATEGORIES: {
+    readonly AWARENESS: "Awareness";
     readonly PHYSICAL: "Physical";
     readonly KNOWLEDGE_CRAFT: "Knowledge & Craft";
     readonly SOCIAL: "Social";

@@ -223,18 +223,25 @@
                 </div>
               </div>
               
-              <!-- Stones Display -->
-              <div class="attribute-stones">
-                <div class="stones-container">
-                  {{#times (calculateStones value)}}
-                    <span class="stone filled">●</span>
-                  {{/times}}
-                  {{#times (subtract 5 (calculateStones value))}}
-                    <span class="stone empty">○</span>
-                  {{/times}}
-                </div>
-                <div class="stones-count">{{calculateStones value}} / 5 Stones</div>
+              {{#if ../creationComplete}}
+              <div class="minor-expressions-card" data-attribute="might">
+                <div class="minor-expressions-label">Minor Expressions</div>
+                {{#if (length @root.minorExpressionsDisplay.might)}}
+                <ul class="minor-expressions-names">
+                  {{#each @root.minorExpressionsDisplay.might}}<li>{{this}}</li>{{/each}}
+                </ul>
+                {{else}}
+                <p class="minor-expressions-names minor-expressions-names--empty">—</p>
+                {{/if}}
+                <button type="button" class="minor-expressions-open" data-attribute="might" title="Minor Expressions wählen">
+                  <i class="fas fa-wand-magic-sparkles"></i> Auswählen …
+                </button>
               </div>
+              {{else}}
+              <div class="minor-expressions-card minor-expressions-card--muted">
+                <span>Minor Expressions nach Abschluss der Erstellung</span>
+              </div>
+              {{/if}}
               
               <!-- Roll Button -->
               <button type="button" class="attribute-roll" data-attribute="might" title="Roll Might">
@@ -273,17 +280,25 @@
                 </div>
               </div>
               
-              <div class="attribute-stones">
-                <div class="stones-container">
-                  {{#times (calculateStones value)}}
-                    <span class="stone filled">●</span>
-                  {{/times}}
-                  {{#times (subtract 5 (calculateStones value))}}
-                    <span class="stone empty">○</span>
-                  {{/times}}
-                </div>
-                <div class="stones-count">{{calculateStones value}} / 5 Stones</div>
+              {{#if ../creationComplete}}
+              <div class="minor-expressions-card" data-attribute="agility">
+                <div class="minor-expressions-label">Minor Expressions</div>
+                {{#if (length @root.minorExpressionsDisplay.agility)}}
+                <ul class="minor-expressions-names">
+                  {{#each @root.minorExpressionsDisplay.agility}}<li>{{this}}</li>{{/each}}
+                </ul>
+                {{else}}
+                <p class="minor-expressions-names minor-expressions-names--empty">—</p>
+                {{/if}}
+                <button type="button" class="minor-expressions-open" data-attribute="agility" title="Minor Expressions wählen">
+                  <i class="fas fa-wand-magic-sparkles"></i> Auswählen …
+                </button>
               </div>
+              {{else}}
+              <div class="minor-expressions-card minor-expressions-card--muted">
+                <span>Minor Expressions nach Abschluss der Erstellung</span>
+              </div>
+              {{/if}}
               
               <button type="button" class="attribute-roll" data-attribute="agility">
                 <i class="fas fa-dice-d20"></i> Roll Agility
@@ -321,16 +336,8 @@
                 </div>
               </div>
               
-              <div class="attribute-stones">
-                <div class="stones-container">
-                  {{#times (calculateStones value)}}
-                    <span class="stone filled">●</span>
-                  {{/times}}
-                  {{#times (subtract 5 (calculateStones value))}}
-                    <span class="stone empty">○</span>
-                  {{/times}}
-                </div>
-                <div class="stones-count">{{calculateStones value}} / 5 Stones</div>
+              <div class="minor-expressions-card minor-expressions-card--none">
+                <span class="minor-expressions-muted">Vitality hat keine Minor Expressions.</span>
               </div>
               
               <button type="button" class="attribute-roll" data-attribute="vitality">
@@ -369,16 +376,8 @@
                 </div>
               </div>
               
-              <div class="attribute-stones">
-                <div class="stones-container">
-                  {{#times (calculateStones value)}}
-                    <span class="stone filled">●</span>
-                  {{/times}}
-                  {{#times (subtract 5 (calculateStones value))}}
-                    <span class="stone empty">○</span>
-                  {{/times}}
-                </div>
-                <div class="stones-count">{{calculateStones value}} / 5 Stones</div>
+              <div class="minor-expressions-card minor-expressions-card--soon">
+                <span class="minor-expressions-muted">Minor Expressions — demnächst</span>
               </div>
               
               <button type="button" class="attribute-roll" data-attribute="wits">
@@ -422,17 +421,25 @@
                 </div>
               </div>
               
-              <div class="attribute-stones">
-                <div class="stones-container">
-                  {{#times (calculateStones value)}}
-                    <span class="stone filled">●</span>
-                  {{/times}}
-                  {{#times (subtract 5 (calculateStones value))}}
-                    <span class="stone empty">○</span>
-                  {{/times}}
-                </div>
-                <div class="stones-count">{{calculateStones value}} / 5 Stones</div>
+              {{#if ../creationComplete}}
+              <div class="minor-expressions-card" data-attribute="intellect">
+                <div class="minor-expressions-label">Minor Expressions</div>
+                {{#if (length @root.minorExpressionsDisplay.intellect)}}
+                <ul class="minor-expressions-names">
+                  {{#each @root.minorExpressionsDisplay.intellect}}<li>{{this}}</li>{{/each}}
+                </ul>
+                {{else}}
+                <p class="minor-expressions-names minor-expressions-names--empty">—</p>
+                {{/if}}
+                <button type="button" class="minor-expressions-open" data-attribute="intellect" title="Minor Expressions wählen">
+                  <i class="fas fa-wand-magic-sparkles"></i> Auswählen …
+                </button>
               </div>
+              {{else}}
+              <div class="minor-expressions-card minor-expressions-card--muted">
+                <span>Minor Expressions nach Abschluss der Erstellung</span>
+              </div>
+              {{/if}}
               
               <button type="button" class="attribute-roll" data-attribute="intellect">
                 <i class="fas fa-dice-d20"></i> Roll Intellect
@@ -470,17 +477,25 @@
                 </div>
               </div>
               
-              <div class="attribute-stones">
-                <div class="stones-container">
-                  {{#times (calculateStones value)}}
-                    <span class="stone filled">●</span>
-                  {{/times}}
-                  {{#times (subtract 5 (calculateStones value))}}
-                    <span class="stone empty">○</span>
-                  {{/times}}
-                </div>
-                <div class="stones-count">{{calculateStones value}} / 5 Stones</div>
+              {{#if ../creationComplete}}
+              <div class="minor-expressions-card" data-attribute="resolve">
+                <div class="minor-expressions-label">Minor Expressions</div>
+                {{#if (length @root.minorExpressionsDisplay.resolve)}}
+                <ul class="minor-expressions-names">
+                  {{#each @root.minorExpressionsDisplay.resolve}}<li>{{this}}</li>{{/each}}
+                </ul>
+                {{else}}
+                <p class="minor-expressions-names minor-expressions-names--empty">—</p>
+                {{/if}}
+                <button type="button" class="minor-expressions-open" data-attribute="resolve" title="Minor Expressions wählen">
+                  <i class="fas fa-wand-magic-sparkles"></i> Auswählen …
+                </button>
               </div>
+              {{else}}
+              <div class="minor-expressions-card minor-expressions-card--muted">
+                <span>Minor Expressions nach Abschluss der Erstellung</span>
+              </div>
+              {{/if}}
               
               <button type="button" class="attribute-roll" data-attribute="resolve">
                 <i class="fas fa-dice-d20"></i> Roll Resolve
@@ -518,17 +533,25 @@
                 </div>
               </div>
               
-              <div class="attribute-stones">
-                <div class="stones-container">
-                  {{#times (calculateStones value)}}
-                    <span class="stone filled">●</span>
-                  {{/times}}
-                  {{#times (subtract 5 (calculateStones value))}}
-                    <span class="stone empty">○</span>
-                  {{/times}}
-                </div>
-                <div class="stones-count">{{calculateStones value}} / 5 Stones</div>
+              {{#if ../creationComplete}}
+              <div class="minor-expressions-card" data-attribute="influence">
+                <div class="minor-expressions-label">Minor Expressions</div>
+                {{#if (length @root.minorExpressionsDisplay.influence)}}
+                <ul class="minor-expressions-names">
+                  {{#each @root.minorExpressionsDisplay.influence}}<li>{{this}}</li>{{/each}}
+                </ul>
+                {{else}}
+                <p class="minor-expressions-names minor-expressions-names--empty">—</p>
+                {{/if}}
+                <button type="button" class="minor-expressions-open" data-attribute="influence" title="Minor Expressions wählen">
+                  <i class="fas fa-wand-magic-sparkles"></i> Auswählen …
+                </button>
               </div>
+              {{else}}
+              <div class="minor-expressions-card minor-expressions-card--muted">
+                <span>Minor Expressions nach Abschluss der Erstellung</span>
+              </div>
+              {{/if}}
               
               <button type="button" class="attribute-roll" data-attribute="influence">
                 <i class="fas fa-dice-d20"></i> Roll Influence
@@ -858,6 +881,7 @@
       {{#each skills}}
         <div class="skill-category-compact">
           <h4 class="category-header-compact">
+            {{#if (eq this.category "Awareness")}}<i class="fas fa-eye"></i>{{/if}}
             {{#if (eq this.category "Physical")}}<i class="fas fa-running"></i>{{/if}}
             {{#if (eq this.category "Knowledge & Craft")}}<i class="fas fa-book"></i>{{/if}}
             {{#if (eq this.category "Social")}}<i class="fas fa-comments"></i>{{/if}}
@@ -911,9 +935,23 @@
                   <span class="skill-use-box {{#if (gte this.value 4)}}{{#if (gte this.remaining 4)}}available{{else}}spent{{/if}}{{else}}locked{{/if}}"></span>
                 </div>
                 {{/if}}
+                {{#if (eq this.key "perception")}}
+                <div class="skill-roll-perception-group" title="Perception — gleicher Wurf-Dialog wie üblich (Schwierigkeit, Raises)">
+                  <button type="button" class="skill-roll-compact skill-roll-with-attr" data-skill="{{this.key}}" data-attribute="wits" title="Perception (Wits)">
+                    <i class="fas fa-brain"></i>
+                  </button>
+                  <button type="button" class="skill-roll-compact skill-roll-with-attr" data-skill="{{this.key}}" data-attribute="intellect" title="Perception (Intellect)">
+                    <i class="fas fa-lightbulb"></i>
+                  </button>
+                  <button type="button" class="skill-roll-compact skill-roll-with-attr" data-skill="{{this.key}}" data-attribute="resolve" title="Perception (Resolve)">
+                    <i class="fas fa-shield-alt"></i>
+                  </button>
+                </div>
+                {{else}}
                 <button type="button" class="skill-roll-compact" data-skill="{{this.key}}" title="Roll {{this.name}}">
                   <i class="fas fa-dice-d20"></i>
                 </button>
+                {{/if}}
               </div>
             {{/each}}
           </div>

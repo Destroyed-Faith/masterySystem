@@ -37,8 +37,8 @@ export const OLD_PACT_SPELLS: SpellDefinition[] = [
     levels: [
       { level: 1, type: 'Ranged (Spell)', range: '12 m', duration: 'Instant', effect: '1d8 damage', special: 'Shock (2)', raises: 'Range (+4 m), Shock (+1), Autofire extra target, Radius (+1 m)', cost: { action: true }, roll: { damage: '1d8', damageType: 'lightning' } },
       { level: 2, type: 'Ranged (Spell, Charged)', range: '16 m', duration: 'Instant', effect: '1d8 damage', special: 'Shock (2), Autofire (1)', raises: 'Range (+4 m), Shock (+1), Autofire extra target, Radius (+1 m)', cost: { action: true, charged: true }, roll: { damage: '1d8', damageType: 'lightning' } },
-      { level: 3, type: 'Ranged (Spell, Charged)', range: '20 m', duration: 'Instant', effect: '2d8 damage', special: 'Shock (3), Autofire (1)', raises: 'Range (+4 m), Shock (+1), Autofire extra target, Radius (+1 m)', cost: { action: true, charged: true }, roll: { damage: '2d8', damageType: 'lightning' } },
-      { level: 4, type: 'Ranged (Spell, Charged)', range: '24 m', duration: 'Instant', effect: '2d8 damage', special: 'Shock (3), Autofire (2)', raises: 'Range (+4 m), Shock (+1), Autofire extra target, Radius (+1 m)', cost: { action: true, charged: true }, roll: { damage: '2d8', damageType: 'lightning' } }
+      { level: 3, type: 'Ranged (Spell, Charged)', range: '20 m', duration: 'Instant', effect: '3d8 damage', special: 'Shock (3), Autofire (1)', raises: 'Range (+4 m), Shock (+1), Autofire extra target, Radius (+1 m)', cost: { action: true, charged: true }, roll: { damage: '3d8', damageType: 'lightning' } },
+      { level: 4, type: 'Ranged (Spell, Charged)', range: '24 m', duration: 'Instant', effect: '4d8 damage', special: 'Shock (3), Autofire (2)', raises: 'Range (+4 m), Shock (+1), Autofire extra target, Radius (+1 m)', cost: { action: true, charged: true }, roll: { damage: '4d8', damageType: 'lightning' } }
     ]
   },
   {

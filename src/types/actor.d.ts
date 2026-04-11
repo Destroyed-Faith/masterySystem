@@ -105,6 +105,8 @@ export interface CharacterData {
   resources: ResourcesData;
   skills: Record<string, number>;
   skillsSpent: Record<string, number>;
+  /** Chosen minor expression (cantrip) IDs; max length = mastery.rank; each requires attribute ≥ 8 */
+  minorExpressions?: string[];
   /** Optional: default attribute pool per generic stone power; auto-filled each round when useDefaultsEachRound is true */
   stonePowersPrefs?: {
     useDefaultsEachRound?: boolean;

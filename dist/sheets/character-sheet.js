@@ -15,6 +15,7 @@ import { XP_COSTS } from '../utils/constants.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { matchesMasteryWeaponCatalog } from '../utils/weapons.js';
 import { buildRadialManeuverPrefsContext } from '../utils/radial-maneuver-prefs.js';
+import { getMinorExpressionDefinition, sanitizeMinorExpressionIds } from '../utils/minor-expressions.js';
 // Removed: showWeaponCreationDialog, showArmorCreationDialog, showShieldCreationDialog
 // Replaced with General Items Storage and Store dialogs
 // Use namespaced ActorSheet when available to avoid deprecation warnings
@@ -540,6 +541,23 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // No need to calculate here - just use the derived values from system.combat
         // Add skills list (sorted alphabetically)
         context.skills = this.#prepareSkills(context.system.skills || {}, context.system.skillsSpent || {});
+        const meGetAttr = (k) => Math.floor(Number(context.system.attributes?.[k]?.value) || 0);
+        const meMr = Math.max(0, Math.floor(Number(context.system.mastery?.rank) || 0));
+        const meClean = sanitizeMinorExpressionIds(context.system.minorExpressions, meGetAttr, meMr);
+        context.minorExpressionSlots = { used: meClean.length, max: meMr };
+        const meDisp = {
+            might: [],
+            agility: [],
+            intellect: [],
+            resolve: [],
+            influence: []
+        };
+        for (const id of meClean) {
+            const def = getMinorExpressionDefinition(id);
+            if (def)
+                meDisp[def.attribute].push(def.name);
+        }
+        context.minorExpressionsDisplay = meDisp;
         // Prepare disadvantages (named-card layout for physical / mental limitations)
         const rawDisadvantages = context.system.disadvantages || [];
         context.disadvantages = rawDisadvantages.map((d) => {
@@ -1187,7 +1205,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             skillsByCategory[category].sort((a, b) => a.name.localeCompare(b.name));
         }
         // Convert to array of category objects
-        const categoryOrder = ['Physical', 'Knowledge & Craft', 'Social', 'Survival', 'Martial'];
+        const categoryOrder = [
+            'Awareness',
+            'Physical',
+            'Knowledge & Craft',
+            'Social',
+            'Survival',
+            'Martial'
+        ];
         const groupedSkills = [];
         for (const category of categoryOrder) {
             if (skillsByCategory[category] && skillsByCategory[category].length > 0) {
@@ -1226,6 +1251,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (!creationComplete) {
             this.#lockSheetForCreation(html);
         }
+        html.find('.minor-expressions-open').on('click', async (ev) => {
+            ev.preventDefault();
+            if (!this.actor.isOwner) {
+                ui.notifications?.warn('Nur der Besitzer kann Minor Expressions wählen.');
+                return;
+            }
+            const attr = ev.currentTarget.dataset.attribute;
+            const { showMinorExpressionsDialog } = await import('./minor-expressions-dialog.js');
+            await showMinorExpressionsDialog(this.actor, attr ? { focusAttribute: attr } : undefined);
+            this.render(false);
+        });
         // Roll buttons work for everyone
         html.find('.attribute-roll').on('click', this.#onAttributeRoll.bind(this));
         html.find('.skill-roll').on('click', this.#onSkillRoll.bind(this));
@@ -3042,7 +3078,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     $html.find('[name="baseTN"], [name="customTN"], [name="raises"]').on('change input', updateFinalTN);
                     updateFinalTN();
                 }
-            }, { width: 560, height: 'auto' });
+            }, {
+                width: 600,
+                height: 440,
+                resizable: true
+            });
             dialog.render(true);
         });
     }
@@ -3053,6 +3093,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         event.preventDefault();
         const element = event.currentTarget;
         const skillKey = element.dataset.skill;
+        const forcedAttribute = (element.dataset.attribute || '').trim().toLowerCase() || undefined;
         if (!skillKey)
             return;
         // Get skill definition from SKILLS
@@ -3061,8 +3102,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ui.notifications?.error(`Skill "${skillKey}" not found in skill definitions.`);
             return;
         }
+        if (forcedAttribute &&
+            !skillDef.attributes.map((a) => a.toLowerCase()).includes(forcedAttribute)) {
+            ui.notifications?.error(`Invalid attribute for ${skillDef.name}.`);
+            return;
+        }
         // Prompt for roll options (attribute, base TN, raises)
-        const rollOptions = await this.#promptForSkillRollOptions(skillKey, skillDef);
+        const rollOptions = await this.#promptForSkillRollOptions(skillKey, skillDef, forcedAttribute);
         if (!rollOptions)
             return; // User cancelled
         // Perform the roll
@@ -3096,7 +3142,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     /**
      * Prompt for skill roll options (attribute, base TN, raises)
      */
-    async #promptForSkillRollOptions(_skillKey, skillDef) {
+    async #promptForSkillRollOptions(_skillKey, skillDef, forcedAttribute) {
         const system = this.actor.system;
         const masteryRank = system.mastery?.rank || 2;
         const standardTN = masteryRank * 8;
@@ -3110,8 +3156,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             veryHard: standardTN + 12,
             heroic: standardTN + 16
         };
-        const hasMultipleAttributes = skillDef.attributes.length > 1;
-        const defaultAttribute = skillDef.attributes[0];
+        const attrList = skillDef.attributes || [];
+        const lockedAttr = forcedAttribute && attrList.map((a) => a.toLowerCase()).includes(forcedAttribute)
+            ? attrList.find((a) => a.toLowerCase() === forcedAttribute) || forcedAttribute
+            : null;
+        const hasMultipleAttributes = attrList.length > 1 && !lockedAttr;
+        const defaultAttribute = lockedAttr || attrList[0];
         const content = `
       <form class="mastery-dialog-form">
         ${hasMultipleAttributes ? `
@@ -3225,8 +3275,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     updateFinalTN();
                 }
             }, {
-                width: 560,
-                height: 'auto'
+                width: 600,
+                height: 440,
+                resizable: true
             });
             dialog.render(true);
         });

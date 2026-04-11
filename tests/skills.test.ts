@@ -112,13 +112,16 @@ describe('Skill Definitions (Player\'s Guide compliance)', () => {
     });
   });
 
-  describe('Survival Skills', () => {
-    it('Perception has multi-focus attributes (Wits, Intellect, Resolve)', () => {
+  describe('Awareness', () => {
+    it('Perception has multi-focus attributes (Wits, Intellect, Resolve) and is not under Survival', () => {
       expect(SKILLS.perception.attributes).toContain('wits');
       expect(SKILLS.perception.attributes).toContain('intellect');
       expect(SKILLS.perception.attributes).toContain('resolve');
+      expect(SKILLS.perception.category).toBe(SKILL_CATEGORIES.AWARENESS);
     });
+  });
 
+  describe('Survival Skills', () => {
     it('Survival primary attribute is Vitality', () => {
       expect(SKILLS.survival.attributes[0]).toBe('vitality');
     });
@@ -167,8 +170,9 @@ describe('Skill Definitions (Player\'s Guide compliance)', () => {
 });
 
 describe('Skill Categories', () => {
-  it('has all 5 categories', () => {
-    expect(Object.keys(SKILL_CATEGORIES)).toHaveLength(5);
+  it('has all 6 categories', () => {
+    expect(Object.keys(SKILL_CATEGORIES)).toHaveLength(6);
+    expect(SKILL_CATEGORIES.AWARENESS).toBe('Awareness');
     expect(SKILL_CATEGORIES.PHYSICAL).toBe('Physical');
     expect(SKILL_CATEGORIES.KNOWLEDGE_CRAFT).toBe('Knowledge & Craft');
     expect(SKILL_CATEGORIES.SOCIAL).toBe('Social');
@@ -178,13 +182,15 @@ describe('Skill Categories', () => {
 
   it('getSkillsByCategory groups correctly', () => {
     const grouped = getSkillsByCategory();
-    expect(Object.keys(grouped)).toHaveLength(5);
+    expect(Object.keys(grouped)).toHaveLength(6);
 
     const physicalSkills = grouped[SKILL_CATEGORIES.PHYSICAL];
     expect(physicalSkills.length).toBe(6);
 
     const martialSkills = grouped[SKILL_CATEGORIES.MARTIAL];
     expect(martialSkills.length).toBe(5);
+
+    expect(grouped[SKILL_CATEGORIES.AWARENESS].map((s) => s.name)).toContain('Perception');
   });
 });
 
