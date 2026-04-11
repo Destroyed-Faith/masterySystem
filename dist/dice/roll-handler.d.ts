@@ -16,6 +16,20 @@ export interface RollOptions {
     isSaveRoll?: boolean;
     baseModifier?: number;
 }
+/** Stored on chat messages so a Faith Fracture reroll can repeat the same roll setup. */
+export interface MasteryRollRecipe {
+    numDice: number;
+    keepDice: number;
+    skill: number;
+    tn: number;
+    label: string;
+    flavor: string;
+    actorId: string | null;
+    skillKey: string | null;
+    isSkillRoll: boolean;
+    isSaveRoll: boolean;
+    baseModifier: number;
+}
 /**
  * Perform a Mastery System roll
  * Roll N d8, keep K highest, add skill bonus

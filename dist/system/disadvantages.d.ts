@@ -64,7 +64,7 @@ export declare function getDisadvantageDefinitions(): DisadvantageDefinition[];
  * Legacy mental-restrictions: `restriction` textarea, optional `type`, flat 2 pts until severity is set.
  */
 export declare function detailsForMentalRestrictionsDialog(details?: Record<string, any>): Record<string, any>;
-/** Migrate old physical-scars (scar / description only) to tier + name + context when opening the dialog. */
+/** Migrate old physical-scars (scar / description only) to tier + sheetTitle + context when opening the dialog. */
 export declare function detailsForPhysicalScarsDialog(details?: Record<string, any>): Record<string, any>;
 /**
  * Calculate points for a disadvantage selection

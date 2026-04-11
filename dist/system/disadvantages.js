@@ -63,7 +63,7 @@ export const DISADVANTAGES = [
         id: 'physical-scars',
         name: 'Physical Limitations',
         basePoints: [1, 2, 3],
-        description: 'Lasting physical issues (injury, birth, illness). Pick a mechanical weight with the GM, then describe your character’s specific condition in your own words. Examples below are suggestions only — you are not limited to the list.',
+        description: 'Lasting physical issues (injury, birth, illness). Pick a mechanical weight with the GM, then use the title and note fields for your specific case. You are not limited to the example blurbs in the rules section.',
         infoSections: [
             {
                 title: 'What counts as “physical” here',
@@ -81,43 +81,24 @@ export const DISADVANTAGES = [
                     '2 pt — Significant (e.g. one eye / blind one eye, heavy sleeper, serious limp, one functional hand).',
                     '3 pt — Severe (e.g. one hand/arm lost, fragile frame–style limits, major sensory loss) — align with GM.'
                 ]
+            },
+            {
+                title: 'Example blurbs (inspiration only)',
+                items: [
+                    'Deaf / hard of hearing (one ear) — Hard of hearing on the left; disadvantage to notice quiet sounds or locate by hearing on that side; loud environments are exhausting.',
+                    'One eye lost / blind one eye — Lost right eye; reduced depth perception; GM may impose penalties on ranged attacks and visual perception where it matters.',
+                    'Light sleeper — Wakes at small noises; needs calm to rest; may suffer fatigue if sleep is interrupted often.',
+                    'Heavy sleeper — Very hard to wake without strong stimulus (damage, shaking, loud alarm); may miss warnings while sleeping.',
+                    'Nightmares / tormented sleep — Disturbing dreams most nights; poor rest; may start days with extra stress or fear checks after bad nights (detail with GM).',
+                    'Chronic pain — Old wound aches constantly; harder to push through long marches or focus under strain (work mechanical detail with GM).',
+                    'Limp / old leg injury — Slowed on rough ground; longer distances hurt; may affect chase scenes.'
+                ]
             }
         ],
-        presetFillsNameAndContext: true,
         collapsibleRulesBelow: true,
-        examplePresets: [
-            {
-                label: 'Deaf / hard of hearing (one ear)',
-                text: 'Hard of hearing on the left; disadvantage to notice quiet sounds or locate by hearing on that side; loud environments are exhausting.'
-            },
-            {
-                label: 'One eye lost / blind one eye',
-                text: 'Lost right eye; reduced depth perception; GM may impose penalties on ranged attacks and visual perception where it matters.'
-            },
-            {
-                label: 'Light sleeper',
-                text: 'Wakes at small noises; needs calm to rest; may suffer fatigue if sleep is interrupted often.'
-            },
-            {
-                label: 'Heavy sleeper',
-                text: 'Very hard to wake without strong stimulus (damage, shaking, loud alarm); may miss warnings while sleeping.'
-            },
-            {
-                label: 'Nightmares / tormented sleep',
-                text: 'Disturbing dreams most nights; poor rest; may start days with extra stress or fear checks after bad nights (detail with GM).'
-            },
-            {
-                label: 'Chronic pain',
-                text: 'Old wound aches constantly; harder to push through long marches or focus under strain (work mechanical detail with GM).'
-            },
-            {
-                label: 'Limp / old leg injury',
-                text: 'Slowed on rough ground; longer distances hurt; may affect chase scenes.'
-            }
-        ],
         fields: [
             {
-                name: 'name',
+                name: 'sheetTitle',
                 type: 'text',
                 label: 'Title — what it is (shown on your sheet)',
                 placeholder: 'e.g. Heavy sleeper, Deaf (left ear), Nightmares, Chronic pain',
@@ -149,7 +130,7 @@ export const DISADVANTAGES = [
         id: 'mental-restrictions',
         name: 'Mental Restrictions',
         basePoints: [1, 2, 3],
-        description: 'You are bound by oaths, fears, or personality. Choose severity with the GM, then describe the restriction in your own words. The examples are suggestions — you can write anything personal that fits your character.',
+        description: 'You are bound by oaths, fears, or personality. Choose severity with the GM, then use the title and note for your specific restriction. You can write anything personal that fits your character — the lists below are only inspiration.',
         infoSections: [
             {
                 title: 'Oaths (examples)',
@@ -176,35 +157,22 @@ export const DISADVANTAGES = [
                     'Gullible — swayed by sad stories',
                     'In love with … — irrational if they are in danger'
                 ]
+            },
+            {
+                title: 'Example blurbs (inspiration only)',
+                items: [
+                    'No killing — Will not take a life except in absolute self-defense; must hesitate or use non-lethal options first.',
+                    'Chivalric code — No striking downed or helpless foes; keeps word once given; refuses dirty tricks in a “fair” duel.',
+                    'Claustrophobia — Panic in tight closed spaces; must fight to enter crawlspaces, cells, or collapsed tunnels.',
+                    'Vengeful — Cannot let a serious wrong go; will pursue payback even when it is tactically stupid.',
+                    'In love (person) — Acts irrationally when this person is threatened; may abandon the mission to protect them.'
+                ]
             }
         ],
-        presetFillsNameAndContext: true,
         collapsibleRulesBelow: true,
-        examplePresets: [
-            {
-                label: 'No killing',
-                text: 'Will not take a life except in absolute self-defense; must hesitate or use non-lethal options first.'
-            },
-            {
-                label: 'Chivalric code',
-                text: 'No striking downed or helpless foes; keeps word once given; refuses dirty tricks in a “fair” duel.'
-            },
-            {
-                label: 'Claustrophobia',
-                text: 'Panic in tight closed spaces; must fight to enter crawlspaces, cells, or collapsed tunnels.'
-            },
-            {
-                label: 'Vengeful',
-                text: 'Cannot let a serious wrong go; will pursue payback even when it is tactically stupid.'
-            },
-            {
-                label: 'In love (person)',
-                text: 'Acts irrationally when this person is threatened; may abandon the mission to protect them.'
-            }
-        ],
         fields: [
             {
-                name: 'name',
+                name: 'sheetTitle',
                 type: 'text',
                 label: 'Title — what it is (shown on your sheet)',
                 placeholder: 'e.g. Phobia, No killing, Vengeful, Chivalric oath',
@@ -296,14 +264,19 @@ function splitTitleBody(text) {
  */
 export function detailsForMentalRestrictionsDialog(details) {
     const d = { ...(details || {}) };
-    if (!String(d.name || '').trim() && String(d.restriction || '').trim()) {
+    // Legacy: title was stored as `name` (clashed with HTML name="name" in some dialogs)
+    if (!String(d.sheetTitle || '').trim() && String(d.name || '').trim()) {
+        d.sheetTitle = String(d.name).trim();
+    }
+    if (!String(d.sheetTitle || '').trim() && String(d.restriction || '').trim()) {
         const { title, rest } = splitTitleBody(String(d.restriction));
-        d.name = title;
+        d.sheetTitle = title;
         const prev = String(d.context || '').trim();
         d.context = [prev, rest].filter(Boolean).join('\n\n');
     }
     delete d.restriction;
     delete d.type;
+    delete d.name;
     if (!d.severity)
         d.severity = 'normal';
     return d;
@@ -326,12 +299,17 @@ const LEGACY_SCAR_SHORT = {
     'heavy-sleeper': 'Heavy sleeper',
     'fragile-frame': 'Fragile frame'
 };
-/** Migrate old physical-scars (scar / description only) to tier + name + context when opening the dialog. */
+/** Migrate old physical-scars (scar / description only) to tier + sheetTitle + context when opening the dialog. */
 export function detailsForPhysicalScarsDialog(details) {
     const d = { ...(details || {}) };
-    const hasName = String(d.name || '').trim().length > 0;
+    if (!String(d.sheetTitle || '').trim() && String(d.name || '').trim()) {
+        d.sheetTitle = String(d.name).trim();
+    }
+    const sheetTitle = String(d.sheetTitle || '').trim();
     const hasTier = d.tier != null && String(d.tier).trim() !== '';
-    if (hasName && hasTier) {
+    if (sheetTitle && hasTier) {
+        d.sheetTitle = sheetTitle;
+        delete d.name;
         delete d.scar;
         delete d.description;
         return d;
@@ -340,8 +318,8 @@ export function detailsForPhysicalScarsDialog(details) {
     if (scar && LEGACY_SCAR_TIER[scar]) {
         if (!hasTier)
             d.tier = LEGACY_SCAR_TIER[scar];
-        if (!hasName) {
-            d.name = LEGACY_SCAR_SHORT[scar] || scar.replace(/-/g, ' ');
+        if (!String(d.sheetTitle || '').trim()) {
+            d.sheetTitle = LEGACY_SCAR_SHORT[scar] || scar.replace(/-/g, ' ');
         }
         const desc = String(d.description || '').trim();
         if (!String(d.context || '').trim()) {
@@ -355,15 +333,16 @@ export function detailsForPhysicalScarsDialog(details) {
         if (!hasTier)
             d.tier = '1';
         const desc = String(d.description || '').trim();
-        if (!hasName && desc) {
+        if (!String(d.sheetTitle || '').trim() && desc) {
             const { title, rest } = splitTitleBody(desc);
-            d.name = title;
+            d.sheetTitle = title;
             const prev = String(d.context || '').trim();
             d.context = [prev, rest].filter(Boolean).join('\n\n');
         }
     }
     delete d.scar;
     delete d.description;
+    delete d.name;
     return d;
 }
 /**

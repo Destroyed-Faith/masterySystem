@@ -20,6 +20,21 @@ export interface RollOptions {
   baseModifier?: number;    // Base modifier (situational, not skill-based)
 }
 
+/** Stored on chat messages so a Faith Fracture reroll can repeat the same roll setup. */
+export interface MasteryRollRecipe {
+  numDice: number;
+  keepDice: number;
+  skill: number;
+  tn: number;
+  label: string;
+  flavor: string;
+  actorId: string | null;
+  skillKey: string | null;
+  isSkillRoll: boolean;
+  isSaveRoll: boolean;
+  baseModifier: number;
+}
+
 /**
  * Roll one pool die: exploding d8s while running total is divisible by 8 (Mastery rules).
  * Returns each face for Foundry display (exploded flags) and the pool die total.
@@ -169,9 +184,33 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
     label,
     flavor
   });
-  
+
+  const rollRecipe: MasteryRollRecipe = {
+    numDice,
+    keepDice,
+    skill,
+    tn,
+    label,
+    flavor,
+    actorId: options.actorId ?? null,
+    skillKey: options.skillKey ?? null,
+    isSkillRoll: !!options.isSkillRoll,
+    isSaveRoll: !!options.isSaveRoll,
+    baseModifier: options.baseModifier ?? 0
+  };
+
   // Send to chat
-  await sendRollToChat(result, label, flavor, options.actorId, options.skillKey, options.isSkillRoll, options.baseModifier, options.isSaveRoll);
+  await sendRollToChat(
+    result,
+    label,
+    flavor,
+    options.actorId,
+    options.skillKey,
+    options.isSkillRoll,
+    options.baseModifier,
+    options.isSaveRoll,
+    rollRecipe
+  );
   
   console.log('Mastery System | DEBUG: Roll complete, returning result', result);
   
@@ -239,7 +278,8 @@ async function sendRollToChat(
   skillKey?: string,
   isSkillRoll?: boolean,
   baseModifier?: number,
-  isSaveRoll?: boolean
+  isSaveRoll?: boolean,
+  rollRecipe?: MasteryRollRecipe
 ): Promise<void> {
   try {
     // Get actor if available
@@ -437,13 +477,15 @@ async function sendRollToChat(
         'mastery-system': {
           rollResult: result,
           canReroll: true,
+          rollRecipe: rollRecipe || null,
           isSkillRoll: isSkillRoll || false,
           isSaveRoll: isSaveRoll || false,
           skillKey: skillKey || null,
           actorId: actorId || null,
           baseModifier: baseModifier || 0,
           skillSpentApplied: false,
-          vitalitySpentApplied: false
+          vitalitySpentApplied: false,
+          faithRerollConsumed: false
         }
       }
     };

@@ -2045,6 +2045,8 @@ Hooks.once('ready', async function () {
     // Register skill spend click handler
     const { registerSkillSpendClickHandler } = await import('./chat/skill-spend-handler.js');
     registerSkillSpendClickHandler();
+    const { registerFaithFractureRerollHandlers } = await import('./chat/faith-fracture-reroll.js');
+    registerFaithFractureRerollHandlers();
     // Migration: Add default weapon to existing actors if missing
     console.log('Mastery System | Running equipment migration...');
     const actors = game.actors?.filter((a) => a.type === 'character' || a.type === 'npc') || [];
@@ -2372,25 +2374,6 @@ Hooks.on('preCreateScene', (_scene, data, _options, _userId) => {
             console.log('Mastery System | Setting default scene background:', defaultImage);
         }
     }
-});
-/**
- * Add chat message context menu options
- */
-Hooks.on('getChatLogEntryContext', (_html, options) => {
-    // Add re-roll option for Mastery rolls
-    options.push({
-        name: 'Re-Roll',
-        icon: '<i class="fas fa-dice"></i>',
-        condition: (li) => {
-            const message = game.messages?.get(li.data('messageId'));
-            return message?.getFlag('mastery-system', 'canReroll') === true;
-        },
-        callback: (li) => {
-            const message = game.messages?.get(li.data('messageId'));
-            // TODO: Implement re-roll logic
-            console.log('Re-rolling:', message);
-        }
-    });
 });
 /**
  * Handle attack roll button clicks in chat

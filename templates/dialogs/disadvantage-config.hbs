@@ -2,20 +2,8 @@
   {{#if disadvantage.collapsibleRulesBelow}}
   <div class="disadvantage-compact-intro">
     <h3 class="disadvantage-kind-title">{{disadvantage.name}}</h3>
-    <p class="disadvantage-intro-one-liner">Your specific case goes in the fields below. Open the section at the bottom for full rules text and examples.</p>
+    <p class="disadvantage-intro-one-liner">Put your title and note in the fields below. Open the section at the bottom for rules, categories, and longer example blurbs.</p>
   </div>
-
-  {{#if disadvantage.examplePresets}}
-  <div class="form-group disadvantage-preset-row">
-    <label for="disadvantage-example-preset">Examples <span class="preset-hint">(optional — fills title &amp; note)</span></label>
-    <select id="disadvantage-example-preset" class="js-disadvantage-example-preset">
-      <option value="">— Choose an example —</option>
-      {{#each disadvantage.examplePresets as |ex i|}}
-      <option value="{{i}}">{{ex.label}}</option>
-      {{/each}}
-    </select>
-  </div>
-  {{/if}}
 
   <div class="disadvantage-fields">
     {{#each disadvantage.fields as |field|}}

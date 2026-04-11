@@ -136,8 +136,21 @@ export async function masteryRoll(options) {
         label,
         flavor
     });
+    const rollRecipe = {
+        numDice,
+        keepDice,
+        skill,
+        tn,
+        label,
+        flavor,
+        actorId: options.actorId ?? null,
+        skillKey: options.skillKey ?? null,
+        isSkillRoll: !!options.isSkillRoll,
+        isSaveRoll: !!options.isSaveRoll,
+        baseModifier: options.baseModifier ?? 0
+    };
     // Send to chat
-    await sendRollToChat(result, label, flavor, options.actorId, options.skillKey, options.isSkillRoll, options.baseModifier, options.isSaveRoll);
+    await sendRollToChat(result, label, flavor, options.actorId, options.skillKey, options.isSkillRoll, options.baseModifier, options.isSaveRoll, rollRecipe);
     console.log('Mastery System | DEBUG: Roll complete, returning result', result);
     return result;
 }
@@ -189,7 +202,7 @@ function buildMasteryDisplayRoll(result, skillBonus) {
 /**
  * Send roll result to chat
  */
-async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillRoll, baseModifier, isSaveRoll) {
+async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillRoll, baseModifier, isSaveRoll, rollRecipe) {
     try {
         // Get actor if available
         let actor = null;
@@ -371,13 +384,15 @@ async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillR
                 'mastery-system': {
                     rollResult: result,
                     canReroll: true,
+                    rollRecipe: rollRecipe || null,
                     isSkillRoll: isSkillRoll || false,
                     isSaveRoll: isSaveRoll || false,
                     skillKey: skillKey || null,
                     actorId: actorId || null,
                     baseModifier: baseModifier || 0,
                     skillSpentApplied: false,
-                    vitalitySpentApplied: false
+                    vitalitySpentApplied: false,
+                    faithRerollConsumed: false
                 }
             }
         };

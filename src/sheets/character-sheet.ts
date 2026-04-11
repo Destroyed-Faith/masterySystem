@@ -1357,6 +1357,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     // Safe Haven Rest button
     html.find('.safe-haven-rest').on('click', this.#onSafeHavenRest.bind(this));
+    html.find('.gm-award-faith-fracture').on('click', this.#onGmAwardFaithFracture.bind(this));
     
     // Point spending buttons (JavaScript will check permissions)
     html.find('.attribute-spend-point').on('click', this.#onAttributeSpendPoint.bind(this));
@@ -3596,10 +3597,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       }
     }
     
+    const faithMax = Math.max(0, Number(system.faithFractures?.maximum) || 0);
+
     await this.actor.update({
       'system.skillsSpent': skillsSpent,
       'system.saves.vitalitySpent': 0,
-      'system.saves.vitalityUsesRemaining': 4
+      'system.saves.vitalityUsesRemaining': 4,
+      ...(faithMax > 0 ? { 'system.faithFractures.current': faithMax } : {})
     });
 
     console.log('Mastery System | Safe Haven Rest: Reset all skill points and Vitality save uses', {
@@ -3608,7 +3612,39 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       skillsReset: Object.keys(skillsSpent).length
     });
 
-    (ui as any).notifications?.info('All Skill Points and Vitality save uses restored!');
+    (ui as any).notifications?.info(
+      faithMax > 0
+        ? 'All Skill Points, Vitality save uses, and Faith Fractures restored!'
+        : 'All Skill Points and Vitality save uses restored!'
+    );
+    this.render();
+  }
+
+  /**
+   * GM: restore +1 Faith Fracture for good disadvantage roleplay (capped at maximum).
+   */
+  async #onGmAwardFaithFracture(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    if (!(game as any).user?.isGM) {
+      (ui as any).notifications?.warn('Only a GM can award Faith Fractures.');
+      return;
+    }
+
+    const system = (this.actor as any).system;
+    const max = Math.max(0, Number(system.faithFractures?.maximum) || 0);
+    const cur = Math.max(0, Number(system.faithFractures?.current) || 0);
+
+    if (max <= 0) {
+      (ui as any).notifications?.warn('This actor has no Faith Fracture pool (maximum is 0).');
+      return;
+    }
+    if (cur >= max) {
+      (ui as any).notifications?.info(`${this.actor.name} is already at maximum Faith Fractures (${max}).`);
+      return;
+    }
+
+    await this.actor.update({ 'system.faithFractures.current': cur + 1 });
+    (ui as any).notifications?.info(`${this.actor.name}: +1 Faith Fracture (${cur + 1}/${max}).`);
     this.render();
   }
 
@@ -5312,8 +5348,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (!Number.isFinite(idx) || idx < 0 || idx >= presets.length) return;
         const p = presets[idx];
         if (!p) return;
-        root.find('[name="name"]').val(p.label);
-        root.find('[name="context"]').val(p.text || '');
+        const $form = this.#disadvantageDialogFormRoot(root);
+        $form.find('[name="sheetTitle"]').val(p.label);
+        $form.find('[name="name"]').val(p.label);
+        $form.find('[name="context"]').val(p.text || '');
       });
       return;
     }
@@ -5368,6 +5406,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     });
   }
 
+  /** Scope field queries to the disadvantage dialog (avoids stray `[name="…"]` matches). */
+  #disadvantageDialogFormRoot(html: JQuery): JQuery {
+    const $h = $(html);
+    if ($h.is('.disadvantage-config-dialog')) return $h;
+    const inner = $h.find('.disadvantage-config-dialog').first();
+    return inner.length ? inner : $h;
+  }
+
   /**
    * Open Disadvantage Configuration Dialog
    */
@@ -5402,24 +5448,27 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           icon: '<i class="fas fa-check"></i>',
           label: 'Save',
           callback: async (html: JQuery) => {
+            const $root = this.#disadvantageDialogFormRoot($(html));
             const details: Record<string, any> = {};
             for (const field of def.fields || []) {
               if (field.type === 'number') {
-                details[field.name] = parseInt($(html).find(`[name="${field.name}"]`).val() as string) || 0;
+                details[field.name] = parseInt($root.find(`[name="${field.name}"]`).val() as string) || 0;
               } else if (field.type === 'select') {
-                details[field.name] = $(html).find(`[name="${field.name}"]`).val() as string;
+                details[field.name] = $root.find(`[name="${field.name}"]`).val() as string;
               } else if (field.type === 'textarea') {
-                details[field.name] = String($(html).find(`[name="${field.name}"]`).val() || '').trim();
+                details[field.name] = String($root.find(`[name="${field.name}"]`).val() || '').trim();
               } else {
-                details[field.name] = String($(html).find(`[name="${field.name}"]`).val() || '').trim();
+                details[field.name] = String($root.find(`[name="${field.name}"]`).val() || '').trim();
               }
             }
 
-            if (def.id === 'physical-scars' && details.tier && String(details.name || '').trim()) {
+            delete details.name;
+
+            if (def.id === 'physical-scars' && details.tier && String(details.sheetTitle || '').trim()) {
               delete details.scar;
               delete details.description;
             }
-            if (def.id === 'mental-restrictions' && String(details.name || '').trim()) {
+            if (def.id === 'mental-restrictions' && String(details.sheetTitle || '').trim()) {
               delete details.restriction;
               delete details.type;
             }

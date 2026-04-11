@@ -849,6 +849,45 @@
   font-weight: 600;
 }
 
+#chat-log .mastery-faith-reroll-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--df-border-primary);
+}
+
+#chat-log .faith-fracture-reroll-btn {
+  background: rgba(139, 0, 0, 0.2);
+  border: 1px solid rgba(139, 0, 0, 0.45);
+  color: var(--df-text-primary);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-family: 'Cinzel Decorative', serif;
+  letter-spacing: 0.45px;
+  text-transform: uppercase;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+#chat-log .faith-fracture-reroll-btn:hover:not(:disabled) {
+  border-color: rgba(202, 178, 113, 0.55);
+}
+
+#chat-log .faith-fracture-reroll-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+#chat-log .faith-fracture-reroll-hint {
+  font-size: 10px;
+  color: var(--df-text-secondary);
+  flex: 1 1 140px;
+  min-width: 0;
+}
+
 /* ========================================
    Mastery Attack Cards
    ======================================== */

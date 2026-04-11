@@ -835,9 +835,16 @@
             </button>
           </div>
         </div>
-        <button type="button" class="safe-haven-rest" title="Rest at Safe Haven - Restore all Skill Points" style="width: 200px;">
-          <i class="fas fa-bed"></i> Safe Haven Rest
-        </button>
+        <div class="safe-haven-rest-row">
+          <button type="button" class="safe-haven-rest" title="Rest at Safe Haven — restore Skill Points, Vitality save uses, and Faith Fractures">
+            <i class="fas fa-bed"></i> Safe Haven Rest
+          </button>
+          {{#if (userIsGM)}}
+          <button type="button" class="gm-award-faith-fracture" title="Reward playing out disadvantages (+1 Faith Fracture, up to maximum)">
+            <i class="fas fa-plus-circle"></i> GM: +1 Faith (RP)
+          </button>
+          {{/if}}
+        </div>
         {{/if}}
       </div>
       
@@ -1493,7 +1500,7 @@
           <div class="disadvantage-header-sheet">
             {{#if (eq disadvantage.cardMode "named")}}
             <h4 class="disadvantage-title-named">
-              <span class="disadv-custom-title">{{#if disadvantage.details.name}}{{disadvantage.details.name}}{{else}}{{disadvantage.name}}{{/if}}</span><span class="disadv-category-paren"> ({{disadvantage.categoryShort}})</span>
+              <span class="disadv-custom-title">{{#if disadvantage.details.sheetTitle}}{{disadvantage.details.sheetTitle}}{{else}}{{#if disadvantage.details.name}}{{disadvantage.details.name}}{{else}}{{disadvantage.name}}{{/if}}{{/if}}</span><span class="disadv-category-paren"> ({{disadvantage.categoryShort}})</span>
             </h4>
             {{else}}
             <h4>{{disadvantage.name}}</h4>
