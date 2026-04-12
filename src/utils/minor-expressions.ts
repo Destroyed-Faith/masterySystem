@@ -1,6 +1,6 @@
 /**
  * Minor Expressions (cantrips) — catalog and tier/scaling helpers.
- * Vitality and Wits have no catalog entries; selections are capped by mastery rank and require attribute ≥ 8.
+ * Vitality has no catalog entries; selections are capped by mastery rank and require attribute ≥ 8.
  */
 
 export const MINOR_EXPRESSION_MIN_ATTRIBUTE = 8;
@@ -8,13 +8,21 @@ export const MINOR_EXPRESSION_MIN_ATTRIBUTE = 8;
 export const MINOR_EXPRESSION_TIERS = [8, 16, 24, 32, 40] as const;
 export type MinorExpressionTier = (typeof MINOR_EXPRESSION_TIERS)[number];
 
-export type MinorExpressionAttribute = 'might' | 'agility' | 'intellect' | 'resolve' | 'influence';
+export type MinorExpressionAttribute =
+  | 'might'
+  | 'agility'
+  | 'intellect'
+  | 'resolve'
+  | 'influence'
+  | 'wits';
 
 export interface MinorExpressionDefinition {
   id: string;
   attribute: MinorExpressionAttribute;
   name: string;
   tagline: string;
+  /** Optional rules capsule (e.g. Minor Conjuration limits), shown once in the UI */
+  constraints?: string;
   tiers: Record<MinorExpressionTier, string>;
 }
 
@@ -23,396 +31,502 @@ const A: MinorExpressionAttribute = 'agility';
 const I: MinorExpressionAttribute = 'intellect';
 const R: MinorExpressionAttribute = 'resolve';
 const F: MinorExpressionAttribute = 'influence';
+const W: MinorExpressionAttribute = 'wits';
 
 export const MINOR_EXPRESSIONS: MinorExpressionDefinition[] = [
   {
     id: 'might-hold-fast',
     attribute: M,
-    name: 'Hold Fast',
-    tagline: 'Kurzzeitig etwas stemmen, halten oder auffangen, das sonst nachgeben würde.',
+    name: 'Hold the Door',
+    tagline:
+      'Du kannst für einen Moment etwas aufhalten, das eigentlich nicht aufzuhalten sein sollte.',
     tiers: {
-      8: 'Du kannst eine Tür, ein Regal, einen Balken oder eine fallende Last in plausibler Größe kurz aufhalten.',
-      16: 'Du kannst schwerere Türen, Trümmerstücke oder eine nachgebende Struktur lange genug halten, damit jemand durchkommt oder reagiert.',
-      24: 'Du kannst massivere Lasten für einen kurzen Moment stemmen und mehreren Personen Zeit verschaffen.',
-      32: 'Du kannst einen klar heroischen „Hold the Door“-Moment erzeugen, auch unter sehr schlechten Bedingungen.',
-      40: 'Du kannst legendäre Kurzzeitleistungen vollbringen: schwere Lasten abfangen, wegbrechen verzögern, andere retten oder einen Einsturz kurz umleiten.'
+      8: 'Du hältst eine Tür, ein Tor, einen schweren Balken oder eine fallende Last kurz genug auf, um einen Moment zu gewinnen.',
+      16: 'Du hältst stärkeren Druck, schwerere Tore oder ein nachgebendes Hindernis lange genug auf, dass 1–2 Leute reagieren oder entkommen können.',
+      24: 'Du fängst einen kleinen Einsturz, massiven Druck oder ein brechendes Hindernis für einen klar heroischen Moment ab.',
+      32: 'Du verschaffst einer kleinen Gruppe Zeit gegen etwas, das eigentlich zu viel für einen Einzelnen wäre.',
+      40: 'Du erzeugst einen legendären „Hold the Door“-Moment und hältst kurz etwas auf, das alle anderen längst aufgegeben hätten.'
     }
   },
   {
     id: 'might-force-open',
     attribute: M,
-    name: 'Force Open',
-    tagline: 'Verklemmte oder verzogene Dinge mit Gewalt öffnen oder lösen.',
+    name: 'Iron Grip',
+    tagline: 'Wenn du etwas hältst, hältst du es wirklich.',
     tiers: {
-      8: 'Fensterläden, verklemmte Türen, Truhendeckel, aufgequollenes Holz.',
-      16: 'Rostige Luken, schwere Holztüren, verkeilte Durchgänge, festsitzende Scharniere.',
-      24: 'Gröbere Sperren ohne echte Verriegelungsmechanik, stark verzogene Konstruktionen, hartnäckig verklemmte Zugänge.',
-      32: 'Massivere Hindernisse, verstemmte Türen oder halb blockierte Eingänge, solange keine echte Sicherheitsmechanik oder Magie greift.',
-      40: 'Fast alles rein Physische, das durch rohe Kraft plausibel überwindbar ist, auch wenn mehrere Leute dafür staunen würden.'
+      8: 'Du verlierst Seil, Kante, Griff oder Träger nicht so leicht.',
+      16: 'Du kannst jemanden sicher halten, etwas zuverlässig festziehen oder ein wegrutschendes Objekt stabilisieren.',
+      24: 'Selbst unter starkem Zug, Nässe, Gewicht oder Panik bleibt dein Griff erstaunlich sicher.',
+      32: 'Du hältst Dinge fest, die anderen längst entglitten wären, und kannst andere dabei mit sichern.',
+      40: 'Dein Griff wirkt wie ein Schraubstock; sobald du etwas wirklich packst, fühlt es sich an, als müsste eher die Welt nachgeben als deine Hand.'
     }
   },
   {
     id: 'might-clear-path',
     attribute: M,
-    name: 'Clear Path',
-    tagline: 'Kleinere Hindernisse beiseite schaffen, um einen Weg freizumachen.',
+    name: 'Break Through',
+    tagline: 'Du gehst nicht um ein Hindernis herum — du gehst durch.',
     tiers: {
-      8: 'Du räumst schnell einen schmalen Zugang frei oder schaffst Platz für eine Person.',
-      16: 'Du beseitigst spürbare Blockaden wie umgestürzte Möbel, lose Trümmer oder Barrikadenreste.',
-      24: 'Du kannst einen kleinen Durchgang, eine Treppe oder eine Ecke so freimachen, dass eine Gruppe weiterkommt.',
-      32: 'Du schaffst in kurzer Zeit brauchbare Bewegungsschneisen durch schweres Gerümpel oder eingestürzte Innenräume.',
-      40: 'Du kannst selbst chaotisch blockierte Bereiche erstaunlich schnell begehbar machen, solange keine eigentliche Grabungsarbeit nötig ist.'
+      8: 'Du drückst dich durch leichte Barrikaden, lose Möbel, blockierte Türen oder dichte Menschenmengen.',
+      16: 'Du durchbrichst ernstere Blockaden aus Holz, Gerümpel, Möbeln oder dichtem Widerstand.',
+      24: 'Du erzwingst dir einen Weg durch massive Hindernisse, provisorische Sperren oder chaotisch verbarrikadierte Passagen.',
+      32: 'Du schaffst Öffnungen oder Wege durch Dinge, die andere erst mühsam räumen müssten.',
+      40: 'Du wirkst wie Naturgewalt in Bewegung und gehst durch fast alles Physische hindurch, das nicht explizit dafür gebaut wurde, dich aufzuhalten.'
     }
   },
   {
     id: 'might-shoulder-the-burden',
     attribute: M,
-    name: 'Shoulder the Burden',
-    tagline: 'Person, Last oder Ausrüstung länger und sicherer stützen, tragen oder schleifen.',
+    name: 'Titan Carry',
+    tagline:
+      'Du trägst Menschen, Lasten oder sperrige Dinge so, als wären sie für dich weniger relevant als für andere.',
     tiers: {
-      8: 'Du stützt oder trägst eine Person oder schwere Last über kurze Distanz.',
-      16: 'Du bringst einen Verwundeten mitsamt etwas Ausrüstung zuverlässig aus der Gefahrenzone.',
-      24: 'Du kannst jemanden über längere Strecke tragen, ziehen oder schultern, auch in schwierigem Gelände.',
-      32: 'Du bewegst Menschen und Lasten unter Druck, Treppen, Schlamm oder schlechter Sicht mit bemerkenswerter Ausdauer.',
-      40: 'Du wirkst beinahe übermenschlich belastbar, wenn es darum geht, jemanden „heimzubringen“.'
+      8: 'Du trägst eine verletzte Person oder schwere Last über kurze Distanz sicher.',
+      16: 'Du schultersch jemanden samt Ausrüstung oder bewegst schwere Lasten über ordentliche Distanz.',
+      24: 'Du transportierst Verwundete, sperrige Lasten oder mehrere schwere Dinge unter schlechten Bedingungen weiter, als andere könnten.',
+      32: 'Du bewegst schwere Lasten oder Personen auch durch Treppen, Schlamm, Trümmer oder chaotische Wege mit beeindruckender Ausdauer.',
+      40: 'Du wirkst beim Tragen beinahe monströs verlässlich und bringst Menschen oder Lasten dorthin, wo sie hinmüssen, egal wie hart der Weg ist.'
     }
   },
   {
     id: 'might-menace-of-flesh',
     attribute: M,
-    name: 'Menace of Flesh',
-    tagline: 'Durch Haltung, Blick und Körperpräsenz spürbar Druck aufbauen.',
+    name: "Tyrant's Aura",
+    tagline: 'Du betrittst einen Raum und Leute merken körperlich, dass du gefährlich bist.',
     tiers: {
-      8: 'Einzelne Personen nehmen dich sofort ernster.',
-      16: 'Du kannst in einem Gespräch oder einer knappen Situation deutlich körperlichen Druck erzeugen.',
-      24: 'Kleine Gruppen spüren instinktiv, dass du notfalls physisch dominieren würdest.',
-      32: 'Selbst entschlossene Leute zögern kurz oder treten Raum ab.',
-      40: 'Deine bloße Präsenz kann eine Szene körperlich „einfrieren“, ohne dass du etwas sagen musst.'
+      8: 'Einzelne Menschen nehmen deine körperliche Gefährlichkeit sofort wahr.',
+      16: 'Kleine Gruppen werden stiller, vorsichtiger oder treten intuitiv zurück.',
+      24: 'Deine Präsenz färbt einen Raum körperlich; Leute rechnen instinktiv mit Gewalt, auch wenn du ruhig bleibst.',
+      32: 'Selbst harte Leute merken, dass sie dich lieber ernst nehmen sollten.',
+      40: 'Deine bloße Anwesenheit kippt die Luft im Raum; Körper reagieren vor Gedanken.'
     }
   },
   {
     id: 'might-set-your-feet',
     attribute: M,
-    name: 'Set Your Feet',
-    tagline: 'Extrem stabil setzen und nur schwer aus der Position bringen.',
+    name: 'Immovable',
+    tagline: 'Du kannst dich setzen wie ein Anker.',
     tiers: {
-      8: 'Du hältst Stand auf rutschigem, engem oder unangenehmem Untergrund.',
-      16: 'Du kannst Gegenhalten, Stemmen oder Festhalten deutlich länger durchziehen.',
-      24: 'Du bleibst auch unter Zug, Gedränge oder Druck erstaunlich stabil.',
-      32: 'Mehrere Faktoren gleichzeitig bringen dich nicht leicht aus der Position.',
-      40: 'Wenn du dich setzt, wirkt es fast so, als müsste die Welt um dich herum nachgeben.'
+      8: 'Du hältst auf unangenehmem, rutschigem oder drängendem Untergrund überraschend gut Stand.',
+      16: 'Du wirst nicht leicht aus Haltung, Griff oder Position gebracht.',
+      24: 'Selbst mehrere störende Faktoren gleichzeitig verschieben dich kaum, wenn du dich einmal gesetzt hast.',
+      32: 'Andere müssen mit dir rechnen wie mit einem Pfeiler; du hältst Linien, Durchgänge oder Positionen körperlich.',
+      40: 'Wenn du dich stellst, wirkt es fast, als müsse alles um dich herum einen Umweg um dich machen.'
     }
   },
   {
     id: 'agility-soft-step',
     attribute: A,
-    name: 'Soft Step',
-    tagline: 'Bemerktenswert leise über knarzenden Untergrund bewegen.',
+    name: 'Feather Step',
+    tagline: 'Deine Schritte und Landungen sind so leicht, dass du kaum Gewicht erzeugst.',
     tiers: {
-      8: 'Du vermeidest das meiste offensichtliche Knarzen, Klappern oder Scharren.',
-      16: 'Auch problematischer Untergrund bleibt oft erstaunlich ruhig unter dir.',
-      24: 'Du bewegst dich durch Innenräume, Trümmer oder dichtes Mobiliar fast unhörbar.',
-      32: 'Deine Schritte wirken unter normalen Bedingungen beinahe geisterhaft.',
-      40: 'Selbst wachsame Menschen bemerken deine Bewegung oft erst, wenn sie dich bereits sehen.'
+      8: 'Du gehst deutlich leiser und hinterlässt nur wenig spürbares Gewicht.',
+      16: 'Dielen, Schutt, Stoff, Laub oder leicht empfindliche Flächen reagieren viel weniger auf dich.',
+      24: 'Du bewegst dich mit beinahe unnatürlich leichtem Tritt durch problematischen Untergrund.',
+      32: 'Deine Schritte wirken oft, als würdest du den Boden kaum wirklich belasten.',
+      40: 'Du scheinst fast ohne Gewicht zu gehen; Schritt, Landung und Kontakt sind minimal.'
     }
   },
   {
     id: 'agility-light-fingers',
     attribute: A,
-    name: 'Light Fingers',
-    tagline: 'Kleine, frei zugängliche Gegenstände unauffällig nehmen oder versetzen.',
+    name: 'Bounding Leap',
+    tagline:
+      'Du kannst deutlich weiter und höher springen, als normale Bewegung erwarten ließe.',
     tiers: {
-      8: 'Du nimmst einzelne kleine Gegenstände unbemerkt vom Tisch, Regal oder Fensterbrett.',
-      16: 'Du kannst Dinge im Vorbeigehen oder während eines Gesprächs beiläufig verschwinden lassen.',
-      24: 'Du versetzt mehrere Kleinigkeiten, ohne Aufmerksamkeit darauf zu lenken.',
-      32: 'Deine Handgriffe wirken fast wie Bühnenzauberei.',
-      40: 'Leute erinnern sich später oft nicht einmal daran, wann etwas aus dem Blick geraten ist.'
+      8: 'Du überwindest kleine Gräben, Mauerkanten und Höhenunterschiede deutlich besser als gewöhnlich.',
+      16: 'Deine Sprünge tragen dich weit genug, um Orte zu erreichen, die andere nur mit Hilfe schaffen.',
+      24: 'Du überbrückst eindrucksvolle Distanzen oder Höhen und machst Bewegung vertikal viel freier.',
+      32: 'Deine Sprünge wirken klar übermenschlich in Reichweite und Sicherheit.',
+      40: 'Du bewegst dich mit Sätzen, die fast wie kurze Flugmomente aussehen.'
     }
   },
   {
     id: 'agility-catch-yourself',
     attribute: A,
-    name: 'Catch Yourself',
-    tagline: 'Stolpern oder Rutschen im letzten Moment ausgleichen.',
+    name: 'Catfall',
+    tagline:
+      'Du kannst große Stürze oder Sprünge extrem weich, rollend oder federnd abfangen.',
     tiers: {
-      8: 'Du fängst einfache Fehltritte oder Rutscher sauber ab.',
-      16: 'Du rettest dich auch bei schlechten Kanten, Nässe oder knappen Bewegungen.',
-      24: 'Selbst abrupte Balanceverluste enden oft nur in einem kontrollierten Nachsetzen.',
-      32: 'Deine Körperkontrolle macht peinliche oder gefährliche Ausrutscher selten.',
-      40: 'Du wirkst fast unmöglich sicher in jeder kleinen Korrekturbewegung.'
+      8: 'Du fängst Sprünge, Stufen, Kanten und kleinere Stürze sauber ab.',
+      16: 'Auch deutliche Höhenunterschiede oder harte Landungen wirken bei dir kontrolliert und weich.',
+      24: 'Du kannst große Sprünge oder tiefe Abstiege rollend oder federnd entschärfen.',
+      32: 'Selbst gefährlich wirkende Höhen lassen sich von dir oft überraschend elegant abfangen.',
+      40: 'Du landest aus absurden Höhen oder Distanzen mit einer Unwirklichkeit, die andere wie Schwerfällige aussehen lässt.'
     }
   },
   {
     id: 'agility-fine-hands',
     attribute: A,
-    name: 'Fine Hands',
-    tagline: 'Filigrane oder heikle Handgriffe sauber und kontrolliert ausführen.',
+    name: 'Wall Spring',
+    tagline:
+      'Du kannst Wände, Vorsprünge oder schräge Flächen für einen zusätzlichen Satz oder Richtungswechsel nutzen.',
     tiers: {
-      8: 'Splitter, Nadeln, kleine Verschlüsse, fragile Gegenstände.',
-      16: 'Feine Mechanik, empfindliche Materialien, exakte Platzierung.',
-      24: 'Sehr heikle Handarbeit gelingt dir mit ruhiger Präzision.',
-      32: 'Du kannst selbst unter schlechtem Licht, auf engem Raum oder unter Zeitdruck sauber arbeiten.',
-      40: 'Deine Fingerfertigkeit wirkt in ihrem Bereich meisterhaft.'
+      8: 'Du nutzt Kanten, niedrige Wände oder schräge Flächen für kleine Korrekturen oder Zusatzsätze.',
+      16: 'Du holst sichtbar extra Bewegung oder Höhe aus Wänden und Vorsprüngen.',
+      24: 'Du kannst komplexere Richtungswechsel oder Folgebewegungen über vertikale Flächen machen.',
+      32: 'Enge Räume, Dächer, Mauern und vertikale Hindernisse werden zu spielbaren Bewegungsflächen für dich.',
+      40: 'Du wirkst in vertikaler Bewegung beinahe unmöglich frei, solange irgendwo noch eine Fläche zum Abstoßen existiert.'
     }
   },
   {
     id: 'agility-perfect-balance',
     attribute: A,
-    name: 'Perfect Balance',
-    tagline: 'Auf schmalen oder instabilen Flächen deutlich sicherer die Balance halten.',
+    name: 'Reed on the Wind',
+    tagline: 'Du kannst auf absurd kleinen, schmalen oder instabilen Flächen sicher stehen.',
     tiers: {
-      8: 'Balken, Tischkanten, schmale Vorsprünge.',
-      16: 'Schwieriger Untergrund, Bewegung auf schmalen Kanten, wackelige Flächen.',
-      24: 'Seile, nasse Ränder, loses Gerüst, schräge Konstruktionen.',
-      32: 'Sehr heikle Balance wirkt bei dir kontrolliert statt panisch.',
-      40: 'Unter Nicht-Kampf-Bedingungen wirkt deine Balance beinahe unnatürlich perfekt.'
+      8: 'Du hältst sicher auf schmalen Kanten, Balken oder instabilem Untergrund.',
+      16: 'Du kannst auf kleinen, wackligen oder unangenehmen Flächen ruhig stehen oder dich vorsichtig bewegen.',
+      24: 'Du balancierst auf absurden kleinen oder problematischen Flächen, solange noch physisch Platz da ist.',
+      32: 'Selbst nasse, lose oder stark schwankende Flächen bringen dich erstaunlich wenig aus dem Gleichgewicht.',
+      40: 'Deine Balance wirkt fast schwerelos; wo andere nicht einmal treten würden, kannst du sicher stehen.'
     }
   },
   {
     id: 'agility-slip-through',
     attribute: A,
-    name: 'Slip Through',
-    tagline: 'Hand, Arm oder Werkzeug erstaunlich gut durch enge Öffnungen bringen.',
+    name: 'Flow Through',
+    tagline:
+      'Du kannst dich durch enge, chaotische oder vertikale Umgebungen fast fließend bewegen.',
     tiers: {
-      8: 'Kleine Lücken für Hand oder Werkzeug.',
-      16: 'Du zwängst dich durch Engstellen, durch die andere sich kaum trauen würden.',
-      24: 'Du kannst dich durch enge Winkel und Spalten mit erstaunlicher Sauberkeit arbeiten.',
-      32: 'Sehr enge Durchgänge oder komplizierte Körperlagen schrecken dich kaum.',
-      40: 'Du findest fast immer einen Weg „durch“, solange es physisch gerade noch möglich ist.'
+      8: 'Du kommst sauber durch Engstellen, Hindernisse oder chaotische Räume.',
+      16: 'Du verlierst beim Klettern, Zwängen, Ducken oder Umgehen von Hindernissen kaum deinen Rhythmus.',
+      24: 'Selbst vertikale, enge oder unordentliche Umgebungen bremsen dich nur wenig aus.',
+      32: 'Du bewegst dich durch schwierige Räume wie Wasser durch Ritzen.',
+      40: 'Hindernisreiche Umgebungen scheinen für dich eher Wege als Probleme zu sein.'
     }
   },
   {
     id: 'intellect-mage-hand',
     attribute: I,
     name: 'Mage Hand',
-    tagline: 'Kleine magische Kraft bewegt leichte Gegenstände auf kurze Distanz.',
+    tagline:
+      'Du erschaffst eine kleine magische Kraft/Hand, die leichte Gegenstände auf kurze Distanz bewegen, holen oder kippen kann.',
     tiers: {
-      8: 'Ein kleiner Gegenstand in kurzer Distanz bewegen, ziehen oder überreichen.',
-      16: 'Mehr Kontrolle, etwas mehr Reichweite, einfache Handgriffe wie kippen, holen, anstupsen.',
-      24: 'Mehrere kleine Handgriffe nacheinander, saubere Fernmanipulation leichter Objekte.',
-      32: 'Feiner, weiter und vielseitiger; kleine Gegenstände lassen sich erstaunlich elegant führen.',
-      40: 'Meisterhafte kleine Fernmanipulation, fast wie eine unsichtbare Hand im Alltag.'
+      8: 'Du bewegst, holst oder kippst kleine leichte Objekte in kurzer Distanz.',
+      16: 'Du manipulierst Objekte verlässlicher, präziser und etwas weiter entfernt.',
+      24: 'Du führst mehrere kleine Fern-Handgriffe nacheinander sauber aus.',
+      32: 'Deine magische Hand wird deutlich geschickter, weiter und vielseitiger.',
+      40: 'Deine Fernmanipulation leichter Dinge wirkt fast wie eine natürliche Verlängerung deiner eigenen Hand.'
     }
   },
   {
     id: 'intellect-message',
     attribute: I,
     name: 'Message',
-    tagline: 'Leise, gezielte Botschaft, die nur die Zielperson hört.',
+    tagline:
+      'Du kannst einer Person in kurzer Distanz eine leise, gezielte Botschaft zuflüstern, die nur sie hört.',
     tiers: {
-      8: 'Ein kurzer Satz an eine Person in der Nähe.',
-      16: 'Etwas weiter, klarer, kurze Antwort möglich.',
-      24: 'Kurzer Hin-und-her-Austausch über kleine Distanz.',
-      32: 'Mehrere kurze Botschaften, auch durch einfache Hindernisse oder über Lärm hinweg.',
-      40: 'Fast wie ein diskretes, unsichtbares Gespräch innerhalb sinnvoller Reichweite.'
+      8: 'Ein kurzer Flüstersatz an eine Person in der Nähe.',
+      16: 'Mehr Reichweite, mehr Klarheit, kurze Antwort möglich.',
+      24: 'Ein kurzer Hin-und-her-Austausch über brauchbare Distanz.',
+      32: 'Mehrere kurze Botschaften auch über Störgeräusche oder einfache Hindernisse hinweg.',
+      40: 'Fast wie ein diskretes unsichtbares Gespräch im kleinen Rahmen.'
     }
   },
   {
     id: 'intellect-arcane-spark',
     attribute: I,
     name: 'Arcane Spark',
-    tagline: 'Kleine Lichtpunkte, Funken oder sichtbare arkane Markierungen.',
+    tagline:
+      'Du erzeugst kleine Lichtpunkte, Funken, Glyphenflackern oder sichtbare arkane Markierungen.',
     tiers: {
       8: 'Ein kleiner Lichtpunkt, Funke oder glimmendes Zeichen.',
       16: 'Mehrere kleine Lichter oder kurze magische Markierungen.',
-      24: 'Bewegliche Lichtpunkte, kleine Symbole, klarere visuelle Magie.',
-      32: 'Saubere arkane Anzeigen, längere Leuchtdauer, kleine Muster oder Zeichenfolgen.',
-      40: 'Elegante Licht- und Glyphenarbeit, die sich wie ein echtes Werkzeug anfühlt.'
+      24: 'Bewegliche Lichtpunkte, kleine Symbole oder stabilere Zeichen.',
+      32: 'Saubere arkane Anzeigen, längere Leuchtdauer und komplexere kleine Lichtmuster.',
+      40: 'Eine meisterhafte kleine Licht- und Glyphensprache, die sich wie ein echtes Werkzeug anfühlt.'
     }
   },
   {
     id: 'intellect-detect-trace',
     attribute: I,
     name: 'Detect Trace',
-    tagline: 'Schwache magische Rückstände oder Ritualspuren wahrnehmen.',
+    tagline:
+      'Du kannst schwache magische Rückstände, Resonanzen oder Ritualspuren wahrnehmen.',
     tiers: {
-      8: '„Hier ist etwas Magisches oder Unnatürliches.“',
-      16: 'Grobe Richtung, Stärke oder Frische wird erkennbar.',
-      24: 'Bessere Einordnung: eher Ritual, eher Objekt, eher Restenergie.',
-      32: 'Feine Unterschiede und schwache Spuren werden verlässlicher wahrnehmbar.',
-      40: 'Sehr sensibles Gespür für schwache Magiereste, ohne volle Analyse zu ersetzen.'
+      8: 'Du spürst, dass hier Magie oder etwas Unnatürliches war.',
+      16: 'Grobe Richtung, Frische oder Stärke wird erkennbar.',
+      24: 'Du kannst besser unterscheiden, ob der Rückstand eher von Ritual, Objekt oder Person stammt.',
+      32: 'Schwache Unterschiede und feinere Reste werden zuverlässig wahrnehmbar.',
+      40: 'Du liest selbst zarte arkane Nachbilder erstaunlich sicher, ohne echte Analyse zu ersetzen.'
     }
   },
   {
     id: 'intellect-script-whisper',
     attribute: I,
     name: 'Script Whisper',
-    tagline: 'Schrift oder Symbole kurz lesbarer machen oder grob deuten.',
+    tagline:
+      'Du erschaffst geheime, unsichtbare Runen oder Zeichen, die nur unter den richtigen Umständen lesbar werden.',
     tiers: {
-      8: 'Verblasste Schrift oder schwache Zeichen kurz lesbarer machen.',
-      16: 'Einfache Runen, Warnzeichen oder Symbole grob deuten.',
-      24: 'Kleine Passagen, Formeln oder Muster klarer erfassen.',
-      32: 'Schwierige oder beschädigte Schrift wird erstaunlich zugänglich.',
-      40: 'Selbst problematische Zeichen lassen sich in Form und Grundintention oft erfassen.'
+      8: 'Du kannst ein einzelnes kurzes verborgenes Zeichen, Wort oder Symbol hinterlassen.',
+      16: 'Du hinterlässt kurze geheime Botschaften oder kleine Runenfolgen, die gezielt sichtbar gemacht werden können.',
+      24: 'Deine verborgenen Runen können kleine Absätze, mehrere Markierungen oder einfache strukturierte Hinweise tragen.',
+      32: 'Du legst komplexere geheime Schriftlagen, Zeichenpfade oder verschachtelte Runen an, die zuverlässig verborgen bleiben.',
+      40: 'Du erschaffst meisterhafte unsichtbare Schrift und Runenwerke, die großflächig, fein und schwer zu entdecken sind.'
     }
   },
   {
     id: 'intellect-minor-conjuration',
     attribute: I,
     name: 'Minor Conjuration',
-    tagline: 'Kleine, harmlose, kurzlebige magische Manifestation oder Illusion.',
+    tagline:
+      'Du erschaffst eine kleine Menge einfacher Materie oder Substanz für kurze Zeit.',
+    constraints:
+      'Wichtige Grenze: nur einfache Materie; nichts Präzisionsgebautes; nichts Komplexlebendiges; nichts, was echte Herstellung, Rituale oder Powers ersetzen soll.',
     tiers: {
-      8: 'Eine winzige harmlose Erscheinung oder ein kurzes magisches Spielzeug.',
-      16: 'Etwas stabiler, etwas klarer, etwas länger.',
-      24: 'Kleine funktionale Spielereien, sichtbare Mini-Illusionen, flüchtige Objekte.',
-      32: 'Deutlich vielseitiger in Form und Auftreten, solange alles klein und harmlos bleibt.',
-      40: 'Meisterhafte kleine Manifestationen, die viel Stil und Nützlichkeit im Kleinen haben.'
+      8: 'Eine Handvoll einer einfachen Substanz: Wasser, Erde, Sand, Asche, Metallspäne, Kies, Lehm oder ähnliches.',
+      16: 'Etwa ein Eimer voll einer einfachen Substanz.',
+      24: 'Etwa eine Badewanne voll einer einfachen Substanz.',
+      32: 'Eine große Truhe, Wanne oder kleine Wagenladung einer einfachen Substanz.',
+      40: 'Eine beeindruckend große Menge einfacher Materie, groß genug, um einen kleinen Bereich sichtbar zu füllen oder deutlich zu verändern.'
     }
   },
   {
     id: 'resolve-alarm',
     attribute: R,
     name: 'Alarm',
-    tagline: 'Stille Warnung auf Gegenstand oder kleinen Bereich legen.',
+    tagline:
+      'Du setzt auf einen Gegenstand, Schlafplatz, Zugang oder kleinen Bereich eine stille Warnung, die dich aufmerksam macht, wenn sie gebrochen wird.',
     tiers: {
-      8: 'Ein einzelner Gegenstand, Beutel, Rucksack, Bettrolle oder persönlicher Platz.',
-      16: 'Ein Zugang, Fenster, Tür, Kiste oder kleine Lagerstelle.',
-      24: 'Ein kleiner Raum, ein Zeltbereich oder ein klar abgegrenzter Radius.',
+      8: 'Ein Gegenstand, Rucksack, Bettrolle oder persönlicher Platz.',
+      16: 'Ein Zugang, Fenster, Tür oder kleine Lagerstelle.',
+      24: 'Ein kleiner Raum oder klarer Radius.',
       32: 'Mehrere Zugänge oder ein größerer Bereich.',
-      40: 'Ein ganzes Lager, eine Halle oder ein sauber gesetzter Schutzraum im kleinen Maßstab.'
+      40: 'Ein ganzes Lager, eine Halle oder ein sauber gesetzter kleiner Schutzraum.'
     }
   },
   {
     id: 'resolve-still-mind',
     attribute: R,
     name: 'Still Mind',
-    tagline: 'Geist sammeln und gegen Panik oder Unruhe abschirmen.',
+    tagline:
+      'Du kannst deinen Geist in kurzer Zeit sammeln, ordnen und gegen Panik, Verwirrung oder aufsteigende Unruhe abschirmen.',
     tiers: {
       8: 'Du findest rasch Ruhe und Fokus.',
-      16: 'Du schiebst Unruhe, Panik oder innere Zerrissenheit für eine Weile zurück.',
-      24: 'Selbst starker Druck lässt sich innerlich sortieren.',
-      32: 'Du kannst dich bemerkenswert schnell fassen und klar handeln.',
-      40: 'Deine innere Ordnung wirkt fast unerschütterlich.'
+      16: 'Du schiebst starke Unruhe oder geistigen Druck für eine Weile zurück.',
+      24: 'Selbst heftige innere Turbulenz lässt sich klarer ordnen.',
+      32: 'Du kannst dich fast sofort wieder sammeln und handlungsfähig machen.',
+      40: 'Deine innere Ordnung wirkt außergewöhnlich fest und schwer zu erschüttern.'
     }
   },
   {
     id: 'resolve-read-omen',
     attribute: R,
     name: 'Read Omen',
-    tagline: 'Aus Zeichen und Stimmung ein ungutes oder gutes Vorzeichen lesen.',
+    tagline:
+      'Du kannst aus Stimmung, Zeichen, Zufällen, Tierverhalten, Wind, Stille oder kleinen Unstimmigkeiten ein gutes oder ungutes Vorzeichen lesen.',
     tiers: {
-      8: 'Du bekommst ein grobes Gefühl: gut, schlecht, falsch, unruhig.',
-      16: 'Das Vorzeichen wird klarer und lässt sich auf Situation oder Ort beziehen.',
-      24: 'Du kannst mehrere kleine Zeichen zusammenlesen und erkennst deutlichere Tendenzen.',
-      32: 'Deine Deutung wirkt oft unheimlich treffsicher.',
-      40: 'Du liest aus winzigen Brüchen in der Welt belastbare Stimmungen und Warnungen.'
+      8: 'Ein grobes Gefühl: gut, schlecht, falsch, unruhig.',
+      16: 'Klarere Tendenzen bezogen auf Ort, Reise, Handlung oder Begegnung.',
+      24: 'Mehrere kleine Zeichen lassen sich zu einem brauchbaren Vorzeichenbild zusammensetzen.',
+      32: 'Deine Deutung wird erstaunlich konkret in ihrer Richtung.',
+      40: 'Du liest aus kleinsten Brüchen in der Welt belastbare Warnungen oder Hoffnungszeichen.'
     }
   },
   {
     id: 'resolve-cold-comfort',
     attribute: R,
     name: 'Cold Comfort',
-    tagline: 'Mit ruhiger Gewissheit Halt geben, ohne falsche Hoffnung.',
+    tagline:
+      'Du kannst jemandem mit ruhiger Gewissheit, dunkler Ehrlichkeit oder stiller Zuversicht Halt geben, ohne falsche Hoffnung zu machen.',
     tiers: {
-      8: 'Eine Person beruhigt sich sichtbar durch deine Worte oder Anwesenheit.',
-      16: 'Du kannst jemanden stabilisieren, der innerlich kippt, zweifelt oder sich verliert.',
-      24: 'Deine Ruhe greift auf kleine Gruppen über.',
-      32: 'Auch harte Situationen lassen sich durch deine Gegenwart emotional tragen.',
-      40: 'Du bist der ruhige Anker in sehr dunklen Momenten.'
+      8: 'Eine Person beruhigt sich durch deine Worte oder Anwesenheit.',
+      16: 'Jemand, der innerlich kippt, findet durch dich wieder Halt.',
+      24: 'Deine Ruhe kann kleine Gruppen mit stabilisieren.',
+      32: 'Selbst in düsteren Situationen schaffst du tragfähige emotionale Ruhe.',
+      40: 'Du wirkst wie ein dunkler Anker, an dem andere sich festhalten können.'
     }
   },
   {
     id: 'resolve-sense-taint',
     attribute: R,
     name: 'Sense Taint',
-    tagline: 'Spüren, ob etwas verdorben, falsch oder geistig „schmutzig“ ist.',
+    tagline:
+      'Du kannst an Orten, Dingen oder Personen spüren, ob etwas verdorben, falsch, unheilvoll oder geistig „schmutzig“ ist.',
     tiers: {
       8: 'Du spürst dumpf, dass etwas nicht stimmt.',
-      16: 'Du kannst Person, Objekt oder Bereich grob als Quelle unterscheiden.',
-      24: 'Stärke, Frische oder Art der Unreinheit werden deutlicher.',
-      32: 'Selbst subtile Verdorbenheit ist für dich oft spürbar.',
-      40: 'Dein Gespür für Verderbnis, falsche Präsenz oder geistige Schwere ist außergewöhnlich fein.'
+      16: 'Du kannst Person, Objekt oder Bereich als Quelle besser unterscheiden.',
+      24: 'Frische, Stärke oder Art der Verdorbenheit werden deutlicher.',
+      32: 'Selbst subtile Unreinheit oder geistige Fäulnis werden spürbar.',
+      40: 'Dein Gespür für falsche Präsenz, Verderbnis und geistige Schwere ist außergewöhnlich fein.'
     }
   },
   {
     id: 'resolve-keep-watch',
     attribute: R,
     name: 'Keep Watch',
-    tagline: 'Lange wach, aufmerksam und innerlich gespannt bleiben.',
+    tagline:
+      'Du kannst in stiller Konzentration über lange Zeit wach, aufmerksam und innerlich gespannt bleiben, fast als würdest du auf etwas Unsichtbares lauschen.',
     tiers: {
-      8: 'Du hältst ruhiger und wacher Wache als andere.',
-      16: 'Lange Stille, Müdigkeit und Monotonie stumpfen dich weniger ab.',
-      24: 'Du bemerkst feine Veränderungen in Geräusch, Stimmung oder Bewegung eher als andere.',
-      32: 'Selbst über längere Phasen bleibst du klar und reaktionsbereit.',
-      40: 'Deine Wachsamkeit wirkt beinahe übernatürlich gesammelt.'
+      8: 'Du hältst verlässlicher Wache als andere.',
+      16: 'Müdigkeit, Monotonie und lange Stille stumpfen dich viel weniger ab.',
+      24: 'Feine Veränderungen in Geräusch, Luft oder Stimmung fallen dir eher auf.',
+      32: 'Über lange Wachen bleibst du bemerkenswert klar und gespannt.',
+      40: 'Deine Wachsamkeit wirkt fast unnatürlich gesammelt, als würdest du auch das Unsichtbare mithören.'
     }
   },
   {
     id: 'influence-carry-voice',
     attribute: F,
-    name: 'Carry Voice',
-    tagline: 'Stimme klar und kontrolliert auch über Lärm oder Distanz.',
+    name: 'Mirror Shade',
+    tagline:
+      'Du erzeugst einen kurzen Verwechslungs- oder Doppelbild-Effekt um dich herum.',
     tiers: {
-      8: 'Du erreichst zuverlässig eine kleine Gruppe oder einen Raum.',
-      16: 'Deine Stimme setzt sich gegen Nebengeräusche und Unruhe durch.',
-      24: 'Du kannst Hallen, Höfe oder größere Gruppen ohne Schreien füllen.',
-      32: 'Deine Stimme wirkt präsent, geführt und beeindruckend über deutliche Distanz.',
-      40: 'Du klingst, als wäre der Raum selbst auf deiner Seite.'
+      8: 'Ein kurzer falscher Eindruck, eine Blicktäuschung oder ein verwechselbarer Nachhall von dir.',
+      16: 'Beobachter hängen für einen Moment an einer falschen Position oder Version von dir fest.',
+      24: 'In Gruppen oder bewegten Szenen entsteht spürbare Verwirrung darüber, wo genau du gerade bist.',
+      32: 'Verfolger, Beobachter oder flüchtige Zeugen erinnern sich oft zuerst an die falsche Version von dir.',
+      40: 'Dein Bild kann sich sozial fast wie ein geisterhafter Zwilling vom eigentlichen Moment lösen.'
     }
   },
   {
     id: 'influence-read-the-room',
     attribute: F,
     name: 'Read the Room',
-    tagline: 'Spannung, Machtverhältnisse und Grundstimmung rasch spüren.',
+    tagline: 'Du liest nicht nur die Stimmung, sondern die verborgene soziale Wahrheit einer Szene.',
     tiers: {
-      8: 'Du merkst schnell, ob eine Szene offen, gereizt oder angespannt ist.',
-      16: 'Du erkennst grob, wer Druck ausübt, wer schwankt und wo Bruchlinien liegen.',
-      24: 'Dynamiken in kleinen Gruppen werden für dich sehr lesbar.',
-      32: 'Selbst feine soziale Verschiebungen entgehen dir selten.',
-      40: 'Du liest Räume fast so, als würdest du die unausgesprochenen Rollen hören.'
+      8: 'Du spürst Grundstimmung und offensichtliche Spannung.',
+      16: 'Du erkennst, wer nur mitspielt, wer gleich kippt und wo Bruchlinien liegen.',
+      24: 'Macht, Angst, Unsicherheit und emotionale Trigger einer kleinen Gruppe werden klar lesbar.',
+      32: 'Selbst verdeckte Spannungen oder unausgesprochene soziale Rollen entgehen dir selten.',
+      40: 'Du liest soziale Räume fast so, als würdest du den unausgesprochenen Untertext hören.'
     }
   },
   {
     id: 'influence-ease-tension',
     attribute: F,
-    name: 'Ease Tension',
-    tagline: 'Anspannung in einem Gespräch oder Raum spürbar senken.',
+    name: 'Glamour',
+    tagline: 'Du legst ein trügerisches Erscheinungsbild über dich.',
     tiers: {
-      8: 'Zwei oder drei Personen fahren nicht sofort hoch.',
-      16: 'Kleine Gruppen beruhigen sich merklich.',
-      24: 'Ein ganzer Raum kann von dir sozial entschärft werden.',
-      32: 'Auch scharfe Stimmungen lassen sich sichtbar dämpfen.',
-      40: 'Deine Gegenwart kann Eskalation fast greifbar aus einer Szene herausnehmen.'
+      8: 'Kleidung, Stil, Auftreten oder soziale Anmutung lassen sich sichtbar verschieben.',
+      16: 'Du wirkst glaubhaft wie eine andere Herkunft, Rolle, Klasse oder Altersstufe.',
+      24: 'Das Erscheinungsbild wird deutlich flexibler und kann ganze soziale Eindrücke neu schreiben.',
+      32: 'Du kannst deine wahrgenommene äußere Erscheinung stark verändern.',
+      40: 'Dein Glamour kann fast eine vollständige äußere Neuinterpretation deiner Person erzeugen.'
     }
   },
   {
     id: 'influence-command-presence',
     attribute: F,
-    name: 'Command Presence',
-    tagline: 'Leute kurz innehalten, zuhören oder dir Raum geben lassen.',
+    name: 'Vanish',
+    tagline: 'Du kannst dich sozial und visuell aus dem Moment lösen und „weg“ sein.',
     tiers: {
-      8: 'Einzelne Personen halten kurz inne oder achten auf dich.',
-      16: 'Kleine Gruppen geben dir Aufmerksamkeit oder Raum.',
-      24: 'Du kannst eine Szene merklich auf dich ziehen.',
-      32: 'Selbst widerspenstige oder laute Menschen nehmen dich zunächst wahr.',
-      40: 'Deine Präsenz ist im sozialen Raum schwer zu ignorieren.'
+      8: 'Du nutzt einen kurzen Bruch der Aufmerksamkeit, um aus dem Fokus zu verschwinden.',
+      16: 'In Menge, Unruhe oder Bewegung bist du schnell nicht mehr dort, wo man dich erwartet.',
+      24: 'Beobachter verlieren dich spürbar leichter aus Blick und Gedächtnis der Szene.',
+      32: 'Du bist oft schon „weg“, bevor andere ihren Blick sortiert haben.',
+      40: 'Dein Verschwinden wirkt wie ein kleiner sozialer Blink-Effekt, ohne echter Teleport zu sein.'
     }
   },
   {
     id: 'influence-silver-tongue',
     attribute: F,
     name: 'Silver Tongue',
-    tagline: 'Worte besonders weich, glaubwürdig oder verführerisch wirken lassen.',
+    tagline:
+      'Deine Worte können andere für einen kurzen Moment ihre eigenen Interessen, Vorbehalte, Verletzungen oder Vorsicht vergessen lassen.',
     tiers: {
-      8: 'Einzelne Sätze landen spürbar gut.',
-      16: 'Gespräche fühlen sich unter deiner Führung glatter und überzeugender an.',
-      24: 'Deine Worte schaffen Bindung, Vertrauen oder Nachsicht deutlich leichter.',
-      32: 'Selbst schwierige Gespräche kippen eher in deine Richtung.',
-      40: 'Deine Sprache wirkt in ihrem Stil meisterhaft: charmant, beruhigend, verlockend oder glaubwürdig.'
+      8: 'Man hört dir merklich eher zu als gewöhnlich.',
+      16: 'Einzelne Personen lassen sich für einen Moment aus ihrer Vorsicht oder Agenda herausziehen.',
+      24: 'Gespräche laufen spürbar eher auf deinem Frame als auf ihrem.',
+      32: 'Selbst schwierige Gegenüber kommen dir weiter entgegen, als sie ursprünglich wollten.',
+      40: 'Deine Worte können für kurze Zeit beinahe die Prioritäten im Raum neu sortieren.'
     }
   },
   {
     id: 'influence-silken-barb',
     attribute: F,
     name: 'Silken Barb',
-    tagline: 'Subtile Bemerkung, die hängen bleibt und später nachwirkt.',
+    tagline: 'Du setzt einen eleganten, subtilen Satz, der im Kopf hängen bleibt und nachwirkt.',
     tiers: {
-      8: 'Eine einzelne Person trägt deinen Seitenhieb oder Zweifel mit sich weiter.',
-      16: 'Die Bemerkung bleibt spürbar hängen und färbt die Nachwirkung eines Gesprächs.',
-      24: 'Sie wirkt über die Szene hinaus und kann die Haltung einer Person merklich verschieben.',
-      32: 'Auch kleine Gruppen können durch deinen gesetzten Stachel anders auf etwas blicken.',
-      40: 'Deine feinen sozialen Klingen hinterlassen lange, elegante Nachwirkungen.'
+      8: 'Ein Zweifel oder kleiner Stachel bleibt bei einer Person zurück.',
+      16: 'Die Bemerkung färbt sichtbar die Nachwirkung eines Gesprächs.',
+      24: 'Der gesetzte Gedanke arbeitet länger und tiefer an Selbstbild, Unsicherheit oder Haltung.',
+      32: 'Auch kleine Gruppen können durch einen gesetzten Satz jemanden oder etwas anders sehen.',
+      40: 'Deine feinen sozialen Klingen hinterlassen elegante, lang anhaltende mentale Nachwirkungen.'
+    }
+  },
+  {
+    id: 'wits-nose-for-trouble',
+    attribute: W,
+    name: 'Nose for Trouble',
+    tagline:
+      'Du spürst schnell, wenn eine Situation kippt, etwas faul ist oder Ärger in der Luft liegt.',
+    tiers: {
+      8: 'Du merkst früh, dass etwas nicht stimmt.',
+      16: 'Du nimmst kipplige Situationen, Hinterhalte oder Ärgerquellen klarer wahr.',
+      24: 'Du spürst oft, wo Ärger gleich herkommen wird.',
+      32: 'Selbst gut getarnte schlechte Stimmung oder drohende Probleme entgehen dir selten.',
+      40: 'Dein Instinkt für Trouble wirkt fast unheimlich zuverlässig.'
+    }
+  },
+  {
+    id: 'wits-quick-read',
+    attribute: W,
+    name: 'Quick Read',
+    tagline:
+      'Du kannst eine Person, ein Objekt oder eine Situation in wenigen Augenblicken grob, aber oft treffsicher einschätzen.',
+    tiers: {
+      8: 'Erste brauchbare Einschätzung in Sekunden.',
+      16: 'Charakter, Zustand oder Haken einer Sache werden rasch klar.',
+      24: 'Du liest Situationen oder Menschen mit auffälliger Sicherheit an.',
+      32: 'Selbst komplexere Lagen ergeben für dich schnell ein stimmiges Bild.',
+      40: 'Deine ersten Eindrücke sind erschreckend oft treffsicher.'
+    }
+  },
+  {
+    id: 'wits-find-the-angle',
+    attribute: W,
+    name: 'Find the Angle',
+    tagline:
+      'Du erkennst rasch den einfachsten, cleversten oder praktischsten Ansatzpunkt in einer Situation.',
+    tiers: {
+      8: 'Du findest schnell den naheliegenden praktikablen Weg.',
+      16: 'Du entdeckst oft den besseren Hebel, Zugang oder Trick.',
+      24: 'Selbst chaotische Situationen haben für dich meist irgendwo einen funktionierenden Winkel.',
+      32: 'Du siehst in schwierigen Lagen schnell, wo man wirklich ansetzen muss.',
+      40: 'Fast jede festgefahrene Szene zeigt dir irgendeinen nutzbaren Angle.'
+    }
+  },
+  {
+    id: 'wits-keep-the-thread',
+    attribute: W,
+    name: 'Keep the Thread',
+    tagline:
+      'Du verlierst in chaotischen Gesprächen, Szenen oder Suchmomenten nicht so leicht den Faden.',
+    tiers: {
+      8: 'Du behältst das Wesentliche leichter im Kopf.',
+      16: 'Auch bei Ablenkung oder Chaos bleibt die zentrale Linie für dich erhalten.',
+      24: 'Mehrere Spuren, Verdachte oder Gesprächsstränge kannst du sauberer zusammenhalten.',
+      32: 'Selbst in unübersichtlichen Szenen verlierst du kaum die eigentliche Sache.',
+      40: 'Wo andere geistig zerfasern, hältst du die innere Linie fast mühelos.'
+    }
+  },
+  {
+    id: 'wits-improvised-solution',
+    attribute: W,
+    name: 'Improvised Solution',
+    tagline: 'Du kannst aus einfachen Dingen schnell eine brauchbare kleine Zwecklösung machen.',
+    tiers: {
+      8: 'Einfache provisorische Hilfen, Keile, Haken, Marker oder Behelfslösungen.',
+      16: 'Nützlichere kleine Konstruktionen aus dem, was gerade da ist.',
+      24: 'Überraschend verlässliche Improvisationen mit klar erkennbarem Nutzen.',
+      32: 'Aus fast jeder Umgebung lässt sich schnell etwas Brauchbares ziehen.',
+      40: 'Deine Improvisationen wirken im Kleinen fast wie ein eigener Handwerksstil.'
+    }
+  },
+  {
+    id: 'wits-street-sense',
+    attribute: W,
+    name: 'Street Sense',
+    tagline:
+      'Du findest dich in Gassen, Märkten, Lagern, Tavernen und unübersichtlichen Alltagsräumen schnell zurecht.',
+    tiers: {
+      8: 'Du erkennst schnell Ausgänge, Engstellen und nützliche Punkte.',
+      16: 'Du verstehst rasch, wie ein Ort sozial und praktisch funktioniert.',
+      24: 'Selbst fremde Alltagsräume werden zügig lesbar und nutzbar für dich.',
+      32: 'Du findest fast immer die richtigen Leute, Wege oder Orte zum Untertauchen, Beobachten oder Durchkommen.',
+      40: 'In menschlichen Alltagsräumen bist du fast nie wirklich verloren.'
     }
   }
 ];
@@ -445,10 +559,31 @@ export function tierThresholdForAttributeValue(value: number): MinorExpressionTi
   return best;
 }
 
+/** True when the character's attribute value meets or exceeds this tier threshold. */
+export function isTierUnlocked(attributeValue: number, tier: MinorExpressionTier): boolean {
+  const v = Math.floor(Number(attributeValue));
+  return Number.isFinite(v) && v >= tier;
+}
+
 export function tierBodyForExpression(def: MinorExpressionDefinition, attributeValue: number): string {
   const tier = tierThresholdForAttributeValue(attributeValue);
   if (!tier) return def.tagline;
   return def.tiers[tier];
+}
+
+/** Count of expressions newly selected vs removed (for Faith Fracture costs). */
+export function minorExpressionPickDelta(prev: string[], next: string[]): { added: number; removed: number } {
+  const a = new Set(prev.map((id) => String(id || '').trim()).filter(Boolean));
+  const b = new Set(next.map((id) => String(id || '').trim()).filter(Boolean));
+  let added = 0;
+  let removed = 0;
+  for (const id of b) {
+    if (!a.has(id)) added++;
+  }
+  for (const id of a) {
+    if (!b.has(id)) removed++;
+  }
+  return { added, removed };
 }
 
 export function sanitizeMinorExpressionIds(
@@ -478,5 +613,6 @@ export const MINOR_EXPRESSION_ATTRIBUTES: MinorExpressionAttribute[] = [
   'agility',
   'intellect',
   'resolve',
-  'influence'
+  'influence',
+  'wits'
 ];

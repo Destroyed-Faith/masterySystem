@@ -1,16 +1,18 @@
 /**
  * Minor Expressions (cantrips) — catalog and tier/scaling helpers.
- * Vitality and Wits have no catalog entries; selections are capped by mastery rank and require attribute ≥ 8.
+ * Vitality has no catalog entries; selections are capped by mastery rank and require attribute ≥ 8.
  */
 export declare const MINOR_EXPRESSION_MIN_ATTRIBUTE = 8;
 export declare const MINOR_EXPRESSION_TIERS: readonly [8, 16, 24, 32, 40];
 export type MinorExpressionTier = (typeof MINOR_EXPRESSION_TIERS)[number];
-export type MinorExpressionAttribute = 'might' | 'agility' | 'intellect' | 'resolve' | 'influence';
+export type MinorExpressionAttribute = 'might' | 'agility' | 'intellect' | 'resolve' | 'influence' | 'wits';
 export interface MinorExpressionDefinition {
     id: string;
     attribute: MinorExpressionAttribute;
     name: string;
     tagline: string;
+    /** Optional rules capsule (e.g. Minor Conjuration limits), shown once in the UI */
+    constraints?: string;
     tiers: Record<MinorExpressionTier, string>;
 }
 export declare const MINOR_EXPRESSIONS: MinorExpressionDefinition[];
@@ -19,7 +21,14 @@ export declare function listMinorExpressionsByAttribute(attr: MinorExpressionAtt
 export declare function attributeForExpressionId(id: string): MinorExpressionAttribute | undefined;
 /** Highest tier threshold not above value; null if value < MIN or unknown. */
 export declare function tierThresholdForAttributeValue(value: number): MinorExpressionTier | null;
+/** True when the character's attribute value meets or exceeds this tier threshold. */
+export declare function isTierUnlocked(attributeValue: number, tier: MinorExpressionTier): boolean;
 export declare function tierBodyForExpression(def: MinorExpressionDefinition, attributeValue: number): string;
+/** Count of expressions newly selected vs removed (for Faith Fracture costs). */
+export declare function minorExpressionPickDelta(prev: string[], next: string[]): {
+    added: number;
+    removed: number;
+};
 export declare function sanitizeMinorExpressionIds(ids: string[] | undefined, getAttributeValue: (key: string) => number, masteryRank: number): string[];
 export declare const MINOR_EXPRESSION_ATTRIBUTES: MinorExpressionAttribute[];
 //# sourceMappingURL=minor-expressions.d.ts.map

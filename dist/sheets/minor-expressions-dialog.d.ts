@@ -1,5 +1,6 @@
 /**
  * Dialog: choose Minor Expressions (cantrips) per attribute view, capped by Mastery Rank globally, attribute ≥ 8.
+ * New picks cost Faith Fractures (1 per added expression); removing refunds 1 per removed (when pool max > 0).
  */
 import { type MinorExpressionAttribute } from '../utils/minor-expressions.js';
 export declare function showMinorExpressionsDialog(actor: any, options: {

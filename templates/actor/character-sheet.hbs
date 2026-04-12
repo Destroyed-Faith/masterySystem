@@ -356,9 +356,15 @@
                 </div>
               </div>
               
-              <div class="minor-expressions-card minor-expressions-card--soon">
-                <span class="minor-expressions-muted">Minor Expressions — demnächst</span>
+              {{#if ../creationComplete}}
+              <div class="minor-expressions-card minor-expressions-card--button-only">
+                <button type="button" class="minor-expressions-open" data-attribute="wits" title="Minor Expressions (Wits)">Minor Expressions</button>
               </div>
+              {{else}}
+              <div class="minor-expressions-card minor-expressions-card--muted">
+                <span>Minor Expressions nach Abschluss der Erstellung</span>
+              </div>
+              {{/if}}
               
               <button type="button" class="attribute-roll" data-attribute="wits">
                 <i class="fas fa-dice-d20"></i> Roll Wits

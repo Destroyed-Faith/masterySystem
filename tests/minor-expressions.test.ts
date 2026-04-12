@@ -5,12 +5,14 @@ import {
   tierThresholdForAttributeValue,
   sanitizeMinorExpressionIds,
   getMinorExpressionDefinition,
-  listMinorExpressionsByAttribute
+  listMinorExpressionsByAttribute,
+  isTierUnlocked,
+  minorExpressionPickDelta
 } from '../src/utils/minor-expressions';
 
 describe('minor-expressions catalog', () => {
-  it('has 30 definitions (5 attributes × 6)', () => {
-    expect(MINOR_EXPRESSIONS.length).toBe(30);
+  it('has 36 definitions (6 attributes × 6)', () => {
+    expect(MINOR_EXPRESSIONS.length).toBe(36);
   });
 
   it('each attribute has exactly 6 expressions', () => {
@@ -45,13 +47,31 @@ describe('tierThresholdForAttributeValue', () => {
   });
 });
 
+describe('isTierUnlocked', () => {
+  it('matches tier thresholds', () => {
+    expect(isTierUnlocked(7, 8)).toBe(false);
+    expect(isTierUnlocked(8, 8)).toBe(true);
+    expect(isTierUnlocked(15, 16)).toBe(false);
+    expect(isTierUnlocked(16, 16)).toBe(true);
+  });
+});
+
+describe('minorExpressionPickDelta', () => {
+  it('counts added and removed', () => {
+    expect(minorExpressionPickDelta(['a', 'b'], ['b', 'c'])).toEqual({ added: 1, removed: 1 });
+    expect(minorExpressionPickDelta([], ['x'])).toEqual({ added: 1, removed: 0 });
+    expect(minorExpressionPickDelta(['x'], [])).toEqual({ added: 0, removed: 1 });
+  });
+});
+
 describe('sanitizeMinorExpressionIds', () => {
-  const attrs = (might: number, agility = 8, intellect = 8, resolve = 8, influence = 8) => ({
+  const attrs = (might: number, agility = 8, intellect = 8, resolve = 8, influence = 8, wits = 8) => ({
     might,
     agility,
     intellect,
     resolve,
-    influence
+    influence,
+    wits
   });
 
   const get = (vals: ReturnType<typeof attrs>) => (k: string) =>
@@ -74,7 +94,7 @@ describe('sanitizeMinorExpressionIds', () => {
   });
 
   it('caps at mastery rank', () => {
-    const v = get(attrs(8, 8, 8, 8, 8));
+    const v = get(attrs(8, 8, 8, 8, 8, 8));
     const out = sanitizeMinorExpressionIds(
       ['might-hold-fast', 'agility-soft-step', 'intellect-mage-hand'],
       v,
@@ -83,6 +103,12 @@ describe('sanitizeMinorExpressionIds', () => {
     expect(out.length).toBe(2);
     expect(out[0]).toBe('might-hold-fast');
     expect(out[1]).toBe('agility-soft-step');
+  });
+
+  it('drops wits picks when wits under 8', () => {
+    const v = get(attrs(8, 8, 8, 8, 8, 7));
+    const out = sanitizeMinorExpressionIds(['wits-quick-read'], v, 3);
+    expect(out).toEqual([]);
   });
 
   it('getMinorExpressionDefinition resolves catalog id', () => {

@@ -759,6 +759,18 @@
   opacity: 0.85;
 }
 
+.minor-expressions-dialog-inner .me-faith-line {
+  margin: 0 0 0.65rem;
+  font-size: 0.85rem;
+  line-height: 1.35;
+  opacity: 0.92;
+}
+
+.minor-expressions-dialog-inner .me-faith-line--na {
+  font-style: italic;
+  opacity: 0.75;
+}
+
 .minor-expressions-dialog-inner .me-attr-section {
   margin-bottom: 1.25rem;
   padding-bottom: 0.75rem;
@@ -787,11 +799,27 @@
   margin: 0 0 0.5rem;
 }
 
+.minor-expressions-dialog-inner .me-row-wrap {
+  margin-bottom: 1rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.minor-expressions-dialog-inner .me-row-wrap:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.minor-expressions-dialog-inner .me-row-wrap--disabled {
+  opacity: 0.9;
+}
+
 .minor-expressions-dialog-inner .me-row {
   display: flex;
   gap: 0.5rem;
   align-items: flex-start;
-  margin-bottom: 0.65rem;
+  margin-bottom: 0.35rem;
   padding: 0.35rem 0.25rem;
   border-radius: 4px;
   cursor: pointer;
@@ -829,6 +857,49 @@
 .minor-expressions-dialog-inner .me-pick {
   margin-top: 0.2rem;
   flex-shrink: 0;
+}
+
+.minor-expressions-dialog-inner .me-constraints {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  font-style: italic;
+  opacity: 0.88;
+}
+
+.minor-expressions-dialog-inner .me-tier-scale-block {
+  margin: 0 0 0 1.5rem;
+  padding: 0.35rem 0.5rem 0.5rem;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 4px;
+}
+
+.minor-expressions-dialog-inner .me-tier-scale-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.25rem;
+  opacity: 0.75;
+}
+
+.minor-expressions-dialog-inner .me-tier-scale {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 0.35rem;
+  font-size: 0.85rem;
+}
+
+.minor-expressions-dialog-inner .me-tier-scale-preview {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.minor-expressions-dialog-inner .me-tier-scale-preview--locked {
+  opacity: 0.65;
+  font-style: italic;
 }
 
 /* ========== Attribute Controls ========== */
