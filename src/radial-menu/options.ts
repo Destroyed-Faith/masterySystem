@@ -10,6 +10,48 @@ import type { AoeSpec } from '../types/item.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { getMovementRangeBonusMeters, hasPowerBeenUsedThisRound } from '../combat/action-economy.js';
 import { getMagicPower } from '../utils/magic-powers.js';
+import {
+  formatNpcSpecialLabel,
+  npcAttackDiceCount,
+  npcDamageDiceFormula,
+  resolveNpcAttackList
+} from '../utils/npc-attack-model.js';
+
+function buildNpcAttackDescription(atk: any): string {
+  const pool = npcAttackDiceCount(atk);
+  const dmg = npcDamageDiceFormula(atk);
+  const parts: string[] = [];
+  parts.push(pool > 0 ? `Angriff: ${pool}d8` : `Angriff: ${String(atk?.attackDice || '—').trim() || '—'}`);
+  parts.push(`Schaden: ${dmg}`);
+  if (atk?.armor) parts.push(`Rüstung: ${atk.armor}`);
+  if (atk?.special) {
+    parts.push(`Spezial: ${formatNpcSpecialLabel(atk.special, atk.specialValue)}`);
+  }
+  return parts.join(' · ');
+}
+
+/**
+ * One radial entry per NSC attack row (active phase when using phases).
+ */
+function buildNpcAttackRadialOptions(actor: any): RadialCombatOption[] {
+  if (!actor || actor.type !== 'npc') return [];
+  const { attacks, phaseIndex } = resolveNpcAttackList(actor.system || {});
+  if (!attacks.length) return [];
+  const phaseKey = phaseIndex == null ? 'root' : String(phaseIndex);
+  return attacks.map((atk: any, index: number) => ({
+    id: `npc-attack-${phaseKey}-${index}`,
+    name: (atk?.name && String(atk.name).trim()) || `Angriff ${index + 1}`,
+    description: buildNpcAttackDescription(atk),
+    slot: 'attack' as CombatSlot,
+    source: 'npc-attack' as const,
+    range: 2,
+    npcAttackIndex: index,
+    npcPhaseIndex: phaseIndex,
+    costsAction: true,
+    costsMovement: false,
+    tags: ['attack', 'npc-attack']
+  }));
+}
 
 /**
  * Parse range string (e.g., "8m", "12m", "Self") to numeric meters
@@ -417,6 +459,7 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
   const movementPowers: RadialCombatOption[] = [];
   const allManeuvers: RadialCombatOption[] = [];
   const nonMovementOptions: RadialCombatOption[] = [];
+  const npcAttackOptions = buildNpcAttackRadialOptions(actor);
   
   // --- POWERS (from Actor items) ---
   const items = actor.items || [];
@@ -677,8 +720,9 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
   const hasWeaponAttack = allManeuvers.some(opt => 
     opt.slot === 'attack' && (opt.id === 'weapon-attack' || opt.name.toLowerCase() === 'weapon attack')
   );
-  
-  if (!hasWeaponAttack && !isManeuverHiddenFromActorRadial(actor, 'weapon-attack')) {
+  const skipWeaponForNpc = actor.type === 'npc' && npcAttackOptions.length > 0;
+
+  if (!hasWeaponAttack && !skipWeaponForNpc && !isManeuverHiddenFromActorRadial(actor, 'weapon-attack')) {
     allManeuvers.push({
       id: 'weapon-attack',
       name: 'Weapon Attack',
@@ -733,6 +777,9 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
   
   // Add all non-movement options
   options.push(...nonMovementOptions);
+
+  // NSC-defined attacks (same segment as other attacks)
+  options.push(...npcAttackOptions);
   
   // Add non-movement maneuvers
   const nonMovementManeuvers = allManeuvers.filter(m => m.slot !== 'movement');

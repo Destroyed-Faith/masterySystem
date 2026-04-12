@@ -3385,7 +3385,7 @@
 
 .mastery-system.sheet.actor.npc .npc-attack-card__grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   gap: 8px 10px;
 }
 
@@ -3403,7 +3403,127 @@
 }
 
 .mastery-system.sheet.actor.npc .npc-attack-field--narrow {
-  max-width: 72px;
+  max-width: 88px;
+}
+
+.mastery-system.sheet.actor.npc .npc-attack-field--checks {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+}
+
+.mastery-system.sheet.actor.npc .npc-attack-field--checks label:not(.npc-attack-checkbox) {
+  margin: 0;
+}
+
+.mastery-system.sheet.actor.npc .npc-attack-field--checks input[type="number"] {
+  max-width: 64px;
+}
+
+.mastery-system.sheet.actor.npc .npc-attack-checkbox {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  text-transform: none;
+  letter-spacing: 0;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.mastery-system.sheet.actor.npc .npc-phase-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  align-items: flex-end;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.mastery-system.sheet.actor.npc .npc-phase-toolbar__field label {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 4px;
+}
+
+.mastery-system.sheet.actor.npc .npc-phase-toolbar__field select,
+.mastery-system.sheet.actor.npc .npc-phase-toolbar__field input {
+  min-width: 140px;
+  font-size: 0.85rem;
+  padding: 5px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.35);
+  color: #f0ebe3;
+}
+
+.mastery-system.sheet.actor.npc .npc-special-lists .npc-special-list-block {
+  margin-bottom: 14px;
+}
+
+.mastery-system.sheet.actor.npc .npc-special-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+  color: #e8dcc8;
+}
+
+.mastery-system.sheet.actor.npc .npc-special-list-header button {
+  border-radius: 4px;
+  border: 1px solid rgba(201, 162, 39, 0.45);
+  background: rgba(201, 162, 39, 0.15);
+  color: #ffe9a8;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+
+.mastery-system.sheet.actor.npc .npc-special-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.mastery-system.sheet.actor.npc .npc-special-row input[type="text"] {
+  font-size: 0.85rem;
+  padding: 5px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.35);
+  color: #f0ebe3;
+}
+
+.mastery-system.sheet.actor.npc .npc-special-auto {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+}
+
+.mastery-system.sheet.actor.npc .npc-special-row .npc-combat-special-del,
+.mastery-system.sheet.actor.npc .npc-special-row .npc-raise-special-del {
+  border: none;
+  background: rgba(139, 0, 0, 0.35);
+  color: #fff;
+  border-radius: 4px;
+  padding: 6px 8px;
+  cursor: pointer;
 }
 
 .mastery-system.sheet.actor.npc .npc-attack-field label {

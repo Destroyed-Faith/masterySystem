@@ -49,6 +49,20 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
                 }));
             }
         }
+        if (context.actor?.type === 'npc' && context.system) {
+            if (!Array.isArray(context.system.npcCombatSpecials)) {
+                context.system.npcCombatSpecials = [];
+            }
+            if (!Array.isArray(context.system.npcRaiseSpecials)) {
+                context.system.npcRaiseSpecials = [];
+            }
+            if (Array.isArray(context.system.phases) &&
+                context.system.phases.length > 0 &&
+                (context.system.npcActivePhaseIndex == null ||
+                    !Number.isFinite(Number(context.system.npcActivePhaseIndex)))) {
+                context.system.npcActivePhaseIndex = 0;
+            }
+        }
         // Normalize phases health bars too
         if (context.system?.phases && Array.isArray(context.system.phases)) {
             context.system.phases = context.system.phases.map((phase) => {
@@ -142,6 +156,10 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         // Phase management
         html.find('.phase-add-btn').on('click', this.#onPhaseAdd.bind(this));
         html.find('.phase-delete-btn').on('click', this.#onPhaseDelete.bind(this));
+        html.find('.npc-combat-special-add').on('click', this.#onNpcCombatSpecialAdd.bind(this));
+        html.find('.npc-combat-special-del').on('click', this.#onNpcCombatSpecialDel.bind(this));
+        html.find('.npc-raise-special-add').on('click', this.#onNpcRaiseSpecialAdd.bind(this));
+        html.find('.npc-raise-special-del').on('click', this.#onNpcRaiseSpecialDel.bind(this));
     }
     /**
      * Remove a status effect from the NPC (normal or phase-based)
@@ -183,9 +201,13 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             name: '',
             attackDice: '',
             damage: '',
+            attackDiceCount: undefined,
+            damageDiceCount: undefined,
             armor: '',
             special: '',
-            specialValue: undefined
+            specialValue: undefined,
+            autoApplySpecial: false,
+            autoRaises: 0
         };
         if (phaseIndex !== undefined && phaseIndex !== null) {
             // Phase-based attack value
@@ -290,6 +312,40 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         if (phaseIndex >= 0 && phaseIndex < system.phases.length) {
             system.phases.splice(phaseIndex, 1);
             await this.actor.update({ 'system.phases': system.phases });
+        }
+    }
+    async #onNpcCombatSpecialAdd(event) {
+        event.preventDefault();
+        const system = this.actor.system;
+        const arr = [...(system.npcCombatSpecials || [])];
+        arr.push({ name: '', value: '', auto: false });
+        await this.actor.update({ 'system.npcCombatSpecials': arr });
+    }
+    async #onNpcCombatSpecialDel(event) {
+        event.preventDefault();
+        const i = parseInt(String($(event.currentTarget).data('special-index') ?? '-1'), 10);
+        const system = this.actor.system;
+        const arr = [...(system.npcCombatSpecials || [])];
+        if (i >= 0 && i < arr.length) {
+            arr.splice(i, 1);
+            await this.actor.update({ 'system.npcCombatSpecials': arr });
+        }
+    }
+    async #onNpcRaiseSpecialAdd(event) {
+        event.preventDefault();
+        const system = this.actor.system;
+        const arr = [...(system.npcRaiseSpecials || [])];
+        arr.push({ name: '', value: '', auto: false });
+        await this.actor.update({ 'system.npcRaiseSpecials': arr });
+    }
+    async #onNpcRaiseSpecialDel(event) {
+        event.preventDefault();
+        const i = parseInt(String($(event.currentTarget).data('raise-index') ?? '-1'), 10);
+        const system = this.actor.system;
+        const arr = [...(system.npcRaiseSpecials || [])];
+        if (i >= 0 && i < arr.length) {
+            arr.splice(i, 1);
+            await this.actor.update({ 'system.npcRaiseSpecials': arr });
         }
     }
 }

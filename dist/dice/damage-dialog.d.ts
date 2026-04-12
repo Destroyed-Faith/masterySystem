@@ -16,7 +16,7 @@ export interface DamageDialogData {
 export interface SpecialOption {
     id: string;
     name: string;
-    type: 'power' | 'passive' | 'weapon' | 'power-special';
+    type: 'power' | 'passive' | 'weapon' | 'power-special' | 'npc-combat' | 'npc-raise';
     description: string;
     effect?: string;
     value?: number;

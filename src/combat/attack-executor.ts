@@ -8,6 +8,12 @@ import { logActorItemSummary } from "../utils/debug-helpers";
 import { getAttackAttributeForPowerTreeOrSchool } from "../utils/power-roll-attribute.js";
 import { resolveEquippedWeaponForAttackType } from "../utils/equipment-modifiers.js";
 import { evaluateThreatenedRanged } from "./threatened-ranged.js";
+import {
+  formatNpcSpecialLabel,
+  getNpcAttackByIndex,
+  npcAttackDiceCount,
+  npcDamageDiceFormula
+} from "../utils/npc-attack-model.js";
 
 /**
  * Safely collect items from actor (handles Collection, Array, Map)
@@ -126,6 +132,10 @@ function getAttackAttribute(
     }
   }
 
+  if (option.source === "npc-attack") {
+    return attackType === "ranged" ? "agility" : "might";
+  }
+
   if (weapon) {
     const weaponSystem = weapon.system as any;
     const innateAbilities = weaponSystem.innateAbilities || [];
@@ -187,12 +197,24 @@ export async function createAttackCard(
   logActorItemSummary(attacker, 'attack-card:create');
   
   const items = collectActorItems(attacker);
-  const weapon = resolveWeaponForAttack(items, attackType);
+  let weapon = resolveWeaponForAttack(items, attackType);
+  const isNpcAttack = (option as any).source === "npc-attack";
+  const npcAttackRow = isNpcAttack
+    ? getNpcAttackByIndex(
+        attacker.system,
+        (option as any).npcAttackIndex ?? 0,
+        (option as any).npcPhaseIndex
+      )
+    : null;
 
-  const weaponId = weapon?.id ?? null;
+  if (isNpcAttack) {
+    weapon = null;
+  }
+
+  let weaponId = weapon?.id ?? null;
   
   // Set flags with weaponId (always, even if null)
-  if (!weapon) {
+  if (!weapon && !isNpcAttack) {
     console.warn('Mastery System | [ATTACK EXECUTOR] Actor has no weapon items; baseDamage will fallback.', {
       attackerId: attacker.id,
       attackerName: attacker.name,
@@ -216,7 +238,9 @@ export async function createAttackCard(
   
   // Determine attack attribute
   const attribute = getAttackAttribute(attacker, weapon, option, attackType);
-  const attributeValue = getAttributeValue(attacker, attribute);
+  const poolFromNpc = npcAttackDiceCount(npcAttackRow);
+  const attributeValue =
+    isNpcAttack && poolFromNpc > 0 ? poolFromNpc : getAttributeValue(attacker, attribute);
   const masteryRank = getMasteryRank(attacker);
   
   // Debug: Log attribute reading
@@ -287,7 +311,15 @@ export async function createAttackCard(
     threatenedRanged: tr.threatened,
     rollDisadvantage: tr.rollDisadvantage,
     threateningEnemyTokenIds: tr.threateningEnemyTokenIds,
-    opportunityEnemyTokenIds: tr.opportunityEnemyTokenIds
+    opportunityEnemyTokenIds: tr.opportunityEnemyTokenIds,
+    useNpcAttackDicePool: isNpcAttack,
+    npcAttackDicePool: isNpcAttack ? attributeValue : undefined,
+    npcAttackSource: isNpcAttack,
+    npcAttackIndex: isNpcAttack ? ((option as any).npcAttackIndex ?? 0) : undefined,
+    npcPhaseIndex: isNpcAttack ? ((option as any).npcPhaseIndex ?? null) : undefined,
+    npcAttackName: isNpcAttack
+      ? (npcAttackRow?.name?.trim() || option.name || "NSC-Angriff")
+      : undefined
   };
   
   // Debug log before creating message
@@ -326,6 +358,22 @@ export async function createAttackCard(
   const weaponSpecialsHtml =
     weaponSpecialLines.length > 0
       ? `<div class="detail-row"><span class="detail-label">Weapon specials:</span><span class="detail-value">${weaponSpecialLines.map(attackCardEsc).join(", ")}</span></div>`
+      : "";
+
+  const npcAttackDetailHtml =
+    isNpcAttack && npcAttackRow
+      ? `<div class="detail-row"><span class="detail-label">NSC-Pool:</span><span class="detail-value">${attributeValue}d8</span></div>
+        <div class="detail-row"><span class="detail-label">Schaden:</span><span class="detail-value">${attackCardEsc(npcDamageDiceFormula(npcAttackRow))}</span></div>
+        ${
+          npcAttackRow.armor
+            ? `<div class="detail-row"><span class="detail-label">Rüstung:</span><span class="detail-value">${attackCardEsc(String(npcAttackRow.armor))}</span></div>`
+            : ""
+        }
+        ${
+          npcAttackRow.special
+            ? `<div class="detail-row"><span class="detail-label">Spezial:</span><span class="detail-value">${attackCardEsc(formatNpcSpecialLabel(npcAttackRow.special, npcAttackRow.specialValue))}</span></div>`
+            : ""
+        }`
       : "";
 
   const oppNames = tr.opportunityEnemyTokenIds
@@ -403,6 +451,7 @@ export async function createAttackCard(
         ${weapon ? `<div class="detail-row"><span class="detail-label">Weapon:</span><span class="detail-value">${attackCardEsc(weapon.name)}</span></div>` : ""}
         ${innatesHtml}
         ${weaponSpecialsHtml}
+        ${npcAttackDetailHtml}
         ${selectedPowerId ? `<div class="detail-row"><span class="detail-label">Power:</span><span class="detail-value">${attackCardEsc(option.name)}</span></div>` : ""}
       </div>
       <div class="attack-controls">

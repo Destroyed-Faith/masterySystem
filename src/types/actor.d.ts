@@ -171,12 +171,27 @@ export interface StatusEffect {
 // Attack Value structure for NPCs
 export interface AttackValue {
   name: string;
-  attackDice: string; // e.g., "9"
-  damage: string; // e.g., "5d8"
+  attackDice: string; // e.g., "9" (legacy display / fallback)
+  damage: string; // e.g., "5d8" (legacy if damageDiceCount unset)
+  /** Explicit attack pool: number of d8 for the attack roll (preferred over parsing attackDice) */
+  attackDiceCount?: number;
+  /** Explicit damage pool: number of exploding d8 (preferred over damage string) */
+  damageDiceCount?: number;
   /** Optional armor note for this attack (e.g. AP, ignores X, or "—") */
   armor?: string;
   special?: string; // e.g., "Bleed", "Ignite", "Freeze"
   specialValue?: number; // e.g., 5
+  /** If true, linked special is applied automatically when damage resolves (no raise) */
+  autoApplySpecial?: boolean;
+  /** Extra d8 rolled automatically with damage (no raises spent) */
+  autoRaises?: number;
+}
+
+/** NSC-wide specials for damage / raise UI (with optional auto-apply). */
+export interface NpcListedSpecial {
+  name: string;
+  value?: string | number;
+  auto?: boolean;
 }
 
 // Phase structure for Boss NPCs
@@ -240,6 +255,14 @@ export interface NpcData {
   };
   attackValues?: AttackValue[];
   phases?: BossPhase[]; // For boss NPCs with multiple phases
+  /** Which phase is active for radial attacks / shared lists (0-based). */
+  npcActivePhaseIndex?: number;
+  /** How many attack actions this NPC has per round (minimum 1). */
+  attackSlots?: number;
+  /** Reference list: specials tied to the creature (optional auto-apply). */
+  npcCombatSpecials?: NpcListedSpecial[];
+  /** Reference list: specials typically spent with raises (optional auto-apply). */
+  npcRaiseSpecials?: NpcListedSpecial[];
   conditions: any[];
   statusEffects?: StatusEffect[];
   notes: string;

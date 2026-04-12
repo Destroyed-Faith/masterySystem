@@ -75,6 +75,23 @@
   </div>
   {{/if}}
 
+  {{#if system.phases}}
+  <div class="npc-phase-toolbar npc-section">
+    <div class="npc-phase-toolbar__field">
+      <label>Aktive Phase (Radial / Angriffe)</label>
+      <select name="system.npcActivePhaseIndex" data-dtype="Number">
+        {{#each system.phases as |ph idx|}}
+        <option value="{{idx}}" {{#if (eq ../system.npcActivePhaseIndex idx)}}selected{{/if}}>{{ph.name}}</option>
+        {{/each}}
+      </select>
+    </div>
+    <div class="npc-phase-toolbar__field">
+      <label>Angriffe / Runde</label>
+      <input type="number" name="system.attackSlots" value="{{default system.attackSlots 1}}" min="1" max="20" step="1" data-dtype="Number" title="Wie viele Attack-Aktionen pro Runde im Tracker"/>
+    </div>
+  </div>
+  {{/if}}
+
   {{!-- Sheet Body --}}
   <section class="sheet-body">
     {{#if system.phases}}
@@ -184,17 +201,30 @@
                   </button>
                 </div>
                 <div class="npc-attack-card__grid">
-                  <div class="npc-attack-field">
-                    <label>Würfel</label>
-                    <input type="text" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.attackDice" value="{{attack.attackDice}}" placeholder="z. B. 9k8"/>
+                  <div class="npc-attack-field npc-attack-field--narrow">
+                    <label>Angriff (d8)</label>
+                    <input type="number" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.attackDiceCount" value="{{attack.attackDiceCount}}" min="0" max="99" step="1" data-dtype="Number" placeholder="—" title="Anzahl Würfel für den Angriff"/>
+                  </div>
+                  <div class="npc-attack-field npc-attack-field--narrow">
+                    <label>Schaden (d8)</label>
+                    <input type="number" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.damageDiceCount" value="{{attack.damageDiceCount}}" min="0" max="99" step="1" data-dtype="Number" placeholder="—" title="Anzahl Schadenswürfel"/>
                   </div>
                   <div class="npc-attack-field">
-                    <label>Schaden</label>
+                    <label>Würfel (alt)</label>
+                    <input type="text" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.attackDice" value="{{attack.attackDice}}" placeholder="z. B. 9"/>
+                  </div>
+                  <div class="npc-attack-field">
+                    <label>Schaden (alt)</label>
                     <input type="text" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.damage" value="{{attack.damage}}" placeholder="z. B. 5d8"/>
                   </div>
                   <div class="npc-attack-field">
                     <label>Rüstung</label>
                     <input type="text" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.armor" value="{{default attack.armor ''}}" placeholder="z. B. AP, Mod. —"/>
+                  </div>
+                  <div class="npc-attack-field npc-attack-field--checks">
+                    <label class="npc-attack-checkbox"><input type="checkbox" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.autoApplySpecial" {{#if attack.autoApplySpecial}}checked{{/if}} data-dtype="Boolean"/> Auto-Spezial</label>
+                    <label>Auto +d8</label>
+                    <input type="number" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.autoRaises" value="{{default attack.autoRaises 0}}" min="0" max="20" step="1" data-dtype="Number" title="Zusätzliche Schadenswürfel ohne Raise"/>
                   </div>
                   <div class="npc-attack-field">
                     <label>Spezial</label>
@@ -250,6 +280,10 @@
           <div class="npc-combat-chip">
             <span class="npc-combat-chip__label">Tempo</span>
             <input type="number" name="system.combat.speed" value="{{system.combat.speed}}" data-dtype="Number"/>
+          </div>
+          <div class="npc-combat-chip">
+            <span class="npc-combat-chip__label">Angriffe / Runde</span>
+            <input type="number" name="system.attackSlots" value="{{default system.attackSlots 1}}" min="1" max="20" step="1" data-dtype="Number" title="Attack-Aktionen pro Runde"/>
           </div>
         </div>
       </section>
@@ -330,17 +364,30 @@
                 </button>
               </div>
               <div class="npc-attack-card__grid">
-                <div class="npc-attack-field">
-                  <label>Würfel</label>
-                  <input type="text" name="system.attackValues.{{index}}.attackDice" value="{{attack.attackDice}}" placeholder="z. B. 9k8"/>
+                <div class="npc-attack-field npc-attack-field--narrow">
+                  <label>Angriff (d8)</label>
+                  <input type="number" name="system.attackValues.{{index}}.attackDiceCount" value="{{attack.attackDiceCount}}" min="0" max="99" step="1" data-dtype="Number" placeholder="—" title="Anzahl Würfel für den Angriff"/>
+                </div>
+                <div class="npc-attack-field npc-attack-field--narrow">
+                  <label>Schaden (d8)</label>
+                  <input type="number" name="system.attackValues.{{index}}.damageDiceCount" value="{{attack.damageDiceCount}}" min="0" max="99" step="1" data-dtype="Number" placeholder="—" title="Anzahl Schadenswürfel"/>
                 </div>
                 <div class="npc-attack-field">
-                  <label>Schaden</label>
+                  <label>Würfel (alt)</label>
+                  <input type="text" name="system.attackValues.{{index}}.attackDice" value="{{attack.attackDice}}" placeholder="z. B. 9"/>
+                </div>
+                <div class="npc-attack-field">
+                  <label>Schaden (alt)</label>
                   <input type="text" name="system.attackValues.{{index}}.damage" value="{{attack.damage}}" placeholder="z. B. 5d8"/>
                 </div>
                 <div class="npc-attack-field">
                   <label>Rüstung</label>
                   <input type="text" name="system.attackValues.{{index}}.armor" value="{{default attack.armor ''}}" placeholder="z. B. AP, Mod. —"/>
+                </div>
+                <div class="npc-attack-field npc-attack-field--checks">
+                  <label class="npc-attack-checkbox"><input type="checkbox" name="system.attackValues.{{index}}.autoApplySpecial" {{#if attack.autoApplySpecial}}checked{{/if}} data-dtype="Boolean"/> Auto-Spezial</label>
+                  <label>Auto +d8</label>
+                  <input type="number" name="system.attackValues.{{index}}.autoRaises" value="{{default attack.autoRaises 0}}" min="0" max="20" step="1" data-dtype="Number" title="Zusätzliche Schadenswürfel ohne Raise"/>
                 </div>
                 <div class="npc-attack-field">
                   <label>Spezial</label>
@@ -379,6 +426,47 @@
         </div>
       </div>
     {{/if}}
+
+    <div class="npc-section npc-special-lists">
+      <h3 class="npc-section__title"><i class="fas fa-list"></i> Spezial-Listen (Schaden / Raises)</h3>
+      <p class="hint">Einträge mit „Auto“ werden beim Schaden ohne Raise angewendet. Andere erscheinen in der Raise-Auswahl.</p>
+      <div class="npc-special-list-block">
+        <div class="npc-special-list-header">
+          <span>NSC-Speziale</span>
+          <button type="button" class="npc-combat-special-add" title="Eintrag hinzufügen"><i class="fas fa-plus"></i></button>
+        </div>
+        <div class="npc-special-list-rows">
+          {{#each system.npcCombatSpecials as |row i|}}
+          <div class="npc-special-row" data-special-index="{{i}}">
+            <input type="text" name="system.npcCombatSpecials.{{i}}.name" value="{{row.name}}" placeholder="Name"/>
+            <input type="text" name="system.npcCombatSpecials.{{i}}.value" value="{{row.value}}" placeholder="Wert"/>
+            <label class="npc-special-auto"><input type="checkbox" name="system.npcCombatSpecials.{{i}}.auto" {{#if row.auto}}checked{{/if}} data-dtype="Boolean"/> Auto</label>
+            <button type="button" class="npc-combat-special-del" data-special-index="{{i}}" title="Entfernen"><i class="fas fa-trash"></i></button>
+          </div>
+          {{else}}
+          <p class="hint">Noch keine Einträge.</p>
+          {{/each}}
+        </div>
+      </div>
+      <div class="npc-special-list-block">
+        <div class="npc-special-list-header">
+          <span>Raise-Speziale</span>
+          <button type="button" class="npc-raise-special-add" title="Eintrag hinzufügen"><i class="fas fa-plus"></i></button>
+        </div>
+        <div class="npc-special-list-rows">
+          {{#each system.npcRaiseSpecials as |row i|}}
+          <div class="npc-special-row" data-raise-index="{{i}}">
+            <input type="text" name="system.npcRaiseSpecials.{{i}}.name" value="{{row.name}}" placeholder="Name"/>
+            <input type="text" name="system.npcRaiseSpecials.{{i}}.value" value="{{row.value}}" placeholder="Wert"/>
+            <label class="npc-special-auto"><input type="checkbox" name="system.npcRaiseSpecials.{{i}}.auto" {{#if row.auto}}checked{{/if}} data-dtype="Boolean"/> Auto</label>
+            <button type="button" class="npc-raise-special-del" data-raise-index="{{i}}" title="Entfernen"><i class="fas fa-trash"></i></button>
+          </div>
+          {{else}}
+          <p class="hint">Noch keine Einträge.</p>
+          {{/each}}
+        </div>
+      </div>
+    </div>
 
     {{!-- Notes --}}
     <div class="notes-panel npc-section npc-section--notes">

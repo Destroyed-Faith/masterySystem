@@ -4,6 +4,7 @@
  */
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { resolveEquippedWeaponForAttackType } from '../utils/equipment-modifiers.js';
+import { formatNpcSpecialLabel, getNpcAttackByIndex, npcDamageDiceFormula, npcSpecialEffectString } from '../utils/npc-attack-model.js';
 /**
  * Show damage dialog after successful attack
  */
@@ -173,10 +174,11 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         actorItemsIsMap: actorToUse?.items instanceof Map,
         actorItemsSize: actorToUse?.items?.size
     });
+    const isNpcAttackFlow = !!(flags?.npcAttackSource === true && actorToUse.type === 'npc');
     // Resolve weapon with priority: equipped melee weapon > equipped weapon > weaponId match > any weapon
     let weaponForDamage = null;
     // Method 1: If weaponId is provided, try to find it first (but verify it's still valid)
-    if (weaponId && actorToUse) {
+    if (!isNpcAttackFlow && weaponId && actorToUse) {
         if (actorToUse.items?.get) {
             weaponForDamage = actorToUse.items.get(weaponId);
         }
@@ -212,7 +214,7 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         }
     }
     // Method 1.5: If not found in actor items, try to get it directly from game.items
-    if (!weaponForDamage && weaponId) {
+    if (!isNpcAttackFlow && !weaponForDamage && weaponId) {
         try {
             const weaponItem = game.items?.get(weaponId);
             if (weaponItem && weaponItem.actor?.id === actorToUse?.id) {
@@ -230,11 +232,11 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         }
     }
     // Method 2: Find in items array by ID (if not already found)
-    if (!weaponForDamage && weaponId) {
+    if (!isNpcAttackFlow && !weaponForDamage && weaponId) {
         weaponForDamage = items.find((item) => item.id === weaponId);
     }
     // Method 3: Equipped weapon matching attack type (from attack card flags)
-    if (!weaponForDamage && flags && (flags.attackType === 'melee' || flags.attackType === 'ranged')) {
+    if (!isNpcAttackFlow && !weaponForDamage && flags && (flags.attackType === 'melee' || flags.attackType === 'ranged')) {
         weaponForDamage = resolveEquippedWeaponForAttackType(items, flags.attackType);
         if (weaponForDamage) {
             console.log('Mastery System | [DAMAGE DIALOG] Resolved weapon by attackType', {
@@ -245,19 +247,20 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         }
     }
     // Method 4: Legacy — equipped melee, then any equipped (if attackType missing, e.g. old messages)
-    if (!weaponForDamage) {
+    if (!isNpcAttackFlow && !weaponForDamage) {
         weaponForDamage = items.find((item) => item.type === 'weapon' &&
             item.system?.equipped === true &&
             item.system?.weaponType === 'melee');
     }
-    if (!weaponForDamage) {
+    if (!isNpcAttackFlow && !weaponForDamage) {
         weaponForDamage = items.find((item) => item.type === 'weapon' && item.system?.equipped === true);
     }
     // Method 5: First weapon item on actor (last resort for base damage string)
-    if (!weaponForDamage) {
+    if (!isNpcAttackFlow && !weaponForDamage) {
         weaponForDamage = items.find((item) => item.type === 'weapon');
     }
     console.log('Mastery System | [DAMAGE DIALOG] Weapon loading', {
+        isNpcAttackFlow,
         weaponId: weaponId,
         totalItems: items.length,
         weaponItems: items.filter((item) => item.type === 'weapon').length,
@@ -268,11 +271,13 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         usedFreshActor: !!freshAttacker
     });
     // Resolve base damage using helper (returns string directly)
-    const baseDamage = resolveWeaponBaseDamage(weaponForDamage);
+    const baseDamage = isNpcAttackFlow ? '0' : resolveWeaponBaseDamage(weaponForDamage);
     // Sanitize base damage before use
     const sanitizedBaseDamage = sanitizeDiceNotation(baseDamage);
     // Weapon specials should come from the same resolved weapon (only once)
-    const weaponSpecials = weaponForDamage?.system?.specials ?? [];
+    const weaponSpecials = isNpcAttackFlow
+        ? []
+        : (weaponForDamage?.system?.specials ?? []);
     // Debug log after weapon resolve
     console.log('Mastery System | [WEAPON-ID DEBUG]', {
         messageType: 'damage-dialog:weapon-resolve',
@@ -445,12 +450,48 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         hasSelectedPower: !!selectedPowerData,
         selectedPowerName: selectedPowerData?.name
     });
+    let npcAutoDamageDice = 0;
+    const npcAutoSpecialStrings = [];
+    const npcLists = buildNpcSpecialOptionsFromActor(actorToUse);
+    npcAutoSpecialStrings.push(...npcLists.autoEffectStrings);
+    if (isNpcAttackFlow) {
+        const atk = getNpcAttackByIndex(actorToUse.system, flags?.npcAttackIndex, flags?.npcPhaseIndex);
+        powerDamage = npcDamageDiceFormula(atk);
+        npcAutoDamageDice += Math.max(0, Math.floor(Number(atk?.autoRaises) || 0));
+        const atkName = String(flags?.npcAttackName || atk?.name || 'NSC-Angriff');
+        const inlineSpecials = [];
+        if (atk?.special) {
+            const eff = npcSpecialEffectString(atk.special, atk.specialValue);
+            if (atk.autoApplySpecial) {
+                if (eff)
+                    npcAutoSpecialStrings.push(eff);
+            }
+            else if (eff) {
+                inlineSpecials.push(eff);
+            }
+        }
+        selectedPowerData = {
+            id: 'npc-attack-inline',
+            name: atkName,
+            level: 1,
+            specials: inlineSpecials,
+            damage: powerDamage
+        };
+    }
+    const npcAutoNoteLines = [];
+    if (npcAutoDamageDice > 0) {
+        npcAutoNoteLines.push(`+${npcAutoDamageDice}d8 automatisch`);
+    }
+    if (npcAutoSpecialStrings.length > 0) {
+        npcAutoNoteLines.push(`Speziale: ${npcAutoSpecialStrings.join(', ')}`);
+    }
     // Calculate passive damage (from equipped passives)
     const passiveDamage = await calculatePassiveDamage(attacker);
     console.log('Mastery System | DEBUG: showDamageDialog - passiveDamage', passiveDamage);
     // Collect available specials (include power specials from selected power)
     // Use weaponForDamage (found weapon or fallback) to ensure weapon specials are included
-    const availableSpecials = await collectAvailableSpecials(attacker, weaponForDamage, selectedPowerData);
+    const baseSpecials = await collectAvailableSpecials(actorToUse, weaponForDamage, selectedPowerData);
+    const availableSpecials = [...baseSpecials, ...npcLists.options];
     console.log('Mastery System | DEBUG: showDamageDialog - availableSpecials', {
         count: availableSpecials.length,
         specials: availableSpecials.map(s => ({ id: s.id, name: s.name, type: s.type }))
@@ -462,7 +503,7 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
         : [];
     // Create damage card as chat message instead of dialog
     return new Promise((resolve) => {
-        const damageCardContent = createDamageCardContent(attacker, target, baseDamage, powerDamage, passiveDamage, raises, availableSpecials, weaponSpecials, resolve, selectedPowerData, weaponInnateLines);
+        const damageCardContent = createDamageCardContent(attacker, target, baseDamage, powerDamage, passiveDamage, raises, availableSpecials, weaponSpecials, resolve, selectedPowerData, weaponInnateLines, npcAutoNoteLines);
         // Get targetTokenId if target is a token actor (for unlinked tokens)
         let targetTokenId = null;
         if (target.isToken) {
@@ -498,7 +539,10 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
                     raises,
                     stoneDamageBonusDice,
                     availableSpecials,
-                    weaponSpecials
+                    weaponSpecials,
+                    npcAutoDamageDice,
+                    npcAutoSpecialStrings,
+                    npcAttackSource: !!flags?.npcAttackSource
                 }
             }
         };
@@ -529,7 +573,7 @@ function damageCardHtmlEsc(text) {
 /**
  * Create HTML content for damage card in chat
  */
-function createDamageCardContent(attacker, target, baseDamage, powerDamage, passiveDamage, raises, availableSpecials, _weaponSpecials, _resolve, selectedPower, weaponInnateLines = []) {
+function createDamageCardContent(attacker, target, baseDamage, powerDamage, passiveDamage, raises, availableSpecials, _weaponSpecials, _resolve, selectedPower, weaponInnateLines = [], npcAutoNoteLines = []) {
     let raisesSection = '';
     if (raises > 0) {
         // Create raise items with all specials directly in the dropdown
@@ -591,6 +635,12 @@ function createDamageCardContent(attacker, target, baseDamage, powerDamage, pass
         </div>
       </div>
       <div class="damage-details">
+        ${npcAutoNoteLines.length > 0
+        ? `<div class="damage-row mastery-damage-npc-auto">
+          <span class="damage-label">Automatisch:</span>
+          <span class="damage-value">${npcAutoNoteLines.map(damageCardHtmlEsc).join(' · ')}</span>
+        </div>`
+        : ''}
         <div class="damage-row">
           <span class="damage-label">Base Weapon Damage:</span>
           <span class="damage-value">${baseDamage || '0'}</span>
@@ -810,7 +860,7 @@ function initializeDamageCard(messageId, resolve) {
             availableSpecialsCount: flags.availableSpecials?.length || 0,
             raiseSelectionsSize: raiseSelections.size
         });
-        const result = await calculateDamageResult(flags.baseDamage, flags.powerDamage, flags.passiveDamage, flags.raises, raiseSelections, flags.availableSpecials, attacker, target, Math.max(0, Number(flags.stoneDamageBonusDice) || 0));
+        const result = await calculateDamageResult(flags.baseDamage, flags.powerDamage, flags.passiveDamage, flags.raises, raiseSelections, flags.availableSpecials, attacker, target, Math.max(0, Number(flags.stoneDamageBonusDice) || 0), Math.max(0, Number(flags.npcAutoDamageDice) || 0), Array.isArray(flags.npcAutoSpecialStrings) ? flags.npcAutoSpecialStrings : []);
         console.log('Mastery System | [ROLL DAMAGE BUTTON] calculateDamageResult returned', {
             messageId,
             hasResult: !!result,
@@ -830,6 +880,52 @@ function initializeDamageCard(messageId, resolve) {
 /**
  * Calculate passive damage bonuses
  */
+function buildNpcSpecialOptionsFromActor(actor) {
+    const options = [];
+    const autoEffectStrings = [];
+    if (actor.type !== 'npc')
+        return { options, autoEffectStrings };
+    const sys = actor.system || {};
+    const combatSpec = Array.isArray(sys.npcCombatSpecials) ? sys.npcCombatSpecials : [];
+    combatSpec.forEach((row, i) => {
+        const name = String(row?.name || '').trim() || `Spezial ${i + 1}`;
+        const effect = npcSpecialEffectString(name, row?.value);
+        const display = formatNpcSpecialLabel(name, row?.value);
+        if (row?.auto === true) {
+            if (effect)
+                autoEffectStrings.push(effect);
+        }
+        else if (effect) {
+            options.push({
+                id: `npc-c-${i}`,
+                name: `[NSC] ${display}`,
+                type: 'npc-combat',
+                description: 'NSC-Spezial',
+                effect
+            });
+        }
+    });
+    const raiseSpec = Array.isArray(sys.npcRaiseSpecials) ? sys.npcRaiseSpecials : [];
+    raiseSpec.forEach((row, i) => {
+        const name = String(row?.name || '').trim() || `Raise-Spezial ${i + 1}`;
+        const effect = npcSpecialEffectString(name, row?.value);
+        const display = formatNpcSpecialLabel(name, row?.value);
+        if (row?.auto === true) {
+            if (effect)
+                autoEffectStrings.push(effect);
+        }
+        else if (effect) {
+            options.push({
+                id: `npc-r-${i}`,
+                name: `[Raise] ${display}`,
+                type: 'npc-raise',
+                description: 'Für Raises gedacht',
+                effect
+            });
+        }
+    });
+    return { options, autoEffectStrings };
+}
 async function calculatePassiveDamage(_actor) {
     // Note: getPassiveSlots doesn't exist in a separate module
     // For now, skip passive damage calculation until passives module is properly implemented
@@ -1070,7 +1166,7 @@ async function applyDamageToTarget(target, damage, attacker) {
 /**
  * Calculate damage result from selections
  */
-async function calculateDamageResult(baseDamage, powerDamage, passiveDamage, raises, raiseSelections, availableSpecials, attacker, target, stoneDamageBonusDice = 0) {
+async function calculateDamageResult(baseDamage, powerDamage, passiveDamage, raises, raiseSelections, availableSpecials, attacker, target, stoneDamageBonusDice = 0, npcAutoDamageDice = 0, npcAutoSpecialStrings = []) {
     // Roll base damage
     // Sanitize dice notations before rolling
     const sanitizedBaseDamage = sanitizeDiceNotation(baseDamage || '0');
@@ -1124,10 +1220,24 @@ async function calculateDamageResult(baseDamage, powerDamage, passiveDamage, rai
             else if (selection.type === 'special') {
                 const special = availableSpecials.find(s => s.id === selection.value);
                 if (special) {
-                    specialsUsed.push(special.name);
+                    specialsUsed.push(special.effect || special.name);
                 }
             }
         }
+    }
+    for (const line of npcAutoSpecialStrings) {
+        if (line)
+            specialsUsed.push(line);
+    }
+    let npcAutoDiceIdx = 0;
+    for (let j = 0; j < npcAutoDamageDice; j++) {
+        npcAutoDiceIdx += 1;
+        const r = await rollDiceWithDetail('1d8', `NSC auto (+1d8) #${npcAutoDiceIdx}`);
+        raiseDamage += r.total;
+        if (r.line)
+            rollDetails.push(r.line);
+        if (r.roll)
+            damageChatRolls.push(r.roll);
     }
     // Total damage = Base Weapon + Might stone bonus + Power Damage + Raises (Passives separate)
     const totalDamage = baseDamageRolled + stoneMightDamageRolled + powerDamageRolled + raiseDamage;

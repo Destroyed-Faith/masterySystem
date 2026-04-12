@@ -194,9 +194,13 @@ export function getRoundState(actor: Actor, combat: Combat | null): RoundState {
 
   // Create default state
   const isPC = owner.type === 'character';
+  const npcAttackSlots =
+    owner.type === 'npc'
+      ? Math.max(1, Math.min(20, Math.floor(Number(owner.system?.attackSlots) || 1)))
+      : 1;
   const baseActions = {
     movementActions: { total: 1, used: 0 },
-    attackActions: { total: 1, used: 0 },
+    attackActions: { total: npcAttackSlots, used: 0 },
     reactionActions: { total: 1, used: 0 }
   };
 
@@ -937,13 +941,17 @@ export async function resetTurnState(actor: Actor, combat: Combat | null): Promi
 export async function resetRoundState(actor: Actor, combatant: Combatant, combat: Combat): Promise<void> {
   // Create fresh round state
   const isPC = actor.type === 'character';
+  const npcSlots =
+    !isPC && (actor as any).type === 'npc'
+      ? Math.max(1, Math.min(20, Math.floor(Number((actor as any).system?.attackSlots) || 1)))
+      : 1;
   const roundState: RoundState = {
     combatId: (combat as any).id ?? '',
     round: combat.round || 1,
     turn: combat.turn || 0,
     isPC,
     movementActions: { total: 1, used: 0 },
-    attackActions: { total: 1, used: 0 },
+    attackActions: { total: isPC ? 1 : npcSlots, used: 0 },
     reactionActions: { total: 1, used: 0 },
     moveBonusMeters: 0,
     usedPowerIdsThisRound: [],

@@ -22,7 +22,11 @@ export interface RadialCombatOption {
   name: string;
   description: string;
   slot: CombatSlot;  // "attack" | "movement" | "utility" | "reaction"
-  source: 'power' | 'maneuver';
+  source: 'power' | 'maneuver' | 'npc-attack';
+  /** Set when source is npc-attack */
+  npcAttackIndex?: number;
+  /** Phase index for phased bosses; null/undefined = use actor system.npcActivePhaseIndex */
+  npcPhaseIndex?: number | null;
   range?: number; // numeric range in meters (always set for all options)
   meleeReachMeters?: number; // Optional override for melee reach in meters
   // Utility targeting fields

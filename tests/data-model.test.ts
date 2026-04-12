@@ -144,6 +144,20 @@ describe('Actor Data Model - template.json', () => {
       expect(npcSaves.spirit).toBeDefined();
     });
   });
+
+  describe('NPC combat extensions', () => {
+    const npc = template.Actor.npc;
+
+    it('has attack slot and phase index defaults', () => {
+      expect(npc.attackSlots).toBe(1);
+      expect(npc.npcActivePhaseIndex).toBe(0);
+    });
+
+    it('has special list arrays', () => {
+      expect(Array.isArray(npc.npcCombatSpecials)).toBe(true);
+      expect(Array.isArray(npc.npcRaiseSpecials)).toBe(true);
+    });
+  });
 });
 
 describe('Item Data Model - template.json', () => {

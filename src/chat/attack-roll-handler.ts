@@ -215,7 +215,18 @@ export function registerAttackRollClickHandler(): void {
       
       const attributeKey = flags.attribute?.toLowerCase();
       const liveAttr = attackerForRoll?.system?.attributes?.[attributeKey]?.value;
-      let numDice = Number.isFinite(liveAttr) && liveAttr > 0 ? liveAttr : (flags.attributeValue ?? 2);
+      const npcPool =
+        flags.useNpcAttackDicePool &&
+        Number.isFinite(Number(flags.npcAttackDicePool)) &&
+        Number(flags.npcAttackDicePool) > 0
+          ? Math.floor(Number(flags.npcAttackDicePool))
+          : 0;
+      let numDice =
+        npcPool > 0
+          ? npcPool
+          : Number.isFinite(liveAttr) && liveAttr > 0
+            ? liveAttr
+            : (flags.attributeValue ?? 2);
       
       // Apply health penalty (reduces dice pool)
       const { getCurrentPenalty } = await import('../utils/calculations.js');
@@ -410,6 +421,10 @@ export function registerAttackRollClickHandler(): void {
           
           // PRIORITY: Use weaponId from flags if set (this is the weapon used when creating the attack card)
           let weaponId = updatedFlags.weaponId || null;
+
+          if (updatedFlags.npcAttackSource) {
+            weaponId = null;
+          }
           
           // Verify the weapon from flags exists and is valid
           if (weaponId) {
@@ -464,7 +479,7 @@ export function registerAttackRollClickHandler(): void {
           }
           
           // Fallback: If no weaponId in flags or weapon not found, use equipped weapon
-          if (!weaponId) {
+          if (!weaponId && !updatedFlags.npcAttackSource) {
             const equippedWeapon = items.find((item: any) => 
               item.type === 'weapon' && (item.system as any)?.equipped === true
             );
