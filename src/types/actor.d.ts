@@ -173,6 +173,8 @@ export interface AttackValue {
   name: string;
   attackDice: string; // e.g., "9"
   damage: string; // e.g., "5d8"
+  /** Optional armor note for this attack (e.g. AP, ignores X, or "—") */
+  armor?: string;
   special?: string; // e.g., "Bleed", "Ignite", "Freeze"
   specialValue?: number; // e.g., 5
 }

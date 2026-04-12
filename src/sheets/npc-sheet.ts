@@ -11,8 +11,8 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     return foundry.utils.mergeObject(super.defaultOptions as any, {
       classes: ['mastery-system', 'sheet', 'actor', 'npc'],
       template: 'systems/mastery-system/templates/actor/npc-sheet.hbs',
-      width: 600,
-      height: 700,
+      width: 720,
+      height: 820,
       tabs: [
         {
           navSelector: '.sheet-tabs',
@@ -206,6 +206,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
       name: '',
       attackDice: '',
       damage: '',
+      armor: '',
       special: '',
       specialValue: undefined
     };
@@ -299,14 +300,7 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         spirit: 0
       },
       attackValues: [],
-      statusEffects: [],
-      divineCombat: {
-        startingPool: 0,
-        regeneration: 0,
-        basisAttack: 0,
-        basisDefense: 0,
-        vitality: 0
-      }
+      statusEffects: []
     };
     
     system.phases.push(newPhase);

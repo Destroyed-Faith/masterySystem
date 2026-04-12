@@ -1,6 +1,6 @@
 {
   "Actor": {
-    "types": ["character", "npc", "summon", "divine"],
+    "types": ["character", "npc", "summon"],
     "templates": {
       "base": {
         "bio": {
@@ -252,24 +252,6 @@
         "speed": 6
       },
       "abilities": [],
-      "notes": ""
-    },
-    "divine": {
-      "bio": {
-        "name": "",
-        "title": "",
-        "description": ""
-      },
-      "stones": {
-        "vitality": 10,
-        "pool": 20
-      },
-      "divineClash": {
-        "attack": 0,
-        "defense": 0,
-        "overhang": 0
-      },
-      "artifacts": [],
       "notes": ""
     }
   },

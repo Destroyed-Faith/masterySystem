@@ -8,11 +8,11 @@ const template = JSON.parse(readFileSync(templatePath, 'utf8'));
 
 describe('Actor Data Model - template.json', () => {
   describe('Actor Types', () => {
-    it('defines character, npc, summon, divine types', () => {
+    it('defines character, npc, summon types', () => {
       expect(template.Actor.types).toContain('character');
       expect(template.Actor.types).toContain('npc');
       expect(template.Actor.types).toContain('summon');
-      expect(template.Actor.types).toContain('divine');
+      expect(template.Actor.types).not.toContain('divine');
     });
   });
 
