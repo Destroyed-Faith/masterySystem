@@ -34,7 +34,7 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
-                effect: { text: 'Make 1 Extra Attack (0.5) using half your Attack Dice; on hit deal Natural DMG +1d8', dice: '1d8' },
+                effect: { text: 'Make 2 Claw Attacks. Split your Attack Pool evenly between them. Each hit deals +1d8 damage', dice: '1d8' },
                 specials: []
             },
             '2': {
@@ -43,7 +43,7 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
-                effect: { text: 'Make 1 Extra Attack (0.5) using half your Attack Dice; on hit deal Natural DMG +2d8', dice: '2d8' },
+                effect: { text: 'Make 2 Claw Attacks. Split your Attack Pool evenly between them. Each hit deals +2d8 damage', dice: '2d8' },
                 specials: []
             },
             '3': {
@@ -52,7 +52,7 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
-                effect: { text: 'Make 2 Extra Attacks (each 0.5) using half pool; each hit deals +2d8', dice: '2d8' },
+                effect: { text: 'Make 2 Claw Attacks. Split your Attack Pool evenly between them. Each hit deals +3d8 damage', dice: '3d8' },
                 specials: []
             },
             '4': {
@@ -61,7 +61,7 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
-                effect: { text: 'Make 2 Extra Attacks (each 0.5) using half pool; each hit deals +3d8', dice: '3d8' },
+                effect: { text: 'Make 2 Claw Attacks. Split your Attack Pool evenly between them. Each hit deals +4d8 damage', dice: '4d8' },
                 specials: []
             }
         }
@@ -87,7 +87,7 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
-                effect: { text: 'Make a Bite dealing Natural DMG +2d8', dice: '2d8' },
+                effect: { text: 'Make a Bite dealing Natural DMG +1d8', dice: '1d8' },
                 specials: [{ key: 'Mark', rank: 1 }],
                 trigger: 'When you are hit by a melee attack'
             },
@@ -97,7 +97,7 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
-                effect: { text: 'Make a Bite dealing Natural DMG +3d8', dice: '3d8' },
+                effect: { text: 'Make a Bite dealing Natural DMG +2d8', dice: '2d8' },
                 specials: [{ key: 'Mark', rank: 2 }],
                 trigger: 'When you are hit by a melee attack'
             },
@@ -107,7 +107,7 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
-                effect: { text: 'Make a Bite dealing Natural DMG +4d8', dice: '4d8' },
+                effect: { text: 'Make a Bite dealing Natural DMG +2d8', dice: '2d8' },
                 specials: [{ key: 'Mark', rank: 3 }],
                 trigger: 'When you are hit by a melee attack'
             },
@@ -117,7 +117,7 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'touch' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
-                effect: { text: 'Make a Bite dealing Natural DMG +5d8', dice: '5d8' },
+                effect: { text: 'Make a Bite dealing Natural DMG +3d8', dice: '3d8' },
                 specials: [{ key: 'Mark', rank: 4 }],
                 trigger: 'When you are hit by a melee attack'
             }
@@ -143,7 +143,7 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'touch' },
                 aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'instant' },
-                effect: { text: 'Tail Attack +2d8 damage', dice: '2d8' },
+                effect: { text: 'Tail Attack +1d8 damage', dice: '1d8' },
                 specials: [{ key: 'Push', rank: 2 }]
             },
             '2': {
@@ -152,7 +152,7 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'touch' },
                 aoe: { shape: 'radius', m: 3 },
                 duration: { kind: 'instant' },
-                effect: { text: 'Tail Attack +3d8 damage', dice: '3d8' },
+                effect: { text: 'Tail Attack +1d8 damage', dice: '1d8' },
                 specials: [{ key: 'Push', rank: 4 }, { key: 'Prone', rank: 1 }]
             },
             '3': {
@@ -161,8 +161,8 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'touch' },
                 aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'instant' },
-                effect: { text: 'Tail Attack +4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Push', rank: 6 }, { key: 'Prone', rank: 2 }]
+                effect: { text: 'Tail Attack +2d8 damage', dice: '2d8' },
+                specials: [{ key: 'Push', rank: 8 }, { key: 'Prone', rank: 1 }]
             },
             '4': {
 
@@ -170,7 +170,7 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'touch' },
                 aoe: { shape: 'radius', m: 5 },
                 duration: { kind: 'instant' },
-                effect: { text: 'Tail Attack +5d8 damage', dice: '5d8' },
+                effect: { text: 'Tail Attack +3d8 damage', dice: '3d8' },
                 specials: [{ key: 'Push', rank: 8 }, { key: 'Prone', rank: 2 }]
             }
         }
@@ -190,38 +190,38 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
         levels: {
             '1': {
 
-                type: 'ranged',
-                range: { kind: 'distance', m: 6 },
+                type: 'active',
+                range: { kind: 'self' },
+                aoe: { shape: 'cone', lengthM: 4, angleDeg: 60 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Deal 1d8 elemental damage', dice: '1d8' },
+                specials: []
+            },
+            '2': {
+
+                type: 'active',
+                range: { kind: 'self' },
                 aoe: { shape: 'cone', lengthM: 6, angleDeg: 60 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Deal 2d8 elemental damage', dice: '2d8' },
                 specials: []
             },
-            '2': {
-
-                type: 'ranged',
-                range: { kind: 'distance', m: 8 },
-                aoe: { shape: 'cone', lengthM: 8, angleDeg: 60 },
-                duration: { kind: 'instant' },
-                effect: { text: 'Deal 4d8 elemental damage', dice: '4d8' },
-                specials: []
-            },
             '3': {
 
-                type: 'ranged',
-                range: { kind: 'distance', m: 10 },
-                aoe: { shape: 'cone', lengthM: 10, angleDeg: 60 },
+                type: 'active',
+                range: { kind: 'self' },
+                aoe: { shape: 'cone', lengthM: 8, angleDeg: 60 },
                 duration: { kind: 'instant' },
-                effect: { text: 'Deal 6d8 elemental damage', dice: '6d8' },
+                effect: { text: 'Deal 3d8 elemental damage', dice: '3d8' },
                 specials: []
             },
             '4': {
 
-                type: 'ranged',
-                range: { kind: 'distance', m: 12 },
-                aoe: { shape: 'cone', lengthM: 12, angleDeg: 60 },
+                type: 'active',
+                range: { kind: 'self' },
+                aoe: { shape: 'cone', lengthM: 10, angleDeg: 60 },
                 duration: { kind: 'instant' },
-                effect: { text: 'Deal 8d8 elemental damage', dice: '8d8' },
+                effect: { text: 'Deal 4d8 elemental damage', dice: '4d8' },
                 specials: []
             }
         }
@@ -297,7 +297,7 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +2 Armor and 2 Temp HP at the start of your turn (non-stacking; refreshes)'},
+                effect: { text: 'Gain +2 Armor. At the start of your turn, gain 1 Temp HP from this passive (non-stacking; refreshes)' },
                 specials: []
             },
             '2': {
@@ -306,7 +306,7 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +4 Armor and 4 Temp HP (refreshes)'},
+                effect: { text: 'Gain +4 Armor. At the start of your turn, gain 2 Temp HP from this passive (non-stacking; refreshes)' },
                 specials: []
             },
             '3': {
@@ -315,7 +315,7 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +6 Armor and 6 Temp HP (refreshes)'},
+                effect: { text: 'Gain +6 Armor. At the start of your turn, gain 3 Temp HP from this passive (non-stacking; refreshes)' },
                 specials: []
             },
             '4': {
@@ -324,7 +324,7 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Gain +8 Armor and 8 Temp HP (refreshes)'},
+                effect: { text: 'Gain +8 Armor. At the start of your turn, gain 4 Temp HP from this passive (non-stacking; refreshes)' },
                 specials: []
             }
         }
@@ -334,7 +334,7 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
         category: 'reaction',
         tags: [],
         rank: 1,
-        trigger: 'When you are hit by an attack',
+        trigger: 'When you are hit by an attack, before damage is resolved',
         cost: {
             action: 'reaction',
             stones: 0
@@ -349,9 +349,9 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 1 },
-                effect: { text: 'Gain 2d8 Temp HP and +2 Evade'},
+                effect: { text: 'Gain 1d8 Temp HP and +1 Evade until the end of your next turn', dice: '1d8' },
                 specials: [],
-                trigger: 'When you are hit by an attack'
+                trigger: 'When you are hit by an attack, before damage is resolved'
             },
             '2': {
 
@@ -359,9 +359,9 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 1 },
-                effect: { text: 'Gain 4d8 Temp HP and +4 Evade'},
+                effect: { text: 'Gain 2d8 Temp HP and +2 Evade until the end of your next turn', dice: '2d8' },
                 specials: [],
-                trigger: 'When you are hit by an attack'
+                trigger: 'When you are hit by an attack, before damage is resolved'
             },
             '3': {
 
@@ -369,9 +369,9 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 1 },
-                effect: { text: 'Gain 6d8 Temp HP and +6 Evade'},
+                effect: { text: 'Gain 3d8 Temp HP and +3 Evade until the end of your next turn', dice: '3d8' },
                 specials: [],
-                trigger: 'When you are hit by an attack'
+                trigger: 'When you are hit by an attack, before damage is resolved'
             },
             '4': {
 
@@ -379,9 +379,9 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 1 },
-                effect: { text: 'Gain 8d8 Temp HP and +8 Evade'},
+                effect: { text: 'Gain 4d8 Temp HP and +4 Evade until the end of your next turn', dice: '4d8' },
                 specials: [],
-                trigger: 'When you are hit by an attack'
+                trigger: 'When you are hit by an attack, before damage is resolved'
             }
         }
     },
@@ -404,8 +404,8 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
-                effect: { text: 'Cleanse(4) on yourself' },
-                specials: [{ key: 'Cleanse', rank: 4 }]
+                effect: { text: 'Reduce one eligible effect on yourself by 4. Then heal 1d8 HP and gain +1 Armor until the end of your next turn', dice: '1d8' },
+                specials: []
             },
             '2': {
 
@@ -413,8 +413,8 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
-                effect: { text: 'Cleanse(8) on yourself' },
-                specials: [{ key: 'Cleanse', rank: 8 }]
+                effect: { text: 'Reduce one eligible effect on yourself by 4. Then heal 2d8 HP and gain +3 Armor until the end of your next turn', dice: '2d8' },
+                specials: []
             },
             '3': {
 
@@ -422,8 +422,8 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
-                effect: { text: 'Cleanse(12) on yourself' },
-                specials: [{ key: 'Cleanse', rank: 12 }]
+                effect: { text: 'Reduce up to two eligible effects on yourself by 4 each. Then heal 2d8 HP and gain +5 Armor until the end of your next turn', dice: '2d8' },
+                specials: []
             },
             '4': {
 
@@ -431,8 +431,8 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
-                effect: { text: 'Cleanse(16) on yourself' },
-                specials: [{ key: 'Cleanse', rank: 16 }]
+                effect: { text: 'Reduce up to two eligible effects on yourself by 4 each. Then heal 3d8 HP and gain +7 Armor until the end of your next turn', dice: '3d8' },
+                specials: []
             }
         }
     },
@@ -455,7 +455,7 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Reduce all Push/Pull against you by 2m (min 0)' },
+                effect: { text: 'Reduce all Push/Pull against you by 2m (min 0). Gain +1 Armor and +1 die to Body Saving Throws' },
                 specials: []
             },
             '2': {
@@ -464,7 +464,7 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Reduce Push/Pull by 4m' },
+                effect: { text: 'Reduce all Push/Pull against you by 4m (min 0). Gain +2 Armor and +2 dice to Body Saving Throws' },
                 specials: []
             },
             '3': {
@@ -473,7 +473,7 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Reduce Push/Pull by 6m' },
+                effect: { text: 'Reduce all Push/Pull against you by 6m (min 0). Gain +3 Armor and +3 dice to Body Saving Throws' },
                 specials: []
             },
             '4': {
@@ -482,7 +482,7 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
-                effect: { text: 'Reduce Push/Pull by 8m' },
+                effect: { text: 'Reduce all Push/Pull against you by 8m (min 0). Gain +4 Armor and +4 dice to Body Saving Throws' },
                 specials: []
             }
         }
@@ -657,36 +657,36 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
         levels: {
             '1': {
 
-                type: 'ranged',
-                range: { kind: 'distance', m: 6, note: 'As Breath' },
-                aoe: { shape: 'cone', lengthM: 6, angleDeg: 60, note: 'As Breath' },
+                type: 'active',
+                range: { kind: 'self', note: 'As Breath' },
+                aoe: { shape: 'cone', lengthM: 4, angleDeg: 60, note: 'As Breath' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Deal 4d8 elemental damage', dice: '4d8' },
                 specials: [{ key: 'Expose', rank: 2 }]
             },
             '2': {
 
-                type: 'ranged',
-                range: { kind: 'distance', m: 8, note: 'As Breath' },
-                aoe: { shape: 'cone', lengthM: 8, angleDeg: 60, note: 'As Breath' },
+                type: 'active',
+                range: { kind: 'self', note: 'As Breath' },
+                aoe: { shape: 'cone', lengthM: 6, angleDeg: 60, note: 'As Breath' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Deal 8d8 elemental damage', dice: '8d8' },
                 specials: [{ key: 'Expose', rank: 3 }]
             },
             '3': {
 
-                type: 'ranged',
-                range: { kind: 'distance', m: 10, note: 'As Breath' },
-                aoe: { shape: 'cone', lengthM: 10, angleDeg: 60, note: 'As Breath' },
+                type: 'active',
+                range: { kind: 'self', note: 'As Breath' },
+                aoe: { shape: 'cone', lengthM: 8, angleDeg: 60, note: 'As Breath' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Deal 12d8 elemental damage', dice: '12d8' },
                 specials: [{ key: 'Expose', rank: 4 }]
             },
             '4': {
 
-                type: 'ranged',
-                range: { kind: 'distance', m: 12, note: 'As Breath' },
-                aoe: { shape: 'cone', lengthM: 12, angleDeg: 60, note: 'As Breath' },
+                type: 'active',
+                range: { kind: 'self', note: 'As Breath' },
+                aoe: { shape: 'cone', lengthM: 10, angleDeg: 60, note: 'As Breath' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Deal 16d8 elemental damage', dice: '16d8' },
                 specials: [{ key: 'Expose', rank: 5 }]

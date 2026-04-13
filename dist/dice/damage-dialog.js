@@ -1576,5 +1576,5 @@ class DamageDialog extends Application {
     return total + modifier;
   }
 }
-*/ 
+*/
 //# sourceMappingURL=damage-dialog.js.map

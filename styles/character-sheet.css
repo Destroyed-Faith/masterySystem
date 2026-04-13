@@ -1702,6 +1702,11 @@
   white-space: nowrap;
 }
 
+/* Body cells: match header text color (Foundry defaults otherwise paint td darker). */
+.mastery-system.sheet.actor.character .power-level-table tbody td {
+  color: var(--df-text-primary, #d0d0d0);
+}
+
 .mastery-system.sheet.actor.character .power-level-table tbody tr.is-current-power-level,
 .mastery-system.sheet.actor.character .power-level-table tbody tr.selected {
   background: linear-gradient(
@@ -5431,6 +5436,31 @@
   font-size: 0.85rem;
   color: #333;
   line-height: 1.4;
+}
+
+.mastery-system.power-creation-dialog .power-level-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.mastery-system.power-creation-dialog .power-level-table th,
+.mastery-system.power-creation-dialog .power-level-table td {
+  padding: 6px 8px;
+  border: 1px solid #ccc;
+  vertical-align: top;
+}
+
+.mastery-system.power-creation-dialog .power-level-table thead th {
+  background: #e8e8e8;
+  color: #1a1a1a;
+  font-weight: 600;
+  text-align: left;
+}
+
+.mastery-system.power-creation-dialog .power-level-table tbody td {
+  color: #1a1a1a;
+  background: #fff;
 }
 
 .mastery-system.power-creation-dialog .dialog-button {

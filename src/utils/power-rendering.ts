@@ -121,6 +121,9 @@ export function renderSpecials(specials: PowerSpecial[]): string {
     if (spec.value !== undefined) {
       return `${spec.key}(${spec.value})${spec.note ? ` ${spec.note}` : ''}`;
     }
+    if (spec.rank !== undefined) {
+      return `${spec.key}(${spec.rank})${spec.note ? ` ${spec.note}` : ''}`;
+    }
     return spec.key + (spec.note ? ` ${spec.note}` : '');
   }).join(', ');
 }
