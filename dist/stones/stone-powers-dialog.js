@@ -206,7 +206,8 @@ function poolDisplayName(key) {
     return key.charAt(0).toUpperCase() + key.slice(1);
 }
 function getActorStonePoolKeysWithMax(actor) {
-    const sp = (actor.system?.stonePools || {});
+    const owner = getActionEconomyActor(actor) ?? actor;
+    const sp = (owner.system?.stonePools || {});
     const keys = new Set();
     for (const k of POOL_DISPLAY_ATTRS) {
         const max = Number(sp[k]?.max) || 0;
@@ -396,7 +397,7 @@ export class StonePowersDialog extends BaseDialog {
         this.actor = actor;
         this.combatant = combatant;
         this.resolve = resolve;
-        const prefs = actor.system?.stonePowersPrefs;
+        const prefs = (getActionEconomyActor(actor) ?? actor).system?.stonePowersPrefs;
         if (prefs?.useDefaultsEachRound && prefs.defaultAttributesByPowerId) {
             for (const [powerId, attr] of Object.entries(prefs.defaultAttributesByPowerId)) {
                 if (typeof attr === 'string') {
@@ -530,7 +531,8 @@ export class StonePowersDialog extends BaseDialog {
         if (!this.combatant && combat) {
             this.combatant = resolveStonePowersCombatant(this.actor, combat);
         }
-        const system = this.actor.system;
+        const poolOwner = getActionEconomyActor(this.actor) ?? this.actor;
+        const system = poolOwner.system;
         const stonePools = system.stonePools || {};
         const availablePowers = getAvailableStonePowers(this.actor);
         // Filter pools to only show those with max > 0 (includes optional Wits)
@@ -1154,7 +1156,8 @@ export class StonePowersDialog extends BaseDialog {
     /** Debug/Diagnose: Pool brutto, reserviert im Dialog, netto — pro Attribut + Summe. */
     #debugPaymentNetwork() {
         this.#pullSessionPartialsIntoInstance();
-        const system = this.actor.system;
+        const poolOwner = getActionEconomyActor(this.actor) ?? this.actor;
+        const system = poolOwner.system;
         const stonePools = system?.stonePools || {};
         const perAttr = {};
         let totalNet = 0;
@@ -1293,7 +1296,8 @@ export class StonePowersDialog extends BaseDialog {
         return sum;
     }
     #actorPoolSpendable(attr) {
-        const system = this.actor.system;
+        const poolOwner = getActionEconomyActor(this.actor) ?? this.actor;
+        const system = poolOwner.system;
         const stonePools = system?.stonePools || {};
         const pool = stonePools[attr];
         if (!pool)

@@ -534,7 +534,8 @@ export function calculateStoneCost(usesThisTurn: number): number {
  * Get stone pool for an attribute
  */
 export function getStonePool(actor: Actor, attribute: AttributeKey): { current: number; max: number } {
-  const system = (actor.system as any);
+  const owner = getActionEconomyActor(actor) ?? actor;
+  const system = (owner.system as any);
   const pool = system.stonePools?.[attribute];
   
   if (!pool) {
@@ -566,7 +567,9 @@ export const STONE_POOL_ATTRIBUTE_KEYS = [
  */
 export async function refillStonePoolsFromAttributes(actor: Actor): Promise<void> {
   if (!isPC(actor)) return;
-  const sys = (actor.system as any);
+  const owner = getActionEconomyActor(actor) ?? actor;
+  if (!isPC(owner)) return;
+  const sys = (owner.system as any);
   const updates: Record<string, number> = {};
   for (const attr of STONE_POOL_ATTRIBUTE_KEYS) {
     const attrValue = Number(sys.attributes?.[attr]?.value ?? 0);
@@ -581,9 +584,9 @@ export async function refillStonePoolsFromAttributes(actor: Actor): Promise<void
     }
   }
   if (Object.keys(updates).length > 0) {
-    await actor.update(updates);
+    await owner.update(updates);
     if ((globalThis as any).CONFIG?.masterySystemDebugStonePools === true) {
-      console.log('Mastery System | [StonePools] refillStonePoolsFromAttributes', (actor as any).name, updates);
+      console.log('Mastery System | [StonePools] refillStonePoolsFromAttributes', (owner as any).name, updates);
     }
   }
 }
@@ -593,7 +596,9 @@ export async function refillStonePoolsFromAttributes(actor: Actor): Promise<void
  */
 export async function syncStonePoolCapsFromAttributes(actor: Actor): Promise<void> {
   if (!isPC(actor)) return;
-  const sys = (actor.system as any);
+  const owner = getActionEconomyActor(actor) ?? actor;
+  if (!isPC(owner)) return;
+  const sys = (owner.system as any);
   const updates: Record<string, number> = {};
   for (const attr of STONE_POOL_ATTRIBUTE_KEYS) {
     const attrValue = Number(sys.attributes?.[attr]?.value ?? 0);
@@ -609,9 +614,9 @@ export async function syncStonePoolCapsFromAttributes(actor: Actor): Promise<voi
     }
   }
   if (Object.keys(updates).length > 0) {
-    await actor.update(updates);
+    await owner.update(updates);
     if ((globalThis as any).CONFIG?.masterySystemDebugStonePools === true) {
-      console.log('Mastery System | [StonePools] syncStonePoolCapsFromAttributes', (actor as any).name, updates);
+      console.log('Mastery System | [StonePools] syncStonePoolCapsFromAttributes', (owner as any).name, updates);
     }
   }
 }
@@ -624,7 +629,8 @@ export async function setStonePool(
   attribute: AttributeKey,
   current: number
 ): Promise<void> {
-  await actor.update({
+  const owner = getActionEconomyActor(actor) ?? actor;
+  await owner.update({
     [`system.stonePools.${attribute}.current`]: Math.max(0, current)
   });
 }
@@ -801,7 +807,8 @@ function shuffleArray<T>(arr: T[]): void {
  * ties between equal attributes are shuffled randomly.
  */
 export async function applyAutomaticStoneRegen(actor: Actor): Promise<void> {
-  const system = (actor.system as any);
+  const owner = getActionEconomyActor(actor) ?? actor;
+  const system = (owner.system as any);
   const masteryRank = system.mastery?.rank || 2;
   const regenPoints = masteryRank;
   const attributeKeys: AttributeKey[] = [
@@ -833,13 +840,13 @@ export async function applyAutomaticStoneRegen(actor: Actor): Promise<void> {
 
   const simulated: Record<AttributeKey, number> = {} as Record<AttributeKey, number>;
   for (const attr of attributeKeys) {
-    simulated[attr] = getStonePool(actor, attr).current;
+    simulated[attr] = getStonePool(owner, attr).current;
   }
 
   for (let step = 0; step < regenPoints; step++) {
     let placed = false;
     for (const attr of priority) {
-      const pool = getStonePool(actor, attr);
+      const pool = getStonePool(owner, attr);
       const sustained = system.stonePools?.[attr]?.sustained || 0;
       const effectiveMax = Math.max(0, pool.max - sustained);
       if (simulated[attr] < effectiveMax) {
@@ -853,7 +860,7 @@ export async function applyAutomaticStoneRegen(actor: Actor): Promise<void> {
 
   const updates: Record<string, number> = {};
   for (const attr of attributeKeys) {
-    const oldC = getStonePool(actor, attr).current;
+    const oldC = getStonePool(owner, attr).current;
     const newC = simulated[attr];
     if (newC !== oldC) {
       updates[`system.stonePools.${attr}.current`] = newC;
@@ -861,8 +868,8 @@ export async function applyAutomaticStoneRegen(actor: Actor): Promise<void> {
   }
 
   if (Object.keys(updates).length > 0) {
-    await actor.update(updates);
-    console.log(`Mastery System | Automatic stone regen for ${(actor as any).name}`, {
+    await owner.update(updates);
+    console.log(`Mastery System | Automatic stone regen for ${(owner as any).name}`, {
       regenPoints,
       updates
     });
@@ -891,7 +898,8 @@ export async function regenStonesEndOfRound(combat: Combat): Promise<void> {
     const actor = combatant.actor;
     if (!actor) continue;
 
-    const system = (actor.system as any);
+    const owner = getActionEconomyActor(actor) ?? actor;
+    const system = (owner.system as any);
     const attributeKeys: AttributeKey[] = [
       'might',
       'agility',
@@ -901,14 +909,14 @@ export async function regenStonesEndOfRound(combat: Combat): Promise<void> {
       'influence'
     ];
     const canRegen = attributeKeys.some((attr) => {
-      const pool = getStonePool(actor, attr);
+      const pool = getStonePool(owner, attr);
       const sustained = system.stonePools?.[attr]?.sustained || 0;
       const effectiveMax = pool.max - sustained;
       return pool.current < effectiveMax;
     });
 
     if (!canRegen) {
-      console.log(`Mastery System | ${(actor as any).name} stone pools already full, skipping regen`);
+      console.log(`Mastery System | ${(owner as any).name} stone pools already full, skipping regen`);
       continue;
     }
 
@@ -932,13 +940,14 @@ export async function restoreStonesAfterCombat(combat: Combat): Promise<void> {
   // Restore stone pools for all PCs
   for (const actor of actors) {
     if (actor.type !== 'character') continue;
-    
-    const system = (actor.system as any);
+
+    const owner = getActionEconomyActor(actor) ?? actor;
+    const system = (owner.system as any);
     const attributeKeys: AttributeKey[] = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence'];
     const updates: any = {};
     
     for (const attr of attributeKeys) {
-      const pool = getStonePool(actor, attr);
+      const pool = getStonePool(owner, attr);
       const sustained = (system.stonePools?.[attr]?.sustained || 0);
       const attrValue = Number(system.attributes?.[attr]?.value ?? 0);
       const maxFromAttr = Math.floor(attrValue / 8);
@@ -952,8 +961,8 @@ export async function restoreStonesAfterCombat(combat: Combat): Promise<void> {
     }
     
     if (Object.keys(updates).length > 0) {
-      await actor.update(updates);
-      console.log(`Mastery System | Restored stone pools for ${(actor as any).name}`);
+      await owner.update(updates);
+      console.log(`Mastery System | Restored stone pools for ${(owner as any).name}`);
     }
   }
 }

@@ -23,6 +23,18 @@ function newExtraNpcPower() {
         specials: []
     };
 }
+/** Legacy object-shaped `attackValues` (numeric keys) → array of entries. */
+function normalizeAttackValuesArray(raw) {
+    if (Array.isArray(raw))
+        return dup(raw);
+    if (raw && typeof raw === 'object') {
+        const o = raw;
+        return Object.keys(o)
+            .sort((a, b) => parseInt(a, 10) - parseInt(b, 10))
+            .map((k) => dup(o[k]));
+    }
+    return [];
+}
 export class MasteryNpcSheet extends MasteryCharacterSheet {
     /** @override */
     static get defaultOptions() {
@@ -214,13 +226,13 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
                 return;
             }
             const phases = dup(system.phases);
-            if (!Array.isArray(phases[pi].attackValues))
-                phases[pi].attackValues = [];
-            phases[pi].attackValues.push(row);
+            const pav = normalizeAttackValuesArray(phases[pi].attackValues);
+            pav.push(row);
+            phases[pi].attackValues = pav;
             await this.actor.update({ 'system.phases': phases });
         }
         else {
-            const av = dup(system.attackValues || []);
+            const av = normalizeAttackValuesArray(system.attackValues);
             av.push(row);
             await this.actor.update({ 'system.attackValues': av });
         }
@@ -232,21 +244,20 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         const system = this.actor.system;
         if (phaseIndex !== undefined && phaseIndex !== null) {
             const pi = Number(phaseIndex);
-            if (!system.phases || !system.phases[pi] || !system.phases[pi].attackValues) {
+            if (!system.phases || !system.phases[pi]) {
                 return;
             }
-            if (index >= 0 && index < system.phases[pi].attackValues.length) {
-                const phases = dup(system.phases);
-                phases[pi].attackValues.splice(index, 1);
+            const phases = dup(system.phases);
+            const pav = normalizeAttackValuesArray(phases[pi].attackValues);
+            if (index >= 0 && index < pav.length) {
+                pav.splice(index, 1);
+                phases[pi].attackValues = pav;
                 await this.actor.update({ 'system.phases': phases });
             }
         }
         else {
-            if (!system.attackValues || !Array.isArray(system.attackValues)) {
-                return;
-            }
-            if (index >= 0 && index < system.attackValues.length) {
-                const av = dup(system.attackValues);
+            const av = normalizeAttackValuesArray(system.attackValues);
+            if (index >= 0 && index < av.length) {
                 av.splice(index, 1);
                 await this.actor.update({ 'system.attackValues': av });
             }

@@ -252,7 +252,8 @@ function poolDisplayName(key: string): string {
 }
 
 function getActorStonePoolKeysWithMax(actor: Actor): Set<string> {
-  const sp = ((actor as any).system?.stonePools || {}) as Record<string, { max?: number }>;
+  const owner = getActionEconomyActor(actor) ?? actor;
+  const sp = ((owner as any).system?.stonePools || {}) as Record<string, { max?: number }>;
   const keys = new Set<string>();
   for (const k of POOL_DISPLAY_ATTRS) {
     const max = Number(sp[k]?.max) || 0;
@@ -482,7 +483,7 @@ export class StonePowersDialog extends BaseDialog {
     this.combatant = combatant;
     this.resolve = resolve;
 
-    const prefs = (actor as any).system?.stonePowersPrefs;
+    const prefs = ((getActionEconomyActor(actor) ?? actor) as any).system?.stonePowersPrefs;
     if (prefs?.useDefaultsEachRound && prefs.defaultAttributesByPowerId) {
       for (const [powerId, attr] of Object.entries(prefs.defaultAttributesByPowerId)) {
         if (typeof attr === 'string') {
@@ -622,7 +623,8 @@ export class StonePowersDialog extends BaseDialog {
       this.combatant = resolveStonePowersCombatant(this.actor, combat);
     }
 
-    const system = (this.actor as any).system;
+    const poolOwner = getActionEconomyActor(this.actor) ?? this.actor;
+    const system = (poolOwner as any).system;
     const stonePools = system.stonePools || {};
     const availablePowers = getAvailableStonePowers(this.actor);
     
@@ -1312,7 +1314,8 @@ export class StonePowersDialog extends BaseDialog {
     perAttr: Record<string, { gross: number; reserved: number; net: number }>;
   } {
     this.#pullSessionPartialsIntoInstance();
-    const system = (this.actor as any).system;
+    const poolOwner = getActionEconomyActor(this.actor) ?? this.actor;
+    const system = (poolOwner as any).system;
     const stonePools = system?.stonePools || {};
     const perAttr: Record<string, { gross: number; reserved: number; net: number }> = {};
     let totalNet = 0;
@@ -1454,7 +1457,8 @@ export class StonePowersDialog extends BaseDialog {
   }
 
   #actorPoolSpendable(attr: string): number {
-    const system = (this.actor as any).system;
+    const poolOwner = getActionEconomyActor(this.actor) ?? this.actor;
+    const system = (poolOwner as any).system;
     const stonePools = system?.stonePools || {};
     const pool = stonePools[attr];
     if (!pool) return 0;
