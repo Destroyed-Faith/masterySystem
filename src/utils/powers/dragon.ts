@@ -712,8 +712,8 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRounds' },
-                effect: { text: 'Gain Flight (up to your Speed). While flying, gain +2 Evade'},
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Gain Flight 6 m. While flying, gain +2 Evade' },
                 specials: []
             },
             '2': {
@@ -721,8 +721,8 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRounds' },
-                effect: { text: 'Gain Flight (up to your Speed). While flying, gain +4 Evade'},
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Gain Flight 10 m. While flying, gain +4 Evade' },
                 specials: []
             },
             '3': {
@@ -730,8 +730,8 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRounds' },
-                effect: { text: 'Gain Flight (up to your Speed). While flying, gain +6 Evade'},
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Gain Flight 14 m. While flying, gain +6 Evade' },
                 specials: []
             },
             '4': {
@@ -739,8 +739,8 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 type: 'buff',
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
-                duration: { kind: 'masteryRounds' },
-                effect: { text: 'Gain Flight (up to your Speed). While flying, gain +8 Evade'},
+                duration: { kind: 'masteryRankRounds' },
+                effect: { text: 'Gain Flight 18 m. While flying, gain +8 Evade' },
                 specials: []
             }
         }
@@ -764,7 +764,7 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
-                effect: { text: 'Move 4m. Your next attack this round deals +1d8 damage', dice: '1d8' },
+                effect: { text: 'If you are flying, move up to 3 m as Flight Movement. Your next attack this round deals +1d8 damage', dice: '1d8' },
                 specials: []
             },
             '2': {
@@ -773,7 +773,7 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
-                effect: { text: 'Move 6m. Next attack +2d8', dice: '2d8' },
+                effect: { text: 'If you are flying, move up to 6 m as Flight Movement. Your next attack this round deals +2d8 damage', dice: '2d8' },
                 specials: []
             },
             '3': {
@@ -782,7 +782,7 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
-                effect: { text: 'Move 8m. Next attack +3d8', dice: '3d8' },
+                effect: { text: 'If you are flying, move up to 9 m as Flight Movement. Your next attack this round deals +3d8 damage', dice: '3d8' },
                 specials: []
             },
             '4': {
@@ -791,7 +791,7 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'self' },
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
-                effect: { text: 'Move 10m. Next attack +4d8', dice: '4d8' },
+                effect: { text: 'If you are flying, move up to 12 m as Flight Movement. Your next attack this round deals +4d8 damage', dice: '4d8' },
                 specials: []
             }
         }
@@ -815,34 +815,34 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 range: { kind: 'self' },
                 aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'instant' },
-                effect: { text: 'Reposition up to 6m (ground or vertical if flying)' },
+                effect: { text: 'Reposition up to 5 m. If you are already flying, this movement may be vertical. Enemies in the area must pass a Body Save or be moved' },
                 specials: [{ key: 'Push', rank: 2 }]
             },
             '2': {
 
                 type: 'movement',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', m: 6 },
+                aoe: { shape: 'radius', m: 8 },
                 duration: { kind: 'instant' },
-                effect: { text: 'Reposition 8m' },
+                effect: { text: 'Reposition up to 6 m. If you are already flying, this movement may be vertical. Enemies in the area must pass a Body Save or be moved' },
                 specials: [{ key: 'Push', rank: 4 }]
             },
             '3': {
 
                 type: 'movement',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', m: 8 },
+                aoe: { shape: 'radius', m: 12 },
                 duration: { kind: 'instant' },
-                effect: { text: 'Reposition 10m' },
+                effect: { text: 'Reposition up to 9 m. If you are already flying, this movement may be vertical. Enemies in the area must pass a Body Save or be moved' },
                 specials: [{ key: 'Push', rank: 6 }]
             },
             '4': {
 
                 type: 'movement',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', m: 10 },
+                aoe: { shape: 'radius', m: 16 },
                 duration: { kind: 'instant' },
-                effect: { text: 'Reposition 12m' },
+                effect: { text: 'Reposition up to 12 m. If you are already flying, this movement may be vertical. Enemies in the area must pass a Body Save or be moved' },
                 specials: [{ key: 'Push', rank: 8 }]
             }
         }
