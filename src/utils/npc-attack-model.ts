@@ -2,9 +2,54 @@
  * NPC attack helpers — d8 pool sizes, phase index, damage formula.
  */
 
-import type { AttackValue } from '../types/actor.js';
+import type { AttackValue, NpcAttackSpecialEntry } from '../types/actor.js';
 
 const MAX_D = 99;
+
+function mergeSpecialsFromLegacy(attack: AttackValue): NpcAttackSpecialEntry[] {
+  if (Array.isArray(attack.specials) && attack.specials.length > 0) {
+    return attack.specials
+      .filter((s) => s && (s.special || s.specialValue != null))
+      .map((s) => ({ ...s }));
+  }
+  if (attack.special && String(attack.special).trim()) {
+    return [{ special: attack.special, specialValue: attack.specialValue }];
+  }
+  return [];
+}
+
+/** Effective attack row for display / damage (includes merged specials). */
+export function normalizeNpcAttackRow(attack: AttackValue): AttackValue {
+  const merged = mergeSpecialsFromLegacy(attack);
+  return { ...attack, specials: merged.length ? merged : undefined };
+}
+
+function npcBaseAttackRow(raw: unknown): AttackValue | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const a = raw as AttackValue;
+  const ac = Math.floor(Number(a.attackDiceCount) || 0);
+  const dc = Math.floor(Number(a.damageDiceCount) || 0);
+  const legA = String(a.attackDice || '').trim();
+  const legD = String(a.damage || '').trim();
+  const has =
+    ac > 0 ||
+    dc > 0 ||
+    (legA && parseInt(legA, 10) > 0) ||
+    (legD && legD.length > 0) ||
+    (Array.isArray(a.specials) && a.specials.length > 0) ||
+    (a.special && String(a.special).trim());
+  if (!has) return null;
+  return normalizeNpcAttackRow(a);
+}
+
+function mergeAttackLists(baseRaw: unknown, extras: AttackValue[] | undefined): AttackValue[] {
+  const out: AttackValue[] = [];
+  const b = npcBaseAttackRow(baseRaw);
+  if (b) out.push(b);
+  const ex = Array.isArray(extras) ? extras.map((x) => normalizeNpcAttackRow(x)) : [];
+  out.push(...ex);
+  return out;
+}
 
 export function resolveNpcAttackList(
   system: any
@@ -19,11 +64,12 @@ export function resolveNpcAttackList(
         Math.floor(Number(system.npcActivePhaseIndex) || 0)
       )
     );
-    const raw = phases[pi]?.attackValues;
-    return { attacks: Array.isArray(raw) ? raw : [], phaseIndex: pi };
+    const phase = phases[pi];
+    const attacks = mergeAttackLists(phase?.npcBaseAttack, phase?.attackValues);
+    return { attacks, phaseIndex: pi };
   }
-  const raw = system.attackValues;
-  return { attacks: Array.isArray(raw) ? raw : [], phaseIndex: null };
+  const attacks = mergeAttackLists(system.npcBaseAttack, system.attackValues);
+  return { attacks, phaseIndex: null };
 }
 
 export function getNpcAttackByIndex(
@@ -33,6 +79,7 @@ export function getNpcAttackByIndex(
 ): AttackValue | null {
   if (!system) return null;
   const idx = Math.max(0, Math.floor(Number(attackIndex) || 0));
+
   if (Array.isArray(system.phases) && system.phases.length > 0) {
     const pi =
       phaseIndex == null || phaseIndex === undefined
@@ -44,16 +91,18 @@ export function getNpcAttackByIndex(
             )
           )
         : Math.max(0, Math.min(system.phases.length - 1, Math.floor(Number(phaseIndex))));
-    const attacks = system.phases[pi]?.attackValues;
-    if (!Array.isArray(attacks) || idx >= attacks.length) return null;
-    return attacks[idx] as AttackValue;
+    const phase = system.phases[pi];
+    const attacks = mergeAttackLists(phase?.npcBaseAttack, phase?.attackValues);
+    if (idx >= attacks.length) return null;
+    return attacks[idx] ?? null;
   }
-  const attacks = system.attackValues;
-  if (!Array.isArray(attacks) || idx >= attacks.length) return null;
-  return attacks[idx] as AttackValue;
+
+  const attacks = mergeAttackLists(system.npcBaseAttack, system.attackValues);
+  if (idx >= attacks.length) return null;
+  return attacks[idx] ?? null;
 }
 
-/** Attack roll pool: explicit count, else parse legacy attackDice as integer, else 0 */
+/** Attack roll pool: explicit count (2–16 typical), else parse legacy attackDice */
 export function npcAttackDiceCount(attack: AttackValue | null | undefined): number {
   if (!attack) return 0;
   const n = Math.floor(Number(attack.attackDiceCount) || 0);
@@ -64,7 +113,7 @@ export function npcAttackDiceCount(attack: AttackValue | null | undefined): numb
   return 0;
 }
 
-/** Damage formula: Nd8 from count, else legacy damage string */
+/** Damage formula: Nd8 from count (4–16 typical), else legacy damage string */
 export function npcDamageDiceFormula(attack: AttackValue | null | undefined): string {
   if (!attack) return '0';
   const n = Math.floor(Number(attack.damageDiceCount) || 0);
@@ -77,6 +126,15 @@ export function formatNpcSpecialLabel(name: string, value: string | number | und
   const v = value === undefined || value === null || String(value).trim() === '' ? '' : String(value).trim();
   if (!v) return name.trim();
   return `${name.trim()} (${v})`;
+}
+
+/** All specials on one attack (array or legacy single). */
+export function formatNpcAttackSpecialsLine(attack: AttackValue | null | undefined): string {
+  if (!attack) return '';
+  return mergeSpecialsFromLegacy(attack)
+    .filter((s) => s.special && String(s.special).trim())
+    .map((s) => formatNpcSpecialLabel(String(s.special), s.specialValue))
+    .join(', ');
 }
 
 /** Compact "Name(12)" for status / effect application (no spaces). */

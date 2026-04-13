@@ -11,7 +11,7 @@ import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { getMovementRangeBonusMeters, hasPowerBeenUsedThisRound } from '../combat/action-economy.js';
 import { getMagicPower } from '../utils/magic-powers.js';
 import {
-  formatNpcSpecialLabel,
+  formatNpcAttackSpecialsLine,
   npcAttackDiceCount,
   npcDamageDiceFormula,
   resolveNpcAttackList
@@ -24,9 +24,8 @@ function buildNpcAttackDescription(atk: any): string {
   parts.push(pool > 0 ? `Angriff: ${pool}d8` : `Angriff: ${String(atk?.attackDice || '—').trim() || '—'}`);
   parts.push(`Schaden: ${dmg}`);
   if (atk?.armor) parts.push(`Rüstung: ${atk.armor}`);
-  if (atk?.special) {
-    parts.push(`Spezial: ${formatNpcSpecialLabel(atk.special, atk.specialValue)}`);
-  }
+  const sp = formatNpcAttackSpecialsLine(atk);
+  if (sp) parts.push(`Spezial: ${sp}`);
   return parts.join(' · ');
 }
 

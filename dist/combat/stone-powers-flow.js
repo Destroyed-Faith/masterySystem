@@ -7,7 +7,7 @@
  */
 import { StonePowersDialog } from '../stones/stone-powers-dialog.js';
 import { executeInitiativePhase } from './initiative-roll.js';
-import { clearStonePowersConfigurationLocksInCombat, regenStonesEndOfRound, resetRoundState } from './action-economy.js';
+import { clearStonePowersConfigurationLocksInCombat, regenStonesEndOfRound, refillStonePoolsFromAttributes, resetRoundState, syncStonePoolCapsFromAttributes } from './action-economy.js';
 const SOCKET_NAME = 'system.mastery-system';
 function getStonePowersState(combat) {
     const flags = combat.flags['mastery-system'] || {};
@@ -117,6 +117,20 @@ export async function openStonePowersForAllCombatants(combat, round) {
     if (state.roundStonesPrompted[round]) {
         console.log('Mastery System | Stone powers already prompted for round', round);
         return;
+    }
+    // Encounter flow opens round-1 stones before `combatStart`; `prepareBaseData` skips refilling
+    // pools while in combat — persisted 0/0 pools never get current. Use combatant.actor so
+    // unlinked token PCs get the same document the dialog uses.
+    for (const c of combat.combatants) {
+        const a = c.actor;
+        if (!a || a.type !== 'character')
+            continue;
+        if (round === 1) {
+            await refillStonePoolsFromAttributes(a);
+        }
+        else {
+            await syncStonePoolCapsFromAttributes(a);
+        }
     }
     await updateStonePowersState(combat, {
         roundStonesPrompted: { ...state.roundStonesPrompted, [round]: true }

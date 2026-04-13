@@ -6,7 +6,7 @@ import { isManeuverHiddenFromActorRadial } from '../utils/radial-maneuver-prefs.
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { getMovementRangeBonusMeters, hasPowerBeenUsedThisRound } from '../combat/action-economy.js';
 import { getMagicPower } from '../utils/magic-powers.js';
-import { formatNpcSpecialLabel, npcAttackDiceCount, npcDamageDiceFormula, resolveNpcAttackList } from '../utils/npc-attack-model.js';
+import { formatNpcAttackSpecialsLine, npcAttackDiceCount, npcDamageDiceFormula, resolveNpcAttackList } from '../utils/npc-attack-model.js';
 function buildNpcAttackDescription(atk) {
     const pool = npcAttackDiceCount(atk);
     const dmg = npcDamageDiceFormula(atk);
@@ -15,9 +15,9 @@ function buildNpcAttackDescription(atk) {
     parts.push(`Schaden: ${dmg}`);
     if (atk?.armor)
         parts.push(`Rüstung: ${atk.armor}`);
-    if (atk?.special) {
-        parts.push(`Spezial: ${formatNpcSpecialLabel(atk.special, atk.specialValue)}`);
-    }
+    const sp = formatNpcAttackSpecialsLine(atk);
+    if (sp)
+        parts.push(`Spezial: ${sp}`);
     return parts.join(' · ');
 }
 /**

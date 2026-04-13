@@ -217,8 +217,15 @@
         "spirit": 0
       },
       "attackValues": [],
+      "npcBaseAttack": {
+        "name": "Waffenangriff",
+        "attackDiceCount": 6,
+        "damageDiceCount": 4,
+        "specials": []
+      },
       "npcActivePhaseIndex": 0,
       "attackSlots": 1,
+      "npcMovementSlots": 1,
       "npcCombatSpecials": [],
       "npcRaiseSpecials": [],
       "conditions": [],

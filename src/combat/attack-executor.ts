@@ -9,7 +9,7 @@ import { getAttackAttributeForPowerTreeOrSchool } from "../utils/power-roll-attr
 import { resolveEquippedWeaponForAttackType } from "../utils/equipment-modifiers.js";
 import { evaluateThreatenedRanged } from "./threatened-ranged.js";
 import {
-  formatNpcSpecialLabel,
+  formatNpcAttackSpecialsLine,
   getNpcAttackByIndex,
   npcAttackDiceCount,
   npcDamageDiceFormula
@@ -360,6 +360,8 @@ export async function createAttackCard(
       ? `<div class="detail-row"><span class="detail-label">Weapon specials:</span><span class="detail-value">${weaponSpecialLines.map(attackCardEsc).join(", ")}</span></div>`
       : "";
 
+  const npcSpecialsLine =
+    isNpcAttack && npcAttackRow ? formatNpcAttackSpecialsLine(npcAttackRow) : "";
   const npcAttackDetailHtml =
     isNpcAttack && npcAttackRow
       ? `<div class="detail-row"><span class="detail-label">NSC-Pool:</span><span class="detail-value">${attributeValue}d8</span></div>
@@ -370,8 +372,8 @@ export async function createAttackCard(
             : ""
         }
         ${
-          npcAttackRow.special
-            ? `<div class="detail-row"><span class="detail-label">Spezial:</span><span class="detail-value">${attackCardEsc(formatNpcSpecialLabel(npcAttackRow.special, npcAttackRow.specialValue))}</span></div>`
+          npcSpecialsLine
+            ? `<div class="detail-row"><span class="detail-label">Spezial:</span><span class="detail-value">${attackCardEsc(npcSpecialsLine)}</span></div>`
             : ""
         }`
       : "";

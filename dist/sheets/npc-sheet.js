@@ -3,6 +3,26 @@
  * Simplified sheet for non-player characters
  */
 import { MasteryCharacterSheet } from './character-sheet.js';
+function dup(obj) {
+    const fn = foundry.utils?.duplicate;
+    return fn ? fn(obj) : JSON.parse(JSON.stringify(obj));
+}
+function ensureNpcBaseShape(b) {
+    const o = b && typeof b === 'object' ? dup(b) : {};
+    if (!Array.isArray(o.specials))
+        o.specials = [];
+    if (o.name == null || o.name === '')
+        o.name = 'Waffenangriff';
+    return o;
+}
+function newExtraNpcPower() {
+    return {
+        name: '',
+        attackDiceCount: 6,
+        damageDiceCount: 4,
+        specials: []
+    };
+}
 export class MasteryNpcSheet extends MasteryCharacterSheet {
     /** @override */
     static get defaultOptions() {
@@ -30,22 +50,22 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
         // Normalize health.bars: convert object to array if needed
         if (context.system?.health?.bars) {
             const bars = context.system.health.bars;
-            // Check if bars is an object (not an array)
             if (!Array.isArray(bars) && typeof bars === 'object') {
-                // Convert object with numeric keys to array
                 const barsArray = Object.keys(bars)
-                    .sort((a, b) => parseInt(a) - parseInt(b))
-                    .map(key => bars[key]);
+                    .sort((a, b) => parseInt(a, 10) - parseInt(b, 10))
+                    .map((key) => bars[key]);
                 context.system.health.bars = barsArray;
             }
-            // Ensure each bar has required fields
-            // Only set defaults if the value is missing (undefined/null), not if it's 0
             if (Array.isArray(context.system.health.bars)) {
                 context.system.health.bars = context.system.health.bars.map((bar, index) => ({
                     name: bar.name || `Bar ${index + 1}`,
-                    max: (bar.max !== undefined && bar.max !== null) ? bar.max : 30,
-                    current: (bar.current !== undefined && bar.current !== null) ? bar.current : ((bar.max !== undefined && bar.max !== null) ? bar.max : 30),
-                    penalty: (bar.penalty !== undefined && bar.penalty !== null) ? bar.penalty : 0
+                    max: bar.max !== undefined && bar.max !== null ? bar.max : 30,
+                    current: bar.current !== undefined && bar.current !== null
+                        ? bar.current
+                        : bar.max !== undefined && bar.max !== null
+                            ? bar.max
+                            : 30,
+                    penalty: bar.penalty !== undefined && bar.penalty !== null ? bar.penalty : 0
                 }));
             }
         }
@@ -56,33 +76,39 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             if (!Array.isArray(context.system.npcRaiseSpecials)) {
                 context.system.npcRaiseSpecials = [];
             }
+            context.system.npcBaseAttack = ensureNpcBaseShape(context.system.npcBaseAttack);
             if (Array.isArray(context.system.phases) &&
                 context.system.phases.length > 0 &&
-                (context.system.npcActivePhaseIndex == null ||
-                    !Number.isFinite(Number(context.system.npcActivePhaseIndex)))) {
+                (context.system.npcActivePhaseIndex == null || !Number.isFinite(Number(context.system.npcActivePhaseIndex)))) {
                 context.system.npcActivePhaseIndex = 0;
             }
+            if (Array.isArray(context.system.phases)) {
+                context.system.phases = context.system.phases.map((phase) => ({
+                    ...phase,
+                    npcBaseAttack: ensureNpcBaseShape(phase.npcBaseAttack)
+                }));
+            }
         }
-        // Normalize phases health bars too
         if (context.system?.phases && Array.isArray(context.system.phases)) {
             context.system.phases = context.system.phases.map((phase) => {
                 if (phase.health?.bars) {
                     const phaseBars = phase.health.bars;
                     if (!Array.isArray(phaseBars) && typeof phaseBars === 'object') {
-                        // Convert object with numeric keys to array
                         const barsArray = Object.keys(phaseBars)
-                            .sort((a, b) => parseInt(a) - parseInt(b))
-                            .map(key => phaseBars[key]);
+                            .sort((a, b) => parseInt(a, 10) - parseInt(b, 10))
+                            .map((key) => phaseBars[key]);
                         phase.health.bars = barsArray;
                     }
-                    // Ensure each bar has required fields
-                    // Only set defaults if the value is missing (undefined/null), not if it's 0
                     if (Array.isArray(phase.health.bars)) {
                         phase.health.bars = phase.health.bars.map((bar, index) => ({
                             name: bar.name || `Bar ${index + 1}`,
-                            max: (bar.max !== undefined && bar.max !== null) ? bar.max : 30,
-                            current: (bar.current !== undefined && bar.current !== null) ? bar.current : ((bar.max !== undefined && bar.max !== null) ? bar.max : 30),
-                            penalty: (bar.penalty !== undefined && bar.penalty !== null) ? bar.penalty : 0
+                            max: bar.max !== undefined && bar.max !== null ? bar.max : 30,
+                            current: bar.current !== undefined && bar.current !== null
+                                ? bar.current
+                                : bar.max !== undefined && bar.max !== null
+                                    ? bar.max
+                                    : 30,
+                            penalty: bar.penalty !== undefined && bar.penalty !== null ? bar.penalty : 0
                         }));
                     }
                 }
@@ -94,8 +120,6 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
     /** @override */
     activateListeners(html) {
         super.activateListeners(html);
-        // Blood color picker synchronization
-        // When color picker changes, update text field
         const syncColorPickerToText = (e) => {
             const colorPicker = $(e.currentTarget);
             const textInput = colorPicker.siblings('.blood-color-text');
@@ -106,38 +130,31 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
                 textInput.removeClass('invalid');
             }
         };
-        html.find('.blood-color-picker, input[type="color"][name="system.bloodColor"]')
+        html
+            .find('.blood-color-picker, input[type="color"][name="system.bloodColor"]')
             .on('input', syncColorPickerToText)
             .on('change', syncColorPickerToText);
-        // When text field changes, update color picker and validate
         const syncTextToColorPicker = (e) => {
             const textInput = $(e.currentTarget);
             const colorPicker = textInput.siblings('.blood-color-picker, input[type="color"][name="system.bloodColor"]');
             const colorValue = (textInput.val() || '').trim();
-            // Validate hex color format
             if (/^#[0-9A-Fa-f]{6}$/.test(colorValue)) {
                 if (colorPicker.length > 0) {
                     colorPicker.val(colorValue);
-                    // Trigger change on the named input to ensure it's saved
                     colorPicker.trigger('change');
                 }
                 textInput.data('last-valid-value', colorValue);
                 textInput.removeClass('invalid');
             }
             else if (colorValue.length > 0) {
-                // Invalid format, mark as invalid but don't revert yet (user might still be typing)
                 textInput.addClass('invalid');
             }
         };
-        html.find('.blood-color-text')
-            .on('input', syncTextToColorPicker)
-            .on('change', syncTextToColorPicker);
-        // On blur, revert to last valid value if current is invalid
+        html.find('.blood-color-text').on('input', syncTextToColorPicker).on('change', syncTextToColorPicker);
         html.find('.blood-color-text').on('blur', (e) => {
             const textInput = $(e.currentTarget);
             const colorValue = (textInput.val() || '').trim();
             if (!/^#[0-9A-Fa-f]{6}$/.test(colorValue)) {
-                // Invalid format, revert to last valid value or default
                 const lastValid = textInput.data('last-valid-value') || '#8b0000';
                 textInput.val(lastValid);
                 textInput.removeClass('invalid');
@@ -148,39 +165,35 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
                 }
             }
         });
-        // Status effect removal (both normal and phase-based)
         html.find('.effect-remove').on('click', this.#onRemoveStatusEffect.bind(this));
-        // Attack value management (both normal and phase-based)
         html.find('.attack-value-add').on('click', this.#onAttackValueAdd.bind(this));
         html.find('.attack-value-delete').on('click', this.#onAttackValueDelete.bind(this));
-        // Phase management
         html.find('.phase-add-btn').on('click', this.#onPhaseAdd.bind(this));
         html.find('.phase-delete-btn').on('click', this.#onPhaseDelete.bind(this));
         html.find('.npc-combat-special-add').on('click', this.#onNpcCombatSpecialAdd.bind(this));
         html.find('.npc-combat-special-del').on('click', this.#onNpcCombatSpecialDel.bind(this));
         html.find('.npc-raise-special-add').on('click', this.#onNpcRaiseSpecialAdd.bind(this));
         html.find('.npc-raise-special-del').on('click', this.#onNpcRaiseSpecialDel.bind(this));
+        html.find('.npc-power-special-add').on('click', this.#onNpcPowerSpecialAdd.bind(this));
+        html.find('.npc-power-special-del').on('click', this.#onNpcPowerSpecialDel.bind(this));
     }
-    /**
-     * Remove a status effect from the NPC (normal or phase-based)
-     */
     async #onRemoveStatusEffect(event) {
         event.preventDefault();
-        const index = parseInt($(event.currentTarget).data('effect-index') || '0');
+        const index = parseInt($(event.currentTarget).data('effect-index') || '0', 10);
         const phaseIndex = $(event.currentTarget).data('phase-index');
         const system = this.actor.system;
         if (phaseIndex !== undefined && phaseIndex !== null) {
-            // Phase-based status effect
             if (!system.phases || !system.phases[phaseIndex] || !system.phases[phaseIndex].statusEffects) {
                 return;
             }
             if (index >= 0 && index < system.phases[phaseIndex].statusEffects.length) {
                 system.phases[phaseIndex].statusEffects.splice(index, 1);
-                await this.actor.update({ [`system.phases.${phaseIndex}.statusEffects`]: system.phases[phaseIndex].statusEffects });
+                await this.actor.update({
+                    [`system.phases.${phaseIndex}.statusEffects`]: system.phases[phaseIndex].statusEffects
+                });
             }
         }
         else {
-            // Normal status effect
             if (!system.statusEffects || !Array.isArray(system.statusEffects)) {
                 return;
             }
@@ -190,77 +203,165 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
             }
         }
     }
-    /**
-     * Add a new attack value to the NPC (normal or phase-based)
-     */
     async #onAttackValueAdd(event) {
         event.preventDefault();
         const phaseIndex = $(event.currentTarget).data('phase-index');
         const system = this.actor.system;
-        const newAttack = {
-            name: '',
-            attackDice: '',
-            damage: '',
-            attackDiceCount: undefined,
-            damageDiceCount: undefined,
-            armor: '',
-            special: '',
-            specialValue: undefined,
-            autoApplySpecial: false,
-            autoRaises: 0
-        };
+        const row = newExtraNpcPower();
         if (phaseIndex !== undefined && phaseIndex !== null) {
-            // Phase-based attack value
-            if (!system.phases || !system.phases[phaseIndex]) {
+            const pi = Number(phaseIndex);
+            if (!system.phases || !system.phases[pi]) {
                 return;
             }
-            if (!system.phases[phaseIndex].attackValues) {
-                system.phases[phaseIndex].attackValues = [];
-            }
-            system.phases[phaseIndex].attackValues.push(newAttack);
-            await this.actor.update({ [`system.phases.${phaseIndex}.attackValues`]: system.phases[phaseIndex].attackValues });
+            const phases = dup(system.phases);
+            if (!Array.isArray(phases[pi].attackValues))
+                phases[pi].attackValues = [];
+            phases[pi].attackValues.push(row);
+            await this.actor.update({ 'system.phases': phases });
         }
         else {
-            // Normal attack value
-            if (!system.attackValues) {
-                system.attackValues = [];
-            }
-            system.attackValues.push(newAttack);
-            await this.actor.update({ 'system.attackValues': system.attackValues });
+            const av = dup(system.attackValues || []);
+            av.push(row);
+            await this.actor.update({ 'system.attackValues': av });
         }
     }
-    /**
-     * Delete an attack value from the NPC (normal or phase-based)
-     */
     async #onAttackValueDelete(event) {
         event.preventDefault();
-        const index = parseInt($(event.currentTarget).data('attack-index') || '0');
+        const index = parseInt($(event.currentTarget).data('attack-index') || '0', 10);
         const phaseIndex = $(event.currentTarget).data('phase-index');
         const system = this.actor.system;
         if (phaseIndex !== undefined && phaseIndex !== null) {
-            // Phase-based attack value
-            if (!system.phases || !system.phases[phaseIndex] || !system.phases[phaseIndex].attackValues) {
+            const pi = Number(phaseIndex);
+            if (!system.phases || !system.phases[pi] || !system.phases[pi].attackValues) {
                 return;
             }
-            if (index >= 0 && index < system.phases[phaseIndex].attackValues.length) {
-                system.phases[phaseIndex].attackValues.splice(index, 1);
-                await this.actor.update({ [`system.phases.${phaseIndex}.attackValues`]: system.phases[phaseIndex].attackValues });
+            if (index >= 0 && index < system.phases[pi].attackValues.length) {
+                const phases = dup(system.phases);
+                phases[pi].attackValues.splice(index, 1);
+                await this.actor.update({ 'system.phases': phases });
             }
         }
         else {
-            // Normal attack value
             if (!system.attackValues || !Array.isArray(system.attackValues)) {
                 return;
             }
             if (index >= 0 && index < system.attackValues.length) {
-                system.attackValues.splice(index, 1);
-                await this.actor.update({ 'system.attackValues': system.attackValues });
+                const av = dup(system.attackValues);
+                av.splice(index, 1);
+                await this.actor.update({ 'system.attackValues': av });
             }
         }
     }
-    /**
-     * Add a new phase to the NPC
-     */
+    async #onNpcPowerSpecialAdd(event) {
+        event.preventDefault();
+        const $t = $(event.currentTarget);
+        const scope = String($t.data('scope') || '');
+        const phaseRaw = $t.data('phase-index');
+        const attackRaw = $t.data('attack-index');
+        const system = this.actor.system;
+        const entry = { special: '' };
+        if (scope === 'base') {
+            const base = ensureNpcBaseShape(system.npcBaseAttack);
+            base.specials = [...(base.specials || []), entry];
+            await this.actor.update({ 'system.npcBaseAttack': base });
+            return;
+        }
+        if (scope === 'phase-base') {
+            const pi = Number(phaseRaw);
+            if (!Number.isFinite(pi) || !system.phases?.[pi])
+                return;
+            const phases = dup(system.phases);
+            const base = ensureNpcBaseShape(phases[pi].npcBaseAttack);
+            base.specials = [...(base.specials || []), entry];
+            phases[pi].npcBaseAttack = base;
+            await this.actor.update({ 'system.phases': phases });
+            return;
+        }
+        if (scope === 'extra') {
+            const ai = Number(attackRaw);
+            if (!Number.isFinite(ai))
+                return;
+            if (phaseRaw !== undefined && phaseRaw !== null && phaseRaw !== '') {
+                const pi = Number(phaseRaw);
+                if (!Number.isFinite(pi) || !system.phases?.[pi]?.attackValues?.[ai])
+                    return;
+                const phases = dup(system.phases);
+                const att = dup(phases[pi].attackValues[ai]);
+                att.specials = [...(att.specials || []), entry];
+                phases[pi].attackValues[ai] = att;
+                await this.actor.update({ 'system.phases': phases });
+            }
+            else {
+                if (!system.attackValues?.[ai])
+                    return;
+                const av = dup(system.attackValues);
+                const att = dup(av[ai]);
+                att.specials = [...(att.specials || []), entry];
+                av[ai] = att;
+                await this.actor.update({ 'system.attackValues': av });
+            }
+        }
+    }
+    async #onNpcPowerSpecialDel(event) {
+        event.preventDefault();
+        const $t = $(event.currentTarget);
+        const scope = String($t.data('scope') || '');
+        const si = parseInt(String($t.data('special-index') ?? '-1'), 10);
+        if (si < 0)
+            return;
+        const phaseRaw = $t.data('phase-index');
+        const attackRaw = $t.data('attack-index');
+        const system = this.actor.system;
+        if (scope === 'base') {
+            const base = ensureNpcBaseShape(system.npcBaseAttack);
+            if (si >= base.specials.length)
+                return;
+            base.specials.splice(si, 1);
+            await this.actor.update({ 'system.npcBaseAttack': base });
+            return;
+        }
+        if (scope === 'phase-base') {
+            const pi = Number(phaseRaw);
+            if (!Number.isFinite(pi) || !system.phases?.[pi])
+                return;
+            const phases = dup(system.phases);
+            const base = ensureNpcBaseShape(phases[pi].npcBaseAttack);
+            if (si >= base.specials.length)
+                return;
+            base.specials.splice(si, 1);
+            phases[pi].npcBaseAttack = base;
+            await this.actor.update({ 'system.phases': phases });
+            return;
+        }
+        if (scope === 'extra') {
+            const ai = Number(attackRaw);
+            if (!Number.isFinite(ai))
+                return;
+            if (phaseRaw !== undefined && phaseRaw !== null && phaseRaw !== '') {
+                const pi = Number(phaseRaw);
+                if (!Number.isFinite(pi) || !system.phases?.[pi]?.attackValues?.[ai])
+                    return;
+                const phases = dup(system.phases);
+                const att = dup(phases[pi].attackValues[ai]);
+                if (!Array.isArray(att.specials) || si >= att.specials.length)
+                    return;
+                att.specials.splice(si, 1);
+                phases[pi].attackValues[ai] = att;
+                await this.actor.update({ 'system.phases': phases });
+            }
+            else {
+                if (!system.attackValues?.[ai])
+                    return;
+                const av = dup(system.attackValues);
+                const att = dup(av[ai]);
+                if (!Array.isArray(att.specials) || si >= att.specials.length)
+                    return;
+                att.specials.splice(si, 1);
+                av[ai] = att;
+                await this.actor.update({ 'system.attackValues': av });
+            }
+        }
+    }
     async #onPhaseAdd(event) {
         event.preventDefault();
         const system = this.actor.system;
@@ -293,25 +394,30 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
                 mind: 0,
                 spirit: 0
             },
+            npcBaseAttack: {
+                name: 'Waffenangriff',
+                attackDiceCount: 6,
+                damageDiceCount: 4,
+                specials: []
+            },
             attackValues: [],
             statusEffects: []
         };
-        system.phases.push(newPhase);
-        await this.actor.update({ 'system.phases': system.phases });
+        const phases = dup(system.phases);
+        phases.push(newPhase);
+        await this.actor.update({ 'system.phases': phases });
     }
-    /**
-     * Delete a phase from the NPC
-     */
     async #onPhaseDelete(event) {
         event.preventDefault();
-        const phaseIndex = parseInt($(event.currentTarget).data('phase-index') || '0');
+        const phaseIndex = parseInt($(event.currentTarget).data('phase-index') || '0', 10);
         const system = this.actor.system;
         if (!system.phases || !Array.isArray(system.phases)) {
             return;
         }
         if (phaseIndex >= 0 && phaseIndex < system.phases.length) {
-            system.phases.splice(phaseIndex, 1);
-            await this.actor.update({ 'system.phases': system.phases });
+            const phases = dup(system.phases);
+            phases.splice(phaseIndex, 1);
+            await this.actor.update({ 'system.phases': phases });
         }
     }
     async #onNpcCombatSpecialAdd(event) {

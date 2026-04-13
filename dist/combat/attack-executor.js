@@ -6,7 +6,7 @@ import { logActorItemSummary } from "../utils/debug-helpers.js";
 import { getAttackAttributeForPowerTreeOrSchool } from "../utils/power-roll-attribute.js";
 import { resolveEquippedWeaponForAttackType } from "../utils/equipment-modifiers.js";
 import { evaluateThreatenedRanged } from "./threatened-ranged.js";
-import { formatNpcSpecialLabel, getNpcAttackByIndex, npcAttackDiceCount, npcDamageDiceFormula } from "../utils/npc-attack-model.js";
+import { formatNpcAttackSpecialsLine, getNpcAttackByIndex, npcAttackDiceCount, npcDamageDiceFormula } from "../utils/npc-attack-model.js";
 /**
  * Safely collect items from actor (handles Collection, Array, Map)
  */
@@ -299,14 +299,15 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     const weaponSpecialsHtml = weaponSpecialLines.length > 0
         ? `<div class="detail-row"><span class="detail-label">Weapon specials:</span><span class="detail-value">${weaponSpecialLines.map(attackCardEsc).join(", ")}</span></div>`
         : "";
+    const npcSpecialsLine = isNpcAttack && npcAttackRow ? formatNpcAttackSpecialsLine(npcAttackRow) : "";
     const npcAttackDetailHtml = isNpcAttack && npcAttackRow
         ? `<div class="detail-row"><span class="detail-label">NSC-Pool:</span><span class="detail-value">${attributeValue}d8</span></div>
         <div class="detail-row"><span class="detail-label">Schaden:</span><span class="detail-value">${attackCardEsc(npcDamageDiceFormula(npcAttackRow))}</span></div>
         ${npcAttackRow.armor
             ? `<div class="detail-row"><span class="detail-label">Rüstung:</span><span class="detail-value">${attackCardEsc(String(npcAttackRow.armor))}</span></div>`
             : ""}
-        ${npcAttackRow.special
-            ? `<div class="detail-row"><span class="detail-label">Spezial:</span><span class="detail-value">${attackCardEsc(formatNpcSpecialLabel(npcAttackRow.special, npcAttackRow.specialValue))}</span></div>`
+        ${npcSpecialsLine
+            ? `<div class="detail-row"><span class="detail-label">Spezial:</span><span class="detail-value">${attackCardEsc(npcSpecialsLine)}</span></div>`
             : ""}`
         : "";
     const oppNames = tr.opportunityEnemyTokenIds

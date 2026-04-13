@@ -87,7 +87,11 @@
     </div>
     <div class="npc-phase-toolbar__field">
       <label>Angriffe / Runde</label>
-      <input type="number" name="system.attackSlots" value="{{default system.attackSlots 1}}" min="1" max="20" step="1" data-dtype="Number" title="Wie viele Attack-Aktionen pro Runde im Tracker"/>
+      <input type="number" name="system.attackSlots" value="{{default system.attackSlots 1}}" min="1" max="20" step="1" data-dtype="Number" title="Attack-Aktionen pro Runde"/>
+    </div>
+    <div class="npc-phase-toolbar__field">
+      <label>Bewegung / Runde</label>
+      <input type="number" name="system.npcMovementSlots" value="{{default system.npcMovementSlots 1}}" min="1" max="10" step="1" data-dtype="Number" title="Movement-Aktionen pro Runde"/>
     </div>
   </div>
   {{/if}}
@@ -184,81 +188,130 @@
           </div>
         </div>
 
-        {{!-- Attack Values --}}
+        {{!-- Basis: Waffenangriff (Phase) --}}
+        <div class="attack-values-panel npc-section">
+          <h3 class="npc-section__title"><i class="fas fa-sword"></i> Basis: Waffenangriff</h3>
+          <p class="hint">Immer im Radialmenü; zusätzliche Einträge unten sind Extras.</p>
+          <div class="npc-attack-card npc-attack-card--base">
+            <div class="npc-attack-card__grid npc-attack-card__grid--simple">
+              <div class="npc-attack-field">
+                <label>Name</label>
+                <input type="text" name="system.phases.{{phaseIndex}}.npcBaseAttack.name" value="{{default phase.npcBaseAttack.name 'Waffenangriff'}}" placeholder="Waffenangriff"/>
+              </div>
+              <div class="npc-attack-field">
+                <label>Angriff (Pool)</label>
+                <select name="system.phases.{{phaseIndex}}.npcBaseAttack.attackDiceCount" data-dtype="Number">
+                  <option value="">—</option>
+                  {{#each (range 2 16)}}
+                  <option value="{{this}}" {{#if (eq ../phase.npcBaseAttack.attackDiceCount this)}}selected{{/if}}>{{this}}d8</option>
+                  {{/each}}
+                </select>
+              </div>
+              <div class="npc-attack-field">
+                <label>Schaden</label>
+                <select name="system.phases.{{phaseIndex}}.npcBaseAttack.damageDiceCount" data-dtype="Number">
+                  <option value="">—</option>
+                  {{#each (range 4 16)}}
+                  <option value="{{this}}" {{#if (eq ../phase.npcBaseAttack.damageDiceCount this)}}selected{{/if}}>{{this}}d8</option>
+                  {{/each}}
+                </select>
+              </div>
+            </div>
+            <div class="npc-attack-specials-block">
+              <div class="npc-attack-specials-header">
+                <span>Speziale</span>
+                <button type="button" class="npc-power-special-add" data-scope="phase-base" data-phase-index="{{phaseIndex}}" title="Spezial hinzufügen"><i class="fas fa-plus"></i></button>
+              </div>
+              {{#each phase.npcBaseAttack.specials as |sp si|}}
+              <div class="npc-attack-special-row">
+                <select name="system.phases.{{../phaseIndex}}.npcBaseAttack.specials.{{si}}.special" class="special-select">
+                  <option value="">—</option>
+                  <option value="Bleed" {{#if (eq sp.special "Bleed")}}selected{{/if}}>Bleed</option>
+                  <option value="Ignite" {{#if (eq sp.special "Ignite")}}selected{{/if}}>Ignite</option>
+                  <option value="Freeze" {{#if (eq sp.special "Freeze")}}selected{{/if}}>Freeze</option>
+                  <option value="Poison" {{#if (eq sp.special "Poison")}}selected{{/if}}>Poison</option>
+                  <option value="Stun" {{#if (eq sp.special "Stun")}}selected{{/if}}>Stun</option>
+                  <option value="Knockdown" {{#if (eq sp.special "Knockdown")}}selected{{/if}}>Knockdown</option>
+                </select>
+                <select name="system.phases.{{../phaseIndex}}.npcBaseAttack.specials.{{si}}.specialValue" data-dtype="Number">
+                  <option value="">—</option>
+                  {{#each (range 1 10)}}
+                  <option value="{{this}}" {{#if (eq sp.specialValue this)}}selected{{/if}}>{{this}}</option>
+                  {{/each}}
+                </select>
+                <button type="button" class="npc-power-special-del" data-scope="phase-base" data-phase-index="{{../phaseIndex}}" data-special-index="{{si}}" title="Entfernen"><i class="fas fa-trash"></i></button>
+              </div>
+              {{/each}}
+            </div>
+          </div>
+        </div>
+
+        {{!-- Extra-Powers (Phase) --}}
         <div class="attack-values-panel npc-section">
           <div class="attack-values-header">
-            <h3 class="npc-section__title"><i class="fas fa-khanda"></i> Angriffe</h3>
-            <button type="button" class="attack-value-add" data-phase-index="{{phaseIndex}}"><i class="fas fa-plus"></i> Angriff</button>
+            <h3 class="npc-section__title"><i class="fas fa-khanda"></i> Weitere Powers (Extras)</h3>
+            <button type="button" class="attack-value-add" data-phase-index="{{phaseIndex}}"><i class="fas fa-plus"></i> Power</button>
           </div>
           <div class="attack-values-list">
             {{#if phase.attackValues}}
               {{#each phase.attackValues as |attack index|}}
               <div class="npc-attack-card attack-value-item" data-attack-index="{{index}}" data-phase-index="{{../phaseIndex}}">
                 <div class="npc-attack-card__head">
-                  <input type="text" class="npc-attack-name" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.name" value="{{attack.name}}" placeholder="Angriffsname"/>
-                  <button type="button" class="attack-value-delete npc-attack-delete" data-attack-index="{{index}}" data-phase-index="{{../phaseIndex}}" title="Angriff entfernen">
+                  <input type="text" class="npc-attack-name" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.name" value="{{attack.name}}" placeholder="Power-Name"/>
+                  <button type="button" class="attack-value-delete npc-attack-delete" data-attack-index="{{index}}" data-phase-index="{{../phaseIndex}}" title="Entfernen">
                     <i class="fas fa-trash"></i>
                   </button>
                 </div>
-                <div class="npc-attack-card__grid">
-                  <div class="npc-attack-field npc-attack-field--narrow">
-                    <label>Angriff (d8)</label>
-                    <input type="number" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.attackDiceCount" value="{{attack.attackDiceCount}}" min="0" max="99" step="1" data-dtype="Number" placeholder="—" title="Anzahl Würfel für den Angriff"/>
-                  </div>
-                  <div class="npc-attack-field npc-attack-field--narrow">
-                    <label>Schaden (d8)</label>
-                    <input type="number" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.damageDiceCount" value="{{attack.damageDiceCount}}" min="0" max="99" step="1" data-dtype="Number" placeholder="—" title="Anzahl Schadenswürfel"/>
-                  </div>
+                <div class="npc-attack-card__grid npc-attack-card__grid--simple">
                   <div class="npc-attack-field">
-                    <label>Würfel (alt)</label>
-                    <input type="text" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.attackDice" value="{{attack.attackDice}}" placeholder="z. B. 9"/>
-                  </div>
-                  <div class="npc-attack-field">
-                    <label>Schaden (alt)</label>
-                    <input type="text" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.damage" value="{{attack.damage}}" placeholder="z. B. 5d8"/>
-                  </div>
-                  <div class="npc-attack-field">
-                    <label>Rüstung</label>
-                    <input type="text" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.armor" value="{{default attack.armor ''}}" placeholder="z. B. AP, Mod. —"/>
-                  </div>
-                  <div class="npc-attack-field npc-attack-field--checks">
-                    <label class="npc-attack-checkbox"><input type="checkbox" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.autoApplySpecial" {{#if attack.autoApplySpecial}}checked{{/if}} data-dtype="Boolean"/> Auto-Spezial</label>
-                    <label>Auto +d8</label>
-                    <input type="number" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.autoRaises" value="{{default attack.autoRaises 0}}" min="0" max="20" step="1" data-dtype="Number" title="Zusätzliche Schadenswürfel ohne Raise"/>
-                  </div>
-                  <div class="npc-attack-field">
-                    <label>Spezial</label>
-                    <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.special" class="special-select">
+                    <label>Angriff (Pool)</label>
+                    <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.attackDiceCount" data-dtype="Number">
                       <option value="">—</option>
-                      <option value="Bleed" {{#if (eq attack.special "Bleed")}}selected{{/if}}>Bleed</option>
-                      <option value="Ignite" {{#if (eq attack.special "Ignite")}}selected{{/if}}>Ignite</option>
-                      <option value="Freeze" {{#if (eq attack.special "Freeze")}}selected{{/if}}>Freeze</option>
-                      <option value="Poison" {{#if (eq attack.special "Poison")}}selected{{/if}}>Poison</option>
-                      <option value="Stun" {{#if (eq attack.special "Stun")}}selected{{/if}}>Stun</option>
-                      <option value="Knockdown" {{#if (eq attack.special "Knockdown")}}selected{{/if}}>Knockdown</option>
+                      {{#each (range 2 16)}}
+                      <option value="{{this}}" {{#if (eq ../attack.attackDiceCount this)}}selected{{/if}}>{{this}}d8</option>
+                      {{/each}}
                     </select>
                   </div>
-                  <div class="npc-attack-field npc-attack-field--narrow">
-                    <label>Wert</label>
-                    <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.specialValue" class="special-value-select">
+                  <div class="npc-attack-field">
+                    <label>Schaden</label>
+                    <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.damageDiceCount" data-dtype="Number">
                       <option value="">—</option>
-                      <option value="1" {{#if (eq attack.specialValue 1)}}selected{{/if}}>1</option>
-                      <option value="2" {{#if (eq attack.specialValue 2)}}selected{{/if}}>2</option>
-                      <option value="3" {{#if (eq attack.specialValue 3)}}selected{{/if}}>3</option>
-                      <option value="4" {{#if (eq attack.specialValue 4)}}selected{{/if}}>4</option>
-                      <option value="5" {{#if (eq attack.specialValue 5)}}selected{{/if}}>5</option>
-                      <option value="6" {{#if (eq attack.specialValue 6)}}selected{{/if}}>6</option>
-                      <option value="7" {{#if (eq attack.specialValue 7)}}selected{{/if}}>7</option>
-                      <option value="8" {{#if (eq attack.specialValue 8)}}selected{{/if}}>8</option>
-                      <option value="9" {{#if (eq attack.specialValue 9)}}selected{{/if}}>9</option>
-                      <option value="10" {{#if (eq attack.specialValue 10)}}selected{{/if}}>10</option>
+                      {{#each (range 4 16)}}
+                      <option value="{{this}}" {{#if (eq ../attack.damageDiceCount this)}}selected{{/if}}>{{this}}d8</option>
+                      {{/each}}
                     </select>
                   </div>
+                </div>
+                <div class="npc-attack-specials-block">
+                  <div class="npc-attack-specials-header">
+                    <span>Speziale</span>
+                    <button type="button" class="npc-power-special-add" data-scope="extra" data-phase-index="{{../phaseIndex}}" data-attack-index="{{index}}"><i class="fas fa-plus"></i></button>
+                  </div>
+                  {{#each attack.specials as |sp si|}}
+                  <div class="npc-attack-special-row">
+                    <select name="system.phases.{{../../phaseIndex}}.attackValues.{{../index}}.specials.{{si}}.special" class="special-select">
+                      <option value="">—</option>
+                      <option value="Bleed" {{#if (eq sp.special "Bleed")}}selected{{/if}}>Bleed</option>
+                      <option value="Ignite" {{#if (eq sp.special "Ignite")}}selected{{/if}}>Ignite</option>
+                      <option value="Freeze" {{#if (eq sp.special "Freeze")}}selected{{/if}}>Freeze</option>
+                      <option value="Poison" {{#if (eq sp.special "Poison")}}selected{{/if}}>Poison</option>
+                      <option value="Stun" {{#if (eq sp.special "Stun")}}selected{{/if}}>Stun</option>
+                      <option value="Knockdown" {{#if (eq sp.special "Knockdown")}}selected{{/if}}>Knockdown</option>
+                    </select>
+                    <select name="system.phases.{{../../phaseIndex}}.attackValues.{{../index}}.specials.{{si}}.specialValue" data-dtype="Number">
+                      <option value="">—</option>
+                      {{#each (range 1 10)}}
+                      <option value="{{this}}" {{#if (eq sp.specialValue this)}}selected{{/if}}>{{this}}</option>
+                      {{/each}}
+                    </select>
+                    <button type="button" class="npc-power-special-del" data-scope="extra" data-phase-index="{{../../phaseIndex}}" data-attack-index="{{../index}}" data-special-index="{{si}}"><i class="fas fa-trash"></i></button>
+                  </div>
+                  {{/each}}
                 </div>
               </div>
               {{/each}}
             {{else}}
-              <div class="no-attack-values">Noch keine Angriffe — „Angriff“ hinzufügen.</div>
+              <div class="no-attack-values">Noch keine Extra-Powers.</div>
             {{/if}}
           </div>
         </div>
@@ -284,6 +337,10 @@
           <div class="npc-combat-chip">
             <span class="npc-combat-chip__label">Angriffe / Runde</span>
             <input type="number" name="system.attackSlots" value="{{default system.attackSlots 1}}" min="1" max="20" step="1" data-dtype="Number" title="Attack-Aktionen pro Runde"/>
+          </div>
+          <div class="npc-combat-chip">
+            <span class="npc-combat-chip__label">Bewegung / Runde</span>
+            <input type="number" name="system.npcMovementSlots" value="{{default system.npcMovementSlots 1}}" min="1" max="10" step="1" data-dtype="Number" title="Movement-Aktionen pro Runde"/>
           </div>
         </div>
       </section>
@@ -347,81 +404,130 @@
         </div>
       </div>
 
-      {{!-- Attack Values --}}
+      {{!-- Basis: Waffenangriff --}}
+      <div class="attack-values-panel npc-section">
+        <h3 class="npc-section__title"><i class="fas fa-sword"></i> Basis: Waffenangriff</h3>
+        <p class="hint">Standard-Angriff, immer im Radialmenü. Darunter: Extra-Powers.</p>
+        <div class="npc-attack-card npc-attack-card--base">
+          <div class="npc-attack-card__grid npc-attack-card__grid--simple">
+            <div class="npc-attack-field">
+              <label>Name</label>
+              <input type="text" name="system.npcBaseAttack.name" value="{{default system.npcBaseAttack.name 'Waffenangriff'}}" placeholder="Waffenangriff"/>
+            </div>
+            <div class="npc-attack-field">
+              <label>Angriff (Pool)</label>
+              <select name="system.npcBaseAttack.attackDiceCount" data-dtype="Number">
+                <option value="">—</option>
+                {{#each (range 2 16)}}
+                <option value="{{this}}" {{#if (eq ../system.npcBaseAttack.attackDiceCount this)}}selected{{/if}}>{{this}}d8</option>
+                {{/each}}
+              </select>
+            </div>
+            <div class="npc-attack-field">
+              <label>Schaden</label>
+              <select name="system.npcBaseAttack.damageDiceCount" data-dtype="Number">
+                <option value="">—</option>
+                {{#each (range 4 16)}}
+                <option value="{{this}}" {{#if (eq ../system.npcBaseAttack.damageDiceCount this)}}selected{{/if}}>{{this}}d8</option>
+                {{/each}}
+              </select>
+            </div>
+          </div>
+          <div class="npc-attack-specials-block">
+            <div class="npc-attack-specials-header">
+              <span>Speziale</span>
+              <button type="button" class="npc-power-special-add" data-scope="base" title="Spezial hinzufügen"><i class="fas fa-plus"></i></button>
+            </div>
+            {{#each system.npcBaseAttack.specials as |sp si|}}
+            <div class="npc-attack-special-row">
+              <select name="system.npcBaseAttack.specials.{{si}}.special" class="special-select">
+                <option value="">—</option>
+                <option value="Bleed" {{#if (eq sp.special "Bleed")}}selected{{/if}}>Bleed</option>
+                <option value="Ignite" {{#if (eq sp.special "Ignite")}}selected{{/if}}>Ignite</option>
+                <option value="Freeze" {{#if (eq sp.special "Freeze")}}selected{{/if}}>Freeze</option>
+                <option value="Poison" {{#if (eq sp.special "Poison")}}selected{{/if}}>Poison</option>
+                <option value="Stun" {{#if (eq sp.special "Stun")}}selected{{/if}}>Stun</option>
+                <option value="Knockdown" {{#if (eq sp.special "Knockdown")}}selected{{/if}}>Knockdown</option>
+              </select>
+              <select name="system.npcBaseAttack.specials.{{si}}.specialValue" data-dtype="Number">
+                <option value="">—</option>
+                {{#each (range 1 10)}}
+                <option value="{{this}}" {{#if (eq sp.specialValue this)}}selected{{/if}}>{{this}}</option>
+                {{/each}}
+              </select>
+              <button type="button" class="npc-power-special-del" data-scope="base" data-special-index="{{si}}"><i class="fas fa-trash"></i></button>
+            </div>
+            {{/each}}
+          </div>
+        </div>
+      </div>
+
+      {{!-- Extra-Powers --}}
       <div class="attack-values-panel npc-section">
         <div class="attack-values-header">
-          <h3 class="npc-section__title"><i class="fas fa-khanda"></i> Angriffe</h3>
-          <button type="button" class="attack-value-add"><i class="fas fa-plus"></i> Angriff</button>
+          <h3 class="npc-section__title"><i class="fas fa-khanda"></i> Weitere Powers (Extras)</h3>
+          <button type="button" class="attack-value-add"><i class="fas fa-plus"></i> Power</button>
         </div>
         <div class="attack-values-list">
           {{#if system.attackValues}}
             {{#each system.attackValues as |attack index|}}
             <div class="npc-attack-card attack-value-item" data-attack-index="{{index}}">
               <div class="npc-attack-card__head">
-                <input type="text" class="npc-attack-name" name="system.attackValues.{{index}}.name" value="{{attack.name}}" placeholder="Angriffsname"/>
-                <button type="button" class="attack-value-delete npc-attack-delete" data-attack-index="{{index}}" title="Angriff entfernen">
+                <input type="text" class="npc-attack-name" name="system.attackValues.{{index}}.name" value="{{attack.name}}" placeholder="Power-Name"/>
+                <button type="button" class="attack-value-delete npc-attack-delete" data-attack-index="{{index}}" title="Entfernen">
                   <i class="fas fa-trash"></i>
                 </button>
               </div>
-              <div class="npc-attack-card__grid">
-                <div class="npc-attack-field npc-attack-field--narrow">
-                  <label>Angriff (d8)</label>
-                  <input type="number" name="system.attackValues.{{index}}.attackDiceCount" value="{{attack.attackDiceCount}}" min="0" max="99" step="1" data-dtype="Number" placeholder="—" title="Anzahl Würfel für den Angriff"/>
-                </div>
-                <div class="npc-attack-field npc-attack-field--narrow">
-                  <label>Schaden (d8)</label>
-                  <input type="number" name="system.attackValues.{{index}}.damageDiceCount" value="{{attack.damageDiceCount}}" min="0" max="99" step="1" data-dtype="Number" placeholder="—" title="Anzahl Schadenswürfel"/>
-                </div>
+              <div class="npc-attack-card__grid npc-attack-card__grid--simple">
                 <div class="npc-attack-field">
-                  <label>Würfel (alt)</label>
-                  <input type="text" name="system.attackValues.{{index}}.attackDice" value="{{attack.attackDice}}" placeholder="z. B. 9"/>
-                </div>
-                <div class="npc-attack-field">
-                  <label>Schaden (alt)</label>
-                  <input type="text" name="system.attackValues.{{index}}.damage" value="{{attack.damage}}" placeholder="z. B. 5d8"/>
-                </div>
-                <div class="npc-attack-field">
-                  <label>Rüstung</label>
-                  <input type="text" name="system.attackValues.{{index}}.armor" value="{{default attack.armor ''}}" placeholder="z. B. AP, Mod. —"/>
-                </div>
-                <div class="npc-attack-field npc-attack-field--checks">
-                  <label class="npc-attack-checkbox"><input type="checkbox" name="system.attackValues.{{index}}.autoApplySpecial" {{#if attack.autoApplySpecial}}checked{{/if}} data-dtype="Boolean"/> Auto-Spezial</label>
-                  <label>Auto +d8</label>
-                  <input type="number" name="system.attackValues.{{index}}.autoRaises" value="{{default attack.autoRaises 0}}" min="0" max="20" step="1" data-dtype="Number" title="Zusätzliche Schadenswürfel ohne Raise"/>
-                </div>
-                <div class="npc-attack-field">
-                  <label>Spezial</label>
-                  <select name="system.attackValues.{{index}}.special" class="special-select">
+                  <label>Angriff (Pool)</label>
+                  <select name="system.attackValues.{{index}}.attackDiceCount" data-dtype="Number">
                     <option value="">—</option>
-                    <option value="Bleed" {{#if (eq attack.special "Bleed")}}selected{{/if}}>Bleed</option>
-                    <option value="Ignite" {{#if (eq attack.special "Ignite")}}selected{{/if}}>Ignite</option>
-                    <option value="Freeze" {{#if (eq attack.special "Freeze")}}selected{{/if}}>Freeze</option>
-                    <option value="Poison" {{#if (eq attack.special "Poison")}}selected{{/if}}>Poison</option>
-                    <option value="Stun" {{#if (eq attack.special "Stun")}}selected{{/if}}>Stun</option>
-                    <option value="Knockdown" {{#if (eq attack.special "Knockdown")}}selected{{/if}}>Knockdown</option>
+                    {{#each (range 2 16)}}
+                    <option value="{{this}}" {{#if (eq ../attack.attackDiceCount this)}}selected{{/if}}>{{this}}d8</option>
+                    {{/each}}
                   </select>
                 </div>
-                <div class="npc-attack-field npc-attack-field--narrow">
-                  <label>Wert</label>
-                  <select name="system.attackValues.{{index}}.specialValue" class="special-value-select">
+                <div class="npc-attack-field">
+                  <label>Schaden</label>
+                  <select name="system.attackValues.{{index}}.damageDiceCount" data-dtype="Number">
                     <option value="">—</option>
-                    <option value="1" {{#if (eq attack.specialValue 1)}}selected{{/if}}>1</option>
-                    <option value="2" {{#if (eq attack.specialValue 2)}}selected{{/if}}>2</option>
-                    <option value="3" {{#if (eq attack.specialValue 3)}}selected{{/if}}>3</option>
-                    <option value="4" {{#if (eq attack.specialValue 4)}}selected{{/if}}>4</option>
-                    <option value="5" {{#if (eq attack.specialValue 5)}}selected{{/if}}>5</option>
-                    <option value="6" {{#if (eq attack.specialValue 6)}}selected{{/if}}>6</option>
-                    <option value="7" {{#if (eq attack.specialValue 7)}}selected{{/if}}>7</option>
-                    <option value="8" {{#if (eq attack.specialValue 8)}}selected{{/if}}>8</option>
-                    <option value="9" {{#if (eq attack.specialValue 9)}}selected{{/if}}>9</option>
-                    <option value="10" {{#if (eq attack.specialValue 10)}}selected{{/if}}>10</option>
+                    {{#each (range 4 16)}}
+                    <option value="{{this}}" {{#if (eq ../attack.damageDiceCount this)}}selected{{/if}}>{{this}}d8</option>
+                    {{/each}}
                   </select>
                 </div>
+              </div>
+              <div class="npc-attack-specials-block">
+                <div class="npc-attack-specials-header">
+                  <span>Speziale</span>
+                  <button type="button" class="npc-power-special-add" data-scope="extra" data-attack-index="{{index}}"><i class="fas fa-plus"></i></button>
+                </div>
+                {{#each attack.specials as |sp si|}}
+                <div class="npc-attack-special-row">
+                  <select name="system.attackValues.{{../index}}.specials.{{si}}.special" class="special-select">
+                    <option value="">—</option>
+                    <option value="Bleed" {{#if (eq sp.special "Bleed")}}selected{{/if}}>Bleed</option>
+                    <option value="Ignite" {{#if (eq sp.special "Ignite")}}selected{{/if}}>Ignite</option>
+                    <option value="Freeze" {{#if (eq sp.special "Freeze")}}selected{{/if}}>Freeze</option>
+                    <option value="Poison" {{#if (eq sp.special "Poison")}}selected{{/if}}>Poison</option>
+                    <option value="Stun" {{#if (eq sp.special "Stun")}}selected{{/if}}>Stun</option>
+                    <option value="Knockdown" {{#if (eq sp.special "Knockdown")}}selected{{/if}}>Knockdown</option>
+                  </select>
+                  <select name="system.attackValues.{{../index}}.specials.{{si}}.specialValue" data-dtype="Number">
+                    <option value="">—</option>
+                    {{#each (range 1 10)}}
+                    <option value="{{this}}" {{#if (eq sp.specialValue this)}}selected{{/if}}>{{this}}</option>
+                    {{/each}}
+                  </select>
+                  <button type="button" class="npc-power-special-del" data-scope="extra" data-attack-index="{{../index}}" data-special-index="{{si}}"><i class="fas fa-trash"></i></button>
+                </div>
+                {{/each}}
               </div>
             </div>
             {{/each}}
           {{else}}
-            <div class="no-attack-values">Noch keine Angriffe — „Angriff“ hinzufügen.</div>
+            <div class="no-attack-values">Noch keine Extra-Powers.</div>
           {{/if}}
         </div>
       </div>

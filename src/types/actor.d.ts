@@ -168,23 +168,42 @@ export interface StatusEffect {
   timestamp?: number;
 }
 
+/** One special on an NPC attack (multiple per power). */
+export interface NpcAttackSpecialEntry {
+  special?: string;
+  specialValue?: number;
+}
+
 // Attack Value structure for NPCs
 export interface AttackValue {
-  name: string;
-  attackDice: string; // e.g., "9" (legacy display / fallback)
-  damage: string; // e.g., "5d8" (legacy if damageDiceCount unset)
-  /** Explicit attack pool: number of d8 for the attack roll (preferred over parsing attackDice) */
+  name?: string;
+  /** @deprecated Legacy — prefer attackDiceCount */
+  attackDice?: string;
+  /** @deprecated Legacy — prefer damageDiceCount */
+  damage?: string;
+  /** Attack pool: d8 count (sheet dropdown 2–16) */
   attackDiceCount?: number;
-  /** Explicit damage pool: number of exploding d8 (preferred over damage string) */
+  /** Damage pool: d8 count (sheet dropdown 4–16) */
   damageDiceCount?: number;
-  /** Optional armor note for this attack (e.g. AP, ignores X, or "—") */
+  /** Multiple specials on this attack */
+  specials?: NpcAttackSpecialEntry[];
+  /** @deprecated Single special — migrated to specials[] in UI; still read for old data */
+  special?: string;
+  specialValue?: number;
+  /** @deprecated */
   armor?: string;
-  special?: string; // e.g., "Bleed", "Ignite", "Freeze"
-  specialValue?: number; // e.g., 5
-  /** If true, linked special is applied automatically when damage resolves (no raise) */
+  /** @deprecated */
   autoApplySpecial?: boolean;
-  /** Extra d8 rolled automatically with damage (no raises spent) */
+  /** @deprecated */
   autoRaises?: number;
+}
+
+/** NSC default weapon attack (always first in radial); extras live in attackValues. */
+export interface NpcBaseAttack extends Partial<AttackValue> {
+  name?: string;
+  attackDiceCount?: number;
+  damageDiceCount?: number;
+  specials?: NpcAttackSpecialEntry[];
 }
 
 /** NSC-wide specials for damage / raise UI (with optional auto-apply). */
@@ -209,6 +228,8 @@ export interface BossPhase {
     spirit: number;
   };
   attackValues?: AttackValue[];
+  /** Basis-Waffenangriff (immer verfügbar); attackValues = weitere Powers. */
+  npcBaseAttack?: NpcBaseAttack;
   statusEffects?: StatusEffect[];
   divineCombat?: {
     startingPool: number;
@@ -254,11 +275,15 @@ export interface NpcData {
     spirit: number;
   };
   attackValues?: AttackValue[];
+  /** Basis-Waffenangriff; attackValues = weitere Powers. */
+  npcBaseAttack?: NpcBaseAttack;
   phases?: BossPhase[]; // For boss NPCs with multiple phases
   /** Which phase is active for radial attacks / shared lists (0-based). */
   npcActivePhaseIndex?: number;
   /** How many attack actions this NPC has per round (minimum 1). */
   attackSlots?: number;
+  /** Movement actions per round in combat (default 1). */
+  npcMovementSlots?: number;
   /** Reference list: specials tied to the creature (optional auto-apply). */
   npcCombatSpecials?: NpcListedSpecial[];
   /** Reference list: specials typically spent with raises (optional auto-apply). */

@@ -164,6 +164,19 @@ export declare function getStonePool(actor: Actor, attribute: AttributeKey): {
     max: number;
 };
 /**
+ * Attributes with per-pool combat stones (must match `MasteryActor.prepareBaseData`).
+ */
+export declare const STONE_POOL_ATTRIBUTE_KEYS: readonly ["might", "agility", "vitality", "intellect", "resolve", "influence", "wits"];
+/**
+ * Persist max/current from floor(attribute/8) minus sustained — full pool for round-1 stone assignment.
+ * Pass the **combatant's** actor (token document for unlinked PCs) so data matches Stone Powers UI.
+ */
+export declare function refillStonePoolsFromAttributes(actor: Actor): Promise<void>;
+/**
+ * Fix stale max (e.g. 0 in DB) and clamp current without forcing a full refill (round 2+).
+ */
+export declare function syncStonePoolCapsFromAttributes(actor: Actor): Promise<void>;
+/**
  * Set stone pool current value
  */
 export declare function setStonePool(actor: Actor, attribute: AttributeKey, current: number): Promise<void>;

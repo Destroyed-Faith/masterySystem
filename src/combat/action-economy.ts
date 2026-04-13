@@ -198,8 +198,12 @@ export function getRoundState(actor: Actor, combat: Combat | null): RoundState {
     owner.type === 'npc'
       ? Math.max(1, Math.min(20, Math.floor(Number(owner.system?.attackSlots) || 1)))
       : 1;
+  const npcMoveSlots =
+    owner.type === 'npc'
+      ? Math.max(1, Math.min(10, Math.floor(Number(owner.system?.npcMovementSlots) || 1)))
+      : 1;
   const baseActions = {
-    movementActions: { total: 1, used: 0 },
+    movementActions: { total: npcMoveSlots, used: 0 },
     attackActions: { total: npcAttackSlots, used: 0 },
     reactionActions: { total: 1, used: 0 }
   };
@@ -544,6 +548,75 @@ export function getStonePool(actor: Actor, attribute: AttributeKey): { current: 
 }
 
 /**
+ * Attributes with per-pool combat stones (must match `MasteryActor.prepareBaseData`).
+ */
+export const STONE_POOL_ATTRIBUTE_KEYS = [
+  'might',
+  'agility',
+  'vitality',
+  'intellect',
+  'resolve',
+  'influence',
+  'wits'
+] as const;
+
+/**
+ * Persist max/current from floor(attribute/8) minus sustained — full pool for round-1 stone assignment.
+ * Pass the **combatant's** actor (token document for unlinked PCs) so data matches Stone Powers UI.
+ */
+export async function refillStonePoolsFromAttributes(actor: Actor): Promise<void> {
+  if (!isPC(actor)) return;
+  const sys = (actor.system as any);
+  const updates: Record<string, number> = {};
+  for (const attr of STONE_POOL_ATTRIBUTE_KEYS) {
+    const attrValue = Number(sys.attributes?.[attr]?.value ?? 0);
+    const maxStones = Math.floor(attrValue / 8);
+    const sustained = Number(sys.stonePools?.[attr]?.sustained ?? 0);
+    const effectiveMax = Math.max(0, maxStones - sustained);
+    const curMax = Number(sys.stonePools?.[attr]?.max ?? -1);
+    const curCurrent = Number(sys.stonePools?.[attr]?.current ?? -1);
+    if (curMax !== maxStones || curCurrent !== effectiveMax) {
+      updates[`system.stonePools.${attr}.max`] = maxStones;
+      updates[`system.stonePools.${attr}.current`] = effectiveMax;
+    }
+  }
+  if (Object.keys(updates).length > 0) {
+    await actor.update(updates);
+    if ((globalThis as any).CONFIG?.masterySystemDebugStonePools === true) {
+      console.log('Mastery System | [StonePools] refillStonePoolsFromAttributes', (actor as any).name, updates);
+    }
+  }
+}
+
+/**
+ * Fix stale max (e.g. 0 in DB) and clamp current without forcing a full refill (round 2+).
+ */
+export async function syncStonePoolCapsFromAttributes(actor: Actor): Promise<void> {
+  if (!isPC(actor)) return;
+  const sys = (actor.system as any);
+  const updates: Record<string, number> = {};
+  for (const attr of STONE_POOL_ATTRIBUTE_KEYS) {
+    const attrValue = Number(sys.attributes?.[attr]?.value ?? 0);
+    const maxStones = Math.floor(attrValue / 8);
+    const sustained = Number(sys.stonePools?.[attr]?.sustained ?? 0);
+    const effectiveMax = Math.max(0, maxStones - sustained);
+    const curMax = Number(sys.stonePools?.[attr]?.max ?? -1);
+    const curCurrent = Math.max(0, Number(sys.stonePools?.[attr]?.current ?? 0));
+    const newCurrent = Math.min(curCurrent, effectiveMax);
+    if (curMax !== maxStones || curCurrent !== newCurrent) {
+      updates[`system.stonePools.${attr}.max`] = maxStones;
+      updates[`system.stonePools.${attr}.current`] = newCurrent;
+    }
+  }
+  if (Object.keys(updates).length > 0) {
+    await actor.update(updates);
+    if ((globalThis as any).CONFIG?.masterySystemDebugStonePools === true) {
+      console.log('Mastery System | [StonePools] syncStonePoolCapsFromAttributes', (actor as any).name, updates);
+    }
+  }
+}
+
+/**
  * Set stone pool current value
  */
 export async function setStonePool(
@@ -867,9 +940,13 @@ export async function restoreStonesAfterCombat(combat: Combat): Promise<void> {
     for (const attr of attributeKeys) {
       const pool = getStonePool(actor, attr);
       const sustained = (system.stonePools?.[attr]?.sustained || 0);
-      const fullCurrent = pool.max - sustained;
+      const attrValue = Number(system.attributes?.[attr]?.value ?? 0);
+      const maxFromAttr = Math.floor(attrValue / 8);
+      const effectiveMax = Math.max(pool.max, maxFromAttr);
+      const fullCurrent = Math.max(0, effectiveMax - sustained);
       
-      if (pool.current !== fullCurrent) {
+      if (pool.current !== fullCurrent || pool.max !== effectiveMax) {
+        updates[`system.stonePools.${attr}.max`] = effectiveMax;
         updates[`system.stonePools.${attr}.current`] = fullCurrent;
       }
     }
@@ -945,12 +1022,16 @@ export async function resetRoundState(actor: Actor, combatant: Combatant, combat
     !isPC && (actor as any).type === 'npc'
       ? Math.max(1, Math.min(20, Math.floor(Number((actor as any).system?.attackSlots) || 1)))
       : 1;
+  const npcMoveSlots =
+    !isPC && (actor as any).type === 'npc'
+      ? Math.max(1, Math.min(10, Math.floor(Number((actor as any).system?.npcMovementSlots) || 1)))
+      : 1;
   const roundState: RoundState = {
     combatId: (combat as any).id ?? '',
     round: combat.round || 1,
     turn: combat.turn || 0,
     isPC,
-    movementActions: { total: 1, used: 0 },
+    movementActions: { total: isPC ? 1 : npcMoveSlots, used: 0 },
     attackActions: { total: isPC ? 1 : npcSlots, used: 0 },
     reactionActions: { total: 1, used: 0 },
     moveBonusMeters: 0,
