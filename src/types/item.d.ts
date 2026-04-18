@@ -73,6 +73,86 @@ export interface PowerLevelRow {
   specials: Array<{ key: string; rank?: number; value?: number; raiseCost?: number; note?: string }>;
   trigger?: string;
   lvl?: number;
+  /**
+   * Optional structured mechanics block. When present the aggregator in
+   * prepareDerivedData() and the roll-handler read numeric/diced bonuses
+   * from here instead of parsing `effect.text`. Powers without a mechanics
+   * block fall back to purely descriptive behavior (GM-ruling only).
+   */
+  mechanics?: PowerMechanics;
+}
+
+/**
+ * Structured, machine-readable description of what a power's effects do at
+ * a given rank. This is the Source-of-Truth for the aggregator — `effect.text`
+ * stays around for flavor and display, but numeric/diced bonuses live here.
+ *
+ * Powers that cannot be reduced to this schema (bespoke auras, narrative
+ * compound lines, etc.) simply omit `mechanics` and keep running as they do
+ * today (GM-ruling).
+ */
+export interface PowerMechanics {
+  /** Flat Armor bonus/malus (before equipment scaling). */
+  armor?: number;
+  /** Flat Evade bonus/malus. */
+  evade?: number;
+  /** Bonus d8 dice on the initiative roll. */
+  initiativeD8?: number;
+  /** Temp HP gained when the effect applies, as a dice string (e.g. "1d8") or flat ("3"). */
+  tempHP?: string;
+  /** HP regen per tick (end of turn / Mastery Rank rounds, per category). */
+  regen?: number;
+
+  /** Dice-pool bonus/malus for saving throws, keyed by save family. */
+  saveDice?: { body?: number; mind?: number; spirit?: number };
+  /** Dice-pool bonus/malus for specific roll kinds (attack, skill, damage). */
+  rollDice?: { attack?: number; skill?: number; damage?: number };
+
+  /**
+   * Optional damage rider applied when attacking with this power (or when
+   * another active power of the actor rolls damage — context-dependent
+   * based on applyWhen).
+   */
+  damageRider?: {
+    flat?: string;                                             // "+1d8"
+    vsCondition?: 'marked' | 'ignited' | 'shocked' | 'frozen'; // only when target has condition
+    vsConditionDamage?: string;                                // "+2d8" extra under condition
+  };
+
+  /** Flat movement bonus in meters. */
+  movementBonus?: number;
+  /** Ignore difficult-terrain movement penalties. */
+  ignoreTerrain?: boolean;
+
+  /**
+   * When this mechanics block is active.
+   * - passive-slotted-active: Passive sitting in a slot that is toggled active.
+   * - activeBuff-active: An ActiveEffect flagged activeBuff is currently running.
+   * - reaction-once-per-round: Applies when the reaction triggers; limited to 1/round.
+   * - attack-rider: Only applies when the actor makes this specific power's attack.
+   * - manual: GM applies at their discretion; aggregator ignores unless force-flagged.
+   */
+  applyWhen:
+    | 'passive-slotted-active'
+    | 'activeBuff-active'
+    | 'reaction-once-per-round'
+    | 'attack-rider'
+    | 'manual';
+
+  /** Duration family (ignored for passive-slotted-active — those run as long as active). */
+  duration?: 'masteryRankRounds' | 'untilNextTurn' | 'scene' | 'instant';
+
+  /** Per-round / per-combat / per-day usage limit (e.g. "first time each round"). */
+  usageLimit?: { per: 'round' | 'combat' | 'day'; max: number };
+
+  /** Gate the whole mechanics block behind a condition on the target/self. */
+  condition?:
+    | 'targetMarked'
+    | 'targetIgnited'
+    | 'targetShocked'
+    | 'targetFrozen'
+    | 'self-hp-below-50'
+    | null;
 }
 
 export interface PowerCostLimit {
@@ -107,6 +187,12 @@ export interface EmbeddedPowerData {
   levels: Record<PowerLevelKey, PowerLevelRow>;
   /** Optional echo-gating: power is only offered in the picker if the actor's Echo key matches one of these values. */
   requiresEcho?: string[];
+  /**
+   * Power-level default mechanics block (applies when a rank-specific
+   * `levels[rank].mechanics` is not set). Useful when the mechanics are
+   * identical across all ranks of the power.
+   */
+  mechanics?: PowerMechanics;
 }
 
 // Legacy alias for backwards compatibility

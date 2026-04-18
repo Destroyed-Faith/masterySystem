@@ -186,6 +186,14 @@ export async function activateActiveBuff(actor: Actor, power: any): Promise<bool
     combat: game.combat?.id || null
   };
   
+  // Snapshot the rank-specific mechanics block onto the effect flag so the
+  // Power Mechanics aggregator has self-contained data even if the source
+  // power item is later removed. Falls back to the power-level default.
+  const powerSys: any = power.system || {};
+  const powerRank = Math.max(1, Math.min(4, Number(powerSys.rank ?? 1)));
+  const rankMechanics =
+    powerSys.levels?.[String(powerRank)]?.mechanics ?? powerSys.mechanics ?? null;
+
   // Create ActiveEffect data - simplified structure for Foundry VTT
   const effectData: any = {
     name: power.name,
@@ -198,7 +206,8 @@ export async function activateActiveBuff(actor: Actor, power: any): Promise<bool
         powerName: power.name,
         masteryRank: masteryRank,
         activatedRound: currentRound,
-        isUtility: isUtility(power) // Store whether this is a utility
+        isUtility: isUtility(power), // Store whether this is a utility
+        mechanics: rankMechanics
       }
     },
     // Add description directly (not in system.description.value)

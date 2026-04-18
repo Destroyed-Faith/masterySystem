@@ -4014,6 +4014,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       flavorText += ` | Health penalty: ${healthPenalty} dice`;
     }
     
+    const saveRollKind =
+      saveType === 'body' ? 'saveBody' :
+      saveType === 'mind' ? 'saveMind' : 'saveSpirit';
+
     const { masteryRoll } = await import('../dice/roll-handler.js');
     await masteryRoll({
       numDice,
@@ -4023,7 +4027,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       label: `${saveName} Save`,
       flavor: flavorText,
       actorId: (this.actor as any).id,
-      isSaveRoll: true
+      isSaveRoll: true,
+      rollKind: saveRollKind
     });
   }
 

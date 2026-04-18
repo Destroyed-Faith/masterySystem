@@ -3,6 +3,8 @@
  * Implements Roll & Keep with exploding 8s
  */
 import { MasteryRollResult } from '../types';
+/** Roll-kind hint used by the Power Mechanics Engine to look up dice-pool deltas. */
+export type MasteryRollKind = 'attack' | 'skill' | 'damage' | 'saveBody' | 'saveMind' | 'saveSpirit' | 'generic';
 export interface RollOptions {
     numDice: number;
     keepDice: number;
@@ -15,6 +17,12 @@ export interface RollOptions {
     isSkillRoll?: boolean;
     isSaveRoll?: boolean;
     baseModifier?: number;
+    /**
+     * Roll kind used by the Power Mechanics Engine to consult the actor's
+     * aggregated dice-pool deltas (attack / skill / damage / saveBody / ...).
+     * When omitted no engine-driven adjustment is applied.
+     */
+    rollKind?: MasteryRollKind;
 }
 /** Stored on chat messages so a Faith Fracture reroll can repeat the same roll setup. */
 export interface MasteryRollRecipe {

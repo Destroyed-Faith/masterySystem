@@ -6,6 +6,16 @@
 import { MasteryRollResult } from '../types';
 import { EXPLODE_VALUE, RAISE_INCREMENT } from '../utils/constants';
 
+/** Roll-kind hint used by the Power Mechanics Engine to look up dice-pool deltas. */
+export type MasteryRollKind =
+  | 'attack'
+  | 'skill'
+  | 'damage'
+  | 'saveBody'
+  | 'saveMind'
+  | 'saveSpirit'
+  | 'generic';
+
 export interface RollOptions {
   numDice: number;          // Number of dice to roll (Attribute value)
   keepDice: number;         // Number of dice to keep (Mastery Rank)
@@ -18,6 +28,12 @@ export interface RollOptions {
   isSkillRoll?: boolean;    // Flag indicating this is a skill roll
   isSaveRoll?: boolean;     // Flag indicating this is a saving throw roll
   baseModifier?: number;    // Base modifier (situational, not skill-based)
+  /**
+   * Roll kind used by the Power Mechanics Engine to consult the actor's
+   * aggregated dice-pool deltas (attack / skill / damage / saveBody / ...).
+   * When omitted no engine-driven adjustment is applied.
+   */
+  rollKind?: MasteryRollKind;
 }
 
 /** Stored on chat messages so a Faith Fracture reroll can repeat the same roll setup. */
@@ -110,8 +126,34 @@ function calculateRaises(total: number, tn: number): number {
  * Dice explode on 8
  */
 export async function masteryRoll(options: RollOptions): Promise<MasteryRollResult> {
-  const { numDice, keepDice, skill = 0, tn = 0, label = 'Roll', flavor = '' } = options;
-  
+  const { keepDice, skill = 0, tn = 0, label = 'Roll' } = options;
+  let { numDice, flavor = '' } = options;
+
+  // Power Mechanics Engine — consult the actor's aggregated dice-pool deltas
+  // for this roll kind and adjust the pool before rolling. The delta is
+  // additive on top of any caller-supplied numDice (which typically already
+  // reflects attribute + health penalty).
+  const kind: MasteryRollKind | undefined = options.rollKind;
+  if (kind && kind !== 'generic' && options.actorId) {
+    try {
+      const actor: any = (game as any)?.actors?.get?.(options.actorId);
+      if (actor) {
+        const { getRollDiceDelta } = await import('../utils/power-mechanics.js');
+        const delta = getRollDiceDelta(actor, kind);
+        if (delta !== 0) {
+          const adjusted = Math.max(1, numDice + delta);
+          const sign = delta > 0 ? '+' : '';
+          const note = `Power Mechanics: ${sign}${delta} dice (${kind})`;
+          flavor = flavor ? `${flavor} | ${note}` : note;
+          numDice = adjusted;
+        }
+      }
+    } catch (err) {
+      // Best-effort only — never fail a roll because of aggregator issues.
+      console.warn('Mastery System | power-mechanics delta lookup failed', err);
+    }
+  }
+
   console.log('Mastery System | DEBUG: masteryRoll called', {
     numDice,
     keepDice,
@@ -583,7 +625,8 @@ export async function quickRoll(
     actorId: (actor as any).id,
     skillKey: skillName,
     isSkillRoll: !!skillName,
-    baseModifier: modifier
+    baseModifier: modifier,
+    rollKind: skillName ? 'skill' : 'generic'
   });
 }
 

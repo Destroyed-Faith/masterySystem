@@ -52,6 +52,53 @@ export interface CombatData {
   activeWeaponId?: string;
   armorId?: string;
   shieldId?: string;
+  /** Aggregated bonus from slot-activated passives + active buffs with a `mechanics` block. */
+  armorFromMechanics?: number;
+  evadeFromMechanics?: number;
+  initiativeD8FromMechanics?: number;
+}
+
+/** One line in a mechanics breakdown (source name + numeric value). */
+export interface MechanicsBreakdownEntry {
+  source: string;
+  value: number;
+}
+
+/**
+ * Full aggregator output stored at `actor.system.derived.mechanicsBreakdown`.
+ * Drives the transparent UI ("why is my Armor 6?") and the roll-bonus
+ * registry consumed by `src/dice/roll-handler.ts`.
+ */
+export interface MechanicsBreakdown {
+  armor: MechanicsBreakdownEntry[];
+  evade: MechanicsBreakdownEntry[];
+  initiativeD8: MechanicsBreakdownEntry[];
+  movementBonus: MechanicsBreakdownEntry[];
+  regen: MechanicsBreakdownEntry[];
+  tempHP: Array<{ source: string; value: string }>;
+  saveDice: {
+    body: MechanicsBreakdownEntry[];
+    mind: MechanicsBreakdownEntry[];
+    spirit: MechanicsBreakdownEntry[];
+  };
+  rollDice: {
+    attack: MechanicsBreakdownEntry[];
+    skill: MechanicsBreakdownEntry[];
+    damage: MechanicsBreakdownEntry[];
+  };
+  totals: {
+    armor: number;
+    evade: number;
+    initiativeD8: number;
+    movementBonus: number;
+    regen: number;
+    saveDice: { body: number; mind: number; spirit: number };
+    rollDice: { attack: number; skill: number; damage: number };
+  };
+}
+
+export interface DerivedData {
+  mechanicsBreakdown?: MechanicsBreakdown;
 }
 
 // Resource tracking
@@ -175,6 +222,8 @@ export interface CharacterData {
     stress?: ResourceData;
     stones?: ResourceData;
   };
+  /** Structured, aggregator-computed derived data (Power Mechanics Engine). */
+  derived?: DerivedData;
 }
 
 // Status effect structure

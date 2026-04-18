@@ -285,7 +285,8 @@ export function registerAttackRollClickHandler(): void {
         tn: currentTargetEvade,
         label: `${attackKind} Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`,
         flavor: `Roll ${numDice}d8 keep ${keepDice} vs ${(game as any).actors?.get(flags.targetId)?.name || 'Target'}'s Evade (${currentTargetEvade}${declaredRaisesForTn > 0 ? `, ${declaredRaisesForTn} raise${declaredRaisesForTn > 1 ? 's' : ''}` : ''})${disadvantageNote}`,
-        actorId: flags.attackerId
+        actorId: flags.attackerId,
+        rollKind: 'attack'
       });
       
       console.log('Mastery System | DEBUG: Roll completed!', {

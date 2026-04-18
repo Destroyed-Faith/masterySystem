@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.264] - 2026-04-18
+
+### Added
+- **Power Mechanics Engine (Release 1 of 4) — Schema + Aggregator + Roll Registry.** Introduces a structured `mechanics` block on power definitions so that Armor / Evade / Initiative d8 / Regen / TempHP / dice-pool bonuses can be declared once in data and applied automatically, while keeping full transparency via a per-actor breakdown.
+  - **New types.** `PowerMechanics` in `src/types/item.d.ts` describes per-rank or power-level defaults: flat `armor`, `evade`, `initiativeD8`, `regen`, `tempHP`, `movementBonus`, `ignoreTerrain`, plus `saveDice` (body/mind/spirit), `rollDice` (attack/skill/damage), `damageRider`, `applyWhen`, `duration`, `usageLimit` and `condition`. `MechanicsBreakdown` + `MechanicsBreakdownEntry` in `src/types/actor.d.ts` capture the aggregator output; `DerivedData` is the container at `actor.system.derived.mechanicsBreakdown`.
+  - **Aggregator** (`src/utils/power-mechanics.ts`). `buildActorMechanicsBreakdown(actor)` enumerates every slot-activated passive (`system.passives.slotN.active === true`) and every live `ActiveEffect` flagged `activeBuff`, resolves each power's rank-specific `mechanics` (falling back to the power-level default), and sums numeric contributions into totals plus per-source breakdown arrays.
+  - **Wired into `prepareDerivedData`** (`src/documents/actor.ts`). After the existing equipment-driven Armor/Evade/Initiative calculation, the aggregator total is added **on top** (never replacing) and per-source rows are appended to `armorBreakdownRows` / `evadeBreakdownRows` / `initiativeEquipmentRows`. Powers without a `mechanics` block are unaffected — they remain purely descriptive, so this change is strictly additive and backward-safe.
+  - **Roll-bonus registry** (`src/dice/roll-handler.ts`). New `rollKind` on `RollOptions` (`attack` / `skill` / `damage` / `saveBody` / `saveMind` / `saveSpirit`). `masteryRoll` now consults `getRollDiceDelta(actor, rollKind)` and adjusts `numDice` accordingly, recording the applied delta in the roll's flavor so players always see *why* the pool changed. Threaded through `quickRoll`, `#onSavingThrowRoll`, and the attack-roll pipeline.
+  - **Active Buff snapshot.** `activateActiveBuff` in `src/utils/active-buffs.ts` now stores the source power's resolved `mechanics` on `effect.flags.mastery-system.mechanics`, so the aggregator can read the buff even if the source power is later deleted.
+  - **Tests** (`tests/power-mechanics.test.ts`). Covers `resolvePowerMechanics` rank preference + top-level fallback + rank clamping, aggregator summing for armor / evade / saveDice / rollDice / tempHP / initiativeD8 / movementBonus / regen, slot-activated passive collection (active-only, empty-slot skip, wrong-applyWhen rejection), active buff collection (flag-mechanics preferred, item fallback, non-buff and wrong-applyWhen rejection), and `getRollDiceDelta` for every kind.
+
+### Notes
+- **No content translation yet.** No existing power carries a `mechanics` block after this release — so in-game behavior is identical to 0.4.263 for every player. Release 2 will add the mass-translation tool, and Release 3 will commit the actual structured data tree-by-tree.
+- Option A (explicit mechanics block + aggregator) was chosen over Option B (Foundry `ActiveEffect.changes`). Rationale: slot toggles avoid embedded-document churn, conditional/compound effects would need custom code anyway, and the breakdown list gives players a visible audit trail of every bonus — addressing the common complaint that stat changes in other systems happen invisibly.
+
 ## [0.4.263] - 2026-04-18
 
 ### Fixed

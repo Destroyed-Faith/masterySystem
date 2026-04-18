@@ -21,6 +21,7 @@ import {
   calculateBaseEvade
 } from '../utils/calculations.js';
 import { getInitiativeEquipmentRows, getEquippedEquipmentInitiativeModifier } from '../utils/equipment-modifiers.js';
+import { buildActorMechanicsBreakdown } from '../utils/power-mechanics.js';
 
 export class MasteryActor extends Actor {
   /**
@@ -406,7 +407,66 @@ export class MasteryActor extends Actor {
     system.combat.initiativeEquipmentTotalDisplay =
       iniEq === 0 ? '0' : iniEq > 0 ? `+${iniEq}` : String(iniEq);
     system.combat.initiativeMasteryRank = masteryRank;
-    
+
+    // Power Mechanics Engine — Aggregator
+    // Reads slot-activated passives and active buff effects that carry a
+    // structured `mechanics` block and sums numeric bonuses on-top of
+    // equipment-derived totals. Powers without mechanics are unaffected
+    // (remain GM-ruling), so this is strictly additive and backward-safe.
+    const mechBreakdown = buildActorMechanicsBreakdown(this);
+    if (!system.derived) system.derived = {};
+    system.derived.mechanicsBreakdown = mechBreakdown;
+
+    const armorMechBonus = mechBreakdown.totals.armor;
+    const evadeMechBonus = mechBreakdown.totals.evade;
+    const iniD8MechBonus = mechBreakdown.totals.initiativeD8;
+    system.combat.armorFromMechanics = armorMechBonus;
+    system.combat.evadeFromMechanics = evadeMechBonus;
+    system.combat.initiativeD8FromMechanics = iniD8MechBonus;
+    system.combat.armorTotal = (system.combat.armorTotal || 0) + armorMechBonus;
+    system.combat.evadeTotal = (system.combat.evadeTotal || 0) + evadeMechBonus;
+
+    if (armorMechBonus !== 0) {
+      for (const entry of mechBreakdown.armor) {
+        (system.combat.armorBreakdownRows as any[]).push({
+          label: entry.source,
+          detail: 'Power Mechanics',
+          value: entry.value,
+          display: entry.value > 0 ? `+${entry.value}` : String(entry.value),
+        });
+      }
+    }
+    if (evadeMechBonus !== 0) {
+      const fmt = (n: number): string => (n > 0 ? `+${n}` : String(n));
+      for (const entry of mechBreakdown.evade) {
+        (system.combat.evadeBreakdownRows as any[]).push({
+          label: entry.source,
+          detail: 'Power Mechanics',
+          value: entry.value,
+          display: fmt(entry.value),
+        });
+      }
+    }
+    if (iniD8MechBonus !== 0) {
+      const fmt = (n: number): string => (n > 0 ? `+${n}` : String(n));
+      for (const entry of mechBreakdown.initiativeD8) {
+        (system.combat.initiativeEquipmentRows as any[]).push({
+          label: entry.source,
+          detail: 'Power Mechanics (d8)',
+          value: entry.value,
+          display: fmt(entry.value),
+        });
+      }
+      system.combat.initiativeEquipmentTotal =
+        (system.combat.initiativeEquipmentTotal || 0) + iniD8MechBonus;
+      system.combat.initiativeEquipmentTotalDisplay =
+        system.combat.initiativeEquipmentTotal === 0
+          ? '0'
+          : system.combat.initiativeEquipmentTotal > 0
+            ? `+${system.combat.initiativeEquipmentTotal}`
+            : String(system.combat.initiativeEquipmentTotal);
+    }
+
     // Attribute Scaling Passives
     if (system.attributes) {
       const might = system.attributes.might?.value || 0;

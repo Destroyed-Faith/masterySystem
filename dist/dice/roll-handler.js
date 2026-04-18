@@ -71,7 +71,33 @@ function calculateRaises(total, tn) {
  * Dice explode on 8
  */
 export async function masteryRoll(options) {
-    const { numDice, keepDice, skill = 0, tn = 0, label = 'Roll', flavor = '' } = options;
+    const { keepDice, skill = 0, tn = 0, label = 'Roll' } = options;
+    let { numDice, flavor = '' } = options;
+    // Power Mechanics Engine — consult the actor's aggregated dice-pool deltas
+    // for this roll kind and adjust the pool before rolling. The delta is
+    // additive on top of any caller-supplied numDice (which typically already
+    // reflects attribute + health penalty).
+    const kind = options.rollKind;
+    if (kind && kind !== 'generic' && options.actorId) {
+        try {
+            const actor = game?.actors?.get?.(options.actorId);
+            if (actor) {
+                const { getRollDiceDelta } = await import('../utils/power-mechanics.js');
+                const delta = getRollDiceDelta(actor, kind);
+                if (delta !== 0) {
+                    const adjusted = Math.max(1, numDice + delta);
+                    const sign = delta > 0 ? '+' : '';
+                    const note = `Power Mechanics: ${sign}${delta} dice (${kind})`;
+                    flavor = flavor ? `${flavor} | ${note}` : note;
+                    numDice = adjusted;
+                }
+            }
+        }
+        catch (err) {
+            // Best-effort only — never fail a roll because of aggregator issues.
+            console.warn('Mastery System | power-mechanics delta lookup failed', err);
+        }
+    }
     console.log('Mastery System | DEBUG: masteryRoll called', {
         numDice,
         keepDice,
@@ -469,7 +495,8 @@ export async function quickRoll(actor, attributeName, skillName, tn, label, modi
         actorId: actor.id,
         skillKey: skillName,
         isSkillRoll: !!skillName,
-        baseModifier: modifier
+        baseModifier: modifier,
+        rollKind: skillName ? 'skill' : 'generic'
     });
 }
 // Export functions
