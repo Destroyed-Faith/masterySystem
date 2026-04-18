@@ -1010,7 +1010,8 @@ function initializeDamageCard(messageId: string, resolve: (result: DamageResult 
       target,
       Math.max(0, Number(flags.stoneDamageBonusDice) || 0),
       Math.max(0, Number(flags.npcAutoDamageDice) || 0),
-      Array.isArray(flags.npcAutoSpecialStrings) ? flags.npcAutoSpecialStrings : []
+      Array.isArray(flags.npcAutoSpecialStrings) ? flags.npcAutoSpecialStrings : [],
+      flags.selectedPowerId || null
     );
     
     console.log('Mastery System | [ROLL DAMAGE BUTTON] calculateDamageResult returned', {
@@ -1356,7 +1357,8 @@ async function calculateDamageResult(
   target: Actor,
   stoneDamageBonusDice: number = 0,
   npcAutoDamageDice: number = 0,
-  npcAutoSpecialStrings: string[] = []
+  npcAutoSpecialStrings: string[] = [],
+  selectedPowerId: string | null = null
 ): Promise<DamageResult> {
   // Roll base damage
   // Sanitize dice notations before rolling
@@ -1425,8 +1427,32 @@ async function calculateDamageResult(
     if (r.roll) damageChatRolls.push(r.roll);
   }
   
-  // Total damage = Base Weapon + Might stone bonus + Power Damage + Raises (Passives separate)
-  const totalDamage = baseDamageRolled + stoneMightDamageRolled + powerDamageRolled + raiseDamage;
+  // Conditional damage riders (fires only when the target carries the gated condition).
+  let conditionalDamageRolled = 0;
+  const conditionalSpecialsUsed: string[] = [];
+  try {
+    const { collectConditionalDamageRiders } = await import('../utils/power-mechanics.js');
+    const items = (attacker as any)?.items;
+    let selectedPower: any = null;
+    if (selectedPowerId && items) {
+      selectedPower = items.get?.(selectedPowerId)
+        ?? (Array.isArray(items) ? items.find((i: any) => i.id === selectedPowerId) : null);
+    }
+    const riders = collectConditionalDamageRiders(attacker, target, selectedPower);
+    for (const rider of riders) {
+      const r = await rollDiceWithDetail(rider.dice, `${rider.source} vs ${rider.condition}`);
+      conditionalDamageRolled += r.total;
+      if (r.line) rollDetails.push(r.line);
+      if (r.roll) damageChatRolls.push(r.roll);
+      conditionalSpecialsUsed.push(`${rider.source} (+${rider.dice} vs ${rider.condition})`);
+    }
+  } catch (e) {
+    console.warn('Mastery System | [CALCULATE DAMAGE] conditional rider eval failed', e);
+  }
+
+  // Total damage = Base Weapon + Might stone bonus + Power Damage + Raises + Conditional (Passives separate)
+  const totalDamage =
+    baseDamageRolled + stoneMightDamageRolled + powerDamageRolled + raiseDamage + conditionalDamageRolled;
   
   console.log('Mastery System | [CALCULATE DAMAGE] Final calculation', {
     baseDamageRolled,
@@ -1445,7 +1471,9 @@ async function calculateDamageResult(
   if (specialsUsed.length > 0 && target) {
     await applyStatusEffectsToTarget(target, specialsUsed);
   }
-  
+
+  for (const note of conditionalSpecialsUsed) specialsUsed.push(note);
+
   // Apply damage to target
   if (target) {
     await applyDamageToTarget(target, totalDamage, attacker);

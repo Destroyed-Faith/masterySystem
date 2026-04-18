@@ -83,11 +83,15 @@ export async function masteryRoll(options) {
             const actor = game?.actors?.get?.(options.actorId);
             if (actor) {
                 const { getRollDiceDelta } = await import('../utils/power-mechanics.js');
-                const delta = getRollDiceDelta(actor, kind);
+                const targetActor = options.targetActorId
+                    ? (game?.actors?.get?.(options.targetActorId) ?? null)
+                    : null;
+                const delta = getRollDiceDelta(actor, kind, targetActor);
                 if (delta !== 0) {
                     const adjusted = Math.max(1, numDice + delta);
                     const sign = delta > 0 ? '+' : '';
-                    const note = `Power Mechanics: ${sign}${delta} dice (${kind})`;
+                    const ctx = targetActor ? ' vs target' : '';
+                    const note = `Power Mechanics: ${sign}${delta} dice (${kind}${ctx})`;
                     flavor = flavor ? `${flavor} | ${note}` : note;
                     numDice = adjusted;
                 }

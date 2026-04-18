@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.266] - 2026-04-18
+
+### Added
+- **Power Mechanics Engine — Conditional Damage-Rider Engine.** Attacks now resolve per-target condition-gated riders at damage time. `collectConditionalDamageRiders(attacker, target, selectedPower)` walks the attacker's slot-activated passives, live active buffs, and the selected power's own mechanics, and returns every `damageRider` whose `vsCondition` (e.g. `hexed`, `marked`, `ignited`, `shocked`, `frozen`) matches the target, plus any `damageRider.flat` whose sibling `condition` gate evaluates true. Each firing rider rolls its own `+Nd8` pool, is stacked onto `totalDamage`, shown as a dedicated line in the damage chat output (e.g. `Pact Brand (slotted) vs hexed: 1d8: [7]`), and reported in the specials list (`Pact Brand (slotted) (+2d8 vs hexed)`).
+- **Target-aware roll-dice deltas.** `getRollDiceDelta(actor, kind, target?)` now optionally accepts a target actor. When provided, passives/buffs whose `condition` gate is target-facing (`targetHexed`, `targetMarked`, …) are folded into the dice-pool adjustment. Attack rolls pass the current target automatically. This means "+1 attack die vs Hexed" written as `{ rollDice: { attack: 1 }, condition: 'targetHexed', applyWhen: 'passive-slotted-active' }` **actually fires** only when the target carries the condition — no more naive flag parsing on free-text.
+- **Condition checker (`hasCondition`).** Robust multi-source lookup: Foundry v13 `actor.statuses` Set, active-effect names/labels (respects `disabled`), `flags['mastery-system'].conditions`, `system.conditions` / `system.status` booleans, and `system.specials` string entries like `"Bleeding(3)"`. Synonyms are normalized (`burning` → `ignited`, `bleed` → `bleeding`, `hex` → `hexed`, …) so writers can use natural phrasing in the picker/chat and the engine still matches.
+- **Power Mechanics Editor Dialog (`openPowerMechanicsEditor`).** New in-Foundry UI for viewing and editing the structured `PowerMechanics` block of any embedded power item on an actor. Opens from the new cog-wheel button on the power card (`.power-edit-mechanics`). Provides a guided form for all common fields (armor, evade, initiativeD8, tempHP, regen, movementBonus, ignoreTerrain, rollDice.{attack,skill,damage}, saveDice.{body,mind,spirit}, damageRider.{flat,vsCondition,vsConditionDamage}, applyWhen, duration, usageLimit, condition gate), plus a Raw-JSON panel for anything the form does not cover. Two scopes: **Power-level default** (`system.mechanics`, applies to every rank that has no own block) and **Rank-N override** (`system.levels.<rank>.mechanics`). Saves via `item.update` — the aggregator picks up changes on the next `prepareDerivedData` tick.
+
+### Changed
+- **Aggregator**: conditional `mechanics` blocks (those carrying a `condition` gate) no longer contribute to the unconditional `mechanicsBreakdown.totals`. Their unconditional parts were silently being added on top regardless of the gate; now they are only folded in per-roll / per-damage via the conditional engine. This makes an actor's visible Armor/Evade/SaveDice totals reflect only what is actually active *right now*, not *might be active given the right target*.
+- **Damage chat line** now lists conditional-rider contributions alongside specials, so the GM sees exactly which source fired (`Eldritch Bolt (attack) (+3d8 vs hexed)`).
+
+### Fixed
+- **Echo Tab contrast.** The Echo tab's deck block, trait rows, card list, card-use buttons, status chip, Blood Color / Concept / Appearance / Notes fields had no dedicated CSS and were inheriting Foundry defaults (near-black text on our dark `--df-bg-*` backgrounds), making most of the tab unreadable. All Echo classes (`.echo-tab-content`, `.creation-echo-*`, `.echo-status`, `.echo-deck-*`, `.echo-trait-*`, `.echo-card-*`) now use the `--df-text-primary` / `--df-text-secondary` variables consistently with the rest of the sheet. Status chip styles (ok / partial / missing) use the same green / amber / red palette as the creation checklist.
+
+### Tests
+- Added new unit tests under `tests/power-mechanics.test.ts` covering `hasCondition` (all five lookup sources + synonyms + disabled effects), `evaluateConditionGate` (target-facing, self-facing, null), `collectConditionalDamageRiders` (vsCondition match / no-match, gated flat, selected-power rider), and `getRollDiceDelta` target-conditional fold-in. Full suite: 306 / 306 passing across 17 files.
+
+### Dev
+- New module `src/sheets/power-mechanics-editor-dialog.ts` — self-contained; dynamically imported from the character sheet to avoid bundling it into the default path.
+
 ## [0.4.265] - 2026-04-18
 
 ### Added

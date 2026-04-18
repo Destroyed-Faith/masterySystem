@@ -46,7 +46,50 @@ export declare function buildActorMechanicsBreakdown(actor: any): MechanicsBreak
 /**
  * Roll-dice delta for a given roll kind. Consumed by `roll-handler.ts`
  * right before the numDice pool is committed to `masteryRoll`.
+ *
+ * When a `target` is provided, passive/buff contributions whose `condition`
+ * gate evaluates **against the target** are also folded in (and those
+ * contributions are *not* part of the pre-aggregated breakdown totals, which
+ * only contain unconditional bonuses).
  */
-export declare function getRollDiceDelta(actor: any, kind: 'attack' | 'skill' | 'damage' | 'saveBody' | 'saveMind' | 'saveSpirit'): number;
+export declare function getRollDiceDelta(actor: any, kind: 'attack' | 'skill' | 'damage' | 'saveBody' | 'saveMind' | 'saveSpirit', target?: any): number;
+/**
+ * Check whether an actor carries a given condition. Checks (in order):
+ *   1. actor.statuses (Foundry v13 Set of status ids)
+ *   2. actor.effects (ActiveEffect collection) – name/label match
+ *   3. actor.flags['mastery-system'].conditions
+ *   4. actor.system.conditions
+ *   5. actor.system.specials (array of strings like "Bleeding(3)")
+ *
+ * This is defensive and works whether the GM tags conditions as Foundry
+ * status tokens, applies ActiveEffects via our buff system, or stores them
+ * as a system flag.
+ */
+export declare function hasCondition(actor: any, condition: string): boolean;
+/**
+ * Evaluate a PowerMechanics.condition gate. Returns true when the gate is
+ * satisfied (or null/absent). Supports both target-facing (`targetHexed`,
+ * `targetMarked`, …) and self-facing (`self-hp-below-50`) flavors.
+ */
+export declare function evaluateConditionGate(self: any, target: any, condition: string | null | undefined): boolean;
+/**
+ * A conditional damage rider that fires when attacking a target that carries
+ * a given condition. Returned from `collectConditionalDamageRiders`.
+ */
+export interface ConditionalRider {
+    source: string;
+    /** Canonical condition keyword (e.g. "hexed"). */
+    condition: string;
+    /** Dice formula as parsed from the mechanics block (e.g. "+2d8" -> "2d8"). */
+    dice: string;
+}
+/**
+ * Collect conditional damage riders that apply to a single attack made by
+ * `attacker` against `target`. Walks the attacker's slot-activated passives
+ * and active buffs (same pool the aggregator uses) plus the currently
+ * selected power's own mechanics. A rider fires when the mechanics block's
+ * condition / damageRider.vsCondition matches the target.
+ */
+export declare function collectConditionalDamageRiders(attacker: any, target: any, selectedPower?: any): ConditionalRider[];
 export {};
 //# sourceMappingURL=power-mechanics.d.ts.map

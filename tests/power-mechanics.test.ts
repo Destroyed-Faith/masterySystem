@@ -6,6 +6,9 @@ import {
   resolvePowerMechanics,
   getRollDiceDelta,
   emptyBreakdown,
+  hasCondition,
+  evaluateConditionGate,
+  collectConditionalDamageRiders,
 } from '../src/utils/power-mechanics';
 import type { PowerMechanics } from '../src/types/item';
 
@@ -428,5 +431,149 @@ describe('getRollDiceDelta', () => {
   it('returns 0 when breakdown missing', () => {
     expect(getRollDiceDelta({ system: {} }, 'attack')).toBe(0);
     expect(getRollDiceDelta(null, 'skill')).toBe(0);
+  });
+
+  it('folds conditional rollDice when target has the gated condition', () => {
+    const passive = makePassivePower('p1', 'Hex Attuned', 2, {
+      rollDice: { attack: 1 },
+      condition: 'targetHexed',
+      applyWhen: 'passive-slotted-active',
+    });
+    const actor = makeActor({
+      items: [passive],
+      slots: { slot1: { active: true, passive: { id: 'p1', name: 'Hex Attuned' } } },
+    });
+    // Pre-aggregated breakdown has 0 unconditional rollDice (conditions aren't added there).
+    (actor as any).system.derived = { mechanicsBreakdown: buildActorMechanicsBreakdown(actor) };
+    const target: any = { statuses: new Set(['hexed']) };
+    expect(getRollDiceDelta(actor, 'attack')).toBe(0);
+    expect(getRollDiceDelta(actor, 'attack', target)).toBe(1);
+  });
+});
+
+describe('hasCondition', () => {
+  it('reads from actor.statuses (Set)', () => {
+    const a: any = { statuses: new Set(['hexed', 'marked']) };
+    expect(hasCondition(a, 'hexed')).toBe(true);
+    expect(hasCondition(a, 'Hexed')).toBe(true);
+    expect(hasCondition(a, 'targetHexed')).toBe(true);
+    expect(hasCondition(a, 'ignited')).toBe(false);
+  });
+
+  it('reads from actor.effects names', () => {
+    const a: any = { effects: [{ name: 'Ignite(3)', disabled: false }] };
+    expect(hasCondition(a, 'ignited')).toBe(true);
+  });
+
+  it('ignores disabled effects', () => {
+    const a: any = { effects: [{ name: 'Ignite(3)', disabled: true }] };
+    expect(hasCondition(a, 'ignited')).toBe(false);
+  });
+
+  it('reads from system.specials array (string entries like "Bleeding(3)")', () => {
+    const a: any = { system: { specials: ['Bleeding(3)'] } };
+    expect(hasCondition(a, 'bleeding')).toBe(true);
+  });
+
+  it('reads from mastery-system flag bucket', () => {
+    const a: any = { flags: { 'mastery-system': { conditions: { hexed: true } } } };
+    expect(hasCondition(a, 'hexed')).toBe(true);
+  });
+
+  it('treats synonyms consistently', () => {
+    const a: any = { statuses: new Set(['burning']) };
+    expect(hasCondition(a, 'ignited')).toBe(true);
+  });
+});
+
+describe('evaluateConditionGate', () => {
+  it('returns true when gate is null/undefined', () => {
+    expect(evaluateConditionGate({}, {}, null as any)).toBe(true);
+    expect(evaluateConditionGate({}, {}, undefined as any)).toBe(true);
+  });
+
+  it('evaluates target-facing conditions against the target actor', () => {
+    const target: any = { statuses: new Set(['marked']) };
+    expect(evaluateConditionGate({}, target, 'targetMarked')).toBe(true);
+    expect(evaluateConditionGate({}, target, 'targetHexed')).toBe(false);
+  });
+
+  it('evaluates self-hp-below-50 against actor.system.health', () => {
+    const low: any = { system: { health: { currentBar: 3, bars: [1, 2, 3, 4, 5] } } };
+    const high: any = { system: { health: { currentBar: 0, bars: [1, 2, 3, 4, 5] } } };
+    expect(evaluateConditionGate(low, {}, 'self-hp-below-50')).toBe(true);
+    expect(evaluateConditionGate(high, {}, 'self-hp-below-50')).toBe(false);
+  });
+});
+
+describe('collectConditionalDamageRiders', () => {
+  it('fires a damageRider.vsCondition rider when target carries the condition', () => {
+    const passive = makePassivePower('p1', 'Pact Brand', 2, {
+      damageRider: { vsCondition: 'hexed', vsConditionDamage: '+2d8' },
+      applyWhen: 'passive-slotted-active',
+    });
+    const actor = makeActor({
+      items: [passive],
+      slots: { slot1: { active: true, passive: { id: 'p1', name: 'Pact Brand' } } },
+    });
+    const target: any = { statuses: new Set(['hexed']) };
+    const riders = collectConditionalDamageRiders(actor, target);
+    expect(riders).toHaveLength(1);
+    expect(riders[0].condition).toBe('hexed');
+    expect(riders[0].dice).toBe('2d8');
+    expect(riders[0].source).toContain('Pact Brand');
+  });
+
+  it('does not fire when target lacks the condition', () => {
+    const passive = makePassivePower('p1', 'Pact Brand', 2, {
+      damageRider: { vsCondition: 'hexed', vsConditionDamage: '+2d8' },
+      applyWhen: 'passive-slotted-active',
+    });
+    const actor = makeActor({
+      items: [passive],
+      slots: { slot1: { active: true, passive: { id: 'p1', name: 'Pact Brand' } } },
+    });
+    const target: any = { statuses: new Set([]) };
+    expect(collectConditionalDamageRiders(actor, target)).toEqual([]);
+  });
+
+  it('fires a gated flat rider when the actor has a matching condition gate', () => {
+    const passive = makePassivePower('p1', 'Branded', 2, {
+      damageRider: { flat: '+1d8' },
+      condition: 'targetMarked',
+      applyWhen: 'passive-slotted-active',
+    });
+    const actor = makeActor({
+      items: [passive],
+      slots: { slot1: { active: true, passive: { id: 'p1', name: 'Branded' } } },
+    });
+    const target: any = { statuses: new Set(['marked']) };
+    const riders = collectConditionalDamageRiders(actor, target);
+    expect(riders).toHaveLength(1);
+    expect(riders[0].condition).toBe('marked');
+    expect(riders[0].dice).toBe('1d8');
+  });
+
+  it('respects the selected power rider when target carries the condition', () => {
+    const actor = makeActor({ items: [], slots: {} });
+    const selectedPower: any = {
+      id: 'spw',
+      name: 'Eldritch Bolt',
+      system: {
+        rank: 2,
+        levels: {
+          '2': {
+            mechanics: {
+              damageRider: { vsCondition: 'hexed', vsConditionDamage: '+3d8' },
+              applyWhen: 'attack-rider',
+            },
+          },
+        },
+      },
+    };
+    const target: any = { statuses: new Set(['hexed']) };
+    const riders = collectConditionalDamageRiders(actor, target, selectedPower);
+    expect(riders).toHaveLength(1);
+    expect(riders[0].dice).toBe('3d8');
   });
 });

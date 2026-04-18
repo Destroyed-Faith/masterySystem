@@ -1590,6 +1590,510 @@
   resize: vertical;
 }
 
+/* Echo tab content wrapper */
+.mastery-system.sheet.actor.character .echo-tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  color: var(--df-text-primary, #d0d0d0);
+}
+
+/* Top section with Choose/Change button + status chip */
+.mastery-system.sheet.actor.character .creation-echo-section {
+  background: var(--df-bg-panel, #2a3136);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 8px;
+  padding: 12px 14px;
+  box-shadow: 0 2px 6px var(--df-shadow, rgba(0,0,0,0.4));
+}
+
+.mastery-system.sheet.actor.character .creation-echo-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.mastery-system.sheet.actor.character .creation-echo-header h4 {
+  margin: 0;
+  color: var(--df-text-primary, #d0d0d0);
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 16px;
+  flex: 0 0 auto;
+}
+
+.mastery-system.sheet.actor.character .creation-echo-header .choose-echo-btn {
+  background: var(--df-accent-subtle, rgba(255,255,255,0.12));
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  color: var(--df-text-primary, #d0d0d0);
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.mastery-system.sheet.actor.character .creation-echo-header .choose-echo-btn:hover:not(:disabled) {
+  background: var(--df-accent, rgba(255,255,255,0.2));
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.3));
+}
+
+.mastery-system.sheet.actor.character .creation-echo-header .choose-echo-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Status chip */
+.mastery-system.sheet.actor.character .echo-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Cormorant Garamond', serif;
+  color: var(--df-text-primary, #d0d0d0);
+  background: var(--df-accent-subtle, rgba(255,255,255,0.08));
+  border: 1px solid var(--df-border-primary, #3a3f44);
+}
+
+.mastery-system.sheet.actor.character .echo-status-ok {
+  color: #c4f0c4;
+  background: rgba(60, 140, 60, 0.25);
+  border-color: rgba(100, 200, 100, 0.45);
+}
+
+.mastery-system.sheet.actor.character .echo-status-partial {
+  color: #ffe4a0;
+  background: rgba(200, 150, 40, 0.22);
+  border-color: rgba(220, 180, 80, 0.45);
+}
+
+.mastery-system.sheet.actor.character .echo-status-missing {
+  color: #ffb8b8;
+  background: rgba(180, 50, 50, 0.22);
+  border-color: rgba(220, 80, 80, 0.45);
+}
+
+/* Echo Deck block */
+.mastery-system.sheet.actor.character .echo-deck-block {
+  background: var(--df-bg-panel, #2a3136);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 8px;
+  padding: 14px 16px;
+  box-shadow: 0 2px 6px var(--df-shadow, rgba(0,0,0,0.4));
+}
+
+.mastery-system.sheet.actor.character .echo-deck-block > label {
+  display: block;
+  margin: 0 0 10px 0;
+  color: var(--df-text-primary, #d0d0d0);
+  font-family: 'Cinzel Decorative', serif;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.mastery-system.sheet.actor.character .echo-deck-summary {
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--df-border-subtle, rgba(255,255,255,0.08));
+  margin-bottom: 12px;
+}
+
+.mastery-system.sheet.actor.character .echo-deck-title {
+  color: var(--df-text-primary, #d0d0d0);
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.mastery-system.sheet.actor.character .echo-deck-title strong {
+  color: var(--df-text-primary, #f0f0f0);
+}
+
+.mastery-system.sheet.actor.character .echo-deck-meta {
+  color: var(--df-text-secondary, #a0a0a0);
+  font-size: 13px;
+  font-family: 'Cormorant Garamond', serif;
+  line-height: 1.5;
+}
+
+.mastery-system.sheet.actor.character .echo-deck-meta em {
+  color: var(--df-text-primary, #d0d0d0);
+  font-style: italic;
+}
+
+/* Traits list */
+.mastery-system.sheet.actor.character .echo-deck-traits {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.mastery-system.sheet.actor.character .echo-deck-traits > h4,
+.mastery-system.sheet.actor.character .echo-deck-traits > label,
+.mastery-system.sheet.actor.character .echo-deck-traits > strong {
+  color: var(--df-text-primary, #d0d0d0);
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 14px;
+  margin: 0 0 2px 0;
+}
+
+.mastery-system.sheet.actor.character .echo-trait-row {
+  background: var(--df-bg-primary, #20272B);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.mastery-system.sheet.actor.character .echo-trait-row.echo-trait-gated {
+  opacity: 0.6;
+  border-style: dashed;
+}
+
+.mastery-system.sheet.actor.character .echo-trait-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: var(--df-text-primary, #e8e8e8);
+  font-family: 'Cinzel Decorative', serif;
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.mastery-system.sheet.actor.character .echo-trait-uses {
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: var(--df-accent-subtle, rgba(255,255,255,0.1));
+  color: var(--df-text-secondary, #a0a0a0);
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 500;
+}
+
+.mastery-system.sheet.actor.character .echo-trait-gated-label {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: rgba(180, 80, 40, 0.25);
+  color: #ffd0a0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mastery-system.sheet.actor.character .echo-trait-effect {
+  color: var(--df-text-primary, #d0d0d0);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.mastery-system.sheet.actor.character .echo-trait-flavor {
+  color: var(--df-text-secondary, #a0a0a0);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 12px;
+  margin-top: 4px;
+  font-style: italic;
+}
+
+/* Cards block */
+.mastery-system.sheet.actor.character .echo-deck-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mastery-system.sheet.actor.character .echo-deck-cards-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 2px;
+}
+
+.mastery-system.sheet.actor.character .echo-deck-cards-header h4 {
+  margin: 0;
+  color: var(--df-text-primary, #d0d0d0);
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 14px;
+}
+
+.mastery-system.sheet.actor.character .echo-deck-slots {
+  color: var(--df-text-secondary, #a0a0a0);
+  font-weight: 400;
+  font-size: 12px;
+}
+
+.mastery-system.sheet.actor.character .add-echo-card-btn {
+  background: var(--df-accent-subtle, rgba(255,255,255,0.12));
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  color: var(--df-text-primary, #d0d0d0);
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.mastery-system.sheet.actor.character .add-echo-card-btn:hover {
+  background: var(--df-accent, rgba(255,255,255,0.2));
+}
+
+/* Individual card */
+.mastery-system.sheet.actor.character .echo-card {
+  background: var(--df-bg-primary, #20272B);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 6px;
+  padding: 10px 12px;
+  color: var(--df-text-primary, #d0d0d0);
+}
+
+.mastery-system.sheet.actor.character .echo-card.echo-card-used {
+  opacity: 0.55;
+  border-style: dashed;
+}
+
+.mastery-system.sheet.actor.character .echo-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.mastery-system.sheet.actor.character .echo-card-name strong {
+  color: var(--df-text-primary, #e8e8e8);
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 14px;
+}
+
+.mastery-system.sheet.actor.character .echo-card-used-label {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: rgba(180, 80, 40, 0.25);
+  color: #ffd0a0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mastery-system.sheet.actor.character .echo-card-trigger {
+  color: var(--df-text-secondary, #a0a0a0);
+  font-size: 12px;
+  font-family: 'Cormorant Garamond', serif;
+  margin-bottom: 6px;
+}
+
+.mastery-system.sheet.actor.character .echo-card-trigger em {
+  color: var(--df-text-primary, #d0d0d0);
+  font-weight: 500;
+  font-style: normal;
+}
+
+.mastery-system.sheet.actor.character .echo-card-options {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mastery-system.sheet.actor.character .echo-card-option {
+  color: var(--df-text-primary, #d0d0d0);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+}
+
+.mastery-system.sheet.actor.character .echo-card-option-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 2px;
+}
+
+.mastery-system.sheet.actor.character .echo-card-option-skill {
+  color: var(--df-text-secondary, #a0a0a0);
+  font-size: 12px;
+}
+
+.mastery-system.sheet.actor.character .echo-card-use-btn {
+  background: var(--df-accent-subtle, rgba(255,255,255,0.12));
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  color: var(--df-text-primary, #d0d0d0);
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  cursor: pointer;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.mastery-system.sheet.actor.character .echo-card-use-btn:hover:not(:disabled) {
+  background: var(--df-accent, rgba(255,255,255,0.22));
+}
+
+.mastery-system.sheet.actor.character .echo-card-use-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.mastery-system.sheet.actor.character .echo-card-option-desc {
+  color: var(--df-text-primary, #c8c8c8);
+  line-height: 1.5;
+}
+
+/* Biography fields integrated into Echo tab (Blood / Concept / Appearance / Notes) */
+.mastery-system.sheet.actor.character .echo-tab-content .form-group label {
+  color: var(--df-text-primary, #d0d0d0);
+  font-family: 'Cinzel Decorative', serif;
+  font-weight: bold;
+  font-size: 13px;
+}
+
+.mastery-system.sheet.actor.character .echo-tab-content .form-group input[type="text"],
+.mastery-system.sheet.actor.character .echo-tab-content .form-group textarea,
+.mastery-system.sheet.actor.character .echo-tab-content .editor {
+  background: var(--df-bg-primary, #20272B);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  color: var(--df-text-primary, #d0d0d0);
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.mastery-system.sheet.actor.character .echo-tab-content .editor-content {
+  color: var(--df-text-primary, #d0d0d0);
+  background: var(--df-bg-primary, #20272B);
+}
+
+/* ========== Power Mechanics Editor Dialog ========== */
+.mastery-system.dialog.power-mechanics-editor .pme-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--df-text-primary, #d0d0d0);
+}
+
+.mastery-system.dialog.power-mechanics-editor .pme-header-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.mastery-system.dialog.power-mechanics-editor .pme-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--df-accent-subtle, rgba(255,255,255,0.12));
+  font-size: 11px;
+  color: var(--df-text-primary, #d0d0d0);
+}
+
+.mastery-system.dialog.power-mechanics-editor .pme-section {
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin: 0;
+  background: var(--df-bg-panel, #2a3136);
+}
+
+.mastery-system.dialog.power-mechanics-editor .pme-section > legend {
+  padding: 0 6px;
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 12px;
+  color: var(--df-text-primary, #e8e8e8);
+}
+
+.mastery-system.dialog.power-mechanics-editor .pme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 6px 10px;
+}
+
+.mastery-system.dialog.power-mechanics-editor .pme-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+  color: var(--df-text-secondary, #b0b0b0);
+}
+
+.mastery-system.dialog.power-mechanics-editor .pme-checkbox {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.mastery-system.dialog.power-mechanics-editor .pme-form input,
+.mastery-system.dialog.power-mechanics-editor .pme-form select,
+.mastery-system.dialog.power-mechanics-editor .pme-form textarea {
+  background: var(--df-bg-primary, #20272B);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  color: var(--df-text-primary, #d0d0d0);
+  border-radius: 3px;
+  padding: 3px 6px;
+  font-family: inherit;
+  font-size: 12px;
+}
+
+.mastery-system.dialog.power-mechanics-editor .pme-raw {
+  margin-top: 6px;
+  border: 1px dashed var(--df-border-primary, #3a3f44);
+  border-radius: 4px;
+  padding: 6px 8px;
+  background: var(--df-bg-panel, #2a3136);
+}
+
+.mastery-system.dialog.power-mechanics-editor .pme-raw > summary {
+  cursor: pointer;
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 12px;
+  color: var(--df-text-primary, #d0d0d0);
+}
+
+.mastery-system.dialog.power-mechanics-editor .pme-json {
+  width: 100%;
+  min-height: 140px;
+  font-family: 'Consolas', 'Courier New', monospace;
+}
+
+.mastery-system.dialog.power-mechanics-editor .pme-hint {
+  margin: 4px 0 0 0;
+  font-size: 11px;
+  color: var(--df-text-secondary, #9a9a9a);
+}
+
+/* Button on power card */
+.mastery-system.sheet.actor.character .power-edit-mechanics {
+  background: var(--df-accent-subtle, rgba(255,255,255,0.1));
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  color: var(--df-text-primary, #d0d0d0);
+  border-radius: 3px;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+
+.mastery-system.sheet.actor.character .power-edit-mechanics:hover:not(:disabled) {
+  background: var(--df-accent, rgba(255,255,255,0.22));
+  color: #ffe4a0;
+}
+
+.mastery-system.sheet.actor.character .power-edit-mechanics:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 /* ========== Powers Tab Specific ========== */
 .mastery-system .powers-header,
 .mastery-system .schticks-header,

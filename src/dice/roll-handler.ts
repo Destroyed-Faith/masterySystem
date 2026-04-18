@@ -34,6 +34,12 @@ export interface RollOptions {
    * When omitted no engine-driven adjustment is applied.
    */
   rollKind?: MasteryRollKind;
+  /**
+   * Optional target actor id. When supplied together with `rollKind`, the
+   * Power Mechanics Engine also evaluates passives / buffs whose `condition`
+   * gate is target-facing (e.g. "+1 attack die vs Hexed").
+   */
+  targetActorId?: string;
 }
 
 /** Stored on chat messages so a Faith Fracture reroll can repeat the same roll setup. */
@@ -139,11 +145,15 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
       const actor: any = (game as any)?.actors?.get?.(options.actorId);
       if (actor) {
         const { getRollDiceDelta } = await import('../utils/power-mechanics.js');
-        const delta = getRollDiceDelta(actor, kind);
+        const targetActor: any = options.targetActorId
+          ? ((game as any)?.actors?.get?.(options.targetActorId) ?? null)
+          : null;
+        const delta = getRollDiceDelta(actor, kind, targetActor);
         if (delta !== 0) {
           const adjusted = Math.max(1, numDice + delta);
           const sign = delta > 0 ? '+' : '';
-          const note = `Power Mechanics: ${sign}${delta} dice (${kind})`;
+          const ctx = targetActor ? ' vs target' : '';
+          const note = `Power Mechanics: ${sign}${delta} dice (${kind}${ctx})`;
           flavor = flavor ? `${flavor} | ${note}` : note;
           numDice = adjusted;
         }

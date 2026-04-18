@@ -152,6 +152,11 @@ function pushNum(target, source, value) {
 export function aggregateMechanics(contributions) {
     const bd = emptyBreakdown();
     for (const { source, mechanics } of contributions) {
+        // Conditional blocks never contribute to the unconditional breakdown;
+        // they are folded in per-roll by `getRollDiceDelta(actor, kind, target)`
+        // and per-damage by `collectConditionalDamageRiders`.
+        if (mechanics.condition)
+            continue;
         pushNum(bd.armor, source, mechanics.armor);
         pushNum(bd.evade, source, mechanics.evade);
         pushNum(bd.initiativeD8, source, mechanics.initiativeD8);
@@ -191,19 +196,263 @@ export function buildActorMechanicsBreakdown(actor) {
 /**
  * Roll-dice delta for a given roll kind. Consumed by `roll-handler.ts`
  * right before the numDice pool is committed to `masteryRoll`.
+ *
+ * When a `target` is provided, passive/buff contributions whose `condition`
+ * gate evaluates **against the target** are also folded in (and those
+ * contributions are *not* part of the pre-aggregated breakdown totals, which
+ * only contain unconditional bonuses).
  */
-export function getRollDiceDelta(actor, kind) {
+export function getRollDiceDelta(actor, kind, target) {
     const bd = actor?.system?.derived?.mechanicsBreakdown;
-    if (!bd)
-        return 0;
-    switch (kind) {
-        case 'attack': return bd.totals.rollDice.attack;
-        case 'skill': return bd.totals.rollDice.skill;
-        case 'damage': return bd.totals.rollDice.damage;
-        case 'saveBody': return bd.totals.saveDice.body;
-        case 'saveMind': return bd.totals.saveDice.mind;
-        case 'saveSpirit': return bd.totals.saveDice.spirit;
-        default: return 0;
+    let base = 0;
+    if (bd) {
+        switch (kind) {
+            case 'attack':
+                base = bd.totals.rollDice.attack;
+                break;
+            case 'skill':
+                base = bd.totals.rollDice.skill;
+                break;
+            case 'damage':
+                base = bd.totals.rollDice.damage;
+                break;
+            case 'saveBody':
+                base = bd.totals.saveDice.body;
+                break;
+            case 'saveMind':
+                base = bd.totals.saveDice.mind;
+                break;
+            case 'saveSpirit':
+                base = bd.totals.saveDice.spirit;
+                break;
+        }
+    }
+    if (!target)
+        return base;
+    // Fold in conditional rollDice that are gated by a target-facing condition.
+    const contrib = collectMechanicsContributions(actor);
+    let extra = 0;
+    for (const { mechanics } of contrib) {
+        if (!mechanics.condition)
+            continue;
+        if (!evaluateConditionGate(actor, target, mechanics.condition))
+            continue;
+        if (kind === 'attack')
+            extra += mechanics.rollDice?.attack ?? 0;
+        else if (kind === 'skill')
+            extra += mechanics.rollDice?.skill ?? 0;
+        else if (kind === 'damage')
+            extra += mechanics.rollDice?.damage ?? 0;
+        else if (kind === 'saveBody')
+            extra += mechanics.saveDice?.body ?? 0;
+        else if (kind === 'saveMind')
+            extra += mechanics.saveDice?.mind ?? 0;
+        else if (kind === 'saveSpirit')
+            extra += mechanics.saveDice?.spirit ?? 0;
+    }
+    return base + extra;
+}
+// ---------------------------------------------------------------------------
+// Conditional Engine
+// ---------------------------------------------------------------------------
+/**
+ * Normalize a condition key or name to a canonical lowercase keyword the
+ * checker understands (e.g. "Bleeding(3)" -> "bleeding"; "Target Hexed" ->
+ * "hexed"; "targetIgnited" -> "ignited").
+ */
+function canonicalConditionName(raw) {
+    return String(raw || '')
+        .toLowerCase()
+        .replace(/^target[-_\s]*/i, '')
+        .replace(/\(.*\)$/, '')
+        .replace(/[^a-z]/g, '')
+        .trim();
+}
+/** Known condition synonym -> canonical key. */
+const CONDITION_SYNONYMS = {
+    marked: 'marked',
+    ignited: 'ignited',
+    ignite: 'ignited',
+    burning: 'ignited',
+    onfire: 'ignited',
+    shocked: 'shocked',
+    shock: 'shocked',
+    frozen: 'frozen',
+    freeze: 'frozen',
+    hexed: 'hexed',
+    hex: 'hexed',
+    bleeding: 'bleeding',
+    bleed: 'bleeding',
+    prone: 'prone',
+    stunned: 'stunned',
+    disoriented: 'disoriented',
+};
+function toCanonicalCondition(raw) {
+    const k = canonicalConditionName(raw);
+    return CONDITION_SYNONYMS[k] ?? k;
+}
+/**
+ * Check whether an actor carries a given condition. Checks (in order):
+ *   1. actor.statuses (Foundry v13 Set of status ids)
+ *   2. actor.effects (ActiveEffect collection) – name/label match
+ *   3. actor.flags['mastery-system'].conditions
+ *   4. actor.system.conditions
+ *   5. actor.system.specials (array of strings like "Bleeding(3)")
+ *
+ * This is defensive and works whether the GM tags conditions as Foundry
+ * status tokens, applies ActiveEffects via our buff system, or stores them
+ * as a system flag.
+ */
+export function hasCondition(actor, condition) {
+    if (!actor)
+        return false;
+    const want = toCanonicalCondition(condition);
+    if (!want)
+        return false;
+    // 1. actor.statuses (Set<string>)
+    try {
+        const statuses = actor.statuses;
+        if (statuses) {
+            if (typeof statuses.has === 'function') {
+                if (statuses.has(want))
+                    return true;
+            }
+            if (typeof statuses[Symbol.iterator] === 'function') {
+                for (const s of statuses) {
+                    const key = toCanonicalCondition(typeof s === 'string' ? s : s?.id || s?.name);
+                    if (key === want)
+                        return true;
+                }
+            }
+        }
+    }
+    catch { /* ignore */ }
+    // 2. Iterate active effects
+    try {
+        const effects = actor?.effects;
+        const iter = effects
+            ? (typeof effects[Symbol.iterator] === 'function' ? Array.from(effects) : Array.isArray(effects) ? effects : [])
+            : [];
+        for (const e of iter) {
+            const disabled = e?.disabled ?? e?.isSuppressed;
+            if (disabled)
+                continue;
+            const n = toCanonicalCondition(e?.name || e?.label || '');
+            if (n === want)
+                return true;
+            const sts = e?.statuses;
+            if (sts && typeof sts.has === 'function' && sts.has(want))
+                return true;
+        }
+    }
+    catch { /* ignore */ }
+    // 3. Flags
+    const masteryFlags = actor?.flags?.['mastery-system'] || {};
+    const fc = masteryFlags.conditions;
+    if (fc && typeof fc === 'object' && fc[want] === true)
+        return true;
+    if (masteryFlags[want] === true)
+        return true;
+    // 4. system.conditions
+    const sys = actor?.system || {};
+    if (sys?.conditions && typeof sys.conditions === 'object' && sys.conditions[want] === true)
+        return true;
+    if (sys?.status && typeof sys.status === 'object' && sys.status[want] === true)
+        return true;
+    // 5. system.specials array (power-applied specials)
+    const specials = Array.isArray(sys?.specials) ? sys.specials : [];
+    for (const s of specials) {
+        const key = toCanonicalCondition(typeof s === 'string' ? s : s?.name || s?.id);
+        if (key === want)
+            return true;
+    }
+    return false;
+}
+/**
+ * Evaluate a PowerMechanics.condition gate. Returns true when the gate is
+ * satisfied (or null/absent). Supports both target-facing (`targetHexed`,
+ * `targetMarked`, …) and self-facing (`self-hp-below-50`) flavors.
+ */
+export function evaluateConditionGate(self, target, condition) {
+    if (!condition)
+        return true;
+    const cond = String(condition);
+    if (cond.startsWith('target')) {
+        return hasCondition(target, cond);
+    }
+    if (cond === 'self-hp-below-50') {
+        const hp = self?.system?.health;
+        const currentBar = Number(hp?.currentBar ?? 0);
+        const bars = Array.isArray(hp?.bars) ? hp.bars : [];
+        if (!bars.length)
+            return false;
+        // Health bar index is 0=Healthy..4=Incapacitated, so "below 50%" -> currentBar >= bars.length/2.
+        return currentBar >= Math.floor(bars.length / 2);
+    }
+    return hasCondition(self, cond);
+}
+function normalizeRiderDice(raw) {
+    if (!raw)
+        return null;
+    const trimmed = String(raw).trim().replace(/^\+\s*/, '');
+    if (!trimmed)
+        return null;
+    if (!/^\d*d\d+(\s*[+-]\s*\d+)?$/i.test(trimmed) && !/^\d+$/.test(trimmed))
+        return null;
+    return trimmed;
+}
+/**
+ * Collect conditional damage riders that apply to a single attack made by
+ * `attacker` against `target`. Walks the attacker's slot-activated passives
+ * and active buffs (same pool the aggregator uses) plus the currently
+ * selected power's own mechanics. A rider fires when the mechanics block's
+ * condition / damageRider.vsCondition matches the target.
+ */
+export function collectConditionalDamageRiders(attacker, target, selectedPower) {
+    if (!attacker || !target)
+        return [];
+    const out = [];
+    // 1) All slot-activated passives + live active buffs.
+    const contributions = collectMechanicsContributions(attacker);
+    for (const { source, mechanics } of contributions) {
+        pushRidersFromMechanics(out, source, mechanics, attacker, target);
+    }
+    // 2) The selected power itself (only if it has its own mechanics block,
+    //    and its gate matches). This handles attack-rider powers that declare
+    //    vsCondition directly on themselves.
+    if (selectedPower) {
+        const sys = selectedPower.system ?? selectedPower;
+        const rank = Math.max(1, Math.min(4, Number(sys.rank ?? 1)));
+        const rankBlock = sys.levels?.[String(rank)] ?? null;
+        const mech = rankBlock?.mechanics ?? sys.mechanics;
+        if (mech) {
+            pushRidersFromMechanics(out, `${selectedPower.name ?? 'Power'} (attack)`, mech, attacker, target);
+        }
+    }
+    return out;
+}
+function pushRidersFromMechanics(out, source, mechanics, attacker, target) {
+    const rider = mechanics.damageRider;
+    if (!rider)
+        return;
+    // Per-target conditional rider: damageRider.vsCondition + vsConditionDamage
+    if (rider.vsCondition) {
+        const cond = toCanonicalCondition(rider.vsCondition);
+        if (hasCondition(target, cond)) {
+            const dice = normalizeRiderDice(rider.vsConditionDamage ?? rider.flat);
+            if (dice)
+                out.push({ source, condition: cond, dice });
+        }
+        return;
+    }
+    // Flat rider on a block with a gating condition (e.g. passive "+1d8 vs hexed")
+    if (mechanics.condition && rider.flat) {
+        if (evaluateConditionGate(attacker, target, mechanics.condition)) {
+            const cond = toCanonicalCondition(mechanics.condition);
+            const dice = normalizeRiderDice(rider.flat);
+            if (dice)
+                out.push({ source, condition: cond, dice });
+        }
     }
 }
 //# sourceMappingURL=power-mechanics.js.map

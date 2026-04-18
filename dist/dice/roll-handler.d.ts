@@ -23,6 +23,12 @@ export interface RollOptions {
      * When omitted no engine-driven adjustment is applied.
      */
     rollKind?: MasteryRollKind;
+    /**
+     * Optional target actor id. When supplied together with `rollKind`, the
+     * Power Mechanics Engine also evaluates passives / buffs whose `condition`
+     * gate is target-facing (e.g. "+1 attack die vs Hexed").
+     */
+    targetActorId?: string;
 }
 /** Stored on chat messages so a Faith Fracture reroll can repeat the same roll setup. */
 export interface MasteryRollRecipe {

@@ -2108,6 +2108,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('.power-use-btn').on('click', this.#onPowerUse.bind(this));
         // Power details toggle
         html.find('.power-toggle-details').on('click', this.#onPowerToggleDetails.bind(this));
+        // Power mechanics editor (structured block)
+        html.find('.power-edit-mechanics').on('click', this.#onPowerEditMechanics.bind(this));
         // Power level increase/decrease (with confirmation)
         html.off('click', '.power-increase-level').on('click', '.power-increase-level', this.#onPowerIncreaseLevel.bind(this));
         html.off('click', '.power-decrease-level').on('click', '.power-decrease-level', this.#onPowerDecreaseLevel.bind(this));
@@ -4107,6 +4109,27 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ui.notifications?.error('Failed to remove active buff.');
         });
     }
+    async #onPowerEditMechanics(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (!event.currentTarget)
+            return;
+        const $button = $(event.currentTarget);
+        const itemId = $button.attr('data-item-id') || $button.data('item-id') || $button.data('itemId');
+        if (!itemId) {
+            ui.notifications?.warn('Could not resolve power id for mechanics editor.');
+            return;
+        }
+        const actor = this.actor;
+        const power = actor?.items?.get?.(itemId)
+            ?? (Array.isArray(actor?.items) ? actor.items.find((i) => i.id === itemId) : null);
+        if (!power) {
+            ui.notifications?.warn('Power not found on this actor.');
+            return;
+        }
+        const { openPowerMechanicsEditor } = await import('./power-mechanics-editor-dialog.js');
+        await openPowerMechanicsEditor({ actor, power });
+    }
     #onPowerToggleDetails(event) {
         event.preventDefault();
         event.stopPropagation();
@@ -4674,7 +4697,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('input[name="name"], textarea').prop('disabled', true);
         html.find('select:not(.power-rank-select):not(.attr-creation-select)').prop('disabled', true);
         // Disable buttons except creation controls
-        const buttonsToDisable = html.find('button:not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.add-power-creation-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.echo-card-use-btn)');
+        const buttonsToDisable = html.find('button:not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.add-power-creation-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.echo-card-use-btn)');
         console.log('Mastery System | Disabling buttons:', buttonsToDisable.length);
         buttonsToDisable.prop('disabled', true);
         // Ensure creation buttons are enabled
