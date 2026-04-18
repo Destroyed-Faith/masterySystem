@@ -77,7 +77,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'While any enemy suffers from Ignite from you, gain +2 Armor.' },
-                specials: []
+                specials: [],
+                mechanics: {armor:2,applyWhen:'passive-slotted-active'}
             },
             '2': {
                 type: 'passive',
@@ -85,7 +86,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'While any enemy suffers from Ignite from you, gain +4 Armor.' },
-                specials: []
+                specials: [],
+                mechanics: {armor:4,applyWhen:'passive-slotted-active'}
             },
             '3': {
                 type: 'passive',
@@ -93,7 +95,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'While any enemy suffers from Ignite from you, gain +6 Armor.' },
-                specials: []
+                specials: [],
+                mechanics: {armor:6,applyWhen:'passive-slotted-active'}
             },
             '4': {
                 type: 'passive',
@@ -101,7 +104,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'While any enemy suffers from Ignite from you, gain +8 Armor.' },
-                specials: []
+                specials: [],
+                mechanics: {armor:8,applyWhen:'passive-slotted-active'}
             }
         }
     },
@@ -120,7 +124,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Once per round, the first time you damage an Ignited target with a Spell, add +1d8 damage.', dice: '1d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+1d8'},condition:'targetIgnited',applyWhen:'passive-slotted-active'}
             },
             '2': {
                 type: 'passive',
@@ -128,7 +133,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Once per round, the first time you damage an Ignited target with a Spell, add +2d8 damage.', dice: '2d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+2d8'},condition:'targetIgnited',applyWhen:'passive-slotted-active'}
             },
             '3': {
                 type: 'passive',
@@ -136,7 +142,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Once per round, the first time you damage an Ignited target with a Spell, add +3d8 damage.', dice: '3d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+3d8'},condition:'targetIgnited',applyWhen:'passive-slotted-active'}
             },
             '4': {
                 type: 'passive',
@@ -144,7 +151,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Once per round, the first time you damage an Ignited target with a Spell, add +4d8 damage.', dice: '4d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+4d8'},condition:'targetIgnited',applyWhen:'passive-slotted-active'}
             }
         }
     },
@@ -210,7 +218,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Gain +2 Armor against that attack.' },
                 trigger: 'You are hit by an attack.',
-                specials: []
+                specials: [],
+                mechanics: {armor:2,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '2': {
                 type: 'reaction',
@@ -219,7 +228,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Gain +4 Armor against that attack.' },
                 trigger: 'You are hit by an attack.',
-                specials: []
+                specials: [],
+                mechanics: {armor:4,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '3': {
                 type: 'reaction',
@@ -228,7 +238,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Gain +6 Armor against that attack.' },
                 trigger: 'You are hit by an attack.',
-                specials: []
+                specials: [],
+                mechanics: {armor:6,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '4': {
                 type: 'reaction',
@@ -237,7 +248,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Gain +8 Armor against that attack.' },
                 trigger: 'You are hit by an attack.',
-                specials: []
+                specials: [],
+                mechanics: {armor:8,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             }
         }
     },
@@ -306,7 +318,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 2 m and gain +2 Armor against that attack.' },
                 trigger: 'You are targeted by an attack.',
-                specials: []
+                specials: [],
+                mechanics: {armor:2,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '2': {
                 type: 'reaction',
@@ -315,7 +328,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 4 m and gain +4 Armor against that attack.' },
                 trigger: 'You are targeted by an attack.',
-                specials: []
+                specials: [],
+                mechanics: {armor:4,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '3': {
                 type: 'reaction',
@@ -324,7 +338,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 6 m and gain +6 Armor against that attack.' },
                 trigger: 'You are targeted by an attack.',
-                specials: []
+                specials: [],
+                mechanics: {armor:6,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '4': {
                 type: 'reaction',
@@ -333,7 +348,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 8 m and gain +8 Armor against that attack.' },
                 trigger: 'You are targeted by an attack.',
-                specials: []
+                specials: [],
+                mechanics: {armor:8,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             }
         }
     },
@@ -354,7 +370,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Gain +2 Armor until the start of your next turn.' },
                 trigger: 'An enemy suffers damage from Ignite from you.',
-                specials: []
+                specials: [],
+                mechanics: {armor:2,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '2': {
                 type: 'reaction',
@@ -363,7 +380,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Gain +4 Armor until the start of your next turn.' },
                 trigger: 'An enemy suffers damage from Ignite from you.',
-                specials: []
+                specials: [],
+                mechanics: {armor:4,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '3': {
                 type: 'reaction',
@@ -372,7 +390,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Gain +6 Armor until the start of your next turn.' },
                 trigger: 'An enemy suffers damage from Ignite from you.',
-                specials: []
+                specials: [],
+                mechanics: {armor:6,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '4': {
                 type: 'reaction',
@@ -381,7 +400,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Gain +8 Armor until the start of your next turn.' },
                 trigger: 'An enemy suffers damage from Ignite from you.',
-                specials: []
+                specials: [],
+                mechanics: {armor:8,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             }
         }
     },
@@ -402,7 +422,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Your next Spell with Ignite deals +2d8 damage.', dice: '2d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+2d8'},applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '2': {
                 type: 'buff',
@@ -410,7 +431,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Your next Spell with Ignite deals +4d8 damage.', dice: '4d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+4d8'},applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '3': {
                 type: 'buff',
@@ -418,7 +440,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Your next Spell with Ignite deals +6d8 damage.', dice: '6d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+6d8'},applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '4': {
                 type: 'buff',
@@ -426,7 +449,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Your next Spell with Ignite deals +8d8 damage.', dice: '8d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+8d8'},applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             }
         }
     },
@@ -488,7 +512,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Gain +3 Armor.' },
-                specials: []
+                specials: [],
+                mechanics: {armor:3,applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '2': {
                 type: 'buff',
@@ -496,7 +521,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Gain +5 Armor.' },
-                specials: []
+                specials: [],
+                mechanics: {armor:5,applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '3': {
                 type: 'buff',
@@ -504,7 +530,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Gain +7 Armor.' },
-                specials: []
+                specials: [],
+                mechanics: {armor:7,applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '4': {
                 type: 'buff',
@@ -512,7 +539,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Gain +9 Armor.' },
-                specials: []
+                specials: [],
+                mechanics: {armor:9,applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             }
         }
     },
@@ -531,7 +559,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you damage an Ignited target with a Spell, gain +2 Armor and deal +1d8 damage.', dice: '1d8' },
-                specials: []
+                specials: [],
+                mechanics: {armor:2,damageRider:{flat:'+1d8'},condition:'targetIgnited',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '2': {
                 type: 'buff',
@@ -539,7 +568,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you damage an Ignited target with a Spell, gain +3 Armor and deal +2d8 damage.', dice: '2d8' },
-                specials: []
+                specials: [],
+                mechanics: {armor:3,damageRider:{flat:'+2d8'},condition:'targetIgnited',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '3': {
                 type: 'buff',
@@ -547,7 +577,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you damage an Ignited target with a Spell, gain +4 Armor and deal +3d8 damage.', dice: '3d8' },
-                specials: []
+                specials: [],
+                mechanics: {armor:4,damageRider:{flat:'+3d8'},condition:'targetIgnited',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '4': {
                 type: 'buff',
@@ -555,7 +586,8 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you damage an Ignited target with a Spell, gain +5 Armor and deal +4d8 damage.', dice: '4d8' },
-                specials: []
+                specials: [],
+                mechanics: {armor:5,damageRider:{flat:'+4d8'},condition:'targetIgnited',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             }
         }
     }
