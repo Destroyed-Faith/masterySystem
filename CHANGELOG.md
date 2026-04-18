@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.263] - 2026-04-18
+
+### Fixed
+- **Echo buttons disabled during Character Creation.** `#lockSheetForCreation` in `src/sheets/character-sheet.ts` pauschal disables every button that is not on an explicit allow-list while creation is incomplete. The Echo buttons (`.choose-echo-btn`, `.add-echo-card-btn`, `.echo-card-use-btn`) were missing from both the `:not(...)` skip list and the subsequent re-enable list, so they rendered with `disabled=""` and could not be clicked. All three are now whitelisted and stay interactive during creation — users can choose their Echo as intended.
+
 ## [0.4.262] - 2026-04-18
 
 ### Fixed
