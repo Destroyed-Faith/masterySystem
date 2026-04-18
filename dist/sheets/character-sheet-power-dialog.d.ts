@@ -1,15 +1,23 @@
 /**
  * Power Creation Dialog for Character Sheet
  *
- * Shows a dialog where players can select and add Powers from Mastery Trees or Spell Schools.
- * Only allows selection from predefined powers (no manual entry).
+ * Unified picker for Mastery Tree Powers and Spell School Powers.
+ * The list is filterable by:
+ *   - Category (Active, Active Buff, Movement, Reaction, Passive, Utility)
+ *   - Tag (e.g. "spell") – only when Category = Active
+ *   - Special (e.g. Ignite, Freeze, Shock, Penetration, …) – only when Category = Active
+ *   - Free text search (name / tree / school)
  *
- * Updated for new power structure (v0.4.18+)
+ * During character creation, every newly added power is stored at rank 1.
  */
+import type { PowerCategory } from '../types/item.js';
 /**
- * Show the power creation dialog for an actor
- * @param actor - The actor to add powers to
- * @param context - The context: 'mastery' for Mastery Tree Powers, 'magic' for Magic Powers
+ * Show the unified power creation dialog.
+ *
+ * @param actor - The actor to add a power to.
+ * @param options - Optional preset for the category filter (e.g. when called from "Add Reaction").
  */
-export declare function showPowerCreationDialog(actor: Actor, context?: 'mastery' | 'magic'): Promise<void>;
+export declare function showPowerCreationDialog(actor: Actor, options?: {
+    presetCategory?: PowerCategory;
+}): Promise<void>;
 //# sourceMappingURL=character-sheet-power-dialog.d.ts.map

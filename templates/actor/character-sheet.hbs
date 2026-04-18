@@ -990,12 +990,29 @@
         </div>
         {{/if}}
         <div class="powers-controls">
-          <button type="button" class="add-power-creation-btn" title="Add Power from Mastery Tree">
-            <i class="fas fa-plus"></i> Add Mastery Power
+          <button type="button" class="add-power-creation-btn" title="Add any Power (Mastery Tree or Spell School)">
+            <i class="fas fa-plus"></i> Add Power
           </button>
-          <button type="button" class="add-spell-creation-btn" title="Add Spell from Spell School">
-            <i class="fas fa-plus"></i> Add Spell
+          {{#unless creationComplete}}
+          <button type="button" class="add-power-creation-btn" data-category="active" title="Add Active Power">
+            <i class="fas fa-plus"></i> Active
           </button>
+          <button type="button" class="add-power-creation-btn" data-category="activeBuff" title="Add Active Buff">
+            <i class="fas fa-plus"></i> Active Buff
+          </button>
+          <button type="button" class="add-power-creation-btn" data-category="movement" title="Add Movement Power">
+            <i class="fas fa-plus"></i> Movement
+          </button>
+          <button type="button" class="add-power-creation-btn" data-category="reaction" title="Add Reaction">
+            <i class="fas fa-plus"></i> Reaction
+          </button>
+          <button type="button" class="add-power-creation-btn" data-category="passive" title="Add Passive">
+            <i class="fas fa-plus"></i> Passive
+          </button>
+          <button type="button" class="add-power-creation-btn" data-category="utility" title="Add Utility">
+            <i class="fas fa-plus"></i> Utility
+          </button>
+          {{/unless}}
         </div>
       </div>
       
@@ -1011,21 +1028,23 @@
                 {{creation.powersSelected}} / {{creation.powersRequired}}
               </span>
             </div>
+            {{#each creation.categoryRequirements}}
             <div class="status-item">
-              <label>Powers at Rank 2:</label>
-              <span class="{{#if (lte creation.powersAtRank2 creation.powersAtRank2Max)}}valid{{else}}invalid{{/if}}">
-                {{creation.powersAtRank2}} / {{creation.powersAtRank2Max}} (max)
+              <label>{{this.label}}:</label>
+              <span class="{{#if this.valid}}valid{{else}}invalid{{/if}}">
+                {{this.selected}} / {{this.required}}
               </span>
             </div>
+            {{/each}}
           </div>
         </div>
-        
+
         <div class="creation-instructions">
           <p><strong>Character Creation Rules:</strong></p>
           <ul>
-            <li>Select exactly <strong>4 Powers</strong> (trees are optional)</li>
-            <li>Maximum <strong>2 Powers</strong> can be at <strong>Rank 2</strong> (others remain Rank 1)</li>
-            <li>No power rank may exceed your Mastery Rank (currently {{creation.masteryRank}})</li>
+            <li>Select exactly: <strong>2 Actives</strong>, <strong>1 Active Buff</strong>, <strong>1 Movement</strong>, <strong>1 Reaction</strong>, <strong>2 Passives</strong>, <strong>1 Utility</strong> (8 Powers total).</li>
+            <li>All Powers are added at <strong>Rank 1</strong> during character creation.</li>
+            <li>Mastery Trees and Spell Schools share one picker – filter by Category, Tag (e.g. Spell) and Special (Ignite, Freeze, Shock, …).</li>
           </ul>
         </div>
         
@@ -1034,7 +1053,6 @@
           <h4>Selected Powers:</h4>
           {{#if items.powers}}
             {{#each items.powers}}
-              {{#if (contains ../creation.selectedTrees (default this.system.tree ""))}}
               <div class="power-card creation-power" data-item-id="{{this.id}}">
                 <div class="power-header-compact">
                   <div class="power-name-compact">
@@ -1074,10 +1092,7 @@
                     {{/if}}
                   </div>
                   <div class="power-controls">
-                    <select class="power-rank-select" data-item-id="{{this.id}}" title="Select Power Rank">
-                      <option value="1" {{#if (eq this.system.level 1)}}selected{{/if}}>Rank 1</option>
-                      <option value="2" {{#if (eq this.system.level 2)}}selected{{/if}}>Rank 2</option>
-                    </select>
+                    <span class="power-rank-static" title="Fixed at Rank 1 during character creation">Rank 1</span>
                     <button type="button" class="power-toggle-details" data-item-id="{{this.id}}" title="Toggle Details">
                       <i class="fas fa-chevron-down"></i>
                     </button>
@@ -1174,10 +1189,9 @@
                 </button>
                 {{/if}}
               </div>
-              {{/if}}
             {{/each}}
           {{else}}
-            <p class="empty-message">No powers selected yet. Click "Add Mastery Power" or "Add Spell" to start.</p>
+            <p class="empty-message">No powers selected yet. Click "Add Power" (or one of the category shortcuts) to start.</p>
           {{/if}}
         </div>
       </div>

@@ -1,282 +1,172 @@
 /**
  * Power Creation Dialog for Character Sheet
  *
- * Shows a dialog where players can select and add Powers from Mastery Trees or Spell Schools.
- * Only allows selection from predefined powers (no manual entry).
+ * Unified picker for Mastery Tree Powers and Spell School Powers.
+ * The list is filterable by:
+ *   - Category (Active, Active Buff, Movement, Reaction, Passive, Utility)
+ *   - Tag (e.g. "spell") – only when Category = Active
+ *   - Special (e.g. Ignite, Freeze, Shock, Penetration, …) – only when Category = Active
+ *   - Free text search (name / tree / school)
  *
- * Updated for new power structure (v0.4.18+)
+ * During character creation, every newly added power is stored at rank 1.
  */
 import { renderRange, renderAoe, renderDuration, renderPowerLevelTable } from '../utils/power-rendering.js';
-/**
- * Check if a power uses the new structure
- */
+import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_POWER_REQUIREMENTS, filterCatalog, findCatalogEntryByName, getActiveSpecialOptions, getActiveTagOptions } from '../utils/power-catalog.js';
+/** Check if a power uses the new structure. */
 function isNewPowerStructure(power) {
     return power && typeof power === 'object' && 'category' in power && 'levels' in power && typeof power.levels === 'object' && !Array.isArray(power.levels);
 }
+/** How many powers of a given category the actor already owns. */
+function countByCategory(actor) {
+    const counts = {
+        active: 0,
+        activeBuff: 0,
+        movement: 0,
+        reaction: 0,
+        passive: 0,
+        utility: 0
+    };
+    const powers = actor.items.filter((i) => i.type === 'power');
+    for (const p of powers) {
+        const sys = p.system || {};
+        let cat = sys.category;
+        if (!cat) {
+            const pt = sys.powerType;
+            if (pt === 'buff')
+                cat = 'activeBuff';
+            else if (pt === 'active' || pt === 'passive' || pt === 'reaction' || pt === 'movement' || pt === 'utility')
+                cat = pt;
+        }
+        if (cat && cat in counts)
+            counts[cat]++;
+    }
+    return counts;
+}
 /**
- * Show the power creation dialog for an actor
- * @param actor - The actor to add powers to
- * @param context - The context: 'mastery' for Mastery Tree Powers, 'magic' for Magic Powers
+ * Show the unified power creation dialog.
+ *
+ * @param actor - The actor to add a power to.
+ * @param options - Optional preset for the category filter (e.g. when called from "Add Reaction").
  */
-export async function showPowerCreationDialog(actor, context = 'mastery') {
-    // Dynamic imports to avoid build issues
-    const { getAllMasteryTrees } = await import('../utils/mastery-trees.js');
-    const { getAllSpellSchools } = await import('../utils/spell-schools.js');
-    const trees = getAllMasteryTrees();
-    const spellSchools = getAllSpellSchools();
-    // Create tree selection options (all available trees)
-    const treeOptions = trees
-        .map((tree) => `<option value="${tree.name}">${tree.name}</option>`)
+export async function showPowerCreationDialog(actor, options) {
+    const system = actor.system;
+    const creationComplete = system?.creation?.complete !== false;
+    const masteryRank = system?.mastery?.rank || 2;
+    // Build filter UI options
+    const categoryOptions = CATEGORY_ORDER.map(c => `<option value="${c}"${options?.presetCategory === c ? ' selected' : ''}>${CATEGORY_LABELS[c]}</option>`).join('');
+    const tagOptions = getActiveTagOptions()
+        .map(t => `<option value="${t}">${t.charAt(0).toUpperCase() + t.slice(1)}</option>`)
         .join('');
-    // Create spell school selection options
-    const schoolOptions = spellSchools
-        .map((school) => `<option value="${school.name}">${school.fullName}</option>`)
+    const specialOptions = getActiveSpecialOptions()
+        .map(s => `<option value="${s.key}">${s.label}</option>`)
         .join('');
-    // Determine which fields to show based on context
-    const isMastery = context === 'mastery';
-    const categoryLabel = isMastery ? 'Mastery Tree' : 'Spell School';
-    const categoryOptions = isMastery ? treeOptions : schoolOptions;
-    const categorySelectId = isMastery ? 'power-tree-select' : 'spell-school-select';
-    const categoryGroupId = isMastery ? 'mastery-tree-group' : 'spell-school-group';
+    const initialCategory = options?.presetCategory || '';
+    const activeFiltersVisible = initialCategory === 'active' ? '' : ' style="display: none;"';
     const content = `
-    <form class="power-creation-form">
-      <div class="form-group power-form-group" id="${categoryGroupId}">
-        <label class="power-form-label">${categoryLabel} <span style="font-weight: normal; color: #888;">(optional)</span>:</label>
-        <select name="${isMastery ? 'tree' : 'school'}" id="${categorySelectId}" class="power-form-select">
-          <option value="">-- Select a ${categoryLabel} (optional) --</option>
-          ${categoryOptions}
-        </select>
+    <form class="power-creation-form power-catalog-form">
+      <div class="power-catalog-filters">
+        <div class="form-group power-form-group">
+          <label class="power-form-label">Category:</label>
+          <select name="category" id="pc-category" class="power-form-select">
+            <option value="">-- Any Category --</option>
+            ${categoryOptions}
+          </select>
+        </div>
+        <div class="form-group power-form-group pc-active-filter"${activeFiltersVisible}>
+          <label class="power-form-label">Tag:</label>
+          <select name="tag" id="pc-tag" class="power-form-select">
+            <option value="">-- Any Tag --</option>
+            ${tagOptions}
+          </select>
+        </div>
+        <div class="form-group power-form-group pc-active-filter"${activeFiltersVisible}>
+          <label class="power-form-label">Special:</label>
+          <select name="special" id="pc-special" class="power-form-select">
+            <option value="">-- Any Special --</option>
+            ${specialOptions}
+          </select>
+        </div>
+        <div class="form-group power-form-group pc-search-group">
+          <label class="power-form-label">Search:</label>
+          <input type="search" name="search" id="pc-search" class="power-form-input" placeholder="Search name or source…" />
+        </div>
       </div>
-      <div class="form-group power-form-group" id="power-select-group" style="display: none;">
+      <div class="form-group power-form-group">
         <label class="power-form-label">Power:</label>
-        <select name="power" id="power-select" class="power-form-select">
+        <select name="power" id="pc-power" class="power-form-select power-catalog-select" size="10">
           <option value="">-- Select a Power --</option>
         </select>
+        <div class="power-catalog-count" id="pc-count" style="font-size: 0.85em; color: #888; margin-top: 4px;"></div>
       </div>
-      <div class="form-group power-details-group" id="power-details" style="display: none;">
-        <div id="power-description" class="power-description-text"></div>
-        <div id="power-level-table-container" class="power-level-table-container"></div>
+      <div class="form-group power-details-group" id="pc-details" style="display: none;">
+        <div id="pc-description" class="power-description-text"></div>
+        <div id="pc-level-table" class="power-level-table-container"></div>
       </div>
-      <div class="form-group power-form-group" id="level-select-group" style="display: none;">
+      ${creationComplete ? `
+      <div class="form-group power-form-group">
         <label class="power-form-label">Rank:</label>
-        <select name="rank" id="power-rank-select" class="power-form-select">
+        <select name="rank" id="pc-rank" class="power-form-select">
           <option value="1">Rank 1</option>
           <option value="2">Rank 2</option>
           <option value="3">Rank 3</option>
           <option value="4">Rank 4</option>
         </select>
       </div>
+      ` : `
+      <div class="form-group power-form-group">
+        <label class="power-form-label">Rank:</label>
+        <div class="power-form-static">Rank 1 <span style="color:#888;">(fixed during character creation)</span></div>
+      </div>
+      `}
     </form>
   `;
     const dialog = new Dialog({
-        title: 'Create New Power',
-        content: content,
+        title: 'Add Power',
+        content,
         buttons: {
             create: {
                 icon: '<i class="fas fa-check"></i>',
-                label: 'Create',
+                label: 'Add',
                 callback: async (htmlCb) => {
                     const $html = (htmlCb instanceof HTMLElement) ? $(htmlCb) : $(htmlCb);
-                    const tree = $html.find('#power-tree-select').val();
-                    const school = $html.find('#spell-school-select').val();
-                    const selectedPowerName = $html.find('#power-select').val();
-                    const rank = parseInt($html.find('#power-rank-select').val() || '1');
-                    if (!selectedPowerName || selectedPowerName.trim() === '') {
+                    const selectedName = $html.find('#pc-power').val();
+                    if (!selectedName) {
                         ui.notifications?.warn('Please select a power from the list');
                         return false;
                     }
-                    const powerName = selectedPowerName;
-                    let power = null;
-                    // If tree/school is selected, try to load from predefined list
-                    if ((isMastery && tree) || (!isMastery && school)) {
-                        if (!isMastery) {
-                            // Magic powers
-                            try {
-                                const magicModule = await import('../utils/magic-powers.js');
-                                if (magicModule?.getMagicPower) {
-                                    power = magicModule.getMagicPower(school, powerName);
-                                }
-                            }
-                            catch (error) {
-                                console.warn('Mastery System | Magic powers module not available');
-                                ui.notifications?.error('Failed to load magic power data');
-                                return false;
-                            }
-                        }
-                        else {
-                            // Mastery tree power
-                            const { getPower } = await import('../utils/powers/index.js');
-                            power = getPower(tree, powerName);
-                        }
-                        if (!power) {
-                            ui.notifications?.error('Power not found in predefined list');
-                            return false;
-                        }
+                    // The <option> carries sourceKind + sourceName so we resolve unambiguously.
+                    const $opt = $html.find(`#pc-power option[value="${CSS.escape(selectedName)}"]:selected`);
+                    const sourceKind = $opt.data('source-kind') || undefined;
+                    const sourceName = $opt.data('source-name') || undefined;
+                    const entry = findCatalogEntryByName(selectedName, sourceKind, sourceName);
+                    if (!entry) {
+                        ui.notifications?.error('Power not found in catalog');
+                        return false;
                     }
-                    else {
-                        // No tree/school selected - allow manual power creation with basic data
-                        power = {
-                            name: powerName,
-                            description: '',
-                            category: 'active',
-                            tags: [],
-                            rank: 1,
-                            cost: {
-                                action: 'attack',
-                                stones: 0,
-                                charges: 0
-                            },
-                            roll: {
-                                kind: 'none'
-                            },
-                            levels: {
-                                '1': {
-                                    lvl: 1,
-                                    type: 'melee',
-                                    range: { kind: 'touch' },
-                                    aoe: { shape: 'none' },
-                                    duration: { kind: 'instant' },
-                                    effect: { text: '' },
-                                    specials: []
-                                }
-                            }
-                        };
+                    const rank = creationComplete
+                        ? parseInt($html.find('#pc-rank').val() || '1')
+                        : 1;
+                    // Build item data from catalog entry
+                    const itemData = buildItemDataFromEntry(entry, rank);
+                    if (!itemData) {
+                        ui.notifications?.error('Failed to construct power item data');
+                        return false;
                     }
-                    // Determine if power uses new structure
-                    const isNewStructure = isNewPowerStructure(power);
-                    // Build item data based on structure
-                    let itemData;
-                    if (isNewStructure) {
-                        // New structure
-                        const levelRow = power.levels[rank.toString()];
-                        if (!levelRow) {
-                            ui.notifications?.error(`Rank ${rank} data not found for this power`);
-                            return false;
-                        }
-                        itemData = {
-                            name: power.name,
-                            type: 'power',
-                            system: {
-                                tree: !isMastery ? school : tree,
-                                isMagicPower: !isMastery,
-                                // New structure fields
-                                category: power.category,
-                                tags: power.tags || [],
-                                rank: rank,
-                                description: power.description || '',
-                                fluff: power.fluff || '',
-                                trigger: power.trigger || levelRow.trigger || undefined,
-                                cost: {
-                                    action: power.cost.action,
-                                    stones: power.cost.stones || 0,
-                                    charges: power.cost.charges || 0,
-                                    note: power.cost.note || undefined
-                                },
-                                roll: {
-                                    kind: power.roll.kind,
-                                    attribute: power.roll.attribute || undefined,
-                                    vs: power.roll.vs || undefined
-                                },
-                                levels: power.levels,
-                                // Legacy fields for backwards compatibility (migrated from levelRow)
-                                powerType: power.category === 'activeBuff' ? 'buff' : power.category,
-                                level: rank, // Keep for backwards compatibility
-                                minLevel: rank || 1, // Store baseline level from creation
-                                range: renderRange(levelRow.range),
-                                aoe: renderAoe(levelRow.aoe),
-                                duration: renderDuration(levelRow.duration),
-                                effect: levelRow.effect.text,
-                                specials: levelRow.specials.map((s) => s.value !== undefined ? `${s.key}(${s.value})` : s.key),
-                                ap: 30
-                            }
-                        };
-                    }
-                    else {
-                        // Old structure - migrate on the fly
-                        const levelData = power.levels?.find((l) => l.level === rank);
-                        if (!levelData && power.levels && power.levels.length > 0) {
-                            ui.notifications?.error('Level data not found for this power');
-                            return false;
-                        }
-                        // Map power type from the level data
-                        const powerTypeMap = {
-                            'Melee': 'active',
-                            'Ranged': 'active',
-                            'Buff': 'buff',
-                            'Utility': 'utility',
-                            'Support': 'utility',
-                            'Passive': 'passive',
-                            'Reaction': 'reaction',
-                            'Movement': 'movement',
-                            'Zone': 'utility'
-                        };
-                        const mappedPowerType = levelData ? (powerTypeMap[levelData.type] || power?.powerType || 'active') : (power?.powerType || 'active');
-                        itemData = {
-                            name: powerName,
-                            type: 'power',
-                            system: {
-                                tree: !isMastery ? school : tree,
-                                isMagicPower: !isMastery,
-                                powerType: mappedPowerType,
-                                level: rank,
-                                minLevel: rank || 1, // Store baseline level from creation
-                                description: power.description || '',
-                                tags: [],
-                                range: levelData?.range || '',
-                                aoe: levelData?.aoe && levelData.aoe !== '—' ? levelData.aoe : '',
-                                duration: levelData?.duration || '',
-                                effect: levelData?.effect || '',
-                                specials: levelData?.special && levelData.special !== '—' ? [levelData.special] : [],
-                                ap: 30,
-                                cost: {
-                                    action: mappedPowerType === 'active' || mappedPowerType === 'buff' || mappedPowerType === 'utility',
-                                    movement: mappedPowerType === 'movement',
-                                    reaction: mappedPowerType === 'reaction',
-                                    stones: 0,
-                                    charges: 0
-                                },
-                                roll: {
-                                    attribute: 'might',
-                                    tn: 0,
-                                    damage: levelData?.effect?.includes('damage') ? levelData.effect : '',
-                                    healing: levelData?.effect?.includes('Heal') ? levelData.effect : '',
-                                    raises: ''
-                                },
-                                requirements: {
-                                    masteryRank: rank,
-                                    other: ''
-                                }
-                            }
-                        };
-                    }
-                    // Check if we're in character creation mode
-                    const system = actor.system;
-                    const creationComplete = system?.creation?.complete !== false;
                     if (!creationComplete) {
-                        // Enforce creation limits
-                        const powers = actor.items.filter((item) => item.type === 'power');
-                        // Check power limit (exactly 4)
-                        if (powers.length >= 4) {
-                            ui.notifications?.error('You can only select exactly 4 Powers during character creation.');
+                        const counts = countByCategory(actor);
+                        const target = CREATION_POWER_REQUIREMENTS[entry.category];
+                        if (counts[entry.category] >= target) {
+                            ui.notifications?.error(`You already have the maximum number of ${CATEGORY_LABELS[entry.category]} powers (${target}) for character creation.`);
                             return false;
                         }
-                        // Check rank 2 limit (max 2)
-                        const powersAtRank2 = powers.filter((p) => (p.system?.rank || p.system?.level || 1) === 2);
-                        if (rank === 2 && powersAtRank2.length >= 2) {
-                            ui.notifications?.error('Maximum 2 Powers can be at Rank 2 during character creation.');
-                            return false;
-                        }
-                        // Enforce max rank during creation (Mastery Rank 2)
-                        const masteryRank = system.mastery?.rank || 2;
                         if (rank > masteryRank) {
                             ui.notifications?.error(`Power rank cannot exceed Mastery Rank ${masteryRank} during character creation.`);
                             return false;
                         }
                     }
                     await actor.createEmbeddedDocuments('Item', [itemData]);
-                    const sourceType = !isMastery ? 'Spell School' : 'Mastery Tree';
-                    const source = !isMastery ? school : tree;
-                    ui.notifications?.info(`Created power: ${powerName} (Rank ${rank}) from ${source} ${sourceType}`);
+                    const sourceType = entry.sourceKind === 'magic' ? 'Spell School' : 'Mastery Tree';
+                    ui.notifications?.info(`Created power: ${entry.name} (Rank ${rank}) from ${entry.sourceName} ${sourceType}`);
                     return true;
                 }
             },
@@ -287,196 +177,233 @@ export async function showPowerCreationDialog(actor, context = 'mastery') {
             }
         },
         default: 'create',
-        render: async (htmlRaw) => {
+        render: (htmlRaw) => {
             const html = (htmlRaw instanceof HTMLElement) ? $(htmlRaw) : $(htmlRaw);
-            // Add CSS classes and make dialog size dynamic based on content
             setTimeout(() => {
                 const dialogElement = html.closest('.window-app.dialog');
                 if (dialogElement.length) {
-                    dialogElement.addClass('mastery-system power-creation-dialog');
+                    dialogElement.addClass('mastery-system power-creation-dialog power-catalog-dialog');
                     dialogElement.css({
-                        'height': 'auto',
-                        'min-height': '200px',
+                        height: 'auto',
+                        'min-height': '300px',
                         'max-height': '90vh',
-                        'width': 'auto',
-                        'min-width': '500px',
-                        'max-width': '900px'
+                        width: 'auto',
+                        'min-width': '560px',
+                        'max-width': '960px'
                     });
                     const contentElement = dialogElement.find('.window-content');
                     if (contentElement.length) {
                         contentElement.css({
-                            'height': 'auto',
+                            height: 'auto',
                             'max-height': 'calc(90vh - 100px)',
                             'overflow-y': 'auto'
                         });
                     }
                 }
             }, 0);
-            // Register event handlers after dialog is rendered
-            const treeSelect = html.find('#power-tree-select')[0];
-            const schoolSelect = html.find('#spell-school-select')[0];
-            const powerSelect = html.find('#power-select')[0];
-            const powerSelectGroup = html.find('#power-select-group');
-            const powerDetails = html.find('#power-details');
-            const powerDescription = html.find('#power-description');
-            const powerLevelTableContainer = html.find('#power-level-table-container');
-            const rankSelect = html.find('#power-rank-select')[0];
-            const rankSelectGroup = html.find('#level-select-group');
-            console.log('Mastery System | Power dialog render', {
-                treeSelect: !!treeSelect,
-                schoolSelect: !!schoolSelect,
-                powerSelect: !!powerSelect,
-                isMastery
-            });
-            let powersData = {};
-            // Handle category selection (Tree or School based on context)
-            const $categorySelect = isMastery ? html.find('#power-tree-select') : html.find('#spell-school-select');
-            $categorySelect.on('change', async function () {
-                const categoryName = this.value;
-                console.log('Mastery System | Power dialog category changed:', categoryName);
-                if (powerSelect) {
-                    powerSelect.innerHTML = '<option value="">-- Select a Power --</option>';
-                }
-                powerSelectGroup.hide();
-                powerDetails.hide();
-                rankSelectGroup.hide();
-                if (!categoryName) {
-                    return;
-                }
-                try {
-                    if (isMastery) {
-                        // Load mastery tree powers
-                        const { getPowersForTree } = await import('../utils/powers/index.js');
-                        const powers = getPowersForTree(categoryName);
-                        console.log('Mastery System | Loaded powers for tree', categoryName, '→', powers.length, 'powers');
-                        powersData = {};
-                        if (powers.length === 0) {
-                            ui.notifications?.warn('No predefined powers found for this tree');
-                            return;
-                        }
-                        powers.forEach((power) => {
-                            powersData[power.name] = power;
-                            if (powerSelect) {
-                                const option = document.createElement('option');
-                                option.value = power.name;
-                                option.textContent = power.name;
-                                powerSelect.appendChild(option);
-                            }
-                        });
-                        powerSelectGroup.show();
-                    }
-                    else {
-                        // Load magic powers
-                        const magicModule = await import('../utils/magic-powers.js');
-                        if (magicModule?.getMagicPowersBySchool) {
-                            const powers = magicModule.getMagicPowersBySchool(categoryName);
-                            powersData = {};
-                            if (powers.length === 0) {
-                                ui.notifications?.warn('No predefined powers found for this spell school');
-                                return;
-                            }
-                            powers.forEach((power) => {
-                                powersData[power.name] = power;
-                                if (powerSelect) {
-                                    const option = document.createElement('option');
-                                    option.value = power.name;
-                                    option.textContent = power.name;
-                                    powerSelect.appendChild(option);
-                                }
-                            });
-                            powerSelectGroup.show();
-                        }
-                        else {
-                            ui.notifications?.error('Magic powers module not available');
-                            return;
-                        }
-                    }
-                }
-                catch (error) {
-                    console.error('Mastery System | Error loading powers:', error);
-                    ui.notifications?.error('Failed to load powers');
-                }
-            });
-            html.find('#power-select').on('change', function () {
-                const powerName = this.value;
-                if (!powerName || !powersData[powerName]) {
-                    powerDetails.hide();
-                    rankSelectGroup.hide();
-                    return;
-                }
-                const power = powersData[powerName];
-                powerDescription.text(power.description || '');
-                // Show rank select when power is selected
-                rankSelectGroup.show();
-                // Show power level table
-                const isNewStructure = isNewPowerStructure(power);
-                if (isNewStructure && power.levels) {
-                    const showTrigger = power.category === 'reaction' || Object.values(power.levels).some((l) => l.trigger);
-                    const tableHtml = renderPowerLevelTable(power.levels, showTrigger);
-                    powerLevelTableContainer.html(tableHtml);
-                }
-                else if (power.levels && Array.isArray(power.levels)) {
-                    // Old structure - show simple list
-                    let levelInfo = '<strong>Available Levels:</strong><br>';
-                    power.levels.forEach((level) => {
-                        levelInfo += `Level ${level.level}: ${level.type} - ${level.effect}`;
-                        if (level.special && level.special !== '—' && level.special !== '') {
-                            levelInfo += ` (${level.special})`;
-                        }
-                        levelInfo += '<br>';
-                    });
-                    powerLevelTableContainer.html(levelInfo);
+            const $categorySelect = html.find('#pc-category');
+            const $tagSelect = html.find('#pc-tag');
+            const $specialSelect = html.find('#pc-special');
+            const $searchInput = html.find('#pc-search');
+            const $powerSelect = html.find('#pc-power');
+            const $details = html.find('#pc-details');
+            const $description = html.find('#pc-description');
+            const $levelTable = html.find('#pc-level-table');
+            const $count = html.find('#pc-count');
+            const refreshList = () => {
+                const category = $categorySelect.val() || '';
+                const tag = $tagSelect.val() || '';
+                const special = $specialSelect.val() || '';
+                const search = $searchInput.val() || '';
+                // Tag/Special filters only apply when an active filter is possible;
+                // if category is not "active", force-clear the UI (the dropdowns are hidden anyway).
+                const entries = filterCatalog({
+                    category: (category || null),
+                    tag: category === 'active' ? (tag || null) : null,
+                    special: category === 'active' ? (special || null) : null,
+                    search: search || null
+                });
+                $powerSelect.empty();
+                if (entries.length === 0) {
+                    $powerSelect.append('<option value="">-- No matching powers --</option>');
                 }
                 else {
-                    powerLevelTableContainer.html('');
+                    $powerSelect.append('<option value="">-- Select a Power --</option>');
+                    for (const e of entries) {
+                        const label = `${e.name} · ${e.sourceName} [${CATEGORY_LABELS[e.category]}]`;
+                        const opt = document.createElement('option');
+                        opt.value = e.name;
+                        opt.textContent = label;
+                        opt.dataset.sourceKind = e.sourceKind;
+                        opt.dataset.sourceName = e.sourceName;
+                        $powerSelect.append(opt);
+                    }
                 }
-                powerDetails.show();
-                // Update level info when rank is already selected
-                updateRankInfo();
+                $count.text(`${entries.length} power${entries.length === 1 ? '' : 's'} match the current filter`);
+                // Reset details until user picks.
+                $details.hide();
+                $description.empty();
+                $levelTable.empty();
+            };
+            // Toggle active-only filter rows when category changes.
+            $categorySelect.on('change', () => {
+                const isActive = $categorySelect.val() === 'active';
+                html.find('.pc-active-filter').toggle(isActive);
+                if (!isActive) {
+                    $tagSelect.val('');
+                    $specialSelect.val('');
+                }
+                refreshList();
             });
-            // Update rank details when rank changes
-            html.find('#power-rank-select').on('change', function () {
-                updateRankInfo();
-            });
-            function updateRankInfo() {
-                const rank = parseInt(rankSelect?.value || '1');
-                const powerName = powerSelect?.value;
-                if (!powerName || !powersData[powerName]) {
+            $tagSelect.on('change', refreshList);
+            $specialSelect.on('change', refreshList);
+            $searchInput.on('input', refreshList);
+            $powerSelect.on('change', function () {
+                const name = $(this).val() || '';
+                if (!name) {
+                    $details.hide();
                     return;
                 }
-                const power = powersData[powerName];
-                const isNewStructure = isNewPowerStructure(power);
-                if (isNewStructure && power.levels) {
-                    const levelRow = power.levels[rank.toString()];
-                    if (levelRow) {
-                        // Highlight the selected row in the table
-                        powerLevelTableContainer.find('.power-level-row').removeClass('selected');
-                        powerLevelTableContainer.find(`.power-level-row[data-level="${rank}"]`).addClass('selected');
-                    }
+                const $opt = $powerSelect.find(`option[value="${CSS.escape(name)}"]:selected`);
+                const sourceKind = $opt.data('source-kind') || undefined;
+                const sourceName = $opt.data('source-name') || undefined;
+                const entry = findCatalogEntryByName(name, sourceKind, sourceName);
+                if (!entry) {
+                    $details.hide();
+                    return;
                 }
-                else if (power.levels && Array.isArray(power.levels)) {
-                    // Old structure
-                    const levelData = power.levels.find((l) => l.level === rank);
-                    if (levelData) {
-                        let levelInfo = '<strong>Selected Rank ' + rank + ':</strong><br>';
-                        levelInfo += `Type: ${levelData.type}<br>`;
-                        levelInfo += `Range: ${levelData.range || 'N/A'}<br>`;
-                        if (levelData.aoe && levelData.aoe !== '—' && levelData.aoe !== '') {
-                            levelInfo += `AoE: ${levelData.aoe}<br>`;
-                        }
-                        if (levelData.duration) {
-                            levelInfo += `Duration: ${levelData.duration}<br>`;
-                        }
-                        levelInfo += `Effect: ${levelData.effect}<br>`;
-                        if (levelData.special && levelData.special !== '—' && levelData.special !== '') {
-                            levelInfo += `Special: ${levelData.special}<br>`;
-                        }
-                        powerLevelTableContainer.html(levelInfo);
-                    }
-                }
-            }
+                renderEntryDetails(entry, $description, $levelTable);
+                $details.show();
+            });
+            // Initial render.
+            refreshList();
         }
     });
     dialog.render(true);
+}
+/** Render the description + level table of a catalog entry into the dialog. */
+function renderEntryDetails(entry, $description, $levelTable) {
+    const raw = entry.raw;
+    $description.text(raw.description || '');
+    if (isNewPowerStructure(raw) && raw.levels) {
+        const showTrigger = raw.category === 'reaction' || Object.values(raw.levels).some((l) => l?.trigger);
+        $levelTable.html(renderPowerLevelTable(raw.levels, showTrigger));
+    }
+    else if (Array.isArray(raw.levels)) {
+        let levelInfo = '<strong>Available Levels:</strong><br>';
+        for (const lvl of raw.levels) {
+            levelInfo += `Level ${lvl.level}: ${lvl.type || ''} – ${lvl.effect || ''}`;
+            if (lvl.special && lvl.special !== '—' && lvl.special !== '') {
+                levelInfo += ` (${lvl.special})`;
+            }
+            levelInfo += '<br>';
+        }
+        $levelTable.html(levelInfo);
+    }
+    else {
+        $levelTable.empty();
+    }
+}
+/** Build the full item data object for an actor.createEmbeddedDocuments call. */
+function buildItemDataFromEntry(entry, rank) {
+    const isMastery = entry.sourceKind === 'mastery';
+    const power = entry.raw;
+    if (isNewPowerStructure(power)) {
+        const levelRow = power.levels[rank.toString()];
+        if (!levelRow) {
+            ui.notifications?.error(`Rank ${rank} data not found for this power`);
+            return null;
+        }
+        return {
+            name: power.name,
+            type: 'power',
+            system: {
+                tree: entry.sourceName,
+                isMagicPower: !isMastery,
+                category: power.category,
+                tags: power.tags || [],
+                rank,
+                description: power.description || '',
+                fluff: power.fluff || '',
+                trigger: power.trigger || levelRow.trigger || undefined,
+                cost: {
+                    action: power.cost?.action,
+                    stones: power.cost?.stones || 0,
+                    charges: power.cost?.charges || 0,
+                    note: power.cost?.note || undefined
+                },
+                roll: {
+                    kind: power.roll?.kind,
+                    attribute: power.roll?.attribute || undefined,
+                    vs: power.roll?.vs || undefined
+                },
+                levels: power.levels,
+                // Legacy fields kept for backwards compatibility
+                powerType: power.category === 'activeBuff' ? 'buff' : power.category,
+                level: rank,
+                minLevel: rank || 1,
+                range: renderRange(levelRow.range),
+                aoe: renderAoe(levelRow.aoe),
+                duration: renderDuration(levelRow.duration),
+                effect: levelRow.effect?.text || '',
+                specials: (levelRow.specials || []).map((s) => s.value !== undefined ? `${s.key}(${s.value})` : s.key),
+                ap: 30
+            }
+        };
+    }
+    // Legacy (spell / old tree) definition
+    const legacy = power;
+    const levelData = Array.isArray(legacy.levels) ? legacy.levels.find((l) => l.level === rank) : null;
+    const powerTypeMap = {
+        Melee: 'active',
+        Ranged: 'active',
+        Buff: 'buff',
+        Utility: 'utility',
+        Support: 'utility',
+        Passive: 'passive',
+        Reaction: 'reaction',
+        Movement: 'movement',
+        Zone: 'utility'
+    };
+    const mappedPowerType = levelData
+        ? (powerTypeMap[levelData.type] || legacy.powerType || 'active')
+        : (legacy.powerType || 'active');
+    return {
+        name: legacy.name,
+        type: 'power',
+        system: {
+            tree: entry.sourceName,
+            isMagicPower: !isMastery,
+            powerType: mappedPowerType,
+            level: rank,
+            minLevel: rank || 1,
+            description: legacy.description || '',
+            tags: entry.tags.includes('spell') ? ['spell'] : [],
+            range: levelData?.range || '',
+            aoe: levelData?.aoe && levelData.aoe !== '—' ? levelData.aoe : '',
+            duration: levelData?.duration || '',
+            effect: levelData?.effect || '',
+            specials: levelData?.special && levelData.special !== '—' ? [levelData.special] : [],
+            ap: 30,
+            cost: {
+                action: mappedPowerType === 'active' || mappedPowerType === 'buff' || mappedPowerType === 'utility',
+                movement: mappedPowerType === 'movement',
+                reaction: mappedPowerType === 'reaction',
+                stones: 0,
+                charges: 0
+            },
+            roll: {
+                attribute: 'might',
+                tn: 0,
+                damage: typeof levelData?.effect === 'string' && levelData.effect.includes('damage') ? levelData.effect : '',
+                healing: typeof levelData?.effect === 'string' && levelData.effect.includes('Heal') ? levelData.effect : '',
+                raises: ''
+            },
+            requirements: {
+                masteryRank: rank,
+                other: ''
+            }
+        }
+    };
 }
 //# sourceMappingURL=character-sheet-power-dialog.js.map

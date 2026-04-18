@@ -5510,6 +5510,57 @@
   box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.2);
 }
 
+.mastery-system.power-catalog-dialog .power-form-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  font-size: 0.9rem;
+  color: #333;
+  transition: border-color 0.2s ease;
+}
+
+.mastery-system.power-catalog-dialog .power-form-input:focus {
+  outline: none;
+  border-color: #8b0000;
+  box-shadow: 0 0 0 2px rgba(139, 0, 0, 0.2);
+}
+
+.mastery-system.power-catalog-dialog .power-catalog-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.5rem 0.75rem;
+  padding: 0.5rem;
+  background: rgba(139, 0, 0, 0.05);
+  border: 1px solid rgba(139, 0, 0, 0.2);
+  border-radius: 6px;
+}
+
+.mastery-system.power-catalog-dialog .power-catalog-filters .power-form-group {
+  gap: 0.25rem;
+}
+
+.mastery-system.power-catalog-dialog .power-catalog-select {
+  min-height: 220px;
+  font-family: inherit;
+}
+
+.mastery-system.power-catalog-dialog .power-catalog-count {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 0.25rem;
+}
+
+.mastery-system.power-catalog-dialog .power-form-static {
+  padding: 0.4rem 0.5rem;
+  background: #f0f0f0;
+  border: 1px dashed #bbb;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #333;
+}
+
 .mastery-system.power-creation-dialog .power-details-group {
   margin-top: 1rem;
   padding: 1rem;

@@ -16,6 +16,8 @@ import {
 } from '../system/disadvantages';
 import { getAllSchticks } from '../utils/schticks';
 import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
+import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_POWER_REQUIREMENTS } from '../utils/power-catalog.js';
+import type { PowerCategory } from '../types/item.js';
 import { findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid';
 import { buildPostCreationSnapshot } from '../utils/xp-post-creation.js';
 import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items';
@@ -82,43 +84,32 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   // Now using #onPowerAddCreation and #onSpellAddCreation for all power/spell additions
 
   /**
-   * Add Power during character creation
+   * Add Power (unified dialog with category/tag/special filters).
+   * The optional data-category attribute on the button pre-selects a filter.
    */
   async #onPowerAddCreation(event: JQuery.ClickEvent) {
     event.preventDefault();
+    const presetCategory = ($(event.currentTarget).data('category') as PowerCategory | undefined) || undefined;
     console.log('Mastery System | #onPowerAddCreation called', {
       actorId: this.actor.id,
-      creationComplete: (this.actor as any).system?.creation?.complete
+      creationComplete: (this.actor as any).system?.creation?.complete,
+      presetCategory
     });
-    await this.#openPowerDialogCreation('mastery');
-  }
-
-  /**
-   * Add Spell during character creation
-   */
-  async #onSpellAddCreation(event: JQuery.ClickEvent) {
-    event.preventDefault();
-    console.log('Mastery System | #onSpellAddCreation called', {
-      actorId: this.actor.id,
-      creationComplete: (this.actor as any).system?.creation?.complete
-    });
-    await this.#openPowerDialogCreation('magic');
+    await this.#openPowerDialogCreation(presetCategory);
   }
 
   /**
    * Open Power Creation Dialog with creation limits enforced
    */
-  async #openPowerDialogCreation(context: 'mastery' | 'magic'): Promise<void> {
+  async #openPowerDialogCreation(presetCategory?: PowerCategory): Promise<void> {
     console.log('Mastery System | #openPowerDialogCreation called', {
-      context,
+      presetCategory,
       actorId: this.actor.id,
       creationComplete: (this.actor as any).system?.creation?.complete
     });
     try {
-      // Use the regular dialog - it now enforces creation limits automatically
-      await showPowerCreationDialog(this.actor, context);
+      await showPowerCreationDialog(this.actor, presetCategory ? { presetCategory } : undefined);
       console.log('Mastery System | Power dialog closed, re-rendering');
-      // Re-render to update counters
       this.render();
     } catch (error) {
       console.error('Mastery System | Failed to open power creation dialog', error);
@@ -458,14 +449,38 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const selectedTrees = this.#getSelectedTrees(powers);
     // During creation, all powers count (trees are optional)
     const selectedPowers = powers;
-    const powersAtRank2 = selectedPowers.filter((p: any) => (p.system?.level || 1) === 2);
-    
+
+    // Per-category counters (new structure uses system.category, legacy uses system.powerType)
+    const categoryCounts: Record<PowerCategory, number> = {
+      active: 0, activeBuff: 0, movement: 0, reaction: 0, passive: 0, utility: 0
+    };
+    for (const p of selectedPowers) {
+      const sys = (p as any).system || {};
+      let cat: PowerCategory | undefined = sys.category;
+      if (!cat) {
+        const pt = sys.powerType;
+        if (pt === 'buff') cat = 'activeBuff';
+        else if (pt === 'active' || pt === 'passive' || pt === 'reaction' || pt === 'movement' || pt === 'utility') cat = pt;
+      }
+      if (cat && cat in categoryCounts) categoryCounts[cat]++;
+    }
+
+    const totalPowersRequired = Object.values(CREATION_POWER_REQUIREMENTS).reduce((a, b) => a + b, 0);
+    const categoryRequirements = CATEGORY_ORDER.map(cat => ({
+      key: cat,
+      label: CATEGORY_LABELS[cat],
+      required: CREATION_POWER_REQUIREMENTS[cat],
+      selected: categoryCounts[cat],
+      valid: categoryCounts[cat] === CREATION_POWER_REQUIREMENTS[cat]
+    }));
+    const categoriesValid = categoryRequirements.every(r => r.valid);
+
     console.log('Mastery System | getData - Powers Status:', {
       totalPowers: powers.length,
       selectedTrees: selectedTrees,
       selectedTreesCount: selectedTrees.length,
       selectedPowersCount: selectedPowers.length,
-      powersAtRank2Count: powersAtRank2.length,
+      categoryCounts,
       creationComplete: context.creationComplete
     });
     
@@ -535,21 +550,20 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       disadvantagesValid,
       disadvantagesReviewed,
       powersSelected: selectedPowers.length,
-      powersRequired: 4,
-      powersAtRank2: powersAtRank2.length,
-      powersAtRank2Required: 2,
-      powersAtRank2Max: 2,
+      powersRequired: totalPowersRequired,
+      categoryRequirements,
+      categoryCounts,
+      categoriesValid,
       selectedTrees: selectedTrees,
       schticksRows: schticksRows,
       availableSchticks: availableSchticks,
       availableSchticksById: availableSchticksById,
       rankTooltips: rankTooltips,
       schticksValid: schticksValidation.ok,
-      powersValid: selectedPowers.length === 4 && powersAtRank2.length <= 2,
+      powersValid: categoriesValid,
       canFinalize: attributeDistributionValid &&
-                   skillPointsSpent === skillPointsConfig && 
-                   selectedPowers.length === 4 && 
-                   powersAtRank2.length <= 2 &&
+                   skillPointsSpent === skillPointsConfig &&
+                   categoriesValid &&
                    disadvantagesValid
     };
     
@@ -560,7 +574,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       systemCreationComplete: context.system.creation?.complete,
       creation: {
         powersSelected: context.creation?.powersSelected,
-        powersAtRank2: context.creation?.powersAtRank2
+        categoryCounts: context.creation?.categoryCounts
       },
       itemsPowers: items.powers?.length || 0,
       willShowCreationUI: !context.creationComplete
@@ -1691,7 +1705,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Add power
     // Power/Spell creation buttons (always visible)
     html.find('.add-power-creation-btn').on('click', this.#onPowerAddCreation.bind(this));
-    html.find('.add-spell-creation-btn').on('click', this.#onSpellAddCreation.bind(this));
     html.find('.power-rank-select').on('change', this.#onPowerRankChange.bind(this));
     html
       .off('change', '.power-radial-checkbox')
@@ -5600,8 +5613,22 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     // Validate powers & magic
     const powers = this.actor.items.filter((item: any) => item.type === 'power');
-    const powersAtRank2 = powers.filter((p: any) => (p.system?.level || 1) === 2);
-    
+
+    // Per-category validation against CREATION_POWER_REQUIREMENTS
+    const creationCategoryCounts: Record<PowerCategory, number> = {
+      active: 0, activeBuff: 0, movement: 0, reaction: 0, passive: 0, utility: 0
+    };
+    for (const p of powers) {
+      const sys: any = (p as any).system || {};
+      let cat: PowerCategory | undefined = sys.category;
+      if (!cat) {
+        const pt = sys.powerType;
+        if (pt === 'buff') cat = 'activeBuff';
+        else if (pt === 'active' || pt === 'passive' || pt === 'reaction' || pt === 'movement' || pt === 'utility') cat = pt;
+      }
+      if (cat && cat in creationCategoryCounts) creationCategoryCounts[cat]++;
+    }
+
     // Validate attribute distribution (2×8, 2×6, 2×4, 1×2)
     const attrValues = attributeKeys.map(key => system.attributes?.[key]?.value || masteryRank);
     const c8 = attrValues.filter((v: number) => v === 8).length;
@@ -5618,14 +5645,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       ui.notifications?.error(`Must spend exactly ${skillPointsConfig} skill points. Currently spent: ${skillPointsSpent}`);
       return;
     }
-    // Trees are now optional - no validation needed
-    if (powers.length !== 4) {
-      ui.notifications?.error(`Must select exactly 4 Powers. Currently selected: ${powers.length}`);
-      return;
-    }
-    if (powersAtRank2.length > 2) {
-      ui.notifications?.error(`Maximum 2 Powers can be at Rank 2. Currently at Rank 2: ${powersAtRank2.length}`);
-      return;
+    for (const cat of CATEGORY_ORDER) {
+      const need = CREATION_POWER_REQUIREMENTS[cat];
+      const have = creationCategoryCounts[cat];
+      if (have !== need) {
+        ui.notifications?.error(
+          `Must select exactly ${need} ${CATEGORY_LABELS[cat]} power${need === 1 ? '' : 's'}. Currently: ${have}.`
+        );
+        return;
+      }
     }
     if (disadvantagePoints < minDisadvantagePts) {
       ui.notifications?.error(
