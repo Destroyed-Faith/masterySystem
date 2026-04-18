@@ -76,14 +76,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         {
           navSelector: '.sheet-tabs',
           contentSelector: '.sheet-body',
-          initial: 'attributes'
+          initial: 'echo'
         }
       ],
       dragDrop: [
         { dragSelector: '.item-list .item', dropSelector: null },
         { dragSelector: '.df-draggable-item', dropSelector: '.df-dropzone' }
       ],
-      scrollY: ['.attributes', '.skills', '.powers', '.equipment']
+      scrollY: ['.echo', '.attributes', '.skills', '.powers', '.equipment']
     });
     console.log('Mastery System | Character Sheet defaultOptions:', options);
     return options;

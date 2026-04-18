@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.261] - 2026-04-18
+
+### Changed
+- **Echo now has its own top-level tab** on the character sheet, placed first (before Attributes) — Echo is treated like an ancestry/race, so it opens by default when a sheet is displayed.
+- The Echo creation step (`Choose Echo` button + status badge) was moved out of the Powers tab and into the new Echo tab. The Powers tab is now strictly about power selection.
+- The Echo Deck block (tagline, creature type/size/speed, Core Traits with daily uses, Card slots incl. `Add Card` and `Use` buttons) was moved out of the Biography tab and into the new Echo tab.
+- The former freetext Echo field (`system.bio.echo`, HTML editor) was moved out of the Biography tab and relabeled to **Echo Notes** inside the new Echo tab. The underlying data path is unchanged — existing content is preserved without migration.
+- `src/sheets/character-sheet.ts`: tab config `initial` changed from `attributes` to `echo`; `scrollY` extended with `.echo`.
+
+### Notes
+- No data model changes (`actor.system.echo.*` and `system.bio.echo` paths remain identical). Pure UI/template refactor — all existing listeners (`.choose-echo-btn`, `.add-echo-card-btn`, `.echo-card-use-btn`) continue to work against the relocated DOM.
+- No impact on the Dragonborn power gating (`requiresEcho`) — `actor.system.echo.key` is untouched.
+
 ## [0.4.260] - 2026-04-18
 
 ### Changed
