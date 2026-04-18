@@ -35,7 +35,8 @@ export const VOID_TESTAMENT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Your Spells gain +1d8 damage against Hexed targets.', dice: '1d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+1d8',vsCondition:'hexed',vsConditionDamage:'+1d8'},condition:'targetHexed',applyWhen:'passive-slotted-active'}
             },
             '2': {
                 type: 'passive',
@@ -43,7 +44,8 @@ export const VOID_TESTAMENT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Your Spells gain +2d8 damage against Hexed targets.', dice: '2d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+2d8',vsCondition:'hexed',vsConditionDamage:'+2d8'},condition:'targetHexed',applyWhen:'passive-slotted-active'}
             },
             '3': {
                 type: 'passive',
@@ -51,7 +53,8 @@ export const VOID_TESTAMENT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Your Spells gain +3d8 damage against Hexed targets.', dice: '3d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+3d8',vsCondition:'hexed',vsConditionDamage:'+3d8'},condition:'targetHexed',applyWhen:'passive-slotted-active'}
             },
             '4': {
                 type: 'passive',
@@ -59,7 +62,8 @@ export const VOID_TESTAMENT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Your Spells gain +4d8 damage against Hexed targets.', dice: '4d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+4d8',vsCondition:'hexed',vsConditionDamage:'+4d8'},condition:'targetHexed',applyWhen:'passive-slotted-active'}
             }
         }
     },
@@ -78,7 +82,8 @@ export const VOID_TESTAMENT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Your Spells gain Penetration(2) against Hexed targets.' },
-                specials: [{ key: 'Penetration', rank: 2, note: 'vs. Hexed target' }]
+                specials: [{ key: 'Penetration', rank: 2, note: 'vs. Hexed target' }],
+                mechanics: {condition:'targetHexed',applyWhen:'passive-slotted-active'}
             },
             '2': {
                 type: 'passive',
@@ -86,7 +91,8 @@ export const VOID_TESTAMENT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Your Spells gain Penetration(4) against Hexed targets.' },
-                specials: [{ key: 'Penetration', rank: 4, note: 'vs. Hexed target' }]
+                specials: [{ key: 'Penetration', rank: 4, note: 'vs. Hexed target' }],
+                mechanics: {condition:'targetHexed',applyWhen:'passive-slotted-active'}
             },
             '3': {
                 type: 'passive',
@@ -94,7 +100,8 @@ export const VOID_TESTAMENT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Your Spells gain Penetration(6) against Hexed targets.' },
-                specials: [{ key: 'Penetration', rank: 6, note: 'vs. Hexed target' }]
+                specials: [{ key: 'Penetration', rank: 6, note: 'vs. Hexed target' }],
+                mechanics: {condition:'targetHexed',applyWhen:'passive-slotted-active'}
             },
             '4': {
                 type: 'passive',
@@ -102,7 +109,8 @@ export const VOID_TESTAMENT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Your Spells gain Penetration(8) against Hexed targets.' },
-                specials: [{ key: 'Penetration', rank: 8, note: 'vs. Hexed target' }]
+                specials: [{ key: 'Penetration', rank: 8, note: 'vs. Hexed target' }],
+                mechanics: {condition:'targetHexed',applyWhen:'passive-slotted-active'}
             }
         }
     },
@@ -307,7 +315,8 @@ export const VOID_TESTAMENT_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Gain +2 Armor and +2 Evade against that attack.' },
                 trigger: 'A Hexed target attacks you.',
-                specials: []
+                specials: [],
+                mechanics: {armor:2,evade:2,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '2': {
                 type: 'reaction',
@@ -316,7 +325,8 @@ export const VOID_TESTAMENT_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Gain +4 Armor and +4 Evade against that attack.' },
                 trigger: 'A Hexed target attacks you.',
-                specials: []
+                specials: [],
+                mechanics: {armor:4,evade:4,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '3': {
                 type: 'reaction',
@@ -325,7 +335,8 @@ export const VOID_TESTAMENT_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Gain +6 Armor and +6 Evade against that attack.' },
                 trigger: 'A Hexed target attacks you.',
-                specials: []
+                specials: [],
+                mechanics: {armor:6,evade:6,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '4': {
                 type: 'reaction',
@@ -334,7 +345,8 @@ export const VOID_TESTAMENT_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Gain +8 Armor and +8 Evade against that attack.' },
                 trigger: 'A Hexed target attacks you.',
-                specials: []
+                specials: [],
+                mechanics: {armor:8,evade:8,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             }
         }
     },
@@ -403,7 +415,8 @@ export const VOID_TESTAMENT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first Spell you cast each round gains +2d8 damage.', dice: '2d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+2d8'},applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '2': {
                 type: 'buff',
@@ -411,7 +424,8 @@ export const VOID_TESTAMENT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first Spell you cast each round gains +4d8 damage.', dice: '4d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+4d8'},applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '3': {
                 type: 'buff',
@@ -419,7 +433,8 @@ export const VOID_TESTAMENT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first Spell you cast each round gains +6d8 damage.', dice: '6d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+6d8'},applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '4': {
                 type: 'buff',
@@ -427,7 +442,8 @@ export const VOID_TESTAMENT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first Spell you cast each round gains +8d8 damage.', dice: '8d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+8d8'},applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             }
         }
     },
@@ -446,7 +462,8 @@ export const VOID_TESTAMENT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Your Spells gain Penetration(4) against Hexed targets.' },
-                specials: [{ key: 'Penetration', rank: 4, note: 'vs. Hexed target' }]
+                specials: [{ key: 'Penetration', rank: 4, note: 'vs. Hexed target' }],
+                mechanics: {condition:'targetHexed',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '2': {
                 type: 'buff',
@@ -454,7 +471,8 @@ export const VOID_TESTAMENT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Your Spells gain Penetration(8) against Hexed targets.' },
-                specials: [{ key: 'Penetration', rank: 8, note: 'vs. Hexed target' }]
+                specials: [{ key: 'Penetration', rank: 8, note: 'vs. Hexed target' }],
+                mechanics: {condition:'targetHexed',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '3': {
                 type: 'buff',
@@ -462,7 +480,8 @@ export const VOID_TESTAMENT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Your Spells gain Penetration(12) against Hexed targets.' },
-                specials: [{ key: 'Penetration', rank: 12, note: 'vs. Hexed target' }]
+                specials: [{ key: 'Penetration', rank: 12, note: 'vs. Hexed target' }],
+                mechanics: {condition:'targetHexed',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '4': {
                 type: 'buff',
@@ -470,7 +489,8 @@ export const VOID_TESTAMENT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Your Spells gain Penetration(16) against Hexed targets.' },
-                specials: [{ key: 'Penetration', rank: 16, note: 'vs. Hexed target' }]
+                specials: [{ key: 'Penetration', rank: 16, note: 'vs. Hexed target' }],
+                mechanics: {condition:'targetHexed',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             }
         }
     },
@@ -489,7 +509,8 @@ export const VOID_TESTAMENT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Gain +2 Armor and 1d8 Temporary HP.', dice: '1d8' },
-                specials: []
+                specials: [],
+                mechanics: {armor:2,applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '2': {
                 type: 'buff',
@@ -497,7 +518,8 @@ export const VOID_TESTAMENT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Gain +4 Armor and 2d8 Temporary HP.', dice: '2d8' },
-                specials: []
+                specials: [],
+                mechanics: {armor:4,applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '3': {
                 type: 'buff',
@@ -505,7 +527,8 @@ export const VOID_TESTAMENT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Gain +6 Armor and 3d8 Temporary HP.', dice: '3d8' },
-                specials: []
+                specials: [],
+                mechanics: {armor:6,applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '4': {
                 type: 'buff',
@@ -513,7 +536,8 @@ export const VOID_TESTAMENT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Gain +8 Armor and 4d8 Temporary HP.', dice: '4d8' },
-                specials: []
+                specials: [],
+                mechanics: {armor:8,applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             }
         }
     },
@@ -532,7 +556,8 @@ export const VOID_TESTAMENT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Your Spells gain +2 Attack Dice against Hexed targets.' },
-                specials: []
+                specials: [],
+                mechanics: {condition:'targetHexed',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '2': {
                 type: 'buff',
@@ -540,7 +565,8 @@ export const VOID_TESTAMENT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Your Spells gain +4 Attack Dice against Hexed targets.' },
-                specials: []
+                specials: [],
+                mechanics: {condition:'targetHexed',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '3': {
                 type: 'buff',
@@ -548,7 +574,8 @@ export const VOID_TESTAMENT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Your Spells gain +6 Attack Dice against Hexed targets.' },
-                specials: []
+                specials: [],
+                mechanics: {condition:'targetHexed',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '4': {
                 type: 'buff',
@@ -556,7 +583,8 @@ export const VOID_TESTAMENT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Your Spells gain +8 Attack Dice against Hexed targets.' },
-                specials: []
+                specials: [],
+                mechanics: {condition:'targetHexed',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             }
         }
     }
