@@ -108,7 +108,7 @@
       </button>
       {{else}}
       <span class="creation-status">
-        Remaining: Attributes ({{#if creation.attributeDistributionValid}}done{{else}}{{creation.attrCount8}}/2×8, {{creation.attrCount6}}/2×6, {{creation.attrCount4}}/2×4, {{creation.attrCount2}}/1×2{{/if}}), Skills ({{creation.skillPointsRemaining}} remaining){{#unless creation.disadvantagesValid}}, Disadvantages ({{creation.disadvantagePoints}}/{{creation.disadvantagePointsMin}}–{{creation.disadvantagePointsMax}} pts){{/unless}}.
+        Remaining: Attributes ({{#if creation.attributeDistributionValid}}done{{else}}{{creation.attrCount8}}/2×8, {{creation.attrCount6}}/2×6, {{creation.attrCount4}}/2×4, {{creation.attrCount2}}/1×2{{/if}}), Skills ({{creation.skillPointsRemaining}} remaining){{#unless creation.disadvantagesValid}}, Disadvantages ({{creation.disadvantagePoints}}/{{creation.disadvantagePointsMin}}–{{creation.disadvantagePointsMax}} pts){{/unless}}{{#unless creation.echoCreationValid}}, Echo (not chosen){{/unless}}.
       </span>
       {{/if}}
       {{#if (userIsGM)}}
@@ -1009,9 +1009,6 @@
           <button type="button" class="add-power-creation-btn" data-category="passive" title="Add Passive">
             <i class="fas fa-plus"></i> Passive
           </button>
-          <button type="button" class="add-power-creation-btn" data-category="utility" title="Add Utility">
-            <i class="fas fa-plus"></i> Utility
-          </button>
           {{/unless}}
         </div>
       </div>
@@ -1042,10 +1039,28 @@
         <div class="creation-instructions">
           <p><strong>Character Creation Rules:</strong></p>
           <ul>
-            <li>Select exactly: <strong>2 Actives</strong>, <strong>1 Active Buff</strong>, <strong>1 Movement</strong>, <strong>1 Reaction</strong>, <strong>2 Passives</strong>, <strong>1 Utility</strong> (8 Powers total).</li>
+            <li>Select exactly: <strong>2 Actives</strong>, <strong>1 Active Buff</strong>, <strong>1 Movement</strong>, <strong>1 Reaction</strong>, <strong>2 Passives</strong> (7 Powers total).</li>
             <li>All Powers are added at <strong>Rank 1</strong> during character creation.</li>
             <li>Mastery Trees and Spell Schools share one picker – filter by Category, Tag (e.g. Spell) and Special (Ignite, Freeze, Shock, …).</li>
+            <li>Choose your <strong>Echo</strong> (ancestry, with sub-choice / Veiled Form if required) and pick your <strong>first Echo Card</strong>.</li>
           </ul>
+        </div>
+
+        <!-- Echo creation step -->
+        <div class="creation-echo-section">
+          <div class="creation-echo-header">
+            <h4><i class="fas fa-mask"></i> Choose your Echo</h4>
+            <button type="button" class="choose-echo-btn" title="Choose Echo, Sub-choice (if any), Veiled Form (Dragonborn), and your first Echo card">
+              <i class="fas fa-mask"></i> Choose Echo
+            </button>
+            {{#if echoView}}
+            <span class="echo-status {{#if echoView.creationValid}}echo-status-ok{{else}}echo-status-partial{{/if}}">
+              {{echoView.def.name}}{{#if echoView.subChoice}} · {{echoView.subChoice.name}}{{/if}}{{#if echoView.veiled}} · veiled as {{echoView.veiled.name}}{{/if}}{{#if echoView.creationValid}} ✓{{else}} (incomplete){{/if}}
+            </span>
+            {{else}}
+            <span class="echo-status echo-status-missing">Not chosen</span>
+            {{/if}}
+          </div>
         </div>
         
         <!-- Selected Powers List (Creation Mode) -->
@@ -1600,7 +1615,86 @@
           <label>Echo:</label>
           {{editor system.bio.echo target="system.bio.echo" button=true owner=owner editable=editable}}
         </div>
-        
+
+        {{#if echoView}}
+        <div class="form-group echo-deck-block">
+          <label><i class="fas fa-mask"></i> Echo Deck</label>
+          <div class="echo-deck-summary">
+            <div class="echo-deck-title">
+              <strong>{{echoView.def.name}}</strong>
+              {{#if echoView.subChoice}}· {{echoView.subChoice.name}}{{/if}}
+              {{#if echoView.veiled}}· veiled as {{echoView.veiled.name}}{{/if}}
+            </div>
+            <div class="echo-deck-meta">
+              <em>{{echoView.def.tagline}}</em><br/>
+              Type: {{echoView.def.creatureType}} · Size: {{echoView.def.size}} · Speed: {{echoView.def.speed}} m
+            </div>
+          </div>
+
+          <div class="echo-deck-traits">
+            <h4>Core Traits</h4>
+            {{#each echoView.traits}}
+            <div class="echo-trait-row {{#if this.gated}}echo-trait-gated{{/if}}">
+              <div class="echo-trait-name">
+                <strong>{{this.name}}</strong>
+                {{#if this.trackedUses}}
+                <span class="echo-trait-uses" title="Uses restored on Safe Haven Rest">
+                  {{this.remaining}} / {{this.max}} uses
+                </span>
+                {{/if}}
+                {{#if this.gated}}
+                <span class="echo-trait-gated-label" title="Unlocks at higher Mastery Rank">locked</span>
+                {{/if}}
+              </div>
+              <div class="echo-trait-effect">{{this.effect}}</div>
+              {{#if this.flavor}}<div class="echo-trait-flavor"><em>{{this.flavor}}</em></div>{{/if}}
+            </div>
+            {{/each}}
+          </div>
+
+          <div class="echo-deck-cards">
+            <div class="echo-deck-cards-header">
+              <h4>Cards <span class="echo-deck-slots">({{echoView.selectedCardIds.length}} / {{echoView.unlockedCardSlots}})</span></h4>
+              {{#if echoView.canAddCard}}
+              <button type="button" class="add-echo-card-btn" title="Add another Echo card from your deck">
+                <i class="fas fa-plus"></i> Add Card
+              </button>
+              {{/if}}
+            </div>
+            {{#each echoView.deck}}
+            {{#if this.selected}}
+            <div class="echo-card {{#if this.used}}echo-card-used{{/if}}" data-card-id="{{this.id}}">
+              <div class="echo-card-header">
+                <span class="echo-card-name"><strong>{{this.name}}</strong></span>
+                {{#if this.used}}<span class="echo-card-used-label">Used today</span>{{/if}}
+              </div>
+              <div class="echo-card-trigger"><em>Trigger:</em> {{this.trigger}}</div>
+              <ol class="echo-card-options">
+                {{#each this.options}}
+                <li class="echo-card-option">
+                  <div class="echo-card-option-head">
+                    <strong>{{this.label}}</strong>
+                    <span class="echo-card-option-skill">Skill: {{this.skill}}</span>
+                    <button type="button"
+                      class="echo-card-use-btn"
+                      data-card-id="{{../id}}"
+                      data-option-id="{{this.id}}"
+                      {{#if ../used}}disabled{{/if}}
+                      title="Roll the skill for this option (spends the card for today)">
+                      <i class="fas fa-dice-d20"></i> Use
+                    </button>
+                  </div>
+                  <div class="echo-card-option-desc">{{this.description}}</div>
+                </li>
+                {{/each}}
+              </ol>
+            </div>
+            {{/if}}
+            {{/each}}
+          </div>
+        </div>
+        {{/if}}
+
         <div class="form-group">
           <label>Concept:</label>
           {{editor system.bio.concept target="system.bio.concept" button=true owner=owner editable=editable}}

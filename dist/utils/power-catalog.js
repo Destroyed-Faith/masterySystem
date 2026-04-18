@@ -14,27 +14,24 @@ export const CATEGORY_ORDER = [
     'activeBuff',
     'movement',
     'reaction',
-    'passive',
-    'utility'
+    'passive'
 ];
 export const CATEGORY_LABELS = {
     active: 'Active',
     activeBuff: 'Active Buff',
     movement: 'Movement',
     reaction: 'Reaction',
-    passive: 'Passive',
-    utility: 'Utility'
+    passive: 'Passive'
 };
-/** Requirements for character creation – total 8 powers. */
+/** Requirements for character creation – total 7 powers. */
 export const CREATION_POWER_REQUIREMENTS = {
     active: 2,
     activeBuff: 1,
     movement: 1,
     reaction: 1,
-    passive: 2,
-    utility: 1
+    passive: 2
 };
-/** Legacy powerType → new category mapping. */
+/** Legacy powerType → new category mapping. Utility is retired; map to active for safety. */
 function mapLegacyPowerType(pt) {
     switch (pt) {
         case 'buff':
@@ -43,8 +40,9 @@ function mapLegacyPowerType(pt) {
         case 'passive':
         case 'reaction':
         case 'movement':
-        case 'utility':
             return pt;
+        case 'utility':
+            return 'active';
         default:
             return 'active';
     }
@@ -94,6 +92,10 @@ function buildEntries() {
             : mapLegacyPowerType(p.powerType);
         const sourceName = p.tree || '';
         const tags = isNew ? (p.tags || []) : [];
+        const rawEcho = p.requiresEcho;
+        const requiresEcho = rawEcho && rawEcho.length
+            ? rawEcho.map(k => String(k).toLowerCase())
+            : undefined;
         entries.push({
             name: p.name,
             sourceKind: 'mastery',
@@ -102,6 +104,7 @@ function buildEntries() {
             tags: tags.map(t => String(t).toLowerCase()),
             specialKeys: collectSpecialKeys(p),
             description: p.description || '',
+            requiresEcho,
             raw: p
         });
     }
@@ -134,6 +137,7 @@ export function getAllCatalogEntries() {
 export function filterCatalog(filter) {
     const entries = getAllCatalogEntries();
     const term = (filter.search || '').trim().toLowerCase();
+    const echoKey = (filter.actorEchoKey || '').trim().toLowerCase();
     return entries.filter(e => {
         if (filter.category && e.category !== filter.category)
             return false;
@@ -143,6 +147,10 @@ export function filterCatalog(filter) {
             return false;
         if (term && !(e.name.toLowerCase().includes(term) || e.sourceName.toLowerCase().includes(term)))
             return false;
+        if (e.requiresEcho && e.requiresEcho.length > 0) {
+            if (!echoKey || !e.requiresEcho.includes(echoKey))
+                return false;
+        }
         return true;
     });
 }

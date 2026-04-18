@@ -84,8 +84,8 @@ describe('Character Creation Constants', () => {
     expect(CREATION.ATTRIBUTE_ALLOWED_VALUES).toEqual([2, 4, 6, 8]);
   });
 
-  it('16 skill points', () => {
-    expect(CREATION.SKILL_POINTS).toBe(16);
+  it('40 skill points', () => {
+    expect(CREATION.SKILL_POINTS).toBe(40);
   });
 
   it('max attribute at creation is 8', () => {

@@ -113,7 +113,7 @@ export const ALCHEMIST_POWERS: NewArtifactPowerData[] = [
     },
     {
         name: 'Healing Elixir',
-        category: 'utility',
+        category: 'active',
         tags: [],
         rank: 1,
         cost: {

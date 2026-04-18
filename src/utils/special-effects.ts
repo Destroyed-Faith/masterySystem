@@ -1,24 +1,48 @@
 /**
  * Special Effects Reference for Mastery System
- * 
- * All Special Conditions, Effects, and ongoing statuses that can appear during play.
- * Each entry lists what it does, how long it lasts, how it stacks, and how it can be removed.
- * 
+ *
+ * All canonical Special Conditions and Effects that can appear during play.
+ * Mirrors the SRD "Special Effect Cost Chapters" behaviour model:
+ *   - diminishing   : decay X by 1 per round (X → 0)
+ *   - timed         : fixed duration, refresh + keep higher X
+ *   - untilUsed     : persist until consumed or internal counter reaches 0
+ *   - instant       : resolve immediately, no tracking
+ *   - support       : remove / reduce / end other effects
+ *   - multiAttack   : structural multi-strike riders (Charged)
+ *
  * Powers should store only the specialId and value, not the full name string.
  * Example: { specialId: "bleeding", value: 3 } instead of "Bleeding(3)"
  */
 
-export type EffectCategory = 'physical' | 'mental' | 'damage' | 'support';
+export type EffectCategory =
+  | 'diminishing'
+  | 'timed'
+  | 'untilUsed'
+  | 'instant'
+  | 'support'
+  | 'multiAttack';
 
 export interface SpecialEffect {
   id: string; // Unique identifier (e.g., "bleeding", "ignite", "freeze")
   name: string; // Display name (e.g., "Bleeding(X)")
   category: EffectCategory;
   description: string;
-  duration: string; // e.g., "Diminishing (X→0)", "Mastery Rank Rounds + X", "1 Round", "Until broken"
+  duration: string; // e.g., "Diminishing (X→0)", "Mastery Rank Rounds + X", "1 Round", "Until used"
   stacking: 'Yes' | 'No' | 'Additive';
   removal: string; // How to end/remove the effect
   hasValue: boolean; // Whether the effect has a numeric value (X)
+  /** Optional saving throw type: 'Body' | 'Mind' | 'Spirit' | combinations, or '—' */
+  save?: string;
+  /** Optional dedicated Remove Action skill (e.g. 'Medicine', 'Athletics', 'Meditation', 'Crafting') */
+  removeAction?: string;
+  /** Whether Cleanse / Dispel Magic can remove/reduce this effect */
+  dispellable?: boolean;
+  /** PP pricing formula as a compact reference (Start PP for diminishing, base formula otherwise) */
+  pricing?: string;
+  /** Starting PP for diminishing effects — used with T(X) = X*(X+1)/2 */
+  startPP?: number;
+  /** True if the effect uses the Charged tag by default (multi-attack riders) */
+  charged?: boolean;
 }
 
 /**
@@ -44,338 +68,462 @@ function generateId(name: string): string {
 }
 
 /**
- * Physical Effects
+ * Diminishing Effects — decay X by 1 per round at start of affected creature's turn.
+ * Pricing: PP = startPP × T(X), with T(X) = X*(X+1)/2.
  */
-export const PHYSICAL_EFFECTS: SpecialEffect[] = [
+export const DIMINISHING_EFFECTS: SpecialEffect[] = [
   {
     id: 'bleeding',
     name: 'Bleeding(X)',
-    category: 'physical',
-    description: 'Take damage equal to X at the start of your turn. The value decreases by 1 each round.',
+    category: 'diminishing',
+    description:
+      'The first time each turn you move more than 0 m, take X damage. If you move more than half your Speed that turn, take +X damage again. If you Sprint / Dash / otherwise exceed your normal Speed, take +X damage again.',
     duration: 'Diminishing (X→0)',
     stacking: 'Yes',
-    removal: 'Medicine Check (TN 15 + damage) or spend 1 Attack Action to stabilize.',
-    hasValue: true
-  },
-  {
-    id: 'blinded',
-    name: 'Blinded(X)',
-    category: 'physical',
-    description: 'You cannot see, automatically fail vision checks, and suffer −X Attack Dice on all sight-based attacks. At X ≥ 3, you cannot target creatures beyond 2 m and effectively fight in darkness.',
-    duration: 'Mastery Rank Rounds + X',
-    stacking: 'No',
-    removal: 'Ends on a Body or Spirit Save at the end of your turn, through Cleanse(1), or by exposure to bright light.',
-    hasValue: true
+    removal: 'Body Save (end of turn), Medicine Remove Action, or Cleanse.',
+    hasValue: true,
+    save: 'Body',
+    removeAction: 'Medicine',
+    dispellable: true,
+    pricing: '4 × T(X)',
+    startPP: 4
   },
   {
     id: 'corrode',
     name: 'Corrode(X)',
-    category: 'physical',
-    description: 'Your Armor is reduced by X; protection restores gradually.',
+    category: 'diminishing',
+    description: 'Your Armor is reduced by X.',
     duration: 'Diminishing (X→0)',
     stacking: 'Yes',
-    removal: 'Spend 1 Attack Action to scrape off corrosion or use Cleanse(1).',
-    hasValue: true
-  },
-  {
-    id: 'freeze',
-    name: 'Freeze(X)',
-    category: 'physical',
-    description: 'Movement reduced by X m, take Xd8 flat damage once.',
-    duration: 'Until broken',
-    stacking: 'No',
-    removal: 'Body Save or 1 Attack Action to break free; Fire ends instantly.',
-    hasValue: true
-  },
-  {
-    id: 'grappled',
-    name: 'Grappled(X)',
-    category: 'physical',
-    description: 'You are restrained; Speed 0, grappler gains +X dice on control rolls.',
-    duration: 'Until broken',
-    stacking: 'No',
-    removal: 'Body Save to escape or until grappler releases you.',
-    hasValue: true
-  },
-  {
-    id: 'ignite',
-    name: 'Ignite(X)',
-    category: 'physical',
-    description: 'Take X fire damage each round; intensity fades as flames die.',
-    duration: 'Diminishing (X→0)',
-    stacking: 'Yes',
-    removal: 'Spend 1 Attack Action or Drop Prone to extinguish; Rain ends instantly.',
-    hasValue: true
-  },
-  {
-    id: 'poisoned',
-    name: 'Poisoned(X)',
-    category: 'physical',
-    description: 'You have Disadvantage on attacks and checks; fades over time.',
-    duration: 'Diminishing (X→0)',
-    stacking: 'Yes',
-    removal: 'Spend 1 Full Action to purge toxins or use an Antidote.',
-    hasValue: true
-  },
-  {
-    id: 'prone',
-    name: 'Prone(X)',
-    category: 'physical',
-    description: 'You are knocked down; attacks against you gain +X Attack Dice.',
-    duration: '1 Round',
-    stacking: 'No',
-    removal: 'Spend 1 Attack Action to stand up (you may still move normally).',
-    hasValue: true
-  },
-  {
-    id: 'push',
-    name: 'Push(X)',
-    category: 'physical',
-    description: 'You are pushed X m backward by force.',
-    duration: 'Instant',
-    stacking: 'No',
-    removal: 'Resolves immediately.',
-    hasValue: true
-  },
-  {
-    id: 'regeneration',
-    name: 'Regeneration(X)',
-    category: 'physical',
-    description: 'Heal X HP at end of your turn. Value decreases by 1 each round.',
-    duration: 'Diminishing (X→0)',
-    stacking: 'Yes',
-    removal: 'Ends if you take Fire or Necrotic damage.',
-    hasValue: true
-  },
-  {
-    id: 'shock',
-    name: 'Shock(X)',
-    category: 'physical',
-    description: 'Lose X dice from your next attack pool; fades each round.',
-    duration: 'Diminishing (X→0)',
-    stacking: 'Yes',
-    removal: 'Spend 1 Attack Action to re-steady or succeed on Body Save.',
-    hasValue: true
-  },
-  {
-    id: 'stunned',
-    name: 'Stunned(X)',
-    category: 'physical',
-    description: 'Lose X Attack Actions this turn; may still move or use non-attack abilities.',
-    duration: '1 Round',
-    stacking: 'No',
-    removal: 'Ends at end of next turn or on Body/Mind Save.',
-    hasValue: true
-  },
-  {
-    id: 'brace',
-    name: 'Brace(X)',
-    category: 'physical',
-    description:
-      'While Braced: Movement 0 m; shield Shield Value is doubled for Armor. X ticks down each round.',
-    duration: 'Diminishing (X→0)',
-    stacking: 'No',
-    removal: 'Ends when X reaches 0, you move, drop shield, or are knocked Prone.',
-    hasValue: true
-  },
-  {
-    id: 'bulwark',
-    name: 'Bulwark(X)',
-    category: 'physical',
-    description:
-      'Reaction when hit: reduce that attack’s final damage by 50% (after Armor); consume 1 charge (X→X−1).',
-    duration: 'Until used (charges)',
-    stacking: 'Yes',
-    removal: 'Charges end when X reaches 0.',
-    hasValue: true
-  }
-];
-
-/**
- * Mental Effects
- */
-export const MENTAL_EFFECTS: SpecialEffect[] = [
-  {
-    id: 'charmed',
-    name: 'Charmed(X)',
-    category: 'mental',
-    description: 'On failed Mind Save −X, cannot attack the charmer or their allies.',
-    duration: 'Mastery Rank Rounds',
-    stacking: 'No',
-    removal: 'Ends on Save, Cleanse, or Dispel Magic.',
-    hasValue: true
-  },
-  {
-    id: 'curse',
-    name: 'Curse(X)',
-    category: 'mental',
-    description: 'Suffer −X to all attack rolls; weakens each round.',
-    duration: 'Diminishing (X→0)',
-    stacking: 'Yes',
-    removal: 'Spend 1 Full Action in Prayer or receive a Cleanse Spell.',
-    hasValue: true
-  },
-  {
-    id: 'disoriented',
-    name: 'Disoriented(X)',
-    category: 'mental',
-    description: 'Suffer −X dice on Mind/Spirit Saves while affected.',
-    duration: 'Mastery Rank Rounds',
-    stacking: 'No',
-    removal: 'Ends automatically or on Mind Save.',
-    hasValue: true
-  },
-  {
-    id: 'frightened',
-    name: 'Frightened(X)',
-    category: 'mental',
-    description: 'On failed Mind Save −X, must flee or avoid the source.',
-    duration: 'Mastery Rank Rounds',
-    stacking: 'No',
-    removal: 'Ends on Save or when the source is gone.',
-    hasValue: true
-  },
-  {
-    id: 'mark',
-    name: 'Mark(X)',
-    category: 'mental',
-    description: 'Suffer −X dice on attacks unless attacking the one who marked you.',
-    duration: 'Diminishing (X→0)',
-    stacking: 'Yes',
-    removal: 'Ends automatically after attacking the marker once.',
-    hasValue: true
-  },
-  {
-    id: 'soulburn',
-    name: 'Soulburn(X)',
-    category: 'mental',
-    description: 'Take −X to Body, Mind, and Spirit Saves; weakens each round.',
-    duration: 'Diminishing (X→0)',
-    stacking: 'Yes',
-    removal: 'Spend 1 Full Action to meditate or use Cleanse(1).',
-    hasValue: true
-  },
-  {
-    id: 'torment',
-    name: 'Torment(X)',
-    category: 'mental',
-    description: 'Gain X Stress instantly; value fades by 1 each round.',
-    duration: 'Diminishing (X→0)',
-    stacking: 'Yes',
-    removal: 'Fades naturally or via Calm/Resolve powers.',
-    hasValue: true
-  },
-  {
-    id: 'hex',
-    name: 'Hex(X)',
-    category: 'mental',
-    description: 'Take Xd8 damage additional damage when you are hit by a power with the Spell Tag.',
-    duration: 'Diminishing (X→0)',
-    stacking: 'Yes',
-    removal: 'Ends naturally, Cleanse(1) or Dispel Magic.',
-    hasValue: true
-  }
-];
-
-/**
- * Damage & Combat Modifiers
- */
-export const DAMAGE_EFFECTS: SpecialEffect[] = [
-  {
-    id: 'crit',
-    name: 'Crit(X)',
-    category: 'damage',
-    description: 'Expands critical range by 1 for X attacks.',
-    duration: 'Until used',
-    stacking: 'No',
-    removal: 'Consumed when those attacks are made.',
-    hasValue: true
-  },
-  {
-    id: 'penetration',
-    name: 'Penetration(X)',
-    category: 'damage',
-    description: 'Attack ignores X Armor.',
-    duration: 'Instant',
-    stacking: 'No',
-    removal: 'Resolves with the attack.',
-    hasValue: true
-  },
-  {
-    id: 'smite',
-    name: 'Smite(X)',
-    category: 'damage',
-    description: 'Adds +Xd8 bonus damage vs Undead/Fiends.',
-    duration: 'Instant',
-    stacking: 'Yes',
-    removal: 'Ends immediately after the attack.',
-    hasValue: true
-  },
-  {
-    id: 'precision',
-    name: 'Precision(X)',
-    category: 'damage',
-    description: 'On hit, add +X d8 bonus damage',
-    duration: 'Instant',
-    stacking: 'No',
-    removal: 'Resolves immediately after a confirmed hit.',
-    hasValue: true
-  },
-  {
-    id: 'brutal-impact',
-    name: 'Brutal Impact(X)',
-    category: 'damage',
-    description: 'Each damage die rolled counts as at least X.',
-    duration: 'Instant',
-    stacking: 'No',
-    removal: 'Resolves with the attack; cannot combine with rerolls or Advantage.',
-    hasValue: true
+    removal: 'Body Save (end of turn), Crafting Remove Action, or Cleanse.',
+    hasValue: true,
+    save: 'Body',
+    removeAction: 'Crafting',
+    dispellable: true,
+    pricing: '6 × T(X)',
+    startPP: 6
   },
   {
     id: 'expose',
     name: 'Expose(X)',
-    category: 'damage',
-    description: 'Reduce target\'s Evade by X until end of its next turn.',
-    duration: '1 Round',
+    category: 'diminishing',
+    description: 'Suffer −X Evade.',
+    duration: 'Diminishing (X→0)',
     stacking: 'Yes',
-    removal: 'Ends automatically at end of target\'s next turn.',
-    hasValue: true
+    removal: 'Body Save (end of turn), Athletics Remove Action, or Cleanse.',
+    hasValue: true,
+    save: 'Body',
+    removeAction: 'Athletics',
+    dispellable: true,
+    pricing: '8 × T(X)',
+    startPP: 8
+  },
+  {
+    id: 'freeze',
+    name: 'Freeze(X)',
+    category: 'diminishing',
+    description:
+      'Your Speed is reduced by X m. At Tick, take ceil(X/2) cold damage.',
+    duration: 'Diminishing (X→0)',
+    stacking: 'Yes',
+    removal: 'Body Save (end of turn), Athletics Remove Action, or Cleanse.',
+    hasValue: true,
+    save: 'Body',
+    removeAction: 'Athletics',
+    dispellable: true,
+    pricing: '4 × T(X)',
+    startPP: 4
+  },
+  {
+    id: 'ignite',
+    name: 'Ignite(X)',
+    category: 'diminishing',
+    description: 'At Tick, take X fire damage.',
+    duration: 'Diminishing (X→0)',
+    stacking: 'Yes',
+    removal: 'Body Save (end of turn), Medicine Remove Action, or Cleanse.',
+    hasValue: true,
+    save: 'Body',
+    removeAction: 'Medicine',
+    dispellable: true,
+    pricing: '4 × T(X)',
+    startPP: 4
+  },
+  {
+    id: 'mark',
+    name: 'Mark(X)',
+    category: 'diminishing',
+    description:
+      'Suffer −X dice on attacks unless attacking the creature that applied the Mark. The effect ends immediately after you make an attack against that creature.',
+    duration: 'Diminishing (X→0); ends on attack vs. marker',
+    stacking: 'Yes',
+    removal: 'Mind Save (end of turn), Meditation Remove Action, or Cleanse.',
+    hasValue: true,
+    save: 'Mind',
+    removeAction: 'Meditation',
+    dispellable: true,
+    pricing: '4 × T(X)',
+    startPP: 4
+  },
+  {
+    id: 'poisoned',
+    name: 'Poisoned(X)',
+    category: 'diminishing',
+    description: 'Suffer −X on attacks and checks.',
+    duration: 'Diminishing (X→0)',
+    stacking: 'Yes',
+    removal: 'Body Save (end of turn), Medicine Remove Action, or Cleanse.',
+    hasValue: true,
+    save: 'Body',
+    removeAction: 'Medicine',
+    dispellable: true,
+    pricing: '3 × T(X)',
+    startPP: 3
+  },
+  {
+    id: 'regeneration',
+    name: 'Regeneration(X)',
+    category: 'diminishing',
+    description: 'At Tick, heal X HP.',
+    duration: 'Diminishing (X→0)',
+    stacking: 'Yes',
+    removal: '—',
+    hasValue: true,
+    save: '—',
+    dispellable: true,
+    pricing: '3 × T(X)',
+    startPP: 3
+  },
+  {
+    id: 'shock',
+    name: 'Shock(X)',
+    category: 'diminishing',
+    description:
+      'Lose X dice from your next attack pool. After that attack is resolved, Shock ends immediately.',
+    duration: 'Diminishing (X→0); ends after next attack',
+    stacking: 'Yes',
+    removal: 'Body Save (end of turn), Athletics Remove Action, or Cleanse.',
+    hasValue: true,
+    save: 'Body',
+    removeAction: 'Athletics',
+    dispellable: true,
+    pricing: '6 × T(X)',
+    startPP: 6
+  },
+  {
+    id: 'soulburn',
+    name: 'Soulburn(X)',
+    category: 'diminishing',
+    description: 'Suffer −X dice to Body, Mind, and Spirit Saves.',
+    duration: 'Diminishing (X→0)',
+    stacking: 'Yes',
+    removal: 'Spirit Save (end of turn), Meditation Remove Action, or Cleanse.',
+    hasValue: true,
+    save: 'Spirit',
+    removeAction: 'Meditation',
+    dispellable: true,
+    pricing: '6 × T(X)',
+    startPP: 6
   },
   {
     id: 'weaken',
     name: 'Weaken(X)',
-    category: 'damage',
-    description: 'The target suffers −X dice on all Body, Mind, or Spirit Saves (choose one when applying). The penalty fades by 1 each round.',
+    category: 'diminishing',
+    description:
+      'Choose one when applied: Body, Mind, or Spirit. Suffer −X dice to that Save type.',
     duration: 'Diminishing (X→0)',
     stacking: 'Yes',
-    removal: 'Ends naturally as X decreases, or immediately via Cleanse(1) or 1 Full Action spent to recover composure.',
-    hasValue: true
+    removal: 'Spirit Save (end of turn), Meditation Remove Action, or Cleanse.',
+    hasValue: true,
+    save: 'Spirit',
+    removeAction: 'Meditation',
+    dispellable: true,
+    pricing: '5 × T(X)',
+    startPP: 5
+  },
+  {
+    id: 'hex',
+    name: 'Hex(X)',
+    category: 'diminishing',
+    description: 'When hit by a Spell, take +Xd8 bonus damage.',
+    duration: 'Diminishing (X→0)',
+    stacking: 'Yes',
+    removal: 'Mind Save (end of turn), Meditation Remove Action, or Cleanse.',
+    hasValue: true,
+    save: 'Mind',
+    removeAction: 'Meditation',
+    dispellable: true,
+    pricing: '6 × T(X)',
+    startPP: 6
+  },
+  {
+    id: 'sundered',
+    name: 'Sundered(X)',
+    category: 'diminishing',
+    description: 'When hit by a non-Spell attack, take +Xd8 bonus damage.',
+    duration: 'Diminishing (X→0)',
+    stacking: 'Yes',
+    removal: 'Body Save (end of turn), Athletics Remove Action, or Cleanse.',
+    hasValue: true,
+    save: 'Body',
+    removeAction: 'Athletics',
+    dispellable: true,
+    pricing: '6 × T(X)',
+    startPP: 6
   }
 ];
 
 /**
- * Support & Cleansing Effects
+ * Timed Effects — fixed duration, refresh on reapply, keep higher X.
+ */
+export const TIMED_EFFECTS: SpecialEffect[] = [
+  {
+    id: 'blinded',
+    name: 'Blinded(X)',
+    category: 'timed',
+    description:
+      'You cannot see. You automatically fail sight-based checks, and suffer −X Attack Dice on sight-based attacks.',
+    duration: 'Mastery Rank Rounds + X',
+    stacking: 'No',
+    removal: 'Body or Spirit Save, Medicine Remove Action, or Cleanse.',
+    hasValue: true,
+    save: 'Body / Spirit',
+    removeAction: 'Medicine',
+    dispellable: true,
+    pricing: '15 × X'
+  },
+  {
+    id: 'frightened',
+    name: 'Frightened(X)',
+    category: 'timed',
+    description:
+      'You cannot willingly move closer to the source of your fear. If already adjacent, you must move away, hold position, or spend your Attack Action to steady yourself. While Frightened, suffer −X dice on attacks against the source.',
+    duration: 'Mastery Rank Rounds',
+    stacking: 'No',
+    removal: 'Mind Save, Meditation Remove Action, or Cleanse.',
+    hasValue: true,
+    save: 'Mind',
+    removeAction: 'Meditation',
+    dispellable: true,
+    pricing: '15 × X'
+  },
+  {
+    id: 'prone',
+    name: 'Prone(X)',
+    category: 'timed',
+    description:
+      'You are knocked down; attacks against you gain +X Attack Dice. Standing up ends the effect.',
+    duration: '1 Round',
+    stacking: 'No',
+    removal: 'Spend 1 Attack Action to stand up (you may still move normally).',
+    hasValue: true,
+    save: 'Body',
+    dispellable: false,
+    pricing: '20 × X'
+  },
+  {
+    id: 'stunned',
+    name: 'Stunned(X)',
+    category: 'timed',
+    description: 'Lose X Attack Actions this turn.',
+    duration: '1 Round',
+    stacking: 'No',
+    removal: 'Body Save negates on apply.',
+    hasValue: true,
+    save: 'Body',
+    dispellable: false,
+    pricing: '45 × X'
+  }
+];
+
+/**
+ * Until Broken / Until Used Effects — persist until consumed or internal counter reaches 0.
+ */
+export const UNTIL_USED_EFFECTS: SpecialEffect[] = [
+  {
+    id: 'brace',
+    name: 'Brace(X)',
+    category: 'untilUsed',
+    description:
+      'Your Speed becomes 0 m. While Braced, your Shield value is doubled for Armor calculation. At the end of each of your turns, reduce Brace by 1.',
+    duration: 'Until X reaches 0',
+    stacking: 'No',
+    removal: 'Ends when X reaches 0, you move, drop your shield, or are knocked Prone.',
+    hasValue: true,
+    save: '—',
+    dispellable: false,
+    pricing: '15 × X'
+  },
+  {
+    id: 'bulwark',
+    name: 'Bulwark(X)',
+    category: 'untilUsed',
+    description:
+      'As a Reaction when hit by an attack you can perceive, reduce the attack\'s final damage by 50% and consume 1 Bulwark.',
+    duration: 'Until used (charges)',
+    stacking: 'Yes',
+    removal: 'Charges end when X reaches 0.',
+    hasValue: true,
+    save: '—',
+    dispellable: false,
+    pricing: '20 × X'
+  },
+  {
+    id: 'crit',
+    name: 'Crit(X)',
+    category: 'untilUsed',
+    description: 'For your next X attack rolls, all dice explode on 7–8.',
+    duration: 'Until used',
+    stacking: 'No',
+    removal: 'Consumed as the affected attacks are made.',
+    hasValue: true,
+    save: '—',
+    dispellable: false,
+    pricing: '25 × X'
+  },
+  {
+    id: 'immovable',
+    name: 'Immovable',
+    category: 'untilUsed',
+    description: 'You are immune to Push and Prone while the effect lasts.',
+    duration: 'Buff Duration',
+    stacking: 'No',
+    removal: 'Ends when the buff expires.',
+    hasValue: false,
+    save: '—',
+    dispellable: false,
+    pricing: '20 PP'
+  }
+];
+
+/**
+ * Instant Effects — resolve immediately, no ongoing tracking.
+ */
+export const INSTANT_EFFECTS: SpecialEffect[] = [
+  {
+    id: 'brutal-impact',
+    name: 'Brutal Impact(X)',
+    category: 'instant',
+    description: 'Each damage die rolled counts as at least X.',
+    duration: 'Instant',
+    stacking: 'No',
+    removal: 'Resolves with the attack.',
+    hasValue: true,
+    save: '—',
+    dispellable: false,
+    pricing: '10 × X'
+  },
+  {
+    id: 'knockback',
+    name: 'Knockback(X)',
+    category: 'instant',
+    description: 'The target is knocked back X meters immediately.',
+    duration: 'Instant',
+    stacking: 'No',
+    removal: 'Resolves immediately.',
+    hasValue: true,
+    save: '—',
+    dispellable: false,
+    pricing: '2 × X'
+  },
+  {
+    id: 'penetration',
+    name: 'Penetration(X)',
+    category: 'instant',
+    description: 'The attack ignores X Armor.',
+    duration: 'Instant',
+    stacking: 'No',
+    removal: 'Resolves with the attack.',
+    hasValue: true,
+    save: '—',
+    dispellable: false,
+    pricing: '7.5 × X'
+  },
+  {
+    id: 'precision',
+    name: 'Precision(X)',
+    category: 'instant',
+    description: 'On hit, add +Xd8 bonus damage.',
+    duration: 'Instant',
+    stacking: 'No',
+    removal: 'Resolves with the attack.',
+    hasValue: true,
+    save: '—',
+    dispellable: false,
+    pricing: '15 × X'
+  },
+  {
+    id: 'pull',
+    name: 'Pull(X)',
+    category: 'instant',
+    description: 'Pull the target X m immediately.',
+    duration: 'Instant',
+    stacking: 'No',
+    removal: 'Resolves immediately.',
+    hasValue: true,
+    save: '—',
+    dispellable: false,
+    pricing: '2 × X'
+  },
+  {
+    id: 'push',
+    name: 'Push(X)',
+    category: 'instant',
+    description: 'Push the target X m immediately.',
+    duration: 'Instant',
+    stacking: 'No',
+    removal: 'Resolves immediately.',
+    hasValue: true,
+    save: '—',
+    dispellable: false,
+    pricing: '2 × X'
+  },
+  {
+    id: 'smite',
+    name: 'Smite(X)',
+    category: 'instant',
+    description: 'Add +Xd8 bonus damage vs. Undead / Fiends.',
+    duration: 'Instant',
+    stacking: 'Yes',
+    removal: 'Resolves with the attack.',
+    hasValue: true,
+    save: '—',
+    dispellable: false,
+    pricing: '7.5 × X'
+  },
+  {
+    id: 'stun',
+    name: 'Stun',
+    category: 'instant',
+    description:
+      'The target is Stunned for 1 Round (loses 1 Attack Action). For scaling Stun use the Timed effect Stunned(X) instead.',
+    duration: '1 Round',
+    stacking: 'No',
+    removal: 'Body Save negates on apply.',
+    hasValue: false,
+    save: 'Body',
+    dispellable: false,
+    pricing: 'special'
+  }
+];
+
+/**
+ * Support / Removal Effects — remove, reduce, or end ongoing effects.
  */
 export const SUPPORT_EFFECTS: SpecialEffect[] = [
   {
     id: 'cleanse',
     name: 'Cleanse(X)',
     category: 'support',
-    description: 'Remove up to X active Specials from a target.',
+    description:
+      'Apply Cleanse X times. Each application reduces one eligible ongoing effect by 4 (X → X−4, minimum 0). The same effect on the same target cannot be chosen more than once by the same use of a Power.',
     duration: 'Instant',
     stacking: 'No',
     removal: '—',
-    hasValue: true
-  },
-  {
-    id: 'immovable',
-    name: 'Immovable',
-    category: 'support',
-    description: 'Immune to Push, Prone.',
-    duration: 'Buff Duration',
-    stacking: 'No',
-    removal: 'Ends when stance/buff expires.',
-    hasValue: false
+    hasValue: true,
+    save: '—',
+    dispellable: false,
+    pricing: '15 × X'
   },
   {
     id: 'dispel-magic',
@@ -385,7 +533,61 @@ export const SUPPORT_EFFECTS: SpecialEffect[] = [
     duration: 'Instant',
     stacking: 'No',
     removal: '—',
-    hasValue: false
+    hasValue: false,
+    save: '—',
+    dispellable: false,
+    pricing: 'special / spell-specific'
+  }
+];
+
+/**
+ * Multi-Attack Structures — structural Charged riders that create additional strikes.
+ */
+export const MULTI_ATTACK_EFFECTS: SpecialEffect[] = [
+  {
+    id: 'autofire',
+    name: 'Autofire(X)',
+    category: 'multiAttack',
+    description:
+      'Spread shots across X additional targets in range. Requires declaration Raises (+1 Raise per extra target, +1 Raise per +2 m spacing).',
+    duration: 'Instant',
+    stacking: 'No',
+    removal: '—',
+    hasValue: true,
+    save: '—',
+    dispellable: false,
+    pricing: '25 × X',
+    charged: true
+  },
+  {
+    id: 'split-attack',
+    name: 'Split-Attack(2 Strikes)',
+    category: 'multiAttack',
+    description:
+      'Make 2 strikes and split your Attack Pool evenly between them. Bought bonus damage uses the Split Damage Cost (+1d8 = 25 PP instead of 15 PP).',
+    duration: 'Instant',
+    stacking: 'No',
+    removal: '—',
+    hasValue: false,
+    save: '—',
+    dispellable: false,
+    pricing: 'special pricing (split pool)',
+    charged: true
+  },
+  {
+    id: 'extra-attack',
+    name: 'Extra Attack',
+    category: 'multiAttack',
+    description:
+      'Make 1 additional full attack after your first attack. Bought bonus damage and Specials are divided across all attacks unless explicitly priced otherwise.',
+    duration: 'Instant',
+    stacking: 'No',
+    removal: '—',
+    hasValue: true,
+    save: '—',
+    dispellable: false,
+    pricing: '30 × L PP (L = Power Level 1–4)',
+    charged: true
   }
 ];
 
@@ -393,10 +595,12 @@ export const SUPPORT_EFFECTS: SpecialEffect[] = [
  * All special effects combined
  */
 export const ALL_SPECIAL_EFFECTS: SpecialEffect[] = [
-  ...PHYSICAL_EFFECTS,
-  ...MENTAL_EFFECTS,
-  ...DAMAGE_EFFECTS,
-  ...SUPPORT_EFFECTS
+  ...DIMINISHING_EFFECTS,
+  ...TIMED_EFFECTS,
+  ...UNTIL_USED_EFFECTS,
+  ...INSTANT_EFFECTS,
+  ...SUPPORT_EFFECTS,
+  ...MULTI_ATTACK_EFFECTS
 ];
 
 /**
@@ -424,14 +628,12 @@ export function getEffectById(id: string): SpecialEffect | undefined {
  * Get an effect by name (legacy support)
  */
 export function getEffect(name: string): SpecialEffect | undefined {
-  // Try to match by ID first
   const id = generateId(name);
   const byId = getEffectById(id);
   if (byId) return byId;
-  
-  // Fallback to name matching
-  return ALL_SPECIAL_EFFECTS.find(effect => 
-    effect.name.toLowerCase().replace(/\(x\)/gi, '').trim() === 
+
+  return ALL_SPECIAL_EFFECTS.find(effect =>
+    effect.name.toLowerCase().replace(/\(x\)/gi, '').trim() ===
     name.toLowerCase().replace(/\(x\)/gi, '').trim()
   );
 }
@@ -442,10 +644,9 @@ export function getEffect(name: string): SpecialEffect | undefined {
 export function formatEffectReference(ref: SpecialEffectReference): string {
   const effect = getEffectById(ref.specialId);
   if (!effect) {
-    // Fallback if effect not found
     return ref.value !== undefined ? `${ref.specialId}(${ref.value})` : ref.specialId;
   }
-  
+
   if (effect.hasValue && ref.value !== undefined) {
     return `${getEffectBaseName(effect.name)}(${ref.value})`;
   }
@@ -458,14 +659,13 @@ export function formatEffectReference(ref: SpecialEffectReference): string {
 export function parseEffectString(effectString: string): SpecialEffectReference | null {
   const match = effectString.match(/^([^(]+)(?:\((\d+)\))?$/);
   if (!match) return null;
-  
+
   const name = match[1].trim();
   const value = match[2] ? parseInt(match[2], 10) : undefined;
-  
-  // Try to find effect by name
+
   const effect = getEffect(name);
   if (!effect) return null;
-  
+
   return {
     specialId: effect.id,
     value: value
@@ -484,7 +684,6 @@ export function parseEffectValue(effectString: string): number | null {
  * Format effect with value (e.g., "Bleeding", 3 -> "Bleeding(3)") - legacy function
  */
 export function formatEffectWithValue(effectName: string, value: number): string {
-  // Remove existing value if present
   const baseName = effectName.replace(/\(.*?\)/g, '').trim();
   return `${baseName}(${value})`;
 }
@@ -504,4 +703,3 @@ export function parseEffectStrings(effectStrings: string[]): SpecialEffectRefere
     .map(str => parseEffectString(str))
     .filter((ref): ref is SpecialEffectReference => ref !== null);
 }
-

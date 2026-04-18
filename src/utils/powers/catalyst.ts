@@ -112,7 +112,7 @@ export const CATALYST_POWERS: NewArtifactPowerData[] = [
     },
     {
         name: 'Toxin Cloud',
-        category: 'utility',
+        category: 'active',
         tags: [],
         rank: 1,
         cost: {

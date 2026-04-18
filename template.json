@@ -188,6 +188,14 @@
       "creation": {
         "complete": false
       },
+      "echo": {
+        "key": "",
+        "subChoiceKey": "",
+        "veiledFormKey": "",
+        "selectedCardIds": [],
+        "cardUses": {},
+        "traitUses": {}
+      },
       "disadvantages": [],
       "minorExpressions": []
     },

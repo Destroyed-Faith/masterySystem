@@ -105,7 +105,7 @@ export const FORGEMASTER_POWERS = [
     },
     {
         name: 'Arcane Surge',
-        category: 'utility',
+        category: 'active',
         tags: [],
         rank: 1,
         cost: {

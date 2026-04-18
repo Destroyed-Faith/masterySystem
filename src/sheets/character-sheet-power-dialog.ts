@@ -35,8 +35,7 @@ function countByCategory(actor: Actor): Record<PowerCategory, number> {
         activeBuff: 0,
         movement: 0,
         reaction: 0,
-        passive: 0,
-        utility: 0
+        passive: 0
     };
     const powers = (actor as any).items.filter((i: any) => i.type === 'power');
     for (const p of powers) {
@@ -45,7 +44,8 @@ function countByCategory(actor: Actor): Record<PowerCategory, number> {
         if (!cat) {
             const pt = sys.powerType;
             if (pt === 'buff') cat = 'activeBuff';
-            else if (pt === 'active' || pt === 'passive' || pt === 'reaction' || pt === 'movement' || pt === 'utility') cat = pt;
+            else if (pt === 'utility') cat = 'active';
+            else if (pt === 'active' || pt === 'passive' || pt === 'reaction' || pt === 'movement') cat = pt;
         }
         if (cat && cat in counts) counts[cat]++;
     }
@@ -65,6 +65,7 @@ export async function showPowerCreationDialog(
     const system = (actor as any).system;
     const creationComplete = system?.creation?.complete !== false;
     const masteryRank = system?.mastery?.rank || 2;
+    const actorEchoKey = (system?.echo?.key as string | undefined) || null;
 
     // Build filter UI options
     const categoryOptions = CATEGORY_ORDER.map(c =>
@@ -236,7 +237,8 @@ export async function showPowerCreationDialog(
                 const entries = filterCatalog({
                     category: (category || null) as PowerCategory | null,
                     tag: spellOnly ? 'spell' : null,
-                    special: special || null
+                    special: special || null,
+                    actorEchoKey
                 });
 
                 $powerSelect.empty();

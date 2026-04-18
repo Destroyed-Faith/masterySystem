@@ -120,7 +120,7 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
     },
     {
         name: 'Territorial Roar',
-        category: 'utility',
+        category: 'active',
         tags: [],
         rank: 1,
         cost: {
@@ -385,7 +385,7 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
     },
     {
         name: 'Shelter the Small',
-        category: 'utility',
+        category: 'active',
         tags: [],
         rank: 1,
         cost: {
@@ -705,7 +705,7 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
     // === GROVE ROAR (requires 8+ Werebear powers) ===
     {
         name: 'Grove Roar',
-        category: 'utility',
+        category: 'active',
         tags: [],
         rank: 1,
         cost: {
@@ -756,7 +756,7 @@ export const WEREBEAR_POWERS: NewArtifactPowerData[] = [
     },
     {
         name: 'Gentle Reprieve',
-        category: 'utility',
+        category: 'active',
         tags: [],
         rank: 1,
         cost: {

@@ -6,7 +6,7 @@
 export const LOTUS_POWERS = [
     {
         name: 'Tranquil Mind',
-        category: 'utility',
+        category: 'active',
         tags: [],
         rank: 1,
         cost: {

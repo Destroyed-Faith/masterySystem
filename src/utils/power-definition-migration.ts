@@ -270,7 +270,7 @@ function convertPowerTypeToCategory(powerType: string): PowerCategory {
   const map: Record<string, PowerCategory> = {
     'active': 'active',
     'buff': 'activeBuff',
-    'utility': 'utility',
+    'utility': 'active', // Utility retired — legacy items fall back to active
     'passive': 'passive',
     'reaction': 'reaction',
     'movement': 'movement'
@@ -290,13 +290,10 @@ function convertCost(level: PowerLevelDefinition, powerType: string): NewArtifac
   } else if (cost.movement) {
     action = 'movement';
   } else if (cost.action) {
-    if (powerType === 'utility' || powerType === 'buff') {
-      action = 'utility';
-    } else {
-      action = 'attack';
-    }
+    // Utility action cost was retired; buffs/utilities default to an attack action.
+    action = 'attack';
   } else {
-    action = 'utility';
+    action = 'none';
   }
   
   return {

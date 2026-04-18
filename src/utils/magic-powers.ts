@@ -7,13 +7,20 @@
 
 import type { PowerDefinition, PowerLevelDefinition } from './powers/types.js';
 import type { SpellDefinition, SpellLevelDefinition } from './spells/types.js';
-import { PYROMANCY_SPELLS } from './spells/pyromancy.js';
-import { MALEFIC_ARTS_SPELLS } from './spells/malefic-arts.js';
-import { OLD_PACT_SPELLS } from './spells/old-pact.js';
-import { THORN_WHISPER_SPELLS } from './spells/thorn-whisper.js';
-import { BREACH_BREAK_SPELLS } from './spells/breach-break.js';
-import { AEGIS_BENEDICTIONS_SPELLS } from './spells/aegis-benedictions.js';
-import { BOUND_MIND_SPELLS } from './spells/bound-mind.js';
+// Active Spell Schools
+import { BLACK_WRIT_SPELLS } from './spells/black-writ.js';
+import { PACT_BREACH_SPELLS } from './spells/pact-breach.js';
+import { SPLIT_TEMPEST_SPELLS } from './spells/split-tempest.js';
+import { PYRE_CALCULUS_SPELLS } from './spells/pyre-calculus.js';
+
+// Deprecated — kept for existing actor items, no longer selectable in the Power Picker
+// import { PYROMANCY_SPELLS } from './spells/pyromancy.js';
+// import { MALEFIC_ARTS_SPELLS } from './spells/malefic-arts.js';
+// import { OLD_PACT_SPELLS } from './spells/old-pact.js';
+// import { THORN_WHISPER_SPELLS } from './spells/thorn-whisper.js';
+// import { BREACH_BREAK_SPELLS } from './spells/breach-break.js';
+// import { AEGIS_BENEDICTIONS_SPELLS } from './spells/aegis-benedictions.js';
+// import { BOUND_MIND_SPELLS } from './spells/bound-mind.js';
 
 /**
  * Convert SpellLevelDefinition to PowerLevelDefinition
@@ -69,16 +76,13 @@ function convertSpellToPower(spell: SpellDefinition): PowerDefinition {
 }
 
 /**
- * All magic powers from all spell schools
+ * All magic powers from all active spell schools (deprecated schools are omitted here but remain on disk).
  */
 export const ALL_MAGIC_POWERS: PowerDefinition[] = [
-  ...PYROMANCY_SPELLS.map(convertSpellToPower),
-  ...MALEFIC_ARTS_SPELLS.map(convertSpellToPower),
-  ...OLD_PACT_SPELLS.map(convertSpellToPower),
-  ...THORN_WHISPER_SPELLS.map(convertSpellToPower),
-  ...BREACH_BREAK_SPELLS.map(convertSpellToPower),
-  ...AEGIS_BENEDICTIONS_SPELLS.map(convertSpellToPower),
-  ...BOUND_MIND_SPELLS.map(convertSpellToPower)
+  ...BLACK_WRIT_SPELLS.map(convertSpellToPower),
+  ...PACT_BREACH_SPELLS.map(convertSpellToPower),
+  ...SPLIT_TEMPEST_SPELLS.map(convertSpellToPower),
+  ...PYRE_CALCULUS_SPELLS.map(convertSpellToPower)
 ];
 
 /**

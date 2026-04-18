@@ -22,6 +22,8 @@ export interface CatalogEntry {
     tags: string[];
     specialKeys: string[]; // unique special keys (lowercased, e.g. "shock", "freeze")
     description: string;
+    /** Optional echo-gating: entry is only visible if the actor's Echo key matches one of these values (lowercased). */
+    requiresEcho?: string[];
     raw: NewArtifactPowerData | PowerDefinition; // original definition (for later rendering)
 }
 
@@ -31,8 +33,7 @@ export const CATEGORY_ORDER: PowerCategory[] = [
     'activeBuff',
     'movement',
     'reaction',
-    'passive',
-    'utility'
+    'passive'
 ];
 
 export const CATEGORY_LABELS: Record<PowerCategory, string> = {
@@ -40,21 +41,19 @@ export const CATEGORY_LABELS: Record<PowerCategory, string> = {
     activeBuff: 'Active Buff',
     movement: 'Movement',
     reaction: 'Reaction',
-    passive: 'Passive',
-    utility: 'Utility'
+    passive: 'Passive'
 };
 
-/** Requirements for character creation – total 8 powers. */
+/** Requirements for character creation – total 7 powers. */
 export const CREATION_POWER_REQUIREMENTS: Record<PowerCategory, number> = {
     active: 2,
     activeBuff: 1,
     movement: 1,
     reaction: 1,
-    passive: 2,
-    utility: 1
+    passive: 2
 };
 
-/** Legacy powerType → new category mapping. */
+/** Legacy powerType → new category mapping. Utility is retired; map to active for safety. */
 function mapLegacyPowerType(pt: string | undefined): PowerCategory {
     switch (pt) {
         case 'buff':
@@ -63,8 +62,9 @@ function mapLegacyPowerType(pt: string | undefined): PowerCategory {
         case 'passive':
         case 'reaction':
         case 'movement':
-        case 'utility':
             return pt as PowerCategory;
+        case 'utility':
+            return 'active';
         default:
             return 'active';
     }
@@ -113,6 +113,10 @@ function buildEntries(): CatalogEntry[] {
             : mapLegacyPowerType((p as PowerDefinition).powerType);
         const sourceName = (p as any).tree || '';
         const tags: string[] = isNew ? ((p as NewArtifactPowerData).tags || []) : [];
+        const rawEcho = (p as any).requiresEcho as string[] | undefined;
+        const requiresEcho = rawEcho && rawEcho.length
+            ? rawEcho.map(k => String(k).toLowerCase())
+            : undefined;
         entries.push({
             name: p.name,
             sourceKind: 'mastery',
@@ -121,6 +125,7 @@ function buildEntries(): CatalogEntry[] {
             tags: tags.map(t => String(t).toLowerCase()),
             specialKeys: collectSpecialKeys(p),
             description: (p as any).description || '',
+            requiresEcho,
             raw: p
         });
     }
@@ -159,17 +164,27 @@ export interface CatalogFilter {
     tag?: string | null; // lowercased
     special?: string | null; // lowercased special key
     search?: string | null; // free text
+    /**
+     * Actor's Echo key (e.g. "dragonborn"). Echo-gated entries are only returned
+     * when their requiresEcho list contains this key (case-insensitive).
+     * If undefined/null, echo-gated entries are hidden (safe default for non-actor contexts).
+     */
+    actorEchoKey?: string | null;
 }
 
 /** Filter entries based on the provided criteria. */
 export function filterCatalog(filter: CatalogFilter): CatalogEntry[] {
     const entries = getAllCatalogEntries();
     const term = (filter.search || '').trim().toLowerCase();
+    const echoKey = (filter.actorEchoKey || '').trim().toLowerCase();
     return entries.filter(e => {
         if (filter.category && e.category !== filter.category) return false;
         if (filter.tag && !e.tags.includes(filter.tag)) return false;
         if (filter.special && !e.specialKeys.includes(filter.special)) return false;
         if (term && !(e.name.toLowerCase().includes(term) || e.sourceName.toLowerCase().includes(term))) return false;
+        if (e.requiresEcho && e.requiresEcho.length > 0) {
+            if (!echoKey || !e.requiresEcho.includes(echoKey)) return false;
+        }
         return true;
     });
 }

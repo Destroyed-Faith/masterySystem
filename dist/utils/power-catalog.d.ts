@@ -16,12 +16,14 @@ export interface CatalogEntry {
     tags: string[];
     specialKeys: string[];
     description: string;
+    /** Optional echo-gating: entry is only visible if the actor's Echo key matches one of these values (lowercased). */
+    requiresEcho?: string[];
     raw: NewArtifactPowerData | PowerDefinition;
 }
 /** Category keys used in filter UI (in display order). */
 export declare const CATEGORY_ORDER: PowerCategory[];
 export declare const CATEGORY_LABELS: Record<PowerCategory, string>;
-/** Requirements for character creation – total 8 powers. */
+/** Requirements for character creation – total 7 powers. */
 export declare const CREATION_POWER_REQUIREMENTS: Record<PowerCategory, number>;
 /** All selectable powers across trees + schools. */
 export declare function getAllCatalogEntries(): CatalogEntry[];
@@ -30,6 +32,12 @@ export interface CatalogFilter {
     tag?: string | null;
     special?: string | null;
     search?: string | null;
+    /**
+     * Actor's Echo key (e.g. "dragonborn"). Echo-gated entries are only returned
+     * when their requiresEcho list contains this key (case-insensitive).
+     * If undefined/null, echo-gated entries are hidden (safe default for non-actor contexts).
+     */
+    actorEchoKey?: string | null;
 }
 /** Filter entries based on the provided criteria. */
 export declare function filterCatalog(filter: CatalogFilter): CatalogEntry[];

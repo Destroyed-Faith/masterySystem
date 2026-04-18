@@ -602,7 +602,7 @@ export const WEREWOLF_POWERS = [
     },
     {
         name: 'Shared Fury',
-        category: 'utility',
+        category: 'active',
         tags: [],
         rank: 1,
         cost: {
@@ -650,7 +650,7 @@ export const WEREWOLF_POWERS = [
     // === MOON FRENZY (requires 8+ Werewolf powers) ===
     {
         name: 'Blood Moon Howl',
-        category: 'utility',
+        category: 'active',
         tags: ['charged'],
         rank: 1,
         cost: {

@@ -54,7 +54,7 @@ export const WILD_STALKER_POWERS = [
     },
     {
         name: 'Verdant Shackles',
-        category: 'utility',
+        category: 'active',
         tags: [],
         rank: 1,
         cost: {

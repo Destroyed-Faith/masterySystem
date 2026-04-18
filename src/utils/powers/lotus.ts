@@ -9,7 +9,7 @@ import type { NewArtifactPowerData } from '../../types/item.js';
 export const LOTUS_POWERS: NewArtifactPowerData[] = [
     {
         name: 'Tranquil Mind',
-        category: 'utility',
+        category: 'active',
         tags: [],
         rank: 1,
         cost: {

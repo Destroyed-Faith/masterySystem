@@ -116,7 +116,7 @@ export const FORGEMASTER_POWERS: NewArtifactPowerData[] = [
     },
     {
         name: 'Arcane Surge',
-        category: 'utility',
+        category: 'active',
         tags: [],
         rank: 1,
         cost: {

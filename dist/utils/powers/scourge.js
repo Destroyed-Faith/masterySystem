@@ -6,7 +6,7 @@
 export const SCOURGE_POWERS = [
     {
         name: 'Blood Offering',
-        category: 'utility',
+        category: 'active',
         tags: [],
         rank: 1,
         cost: {

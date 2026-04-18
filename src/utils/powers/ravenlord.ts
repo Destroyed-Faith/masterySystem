@@ -163,7 +163,7 @@ export const RAVENLORD_POWERS: NewArtifactPowerData[] = [
     },
     {
         name: 'Raven Messenger',
-        category: 'utility',
+        category: 'active',
         tags: [],
         rank: 1,
         cost: {

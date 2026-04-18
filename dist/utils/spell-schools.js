@@ -2,34 +2,24 @@
  * Spell Schools — thematic groupings for spells (short + full display names).
  */
 export const SPELL_SCHOOLS = {
-    pyromancy: {
-        name: 'Pyromancy',
-        fullName: 'Pyromancy — School of Flame'
+    blackWrit: {
+        name: 'Black Writ',
+        fullName: 'Black Writ — School of Ink & Execution'
     },
-    maleficArts: {
-        name: 'Malefic Arts',
-        fullName: 'Malefic Arts — School of Hex'
+    pactBreach: {
+        name: 'Pact Breach',
+        fullName: 'Pact Breach — Single-Target Wardbreaker Magic'
     },
-    oldPact: {
-        name: 'Old Pact',
-        fullName: 'Old Pact — School of Forgotten Nature'
+    splitTempest: {
+        name: 'Split Tempest',
+        fullName: 'Split Tempest — Ranged Shock Pressure / Precision Follow-Up'
     },
-    thornWhisper: {
-        name: 'Thorn & Whisper',
-        fullName: 'Thorn & Whisper — Enchantment & Venom'
-    },
-    breachBreak: {
-        name: 'Breach & Break',
-        fullName: 'Breach & Break — Force & Impact'
-    },
-    aegisBenedictions: {
-        name: 'Aegis & Benedictions',
-        fullName: 'Aegis & Benedictions — Aid'
-    },
-    boundMind: {
-        name: 'School of the Bound Mind',
-        fullName: 'School of the Bound Mind'
+    pyreCalculus: {
+        name: 'Pyre Calculus',
+        fullName: 'Pyre Calculus — Burn Pressure / Frontline Firecasting'
     }
+    // Deprecated schools (kept for existing actor items, no longer selectable):
+    // pyromancy, maleficArts, oldPact, thornWhisper, breachBreak, aegisBenedictions, boundMind
 };
 export function getAllSpellSchools() {
     return Object.values(SPELL_SCHOOLS).sort((a, b) => a.name.localeCompare(b.name));

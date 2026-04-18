@@ -7,6 +7,8 @@ import { getEquippedPhysicalSkillPenaltyDice } from '../utils/equipment-modifier
 import { DISADVANTAGES, getDisadvantageDefinition, calculateDisadvantagePoints, validateDisadvantageSelection, detailsForMentalRestrictionsDialog, detailsForPhysicalScarsDialog } from '../system/disadvantages.js';
 import { getAllSchticks } from '../utils/schticks.js';
 import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
+import { showEchoCardPickDialog, showEchoCreationDialog } from './character-sheet-echo-dialog.js';
+import { buildFreshTraitUses, getActiveEchoTraits, getCardOption, getEcho, getEchoCard, getEchoSubChoice, getUnlockedCardSlots, isMrPerRest, isTraitGatedByMr } from '../utils/echos/index.js';
 import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_POWER_REQUIREMENTS } from '../utils/power-catalog.js';
 import { findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid.js';
 import { buildPostCreationSnapshot } from '../utils/xp-post-creation.js';
@@ -97,6 +99,34 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         catch (error) {
             console.error('Mastery System | Failed to open power creation dialog', error);
             ui.notifications?.error('Failed to open power selection dialog');
+        }
+    }
+    /**
+     * Open the Echo Creation Dialog (Echo + sub-choice + veiled form + start card).
+     */
+    async #onEchoChoose(event) {
+        event.preventDefault();
+        try {
+            await showEchoCreationDialog(this.actor);
+            this.render();
+        }
+        catch (error) {
+            console.error('Mastery System | Failed to open Echo creation dialog', error);
+            ui.notifications?.error('Failed to open Echo selection dialog');
+        }
+    }
+    /**
+     * Open the Echo Card Pick Dialog (add one more card from the selected Echo's deck).
+     */
+    async #onEchoCardAdd(event) {
+        event.preventDefault();
+        try {
+            await showEchoCardPickDialog(this.actor);
+            this.render();
+        }
+        catch (error) {
+            console.error('Mastery System | Failed to open Echo card pick dialog', error);
+            ui.notifications?.error('Failed to open Echo card picker');
         }
     }
     /**
@@ -345,7 +375,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         });
         // Calculate creation point counters (always calculate, but only show if not complete)
         const masteryRank = context.system.mastery?.rank || 2;
-        const skillPointsConfig = CONFIG.MASTERY?.creation?.skillPoints || 16;
+        const skillPointsConfig = CONFIG.MASTERY?.creation?.skillPoints || 40;
         const maxDisadvantagePoints = CONFIG.MASTERY?.creation?.maxDisadvantagePoints ?? 8;
         const minDisadvantagePoints = CONFIG.MASTERY?.creation?.minDisadvantagePoints ?? 2;
         // Calculate attribute distribution status (2×8, 2×6, 2×4, 1×2 model)
@@ -408,7 +438,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const selectedPowers = powers;
         // Per-category counters (new structure uses system.category, legacy uses system.powerType)
         const categoryCounts = {
-            active: 0, activeBuff: 0, movement: 0, reaction: 0, passive: 0, utility: 0
+            active: 0, activeBuff: 0, movement: 0, reaction: 0, passive: 0
         };
         for (const p of selectedPowers) {
             const sys = p.system || {};
@@ -417,7 +447,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 const pt = sys.powerType;
                 if (pt === 'buff')
                     cat = 'activeBuff';
-                else if (pt === 'active' || pt === 'passive' || pt === 'reaction' || pt === 'movement' || pt === 'utility')
+                else if (pt === 'utility')
+                    cat = 'active';
+                else if (pt === 'active' || pt === 'passive' || pt === 'reaction' || pt === 'movement')
                     cat = pt;
             }
             if (cat && cat in categoryCounts)
@@ -432,6 +464,77 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             valid: categoryCounts[cat] === CREATION_POWER_REQUIREMENTS[cat]
         }));
         const categoriesValid = categoryRequirements.every(r => r.valid);
+        // --- Echo view ------------------------------------------------------------
+        const rawEcho = (context.system.echo || {});
+        const echoKey = rawEcho.key || '';
+        const echoDef = getEcho(echoKey);
+        const echoSubChoice = echoDef?.subChoices?.length
+            ? getEchoSubChoice(echoKey, rawEcho.subChoiceKey || null)
+            : undefined;
+        const veiledDef = echoDef?.veiledForm && rawEcho.veiledFormKey
+            ? getEcho(rawEcho.veiledFormKey)
+            : undefined;
+        const selectedCardIds = Array.isArray(rawEcho.selectedCardIds)
+            ? rawEcho.selectedCardIds.filter((id) => typeof id === 'string')
+            : [];
+        const cardUses = (rawEcho.cardUses && typeof rawEcho.cardUses === 'object')
+            ? { ...rawEcho.cardUses }
+            : {};
+        const traitUses = (rawEcho.traitUses && typeof rawEcho.traitUses === 'object')
+            ? { ...rawEcho.traitUses }
+            : {};
+        const unlockedCardSlots = echoDef ? getUnlockedCardSlots(masteryRank) : 0;
+        const canAddCard = !!echoDef && selectedCardIds.length < unlockedCardSlots;
+        const activeTraits = echoDef
+            ? getActiveEchoTraits(echoKey, echoSubChoice?.key || null).map(t => {
+                const gated = isTraitGatedByMr(t.usage, masteryRank);
+                const trackedUses = isMrPerRest(t.usage) || t.usage === 'once-per-rest' || t.usage === 'unlock-mr6-once';
+                const maxUses = isMrPerRest(t.usage)
+                    ? masteryRank
+                    : (t.usage === 'once-per-rest' || t.usage === 'unlock-mr6-once' ? 1 : 0);
+                return {
+                    id: t.id,
+                    name: t.name,
+                    effect: t.effect,
+                    flavor: t.flavor || '',
+                    usage: t.usage,
+                    isMrPerRest: isMrPerRest(t.usage),
+                    gated,
+                    trackedUses,
+                    remaining: trackedUses ? (typeof traitUses[t.id] === 'number' ? traitUses[t.id] : maxUses) : 0,
+                    max: maxUses
+                };
+            })
+            : [];
+        const deckView = echoDef
+            ? echoDef.deck.map(c => ({
+                id: c.id,
+                name: c.name,
+                trigger: c.trigger,
+                options: c.options,
+                selected: selectedCardIds.includes(c.id),
+                used: cardUses[c.id] === true
+            }))
+            : [];
+        const echoCreationValid = !!echoDef
+            && (!echoDef.subChoices?.length || !!rawEcho.subChoiceKey)
+            && (!echoDef.veiledForm || !!rawEcho.veiledFormKey)
+            && selectedCardIds.length >= 1;
+        const echoView = echoDef
+            ? {
+                key: echoKey,
+                def: echoDef,
+                subChoice: echoSubChoice || null,
+                veiled: veiledDef || null,
+                traits: activeTraits,
+                deck: deckView,
+                selectedCardIds,
+                unlockedCardSlots,
+                canAddCard,
+                creationValid: echoCreationValid
+            }
+            : null;
+        context.echoView = echoView;
         console.log('Mastery System | getData - Powers Status:', {
             totalPowers: powers.length,
             selectedTrees: selectedTrees,
@@ -512,10 +615,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             rankTooltips: rankTooltips,
             schticksValid: schticksValidation.ok,
             powersValid: categoriesValid,
+            echoCreationValid,
             canFinalize: attributeDistributionValid &&
                 skillPointsSpent === skillPointsConfig &&
                 categoriesValid &&
-                disadvantagesValid
+                disadvantagesValid &&
+                echoCreationValid
         };
         console.log('Mastery System | getData - Final Context Check:', {
             creationComplete: context.creationComplete,
@@ -1541,6 +1646,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Add power
         // Power/Spell creation buttons (always visible)
         html.find('.add-power-creation-btn').on('click', this.#onPowerAddCreation.bind(this));
+        // Echo creation / deck interactions
+        html.find('.choose-echo-btn').on('click', this.#onEchoChoose.bind(this));
+        html.find('.add-echo-card-btn').on('click', this.#onEchoCardAdd.bind(this));
+        html.find('.echo-card-use-btn').on('click', this.#onEchoRoll.bind(this));
         html.find('.power-rank-select').on('change', this.#onPowerRankChange.bind(this));
         html
             .off('change', '.power-radial-checkbox')
@@ -3138,7 +3247,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Skill point spending is now handled via chat buttons (no modal dialog)
     }
     /**
-     * Prompt for skill roll options (attribute, base TN, raises)
+     * Prompt for skill roll options (attribute, base TN, raises).
+     *
+     * Used by normal skill rolls as well as Echo card rolls. Echo rolls call this
+     * directly after resolving the card's skill (so the dialog picks the right
+     * attribute list).
      */
     async #promptForSkillRollOptions(_skillKey, skillDef, forcedAttribute) {
         const system = this.actor.system;
@@ -3281,6 +3394,96 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         });
     }
     /**
+     * Handle Echo Card "Use" button.
+     *
+     * - Validates that the card is currently selected and not already used today.
+     * - Posts a narrative ChatMessage (with optional flashback).
+     * - Opens the standard Skill Roll dialog pre-tuned to the card option's skill.
+     * - On a completed (non-cancelled) roll, marks the card as used for today.
+     */
+    async #onEchoRoll(event) {
+        event.preventDefault();
+        const el = event.currentTarget;
+        const cardId = el?.dataset?.cardId || '';
+        const optionId = el?.dataset?.optionId || '';
+        if (!cardId || !optionId) {
+            ui.notifications?.error('Missing card or option id on Echo roll.');
+            return;
+        }
+        const system = this.actor.system;
+        const echo = system?.echo || {};
+        const echoKey = echo.key;
+        if (!echoKey) {
+            ui.notifications?.warn('No Echo selected for this character.');
+            return;
+        }
+        const selectedCardIds = Array.isArray(echo.selectedCardIds) ? echo.selectedCardIds : [];
+        if (!selectedCardIds.includes(cardId)) {
+            ui.notifications?.error('That Echo card is not part of your deck.');
+            return;
+        }
+        const cardUses = (echo.cardUses || {});
+        if (cardUses[cardId] === true) {
+            ui.notifications?.warn('Card already used today. It restores on the next Safe Haven Rest.');
+            return;
+        }
+        const card = getEchoCard(echoKey, cardId);
+        const option = getCardOption(echoKey, cardId, optionId);
+        if (!card || !option) {
+            ui.notifications?.error('Echo card option not found.');
+            return;
+        }
+        const skillDef = SKILLS[option.skill];
+        if (!skillDef) {
+            ui.notifications?.error(`Skill "${option.skill}" for Echo card is not defined.`);
+            return;
+        }
+        // Narrative flashback: post a chat message before the roll.
+        const def = getEcho(echoKey);
+        const echoName = def?.name || echoKey;
+        await ChatMessage.create({
+            speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+            content: `
+        <div class="echo-roll-flavor">
+          <div><strong>${echoName} \u2014 ${card.name}</strong></div>
+          <div><em>${option.label}</em></div>
+          <div class="echo-roll-desc">${option.description}</div>
+        </div>
+      `
+        });
+        const rollOptions = await this.#promptForSkillRollOptions(option.skill, skillDef);
+        if (!rollOptions)
+            return;
+        const attributeValue = system.attributes?.[rollOptions.attributeKey]?.value || 0;
+        const masteryRank = system.mastery?.rank || 2;
+        let numDice = attributeValue;
+        let equipPenaltyFlavor = '';
+        if (skillDef.category === SKILL_CATEGORIES.PHYSICAL) {
+            const penDice = getEquippedPhysicalSkillPenaltyDice(this.actor);
+            if (penDice > 0) {
+                numDice = Math.max(1, numDice - penDice);
+                equipPenaltyFlavor = ` Equipped armor/shield physical penalty: \u2212${penDice}d8 (rolling ${numDice} dice).`;
+            }
+        }
+        const { masteryRoll } = await import('../dice/roll-handler.js');
+        await masteryRoll({
+            numDice,
+            keepDice: masteryRank,
+            skill: 0,
+            tn: rollOptions.finalTN,
+            label: `Echo: ${card.name} \u2014 ${option.label}`,
+            flavor: `Attribute: ${rollOptions.attributeKey.charAt(0).toUpperCase() + rollOptions.attributeKey.slice(1)}, Base TN: ${rollOptions.baseTN}, Raises: ${rollOptions.raises}. Skill: ${skillDef.name}.${equipPenaltyFlavor}`,
+            actorId: this.actor.id,
+            skillKey: option.skill,
+            isSkillRoll: true,
+            baseModifier: 0
+        });
+        await this.actor.update({
+            [`system.echo.cardUses.${cardId}`]: true
+        });
+        this.render();
+    }
+    /**
      * Handle Safe Haven Rest - reset all skillsSpent to 0
      */
     async #onSafeHavenRest(event) {
@@ -3306,16 +3509,28 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             }
         }
         const faithMax = Math.max(0, Number(system.faithFractures?.maximum) || 0);
+        // --- Echo reset -----------------------------------------------------------
+        const echo = system.echo || {};
+        const masteryRank = Math.max(1, Number(system?.mastery?.rank) || 1);
+        const echoUpdates = {};
+        let echoChanged = false;
+        if (echo && echo.key) {
+            echoUpdates['system.echo.cardUses'] = {};
+            echoUpdates['system.echo.traitUses'] = buildFreshTraitUses(echo.key, echo.subChoiceKey || null, masteryRank);
+            echoChanged = true;
+        }
         await this.actor.update({
             'system.skillsSpent': skillsSpent,
             'system.saves.vitalitySpent': 0,
             'system.saves.vitalityUsesRemaining': 4,
-            ...(faithMax > 0 ? { 'system.faithFractures.current': faithMax } : {})
+            ...(faithMax > 0 ? { 'system.faithFractures.current': faithMax } : {}),
+            ...echoUpdates
         });
         console.log('Mastery System | Safe Haven Rest: Reset all skill points and Vitality save uses', {
             actorId: this.actor.id,
             actorName: this.actor.name,
-            skillsReset: Object.keys(skillsSpent).length
+            skillsReset: Object.keys(skillsSpent).length,
+            echoReset: echoChanged
         });
         ui.notifications?.info(faithMax > 0
             ? 'All Skill Points, Vitality save uses, and Faith Fractures restored!'
@@ -4637,7 +4852,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const scrollTop = skillsTab.scrollTop();
         const system = this.actor.system;
         const currentValue = system.skills?.[skill] || 0;
-        const skillPointsConfig = CONFIG.MASTERY?.creation?.skillPoints || 16;
+        const skillPointsConfig = CONFIG.MASTERY?.creation?.skillPoints || 40;
         // Calculate current points spent
         let skillPointsSpent = 0;
         for (const skillValue of Object.values(system.skills || {})) {
@@ -5075,7 +5290,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         event.preventDefault();
         const system = this.actor.system;
         const masteryRank = system.mastery?.rank || 2;
-        const skillPointsConfig = CONFIG.MASTERY?.creation?.skillPoints || 16;
+        const skillPointsConfig = CONFIG.MASTERY?.creation?.skillPoints || 40;
         const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
         let skillPointsSpent = 0;
         for (const skillValue of Object.values(system.skills || {})) {
@@ -5088,7 +5303,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const powers = this.actor.items.filter((item) => item.type === 'power');
         // Per-category validation against CREATION_POWER_REQUIREMENTS
         const creationCategoryCounts = {
-            active: 0, activeBuff: 0, movement: 0, reaction: 0, passive: 0, utility: 0
+            active: 0, activeBuff: 0, movement: 0, reaction: 0, passive: 0
         };
         for (const p of powers) {
             const sys = p.system || {};
@@ -5097,7 +5312,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 const pt = sys.powerType;
                 if (pt === 'buff')
                     cat = 'activeBuff';
-                else if (pt === 'active' || pt === 'passive' || pt === 'reaction' || pt === 'movement' || pt === 'utility')
+                else if (pt === 'utility')
+                    cat = 'active';
+                else if (pt === 'active' || pt === 'passive' || pt === 'reaction' || pt === 'movement')
                     cat = pt;
             }
             if (cat && cat in creationCategoryCounts)

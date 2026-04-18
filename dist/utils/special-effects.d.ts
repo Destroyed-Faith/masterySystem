@@ -1,13 +1,19 @@
 /**
  * Special Effects Reference for Mastery System
  *
- * All Special Conditions, Effects, and ongoing statuses that can appear during play.
- * Each entry lists what it does, how long it lasts, how it stacks, and how it can be removed.
+ * All canonical Special Conditions and Effects that can appear during play.
+ * Mirrors the SRD "Special Effect Cost Chapters" behaviour model:
+ *   - diminishing   : decay X by 1 per round (X → 0)
+ *   - timed         : fixed duration, refresh + keep higher X
+ *   - untilUsed     : persist until consumed or internal counter reaches 0
+ *   - instant       : resolve immediately, no tracking
+ *   - support       : remove / reduce / end other effects
+ *   - multiAttack   : structural multi-strike riders (Charged)
  *
  * Powers should store only the specialId and value, not the full name string.
  * Example: { specialId: "bleeding", value: 3 } instead of "Bleeding(3)"
  */
-export type EffectCategory = 'physical' | 'mental' | 'damage' | 'support';
+export type EffectCategory = 'diminishing' | 'timed' | 'untilUsed' | 'instant' | 'support' | 'multiAttack';
 export interface SpecialEffect {
     id: string;
     name: string;
@@ -17,6 +23,18 @@ export interface SpecialEffect {
     stacking: 'Yes' | 'No' | 'Additive';
     removal: string;
     hasValue: boolean;
+    /** Optional saving throw type: 'Body' | 'Mind' | 'Spirit' | combinations, or '—' */
+    save?: string;
+    /** Optional dedicated Remove Action skill (e.g. 'Medicine', 'Athletics', 'Meditation', 'Crafting') */
+    removeAction?: string;
+    /** Whether Cleanse / Dispel Magic can remove/reduce this effect */
+    dispellable?: boolean;
+    /** PP pricing formula as a compact reference (Start PP for diminishing, base formula otherwise) */
+    pricing?: string;
+    /** Starting PP for diminishing effects — used with T(X) = X*(X+1)/2 */
+    startPP?: number;
+    /** True if the effect uses the Charged tag by default (multi-attack riders) */
+    charged?: boolean;
 }
 /**
  * Special Effect Reference (what Powers should store)
@@ -30,21 +48,30 @@ export interface SpecialEffectReference {
  */
 export declare function getEffectBaseName(name: string): string;
 /**
- * Physical Effects
+ * Diminishing Effects — decay X by 1 per round at start of affected creature's turn.
+ * Pricing: PP = startPP × T(X), with T(X) = X*(X+1)/2.
  */
-export declare const PHYSICAL_EFFECTS: SpecialEffect[];
+export declare const DIMINISHING_EFFECTS: SpecialEffect[];
 /**
- * Mental Effects
+ * Timed Effects — fixed duration, refresh on reapply, keep higher X.
  */
-export declare const MENTAL_EFFECTS: SpecialEffect[];
+export declare const TIMED_EFFECTS: SpecialEffect[];
 /**
- * Damage & Combat Modifiers
+ * Until Broken / Until Used Effects — persist until consumed or internal counter reaches 0.
  */
-export declare const DAMAGE_EFFECTS: SpecialEffect[];
+export declare const UNTIL_USED_EFFECTS: SpecialEffect[];
 /**
- * Support & Cleansing Effects
+ * Instant Effects — resolve immediately, no ongoing tracking.
+ */
+export declare const INSTANT_EFFECTS: SpecialEffect[];
+/**
+ * Support / Removal Effects — remove, reduce, or end ongoing effects.
  */
 export declare const SUPPORT_EFFECTS: SpecialEffect[];
+/**
+ * Multi-Attack Structures — structural Charged riders that create additional strikes.
+ */
+export declare const MULTI_ATTACK_EFFECTS: SpecialEffect[];
 /**
  * All special effects combined
  */

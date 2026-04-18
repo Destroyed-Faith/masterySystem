@@ -2,6 +2,138 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.260] - 2026-04-18
+
+### Changed
+- **Character Creation — Skill Points raised from 16 to 40.** Newly created characters now distribute 40 skill points (subject to the existing `MAX_SKILL_AT_CREATION = 4` cap per skill). Updated in `src/utils/constants.ts` (`CREATION.SKILL_POINTS`), the runtime `CONFIG.MASTERY.creation.skillPoints` default in `src/module.ts`, and the fallback defaults in `src/sheets/character-sheet.ts`. Test `tests/constants.test.ts` updated accordingly.
+
+## [0.4.259] - 2026-04-18
+
+### Added
+- **New Mastery Tree: Warden Dragon** — Dragonborn-exclusive (Tank / Control / Space Holder, Primary Attribute: Might, Primary Specials: Push, Prone; Secondary Axis: Armor / Body Saves)
+  - Tree Bonus (Natural Weapons): Claws / Bite / Tail attacks deal 1d8 per 2 Warden Dragon powers learned, up to 4d8 (documented in the file header).
+  - 18 Powers total: 4 Actives (Tail Sweep, Earthshaker Stomp, Bulwark Bite, Bodywall Crash), 4 Passives (Dragon Scales, Ancient Bulk, Immovable, Territorial Presence), 4 Reactions (Scale Ward, Guarding Tail, Stand Fast, Interposing Frame), 4 Active Buffs (Fortress Form, Rooted Majesty, Siegeblood, Throne Ground), 2 Movement Powers (Wing Brace, Stonewing Advance).
+- **New Mastery Tree: Raptor Dragon** — Dragonborn-exclusive (Skirmisher / Dive Hunter / Pick Pressure, Primary Attribute: Agility, Primary Specials: Mark, Corrode; Secondary: Pull, Penetration)
+  - Tree Bonus (Natural Weapons): Claws / Bite / Tail attacks deal 1d8 per 2 Raptor Dragon powers learned, up to 4d8 (documented in the file header).
+  - 18 Powers total: 4 Actives (Skyhook Snatch, Rending Chain, Execute, Dive Rend), 4 Passives (Blood Scent, Corrosive Talons, Aerial Predator, Marked for the Kill), 4 Reactions (Bite, Predatory Turn, Wing Slip, Cruel Timing), 4 Active Buffs (Take Flight, Hunter's Focus, Acid Bloodlust, Raptor's Tempo), 2 Movement Powers (Flyby, Dive Drop).
+- **New Mastery Tree: Dreadwyrm** — Dragonborn-exclusive (AoE Controller / Supporter / Buffer via Roar, Primary Attribute: Influence, Primary Specials: Mark, Push; fear/command via Mind-Save penalties)
+  - Tree Bonus (Natural Weapons): Claws / Bite / Tail attacks deal 1d8 per 2 Dreadwyrm powers learned, up to 4d8 (documented in the file header).
+  - 18 Powers total: 4 Actives (Crushing Gaze, Dread Breath, Terrifying Sweep, Commanding Strike), 4 Passives (Draconic Presence, Rule by Fear, Overking's Voice, Aura of Submission), 4 Reactions (Tyrant's Rebuke, Command Denial, Roar of Defiance, Herald's Mark), 4 Active Buffs (Tyrant's Roar, Aura of Command, Nightmare Presence, Hunt Decree), 2 Movement Powers (Wingbeat of Terror, Imperious Advance).
+
+### Changed
+- `NewArtifactPowerData` (`src/types/item.d.ts`) now supports an optional `requiresEcho: string[]` field. Powers listing this field are only offered in the Power Picker when the character's Echo key matches one of the listed values.
+- `CatalogEntry` and `filterCatalog` (`src/utils/power-catalog.ts`) now support echo-gating via the new `actorEchoKey` filter option. Gated entries are completely hidden from the picker — not just disabled — when the actor does not carry the required Echo. Without an `actorEchoKey`, gated entries are also hidden (safe default for non-character contexts).
+- `showPowerCreationDialog` (`src/sheets/character-sheet-power-dialog.ts`) now reads `actor.system.echo.key` and forwards it to the catalog filter, so the three new Dragon trees only appear for characters that chose the **Dragonborn** Echo.
+- `src/utils/powers/index.ts` and `src/utils/mastery-trees.ts` now register `Warden Dragon`, `Raptor Dragon`, and `Dreadwyrm` as selectable trees (automatically wired into the unified power catalog).
+
+## [0.4.258] - 2026-04-18
+
+### Added
+- **New Mastery Tree: Ashguard** (Frontline Bruiser / Attrition Tank, Primary: Ignite, Secondary Axis: Armor)
+  - Tree Bonus: Once per round, when you apply or increase Ignite, gain +1 Armor until the start of your next turn (documented in file header).
+  - 18 Powers total: 4 Actives (Cinder Cleave, Ember Bash, Scorch Ring, Siege Cut), 4 Passives (Coal Plate, Burn Tempered, Furnace Heart, Iron Flame), 4 Reactions (Flare Guard, Answering Heat, Step Through Flame, Feed the Furnace), 4 Active Buffs (Forge Shell, Walking Furnace, Combustion Plate, Coals of War), 2 Movement Powers (Ember Stride, Smoke Step).
+- **New Mastery Tree: Infernal Bastion** (Frontline Spellcaster / Burn Tank spell tree, Primary: Ignite, Secondary Axis: Armor)
+  - Tree Bonus: Once per round, when you apply or increase Ignite, gain +1 Armor until the start of your next turn (documented in file header).
+  - 12 Powers total (caster framework — no Actives; damage comes from the Pyre Calculus Spell List): 4 Passives (Arcane Combustion, Flameguard, Ember Focus, Phoenix Mantle), 4 Reactions (Sear Ward, Backdraft, Cinder Shell, Feed the Core), 4 Active Buffs (Combustion Surge, Inferno Core, Flameplate, Phoenix Core).
+- **New Spell School: Pyre Calculus — Burn Pressure / Frontline Firecasting** (companion Spell List for Infernal Bastion)
+  - 8 Spells: 6 Active Spells (Ember Lance, Flame Fan, Furnace Mark, Bastion Flare, Crown of Cinders, Siege Flame) and 2 Movement Spells (Ash Fold, Backdraft Step).
+
+### Changed
+- `src/utils/mastery-trees.ts` now lists `ashguard` and `infernalBastion` as selectable trees.
+- `src/utils/spell-schools.ts` now lists `pyreCalculus` as a selectable school.
+- `src/utils/powers/index.ts`, `src/utils/spells/index.ts`, and `src/utils/magic-powers.ts` aggregate the three new Ignite-themed content packs so they flow into the unified power catalog and power picker automatically.
+
+## [0.4.257] - 2026-04-18
+
+### Added
+- **New Mastery Tree: Gale Breaker** (Skirmisher / Tempo Defender / Shock Support, Primary: Shock, Secondary: Evade)
+  - 18 Powers total: 4 Actives (Jolt Cut, Crosswind Hit, Rattle Line, Screen Thrust), 4 Passives (Storm Screen, Late Strikes, Screen Fighter, Sudden Gap), 4 Reactions (Intercept the Angle, Punish the Lag, Carry the Wind, Steady the Line), 4 Active Buffs (Slipstream Order, Rattle Them, Stay Ahead, Safe Current), 2 Movement Powers (Wind Cut, Wash Out).
+- **New Mastery Tree: Storm Veil** (Ranged Striker / Control Support spell tree, Primary: Shock, Secondary: Expose)
+  - 12 Powers total (caster framework — no Actives; damage comes from the Split Tempest Spell List): 4 Passives (Conductive Focus, Static Reading, Grounding Field, Storm Memory), 4 Reactions (Ride the Flinch, Open the Line, Storm Sidestep, Feedback Window), 4 Active Buffs (Eye of the Storm, Split Second, Strip the Angle, Charged Shell).
+- **New Spell School: Split Tempest — Ranged Shock Pressure / Precision Follow-Up** (companion Spell List for Storm Veil)
+  - 8 Spells: 6 Active Spells (Storm Needle, Forked Current, Thunderclap Sigil, Split the Stance, Storm Through, White Noise) and 2 Movement Spells (Arc Flit, Aftershock Slip).
+
+### Changed
+- `src/utils/mastery-trees.ts` now lists `galeBreaker` and `stormVeil` as selectable trees.
+- `src/utils/spell-schools.ts` now lists `splitTempest` as a selectable school.
+- `src/utils/powers/index.ts`, `src/utils/spells/index.ts`, and `src/utils/magic-powers.ts` aggregate the three new Shock-themed content packs so they flow into the unified power catalog and power picker automatically.
+
+## [0.4.256] - 2026-04-18
+
+### Added
+- **New Mastery Tree: Hexbound Harrier** (Skirmisher / Setup Striker / Anti-Caster Support, Primary: Hex, Secondary: Expose)
+  - 18 Powers total: 4 Actives (Witch Mark, Open Rib, Spellbait, Hex Feint), 4 Passives (Carrion Instinct, Crow Cuts, Lean Ward, Witch's Timing), 4 Reactions (Hand It Over, Drag the Sign, Sidestep the Ritual, Spell Window), 4 Active Buffs (Black Pace, Hex Drive, Open Them Up, Pay the Crow), 2 Movement Powers (Witchstep, Black Leave).
+- **New Mastery Tree: Void Testament** (Pure Damage / Wardbreaker Caster spell tree, Primary: Hex, Secondary: Penetration)
+  - 12 Powers total (caster framework — no Actives; damage comes from the Pact Breach Spell List): 4 Passives (Abyss Index, Breach Doctrine, Black Seal, Feast of the Crack), 4 Reactions (Tighten the Pact, Break the Ward, Abyssal Answer, Read the Fault), 4 Active Buffs (Devil's Ledger, Breach Mandate, Dark Vesting, Open the Gate).
+- **New Spell School: Pact Breach — Single-Target Wardbreaker Magic** (companion Spell List for Void Testament)
+  - 8 Spells: 6 Active Spells (Pact Spike, Ward Rend, Soul Tithe, Black Audit, Void Collection, Final Breach) and 2 Movement Spells (Rift Skive, Oath Slip).
+
+### Changed
+- `src/utils/mastery-trees.ts` now lists `hexboundHarrier` and `voidTestament` as selectable trees.
+- `src/utils/spell-schools.ts` now lists `pactBreach` as a selectable school.
+- `src/utils/powers/index.ts`, `src/utils/spells/index.ts`, and `src/utils/magic-powers.ts` aggregate the three new content packs so they flow into the unified power catalog and power picker automatically.
+
+## [0.4.255] - 2026-04-18
+
+### Added
+- **Echo System (ancestry subsystem, Phases 1–4)** — full implementation of the seven playable Echos from the Player's Guide: Humans, Dwarfs, Elves, Sentinels, Titanborn, Dragonborn, Unbound. All Echo data lives on the Actor under `system.echo.*` — no Item-type bloat, daily reset is a single `actor.update`.
+  - **Echo catalog** (`src/utils/echos/`): typed definitions for Core Traits (including `mr-per-rest`, `once-per-rest`, `passive`, `unlock-mr3`, `unlock-mr6`, `unlock-mr6-once` usage kinds), sub-choices (Elves Elemental Lineage, Sentinels Order Protocol), Dragonborn Veiled Form, and a 4-card Echo Deck with 4 skill-based options per card.
+  - **Character-creation step**: new "Step 6 — Choose Echo" block in the creation banner with a single-pass dialog (Echo → Sub-choice → Veiled Form → Start Card). `canFinalize` now requires a fully configured Echo plus the existing attribute / skill / disadvantage / power checks.
+  - **Echo Deck on the sheet** (Biography tab): shows the chosen Echo, sub-choice, and veiled form; lists Core Traits with `MR / rest` use counters and gating hints for MR-locked abilities; displays selected cards with triggers, 4 options each, "Use" buttons, and an "Add Card" button whenever new slots have been unlocked.
+  - **Slot unlocks via Mastery Rank**: 1 card from creation, +1 at MR 2, +1 at MR 4, +1 at MR 6 (cap at 4 = full deck). Handled by `getUnlockedCardSlots` in the catalog.
+  - **Safe Haven Rest reset**: `#onSafeHavenRest` now clears `system.echo.cardUses` and re-initialises `system.echo.traitUses` from the Echo's `mr-per-rest` / `once-per-rest` traits based on the current Mastery Rank.
+  - **Echo Roll integration**: new `#onEchoRoll` handler posts a narrative chat message (Echo + card + option + description) and opens the standard Skill Roll dialog pre-loaded with the card option's skill. After the roll, the card is marked as used for the day (`system.echo.cardUses[cardId] = true`). Cancellation leaves the card available.
+  - **Tests**: `tests/echo-deck.test.ts` — 22 tests covering slot unlocks at MR 1–99, card-use/rest simulation, sub-choice requirements (Elves 4, Sentinels 3, Dragonborn Veiled Form), trait gating (`unlock-mr3`, `unlock-mr6-once`), and that every card option references an existing `SKILLS` key.
+
+### Changed
+- **`CharacterData`** (`src/types/actor.d.ts`) gains an optional `echo?: CharacterEchoData` block (`key`, `subChoiceKey`, `veiledFormKey`, `selectedCardIds`, `cardUses`, `traitUses`). `bio.echo` stays as the human-readable name and is auto-filled from the Echo definition when an Echo is chosen.
+- **`template.json`** — `actor.character` now seeds an empty `echo` block so every new character has a stable default shape.
+
+## [0.4.254] - 2026-04-18
+
+### Added
+- **New Mastery Tree: Dreadstalker** (Pure Damage / Skirmisher Assassin, Primary: Mark, Secondary: Crit)
+  - 14 Powers total: 4 Actives (Mark the Prey, Hunter's Slash, Flash Bomb, Death Sentence), 4 Passives (Quickdraw, Bloodhound, Sneak Attack, First Blood), 4 Reactions (Punish the Turn, Opportunist's Lunge, Slip the Counter, Finish the Opening), 4 Active Buffs (Predictable Movement, Killing Rhythm, Cold Start, Dead Sprint), 2 Movement Powers (Predator Step, Fade Through)
+- **New Mastery Tree: Doomscribe** (Pure Damage / Execution Caster spell tree, Primary: Mark, Secondary: Crit)
+  - 12 Powers total (caster framework — no Actives; damage comes from the Black Writ Spell List): 4 Passives (Death Ledger, Cruel Geometry, First Seal, Execution Logic), 4 Reactions (Seal the Misstep, Hold the Pattern, Punitive Echo, Read the Collapse), 4 Active Buffs (Final Notation, Predicted Ruin, Cold Sequence, No Escape Clause)
+- **New Spell School: Black Writ — School of Ink & Execution** (companion Spell List for Doomscribe)
+  - 8 Spells: 6 Active Spells (Brand of Ending, Cut the Thread, Grave Equation, Closed Circle, Write the Wound, Last Sentence) and 2 Movement Spells (Inkstep, Margin Slip)
+- **New Special Effects** added to `ALL_SPECIAL_EFFECTS`: `sundered`, `pull`, `knockback`, `autofire`, `split-attack`, `extra-attack`; plus explicit entries for `corrode`, `weaken`, `hex`, `frightened`, `regeneration`, `soulburn`, `immovable`, `stun`, `dispel-magic`
+
+### Changed
+- **Special Effects SRD refresh** — `src/utils/special-effects.ts` rewritten to match the published SRD behavioural model:
+  - `EffectCategory` now uses `diminishing` / `timed` / `untilUsed` / `instant` / `support` / `multiAttack` (was `physical` / `mental` / `damage` / `support`)
+  - Every effect carries SRD-aligned description, duration, stacking, removal, Save type, Remove Action, dispellability, pricing formula, and (for Diminishing) `startPP`
+  - Existing effects updated: `bleeding`, `freeze`, `poisoned`, `expose`, `mark`, `cleanse`, `stunned`, `blinded`, `prone`, `crit`, `brace`, `bulwark`, `precision`, `smite`, `penetration`, `brutal-impact`, `push`
+  - Grouping exports replaced: `DIMINISHING_EFFECTS` / `TIMED_EFFECTS` / `UNTIL_USED_EFFECTS` / `INSTANT_EFFECTS` / `SUPPORT_EFFECTS` / `MULTI_ATTACK_EFFECTS`
+- **Utility category retired system-wide**
+  - `PowerCategory` reduced to `'active' | 'activeBuff' | 'reaction' | 'passive' | 'movement'`; `PowerActionCost` no longer allows `'utility'`
+  - `CATEGORY_ORDER` / `CATEGORY_LABELS` / `CREATION_POWER_REQUIREMENTS` in `power-catalog.ts` now have 5 categories; character creation requires exactly **7 Powers** (2 Active, 1 Active Buff, 1 Movement, 1 Reaction, 2 Passive)
+  - Character sheet Utility shortcut button removed; creation banner text updated to 7 powers
+  - Legacy items with `powerType: 'utility'` are auto-mapped to `active` at runtime via `mapLegacyPowerType()` — existing actor sheets keep working
+- **Power Picker contents reduced to new content only**
+  - `TREE_POWER_MAP` (`powers/index.ts`) exposes only Dreadstalker and Doomscribe; all previous trees are kept on disk but no longer selectable
+  - `ALL_MAGIC_POWERS` (`magic-powers.ts`) and `SPELL_SCHOOLS` (`spell-schools.ts`) expose only Black Writ; Pyromancy / Malefic Arts / Old Pact / Thorn & Whisper / Breach & Break / Aegis & Benedictions / Bound Mind remain on disk for existing character items, but no longer appear in the picker
+
+### Removed
+- **Utility power category** (system-wide; `utility` shortcut, `utility` slot in character creation, `utility` in `PowerCategory` / `PowerActionCost`)
+- **Deprecated Special Effects** no longer listed in the SRD: `torment`, `curse`, `disoriented`, `charmed`, `grappled`
+
+### Files Changed
+- `src/utils/special-effects.ts` — full rewrite to SRD behavioural model
+- `src/utils/power-catalog.ts` — 5-category order / labels / 7-slot requirements; legacy `'utility'` maps to `'active'`
+- `src/types/item.d.ts` — `PowerCategory` / `PowerActionCost` no longer include `'utility'`
+- `src/utils/powers/index.ts` — active trees reduced to Dreadstalker + Doomscribe (old imports commented as deprecated)
+- `src/utils/magic-powers.ts` — active schools reduced to Black Writ (old imports commented as deprecated)
+- `src/utils/spell-schools.ts` — `SPELL_SCHOOLS` reduced to `blackWrit`
+- `src/utils/powers/dreadstalker.ts` *(new)* — full Dreadstalker Tree
+- `src/utils/powers/doomscribe.ts` *(new)* — full Doomscribe Tree
+- `src/utils/spells/black-writ.ts` *(new)* — full Black Writ Spell List
+- `src/sheets/character-sheet.ts` — per-category counters updated to 5 categories, legacy `utility` powerType collapsed to `active`
+- `src/sheets/character-sheet-power-dialog.ts` — same
+- `src/utils/power-migration.ts` / `src/utils/power-definition-migration.ts` — legacy `'utility'` folded into `'active'` on convert
+- `templates/actor/character-sheet.hbs` — Utility shortcut button removed, creation banner text updated to 7 powers
+
 ## [0.4.253] - 2026-04-18
 
 ### Changed

@@ -112,7 +112,7 @@ export const SANCTIFIER_POWERS: NewArtifactPowerData[] = [
     },
     {
         name: 'Lay on Hands',
-        category: 'utility',
+        category: 'active',
         tags: [],
         rank: 1,
         cost: {

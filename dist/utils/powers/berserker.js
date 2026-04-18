@@ -197,7 +197,7 @@ export const BERSERKER_POWERS = [
     },
     {
         name: 'Brutal Howl',
-        category: 'utility',
+        category: 'active',
         tags: [],
         rank: 1,
         cost: {

@@ -23,8 +23,7 @@ function countByCategory(actor) {
         activeBuff: 0,
         movement: 0,
         reaction: 0,
-        passive: 0,
-        utility: 0
+        passive: 0
     };
     const powers = actor.items.filter((i) => i.type === 'power');
     for (const p of powers) {
@@ -34,7 +33,9 @@ function countByCategory(actor) {
             const pt = sys.powerType;
             if (pt === 'buff')
                 cat = 'activeBuff';
-            else if (pt === 'active' || pt === 'passive' || pt === 'reaction' || pt === 'movement' || pt === 'utility')
+            else if (pt === 'utility')
+                cat = 'active';
+            else if (pt === 'active' || pt === 'passive' || pt === 'reaction' || pt === 'movement')
                 cat = pt;
         }
         if (cat && cat in counts)
@@ -52,6 +53,7 @@ export async function showPowerCreationDialog(actor, options) {
     const system = actor.system;
     const creationComplete = system?.creation?.complete !== false;
     const masteryRank = system?.mastery?.rank || 2;
+    const actorEchoKey = system?.echo?.key || null;
     // Build filter UI options
     const categoryOptions = CATEGORY_ORDER.map(c => `<option value="${c}"${options?.presetCategory === c ? ' selected' : ''}>${CATEGORY_LABELS[c]}</option>`).join('');
     const specialOptions = getAllSpecialOptions()
@@ -206,7 +208,8 @@ export async function showPowerCreationDialog(actor, options) {
                 const entries = filterCatalog({
                     category: (category || null),
                     tag: spellOnly ? 'spell' : null,
-                    special: special || null
+                    special: special || null,
+                    actorEchoKey
                 });
                 $powerSelect.empty();
                 if (entries.length === 0) {

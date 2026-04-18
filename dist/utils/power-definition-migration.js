@@ -247,7 +247,7 @@ function convertPowerTypeToCategory(powerType) {
     const map = {
         'active': 'active',
         'buff': 'activeBuff',
-        'utility': 'utility',
+        'utility': 'active', // Utility retired — legacy items fall back to active
         'passive': 'passive',
         'reaction': 'reaction',
         'movement': 'movement'
@@ -267,15 +267,11 @@ function convertCost(level, powerType) {
         action = 'movement';
     }
     else if (cost.action) {
-        if (powerType === 'utility' || powerType === 'buff') {
-            action = 'utility';
-        }
-        else {
-            action = 'attack';
-        }
+        // Utility action cost was retired; buffs/utilities default to an attack action.
+        action = 'attack';
     }
     else {
-        action = 'utility';
+        action = 'none';
     }
     return {
         action,

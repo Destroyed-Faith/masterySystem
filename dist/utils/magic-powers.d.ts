@@ -6,7 +6,7 @@
  */
 import type { PowerDefinition } from './powers/types.js';
 /**
- * All magic powers from all spell schools
+ * All magic powers from all active spell schools (deprecated schools are omitted here but remain on disk).
  */
 export declare const ALL_MAGIC_POWERS: PowerDefinition[];
 /**

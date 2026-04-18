@@ -17,8 +17,8 @@ export interface BaseItemData {
 
 // === Power Structure Types (New Structure) ===
 
-export type PowerCategory = 'active' | 'activeBuff' | 'utility' | 'reaction' | 'passive' | 'movement';
-export type PowerActionCost = 'attack' | 'movement' | 'full' | 'reaction' | 'none' | 'utility';
+export type PowerCategory = 'active' | 'activeBuff' | 'reaction' | 'passive' | 'movement';
+export type PowerActionCost = 'attack' | 'movement' | 'full' | 'reaction' | 'none';
 export type PowerLevelKey = '1' | '2' | '3' | '4';
 export type PowerRollKind = string;
 
@@ -105,6 +105,8 @@ export interface EmbeddedPowerData {
     vs?: string;
   };
   levels: Record<PowerLevelKey, PowerLevelRow>;
+  /** Optional echo-gating: power is only offered in the picker if the actor's Echo key matches one of these values. */
+  requiresEcho?: string[];
 }
 
 // Legacy alias for backwards compatibility

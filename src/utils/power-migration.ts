@@ -38,7 +38,7 @@ function convertPowerTypeToCategory(powerType: string): PowerCategory {
   const map: Record<string, PowerCategory> = {
     'active': 'active',
     'buff': 'activeBuff',
-    'utility': 'utility',
+    'utility': 'active', // Utility retired — legacy items fall back to active
     'passive': 'passive',
     'reaction': 'reaction',
     'movement': 'movement'

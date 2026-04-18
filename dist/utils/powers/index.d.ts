@@ -14,7 +14,7 @@ import type { NewArtifactPowerData } from '../../types/item.js';
 export declare const ALL_MASTERY_POWERS: (PowerDefinition | NewArtifactPowerData)[];
 /**
  * Get all powers for a specific Mastery Tree
- * @param treeName - The display name of the Mastery Tree (e.g. "Crusader")
+ * @param treeName - The display name of the Mastery Tree (e.g. "Dreadstalker")
  */
 export declare function getPowersForTree(treeName: string): (PowerDefinition | NewArtifactPowerData)[];
 /**

@@ -7,34 +7,23 @@ export interface MasteryTreeDefinition {
 }
 
 export const MASTERY_TREES: Record<string, MasteryTreeDefinition> = {
-  crusader: { name: 'Crusader' },
-  juggernaut: { name: 'Juggernaut' },
-  berserkerOfTheBloodMoon: { name: 'Berserker of the Blood Moon' },
-  grimHunter: { name: 'Grim Hunter' },
-  wildStalker: { name: 'Wild Stalker' },
-  elementalScholar: { name: 'Elemental Scholar' },
-  sanctifier: { name: 'Sanctifier' },
-  werewolf: { name: 'Werewolf' },
-  werebear: { name: 'Werebear' },
-  dragon: { name: 'Dragon' },
-  ravenlord: { name: 'Ravenlord' },
-  wraith: { name: 'Wraith' },
-  mesmer: { name: 'Mesmer' },
-  alchemist: { name: 'Alchemist' },
-  battlemage: { name: 'Battlemage' },
-  markedOne: { name: 'Marked One' },
-  spellshaper: { name: 'Spellshaper' },
-  thunderer: { name: 'Thunderer' },
-  titanRunecaster: { name: 'Titan Runecaster' },
-  frostmonger: { name: 'Frostmonger' },
-  scourge: { name: 'Scourge' },
-  curseweaver: { name: 'Curseweaver' },
-  siren: { name: 'Siren' },
-  crane: { name: 'Crane' },
-  lotus: { name: 'Lotus' },
-  catalyst: { name: 'Catalyst' },
-  forgemaster: { name: 'Forgemaster' },
-  witchbane: { name: 'Witchbane' }
+  dreadstalker: { name: 'Dreadstalker' },
+  doomscribe: { name: 'Doomscribe' },
+  hexboundHarrier: { name: 'Hexbound Harrier' },
+  voidTestament: { name: 'Void Testament' },
+  galeBreaker: { name: 'Gale Breaker' },
+  stormVeil: { name: 'Storm Veil' },
+  ashguard: { name: 'Ashguard' },
+  infernalBastion: { name: 'Infernal Bastion' },
+  wardenDragon: { name: 'Warden Dragon' },
+  raptorDragon: { name: 'Raptor Dragon' },
+  dreadwyrm: { name: 'Dreadwyrm' }
+  // Deprecated trees (kept for existing actor items, no longer selectable):
+  // crusader, juggernaut, berserkerOfTheBloodMoon, grimHunter, wildStalker,
+  // elementalScholar, sanctifier, werewolf, werebear, dragon, ravenlord,
+  // wraith, mesmer, alchemist, battlemage, markedOne, spellshaper, thunderer,
+  // titanRunecaster, frostmonger, scourge, curseweaver, siren, crane, lotus,
+  // catalyst, forgemaster, witchbane
 };
 
 export function getAllMasteryTrees(): MasteryTreeDefinition[] {

@@ -102,7 +102,7 @@ export const ALCHEMIST_POWERS = [
     },
     {
         name: 'Healing Elixir',
-        category: 'utility',
+        category: 'active',
         tags: [],
         rank: 1,
         cost: {

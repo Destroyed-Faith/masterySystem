@@ -148,7 +148,7 @@ export const RAVENLORD_POWERS = [
     },
     {
         name: 'Raven Messenger',
-        category: 'utility',
+        category: 'active',
         tags: [],
         rank: 1,
         cost: {

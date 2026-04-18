@@ -101,7 +101,7 @@ export const CATALYST_POWERS = [
     },
     {
         name: 'Toxin Cloud',
-        category: 'utility',
+        category: 'active',
         tags: [],
         rank: 1,
         cost: {

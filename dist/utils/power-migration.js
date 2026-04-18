@@ -21,7 +21,7 @@ function convertPowerTypeToCategory(powerType) {
     const map = {
         'active': 'active',
         'buff': 'activeBuff',
-        'utility': 'utility',
+        'utility': 'active', // Utility retired — legacy items fall back to active
         'passive': 'passive',
         'reaction': 'reaction',
         'movement': 'movement'

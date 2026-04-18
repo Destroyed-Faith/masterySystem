@@ -356,7 +356,7 @@ export const DRAGON_POWERS = [
     },
     {
         name: 'Shed Scales',
-        category: 'utility',
+        category: 'active',
         tags: [],
         rank: 1,
         cost: {
@@ -545,7 +545,7 @@ export const DRAGON_POWERS = [
     },
     {
         name: 'Scalding Residue',
-        category: 'utility',
+        category: 'active',
         tags: [],
         rank: 1,
         cost: {
@@ -831,7 +831,7 @@ export const DRAGON_POWERS = [
     // === DOMINION (requires 8+ Dragon powers) ===
     {
         name: 'Tyrant\'s Roar',
-        category: 'utility',
+        category: 'active',
         tags: [],
         rank: 1,
         cost: {
@@ -974,7 +974,7 @@ export const DRAGON_POWERS = [
     },
     {
         name: 'Throne Zone',
-        category: 'utility',
+        category: 'active',
         tags: [],
         rank: 1,
         cost: {

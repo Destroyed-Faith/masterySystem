@@ -67,6 +67,22 @@ export interface ResourcesData {
 }
 
 // === Character Data ===
+/**
+ * Echo data attached to a character.
+ * `key` identifies the chosen Echo (e.g. 'humans'); sub-choices (Elves lineage,
+ * Sentinels order) go into `subChoiceKey`. `veiledFormKey` is Dragonborn-only.
+ * Cards and trait uses are tracked as plain dictionaries so daily reset is
+ * just `actor.update({ 'system.echo.cardUses': {}, 'system.echo.traitUses': ... })`.
+ */
+export interface CharacterEchoData {
+  key: string;
+  subChoiceKey?: string;
+  veiledFormKey?: string;
+  selectedCardIds: string[];
+  cardUses: Record<string, boolean>;
+  traitUses: Record<string, number>;
+}
+
 export interface CharacterData {
   bio: {
     name: string;
@@ -75,6 +91,7 @@ export interface CharacterData {
     appearance: string;
     notes: string;
   };
+  echo?: CharacterEchoData;
   bloodColor?: string; // Hex color for blood pools (e.g., "#8b0000" for dark red)
   attributes: {
     might: AttributeData;
