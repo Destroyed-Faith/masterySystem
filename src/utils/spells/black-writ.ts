@@ -129,7 +129,8 @@ export const BLACK_WRIT_SPELLS: SpellDefinition[] = [
                 duration: 'Instant',
                 effect: '2d8 damage vs. Marked target',
                 cost: { action: true },
-                roll: { damage: '2d8' }
+                roll: { damage: '2d8' },
+                mechanics: {damageRider:{vsCondition:'marked',vsConditionDamage:'+2d8'},condition:'targetMarked',applyWhen:'attack-rider'}
             },
             {
                 level: 2,
@@ -139,7 +140,8 @@ export const BLACK_WRIT_SPELLS: SpellDefinition[] = [
                 duration: 'Instant',
                 effect: '4d8 damage vs. Marked target',
                 cost: { action: true },
-                roll: { damage: '4d8' }
+                roll: { damage: '4d8' },
+                mechanics: {damageRider:{vsCondition:'marked',vsConditionDamage:'+4d8'},condition:'targetMarked',applyWhen:'attack-rider'}
             },
             {
                 level: 3,
@@ -149,7 +151,8 @@ export const BLACK_WRIT_SPELLS: SpellDefinition[] = [
                 duration: 'Instant',
                 effect: '6d8 damage vs. Marked target',
                 cost: { action: true },
-                roll: { damage: '6d8' }
+                roll: { damage: '6d8' },
+                mechanics: {damageRider:{vsCondition:'marked',vsConditionDamage:'+6d8'},condition:'targetMarked',applyWhen:'attack-rider'}
             },
             {
                 level: 4,
@@ -159,7 +162,8 @@ export const BLACK_WRIT_SPELLS: SpellDefinition[] = [
                 duration: 'Instant',
                 effect: '8d8 damage vs. Marked target',
                 cost: { action: true },
-                roll: { damage: '8d8' }
+                roll: { damage: '8d8' },
+                mechanics: {damageRider:{vsCondition:'marked',vsConditionDamage:'+8d8'},condition:'targetMarked',applyWhen:'attack-rider'}
             }
         ]
     },
@@ -226,7 +230,8 @@ export const BLACK_WRIT_SPELLS: SpellDefinition[] = [
                 effect: '1d8 damage vs. Marked target',
                 special: 'Crit(1)',
                 cost: { action: true },
-                roll: { damage: '1d8' }
+                roll: { damage: '1d8' },
+                mechanics: {damageRider:{vsCondition:'marked',vsConditionDamage:'+1d8'},condition:'targetMarked',applyWhen:'attack-rider'}
             },
             {
                 level: 2,
@@ -237,7 +242,8 @@ export const BLACK_WRIT_SPELLS: SpellDefinition[] = [
                 effect: '2d8 damage vs. Marked target',
                 special: 'Crit(1)',
                 cost: { action: true },
-                roll: { damage: '2d8' }
+                roll: { damage: '2d8' },
+                mechanics: {damageRider:{vsCondition:'marked',vsConditionDamage:'+2d8'},condition:'targetMarked',applyWhen:'attack-rider'}
             },
             {
                 level: 3,
@@ -248,7 +254,8 @@ export const BLACK_WRIT_SPELLS: SpellDefinition[] = [
                 effect: '3d8 damage vs. Marked target',
                 special: 'Crit(2)',
                 cost: { action: true },
-                roll: { damage: '3d8' }
+                roll: { damage: '3d8' },
+                mechanics: {damageRider:{vsCondition:'marked',vsConditionDamage:'+3d8'},condition:'targetMarked',applyWhen:'attack-rider'}
             },
             {
                 level: 4,
@@ -259,7 +266,8 @@ export const BLACK_WRIT_SPELLS: SpellDefinition[] = [
                 effect: '4d8 damage vs. Marked target',
                 special: 'Crit(3)',
                 cost: { action: true },
-                roll: { damage: '4d8' }
+                roll: { damage: '4d8' },
+                mechanics: {damageRider:{vsCondition:'marked',vsConditionDamage:'+4d8'},condition:'targetMarked',applyWhen:'attack-rider'}
             }
         ]
     },
@@ -277,7 +285,8 @@ export const BLACK_WRIT_SPELLS: SpellDefinition[] = [
                 duration: 'Instant',
                 effect: '2d8 damage vs. Marked target',
                 cost: { action: true },
-                roll: { damage: '2d8' }
+                roll: { damage: '2d8' },
+                mechanics: {damageRider:{vsCondition:'marked',vsConditionDamage:'+2d8'},condition:'targetMarked',applyWhen:'attack-rider'}
             },
             {
                 level: 2,
@@ -288,7 +297,8 @@ export const BLACK_WRIT_SPELLS: SpellDefinition[] = [
                 effect: '3d8 damage vs. Marked target',
                 special: 'Crit(1)',
                 cost: { action: true },
-                roll: { damage: '3d8' }
+                roll: { damage: '3d8' },
+                mechanics: {damageRider:{vsCondition:'marked',vsConditionDamage:'+3d8'},condition:'targetMarked',applyWhen:'attack-rider'}
             },
             {
                 level: 3,
@@ -299,7 +309,8 @@ export const BLACK_WRIT_SPELLS: SpellDefinition[] = [
                 effect: '4d8 damage vs. Marked target',
                 special: 'Crit(2)',
                 cost: { action: true },
-                roll: { damage: '4d8' }
+                roll: { damage: '4d8' },
+                mechanics: {damageRider:{vsCondition:'marked',vsConditionDamage:'+4d8'},condition:'targetMarked',applyWhen:'attack-rider'}
             },
             {
                 level: 4,
@@ -310,7 +321,8 @@ export const BLACK_WRIT_SPELLS: SpellDefinition[] = [
                 effect: '5d8 damage vs. Marked target',
                 special: 'Crit(3)',
                 cost: { action: true },
-                roll: { damage: '5d8' }
+                roll: { damage: '5d8' },
+                mechanics: {damageRider:{vsCondition:'marked',vsConditionDamage:'+5d8'},condition:'targetMarked',applyWhen:'attack-rider'}
             }
         ]
     },
