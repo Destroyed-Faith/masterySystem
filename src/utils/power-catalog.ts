@@ -186,12 +186,20 @@ export function getActiveTagOptions(): string[] {
 
 /** All special keys used by "active" powers (lowercased, unique, alphabetical + enriched by ALL_SPECIAL_EFFECTS). */
 export function getActiveSpecialOptions(): Array<{ key: string; label: string }> {
+    return collectSpecialOptions(e => e.category === 'active');
+}
+
+/** All special keys used by any catalog entry (unique, sorted). */
+export function getAllSpecialOptions(): Array<{ key: string; label: string }> {
+    return collectSpecialOptions(() => true);
+}
+
+function collectSpecialOptions(predicate: (e: CatalogEntry) => boolean): Array<{ key: string; label: string }> {
     const keys = new Set<string>();
     for (const e of getAllCatalogEntries()) {
-        if (e.category !== 'active') continue;
+        if (!predicate(e)) continue;
         for (const k of e.specialKeys) keys.add(k);
     }
-    // Resolve pretty labels via ALL_SPECIAL_EFFECTS (fallback: capitalize key).
     const labelFor = (k: string): string => {
         const hit = ALL_SPECIAL_EFFECTS.find(eff => eff.id === k || eff.name.toLowerCase().replace(/\(x\)/g, '').trim() === k);
         if (hit) return hit.name.replace(/\(X\)/gi, '').trim();

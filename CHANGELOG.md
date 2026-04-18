@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.253] - 2026-04-18
+
+### Changed
+- **Power Picker: simplified filter UI**
+  - Removed the free-text search input (was misleading and rarely helpful)
+  - Removed the Tag dropdown; replaced by a simple **"Spell only"** checkbox (uses the `spell` tag under the hood)
+  - Category dropdown, Spell checkbox and Special dropdown are now **always visible** regardless of the selected category
+  - Special dropdown now lists **all** special keys found across the entire catalog (not just Active powers), with pretty labels from `ALL_SPECIAL_EFFECTS`
+  - No data-schema changes: filtering continues to use existing `category`, `tags` and `levels.*.specials` fields
+
+### Files Changed
+- `src/sheets/character-sheet-power-dialog.ts` – rebuilt filter bar (Category + Spell checkbox + Special), removed search and tag handling
+- `src/utils/power-catalog.ts` – added `getAllSpecialOptions()`; shared helper `collectSpecialOptions(predicate)`
+- `styles/character-sheet.css` – styling for the new Spell checkbox row inside the filter grid
+
 ## [0.4.252] - 2026-04-18
 
 ### Changed

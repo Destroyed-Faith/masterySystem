@@ -19,8 +19,7 @@ import {
     CREATION_POWER_REQUIREMENTS,
     filterCatalog,
     findCatalogEntryByName,
-    getActiveSpecialOptions,
-    getActiveTagOptions,
+    getAllSpecialOptions,
     type CatalogEntry
 } from '../utils/power-catalog.js';
 
@@ -71,15 +70,9 @@ export async function showPowerCreationDialog(
     const categoryOptions = CATEGORY_ORDER.map(c =>
         `<option value="${c}"${options?.presetCategory === c ? ' selected' : ''}>${CATEGORY_LABELS[c]}</option>`
     ).join('');
-    const tagOptions = getActiveTagOptions()
-        .map(t => `<option value="${t}">${t.charAt(0).toUpperCase() + t.slice(1)}</option>`)
-        .join('');
-    const specialOptions = getActiveSpecialOptions()
+    const specialOptions = getAllSpecialOptions()
         .map(s => `<option value="${s.key}">${s.label}</option>`)
         .join('');
-
-    const initialCategory: PowerCategory | '' = options?.presetCategory || '';
-    const activeFiltersVisible = initialCategory === 'active' ? '' : ' style="display: none;"';
 
     const content = `
     <form class="power-creation-form power-catalog-form">
@@ -91,23 +84,18 @@ export async function showPowerCreationDialog(
             ${categoryOptions}
           </select>
         </div>
-        <div class="form-group power-form-group pc-active-filter"${activeFiltersVisible}>
-          <label class="power-form-label">Tag:</label>
-          <select name="tag" id="pc-tag" class="power-form-select">
-            <option value="">-- Any Tag --</option>
-            ${tagOptions}
-          </select>
+        <div class="form-group power-form-group pc-spell-group">
+          <label class="power-form-label power-form-checkbox-label">
+            <input type="checkbox" id="pc-spell" class="power-form-checkbox" />
+            <span>Spell only</span>
+          </label>
         </div>
-        <div class="form-group power-form-group pc-active-filter"${activeFiltersVisible}>
+        <div class="form-group power-form-group">
           <label class="power-form-label">Special:</label>
           <select name="special" id="pc-special" class="power-form-select">
             <option value="">-- Any Special --</option>
             ${specialOptions}
           </select>
-        </div>
-        <div class="form-group power-form-group pc-search-group">
-          <label class="power-form-label">Search:</label>
-          <input type="search" name="search" id="pc-search" class="power-form-input" placeholder="Search name or source…" />
         </div>
       </div>
       <div class="form-group power-form-group">
@@ -232,9 +220,8 @@ export async function showPowerCreationDialog(
             }, 0);
 
             const $categorySelect = html.find('#pc-category');
-            const $tagSelect = html.find('#pc-tag');
+            const $spellCheckbox = html.find('#pc-spell');
             const $specialSelect = html.find('#pc-special');
-            const $searchInput = html.find('#pc-search');
             const $powerSelect = html.find('#pc-power');
             const $details = html.find('#pc-details');
             const $description = html.find('#pc-description');
@@ -243,17 +230,13 @@ export async function showPowerCreationDialog(
 
             const refreshList = () => {
                 const category = ($categorySelect.val() as string) || '';
-                const tag = ($tagSelect.val() as string) || '';
+                const spellOnly = ($spellCheckbox.prop('checked') as boolean) === true;
                 const special = ($specialSelect.val() as string) || '';
-                const search = ($searchInput.val() as string) || '';
 
-                // Tag/Special filters only apply when an active filter is possible;
-                // if category is not "active", force-clear the UI (the dropdowns are hidden anyway).
                 const entries = filterCatalog({
                     category: (category || null) as PowerCategory | null,
-                    tag: category === 'active' ? (tag || null) : null,
-                    special: category === 'active' ? (special || null) : null,
-                    search: search || null
+                    tag: spellOnly ? 'spell' : null,
+                    special: special || null
                 });
 
                 $powerSelect.empty();
@@ -273,25 +256,14 @@ export async function showPowerCreationDialog(
                 }
                 $count.text(`${entries.length} power${entries.length === 1 ? '' : 's'} match the current filter`);
 
-                // Reset details until user picks.
                 $details.hide();
                 $description.empty();
                 $levelTable.empty();
             };
 
-            // Toggle active-only filter rows when category changes.
-            $categorySelect.on('change', () => {
-                const isActive = $categorySelect.val() === 'active';
-                html.find('.pc-active-filter').toggle(isActive);
-                if (!isActive) {
-                    $tagSelect.val('');
-                    $specialSelect.val('');
-                }
-                refreshList();
-            });
-            $tagSelect.on('change', refreshList);
+            $categorySelect.on('change', refreshList);
+            $spellCheckbox.on('change', refreshList);
             $specialSelect.on('change', refreshList);
-            $searchInput.on('input', refreshList);
 
             $powerSelect.on('change', function () {
                 const name = ($(this).val() as string) || '';

@@ -5561,6 +5561,26 @@
   color: #333;
 }
 
+.mastery-system.power-catalog-dialog .pc-spell-group {
+  align-self: end;
+}
+
+.mastery-system.power-catalog-dialog .power-form-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  user-select: none;
+  padding: 0.25rem 0;
+}
+
+.mastery-system.power-catalog-dialog .power-form-checkbox {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: #8b0000;
+}
+
 .mastery-system.power-creation-dialog .power-details-group {
   margin-top: 1rem;
   padding: 1rem;

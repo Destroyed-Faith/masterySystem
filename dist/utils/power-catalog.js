@@ -159,14 +159,20 @@ export function getActiveTagOptions() {
 }
 /** All special keys used by "active" powers (lowercased, unique, alphabetical + enriched by ALL_SPECIAL_EFFECTS). */
 export function getActiveSpecialOptions() {
+    return collectSpecialOptions(e => e.category === 'active');
+}
+/** All special keys used by any catalog entry (unique, sorted). */
+export function getAllSpecialOptions() {
+    return collectSpecialOptions(() => true);
+}
+function collectSpecialOptions(predicate) {
     const keys = new Set();
     for (const e of getAllCatalogEntries()) {
-        if (e.category !== 'active')
+        if (!predicate(e))
             continue;
         for (const k of e.specialKeys)
             keys.add(k);
     }
-    // Resolve pretty labels via ALL_SPECIAL_EFFECTS (fallback: capitalize key).
     const labelFor = (k) => {
         const hit = ALL_SPECIAL_EFFECTS.find(eff => eff.id === k || eff.name.toLowerCase().replace(/\(x\)/g, '').trim() === k);
         if (hit)

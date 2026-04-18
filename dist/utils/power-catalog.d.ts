@@ -40,6 +40,11 @@ export declare function getActiveSpecialOptions(): Array<{
     key: string;
     label: string;
 }>;
+/** All special keys used by any catalog entry (unique, sorted). */
+export declare function getAllSpecialOptions(): Array<{
+    key: string;
+    label: string;
+}>;
 /** Look up a catalog entry by name across both sources (used by the dialog to fetch raw data). */
 export declare function findCatalogEntryByName(name: string, sourceKind?: PowerSourceKind, sourceName?: string): CatalogEntry | undefined;
 //# sourceMappingURL=power-catalog.d.ts.map
