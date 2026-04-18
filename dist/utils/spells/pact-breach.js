@@ -76,7 +76,8 @@ export const PACT_BREACH_SPELLS = [
                 effect: '1d8 damage vs. Hexed target',
                 special: 'Penetration(2)',
                 cost: { action: true },
-                roll: { damage: '1d8' }
+                roll: { damage: '1d8' },
+                mechanics: { damageRider: { vsCondition: 'hexed', vsConditionDamage: '+1d8' }, condition: 'targetHexed', applyWhen: 'attack-rider' }
             },
             {
                 level: 2,
@@ -87,7 +88,8 @@ export const PACT_BREACH_SPELLS = [
                 effect: '2d8 damage vs. Hexed target',
                 special: 'Penetration(4)',
                 cost: { action: true },
-                roll: { damage: '2d8' }
+                roll: { damage: '2d8' },
+                mechanics: { damageRider: { vsCondition: 'hexed', vsConditionDamage: '+2d8' }, condition: 'targetHexed', applyWhen: 'attack-rider' }
             },
             {
                 level: 3,
@@ -98,7 +100,8 @@ export const PACT_BREACH_SPELLS = [
                 effect: '3d8 damage vs. Hexed target',
                 special: 'Penetration(6)',
                 cost: { action: true },
-                roll: { damage: '3d8' }
+                roll: { damage: '3d8' },
+                mechanics: { damageRider: { vsCondition: 'hexed', vsConditionDamage: '+3d8' }, condition: 'targetHexed', applyWhen: 'attack-rider' }
             },
             {
                 level: 4,
@@ -109,7 +112,8 @@ export const PACT_BREACH_SPELLS = [
                 effect: '4d8 damage vs. Hexed target',
                 special: 'Penetration(8)',
                 cost: { action: true },
-                roll: { damage: '4d8' }
+                roll: { damage: '4d8' },
+                mechanics: { damageRider: { vsCondition: 'hexed', vsConditionDamage: '+4d8' }, condition: 'targetHexed', applyWhen: 'attack-rider' }
             }
         ]
     },
@@ -127,7 +131,8 @@ export const PACT_BREACH_SPELLS = [
                 duration: 'Instant',
                 effect: 'Deal 1d8 damage and heal 1d8 HP vs. Hexed target.',
                 cost: { action: true },
-                roll: { damage: '1d8', healing: '1d8' }
+                roll: { damage: '1d8', healing: '1d8' },
+                mechanics: { condition: 'targetHexed', applyWhen: 'attack-rider' }
             },
             {
                 level: 2,
@@ -137,7 +142,8 @@ export const PACT_BREACH_SPELLS = [
                 duration: 'Instant',
                 effect: 'Deal 2d8 damage and heal 2d8 HP vs. Hexed target.',
                 cost: { action: true },
-                roll: { damage: '2d8', healing: '2d8' }
+                roll: { damage: '2d8', healing: '2d8' },
+                mechanics: { condition: 'targetHexed', applyWhen: 'attack-rider' }
             },
             {
                 level: 3,
@@ -147,7 +153,8 @@ export const PACT_BREACH_SPELLS = [
                 duration: 'Instant',
                 effect: 'Deal 3d8 damage and heal 3d8 HP vs. Hexed target.',
                 cost: { action: true },
-                roll: { damage: '3d8', healing: '3d8' }
+                roll: { damage: '3d8', healing: '3d8' },
+                mechanics: { condition: 'targetHexed', applyWhen: 'attack-rider' }
             },
             {
                 level: 4,
@@ -157,7 +164,8 @@ export const PACT_BREACH_SPELLS = [
                 duration: 'Instant',
                 effect: 'Deal 4d8 damage and heal 4d8 HP vs. Hexed target.',
                 cost: { action: true },
-                roll: { damage: '4d8', healing: '4d8' }
+                roll: { damage: '4d8', healing: '4d8' },
+                mechanics: { condition: 'targetHexed', applyWhen: 'attack-rider' }
             }
         ]
     },
@@ -223,7 +231,8 @@ export const PACT_BREACH_SPELLS = [
                 duration: 'Instant',
                 effect: '2d8 damage vs. Hexed target',
                 cost: { action: true },
-                roll: { damage: '2d8' }
+                roll: { damage: '2d8' },
+                mechanics: { damageRider: { vsCondition: 'hexed', vsConditionDamage: '+2d8' }, condition: 'targetHexed', applyWhen: 'attack-rider' }
             },
             {
                 level: 2,
@@ -233,7 +242,8 @@ export const PACT_BREACH_SPELLS = [
                 duration: 'Instant',
                 effect: '4d8 damage vs. Hexed target',
                 cost: { action: true },
-                roll: { damage: '4d8' }
+                roll: { damage: '4d8' },
+                mechanics: { damageRider: { vsCondition: 'hexed', vsConditionDamage: '+4d8' }, condition: 'targetHexed', applyWhen: 'attack-rider' }
             },
             {
                 level: 3,
@@ -243,7 +253,8 @@ export const PACT_BREACH_SPELLS = [
                 duration: 'Instant',
                 effect: '6d8 damage vs. Hexed target',
                 cost: { action: true },
-                roll: { damage: '6d8' }
+                roll: { damage: '6d8' },
+                mechanics: { damageRider: { vsCondition: 'hexed', vsConditionDamage: '+6d8' }, condition: 'targetHexed', applyWhen: 'attack-rider' }
             },
             {
                 level: 4,
@@ -253,7 +264,8 @@ export const PACT_BREACH_SPELLS = [
                 duration: 'Instant',
                 effect: '8d8 damage vs. Hexed target',
                 cost: { action: true },
-                roll: { damage: '8d8' }
+                roll: { damage: '8d8' },
+                mechanics: { damageRider: { vsCondition: 'hexed', vsConditionDamage: '+8d8' }, condition: 'targetHexed', applyWhen: 'attack-rider' }
             }
         ]
     },
@@ -272,7 +284,8 @@ export const PACT_BREACH_SPELLS = [
                 effect: '1d8 damage vs. Hexed target',
                 special: 'Penetration(2)',
                 cost: { action: true },
-                roll: { damage: '1d8' }
+                roll: { damage: '1d8' },
+                mechanics: { damageRider: { vsCondition: 'hexed', vsConditionDamage: '+1d8' }, condition: 'targetHexed', applyWhen: 'attack-rider' }
             },
             {
                 level: 2,
@@ -283,7 +296,8 @@ export const PACT_BREACH_SPELLS = [
                 effect: '2d8 damage vs. Hexed target',
                 special: 'Penetration(4)',
                 cost: { action: true },
-                roll: { damage: '2d8' }
+                roll: { damage: '2d8' },
+                mechanics: { damageRider: { vsCondition: 'hexed', vsConditionDamage: '+2d8' }, condition: 'targetHexed', applyWhen: 'attack-rider' }
             },
             {
                 level: 3,
@@ -294,7 +308,8 @@ export const PACT_BREACH_SPELLS = [
                 effect: '3d8 damage vs. Hexed target',
                 special: 'Penetration(6)',
                 cost: { action: true },
-                roll: { damage: '3d8' }
+                roll: { damage: '3d8' },
+                mechanics: { damageRider: { vsCondition: 'hexed', vsConditionDamage: '+3d8' }, condition: 'targetHexed', applyWhen: 'attack-rider' }
             },
             {
                 level: 4,
@@ -305,7 +320,8 @@ export const PACT_BREACH_SPELLS = [
                 effect: '4d8 damage vs. Hexed target',
                 special: 'Penetration(8)',
                 cost: { action: true },
-                roll: { damage: '4d8' }
+                roll: { damage: '4d8' },
+                mechanics: { damageRider: { vsCondition: 'hexed', vsConditionDamage: '+4d8' }, condition: 'targetHexed', applyWhen: 'attack-rider' }
             }
         ]
     },

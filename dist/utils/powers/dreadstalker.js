@@ -27,7 +27,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8', dice: '1d8' },
-                specials: [{ key: 'Mark', rank: 2 }]
+                specials: [{ key: 'Mark', rank: 2 }],
+                mechanics: { damageRider: { flat: '+1d8' }, applyWhen: 'attack-rider' }
             },
             '2': {
                 type: 'ranged',
@@ -35,7 +36,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Mark', rank: 3 }]
+                specials: [{ key: 'Mark', rank: 3 }],
+                mechanics: { damageRider: { flat: '+2d8' }, applyWhen: 'attack-rider' }
             },
             '3': {
                 type: 'ranged',
@@ -43,7 +45,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Mark', rank: 4 }]
+                specials: [{ key: 'Mark', rank: 4 }],
+                mechanics: { damageRider: { flat: '+3d8' }, applyWhen: 'attack-rider' }
             },
             '4': {
                 type: 'ranged',
@@ -51,7 +54,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Mark', rank: 4 }]
+                specials: [{ key: 'Mark', rank: 4 }],
+                mechanics: { damageRider: { flat: '+4d8' }, applyWhen: 'attack-rider' }
             }
         }
     },
@@ -70,7 +74,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Crit', rank: 1, note: 'if target is Marked' }]
+                specials: [{ key: 'Crit', rank: 1, note: 'if target is Marked' }],
+                mechanics: { damageRider: { flat: '+2d8' }, applyWhen: 'attack-rider' }
             },
             '2': {
                 type: 'melee',
@@ -78,7 +83,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Crit', rank: 1, note: 'if target is Marked' }]
+                specials: [{ key: 'Crit', rank: 1, note: 'if target is Marked' }],
+                mechanics: { damageRider: { flat: '+3d8' }, applyWhen: 'attack-rider' }
             },
             '3': {
                 type: 'melee',
@@ -86,7 +92,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Crit', rank: 2, note: 'if target is Marked' }]
+                specials: [{ key: 'Crit', rank: 2, note: 'if target is Marked' }],
+                mechanics: { damageRider: { flat: '+4d8' }, applyWhen: 'attack-rider' }
             },
             '4': {
                 type: 'melee',
@@ -94,7 +101,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +5d8 damage', dice: '5d8' },
-                specials: [{ key: 'Crit', rank: 2, note: 'if target is Marked' }]
+                specials: [{ key: 'Crit', rank: 2, note: 'if target is Marked' }],
+                mechanics: { damageRider: { flat: '+5d8' }, applyWhen: 'attack-rider' }
             }
         }
     },
@@ -156,7 +164,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8 vs. Marked target', dice: '2d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+2d8' }, condition: 'targetMarked', applyWhen: 'attack-rider' }
             },
             '2': {
                 type: 'melee',
@@ -164,7 +173,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8 vs. Marked target', dice: '3d8' },
-                specials: [{ key: 'Crit', rank: 1 }]
+                specials: [{ key: 'Crit', rank: 1 }],
+                mechanics: { damageRider: { flat: '+3d8' }, condition: 'targetMarked', applyWhen: 'attack-rider' }
             },
             '3': {
                 type: 'melee',
@@ -172,7 +182,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8 vs. Marked target', dice: '4d8' },
-                specials: [{ key: 'Crit', rank: 2 }]
+                specials: [{ key: 'Crit', rank: 2 }],
+                mechanics: { damageRider: { flat: '+4d8' }, condition: 'targetMarked', applyWhen: 'attack-rider' }
             },
             '4': {
                 type: 'melee',
@@ -180,7 +191,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +5d8 vs. Marked target', dice: '5d8' },
-                specials: [{ key: 'Crit', rank: 3 }]
+                specials: [{ key: 'Crit', rank: 3 }],
+                mechanics: { damageRider: { flat: '+5d8' }, condition: 'targetMarked', applyWhen: 'attack-rider' }
             }
         }
     },
@@ -243,7 +255,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +1 Attack Die against Marked targets.' },
-                specials: []
+                specials: [],
+                mechanics: { condition: 'targetMarked', applyWhen: 'passive-slotted-active' }
             },
             '2': {
                 type: 'passive',
@@ -251,7 +264,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +2 Attack Dice against Marked targets.' },
-                specials: []
+                specials: [],
+                mechanics: { condition: 'targetMarked', applyWhen: 'passive-slotted-active' }
             },
             '3': {
                 type: 'passive',
@@ -259,7 +273,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +4 Attack Dice against Marked targets.' },
-                specials: []
+                specials: [],
+                mechanics: { condition: 'targetMarked', applyWhen: 'passive-slotted-active' }
             },
             '4': {
                 type: 'passive',
@@ -267,7 +282,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +5 Attack Dice against Marked targets.' },
-                specials: []
+                specials: [],
+                mechanics: { condition: 'targetMarked', applyWhen: 'passive-slotted-active' }
             }
         }
     },
@@ -286,7 +302,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'If the target is Marked or Blinded, your attacks against it gain +1d8 damage and Crit(1).', dice: '1d8' },
-                specials: [{ key: 'Crit', rank: 1, note: 'if target is Marked or Blinded' }]
+                specials: [{ key: 'Crit', rank: 1, note: 'if target is Marked or Blinded' }],
+                mechanics: { damageRider: { flat: '+1d8' }, applyWhen: 'passive-slotted-active' }
             },
             '2': {
                 type: 'passive',
@@ -294,7 +311,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'If the target is Marked or Blinded, your attacks against it gain +2d8 damage and Crit(1).', dice: '2d8' },
-                specials: [{ key: 'Crit', rank: 1, note: 'if target is Marked or Blinded' }]
+                specials: [{ key: 'Crit', rank: 1, note: 'if target is Marked or Blinded' }],
+                mechanics: { damageRider: { flat: '+2d8' }, applyWhen: 'passive-slotted-active' }
             },
             '3': {
                 type: 'passive',
@@ -302,7 +320,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'If the target is Marked or Blinded, your attacks against it gain +3d8 damage and Crit(2).', dice: '3d8' },
-                specials: [{ key: 'Crit', rank: 2, note: 'if target is Marked or Blinded' }]
+                specials: [{ key: 'Crit', rank: 2, note: 'if target is Marked or Blinded' }],
+                mechanics: { damageRider: { flat: '+3d8' }, applyWhen: 'passive-slotted-active' }
             },
             '4': {
                 type: 'passive',
@@ -310,7 +329,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'If the target is Marked or Blinded, your attacks against it gain +3d8 damage and Crit(2).', dice: '3d8' },
-                specials: [{ key: 'Crit', rank: 2, note: 'if target is Marked or Blinded' }]
+                specials: [{ key: 'Crit', rank: 2, note: 'if target is Marked or Blinded' }],
+                mechanics: { damageRider: { flat: '+3d8' }, applyWhen: 'passive-slotted-active' }
             }
         }
     },
@@ -329,7 +349,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'If you act before a target in the round, your first attack against it that round gains +1d8 damage.', dice: '1d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+1d8' }, applyWhen: 'passive-slotted-active' }
             },
             '2': {
                 type: 'passive',
@@ -337,7 +358,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'If you act before a target in the round, your first attack against it that round gains +2d8 damage.', dice: '2d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+2d8' }, applyWhen: 'passive-slotted-active' }
             },
             '3': {
                 type: 'passive',
@@ -345,7 +367,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'If you act before a target in the round, your first attack against it that round gains +3d8 damage.', dice: '3d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+3d8' }, applyWhen: 'passive-slotted-active' }
             },
             '4': {
                 type: 'passive',
@@ -353,7 +376,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'If you act before a target in the round, your first attack against it that round gains +4d8 damage.', dice: '4d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+4d8' }, applyWhen: 'passive-slotted-active' }
             }
         }
     },
@@ -375,7 +399,8 @@ export const DREADSTALKER_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Make one attack; on hit, deal +1d8 damage.', dice: '1d8' },
                 trigger: 'A Marked target within range attacks someone other than you.',
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+1d8' }, applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             },
             '2': {
                 type: 'reaction',
@@ -384,7 +409,8 @@ export const DREADSTALKER_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Make one attack; on hit, deal +2d8 damage.', dice: '2d8' },
                 trigger: 'A Marked target within range attacks someone other than you.',
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+2d8' }, applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             },
             '3': {
                 type: 'reaction',
@@ -393,7 +419,8 @@ export const DREADSTALKER_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Make one attack; on hit, deal +3d8 damage.', dice: '3d8' },
                 trigger: 'A Marked target within range attacks someone other than you.',
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+3d8' }, applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             },
             '4': {
                 type: 'reaction',
@@ -402,7 +429,8 @@ export const DREADSTALKER_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Make one attack; on hit, deal +4d8 damage.', dice: '4d8' },
                 trigger: 'A Marked target within range attacks someone other than you.',
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+4d8' }, applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             }
         }
     },
@@ -471,7 +499,8 @@ export const DREADSTALKER_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Gain +2 Armor and +2 Evade against that attack.' },
                 trigger: 'A Marked target attacks you.',
-                specials: []
+                specials: [],
+                mechanics: { armor: 2, evade: 2, applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             },
             '2': {
                 type: 'reaction',
@@ -480,7 +509,8 @@ export const DREADSTALKER_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Gain +4 Armor and +4 Evade against that attack.' },
                 trigger: 'A Marked target attacks you.',
-                specials: []
+                specials: [],
+                mechanics: { armor: 4, evade: 4, applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             },
             '3': {
                 type: 'reaction',
@@ -489,7 +519,8 @@ export const DREADSTALKER_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Gain +6 Armor and +6 Evade against that attack.' },
                 trigger: 'A Marked target attacks you.',
-                specials: []
+                specials: [],
+                mechanics: { armor: 6, evade: 6, applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             },
             '4': {
                 type: 'reaction',
@@ -498,7 +529,8 @@ export const DREADSTALKER_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Gain +8 Armor and +8 Evade against that attack.' },
                 trigger: 'A Marked target attacks you.',
-                specials: []
+                specials: [],
+                mechanics: { armor: 8, evade: 8, applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             }
         }
     },
@@ -519,7 +551,8 @@ export const DREADSTALKER_POWERS = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Your next attack against that target before end of your next turn gains +1d8 damage and Crit(1).', dice: '1d8' },
                 trigger: 'A Marked target misses you.',
-                specials: [{ key: 'Crit', rank: 1 }]
+                specials: [{ key: 'Crit', rank: 1 }],
+                mechanics: { damageRider: { flat: '+1d8' }, applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             },
             '2': {
                 type: 'reaction',
@@ -528,7 +561,8 @@ export const DREADSTALKER_POWERS = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Your next attack gains +2d8 damage and Crit(1).', dice: '2d8' },
                 trigger: 'A Marked target misses you.',
-                specials: [{ key: 'Crit', rank: 1 }]
+                specials: [{ key: 'Crit', rank: 1 }],
+                mechanics: { damageRider: { flat: '+2d8' }, applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             },
             '3': {
                 type: 'reaction',
@@ -537,7 +571,8 @@ export const DREADSTALKER_POWERS = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Your next attack gains +3d8 damage and Crit(2).', dice: '3d8' },
                 trigger: 'A Marked target misses you.',
-                specials: [{ key: 'Crit', rank: 2 }]
+                specials: [{ key: 'Crit', rank: 2 }],
+                mechanics: { damageRider: { flat: '+3d8' }, applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             },
             '4': {
                 type: 'reaction',
@@ -546,7 +581,8 @@ export const DREADSTALKER_POWERS = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Your next attack gains +4d8 damage and Crit(2).', dice: '4d8' },
                 trigger: 'A Marked target misses you.',
-                specials: [{ key: 'Crit', rank: 2 }]
+                specials: [{ key: 'Crit', rank: 2 }],
+                mechanics: { damageRider: { flat: '+4d8' }, applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             }
         }
     },
@@ -566,7 +602,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Against attacks from Marked enemies, gain +2 Armor and +4 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: { armor: 2, evade: 4, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '2': {
                 type: 'buff',
@@ -574,7 +611,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Against attacks from Marked enemies, gain +4 Armor and +6 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: { armor: 4, evade: 6, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '3': {
                 type: 'buff',
@@ -582,7 +620,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Against attacks from Marked enemies, gain +6 Armor and +8 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: { armor: 6, evade: 8, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '4': {
                 type: 'buff',
@@ -590,7 +629,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Against attacks from Marked enemies, gain +8 Armor and +12 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: { armor: 8, evade: 12, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             }
         }
     },
@@ -609,7 +649,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a Marked target, add +2d8 damage.', dice: '2d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+2d8' }, condition: 'targetMarked', applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '2': {
                 type: 'buff',
@@ -617,7 +658,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a Marked target, add +4d8 damage.', dice: '4d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+4d8' }, condition: 'targetMarked', applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '3': {
                 type: 'buff',
@@ -625,7 +667,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a Marked target, add +6d8 damage.', dice: '6d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+6d8' }, condition: 'targetMarked', applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '4': {
                 type: 'buff',
@@ -633,7 +676,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a Marked target, add +8d8 damage.', dice: '8d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+8d8' }, condition: 'targetMarked', applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             }
         }
     },
@@ -695,7 +739,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: '+4 m Movement. If you move ≥4 m before attacking a Marked target, that attack gains Crit(1).' },
-                specials: [{ key: 'Crit', rank: 1, note: 'if you moved ≥4 m before attack' }]
+                specials: [{ key: 'Crit', rank: 1, note: 'if you moved ≥4 m before attack' }],
+                mechanics: { movementBonus: 4, condition: 'targetMarked', applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '2': {
                 type: 'buff',
@@ -703,7 +748,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: '+6 m Movement. If you move ≥4 m before attacking a Marked target, that attack gains Crit(1).' },
-                specials: [{ key: 'Crit', rank: 1, note: 'if you moved ≥4 m before attack' }]
+                specials: [{ key: 'Crit', rank: 1, note: 'if you moved ≥4 m before attack' }],
+                mechanics: { movementBonus: 6, condition: 'targetMarked', applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '3': {
                 type: 'buff',
@@ -711,7 +757,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: '+8 m Movement. If you move ≥4 m before attacking a Marked target, that attack gains Crit(2).' },
-                specials: [{ key: 'Crit', rank: 2, note: 'if you moved ≥4 m before attack' }]
+                specials: [{ key: 'Crit', rank: 2, note: 'if you moved ≥4 m before attack' }],
+                mechanics: { movementBonus: 8, condition: 'targetMarked', applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '4': {
                 type: 'buff',
@@ -719,7 +766,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: '+10 m Movement. If you move ≥4 m before attacking a Marked target, that attack gains Crit(3).' },
-                specials: [{ key: 'Crit', rank: 3, note: 'if you moved ≥4 m before attack' }]
+                specials: [{ key: 'Crit', rank: 3, note: 'if you moved ≥4 m before attack' }],
+                mechanics: { movementBonus: 10, condition: 'targetMarked', applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             }
         }
     },
@@ -739,7 +787,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 6 m. If you end adjacent to a Marked target, your next attack this turn gains +1 Attack Die.' },
-                specials: []
+                specials: [],
+                mechanics: { condition: 'targetMarked', applyWhen: 'attack-rider' }
             },
             '2': {
                 type: 'movement',
@@ -747,7 +796,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 10 m. If you end adjacent to a Marked target, your next attack this turn gains +2 Attack Dice.' },
-                specials: []
+                specials: [],
+                mechanics: { condition: 'targetMarked', applyWhen: 'attack-rider' }
             },
             '3': {
                 type: 'movement',
@@ -755,7 +805,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 14 m. If you end adjacent to a Marked target, your next attack this turn gains +3 Attack Dice.' },
-                specials: []
+                specials: [],
+                mechanics: { condition: 'targetMarked', applyWhen: 'attack-rider' }
             },
             '4': {
                 type: 'movement',
@@ -763,7 +814,8 @@ export const DREADSTALKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 18 m. If you end adjacent to a Marked target, your next attack this turn gains +4 Attack Dice.' },
-                specials: []
+                specials: [],
+                mechanics: { condition: 'targetMarked', applyWhen: 'attack-rider' }
             }
         }
     },

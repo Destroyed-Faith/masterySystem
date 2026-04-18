@@ -71,7 +71,8 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Your Spells gain +1 Attack Die against Shocked targets.' },
-                specials: []
+                specials: [],
+                mechanics: { condition: 'targetShocked', applyWhen: 'passive-slotted-active' }
             },
             '2': {
                 type: 'passive',
@@ -79,7 +80,8 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Your Spells gain +2 Attack Dice against Shocked targets.' },
-                specials: []
+                specials: [],
+                mechanics: { condition: 'targetShocked', applyWhen: 'passive-slotted-active' }
             },
             '3': {
                 type: 'passive',
@@ -87,7 +89,8 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Your Spells gain +3 Attack Dice against Shocked targets.' },
-                specials: []
+                specials: [],
+                mechanics: { condition: 'targetShocked', applyWhen: 'passive-slotted-active' }
             },
             '4': {
                 type: 'passive',
@@ -95,7 +98,8 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Your Spells gain +4 Attack Dice against Shocked targets.' },
-                specials: []
+                specials: [],
+                mechanics: { condition: 'targetShocked', applyWhen: 'passive-slotted-active' }
             }
         }
     },
@@ -114,7 +118,8 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +2 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: { evade: 2, applyWhen: 'passive-slotted-active' }
             },
             '2': {
                 type: 'passive',
@@ -122,7 +127,8 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +4 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: { evade: 4, applyWhen: 'passive-slotted-active' }
             },
             '3': {
                 type: 'passive',
@@ -130,7 +136,8 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +6 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: { evade: 6, applyWhen: 'passive-slotted-active' }
             },
             '4': {
                 type: 'passive',
@@ -138,7 +145,8 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +8 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: { evade: 8, applyWhen: 'passive-slotted-active' }
             }
         }
     },
@@ -157,7 +165,8 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Once per round, the first time you damage a Shocked target with a Spell, add +1d8 damage.', dice: '1d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+1d8' }, condition: 'targetShocked', applyWhen: 'passive-slotted-active' }
             },
             '2': {
                 type: 'passive',
@@ -165,7 +174,8 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Once per round, the first time you damage a Shocked target with a Spell, add +2d8 damage.', dice: '2d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+2d8' }, condition: 'targetShocked', applyWhen: 'passive-slotted-active' }
             },
             '3': {
                 type: 'passive',
@@ -173,7 +183,8 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Once per round, the first time you damage a Shocked target with a Spell, add +3d8 damage.', dice: '3d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+3d8' }, condition: 'targetShocked', applyWhen: 'passive-slotted-active' }
             },
             '4': {
                 type: 'passive',
@@ -181,7 +192,8 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Once per round, the first time you damage a Shocked target with a Spell, add +4d8 damage.', dice: '4d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+4d8' }, condition: 'targetShocked', applyWhen: 'passive-slotted-active' }
             }
         }
     },
@@ -299,7 +311,8 @@ export const STORM_VEIL_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Gain +2 Evade and +1 Armor against that attack.' },
                 trigger: 'You are attacked by a creature you can perceive.',
-                specials: []
+                specials: [],
+                mechanics: { armor: 1, evade: 2, applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             },
             '2': {
                 type: 'reaction',
@@ -308,7 +321,8 @@ export const STORM_VEIL_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Gain +4 Evade and +2 Armor against that attack.' },
                 trigger: 'You are attacked by a creature you can perceive.',
-                specials: []
+                specials: [],
+                mechanics: { armor: 2, evade: 4, applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             },
             '3': {
                 type: 'reaction',
@@ -317,7 +331,8 @@ export const STORM_VEIL_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Gain +6 Evade and +3 Armor against that attack.' },
                 trigger: 'You are attacked by a creature you can perceive.',
-                specials: []
+                specials: [],
+                mechanics: { armor: 3, evade: 6, applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             },
             '4': {
                 type: 'reaction',
@@ -326,7 +341,8 @@ export const STORM_VEIL_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Gain +8 Evade and +4 Armor against that attack.' },
                 trigger: 'You are attacked by a creature you can perceive.',
-                specials: []
+                specials: [],
+                mechanics: { armor: 4, evade: 8, applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             }
         }
     },
@@ -394,7 +410,8 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'radius', radiusM: 4 },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'You and allies in the aura gain +2 Evade. The first time each round you hit a target that is already Shocked with a Spell, increase its Shock by +1.' },
-                specials: [{ key: 'Shock', rank: 1, note: 'first Spell hit per round vs. already-Shocked' }]
+                specials: [{ key: 'Shock', rank: 1, note: 'first Spell hit per round vs. already-Shocked' }],
+                mechanics: { evade: 2, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '2': {
                 type: 'buff',
@@ -402,7 +419,8 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'radius', radiusM: 6 },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'You and allies in the aura gain +3 Evade. The first time each round you hit a target that is already Shocked with a Spell, increase its Shock by +1.' },
-                specials: [{ key: 'Shock', rank: 1, note: 'first Spell hit per round vs. already-Shocked' }]
+                specials: [{ key: 'Shock', rank: 1, note: 'first Spell hit per round vs. already-Shocked' }],
+                mechanics: { evade: 3, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '3': {
                 type: 'buff',
@@ -410,7 +428,8 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'radius', radiusM: 8 },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'You and allies in the aura gain +4 Evade. The first time each round you hit a target that is already Shocked with a Spell, increase its Shock by +2.' },
-                specials: [{ key: 'Shock', rank: 2, note: 'first Spell hit per round vs. already-Shocked' }]
+                specials: [{ key: 'Shock', rank: 2, note: 'first Spell hit per round vs. already-Shocked' }],
+                mechanics: { evade: 4, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '4': {
                 type: 'buff',
@@ -418,7 +437,8 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'radius', radiusM: 10 },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'You and allies in the aura gain +5 Evade. The first time each round you hit a target that is already Shocked with a Spell, increase its Shock by +3.' },
-                specials: [{ key: 'Shock', rank: 3, note: 'first Spell hit per round vs. already-Shocked' }]
+                specials: [{ key: 'Shock', rank: 3, note: 'first Spell hit per round vs. already-Shocked' }],
+                mechanics: { evade: 5, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             }
         }
     },
@@ -480,7 +500,8 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a Shocked target with a Spell, apply Expose(1).' },
-                specials: [{ key: 'Expose', rank: 1, note: 'first Spell hit per round vs. Shocked' }]
+                specials: [{ key: 'Expose', rank: 1, note: 'first Spell hit per round vs. Shocked' }],
+                mechanics: { condition: 'targetShocked', applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '2': {
                 type: 'buff',
@@ -488,7 +509,8 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a Shocked target with a Spell, apply Expose(2).' },
-                specials: [{ key: 'Expose', rank: 2, note: 'first Spell hit per round vs. Shocked' }]
+                specials: [{ key: 'Expose', rank: 2, note: 'first Spell hit per round vs. Shocked' }],
+                mechanics: { condition: 'targetShocked', applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '3': {
                 type: 'buff',
@@ -496,7 +518,8 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a Shocked target with a Spell, apply Expose(3).' },
-                specials: [{ key: 'Expose', rank: 3, note: 'first Spell hit per round vs. Shocked' }]
+                specials: [{ key: 'Expose', rank: 3, note: 'first Spell hit per round vs. Shocked' }],
+                mechanics: { condition: 'targetShocked', applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '4': {
                 type: 'buff',
@@ -504,7 +527,8 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a Shocked target with a Spell, apply Expose(4).' },
-                specials: [{ key: 'Expose', rank: 4, note: 'first Spell hit per round vs. Shocked' }]
+                specials: [{ key: 'Expose', rank: 4, note: 'first Spell hit per round vs. Shocked' }],
+                mechanics: { condition: 'targetShocked', applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             }
         }
     },
@@ -523,7 +547,8 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Gain +2 Armor and +2 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: { armor: 2, evade: 2, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '2': {
                 type: 'buff',
@@ -531,7 +556,8 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Gain +4 Armor and +4 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: { armor: 4, evade: 4, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '3': {
                 type: 'buff',
@@ -539,7 +565,8 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Gain +6 Armor and +6 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: { armor: 6, evade: 6, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '4': {
                 type: 'buff',
@@ -547,7 +574,8 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Gain +8 Armor and +8 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: { armor: 8, evade: 8, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             }
         }
     }

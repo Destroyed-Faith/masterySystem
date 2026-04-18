@@ -176,7 +176,8 @@ export const PYRE_CALCULUS_SPELLS = [
                 duration: 'Instant',
                 effect: 'Deal 1d8 damage and gain +2 Armor until the start of your next turn.',
                 cost: { action: true },
-                roll: { damage: '1d8' }
+                roll: { damage: '1d8' },
+                mechanics: { armor: 2, applyWhen: 'attack-rider' }
             },
             {
                 level: 2,
@@ -186,7 +187,8 @@ export const PYRE_CALCULUS_SPELLS = [
                 duration: 'Instant',
                 effect: 'Deal 2d8 damage and gain +4 Armor until the start of your next turn.',
                 cost: { action: true },
-                roll: { damage: '2d8' }
+                roll: { damage: '2d8' },
+                mechanics: { armor: 4, applyWhen: 'attack-rider' }
             },
             {
                 level: 3,
@@ -196,7 +198,8 @@ export const PYRE_CALCULUS_SPELLS = [
                 duration: 'Instant',
                 effect: 'Deal 3d8 damage and gain +6 Armor until the start of your next turn.',
                 cost: { action: true },
-                roll: { damage: '3d8' }
+                roll: { damage: '3d8' },
+                mechanics: { armor: 6, applyWhen: 'attack-rider' }
             },
             {
                 level: 4,
@@ -206,7 +209,8 @@ export const PYRE_CALCULUS_SPELLS = [
                 duration: 'Instant',
                 effect: 'Deal 4d8 damage and gain +8 Armor until the start of your next turn.',
                 cost: { action: true },
-                roll: { damage: '4d8' }
+                roll: { damage: '4d8' },
+                mechanics: { armor: 8, applyWhen: 'attack-rider' }
             }
         ]
     },
@@ -273,7 +277,8 @@ export const PYRE_CALCULUS_SPELLS = [
                 effect: '1d8 damage vs. Ignited target',
                 special: 'Penetration(2)',
                 cost: { action: true },
-                roll: { damage: '1d8' }
+                roll: { damage: '1d8' },
+                mechanics: { damageRider: { vsCondition: 'ignited', vsConditionDamage: '+1d8' }, condition: 'targetIgnited', applyWhen: 'attack-rider' }
             },
             {
                 level: 2,
@@ -284,7 +289,8 @@ export const PYRE_CALCULUS_SPELLS = [
                 effect: '2d8 damage vs. Ignited target',
                 special: 'Penetration(4)',
                 cost: { action: true },
-                roll: { damage: '2d8' }
+                roll: { damage: '2d8' },
+                mechanics: { damageRider: { vsCondition: 'ignited', vsConditionDamage: '+2d8' }, condition: 'targetIgnited', applyWhen: 'attack-rider' }
             },
             {
                 level: 3,
@@ -295,7 +301,8 @@ export const PYRE_CALCULUS_SPELLS = [
                 effect: '3d8 damage vs. Ignited target',
                 special: 'Penetration(6)',
                 cost: { action: true },
-                roll: { damage: '3d8' }
+                roll: { damage: '3d8' },
+                mechanics: { damageRider: { vsCondition: 'ignited', vsConditionDamage: '+3d8' }, condition: 'targetIgnited', applyWhen: 'attack-rider' }
             },
             {
                 level: 4,
@@ -306,7 +313,8 @@ export const PYRE_CALCULUS_SPELLS = [
                 effect: '4d8 damage vs. Ignited target',
                 special: 'Penetration(8)',
                 cost: { action: true },
-                roll: { damage: '4d8' }
+                roll: { damage: '4d8' },
+                mechanics: { damageRider: { vsCondition: 'ignited', vsConditionDamage: '+4d8' }, condition: 'targetIgnited', applyWhen: 'attack-rider' }
             }
         ]
     },

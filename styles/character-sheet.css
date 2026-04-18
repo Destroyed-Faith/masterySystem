@@ -4952,6 +4952,52 @@
   font-size: 11px;
 }
 
+/* Mechanics breakdown (from active passives & buffs). Shown in the existing
+   combat-stat tooltips for Armor / Evade / Initiative and as a compact list
+   under each Saving Throw card when the aggregator has data. */
+.mastery-system.sheet.actor.character .mechanics-summary-hint {
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--df-text-muted, #9aa0a6);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.mastery-system.sheet.actor.character .mechanics-breakdown-list {
+  margin-top: 4px;
+}
+
+.mastery-system.sheet.actor.character .mechanics-breakdown-list li .bd-val {
+  color: var(--df-accent-primary, #7bb3ff);
+  font-variant-numeric: tabular-nums;
+}
+
+.mastery-system.sheet.actor.character .save-mechanics-breakdown {
+  list-style: none;
+  margin: 6px 0 8px;
+  padding: 6px 8px;
+  background: var(--df-accent-subtle, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 3px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mastery-system.sheet.actor.character .save-mechanics-breakdown li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--df-text-secondary, #b0b0b0);
+}
+
+.mastery-system.sheet.actor.character .save-mechanics-breakdown li .bd-val {
+  color: var(--df-accent-primary, #7bb3ff);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
 /* ========== Saving Throws ========== */
 .mastery-system.sheet.actor.character .saving-throws-section h3 {
   font-family: var(--ms-font-head, 'Cinzel Decorative', serif);

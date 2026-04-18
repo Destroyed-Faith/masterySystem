@@ -34,7 +34,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack + 2d8 damage. The target must pass a Body Save or be pulled toward you.', dice: '2d8' },
-                specials: [{ key: 'Pull', rank: 2 }]
+                specials: [{ key: 'Pull', rank: 2 }],
+                mechanics: { damageRider: { flat: '+2d8' }, applyWhen: 'attack-rider' }
             },
             '2': {
                 type: 'melee',
@@ -42,7 +43,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack + 3d8 damage. The target must pass a Body Save or be pulled toward you.', dice: '3d8' },
-                specials: [{ key: 'Pull', rank: 4 }]
+                specials: [{ key: 'Pull', rank: 4 }],
+                mechanics: { damageRider: { flat: '+3d8' }, applyWhen: 'attack-rider' }
             },
             '3': {
                 type: 'melee',
@@ -50,7 +52,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack + 5d8 damage. The target must pass a Body Save or be pulled toward you.', dice: '5d8' },
-                specials: [{ key: 'Pull', rank: 6 }]
+                specials: [{ key: 'Pull', rank: 6 }],
+                mechanics: { damageRider: { flat: '+5d8' }, applyWhen: 'attack-rider' }
             },
             '4': {
                 type: 'melee',
@@ -58,7 +61,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack + 6d8 damage. The target must pass a Body Save or be pulled toward you.', dice: '6d8' },
-                specials: [{ key: 'Pull', rank: 8 }]
+                specials: [{ key: 'Pull', rank: 8 }],
+                mechanics: { damageRider: { flat: '+6d8' }, applyWhen: 'attack-rider' }
             }
         }
     },
@@ -78,7 +82,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack dealing damage + 1d8 damage.', dice: '1d8' },
-                specials: [{ key: 'Corrode', rank: 1 }]
+                specials: [{ key: 'Corrode', rank: 1 }],
+                mechanics: { damageRider: { flat: '+1d8' }, applyWhen: 'attack-rider' }
             },
             '2': {
                 type: 'melee',
@@ -86,7 +91,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack dealing damage + 2d8 damage.', dice: '2d8' },
-                specials: [{ key: 'Corrode', rank: 2 }]
+                specials: [{ key: 'Corrode', rank: 2 }],
+                mechanics: { damageRider: { flat: '+2d8' }, applyWhen: 'attack-rider' }
             },
             '3': {
                 type: 'melee',
@@ -94,7 +100,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack dealing damage + 3d8 damage.', dice: '3d8' },
-                specials: [{ key: 'Corrode', rank: 3 }]
+                specials: [{ key: 'Corrode', rank: 3 }],
+                mechanics: { damageRider: { flat: '+3d8' }, applyWhen: 'attack-rider' }
             },
             '4': {
                 type: 'melee',
@@ -102,7 +109,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack dealing damage + 4d8 damage.', dice: '4d8' },
-                specials: [{ key: 'Corrode', rank: 4 }]
+                specials: [{ key: 'Corrode', rank: 4 }],
+                mechanics: { damageRider: { flat: '+4d8' }, applyWhen: 'attack-rider' }
             }
         }
     },
@@ -122,7 +130,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Natural Attack + 2d8 damage. Against a target with Mark or Corrode, this attack gains Penetration(1).', dice: '2d8' },
-                specials: [{ key: 'Penetration', rank: 1, note: 'if target has Mark or Corrode' }]
+                specials: [{ key: 'Penetration', rank: 1, note: 'if target has Mark or Corrode' }],
+                mechanics: { damageRider: { flat: '+2d8' }, applyWhen: 'attack-rider' }
             },
             '2': {
                 type: 'melee',
@@ -130,7 +139,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Natural Attack + 3d8 damage. Against a target with Mark or Corrode, this attack gains Penetration(2).', dice: '3d8' },
-                specials: [{ key: 'Penetration', rank: 2, note: 'if target has Mark or Corrode' }]
+                specials: [{ key: 'Penetration', rank: 2, note: 'if target has Mark or Corrode' }],
+                mechanics: { damageRider: { flat: '+3d8' }, applyWhen: 'attack-rider' }
             },
             '3': {
                 type: 'melee',
@@ -138,7 +148,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Natural Attack + 4d8 damage. Against a target with Mark or Corrode, this attack gains Penetration(3).', dice: '4d8' },
-                specials: [{ key: 'Penetration', rank: 3, note: 'if target has Mark or Corrode' }]
+                specials: [{ key: 'Penetration', rank: 3, note: 'if target has Mark or Corrode' }],
+                mechanics: { damageRider: { flat: '+4d8' }, applyWhen: 'attack-rider' }
             },
             '4': {
                 type: 'melee',
@@ -146,7 +157,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Natural Attack + 5d8 damage. Against a target with Mark or Corrode, this attack gains Penetration(4).', dice: '5d8' },
-                specials: [{ key: 'Penetration', rank: 4, note: 'if target has Mark or Corrode' }]
+                specials: [{ key: 'Penetration', rank: 4, note: 'if target has Mark or Corrode' }],
+                mechanics: { damageRider: { flat: '+5d8' }, applyWhen: 'attack-rider' }
             }
         }
     },
@@ -166,7 +178,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'If you moved at least 4 m before this attack, deal damage + 1d8 damage.', dice: '1d8' },
-                specials: [{ key: 'Mark', rank: 1 }]
+                specials: [{ key: 'Mark', rank: 1 }],
+                mechanics: { damageRider: { flat: '+1d8' }, applyWhen: 'attack-rider' }
             },
             '2': {
                 type: 'melee',
@@ -174,7 +187,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'If you moved at least 4 m before this attack, deal damage + 2d8 damage.', dice: '2d8' },
-                specials: [{ key: 'Mark', rank: 2 }]
+                specials: [{ key: 'Mark', rank: 2 }],
+                mechanics: { damageRider: { flat: '+2d8' }, applyWhen: 'attack-rider' }
             },
             '3': {
                 type: 'melee',
@@ -182,7 +196,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'If you moved at least 4 m before this attack, deal damage + 3d8 damage.', dice: '3d8' },
-                specials: [{ key: 'Mark', rank: 3 }]
+                specials: [{ key: 'Mark', rank: 3 }],
+                mechanics: { damageRider: { flat: '+3d8' }, applyWhen: 'attack-rider' }
             },
             '4': {
                 type: 'melee',
@@ -190,7 +205,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'If you moved at least 4 m before this attack, deal damage + 4d8 damage.', dice: '4d8' },
-                specials: [{ key: 'Mark', rank: 4 }]
+                specials: [{ key: 'Mark', rank: 4 }],
+                mechanics: { damageRider: { flat: '+4d8' }, applyWhen: 'attack-rider' }
             }
         }
     },
@@ -227,7 +243,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'You always know the direction of the nearest creature within 40 m that has Mark or Corrode from you. Your Opportunity Attacks against such creatures gain +1d8 damage.', dice: '1d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+1d8' }, applyWhen: 'passive-slotted-active' }
             },
             '4': {
                 type: 'passive',
@@ -235,7 +252,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'You always know the direction of the nearest creature within 40 m that has Mark or Corrode from you. Your Opportunity Attacks against such creatures gain +2d8 damage.', dice: '2d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+2d8' }, applyWhen: 'passive-slotted-active' }
             }
         }
     },
@@ -343,7 +361,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Once per round, the first time you hit a target with Mark from you, add +2d8 damage.', dice: '2d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+2d8' }, applyWhen: 'passive-slotted-active' }
             },
             '2': {
                 type: 'passive',
@@ -351,7 +370,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Once per round, the first time you hit a target with Mark from you, add +3d8 damage.', dice: '3d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+3d8' }, applyWhen: 'passive-slotted-active' }
             },
             '3': {
                 type: 'passive',
@@ -359,7 +379,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Once per round, the first time you hit a target with Mark from you, add +4d8 damage.', dice: '4d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+4d8' }, applyWhen: 'passive-slotted-active' }
             },
             '4': {
                 type: 'passive',
@@ -367,7 +388,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Once per round, the first time you hit a target with Mark from you, add +6d8 damage.', dice: '6d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+6d8' }, applyWhen: 'passive-slotted-active' }
             }
         }
     },
@@ -439,7 +461,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'You may follow it up to 2 m, then make a natural attack dealing +1d8 damage.', dice: '1d8' },
                 trigger: 'When a creature with Mark from you leaves your adjacency.',
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+1d8' }, applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             },
             '2': {
                 type: 'reaction',
@@ -448,7 +471,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'You may follow it up to 4 m, then make a natural attack dealing +2d8 damage.', dice: '2d8' },
                 trigger: 'When a creature with Mark from you leaves your adjacency.',
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+2d8' }, applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             },
             '3': {
                 type: 'reaction',
@@ -457,7 +481,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'You may follow it up to 6 m, then make a natural attack dealing +3d8 damage.', dice: '3d8' },
                 trigger: 'When a creature with Mark from you leaves your adjacency.',
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+3d8' }, applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             },
             '4': {
                 type: 'reaction',
@@ -466,7 +491,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'You may follow it up to 8 m, then make a natural attack dealing +4d8 damage.', dice: '4d8' },
                 trigger: 'When a creature with Mark from you leaves your adjacency.',
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+4d8' }, applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             }
         }
     },
@@ -488,7 +514,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Reposition up to 2 m and gain +2 Evade until the end of the round.' },
                 trigger: 'When you are targeted by an attack.',
-                specials: []
+                specials: [],
+                mechanics: { evade: 2, applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             },
             '2': {
                 type: 'reaction',
@@ -497,7 +524,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Reposition up to 4 m and gain +4 Evade until the end of the round.' },
                 trigger: 'When you are targeted by an attack.',
-                specials: []
+                specials: [],
+                mechanics: { evade: 4, applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             },
             '3': {
                 type: 'reaction',
@@ -506,7 +534,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Reposition up to 6 m and gain +6 Evade until the end of the round.' },
                 trigger: 'When you are targeted by an attack.',
-                specials: []
+                specials: [],
+                mechanics: { evade: 6, applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             },
             '4': {
                 type: 'reaction',
@@ -515,7 +544,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Reposition up to 8 m and gain +8 Evade until the end of the round.' },
                 trigger: 'When you are targeted by an attack.',
-                specials: []
+                specials: [],
+                mechanics: { evade: 8, applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             }
         }
     },
@@ -585,7 +615,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Gain Flight 6 m. While flying, gain +2 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: { evade: 2, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '2': {
                 type: 'buff',
@@ -593,7 +624,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Gain Flight 10 m. While flying, gain +4 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: { evade: 4, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '3': {
                 type: 'buff',
@@ -601,7 +633,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Gain Flight 14 m. While flying, gain +6 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: { evade: 6, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '4': {
                 type: 'buff',
@@ -609,7 +642,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Gain Flight 18 m. While flying, gain +8 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: { evade: 8, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             }
         }
     },
@@ -717,7 +751,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Each round, the first time you move at least 4 m, your next attack that round deals +2d8 damage.', dice: '2d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+2d8' }, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '2': {
                 type: 'buff',
@@ -725,7 +760,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Each round, the first time you move at least 4 m, your next attack that round deals +3d8 damage.', dice: '3d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+3d8' }, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '3': {
                 type: 'buff',
@@ -733,7 +769,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Each round, the first time you move at least 4 m, your next attack that round deals +4d8 damage.', dice: '4d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+4d8' }, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '4': {
                 type: 'buff',
@@ -741,7 +778,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Each round, the first time you move at least 4 m, your next attack that round deals +6d8 damage.', dice: '6d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+6d8' }, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             }
         }
     },
@@ -762,7 +800,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'If you are flying, move up to 3 m as Flight Movement. Your next attack this round deals +1d8 damage.', dice: '1d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+1d8' }, applyWhen: 'attack-rider' }
             },
             '2': {
                 type: 'movement',
@@ -770,7 +809,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'If you are flying, move up to 6 m as Flight Movement. Your next attack this round deals +2d8 damage.', dice: '2d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+2d8' }, applyWhen: 'attack-rider' }
             },
             '3': {
                 type: 'movement',
@@ -778,7 +818,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'If you are flying, move up to 9 m as Flight Movement. Your next attack this round deals +3d8 damage.', dice: '3d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+3d8' }, applyWhen: 'attack-rider' }
             },
             '4': {
                 type: 'movement',
@@ -786,7 +827,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'If you are flying, move up to 12 m as Flight Movement. Your next attack this round deals +4d8 damage.', dice: '4d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+4d8' }, applyWhen: 'attack-rider' }
             }
         }
     },
@@ -806,7 +848,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'single', targets: 1 },
                 duration: { kind: 'instant' },
                 effect: { text: 'If you are flying, move up to 4 m toward a creature below or beside you, then your next attack this turn deals +1d8 damage.', dice: '1d8' },
-                specials: [{ key: 'Mark', rank: 1 }]
+                specials: [{ key: 'Mark', rank: 1 }],
+                mechanics: { damageRider: { flat: '+1d8' }, applyWhen: 'attack-rider' }
             },
             '2': {
                 type: 'movement',
@@ -814,7 +857,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'single', targets: 1 },
                 duration: { kind: 'instant' },
                 effect: { text: 'If you are flying, move up to 8 m toward a creature below or beside you, then your next attack this turn deals +2d8 damage.', dice: '2d8' },
-                specials: [{ key: 'Mark', rank: 2 }]
+                specials: [{ key: 'Mark', rank: 2 }],
+                mechanics: { damageRider: { flat: '+2d8' }, applyWhen: 'attack-rider' }
             },
             '3': {
                 type: 'movement',
@@ -822,7 +866,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'single', targets: 1 },
                 duration: { kind: 'instant' },
                 effect: { text: 'If you are flying, move up to 12 m toward a creature below or beside you, then your next attack this turn deals +3d8 damage.', dice: '3d8' },
-                specials: [{ key: 'Mark', rank: 3 }]
+                specials: [{ key: 'Mark', rank: 3 }],
+                mechanics: { damageRider: { flat: '+3d8' }, applyWhen: 'attack-rider' }
             },
             '4': {
                 type: 'movement',
@@ -830,7 +875,8 @@ export const RAPTOR_DRAGON_POWERS = [
                 aoe: { shape: 'single', targets: 1 },
                 duration: { kind: 'instant' },
                 effect: { text: 'If you are flying, move up to 16 m toward a creature below or beside you, then your next attack this turn deals +4d8 damage.', dice: '4d8' },
-                specials: [{ key: 'Mark', rank: 4 }]
+                specials: [{ key: 'Mark', rank: 4 }],
+                mechanics: { damageRider: { flat: '+4d8' }, applyWhen: 'attack-rider' }
             }
         }
     }

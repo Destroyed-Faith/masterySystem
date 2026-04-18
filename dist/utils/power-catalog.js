@@ -8,6 +8,37 @@
 import { ALL_MASTERY_POWERS } from './powers/index.js';
 import { ALL_MAGIC_POWERS } from './magic-powers.js';
 import { ALL_SPECIAL_EFFECTS } from './special-effects.js';
+/** Canonical set of accepted Special keys. Anything outside this set is
+ * considered a descriptive / conditional phrase (e.g. "if-target-marked",
+ * "expose-on-hit") and is filtered out so the Power Picker only surfaces
+ * real, actionable Specials. */
+const CANONICAL_SPECIAL_IDS = new Set(ALL_SPECIAL_EFFECTS.map(e => e.id));
+function isCanonicalSpecial(key) {
+    return CANONICAL_SPECIAL_IDS.has(key);
+}
+/** Keys used for the "Effect Type" filter in the Power Picker. Derived
+ * entirely from the mechanics block that was attached by the translation
+ * engine. The actual label shown in the UI is provided via EFFECT_TYPE_LABELS. */
+export const EFFECT_TYPE_KEYS = [
+    'armor',
+    'evade',
+    'initiativeD8',
+    'regen',
+    'tempHP',
+    'saveDice',
+    'damageRider',
+    'movementBonus',
+];
+export const EFFECT_TYPE_LABELS = {
+    armor: 'Armor',
+    evade: 'Evade',
+    initiativeD8: 'Initiative',
+    regen: 'Regen',
+    tempHP: 'Temp HP',
+    saveDice: 'Save Dice',
+    damageRider: 'Damage Rider',
+    movementBonus: 'Movement',
+};
 /** Category keys used in filter UI (in display order). */
 export const CATEGORY_ORDER = [
     'active',
@@ -51,7 +82,53 @@ function mapLegacyPowerType(pt) {
 function isNewPowerDefinition(p) {
     return p && typeof p === 'object' && typeof p.category === 'string' && typeof p.levels === 'object' && !Array.isArray(p.levels);
 }
-/** Normalize specials from a definition into a unique list of lowercase keys. */
+/** Walk every level's `mechanics` block and collect the structural effect
+ * types that are present. Used for the "Effect Type" picker filter. */
+function collectEffectTypes(def) {
+    const types = new Set();
+    const visit = (m) => {
+        if (!m || typeof m !== 'object')
+            return;
+        if (m.armor !== undefined && m.armor !== 0)
+            types.add('armor');
+        if (m.evade !== undefined && m.evade !== 0)
+            types.add('evade');
+        if (m.initiativeD8 !== undefined && m.initiativeD8 !== 0)
+            types.add('initiativeD8');
+        if (m.regen !== undefined && m.regen !== 0)
+            types.add('regen');
+        if (m.tempHP !== undefined && m.tempHP !== 0 && m.tempHP !== '')
+            types.add('tempHP');
+        if (m.saveDice && typeof m.saveDice === 'object') {
+            const sd = m.saveDice;
+            if ((sd.body ?? 0) !== 0 || (sd.mind ?? 0) !== 0 || (sd.spirit ?? 0) !== 0)
+                types.add('saveDice');
+        }
+        if (m.damageRider && typeof m.damageRider === 'object')
+            types.add('damageRider');
+        if (m.movementBonus !== undefined && m.movementBonus !== 0)
+            types.add('movementBonus');
+    };
+    if (isNewPowerDefinition(def)) {
+        visit(def.mechanics);
+        for (const levelKey of ['1', '2', '3', '4']) {
+            const row = def.levels?.[levelKey];
+            visit(row?.mechanics);
+        }
+    }
+    else {
+        visit(def.mechanics);
+        for (const lvl of def.levels || []) {
+            visit(lvl.mechanics);
+        }
+    }
+    return Array.from(types);
+}
+/** Normalize specials from a definition into a unique list of lowercase keys.
+ * Only canonical Special IDs (see CANONICAL_SPECIAL_IDS) are kept — descriptive
+ * or conditional phrases like "if-target-marked" or "expose-on-hit" are
+ * intentionally dropped so the Power Picker Specials filter shows only
+ * actionable, player-usable Specials. */
 function collectSpecialKeys(def) {
     const keys = new Set();
     if (isNewPowerDefinition(def)) {
@@ -60,8 +137,11 @@ function collectSpecialKeys(def) {
             if (!row)
                 continue;
             for (const s of row.specials || []) {
-                if (s?.key)
-                    keys.add(String(s.key).toLowerCase());
+                if (!s?.key)
+                    continue;
+                const key = String(s.key).toLowerCase();
+                if (isCanonicalSpecial(key))
+                    keys.add(key);
             }
         }
     }
@@ -72,10 +152,9 @@ function collectSpecialKeys(def) {
             const raw = lvl.special;
             if (!raw || typeof raw !== 'string' || raw === '—')
                 continue;
-            // Split on commas, strip (X) and whitespace.
             for (const chunk of raw.split(',')) {
                 const key = chunk.replace(/\([^)]*\)/g, '').trim().toLowerCase();
-                if (key)
+                if (key && isCanonicalSpecial(key))
                     keys.add(key);
             }
         }
@@ -103,6 +182,7 @@ function buildEntries() {
             category,
             tags: tags.map(t => String(t).toLowerCase()),
             specialKeys: collectSpecialKeys(p),
+            effectTypes: collectEffectTypes(p),
             description: p.description || '',
             requiresEcho,
             raw: p
@@ -119,6 +199,7 @@ function buildEntries() {
             // Spells are tagged as "spell" for the filter.
             tags: ['spell'],
             specialKeys: collectSpecialKeys(p),
+            effectTypes: collectEffectTypes(p),
             description: p.description || '',
             raw: p
         });
@@ -144,6 +225,8 @@ export function filterCatalog(filter) {
         if (filter.tag && !e.tags.includes(filter.tag))
             return false;
         if (filter.special && !e.specialKeys.includes(filter.special))
+            return false;
+        if (filter.effectType && !e.effectTypes.includes(filter.effectType))
             return false;
         if (term && !(e.name.toLowerCase().includes(term) || e.sourceName.toLowerCase().includes(term)))
             return false;
@@ -172,6 +255,47 @@ export function getActiveSpecialOptions() {
 /** All special keys used by any catalog entry (unique, sorted). */
 export function getAllSpecialOptions() {
     return collectSpecialOptions(() => true);
+}
+/** Specials present on the *visible* subset of entries (respects category /
+ * tag / actor-echo filters). Used by the Power Picker to auto-hide Specials
+ * that would yield an empty result list. The `special` field of `filter` is
+ * intentionally ignored so we don't depend on the currently-selected special
+ * to compute the choices. */
+export function getVisibleSpecialOptions(filter) {
+    const effective = { ...filter };
+    const entries = filterCatalog(effective);
+    const keys = new Set();
+    for (const e of entries) {
+        for (const k of e.specialKeys)
+            keys.add(k);
+    }
+    return buildLabeledSpecialList(keys);
+}
+/** Effect types present on the *visible* subset of entries (respects all
+ * filters except `effectType` itself so the dropdown isn't self-referential).
+ * Used by the Power Picker to auto-hide types with no matching Power. */
+export function getVisibleEffectTypeOptions(filter) {
+    const effective = { ...filter };
+    const entries = filterCatalog(effective);
+    const present = new Set();
+    for (const e of entries) {
+        for (const t of e.effectTypes)
+            present.add(t);
+    }
+    return EFFECT_TYPE_KEYS
+        .filter(k => present.has(k))
+        .map(k => ({ key: k, label: EFFECT_TYPE_LABELS[k] }));
+}
+function buildLabeledSpecialList(keys) {
+    const labelFor = (k) => {
+        const hit = ALL_SPECIAL_EFFECTS.find(eff => eff.id === k || eff.name.toLowerCase().replace(/\(x\)/g, '').trim() === k);
+        if (hit)
+            return hit.name.replace(/\(X\)/gi, '').trim();
+        return k.charAt(0).toUpperCase() + k.slice(1);
+    };
+    return Array.from(keys)
+        .map(key => ({ key, label: labelFor(key) }))
+        .sort((a, b) => a.label.localeCompare(b.label));
 }
 function collectSpecialOptions(predicate) {
     const keys = new Set();

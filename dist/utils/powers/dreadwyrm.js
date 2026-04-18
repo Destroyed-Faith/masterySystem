@@ -35,7 +35,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Target must pass a Mind Save or suffer −2 dice on attacks and checks while it can perceive you.' },
-                specials: []
+                specials: [],
+                mechanics: { rollDice: { attack: -2 }, applyWhen: 'attack-rider' }
             },
             '2': {
                 type: 'ranged',
@@ -43,7 +44,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Target must pass a Mind Save or suffer −4 dice on attacks and checks while it can perceive you.' },
-                specials: []
+                specials: [],
+                mechanics: { rollDice: { attack: -4 }, applyWhen: 'attack-rider' }
             },
             '3': {
                 type: 'ranged',
@@ -51,7 +53,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Target must pass a Mind Save or suffer −6 dice on attacks and checks while it can perceive you.' },
-                specials: []
+                specials: [],
+                mechanics: { rollDice: { attack: -6 }, applyWhen: 'attack-rider' }
             },
             '4': {
                 type: 'ranged',
@@ -59,7 +62,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Target must pass a Mind Save or suffer −8 dice on attacks and checks while it can perceive you.' },
-                specials: []
+                specials: [],
+                mechanics: { rollDice: { attack: -8 }, applyWhen: 'attack-rider' }
             }
         }
     },
@@ -79,7 +83,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'cone', lengthM: 2, angleDeg: 60 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Enemies in the area must pass a Mind Save or suffer −1 die on attacks until the end of their next turn.' },
-                specials: [{ key: 'Mark', rank: 1 }]
+                specials: [{ key: 'Mark', rank: 1 }],
+                mechanics: { rollDice: { attack: -1 }, applyWhen: 'attack-rider' }
             },
             '2': {
                 type: 'melee',
@@ -87,7 +92,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'cone', lengthM: 4, angleDeg: 60 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Enemies in the area must pass a Mind Save or suffer −2 dice on attacks until the end of their next turn.' },
-                specials: [{ key: 'Mark', rank: 2 }]
+                specials: [{ key: 'Mark', rank: 2 }],
+                mechanics: { rollDice: { attack: -2 }, applyWhen: 'attack-rider' }
             },
             '3': {
                 type: 'melee',
@@ -95,7 +101,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'cone', lengthM: 6, angleDeg: 60 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Enemies in the area must pass a Mind Save or suffer −3 dice on attacks until the end of their next turn.' },
-                specials: [{ key: 'Mark', rank: 3 }]
+                specials: [{ key: 'Mark', rank: 3 }],
+                mechanics: { rollDice: { attack: -3 }, applyWhen: 'attack-rider' }
             },
             '4': {
                 type: 'melee',
@@ -103,7 +110,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'cone', lengthM: 8, angleDeg: 60 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Enemies in the area must pass a Mind Save or suffer −4 dice on attacks until the end of their next turn.' },
-                specials: [{ key: 'Mark', rank: 4 }]
+                specials: [{ key: 'Mark', rank: 4 }],
+                mechanics: { rollDice: { attack: -4 }, applyWhen: 'attack-rider' }
             }
         }
     },
@@ -123,7 +131,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'radius', radiusM: 2 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in the area must pass a Mind Save or suffer −1 die on attacks until the end of their next turn.' },
-                specials: [{ key: 'Push', rank: 2 }]
+                specials: [{ key: 'Push', rank: 2 }],
+                mechanics: { rollDice: { attack: -1 }, applyWhen: 'attack-rider' }
             },
             '2': {
                 type: 'melee',
@@ -131,7 +140,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'radius', radiusM: 3 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in the area must pass a Mind Save or suffer −2 dice on attacks until the end of their next turn.' },
-                specials: [{ key: 'Push', rank: 4 }]
+                specials: [{ key: 'Push', rank: 4 }],
+                mechanics: { rollDice: { attack: -2 }, applyWhen: 'attack-rider' }
             },
             '3': {
                 type: 'melee',
@@ -139,7 +149,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'radius', radiusM: 4 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in the area must pass a Mind Save or suffer −3 dice on attacks until the end of their next turn.' },
-                specials: [{ key: 'Push', rank: 6 }]
+                specials: [{ key: 'Push', rank: 6 }],
+                mechanics: { rollDice: { attack: -3 }, applyWhen: 'attack-rider' }
             },
             '4': {
                 type: 'melee',
@@ -147,7 +158,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'radius', radiusM: 5 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in the area must pass a Mind Save or suffer −4 dice on attacks until the end of their next turn.' },
-                specials: [{ key: 'Push', rank: 8 }]
+                specials: [{ key: 'Push', rank: 8 }],
+                mechanics: { rollDice: { attack: -4 }, applyWhen: 'attack-rider' }
             }
         }
     },
@@ -167,7 +179,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Natural Attack + 1d8 damage. The next ally to attack that target before your next turn gains +2 Attack Dice.', dice: '1d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+1d8' }, applyWhen: 'attack-rider' }
             },
             '2': {
                 type: 'melee',
@@ -175,7 +188,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Natural Attack + 2d8 damage. The next ally to attack that target before your next turn gains +4 Attack Dice.', dice: '2d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+2d8' }, applyWhen: 'attack-rider' }
             },
             '3': {
                 type: 'melee',
@@ -183,7 +197,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Natural Attack + 3d8 damage. The next ally to attack that target before your next turn gains +6 Attack Dice.', dice: '3d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+3d8' }, applyWhen: 'attack-rider' }
             },
             '4': {
                 type: 'melee',
@@ -191,7 +206,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Natural Attack + 4d8 damage. The next ally to attack that target before your next turn gains +8 Attack Dice.', dice: '4d8' },
-                specials: []
+                specials: [],
+                mechanics: { damageRider: { flat: '+4d8' }, applyWhen: 'attack-rider' }
             }
         }
     },
@@ -212,7 +228,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'aura', radiusM: 2 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Enemies within 2 m of you suffer −1 die on attacks while they can perceive you.' },
-                specials: []
+                specials: [],
+                mechanics: { rollDice: { attack: -1 }, applyWhen: 'passive-slotted-active' }
             },
             '2': {
                 type: 'passive',
@@ -220,7 +237,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'aura', radiusM: 4 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Enemies within 4 m of you suffer −2 dice on attacks while they can perceive you.' },
-                specials: []
+                specials: [],
+                mechanics: { rollDice: { attack: -2 }, applyWhen: 'passive-slotted-active' }
             },
             '3': {
                 type: 'passive',
@@ -228,7 +246,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'aura', radiusM: 6 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Enemies within 6 m of you suffer −3 dice on attacks while they can perceive you.' },
-                specials: []
+                specials: [],
+                mechanics: { rollDice: { attack: -3 }, applyWhen: 'passive-slotted-active' }
             },
             '4': {
                 type: 'passive',
@@ -236,7 +255,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'aura', radiusM: 8 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Enemies within 8 m of you suffer −4 dice on attacks while they can perceive you.' },
-                specials: []
+                specials: [],
+                mechanics: { rollDice: { attack: -4 }, applyWhen: 'passive-slotted-active' }
             }
         }
     },
@@ -344,7 +364,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'aura', radiusM: 2 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Enemies within 2 m of you suffer −1 die on attacks that target your allies.' },
-                specials: []
+                specials: [],
+                mechanics: { rollDice: { attack: -1 }, applyWhen: 'passive-slotted-active' }
             },
             '2': {
                 type: 'passive',
@@ -352,7 +373,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'aura', radiusM: 4 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Enemies within 4 m of you suffer −2 dice on attacks that target your allies.' },
-                specials: []
+                specials: [],
+                mechanics: { rollDice: { attack: -2 }, applyWhen: 'passive-slotted-active' }
             },
             '3': {
                 type: 'passive',
@@ -360,7 +382,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'aura', radiusM: 6 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Enemies within 6 m of you suffer −3 dice on attacks that target your allies.' },
-                specials: []
+                specials: [],
+                mechanics: { rollDice: { attack: -3 }, applyWhen: 'passive-slotted-active' }
             },
             '4': {
                 type: 'passive',
@@ -368,7 +391,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'aura', radiusM: 8 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Enemies within 8 m of you suffer −4 dice on attacks that target your allies.' },
-                specials: []
+                specials: [],
+                mechanics: { rollDice: { attack: -4 }, applyWhen: 'passive-slotted-active' }
             }
         }
     },
@@ -586,7 +610,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'aura', radiusM: 4 },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Allies in the area gain +2 Attack Dice. Enemies in the area suffer −1 die on attacks.' },
-                specials: []
+                specials: [],
+                mechanics: { rollDice: { attack: -1 }, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '2': {
                 type: 'buff',
@@ -594,7 +619,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'aura', radiusM: 6 },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Allies in the area gain +4 Attack Dice. Enemies in the area suffer −2 dice on attacks.' },
-                specials: []
+                specials: [],
+                mechanics: { rollDice: { attack: -2 }, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '3': {
                 type: 'buff',
@@ -602,7 +628,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'aura', radiusM: 8 },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Allies in the area gain +6 Attack Dice. Enemies in the area suffer −3 dice on attacks.' },
-                specials: []
+                specials: [],
+                mechanics: { rollDice: { attack: -3 }, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '4': {
                 type: 'buff',
@@ -610,7 +637,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'aura', radiusM: 10 },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Allies in the area gain +8 Attack Dice. Enemies in the area suffer −4 dice on attacks.' },
-                specials: []
+                specials: [],
+                mechanics: { rollDice: { attack: -4 }, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             }
         }
     },
@@ -674,7 +702,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Enemies take −2 dice on Mind Saves against your Dreadwyrm powers.' },
-                specials: []
+                specials: [],
+                mechanics: { saveDice: { mind: -2 }, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '2': {
                 type: 'buff',
@@ -682,7 +711,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Enemies take −4 dice on Mind Saves against your Dreadwyrm powers.' },
-                specials: []
+                specials: [],
+                mechanics: { saveDice: { mind: -4 }, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '3': {
                 type: 'buff',
@@ -690,7 +720,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Enemies take −6 dice on Mind Saves against your Dreadwyrm powers.' },
-                specials: []
+                specials: [],
+                mechanics: { saveDice: { mind: -6 }, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '4': {
                 type: 'buff',
@@ -698,7 +729,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Enemies take −8 dice on Mind Saves against your Dreadwyrm powers.' },
-                specials: []
+                specials: [],
+                mechanics: { saveDice: { mind: -8 }, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             }
         }
     },
@@ -763,7 +795,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'radius', radiusM: 2 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Reposition up to 4 m. Enemies adjacent to you must pass a Mind Save or suffer −1 die on attacks until the end of their next turn.' },
-                specials: []
+                specials: [],
+                mechanics: { rollDice: { attack: -1 }, applyWhen: 'attack-rider' }
             },
             '2': {
                 type: 'movement',
@@ -771,7 +804,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'radius', radiusM: 4 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Reposition up to 8 m. Enemies adjacent to you must pass a Mind Save or suffer −2 dice on attacks until the end of their next turn.' },
-                specials: []
+                specials: [],
+                mechanics: { rollDice: { attack: -2 }, applyWhen: 'attack-rider' }
             },
             '3': {
                 type: 'movement',
@@ -779,7 +813,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'radius', radiusM: 6 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Reposition up to 12 m. Enemies adjacent to you must pass a Mind Save or suffer −3 dice on attacks until the end of their next turn.' },
-                specials: []
+                specials: [],
+                mechanics: { rollDice: { attack: -3 }, applyWhen: 'attack-rider' }
             },
             '4': {
                 type: 'movement',
@@ -787,7 +822,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'radius', radiusM: 8 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Reposition up to 16 m. Enemies adjacent to you must pass a Mind Save or suffer −4 dice on attacks until the end of their next turn.' },
-                specials: []
+                specials: [],
+                mechanics: { rollDice: { attack: -4 }, applyWhen: 'attack-rider' }
             }
         }
     },
@@ -807,7 +843,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 5 m. Until the end of the round, enemies adjacent to you suffer −1 die on attacks against your allies.' },
-                specials: []
+                specials: [],
+                mechanics: { rollDice: { attack: -1 }, applyWhen: 'attack-rider' }
             },
             '2': {
                 type: 'movement',
@@ -815,7 +852,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 10 m. Until the end of the round, enemies adjacent to you suffer −2 dice on attacks against your allies.' },
-                specials: []
+                specials: [],
+                mechanics: { rollDice: { attack: -2 }, applyWhen: 'attack-rider' }
             },
             '3': {
                 type: 'movement',
@@ -823,7 +861,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 15 m. Until the end of the round, enemies adjacent to you suffer −3 dice on attacks against your allies.' },
-                specials: []
+                specials: [],
+                mechanics: { rollDice: { attack: -3 }, applyWhen: 'attack-rider' }
             },
             '4': {
                 type: 'movement',
@@ -831,7 +870,8 @@ export const DREADWYRM_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 20 m. Until the end of the round, enemies adjacent to you suffer −4 dice on attacks against your allies.' },
-                specials: []
+                specials: [],
+                mechanics: { rollDice: { attack: -4 }, applyWhen: 'attack-rider' }
             }
         }
     }

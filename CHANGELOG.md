@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.267] - 2026-04-18
+
+### Added
+- **Power Mechanics Engine — full scope translation (Release 3 complete).** Ran the `scripts/translate-powers.js --apply` pass across **all 15 source files** (11 Mastery Trees + 4 Spell Schools) and committed each tree/school as its own changeset for clean bisectability:
+  - Warden Dragon (52/72), Dreadstalker (52/72), Ashguard (52/72), Hexbound Harrier (48/72), Gale Breaker (48/72), Raptor Dragon (46/72), Dreadwyrm (40/72), Infernal Bastion (32/48), Doomscribe (28/48), Void Testament (28/48), Storm Veil (28/48), plus Pact Breach (16/32), Black Writ (12/32), Pyre Calculus (8/32). **490 of 824 level rows** (**59%**) received structured `mechanics` blocks auto-translated from effect text.
+  - The remaining 334 rows are flagged in `reports/translation/*.md` with the exact un-matched clause — they can now be completed rank-by-rank via the in-Foundry Power Mechanics Editor Dialog (no code edits required).
+- **Spell-level mechanics.** Added `mechanics?: PowerMechanics` to `SpellLevelDefinition` so spells participate in the same aggregator + conditional engine as powers.
+- **Attributes tab — Mechanics breakdown tooltips.** Armor / Evade / Initiative tooltips now render a new "From active passives & buffs" section that lists every source currently contributing a number to the stat (e.g. `Stand Fast (slotted) +1d8`), reading directly from `system.derived.mechanicsBreakdown`. Regeneration contributions appear below the Armor tooltip. Each Saving Throw card shows its own dice-delta summary when the aggregator has entries for Body / Mind / Spirit saves.
+- **Power Picker — Effect Type filter.** New `Effect Type` select in the Add-Power dialog filters the visible Power list by the structural mechanic it grants (Armor, Evade, Initiative, Regen, Temp HP, Save Dice, Damage Rider, Movement). Options that have no visible Power under the current Category / Spell / Echo filter are auto-hidden — the list never shows an empty Effect Type.
+
+### Changed
+- **All character-creation purchases are now at Rank 2.** While `!creation.complete`, `character-sheet-power-dialog` hard-codes `rank = 2` on `createEmbeddedDocuments`, matching the starting Mastery Rank of 2. Post-creation the rank picker still lets the player choose any rank up to their Mastery Rank.
+- **Power Picker — Specials filter cleanup.** Dropped every non-canonical Special key from `collectSpecialKeys` (descriptive / conditional clauses like `if-target-marked` or `expose-on-hit` are no longer surfaced as "Specials"). Only the 30 canonical entries defined in `special-effects.ts` (Bleeding, Mark, Shock, Freeze, Ignite, Expose, Penetration, Precision, Bulwark, Brace, Crit, Immovable, …) remain filter-eligible. The Specials dropdown now also dynamically shrinks to the keys present on the currently-visible Powers so you never pick a value that produces an empty list.
+- **`scripts/translate-powers.js` saveDice matcher** — merged both overlap patterns into a single unified regex with position-deduped capture, eliminating the "+2 dice → +4" double-counting bug that affected Stand Fast (Warden) and every analogous Save-or-X power.
+
+### Fixed
+- Handlebars helpers `gte` / `lt` on numeric values in the breakdown renderer output (signed + prefix on positive bonuses) display consistently across Armor, Evade, Initiative, and Save-Dice breakdowns.
+
+### Tests
+- Full suite stays green at 306 / 306 across 17 files after every single tree / school application.
+
+### Dev
+- New types exported from `src/utils/power-catalog.ts`: `EFFECT_TYPE_KEYS`, `EFFECT_TYPE_LABELS`, `EffectTypeKey`, plus the helper `getVisibleEffectTypeOptions(filter)` and the Specials companion `getVisibleSpecialOptions(filter)`. Both feed the picker dropdowns and are safe to reuse for any future filterable picker.
+- `CatalogEntry.effectTypes: string[]` is computed at catalog-build time by `collectEffectTypes(def)` which walks every level's `mechanics` block and records the structural fields it touches (`armor`, `evade`, `initiativeD8`, `regen`, `tempHP`, `saveDice`, `damageRider`, `movementBonus`). Powers without mechanics simply contribute an empty array — the filter then hides the entire "Effect Type" category for them.
+
 ## [0.4.266] - 2026-04-18
 
 ### Added

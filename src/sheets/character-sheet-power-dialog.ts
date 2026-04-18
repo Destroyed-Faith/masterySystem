@@ -20,6 +20,8 @@ import {
     filterCatalog,
     findCatalogEntryByName,
     getAllSpecialOptions,
+    getVisibleSpecialOptions,
+    getVisibleEffectTypeOptions,
     type CatalogEntry
 } from '../utils/power-catalog.js';
 
@@ -98,6 +100,12 @@ export async function showPowerCreationDialog(
             ${specialOptions}
           </select>
         </div>
+        <div class="form-group power-form-group">
+          <label class="power-form-label">Effect Type:</label>
+          <select name="effectType" id="pc-effect-type" class="power-form-select">
+            <option value="">-- Any Effect Type --</option>
+          </select>
+        </div>
       </div>
       <div class="form-group power-form-group">
         <label class="power-form-label">Power:</label>
@@ -155,9 +163,12 @@ export async function showPowerCreationDialog(
                         return false;
                     }
 
+                    // During character creation every power is bought at Rank 2 so
+                    // it is immediately usable at the starting Mastery Rank of 2.
+                    // Post-creation the player can pick a rank via the dialog.
                     const rank = creationComplete
                         ? parseInt(($html.find('#pc-rank').val() as string) || '1')
-                        : 1;
+                        : 2;
 
                     // Build item data from catalog entry
                     const itemData = buildItemDataFromEntry(entry, rank);
@@ -223,21 +234,68 @@ export async function showPowerCreationDialog(
             const $categorySelect = html.find('#pc-category');
             const $spellCheckbox = html.find('#pc-spell');
             const $specialSelect = html.find('#pc-special');
+            const $effectTypeSelect = html.find('#pc-effect-type');
             const $powerSelect = html.find('#pc-power');
             const $details = html.find('#pc-details');
             const $description = html.find('#pc-description');
             const $levelTable = html.find('#pc-level-table');
             const $count = html.find('#pc-count');
 
+            const refreshEffectTypeDropdown = () => {
+                const category = ($categorySelect.val() as string) || '';
+                const spellOnly = ($spellCheckbox.prop('checked') as boolean) === true;
+                const currentEffect = ($effectTypeSelect.val() as string) || '';
+                const visible = getVisibleEffectTypeOptions({
+                    category: (category || null) as PowerCategory | null,
+                    tag: spellOnly ? 'spell' : null,
+                    actorEchoKey,
+                });
+                const nextSelection = visible.some(v => v.key === currentEffect) ? currentEffect : '';
+                $effectTypeSelect.empty();
+                $effectTypeSelect.append('<option value="">-- Any Effect Type --</option>');
+                for (const v of visible) {
+                    const opt = document.createElement('option');
+                    opt.value = v.key;
+                    opt.textContent = v.label;
+                    $effectTypeSelect.append(opt);
+                }
+                $effectTypeSelect.val(nextSelection);
+            };
+
+            const refreshSpecialDropdown = () => {
+                const category = ($categorySelect.val() as string) || '';
+                const spellOnly = ($spellCheckbox.prop('checked') as boolean) === true;
+                const currentSpecial = ($specialSelect.val() as string) || '';
+                const visible = getVisibleSpecialOptions({
+                    category: (category || null) as PowerCategory | null,
+                    tag: spellOnly ? 'spell' : null,
+                    actorEchoKey,
+                });
+                // Preserve the current selection if it is still available,
+                // otherwise reset to "any". Also always include the "Any" entry.
+                const nextSelection = visible.some(v => v.key === currentSpecial) ? currentSpecial : '';
+                $specialSelect.empty();
+                $specialSelect.append('<option value="">-- Any Special --</option>');
+                for (const v of visible) {
+                    const opt = document.createElement('option');
+                    opt.value = v.key;
+                    opt.textContent = v.label;
+                    $specialSelect.append(opt);
+                }
+                $specialSelect.val(nextSelection);
+            };
+
             const refreshList = () => {
                 const category = ($categorySelect.val() as string) || '';
                 const spellOnly = ($spellCheckbox.prop('checked') as boolean) === true;
                 const special = ($specialSelect.val() as string) || '';
+                const effectType = ($effectTypeSelect.val() as string) || '';
 
                 const entries = filterCatalog({
                     category: (category || null) as PowerCategory | null,
                     tag: spellOnly ? 'spell' : null,
                     special: special || null,
+                    effectType: effectType || null,
                     actorEchoKey
                 });
 
@@ -263,9 +321,18 @@ export async function showPowerCreationDialog(
                 $levelTable.empty();
             };
 
-            $categorySelect.on('change', refreshList);
-            $spellCheckbox.on('change', refreshList);
+            $categorySelect.on('change', () => {
+                refreshSpecialDropdown();
+                refreshEffectTypeDropdown();
+                refreshList();
+            });
+            $spellCheckbox.on('change', () => {
+                refreshSpecialDropdown();
+                refreshEffectTypeDropdown();
+                refreshList();
+            });
             $specialSelect.on('change', refreshList);
+            $effectTypeSelect.on('change', refreshList);
 
             $powerSelect.on('change', function () {
                 const name = ($(this).val() as string) || '';
@@ -285,7 +352,10 @@ export async function showPowerCreationDialog(
                 $details.show();
             });
 
-            // Initial render.
+            // Initial render: populate Specials and Effect-Type selects for the
+            // current (preset) filter so empty categories are hidden from the start.
+            refreshSpecialDropdown();
+            refreshEffectTypeDropdown();
             refreshList();
         }
     });
