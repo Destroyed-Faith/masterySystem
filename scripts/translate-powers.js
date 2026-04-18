@@ -89,24 +89,28 @@ const MATCHERS = [
   {
     key: 'saveDice',
     run(txt) {
-      // Catches: "+2 dice to Body Saving Throws",
-      //          "+1 die to Mind Save",
-      //          "Gain +3 dice to that Body Save",
-      //          "Gain +6 dice to the next Body Save",
-      //          "+2 dice to Spirit Save or resistance check"
+      // One unified pattern — intentionally NOT run twice so "+2 dice to
+      // Body Save or resistance check" no longer doubles to +4.
+      // Catches:
+      //   "+2 dice to Body Saving Throws"
+      //   "+1 die to Mind Save"
+      //   "Gain +3 dice to that Body Save"
+      //   "Gain +6 dice to the next Body Save"
+      //   "+2 dice to Spirit Save or resistance check"
+      const re = /([+-]?)\s*(\d+)\s+(?:dice|die)\s+(?:to|on)\s+(?:that\s+|the\s+next\s+|your\s+|all\s+)?(Body|Mind|Spirit)\s+Sav(?:e|ing)/gi;
       const results = {};
-      const patterns = [
-        /([+-]?)\s*(\d+)\s+(?:dice|die)\s+(?:to|on)\s+(?:that\s+|the\s+next\s+|your\s+|all\s+)?(Body|Mind|Spirit)\s+Sav/gi,
-        /([+-]?)\s*(\d+)\s+(?:dice|die)\s+to\s+(?:that\s+|the\s+next\s+|your\s+)?(Body|Mind|Spirit)\s+Save\s+or\b/gi,
-      ];
-      for (const re of patterns) {
-        let hit;
-        while ((hit = re.exec(txt)) !== null) {
-          const sign = hit[1] === '-' ? -1 : 1;
-          const n = sign * parseInt(hit[2], 10);
-          const fam = hit[3].toLowerCase();
-          results[fam] = (results[fam] || 0) + n;
-        }
+      const seen = new Set();
+      let hit;
+      while ((hit = re.exec(txt)) !== null) {
+        // Dedupe by (capture-start, family) so overlapping variants of the
+        // same line never contribute twice.
+        const key = `${hit.index}|${hit[3].toLowerCase()}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        const sign = hit[1] === '-' ? -1 : 1;
+        const n = sign * parseInt(hit[2], 10);
+        const fam = hit[3].toLowerCase();
+        results[fam] = (results[fam] || 0) + n;
       }
       if (Object.keys(results).length === 0) return null;
       return { partial: { saveDice: results } };

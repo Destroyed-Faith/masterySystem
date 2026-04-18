@@ -94,16 +94,16 @@ Needs review: **20** (28%)
   - mechanics: `{"evade":4,"tempHP":"4d8","applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
 - **Stand Fast** (reaction, L1) — saveDice
   - effect: _Gain +2 dice to that Body Save or resistance check._
-  - mechanics: `{"saveDice":{"body":4},"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+  - mechanics: `{"saveDice":{"body":2},"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
 - **Stand Fast** (reaction, L2) — saveDice
   - effect: _Gain +4 dice to that Body Save or resistance check._
-  - mechanics: `{"saveDice":{"body":8},"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+  - mechanics: `{"saveDice":{"body":4},"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
 - **Stand Fast** (reaction, L3) — saveDice
   - effect: _Gain +6 dice to that Body Save or resistance check._
-  - mechanics: `{"saveDice":{"body":12},"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+  - mechanics: `{"saveDice":{"body":6},"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
 - **Stand Fast** (reaction, L4) — saveDice
   - effect: _Gain +8 dice to that Body Save or resistance check._
-  - mechanics: `{"saveDice":{"body":16},"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+  - mechanics: `{"saveDice":{"body":8},"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
 - **Interposing Frame** (reaction, L1) — tempHP
   - effect: _You may shift into adjacency to that ally. That ally gains 1d8 Temp HP against the triggering hit._
   - mechanics: `{"tempHP":"1d8","applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`

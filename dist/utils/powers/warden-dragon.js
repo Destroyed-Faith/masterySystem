@@ -34,7 +34,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'radius', radiusM: 2 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Tail Attack + 1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Push', rank: 2 }]
+                specials: [{ key: 'Push', rank: 2 }],
+                mechanics: { damageRider: { flat: '+1d8' }, applyWhen: 'attack-rider' }
             },
             '2': {
                 type: 'melee',
@@ -42,7 +43,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'radius', radiusM: 3 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Tail Attack + 1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Push', rank: 4 }, { key: 'Prone', rank: 1 }]
+                specials: [{ key: 'Push', rank: 4 }, { key: 'Prone', rank: 1 }],
+                mechanics: { damageRider: { flat: '+1d8' }, applyWhen: 'attack-rider' }
             },
             '3': {
                 type: 'melee',
@@ -50,7 +52,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'radius', radiusM: 4 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Tail Attack + 2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Push', rank: 8 }, { key: 'Prone', rank: 1 }]
+                specials: [{ key: 'Push', rank: 8 }, { key: 'Prone', rank: 1 }],
+                mechanics: { damageRider: { flat: '+2d8' }, applyWhen: 'attack-rider' }
             },
             '4': {
                 type: 'melee',
@@ -58,7 +61,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'radius', radiusM: 5 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Tail Attack + 3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Push', rank: 8 }, { key: 'Prone', rank: 1 }]
+                specials: [{ key: 'Push', rank: 8 }, { key: 'Prone', rank: 1 }],
+                mechanics: { damageRider: { flat: '+3d8' }, applyWhen: 'attack-rider' }
             }
         }
     },
@@ -122,7 +126,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Bite Attack + 1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Freeze', rank: 2 }]
+                specials: [{ key: 'Freeze', rank: 2 }],
+                mechanics: { damageRider: { flat: '+1d8' }, applyWhen: 'attack-rider' }
             },
             '2': {
                 type: 'melee',
@@ -130,7 +135,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Bite Attack + 2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Freeze', rank: 3 }]
+                specials: [{ key: 'Freeze', rank: 3 }],
+                mechanics: { damageRider: { flat: '+2d8' }, applyWhen: 'attack-rider' }
             },
             '3': {
                 type: 'melee',
@@ -138,7 +144,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Bite Attack + 3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Freeze', rank: 4 }]
+                specials: [{ key: 'Freeze', rank: 4 }],
+                mechanics: { damageRider: { flat: '+3d8' }, applyWhen: 'attack-rider' }
             },
             '4': {
                 type: 'melee',
@@ -146,7 +153,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Bite Attack + 4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Freeze', rank: 4 }]
+                specials: [{ key: 'Freeze', rank: 4 }],
+                mechanics: { damageRider: { flat: '+4d8' }, applyWhen: 'attack-rider' }
             }
         }
     },
@@ -166,7 +174,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'single', targets: 1 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 4 m in a straight line, then make a body slam attack dealing 1d8 damage. Gain +1 Armor until the end of the round.', dice: '1d8' },
-                specials: [{ key: 'Push', rank: 2 }]
+                specials: [{ key: 'Push', rank: 2 }],
+                mechanics: { armor: 1, applyWhen: 'attack-rider' }
             },
             '2': {
                 type: 'melee',
@@ -174,7 +183,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'single', targets: 1 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 6 m in a straight line, then make a body slam attack dealing 2d8 damage. Gain +1 Armor until the end of the round.', dice: '2d8' },
-                specials: [{ key: 'Push', rank: 4 }]
+                specials: [{ key: 'Push', rank: 4 }],
+                mechanics: { armor: 1, applyWhen: 'attack-rider' }
             },
             '3': {
                 type: 'melee',
@@ -182,7 +192,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'single', targets: 1 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 8 m in a straight line, then make a body slam attack dealing 3d8 damage. Gain +2 Armor until the end of the round.', dice: '3d8' },
-                specials: [{ key: 'Push', rank: 6 }]
+                specials: [{ key: 'Push', rank: 6 }],
+                mechanics: { armor: 2, applyWhen: 'attack-rider' }
             },
             '4': {
                 type: 'melee',
@@ -190,7 +201,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'single', targets: 1 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 10 m in a straight line, then make a body slam attack dealing 4d8 damage. Gain +3 Armor until the end of the round.', dice: '4d8' },
-                specials: [{ key: 'Push', rank: 8 }]
+                specials: [{ key: 'Push', rank: 8 }],
+                mechanics: { armor: 3, applyWhen: 'attack-rider' }
             }
         }
     },
@@ -211,7 +223,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +2 Armor. At the start of your turn, gain 1 Temp HP from this passive (non-stacking; refreshes).' },
-                specials: []
+                specials: [],
+                mechanics: { armor: 2, tempHP: '1', applyWhen: 'passive-slotted-active' }
             },
             '2': {
                 type: 'passive',
@@ -219,7 +232,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +4 Armor. At the start of your turn, gain 2 Temp HP from this passive (non-stacking; refreshes).' },
-                specials: []
+                specials: [],
+                mechanics: { armor: 4, tempHP: '2', applyWhen: 'passive-slotted-active' }
             },
             '3': {
                 type: 'passive',
@@ -227,7 +241,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +6 Armor. At the start of your turn, gain 3 Temp HP from this passive (non-stacking; refreshes).' },
-                specials: []
+                specials: [],
+                mechanics: { armor: 6, tempHP: '3', applyWhen: 'passive-slotted-active' }
             },
             '4': {
                 type: 'passive',
@@ -235,7 +250,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +8 Armor. At the start of your turn, gain 4 Temp HP from this passive (non-stacking; refreshes).' },
-                specials: []
+                specials: [],
+                mechanics: { armor: 8, tempHP: '4', applyWhen: 'passive-slotted-active' }
             }
         }
     },
@@ -299,7 +315,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Reduce all Push/Pull against you by 2 m (min 0). Gain +1 Armor and +1 die to Body Saving Throws.' },
-                specials: []
+                specials: [],
+                mechanics: { armor: 1, saveDice: { body: 1 }, applyWhen: 'passive-slotted-active' }
             },
             '2': {
                 type: 'passive',
@@ -307,7 +324,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Reduce all Push/Pull against you by 4 m (min 0). Gain +2 Armor and +2 dice to Body Saving Throws.' },
-                specials: []
+                specials: [],
+                mechanics: { armor: 2, saveDice: { body: 2 }, applyWhen: 'passive-slotted-active' }
             },
             '3': {
                 type: 'passive',
@@ -315,7 +333,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Reduce all Push/Pull against you by 6 m (min 0). Gain +3 Armor and +3 dice to Body Saving Throws.' },
-                specials: []
+                specials: [],
+                mechanics: { armor: 3, saveDice: { body: 3 }, applyWhen: 'passive-slotted-active' }
             },
             '4': {
                 type: 'passive',
@@ -323,7 +342,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Reduce all Push/Pull against you by 8 m (min 0). Gain +4 Armor and +4 dice to Body Saving Throws.' },
-                specials: []
+                specials: [],
+                mechanics: { armor: 4, saveDice: { body: 4 }, applyWhen: 'passive-slotted-active' }
             }
         }
     },
@@ -343,7 +363,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'aura', radiusM: 2 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Enemies within 2 m of you suffer −1 die on attacks that do not target you.' },
-                specials: []
+                specials: [],
+                mechanics: { rollDice: { attack: -1 }, applyWhen: 'passive-slotted-active' }
             },
             '2': {
                 type: 'passive',
@@ -351,7 +372,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'aura', radiusM: 4 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Enemies within 4 m of you suffer −2 dice on attacks that do not target you.' },
-                specials: []
+                specials: [],
+                mechanics: { rollDice: { attack: -2 }, applyWhen: 'passive-slotted-active' }
             },
             '3': {
                 type: 'passive',
@@ -359,7 +381,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'aura', radiusM: 6 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Enemies within 6 m of you suffer −3 dice on attacks that do not target you.' },
-                specials: []
+                specials: [],
+                mechanics: { rollDice: { attack: -3 }, applyWhen: 'passive-slotted-active' }
             },
             '4': {
                 type: 'passive',
@@ -367,7 +390,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'aura', radiusM: 8 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Enemies within 8 m of you suffer −4 dice on attacks that do not target you.' },
-                specials: []
+                specials: [],
+                mechanics: { rollDice: { attack: -4 }, applyWhen: 'passive-slotted-active' }
             }
         }
     },
@@ -390,7 +414,8 @@ export const WARDEN_DRAGON_POWERS = [
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Gain 1d8 Temp HP and +1 Evade until the end of your next turn.', dice: '1d8' },
                 trigger: 'When you are hit by an attack, before damage is resolved.',
-                specials: []
+                specials: [],
+                mechanics: { evade: 1, tempHP: '1d8', applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             },
             '2': {
                 type: 'reaction',
@@ -399,7 +424,8 @@ export const WARDEN_DRAGON_POWERS = [
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Gain 2d8 Temp HP and +2 Evade until the end of your next turn.', dice: '2d8' },
                 trigger: 'When you are hit by an attack, before damage is resolved.',
-                specials: []
+                specials: [],
+                mechanics: { evade: 2, tempHP: '2d8', applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             },
             '3': {
                 type: 'reaction',
@@ -408,7 +434,8 @@ export const WARDEN_DRAGON_POWERS = [
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Gain 3d8 Temp HP and +3 Evade until the end of your next turn.', dice: '3d8' },
                 trigger: 'When you are hit by an attack, before damage is resolved.',
-                specials: []
+                specials: [],
+                mechanics: { evade: 3, tempHP: '3d8', applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             },
             '4': {
                 type: 'reaction',
@@ -417,7 +444,8 @@ export const WARDEN_DRAGON_POWERS = [
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Gain 4d8 Temp HP and +4 Evade until the end of your next turn.', dice: '4d8' },
                 trigger: 'When you are hit by an attack, before damage is resolved.',
-                specials: []
+                specials: [],
+                mechanics: { evade: 4, tempHP: '4d8', applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             }
         }
     },
@@ -488,7 +516,8 @@ export const WARDEN_DRAGON_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Gain +2 dice to that Body Save or resistance check.' },
                 trigger: 'When an effect would Push, Pull, knock you Prone, or force a Body Save to move or hinder you.',
-                specials: []
+                specials: [],
+                mechanics: { saveDice: { body: 2 }, applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             },
             '2': {
                 type: 'reaction',
@@ -497,7 +526,8 @@ export const WARDEN_DRAGON_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Gain +4 dice to that Body Save or resistance check.' },
                 trigger: 'When an effect would Push, Pull, knock you Prone, or force a Body Save to move or hinder you.',
-                specials: []
+                specials: [],
+                mechanics: { saveDice: { body: 4 }, applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             },
             '3': {
                 type: 'reaction',
@@ -506,7 +536,8 @@ export const WARDEN_DRAGON_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Gain +6 dice to that Body Save or resistance check.' },
                 trigger: 'When an effect would Push, Pull, knock you Prone, or force a Body Save to move or hinder you.',
-                specials: []
+                specials: [],
+                mechanics: { saveDice: { body: 6 }, applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             },
             '4': {
                 type: 'reaction',
@@ -515,7 +546,8 @@ export const WARDEN_DRAGON_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Gain +8 dice to that Body Save or resistance check.' },
                 trigger: 'When an effect would Push, Pull, knock you Prone, or force a Body Save to move or hinder you.',
-                specials: []
+                specials: [],
+                mechanics: { saveDice: { body: 8 }, applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             }
         }
     },
@@ -537,7 +569,8 @@ export const WARDEN_DRAGON_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'You may shift into adjacency to that ally. That ally gains 1d8 Temp HP against the triggering hit.', dice: '1d8' },
                 trigger: 'When an ally within 2 m of you is hit by an attack.',
-                specials: []
+                specials: [],
+                mechanics: { tempHP: '1d8', applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             },
             '2': {
                 type: 'reaction',
@@ -546,7 +579,8 @@ export const WARDEN_DRAGON_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'You may shift into adjacency to that ally. That ally gains 2d8 Temp HP against the triggering hit.', dice: '2d8' },
                 trigger: 'When an ally within 4 m of you is hit by an attack.',
-                specials: []
+                specials: [],
+                mechanics: { tempHP: '2d8', applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             },
             '3': {
                 type: 'reaction',
@@ -555,7 +589,8 @@ export const WARDEN_DRAGON_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'You may shift into adjacency to that ally. That ally gains 3d8 Temp HP against the triggering hit.', dice: '3d8' },
                 trigger: 'When an ally within 4 m of you is hit by an attack.',
-                specials: []
+                specials: [],
+                mechanics: { tempHP: '3d8', applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             },
             '4': {
                 type: 'reaction',
@@ -564,7 +599,8 @@ export const WARDEN_DRAGON_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'You may shift into adjacency to that ally. That ally gains 4d8 Temp HP against the triggering hit.', dice: '4d8' },
                 trigger: 'When an ally within 6 m of you is hit by an attack.',
-                specials: []
+                specials: [],
+                mechanics: { tempHP: '4d8', applyWhen: 'reaction-once-per-round', usageLimit: { per: 'round', max: 1 } }
             }
         }
     },
@@ -585,7 +621,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Gain +3 Armor and +2 dice to Body Saving Throws.' },
-                specials: []
+                specials: [],
+                mechanics: { armor: 3, saveDice: { body: 2 }, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '2': {
                 type: 'buff',
@@ -593,7 +630,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Gain +5 Armor and +4 dice to Body Saving Throws.' },
-                specials: []
+                specials: [],
+                mechanics: { armor: 5, saveDice: { body: 4 }, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '3': {
                 type: 'buff',
@@ -601,7 +639,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Gain +7 Armor and +6 dice to Body Saving Throws.' },
-                specials: []
+                specials: [],
+                mechanics: { armor: 7, saveDice: { body: 6 }, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '4': {
                 type: 'buff',
@@ -609,7 +648,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Gain +9 Armor and +8 dice to Body Saving Throws.' },
-                specials: []
+                specials: [],
+                mechanics: { armor: 9, saveDice: { body: 8 }, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             }
         }
     },
@@ -629,7 +669,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Reduce all Push/Pull against you by 4 m. Gain +2 Armor and +2 dice to Body Saving Throws.' },
-                specials: []
+                specials: [],
+                mechanics: { armor: 2, saveDice: { body: 2 }, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '2': {
                 type: 'buff',
@@ -637,7 +678,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Reduce all Push/Pull against you by 8 m. Gain +3 Armor and +4 dice to Body Saving Throws.' },
-                specials: []
+                specials: [],
+                mechanics: { armor: 3, saveDice: { body: 4 }, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '3': {
                 type: 'buff',
@@ -645,7 +687,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Reduce all Push/Pull against you by 12 m. Gain +4 Armor and +6 dice to Body Saving Throws.' },
-                specials: []
+                specials: [],
+                mechanics: { armor: 4, saveDice: { body: 6 }, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '4': {
                 type: 'buff',
@@ -653,7 +696,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Reduce all Push/Pull against you by 16 m. Gain +5 Armor and +8 dice to Body Saving Throws.' },
-                specials: []
+                specials: [],
+                mechanics: { armor: 5, saveDice: { body: 8 }, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             }
         }
     },
@@ -673,7 +717,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Gain Regeneration(3) and +3 dice to Body Saving Throws.' },
-                specials: [{ key: 'Regeneration', rank: 3 }]
+                specials: [{ key: 'Regeneration', rank: 3 }],
+                mechanics: { saveDice: { body: 3 }, regen: 3, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '2': {
                 type: 'buff',
@@ -681,7 +726,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Gain Regeneration(4) and +5 dice to Body Saving Throws.' },
-                specials: [{ key: 'Regeneration', rank: 4 }]
+                specials: [{ key: 'Regeneration', rank: 4 }],
+                mechanics: { saveDice: { body: 5 }, regen: 4, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '3': {
                 type: 'buff',
@@ -689,7 +735,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Gain Regeneration(5) and +7 dice to Body Saving Throws.' },
-                specials: [{ key: 'Regeneration', rank: 5 }]
+                specials: [{ key: 'Regeneration', rank: 5 }],
+                mechanics: { saveDice: { body: 7 }, regen: 5, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '4': {
                 type: 'buff',
@@ -697,7 +744,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Gain Regeneration(6) and +9 dice to Body Saving Throws.' },
-                specials: [{ key: 'Regeneration', rank: 6 }]
+                specials: [{ key: 'Regeneration', rank: 6 }],
+                mechanics: { saveDice: { body: 9 }, regen: 6, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             }
         }
     },
@@ -762,7 +810,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Reposition up to 4 m. Gain +3 dice to the next Body Save you make before the end of the round.' },
-                specials: []
+                specials: [],
+                mechanics: { saveDice: { body: 3 }, applyWhen: 'attack-rider' }
             },
             '2': {
                 type: 'movement',
@@ -770,7 +819,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Reposition up to 8 m. Gain +6 dice to the next Body Save you make before the end of the round.' },
-                specials: []
+                specials: [],
+                mechanics: { saveDice: { body: 6 }, applyWhen: 'attack-rider' }
             },
             '3': {
                 type: 'movement',
@@ -778,7 +828,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Reposition up to 12 m. Gain +9 dice to the next Body Save you make before the end of the round.' },
-                specials: []
+                specials: [],
+                mechanics: { saveDice: { body: 9 }, applyWhen: 'attack-rider' }
             },
             '4': {
                 type: 'movement',
@@ -786,7 +837,8 @@ export const WARDEN_DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Reposition up to 16 m. Gain +12 dice to the next Body Save you make before the end of the round.' },
-                specials: []
+                specials: [],
+                mechanics: { saveDice: { body: 12 }, applyWhen: 'attack-rider' }
             }
         }
     },
