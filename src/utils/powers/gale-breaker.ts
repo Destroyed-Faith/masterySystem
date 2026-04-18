@@ -30,7 +30,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Shock', rank: 2 }]
+                specials: [{ key: 'Shock', rank: 2 }],
+                mechanics: {damageRider:{flat:'+1d8'},applyWhen:'attack-rider'}
             },
             '2': {
                 type: 'melee',
@@ -38,7 +39,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Shock', rank: 3 }]
+                specials: [{ key: 'Shock', rank: 3 }],
+                mechanics: {damageRider:{flat:'+1d8'},applyWhen:'attack-rider'}
             },
             '3': {
                 type: 'melee',
@@ -46,7 +48,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Shock', rank: 3 }]
+                specials: [{ key: 'Shock', rank: 3 }],
+                mechanics: {damageRider:{flat:'+2d8'},applyWhen:'attack-rider'}
             },
             '4': {
                 type: 'melee',
@@ -54,7 +57,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Shock', rank: 4 }]
+                specials: [{ key: 'Shock', rank: 4 }],
+                mechanics: {damageRider:{flat:'+2d8'},applyWhen:'attack-rider'}
             }
         }
     },
@@ -73,7 +77,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Weapon DMG +1d8 damage. You and one ally within 2 m gain +1 Evade until the start of your next turn.', dice: '1d8' },
-                specials: []
+                specials: [],
+                mechanics: {evade:1,damageRider:{flat:'+1d8'},applyWhen:'attack-rider'}
             },
             '2': {
                 type: 'melee',
@@ -81,7 +86,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Weapon DMG +2d8 damage. You and one ally within 2 m gain +2 Evade until the start of your next turn.', dice: '2d8' },
-                specials: []
+                specials: [],
+                mechanics: {evade:2,damageRider:{flat:'+2d8'},applyWhen:'attack-rider'}
             },
             '3': {
                 type: 'melee',
@@ -89,7 +95,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Weapon DMG +3d8 damage. You and one ally within 2 m gain +3 Evade until the start of your next turn.', dice: '3d8' },
-                specials: []
+                specials: [],
+                mechanics: {evade:3,damageRider:{flat:'+3d8'},applyWhen:'attack-rider'}
             },
             '4': {
                 type: 'melee',
@@ -97,7 +104,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Weapon DMG +4d8 damage. You and one ally within 2 m gain +4 Evade until the start of your next turn.', dice: '4d8' },
-                specials: []
+                specials: [],
+                mechanics: {evade:4,damageRider:{flat:'+4d8'},applyWhen:'attack-rider'}
             }
         }
     },
@@ -159,7 +167,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Weapon DMG +1d8 damage. If the target is Shocked, you and one ally within 2 m gain +2 Evade until the start of your next turn.', dice: '1d8' },
-                specials: []
+                specials: [],
+                mechanics: {evade:2,damageRider:{flat:'+1d8'},applyWhen:'attack-rider'}
             },
             '2': {
                 type: 'melee',
@@ -167,7 +176,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Weapon DMG +2d8 damage. If the target is Shocked, you and one ally within 2 m gain +3 Evade until the start of your next turn.', dice: '2d8' },
-                specials: []
+                specials: [],
+                mechanics: {evade:3,damageRider:{flat:'+2d8'},applyWhen:'attack-rider'}
             },
             '3': {
                 type: 'melee',
@@ -175,7 +185,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Weapon DMG +3d8 damage. If the target is Shocked, you and one ally within 2 m gain +4 Evade until the start of your next turn.', dice: '3d8' },
-                specials: []
+                specials: [],
+                mechanics: {evade:4,damageRider:{flat:'+3d8'},applyWhen:'attack-rider'}
             },
             '4': {
                 type: 'melee',
@@ -183,7 +194,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Weapon DMG +4d8 damage. If the target is Shocked, you and one ally within 2 m gain +5 Evade until the start of your next turn.', dice: '4d8' },
-                specials: []
+                specials: [],
+                mechanics: {evade:5,damageRider:{flat:'+4d8'},applyWhen:'attack-rider'}
             }
         }
     },
@@ -204,7 +216,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 2 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'You and allies within 2 m gain +1 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: {evade:1,applyWhen:'passive-slotted-active'}
             },
             '2': {
                 type: 'passive',
@@ -212,7 +225,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 4 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'You and allies within 4 m gain +2 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: {evade:2,applyWhen:'passive-slotted-active'}
             },
             '3': {
                 type: 'passive',
@@ -220,7 +234,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 6 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'You and allies within 6 m gain +3 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: {evade:3,applyWhen:'passive-slotted-active'}
             },
             '4': {
                 type: 'passive',
@@ -228,7 +243,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 8 },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'You and allies within 8 m gain +4 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: {evade:4,applyWhen:'passive-slotted-active'}
             }
         }
     },
@@ -247,7 +263,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Against attacks made by Shocked enemies, gain +2 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: {evade:2,applyWhen:'passive-slotted-active'}
             },
             '2': {
                 type: 'passive',
@@ -255,7 +272,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Against attacks made by Shocked enemies, gain +4 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: {evade:4,applyWhen:'passive-slotted-active'}
             },
             '3': {
                 type: 'passive',
@@ -263,7 +281,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Against attacks made by Shocked enemies, gain +6 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: {evade:6,applyWhen:'passive-slotted-active'}
             },
             '4': {
                 type: 'passive',
@@ -271,7 +290,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Against attacks made by Shocked enemies, gain +8 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: {evade:8,applyWhen:'passive-slotted-active'}
             }
         }
     },
@@ -380,7 +400,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'That ally gains +2 Evade against the attack.' },
                 trigger: 'An ally within 2 m is attacked.',
-                specials: []
+                specials: [],
+                mechanics: {evade:2,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '2': {
                 type: 'reaction',
@@ -389,7 +410,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'That ally gains +4 Evade against the attack.' },
                 trigger: 'An ally within 2 m is attacked.',
-                specials: []
+                specials: [],
+                mechanics: {evade:4,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '3': {
                 type: 'reaction',
@@ -398,7 +420,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'That ally gains +6 Evade against the attack.' },
                 trigger: 'An ally within 2 m is attacked.',
-                specials: []
+                specials: [],
+                mechanics: {evade:6,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '4': {
                 type: 'reaction',
@@ -407,7 +430,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'That ally gains +8 Evade against the attack.' },
                 trigger: 'An ally within 2 m is attacked.',
-                specials: []
+                specials: [],
+                mechanics: {evade:8,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             }
         }
     },
@@ -428,7 +452,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Make one attack against it; on hit, deal +1d8 damage.', dice: '1d8' },
                 trigger: 'A Shocked enemy within range misses an attack.',
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+1d8'},applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '2': {
                 type: 'reaction',
@@ -437,7 +462,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Make one attack against it; on hit, deal +2d8 damage.', dice: '2d8' },
                 trigger: 'A Shocked enemy within range misses an attack.',
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+2d8'},applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '3': {
                 type: 'reaction',
@@ -446,7 +472,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Make one attack against it; on hit, deal +3d8 damage.', dice: '3d8' },
                 trigger: 'A Shocked enemy within range misses an attack.',
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+3d8'},applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '4': {
                 type: 'reaction',
@@ -455,7 +482,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Make one attack against it; on hit, deal +4d8 damage.', dice: '4d8' },
                 trigger: 'A Shocked enemy within range misses an attack.',
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+4d8'},applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             }
         }
     },
@@ -476,7 +504,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 2 m and gain +2 Evade against that attack.' },
                 trigger: 'You are attacked.',
-                specials: []
+                specials: [],
+                mechanics: {evade:2,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '2': {
                 type: 'reaction',
@@ -485,7 +514,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 4 m and gain +4 Evade against that attack.' },
                 trigger: 'You are attacked.',
-                specials: []
+                specials: [],
+                mechanics: {evade:4,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '3': {
                 type: 'reaction',
@@ -494,7 +524,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 6 m and gain +6 Evade against that attack.' },
                 trigger: 'You are attacked.',
-                specials: []
+                specials: [],
+                mechanics: {evade:6,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '4': {
                 type: 'reaction',
@@ -503,7 +534,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 8 m and gain +8 Evade against that attack.' },
                 trigger: 'You are attacked.',
-                specials: []
+                specials: [],
+                mechanics: {evade:8,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             }
         }
     },
@@ -524,7 +556,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'That ally gains +2 Armor against that hit and +1 Evade until the start of your next turn.' },
                 trigger: 'An ally within 4 m is hit.',
-                specials: []
+                specials: [],
+                mechanics: {armor:2,evade:1,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '2': {
                 type: 'reaction',
@@ -533,7 +566,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'That ally gains +4 Armor against that hit and +2 Evade until the start of your next turn.' },
                 trigger: 'An ally within 8 m is hit.',
-                specials: []
+                specials: [],
+                mechanics: {armor:4,evade:2,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '3': {
                 type: 'reaction',
@@ -542,7 +576,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'That ally gains +6 Armor against that hit and +3 Evade until the start of your next turn.' },
                 trigger: 'An ally within 12 m is hit.',
-                specials: []
+                specials: [],
+                mechanics: {armor:6,evade:3,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '4': {
                 type: 'reaction',
@@ -551,7 +586,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'That ally gains +8 Armor against that hit and +4 Evade until the start of your next turn.' },
                 trigger: 'An ally within 16 m is hit.',
-                specials: []
+                specials: [],
+                mechanics: {armor:8,evade:4,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             }
         }
     },
@@ -572,7 +608,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 4 },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'You and allies in the aura gain +2 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: {evade:2,applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '2': {
                 type: 'buff',
@@ -580,7 +617,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 6 },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'You and allies in the aura gain +3 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: {evade:3,applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '3': {
                 type: 'buff',
@@ -588,7 +626,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 8 },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'You and allies in the aura gain +4 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: {evade:4,applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '4': {
                 type: 'buff',
@@ -596,7 +635,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 10 },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'You and allies in the aura gain +5 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: {evade:5,applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             }
         }
     },
@@ -701,7 +741,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a Shocked target, you and one ally within 2 m gain +2 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: {evade:2,condition:'targetShocked',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '2': {
                 type: 'buff',
@@ -709,7 +750,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a Shocked target, you and one ally within 2 m gain +3 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: {evade:3,condition:'targetShocked',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '3': {
                 type: 'buff',
@@ -717,7 +759,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a Shocked target, you and one ally within 2 m gain +4 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: {evade:4,condition:'targetShocked',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '4': {
                 type: 'buff',
@@ -725,7 +768,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a Shocked target, you and one ally within 2 m gain +5 Evade.' },
-                specials: []
+                specials: [],
+                mechanics: {evade:5,condition:'targetShocked',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             }
         }
     },
@@ -746,7 +790,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 6 m. If you end adjacent to an enemy, you and one ally within 2 m gain +1 Evade until the start of your next turn.' },
-                specials: []
+                specials: [],
+                mechanics: {evade:1,applyWhen:'attack-rider'}
             },
             '2': {
                 type: 'movement',
@@ -754,7 +799,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 10 m. If you end adjacent to an enemy, you and one ally within 2 m gain +2 Evade until the start of your next turn.' },
-                specials: []
+                specials: [],
+                mechanics: {evade:2,applyWhen:'attack-rider'}
             },
             '3': {
                 type: 'movement',
@@ -762,7 +808,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 14 m. If you end adjacent to an enemy, you and one ally within 2 m gain +3 Evade until the start of your next turn.' },
-                specials: []
+                specials: [],
+                mechanics: {evade:3,applyWhen:'attack-rider'}
             },
             '4': {
                 type: 'movement',
@@ -770,7 +817,8 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 18 m. If you end adjacent to an enemy, you and one ally within 2 m gain +4 Evade until the start of your next turn.' },
-                specials: []
+                specials: [],
+                mechanics: {evade:4,applyWhen:'attack-rider'}
             }
         }
     },
