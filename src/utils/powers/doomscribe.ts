@@ -31,7 +31,8 @@ export const DOOMSCRIBE_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Your Spells gain +1d8 damage against Marked targets.', dice: '1d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+1d8',vsCondition:'marked',vsConditionDamage:'+1d8'},condition:'targetMarked',applyWhen:'passive-slotted-active'}
             },
             '2': {
                 type: 'passive',
@@ -39,7 +40,8 @@ export const DOOMSCRIBE_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Your Spells gain +2d8 damage against Marked targets.', dice: '2d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+2d8',vsCondition:'marked',vsConditionDamage:'+2d8'},condition:'targetMarked',applyWhen:'passive-slotted-active'}
             },
             '3': {
                 type: 'passive',
@@ -47,7 +49,8 @@ export const DOOMSCRIBE_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Your Spells gain +3d8 damage against Marked targets.', dice: '3d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+3d8',vsCondition:'marked',vsConditionDamage:'+3d8'},condition:'targetMarked',applyWhen:'passive-slotted-active'}
             },
             '4': {
                 type: 'passive',
@@ -55,7 +58,8 @@ export const DOOMSCRIBE_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Your Spells gain +4d8 damage against Marked targets.', dice: '4d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+4d8',vsCondition:'marked',vsConditionDamage:'+4d8'},condition:'targetMarked',applyWhen:'passive-slotted-active'}
             }
         }
     },
@@ -74,7 +78,8 @@ export const DOOMSCRIBE_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Once per round, the first time you hit a Marked target with a Spell, that hit gains Crit(1).' },
-                specials: [{ key: 'Crit', rank: 1, note: 'once per round, first Spell hit vs. Marked' }]
+                specials: [{ key: 'Crit', rank: 1, note: 'once per round, first Spell hit vs. Marked' }],
+                mechanics: {condition:'targetMarked',applyWhen:'passive-slotted-active'}
             },
             '2': {
                 type: 'passive',
@@ -82,7 +87,8 @@ export const DOOMSCRIBE_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Once per round, the first time you hit a Marked target with a Spell, that hit gains Crit(2).' },
-                specials: [{ key: 'Crit', rank: 2, note: 'once per round, first Spell hit vs. Marked' }]
+                specials: [{ key: 'Crit', rank: 2, note: 'once per round, first Spell hit vs. Marked' }],
+                mechanics: {condition:'targetMarked',applyWhen:'passive-slotted-active'}
             },
             '3': {
                 type: 'passive',
@@ -90,7 +96,8 @@ export const DOOMSCRIBE_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Once per round, the first time you hit a Marked target with a Spell, that hit gains Crit(3).' },
-                specials: [{ key: 'Crit', rank: 3, note: 'once per round, first Spell hit vs. Marked' }]
+                specials: [{ key: 'Crit', rank: 3, note: 'once per round, first Spell hit vs. Marked' }],
+                mechanics: {condition:'targetMarked',applyWhen:'passive-slotted-active'}
             },
             '4': {
                 type: 'passive',
@@ -98,7 +105,8 @@ export const DOOMSCRIBE_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Once per round, the first time you hit a Marked target with a Spell, that hit gains Crit(4).' },
-                specials: [{ key: 'Crit', rank: 4, note: 'once per round, first Spell hit vs. Marked' }]
+                specials: [{ key: 'Crit', rank: 4, note: 'once per round, first Spell hit vs. Marked' }],
+                mechanics: {condition:'targetMarked',applyWhen:'passive-slotted-active'}
             }
         }
     },
@@ -160,7 +168,8 @@ export const DOOMSCRIBE_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +1 Attack Die on Spells against Marked targets.' },
-                specials: []
+                specials: [],
+                mechanics: {condition:'targetMarked',applyWhen:'passive-slotted-active'}
             },
             '2': {
                 type: 'passive',
@@ -168,7 +177,8 @@ export const DOOMSCRIBE_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +2 Attack Dice on Spells against Marked targets.' },
-                specials: []
+                specials: [],
+                mechanics: {condition:'targetMarked',applyWhen:'passive-slotted-active'}
             },
             '3': {
                 type: 'passive',
@@ -176,7 +186,8 @@ export const DOOMSCRIBE_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +3 Attack Dice on Spells against Marked targets.' },
-                specials: []
+                specials: [],
+                mechanics: {condition:'targetMarked',applyWhen:'passive-slotted-active'}
             },
             '4': {
                 type: 'passive',
@@ -184,7 +195,8 @@ export const DOOMSCRIBE_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +4 Attack Dice on Spells against Marked targets.' },
-                specials: []
+                specials: [],
+                mechanics: {condition:'targetMarked',applyWhen:'passive-slotted-active'}
             }
         }
     },
@@ -255,7 +267,8 @@ export const DOOMSCRIBE_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Gain +1 Save Die and +1 Armor against that effect.' },
                 trigger: 'You are hit while a Marked target is within your perception.',
-                specials: []
+                specials: [],
+                mechanics: {armor:1,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '2': {
                 type: 'reaction',
@@ -264,7 +277,8 @@ export const DOOMSCRIBE_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Gain +2 Save Dice and +2 Armor against that effect.' },
                 trigger: 'You are hit while a Marked target is within your perception.',
-                specials: []
+                specials: [],
+                mechanics: {armor:2,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '3': {
                 type: 'reaction',
@@ -273,7 +287,8 @@ export const DOOMSCRIBE_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Gain +3 Save Dice and +3 Armor against that effect.' },
                 trigger: 'You are hit while a Marked target is within your perception.',
-                specials: []
+                specials: [],
+                mechanics: {armor:3,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '4': {
                 type: 'reaction',
@@ -282,7 +297,8 @@ export const DOOMSCRIBE_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Gain +4 Save Dice and +4 Armor against that effect.' },
                 trigger: 'You are hit while a Marked target is within your perception.',
-                specials: []
+                specials: [],
+                mechanics: {armor:4,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             }
         }
     },
@@ -303,7 +319,8 @@ export const DOOMSCRIBE_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Your next Spell against that target before end of next turn gains +1d8 damage.', dice: '1d8' },
                 trigger: 'A Marked target fails a Save or misses an attack.',
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+1d8'},applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '2': {
                 type: 'reaction',
@@ -312,7 +329,8 @@ export const DOOMSCRIBE_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Your next Spell gains +2d8 damage.', dice: '2d8' },
                 trigger: 'A Marked target fails a Save or misses an attack.',
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+2d8'},applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '3': {
                 type: 'reaction',
@@ -321,7 +339,8 @@ export const DOOMSCRIBE_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Your next Spell gains +3d8 damage.', dice: '3d8' },
                 trigger: 'A Marked target fails a Save or misses an attack.',
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+3d8'},applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '4': {
                 type: 'reaction',
@@ -330,7 +349,8 @@ export const DOOMSCRIBE_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Your next Spell gains +4d8 damage.', dice: '4d8' },
                 trigger: 'A Marked target fails a Save or misses an attack.',
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+4d8'},applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             }
         }
     },
@@ -442,7 +462,8 @@ export const DOOMSCRIBE_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a Marked target with a Spell, that hit gains Crit(1).' },
-                specials: [{ key: 'Crit', rank: 1, note: 'first Spell hit per round vs. Marked' }]
+                specials: [{ key: 'Crit', rank: 1, note: 'first Spell hit per round vs. Marked' }],
+                mechanics: {condition:'targetMarked',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '2': {
                 type: 'buff',
@@ -450,7 +471,8 @@ export const DOOMSCRIBE_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a Marked target with a Spell, that hit gains Crit(2).' },
-                specials: [{ key: 'Crit', rank: 2, note: 'first Spell hit per round vs. Marked' }]
+                specials: [{ key: 'Crit', rank: 2, note: 'first Spell hit per round vs. Marked' }],
+                mechanics: {condition:'targetMarked',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '3': {
                 type: 'buff',
@@ -458,7 +480,8 @@ export const DOOMSCRIBE_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a Marked target with a Spell, that hit gains Crit(3).' },
-                specials: [{ key: 'Crit', rank: 3, note: 'first Spell hit per round vs. Marked' }]
+                specials: [{ key: 'Crit', rank: 3, note: 'first Spell hit per round vs. Marked' }],
+                mechanics: {condition:'targetMarked',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '4': {
                 type: 'buff',
@@ -466,7 +489,8 @@ export const DOOMSCRIBE_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a Marked target with a Spell, that hit gains Crit(4).' },
-                specials: [{ key: 'Crit', rank: 4, note: 'first Spell hit per round vs. Marked' }]
+                specials: [{ key: 'Crit', rank: 4, note: 'first Spell hit per round vs. Marked' }],
+                mechanics: {condition:'targetMarked',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             }
         }
     },
@@ -528,7 +552,8 @@ export const DOOMSCRIBE_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'When a Marked target moves more than 4 m in a turn, increase its mark-pressure by 1.' },
-                specials: [{ key: 'Mark', rank: 1, note: 'trigger: target moves >4 m' }]
+                specials: [{ key: 'Mark', rank: 1, note: 'trigger: target moves >4 m' }],
+                mechanics: {condition:'targetMarked',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '2': {
                 type: 'buff',
@@ -536,7 +561,8 @@ export const DOOMSCRIBE_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'When a Marked target moves more than 4 m in a turn, increase its mark-pressure by 2.' },
-                specials: [{ key: 'Mark', rank: 2, note: 'trigger: target moves >4 m' }]
+                specials: [{ key: 'Mark', rank: 2, note: 'trigger: target moves >4 m' }],
+                mechanics: {condition:'targetMarked',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '3': {
                 type: 'buff',
@@ -544,7 +570,8 @@ export const DOOMSCRIBE_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'When a Marked target moves more than 4 m in a turn, increase its mark-pressure by 3.' },
-                specials: [{ key: 'Mark', rank: 3, note: 'trigger: target moves >4 m' }]
+                specials: [{ key: 'Mark', rank: 3, note: 'trigger: target moves >4 m' }],
+                mechanics: {condition:'targetMarked',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '4': {
                 type: 'buff',
@@ -552,7 +579,8 @@ export const DOOMSCRIBE_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'When a Marked target moves more than 4 m in a turn, increase its mark-pressure by 4.' },
-                specials: [{ key: 'Mark', rank: 4, note: 'trigger: target moves >4 m' }]
+                specials: [{ key: 'Mark', rank: 4, note: 'trigger: target moves >4 m' }],
+                mechanics: {condition:'targetMarked',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             }
         }
     }
