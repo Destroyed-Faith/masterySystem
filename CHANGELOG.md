@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.252] - 2026-04-18
+
+### Changed
+- **Character Creation: Category-based power requirements**
+  - New creation slots (8 powers total, all fixed at Rank 1):
+    - 2 Active, 1 Active Buff, 1 Movement, 1 Reaction, 2 Passive, 1 Utility
+  - Unified Add-Power dialog merges Mastery Trees and Spell Schools into one filterable list
+  - New filters: Category, Tag (e.g. `spell`) and Special (Ignite, Freeze, Shock, Penetration, ...) – tag/special filters appear only when Category = Active
+  - Free-text search across power name and source (tree/school)
+  - Category shortcut buttons on the character sheet pre-select the filter
+  - Rank is locked to 1 during creation (rank selector hidden on power cards)
+  - Per-category progress display in the creation banner (e.g. `Active: 1 / 2`)
+  - Finalize-check validates exact per-category counts instead of total/Rank-2 rules
+  - No migration: applies to newly created characters only
+
+### Files Changed
+- `src/utils/power-catalog.ts` (new) – unified catalog, filter helpers, creation requirements
+- `src/sheets/character-sheet-power-dialog.ts` – rebuilt dialog with category/tag/special filters
+- `src/sheets/character-sheet.ts` – per-category creation counts, shortcut button routing, finalize validation
+- `templates/actor/character-sheet.hbs` – single Add-Power button + category shortcuts, per-category status display
+- `styles/character-sheet.css` – styling for filter grid, search input, static rank display
+
 ## [0.4.78] - 2025-01-XX
 
 ### Changed
