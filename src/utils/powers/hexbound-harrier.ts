@@ -30,7 +30,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Hex', rank: 2 }]
+                specials: [{ key: 'Hex', rank: 2 }],
+                mechanics: {damageRider:{flat:'+1d8'},applyWhen:'attack-rider'}
             },
             '2': {
                 type: 'melee',
@@ -38,7 +39,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Hex', rank: 3 }]
+                specials: [{ key: 'Hex', rank: 3 }],
+                mechanics: {damageRider:{flat:'+2d8'},applyWhen:'attack-rider'}
             },
             '3': {
                 type: 'melee',
@@ -46,7 +48,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Hex', rank: 4 }]
+                specials: [{ key: 'Hex', rank: 4 }],
+                mechanics: {damageRider:{flat:'+2d8'},applyWhen:'attack-rider'}
             },
             '4': {
                 type: 'melee',
@@ -54,7 +57,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Hex', rank: 5 }]
+                specials: [{ key: 'Hex', rank: 5 }],
+                mechanics: {damageRider:{flat:'+2d8'},applyWhen:'attack-rider'}
             }
         }
     },
@@ -73,7 +77,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Expose', rank: 1 }]
+                specials: [{ key: 'Expose', rank: 1 }],
+                mechanics: {damageRider:{flat:'+1d8'},applyWhen:'attack-rider'}
             },
             '2': {
                 type: 'melee',
@@ -81,7 +86,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Expose', rank: 1 }]
+                specials: [{ key: 'Expose', rank: 1 }],
+                mechanics: {damageRider:{flat:'+2d8'},applyWhen:'attack-rider'}
             },
             '3': {
                 type: 'melee',
@@ -89,7 +95,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Expose', rank: 2 }]
+                specials: [{ key: 'Expose', rank: 2 }],
+                mechanics: {damageRider:{flat:'+3d8'},applyWhen:'attack-rider'}
             },
             '4': {
                 type: 'melee',
@@ -97,7 +104,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Expose', rank: 2 }]
+                specials: [{ key: 'Expose', rank: 2 }],
+                mechanics: {damageRider:{flat:'+4d8'},applyWhen:'attack-rider'}
             }
         }
     },
@@ -116,7 +124,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Mark', rank: 2 }]
+                specials: [{ key: 'Mark', rank: 2 }],
+                mechanics: {damageRider:{flat:'+1d8'},applyWhen:'attack-rider'}
             },
             '2': {
                 type: 'melee',
@@ -124,7 +133,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Mark', rank: 3 }]
+                specials: [{ key: 'Mark', rank: 3 }],
+                mechanics: {damageRider:{flat:'+2d8'},applyWhen:'attack-rider'}
             },
             '3': {
                 type: 'melee',
@@ -132,7 +142,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Mark', rank: 4 }]
+                specials: [{ key: 'Mark', rank: 4 }],
+                mechanics: {damageRider:{flat:'+3d8'},applyWhen:'attack-rider'}
             },
             '4': {
                 type: 'melee',
@@ -140,7 +151,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Mark', rank: 4 }]
+                specials: [{ key: 'Mark', rank: 4 }],
+                mechanics: {damageRider:{flat:'+4d8'},applyWhen:'attack-rider'}
             }
         }
     },
@@ -159,7 +171,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8 damage vs. Hexed target', dice: '2d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+2d8',vsCondition:'hexed',vsConditionDamage:'+2d8'},condition:'targetHexed',applyWhen:'attack-rider'}
             },
             '2': {
                 type: 'melee',
@@ -167,7 +180,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8 damage vs. Hexed target', dice: '4d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+4d8',vsCondition:'hexed',vsConditionDamage:'+4d8'},condition:'targetHexed',applyWhen:'attack-rider'}
             },
             '3': {
                 type: 'melee',
@@ -175,7 +189,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +6d8 damage vs. Hexed target', dice: '6d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+6d8',vsCondition:'hexed',vsConditionDamage:'+6d8'},condition:'targetHexed',applyWhen:'attack-rider'}
             },
             '4': {
                 type: 'melee',
@@ -183,7 +198,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +8d8 damage vs. Hexed target', dice: '8d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+8d8',vsCondition:'hexed',vsConditionDamage:'+8d8'},condition:'targetHexed',applyWhen:'attack-rider'}
             }
         }
     },
@@ -204,7 +220,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +1 Attack Die against Hexed targets.' },
-                specials: []
+                specials: [],
+                mechanics: {condition:'targetHexed',applyWhen:'passive-slotted-active'}
             },
             '2': {
                 type: 'passive',
@@ -212,7 +229,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +2 Attack Dice against Hexed targets.' },
-                specials: []
+                specials: [],
+                mechanics: {condition:'targetHexed',applyWhen:'passive-slotted-active'}
             },
             '3': {
                 type: 'passive',
@@ -220,7 +238,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +4 Attack Dice against Hexed targets.' },
-                specials: []
+                specials: [],
+                mechanics: {condition:'targetHexed',applyWhen:'passive-slotted-active'}
             },
             '4': {
                 type: 'passive',
@@ -228,7 +247,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +5 Attack Dice against Hexed targets.' },
-                specials: []
+                specials: [],
+                mechanics: {condition:'targetHexed',applyWhen:'passive-slotted-active'}
             }
         }
     },
@@ -247,7 +267,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Once per round, the first time you damage a Hexed target, add +2d8 damage.', dice: '2d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+2d8'},condition:'targetHexed',applyWhen:'passive-slotted-active'}
             },
             '2': {
                 type: 'passive',
@@ -255,7 +276,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Once per round, the first time you damage a Hexed target, add +3d8 damage.', dice: '3d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+3d8'},condition:'targetHexed',applyWhen:'passive-slotted-active'}
             },
             '3': {
                 type: 'passive',
@@ -263,7 +285,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Once per round, the first time you damage a Hexed target, add +4d8 damage.', dice: '4d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+4d8'},condition:'targetHexed',applyWhen:'passive-slotted-active'}
             },
             '4': {
                 type: 'passive',
@@ -271,7 +294,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Once per round, the first time you damage a Hexed target, add +6d8 damage.', dice: '6d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+6d8'},condition:'targetHexed',applyWhen:'passive-slotted-active'}
             }
         }
     },
@@ -290,7 +314,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +2 Armor and 1d8 Temporary HP at the start of combat.', dice: '1d8' },
-                specials: []
+                specials: [],
+                mechanics: {armor:2,applyWhen:'passive-slotted-active'}
             },
             '2': {
                 type: 'passive',
@@ -298,7 +323,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +4 Armor and 1d8 Temporary HP at the start of combat.', dice: '1d8' },
-                specials: []
+                specials: [],
+                mechanics: {armor:4,applyWhen:'passive-slotted-active'}
             },
             '3': {
                 type: 'passive',
@@ -306,7 +332,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +6 Armor and 2d8 Temporary HP at the start of combat.', dice: '2d8' },
-                specials: []
+                specials: [],
+                mechanics: {armor:6,applyWhen:'passive-slotted-active'}
             },
             '4': {
                 type: 'passive',
@@ -314,7 +341,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +8 Armor and 2d8 Temporary HP at the start of combat.', dice: '2d8' },
-                specials: []
+                specials: [],
+                mechanics: {armor:8,applyWhen:'passive-slotted-active'}
             }
         }
     },
@@ -380,7 +408,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Make one attack against it; on hit, deal +1d8 damage.', dice: '1d8' },
                 trigger: 'A Hexed target attacks someone other than you.',
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+1d8'},applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '2': {
                 type: 'reaction',
@@ -389,7 +418,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Make one attack against it; on hit, deal +2d8 damage.', dice: '2d8' },
                 trigger: 'A Hexed target attacks someone other than you.',
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+2d8'},applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '3': {
                 type: 'reaction',
@@ -398,7 +428,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Make one attack against it; on hit, deal +3d8 damage.', dice: '3d8' },
                 trigger: 'A Hexed target attacks someone other than you.',
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+3d8'},applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '4': {
                 type: 'reaction',
@@ -407,7 +438,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Make one attack against it; on hit, deal +4d8 damage.', dice: '4d8' },
                 trigger: 'A Hexed target attacks someone other than you.',
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+4d8'},applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             }
         }
     },
@@ -476,7 +508,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Gain +2 Armor and +2 Evade against that attack.' },
                 trigger: 'A Hexed target attacks you.',
-                specials: []
+                specials: [],
+                mechanics: {armor:2,evade:2,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '2': {
                 type: 'reaction',
@@ -485,7 +518,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Gain +4 Armor and +4 Evade against that attack.' },
                 trigger: 'A Hexed target attacks you.',
-                specials: []
+                specials: [],
+                mechanics: {armor:4,evade:4,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '3': {
                 type: 'reaction',
@@ -494,7 +528,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Gain +6 Armor and +6 Evade against that attack.' },
                 trigger: 'A Hexed target attacks you.',
-                specials: []
+                specials: [],
+                mechanics: {armor:6,evade:6,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '4': {
                 type: 'reaction',
@@ -503,7 +538,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Gain +8 Armor and +8 Evade against that attack.' },
                 trigger: 'A Hexed target attacks you.',
-                specials: []
+                specials: [],
+                mechanics: {armor:8,evade:8,applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             }
         }
     },
@@ -524,7 +560,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'The next Spell that hits that target before the end of the next turn gains +1d8 damage.', dice: '1d8' },
                 trigger: 'A Hexed target misses you.',
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+1d8'},applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '2': {
                 type: 'reaction',
@@ -533,7 +570,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'The next Spell that hits that target before the end of the next turn gains +2d8 damage.', dice: '2d8' },
                 trigger: 'A Hexed target misses you.',
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+2d8'},applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '3': {
                 type: 'reaction',
@@ -542,7 +580,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'The next Spell that hits that target before the end of the next turn gains +3d8 damage.', dice: '3d8' },
                 trigger: 'A Hexed target misses you.',
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+3d8'},applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '4': {
                 type: 'reaction',
@@ -551,7 +590,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'The next Spell that hits that target before the end of the next turn gains +4d8 damage.', dice: '4d8' },
                 trigger: 'A Hexed target misses you.',
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+4d8'},applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             }
         }
     },
@@ -572,7 +612,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Gain +4 m Movement and +1 Attack Die.' },
-                specials: []
+                specials: [],
+                mechanics: {movementBonus:4,applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '2': {
                 type: 'buff',
@@ -580,7 +621,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Gain +6 m Movement and +2 Attack Dice.' },
-                specials: []
+                specials: [],
+                mechanics: {movementBonus:6,applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '3': {
                 type: 'buff',
@@ -588,7 +630,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Gain +8 m Movement and +3 Attack Dice.' },
-                specials: []
+                specials: [],
+                mechanics: {movementBonus:8,applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '4': {
                 type: 'buff',
@@ -596,7 +639,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Gain +10 m Movement and +4 Attack Dice.' },
-                specials: []
+                specials: [],
+                mechanics: {movementBonus:10,applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             }
         }
     },
@@ -701,7 +745,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a Hexed target, add +2d8 damage.', dice: '2d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+2d8'},condition:'targetHexed',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '2': {
                 type: 'buff',
@@ -709,7 +754,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a Hexed target, add +4d8 damage.', dice: '4d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+4d8'},condition:'targetHexed',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '3': {
                 type: 'buff',
@@ -717,7 +763,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a Hexed target, add +6d8 damage.', dice: '6d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+6d8'},condition:'targetHexed',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '4': {
                 type: 'buff',
@@ -725,7 +772,8 @@ export const HEXBOUND_HARRIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a Hexed target, add +8d8 damage.', dice: '8d8' },
-                specials: []
+                specials: [],
+                mechanics: {damageRider:{flat:'+8d8'},condition:'targetHexed',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             }
         }
     },
