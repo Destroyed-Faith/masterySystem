@@ -1,0 +1,141 @@
+# Translation report: infernal-bastion
+
+Source: `D:/Dev/VTT/Mastery System/src/utils/powers/infernal-bastion.ts`
+
+Levels scanned: **48**
+Auto-applied: **32** (67%)
+Needs review: **16** (33%)
+
+## Auto-applied
+
+- **Flameguard** (passive, L1) — armor
+  - effect: _While any enemy suffers from Ignite from you, gain +2 Armor._
+  - mechanics: `{"armor":2,"applyWhen":"passive-slotted-active"}`
+- **Flameguard** (passive, L2) — armor
+  - effect: _While any enemy suffers from Ignite from you, gain +4 Armor._
+  - mechanics: `{"armor":4,"applyWhen":"passive-slotted-active"}`
+- **Flameguard** (passive, L3) — armor
+  - effect: _While any enemy suffers from Ignite from you, gain +6 Armor._
+  - mechanics: `{"armor":6,"applyWhen":"passive-slotted-active"}`
+- **Flameguard** (passive, L4) — armor
+  - effect: _While any enemy suffers from Ignite from you, gain +8 Armor._
+  - mechanics: `{"armor":8,"applyWhen":"passive-slotted-active"}`
+- **Ember Focus** (passive, L1) — damageRider.flat, condition
+  - effect: _Once per round, the first time you damage an Ignited target with a Spell, add +1d8 damage._
+  - mechanics: `{"damageRider":{"flat":"+1d8"},"condition":"targetIgnited","applyWhen":"passive-slotted-active"}`
+- **Ember Focus** (passive, L2) — damageRider.flat, condition
+  - effect: _Once per round, the first time you damage an Ignited target with a Spell, add +2d8 damage._
+  - mechanics: `{"damageRider":{"flat":"+2d8"},"condition":"targetIgnited","applyWhen":"passive-slotted-active"}`
+- **Ember Focus** (passive, L3) — damageRider.flat, condition
+  - effect: _Once per round, the first time you damage an Ignited target with a Spell, add +3d8 damage._
+  - mechanics: `{"damageRider":{"flat":"+3d8"},"condition":"targetIgnited","applyWhen":"passive-slotted-active"}`
+- **Ember Focus** (passive, L4) — damageRider.flat, condition
+  - effect: _Once per round, the first time you damage an Ignited target with a Spell, add +4d8 damage._
+  - mechanics: `{"damageRider":{"flat":"+4d8"},"condition":"targetIgnited","applyWhen":"passive-slotted-active"}`
+- **Sear Ward** (reaction, L1) — armor
+  - effect: _Gain +2 Armor against that attack._
+  - mechanics: `{"armor":2,"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Sear Ward** (reaction, L2) — armor
+  - effect: _Gain +4 Armor against that attack._
+  - mechanics: `{"armor":4,"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Sear Ward** (reaction, L3) — armor
+  - effect: _Gain +6 Armor against that attack._
+  - mechanics: `{"armor":6,"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Sear Ward** (reaction, L4) — armor
+  - effect: _Gain +8 Armor against that attack._
+  - mechanics: `{"armor":8,"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Cinder Shell** (reaction, L1) — armor
+  - effect: _Move up to 2 m and gain +2 Armor against that attack._
+  - mechanics: `{"armor":2,"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Cinder Shell** (reaction, L2) — armor
+  - effect: _Move up to 4 m and gain +4 Armor against that attack._
+  - mechanics: `{"armor":4,"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Cinder Shell** (reaction, L3) — armor
+  - effect: _Move up to 6 m and gain +6 Armor against that attack._
+  - mechanics: `{"armor":6,"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Cinder Shell** (reaction, L4) — armor
+  - effect: _Move up to 8 m and gain +8 Armor against that attack._
+  - mechanics: `{"armor":8,"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Feed the Core** (reaction, L1) — armor
+  - effect: _Gain +2 Armor until the start of your next turn._
+  - mechanics: `{"armor":2,"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Feed the Core** (reaction, L2) — armor
+  - effect: _Gain +4 Armor until the start of your next turn._
+  - mechanics: `{"armor":4,"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Feed the Core** (reaction, L3) — armor
+  - effect: _Gain +6 Armor until the start of your next turn._
+  - mechanics: `{"armor":6,"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Feed the Core** (reaction, L4) — armor
+  - effect: _Gain +8 Armor until the start of your next turn._
+  - mechanics: `{"armor":8,"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Combustion Surge** (activeBuff, L1) — damageRider.flat
+  - effect: _Your next Spell with Ignite deals +2d8 damage._
+  - mechanics: `{"damageRider":{"flat":"+2d8"},"applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Combustion Surge** (activeBuff, L2) — damageRider.flat
+  - effect: _Your next Spell with Ignite deals +4d8 damage._
+  - mechanics: `{"damageRider":{"flat":"+4d8"},"applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Combustion Surge** (activeBuff, L3) — damageRider.flat
+  - effect: _Your next Spell with Ignite deals +6d8 damage._
+  - mechanics: `{"damageRider":{"flat":"+6d8"},"applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Combustion Surge** (activeBuff, L4) — damageRider.flat
+  - effect: _Your next Spell with Ignite deals +8d8 damage._
+  - mechanics: `{"damageRider":{"flat":"+8d8"},"applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Flameplate** (activeBuff, L1) — armor
+  - effect: _Gain +3 Armor._
+  - mechanics: `{"armor":3,"applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Flameplate** (activeBuff, L2) — armor
+  - effect: _Gain +5 Armor._
+  - mechanics: `{"armor":5,"applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Flameplate** (activeBuff, L3) — armor
+  - effect: _Gain +7 Armor._
+  - mechanics: `{"armor":7,"applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Flameplate** (activeBuff, L4) — armor
+  - effect: _Gain +9 Armor._
+  - mechanics: `{"armor":9,"applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Phoenix Core** (activeBuff, L1) — armor, damageRider.flat, condition
+  - effect: _The first time each round you damage an Ignited target with a Spell, gain +2 Armor and deal +1d8 damage._
+  - mechanics: `{"armor":2,"damageRider":{"flat":"+1d8"},"condition":"targetIgnited","applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Phoenix Core** (activeBuff, L2) — armor, damageRider.flat, condition
+  - effect: _The first time each round you damage an Ignited target with a Spell, gain +3 Armor and deal +2d8 damage._
+  - mechanics: `{"armor":3,"damageRider":{"flat":"+2d8"},"condition":"targetIgnited","applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Phoenix Core** (activeBuff, L3) — armor, damageRider.flat, condition
+  - effect: _The first time each round you damage an Ignited target with a Spell, gain +4 Armor and deal +3d8 damage._
+  - mechanics: `{"armor":4,"damageRider":{"flat":"+3d8"},"condition":"targetIgnited","applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Phoenix Core** (activeBuff, L4) — armor, damageRider.flat, condition
+  - effect: _The first time each round you damage an Ignited target with a Spell, gain +5 Armor and deal +4d8 damage._
+  - mechanics: `{"armor":5,"damageRider":{"flat":"+4d8"},"condition":"targetIgnited","applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+
+## Needs review (no confident match)
+
+- **Arcane Combustion** (passive, L1)
+  - effect: _Spells with the Ignite Special gain +1 Attack Die._
+- **Arcane Combustion** (passive, L2)
+  - effect: _Spells with the Ignite Special gain +2 Attack Dice._
+- **Arcane Combustion** (passive, L3)
+  - effect: _Spells with the Ignite Special gain +3 Attack Dice._
+- **Arcane Combustion** (passive, L4)
+  - effect: _Spells with the Ignite Special gain +4 Attack Dice._
+- **Phoenix Mantle** (passive, L1)
+  - effect: _End of your turn: if any enemy suffers from Ignite from you, heal 1d8 HP._
+- **Phoenix Mantle** (passive, L2)
+  - effect: _End of your turn: if any enemy suffers from Ignite from you, heal 2d8 HP._
+- **Phoenix Mantle** (passive, L3)
+  - effect: _End of your turn: if any enemy suffers from Ignite from you, heal 3d8 HP._
+- **Phoenix Mantle** (passive, L4)
+  - effect: _End of your turn: if any enemy suffers from Ignite from you, heal 4d8 HP._
+- **Backdraft** (reaction, L1)
+  - effect: _The attacker catches fire._
+- **Backdraft** (reaction, L2)
+  - effect: _The attacker catches fire._
+- **Backdraft** (reaction, L3)
+  - effect: _The attacker catches fire._
+- **Backdraft** (reaction, L4)
+  - effect: _The attacker catches fire._
+- **Inferno Core** (activeBuff, L1)
+  - effect: _At the end of your turn, each enemy in the aura that already has Ignite ≥ 1 increases its Ignite by +1._
+- **Inferno Core** (activeBuff, L2)
+  - effect: _At the end of your turn, each enemy in the aura that already has Ignite ≥ 1 increases its Ignite by +2._
+- **Inferno Core** (activeBuff, L3)
+  - effect: _At the end of your turn, each enemy in the aura that already has Ignite ≥ 1 increases its Ignite by +3._
+- **Inferno Core** (activeBuff, L4)
+  - effect: _At the end of your turn, each enemy in the aura that already has Ignite ≥ 1 increases its Ignite by +4._

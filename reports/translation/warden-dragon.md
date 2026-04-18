@@ -1,0 +1,209 @@
+# Translation report: warden-dragon
+
+Source: `D:/Dev/VTT/Mastery System/src/utils/powers/warden-dragon.ts`
+
+Levels scanned: **72**
+Auto-applied: **52** (72%)
+Needs review: **20** (28%)
+
+## Auto-applied
+
+- **Tail Sweep** (active, L1) — damageRider.flat
+  - effect: _Tail Attack + 1d8 damage_
+  - mechanics: `{"damageRider":{"flat":"+1d8"},"applyWhen":"attack-rider"}`
+- **Tail Sweep** (active, L2) — damageRider.flat
+  - effect: _Tail Attack + 1d8 damage_
+  - mechanics: `{"damageRider":{"flat":"+1d8"},"applyWhen":"attack-rider"}`
+- **Tail Sweep** (active, L3) — damageRider.flat
+  - effect: _Tail Attack + 2d8 damage_
+  - mechanics: `{"damageRider":{"flat":"+2d8"},"applyWhen":"attack-rider"}`
+- **Tail Sweep** (active, L4) — damageRider.flat
+  - effect: _Tail Attack + 3d8 damage_
+  - mechanics: `{"damageRider":{"flat":"+3d8"},"applyWhen":"attack-rider"}`
+- **Bulwark Bite** (active, L1) — damageRider.flat
+  - effect: _Bite Attack + 1d8 damage_
+  - mechanics: `{"damageRider":{"flat":"+1d8"},"applyWhen":"attack-rider"}`
+- **Bulwark Bite** (active, L2) — damageRider.flat
+  - effect: _Bite Attack + 2d8 damage_
+  - mechanics: `{"damageRider":{"flat":"+2d8"},"applyWhen":"attack-rider"}`
+- **Bulwark Bite** (active, L3) — damageRider.flat
+  - effect: _Bite Attack + 3d8 damage_
+  - mechanics: `{"damageRider":{"flat":"+3d8"},"applyWhen":"attack-rider"}`
+- **Bulwark Bite** (active, L4) — damageRider.flat
+  - effect: _Bite Attack + 4d8 damage_
+  - mechanics: `{"damageRider":{"flat":"+4d8"},"applyWhen":"attack-rider"}`
+- **Bodywall Crash** (active, L1) — armor
+  - effect: _Move up to 4 m in a straight line, then make a body slam attack dealing 1d8 damage. Gain +1 Armor until the end of the …_
+  - mechanics: `{"armor":1,"applyWhen":"attack-rider"}`
+- **Bodywall Crash** (active, L2) — armor
+  - effect: _Move up to 6 m in a straight line, then make a body slam attack dealing 2d8 damage. Gain +1 Armor until the end of the …_
+  - mechanics: `{"armor":1,"applyWhen":"attack-rider"}`
+- **Bodywall Crash** (active, L3) — armor
+  - effect: _Move up to 8 m in a straight line, then make a body slam attack dealing 3d8 damage. Gain +2 Armor until the end of the …_
+  - mechanics: `{"armor":2,"applyWhen":"attack-rider"}`
+- **Bodywall Crash** (active, L4) — armor
+  - effect: _Move up to 10 m in a straight line, then make a body slam attack dealing 4d8 damage. Gain +3 Armor until the end of the…_
+  - mechanics: `{"armor":3,"applyWhen":"attack-rider"}`
+- **Dragon Scales** (passive, L1) — armor, tempHP
+  - effect: _Gain +2 Armor. At the start of your turn, gain 1 Temp HP from this passive (non-stacking; refreshes)._
+  - mechanics: `{"armor":2,"tempHP":"1","applyWhen":"passive-slotted-active"}`
+- **Dragon Scales** (passive, L2) — armor, tempHP
+  - effect: _Gain +4 Armor. At the start of your turn, gain 2 Temp HP from this passive (non-stacking; refreshes)._
+  - mechanics: `{"armor":4,"tempHP":"2","applyWhen":"passive-slotted-active"}`
+- **Dragon Scales** (passive, L3) — armor, tempHP
+  - effect: _Gain +6 Armor. At the start of your turn, gain 3 Temp HP from this passive (non-stacking; refreshes)._
+  - mechanics: `{"armor":6,"tempHP":"3","applyWhen":"passive-slotted-active"}`
+- **Dragon Scales** (passive, L4) — armor, tempHP
+  - effect: _Gain +8 Armor. At the start of your turn, gain 4 Temp HP from this passive (non-stacking; refreshes)._
+  - mechanics: `{"armor":8,"tempHP":"4","applyWhen":"passive-slotted-active"}`
+- **Immovable** (passive, L1) — armor, saveDice
+  - effect: _Reduce all Push/Pull against you by 2 m (min 0). Gain +1 Armor and +1 die to Body Saving Throws._
+  - mechanics: `{"armor":1,"saveDice":{"body":1},"applyWhen":"passive-slotted-active"}`
+- **Immovable** (passive, L2) — armor, saveDice
+  - effect: _Reduce all Push/Pull against you by 4 m (min 0). Gain +2 Armor and +2 dice to Body Saving Throws._
+  - mechanics: `{"armor":2,"saveDice":{"body":2},"applyWhen":"passive-slotted-active"}`
+- **Immovable** (passive, L3) — armor, saveDice
+  - effect: _Reduce all Push/Pull against you by 6 m (min 0). Gain +3 Armor and +3 dice to Body Saving Throws._
+  - mechanics: `{"armor":3,"saveDice":{"body":3},"applyWhen":"passive-slotted-active"}`
+- **Immovable** (passive, L4) — armor, saveDice
+  - effect: _Reduce all Push/Pull against you by 8 m (min 0). Gain +4 Armor and +4 dice to Body Saving Throws._
+  - mechanics: `{"armor":4,"saveDice":{"body":4},"applyWhen":"passive-slotted-active"}`
+- **Territorial Presence** (passive, L1) — rollDice.attack
+  - effect: _Enemies within 2 m of you suffer −1 die on attacks that do not target you._
+  - mechanics: `{"rollDice":{"attack":-1},"applyWhen":"passive-slotted-active"}`
+- **Territorial Presence** (passive, L2) — rollDice.attack
+  - effect: _Enemies within 4 m of you suffer −2 dice on attacks that do not target you._
+  - mechanics: `{"rollDice":{"attack":-2},"applyWhen":"passive-slotted-active"}`
+- **Territorial Presence** (passive, L3) — rollDice.attack
+  - effect: _Enemies within 6 m of you suffer −3 dice on attacks that do not target you._
+  - mechanics: `{"rollDice":{"attack":-3},"applyWhen":"passive-slotted-active"}`
+- **Territorial Presence** (passive, L4) — rollDice.attack
+  - effect: _Enemies within 8 m of you suffer −4 dice on attacks that do not target you._
+  - mechanics: `{"rollDice":{"attack":-4},"applyWhen":"passive-slotted-active"}`
+- **Scale Ward** (reaction, L1) — evade, tempHP
+  - effect: _Gain 1d8 Temp HP and +1 Evade until the end of your next turn._
+  - mechanics: `{"evade":1,"tempHP":"1d8","applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Scale Ward** (reaction, L2) — evade, tempHP
+  - effect: _Gain 2d8 Temp HP and +2 Evade until the end of your next turn._
+  - mechanics: `{"evade":2,"tempHP":"2d8","applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Scale Ward** (reaction, L3) — evade, tempHP
+  - effect: _Gain 3d8 Temp HP and +3 Evade until the end of your next turn._
+  - mechanics: `{"evade":3,"tempHP":"3d8","applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Scale Ward** (reaction, L4) — evade, tempHP
+  - effect: _Gain 4d8 Temp HP and +4 Evade until the end of your next turn._
+  - mechanics: `{"evade":4,"tempHP":"4d8","applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Stand Fast** (reaction, L1) — saveDice
+  - effect: _Gain +2 dice to that Body Save or resistance check._
+  - mechanics: `{"saveDice":{"body":4},"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Stand Fast** (reaction, L2) — saveDice
+  - effect: _Gain +4 dice to that Body Save or resistance check._
+  - mechanics: `{"saveDice":{"body":8},"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Stand Fast** (reaction, L3) — saveDice
+  - effect: _Gain +6 dice to that Body Save or resistance check._
+  - mechanics: `{"saveDice":{"body":12},"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Stand Fast** (reaction, L4) — saveDice
+  - effect: _Gain +8 dice to that Body Save or resistance check._
+  - mechanics: `{"saveDice":{"body":16},"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Interposing Frame** (reaction, L1) — tempHP
+  - effect: _You may shift into adjacency to that ally. That ally gains 1d8 Temp HP against the triggering hit._
+  - mechanics: `{"tempHP":"1d8","applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Interposing Frame** (reaction, L2) — tempHP
+  - effect: _You may shift into adjacency to that ally. That ally gains 2d8 Temp HP against the triggering hit._
+  - mechanics: `{"tempHP":"2d8","applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Interposing Frame** (reaction, L3) — tempHP
+  - effect: _You may shift into adjacency to that ally. That ally gains 3d8 Temp HP against the triggering hit._
+  - mechanics: `{"tempHP":"3d8","applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Interposing Frame** (reaction, L4) — tempHP
+  - effect: _You may shift into adjacency to that ally. That ally gains 4d8 Temp HP against the triggering hit._
+  - mechanics: `{"tempHP":"4d8","applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Fortress Form** (activeBuff, L1) — armor, saveDice
+  - effect: _Gain +3 Armor and +2 dice to Body Saving Throws._
+  - mechanics: `{"armor":3,"saveDice":{"body":2},"applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Fortress Form** (activeBuff, L2) — armor, saveDice
+  - effect: _Gain +5 Armor and +4 dice to Body Saving Throws._
+  - mechanics: `{"armor":5,"saveDice":{"body":4},"applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Fortress Form** (activeBuff, L3) — armor, saveDice
+  - effect: _Gain +7 Armor and +6 dice to Body Saving Throws._
+  - mechanics: `{"armor":7,"saveDice":{"body":6},"applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Fortress Form** (activeBuff, L4) — armor, saveDice
+  - effect: _Gain +9 Armor and +8 dice to Body Saving Throws._
+  - mechanics: `{"armor":9,"saveDice":{"body":8},"applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Rooted Majesty** (activeBuff, L1) — armor, saveDice
+  - effect: _Reduce all Push/Pull against you by 4 m. Gain +2 Armor and +2 dice to Body Saving Throws._
+  - mechanics: `{"armor":2,"saveDice":{"body":2},"applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Rooted Majesty** (activeBuff, L2) — armor, saveDice
+  - effect: _Reduce all Push/Pull against you by 8 m. Gain +3 Armor and +4 dice to Body Saving Throws._
+  - mechanics: `{"armor":3,"saveDice":{"body":4},"applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Rooted Majesty** (activeBuff, L3) — armor, saveDice
+  - effect: _Reduce all Push/Pull against you by 12 m. Gain +4 Armor and +6 dice to Body Saving Throws._
+  - mechanics: `{"armor":4,"saveDice":{"body":6},"applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Rooted Majesty** (activeBuff, L4) — armor, saveDice
+  - effect: _Reduce all Push/Pull against you by 16 m. Gain +5 Armor and +8 dice to Body Saving Throws._
+  - mechanics: `{"armor":5,"saveDice":{"body":8},"applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Siegeblood** (activeBuff, L1) — saveDice, regen
+  - effect: _Gain Regeneration(3) and +3 dice to Body Saving Throws._
+  - mechanics: `{"saveDice":{"body":3},"regen":3,"applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Siegeblood** (activeBuff, L2) — saveDice, regen
+  - effect: _Gain Regeneration(4) and +5 dice to Body Saving Throws._
+  - mechanics: `{"saveDice":{"body":5},"regen":4,"applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Siegeblood** (activeBuff, L3) — saveDice, regen
+  - effect: _Gain Regeneration(5) and +7 dice to Body Saving Throws._
+  - mechanics: `{"saveDice":{"body":7},"regen":5,"applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Siegeblood** (activeBuff, L4) — saveDice, regen
+  - effect: _Gain Regeneration(6) and +9 dice to Body Saving Throws._
+  - mechanics: `{"saveDice":{"body":9},"regen":6,"applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Wing Brace** (movement, L1) — saveDice
+  - effect: _Reposition up to 4 m. Gain +3 dice to the next Body Save you make before the end of the round._
+  - mechanics: `{"saveDice":{"body":3},"applyWhen":"attack-rider"}`
+- **Wing Brace** (movement, L2) — saveDice
+  - effect: _Reposition up to 8 m. Gain +6 dice to the next Body Save you make before the end of the round._
+  - mechanics: `{"saveDice":{"body":6},"applyWhen":"attack-rider"}`
+- **Wing Brace** (movement, L3) — saveDice
+  - effect: _Reposition up to 12 m. Gain +9 dice to the next Body Save you make before the end of the round._
+  - mechanics: `{"saveDice":{"body":9},"applyWhen":"attack-rider"}`
+- **Wing Brace** (movement, L4) — saveDice
+  - effect: _Reposition up to 16 m. Gain +12 dice to the next Body Save you make before the end of the round._
+  - mechanics: `{"saveDice":{"body":12},"applyWhen":"attack-rider"}`
+
+## Needs review (no confident match)
+
+- **Earthshaker Stomp** (active, L1)
+  - effect: _Enemies in the area take 1d8 damage._
+- **Earthshaker Stomp** (active, L2)
+  - effect: _Enemies in the area take 1d8 damage._
+- **Earthshaker Stomp** (active, L3)
+  - effect: _Enemies in the area take 2d8 damage._
+- **Earthshaker Stomp** (active, L4)
+  - effect: _Enemies in the area take 2d8 damage._
+- **Ancient Bulk** (passive, L1)
+  - effect: _Gain +1 Wounded Health Bar._
+- **Ancient Bulk** (passive, L2)
+  - effect: _Gain +1 Injured Health Bar._
+- **Ancient Bulk** (passive, L3)
+  - effect: _Gain +1 Bruised Health Bar._
+- **Ancient Bulk** (passive, L4)
+  - effect: _Gain +1 Healthy Health Bar._
+- **Guarding Tail** (reaction, L1)
+  - effect: _Make a Tail Attack dealing damage + 1d8._
+- **Guarding Tail** (reaction, L2)
+  - effect: _Make a Tail Attack dealing damage + 2d8._
+- **Guarding Tail** (reaction, L3)
+  - effect: _Make a Tail Attack dealing damage + 3d8._
+- **Guarding Tail** (reaction, L4)
+  - effect: _Make a Tail Attack dealing damage + 4d8._
+- **Throne Ground** (activeBuff, L1)
+  - effect: _The first time each round an enemy enters the area, it must pass a Body Save or its movement immediately ends._
+- **Throne Ground** (activeBuff, L2)
+  - effect: _The first time each round an enemy enters the area, it must pass a Body Save or its movement immediately ends. On a success, its Speed is reduced by 2 m until …_
+- **Throne Ground** (activeBuff, L3)
+  - effect: _The first time each round an enemy enters the area, it must pass a Body Save or its movement immediately ends. On a success, its Speed is reduced by 4 m until …_
+- **Throne Ground** (activeBuff, L4)
+  - effect: _The first time each round an enemy enters the area, it must pass a Body Save or its movement immediately ends. On a success, its Speed is reduced by 6 m until …_
+- **Stonewing Advance** (movement, L1)
+  - effect: _Move up to 5 m. The first enemy you contact during this movement must pass a Body Save or be moved aside._
+- **Stonewing Advance** (movement, L2)
+  - effect: _Move up to 10 m. The first enemy you contact during this movement must pass a Body Save or be moved aside._
+- **Stonewing Advance** (movement, L3)
+  - effect: _Move up to 15 m. The first enemy you contact during this movement must pass a Body Save or be moved aside._
+- **Stonewing Advance** (movement, L4)
+  - effect: _Move up to 20 m. The first enemy you contact during this movement must pass a Body Save or be moved aside._

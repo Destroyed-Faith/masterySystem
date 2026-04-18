@@ -1,0 +1,137 @@
+# Translation report: doomscribe
+
+Source: `D:/Dev/VTT/Mastery System/src/utils/powers/doomscribe.ts`
+
+Levels scanned: **48**
+Auto-applied: **28** (58%)
+Needs review: **20** (42%)
+
+## Auto-applied
+
+- **Death Ledger** (passive, L1) — damageRider.flat, damageRider.vsCondition, condition
+  - effect: _Your Spells gain +1d8 damage against Marked targets._
+  - mechanics: `{"damageRider":{"flat":"+1d8","vsCondition":"marked","vsConditionDamage":"+1d8"},"condition":"targetMarked","applyWhen":"passive-slotted-active"}`
+- **Death Ledger** (passive, L2) — damageRider.flat, damageRider.vsCondition, condition
+  - effect: _Your Spells gain +2d8 damage against Marked targets._
+  - mechanics: `{"damageRider":{"flat":"+2d8","vsCondition":"marked","vsConditionDamage":"+2d8"},"condition":"targetMarked","applyWhen":"passive-slotted-active"}`
+- **Death Ledger** (passive, L3) — damageRider.flat, damageRider.vsCondition, condition
+  - effect: _Your Spells gain +3d8 damage against Marked targets._
+  - mechanics: `{"damageRider":{"flat":"+3d8","vsCondition":"marked","vsConditionDamage":"+3d8"},"condition":"targetMarked","applyWhen":"passive-slotted-active"}`
+- **Death Ledger** (passive, L4) — damageRider.flat, damageRider.vsCondition, condition
+  - effect: _Your Spells gain +4d8 damage against Marked targets._
+  - mechanics: `{"damageRider":{"flat":"+4d8","vsCondition":"marked","vsConditionDamage":"+4d8"},"condition":"targetMarked","applyWhen":"passive-slotted-active"}`
+- **Cruel Geometry** (passive, L1) — condition
+  - effect: _Once per round, the first time you hit a Marked target with a Spell, that hit gains Crit(1)._
+  - mechanics: `{"condition":"targetMarked","applyWhen":"passive-slotted-active"}`
+- **Cruel Geometry** (passive, L2) — condition
+  - effect: _Once per round, the first time you hit a Marked target with a Spell, that hit gains Crit(2)._
+  - mechanics: `{"condition":"targetMarked","applyWhen":"passive-slotted-active"}`
+- **Cruel Geometry** (passive, L3) — condition
+  - effect: _Once per round, the first time you hit a Marked target with a Spell, that hit gains Crit(3)._
+  - mechanics: `{"condition":"targetMarked","applyWhen":"passive-slotted-active"}`
+- **Cruel Geometry** (passive, L4) — condition
+  - effect: _Once per round, the first time you hit a Marked target with a Spell, that hit gains Crit(4)._
+  - mechanics: `{"condition":"targetMarked","applyWhen":"passive-slotted-active"}`
+- **Execution Logic** (passive, L1) — condition
+  - effect: _Gain +1 Attack Die on Spells against Marked targets._
+  - mechanics: `{"condition":"targetMarked","applyWhen":"passive-slotted-active"}`
+- **Execution Logic** (passive, L2) — condition
+  - effect: _Gain +2 Attack Dice on Spells against Marked targets._
+  - mechanics: `{"condition":"targetMarked","applyWhen":"passive-slotted-active"}`
+- **Execution Logic** (passive, L3) — condition
+  - effect: _Gain +3 Attack Dice on Spells against Marked targets._
+  - mechanics: `{"condition":"targetMarked","applyWhen":"passive-slotted-active"}`
+- **Execution Logic** (passive, L4) — condition
+  - effect: _Gain +4 Attack Dice on Spells against Marked targets._
+  - mechanics: `{"condition":"targetMarked","applyWhen":"passive-slotted-active"}`
+- **Hold the Pattern** (reaction, L1) — armor
+  - effect: _Gain +1 Save Die and +1 Armor against that effect._
+  - mechanics: `{"armor":1,"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Hold the Pattern** (reaction, L2) — armor
+  - effect: _Gain +2 Save Dice and +2 Armor against that effect._
+  - mechanics: `{"armor":2,"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Hold the Pattern** (reaction, L3) — armor
+  - effect: _Gain +3 Save Dice and +3 Armor against that effect._
+  - mechanics: `{"armor":3,"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Hold the Pattern** (reaction, L4) — armor
+  - effect: _Gain +4 Save Dice and +4 Armor against that effect._
+  - mechanics: `{"armor":4,"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Punitive Echo** (reaction, L1) — damageRider.flat
+  - effect: _Your next Spell against that target before end of next turn gains +1d8 damage._
+  - mechanics: `{"damageRider":{"flat":"+1d8"},"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Punitive Echo** (reaction, L2) — damageRider.flat
+  - effect: _Your next Spell gains +2d8 damage._
+  - mechanics: `{"damageRider":{"flat":"+2d8"},"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Punitive Echo** (reaction, L3) — damageRider.flat
+  - effect: _Your next Spell gains +3d8 damage._
+  - mechanics: `{"damageRider":{"flat":"+3d8"},"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Punitive Echo** (reaction, L4) — damageRider.flat
+  - effect: _Your next Spell gains +4d8 damage._
+  - mechanics: `{"damageRider":{"flat":"+4d8"},"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Predicted Ruin** (activeBuff, L1) — condition
+  - effect: _The first time each round you hit a Marked target with a Spell, that hit gains Crit(1)._
+  - mechanics: `{"condition":"targetMarked","applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Predicted Ruin** (activeBuff, L2) — condition
+  - effect: _The first time each round you hit a Marked target with a Spell, that hit gains Crit(2)._
+  - mechanics: `{"condition":"targetMarked","applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Predicted Ruin** (activeBuff, L3) — condition
+  - effect: _The first time each round you hit a Marked target with a Spell, that hit gains Crit(3)._
+  - mechanics: `{"condition":"targetMarked","applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Predicted Ruin** (activeBuff, L4) — condition
+  - effect: _The first time each round you hit a Marked target with a Spell, that hit gains Crit(4)._
+  - mechanics: `{"condition":"targetMarked","applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **No Escape Clause** (activeBuff, L1) — condition
+  - effect: _When a Marked target moves more than 4 m in a turn, increase its mark-pressure by 1._
+  - mechanics: `{"condition":"targetMarked","applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **No Escape Clause** (activeBuff, L2) — condition
+  - effect: _When a Marked target moves more than 4 m in a turn, increase its mark-pressure by 2._
+  - mechanics: `{"condition":"targetMarked","applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **No Escape Clause** (activeBuff, L3) — condition
+  - effect: _When a Marked target moves more than 4 m in a turn, increase its mark-pressure by 3._
+  - mechanics: `{"condition":"targetMarked","applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **No Escape Clause** (activeBuff, L4) — condition
+  - effect: _When a Marked target moves more than 4 m in a turn, increase its mark-pressure by 4._
+  - mechanics: `{"condition":"targetMarked","applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+
+## Needs review (no confident match)
+
+- **First Seal** (passive, L1)
+  - effect: _The first time each combat you cast a Spell that applies Mark, that spell gains +1 Attack Die._
+- **First Seal** (passive, L2)
+  - effect: _The first time each combat you cast a Spell that applies Mark, that spell gains +2 Attack Dice._
+- **First Seal** (passive, L3)
+  - effect: _The first time each combat you cast a Spell that applies Mark, that spell gains +3 Attack Dice._
+- **First Seal** (passive, L4)
+  - effect: _The first time each combat you cast a Spell that applies Mark, that spell gains +4 Attack Dice._
+- **Seal the Misstep** (reaction, L1)
+  - effect: _Increase its current mark-pressure by 1._
+- **Seal the Misstep** (reaction, L2)
+  - effect: _Increase its current mark-pressure by 2._
+- **Seal the Misstep** (reaction, L3)
+  - effect: _Increase its current mark-pressure by 3._
+- **Seal the Misstep** (reaction, L4)
+  - effect: _Increase its current mark-pressure by 4._
+- **Read the Collapse** (reaction, L1)
+  - effect: _Your next Spell against that target before end of next turn gains Crit(1)._
+- **Read the Collapse** (reaction, L2)
+  - effect: _Your next Spell gains Crit(2)._
+- **Read the Collapse** (reaction, L3)
+  - effect: _Your next Spell gains Crit(3)._
+- **Read the Collapse** (reaction, L4)
+  - effect: _Your next Spell gains Crit(4)._
+- **Final Notation** (activeBuff, L1)
+  - effect: _Choose one creature you can perceive; your Spells gain +2 Attack Dice against it._
+- **Final Notation** (activeBuff, L2)
+  - effect: _Your Spells gain +4 Attack Dice against the chosen creature._
+- **Final Notation** (activeBuff, L3)
+  - effect: _Your Spells gain +6 Attack Dice against the chosen creature._
+- **Final Notation** (activeBuff, L4)
+  - effect: _Your Spells gain +8 Attack Dice against the chosen creature._
+- **Cold Sequence** (activeBuff, L1)
+  - effect: _Gain +4 Initiative and +1 Attack Die on Spells._
+- **Cold Sequence** (activeBuff, L2)
+  - effect: _Gain +8 Initiative and +2 Attack Dice on Spells._
+- **Cold Sequence** (activeBuff, L3)
+  - effect: _Gain +12 Initiative and +3 Attack Dice on Spells._
+- **Cold Sequence** (activeBuff, L4)
+  - effect: _Gain +16 Initiative and +4 Attack Dice on Spells._

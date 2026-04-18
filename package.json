@@ -1,6 +1,6 @@
 {
   "name": "mastery-system",
-  "version": "0.4.264",
+  "version": "0.4.265",
   "description": "Foundry VTT system for Mastery System / Destroyed Faith",
   "main": "dist/module.js",
   "scripts": {
@@ -29,6 +29,7 @@
     "eslint": "^8.57.0",
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
+    "ts-morph": "^28.0.0",
     "typescript": "^5.9.3",
     "vitest": "^4.1.0"
   }

@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.265] - 2026-04-18
+
+### Added
+- **Power Mechanics Engine (Release 2 of 4) — Mass-Translation Tool.** Introduces the developer script `scripts/translate-powers.js` that scans all 11 mastery trees (Warden Dragon, Raptor Dragon, Dreadwyrm, Dreadstalker, Doomscribe, Hexbound Harrier, Void Testament, Gale Breaker, Storm Veil, Ashguard, Infernal Bastion) and 4 spell schools (Black Writ, Pact Breach, Split Tempest, Pyre Calculus), runs a bank of 13 regex shape-matchers over every level's `effect.text`, and produces tree-by-tree Markdown reports under `reports/translation/<slug>.md` split into Auto-applied and Needs-review sections with per-level tracing. An Apply mode (`--apply <slug>` / `--apply-all`) is also provided: it uses **ts-morph** for AST-safe insertion of the generated `mechanics: { ... }` block into each level row, preserving surrounding formatting.
+- **Matchers currently implemented**: Armor, Evade, SaveDice (Body/Mind/Spirit including "next … Save" phrasing), Regen, TempHP (flat or dice), MovementBonus, IgnoreTerrain, InitiativeD8, rollDice.attack, rollDice.skill, damageRider.flat, damageRider.vsCondition, plus a condition matcher covering Marked / Ignited / Shocked / Frozen / **Hexed**. `applyWhen` and `duration` defaults derive from the power's `category` (passive → `passive-slotted-active`; activeBuff → `activeBuff-active` + `masteryRankRounds`; reaction → `reaction-once-per-round` with per-round usage cap; active/movement → `attack-rider`). Both the new object-shaped `levels: { '1': ... }` mastery form and the legacy array-shaped `levels: [ { level: 1, ... } ]` spell form are supported.
+- **Dry-run baseline** (no content written): 490 / 824 level rows auto-propose a structured mechanics block (59% overall, ~63% for mastery trees). Mastery-tree coverage per file ranges from 39% (Dreadwyrm) to 72% (Ashguard); spell schools are lower (12–50%) because their rows typically express only the base damage via `roll.damage` and carry no passive/on-top bonus. Release 3 will drive tree-by-tree review and apply.
+
+### Changed
+- **Schema**: `PowerMechanics.condition` now also accepts `'targetHexed'`, and `PowerMechanics.damageRider.vsCondition` accepts `'hexed'` — needed so the Hex-build spell schools (Void Testament / Pact Breach) can express "damage vs. Hexed target" riders structurally.
+
+### Dev
+- Added `ts-morph` as a devDependency. It is only loaded by `scripts/translate-powers.js` and is never part of the runtime bundle.
+
+### Notes
+- **No power files were modified in this release** — the script only *proposes* mechanics blocks and *reports*. Applying them tree-by-tree happens in Release 3 and is committed per tree.
+
 ## [0.4.264] - 2026-04-18
 
 ### Added

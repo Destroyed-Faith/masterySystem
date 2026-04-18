@@ -1,0 +1,205 @@
+# Translation report: gale-breaker
+
+Source: `D:/Dev/VTT/Mastery System/src/utils/powers/gale-breaker.ts`
+
+Levels scanned: **72**
+Auto-applied: **48** (67%)
+Needs review: **24** (33%)
+
+## Auto-applied
+
+- **Jolt Cut** (active, L1) — damageRider.flat
+  - effect: _Weapon DMG +1d8 damage_
+  - mechanics: `{"damageRider":{"flat":"+1d8"},"applyWhen":"attack-rider"}`
+- **Jolt Cut** (active, L2) — damageRider.flat
+  - effect: _Weapon DMG +1d8 damage_
+  - mechanics: `{"damageRider":{"flat":"+1d8"},"applyWhen":"attack-rider"}`
+- **Jolt Cut** (active, L3) — damageRider.flat
+  - effect: _Weapon DMG +2d8 damage_
+  - mechanics: `{"damageRider":{"flat":"+2d8"},"applyWhen":"attack-rider"}`
+- **Jolt Cut** (active, L4) — damageRider.flat
+  - effect: _Weapon DMG +2d8 damage_
+  - mechanics: `{"damageRider":{"flat":"+2d8"},"applyWhen":"attack-rider"}`
+- **Crosswind Hit** (active, L1) — evade, damageRider.flat
+  - effect: _Weapon DMG +1d8 damage. You and one ally within 2 m gain +1 Evade until the start of your next turn._
+  - mechanics: `{"evade":1,"damageRider":{"flat":"+1d8"},"applyWhen":"attack-rider"}`
+- **Crosswind Hit** (active, L2) — evade, damageRider.flat
+  - effect: _Weapon DMG +2d8 damage. You and one ally within 2 m gain +2 Evade until the start of your next turn._
+  - mechanics: `{"evade":2,"damageRider":{"flat":"+2d8"},"applyWhen":"attack-rider"}`
+- **Crosswind Hit** (active, L3) — evade, damageRider.flat
+  - effect: _Weapon DMG +3d8 damage. You and one ally within 2 m gain +3 Evade until the start of your next turn._
+  - mechanics: `{"evade":3,"damageRider":{"flat":"+3d8"},"applyWhen":"attack-rider"}`
+- **Crosswind Hit** (active, L4) — evade, damageRider.flat
+  - effect: _Weapon DMG +4d8 damage. You and one ally within 2 m gain +4 Evade until the start of your next turn._
+  - mechanics: `{"evade":4,"damageRider":{"flat":"+4d8"},"applyWhen":"attack-rider"}`
+- **Screen Thrust** (active, L1) — evade, damageRider.flat
+  - effect: _Weapon DMG +1d8 damage. If the target is Shocked, you and one ally within 2 m gain +2 Evade until the start of your nex…_
+  - mechanics: `{"evade":2,"damageRider":{"flat":"+1d8"},"applyWhen":"attack-rider"}`
+- **Screen Thrust** (active, L2) — evade, damageRider.flat
+  - effect: _Weapon DMG +2d8 damage. If the target is Shocked, you and one ally within 2 m gain +3 Evade until the start of your nex…_
+  - mechanics: `{"evade":3,"damageRider":{"flat":"+2d8"},"applyWhen":"attack-rider"}`
+- **Screen Thrust** (active, L3) — evade, damageRider.flat
+  - effect: _Weapon DMG +3d8 damage. If the target is Shocked, you and one ally within 2 m gain +4 Evade until the start of your nex…_
+  - mechanics: `{"evade":4,"damageRider":{"flat":"+3d8"},"applyWhen":"attack-rider"}`
+- **Screen Thrust** (active, L4) — evade, damageRider.flat
+  - effect: _Weapon DMG +4d8 damage. If the target is Shocked, you and one ally within 2 m gain +5 Evade until the start of your nex…_
+  - mechanics: `{"evade":5,"damageRider":{"flat":"+4d8"},"applyWhen":"attack-rider"}`
+- **Storm Screen** (passive, L1) — evade
+  - effect: _You and allies within 2 m gain +1 Evade._
+  - mechanics: `{"evade":1,"applyWhen":"passive-slotted-active"}`
+- **Storm Screen** (passive, L2) — evade
+  - effect: _You and allies within 4 m gain +2 Evade._
+  - mechanics: `{"evade":2,"applyWhen":"passive-slotted-active"}`
+- **Storm Screen** (passive, L3) — evade
+  - effect: _You and allies within 6 m gain +3 Evade._
+  - mechanics: `{"evade":3,"applyWhen":"passive-slotted-active"}`
+- **Storm Screen** (passive, L4) — evade
+  - effect: _You and allies within 8 m gain +4 Evade._
+  - mechanics: `{"evade":4,"applyWhen":"passive-slotted-active"}`
+- **Late Strikes** (passive, L1) — evade
+  - effect: _Against attacks made by Shocked enemies, gain +2 Evade._
+  - mechanics: `{"evade":2,"applyWhen":"passive-slotted-active"}`
+- **Late Strikes** (passive, L2) — evade
+  - effect: _Against attacks made by Shocked enemies, gain +4 Evade._
+  - mechanics: `{"evade":4,"applyWhen":"passive-slotted-active"}`
+- **Late Strikes** (passive, L3) — evade
+  - effect: _Against attacks made by Shocked enemies, gain +6 Evade._
+  - mechanics: `{"evade":6,"applyWhen":"passive-slotted-active"}`
+- **Late Strikes** (passive, L4) — evade
+  - effect: _Against attacks made by Shocked enemies, gain +8 Evade._
+  - mechanics: `{"evade":8,"applyWhen":"passive-slotted-active"}`
+- **Intercept the Angle** (reaction, L1) — evade
+  - effect: _That ally gains +2 Evade against the attack._
+  - mechanics: `{"evade":2,"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Intercept the Angle** (reaction, L2) — evade
+  - effect: _That ally gains +4 Evade against the attack._
+  - mechanics: `{"evade":4,"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Intercept the Angle** (reaction, L3) — evade
+  - effect: _That ally gains +6 Evade against the attack._
+  - mechanics: `{"evade":6,"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Intercept the Angle** (reaction, L4) — evade
+  - effect: _That ally gains +8 Evade against the attack._
+  - mechanics: `{"evade":8,"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Punish the Lag** (reaction, L1) — damageRider.flat
+  - effect: _Make one attack against it; on hit, deal +1d8 damage._
+  - mechanics: `{"damageRider":{"flat":"+1d8"},"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Punish the Lag** (reaction, L2) — damageRider.flat
+  - effect: _Make one attack against it; on hit, deal +2d8 damage._
+  - mechanics: `{"damageRider":{"flat":"+2d8"},"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Punish the Lag** (reaction, L3) — damageRider.flat
+  - effect: _Make one attack against it; on hit, deal +3d8 damage._
+  - mechanics: `{"damageRider":{"flat":"+3d8"},"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Punish the Lag** (reaction, L4) — damageRider.flat
+  - effect: _Make one attack against it; on hit, deal +4d8 damage._
+  - mechanics: `{"damageRider":{"flat":"+4d8"},"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Carry the Wind** (reaction, L1) — evade
+  - effect: _Move up to 2 m and gain +2 Evade against that attack._
+  - mechanics: `{"evade":2,"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Carry the Wind** (reaction, L2) — evade
+  - effect: _Move up to 4 m and gain +4 Evade against that attack._
+  - mechanics: `{"evade":4,"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Carry the Wind** (reaction, L3) — evade
+  - effect: _Move up to 6 m and gain +6 Evade against that attack._
+  - mechanics: `{"evade":6,"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Carry the Wind** (reaction, L4) — evade
+  - effect: _Move up to 8 m and gain +8 Evade against that attack._
+  - mechanics: `{"evade":8,"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Steady the Line** (reaction, L1) — armor, evade
+  - effect: _That ally gains +2 Armor against that hit and +1 Evade until the start of your next turn._
+  - mechanics: `{"armor":2,"evade":1,"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Steady the Line** (reaction, L2) — armor, evade
+  - effect: _That ally gains +4 Armor against that hit and +2 Evade until the start of your next turn._
+  - mechanics: `{"armor":4,"evade":2,"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Steady the Line** (reaction, L3) — armor, evade
+  - effect: _That ally gains +6 Armor against that hit and +3 Evade until the start of your next turn._
+  - mechanics: `{"armor":6,"evade":3,"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Steady the Line** (reaction, L4) — armor, evade
+  - effect: _That ally gains +8 Armor against that hit and +4 Evade until the start of your next turn._
+  - mechanics: `{"armor":8,"evade":4,"applyWhen":"reaction-once-per-round","usageLimit":{"per":"round","max":1}}`
+- **Slipstream Order** (activeBuff, L1) — evade
+  - effect: _You and allies in the aura gain +2 Evade._
+  - mechanics: `{"evade":2,"applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Slipstream Order** (activeBuff, L2) — evade
+  - effect: _You and allies in the aura gain +3 Evade._
+  - mechanics: `{"evade":3,"applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Slipstream Order** (activeBuff, L3) — evade
+  - effect: _You and allies in the aura gain +4 Evade._
+  - mechanics: `{"evade":4,"applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Slipstream Order** (activeBuff, L4) — evade
+  - effect: _You and allies in the aura gain +5 Evade._
+  - mechanics: `{"evade":5,"applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Safe Current** (activeBuff, L1) — evade, condition
+  - effect: _The first time each round you hit a Shocked target, you and one ally within 2 m gain +2 Evade._
+  - mechanics: `{"evade":2,"condition":"targetShocked","applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Safe Current** (activeBuff, L2) — evade, condition
+  - effect: _The first time each round you hit a Shocked target, you and one ally within 2 m gain +3 Evade._
+  - mechanics: `{"evade":3,"condition":"targetShocked","applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Safe Current** (activeBuff, L3) — evade, condition
+  - effect: _The first time each round you hit a Shocked target, you and one ally within 2 m gain +4 Evade._
+  - mechanics: `{"evade":4,"condition":"targetShocked","applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Safe Current** (activeBuff, L4) — evade, condition
+  - effect: _The first time each round you hit a Shocked target, you and one ally within 2 m gain +5 Evade._
+  - mechanics: `{"evade":5,"condition":"targetShocked","applyWhen":"activeBuff-active","duration":"masteryRankRounds"}`
+- **Wind Cut** (movement, L1) — evade
+  - effect: _Move up to 6 m. If you end adjacent to an enemy, you and one ally within 2 m gain +1 Evade until the start of your next…_
+  - mechanics: `{"evade":1,"applyWhen":"attack-rider"}`
+- **Wind Cut** (movement, L2) — evade
+  - effect: _Move up to 10 m. If you end adjacent to an enemy, you and one ally within 2 m gain +2 Evade until the start of your nex…_
+  - mechanics: `{"evade":2,"applyWhen":"attack-rider"}`
+- **Wind Cut** (movement, L3) — evade
+  - effect: _Move up to 14 m. If you end adjacent to an enemy, you and one ally within 2 m gain +3 Evade until the start of your nex…_
+  - mechanics: `{"evade":3,"applyWhen":"attack-rider"}`
+- **Wind Cut** (movement, L4) — evade
+  - effect: _Move up to 18 m. If you end adjacent to an enemy, you and one ally within 2 m gain +4 Evade until the start of your nex…_
+  - mechanics: `{"evade":4,"applyWhen":"attack-rider"}`
+
+## Needs review (no confident match)
+
+- **Rattle Line** (active, L1)
+  - effect: _Enemies in the area take 1d8 damage._
+- **Rattle Line** (active, L2)
+  - effect: _Enemies in the area take 1d8 damage._
+- **Rattle Line** (active, L3)
+  - effect: _Enemies in the area take 2d8 damage._
+- **Rattle Line** (active, L4)
+  - effect: _Enemies in the area take 2d8 damage._
+- **Screen Fighter** (passive, L1)
+  - effect: _While within 2 m of an ally, gain +1 Attack Die._
+- **Screen Fighter** (passive, L2)
+  - effect: _While within 2 m of an ally, gain +2 Attack Dice._
+- **Screen Fighter** (passive, L3)
+  - effect: _While within 2 m of an ally, gain +3 Attack Dice._
+- **Screen Fighter** (passive, L4)
+  - effect: _While within 2 m of an ally, gain +4 Attack Dice._
+- **Sudden Gap** (passive, L1)
+  - effect: _Gain +4 Initiative._
+- **Sudden Gap** (passive, L2)
+  - effect: _Gain +8 Initiative._
+- **Sudden Gap** (passive, L3)
+  - effect: _Gain +12 Initiative._
+- **Sudden Gap** (passive, L4)
+  - effect: _Gain +16 Initiative._
+- **Rattle Them** (activeBuff, L1)
+  - effect: _The first time each round you hit a target, increase its Shock by 1._
+- **Rattle Them** (activeBuff, L2)
+  - effect: _The first time each round you hit a target, increase its Shock by 2._
+- **Rattle Them** (activeBuff, L3)
+  - effect: _The first time each round you hit a target, increase its Shock by 3._
+- **Rattle Them** (activeBuff, L4)
+  - effect: _The first time each round you hit a target, increase its Shock by 4._
+- **Stay Ahead** (activeBuff, L1)
+  - effect: _You and allies in the aura gain +4 Initiative._
+- **Stay Ahead** (activeBuff, L2)
+  - effect: _You and allies in the aura gain +8 Initiative._
+- **Stay Ahead** (activeBuff, L3)
+  - effect: _You and allies in the aura gain +12 Initiative._
+- **Stay Ahead** (activeBuff, L4)
+  - effect: _You and allies in the aura gain +16 Initiative._
+- **Wash Out** (movement, L1)
+  - effect: _After you make an attack, move up to 6 m._
+- **Wash Out** (movement, L2)
+  - effect: _After you make an attack, move up to 10 m._
+- **Wash Out** (movement, L3)
+  - effect: _After you make an attack, move up to 14 m._
+- **Wash Out** (movement, L4)
+  - effect: _After you make an attack, move up to 18 m._

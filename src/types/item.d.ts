@@ -114,9 +114,9 @@ export interface PowerMechanics {
    * based on applyWhen).
    */
   damageRider?: {
-    flat?: string;                                             // "+1d8"
-    vsCondition?: 'marked' | 'ignited' | 'shocked' | 'frozen'; // only when target has condition
-    vsConditionDamage?: string;                                // "+2d8" extra under condition
+    flat?: string;                                                        // "+1d8"
+    vsCondition?: 'marked' | 'ignited' | 'shocked' | 'frozen' | 'hexed';  // only when target has condition
+    vsConditionDamage?: string;                                           // "+2d8" extra under condition
   };
 
   /** Flat movement bonus in meters. */
@@ -151,6 +151,7 @@ export interface PowerMechanics {
     | 'targetIgnited'
     | 'targetShocked'
     | 'targetFrozen'
+    | 'targetHexed'
     | 'self-hp-below-50'
     | null;
 }
