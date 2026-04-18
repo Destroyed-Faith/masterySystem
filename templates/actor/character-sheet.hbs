@@ -122,13 +122,12 @@
 
   <!-- Tabs Navigation (Right Side Bookmarks) -->
   <nav class="sheet-tabs tabs" data-group="primary">
-    <a class="item" data-tab="echo"><i class="fas fa-mask"></i> Echo</a>
     <a class="item" data-tab="attributes"><i class="fas fa-fist-raised"></i> Attributes</a>
+    <a class="item" data-tab="echo"><i class="fas fa-mask"></i> Echo</a>
     <a class="item" data-tab="skills"><i class="fas fa-cogs"></i> Skills</a>
     <a class="item" data-tab="powers"><i class="fas fa-magic"></i> Powers</a>
     <a class="item" data-tab="equipment"><i class="fas fa-shield-alt"></i> Equipment</a>
     <a class="item" data-tab="disadvantages"><i class="fas fa-exclamation-triangle"></i> Disadvantages</a>
-    <a class="item" data-tab="biography"><i class="fas fa-scroll"></i> Bio</a>
   </nav>
 
   <!-- Sheet Body -->
@@ -138,13 +137,12 @@
     <div class="tab echo" data-group="primary" data-tab="echo">
       <div class="echo-tab-content">
 
-        {{#unless creationComplete}}
-        <!-- Echo creation step (moved from Powers tab) -->
+        <!-- Echo Selection (always available; change at any time) -->
         <div class="creation-echo-section">
           <div class="creation-echo-header">
-            <h4><i class="fas fa-mask"></i> Choose your Echo</h4>
-            <button type="button" class="choose-echo-btn" title="Choose Echo, Sub-choice (if any), Veiled Form (Dragonborn), and your first Echo card">
-              <i class="fas fa-mask"></i> Choose Echo
+            <h4><i class="fas fa-mask"></i> Echo</h4>
+            <button type="button" class="choose-echo-btn" title="Choose or change your Echo, Sub-choice (if any), Veiled Form (Dragonborn), and your Echo cards">
+              <i class="fas fa-mask"></i> {{#if echoView}}Change Echo{{else}}Choose Echo{{/if}}
             </button>
             {{#if echoView}}
             <span class="echo-status {{#if echoView.creationValid}}echo-status-ok{{else}}echo-status-partial{{/if}}">
@@ -155,7 +153,6 @@
             {{/if}}
           </div>
         </div>
-        {{/unless}}
 
         {{#if echoView}}
         <!-- Echo Deck (moved from Biography tab) -->
@@ -241,6 +238,31 @@
         <div class="form-group">
           <label>Echo Notes:</label>
           {{editor system.bio.echo target="system.bio.echo" button=true owner=owner editable=editable}}
+        </div>
+
+        <!-- Biography fields (merged from former Bio tab) -->
+        <div class="form-group">
+          <label>Blood Color (Blutfarbe):</label>
+          <div class="blood-color-input-group">
+            <input type="color" name="system.bloodColor" id="blood-color-picker" value="{{default system.bloodColor '#8b0000'}}" title="Choose the color for blood pools when this character takes damage"/>
+            <input type="text" class="blood-color-text" id="blood-color-text" value="{{default system.bloodColor '#8b0000'}}" placeholder="#8b0000" pattern="^#[0-9A-Fa-f]{6}$" title="Hex color code (e.g., #8b0000 for dark red, #ff0000 for red, #0000ff for blue)"/>
+          </div>
+          <p class="hint"><i class="fas fa-info-circle"></i> This color will be used for blood pools when this character takes damage.</p>
+        </div>
+
+        <div class="form-group">
+          <label>Concept:</label>
+          {{editor system.bio.concept target="system.bio.concept" button=true owner=owner editable=editable}}
+        </div>
+
+        <div class="form-group">
+          <label>Appearance:</label>
+          {{editor system.bio.appearance target="system.bio.appearance" button=true owner=owner editable=editable}}
+        </div>
+
+        <div class="form-group">
+          <label>Notes:</label>
+          {{editor system.bio.notes target="system.bio.notes" button=true owner=owner editable=editable}}
         </div>
 
       </div>
@@ -1693,35 +1715,6 @@
         <p><i class="fas fa-info-circle"></i> You must take at least <strong>{{creation.disadvantagePointsMin}}</strong> and at most <strong>{{creation.disadvantagePointsMax}}</strong> points of disadvantages to finalize creation. Total points set your starting Faith Fractures.</p>
       </div>
       {{/unless}}
-    </div>
-    
-    <!-- BIOGRAPHY TAB -->
-    <div class="tab biography" data-group="primary" data-tab="biography">
-      <div class="biography-content">
-        <div class="form-group">
-          <label>Blood Color (Blutfarbe):</label>
-          <div class="blood-color-input-group">
-            <input type="color" name="system.bloodColor" id="blood-color-picker" value="{{default system.bloodColor '#8b0000'}}" title="Choose the color for blood pools when this character takes damage"/>
-            <input type="text" class="blood-color-text" id="blood-color-text" value="{{default system.bloodColor '#8b0000'}}" placeholder="#8b0000" pattern="^#[0-9A-Fa-f]{6}$" title="Hex color code (e.g., #8b0000 for dark red, #ff0000 for red, #0000ff for blue)"/>
-          </div>
-          <p class="hint"><i class="fas fa-info-circle"></i> This color will be used for blood pools when this character takes damage.</p>
-        </div>
-        
-        <div class="form-group">
-          <label>Concept:</label>
-          {{editor system.bio.concept target="system.bio.concept" button=true owner=owner editable=editable}}
-        </div>
-        
-        <div class="form-group">
-          <label>Appearance:</label>
-          {{editor system.bio.appearance target="system.bio.appearance" button=true owner=owner editable=editable}}
-        </div>
-        
-        <div class="form-group">
-          <label>Notes:</label>
-          {{editor system.bio.notes target="system.bio.notes" button=true owner=owner editable=editable}}
-        </div>
-      </div>
     </div>
     
   </section>

@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.262] - 2026-04-18
+
+### Fixed
+- **Choose Echo button not usable for existing characters.** The `choose-echo-btn` was wrapped in `{{#unless creationComplete}}` and therefore hidden on any character where `system.creation.complete` was not explicitly `false` (the default for pre-existing actors). The button is now always rendered; its label switches dynamically between **Choose Echo** (no Echo set) and **Change Echo** (Echo already set), so characters can pick or swap their Echo at any time.
+
+### Changed
+- **Biography tab merged into the Echo tab and removed.** Blood Color, Concept, Appearance and Notes now live at the bottom of the Echo tab (after Echo Notes). The top-level **Bio** tab entry and its container have been deleted. No data migration — `system.bloodColor`, `system.bio.concept`, `system.bio.appearance`, `system.bio.notes` paths are unchanged.
+- **Echo tab repositioned between Attributes and Skills.** The tab was previously at the very front which felt disconnected; it now sits as a second tab, keeping Attributes as the landing view.
+- `src/sheets/character-sheet.ts`: `initial` reverted to `attributes` (was `echo` in 0.4.261).
+
+### Notes
+- No data model changes. Pure UI/template refactor plus the visibility fix for the Echo button.
+
 ## [0.4.261] - 2026-04-18
 
 ### Changed

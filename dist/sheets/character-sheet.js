@@ -51,7 +51,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 {
                     navSelector: '.sheet-tabs',
                     contentSelector: '.sheet-body',
-                    initial: 'echo'
+                    initial: 'attributes'
                 }
             ],
             dragDrop: [
