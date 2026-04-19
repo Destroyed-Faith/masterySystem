@@ -58,7 +58,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 { dragSelector: '.item-list .item', dropSelector: null },
                 { dragSelector: '.df-draggable-item', dropSelector: '.df-dropzone' }
             ],
-            scrollY: ['.echo', '.attributes', '.skills', '.powers', '.equipment']
+            // `.sheet-body` is the actual overflow-y:auto container (see
+            // character-sheet.css). The per-tab selectors stay for safety in case
+            // Foundry internally iterates them, but without `.sheet-body` the
+            // scroll position was lost on every re-render (e.g. after clicking
+            // the Skill/Attribute/Power "+" buttons in creation mode).
+            scrollY: ['.sheet-body', '.echo', '.attributes', '.skills', '.powers', '.equipment']
         });
         console.log('Mastery System | Character Sheet defaultOptions:', options);
         return options;

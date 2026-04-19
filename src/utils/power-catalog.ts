@@ -7,7 +7,7 @@
  */
 
 import type { NewArtifactPowerData, PowerCategory } from '../types/item.js';
-import { ALL_MASTERY_POWERS } from './powers/index.js';
+import { MASTERY_TREE_POWER_MAP } from './powers/index.js';
 import { ALL_MAGIC_POWERS } from './magic-powers.js';
 import type { PowerDefinition } from './powers/types.js';
 import { ALL_SPECIAL_EFFECTS } from './special-effects.js';
@@ -187,29 +187,35 @@ function collectSpecialKeys(def: NewArtifactPowerData | PowerDefinition): string
 function buildEntries(): CatalogEntry[] {
     const entries: CatalogEntry[] = [];
 
-    for (const p of ALL_MASTERY_POWERS) {
-        const isNew = isNewPowerDefinition(p);
-        const category: PowerCategory = isNew
-            ? (p as NewArtifactPowerData).category
-            : mapLegacyPowerType((p as PowerDefinition).powerType);
-        const sourceName = (p as any).tree || '';
-        const tags: string[] = isNew ? ((p as NewArtifactPowerData).tags || []) : [];
-        const rawEcho = (p as any).requiresEcho as string[] | undefined;
-        const requiresEcho = rawEcho && rawEcho.length
-            ? rawEcho.map(k => String(k).toLowerCase())
-            : undefined;
-        entries.push({
-            name: p.name,
-            sourceKind: 'mastery',
-            sourceName,
-            category,
-            tags: tags.map(t => String(t).toLowerCase()),
-            specialKeys: collectSpecialKeys(p),
-            effectTypes: collectEffectTypes(p),
-            description: (p as any).description || '',
-            requiresEcho,
-            raw: p
-        });
+    // Iterate the tree map so the display name always comes from the registry
+    // key (authoritative) instead of a per-power `tree` property — many
+    // NewArtifactPowerData definitions don't set `tree` at all, which used to
+    // hide those trees from the Add-Power dialog's Tree filter.
+    for (const [treeName, powers] of Object.entries(MASTERY_TREE_POWER_MAP)) {
+        for (const p of powers) {
+            const isNew = isNewPowerDefinition(p);
+            const category: PowerCategory = isNew
+                ? (p as NewArtifactPowerData).category
+                : mapLegacyPowerType((p as PowerDefinition).powerType);
+            const sourceName = treeName || (p as any).tree || '';
+            const tags: string[] = isNew ? ((p as NewArtifactPowerData).tags || []) : [];
+            const rawEcho = (p as any).requiresEcho as string[] | undefined;
+            const requiresEcho = rawEcho && rawEcho.length
+                ? rawEcho.map(k => String(k).toLowerCase())
+                : undefined;
+            entries.push({
+                name: p.name,
+                sourceKind: 'mastery',
+                sourceName,
+                category,
+                tags: tags.map(t => String(t).toLowerCase()),
+                specialKeys: collectSpecialKeys(p),
+                effectTypes: collectEffectTypes(p),
+                description: (p as any).description || '',
+                requiresEcho,
+                raw: p
+            });
+        }
     }
 
     for (const p of ALL_MAGIC_POWERS) {

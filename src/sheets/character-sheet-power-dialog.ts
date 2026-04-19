@@ -319,7 +319,24 @@ export async function showPowerCreationDialog(
                 } else {
                     $powerSelect.append('<option value="">-- Select a Power --</option>');
                     for (const e of entries) {
-                        const label = `${e.name} · ${e.sourceName} [${CATEGORY_LABELS[e.category]}]`;
+                        // Show tags + specials in parens so the player can
+                        // scan e.g. "Cinder Cleave (Ignite) · Ashguard
+                        // [Active]" at a glance. Tags come first (they're the
+                        // broader descriptor like "spell"/"melee"/"fire"),
+                        // specials next. Deduplicated and capitalized for
+                        // readability.
+                        const badges: string[] = [];
+                        const seen = new Set<string>();
+                        const push = (raw: string) => {
+                            const k = raw.trim().toLowerCase();
+                            if (!k || seen.has(k)) return;
+                            seen.add(k);
+                            badges.push(k.charAt(0).toUpperCase() + k.slice(1));
+                        };
+                        for (const t of e.tags) push(t);
+                        for (const s of e.specialKeys) push(s);
+                        const badgeStr = badges.length ? ` (${badges.join(', ')})` : '';
+                        const label = `${e.name}${badgeStr} · ${e.sourceName} [${CATEGORY_LABELS[e.category]}]`;
                         const opt = document.createElement('option');
                         opt.value = e.name;
                         opt.textContent = label;
