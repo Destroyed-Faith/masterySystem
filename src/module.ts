@@ -34,6 +34,7 @@ import { seedGeneralItemsStorage } from './utils/seed-general-items.js';
 import { getItemIcon, normalizeWeaponNameKey } from './utils/item-icons.js';
 import { actorHasPostCreationSnapshot, resetActorProgressToPostCreation } from './utils/xp-post-creation.js';
 import { getPowerDefinitionRank } from './utils/power-definition-rank.js';
+import { buildMasteryStatusEffects } from './system/status-effects.js';
 
 // Dice roller functions are imported in sheets where needed
 
@@ -87,6 +88,10 @@ Hooks.once('init', async function() {
   // Register custom Document classes
   CONFIG.Actor.documentClass = MasteryActor;
   CONFIG.Item.documentClass = MasteryItem;
+
+  // Replace Foundry's default status-effects list with the Mastery-System
+  // specials catalog so the token HUD radial shows only system conditions.
+  (CONFIG as any).statusEffects = buildMasteryStatusEffects();
   
   // Register custom sheet application classes
   // Register Character sheet first

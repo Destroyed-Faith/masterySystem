@@ -62,7 +62,7 @@ export interface InnerSegment {
 export const MS_INNER_SEGMENTS: InnerSegment[] = [
   { id: 'movement', color: 0xffe066, label: 'Move' },
   { id: 'attack', color: 0xff6666, label: 'Atk' },
-  { id: 'utility', color: 0x66aaff, label: 'Util' },
+  { id: 'utility', color: 0x66aaff, label: 'MAN.' },
   { id: 'active-buff', color: 0xcc88ff, label: 'Buff' }
 ];
 

@@ -11,7 +11,7 @@
  * During character creation, every newly added power is stored at rank 1.
  */
 import { renderRange, renderAoe, renderDuration, renderPowerLevelTable } from '../utils/power-rendering.js';
-import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_POWER_REQUIREMENTS, filterCatalog, findCatalogEntryByName, getAllSpecialOptions, getVisibleSpecialOptions, getVisibleEffectTypeOptions } from '../utils/power-catalog.js';
+import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_POWER_REQUIREMENTS, filterCatalog, findCatalogEntryByName, getAllSourceNames, getAllSpecialOptions, getVisibleSpecialOptions, getVisibleEffectTypeOptions } from '../utils/power-catalog.js';
 /** Check if a power uses the new structure. */
 function isNewPowerStructure(power) {
     return power && typeof power === 'object' && 'category' in power && 'levels' in power && typeof power.levels === 'object' && !Array.isArray(power.levels);
@@ -59,6 +59,9 @@ export async function showPowerCreationDialog(actor, options) {
     const specialOptions = getAllSpecialOptions()
         .map(s => `<option value="${s.key}">${s.label}</option>`)
         .join('');
+    const treeOptions = getAllSourceNames()
+        .map(n => `<option value="${n}">${n}</option>`)
+        .join('');
     const content = `
     <form class="power-creation-form power-catalog-form">
       <div class="power-catalog-filters">
@@ -69,11 +72,12 @@ export async function showPowerCreationDialog(actor, options) {
             ${categoryOptions}
           </select>
         </div>
-        <div class="form-group power-form-group pc-spell-group">
-          <label class="power-form-label power-form-checkbox-label">
-            <input type="checkbox" id="pc-spell" class="power-form-checkbox" />
-            <span>Spell only</span>
-          </label>
+        <div class="form-group power-form-group">
+          <label class="power-form-label">Tree:</label>
+          <select name="tree" id="pc-tree" class="power-form-select">
+            <option value="">-- Any Tree --</option>
+            ${treeOptions}
+          </select>
         </div>
         <div class="form-group power-form-group">
           <label class="power-form-label">Special:</label>
@@ -87,6 +91,12 @@ export async function showPowerCreationDialog(actor, options) {
           <select name="effectType" id="pc-effect-type" class="power-form-select">
             <option value="">-- Any Effect Type --</option>
           </select>
+        </div>
+        <div class="form-group power-form-group pc-spell-group">
+          <label class="power-form-label power-form-checkbox-label">
+            <input type="checkbox" id="pc-spell" class="power-form-checkbox" />
+            <span>Spell only</span>
+          </label>
         </div>
       </div>
       <div class="form-group power-form-group">
@@ -203,6 +213,7 @@ export async function showPowerCreationDialog(actor, options) {
                 }
             }, 0);
             const $categorySelect = html.find('#pc-category');
+            const $treeSelect = html.find('#pc-tree');
             const $spellCheckbox = html.find('#pc-spell');
             const $specialSelect = html.find('#pc-special');
             const $effectTypeSelect = html.find('#pc-effect-type');
@@ -255,6 +266,7 @@ export async function showPowerCreationDialog(actor, options) {
             };
             const refreshList = () => {
                 const category = $categorySelect.val() || '';
+                const tree = $treeSelect.val() || '';
                 const spellOnly = $spellCheckbox.prop('checked') === true;
                 const special = $specialSelect.val() || '';
                 const effectType = $effectTypeSelect.val() || '';
@@ -263,6 +275,7 @@ export async function showPowerCreationDialog(actor, options) {
                     tag: spellOnly ? 'spell' : null,
                     special: special || null,
                     effectType: effectType || null,
+                    sourceName: tree || null,
                     actorEchoKey
                 });
                 $powerSelect.empty();
@@ -296,6 +309,7 @@ export async function showPowerCreationDialog(actor, options) {
                 refreshEffectTypeDropdown();
                 refreshList();
             });
+            $treeSelect.on('change', refreshList);
             $specialSelect.on('change', refreshList);
             $effectTypeSelect.on('change', refreshList);
             $powerSelect.on('change', function () {

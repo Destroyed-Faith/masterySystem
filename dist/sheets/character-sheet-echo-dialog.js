@@ -186,8 +186,8 @@ export async function showEchoCreationDialog(actor) {
                             'min-height': '320px',
                             'max-height': '90vh',
                             width: 'auto',
-                            'min-width': '560px',
-                            'max-width': '860px'
+                            'min-width': '760px',
+                            'max-width': '1100px'
                         });
                         const contentEl = dlg.find('.window-content');
                         if (contentEl.length) {
@@ -342,7 +342,26 @@ export async function showEchoCardPickDialog(actor) {
             render: (htmlRaw) => {
                 const html = (htmlRaw instanceof HTMLElement) ? $(htmlRaw) : $(htmlRaw);
                 setTimeout(() => {
-                    html.closest('.window-app.dialog').addClass('mastery-system echo-card-pick-dialog');
+                    const dlg = html.closest('.window-app.dialog');
+                    if (dlg.length) {
+                        dlg.addClass('mastery-system echo-card-pick-dialog');
+                        dlg.css({
+                            height: 'auto',
+                            'min-height': '320px',
+                            'max-height': '90vh',
+                            width: 'auto',
+                            'min-width': '720px',
+                            'max-width': '1100px'
+                        });
+                        const contentEl = dlg.find('.window-content');
+                        if (contentEl.length) {
+                            contentEl.css({
+                                height: 'auto',
+                                'max-height': 'calc(90vh - 100px)',
+                                'overflow-y': 'auto'
+                            });
+                        }
+                    }
                 }, 0);
                 const $card = html.find('#ecp-card');
                 const $preview = html.find('#ecp-card-preview');

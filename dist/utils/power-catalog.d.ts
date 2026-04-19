@@ -45,6 +45,11 @@ export interface CatalogFilter {
     effectType?: string | null;
     search?: string | null;
     /**
+     * Mastery tree or school name (e.g. "Dragon", "Ashguard"). Matched
+     * case-insensitively against entry.sourceName for exact equality.
+     */
+    sourceName?: string | null;
+    /**
      * Actor's Echo key (e.g. "dragonborn"). Echo-gated entries are only returned
      * when their requiresEcho list contains this key (case-insensitive).
      * If undefined/null, echo-gated entries are hidden (safe default for non-actor contexts).
@@ -53,6 +58,8 @@ export interface CatalogFilter {
 }
 /** Filter entries based on the provided criteria. */
 export declare function filterCatalog(filter: CatalogFilter): CatalogEntry[];
+/** Unique, sorted list of all catalog sourceName values (trees + schools). */
+export declare function getAllSourceNames(): string[];
 /** All tag values found on "active" powers (lowercased, unique, alphabetical). */
 export declare function getActiveTagOptions(): string[];
 /** All special keys used by "active" powers (lowercased, unique, alphabetical + enriched by ALL_SPECIAL_EFFECTS). */

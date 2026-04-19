@@ -219,6 +219,7 @@ export function filterCatalog(filter) {
     const entries = getAllCatalogEntries();
     const term = (filter.search || '').trim().toLowerCase();
     const echoKey = (filter.actorEchoKey || '').trim().toLowerCase();
+    const sourceName = (filter.sourceName || '').trim().toLowerCase();
     return entries.filter(e => {
         if (filter.category && e.category !== filter.category)
             return false;
@@ -228,6 +229,8 @@ export function filterCatalog(filter) {
             return false;
         if (filter.effectType && !e.effectTypes.includes(filter.effectType))
             return false;
+        if (sourceName && e.sourceName.toLowerCase() !== sourceName)
+            return false;
         if (term && !(e.name.toLowerCase().includes(term) || e.sourceName.toLowerCase().includes(term)))
             return false;
         if (e.requiresEcho && e.requiresEcho.length > 0) {
@@ -236,6 +239,16 @@ export function filterCatalog(filter) {
         }
         return true;
     });
+}
+/** Unique, sorted list of all catalog sourceName values (trees + schools). */
+export function getAllSourceNames() {
+    const names = new Set();
+    for (const e of getAllCatalogEntries()) {
+        if (e.sourceName && e.sourceName.trim() !== '') {
+            names.add(e.sourceName);
+        }
+    }
+    return [...names].sort((a, b) => a.localeCompare(b));
 }
 /** All tag values found on "active" powers (lowercased, unique, alphabetical). */
 export function getActiveTagOptions() {

@@ -250,6 +250,11 @@ export interface CatalogFilter {
     effectType?: string | null;
     search?: string | null; // free text
     /**
+     * Mastery tree or school name (e.g. "Dragon", "Ashguard"). Matched
+     * case-insensitively against entry.sourceName for exact equality.
+     */
+    sourceName?: string | null;
+    /**
      * Actor's Echo key (e.g. "dragonborn"). Echo-gated entries are only returned
      * when their requiresEcho list contains this key (case-insensitive).
      * If undefined/null, echo-gated entries are hidden (safe default for non-actor contexts).
@@ -262,17 +267,30 @@ export function filterCatalog(filter: CatalogFilter): CatalogEntry[] {
     const entries = getAllCatalogEntries();
     const term = (filter.search || '').trim().toLowerCase();
     const echoKey = (filter.actorEchoKey || '').trim().toLowerCase();
+    const sourceName = (filter.sourceName || '').trim().toLowerCase();
     return entries.filter(e => {
         if (filter.category && e.category !== filter.category) return false;
         if (filter.tag && !e.tags.includes(filter.tag)) return false;
         if (filter.special && !e.specialKeys.includes(filter.special)) return false;
         if (filter.effectType && !e.effectTypes.includes(filter.effectType)) return false;
+        if (sourceName && e.sourceName.toLowerCase() !== sourceName) return false;
         if (term && !(e.name.toLowerCase().includes(term) || e.sourceName.toLowerCase().includes(term))) return false;
         if (e.requiresEcho && e.requiresEcho.length > 0) {
             if (!echoKey || !e.requiresEcho.includes(echoKey)) return false;
         }
         return true;
     });
+}
+
+/** Unique, sorted list of all catalog sourceName values (trees + schools). */
+export function getAllSourceNames(): string[] {
+    const names = new Set<string>();
+    for (const e of getAllCatalogEntries()) {
+        if (e.sourceName && e.sourceName.trim() !== '') {
+            names.add(e.sourceName);
+        }
+    }
+    return [...names].sort((a, b) => a.localeCompare(b));
 }
 
 /** All tag values found on "active" powers (lowercased, unique, alphabetical). */

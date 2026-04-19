@@ -19,6 +19,7 @@ import {
     CREATION_POWER_REQUIREMENTS,
     filterCatalog,
     findCatalogEntryByName,
+    getAllSourceNames,
     getAllSpecialOptions,
     getVisibleSpecialOptions,
     getVisibleEffectTypeOptions,
@@ -76,6 +77,9 @@ export async function showPowerCreationDialog(
     const specialOptions = getAllSpecialOptions()
         .map(s => `<option value="${s.key}">${s.label}</option>`)
         .join('');
+    const treeOptions = getAllSourceNames()
+        .map(n => `<option value="${n}">${n}</option>`)
+        .join('');
 
     const content = `
     <form class="power-creation-form power-catalog-form">
@@ -87,11 +91,12 @@ export async function showPowerCreationDialog(
             ${categoryOptions}
           </select>
         </div>
-        <div class="form-group power-form-group pc-spell-group">
-          <label class="power-form-label power-form-checkbox-label">
-            <input type="checkbox" id="pc-spell" class="power-form-checkbox" />
-            <span>Spell only</span>
-          </label>
+        <div class="form-group power-form-group">
+          <label class="power-form-label">Tree:</label>
+          <select name="tree" id="pc-tree" class="power-form-select">
+            <option value="">-- Any Tree --</option>
+            ${treeOptions}
+          </select>
         </div>
         <div class="form-group power-form-group">
           <label class="power-form-label">Special:</label>
@@ -105,6 +110,12 @@ export async function showPowerCreationDialog(
           <select name="effectType" id="pc-effect-type" class="power-form-select">
             <option value="">-- Any Effect Type --</option>
           </select>
+        </div>
+        <div class="form-group power-form-group pc-spell-group">
+          <label class="power-form-label power-form-checkbox-label">
+            <input type="checkbox" id="pc-spell" class="power-form-checkbox" />
+            <span>Spell only</span>
+          </label>
         </div>
       </div>
       <div class="form-group power-form-group">
@@ -232,6 +243,7 @@ export async function showPowerCreationDialog(
             }, 0);
 
             const $categorySelect = html.find('#pc-category');
+            const $treeSelect = html.find('#pc-tree');
             const $spellCheckbox = html.find('#pc-spell');
             const $specialSelect = html.find('#pc-special');
             const $effectTypeSelect = html.find('#pc-effect-type');
@@ -287,6 +299,7 @@ export async function showPowerCreationDialog(
 
             const refreshList = () => {
                 const category = ($categorySelect.val() as string) || '';
+                const tree = ($treeSelect.val() as string) || '';
                 const spellOnly = ($spellCheckbox.prop('checked') as boolean) === true;
                 const special = ($specialSelect.val() as string) || '';
                 const effectType = ($effectTypeSelect.val() as string) || '';
@@ -296,6 +309,7 @@ export async function showPowerCreationDialog(
                     tag: spellOnly ? 'spell' : null,
                     special: special || null,
                     effectType: effectType || null,
+                    sourceName: tree || null,
                     actorEchoKey
                 });
 
@@ -331,6 +345,7 @@ export async function showPowerCreationDialog(
                 refreshEffectTypeDropdown();
                 refreshList();
             });
+            $treeSelect.on('change', refreshList);
             $specialSelect.on('change', refreshList);
             $effectTypeSelect.on('change', refreshList);
 

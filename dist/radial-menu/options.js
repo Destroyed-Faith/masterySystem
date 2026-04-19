@@ -304,6 +304,15 @@ function determineTargetGroup(option) {
  * This determines which inner quadrant (Buff/Move/Util/Atk) an option belongs to
  */
 export function getSegmentIdForOption(option) {
+    // Maneuvers: route the combat stances (Parry/Dodge) into the MAN. segment
+    // even though their slot is 'attack'. Keeps the Atk quadrant focused on
+    // actual attacks (Weapon Attack + offensive powers).
+    if (option.source === 'maneuver' && option.maneuver) {
+        const mid = option.maneuver.id;
+        if (mid === 'parry-stance' || mid === 'dodge-stance') {
+            return 'utility';
+        }
+    }
     // Active Buff powers get their own segment
     // Check if it's a power with buff/active-buff type that requires an action
     if (option.source === 'power' && option.item) {
