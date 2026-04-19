@@ -201,6 +201,36 @@ export interface PowerMechanicsGrantNextHitEffect {
   condition?: string;
 }
 
+/**
+ * Event-triggered slice of a mechanics block. Each sub-object describes
+ * what fires on that specific combat event. Extend by adding new keys as
+ * the runtime learns to handle additional triggers — unknown keys are
+ * safely ignored by the dispatcher.
+ */
+export interface PowerMechanicsTriggers {
+  /**
+   * Fires once per combat for the owning actor, at `combatStart`. Values
+   * with a dice-string (e.g. `'1d8'`) are rolled exactly once and the
+   * resulting pool is persisted until `combatEnd`. Plain numeric strings
+   * (e.g. `'3'`) act the same but without a roll. Non-stacking vs. itself.
+   */
+  combatStart?: {
+    /** Temp HP pool to create. Dice-string or flat numeric string. */
+    tempHP?: string;
+  };
+  /**
+   * Fires at the owning actor's own turn-start. The declared value is
+   * interpreted as a refresh floor for *this source only*: the pool is
+   * raised to at least the declared number (rolled once per turn for dice
+   * strings). Between turn-starts the pool can be reduced to 0 by damage;
+   * the next turn-start refreshes again. Non-stacking vs. itself.
+   */
+  turnStartSelf?: {
+    /** Temp HP refresh value. Dice-string or flat numeric string. */
+    tempHP?: string;
+  };
+}
+
 export interface PowerMechanics {
   /** Flat Armor bonus/malus (before equipment scaling). */
   armor?: number;
@@ -259,6 +289,25 @@ export interface PowerMechanics {
   movementBonus?: number;
   /** Ignore difficult-terrain movement penalties. */
   ignoreTerrain?: boolean;
+
+  /**
+   * Event-based triggers for this mechanics block. Where the top-level
+   * fields (`armor`, `evade`, …) describe *continuous* modifiers while
+   * `applyWhen` is satisfied, `triggers.*` declares discrete effects that
+   * fire on a specific combat event and may persist with their own
+   * lifetime (e.g. a once-per-combat Temp HP roll that survives until
+   * combat end).
+   *
+   * Currently implemented consumers (see `src/combat/passive-triggers.ts`):
+   * - `combatStart.tempHP`: rolled once at combat start, kept until combat
+   *   end. Non-stacking vs. itself.
+   * - `turnStartSelf.tempHP`: refreshed on the owner's turn-start to at
+   *   least the declared value. Non-stacking vs. itself.
+   *
+   * Future-reserved (declarative only, no runtime yet): `turnEndSelf`,
+   * `roundStart`, `onceHexedHitPerRound`.
+   */
+  triggers?: PowerMechanicsTriggers;
 
   /**
    * When this mechanics block is active.

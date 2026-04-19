@@ -24,6 +24,11 @@ import { registerAttackRollClickHandler } from './chat/attack-roll-handler.js';
 import { PassiveSelectionDialog } from './sheets/passive-selection-dialog.js';
 import { CombatCarouselApp } from './ui/combat-carousel.js';
 import { initializeStoneHooks } from './stones/stone-hooks.js';
+import {
+  applyPassiveTriggerToCombat,
+  applyPassiveTrigger,
+  clearTempHPSourcesForCombat,
+} from './combat/passive-triggers.js';
 import { initializeEncounterStart, beginEncounter } from './combat/encounter-start.js';
 import { initializeSceneControls, initializeTokenHUDButton } from './ui/scene-controls-mastery.js';
 import { openStonePowersForAllCombatants, initializeStonePowersFlow } from './combat/stone-powers-flow.js';
@@ -582,6 +587,44 @@ Hooks.once('init', async function() {
   
   console.log('Mastery System | Combat hooks initialized');
   
+  // Initialize passive combat-trigger framework (temp HP from passives,
+  // combat-start one-shots, turn-start refresh pools). Registered BEFORE
+  // stone hooks so the trigger effects are in place when stone-power flows
+  // read actor state later in the same event tick.
+  Hooks.on('combatStart', async (combat: Combat) => {
+    try {
+      await applyPassiveTriggerToCombat('combatStart', combat);
+    } catch (err) {
+      console.error('Mastery System | passive-triggers combatStart failed', err);
+    }
+  });
+  Hooks.on('updateCombat', async (combat: Combat, changes: any) => {
+    if (changes?.turn === undefined) return;
+    const currentCombatant = (combat as any)?.combatant;
+    const turnActor = currentCombatant?.actor;
+    if (!turnActor) return;
+    try {
+      await applyPassiveTrigger(turnActor, 'turnStartSelf', combat);
+    } catch (err) {
+      console.error('Mastery System | passive-triggers turnStartSelf failed', err);
+    }
+  });
+  Hooks.on('combatEnd', async (combat: Combat) => {
+    try {
+      await clearTempHPSourcesForCombat(combat);
+    } catch (err) {
+      console.error('Mastery System | passive-triggers combatEnd cleanup failed', err);
+    }
+  });
+  Hooks.on('deleteCombat', async (combat: Combat) => {
+    try {
+      await clearTempHPSourcesForCombat(combat);
+    } catch (err) {
+      console.error('Mastery System | passive-triggers deleteCombat cleanup failed', err);
+    }
+  });
+  console.log('Mastery System | Passive combat-trigger hooks initialized');
+
   // Initialize stone system hooks (turn state, regen, restore)
   initializeStoneHooks();
   console.log('Mastery System | Stone system hooks initialized');

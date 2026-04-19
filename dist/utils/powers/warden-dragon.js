@@ -224,7 +224,7 @@ export const WARDEN_DRAGON_POWERS = [
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +2 Armor. At the start of your turn, gain 1 Temp HP from this passive (non-stacking; refreshes).' },
                 specials: [],
-                mechanics: { armor: 2, tempHP: '1', applyWhen: 'passive-slotted-active' }
+                mechanics: { armor: 2, applyWhen: 'passive-slotted-active', triggers: { turnStartSelf: { tempHP: '1' } } }
             },
             '2': {
                 type: 'passive',
@@ -233,7 +233,7 @@ export const WARDEN_DRAGON_POWERS = [
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +4 Armor. At the start of your turn, gain 2 Temp HP from this passive (non-stacking; refreshes).' },
                 specials: [],
-                mechanics: { armor: 4, tempHP: '2', applyWhen: 'passive-slotted-active' }
+                mechanics: { armor: 4, applyWhen: 'passive-slotted-active', triggers: { turnStartSelf: { tempHP: '2' } } }
             },
             '3': {
                 type: 'passive',
@@ -242,7 +242,7 @@ export const WARDEN_DRAGON_POWERS = [
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +6 Armor. At the start of your turn, gain 3 Temp HP from this passive (non-stacking; refreshes).' },
                 specials: [],
-                mechanics: { armor: 6, tempHP: '3', applyWhen: 'passive-slotted-active' }
+                mechanics: { armor: 6, applyWhen: 'passive-slotted-active', triggers: { turnStartSelf: { tempHP: '3' } } }
             },
             '4': {
                 type: 'passive',
@@ -251,7 +251,7 @@ export const WARDEN_DRAGON_POWERS = [
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +8 Armor. At the start of your turn, gain 4 Temp HP from this passive (non-stacking; refreshes).' },
                 specials: [],
-                mechanics: { armor: 8, tempHP: '4', applyWhen: 'passive-slotted-active' }
+                mechanics: { armor: 8, applyWhen: 'passive-slotted-active', triggers: { turnStartSelf: { tempHP: '4' } } }
             }
         }
     },

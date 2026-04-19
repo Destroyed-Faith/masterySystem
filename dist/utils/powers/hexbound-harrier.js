@@ -311,7 +311,7 @@ export const HEXBOUND_HARRIER_POWERS = [
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +2 Armor and 1d8 Temporary HP at the start of combat.', dice: '1d8' },
                 specials: [],
-                mechanics: { armor: 2, applyWhen: 'passive-slotted-active' }
+                mechanics: { armor: 2, applyWhen: 'passive-slotted-active', triggers: { combatStart: { tempHP: '1d8' } } }
             },
             '2': {
                 type: 'passive',
@@ -320,7 +320,7 @@ export const HEXBOUND_HARRIER_POWERS = [
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +4 Armor and 1d8 Temporary HP at the start of combat.', dice: '1d8' },
                 specials: [],
-                mechanics: { armor: 4, applyWhen: 'passive-slotted-active' }
+                mechanics: { armor: 4, applyWhen: 'passive-slotted-active', triggers: { combatStart: { tempHP: '1d8' } } }
             },
             '3': {
                 type: 'passive',
@@ -329,7 +329,7 @@ export const HEXBOUND_HARRIER_POWERS = [
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +6 Armor and 2d8 Temporary HP at the start of combat.', dice: '2d8' },
                 specials: [],
-                mechanics: { armor: 6, applyWhen: 'passive-slotted-active' }
+                mechanics: { armor: 6, applyWhen: 'passive-slotted-active', triggers: { combatStart: { tempHP: '2d8' } } }
             },
             '4': {
                 type: 'passive',
@@ -338,7 +338,7 @@ export const HEXBOUND_HARRIER_POWERS = [
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +8 Armor and 2d8 Temporary HP at the start of combat.', dice: '2d8' },
                 specials: [],
-                mechanics: { armor: 8, applyWhen: 'passive-slotted-active' }
+                mechanics: { armor: 8, applyWhen: 'passive-slotted-active', triggers: { combatStart: { tempHP: '2d8' } } }
             }
         }
     },

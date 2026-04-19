@@ -298,7 +298,8 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +2 Armor. At the start of your turn, gain 1 Temp HP from this passive (non-stacking; refreshes)' },
-                specials: []
+                specials: [],
+                mechanics: { armor: 2, applyWhen: 'passive-slotted-active', triggers: { turnStartSelf: { tempHP: '1' } } }
             },
             '2': {
 
@@ -307,7 +308,8 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +4 Armor. At the start of your turn, gain 2 Temp HP from this passive (non-stacking; refreshes)' },
-                specials: []
+                specials: [],
+                mechanics: { armor: 4, applyWhen: 'passive-slotted-active', triggers: { turnStartSelf: { tempHP: '2' } } }
             },
             '3': {
 
@@ -316,7 +318,8 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +6 Armor. At the start of your turn, gain 3 Temp HP from this passive (non-stacking; refreshes)' },
-                specials: []
+                specials: [],
+                mechanics: { armor: 6, applyWhen: 'passive-slotted-active', triggers: { turnStartSelf: { tempHP: '3' } } }
             },
             '4': {
 
@@ -325,7 +328,8 @@ export const DRAGON_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Gain +8 Armor. At the start of your turn, gain 4 Temp HP from this passive (non-stacking; refreshes)' },
-                specials: []
+                specials: [],
+                mechanics: { armor: 8, applyWhen: 'passive-slotted-active', triggers: { turnStartSelf: { tempHP: '4' } } }
             }
         }
     },

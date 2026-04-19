@@ -5,6 +5,7 @@
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { resolveEquippedWeaponForAttackType } from '../utils/equipment-modifiers.js';
 import { formatNpcSpecialLabel, getNpcAttackByIndex, npcDamageDiceFormula, npcSpecialEffectString } from '../utils/npc-attack-model.js';
+import { previewTempHPConsumption } from '../combat/passive-triggers.js';
 /**
  * Show damage dialog after successful attack
  */
@@ -1097,17 +1098,18 @@ async function applyDamageToTarget(target, damage, attacker) {
             });
             return;
         }
-        // Step 1: Reduce tempHP first
-        let remaining = damage;
-        let tempHP = system.health.tempHP || 0;
-        if (tempHP > 0) {
-            const absorb = Math.min(tempHP, remaining);
-            tempHP -= absorb;
-            remaining -= absorb;
+        // Step 1: Route tempHP reduction through the passive-trigger pool so that
+        //         per-source book-keeping (Lean Ward one-shot, Dragon Scales
+        //         refresh, …) stays consistent with the scalar mirror. The helper
+        //         returns a partial actor-update patch so we can still commit
+        //         tempHP + health-bar changes in a single atomic update below.
+        const tempHPConsumption = previewTempHPConsumption(target, damage);
+        const remaining = tempHPConsumption.remainingDamage;
+        if (tempHPConsumption.reducedBy > 0) {
             console.log('Mastery System | [APPLY DAMAGE] TempHP absorbed', {
                 tempHPBefore: system.health.tempHP,
-                tempHPAfter: tempHP,
-                absorbed: absorb,
+                tempHPAfter: Math.max(0, (system.health.tempHP || 0) - tempHPConsumption.reducedBy),
+                absorbed: tempHPConsumption.reducedBy,
                 remaining
             });
         }
@@ -1124,9 +1126,9 @@ async function applyDamageToTarget(target, damage, attacker) {
             if (barIndex >= bars.length) {
                 barIndex = bars.length - 1;
             }
-            // Update actor with new health state
+            // Merge tempHP pool updates with bar updates for a single write.
             await target.update({
-                'system.health.tempHP': tempHP,
+                ...tempHPConsumption.patch,
                 'system.health.currentBar': barIndex,
                 'system.health.bars': bars
             });
@@ -1135,21 +1137,19 @@ async function applyDamageToTarget(target, damage, attacker) {
                 targetName: target.name,
                 damage,
                 remaining,
-                tempHPAbsorbed: damage - remaining,
+                tempHPAbsorbed: tempHPConsumption.reducedBy,
                 oldBarIndex: system.health.currentBar || 0,
                 newBarIndex: barIndex,
                 barsAfter: bars.map((b, i) => ({ index: i, current: b.current, max: b.max }))
             });
         }
-        else {
+        else if (Object.keys(tempHPConsumption.patch).length > 0) {
             // Only tempHP was reduced, no bar damage
-            await target.update({
-                'system.health.tempHP': tempHP
-            });
+            await target.update(tempHPConsumption.patch);
             console.log('Mastery System | [APPLY DAMAGE] Only tempHP reduced', {
                 targetId: target.id,
                 tempHPBefore: system.health.tempHP,
-                tempHPAfter: tempHP,
+                tempHPAfter: Math.max(0, (system.health.tempHP || 0) - tempHPConsumption.reducedBy),
                 damage
             });
         }
