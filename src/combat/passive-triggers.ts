@@ -48,7 +48,7 @@ import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 
 export type TriggerKind = keyof PowerMechanicsTriggers; // 'combatStart' | 'turnStartSelf'
 
-/** One granted pool tied to a specific passive. */
+/** One granted pool tied to a specific passive or active buff. */
 export interface TempHPSource {
   /** Current pool value (can be reduced by damage, capped at 0). */
   value: number;
@@ -57,6 +57,21 @@ export interface TempHPSource {
   /** `one-shot` survives the combat; `refresh` is raised on each turn-start. */
   kind: 'one-shot' | 'refresh';
   origin: {
+    /**
+     * What granted this pool:
+     * - `passive` → a slot-activated passive item (ownerId = item id)
+     * - `buff` → a live ActiveEffect flagged activeBuff (ownerId = effect id)
+     *
+     * Legacy sources written by 0.4.272 may omit this field; code that reads
+     * existing sources treats absent `ownerKind` as `'passive'` for
+     * backward compatibility.
+     */
+    ownerKind?: 'passive' | 'buff';
+    /**
+     * Alias for ownerId. Kept under the historical `powerId` name so the
+     * persisted flag shape stays stable across the 0.4.272 → 0.4.273
+     * transition.
+     */
     powerId: string;
     name: string;
     triggerKind: TriggerKind;
@@ -209,8 +224,140 @@ function buildSourcesPatch(
   return patch;
 }
 
-export function makeSourceKey(powerId: string, triggerKind: TriggerKind): string {
-  return `${powerId}:${triggerKind}`;
+/**
+ * Build the stable key that identifies one trigger-pool source. The optional
+ * `ownerKind` prefix (`'passive'` / `'buff'`) is prepended to avoid collisions
+ * between a passive item's id and an ActiveEffect's id. When omitted, the
+ * legacy 2-arg form `<ownerId>:<triggerKind>` is produced for backward
+ * compatibility with sources written by 0.4.272.
+ */
+export function makeSourceKey(ownerId: string, triggerKind: TriggerKind): string;
+export function makeSourceKey(
+  ownerKind: 'passive' | 'buff',
+  ownerId: string,
+  triggerKind: TriggerKind,
+): string;
+export function makeSourceKey(...args: string[]): string {
+  if (args.length === 3) {
+    const [ownerKind, ownerId, triggerKind] = args;
+    return `${ownerKind}:${ownerId}:${triggerKind}`;
+  }
+  const [ownerId, triggerKind] = args;
+  return `${ownerId}:${triggerKind}`;
+}
+
+/** Descriptor for one trigger source (passive slot or active buff effect). */
+interface TriggerOwner {
+  ownerKind: 'passive' | 'buff';
+  ownerId: string;
+  name: string;
+  mechanics: PowerMechanics;
+}
+
+/**
+ * Collect every trigger-eligible owner currently attached to the actor: slot-
+ * activated passives and live ActiveEffects flagged `activeBuff`. The returned
+ * list is deterministic: passives in slot order first, then buffs in effect-
+ * collection order.
+ */
+function collectTriggerOwners(actor: any): TriggerOwner[] {
+  const owners: TriggerOwner[] = [];
+
+  // 1) Passive slots
+  const slots = getPassiveSlots(actor);
+  const items = (actor as any).items;
+  for (const slot of slots) {
+    if (!slot.active || !slot.passive) continue;
+    const pid = String(slot.passive.id ?? '').trim();
+    if (!pid) continue;
+    let powerItem: any = null;
+    try {
+      powerItem = items?.get?.(pid) ?? null;
+      if (!powerItem && Array.isArray(items)) {
+        powerItem = items.find(
+          (it: any) => it?.id === pid || it?._id === pid || it?.name === slot.passive?.name,
+        );
+      }
+      if (!powerItem && items && typeof items[Symbol.iterator] === 'function') {
+        for (const it of Array.from(items) as any[]) {
+          if (it?.id === pid || it?._id === pid || it?.name === slot.passive?.name) {
+            powerItem = it;
+            break;
+          }
+        }
+      }
+    } catch {
+      powerItem = null;
+    }
+    if (!powerItem) continue;
+    const mech = resolvePowerMechanics(powerItem);
+    if (!mech || mech.applyWhen !== 'passive-slotted-active') continue;
+    owners.push({
+      ownerKind: 'passive',
+      ownerId: pid,
+      name: slot.passive.name ?? powerItem.name ?? 'Passive',
+      mechanics: mech,
+    });
+  }
+
+  // 2) ActiveEffect buffs (created by activateActiveBuff in src/utils/active-buffs.ts)
+  const effects = (actor as any)?.effects;
+  if (effects) {
+    const iter: any[] =
+      typeof effects[Symbol.iterator] === 'function'
+        ? Array.from(effects)
+        : Array.isArray(effects)
+          ? effects
+          : [];
+    for (const effect of iter) {
+      const owner = buildBuffOwner(actor, effect);
+      if (owner) owners.push(owner);
+    }
+  }
+
+  return owners;
+}
+
+/**
+ * Resolve the PowerMechanics snapshot stored on an ActiveEffect flagged as an
+ * active buff. Prefers the inline snapshot written by activateActiveBuff
+ * (robust against later item deletion); falls back to the live catalog via
+ * `resolvePowerMechanics` when the flag is missing mechanics but still
+ * references a `powerId`.
+ */
+function buildBuffOwner(actor: any, effect: any): TriggerOwner | null {
+  const flags = effect?.flags?.['mastery-system'];
+  if (!flags || flags.activeBuff !== true) return null;
+
+  let mech: PowerMechanics | null = null;
+  if (flags.mechanics && typeof flags.mechanics === 'object') {
+    mech = flags.mechanics as PowerMechanics;
+  } else if (flags.powerId) {
+    const items = (actor as any).items;
+    let powerItem: any = null;
+    try {
+      powerItem = items?.get?.(flags.powerId) ?? null;
+      if (!powerItem && Array.isArray(items)) {
+        powerItem = items.find(
+          (it: any) => it?.id === flags.powerId || it?._id === flags.powerId,
+        );
+      }
+    } catch {
+      powerItem = null;
+    }
+    mech = resolvePowerMechanics(powerItem);
+  }
+  if (!mech || mech.applyWhen !== 'activeBuff-active') return null;
+
+  const effectId = String(effect?.id ?? effect?._id ?? '').trim();
+  if (!effectId) return null;
+
+  return {
+    ownerKind: 'buff',
+    ownerId: effectId,
+    name: flags.powerName ?? effect?.name ?? 'Active Buff',
+    mechanics: mech,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -258,90 +405,119 @@ export async function applyPassiveTrigger(
   combat: any,
 ): Promise<void> {
   if (!actor) return;
-  const combatId = String(combat?.id ?? '');
-  const slots = getPassiveSlots(actor);
-  if (!slots || slots.length === 0) return;
+  const owners = collectTriggerOwners(actor);
+  if (owners.length === 0) return;
+  await applyTriggerToOwners(actor, owners, [triggerKind], combat);
+}
 
+/**
+ * Fire every trigger kind declared on a freshly-activated ActiveEffect buff.
+ * Called from the `createActiveEffect` hook so that a buff activated mid-combat
+ * immediately materialises its one-shot Temp HP (combatStart) and its refresh
+ * pool floor (turnStartSelf) without waiting for the next turn or the next
+ * combat.
+ *
+ * Semantics when activated outside combat (`combat == null`): we still roll
+ * the one-shot pool and record a `combatId: ''` source so the consume/cleanup
+ * pipeline behaves consistently; `combatEnd` / `deleteCombat` won't touch it
+ * (no combat id to match), but `deleteActiveEffect` will via the buff-specific
+ * cleanup path.
+ */
+export async function applyBuffTriggersOnActivate(
+  actor: any,
+  effect: any,
+  combat: any,
+): Promise<void> {
+  if (!actor || !effect) return;
+  const owner = buildBuffOwner(actor, effect);
+  if (!owner) return;
+  await applyTriggerToOwners(actor, [owner], ['combatStart', 'turnStartSelf'], combat);
+}
+
+/**
+ * Shared implementation for both the scheduled dispatcher
+ * (`applyPassiveTrigger`) and the buff-activation fast-path
+ * (`applyBuffTriggersOnActivate`). Processes a fixed list of trigger owners
+ * and kinds and writes the resulting Temp-HP mutations in a single actor
+ * update so the mirror never drifts from the sources map.
+ */
+async function applyTriggerToOwners(
+  actor: any,
+  owners: TriggerOwner[],
+  triggerKinds: TriggerKind[],
+  combat: any,
+): Promise<void> {
+  const combatId = String(combat?.id ?? '');
   const sources = getTempHPSources(actor);
   const prevKeys = Object.keys(sources);
   let accumDelta = 0;
   let anyChange = false;
 
-  for (const slot of slots) {
-    if (!slot.active || !slot.passive) continue;
-    const pid = String(slot.passive.id ?? '').trim();
-    if (!pid) continue;
+  for (const owner of owners) {
+    for (const triggerKind of triggerKinds) {
+      const triggerBlock = owner.mechanics.triggers?.[triggerKind];
+      if (!triggerBlock) continue;
+      const formula = triggerBlock.tempHP;
+      if (!formula) continue;
 
-    const items = (actor as any).items;
-    let powerItem: any = null;
-    try {
-      powerItem = items?.get?.(pid) ?? null;
-      if (!powerItem && Array.isArray(items)) {
-        powerItem = items.find(
-          (it: any) => it?.id === pid || it?._id === pid || it?.name === slot.passive?.name,
-        );
-      }
-      if (!powerItem && items && typeof items[Symbol.iterator] === 'function') {
-        for (const it of Array.from(items) as any[]) {
-          if (it?.id === pid || it?._id === pid || it?.name === slot.passive?.name) {
-            powerItem = it;
-            break;
-          }
+      const key = makeSourceKey(owner.ownerKind, owner.ownerId, triggerKind);
+      // Tolerate legacy 0.4.272 keys (no ownerKind prefix) for passive owners
+      // so in-flight combats don't double-roll after upgrade.
+      const legacyKey =
+        owner.ownerKind === 'passive' ? makeSourceKey(owner.ownerId, triggerKind) : null;
+      const existing = sources[key] ?? (legacyKey ? sources[legacyKey] : undefined);
+
+      if (triggerKind === 'combatStart') {
+        if (existing && existing.combatId === combatId && existing.kind === 'one-shot') {
+          continue;
         }
-      }
-    } catch {
-      powerItem = null;
-    }
-    if (!powerItem) continue;
-
-    const mech: PowerMechanics | null = resolvePowerMechanics(powerItem);
-    if (!mech || mech.applyWhen !== 'passive-slotted-active') continue;
-
-    const triggerBlock = mech.triggers?.[triggerKind];
-    if (!triggerBlock) continue;
-
-    const formula = triggerBlock.tempHP;
-    if (!formula) continue;
-
-    const key = makeSourceKey(pid, triggerKind);
-    const existing = sources[key];
-    const powerName = slot.passive.name ?? powerItem.name ?? 'Passive';
-
-    if (triggerKind === 'combatStart') {
-      if (existing && existing.combatId === combatId && existing.kind === 'one-shot') {
-        // Already rolled for this combat → idempotent skip.
-        continue;
-      }
-      const rolled = await rollTempHPFormula(formula);
-      if (rolled <= 0) continue;
-      const oldValue = existing?.value ?? 0;
-      sources[key] = {
-        value: rolled,
-        declared: rolled,
-        kind: 'one-shot',
-        origin: { powerId: pid, name: powerName, triggerKind },
-        combatId,
-        createdAt: Date.now(),
-      };
-      accumDelta += rolled - oldValue;
-      anyChange = true;
-    } else if (triggerKind === 'turnStartSelf') {
-      const target = await rollTempHPFormula(formula);
-      if (target <= 0) continue;
-      const currentValue = existing?.value ?? 0;
-      const newValue = Math.max(currentValue, target);
-      const delta = newValue - currentValue;
-      sources[key] = {
-        value: newValue,
-        declared: target,
-        kind: 'refresh',
-        origin: { powerId: pid, name: powerName, triggerKind },
-        combatId,
-        createdAt: existing?.createdAt ?? Date.now(),
-      };
-      if (delta !== 0 || !existing || existing.combatId !== combatId) {
-        accumDelta += delta;
+        const rolled = await rollTempHPFormula(formula);
+        if (rolled <= 0) continue;
+        const oldValue = existing?.value ?? 0;
+        sources[key] = {
+          value: rolled,
+          declared: rolled,
+          kind: 'one-shot',
+          origin: {
+            ownerKind: owner.ownerKind,
+            powerId: owner.ownerId,
+            name: owner.name,
+            triggerKind,
+          },
+          combatId,
+          createdAt: Date.now(),
+        };
+        if (legacyKey && legacyKey !== key && sources[legacyKey]) {
+          delete sources[legacyKey];
+        }
+        accumDelta += rolled - oldValue;
         anyChange = true;
+      } else if (triggerKind === 'turnStartSelf') {
+        const target = await rollTempHPFormula(formula);
+        if (target <= 0) continue;
+        const currentValue = existing?.value ?? 0;
+        const newValue = Math.max(currentValue, target);
+        const delta = newValue - currentValue;
+        sources[key] = {
+          value: newValue,
+          declared: target,
+          kind: 'refresh',
+          origin: {
+            ownerKind: owner.ownerKind,
+            powerId: owner.ownerId,
+            name: owner.name,
+            triggerKind,
+          },
+          combatId,
+          createdAt: existing?.createdAt ?? Date.now(),
+        };
+        if (legacyKey && legacyKey !== key && sources[legacyKey]) {
+          delete sources[legacyKey];
+        }
+        if (delta !== 0 || !existing || existing.combatId !== combatId) {
+          accumDelta += delta;
+          anyChange = true;
+        }
       }
     }
   }
@@ -349,6 +525,37 @@ export async function applyPassiveTrigger(
   if (!anyChange) return;
   const nextTempHP = Math.max(0, currentTempHP(actor) + accumDelta);
   await safeActorUpdate(actor, buildSourcesPatch(sources, prevKeys, nextTempHP));
+}
+
+/**
+ * Remove every Temp HP source granted by a specific ActiveEffect buff. Called
+ * from `deleteActiveEffect` so that when the buff expires or is manually
+ * removed mid-combat, its pools disappear from the mirror without touching
+ * sources owned by other passives or manual Temp HP residuals.
+ */
+export async function clearTempHPSourcesForBuffEffect(
+  actor: any,
+  effectId: string,
+): Promise<void> {
+  if (!actor || !effectId) return;
+  const sources = getTempHPSources(actor);
+  const prevKeys = Object.keys(sources);
+  if (prevKeys.length === 0) return;
+
+  let removedValue = 0;
+  const next: TempHPSourcesFlag = {};
+  for (const [k, src] of Object.entries(sources)) {
+    const isThisBuff =
+      src.origin?.ownerKind === 'buff' && src.origin.powerId === effectId;
+    if (isThisBuff) {
+      removedValue += Math.max(0, src.value ?? 0);
+      continue;
+    }
+    next[k] = src;
+  }
+  if (removedValue === 0 && Object.keys(next).length === prevKeys.length) return;
+  const nextTempHP = Math.max(0, currentTempHP(actor) - removedValue);
+  await safeActorUpdate(actor, buildSourcesPatch(next, prevKeys, nextTempHP));
 }
 
 export interface TempHPConsumptionPreview extends TempHPConsumptionResult {

@@ -22,7 +22,7 @@ import { registerAttackRollClickHandler } from './chat/attack-roll-handler.js';
 import { PassiveSelectionDialog } from './sheets/passive-selection-dialog.js';
 import { CombatCarouselApp } from './ui/combat-carousel.js';
 import { initializeStoneHooks } from './stones/stone-hooks.js';
-import { applyPassiveTriggerToCombat, applyPassiveTrigger, clearTempHPSourcesForCombat, } from './combat/passive-triggers.js';
+import { applyPassiveTriggerToCombat, applyPassiveTrigger, applyBuffTriggersOnActivate, clearTempHPSourcesForBuffEffect, clearTempHPSourcesForCombat, } from './combat/passive-triggers.js';
 import { initializeEncounterStart, beginEncounter } from './combat/encounter-start.js';
 import { initializeSceneControls, initializeTokenHUDButton } from './ui/scene-controls-mastery.js';
 import { openStonePowersForAllCombatants, initializeStonePowersFlow } from './combat/stone-powers-flow.js';
@@ -550,6 +550,42 @@ Hooks.once('init', async function () {
         }
         catch (err) {
             console.error('Mastery System | passive-triggers deleteCombat cleanup failed', err);
+        }
+    });
+    // Active-buff activation mid-combat: the continuous modifiers (armor/evade)
+    // are picked up automatically via prepareDerivedData, but trigger-based
+    // effects (triggers.combatStart.tempHP / triggers.turnStartSelf.tempHP) need
+    // an explicit dispatch when the effect appears, otherwise a buff cast on
+    // round 3 never materialises its Temp HP pool until the next turn/combat.
+    Hooks.on('createActiveEffect', async (effect) => {
+        try {
+            const flags = effect?.flags?.['mastery-system'];
+            if (!flags || flags.activeBuff !== true)
+                return;
+            const actor = effect.parent;
+            if (!actor)
+                return;
+            await applyBuffTriggersOnActivate(actor, effect, game.combat ?? null);
+        }
+        catch (err) {
+            console.error('Mastery System | passive-triggers createActiveEffect failed', err);
+        }
+    });
+    Hooks.on('deleteActiveEffect', async (effect) => {
+        try {
+            const flags = effect?.flags?.['mastery-system'];
+            if (!flags || flags.activeBuff !== true)
+                return;
+            const actor = effect.parent;
+            if (!actor)
+                return;
+            const effectId = String(effect.id ?? effect._id ?? '').trim();
+            if (!effectId)
+                return;
+            await clearTempHPSourcesForBuffEffect(actor, effectId);
+        }
+        catch (err) {
+            console.error('Mastery System | passive-triggers deleteActiveEffect cleanup failed', err);
         }
     });
     console.log('Mastery System | Passive combat-trigger hooks initialized');

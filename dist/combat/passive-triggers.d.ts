@@ -43,7 +43,7 @@
  */
 import type { PowerMechanicsTriggers } from '../types/item';
 export type TriggerKind = keyof PowerMechanicsTriggers;
-/** One granted pool tied to a specific passive. */
+/** One granted pool tied to a specific passive or active buff. */
 export interface TempHPSource {
     /** Current pool value (can be reduced by damage, capped at 0). */
     value: number;
@@ -52,6 +52,21 @@ export interface TempHPSource {
     /** `one-shot` survives the combat; `refresh` is raised on each turn-start. */
     kind: 'one-shot' | 'refresh';
     origin: {
+        /**
+         * What granted this pool:
+         * - `passive` → a slot-activated passive item (ownerId = item id)
+         * - `buff` → a live ActiveEffect flagged activeBuff (ownerId = effect id)
+         *
+         * Legacy sources written by 0.4.272 may omit this field; code that reads
+         * existing sources treats absent `ownerKind` as `'passive'` for
+         * backward compatibility.
+         */
+        ownerKind?: 'passive' | 'buff';
+        /**
+         * Alias for ownerId. Kept under the historical `powerId` name so the
+         * persisted flag shape stays stable across the 0.4.272 → 0.4.273
+         * transition.
+         */
         powerId: string;
         name: string;
         triggerKind: TriggerKind;
@@ -76,7 +91,15 @@ type Roller = (formula: string) => Promise<number> | number;
 export declare function setTempHPRollerForTests(roller: Roller | null): void;
 /** Return a *copy* of the current sources map so callers may mutate freely. */
 export declare function getTempHPSources(actor: any): TempHPSourcesFlag;
-export declare function makeSourceKey(powerId: string, triggerKind: TriggerKind): string;
+/**
+ * Build the stable key that identifies one trigger-pool source. The optional
+ * `ownerKind` prefix (`'passive'` / `'buff'`) is prepended to avoid collisions
+ * between a passive item's id and an ActiveEffect's id. When omitted, the
+ * legacy 2-arg form `<ownerId>:<triggerKind>` is produced for backward
+ * compatibility with sources written by 0.4.272.
+ */
+export declare function makeSourceKey(ownerId: string, triggerKind: TriggerKind): string;
+export declare function makeSourceKey(ownerKind: 'passive' | 'buff', ownerId: string, triggerKind: TriggerKind): string;
 /**
  * Upsert a single Temp HP source. The actor mirror `system.health.tempHP`
  * is adjusted by the delta so manual residuals stay intact.
@@ -99,6 +122,27 @@ export declare function upsertTempHPSource(actor: any, key: string, source: Temp
  *   declared value; never lowers it.
  */
 export declare function applyPassiveTrigger(actor: any, triggerKind: TriggerKind, combat: any): Promise<void>;
+/**
+ * Fire every trigger kind declared on a freshly-activated ActiveEffect buff.
+ * Called from the `createActiveEffect` hook so that a buff activated mid-combat
+ * immediately materialises its one-shot Temp HP (combatStart) and its refresh
+ * pool floor (turnStartSelf) without waiting for the next turn or the next
+ * combat.
+ *
+ * Semantics when activated outside combat (`combat == null`): we still roll
+ * the one-shot pool and record a `combatId: ''` source so the consume/cleanup
+ * pipeline behaves consistently; `combatEnd` / `deleteCombat` won't touch it
+ * (no combat id to match), but `deleteActiveEffect` will via the buff-specific
+ * cleanup path.
+ */
+export declare function applyBuffTriggersOnActivate(actor: any, effect: any, combat: any): Promise<void>;
+/**
+ * Remove every Temp HP source granted by a specific ActiveEffect buff. Called
+ * from `deleteActiveEffect` so that when the buff expires or is manually
+ * removed mid-combat, its pools disappear from the mirror without touching
+ * sources owned by other passives or manual Temp HP residuals.
+ */
+export declare function clearTempHPSourcesForBuffEffect(actor: any, effectId: string): Promise<void>;
 export interface TempHPConsumptionPreview extends TempHPConsumptionResult {
     /**
      * Partial actor.update patch that applies the consumption. Callers that

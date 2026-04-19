@@ -14,6 +14,8 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import {
   applyPassiveTrigger,
+  applyBuffTriggersOnActivate,
+  clearTempHPSourcesForBuffEffect,
   consumeTempHPFromSources,
   previewTempHPConsumption,
   clearTempHPSourcesOnCombatEnd,
@@ -173,7 +175,7 @@ describe('applyPassiveTrigger (combatStart)', () => {
     expect(rollHistory).toEqual(['1d8']);
     expect(actor.system.health.tempHP).toBe(5);
     const sources = getTempHPSources(actor);
-    const key = makeSourceKey('lean-ward', 'combatStart');
+    const key = makeSourceKey('passive', 'lean-ward', 'combatStart');
     expect(sources[key]).toBeDefined();
     expect(sources[key].value).toBe(5);
     expect(sources[key].declared).toBe(5);
@@ -273,7 +275,7 @@ describe('applyPassiveTrigger (turnStartSelf)', () => {
     const actor = makeDragonScalesActor('2');
     await applyPassiveTrigger(actor, 'turnStartSelf', makeCombat());
     expect(actor.system.health.tempHP).toBe(2);
-    const key = makeSourceKey('dragon-scales', 'turnStartSelf');
+    const key = makeSourceKey('passive', 'dragon-scales', 'turnStartSelf');
     expect(getTempHPSources(actor)[key].kind).toBe('refresh');
     expect(getTempHPSources(actor)[key].value).toBe(2);
     expect(getTempHPSources(actor)[key].declared).toBe(2);
@@ -300,12 +302,17 @@ describe('applyPassiveTrigger (turnStartSelf)', () => {
     await applyPassiveTrigger(actor, 'turnStartSelf', combat);
 
     // Simulate a manual buff pushing the pool above the floor.
-    const key = makeSourceKey('dragon-scales', 'turnStartSelf');
+    const key = makeSourceKey('passive', 'dragon-scales', 'turnStartSelf');
     await upsertTempHPSource(actor, key, {
       value: 5,
       declared: 2,
       kind: 'refresh',
-      origin: { powerId: 'dragon-scales', name: 'Dragon Scales', triggerKind: 'turnStartSelf' },
+      origin: {
+        ownerKind: 'passive',
+        powerId: 'dragon-scales',
+        name: 'Dragon Scales',
+        triggerKind: 'turnStartSelf',
+      },
       combatId: 'combat-1',
       createdAt: Date.now(),
     });
@@ -364,8 +371,8 @@ describe('consumeTempHPFromSources (damage order)', () => {
     expect(actor.system.health.tempHP).toBe(4);
 
     const sources = getTempHPSources(actor);
-    const leanKey = makeSourceKey('lean-ward', 'combatStart');
-    const dragonKey = makeSourceKey('dragon-scales', 'turnStartSelf');
+    const leanKey = makeSourceKey('passive', 'lean-ward', 'combatStart');
+    const dragonKey = makeSourceKey('passive', 'dragon-scales', 'turnStartSelf');
     expect(sources[leanKey].value).toBe(2); // 5 - 3
     expect(sources[dragonKey].value).toBe(2); // untouched
 
@@ -460,5 +467,229 @@ describe('upsertTempHPSource idempotence', () => {
 
     await upsertTempHPSource(actor, key, { ...baseSource, value: 4 });
     expect(actor.system.health.tempHP).toBe(4);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Mid-combat active-buff activation
+// ---------------------------------------------------------------------------
+//
+// Active buffs are live ActiveEffects carrying a `mechanics` snapshot in
+// flags['mastery-system']. When a player activates one mid-combat, the
+// createActiveEffect hook must materialise its trigger-declared Temp HP
+// pools immediately, not on the next turn/combat. Conversely, removing the
+// effect must clear only the sources that belong to it, leaving passive-
+// slot pools and manual Temp HP intact.
+
+function makeBuffEffect(opts: {
+  id: string;
+  name: string;
+  mechanics: PowerMechanics;
+}): any {
+  return {
+    id: opts.id,
+    _id: opts.id,
+    name: opts.name,
+    flags: {
+      'mastery-system': {
+        activeBuff: true,
+        powerId: `power-${opts.id}`,
+        powerName: opts.name,
+        mechanics: opts.mechanics,
+      },
+    },
+  };
+}
+
+function makeActorWithBuffs(opts: {
+  buffs?: ReturnType<typeof makeBuffEffect>[];
+  passives?: MockPassive[];
+  tempHP?: number;
+  id?: string;
+}): any {
+  const actor = makeActor({
+    passives: opts.passives ?? [],
+    tempHP: opts.tempHP ?? 0,
+    id: opts.id,
+  });
+  const effects: any[] = opts.buffs ?? [];
+  (actor as any).effects = effects;
+  return actor;
+}
+
+describe('applyBuffTriggersOnActivate (mid-combat buff activation)', () => {
+  it('rolls a combatStart one-shot the moment the buff is activated', async () => {
+    const buff = makeBuffEffect({
+      id: 'eff-lean-ward',
+      name: 'Lean Ward (buff)',
+      mechanics: {
+        applyWhen: 'activeBuff-active',
+        triggers: { combatStart: { tempHP: '1d8' } },
+      } as PowerMechanics,
+    });
+    const actor = makeActorWithBuffs({ buffs: [buff] });
+    const combat = makeCombat();
+    queueRolls([6]);
+
+    await applyBuffTriggersOnActivate(actor, buff, combat);
+
+    expect(rollHistory).toEqual(['1d8']);
+    expect(actor.system.health.tempHP).toBe(6);
+    const key = makeSourceKey('buff', 'eff-lean-ward', 'combatStart');
+    const src = getTempHPSources(actor)[key];
+    expect(src).toBeDefined();
+    expect(src.kind).toBe('one-shot');
+    expect(src.origin.ownerKind).toBe('buff');
+    expect(src.origin.powerId).toBe('eff-lean-ward');
+  });
+
+  it('also raises a turnStartSelf refresh pool on activation (not just at next turn)', async () => {
+    const buff = makeBuffEffect({
+      id: 'eff-dragon-stance',
+      name: 'Dragon Stance',
+      mechanics: {
+        applyWhen: 'activeBuff-active',
+        triggers: { turnStartSelf: { tempHP: '3' } },
+      } as PowerMechanics,
+    });
+    const actor = makeActorWithBuffs({ buffs: [buff] });
+    await applyBuffTriggersOnActivate(actor, buff, makeCombat());
+
+    const key = makeSourceKey('buff', 'eff-dragon-stance', 'turnStartSelf');
+    const src = getTempHPSources(actor)[key];
+    expect(src).toBeDefined();
+    expect(src.kind).toBe('refresh');
+    expect(src.value).toBe(3);
+    expect(actor.system.health.tempHP).toBe(3);
+  });
+
+  it('does not re-roll its own combatStart pool on the next applyPassiveTrigger sweep', async () => {
+    const buff = makeBuffEffect({
+      id: 'eff-lean-ward',
+      name: 'Lean Ward (buff)',
+      mechanics: {
+        applyWhen: 'activeBuff-active',
+        triggers: { combatStart: { tempHP: '1d8' } },
+      } as PowerMechanics,
+    });
+    const actor = makeActorWithBuffs({ buffs: [buff] });
+    const combat = makeCombat();
+    queueRolls([4]);
+    await applyBuffTriggersOnActivate(actor, buff, combat);
+    expect(actor.system.health.tempHP).toBe(4);
+
+    // A subsequent scheduled sweep must see the existing one-shot and skip
+    // the reroll (combatId idempotence must hold across the owner-kind axis).
+    queueRolls([99]);
+    await applyPassiveTrigger(actor, 'combatStart', combat);
+    expect(rollHistory).toEqual(['1d8']);
+    expect(actor.system.health.tempHP).toBe(4);
+  });
+
+  it('skips effects whose mechanics lack activeBuff-active applyWhen', async () => {
+    const buff = makeBuffEffect({
+      id: 'eff-weird',
+      name: 'Weird Buff',
+      mechanics: {
+        applyWhen: 'passive-slotted-active', // wrong marker for a buff
+        triggers: { combatStart: { tempHP: '1d8' } },
+      } as PowerMechanics,
+    });
+    const actor = makeActorWithBuffs({ buffs: [buff] });
+    queueRolls([5]);
+    await applyBuffTriggersOnActivate(actor, buff, makeCombat());
+    expect(actor.system.health.tempHP).toBe(0);
+    expect(Object.keys(getTempHPSources(actor))).toHaveLength(0);
+  });
+
+  it('ignores effects that are not flagged activeBuff', async () => {
+    const notABuff = {
+      id: 'eff-random',
+      _id: 'eff-random',
+      name: 'Random',
+      flags: {},
+    };
+    const actor = makeActorWithBuffs({ buffs: [notABuff as any] });
+    await applyBuffTriggersOnActivate(actor, notABuff, makeCombat());
+    expect(Object.keys(getTempHPSources(actor))).toHaveLength(0);
+  });
+});
+
+describe('clearTempHPSourcesForBuffEffect (buff removal)', () => {
+  it('removes only the pools owned by the removed buff, not passive or manual pools', async () => {
+    const passive: MockPassive = {
+      id: 'dragon-scales',
+      name: 'Dragon Scales',
+      mechanics: {
+        applyWhen: 'passive-slotted-active',
+        triggers: { turnStartSelf: { tempHP: '2' } },
+      },
+    };
+    const buff = makeBuffEffect({
+      id: 'eff-lean-ward',
+      name: 'Lean Ward',
+      mechanics: {
+        applyWhen: 'activeBuff-active',
+        triggers: { combatStart: { tempHP: '1d8' } },
+      } as PowerMechanics,
+    });
+    const actor = makeActorWithBuffs({
+      tempHP: 2, // manual residual
+      passives: [passive],
+      buffs: [buff],
+    });
+    const combat = makeCombat();
+
+    await applyPassiveTrigger(actor, 'turnStartSelf', combat); // passive +2
+    queueRolls([5]);
+    await applyBuffTriggersOnActivate(actor, buff, combat); // buff +5
+    expect(actor.system.health.tempHP).toBe(9); // 2 manual + 2 passive + 5 buff
+
+    await clearTempHPSourcesForBuffEffect(actor, 'eff-lean-ward');
+    expect(actor.system.health.tempHP).toBe(4); // manual 2 + passive 2 survive
+    const sources = getTempHPSources(actor);
+    expect(sources[makeSourceKey('buff', 'eff-lean-ward', 'combatStart')]).toBeUndefined();
+    expect(sources[makeSourceKey('passive', 'dragon-scales', 'turnStartSelf')]).toBeDefined();
+  });
+
+  it('is a no-op when the buff has no sources attached', async () => {
+    const actor = makeActorWithBuffs({ tempHP: 3 });
+    await clearTempHPSourcesForBuffEffect(actor, 'eff-unknown');
+    expect(actor.system.health.tempHP).toBe(3);
+  });
+});
+
+describe('combatEnd cleanup spans both passive and buff sources', () => {
+  it('wipes all sourced pools owned by the combat, keeping only manual residuals', async () => {
+    const passive: MockPassive = {
+      id: 'lean-ward',
+      name: 'Lean Ward',
+      mechanics: {
+        applyWhen: 'passive-slotted-active',
+        triggers: { combatStart: { tempHP: '1d8' } },
+      },
+    };
+    const buff = makeBuffEffect({
+      id: 'eff-dragon-stance',
+      name: 'Dragon Stance',
+      mechanics: {
+        applyWhen: 'activeBuff-active',
+        triggers: { turnStartSelf: { tempHP: '3' } },
+      } as PowerMechanics,
+    });
+    const actor = makeActorWithBuffs({
+      tempHP: 1,
+      passives: [passive],
+      buffs: [buff],
+    });
+    const combat = makeCombat();
+    queueRolls([4]);
+    await applyPassiveTrigger(actor, 'combatStart', combat); // passive 4
+    await applyBuffTriggersOnActivate(actor, buff, combat); // buff 3
+    expect(actor.system.health.tempHP).toBe(8); // 1 + 4 + 3
+
+    await clearTempHPSourcesOnCombatEnd(actor, combat);
+    expect(actor.system.health.tempHP).toBe(1);
+    expect(Object.keys(getTempHPSources(actor))).toHaveLength(0);
   });
 });
