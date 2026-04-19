@@ -52,7 +52,8 @@ import { DREADWYRM_POWERS } from './dreadwyrm.js';
  * This is the single source of truth for which powers belong to which tree.
  * Only active (non-deprecated) trees are listed here; they drive the Power Picker.
  */
-const TREE_POWER_MAP = {
+/** Tree display name → embedded powers (single source of truth for picker + audits). */
+export const MASTERY_TREE_POWER_MAP = {
     'Dreadstalker': DREADSTALKER_POWERS,
     'Doomscribe': DOOMSCRIBE_POWERS,
     'Hexbound Harrier': HEXBOUND_HARRIER_POWERS,
@@ -68,13 +69,13 @@ const TREE_POWER_MAP = {
 /**
  * All mastery powers from all trees (flat list)
  */
-export const ALL_MASTERY_POWERS = Object.values(TREE_POWER_MAP).flat();
+export const ALL_MASTERY_POWERS = Object.values(MASTERY_TREE_POWER_MAP).flat();
 /**
  * Get all powers for a specific Mastery Tree
  * @param treeName - The display name of the Mastery Tree (e.g. "Dreadstalker")
  */
 export function getPowersForTree(treeName) {
-    return TREE_POWER_MAP[treeName] ?? [];
+    return MASTERY_TREE_POWER_MAP[treeName] ?? [];
 }
 /**
  * Get a specific power by tree and name

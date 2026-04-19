@@ -32,7 +32,7 @@ export const ASHGUARD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Ignite', rank: 2 }],
+                specials: [{ key: 'ignite', rank: 2 }],
                 mechanics: {damageRider:{flat:'+1d8'},applyWhen:'attack-rider'}
             },
             '2': {
@@ -41,7 +41,7 @@ export const ASHGUARD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Ignite', rank: 3 }],
+                specials: [{ key: 'ignite', rank: 3 }],
                 mechanics: {damageRider:{flat:'+2d8'},applyWhen:'attack-rider'}
             },
             '3': {
@@ -50,7 +50,7 @@ export const ASHGUARD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Ignite', rank: 4 }],
+                specials: [{ key: 'ignite', rank: 4 }],
                 mechanics: {damageRider:{flat:'+3d8'},applyWhen:'attack-rider'}
             },
             '4': {
@@ -59,7 +59,7 @@ export const ASHGUARD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Ignite', rank: 4 }],
+                specials: [{ key: 'ignite', rank: 4 }],
                 mechanics: {damageRider:{flat:'+4d8'},applyWhen:'attack-rider'}
             }
         }
@@ -79,7 +79,7 @@ export const ASHGUARD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Push', rank: 2 }, { key: 'Ignite', rank: 1 }],
+                specials: [{ key: 'push', rank: 2 }, { key: 'ignite', rank: 1 }],
                 mechanics: {damageRider:{flat:'+1d8'},applyWhen:'attack-rider'}
             },
             '2': {
@@ -88,7 +88,7 @@ export const ASHGUARD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Push', rank: 4 }, { key: 'Ignite', rank: 2 }],
+                specials: [{ key: 'push', rank: 4 }, { key: 'ignite', rank: 2 }],
                 mechanics: {damageRider:{flat:'+2d8'},applyWhen:'attack-rider'}
             },
             '3': {
@@ -97,7 +97,7 @@ export const ASHGUARD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Push', rank: 6 }, { key: 'Ignite', rank: 2 }],
+                specials: [{ key: 'push', rank: 6 }, { key: 'ignite', rank: 2 }],
                 mechanics: {damageRider:{flat:'+3d8'},applyWhen:'attack-rider'}
             },
             '4': {
@@ -106,7 +106,7 @@ export const ASHGUARD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Push', rank: 8 }, { key: 'Ignite', rank: 3 }],
+                specials: [{ key: 'push', rank: 8 }, { key: 'ignite', rank: 3 }],
                 mechanics: {damageRider:{flat:'+4d8'},applyWhen:'attack-rider'}
             }
         }
@@ -126,7 +126,7 @@ export const ASHGUARD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 2 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in the area take 1d8 damage.', dice: '1d8' },
-                specials: [{ key: 'Ignite', rank: 1 }]
+                specials: [{ key: 'ignite', rank: 1 }]
             },
             '2': {
                 type: 'melee',
@@ -134,7 +134,7 @@ export const ASHGUARD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 4 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in the area take 1d8 damage.', dice: '1d8' },
-                specials: [{ key: 'Ignite', rank: 2 }]
+                specials: [{ key: 'ignite', rank: 2 }]
             },
             '3': {
                 type: 'melee',
@@ -142,7 +142,7 @@ export const ASHGUARD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 6 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in the area take 2d8 damage.', dice: '2d8' },
-                specials: [{ key: 'Ignite', rank: 2 }]
+                specials: [{ key: 'ignite', rank: 2 }]
             },
             '4': {
                 type: 'melee',
@@ -150,7 +150,7 @@ export const ASHGUARD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 8 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in the area take 3d8 damage.', dice: '3d8' },
-                specials: [{ key: 'Ignite', rank: 3 }]
+                specials: [{ key: 'ignite', rank: 3 }]
             }
         }
     },
@@ -169,7 +169,7 @@ export const ASHGUARD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8 damage vs. Ignited target.', dice: '1d8' },
-                specials: [{ key: 'Penetration', rank: 2, note: 'vs. Ignited target' }],
+                specials: [{ key: 'penetration', rank: 2, note: 'vs. Ignited target' }],
                 mechanics: {damageRider:{flat:'+1d8',vsCondition:'ignited',vsConditionDamage:'+1d8'},condition:'targetIgnited',applyWhen:'attack-rider'}
             },
             '2': {
@@ -178,7 +178,7 @@ export const ASHGUARD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8 damage vs. Ignited target.', dice: '2d8' },
-                specials: [{ key: 'Penetration', rank: 4, note: 'vs. Ignited target' }],
+                specials: [{ key: 'penetration', rank: 4, note: 'vs. Ignited target' }],
                 mechanics: {damageRider:{flat:'+2d8',vsCondition:'ignited',vsConditionDamage:'+2d8'},condition:'targetIgnited',applyWhen:'attack-rider'}
             },
             '3': {
@@ -187,7 +187,7 @@ export const ASHGUARD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8 damage vs. Ignited target.', dice: '3d8' },
-                specials: [{ key: 'Penetration', rank: 6, note: 'vs. Ignited target' }],
+                specials: [{ key: 'penetration', rank: 6, note: 'vs. Ignited target' }],
                 mechanics: {damageRider:{flat:'+3d8',vsCondition:'ignited',vsConditionDamage:'+3d8'},condition:'targetIgnited',applyWhen:'attack-rider'}
             },
             '4': {
@@ -196,7 +196,7 @@ export const ASHGUARD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8 damage vs. Ignited target.', dice: '4d8' },
-                specials: [{ key: 'Penetration', rank: 8, note: 'vs. Ignited target' }],
+                specials: [{ key: 'penetration', rank: 8, note: 'vs. Ignited target' }],
                 mechanics: {damageRider:{flat:'+4d8',vsCondition:'ignited',vsConditionDamage:'+4d8'},condition:'targetIgnited',applyWhen:'attack-rider'}
             }
         }
@@ -458,7 +458,7 @@ export const ASHGUARD_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'The attacker catches fire.' },
                 trigger: 'A creature hits you with a melee attack.',
-                specials: [{ key: 'Ignite', rank: 1 }]
+                specials: [{ key: 'ignite', rank: 1 }]
             },
             '2': {
                 type: 'reaction',
@@ -467,7 +467,7 @@ export const ASHGUARD_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'The attacker catches fire.' },
                 trigger: 'A creature hits you with a melee attack.',
-                specials: [{ key: 'Ignite', rank: 2 }]
+                specials: [{ key: 'ignite', rank: 2 }]
             },
             '3': {
                 type: 'reaction',
@@ -476,7 +476,7 @@ export const ASHGUARD_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'The attacker catches fire.' },
                 trigger: 'A creature hits you with a melee attack.',
-                specials: [{ key: 'Ignite', rank: 3 }]
+                specials: [{ key: 'ignite', rank: 3 }]
             },
             '4': {
                 type: 'reaction',
@@ -485,7 +485,7 @@ export const ASHGUARD_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'The attacker catches fire.' },
                 trigger: 'A creature hits you with a melee attack.',
-                specials: [{ key: 'Ignite', rank: 4 }]
+                specials: [{ key: 'ignite', rank: 4 }]
             }
         }
     },
@@ -657,7 +657,7 @@ export const ASHGUARD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 4 },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'At the end of your turn, each enemy in the aura that already has Ignite ≥ 1 increases its Ignite by +1.' },
-                specials: [{ key: 'Ignite', rank: 1, note: 'aura tick, already-burning only' }]
+                specials: [{ key: 'ignite', rank: 1, note: 'aura tick, already-burning only' }]
             },
             '2': {
                 type: 'buff',
@@ -665,7 +665,7 @@ export const ASHGUARD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 6 },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'At the end of your turn, each enemy in the aura that already has Ignite ≥ 1 increases its Ignite by +2.' },
-                specials: [{ key: 'Ignite', rank: 2, note: 'aura tick, already-burning only' }]
+                specials: [{ key: 'ignite', rank: 2, note: 'aura tick, already-burning only' }]
             },
             '3': {
                 type: 'buff',
@@ -673,7 +673,7 @@ export const ASHGUARD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 8 },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'At the end of your turn, each enemy in the aura that already has Ignite ≥ 1 increases its Ignite by +3.' },
-                specials: [{ key: 'Ignite', rank: 3, note: 'aura tick, already-burning only' }]
+                specials: [{ key: 'ignite', rank: 3, note: 'aura tick, already-burning only' }]
             },
             '4': {
                 type: 'buff',
@@ -681,7 +681,7 @@ export const ASHGUARD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 10 },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'At the end of your turn, each enemy in the aura that already has Ignite ≥ 1 increases its Ignite by +4.' },
-                specials: [{ key: 'Ignite', rank: 4, note: 'aura tick, already-burning only' }]
+                specials: [{ key: 'ignite', rank: 4, note: 'aura tick, already-burning only' }]
             }
         }
     },
@@ -796,7 +796,7 @@ export const ASHGUARD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 6 m. Your next hit this turn applies Ignite(1).' },
-                specials: [{ key: 'Ignite', rank: 1, note: 'on next hit this turn' }]
+                specials: [{ key: 'ignite', rank: 1, note: 'on next hit this turn' }]
             },
             '2': {
                 type: 'movement',
@@ -804,7 +804,7 @@ export const ASHGUARD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 10 m. Your next hit this turn applies Ignite(2).' },
-                specials: [{ key: 'Ignite', rank: 2, note: 'on next hit this turn' }]
+                specials: [{ key: 'ignite', rank: 2, note: 'on next hit this turn' }]
             },
             '3': {
                 type: 'movement',
@@ -812,7 +812,7 @@ export const ASHGUARD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 14 m. Your next hit this turn applies Ignite(3).' },
-                specials: [{ key: 'Ignite', rank: 3, note: 'on next hit this turn' }]
+                specials: [{ key: 'ignite', rank: 3, note: 'on next hit this turn' }]
             },
             '4': {
                 type: 'movement',
@@ -820,7 +820,7 @@ export const ASHGUARD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 18 m. Your next hit this turn applies Ignite(4).' },
-                specials: [{ key: 'Ignite', rank: 4, note: 'on next hit this turn' }]
+                specials: [{ key: 'ignite', rank: 4, note: 'on next hit this turn' }]
             }
         }
     },

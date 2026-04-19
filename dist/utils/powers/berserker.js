@@ -24,7 +24,7 @@ export const BERSERKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Bleeding', rank: 1 }]
+                specials: [{ key: 'bleeding', rank: 1 }]
             },
             '2': {
                 type: 'melee',
@@ -32,7 +32,7 @@ export const BERSERKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Bleeding', rank: 3 }]
+                specials: [{ key: 'bleeding', rank: 3 }]
             },
             '3': {
                 type: 'melee',
@@ -40,7 +40,7 @@ export const BERSERKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Bleeding', rank: 4 }]
+                specials: [{ key: 'bleeding', rank: 4 }]
             },
             '4': {
                 type: 'melee',
@@ -48,7 +48,7 @@ export const BERSERKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +5d8', dice: '5d8' },
-                specials: [{ key: 'Bleeding', rank: 5 }]
+                specials: [{ key: 'bleeding', rank: 5 }]
             }
         }
     },
@@ -72,7 +72,7 @@ export const BERSERKER_POWERS = [
                 aoe: { shape: 'radius', m: 1 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8', dice: '1d8' },
-                specials: [{ key: 'Bleeding', rank: 1 }]
+                specials: [{ key: 'bleeding', rank: 1 }]
             },
             '2': {
                 type: 'melee',
@@ -80,7 +80,7 @@ export const BERSERKER_POWERS = [
                 aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Bleeding', rank: 2 }]
+                specials: [{ key: 'bleeding', rank: 2 }]
             },
             '3': {
                 type: 'melee',
@@ -88,7 +88,7 @@ export const BERSERKER_POWERS = [
                 aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Bleeding', rank: 3 }]
+                specials: [{ key: 'bleeding', rank: 3 }]
             },
             '4': {
                 type: 'melee',
@@ -96,7 +96,7 @@ export const BERSERKER_POWERS = [
                 aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Bleeding', rank: 4 }]
+                specials: [{ key: 'bleeding', rank: 4 }]
             }
         }
     },
@@ -120,7 +120,7 @@ export const BERSERKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Advantage', note: 'Until the start of your next turn, attacks against you have Advantage' }]
+                specials: [{ key: 'advantage', note: 'Until the start of your next turn, attacks against you have Advantage' }]
             },
             '2': {
                 type: 'melee',
@@ -128,7 +128,7 @@ export const BERSERKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +6d8', dice: '6d8' },
-                specials: [{ key: 'Advantage', note: 'Until the start of your next turn, attacks against you have Advantage' }]
+                specials: [{ key: 'advantage', note: 'Until the start of your next turn, attacks against you have Advantage' }]
             },
             '3': {
                 type: 'melee',
@@ -136,7 +136,7 @@ export const BERSERKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +8d8', dice: '8d8' },
-                specials: [{ key: 'Advantage', note: 'Until the start of your next turn, attacks against you have Advantage' }]
+                specials: [{ key: 'advantage', note: 'Until the start of your next turn, attacks against you have Advantage' }]
             },
             '4': {
                 type: 'melee',
@@ -144,7 +144,7 @@ export const BERSERKER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +10d8', dice: '10d8' },
-                specials: [{ key: 'Advantage', note: 'Until the start of your next turn, attacks against you have Advantage' }]
+                specials: [{ key: 'advantage', note: 'Until the start of your next turn, attacks against you have Advantage' }]
             }
         }
     },
@@ -222,7 +222,7 @@ export const BERSERKER_POWERS = [
                 aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Enemies suffer -1 Attack Die until your next turn' },
-                specials: [{ key: 'Frightened', rank: 1 }]
+                specials: [{ key: 'frightened', rank: 1 }]
             },
             '3': {
                 type: 'utility',
@@ -230,7 +230,7 @@ export const BERSERKER_POWERS = [
                 aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Enemies suffer -2 Attack Dice until your next turn' },
-                specials: [{ key: 'Frightened', rank: 1 }]
+                specials: [{ key: 'frightened', rank: 1 }]
             },
             '4': {
                 type: 'utility',
@@ -238,7 +238,7 @@ export const BERSERKER_POWERS = [
                 aoe: { shape: 'radius', m: 8 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Enemies suffer -2 Attack Dice until your next turn' },
-                specials: [{ key: 'Frightened', rank: 1 }]
+                specials: [{ key: 'frightened', rank: 1 }]
             }
         }
     },

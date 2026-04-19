@@ -69,6 +69,18 @@ export interface MechanicsBreakdownEntry {
  * Drives the transparent UI ("why is my Armor 6?") and the roll-bonus
  * registry consumed by `src/dice/roll-handler.ts`.
  */
+/** Dice or flat healing formula from mechanics (display-only in breakdown). */
+export interface MechanicsBreakdownDiceStringEntry {
+  source: string;
+  value: string;
+}
+
+/** Declarative mechanics not yet folded into numeric totals (modify / next-hit). */
+export interface MechanicsBreakdownNoteEntry {
+  source: string;
+  text: string;
+}
+
 export interface MechanicsBreakdown {
   armor: MechanicsBreakdownEntry[];
   evade: MechanicsBreakdownEntry[];
@@ -76,6 +88,12 @@ export interface MechanicsBreakdown {
   movementBonus: MechanicsBreakdownEntry[];
   regen: MechanicsBreakdownEntry[];
   tempHP: Array<{ source: string; value: string }>;
+  /** Heal dice or flat strings from `PowerMechanics.healing` (not summed numerically). */
+  healing: MechanicsBreakdownDiceStringEntry[];
+  /** Declared `modifySpecial` lines for transparency / future automation. */
+  modifySpecialDeclared: MechanicsBreakdownNoteEntry[];
+  /** Declared `grantNextHitEffect` summaries. */
+  grantNextHitDeclared: MechanicsBreakdownNoteEntry[];
   saveDice: {
     body: MechanicsBreakdownEntry[];
     mind: MechanicsBreakdownEntry[];

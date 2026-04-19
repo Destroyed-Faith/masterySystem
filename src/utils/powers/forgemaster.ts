@@ -27,7 +27,7 @@ export const FORGEMASTER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Unarmed strikes deal +2d8 Damage and inflict Shock(1)', dice: '2d8' },
-                specials: [{ key: 'Shock', rank: 1 }]
+                specials: [{ key: 'shock', rank: 1 }]
             },
             '2': {
 
@@ -36,7 +36,7 @@ export const FORGEMASTER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Unarmed strikes deal +4d8 Damage and inflict Shock(1)', dice: '4d8' },
-                specials: [{ key: 'Shock', rank: 1 }]
+                specials: [{ key: 'shock', rank: 1 }]
             },
             '3': {
 
@@ -45,7 +45,7 @@ export const FORGEMASTER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Unarmed strikes deal +6d8 Damage and inflict Shock(1)', dice: '6d8' },
-                specials: [{ key: 'Shock', rank: 1 }]
+                specials: [{ key: 'shock', rank: 1 }]
             },
             '4': {
 
@@ -54,7 +54,7 @@ export const FORGEMASTER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Unarmed strikes deal +8d8 Damage and inflict Shock(1)', dice: '8d8' },
-                specials: [{ key: 'Shock', rank: 1 }]
+                specials: [{ key: 'shock', rank: 1 }]
             }
         }
     },
@@ -134,7 +134,7 @@ export const FORGEMASTER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 2 },
                 effect: { text: 'Weapon deals +1d8 Arcane Damage', dice: '1d8' },
-                specials: [{ key: 'Push', rank: 1 }]
+                specials: [{ key: 'push', rank: 1 }]
             },
             '2': {
 
@@ -143,7 +143,7 @@ export const FORGEMASTER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 2 },
                 effect: { text: 'Weapon deals +2d8 Arcane Damage', dice: '2d8' },
-                specials: [{ key: 'Push', rank: 2 }]
+                specials: [{ key: 'push', rank: 2 }]
             },
             '3': {
 
@@ -152,7 +152,7 @@ export const FORGEMASTER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 3 },
                 effect: { text: 'Weapon deals +3d8 Arcane Damage', dice: '3d8' },
-                specials: [{ key: 'Push', rank: 2 }]
+                specials: [{ key: 'push', rank: 2 }]
             },
             '4': {
 
@@ -161,7 +161,7 @@ export const FORGEMASTER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 3 },
                 effect: { text: 'Up to 2 Weapons deal +4d8 Arcane Damage', dice: '4d8' },
-                specials: [{ key: 'Push', rank: 2 }]
+                specials: [{ key: 'push', rank: 2 }]
             }
         }
     },

@@ -30,7 +30,7 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Shock', rank: 2 }],
+                specials: [{ key: 'shock', rank: 2 }],
                 mechanics: {damageRider:{flat:'+1d8'},applyWhen:'attack-rider'}
             },
             '2': {
@@ -39,7 +39,7 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Shock', rank: 3 }],
+                specials: [{ key: 'shock', rank: 3 }],
                 mechanics: {damageRider:{flat:'+1d8'},applyWhen:'attack-rider'}
             },
             '3': {
@@ -48,7 +48,7 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Shock', rank: 3 }],
+                specials: [{ key: 'shock', rank: 3 }],
                 mechanics: {damageRider:{flat:'+2d8'},applyWhen:'attack-rider'}
             },
             '4': {
@@ -57,7 +57,7 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Shock', rank: 4 }],
+                specials: [{ key: 'shock', rank: 4 }],
                 mechanics: {damageRider:{flat:'+2d8'},applyWhen:'attack-rider'}
             }
         }
@@ -124,7 +124,7 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 2 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in the area take 1d8 damage.', dice: '1d8' },
-                specials: [{ key: 'Shock', rank: 1 }]
+                specials: [{ key: 'shock', rank: 1 }]
             },
             '2': {
                 type: 'melee',
@@ -132,7 +132,7 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 4 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in the area take 1d8 damage.', dice: '1d8' },
-                specials: [{ key: 'Shock', rank: 2 }]
+                specials: [{ key: 'shock', rank: 2 }]
             },
             '3': {
                 type: 'melee',
@@ -140,7 +140,7 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 6 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in the area take 2d8 damage.', dice: '2d8' },
-                specials: [{ key: 'Shock', rank: 2 }]
+                specials: [{ key: 'shock', rank: 2 }]
             },
             '4': {
                 type: 'melee',
@@ -148,7 +148,7 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 8 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in the area take 2d8 damage.', dice: '2d8' },
-                specials: [{ key: 'Shock', rank: 3 }]
+                specials: [{ key: 'shock', rank: 3 }]
             }
         }
     },
@@ -655,7 +655,7 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a target, increase its Shock by 1.' },
-                specials: [{ key: 'Shock', rank: 1, note: 'first hit per round' }]
+                specials: [{ key: 'shock', rank: 1, note: 'first hit per round' }]
             },
             '2': {
                 type: 'buff',
@@ -663,7 +663,7 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a target, increase its Shock by 2.' },
-                specials: [{ key: 'Shock', rank: 2, note: 'first hit per round' }]
+                specials: [{ key: 'shock', rank: 2, note: 'first hit per round' }]
             },
             '3': {
                 type: 'buff',
@@ -671,7 +671,7 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a target, increase its Shock by 3.' },
-                specials: [{ key: 'Shock', rank: 3, note: 'first hit per round' }]
+                specials: [{ key: 'shock', rank: 3, note: 'first hit per round' }]
             },
             '4': {
                 type: 'buff',
@@ -679,7 +679,7 @@ export const GALE_BREAKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a target, increase its Shock by 4.' },
-                specials: [{ key: 'Shock', rank: 4, note: 'first hit per round' }]
+                specials: [{ key: 'shock', rank: 4, note: 'first hit per round' }]
             }
         }
     },

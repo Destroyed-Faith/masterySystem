@@ -37,7 +37,7 @@ export const WARDEN_DRAGON_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 2 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Tail Attack + 1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Push', rank: 2 }],
+                specials: [{ key: 'push', rank: 2 }],
                 mechanics: {damageRider:{flat:'+1d8'},applyWhen:'attack-rider'}
             },
             '2': {
@@ -46,7 +46,7 @@ export const WARDEN_DRAGON_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 3 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Tail Attack + 1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Push', rank: 4 }, { key: 'Prone', rank: 1 }],
+                specials: [{ key: 'push', rank: 4 }, { key: 'prone', rank: 1 }],
                 mechanics: {damageRider:{flat:'+1d8'},applyWhen:'attack-rider'}
             },
             '3': {
@@ -55,7 +55,7 @@ export const WARDEN_DRAGON_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 4 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Tail Attack + 2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Push', rank: 8 }, { key: 'Prone', rank: 1 }],
+                specials: [{ key: 'push', rank: 8 }, { key: 'prone', rank: 1 }],
                 mechanics: {damageRider:{flat:'+2d8'},applyWhen:'attack-rider'}
             },
             '4': {
@@ -64,7 +64,7 @@ export const WARDEN_DRAGON_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 5 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Tail Attack + 3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Push', rank: 8 }, { key: 'Prone', rank: 1 }],
+                specials: [{ key: 'push', rank: 8 }, { key: 'prone', rank: 1 }],
                 mechanics: {damageRider:{flat:'+3d8'},applyWhen:'attack-rider'}
             }
         }
@@ -85,7 +85,7 @@ export const WARDEN_DRAGON_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 2 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in the area take 1d8 damage.', dice: '1d8' },
-                specials: [{ key: 'Push', rank: 2 }]
+                specials: [{ key: 'push', rank: 2 }]
             },
             '2': {
                 type: 'melee',
@@ -93,7 +93,7 @@ export const WARDEN_DRAGON_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 4 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in the area take 1d8 damage.', dice: '1d8' },
-                specials: [{ key: 'Push', rank: 4 }, { key: 'Prone', rank: 1 }]
+                specials: [{ key: 'push', rank: 4 }, { key: 'prone', rank: 1 }]
             },
             '3': {
                 type: 'melee',
@@ -101,7 +101,7 @@ export const WARDEN_DRAGON_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 6 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in the area take 2d8 damage.', dice: '2d8' },
-                specials: [{ key: 'Push', rank: 6 }, { key: 'Prone', rank: 1 }]
+                specials: [{ key: 'push', rank: 6 }, { key: 'prone', rank: 1 }]
             },
             '4': {
                 type: 'melee',
@@ -109,7 +109,7 @@ export const WARDEN_DRAGON_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 8 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in the area take 2d8 damage.', dice: '2d8' },
-                specials: [{ key: 'Push', rank: 8 }, { key: 'Prone', rank: 1 }]
+                specials: [{ key: 'push', rank: 8 }, { key: 'prone', rank: 1 }]
             }
         }
     },
@@ -129,7 +129,7 @@ export const WARDEN_DRAGON_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Bite Attack + 1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Freeze', rank: 2 }],
+                specials: [{ key: 'freeze', rank: 2 }],
                 mechanics: {damageRider:{flat:'+1d8'},applyWhen:'attack-rider'}
             },
             '2': {
@@ -138,7 +138,7 @@ export const WARDEN_DRAGON_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Bite Attack + 2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Freeze', rank: 3 }],
+                specials: [{ key: 'freeze', rank: 3 }],
                 mechanics: {damageRider:{flat:'+2d8'},applyWhen:'attack-rider'}
             },
             '3': {
@@ -147,7 +147,7 @@ export const WARDEN_DRAGON_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Bite Attack + 3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Freeze', rank: 4 }],
+                specials: [{ key: 'freeze', rank: 4 }],
                 mechanics: {damageRider:{flat:'+3d8'},applyWhen:'attack-rider'}
             },
             '4': {
@@ -156,7 +156,7 @@ export const WARDEN_DRAGON_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Bite Attack + 4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Freeze', rank: 4 }],
+                specials: [{ key: 'freeze', rank: 4 }],
                 mechanics: {damageRider:{flat:'+4d8'},applyWhen:'attack-rider'}
             }
         }
@@ -177,7 +177,7 @@ export const WARDEN_DRAGON_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'single', targets: 1 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 4 m in a straight line, then make a body slam attack dealing 1d8 damage. Gain +1 Armor until the end of the round.', dice: '1d8' },
-                specials: [{ key: 'Push', rank: 2 }],
+                specials: [{ key: 'push', rank: 2 }],
                 mechanics: {armor:1,applyWhen:'attack-rider'}
             },
             '2': {
@@ -186,7 +186,7 @@ export const WARDEN_DRAGON_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'single', targets: 1 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 6 m in a straight line, then make a body slam attack dealing 2d8 damage. Gain +1 Armor until the end of the round.', dice: '2d8' },
-                specials: [{ key: 'Push', rank: 4 }],
+                specials: [{ key: 'push', rank: 4 }],
                 mechanics: {armor:1,applyWhen:'attack-rider'}
             },
             '3': {
@@ -195,7 +195,7 @@ export const WARDEN_DRAGON_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'single', targets: 1 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 8 m in a straight line, then make a body slam attack dealing 3d8 damage. Gain +2 Armor until the end of the round.', dice: '3d8' },
-                specials: [{ key: 'Push', rank: 6 }],
+                specials: [{ key: 'push', rank: 6 }],
                 mechanics: {armor:2,applyWhen:'attack-rider'}
             },
             '4': {
@@ -204,7 +204,7 @@ export const WARDEN_DRAGON_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'single', targets: 1 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 10 m in a straight line, then make a body slam attack dealing 4d8 damage. Gain +3 Armor until the end of the round.', dice: '4d8' },
-                specials: [{ key: 'Push', rank: 8 }],
+                specials: [{ key: 'push', rank: 8 }],
                 mechanics: {armor:3,applyWhen:'attack-rider'}
             }
         }
@@ -472,7 +472,7 @@ export const WARDEN_DRAGON_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a Tail Attack dealing damage + 1d8.', dice: '1d8' },
                 trigger: 'When an enemy enters melee with you or moves through your threatened space.',
-                specials: [{ key: 'Push', rank: 2 }]
+                specials: [{ key: 'push', rank: 2 }]
             },
             '2': {
                 type: 'reaction',
@@ -481,7 +481,7 @@ export const WARDEN_DRAGON_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a Tail Attack dealing damage + 2d8.', dice: '2d8' },
                 trigger: 'When an enemy enters melee with you or moves through your threatened space.',
-                specials: [{ key: 'Push', rank: 4 }]
+                specials: [{ key: 'push', rank: 4 }]
             },
             '3': {
                 type: 'reaction',
@@ -490,7 +490,7 @@ export const WARDEN_DRAGON_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a Tail Attack dealing damage + 3d8.', dice: '3d8' },
                 trigger: 'When an enemy enters melee with you or moves through your threatened space.',
-                specials: [{ key: 'Push', rank: 6 }]
+                specials: [{ key: 'push', rank: 6 }]
             },
             '4': {
                 type: 'reaction',
@@ -499,7 +499,7 @@ export const WARDEN_DRAGON_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a Tail Attack dealing damage + 4d8.', dice: '4d8' },
                 trigger: 'When an enemy enters melee with you or moves through your threatened space.',
-                specials: [{ key: 'Push', rank: 8 }]
+                specials: [{ key: 'push', rank: 8 }]
             }
         }
     },
@@ -723,7 +723,7 @@ export const WARDEN_DRAGON_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Gain Regeneration(3) and +3 dice to Body Saving Throws.' },
-                specials: [{ key: 'Regeneration', rank: 3 }],
+                specials: [{ key: 'regeneration', rank: 3 }],
                 mechanics: {saveDice:{body:3},regen:3,applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '2': {
@@ -732,7 +732,7 @@ export const WARDEN_DRAGON_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Gain Regeneration(4) and +5 dice to Body Saving Throws.' },
-                specials: [{ key: 'Regeneration', rank: 4 }],
+                specials: [{ key: 'regeneration', rank: 4 }],
                 mechanics: {saveDice:{body:5},regen:4,applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '3': {
@@ -741,7 +741,7 @@ export const WARDEN_DRAGON_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Gain Regeneration(5) and +7 dice to Body Saving Throws.' },
-                specials: [{ key: 'Regeneration', rank: 5 }],
+                specials: [{ key: 'regeneration', rank: 5 }],
                 mechanics: {saveDice:{body:7},regen:5,applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '4': {
@@ -750,7 +750,7 @@ export const WARDEN_DRAGON_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRankRounds' },
                 effect: { text: 'Gain Regeneration(6) and +9 dice to Body Saving Throws.' },
-                specials: [{ key: 'Regeneration', rank: 6 }],
+                specials: [{ key: 'regeneration', rank: 6 }],
                 mechanics: {saveDice:{body:9},regen:6,applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             }
         }
@@ -865,7 +865,7 @@ export const WARDEN_DRAGON_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'single', targets: 1 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 5 m. The first enemy you contact during this movement must pass a Body Save or be moved aside.' },
-                specials: [{ key: 'Push', rank: 4 }]
+                specials: [{ key: 'push', rank: 4 }]
             },
             '2': {
                 type: 'movement',
@@ -873,7 +873,7 @@ export const WARDEN_DRAGON_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'single', targets: 1 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 10 m. The first enemy you contact during this movement must pass a Body Save or be moved aside.' },
-                specials: [{ key: 'Push', rank: 8 }]
+                specials: [{ key: 'push', rank: 8 }]
             },
             '3': {
                 type: 'movement',
@@ -881,7 +881,7 @@ export const WARDEN_DRAGON_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'single', targets: 1 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 15 m. The first enemy you contact during this movement must pass a Body Save or be moved aside.' },
-                specials: [{ key: 'Push', rank: 12 }]
+                specials: [{ key: 'push', rank: 12 }]
             },
             '4': {
                 type: 'movement',
@@ -889,7 +889,7 @@ export const WARDEN_DRAGON_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'single', targets: 1 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 20 m. The first enemy you contact during this movement must pass a Body Save or be moved aside.' },
-                specials: [{ key: 'Push', rank: 16 }]
+                specials: [{ key: 'push', rank: 16 }]
             }
         }
     }

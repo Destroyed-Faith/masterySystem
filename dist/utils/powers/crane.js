@@ -91,7 +91,7 @@ export const CRANE_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Attempt to Grapple with +3d8; on success, the target is Prone(1)', dice: '3d8' },
-                specials: [{ key: 'Prone', rank: 1 }],
+                specials: [{ key: 'prone', rank: 1 }],
                 trigger: 'When you are attacked'
             },
             '4': {
@@ -100,7 +100,7 @@ export const CRANE_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Attempt to Grapple with +4d8; on success, the target is Prone(1)', dice: '4d8' },
-                specials: [{ key: 'Prone', rank: 1 }],
+                specials: [{ key: 'prone', rank: 1 }],
                 trigger: 'When you are attacked'
             }
         }

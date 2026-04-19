@@ -2,6 +2,7 @@
  * Power Data Migration Utilities
  * Migrates old power structure to new structure
  */
+import { normalizeAoeSpec, normalizePowerSpecial } from './power-spec-normalize.js';
 /**
  * Check if a power uses the new structure
  */
@@ -103,49 +104,49 @@ function parseRange(rangeStr) {
  * Parse AoE string to AoeSpec or null
  */
 function parseAoe(aoeStr) {
+    const finish = (raw) => normalizeAoeSpec(raw) ?? raw;
     if (!aoeStr || aoeStr === '' || aoeStr.toLowerCase() === 'none') {
         return null;
     }
     const lower = aoeStr.toLowerCase();
     if (lower.includes('radius')) {
         const match = aoeStr.match(/(\d+)m?\s*radius/i);
-        return {
+        return finish({
             shape: 'radius',
             m: match ? parseInt(match[1], 10) : 5,
             note: aoeStr
-        };
+        });
     }
     if (lower.includes('cone')) {
         const match = aoeStr.match(/(\d+)m?\s*cone/i);
-        return {
+        return finish({
             shape: 'cone',
             m: match ? parseInt(match[1], 10) : 10,
             note: aoeStr
-        };
+        });
     }
     if (lower.includes('line')) {
         const match = aoeStr.match(/(\d+)m?\s*line/i);
-        return {
+        return finish({
             shape: 'line',
             m: match ? parseInt(match[1], 10) : 10,
             note: aoeStr
-        };
+        });
     }
     if (lower.includes('burst')) {
         const match = aoeStr.match(/(\d+)m?\s*burst/i);
-        return {
+        return finish({
             shape: 'burst',
             m: match ? parseInt(match[1], 10) : 5,
             note: aoeStr
-        };
+        });
     }
-    // Default to radius if we can't determine
     const match = aoeStr.match(/(\d+)m?/i);
-    return {
+    return finish({
         shape: 'radius',
         m: match ? parseInt(match[1], 10) : 5,
         note: aoeStr
-    };
+    });
 }
 /**
  * Parse duration string to DurationSpec
@@ -260,15 +261,12 @@ export function migrateArtifactPower(oldPower) {
             // Try to parse "Push(2)" format
             const match = spec.match(/(\w+)\((\d+)\)/);
             if (match) {
-                return {
+                return normalizePowerSpecial({
                     key: match[1],
                     rank: parseInt(match[2], 10)
-                };
+                });
             }
-            // Fallback: use whole string as key
-            return {
-                key: spec
-            };
+            return normalizePowerSpecial({ key: spec });
         })
     };
     // Clone level 1 for levels 2-4, ensuring nulls are used instead of undefined
@@ -331,16 +329,13 @@ export function migratePowerData(oldPower) {
         specials: (oldPower.specials || []).map((spec) => {
             const match = spec.match(/(\w+)\((\d+)\)/);
             if (match) {
-                return {
+                return normalizePowerSpecial({
                     key: match[1],
                     value: parseInt(match[2], 10),
                     raiseCost: parseInt(match[2], 10)
-                };
+                });
             }
-            return {
-                key: spec,
-                raiseCost: 1
-            };
+            return normalizePowerSpecial({ key: spec, raiseCost: 1 });
         })
     };
     // Add trigger for reactions

@@ -28,19 +28,50 @@ export interface RangeSpec {
   note?: string;
 }
 
+/** Who is affected inside the AoE (distinct from `targets` = max count). */
+export type AoeTargetFilter =
+  | 'enemies'
+  | 'allies'
+  | 'allCreatures'
+  | 'self'
+  | 'sameAsAttackTarget'
+  | 'attacker';
+
+/** Where the AoE is centered (merged primitive: logical `area.center`). */
+export type AoeCenter = 'self' | 'targetPoint' | 'targetCreature';
+
 export interface AoeSpec {
-  shape: 'radius' | 'cone' | 'line' | 'burst' | 'none' | 'single' | 'weapon' | 'aura';
+  shape: 'radius' | 'cone' | 'line' | 'burst' | 'none' | 'single' | 'weapon' | 'aura' | 'zone';
   m?: number;
+  /** Radius or zone size in meters (synonym-friendly with JSON `sizeM`). */
   radiusM?: number;
+  /** Optional alias for `radiusM` / primary span in meters (import / docs). */
+  sizeM?: number;
   lengthM?: number;
   widthM?: number;
   angleDeg?: number;
+  /** Max targets or weapon-style count — not the same as `targetFilter`. */
   targets?: number;
+  /** Optional: only enemies, only allies, etc. */
+  targetFilter?: AoeTargetFilter;
+  /** Optional: self-centered vs point vs creature anchor. */
+  center?: AoeCenter;
   note?: string;
 }
 
 export interface DurationSpec {
-  kind: 'instant' | 'rounds' | 'masteryRounds' | 'masteryRankRounds' | 'untilNextTurn' | 'scene';
+  kind:
+    | 'instant'
+    | 'endOfTurn'
+    | 'untilStartOfNextTurn'
+    | 'rounds'
+    | 'masteryRounds'
+    | 'masteryRankRounds'
+    | 'untilNextTurn'
+    | 'untilUsed'
+    | 'untilBroken'
+    | 'scene';
+  /** For kind `rounds` (and legacy numeric durations). */
   rounds?: number;
   note?: string;
 }
@@ -50,12 +81,27 @@ export interface EffectSpec {
   dice?: string; // OPTIONAL and has NO TYPE - just untyped dice like "4d8"
 }
 
+/**
+ * One applied special on a power row (`specials` array).
+ * Canonical persisted form: lowercase `key` + optional `rank` (see `normalizePowerSpecial`).
+ * `type` / `value` exist only as import aliases and are stripped on persist.
+ */
 export interface PowerSpecial {
   key: string;
-  rank?: number; // Optional rank/value
+  /** @deprecated Import-only alias for `key`; use `key` after normalization. */
+  type?: string;
+  rank?: number;
+  /** @deprecated Import-only alias for `rank`; use `rank` after normalization. */
   value?: number;
   raiseCost?: number;
   note?: string;
+  /** Default target when not the primary power target, e.g. attacker, self. */
+  target?: string;
+  /** Machine or narrative condition for this special only. */
+  condition?: string;
+  duration?: string;
+  /** When this special applies, e.g. onHit, onSaveFail. */
+  applyOn?: string;
 }
 
 export type RaiseUpgrade =
@@ -64,13 +110,33 @@ export type RaiseUpgrade =
   | { kind: 'specialPlus'; key: string; delta: number; raiseCost: number }
   | { kind: 'custom'; text: string; raiseCost: number };
 
+/**
+ * Suggested `mechanics.trigger` values (extensible string).
+ * Document full list in docs/power-structure-new.json.
+ */
+export type PowerMechanicsTrigger =
+  | 'onUse'
+  | 'onHit'
+  | 'onMiss'
+  | 'endOfTurn'
+  | 'startOfTurn'
+  | 'afterAttack'
+  | 'onSaveFail'
+  | 'onIgniteTickByYou'
+  | (string & {});
+
 export interface PowerLevelRow {
   type: string; // Table "Type" column like "Melee", "Ranged", "Buff", or "Passive, Defensive" etc
   range: RangeSpec | null;
   aoe: AoeSpec | null;
   duration: DurationSpec;
+  /**
+   * Narrative / UI copy only — never the mechanical source of truth.
+   * SoT: `specials`, `aoe`, `range`, `duration`, `mechanics`.
+   */
   effect: EffectSpec;
-  specials: Array<{ key: string; rank?: number; value?: number; raiseCost?: number; note?: string }>;
+  /** Direct specials applied by this rank (not duplicated under `mechanics`). */
+  specials: PowerSpecial[];
   trigger?: string;
   lvl?: number;
   /**
@@ -87,10 +153,54 @@ export interface PowerLevelRow {
  * a given rank. This is the Source-of-Truth for the aggregator — `effect.text`
  * stays around for flavor and display, but numeric/diced bonuses live here.
  *
+ * Do not duplicate the same direct specials as in `PowerLevelRow.specials`;
+ * use `modifySpecial`, `grantNextHitEffect`, `healing`, riders, limits, and gates here.
+ *
  * Powers that cannot be reduced to this schema (bespoke auras, narrative
  * compound lines, etc.) simply omit `mechanics` and keep running as they do
  * today (GM-ruling).
  */
+
+/** Structured healing (merged primitive; narrative heal may stay in `effect.text`). */
+export interface PowerMechanicsHealing {
+  flat?: string;
+  target?: string;
+  condition?: string;
+  trigger?: string;
+  maxTargets?: number;
+}
+
+export type ModifySpecialMode =
+  | 'increaseExisting'
+  | 'decreaseExisting'
+  | 'setIfHigher'
+  | 'consume'
+  | 'remove'
+  | 'refreshDuration';
+
+/** Modify stacks or duration of an existing special on a creature (declarative / future runtime). */
+export interface PowerMechanicsModifySpecial {
+  type: string;
+  mode: ModifySpecialMode;
+  amount?: number;
+  minExisting?: number;
+  maxValue?: number;
+  target?: string;
+  condition?: string;
+}
+
+/**
+ * Next qualifying hit / spell riders (merged primitive; broader than a single special).
+ * `specials` may be edited via raw JSON on the mechanics block when needed.
+ */
+export interface PowerMechanicsGrantNextHitEffect {
+  damageRiderFlat?: string;
+  specials?: PowerSpecial[];
+  expires: string;
+  qualifier?: string;
+  condition?: string;
+}
+
 export interface PowerMechanics {
   /** Flat Armor bonus/malus (before equipment scaling). */
   armor?: number;
@@ -102,6 +212,32 @@ export interface PowerMechanics {
   tempHP?: string;
   /** HP regen per tick (end of turn / Mastery Rank rounds, per category). */
   regen?: number;
+
+  /** Generic heal dice or flat (aggregator lists under breakdown.healing). */
+  healing?: PowerMechanicsHealing;
+
+  /** Change an existing special stack (Walking Furnace, cleanse, consume Bulwark, …). */
+  modifySpecial?: PowerMechanicsModifySpecial;
+
+  /**
+   * Prepared rider on next qualifying hit/spell. Automatic combat application is not
+   * implied — stored for tooling, editor, and future roll pipeline.
+   */
+  grantNextHitEffect?: PowerMechanicsGrantNextHitEffect;
+
+  /** When this block’s non-damage effects fire, if distinct from row `trigger`. */
+  trigger?: PowerMechanicsTrigger;
+
+  /**
+   * Free-form condition when `condition` enum is insufficient. Do not set both
+   * `condition` and `conditionExpr` for the same gate; persist strips `conditionExpr` if `condition` is set.
+   */
+  conditionExpr?: string;
+
+  /**
+   * @deprecated Import-only alias for `usageLimit`. Stripped on persist; use `usageLimit` only.
+   */
+  triggerLimit?: { per: 'round' | 'combat' | 'day'; max: number };
 
   /** Dice-pool bonus/malus for saving throws, keyed by save family. */
   saveDice?: { body?: number; mind?: number; spirit?: number };

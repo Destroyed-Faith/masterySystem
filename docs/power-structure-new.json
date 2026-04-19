@@ -608,6 +608,116 @@
       }
     },
 
+    "mergedPrimitivesV1": {
+      "description": "Rückwärtskompatible Erweiterung (Primitive-Merge): externe Vorschläge landen in bestehenden Typen — kein zweites `area`-Feld; logisches „area“ = `aoe` / AoeSpec.",
+      "consistencyRules": [
+        "1 specials: Kanonisch nur { key (lowercase), rank?, raiseCost?, note?, … } in levels[n].specials. type/value nur Import; persistPowerMechanics / normalizePowerSpecial entfernen Aliase.",
+        "2 specials-Quelle: Direkte Effekte nur levels[n].specials. mechanics enthält keine parallele Liste derselben Effekte; Ausnahme: grantNextHitEffect.specials (Rider). modifySpecial / healing / Limits bleiben in mechanics.",
+        "3 condition: Entweder mechanics.condition (Enum) ODER mechanics.conditionExpr (frei). Beide gleichzeitig nicht nötig; beim Speichern wird conditionExpr verworfen, wenn condition gesetzt ist.",
+        "4 limits: Kanonisch nur mechanics.usageLimit. triggerLimit nur Import-Alias → wird beim Speichern in usageLimit übernommen und entfernt.",
+        "5 aoe: radiusM und sizeM nicht parallel persistieren (radius|aura|zone: radiusM gewinnt; sizeM nur Import-Fallback → radiusM).",
+        "6 Ebenen: levels[n].type = Delivery; range / aoe / duration getrennt; system.roll.kind = Wurfart.",
+        "7 effect.text: rein narrativ, niemals Source of Truth für Regeln."
+      ],
+      "synonyms": {
+        "specials": "Import: type→key, value→rank, key lowercasing. Persistenz: nur key/rank.",
+        "area": "Entspricht levels[n].aoe (AoeSpec): center, targetFilter, shape zone, …",
+        "triggerLimit": "Nur Import-Alias zu mechanics.usageLimit — beim Speichern zusammenführen, Feld entfernen."
+      },
+      "powerSpecialExtended": {
+        "key": "string (kanonisch, lowercase nach Normalisierung)",
+        "type": "deprecated Import-Alias für key",
+        "rank": "number? (kanonisch für Stärke)",
+        "value": "deprecated Import-Alias für rank",
+        "raiseCost": "number?",
+        "note": "string?",
+        "target": "string?",
+        "condition": "string?",
+        "duration": "string?",
+        "applyOn": "string? — z.B. onHit, onSaveFail"
+      },
+      "aoeSpecExtended": {
+        "shape": "… | 'zone'",
+        "radiusM": "number? — bei radius/aura/zone (nicht parallel zu sizeM persistieren)",
+        "sizeM": "number? — nur Import-Fallback, wird zu radiusM normalisiert",
+        "lengthM": "number? — cone/line",
+        "widthM": "number? — line",
+        "angleDeg": "number? — cone",
+        "center": "'self' | 'targetPoint' | 'targetCreature'?",
+        "targetFilter": "'enemies' | 'allies' | 'allCreatures' | 'self' | 'sameAsAttackTarget' | 'attacker'"
+      },
+      "powerMechanicsTriggerSuggested": [
+        "onUse",
+        "onHit",
+        "onMiss",
+        "endOfTurn",
+        "startOfTurn",
+        "afterAttack",
+        "onSaveFail",
+        "onIgniteTickByYou"
+      ],
+      "powerMechanicsExtended": {
+        "healing": "{ flat?, target?, condition?, trigger?, maxTargets? }",
+        "modifySpecial": "{ type, mode, amount?, minExisting?, maxValue?, target?, condition? } — mode: increaseExisting | decreaseExisting | setIfHigher | consume | remove | refreshDuration",
+        "grantNextHitEffect": "{ expires, qualifier?, damageRiderFlat?, specials?: PowerSpecial[], condition? } — Standard für next-hit/next-spell",
+        "conditionExpr": "Freie Bedingung nur wenn mechanics.condition nicht reicht; nicht redundant zu condition setzen",
+        "trigger": "Siehe powerMechanicsTriggerSuggested (+ erweiterbar)",
+        "usageLimit": "{ per: 'round'|'combat'|'day', max: number }? — einziges kanonisches Limit-Feld"
+      },
+      "durationKindSuggested": [
+        "instant",
+        "endOfTurn",
+        "untilStartOfNextTurn",
+        "rounds",
+        "masteryRounds",
+        "masteryRankRounds",
+        "untilNextTurn",
+        "untilUsed",
+        "untilBroken",
+        "scene"
+      ],
+      "exampleHealingAoe": {
+        "aoe": {
+          "shape": "radius",
+          "radiusM": 4,
+          "center": "targetPoint",
+          "targetFilter": "allies"
+        },
+        "mechanics": {
+          "applyWhen": "activeBuff-active",
+          "healing": {
+            "flat": "3d8",
+            "target": "alliesInArea",
+            "trigger": "onUse"
+          }
+        }
+      },
+      "exampleModifySpecial": {
+        "mechanics": {
+          "applyWhen": "passive-slotted-active",
+          "modifySpecial": {
+            "type": "ignite",
+            "mode": "increaseExisting",
+            "amount": 2,
+            "minExisting": 1
+          }
+        }
+      },
+      "exampleGrantNextHit": {
+        "mechanics": {
+          "applyWhen": "activeBuff-active",
+          "grantNextHitEffect": {
+            "expires": "endOfTurn",
+            "qualifier": "nextHit",
+            "damageRiderFlat": "+2d8",
+            "specials": [
+              { "key": "ignite", "rank": 2 }
+            ]
+          }
+        }
+      }
+    },
+
     "structureExplanation": {
       "powerRoot": {
         "name": "string - Name der Power",
@@ -650,31 +760,40 @@
         "note": "string? - z.B. 'below 8m counts as melee'"
       },
       "aoeSpec": {
-        "shape": "'none' | 'single' | 'line' | 'radius' | 'cone' | 'weapon' | 'aura'",
-        "radiusM": "number? - Bei radius/aura",
+        "shape": "'none' | 'single' | 'line' | 'radius' | 'cone' | 'weapon' | 'aura' | 'zone'",
+        "radiusM": "number? - Bei radius/aura/zone",
+        "sizeM": "number? - Alias zu radiusM (Import/Doku)",
         "lengthM": "number? - Bei line/cone",
         "widthM": "number? - Bei line",
         "angleDeg": "number? - Bei cone",
-        "targets": "number? - z.B. bei weapon",
+        "targets": "number? - z.B. bei weapon (Anzahl, nicht Zielfilter)",
+        "targetFilter": "'enemies' | 'allies' | 'allCreatures' | 'self' | 'sameAsAttackTarget' | 'attacker'?",
+        "center": "'self' | 'targetPoint' | 'targetCreature'?",
         "note": "string?"
       },
       "durationSpec": {
-        "kind": "'instant' | 'rounds' | 'masteryRankRounds' | 'untilNextTurn'",
+        "kind": "Siehe mergedPrimitivesV1.durationKindSuggested (u.a. instant, endOfTurn, untilStartOfNextTurn, rounds, masteryRankRounds, untilUsed, untilBroken, scene)",
         "rounds": "number? - Bei kind='rounds'",
         "note": "string?"
       },
       "effectSpec": {
-        "text": "string - UI-Spalte 'Effect' (z.B. 'Weapon DMG +2d8', '+2d8 Heal')",
+        "text": "string - Nur narrativ / UI — niemals Source of Truth für Regeln (SoT: mechanics, specials, aoe, range, duration)",
         "dice": "string? - Optional untyped Xd8 (z.B. '2d8')",
         "tempHpDice": "string? - Optional '1d8' etc für Temp HP",
         "flat": "number? - Optional für +Armor/+Evade etc",
         "notes": "string?"
       },
       "powerSpecial": {
-        "key": "string - z.B. 'Push', 'Shock', 'Ignite', 'Prone', 'Bleeding', 'Crit', 'Mark'",
-        "value": "number? - Zahl in Klammern, z.B. Push(3) -> 3",
+        "key": "string - kanonisch lowercase nach Normalisierung, z.B. push, shock, ignite",
+        "type": "string? - nur Import-Alias",
+        "rank": "number? - Stack/Rang (kanonisch)",
+        "value": "number? - nur Import-Alias für rank",
         "raiseCost": "number - Kosten in Raises",
-        "note": "string?"
+        "note": "string?",
+        "target": "string?",
+        "condition": "string?",
+        "duration": "string?",
+        "applyOn": "string?"
       },
       "raiseUpgrade": {
         "kind": "'rangePlus' | 'aoeRadiusPlus' | 'specialPlus' | 'custom'",

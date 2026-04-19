@@ -23,6 +23,9 @@ export function emptyBreakdown() {
         movementBonus: [],
         regen: [],
         tempHP: [],
+        healing: [],
+        modifySpecialDeclared: [],
+        grantNextHitDeclared: [],
         saveDice: { body: [], mind: [], spirit: [] },
         rollDice: { attack: [], skill: [], damage: [] },
         totals: {
@@ -35,6 +38,41 @@ export function emptyBreakdown() {
             rollDice: { attack: 0, skill: 0, damage: 0 },
         },
     };
+}
+function mechanicsConditionGate(m) {
+    return (m.condition ?? m.conditionExpr);
+}
+function formatModifySpecialSummary(m) {
+    if (!m?.type || !m.mode)
+        return '';
+    const parts = [m.type, m.mode];
+    if (typeof m.amount === 'number')
+        parts.push(String(m.amount));
+    if (typeof m.minExisting === 'number')
+        parts.push(`min≥${m.minExisting}`);
+    if (typeof m.maxValue === 'number')
+        parts.push(`cap${m.maxValue}`);
+    if (m.target)
+        parts.push(`@${m.target}`);
+    if (m.condition)
+        parts.push(`if:${m.condition}`);
+    return parts.join(' ');
+}
+function formatGrantNextHitSummary(m) {
+    if (!m?.expires)
+        return '';
+    const parts = [];
+    if (m.qualifier)
+        parts.push(m.qualifier);
+    parts.push(`→ expires:${m.expires}`);
+    if (m.damageRiderFlat)
+        parts.push(`dmg:${m.damageRiderFlat}`);
+    const n = Array.isArray(m.specials) ? m.specials.length : 0;
+    if (n > 0)
+        parts.push(`specials×${n}`);
+    if (m.condition)
+        parts.push(`if:${m.condition}`);
+    return parts.join(' ');
 }
 /**
  * Resolve the rank-specific mechanics block from a power item.
@@ -155,7 +193,7 @@ export function aggregateMechanics(contributions) {
         // Conditional blocks never contribute to the unconditional breakdown;
         // they are folded in per-roll by `getRollDiceDelta(actor, kind, target)`
         // and per-damage by `collectConditionalDamageRiders`.
-        if (mechanics.condition)
+        if (mechanicsConditionGate(mechanics))
             continue;
         pushNum(bd.armor, source, mechanics.armor);
         pushNum(bd.evade, source, mechanics.evade);
@@ -165,6 +203,21 @@ export function aggregateMechanics(contributions) {
         if (typeof mechanics.tempHP === 'string' && mechanics.tempHP.length > 0) {
             bd.tempHP.push({ source, value: mechanics.tempHP });
         }
+        const healFlat = mechanics.healing?.flat;
+        if (typeof healFlat === 'string' && healFlat.trim().length > 0) {
+            const h = mechanics.healing;
+            const detail = [h.target, h.trigger, h.condition].filter(Boolean).join(' · ');
+            bd.healing.push({
+                source: detail ? `${source} (${detail})` : source,
+                value: healFlat.trim(),
+            });
+        }
+        const modSummary = formatModifySpecialSummary(mechanics.modifySpecial);
+        if (modSummary)
+            bd.modifySpecialDeclared.push({ source, text: modSummary });
+        const gnSummary = formatGrantNextHitSummary(mechanics.grantNextHitEffect);
+        if (gnSummary)
+            bd.grantNextHitDeclared.push({ source, text: gnSummary });
         const sd = mechanics.saveDice ?? {};
         pushNum(bd.saveDice.body, source, sd.body);
         pushNum(bd.saveDice.mind, source, sd.mind);
@@ -233,9 +286,10 @@ export function getRollDiceDelta(actor, kind, target) {
     const contrib = collectMechanicsContributions(actor);
     let extra = 0;
     for (const { mechanics } of contrib) {
-        if (!mechanics.condition)
+        const gate = mechanicsConditionGate(mechanics);
+        if (!gate)
             continue;
-        if (!evaluateConditionGate(actor, target, mechanics.condition))
+        if (!evaluateConditionGate(actor, target, gate))
             continue;
         if (kind === 'attack')
             extra += mechanics.rollDice?.attack ?? 0;
@@ -446,9 +500,10 @@ function pushRidersFromMechanics(out, source, mechanics, attacker, target) {
         return;
     }
     // Flat rider on a block with a gating condition (e.g. passive "+1d8 vs hexed")
-    if (mechanics.condition && rider.flat) {
-        if (evaluateConditionGate(attacker, target, mechanics.condition)) {
-            const cond = toCanonicalCondition(mechanics.condition);
+    const gate = mechanicsConditionGate(mechanics);
+    if (gate && rider.flat) {
+        if (evaluateConditionGate(attacker, target, gate)) {
+            const cond = toCanonicalCondition(gate);
             const dice = normalizeRiderDice(rider.flat);
             if (dice)
                 out.push({ source, condition: cond, dice });

@@ -37,7 +37,7 @@ export const MESMER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '+1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Stunned', rank: 1 }]
+                specials: [{ key: 'stunned', rank: 1 }]
             },
             '3': {
 
@@ -46,7 +46,7 @@ export const MESMER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '+1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Stunned', rank: 1 }]
+                specials: [{ key: 'stunned', rank: 1 }]
             },
             '4': {
 
@@ -55,7 +55,7 @@ export const MESMER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '+2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Stunned', rank: 2 }]
+                specials: [{ key: 'stunned', rank: 2 }]
             }
         }
     },
@@ -79,7 +79,7 @@ export const MESMER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'instant' },
                 effect: { text: '—' },
-                specials: [{ key: 'Frightened', rank: 1 }]
+                specials: [{ key: 'frightened', rank: 1 }]
             },
             '2': {
 
@@ -88,7 +88,7 @@ export const MESMER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'instant' },
                 effect: { text: '+1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Frightened', rank: 2 }]
+                specials: [{ key: 'frightened', rank: 2 }]
             },
             '3': {
 
@@ -97,7 +97,7 @@ export const MESMER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'instant' },
                 effect: { text: '+1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Frightened', rank: 3 }]
+                specials: [{ key: 'frightened', rank: 3 }]
             },
             '4': {
 
@@ -106,7 +106,7 @@ export const MESMER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 8 },
                 duration: { kind: 'instant' },
                 effect: { text: '+2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Frightened', rank: 4 }]
+                specials: [{ key: 'frightened', rank: 4 }]
             }
         }
     },

@@ -79,7 +79,7 @@ export const VOID_TESTAMENT_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Your Spells gain Penetration(2) against Hexed targets.' },
-                specials: [{ key: 'Penetration', rank: 2, note: 'vs. Hexed target' }],
+                specials: [{ key: 'penetration', rank: 2, note: 'vs. Hexed target' }],
                 mechanics: { condition: 'targetHexed', applyWhen: 'passive-slotted-active' }
             },
             '2': {
@@ -88,7 +88,7 @@ export const VOID_TESTAMENT_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Your Spells gain Penetration(4) against Hexed targets.' },
-                specials: [{ key: 'Penetration', rank: 4, note: 'vs. Hexed target' }],
+                specials: [{ key: 'penetration', rank: 4, note: 'vs. Hexed target' }],
                 mechanics: { condition: 'targetHexed', applyWhen: 'passive-slotted-active' }
             },
             '3': {
@@ -97,7 +97,7 @@ export const VOID_TESTAMENT_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Your Spells gain Penetration(6) against Hexed targets.' },
-                specials: [{ key: 'Penetration', rank: 6, note: 'vs. Hexed target' }],
+                specials: [{ key: 'penetration', rank: 6, note: 'vs. Hexed target' }],
                 mechanics: { condition: 'targetHexed', applyWhen: 'passive-slotted-active' }
             },
             '4': {
@@ -106,7 +106,7 @@ export const VOID_TESTAMENT_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Your Spells gain Penetration(8) against Hexed targets.' },
-                specials: [{ key: 'Penetration', rank: 8, note: 'vs. Hexed target' }],
+                specials: [{ key: 'penetration', rank: 8, note: 'vs. Hexed target' }],
                 mechanics: { condition: 'targetHexed', applyWhen: 'passive-slotted-active' }
             }
         }
@@ -215,7 +215,7 @@ export const VOID_TESTAMENT_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Deepen the pact on that target.' },
                 trigger: 'A Hexed target within range suffers damage from one of your Spells.',
-                specials: [{ key: 'Hex', rank: 1, note: '+1 to existing stack' }]
+                specials: [{ key: 'hex', rank: 1, note: '+1 to existing stack' }]
             },
             '2': {
                 type: 'reaction',
@@ -224,7 +224,7 @@ export const VOID_TESTAMENT_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Deepen the pact on that target.' },
                 trigger: 'A Hexed target within range suffers damage from one of your Spells.',
-                specials: [{ key: 'Hex', rank: 2, note: '+2 to existing stack' }]
+                specials: [{ key: 'hex', rank: 2, note: '+2 to existing stack' }]
             },
             '3': {
                 type: 'reaction',
@@ -233,7 +233,7 @@ export const VOID_TESTAMENT_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Deepen the pact on that target.' },
                 trigger: 'A Hexed target within range suffers damage from one of your Spells.',
-                specials: [{ key: 'Hex', rank: 3, note: '+3 to existing stack' }]
+                specials: [{ key: 'hex', rank: 3, note: '+3 to existing stack' }]
             },
             '4': {
                 type: 'reaction',
@@ -242,7 +242,7 @@ export const VOID_TESTAMENT_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Deepen the pact on that target.' },
                 trigger: 'A Hexed target within range suffers damage from one of your Spells.',
-                specials: [{ key: 'Hex', rank: 4, note: '+4 to existing stack' }]
+                specials: [{ key: 'hex', rank: 4, note: '+4 to existing stack' }]
             }
         }
     },
@@ -363,7 +363,7 @@ export const VOID_TESTAMENT_POWERS = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Your next Spell against that target before end of your next turn gains Penetration(2).' },
                 trigger: 'A Hexed target moves more than 4 m in a turn.',
-                specials: [{ key: 'Penetration', rank: 2 }]
+                specials: [{ key: 'penetration', rank: 2 }]
             },
             '2': {
                 type: 'reaction',
@@ -372,7 +372,7 @@ export const VOID_TESTAMENT_POWERS = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Your next Spell against that target before end of your next turn gains Penetration(4).' },
                 trigger: 'A Hexed target moves more than 4 m in a turn.',
-                specials: [{ key: 'Penetration', rank: 4 }]
+                specials: [{ key: 'penetration', rank: 4 }]
             },
             '3': {
                 type: 'reaction',
@@ -381,7 +381,7 @@ export const VOID_TESTAMENT_POWERS = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Your next Spell against that target before end of your next turn gains Penetration(6).' },
                 trigger: 'A Hexed target moves more than 4 m in a turn.',
-                specials: [{ key: 'Penetration', rank: 6 }]
+                specials: [{ key: 'penetration', rank: 6 }]
             },
             '4': {
                 type: 'reaction',
@@ -390,7 +390,7 @@ export const VOID_TESTAMENT_POWERS = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Your next Spell against that target before end of your next turn gains Penetration(8).' },
                 trigger: 'A Hexed target moves more than 4 m in a turn.',
-                specials: [{ key: 'Penetration', rank: 8 }]
+                specials: [{ key: 'penetration', rank: 8 }]
             }
         }
     },
@@ -457,7 +457,7 @@ export const VOID_TESTAMENT_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Your Spells gain Penetration(4) against Hexed targets.' },
-                specials: [{ key: 'Penetration', rank: 4, note: 'vs. Hexed target' }],
+                specials: [{ key: 'penetration', rank: 4, note: 'vs. Hexed target' }],
                 mechanics: { condition: 'targetHexed', applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '2': {
@@ -466,7 +466,7 @@ export const VOID_TESTAMENT_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Your Spells gain Penetration(8) against Hexed targets.' },
-                specials: [{ key: 'Penetration', rank: 8, note: 'vs. Hexed target' }],
+                specials: [{ key: 'penetration', rank: 8, note: 'vs. Hexed target' }],
                 mechanics: { condition: 'targetHexed', applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '3': {
@@ -475,7 +475,7 @@ export const VOID_TESTAMENT_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Your Spells gain Penetration(12) against Hexed targets.' },
-                specials: [{ key: 'Penetration', rank: 12, note: 'vs. Hexed target' }],
+                specials: [{ key: 'penetration', rank: 12, note: 'vs. Hexed target' }],
                 mechanics: { condition: 'targetHexed', applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '4': {
@@ -484,7 +484,7 @@ export const VOID_TESTAMENT_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Your Spells gain Penetration(16) against Hexed targets.' },
-                specials: [{ key: 'Penetration', rank: 16, note: 'vs. Hexed target' }],
+                specials: [{ key: 'penetration', rank: 16, note: 'vs. Hexed target' }],
                 mechanics: { condition: 'targetHexed', applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             }
         }

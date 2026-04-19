@@ -86,7 +86,7 @@ export const DREADWYRM_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'cone', lengthM: 2, angleDeg: 60 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Enemies in the area must pass a Mind Save or suffer −1 die on attacks until the end of their next turn.' },
-                specials: [{ key: 'Mark', rank: 1 }],
+                specials: [{ key: 'mark', rank: 1 }],
                 mechanics: {rollDice:{attack:-1},applyWhen:'attack-rider'}
             },
             '2': {
@@ -95,7 +95,7 @@ export const DREADWYRM_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'cone', lengthM: 4, angleDeg: 60 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Enemies in the area must pass a Mind Save or suffer −2 dice on attacks until the end of their next turn.' },
-                specials: [{ key: 'Mark', rank: 2 }],
+                specials: [{ key: 'mark', rank: 2 }],
                 mechanics: {rollDice:{attack:-2},applyWhen:'attack-rider'}
             },
             '3': {
@@ -104,7 +104,7 @@ export const DREADWYRM_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'cone', lengthM: 6, angleDeg: 60 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Enemies in the area must pass a Mind Save or suffer −3 dice on attacks until the end of their next turn.' },
-                specials: [{ key: 'Mark', rank: 3 }],
+                specials: [{ key: 'mark', rank: 3 }],
                 mechanics: {rollDice:{attack:-3},applyWhen:'attack-rider'}
             },
             '4': {
@@ -113,7 +113,7 @@ export const DREADWYRM_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'cone', lengthM: 8, angleDeg: 60 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Enemies in the area must pass a Mind Save or suffer −4 dice on attacks until the end of their next turn.' },
-                specials: [{ key: 'Mark', rank: 4 }],
+                specials: [{ key: 'mark', rank: 4 }],
                 mechanics: {rollDice:{attack:-4},applyWhen:'attack-rider'}
             }
         }
@@ -134,7 +134,7 @@ export const DREADWYRM_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 2 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in the area must pass a Mind Save or suffer −1 die on attacks until the end of their next turn.' },
-                specials: [{ key: 'Push', rank: 2 }],
+                specials: [{ key: 'push', rank: 2 }],
                 mechanics: {rollDice:{attack:-1},applyWhen:'attack-rider'}
             },
             '2': {
@@ -143,7 +143,7 @@ export const DREADWYRM_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 3 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in the area must pass a Mind Save or suffer −2 dice on attacks until the end of their next turn.' },
-                specials: [{ key: 'Push', rank: 4 }],
+                specials: [{ key: 'push', rank: 4 }],
                 mechanics: {rollDice:{attack:-2},applyWhen:'attack-rider'}
             },
             '3': {
@@ -152,7 +152,7 @@ export const DREADWYRM_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 4 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in the area must pass a Mind Save or suffer −3 dice on attacks until the end of their next turn.' },
-                specials: [{ key: 'Push', rank: 6 }],
+                specials: [{ key: 'push', rank: 6 }],
                 mechanics: {rollDice:{attack:-3},applyWhen:'attack-rider'}
             },
             '4': {
@@ -161,7 +161,7 @@ export const DREADWYRM_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 5 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in the area must pass a Mind Save or suffer −4 dice on attacks until the end of their next turn.' },
-                specials: [{ key: 'Push', rank: 8 }],
+                specials: [{ key: 'push', rank: 8 }],
                 mechanics: {rollDice:{attack:-4},applyWhen:'attack-rider'}
             }
         }
@@ -280,7 +280,7 @@ export const DREADWYRM_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Once per round, when a creature fails a Mind Save against one of your Dreadwyrm powers, it also gains Mark(1).' },
-                specials: [{ key: 'Mark', rank: 1 }]
+                specials: [{ key: 'mark', rank: 1 }]
             },
             '2': {
                 type: 'passive',
@@ -288,7 +288,7 @@ export const DREADWYRM_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Once per round, when a creature fails a Mind Save against one of your Dreadwyrm powers, it also gains Mark(2).' },
-                specials: [{ key: 'Mark', rank: 2 }]
+                specials: [{ key: 'mark', rank: 2 }]
             },
             '3': {
                 type: 'passive',
@@ -296,7 +296,7 @@ export const DREADWYRM_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Once per round, when a creature fails a Mind Save against one of your Dreadwyrm powers, it also gains Mark(3).' },
-                specials: [{ key: 'Mark', rank: 3 }]
+                specials: [{ key: 'mark', rank: 3 }]
             },
             '4': {
                 type: 'passive',
@@ -304,7 +304,7 @@ export const DREADWYRM_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'Once per round, when a creature fails a Mind Save against one of your Dreadwyrm powers, it also gains Mark(4).' },
-                specials: [{ key: 'Mark', rank: 4 }]
+                specials: [{ key: 'mark', rank: 4 }]
             }
         }
     },
@@ -567,7 +567,7 @@ export const DREADWYRM_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Allies gain +2 Attack Dice against that creature until the end of your next turn.' },
                 trigger: 'When a creature within 12 m fails a Mind Save against one of your Dreadwyrm powers.',
-                specials: [{ key: 'Mark', rank: 1 }]
+                specials: [{ key: 'mark', rank: 1 }]
             },
             '2': {
                 type: 'reaction',
@@ -576,7 +576,7 @@ export const DREADWYRM_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Allies gain +4 Attack Dice against that creature until the end of your next turn.' },
                 trigger: 'When a creature within 16 m fails a Mind Save against one of your Dreadwyrm powers.',
-                specials: [{ key: 'Mark', rank: 2 }]
+                specials: [{ key: 'mark', rank: 2 }]
             },
             '3': {
                 type: 'reaction',
@@ -585,7 +585,7 @@ export const DREADWYRM_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Allies gain +6 Attack Dice against that creature until the end of your next turn.' },
                 trigger: 'When a creature within 20 m fails a Mind Save against one of your Dreadwyrm powers.',
-                specials: [{ key: 'Mark', rank: 3 }]
+                specials: [{ key: 'mark', rank: 3 }]
             },
             '4': {
                 type: 'reaction',
@@ -594,7 +594,7 @@ export const DREADWYRM_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Allies gain +8 Attack Dice against that creature until the end of your next turn.' },
                 trigger: 'When a creature within 24 m fails a Mind Save against one of your Dreadwyrm powers.',
-                specials: [{ key: 'Mark', rank: 4 }]
+                specials: [{ key: 'mark', rank: 4 }]
             }
         }
     },

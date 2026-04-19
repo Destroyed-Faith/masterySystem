@@ -215,7 +215,7 @@ export const STORM_VEIL_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Increase its current Shock.' },
                 trigger: 'A Shocked target within range misses an attack.',
-                specials: [{ key: 'Shock', rank: 1, note: '+1 to existing stack' }]
+                specials: [{ key: 'shock', rank: 1, note: '+1 to existing stack' }]
             },
             '2': {
                 type: 'reaction',
@@ -224,7 +224,7 @@ export const STORM_VEIL_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Increase its current Shock.' },
                 trigger: 'A Shocked target within range misses an attack.',
-                specials: [{ key: 'Shock', rank: 2, note: '+2 to existing stack' }]
+                specials: [{ key: 'shock', rank: 2, note: '+2 to existing stack' }]
             },
             '3': {
                 type: 'reaction',
@@ -233,7 +233,7 @@ export const STORM_VEIL_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Increase its current Shock.' },
                 trigger: 'A Shocked target within range misses an attack.',
-                specials: [{ key: 'Shock', rank: 3, note: '+3 to existing stack' }]
+                specials: [{ key: 'shock', rank: 3, note: '+3 to existing stack' }]
             },
             '4': {
                 type: 'reaction',
@@ -242,7 +242,7 @@ export const STORM_VEIL_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Increase its current Shock.' },
                 trigger: 'A Shocked target within range misses an attack.',
-                specials: [{ key: 'Shock', rank: 4, note: '+4 to existing stack' }]
+                specials: [{ key: 'shock', rank: 4, note: '+4 to existing stack' }]
             }
         }
     },
@@ -263,7 +263,7 @@ export const STORM_VEIL_POWERS = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Your next Spell against that target before the end of your next turn applies Expose(1) on hit.' },
                 trigger: 'A Shocked target moves more than 4 m in a turn.',
-                specials: [{ key: 'Expose', rank: 1 }]
+                specials: [{ key: 'expose', rank: 1 }]
             },
             '2': {
                 type: 'reaction',
@@ -272,7 +272,7 @@ export const STORM_VEIL_POWERS = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Your next Spell against that target before the end of your next turn applies Expose(2) on hit.' },
                 trigger: 'A Shocked target moves more than 4 m in a turn.',
-                specials: [{ key: 'Expose', rank: 2 }]
+                specials: [{ key: 'expose', rank: 2 }]
             },
             '3': {
                 type: 'reaction',
@@ -281,7 +281,7 @@ export const STORM_VEIL_POWERS = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Your next Spell against that target before the end of your next turn applies Expose(3) on hit.' },
                 trigger: 'A Shocked target moves more than 4 m in a turn.',
-                specials: [{ key: 'Expose', rank: 3 }]
+                specials: [{ key: 'expose', rank: 3 }]
             },
             '4': {
                 type: 'reaction',
@@ -290,7 +290,7 @@ export const STORM_VEIL_POWERS = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Your next Spell against that target before the end of your next turn applies Expose(4) on hit.' },
                 trigger: 'A Shocked target moves more than 4 m in a turn.',
-                specials: [{ key: 'Expose', rank: 4 }]
+                specials: [{ key: 'expose', rank: 4 }]
             }
         }
     },
@@ -410,7 +410,7 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'radius', radiusM: 4 },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'You and allies in the aura gain +2 Evade. The first time each round you hit a target that is already Shocked with a Spell, increase its Shock by +1.' },
-                specials: [{ key: 'Shock', rank: 1, note: 'first Spell hit per round vs. already-Shocked' }],
+                specials: [{ key: 'shock', rank: 1, note: 'first Spell hit per round vs. already-Shocked' }],
                 mechanics: { evade: 2, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '2': {
@@ -419,7 +419,7 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'radius', radiusM: 6 },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'You and allies in the aura gain +3 Evade. The first time each round you hit a target that is already Shocked with a Spell, increase its Shock by +1.' },
-                specials: [{ key: 'Shock', rank: 1, note: 'first Spell hit per round vs. already-Shocked' }],
+                specials: [{ key: 'shock', rank: 1, note: 'first Spell hit per round vs. already-Shocked' }],
                 mechanics: { evade: 3, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '3': {
@@ -428,7 +428,7 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'radius', radiusM: 8 },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'You and allies in the aura gain +4 Evade. The first time each round you hit a target that is already Shocked with a Spell, increase its Shock by +2.' },
-                specials: [{ key: 'Shock', rank: 2, note: 'first Spell hit per round vs. already-Shocked' }],
+                specials: [{ key: 'shock', rank: 2, note: 'first Spell hit per round vs. already-Shocked' }],
                 mechanics: { evade: 4, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '4': {
@@ -437,7 +437,7 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'radius', radiusM: 10 },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'You and allies in the aura gain +5 Evade. The first time each round you hit a target that is already Shocked with a Spell, increase its Shock by +3.' },
-                specials: [{ key: 'Shock', rank: 3, note: 'first Spell hit per round vs. already-Shocked' }],
+                specials: [{ key: 'shock', rank: 3, note: 'first Spell hit per round vs. already-Shocked' }],
                 mechanics: { evade: 5, applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             }
         }
@@ -500,7 +500,7 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a Shocked target with a Spell, apply Expose(1).' },
-                specials: [{ key: 'Expose', rank: 1, note: 'first Spell hit per round vs. Shocked' }],
+                specials: [{ key: 'expose', rank: 1, note: 'first Spell hit per round vs. Shocked' }],
                 mechanics: { condition: 'targetShocked', applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '2': {
@@ -509,7 +509,7 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a Shocked target with a Spell, apply Expose(2).' },
-                specials: [{ key: 'Expose', rank: 2, note: 'first Spell hit per round vs. Shocked' }],
+                specials: [{ key: 'expose', rank: 2, note: 'first Spell hit per round vs. Shocked' }],
                 mechanics: { condition: 'targetShocked', applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '3': {
@@ -518,7 +518,7 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a Shocked target with a Spell, apply Expose(3).' },
-                specials: [{ key: 'Expose', rank: 3, note: 'first Spell hit per round vs. Shocked' }],
+                specials: [{ key: 'expose', rank: 3, note: 'first Spell hit per round vs. Shocked' }],
                 mechanics: { condition: 'targetShocked', applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             },
             '4': {
@@ -527,7 +527,7 @@ export const STORM_VEIL_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a Shocked target with a Spell, apply Expose(4).' },
-                specials: [{ key: 'Expose', rank: 4, note: 'first Spell hit per round vs. Shocked' }],
+                specials: [{ key: 'expose', rank: 4, note: 'first Spell hit per round vs. Shocked' }],
                 mechanics: { condition: 'targetShocked', applyWhen: 'activeBuff-active', duration: 'masteryRankRounds' }
             }
         }

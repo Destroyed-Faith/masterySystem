@@ -28,7 +28,7 @@ export const CRUSADER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Push', rank: 2 }]
+                specials: [{ key: 'push', rank: 2 }]
             },
             '2': {
 
@@ -37,7 +37,7 @@ export const CRUSADER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Push', rank: 4 }]
+                specials: [{ key: 'push', rank: 4 }]
             },
             '3': {
 
@@ -46,7 +46,7 @@ export const CRUSADER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +5d8', dice: '5d8' },
-                specials: [{ key: 'Push', rank: 8 }]
+                specials: [{ key: 'push', rank: 8 }]
             },
             '4': {
 
@@ -55,7 +55,7 @@ export const CRUSADER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +6d8', dice: '6d8' },
-                specials: [{ key: 'Push', rank: 16 }]
+                specials: [{ key: 'push', rank: 16 }]
             }
         }
     },
@@ -80,7 +80,7 @@ export const CRUSADER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'cone', lengthM: 2, angleDeg: 90 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8', dice: '1d8' },
-                specials: [{ key: 'Smite', rank: 1 }]
+                specials: [{ key: 'smite', rank: 1 }]
             },
             '2': {
 
@@ -89,7 +89,7 @@ export const CRUSADER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'cone', lengthM: 4, angleDeg: 90 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Smite', rank: 1 }]
+                specials: [{ key: 'smite', rank: 1 }]
             },
             '3': {
 
@@ -98,7 +98,7 @@ export const CRUSADER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'cone', lengthM: 6, angleDeg: 90 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Smite', rank: 2 }]
+                specials: [{ key: 'smite', rank: 2 }]
             },
             '4': {
 
@@ -107,7 +107,7 @@ export const CRUSADER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'cone', lengthM: 8, angleDeg: 90 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Smite', rank: 2 }]
+                specials: [{ key: 'smite', rank: 2 }]
             }
         }
     },
@@ -141,7 +141,7 @@ export const CRUSADER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Prone', rank: 1 }]
+                specials: [{ key: 'prone', rank: 1 }]
             },
             '3': {
 
@@ -150,7 +150,7 @@ export const CRUSADER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Prone', rank: 1 }]
+                specials: [{ key: 'prone', rank: 1 }]
             },
             '4': {
 
@@ -159,7 +159,7 @@ export const CRUSADER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +5d8', dice: '5d8' },
-                specials: [{ key: 'Prone', rank: 2 }]
+                specials: [{ key: 'prone', rank: 2 }]
             }
         }
     },
@@ -193,7 +193,7 @@ export const CRUSADER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8; gain +2 Armor vs that enemy until your next turn', dice: '1d8' },
-                specials: [{ key: 'Stunned', rank: 1 }]
+                specials: [{ key: 'stunned', rank: 1 }]
             },
             '3': {
 
@@ -202,7 +202,7 @@ export const CRUSADER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8; gain +2 Armor vs that enemy until your next turn', dice: '1d8' },
-                specials: [{ key: 'Stunned', rank: 1 }]
+                specials: [{ key: 'stunned', rank: 1 }]
             },
             '4': {
 
@@ -211,7 +211,7 @@ export const CRUSADER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8; gain +2 Armor vs that enemy until your next turn', dice: '1d8' },
-                specials: [{ key: 'Stunned', rank: 2 }]
+                specials: [{ key: 'stunned', rank: 2 }]
             }
         }
     },
@@ -244,7 +244,7 @@ export const CRUSADER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Heal allies for 2d8 HP', dice: '2d8' },
-                specials: [{ key: 'Cleanse', rank: 1 }]
+                specials: [{ key: 'cleanse', rank: 1 }]
             },
             '3': {
 
@@ -253,7 +253,7 @@ export const CRUSADER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Heal allies for 2d8 HP', dice: '2d8' },
-                specials: [{ key: 'Cleanse', rank: 1 }]
+                specials: [{ key: 'cleanse', rank: 1 }]
             },
             '4': {
 
@@ -262,7 +262,7 @@ export const CRUSADER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 8 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Heal allies for 2d8 HP', dice: '2d8' },
-                specials: [{ key: 'Cleanse', rank: 1 }]
+                specials: [{ key: 'cleanse', rank: 1 }]
             }
         }
     },

@@ -1,6 +1,6 @@
 {
   "name": "mastery-system",
-  "version": "0.4.267",
+  "version": "0.4.268",
   "description": "Foundry VTT system for Mastery System / Destroyed Faith",
   "main": "dist/module.js",
   "scripts": {
@@ -9,6 +9,8 @@
     "clean": "rimraf dist",
     "rebuild": "npm run clean && npm run build",
     "test": "vitest run",
+    "audit:tree-powers": "vitest run tests/tree-power-audit.test.ts",
+    "fix:tree-special-keys": "node scripts/fix-tree-special-keys.js",
     "test:watch": "vitest",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write \"src/**/*.ts\""

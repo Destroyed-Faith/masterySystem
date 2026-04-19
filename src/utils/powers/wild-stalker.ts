@@ -28,7 +28,7 @@ export const WILD_STALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8', dice: '1d8' },
-                specials: [{ key: 'Entangled', rank: 2 }]
+                specials: [{ key: 'entangled', rank: 2 }]
             },
             '2': {
 
@@ -37,7 +37,7 @@ export const WILD_STALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Entangled', rank: 3 }]
+                specials: [{ key: 'entangled', rank: 3 }]
             },
             '3': {
 
@@ -46,7 +46,7 @@ export const WILD_STALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Entangled', rank: 4 }]
+                specials: [{ key: 'entangled', rank: 4 }]
             },
             '4': {
 
@@ -55,7 +55,7 @@ export const WILD_STALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Entangled', rank: 5 }, { key: 'Prone', rank: 1 }]
+                specials: [{ key: 'entangled', rank: 5 }, { key: 'prone', rank: 1 }]
             }
         }
     },
@@ -80,7 +80,7 @@ export const WILD_STALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Weapon DMG' },
-                specials: [{ key: 'Entangled', rank: 1 }]
+                specials: [{ key: 'entangled', rank: 1 }]
             },
             '2': {
 
@@ -89,7 +89,7 @@ export const WILD_STALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 3 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Weapon DMG +1d8', dice: '1d8' },
-                specials: [{ key: 'Entangled', rank: 2 }]
+                specials: [{ key: 'entangled', rank: 2 }]
             },
             '3': {
 
@@ -98,7 +98,7 @@ export const WILD_STALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Entangled', rank: 3 }]
+                specials: [{ key: 'entangled', rank: 3 }]
             },
             '4': {
 
@@ -107,7 +107,7 @@ export const WILD_STALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Entangled', rank: 4 }]
+                specials: [{ key: 'entangled', rank: 4 }]
             }
         }
     },
@@ -132,7 +132,7 @@ export const WILD_STALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8', dice: '1d8' },
-                specials: [{ key: 'Frightened', rank: 2, note: 'if target is Entangled' }]
+                specials: [{ key: 'frightened', rank: 2, note: 'if target is Entangled' }]
             },
             '2': {
 
@@ -141,7 +141,7 @@ export const WILD_STALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Frightened', rank: 3, note: 'if Entangled' }]
+                specials: [{ key: 'frightened', rank: 3, note: 'if Entangled' }]
             },
             '3': {
 
@@ -150,7 +150,7 @@ export const WILD_STALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Frightened', rank: 4, note: 'if Entangled' }]
+                specials: [{ key: 'frightened', rank: 4, note: 'if Entangled' }]
             },
             '4': {
 
@@ -159,7 +159,7 @@ export const WILD_STALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Frightened', rank: 5, note: 'if Entangled' }]
+                specials: [{ key: 'frightened', rank: 5, note: 'if Entangled' }]
             }
         }
     },
@@ -235,7 +235,7 @@ export const WILD_STALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Penetration', rank: 1, note: 'if target is Entangled or Frightened' }]
+                specials: [{ key: 'penetration', rank: 1, note: 'if target is Entangled or Frightened' }]
             },
             '2': {
 
@@ -244,7 +244,7 @@ export const WILD_STALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Penetration', rank: 2, note: 'if Entangled or Frightened' }]
+                specials: [{ key: 'penetration', rank: 2, note: 'if Entangled or Frightened' }]
             },
             '3': {
 
@@ -253,7 +253,7 @@ export const WILD_STALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Penetration', rank: 3, note: 'if Entangled or Frightened' }]
+                specials: [{ key: 'penetration', rank: 3, note: 'if Entangled or Frightened' }]
             },
             '4': {
 
@@ -262,7 +262,7 @@ export const WILD_STALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +5d8', dice: '5d8' },
-                specials: [{ key: 'Penetration', rank: 4, note: 'if Entangled or Frightened' }]
+                specials: [{ key: 'penetration', rank: 4, note: 'if Entangled or Frightened' }]
             }
         }
     },

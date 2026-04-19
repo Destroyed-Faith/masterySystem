@@ -118,7 +118,7 @@ export const WRAITH_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Freeze', rank: 1 }]
+                specials: [{ key: 'freeze', rank: 1 }]
             },
             '2': {
                 type: 'ranged',
@@ -126,7 +126,7 @@ export const WRAITH_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Freeze', rank: 2 }]
+                specials: [{ key: 'freeze', rank: 2 }]
             },
             '3': {
                 type: 'ranged',
@@ -134,7 +134,7 @@ export const WRAITH_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Freeze', rank: 3 }]
+                specials: [{ key: 'freeze', rank: 3 }]
             },
             '4': {
                 type: 'ranged',
@@ -142,7 +142,7 @@ export const WRAITH_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '5d8 damage', dice: '5d8' },
-                specials: [{ key: 'Freeze', rank: 4 }]
+                specials: [{ key: 'freeze', rank: 4 }]
             }
         }
     },

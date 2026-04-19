@@ -9,6 +9,13 @@
 import type { PowerDefinition } from './types.js';
 import type { NewArtifactPowerData } from '../../types/item.js';
 /**
+ * Map from tree display name to its power array.
+ * This is the single source of truth for which powers belong to which tree.
+ * Only active (non-deprecated) trees are listed here; they drive the Power Picker.
+ */
+/** Tree display name → embedded powers (single source of truth for picker + audits). */
+export declare const MASTERY_TREE_POWER_MAP: Record<string, (PowerDefinition | NewArtifactPowerData)[]>;
+/**
  * All mastery powers from all trees (flat list)
  */
 export declare const ALL_MASTERY_POWERS: (PowerDefinition | NewArtifactPowerData)[];

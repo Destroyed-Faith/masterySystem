@@ -27,7 +27,7 @@ export const RAVENLORD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: '2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Blinded', rank: 1 }]
+                specials: [{ key: 'blinded', rank: 1 }]
             },
             '2': {
 
@@ -36,7 +36,7 @@ export const RAVENLORD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: '3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Blinded', rank: 1 }]
+                specials: [{ key: 'blinded', rank: 1 }]
             },
             '3': {
 
@@ -45,7 +45,7 @@ export const RAVENLORD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: '4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Blinded', rank: 1 }]
+                specials: [{ key: 'blinded', rank: 1 }]
             },
             '4': {
 
@@ -54,7 +54,7 @@ export const RAVENLORD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: '5d8 damage', dice: '5d8' },
-                specials: [{ key: 'Blinded', rank: 1 }]
+                specials: [{ key: 'blinded', rank: 1 }]
             }
         }
     },
@@ -78,7 +78,7 @@ export const RAVENLORD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 3 },
                 duration: { kind: 'rounds', rounds: 2 },
                 effect: { text: 'Enemies suffer −2 Evade' },
-                specials: [{ key: 'Frightened', rank: 2 }]
+                specials: [{ key: 'frightened', rank: 2 }]
             },
             '2': {
 
@@ -87,7 +87,7 @@ export const RAVENLORD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'rounds', rounds: 2 },
                 effect: { text: 'Enemies suffer −4 Evade' },
-                specials: [{ key: 'Frightened', rank: 2 }]
+                specials: [{ key: 'frightened', rank: 2 }]
             },
             '3': {
 
@@ -96,7 +96,7 @@ export const RAVENLORD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 5 },
                 duration: { kind: 'rounds', rounds: 2 },
                 effect: { text: 'Enemies suffer −4 Evade, −1 Save' },
-                specials: [{ key: 'Frightened', rank: 2 }]
+                specials: [{ key: 'frightened', rank: 2 }]
             },
             '4': {
 
@@ -105,7 +105,7 @@ export const RAVENLORD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'rounds', rounds: 2 },
                 effect: { text: 'Enemies suffer −6 Evade, −2 Saves' },
-                specials: [{ key: 'Frightened', rank: 3 }]
+                specials: [{ key: 'frightened', rank: 3 }]
             }
         }
     },
@@ -130,7 +130,7 @@ export const RAVENLORD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Soulburn', rank: 1 }]
+                specials: [{ key: 'soulburn', rank: 1 }]
             },
             '2': {
 
@@ -139,7 +139,7 @@ export const RAVENLORD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Soulburn', rank: 1 }]
+                specials: [{ key: 'soulburn', rank: 1 }]
             },
             '3': {
 
@@ -148,7 +148,7 @@ export const RAVENLORD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Soulburn', rank: 2 }]
+                specials: [{ key: 'soulburn', rank: 2 }]
             },
             '4': {
 
@@ -157,7 +157,7 @@ export const RAVENLORD_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '5d8 damage', dice: '5d8' },
-                specials: [{ key: 'Soulburn', rank: 2 }]
+                specials: [{ key: 'soulburn', rank: 2 }]
             }
         }
     },

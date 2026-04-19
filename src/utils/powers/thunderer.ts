@@ -31,7 +31,7 @@ export const THUNDERER_POWERS: NewArtifactPowerData[] = [
         aoe: { shape: 'none' },
         duration: { kind: 'instant' },
         effect: { text: '1d8 damage', dice: '1d8' },
-        specials: [{ key: 'Shock', value: 2 }]
+        specials: [{ key: 'shock', value: 2 }]
       },
       '2': {
         type: 'ranged',
@@ -39,7 +39,7 @@ export const THUNDERER_POWERS: NewArtifactPowerData[] = [
         aoe: { shape: 'none' },
         duration: { kind: 'instant' },
         effect: { text: '1d8 damage', dice: '1d8' },
-        specials: [{ key: 'Shock', value: 3 }]
+        specials: [{ key: 'shock', value: 3 }]
       },
       '3': {
         type: 'ranged',
@@ -47,7 +47,7 @@ export const THUNDERER_POWERS: NewArtifactPowerData[] = [
         aoe: { shape: 'none' },
         duration: { kind: 'instant' },
         effect: { text: '1d8 damage', dice: '1d8' },
-        specials: [{ key: 'Shock', value: 4 }]
+        specials: [{ key: 'shock', value: 4 }]
       },
       '4': {
         type: 'ranged',
@@ -55,7 +55,7 @@ export const THUNDERER_POWERS: NewArtifactPowerData[] = [
         aoe: { shape: 'none' },
         duration: { kind: 'instant' },
         effect: { text: '1d8 damage', dice: '1d8' },
-        specials: [{ key: 'Shock', value: 5 }]
+        specials: [{ key: 'shock', value: 5 }]
       }
     }
   },
@@ -82,7 +82,7 @@ export const THUNDERER_POWERS: NewArtifactPowerData[] = [
         aoe: { shape: 'none' },
         duration: { kind: 'instant' },
         effect: { text: 'One ray deals 1d8 damage', dice: '1d8' },
-        specials: [{ key: 'Shock', value: 2 }]
+        specials: [{ key: 'shock', value: 2 }]
       },
       '2': {
         type: 'ranged',
@@ -90,7 +90,7 @@ export const THUNDERER_POWERS: NewArtifactPowerData[] = [
         aoe: { shape: 'none' },
         duration: { kind: 'instant' },
         effect: { text: 'Two rays deal 1d8 damage each', dice: '1d8' },
-        specials: [{ key: 'Shock', value: 2 }, { key: 'Autofire', value: 1 }]
+        specials: [{ key: 'shock', value: 2 }, { key: 'autofire', value: 1 }]
       },
       '3': {
         type: 'ranged',
@@ -98,7 +98,7 @@ export const THUNDERER_POWERS: NewArtifactPowerData[] = [
         aoe: { shape: 'none' },
         duration: { kind: 'instant' },
         effect: { text: 'Three rays deal 1d8 damage each', dice: '1d8' },
-        specials: [{ key: 'Shock', value: 2 }, { key: 'Autofire', value: 2 }]
+        specials: [{ key: 'shock', value: 2 }, { key: 'autofire', value: 2 }]
       },
       '4': {
         type: 'ranged',
@@ -106,7 +106,7 @@ export const THUNDERER_POWERS: NewArtifactPowerData[] = [
         aoe: { shape: 'none' },
         duration: { kind: 'instant' },
         effect: { text: 'Three rays deal 1d8 damage each', dice: '1d8' },
-        specials: [{ key: 'Shock', value: 3 }, { key: 'Autofire', value: 2 }]
+        specials: [{ key: 'shock', value: 3 }, { key: 'autofire', value: 2 }]
       }
     }
   },
@@ -133,7 +133,7 @@ export const THUNDERER_POWERS: NewArtifactPowerData[] = [
         aoe: { shape: 'radius', m: 2 },
         duration: { kind: 'instant' },
         effect: { text: '1d8 damage', dice: '1d8' },
-        specials: [{ key: 'Shock', value: 1 }]
+        specials: [{ key: 'shock', value: 1 }]
       },
       '2': {
         type: 'ranged',
@@ -141,7 +141,7 @@ export const THUNDERER_POWERS: NewArtifactPowerData[] = [
         aoe: { shape: 'radius', m: 4 },
         duration: { kind: 'instant' },
         effect: { text: '1d8 damage', dice: '1d8' },
-        specials: [{ key: 'Shock', value: 2 }]
+        specials: [{ key: 'shock', value: 2 }]
       },
       '3': {
         type: 'ranged',
@@ -149,7 +149,7 @@ export const THUNDERER_POWERS: NewArtifactPowerData[] = [
         aoe: { shape: 'radius', m: 6 },
         duration: { kind: 'instant' },
         effect: { text: '1d8 damage', dice: '1d8' },
-        specials: [{ key: 'Shock', value: 3 }]
+        specials: [{ key: 'shock', value: 3 }]
       },
       '4': {
         type: 'ranged',
@@ -157,7 +157,7 @@ export const THUNDERER_POWERS: NewArtifactPowerData[] = [
         aoe: { shape: 'radius', m: 8 },
         duration: { kind: 'instant' },
         effect: { text: '2d8 damage', dice: '2d8' },
-        specials: [{ key: 'Shock', value: 3 }]
+        specials: [{ key: 'shock', value: 3 }]
       }
     }
   },

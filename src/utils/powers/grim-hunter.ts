@@ -28,7 +28,7 @@ export const GRIM_HUNTER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Crit', rank: 1, note: 'if target is Marked' }]
+                specials: [{ key: 'crit', rank: 1, note: 'if target is Marked' }]
             },
             '2': {
 
@@ -37,7 +37,7 @@ export const GRIM_HUNTER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Crit', rank: 1, note: 'if target is Marked' }]
+                specials: [{ key: 'crit', rank: 1, note: 'if target is Marked' }]
             },
             '3': {
 
@@ -46,7 +46,7 @@ export const GRIM_HUNTER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Crit', rank: 1, note: 'if target is Marked' }]
+                specials: [{ key: 'crit', rank: 1, note: 'if target is Marked' }]
             },
             '4': {
 
@@ -55,7 +55,7 @@ export const GRIM_HUNTER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +5d8', dice: '5d8' },
-                specials: [{ key: 'Crit', rank: 1, note: 'if target is Marked' }]
+                specials: [{ key: 'crit', rank: 1, note: 'if target is Marked' }]
             }
         }
     },
@@ -80,7 +80,7 @@ export const GRIM_HUNTER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8', dice: '1d8' },
-                specials: [{ key: 'Mark', rank: 1 }]
+                specials: [{ key: 'mark', rank: 1 }]
             },
             '2': {
 
@@ -89,7 +89,7 @@ export const GRIM_HUNTER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Mark', rank: 2 }]
+                specials: [{ key: 'mark', rank: 2 }]
             },
             '3': {
 
@@ -98,7 +98,7 @@ export const GRIM_HUNTER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Mark', rank: 3 }]
+                specials: [{ key: 'mark', rank: 3 }]
             },
             '4': {
 
@@ -107,7 +107,7 @@ export const GRIM_HUNTER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Mark', rank: 4 }]
+                specials: [{ key: 'mark', rank: 4 }]
             }
         }
     },
@@ -131,7 +131,7 @@ export const GRIM_HUNTER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'masteryRounds', rounds: 1, note: 'MR Rounds + 1' },
                 effect: { text: '—' },
-                specials: [{ key: 'Blinded', rank: 1 }]
+                specials: [{ key: 'blinded', rank: 1 }]
             },
             '2': {
 
@@ -140,7 +140,7 @@ export const GRIM_HUNTER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'masteryRounds', rounds: 2, note: 'MR Rounds + 2' },
                 effect: { text: '—' },
-                specials: [{ key: 'Blinded', rank: 2 }]
+                specials: [{ key: 'blinded', rank: 2 }]
             },
             '3': {
 
@@ -149,7 +149,7 @@ export const GRIM_HUNTER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'masteryRounds', rounds: 4, note: 'MR Rounds + 4' },
                 effect: { text: '—' },
-                specials: [{ key: 'Blinded', rank: 4 }]
+                specials: [{ key: 'blinded', rank: 4 }]
             },
             '4': {
 
@@ -158,7 +158,7 @@ export const GRIM_HUNTER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 8 },
                 duration: { kind: 'masteryRounds', rounds: 5, note: 'MR Rounds + 5' },
                 effect: { text: '—' },
-                specials: [{ key: 'Blinded', rank: 5 }]
+                specials: [{ key: 'blinded', rank: 5 }]
             }
         }
     },
@@ -183,7 +183,7 @@ export const GRIM_HUNTER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '1d8 damage (+1d8 if target < 5m)', dice: '1d8' },
-                specials: [{ key: 'Penetration', rank: 1 }]
+                specials: [{ key: 'penetration', rank: 1 }]
             },
             '2': {
 
@@ -192,7 +192,7 @@ export const GRIM_HUNTER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '2d8 damage (+1d8 if target < 5m)', dice: '2d8' },
-                specials: [{ key: 'Penetration', rank: 2 }]
+                specials: [{ key: 'penetration', rank: 2 }]
             },
             '3': {
 
@@ -201,7 +201,7 @@ export const GRIM_HUNTER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '3d8 damage (+2d8 if target < 5m)', dice: '3d8' },
-                specials: [{ key: 'Penetration', rank: 3 }]
+                specials: [{ key: 'penetration', rank: 3 }]
             },
             '4': {
 
@@ -210,7 +210,7 @@ export const GRIM_HUNTER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '4d8 damage (+2d8 if target < 5m)', dice: '4d8' },
-                specials: [{ key: 'Penetration', rank: 4 }]
+                specials: [{ key: 'penetration', rank: 4 }]
             }
         }
     },

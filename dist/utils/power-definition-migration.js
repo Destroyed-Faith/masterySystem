@@ -1,6 +1,7 @@
 /**
  * Migration utility for PowerDefinition to new structure
  */
+import { normalizeAoeSpec, normalizePowerSpecial } from './power-spec-normalize.js';
 /**
  * Parse special string to PowerSpecial array
  */
@@ -43,7 +44,7 @@ function parseSpecial(specialStr) {
             }
         }
     }
-    return specials;
+    return specials.map((s) => normalizePowerSpecial(s)).filter(Boolean);
 }
 /**
  * Parse range string to RangeSpec
@@ -302,11 +303,13 @@ function convertRoll(level) {
  * Convert PowerLevelDefinition to PowerLevelRow
  */
 function convertLevelToRow(level, powerType, lvl) {
+    const aoeRaw = parseAoeFromString(level.aoe);
+    const aoeNorm = normalizeAoeSpec(aoeRaw);
     return {
         lvl,
         type: determineTypeFromLevel(level, powerType),
         range: parseRangeFromString(level.range),
-        aoe: parseAoeFromString(level.aoe),
+        aoe: aoeNorm ?? aoeRaw,
         duration: parseDurationFromString(level.duration, powerType),
         effect: parseEffectFromString(level.effect, level.roll?.damage, level.roll?.healing),
         specials: parseSpecial(level.special)

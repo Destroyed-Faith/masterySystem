@@ -80,7 +80,7 @@ export const SIREN_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: '—' },
-                specials: [{ key: 'Charmed', rank: 1 }]
+                specials: [{ key: 'charmed', rank: 1 }]
             },
             '2': {
 
@@ -89,7 +89,7 @@ export const SIREN_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: '—' },
-                specials: [{ key: 'Charmed', rank: 4 }]
+                specials: [{ key: 'charmed', rank: 4 }]
             },
             '3': {
 
@@ -98,7 +98,7 @@ export const SIREN_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 8 },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: '—' },
-                specials: [{ key: 'Charmed', rank: 6 }]
+                specials: [{ key: 'charmed', rank: 6 }]
             },
             '4': {
 
@@ -107,7 +107,7 @@ export const SIREN_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 10 },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: '—' },
-                specials: [{ key: 'Charmed', rank: 9 }]
+                specials: [{ key: 'charmed', rank: 9 }]
             }
         }
     },

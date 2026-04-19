@@ -24,7 +24,7 @@ export const ELEMENTAL_SCHOLAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Ignite', rank: 1 }]
+                specials: [{ key: 'ignite', rank: 1 }]
             },
             '2': {
                 type: 'melee',
@@ -32,7 +32,7 @@ export const ELEMENTAL_SCHOLAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Ignite', rank: 2 }]
+                specials: [{ key: 'ignite', rank: 2 }]
             },
             '3': {
                 type: 'melee',
@@ -40,7 +40,7 @@ export const ELEMENTAL_SCHOLAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Ignite', rank: 3 }]
+                specials: [{ key: 'ignite', rank: 3 }]
             },
             '4': {
                 type: 'melee',
@@ -48,7 +48,7 @@ export const ELEMENTAL_SCHOLAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +5d8', dice: '5d8' },
-                specials: [{ key: 'Ignite', rank: 4 }]
+                specials: [{ key: 'ignite', rank: 4 }]
             }
         }
     },
@@ -72,7 +72,7 @@ export const ELEMENTAL_SCHOLAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8', dice: '1d8' },
-                specials: [{ key: 'Push', rank: 1 }, { key: 'Shock', rank: 1 }]
+                specials: [{ key: 'push', rank: 1 }, { key: 'shock', rank: 1 }]
             },
             '2': {
                 type: 'melee',
@@ -80,7 +80,7 @@ export const ELEMENTAL_SCHOLAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Push', rank: 2 }, { key: 'Shock', rank: 1 }]
+                specials: [{ key: 'push', rank: 2 }, { key: 'shock', rank: 1 }]
             },
             '3': {
                 type: 'melee',
@@ -88,7 +88,7 @@ export const ELEMENTAL_SCHOLAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Push', rank: 2 }, { key: 'Shock', rank: 2 }]
+                specials: [{ key: 'push', rank: 2 }, { key: 'shock', rank: 2 }]
             },
             '4': {
                 type: 'melee',
@@ -96,7 +96,7 @@ export const ELEMENTAL_SCHOLAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Push', rank: 3 }, { key: 'Shock', rank: 2 }]
+                specials: [{ key: 'push', rank: 3 }, { key: 'shock', rank: 2 }]
             }
         }
     },
@@ -120,7 +120,7 @@ export const ELEMENTAL_SCHOLAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8', dice: '1d8' },
-                specials: [{ key: 'Corrode', rank: 1 }]
+                specials: [{ key: 'corrode', rank: 1 }]
             },
             '2': {
                 type: 'melee',
@@ -128,7 +128,7 @@ export const ELEMENTAL_SCHOLAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Corrode', rank: 2 }]
+                specials: [{ key: 'corrode', rank: 2 }]
             },
             '3': {
                 type: 'melee',
@@ -136,7 +136,7 @@ export const ELEMENTAL_SCHOLAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Corrode', rank: 3 }]
+                specials: [{ key: 'corrode', rank: 3 }]
             },
             '4': {
                 type: 'melee',
@@ -144,7 +144,7 @@ export const ELEMENTAL_SCHOLAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Corrode', rank: 4 }]
+                specials: [{ key: 'corrode', rank: 4 }]
             }
         }
     },

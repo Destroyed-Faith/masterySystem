@@ -724,6 +724,36 @@
                 {{/each}}
               </ul>
               {{/if}}
+              {{#if system.derived.mechanicsBreakdown.healing.length}}
+              <p class="stat-summary-hint mechanics-summary-hint">Healing (mechanics)</p>
+              <ul class="combat-stat-breakdown mechanics-breakdown-list">
+                {{#each system.derived.mechanicsBreakdown.healing}}
+                <li>
+                  <span class="bd-main"><span class="bd-label">{{this.source}}</span><span class="bd-val">{{this.value}}</span></span>
+                </li>
+                {{/each}}
+              </ul>
+              {{/if}}
+              {{#if system.derived.mechanicsBreakdown.modifySpecialDeclared.length}}
+              <p class="stat-summary-hint mechanics-summary-hint">Modify special (declared)</p>
+              <ul class="combat-stat-breakdown mechanics-breakdown-list">
+                {{#each system.derived.mechanicsBreakdown.modifySpecialDeclared}}
+                <li>
+                  <span class="bd-main"><span class="bd-label">{{this.source}}</span><span class="bd-detail">{{this.text}}</span></span>
+                </li>
+                {{/each}}
+              </ul>
+              {{/if}}
+              {{#if system.derived.mechanicsBreakdown.grantNextHitDeclared.length}}
+              <p class="stat-summary-hint mechanics-summary-hint">Next hit / spell (declared)</p>
+              <ul class="combat-stat-breakdown mechanics-breakdown-list">
+                {{#each system.derived.mechanicsBreakdown.grantNextHitDeclared}}
+                <li>
+                  <span class="bd-main"><span class="bd-label">{{this.source}}</span><span class="bd-detail">{{this.text}}</span></span>
+                </li>
+                {{/each}}
+              </ul>
+              {{/if}}
             </div>
             <div class="stat-icon armor-icon"><i class="fas fa-shield-alt"></i></div>
             <div class="stat-content">

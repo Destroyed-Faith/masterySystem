@@ -198,6 +198,67 @@ describe('aggregateMechanics — pure summing', () => {
     expect(bd.totals.initiativeD8).toBe(1);
     expect(bd.totals.regen).toBe(3);
   });
+
+  it('collects healing dice strings into breakdown.healing', () => {
+    const bd = aggregateMechanics([
+      {
+        source: 'Renewal',
+        mechanics: {
+          applyWhen: 'activeBuff-active',
+          healing: { flat: '2d8', target: 'self', trigger: 'endOfTurn' },
+        },
+      },
+    ]);
+    expect(bd.healing).toEqual([
+      { source: 'Renewal (self · endOfTurn)', value: '2d8' },
+    ]);
+  });
+
+  it('lists modifySpecial and grantNextHitEffect as declarative breakdown rows', () => {
+    const bd = aggregateMechanics([
+      {
+        source: 'Furnace',
+        mechanics: {
+          applyWhen: 'passive-slotted-active',
+          modifySpecial: {
+            type: 'ignite',
+            mode: 'increaseExisting',
+            amount: 2,
+            minExisting: 1,
+          },
+          grantNextHitEffect: {
+            expires: 'endOfTurn',
+            qualifier: 'nextHit',
+            damageRiderFlat: '+1d8',
+            specials: [{ key: 'Ignite', rank: 1 }],
+          },
+        },
+      },
+    ]);
+    expect(bd.modifySpecialDeclared).toEqual([
+      { source: 'Furnace', text: 'ignite increaseExisting 2 min≥1' },
+    ]);
+    expect(bd.grantNextHitDeclared[0].source).toBe('Furnace');
+    expect(bd.grantNextHitDeclared[0].text).toContain('nextHit');
+    expect(bd.grantNextHitDeclared[0].text).toContain('expires:endOfTurn');
+    expect(bd.grantNextHitDeclared[0].text).toContain('dmg:+1d8');
+    expect(bd.grantNextHitDeclared[0].text).toContain('specials×1');
+  });
+
+  it('skips unconditional totals when conditionExpr is set (like condition)', () => {
+    const bd = aggregateMechanics([
+      {
+        source: 'Gated',
+        mechanics: {
+          armor: 5,
+          applyWhen: 'passive-slotted-active',
+          conditionExpr: 'targetIgnited',
+        },
+      },
+    ]);
+    expect(bd.totals.armor).toBe(0);
+    expect(bd.armor).toEqual([]);
+  });
 });
 
 describe('collectMechanicsContributions — slot-activated passives', () => {
@@ -448,6 +509,22 @@ describe('getRollDiceDelta', () => {
     const target: any = { statuses: new Set(['hexed']) };
     expect(getRollDiceDelta(actor, 'attack')).toBe(0);
     expect(getRollDiceDelta(actor, 'attack', target)).toBe(1);
+  });
+
+  it('folds conditional rollDice when conditionExpr matches target', () => {
+    const passive = makePassivePower('p2', 'Expr Attuned', 2, {
+      rollDice: { attack: 2 },
+      conditionExpr: 'targetIgnited',
+      applyWhen: 'passive-slotted-active',
+    });
+    const actor = makeActor({
+      items: [passive],
+      slots: { slot1: { active: true, passive: { id: 'p2', name: 'Expr Attuned' } } },
+    });
+    (actor as any).system.derived = { mechanicsBreakdown: buildActorMechanicsBreakdown(actor) };
+    const target: any = { statuses: new Set(['ignited']) };
+    expect(getRollDiceDelta(actor, 'attack')).toBe(0);
+    expect(getRollDiceDelta(actor, 'attack', target)).toBe(2);
   });
 });
 

@@ -129,7 +129,7 @@ export const SCOURGE_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in AoE take 2d8 damage; you take 1d8 damage', dice: '2d8' },
-                specials: [{ key: 'Bleeding', rank: 1 }]
+                specials: [{ key: 'bleeding', rank: 1 }]
             },
             '2': {
 
@@ -138,7 +138,7 @@ export const SCOURGE_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in AoE take 3d8 damage; you take 2d8 damage', dice: '3d8' },
-                specials: [{ key: 'Bleeding', rank: 2 }]
+                specials: [{ key: 'bleeding', rank: 2 }]
             },
             '3': {
 
@@ -147,7 +147,7 @@ export const SCOURGE_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 8 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in AoE take 4d8 damage; you take 2d8 damage', dice: '4d8' },
-                specials: [{ key: 'Bleeding', rank: 3 }]
+                specials: [{ key: 'bleeding', rank: 3 }]
             },
             '4': {
 
@@ -156,7 +156,7 @@ export const SCOURGE_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 10 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in AoE take 5d8 damage; you take 3d8 damage', dice: '5d8' },
-                specials: [{ key: 'Bleeding', rank: 4 }]
+                specials: [{ key: 'bleeding', rank: 4 }]
             }
         }
     },

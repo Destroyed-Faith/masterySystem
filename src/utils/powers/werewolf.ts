@@ -35,7 +35,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw DMG +1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Bleeding', rank: 1 }, { key: 'Mark', rank: 1 }]
+                specials: [{ key: 'bleeding', rank: 1 }, { key: 'mark', rank: 1 }]
             },
             '2': {
 
@@ -44,7 +44,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw DMG +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Bleeding', rank: 2 }, { key: 'Mark', rank: 2 }]
+                specials: [{ key: 'bleeding', rank: 2 }, { key: 'mark', rank: 2 }]
             },
             '3': {
 
@@ -53,7 +53,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw DMG +3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Bleeding', rank: 3 }, { key: 'Mark', rank: 2 }]
+                specials: [{ key: 'bleeding', rank: 3 }, { key: 'mark', rank: 2 }]
             },
             '4': {
 
@@ -62,7 +62,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw DMG +4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Bleeding', rank: 3 }, { key: 'Mark', rank: 3 }]
+                specials: [{ key: 'bleeding', rank: 3 }, { key: 'mark', rank: 3 }]
             }
         }
     },
@@ -140,7 +140,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a Bite dealing +1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Mark', rank: 1 }],
+                specials: [{ key: 'mark', rank: 1 }],
                 trigger: 'When a melee attack misses you'
             },
             '2': {
@@ -150,7 +150,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a Bite dealing +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Mark', rank: 2 }],
+                specials: [{ key: 'mark', rank: 2 }],
                 trigger: 'When a melee attack misses you'
             },
             '3': {
@@ -160,7 +160,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a Bite dealing +3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Mark', rank: 3 }],
+                specials: [{ key: 'mark', rank: 3 }],
                 trigger: 'When a melee attack misses you'
             },
             '4': {
@@ -170,7 +170,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a Bite dealing +4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Mark', rank: 4 }],
+                specials: [{ key: 'mark', rank: 4 }],
                 trigger: 'When a melee attack misses you'
             }
         }
@@ -196,7 +196,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Leap, then Claw Attack +1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Push', rank: 1 }]
+                specials: [{ key: 'push', rank: 1 }]
             },
             '2': {
 
@@ -205,7 +205,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Leap, then Claw Attack +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Push', rank: 2 }]
+                specials: [{ key: 'push', rank: 2 }]
             },
             '3': {
 
@@ -214,7 +214,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Leap, then Claw Attack +3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Push', rank: 3 }]
+                specials: [{ key: 'push', rank: 3 }]
             },
             '4': {
 
@@ -223,7 +223,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Leap, then Claw Attack +4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Push', rank: 4 }]
+                specials: [{ key: 'push', rank: 4 }]
             }
         }
     },
@@ -351,7 +351,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Leap, then Claw Attack +1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Grappled', rank: 1 }]
+                specials: [{ key: 'grappled', rank: 1 }]
             },
             '2': {
 
@@ -360,7 +360,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Leap, then Claw Attack +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Grappled', rank: 2 }]
+                specials: [{ key: 'grappled', rank: 2 }]
             },
             '3': {
 
@@ -369,7 +369,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Leap, then Claw Attack +3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Grappled', rank: 3 }]
+                specials: [{ key: 'grappled', rank: 3 }]
             },
             '4': {
 
@@ -378,7 +378,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Leap, then Claw Attack +4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Grappled', rank: 4 }]
+                specials: [{ key: 'grappled', rank: 4 }]
             }
         }
     },
@@ -460,7 +460,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Penetration', rank: 2, note: 'If target has Bleeding(2+) or Mark(2+)' }]
+                specials: [{ key: 'penetration', rank: 2, note: 'If target has Bleeding(2+) or Mark(2+)' }]
             },
             '2': {
 
@@ -469,7 +469,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack +3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Penetration', rank: 3, note: 'If Bleeding(3+) or Mark(3+)' }]
+                specials: [{ key: 'penetration', rank: 3, note: 'If Bleeding(3+) or Mark(3+)' }]
             },
             '3': {
 
@@ -478,7 +478,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack +4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Penetration', rank: 4, note: 'If Bleeding(4+) or Mark(3+)' }]
+                specials: [{ key: 'penetration', rank: 4, note: 'If Bleeding(4+) or Mark(3+)' }]
             },
             '4': {
 
@@ -487,7 +487,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack +5d8 damage', dice: '5d8' },
-                specials: [{ key: 'Penetration', rank: 5, note: 'If Bleeding(5+) or Mark(4+)' }]
+                specials: [{ key: 'penetration', rank: 5, note: 'If Bleeding(5+) or Mark(4+)' }]
             }
         }
     },
@@ -616,7 +616,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a Bite against the attacker' },
-                specials: [{ key: 'Mark', rank: 1 }],
+                specials: [{ key: 'mark', rank: 1 }],
                 trigger: 'An ally within 6m is hit by a melee attack'
             },
             '2': {
@@ -626,7 +626,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a Bite against the attacker' },
-                specials: [{ key: 'Mark', rank: 2 }],
+                specials: [{ key: 'mark', rank: 2 }],
                 trigger: 'An ally within 8m is hit by a melee attack'
             },
             '3': {
@@ -636,7 +636,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a Bite against the attacker' },
-                specials: [{ key: 'Mark', rank: 2 }, { key: 'Suppress', rank: 1 }],
+                specials: [{ key: 'mark', rank: 2 }, { key: 'suppress', rank: 1 }],
                 trigger: 'An ally within 10m is hit by a melee attack'
             },
             '4': {
@@ -646,7 +646,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a Bite against the attacker' },
-                specials: [{ key: 'Mark', rank: 3 }, { key: 'Suppress', rank: 2 }],
+                specials: [{ key: 'mark', rank: 3 }, { key: 'suppress', rank: 2 }],
                 trigger: 'An ally within 12m is hit by a melee attack'
             }
         }
@@ -726,7 +726,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in AoE are affected. All affected gain Mark(1). Each must pass a Mind Save or gain Frightened(1)' },
-                specials: [{ key: 'Mark', rank: 1 }]
+                specials: [{ key: 'mark', rank: 1 }]
             },
             '2': {
 
@@ -735,7 +735,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'instant' },
                 effect: { text: 'All affected gain Mark(1). Mind Save or Frightened(2)' },
-                specials: [{ key: 'Mark', rank: 1 }]
+                specials: [{ key: 'mark', rank: 1 }]
             },
             '3': {
 
@@ -744,7 +744,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 8 },
                 duration: { kind: 'instant' },
                 effect: { text: 'All affected gain Mark(2). Mind Save or Frightened(3)' },
-                specials: [{ key: 'Mark', rank: 2 }]
+                specials: [{ key: 'mark', rank: 2 }]
             },
             '4': {
 
@@ -753,7 +753,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 10 },
                 duration: { kind: 'instant' },
                 effect: { text: 'All affected gain Mark(3). Mind Save or Frightened(4)' },
-                specials: [{ key: 'Mark', rank: 3 }]
+                specials: [{ key: 'mark', rank: 3 }]
             }
         }
     },
@@ -778,7 +778,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 8m. This movement does not provoke Opportunity Attacks. At the end, choose 1 enemy within 2m: Mark(1)' },
-                specials: [{ key: 'Mark', rank: 1 }]
+                specials: [{ key: 'mark', rank: 1 }]
             },
             '2': {
 
@@ -787,7 +787,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 12m, no OA. End: choose 1 enemy within 2m: Mark(2)' },
-                specials: [{ key: 'Mark', rank: 2 }]
+                specials: [{ key: 'mark', rank: 2 }]
             },
             '3': {
 
@@ -796,7 +796,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 16m, no OA, and ignore difficult terrain during this move. End: Mark(2). If the target uses Disengage before your next turn, it suffers Suppress(2) (Mind Save negates)' },
-                specials: [{ key: 'Mark', rank: 2 }]
+                specials: [{ key: 'mark', rank: 2 }]
             },
             '4': {
 
@@ -805,7 +805,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Move up to 20m, no OA, ignore difficult terrain. You may run along walls during this move (GM discretion; must end on solid ground). End: Mark(3). If the target uses Disengage/Flee before your next turn, Suppress(3) (Mind Save negates)' },
-                specials: [{ key: 'Mark', rank: 3 }]
+                specials: [{ key: 'mark', rank: 3 }]
             }
         }
     },
@@ -888,7 +888,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Expose', rank: 2, note: 'If target has Mark(2+) or Bleeding(2+)' }]
+                specials: [{ key: 'expose', rank: 2, note: 'If target has Mark(2+) or Bleeding(2+)' }]
             },
             '2': {
 
@@ -897,7 +897,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack +4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Expose', rank: 3, note: 'If target has Mark(2+) or Bleeding(3+)' }]
+                specials: [{ key: 'expose', rank: 3, note: 'If target has Mark(2+) or Bleeding(3+)' }]
             },
             '3': {
 
@@ -906,7 +906,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack +6d8 damage', dice: '6d8' },
-                specials: [{ key: 'Expose', rank: 4, note: 'If target has Mark(3+) or Bleeding(4+)' }]
+                specials: [{ key: 'expose', rank: 4, note: 'If target has Mark(3+) or Bleeding(4+)' }]
             },
             '4': {
 
@@ -915,7 +915,7 @@ export const WEREWOLF_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack +8d8 damage', dice: '8d8' },
-                specials: [{ key: 'Expose', rank: 5, note: 'If target has Mark(4+) or Bleeding(5+)' }]
+                specials: [{ key: 'expose', rank: 5, note: 'If target has Mark(4+) or Bleeding(5+)' }]
             }
         }
     }

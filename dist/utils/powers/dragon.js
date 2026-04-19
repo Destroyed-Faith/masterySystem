@@ -80,7 +80,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a Bite dealing Natural DMG +1d8', dice: '1d8' },
-                specials: [{ key: 'Mark', rank: 1 }],
+                specials: [{ key: 'mark', rank: 1 }],
                 trigger: 'When you are hit by a melee attack'
             },
             '2': {
@@ -89,7 +89,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a Bite dealing Natural DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Mark', rank: 2 }],
+                specials: [{ key: 'mark', rank: 2 }],
                 trigger: 'When you are hit by a melee attack'
             },
             '3': {
@@ -98,7 +98,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a Bite dealing Natural DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Mark', rank: 3 }],
+                specials: [{ key: 'mark', rank: 3 }],
                 trigger: 'When you are hit by a melee attack'
             },
             '4': {
@@ -107,7 +107,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a Bite dealing Natural DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Mark', rank: 4 }],
+                specials: [{ key: 'mark', rank: 4 }],
                 trigger: 'When you are hit by a melee attack'
             }
         }
@@ -132,7 +132,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Tail Attack +1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Push', rank: 2 }]
+                specials: [{ key: 'push', rank: 2 }]
             },
             '2': {
                 type: 'melee',
@@ -140,7 +140,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'radius', m: 3 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Tail Attack +1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Push', rank: 4 }, { key: 'Prone', rank: 1 }]
+                specials: [{ key: 'push', rank: 4 }, { key: 'prone', rank: 1 }]
             },
             '3': {
                 type: 'melee',
@@ -148,7 +148,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Tail Attack +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Push', rank: 8 }, { key: 'Prone', rank: 1 }]
+                specials: [{ key: 'push', rank: 8 }, { key: 'prone', rank: 1 }]
             },
             '4': {
                 type: 'melee',
@@ -156,7 +156,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'radius', m: 5 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Tail Attack +3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Push', rank: 8 }, { key: 'Prone', rank: 2 }]
+                specials: [{ key: 'push', rank: 8 }, { key: 'prone', rank: 2 }]
             }
         }
     },
@@ -610,7 +610,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'cone', lengthM: 4, angleDeg: 60, note: 'As Breath' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Deal 4d8 elemental damage', dice: '4d8' },
-                specials: [{ key: 'Expose', rank: 2 }]
+                specials: [{ key: 'expose', rank: 2 }]
             },
             '2': {
                 type: 'active',
@@ -618,7 +618,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'cone', lengthM: 6, angleDeg: 60, note: 'As Breath' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Deal 8d8 elemental damage', dice: '8d8' },
-                specials: [{ key: 'Expose', rank: 3 }]
+                specials: [{ key: 'expose', rank: 3 }]
             },
             '3': {
                 type: 'active',
@@ -626,7 +626,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'cone', lengthM: 8, angleDeg: 60, note: 'As Breath' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Deal 12d8 elemental damage', dice: '12d8' },
-                specials: [{ key: 'Expose', rank: 4 }]
+                specials: [{ key: 'expose', rank: 4 }]
             },
             '4': {
                 type: 'active',
@@ -634,7 +634,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'cone', lengthM: 10, angleDeg: 60, note: 'As Breath' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Deal 16d8 elemental damage', dice: '16d8' },
-                specials: [{ key: 'Expose', rank: 5 }]
+                specials: [{ key: 'expose', rank: 5 }]
             }
         }
     },
@@ -752,7 +752,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Reposition up to 5 m. If you are already flying, this movement may be vertical. Enemies in the area must pass a Body Save or be moved' },
-                specials: [{ key: 'Push', rank: 2 }]
+                specials: [{ key: 'push', rank: 2 }]
             },
             '2': {
                 type: 'movement',
@@ -760,7 +760,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'radius', m: 8 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Reposition up to 6 m. If you are already flying, this movement may be vertical. Enemies in the area must pass a Body Save or be moved' },
-                specials: [{ key: 'Push', rank: 4 }]
+                specials: [{ key: 'push', rank: 4 }]
             },
             '3': {
                 type: 'movement',
@@ -768,7 +768,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'radius', m: 12 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Reposition up to 9 m. If you are already flying, this movement may be vertical. Enemies in the area must pass a Body Save or be moved' },
-                specials: [{ key: 'Push', rank: 6 }]
+                specials: [{ key: 'push', rank: 6 }]
             },
             '4': {
                 type: 'movement',
@@ -776,7 +776,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'radius', m: 16 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Reposition up to 12 m. If you are already flying, this movement may be vertical. Enemies in the area must pass a Body Save or be moved' },
-                specials: [{ key: 'Push', rank: 8 }]
+                specials: [{ key: 'push', rank: 8 }]
             }
         }
     },
@@ -800,7 +800,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Pull', rank: 2 }]
+                specials: [{ key: 'pull', rank: 2 }]
             },
             '2': {
                 type: 'melee',
@@ -808,7 +808,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack +3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Pull', rank: 4 }]
+                specials: [{ key: 'pull', rank: 4 }]
             },
             '3': {
                 type: 'melee',
@@ -816,7 +816,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack +4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Pull', rank: 6 }]
+                specials: [{ key: 'pull', rank: 6 }]
             },
             '4': {
                 type: 'melee',
@@ -824,7 +824,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack +5d8 damage', dice: '5d8' },
-                specials: [{ key: 'Pull', rank: 8 }]
+                specials: [{ key: 'pull', rank: 8 }]
             }
         }
     },
@@ -872,7 +872,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'radius', m: 12 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Allies gain Advantage; enemies: Mind Save or Frightened(3) and Mark(1)' },
-                specials: [{ key: 'Mark', rank: 1 }]
+                specials: [{ key: 'mark', rank: 1 }]
             }
         }
     },
@@ -944,7 +944,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Target must make a Mind Save' },
-                specials: [{ key: 'Suppress', rank: 2 }]
+                specials: [{ key: 'suppress', rank: 2 }]
             },
             '2': {
                 type: 'ranged',
@@ -952,7 +952,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Target must make a Mind Save' },
-                specials: [{ key: 'Suppress', rank: 3 }]
+                specials: [{ key: 'suppress', rank: 3 }]
             },
             '3': {
                 type: 'ranged',
@@ -960,7 +960,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Target must make a Mind Save' },
-                specials: [{ key: 'Suppress', rank: 4 }]
+                specials: [{ key: 'suppress', rank: 4 }]
             },
             '4': {
                 type: 'ranged',
@@ -968,7 +968,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Target must make a Mind Save' },
-                specials: [{ key: 'Suppress', rank: 5 }]
+                specials: [{ key: 'suppress', rank: 5 }]
             }
         }
     },
@@ -1015,7 +1015,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'radius', m: 7 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Frightened(3) and they are also Push(2) away (Body Save negates)' },
-                specials: [{ key: 'Push', rank: 2 }]
+                specials: [{ key: 'push', rank: 2 }]
             }
         }
     },
@@ -1040,7 +1040,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make 1 Extra Attack (0.5) with half Attack Dice; on hit deal +1d8', dice: '1d8' },
-                specials: [{ key: 'Bleeding', rank: 1, note: 'If target is Marked' }]
+                specials: [{ key: 'bleeding', rank: 1, note: 'If target is Marked' }]
             },
             '2': {
                 type: 'melee',
@@ -1048,7 +1048,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Same, +2d8', dice: '2d8' },
-                specials: [{ key: 'Bleeding', rank: 2, note: 'If target is Marked' }]
+                specials: [{ key: 'bleeding', rank: 2, note: 'If target is Marked' }]
             },
             '3': {
                 type: 'melee',
@@ -1056,7 +1056,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make 2 Extra Attacks (0.5 each); each hit +2d8', dice: '2d8' },
-                specials: [{ key: 'Bleeding', rank: 2, note: 'If target is Marked' }]
+                specials: [{ key: 'bleeding', rank: 2, note: 'If target is Marked' }]
             },
             '4': {
                 type: 'melee',
@@ -1064,7 +1064,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '2 Extra Attacks; each hit +3d8', dice: '3d8' },
-                specials: [{ key: 'Bleeding', rank: 3, note: 'If target is Marked' }]
+                specials: [{ key: 'bleeding', rank: 3, note: 'If target is Marked' }]
             }
         }
     },
@@ -1088,7 +1088,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Grappled', rank: 1 }]
+                specials: [{ key: 'grappled', rank: 1 }]
             },
             '2': {
                 type: 'melee',
@@ -1096,7 +1096,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack +3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Grappled', rank: 2 }]
+                specials: [{ key: 'grappled', rank: 2 }]
             },
             '3': {
                 type: 'melee',
@@ -1104,7 +1104,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack +4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Grappled', rank: 3 }]
+                specials: [{ key: 'grappled', rank: 3 }]
             },
             '4': {
                 type: 'melee',
@@ -1112,7 +1112,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Claw Attack +5d8 damage', dice: '5d8' },
-                specials: [{ key: 'Grappled', rank: 4 }]
+                specials: [{ key: 'grappled', rank: 4 }]
             }
         }
     },
@@ -1136,7 +1136,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Natural Attack +3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Penetration', rank: 2, note: 'If target has Bleeding(2+) or Mark(2+)' }]
+                specials: [{ key: 'penetration', rank: 2, note: 'If target has Bleeding(2+) or Mark(2+)' }]
             },
             '2': {
                 type: 'melee',
@@ -1144,7 +1144,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Natural Attack +4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Penetration', rank: 3, note: 'If Bleeding(3+) or Mark(3+)' }]
+                specials: [{ key: 'penetration', rank: 3, note: 'If Bleeding(3+) or Mark(3+)' }]
             },
             '3': {
                 type: 'melee',
@@ -1152,7 +1152,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Natural Attack +5d8 damage', dice: '5d8' },
-                specials: [{ key: 'Penetration', rank: 4, note: 'If Bleeding(4+) or Mark(3+)' }]
+                specials: [{ key: 'penetration', rank: 4, note: 'If Bleeding(4+) or Mark(3+)' }]
             },
             '4': {
                 type: 'melee',
@@ -1160,7 +1160,7 @@ export const DRAGON_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Natural Attack +6d8 damage', dice: '6d8' },
-                specials: [{ key: 'Penetration', rank: 5, note: 'If Bleeding(5+) or Mark(4+)' }]
+                specials: [{ key: 'penetration', rank: 5, note: 'If Bleeding(5+) or Mark(4+)' }]
             }
         }
     },

@@ -40,7 +40,7 @@ export const ALCHEMIST_POWERS = [
                 aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'instant' },
                 effect: { text: '4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Ignite', rank: 1 }]
+                specials: [{ key: 'ignite', rank: 1 }]
             },
             '4': {
                 type: 'ranged',
@@ -48,7 +48,7 @@ export const ALCHEMIST_POWERS = [
                 aoe: { shape: 'radius', m: 3 },
                 duration: { kind: 'instant' },
                 effect: { text: '5d8 damage', dice: '5d8' },
-                specials: [{ key: 'Ignite', rank: 2 }]
+                specials: [{ key: 'ignite', rank: 2 }]
             }
         }
     },
@@ -72,7 +72,7 @@ export const ALCHEMIST_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Corrode', rank: 1 }]
+                specials: [{ key: 'corrode', rank: 1 }]
             },
             '2': {
                 type: 'ranged',
@@ -80,7 +80,7 @@ export const ALCHEMIST_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Corrode', rank: 2 }]
+                specials: [{ key: 'corrode', rank: 2 }]
             },
             '3': {
                 type: 'ranged',
@@ -88,7 +88,7 @@ export const ALCHEMIST_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Corrode', rank: 3 }]
+                specials: [{ key: 'corrode', rank: 3 }]
             },
             '4': {
                 type: 'ranged',
@@ -96,7 +96,7 @@ export const ALCHEMIST_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '5d8 damage', dice: '5d8' },
-                specials: [{ key: 'Corrode', rank: 4 }]
+                specials: [{ key: 'corrode', rank: 4 }]
             }
         }
     },

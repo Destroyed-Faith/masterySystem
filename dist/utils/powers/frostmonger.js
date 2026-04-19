@@ -24,7 +24,7 @@ export const FROSTMONGER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Freeze', rank: 1 }]
+                specials: [{ key: 'freeze', rank: 1 }]
             },
             '2': {
                 type: 'ranged',
@@ -32,7 +32,7 @@ export const FROSTMONGER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Freeze', rank: 3 }]
+                specials: [{ key: 'freeze', rank: 3 }]
             },
             '3': {
                 type: 'ranged',
@@ -40,7 +40,7 @@ export const FROSTMONGER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Freeze', rank: 4 }]
+                specials: [{ key: 'freeze', rank: 4 }]
             },
             '4': {
                 type: 'ranged',
@@ -48,7 +48,7 @@ export const FROSTMONGER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '5d8 damage', dice: '5d8' },
-                specials: [{ key: 'Freeze', rank: 5 }]
+                specials: [{ key: 'freeze', rank: 5 }]
             }
         }
     },
@@ -72,7 +72,7 @@ export const FROSTMONGER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Freeze', rank: 2 }, { key: 'Entangled', rank: 2 }]
+                specials: [{ key: 'freeze', rank: 2 }, { key: 'entangled', rank: 2 }]
             },
             '2': {
                 type: 'ranged',
@@ -80,7 +80,7 @@ export const FROSTMONGER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Freeze', rank: 3 }, { key: 'Entangled', rank: 3 }]
+                specials: [{ key: 'freeze', rank: 3 }, { key: 'entangled', rank: 3 }]
             },
             '3': {
                 type: 'ranged',
@@ -88,7 +88,7 @@ export const FROSTMONGER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Freeze', rank: 4 }, { key: 'Entangled', rank: 4 }]
+                specials: [{ key: 'freeze', rank: 4 }, { key: 'entangled', rank: 4 }]
             },
             '4': {
                 type: 'ranged',
@@ -96,7 +96,7 @@ export const FROSTMONGER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Freeze', rank: 5 }, { key: 'Entangled', rank: 5 }]
+                specials: [{ key: 'freeze', rank: 5 }, { key: 'entangled', rank: 5 }]
             }
         }
     },

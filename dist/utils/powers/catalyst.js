@@ -40,7 +40,7 @@ export const CATALYST_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Poison', rank: 1 }]
+                specials: [{ key: 'poison', rank: 1 }]
             },
             '4': {
                 type: 'melee',
@@ -48,7 +48,7 @@ export const CATALYST_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +5d8', dice: '5d8' },
-                specials: [{ key: 'Poison', rank: 2 }]
+                specials: [{ key: 'poison', rank: 2 }]
             }
         }
     },
@@ -118,7 +118,7 @@ export const CATALYST_POWERS = [
                 aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'rounds', rounds: 2 },
                 effect: { text: 'Enemies in area suffer Poison(1)' },
-                specials: [{ key: 'Poison', rank: 1 }]
+                specials: [{ key: 'poison', rank: 1 }]
             },
             '2': {
                 type: 'utility',
@@ -126,7 +126,7 @@ export const CATALYST_POWERS = [
                 aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'rounds', rounds: 2 },
                 effect: { text: 'Enemies in area suffer Poison(2)' },
-                specials: [{ key: 'Poison', rank: 2 }]
+                specials: [{ key: 'poison', rank: 2 }]
             },
             '3': {
                 type: 'utility',
@@ -134,7 +134,7 @@ export const CATALYST_POWERS = [
                 aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'rounds', rounds: 3 },
                 effect: { text: 'Enemies in area suffer Poison(3)' },
-                specials: [{ key: 'Poison', rank: 3 }]
+                specials: [{ key: 'poison', rank: 3 }]
             },
             '4': {
                 type: 'utility',
@@ -142,7 +142,7 @@ export const CATALYST_POWERS = [
                 aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'rounds', rounds: 3 },
                 effect: { text: 'Enemies in area suffer Poison(4)' },
-                specials: [{ key: 'Poison', rank: 4 }]
+                specials: [{ key: 'poison', rank: 4 }]
             }
         }
     },

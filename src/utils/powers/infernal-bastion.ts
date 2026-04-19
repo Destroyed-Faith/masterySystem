@@ -270,7 +270,7 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'The attacker catches fire.' },
                 trigger: 'A creature hits you with an attack from within 4 m.',
-                specials: [{ key: 'Ignite', rank: 1 }]
+                specials: [{ key: 'ignite', rank: 1 }]
             },
             '2': {
                 type: 'reaction',
@@ -279,7 +279,7 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'The attacker catches fire.' },
                 trigger: 'A creature hits you with an attack from within 4 m.',
-                specials: [{ key: 'Ignite', rank: 2 }]
+                specials: [{ key: 'ignite', rank: 2 }]
             },
             '3': {
                 type: 'reaction',
@@ -288,7 +288,7 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'The attacker catches fire.' },
                 trigger: 'A creature hits you with an attack from within 6 m.',
-                specials: [{ key: 'Ignite', rank: 3 }]
+                specials: [{ key: 'ignite', rank: 3 }]
             },
             '4': {
                 type: 'reaction',
@@ -297,7 +297,7 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'The attacker catches fire.' },
                 trigger: 'A creature hits you with an attack from within 8 m.',
-                specials: [{ key: 'Ignite', rank: 4 }]
+                specials: [{ key: 'ignite', rank: 4 }]
             }
         }
     },
@@ -469,7 +469,7 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 4 },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'At the end of your turn, each enemy in the aura that already has Ignite ≥ 1 increases its Ignite by +1.' },
-                specials: [{ key: 'Ignite', rank: 1, note: 'aura tick, already-burning only' }]
+                specials: [{ key: 'ignite', rank: 1, note: 'aura tick, already-burning only' }]
             },
             '2': {
                 type: 'buff',
@@ -477,7 +477,7 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 6 },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'At the end of your turn, each enemy in the aura that already has Ignite ≥ 1 increases its Ignite by +2.' },
-                specials: [{ key: 'Ignite', rank: 2, note: 'aura tick, already-burning only' }]
+                specials: [{ key: 'ignite', rank: 2, note: 'aura tick, already-burning only' }]
             },
             '3': {
                 type: 'buff',
@@ -485,7 +485,7 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 8 },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'At the end of your turn, each enemy in the aura that already has Ignite ≥ 1 increases its Ignite by +3.' },
-                specials: [{ key: 'Ignite', rank: 3, note: 'aura tick, already-burning only' }]
+                specials: [{ key: 'ignite', rank: 3, note: 'aura tick, already-burning only' }]
             },
             '4': {
                 type: 'buff',
@@ -493,7 +493,7 @@ export const INFERNAL_BASTION_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 10 },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'At the end of your turn, each enemy in the aura that already has Ignite ≥ 1 increases its Ignite by +4.' },
-                specials: [{ key: 'Ignite', rank: 4, note: 'aura tick, already-burning only' }]
+                specials: [{ key: 'ignite', rank: 4, note: 'aura tick, already-burning only' }]
             }
         }
     },

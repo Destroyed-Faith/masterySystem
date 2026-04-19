@@ -23,7 +23,7 @@ export const TITAN_RUNECASTER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Next damaging effect deals +2d8', dice: '2d8' },
-                specials: [{ key: 'Ignite', rank: 1 }]
+                specials: [{ key: 'ignite', rank: 1 }]
             },
             '2': {
                 type: 'buff',
@@ -31,7 +31,7 @@ export const TITAN_RUNECASTER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Next damaging effect deals +4d8', dice: '4d8' },
-                specials: [{ key: 'Ignite', rank: 1 }]
+                specials: [{ key: 'ignite', rank: 1 }]
             },
             '3': {
                 type: 'buff',
@@ -39,7 +39,7 @@ export const TITAN_RUNECASTER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Next damaging effect deals +6d8', dice: '6d8' },
-                specials: [{ key: 'Ignite', rank: 2 }]
+                specials: [{ key: 'ignite', rank: 2 }]
             },
             '4': {
                 type: 'buff',
@@ -47,7 +47,7 @@ export const TITAN_RUNECASTER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Next damaging effect deals +8d8', dice: '8d8' },
-                specials: [{ key: 'Ignite', rank: 2 }]
+                specials: [{ key: 'ignite', rank: 2 }]
             }
         }
     },
@@ -70,7 +70,7 @@ export const TITAN_RUNECASTER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Next damage roll gains +2d8', dice: '2d8' },
-                specials: [{ key: 'Shock', rank: 1 }]
+                specials: [{ key: 'shock', rank: 1 }]
             },
             '2': {
                 type: 'buff',
@@ -78,7 +78,7 @@ export const TITAN_RUNECASTER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Next damage roll gains +3d8', dice: '3d8' },
-                specials: [{ key: 'Shock', rank: 2 }]
+                specials: [{ key: 'shock', rank: 2 }]
             },
             '3': {
                 type: 'buff',
@@ -86,7 +86,7 @@ export const TITAN_RUNECASTER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Next damage roll gains +4d8', dice: '4d8' },
-                specials: [{ key: 'Shock', rank: 2 }]
+                specials: [{ key: 'shock', rank: 2 }]
             },
             '4': {
                 type: 'buff',
@@ -94,7 +94,7 @@ export const TITAN_RUNECASTER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Next damage roll gains +5d8', dice: '5d8' },
-                specials: [{ key: 'Shock', rank: 3 }]
+                specials: [{ key: 'shock', rank: 3 }]
             }
         }
     },
@@ -125,7 +125,7 @@ export const TITAN_RUNECASTER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Repeat an AoE effect next round at ½ damage' },
-                specials: [{ key: 'Freeze', rank: 2 }]
+                specials: [{ key: 'freeze', rank: 2 }]
             },
             '3': {
                 type: 'buff',
@@ -133,7 +133,7 @@ export const TITAN_RUNECASTER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Repeat an AoE effect next round at ½ damage' },
-                specials: [{ key: 'Freeze', rank: 4 }]
+                specials: [{ key: 'freeze', rank: 4 }]
             },
             '4': {
                 type: 'buff',
@@ -141,7 +141,7 @@ export const TITAN_RUNECASTER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'Repeat an AoE effect next round at ½ damage' },
-                specials: [{ key: 'Freeze', rank: 6 }]
+                specials: [{ key: 'freeze', rank: 6 }]
             }
         }
     },

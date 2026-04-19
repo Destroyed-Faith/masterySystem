@@ -27,7 +27,7 @@ export const HEXBOUND_HARRIER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Hex', rank: 2 }],
+                specials: [{ key: 'hex', rank: 2 }],
                 mechanics: { damageRider: { flat: '+1d8' }, applyWhen: 'attack-rider' }
             },
             '2': {
@@ -36,7 +36,7 @@ export const HEXBOUND_HARRIER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Hex', rank: 3 }],
+                specials: [{ key: 'hex', rank: 3 }],
                 mechanics: { damageRider: { flat: '+2d8' }, applyWhen: 'attack-rider' }
             },
             '3': {
@@ -45,7 +45,7 @@ export const HEXBOUND_HARRIER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Hex', rank: 4 }],
+                specials: [{ key: 'hex', rank: 4 }],
                 mechanics: { damageRider: { flat: '+2d8' }, applyWhen: 'attack-rider' }
             },
             '4': {
@@ -54,7 +54,7 @@ export const HEXBOUND_HARRIER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Hex', rank: 5 }],
+                specials: [{ key: 'hex', rank: 5 }],
                 mechanics: { damageRider: { flat: '+2d8' }, applyWhen: 'attack-rider' }
             }
         }
@@ -74,7 +74,7 @@ export const HEXBOUND_HARRIER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Expose', rank: 1 }],
+                specials: [{ key: 'expose', rank: 1 }],
                 mechanics: { damageRider: { flat: '+1d8' }, applyWhen: 'attack-rider' }
             },
             '2': {
@@ -83,7 +83,7 @@ export const HEXBOUND_HARRIER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Expose', rank: 1 }],
+                specials: [{ key: 'expose', rank: 1 }],
                 mechanics: { damageRider: { flat: '+2d8' }, applyWhen: 'attack-rider' }
             },
             '3': {
@@ -92,7 +92,7 @@ export const HEXBOUND_HARRIER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Expose', rank: 2 }],
+                specials: [{ key: 'expose', rank: 2 }],
                 mechanics: { damageRider: { flat: '+3d8' }, applyWhen: 'attack-rider' }
             },
             '4': {
@@ -101,7 +101,7 @@ export const HEXBOUND_HARRIER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Expose', rank: 2 }],
+                specials: [{ key: 'expose', rank: 2 }],
                 mechanics: { damageRider: { flat: '+4d8' }, applyWhen: 'attack-rider' }
             }
         }
@@ -121,7 +121,7 @@ export const HEXBOUND_HARRIER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Mark', rank: 2 }],
+                specials: [{ key: 'mark', rank: 2 }],
                 mechanics: { damageRider: { flat: '+1d8' }, applyWhen: 'attack-rider' }
             },
             '2': {
@@ -130,7 +130,7 @@ export const HEXBOUND_HARRIER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Mark', rank: 3 }],
+                specials: [{ key: 'mark', rank: 3 }],
                 mechanics: { damageRider: { flat: '+2d8' }, applyWhen: 'attack-rider' }
             },
             '3': {
@@ -139,7 +139,7 @@ export const HEXBOUND_HARRIER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Mark', rank: 4 }],
+                specials: [{ key: 'mark', rank: 4 }],
                 mechanics: { damageRider: { flat: '+3d8' }, applyWhen: 'attack-rider' }
             },
             '4': {
@@ -148,7 +148,7 @@ export const HEXBOUND_HARRIER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Mark', rank: 4 }],
+                specials: [{ key: 'mark', rank: 4 }],
                 mechanics: { damageRider: { flat: '+4d8' }, applyWhen: 'attack-rider' }
             }
         }
@@ -455,7 +455,7 @@ export const HEXBOUND_HARRIER_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Deepen the curse on that target.' },
                 trigger: 'A Hexed target moves more than 4 m.',
-                specials: [{ key: 'Hex', rank: 1, note: '+1 to existing stack' }]
+                specials: [{ key: 'hex', rank: 1, note: '+1 to existing stack' }]
             },
             '2': {
                 type: 'reaction',
@@ -464,7 +464,7 @@ export const HEXBOUND_HARRIER_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Deepen the curse on that target.' },
                 trigger: 'A Hexed target moves more than 4 m.',
-                specials: [{ key: 'Hex', rank: 2, note: '+2 to existing stack' }]
+                specials: [{ key: 'hex', rank: 2, note: '+2 to existing stack' }]
             },
             '3': {
                 type: 'reaction',
@@ -473,7 +473,7 @@ export const HEXBOUND_HARRIER_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Deepen the curse on that target.' },
                 trigger: 'A Hexed target moves more than 4 m.',
-                specials: [{ key: 'Hex', rank: 3, note: '+3 to existing stack' }]
+                specials: [{ key: 'hex', rank: 3, note: '+3 to existing stack' }]
             },
             '4': {
                 type: 'reaction',
@@ -482,7 +482,7 @@ export const HEXBOUND_HARRIER_POWERS = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Deepen the curse on that target.' },
                 trigger: 'A Hexed target moves more than 4 m.',
-                specials: [{ key: 'Hex', rank: 4, note: '+4 to existing stack' }]
+                specials: [{ key: 'hex', rank: 4, note: '+4 to existing stack' }]
             }
         }
     },
@@ -653,7 +653,7 @@ export const HEXBOUND_HARRIER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a target, increase its current Hex by 1.' },
-                specials: [{ key: 'Hex', rank: 1, note: 'first hit per round' }]
+                specials: [{ key: 'hex', rank: 1, note: 'first hit per round' }]
             },
             '2': {
                 type: 'buff',
@@ -661,7 +661,7 @@ export const HEXBOUND_HARRIER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a target, increase its current Hex by 2.' },
-                specials: [{ key: 'Hex', rank: 2, note: 'first hit per round' }]
+                specials: [{ key: 'hex', rank: 2, note: 'first hit per round' }]
             },
             '3': {
                 type: 'buff',
@@ -669,7 +669,7 @@ export const HEXBOUND_HARRIER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a target, increase its current Hex by 3.' },
-                specials: [{ key: 'Hex', rank: 3, note: 'first hit per round' }]
+                specials: [{ key: 'hex', rank: 3, note: 'first hit per round' }]
             },
             '4': {
                 type: 'buff',
@@ -677,7 +677,7 @@ export const HEXBOUND_HARRIER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a target, increase its current Hex by 4.' },
-                specials: [{ key: 'Hex', rank: 4, note: 'first hit per round' }]
+                specials: [{ key: 'hex', rank: 4, note: 'first hit per round' }]
             }
         }
     },
@@ -696,7 +696,7 @@ export const HEXBOUND_HARRIER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a target, apply Expose(1).' },
-                specials: [{ key: 'Expose', rank: 1, note: 'first hit per round' }]
+                specials: [{ key: 'expose', rank: 1, note: 'first hit per round' }]
             },
             '2': {
                 type: 'buff',
@@ -704,7 +704,7 @@ export const HEXBOUND_HARRIER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a target, apply Expose(2).' },
-                specials: [{ key: 'Expose', rank: 2, note: 'first hit per round' }]
+                specials: [{ key: 'expose', rank: 2, note: 'first hit per round' }]
             },
             '3': {
                 type: 'buff',
@@ -712,7 +712,7 @@ export const HEXBOUND_HARRIER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a target, apply Expose(3).' },
-                specials: [{ key: 'Expose', rank: 3, note: 'first hit per round' }]
+                specials: [{ key: 'expose', rank: 3, note: 'first hit per round' }]
             },
             '4': {
                 type: 'buff',
@@ -720,7 +720,7 @@ export const HEXBOUND_HARRIER_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'The first time each round you hit a target, apply Expose(4).' },
-                specials: [{ key: 'Expose', rank: 4, note: 'first hit per round' }]
+                specials: [{ key: 'expose', rank: 4, note: 'first hit per round' }]
             }
         }
     },

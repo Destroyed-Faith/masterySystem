@@ -28,7 +28,7 @@ export const JUGGERNAUT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Push', rank: 2 }]
+                specials: [{ key: 'push', rank: 2 }]
             },
             '2': {
 
@@ -37,7 +37,7 @@ export const JUGGERNAUT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Push', rank: 8 }]
+                specials: [{ key: 'push', rank: 8 }]
             },
             '3': {
 
@@ -46,7 +46,7 @@ export const JUGGERNAUT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Push', rank: 8 }, { key: 'Prone', rank: 1 }]
+                specials: [{ key: 'push', rank: 8 }, { key: 'prone', rank: 1 }]
             },
             '4': {
 
@@ -55,7 +55,7 @@ export const JUGGERNAUT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +5d8', dice: '5d8' },
-                specials: [{ key: 'Push', rank: 12 }, { key: 'Prone', rank: 1 }]
+                specials: [{ key: 'push', rank: 12 }, { key: 'prone', rank: 1 }]
             }
         }
     },
@@ -80,7 +80,7 @@ export const JUGGERNAUT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG (no bonus dice)' },
-                specials: [{ key: 'Prone', rank: 1 }]
+                specials: [{ key: 'prone', rank: 1 }]
             },
             '2': {
 
@@ -89,7 +89,7 @@ export const JUGGERNAUT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Prone', rank: 1 }]
+                specials: [{ key: 'prone', rank: 1 }]
             },
             '3': {
 
@@ -98,7 +98,7 @@ export const JUGGERNAUT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Prone', rank: 1 }]
+                specials: [{ key: 'prone', rank: 1 }]
             },
             '4': {
 
@@ -107,7 +107,7 @@ export const JUGGERNAUT_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 8 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Prone', rank: 1 }]
+                specials: [{ key: 'prone', rank: 1 }]
             }
         }
     },

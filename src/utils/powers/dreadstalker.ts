@@ -30,7 +30,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +1d8', dice: '1d8' },
-                specials: [{ key: 'Mark', rank: 2 }],
+                specials: [{ key: 'mark', rank: 2 }],
                 mechanics: {damageRider:{flat:'+1d8'},applyWhen:'attack-rider'}
             },
             '2': {
@@ -39,7 +39,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Mark', rank: 3 }],
+                specials: [{ key: 'mark', rank: 3 }],
                 mechanics: {damageRider:{flat:'+2d8'},applyWhen:'attack-rider'}
             },
             '3': {
@@ -48,7 +48,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Mark', rank: 4 }],
+                specials: [{ key: 'mark', rank: 4 }],
                 mechanics: {damageRider:{flat:'+3d8'},applyWhen:'attack-rider'}
             },
             '4': {
@@ -57,7 +57,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Mark', rank: 4 }],
+                specials: [{ key: 'mark', rank: 4 }],
                 mechanics: {damageRider:{flat:'+4d8'},applyWhen:'attack-rider'}
             }
         }
@@ -77,7 +77,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Crit', rank: 1, note: 'if target is Marked' }],
+                specials: [{ key: 'crit', rank: 1, note: 'if target is Marked' }],
                 mechanics: {damageRider:{flat:'+2d8'},applyWhen:'attack-rider'}
             },
             '2': {
@@ -86,7 +86,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Crit', rank: 1, note: 'if target is Marked' }],
+                specials: [{ key: 'crit', rank: 1, note: 'if target is Marked' }],
                 mechanics: {damageRider:{flat:'+3d8'},applyWhen:'attack-rider'}
             },
             '3': {
@@ -95,7 +95,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Crit', rank: 2, note: 'if target is Marked' }],
+                specials: [{ key: 'crit', rank: 2, note: 'if target is Marked' }],
                 mechanics: {damageRider:{flat:'+4d8'},applyWhen:'attack-rider'}
             },
             '4': {
@@ -104,7 +104,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +5d8 damage', dice: '5d8' },
-                specials: [{ key: 'Crit', rank: 2, note: 'if target is Marked' }],
+                specials: [{ key: 'crit', rank: 2, note: 'if target is Marked' }],
                 mechanics: {damageRider:{flat:'+5d8'},applyWhen:'attack-rider'}
             }
         }
@@ -124,7 +124,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 2 },
                 duration: { kind: 'masteryRankRounds', rounds: 1, note: 'MR + 1' },
                 effect: { text: 'Blinding flash' },
-                specials: [{ key: 'Blinded', rank: 1 }]
+                specials: [{ key: 'blinded', rank: 1 }]
             },
             '2': {
                 type: 'ranged',
@@ -132,7 +132,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 4 },
                 duration: { kind: 'masteryRankRounds', rounds: 2, note: 'MR + 2' },
                 effect: { text: 'Blinding flash' },
-                specials: [{ key: 'Blinded', rank: 2 }]
+                specials: [{ key: 'blinded', rank: 2 }]
             },
             '3': {
                 type: 'ranged',
@@ -140,7 +140,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 6 },
                 duration: { kind: 'masteryRankRounds', rounds: 3, note: 'MR + 3' },
                 effect: { text: 'Blinding flash' },
-                specials: [{ key: 'Blinded', rank: 3 }]
+                specials: [{ key: 'blinded', rank: 3 }]
             },
             '4': {
                 type: 'ranged',
@@ -148,7 +148,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', radiusM: 8 },
                 duration: { kind: 'masteryRankRounds', rounds: 4, note: 'MR + 4' },
                 effect: { text: 'Blinding flash' },
-                specials: [{ key: 'Blinded', rank: 4 }]
+                specials: [{ key: 'blinded', rank: 4 }]
             }
         }
     },
@@ -176,7 +176,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8 vs. Marked target', dice: '3d8' },
-                specials: [{ key: 'Crit', rank: 1 }],
+                specials: [{ key: 'crit', rank: 1 }],
                 mechanics: {damageRider:{flat:'+3d8'},condition:'targetMarked',applyWhen:'attack-rider'}
             },
             '3': {
@@ -185,7 +185,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8 vs. Marked target', dice: '4d8' },
-                specials: [{ key: 'Crit', rank: 2 }],
+                specials: [{ key: 'crit', rank: 2 }],
                 mechanics: {damageRider:{flat:'+4d8'},condition:'targetMarked',applyWhen:'attack-rider'}
             },
             '4': {
@@ -194,7 +194,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +5d8 vs. Marked target', dice: '5d8' },
-                specials: [{ key: 'Crit', rank: 3 }],
+                specials: [{ key: 'crit', rank: 3 }],
                 mechanics: {damageRider:{flat:'+5d8'},condition:'targetMarked',applyWhen:'attack-rider'}
             }
         }
@@ -306,7 +306,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'If the target is Marked or Blinded, your attacks against it gain +1d8 damage and Crit(1).', dice: '1d8' },
-                specials: [{ key: 'Crit', rank: 1, note: 'if target is Marked or Blinded' }],
+                specials: [{ key: 'crit', rank: 1, note: 'if target is Marked or Blinded' }],
                 mechanics: {damageRider:{flat:'+1d8'},applyWhen:'passive-slotted-active'}
             },
             '2': {
@@ -315,7 +315,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'If the target is Marked or Blinded, your attacks against it gain +2d8 damage and Crit(1).', dice: '2d8' },
-                specials: [{ key: 'Crit', rank: 1, note: 'if target is Marked or Blinded' }],
+                specials: [{ key: 'crit', rank: 1, note: 'if target is Marked or Blinded' }],
                 mechanics: {damageRider:{flat:'+2d8'},applyWhen:'passive-slotted-active'}
             },
             '3': {
@@ -324,7 +324,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'If the target is Marked or Blinded, your attacks against it gain +3d8 damage and Crit(2).', dice: '3d8' },
-                specials: [{ key: 'Crit', rank: 2, note: 'if target is Marked or Blinded' }],
+                specials: [{ key: 'crit', rank: 2, note: 'if target is Marked or Blinded' }],
                 mechanics: {damageRider:{flat:'+3d8'},applyWhen:'passive-slotted-active'}
             },
             '4': {
@@ -333,7 +333,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 999, note: 'permanent' },
                 effect: { text: 'If the target is Marked or Blinded, your attacks against it gain +3d8 damage and Crit(2).', dice: '3d8' },
-                specials: [{ key: 'Crit', rank: 2, note: 'if target is Marked or Blinded' }],
+                specials: [{ key: 'crit', rank: 2, note: 'if target is Marked or Blinded' }],
                 mechanics: {damageRider:{flat:'+3d8'},applyWhen:'passive-slotted-active'}
             }
         }
@@ -456,7 +456,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Make one attack; that attack gains Crit(1).' },
                 trigger: 'A Marked target within range moves.',
-                specials: [{ key: 'Crit', rank: 1 }]
+                specials: [{ key: 'crit', rank: 1 }]
             },
             '2': {
                 type: 'reaction',
@@ -465,7 +465,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Make one attack; that attack gains Crit(1) and +1 Attack Die.' },
                 trigger: 'A Marked target within range moves.',
-                specials: [{ key: 'Crit', rank: 1 }]
+                specials: [{ key: 'crit', rank: 1 }]
             },
             '3': {
                 type: 'reaction',
@@ -474,7 +474,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Make one attack; that attack gains Crit(2).' },
                 trigger: 'A Marked target within range moves.',
-                specials: [{ key: 'Crit', rank: 2 }]
+                specials: [{ key: 'crit', rank: 2 }]
             },
             '4': {
                 type: 'reaction',
@@ -483,7 +483,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'instant' },
                 effect: { text: 'Make one attack; that attack gains Crit(3).' },
                 trigger: 'A Marked target within range moves.',
-                specials: [{ key: 'Crit', rank: 3 }]
+                specials: [{ key: 'crit', rank: 3 }]
             }
         }
     },
@@ -556,7 +556,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Your next attack against that target before end of your next turn gains +1d8 damage and Crit(1).', dice: '1d8' },
                 trigger: 'A Marked target misses you.',
-                specials: [{ key: 'Crit', rank: 1 }],
+                specials: [{ key: 'crit', rank: 1 }],
                 mechanics: {damageRider:{flat:'+1d8'},applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '2': {
@@ -566,7 +566,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Your next attack gains +2d8 damage and Crit(1).', dice: '2d8' },
                 trigger: 'A Marked target misses you.',
-                specials: [{ key: 'Crit', rank: 1 }],
+                specials: [{ key: 'crit', rank: 1 }],
                 mechanics: {damageRider:{flat:'+2d8'},applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '3': {
@@ -576,7 +576,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Your next attack gains +3d8 damage and Crit(2).', dice: '3d8' },
                 trigger: 'A Marked target misses you.',
-                specials: [{ key: 'Crit', rank: 2 }],
+                specials: [{ key: 'crit', rank: 2 }],
                 mechanics: {damageRider:{flat:'+3d8'},applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             },
             '4': {
@@ -586,7 +586,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 duration: { kind: 'untilNextTurn' },
                 effect: { text: 'Your next attack gains +4d8 damage and Crit(2).', dice: '4d8' },
                 trigger: 'A Marked target misses you.',
-                specials: [{ key: 'Crit', rank: 2 }],
+                specials: [{ key: 'crit', rank: 2 }],
                 mechanics: {damageRider:{flat:'+4d8'},applyWhen:'reaction-once-per-round',usageLimit:{per:'round',max:1}}
             }
         }
@@ -745,7 +745,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: '+4 m Movement. If you move ≥4 m before attacking a Marked target, that attack gains Crit(1).' },
-                specials: [{ key: 'Crit', rank: 1, note: 'if you moved ≥4 m before attack' }],
+                specials: [{ key: 'crit', rank: 1, note: 'if you moved ≥4 m before attack' }],
                 mechanics: {movementBonus:4,condition:'targetMarked',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '2': {
@@ -754,7 +754,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: '+6 m Movement. If you move ≥4 m before attacking a Marked target, that attack gains Crit(1).' },
-                specials: [{ key: 'Crit', rank: 1, note: 'if you moved ≥4 m before attack' }],
+                specials: [{ key: 'crit', rank: 1, note: 'if you moved ≥4 m before attack' }],
                 mechanics: {movementBonus:6,condition:'targetMarked',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '3': {
@@ -763,7 +763,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: '+8 m Movement. If you move ≥4 m before attacking a Marked target, that attack gains Crit(2).' },
-                specials: [{ key: 'Crit', rank: 2, note: 'if you moved ≥4 m before attack' }],
+                specials: [{ key: 'crit', rank: 2, note: 'if you moved ≥4 m before attack' }],
                 mechanics: {movementBonus:8,condition:'targetMarked',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             },
             '4': {
@@ -772,7 +772,7 @@ export const DREADSTALKER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: '+10 m Movement. If you move ≥4 m before attacking a Marked target, that attack gains Crit(3).' },
-                specials: [{ key: 'Crit', rank: 3, note: 'if you moved ≥4 m before attack' }],
+                specials: [{ key: 'crit', rank: 3, note: 'if you moved ≥4 m before attack' }],
                 mechanics: {movementBonus:10,condition:'targetMarked',applyWhen:'activeBuff-active',duration:'masteryRankRounds'}
             }
         }

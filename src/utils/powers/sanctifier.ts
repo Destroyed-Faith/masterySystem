@@ -28,7 +28,7 @@ export const SANCTIFIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Smite', rank: 1 }]
+                specials: [{ key: 'smite', rank: 1 }]
             },
             '2': {
 
@@ -37,7 +37,7 @@ export const SANCTIFIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Smite', rank: 2 }]
+                specials: [{ key: 'smite', rank: 2 }]
             },
             '3': {
 
@@ -46,7 +46,7 @@ export const SANCTIFIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +4d8', dice: '4d8' },
-                specials: [{ key: 'Smite', rank: 2 }]
+                specials: [{ key: 'smite', rank: 2 }]
             },
             '4': {
 
@@ -55,7 +55,7 @@ export const SANCTIFIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Weapon DMG +5d8', dice: '5d8' },
-                specials: [{ key: 'Smite', rank: 3 }]
+                specials: [{ key: 'smite', rank: 3 }]
             }
         }
     },
@@ -139,7 +139,7 @@ export const SANCTIFIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Heal target for 3d8 HP', dice: '3d8' },
-                specials: [{ key: 'Cleanse', rank: 1 }]
+                specials: [{ key: 'cleanse', rank: 1 }]
             },
             '3': {
 
@@ -148,7 +148,7 @@ export const SANCTIFIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Heal target for 4d8 HP', dice: '4d8' },
-                specials: [{ key: 'Cleanse', rank: 2 }]
+                specials: [{ key: 'cleanse', rank: 2 }]
             },
             '4': {
 
@@ -157,7 +157,7 @@ export const SANCTIFIER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Heal target for 5d8 HP', dice: '5d8' },
-                specials: [{ key: 'Cleanse', rank: 3 }]
+                specials: [{ key: 'cleanse', rank: 3 }]
             }
         }
     },

@@ -31,7 +31,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Paw Attack +1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Push', rank: 3 }, { key: 'Expose', rank: 1 }, { key: 'Mark', rank: 1 }]
+                specials: [{ key: 'push', rank: 3 }, { key: 'expose', rank: 1 }, { key: 'mark', rank: 1 }]
             },
             '2': {
                 type: 'melee',
@@ -39,7 +39,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Paw Attack +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Push', rank: 4 }, { key: 'Expose', rank: 2 }, { key: 'Mark', rank: 2 }]
+                specials: [{ key: 'push', rank: 4 }, { key: 'expose', rank: 2 }, { key: 'mark', rank: 2 }]
             },
             '3': {
                 type: 'melee',
@@ -47,7 +47,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Paw Attack +3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Push', rank: 4 }, { key: 'Expose', rank: 2 }, { key: 'Mark', rank: 3 }]
+                specials: [{ key: 'push', rank: 4 }, { key: 'expose', rank: 2 }, { key: 'mark', rank: 3 }]
             },
             '4': {
                 type: 'melee',
@@ -55,7 +55,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Paw Attack +4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Push', rank: 5 }, { key: 'Expose', rank: 2 }, { key: 'Mark', rank: 4 }]
+                specials: [{ key: 'push', rank: 5 }, { key: 'expose', rank: 2 }, { key: 'mark', rank: 4 }]
             }
         }
     },
@@ -79,7 +79,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'On hit: target is held' },
-                specials: [{ key: 'Grappled', rank: 1 }, { key: 'Expose', rank: 1 }]
+                specials: [{ key: 'grappled', rank: 1 }, { key: 'expose', rank: 1 }]
             },
             '2': {
                 type: 'melee',
@@ -87,7 +87,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'On hit: Paw DMG +1d8', dice: '1d8' },
-                specials: [{ key: 'Grappled', rank: 2 }, { key: 'Expose', rank: 2 }, { key: 'Push', rank: 2 }]
+                specials: [{ key: 'grappled', rank: 2 }, { key: 'expose', rank: 2 }, { key: 'push', rank: 2 }]
             },
             '3': {
                 type: 'melee',
@@ -95,7 +95,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'On hit: Paw DMG +2d8', dice: '2d8' },
-                specials: [{ key: 'Grappled', rank: 3 }, { key: 'Expose', rank: 2 }, { key: 'Mark', rank: 2 }, { key: 'Push', rank: 2 }]
+                specials: [{ key: 'grappled', rank: 3 }, { key: 'expose', rank: 2 }, { key: 'mark', rank: 2 }, { key: 'push', rank: 2 }]
             },
             '4': {
                 type: 'melee',
@@ -103,7 +103,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'On hit: Paw DMG +3d8', dice: '3d8' },
-                specials: [{ key: 'Grappled', rank: 4 }, { key: 'Expose', rank: 3 }, { key: 'Mark', rank: 3 }]
+                specials: [{ key: 'grappled', rank: 4 }, { key: 'expose', rank: 3 }, { key: 'mark', rank: 3 }]
             }
         }
     },
@@ -128,7 +128,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in AoE must make Mind Saves. On fail: Mark(1)' },
-                specials: [{ key: 'Mark', rank: 1 }]
+                specials: [{ key: 'mark', rank: 1 }]
             },
             '2': {
                 type: 'utility',
@@ -136,7 +136,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'instant' },
                 effect: { text: 'As above. On fail: Mark(2)' },
-                specials: [{ key: 'Mark', rank: 2 }]
+                specials: [{ key: 'mark', rank: 2 }]
             },
             '3': {
                 type: 'utility',
@@ -144,7 +144,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'radius', m: 8 },
                 duration: { kind: 'instant' },
                 effect: { text: 'As above. On fail: Mark(3)' },
-                specials: [{ key: 'Mark', rank: 3 }]
+                specials: [{ key: 'mark', rank: 3 }]
             },
             '4': {
                 type: 'utility',
@@ -152,7 +152,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'radius', m: 10 },
                 duration: { kind: 'instant' },
                 effect: { text: 'As above. On fail: Mark(3) and Suppress(1) (Mind Save negates Suppress)' },
-                specials: [{ key: 'Mark', rank: 3 }, { key: 'Suppress', rank: 1 }]
+                specials: [{ key: 'mark', rank: 3 }, { key: 'suppress', rank: 1 }]
             }
         }
     },
@@ -224,7 +224,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a Paw Attack dealing +1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Mark', rank: 1 }],
+                specials: [{ key: 'mark', rank: 1 }],
                 trigger: 'A creature within 2m hits an ally within 4m of you'
             },
             '2': {
@@ -233,7 +233,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Paw Attack +2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Mark', rank: 2 }],
+                specials: [{ key: 'mark', rank: 2 }],
                 trigger: 'A creature within 2m hits an ally within 4m of you'
             },
             '3': {
@@ -242,7 +242,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Paw Attack +3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Mark', rank: 2 }],
+                specials: [{ key: 'mark', rank: 2 }],
                 trigger: 'A creature within 2m hits an ally within 4m of you'
             },
             '4': {
@@ -251,7 +251,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Paw Attack +4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Mark', rank: 3 }],
+                specials: [{ key: 'mark', rank: 3 }],
                 trigger: 'A creature within 2m hits an ally within 4m of you'
             }
         }
@@ -420,7 +420,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'You gain Immovable and +1 Armor. Enemies that start their turn in the aura: Mind Save or gain Mark(1)' },
-                specials: [{ key: 'Mark', rank: 1 }]
+                specials: [{ key: 'mark', rank: 1 }]
             },
             '2': {
                 type: 'buff',
@@ -428,7 +428,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'You gain Immovable and +2 Armor. Aura applies Mark(2)' },
-                specials: [{ key: 'Mark', rank: 2 }]
+                specials: [{ key: 'mark', rank: 2 }]
             },
             '3': {
                 type: 'buff',
@@ -436,7 +436,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'You gain Immovable and +4 Armor. Aura applies Mark(3)' },
-                specials: [{ key: 'Mark', rank: 3 }]
+                specials: [{ key: 'mark', rank: 3 }]
             },
             '4': {
                 type: 'buff',
@@ -444,7 +444,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'radius', m: 8 },
                 duration: { kind: 'masteryRounds' },
                 effect: { text: 'You gain Immovable and +4 Armor. Aura applies Mark(4)' },
-                specials: [{ key: 'Mark', rank: 4 }]
+                specials: [{ key: 'mark', rank: 4 }]
             }
         }
     },
@@ -470,7 +470,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'cone', lengthM: 4, angleDeg: 90 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Creatures in cone: Body Save or Prone(1)' },
-                specials: [{ key: 'Prone', rank: 1 }]
+                specials: [{ key: 'prone', rank: 1 }]
             },
             '2': {
                 type: 'melee',
@@ -478,7 +478,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'cone', lengthM: 6, angleDeg: 90 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Body Save or Prone(2)' },
-                specials: [{ key: 'Prone', rank: 2 }]
+                specials: [{ key: 'prone', rank: 2 }]
             },
             '3': {
                 type: 'melee',
@@ -486,7 +486,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'cone', lengthM: 8, angleDeg: 90 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Body Save or Prone(2); on fail also Push(3)' },
-                specials: [{ key: 'Prone', rank: 2 }, { key: 'Push', rank: 3 }]
+                specials: [{ key: 'prone', rank: 2 }, { key: 'push', rank: 3 }]
             },
             '4': {
                 type: 'melee',
@@ -494,7 +494,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'cone', lengthM: 10, angleDeg: 90 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Creatures in cone take 1d8 damage, then Body Save or Prone(3); on fail also Expose(2)', dice: '1d8' },
-                specials: [{ key: 'Prone', rank: 3 }, { key: 'Expose', rank: 2 }]
+                specials: [{ key: 'prone', rank: 3 }, { key: 'expose', rank: 2 }]
             }
         }
     },
@@ -517,7 +517,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'radius', m: 2 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in AoE: Push(4) and Expose(2)' },
-                specials: [{ key: 'Push', rank: 4 }, { key: 'Expose', rank: 2 }]
+                specials: [{ key: 'push', rank: 4 }, { key: 'expose', rank: 2 }]
             },
             '2': {
                 type: 'melee',
@@ -525,7 +525,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in AoE take 1d8 damage, Push(5), Expose(2), Mark(1)', dice: '1d8' },
-                specials: [{ key: 'Push', rank: 5 }, { key: 'Expose', rank: 2 }, { key: 'Mark', rank: 1 }]
+                specials: [{ key: 'push', rank: 5 }, { key: 'expose', rank: 2 }, { key: 'mark', rank: 1 }]
             },
             '3': {
                 type: 'melee',
@@ -533,7 +533,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in AoE take 2d8 damage, Push(6), Expose(3)', dice: '2d8' },
-                specials: [{ key: 'Push', rank: 6 }, { key: 'Expose', rank: 3 }]
+                specials: [{ key: 'push', rank: 6 }, { key: 'expose', rank: 3 }]
             },
             '4': {
                 type: 'melee',
@@ -541,7 +541,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'radius', m: 8 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in AoE take 2d8 damage, Push(8), Expose(4), Mark(2)', dice: '2d8' },
-                specials: [{ key: 'Push', rank: 8 }, { key: 'Expose', rank: 4 }, { key: 'Mark', rank: 2 }]
+                specials: [{ key: 'push', rank: 8 }, { key: 'expose', rank: 4 }, { key: 'mark', rank: 2 }]
             }
         }
     },
@@ -566,7 +566,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a Paw Attack +1d8 damage; on hit Push(2)', dice: '1d8' },
-                specials: [{ key: 'Push', rank: 2 }],
+                specials: [{ key: 'push', rank: 2 }],
                 trigger: 'A creature enters a space within 2m of you'
             },
             '2': {
@@ -575,7 +575,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Paw Attack +2d8 damage; on hit Push(3) and Expose(1)', dice: '2d8' },
-                specials: [{ key: 'Push', rank: 3 }, { key: 'Expose', rank: 1 }],
+                specials: [{ key: 'push', rank: 3 }, { key: 'expose', rank: 1 }],
                 trigger: 'A creature enters a space within 2m of you'
             },
             '3': {
@@ -584,7 +584,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Paw Attack +3d8 damage; on hit Push(4) and Expose(1)', dice: '3d8' },
-                specials: [{ key: 'Push', rank: 4 }, { key: 'Expose', rank: 1 }],
+                specials: [{ key: 'push', rank: 4 }, { key: 'expose', rank: 1 }],
                 trigger: 'A creature enters a space within 2m of you'
             },
             '4': {
@@ -593,7 +593,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Paw Attack +4d8 damage; on hit Push(5) and Expose(2)', dice: '4d8' },
-                specials: [{ key: 'Push', rank: 5 }, { key: 'Expose', rank: 2 }],
+                specials: [{ key: 'push', rank: 5 }, { key: 'expose', rank: 2 }],
                 trigger: 'A creature enters a space within 2m of you'
             }
         }
@@ -691,7 +691,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'radius', m: 8 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Allies in AoE gain Regeneration(4)' },
-                specials: [{ key: 'Cleanse', rank: 4 }]
+                specials: [{ key: 'cleanse', rank: 4 }]
             }
         }
     },
@@ -730,7 +730,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Heal 3d8 HP', dice: '3d8' },
-                specials: [{ key: 'Cleanse', rank: 4 }]
+                specials: [{ key: 'cleanse', rank: 4 }]
             },
             '4': {
                 type: 'utility',
@@ -738,7 +738,7 @@ export const WEREBEAR_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Heal 4d8 HP', dice: '4d8' },
-                specials: [{ key: 'Cleanse', rank: 4 }]
+                specials: [{ key: 'cleanse', rank: 4 }]
             }
         }
     },

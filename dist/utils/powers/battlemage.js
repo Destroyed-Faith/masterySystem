@@ -353,7 +353,7 @@ export const BATTLEMAGE_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a weapon attack. On hit, deal +1d8 damage and apply Ignite(1)', dice: '1d8' },
-                specials: [{ key: 'Ignite', rank: 1 }]
+                specials: [{ key: 'ignite', rank: 1 }]
             },
             '2': {
                 type: 'melee',
@@ -361,7 +361,7 @@ export const BATTLEMAGE_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a weapon attack. On hit, deal +2d8 damage and apply Ignite(1)', dice: '2d8' },
-                specials: [{ key: 'Ignite', rank: 1 }]
+                specials: [{ key: 'ignite', rank: 1 }]
             },
             '3': {
                 type: 'melee',
@@ -369,7 +369,7 @@ export const BATTLEMAGE_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a weapon attack. On hit, deal +3d8 damage and apply Ignite(2)', dice: '3d8' },
-                specials: [{ key: 'Ignite', rank: 2 }]
+                specials: [{ key: 'ignite', rank: 2 }]
             },
             '4': {
                 type: 'melee',
@@ -377,7 +377,7 @@ export const BATTLEMAGE_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: 'Make a weapon attack. On hit, deal +4d8 damage and apply Ignite(2)', dice: '4d8' },
-                specials: [{ key: 'Ignite', rank: 2 }]
+                specials: [{ key: 'ignite', rank: 2 }]
             }
         }
     }

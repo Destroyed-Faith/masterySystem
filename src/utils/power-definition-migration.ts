@@ -4,6 +4,7 @@
 
 import type { PowerDefinition, PowerLevelDefinition } from './powers/types.js';
 import type { NewArtifactPowerData, PowerLevelRow, RangeSpec, AoeSpec, DurationSpec, EffectSpec, PowerSpecial, PowerCategory, PowerActionCost, PowerRollKind } from '../types/item.js';
+import { normalizeAoeSpec, normalizePowerSpecial } from './power-spec-normalize.js';
 
 /**
  * Parse special string to PowerSpecial array
@@ -48,7 +49,7 @@ function parseSpecial(specialStr: string | undefined): PowerSpecial[] {
     }
   }
   
-  return specials;
+  return specials.map((s) => normalizePowerSpecial(s)!).filter(Boolean) as PowerSpecial[];
 }
 
 /**
@@ -328,11 +329,13 @@ function convertRoll(level: PowerLevelDefinition): NewArtifactPowerData['roll'] 
  * Convert PowerLevelDefinition to PowerLevelRow
  */
 function convertLevelToRow(level: PowerLevelDefinition, powerType: string, lvl: 1 | 2 | 3 | 4): PowerLevelRow {
+  const aoeRaw = parseAoeFromString(level.aoe);
+  const aoeNorm = normalizeAoeSpec(aoeRaw);
   return {
     lvl,
     type: determineTypeFromLevel(level, powerType),
     range: parseRangeFromString(level.range),
-    aoe: parseAoeFromString(level.aoe),
+    aoe: aoeNorm ?? aoeRaw,
     duration: parseDurationFromString(level.duration, powerType),
     effect: parseEffectFromString(level.effect, level.roll?.damage, level.roll?.healing),
     specials: parseSpecial(level.special)

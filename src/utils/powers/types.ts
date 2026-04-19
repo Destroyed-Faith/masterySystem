@@ -40,5 +40,23 @@ export interface PowerDefinition {
 }
 
 // Re-export new types for convenience
-export type { NewArtifactPowerData, PowerLevelRow, RangeSpec, AoeSpec, DurationSpec, EffectSpec, PowerSpecial, RaiseUpgrade, PowerCategory } from '../../types/item.js';
+export type {
+  NewArtifactPowerData,
+  PowerLevelRow,
+  RangeSpec,
+  AoeSpec,
+  AoeCenter,
+  AoeTargetFilter,
+  DurationSpec,
+  EffectSpec,
+  PowerSpecial,
+  RaiseUpgrade,
+  PowerCategory,
+  PowerMechanics,
+  PowerMechanicsHealing,
+  PowerMechanicsModifySpecial,
+  PowerMechanicsGrantNextHitEffect,
+  ModifySpecialMode,
+  PowerMechanicsTrigger,
+} from '../../types/item.js';
 

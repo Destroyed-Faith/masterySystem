@@ -35,5 +35,5 @@ export interface PowerDefinition {
     passiveCategory?: 'armor' | 'damage' | 'healing' | 'roll' | 'save' | 'utility';
     levels: PowerLevelDefinition[];
 }
-export type { NewArtifactPowerData, PowerLevelRow, RangeSpec, AoeSpec, DurationSpec, EffectSpec, PowerSpecial, RaiseUpgrade, PowerCategory } from '../../types/item.js';
+export type { NewArtifactPowerData, PowerLevelRow, RangeSpec, AoeSpec, AoeCenter, AoeTargetFilter, DurationSpec, EffectSpec, PowerSpecial, RaiseUpgrade, PowerCategory, PowerMechanics, PowerMechanicsHealing, PowerMechanicsModifySpecial, PowerMechanicsGrantNextHitEffect, ModifySpecialMode, PowerMechanicsTrigger, } from '../../types/item.js';
 //# sourceMappingURL=types.d.ts.map

@@ -24,7 +24,7 @@ export const MARKED_ONE_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '+1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Hex', rank: 2 }]
+                specials: [{ key: 'hex', rank: 2 }]
             },
             '2': {
                 type: 'ranged',
@@ -32,7 +32,7 @@ export const MARKED_ONE_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '+2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Hex', rank: 3 }]
+                specials: [{ key: 'hex', rank: 3 }]
             },
             '3': {
                 type: 'ranged',
@@ -40,7 +40,7 @@ export const MARKED_ONE_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '+2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Hex', rank: 4 }]
+                specials: [{ key: 'hex', rank: 4 }]
             },
             '4': {
                 type: 'ranged',
@@ -48,7 +48,7 @@ export const MARKED_ONE_POWERS = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '+2d8 damage', dice: '2d8' },
-                specials: [{ key: 'Hex', rank: 5 }]
+                specials: [{ key: 'hex', rank: 5 }]
             }
         }
     },

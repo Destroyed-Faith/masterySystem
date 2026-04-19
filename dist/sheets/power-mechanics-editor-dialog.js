@@ -8,13 +8,15 @@
  *   - Per-rank override (`system.levels.<rank>.mechanics`) — per-rank data.
  *
  * Intentionally dual-mode: a guided form for the common fields (armor,
- * evade, saveDice, rollDice, damageRider, applyWhen, duration, usageLimit,
- * condition, tempHP, regen, initiativeD8, movementBonus, ignoreTerrain) plus
+ * evade, saveDice, rollDice, damageRider, healing, modifySpecial,
+ * grantNextHitEffect, applyWhen, duration, usageLimit,
+ * condition, conditionExpr, trigger, tempHP, regen, initiativeD8, movementBonus, ignoreTerrain) plus
  * a JSON textarea for everything the form does not cover (manual override).
  *
  * Saves via `actor.items.get(powerId).update({ ... })`, so the actor's
  * `prepareDerivedData` re-runs and the aggregator picks up changes live.
  */
+import { persistPowerMechanics } from '../utils/power-spec-normalize.js';
 function readCurrent(power, scope, rank) {
     const sys = power?.system ?? {};
     if (scope === 'rank') {
@@ -35,7 +37,22 @@ function renderForm(m) {
     const dr = mech.damageRider ?? {};
     const sd = mech.saveDice ?? {};
     const rd = mech.rollDice ?? {};
-    const ul = mech.usageLimit ?? {};
+    const ul = mech.usageLimit ?? mech.triggerLimit ?? {};
+    const heal = mech.healing ?? {};
+    const ms = mech.modifySpecial ?? {};
+    const gnh = mech.grantNextHitEffect ?? {};
+    const modifyModeOptions = [
+        ['', '(select)'],
+        ['increaseExisting', 'increaseExisting'],
+        ['decreaseExisting', 'decreaseExisting'],
+        ['setIfHigher', 'setIfHigher'],
+        ['consume', 'consume'],
+        ['remove', 'remove'],
+        ['refreshDuration', 'refreshDuration'],
+    ];
+    const modifyModeHtml = modifyModeOptions
+        .map(([v, l]) => `<option value="${v}" ${(ms.mode ?? '') === v ? 'selected' : ''}>${esc(l)}</option>`)
+        .join('');
     const applyWhenOptions = [
         ['passive-slotted-active', 'Passive (slotted active)'],
         ['activeBuff-active', 'Active Buff (running)'],
@@ -135,11 +152,47 @@ function renderForm(m) {
     </fieldset>
 
     <fieldset class="pme-section">
+      <legend>Healing (mechanics)</legend>
+      <div class="pme-grid">
+        <label>flat <input type="text" data-mech="healing.flat" value="${esc(heal.flat ?? '')}" placeholder="2d8"/></label>
+        <label>target <input type="text" data-mech="healing.target" value="${esc(heal.target ?? '')}" placeholder="self / alliesInArea"/></label>
+        <label>trigger <input type="text" data-mech="healing.trigger" value="${esc(heal.trigger ?? '')}" placeholder="endOfTurn"/></label>
+        <label>condition <input type="text" data-mech="healing.condition" value="${esc(heal.condition ?? '')}"/></label>
+        <label>maxTargets <input type="number" data-mech="healing.maxTargets" value="${numAttr(heal.maxTargets)}" step="1" min="0"/></label>
+      </div>
+    </fieldset>
+
+    <fieldset class="pme-section">
+      <legend>modifySpecial</legend>
+      <div class="pme-grid">
+        <label>type <input type="text" data-mech="modifySpecial.type" value="${esc(ms.type ?? '')}" placeholder="ignite"/></label>
+        <label>mode <select data-mech="modifySpecial.mode">${modifyModeHtml}</select></label>
+        <label>amount <input type="number" data-mech="modifySpecial.amount" value="${numAttr(ms.amount)}" step="1"/></label>
+        <label>minExisting <input type="number" data-mech="modifySpecial.minExisting" value="${numAttr(ms.minExisting)}" step="1" min="0"/></label>
+        <label>maxValue <input type="number" data-mech="modifySpecial.maxValue" value="${numAttr(ms.maxValue)}" step="1" min="0"/></label>
+        <label>target <input type="text" data-mech="modifySpecial.target" value="${esc(ms.target ?? '')}"/></label>
+        <label>condition <input type="text" data-mech="modifySpecial.condition" value="${esc(ms.condition ?? '')}"/></label>
+      </div>
+    </fieldset>
+
+    <fieldset class="pme-section">
+      <legend>grantNextHitEffect</legend>
+      <div class="pme-grid">
+        <label>expires <input type="text" data-mech="grantNextHitEffect.expires" value="${esc(gnh.expires ?? '')}" placeholder="endOfTurn"/></label>
+        <label>qualifier <input type="text" data-mech="grantNextHitEffect.qualifier" value="${esc(gnh.qualifier ?? '')}" placeholder="nextHit"/></label>
+        <label>dmg rider flat <input type="text" data-mech="grantNextHitEffect.damageRiderFlat" value="${esc(gnh.damageRiderFlat ?? '')}" placeholder="+2d8"/></label>
+        <label>condition <input type="text" data-mech="grantNextHitEffect.condition" value="${esc(gnh.condition ?? '')}"/></label>
+      </div>
+      <p class="pme-hint">Use Raw JSON to attach <code>grantNextHitEffect.specials</code> (array of <code>PowerSpecial</code>).</p>
+    </fieldset>
+
+    <fieldset class="pme-section">
       <legend>Timing</legend>
       <div class="pme-grid">
         <label>applyWhen
           <select data-mech="applyWhen">${applyWhenHtml}</select>
         </label>
+        <label>mechanics trigger <input type="text" data-mech="trigger" value="${esc(mech.trigger ?? '')}" placeholder="endOfTurn"/></label>
         <label>duration
           <select data-mech="duration">${durationHtml}</select>
         </label>
@@ -149,6 +202,9 @@ function renderForm(m) {
         <label>usage max <input type="number" data-mech="usageLimit.max" value="${numAttr(ul.max)}" step="1" min="0"/></label>
         <label>condition gate
           <select data-mech="condition">${conditionHtml}</select>
+        </label>
+        <label class="pme-span-2">conditionExpr (free text)
+          <input type="text" data-mech="conditionExpr" value="${esc(mech.conditionExpr ?? '')}" placeholder="targetIgnited / custom"/>
         </label>
       </div>
     </fieldset>
@@ -190,15 +246,25 @@ function readFormValues(root) {
     // applyWhen alone is not enough (every block carries it), but if applyWhen is absent we clear everything.
     if (!m.applyWhen)
         return null;
-    const keys = Object.keys(m).filter((k) => k !== 'applyWhen' && k !== 'duration' && k !== 'usageLimit');
+    const persisted = persistPowerMechanics(m);
+    const keys = Object.keys(persisted).filter((k) => k !== 'applyWhen' &&
+        k !== 'duration' &&
+        k !== 'usageLimit' &&
+        k !== 'triggerLimit');
     const hasNested = (obj) => obj && typeof obj === 'object' && Object.keys(obj).length > 0;
     const meaningful = keys.length > 0 ||
-        hasNested(m.saveDice) ||
-        hasNested(m.rollDice) ||
-        hasNested(m.damageRider);
+        hasNested(persisted.saveDice) ||
+        hasNested(persisted.rollDice) ||
+        hasNested(persisted.damageRider) ||
+        hasNested(persisted.healing) ||
+        hasNested(persisted.modifySpecial) ||
+        hasNested(persisted.grantNextHitEffect) ||
+        (typeof persisted.conditionExpr === 'string' && persisted.conditionExpr.trim().length > 0) ||
+        (typeof persisted.trigger === 'string' && persisted.trigger.trim().length > 0) ||
+        (persisted.usageLimit?.per && typeof persisted.usageLimit.max === 'number');
     if (!meaningful)
         return null;
-    return m;
+    return persisted;
 }
 export async function openPowerMechanicsEditor({ actor, power }) {
     if (!actor || !power) {
@@ -261,7 +327,7 @@ export async function openPowerMechanicsEditor({ actor, power }) {
                                 throw new Error('not an object');
                             if (!parsed.applyWhen)
                                 throw new Error('missing `applyWhen` — required on every block.');
-                            nextMech = parsed;
+                            nextMech = persistPowerMechanics(parsed);
                         }
                         catch (err) {
                             ui.notifications?.error(`Invalid JSON: ${err?.message ?? err}`);

@@ -139,7 +139,7 @@ const MIGHT_POWERS = [
         effect: 'Remove from yourself or an ally within 6m one: Bleeding / Entangle / Grappled.',
         apply: async (_actor, _combatant) => {
             // Requires target selection - store flag
-            await _actor.setFlag('mastery-system', 'pendingRemoveSpecials', ['Bleeding', 'Entangle', 'Grappled']);
+            await _actor.setFlag('mastery-system', 'pendingRemoveSpecials', ['bleeding', 'entangle', 'grappled']);
         }
     }
 ];
@@ -213,7 +213,7 @@ const AGILITY_POWERS = [
         description: 'Remove from yourself or an ally within 6m one: Ignite / Freeze / Shock',
         effect: 'Remove from yourself or an ally within 6m one: Ignite / Freeze / Shock.',
         apply: async (_actor, _combatant) => {
-            await _actor.setFlag('mastery-system', 'pendingRemoveSpecials', ['Ignite', 'Freeze', 'Shock']);
+            await _actor.setFlag('mastery-system', 'pendingRemoveSpecials', ['ignite', 'freeze', 'shock']);
         }
     }
 ];
@@ -274,7 +274,7 @@ const VITALITY_POWERS = [
         description: 'Remove from yourself or an ally within 6m one: Stunned / Disoriented / Prone',
         effect: 'Remove from yourself or an ally within 6m one: Stunned / Disoriented / Prone.',
         apply: async (_actor, _combatant) => {
-            await _actor.setFlag('mastery-system', 'pendingRemoveSpecials', ['Stunned', 'Disoriented', 'Prone']);
+            await _actor.setFlag('mastery-system', 'pendingRemoveSpecials', ['stunned', 'disoriented', 'prone']);
         }
     }
 ];
@@ -349,7 +349,7 @@ const INTELLECT_POWERS = [
         description: 'Remove from yourself or an ally within 6m one: Torment / Mark / Bleed',
         effect: 'Remove from yourself or an ally within 6m one: Torment / Mark / Bleed.',
         apply: async (_actor, _combatant) => {
-            await _actor.setFlag('mastery-system', 'pendingRemoveSpecials', ['Torment', 'Mark', 'Bleed']);
+            await _actor.setFlag('mastery-system', 'pendingRemoveSpecials', ['torment', 'mark', 'bleed']);
         }
     }
 ];
@@ -414,7 +414,7 @@ const RESOLVE_POWERS = [
         description: 'Remove from yourself or an ally within 6m one: Soulburn / Curse / Hex',
         effect: 'Remove from yourself or an ally within 6m one: Soulburn / Curse / Hex.',
         apply: async (_actor, _combatant) => {
-            await _actor.setFlag('mastery-system', 'pendingRemoveSpecials', ['Soulburn', 'Curse', 'Hex']);
+            await _actor.setFlag('mastery-system', 'pendingRemoveSpecials', ['soulburn', 'curse', 'hex']);
         }
     }
 ];
@@ -463,7 +463,7 @@ const INFLUENCE_POWERS = [
         description: 'Remove from yourself or an ally within 6m one: Frightened / Charmed / Disorient',
         effect: 'Remove from yourself or an ally within 6m one: Frightened / Charmed / Disorient.',
         apply: async (_actor, _combatant) => {
-            await _actor.setFlag('mastery-system', 'pendingRemoveSpecials', ['Frightened', 'Charmed', 'Disorient']);
+            await _actor.setFlag('mastery-system', 'pendingRemoveSpecials', ['frightened', 'charmed', 'disorient']);
         }
     }
 ];

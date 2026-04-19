@@ -28,7 +28,7 @@ export const CURSEWEAVER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '1d8 damage', dice: '1d8' },
-                specials: [{ key: 'Curse', rank: 1 }]
+                specials: [{ key: 'curse', rank: 1 }]
             },
             '2': {
 
@@ -37,7 +37,7 @@ export const CURSEWEAVER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '3d8 damage', dice: '3d8' },
-                specials: [{ key: 'Curse', rank: 1 }]
+                specials: [{ key: 'curse', rank: 1 }]
             },
             '3': {
 
@@ -46,7 +46,7 @@ export const CURSEWEAVER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '4d8 damage', dice: '4d8' },
-                specials: [{ key: 'Curse', rank: 2 }]
+                specials: [{ key: 'curse', rank: 2 }]
             },
             '4': {
 
@@ -55,7 +55,7 @@ export const CURSEWEAVER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'none' },
                 duration: { kind: 'instant' },
                 effect: { text: '6d8 damage', dice: '6d8' },
-                specials: [{ key: 'Curse', rank: 2 }]
+                specials: [{ key: 'curse', rank: 2 }]
             }
         }
     },
@@ -88,7 +88,7 @@ export const CURSEWEAVER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 4 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Enemies suffer −2 Attack Dice, −1 Save Die' },
-                specials: [{ key: 'Mark', rank: 1 }]
+                specials: [{ key: 'mark', rank: 1 }]
             },
             '3': {
 
@@ -97,7 +97,7 @@ export const CURSEWEAVER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 6 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Enemies suffer −2 Attack Dice, −1 Save Die' },
-                specials: [{ key: 'Mark', rank: 2 }]
+                specials: [{ key: 'mark', rank: 2 }]
             },
             '4': {
 
@@ -106,7 +106,7 @@ export const CURSEWEAVER_POWERS: NewArtifactPowerData[] = [
                 aoe: { shape: 'radius', m: 8 },
                 duration: { kind: 'rounds', rounds: 1 },
                 effect: { text: 'Enemies suffer −3 Attack Dice, −1 Save Die' },
-                specials: [{ key: 'Mark', rank: 2 }]
+                specials: [{ key: 'mark', rank: 2 }]
             }
         }
     },
