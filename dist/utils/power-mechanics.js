@@ -14,6 +14,8 @@
  * `ActiveEffect.changes` pipeline. All addition happens on top of the
  * existing `system.combat.*` values computed earlier in `prepareDerivedData`.
  */
+import { MASTERY_TREE_POWER_MAP } from './powers/index.js';
+import { ALL_MAGIC_POWERS } from './magic-powers.js';
 /** Empty breakdown skeleton (all arrays/objects present, all totals zero). */
 export function emptyBreakdown() {
     return {
@@ -78,12 +80,19 @@ function formatGrantNextHitSummary(m) {
  * Resolve the rank-specific mechanics block from a power item.
  * Falls back to the power-level `system.mechanics` when no rank override
  * exists. Returns null when the power has no mechanics at all.
+ *
+ * Backwards-compatibility: power items created before the `mechanics` blocks
+ * were added to the canonical tree/school definitions stored a snapshot of
+ * `levels` that lacks those blocks. For those legacy items we look the
+ * definition up again in the live catalog by `name` (+ `tree` / `isMagicPower`
+ * hints) and pull the mechanics from there. Re-adding the power is no longer
+ * required for passives/buffs to apply.
  */
 export function resolvePowerMechanics(powerItem) {
     if (!powerItem)
         return null;
     const sys = powerItem.system ?? {};
-    const rank = Math.max(1, Math.min(4, Number(sys.rank ?? 1)));
+    const rank = Math.max(1, Math.min(4, Number(sys.rank ?? sys.level ?? 1)));
     const levels = sys.levels ?? {};
     const rankBlock = levels[String(rank)] ?? null;
     const rankMech = rankBlock?.mechanics;
@@ -92,6 +101,54 @@ export function resolvePowerMechanics(powerItem) {
     const topMech = sys.mechanics;
     if (topMech && typeof topMech === 'object')
         return topMech;
+    const fromCatalog = resolveMechanicsFromCatalog(powerItem, rank);
+    if (fromCatalog)
+        return fromCatalog;
+    return null;
+}
+/**
+ * Look the canonical mechanics up in the live catalog. Matches on `name`
+ * first (most robust after user renames are unlikely) and, when a tree is
+ * stored on the item, restricts the search to that tree to avoid name
+ * collisions (e.g. "Dragon Scales" exists in both `dragon.ts` and
+ * `warden-dragon.ts`).
+ */
+function resolveMechanicsFromCatalog(powerItem, rank) {
+    const sys = powerItem.system ?? {};
+    const name = powerItem.name ?? sys.name;
+    if (!name)
+        return null;
+    const tree = sys.tree ? String(sys.tree) : undefined;
+    const isMagic = sys.isMagicPower === true;
+    const pools = [];
+    if (isMagic) {
+        pools.push({ powers: ALL_MAGIC_POWERS });
+    }
+    else if (tree && MASTERY_TREE_POWER_MAP[tree]) {
+        pools.push({ tree, powers: MASTERY_TREE_POWER_MAP[tree] });
+    }
+    else {
+        // Unknown / legacy tree name — scan every pool.
+        for (const [t, powers] of Object.entries(MASTERY_TREE_POWER_MAP)) {
+            pools.push({ tree: t, powers: powers });
+        }
+        pools.push({ powers: ALL_MAGIC_POWERS });
+    }
+    for (const pool of pools) {
+        const def = pool.powers.find((p) => p?.name === name);
+        if (!def)
+            continue;
+        const defLevels = def.levels;
+        if (defLevels && typeof defLevels === 'object' && !Array.isArray(defLevels)) {
+            const lvl = defLevels[String(rank)] ?? defLevels['1'];
+            const m = lvl?.mechanics;
+            if (m && typeof m === 'object')
+                return m;
+        }
+        const topM = def.mechanics;
+        if (topM && typeof topM === 'object')
+            return topM;
+    }
     return null;
 }
 /**

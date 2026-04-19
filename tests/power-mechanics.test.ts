@@ -99,6 +99,40 @@ describe('resolvePowerMechanics', () => {
     };
     expect(resolvePowerMechanics(item)?.armor).toBe(9);
   });
+
+  it('falls back to the live catalog when the stored item has no mechanics', () => {
+    // Simulates a legacy power item created before tree files had `mechanics`
+    // blocks: rank + tree are stored but levels[…].mechanics is missing.
+    // The resolver should look up the canonical definition and return its
+    // mechanics (Dragon Scales Rank 2 → armor 4, applyWhen passive-slotted).
+    const legacy = {
+      name: 'Dragon Scales',
+      system: {
+        rank: 2,
+        tree: 'Warden Dragon',
+        levels: {
+          '2': { type: 'passive', effect: 'Gain +4 Armor…' },
+        },
+      },
+    };
+    const mech = resolvePowerMechanics(legacy);
+    expect(mech).not.toBeNull();
+    expect(mech?.armor).toBe(4);
+    expect(mech?.applyWhen).toBe('passive-slotted-active');
+  });
+
+  it('catalog fallback also works when the tree hint is missing', () => {
+    const legacy = {
+      name: 'Lean Ward',
+      system: {
+        rank: 1,
+        levels: {},
+      },
+    };
+    const mech = resolvePowerMechanics(legacy);
+    expect(mech?.armor).toBe(2);
+    expect(mech?.applyWhen).toBe('passive-slotted-active');
+  });
 });
 
 describe('aggregateMechanics — pure summing', () => {

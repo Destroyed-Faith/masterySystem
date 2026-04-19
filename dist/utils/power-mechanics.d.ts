@@ -22,6 +22,13 @@ export declare function emptyBreakdown(): MechanicsBreakdown;
  * Resolve the rank-specific mechanics block from a power item.
  * Falls back to the power-level `system.mechanics` when no rank override
  * exists. Returns null when the power has no mechanics at all.
+ *
+ * Backwards-compatibility: power items created before the `mechanics` blocks
+ * were added to the canonical tree/school definitions stored a snapshot of
+ * `levels` that lacks those blocks. For those legacy items we look the
+ * definition up again in the live catalog by `name` (+ `tree` / `isMagicPower`
+ * hints) and pull the mechanics from there. Re-adding the power is no longer
+ * required for passives/buffs to apply.
  */
 export declare function resolvePowerMechanics(powerItem: any): PowerMechanics | null;
 /** One collected mechanics contribution with its display source. */
