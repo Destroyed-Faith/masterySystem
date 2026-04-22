@@ -254,7 +254,9 @@ export function registerAttackRollClickHandler() {
                 flavor: `Roll ${numDice}d8 keep ${keepDice} vs ${game.actors?.get(flags.targetId)?.name || 'Target'}'s Evade (${currentTargetEvade}${declaredRaisesForTn > 0 ? `, ${declaredRaisesForTn} raise${declaredRaisesForTn > 1 ? 's' : ''}` : ''})${disadvantageNote}`,
                 actorId: flags.attackerId,
                 rollKind: 'attack',
-                targetActorId: flags.targetId
+                targetActorId: flags.targetId,
+                autoFailIntent: 'attack',
+                checkContext: { tags: ['sight'] }
             });
             console.log('Mastery System | DEBUG: Roll completed!', {
                 total: result.total,

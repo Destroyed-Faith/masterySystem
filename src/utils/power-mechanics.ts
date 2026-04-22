@@ -37,12 +37,14 @@ export function emptyBreakdown(): MechanicsBreakdown {
     grantNextHitDeclared: [],
     saveDice: { body: [], mind: [], spirit: [] },
     rollDice: { attack: [], skill: [], damage: [] },
+    damageReductionPct: { passive: [], buff: [], reaction: [] },
     totals: {
       armor: 0,
       evade: 0,
       initiativeD8: 0,
       movementBonus: 0,
       regen: 0,
+      damageReductionPct: 0,
       saveDice: { body: 0, mind: 0, spirit: 0 },
       rollDice: { attack: 0, skill: 0, damage: 0 },
     },
@@ -153,8 +155,65 @@ function resolveMechanicsFromCatalog(
 
 /** One collected mechanics contribution with its display source. */
 interface MechanicsContribution {
+  /** Human display, e.g. "Lean Ward (slotted)". */
   source: string;
+  /** Canonical power name (no suffix), used for the closed-subsystem whitelist. */
+  powerName: string;
+  /** Which layer of the stack this contribution belongs to (DR gating axis). */
+  sourceKind: 'passive' | 'buff' | 'reaction';
   mechanics: PowerMechanics;
+}
+
+/**
+ * Closed-subsystem whitelist for Damage Reduction. Only these three power
+ * names (case-insensitive, trimmed) may contribute `damageReductionPct`
+ * anywhere in the system. Anything else is dropped by the aggregator with
+ * a console warning so rules-violating homebrew cannot leak DR into the
+ * game.
+ */
+const DR_SANCTIONED_POWER_NAMES: Record<'passive' | 'buff' | 'reaction', string> = {
+  passive: 'damage reduction',
+  buff: 'unyielding shell',
+  reaction: 'unyielding intercept',
+};
+
+/**
+ * Closed-subsystem whitelist for Phasing. Same semantics as DR: only these
+ * three names may declare `phasing` / `triggers.combatStart.phasingCharges`.
+ */
+const PHASING_SANCTIONED_POWER_NAMES: Record<'passive' | 'buff' | 'reaction', string> = {
+  passive: 'ghostform',
+  buff: 'ghost mantle',
+  reaction: 'ghost slip',
+};
+
+function normalizePowerName(name: string): string {
+  return String(name || '').trim().toLowerCase();
+}
+
+/**
+ * Verify the contribution is allowed to grant Damage Reduction. Emits a
+ * one-shot warning for rule violations so GMs notice misconfigured powers.
+ */
+function isSanctionedDR(contribution: MechanicsContribution): boolean {
+  const expected = DR_SANCTIONED_POWER_NAMES[contribution.sourceKind];
+  const actual = normalizePowerName(contribution.powerName);
+  if (actual === expected) return true;
+  console.warn(
+    `Mastery System | DR rule violation: power "${contribution.powerName}" ` +
+      `(${contribution.sourceKind}) declares damageReductionPct but only ` +
+      `"${expected}" may grant DR at this layer. Contribution dropped.`,
+  );
+  return false;
+}
+
+/** Same check for Phasing declarations. Exported so the runtime can reuse. */
+export function isSanctionedPhasingName(
+  powerName: string,
+  sourceKind: 'passive' | 'buff' | 'reaction',
+): boolean {
+  const expected = PHASING_SANCTIONED_POWER_NAMES[sourceKind];
+  return normalizePowerName(powerName) === expected;
 }
 
 /**
@@ -189,8 +248,11 @@ export function collectMechanicsContributions(actor: any): MechanicsContribution
     if (!mech) continue;
     // Only honor the two passive-like applyWhen values here; defensive against bad data.
     if (mech.applyWhen !== 'passive-slotted-active') continue;
+    const pname = slot.passive.name ?? 'Passive';
     out.push({
-      source: `${slot.passive.name ?? 'Passive'} (slotted)`,
+      source: `${pname} (slotted)`,
+      powerName: pname,
+      sourceKind: 'passive',
       mechanics: mech,
     });
   }
@@ -223,8 +285,11 @@ export function collectMechanicsContributions(actor: any): MechanicsContribution
       }
       if (!mech) continue;
       if (mech.applyWhen !== 'activeBuff-active') continue;
+      const pname = flags.powerName ?? effect.name ?? 'Active Buff';
       out.push({
-        source: `${flags.powerName ?? effect.name ?? 'Active Buff'} (buff)`,
+        source: `${pname} (buff)`,
+        powerName: pname,
+        sourceKind: 'buff',
         mechanics: mech,
       });
     }
@@ -246,7 +311,8 @@ function pushNum(target: MechanicsBreakdownEntry[], source: string, value: numbe
  */
 export function aggregateMechanics(contributions: MechanicsContribution[]): MechanicsBreakdown {
   const bd = emptyBreakdown();
-  for (const { source, mechanics } of contributions) {
+  for (const contribution of contributions) {
+    const { source, mechanics, sourceKind } = contribution;
     // Conditional blocks never contribute to the unconditional breakdown;
     // they are folded in per-roll by `getRollDiceDelta(actor, kind, target)`
     // and per-damage by `collectConditionalDamageRiders`.
@@ -256,6 +322,16 @@ export function aggregateMechanics(contributions: MechanicsContribution[]): Mech
     pushNum(bd.initiativeD8, source, mechanics.initiativeD8);
     pushNum(bd.movementBonus, source, mechanics.movementBonus);
     pushNum(bd.regen, source, mechanics.regen);
+
+    // Damage Reduction — closed subsystem, whitelisted by power name.
+    if (typeof mechanics.damageReductionPct === 'number' && mechanics.damageReductionPct > 0) {
+      if (isSanctionedDR(contribution)) {
+        const row: MechanicsBreakdownEntry = { source, value: mechanics.damageReductionPct };
+        if (sourceKind === 'passive') bd.damageReductionPct.passive.push(row);
+        else if (sourceKind === 'buff') bd.damageReductionPct.buff.push(row);
+        else if (sourceKind === 'reaction') bd.damageReductionPct.reaction.push(row);
+      }
+    }
     if (typeof mechanics.tempHP === 'string' && mechanics.tempHP.length > 0) {
       bd.tempHP.push({ source, value: mechanics.tempHP });
     }
@@ -295,6 +371,14 @@ export function aggregateMechanics(contributions: MechanicsContribution[]): Mech
   bd.totals.rollDice.attack = sum(bd.rollDice.attack);
   bd.totals.rollDice.skill = sum(bd.rollDice.skill);
   bd.totals.rollDice.damage = sum(bd.rollDice.damage);
+
+  // Damage-Reduction gating: Buff/Reaction only count if a Passive DR base
+  // exists. Reaction DR is reserved for per-hit application (not folded into
+  // the continuous actor total). The final total is clamped 0–100.
+  const passiveDR = sum(bd.damageReductionPct.passive);
+  const buffDR = sum(bd.damageReductionPct.buff);
+  const raw = passiveDR > 0 ? passiveDR + buffDR : 0;
+  bd.totals.damageReductionPct = Math.max(0, Math.min(100, raw));
   return bd;
 }
 

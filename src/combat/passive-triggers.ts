@@ -44,7 +44,12 @@
 
 import type { PowerMechanics, PowerMechanicsTriggers } from '../types/item';
 import { getPassiveSlots } from '../powers/passives.js';
-import { resolvePowerMechanics } from '../utils/power-mechanics.js';
+import { resolvePowerMechanics, isSanctionedPhasingName } from '../utils/power-mechanics.js';
+import {
+  grantPhasingCharges,
+  augmentPhasingCharges,
+  removeAugmentCharges,
+} from './phasing.js';
 
 export type TriggerKind = keyof PowerMechanicsTriggers; // 'combatStart' | 'turnStartSelf'
 
@@ -454,6 +459,30 @@ async function applyTriggerToOwners(
   let anyChange = false;
 
   for (const owner of owners) {
+    // Phasing: combatStart passive grants base charges; buff augment layers.
+    if (triggerKinds.includes('combatStart')) {
+      const phasing = owner.mechanics.phasing;
+      if (phasing && isSanctionedPhasingName(owner.name, owner.ownerKind)) {
+        if (owner.ownerKind === 'passive' && phasing.combatStart?.charges && phasing.combatStart.charges > 0) {
+          await grantPhasingCharges(actor, combat, phasing.combatStart.charges, {
+            ownerKind: 'passive',
+            ownerId: owner.ownerId,
+            name: owner.name,
+          });
+        } else if (owner.ownerKind === 'buff' && phasing.augment?.addCharges && phasing.augment.addCharges > 0) {
+          await augmentPhasingCharges(actor, combat, phasing.augment.addCharges, {
+            ownerKind: 'buff',
+            ownerId: owner.ownerId,
+            name: owner.name,
+          });
+        }
+      } else if (phasing) {
+        console.warn(
+          `Mastery System | [phasing] rule violation: "${owner.name}" (${owner.ownerKind}) declared phasing but is not sanctioned. Ignored.`,
+        );
+      }
+    }
+
     for (const triggerKind of triggerKinds) {
       const triggerBlock = owner.mechanics.triggers?.[triggerKind];
       if (!triggerBlock) continue;

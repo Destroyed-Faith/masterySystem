@@ -1,0 +1,1 @@
+{"version":3,"file":"skill-tags.d.ts","sourceRoot":"","sources":["../../src/system/skill-tags.ts"],"names":[],"mappings":"AAAA;;;;;;;;;;;;;;GAcG;AAEH,MAAM,MAAM,QAAQ,GAAG,OAAO,GAAG,SAAS,GAAG,OAAO,GAAG,OAAO,GAAG,eAAe,CAAC;AAuCjF;;;;GAIG;AACH,wBAAgB,YAAY,CAAC,SAAS,EAAE,MAAM,GAAG,QAAQ,EAAE,CAS1D;AAED,kEAAkE;AAClE,wBAAgB,mBAAmB,IAAI,MAAM,CAAC,MAAM,EAAE,QAAQ,EAAE,CAAC,CAEhE"}

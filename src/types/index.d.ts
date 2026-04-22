@@ -17,6 +17,13 @@ export interface MasteryRollResult {
   exploded: number[];
   /** Per pool die: individual d8 faces before summing (exploding 8s). Optional for older stored flags. */
   dieChains?: number[][];
+  /**
+   * When set, the roll was forced to `success: false` by an auto-fail
+   * condition (e.g. `'blinded-sight'` when a Blinded actor tried a
+   * sight-tagged check). The dice are still rolled and displayed, but
+   * `success` and `raises` reflect the forced failure.
+   */
+  autoFailReason?: string;
 }
 
 // System constants

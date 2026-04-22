@@ -35,6 +35,32 @@ export interface DamageResult {
      * Ephemeral — not stored on documents.
      */
     damageChatRolls?: any[];
+    /** Natural 8s rolled across all damage dice (drives the 8s-minimum rule). */
+    count8s?: number;
+    /**
+     * Mitigation breakdown once damage has been applied to the target. The
+     * attack-roll chat card appends this line so players can see exactly
+     * why a hit went through (or got phased/mitigated).
+     */
+    mitigation?: AppliedDamageSummary;
 }
 export declare function showDamageDialog(attacker: Actor, target: Actor, weaponId: string | null, selectedPowerId: string | null, raises: number, flags?: any): Promise<DamageResult | null>;
+/**
+ * Result of the full defensive pipeline for one strike. Exposed so that the
+ * chat card assembly (and split-attack logging) can render a single-line
+ * "Raw 14 → Armor 4 → DR 20% → TempHP 3 → 5" summary.
+ */
+export interface AppliedDamageSummary {
+    rawDamage: number;
+    armorApplied: number;
+    drPercent: number;
+    mitigatedDamage: number;
+    tempHPAbsorbed: number;
+    barDamage: number;
+    min8sUsed: boolean;
+    /** "Raw X → Armor Y → DR Z% → TempHP A → B". */
+    breakdownLine: string;
+    /** `true` if the target phased out of the hit entirely. */
+    phased: boolean;
+}
 //# sourceMappingURL=damage-dialog.d.ts.map

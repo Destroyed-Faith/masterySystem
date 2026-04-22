@@ -217,6 +217,8 @@ export interface PowerMechanicsTriggers {
   combatStart?: {
     /** Temp HP pool to create. Dice-string or flat numeric string. */
     tempHP?: string;
+    /** Phasing charges granted at combat start (passive base). */
+    phasingCharges?: number;
   };
   /**
    * Fires at the owning actor's own turn-start. The declared value is
@@ -242,6 +244,66 @@ export interface PowerMechanics {
   tempHP?: string;
   /** HP regen per tick (end of turn / Mastery Rank rounds, per category). */
   regen?: number;
+
+  /**
+   * Percentage-based Damage Reduction applied to incoming damage AFTER flat
+   * Armor mitigation. Closed subsystem: may only originate from the three
+   * sanctioned power lines (`Damage Reduction` passive, `Unyielding Shell`
+   * active buff, `Unyielding Intercept` reaction). The aggregator enforces
+   * gating rules: Buff/Reaction bonuses only count if a Passive DR source is
+   * active; otherwise they contribute 0.
+   * Range: 0–100 (percentage points). Aggregated additively per rule table.
+   */
+  damageReductionPct?: number;
+
+  /**
+   * Declares this power as a Split-Attack (2 Strikes). Runtime splits the
+   * attack pool and damage pool evenly between the two strikes and creates
+   * two independent attack rolls. Power-declared (not a runtime toggle).
+   */
+  splitAttack?: boolean;
+
+  /**
+   * Phasing subsystem — a premium, closed defensive axis. Only the three
+   * sanctioned powers (`Ghostform` passive, `Ghost Mantle` active buff,
+   * `Ghost Slip` reaction) may declare this field. The passive grants base
+   * charges at combat start, the buff augments existing charges by +1 (only
+   * if a passive base already exists), the reaction grants one charge for
+   * exactly the triggering hit.
+   */
+  phasing?: {
+    /** Passive: grant N base charges on combatStart. Idempotent per combat. */
+    combatStart?: { charges: number };
+    /** Active buff: add N charges to an existing passive base. */
+    augment?: { addCharges: number };
+    /** Reaction: grant one charge for exactly the triggering attack. */
+    reactionSingleHit?: boolean;
+  };
+
+  /**
+   * Auto-fail condition metadata — declarative mapping from this condition
+   * (when present on an actor) to forced skill/attack fails. Currently only
+   * `Blinded` (sight) consumes this at runtime via `autoFail.checkTags`; the
+   * `attackDicePenalty` is applied to any attack whose weapon/power carries
+   * a matching tag, and the penalty scales with condition rank.
+   * Status-effect keyed; not a power-level mechanic.
+   */
+  autoFail?: {
+    /** Force check failure if the check carries any of these tags. */
+    checkTags?: string[];
+    /** Subtract `perRank * rank` attack dice for sight-based / tagged attacks. */
+    attackDicePenalty?: { tags: string[]; perRank: number };
+  };
+
+  /**
+   * Action-lock metadata for conditions like Stunned. Subtracts from the
+   * actor's available attack actions for the current round (clamp ≥ 0).
+   * Status-effect keyed; not a power-level mechanic.
+   */
+  actionLock?: {
+    /** Attack actions lost; 'perRank' means condition rank, number is flat. */
+    attackActions: 'perRank' | number;
+  };
 
   /** Generic heal dice or flat (aggregator lists under breakdown.healing). */
   healing?: PowerMechanicsHealing;

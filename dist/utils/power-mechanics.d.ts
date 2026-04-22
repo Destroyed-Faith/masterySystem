@@ -33,9 +33,16 @@ export declare function emptyBreakdown(): MechanicsBreakdown;
 export declare function resolvePowerMechanics(powerItem: any): PowerMechanics | null;
 /** One collected mechanics contribution with its display source. */
 interface MechanicsContribution {
+    /** Human display, e.g. "Lean Ward (slotted)". */
     source: string;
+    /** Canonical power name (no suffix), used for the closed-subsystem whitelist. */
+    powerName: string;
+    /** Which layer of the stack this contribution belongs to (DR gating axis). */
+    sourceKind: 'passive' | 'buff' | 'reaction';
     mechanics: PowerMechanics;
 }
+/** Same check for Phasing declarations. Exported so the runtime can reuse. */
+export declare function isSanctionedPhasingName(powerName: string, sourceKind: 'passive' | 'buff' | 'reaction'): boolean;
 /**
  * Enumerate every active mechanics contribution for an actor:
  * - slot-activated passives (system.passives.slotN where active=true) with a mechanics block

@@ -548,9 +548,23 @@ export async function getAllCombatOptionsForActor(actor) {
             actionCost === 'movement';
         const costsAction = actionCost === true || cost.actions === true ||
             (typeof actionCost === 'string' && ['attack', 'full', 'utility'].includes(actionCost));
+        // Label split-attack powers so the user sees "× 2" in the radial menu.
+        // Split detection uses the same rank-aware helper the attack-executor uses
+        // so homebrew / non-standard data layouts stay in sync.
+        let displayName = item.name;
+        try {
+            const { resolvePowerMechanics } = await import('../utils/power-mechanics.js');
+            const mech = resolvePowerMechanics(item);
+            if (mech?.splitAttack === true) {
+                displayName = `${item.name} × 2`;
+            }
+        }
+        catch {
+            /* ignore — power-mechanics import failure should never break the menu. */
+        }
         const option = {
             id: item.id,
-            name: item.name,
+            name: displayName,
             description: item.system?.description || item.system?.effect || '',
             slot: slot,
             source: 'power',

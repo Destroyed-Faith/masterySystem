@@ -3,6 +3,7 @@
  * Implements Roll & Keep with exploding 8s
  */
 import { EXPLODE_VALUE, RAISE_INCREMENT } from '../utils/constants.js';
+import { evaluateAutoFail } from '../system/auto-fail.js';
 /**
  * Roll one pool die: exploding d8s while running total is divisible by 8 (Mastery rules).
  * Returns each face for Foundry display (exploded flags) and the pool die total.
@@ -102,6 +103,34 @@ export async function masteryRoll(options) {
             console.warn('Mastery System | power-mechanics delta lookup failed', err);
         }
     }
+    // Auto-Fail engine: pool penalty + forced failure reason. Runs after the
+    // Power Mechanics Engine so penalties stack on top of the adjusted pool.
+    let autoFailReason;
+    const autoFailIntent = options.autoFailIntent ?? (kind === 'attack' ? 'attack' : 'skill');
+    if (options.actorId && options.checkContext) {
+        try {
+            const actor = game?.actors?.get?.(options.actorId);
+            if (actor) {
+                const decision = evaluateAutoFail(actor, options.checkContext, autoFailIntent);
+                if (decision.dicePenalty && decision.dicePenalty > 0) {
+                    const adjusted = Math.max(1, numDice - decision.dicePenalty);
+                    if (adjusted !== numDice) {
+                        const note = decision.note ?? `Auto-Fail: −${decision.dicePenalty} dice`;
+                        flavor = flavor ? `${flavor} | ${note}` : note;
+                        numDice = adjusted;
+                    }
+                }
+                if (decision.failed) {
+                    autoFailReason = decision.reason ?? 'auto-fail';
+                    const note = decision.note ?? `Auto-Fail (${autoFailReason})`;
+                    flavor = flavor ? `${flavor} | ${note}` : note;
+                }
+            }
+        }
+        catch (err) {
+            console.warn('Mastery System | auto-fail lookup failed', err);
+        }
+    }
     console.log('Mastery System | DEBUG: masteryRoll called', {
         numDice,
         keepDice,
@@ -135,9 +164,11 @@ export async function masteryRoll(options) {
     });
     // Add skill bonus (deprecated: now handled via skill spending, but kept for compatibility)
     const total = diceTotal + skill;
-    // Calculate success and raises
-    const success = tn > 0 ? total >= tn : true;
-    const raises = tn > 0 ? calculateRaises(total, tn) : 0;
+    // Calculate success and raises — an auto-fail reason overrides both.
+    const rawSuccess = tn > 0 ? total >= tn : true;
+    const rawRaises = tn > 0 ? calculateRaises(total, tn) : 0;
+    const success = autoFailReason ? false : rawSuccess;
+    const raises = autoFailReason ? 0 : rawRaises;
     console.log('Mastery System | DEBUG: Roll result calculated', {
         total,
         tn,
@@ -159,7 +190,8 @@ export async function masteryRoll(options) {
         exploded,
         dieChains,
         label,
-        flavor
+        flavor,
+        ...(autoFailReason ? { autoFailReason } : {})
     };
     console.log('Mastery System | DEBUG: Sending roll to chat', {
         result,

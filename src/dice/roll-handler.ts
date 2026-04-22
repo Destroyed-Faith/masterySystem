@@ -5,6 +5,7 @@
 
 import { MasteryRollResult } from '../types';
 import { EXPLODE_VALUE, RAISE_INCREMENT } from '../utils/constants';
+import { evaluateAutoFail, type CheckContext } from '../system/auto-fail.js';
 
 /** Roll-kind hint used by the Power Mechanics Engine to look up dice-pool deltas. */
 export type MasteryRollKind =
@@ -40,6 +41,18 @@ export interface RollOptions {
    * gate is target-facing (e.g. "+1 attack die vs Hexed").
    */
   targetActorId?: string;
+  /**
+   * Semantic check tags used by the Auto-Fail engine. When `tags`
+   * includes `'sight'` and the rolling actor is Blinded(X), the roll
+   * is either auto-failed (skill check) or penalised −X dice (attack).
+   */
+  checkContext?: CheckContext;
+  /**
+   * Intent classifier for the auto-fail engine. Defaults to `'skill'`.
+   * Attacks use `'attack'` so that Blinded only subtracts dice instead
+   * of forcing a full failure.
+   */
+  autoFailIntent?: 'skill' | 'attack';
 }
 
 /** Stored on chat messages so a Faith Fracture reroll can repeat the same roll setup. */
@@ -164,6 +177,35 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
     }
   }
 
+  // Auto-Fail engine: pool penalty + forced failure reason. Runs after the
+  // Power Mechanics Engine so penalties stack on top of the adjusted pool.
+  let autoFailReason: string | undefined;
+  const autoFailIntent: 'skill' | 'attack' =
+    options.autoFailIntent ?? (kind === 'attack' ? 'attack' : 'skill');
+  if (options.actorId && options.checkContext) {
+    try {
+      const actor: any = (game as any)?.actors?.get?.(options.actorId);
+      if (actor) {
+        const decision = evaluateAutoFail(actor, options.checkContext, autoFailIntent);
+        if (decision.dicePenalty && decision.dicePenalty > 0) {
+          const adjusted = Math.max(1, numDice - decision.dicePenalty);
+          if (adjusted !== numDice) {
+            const note = decision.note ?? `Auto-Fail: −${decision.dicePenalty} dice`;
+            flavor = flavor ? `${flavor} | ${note}` : note;
+            numDice = adjusted;
+          }
+        }
+        if (decision.failed) {
+          autoFailReason = decision.reason ?? 'auto-fail';
+          const note = decision.note ?? `Auto-Fail (${autoFailReason})`;
+          flavor = flavor ? `${flavor} | ${note}` : note;
+        }
+      }
+    } catch (err) {
+      console.warn('Mastery System | auto-fail lookup failed', err);
+    }
+  }
+
   console.log('Mastery System | DEBUG: masteryRoll called', {
     numDice,
     keepDice,
@@ -202,9 +244,11 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
   // Add skill bonus (deprecated: now handled via skill spending, but kept for compatibility)
   const total = diceTotal + skill;
   
-  // Calculate success and raises
-  const success = tn > 0 ? total >= tn : true;
-  const raises = tn > 0 ? calculateRaises(total, tn) : 0;
+  // Calculate success and raises — an auto-fail reason overrides both.
+  const rawSuccess = tn > 0 ? total >= tn : true;
+  const rawRaises = tn > 0 ? calculateRaises(total, tn) : 0;
+  const success = autoFailReason ? false : rawSuccess;
+  const raises = autoFailReason ? 0 : rawRaises;
   
   console.log('Mastery System | DEBUG: Roll result calculated', {
     total,
@@ -228,7 +272,8 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
     exploded,
     dieChains,
     label,
-    flavor
+    flavor,
+    ...(autoFailReason ? { autoFailReason } : {})
   };
   
   console.log('Mastery System | DEBUG: Sending roll to chat', {

@@ -31,6 +31,11 @@ import {
   clearTempHPSourcesForBuffEffect,
   clearTempHPSourcesForCombat,
 } from './combat/passive-triggers.js';
+import {
+  clearPhasingForCombat,
+  removeAugmentCharges,
+  registerPhasingSettings,
+} from './combat/phasing.js';
 import { initializeEncounterStart, beginEncounter } from './combat/encounter-start.js';
 import { initializeSceneControls, initializeTokenHUDButton } from './ui/scene-controls-mastery.js';
 import { openStonePowersForAllCombatants, initializeStonePowersFlow } from './combat/stone-powers-flow.js';
@@ -137,6 +142,9 @@ Hooks.once('init', async function() {
   
   // Register Divine Clash settings
   registerDivineClashSettings();
+
+  // Phasing (Ignore-Hit) — client-side prompt behaviour.
+  registerPhasingSettings();
   
   // Setup XP Management inline in settings
   setupXpManagementInline();
@@ -617,12 +625,22 @@ Hooks.once('init', async function() {
     } catch (err) {
       console.error('Mastery System | passive-triggers combatEnd cleanup failed', err);
     }
+    try {
+      await clearPhasingForCombat(combat);
+    } catch (err) {
+      console.error('Mastery System | phasing combatEnd cleanup failed', err);
+    }
   });
   Hooks.on('deleteCombat', async (combat: Combat) => {
     try {
       await clearTempHPSourcesForCombat(combat);
     } catch (err) {
       console.error('Mastery System | passive-triggers deleteCombat cleanup failed', err);
+    }
+    try {
+      await clearPhasingForCombat(combat);
+    } catch (err) {
+      console.error('Mastery System | phasing deleteCombat cleanup failed', err);
     }
   });
   // Active-buff activation mid-combat: the continuous modifiers (armor/evade)
@@ -650,6 +668,8 @@ Hooks.once('init', async function() {
       const effectId = String(effect.id ?? effect._id ?? '').trim();
       if (!effectId) return;
       await clearTempHPSourcesForBuffEffect(actor, effectId);
+      // Phasing augments (Ghost Mantle) vanish with the buff they rode on.
+      await removeAugmentCharges(actor, effectId);
     } catch (err) {
       console.error('Mastery System | passive-triggers deleteActiveEffect cleanup failed', err);
     }

@@ -3,6 +3,7 @@
  * Implements Roll & Keep with exploding 8s
  */
 import { MasteryRollResult } from '../types';
+import { type CheckContext } from '../system/auto-fail.js';
 /** Roll-kind hint used by the Power Mechanics Engine to look up dice-pool deltas. */
 export type MasteryRollKind = 'attack' | 'skill' | 'damage' | 'saveBody' | 'saveMind' | 'saveSpirit' | 'generic';
 export interface RollOptions {
@@ -29,6 +30,18 @@ export interface RollOptions {
      * gate is target-facing (e.g. "+1 attack die vs Hexed").
      */
     targetActorId?: string;
+    /**
+     * Semantic check tags used by the Auto-Fail engine. When `tags`
+     * includes `'sight'` and the rolling actor is Blinded(X), the roll
+     * is either auto-failed (skill check) or penalised −X dice (attack).
+     */
+    checkContext?: CheckContext;
+    /**
+     * Intent classifier for the auto-fail engine. Defaults to `'skill'`.
+     * Attacks use `'attack'` so that Blinded only subtracts dice instead
+     * of forcing a full failure.
+     */
+    autoFailIntent?: 'skill' | 'attack';
 }
 /** Stored on chat messages so a Faith Fracture reroll can repeat the same roll setup. */
 export interface MasteryRollRecipe {

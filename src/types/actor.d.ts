@@ -56,6 +56,14 @@ export interface CombatData {
   armorFromMechanics?: number;
   evadeFromMechanics?: number;
   initiativeD8FromMechanics?: number;
+  /**
+   * Aggregated percentage-based Damage Reduction, applied AFTER flat Armor
+   * on incoming damage. Gated by the closed DR subsystem: Buff/Reaction
+   * contributions only count if a Passive DR source is active. Clamped 0–100.
+   */
+  damageReductionPct?: number;
+  /** Per-source rows for the DR breakdown UI. */
+  damageReductionRows?: Array<{ label: string; detail: string; value: number; display: string }>;
 }
 
 /** One line in a mechanics breakdown (source name + numeric value). */
@@ -104,12 +112,23 @@ export interface MechanicsBreakdown {
     skill: MechanicsBreakdownEntry[];
     damage: MechanicsBreakdownEntry[];
   };
+  /**
+   * Percentage-based Damage Reduction rows, split by gate tier so the UI
+   * can explain "Buff DR ignored (no Passive base)".
+   */
+  damageReductionPct: {
+    passive: MechanicsBreakdownEntry[];
+    buff: MechanicsBreakdownEntry[];
+    reaction: MechanicsBreakdownEntry[];
+  };
   totals: {
     armor: number;
     evade: number;
     initiativeD8: number;
     movementBonus: number;
     regen: number;
+    /** Final DR % after gating and clamping (0–100). */
+    damageReductionPct: number;
     saveDice: { body: number; mind: number; spirit: number };
     rollDice: { attack: number; skill: number; damage: number };
   };

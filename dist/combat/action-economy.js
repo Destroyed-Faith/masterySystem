@@ -6,6 +6,7 @@
  */
 // Actor, Combatant, and Combat are global types in Foundry VTT v13
 import { healStressFromBars } from '../utils/calculations.js';
+import { getStunnedRank } from '../system/auto-fail.js';
 const STONE_USAGE_ATTR_KEYS = [
     'might',
     'agility',
@@ -289,8 +290,16 @@ async function maybeLockStonePowersAfterCombatAction(actor, combat) {
 }
 export async function spendAttackAction(actor, combat) {
     const roundState = getRoundState(actor, combat);
-    if (roundState.attackActions.used >= roundState.attackActions.total) {
-        ui.notifications?.warn('No attack actions remaining!');
+    const owner = getActionEconomyActor(actor) ?? actor;
+    const stunnedLock = Math.max(0, getStunnedRank(owner));
+    const effectiveTotal = Math.max(0, roundState.attackActions.total - stunnedLock);
+    if (roundState.attackActions.used >= effectiveTotal) {
+        if (stunnedLock > 0) {
+            ui.notifications?.warn(`Stunned (${stunnedLock}) — no attack actions remaining this round!`);
+        }
+        else {
+            ui.notifications?.warn('No attack actions remaining!');
+        }
         return false;
     }
     roundState.attackActions.used += 1;
@@ -327,11 +336,16 @@ export async function spendReactionAction(actor, combat) {
     return true;
 }
 /**
- * Get available attack actions (remaining count)
+ * Get available attack actions (remaining count).
+ * Stunned(X) locks X attack actions for the current round — the total is
+ * clamped before subtracting `used`, never going below 0.
  */
 export function getAvailableAttackActions(actor, combat) {
     const roundState = getRoundState(actor, combat);
-    return Math.max(0, roundState.attackActions.total - roundState.attackActions.used);
+    const owner = getActionEconomyActor(actor) ?? actor;
+    const stunnedLock = Math.max(0, getStunnedRank(owner));
+    const effectiveTotal = Math.max(0, roundState.attackActions.total - stunnedLock);
+    return Math.max(0, effectiveTotal - roundState.attackActions.used);
 }
 /**
  * Get available movement actions (remaining count)

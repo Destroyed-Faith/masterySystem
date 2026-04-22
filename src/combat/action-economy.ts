@@ -8,6 +8,7 @@
 // Actor, Combatant, and Combat are global types in Foundry VTT v13
 
 import { healStressFromBars } from '../utils/calculations.js';
+import { getStunnedRank } from '../system/auto-fail.js';
 
 export type AttributeKey = 'might' | 'agility' | 'vitality' | 'intellect' | 'resolve' | 'influence';
 
@@ -397,12 +398,19 @@ async function maybeLockStonePowersAfterCombatAction(actor: Actor, combat: Comba
 
 export async function spendAttackAction(actor: Actor, combat: Combat | null): Promise<boolean> {
   const roundState = getRoundState(actor, combat);
+  const owner = getActionEconomyActor(actor) ?? actor;
+  const stunnedLock = Math.max(0, getStunnedRank(owner));
+  const effectiveTotal = Math.max(0, roundState.attackActions.total - stunnedLock);
 
-  if (roundState.attackActions.used >= roundState.attackActions.total) {
-    ui.notifications?.warn('No attack actions remaining!');
+  if (roundState.attackActions.used >= effectiveTotal) {
+    if (stunnedLock > 0) {
+      ui.notifications?.warn(`Stunned (${stunnedLock}) — no attack actions remaining this round!`);
+    } else {
+      ui.notifications?.warn('No attack actions remaining!');
+    }
     return false;
   }
-  
+
   roundState.attackActions.used += 1;
   await setRoundState(actor, roundState);
   await maybeLockStonePowersAfterCombatAction(actor, combat);
@@ -444,11 +452,16 @@ export async function spendReactionAction(actor: Actor, combat: Combat | null): 
 }
 
 /**
- * Get available attack actions (remaining count)
+ * Get available attack actions (remaining count).
+ * Stunned(X) locks X attack actions for the current round — the total is
+ * clamped before subtracting `used`, never going below 0.
  */
 export function getAvailableAttackActions(actor: Actor, combat: Combat | null): number {
   const roundState = getRoundState(actor, combat);
-  return Math.max(0, roundState.attackActions.total - roundState.attackActions.used);
+  const owner = getActionEconomyActor(actor) ?? actor;
+  const stunnedLock = Math.max(0, getStunnedRank(owner));
+  const effectiveTotal = Math.max(0, roundState.attackActions.total - stunnedLock);
+  return Math.max(0, effectiveTotal - roundState.attackActions.used);
 }
 
 /**

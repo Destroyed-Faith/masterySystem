@@ -14,6 +14,41 @@ import {
   npcAttackDiceCount,
   npcDamageDiceFormula
 } from "../utils/npc-attack-model.js";
+import { resolvePowerMechanics } from "../utils/power-mechanics.js";
+
+/** Bookkeeping for a single strike of a split-attack pair. */
+interface SplitContext {
+  splitPairId: string;
+  splitIndex: 1 | 2;
+  /** Halved attack pool for this strike (Math.floor(original / 2)). */
+  attributePool: number;
+}
+
+function newSplitPairId(): string {
+  try {
+    if (typeof foundry !== 'undefined' && (foundry as any).utils?.randomID) {
+      return (foundry as any).utils.randomID(16);
+    }
+  } catch {
+    /* fall through */
+  }
+  return `split-${Math.random().toString(36).slice(2, 10)}-${Date.now().toString(36)}`;
+}
+
+/**
+ * Detect whether the selected power declares a Split-Attack. The attack pool
+ * and damage pool are split evenly (Math.floor) between two independent
+ * strikes sharing one attack-action. See [agent.md] rules for scope.
+ */
+function detectSplitAttack(option: RadialCombatOption): boolean {
+  try {
+    if (option.source !== 'power' || !option.item) return false;
+    const mech = resolvePowerMechanics(option.item);
+    return mech?.splitAttack === true;
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Safely collect items from actor (handles Collection, Array, Map)
@@ -157,8 +192,29 @@ export async function createAttackCard(
   attackerToken: any,
   targetToken: any,
   option: RadialCombatOption,
-  attackType: "melee" | "ranged"
+  attackType: "melee" | "ranged",
+  split: SplitContext | null = null,
 ): Promise<void> {
+  // Split-Attack dispatcher: when a power declares `mechanics.splitAttack`,
+  // we recurse into two strikes sharing one attack action. Pool + damage are
+  // halved per strike (floor — odd remainder falls off symmetrically).
+  if (!split && detectSplitAttack(option)) {
+    const pairId = newSplitPairId();
+    // Strike 1 resolves first; Strike 2 is scheduled immediately after so
+    // both cards appear in chat for the target owner to resolve.
+    await createAttackCard(attackerToken, targetToken, option, attackType, {
+      splitPairId: pairId,
+      splitIndex: 1,
+      attributePool: 0, // recomputed below with the real base pool.
+    });
+    await createAttackCard(attackerToken, targetToken, option, attackType, {
+      splitPairId: pairId,
+      splitIndex: 2,
+      attributePool: 0,
+    });
+    return;
+  }
+
   // Use token actor (for unlinked tokens) or base actor
   // For unlinked tokens, token.actor is a synthetic actor with delta data
   // For linked tokens, token.actor is the base actor
@@ -239,9 +295,14 @@ export async function createAttackCard(
   // Determine attack attribute
   const attribute = getAttackAttribute(attacker, weapon, option, attackType);
   const poolFromNpc = npcAttackDiceCount(npcAttackRow);
-  const attributeValue =
+  let attributeValue =
     isNpcAttack && poolFromNpc > 0 ? poolFromNpc : getAttributeValue(attacker, attribute);
   const masteryRank = getMasteryRank(attacker);
+
+  // Split-Attack: halve the attack pool (floor) on every strike.
+  if (split) {
+    attributeValue = Math.max(0, Math.floor(attributeValue / 2));
+  }
   
   // Debug: Log attribute reading
   console.log('Mastery System | [ATTACK EXECUTOR] Attribute calculation', {
@@ -294,7 +355,9 @@ export async function createAttackCard(
 
   const flagsObj: any = {
     attackType,
-    costsAction: option.costsAction !== false,
+    // Only the first strike of a split pair consumes the attack action; the
+    // second strike piggybacks on the same action to respect the 1-action rule.
+    costsAction: split ? (split.splitIndex === 1 && option.costsAction !== false) : option.costsAction !== false,
     attackerId: attacker.id,
     targetId: target.id,
     targetTokenId: targetToken.id,
@@ -308,6 +371,12 @@ export async function createAttackCard(
     selectedPowerLevel: selectedPowerLevel,
     selectedPowerSpecials: selectedPowerSpecials,
     selectedPowerDamage: selectedPowerDamage || "",
+    // Split-attack bookkeeping (both strikes carry the same pairId so the
+    // damage dialog and chat handlers can render "Strike 1 of 2" markers and
+    // halve the damage pool per strike).
+    splitAttack: !!split,
+    splitIndex: split?.splitIndex ?? null,
+    splitPairId: split?.splitPairId ?? null,
     threatenedRanged: tr.threatened,
     rollDisadvantage: tr.rollDisadvantage,
     threateningEnemyTokenIds: tr.threateningEnemyTokenIds,
@@ -341,7 +410,8 @@ export async function createAttackCard(
   
   const attackerName = attacker.name || "Unknown";
   const targetName = target.name || "Unknown";
-  const optionName = option.name || "Attack";
+  const baseOptionName = option.name || "Attack";
+  const optionName = split ? `${baseOptionName} — Strike ${split.splitIndex} of 2` : baseOptionName;
   const headerIcon = attackType === "ranged" ? "fa-bullseye" : "fa-sword";
   const attackKindLabel = attackType === "ranged" ? "Ranged" : "Melee";
 

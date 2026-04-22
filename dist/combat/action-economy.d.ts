@@ -125,7 +125,9 @@ export declare function spendMovementAction(actor: Actor, combat: Combat | null)
  */
 export declare function spendReactionAction(actor: Actor, combat: Combat | null): Promise<boolean>;
 /**
- * Get available attack actions (remaining count)
+ * Get available attack actions (remaining count).
+ * Stunned(X) locks X attack actions for the current round — the total is
+ * clamped before subtracting `used`, never going below 0.
  */
 export declare function getAvailableAttackActions(actor: Actor, combat: Combat | null): number;
 /**

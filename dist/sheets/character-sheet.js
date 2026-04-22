@@ -3249,7 +3249,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             actorId: this.actor.id,
             skillKey: skillKey,
             isSkillRoll: true,
-            baseModifier: 0
+            baseModifier: 0,
+            rollKind: 'skill',
+            autoFailIntent: 'skill',
+            checkContext: { skillKey }
         });
         // Skill point spending is now handled via chat buttons (no modal dialog)
     }
@@ -3483,7 +3486,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             actorId: this.actor.id,
             skillKey: option.skill,
             isSkillRoll: true,
-            baseModifier: 0
+            baseModifier: 0,
+            rollKind: 'skill',
+            autoFailIntent: 'skill',
+            checkContext: { skillKey: option.skill }
         });
         await this.actor.update({
             [`system.echo.cardUses.${cardId}`]: true

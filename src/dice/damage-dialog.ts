@@ -12,6 +12,7 @@ import {
   npcSpecialEffectString
 } from '../utils/npc-attack-model.js';
 import { previewTempHPConsumption } from '../combat/passive-triggers.js';
+import { applyDefensiveMitigation, countNaturalEights } from '../combat/damage-mitigation.js';
 
 export interface DamageDialogData {
   attacker: Actor;
@@ -48,6 +49,14 @@ export interface DamageResult {
    * Ephemeral — not stored on documents.
    */
   damageChatRolls?: any[];
+  /** Natural 8s rolled across all damage dice (drives the 8s-minimum rule). */
+  count8s?: number;
+  /**
+   * Mitigation breakdown once damage has been applied to the target. The
+   * attack-roll chat card appends this line so players can see exactly
+   * why a hit went through (or got phased/mitigated).
+   */
+  mitigation?: AppliedDamageSummary;
 }
 
 /**
@@ -643,7 +652,10 @@ export async function showDamageDialog(
           weaponSpecials,
           npcAutoDamageDice,
           npcAutoSpecialStrings,
-          npcAttackSource: !!flags?.npcAttackSource
+          npcAttackSource: !!flags?.npcAttackSource,
+          splitAttack: !!flags?.splitAttack,
+          splitIndex: flags?.splitIndex ?? null,
+          splitPairId: flags?.splitPairId ?? null
         }
       }
     };
@@ -1012,7 +1024,8 @@ function initializeDamageCard(messageId: string, resolve: (result: DamageResult 
       Math.max(0, Number(flags.stoneDamageBonusDice) || 0),
       Math.max(0, Number(flags.npcAutoDamageDice) || 0),
       Array.isArray(flags.npcAutoSpecialStrings) ? flags.npcAutoSpecialStrings : [],
-      flags.selectedPowerId || null
+      flags.selectedPowerId || null,
+      !!flags.splitAttack
     );
     
     console.log('Mastery System | [ROLL DAMAGE BUTTON] calculateDamageResult returned', {
@@ -1224,19 +1237,81 @@ async function applyStatusEffectsToTarget(target: Actor, specialsUsed: string[])
 }
 
 /**
- * Apply damage to target actor
- * Handles tempHP first, then applies remaining damage to health bars with overflow
+ * Result of the full defensive pipeline for one strike. Exposed so that the
+ * chat card assembly (and split-attack logging) can render a single-line
+ * "Raw 14 → Armor 4 → DR 20% → TempHP 3 → 5" summary.
  */
-async function applyDamageToTarget(target: Actor, damage: number, attacker: Actor): Promise<void> {
+export interface AppliedDamageSummary {
+  rawDamage: number;
+  armorApplied: number;
+  drPercent: number;
+  mitigatedDamage: number;
+  tempHPAbsorbed: number;
+  barDamage: number;
+  min8sUsed: boolean;
+  /** "Raw X → Armor Y → DR Z% → TempHP A → B". */
+  breakdownLine: string;
+  /** `true` if the target phased out of the hit entirely. */
+  phased: boolean;
+}
+
+/**
+ * Apply damage to target actor — full defensive pipeline:
+ *   Phasing check (Phase 3) → Armor → DR% → 8s-minimum → Temp-HP → Health bars.
+ *
+ * `count8s` is the number of natural 8s rolled across all damage dice for
+ * this strike; `applyDamageToTarget` uses it to enforce the floor rule
+ * ("never below count8s if any 8 was rolled").
+ */
+async function applyDamageToTarget(
+  target: Actor,
+  damage: number,
+  attacker: Actor,
+  count8s: number = 0,
+): Promise<AppliedDamageSummary> {
+  const empty: AppliedDamageSummary = {
+    rawDamage: Math.max(0, Math.floor(damage)),
+    armorApplied: 0,
+    drPercent: 0,
+    mitigatedDamage: 0,
+    tempHPAbsorbed: 0,
+    barDamage: 0,
+    min8sUsed: false,
+    breakdownLine: '',
+    phased: false,
+  };
   try {
     console.log('Mastery System | [APPLY DAMAGE] Applying damage to target', {
       targetId: (target as any).id,
       targetName: (target as any).name,
       attackerId: (attacker as any).id,
       attackerName: (attacker as any).name,
-      damage
+      damage,
+      count8s,
     });
-    
+
+    // Step 0: Phasing — opt-in prompt for the target owner. If consumed, the
+    // strike inflicts no damage and skips all riders (the caller in the attack
+    // pipeline is responsible for skipping on-hit specials when phased).
+    try {
+      const { promptPhasingConsume, consumePhasingCharge } =
+        await import('../combat/phasing.js');
+      const phased = await promptPhasingConsume(target, { attacker, rawDamage: damage });
+      if (phased) {
+        await consumePhasingCharge(target);
+        const sheet = (target as any).sheet;
+        if (sheet && sheet.rendered) sheet.render(false);
+        return {
+          ...empty,
+          phased: true,
+          breakdownLine: `Raw ${empty.rawDamage} → Phased (ignored)`,
+        };
+      }
+    } catch (err) {
+      // Phasing module not yet loaded or target has no charges — treat as pass.
+      console.debug?.('Mastery System | [APPLY DAMAGE] phasing skipped', err);
+    }
+
     // Create blood pool at target token position (if token exists on canvas)
     if (damage > 0 && canvas?.ready) {
       const targetToken = (target as any).getActiveTokens?.()?.[0] || 
@@ -1244,12 +1319,9 @@ async function applyDamageToTarget(target: Actor, damage: number, attacker: Acto
       
       if (targetToken) {
         try {
-          // Import blood pool function
           const { createBloodPool } = await import('../utils/blood-pool.js');
-          // Get blood color from actor
           const actorSystem = (target as any).system;
           const bloodColor = actorSystem?.bloodColor;
-          // Create persistent blood pool (as Tile) with custom color
           await createBloodPool(targetToken, damage, true, bloodColor);
         } catch (error) {
           console.warn('Mastery System | Could not create blood pool', error);
@@ -1266,15 +1338,24 @@ async function applyDamageToTarget(target: Actor, damage: number, attacker: Acto
         hasBars: !!(system.health && system.health.bars),
         barsLength: system.health?.bars?.length || 0
       });
-      return;
+      return empty;
     }
-    
-    // Step 1: Route tempHP reduction through the passive-trigger pool so that
+
+    // Step 1: Flat Armor + percentage DR + 8s-min floor.
+    const mitigation = applyDefensiveMitigation({
+      rawDamage: damage,
+      count8s,
+      armorTotal: Number(system.combat?.armorTotal ?? 0),
+      damageReductionPct: Number(system.combat?.damageReductionPct ?? 0),
+    });
+    const mitigated = mitigation.mitigatedDamage;
+
+    // Step 2: Route tempHP reduction through the passive-trigger pool so that
     //         per-source book-keeping (Lean Ward one-shot, Dragon Scales
     //         refresh, …) stays consistent with the scalar mirror. The helper
     //         returns a partial actor-update patch so we can still commit
     //         tempHP + health-bar changes in a single atomic update below.
-    const tempHPConsumption = previewTempHPConsumption(target, damage);
+    const tempHPConsumption = previewTempHPConsumption(target, mitigated);
     const remaining = tempHPConsumption.remainingDamage;
 
     if (tempHPConsumption.reducedBy > 0) {
@@ -1286,8 +1367,10 @@ async function applyDamageToTarget(target: Actor, damage: number, attacker: Acto
       });
     }
 
-    // Step 2: Apply remaining damage to health bars with overflow
+    // Step 3: Apply remaining damage to health bars with overflow
+    let barDamage = 0;
     if (remaining > 0) {
+      barDamage = remaining;
       // Import applyDamage helper from calculations.ts
       const { applyDamage: applyDamageToBars } = await import('../utils/calculations.js');
 
@@ -1337,8 +1420,24 @@ async function applyDamageToTarget(target: Actor, damage: number, attacker: Acto
     if (sheet && sheet.rendered) {
       sheet.render(false);
     }
+
+    const tail: string[] = [];
+    if (tempHPConsumption.reducedBy > 0) tail.push(`TempHP ${tempHPConsumption.reducedBy}`);
+    tail.push(`Bars ${barDamage}`);
+    return {
+      rawDamage: mitigation.rawDamage,
+      armorApplied: mitigation.armorApplied,
+      drPercent: mitigation.drPercent,
+      mitigatedDamage: mitigation.mitigatedDamage,
+      tempHPAbsorbed: tempHPConsumption.reducedBy,
+      barDamage,
+      min8sUsed: mitigation.min8sUsed,
+      breakdownLine: `${mitigation.breakdownLine} → ${tail.join(' → ')}`,
+      phased: false,
+    };
   } catch (error) {
     console.error('Mastery System | [APPLY DAMAGE] Error applying damage', error);
+    return empty;
   }
 }
 
@@ -1357,7 +1456,8 @@ async function calculateDamageResult(
   stoneDamageBonusDice: number = 0,
   npcAutoDamageDice: number = 0,
   npcAutoSpecialStrings: string[] = [],
-  selectedPowerId: string | null = null
+  selectedPowerId: string | null = null,
+  splitAttack: boolean = false
 ): Promise<DamageResult> {
   // Roll base damage
   // Sanitize dice notations before rolling
@@ -1473,20 +1573,41 @@ async function calculateDamageResult(
 
   for (const note of conditionalSpecialsUsed) specialsUsed.push(note);
 
-  // Apply damage to target
-  if (target) {
-    await applyDamageToTarget(target, totalDamage, attacker);
+  // Count natural 8s across every damage roll we fired above — drives the
+  // "never below count8s if any 8 was rolled" floor in the defensive pipeline.
+  const count8s = countNaturalEights(damageChatRolls);
+
+  // Split-Attack: each strike deals half damage (floor). Applied after all
+  // rolls so that every damage-side modifier (raises, conditional riders,
+  // NPC auto-dice, Might stones) contributes to the strike in proportion.
+  const appliedDamage = splitAttack ? Math.max(0, Math.floor(totalDamage / 2)) : totalDamage;
+  const appliedCount8s = splitAttack ? Math.floor(count8s / 2) : count8s;
+  if (splitAttack) {
+    console.log('Mastery System | [CALCULATE DAMAGE] Split-Attack halving', {
+      rawTotalDamage: totalDamage,
+      halvedDamage: appliedDamage,
+      rawCount8s: count8s,
+      halvedCount8s: appliedCount8s,
+    });
   }
-  
+
+  // Apply damage to target
+  let mitigation: AppliedDamageSummary | undefined;
+  if (target) {
+    mitigation = await applyDamageToTarget(target, appliedDamage, attacker, appliedCount8s);
+  }
+
   const result: DamageResult = {
     baseDamage: baseDamageRolled,
     powerDamage: powerDamageRolled,
     passiveDamage: passiveDamageRolled,
     raiseDamage,
     specialsUsed,
-    totalDamage,
+    totalDamage: appliedDamage,
     rollDetails: rollDetails.length ? rollDetails : undefined,
-    damageChatRolls: damageChatRolls.length ? damageChatRolls : undefined
+    damageChatRolls: damageChatRolls.length ? damageChatRolls : undefined,
+    count8s: appliedCount8s,
+    mitigation,
   };
   
   console.log('Mastery System | [CALCULATE DAMAGE] Returning result', result);
