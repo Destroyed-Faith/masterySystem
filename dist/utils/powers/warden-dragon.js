@@ -87,7 +87,7 @@ export const WARDEN_DRAGON_POWERS = [
             '2': {
                 type: 'melee',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 4 },
+                aoe: { shape: 'radius', radiusM: 2 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in the area take 1d8 damage.', dice: '1d8' },
                 specials: [{ key: 'push', rank: 4 }, { key: 'prone', rank: 1 }]
@@ -95,15 +95,15 @@ export const WARDEN_DRAGON_POWERS = [
             '3': {
                 type: 'melee',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 6 },
+                aoe: { shape: 'radius', radiusM: 3 },
                 duration: { kind: 'instant' },
-                effect: { text: 'Enemies in the area take 2d8 damage.', dice: '2d8' },
+                effect: { text: 'Enemies in the area take 1d8 damage.', dice: '1d8' },
                 specials: [{ key: 'push', rank: 6 }, { key: 'prone', rank: 1 }]
             },
             '4': {
                 type: 'melee',
                 range: { kind: 'self' },
-                aoe: { shape: 'radius', radiusM: 8 },
+                aoe: { shape: 'radius', radiusM: 3 },
                 duration: { kind: 'instant' },
                 effect: { text: 'Enemies in the area take 2d8 damage.', dice: '2d8' },
                 specials: [{ key: 'push', rank: 8 }, { key: 'prone', rank: 1 }]
