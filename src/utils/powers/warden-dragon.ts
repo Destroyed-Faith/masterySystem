@@ -755,51 +755,6 @@ export const WARDEN_DRAGON_POWERS: NewArtifactPowerData[] = [
             }
         }
     },
-    {
-        name: 'Throne Ground',
-        fluff: 'This ground is not difficult. It is claimed.',
-        category: 'activeBuff',
-        tags: [],
-        rank: 1,
-        requiresEcho: ['dragonborn'],
-        cost: { action: 'attack', stones: 0 },
-        roll: { kind: 'none' },
-        levels: {
-            '1': {
-                type: 'buff',
-                range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 2 },
-                duration: { kind: 'masteryRankRounds' },
-                effect: { text: 'The first time each round an enemy enters the area, it must pass a Body Save or its movement immediately ends.' },
-                specials: []
-            },
-            '2': {
-                type: 'buff',
-                range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 4 },
-                duration: { kind: 'masteryRankRounds' },
-                effect: { text: 'The first time each round an enemy enters the area, it must pass a Body Save or its movement immediately ends. On a success, its Speed is reduced by 2 m until the end of the turn.' },
-                specials: []
-            },
-            '3': {
-                type: 'buff',
-                range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 6 },
-                duration: { kind: 'masteryRankRounds' },
-                effect: { text: 'The first time each round an enemy enters the area, it must pass a Body Save or its movement immediately ends. On a success, its Speed is reduced by 4 m until the end of the turn.' },
-                specials: []
-            },
-            '4': {
-                type: 'buff',
-                range: { kind: 'self' },
-                aoe: { shape: 'aura', radiusM: 8 },
-                duration: { kind: 'masteryRankRounds' },
-                effect: { text: 'The first time each round an enemy enters the area, it must pass a Body Save or its movement immediately ends. On a success, its Speed is reduced by 6 m until the end of the turn.' },
-                specials: []
-            }
-        }
-    },
-
     // ─── Movement ───────────────────────────────────────────────────────────
     {
         name: 'Wing Brace',
