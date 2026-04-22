@@ -18,6 +18,7 @@ import { INFERNAL_BASTION_POWERS } from './infernal-bastion.js';
 import { WARDEN_DRAGON_POWERS } from './warden-dragon.js';
 import { RAPTOR_DRAGON_POWERS } from './raptor-dragon.js';
 import { DREADWYRM_POWERS } from './dreadwyrm.js';
+import { SKY_TYRANT_POWERS } from './sky-tyrant.js';
 // Deprecated — kept for existing actor items, no longer selectable in the Power Picker
 // import { CRUSADER_POWERS } from './crusader.js';
 // import { BATTLEMAGE_POWERS } from './battlemage.js';
@@ -65,6 +66,7 @@ export const MASTERY_TREE_POWER_MAP = {
     'Warden Dragon': WARDEN_DRAGON_POWERS,
     'Raptor Dragon': RAPTOR_DRAGON_POWERS,
     'Dreadwyrm': DREADWYRM_POWERS,
+    'Sky Tyrant': SKY_TYRANT_POWERS,
 };
 /**
  * All mastery powers from all trees (flat list)

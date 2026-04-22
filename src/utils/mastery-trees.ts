@@ -17,7 +17,8 @@ export const MASTERY_TREES: Record<string, MasteryTreeDefinition> = {
   infernalBastion: { name: 'Infernal Bastion' },
   wardenDragon: { name: 'Warden Dragon' },
   raptorDragon: { name: 'Raptor Dragon' },
-  dreadwyrm: { name: 'Dreadwyrm' }
+  dreadwyrm: { name: 'Dreadwyrm' },
+  skyTyrant: { name: 'Sky Tyrant' }
   // Deprecated trees (kept for existing actor items, no longer selectable):
   // crusader, juggernaut, berserkerOfTheBloodMoon, grimHunter, wildStalker,
   // elementalScholar, sanctifier, werewolf, werebear, dragon, ravenlord,
