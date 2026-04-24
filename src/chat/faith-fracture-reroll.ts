@@ -154,7 +154,8 @@ export async function executeFaithFractureReroll(
         skillKey: recipe.skillKey || undefined,
         isSkillRoll: recipe.isSkillRoll,
         isSaveRoll: recipe.isSaveRoll,
-        baseModifier: recipe.baseModifier
+        baseModifier: recipe.baseModifier,
+        autoRaises: recipe.autoRaises ?? 0
       });
     } catch (rollErr) {
       await spender.update({ 'system.faithFractures.current': cur });

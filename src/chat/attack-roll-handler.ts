@@ -206,6 +206,9 @@ export function registerAttackRollClickHandler(): void {
       // TN / declared raises: read from DOM attrs (dropdown updates .attr, not jQuery .data cache)
       const currentTargetEvade = readAttackButtonDataInt(button, 'target-evade', flags.targetEvade ?? 0);
       const declaredRaisesForTn = readAttackButtonDataInt(button, 'raises', 0);
+      // Voluntary Auto-Raises: each one removes 4 dice from the pool and grants
+      // +1 guaranteed raise on a successful attack.
+      const autoRaises = Math.max(0, readAttackButtonDataInt(button, 'auto-raises', 0));
       
       // Compute numDice from ACTOR at click time (not from stale flags)
       // This ensures we always use the current attribute value
@@ -289,7 +292,8 @@ export function registerAttackRollClickHandler(): void {
         rollKind: 'attack',
         targetActorId: flags.targetId,
         autoFailIntent: 'attack',
-        checkContext: { tags: ['sight'] }
+        checkContext: { tags: ['sight'] },
+        autoRaises
       });
       
       console.log('Mastery System | DEBUG: Roll completed!', {

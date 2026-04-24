@@ -24,6 +24,12 @@ export interface MasteryRollResult {
    * `success` and `raises` reflect the forced failure.
    */
   autoFailReason?: string;
+  /**
+   * Number of voluntary Auto-Raises the roller bought by shrinking their
+   * pool (each costs AUTO_RAISE_DICE_COST dice and grants +1 raise on
+   * success). Already folded into `raises`; exposed for display/audit.
+   */
+  autoRaises?: number;
 }
 
 // System constants

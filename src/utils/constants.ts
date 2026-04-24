@@ -7,6 +7,14 @@
 export const EXPLODE_VALUE = 8;
 export const RAISE_INCREMENT = 4; // Every +4 over TN = 1 Raise
 
+/**
+ * Auto-Raise: the roller may voluntarily shrink their dice pool in exchange
+ * for guaranteed Raises. Each Auto-Raise removes this many dice from the pool
+ * and grants +1 Raise on success. Applies to skill rolls, attack rolls, and
+ * other generic rolls; never to Saving Throws.
+ */
+export const AUTO_RAISE_DICE_COST = 4;
+
 // Attribute ranges
 export const MIN_ATTRIBUTE = 0;
 export const MAX_ATTRIBUTE = 80; // Theoretical max per Player's Guide scaling table

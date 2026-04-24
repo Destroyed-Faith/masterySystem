@@ -2,8 +2,8 @@
  * Dragon Trees Echo-Gating tests.
  *
  * Covers:
- *  - Each of the three Dragonborn-exclusive trees (Warden Dragon, Raptor Dragon,
- *    Dreadwyrm) registers exactly 18 powers.
+ *  - Warden Dragon, Raptor Dragon, and Sky Tyrant register the expected
+ *    power counts and category distributions.
  *  - Every power in those trees carries requiresEcho: ['dragonborn'].
  *  - filterCatalog hides echo-gated entries unless actorEchoKey matches.
  */
@@ -11,21 +11,18 @@
 import { describe, it, expect } from 'vitest';
 import { WARDEN_DRAGON_POWERS } from '../src/utils/powers/warden-dragon';
 import { RAPTOR_DRAGON_POWERS } from '../src/utils/powers/raptor-dragon';
-import { DREADWYRM_POWERS } from '../src/utils/powers/dreadwyrm';
 import { SKY_TYRANT_POWERS } from '../src/utils/powers/sky-tyrant';
 import { filterCatalog } from '../src/utils/power-catalog';
 
 const DRAGON_POWER_NAMES = new Set<string>([
     ...WARDEN_DRAGON_POWERS.map(p => p.name),
     ...RAPTOR_DRAGON_POWERS.map(p => p.name),
-    ...DREADWYRM_POWERS.map(p => p.name),
     ...SKY_TYRANT_POWERS.map(p => p.name)
 ]);
 
 const DRAGON_TOTAL =
     WARDEN_DRAGON_POWERS.length +
     RAPTOR_DRAGON_POWERS.length +
-    DREADWYRM_POWERS.length +
     SKY_TYRANT_POWERS.length;
 
 function isDragonEntry(e: { name: string; requiresEcho?: string[] }): boolean {
@@ -33,67 +30,51 @@ function isDragonEntry(e: { name: string; requiresEcho?: string[] }): boolean {
 }
 
 describe('Dragon Trees — content', () => {
-    it('Warden Dragon has 17 powers, each requiring the dragonborn Echo', () => {
-        // 18 − 1 after removing Throne Ground (activeBuff) per design revision.
-        expect(WARDEN_DRAGON_POWERS).toHaveLength(17);
+    it('Warden Dragon has 14 powers, each requiring the dragonborn Echo', () => {
+        expect(WARDEN_DRAGON_POWERS).toHaveLength(14);
         for (const p of WARDEN_DRAGON_POWERS) {
             expect(p.requiresEcho).toEqual(['dragonborn']);
         }
     });
 
-    it('Raptor Dragon has 18 powers, each requiring the dragonborn Echo', () => {
-        expect(RAPTOR_DRAGON_POWERS).toHaveLength(18);
+    it('Raptor Dragon has 9 powers, each requiring the dragonborn Echo', () => {
+        expect(RAPTOR_DRAGON_POWERS).toHaveLength(9);
         for (const p of RAPTOR_DRAGON_POWERS) {
             expect(p.requiresEcho).toEqual(['dragonborn']);
         }
     });
 
-    it('Dreadwyrm has 18 powers, each requiring the dragonborn Echo', () => {
-        expect(DREADWYRM_POWERS).toHaveLength(18);
-        for (const p of DREADWYRM_POWERS) {
-            expect(p.requiresEcho).toEqual(['dragonborn']);
-        }
-    });
-
-    it('Sky Tyrant has 6 powers, each requiring the dragonborn Echo', () => {
-        expect(SKY_TYRANT_POWERS).toHaveLength(6);
+    it('Sky Tyrant has 7 powers, each requiring the dragonborn Echo', () => {
+        expect(SKY_TYRANT_POWERS).toHaveLength(7);
         for (const p of SKY_TYRANT_POWERS) {
             expect(p.requiresEcho).toEqual(['dragonborn']);
         }
     });
 
-    it('Raptor Dragon + Dreadwyrm hold the canonical 4/4/4/4/2 distribution', () => {
-        const trees = [RAPTOR_DRAGON_POWERS, DREADWYRM_POWERS];
-        for (const powers of trees) {
-            const byCat: Record<string, number> = {};
-            for (const p of powers) byCat[p.category] = (byCat[p.category] || 0) + 1;
-            expect(byCat['active']).toBe(4);
-            expect(byCat['passive']).toBe(4);
-            expect(byCat['reaction']).toBe(4);
-            expect(byCat['activeBuff']).toBe(4);
-            expect(byCat['movement']).toBe(2);
-        }
-    });
-
-    it('Warden Dragon has 4/4/4/3/2 after Throne Ground removal', () => {
+    it('Warden Dragon has the 4/2/3/3/2 distribution', () => {
         const byCat: Record<string, number> = {};
         for (const p of WARDEN_DRAGON_POWERS) byCat[p.category] = (byCat[p.category] || 0) + 1;
         expect(byCat['active']).toBe(4);
-        expect(byCat['passive']).toBe(4);
-        expect(byCat['reaction']).toBe(4);
+        expect(byCat['passive']).toBe(2);
+        expect(byCat['reaction']).toBe(3);
         expect(byCat['activeBuff']).toBe(3);
         expect(byCat['movement']).toBe(2);
     });
 
-    it('Throne Ground is no longer present in Warden Dragon', () => {
-        const hit = WARDEN_DRAGON_POWERS.find(p => p.name === 'Throne Ground');
-        expect(hit).toBeUndefined();
+    it('Raptor Dragon has the 3/0/2/2/2 distribution', () => {
+        const byCat: Record<string, number> = {};
+        for (const p of RAPTOR_DRAGON_POWERS) byCat[p.category] = (byCat[p.category] || 0) + 1;
+        expect(byCat['active']).toBe(3);
+        expect(byCat['passive'] ?? 0).toBe(0);
+        expect(byCat['reaction']).toBe(2);
+        expect(byCat['activeBuff']).toBe(2);
+        expect(byCat['movement']).toBe(2);
     });
 
-    it('Sky Tyrant has the focused category distribution (1/2/1/1/1)', () => {
+    it('Sky Tyrant has the focused category distribution (2/2/1/1/1)', () => {
         const byCat: Record<string, number> = {};
         for (const p of SKY_TYRANT_POWERS) byCat[p.category] = (byCat[p.category] || 0) + 1;
-        expect(byCat['active']).toBe(1);
+        expect(byCat['active']).toBe(2);
         expect(byCat['passive']).toBe(2);
         expect(byCat['activeBuff']).toBe(1);
         expect(byCat['reaction']).toBe(1);
@@ -151,8 +132,8 @@ describe('Dragon Trees — power picker gating', () => {
     it('still respects other filter criteria (category) while unlocked for dragonborn', () => {
         const entries = filterCatalog({ actorEchoKey: 'dragonborn', category: 'active' });
         const dragonActives = entries.filter(isDragonEntry);
-        // 3 × 4 Actives (big trees) + 1 Active (Sky Tyrant) = 13
-        expect(dragonActives).toHaveLength(13);
+        // Warden Dragon (4) + Raptor Dragon (3) + Sky Tyrant (2) = 9
+        expect(dragonActives).toHaveLength(9);
     });
 
     it('does not accidentally hide non-gated existing powers when actorEchoKey is set', () => {

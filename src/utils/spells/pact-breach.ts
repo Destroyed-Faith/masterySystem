@@ -1,11 +1,12 @@
 /**
  * Pact Breach — Single-Target Wardbreaker Magic
  *
- * A surgical pressure list: apply Hex, keep the pact active, then drive damage
- * through protection via breach magic instead of pure area damage.
+ * A surgical warlock-style spell list: apply Hex to one or more targets, then
+ * use a pact blast as the signature pressure tool while short teleportation
+ * and repeated single-target spells keep the caster online.
  *
- * 8 Spells: 6 Active Spells + 2 Movement Spells.
- * Main Special: Hex • Secondary Special: Penetration
+ * 5 Spells: 4 Active Spells + 1 Movement Spell.
+ * Main Special: Hex • Secondary Special: Autofire
  */
 
 import type { SpellDefinition } from './types.js';
@@ -13,62 +14,58 @@ import type { SpellDefinition } from './types.js';
 export const PACT_BREACH_SPELLS: SpellDefinition[] = [
     // ─── Active Spells ──────────────────────────────────────────────────────
     {
-        name: 'Pact Spike',
+        name: 'Blight Brand',
         school: 'Pact Breach',
         spellType: 'active',
-        description: 'A needle of pact-light drives the contract deep into the soul.',
+        description: 'A black brand blooms over the target and spreads the pact through nearby souls.',
         levels: [
             {
                 level: 1,
                 type: 'Ranged',
                 range: '12 m',
-                aoe: '—',
+                aoe: 'Radius 2 m',
                 duration: 'Instant',
-                effect: '1d8 damage',
+                effect: 'Brand the area; each enemy inside gains Hex(1).',
+                special: 'Hex(1)',
+                cost: { action: true }
+            },
+            {
+                level: 2,
+                type: 'Ranged',
+                range: '16 m',
+                aoe: 'Radius 2 m',
+                duration: 'Instant',
+                effect: 'Brand the area; each enemy inside gains Hex(1).',
+                special: 'Hex(1)',
+                cost: { action: true }
+            },
+            {
+                level: 3,
+                type: 'Ranged',
+                range: '20 m',
+                aoe: 'Radius 2 m',
+                duration: 'Instant',
+                effect: 'Brand the area; each enemy inside gains Hex(2).',
                 special: 'Hex(2)',
-                cost: { action: true },
-                roll: { damage: '1d8' }
-            },
-            {
-                level: 2,
-                type: 'Ranged',
-                range: '16 m',
-                aoe: '—',
-                duration: 'Instant',
-                effect: '2d8 damage',
-                special: 'Hex(3)',
-                cost: { action: true },
-                roll: { damage: '2d8' }
-            },
-            {
-                level: 3,
-                type: 'Ranged',
-                range: '20 m',
-                aoe: '—',
-                duration: 'Instant',
-                effect: '2d8 damage',
-                special: 'Hex(4)',
-                cost: { action: true },
-                roll: { damage: '2d8' }
+                cost: { action: true }
             },
             {
                 level: 4,
                 type: 'Ranged',
                 range: '24 m',
-                aoe: '—',
+                aoe: 'Radius 3 m',
                 duration: 'Instant',
-                effect: '2d8 damage',
-                special: 'Hex(5)',
-                cost: { action: true },
-                roll: { damage: '2d8' }
+                effect: 'Brand the area; each enemy inside gains Hex(2).',
+                special: 'Hex(2)',
+                cost: { action: true }
             }
         ]
     },
     {
-        name: 'Ward Rend',
+        name: 'Eldritch Sunder',
         school: 'Pact Breach',
         spellType: 'active',
-        description: 'The pact opens the door. This spell kicks it off the hinges.',
+        description: 'The pact does not fire in a single line. It tears into two separate bolts and lets both find the weakness.',
         levels: [
             {
                 level: 1,
@@ -76,147 +73,39 @@ export const PACT_BREACH_SPELLS: SpellDefinition[] = [
                 range: '12 m',
                 aoe: '—',
                 duration: 'Instant',
-                effect: '1d8 damage vs. Hexed target',
-                special: 'Penetration(2)',
+                effect: 'Make 2 spell strikes. Split your Attack Pool evenly between them. Add +3d8 bonus damage, divided across the 2 strikes.',
                 cost: { action: true },
-                roll: { damage: '1d8' },
-                mechanics: {damageRider:{vsCondition:'hexed',vsConditionDamage:'+1d8'},condition:'targetHexed',applyWhen:'attack-rider'}
+                roll: { damage: '3d8' }
             },
             {
                 level: 2,
-                type: 'Ranged',
-                range: '16 m',
-                aoe: '—',
-                duration: 'Instant',
-                effect: '2d8 damage vs. Hexed target',
-                special: 'Penetration(4)',
-                cost: { action: true },
-                roll: { damage: '2d8' },
-                mechanics: {damageRider:{vsCondition:'hexed',vsConditionDamage:'+2d8'},condition:'targetHexed',applyWhen:'attack-rider'}
-            },
-            {
-                level: 3,
-                type: 'Ranged',
-                range: '20 m',
-                aoe: '—',
-                duration: 'Instant',
-                effect: '3d8 damage vs. Hexed target',
-                special: 'Penetration(6)',
-                cost: { action: true },
-                roll: { damage: '3d8' },
-                mechanics: {damageRider:{vsCondition:'hexed',vsConditionDamage:'+3d8'},condition:'targetHexed',applyWhen:'attack-rider'}
-            },
-            {
-                level: 4,
-                type: 'Ranged',
-                range: '24 m',
-                aoe: '—',
-                duration: 'Instant',
-                effect: '4d8 damage vs. Hexed target',
-                special: 'Penetration(8)',
-                cost: { action: true },
-                roll: { damage: '4d8' },
-                mechanics: {damageRider:{vsCondition:'hexed',vsConditionDamage:'+4d8'},condition:'targetHexed',applyWhen:'attack-rider'}
-            }
-        ]
-    },
-    {
-        name: 'Soul Tithe',
-        school: 'Pact Breach',
-        spellType: 'active',
-        description: 'What the pact takes from them, it lets you keep for a while.',
-        levels: [
-            {
-                level: 1,
                 type: 'Ranged',
                 range: '12 m',
                 aoe: '—',
                 duration: 'Instant',
-                effect: 'Deal 1d8 damage and heal 1d8 HP vs. Hexed target.',
+                effect: 'Make 2 spell strikes. Split your Attack Pool evenly between them. Add +6d8 bonus damage, divided across the 2 strikes.',
                 cost: { action: true },
-                roll: { damage: '1d8', healing: '1d8' },
-                mechanics: {condition:'targetHexed',applyWhen:'attack-rider'}
-            },
-            {
-                level: 2,
-                type: 'Ranged',
-                range: '16 m',
-                aoe: '—',
-                duration: 'Instant',
-                effect: 'Deal 2d8 damage and heal 2d8 HP vs. Hexed target.',
-                cost: { action: true },
-                roll: { damage: '2d8', healing: '2d8' },
-                mechanics: {condition:'targetHexed',applyWhen:'attack-rider'}
+                roll: { damage: '6d8' }
             },
             {
                 level: 3,
                 type: 'Ranged',
-                range: '20 m',
-                aoe: '—',
-                duration: 'Instant',
-                effect: 'Deal 3d8 damage and heal 3d8 HP vs. Hexed target.',
-                cost: { action: true },
-                roll: { damage: '3d8', healing: '3d8' },
-                mechanics: {condition:'targetHexed',applyWhen:'attack-rider'}
-            },
-            {
-                level: 4,
-                type: 'Ranged',
-                range: '24 m',
-                aoe: '—',
-                duration: 'Instant',
-                effect: 'Deal 4d8 damage and heal 4d8 HP vs. Hexed target.',
-                cost: { action: true },
-                roll: { damage: '4d8', healing: '4d8' },
-                mechanics: {condition:'targetHexed',applyWhen:'attack-rider'}
-            }
-        ]
-    },
-    {
-        name: 'Black Audit',
-        school: 'Pact Breach',
-        spellType: 'active',
-        description: 'Once the pact is in, you decide which defense the target can no longer afford.',
-        levels: [
-            {
-                level: 1,
-                type: 'Ranged',
-                range: '12 m',
-                aoe: '—',
-                duration: 'Instant',
-                effect: 'Choose Body, Mind, or Spirit.',
-                special: 'Weaken(3)',
-                cost: { action: true }
-            },
-            {
-                level: 2,
-                type: 'Ranged',
                 range: '16 m',
                 aoe: '—',
                 duration: 'Instant',
-                effect: 'Choose Body, Mind, or Spirit.',
-                special: 'Weaken(4)',
-                cost: { action: true }
-            },
-            {
-                level: 3,
-                type: 'Ranged',
-                range: '20 m',
-                aoe: '—',
-                duration: 'Instant',
-                effect: 'Choose Body, Mind, or Spirit.',
-                special: 'Weaken(5)',
-                cost: { action: true }
+                effect: 'Make 2 spell strikes. Split your Attack Pool evenly between them. Add +8d8 bonus damage, divided across the 2 strikes.',
+                cost: { action: true },
+                roll: { damage: '8d8' }
             },
             {
                 level: 4,
                 type: 'Ranged',
-                range: '24 m',
+                range: '20 m',
                 aoe: '—',
                 duration: 'Instant',
-                effect: 'Choose Body, Mind, or Spirit.',
-                special: 'Weaken(6)',
-                cost: { action: true }
+                effect: 'Make 2 spell strikes. Split your Attack Pool evenly between them. Add +11d8 bonus damage, divided across the 2 strikes.',
+                cost: { action: true },
+                roll: { damage: '11d8' }
             }
         ]
     },
@@ -224,7 +113,7 @@ export const PACT_BREACH_SPELLS: SpellDefinition[] = [
         name: 'Void Collection',
         school: 'Pact Breach',
         spellType: 'active',
-        description: 'Once the account is open, the abyss starts collecting.',
+        description: 'Once the pact is open, the abyss begins collecting what it is owed.',
         levels: [
             {
                 level: 1,
@@ -232,10 +121,10 @@ export const PACT_BREACH_SPELLS: SpellDefinition[] = [
                 range: '12 m',
                 aoe: '—',
                 duration: 'Instant',
-                effect: '2d8 damage vs. Hexed target',
+                effect: '3d8 damage vs. Hexed target.',
                 cost: { action: true },
-                roll: { damage: '2d8' },
-                mechanics: {damageRider:{vsCondition:'hexed',vsConditionDamage:'+2d8'},condition:'targetHexed',applyWhen:'attack-rider'}
+                roll: { damage: '3d8' },
+                mechanics: { damageRider: { vsCondition: 'hexed', vsConditionDamage: '+3d8' }, condition: 'targetHexed', applyWhen: 'attack-rider' }
             },
             {
                 level: 2,
@@ -243,10 +132,10 @@ export const PACT_BREACH_SPELLS: SpellDefinition[] = [
                 range: '16 m',
                 aoe: '—',
                 duration: 'Instant',
-                effect: '4d8 damage vs. Hexed target',
+                effect: '5d8 damage vs. Hexed target.',
                 cost: { action: true },
-                roll: { damage: '4d8' },
-                mechanics: {damageRider:{vsCondition:'hexed',vsConditionDamage:'+4d8'},condition:'targetHexed',applyWhen:'attack-rider'}
+                roll: { damage: '5d8' },
+                mechanics: { damageRider: { vsCondition: 'hexed', vsConditionDamage: '+5d8' }, condition: 'targetHexed', applyWhen: 'attack-rider' }
             },
             {
                 level: 3,
@@ -254,10 +143,10 @@ export const PACT_BREACH_SPELLS: SpellDefinition[] = [
                 range: '20 m',
                 aoe: '—',
                 duration: 'Instant',
-                effect: '6d8 damage vs. Hexed target',
+                effect: '8d8 damage vs. Hexed target.',
                 cost: { action: true },
-                roll: { damage: '6d8' },
-                mechanics: {damageRider:{vsCondition:'hexed',vsConditionDamage:'+6d8'},condition:'targetHexed',applyWhen:'attack-rider'}
+                roll: { damage: '8d8' },
+                mechanics: { damageRider: { vsCondition: 'hexed', vsConditionDamage: '+8d8' }, condition: 'targetHexed', applyWhen: 'attack-rider' }
             },
             {
                 level: 4,
@@ -265,18 +154,18 @@ export const PACT_BREACH_SPELLS: SpellDefinition[] = [
                 range: '24 m',
                 aoe: '—',
                 duration: 'Instant',
-                effect: '8d8 damage vs. Hexed target',
+                effect: '10d8 damage vs. Hexed target.',
                 cost: { action: true },
-                roll: { damage: '8d8' },
-                mechanics: {damageRider:{vsCondition:'hexed',vsConditionDamage:'+8d8'},condition:'targetHexed',applyWhen:'attack-rider'}
+                roll: { damage: '10d8' },
+                mechanics: { damageRider: { vsCondition: 'hexed', vsConditionDamage: '+10d8' }, condition: 'targetHexed', applyWhen: 'attack-rider' }
             }
         ]
     },
     {
-        name: 'Final Breach',
+        name: 'Soul Tithe',
         school: 'Pact Breach',
         spellType: 'active',
-        description: 'This is the spell you cast once the pact has already told you where to break the target.',
+        description: 'What the pact tears free from them, it lets you keep for a while.',
         levels: [
             {
                 level: 1,
@@ -284,11 +173,10 @@ export const PACT_BREACH_SPELLS: SpellDefinition[] = [
                 range: '12 m',
                 aoe: '—',
                 duration: 'Instant',
-                effect: '1d8 damage vs. Hexed target',
-                special: 'Penetration(2)',
+                effect: 'Deal 1d8 damage and self heal 1d8 HP vs. Hexed target.',
                 cost: { action: true },
-                roll: { damage: '1d8' },
-                mechanics: {damageRider:{vsCondition:'hexed',vsConditionDamage:'+1d8'},condition:'targetHexed',applyWhen:'attack-rider'}
+                roll: { damage: '1d8', healing: '1d8' },
+                mechanics: { condition: 'targetHexed', applyWhen: 'attack-rider' }
             },
             {
                 level: 2,
@@ -296,11 +184,10 @@ export const PACT_BREACH_SPELLS: SpellDefinition[] = [
                 range: '16 m',
                 aoe: '—',
                 duration: 'Instant',
-                effect: '2d8 damage vs. Hexed target',
-                special: 'Penetration(4)',
+                effect: 'Deal 2d8 damage and self heal 2d8 HP vs. Hexed target.',
                 cost: { action: true },
-                roll: { damage: '2d8' },
-                mechanics: {damageRider:{vsCondition:'hexed',vsConditionDamage:'+2d8'},condition:'targetHexed',applyWhen:'attack-rider'}
+                roll: { damage: '2d8', healing: '2d8' },
+                mechanics: { condition: 'targetHexed', applyWhen: 'attack-rider' }
             },
             {
                 level: 3,
@@ -308,11 +195,10 @@ export const PACT_BREACH_SPELLS: SpellDefinition[] = [
                 range: '20 m',
                 aoe: '—',
                 duration: 'Instant',
-                effect: '3d8 damage vs. Hexed target',
-                special: 'Penetration(6)',
+                effect: 'Deal 3d8 damage and self heal 3d8 HP vs. Hexed target.',
                 cost: { action: true },
-                roll: { damage: '3d8' },
-                mechanics: {damageRider:{vsCondition:'hexed',vsConditionDamage:'+3d8'},condition:'targetHexed',applyWhen:'attack-rider'}
+                roll: { damage: '3d8', healing: '3d8' },
+                mechanics: { condition: 'targetHexed', applyWhen: 'attack-rider' }
             },
             {
                 level: 4,
@@ -320,11 +206,10 @@ export const PACT_BREACH_SPELLS: SpellDefinition[] = [
                 range: '24 m',
                 aoe: '—',
                 duration: 'Instant',
-                effect: '4d8 damage vs. Hexed target',
-                special: 'Penetration(8)',
+                effect: 'Deal 4d8 damage and self heal 4d8 HP vs. Hexed target.',
                 cost: { action: true },
-                roll: { damage: '4d8' },
-                mechanics: {damageRider:{vsCondition:'hexed',vsConditionDamage:'+4d8'},condition:'targetHexed',applyWhen:'attack-rider'}
+                roll: { damage: '4d8', healing: '4d8' },
+                mechanics: { condition: 'targetHexed', applyWhen: 'attack-rider' }
             }
         ]
     },
@@ -334,7 +219,7 @@ export const PACT_BREACH_SPELLS: SpellDefinition[] = [
         name: 'Rift Skive',
         school: 'Pact Breach',
         spellType: 'movement',
-        description: "You cut a short line through the pact's backside and step out somewhere better.",
+        description: 'A short wound opens in the dark behind the pact, and you step through it with one nearby ally before it closes.',
         levels: [
             {
                 level: 1,
@@ -342,7 +227,7 @@ export const PACT_BREACH_SPELLS: SpellDefinition[] = [
                 range: 'Self',
                 aoe: '—',
                 duration: 'Instant',
-                effect: 'Teleport up to 4 m.',
+                effect: 'Teleport up to 2 m. You may bring 1 willing ally within 2 m with you.',
                 cost: { movement: true }
             },
             {
@@ -351,7 +236,7 @@ export const PACT_BREACH_SPELLS: SpellDefinition[] = [
                 range: 'Self',
                 aoe: '—',
                 duration: 'Instant',
-                effect: 'Teleport up to 8 m.',
+                effect: 'Teleport up to 6 m. You may bring 1 willing ally within 2 m with you.',
                 cost: { movement: true }
             },
             {
@@ -360,7 +245,7 @@ export const PACT_BREACH_SPELLS: SpellDefinition[] = [
                 range: 'Self',
                 aoe: '—',
                 duration: 'Instant',
-                effect: 'Teleport up to 12 m.',
+                effect: 'Teleport up to 10 m. You may bring 1 willing ally within 2 m with you.',
                 cost: { movement: true }
             },
             {
@@ -369,51 +254,7 @@ export const PACT_BREACH_SPELLS: SpellDefinition[] = [
                 range: 'Self',
                 aoe: '—',
                 duration: 'Instant',
-                effect: 'Teleport up to 15 m.',
-                cost: { movement: true }
-            }
-        ]
-    },
-    {
-        name: 'Oath Slip',
-        school: 'Pact Breach',
-        spellType: 'movement',
-        description: 'You leave the spoken line of the contract and slide into the margin before retaliation catches up.',
-        levels: [
-            {
-                level: 1,
-                type: 'Movement',
-                range: 'Self',
-                aoe: '—',
-                duration: 'Instant',
-                effect: 'After casting a Spell, teleport up to 4 m.',
-                cost: { movement: true }
-            },
-            {
-                level: 2,
-                type: 'Movement',
-                range: 'Self',
-                aoe: '—',
-                duration: 'Instant',
-                effect: 'After casting a Spell, teleport up to 8 m.',
-                cost: { movement: true }
-            },
-            {
-                level: 3,
-                type: 'Movement',
-                range: 'Self',
-                aoe: '—',
-                duration: 'Instant',
-                effect: 'After casting a Spell, teleport up to 12 m.',
-                cost: { movement: true }
-            },
-            {
-                level: 4,
-                type: 'Movement',
-                range: 'Self',
-                aoe: '—',
-                duration: 'Instant',
-                effect: 'After casting a Spell, teleport up to 15 m.',
+                effect: 'Teleport up to 14 m. You may bring 1 willing ally within 2 m with you.',
                 cost: { movement: true }
             }
         ]

@@ -123,7 +123,7 @@ describe('resolvePowerMechanics', () => {
 
   it('catalog fallback also works when the tree hint is missing', () => {
     const legacy = {
-      name: 'Lean Ward',
+      name: 'Coal Plate',
       system: {
         rank: 1,
         levels: {},

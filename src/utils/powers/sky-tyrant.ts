@@ -12,9 +12,9 @@
  * Sky Tyrant plays as a heavy flying predator that commits to a short, brutal
  * rotation: armor up → DR online → flight engage → claws → reaction spike.
  *
- * Contents (6 powers): 1 Active, 2 Passives, 1 Active Buff, 1 Reaction,
- * 1 Movement. This is a tighter, focused tree rather than the 18-power
- * format of Warden Dragon / Raptor Dragon / Dreadwyrm.
+ * Contents (7 powers): 2 Actives, 2 Passives, 1 Active Buff, 1 Reaction,
+ * 1 Movement. This is a tighter, focused tree rather than the larger format
+ * of Warden Dragon / Raptor Dragon.
  *
  * Sanctioned DR subsystem: `Damage Reduction` (passive), `Unyielding Shell`
  * (active buff) and `Unyielding Intercept` (reaction) are the three exclusive
@@ -72,6 +72,51 @@ export const SKY_TYRANT_POWERS: NewArtifactPowerData[] = [
                 effect: { text: 'Make 2 claw strikes. Split your Attack Pool evenly between them. Add +12d8 bonus damage, divided across the 2 strikes.', dice: '12d8' },
                 specials: [],
                 mechanics: { splitAttack: true, damageRider: { flat: '+12d8' }, applyWhen: 'attack-rider' }
+            }
+        }
+    },
+    {
+        name: 'Tail Sweep',
+        fluff: 'One full-body sweep clears the space around you and reminds everyone how much ground a dragon truly occupies.',
+        category: 'active',
+        tags: [],
+        rank: 1,
+        requiresEcho: ['dragonborn'],
+        cost: { action: 'attack', stones: 0 },
+        roll: { kind: 'attack', attribute: 'might' },
+        levels: {
+            '1': {
+                type: 'melee',
+                range: { kind: 'distance', m: 0 },
+                aoe: { shape: 'radius', radiusM: 2 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Tail Attack.' },
+                specials: [{ key: 'push', rank: 4 }]
+            },
+            '2': {
+                type: 'melee',
+                range: { kind: 'distance', m: 0 },
+                aoe: { shape: 'radius', radiusM: 2 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Tail Attack.' },
+                specials: [{ key: 'push', rank: 8 }, { key: 'prone', rank: 1 }]
+            },
+            '3': {
+                type: 'melee',
+                range: { kind: 'distance', m: 0 },
+                aoe: { shape: 'radius', radiusM: 3 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Tail Attack.' },
+                specials: [{ key: 'push', rank: 8 }, { key: 'prone', rank: 1 }]
+            },
+            '4': {
+                type: 'melee',
+                range: { kind: 'distance', m: 0 },
+                aoe: { shape: 'radius', radiusM: 3 },
+                duration: { kind: 'instant' },
+                effect: { text: 'Tail Attack + 2d8 damage.', dice: '2d8' },
+                specials: [{ key: 'push', rank: 12 }, { key: 'prone', rank: 1 }],
+                mechanics: { damageRider: { flat: '+2d8' }, applyWhen: 'attack-rider' }
             }
         }
     },
