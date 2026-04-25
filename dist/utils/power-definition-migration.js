@@ -324,13 +324,13 @@ export function convertPowerDefinitionToNewStructure(power) {
     const firstLevel = power.levels[0];
     const baseCost = convertCost(firstLevel, power.powerType);
     const baseRoll = convertRoll(firstLevel);
-    // Convert all levels
-    const levels = {
-        '1': convertLevelToRow(power.levels[0] || firstLevel, power.powerType, 1),
-        '2': convertLevelToRow(power.levels[1] || firstLevel, power.powerType, 2),
-        '3': convertLevelToRow(power.levels[2] || firstLevel, power.powerType, 3),
-        '4': convertLevelToRow(power.levels[3] || firstLevel, power.powerType, 4)
-    };
+    // Convert all 16 levels, falling back to the last known level row for
+    // ranks that the legacy definition didn't specify (max was 4).
+    const levels = {};
+    for (let i = 1; i <= 16; i++) {
+        const src = power.levels[i - 1] || power.levels[Math.min(power.levels.length - 1, i - 1)] || firstLevel;
+        levels[String(i)] = convertLevelToRow(src, power.powerType, i);
+    }
     // Add trigger for reactions if needed
     let trigger;
     if (category === 'reaction' && firstLevel.effect) {

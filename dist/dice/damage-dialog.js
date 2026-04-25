@@ -353,14 +353,14 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
             let levelData = null;
             try {
                 const powersModule = await import('../utils/powers/index.js');
-                const treeName = powerSystem.tree;
+                const templates = powersModule.ALL_POWER_TEMPLATES || [];
+                const templateId = powerSystem.templateId;
                 let powerDef = null;
-                if (treeName && powersModule.getPower) {
-                    powerDef = powersModule.getPower(treeName, selectedPower.name);
+                if (templateId) {
+                    powerDef = templates.find((t) => t?.templateId === templateId);
                 }
                 if (!powerDef) {
-                    const defs = powersModule.ALL_MASTERY_POWERS || [];
-                    powerDef = defs.find((p) => p.name === selectedPower.name);
+                    powerDef = templates.find((t) => t?.templateName === selectedPower.name || t?.name === selectedPower.name);
                 }
                 if (powerDef && powerDef.levels) {
                     const definitionRank = getPowerDefinitionRank(rawLevel, powerSystem.levels || powerDef.levels);

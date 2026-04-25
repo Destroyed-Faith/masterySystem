@@ -133,7 +133,8 @@ export async function executeFaithFractureReroll(messageId, spenderActorId, requ
                 skillKey: recipe.skillKey || undefined,
                 isSkillRoll: recipe.isSkillRoll,
                 isSaveRoll: recipe.isSaveRoll,
-                baseModifier: recipe.baseModifier
+                baseModifier: recipe.baseModifier,
+                autoRaises: recipe.autoRaises ?? 0
             });
         }
         catch (rollErr) {

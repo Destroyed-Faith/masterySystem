@@ -8,7 +8,7 @@ A custom Foundry VTT game system for the **Mastery System** and **Destroyed Fait
 - **Attribute Stones:** Every 8 attribute points = 1 Stone, a pooled resource for powerful abilities
 - **Mastery Ranks (M1-M8):** Character progression tiers that define kept dice and power level
 - **Health Bars System:** Multiple HP layers with cumulative penalties (-1, -2, -4)
-- **Powers & Mastery Trees:** Leveled abilities (L1-L4) organized in thematic trees
+- **Powers as Templates:** Leveled abilities (L1-L16) organized into five canonical categories (Movement / Passive / Reaction / Active / Active Buff). Active powers carry a Special Slot that expands into one entry per eligible Special; every Active can additionally be picked "as a Spell" during character creation (Active-as-Spell, see below).
 - **Diminishing Conditions:** Status effects that decay each round (Bleeding, Ignite, Mark, etc.)
 - **Divine Clash:** Late-game combat system using Stones as Attack/Defense pools
 
@@ -111,6 +111,42 @@ mastery-system/
 ├── packs/               # Compendium packs
 └── lang/                # Localization files
 ```
+
+## Authoring a new Power Template
+
+Powers live in `src/utils/powers/templates/`:
+
+- `movement.ts`, `reaction.ts`, `activeBuffs.ts`, `passives.ts`, `actives.ts`
+- `_shared.ts` hosts the `PowerTemplate` interface and the `buildLevels` helper that deterministically fills in all 16 rank rows from a per-row factory.
+- `_specials.ts` centralises the eligible Special keys per Active damage tier (T3–T6).
+- `index.ts` collects `ALL_POWER_TEMPLATES` and re-exports the category/subfamily/special lookups consumed by the catalog.
+
+Adding a template:
+
+1. Pick the right file based on the power's category.
+2. Call the category's row factory (e.g. `movementRow`, `reactionRow`, `activeBuffRow`, `passiveRow`, or one of the Active factories like `damageSingleTemplate`) and push it into the exported array. The factory handles scaling for all 16 levels.
+3. For Actives that expose a Special Slot, declare `specialSlot: { tier, eligibleSpecialKeys: [...getEligibleSpecialsForTier(tier)] }` so the catalog can expand the template into one entry per eligible Special.
+4. Optional: set `spellHints` to pre-select the resolution / save-type / per-Special casting attribute when the player later flips the Active into a Spell at character creation.
+
+Nothing else is required — the catalog rebuilds from the template registry on demand (`_resetCatalogCache()` for tests) and the power-picker surfaces the template under the right category/subfamily automatically.
+
+## Spell-casting an Active (Active-as-Spell)
+
+Any Active power can be turned into a Spell at character creation. The picker offers a "Cast this Active as a Spell" toggle that reveals:
+
+- **Casting Attribute** — `intellect` or `resolve` (defaults from the template's `spellHints.attributeBySpecial` when available).
+- **Resolution** — `spellAttack` (roll vs target Evade) or `saveSpell` (roll vs Base TN, then targets save vs Save DC = 8 × MR).
+- **Save Type** (when Save Spell) — `body` / `mind` / `spirit`.
+
+Constraints:
+
+- Max Spell Level a character can learn/cast is `Mastery Rank × 2`. The picker refuses ranks above the cap.
+- `Base TN = 8 × ceil(Spell Level / 2)`.
+- Each declared **Raise** adds `+4` to the relevant TN.
+- Each **Blood Raise** costs `4 HP` (ignoring Armor, unhealable until combat ends) and adds `+4` to the final total.
+- A failed cast fizzles and inflicts `1d8` Stress on the caster.
+
+The maths & side-effects live in `src/combat/spell-roll-handler.ts` (`calculateBaseTN`, `calculateSaveDC`, `getMaxSpellLevel`, `canCastSpellAtLevel`, `rollSpell`). The combat-end hook clears the Blood Raise HP-loss flag automatically.
 
 ## Building & Scripts
 

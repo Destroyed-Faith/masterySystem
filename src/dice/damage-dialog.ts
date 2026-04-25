@@ -441,15 +441,17 @@ export async function showDamageDialog(
       let levelData: any = null;
       try {
         const powersModule = await import('../utils/powers/index.js' as any);
-        const treeName = powerSystem.tree;
+        const templates = powersModule.ALL_POWER_TEMPLATES || [];
+        const templateId: string | undefined = powerSystem.templateId;
         let powerDef: any = null;
 
-        if (treeName && powersModule.getPower) {
-          powerDef = powersModule.getPower(treeName, selectedPower.name);
+        if (templateId) {
+          powerDef = templates.find((t: any) => t?.templateId === templateId);
         }
         if (!powerDef) {
-          const defs = powersModule.ALL_MASTERY_POWERS || [];
-          powerDef = defs.find((p: any) => p.name === selectedPower.name);
+          powerDef = templates.find(
+            (t: any) => t?.templateName === selectedPower.name || t?.name === selectedPower.name,
+          );
         }
 
         if (powerDef && powerDef.levels) {

@@ -1,6 +1,6 @@
 {
   "newPowerStructureExamples": {
-    "description": "Beispiele für die neue Power-Struktur (v0.4.18+)",
+    "description": "Beispiele für die neue Power-Struktur (v0.5+). Hinweis: Die Beispiele unten zeigen noch die historische 4-Level-Form. Ab v0.5 expandieren die Templates deterministisch auf 16 Levels ('1'..'16') mit identischer Row-Struktur. Siehe structureExplanation.levels sowie das neue Active-as-Spell Feld-Paket (isSpell, castingAttribute, spellResolution, spellSaveType).",
     
     "example1_activeMelee": {
       "name": "Sturmangriff",
@@ -720,10 +720,19 @@
 
     "structureExplanation": {
       "powerRoot": {
-        "name": "string - Name der Power",
+        "name": "string - Anzeigename der Power (inkl. chosen-Special-Suffix bei Actives)",
+        "templateId": "string - Kanonische Template-ID (z.B. 'movement-teleport', 'active-melee-damage-t3')",
+        "templateName": "string - Template-Display-Name ohne chosen-Special-Suffix",
+        "subfamily": "string - Feingranulares Subfamily-Label (z.B. 'teleport', 'damage-aoe', 'conditional-combined')",
         "category": "'active' | 'activeBuff' | 'utility' | 'reaction' | 'passive' | 'movement'",
         "tags": "string[] - z.B. ['spell', 'charged']",
-        "rank": "number - Aktuelles Level (1-4)",
+        "chosenSpecial": "{ key: string, tier: 3|4|5|6 }? - nur bei Actives nach Pick gesetzt",
+        "isSpell": "boolean? - Active-as-Spell: in Charaktererschaffung aktiviert",
+        "castingAttribute": "'intellect' | 'resolve'? - Pflicht wenn isSpell=true",
+        "spellResolution": "'spellAttack' | 'saveSpell'? - Resolution-Modus",
+        "spellSaveType": "'body' | 'mind' | 'spirit'? - nur bei spellResolution='saveSpell'",
+        "overcast": "number? - reservierte Raise-Aufladung (Spec noch offen)",
+        "rank": "number - Aktuelles Level (1-16). Max cast/learn = MasteryRank × 2.",
         "trigger": "string? - Für Reactions: Trigger-Bedingung",
         "cost": {
           "action": "'attack' | 'utility' | 'reaction' | 'movement' | 'full'",
@@ -737,14 +746,11 @@
           "vs": "string? - z.B. 'evade' oder 'save:body'"
         },
         "levels": {
-          "1": "PowerLevelRow",
-          "2": "PowerLevelRow",
-          "3": "PowerLevelRow",
-          "4": "PowerLevelRow"
+          "1..16": "PowerLevelRow - Deterministisch aus Templates generiert; Keys '1'..'16'."
         }
       },
       "powerLevelRow": {
-        "lvl": "1 | 2 | 3 | 4",
+        "lvl": "1..16",
         "type": "string - 'melee' | 'ranged' | 'utility' | 'buff' | 'reaction' | 'passive' | 'movement'",
         "range": "RangeSpec",
         "aoe": "AoeSpec",

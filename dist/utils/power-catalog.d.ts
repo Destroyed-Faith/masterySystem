@@ -1,93 +1,110 @@
 /**
- * Power Catalog – unified access to all selectable powers (Mastery Trees + Spell Schools)
+ * Power Catalog — Template-based, post-Trees implementation.
  *
- * Provides a single flat list with normalized category / tag / special metadata so
- * the character-creation UI can filter powers without caring about their origin
- * (legacy PowerDefinition vs. new NewArtifactPowerData).
+ * The catalog consumes `ALL_POWER_TEMPLATES` from
+ * `src/utils/powers/templates/index.ts` and expands every Active template
+ * with a `specialSlot` into one CatalogEntry per eligible Special (see
+ * plan §5). Movement / Reaction / Active-Buff / Passive templates produce
+ * exactly one entry each.
+ *
+ * Filter axes (CatalogFilter):
+ *  - category    : PowerCategory
+ *  - subfamily   : string (e.g. 'teleport', 'damage-aoe', 'conditional-combined')
+ *  - templateId  : canonical template id (e.g. 'active-ranged-damage-t4')
+ *  - tier        : 3 | 4 | 5 | 6     (Actives only)
+ *  - special     : Special key   (Actives only — matches chosenSpecial.key)
+ *  - search      : free-text across name + templateName
+ *
+ * Legacy filter axes (`tag`, `effectType`, `sourceName`) are preserved as
+ * no-ops / best-effort compatibility shims so callers that still pass them
+ * continue to compile while they migrate to the new three-stage UI.
  */
-import type { NewArtifactPowerData, PowerCategory } from '../types/item.js';
-import type { PowerDefinition } from './powers/types.js';
-export type PowerSourceKind = 'mastery' | 'magic';
-export interface CatalogEntry {
-    name: string;
-    sourceKind: PowerSourceKind;
-    sourceName: string;
-    category: PowerCategory;
-    tags: string[];
-    specialKeys: string[];
-    /** Structural effect-types derived from mechanics blocks on any level.
-     *  Feeds the "Effect Type" filter in the Power Picker. Keys match
-     *  EFFECT_TYPE_KEYS below (e.g. "armor", "evade", "damageRider"). */
-    effectTypes: string[];
-    description: string;
-    /** Optional echo-gating: entry is only visible if the actor's Echo key matches one of these values (lowercased). */
-    requiresEcho?: string[];
-    raw: NewArtifactPowerData | PowerDefinition;
-}
-/** Keys used for the "Effect Type" filter in the Power Picker. Derived
- * entirely from the mechanics block that was attached by the translation
- * engine. The actual label shown in the UI is provided via EFFECT_TYPE_LABELS. */
-export declare const EFFECT_TYPE_KEYS: readonly ["armor", "evade", "initiativeD8", "regen", "tempHP", "saveDice", "damageRider", "movementBonus"];
-export type EffectTypeKey = typeof EFFECT_TYPE_KEYS[number];
-export declare const EFFECT_TYPE_LABELS: Record<EffectTypeKey, string>;
+import type { ActiveSpecialTier, ChosenSpecial, EmbeddedPowerData, PowerCategory } from '../types/item.js';
+import { type PowerTemplate } from './powers/templates/index.js';
 /** Category keys used in filter UI (in display order). */
 export declare const CATEGORY_ORDER: PowerCategory[];
 export declare const CATEGORY_LABELS: Record<PowerCategory, string>;
-/** Requirements for character creation – total 7 powers. */
+/** Requirements for character creation — total 7 powers. */
 export declare const CREATION_POWER_REQUIREMENTS: Record<PowerCategory, number>;
-/** All selectable powers across trees + schools. */
-export declare function getAllCatalogEntries(): CatalogEntry[];
+/** Structural mechanics axes used by the secondary "Effect Type" filter. */
+export declare const EFFECT_TYPE_KEYS: readonly ["armor", "evade", "initiativeD8", "regen", "tempHP", "saveDice", "damageRider", "movementBonus"];
+export type EffectTypeKey = typeof EFFECT_TYPE_KEYS[number];
+export declare const EFFECT_TYPE_LABELS: Record<EffectTypeKey, string>;
+/** @deprecated legacy PowerSourceKind retained only for compile compatibility. */
+export type PowerSourceKind = 'mastery' | 'magic' | 'template';
+export interface CatalogEntry {
+    /** Display name (template + chosen Special suffix for Actives). */
+    name: string;
+    /** Canonical template id (stable across expansions). */
+    templateId: string;
+    /** Base template display name without the chosen-special suffix. */
+    templateName: string;
+    category: PowerCategory;
+    subfamily: string;
+    /** Only set for Active damage templates after expansion. */
+    chosenSpecial?: ChosenSpecial;
+    tier?: ActiveSpecialTier;
+    tags: string[];
+    specialKeys: string[];
+    effectTypes: string[];
+    description: string;
+    /** Optional echo-gating (rarely used under Templates; kept for parity). */
+    requiresEcho?: string[];
+    raw: EmbeddedPowerData;
+    /** @deprecated — legacy shims (always 'template'/''). */
+    sourceKind: PowerSourceKind;
+    /** @deprecated — legacy shim, always empty string. */
+    sourceName: string;
+}
 export interface CatalogFilter {
     category?: PowerCategory | null;
-    tag?: string | null;
+    subfamily?: string | null;
+    templateId?: string | null;
+    tier?: ActiveSpecialTier | null;
     special?: string | null;
-    /** Structural effect type from the mechanics block (e.g. "armor", "damageRider"). */
-    effectType?: string | null;
+    /** Free-text search over name / templateName. */
     search?: string | null;
-    /**
-     * Mastery tree or school name (e.g. "Dragon", "Ashguard"). Matched
-     * case-insensitively against entry.sourceName for exact equality.
-     */
+    /** @deprecated — legacy, retained for compile compatibility. */
+    tag?: string | null;
+    /** @deprecated — legacy, retained for compile compatibility. */
+    effectType?: string | null;
+    /** @deprecated — trees are gone; ignored. */
     sourceName?: string | null;
-    /**
-     * Actor's Echo key (e.g. "dragonborn"). Echo-gated entries are only returned
-     * when their requiresEcho list contains this key (case-insensitive).
-     * If undefined/null, echo-gated entries are hidden (safe default for non-actor contexts).
-     */
+    /** Actor's Echo key, lowercased. Echo-gated entries are hidden if missing. */
     actorEchoKey?: string | null;
 }
-/** Filter entries based on the provided criteria. */
+export declare function getAllCatalogEntries(): CatalogEntry[];
+/** Invalidate the catalog cache (mainly for tests). */
+export declare function _resetCatalogCache(): void;
 export declare function filterCatalog(filter: CatalogFilter): CatalogEntry[];
-/** Unique, sorted list of all catalog sourceName values (trees + schools). */
+/** Unique list of subfamilies within a category (sorted). */
+export declare function getSubfamiliesByCategory(category: PowerCategory): string[];
+/** Unique list of templateIds in a (category, subfamily). */
+export declare function getTemplatesBySubfamily(category: PowerCategory, subfamily: string): Array<{
+    templateId: string;
+    templateName: string;
+}>;
+/** @deprecated legacy — returns empty list (trees removed). */
 export declare function getAllSourceNames(): string[];
-/** All tag values found on "active" powers (lowercased, unique, alphabetical). */
 export declare function getActiveTagOptions(): string[];
-/** All special keys used by "active" powers (lowercased, unique, alphabetical + enriched by ALL_SPECIAL_EFFECTS). */
 export declare function getActiveSpecialOptions(): Array<{
     key: string;
     label: string;
 }>;
-/** All special keys used by any catalog entry (unique, sorted). */
 export declare function getAllSpecialOptions(): Array<{
     key: string;
     label: string;
 }>;
-/** Specials present on the *visible* subset of entries (respects category /
- * tag / actor-echo filters). Used by the Power Picker to auto-hide Specials
- * that would yield an empty result list. The `special` field of `filter` is
- * intentionally ignored so we don't depend on the currently-selected special
- * to compute the choices. */
 export declare function getVisibleSpecialOptions(filter: Omit<CatalogFilter, 'special'>): Array<{
     key: string;
     label: string;
 }>;
-/** Effect types present on the *visible* subset of entries (respects all
- * filters except `effectType` itself so the dropdown isn't self-referential).
- * Used by the Power Picker to auto-hide types with no matching Power. */
 export declare function getVisibleEffectTypeOptions(filter: Omit<CatalogFilter, 'effectType'>): Array<{
     key: string;
     label: string;
 }>;
-/** Look up a catalog entry by name across both sources (used by the dialog to fetch raw data). */
-export declare function findCatalogEntryByName(name: string, sourceKind?: PowerSourceKind, sourceName?: string): CatalogEntry | undefined;
+/** Lookup a catalog entry by its display name. Legacy sourceKind/sourceName are ignored. */
+export declare function findCatalogEntryByName(name: string, _sourceKind?: PowerSourceKind, _sourceName?: string): CatalogEntry | undefined;
+/** Lookup the template behind a CatalogEntry. */
+export declare function findTemplateById(templateId: string): PowerTemplate | undefined;
 //# sourceMappingURL=power-catalog.d.ts.map

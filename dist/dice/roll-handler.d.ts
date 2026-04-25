@@ -42,6 +42,13 @@ export interface RollOptions {
      * of forcing a full failure.
      */
     autoFailIntent?: 'skill' | 'attack';
+    /**
+     * Auto-Raises — the roller voluntarily removes dice from their pool to
+     * convert them into guaranteed Raises. Each Auto-Raise shrinks the pool
+     * by `AUTO_RAISE_DICE_COST` dice and adds +1 Raise on success. Ignored
+     * when `isSaveRoll` is true; Saves cannot buy Auto-Raises.
+     */
+    autoRaises?: number;
 }
 /** Stored on chat messages so a Faith Fracture reroll can repeat the same roll setup. */
 export interface MasteryRollRecipe {
@@ -56,6 +63,8 @@ export interface MasteryRollRecipe {
     isSkillRoll: boolean;
     isSaveRoll: boolean;
     baseModifier: number;
+    /** Voluntary Auto-Raises bought on this roll (0 when not used / for saves). */
+    autoRaises: number;
 }
 /**
  * Perform a Mastery System roll

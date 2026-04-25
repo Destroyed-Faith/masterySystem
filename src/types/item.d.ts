@@ -19,8 +19,20 @@ export interface BaseItemData {
 
 export type PowerCategory = 'active' | 'activeBuff' | 'reaction' | 'passive' | 'movement';
 export type PowerActionCost = 'attack' | 'movement' | 'full' | 'reaction' | 'none';
-export type PowerLevelKey = '1' | '2' | '3' | '4';
+/** Power rank / spell level (1..16). */
+export type PowerLevelKey =
+  | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8'
+  | '9' | '10' | '11' | '12' | '13' | '14' | '15' | '16';
 export type PowerRollKind = string;
+
+/** Casting attribute available when an Active is turned into a Spell. */
+export type CastingAttribute = 'intellect' | 'resolve';
+/** How a Spell resolves: attack roll vs Evade, or casting roll + target Save. */
+export type SpellResolution = 'spellAttack' | 'saveSpell';
+/** Save family used when `spellResolution === 'saveSpell'`. */
+export type SpellSaveType = 'body' | 'mind' | 'spirit';
+/** Tier of the Special slot on an Active damage template (cf. Actives.md). */
+export type ActiveSpecialTier = 3 | 4 | 5 | 6;
 
 export interface RangeSpec {
   kind: 'self' | 'touch' | 'melee' | 'distance';
@@ -415,16 +427,62 @@ export interface PowerCost {
   limit?: PowerCostLimit;
 }
 
-// Embedded Power Data (for artifacts and trees)
+/** Slot on an Active template declaring which Specials can be chosen at item creation. */
+export interface ActiveSpecialSlot {
+  tier: ActiveSpecialTier;
+  eligibleSpecialKeys: string[];
+}
+
+/** The Special the user picked when adding an Active variant from the catalog. */
+export interface ChosenSpecial {
+  key: string;
+  tier: ActiveSpecialTier;
+}
+
+/** Template-side hints that pre-fill the Spell configuration when an Active is
+ *  turned into a Spell. Never persisted on the Item, lives only on the template. */
+export interface SpellHints {
+  defaultResolution: SpellResolution;
+  defaultSaveType?: SpellSaveType;
+  /** Future: map a chosenSpecial.key → casting attribute. */
+  attributeBySpecial?: Record<string, CastingAttribute>;
+}
+
+// Embedded Power Data (the canonical Power definition — shared by templates and items)
 export interface EmbeddedPowerData {
   id?: string;
-  /** Tree depth (1 = root) where this power was first added; UI label only, optional. */
+  /** @deprecated Tree depth (1 = root). UI label only — no longer used under Templates. */
   treeDepthDefined?: number;
   name: string;
   /** Narrative flavor copied to power items when added to a character */
   fluff?: string;
   category: PowerCategory;
   tags: string[]; // e.g. "spell", "charged", etc
+
+  /** Template identifier in kebab-case (e.g. "movement-teleport", "active-melee-damage-t3"). */
+  templateId?: string;
+  /** Display name of the template without the category prefix (e.g. "Teleport"). */
+  templateName?: string;
+  /** Subfamily key inside the category (e.g. "teleport", "damage-single", "combined"). */
+  subfamily?: string;
+  /** Only on Active damage templates — declares the Special slot. */
+  specialSlot?: ActiveSpecialSlot;
+  /** Only on Active items that were instantiated from a template with a slot. */
+  chosenSpecial?: ChosenSpecial;
+  /** Template-side defaults for Active-as-Spell. Never persisted on the item. */
+  spellHints?: SpellHints;
+
+  /** Item-only: the user turned this Active into a Spell at creation time. */
+  isSpell?: boolean;
+  /** Item-only: which attribute the Spell is cast with. Required if isSpell. */
+  castingAttribute?: CastingAttribute;
+  /** Item-only: chosen resolution mode for the Spell. */
+  spellResolution?: SpellResolution;
+  /** Item-only: save family when `spellResolution === 'saveSpell'`. */
+  spellSaveType?: SpellSaveType;
+  /** Item-only reserved: future Overcast stacks (rules pending). */
+  overcast?: number;
+
   cost: PowerCost;
   trigger?: string; // mainly for reaction/passive
   roll?: {
@@ -516,7 +574,7 @@ export interface PowerData extends BaseItemData {
   
   // New structure fields
   category?: PowerCategory;
-  rank?: number; // 1–4, aktuelles Level der Power
+  rank?: number; // 1–16, aktuelles Level der Power (= Spell Level if isSpell)
   minLevel?: number; // Minimum level allowed (baseline from character creation)
   trigger?: string; // für Reactions
   newCost?: {
@@ -533,6 +591,19 @@ export interface PowerData extends BaseItemData {
   levels?: Record<PowerLevelKey, PowerLevelRow>;
   /** Optional narrative flavor (shown above the rank table on the sheet) */
   fluff?: string;
+
+  // Template metadata (Templates replaced Mastery Trees in v0.5+)
+  templateId?: string;
+  templateName?: string;
+  subfamily?: string;
+  chosenSpecial?: ChosenSpecial;
+
+  // Active-as-Spell (see plan §6)
+  isSpell?: boolean;
+  castingAttribute?: CastingAttribute;
+  spellResolution?: SpellResolution;
+  spellSaveType?: SpellSaveType;
+  overcast?: number;
 }
 
 // === Mastery Node Data ===

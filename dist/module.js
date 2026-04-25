@@ -35,6 +35,7 @@ import { getItemIcon, normalizeWeaponNameKey } from './utils/item-icons.js';
 import { actorHasPostCreationSnapshot, resetActorProgressToPostCreation } from './utils/xp-post-creation.js';
 import { getPowerDefinitionRank } from './utils/power-definition-rank.js';
 import { buildMasteryStatusEffects } from './system/status-effects.js';
+import { registerTemplatesCutoverSetting, runTemplatesCutover } from './migrations/templates-cutover.js';
 // Dice roller functions are imported in sheets where needed
 console.log('Mastery System | All imports completed');
 // Register Handlebars helpers immediately (before init hook)
@@ -115,6 +116,8 @@ Hooks.once('init', async function () {
     registerDivineClashSettings();
     // Phasing (Ignore-Hit) — client-side prompt behaviour.
     registerPhasingSettings();
+    // Trees → Templates cutover: one-time Hard-Reset of Power items.
+    registerTemplatesCutoverSetting();
     // Setup XP Management inline in settings
     setupXpManagementInline();
     // Handlebars helpers are already registered in registerHandlebarsHelpersImmediate()
@@ -552,6 +555,13 @@ Hooks.once('init', async function () {
         catch (err) {
             console.error('Mastery System | phasing combatEnd cleanup failed', err);
         }
+        try {
+            const { clearBloodRaiseHpFlagForCombat } = await import('./combat/spell-roll-handler.js');
+            await clearBloodRaiseHpFlagForCombat(combat);
+        }
+        catch (err) {
+            console.error('Mastery System | spell-roll-handler combatEnd cleanup failed', err);
+        }
     });
     Hooks.on('deleteCombat', async (combat) => {
         try {
@@ -565,6 +575,13 @@ Hooks.once('init', async function () {
         }
         catch (err) {
             console.error('Mastery System | phasing deleteCombat cleanup failed', err);
+        }
+        try {
+            const { clearBloodRaiseHpFlagForCombat } = await import('./combat/spell-roll-handler.js');
+            await clearBloodRaiseHpFlagForCombat(combat);
+        }
+        catch (err) {
+            console.error('Mastery System | spell-roll-handler deleteCombat cleanup failed', err);
         }
     });
     // Active-buff activation mid-combat: the continuous modifiers (armor/evade)
@@ -2099,6 +2116,13 @@ Hooks.once('ready', async function () {
         catch (error) {
             console.warn('Mastery System | Failed to seed General Items Storage on ready', error);
         }
+    }
+    // One-shot Trees → Templates power cutover (GM-only, guarded by world setting).
+    try {
+        await runTemplatesCutover();
+    }
+    catch (error) {
+        console.warn('Mastery System | Templates cutover failed', error);
     }
     // Re-initialize Artifact Awakening as fallback (in case init hook failed)
     // Check if hook is registered

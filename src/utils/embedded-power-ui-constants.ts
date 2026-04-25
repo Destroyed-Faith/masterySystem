@@ -88,7 +88,10 @@ function mergeLevelRow(row: unknown): PowerLevelRow {
 
 /** Ensure all four level keys exist with sane defaults. */
 export function ensurePowerLevels(power: { levels?: Record<string, unknown> }): Record<PowerLevelKey, PowerLevelRow> {
-  const keys: PowerLevelKey[] = ['1', '2', '3', '4'];
+  const keys: PowerLevelKey[] = [
+    '1', '2', '3', '4', '5', '6', '7', '8',
+    '9', '10', '11', '12', '13', '14', '15', '16',
+  ];
   const src = power.levels || {};
   const out = {} as Record<PowerLevelKey, PowerLevelRow>;
   for (const k of keys) {
@@ -154,11 +157,14 @@ export function createDefaultEmbeddedPower(randomId?: string): EmbeddedPowerData
     category: 'active',
     tags: [],
     cost: { action: 'attack' },
-    levels: {
-      '1': createEmptyPowerLevelRow(),
-      '2': createEmptyPowerLevelRow(),
-      '3': createEmptyPowerLevelRow(),
-      '4': createEmptyPowerLevelRow()
-    }
+    levels: (() => {
+      const out = {} as Record<PowerLevelKey, PowerLevelRow>;
+      const keys: PowerLevelKey[] = [
+        '1', '2', '3', '4', '5', '6', '7', '8',
+        '9', '10', '11', '12', '13', '14', '15', '16',
+      ];
+      for (const k of keys) out[k] = createEmptyPowerLevelRow();
+      return out;
+    })(),
   };
 }

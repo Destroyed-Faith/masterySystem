@@ -10,7 +10,7 @@ import {
   getEffectById,
   parseEffectString
 } from './special-effects.js';
-import { ALL_MASTERY_POWERS } from './powers/index.js';
+import { ALL_POWER_TEMPLATES } from './powers/index.js';
 
 export type ArtifactSpecialSelectOption = { id: string; label: string; hasValue: boolean };
 
@@ -107,8 +107,8 @@ export function getArtifactSpecialSelectOptions(): ArtifactSpecialSelectOption[]
 
   addWeaponTableSpecials(map);
 
-  for (const power of ALL_MASTERY_POWERS) {
-    collectFromMasteryPower(power, map);
+  for (const tpl of ALL_POWER_TEMPLATES) {
+    collectFromMasteryPower(tpl, map);
   }
 
   return Array.from(map.values()).sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: 'base' }));

@@ -1,0 +1,69 @@
+/**
+ * Shared types & helpers for Power Templates.
+ *
+ * A Power Template is the canonical, catalog-level definition of a Power.
+ * It lives here (fully authored, 16 Levels) and is expanded into one or more
+ * CatalogEntries at runtime (Actives with a specialSlot get expanded per
+ * eligible Special, cf. plan §5).
+ */
+import type { EmbeddedPowerData, PowerCategory, PowerLevelKey, PowerLevelRow, PowerMechanics, RangeSpec, AoeSpec, DurationSpec, PowerSpecial, SpellHints, ActiveSpecialSlot } from '../../../types/item.js';
+import { POWER_LEVEL_KEYS } from '../../../types/power-levels.js';
+/** A Power Template is an EmbeddedPowerData that is the SoT for the catalog.
+ *  All 16 level rows are mandatory. */
+export interface PowerTemplate extends EmbeddedPowerData {
+    templateId: string;
+    templateName: string;
+    subfamily: string;
+    category: PowerCategory;
+    levels: Record<PowerLevelKey, PowerLevelRow>;
+    spellHints?: SpellHints;
+    specialSlot?: ActiveSpecialSlot;
+}
+/** Build a fully-populated 16-level levels record from a factory callback. */
+export declare function buildLevels(factory: (level: number) => PowerLevelRow): Record<PowerLevelKey, PowerLevelRow>;
+/** Helper for Movement templates: identical shape per level, distance varies. */
+export declare function movementRow(distanceM: number, effectText: string): PowerLevelRow;
+/** Helper for Reaction templates: self-target, reaction-gated mechanics. */
+export declare function reactionRow(partial: {
+    type?: string;
+    effectText: string;
+    specials?: PowerSpecial[];
+    mechanics?: Partial<PowerMechanics>;
+    range?: RangeSpec | null;
+    aoe?: AoeSpec | null;
+    duration?: DurationSpec;
+}): PowerLevelRow;
+/** Helper for Active-Buff templates: self/aura, activeBuff-active mechanics. */
+export declare function activeBuffRow(partial: {
+    type?: string;
+    effectText: string;
+    specials?: PowerSpecial[];
+    mechanics?: Partial<PowerMechanics>;
+    range?: RangeSpec | null;
+    aoe?: AoeSpec | null;
+    duration?: DurationSpec;
+}): PowerLevelRow;
+/** Helper for Passive templates: permanent slot, passive-slotted-active mechanics. */
+export declare function passiveRow(partial: {
+    type?: string;
+    effectText: string;
+    specials?: PowerSpecial[];
+    mechanics?: Partial<PowerMechanics>;
+    range?: RangeSpec | null;
+    aoe?: AoeSpec | null;
+    duration?: DurationSpec;
+}): PowerLevelRow;
+/** Helper for Active templates: attack/ability with template slot. */
+export declare function activeRow(partial: {
+    type?: string;
+    effectText: string;
+    dice?: string;
+    specials?: PowerSpecial[];
+    mechanics?: Partial<PowerMechanics>;
+    range?: RangeSpec | null;
+    aoe?: AoeSpec | null;
+    duration?: DurationSpec;
+}): PowerLevelRow;
+/** Internal use: re-export level-key array for iteration. */
+export { POWER_LEVEL_KEYS };
+//# sourceMappingURL=_shared.d.ts.map

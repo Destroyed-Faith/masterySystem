@@ -3,7 +3,7 @@
  */
 
 import type { PowerDefinition, PowerLevelDefinition } from './powers/types.js';
-import type { NewArtifactPowerData, PowerLevelRow, RangeSpec, AoeSpec, DurationSpec, EffectSpec, PowerSpecial, PowerCategory, PowerActionCost, PowerRollKind } from '../types/item.js';
+import type { NewArtifactPowerData, PowerLevelKey, PowerLevelRow, RangeSpec, AoeSpec, DurationSpec, EffectSpec, PowerSpecial, PowerCategory, PowerActionCost, PowerRollKind } from '../types/item.js';
 import { normalizeAoeSpec, normalizePowerSpecial } from './power-spec-normalize.js';
 
 /**
@@ -328,7 +328,7 @@ function convertRoll(level: PowerLevelDefinition): NewArtifactPowerData['roll'] 
 /**
  * Convert PowerLevelDefinition to PowerLevelRow
  */
-function convertLevelToRow(level: PowerLevelDefinition, powerType: string, lvl: 1 | 2 | 3 | 4): PowerLevelRow {
+function convertLevelToRow(level: PowerLevelDefinition, powerType: string, lvl: number): PowerLevelRow {
   const aoeRaw = parseAoeFromString(level.aoe);
   const aoeNorm = normalizeAoeSpec(aoeRaw);
   return {
@@ -353,13 +353,13 @@ export function convertPowerDefinitionToNewStructure(power: PowerDefinition): Ne
   const baseCost = convertCost(firstLevel, power.powerType);
   const baseRoll = convertRoll(firstLevel);
   
-  // Convert all levels
-  const levels: Record<'1' | '2' | '3' | '4', PowerLevelRow> = {
-    '1': convertLevelToRow(power.levels[0] || firstLevel, power.powerType, 1),
-    '2': convertLevelToRow(power.levels[1] || firstLevel, power.powerType, 2),
-    '3': convertLevelToRow(power.levels[2] || firstLevel, power.powerType, 3),
-    '4': convertLevelToRow(power.levels[3] || firstLevel, power.powerType, 4)
-  };
+  // Convert all 16 levels, falling back to the last known level row for
+  // ranks that the legacy definition didn't specify (max was 4).
+  const levels: Record<PowerLevelKey, PowerLevelRow> = {} as Record<PowerLevelKey, PowerLevelRow>;
+  for (let i = 1; i <= 16; i++) {
+    const src = power.levels[i - 1] || power.levels[Math.min(power.levels.length - 1, i - 1)] || firstLevel;
+    levels[String(i) as PowerLevelKey] = convertLevelToRow(src, power.powerType, i);
+  }
   
   // Add trigger for reactions if needed
   let trigger: string | undefined;

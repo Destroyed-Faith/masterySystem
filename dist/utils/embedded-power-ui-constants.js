@@ -75,7 +75,10 @@ function mergeLevelRow(row) {
 }
 /** Ensure all four level keys exist with sane defaults. */
 export function ensurePowerLevels(power) {
-    const keys = ['1', '2', '3', '4'];
+    const keys = [
+        '1', '2', '3', '4', '5', '6', '7', '8',
+        '9', '10', '11', '12', '13', '14', '15', '16',
+    ];
     const src = power.levels || {};
     const out = {};
     for (const k of keys) {
@@ -138,12 +141,16 @@ export function createDefaultEmbeddedPower(randomId) {
         category: 'active',
         tags: [],
         cost: { action: 'attack' },
-        levels: {
-            '1': createEmptyPowerLevelRow(),
-            '2': createEmptyPowerLevelRow(),
-            '3': createEmptyPowerLevelRow(),
-            '4': createEmptyPowerLevelRow()
-        }
+        levels: (() => {
+            const out = {};
+            const keys = [
+                '1', '2', '3', '4', '5', '6', '7', '8',
+                '9', '10', '11', '12', '13', '14', '15', '16',
+            ];
+            for (const k of keys)
+                out[k] = createEmptyPowerLevelRow();
+            return out;
+        })(),
     };
 }
 //# sourceMappingURL=embedded-power-ui-constants.js.map

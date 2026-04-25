@@ -1,32 +1,23 @@
 /**
- * Mastery Powers Index
+ * Powers Index — Template-based (post-Trees).
  *
- * This file automatically aggregates all Mastery Tree powers from individual files.
- * Each tree should export a const TREE_NAME_POWERS: PowerDefinition[] or NewArtifactPowerData[]
- *
- * NOTE: Migrating to new structure (v0.4.18+). Old PowerDefinition format is still supported for backwards compatibility.
+ * Single entry-point that re-exports `ALL_POWER_TEMPLATES` and the template
+ * helpers. Legacy exports (`MASTERY_TREE_POWER_MAP`, `ALL_MASTERY_POWERS`,
+ * `getPowersForTree`, `getPower`) are provided as empty/stub shims so
+ * remaining consumers continue to build until the final cleanup pass
+ * removes every last tree reference from the codebase.
  */
-import type { PowerDefinition } from './types.js';
-import type { NewArtifactPowerData } from '../../types/item.js';
-/**
- * Map from tree display name to its power array.
- * This is the single source of truth for which powers belong to which tree.
- * Only active (non-deprecated) trees are listed here; they drive the Power Picker.
- */
-/** Tree display name → embedded powers (single source of truth for picker + audits). */
-export declare const MASTERY_TREE_POWER_MAP: Record<string, (PowerDefinition | NewArtifactPowerData)[]>;
-/**
- * All mastery powers from all trees (flat list)
- */
-export declare const ALL_MASTERY_POWERS: (PowerDefinition | NewArtifactPowerData)[];
-/**
- * Get all powers for a specific Mastery Tree
- * @param treeName - The display name of the Mastery Tree (e.g. "Dreadstalker")
- */
-export declare function getPowersForTree(treeName: string): (PowerDefinition | NewArtifactPowerData)[];
-/**
- * Get a specific power by tree and name
- */
-export declare function getPower(treeName: string, powerName: string): (PowerDefinition | NewArtifactPowerData) | undefined;
+import type { EmbeddedPowerData } from '../../types/item.js';
+import type { PowerTemplate } from './templates/index.js';
+export { ALL_POWER_TEMPLATES, MOVEMENT_TEMPLATES, REACTION_TEMPLATES, ACTIVE_BUFF_TEMPLATES, PASSIVE_TEMPLATES, ACTIVE_TEMPLATES, getTemplate, getSubfamiliesByCategory, getTemplatesBySubfamily, getEligibleSpecialsForCategory, } from './templates/index.js';
+export type { PowerTemplate };
+/** @deprecated — trees removed. Always empty. */
+export declare const MASTERY_TREE_POWER_MAP: Record<string, EmbeddedPowerData[]>;
+/** @deprecated — trees removed. Returns empty array. */
+export declare const ALL_MASTERY_POWERS: EmbeddedPowerData[];
+/** @deprecated — trees removed. Always returns `undefined`. */
+export declare function getPowersForTree(_treeName: string): EmbeddedPowerData[];
+/** @deprecated — trees removed. Always returns `undefined`. */
+export declare function getPower(_treeName: string, _powerName: string): EmbeddedPowerData | undefined;
 export type { PowerDefinition, PowerLevelDefinition } from './types.js';
 //# sourceMappingURL=index.d.ts.map

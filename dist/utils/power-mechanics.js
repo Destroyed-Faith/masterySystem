@@ -14,8 +14,7 @@
  * `ActiveEffect.changes` pipeline. All addition happens on top of the
  * existing `system.combat.*` values computed earlier in `prepareDerivedData`.
  */
-import { MASTERY_TREE_POWER_MAP } from './powers/index.js';
-import { ALL_MAGIC_POWERS } from './magic-powers.js';
+import { ALL_POWER_TEMPLATES } from './powers/index.js';
 /** Empty breakdown skeleton (all arrays/objects present, all totals zero). */
 export function emptyBreakdown() {
     return {
@@ -109,48 +108,35 @@ export function resolvePowerMechanics(powerItem) {
     return null;
 }
 /**
- * Look the canonical mechanics up in the live catalog. Matches on `name`
- * first (most robust after user renames are unlikely) and, when a tree is
- * stored on the item, restricts the search to that tree to avoid name
- * collisions (e.g. "Dragon Scales" exists in both `dragon.ts` and
- * `warden-dragon.ts`).
+ * Look the canonical mechanics up in the live template registry. Prefers a
+ * `templateId` match (set on new item documents) and falls back to matching
+ * the power name for legacy items still living through the transition.
  */
 function resolveMechanicsFromCatalog(powerItem, rank) {
     const sys = powerItem.system ?? {};
     const name = powerItem.name ?? sys.name;
-    if (!name)
+    const templateId = sys.templateId ? String(sys.templateId) : undefined;
+    if (!name && !templateId)
         return null;
-    const tree = sys.tree ? String(sys.tree) : undefined;
-    const isMagic = sys.isMagicPower === true;
-    const pools = [];
-    if (isMagic) {
-        pools.push({ powers: ALL_MAGIC_POWERS });
+    let def = undefined;
+    if (templateId) {
+        def = ALL_POWER_TEMPLATES.find((t) => t?.templateId === templateId);
     }
-    else if (tree && MASTERY_TREE_POWER_MAP[tree]) {
-        pools.push({ tree, powers: MASTERY_TREE_POWER_MAP[tree] });
+    if (!def && name) {
+        def = ALL_POWER_TEMPLATES.find((t) => t?.templateName === name || t?.name === name);
     }
-    else {
-        // Unknown / legacy tree name — scan every pool.
-        for (const [t, powers] of Object.entries(MASTERY_TREE_POWER_MAP)) {
-            pools.push({ tree: t, powers: powers });
-        }
-        pools.push({ powers: ALL_MAGIC_POWERS });
+    if (!def)
+        return null;
+    const defLevels = def.levels;
+    if (defLevels && typeof defLevels === 'object' && !Array.isArray(defLevels)) {
+        const lvl = defLevels[String(rank)] ?? defLevels['1'];
+        const m = lvl?.mechanics;
+        if (m && typeof m === 'object')
+            return m;
     }
-    for (const pool of pools) {
-        const def = pool.powers.find((p) => p?.name === name);
-        if (!def)
-            continue;
-        const defLevels = def.levels;
-        if (defLevels && typeof defLevels === 'object' && !Array.isArray(defLevels)) {
-            const lvl = defLevels[String(rank)] ?? defLevels['1'];
-            const m = lvl?.mechanics;
-            if (m && typeof m === 'object')
-                return m;
-        }
-        const topM = def.mechanics;
-        if (topM && typeof topM === 'object')
-            return topM;
-    }
+    const topM = def.mechanics;
+    if (topM && typeof topM === 'object')
+        return topM;
     return null;
 }
 /**

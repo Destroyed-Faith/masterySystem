@@ -3,7 +3,7 @@
  */
 import { WEAPONS, WEAPON_PROPERTIES } from './weapons.js';
 import { ALL_SPECIAL_EFFECTS, getEffect, getEffectBaseName, getEffectById, parseEffectString } from './special-effects.js';
-import { ALL_MASTERY_POWERS } from './powers/index.js';
+import { ALL_POWER_TEMPLATES } from './powers/index.js';
 function slugFromKey(key) {
     return key.trim().toLowerCase().replace(/\s+/g, '-');
 }
@@ -99,8 +99,8 @@ export function getArtifactSpecialSelectOptions() {
         map.set(e.id, { id: e.id, label: getEffectBaseName(e.name), hasValue: e.hasValue });
     }
     addWeaponTableSpecials(map);
-    for (const power of ALL_MASTERY_POWERS) {
-        collectFromMasteryPower(power, map);
+    for (const tpl of ALL_POWER_TEMPLATES) {
+        collectFromMasteryPower(tpl, map);
     }
     return Array.from(map.values()).sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: 'base' }));
 }

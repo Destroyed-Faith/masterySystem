@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.0] - 2026-04-25
+
+### Breaking
+
+- **Mastery Trees are retired.** All tree-specific power files (`ashguard`, `dragon`, `bloodforge`, `warden-dragon`, …), the magic-spells directory, and the Mastery-Tree / Spell-School facades have been deleted. The legacy `mastery-trees`, `magic-powers`, and `spell-schools` modules are now empty compatibility stubs and will be removed in a later release.
+- **Power levels now run 1–16** (up from 1–4). `PowerLevelKey` is `'1' | '2' | … | '16'`; every `Record<PowerLevelKey, …>` map covers the full range.
+- **Power items are reset once.** A new migration (`src/migrations/templates-cutover.ts`) deletes every `item.type === 'power'` from actors on the first `ready` hook after upgrade so the character sheet starts fresh against the new picker. **Players must re-pick their powers after updating.**
+
+### Added
+
+- **Template-based power registry.** `src/utils/powers/templates/` holds five category files (`movement.ts`, `reaction.ts`, `activeBuffs.ts`, `passives.ts`, `actives.ts`) plus `_shared.ts` (row/level helpers) and `_specials.ts` (per-tier Active Special catalog). `index.ts` exposes `ALL_POWER_TEMPLATES`, `getSubfamiliesByCategory`, `getTemplatesBySubfamily`, `getEligibleSpecialsForCategory`.
+- **Power Catalog rewrite.** `power-catalog.ts` now expands every Active damage template into one `CatalogEntry` per eligible Special (Tier 3–6). Filters: `category`, `subfamily`, `templateId`, `tier`, `special`, `search`.
+- **Three-stage power picker.** The character-sheet power dialog filters Category → Subfamily → (Active: Tier + Special + Search / other: Search) with the tree dropdown removed.
+- **Active-as-Spell at character creation.** Any Active can be flipped into a Spell with:
+  - Casting Attribute (`intellect` / `resolve`)
+  - Resolution (`spellAttack` vs Evade, or `saveSpell` vs Save DC = 8 × MR)
+  - Save Type (`body` / `mind` / `spirit`) for Save Spells
+  - Max Spell Level cap = `Mastery Rank × 2` enforced in the picker
+- **Spell roll pipeline (`src/combat/spell-roll-handler.ts`).** `calculateBaseTN` (8 × ceil(lvl/2)), `calculateSaveDC`, `getMaxSpellLevel`, `canCastSpellAtLevel`, and `rollSpell` handle Base TN, Raises (+4 TN each), Blood Raises (4 HP = +4 total, ignores armor, unhealable until combat ends), `1d8` Stress on fizzle, and GM fiction modifier. A `combatEnd` / `deleteCombat` hook clears the Blood Raise flag.
+- **Docs & tests.** `docs/power-structure-new.json` documents the new template/spell fields and 16-level range; `README.md` gets "Authoring a new Power Template" and "Spell-casting an Active" sections. New tests: `tests/power-catalog.test.ts`, `tests/spell-roll-handler.test.ts`.
+
+### Changed
+
+- `artifact-node-options.ts`, `power-mechanics.ts`, `damage-dialog.ts`, and `radial-menu/options.ts` now resolve power definitions through `ALL_POWER_TEMPLATES` via `templateId` (fallback: template name).
+- `attack-executor.ts` prefers `isSpell` + `castingAttribute` over the legacy tree-attribute mapping.
+
+### Removed
+
+- `src/utils/powers/*.ts` (all tree files except `index.ts` and `types.ts`), `src/utils/spells/**`, and `tests/dragon-trees.test.ts`. Two tree-specific fallback assertions in `tests/power-mechanics.test.ts` were retired with a note.
+
 ## [0.4.267] - 2026-04-18
 
 ### Added

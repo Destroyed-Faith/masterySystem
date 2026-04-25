@@ -129,6 +129,10 @@ function getTargetEvade(targetActor) {
 function getAttackAttribute(_actor, weapon, option, attackType) {
     if (option.source === "power" && option.item) {
         const powerSystem = option.item.system || {};
+        // Active-as-Spell: casting attribute on the item beats every other signal.
+        if (powerSystem.isSpell && powerSystem.castingAttribute) {
+            return String(powerSystem.castingAttribute).toLowerCase();
+        }
         const fromTreeOrSchool = getAttackAttributeForPowerTreeOrSchool(powerSystem.tree);
         if (fromTreeOrSchool) {
             return fromTreeOrSchool;
@@ -390,7 +394,8 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             data-mastery-rank="${masteryRank}"
             data-target-evade="${targetEvade}"
             data-base-evade="${baseEvade}"
-            data-raises="0">
+            data-raises="0"
+            data-auto-raises="0">
       <i class="fas fa-dice-d20"></i> Roll
     </button>
   `;
@@ -405,6 +410,22 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
       <select id="raises-select-${attacker.id}-${target.id}" class="raises-select" data-message-id="">
         <option value="0" selected>0</option>
         ${raisesOptions}
+      </select>
+    </div>
+  `;
+    // Build auto-raises dropdown (0 to floor(attribute/4)) — each auto-raise
+    // removes 4 dice from the pool for a guaranteed +1 raise on success.
+    const maxAutoRaises = Math.max(0, Math.floor((attributeValue || 0) / 4));
+    const autoRaiseOptions = Array.from({ length: maxAutoRaises }, (_, i) => {
+        const value = i + 1;
+        return `<option value="${value}">${value} (−${value * 4} dice)</option>`;
+    }).join('');
+    const autoRaisesDropdown = `
+    <div class="raises-input-group auto-raises-input-group" title="Voluntarily shrink your pool by 4 dice per Auto-Raise to get a guaranteed +1 Raise on success.">
+      <label for="auto-raises-select-${attacker.id}-${target.id}">Auto-Raises:</label>
+      <select id="auto-raises-select-${attacker.id}-${target.id}" class="auto-raises-select" data-message-id="">
+        <option value="0" selected>0</option>
+        ${autoRaiseOptions}
       </select>
     </div>
   `;
@@ -443,6 +464,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
       </div>
       <div class="attack-controls">
         ${raisesDropdown}
+        ${autoRaisesDropdown}
         ${buttonHtml}
       </div>
     </div>
@@ -536,6 +558,21 @@ function setupRaisesHandler(messageElement, messageId, baseEvade) {
                 raises,
                 baseEvade,
                 adjustedEvade
+            });
+        });
+    }
+    // Auto-Raises dropdown — each auto-raise shrinks the pool by 4 dice and
+    // grants +1 raise on success. Stored on the roll button as `data-auto-raises`.
+    const autoRaisesSelect = messageElement.find('.auto-raises-select');
+    if (autoRaisesSelect.length) {
+        autoRaisesSelect.attr('data-message-id', messageId);
+        autoRaisesSelect.off('change').on('change', function () {
+            const autoRaises = Math.max(0, parseInt($(this).val()) || 0);
+            const button = messageElement.find('.roll-attack-btn');
+            button.attr('data-auto-raises', autoRaises.toString());
+            console.log('Mastery System | [ATTACK CARD] Auto-Raises updated', {
+                autoRaises,
+                diceCost: autoRaises * 4
             });
         });
     }

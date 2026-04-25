@@ -157,6 +157,10 @@ function getAttackAttribute(
 ): string {
   if (option.source === "power" && option.item) {
     const powerSystem = (option.item.system as any) || {};
+    // Active-as-Spell: casting attribute on the item beats every other signal.
+    if (powerSystem.isSpell && powerSystem.castingAttribute) {
+      return String(powerSystem.castingAttribute).toLowerCase();
+    }
     const fromTreeOrSchool = getAttackAttributeForPowerTreeOrSchool(powerSystem.tree);
     if (fromTreeOrSchool) {
       return fromTreeOrSchool;

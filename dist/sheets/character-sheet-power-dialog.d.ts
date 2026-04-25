@@ -1,21 +1,21 @@
 /**
- * Power Creation Dialog for Character Sheet
+ * Power Creation Dialog — Template-based (post-Trees).
  *
- * Unified picker for Mastery Tree Powers and Spell School Powers.
- * The list is filterable by:
- *   - Category (Active, Active Buff, Movement, Reaction, Passive, Utility)
- *   - Tag (e.g. "spell") – only when Category = Active
- *   - Special (e.g. Ignite, Freeze, Shock, Penetration, …) – only when Category = Active
- *   - Free text search (name / tree / school)
+ * Three-stage filter matching plan §4:
+ *   Stage 1: Category (Movement / Passive / Reaction / Active / Active Buff)
+ *   Stage 2: Subfamily (teleport / flight / damage-aoe / combined …)
+ *   Stage 3: One of
+ *     - Tier (3–6) + Special   [Actives only]
+ *     - Template + free-text search     [everything else]
  *
- * During character creation, every newly added power is stored at rank 1.
+ * For Actives (category === 'active'), a Step 4 panel exposes the
+ * "Make this a Spell?" toggle, the casting attribute (Intellect/Resolve),
+ * and — when the resolution is a saveSpell — the Save type (body/mind/spirit),
+ * all pre-filled from the template's `spellHints`. See plan §6.3.
  */
 import type { PowerCategory } from '../types/item.js';
 /**
- * Show the unified power creation dialog.
- *
- * @param actor - The actor to add a power to.
- * @param options - Optional preset for the category filter (e.g. when called from "Add Reaction").
+ * Show the template-based Power picker.
  */
 export declare function showPowerCreationDialog(actor: Actor, options?: {
     presetCategory?: PowerCategory;

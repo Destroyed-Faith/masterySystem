@@ -1,25 +1,20 @@
 /**
- * Magic Powers (Spell School Powers) Index
+ * @deprecated Magic Powers facade — legacy compatibility only.
  *
- * This file provides access to magic powers organized by spell school.
- * Converts SpellDefinition to PowerDefinition format for compatibility.
+ * The Trees/Spell-Schools system has been retired in favour of
+ * Templates (see `src/utils/powers/templates/index.ts`). Every "Magic Power"
+ * now lives as a normal Active template and becomes a Spell at character
+ * creation via the `isSpell` flag — see plan §6 (Active-as-Spell).
+ *
+ * This module retains its public exports as no-op stubs so residual
+ * consumers continue to compile until the final cleanup removes every
+ * callsite.
  */
 import type { PowerDefinition } from './powers/types.js';
-/**
- * All magic powers from all active spell schools (deprecated schools are omitted here but remain on disk).
- */
+/** @deprecated — returns an empty list under the Templates system. */
 export declare const ALL_MAGIC_POWERS: PowerDefinition[];
-/**
- * Get all magic powers for a specific Spell School
- * @param schoolName - The name of the Spell School
- * @returns Array of PowerDefinition objects for that school
- */
-export declare function getMagicPowersBySchool(schoolName: string): PowerDefinition[];
-/**
- * Get a specific magic power by school and name
- * @param schoolName - The name of the Spell School
- * @param powerName - The name of the power
- * @returns PowerDefinition or undefined if not found
- */
-export declare function getMagicPower(schoolName: string, powerName: string): PowerDefinition | undefined;
+/** @deprecated — always returns an empty list under the Templates system. */
+export declare function getMagicPowersBySchool(_schoolName: string): PowerDefinition[];
+/** @deprecated — always returns `undefined` under the Templates system. */
+export declare function getMagicPower(_schoolName: string, _powerName: string): PowerDefinition | undefined;
 //# sourceMappingURL=magic-powers.d.ts.map

@@ -2,7 +2,7 @@
  * Dice rolling handler for Mastery System
  * Implements Roll & Keep with exploding 8s
  */
-import { EXPLODE_VALUE, RAISE_INCREMENT } from '../utils/constants.js';
+import { EXPLODE_VALUE, RAISE_INCREMENT, AUTO_RAISE_DICE_COST } from '../utils/constants.js';
 import { evaluateAutoFail } from '../system/auto-fail.js';
 /**
  * Roll one pool die: exploding d8s while running total is divisible by 8 (Mastery rules).
@@ -74,6 +74,20 @@ function calculateRaises(total, tn) {
 export async function masteryRoll(options) {
     const { keepDice, skill = 0, tn = 0, label = 'Roll' } = options;
     let { numDice, flavor = '' } = options;
+    // Pre-Auto-Raise pool size, preserved so the reroll recipe can re-apply the
+    // same Auto-Raise deduction on reroll without double-counting the cost.
+    const originalNumDice = numDice;
+    // Auto-Raise — voluntary pool shrink for guaranteed raises. Never for saves.
+    const autoRaises = options.isSaveRoll ? 0 : Math.max(0, Math.floor(options.autoRaises ?? 0));
+    if (autoRaises > 0) {
+        const cost = autoRaises * AUTO_RAISE_DICE_COST;
+        const before = numDice;
+        numDice = Math.max(1, numDice - cost);
+        const actualCost = before - numDice;
+        const note = `Auto-Raise: −${actualCost} dice → +${autoRaises} raise${autoRaises > 1 ? 's' : ''} on success` +
+            (actualCost < cost ? ` (pool floored at 1)` : '');
+        flavor = flavor ? `${flavor} | ${note}` : note;
+    }
     // Power Mechanics Engine — consult the actor's aggregated dice-pool deltas
     // for this roll kind and adjust the pool before rolling. The delta is
     // additive on top of any caller-supplied numDice (which typically already
@@ -168,7 +182,11 @@ export async function masteryRoll(options) {
     const rawSuccess = tn > 0 ? total >= tn : true;
     const rawRaises = tn > 0 ? calculateRaises(total, tn) : 0;
     const success = autoFailReason ? false : rawSuccess;
-    const raises = autoFailReason ? 0 : rawRaises;
+    // Voluntary Auto-Raises only pay out when the roll actually succeeds (and
+    // wasn't forced to fail). A TN of 0 means "no target" — still grant them so
+    // free-form rolls (generic Might checks etc.) can use the mechanic.
+    const grantAutoRaises = !autoFailReason && (tn === 0 || success);
+    const raises = autoFailReason ? 0 : rawRaises + (grantAutoRaises ? autoRaises : 0);
     console.log('Mastery System | DEBUG: Roll result calculated', {
         total,
         tn,
@@ -191,7 +209,8 @@ export async function masteryRoll(options) {
         dieChains,
         label,
         flavor,
-        ...(autoFailReason ? { autoFailReason } : {})
+        ...(autoFailReason ? { autoFailReason } : {}),
+        ...(autoRaises > 0 ? { autoRaises } : {})
     };
     console.log('Mastery System | DEBUG: Sending roll to chat', {
         result,
@@ -199,7 +218,9 @@ export async function masteryRoll(options) {
         flavor
     });
     const rollRecipe = {
-        numDice,
+        // Persist the pre-Auto-Raise pool: the reroll path calls masteryRoll() again
+        // with the same `autoRaises`, which will re-deduct the dice cost itself.
+        numDice: originalNumDice,
         keepDice,
         skill,
         tn,
@@ -209,7 +230,8 @@ export async function masteryRoll(options) {
         skillKey: options.skillKey ?? null,
         isSkillRoll: !!options.isSkillRoll,
         isSaveRoll: !!options.isSaveRoll,
-        baseModifier: options.baseModifier ?? 0
+        baseModifier: options.baseModifier ?? 0,
+        autoRaises
     };
     // Send to chat
     await sendRollToChat(result, label, flavor, options.actorId, options.skillKey, options.isSkillRoll, options.baseModifier, options.isSaveRoll, rollRecipe);
@@ -310,19 +332,24 @@ async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillR
             remainingPool = Math.max(0, skillRating - skillsSpent);
             const MR = actorData.mastery?.rank || 2;
             const diceTotal = result.kept.reduce((sum, d) => sum + d, 0) + (baseModifier || 0);
+            // Auto-Raises already baked into result.raises; we re-apply them to any
+            // hypothetical spend-previews so the buttons show the full post-spend tally.
+            const autoRaisesBonus = Math.max(0, result.autoRaises ?? 0);
             if (remainingPool > 0) {
                 const added = new Set();
                 for (let amount = MR; amount <= remainingPool; amount += MR) {
                     const newTotal = diceTotal + amount;
                     const success = result.tn > 0 ? newTotal >= result.tn : true;
-                    const raises = result.tn > 0 && success ? Math.floor((newTotal - result.tn) / RAISE_INCREMENT) : 0;
+                    const baseRaises = result.tn > 0 && success ? Math.floor((newTotal - result.tn) / RAISE_INCREMENT) : 0;
+                    const raises = baseRaises + (success ? autoRaisesBonus : 0);
                     skillSpendOptions.push({ amount, newTotal, success, raises, label: `${amount}` });
                     added.add(amount);
                 }
                 if (!added.has(remainingPool)) {
                     const newTotal = diceTotal + remainingPool;
                     const success = result.tn > 0 ? newTotal >= result.tn : true;
-                    const raises = result.tn > 0 && success ? Math.floor((newTotal - result.tn) / RAISE_INCREMENT) : 0;
+                    const baseRaises = result.tn > 0 && success ? Math.floor((newTotal - result.tn) / RAISE_INCREMENT) : 0;
+                    const raises = baseRaises + (success ? autoRaisesBonus : 0);
                     skillSpendOptions.push({ amount: remainingPool, newTotal, success, raises, label: `All-in (${remainingPool})` });
                 }
             }
@@ -394,7 +421,9 @@ async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillR
               ${result.raises > 0 ? `
                 <div class="result-line">
                   <span><strong>Raises:</strong></span>
-                  <span class="value"><strong>${result.raises}</strong></span>
+                  <span class="value"><strong>${result.raises}</strong>${(result.autoRaises ?? 0) > 0
+            ? ` <span class="auto-raises-note">(incl. ${result.autoRaises} auto)</span>`
+            : ''}</span>
                 </div>
               ` : ''}
             </div>

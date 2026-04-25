@@ -8,6 +8,7 @@ import type {
   EmbeddedPowerData,
   PowerData,
   PowerCategory,
+  PowerLevelKey,
   PowerLevelRow,
   PowerSpecial,
   RangeSpec,
@@ -332,12 +333,16 @@ export function migrateArtifactPower(oldPower: ArtifactPowerData): EmbeddedPower
     category,
     tags: oldPower.tags || [],
     cost: convertCost(oldPower.cost || {}, oldPower.powerType),
-    levels: {
-      '1': level1,
-      '2': cloneLevel(),
-      '3': cloneLevel(),
-      '4': cloneLevel()
-    }
+    levels: (() => {
+      const out = {} as Record<PowerLevelKey, PowerLevelRow>;
+      out['1'] = level1;
+      const keys: PowerLevelKey[] = [
+        '2', '3', '4', '5', '6', '7', '8',
+        '9', '10', '11', '12', '13', '14', '15', '16',
+      ];
+      for (const k of keys) out[k] = cloneLevel();
+      return out;
+    })(),
   };
   
   // Add trigger for reactions
@@ -407,12 +412,13 @@ export function migratePowerData(oldPower: PowerData): PowerData {
     trigger: category === 'reaction' ? oldPower.requirements?.other : undefined,
     newCost: convertCost(oldPower.cost || {}, oldPower.powerType),
     newRoll: convertRoll(oldPower.roll || {}),
-    levels: {
-      '1': level1,
-      '2': { ...level1, lvl: 2 },
-      '3': { ...level1, lvl: 3 },
-      '4': { ...level1, lvl: 4 }
-    }
+    levels: (() => {
+      const out = {} as Record<PowerLevelKey, PowerLevelRow>;
+      for (let i = 1; i <= 16; i++) {
+        out[String(i) as PowerLevelKey] = i === 1 ? level1 : { ...level1, lvl: i };
+      }
+      return out;
+    })(),
   };
 }
 

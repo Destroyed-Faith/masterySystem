@@ -4,6 +4,13 @@
  */
 export declare const EXPLODE_VALUE = 8;
 export declare const RAISE_INCREMENT = 4;
+/**
+ * Auto-Raise: the roller may voluntarily shrink their dice pool in exchange
+ * for guaranteed Raises. Each Auto-Raise removes this many dice from the pool
+ * and grants +1 Raise on success. Applies to skill rolls, attack rolls, and
+ * other generic rolls; never to Saving Throws.
+ */
+export declare const AUTO_RAISE_DICE_COST = 4;
 export declare const MIN_ATTRIBUTE = 0;
 export declare const MAX_ATTRIBUTE = 80;
 export declare const ATTACK_ACTIONS_PER_TURN = 1;

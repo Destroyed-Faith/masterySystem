@@ -1,17 +1,30 @@
 /**
- * Power Creation Dialog for Character Sheet
+ * Power Creation Dialog — Template-based (post-Trees).
  *
- * Unified picker for Mastery Tree Powers and Spell School Powers.
- * The list is filterable by:
- *   - Category (Active, Active Buff, Movement, Reaction, Passive, Utility)
- *   - Tag (e.g. "spell") – only when Category = Active
- *   - Special (e.g. Ignite, Freeze, Shock, Penetration, …) – only when Category = Active
- *   - Free text search (name / tree / school)
+ * Three-stage filter matching plan §4:
+ *   Stage 1: Category (Movement / Passive / Reaction / Active / Active Buff)
+ *   Stage 2: Subfamily (teleport / flight / damage-aoe / combined …)
+ *   Stage 3: One of
+ *     - Tier (3–6) + Special   [Actives only]
+ *     - Template + free-text search     [everything else]
  *
- * During character creation, every newly added power is stored at rank 1.
+ * For Actives (category === 'active'), a Step 4 panel exposes the
+ * "Make this a Spell?" toggle, the casting attribute (Intellect/Resolve),
+ * and — when the resolution is a saveSpell — the Save type (body/mind/spirit),
+ * all pre-filled from the template's `spellHints`. See plan §6.3.
  */
 
-import type { NewArtifactPowerData, PowerCategory, PowerSpecial } from '../types/item.js';
+import type {
+    ActiveSpecialTier,
+    CastingAttribute,
+    ChosenSpecial,
+    EmbeddedPowerData,
+    PowerCategory,
+    PowerLevelKey,
+    PowerSpecial,
+    SpellResolution,
+    SpellSaveType,
+} from '../types/item.js';
 import { renderRange, renderAoe, renderDuration, renderPowerLevelTable } from '../utils/power-rendering.js';
 import {
     CATEGORY_LABELS,
@@ -19,17 +32,11 @@ import {
     CREATION_POWER_REQUIREMENTS,
     filterCatalog,
     findCatalogEntryByName,
-    getAllSourceNames,
-    getAllSpecialOptions,
-    getVisibleSpecialOptions,
-    getVisibleEffectTypeOptions,
-    type CatalogEntry
+    findTemplateById,
+    getSubfamiliesByCategory,
+    type CatalogEntry,
 } from '../utils/power-catalog.js';
-
-/** Check if a power uses the new structure. */
-function isNewPowerStructure(power: any): power is NewArtifactPowerData {
-    return power && typeof power === 'object' && 'category' in power && 'levels' in power && typeof power.levels === 'object' && !Array.isArray(power.levels);
-}
+import type { PowerTemplate } from '../utils/powers/templates/index.js';
 
 /** How many powers of a given category the actor already owns. */
 function countByCategory(actor: Actor): Record<PowerCategory, number> {
@@ -38,7 +45,7 @@ function countByCategory(actor: Actor): Record<PowerCategory, number> {
         activeBuff: 0,
         movement: 0,
         reaction: 0,
-        passive: 0
+        passive: 0,
     };
     const powers = (actor as any).items.filter((i: any) => i.type === 'power');
     for (const p of powers) {
@@ -55,30 +62,33 @@ function countByCategory(actor: Actor): Record<PowerCategory, number> {
     return counts;
 }
 
+/** Friendly label for a subfamily key. */
+function labelSubfamily(key: string): string {
+    return key
+        .split('-')
+        .map((p) => (p.length ? p[0].toUpperCase() + p.slice(1) : p))
+        .join(' ');
+}
+
 /**
- * Show the unified power creation dialog.
- *
- * @param actor - The actor to add a power to.
- * @param options - Optional preset for the category filter (e.g. when called from "Add Reaction").
+ * Show the template-based Power picker.
  */
 export async function showPowerCreationDialog(
     actor: Actor,
-    options?: { presetCategory?: PowerCategory }
+    options?: { presetCategory?: PowerCategory },
 ): Promise<void> {
     const system = (actor as any).system;
     const creationComplete = system?.creation?.complete !== false;
     const masteryRank = system?.mastery?.rank || 2;
     const actorEchoKey = (system?.echo?.key as string | undefined) || null;
+    const maxSpellLevel = masteryRank * 2;
 
-    // Build filter UI options
-    const categoryOptions = CATEGORY_ORDER.map(c =>
-        `<option value="${c}"${options?.presetCategory === c ? ' selected' : ''}>${CATEGORY_LABELS[c]}</option>`
+    const categoryOptions = CATEGORY_ORDER.map(
+        (c) => `<option value="${c}"${options?.presetCategory === c ? ' selected' : ''}>${CATEGORY_LABELS[c]}</option>`,
     ).join('');
-    const specialOptions = getAllSpecialOptions()
-        .map(s => `<option value="${s.key}">${s.label}</option>`)
-        .join('');
-    const treeOptions = getAllSourceNames()
-        .map(n => `<option value="${n}">${n}</option>`)
+
+    const rankOptions = Array.from({ length: 16 }, (_, i) => i + 1)
+        .map((r) => `<option value="${r}">Rank ${r}</option>`)
         .join('');
 
     const content = `
@@ -92,30 +102,30 @@ export async function showPowerCreationDialog(
           </select>
         </div>
         <div class="form-group power-form-group">
-          <label class="power-form-label">Tree:</label>
-          <select name="tree" id="pc-tree" class="power-form-select">
-            <option value="">-- Any Tree --</option>
-            ${treeOptions}
+          <label class="power-form-label">Subfamily:</label>
+          <select name="subfamily" id="pc-subfamily" class="power-form-select">
+            <option value="">-- Any Subfamily --</option>
           </select>
         </div>
-        <div class="form-group power-form-group">
+        <div class="form-group power-form-group pc-tier-group" style="display:none;">
+          <label class="power-form-label">Tier:</label>
+          <select name="tier" id="pc-tier" class="power-form-select">
+            <option value="">-- Any Tier --</option>
+            <option value="3">Tier 3</option>
+            <option value="4">Tier 4</option>
+            <option value="5">Tier 5</option>
+            <option value="6">Tier 6</option>
+          </select>
+        </div>
+        <div class="form-group power-form-group pc-special-group" style="display:none;">
           <label class="power-form-label">Special:</label>
           <select name="special" id="pc-special" class="power-form-select">
             <option value="">-- Any Special --</option>
-            ${specialOptions}
           </select>
         </div>
         <div class="form-group power-form-group">
-          <label class="power-form-label">Effect Type:</label>
-          <select name="effectType" id="pc-effect-type" class="power-form-select">
-            <option value="">-- Any Effect Type --</option>
-          </select>
-        </div>
-        <div class="form-group power-form-group pc-spell-group">
-          <label class="power-form-label power-form-checkbox-label">
-            <input type="checkbox" id="pc-spell" class="power-form-checkbox" />
-            <span>Spell only</span>
-          </label>
+          <label class="power-form-label">Search:</label>
+          <input type="text" id="pc-search" class="power-form-input" placeholder="Name contains…" />
         </div>
       </div>
       <div class="form-group power-form-group">
@@ -129,14 +139,41 @@ export async function showPowerCreationDialog(
         <div id="pc-description" class="power-description-text"></div>
         <div id="pc-level-table" class="power-level-table-container"></div>
       </div>
+      <div class="form-group power-form-group pc-spell-panel" id="pc-spell-panel" style="display:none; border:1px solid #555; padding:8px; border-radius:4px;">
+        <label class="power-form-label power-form-checkbox-label">
+          <input type="checkbox" id="pc-is-spell" class="power-form-checkbox" />
+          <span><strong>Cast this Active as a Spell</strong></span>
+        </label>
+        <div class="pc-spell-fields" id="pc-spell-fields" style="display:none; margin-top:6px;">
+          <div class="form-group">
+            <label class="power-form-label">Casting Attribute:</label>
+            <select id="pc-casting-attr" class="power-form-select">
+              <option value="intellect">Intellect</option>
+              <option value="resolve">Resolve</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="power-form-label">Resolution:</label>
+            <select id="pc-resolution" class="power-form-select">
+              <option value="spellAttack">Spell Attack (vs Evade)</option>
+              <option value="saveSpell">Save Spell (vs Save DC)</option>
+            </select>
+          </div>
+          <div class="form-group pc-save-group" style="display:none;">
+            <label class="power-form-label">Save Type:</label>
+            <select id="pc-save-type" class="power-form-select">
+              <option value="body">Body</option>
+              <option value="mind">Mind</option>
+              <option value="spirit">Spirit</option>
+            </select>
+          </div>
+        </div>
+      </div>
       ${creationComplete ? `
       <div class="form-group power-form-group">
         <label class="power-form-label">Rank:</label>
         <select name="rank" id="pc-rank" class="power-form-select">
-          <option value="1">Rank 1</option>
-          <option value="2">Rank 2</option>
-          <option value="3">Rank 3</option>
-          <option value="4">Rank 4</option>
+          ${rankOptions}
         </select>
       </div>
       ` : `
@@ -163,26 +200,35 @@ export async function showPowerCreationDialog(
                         return false;
                     }
 
-                    // The <option> carries sourceKind + sourceName so we resolve unambiguously.
-                    const $opt = $html.find(`#pc-power option[value="${CSS.escape(selectedName)}"]:selected`);
-                    const sourceKind = ($opt.data('source-kind') as 'mastery' | 'magic') || undefined;
-                    const sourceName = ($opt.data('source-name') as string) || undefined;
-
-                    const entry = findCatalogEntryByName(selectedName, sourceKind, sourceName);
+                    const entry = findCatalogEntryByName(selectedName);
                     if (!entry) {
                         ui.notifications?.error('Power not found in catalog');
                         return false;
                     }
 
-                    // During character creation every power is bought at Rank 2 so
-                    // it is immediately usable at the starting Mastery Rank of 2.
-                    // Post-creation the player can pick a rank via the dialog.
                     const rank = creationComplete
                         ? parseInt(($html.find('#pc-rank').val() as string) || '1')
-                        : 2;
+                        : 1;
 
-                    // Build item data from catalog entry
-                    const itemData = buildItemDataFromEntry(entry, rank);
+                    const isSpell = entry.category === 'active' && !!$html.find('#pc-is-spell').prop('checked');
+                    const castingAttribute = isSpell
+                        ? (($html.find('#pc-casting-attr').val() as CastingAttribute) || 'intellect')
+                        : undefined;
+                    const spellResolution = isSpell
+                        ? (($html.find('#pc-resolution').val() as SpellResolution) || 'spellAttack')
+                        : undefined;
+                    const spellSaveType = isSpell && spellResolution === 'saveSpell'
+                        ? (($html.find('#pc-save-type').val() as SpellSaveType) || 'body')
+                        : undefined;
+
+                    if (isSpell && rank > maxSpellLevel) {
+                        ui.notifications?.error(
+                            `Spell Level ${rank} exceeds Max Spell Level for this character (MR ${masteryRank} × 2 = ${maxSpellLevel}).`,
+                        );
+                        return false;
+                    }
+
+                    const itemData = buildItemDataFromEntry(entry, rank, { isSpell, castingAttribute, spellResolution, spellSaveType });
                     if (!itemData) {
                         ui.notifications?.error('Failed to construct power item data');
                         return false;
@@ -193,7 +239,7 @@ export async function showPowerCreationDialog(
                         const target = CREATION_POWER_REQUIREMENTS[entry.category];
                         if (counts[entry.category] >= target) {
                             ui.notifications?.error(
-                                `You already have the maximum number of ${CATEGORY_LABELS[entry.category]} powers (${target}) for character creation.`
+                                `You already have the maximum number of ${CATEGORY_LABELS[entry.category]} powers (${target}) for character creation.`,
                             );
                             return false;
                         }
@@ -204,16 +250,15 @@ export async function showPowerCreationDialog(
                     }
 
                     await (actor as any).createEmbeddedDocuments('Item', [itemData]);
-                    const sourceType = entry.sourceKind === 'magic' ? 'Spell School' : 'Mastery Tree';
-                    ui.notifications?.info(`Created power: ${entry.name} (Rank ${rank}) from ${entry.sourceName} ${sourceType}`);
+                    ui.notifications?.info(`Created ${entry.name} (Rank ${rank})${isSpell ? ' as a Spell' : ''}`);
                     return true;
-                }
+                },
             },
             cancel: {
                 icon: '<i class="fas fa-times"></i>',
                 label: 'Cancel',
-                callback: () => false
-            }
+                callback: () => false,
+            },
         },
         default: 'create',
         render: (htmlRaw: JQuery | HTMLElement) => {
@@ -229,88 +274,80 @@ export async function showPowerCreationDialog(
                         'max-height': '90vh',
                         width: 'auto',
                         'min-width': '560px',
-                        'max-width': '960px'
+                        'max-width': '960px',
                     });
                     const contentElement = dialogElement.find('.window-content');
                     if (contentElement.length) {
                         contentElement.css({
                             height: 'auto',
                             'max-height': 'calc(90vh - 100px)',
-                            'overflow-y': 'auto'
+                            'overflow-y': 'auto',
                         });
                     }
                 }
             }, 0);
 
             const $categorySelect = html.find('#pc-category');
-            const $treeSelect = html.find('#pc-tree');
-            const $spellCheckbox = html.find('#pc-spell');
+            const $subfamilySelect = html.find('#pc-subfamily');
+            const $tierWrap = html.find('.pc-tier-group');
+            const $tierSelect = html.find('#pc-tier');
+            const $specialWrap = html.find('.pc-special-group');
             const $specialSelect = html.find('#pc-special');
-            const $effectTypeSelect = html.find('#pc-effect-type');
+            const $searchInput = html.find('#pc-search');
             const $powerSelect = html.find('#pc-power');
             const $details = html.find('#pc-details');
             const $description = html.find('#pc-description');
             const $levelTable = html.find('#pc-level-table');
             const $count = html.find('#pc-count');
+            const $spellPanel = html.find('#pc-spell-panel');
+            const $isSpell = html.find('#pc-is-spell');
+            const $spellFields = html.find('#pc-spell-fields');
+            const $castingAttr = html.find('#pc-casting-attr');
+            const $resolution = html.find('#pc-resolution');
+            const $saveGroup = html.find('.pc-save-group');
+            const $saveType = html.find('#pc-save-type');
 
-            const refreshEffectTypeDropdown = () => {
+            const refreshSubfamilyDropdown = () => {
                 const category = ($categorySelect.val() as string) || '';
-                const spellOnly = ($spellCheckbox.prop('checked') as boolean) === true;
-                const currentEffect = ($effectTypeSelect.val() as string) || '';
-                const visible = getVisibleEffectTypeOptions({
-                    category: (category || null) as PowerCategory | null,
-                    tag: spellOnly ? 'spell' : null,
-                    actorEchoKey,
-                });
-                const nextSelection = visible.some(v => v.key === currentEffect) ? currentEffect : '';
-                $effectTypeSelect.empty();
-                $effectTypeSelect.append('<option value="">-- Any Effect Type --</option>');
-                for (const v of visible) {
+                $subfamilySelect.empty();
+                $subfamilySelect.append('<option value="">-- Any Subfamily --</option>');
+                if (!category) return;
+                for (const sub of getSubfamiliesByCategory(category as PowerCategory)) {
                     const opt = document.createElement('option');
-                    opt.value = v.key;
-                    opt.textContent = v.label;
-                    $effectTypeSelect.append(opt);
+                    opt.value = sub;
+                    opt.textContent = labelSubfamily(sub);
+                    $subfamilySelect.append(opt);
                 }
-                $effectTypeSelect.val(nextSelection);
             };
 
-            const refreshSpecialDropdown = () => {
+            const refreshActiveOnlyVisibility = () => {
                 const category = ($categorySelect.val() as string) || '';
-                const spellOnly = ($spellCheckbox.prop('checked') as boolean) === true;
-                const currentSpecial = ($specialSelect.val() as string) || '';
-                const visible = getVisibleSpecialOptions({
-                    category: (category || null) as PowerCategory | null,
-                    tag: spellOnly ? 'spell' : null,
-                    actorEchoKey,
-                });
-                // Preserve the current selection if it is still available,
-                // otherwise reset to "any". Also always include the "Any" entry.
-                const nextSelection = visible.some(v => v.key === currentSpecial) ? currentSpecial : '';
-                $specialSelect.empty();
-                $specialSelect.append('<option value="">-- Any Special --</option>');
-                for (const v of visible) {
-                    const opt = document.createElement('option');
-                    opt.value = v.key;
-                    opt.textContent = v.label;
-                    $specialSelect.append(opt);
+                const isActive = category === 'active';
+                $tierWrap.toggle(isActive);
+                $specialWrap.toggle(isActive);
+                $spellPanel.toggle(isActive);
+                if (!isActive) {
+                    $tierSelect.val('');
+                    $specialSelect.val('');
+                    $isSpell.prop('checked', false);
+                    $spellFields.hide();
                 }
-                $specialSelect.val(nextSelection);
             };
 
             const refreshList = () => {
                 const category = ($categorySelect.val() as string) || '';
-                const tree = ($treeSelect.val() as string) || '';
-                const spellOnly = ($spellCheckbox.prop('checked') as boolean) === true;
+                const subfamily = ($subfamilySelect.val() as string) || '';
+                const tier = ($tierSelect.val() as string) || '';
                 const special = ($specialSelect.val() as string) || '';
-                const effectType = ($effectTypeSelect.val() as string) || '';
+                const search = ($searchInput.val() as string) || '';
 
                 const entries = filterCatalog({
                     category: (category || null) as PowerCategory | null,
-                    tag: spellOnly ? 'spell' : null,
+                    subfamily: subfamily || null,
+                    tier: (tier ? Number(tier) : null) as ActiveSpecialTier | null,
                     special: special || null,
-                    effectType: effectType || null,
-                    sourceName: tree || null,
-                    actorEchoKey
+                    search,
+                    actorEchoKey,
                 });
 
                 $powerSelect.empty();
@@ -319,52 +356,50 @@ export async function showPowerCreationDialog(
                 } else {
                     $powerSelect.append('<option value="">-- Select a Power --</option>');
                     for (const e of entries) {
-                        // Show tags + specials in parens so the player can
-                        // scan e.g. "Cinder Cleave (Ignite) · Ashguard
-                        // [Active]" at a glance. Tags come first (they're the
-                        // broader descriptor like "spell"/"melee"/"fire"),
-                        // specials next. Deduplicated and capitalized for
-                        // readability.
                         const badges: string[] = [];
-                        const seen = new Set<string>();
-                        const push = (raw: string) => {
-                            const k = raw.trim().toLowerCase();
-                            if (!k || seen.has(k)) return;
-                            seen.add(k);
-                            badges.push(k.charAt(0).toUpperCase() + k.slice(1));
-                        };
-                        for (const t of e.tags) push(t);
-                        for (const s of e.specialKeys) push(s);
+                        if (e.tier) badges.push(`T${e.tier}`);
+                        if (e.chosenSpecial) badges.push(e.chosenSpecial.key);
                         const badgeStr = badges.length ? ` (${badges.join(', ')})` : '';
-                        const label = `${e.name}${badgeStr} · ${e.sourceName} [${CATEGORY_LABELS[e.category]}]`;
+                        const label = `${e.templateName}${badgeStr} · ${labelSubfamily(e.subfamily)} [${CATEGORY_LABELS[e.category]}]`;
                         const opt = document.createElement('option');
                         opt.value = e.name;
                         opt.textContent = label;
-                        opt.dataset.sourceKind = e.sourceKind;
-                        opt.dataset.sourceName = e.sourceName;
+                        opt.dataset.templateId = e.templateId;
                         $powerSelect.append(opt);
                     }
                 }
                 $count.text(`${entries.length} power${entries.length === 1 ? '' : 's'} match the current filter`);
-
                 $details.hide();
                 $description.empty();
                 $levelTable.empty();
             };
 
+            const refreshSpellPanelDefaults = (template: PowerTemplate | undefined) => {
+                if (!template || !template.spellHints) return;
+                $resolution.val(template.spellHints.defaultResolution);
+                if (template.spellHints.defaultSaveType) {
+                    $saveType.val(template.spellHints.defaultSaveType);
+                }
+                const isSave = template.spellHints.defaultResolution === 'saveSpell' && !!template.spellHints.defaultSaveType;
+                $saveGroup.toggle(isSave);
+            };
+
             $categorySelect.on('change', () => {
-                refreshSpecialDropdown();
-                refreshEffectTypeDropdown();
+                refreshSubfamilyDropdown();
+                refreshActiveOnlyVisibility();
                 refreshList();
             });
-            $spellCheckbox.on('change', () => {
-                refreshSpecialDropdown();
-                refreshEffectTypeDropdown();
-                refreshList();
-            });
-            $treeSelect.on('change', refreshList);
+            $subfamilySelect.on('change', refreshList);
+            $tierSelect.on('change', refreshList);
             $specialSelect.on('change', refreshList);
-            $effectTypeSelect.on('change', refreshList);
+            $searchInput.on('input', refreshList);
+
+            $isSpell.on('change', () => {
+                $spellFields.toggle($isSpell.prop('checked') as boolean);
+            });
+            $resolution.on('change', () => {
+                $saveGroup.toggle(($resolution.val() as string) === 'saveSpell');
+            });
 
             $powerSelect.on('change', function () {
                 const name = ($(this).val() as string) || '';
@@ -372,24 +407,23 @@ export async function showPowerCreationDialog(
                     $details.hide();
                     return;
                 }
-                const $opt = $powerSelect.find(`option[value="${CSS.escape(name)}"]:selected`);
-                const sourceKind = ($opt.data('source-kind') as any) || undefined;
-                const sourceName = ($opt.data('source-name') as string) || undefined;
-                const entry = findCatalogEntryByName(name, sourceKind, sourceName);
+                const entry = findCatalogEntryByName(name);
                 if (!entry) {
                     $details.hide();
                     return;
                 }
                 renderEntryDetails(entry, $description, $levelTable);
                 $details.show();
+
+                const template = findTemplateById(entry.templateId);
+                refreshSpellPanelDefaults(template);
             });
 
-            // Initial render: populate Specials and Effect-Type selects for the
-            // current (preset) filter so empty categories are hidden from the start.
-            refreshSpecialDropdown();
-            refreshEffectTypeDropdown();
+            // Initial boot
+            refreshSubfamilyDropdown();
+            refreshActiveOnlyVisibility();
             refreshList();
-        }
+        },
     });
 
     dialog.render(true);
@@ -398,128 +432,97 @@ export async function showPowerCreationDialog(
 /** Render the description + level table of a catalog entry into the dialog. */
 function renderEntryDetails(entry: CatalogEntry, $description: JQuery, $levelTable: JQuery): void {
     const raw: any = entry.raw;
-    $description.text(raw.description || '');
-    if (isNewPowerStructure(raw) && raw.levels) {
+    $description.text(raw.description || raw.fluff || '');
+    if (raw.levels && typeof raw.levels === 'object' && !Array.isArray(raw.levels)) {
         const showTrigger = raw.category === 'reaction' || Object.values(raw.levels).some((l: any) => l?.trigger);
         $levelTable.html(renderPowerLevelTable(raw.levels, showTrigger));
-    } else if (Array.isArray(raw.levels)) {
-        let levelInfo = '<strong>Available Levels:</strong><br>';
-        for (const lvl of raw.levels) {
-            levelInfo += `Level ${lvl.level}: ${lvl.type || ''} – ${lvl.effect || ''}`;
-            if (lvl.special && lvl.special !== '—' && lvl.special !== '') {
-                levelInfo += ` (${lvl.special})`;
-            }
-            levelInfo += '<br>';
-        }
-        $levelTable.html(levelInfo);
     } else {
         $levelTable.empty();
     }
 }
 
-/** Build the full item data object for an actor.createEmbeddedDocuments call. */
-function buildItemDataFromEntry(entry: CatalogEntry, rank: number): any {
-    const isMastery = entry.sourceKind === 'mastery';
-    const power: any = entry.raw;
+/** Build the full item data object for `actor.createEmbeddedDocuments`. */
+function buildItemDataFromEntry(
+    entry: CatalogEntry,
+    rank: number,
+    spell: {
+        isSpell: boolean;
+        castingAttribute?: CastingAttribute;
+        spellResolution?: SpellResolution;
+        spellSaveType?: SpellSaveType;
+    },
+): any {
+    const template = entry.raw as EmbeddedPowerData;
+    const chosenSpecial: ChosenSpecial | undefined = entry.chosenSpecial
+        ? { key: entry.chosenSpecial.key, tier: entry.chosenSpecial.tier }
+        : undefined;
 
-    if (isNewPowerStructure(power)) {
-        const levelRow = power.levels[rank.toString() as '1' | '2' | '3' | '4'];
-        if (!levelRow) {
-            ui.notifications?.error(`Rank ${rank} data not found for this power`);
-            return null;
-        }
-        return {
-            name: power.name,
-            type: 'power',
-            system: {
-                tree: entry.sourceName,
-                isMagicPower: !isMastery,
-                category: power.category,
-                tags: power.tags || [],
-                rank,
-                description: (power as any).description || '',
-                fluff: power.fluff || '',
-                trigger: power.trigger || levelRow.trigger || undefined,
-                cost: {
-                    action: power.cost?.action,
-                    stones: power.cost?.stones || 0,
-                    charges: power.cost?.charges || 0,
-                    note: (power.cost as any)?.note || undefined
-                },
-                roll: {
-                    kind: power.roll?.kind,
-                    attribute: power.roll?.attribute || undefined,
-                    vs: power.roll?.vs || undefined
-                },
-                levels: power.levels,
-                // Legacy fields kept for backwards compatibility
-                powerType: power.category === 'activeBuff' ? 'buff' : power.category,
-                level: rank,
-                minLevel: rank || 1,
-                range: renderRange(levelRow.range),
-                aoe: renderAoe(levelRow.aoe),
-                duration: renderDuration(levelRow.duration),
-                effect: levelRow.effect?.text || '',
-                specials: (levelRow.specials || []).map((s: PowerSpecial) => s.value !== undefined ? `${s.key}(${s.value})` : s.key),
-                ap: 30
-            }
-        };
+    const levelKey = (String(rank)) as PowerLevelKey;
+    const levelRow = template.levels?.[levelKey];
+    if (!levelRow) {
+        ui.notifications?.error(`Rank ${rank} data not found for this power`);
+        return null;
     }
 
-    // Legacy (spell / old tree) definition
-    const legacy = power;
-    const levelData = Array.isArray(legacy.levels) ? legacy.levels.find((l: any) => l.level === rank) : null;
-
-    const powerTypeMap: Record<string, string> = {
-        Melee: 'active',
-        Ranged: 'active',
-        Buff: 'buff',
-        Utility: 'utility',
-        Support: 'utility',
-        Passive: 'passive',
-        Reaction: 'reaction',
-        Movement: 'movement',
-        Zone: 'utility'
-    };
-    const mappedPowerType = levelData
-        ? (powerTypeMap[levelData.type] || legacy.powerType || 'active')
-        : (legacy.powerType || 'active');
+    // If an Active has a chosenSpecial, bind the placeholder "SPECIAL" entry in
+    // the levels to the chosen key (so the persisted item's levels reflect the
+    // variation the user actually picked).
+    let levels: Record<PowerLevelKey, any> = template.levels;
+    if (chosenSpecial) {
+        const next: Record<string, any> = {};
+        for (const [k, row] of Object.entries(template.levels)) {
+            const specials = (row.specials || []).map((s: PowerSpecial) => s.key === 'SPECIAL' ? { ...s, key: chosenSpecial.key } : s);
+            next[k] = { ...row, specials };
+        }
+        levels = next as Record<PowerLevelKey, any>;
+    }
 
     return {
-        name: legacy.name,
+        name: entry.name,
         type: 'power',
         system: {
-            tree: entry.sourceName,
-            isMagicPower: !isMastery,
-            powerType: mappedPowerType,
+            category: template.category,
+            tags: template.tags || [],
+            rank,
             level: rank,
-            minLevel: rank || 1,
-            description: legacy.description || '',
-            tags: entry.tags.includes('spell') ? ['spell'] : [],
-            range: levelData?.range || '',
-            aoe: levelData?.aoe && levelData.aoe !== '—' ? levelData.aoe : '',
-            duration: levelData?.duration || '',
-            effect: levelData?.effect || '',
-            specials: levelData?.special && levelData.special !== '—' ? [levelData.special] : [],
-            ap: 30,
+            minLevel: 1,
+            fluff: template.fluff || '',
+            description: template.fluff || '',
+            trigger: template.trigger || (levelRow as any).trigger || undefined,
             cost: {
-                action: mappedPowerType === 'active' || mappedPowerType === 'buff' || mappedPowerType === 'utility',
-                movement: mappedPowerType === 'movement',
-                reaction: mappedPowerType === 'reaction',
-                stones: 0,
-                charges: 0
+                action: template.cost?.action,
+                stones: template.cost?.stones || 0,
+                charges: template.cost?.charges || 0,
             },
             roll: {
-                attribute: 'might',
-                tn: 0,
-                damage: typeof levelData?.effect === 'string' && levelData.effect.includes('damage') ? levelData.effect : '',
-                healing: typeof levelData?.effect === 'string' && levelData.effect.includes('Heal') ? levelData.effect : '',
-                raises: ''
+                kind: template.roll?.kind,
+                attribute: template.roll?.attribute || undefined,
+                vs: template.roll?.vs || undefined,
             },
-            requirements: {
-                masteryRank: rank,
-                other: ''
-            }
-        }
+            levels,
+
+            // Template metadata
+            templateId: entry.templateId,
+            templateName: entry.templateName,
+            subfamily: entry.subfamily,
+            chosenSpecial,
+
+            // Active-as-Spell (plan §6)
+            isSpell: spell.isSpell,
+            castingAttribute: spell.castingAttribute,
+            spellResolution: spell.spellResolution,
+            spellSaveType: spell.spellSaveType,
+
+            // Legacy surface (kept so the rest of the UI keeps rendering)
+            powerType: template.category === 'activeBuff' ? 'buff' : template.category,
+            range: renderRange(levelRow.range),
+            aoe: renderAoe(levelRow.aoe),
+            duration: renderDuration(levelRow.duration),
+            effect: levelRow.effect?.text || '',
+            specials: (levelRow.specials || []).map((s: PowerSpecial) =>
+                s.rank !== undefined ? `${s.key}(${s.rank})` : s.key,
+            ),
+            ap: 30,
+        },
     };
 }

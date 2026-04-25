@@ -20,8 +20,7 @@ import type {
   MechanicsBreakdown,
   MechanicsBreakdownEntry,
 } from '../types/actor';
-import { MASTERY_TREE_POWER_MAP } from './powers/index.js';
-import { ALL_MAGIC_POWERS } from './magic-powers.js';
+import { ALL_POWER_TEMPLATES } from './powers/index.js';
 
 /** Empty breakdown skeleton (all arrays/objects present, all totals zero). */
 export function emptyBreakdown(): MechanicsBreakdown {
@@ -109,11 +108,9 @@ export function resolvePowerMechanics(powerItem: any): PowerMechanics | null {
 }
 
 /**
- * Look the canonical mechanics up in the live catalog. Matches on `name`
- * first (most robust after user renames are unlikely) and, when a tree is
- * stored on the item, restricts the search to that tree to avoid name
- * collisions (e.g. "Dragon Scales" exists in both `dragon.ts` and
- * `warden-dragon.ts`).
+ * Look the canonical mechanics up in the live template registry. Prefers a
+ * `templateId` match (set on new item documents) and falls back to matching
+ * the power name for legacy items still living through the transition.
  */
 function resolveMechanicsFromCatalog(
   powerItem: any,
@@ -121,35 +118,26 @@ function resolveMechanicsFromCatalog(
 ): PowerMechanics | null {
   const sys = powerItem.system ?? {};
   const name: string | undefined = powerItem.name ?? sys.name;
-  if (!name) return null;
-  const tree: string | undefined = sys.tree ? String(sys.tree) : undefined;
-  const isMagic = sys.isMagicPower === true;
+  const templateId: string | undefined = sys.templateId ? String(sys.templateId) : undefined;
+  if (!name && !templateId) return null;
 
-  const pools: Array<{ tree?: string; powers: any[] }> = [];
-  if (isMagic) {
-    pools.push({ powers: ALL_MAGIC_POWERS as any[] });
-  } else if (tree && (MASTERY_TREE_POWER_MAP as any)[tree]) {
-    pools.push({ tree, powers: (MASTERY_TREE_POWER_MAP as any)[tree] });
-  } else {
-    // Unknown / legacy tree name — scan every pool.
-    for (const [t, powers] of Object.entries(MASTERY_TREE_POWER_MAP)) {
-      pools.push({ tree: t, powers: powers as any[] });
-    }
-    pools.push({ powers: ALL_MAGIC_POWERS as any[] });
+  let def: any = undefined;
+  if (templateId) {
+    def = ALL_POWER_TEMPLATES.find((t: any) => t?.templateId === templateId);
   }
+  if (!def && name) {
+    def = ALL_POWER_TEMPLATES.find((t: any) => t?.templateName === name || t?.name === name);
+  }
+  if (!def) return null;
 
-  for (const pool of pools) {
-    const def = pool.powers.find((p: any) => p?.name === name);
-    if (!def) continue;
-    const defLevels = def.levels;
-    if (defLevels && typeof defLevels === 'object' && !Array.isArray(defLevels)) {
-      const lvl = defLevels[String(rank)] ?? defLevels['1'];
-      const m = lvl?.mechanics;
-      if (m && typeof m === 'object') return m as PowerMechanics;
-    }
-    const topM = (def as any).mechanics;
-    if (topM && typeof topM === 'object') return topM as PowerMechanics;
+  const defLevels = def.levels;
+  if (defLevels && typeof defLevels === 'object' && !Array.isArray(defLevels)) {
+    const lvl = defLevels[String(rank)] ?? defLevels['1'];
+    const m = lvl?.mechanics;
+    if (m && typeof m === 'object') return m as PowerMechanics;
   }
+  const topM = (def as any).mechanics;
+  if (topM && typeof topM === 'object') return topM as PowerMechanics;
   return null;
 }
 

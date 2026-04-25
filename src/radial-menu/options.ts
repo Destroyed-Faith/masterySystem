@@ -9,7 +9,6 @@ import type { RadialCombatOption, TargetGroup, AoEShape, InnerSegment } from './
 import type { AoeSpec } from '../types/item.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { getMovementRangeBonusMeters, hasPowerBeenUsedThisRound } from '../combat/action-economy.js';
-import { getMagicPower } from '../utils/magic-powers.js';
 import {
   formatNpcAttackSpecialsLine,
   npcAttackDiceCount,
@@ -455,14 +454,28 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
   const token = canvas.tokens?.placeables?.find((t: any) => t.actor?.id === actor.id);
   const isProne = isActorProne ? isActorProne(actor, token) : false;
   
-  // Pre-load power definitions for range lookup
-  let getPowerFn: ((treeName: string, powerName: string) => any) | null = null;
+  // Pre-load template registry for range/aoe lookup
+  let allTemplates: any[] = [];
   try {
     const powerModule = await import('../utils/powers/index.js' as any);
-    getPowerFn = powerModule.getPower;
+    allTemplates = powerModule.ALL_POWER_TEMPLATES ?? [];
   } catch (error) {
-    console.warn('Mastery System | Could not load power definitions module:', error);
+    console.warn('Mastery System | Could not load power template registry:', error);
   }
+  const lookupTemplate = (templateId?: string, powerName?: string): any | null => {
+    if (templateId) {
+      const hit = allTemplates.find((t: any) => t?.templateId === templateId);
+      if (hit) return hit;
+    }
+    if (powerName) {
+      return (
+        allTemplates.find(
+          (t: any) => t?.templateName === powerName || t?.name === powerName,
+        ) ?? null
+      );
+    }
+    return null;
+  };
   
   // --- COLLECT ALL OPTIONS (separate by source) ---
   const movementPowers: RadialCombatOption[] = [];
@@ -501,9 +514,9 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
     let rangeStr = (item.system as any)?.range;
     let levelData: any = undefined;
     
-    const treeName = (item.system as any)?.tree;
     const powerName = item.name;
     const sys = item.system as any;
+    const templateId: string | undefined = sys?.templateId;
     const rawLevel = sys?.level || 1;
     const explicitRank = sys?.rank;
     const rankInput =
@@ -512,18 +525,16 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
       Number.isFinite(Number(explicitRank))
         ? Number(explicitRank)
         : rawLevel;
-    // Spell schools (e.g. Old Pact) are not in getPower() — load definition for utilities
-    // so AoE/range can fall back to data even when system.range is set but system.aoe is empty.
+    // Look up in the template registry so utilities/actives can fall back to
+    // canonical range/AoE data when the item's system.range is stale.
     const needsDefinitionLookup =
-      getPowerFn &&
-      treeName &&
-      powerName &&
+      allTemplates.length > 0 &&
+      (templateId || powerName) &&
       (!rangeStr || powerType === 'utility' || slot === 'utility' || powerType === 'active');
 
     if (needsDefinitionLookup) {
       try {
-        const powerDefMastery = getPowerFn!(treeName, powerName);
-        const powerDef = powerDefMastery ?? getMagicPower(treeName, powerName);
+        const powerDef = lookupTemplate(templateId, powerName);
 
         if (powerDef && powerDef.levels) {
           const definitionRank = getPowerDefinitionRank(rankInput, sys.levels || powerDef.levels);

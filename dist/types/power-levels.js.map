@@ -1,0 +1,1 @@
+{"version":3,"file":"power-levels.js","sourceRoot":"","sources":["../../src/types/power-levels.ts"],"names":[],"mappings":"AAAA;;;GAGG;AAIH,MAAM,CAAC,MAAM,gBAAgB,GAA6B;IACtD,GAAG,EAAE,GAAG,EAAE,GAAG,EAAE,GAAG,EAAE,GAAG,EAAE,GAAG,EAAE,GAAG,EAAE,GAAG;IACtC,GAAG,EAAE,IAAI,EAAE,IAAI,EAAE,IAAI,EAAE,IAAI,EAAE,IAAI,EAAE,IAAI,EAAE,IAAI;CACvC,CAAC"}

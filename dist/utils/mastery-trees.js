@@ -1,30 +1,19 @@
 /**
- * Mastery Trees — thematic groupings for powers (display name only).
+ * @deprecated Mastery Trees facade — legacy compatibility only.
+ *
+ * Trees have been retired in favour of Templates. All power selection now
+ * flows through `src/utils/powers/templates/*` and the template-based
+ * CatalogEntry in `src/utils/power-catalog.ts`. These exports remain as
+ * empty stubs so any remaining callsite compiles until the next cleanup.
  */
-export const MASTERY_TREES = {
-    dreadstalker: { name: 'Dreadstalker' },
-    doomscribe: { name: 'Doomscribe' },
-    hexboundHarrier: { name: 'Hexbound Harrier' },
-    voidTestament: { name: 'Void Testament' },
-    galeBreaker: { name: 'Gale Breaker' },
-    stormVeil: { name: 'Storm Veil' },
-    ashguard: { name: 'Ashguard' },
-    infernalBastion: { name: 'Infernal Bastion' },
-    wardenDragon: { name: 'Warden Dragon' },
-    raptorDragon: { name: 'Raptor Dragon' },
-    dreadwyrm: { name: 'Dreadwyrm' },
-    skyTyrant: { name: 'Sky Tyrant' }
-    // Deprecated trees (kept for existing actor items, no longer selectable):
-    // crusader, juggernaut, berserkerOfTheBloodMoon, grimHunter, wildStalker,
-    // elementalScholar, sanctifier, werewolf, werebear, dragon, ravenlord,
-    // wraith, mesmer, alchemist, battlemage, markedOne, spellshaper, thunderer,
-    // titanRunecaster, frostmonger, scourge, curseweaver, siren, crane, lotus,
-    // catalyst, forgemaster, witchbane
-};
+/** @deprecated — empty under the Templates system. */
+export const MASTERY_TREES = {};
+/** @deprecated — always empty under the Templates system. */
 export function getAllMasteryTrees() {
-    return Object.values(MASTERY_TREES).sort((a, b) => a.name.localeCompare(b.name));
+    return [];
 }
-export function getMasteryTree(key) {
-    return MASTERY_TREES[key];
+/** @deprecated — always `undefined` under the Templates system. */
+export function getMasteryTree(_key) {
+    return undefined;
 }
 //# sourceMappingURL=mastery-trees.js.map

@@ -284,12 +284,17 @@ export function migrateArtifactPower(oldPower) {
         category,
         tags: oldPower.tags || [],
         cost: convertCost(oldPower.cost || {}, oldPower.powerType),
-        levels: {
-            '1': level1,
-            '2': cloneLevel(),
-            '3': cloneLevel(),
-            '4': cloneLevel()
-        }
+        levels: (() => {
+            const out = {};
+            out['1'] = level1;
+            const keys = [
+                '2', '3', '4', '5', '6', '7', '8',
+                '9', '10', '11', '12', '13', '14', '15', '16',
+            ];
+            for (const k of keys)
+                out[k] = cloneLevel();
+            return out;
+        })(),
     };
     // Add trigger for reactions
     if (category === 'reaction' && oldPower.requirements?.other) {
@@ -350,12 +355,13 @@ export function migratePowerData(oldPower) {
         trigger: category === 'reaction' ? oldPower.requirements?.other : undefined,
         newCost: convertCost(oldPower.cost || {}, oldPower.powerType),
         newRoll: convertRoll(oldPower.roll || {}),
-        levels: {
-            '1': level1,
-            '2': { ...level1, lvl: 2 },
-            '3': { ...level1, lvl: 3 },
-            '4': { ...level1, lvl: 4 }
-        }
+        levels: (() => {
+            const out = {};
+            for (let i = 1; i <= 16; i++) {
+                out[String(i)] = i === 1 ? level1 : { ...level1, lvl: i };
+            }
+            return out;
+        })(),
     };
 }
 //# sourceMappingURL=power-migration.js.map
