@@ -47,29 +47,46 @@ export async function refreshRadialMenuActionLabelsIfOpenForActor(actor) {
         typeof msRadialGetCurrentSegmentId !== 'function') {
         return;
     }
-    const token = canvas.tokens?.get(msCurrentTokenId);
-    if (!token?.actor)
-        return;
-    const menuOwner = getActionEconomyActor(token.actor) ?? token.actor;
-    const updateOwner = getActionEconomyActor(actor) ?? actor;
-    const updateId = updateOwner.id;
-    const menuOwnerId = menuOwner.id;
-    const tokenDocActorId = token.document?.actorId;
-    if (updateId !== menuOwnerId && updateId !== tokenDocActorId)
-        return;
-    refreshInnerSegmentsVisual(msRadialMenu, msRadialGetCurrentSegmentId, token);
-    const bySegment = await rebuildRadialBySegment(menuOwner);
-    const seg = msRadialGetCurrentSegmentId();
-    renderOuterRing(msRadialMenu, token, bySegment, seg);
-    const innerSegments = [];
-    msRadialMenu.children.forEach((child) => {
-        if (child.msInnerSegment === true)
-            innerSegments.push(child);
-    });
-    innerSegments.forEach((obj) => {
-        msRadialMenu.removeChild(obj);
-        msRadialMenu.addChild(obj);
-    });
+    try {
+        const token = canvas.tokens?.get(msCurrentTokenId);
+        if (!token?.actor)
+            return;
+        let menuOwner;
+        let updateOwner;
+        try {
+            menuOwner = getActionEconomyActor(token.actor) ?? token.actor;
+            updateOwner = getActionEconomyActor(actor) ?? actor;
+        }
+        catch (e) {
+            console.warn('Mastery System | refreshRadialMenuActionLabelsIfOpenForActor: getActionEconomyActor failed', e);
+            return;
+        }
+        const updateId = updateOwner.id;
+        const menuOwnerId = menuOwner.id;
+        const tokenDocActorId = token.document?.actorId;
+        if (updateId !== menuOwnerId && updateId !== tokenDocActorId)
+            return;
+        refreshInnerSegmentsVisual(msRadialMenu, msRadialGetCurrentSegmentId, token);
+        const bySegment = await rebuildRadialBySegment(menuOwner);
+        const seg = msRadialGetCurrentSegmentId();
+        renderOuterRing(msRadialMenu, token, bySegment, seg);
+        const innerSegments = [];
+        msRadialMenu.children.forEach((child) => {
+            if (child.msInnerSegment === true)
+                innerSegments.push(child);
+        });
+        innerSegments.forEach((obj) => {
+            msRadialMenu.removeChild(obj);
+            msRadialMenu.addChild(obj);
+        });
+    }
+    catch (e) {
+        console.warn('Mastery System | refreshRadialMenuActionLabelsIfOpenForActor failed', {
+            actorId: actor?.id,
+            tokenId: msCurrentTokenId,
+            error: e,
+        });
+    }
 }
 /**
  * Close the radial menu and clean up

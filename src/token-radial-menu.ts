@@ -56,29 +56,44 @@ export async function refreshRadialMenuActionLabelsIfOpenForActor(actor: Actor):
   ) {
     return;
   }
-  const token = canvas.tokens?.get(msCurrentTokenId);
-  if (!token?.actor) return;
-  const menuOwner = getActionEconomyActor(token.actor) ?? token.actor;
-  const updateOwner = getActionEconomyActor(actor) ?? actor;
-  const updateId = (updateOwner as any).id as string;
-  const menuOwnerId = (menuOwner as any).id as string;
-  const tokenDocActorId = (token.document as { actorId?: string } | undefined)?.actorId;
-  if (updateId !== menuOwnerId && updateId !== tokenDocActorId) return;
+  try {
+    const token = canvas.tokens?.get(msCurrentTokenId);
+    if (!token?.actor) return;
+    let menuOwner: Actor;
+    let updateOwner: Actor;
+    try {
+      menuOwner = getActionEconomyActor(token.actor) ?? token.actor;
+      updateOwner = getActionEconomyActor(actor) ?? actor;
+    } catch (e) {
+      console.warn('Mastery System | refreshRadialMenuActionLabelsIfOpenForActor: getActionEconomyActor failed', e);
+      return;
+    }
+    const updateId = (updateOwner as any).id as string;
+    const menuOwnerId = (menuOwner as any).id as string;
+    const tokenDocActorId = (token.document as { actorId?: string } | undefined)?.actorId;
+    if (updateId !== menuOwnerId && updateId !== tokenDocActorId) return;
 
-  refreshInnerSegmentsVisual(msRadialMenu, msRadialGetCurrentSegmentId, token);
+    refreshInnerSegmentsVisual(msRadialMenu, msRadialGetCurrentSegmentId, token);
 
-  const bySegment = await rebuildRadialBySegment(menuOwner as Actor);
-  const seg = msRadialGetCurrentSegmentId();
-  renderOuterRing(msRadialMenu, token, bySegment, seg);
+    const bySegment = await rebuildRadialBySegment(menuOwner as Actor);
+    const seg = msRadialGetCurrentSegmentId();
+    renderOuterRing(msRadialMenu, token, bySegment, seg);
 
-  const innerSegments: PIXI.DisplayObject[] = [];
-  msRadialMenu.children.forEach((child: any) => {
-    if (child.msInnerSegment === true) innerSegments.push(child);
-  });
-  innerSegments.forEach((obj) => {
-    msRadialMenu!.removeChild(obj);
-    msRadialMenu!.addChild(obj);
-  });
+    const innerSegments: PIXI.DisplayObject[] = [];
+    msRadialMenu.children.forEach((child: any) => {
+      if (child.msInnerSegment === true) innerSegments.push(child);
+    });
+    innerSegments.forEach((obj) => {
+      msRadialMenu!.removeChild(obj);
+      msRadialMenu!.addChild(obj);
+    });
+  } catch (e) {
+    console.warn('Mastery System | refreshRadialMenuActionLabelsIfOpenForActor failed', {
+      actorId: (actor as any)?.id,
+      tokenId: msCurrentTokenId,
+      error: e,
+    });
+  }
 }
 
 /**

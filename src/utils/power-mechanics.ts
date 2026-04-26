@@ -132,7 +132,8 @@ export function findPowerItemOnActor(actor: any, pid: string | undefined | null)
 export function resolvePowerMechanics(powerItem: any): PowerMechanics | null {
   if (!powerItem) return null;
   const sys = powerItem.system ?? {};
-  const rank = Math.max(1, Math.min(4, Number(sys.rank ?? sys.level ?? 1)));
+  const raw = Number(sys.rank ?? sys.level ?? 1);
+  const rank = Math.max(1, Math.min(16, Number.isFinite(raw) ? Math.floor(raw) : 1));
 
   const levels = sys.levels ?? {};
   const rankBlock = levels[String(rank)] ?? null;

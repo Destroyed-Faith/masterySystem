@@ -92,14 +92,47 @@ describe('resolvePowerMechanics', () => {
     expect(resolvePowerMechanics(null)).toBeNull();
   });
 
-  it('clamps rank into 1..4 range', () => {
+  it('clamps rank into 1..16 range for levels lookup', () => {
     const item = {
       system: {
         rank: 99,
-        levels: { '4': { mechanics: { armor: 9, applyWhen: 'passive-slotted-active' } } },
+        levels: {
+          '4': { mechanics: { armor: 4, applyWhen: 'passive-slotted-active' } },
+          '16': { mechanics: { armor: 9, applyWhen: 'passive-slotted-active' } },
+        },
       },
     };
     expect(resolvePowerMechanics(item)?.armor).toBe(9);
+  });
+
+  it('reads levels[7] when system.rank is 7 (not capped at 4)', () => {
+    const power = {
+      type: 'power',
+      system: {
+        rank: 7,
+        levels: {
+          '4': { mechanics: { armor: 4 } },
+          '7': { mechanics: { armor: 7, damageReductionPct: 10 } },
+        },
+      },
+    };
+    const m = resolvePowerMechanics(power);
+    expect(m?.armor).toBe(7);
+    expect(m?.damageReductionPct).toBe(10);
+  });
+
+  it('resolves ab-damage-reduction from catalog when levels on item are empty', () => {
+    const power = {
+      type: 'power',
+      name: 'Active Buff: Damage Reduction',
+      system: {
+        rank: 12,
+        templateId: 'ab-damage-reduction',
+        levels: {},
+      },
+    };
+    const m = resolvePowerMechanics(power);
+    expect(m?.damageReductionPct).toBe(10);
   });
 
   // NOTE: The former "falls back to the live catalog" tests depended on the

@@ -182,6 +182,13 @@ export async function executeInitiativePhase(combat) {
         }
         await new Promise((r) => setTimeout(r, 500));
     }
+    // Combatants with null initiative are omitted from `combat.turns`, so the round
+    // appears to advance early (fewer turns per round than combatants). Pin unset values.
+    for (const c of combat.combatants) {
+        if (c.initiative === null || c.initiative === undefined) {
+            await c.update({ initiative: 0 });
+        }
+    }
     if (typeof combat.setupTurns === 'function') {
         await combat.setupTurns();
     }

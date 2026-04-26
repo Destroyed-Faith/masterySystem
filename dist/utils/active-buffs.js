@@ -184,17 +184,35 @@ export async function activateActiveBuff(actor, power) {
         seconds: null,
         combat: game.combat?.id || null
     };
-    // Snapshot the rank-specific mechanics block onto the effect flag so the
-    // Power Mechanics aggregator has self-contained data even if the source
-    // power item is later removed. Falls back to the power-level default.
+    // Snapshot level-specific mechanics (powers use levels["1"]..["16"]; `rank` is 1–16).
     const powerSys = power.system || {};
-    const powerRank = Math.max(1, Math.min(4, Number(powerSys.rank ?? 1)));
-    const rankMechanicsRaw = powerSys.levels?.[String(powerRank)]?.mechanics ?? powerSys.mechanics ?? null;
+    const rawRank = Number(powerSys.rank);
+    const levelFromRank = Number.isFinite(rawRank) && rawRank >= 1 ? Math.floor(rawRank) : masteryRank;
+    const powerLevelKey = Math.max(1, Math.min(16, levelFromRank));
+    let rankMechanicsRaw = null;
+    const fromLevel = powerSys.levels?.[String(powerLevelKey)]?.mechanics;
+    if (fromLevel && typeof fromLevel === 'object') {
+        rankMechanicsRaw = { ...fromLevel };
+    }
+    else if (powerSys.mechanics && typeof powerSys.mechanics === 'object') {
+        rankMechanicsRaw = { ...powerSys.mechanics };
+    }
+    else {
+        const resolved = resolvePowerMechanics(power);
+        if (resolved && typeof resolved === 'object') {
+            rankMechanicsRaw = { ...resolved };
+        }
+    }
     // Aggregator requires `applyWhen: 'activeBuff-active'` on the snapshot (item
     // JSON may omit it when only partial mechanics are stored on the level).
     const rankMechanics = rankMechanicsRaw && typeof rankMechanicsRaw === 'object'
         ? { ...rankMechanicsRaw, applyWhen: 'activeBuff-active' }
         : { applyWhen: 'activeBuff-active' };
+    const drSnap = rankMechanics.damageReductionPct;
+    if (String(powerSys?.templateId || '') === 'ab-damage-reduction' &&
+        (typeof drSnap !== 'number' || !Number.isFinite(drSnap) || drSnap <= 0)) {
+        ui.notifications?.warn('Active Buff: Damage Reduction — snapshot has no valid DR%; check power item `levels` / `rank`.');
+    }
     // Create ActiveEffect data - simplified structure for Foundry VTT
     const effectData = {
         name: power.name,

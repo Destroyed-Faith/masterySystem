@@ -135,7 +135,8 @@ export function resolvePowerMechanics(powerItem) {
     if (!powerItem)
         return null;
     const sys = powerItem.system ?? {};
-    const rank = Math.max(1, Math.min(4, Number(sys.rank ?? sys.level ?? 1)));
+    const raw = Number(sys.rank ?? sys.level ?? 1);
+    const rank = Math.max(1, Math.min(16, Number.isFinite(raw) ? Math.floor(raw) : 1));
     const levels = sys.levels ?? {};
     const rankBlock = levels[String(rank)] ?? null;
     const rankMech = rankBlock?.mechanics;

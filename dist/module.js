@@ -168,10 +168,40 @@ Hooks.once('init', async function () {
             console.error('Mastery System | Error in combat start sequence', error);
         }
     });
-    // Close carousel when combat ends
+    /** Close carousel UI and body class — use on combatEnd and deleteCombat (Foundry may emit only one). */
+    const closeMasteryCombatCarouselUI = () => {
+        try {
+            CombatCarouselApp.close();
+        }
+        catch (e) {
+            console.warn('Mastery System | Carousel close failed', e);
+        }
+        try {
+            document.body.classList.remove('mastery-carousel-open');
+        }
+        catch {
+            /* ignore */
+        }
+    };
+    // Close carousel when combat ends (normal end)
     Hooks.on('combatEnd', () => {
         console.log('Mastery System | Combat ended, closing carousel');
-        CombatCarouselApp.close();
+        closeMasteryCombatCarouselUI();
+    });
+    // Encounter deleted from sidebar etc. — combatEnd may not fire
+    Hooks.on('deleteCombat', () => {
+        closeMasteryCombatCarouselUI();
+    });
+    // Recovery: carousel left open when no active encounter (reload, scene swap, etc.)
+    Hooks.on('canvasReady', () => {
+        try {
+            if (!game.combat && CombatCarouselApp.instance) {
+                closeMasteryCombatCarouselUI();
+            }
+        }
+        catch {
+            /* ignore */
+        }
     });
     // Update carousel when combat changes (Stone Powers bei Rundenwechsel: stone-hooks Pipeline)
     Hooks.on('updateCombat', async (combat) => {
