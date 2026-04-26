@@ -8,6 +8,8 @@
 let activeTurnRing = null;
 let activeTurnTokenId = null;
 let turnRingTickerFn = null;
+/** Last combatant we drew the ring for — avoids re-running on every unrelated `updateCombat`. */
+let lastTurnRingCombatantId = null;
 // Constants from radial menu
 const MS_OUTER_RING_OUTER = 140; // Outer radius of radial menu
 /**
@@ -215,26 +217,40 @@ export function updateTurnRingForRadialMenu(token, radialOpen) {
  */
 export function initializeTurnIndicator() {
     console.log('Mastery System | Initializing Turn Indicator');
-    // Hook into combat updates
-    Hooks.on('updateCombat', (combat) => {
+    // Hook into combat updates — only refresh ring on real turn/round changes or combatant swap
+    Hooks.on('updateCombat', (combat, changes) => {
         if (!combat?.started) {
             console.log('Mastery System | Combat ended - clearing turn ring');
+            lastTurnRingCombatantId = null;
             clearTurnRing();
             return;
         }
-        // Get current combatant
         const combatant = combat.combatant;
         if (!combatant) {
+            lastTurnRingCombatantId = null;
             clearTurnRing();
             return;
         }
+        const cid = combatant.id;
+        const turnOrRound = changes &&
+            (Object.prototype.hasOwnProperty.call(changes, 'turn') ||
+                Object.prototype.hasOwnProperty.call(changes, 'round'));
+        const combatantChanged = cid !== lastTurnRingCombatantId;
+        if (!turnOrRound && !combatantChanged) {
+            return;
+        }
+        lastTurnRingCombatantId = cid;
         const token = combatant.token?.object;
         if (!token) {
             console.log('Mastery System | No token for current combatant - clearing turn ring');
+            lastTurnRingCombatantId = null;
             clearTurnRing();
             return;
         }
-        console.log('Mastery System | Turn changed to', token.name, '- updating turn ring');
+        console.log('Mastery System | [TURN-RING] Active combatant', token.name, {
+            turnDelta: changes?.turn,
+            roundDelta: changes?.round,
+        });
         const radialOpen = isRadialMenuOpenForToken(token);
         const radius = computeTurnRingRadius(token, radialOpen);
         showTurnRingForToken(token, radius);
@@ -242,6 +258,7 @@ export function initializeTurnIndicator() {
     // Hook into combat end
     Hooks.on('deleteCombat', () => {
         console.log('Mastery System | Combat deleted - clearing turn ring');
+        lastTurnRingCombatantId = null;
         clearTurnRing();
     });
     // Update ring position when token moves

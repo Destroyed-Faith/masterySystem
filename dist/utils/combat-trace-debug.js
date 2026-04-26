@@ -6,6 +6,19 @@
  * - Client setting **Debug Mode** (`debugMode`)
  * - Console: `globalThis.MSY_DEBUG_COMBAT = true` then reload.
  */
+function duplicateNonEmptyIds(ids) {
+    const seen = new Set();
+    const dups = new Set();
+    for (const id of ids) {
+        if (id == null || id === '')
+            continue;
+        if (seen.has(id))
+            dups.add(id);
+        else
+            seen.add(id);
+    }
+    return [...dups];
+}
 export function isCombatTraceDebugEnabled() {
     try {
         if (globalThis.MSY_DEBUG_COMBAT === true)
@@ -39,9 +52,13 @@ export function buildCombatTurnSnapshot(combat) {
             hidden: !!c?.hidden,
             actorId: c?.actor?.id ?? null,
             actorName: c?.actor?.name ?? null,
+            tokenId: (c?.tokenId ?? c?.token?.id ?? null),
         }));
         const cur = combat.combatant;
-        return {
+        const trace = isCombatTraceDebugEnabled();
+        const dupActors = trace ? duplicateNonEmptyIds(turnOrder.map((t) => t.actorId)) : [];
+        const dupTokens = trace ? duplicateNonEmptyIds(turnOrder.map((t) => t.tokenId)) : [];
+        const base = {
             combatId: combat.id,
             round: combat.round,
             turnIndex: combat.turn,
@@ -63,6 +80,13 @@ export function buildCombatTurnSnapshot(combat) {
             /** Order Foundry uses for `nextTurn` / round wrap (index 0 goes first after round reset). */
             turnOrder,
         };
+        if (trace && (dupActors.length > 0 || dupTokens.length > 0)) {
+            base.duplicateActorIdsInTurnOrder = dupActors;
+            base.duplicateTokenIdsInTurnOrder = dupTokens;
+            base.duplicateTurnOrderNote =
+                'Same actor or token appears more than once in `turns` — each entry gets its own turn in Foundry.';
+        }
+        return base;
     }
     catch (e) {
         return { error: String(e) };

@@ -17,6 +17,8 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseCarousel = HandlebarsApplicationMixin(ApplicationV2);
 export class CombatCarouselApp extends BaseCarousel {
     static _instance = null;
+    /** Prevents double `nextTurn` / `previousTurn` from rapid clicks on carousel controls. */
+    static _turnNavigationBusy = false;
     hookEntries = [];
     static DEFAULT_OPTIONS = {
         id: 'mastery-combat-carousel',
@@ -292,9 +294,17 @@ export class CombatCarouselApp extends BaseCarousel {
         root.querySelectorAll('.js-prev-turn').forEach((btn) => {
             btn.onclick = async (ev) => {
                 ev.preventDefault();
+                if (CombatCarouselApp._turnNavigationBusy)
+                    return;
                 const combat = game.combats?.active;
-                if (combat) {
+                if (!combat)
+                    return;
+                CombatCarouselApp._turnNavigationBusy = true;
+                try {
                     await combat.previousTurn();
+                }
+                finally {
+                    CombatCarouselApp._turnNavigationBusy = false;
                 }
             };
         });
@@ -302,9 +312,17 @@ export class CombatCarouselApp extends BaseCarousel {
         root.querySelectorAll('.js-next-turn').forEach((btn) => {
             btn.onclick = async (ev) => {
                 ev.preventDefault();
+                if (CombatCarouselApp._turnNavigationBusy)
+                    return;
                 const combat = game.combats?.active;
-                if (combat) {
+                if (!combat)
+                    return;
+                CombatCarouselApp._turnNavigationBusy = true;
+                try {
                     await combat.nextTurn();
+                }
+                finally {
+                    CombatCarouselApp._turnNavigationBusy = false;
                 }
             };
         });

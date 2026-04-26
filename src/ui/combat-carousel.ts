@@ -22,6 +22,8 @@ type CarouselHookEntry = { event: string; id: number };
 
 export class CombatCarouselApp extends BaseCarousel {
   private static _instance: CombatCarouselApp | null = null;
+  /** Prevents double `nextTurn` / `previousTurn` from rapid clicks on carousel controls. */
+  private static _turnNavigationBusy = false;
   private hookEntries: CarouselHookEntry[] = [];
 
   static DEFAULT_OPTIONS = {
@@ -333,9 +335,14 @@ export class CombatCarouselApp extends BaseCarousel {
     root.querySelectorAll('.js-prev-turn').forEach((btn: HTMLElement) => {
       btn.onclick = async (ev: MouseEvent) => {
         ev.preventDefault();
+        if (CombatCarouselApp._turnNavigationBusy) return;
         const combat = game.combats?.active;
-        if (combat) {
+        if (!combat) return;
+        CombatCarouselApp._turnNavigationBusy = true;
+        try {
           await combat.previousTurn();
+        } finally {
+          CombatCarouselApp._turnNavigationBusy = false;
         }
       };
     });
@@ -344,9 +351,14 @@ export class CombatCarouselApp extends BaseCarousel {
     root.querySelectorAll('.js-next-turn').forEach((btn: HTMLElement) => {
       btn.onclick = async (ev: MouseEvent) => {
         ev.preventDefault();
+        if (CombatCarouselApp._turnNavigationBusy) return;
         const combat = game.combats?.active;
-        if (combat) {
+        if (!combat) return;
+        CombatCarouselApp._turnNavigationBusy = true;
+        try {
           await combat.nextTurn();
+        } finally {
+          CombatCarouselApp._turnNavigationBusy = false;
         }
       };
     });

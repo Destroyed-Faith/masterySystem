@@ -4,11 +4,15 @@
 
 import { buildCombatTurnSnapshot, logCombatTrace } from '../utils/combat-trace-debug.js';
 
+let requestEndTurnInFlight = false;
+
 /**
  * Request to advance the active encounter one turn (same as Foundry's next turn).
  * If user is GM or owns the current combatant, advance turn.
  */
 export async function requestEndTurn(): Promise<void> {
+  if (requestEndTurnInFlight) return;
+
   const combat = game.combat;
   
   if (!combat) {
@@ -40,11 +44,14 @@ export async function requestEndTurn(): Promise<void> {
     snapshot: buildCombatTurnSnapshot(combat),
   });
 
+  requestEndTurnInFlight = true;
   try {
     await combat.nextTurn();
   } catch (error) {
     console.error('Mastery System | Error ending turn', error);
     ui.notifications.error('Failed to end turn');
+  } finally {
+    requestEndTurnInFlight = false;
   }
 }
 

@@ -7,6 +7,17 @@
  * - Console: `globalThis.MSY_DEBUG_COMBAT = true` then reload.
  */
 
+function duplicateNonEmptyIds(ids: (string | null | undefined)[]): string[] {
+  const seen = new Set<string>();
+  const dups = new Set<string>();
+  for (const id of ids) {
+    if (id == null || id === '') continue;
+    if (seen.has(id)) dups.add(id);
+    else seen.add(id);
+  }
+  return [...dups];
+}
+
 export function isCombatTraceDebugEnabled(): boolean {
   try {
     if ((globalThis as any).MSY_DEBUG_COMBAT === true) return true;
@@ -37,9 +48,13 @@ export function buildCombatTurnSnapshot(combat: any): Record<string, unknown> {
       hidden: !!c?.hidden,
       actorId: c?.actor?.id ?? null,
       actorName: c?.actor?.name ?? null,
+      tokenId: (c?.tokenId ?? c?.token?.id ?? null) as string | null,
     }));
     const cur = combat.combatant;
-    return {
+    const trace = isCombatTraceDebugEnabled();
+    const dupActors = trace ? duplicateNonEmptyIds(turnOrder.map((t) => t.actorId)) : [];
+    const dupTokens = trace ? duplicateNonEmptyIds(turnOrder.map((t) => t.tokenId)) : [];
+    const base: Record<string, unknown> = {
       combatId: combat.id,
       round: combat.round,
       turnIndex: combat.turn,
@@ -62,6 +77,13 @@ export function buildCombatTurnSnapshot(combat: any): Record<string, unknown> {
       /** Order Foundry uses for `nextTurn` / round wrap (index 0 goes first after round reset). */
       turnOrder,
     };
+    if (trace && (dupActors.length > 0 || dupTokens.length > 0)) {
+      base.duplicateActorIdsInTurnOrder = dupActors;
+      base.duplicateTokenIdsInTurnOrder = dupTokens;
+      base.duplicateTurnOrderNote =
+        'Same actor or token appears more than once in `turns` — each entry gets its own turn in Foundry.';
+    }
+    return base;
   } catch (e) {
     return { error: String(e) };
   }

@@ -76,6 +76,13 @@ export async function refreshRadialMenuActionLabelsIfOpenForActor(actor: Actor):
     refreshInnerSegmentsVisual(msRadialMenu, msRadialGetCurrentSegmentId, token);
 
     const bySegment = await rebuildRadialBySegment(menuOwner as Actor);
+    if (
+      !msRadialMenu ||
+      !msCurrentTokenId ||
+      typeof msRadialGetCurrentSegmentId !== 'function'
+    ) {
+      return;
+    }
     const seg = msRadialGetCurrentSegmentId();
     renderOuterRing(msRadialMenu, token, bySegment, seg);
 
