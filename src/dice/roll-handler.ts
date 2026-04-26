@@ -65,6 +65,12 @@ export interface RollOptions {
    * when `isSaveRoll` is true; Saves cannot buy Auto-Raises.
    */
   autoRaises?: number;
+  /**
+   * Hard cap on the final attack dice pool after mechanics / manual / auto-fail
+   * adjustments. Used for Split-Attack strikes so bonus dice from passives
+   * cannot balloon the pool back above the halved strike pool.
+   */
+  attackDiceCap?: number;
 }
 
 /** Stored on chat messages so a Faith Fracture reroll can repeat the same roll setup. */
@@ -82,6 +88,8 @@ export interface MasteryRollRecipe {
   baseModifier: number;
   /** Voluntary Auto-Raises bought on this roll (0 when not used / for saves). */
   autoRaises: number;
+  /** Optional Split-Attack strike pool cap (mirrors `RollOptions.attackDiceCap`). */
+  attackDiceCap?: number;
 }
 
 /**
@@ -264,6 +272,22 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
     }
   }
 
+  // Split-Attack (and similar): enforce a hard ceiling on the pool *after* all
+  // additive adjustments so `rollDice.attack` bonuses cannot undo the executor's
+  // halved `flags.attributeValue`.
+  const attackCap =
+    typeof options.attackDiceCap === 'number' &&
+    Number.isFinite(options.attackDiceCap) &&
+    options.attackDiceCap > 0
+      ? Math.floor(options.attackDiceCap)
+      : 0;
+  if (attackCap > 0 && numDice > attackCap) {
+    const before = numDice;
+    numDice = attackCap;
+    const note = `Pool cap: ${before} → ${numDice}d8 (Split-Attack / strike limit)`;
+    flavor = flavor ? `${flavor} | ${note}` : note;
+  }
+
   console.log('Mastery System | DEBUG: masteryRoll called', {
     numDice,
     keepDice,
@@ -360,7 +384,12 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
     isSkillRoll: !!options.isSkillRoll,
     isSaveRoll: !!options.isSaveRoll,
     baseModifier: options.baseModifier ?? 0,
-    autoRaises
+    autoRaises,
+    ...(typeof options.attackDiceCap === 'number' &&
+    Number.isFinite(options.attackDiceCap) &&
+    options.attackDiceCap > 0
+      ? { attackDiceCap: Math.floor(options.attackDiceCap) }
+      : {}),
   };
 
   // Send to chat

@@ -173,6 +173,20 @@ export async function masteryRoll(options) {
             console.warn('Mastery System | auto-fail lookup failed', err);
         }
     }
+    // Split-Attack (and similar): enforce a hard ceiling on the pool *after* all
+    // additive adjustments so `rollDice.attack` bonuses cannot undo the executor's
+    // halved `flags.attributeValue`.
+    const attackCap = typeof options.attackDiceCap === 'number' &&
+        Number.isFinite(options.attackDiceCap) &&
+        options.attackDiceCap > 0
+        ? Math.floor(options.attackDiceCap)
+        : 0;
+    if (attackCap > 0 && numDice > attackCap) {
+        const before = numDice;
+        numDice = attackCap;
+        const note = `Pool cap: ${before} → ${numDice}d8 (Split-Attack / strike limit)`;
+        flavor = flavor ? `${flavor} | ${note}` : note;
+    }
     console.log('Mastery System | DEBUG: masteryRoll called', {
         numDice,
         keepDice,
@@ -260,7 +274,12 @@ export async function masteryRoll(options) {
         isSkillRoll: !!options.isSkillRoll,
         isSaveRoll: !!options.isSaveRoll,
         baseModifier: options.baseModifier ?? 0,
-        autoRaises
+        autoRaises,
+        ...(typeof options.attackDiceCap === 'number' &&
+            Number.isFinite(options.attackDiceCap) &&
+            options.attackDiceCap > 0
+            ? { attackDiceCap: Math.floor(options.attackDiceCap) }
+            : {}),
     };
     // Send to chat
     await sendRollToChat(result, label, flavor, options.actorId, options.skillKey, options.isSkillRoll, options.baseModifier, options.isSaveRoll, rollRecipe);

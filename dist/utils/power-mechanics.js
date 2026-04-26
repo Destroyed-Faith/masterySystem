@@ -118,12 +118,34 @@ function resolveMechanicsFromCatalog(powerItem, rank) {
     const templateId = sys.templateId ? String(sys.templateId) : undefined;
     if (!name && !templateId)
         return null;
+    const stripPowerPrefixes = (raw) => String(raw || '')
+        .replace(/^active buff:\s*/i, '')
+        .replace(/^passive:\s*/i, '')
+        .replace(/^active:\s*/i, '')
+        .trim();
     let def = undefined;
     if (templateId) {
         def = ALL_POWER_TEMPLATES.find((t) => t?.templateId === templateId);
     }
     if (!def && name) {
-        def = ALL_POWER_TEMPLATES.find((t) => t?.templateName === name || t?.name === name);
+        const stripped = stripPowerPrefixes(name);
+        const lower = stripped.toLowerCase();
+        def = ALL_POWER_TEMPLATES.find((t) => t?.templateName === name ||
+            t?.name === name ||
+            t?.templateName === stripped ||
+            t?.name === stripped ||
+            String(t?.templateName || '')
+                .toLowerCase()
+                .replace(/^active buff:\s*/i, '')
+                .replace(/^passive:\s*/i, '')
+                .replace(/^active:\s*/i, '')
+                .trim() === lower ||
+            String(t?.name || '')
+                .toLowerCase()
+                .replace(/^active buff:\s*/i, '')
+                .replace(/^passive:\s*/i, '')
+                .replace(/^active:\s*/i, '')
+                .trim() === lower);
     }
     if (!def)
         return null;
@@ -216,8 +238,11 @@ export function collectMechanicsContributions(actor) {
         const mech = resolvePowerMechanics(powerItem);
         if (!mech)
             continue;
-        // Only honor the two passive-like applyWhen values here; defensive against bad data.
-        if (mech.applyWhen !== 'passive-slotted-active')
+        // Slotted passives use `passive-slotted-active` from the template helper, but
+        // legacy / migrated items may omit `applyWhen` entirely while still carrying
+        // numeric `armor` / `evade` / … keys — those must still aggregate.
+        const aw = mech.applyWhen;
+        if (aw && aw !== 'passive-slotted-active')
             continue;
         const pname = slot.passive.name ?? 'Passive';
         out.push({

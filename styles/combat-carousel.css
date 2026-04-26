@@ -440,6 +440,37 @@
   border-color: #e94560;
 }
 
+/* Compact combat totals under the portrait name (Armor / Evade / DR / Init) */
+.ms-carousel-combat-strip {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 6px;
+  margin: 2px 0 4px 0;
+  padding: 2px 4px;
+  font-size: 0.65rem;
+  line-height: 1.15;
+  color: #eaeaea;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.85);
+}
+
+.ms-carousel-combat-strip .ms-cs {
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.ms-carousel-combat-strip .ms-cs strong {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.ms-carousel-combat-strip .ms-cs-arm { border-color: rgba(158, 193, 255, 0.45); }
+.ms-carousel-combat-strip .ms-cs-ev { border-color: rgba(127, 211, 169, 0.45); }
+.ms-carousel-combat-strip .ms-cs-dr { border-color: rgba(204, 136, 255, 0.45); }
+.ms-carousel-combat-strip .ms-cs-ini { border-color: rgba(255, 209, 102, 0.45); }
+
 /* ========================================
    Segmented HP Bar — one segment per wound level, color-graded.
    Severity 0 = Healthy (green) → 4+ = critical (dark red). Extra bars added

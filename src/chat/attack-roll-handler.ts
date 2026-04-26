@@ -247,6 +247,10 @@ export function registerAttackRollClickHandler(): void {
       // Health penalty reduces the dice pool (numDice)
       // Penalty is negative (e.g., -1, -2, -4), so we add it to reduce numDice
       numDice = Math.max(1, numDice + healthPenalty); // Minimum 1 die
+
+      // Split-Attack: hard-cap the final pool inside `masteryRoll` so attack-rider
+      // / manual bonus dice cannot inflate the strike back to the full attribute pool.
+      const splitAttackDiceCap = flags.splitAttack === true ? numDice : undefined;
       
       let keepDice = flags.masteryRank ?? (attackerForRoll?.system?.mastery?.rank ?? 2);
       const baseKeepDice = keepDice;
@@ -301,7 +305,10 @@ export function registerAttackRollClickHandler(): void {
         targetActorId: flags.targetId,
         autoFailIntent: 'attack',
         checkContext: { tags: ['sight'] },
-        autoRaises
+        autoRaises,
+        ...(typeof splitAttackDiceCap === 'number' && splitAttackDiceCap > 0
+          ? { attackDiceCap: splitAttackDiceCap }
+          : {}),
       });
       
       console.log('Mastery System | DEBUG: Roll completed!', {
@@ -573,7 +580,8 @@ export function registerAttackRollClickHandler(): void {
           });
           
           // Damage raises = margin over final Evade TN from the roll, plus stone-granted free raises.
-          // (Dropdown "Raises" only bumps TN before the roll; it is not the spendable raise count.)
+          // The attack-card "Raises" dropdown bumps TN by +4 per step *and* caps how many Raises
+          // may be spent on damage when N > 0 (0 = no cap — TN unchanged, full margin applies).
           let damageRaises = Math.max(0, result.raises);
           let freeRaisesFromStones = 0;
           try {
@@ -588,7 +596,9 @@ export function registerAttackRollClickHandler(): void {
             console.warn('Mastery System | [BEFORE DAMAGE DIALOG] Could not read roundState for free raises', e);
           }
 
-          const totalRaises = damageRaises;
+          const combinedRaises = damageRaises;
+          const totalRaises =
+            declaredRaisesForTn > 0 ? Math.min(combinedRaises, declaredRaisesForTn) : combinedRaises;
 
           console.log('Mastery System | [BEFORE DAMAGE DIALOG] Raises calculation', {
             messageId: messageId,

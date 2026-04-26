@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.10] - 2026-04-26
+
+### Fixed
+
+- **Slotted passives without `applyWhen` no longer vanish from the aggregator.** `collectMechanicsContributions` used to require `mechanics.applyWhen === 'passive-slotted-active'` exactly; older items that carried `armor` / `evade` / … but omitted `applyWhen` were skipped entirely (Fortified Frame appeared slotted but +Armor never hit `armorTotal`). Unknown / empty `applyWhen` on a slotted passive is now treated like the canonical passive template.
+- **Catalog mechanics lookup tolerates display prefixes on item names.** `resolveMechanicsFromCatalog` now strips leading `Passive:`, `Active:`, and `Active Buff:` (case-insensitive) and matches against `templateName` / `name`, so legacy renames still resolve to the live template mechanics.
+- **Split-Attack dice pool could balloon back to the full attribute pool on the roll.** `masteryRoll` applies `getRollDiceDelta` / manual bonus dice *after* the attack card passes the halved `numDice`. A strike that should be `4d8` could become `8d8` again when a passive granted `+4` attack dice. Added `attackDiceCap` on `RollOptions` / `MasteryRollRecipe`: the attack-roll handler passes the post–health-penalty pool as a hard ceiling right before dice hit the table. Faith-Fracture rerolls preserve the cap when present.
+- **Declared Raises used the wrong TN step and did not cap damage Raises.** The attack-card dropdown bumped target Evade by **+2 per raise** while the engine measures margin Raises in **steps of +4** (`RAISE_INCREMENT`), which inflated post-hit Raises. The card now uses `+4` per declared raise. When the dropdown is **> 0**, the same value **caps** the Raises passed into the damage dialog (`0` still means “no TN bump and no damage cap”).
+- **Active Buff powers stored as `powerType: 'activeBuff'` never entered the radial whitelist** and copies saved as plain `active` with `applyWhen: 'activeBuff-active'` were routed through enemy targeting. `activeBuff` is now an allowed power type; `getSegmentIdForOption` treats `activeBuff` / buff types and any power whose resolved mechanics declare `activeBuff-active` as the **Buff** quadrant so `token-action-selector` activates them on **self** without picking an enemy token.
+
+### Added
+
+- **Stone-Powers Evade bonus on the derived Evade total.** Agility “+8 Evade per stone” writes `roundState.stoneBonuses.evadeBonus`; `prepareDerivedData` now adds it to `system.combat.evadeTotal` with a **Stone Powers** breakdown row so the sheet / carousel match in-combat reality.
+- **Combat totals strip on the Combat Carousel** — compact `A / E / DR / Ini` line under each portrait (reads the same `system.combat.*` fields as the character-sheet header).
+
 ## [0.5.9] - 2026-04-26
 
 ### Fixed

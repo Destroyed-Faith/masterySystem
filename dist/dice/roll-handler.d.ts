@@ -49,6 +49,12 @@ export interface RollOptions {
      * when `isSaveRoll` is true; Saves cannot buy Auto-Raises.
      */
     autoRaises?: number;
+    /**
+     * Hard cap on the final attack dice pool after mechanics / manual / auto-fail
+     * adjustments. Used for Split-Attack strikes so bonus dice from passives
+     * cannot balloon the pool back above the halved strike pool.
+     */
+    attackDiceCap?: number;
 }
 /** Stored on chat messages so a Faith Fracture reroll can repeat the same roll setup. */
 export interface MasteryRollRecipe {
@@ -65,6 +71,8 @@ export interface MasteryRollRecipe {
     baseModifier: number;
     /** Voluntary Auto-Raises bought on this roll (0 when not used / for saves). */
     autoRaises: number;
+    /** Optional Split-Attack strike pool cap (mirrors `RollOptions.attackDiceCap`). */
+    attackDiceCap?: number;
 }
 /**
  * Perform a Mastery System roll

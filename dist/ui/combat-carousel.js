@@ -277,6 +277,27 @@ export class CombatCarouselApp extends BaseCarousel {
             }
             // Use actor portrait, not token image
             const portraitImg = actor.img || actor.prototypeToken?.texture?.src || combatant.img;
+            // At-a-glance combat totals (same numbers as the character-sheet header strip).
+            let combatStrip = null;
+            try {
+                const c = actor.system?.combat ?? {};
+                const sys = actor.system;
+                const drPct = Math.max(0, Math.min(100, Math.floor(Number(c.damageReductionPct ?? 0) || 0)));
+                const iniMR = Math.max(0, Math.floor(Number(c.initiativeMasteryRank ?? sys?.mastery?.rank ?? 2) || 0));
+                const iniD8 = Math.max(0, Math.floor(Number(c.initiativeD8FromMechanics ?? 0) || 0));
+                const iniEq = Number(c.initiativeEquipmentTotal ?? 0) || 0;
+                const iniDice = iniMR + iniD8;
+                const iniDisp = String(c.initiativeEquipmentTotalDisplay ?? (iniEq === 0 ? '0' : iniEq > 0 ? `+${iniEq}` : String(iniEq)));
+                combatStrip = {
+                    armor: Math.floor(Number(c.armorTotal ?? 0) || 0),
+                    evade: Math.floor(Number(c.evadeTotal ?? 0) || 0),
+                    drPct,
+                    initiative: `${iniDice}d8 ${iniDisp}`,
+                };
+            }
+            catch {
+                combatStrip = null;
+            }
             combatants.push({
                 id: combatant.id,
                 name: combatant.name || actor.name,
@@ -297,6 +318,7 @@ export class CombatCarouselApp extends BaseCarousel {
                 hpTotalCurrent,
                 hpTotalMax,
                 hpSegments,
+                combatStrip,
                 hasToken: !!token,
                 tokenId: tokenId,
                 showStonePowersButton: actor.type === 'character' && !!(game.user?.isGM || actor.isOwner),

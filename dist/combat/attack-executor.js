@@ -8,6 +8,7 @@ import { resolveEquippedWeaponForAttackType } from "../utils/equipment-modifiers
 import { evaluateThreatenedRanged } from "./threatened-ranged.js";
 import { formatNpcAttackSpecialsLine, getNpcAttackByIndex, npcAttackDiceCount, npcDamageDiceFormula } from "../utils/npc-attack-model.js";
 import { resolvePowerMechanics } from "../utils/power-mechanics.js";
+import { RAISE_INCREMENT } from "../utils/constants.js";
 function newSplitPairId() {
     try {
         if (typeof foundry !== 'undefined' && foundry.utils?.randomID) {
@@ -28,6 +29,10 @@ function detectSplitAttack(option) {
     try {
         if (option.source !== 'power' || !option.item)
             return false;
+        const tid = String(option.item.system?.templateId || '');
+        if (tid === 'active-melee-weapon-split' || tid === 'active-ranged-weapon-split') {
+            return true;
+        }
         const mech = resolvePowerMechanics(option.item);
         return mech?.splitAttack === true;
     }
@@ -405,7 +410,7 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         return `<option value="${value}">${value}</option>`;
     }).join('');
     const raisesDropdown = `
-    <div class="raises-input-group">
+    <div class="raises-input-group" title="Each step adds +${RAISE_INCREMENT} to the target Evade TN before the roll. The same value caps how many Raises may be spent on damage (0 = no cap).">
       <label for="raises-select-${attacker.id}-${target.id}">Raises:</label>
       <select id="raises-select-${attacker.id}-${target.id}" class="raises-select" data-message-id="">
         <option value="0" selected>0</option>
@@ -551,8 +556,9 @@ function setupRaisesHandler(messageElement, messageId, baseEvade) {
             const raises = parseInt($(this).val()) || 0;
             const button = messageElement.find('.roll-attack-btn');
             button.attr('data-raises', raises.toString());
-            // Update target-evade based on raises (each raise adds +2 to TN)
-            const adjustedEvade = baseEvade + (raises * 2);
+            // Each declared raise increases the attack TN by +RAISE_INCREMENT (same
+            // step the roll engine uses for margin Raises — was +2, which was wrong).
+            const adjustedEvade = baseEvade + raises * RAISE_INCREMENT;
             button.attr('data-target-evade', adjustedEvade.toString());
             console.log('Mastery System | [ATTACK CARD] Raises updated', {
                 raises,

@@ -134,7 +134,12 @@ export async function executeFaithFractureReroll(messageId, spenderActorId, requ
                 isSkillRoll: recipe.isSkillRoll,
                 isSaveRoll: recipe.isSaveRoll,
                 baseModifier: recipe.baseModifier,
-                autoRaises: recipe.autoRaises ?? 0
+                autoRaises: recipe.autoRaises ?? 0,
+                ...(typeof recipe.attackDiceCap === 'number' &&
+                    Number.isFinite(recipe.attackDiceCap) &&
+                    recipe.attackDiceCap > 0
+                    ? { attackDiceCap: Math.floor(recipe.attackDiceCap) }
+                    : {}),
             });
         }
         catch (rollErr) {

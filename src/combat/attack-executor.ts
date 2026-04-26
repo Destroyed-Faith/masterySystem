@@ -15,6 +15,7 @@ import {
   npcDamageDiceFormula
 } from "../utils/npc-attack-model.js";
 import { resolvePowerMechanics } from "../utils/power-mechanics.js";
+import { RAISE_INCREMENT } from "../utils/constants.js";
 
 /** Bookkeeping for a single strike of a split-attack pair. */
 interface SplitContext {
@@ -43,6 +44,10 @@ function newSplitPairId(): string {
 function detectSplitAttack(option: RadialCombatOption): boolean {
   try {
     if (option.source !== 'power' || !option.item) return false;
+    const tid = String((option.item.system as any)?.templateId || '');
+    if (tid === 'active-melee-weapon-split' || tid === 'active-ranged-weapon-split') {
+      return true;
+    }
     const mech = resolvePowerMechanics(option.item);
     return mech?.splitAttack === true;
   } catch {
@@ -487,7 +492,7 @@ export async function createAttackCard(
   }).join('');
   
   const raisesDropdown = `
-    <div class="raises-input-group">
+    <div class="raises-input-group" title="Each step adds +${RAISE_INCREMENT} to the target Evade TN before the roll. The same value caps how many Raises may be spent on damage (0 = no cap).">
       <label for="raises-select-${attacker.id}-${target.id}">Raises:</label>
       <select id="raises-select-${attacker.id}-${target.id}" class="raises-select" data-message-id="">
         <option value="0" selected>0</option>
@@ -657,8 +662,9 @@ function setupRaisesHandler(messageElement: JQuery, messageId: string, baseEvade
       const button = messageElement.find('.roll-attack-btn');
       button.attr('data-raises', raises.toString());
       
-      // Update target-evade based on raises (each raise adds +2 to TN)
-      const adjustedEvade = baseEvade + (raises * 2);
+      // Each declared raise increases the attack TN by +RAISE_INCREMENT (same
+      // step the roll engine uses for margin Raises — was +2, which was wrong).
+      const adjustedEvade = baseEvade + raises * RAISE_INCREMENT;
       button.attr('data-target-evade', adjustedEvade.toString());
       
       console.log('Mastery System | [ATTACK CARD] Raises updated', {

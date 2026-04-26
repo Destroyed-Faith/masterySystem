@@ -15,6 +15,7 @@ import {
   npcDamageDiceFormula,
   resolveNpcAttackList
 } from '../utils/npc-attack-model.js';
+import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 
 function buildNpcAttackDescription(atk: any): string {
   const pool = npcAttackDiceCount(atk);
@@ -365,10 +366,24 @@ export function getSegmentIdForOption(option: RadialCombatOption): InnerSegment[
     const powerType = option.powerType || (option.item.system as any)?.powerType;
     const cost = (option.item.system as any)?.cost;
     const range = option.range || (option.item.system as any)?.range;
-    
-    // If it's explicitly an active-buff or buff power that requires an action, it's an active buff
-    if ((powerType === 'active-buff' || powerType === 'buff') && cost?.action === true) {
+
+    // Canonical active-buff templates use category `activeBuff` and mechanics
+    // `applyWhen: 'activeBuff-active'`. Those must never be routed through the
+    // enemy-targeting attack pipeline.
+    if (
+      (powerType === 'active-buff' || powerType === 'activeBuff' || powerType === 'buff') &&
+      cost?.action === true
+    ) {
       return 'active-buff';
+    }
+
+    try {
+      const mech = resolvePowerMechanics(option.item);
+      if (mech?.applyWhen === 'activeBuff-active' && cost?.action === true) {
+        return 'active-buff';
+      }
+    } catch {
+      /* ignore */
     }
     
     // Check tags for active-buff indicators
@@ -497,8 +512,11 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
     const powerType = (item.system as any)?.powerType;
     if (!powerType) continue;
     
-    // Only include combat-usable powers
-    if (!['movement', 'active', 'active-buff', 'buff', 'utility', 'reaction'].includes(powerType)) {
+    // Only include combat-usable powers (`activeBuff` is the template category
+    // from the catalog — must be accepted alongside kebab-case `active-buff`).
+    if (
+      !['movement', 'active', 'active-buff', 'activeBuff', 'buff', 'utility', 'reaction'].includes(powerType)
+    ) {
       continue;
     }
 
@@ -573,8 +591,11 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
     const cost = (item.system as any)?.cost || {};
     
     // Check if this is an active buff - active buffs are always Self (range 0)
-    const isActiveBuff = (powerType === 'active-buff' || powerType === 'buff') && cost?.action === true ||
-                        (tags.includes('active-buff') || tags.includes('buff') || tags.includes('stance')) && cost?.action === true;
+    const isActiveBuff =
+      ((powerType === 'active-buff' || powerType === 'activeBuff' || powerType === 'buff') &&
+        cost?.action === true) ||
+      ((tags.includes('active-buff') || tags.includes('buff') || tags.includes('stance')) &&
+        cost?.action === true);
     
     if (isActiveBuff) {
       range = 0; // Active buffs are always Self

@@ -121,12 +121,39 @@ function resolveMechanicsFromCatalog(
   const templateId: string | undefined = sys.templateId ? String(sys.templateId) : undefined;
   if (!name && !templateId) return null;
 
+  const stripPowerPrefixes = (raw: string): string =>
+    String(raw || '')
+      .replace(/^active buff:\s*/i, '')
+      .replace(/^passive:\s*/i, '')
+      .replace(/^active:\s*/i, '')
+      .trim();
+
   let def: any = undefined;
   if (templateId) {
     def = ALL_POWER_TEMPLATES.find((t: any) => t?.templateId === templateId);
   }
   if (!def && name) {
-    def = ALL_POWER_TEMPLATES.find((t: any) => t?.templateName === name || t?.name === name);
+    const stripped = stripPowerPrefixes(name);
+    const lower = stripped.toLowerCase();
+    def = ALL_POWER_TEMPLATES.find(
+      (t: any) =>
+        t?.templateName === name ||
+        t?.name === name ||
+        t?.templateName === stripped ||
+        t?.name === stripped ||
+        String(t?.templateName || '')
+          .toLowerCase()
+          .replace(/^active buff:\s*/i, '')
+          .replace(/^passive:\s*/i, '')
+          .replace(/^active:\s*/i, '')
+          .trim() === lower ||
+        String(t?.name || '')
+          .toLowerCase()
+          .replace(/^active buff:\s*/i, '')
+          .replace(/^passive:\s*/i, '')
+          .replace(/^active:\s*/i, '')
+          .trim() === lower,
+    );
   }
   if (!def) return null;
 
@@ -234,8 +261,11 @@ export function collectMechanicsContributions(actor: any): MechanicsContribution
     }
     const mech = resolvePowerMechanics(powerItem);
     if (!mech) continue;
-    // Only honor the two passive-like applyWhen values here; defensive against bad data.
-    if (mech.applyWhen !== 'passive-slotted-active') continue;
+    // Slotted passives use `passive-slotted-active` from the template helper, but
+    // legacy / migrated items may omit `applyWhen` entirely while still carrying
+    // numeric `armor` / `evade` / … keys — those must still aggregate.
+    const aw = mech.applyWhen as string | undefined;
+    if (aw && aw !== 'passive-slotted-active') continue;
     const pname = slot.passive.name ?? 'Passive';
     out.push({
       source: `${pname} (slotted)`,

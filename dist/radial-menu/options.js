@@ -6,6 +6,7 @@ import { isManeuverHiddenFromActorRadial } from '../utils/radial-maneuver-prefs.
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { getMovementRangeBonusMeters, hasPowerBeenUsedThisRound } from '../combat/action-economy.js';
 import { formatNpcAttackSpecialsLine, npcAttackDiceCount, npcDamageDiceFormula, resolveNpcAttackList } from '../utils/npc-attack-model.js';
+import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 function buildNpcAttackDescription(atk) {
     const pool = npcAttackDiceCount(atk);
     const dmg = npcDamageDiceFormula(atk);
@@ -318,9 +319,21 @@ export function getSegmentIdForOption(option) {
         const powerType = option.powerType || option.item.system?.powerType;
         const cost = option.item.system?.cost;
         const range = option.range || option.item.system?.range;
-        // If it's explicitly an active-buff or buff power that requires an action, it's an active buff
-        if ((powerType === 'active-buff' || powerType === 'buff') && cost?.action === true) {
+        // Canonical active-buff templates use category `activeBuff` and mechanics
+        // `applyWhen: 'activeBuff-active'`. Those must never be routed through the
+        // enemy-targeting attack pipeline.
+        if ((powerType === 'active-buff' || powerType === 'activeBuff' || powerType === 'buff') &&
+            cost?.action === true) {
             return 'active-buff';
+        }
+        try {
+            const mech = resolvePowerMechanics(option.item);
+            if (mech?.applyWhen === 'activeBuff-active' && cost?.action === true) {
+                return 'active-buff';
+            }
+        }
+        catch {
+            /* ignore */
         }
         // Check tags for active-buff indicators
         const tags = option.tags || [];
@@ -435,8 +448,9 @@ export async function getAllCombatOptionsForActor(actor) {
         const powerType = item.system?.powerType;
         if (!powerType)
             continue;
-        // Only include combat-usable powers
-        if (!['movement', 'active', 'active-buff', 'buff', 'utility', 'reaction'].includes(powerType)) {
+        // Only include combat-usable powers (`activeBuff` is the template category
+        // from the catalog — must be accepted alongside kebab-case `active-buff`).
+        if (!['movement', 'active', 'active-buff', 'activeBuff', 'buff', 'utility', 'reaction'].includes(powerType)) {
             continue;
         }
         const combat = game.combat;
@@ -504,8 +518,10 @@ export async function getAllCombatOptionsForActor(actor) {
         const tags = item.system?.tags || [];
         const cost = item.system?.cost || {};
         // Check if this is an active buff - active buffs are always Self (range 0)
-        const isActiveBuff = (powerType === 'active-buff' || powerType === 'buff') && cost?.action === true ||
-            (tags.includes('active-buff') || tags.includes('buff') || tags.includes('stance')) && cost?.action === true;
+        const isActiveBuff = ((powerType === 'active-buff' || powerType === 'activeBuff' || powerType === 'buff') &&
+            cost?.action === true) ||
+            ((tags.includes('active-buff') || tags.includes('buff') || tags.includes('stance')) &&
+                cost?.action === true);
         if (isActiveBuff) {
             range = 0; // Active buffs are always Self
         }

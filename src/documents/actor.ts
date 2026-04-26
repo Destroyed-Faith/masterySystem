@@ -23,6 +23,7 @@ import {
 import { getInitiativeEquipmentRows, getEquippedEquipmentInitiativeModifier } from '../utils/equipment-modifiers.js';
 import { buildActorMechanicsBreakdown } from '../utils/power-mechanics.js';
 import { normalizeManualAdjustments } from '../utils/manual-adjustments.js';
+import { getRoundState } from '../combat/action-economy.js';
 
 export class MasteryActor extends Actor {
   /**
@@ -583,6 +584,32 @@ export class MasteryActor extends Actor {
               ? `+${system.combat.initiativeEquipmentTotal}`
               : String(system.combat.initiativeEquipmentTotal);
       }
+    }
+
+    // Stone Powers — agility (+8 Evade per activation) and similar effects
+    // store a round-scoped `stoneBonuses.evadeBonus` on the action-economy
+    // round state. Surface it on Evade Total + breakdown so the sheet /
+    // carousel match what applies during combat.
+    let stoneEvadeBonus = 0;
+    try {
+      const g = globalThis as any;
+      const combat = g.game?.combat ?? null;
+      stoneEvadeBonus = Math.max(
+        0,
+        Math.floor(Number(getRoundState(this as any, combat)?.stoneBonuses?.evadeBonus ?? 0) || 0),
+      );
+    } catch {
+      stoneEvadeBonus = 0;
+    }
+    (system.combat as any).stoneEvadeBonus = stoneEvadeBonus;
+    if (stoneEvadeBonus > 0) {
+      system.combat.evadeTotal = (system.combat.evadeTotal || 0) + stoneEvadeBonus;
+      (system.combat.evadeBreakdownRows as any[]).push({
+        label: 'Stone Powers',
+        detail: 'Round bonus (e.g. Agility +8 Evade until next turn)',
+        value: stoneEvadeBonus,
+        display: `+${stoneEvadeBonus}`,
+      });
     }
 
     // Attribute Scaling Passives

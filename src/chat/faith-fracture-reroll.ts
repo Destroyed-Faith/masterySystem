@@ -155,7 +155,12 @@ export async function executeFaithFractureReroll(
         isSkillRoll: recipe.isSkillRoll,
         isSaveRoll: recipe.isSaveRoll,
         baseModifier: recipe.baseModifier,
-        autoRaises: recipe.autoRaises ?? 0
+        autoRaises: recipe.autoRaises ?? 0,
+        ...(typeof (recipe as any).attackDiceCap === 'number' &&
+        Number.isFinite((recipe as any).attackDiceCap) &&
+        (recipe as any).attackDiceCap > 0
+          ? { attackDiceCap: Math.floor((recipe as any).attackDiceCap) }
+          : {}),
       });
     } catch (rollErr) {
       await spender.update({ 'system.faithFractures.current': cur });
