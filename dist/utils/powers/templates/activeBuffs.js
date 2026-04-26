@@ -115,7 +115,10 @@ export const ACTIVE_BUFF_TEMPLATES = [
                 effectText: cap === 0
                     ? '—'
                     : `If you currently have **Damage Reduction from a Passive**, increase that DR by **+10%** while the buff is active, up to **${cap}% total DR**.`,
-                mechanics: cap === 0 ? { duration: 'masteryRankRounds' } : { damageReductionPct: 10, duration: 'masteryRankRounds' },
+                // Always snapshot +10% DR so the buff appears in combat totals / sheet.
+                // Total cap vs passive is a play rule at the table; low-rank rows still
+                // showed "—" in the text but omitted mechanics before (looked like a bug).
+                mechanics: { damageReductionPct: 10, duration: 'masteryRankRounds' },
             });
         }),
     },

@@ -629,12 +629,27 @@ export function registerAttackRollClickHandler() {
                     if (damageResult) {
                         // Roll and display damage
                         await rollAndDisplayDamage(damageResult, attacker, target, flags);
-                        const aoeSecondaries = String(updatedFlags.aoeMeleeSecondaryTokenIds || '')
-                            .split(',')
+                        // Prefer AoE metadata from the roll button — chat-message flags can be
+                        // pruned or merged inconsistently across Foundry versions.
+                        const aoeIdsFromBtn = String(button.attr('data-aoe-secondary-ids') || '')
+                            .split('|')
                             .map((s) => s.trim())
                             .filter(Boolean);
-                        const aoeDice = Math.max(0, Math.floor(Number(updatedFlags.aoeMeleePowerBonusDice) || 0));
-                        if (updatedFlags.aoeMeleeWeapon && aoeSecondaries.length > 0 && aoeDice > 0) {
+                        const aoeDiceFromBtn = Math.max(0, Math.floor(Number(button.attr('data-aoe-power-dice')) || 0));
+                        const aoeFromBtn = button.attr('data-aoe-melee') === '1';
+                        const aoeSecondaries = aoeIdsFromBtn.length > 0
+                            ? aoeIdsFromBtn
+                            : String(updatedFlags.aoeMeleeSecondaryTokenIds || '')
+                                .split(',')
+                                .map((s) => s.trim())
+                                .filter(Boolean);
+                        const aoeDice = aoeDiceFromBtn > 0
+                            ? aoeDiceFromBtn
+                            : Math.max(0, Math.floor(Number(updatedFlags.aoeMeleePowerBonusDice) || 0));
+                        const aoeWeapon = aoeFromBtn ||
+                            updatedFlags.aoeMeleeWeapon === true ||
+                            String(updatedFlags.aoeMeleeWeapon) === 'true';
+                        if (aoeWeapon && aoeSecondaries.length > 0 && aoeDice > 0) {
                             const { resolveAoeMeleeSecondaries } = await import('../combat/aoe-melee-resolution.js');
                             const atkMr = Math.max(1, Math.min(6, Math.floor(Number(updatedFlags.masteryRank) || 2)));
                             await resolveAoeMeleeSecondaries({

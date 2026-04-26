@@ -175,14 +175,6 @@
         <span class="chip-value">{{combatStatsView.stress.current}}/{{combatStatsView.stress.max}}</span>
       </div>
     </div>
-    {{#if combatStatsView.breakdownLines.length}}
-    <ul class="combat-stats-breakdown" aria-label="Quellen der Kampfwerte">
-      {{#each combatStatsView.breakdownLines}}
-      <li>{{this}}</li>
-      {{/each}}
-    </ul>
-    {{/if}}
-    <p class="combat-stats-panel-hint">Vollständige Tabellen: <strong>Attributes</strong> → Combat Statistics.</p>
   </div>
   {{/if}}
 

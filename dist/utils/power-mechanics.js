@@ -265,6 +265,9 @@ function isSanctionedDR(contribution) {
     if (contribution.sourceKind === 'buff') {
         if (stripped === 'damage reduction' || stripped.endsWith('damage reduction'))
             return true;
+        // Localized / renamed copies of the catalog buff (parentheticals, em dash, etc.)
+        if (/\bdamage\s+reduction\b/i.test(stripped))
+            return true;
     }
     console.warn(`Mastery System | DR rule violation: power "${contribution.powerName}" ` +
         `(${contribution.sourceKind}) declares damageReductionPct but only ` +

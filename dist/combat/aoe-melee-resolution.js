@@ -2,8 +2,42 @@
  * Melee weapon AoE — Body save escape for secondary targets + power-only damage.
  */
 import { masteryRoll } from '../dice/roll-handler.js';
-import { getRoundState, spendReactionAction } from './action-economy.js';
+import { getActionEconomyActor, getRoundState, spendReactionAction, } from './action-economy.js';
 import { countNaturalEights } from './damage-mitigation.js';
+/** Resolve a burst token id to a canvas actor (handles scene / placeable quirks). */
+function resolveBurstTarget(tid) {
+    const placeables = canvas?.tokens?.placeables ?? [];
+    const p = placeables.find((t) => t?.id === tid || t?.document?.id === tid);
+    if (p?.actor)
+        return { defender: p.actor, tok: p };
+    const scene = canvas?.scene ?? game.scenes?.active;
+    const doc = scene?.tokens?.get?.(tid);
+    if (doc?.actor) {
+        const tok = placeables.find((t) => t.id === tid) ?? null;
+        return { defender: doc.actor, tok };
+    }
+    return null;
+}
+async function confirmSpendReaction(title, html) {
+    const Dialog = globalThis.Dialog;
+    try {
+        if (Dialog?.confirm) {
+            const ok = await Dialog.confirm({
+                title,
+                content: html,
+                yes: () => true,
+                no: () => false,
+                defaultYes: false,
+            });
+            return !!ok;
+        }
+    }
+    catch {
+        /* fall through */
+    }
+    const plain = String(html).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    return typeof globalThis !== 'undefined' && globalThis.confirm?.(`${title}\n\n${plain}`);
+}
 /** Body save DC to escape secondary AoE damage (attacker mastery rank). */
 export function aoeSecondaryBodySaveDc(masteryRank) {
     const r = Math.max(1, Math.min(6, Math.floor(Number(masteryRank) || 1)));
@@ -23,23 +57,23 @@ export async function resolveAoeMeleeSecondaries(params) {
     const dc = aoeSecondaryBodySaveDc(attackerMasteryRank);
     const combat = game.combat;
     for (const tid of secondaryTokenIds) {
-        const tok = canvas?.tokens?.get?.(tid);
-        const defender = tok?.actor;
-        if (!defender)
+        const resolved = resolveBurstTarget(tid);
+        if (!resolved?.defender) {
+            console.warn('Mastery System | AoE secondary: could not resolve token to actor', {
+                tokenId: tid,
+                sceneId: canvas?.scene?.id,
+            });
             continue;
+        }
+        const { defender, tok } = resolved;
+        const economyDef = getActionEconomyActor(defender) ?? defender;
         let escaped = false;
-        const rsReact = getRoundState(defender, combat);
+        const rsReact = getRoundState(economyDef, combat);
         const reactions = Math.max(0, (rsReact.reactionActions?.total ?? 0) - (rsReact.reactionActions?.used ?? 0));
         if (reactions > 0) {
-            const spend = await Dialog.confirm({
-                title: `AoE — ${defender.name}`,
-                content: `<p>Spend <strong>1 Reaction</strong> to roll <strong>Body</strong> vs TN <strong>${dc}</strong> and avoid <strong>${powerBonusDice}d8</strong> AoE damage?</p>`,
-                yes: () => true,
-                no: () => false,
-                defaultYes: false,
-            });
+            const spend = await confirmSpendReaction(`AoE — ${defender.name}`, `<p>Spend <strong>1 Reaction</strong> to roll <strong>Body</strong> vs TN <strong>${dc}</strong> and avoid <strong>${powerBonusDice}d8</strong> AoE damage?</p>`);
             if (spend) {
-                const consumed = await spendReactionAction(defender, combat);
+                const consumed = await spendReactionAction(economyDef, combat);
                 if (consumed) {
                     const numDice = vitalityPoolSize(defender);
                     const keep = Math.max(1, Math.floor(Number(defender.system?.mastery?.rank) || attackerMasteryRank || 2));
@@ -50,7 +84,7 @@ export async function resolveAoeMeleeSecondaries(params) {
                         tn: dc,
                         label: `Body save (escape AoE)`,
                         flavor: `vs TN ${dc} to avoid secondary AoE damage`,
-                        actorId: defender.id,
+                        actorId: economyDef.id,
                         rollKind: 'saveBody',
                         isSaveRoll: true,
                         autoFailIntent: 'skill',
@@ -76,11 +110,18 @@ export async function resolveAoeMeleeSecondaries(params) {
             }
         }
         const spec = `${powerBonusDice}d8x`;
-        const RollCls = globalThis.Roll;
-        const r = RollCls?.create
-            ? await RollCls.create(spec).evaluate({ async: true })
-            : null;
-        const total = Math.max(0, Math.floor(Number(r?.total) || 0));
+        let total = 0;
+        let r = null;
+        try {
+            const RollCls = globalThis.Roll;
+            if (RollCls?.create) {
+                r = await RollCls.create(spec).evaluate({ async: true });
+                total = Math.max(0, Math.floor(Number(r?.total) || 0));
+            }
+        }
+        catch (err) {
+            console.warn('Mastery System | AoE secondary damage roll failed', spec, err);
+        }
         const rollsArr = r ? [r] : [];
         const c8 = countNaturalEights(rollsArr);
         const { applyDamageToTargetFromAoe } = await import('../dice/damage-dialog.js');

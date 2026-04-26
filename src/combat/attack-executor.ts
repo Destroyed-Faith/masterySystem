@@ -506,6 +506,14 @@ export async function createAttackCard(
         </div>`
       : "";
 
+  const aoeIdsAttr =
+    aoeMelee && aoeMelee.secondaryTokenIds?.length
+      ? attackCardEsc(aoeMelee.secondaryTokenIds.join("|"))
+      : "";
+  const aoeDiceAttr =
+    aoeMelee && aoeMelee.powerBonusDice > 0 ? String(Math.floor(aoeMelee.powerBonusDice)) : "0";
+  const aoeMeleeAttr = aoeMelee && aoeMelee.secondaryTokenIds?.length ? "1" : "0";
+
   const buttonHtml = `
     <button class="roll-attack-btn" 
             data-attacker-id="${attacker.id}"
@@ -517,7 +525,10 @@ export async function createAttackCard(
             data-target-evade="${targetEvade}"
             data-base-evade="${baseEvade}"
             data-raises="0"
-            data-auto-raises="0">
+            data-auto-raises="0"
+            data-aoe-melee="${aoeMeleeAttr}"
+            data-aoe-secondary-ids="${aoeIdsAttr}"
+            data-aoe-power-dice="${aoeDiceAttr}">
       <i class="fas fa-dice-d20"></i> Roll
     </button>
   `;

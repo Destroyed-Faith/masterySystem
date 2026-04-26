@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.16] - 2026-04-26
+
+### Fixed
+
+- **Melee AoE secondaries:** Splash resolution reads AoE token ids / dice from **roll-button data attributes** (flags fallback); resolves defenders via **scene + placeables**; reaction spend uses **`getActionEconomyActor`**; **`Dialog.confirm`** fallback to **`window.confirm`** when needed.
+- **Active Buff: Damage Reduction:** Template always snapshots **`damageReductionPct: 10`** (low ranks no longer omitted); buff DR **whitelist** accepts names containing “damage reduction”.
+- **Character sheet combat strip:** Removed the extra **grey breakdown list** and footer hint; tooltips on Armor / Evade / DR chips remain.
+- **Health bar damage:** **`applyDamage`** coerces bar `current` / `max` and incoming damage to safe finite integers (very large or string values).
+
 ## [0.5.15] - 2026-04-26
 
 ### Added

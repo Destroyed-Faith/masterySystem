@@ -118,7 +118,9 @@ export function getCurrentPenalty(bars, currentBar) {
  * Damage flows through bars: when a bar is depleted, overflow goes to next bar
  */
 export function applyDamage(bars, currentBar, damage) {
-    let remainingDamage = damage;
+    let remainingDamage = Math.max(0, Math.floor(Number(damage) || 0));
+    if (!Number.isFinite(remainingDamage))
+        remainingDamage = 0;
     let barIndex = currentBar;
     // Clamp starting bar index
     if (barIndex < 0)
@@ -127,14 +129,26 @@ export function applyDamage(bars, currentBar, damage) {
         barIndex = bars.length - 1;
     while (remainingDamage > 0 && barIndex < bars.length) {
         const bar = bars[barIndex];
-        if (bar.current >= remainingDamage) {
+        let cur = Math.floor(Number(bar.current) || 0);
+        if (!Number.isFinite(cur))
+            cur = 0;
+        const mx = Math.max(0, Math.floor(Number(bar.max) || 0));
+        if (!Number.isFinite(mx)) {
+            bar.current = 0;
+            barIndex++;
+            continue;
+        }
+        if (cur > mx)
+            cur = mx;
+        bar.current = cur;
+        if (cur >= remainingDamage) {
             // This bar can absorb all remaining damage
-            bar.current -= remainingDamage;
+            bar.current = cur - remainingDamage;
             remainingDamage = 0;
         }
         else {
             // This bar is depleted, overflow to next bar
-            remainingDamage -= bar.current;
+            remainingDamage -= cur;
             bar.current = 0;
             barIndex++;
         }

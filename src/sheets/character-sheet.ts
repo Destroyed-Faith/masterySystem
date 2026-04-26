@@ -894,16 +894,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             .slice(0, cap)
             .map((r: any) => `${String(r.label ?? '').trim()}: ${r.display ?? r.value}`)
             .join(' · ');
-        const breakdownLines: string[] = [];
-        for (const r of combat.armorBreakdownRows || []) {
-          breakdownLines.push(`Armor — ${String(r.label ?? '').trim()} (${r.display ?? r.value})`);
-        }
-        for (const r of combat.evadeBreakdownRows || []) {
-          breakdownLines.push(`Evade — ${String(r.label ?? '').trim()} (${r.display ?? r.value})`);
-        }
-        for (const r of combat.damageReductionRows || []) {
-          breakdownLines.push(`DR — ${String(r.label ?? '').trim()} (${r.display ?? r.value})`);
-        }
         context.combatStatsView = {
           armor: Number(combat.armorTotal ?? 0) || 0,
           evade: Number(combat.evadeTotal ?? 8) || 8,
@@ -915,7 +905,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           armorBreakdownTip: rowTip(combat.armorBreakdownRows, 14),
           evadeBreakdownTip: rowTip(combat.evadeBreakdownRows, 14),
           drBreakdownTip: rowTip(combat.damageReductionRows, 10),
-          breakdownLines,
         };
       }
     } catch (err) {
