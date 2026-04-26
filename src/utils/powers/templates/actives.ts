@@ -282,8 +282,14 @@ function mixedTemplate(def: {
 }
 
 // ─── Template registry ───────────────────────────────────────────────────
+// NB: Uses a lazy build() closure so the registry can reference template
+// factories and progression tables declared further down in this file
+// without hitting "Cannot access before initialization" TDZ errors. The
+// module export is frozen on first use so downstream iterators still see
+// a stable array.
 
-export const ACTIVE_TEMPLATES: PowerTemplate[] = [
+function buildActiveTemplates(): PowerTemplate[] {
+    return [
     // Damage Single — Melee (4) + Ranged (4)
     damageSingleTemplate({ flavour: 'melee', tier: 3 }),
     damageSingleTemplate({ flavour: 'ranged', tier: 3 }),
@@ -364,53 +370,330 @@ export const ACTIVE_TEMPLATES: PowerTemplate[] = [
         }),
     },
 
-    // Hard Control — damage + Stunned × (melee, ranged) = 2
-    {
-        templateId: 'active-melee-damage-stunned',
-        templateName: 'Melee Damage + Stunned',
-        name: 'Melee Damage + Stunned',
+    // Hard Control — Stunning Strike: Damage + fixed Stunned × (melee, ranged) = 2
+    stunningStrikeTemplate('melee'),
+    stunningStrikeTemplate('ranged'),
+
+    // Illusion — Ranged Images (4 Rounds) = 1
+    rangedImagesTemplate(),
+
+    // Weapon Attacks — pure attack templates (no Specials) = 7
+    singleWeaponAttackTemplate('melee'),
+    singleWeaponAttackTemplate('ranged'),
+    aoeWeaponAttackTemplate('melee'),
+    aoeWeaponAttackTemplate('ranged'),
+    splitWeaponAttackTemplate('melee'),
+    splitWeaponAttackTemplate('ranged'),
+    autofireWeaponAttackTemplate(),
+    ];
+}
+
+// ─── Stunning Strike (Damage + fixed Stunned) ────────────────────────────
+//
+// Stunned is a binary Hard-Control add-on (fixed 120 PP). Damage is the
+// scaling axis once the Power can afford Stunned:
+//   • Melee  → unlocks at Level 4 (no extra dice), then +2d8 per level.
+//   • Ranged → pays Range every level; unlocks at Level 5 (no extra dice),
+//     then irregular progression per Actives.md.
+
+const MELEE_STUN_EXTRA_DICE: readonly number[] = [
+    0, 0, 0, 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24,
+];
+const RANGED_STUN_EXTRA_DICE: readonly number[] = [
+    0, 0, 0, 0, 0, 2, 4, 5, 7, 9, 10, 12, 14, 15, 17, 19,
+];
+
+function stunningStrikeTemplate(flavour: 'melee' | 'ranged'): PowerTemplate {
+    const isRanged = flavour === 'ranged';
+    const unlockLvl = isRanged ? 5 : 4;
+    return {
+        templateId: isRanged ? 'active-ranged-damage-stunned' : 'active-melee-damage-stunned',
+        templateName: isRanged ? 'Ranged Damage + Stunned' : 'Melee Damage + Stunned',
+        name: isRanged ? 'Ranged Damage + Stunned' : 'Melee Damage + Stunned',
         subfamily: 'hard-control',
         category: 'active',
         tags: [],
-        spellHints: { defaultResolution: 'saveSpell', defaultSaveType: 'mind' },
-        fluff: 'A decisive blow that stuns the target.',
+        spellHints: { defaultResolution: 'saveSpell', defaultSaveType: 'body' },
+        fluff: isRanged
+            ? 'A precise ranged strike that staggers the target and briefly denies its ability to attack.'
+            : 'A close-range martial blow that staggers the target and briefly denies its ability to attack.',
         cost: { action: 'attack' },
-        roll: { kind: 'attack', attribute: 'might' },
+        roll: { kind: 'attack', attribute: isRanged ? 'agility' : 'might' },
         levels: buildLevels((lvl) => {
-            const rank = specialRankForTier(6, lvl);
+            if (lvl < unlockLvl) {
+                return activeRow({
+                    type: isRanged ? 'Ranged' : 'Melee',
+                    range: isRanged ? rangedRange(lvl) : MELEE_RANGE,
+                    aoe: R_NONE,
+                    effectText: 'No Stun version is available at this Power rank.',
+                    specials: [],
+                    mechanics: {},
+                });
+            }
+            const extra = (isRanged ? RANGED_STUN_EXTRA_DICE : MELEE_STUN_EXTRA_DICE)[lvl - 1];
+            const diceText = extra === 0 ? '' : `+${extra}d8`;
+            const effectText = extra === 0
+                ? 'No damage. Target is **Stunned**.'
+                : `Deal **+${extra}d8 damage** on hit. Target is **Stunned**.`;
             return activeRow({
-                type: 'Melee',
-                range: MELEE_RANGE,
+                type: isRanged ? 'Ranged' : 'Melee',
+                range: isRanged ? rangedRange(lvl) : MELEE_RANGE,
                 aoe: R_NONE,
-                effectText: `Deal **+1d8 damage** on hit and apply **Stunned(${rank})**.`,
-                dice: '1d8',
-                specials: [{ key: 'stunned', rank }],
-                mechanics: { damageRider: { flat: '+1d8' }, applyWhen: 'attack-rider' },
+                duration: { kind: 'untilStartOfNextTurn' },
+                effectText,
+                dice: diceText || undefined,
+                specials: [{ key: 'stunned' }],
+                mechanics: extra === 0
+                    ? { applyWhen: 'attack-rider' }
+                    : { damageRider: { flat: diceText }, applyWhen: 'attack-rider' },
             });
         }),
-    },
-    {
-        templateId: 'active-ranged-damage-stunned',
-        templateName: 'Ranged Damage + Stunned',
-        name: 'Ranged Damage + Stunned',
-        subfamily: 'hard-control',
+    };
+}
+
+// ─── Ranged Images — Illusion Field (4 Rounds) ───────────────────────────
+
+const RANGED_IMAGES_ROWS: readonly { radiusM: number; imageTier: number; imageLabel: string }[] = [
+    { radiusM: 1, imageTier: 1, imageLabel: 'a simple static visual image' },          // L1
+    { radiusM: 1, imageTier: 1, imageLabel: 'a simple static visual image' },          // L2
+    { radiusM: 1, imageTier: 2, imageLabel: 'a moving visual image' },                 // L3
+    { radiusM: 2, imageTier: 2, imageLabel: 'a moving visual image' },                 // L4
+    { radiusM: 2, imageTier: 3, imageLabel: 'a sight and sound image' },               // L5
+    { radiusM: 2, imageTier: 3, imageLabel: 'a sight and sound image' },               // L6
+    { radiusM: 2, imageTier: 4, imageLabel: 'a complex creature or object image' },    // L7
+    { radiusM: 2, imageTier: 4, imageLabel: 'a complex creature or object image' },    // L8
+    { radiusM: 3, imageTier: 4, imageLabel: 'a complex creature or object image' },    // L9
+    { radiusM: 3, imageTier: 4, imageLabel: 'a complex creature or object image' },    // L10
+    { radiusM: 3, imageTier: 5, imageLabel: 'a multi-sense image' },                   // L11
+    { radiusM: 3, imageTier: 5, imageLabel: 'a multi-sense image' },                   // L12
+    { radiusM: 3, imageTier: 6, imageLabel: 'a small scene with several moving parts' }, // L13
+    { radiusM: 3, imageTier: 6, imageLabel: 'a small scene with several moving parts' }, // L14
+    { radiusM: 3, imageTier: 6, imageLabel: 'a small scene with several moving parts' }, // L15
+    { radiusM: 3, imageTier: 7, imageLabel: 'a complex battlefield illusion' },        // L16
+];
+
+const IMAGE_ROMAN: readonly string[] = ['', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII'];
+
+function rangedImagesTemplate(): PowerTemplate {
+    return {
+        templateId: 'active-ranged-illusion-image',
+        templateName: 'Ranged Images — 4 Rounds',
+        name: 'Ranged Images — 4 Rounds',
+        subfamily: 'illusion',
         category: 'active',
         tags: [],
         spellHints: { defaultResolution: 'saveSpell', defaultSaveType: 'mind' },
-        fluff: 'A precise ranged strike that stuns the target.',
+        fluff: 'A ranged illusion Active that creates false sensory information for 4 Rounds. Images do not deal damage, block movement, or apply Specials — they only make creatures believe things are present.',
+        cost: { action: 'attack' },
+        roll: { kind: 'none' },
+        levels: buildLevels((lvl) => {
+            const row = RANGED_IMAGES_ROWS[lvl - 1];
+            const aoe: AoeSpec = row.radiusM <= 1
+                ? { shape: 'single', note: lvl === 1 ? 'Single Small Image' : 'Single Human-Sized Image' }
+                : { shape: 'radius', radiusM: row.radiusM, center: 'targetPoint' };
+            return activeRow({
+                type: 'Ranged Illusion',
+                range: rangedRange(lvl),
+                aoe,
+                duration: { kind: 'rounds', rounds: 4 },
+                effectText: `Create **Image ${IMAGE_ROMAN[row.imageTier]}**: ${row.imageLabel}.`,
+                specials: [],
+                mechanics: { applyWhen: 'manual' },
+            });
+        }),
+    };
+}
+
+// ─── Weapon Attack Templates (pure — no Specials) ────────────────────────
+
+// Single Weapon Attack damage progression.
+const MELEE_SINGLE_DICE: readonly number[] = [
+    2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32,
+];
+const RANGED_SINGLE_DICE: readonly number[] = [
+    2, 3, 5, 7, 8, 10, 12, 13, 15, 17, 18, 20, 22, 23, 25, 27,
+];
+
+function singleWeaponAttackTemplate(flavour: 'melee' | 'ranged'): PowerTemplate {
+    const isRanged = flavour === 'ranged';
+    const dice = isRanged ? RANGED_SINGLE_DICE : MELEE_SINGLE_DICE;
+    return {
+        templateId: isRanged ? 'active-ranged-weapon-single' : 'active-melee-weapon-single',
+        templateName: isRanged ? 'Ranged Single Attack' : 'Melee Single Attack',
+        name: isRanged ? 'Ranged Single Attack' : 'Melee Single Attack',
+        subfamily: 'weapon-attack',
+        category: 'active',
+        tags: [],
+        spellHints: { defaultResolution: 'spellAttack' },
+        fluff: isRanged
+            ? 'A clean ranged weapon attack with no Special, rider, movement, or secondary effect.'
+            : 'A clean melee weapon attack with no Special, rider, movement, or secondary effect.',
+        cost: { action: 'attack' },
+        roll: { kind: 'attack', attribute: isRanged ? 'agility' : 'might' },
+        levels: buildLevels((lvl) => {
+            const d = dice[lvl - 1];
+            return activeRow({
+                type: isRanged ? 'Ranged' : 'Melee',
+                range: isRanged ? rangedRange(lvl) : MELEE_RANGE,
+                aoe: R_NONE,
+                effectText: `Make **one ${isRanged ? 'ranged' : 'melee'} weapon attack**. On hit, deal weapon damage + **${d}d8 damage**.`,
+                dice: `+${d}d8`,
+                specials: [],
+                mechanics: { damageRider: { flat: `+${d}d8` }, applyWhen: 'attack-rider' },
+            });
+        }),
+    };
+}
+
+// AoE Weapon Attack progression: (radius in meters, bonus dice).
+const MELEE_AOE_PROG: readonly { radiusM: number; dice: number }[] = [
+    { radiusM: 2, dice: 0 }, { radiusM: 2, dice: 2 }, { radiusM: 3, dice: 2 }, { radiusM: 3, dice: 4 },
+    { radiusM: 4, dice: 4 }, { radiusM: 4, dice: 6 }, { radiusM: 5, dice: 4 }, { radiusM: 5, dice: 6 },
+    { radiusM: 6, dice: 4 }, { radiusM: 6, dice: 6 }, { radiusM: 7, dice: 4 }, { radiusM: 7, dice: 6 },
+    { radiusM: 8, dice: 2 }, { radiusM: 8, dice: 4 }, { radiusM: 8, dice: 6 }, { radiusM: 8, dice: 8 },
+];
+const RANGED_AOE_PROG: readonly { radiusM: number; dice: number }[] = [
+    { radiusM: 2, dice: 0 }, { radiusM: 2, dice: 2 }, { radiusM: 3, dice: 2 }, { radiusM: 3, dice: 3 },
+    { radiusM: 4, dice: 2 }, { radiusM: 4, dice: 4 }, { radiusM: 5, dice: 2 }, { radiusM: 5, dice: 4 },
+    { radiusM: 6, dice: 2 }, { radiusM: 6, dice: 3 }, { radiusM: 7, dice: 0 }, { radiusM: 7, dice: 2 },
+    { radiusM: 8, dice: 0 }, { radiusM: 8, dice: 0 }, { radiusM: 8, dice: 2 }, { radiusM: 8, dice: 3 },
+];
+
+function aoeWeaponAttackTemplate(flavour: 'melee' | 'ranged'): PowerTemplate {
+    const isRanged = flavour === 'ranged';
+    const prog = isRanged ? RANGED_AOE_PROG : MELEE_AOE_PROG;
+    return {
+        templateId: isRanged ? 'active-ranged-weapon-aoe' : 'active-melee-weapon-aoe',
+        templateName: isRanged ? 'Ranged AoE Attack' : 'Melee AoE Attack',
+        name: isRanged ? 'Ranged AoE Attack' : 'Melee AoE Attack',
+        subfamily: 'weapon-attack',
+        category: 'active',
+        tags: [],
+        spellHints: { defaultResolution: 'saveSpell', defaultSaveType: 'body' },
+        fluff: isRanged
+            ? 'A ranged weapon attack that bursts around a target point.'
+            : 'A self-centered weapon sweep or burst around the attacker.',
+        cost: { action: 'attack' },
+        roll: { kind: 'attack', attribute: isRanged ? 'agility' : 'might' },
+        levels: buildLevels((lvl) => {
+            const p = prog[lvl - 1];
+            const aoe: AoeSpec = {
+                shape: 'radius',
+                radiusM: p.radiusM,
+                center: isRanged ? 'targetPoint' : 'self',
+                targetFilter: 'enemies',
+            };
+            const diceText = p.dice === 0 ? '' : `+${p.dice}d8`;
+            const effect = p.dice === 0
+                ? `Make a ${isRanged ? 'ranged' : 'melee'} AoE attack. Affected creatures take weapon damage.`
+                : `Make a ${isRanged ? 'ranged' : 'melee'} AoE attack. Affected creatures take weapon damage + **${p.dice}d8 damage**.`;
+            return activeRow({
+                type: isRanged ? 'Ranged AoE' : 'Melee AoE',
+                range: isRanged ? rangedRange(lvl) : { kind: 'self' },
+                aoe,
+                effectText: effect,
+                dice: diceText || undefined,
+                specials: [],
+                mechanics: p.dice === 0
+                    ? { applyWhen: 'attack-rider' }
+                    : { damageRider: { flat: diceText }, applyWhen: 'attack-rider' },
+            });
+        }),
+    };
+}
+
+// Split Weapon Attack progression: (attack count, bonus dice).
+const MELEE_SPLIT_PROG: readonly { attacks: number; dice: number }[] = [
+    { attacks: 2, dice: 0 }, { attacks: 2, dice: 2 }, { attacks: 2, dice: 4 }, { attacks: 2, dice: 6 },
+    { attacks: 2, dice: 8 }, { attacks: 2, dice: 10 }, { attacks: 3, dice: 10 }, { attacks: 3, dice: 12 },
+    { attacks: 3, dice: 14 }, { attacks: 3, dice: 16 }, { attacks: 3, dice: 18 }, { attacks: 3, dice: 20 },
+    { attacks: 4, dice: 20 }, { attacks: 4, dice: 22 }, { attacks: 4, dice: 24 }, { attacks: 4, dice: 26 },
+];
+const RANGED_SPLIT_PROG: readonly { attacks: number; dice: number }[] = [
+    { attacks: 2, dice: 0 }, { attacks: 2, dice: 1 }, { attacks: 2, dice: 3 }, { attacks: 2, dice: 5 },
+    { attacks: 2, dice: 6 }, { attacks: 2, dice: 8 }, { attacks: 3, dice: 8 }, { attacks: 3, dice: 9 },
+    { attacks: 3, dice: 11 }, { attacks: 3, dice: 13 }, { attacks: 3, dice: 14 }, { attacks: 3, dice: 16 },
+    { attacks: 4, dice: 16 }, { attacks: 4, dice: 17 }, { attacks: 4, dice: 19 }, { attacks: 4, dice: 21 },
+];
+
+function splitWeaponAttackTemplate(flavour: 'melee' | 'ranged'): PowerTemplate {
+    const isRanged = flavour === 'ranged';
+    const prog = isRanged ? RANGED_SPLIT_PROG : MELEE_SPLIT_PROG;
+    return {
+        templateId: isRanged ? 'active-ranged-weapon-split' : 'active-melee-weapon-split',
+        templateName: isRanged ? 'Ranged Split Attack' : 'Melee Split Attack',
+        name: isRanged ? 'Ranged Split Attack' : 'Melee Split Attack',
+        subfamily: 'weapon-attack',
+        category: 'active',
+        tags: [],
+        spellHints: { defaultResolution: 'spellAttack' },
+        fluff: isRanged
+            ? 'A ranged technique that divides one attack sequence between multiple targets.'
+            : 'A melee technique that divides one attack sequence between multiple targets.',
+        cost: { action: 'attack' },
+        roll: { kind: 'attack', attribute: isRanged ? 'agility' : 'might' },
+        levels: buildLevels((lvl) => {
+            const p = prog[lvl - 1];
+            const diceText = p.dice === 0 ? '' : `+${p.dice}d8`;
+            const base = `Make up to **${p.attacks} ${isRanged ? 'ranged' : 'melee'} weapon attacks**. Split your Attack Pool between them. Roll one total Damage Pool equal to weapon damage`;
+            const effect = p.dice === 0
+                ? `${base}, then split that damage between successful hits.`
+                : `${base} + **${p.dice}d8 damage**, then split that damage between successful hits.`;
+            return activeRow({
+                type: isRanged ? 'Ranged' : 'Melee',
+                range: isRanged ? rangedRange(lvl) : MELEE_RANGE,
+                aoe: { shape: 'weapon', targets: p.attacks },
+                effectText: effect,
+                dice: diceText || undefined,
+                specials: [{ key: 'split-attack', value: p.attacks }],
+                mechanics: p.dice === 0
+                    ? { applyWhen: 'attack-rider' }
+                    : { damageRider: { flat: diceText }, applyWhen: 'attack-rider' },
+            });
+        }),
+    };
+}
+
+// Autofire progression: (additional targets, bonus dice); range = 8 + 4*(L-1).
+const AUTOFIRE_PROG: readonly { extra: number; dice: number }[] = [
+    { extra: 1, dice: 0 }, { extra: 1, dice: 2 }, { extra: 2, dice: 2 }, { extra: 2, dice: 4 },
+    { extra: 3, dice: 4 }, { extra: 3, dice: 6 }, { extra: 4, dice: 6 }, { extra: 4, dice: 8 },
+    { extra: 5, dice: 8 }, { extra: 5, dice: 10 }, { extra: 6, dice: 10 }, { extra: 6, dice: 12 },
+    { extra: 7, dice: 12 }, { extra: 7, dice: 14 }, { extra: 8, dice: 14 }, { extra: 8, dice: 16 },
+];
+
+function autofireWeaponAttackTemplate(): PowerTemplate {
+    return {
+        templateId: 'active-ranged-weapon-autofire',
+        templateName: 'Ranged Autofire',
+        name: 'Ranged Autofire',
+        subfamily: 'weapon-attack',
+        category: 'active',
+        tags: [],
+        spellHints: { defaultResolution: 'spellAttack' },
+        fluff: 'A ranged weapon attack that sprays fire across several targets without creating separate attacks.',
         cost: { action: 'attack' },
         roll: { kind: 'attack', attribute: 'agility' },
         levels: buildLevels((lvl) => {
-            const rank = specialRankForTier(6, lvl);
+            const p = AUTOFIRE_PROG[lvl - 1];
+            const diceText = p.dice === 0 ? '' : `+${p.dice}d8`;
+            const primary = p.dice === 0 ? 'weapon damage' : `weapon damage + **${p.dice}d8 damage**`;
+            const effect =
+                `Make **one ranged weapon attack** against a primary target. You may declare up to **${p.extra} additional target${p.extra === 1 ? '' : 's'}** within range. Each additional target requires **+1 Raise**. Primary target takes ${primary}. Additional targets take only printed weapon damage.`;
             return activeRow({
                 type: 'Ranged',
-                range: rangedRange(lvl, 8),
-                aoe: R_NONE,
-                effectText: `Deal **+1d8 damage** on hit and apply **Stunned(${rank})**.`,
-                dice: '1d8',
-                specials: [{ key: 'stunned', rank }],
-                mechanics: { damageRider: { flat: '+1d8' }, applyWhen: 'attack-rider' },
+                range: rangedRange(lvl),
+                aoe: { shape: 'weapon', targets: 1 + p.extra },
+                effectText: effect,
+                dice: diceText || undefined,
+                specials: [{ key: 'autofire', value: p.extra }],
+                mechanics: p.dice === 0
+                    ? { applyWhen: 'attack-rider' }
+                    : { damageRider: { flat: diceText }, applyWhen: 'attack-rider' },
             });
         }),
-    },
-];
+    };
+}
+
+// Frozen, lazily-built export so TDZ issues don't strike at module load.
+export const ACTIVE_TEMPLATES: PowerTemplate[] = buildActiveTemplates();

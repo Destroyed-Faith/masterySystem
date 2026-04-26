@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.1] - 2026-04-26
+
+### Added
+
+- **Ranged Images (Illusion Field) template.** New Active template `active-ranged-illusion-image` in the `illusion` subfamily. Levels 1–16 scale Image Tier (I → VII) and Radius (single small → 3 m) per the 4-Round Illusion Field formula. No damage, no Specials, no real cover — purely sensory battlefield deception.
+- **Pure weapon-attack templates (no Special slot).** Seven new templates in the new `weapon-attack` subfamily:
+  - `active-melee-weapon-single` / `active-ranged-weapon-single` — clean single-target weapon attacks, +2d8…+32d8 scaling.
+  - `active-melee-weapon-aoe` / `active-ranged-weapon-aoe` — self-centered and target-point bursts that follow the Radius / damage curve from the source doc.
+  - `active-melee-weapon-split` / `active-ranged-weapon-split` — Split Attacks (2 → 3 → 4 targets as level rises; single shared Damage Pool).
+  - `active-ranged-weapon-autofire` — one attack roll, 1–8 additional targets via Raises; only the primary takes bonus damage.
+  These templates have no `specialSlot`, so the catalog emits exactly one entry each (no per-Special expansion) and they ignore the Special filter.
+
+### Changed
+
+- **Stunning Strike rewrite.** `active-melee-damage-stunned` and `active-ranged-damage-stunned` now emit **fixed binary Stunned** (no `rank`) instead of the old scaling `Stunned(X)` with Tier-6 rank curves. Damage is the scaling axis: Melee unlocks at L4 (+0 → +24d8), Ranged at L5 with its real +0 / +2 / +4 / +5 / +7 / +9 / … progression reflecting the Range-every-level cost. Pre-unlock levels explicitly print "No Stun version is available at this Power rank."
+- **Power picker filters.** Tier dropdown is gone from the Add-Power dialog — Tier was a pricing bucket, never a player-facing axis. The Special dropdown is now populated dynamically from the currently-visible catalog entries via `getVisibleSpecialOptions({ category, subfamily, … })`, so you pick directly by `Hex`, `Prone`, `Frightened`, `Blinded`, `Regeneration`, `Poisoned`, `Shock`, `Stunned`, … Tier badges in the picker labels are removed; only the chosen Special key is shown.
+- **Lazy `ACTIVE_TEMPLATES` build.** `src/utils/powers/templates/actives.ts` wraps the registry in a `buildActiveTemplates()` closure so template factories and progression tables declared below the registry no longer trip TDZ errors on module load.
+
+### Tests
+
+- `tests/power-catalog.test.ts` gets three new cases covering the seven weapon-attack templates, the Ranged Images illusion, and the binary-Stunned shape on the Stunning Strike rows. Full suite: 391 / 391 green.
+
 ## [0.5.0] - 2026-04-25
 
 ### Breaking

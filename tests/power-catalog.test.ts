@@ -67,4 +67,42 @@ describe('Power Catalog (Templates refactor)', () => {
         const hits = filterCatalog({ search: needle });
         expect(hits.length).toBeGreaterThan(0);
     });
+
+    it('exposes the pure weapon-attack templates (no Special slot)', () => {
+        const entries = getAllCatalogEntries();
+        const weaponIds = [
+            'active-melee-weapon-single',
+            'active-ranged-weapon-single',
+            'active-melee-weapon-aoe',
+            'active-ranged-weapon-aoe',
+            'active-melee-weapon-split',
+            'active-ranged-weapon-split',
+            'active-ranged-weapon-autofire',
+        ];
+        for (const id of weaponIds) {
+            const hit = entries.find((e) => e.templateId === id);
+            expect(hit, `missing weapon template: ${id}`).toBeDefined();
+            expect(hit!.subfamily).toBe('weapon-attack');
+            expect(hit!.tier).toBeUndefined();
+            expect(hit!.chosenSpecial).toBeUndefined();
+        }
+    });
+
+    it('exposes the Ranged Images illusion template', () => {
+        const entries = getAllCatalogEntries();
+        const hit = entries.find((e) => e.templateId === 'active-ranged-illusion-image');
+        expect(hit).toBeDefined();
+        expect(hit!.subfamily).toBe('illusion');
+        expect(hit!.chosenSpecial).toBeUndefined();
+    });
+
+    it('Stunning Strike uses fixed (rank-less) Stunned on unlocked levels', () => {
+        const entries = getAllCatalogEntries();
+        const melee = entries.find((e) => e.templateId === 'active-melee-damage-stunned');
+        expect(melee).toBeDefined();
+        const row4 = (melee!.raw as any).levels['4'];
+        expect(row4.specials).toEqual([{ key: 'stunned' }]);
+        const row1 = (melee!.raw as any).levels['1'];
+        expect(row1.specials).toEqual([]);
+    });
 });
