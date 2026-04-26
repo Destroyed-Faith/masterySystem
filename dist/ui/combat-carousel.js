@@ -182,6 +182,7 @@ export class CombatCarouselApp extends BaseCarousel {
                             name: effect.name,
                             tooltip: tooltipLines.join('\n'),
                             kind: 'activeBuff',
+                            cssClass: 'status-icon active-buff-icon ms-active-buff-icon',
                         });
                         if (flags?.powerId)
                             shownPowerIds.add(String(flags.powerId));
@@ -229,6 +230,7 @@ export class CombatCarouselApp extends BaseCarousel {
                         name,
                         tooltip: tooltipLines.join('\n'),
                         kind: 'passive',
+                        cssClass: 'status-icon passive-slot-icon ms-passive-slot-icon',
                     });
                     shownPowerIds.add(pid);
                 }

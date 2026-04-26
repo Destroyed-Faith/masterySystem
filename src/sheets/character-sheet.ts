@@ -33,6 +33,13 @@ import type { PowerCategory } from '../types/item.js';
 import { findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid';
 import { buildPostCreationSnapshot } from '../utils/xp-post-creation.js';
 import { resetCharacterForRecreation } from '../utils/reset-character.js';
+import {
+  getPassiveSlots,
+  getAvailablePassives,
+  slotPassive,
+  activatePassive,
+  unslotPassive
+} from '../powers/passives.js';
 import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items';
 import { getNormalizedEquipSlots } from '../utils/equip-slots.js';
 import { XP_COSTS } from '../utils/constants';
@@ -870,6 +877,20 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       context.statusEffects = [];
     }
     
+    // Passive Slot Manager — always visible on the sheet (Powers tab) so players
+    // can slot & activate passives outside of combat. The Combat-Start dialog
+    // in `src/sheets/passive-selection-dialog.ts` keeps working in parallel.
+    // Data shape: { slots: [{index, hasPassive, isActive, passiveName, passiveId, summary}],
+    //               availablePassives: [{id, name, category, summary}],
+    //               activeCount, maxSlots, canActivateMore }
+    try {
+      const { buildPassiveSlotView } = await import('../utils/passive-slot-view.js');
+      context.passiveSlotView = buildPassiveSlotView(this.actor);
+    } catch (err) {
+      console.error('Mastery System | Failed to build passive slot view', err);
+      context.passiveSlotView = { slots: [], availablePassives: [], activeCount: 0, maxSlots: 0, canActivateMore: false };
+    }
+
     // Ensure context is always an object
     if (!context || typeof context !== 'object') {
       console.error('Mastery System | getData returned invalid context', context);
@@ -1502,6 +1523,52 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         this.#onResetCharacter(e);
       });
     }
+
+    // Passive Slot Manager — slot / activate / unslot outside of combat.
+    html.find('.passive-slot-select').off('change.passive-slot').on('change.passive-slot', async (e: JQuery.ChangeEvent) => {
+      const el = e.currentTarget as HTMLSelectElement;
+      const slotIndex = Number(el.dataset.slotIndex);
+      const pid = String(el.value || '');
+      if (!Number.isFinite(slotIndex)) return;
+      try {
+        if (pid === '') {
+          await unslotPassive(this.actor as any, slotIndex);
+        } else {
+          await slotPassive(this.actor as any, slotIndex, pid);
+        }
+        this.render(false);
+      } catch (err) {
+        console.error('Mastery System | passive slot change failed', err);
+        (ui as any).notifications?.error('Konnte Passive-Slot nicht aktualisieren.');
+      }
+    });
+
+    html.find('.passive-slot-toggle').off('change.passive-slot').on('change.passive-slot', async (e: JQuery.ChangeEvent) => {
+      const el = e.currentTarget as HTMLInputElement;
+      const slotIndex = Number(el.dataset.slotIndex);
+      if (!Number.isFinite(slotIndex)) return;
+      try {
+        await activatePassive(this.actor as any, slotIndex);
+        this.render(false);
+      } catch (err) {
+        console.error('Mastery System | passive slot toggle failed', err);
+        (ui as any).notifications?.error('Konnte Passive nicht (de)aktivieren.');
+      }
+    });
+
+    html.find('.passive-slot-clear').off('click.passive-slot').on('click.passive-slot', async (e: JQuery.ClickEvent) => {
+      e.preventDefault();
+      const el = e.currentTarget as HTMLButtonElement;
+      const slotIndex = Number(el.dataset.slotIndex);
+      if (!Number.isFinite(slotIndex)) return;
+      try {
+        await unslotPassive(this.actor as any, slotIndex);
+        this.render(false);
+      } catch (err) {
+        console.error('Mastery System | passive slot clear failed', err);
+        (ui as any).notifications?.error('Konnte Passive-Slot nicht leeren.');
+      }
+    });
     
     // Check if creation is incomplete - don't lock, just disable non-creation fields
     const creationComplete = (this.actor as any).system?.creation?.complete !== false;

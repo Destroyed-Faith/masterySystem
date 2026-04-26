@@ -149,7 +149,7 @@ export class CombatCarouselApp extends BaseCarousel {
       // Include active buffs with tooltip information + slotted passives with
       // effect summaries for at-a-glance visibility of what's currently
       // modifying this actor's combat stats.
-      const statusIcons: Array<{icon: string, name?: string, tooltip?: string, kind?: 'activeBuff' | 'passive'}> = [];
+      const statusIcons: Array<{icon: string, name?: string, tooltip?: string, kind?: 'activeBuff' | 'passive', cssClass?: string}> = [];
       const shownPowerIds = new Set<string>();
 
       if (actor.effects) {
@@ -202,6 +202,7 @@ export class CombatCarouselApp extends BaseCarousel {
               name: effect.name,
               tooltip: tooltipLines.join('\n'),
               kind: 'activeBuff',
+              cssClass: 'status-icon active-buff-icon ms-active-buff-icon',
             });
             if (flags?.powerId) shownPowerIds.add(String(flags.powerId));
             console.log('Mastery System | [CAROUSEL] Added active buff icon:', effect.name);
@@ -243,6 +244,7 @@ export class CombatCarouselApp extends BaseCarousel {
             name,
             tooltip: tooltipLines.join('\n'),
             kind: 'passive',
+            cssClass: 'status-icon passive-slot-icon ms-passive-slot-icon',
           });
           shownPowerIds.add(pid);
         }

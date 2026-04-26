@@ -73,15 +73,11 @@
             <div class="status-icons">
               {{#each combatant.statusIcons as |statusIcon|}}
                 {{#if (isObject statusIcon)}}
-                  {{#if (eq statusIcon.kind "passive")}}
-                  <img src="{{statusIcon.icon}}" alt="{{statusIcon.name}}" class="status-icon passive-slot-icon" title="{{statusIcon.tooltip}}" />
-                  {{else if (eq statusIcon.kind "activeBuff")}}
-                  <img src="{{statusIcon.icon}}" alt="{{statusIcon.name}}" class="status-icon active-buff-icon" title="{{statusIcon.tooltip}}" />
-                  {{else if statusIcon.tooltip}}
-                  <img src="{{statusIcon.icon}}" alt="{{statusIcon.name}}" class="status-icon active-buff-icon" title="{{statusIcon.tooltip}}" />
-                  {{else}}
-                  <img src="{{statusIcon.icon}}" alt="{{statusIcon.name}}" class="status-icon" title="{{statusIcon.name}}" />
-                  {{/if}}
+                  <img src="{{statusIcon.icon}}"
+                    alt="{{statusIcon.name}}"
+                    class="{{#if statusIcon.cssClass}}{{statusIcon.cssClass}}{{else}}status-icon{{/if}}"
+                    data-icon-kind="{{statusIcon.kind}}"
+                    title="{{#if statusIcon.tooltip}}{{statusIcon.tooltip}}{{else}}{{statusIcon.name}}{{/if}}" />
                 {{else}}
                 <img src="{{statusIcon}}" alt="Status" class="status-icon" />
                 {{/if}}

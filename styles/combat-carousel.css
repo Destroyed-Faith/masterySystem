@@ -332,13 +332,17 @@
   z-index: 10;
 }
 
-.status-icon.active-buff-icon {
-  border: 2px solid rgba(204, 136, 255, 0.7);
-  box-shadow: 0 0 6px rgba(204, 136, 255, 0.5);
+/* Active Buff icons — lila accent. Extra `ms-*` class + !important guards
+   against Foundry / other modules overriding our border/shadow. */
+.status-icon.active-buff-icon,
+.ms-active-buff-icon {
+  border: 2px solid rgba(204, 136, 255, 0.85) !important;
+  box-shadow: 0 0 6px rgba(204, 136, 255, 0.6) !important;
   position: relative;
 }
 
-.status-icon.active-buff-icon::after {
+.status-icon.active-buff-icon::after,
+.ms-active-buff-icon::after {
   content: '';
   position: absolute;
   top: -3px;
@@ -351,20 +355,23 @@
   box-shadow: 0 0 4px rgba(204, 136, 255, 0.8);
 }
 
-.status-icon.active-buff-icon:hover {
-  border-color: rgba(204, 136, 255, 1);
-  box-shadow: 0 0 14px rgba(204, 136, 255, 0.9);
+.status-icon.active-buff-icon:hover,
+.ms-active-buff-icon:hover {
+  border-color: rgba(204, 136, 255, 1) !important;
+  box-shadow: 0 0 14px rgba(204, 136, 255, 0.9) !important;
   transform: scale(1.4);
 }
 
 /* Slotted passive icons — blue accent to distinguish from lila Active Buffs. */
-.status-icon.passive-slot-icon {
-  border: 2px solid rgba(112, 200, 255, 0.7);
-  box-shadow: 0 0 6px rgba(112, 200, 255, 0.5);
+.status-icon.passive-slot-icon,
+.ms-passive-slot-icon {
+  border: 2px solid rgba(112, 200, 255, 0.85) !important;
+  box-shadow: 0 0 6px rgba(112, 200, 255, 0.6) !important;
   position: relative;
 }
 
-.status-icon.passive-slot-icon::after {
+.status-icon.passive-slot-icon::after,
+.ms-passive-slot-icon::after {
   content: '';
   position: absolute;
   top: -3px;
@@ -377,10 +384,23 @@
   box-shadow: 0 0 4px rgba(112, 200, 255, 0.8);
 }
 
-.status-icon.passive-slot-icon:hover {
-  border-color: rgba(112, 200, 255, 1);
-  box-shadow: 0 0 14px rgba(112, 200, 255, 0.9);
+.status-icon.passive-slot-icon:hover,
+.ms-passive-slot-icon:hover {
+  border-color: rgba(112, 200, 255, 1) !important;
+  box-shadow: 0 0 14px rgba(112, 200, 255, 0.9) !important;
   transform: scale(1.4);
+}
+
+/* Fallback for images that only get the ms-* class (in case base
+   .status-icon was stripped): enforce size/radius so the decoration
+   still renders correctly. */
+.ms-active-buff-icon,
+.ms-passive-slot-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 3px;
+  cursor: help;
+  transition: all 0.2s;
 }
 
 /* Portrait Controls (shown on hover) */

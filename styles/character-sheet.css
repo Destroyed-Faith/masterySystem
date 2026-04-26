@@ -9034,4 +9034,198 @@
   color: #d64545;
 }
 
+/* =====================================================================
+   Passive Slot Manager (Powers tab)
+   Player-facing slotting UI. Allows slotting + activating passives
+   outside of combat so their Power Mechanics are aggregated into the
+   character's combat stats (Armor/Evade/DR/Initiative).
+   ===================================================================== */
 
+.mastery-system.sheet.actor.character .passive-slot-manager {
+  margin: 12px 0 16px 0;
+  padding: 12px 14px;
+  background: var(--df-bg-panel, rgba(30, 40, 50, 0.6));
+  border: 1px solid var(--df-border, rgba(255, 255, 255, 0.08));
+  border-radius: 8px;
+  color: var(--df-text-primary, #d0d0d0);
+}
+
+.mastery-system.sheet.actor.character .passive-slot-manager-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.mastery-system.sheet.actor.character .passive-slot-manager-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--df-text-primary, #d0d0d0);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mastery-system.sheet.actor.character .passive-slot-manager-header h3 i {
+  color: #70c8ff;
+}
+
+.mastery-system.sheet.actor.character .passive-slot-manager-status {
+  font-size: 0.85rem;
+  color: var(--df-text-secondary, #a0a0a0);
+}
+
+.mastery-system.sheet.actor.character .passive-slot-manager-status strong {
+  color: var(--df-text-primary, #d0d0d0);
+  font-variant-numeric: tabular-nums;
+}
+
+.mastery-system.sheet.actor.character .passive-slot-manager-hint {
+  opacity: 0.7;
+  font-size: 0.75rem;
+  margin-left: 4px;
+}
+
+.mastery-system.sheet.actor.character .passive-slot-manager-help {
+  margin: 0 0 10px 0;
+  padding: 6px 8px;
+  font-size: 0.8rem;
+  color: var(--df-text-secondary, #a0a0a0);
+  background: var(--df-bg-subtle, rgba(255, 255, 255, 0.02));
+  border-left: 2px solid #70c8ff;
+  border-radius: 2px;
+}
+
+.mastery-system.sheet.actor.character .passive-slot-manager-help strong {
+  color: var(--df-text-primary, #d0d0d0);
+}
+
+.mastery-system.sheet.actor.character .passive-slot-manager-empty {
+  margin: 8px 0 0 0;
+  color: var(--df-text-secondary, #a0a0a0);
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+.mastery-system.sheet.actor.character .passive-slot-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mastery-system.sheet.actor.character .passive-slot-row {
+  display: grid;
+  grid-template-columns: 60px 1fr auto auto 28px;
+  gap: 10px;
+  align-items: center;
+  padding: 6px 8px;
+  border: 1px solid var(--df-border, rgba(255, 255, 255, 0.08));
+  border-radius: 4px;
+  background: var(--df-bg-subtle, rgba(255, 255, 255, 0.02));
+}
+
+.mastery-system.sheet.actor.character .passive-slot-row.is-empty {
+  border-style: dashed;
+  opacity: 0.75;
+}
+
+.mastery-system.sheet.actor.character .passive-slot-row.is-active {
+  border-color: rgba(112, 200, 255, 0.55);
+  background: rgba(112, 200, 255, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(112, 200, 255, 0.18);
+}
+
+.mastery-system.sheet.actor.character .passive-slot-label {
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--df-text-secondary, #a0a0a0);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.mastery-system.sheet.actor.character .passive-slot-select-wrap {
+  min-width: 0;
+}
+
+.mastery-system.sheet.actor.character .passive-slot-select {
+  width: 100%;
+  max-width: 100%;
+  padding: 4px 6px;
+  background: var(--df-bg-input, rgba(0, 0, 0, 0.4));
+  border: 1px solid var(--df-border, rgba(255, 255, 255, 0.12));
+  color: var(--df-text-primary, #d0d0d0);
+  border-radius: 3px;
+  font-size: 0.85rem;
+}
+
+.mastery-system.sheet.actor.character .passive-slot-activate {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--df-text-secondary, #a0a0a0);
+  white-space: nowrap;
+}
+
+.mastery-system.sheet.actor.character .passive-slot-activate input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #70c8ff;
+  cursor: pointer;
+}
+
+.mastery-system.sheet.actor.character .passive-slot-activate input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.mastery-system.sheet.actor.character .passive-slot-row.is-active .passive-slot-activate span {
+  color: #70c8ff;
+  font-weight: 600;
+}
+
+.mastery-system.sheet.actor.character .passive-slot-summary {
+  font-size: 0.75rem;
+  color: var(--df-text-secondary, #a0a0a0);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 260px;
+}
+
+.mastery-system.sheet.actor.character .passive-slot-summary-empty {
+  opacity: 0.4;
+}
+
+.mastery-system.sheet.actor.character .passive-slot-row.is-active .passive-slot-summary {
+  color: #a5dbff;
+}
+
+.mastery-system.sheet.actor.character .passive-slot-clear {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--df-border, rgba(255, 255, 255, 0.12));
+  border-radius: 3px;
+  color: var(--df-text-secondary, #a0a0a0);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mastery-system.sheet.actor.character .passive-slot-clear:hover:not(:disabled) {
+  border-color: rgba(220, 80, 80, 0.6);
+  color: #ff8080;
+}
+
+.mastery-system.sheet.actor.character .passive-slot-clear:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}

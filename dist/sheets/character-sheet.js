@@ -13,6 +13,7 @@ import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_POWER_REQUIREMENTS } from '..
 import { findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid.js';
 import { buildPostCreationSnapshot } from '../utils/xp-post-creation.js';
 import { resetCharacterForRecreation } from '../utils/reset-character.js';
+import { slotPassive, activatePassive, unslotPassive } from '../powers/passives.js';
 import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items.js';
 import { getNormalizedEquipSlots } from '../utils/equip-slots.js';
 import { XP_COSTS } from '../utils/constants.js';
@@ -782,6 +783,20 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             console.error('Mastery System | [CHARACTER SHEET] Failed to load status effects', error);
             context.statusEffects = [];
         }
+        // Passive Slot Manager — always visible on the sheet (Powers tab) so players
+        // can slot & activate passives outside of combat. The Combat-Start dialog
+        // in `src/sheets/passive-selection-dialog.ts` keeps working in parallel.
+        // Data shape: { slots: [{index, hasPassive, isActive, passiveName, passiveId, summary}],
+        //               availablePassives: [{id, name, category, summary}],
+        //               activeCount, maxSlots, canActivateMore }
+        try {
+            const { buildPassiveSlotView } = await import('../utils/passive-slot-view.js');
+            context.passiveSlotView = buildPassiveSlotView(this.actor);
+        }
+        catch (err) {
+            console.error('Mastery System | Failed to build passive slot view', err);
+            context.passiveSlotView = { slots: [], availablePassives: [], activeCount: 0, maxSlots: 0, canActivateMore: false };
+        }
         // Ensure context is always an object
         if (!context || typeof context !== 'object') {
             console.error('Mastery System | getData returned invalid context', context);
@@ -1364,6 +1379,56 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 this.#onResetCharacter(e);
             });
         }
+        // Passive Slot Manager — slot / activate / unslot outside of combat.
+        html.find('.passive-slot-select').off('change.passive-slot').on('change.passive-slot', async (e) => {
+            const el = e.currentTarget;
+            const slotIndex = Number(el.dataset.slotIndex);
+            const pid = String(el.value || '');
+            if (!Number.isFinite(slotIndex))
+                return;
+            try {
+                if (pid === '') {
+                    await unslotPassive(this.actor, slotIndex);
+                }
+                else {
+                    await slotPassive(this.actor, slotIndex, pid);
+                }
+                this.render(false);
+            }
+            catch (err) {
+                console.error('Mastery System | passive slot change failed', err);
+                ui.notifications?.error('Konnte Passive-Slot nicht aktualisieren.');
+            }
+        });
+        html.find('.passive-slot-toggle').off('change.passive-slot').on('change.passive-slot', async (e) => {
+            const el = e.currentTarget;
+            const slotIndex = Number(el.dataset.slotIndex);
+            if (!Number.isFinite(slotIndex))
+                return;
+            try {
+                await activatePassive(this.actor, slotIndex);
+                this.render(false);
+            }
+            catch (err) {
+                console.error('Mastery System | passive slot toggle failed', err);
+                ui.notifications?.error('Konnte Passive nicht (de)aktivieren.');
+            }
+        });
+        html.find('.passive-slot-clear').off('click.passive-slot').on('click.passive-slot', async (e) => {
+            e.preventDefault();
+            const el = e.currentTarget;
+            const slotIndex = Number(el.dataset.slotIndex);
+            if (!Number.isFinite(slotIndex))
+                return;
+            try {
+                await unslotPassive(this.actor, slotIndex);
+                this.render(false);
+            }
+            catch (err) {
+                console.error('Mastery System | passive slot clear failed', err);
+                ui.notifications?.error('Konnte Passive-Slot nicht leeren.');
+            }
+        });
         // Check if creation is incomplete - don't lock, just disable non-creation fields
         const creationComplete = this.actor.system?.creation?.complete !== false;
         if (!creationComplete) {

@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.7] - 2026-04-26
+
+### Added
+
+- **Passive Slot Manager on the Character Sheet (Powers tab).** Previously passives could only be slotted through the Combat-Start `PassiveSelectionDialog`, which meant that outside of a running combat a character's passives did **not** contribute to their combat stats (Armor / Evade / DR / Initiative), because `prepareDerivedData` only aggregates slot-activated passives (`slot.active === true`). The new sheet-side manager fixes this UX gap without changing the underlying data contract:
+  - For every Passive-Slot available at the character's Mastery Rank a row is rendered: a **dropdown** listing all passive powers the actor owns, an **Activate toggle**, a compact **effect summary** built from the same `summarizePowerMechanics` helper the Combat Carousel uses (e.g. `+4 Armor · +20% DR`, `Regen 10 HP/turn`, `+2d8 Attack vs Hexed`), and a **Clear** button. Passives already slotted in another row are shown in the dropdown but marked `disabled` so the same passive cannot be double-slotted.
+  - Activating a slot writes `system.passives.slotN.active = true`, which is the **exact same field** the existing `buildActorMechanicsBreakdown` aggregator reads in `src/documents/actor.ts`. As soon as a slot is toggled active the character-sheet stats re-render with the power's armor / evade / DR / initiative / regen / temp-HP / roll bonuses factored in. No separate code path.
+  - Header shows the live **active-count / max-slots** with a `(Mastery Rank limit)` hint; rows turn into a blue-accented "is-active" state when the toggle is on so it is obvious at a glance what is currently live.
+  - The Combat-Start `PassiveSelectionDialog` continues to work unchanged and stays as the locked-in selection point once a combat encounter starts.
+- **Robust Carousel icon rendering.** The combat-carousel template now uses a precomputed `cssClass` field from the data layer (`src/ui/combat-carousel.ts`) instead of re-branching on `statusIcon.kind` inside Handlebars, and the icon classes (`.active-buff-icon` lila, `.passive-slot-icon` blue) are now paired with dedicated `.ms-active-buff-icon` / `.ms-passive-slot-icon` classes guarded by `!important` so the colored border + dot accent survive Foundry-theme overrides and third-party modules that restyle `.status-icon`. Each `<img>` also carries a `data-icon-kind` attribute to aid debugging.
+
+### Fixed
+
+- **Passives were not factored into character-sheet combat stats outside of combat.** Root cause: the aggregator (`collectMechanicsContributions` → `buildActorMechanicsBreakdown`) only reads slots with `active === true`, and the only UI that could set that flag was the Combat-Start dialog. Characters outside an encounter therefore silently lost every passive-derived bonus. The sheet-side Passive Slot Manager (above) closes this gap: activating a slot on the sheet immediately writes `slot.active = true` and the next `prepareDerivedData` pass re-aggregates the mechanics onto `system.combat.armorTotal / evadeTotal / damageReductionPct / initiativeEquipmentTotal` with explicit "Power Mechanics" breakdown rows.
+- **Carousel status icons had no visible colored border in some themes.** The previous selectors (`.status-icon.active-buff-icon`, `.status-icon.passive-slot-icon`) could be outweighed by Foundry-level `.status-icon` rules in certain themes, so the border and dot accent effectively disappeared. The new `ms-*` companion classes plus `!important` on `border` and `box-shadow` make the accent robust against theme overrides while keeping the existing selectors for backward-compat.
+
+### Internal
+
+- New file `src/utils/passive-slot-view.ts` — view-model builder `buildPassiveSlotView(actor)` that wraps `getPassiveSlots` + `getAvailablePassives` and annotates each row with a `summarizePowerMechanics` summary and a `slottedInSlot` cross-reference so the template can disable already-slotted passives in other rows' dropdowns without duplicating the lookup.
+- New stylesheet block `.passive-slot-manager` (+ `.passive-slot-row`, `.passive-slot-select`, `.passive-slot-activate`, `.passive-slot-summary`, `.passive-slot-clear`) using the existing `--df-*` theme variables so the manager inherits the current sheet theme without hard-coded colors.
+- Character-sheet `activateListeners` now binds three new handlers: `change` on `.passive-slot-select` (slot or unslot depending on the chosen value), `change` on `.passive-slot-toggle` (activate/deactivate, routed through the existing `activatePassive` guard that enforces the Mastery-Rank cap), and `click` on `.passive-slot-clear` (unslot). All three re-render the sheet on success and surface `ui.notifications.error` on failure.
+
 ## [0.5.6] - 2026-04-26
 
 ### Added
