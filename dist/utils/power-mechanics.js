@@ -16,6 +16,7 @@
  */
 import { ALL_POWER_TEMPLATES } from './powers/index.js';
 import { countAdjacentHostileTokenCount, countAdjacentAllyTokenCount, getPrimaryTokenForActor, } from './mechanics-adjacency.js';
+import { logDrDebug } from './dr-debug.js';
 /** Empty breakdown skeleton (all arrays/objects present, all totals zero). */
 export function emptyBreakdown() {
     return {
@@ -263,10 +264,16 @@ function isSanctionedDR(contribution) {
         return true;
     // Canonical catalog buff is "Active Buff: Damage Reduction" — match template name.
     if (contribution.sourceKind === 'buff') {
+        const tid = String(contribution.buffTemplateId || '').trim();
+        if (tid === 'ab-damage-reduction')
+            return true;
         if (stripped === 'damage reduction' || stripped.endsWith('damage reduction'))
             return true;
         // Localized / renamed copies of the catalog buff (parentheticals, em dash, etc.)
         if (/\bdamage\s+reduction\b/i.test(stripped))
+            return true;
+        // German catalog / sheet naming
+        if (/\b(schadens\s*reduktion|schadensreduktion)\b/i.test(stripped.replace(/\s+/g, ' ')))
             return true;
     }
     console.warn(`Mastery System | DR rule violation: power "${contribution.powerName}" ` +
@@ -348,7 +355,7 @@ export function collectMechanicsContributions(actor) {
             ? Array.from(effects)
             : Array.isArray(effects) ? effects : [];
         for (const effect of iter) {
-            const flags = effect?.flags?.['mastery-system'];
+            const flags = readMasterySystemActiveEffectFlags(effect);
             if (!flags || flags.activeBuff !== true)
                 continue;
             // Prefer mechanics stored directly on the effect flag (survives power deletion).
@@ -360,20 +367,112 @@ export function collectMechanicsContributions(actor) {
                 const powerItem = findPowerItemOnActor(actor, flags.powerId);
                 mech = resolvePowerMechanics(powerItem);
             }
-            if (!mech)
+            if (!mech) {
+                logDrDebug('buff-skip', {
+                    reason: 'no-mechanics',
+                    effectId: effect?.id,
+                    effectName: effect?.name,
+                    powerId: flags.powerId,
+                    hasMechanicsOnFlags: !!(flags.mechanics && typeof flags.mechanics === 'object'),
+                });
                 continue;
-            if (mech.applyWhen !== 'activeBuff-active')
+            }
+            const aw = mech.applyWhen;
+            if (aw && String(aw) !== 'activeBuff-active') {
+                logDrDebug('buff-skip', {
+                    reason: 'applyWhen',
+                    effectId: effect?.id,
+                    effectName: effect?.name,
+                    applyWhen: aw,
+                    powerName: flags.powerName,
+                });
                 continue;
+            }
             const pname = flags.powerName ?? effect.name ?? 'Active Buff';
+            const buffTemplateId = flags.powerTemplateId ||
+                (() => {
+                    const pid = flags.powerId;
+                    if (!pid || !actor?.items?.get)
+                        return null;
+                    try {
+                        const it = actor.items.get(pid) ?? null;
+                        const tid = it?.system?.templateId;
+                        return tid ? String(tid) : null;
+                    }
+                    catch {
+                        return null;
+                    }
+                })();
             out.push({
                 source: `${pname} (buff)`,
                 powerName: pname,
                 sourceKind: 'buff',
                 mechanics: mech,
+                buffTemplateId,
+            });
+            logDrDebug('buff-contribution', {
+                effectId: effect?.id,
+                powerName: pname,
+                buffTemplateId,
+                damageReductionPct: mech.damageReductionPct,
+                applyWhen: mech.applyWhen ?? null,
             });
         }
     }
     return out;
+}
+/**
+ * Read `flags.mastery-system` from an ActiveEffect — prefers per-key `getFlag`
+ * (Foundry v13) so nested buff payloads stay visible after persistence.
+ */
+function readMasterySystemActiveEffectFlags(effect) {
+    if (!effect)
+        return null;
+    const nestedRaw = effect?.flags?.['mastery-system'];
+    const nestedObj = nestedRaw && typeof nestedRaw === 'object' ? { ...nestedRaw } : {};
+    const pick = (key) => {
+        try {
+            if (typeof effect.getFlag === 'function') {
+                const v = effect.getFlag('mastery-system', key);
+                if (v !== undefined)
+                    return v;
+            }
+        }
+        catch {
+            /* use nested */
+        }
+        return nestedObj[key];
+    };
+    try {
+        if (typeof effect.getFlag === 'function') {
+            const activeBuff = effect.getFlag('mastery-system', 'activeBuff');
+            if (activeBuff === true) {
+                const merged = {
+                    ...nestedObj,
+                    activeBuff: true,
+                    powerId: pick('powerId'),
+                    powerName: pick('powerName'),
+                    powerTemplateId: pick('powerTemplateId'),
+                    mechanics: pick('mechanics'),
+                    masteryRank: pick('masteryRank'),
+                    activatedRound: pick('activatedRound'),
+                    isUtility: pick('isUtility'),
+                };
+                logDrDebug('active-effect-flags', {
+                    effectId: effect?.id,
+                    effectName: effect?.name,
+                    hadNestedMechanics: !!nestedObj.mechanics,
+                    mergedHasMechanics: !!merged.mechanics,
+                    powerTemplateId: merged.powerTemplateId,
+                });
+                return merged;
+            }
+        }
+    }
+    catch {
+        /* fall through */
+    }
+    return Object.keys(nestedObj).length ? nestedObj : null;
 }
 /** Push a numeric contribution into a breakdown array. */
 function pushNum(target, source, value) {
@@ -404,9 +503,22 @@ export function aggregateMechanics(contributions, actor) {
         pushNum(bd.movementBonus, source, mechanics.movementBonus);
         pushNum(bd.regen, source, mechanics.regen);
         // Damage Reduction — closed subsystem, whitelisted by power name.
-        if (typeof mechanics.damageReductionPct === 'number' && mechanics.damageReductionPct > 0) {
-            if (isSanctionedDR(contribution)) {
-                const row = { source, value: mechanics.damageReductionPct };
+        const drPctRaw = mechanics.damageReductionPct;
+        const drPctNum = typeof drPctRaw === 'number' && Number.isFinite(drPctRaw)
+            ? drPctRaw
+            : Number(drPctRaw);
+        if (Number.isFinite(drPctNum) && drPctNum > 0) {
+            const sanctioned = isSanctionedDR(contribution);
+            logDrDebug('aggregate-dr-row', {
+                source,
+                sourceKind,
+                powerName: contribution.powerName,
+                buffTemplateId: contribution.buffTemplateId ?? null,
+                drPct: Math.floor(drPctNum),
+                sanctioned,
+            });
+            if (sanctioned) {
+                const row = { source, value: Math.floor(drPctNum) };
                 if (sourceKind === 'passive')
                     bd.damageReductionPct.passive.push(row);
                 else if (sourceKind === 'buff')
@@ -463,6 +575,14 @@ export function aggregateMechanics(contributions, actor) {
     // contribute to the total when no passive DR line exists — sheet/carousel/mitigation.
     const raw = passiveDR + buffDR;
     bd.totals.damageReductionPct = Math.max(0, Math.min(100, raw));
+    logDrDebug('aggregate-dr-totals', {
+        passiveDR,
+        buffDR,
+        passiveRows: bd.damageReductionPct.passive,
+        buffRows: bd.damageReductionPct.buff,
+        reactionRows: bd.damageReductionPct.reaction,
+        totalPct: bd.totals.damageReductionPct,
+    });
     return bd;
 }
 /** High-level convenience: contributions + aggregation in one call. */

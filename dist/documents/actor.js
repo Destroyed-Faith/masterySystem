@@ -4,6 +4,7 @@
 import { calculateStones, calculateTotalStones, updateAttributeStones, initializeHealthBars, initializeStressBars, calculateHealthBarMax, calculateStressBarMax, calculateMightDamageBonus, calculateAgilityEvadeBonus, calculateAgilityRangeBonus, calculateIntellectSaveTNBonus, calculateResolveStressArmor, calculateInfluenceSkillBonus, calculateWitsInitiativeBonus, calculateArmorBreaker, calculateBaseEvade } from '../utils/calculations.js';
 import { getInitiativeEquipmentRows, getEquippedEquipmentInitiativeModifier } from '../utils/equipment-modifiers.js';
 import { buildActorMechanicsBreakdown } from '../utils/power-mechanics.js';
+import { logDrDebug } from '../utils/dr-debug.js';
 import { normalizeManualAdjustments } from '../utils/manual-adjustments.js';
 import { getRoundState } from '../combat/action-economy.js';
 export class MasteryActor extends Actor {
@@ -434,6 +435,12 @@ export class MasteryActor extends Actor {
             drRows.push({ label: r.source, detail: 'DR Reaction (per-hit)', value: r.value, display: fmtPct(r.value) });
         }
         system.combat.damageReductionRows = drRows;
+        logDrDebug('actor-prepareDerived', {
+            actorId: this.id,
+            actorName: this.name,
+            damageReductionPct: system.combat.damageReductionPct,
+            drRowLabels: drRows.map((r) => `${r.label}=${r.value}%`),
+        });
         if (armorMechBonus !== 0) {
             for (const entry of mechBreakdown.armor) {
                 system.combat.armorBreakdownRows.push({

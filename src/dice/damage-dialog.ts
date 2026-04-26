@@ -13,6 +13,7 @@ import {
 } from '../utils/npc-attack-model.js';
 import { previewTempHPConsumption } from '../combat/passive-triggers.js';
 import { applyDefensiveMitigation, countNaturalEights } from '../combat/damage-mitigation.js';
+import { logDrDebug } from '../utils/dr-debug.js';
 
 export interface DamageDialogData {
   attacker: Actor;
@@ -1366,6 +1367,14 @@ async function applyDamageToTarget(
     }
 
     // Step 1: Flat Armor + percentage DR + 8s-min floor.
+    logDrDebug('apply-damage-target', {
+      targetId: (target as any).id,
+      targetName: (target as any).name,
+      damageRollInput: damage,
+      armorTotalRead: Number(system.combat?.armorTotal ?? 0),
+      damageReductionPctRead: Number(system.combat?.damageReductionPct ?? 0),
+      count8s,
+    });
     const mitigation = applyDefensiveMitigation({
       rawDamage: damage,
       count8s,

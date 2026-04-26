@@ -14,6 +14,7 @@
  * breakdown for chat logging. The caller (`applyDamageToTarget` in
  * `damage-dialog.ts`) owns the single atomic `actor.update`.
  */
+import { logDrDebug } from '../utils/dr-debug.js';
 /**
  * Pure helper — no actor mutations. See module docstring for pipeline order.
  */
@@ -26,6 +27,13 @@ export function applyDefensiveMitigation(input) {
     // Reaction DR stacks additively on top of the continuous DR total for this
     // single hit only (the Reaction itself enforces 1/round via its own slot).
     const drTotal = Math.max(0, Math.min(100, drBase + drReact));
+    logDrDebug('mitigation-apply', {
+        raw,
+        armor,
+        drBasePct: drBase,
+        reactionDrPct: drReact,
+        drTotalPct: drTotal,
+    });
     // Step 1 — flat Armor.
     const afterArmor = Math.max(0, raw - armor);
     // Step 2 — DR%. Round toward the attacker (ceil) so fractional hits still
@@ -34,6 +42,12 @@ export function applyDefensiveMitigation(input) {
     // the reduction is equivalent.
     const reduction = Math.floor((afterArmor * drTotal) / 100);
     const afterDr = Math.max(0, afterArmor - reduction);
+    logDrDebug('mitigation-after-dr', {
+        afterArmor,
+        reductionFromDr: reduction,
+        afterDr,
+        min8sRuleWillApply: afterDr <= 0 && count8s > 0,
+    });
     // Step 3 — 8s-minimum rule.
     let mitigated = afterDr;
     let min8sUsed = false;

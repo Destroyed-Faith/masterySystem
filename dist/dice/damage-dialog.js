@@ -7,6 +7,7 @@ import { resolveEquippedWeaponForAttackType } from '../utils/equipment-modifiers
 import { formatNpcSpecialLabel, getNpcAttackByIndex, npcDamageDiceFormula, npcSpecialEffectString } from '../utils/npc-attack-model.js';
 import { previewTempHPConsumption } from '../combat/passive-triggers.js';
 import { applyDefensiveMitigation, countNaturalEights } from '../combat/damage-mitigation.js';
+import { logDrDebug } from '../utils/dr-debug.js';
 /**
  * Show damage dialog after successful attack
  */
@@ -1152,6 +1153,14 @@ async function applyDamageToTarget(target, damage, attacker, count8s = 0) {
             return empty;
         }
         // Step 1: Flat Armor + percentage DR + 8s-min floor.
+        logDrDebug('apply-damage-target', {
+            targetId: target.id,
+            targetName: target.name,
+            damageRollInput: damage,
+            armorTotalRead: Number(system.combat?.armorTotal ?? 0),
+            damageReductionPctRead: Number(system.combat?.damageReductionPct ?? 0),
+            count8s,
+        });
         const mitigation = applyDefensiveMitigation({
             rawDamage: damage,
             count8s,

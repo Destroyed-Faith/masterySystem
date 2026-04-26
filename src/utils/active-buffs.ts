@@ -233,6 +233,8 @@ export async function activateActiveBuff(actor: Actor, power: any): Promise<bool
         activeBuff: true,
         powerId: power.id,
         powerName: power.name,
+        /** Closed-subsystem DR whitelist (see `power-mechanics.ts` / `isSanctionedDR`). */
+        powerTemplateId: powerSys?.templateId ? String(powerSys.templateId) : null,
         masteryRank: masteryRank,
         activatedRound: currentRound,
         isUtility: isUtility(power), // Store whether this is a utility

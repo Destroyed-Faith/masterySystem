@@ -439,6 +439,28 @@ describe('collectMechanicsContributions — active buff effects', () => {
     });
     expect(collectMechanicsContributions(actor)).toEqual([]);
   });
+
+  it('DR active buff aggregates via powerTemplateId when name is localized', () => {
+    const actor = makeActor({
+      items: [],
+      effects: [
+        {
+          name: 'Schadensreduktion',
+          flags: {
+            'mastery-system': {
+              activeBuff: true,
+              powerName: 'Schadensreduktion (Aktiv)',
+              powerTemplateId: 'ab-damage-reduction',
+              mechanics: { damageReductionPct: 10, applyWhen: 'activeBuff-active' },
+            },
+          },
+        },
+      ],
+    });
+    const bd = buildActorMechanicsBreakdown(actor);
+    expect(bd.totals.damageReductionPct).toBe(10);
+    expect(bd.damageReductionPct.buff).toHaveLength(1);
+  });
 });
 
 describe('buildActorMechanicsBreakdown — integration', () => {

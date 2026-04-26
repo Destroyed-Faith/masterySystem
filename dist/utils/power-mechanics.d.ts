@@ -52,6 +52,8 @@ interface MechanicsContribution {
     /** Which layer of the stack this contribution belongs to (DR gating axis). */
     sourceKind: 'passive' | 'buff' | 'reaction';
     mechanics: PowerMechanics;
+    /** Active buff: `system.templateId` from the source power (e.g. `ab-damage-reduction`). */
+    buffTemplateId?: string | null;
 }
 /** Same check for Phasing declarations. Exported so the runtime can reuse. */
 export declare function isSanctionedPhasingName(powerName: string, sourceKind: 'passive' | 'buff' | 'reaction'): boolean;

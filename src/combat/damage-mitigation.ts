@@ -15,6 +15,8 @@
  * `damage-dialog.ts`) owns the single atomic `actor.update`.
  */
 
+import { logDrDebug } from '../utils/dr-debug.js';
+
 /**
  * Describes the outcome of flat Armor + DR% mitigation.
  * `mitigatedDamage` is the value the caller forwards to Temp-HP/bars.
@@ -68,6 +70,13 @@ export function applyDefensiveMitigation(input: DefensiveMitigationInput): Defen
   // Reaction DR stacks additively on top of the continuous DR total for this
   // single hit only (the Reaction itself enforces 1/round via its own slot).
   const drTotal = Math.max(0, Math.min(100, drBase + drReact));
+  logDrDebug('mitigation-apply', {
+    raw,
+    armor,
+    drBasePct: drBase,
+    reactionDrPct: drReact,
+    drTotalPct: drTotal,
+  });
 
   // Step 1 — flat Armor.
   const afterArmor = Math.max(0, raw - armor);
@@ -78,6 +87,12 @@ export function applyDefensiveMitigation(input: DefensiveMitigationInput): Defen
   // the reduction is equivalent.
   const reduction = Math.floor((afterArmor * drTotal) / 100);
   const afterDr = Math.max(0, afterArmor - reduction);
+  logDrDebug('mitigation-after-dr', {
+    afterArmor,
+    reductionFromDr: reduction,
+    afterDr,
+    min8sRuleWillApply: afterDr <= 0 && count8s > 0,
+  });
 
   // Step 3 — 8s-minimum rule.
   let mitigated = afterDr;

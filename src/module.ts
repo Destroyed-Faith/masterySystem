@@ -1116,6 +1116,15 @@ function registerSystemSettings() {
     default: false
   });
 
+  (game as any).settings.register('mastery-system', 'debugDamageReduction', {
+    name: 'Debug: Damage Reduction',
+    hint: 'Log [DR-DEBUG] lines to the console (buff flags, aggregation, mitigation) so you can see why DR is 0 or skipped. You can also set globalThis.MSY_DEBUG_DR = true.',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false
+  });
+
   // Mastery Rank - Global default
   (game as any).settings.register('mastery-system', 'defaultMasteryRank', {
     name: 'Default Mastery Rank',
