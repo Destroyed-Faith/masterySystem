@@ -6,6 +6,7 @@
 import { masteryRoll } from '../dice/roll-handler.js';
 import { calculateMaxSkillRank } from '../utils/calculations.js';
 import { getEquippedEquipmentInitiativeModifier } from '../utils/equipment-modifiers.js';
+import { readManualAdjustments } from '../utils/manual-adjustments.js';
 const CR_SKILL_KEY = 'combatReflexes';
 function getMasteryRank(actor) {
     if (!actor || !actor.system)
@@ -48,12 +49,26 @@ export async function rollInitiativeForCombatant(combatant, options = {}) {
     const equipFlavor = equipmentInitiativeModifier !== 0
         ? ` · Equipment ${equipmentInitiativeModifier >= 0 ? '+' : ''}${equipmentInitiativeModifier} (armor/shield/weapon)`
         : '';
+    // Manual Adjustments — character-sheet-authored flat + bonus d8 applied on
+    // top of Mastery-Rank d8. Initiative is not a "typed roll kind" in the
+    // `masteryRoll` pipeline, so we apply the bonus directly here.
+    const manualAdj = actor.type === 'character' ? readManualAdjustments(actor) : null;
+    const manualInitiativeFlat = manualAdj?.combat.initiative ?? 0;
+    const manualInitiativeDice = Math.max(0, manualAdj?.rolls?.any?.dice ?? 0);
+    const initiativeNumDice = Math.max(1, masteryRank + manualInitiativeDice);
+    const manualFlavorParts = [];
+    if (manualInitiativeDice > 0)
+        manualFlavorParts.push(`+${manualInitiativeDice}d8 Manual Bonus`);
+    if (manualInitiativeFlat !== 0) {
+        manualFlavorParts.push(`${manualInitiativeFlat > 0 ? '+' : ''}${manualInitiativeFlat} Manual Bonus (init)`);
+    }
+    const manualFlavor = manualFlavorParts.length ? ` · ${manualFlavorParts.join(' · ')}` : '';
     const rollResult = await masteryRoll({
-        numDice: masteryRank,
-        keepDice: masteryRank,
+        numDice: initiativeNumDice,
+        keepDice: initiativeNumDice,
         skill: 0,
         label: 'Initiative Roll',
-        flavor: `${actor.name}${equipFlavor}`,
+        flavor: `${actor.name}${equipFlavor}${manualFlavor}`,
         actorId: actor.id
     });
     const diceTotal = rollResult.total;
@@ -96,7 +111,7 @@ export async function rollInitiativeForCombatant(combatant, options = {}) {
             });
         }
     }
-    const totalInitiative = diceTotal + combatReflexesSpent + equipmentInitiativeModifier;
+    const totalInitiative = diceTotal + combatReflexesSpent + equipmentInitiativeModifier + manualInitiativeFlat;
     await combatant.update({ initiative: totalInitiative });
     await combatant.setFlag('mastery-system', 'msInitiativeValue', totalInitiative);
     if (isPc) {

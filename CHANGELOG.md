@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.4] - 2026-04-26
+
+### Added
+
+- **Manual Adjustments — player/GM-authored additive bonuses.** A new card at the bottom of the Attributes tab lets you layer static bonuses on top of the calculated stats without having to edit the underlying attributes. All fields default to `0` and are **additive** (positive values add, negative values subtract). The raw value is always visible as an explicit "Manual Bonus" row in each breakdown so the source of the change stays transparent.
+  - **Combat totals:** `Armor Bonus`, `Evade Bonus`, `DR % Bonus` (clamped 0–100 after stacking), `Initiative Bonus`. Each adds a dedicated row to its breakdown panel and folds into `armorTotal` / `evadeTotal` / `damageReductionPct` / the initiative equipment total.
+  - **Roll bonuses:** per-kind `+d8` and `+Flat` inputs for `Any Roll` (applies to all rolls, including attribute rolls and initiative d8), `Attack`, `Skill`, `Save`, and `Damage`. `Any Roll` stacks on top of the per-kind bucket. Wired into `masteryRoll` (attack / skill / save) and the damage-dialog pipeline (damage dice and flat damage both land in the subtotal and are logged as `Manual Bonus (damage)` in the chat roll detail).
+  - **Initiative:** the `Initiative Bonus` is folded into the final `totalInitiative` in `initiative-roll.ts` (so it lands in the Initiative Shop pool, not just the equipment display). The `Any Roll +d8` also applies to the initiative pool.
+  - **Health bar bonus:** `+ Health / bar` adds to every Health bar's max (Healthy / Bruised / Injured / Wounded). Current HP scales proportionally when the bonus changes so the bar-fill ratio is preserved. Negative values are allowed (clamped so each bar max stays ≥ 1).
+  - **Stress bar bonus:** `+ Stress / bar` works the same way for Healthy / Stressed / Not Well / Breaking.
+  - Storage: all inputs persist under `system.manual.*` on the character (see `src/types/actor.d.ts`); `src/utils/manual-adjustments.ts` provides normalization + read helpers with zero-safe defaults.
+
+### Design notes
+
+- All manual bonuses are **additive**, not replacements. This covers the "I want 5 extra HP per bar at level 1" and "+2 flat on every Skill roll" use cases without introducing a separate override/replace mode. Full-replacement semantics for HP/Stress bars are deliberately **not** implemented in this release — say so if you want the next iteration to add a dedicated override path.
+- `DR %` is added before the 0–100 clamp, so a Manual DR bonus cannot push the total above 100 %.
+- Manual adjustments never participate in the closed DR subsystem — they are purely sheet-level and do not grant a Passive base.
+
 ## [0.5.3] - 2026-04-26
 
 ### Fixed

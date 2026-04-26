@@ -138,6 +138,56 @@ export interface DerivedData {
   mechanicsBreakdown?: MechanicsBreakdown;
 }
 
+/**
+ * Player-authored manual adjustments applied on top of the computed stats.
+ *
+ * All fields are **additive** — zero (the default) means "no override". They
+ * are surfaced as explicit "Manual Bonus" rows in the combat breakdowns and as
+ * bonus dice / flat adds in the roll pipeline, so the source of the change is
+ * always visible in the UI.
+ *
+ * Roll bonuses:
+ *  - `rolls.any`    applies to every `masteryRoll` that has a non-generic
+ *                   `rollKind` (attack / skill / save-*).
+ *  - `rolls.attack` / `rolls.skill` / `rolls.save` stack on top of `rolls.any`.
+ *  - `rolls.damage` only affects damage dice (resolved via `damage-dialog`).
+ *
+ * Health / stress:
+ *  - `health.barMaxBonus` is added to **every** health-bar max (Healthy /
+ *    Bruised / Injured / Wounded). Current HP is rescaled to preserve the
+ *    bar-fill ratio.
+ *  - `stress.barMaxBonus` is added to every stress-bar max (Healthy /
+ *    Stressed / Not Well / Breaking).
+ */
+export interface ManualRollBonus {
+  /** Flat additive bonus to the roll's final total. */
+  flat: number;
+  /** Extra d8 (mastery-dice) added to the roll pool. */
+  dice: number;
+}
+
+export interface ManualAdjustments {
+  combat: {
+    armor: number;
+    evade: number;
+    damageReductionPct: number;
+    initiative: number;
+  };
+  rolls: {
+    any: ManualRollBonus;
+    attack: ManualRollBonus;
+    skill: ManualRollBonus;
+    save: ManualRollBonus;
+    damage: ManualRollBonus;
+  };
+  health: {
+    barMaxBonus: number;
+  };
+  stress: {
+    barMaxBonus: number;
+  };
+}
+
 // Resource tracking
 export interface ResourceData {
   value: number;
@@ -261,6 +311,8 @@ export interface CharacterData {
   };
   /** Structured, aggregator-computed derived data (Power Mechanics Engine). */
   derived?: DerivedData;
+  /** Player/GM-authored manual adjustments applied on top of computed stats. */
+  manual?: ManualAdjustments;
 }
 
 // Status effect structure

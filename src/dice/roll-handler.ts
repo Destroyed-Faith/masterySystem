@@ -6,6 +6,11 @@
 import { MasteryRollResult } from '../types';
 import { EXPLODE_VALUE, RAISE_INCREMENT, AUTO_RAISE_DICE_COST } from '../utils/constants';
 import { evaluateAutoFail, type CheckContext } from '../system/auto-fail.js';
+import {
+  manualKindFromRollKind,
+  manualRollBonusForKind,
+  readManualAdjustments,
+} from '../utils/manual-adjustments.js';
 
 /** Roll-kind hint used by the Power Mechanics Engine to look up dice-pool deltas. */
 export type MasteryRollKind =
@@ -178,22 +183,50 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
   // additive on top of any caller-supplied numDice (which typically already
   // reflects attribute + health penalty).
   const kind: MasteryRollKind | undefined = options.rollKind;
-  if (kind && kind !== 'generic' && options.actorId) {
+  // Manual roll bonus (flat, applied after dice resolution). Captured here
+  // so it is in scope when we post-process `total` further down.
+  let manualFlatBonus = 0;
+  if (options.actorId) {
     try {
       const actor: any = (game as any)?.actors?.get?.(options.actorId);
       if (actor) {
-        const { getRollDiceDelta } = await import('../utils/power-mechanics.js');
-        const targetActor: any = options.targetActorId
-          ? ((game as any)?.actors?.get?.(options.targetActorId) ?? null)
-          : null;
-        const delta = getRollDiceDelta(actor, kind, targetActor);
-        if (delta !== 0) {
-          const adjusted = Math.max(1, numDice + delta);
-          const sign = delta > 0 ? '+' : '';
-          const ctx = targetActor ? ' vs target' : '';
-          const note = `Power Mechanics: ${sign}${delta} dice (${kind}${ctx})`;
+        // Mechanics-engine dice delta — only meaningful for typed roll kinds.
+        if (kind && kind !== 'generic') {
+          const { getRollDiceDelta } = await import('../utils/power-mechanics.js');
+          const targetActor: any = options.targetActorId
+            ? ((game as any)?.actors?.get?.(options.targetActorId) ?? null)
+            : null;
+          const delta = getRollDiceDelta(actor, kind, targetActor);
+          if (delta !== 0) {
+            const adjusted = Math.max(1, numDice + delta);
+            const sign = delta > 0 ? '+' : '';
+            const ctx = targetActor ? ' vs target' : '';
+            const note = `Power Mechanics: ${sign}${delta} dice (${kind}${ctx})`;
+            flavor = flavor ? `${flavor} | ${note}` : note;
+            numDice = adjusted;
+          }
+        }
+
+        // Manual Adjustments — character-sheet-authored flat + bonus d8
+        // layered on top of the mechanics delta. Applies to every roll with
+        // an actor context. `manualKindFromRollKind` returns `null` for
+        // generic rolls, which still surfaces `rolls.any` (global bonus).
+        const adj = readManualAdjustments(actor);
+        const manualKind = manualKindFromRollKind(kind);
+        const manualBonus = manualRollBonusForKind(adj, manualKind);
+        if (manualBonus.dice !== 0) {
+          const sign = manualBonus.dice > 0 ? '+' : '';
+          const kindLabel = manualKind ?? 'any';
+          const note = `Manual Bonus: ${sign}${manualBonus.dice}d8 (${kindLabel})`;
           flavor = flavor ? `${flavor} | ${note}` : note;
-          numDice = adjusted;
+          numDice = Math.max(1, numDice + manualBonus.dice);
+        }
+        if (manualBonus.flat !== 0) {
+          manualFlatBonus = manualBonus.flat;
+          const sign = manualBonus.flat > 0 ? '+' : '';
+          const kindLabel = manualKind ?? 'any';
+          const note = `Manual Bonus: ${sign}${manualBonus.flat} flat (${kindLabel})`;
+          flavor = flavor ? `${flavor} | ${note}` : note;
         }
       }
     } catch (err) {
@@ -267,7 +300,8 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
   });
   
   // Add skill bonus (deprecated: now handled via skill spending, but kept for compatibility)
-  const total = diceTotal + skill;
+  // `manualFlatBonus` is layered on top — it was already announced in `flavor`.
+  const total = diceTotal + skill + manualFlatBonus;
   
   // Calculate success and raises — an auto-fail reason overrides both.
   const rawSuccess = tn > 0 ? total >= tn : true;

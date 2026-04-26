@@ -1329,8 +1329,44 @@ async function calculateDamageResult(baseDamage, powerDamage, passiveDamage, rai
     catch (e) {
         console.warn('Mastery System | [CALCULATE DAMAGE] conditional rider eval failed', e);
     }
-    // Total damage = Base Weapon + Might stone bonus + Power Damage + Raises + Conditional (Passives separate)
-    const totalDamage = baseDamageRolled + stoneMightDamageRolled + powerDamageRolled + raiseDamage + conditionalDamageRolled;
+    // Manual damage bonus from the attacker's character sheet
+    // (`system.manual.rolls.damage` + `system.manual.rolls.any`).
+    // Extra d8 are rolled into the existing `damageChatRolls` array so 3D dice /
+    // chat output include them; the flat portion is added straight into the
+    // subtotal.
+    let manualDamageRolled = 0;
+    let manualDamageFlat = 0;
+    try {
+        if (attacker) {
+            const { readManualAdjustments, manualRollBonusForKind } = await import('../utils/manual-adjustments.js');
+            const adj = readManualAdjustments(attacker);
+            const bonus = manualRollBonusForKind(adj, 'damage');
+            if (bonus.dice > 0) {
+                const r = await rollDiceWithDetail(`${bonus.dice}d8`, 'Manual Bonus (damage)');
+                manualDamageRolled = r.total;
+                if (r.line)
+                    rollDetails.push(r.line);
+                if (r.roll)
+                    damageChatRolls.push(r.roll);
+            }
+            if (bonus.flat !== 0) {
+                manualDamageFlat = bonus.flat;
+                const sign = bonus.flat > 0 ? '+' : '';
+                rollDetails.push(`Manual Bonus (damage): ${sign}${bonus.flat} flat`);
+            }
+        }
+    }
+    catch (e) {
+        console.warn('Mastery System | [CALCULATE DAMAGE] manual damage bonus failed', e);
+    }
+    // Total damage = Base Weapon + Might stone bonus + Power Damage + Raises + Conditional + Manual (Passives separate)
+    const totalDamage = baseDamageRolled
+        + stoneMightDamageRolled
+        + powerDamageRolled
+        + raiseDamage
+        + conditionalDamageRolled
+        + manualDamageRolled
+        + manualDamageFlat;
     console.log('Mastery System | [CALCULATE DAMAGE] Final calculation', {
         baseDamageRolled,
         stoneMightDamageRolled,

@@ -4,6 +4,7 @@
 import { calculateStones, calculateTotalStones, updateAttributeStones, initializeHealthBars, initializeStressBars, calculateHealthBarMax, calculateStressBarMax, calculateMightDamageBonus, calculateAgilityEvadeBonus, calculateAgilityRangeBonus, calculateIntellectSaveTNBonus, calculateResolveStressArmor, calculateInfluenceSkillBonus, calculateWitsInitiativeBonus, calculateArmorBreaker, calculateBaseEvade } from '../utils/calculations.js';
 import { getInitiativeEquipmentRows, getEquippedEquipmentInitiativeModifier } from '../utils/equipment-modifiers.js';
 import { buildActorMechanicsBreakdown } from '../utils/power-mechanics.js';
+import { normalizeManualAdjustments } from '../utils/manual-adjustments.js';
 export class MasteryActor extends Actor {
     /**
      * Augment the basic actor data with additional dynamic data
@@ -92,8 +93,16 @@ export class MasteryActor extends Actor {
             }
             // Initialize health bars (4 bars: Healthy, Bruised, Injured, Wounded)
             if (this.type === 'character') {
+                // Normalize player/GM-authored manual adjustments so the rest of
+                // prepareBaseData + prepareDerivedData can read `system.manual.*`
+                // without null-guarding every field.
+                system.manual = normalizeManualAdjustments(system.manual);
+                const healthBarBonus = Math.max(-9999, system.manual.health.barMaxBonus || 0);
+                const stressBarBonus = Math.max(-9999, system.manual.stress.barMaxBonus || 0);
                 const vitality = system.attributes.vitality?.value || 2;
-                const maxHP = calculateHealthBarMax(vitality);
+                // Health bar max = Vitality × 2 + manual Health Bonus per bar.
+                // A negative bonus is clamped at 1 so HP never collapses to 0.
+                const maxHP = Math.max(1, calculateHealthBarMax(vitality) + healthBarBonus);
                 if (!system.health) {
                     system.health = {
                         bars: initializeHealthBars(vitality),
@@ -165,10 +174,23 @@ export class MasteryActor extends Actor {
                         }
                     }
                 }
+                // Enforce the bonus-adjusted max HP on every bar regardless of
+                // which init/migration branch ran above. This makes the manual
+                // Health bar bonus apply even to freshly-initialized actors.
+                if (Array.isArray(system.health?.bars)) {
+                    for (const bar of system.health.bars) {
+                        if (bar.max !== maxHP) {
+                            const ratio = bar.max > 0 ? bar.current / bar.max : 1;
+                            bar.max = maxHP;
+                            bar.current = Math.min(Math.floor(maxHP * ratio), maxHP);
+                        }
+                    }
+                }
                 // Initialize stress bars (4 bars: Healthy, Stressed, Not Well, Breaking)
                 const resolve = system.attributes.resolve?.value || 2;
                 const intellect = system.attributes.intellect?.value || 2;
-                const maxStress = calculateStressBarMax(resolve, intellect);
+                // Stress bar max = Resolve + Intellect + manual Stress Bonus per bar.
+                const maxStress = Math.max(1, calculateStressBarMax(resolve, intellect) + stressBarBonus);
                 if (!system.stress) {
                     system.stress = {
                         bars: initializeStressBars(resolve, intellect),
@@ -246,6 +268,17 @@ export class MasteryActor extends Actor {
                     // Ensure currentBar exists
                     if (system.stress.currentBar === undefined || system.stress.currentBar === null) {
                         system.stress.currentBar = 0;
+                    }
+                }
+                // Enforce the bonus-adjusted max Stress on every bar regardless of
+                // which init/migration branch ran above.
+                if (Array.isArray(system.stress?.bars)) {
+                    for (const bar of system.stress.bars) {
+                        if (bar.max !== maxStress) {
+                            const ratio = bar.max > 0 ? bar.current / bar.max : 1;
+                            bar.max = maxStress;
+                            bar.current = Math.min(Math.floor(maxStress * ratio), maxStress);
+                        }
                     }
                 }
             }
@@ -451,6 +484,60 @@ export class MasteryActor extends Actor {
                     : system.combat.initiativeEquipmentTotal > 0
                         ? `+${system.combat.initiativeEquipmentTotal}`
                         : String(system.combat.initiativeEquipmentTotal);
+        }
+        // Manual Adjustments — player/GM-authored flat bonuses applied on top of
+        // attribute + equipment + power-mechanics totals. Surfaces as explicit
+        // "Manual Bonus" rows so the source of the change stays visible.
+        if (this.type === 'character') {
+            const manual = normalizeManualAdjustments(system.manual);
+            system.manual = manual;
+            const fmtSigned = (n) => (n > 0 ? `+${n}` : String(n));
+            if (manual.combat.armor !== 0) {
+                system.combat.armorTotal = (system.combat.armorTotal || 0) + manual.combat.armor;
+                system.combat.armorBreakdownRows.push({
+                    label: 'Manual Bonus',
+                    detail: 'Character-sheet adjustment',
+                    value: manual.combat.armor,
+                    display: fmtSigned(manual.combat.armor),
+                });
+            }
+            if (manual.combat.evade !== 0) {
+                system.combat.evadeTotal = (system.combat.evadeTotal || 0) + manual.combat.evade;
+                system.combat.evadeBreakdownRows.push({
+                    label: 'Manual Bonus',
+                    detail: 'Character-sheet adjustment',
+                    value: manual.combat.evade,
+                    display: fmtSigned(manual.combat.evade),
+                });
+            }
+            if (manual.combat.damageReductionPct !== 0) {
+                const current = Number(system.combat.damageReductionPct) || 0;
+                system.combat.damageReductionPct = Math.max(0, Math.min(100, current + manual.combat.damageReductionPct));
+                system.combat.damageReductionRows.push({
+                    label: 'Manual Bonus',
+                    detail: 'Character-sheet adjustment',
+                    value: manual.combat.damageReductionPct,
+                    display: manual.combat.damageReductionPct > 0
+                        ? `+${manual.combat.damageReductionPct}%`
+                        : `${manual.combat.damageReductionPct}%`,
+                });
+            }
+            if (manual.combat.initiative !== 0) {
+                system.combat.initiativeEquipmentRows.push({
+                    label: 'Manual Bonus',
+                    detail: 'Character-sheet adjustment',
+                    value: manual.combat.initiative,
+                    display: fmtSigned(manual.combat.initiative),
+                });
+                system.combat.initiativeEquipmentTotal =
+                    (system.combat.initiativeEquipmentTotal || 0) + manual.combat.initiative;
+                system.combat.initiativeEquipmentTotalDisplay =
+                    system.combat.initiativeEquipmentTotal === 0
+                        ? '0'
+                        : system.combat.initiativeEquipmentTotal > 0
+                            ? `+${system.combat.initiativeEquipmentTotal}`
+                            : String(system.combat.initiativeEquipmentTotal);
+            }
         }
         // Attribute Scaling Passives
         if (system.attributes) {
