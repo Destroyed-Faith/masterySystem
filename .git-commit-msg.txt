@@ -1,0 +1,16 @@
+feat(carousel+sheet): active-power tooltips + Manual Adjustments readability (v0.5.5)
+
+Combat Carousel: status icons now include slotted passives in addition to
+active buffs. Tooltips are multi-line and show a compact effect summary
+(e.g. "+4 Armor - +20% DR", "+2d8 Attack vs Hexed") built from the power
+mechanics block via new helper src/utils/power-mechanics-summary.ts.
+Passives get a distinct blue accent; active buffs keep their lila accent.
+Deduplication prevents a doubled icon when both a buff and a passive slot
+reference the same power.
+
+Character Sheet: the Manual Adjustments card from 0.5.4 is now styled via
+theme variables (--df-text-primary, --df-bg-panel, --df-accent, ...) and
+is readable on the default dark theme. All inputs are gated behind the
+userIsGM helper so players see current values readonly while only the GM
+can edit them. A header badge shows the permission state; readonly
+inputs have a dashed border + reduced opacity + not-allowed cursor.

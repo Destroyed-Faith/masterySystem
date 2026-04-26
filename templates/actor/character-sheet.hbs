@@ -1029,75 +1029,81 @@
            on top of the calculated stats. All fields default to 0 (no
            change). Positive values add, negative subtract. Health/Stress
            bonuses add to every bar's max. --}}
-      <div class="manual-adjustments-section">
-        <h3><i class="fas fa-wrench"></i> Manual Adjustments</h3>
-        <p class="section-help" style="margin: 2px 0 6px; opacity: 0.8; font-size: 0.9em;">
+      <div class="manual-adjustments-section{{#unless (userIsGM)}} is-readonly{{/unless}}">
+        <h3><i class="fas fa-wrench"></i> Manual Adjustments
+          {{#if (userIsGM)}}
+            <span class="manual-adjustments-badge manual-adjustments-badge-gm">GM Edit</span>
+          {{else}}
+            <span class="manual-adjustments-badge manual-adjustments-badge-readonly">Read-only</span>
+          {{/if}}
+        </h3>
+        <p class="section-help">
           Additive bonuses applied on top of calculated stats. Use for edge
           cases (&ldquo;+5 HP on every bar&rdquo;, GM-granted perks, etc.).
-          All fields default to 0.
+          All fields default to 0. Only the GM can edit these values.
         </p>
 
-        <div class="manual-adjustments-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-top: 8px;">
-          <div class="manual-combat-card" style="border: 1px solid var(--color-border-light-tertiary, #888); border-radius: 4px; padding: 8px;">
-            <h4 style="margin: 0 0 6px;"><i class="fas fa-shield-alt"></i> Combat Totals</h4>
-            <div class="form-group" style="display:flex; justify-content:space-between; align-items:center; gap: 6px;">
-              <label style="flex:1;">Armor Bonus</label>
-              <input type="number" name="system.manual.combat.armor" value="{{system.manual.combat.armor}}" data-dtype="Number" step="1" style="width:70px;" {{#unless editable}}readonly disabled{{/unless}} />
+        <div class="manual-adjustments-grid">
+          <div class="manual-adjustments-card manual-combat-card">
+            <h4><i class="fas fa-shield-alt"></i> Combat Totals</h4>
+            <div class="manual-adjustments-row">
+              <label>Armor Bonus</label>
+              <input type="number" name="system.manual.combat.armor" value="{{system.manual.combat.armor}}" data-dtype="Number" step="1" {{#unless (userIsGM)}}readonly disabled{{/unless}} />
             </div>
-            <div class="form-group" style="display:flex; justify-content:space-between; align-items:center; gap: 6px;">
-              <label style="flex:1;">Evade Bonus</label>
-              <input type="number" name="system.manual.combat.evade" value="{{system.manual.combat.evade}}" data-dtype="Number" step="1" style="width:70px;" {{#unless editable}}readonly disabled{{/unless}} />
+            <div class="manual-adjustments-row">
+              <label>Evade Bonus</label>
+              <input type="number" name="system.manual.combat.evade" value="{{system.manual.combat.evade}}" data-dtype="Number" step="1" {{#unless (userIsGM)}}readonly disabled{{/unless}} />
             </div>
-            <div class="form-group" style="display:flex; justify-content:space-between; align-items:center; gap: 6px;">
-              <label style="flex:1;" title="Damage Reduction percentage (clamped 0-100)">DR % Bonus</label>
-              <input type="number" name="system.manual.combat.damageReductionPct" value="{{system.manual.combat.damageReductionPct}}" data-dtype="Number" step="1" style="width:70px;" {{#unless editable}}readonly disabled{{/unless}} />
+            <div class="manual-adjustments-row">
+              <label title="Damage Reduction percentage (clamped 0-100)">DR % Bonus</label>
+              <input type="number" name="system.manual.combat.damageReductionPct" value="{{system.manual.combat.damageReductionPct}}" data-dtype="Number" step="1" {{#unless (userIsGM)}}readonly disabled{{/unless}} />
             </div>
-            <div class="form-group" style="display:flex; justify-content:space-between; align-items:center; gap: 6px;">
-              <label style="flex:1;">Initiative Bonus</label>
-              <input type="number" name="system.manual.combat.initiative" value="{{system.manual.combat.initiative}}" data-dtype="Number" step="1" style="width:70px;" {{#unless editable}}readonly disabled{{/unless}} />
+            <div class="manual-adjustments-row">
+              <label>Initiative Bonus</label>
+              <input type="number" name="system.manual.combat.initiative" value="{{system.manual.combat.initiative}}" data-dtype="Number" step="1" {{#unless (userIsGM)}}readonly disabled{{/unless}} />
             </div>
           </div>
 
-          <div class="manual-rolls-card" style="border: 1px solid var(--color-border-light-tertiary, #888); border-radius: 4px; padding: 8px;">
-            <h4 style="margin: 0 0 6px;"><i class="fas fa-dice-d20"></i> Roll Bonuses</h4>
-            <div style="display:grid; grid-template-columns: 1fr 60px 60px; gap: 4px 6px; align-items:center; font-size: 0.9em;">
+          <div class="manual-adjustments-card manual-rolls-card">
+            <h4><i class="fas fa-dice-d20"></i> Roll Bonuses</h4>
+            <div class="manual-rolls-grid">
               <span></span>
-              <span style="text-align:center;" title="Extra d8 mastery dice">+d8</span>
-              <span style="text-align:center;" title="Flat bonus to the roll total">+Flat</span>
+              <span class="manual-rolls-header" title="Extra d8 mastery dice">+d8</span>
+              <span class="manual-rolls-header" title="Flat bonus to the roll total">+Flat</span>
 
               <label title="Applies to every roll">Any Roll</label>
-              <input type="number" name="system.manual.rolls.any.dice" value="{{system.manual.rolls.any.dice}}" data-dtype="Number" step="1" min="0" {{#unless editable}}readonly disabled{{/unless}} />
-              <input type="number" name="system.manual.rolls.any.flat" value="{{system.manual.rolls.any.flat}}" data-dtype="Number" step="1" {{#unless editable}}readonly disabled{{/unless}} />
+              <input type="number" name="system.manual.rolls.any.dice" value="{{system.manual.rolls.any.dice}}" data-dtype="Number" step="1" min="0" {{#unless (userIsGM)}}readonly disabled{{/unless}} />
+              <input type="number" name="system.manual.rolls.any.flat" value="{{system.manual.rolls.any.flat}}" data-dtype="Number" step="1" {{#unless (userIsGM)}}readonly disabled{{/unless}} />
 
               <label>Attack</label>
-              <input type="number" name="system.manual.rolls.attack.dice" value="{{system.manual.rolls.attack.dice}}" data-dtype="Number" step="1" min="0" {{#unless editable}}readonly disabled{{/unless}} />
-              <input type="number" name="system.manual.rolls.attack.flat" value="{{system.manual.rolls.attack.flat}}" data-dtype="Number" step="1" {{#unless editable}}readonly disabled{{/unless}} />
+              <input type="number" name="system.manual.rolls.attack.dice" value="{{system.manual.rolls.attack.dice}}" data-dtype="Number" step="1" min="0" {{#unless (userIsGM)}}readonly disabled{{/unless}} />
+              <input type="number" name="system.manual.rolls.attack.flat" value="{{system.manual.rolls.attack.flat}}" data-dtype="Number" step="1" {{#unless (userIsGM)}}readonly disabled{{/unless}} />
 
               <label>Skill</label>
-              <input type="number" name="system.manual.rolls.skill.dice" value="{{system.manual.rolls.skill.dice}}" data-dtype="Number" step="1" min="0" {{#unless editable}}readonly disabled{{/unless}} />
-              <input type="number" name="system.manual.rolls.skill.flat" value="{{system.manual.rolls.skill.flat}}" data-dtype="Number" step="1" {{#unless editable}}readonly disabled{{/unless}} />
+              <input type="number" name="system.manual.rolls.skill.dice" value="{{system.manual.rolls.skill.dice}}" data-dtype="Number" step="1" min="0" {{#unless (userIsGM)}}readonly disabled{{/unless}} />
+              <input type="number" name="system.manual.rolls.skill.flat" value="{{system.manual.rolls.skill.flat}}" data-dtype="Number" step="1" {{#unless (userIsGM)}}readonly disabled{{/unless}} />
 
               <label title="Body / Mind / Spirit saves">Save</label>
-              <input type="number" name="system.manual.rolls.save.dice" value="{{system.manual.rolls.save.dice}}" data-dtype="Number" step="1" min="0" {{#unless editable}}readonly disabled{{/unless}} />
-              <input type="number" name="system.manual.rolls.save.flat" value="{{system.manual.rolls.save.flat}}" data-dtype="Number" step="1" {{#unless editable}}readonly disabled{{/unless}} />
+              <input type="number" name="system.manual.rolls.save.dice" value="{{system.manual.rolls.save.dice}}" data-dtype="Number" step="1" min="0" {{#unless (userIsGM)}}readonly disabled{{/unless}} />
+              <input type="number" name="system.manual.rolls.save.flat" value="{{system.manual.rolls.save.flat}}" data-dtype="Number" step="1" {{#unless (userIsGM)}}readonly disabled{{/unless}} />
 
               <label title="Applied in the damage dialog pipeline">Damage</label>
-              <input type="number" name="system.manual.rolls.damage.dice" value="{{system.manual.rolls.damage.dice}}" data-dtype="Number" step="1" min="0" {{#unless editable}}readonly disabled{{/unless}} />
-              <input type="number" name="system.manual.rolls.damage.flat" value="{{system.manual.rolls.damage.flat}}" data-dtype="Number" step="1" {{#unless editable}}readonly disabled{{/unless}} />
+              <input type="number" name="system.manual.rolls.damage.dice" value="{{system.manual.rolls.damage.dice}}" data-dtype="Number" step="1" min="0" {{#unless (userIsGM)}}readonly disabled{{/unless}} />
+              <input type="number" name="system.manual.rolls.damage.flat" value="{{system.manual.rolls.damage.flat}}" data-dtype="Number" step="1" {{#unless (userIsGM)}}readonly disabled{{/unless}} />
             </div>
           </div>
 
-          <div class="manual-hpstress-card" style="border: 1px solid var(--color-border-light-tertiary, #888); border-radius: 4px; padding: 8px;">
-            <h4 style="margin: 0 0 6px;"><i class="fas fa-heart"></i> Health &amp; Stress Bars</h4>
-            <div class="form-group" style="display:flex; justify-content:space-between; align-items:center; gap: 6px;">
-              <label style="flex:1;" title="Added to every Health bar's max (4 bars). Negative values also allowed.">+ Health / bar</label>
-              <input type="number" name="system.manual.health.barMaxBonus" value="{{system.manual.health.barMaxBonus}}" data-dtype="Number" step="1" style="width:70px;" {{#unless editable}}readonly disabled{{/unless}} />
+          <div class="manual-adjustments-card manual-hpstress-card">
+            <h4><i class="fas fa-heart"></i> Health &amp; Stress Bars</h4>
+            <div class="manual-adjustments-row">
+              <label title="Added to every Health bar's max (4 bars). Negative values also allowed.">+ Health / bar</label>
+              <input type="number" name="system.manual.health.barMaxBonus" value="{{system.manual.health.barMaxBonus}}" data-dtype="Number" step="1" {{#unless (userIsGM)}}readonly disabled{{/unless}} />
             </div>
-            <div class="form-group" style="display:flex; justify-content:space-between; align-items:center; gap: 6px;">
-              <label style="flex:1;" title="Added to every Stress bar's max (4 bars). Negative values also allowed.">+ Stress / bar</label>
-              <input type="number" name="system.manual.stress.barMaxBonus" value="{{system.manual.stress.barMaxBonus}}" data-dtype="Number" step="1" style="width:70px;" {{#unless editable}}readonly disabled{{/unless}} />
+            <div class="manual-adjustments-row">
+              <label title="Added to every Stress bar's max (4 bars). Negative values also allowed.">+ Stress / bar</label>
+              <input type="number" name="system.manual.stress.barMaxBonus" value="{{system.manual.stress.barMaxBonus}}" data-dtype="Number" step="1" {{#unless (userIsGM)}}readonly disabled{{/unless}} />
             </div>
-            <p style="margin: 4px 0 0; font-size: 0.8em; opacity: 0.75;">
+            <p class="manual-adjustments-note">
               Current HP / Stress scale proportionally when you change these.
             </p>
           </div>

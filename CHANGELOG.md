@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.5] - 2026-04-26
+
+### Added
+
+- **Combat Carousel shows active Passives + per-power effect summaries.** The round carousel now shows one status icon per slotted Passive in addition to the Active Buff icons that were already there, so you can tell at a glance what is currently modifying an actor's stats. The tooltip on each icon is now multi-line and includes:
+  - the power name,
+  - the source kind (`Active Buff` / `Slotted Passive`),
+  - for Active Buffs: the remaining duration,
+  - a compact effect summary built from the power's `mechanics` block (e.g. `+4 Armor · +20% DR`, `+2d8 Attack vs Hexed`, `Regen 10 HP/turn`, `Temp HP 1d8`, `Heal 2d8`).
+- **Passive-slot icons get a distinct blue accent** (`.status-icon.passive-slot-icon`) so they read as a different category from the lila Active Buff icons at a glance. Hover glow is blue instead of purple. Deduplication: if an Active Buff is currently live for the same `powerId` as a slotted Passive, only the buff icon is shown (no doubled entry).
+- **New helper** `src/utils/power-mechanics-summary.ts` exports `summarizePowerMechanics(mech)` which turns any `PowerMechanics` block into the compact string used in the tooltip. Zero / empty fields are skipped. Consumers outside the carousel can reuse it for future UI surfaces (e.g. character-sheet tooltips).
+
+### Changed
+
+- **Manual Adjustments section readability + GM-only edit gate.** The section added in 0.5.4 was unreadable on the default dark theme because it relied on inline styles and blanket `opacity: 0.8`. The styling has been moved to `styles/character-sheet.css` and now uses Foundry's theme variables (`--df-text-primary`, `--df-bg-panel`, `--df-border-primary`, `--df-accent`, …) so it follows the rest of the sheet and stays legible with or without custom themes.
+- **Manual Adjustments is now GM-edit / player-readonly.** Players see every field (so they know what the GM has dialed in) but all inputs are `readonly disabled` unless the current user is a GM. The header now carries a small `GM Edit` / `Read-only` badge to make the permission state explicit at a glance, and readonly inputs render with a dashed border + reduced opacity + `cursor: not-allowed` so the restriction is visible. Sheet-level ownership still applies — under default permissions, non-owner players cannot open the sheet at all.
+
+### Fixed
+
+- Removed all inline `style="..."` attributes from the Manual Adjustments template block (hard to theme, inconsistent under different Foundry modules) and replaced them with stable CSS class hooks (`.manual-adjustments-section`, `.manual-adjustments-card`, `.manual-adjustments-row`, `.manual-rolls-grid`, …).
+
 ## [0.5.4] - 2026-04-26
 
 ### Added

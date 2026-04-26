@@ -13,6 +13,8 @@
 import { requestEndTurn } from '../combat/end-turn.js';
 import { isStonePowersConfigurationLocked } from '../combat/action-economy.js';
 import { StonePowersDialog } from '../stones/stone-powers-dialog.js';
+import { summarizePowerMechanics } from '../utils/power-mechanics-summary.js';
+import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -144,8 +146,12 @@ export class CombatCarouselApp extends BaseCarousel {
       const resource2 = this.getResourceValue(actor, resource2Path);
 
       // Get status icons from actor effects (ActiveEffect documents)
-      // Include active buffs with tooltip information
-      const statusIcons: Array<{icon: string, name?: string, tooltip?: string}> = [];
+      // Include active buffs with tooltip information + slotted passives with
+      // effect summaries for at-a-glance visibility of what's currently
+      // modifying this actor's combat stats.
+      const statusIcons: Array<{icon: string, name?: string, tooltip?: string, kind?: 'activeBuff' | 'passive'}> = [];
+      const shownPowerIds = new Set<string>();
+
       if (actor.effects) {
         // Use ActiveEffect documents from actor
         const effects = actor.effects || [];
@@ -153,7 +159,7 @@ export class CombatCarouselApp extends BaseCarousel {
         for (const effect of effects) {
           const flags = effect.flags?.['mastery-system'];
           const isActiveBuff = flags?.activeBuff === true;
-          
+
           // Get icon - use effect icon, or try to get from original power, or use default
           let icon = effect.icon || effect.img || '';
           if (!icon && flags?.powerId) {
@@ -166,20 +172,38 @@ export class CombatCarouselApp extends BaseCarousel {
           if (!icon) {
             icon = 'icons/svg/aura.svg';
           }
-          
+
           console.log('Mastery System | [CAROUSEL] Effect:', effect.name, 'Icon:', icon, 'IsActiveBuff:', isActiveBuff, 'Flags:', flags);
-          
+
           if (isActiveBuff) {
-            // For active buffs (including utilities), include name and tooltip info
+            // Resolve mechanics (prefer flag snapshot, fall back to power item).
+            let mechanics: any = null;
+            if (flags?.mechanics && typeof flags.mechanics === 'object') {
+              mechanics = flags.mechanics;
+            } else if (flags?.powerId) {
+              const power = actor.items.get(flags.powerId);
+              if (power) mechanics = resolvePowerMechanics(power);
+            }
+            const summary = summarizePowerMechanics(mechanics);
+
             const currentRound = game.combat?.round || 1;
             const activatedRound = flags.activatedRound || 1;
             const masteryRank = flags.masteryRank || 2;
             const roundsRemaining = Math.max(0, masteryRank - (currentRound - activatedRound));
+            const tooltipLines = [
+              String(effect.name),
+              'Active Buff',
+              `Duration: ${roundsRemaining} round${roundsRemaining !== 1 ? 's' : ''} remaining`,
+            ];
+            if (summary) tooltipLines.push(summary);
+
             statusIcons.push({
               icon: icon,
               name: effect.name,
-              tooltip: `${effect.name}\nDuration: ${roundsRemaining} round${roundsRemaining !== 1 ? 's' : ''} remaining`
+              tooltip: tooltipLines.join('\n'),
+              kind: 'activeBuff',
             });
+            if (flags?.powerId) shownPowerIds.add(String(flags.powerId));
             console.log('Mastery System | [CAROUSEL] Added active buff icon:', effect.name);
           } else if (icon && icon !== 'icons/svg/aura.svg') {
             // Regular effect (only if it has a custom icon)
@@ -190,6 +214,42 @@ export class CombatCarouselApp extends BaseCarousel {
           }
         }
       }
+
+      // Slotted passives: one icon per active slot that carries mechanics.
+      try {
+        const passives = (actor.system as any)?.passives ?? {};
+        for (const slotKey of Object.keys(passives)) {
+          if (!/^slot\d+$/.test(slotKey)) continue;
+          const slot = passives[slotKey];
+          if (!slot || slot.active !== true || !slot.passive) continue;
+          const pid: string | undefined = slot.passive.id;
+          if (!pid) continue;
+          if (shownPowerIds.has(pid)) continue; // dedup against active buff entries
+
+          const powerItem = actor.items.get(pid);
+          if (!powerItem) continue;
+          const mechanics = resolvePowerMechanics(powerItem);
+          if (!mechanics) continue;
+          if (mechanics.applyWhen !== 'passive-slotted-active') continue;
+
+          const name = String(slot.passive.name ?? powerItem.name ?? 'Passive');
+          const icon = powerItem.img || (powerItem.system as any)?.img || 'icons/svg/aura.svg';
+          const summary = summarizePowerMechanics(mechanics);
+          const tooltipLines = [name, 'Slotted Passive'];
+          if (summary) tooltipLines.push(summary);
+
+          statusIcons.push({
+            icon,
+            name,
+            tooltip: tooltipLines.join('\n'),
+            kind: 'passive',
+          });
+          shownPowerIds.add(pid);
+        }
+      } catch (err) {
+        console.warn('Mastery System | [CAROUSEL] Failed to collect passive slot icons:', err);
+      }
+
       console.log('Mastery System | [CAROUSEL] Final status icons:', statusIcons.length, statusIcons);
 
       // Use actor portrait, not token image

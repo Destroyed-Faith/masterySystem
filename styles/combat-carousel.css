@@ -357,6 +357,32 @@
   transform: scale(1.4);
 }
 
+/* Slotted passive icons — blue accent to distinguish from lila Active Buffs. */
+.status-icon.passive-slot-icon {
+  border: 2px solid rgba(112, 200, 255, 0.7);
+  box-shadow: 0 0 6px rgba(112, 200, 255, 0.5);
+  position: relative;
+}
+
+.status-icon.passive-slot-icon::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #70c8ff;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 4px rgba(112, 200, 255, 0.8);
+}
+
+.status-icon.passive-slot-icon:hover {
+  border-color: rgba(112, 200, 255, 1);
+  box-shadow: 0 0 14px rgba(112, 200, 255, 0.9);
+  transform: scale(1.4);
+}
+
 /* Portrait Controls (shown on hover) */
 .portrait-controls {
   position: absolute;
