@@ -161,6 +161,7 @@ export async function executeFaithFractureReroll(
         (recipe as any).attackDiceCap > 0
           ? { attackDiceCap: Math.floor((recipe as any).attackDiceCap) }
           : {}),
+        ...((recipe as any).attackExplodeDiceOn78 ? { attackExplodeDiceOn78: true } : {}),
       });
     } catch (rollErr) {
       await spender.update({ 'system.faithFractures.current': cur });

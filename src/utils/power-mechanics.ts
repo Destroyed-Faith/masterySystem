@@ -89,6 +89,40 @@ function formatGrantNextHitSummary(m: PowerMechanics['grantNextHitEffect']): str
  * hints) and pull the mechanics from there. Re-adding the power is no longer
  * required for passives/buffs to apply.
  */
+/**
+ * Resolve a slotted passive / buff source item id on an actor. Foundry's
+ * `actor.items` is a Collection (not an Array) — `Array.isArray(items)` is
+ * false, so a bare `items.get` miss used to drop all passive mechanics.
+ */
+export function findPowerItemOnActor(actor: any, pid: string | undefined | null): any {
+  if (!pid || !actor?.items) return null;
+  const idStr = String(pid).trim();
+  if (!idStr) return null;
+  const items = actor.items;
+  try {
+    const direct = items.get?.(idStr);
+    if (direct) return direct;
+  } catch {
+    /* Collection.get may throw on bad ids in some environments */
+  }
+  try {
+    for (const it of items) {
+      if (!it) continue;
+      if (it.id === idStr || (it as any)._id === idStr) return it;
+    }
+  } catch {
+    /* ignore */
+  }
+  if (Array.isArray(items)) {
+    return items.find((it: any) => it?.id === idStr || it?._id === idStr) ?? null;
+  }
+  const contents = (items as any).contents;
+  if (Array.isArray(contents)) {
+    return contents.find((it: any) => it?.id === idStr || it?._id === idStr) ?? null;
+  }
+  return null;
+}
+
 export function resolvePowerMechanics(powerItem: any): PowerMechanics | null {
   if (!powerItem) return null;
   const sys = powerItem.system ?? {};
@@ -249,15 +283,19 @@ export function collectMechanicsContributions(actor: any): MechanicsContribution
     if (!slot || slot.active !== true || !slot.passive) continue;
     const pid = slot.passive.id;
     if (!pid) continue;
-    let powerItem: any = null;
-    try {
-      powerItem = items?.get?.(pid) ?? null;
-      if (!powerItem && Array.isArray(items)) {
-        powerItem = items.find((it: any) => it?.id === pid || it?._id === pid);
+    let powerItem: any = findPowerItemOnActor(actor, pid);
+    if (!powerItem && slot.passive?.name) {
+      const nm = String(slot.passive.name).trim();
+      try {
+        for (const it of items ?? []) {
+          if (it?.type === 'power' && String(it.name ?? '').trim() === nm) {
+            powerItem = it;
+            break;
+          }
+        }
+      } catch {
+        powerItem = null;
       }
-    } catch {
-      // Foundry Collection get may throw on some mocks; ignore.
-      powerItem = null;
     }
     const mech = resolvePowerMechanics(powerItem);
     if (!mech) continue;
@@ -304,15 +342,7 @@ export function collectMechanicsContributions(actor: any): MechanicsContribution
       if (flags.mechanics && typeof flags.mechanics === 'object') {
         mech = flags.mechanics as PowerMechanics;
       } else if (flags.powerId) {
-        let powerItem: any = null;
-        try {
-          powerItem = items?.get?.(flags.powerId) ?? null;
-          if (!powerItem && Array.isArray(items)) {
-            powerItem = items.find((it: any) => it?.id === flags.powerId || it?._id === flags.powerId);
-          }
-        } catch {
-          powerItem = null;
-        }
+        const powerItem = findPowerItemOnActor(actor, flags.powerId);
         mech = resolvePowerMechanics(powerItem);
       }
       if (!mech) continue;

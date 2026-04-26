@@ -49,7 +49,13 @@ async function rebuildRadialBySegment(actor: Actor): Promise<Record<InnerSegment
  * Live-Sync: Innenring-Zahlen + äußerer Ring (Ranges nach RoundState / Steinen) — ohne Stone-Dialog-UI.
  */
 export async function refreshRadialMenuActionLabelsIfOpenForActor(actor: Actor): Promise<void> {
-  if (!msRadialMenu || !msCurrentTokenId || !msRadialGetCurrentSegmentId) return;
+  if (
+    !msRadialMenu ||
+    !msCurrentTokenId ||
+    typeof msRadialGetCurrentSegmentId !== 'function'
+  ) {
+    return;
+  }
   const token = canvas.tokens?.get(msCurrentTokenId);
   if (!token?.actor) return;
   const menuOwner = getActionEconomyActor(token.actor) ?? token.actor;

@@ -42,8 +42,11 @@ async function rebuildRadialBySegment(actor) {
  * Live-Sync: Innenring-Zahlen + äußerer Ring (Ranges nach RoundState / Steinen) — ohne Stone-Dialog-UI.
  */
 export async function refreshRadialMenuActionLabelsIfOpenForActor(actor) {
-    if (!msRadialMenu || !msCurrentTokenId || !msRadialGetCurrentSegmentId)
+    if (!msRadialMenu ||
+        !msCurrentTokenId ||
+        typeof msRadialGetCurrentSegmentId !== 'function') {
         return;
+    }
     const token = canvas.tokens?.get(msCurrentTokenId);
     if (!token?.actor)
         return;

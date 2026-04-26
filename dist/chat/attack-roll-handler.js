@@ -263,6 +263,12 @@ export function registerAttackRollClickHandler() {
                 ? ` (Disadvantage: keep ${baseKeepDice} → ${keepDice})`
                 : '';
             const attackKind = flags.attackType === 'ranged' ? 'Ranged' : 'Melee';
+            const actionEco = await import('../combat/action-economy.js');
+            const economyForStones = actionEco.getActionEconomyActor(freshAttacker) ?? freshAttacker;
+            const combatRef = game.combat;
+            const rsCrit = actionEco.getRoundState(economyForStones, combatRef);
+            const critBank = Math.max(0, Math.floor(Number(rsCrit?.stoneBonuses?.critRaises ?? 0) || 0));
+            const attackExplodeDiceOn78 = critBank > 0;
             const result = await masteryRoll({
                 numDice: numDice,
                 keepDice: keepDice,
@@ -279,7 +285,17 @@ export function registerAttackRollClickHandler() {
                 ...(typeof splitAttackDiceCap === 'number' && splitAttackDiceCap > 0
                     ? { attackDiceCap: splitAttackDiceCap }
                     : {}),
+                ...(attackExplodeDiceOn78 ? { attackExplodeDiceOn78: true } : {}),
             });
+            if (attackExplodeDiceOn78) {
+                const rs2 = actionEco.getRoundState(economyForStones, combatRef);
+                if (!rs2.stoneBonuses) {
+                    rs2.stoneBonuses = { extraAttacks: 0, extraReactions: 0, extraMoveMeters: 0 };
+                }
+                const curCrit = Math.max(0, Math.floor(Number(rs2.stoneBonuses.critRaises ?? 0) || 0));
+                rs2.stoneBonuses.critRaises = Math.max(0, curCrit - 1);
+                await actionEco.setRoundState(economyForStones, rs2);
+            }
             console.log('Mastery System | DEBUG: Roll completed!', {
                 total: result.total,
                 dice: result.dice,

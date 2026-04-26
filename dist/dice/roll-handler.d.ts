@@ -55,6 +55,11 @@ export interface RollOptions {
      * cannot balloon the pool back above the halved strike pool.
      */
     attackDiceCap?: number;
+    /**
+     * Agility stone Crit / similar: pool d8s explode on **7–8** (each exploding face
+     * adds another d8) instead of the default sum-divisible-by-8 chain.
+     */
+    attackExplodeDiceOn78?: boolean;
 }
 /** Stored on chat messages so a Faith Fracture reroll can repeat the same roll setup. */
 export interface MasteryRollRecipe {
@@ -73,6 +78,8 @@ export interface MasteryRollRecipe {
     autoRaises: number;
     /** Optional Split-Attack strike pool cap (mirrors `RollOptions.attackDiceCap`). */
     attackDiceCap?: number;
+    /** Mirrors `RollOptions.attackExplodeDiceOn78` for Faith Fracture rerolls. */
+    attackExplodeDiceOn78?: boolean;
 }
 /**
  * Perform a Mastery System roll

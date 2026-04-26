@@ -3,6 +3,22 @@
  * Active Buffs are powers that create effects lasting for "Mastery Rank rounds"
  */
 
+import { powerCostPaysAction } from '../radial-menu/options.js';
+import { resolvePowerMechanics } from './power-mechanics.js';
+
+function paysActionCost(power: any): boolean {
+  return powerCostPaysAction(power?.system?.cost);
+}
+
+function resolvedActiveBuffMechanics(power: any): boolean {
+  try {
+    const mech = resolvePowerMechanics(power);
+    return mech?.applyWhen === 'activeBuff-active';
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Check if a power is a utility (not a true active buff)
  */
@@ -19,7 +35,7 @@ export function isTrueActiveBuff(power: any): boolean {
   if (!power || power.type !== 'power') return false;
   
   const powerType = power.system?.powerType;
-  const cost = power.system?.cost;
+  const pays = paysActionCost(power);
   
   // Utilities are NOT true active buffs (they can stack)
   if (powerType === 'utility') {
@@ -27,20 +43,23 @@ export function isTrueActiveBuff(power: any): boolean {
   }
   
   // Check if it's explicitly an active-buff or buff power that requires an action
-  if ((powerType === 'active-buff' || powerType === 'buff') && cost?.action === true) {
+  if ((powerType === 'active-buff' || powerType === 'activeBuff' || powerType === 'buff') && pays) {
+    return true;
+  }
+  if (resolvedActiveBuffMechanics(power) && pays) {
     return true;
   }
   
   // Check tags for active-buff indicators
   const tags = power.system?.tags || [];
   if (tags.includes('active-buff') || tags.includes('buff') || tags.includes('stance')) {
-    if (cost?.action === true) {
+    if (pays) {
       return true;
     }
   }
   
   // Check if power type is 'active' but has buff-like characteristics
-  if (powerType === 'active' && cost?.action === true) {
+  if (powerType === 'active' && pays) {
     const nameLower = power.name?.toLowerCase() || '';
     const descLower = (power.system?.description || '').toLowerCase();
     if (nameLower.includes('buff') || descLower.includes('buff') || 
@@ -59,24 +78,27 @@ export function isActiveBuff(power: any): boolean {
   if (!power || power.type !== 'power') return false;
   
   const powerType = power.system?.powerType;
-  const cost = power.system?.cost;
   const range = power.system?.range;
+  const tags = power.system?.tags || [];
+  const pays = paysActionCost(power);
   
   // Check if it's explicitly an active-buff or buff power that requires an action
-  if ((powerType === 'active-buff' || powerType === 'buff') && cost?.action === true) {
+  if ((powerType === 'active-buff' || powerType === 'activeBuff' || powerType === 'buff') && pays) {
+    return true;
+  }
+  if (resolvedActiveBuffMechanics(power) && pays) {
     return true;
   }
   
   // Check tags for active-buff indicators
-  const tags = power.system?.tags || [];
   if (tags.includes('active-buff') || tags.includes('buff') || tags.includes('stance')) {
-    if (cost?.action === true) {
+    if (pays) {
       return true;
     }
   }
   
   // Check if power type is 'active' but has buff-like characteristics
-  if (powerType === 'active' && cost?.action === true) {
+  if (powerType === 'active' && pays) {
     const nameLower = power.name?.toLowerCase() || '';
     const descLower = (power.system?.description || '').toLowerCase();
     if (nameLower.includes('buff') || descLower.includes('buff') || 
@@ -86,7 +108,7 @@ export function isActiveBuff(power: any): boolean {
   }
   
   // Check if it's a utility that is Self-targeting (these are also active buffs)
-  if (powerType === 'utility' && cost?.action === true) {
+  if (powerType === 'utility' && pays) {
     const rangeStr = range?.toString().toLowerCase() || '';
     // If range is "Self" or 0, it's a self-buff utility
     if (rangeStr === 'self' || rangeStr === '0' || range === 0) {
@@ -236,6 +258,35 @@ export async function activateActiveBuff(actor: Actor, power: any): Promise<bool
     console.log('Mastery System | ActiveEffect created:', created);
     
     ui.notifications?.info(`Activated ${power.name} (Duration: ${masteryRank} rounds)`);
+
+    try {
+      const ChatCls = (globalThis as any).ChatMessage;
+      const esc =
+        (globalThis as any).foundry?.utils?.escapeHTML?.bind((globalThis as any).foundry.utils) ??
+        ((s: string) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'));
+      const lines: string[] = [
+        `<p><strong>${esc(String(power.name))}</strong> — active <strong>${masteryRank}</strong> round${masteryRank === 1 ? '' : 's'}.</p>`,
+      ];
+      const rm: any = rankMechanics ?? {};
+      if (typeof rm.damageReductionPct === 'number' && rm.damageReductionPct > 0) {
+        lines.push(
+          `<p>Buff: <strong>+${rm.damageReductionPct}%</strong> Damage Reduction vs your passive DR line (carousel / sheet update after the effect applies).</p>`,
+        );
+      }
+      if (typeof rm.armor === 'number' && rm.armor !== 0) {
+        lines.push(`<p>Buff: <strong>+${rm.armor}</strong> Armor.</p>`);
+      }
+      if (typeof rm.evade === 'number' && rm.evade !== 0) {
+        lines.push(`<p>Buff: <strong>+${rm.evade}</strong> Evade.</p>`);
+      }
+      await ChatCls.create({
+        user: (game as any).user?.id,
+        speaker: ChatCls.getSpeaker({ actor: actor as any }),
+        content: lines.join(''),
+      });
+    } catch (chatErr) {
+      console.warn('Mastery System | Active buff chat message failed', chatErr);
+    }
     
     return true;
   } catch (error) {

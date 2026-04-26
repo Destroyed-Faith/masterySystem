@@ -22,15 +22,29 @@ function rollExplodingDieChain() {
     const total = faces.reduce((a, b) => a + b, 0);
     return { faces, total, exploded };
 }
+/** Crit stone / status: each face of 7–8 triggers another d8 in the same pool die chain. */
+function rollExplodingDieChain78() {
+    const faces = [];
+    let exploded = false;
+    while (true) {
+        faces.push(Math.floor(Math.random() * 8) + 1);
+        const last = faces[faces.length - 1];
+        if (last < 7)
+            break;
+        exploded = true;
+    }
+    const total = faces.reduce((a, b) => a + b, 0);
+    return { faces, total, exploded };
+}
 /**
  * Roll multiple exploding d8s (pool dice).
  */
-function rollDice(numDice) {
+function rollDice(numDice, explodeOn78) {
     const dice = [];
     const exploded = [];
     const dieChains = [];
     for (let i = 0; i < numDice; i++) {
-        const chain = rollExplodingDieChain();
+        const chain = explodeOn78 ? rollExplodingDieChain78() : rollExplodingDieChain();
         dieChains.push(chain.faces);
         dice.push(chain.total);
         if (chain.exploded)
@@ -187,16 +201,21 @@ export async function masteryRoll(options) {
         const note = `Pool cap: ${before} → ${numDice}d8 (Split-Attack / strike limit)`;
         flavor = flavor ? `${flavor} | ${note}` : note;
     }
+    const explodeAttack78 = !!options.attackExplodeDiceOn78;
+    if (explodeAttack78) {
+        flavor = flavor ? `${flavor} | Crit: d8 pool explodes on 7–8` : 'Crit: d8 pool explodes on 7–8';
+    }
     console.log('Mastery System | DEBUG: masteryRoll called', {
         numDice,
         keepDice,
         skill,
         tn,
         label,
-        flavor
+        flavor,
+        attackExplodeDiceOn78: explodeAttack78,
     });
     // Roll the dice
-    const { dice, exploded, dieChains } = rollDice(numDice);
+    const { dice, exploded, dieChains } = rollDice(numDice, explodeAttack78);
     console.log('Mastery System | DEBUG: Dice rolled', {
         numDice,
         dice,
@@ -280,6 +299,7 @@ export async function masteryRoll(options) {
             options.attackDiceCap > 0
             ? { attackDiceCap: Math.floor(options.attackDiceCap) }
             : {}),
+        ...(options.attackExplodeDiceOn78 ? { attackExplodeDiceOn78: true } : {}),
     };
     // Send to chat
     await sendRollToChat(result, label, flavor, options.actorId, options.skillKey, options.isSkillRoll, options.baseModifier, options.isSaveRoll, rollRecipe);

@@ -71,6 +71,11 @@ export interface RollOptions {
    * cannot balloon the pool back above the halved strike pool.
    */
   attackDiceCap?: number;
+  /**
+   * Agility stone Crit / similar: pool d8s explode on **7–8** (each exploding face
+   * adds another d8) instead of the default sum-divisible-by-8 chain.
+   */
+  attackExplodeDiceOn78?: boolean;
 }
 
 /** Stored on chat messages so a Faith Fracture reroll can repeat the same roll setup. */
@@ -90,6 +95,8 @@ export interface MasteryRollRecipe {
   autoRaises: number;
   /** Optional Split-Attack strike pool cap (mirrors `RollOptions.attackDiceCap`). */
   attackDiceCap?: number;
+  /** Mirrors `RollOptions.attackExplodeDiceOn78` for Faith Fracture rerolls. */
+  attackExplodeDiceOn78?: boolean;
 }
 
 /**
@@ -109,16 +116,33 @@ function rollExplodingDieChain(): { faces: number[]; total: number; exploded: bo
   return { faces, total, exploded };
 }
 
+/** Crit stone / status: each face of 7–8 triggers another d8 in the same pool die chain. */
+function rollExplodingDieChain78(): { faces: number[]; total: number; exploded: boolean } {
+  const faces: number[] = [];
+  let exploded = false;
+  while (true) {
+    faces.push(Math.floor(Math.random() * 8) + 1);
+    const last = faces[faces.length - 1]!;
+    if (last < 7) break;
+    exploded = true;
+  }
+  const total = faces.reduce((a, b) => a + b, 0);
+  return { faces, total, exploded };
+}
+
 /**
  * Roll multiple exploding d8s (pool dice).
  */
-function rollDice(numDice: number): { dice: number[]; exploded: number[]; dieChains: number[][] } {
+function rollDice(
+  numDice: number,
+  explodeOn78?: boolean,
+): { dice: number[]; exploded: number[]; dieChains: number[][] } {
   const dice: number[] = [];
   const exploded: number[] = [];
   const dieChains: number[][] = [];
 
   for (let i = 0; i < numDice; i++) {
-    const chain = rollExplodingDieChain();
+    const chain = explodeOn78 ? rollExplodingDieChain78() : rollExplodingDieChain();
     dieChains.push(chain.faces);
     dice.push(chain.total);
     if (chain.exploded) exploded.push(i);
@@ -288,17 +312,23 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
     flavor = flavor ? `${flavor} | ${note}` : note;
   }
 
+  const explodeAttack78 = !!options.attackExplodeDiceOn78;
+  if (explodeAttack78) {
+    flavor = flavor ? `${flavor} | Crit: d8 pool explodes on 7–8` : 'Crit: d8 pool explodes on 7–8';
+  }
+
   console.log('Mastery System | DEBUG: masteryRoll called', {
     numDice,
     keepDice,
     skill,
     tn,
     label,
-    flavor
+    flavor,
+    attackExplodeDiceOn78: explodeAttack78,
   });
   
   // Roll the dice
-  const { dice, exploded, dieChains } = rollDice(numDice);
+  const { dice, exploded, dieChains } = rollDice(numDice, explodeAttack78);
   console.log('Mastery System | DEBUG: Dice rolled', {
     numDice,
     dice,
@@ -390,6 +420,7 @@ export async function masteryRoll(options: RollOptions): Promise<MasteryRollResu
     options.attackDiceCap > 0
       ? { attackDiceCap: Math.floor(options.attackDiceCap) }
       : {}),
+    ...(options.attackExplodeDiceOn78 ? { attackExplodeDiceOn78: true } : {}),
   };
 
   // Send to chat

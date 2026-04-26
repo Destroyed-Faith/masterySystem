@@ -30,6 +30,12 @@ export declare function emptyBreakdown(): MechanicsBreakdown;
  * hints) and pull the mechanics from there. Re-adding the power is no longer
  * required for passives/buffs to apply.
  */
+/**
+ * Resolve a slotted passive / buff source item id on an actor. Foundry's
+ * `actor.items` is a Collection (not an Array) — `Array.isArray(items)` is
+ * false, so a bare `items.get` miss used to drop all passive mechanics.
+ */
+export declare function findPowerItemOnActor(actor: any, pid: string | undefined | null): any;
 export declare function resolvePowerMechanics(powerItem: any): PowerMechanics | null;
 /** One collected mechanics contribution with its display source. */
 interface MechanicsContribution {

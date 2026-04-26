@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.12] - 2026-04-26
+
+### Fixed
+
+- **Slotted passive armor/evade never applied:** `actor.items` is a Foundry `Collection`, not an array, so `items.get(id)` alone often failed and `Array.isArray` fallback never ran. Added `findPowerItemOnActor()` (iterate + `contents` fallback + name match) and wired it into passive + active-buff effect resolution.
+- **Active buff activation:** `isActiveBuff` / `isTrueActiveBuff` still required `cost.action === true`, so catalog powers with `cost.action: 'attack'` failed `activateActiveBuff` (chat log: *non-buff power*). Now uses `powerCostPaysAction`, `activeBuff` camelCase, and `resolvePowerMechanics` `activeBuff-active` detection — Damage Reduction creates the effect, spends/refunds correctly, and shows DR in aggregation when rules allow.
+- **Radial refresh error:** `refreshRadialMenuActionLabelsIfOpenForActor` called `msRadialGetCurrentSegmentId()` when the slot was truthy but not a function; guard with `typeof === 'function'`.
+- **Agility Crit stone:** `critRaises` in round state was never applied to dice. Attack rolls now use **7–8 exploding** pool dice when the bank is greater than 0, then decrement the bank by 1. Faith Fracture reroll preserves the recipe flag when present.
+- **Agility +8 Evade stone:** Restored **`+= 8`** stacking per spend (as in your table test); breakdown text updated.
+
+### Added
+
+- **Chat line on active buff activation** summarizing duration and key mechanics (DR / Armor / Evade).
+
 ## [0.5.11] - 2026-04-26
 
 ### Fixed

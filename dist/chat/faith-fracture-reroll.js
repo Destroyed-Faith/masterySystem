@@ -140,6 +140,7 @@ export async function executeFaithFractureReroll(messageId, spenderActorId, requ
                     recipe.attackDiceCap > 0
                     ? { attackDiceCap: Math.floor(recipe.attackDiceCap) }
                     : {}),
+                ...(recipe.attackExplodeDiceOn78 ? { attackExplodeDiceOn78: true } : {}),
             });
         }
         catch (rollErr) {
