@@ -32,6 +32,7 @@ import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_POWER_REQUIREMENTS } from '..
 import type { PowerCategory } from '../types/item.js';
 import { findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid';
 import { buildPostCreationSnapshot } from '../utils/xp-post-creation.js';
+import { resetCharacterForRecreation } from '../utils/reset-character.js';
 import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items';
 import { getNormalizedEquipSlots } from '../utils/equip-slots.js';
 import { XP_COSTS } from '../utils/constants';
@@ -1488,6 +1489,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         e.preventDefault();
         e.stopPropagation();
         this.#onForceUnlockCreation(e);
+      });
+    }
+
+    // GM-only: Reset Character (wipes everything except name + portrait,
+    // returns earned XP to the spendable pool, flips creation to incomplete).
+    const resetButton = html.find('.reset-character');
+    if (resetButton.length > 0) {
+      resetButton.off('click.reset-character').on('click.reset-character', (e: JQuery.ClickEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.#onResetCharacter(e);
       });
     }
     
@@ -5270,12 +5282,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.find('select:not(.power-rank-select):not(.attr-creation-select)').prop('disabled', true);
     
     // Disable buttons except creation controls
-    const buttonsToDisable = html.find('button:not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.add-power-creation-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.echo-card-use-btn)');
+    const buttonsToDisable = html.find('button:not(.attr-increase):not(.attr-decrease):not(.skill-increase):not(.skill-decrease):not(.finalize-creation):not(.reset-creation-attributes):not(.force-unlock-creation):not(.reset-character):not(.add-disadvantage-btn):not(.disadvantage-edit-btn):not(.disadvantage-remove-btn):not(.add-power-creation-btn):not(.add-spell-creation-btn):not(.power-rank-select):not(.item-delete):not(.power-toggle-details):not(.power-edit-mechanics):not(.general-items-btn):not(.choose-echo-btn):not(.add-echo-card-btn):not(.echo-card-use-btn)');
     console.log('Mastery System | Disabling buttons:', buttonsToDisable.length);
     buttonsToDisable.prop('disabled', true);
     
     // Ensure creation buttons are enabled
-    const creationButtons = html.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .add-power-creation-btn, .add-spell-creation-btn, .item-delete, .general-items-btn, .choose-echo-btn, .add-echo-card-btn, .echo-card-use-btn');
+    const creationButtons = html.find('.attr-increase, .attr-decrease, .skill-increase, .skill-decrease, .finalize-creation, .reset-creation-attributes, .force-unlock-creation, .reset-character, .add-disadvantage-btn, .disadvantage-edit-btn, .disadvantage-remove-btn, .add-power-creation-btn, .add-spell-creation-btn, .item-delete, .general-items-btn, .choose-echo-btn, .add-echo-card-btn, .echo-card-use-btn');
     console.log('Mastery System | Enabling creation buttons:', {
       total: creationButtons.length,
       addDisadvantageBtn: html.find('.add-disadvantage-btn').length,
@@ -5354,6 +5366,95 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         console.error('Mastery System | Failed to force unlock', error);
         ui.notifications?.error('Failed to unlock character creation.');
       }
+    }
+  }
+
+  /**
+   * GM-only: Full character reset. Wipes every embedded Item (powers, gear,
+   * weapons, armor, schticks, artifacts, conditions, echo items), clears
+   * every system.* field (attributes, skills, echo, disadvantages, passive
+   * slots, manual adjustments, stress/health bars, …), flips creation back
+   * to incomplete, and refunds the full lifetime earned-XP amount into
+   * `system.points.xp` so the player can re-distribute it from scratch.
+   *
+   * Preserves the actor's `name`, `img`, `prototypeToken`, `ownership`,
+   * `folder`, `flags`, and `system.xp.totalEarned` / `.history`.
+   *
+   * Requires two confirmations because the action is destructive and
+   * cannot be undone without a world backup.
+   */
+  async #onResetCharacter(event: JQuery.ClickEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!(game as any).user?.isGM) {
+      (ui as any).notifications?.warn('Only the GM can reset a character.');
+      return;
+    }
+
+    const actor = this.actor as any;
+    const totalEarned = Number(actor?.system?.xp?.totalEarned ?? 0);
+    const itemCount = (() => {
+      try {
+        const iter: any = actor?.items;
+        if (!iter) return 0;
+        let n = 0;
+        for (const _ of iter) n++;
+        return n;
+      } catch {
+        return 0;
+      }
+    })();
+
+    const firstConfirm = await (Dialog as any).confirm({
+      title: 'Reset Character?',
+      content: `
+        <div class="mastery-reset-char-warning">
+          <p><strong>Destructive action — cannot be undone without a world backup.</strong></p>
+          <p>This will <strong>wipe</strong> the character and drop them back into Character Creation:</p>
+          <ul style="margin: 4px 0 8px 20px;">
+            <li><strong>Removed:</strong> all powers, gear, weapons, armor, schticks, artifacts, conditions (<em>${itemCount}</em> item(s)), all attribute / skill values, Echo, disadvantages, passive slot assignments, manual adjustments, active effects, faith fractures, minor expressions.</li>
+            <li><strong>Kept:</strong> name, portrait/token, ownership, folder, flags, and the lifetime earned XP (<em>${totalEarned}</em> XP).</li>
+            <li><strong>After reset:</strong> the full <em>${totalEarned}</em> XP is added back to the player's available pool for re-distribution once creation is finalized again.</li>
+          </ul>
+          <p>Continue?</p>
+        </div>
+      `,
+      yes: () => true,
+      no: () => false,
+      defaultYes: false,
+    });
+
+    if (!firstConfirm) return;
+
+    // Second guard because this really is irreversible.
+    const secondConfirm = await (Dialog as any).confirm({
+      title: 'Really reset?',
+      content:
+        '<p>Last warning: every item, attribute, skill, and power on this character will be deleted. Name and portrait stay. Continue?</p>',
+      yes: () => true,
+      no: () => false,
+      defaultYes: false,
+    });
+
+    if (!secondConfirm) return;
+
+    const gmUser = (game as any).user;
+    try {
+      const result = await resetCharacterForRecreation(actor, {
+        gmUserId: String(gmUser?.id ?? ''),
+        gmUserName: String(gmUser?.name ?? 'GM'),
+      });
+      if (!result.ok) {
+        (ui as any).notifications?.error(`Reset failed: ${result.error ?? 'unknown error'}`);
+        return;
+      }
+      (ui as any).notifications?.info(
+        `Character reset. ${result.removedItemCount} item(s) removed, ${result.returnedXp} XP returned to the pool.`,
+      );
+      await this.render(true);
+    } catch (err) {
+      console.error('Mastery System | Reset character failed:', err);
+      (ui as any).notifications?.error('Reset failed — see console for details.');
     }
   }
 

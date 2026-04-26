@@ -115,10 +115,24 @@
       <button type="button" class="force-unlock-creation" title="GM Only: Force unlock character creation">
         <i class="fas fa-unlock"></i> Force Unlock
       </button>
+      <button type="button" class="reset-character" title="GM Only: Wipe this character back to creation (keeps name + portrait; earned XP returned to pool)">
+        <i class="fas fa-trash-restore-alt"></i> Reset Character
+      </button>
       {{/if}}
     </div>
   </div>
   {{/unless}}
+
+  {{#if creationComplete}}
+  {{#if (userIsGM)}}
+  <div class="gm-character-tools">
+    <span class="gm-character-tools-label"><i class="fas fa-user-shield"></i> GM Tools</span>
+    <button type="button" class="reset-character" title="Wipe this character back to creation (keeps name + portrait; earned XP returned to the player's pool). Destructive, requires double confirmation.">
+      <i class="fas fa-trash-restore-alt"></i> Reset Character
+    </button>
+  </div>
+  {{/if}}
+  {{/if}}
 
   <!-- Tabs Navigation (Right Side Bookmarks) -->
   <nav class="sheet-tabs tabs" data-group="primary">

@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.6] - 2026-04-26
+
+### Added
+
+- **GM: Reset Character** — new GM-only button on the character sheet that wipes an existing character back to creation mode while preserving the actor's identity. Intended for outdated / drifted characters that accumulated from older builds and need to be re-rolled without losing their XP progression or spot in the party roster.
+  - **Preserved:** actor `name`, portrait `img`, `prototypeToken` (token art), `ownership`, `folder`, `flags`, the lifetime XP counter `system.xp.totalEarned`, and the `system.xp.history` audit log.
+  - **Wiped:** every embedded Item (powers, gear, weapons, armor, shields, schticks, artifacts, conditions, Echo items, masteryNodes), all ActiveEffects, every `system.*` field under attributes / skills / skillsSpent / mastery / stonePools / passives / combat / resources / health / stress / saves / manual adjustments / tracked / radial + stone-power prefs, the full `system.echo` structured block (key, sub-choice, veiled form, selected cards, card/trait uses), `system.bio` text (echo, concept, appearance, notes, description), `system.notes`, `system.disadvantages`, `system.schticks.ranks`, `system.minorExpressions`, `system.conditions`, `system.faithFractures`, `system.xp.totalSpent`, `system.xp.spentAttributes`, `system.xp.attributeBaselines`, and `system.xp.postCreationProgress`.
+  - **XP behavior:** the full `totalEarned` figure is written back into `system.points.xp` so the player has *every XP they ever earned* available for re-distribution. After running through Character Creation a second time and pressing "Finalize Character Creation", the post-creation finalize path re-computes attribute baselines and the post-creation progress snapshot the same way it does for a brand-new character.
+  - **Safety:** GM-only gate (`user.isGM` check) **plus** two consecutive confirmation dialogs (the first lists exactly what will be removed / kept with live item count + lifetime-XP figure, the second is a final abort prompt). The reset action is logged as an `adjust` entry in `system.xp.history` with `details.resetForRecreation: true` so the action is GM-traceable.
+  - **Post-reset seed:** after the wipe, a default "Unarmed" melee weapon is re-added (matches the behavior of the `createActor` hook for brand-new characters) so the sheet isn't weapon-less on first render.
+  - **Button placement:** the button appears both inside the Character Creation banner (alongside `Force Unlock`) when creation is incomplete, and in a new GM-Tools row directly under the sheet header when creation is complete. In both spots it uses a red accent (border, background tint, icon) so the destructive nature is visible at a glance.
+
+### Changed
+
+- `#lockSheetForCreation` — the creation-lock whitelist now includes `.reset-character`, so the new button stays clickable while a character is still in creation mode (same treatment as `.force-unlock-creation`).
+
 ## [0.5.5] - 2026-04-26
 
 ### Added

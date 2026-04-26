@@ -8961,4 +8961,77 @@
   border-color: var(--df-border-subtle, rgba(255, 255, 255, 0.12));
 }
 
+/* ========== GM Character Tools (destructive admin row) ==========
+ * Small GM-only row that appears below the header for finished
+ * characters. Houses the destructive "Reset Character" button.
+ * The button itself uses a red accent so the destructive nature is
+ * visible at a glance.
+ */
+.mastery-system.sheet.actor.character .gm-character-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 0.6rem;
+  padding: 0.4rem 0.75rem;
+  background: rgba(200, 60, 60, 0.06);
+  border: 1px dashed rgba(200, 60, 60, 0.35);
+  border-radius: 4px;
+}
+
+.mastery-system.sheet.actor.character .gm-character-tools-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--df-text-secondary, #a0a0a0);
+}
+
+.mastery-system.sheet.actor.character .gm-character-tools-label i {
+  color: #d08080;
+}
+
+.mastery-system.sheet.actor.character .reset-character,
+.mastery-system.sheet.actor.character .gm-character-tools .reset-character {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 4px 10px;
+  background: rgba(200, 60, 60, 0.18);
+  border: 1px solid rgba(200, 60, 60, 0.55);
+  border-radius: 3px;
+  color: #ffd0d0;
+  font-size: 0.88em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.mastery-system.sheet.actor.character .reset-character:hover,
+.mastery-system.sheet.actor.character .gm-character-tools .reset-character:hover {
+  background: rgba(200, 60, 60, 0.35);
+  border-color: rgba(220, 80, 80, 0.9);
+  color: #ffffff;
+}
+
+.mastery-system.sheet.actor.character .reset-character:focus-visible {
+  outline: 2px solid rgba(220, 80, 80, 0.9);
+  outline-offset: 2px;
+}
+
+.mastery-system.sheet.actor.character .reset-character i {
+  color: inherit;
+}
+
+.mastery-reset-char-warning ul {
+  margin: 6px 0 10px 22px;
+  padding: 0;
+}
+
+.mastery-reset-char-warning strong {
+  color: #d64545;
+}
+
 
