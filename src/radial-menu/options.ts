@@ -17,6 +17,21 @@ import {
 } from '../utils/npc-attack-model.js';
 import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 
+/**
+ * True when activating spends an action: legacy `cost.action === true` or
+ * string `attack` / `full` / `utility` (e.g. catalog active buffs).
+ */
+export function powerCostPaysAction(
+  cost: { action?: unknown; actions?: unknown } | undefined,
+): boolean {
+  if (!cost) return false;
+  if (cost.actions === true) return true;
+  const a = cost.action;
+  if (a === true) return true;
+  if (typeof a === 'string' && ['attack', 'full', 'utility'].includes(a)) return true;
+  return false;
+}
+
 function buildNpcAttackDescription(atk: any): string {
   const pool = npcAttackDiceCount(atk);
   const dmg = npcDamageDiceFormula(atk);
@@ -372,14 +387,14 @@ export function getSegmentIdForOption(option: RadialCombatOption): InnerSegment[
     // enemy-targeting attack pipeline.
     if (
       (powerType === 'active-buff' || powerType === 'activeBuff' || powerType === 'buff') &&
-      cost?.action === true
+      powerCostPaysAction(cost)
     ) {
       return 'active-buff';
     }
 
     try {
       const mech = resolvePowerMechanics(option.item);
-      if (mech?.applyWhen === 'activeBuff-active' && cost?.action === true) {
+      if (mech?.applyWhen === 'activeBuff-active' && powerCostPaysAction(cost)) {
         return 'active-buff';
       }
     } catch {
@@ -389,7 +404,7 @@ export function getSegmentIdForOption(option: RadialCombatOption): InnerSegment[
     // Check tags for active-buff indicators
     const tags = option.tags || [];
     if (tags.includes('active-buff') || tags.includes('buff') || tags.includes('stance')) {
-      if (cost?.action === true) {
+      if (powerCostPaysAction(cost)) {
         return 'active-buff';
       }
     }
@@ -406,7 +421,7 @@ export function getSegmentIdForOption(option: RadialCombatOption): InnerSegment[
     }
     
     // Check if it's a utility that is Self-targeting (these are also active buffs)
-    if (powerType === 'utility' && cost?.action === true) {
+    if (powerType === 'utility' && powerCostPaysAction(cost)) {
       const rangeStr = range?.toString().toLowerCase() || '';
       // If range is "Self" or 0, it's a self-buff utility
       if (rangeStr === 'self' || rangeStr === '0' || range === 0) {
@@ -593,9 +608,9 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
     // Check if this is an active buff - active buffs are always Self (range 0)
     const isActiveBuff =
       ((powerType === 'active-buff' || powerType === 'activeBuff' || powerType === 'buff') &&
-        cost?.action === true) ||
+        powerCostPaysAction(cost)) ||
       ((tags.includes('active-buff') || tags.includes('buff') || tags.includes('stance')) &&
-        cost?.action === true);
+        powerCostPaysAction(cost));
     
     if (isActiveBuff) {
       range = 0; // Active buffs are always Self

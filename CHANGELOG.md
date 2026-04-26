@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.11] - 2026-04-26
+
+### Fixed
+
+- **Active buffs with `cost.action: 'attack'` (string) now route to the Buff radial segment.** `getSegmentIdForOption` and active-buff Self-range detection only treated `cost.action === true`, so catalog powers (e.g. Damage Reduction) stayed under Attack and triggered the wrong pipeline. Added `powerCostPaysAction()` so string action costs match boolean costs.
+- **Agility stone “+8 Evade” no longer stacks to +40+ on repeated apply.** Round bonus is a flat **+8** (`evadeBonus = 8`), not `+= 8` per trigger.
+- **Slotted passives with wrong `applyWhen` (e.g. legacy `attack-rider`) but category `passive` and real armor/evade/DR/regen/initiative/phasing stats** are counted again in `collectMechanicsContributions`.
+
+### Changed
+
+- **Combat carousel strip:** removed Initiative chip; **DR** only shows when damage reduction percent is **> 0**.
+
 ## [0.5.10] - 2026-04-26
 
 ### Fixed

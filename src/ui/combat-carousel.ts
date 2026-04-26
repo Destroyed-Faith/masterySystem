@@ -303,25 +303,17 @@ export class CombatCarouselApp extends BaseCarousel {
       let combatStrip: {
         armor: number;
         evade: number;
+        showDr: boolean;
         drPct: number;
-        initiative: string;
       } | null = null;
       try {
         const c: any = (actor.system as any)?.combat ?? {};
-        const sys: any = actor.system as any;
         const drPct = Math.max(0, Math.min(100, Math.floor(Number(c.damageReductionPct ?? 0) || 0)));
-        const iniMR = Math.max(0, Math.floor(Number(c.initiativeMasteryRank ?? sys?.mastery?.rank ?? 2) || 0));
-        const iniD8 = Math.max(0, Math.floor(Number(c.initiativeD8FromMechanics ?? 0) || 0));
-        const iniEq = Number(c.initiativeEquipmentTotal ?? 0) || 0;
-        const iniDice = iniMR + iniD8;
-        const iniDisp = String(
-          c.initiativeEquipmentTotalDisplay ?? (iniEq === 0 ? '0' : iniEq > 0 ? `+${iniEq}` : String(iniEq)),
-        );
         combatStrip = {
           armor: Math.floor(Number(c.armorTotal ?? 0) || 0),
           evade: Math.floor(Number(c.evadeTotal ?? 0) || 0),
+          showDr: drPct > 0,
           drPct,
-          initiative: `${iniDice}d8 ${iniDisp}`,
         };
       } catch {
         combatStrip = null;

@@ -7,6 +7,22 @@ import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { getMovementRangeBonusMeters, hasPowerBeenUsedThisRound } from '../combat/action-economy.js';
 import { formatNpcAttackSpecialsLine, npcAttackDiceCount, npcDamageDiceFormula, resolveNpcAttackList } from '../utils/npc-attack-model.js';
 import { resolvePowerMechanics } from '../utils/power-mechanics.js';
+/**
+ * True when activating spends an action: legacy `cost.action === true` or
+ * string `attack` / `full` / `utility` (e.g. catalog active buffs).
+ */
+export function powerCostPaysAction(cost) {
+    if (!cost)
+        return false;
+    if (cost.actions === true)
+        return true;
+    const a = cost.action;
+    if (a === true)
+        return true;
+    if (typeof a === 'string' && ['attack', 'full', 'utility'].includes(a))
+        return true;
+    return false;
+}
 function buildNpcAttackDescription(atk) {
     const pool = npcAttackDiceCount(atk);
     const dmg = npcDamageDiceFormula(atk);
@@ -323,12 +339,12 @@ export function getSegmentIdForOption(option) {
         // `applyWhen: 'activeBuff-active'`. Those must never be routed through the
         // enemy-targeting attack pipeline.
         if ((powerType === 'active-buff' || powerType === 'activeBuff' || powerType === 'buff') &&
-            cost?.action === true) {
+            powerCostPaysAction(cost)) {
             return 'active-buff';
         }
         try {
             const mech = resolvePowerMechanics(option.item);
-            if (mech?.applyWhen === 'activeBuff-active' && cost?.action === true) {
+            if (mech?.applyWhen === 'activeBuff-active' && powerCostPaysAction(cost)) {
                 return 'active-buff';
             }
         }
@@ -338,7 +354,7 @@ export function getSegmentIdForOption(option) {
         // Check tags for active-buff indicators
         const tags = option.tags || [];
         if (tags.includes('active-buff') || tags.includes('buff') || tags.includes('stance')) {
-            if (cost?.action === true) {
+            if (powerCostPaysAction(cost)) {
                 return 'active-buff';
             }
         }
@@ -353,7 +369,7 @@ export function getSegmentIdForOption(option) {
             }
         }
         // Check if it's a utility that is Self-targeting (these are also active buffs)
-        if (powerType === 'utility' && cost?.action === true) {
+        if (powerType === 'utility' && powerCostPaysAction(cost)) {
             const rangeStr = range?.toString().toLowerCase() || '';
             // If range is "Self" or 0, it's a self-buff utility
             if (rangeStr === 'self' || rangeStr === '0' || range === 0) {
@@ -519,9 +535,9 @@ export async function getAllCombatOptionsForActor(actor) {
         const cost = item.system?.cost || {};
         // Check if this is an active buff - active buffs are always Self (range 0)
         const isActiveBuff = ((powerType === 'active-buff' || powerType === 'activeBuff' || powerType === 'buff') &&
-            cost?.action === true) ||
+            powerCostPaysAction(cost)) ||
             ((tags.includes('active-buff') || tags.includes('buff') || tags.includes('stance')) &&
-                cost?.action === true);
+                powerCostPaysAction(cost));
         if (isActiveBuff) {
             range = 0; // Active buffs are always Self
         }

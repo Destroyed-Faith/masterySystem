@@ -265,7 +265,21 @@ export function collectMechanicsContributions(actor: any): MechanicsContribution
     // legacy / migrated items may omit `applyWhen` entirely while still carrying
     // numeric `armor` / `evade` / … keys — those must still aggregate.
     const aw = mech.applyWhen as string | undefined;
-    if (aw && aw !== 'passive-slotted-active') continue;
+    const passiveCat = String(
+      powerItem?.system?.category ?? powerItem?.system?.powerType ?? '',
+    ).toLowerCase();
+    const passiveSheetStats =
+      typeof mech.armor === 'number' ||
+      typeof mech.evade === 'number' ||
+      typeof mech.damageReductionPct === 'number' ||
+      typeof mech.regen === 'number' ||
+      typeof mech.initiativeD8 === 'number' ||
+      !!mech.phasing?.combatStart;
+    const allowSlottedPassive =
+      !aw ||
+      aw === 'passive-slotted-active' ||
+      (passiveCat === 'passive' && passiveSheetStats);
+    if (!allowSlottedPassive) continue;
     const pname = slot.passive.name ?? 'Passive';
     out.push({
       source: `${pname} (slotted)`,

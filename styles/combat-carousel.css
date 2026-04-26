@@ -469,8 +469,6 @@
 .ms-carousel-combat-strip .ms-cs-arm { border-color: rgba(158, 193, 255, 0.45); }
 .ms-carousel-combat-strip .ms-cs-ev { border-color: rgba(127, 211, 169, 0.45); }
 .ms-carousel-combat-strip .ms-cs-dr { border-color: rgba(204, 136, 255, 0.45); }
-.ms-carousel-combat-strip .ms-cs-ini { border-color: rgba(255, 209, 102, 0.45); }
-
 /* ========================================
    Segmented HP Bar — one segment per wound level, color-graded.
    Severity 0 = Healthy (green) → 4+ = critical (dark red). Extra bars added

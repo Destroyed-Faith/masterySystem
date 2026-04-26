@@ -606,7 +606,7 @@ export class MasteryActor extends Actor {
       system.combat.evadeTotal = (system.combat.evadeTotal || 0) + stoneEvadeBonus;
       (system.combat.evadeBreakdownRows as any[]).push({
         label: 'Stone Powers',
-        detail: 'Round bonus (e.g. Agility +8 Evade until next turn)',
+        detail: 'Round bonus: Agility stone +8 Evade until next turn (flat, non-stacking)',
         value: stoneEvadeBonus,
         display: `+${stoneEvadeBonus}`,
       });

@@ -3,6 +3,14 @@
  */
 import type { RadialCombatOption, InnerSegment } from './types';
 /**
+ * True when activating spends an action: legacy `cost.action === true` or
+ * string `attack` / `full` / `utility` (e.g. catalog active buffs).
+ */
+export declare function powerCostPaysAction(cost: {
+    action?: unknown;
+    actions?: unknown;
+} | undefined): boolean;
+/**
  * Map an option to one of the 4 inner segment IDs
  * This determines which inner quadrant (Buff/Move/Util/Atk) an option belongs to
  */

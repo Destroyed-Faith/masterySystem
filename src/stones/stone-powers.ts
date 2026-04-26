@@ -170,18 +170,16 @@ const AGILITY_POWERS: StonePower[] = [
     name: '+8 Evade per Stone',
     attribute: 'agility',
     category: 'passive',
-    description: 'Gain +8 Evade per activation until your next turn',
-    effect: 'Gain +8 Evade per activation until your next turn.',
+    description: 'Gain +8 Evade until your next turn (one flat bonus; re-activation refreshes, does not stack).',
+    effect: 'Gain +8 Evade until your next turn.',
     apply: async (actor, _combatant) => {
       const combat = game.combat;
       const roundState = getRoundState(actor, combat);
       if (!roundState.stoneBonuses) {
         roundState.stoneBonuses = { extraAttacks: 0, extraReactions: 0, extraMoveMeters: 0 };
       }
-      if (!roundState.stoneBonuses.evadeBonus) {
-        roundState.stoneBonuses.evadeBonus = 0;
-      }
-      roundState.stoneBonuses.evadeBonus += 8;
+      // Single +8 round bonus — do not accumulate multiple +8 from repeated hooks/UI.
+      roundState.stoneBonuses.evadeBonus = 8;
       await setRoundState(actor, roundState);
     }
   },
