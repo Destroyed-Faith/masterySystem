@@ -136,25 +136,48 @@ describe('pool-halving rule (Math.floor(original / 2))', () => {
   });
 });
 
-describe('damage-halving rule per strike', () => {
+describe('damage-halving rule per strike (raises 1:1, base halved, count8s preserved)', () => {
   /**
-   * Mirrors the halving applied in `calculateDamageResult` when
-   * `splitAttack === true`: total and count8s both floored by 2, so both
-   * strikes are consistent with the 8s-minimum rule downstream.
+   * Mirrors the halving applied in `calculateDamageWithDetails` when
+   * `splitAttack === true`. Spec (per player input):
+   *   - Raises declared on a strike go into THAT strike 1:1 (not halved).
+   *   - Every other damage source (base weapon, Might stones, power
+   *     damage, conditional riders, manual bonuses, NPC auto-dice) is
+   *     split evenly between the two strikes → floor-halved.
+   *   - count8s (natural 8 floor for the "never-below-8s" rule) is kept
+   *     per-strike so raise-rolled 8s are not lost.
    */
-  function halveForStrike(total: number, count8s: number) {
-    return { total: Math.floor(total / 2), count8s: Math.floor(count8s / 2) };
+  function halveForStrike(total: number, raiseDamage: number, count8s: number) {
+    const nonRaise = Math.max(0, total - raiseDamage);
+    return {
+      total: Math.floor(nonRaise / 2) + raiseDamage,
+      count8s,
+    };
   }
 
-  it('halves total damage and natural-8 count together', () => {
-    expect(halveForStrike(14, 2)).toEqual({ total: 7, count8s: 1 });
+  it('halves base/weapon damage but keeps raises intact', () => {
+    // totalDamage = 10 (base+weapon+power) + 4 (raises) = 14.
+    // Strike damage = floor(10/2) + 4 = 5 + 4 = 9.
+    expect(halveForStrike(14, 4, 2)).toEqual({ total: 9, count8s: 2 });
+  });
+
+  it('with no raises, degrades to plain halving of the total', () => {
+    expect(halveForStrike(14, 0, 2)).toEqual({ total: 7, count8s: 2 });
   });
 
   it('never yields negative values', () => {
-    expect(halveForStrike(0, 0)).toEqual({ total: 0, count8s: 0 });
+    expect(halveForStrike(0, 0, 0)).toEqual({ total: 0, count8s: 0 });
   });
 
-  it('applies the floor consistently across odd totals', () => {
-    expect(halveForStrike(15, 3)).toEqual({ total: 7, count8s: 1 });
+  it('applies floor on the non-raise portion, then re-adds raises', () => {
+    // total = 9, of which 3 is raise damage. Non-raise = 6 → /2 = 3. +3 raise = 6.
+    expect(halveForStrike(9, 3, 1)).toEqual({ total: 6, count8s: 1 });
+    // total = 15, of which 5 is raise damage. Non-raise = 10 → /2 = 5. +5 raise = 10.
+    expect(halveForStrike(15, 5, 3)).toEqual({ total: 10, count8s: 3 });
+  });
+
+  it('guards against raiseDamage exceeding total (clamps non-raise to zero)', () => {
+    // Defensive clamp — should not happen in practice but keeps invariant clean.
+    expect(halveForStrike(4, 6, 1)).toEqual({ total: 6, count8s: 1 });
   });
 });

@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.8] - 2026-04-26
+
+### Changed
+
+- **Split-Attack damage rule reworked.** Previously every damage source — including raises declared on a strike — was halved before being applied (`Math.floor(totalDamage / 2)` per strike). The new rule reflects table play:
+  - **Raises stay 1:1 per strike.** The player already buys raises on the (halved) attack pool for the specific strike they just rolled, so every die of raise damage lands on that strike in full.
+  - **Every other damage source is halved.** Base weapon damage, Might stones, power damage, conditional riders (damage-gated-on-condition riders from the attacker's passives / active buffs), manual bonuses from the character sheet, and NPC auto-dice are split evenly between the two strikes via `Math.floor((totalDamage - raiseDamage) / 2)` and then the raise damage is added back on top.
+  - **`count8s` now preserved per strike.** The "never below count8s" floor in the defensive pipeline previously also halved, which could under-report natural 8s rolled by raise dice on a given strike. The count is now carried through unchanged per strike.
+  - Formula per strike: `appliedDamage = floor((total − raises) / 2) + raises`. Each strike still resolves independently against the target (two attack rolls, two damage rolls, two hits against armor/evade), the 1-action-per-attack rule is kept (only the first strike flips `costsAction`), and the attack pool is already halved per strike in `attack-executor.ts` (unchanged).
+
+### Fixed
+
+- **Split-Attack previously halved raises.** A player who declared e.g. 2 raises on Strike 1 used to see those 2d8 raise dice pre-halved into the applied damage of that strike. The new rule gives the full raise damage to the strike it was declared on, as specified in the design spec.
+
+### Tests
+
+- `tests/split-attack.test.ts` rewritten around the new invariant: `halveForStrike(total, raiseDamage, count8s) = { total: floor((total − raiseDamage)/2) + raiseDamage, count8s }`. Covers: raises intact, degenerate case without raises (falls back to simple halving), zero-input, floor-on-odd totals, and the defensive clamp for `raiseDamage > total`. All 11 cases green; full suite stays at 391 passing.
+
 ## [0.5.7] - 2026-04-26
 
 ### Added

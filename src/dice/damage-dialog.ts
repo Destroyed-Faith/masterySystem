@@ -1615,17 +1615,33 @@ async function calculateDamageResult(
   // "never below count8s if any 8 was rolled" floor in the defensive pipeline.
   const count8s = countNaturalEights(damageChatRolls);
 
-  // Split-Attack: each strike deals half damage (floor). Applied after all
-  // rolls so that every damage-side modifier (raises, conditional riders,
-  // NPC auto-dice, Might stones) contributes to the strike in proportion.
-  const appliedDamage = splitAttack ? Math.max(0, Math.floor(totalDamage / 2)) : totalDamage;
-  const appliedCount8s = splitAttack ? Math.floor(count8s / 2) : count8s;
+  // Split-Attack damage rule:
+  //   Raises go 1:1 into the strike they were declared on (the player
+  //   buys raises per strike during the attack roll, so they already
+  //   reflect the halved attack pool). Every other damage source (base
+  //   weapon, Might stones, power damage, conditional riders, manual
+  //   bonuses, NPC auto-dice) represents the *full* output of the
+  //   attacker and is split evenly between the two strikes → halved.
+  //   Implementation: subtract raises, floor-divide the remainder, then
+  //   add raises back in full so each strike's damage equals
+  //     floor((base+weapon+stones+power+riders+manual+npc)/2) + raises.
+  const nonRaiseDamage = Math.max(0, totalDamage - raiseDamage);
+  const appliedDamage = splitAttack
+    ? Math.max(0, Math.floor(nonRaiseDamage / 2)) + raiseDamage
+    : totalDamage;
+  // count8s feeds the "never below count8s" floor in the defensive
+  // pipeline. Halving it would under-report 8s that came from the raise
+  // dice of *this* strike; we keep the full count (it is per-strike).
+  const appliedCount8s = count8s;
   if (splitAttack) {
-    console.log('Mastery System | [CALCULATE DAMAGE] Split-Attack halving', {
+    console.log('Mastery System | [CALCULATE DAMAGE] Split-Attack damage split', {
       rawTotalDamage: totalDamage,
-      halvedDamage: appliedDamage,
+      raiseDamage,
+      nonRaiseDamage,
+      halvedNonRaise: Math.floor(nonRaiseDamage / 2),
+      appliedDamage,
       rawCount8s: count8s,
-      halvedCount8s: appliedCount8s,
+      appliedCount8s,
     });
   }
 
