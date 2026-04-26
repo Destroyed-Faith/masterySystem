@@ -8,7 +8,7 @@
 
 .mastery-carousel {
   position: fixed !important;
-  top: -9px !important;
+  top: 20px !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
   z-index: 100 !important;
@@ -33,7 +33,7 @@
 /* Ensure the app window itself is positioned correctly */
 #mastery-combat-carousel {
   position: fixed !important;
-  top: -9px !important;
+  top: 20px !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
   width: 50vw !important;
@@ -439,6 +439,76 @@
   background: rgba(233, 69, 96, 0.8);
   border-color: #e94560;
 }
+
+/* ========================================
+   Segmented HP Bar — one segment per wound level, color-graded.
+   Severity 0 = Healthy (green) → 4+ = critical (dark red). Extra bars added
+   by passives/equipment get clamped to the deepest-red bucket.
+   ======================================== */
+
+.ms-hp-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 4px 0;
+  padding: 3px 4px;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 4px;
+  min-width: 120px;
+}
+
+.ms-hp-bar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #f3f3f3;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.8);
+  line-height: 1;
+}
+
+.ms-hp-bar-label {
+  letter-spacing: 0.05em;
+  opacity: 0.85;
+}
+
+.ms-hp-bar-totals {
+  font-variant-numeric: tabular-nums;
+}
+
+.ms-hp-bar-track {
+  display: flex;
+  width: 100%;
+  height: 10px;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.ms-hp-segment {
+  position: relative;
+  height: 100%;
+  min-width: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.ms-hp-segment-fill {
+  height: 100%;
+  transition: width 0.2s ease-out;
+}
+
+/* Color severity per wound level. Each severity uses a *fill* color only —
+   the empty track stays neutral so you can see how much of each level remains. */
+.ms-hp-severity-0 .ms-hp-segment-fill { background: #3fb950; } /* healthy: green */
+.ms-hp-severity-1 .ms-hp-segment-fill { background: #d4b83e; } /* bruised: yellow */
+.ms-hp-severity-2 .ms-hp-segment-fill { background: #e08a3c; } /* injured: orange */
+.ms-hp-severity-3 .ms-hp-segment-fill { background: #d94a4a; } /* wounded: red */
+.ms-hp-severity-4 .ms-hp-segment-fill { background: #8a2c2c; } /* critical: dark red */
 
 /* ========================================
    Carousel Controls (Left/Right)

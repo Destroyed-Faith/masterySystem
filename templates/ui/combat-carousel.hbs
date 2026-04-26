@@ -26,6 +26,29 @@
           <!-- Name -->
           <div class="portrait-name">{{combatant.name}}</div>
 
+          <!-- Segmented HP Bar (one segment per wound level, color-graded) -->
+          {{#if combatant.hpSegments.length}}
+            <div class="ms-hp-bar" title="HP: {{combatant.hpTotalCurrent}}/{{combatant.hpTotalMax}}">
+              <div class="ms-hp-bar-header">
+                <span class="ms-hp-bar-label">HP</span>
+                <span class="ms-hp-bar-totals">{{combatant.hpTotalCurrent}}/{{combatant.hpTotalMax}}</span>
+              </div>
+              <div class="ms-hp-bar-track">
+                {{#each combatant.hpSegments as |seg|}}
+                  <div class="ms-hp-segment ms-hp-severity-{{seg.severity}}"
+                       style="flex-basis: {{seg.widthPct}}%"
+                       title="{{seg.name}}: {{seg.current}}/{{seg.max}}">
+                    {{#if seg.max}}
+                      {{#with (divide seg.current seg.max)}}
+                        <div class="ms-hp-segment-fill" style="width: {{multiply this 100}}%"></div>
+                      {{/with}}
+                    {{/if}}
+                  </div>
+                {{/each}}
+              </div>
+            </div>
+          {{/if}}
+
           <!-- Resources -->
           <div class="portrait-resources">
             <div class="resource-bar resource-1">

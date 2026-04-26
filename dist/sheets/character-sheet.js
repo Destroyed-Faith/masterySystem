@@ -797,6 +797,40 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             console.error('Mastery System | Failed to build passive slot view', err);
             context.passiveSlotView = { slots: [], availablePassives: [], activeCount: 0, maxSlots: 0, canActivateMore: false };
         }
+        // Compact combat-stats summary visible on every tab. Sums HP/Stress bars
+        // and exposes the pre-aggregated Armor/Evade/DR/Initiative totals already
+        // computed in `prepareDerivedData` so the player has a single at-a-glance
+        // view instead of having to hunt inside the Attributes tab.
+        try {
+            const sys = this.actor.system ?? {};
+            const healthBars = Array.isArray(sys.health?.bars) ? sys.health.bars : [];
+            const stressBars = Array.isArray(sys.stress?.bars) ? sys.stress.bars : [];
+            const sumCurMax = (bars) => bars.reduce((acc, b) => {
+                acc.current += Math.max(0, Math.floor(Number(b?.current ?? 0) || 0));
+                acc.max += Math.max(0, Math.floor(Number(b?.max ?? 0) || 0));
+                return acc;
+            }, { current: 0, max: 0 });
+            const hp = sumCurMax(healthBars);
+            const stress = sumCurMax(stressBars);
+            const combat = sys.combat ?? {};
+            const iniEqTotal = Number(combat.initiativeEquipmentTotal ?? 0) || 0;
+            const iniD8Mech = Number(combat.initiativeD8FromMechanics ?? 0) || 0;
+            const iniMR = Number(combat.initiativeMasteryRank ?? sys.mastery?.rank ?? 2) || 2;
+            const iniDice = Math.max(0, iniMR + iniD8Mech);
+            context.combatStatsView = {
+                armor: Number(combat.armorTotal ?? 0) || 0,
+                evade: Number(combat.evadeTotal ?? 8) || 8,
+                drPct: Number(combat.damageReductionPct ?? 0) || 0,
+                initiativeDice: iniDice,
+                initiativeEquipmentDisplay: String(combat.initiativeEquipmentTotalDisplay ?? (iniEqTotal >= 0 ? `+${iniEqTotal}` : String(iniEqTotal))),
+                hp: { current: hp.current, max: hp.max },
+                stress: { current: stress.current, max: stress.max },
+            };
+        }
+        catch (err) {
+            console.error('Mastery System | Failed to build combatStatsView', err);
+            context.combatStatsView = null;
+        }
         // Ensure context is always an object
         if (!context || typeof context !== 'object') {
             console.error('Mastery System | getData returned invalid context', context);
@@ -1427,6 +1461,61 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             catch (err) {
                 console.error('Mastery System | passive slot clear failed', err);
                 ui.notifications?.error('Konnte Passive-Slot nicht leeren.');
+            }
+        });
+        // GM-only Mechanics Debug button: dumps the current aggregated mechanics
+        // contributions + breakdown to the chat log so GMs can diagnose why a
+        // passive isn't adding (e.g. slot not active, power missing mechanics,
+        // legacy item without templateId fallback).
+        html.find('.passive-slot-debug-btn').off('click.passive-slot-debug').on('click.passive-slot-debug', async (e) => {
+            e.preventDefault();
+            try {
+                const { collectMechanicsContributions, buildActorMechanicsBreakdown } = await import('../utils/power-mechanics.js');
+                const contrib = collectMechanicsContributions(this.actor);
+                const bd = buildActorMechanicsBreakdown(this.actor);
+                const sys = this.actor.system ?? {};
+                const passives = sys.passives ?? {};
+                const slotRows = [];
+                for (const key of Object.keys(passives)) {
+                    if (!/^slot\d+$/.test(key))
+                        continue;
+                    const s = passives[key];
+                    slotRows.push(`${key}: id=${s?.passive?.id ?? '—'} name=${s?.passive?.name ?? '—'} active=${s?.active === true}`);
+                }
+                const esc = (s) => String(s)
+                    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                const contribHtml = contrib.length === 0
+                    ? '<em>Keine Mechanics-Beiträge aktiv</em>'
+                    : contrib.map((c) => `<li><strong>${esc(c.source)}</strong> [${esc(c.sourceKind)}]: ${esc(JSON.stringify(c.mechanics))}</li>`).join('');
+                const slotHtml = slotRows.length === 0
+                    ? '<em>Keine Passive-Slots konfiguriert</em>'
+                    : slotRows.map(r => `<li>${esc(r)}</li>`).join('');
+                const totalsHtml = `
+          <li>Armor: ${bd.totals.armor}</li>
+          <li>Evade: ${bd.totals.evade}</li>
+          <li>Initiative d8: ${bd.totals.initiativeD8}</li>
+          <li>Regen: ${bd.totals.regen}</li>
+          <li>DR %: ${bd.totals.damageReductionPct}</li>`;
+                const content = `
+          <div class="mastery-mechanics-debug">
+            <h3><i class="fas fa-bug"></i> Mechanics Debug — ${esc(String(this.actor.name))}</h3>
+            <h4>Passive Slots (raw)</h4>
+            <ul>${slotHtml}</ul>
+            <h4>Active Contributions</h4>
+            <ul>${contribHtml}</ul>
+            <h4>Aggregated Totals</h4>
+            <ul>${totalsHtml}</ul>
+          </div>`;
+                await globalThis.ChatMessage.create({
+                    user: game.user?.id,
+                    whisper: [game.user?.id].filter(Boolean),
+                    content,
+                });
+                console.log('Mastery System | [MECHANICS DEBUG]', { contrib, breakdown: bd, passives });
+            }
+            catch (err) {
+                console.error('Mastery System | mechanics debug failed', err);
+                ui.notifications?.error('Mechanics-Debug fehlgeschlagen — siehe Konsole.');
             }
         });
         // Check if creation is incomplete - don't lock, just disable non-creation fields

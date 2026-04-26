@@ -173,7 +173,7 @@ export async function showPowerCreationDialog(
       ` : `
       <div class="form-group power-form-group">
         <label class="power-form-label">Rank:</label>
-        <div class="power-form-static">Rank 1 <span style="color:#888;">(fixed during character creation)</span></div>
+        <div class="power-form-static">Rank 2 <span style="color:#888;">(fixed during character creation)</span></div>
       </div>
       `}
     </form>
@@ -200,9 +200,12 @@ export async function showPowerCreationDialog(
                         return false;
                     }
 
+                    // During character creation, all powers are bought at
+                    // Rank 2 (per v0.5.9 design update). Post-creation, the
+                    // player picks the rank explicitly (≤ Mastery Rank).
                     const rank = creationComplete
                         ? parseInt(($html.find('#pc-rank').val() as string) || '1')
-                        : 1;
+                        : 2;
 
                     const isSpell = entry.category === 'active' && !!$html.find('#pc-is-spell').prop('checked');
                     const castingAttribute = isSpell

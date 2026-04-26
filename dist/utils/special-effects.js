@@ -485,34 +485,10 @@ export const SUPPORT_EFFECTS = [
  * Multi-Attack Structures — structural Charged riders that create additional strikes.
  */
 export const MULTI_ATTACK_EFFECTS = [
-    {
-        id: 'autofire',
-        name: 'Autofire(X)',
-        category: 'multiAttack',
-        description: 'Spread shots across X additional targets in range. Requires declaration Raises (+1 Raise per extra target, +1 Raise per +2 m spacing).',
-        duration: 'Instant',
-        stacking: 'No',
-        removal: '—',
-        hasValue: true,
-        save: '—',
-        dispellable: false,
-        pricing: '25 × X',
-        charged: true
-    },
-    {
-        id: 'split-attack',
-        name: 'Split-Attack(2 Strikes)',
-        category: 'multiAttack',
-        description: 'Make 2 strikes and split your Attack Pool evenly between them. Bought bonus damage uses the Split Damage Cost (+1d8 = 25 PP instead of 15 PP).',
-        duration: 'Instant',
-        stacking: 'No',
-        removal: '—',
-        hasValue: false,
-        save: '—',
-        dispellable: false,
-        pricing: 'special pricing (split pool)',
-        charged: true
-    },
+    // NOTE: `Autofire` and `Split-Attack` are attack *modes*, not Specials.
+    // They are declared via `mechanics.autofire` / `mechanics.splitAttack` on
+    // the power itself and must NOT appear as selectable Raise-Specials in the
+    // damage dialog. Previously listed here — removed in v0.5.9.
     {
         id: 'extra-attack',
         name: 'Extra Attack',

@@ -198,11 +198,22 @@ export function registerAttackRollClickHandler() {
                 Number(flags.npcAttackDicePool) > 0
                 ? Math.floor(Number(flags.npcAttackDicePool))
                 : 0;
-            let numDice = npcPool > 0
-                ? npcPool
-                : Number.isFinite(liveAttr) && liveAttr > 0
-                    ? liveAttr
-                    : (flags.attributeValue ?? 2);
+            // Split-Attack: the executor pre-halved the pool and stored it in
+            // flags.attributeValue. Do NOT fall back to the live attribute value for
+            // split-attack strikes, because that would bypass the pool halving.
+            let numDice;
+            if (npcPool > 0) {
+                numDice = npcPool;
+            }
+            else if (flags.splitAttack === true && Number.isFinite(Number(flags.attributeValue)) && Number(flags.attributeValue) > 0) {
+                numDice = Number(flags.attributeValue);
+            }
+            else if (Number.isFinite(liveAttr) && liveAttr > 0) {
+                numDice = liveAttr;
+            }
+            else {
+                numDice = flags.attributeValue ?? 2;
+            }
             // Apply health penalty (reduces dice pool)
             const { getCurrentPenalty } = await import('../utils/calculations.js');
             const healthBars = attackerForRoll?.system?.health?.bars || [];
@@ -232,8 +243,9 @@ export function registerAttackRollClickHandler() {
                 usingLiveValue: Number.isFinite(liveAttr) && liveAttr > 0,
                 masteryRankFromFlags: flags.masteryRank
             });
-            // Warn if values don't match (for debugging)
-            if (flags.attributeValue !== numDice && flags.attributeValue > 0) {
+            // Warn if values don't match (for debugging) — but split-attack is
+            // expected to differ (flags holds half of live attribute), so skip then.
+            if (flags.attributeValue !== numDice && flags.attributeValue > 0 && flags.splitAttack !== true) {
                 console.warn('Mastery System | [ATTACK ROLL] Using live attribute value instead of flags', {
                     flagsValue: flags.attributeValue,
                     liveValue: numDice,
@@ -651,6 +663,50 @@ async function rollAndDisplayDamage(damageResult, attacker, target, _flags) {
             .map((r) => (typeof r?.toJSON === 'function' ? r.toJSON() : r))
             .filter(Boolean)
         : [];
+    // Mitigation summary block — make it easy to see how much damage was
+    // soaked by Armor / DR% and what actually went through. The mitigation
+    // object is produced by `applyDefensiveMitigation`; it is absent if the
+    // attack bypassed the defensive pipeline (e.g. no target).
+    let mitigationHtml = '';
+    const mit = damageResult.mitigation;
+    if (mit) {
+        if (mit.phased) {
+            mitigationHtml = `
+        <div class="mastery-damage-mitigation mastery-damage-phased">
+          <div class="mastery-damage-mitigation-title"><i class="fas fa-ghost"></i> Phased — Angriff ignoriert</div>
+          <div class="mastery-damage-mitigation-breakdown">${esc(mit.breakdownLine)}</div>
+        </div>`;
+        }
+        else {
+            const armorLine = mit.armorApplied > 0
+                ? `<span class="mitigation-chip mitigation-chip-armor"><i class="fas fa-shield-alt"></i> Rüstung: ${mit.armorApplied} aufgefangen</span>`
+                : '';
+            const drLine = mit.drPercent > 0
+                ? `<span class="mitigation-chip mitigation-chip-dr"><i class="fas fa-user-shield"></i> DR: ${mit.drPercent}% reduziert</span>`
+                : '';
+            const tempLine = mit.tempHPAbsorbed > 0
+                ? `<span class="mitigation-chip mitigation-chip-temp"><i class="fas fa-heart"></i> Temp-HP: ${mit.tempHPAbsorbed} absorbiert</span>`
+                : '';
+            const min8sLine = mit.min8sUsed
+                ? `<span class="mitigation-chip mitigation-chip-8s"><i class="fas fa-dice"></i> 8er-Minimum</span>`
+                : '';
+            mitigationHtml = `
+        <div class="mastery-damage-mitigation">
+          <div class="mastery-damage-mitigation-title">
+            <i class="fas fa-shield-halved"></i> Schadensreduktion
+          </div>
+          <div class="mastery-damage-mitigation-chips">
+            <span class="mitigation-chip mitigation-chip-raw"><i class="fas fa-burst"></i> Roh: ${mit.rawDamage}</span>
+            ${armorLine}
+            ${drLine}
+            ${tempLine}
+            ${min8sLine}
+            <span class="mitigation-chip mitigation-chip-final"><i class="fas fa-heart-crack"></i> HP verloren: <strong>${mit.barDamage}</strong></span>
+          </div>
+          <div class="mastery-damage-mitigation-breakdown">${esc(mit.breakdownLine)}</div>
+        </div>`;
+        }
+    }
     const chatData = {
         user: game.user?.id,
         speaker: ChatMessage.getSpeaker({ actor: attacker, token: attackerToken }),
@@ -659,6 +715,7 @@ async function rollAndDisplayDamage(damageResult, attacker, target, _flags) {
       ${rollsHtml}
       <p class="mastery-damage-summary">${damageText}</p>
       <p><strong>Target:</strong> ${target.name}</p>
+      ${mitigationHtml}
     </div>`
     };
     if (serializedRolls.length > 0) {

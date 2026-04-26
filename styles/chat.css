@@ -833,3 +833,83 @@
   flex: 1 1 140px;
   min-width: 0;
 }
+
+/* =====================================================================
+   Damage Mitigation Block (shown on the damage chat card)
+   Makes it visually obvious how much damage Armor / DR% / Temp-HP
+   soaked and how much actually hit the target's HP.
+   ===================================================================== */
+
+#chat-log .mastery-damage-mitigation {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border: 1px solid rgba(204, 136, 255, 0.35);
+  background: rgba(30, 20, 45, 0.35);
+  border-radius: 6px;
+}
+
+#chat-log .mastery-damage-mitigation.mastery-damage-phased {
+  border-color: rgba(150, 150, 255, 0.45);
+  background: rgba(30, 30, 60, 0.35);
+}
+
+#chat-log .mastery-damage-mitigation-title {
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  color: #d6c6ea;
+}
+
+#chat-log .mastery-damage-mitigation-title i {
+  color: #cc88ff;
+  margin-right: 4px;
+}
+
+#chat-log .mastery-damage-mitigation-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 6px;
+}
+
+#chat-log .mastery-damage-mitigation .mitigation-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #f0f0f0;
+}
+
+#chat-log .mastery-damage-mitigation .mitigation-chip i {
+  font-size: 0.75rem;
+}
+
+#chat-log .mastery-damage-mitigation .mitigation-chip-raw { border-color: rgba(200, 200, 200, 0.35); }
+#chat-log .mastery-damage-mitigation .mitigation-chip-armor { border-color: rgba(158, 193, 255, 0.55); }
+#chat-log .mastery-damage-mitigation .mitigation-chip-armor i { color: #9ec1ff; }
+#chat-log .mastery-damage-mitigation .mitigation-chip-dr { border-color: rgba(204, 136, 255, 0.55); }
+#chat-log .mastery-damage-mitigation .mitigation-chip-dr i { color: #cc88ff; }
+#chat-log .mastery-damage-mitigation .mitigation-chip-temp { border-color: rgba(127, 211, 169, 0.55); }
+#chat-log .mastery-damage-mitigation .mitigation-chip-temp i { color: #7fd3a9; }
+#chat-log .mastery-damage-mitigation .mitigation-chip-8s { border-color: rgba(255, 209, 102, 0.55); }
+#chat-log .mastery-damage-mitigation .mitigation-chip-8s i { color: #ffd166; }
+#chat-log .mastery-damage-mitigation .mitigation-chip-final {
+  border-color: rgba(233, 69, 96, 0.65);
+  background: rgba(233, 69, 96, 0.15);
+}
+#chat-log .mastery-damage-mitigation .mitigation-chip-final i { color: #ff8a80; }
+
+#chat-log .mastery-damage-mitigation-breakdown {
+  font-family: var(--ms-font-mono, monospace);
+  font-size: 0.74rem;
+  color: var(--ms-muted, #b8b8b8);
+  opacity: 0.85;
+  letter-spacing: 0.02em;
+}

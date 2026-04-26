@@ -582,10 +582,13 @@ function splitWeaponAttackTemplate(flavour) {
                 aoe: { shape: 'weapon', targets: p.attacks },
                 effectText: effect,
                 dice: diceText || undefined,
-                specials: [{ key: 'split-attack', value: p.attacks }],
+                // Split-Attack is an attack *mode*, not a Special: declare via
+                // mechanics.splitAttack so the runtime halves the pool, but do
+                // NOT expose it in the Raise-Special catalog.
+                specials: [],
                 mechanics: p.dice === 0
-                    ? { applyWhen: 'attack-rider' }
-                    : { damageRider: { flat: diceText }, applyWhen: 'attack-rider' },
+                    ? { applyWhen: 'attack-rider', splitAttack: true }
+                    : { damageRider: { flat: diceText }, applyWhen: 'attack-rider', splitAttack: true },
             });
         }),
     };
@@ -620,10 +623,13 @@ function autofireWeaponAttackTemplate() {
                 aoe: { shape: 'weapon', targets: 1 + p.extra },
                 effectText: effect,
                 dice: diceText || undefined,
-                specials: [{ key: 'autofire', value: p.extra }],
+                // Autofire is an attack *mode*, not a Special: declared via
+                // mechanics.autofire. The "+1 Raise per extra target" rule is
+                // applied by the runtime, not by exposing a catalog entry.
+                specials: [],
                 mechanics: p.dice === 0
-                    ? { applyWhen: 'attack-rider' }
-                    : { damageRider: { flat: diceText }, applyWhen: 'attack-rider' },
+                    ? { applyWhen: 'attack-rider', autofire: { extraTargets: p.extra } }
+                    : { damageRider: { flat: diceText }, applyWhen: 'attack-rider', autofire: { extraTargets: p.extra } },
             });
         }),
     };

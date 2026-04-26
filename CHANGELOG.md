@@ -2,6 +2,34 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.9] - 2026-04-26
+
+### Fixed
+
+- **Split-Attack attack pool is now actually halved on the roll.** Root cause: `src/combat/attack-executor.ts` correctly halved `attributeValue` per strike and wrote it to `flags.attributeValue`, but `src/chat/attack-roll-handler.ts` preferred the *live* attribute value of the actor and only used the flag as a fallback. This meant a Might-8 character rolling a Split-Attack still threw `8d8 keep 2` per strike instead of the intended `4d8 keep 2` per strike. The handler now gives `flags.attributeValue` priority over `liveAttr` whenever `flags.splitAttack === true`, preserving the halving. NPC pools (`useNpcAttackDicePool`) still take absolute precedence.
+- **"Split-Attack" and "Autofire" are no longer listed as selectable Raise-Specials.** They are attack *modes*, not Specials — the attacker does not "buy" Autofire with a raise; the extra-target rule is part of how the attack is declared. Removed from three places:
+  - `src/utils/powers/templates/actives.ts`: the split-attack and autofire power-row builders no longer emit `specials: [{ key: 'split-attack', … }]` / `autofire` entries. Instead they declare the attack mode in the `mechanics` block (`mechanics.splitAttack: true` / `mechanics.autofire = { extraTargets }`), which is what the runtime already reads in `detectSplitAttack` and what the executor uses to dispatch two strikes.
+  - `src/utils/special-effects.ts`: the `autofire` and `split-attack` entries in `MULTI_ATTACK_EFFECTS` are removed so they never populate the Raise-Special picker.
+  - `src/dice/damage-dialog.ts` → `collectAvailableSpecials`: defense-in-depth filter skips any legacy power item whose `specials` array still carries `"Split-Attack(…)"` or `"Autofire(…)"` strings.
+- **Autofire gets a typed `mechanics.autofire.extraTargets` field.** New type property in `src/types/item.d.ts` documents the closed semantics alongside `splitAttack?: boolean`.
+
+### Added
+
+- **Compact Combat Stats Panel under the character-sheet header — visible on every tab.** The user-feedback was that the current Armor / Evade / DR / Initiative totals were "not findable" because they only existed inside the Attributes tab. The new panel surfaces all of them plus total HP and total Stress as small chips directly under the portrait/creation banner, so wherever you are on the sheet the at-a-glance numbers are one glance away. Full per-source breakdowns (equipment, passives, buffs, manual adjustments) remain in the Attributes-tab cards.
+- **Segmented HP bar on the Combat Carousel.** A new color-graded bar is rendered under each combatant portrait with one segment per wound-level (Healthy → Bruised → Injured → Wounded → Critical = green/yellow/orange/red/dark-red), sized proportionally to that level's max HP and filled according to its current HP. The bar reads the live `system.health.bars` array, so extra health levels introduced by passives or equipment are rendered dynamically without code changes. Totals (`HP: current/max`) are shown in the bar header.
+- **Damage mitigation is now a prominent block on the damage chat card.** Previously the Armor/DR/Temp-HP breakdown lived inside a string on the `AppliedDamageSummary` but was not rendered in the chat card at all — so when a Tech Dummy ate 30 damage after your hit, you had no way to see "Rüstung: 4 aufgefangen, DR: 10%, HP verloren: 23". The new block renders chips for each mitigation step plus the raw breakdown string as a monospace footer, and a dedicated "Phased — Angriff ignoriert" style for phased hits.
+- **GM-only Mechanics Debug button in the Passive Slot Manager.** Dumps the full list of currently aggregated mechanics contributions, the raw `system.passives.slotN` entries, and the aggregated totals (Armor/Evade/Init-d8/Regen/DR%) as a whisper-to-self chat message. Intended for diagnosing "my Fortified Frame says +1 Armor on the sheet but the armor total doesn't move" scenarios — either a slot isn't active, or a legacy power item is missing its `templateId`/`mechanics` and therefore falls through the aggregator.
+
+### Changed
+
+- **Combat Carousel moved down ~30 px (top `-9px` → `20px`).** The previous position clipped the top third of every token portrait. The new offset keeps the carousel clearly visible at the top of the viewport without covering the scene navigation or the portraits.
+- **All powers bought during Character Creation are now added at Rank 2** (previously Rank 1). The hardcoded default in `src/sheets/character-sheet-power-dialog.ts` and the static "Rank 1 (fixed during character creation)" label in the rank widget were both updated to Rank 2. Post-creation, the player still selects the rank explicitly (still bounded by Mastery Rank and, for spells, by `maxSpellLevel = MR × 2`).
+
+### Internal
+
+- `PowerMechanics` interface gains an optional `autofire?: { extraTargets: number }` alongside the existing `splitAttack?: boolean` so attack-mode declarations have a typed home.
+- Character sheet `getData()` now exposes a `combatStatsView` view-model (armor/evade/drPct/initiativeDice/initiativeEquipmentDisplay/hp/stress totals) so the compact panel template can stay trivial and all derivations live in one place.
+
 ## [0.5.8] - 2026-04-26
 
 ### Changed

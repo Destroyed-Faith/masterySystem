@@ -239,6 +239,42 @@ export class CombatCarouselApp extends BaseCarousel {
                 console.warn('Mastery System | [CAROUSEL] Failed to collect passive slot icons:', err);
             }
             console.log('Mastery System | [CAROUSEL] Final status icons:', statusIcons.length, statusIcons);
+            // Build the segmented HP bar: one segment per health-bar (wound level).
+            // Dynamically includes extra bars from passives/equipment. Each segment
+            // carries a `severity` index (0=healthy-green, 1=yellow, 2=orange, 3=red,
+            // 4+=dark-red) derived from its position so extra bars degrade further.
+            const hpSegments = [];
+            let hpTotalCurrent = 0;
+            let hpTotalMax = 0;
+            try {
+                const bars = actor.system?.health?.bars;
+                if (Array.isArray(bars) && bars.length > 0) {
+                    for (const bar of bars) {
+                        const cur = Math.max(0, Math.floor(Number(bar?.current ?? 0) || 0));
+                        const mx = Math.max(0, Math.floor(Number(bar?.max ?? 0) || 0));
+                        hpTotalCurrent += cur;
+                        hpTotalMax += mx;
+                    }
+                    if (hpTotalMax > 0) {
+                        bars.forEach((bar, idx) => {
+                            const cur = Math.max(0, Math.floor(Number(bar?.current ?? 0) || 0));
+                            const mx = Math.max(0, Math.floor(Number(bar?.max ?? 0) || 0));
+                            const severity = Math.min(4, idx); // clamp so extras still render
+                            const widthPct = mx > 0 ? (mx / hpTotalMax) * 100 : 0;
+                            hpSegments.push({
+                                name: String(bar?.name ?? `Bar ${idx + 1}`),
+                                current: cur,
+                                max: mx,
+                                severity,
+                                widthPct,
+                            });
+                        });
+                    }
+                }
+            }
+            catch (err) {
+                console.warn('Mastery System | [CAROUSEL] Failed to build HP segments:', err);
+            }
             // Use actor portrait, not token image
             const portraitImg = actor.img || actor.prototypeToken?.texture?.src || combatant.img;
             combatants.push({
@@ -258,6 +294,9 @@ export class CombatCarouselApp extends BaseCarousel {
                     label: resource2Label
                 },
                 statusIcons: statusIcons.filter((item) => item && item.icon),
+                hpTotalCurrent,
+                hpTotalMax,
+                hpSegments,
                 hasToken: !!token,
                 tokenId: tokenId,
                 showStonePowersButton: actor.type === 'character' && !!(game.user?.isGM || actor.isOwner),

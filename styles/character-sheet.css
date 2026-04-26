@@ -9035,6 +9035,97 @@
 }
 
 /* =====================================================================
+   Compact Combat Stats Panel (always visible under the header)
+   At-a-glance Armor / Evade / DR% / Initiative / HP / Stress chips so
+   players don't have to hunt inside the Attributes tab. Detailed
+   per-source breakdowns remain in `.combat-stats-section` (Attributes).
+   ===================================================================== */
+
+.mastery-system.sheet.actor.character .combat-stats-panel {
+  margin: 10px 0 12px 0;
+  padding: 10px 14px;
+  background: var(--df-bg-panel, rgba(30, 40, 50, 0.55));
+  border: 1px solid var(--df-border, rgba(233, 69, 96, 0.35));
+  border-radius: 8px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.mastery-system.sheet.actor.character .combat-stats-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--df-text-heading, #f0f0f0);
+  margin-bottom: 6px;
+}
+
+.mastery-system.sheet.actor.character .combat-stats-panel-title i {
+  color: #e94560;
+}
+
+.mastery-system.sheet.actor.character .combat-stats-panel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 6px;
+}
+
+.mastery-system.sheet.actor.character .combat-stats-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--df-bg-card, rgba(0, 0, 0, 0.3));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  color: var(--df-text, #e8e8e8);
+  font-size: 0.92rem;
+  cursor: help;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.mastery-system.sheet.actor.character .combat-stats-chip:hover {
+  transform: translateY(-1px);
+  border-color: rgba(233, 69, 96, 0.55);
+}
+
+.mastery-system.sheet.actor.character .combat-stats-chip i {
+  font-size: 0.95rem;
+  opacity: 0.85;
+  min-width: 16px;
+  text-align: center;
+}
+
+.mastery-system.sheet.actor.character .combat-stats-chip .chip-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.7;
+}
+
+.mastery-system.sheet.actor.character .combat-stats-chip .chip-value {
+  margin-left: auto;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.mastery-system.sheet.actor.character .combat-stats-chip-armor i   { color: #9ec1ff; }
+.mastery-system.sheet.actor.character .combat-stats-chip-evade i   { color: #7fd3a9; }
+.mastery-system.sheet.actor.character .combat-stats-chip-dr i      { color: #cc88ff; }
+.mastery-system.sheet.actor.character .combat-stats-chip-initiative i { color: #ffd166; }
+.mastery-system.sheet.actor.character .combat-stats-chip-hp i      { color: #ff8a80; }
+.mastery-system.sheet.actor.character .combat-stats-chip-stress i  { color: #81d4fa; }
+
+.mastery-system.sheet.actor.character .combat-stats-panel-hint {
+  margin: 6px 0 0 0;
+  font-size: 0.72rem;
+  opacity: 0.65;
+  color: var(--df-text-muted, #bdbdbd);
+}
+
+/* =====================================================================
    Passive Slot Manager (Powers tab)
    Player-facing slotting UI. Allows slotting + activating passives
    outside of combat so their Power Mechanics are aggregated into the
@@ -9081,6 +9172,28 @@
 .mastery-system.sheet.actor.character .passive-slot-manager-status strong {
   color: var(--df-text-primary, #d0d0d0);
   font-variant-numeric: tabular-nums;
+}
+
+.mastery-system.sheet.actor.character .passive-slot-debug-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  background: rgba(204, 136, 255, 0.12);
+  border: 1px solid rgba(204, 136, 255, 0.45);
+  border-radius: 4px;
+  color: #e0cbff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mastery-system.sheet.actor.character .passive-slot-debug-btn:hover {
+  background: rgba(204, 136, 255, 0.22);
+  border-color: #cc88ff;
 }
 
 .mastery-system.sheet.actor.character .passive-slot-manager-hint {

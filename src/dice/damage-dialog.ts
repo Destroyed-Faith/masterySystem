@@ -1115,6 +1115,18 @@ async function collectAvailableSpecials(actor: Actor, weapon: any | null, select
   // Get power specials from selected power (e.g., "Bleeding(3)")
   if (selectedPower && selectedPower.specials && selectedPower.specials.length > 0) {
     for (const specialName of selectedPower.specials) {
+      // Defense-in-depth: Split-Attack and Autofire are attack *modes*, not
+      // Raise-Specials. Legacy power items may still carry these strings in
+      // their `specials` array — filter them out so they never appear in the
+      // raise-special picker.
+      const normalized = String(specialName || '').trim().toLowerCase();
+      if (
+        normalized.startsWith('split-attack') ||
+        normalized.startsWith('split attack') ||
+        normalized.startsWith('autofire')
+      ) {
+        continue;
+      }
       // Parse special name like "Bleeding(3)" to extract name and value
       const match = specialName.match(/^([^(]+)(?:\((\d+)\))?$/);
       if (match) {

@@ -134,6 +134,51 @@
   {{/if}}
   {{/if}}
 
+  <!-- Compact Combat Stats Panel — always visible on every tab so the current
+       Armor / Evade / DR% / Initiative / HP / Stress values are at-a-glance.
+       The detailed per-source breakdowns remain in the Attributes tab cards. -->
+  {{#if combatStatsView}}
+  <div class="combat-stats-panel" aria-label="Current combat stats">
+    <div class="combat-stats-panel-title">
+      <i class="fas fa-shield-halved"></i>
+      <span>Aktuelle Kampfwerte</span>
+    </div>
+    <div class="combat-stats-panel-grid">
+      <div class="combat-stats-chip combat-stats-chip-armor" title="Armor (flat soak): Summe aus MR, ausgerüsteter Rüstung, Schild, Passives, Buffs, Manual Adjustments. Details im Tab 'Attributes' als Tooltip.">
+        <i class="fas fa-shield-alt"></i>
+        <span class="chip-label">Armor</span>
+        <span class="chip-value">{{combatStatsView.armor}}</span>
+      </div>
+      <div class="combat-stats-chip combat-stats-chip-evade" title="Evade: 8 + Agility + Passives + Buffs + Manual Adjustments.">
+        <i class="fas fa-wind"></i>
+        <span class="chip-label">Evade</span>
+        <span class="chip-value">{{combatStatsView.evade}}</span>
+      </div>
+      <div class="combat-stats-chip combat-stats-chip-dr" title="Damage Reduction %: nur aktiv, wenn mindestens eine DR-Passive aktiv ist. Buffs/Reactions stapeln nur mit Passive-Basis.">
+        <i class="fas fa-user-shield"></i>
+        <span class="chip-label">DR</span>
+        <span class="chip-value">{{combatStatsView.drPct}}%</span>
+      </div>
+      <div class="combat-stats-chip combat-stats-chip-initiative" title="Initiative-Wurf: {{combatStatsView.initiativeDice}}d8, plus Equipment-Mod {{combatStatsView.initiativeEquipmentDisplay}}.">
+        <i class="fas fa-bolt"></i>
+        <span class="chip-label">Init</span>
+        <span class="chip-value">{{combatStatsView.initiativeDice}}d8 {{combatStatsView.initiativeEquipmentDisplay}}</span>
+      </div>
+      <div class="combat-stats-chip combat-stats-chip-hp" title="HP (Summe aller Wundlevel-Bars).">
+        <i class="fas fa-heart"></i>
+        <span class="chip-label">HP</span>
+        <span class="chip-value">{{combatStatsView.hp.current}}/{{combatStatsView.hp.max}}</span>
+      </div>
+      <div class="combat-stats-chip combat-stats-chip-stress" title="Stress (Summe aller Stress-Bars).">
+        <i class="fas fa-brain"></i>
+        <span class="chip-label">Stress</span>
+        <span class="chip-value">{{combatStatsView.stress.current}}/{{combatStatsView.stress.max}}</span>
+      </div>
+    </div>
+    <p class="combat-stats-panel-hint">Details &amp; Breakdown: Tab <strong>Attributes</strong> → Combat Statistics.</p>
+  </div>
+  {{/if}}
+
   <!-- Tabs Navigation (Right Side Bookmarks) -->
   <nav class="sheet-tabs tabs" data-group="primary">
     <a class="item" data-tab="attributes"><i class="fas fa-fist-raised"></i> Attributes</a>
@@ -1312,6 +1357,11 @@
             <strong>{{passiveSlotView.activeCount}}</strong> / <strong>{{passiveSlotView.maxSlots}}</strong> aktiv
             <span class="passive-slot-manager-hint">(Mastery Rank limit)</span>
           </div>
+          {{#if (userIsGM)}}
+          <button type="button" class="passive-slot-debug-btn" title="GM Only: Dumpt alle aktuell aggregierten Mechanics-Beiträge in den Chat. Nützlich zur Fehlersuche, wenn Passive-Bonus nicht zu wirken scheinen.">
+            <i class="fas fa-bug"></i> Debug
+          </button>
+          {{/if}}
         </div>
         <p class="passive-slot-manager-help">
           Nur <strong>geslottete &amp; aktivierte</strong> Passives wirken auf deine Combat Stats.

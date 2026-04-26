@@ -276,6 +276,16 @@ export interface PowerMechanics {
   splitAttack?: boolean;
 
   /**
+   * Declares this power as Autofire. This is an attack *mode*, not a Special:
+   * it does not appear in the Raise-Special catalog. The attacker makes one
+   * attack roll against a primary target and may declare up to `extraTargets`
+   * additional targets at the cost of +1 Raise each.
+   */
+  autofire?: {
+    extraTargets: number;
+  };
+
+  /**
    * Phasing subsystem — a premium, closed defensive axis. Only the three
    * sanctioned powers (`Ghostform` passive, `Ghost Mantle` active buff,
    * `Ghost Slip` reaction) may declare this field. The passive grants base
