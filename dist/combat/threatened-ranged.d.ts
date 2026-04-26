@@ -12,6 +12,8 @@ import type { RadialCombatOption } from "../token-radial-menu";
 export declare function distanceBetweenTokensMeters(a: any, b: any): number;
 /** Melee reach in meters for this actor (2m base + weapon reach bonus). */
 export declare function getActorMeleeReachMeters(actor: any): number;
+/** True when `other` is treated as hostile to `attackerToken` (disposition-based). */
+export declare function tokenIsHostileTo(attackerToken: any, other: any): boolean;
 /**
  * True if this attack uses the Threatened Ranged rule set (bow/crossbow/thrown declaration).
  * Ranged *powers* only count if explicitly flagged (`threatened-ranged` tag or system.threatenedRanged),

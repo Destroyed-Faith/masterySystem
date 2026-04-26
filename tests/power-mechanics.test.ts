@@ -266,6 +266,23 @@ describe('aggregateMechanics — pure summing', () => {
     expect(bd.totals.armor).toBe(0);
     expect(bd.armor).toEqual([]);
   });
+
+  it('skips self.adjacentEnemies gate when no adjacent hostiles (no canvas)', () => {
+    const bd = aggregateMechanics(
+      [
+        {
+          source: 'Bulwark',
+          mechanics: {
+            armor: 3,
+            applyWhen: 'passive-slotted-active',
+            conditionExpr: 'self.adjacentEnemies >= 2',
+          },
+        },
+      ],
+      { id: 'a1', system: { health: { bars: [{ name: 'Healthy' }], currentBar: 0 } } },
+    );
+    expect(bd.totals.armor).toBe(0);
+  });
 });
 
 describe('collectMechanicsContributions — slot-activated passives', () => {
@@ -278,7 +295,7 @@ describe('collectMechanicsContributions — slot-activated passives', () => {
     applyWhen: 'passive-slotted-active',
   });
 
-  it('only active=true slots contribute', () => {
+  it('all slotted passives contribute (slotted = active; legacy active=false ignored)', () => {
     const actor = makeActor({
       items: [dragonScales, stormVeil],
       slots: {
@@ -287,9 +304,10 @@ describe('collectMechanicsContributions — slot-activated passives', () => {
       },
     });
     const contribs = collectMechanicsContributions(actor);
-    expect(contribs.length).toBe(1);
-    expect(contribs[0].mechanics.armor).toBe(1);
-    expect(contribs[0].source).toContain('Dragon Scales');
+    expect(contribs.length).toBe(2);
+    expect(contribs.map((c) => c.mechanics.armor ?? c.mechanics.evade)).toEqual(
+      expect.arrayContaining([1, 2]),
+    );
   });
 
   it('empty slots are skipped', () => {

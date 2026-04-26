@@ -6,7 +6,7 @@
  *
  * Migrated to Foundry VTT v13 ApplicationV2 + HandlebarsApplicationMixin
  */
-import { getPassiveSlots, getAvailablePassives, getSlottedPassiveIds, slotPassive, activatePassive, unslotPassive } from '../powers/passives.js';
+import { getPassiveSlots, getAvailablePassives, getSlottedPassiveIds, slotPassive, unslotPassive } from '../powers/passives.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
@@ -124,7 +124,7 @@ export class PassiveSelectionDialog extends BaseDialog {
                 slot.style.pointerEvents = 'none';
                 slot.style.opacity = '0.6';
             });
-            root.querySelectorAll('.js-toggle-passive, .js-unslot-passive').forEach(btn => {
+            root.querySelectorAll('.js-unslot-passive').forEach(btn => {
                 btn.style.display = 'none';
             });
             root.querySelectorAll('.available-passives-section').forEach(section => {
@@ -169,18 +169,6 @@ export class PassiveSelectionDialog extends BaseDialog {
                     if (!passiveId || !slot.classList.contains('empty'))
                         return;
                     await slotPassive(actor, slotIndex, passiveId);
-                    await this.render({ force: true });
-                };
-            });
-            // Toggle passive active/inactive
-            root.querySelectorAll('.js-toggle-passive').forEach(btn => {
-                btn.onclick = async (ev) => {
-                    ev.preventDefault();
-                    const actor = this.currentActor;
-                    if (!actor)
-                        return;
-                    const slotIndex = Number(btn.dataset.slotIndex ?? 0);
-                    await activatePassive(actor, slotIndex);
                     await this.render({ force: true });
                 };
             });

@@ -12,7 +12,6 @@ import {
   getAvailablePassives,
   getSlottedPassiveIds,
   slotPassive,
-  activatePassive,
   unslotPassive
 } from '../powers/passives.js';
 
@@ -165,7 +164,7 @@ export class PassiveSelectionDialog extends BaseDialog {
         slot.style.pointerEvents = 'none';
         slot.style.opacity = '0.6';
       });
-      root.querySelectorAll<HTMLElement>('.js-toggle-passive, .js-unslot-passive').forEach(btn => {
+      root.querySelectorAll<HTMLElement>('.js-unslot-passive').forEach(btn => {
         btn.style.display = 'none';
       });
       root.querySelectorAll<HTMLElement>('.available-passives-section').forEach(section => {
@@ -210,19 +209,6 @@ export class PassiveSelectionDialog extends BaseDialog {
           if (!passiveId || !slot.classList.contains('empty')) return;
 
           await slotPassive(actor, slotIndex, passiveId);
-          await (this as any).render({ force: true });
-        };
-      });
-
-      // Toggle passive active/inactive
-      root.querySelectorAll<HTMLElement>('.js-toggle-passive').forEach(btn => {
-        btn.onclick = async (ev) => {
-          ev.preventDefault();
-          const actor = this.currentActor;
-          if (!actor) return;
-
-          const slotIndex = Number(btn.dataset.slotIndex ?? 0);
-          await activatePassive(actor, slotIndex);
           await (this as any).render({ force: true });
         };
       });

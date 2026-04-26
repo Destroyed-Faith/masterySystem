@@ -37,7 +37,6 @@ import {
   getPassiveSlots,
   getAvailablePassives,
   slotPassive,
-  activatePassive,
   unslotPassive
 } from '../powers/passives.js';
 import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items';
@@ -1577,19 +1576,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       } catch (err) {
         console.error('Mastery System | passive slot change failed', err);
         (ui as any).notifications?.error('Konnte Passive-Slot nicht aktualisieren.');
-      }
-    });
-
-    html.find('.passive-slot-toggle').off('change.passive-slot').on('change.passive-slot', async (e: JQuery.ChangeEvent) => {
-      const el = e.currentTarget as HTMLInputElement;
-      const slotIndex = Number(el.dataset.slotIndex);
-      if (!Number.isFinite(slotIndex)) return;
-      try {
-        await activatePassive(this.actor as any, slotIndex);
-        this.render(false);
-      } catch (err) {
-        console.error('Mastery System | passive slot toggle failed', err);
-        (ui as any).notifications?.error('Konnte Passive nicht (de)aktivieren.');
       }
     });
 

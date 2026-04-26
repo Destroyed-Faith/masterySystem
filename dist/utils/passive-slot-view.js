@@ -2,7 +2,7 @@
  * Passive Slot View — Character Sheet data provider
  *
  * Produces the view-model that the Powers tab uses to render the
- * player-facing Passive Slot Manager (slot dropdowns + activate toggles).
+ * player-facing Passive Slot Manager (slot dropdowns; slotted = active).
  *
  * Kept separate from `src/powers/passives.ts` so the sheet can stay
  * declarative and the core passives module remains free of UI concerns.
@@ -35,7 +35,7 @@ export function buildPassiveSlotView(actor) {
             index: s.slotIndex,
             slotKey: `slot${s.slotIndex}`,
             hasPassive: !!s.passive,
-            isActive: !!s.active,
+            isActive: !!s.passive,
             passiveId: pid,
             passiveName: s.passive?.name ?? null,
             summary,
@@ -53,7 +53,7 @@ export function buildPassiveSlotView(actor) {
             slottedInSlot: slotIdToIndex.has(String(p.id)) ? slotIdToIndex.get(String(p.id)) ?? null : null,
         };
     });
-    const activeCount = slotRows.filter((r) => r.isActive && r.hasPassive).length;
+    const activeCount = slotRows.filter((r) => r.hasPassive).length;
     const maxSlots = slotRows.length;
     return {
         slots: slotRows,

@@ -59,8 +59,11 @@ export declare function collectMechanicsContributions(actor: any): MechanicsCont
  * Sum all collected mechanics contributions into a full breakdown with
  * precomputed totals. The result is ready to be stored on
  * `actor.system.derived.mechanicsBreakdown`.
+ *
+ * Pass `actor` so self-facing `conditionExpr` gates (e.g. adjacent enemies)
+ * can fold into `totals`; omit it only for pure unit tests of unconditional rows.
  */
-export declare function aggregateMechanics(contributions: MechanicsContribution[]): MechanicsBreakdown;
+export declare function aggregateMechanics(contributions: MechanicsContribution[], actor?: any): MechanicsBreakdown;
 /** High-level convenience: contributions + aggregation in one call. */
 export declare function buildActorMechanicsBreakdown(actor: any): MechanicsBreakdown;
 /**
@@ -92,6 +95,13 @@ export declare function hasCondition(actor: any, condition: string): boolean;
  * `targetMarked`, …) and self-facing (`self-hp-below-50`) flavors.
  */
 export declare function evaluateConditionGate(self: any, target: any, condition: string | null | undefined): boolean;
+/**
+ * Evaluate mechanics `condition` / `conditionExpr` including `self.adjacentEnemies`,
+ * movement meters, health state, and `self.hasSpecial.*`. Dot-prefixed `target.*`
+ * is reserved for future runtime (returns false). Legacy gates defer to
+ * `evaluateConditionGate`.
+ */
+export declare function evaluateMechanicsConditionExpr(self: any, target: any, expr: string): boolean;
 /**
  * A conditional damage rider that fires when attacking a target that carries
  * a given condition. Returned from `collectConditionalDamageRiders`.

@@ -97,7 +97,8 @@ export async function slotPassive(actor, slotIndex, passiveId) {
             category: 'General'
         };
     }
-    system.passives[slotKey].active = false;
+    // Slotted passives are always treated as active (no separate activate step).
+    system.passives[slotKey].active = true;
     await actor.update({ 'system.passives': system.passives });
 }
 /**

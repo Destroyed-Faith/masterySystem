@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.13] - 2026-04-26
+
+### Fixed
+
+- **Conditional passives in combat totals:** `conditionExpr` such as `self.adjacentEnemies >= 2` / `self.adjacentAllies` no longer only appear in breakdown text; when the gate is satisfied they fold into `aggregateMechanics` → `armorTotal` / `evadeTotal` / etc. Uses scene tokens and grid distance (`mechanics-adjacency.ts`); `evaluateMechanicsConditionExpr` extends roll/damage gates consistently.
+- **Slotted passives ignored when `active` was false:** New slots set `active: true`; collection no longer requires `slot.active === true`, so legacy “slotted but inactive” rows still grant mechanics.
+- **Carousel combat strip vs. buff icon:** `A` / `E` / **`DR n%`** always shown on one line; active buffs that contribute **only** DR no longer add a duplicate status icon. Portrait strip recomputes via `prepareDerivedData()` and refreshes on **any** token position change during combat so adjacency-based bonuses stay current.
+
+### Changed
+
+- **Passive UI:** Removed Activate/Deactivate from the combat-start passive dialog and from the character sheet passive manager; **slotted = active** (X / clear to remove remains).
+
 ## [0.5.12] - 2026-04-26
 
 ### Fixed

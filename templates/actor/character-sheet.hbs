@@ -1354,8 +1354,8 @@
         <div class="passive-slot-manager-header">
           <h3><i class="fas fa-feather"></i> Passive Slots</h3>
           <div class="passive-slot-manager-status">
-            <strong>{{passiveSlotView.activeCount}}</strong> / <strong>{{passiveSlotView.maxSlots}}</strong> aktiv
-            <span class="passive-slot-manager-hint">(Mastery Rank limit)</span>
+            <strong>{{passiveSlotView.activeCount}}</strong> / <strong>{{passiveSlotView.maxSlots}}</strong> geslottet
+            <span class="passive-slot-manager-hint">(Mastery Rank = Slot-Anzahl)</span>
           </div>
           {{#if (userIsGM)}}
           <button type="button" class="passive-slot-debug-btn" title="GM Only: Dumpt alle aktuell aggregierten Mechanics-Beiträge in den Chat. Nützlich zur Fehlersuche, wenn Passive-Bonus nicht zu wirken scheinen.">
@@ -1364,13 +1364,13 @@
           {{/if}}
         </div>
         <p class="passive-slot-manager-help">
-          Nur <strong>geslottete &amp; aktivierte</strong> Passives wirken auf deine Combat Stats.
+          <strong>Geslottete</strong> Passives wirken automatisch auf deine Combat Stats.
           Buffs/Passives werden im Combat Carousel live angezeigt (lila = Active Buff, blau = Slotted Passive).
         </p>
         {{#if passiveSlotView.slots.length}}
         <div class="passive-slot-rows">
           {{#each passiveSlotView.slots}}
-          <div class="passive-slot-row {{#if this.isActive}}is-active{{/if}} {{#unless this.hasPassive}}is-empty{{/unless}}" data-slot-index="{{this.index}}">
+          <div class="passive-slot-row {{#if this.hasPassive}}is-active{{/if}} {{#unless this.hasPassive}}is-empty{{/unless}}" data-slot-index="{{this.index}}">
             <div class="passive-slot-label">Slot {{add this.index 1}}</div>
             <div class="passive-slot-select-wrap">
               <select class="passive-slot-select" data-slot-index="{{this.index}}" {{#unless @root.editable}}disabled{{/unless}}>
@@ -1383,14 +1383,6 @@
                 {{/each}}
               </select>
             </div>
-            <label class="passive-slot-activate">
-              <input type="checkbox" class="passive-slot-toggle" data-slot-index="{{this.index}}"
-                {{#if this.isActive}}checked{{/if}}
-                {{#unless this.hasPassive}}disabled{{/unless}}
-                {{#unless @root.editable}}disabled{{/unless}}
-              />
-              <span>{{#if this.isActive}}Aktiv{{else}}Inaktiv{{/if}}</span>
-            </label>
             {{#if this.summary}}
             <div class="passive-slot-summary" title="{{this.summary}}">{{this.summary}}</div>
             {{else}}

@@ -16,7 +16,7 @@
     <h3>Passive Slots</h3>
     <div class="slots-grid">
       {{#each slots as |slot|}}
-        <div class="passive-slot {{#if slot.active}}active{{/if}} {{#unless slot.passive}}empty{{/unless}} droppable-slot" 
+        <div class="passive-slot {{#if slot.passive}}active{{/if}} {{#unless slot.passive}}empty{{/unless}} droppable-slot" 
              data-slot-index="{{slot.slotIndex}}">
           <div class="slot-header">
             <span class="slot-number">Slot {{inc slot.slotIndex}}</span>
@@ -27,9 +27,6 @@
               <h4>{{slot.passive.name}}</h4>
               <p class="passive-effect">{{slot.passive.description}}</p>
               <div class="slot-actions">
-                <button class="js-toggle-passive btn-toggle" data-slot-index="{{slot.slotIndex}}" title="{{#if slot.active}}Deactivate{{else}}Activate{{/if}}">
-                  <i class="fas {{#if slot.active}}fa-toggle-on{{else}}fa-toggle-off{{/if}}"></i>
-                </button>
                 <button class="js-unslot-passive btn-remove" data-slot-index="{{slot.slotIndex}}" title="Remove from slot">
                   <i class="fas fa-times"></i>
                 </button>

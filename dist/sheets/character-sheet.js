@@ -13,7 +13,7 @@ import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_POWER_REQUIREMENTS } from '..
 import { findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid.js';
 import { buildPostCreationSnapshot } from '../utils/xp-post-creation.js';
 import { resetCharacterForRecreation } from '../utils/reset-character.js';
-import { slotPassive, activatePassive, unslotPassive } from '../powers/passives.js';
+import { slotPassive, unslotPassive } from '../powers/passives.js';
 import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items.js';
 import { getNormalizedEquipSlots } from '../utils/equip-slots.js';
 import { XP_COSTS } from '../utils/constants.js';
@@ -1432,20 +1432,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             catch (err) {
                 console.error('Mastery System | passive slot change failed', err);
                 ui.notifications?.error('Konnte Passive-Slot nicht aktualisieren.');
-            }
-        });
-        html.find('.passive-slot-toggle').off('change.passive-slot').on('change.passive-slot', async (e) => {
-            const el = e.currentTarget;
-            const slotIndex = Number(el.dataset.slotIndex);
-            if (!Number.isFinite(slotIndex))
-                return;
-            try {
-                await activatePassive(this.actor, slotIndex);
-                this.render(false);
-            }
-            catch (err) {
-                console.error('Mastery System | passive slot toggle failed', err);
-                ui.notifications?.error('Konnte Passive nicht (de)aktivieren.');
             }
         });
         html.find('.passive-slot-clear').off('click.passive-slot').on('click.passive-slot', async (e) => {

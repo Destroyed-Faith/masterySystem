@@ -68,7 +68,8 @@ function getReachBonusMeters(actor) {
 export function getActorMeleeReachMeters(actor) {
     return 2 + getReachBonusMeters(actor);
 }
-function tokenIsHostileTo(attackerToken, other) {
+/** True when `other` is treated as hostile to `attackerToken` (disposition-based). */
+export function tokenIsHostileTo(attackerToken, other) {
     const ad = attackerToken?.document?.disposition ?? attackerToken?.disposition;
     const od = other?.document?.disposition ?? other?.disposition;
     if (od === CONST.TOKEN_DISPOSITIONS.HOSTILE)

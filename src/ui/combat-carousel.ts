@@ -18,6 +18,24 @@ import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
+/** When the buff is only DR%, the combat strip already shows DR — skip duplicate status icon. */
+function activeBuffMechanicsIsDrOnly(mechanics: any): boolean {
+  if (!mechanics || typeof mechanics !== 'object') return false;
+  const dr = mechanics.damageReductionPct;
+  if (typeof dr !== 'number' || dr <= 0) return false;
+  const hasOther =
+    typeof mechanics.armor === 'number' ||
+    typeof mechanics.evade === 'number' ||
+    typeof mechanics.regen === 'number' ||
+    typeof mechanics.initiativeD8 === 'number' ||
+    typeof mechanics.movementBonus === 'number' ||
+    !!mechanics.rollDice ||
+    !!mechanics.saveDice ||
+    !!mechanics.damageRider ||
+    (typeof mechanics.tempHP === 'string' && mechanics.tempHP.length > 0);
+  return !hasOther;
+}
+
 // Type workaround for Mixin
 const BaseCarousel = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
 
@@ -185,6 +203,7 @@ export class CombatCarouselApp extends BaseCarousel {
               if (power) mechanics = resolvePowerMechanics(power);
             }
             const summary = summarizePowerMechanics(mechanics);
+            const suppressIcon = activeBuffMechanicsIsDrOnly(mechanics);
 
             const currentRound = game.combat?.round || 1;
             const activatedRound = flags.activatedRound || 1;
@@ -197,15 +216,19 @@ export class CombatCarouselApp extends BaseCarousel {
             ];
             if (summary) tooltipLines.push(summary);
 
-            statusIcons.push({
-              icon: icon,
-              name: effect.name,
-              tooltip: tooltipLines.join('\n'),
-              kind: 'activeBuff',
-              cssClass: 'status-icon active-buff-icon ms-active-buff-icon',
-            });
+            if (!suppressIcon) {
+              statusIcons.push({
+                icon: icon,
+                name: effect.name,
+                tooltip: tooltipLines.join('\n'),
+                kind: 'activeBuff',
+                cssClass: 'status-icon active-buff-icon ms-active-buff-icon',
+              });
+            }
             if (flags?.powerId) shownPowerIds.add(String(flags.powerId));
-            console.log('Mastery System | [CAROUSEL] Added active buff icon:', effect.name);
+            if (!suppressIcon) {
+              console.log('Mastery System | [CAROUSEL] Added active buff icon:', effect.name);
+            }
           } else if (icon && icon !== 'icons/svg/aura.svg') {
             // Regular effect (only if it has a custom icon)
             statusIcons.push({
@@ -307,12 +330,21 @@ export class CombatCarouselApp extends BaseCarousel {
         drPct: number;
       } | null = null;
       try {
+        // Re-run derived prep so `conditionExpr` that depends on token positions
+        // (e.g. adjacent enemies) matches the canvas after any token has moved.
+        try {
+          if (typeof (actor as any).prepareDerivedData === 'function') {
+            (actor as any).prepareDerivedData();
+          }
+        } catch {
+          /* ignore */
+        }
         const c: any = (actor.system as any)?.combat ?? {};
         const drPct = Math.max(0, Math.min(100, Math.floor(Number(c.damageReductionPct ?? 0) || 0)));
         combatStrip = {
           armor: Math.floor(Number(c.armorTotal ?? 0) || 0),
           evade: Math.floor(Number(c.evadeTotal ?? 0) || 0),
-          showDr: drPct > 0,
+          showDr: true,
           drPct,
         };
       } catch {
@@ -588,11 +620,19 @@ export class CombatCarouselApp extends BaseCarousel {
     });
     this.hooks.push(updateActorHook);
 
-    // Hook: Update token (for unlinked tokens)
+    // Hook: Update token (for unlinked tokens + any token move for adjacency-based passives)
     const updateTokenHook = Hooks.on('updateToken', (tokenDoc: any, updateData: any) => {
+      const posChanged =
+        updateData &&
+        (updateData.x !== undefined ||
+          updateData.y !== undefined ||
+          updateData.elevation !== undefined);
+      if (posChanged && game.combats?.active?.started) {
+        this.debouncedRefresh();
+        return;
+      }
       if (!this.isRelevantToken(tokenDoc.id)) return;
-      
-      // Check if HP/Stress fields changed (in delta or actorData)
+
       const hasRelevantChange = this.hasRelevantChange(updateData, 'token');
       if (hasRelevantChange) {
         this.debouncedRefresh();

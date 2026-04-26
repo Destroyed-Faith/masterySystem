@@ -15,6 +15,7 @@
  * existing `system.combat.*` values computed earlier in `prepareDerivedData`.
  */
 import { ALL_POWER_TEMPLATES } from './powers/index.js';
+import { countAdjacentHostileTokenCount, countAdjacentAllyTokenCount, getPrimaryTokenForActor, } from './mechanics-adjacency.js';
 /** Empty breakdown skeleton (all arrays/objects present, all totals zero). */
 export function emptyBreakdown() {
     return {
@@ -259,7 +260,7 @@ export function collectMechanicsContributions(actor) {
         if (!/^slot\d+$/.test(slotKey))
             continue;
         const slot = passives[slotKey];
-        if (!slot || slot.active !== true || !slot.passive)
+        if (!slot || !slot.passive)
             continue;
         const pid = slot.passive.id;
         if (!pid)
@@ -350,15 +351,18 @@ function pushNum(target, source, value) {
  * Sum all collected mechanics contributions into a full breakdown with
  * precomputed totals. The result is ready to be stored on
  * `actor.system.derived.mechanicsBreakdown`.
+ *
+ * Pass `actor` so self-facing `conditionExpr` gates (e.g. adjacent enemies)
+ * can fold into `totals`; omit it only for pure unit tests of unconditional rows.
  */
-export function aggregateMechanics(contributions) {
+export function aggregateMechanics(contributions, actor) {
     const bd = emptyBreakdown();
     for (const contribution of contributions) {
         const { source, mechanics, sourceKind } = contribution;
-        // Conditional blocks never contribute to the unconditional breakdown;
-        // they are folded in per-roll by `getRollDiceDelta(actor, kind, target)`
-        // and per-damage by `collectConditionalDamageRiders`.
-        if (mechanicsConditionGate(mechanics))
+        const gate = mechanicsConditionGate(mechanics);
+        // Target-only gates stay out of sheet totals; self-facing `conditionExpr`
+        // (e.g. adjacent enemies) folds in when satisfied.
+        if (gate && !evaluateMechanicsGateForActorTotals(actor, gate))
             continue;
         pushNum(bd.armor, source, mechanics.armor);
         pushNum(bd.evade, source, mechanics.evade);
@@ -428,7 +432,7 @@ export function aggregateMechanics(contributions) {
 /** High-level convenience: contributions + aggregation in one call. */
 export function buildActorMechanicsBreakdown(actor) {
     const contributions = collectMechanicsContributions(actor);
-    return aggregateMechanics(contributions);
+    return aggregateMechanics(contributions, actor);
 }
 /**
  * Roll-dice delta for a given roll kind. Consumed by `roll-handler.ts`
@@ -473,7 +477,7 @@ export function getRollDiceDelta(actor, kind, target) {
         const gate = mechanicsConditionGate(mechanics);
         if (!gate)
             continue;
-        if (!evaluateConditionGate(actor, target, gate))
+        if (!evaluateMechanicsConditionExpr(actor, target, gate))
             continue;
         if (kind === 'attack')
             extra += mechanics.rollDice?.attack ?? 0;
@@ -629,6 +633,125 @@ export function evaluateConditionGate(self, target, condition) {
     }
     return hasCondition(self, cond);
 }
+function cmpNum(lhs, op, rhs) {
+    switch (op) {
+        case '>=':
+            return lhs >= rhs;
+        case '<=':
+            return lhs <= rhs;
+        case '>':
+            return lhs > rhs;
+        case '<':
+            return lhs < rhs;
+        case '==':
+        case '===':
+            return lhs === rhs;
+        default:
+            return false;
+    }
+}
+function readTurnMovedMeters(actor) {
+    const f = actor?.flags?.['mastery-system'];
+    const n = Number(f?.turnMovedMetersThisRound ??
+        f?.mechanicsRuntime?.turnMovedMeters ??
+        actor?.system?.combat?.turnMovedMetersThisRound);
+    return Number.isFinite(n) ? n : 0;
+}
+function readLastTurnMovedMeters(actor) {
+    const f = actor?.flags?.['mastery-system'];
+    const n = Number(f?.lastTurnMovedMeters ??
+        f?.mechanicsRuntime?.lastTurnMovedMeters ??
+        actor?.system?.combat?.lastTurnMovedMeters);
+    return Number.isFinite(n) ? n : 0;
+}
+function healthStateRankFromActor(actor) {
+    const bars = actor?.system?.health?.bars;
+    const idx = Math.max(0, Math.floor(Number(actor?.system?.health?.currentBar ?? 0)));
+    const name = String(bars?.[idx]?.name ?? `bar${idx}`);
+    if (/\b(healthy|unharmed|hale|fine)\b/i.test(name))
+        return 0;
+    if (/\b(injured|hurt)\b/i.test(name))
+        return 1;
+    if (/\b(wounded)\b/i.test(name))
+        return 2;
+    if (/\b(critical|maimed)\b/i.test(name))
+        return 3;
+    if (/\b(incapacitated|unconscious|dead|dying)\b/i.test(name))
+        return 4;
+    return idx;
+}
+function healthKeywordToRank(keyword) {
+    const k = keyword.trim().toLowerCase();
+    if (/\b(healthy|unharmed|hale)\b/.test(k))
+        return 0;
+    if (/\b(injured|hurt)\b/.test(k))
+        return 1;
+    if (/\b(wounded)\b/.test(k))
+        return 2;
+    if (/\b(critical|maimed)\b/.test(k))
+        return 3;
+    if (/\b(incap|dead|dying)\b/.test(k))
+        return 4;
+    return 99;
+}
+/**
+ * Evaluate mechanics `condition` / `conditionExpr` including `self.adjacentEnemies`,
+ * movement meters, health state, and `self.hasSpecial.*`. Dot-prefixed `target.*`
+ * is reserved for future runtime (returns false). Legacy gates defer to
+ * `evaluateConditionGate`.
+ */
+export function evaluateMechanicsConditionExpr(self, target, expr) {
+    const raw = String(expr ?? '').trim();
+    if (!raw)
+        return true;
+    const mEn = raw.match(/self\.adjacentEnemies\s*(>=|<=|==|>|<)\s*(\d+)/i);
+    if (mEn) {
+        const tok = getPrimaryTokenForActor(self);
+        const lhs = countAdjacentHostileTokenCount(tok);
+        return cmpNum(lhs, mEn[1], Number(mEn[2]));
+    }
+    const mAl = raw.match(/self\.adjacentAllies\s*(>=|<=|==|>|<)\s*(\d+)/i);
+    if (mAl) {
+        const tok = getPrimaryTokenForActor(self);
+        const lhs = countAdjacentAllyTokenCount(tok);
+        return cmpNum(lhs, mAl[1], Number(mAl[2]));
+    }
+    const moved = raw.match(/self\.turnMoved\s*(>=|<=|==|>|<)\s*(\d+)/i);
+    if (moved)
+        return cmpNum(readTurnMovedMeters(self), moved[1], Number(moved[2]));
+    const last = raw.match(/self\.lastTurnMoved\s*(>=|<=|==|>|<)\s*(\d+)/i);
+    if (last)
+        return cmpNum(readLastTurnMovedMeters(self), last[1], Number(last[2]));
+    const hs = raw.match(/self\.healthState\s*(<=|>=|<|>|==)\s*([\w-]+)/i);
+    if (hs) {
+        const cur = healthStateRankFromActor(self);
+        const bound = healthKeywordToRank(hs[2]);
+        const op = hs[1];
+        if (op === '<=')
+            return cur <= bound;
+        if (op === '>=')
+            return cur >= bound;
+        if (op === '<')
+            return cur < bound;
+        if (op === '>')
+            return cur > bound;
+        return cur === bound;
+    }
+    const sp = raw.match(/self\.hasSpecial\.(\w+)/i);
+    if (sp)
+        return hasCondition(self, sp[1]);
+    if (/^target\./i.test(raw)) {
+        if (!target)
+            return false;
+        return false;
+    }
+    return evaluateConditionGate(self, target, raw);
+}
+function evaluateMechanicsGateForActorTotals(actor, gate) {
+    if (!actor)
+        return false;
+    return evaluateMechanicsConditionExpr(actor, null, gate);
+}
 function normalizeRiderDice(raw) {
     if (!raw)
         return null;
@@ -686,7 +809,7 @@ function pushRidersFromMechanics(out, source, mechanics, attacker, target) {
     // Flat rider on a block with a gating condition (e.g. passive "+1d8 vs hexed")
     const gate = mechanicsConditionGate(mechanics);
     if (gate && rider.flat) {
-        if (evaluateConditionGate(attacker, target, gate)) {
+        if (evaluateMechanicsConditionExpr(attacker, target, gate)) {
             const cond = toCanonicalCondition(gate);
             const dice = normalizeRiderDice(rider.flat);
             if (dice)
