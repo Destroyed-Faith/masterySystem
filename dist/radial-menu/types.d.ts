@@ -40,6 +40,9 @@ export interface RadialCombatOption {
     tags?: string[];
     costsMovement?: boolean;
     costsAction?: boolean;
+    /** Melee attack power with a radius AoE: one pick applies the attack to every hostile in reach. */
+    burstMeleeAoE?: boolean;
+    burstMeleeRadiusMeters?: number;
 }
 /**
  * Inner segment definition

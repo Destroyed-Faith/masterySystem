@@ -9,7 +9,7 @@
 import { openRadialMenuForActor, getAllCombatOptionsForActor, closeRadialMenu } from './token-radial-menu';
 import type { RadialCombatOption } from './token-radial-menu';
 import { getSegmentIdForOption } from './radial-menu/options';
-import { startMeleeTargeting } from './melee-targeting';
+import { startMeleeTargeting, collectMeleeBurstHostileTokenIds } from './melee-targeting';
 import { startRangedTargeting } from './ranged-targeting';
 import { startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting';
 import {
@@ -187,13 +187,9 @@ export function initializeTokenActionSelector() {
   Hooks.on("masterySystem.meleeTargetSelected", async (payload: any) => {
     try {
       const attackerToken = canvas.tokens?.get(payload.attackerTokenId);
-      const targetToken = canvas.tokens?.get(payload.targetTokenId);
-      if (!attackerToken || !targetToken) {
-        console.warn("Mastery System | [RADIAL FLOW] meleeTargetSelected: missing token(s)", {
-          attackerTokenId: payload.attackerTokenId,
-          targetTokenId: payload.targetTokenId,
-          hasAttacker: !!attackerToken,
-          hasTarget: !!targetToken
+      if (!attackerToken) {
+        console.warn("Mastery System | [RADIAL FLOW] meleeTargetSelected: missing attacker token", {
+          attackerTokenId: payload.attackerTokenId
         });
         return;
       }
@@ -204,8 +200,41 @@ export function initializeTokenActionSelector() {
         return;
       }
 
+      const multiIds: string[] | undefined = Array.isArray(payload.targetTokenIds)
+        ? payload.targetTokenIds
+        : undefined;
+      const singleId: string | undefined =
+        typeof payload.targetTokenId === "string" ? payload.targetTokenId : undefined;
+      const targetIds: string[] =
+        multiIds && multiIds.length ? multiIds : singleId ? [singleId] : [];
+
+      if (!targetIds.length) {
+        console.warn("Mastery System | [RADIAL FLOW] meleeTargetSelected: no target id(s)", payload);
+        return;
+      }
+
       const { createMeleeAttackCard } = await import("./combat/attack-executor.js");
-      await createMeleeAttackCard(attackerToken, targetToken, option);
+      let volleyId: string;
+      try {
+        volleyId = (foundry as any).utils?.randomID?.(16) ?? `melee-volley-${Date.now().toString(36)}`;
+      } catch {
+        volleyId = `melee-volley-${Date.now().toString(36)}`;
+      }
+      const useVolley = targetIds.length > 1;
+
+      for (let i = 0; i < targetIds.length; i++) {
+        const targetToken = canvas.tokens?.get(targetIds[i]);
+        if (!targetToken) {
+          console.warn("Mastery System | [RADIAL FLOW] meleeTargetSelected: token not on canvas", {
+            targetTokenId: targetIds[i]
+          });
+          continue;
+        }
+        const burstVolley = useVolley
+          ? { volleyId, volleyIndex: i + 1, volleyTotal: targetIds.length }
+          : null;
+        await createMeleeAttackCard(attackerToken, targetToken, option, burstVolley);
+      }
     } catch (e) {
       console.error("Mastery System | [TOKEN ACTION SELECTOR] meleeTargetSelected hook failed", e);
     }
@@ -967,6 +996,24 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
       Hooks.call('masterySystem.meleeTargetSelected', {
         attackerTokenId: token.id,
         targetTokenId: targetToken.id,
+        option
+      });
+      return;
+    }
+
+    if (option.burstMeleeAoE) {
+      const burstIds = collectMeleeBurstHostileTokenIds(token, option);
+      if (!burstIds.length) {
+        ui.notifications?.warn?.('Melee AoE: no hostile targets in range.');
+        console.warn('Mastery System | [RADIAL FLOW] melee burst: zero hostile targets in AoE', {
+          option: option.name,
+          token: token.name
+        });
+        return;
+      }
+      Hooks.call('masterySystem.meleeTargetSelected', {
+        attackerTokenId: token.id,
+        targetTokenIds: burstIds,
         option
       });
       return;

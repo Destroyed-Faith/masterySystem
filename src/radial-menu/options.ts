@@ -622,6 +622,8 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
     let rangeMeters: number | undefined = range;
     let hostileZonePlacement = false;
     let zoneDurationNote: string | undefined = undefined;
+    let burstMeleeAoE = false;
+    let burstMeleeRadiusMeters: number | undefined = undefined;
 
     if (slot === 'utility' || powerType === 'utility') {
       let aoeStr = (item.system as any)?.aoe;
@@ -656,6 +658,15 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
           hostileZonePlacement = true;
           zoneDurationNote =
             typeof levelData.duration === 'string' ? levelData.duration : undefined;
+        }
+      } else if (/melee/i.test(typeStr)) {
+        let aoeStrMelee = (item.system as any)?.aoe;
+        if (levelData?.aoe) aoeStrMelee = levelData.aoe;
+        const shapeM = parseAoEShape(aoeStrMelee || '');
+        const radM = parseAoERadius(aoeStrMelee || '');
+        if (shapeM === 'radius' && radM !== undefined && radM > 0) {
+          burstMeleeAoE = true;
+          burstMeleeRadiusMeters = radM;
         }
       }
     }
@@ -692,7 +703,8 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
       powerType: powerType,
       tags: Array.isArray(tags) ? tags : [],
       costsMovement: costsMovement,
-      costsAction: costsAction
+      costsAction: costsAction,
+      ...(burstMeleeAoE ? { burstMeleeAoE: true, burstMeleeRadiusMeters } : {}),
     };
     
     // Add utility targeting fields if this is a utility

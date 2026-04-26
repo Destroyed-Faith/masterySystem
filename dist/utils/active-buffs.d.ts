@@ -32,4 +32,10 @@ export declare function getActiveBuffs(actor: Actor): any[];
  * Check if a specific power is currently active as a buff
  */
 export declare function isPowerActiveAsBuff(actor: Actor, powerId: string): boolean;
+/**
+ * Remove all Mastery-flagged active-buff ActiveEffects from an actor (e.g. combat end).
+ */
+export declare function deleteAllMasteryActiveBuffEffects(actor: Actor): Promise<void>;
+/** Strip buff effects from every combatant when an encounter ends. */
+export declare function clearMasteryActiveBuffsForCombatants(combat: Combat): Promise<void>;
 //# sourceMappingURL=active-buffs.d.ts.map

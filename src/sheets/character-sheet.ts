@@ -837,44 +837,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       context.activeBuffs = [];
     }
     
-    // Add status effects for the status bar (includes active buffs and other effects)
+    // Intentionally no icon strip on Attributes (was confusing vs. Powers-tab buff list).
     context.statusEffects = [];
-    try {
-      if (this.actor.effects) {
-        const effects = this.actor.effects || [];
-        for (const effect of effects) {
-          const icon = effect.icon || effect.img || '';
-          if (icon) {
-            const flags = effect.flags?.['mastery-system'] || {};
-            const isActiveBuff = flags?.activeBuff === true;
-            
-            let tooltip = effect.name;
-            let description = effect.description || effect.system?.description?.value || effect.system?.description || '';
-            
-            if (isActiveBuff) {
-              const currentRound = game.combat?.round || 1;
-              const activatedRound = flags.activatedRound || 1;
-              const masteryRank = flags.masteryRank || 2;
-              const roundsRemaining = Math.max(0, masteryRank - (currentRound - activatedRound));
-              tooltip = `${effect.name}\nDuration: ${roundsRemaining} round${roundsRemaining !== 1 ? 's' : ''} remaining`;
-            }
-            
-            context.statusEffects.push({
-              id: effect.id,
-              name: effect.name,
-              icon: icon,
-              tooltip: tooltip,
-              description: description,
-              isActiveBuff: isActiveBuff
-            });
-          }
-        }
-      }
-      console.log('Mastery System | [CHARACTER SHEET] Status effects for bar:', context.statusEffects.length, context.statusEffects);
-    } catch (error) {
-      console.error('Mastery System | [CHARACTER SHEET] Failed to load status effects', error);
-      context.statusEffects = [];
-    }
     
     // Passive Slot Manager — always visible on the sheet (Powers tab) so players
     // can slot & activate passives outside of combat. The Combat-Start dialog
@@ -890,38 +854,51 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       context.passiveSlotView = { slots: [], availablePassives: [], activeCount: 0, maxSlots: 0, canActivateMore: false };
     }
 
-    // Compact combat-stats summary visible on every tab. Sums HP/Stress bars
-    // and exposes the pre-aggregated Armor/Evade/DR/Initiative totals already
-    // computed in `prepareDerivedData` so the player has a single at-a-glance
-    // view instead of having to hunt inside the Attributes tab.
+    // Compact combat-stats: only while this actor is in the **active** encounter.
     try {
-      const sys: any = (this.actor as any).system ?? {};
-      const healthBars = Array.isArray(sys.health?.bars) ? sys.health.bars : [];
-      const stressBars = Array.isArray(sys.stress?.bars) ? sys.stress.bars : [];
-      const sumCurMax = (bars: any[]) => bars.reduce(
-        (acc, b) => {
-          acc.current += Math.max(0, Math.floor(Number(b?.current ?? 0) || 0));
-          acc.max += Math.max(0, Math.floor(Number(b?.max ?? 0) || 0));
-          return acc;
-        },
-        { current: 0, max: 0 },
-      );
-      const hp = sumCurMax(healthBars);
-      const stress = sumCurMax(stressBars);
-      const combat: any = sys.combat ?? {};
-      const iniEqTotal = Number(combat.initiativeEquipmentTotal ?? 0) || 0;
-      const iniD8Mech = Number(combat.initiativeD8FromMechanics ?? 0) || 0;
-      const iniMR = Number(combat.initiativeMasteryRank ?? sys.mastery?.rank ?? 2) || 2;
-      const iniDice = Math.max(0, iniMR + iniD8Mech);
-      context.combatStatsView = {
-        armor: Number(combat.armorTotal ?? 0) || 0,
-        evade: Number(combat.evadeTotal ?? 8) || 8,
-        drPct: Number(combat.damageReductionPct ?? 0) || 0,
-        initiativeDice: iniDice,
-        initiativeEquipmentDisplay: String(combat.initiativeEquipmentTotalDisplay ?? (iniEqTotal >= 0 ? `+${iniEqTotal}` : String(iniEqTotal))),
-        hp: { current: hp.current, max: hp.max },
-        stress: { current: stress.current, max: stress.max },
-      };
+      const g = globalThis as any;
+      const combat = g.game?.combats?.active ?? g.game?.combat;
+      const inEncounter =
+        !!combat?.started &&
+        Array.from(combat.combatants ?? []).some((c: any) => c.actor?.id === this.actor?.id);
+      if (!inEncounter) {
+        context.combatStatsView = null;
+      } else {
+        try {
+          if (typeof (this.actor as any).prepareDerivedData === 'function') {
+            (this.actor as any).prepareDerivedData();
+          }
+        } catch {
+          /* ignore */
+        }
+        const sys: any = (this.actor as any).system ?? {};
+        const healthBars = Array.isArray(sys.health?.bars) ? sys.health.bars : [];
+        const stressBars = Array.isArray(sys.stress?.bars) ? sys.stress.bars : [];
+        const sumCurMax = (bars: any[]) => bars.reduce(
+          (acc, b) => {
+            acc.current += Math.max(0, Math.floor(Number(b?.current ?? 0) || 0));
+            acc.max += Math.max(0, Math.floor(Number(b?.max ?? 0) || 0));
+            return acc;
+          },
+          { current: 0, max: 0 },
+        );
+        const hp = sumCurMax(healthBars);
+        const stress = sumCurMax(stressBars);
+        const combat: any = sys.combat ?? {};
+        const iniEqTotal = Number(combat.initiativeEquipmentTotal ?? 0) || 0;
+        const iniD8Mech = Number(combat.initiativeD8FromMechanics ?? 0) || 0;
+        const iniMR = Number(combat.initiativeMasteryRank ?? sys.mastery?.rank ?? 2) || 2;
+        const iniDice = Math.max(0, iniMR + iniD8Mech);
+        context.combatStatsView = {
+          armor: Number(combat.armorTotal ?? 0) || 0,
+          evade: Number(combat.evadeTotal ?? 8) || 8,
+          drPct: Number(combat.damageReductionPct ?? 0) || 0,
+          initiativeDice: iniDice,
+          initiativeEquipmentDisplay: String(combat.initiativeEquipmentTotalDisplay ?? (iniEqTotal >= 0 ? `+${iniEqTotal}` : String(iniEqTotal))),
+          hp: { current: hp.current, max: hp.max },
+          stress: { current: stress.current, max: stress.max },
+        };
+      }
     } catch (err) {
       console.error('Mastery System | Failed to build combatStatsView', err);
       context.combatStatsView = null;

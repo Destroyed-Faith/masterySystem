@@ -7,16 +7,46 @@
  */
 import { highlightHexesInRange, clearHexHighlight } from "./utils/hex-highlighting.js";
 import { gridStepsFromMeters, isWithinRangeMeters } from "./utils/grid-range.js";
+import { tokenIsHostileTo } from "./combat/threatened-ranged.js";
 let active = null;
 let confirming = false;
 /* -------------------------------------------- */
 /*  Helpers                                     */
 /* -------------------------------------------- */
-function getMeleeReachMeters(option) {
+export function getMeleeReachMeters(option) {
     if (typeof option.range === "number")
         return option.range;
     // Default melee range
     return 2;
+}
+/**
+ * Hostile token ids within a melee burst AoE: distance from attacker center
+ * ≤ min(melee reach, template burst radius). Reach caps how far a melee strike can reach.
+ */
+export function collectMeleeBurstHostileTokenIds(attackerToken, option) {
+    const reachM = getMeleeReachMeters(option);
+    const burstM = typeof option.burstMeleeRadiusMeters === "number" && option.burstMeleeRadiusMeters > 0
+        ? option.burstMeleeRadiusMeters
+        : reachM;
+    const hitRadiusM = Math.min(reachM, burstM);
+    const attackerCenter = attackerToken?.center;
+    if (!attackerCenter)
+        return [];
+    const out = [];
+    const tokens = canvas.tokens?.placeables ?? [];
+    for (const token of tokens) {
+        if (!token?.id || token.id === attackerToken.id || !token.actor)
+            continue;
+        if (!tokenIsHostileTo(attackerToken, token))
+            continue;
+        const targetCenter = token.center;
+        if (!targetCenter)
+            continue;
+        if (isWithinRangeMeters(attackerCenter, targetCenter, hitRadiusM)) {
+            out.push(token.id);
+        }
+    }
+    return out;
 }
 /**
  * Find valid targets by distance

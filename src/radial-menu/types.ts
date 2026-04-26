@@ -45,6 +45,9 @@ export interface RadialCombatOption {
   tags?: string[];  // Tags for additional filtering (e.g. ["buff", "stance"])
   costsMovement?: boolean; // Whether this option consumes Movement resource
   costsAction?: boolean; // Whether this option consumes Attack Action resource
+  /** Melee attack power with a radius AoE: one pick applies the attack to every hostile in reach. */
+  burstMeleeAoE?: boolean;
+  burstMeleeRadiusMeters?: number;
 }
 
 /**

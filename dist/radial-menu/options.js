@@ -547,6 +547,8 @@ export async function getAllCombatOptionsForActor(actor) {
         let rangeMeters = range;
         let hostileZonePlacement = false;
         let zoneDurationNote = undefined;
+        let burstMeleeAoE = false;
+        let burstMeleeRadiusMeters = undefined;
         if (slot === 'utility' || powerType === 'utility') {
             let aoeStr = item.system?.aoe;
             if (levelData && levelData.aoe) {
@@ -581,6 +583,17 @@ export async function getAllCombatOptionsForActor(actor) {
                         typeof levelData.duration === 'string' ? levelData.duration : undefined;
                 }
             }
+            else if (/melee/i.test(typeStr)) {
+                let aoeStrMelee = item.system?.aoe;
+                if (levelData?.aoe)
+                    aoeStrMelee = levelData.aoe;
+                const shapeM = parseAoEShape(aoeStrMelee || '');
+                const radM = parseAoERadius(aoeStrMelee || '');
+                if (shapeM === 'radius' && radM !== undefined && radM > 0) {
+                    burstMeleeAoE = true;
+                    burstMeleeRadiusMeters = radM;
+                }
+            }
         }
         // Determine costs (new structure: cost.action is a string like 'attack'|'full'|'utility'; old: boolean)
         const actionCost = cost.action;
@@ -613,7 +626,8 @@ export async function getAllCombatOptionsForActor(actor) {
             powerType: powerType,
             tags: Array.isArray(tags) ? tags : [],
             costsMovement: costsMovement,
-            costsAction: costsAction
+            costsAction: costsAction,
+            ...(burstMeleeAoE ? { burstMeleeAoE: true, burstMeleeRadiusMeters } : {}),
         };
         // Add utility targeting fields if this is a utility
         if (slot === 'utility' || powerType === 'utility') {

@@ -11,8 +11,9 @@ import {
   resetTurnState,
   restoreStonesAfterCombat,
   initializeCombatRoundState,
-  clearStonePowersConfigurationLocksInCombat
+  clearStonePowersConfigurationLocksInCombat,
 } from '../combat/action-economy.js';
+import { clearMasteryActiveBuffsForCombatants } from '../utils/active-buffs.js';
 import { runMasteryCombatRoundAdvancePipeline } from '../combat/stone-powers-flow.js';
 
 /**
@@ -51,6 +52,11 @@ export function initializeStoneHooks(): void {
   Hooks.on('deleteCombat', async (combat: Combat, _options: any, _userId: string) => {
     console.log('Mastery System | Combat ended, restoring stone pools');
     await clearStonePowersConfigurationLocksInCombat(combat);
+    try {
+      await clearMasteryActiveBuffsForCombatants(combat);
+    } catch (e) {
+      console.warn('Mastery System | Active buff cleanup on deleteCombat failed', e);
+    }
     await restoreStonesAfterCombat(combat);
   });
   
@@ -58,6 +64,11 @@ export function initializeStoneHooks(): void {
   Hooks.on('combatEnd', async (combat: Combat) => {
     console.log('Mastery System | Combat end hook, restoring stone pools');
     await clearStonePowersConfigurationLocksInCombat(combat);
+    try {
+      await clearMasteryActiveBuffsForCombatants(combat);
+    } catch (e) {
+      console.warn('Mastery System | Active buff cleanup on combatEnd failed', e);
+    }
     await restoreStonesAfterCombat(combat);
   });
 }

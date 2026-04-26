@@ -779,6 +779,20 @@ export async function restoreStonesAfterCombat(combat) {
             await owner.update(updates);
             console.log(`Mastery System | Restored stone pools for ${owner.name}`);
         }
+        // Drop per-encounter round state and stone usage so stone evade/damage
+        // bonuses and usage counters cannot leak into the next combat or out of combat.
+        try {
+            await owner.unsetFlag?.('mastery-system', 'roundState');
+        }
+        catch {
+            /* ignore */
+        }
+        try {
+            await owner.setFlag?.('mastery-system', 'stoneUsage', {});
+        }
+        catch {
+            /* ignore */
+        }
     }
 }
 /**

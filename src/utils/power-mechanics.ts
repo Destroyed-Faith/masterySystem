@@ -249,10 +249,21 @@ function normalizePowerName(name: string): string {
  * Verify the contribution is allowed to grant Damage Reduction. Emits a
  * one-shot warning for rule violations so GMs notice misconfigured powers.
  */
+function stripBuffPrefixForDrName(name: string): string {
+  let s = normalizePowerName(name);
+  s = s.replace(/^active\s*buff:\s*/i, '').replace(/^active:\s*/i, '').replace(/^passive:\s*/i, '').trim();
+  return s;
+}
+
 function isSanctionedDR(contribution: MechanicsContribution): boolean {
   const expected = DR_SANCTIONED_POWER_NAMES[contribution.sourceKind];
   const actual = normalizePowerName(contribution.powerName);
-  if (actual === expected) return true;
+  const stripped = stripBuffPrefixForDrName(contribution.powerName);
+  if (actual === expected || stripped === expected) return true;
+  // Canonical catalog buff is "Active Buff: Damage Reduction" — match template name.
+  if (contribution.sourceKind === 'buff') {
+    if (stripped === 'damage reduction' || stripped.endsWith('damage reduction')) return true;
+  }
   console.warn(
     `Mastery System | DR rule violation: power "${contribution.powerName}" ` +
       `(${contribution.sourceKind}) declares damageReductionPct but only ` +
@@ -450,7 +461,9 @@ export function aggregateMechanics(
   // the continuous actor total). The final total is clamped 0–100.
   const passiveDR = sum(bd.damageReductionPct.passive);
   const buffDR = sum(bd.damageReductionPct.buff);
-  const raw = passiveDR > 0 ? passiveDR + buffDR : 0;
+  // Buff-only sanctioned DR (e.g. Active Buff: Damage Reduction) must still
+  // contribute to the total when no passive DR line exists — sheet/carousel/mitigation.
+  const raw = passiveDR + buffDR;
   bd.totals.damageReductionPct = Math.max(0, Math.min(100, raw));
   return bd;
 }

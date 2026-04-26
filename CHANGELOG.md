@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.14] - 2026-04-26
+
+### Added
+
+- **Melee weapon AoE (burst):** Selecting a melee AoE active no longer asks for a single target. All **hostile** tokens within **min(melee reach, template burst radius)** get an attack chat card (`Target i of n`). Only the **first** card spends the attack action on roll (same pattern as split attacks).
+
+### Changed
+
+- **Radial options:** Melee actives with a radius AoE in the power definition set `burstMeleeAoE` / `burstMeleeRadiusMeters` for the above flow.
+
 ## [0.5.13] - 2026-04-26
 
 ### Fixed

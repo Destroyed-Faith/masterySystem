@@ -548,10 +548,13 @@ export function registerAttackRollClickHandler() {
                         hasEquippedWeapon: !!equippedWeaponForLog,
                         equippedWeaponName: equippedWeaponForLog ? equippedWeaponForLog.name : null
                     });
-                    // Damage raises = margin over final Evade TN from the roll, plus stone-granted free raises.
-                    // The attack-card "Raises" dropdown bumps TN by +4 per step *and* caps how many Raises
-                    // may be spent on damage when N > 0 (0 = no cap — TN unchanged, full margin applies).
-                    let damageRaises = Math.max(0, result.raises);
+                    // Margin raises (every +4 over TN) count for damage **only** if the player
+                    // pre-declared TN raises on the attack card (dropdown > 0). Auto-Raises and
+                    // stone-granted free raises always apply when present.
+                    const autoR = Math.max(0, Number(result.autoRaises) || 0);
+                    const marginRaises = Math.max(0, result.raises - autoR);
+                    const marginForDamage = declaredRaisesForTn > 0 ? marginRaises : 0;
+                    let damageRaises = marginForDamage + autoR;
                     let freeRaisesFromStones = 0;
                     try {
                         const { getRoundState } = await import('../combat/action-economy.js');

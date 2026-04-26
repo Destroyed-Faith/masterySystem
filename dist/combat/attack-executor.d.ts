@@ -10,11 +10,17 @@ interface SplitContext {
     /** Halved attack pool for this strike (Math.floor(original / 2)). */
     attributePool: number;
 }
+/** One melee AoE declaration → multiple attack cards; only volleyIndex === 1 spends the attack action on roll. */
+export interface MeleeBurstVolleyContext {
+    volleyId: string;
+    volleyIndex: number;
+    volleyTotal: number;
+}
 /**
  * Create a melee or ranged attack chat card with roll button (Threatened Ranged for qualifying ranged attacks).
  */
-export declare function createAttackCard(attackerToken: any, targetToken: any, option: RadialCombatOption, attackType: "melee" | "ranged", split?: SplitContext | null): Promise<void>;
-export declare function createMeleeAttackCard(attackerToken: any, targetToken: any, option: RadialCombatOption): Promise<void>;
+export declare function createAttackCard(attackerToken: any, targetToken: any, option: RadialCombatOption, attackType: "melee" | "ranged", split?: SplitContext | null, burstVolley?: MeleeBurstVolleyContext | null): Promise<void>;
+export declare function createMeleeAttackCard(attackerToken: any, targetToken: any, option: RadialCombatOption, burstVolley?: MeleeBurstVolleyContext | null): Promise<void>;
 export declare function createRangedAttackCard(attackerToken: any, targetToken: any, option: RadialCombatOption): Promise<void>;
 export {};
 //# sourceMappingURL=attack-executor.d.ts.map

@@ -320,3 +320,27 @@ export function isPowerActiveAsBuff(actor: Actor, powerId: string): boolean {
   });
 }
 
+/**
+ * Remove all Mastery-flagged active-buff ActiveEffects from an actor (e.g. combat end).
+ */
+export async function deleteAllMasteryActiveBuffEffects(actor: Actor): Promise<void> {
+  const effects = getActiveBuffs(actor);
+  if (!effects.length) return;
+  const ids = effects.map((e: any) => e.id).filter(Boolean);
+  if (!ids.length) return;
+  try {
+    await (actor as any).deleteEmbeddedDocuments('ActiveEffect', ids);
+  } catch (err) {
+    console.warn('Mastery System | deleteAllMasteryActiveBuffEffects failed', err);
+  }
+}
+
+/** Strip buff effects from every combatant when an encounter ends. */
+export async function clearMasteryActiveBuffsForCombatants(combat: Combat): Promise<void> {
+  for (const c of combat.combatants) {
+    const a = c.actor as Actor | undefined;
+    if (!a) continue;
+    await deleteAllMasteryActiveBuffEffects(a);
+  }
+}
+

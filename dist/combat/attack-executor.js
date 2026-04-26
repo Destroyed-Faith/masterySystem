@@ -163,11 +163,11 @@ function getAttackAttribute(_actor, weapon, option, attackType) {
 /**
  * Create a melee or ranged attack chat card with roll button (Threatened Ranged for qualifying ranged attacks).
  */
-export async function createAttackCard(attackerToken, targetToken, option, attackType, split = null) {
+export async function createAttackCard(attackerToken, targetToken, option, attackType, split = null, burstVolley = null) {
     // Split-Attack dispatcher: when a power declares `mechanics.splitAttack`,
     // we recurse into two strikes sharing one attack action. Pool + damage are
     // halved per strike (floor — odd remainder falls off symmetrically).
-    if (!split && detectSplitAttack(option)) {
+    if (!split && !burstVolley && detectSplitAttack(option)) {
         const pairId = newSplitPairId();
         // Strike 1 resolves first; Strike 2 is scheduled immediately after so
         // both cards appear in chat for the target owner to resolve.
@@ -175,12 +175,12 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             splitPairId: pairId,
             splitIndex: 1,
             attributePool: 0, // recomputed below with the real base pool.
-        });
+        }, null);
         await createAttackCard(attackerToken, targetToken, option, attackType, {
             splitPairId: pairId,
             splitIndex: 2,
             attributePool: 0,
-        });
+        }, null);
         return;
     }
     // Use token actor (for unlinked tokens) or base actor
@@ -297,11 +297,18 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             opportunityEnemyTokenIds: [],
             rollDisadvantage: false
         };
+    const optionPaysAction = option.costsAction !== false;
+    let costsThisCard = optionPaysAction;
+    if (burstVolley) {
+        costsThisCard = optionPaysAction && burstVolley.volleyIndex === 1;
+    }
+    else if (split) {
+        costsThisCard = optionPaysAction && split.splitIndex === 1;
+    }
     const flagsObj = {
         attackType,
-        // Only the first strike of a split pair consumes the attack action; the
-        // second strike piggybacks on the same action to respect the 1-action rule.
-        costsAction: split ? (split.splitIndex === 1 && option.costsAction !== false) : option.costsAction !== false,
+        // Split second strike / melee burst follow-up cards do not consume another action on roll.
+        costsAction: costsThisCard,
         attackerId: attacker.id,
         targetId: target.id,
         targetTokenId: targetToken.id,
@@ -321,6 +328,9 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         splitAttack: !!split,
         splitIndex: split?.splitIndex ?? null,
         splitPairId: split?.splitPairId ?? null,
+        meleeBurstVolleyId: burstVolley?.volleyId ?? null,
+        meleeBurstVolleyIndex: burstVolley?.volleyIndex ?? null,
+        meleeBurstVolleyTotal: burstVolley?.volleyTotal ?? null,
         threatenedRanged: tr.threatened,
         rollDisadvantage: tr.rollDisadvantage,
         threateningEnemyTokenIds: tr.threateningEnemyTokenIds,
@@ -353,7 +363,11 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
     const attackerName = attacker.name || "Unknown";
     const targetName = target.name || "Unknown";
     const baseOptionName = option.name || "Attack";
-    const optionName = split ? `${baseOptionName} — Strike ${split.splitIndex} of 2` : baseOptionName;
+    const optionName = burstVolley
+        ? `${baseOptionName} — Target ${burstVolley.volleyIndex} of ${burstVolley.volleyTotal}`
+        : split
+            ? `${baseOptionName} — Strike ${split.splitIndex} of 2`
+            : baseOptionName;
     const headerIcon = attackType === "ranged" ? "fa-bullseye" : "fa-sword";
     const attackKindLabel = attackType === "ranged" ? "Ranged" : "Melee";
     const innateLines = weapon
@@ -538,8 +552,8 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         ui.notifications?.error("Failed to create attack card");
     }
 }
-export async function createMeleeAttackCard(attackerToken, targetToken, option) {
-    return createAttackCard(attackerToken, targetToken, option, "melee");
+export async function createMeleeAttackCard(attackerToken, targetToken, option, burstVolley = null) {
+    return createAttackCard(attackerToken, targetToken, option, "melee", null, burstVolley);
 }
 export async function createRangedAttackCard(attackerToken, targetToken, option) {
     return createAttackCard(attackerToken, targetToken, option, "ranged");
