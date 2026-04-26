@@ -1,20 +1,24 @@
 /**
  * Power Creation Dialog — Template-based (post-Trees).
  *
- * Three-stage filter matching plan §4:
+ * Three-stage filter:
  *   Stage 1: Category (Movement / Passive / Reaction / Active / Active Buff)
- *   Stage 2: Subfamily (teleport / flight / damage-aoe / combined …)
- *   Stage 3: One of
- *     - Tier (3–6) + Special   [Actives only]
- *     - Template + free-text search     [everything else]
+ *   Stage 2: Subfamily (teleport / flight / damage-aoe / weapon-attack / …)
+ *   Stage 3: Special + free-text search
+ *     - Special dropdown lists every Special the current filter can resolve
+ *       (poisoned, hex, prone, frightened, blinded, regeneration, shock, …)
+ *       — Tier is NOT a player-facing search axis (Tier is an internal
+ *       pricing bucket only).
+ *     - Pure weapon/illusion Actives (no Special slot) surface via
+ *       Category + Subfamily alone and ignore the Special filter.
  *
  * For Actives (category === 'active'), a Step 4 panel exposes the
  * "Make this a Spell?" toggle, the casting attribute (Intellect/Resolve),
  * and — when the resolution is a saveSpell — the Save type (body/mind/spirit),
- * all pre-filled from the template's `spellHints`. See plan §6.3.
+ * all pre-filled from the template's `spellHints`.
  */
 import { renderRange, renderAoe, renderDuration, renderPowerLevelTable } from '../utils/power-rendering.js';
-import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_POWER_REQUIREMENTS, filterCatalog, findCatalogEntryByName, findTemplateById, getSubfamiliesByCategory, } from '../utils/power-catalog.js';
+import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_POWER_REQUIREMENTS, filterCatalog, findCatalogEntryByName, findTemplateById, getSubfamiliesByCategory, getVisibleSpecialOptions, } from '../utils/power-catalog.js';
 /** How many powers of a given category the actor already owns. */
 function countByCategory(actor) {
     const counts = {
@@ -76,16 +80,6 @@ export async function showPowerCreationDialog(actor, options) {
           <label class="power-form-label">Subfamily:</label>
           <select name="subfamily" id="pc-subfamily" class="power-form-select">
             <option value="">-- Any Subfamily --</option>
-          </select>
-        </div>
-        <div class="form-group power-form-group pc-tier-group" style="display:none;">
-          <label class="power-form-label">Tier:</label>
-          <select name="tier" id="pc-tier" class="power-form-select">
-            <option value="">-- Any Tier --</option>
-            <option value="3">Tier 3</option>
-            <option value="4">Tier 4</option>
-            <option value="5">Tier 5</option>
-            <option value="6">Tier 6</option>
           </select>
         </div>
         <div class="form-group power-form-group pc-special-group" style="display:none;">
@@ -246,8 +240,6 @@ export async function showPowerCreationDialog(actor, options) {
             }, 0);
             const $categorySelect = html.find('#pc-category');
             const $subfamilySelect = html.find('#pc-subfamily');
-            const $tierWrap = html.find('.pc-tier-group');
-            const $tierSelect = html.find('#pc-tier');
             const $specialWrap = html.find('.pc-special-group');
             const $specialSelect = html.find('#pc-special');
             const $searchInput = html.find('#pc-search');
@@ -279,26 +271,42 @@ export async function showPowerCreationDialog(actor, options) {
             const refreshActiveOnlyVisibility = () => {
                 const category = $categorySelect.val() || '';
                 const isActive = category === 'active';
-                $tierWrap.toggle(isActive);
                 $specialWrap.toggle(isActive);
                 $spellPanel.toggle(isActive);
                 if (!isActive) {
-                    $tierSelect.val('');
                     $specialSelect.val('');
                     $isSpell.prop('checked', false);
                     $spellFields.hide();
                 }
             };
+            const refreshSpecialDropdown = () => {
+                const category = $categorySelect.val() || '';
+                const subfamily = $subfamilySelect.val() || '';
+                const prev = $specialSelect.val() || '';
+                const opts = getVisibleSpecialOptions({
+                    category: (category || null),
+                    subfamily: subfamily || null,
+                    actorEchoKey,
+                });
+                $specialSelect.empty();
+                $specialSelect.append('<option value="">-- Any Special --</option>');
+                for (const o of opts) {
+                    const opt = document.createElement('option');
+                    opt.value = o.key;
+                    opt.textContent = o.label;
+                    $specialSelect.append(opt);
+                }
+                if (prev && opts.some((o) => o.key === prev))
+                    $specialSelect.val(prev);
+            };
             const refreshList = () => {
                 const category = $categorySelect.val() || '';
                 const subfamily = $subfamilySelect.val() || '';
-                const tier = $tierSelect.val() || '';
                 const special = $specialSelect.val() || '';
                 const search = $searchInput.val() || '';
                 const entries = filterCatalog({
                     category: (category || null),
                     subfamily: subfamily || null,
-                    tier: (tier ? Number(tier) : null),
                     special: special || null,
                     search,
                     actorEchoKey,
@@ -311,8 +319,6 @@ export async function showPowerCreationDialog(actor, options) {
                     $powerSelect.append('<option value="">-- Select a Power --</option>');
                     for (const e of entries) {
                         const badges = [];
-                        if (e.tier)
-                            badges.push(`T${e.tier}`);
                         if (e.chosenSpecial)
                             badges.push(e.chosenSpecial.key);
                         const badgeStr = badges.length ? ` (${badges.join(', ')})` : '';
@@ -342,10 +348,13 @@ export async function showPowerCreationDialog(actor, options) {
             $categorySelect.on('change', () => {
                 refreshSubfamilyDropdown();
                 refreshActiveOnlyVisibility();
+                refreshSpecialDropdown();
                 refreshList();
             });
-            $subfamilySelect.on('change', refreshList);
-            $tierSelect.on('change', refreshList);
+            $subfamilySelect.on('change', () => {
+                refreshSpecialDropdown();
+                refreshList();
+            });
             $specialSelect.on('change', refreshList);
             $searchInput.on('input', refreshList);
             $isSpell.on('change', () => {
@@ -373,6 +382,7 @@ export async function showPowerCreationDialog(actor, options) {
             // Initial boot
             refreshSubfamilyDropdown();
             refreshActiveOnlyVisibility();
+            refreshSpecialDropdown();
             refreshList();
         },
     });

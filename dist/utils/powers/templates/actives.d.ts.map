@@ -1,1 +1,1 @@
-{"version":3,"file":"actives.d.ts","sourceRoot":"","sources":["../../../../src/utils/powers/templates/actives.ts"],"names":[],"mappings":"AAAA;;;;;;;;;;;;;;;;;GAiBG;AAEH,OAAO,KAAK,EAAE,aAAa,EAAE,MAAM,cAAc,CAAC;AA0QlD,eAAO,MAAM,gBAAgB,EAAE,aAAa,EAkI3C,CAAC"}
+{"version":3,"file":"actives.d.ts","sourceRoot":"","sources":["../../../../src/utils/powers/templates/actives.ts"],"names":[],"mappings":"AAAA;;;;;;;;;;;;;;;;;GAiBG;AAEH,OAAO,KAAK,EAAE,aAAa,EAAE,MAAM,cAAc,CAAC;AAuqBlD,eAAO,MAAM,gBAAgB,EAAE,aAAa,EAA2B,CAAC"}

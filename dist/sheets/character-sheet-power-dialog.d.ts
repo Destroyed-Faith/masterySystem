@@ -1,17 +1,21 @@
 /**
  * Power Creation Dialog — Template-based (post-Trees).
  *
- * Three-stage filter matching plan §4:
+ * Three-stage filter:
  *   Stage 1: Category (Movement / Passive / Reaction / Active / Active Buff)
- *   Stage 2: Subfamily (teleport / flight / damage-aoe / combined …)
- *   Stage 3: One of
- *     - Tier (3–6) + Special   [Actives only]
- *     - Template + free-text search     [everything else]
+ *   Stage 2: Subfamily (teleport / flight / damage-aoe / weapon-attack / …)
+ *   Stage 3: Special + free-text search
+ *     - Special dropdown lists every Special the current filter can resolve
+ *       (poisoned, hex, prone, frightened, blinded, regeneration, shock, …)
+ *       — Tier is NOT a player-facing search axis (Tier is an internal
+ *       pricing bucket only).
+ *     - Pure weapon/illusion Actives (no Special slot) surface via
+ *       Category + Subfamily alone and ignore the Special filter.
  *
  * For Actives (category === 'active'), a Step 4 panel exposes the
  * "Make this a Spell?" toggle, the casting attribute (Intellect/Resolve),
  * and — when the resolution is a saveSpell — the Save type (body/mind/spirit),
- * all pre-filled from the template's `spellHints`. See plan §6.3.
+ * all pre-filled from the template's `spellHints`.
  */
 import type { PowerCategory } from '../types/item.js';
 /**
