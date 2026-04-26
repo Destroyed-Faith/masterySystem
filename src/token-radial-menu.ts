@@ -88,11 +88,14 @@ export async function refreshRadialMenuActionLabelsIfOpenForActor(actor: Actor):
       msRadialMenu!.addChild(obj);
     });
   } catch (e) {
-    console.warn('Mastery System | refreshRadialMenuActionLabelsIfOpenForActor failed', {
-      actorId: (actor as any)?.id,
-      tokenId: msCurrentTokenId,
-      error: e,
-    });
+    const msg = e instanceof Error ? e.message : String(e);
+    const stack = e instanceof Error ? e.stack : undefined;
+    console.warn(
+      'Mastery System | refreshRadialMenuActionLabelsIfOpenForActor failed',
+      msg,
+      stack ?? '',
+      { actorId: (actor as any)?.id, tokenId: msCurrentTokenId },
+    );
   }
 }
 

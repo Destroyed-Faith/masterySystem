@@ -5,6 +5,8 @@
 
 import { powerCostPaysAction } from '../radial-menu/options.js';
 import { resolvePowerMechanics } from './power-mechanics.js';
+import { ALL_POWER_TEMPLATES } from './powers/index.js';
+import { logDrDebug } from './dr-debug.js';
 
 function paysActionCost(power: any): boolean {
   return powerCostPaysAction(power?.system?.cost);
@@ -230,10 +232,34 @@ export async function activateActiveBuff(actor: Actor, power: any): Promise<bool
 
   // Aggregator requires `applyWhen: 'activeBuff-active'` on the snapshot (item
   // JSON may omit it when only partial mechanics are stored on the level).
-  const rankMechanics =
+  let rankMechanics: Record<string, unknown> & { applyWhen: 'activeBuff-active' } =
     rankMechanicsRaw && typeof rankMechanicsRaw === 'object'
       ? { ...rankMechanicsRaw, applyWhen: 'activeBuff-active' as const }
       : { applyWhen: 'activeBuff-active' as const };
+
+  // Item JSON sometimes omits `damageReductionPct` on DR rows; merge from catalog so DR always snapshots.
+  if (String(powerSys?.templateId || '') === 'ab-damage-reduction') {
+    const drNow = (rankMechanics as { damageReductionPct?: unknown }).damageReductionPct;
+    if (typeof drNow !== 'number' || !Number.isFinite(drNow) || drNow <= 0) {
+      const tpl = ALL_POWER_TEMPLATES.find((t: any) => t?.templateId === 'ab-damage-reduction');
+      const lvlKey = String(powerLevelKey);
+      const row = tpl?.levels?.[lvlKey as keyof typeof tpl.levels] ?? tpl?.levels?.['1'];
+      const m = row?.mechanics;
+      if (m && typeof m === 'object') {
+        rankMechanics = {
+          ...(m as unknown as Record<string, unknown>),
+          ...rankMechanics,
+          applyWhen: 'activeBuff-active',
+        };
+        logDrDebug('active-buff-dr-catalog-fallback', {
+          powerLevelKey: lvlKey,
+          source: 'ALL_POWER_TEMPLATES',
+        });
+      } else {
+        logDrDebug('active-buff-dr-catalog-missing', { powerLevelKey: lvlKey });
+      }
+    }
+  }
 
   const drSnap = (rankMechanics as { damageReductionPct?: unknown }).damageReductionPct;
   if (

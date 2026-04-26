@@ -7,6 +7,7 @@ import { masteryRoll } from '../dice/roll-handler.js';
 import { calculateMaxSkillRank } from '../utils/calculations.js';
 import { getEquippedEquipmentInitiativeModifier } from '../utils/equipment-modifiers.js';
 import { readManualAdjustments } from '../utils/manual-adjustments.js';
+import { buildCombatTurnSnapshot, logCombatTrace } from '../utils/combat-trace-debug.js';
 const CR_SKILL_KEY = 'combatReflexes';
 function getMasteryRank(actor) {
     if (!actor || !actor.system)
@@ -192,6 +193,9 @@ export async function executeInitiativePhase(combat) {
     if (typeof combat.setupTurns === 'function') {
         await combat.setupTurns();
     }
+    logCombatTrace('initiative-phase-after-setupTurns', {
+        snapshot: buildCombatTurnSnapshot(combat),
+    });
 }
 /** @deprecated Prefer executeInitiativePhase; kept for compatibility. */
 export async function rollInitiativeForAllCombatants(combat) {

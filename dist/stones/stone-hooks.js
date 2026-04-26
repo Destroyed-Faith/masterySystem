@@ -9,6 +9,7 @@
 import { resetTurnState, restoreStonesAfterCombat, initializeCombatRoundState, clearStonePowersConfigurationLocksInCombat, clearCombatStoneTurnBonusesForActor, } from '../combat/action-economy.js';
 import { clearMasteryActiveBuffsForCombatants } from '../utils/active-buffs.js';
 import { runMasteryCombatRoundAdvancePipeline } from '../combat/stone-powers-flow.js';
+import { buildCombatTurnSnapshot, logCombatTrace } from '../utils/combat-trace-debug.js';
 /**
  * Initialize stone system hooks
  */
@@ -21,6 +22,12 @@ export function initializeStoneHooks() {
     // Hook: Combat turn/round changes
     Hooks.on('updateCombat', async (combat, changes, _options, _userId) => {
         console.log('Mastery System | updateCombat hook', { changes });
+        if (changes?.turn !== undefined || changes?.round !== undefined) {
+            logCombatTrace('updateCombat', {
+                changes,
+                snapshot: buildCombatTurnSnapshot(combat),
+            });
+        }
         // Turn changed — expire the previous combatant's "this turn" stone bonuses
         // (+8 Evade, damage dice from stones, etc.) then reset counters for the new current.
         if (changes.turn !== undefined && combat.started && combat.turns?.length) {

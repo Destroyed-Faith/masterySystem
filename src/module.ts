@@ -1155,6 +1155,15 @@ function registerSystemSettings() {
     default: false
   });
 
+  (game as any).settings.register('mastery-system', 'debugCombatTurns', {
+    name: 'Debug: Combat turns & initiative',
+    hint: 'Log [COMBAT-TRACE] lines (round/turn changes, full turn order, initiative vs msInitiativeValue flag). Also enabled when Debug Mode is on, or set globalThis.MSY_DEBUG_COMBAT = true.',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false
+  });
+
   // Mastery Rank - Global default
   (game as any).settings.register('mastery-system', 'defaultMasteryRank', {
     name: 'Default Mastery Rank',
