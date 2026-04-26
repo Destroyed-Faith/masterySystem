@@ -1,0 +1,11 @@
+chore: release 0.5.2 — passive templates realigned to canonical spec
+
+Rewrote src/utils/powers/templates/passives.ts so every base,
+conditional, combined, and conditional-combined passive matches the
+published Passive Design Rules tables. Fixes drifted Armor / Evade /
+Temp HP / Healing curves, corrects Damage Reduction and Ghostform caps,
+switches Killing Intent to d6 scaling, replaces the Deep Vitality flat
+Max HP with Health-Bar milestones, rebuilds Heightened Senses as
+Combat-Sense milestones, corrects all 12 Combined and 12 Conditional
+Combined per-level tables, and forces Special Aura to binary +1 step
+with spec radius milestones. Full suite (391 tests) green.

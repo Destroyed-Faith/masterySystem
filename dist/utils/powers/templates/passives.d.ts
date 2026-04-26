@@ -1,18 +1,24 @@
 /**
- * Passive Power Templates (45 + 1 Special Aura)
+ * Passive Power Templates.
  *
- * Source: d:\DestroyedFaith\Powers\Passives.md — Levels 1..16.
+ * Canonical source: `docs/passives.md` (Passive Design Rules + Catalog).
  *
  * Structure:
- *   - base (20): single-axis canonical passives
- *   - combined (12): two-axis combinations (non-conditional)
- *   - conditional-combined (12): same as combined but gated on a condition
- *   - special-aura (1): grants/applies a Special to nearby creatures
+ *   - Base unconditional passives (one axis per template): Armor, Damage
+ *     Reduction, Evade, Temporary HP, Healing, Phasing, Damage, Health,
+ *     Awareness.
+ *   - Conditional passives (one axis, gated on a combat condition): Armor
+ *     (Stone Stance / Surrounded Bulwark), Evade (Flowing Step / Duelist
+ *     Footwork), Damage (Momentum / Ambusher / Bloodlust / Executioner),
+ *     Healing (Blood Feast / Battle Trance / Stillness Recovery).
+ *   - Combined passives (two axes, unconditional): 12 entries per spec.
+ *   - Conditional Combined passives (two axes, gated): 12 entries per spec.
+ *   - Passive Special Aura: fixed +1 step on a chosen eligible Special(X),
+ *     radius scales with level.
  *
- * Numeric scaling follows the ~1.25× Active Buff curve described in the md.
- * For non-numeric or narrative entries we emit effect.text plus a minimal
- * mechanics block; the aggregator gracefully falls back to descriptive
- * behaviour for rows that carry no mechanical deltas.
+ * Structural axes without a dedicated mechanics key (extra Health Bars and
+ * Combat Senses) are encoded as narrative `effect.text`; the aggregator
+ * falls back to descriptive behaviour for rows without a mechanical delta.
  */
 import type { PowerTemplate } from './_shared.js';
 export declare const PASSIVE_TEMPLATES: PowerTemplate[];

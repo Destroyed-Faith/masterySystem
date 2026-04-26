@@ -2,6 +2,38 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.2] - 2026-04-26
+
+### Fixed
+
+- **Passive templates realigned to the canonical Passive Design Rules.** `src/utils/powers/templates/passives.ts` was rewritten end-to-end because several passive curves had drifted from the published spec. Concrete corrections:
+  - **Fortified Frame (Armor):** now `[1, 3, 4, 5, 7, 8, 9, 11, 12, 13, 15, 16, 17, 19, 20, 21]` (was `[6, 12, … 86]`).
+  - **Damage Reduction:** milestone curve `0 / 0 / 10 % ×5 / 20 % ×7 / 30 % ×2` (was `10 / 20 / 30 / 40 / 50 %` — capped too high).
+  - **Evade:** `+2 / +4 / … / +32` (was `+10 / +18 / … / +130`).
+  - **Temporary HP:** `10 / 20 / … / 160` (was `12 / 22 / … / 162`).
+  - **Regeneration:** `2, 5, 7, 10, 12, 15, 17, 20, 22, 25, 27, 30, 32, 35, 37, 40` HP at start of turn (was `1, 2, … 16`).
+  - **Ghostform:** caps at **3 Phasing charges** (`0×3, 1×4, 2×7, 3×2`) — previously reached `4` charges.
+  - **Killing Intent:** `d6` dice on `— / +1d6 ×2 / +2d6 ×2 / … / +8d6` (was `d8` dice with a different shape).
+  - **Deep Vitality (Health):** Health-Bar milestones (`+Wounded` → `+W+Injured` → `+W+I+Bruised` → `+W+I+B+Healthy`) instead of a flat `+X Max HP` rider.
+  - **Heightened Senses (Awareness):** Combat-Sense milestones (1 / 2 / 3 / 4 senses, Presence Sense unlocked at L12) instead of "+lvl initiative dice".
+- **Conditional passives** now use the real conditional curves instead of halving the unconditional one:
+  - Stone Stance / Surrounded Bulwark → `[3, 5, 8, 10, 13, 16, 19, 21, 24, 27, 29, 32, 35, 37, 40, 43]` Armor.
+  - Flowing Step / Duelist Footwork → `[4, 8, 12, … 64]` Evade.
+  - Momentum / Ambusher / Bloodlust / Executioner → `+1d6` per level (up to `+16d6`).
+  - Blood Feast / Battle Trance / Stillness Recovery → `5 / 10 / … / 80 HP` with the correct per-template gate, replacing the wrong on-kill / on-scene / Mind-save effects.
+- **All 12 Combined Passives** now follow the exact per-level tables from the spec (Armor / THP, Armor / Healing, Armor / Health, Evade / THP, Evade / Healing, Evade / Damage, Damage / Healing, Damage / THP, Awareness / Evade, Awareness / Damage, Health / Healing, Health / THP). Combined Health lines correctly **never** grant a Healthy Health Bar.
+- **All 12 Conditional Combined Passives** rebuilt with their proper per-level tables and condition gates (ally-adjacent, 0 m / 8 m move, Bleeding, Wounded-or-worse, non-sight Combat Sense).
+- **Passive Special Aura** is now strictly binary (`+1 step`) on the chosen eligible `Special(X)`, with scaling only through radius milestones `—, —, —, 2 m, 3 m, 4 m, 5 m ×3, 6 m ×3, 7 m ×3, 8 m`. Previously the template scaled `rank = ceil(lvl / 2)` and had wrong radii.
+
+### Changed
+
+- Passive `conditionExpr` fields are now emitted for all conditional / conditional-combined passives (e.g. `self.adjacentEnemies >= 2`, `self.turnMoved >= 8`, `self.hasSpecial.bleeding`, `self.healthState <= wounded`, `target.perceivedByNonSightSense`), making the gate declarative for future runtime support.
+- Per-level progression is now centralised in named tables at the top of `passives.ts` (`ARMOR_UNCOND`, `ARMOR_COND`, `HEAL_UNCOND`, `HEAL_COND`, `DMG_KILLING_INTENT`, `DMG_COND`, `COMB_*`, `CC_*`), so future spec tweaks land as single-array edits.
+
+### Tests
+
+- Full suite remains green: 25 files / 391 tests pass.
+
 ## [0.5.1] - 2026-04-26
 
 ### Added
