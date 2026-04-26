@@ -17,7 +17,7 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseCarousel = HandlebarsApplicationMixin(ApplicationV2);
 export class CombatCarouselApp extends BaseCarousel {
     static _instance = null;
-    hooks = [];
+    hookEntries = [];
     static DEFAULT_OPTIONS = {
         id: 'mastery-combat-carousel',
         classes: ['mastery-system', 'combat-carousel'],
@@ -181,11 +181,41 @@ export class CombatCarouselApp extends BaseCarousel {
                 }
                 const c = actor.system?.combat ?? {};
                 const drPct = Math.max(0, Math.min(100, Math.floor(Number(c.damageReductionPct ?? 0) || 0)));
+                const stripTooltip = (() => {
+                    try {
+                        const a = Math.floor(Number(c.armorTotal ?? 0) || 0);
+                        const e = Math.floor(Number(c.evadeTotal ?? 0) || 0);
+                        const dr = drPct;
+                        const ar = c.armorBreakdownRows || [];
+                        const ev = c.evadeBreakdownRows || [];
+                        const drR = c.damageReductionRows || [];
+                        const line = (rows, max) => rows
+                            .slice(0, max)
+                            .map((r) => `${r.label}: ${r.display ?? r.value}`)
+                            .join('\n');
+                        return [
+                            `Armor ${a}`,
+                            line(ar, 8),
+                            '',
+                            `Evade ${e}`,
+                            line(ev, 8),
+                            '',
+                            `DR ${dr}%`,
+                            line(drR, 8),
+                        ]
+                            .filter(Boolean)
+                            .join('\n');
+                    }
+                    catch {
+                        return '';
+                    }
+                })();
                 combatStrip = {
                     armor: Math.floor(Number(c.armorTotal ?? 0) || 0),
                     evade: Math.floor(Number(c.evadeTotal ?? 0) || 0),
                     showDr: true,
                     drPct,
+                    stripTooltip,
                 };
             }
             catch {
@@ -421,20 +451,19 @@ export class CombatCarouselApp extends BaseCarousel {
     registerUpdateHooks() {
         // Unregister any existing hooks first
         this.unregisterUpdateHooks();
+        const reg = (event, id) => this.hookEntries.push({ event, id });
         // Hook: Update actor (for linked tokens)
-        const updateActorHook = Hooks.on('updateActor', (actor, updateData) => {
+        reg('updateActor', Hooks.on('updateActor', (actor, updateData) => {
             const actorId = actor?.id || actor?._id;
             if (!actorId || !this.isRelevantActor(actorId))
                 return;
-            // Check if HP/Stress fields changed
             const hasRelevantChange = this.hasRelevantChange(updateData, 'actor');
             if (hasRelevantChange) {
                 this.debouncedRefresh();
             }
-        });
-        this.hooks.push(updateActorHook);
+        }));
         // Hook: Update token (for unlinked tokens + any token move for adjacency-based passives)
-        const updateTokenHook = Hooks.on('updateToken', (tokenDoc, updateData) => {
+        reg('updateToken', Hooks.on('updateToken', (tokenDoc, updateData) => {
             const posChanged = updateData &&
                 (updateData.x !== undefined ||
                     updateData.y !== undefined ||
@@ -449,18 +478,32 @@ export class CombatCarouselApp extends BaseCarousel {
             if (hasRelevantChange) {
                 this.debouncedRefresh();
             }
-        });
-        this.hooks.push(updateTokenHook);
+        }));
+        // ActiveEffects do not always bubble into `updateActor.system` — refresh strip when buffs change.
+        const onEffectChange = (effect) => {
+            try {
+                const parent = effect?.parent;
+                const aid = parent?.id;
+                if (aid && parent?.documentName === 'Actor' && this.isRelevantActor(aid)) {
+                    this.debouncedRefresh();
+                }
+            }
+            catch {
+                /* ignore */
+            }
+        };
+        reg('createActiveEffect', Hooks.on('createActiveEffect', onEffectChange));
+        reg('updateActiveEffect', Hooks.on('updateActiveEffect', onEffectChange));
+        reg('deleteActiveEffect', Hooks.on('deleteActiveEffect', onEffectChange));
     }
     /**
      * Unregister update hooks
      */
     unregisterUpdateHooks() {
-        for (const hookId of this.hooks) {
-            Hooks.off('updateActor', hookId);
-            Hooks.off('updateToken', hookId);
+        for (const { event, id } of this.hookEntries) {
+            Hooks.off(event, id);
         }
-        this.hooks = [];
+        this.hookEntries = [];
     }
     /**
      * Check if an actor is relevant to any combatant in the carousel

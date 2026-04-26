@@ -37,6 +37,19 @@
   color: #fff;
 }
 
+.stone-powers-dialog .stone-plan-locked-sub {
+  font-size: 0.78rem;
+  opacity: 0.92;
+  line-height: 1.35;
+}
+
+.stone-powers-dialog .stone-powers-close-hint {
+  margin: 0.35rem 0 0.5rem 0;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.72);
+}
+
 .stone-powers-dialog .stone-combat-hint-banner {
   display: flex;
   align-items: flex-start;

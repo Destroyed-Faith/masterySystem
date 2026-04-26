@@ -10,6 +10,8 @@ import { openRadialMenuForActor, getAllCombatOptionsForActor, closeRadialMenu } 
 import type { RadialCombatOption } from './token-radial-menu';
 import { getSegmentIdForOption } from './radial-menu/options';
 import { startMeleeTargeting, collectMeleeBurstHostileTokenIds } from './melee-targeting';
+import { promptMeleeAoePrimaryChoice } from './melee-aoe-primary-dialog.js';
+import { extractMeleeAoePowerBonusD8 } from './utils/power-mechanics.js';
 import { startRangedTargeting } from './ranged-targeting';
 import { startUtilitySingleTargetMode, startUtilityRadiusMode } from './utility-targeting';
 import {
@@ -200,41 +202,24 @@ export function initializeTokenActionSelector() {
         return;
       }
 
-      const multiIds: string[] | undefined = Array.isArray(payload.targetTokenIds)
-        ? payload.targetTokenIds
-        : undefined;
-      const singleId: string | undefined =
-        typeof payload.targetTokenId === "string" ? payload.targetTokenId : undefined;
-      const targetIds: string[] =
-        multiIds && multiIds.length ? multiIds : singleId ? [singleId] : [];
+      const targetId =
+        typeof payload.targetTokenId === "string" ? payload.targetTokenId.trim() : "";
+      if (!targetId) {
+        console.warn("Mastery System | [RADIAL FLOW] meleeTargetSelected: no targetTokenId", payload);
+        return;
+      }
 
-      if (!targetIds.length) {
-        console.warn("Mastery System | [RADIAL FLOW] meleeTargetSelected: no target id(s)", payload);
+      const targetToken = canvas.tokens?.get(targetId);
+      if (!targetToken) {
+        console.warn("Mastery System | [RADIAL FLOW] meleeTargetSelected: token not on canvas", {
+          targetTokenId: targetId
+        });
         return;
       }
 
       const { createMeleeAttackCard } = await import("./combat/attack-executor.js");
-      let volleyId: string;
-      try {
-        volleyId = (foundry as any).utils?.randomID?.(16) ?? `melee-volley-${Date.now().toString(36)}`;
-      } catch {
-        volleyId = `melee-volley-${Date.now().toString(36)}`;
-      }
-      const useVolley = targetIds.length > 1;
-
-      for (let i = 0; i < targetIds.length; i++) {
-        const targetToken = canvas.tokens?.get(targetIds[i]);
-        if (!targetToken) {
-          console.warn("Mastery System | [RADIAL FLOW] meleeTargetSelected: token not on canvas", {
-            targetTokenId: targetIds[i]
-          });
-          continue;
-        }
-        const burstVolley = useVolley
-          ? { volleyId, volleyIndex: i + 1, volleyTotal: targetIds.length }
-          : null;
-        await createMeleeAttackCard(attackerToken, targetToken, option, burstVolley);
-      }
+      const aoeMelee = payload.aoeMelee ?? null;
+      await createMeleeAttackCard(attackerToken, targetToken, option, null, aoeMelee);
     } catch (e) {
       console.error("Mastery System | [TOKEN ACTION SELECTOR] meleeTargetSelected hook failed", e);
     }
@@ -1011,11 +996,60 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
         });
         return;
       }
-      Hooks.call('masterySystem.meleeTargetSelected', {
-        attackerTokenId: token.id,
-        targetTokenIds: burstIds,
-        option
-      });
+
+      const powerBonus = extractMeleeAoePowerBonusD8(option.item);
+      if (burstIds.length > 1 && powerBonus <= 0) {
+        ui.notifications?.warn?.(
+          'Melee AoE: power has no unconditional +Nd8 splash on damageRider.flat — secondary splash disabled.',
+        );
+      }
+
+      const choice = await promptMeleeAoePrimaryChoice(burstIds, token.id, option);
+      if (choice === 'cancelled') {
+        return;
+      }
+
+      if (choice.primaryTokenId === null) {
+        if (powerBonus <= 0) {
+          ui.notifications?.warn?.('Melee AoE (no primary): power must declare +Nd8 splash damage.');
+          return;
+        }
+        if (option.costsAction) {
+          const consumed = await consumeAttackAction(actor, combat);
+          if (!consumed) {
+            ui.notifications?.warn?.('Failed to consume attack action.');
+            return;
+          }
+        }
+        if (option.source === 'power' && option.item?.id) {
+          await markPowerUsedThisRound(actor, combat, option.item.id);
+        }
+        const { resolveAoeMeleeSecondaries } = await import('./combat/aoe-melee-resolution.js');
+        const mr = Math.max(1, Math.min(6, Math.floor(Number(actor.system?.mastery?.rank) || 2)));
+        await resolveAoeMeleeSecondaries({
+          attacker: actor as any,
+          attackerMasteryRank: mr,
+          secondaryTokenIds: burstIds.slice(),
+          powerBonusDice: powerBonus,
+        });
+        return;
+      }
+
+      const primaryId = choice.primaryTokenId;
+      const secondaries = burstIds.filter((id) => id !== primaryId);
+      const primaryTok = canvas.tokens?.get(primaryId);
+      if (!primaryTok) {
+        ui.notifications?.warn?.('Melee AoE: primary token not found.');
+        return;
+      }
+
+      const aoeMelee =
+        secondaries.length && powerBonus > 0
+          ? { secondaryTokenIds: secondaries, powerBonusDice: powerBonus }
+          : null;
+
+      const { createMeleeAttackCard } = await import('./combat/attack-executor.js');
+      await createMeleeAttackCard(token, primaryTok, option, null, aoeMelee);
       return;
     }
 

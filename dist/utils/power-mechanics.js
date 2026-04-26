@@ -149,6 +149,26 @@ export function resolvePowerMechanics(powerItem) {
     return null;
 }
 /**
+ * How many d8 the power adds as **splash** for melee weapon AoE secondaries,
+ * from unconditional `damageRider.flat` (e.g. "+2d8" → 2). Conditional-only
+ * riders (`vsCondition`) are ignored for this automatic splash pool.
+ */
+export function extractMeleeAoePowerBonusD8(powerItem) {
+    const mech = resolvePowerMechanics(powerItem);
+    const rider = mech?.damageRider;
+    if (!rider?.flat || rider.vsCondition)
+        return 0;
+    const norm = String(rider.flat).trim().replace(/^\+\s*/, '');
+    if (!norm)
+        return 0;
+    const m = /^(\d+)\s*d8\b/i.exec(norm);
+    if (m)
+        return Math.max(0, parseInt(m[1], 10));
+    if (/^d8$/i.test(norm))
+        return 1;
+    return 0;
+}
+/**
  * Look the canonical mechanics up in the live template registry. Prefers a
  * `templateId` match (set on new item documents) and falls back to matching
  * the power name for legacy items still living through the transition.

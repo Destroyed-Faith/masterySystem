@@ -213,13 +213,20 @@ export async function activateActiveBuff(actor: Actor, power: any): Promise<bool
   // power item is later removed. Falls back to the power-level default.
   const powerSys: any = power.system || {};
   const powerRank = Math.max(1, Math.min(4, Number(powerSys.rank ?? 1)));
-  const rankMechanics =
+  const rankMechanicsRaw =
     powerSys.levels?.[String(powerRank)]?.mechanics ?? powerSys.mechanics ?? null;
+  // Aggregator requires `applyWhen: 'activeBuff-active'` on the snapshot (item
+  // JSON may omit it when only partial mechanics are stored on the level).
+  const rankMechanics =
+    rankMechanicsRaw && typeof rankMechanicsRaw === 'object'
+      ? { ...rankMechanicsRaw, applyWhen: 'activeBuff-active' as const }
+      : { applyWhen: 'activeBuff-active' as const };
 
   // Create ActiveEffect data - simplified structure for Foundry VTT
   const effectData: any = {
     name: power.name,
-    icon: power.img || power.system?.img || 'icons/svg/aura.svg',
+    // Generic icon — avoids a misleading power-art token on the map for buffs.
+    icon: 'icons/svg/book.svg',
     // Store original power data in flags
     flags: {
       'mastery-system': {
@@ -270,7 +277,7 @@ export async function activateActiveBuff(actor: Actor, power: any): Promise<bool
       const rm: any = rankMechanics ?? {};
       if (typeof rm.damageReductionPct === 'number' && rm.damageReductionPct > 0) {
         lines.push(
-          `<p>Buff: <strong>+${rm.damageReductionPct}%</strong> Damage Reduction vs your passive DR line (carousel / sheet update after the effect applies).</p>`,
+          `<p>Buff: <strong>+${rm.damageReductionPct}%</strong> Damage Reduction (stacks with passive DR in combat totals).</p>`,
         );
       }
       if (typeof rm.armor === 'number' && rm.armor !== 0) {

@@ -6,7 +6,7 @@
  * - End-of-round regeneration
  * - Post-combat full restore
  */
-import { resetTurnState, restoreStonesAfterCombat, initializeCombatRoundState, clearStonePowersConfigurationLocksInCombat, } from '../combat/action-economy.js';
+import { resetTurnState, restoreStonesAfterCombat, initializeCombatRoundState, clearStonePowersConfigurationLocksInCombat, clearCombatStoneTurnBonusesForActor, } from '../combat/action-economy.js';
 import { clearMasteryActiveBuffsForCombatants } from '../utils/active-buffs.js';
 import { runMasteryCombatRoundAdvancePipeline } from '../combat/stone-powers-flow.js';
 /**
@@ -21,7 +21,23 @@ export function initializeStoneHooks() {
     // Hook: Combat turn/round changes
     Hooks.on('updateCombat', async (combat, changes, _options, _userId) => {
         console.log('Mastery System | updateCombat hook', { changes });
-        // Turn changed - reset turn state for new current combatant
+        // Turn changed — expire the previous combatant's "this turn" stone bonuses
+        // (+8 Evade, damage dice from stones, etc.) then reset counters for the new current.
+        if (changes.turn !== undefined && combat.started && combat.turns?.length) {
+            const turns = combat.turns;
+            const len = turns.length;
+            const prevIdx = (combat.turn - 1 + len) % len;
+            const prevCombatant = turns[prevIdx];
+            const prevActor = prevCombatant?.actor;
+            if (prevActor) {
+                try {
+                    await clearCombatStoneTurnBonusesForActor(prevActor, combat);
+                }
+                catch (e) {
+                    console.warn('Mastery System | clearCombatStoneTurnBonusesForActor failed', e);
+                }
+            }
+        }
         if (changes.turn !== undefined) {
             const currentCombatant = combat.combatant;
             if (currentCombatant && currentCombatant.actor) {

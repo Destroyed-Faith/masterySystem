@@ -27,10 +27,10 @@
           <div class="portrait-name">{{combatant.name}}</div>
 
           {{#if combatant.combatStrip}}
-          <div class="ms-carousel-combat-strip" title="Aktuelle Kampfwerte (Rüstung / Evade / ggf. DR%)">
-            <span class="ms-cs ms-cs-arm" title="Armor">A <strong>{{combatant.combatStrip.armor}}</strong></span>
-            <span class="ms-cs ms-cs-ev" title="Evade">E <strong>{{combatant.combatStrip.evade}}</strong></span>
-            <span class="ms-cs ms-cs-dr" title="Damage Reduction %">DR <strong>{{combatant.combatStrip.drPct}}%</strong></span>
+          <div class="ms-carousel-combat-strip" title="{{#if combatant.combatStrip.stripTooltip}}{{combatant.combatStrip.stripTooltip}}{{else}}Aktuelle Kampfwerte (Rüstung / Evade / DR%) — Hover für Herkunft{{/if}}">
+            <span class="ms-cs ms-cs-arm" title="Armor total">A <strong>{{combatant.combatStrip.armor}}</strong></span>
+            <span class="ms-cs ms-cs-ev" title="Evade total">E <strong>{{combatant.combatStrip.evade}}</strong></span>
+            <span class="ms-cs ms-cs-dr" title="Damage reduction %">DR <strong>{{combatant.combatStrip.drPct}}%</strong></span>
           </div>
           {{/if}}
 
@@ -116,11 +116,11 @@
             </div>
           {{/if}}
 
-          <!-- End Turn Button (only for current combatant) -->
+          <!-- Advance initiative one step (next combatant) -->
           {{#if combatant.isCurrent}}
-            <button type="button" class="portrait-end-turn js-end-turn" data-tooltip="End Turn" aria-label="End Turn">
-              <i class="fas fa-hourglass-end"></i>
-              <span>End Turn</span>
+            <button type="button" class="portrait-end-turn js-end-turn" data-tooltip="Nächster Eintrag im Initiative-Tracker (ein Zug weiter)." aria-label="Nächster Zug">
+              <i class="fas fa-forward"></i>
+              <span>Nächster Zug</span>
             </button>
           {{/if}}
 

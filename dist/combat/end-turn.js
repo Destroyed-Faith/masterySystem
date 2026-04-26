@@ -1,11 +1,9 @@
 /**
- * End Turn functionality
- *
- * Allows players to manually end their turn and advance to the next combatant
+ * Advance combat tracker by one step (next combatant in initiative order).
  */
 /**
- * Request to end the current turn and advance to next combatant
- * If user is GM or owns the current combatant, advance turn
+ * Request to advance the active encounter one turn (same as Foundry's next turn).
+ * If user is GM or owns the current combatant, advance turn.
  */
 export async function requestEndTurn() {
     const combat = game.combat;
@@ -27,7 +25,7 @@ export async function requestEndTurn() {
         ui.notifications.warn('You can only end your own turn!');
         return;
     }
-    console.log(`Mastery System | Ending turn for ${currentCombatant.name}`);
+    console.log(`Mastery System | Next turn from ${currentCombatant.name}`);
     try {
         await combat.nextTurn();
     }

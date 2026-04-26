@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.15] - 2026-04-26
+
+### Added
+
+- **Melee weapon AoE (burst) v2:** One attack roll vs a chosen **primary**; chat card carries secondary token IDs and power splash dice. After primary damage resolves, **secondaries** may spend a **Reaction** for a **Body** save vs TN **Mastery Rank × 8** (clamped M1–M6); failure applies **power-only** `Nd8x` splash through the normal mitigation pipeline. **No primary** path spends the action and resolves splash-only for everyone in the burst (requires `+Nd8` on `damageRider.flat`).
+- **`extractMeleeAoePowerBonusD8`** for unconditional splash dice from power mechanics.
+
+### Changed
+
+- **Combat carousel:** Refreshes on ActiveEffect create/update/delete when mastery buff flags change; combat strip **tooltip** from armor/evade/DR breakdown rows.
+- **Character sheet:** Combat stats chips show structured breakdown tooltips/lines where available.
+- **Stone powers dialog:** Primary close action labeled for settlement clarity; round plan save available beyond round one when not locked; locked-banner hint.
+- **End turn UI:** Labels/tooltips describe **next combatant** (`nextTurn`) semantics.
+- **Stone turn bonuses:** Turn-scoped evade (and similar) stone bonuses clear when the combat tracker advances away from that combatant’s turn.
+- **Active buff effect:** Neutral book icon; snapshot **`applyWhen: activeBuff-active`** on stored mechanics; DR breakdown rows aligned with aggregation.
+
+### Fixed
+
+- **TypeScript / Foundry typings:** Carousel strip type, AoE dialog HTML escape, reaction spend uses **`spendReactionAction`** + **`getRoundState`**.
+
 ## [0.5.14] - 2026-04-26
 
 ### Added

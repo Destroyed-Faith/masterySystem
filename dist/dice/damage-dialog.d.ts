@@ -63,4 +63,14 @@ export interface AppliedDamageSummary {
     /** `true` if the target phased out of the hit entirely. */
     phased: boolean;
 }
+/**
+ * Apply damage to target actor — full defensive pipeline:
+ *   Phasing check (Phase 3) → Armor → DR% → 8s-minimum → Temp-HP → Health bars.
+ *
+ * `count8s` is the number of natural 8s rolled across all damage dice for
+ * this strike; `applyDamageToTarget` uses it to enforce the floor rule
+ * ("never below count8s if any 8 was rolled").
+ */
+/** Exported for AoE secondary hits (power dice only, same mitigation pipeline). */
+export declare function applyDamageToTargetFromAoe(target: Actor, damage: number, attacker: Actor, count8s?: number): Promise<AppliedDamageSummary>;
 //# sourceMappingURL=damage-dialog.d.ts.map

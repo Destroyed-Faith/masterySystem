@@ -629,6 +629,21 @@ export function registerAttackRollClickHandler() {
                     if (damageResult) {
                         // Roll and display damage
                         await rollAndDisplayDamage(damageResult, attacker, target, flags);
+                        const aoeSecondaries = String(updatedFlags.aoeMeleeSecondaryTokenIds || '')
+                            .split(',')
+                            .map((s) => s.trim())
+                            .filter(Boolean);
+                        const aoeDice = Math.max(0, Math.floor(Number(updatedFlags.aoeMeleePowerBonusDice) || 0));
+                        if (updatedFlags.aoeMeleeWeapon && aoeSecondaries.length > 0 && aoeDice > 0) {
+                            const { resolveAoeMeleeSecondaries } = await import('../combat/aoe-melee-resolution.js');
+                            const atkMr = Math.max(1, Math.min(6, Math.floor(Number(updatedFlags.masteryRank) || 2)));
+                            await resolveAoeMeleeSecondaries({
+                                attacker: freshAttackerForDialog,
+                                attackerMasteryRank: atkMr,
+                                secondaryTokenIds: aoeSecondaries,
+                                powerBonusDice: aoeDice,
+                            });
+                        }
                     }
                     else {
                         console.warn('Mastery System | [AFTER DAMAGE DIALOG] No damage result returned from showDamageDialog');

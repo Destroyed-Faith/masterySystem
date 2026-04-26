@@ -14,6 +14,7 @@
     <div class="stone-plan-locked-text">
       <strong>{{combatLabel}}</strong>
       <span>Steinzuordnung und Aktivieren sind für diese Runde gesperrt, sobald du Bewegung, einen Angriff oder eine Reaktion genutzt hast.</span>
+      <span class="stone-plan-locked-sub">Bereits voll bezahlte Wellen bleiben gültig — <strong>Übernehmen &amp; schließen</strong> verbucht sie und schließt den Dialog.</span>
     </div>
   </div>
   {{/if}}
@@ -28,11 +29,11 @@
   <div class="stone-pools-display">
     <div class="stone-pools-header-row">
       <h3>Available Stones</h3>
-      {{#if showCombatRound1Save}}
+      {{#if showCombatRoundPlanSave}}
       <button type="button"
               class="dialog-btn dialog-btn-stone-save dialog-btn-stone-save-inline js-save-stone-r1-combat-plan"
-              title="Steinplan für Runde 1 sichern und Dialog schließen. Beim erneuten Öffnen in derselben Runde wird er wiederhergestellt.">
-        <i class="fas fa-floppy-disk"></i> Speichern
+              title="Aktuelle Ablagefelder für diese Kampf-Runde als Plan speichern und Dialog schließen. Beim erneuten Öffnen in derselben Runde wird der Plan wiederhergestellt.">
+        <i class="fas fa-floppy-disk"></i> Plan R{{combatRound}} speichern
       </button>
       {{/if}}
     </div>
@@ -360,6 +361,8 @@
   </div>
   {{/if}}
 
+  <p class="stone-powers-close-hint">Voll bezahlte Stein-Wellen werden beim <strong>Übernehmen &amp; schließen</strong> abgerechnet (Pools, Kampf-Rundenstatus). Unvollständige Wellen bleiben bis zur nächsten vollen Welle offen.</p>
+
   <div class="dialog-footer stone-powers-footer">
     <div class="stone-prefs-bar">
       <label class="stone-prefs-label">
@@ -374,8 +377,8 @@
         <i class="fas fa-save"></i> Standard speichern
       </button>
     </div>
-    <button type="button" class="dialog-btn js-close">
-      <i class="fas fa-times"></i> Schließen
+    <button type="button" class="dialog-btn dialog-btn-primary js-close" title="Verbucht voll bezahlte Wellen und schließt den Dialog.">
+      <i class="fas fa-check"></i> Übernehmen &amp; schließen
     </button>
   </div>
 </div>

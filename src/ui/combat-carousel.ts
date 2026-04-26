@@ -18,9 +18,11 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
 const BaseCarousel = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
 
+type CarouselHookEntry = { event: string; id: number };
+
 export class CombatCarouselApp extends BaseCarousel {
   private static _instance: CombatCarouselApp | null = null;
-  private hooks: number[] = [];
+  private hookEntries: CarouselHookEntry[] = [];
 
   static DEFAULT_OPTIONS = {
     id: 'mastery-combat-carousel',
@@ -196,6 +198,7 @@ export class CombatCarouselApp extends BaseCarousel {
         evade: number;
         showDr: boolean;
         drPct: number;
+        stripTooltip?: string;
       } | null = null;
       try {
         // Re-run derived prep so `conditionExpr` that depends on token positions
@@ -209,11 +212,41 @@ export class CombatCarouselApp extends BaseCarousel {
         }
         const c: any = (actor.system as any)?.combat ?? {};
         const drPct = Math.max(0, Math.min(100, Math.floor(Number(c.damageReductionPct ?? 0) || 0)));
+        const stripTooltip = (() => {
+          try {
+            const a = Math.floor(Number(c.armorTotal ?? 0) || 0);
+            const e = Math.floor(Number(c.evadeTotal ?? 0) || 0);
+            const dr = drPct;
+            const ar = (c.armorBreakdownRows as any[]) || [];
+            const ev = (c.evadeBreakdownRows as any[]) || [];
+            const drR = (c.damageReductionRows as any[]) || [];
+            const line = (rows: any[], max: number) =>
+              rows
+                .slice(0, max)
+                .map((r: any) => `${r.label}: ${r.display ?? r.value}`)
+                .join('\n');
+            return [
+              `Armor ${a}`,
+              line(ar, 8),
+              '',
+              `Evade ${e}`,
+              line(ev, 8),
+              '',
+              `DR ${dr}%`,
+              line(drR, 8),
+            ]
+              .filter(Boolean)
+              .join('\n');
+          } catch {
+            return '';
+          }
+        })();
         combatStrip = {
           armor: Math.floor(Number(c.armorTotal ?? 0) || 0),
           evade: Math.floor(Number(c.evadeTotal ?? 0) || 0),
           showDr: true,
           drPct,
+          stripTooltip,
         };
       } catch {
         combatStrip = null;
@@ -475,49 +508,69 @@ export class CombatCarouselApp extends BaseCarousel {
     // Unregister any existing hooks first
     this.unregisterUpdateHooks();
 
+    const reg = (event: string, id: number) => this.hookEntries.push({ event, id });
+
     // Hook: Update actor (for linked tokens)
-    const updateActorHook = Hooks.on('updateActor', (actor: any, updateData: any) => {
-      const actorId = actor?.id || actor?._id;
-      if (!actorId || !this.isRelevantActor(actorId)) return;
-      
-      // Check if HP/Stress fields changed
-      const hasRelevantChange = this.hasRelevantChange(updateData, 'actor');
-      if (hasRelevantChange) {
-        this.debouncedRefresh();
-      }
-    });
-    this.hooks.push(updateActorHook);
+    reg(
+      'updateActor',
+      Hooks.on('updateActor', (actor: any, updateData: any) => {
+        const actorId = actor?.id || actor?._id;
+        if (!actorId || !this.isRelevantActor(actorId)) return;
+
+        const hasRelevantChange = this.hasRelevantChange(updateData, 'actor');
+        if (hasRelevantChange) {
+          this.debouncedRefresh();
+        }
+      }),
+    );
 
     // Hook: Update token (for unlinked tokens + any token move for adjacency-based passives)
-    const updateTokenHook = Hooks.on('updateToken', (tokenDoc: any, updateData: any) => {
-      const posChanged =
-        updateData &&
-        (updateData.x !== undefined ||
-          updateData.y !== undefined ||
-          updateData.elevation !== undefined);
-      if (posChanged && game.combats?.active?.started) {
-        this.debouncedRefresh();
-        return;
-      }
-      if (!this.isRelevantToken(tokenDoc.id)) return;
+    reg(
+      'updateToken',
+      Hooks.on('updateToken', (tokenDoc: any, updateData: any) => {
+        const posChanged =
+          updateData &&
+          (updateData.x !== undefined ||
+            updateData.y !== undefined ||
+            updateData.elevation !== undefined);
+        if (posChanged && game.combats?.active?.started) {
+          this.debouncedRefresh();
+          return;
+        }
+        if (!this.isRelevantToken(tokenDoc.id)) return;
 
-      const hasRelevantChange = this.hasRelevantChange(updateData, 'token');
-      if (hasRelevantChange) {
-        this.debouncedRefresh();
+        const hasRelevantChange = this.hasRelevantChange(updateData, 'token');
+        if (hasRelevantChange) {
+          this.debouncedRefresh();
+        }
+      }),
+    );
+
+    // ActiveEffects do not always bubble into `updateActor.system` — refresh strip when buffs change.
+    const onEffectChange = (effect: any) => {
+      try {
+        const parent = effect?.parent;
+        const aid = parent?.id;
+        if (aid && parent?.documentName === 'Actor' && this.isRelevantActor(aid)) {
+          this.debouncedRefresh();
+        }
+      } catch {
+        /* ignore */
       }
-    });
-    this.hooks.push(updateTokenHook);
+    };
+    reg('createActiveEffect', Hooks.on('createActiveEffect', onEffectChange));
+    reg('updateActiveEffect', Hooks.on('updateActiveEffect', onEffectChange));
+    reg('deleteActiveEffect', Hooks.on('deleteActiveEffect', onEffectChange));
   }
 
   /**
    * Unregister update hooks
    */
   private unregisterUpdateHooks(): void {
-    for (const hookId of this.hooks) {
-      Hooks.off('updateActor', hookId);
-      Hooks.off('updateToken', hookId);
+    for (const { event, id } of this.hookEntries) {
+      Hooks.off(event, id);
     }
-    this.hooks = [];
+    this.hookEntries = [];
   }
 
   /**

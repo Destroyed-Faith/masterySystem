@@ -37,6 +37,12 @@ export declare function emptyBreakdown(): MechanicsBreakdown;
  */
 export declare function findPowerItemOnActor(actor: any, pid: string | undefined | null): any;
 export declare function resolvePowerMechanics(powerItem: any): PowerMechanics | null;
+/**
+ * How many d8 the power adds as **splash** for melee weapon AoE secondaries,
+ * from unconditional `damageRider.flat` (e.g. "+2d8" → 2). Conditional-only
+ * riders (`vsCondition`) are ignored for this automatic splash pool.
+ */
+export declare function extractMeleeAoePowerBonusD8(powerItem: any): number;
 /** One collected mechanics contribution with its display source. */
 interface MechanicsContribution {
     /** Human display, e.g. "Lean Ward (slotted)". */

@@ -375,7 +375,7 @@ Hooks.once('init', async function() {
       
       // Add End Turn button for current combatant
       if (isCurrent) {
-        const endTurnBtn = $('<button type="button" class="combatant-control ms-end-turn-btn" data-action="endTurn" data-combatant-id="' + combatantId + '" data-tooltip="End Turn" aria-label="End Turn" title="End Turn"><i class="fa-solid fa-hourglass-end"></i></button>');
+        const endTurnBtn = $('<button type="button" class="combatant-control ms-end-turn-btn" data-action="endTurn" data-combatant-id="' + combatantId + '" data-tooltip="Nächster Eintrag im Initiative-Tracker (ein Zug weiter)." aria-label="Nächster Zug" title="Nächster Zug"><i class="fa-solid fa-forward"></i></button>');
         $initiativeDiv.append(endTurnBtn);
         
         endTurnBtn.off('click.ms-end-turn').on('click.ms-end-turn', async (ev: JQuery.ClickEvent) => {

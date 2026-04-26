@@ -163,11 +163,11 @@ function getAttackAttribute(_actor, weapon, option, attackType) {
 /**
  * Create a melee or ranged attack chat card with roll button (Threatened Ranged for qualifying ranged attacks).
  */
-export async function createAttackCard(attackerToken, targetToken, option, attackType, split = null, burstVolley = null) {
+export async function createAttackCard(attackerToken, targetToken, option, attackType, split = null, burstVolley = null, aoeMelee = null) {
     // Split-Attack dispatcher: when a power declares `mechanics.splitAttack`,
     // we recurse into two strikes sharing one attack action. Pool + damage are
     // halved per strike (floor — odd remainder falls off symmetrically).
-    if (!split && !burstVolley && detectSplitAttack(option)) {
+    if (!split && !burstVolley && !aoeMelee && detectSplitAttack(option)) {
         const pairId = newSplitPairId();
         // Strike 1 resolves first; Strike 2 is scheduled immediately after so
         // both cards appear in chat for the target owner to resolve.
@@ -175,12 +175,12 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
             splitPairId: pairId,
             splitIndex: 1,
             attributePool: 0, // recomputed below with the real base pool.
-        }, null);
+        }, null, null);
         await createAttackCard(attackerToken, targetToken, option, attackType, {
             splitPairId: pairId,
             splitIndex: 2,
             attributePool: 0,
-        }, null);
+        }, null, null);
         return;
     }
     // Use token actor (for unlinked tokens) or base actor
@@ -331,6 +331,9 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         meleeBurstVolleyId: burstVolley?.volleyId ?? null,
         meleeBurstVolleyIndex: burstVolley?.volleyIndex ?? null,
         meleeBurstVolleyTotal: burstVolley?.volleyTotal ?? null,
+        aoeMeleeWeapon: !!(aoeMelee && (aoeMelee.secondaryTokenIds?.length ?? 0) > 0),
+        aoeMeleeSecondaryTokenIds: aoeMelee && aoeMelee.secondaryTokenIds?.length ? aoeMelee.secondaryTokenIds.join(",") : "",
+        aoeMeleePowerBonusDice: aoeMelee && aoeMelee.powerBonusDice > 0 ? Math.floor(aoeMelee.powerBonusDice) : 0,
         threatenedRanged: tr.threatened,
         rollDisadvantage: tr.rollDisadvantage,
         threateningEnemyTokenIds: tr.threateningEnemyTokenIds,
@@ -367,7 +370,9 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         ? `${baseOptionName} — Target ${burstVolley.volleyIndex} of ${burstVolley.volleyTotal}`
         : split
             ? `${baseOptionName} — Strike ${split.splitIndex} of 2`
-            : baseOptionName;
+            : aoeMelee && aoeMelee.secondaryTokenIds?.length
+                ? `${baseOptionName} (AoE)`
+                : baseOptionName;
     const headerIcon = attackType === "ranged" ? "fa-bullseye" : "fa-sword";
     const attackKindLabel = attackType === "ranged" ? "Ranged" : "Melee";
     const innateLines = weapon
@@ -552,11 +557,11 @@ export async function createAttackCard(attackerToken, targetToken, option, attac
         ui.notifications?.error("Failed to create attack card");
     }
 }
-export async function createMeleeAttackCard(attackerToken, targetToken, option, burstVolley = null) {
-    return createAttackCard(attackerToken, targetToken, option, "melee", null, burstVolley);
+export async function createMeleeAttackCard(attackerToken, targetToken, option, burstVolley = null, aoeMelee = null) {
+    return createAttackCard(attackerToken, targetToken, option, "melee", null, burstVolley, aoeMelee);
 }
 export async function createRangedAttackCard(attackerToken, targetToken, option) {
-    return createAttackCard(attackerToken, targetToken, option, "ranged");
+    return createAttackCard(attackerToken, targetToken, option, "ranged", null, null, null);
 }
 /**
  * Setup raises dropdown change handler

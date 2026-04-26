@@ -144,17 +144,17 @@
       <span>Aktuelle Kampfwerte</span>
     </div>
     <div class="combat-stats-panel-grid">
-      <div class="combat-stats-chip combat-stats-chip-armor" title="Armor (flat soak): Summe aus MR, ausgerüsteter Rüstung, Schild, Passives, Buffs, Manual Adjustments. Details im Tab 'Attributes' als Tooltip.">
+      <div class="combat-stats-chip combat-stats-chip-armor" title="{{#if combatStatsView.armorBreakdownTip}}{{combatStatsView.armorBreakdownTip}}{{else}}Armor total{{/if}}">
         <i class="fas fa-shield-alt"></i>
         <span class="chip-label">Armor</span>
         <span class="chip-value">{{combatStatsView.armor}}</span>
       </div>
-      <div class="combat-stats-chip combat-stats-chip-evade" title="Evade: 8 + Agility + Passives + Buffs + Manual Adjustments.">
+      <div class="combat-stats-chip combat-stats-chip-evade" title="{{#if combatStatsView.evadeBreakdownTip}}{{combatStatsView.evadeBreakdownTip}}{{else}}Evade total{{/if}}">
         <i class="fas fa-wind"></i>
         <span class="chip-label">Evade</span>
         <span class="chip-value">{{combatStatsView.evade}}</span>
       </div>
-      <div class="combat-stats-chip combat-stats-chip-dr" title="Damage Reduction %: nur aktiv, wenn mindestens eine DR-Passive aktiv ist. Buffs/Reactions stapeln nur mit Passive-Basis.">
+      <div class="combat-stats-chip combat-stats-chip-dr" title="{{#if combatStatsView.drBreakdownTip}}{{combatStatsView.drBreakdownTip}}{{else}}Damage reduction % (passive + buff + per-hit reaction rows){{/if}}">
         <i class="fas fa-user-shield"></i>
         <span class="chip-label">DR</span>
         <span class="chip-value">{{combatStatsView.drPct}}%</span>
@@ -175,7 +175,14 @@
         <span class="chip-value">{{combatStatsView.stress.current}}/{{combatStatsView.stress.max}}</span>
       </div>
     </div>
-    <p class="combat-stats-panel-hint">Details &amp; Breakdown: Tab <strong>Attributes</strong> → Combat Statistics.</p>
+    {{#if combatStatsView.breakdownLines.length}}
+    <ul class="combat-stats-breakdown" aria-label="Quellen der Kampfwerte">
+      {{#each combatStatsView.breakdownLines}}
+      <li>{{this}}</li>
+      {{/each}}
+    </ul>
+    {{/if}}
+    <p class="combat-stats-panel-hint">Vollständige Tabellen: <strong>Attributes</strong> → Combat Statistics.</p>
   </div>
   {{/if}}
 

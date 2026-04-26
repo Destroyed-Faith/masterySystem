@@ -1077,6 +1077,10 @@ async function applyStatusEffectsToTarget(target, specialsUsed) {
  * this strike; `applyDamageToTarget` uses it to enforce the floor rule
  * ("never below count8s if any 8 was rolled").
  */
+/** Exported for AoE secondary hits (power dice only, same mitigation pipeline). */
+export async function applyDamageToTargetFromAoe(target, damage, attacker, count8s = 0) {
+    return applyDamageToTarget(target, damage, attacker, count8s);
+}
 async function applyDamageToTarget(target, damage, attacker, count8s = 0) {
     const empty = {
         rawDamage: Math.max(0, Math.floor(damage)),

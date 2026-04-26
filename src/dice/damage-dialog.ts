@@ -1277,6 +1277,16 @@ export interface AppliedDamageSummary {
  * this strike; `applyDamageToTarget` uses it to enforce the floor rule
  * ("never below count8s if any 8 was rolled").
  */
+/** Exported for AoE secondary hits (power dice only, same mitigation pipeline). */
+export async function applyDamageToTargetFromAoe(
+  target: Actor,
+  damage: number,
+  attacker: Actor,
+  count8s: number = 0,
+): Promise<AppliedDamageSummary> {
+  return applyDamageToTarget(target, damage, attacker, count8s);
+}
+
 async function applyDamageToTarget(
   target: Actor,
   damage: number,

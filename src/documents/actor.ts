@@ -463,27 +463,16 @@ export class MasteryActor extends Actor {
     system.combat.armorTotal = (system.combat.armorTotal || 0) + armorMechBonus;
     system.combat.evadeTotal = (system.combat.evadeTotal || 0) + evadeMechBonus;
 
-    // Damage Reduction % (passive + buff, gated by passive base; reaction is
-    // applied per-hit, not here). Drives the sheet breakdown + damage pipeline.
+    // Damage Reduction % (passive + buff in aggregateMechanics; reaction rows
+    // are per-hit only). Sheet rows mirror aggregated contributions.
     system.combat.damageReductionPct = mechBreakdown.totals.damageReductionPct;
     const drRows: Array<{ label: string; detail: string; value: number; display: string }> = [];
     const fmtPct = (n: number): string => (n > 0 ? `+${n}%` : `${n}%`);
     for (const r of mechBreakdown.damageReductionPct.passive) {
-      drRows.push({ label: r.source, detail: 'DR Passive', value: r.value, display: fmtPct(r.value) });
+      drRows.push({ label: r.source, detail: 'Passive DR', value: r.value, display: fmtPct(r.value) });
     }
-    if (mechBreakdown.totals.damageReductionPct > 0 || mechBreakdown.damageReductionPct.passive.length > 0) {
-      for (const r of mechBreakdown.damageReductionPct.buff) {
-        drRows.push({ label: r.source, detail: 'DR Buff', value: r.value, display: fmtPct(r.value) });
-      }
-    } else {
-      for (const r of mechBreakdown.damageReductionPct.buff) {
-        drRows.push({
-          label: r.source,
-          detail: 'DR Buff (ignored — no Passive base)',
-          value: 0,
-          display: '—',
-        });
-      }
+    for (const r of mechBreakdown.damageReductionPct.buff) {
+      drRows.push({ label: r.source, detail: 'Active buff DR', value: r.value, display: fmtPct(r.value) });
     }
     for (const r of mechBreakdown.damageReductionPct.reaction) {
       drRows.push({ label: r.source, detail: 'DR Reaction (per-hit)', value: r.value, display: fmtPct(r.value) });
@@ -606,7 +595,7 @@ export class MasteryActor extends Actor {
       system.combat.evadeTotal = (system.combat.evadeTotal || 0) + stoneEvadeBonus;
       (system.combat.evadeBreakdownRows as any[]).push({
         label: 'Stone Powers',
-        detail: 'Round bonus: Agility stone +8 Evade per spend (stacks until next turn)',
+        detail: '+8 Evade per paid wave — clears when your turn ends in the tracker',
         value: stoneEvadeBonus,
         display: `+${stoneEvadeBonus}`,
       });

@@ -610,9 +610,8 @@ export class StonePowersDialog extends BaseDialog {
         const prefsUseDefaults = !!(system.stonePowersPrefs?.useDefaultsEachRound);
         const user = game.user;
         const canSavePrefs = !stonePlanLocked && !!user && (user.isGM || this.actor.isOwner);
-        const showCombatRound1Save = !!combat &&
+        const showCombatRoundPlanSave = !!combat &&
             !!this.combatant &&
-            combat.round === 1 &&
             !stonePlanLocked &&
             !combatMissingFromTracker &&
             !!user &&
@@ -879,7 +878,7 @@ export class StonePowersDialog extends BaseDialog {
             familiarMasteryCap: masteryRankForFamiliar * 4,
             prefsUseDefaults,
             canSavePrefs,
-            showCombatRound1Save,
+            showCombatRoundPlanSave,
             combatRound: combat?.round,
             combatLabel: combat ? `Runde ${combat.round}` : ''
         };
@@ -2211,8 +2210,8 @@ export class StonePowersDialog extends BaseDialog {
     }
     async #persistStonePowersRoundPlan() {
         const combat = game.combat;
-        if (!combat || combat.round !== 1) {
-            ui.notifications?.warn('Speichern ist nur in Kampf Runde 1 verfügbar.');
+        if (!combat) {
+            ui.notifications?.warn('Kein aktiver Kampf — Steinplan kann nicht gespeichert werden.');
             return;
         }
         if (!this.combatant) {
@@ -2241,7 +2240,7 @@ export class StonePowersDialog extends BaseDialog {
             round: combat.round,
             lanes
         });
-        ui.notifications?.info('Steinplan für Runde 1 gespeichert.');
+        ui.notifications?.info(`Steinplan für Runde ${combat.round} gespeichert.`);
     }
     async #saveStonePowersPrefs(root) {
         const doc = getActionEconomyActor(this.actor) ?? this.actor;

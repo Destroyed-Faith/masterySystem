@@ -1047,6 +1047,45 @@ export async function resetTurnState(actor: Actor, combat: Combat | null): Promi
 }
 
 /**
+ * Clear per-turn stone power bonuses on an actor when their spotlight in the
+ * initiative tracker ends (e.g. +8 Evade, +damage dice, armor pen — "this turn").
+ * Does not remove round-long initiative-shop totals on `stoneBonuses.extraAttacks` etc.
+ */
+export async function clearCombatStoneTurnBonusesForActor(actor: Actor, combat: Combat | null): Promise<void> {
+  if (!combat) return;
+  const owner = getActionEconomyActor(actor) ?? actor;
+  const roundState = getRoundState(actor, combat);
+  if (!roundState.stoneBonuses) return;
+  const sb = roundState.stoneBonuses;
+  const changed =
+    (sb.evadeBonus ?? 0) !== 0 ||
+    (sb.damageBonus ?? 0) !== 0 ||
+    (sb.armorPenetration ?? 0) !== 0 ||
+    (sb.freeRaises ?? 0) !== 0 ||
+    (sb.critRaises ?? 0) !== 0 ||
+    (sb.tempArmor ?? 0) !== 0 ||
+    (sb.saveKeepBonus ?? 0) !== 0 ||
+    (sb.spellPoolDice ?? 0) !== 0 ||
+    (sb.spellKeepDice ?? 0) !== 0;
+  if (!changed) return;
+  roundState.stoneBonuses = {
+    extraAttacks: sb.extraAttacks ?? 0,
+    extraReactions: sb.extraReactions ?? 0,
+    extraMoveMeters: sb.extraMoveMeters ?? 0,
+    evadeBonus: 0,
+    damageBonus: 0,
+    armorPenetration: 0,
+    freeRaises: 0,
+    critRaises: 0,
+    tempArmor: 0,
+    saveKeepBonus: 0,
+    spellPoolDice: 0,
+    spellKeepDice: 0,
+  };
+  await setRoundState(owner as Actor, roundState);
+}
+
+/**
  * Reset round state (called on round change)
  * Clears bonuses and re-applies initiative shop for new round
  */

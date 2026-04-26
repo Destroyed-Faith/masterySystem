@@ -9,7 +9,9 @@ import {
   hasCondition,
   evaluateConditionGate,
   collectConditionalDamageRiders,
+  extractMeleeAoePowerBonusD8,
 } from '../src/utils/power-mechanics';
+import { aoeSecondaryBodySaveDc } from '../src/combat/aoe-melee-resolution';
 import type { PowerMechanics } from '../src/types/item';
 
 // ---------- helpers ----------
@@ -677,5 +679,55 @@ describe('collectConditionalDamageRiders', () => {
     const riders = collectConditionalDamageRiders(actor, target, selectedPower);
     expect(riders).toHaveLength(1);
     expect(riders[0].dice).toBe('3d8');
+  });
+});
+
+describe('extractMeleeAoePowerBonusD8', () => {
+  it('reads unconditional damageRider.flat Nd8', () => {
+    const item = {
+      system: {
+        rank: 1,
+        mechanics: {
+          applyWhen: 'active',
+          damageRider: { flat: '+2d8' },
+        },
+      },
+    };
+    expect(extractMeleeAoePowerBonusD8(item)).toBe(2);
+  });
+
+  it('returns 0 when vsCondition is set', () => {
+    const item = {
+      system: {
+        rank: 1,
+        mechanics: {
+          damageRider: { flat: '+3d8', vsCondition: 'hexed' as const },
+        },
+      },
+    };
+    expect(extractMeleeAoePowerBonusD8(item)).toBe(0);
+  });
+
+  it('treats bare d8 as 1', () => {
+    const item = {
+      system: {
+        rank: 1,
+        mechanics: { damageRider: { flat: 'd8' } },
+      },
+    };
+    expect(extractMeleeAoePowerBonusD8(item)).toBe(1);
+  });
+});
+
+describe('aoeSecondaryBodySaveDc', () => {
+  it('maps mastery rank 1–6 to 8–48', () => {
+    expect(aoeSecondaryBodySaveDc(1)).toBe(8);
+    expect(aoeSecondaryBodySaveDc(3)).toBe(24);
+    expect(aoeSecondaryBodySaveDc(6)).toBe(48);
+  });
+
+  it('clamps rank outside 1–6', () => {
+    expect(aoeSecondaryBodySaveDc(0)).toBe(8);
+    expect(aoeSecondaryBodySaveDc(99)).toBe(48);
   });
 });

@@ -222,6 +222,12 @@ export declare function initializeCombatRoundState(combat: Combat): Promise<void
  */
 export declare function resetTurnState(actor: Actor, combat: Combat | null): Promise<void>;
 /**
+ * Clear per-turn stone power bonuses on an actor when their spotlight in the
+ * initiative tracker ends (e.g. +8 Evade, +damage dice, armor pen — "this turn").
+ * Does not remove round-long initiative-shop totals on `stoneBonuses.extraAttacks` etc.
+ */
+export declare function clearCombatStoneTurnBonusesForActor(actor: Actor, combat: Combat | null): Promise<void>;
+/**
  * Reset round state (called on round change)
  * Clears bonuses and re-applies initiative shop for new round
  */
