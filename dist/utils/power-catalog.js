@@ -116,7 +116,14 @@ function collectEffectTypesFromTemplate(t) {
     return [...types];
 }
 function makeEntry(t, chosen) {
-    const name = chosen ? `${t.templateName} — ${specialLabel(chosen.key)}` : t.templateName ?? t.name;
+    // Use the category-prefixed `t.name` (e.g. "Active Buff: Armor",
+    // "Reaction: Armor", "Passive: Fortified Frame") as the unique lookup key,
+    // so entries that share a `templateName` across categories (e.g. Reaction
+    // "Armor" vs Active Buff "Armor") don't collide in
+    // `findCatalogEntryByName`. The dropdown label still uses `templateName`
+    // plus the category badge, so the user-facing presentation is unchanged.
+    const baseName = t.name ?? t.templateName;
+    const name = chosen ? `${baseName} — ${specialLabel(chosen.key)}` : baseName;
     return {
         name,
         templateId: t.templateId,

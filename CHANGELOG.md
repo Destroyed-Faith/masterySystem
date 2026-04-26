@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.5.3] - 2026-04-26
+
+### Fixed
+
+- **Power picker: Active Buff / Passive entries were being saved as Reactions.** Reactions and Active Buffs shared several `templateName` values (`Armor`, `Evade`, `Temporary HP`, `Damage Reduction`, `Phasing`, `Armor + Temporary HP`, `Evade + Temporary HP`, `Temporary HP + Healing`, and their combined siblings). The catalog used `templateName` as the entry `name`, so `findCatalogEntryByName` always returned the first hit — the Reaction variant — regardless of which option the user clicked. Creation then blocked the pick with "You already have the maximum number of Reaction powers". `makeEntry` now uses the category-prefixed `t.name` (e.g. `"Active Buff: Armor"`, `"Reaction: Armor"`, `"Passive: Fortified Frame"`) as the unique lookup key, so each category's entry resolves to the correct `CatalogEntry` and uses the correct creation-slot bucket. The dropdown label is unchanged (still `templateName · subfamily [Category]`).
+
 ## [0.5.2] - 2026-04-26
 
 ### Fixed
