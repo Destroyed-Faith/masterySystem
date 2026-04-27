@@ -1333,56 +1333,62 @@
       <!-- Passive Slot Manager — slot/activate passives outside of combat.
            The Combat-Start dialog remains available inside an encounter. -->
       {{#if passiveSlotView}}
-      <div class="passive-slot-manager">
-        <div class="passive-slot-manager-header">
-          <h3><i class="fas fa-feather"></i> Passive Slots</h3>
-          <div class="passive-slot-manager-status">
-            <strong>{{passiveSlotView.activeCount}}</strong> / <strong>{{passiveSlotView.maxSlots}}</strong> geslottet
-            <span class="passive-slot-manager-hint">(Mastery Rank = Slot-Anzahl)</span>
-          </div>
+      <details class="passive-slot-manager-details"{{#if passiveSlotManagerDetailsOpen}} open{{/if}}>
+        <summary class="radial-maneuver-prefs-summary passive-slot-manager-details-summary">
+          <span class="passive-slot-manager-summary-main">
+            <i class="fas fa-feather"></i> Passive Slots
+            <span class="passive-slot-manager-status-inline">
+              <strong>{{passiveSlotView.activeCount}}</strong> / <strong>{{passiveSlotView.maxSlots}}</strong> geslottet
+              <span class="passive-slot-manager-hint">(Mastery Rank = Slot-Anzahl)</span>
+            </span>
+          </span>
+        </summary>
+        <div class="radial-maneuver-prefs-body passive-slot-manager-details-body">
           {{#if (userIsGM)}}
-          <button type="button" class="passive-slot-debug-btn" title="GM Only: Dumpt alle aktuell aggregierten Mechanics-Beiträge in den Chat. Nützlich zur Fehlersuche, wenn Passive-Bonus nicht zu wirken scheinen.">
-            <i class="fas fa-bug"></i> Debug
-          </button>
-          {{/if}}
-        </div>
-        <p class="passive-slot-manager-help">
-          <strong>Geslottete</strong> Passives wirken automatisch auf deine Combat Stats.
-          Buffs/Passives werden im Combat Carousel live angezeigt (lila = Active Buff, blau = Slotted Passive).
-        </p>
-        {{#if passiveSlotView.slots.length}}
-        <div class="passive-slot-rows">
-          {{#each passiveSlotView.slots}}
-          <div class="passive-slot-row {{#if this.hasPassive}}is-active{{/if}} {{#unless this.hasPassive}}is-empty{{/unless}}" data-slot-index="{{this.index}}">
-            <div class="passive-slot-label">Slot {{add this.index 1}}</div>
-            <div class="passive-slot-select-wrap">
-              <select class="passive-slot-select" data-slot-index="{{this.index}}" {{#unless @root.editable}}disabled{{/unless}}>
-                <option value="">— leer —</option>
-                {{#each @root.passiveSlotView.availablePassives}}
-                  <option value="{{this.id}}"
-                    {{#if (eq ../this.passiveId this.id)}}selected{{/if}}
-                    {{#if (and this.slottedInSlot (ne this.slottedInSlot ../this.index))}}disabled{{/if}}
-                  >{{this.name}}{{#if this.summary}} — {{this.summary}}{{/if}}</option>
-                {{/each}}
-              </select>
-            </div>
-            {{#if this.summary}}
-            <div class="passive-slot-summary" title="{{this.summary}}">{{this.summary}}</div>
-            {{else}}
-            <div class="passive-slot-summary passive-slot-summary-empty">—</div>
-            {{/if}}
-            <button type="button" class="passive-slot-clear" data-slot-index="{{this.index}}" title="Slot leeren"
-              {{#unless this.hasPassive}}disabled{{/unless}}
-              {{#unless @root.editable}}disabled{{/unless}}>
-              <i class="fas fa-times"></i>
+          <div class="passive-slot-debug-toolbar">
+            <button type="button" class="passive-slot-debug-btn" title="GM Only: Dumpt alle aktuell aggregierten Mechanics-Beiträge in den Chat. Nützlich zur Fehlersuche, wenn Passive-Bonus nicht zu wirken scheinen.">
+              <i class="fas fa-bug"></i> Debug
             </button>
           </div>
-          {{/each}}
+          {{/if}}
+          <p class="passive-slot-manager-help">
+            <strong>Geslottete</strong> Passives wirken automatisch auf deine Combat Stats.
+            Buffs/Passives werden im Combat Carousel live angezeigt (lila = Active Buff, blau = Slotted Passive).
+          </p>
+          {{#if passiveSlotView.slots.length}}
+          <div class="passive-slot-rows">
+            {{#each passiveSlotView.slots}}
+            <div class="passive-slot-row {{#if this.hasPassive}}is-active{{/if}} {{#unless this.hasPassive}}is-empty{{/unless}}" data-slot-index="{{this.index}}">
+              <div class="passive-slot-label">Slot {{add this.index 1}}</div>
+              <div class="passive-slot-select-wrap">
+                <select class="passive-slot-select" data-slot-index="{{this.index}}" {{#unless @root.editable}}disabled{{/unless}}>
+                  <option value="">— leer —</option>
+                  {{#each @root.passiveSlotView.availablePassives}}
+                    <option value="{{this.id}}"
+                      {{#if (eq ../this.passiveId this.id)}}selected{{/if}}
+                      {{#if (and this.slottedInSlot (ne this.slottedInSlot ../this.index))}}disabled{{/if}}
+                    >{{this.name}}{{#if this.summary}} — {{this.summary}}{{/if}}</option>
+                  {{/each}}
+                </select>
+              </div>
+              {{#if this.summary}}
+              <div class="passive-slot-summary" title="{{this.summary}}">{{this.summary}}</div>
+              {{else}}
+              <div class="passive-slot-summary passive-slot-summary-empty">—</div>
+              {{/if}}
+              <button type="button" class="passive-slot-clear" data-slot-index="{{this.index}}" title="Slot leeren"
+                {{#unless this.hasPassive}}disabled{{/unless}}
+                {{#unless @root.editable}}disabled{{/unless}}>
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            {{/each}}
+          </div>
+          {{else}}
+          <p class="passive-slot-manager-empty">Keine Passive-Slots verfügbar (Mastery Rank zu niedrig).</p>
+          {{/if}}
         </div>
-        {{else}}
-        <p class="passive-slot-manager-empty">Keine Passive-Slots verfügbar (Mastery Rank zu niedrig).</p>
-        {{/if}}
-      </div>
+      </details>
       {{/if}}
 
       <!-- Buttons always visible -->
@@ -1604,10 +1610,17 @@
       {{/unless}}
       
       {{#if creationComplete}}
-      <!-- Powers List (Normal Mode) -->
-      <div class="powers-list-section">
-        {{#if items.powers}}
-          {{#each items.powers}}
+      <!-- Powers List (Normal Mode): collapsible + grouped by power type (same UX pattern as Token-Radial Standard-Manöver). -->
+      <details class="powers-list-details powers-list-section"{{#if powersListDetailsOpen}} open{{/if}}>
+        <summary class="radial-maneuver-prefs-summary powers-list-details-summary">
+          <i class="fas fa-bolt"></i> Powers <span class="powers-list-details-sub">(nach Typ)</span>
+        </summary>
+        <div class="radial-maneuver-prefs-body powers-list-details-body">
+          {{#each powersByTypeGroups}}
+          <div class="radial-maneuver-prefs-group powers-by-type-group">
+            <span class="radial-maneuver-prefs-group-label">{{this.groupLabel}}</span>
+            <div class="powers-type-group-list">
+            {{#each this.powers}}
             <div class="power-card" data-item-id="{{this.id}}">
               <div class="power-header-compact">
                 <div class="power-name-compact">
@@ -1650,7 +1663,7 @@
                   {{/if}}
                 </div>
                 <div class="power-controls">
-                  {{#if ../creationComplete}}
+                  {{#if @root.creationComplete}}
                   <div class="power-level-controls">
                     <button type="button" class="power-decrease-level" data-item-id="{{this.id}}" title="Decrease Power Level (Pending)">
                       <i class="fas fa-minus"></i>
@@ -1767,11 +1780,14 @@
                 </button>
               {{/if}}
             </div>
-          {{/each}}
-        {{else}}
+            {{/each}}
+            </div>
+          </div>
+          {{else}}
           <p class="empty-message">No powers yet. Click "Add Mastery Power" or "Add Spell" to start.</p>
-        {{/if}}
-      </div>
+          {{/each}}
+        </div>
+      </details>
       {{/if}}
       
     </div>

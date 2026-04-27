@@ -473,7 +473,7 @@ describe('collectMechanicsContributions — active buff effects', () => {
     expect(collectMechanicsContributions(actor)).toEqual([]);
   });
 
-  it('DR active buff aggregates via powerTemplateId when name is localized', () => {
+  it('DR active buff does not add to total without a passive DR base', () => {
     const actor = makeActor({
       items: [],
       effects: [
@@ -491,8 +491,51 @@ describe('collectMechanicsContributions — active buff effects', () => {
       ],
     });
     const bd = buildActorMechanicsBreakdown(actor);
-    expect(bd.totals.damageReductionPct).toBe(10);
+    expect(bd.totals.damageReductionPct).toBe(0);
+    expect(bd.damageReductionPct.buff).toHaveLength(0);
+  });
+
+  it('sanctioned passive DR plus matching buff stacks in total', () => {
+    const drPassive = makePassivePower('p-dr', 'Damage Reduction', 4, {
+      damageReductionPct: 10,
+      applyWhen: 'passive-slotted-active',
+    });
+    (drPassive.system as any).templateId = 'passive-damage-reduction';
+    const actor = makeActor({
+      items: [drPassive],
+      slots: { slot0: { active: true, passive: { id: 'p-dr', name: 'Damage Reduction' } } },
+      effects: [
+        {
+          name: 'Schadensreduktion',
+          flags: {
+            'mastery-system': {
+              activeBuff: true,
+              powerName: 'Schadensreduktion (Aktiv)',
+              powerTemplateId: 'ab-damage-reduction',
+              mechanics: { damageReductionPct: 10, applyWhen: 'activeBuff-active' },
+            },
+          },
+        },
+      ],
+    });
+    const bd = buildActorMechanicsBreakdown(actor);
+    expect(bd.totals.damageReductionPct).toBe(20);
+    expect(bd.damageReductionPct.passive.length).toBeGreaterThanOrEqual(1);
     expect(bd.damageReductionPct.buff).toHaveLength(1);
+  });
+
+  it('passive DR is sanctioned by German display name', () => {
+    const drPassive = makePassivePower('p-dr-de', 'Schadensreduktion', 4, {
+      damageReductionPct: 12,
+      applyWhen: 'passive-slotted-active',
+    });
+    const actor = makeActor({
+      items: [drPassive],
+      slots: { slot0: { active: true, passive: { id: 'p-dr-de', name: 'Schadensreduktion' } } },
+    });
+    const bd = buildActorMechanicsBreakdown(actor);
+    expect(bd.totals.damageReductionPct).toBe(12);
+    expect(bd.damageReductionPct.passive).toHaveLength(1);
   });
 });
 

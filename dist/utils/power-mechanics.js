@@ -233,7 +233,9 @@ function resolveMechanicsFromCatalog(powerItem, rank) {
  */
 const DR_SANCTIONED_POWER_NAMES = {
     passive: 'damage reduction',
+    /** Catalog still uses this display name; buff rows match via templateId / substring rules. */
     buff: 'unyielding shell',
+    /** Legacy name; catalog reaction is `reaction-damage-reduction` / "Reaction: Damage Reduction". */
     reaction: 'unyielding intercept',
 };
 /**
@@ -254,19 +256,35 @@ function normalizePowerName(name) {
  */
 function stripBuffPrefixForDrName(name) {
     let s = normalizePowerName(name);
-    s = s.replace(/^active\s*buff:\s*/i, '').replace(/^active:\s*/i, '').replace(/^passive:\s*/i, '').trim();
+    s = s
+        .replace(/^active\s*buff:\s*/i, '')
+        .replace(/^active:\s*/i, '')
+        .replace(/^passive:\s*/i, '')
+        .replace(/^reaction:\s*/i, '')
+        .trim();
     return s;
 }
 function isSanctionedDR(contribution) {
     const expected = DR_SANCTIONED_POWER_NAMES[contribution.sourceKind];
     const actual = normalizePowerName(contribution.powerName);
     const stripped = stripBuffPrefixForDrName(contribution.powerName);
+    const buffTid = String(contribution.buffTemplateId || '').trim();
+    const powerTid = String(contribution.powerTemplateId || '').trim();
     if (actual === expected || stripped === expected)
         return true;
+    if (contribution.sourceKind === 'passive') {
+        if (powerTid === 'passive-damage-reduction')
+            return true;
+        if (stripped === 'damage reduction' || stripped.endsWith('damage reduction'))
+            return true;
+        if (/\bdamage\s+reduction\b/i.test(stripped))
+            return true;
+        if (/\b(schadens\s*reduktion|schadensreduktion)\b/i.test(stripped.replace(/\s+/g, ' ')))
+            return true;
+    }
     // Canonical catalog buff is "Active Buff: Damage Reduction" — match template name.
     if (contribution.sourceKind === 'buff') {
-        const tid = String(contribution.buffTemplateId || '').trim();
-        if (tid === 'ab-damage-reduction')
+        if (buffTid === 'ab-damage-reduction')
             return true;
         if (stripped === 'damage reduction' || stripped.endsWith('damage reduction'))
             return true;
@@ -274,6 +292,14 @@ function isSanctionedDR(contribution) {
         if (/\bdamage\s+reduction\b/i.test(stripped))
             return true;
         // German catalog / sheet naming
+        if (/\b(schadens\s*reduktion|schadensreduktion)\b/i.test(stripped.replace(/\s+/g, ' ')))
+            return true;
+    }
+    if (contribution.sourceKind === 'reaction') {
+        if (powerTid === 'reaction-damage-reduction')
+            return true;
+        if (/\bdamage\s+reduction\b/i.test(stripped))
+            return true;
         if (/\b(schadens\s*reduktion|schadensreduktion)\b/i.test(stripped.replace(/\s+/g, ' ')))
             return true;
     }
@@ -347,6 +373,7 @@ export function collectMechanicsContributions(actor) {
             powerName: pname,
             sourceKind: 'passive',
             mechanics: mech,
+            powerTemplateId: powerItem?.system?.templateId ? String(powerItem.system.templateId) : null,
         });
     }
     // 2) Active Buff effects
@@ -567,15 +594,18 @@ export function aggregateMechanics(contributions, actor) {
     bd.totals.rollDice.attack = sum(bd.rollDice.attack);
     bd.totals.rollDice.skill = sum(bd.rollDice.skill);
     bd.totals.rollDice.damage = sum(bd.rollDice.damage);
-    // Damage-Reduction gating: Buff/Reaction only count if a Passive DR base
-    // exists. Reaction DR is reserved for per-hit application (not folded into
-    // the continuous actor total). The final total is clamped 0–100.
+    // Damage-Reduction: continuous total is passive DR + buff DR **only** when at
+    // least one sanctioned slotted passive contributes DR% (play rule: buffs
+    // and other layers build on that base). Reaction DR% stays out of this
+    // total (per-hit via defender-reactions + damage dialog).
     const passiveDR = sum(bd.damageReductionPct.passive);
     const buffDR = sum(bd.damageReductionPct.buff);
-    // Buff-only sanctioned DR (e.g. Active Buff: Damage Reduction) must still
-    // contribute to the total when no passive DR line exists — sheet/carousel/mitigation.
-    const raw = passiveDR + buffDR;
+    const raw = passiveDR > 0 ? passiveDR + buffDR : 0;
     bd.totals.damageReductionPct = Math.max(0, Math.min(100, raw));
+    if (passiveDR <= 0) {
+        bd.damageReductionPct.buff = [];
+        bd.damageReductionPct.reaction = [];
+    }
     logDrDebug('aggregate-dr-totals', {
         passiveDR,
         buffDR,

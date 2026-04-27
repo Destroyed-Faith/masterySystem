@@ -865,6 +865,14 @@ function registerHandlebarsHelpersImmediate() {
     return a === b;
   });
 
+  /** Loose numeric equality for select values (DOM strings vs stored numbers). */
+  Handlebars.registerHelper('eqNum', function(a: any, b: any) {
+    if (a === b) return true;
+    const na = Number(a);
+    const nb = Number(b);
+    return Number.isFinite(na) && Number.isFinite(nb) && na === nb;
+  });
+
   // Helper for equality comparison (block helper): {{#ifEquals a b}}...{{/ifEquals}}
   Handlebars.registerHelper('ifEquals', function(this: any, a: any, b: any, options: any) {
     if (a === b) {

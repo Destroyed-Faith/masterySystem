@@ -191,7 +191,7 @@
         {{!-- Basis: Waffenangriff (Phase) --}}
         <div class="attack-values-panel npc-section">
           <h3 class="npc-section__title"><i class="fas fa-sword"></i> Basis: Waffenangriff</h3>
-          <p class="hint">Immer im Radialmenü; zusätzliche Einträge unten sind Extras.</p>
+          <p class="hint">Immer im Radialmenü; zusätzliche Einträge unten sind Extras. Erste Zeile: Angriffs-<strong>W8</strong> im Pool, zweite: Schadens-<strong>W8</strong> im Pool.</p>
           <div class="npc-attack-card npc-attack-card--base">
             <div class="npc-attack-card__grid npc-attack-card__grid--simple">
               <div class="npc-attack-field">
@@ -203,7 +203,7 @@
                 <select name="system.phases.{{phaseIndex}}.npcBaseAttack.attackDiceCount" data-dtype="Number">
                   <option value="">—</option>
                   {{#each (range 2 16)}}
-                  <option value="{{this}}" {{#if (eq ../phase.npcBaseAttack.attackDiceCount this)}}selected{{/if}}>{{this}}d8</option>
+                  <option value="{{this}}" {{#if (eqNum ../phase.npcBaseAttack.attackDiceCount this)}}selected{{/if}}>{{this}}d8</option>
                   {{/each}}
                 </select>
               </div>
@@ -212,7 +212,47 @@
                 <select name="system.phases.{{phaseIndex}}.npcBaseAttack.damageDiceCount" data-dtype="Number">
                   <option value="">—</option>
                   {{#each (range 4 16)}}
-                  <option value="{{this}}" {{#if (eq ../phase.npcBaseAttack.damageDiceCount this)}}selected{{/if}}>{{this}}d8</option>
+                  <option value="{{this}}" {{#if (eqNum ../phase.npcBaseAttack.damageDiceCount this)}}selected{{/if}}>{{this}}d8</option>
+                  {{/each}}
+                </select>
+              </div>
+            </div>
+            <div class="npc-attack-advanced-grid">
+              <p class="npc-attack-advanced-hint">Radial: <strong>Fern</strong> = Ziele auf Distanz; <strong>AoE</strong> Kegel/Linie/Radius (m); <strong>Split</strong> = zwei geteilte Treffer; <strong>Splash Nd8</strong> = Extra-W8 für Nebenziele bei Nahkampf + Radius-AoE.</p>
+              <div class="npc-attack-field">
+                <label>Reichweite</label>
+                <select name="system.phases.{{phaseIndex}}.npcBaseAttack.npcRangeKind">
+                  <option value="" {{#unless phase.npcBaseAttack.npcRangeKind}}selected{{/unless}}>Nah</option>
+                  <option value="ranged" {{#if (eq phase.npcBaseAttack.npcRangeKind "ranged")}}selected{{/if}}>Fern</option>
+                </select>
+              </div>
+              <div class="npc-attack-field">
+                <label>Max. m (Fern)</label>
+                <input type="number" name="system.phases.{{phaseIndex}}.npcBaseAttack.npcRangeMeters" value="{{default phase.npcBaseAttack.npcRangeMeters 12}}" min="0" step="1" data-dtype="Number" title="Max. Reichweite in Metern (Fern; Standard 12)"/>
+              </div>
+              <div class="npc-attack-field">
+                <label>AoE-Form</label>
+                <select name="system.phases.{{phaseIndex}}.npcBaseAttack.npcAoeShape">
+                  <option value="" {{#unless phase.npcBaseAttack.npcAoeShape}}selected{{/unless}}>Keine</option>
+                  <option value="radius" {{#if (eq phase.npcBaseAttack.npcAoeShape "radius")}}selected{{/if}}>Radius</option>
+                  <option value="cone" {{#if (eq phase.npcBaseAttack.npcAoeShape "cone")}}selected{{/if}}>Kegel</option>
+                  <option value="line" {{#if (eq phase.npcBaseAttack.npcAoeShape "line")}}selected{{/if}}>Linie</option>
+                </select>
+              </div>
+              <div class="npc-attack-field">
+                <label>AoE m (Radius/Länge)</label>
+                <input type="number" name="system.phases.{{phaseIndex}}.npcBaseAttack.npcAoeRadiusM" value="{{default phase.npcBaseAttack.npcAoeRadiusM 0}}" min="0" step="1" data-dtype="Number" title="Meter: Radius (Burst), Kegel- oder Linienlänge je nach Tool"/>
+              </div>
+              <div class="npc-attack-field npc-attack-field--check">
+                <label>Split-Angriff</label>
+                <label class="npc-attack-checkbox-label"><input type="checkbox" name="system.phases.{{phaseIndex}}.npcBaseAttack.npcSplitAttack" {{#if phase.npcBaseAttack.npcSplitAttack}}checked{{/if}} data-dtype="Boolean"/> Zwei Treffer (Pool/Schaden halbiert)</label>
+              </div>
+              <div class="npc-attack-field">
+                <label>Splash Nd8 (Nah+Radius)</label>
+                <select name="system.phases.{{phaseIndex}}.npcBaseAttack.npcMeleeAoeBonusD8" data-dtype="Number">
+                  <option value="" {{#unless phase.npcBaseAttack.npcMeleeAoeBonusD8}}selected{{/unless}}>—</option>
+                  {{#each (range 1 16)}}
+                  <option value="{{this}}" {{#if (eqNum ../phase.npcBaseAttack.npcMeleeAoeBonusD8 this)}}selected{{/if}}>{{this}}d8</option>
                   {{/each}}
                 </select>
               </div>
@@ -226,17 +266,14 @@
               <div class="npc-attack-special-row">
                 <select name="system.phases.{{../phaseIndex}}.npcBaseAttack.specials.{{si}}.special" class="special-select">
                   <option value="">—</option>
-                  <option value="Bleed" {{#if (eq sp.special "Bleed")}}selected{{/if}}>Bleed</option>
-                  <option value="Ignite" {{#if (eq sp.special "Ignite")}}selected{{/if}}>Ignite</option>
-                  <option value="Freeze" {{#if (eq sp.special "Freeze")}}selected{{/if}}>Freeze</option>
-                  <option value="Poison" {{#if (eq sp.special "Poison")}}selected{{/if}}>Poison</option>
-                  <option value="Stun" {{#if (eq sp.special "Stun")}}selected{{/if}}>Stun</option>
-                  <option value="Knockdown" {{#if (eq sp.special "Knockdown")}}selected{{/if}}>Knockdown</option>
+                  {{#each @root.npcSpecialSelectOptions}}
+                  <option value="{{this.value}}" {{#if (eq sp.special this.value)}}selected{{/if}}>{{this.label}}</option>
+                  {{/each}}
                 </select>
                 <select name="system.phases.{{../phaseIndex}}.npcBaseAttack.specials.{{si}}.specialValue" data-dtype="Number">
                   <option value="">—</option>
                   {{#each (range 1 10)}}
-                  <option value="{{this}}" {{#if (eq sp.specialValue this)}}selected{{/if}}>{{this}}</option>
+                  <option value="{{this}}" {{#if (eqNum sp.specialValue this)}}selected{{/if}}>{{this}}</option>
                   {{/each}}
                 </select>
                 <button type="button" class="npc-power-special-del" data-scope="phase-base" data-phase-index="{{../phaseIndex}}" data-special-index="{{si}}" title="Entfernen"><i class="fas fa-trash"></i></button>
@@ -268,7 +305,7 @@
                     <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.attackDiceCount" data-dtype="Number">
                       <option value="">—</option>
                       {{#each (range 2 16)}}
-                      <option value="{{this}}" {{#if (eq ../attack.attackDiceCount this)}}selected{{/if}}>{{this}}d8</option>
+                      <option value="{{this}}" {{#if (eqNum ../attack.attackDiceCount this)}}selected{{/if}}>{{this}}d8</option>
                       {{/each}}
                     </select>
                   </div>
@@ -277,7 +314,47 @@
                     <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.damageDiceCount" data-dtype="Number">
                       <option value="">—</option>
                       {{#each (range 4 16)}}
-                      <option value="{{this}}" {{#if (eq ../attack.damageDiceCount this)}}selected{{/if}}>{{this}}d8</option>
+                      <option value="{{this}}" {{#if (eqNum ../attack.damageDiceCount this)}}selected{{/if}}>{{this}}d8</option>
+                      {{/each}}
+                    </select>
+                  </div>
+                </div>
+                <div class="npc-attack-advanced-grid">
+                  <p class="npc-attack-advanced-hint">Radial: <strong>Fern</strong>, <strong>AoE</strong> (Kegel/Linie/Radius in m), <strong>Split</strong>, <strong>Splash Nd8</strong> bei Nah + Radius-AoE.</p>
+                  <div class="npc-attack-field">
+                    <label>Reichweite</label>
+                    <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcRangeKind">
+                      <option value="" {{#unless attack.npcRangeKind}}selected{{/unless}}>Nah</option>
+                      <option value="ranged" {{#if (eq attack.npcRangeKind "ranged")}}selected{{/if}}>Fern</option>
+                    </select>
+                  </div>
+                  <div class="npc-attack-field">
+                    <label>Max. m (Fern)</label>
+                    <input type="number" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcRangeMeters" value="{{default attack.npcRangeMeters 12}}" min="0" step="1" data-dtype="Number"/>
+                  </div>
+                  <div class="npc-attack-field">
+                    <label>AoE-Form</label>
+                    <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcAoeShape">
+                      <option value="" {{#unless attack.npcAoeShape}}selected{{/unless}}>Keine</option>
+                      <option value="radius" {{#if (eq attack.npcAoeShape "radius")}}selected{{/if}}>Radius</option>
+                      <option value="cone" {{#if (eq attack.npcAoeShape "cone")}}selected{{/if}}>Kegel</option>
+                      <option value="line" {{#if (eq attack.npcAoeShape "line")}}selected{{/if}}>Linie</option>
+                    </select>
+                  </div>
+                  <div class="npc-attack-field">
+                    <label>AoE m</label>
+                    <input type="number" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcAoeRadiusM" value="{{default attack.npcAoeRadiusM 0}}" min="0" step="1" data-dtype="Number"/>
+                  </div>
+                  <div class="npc-attack-field npc-attack-field--check">
+                    <label>Split</label>
+                    <label class="npc-attack-checkbox-label"><input type="checkbox" name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcSplitAttack" {{#if attack.npcSplitAttack}}checked{{/if}} data-dtype="Boolean"/></label>
+                  </div>
+                  <div class="npc-attack-field">
+                    <label>Splash Nd8</label>
+                    <select name="system.phases.{{../phaseIndex}}.attackValues.{{index}}.npcMeleeAoeBonusD8" data-dtype="Number">
+                      <option value="" {{#unless attack.npcMeleeAoeBonusD8}}selected{{/unless}}>—</option>
+                      {{#each (range 1 16)}}
+                      <option value="{{this}}" {{#if (eqNum ../attack.npcMeleeAoeBonusD8 this)}}selected{{/if}}>{{this}}d8</option>
                       {{/each}}
                     </select>
                   </div>
@@ -291,17 +368,14 @@
                   <div class="npc-attack-special-row">
                     <select name="system.phases.{{../../phaseIndex}}.attackValues.{{../index}}.specials.{{si}}.special" class="special-select">
                       <option value="">—</option>
-                      <option value="Bleed" {{#if (eq sp.special "Bleed")}}selected{{/if}}>Bleed</option>
-                      <option value="Ignite" {{#if (eq sp.special "Ignite")}}selected{{/if}}>Ignite</option>
-                      <option value="Freeze" {{#if (eq sp.special "Freeze")}}selected{{/if}}>Freeze</option>
-                      <option value="Poison" {{#if (eq sp.special "Poison")}}selected{{/if}}>Poison</option>
-                      <option value="Stun" {{#if (eq sp.special "Stun")}}selected{{/if}}>Stun</option>
-                      <option value="Knockdown" {{#if (eq sp.special "Knockdown")}}selected{{/if}}>Knockdown</option>
+                      {{#each @root.npcSpecialSelectOptions}}
+                      <option value="{{this.value}}" {{#if (eq sp.special this.value)}}selected{{/if}}>{{this.label}}</option>
+                      {{/each}}
                     </select>
                     <select name="system.phases.{{../../phaseIndex}}.attackValues.{{../index}}.specials.{{si}}.specialValue" data-dtype="Number">
                       <option value="">—</option>
                       {{#each (range 1 10)}}
-                      <option value="{{this}}" {{#if (eq sp.specialValue this)}}selected{{/if}}>{{this}}</option>
+                      <option value="{{this}}" {{#if (eqNum sp.specialValue this)}}selected{{/if}}>{{this}}</option>
                       {{/each}}
                     </select>
                     <button type="button" class="npc-power-special-del" data-scope="extra" data-phase-index="{{../../phaseIndex}}" data-attack-index="{{../index}}" data-special-index="{{si}}"><i class="fas fa-trash"></i></button>
@@ -407,7 +481,7 @@
       {{!-- Basis: Waffenangriff --}}
       <div class="attack-values-panel npc-section">
         <h3 class="npc-section__title"><i class="fas fa-sword"></i> Basis: Waffenangriff</h3>
-        <p class="hint">Standard-Angriff, immer im Radialmenü. Darunter: Extra-Powers.</p>
+        <p class="hint">Standard-Angriff, immer im Radialmenü. Darunter: Extra-Powers. Erste Zeile: Angriffs-<strong>W8</strong> im Pool, zweite: Schadens-<strong>W8</strong> im Pool.</p>
         <div class="npc-attack-card npc-attack-card--base">
           <div class="npc-attack-card__grid npc-attack-card__grid--simple">
             <div class="npc-attack-field">
@@ -419,7 +493,7 @@
               <select name="system.npcBaseAttack.attackDiceCount" data-dtype="Number">
                 <option value="">—</option>
                 {{#each (range 2 16)}}
-                <option value="{{this}}" {{#if (eq ../system.npcBaseAttack.attackDiceCount this)}}selected{{/if}}>{{this}}d8</option>
+                <option value="{{this}}" {{#if (eqNum ../system.npcBaseAttack.attackDiceCount this)}}selected{{/if}}>{{this}}d8</option>
                 {{/each}}
               </select>
             </div>
@@ -428,7 +502,47 @@
               <select name="system.npcBaseAttack.damageDiceCount" data-dtype="Number">
                 <option value="">—</option>
                 {{#each (range 4 16)}}
-                <option value="{{this}}" {{#if (eq ../system.npcBaseAttack.damageDiceCount this)}}selected{{/if}}>{{this}}d8</option>
+                <option value="{{this}}" {{#if (eqNum ../system.npcBaseAttack.damageDiceCount this)}}selected{{/if}}>{{this}}d8</option>
+                {{/each}}
+              </select>
+            </div>
+          </div>
+          <div class="npc-attack-advanced-grid">
+            <p class="npc-attack-advanced-hint">Radial: <strong>Fern</strong>, <strong>AoE</strong> (Kegel/Linie/Radius in m), <strong>Split</strong>, <strong>Splash Nd8</strong> bei Nah + Radius-AoE.</p>
+            <div class="npc-attack-field">
+              <label>Reichweite</label>
+              <select name="system.npcBaseAttack.npcRangeKind">
+                <option value="" {{#unless system.npcBaseAttack.npcRangeKind}}selected{{/unless}}>Nah</option>
+                <option value="ranged" {{#if (eq system.npcBaseAttack.npcRangeKind "ranged")}}selected{{/if}}>Fern</option>
+              </select>
+            </div>
+            <div class="npc-attack-field">
+              <label>Max. m (Fern)</label>
+              <input type="number" name="system.npcBaseAttack.npcRangeMeters" value="{{default system.npcBaseAttack.npcRangeMeters 12}}" min="0" step="1" data-dtype="Number"/>
+            </div>
+            <div class="npc-attack-field">
+              <label>AoE-Form</label>
+              <select name="system.npcBaseAttack.npcAoeShape">
+                <option value="" {{#unless system.npcBaseAttack.npcAoeShape}}selected{{/unless}}>Keine</option>
+                <option value="radius" {{#if (eq system.npcBaseAttack.npcAoeShape "radius")}}selected{{/if}}>Radius</option>
+                <option value="cone" {{#if (eq system.npcBaseAttack.npcAoeShape "cone")}}selected{{/if}}>Kegel</option>
+                <option value="line" {{#if (eq system.npcBaseAttack.npcAoeShape "line")}}selected{{/if}}>Linie</option>
+              </select>
+            </div>
+            <div class="npc-attack-field">
+              <label>AoE m</label>
+              <input type="number" name="system.npcBaseAttack.npcAoeRadiusM" value="{{default system.npcBaseAttack.npcAoeRadiusM 0}}" min="0" step="1" data-dtype="Number"/>
+            </div>
+            <div class="npc-attack-field npc-attack-field--check">
+              <label>Split</label>
+              <label class="npc-attack-checkbox-label"><input type="checkbox" name="system.npcBaseAttack.npcSplitAttack" {{#if system.npcBaseAttack.npcSplitAttack}}checked{{/if}} data-dtype="Boolean"/></label>
+            </div>
+            <div class="npc-attack-field">
+              <label>Splash Nd8</label>
+              <select name="system.npcBaseAttack.npcMeleeAoeBonusD8" data-dtype="Number">
+                <option value="" {{#unless system.npcBaseAttack.npcMeleeAoeBonusD8}}selected{{/unless}}>—</option>
+                {{#each (range 1 16)}}
+                <option value="{{this}}" {{#if (eqNum ../system.npcBaseAttack.npcMeleeAoeBonusD8 this)}}selected{{/if}}>{{this}}d8</option>
                 {{/each}}
               </select>
             </div>
@@ -442,17 +556,14 @@
             <div class="npc-attack-special-row">
               <select name="system.npcBaseAttack.specials.{{si}}.special" class="special-select">
                 <option value="">—</option>
-                <option value="Bleed" {{#if (eq sp.special "Bleed")}}selected{{/if}}>Bleed</option>
-                <option value="Ignite" {{#if (eq sp.special "Ignite")}}selected{{/if}}>Ignite</option>
-                <option value="Freeze" {{#if (eq sp.special "Freeze")}}selected{{/if}}>Freeze</option>
-                <option value="Poison" {{#if (eq sp.special "Poison")}}selected{{/if}}>Poison</option>
-                <option value="Stun" {{#if (eq sp.special "Stun")}}selected{{/if}}>Stun</option>
-                <option value="Knockdown" {{#if (eq sp.special "Knockdown")}}selected{{/if}}>Knockdown</option>
+                {{#each @root.npcSpecialSelectOptions}}
+                <option value="{{this.value}}" {{#if (eq sp.special this.value)}}selected{{/if}}>{{this.label}}</option>
+                {{/each}}
               </select>
               <select name="system.npcBaseAttack.specials.{{si}}.specialValue" data-dtype="Number">
                 <option value="">—</option>
                 {{#each (range 1 10)}}
-                <option value="{{this}}" {{#if (eq sp.specialValue this)}}selected{{/if}}>{{this}}</option>
+                <option value="{{this}}" {{#if (eqNum sp.specialValue this)}}selected{{/if}}>{{this}}</option>
                 {{/each}}
               </select>
               <button type="button" class="npc-power-special-del" data-scope="base" data-special-index="{{si}}"><i class="fas fa-trash"></i></button>
@@ -484,7 +595,7 @@
                   <select name="system.attackValues.{{index}}.attackDiceCount" data-dtype="Number">
                     <option value="">—</option>
                     {{#each (range 2 16)}}
-                    <option value="{{this}}" {{#if (eq ../attack.attackDiceCount this)}}selected{{/if}}>{{this}}d8</option>
+                    <option value="{{this}}" {{#if (eqNum ../attack.attackDiceCount this)}}selected{{/if}}>{{this}}d8</option>
                     {{/each}}
                   </select>
                 </div>
@@ -493,7 +604,47 @@
                   <select name="system.attackValues.{{index}}.damageDiceCount" data-dtype="Number">
                     <option value="">—</option>
                     {{#each (range 4 16)}}
-                    <option value="{{this}}" {{#if (eq ../attack.damageDiceCount this)}}selected{{/if}}>{{this}}d8</option>
+                    <option value="{{this}}" {{#if (eqNum ../attack.damageDiceCount this)}}selected{{/if}}>{{this}}d8</option>
+                    {{/each}}
+                  </select>
+                </div>
+              </div>
+              <div class="npc-attack-advanced-grid">
+                <p class="npc-attack-advanced-hint">Radial: <strong>Fern</strong>, <strong>AoE</strong>, <strong>Split</strong>, <strong>Splash Nd8</strong> (Nah + Radius).</p>
+                <div class="npc-attack-field">
+                  <label>Reichweite</label>
+                  <select name="system.attackValues.{{index}}.npcRangeKind">
+                    <option value="" {{#unless attack.npcRangeKind}}selected{{/unless}}>Nah</option>
+                    <option value="ranged" {{#if (eq attack.npcRangeKind "ranged")}}selected{{/if}}>Fern</option>
+                  </select>
+                </div>
+                <div class="npc-attack-field">
+                  <label>Max. m (Fern)</label>
+                  <input type="number" name="system.attackValues.{{index}}.npcRangeMeters" value="{{default attack.npcRangeMeters 12}}" min="0" step="1" data-dtype="Number"/>
+                </div>
+                <div class="npc-attack-field">
+                  <label>AoE-Form</label>
+                  <select name="system.attackValues.{{index}}.npcAoeShape">
+                    <option value="" {{#unless attack.npcAoeShape}}selected{{/unless}}>Keine</option>
+                    <option value="radius" {{#if (eq attack.npcAoeShape "radius")}}selected{{/if}}>Radius</option>
+                    <option value="cone" {{#if (eq attack.npcAoeShape "cone")}}selected{{/if}}>Kegel</option>
+                    <option value="line" {{#if (eq attack.npcAoeShape "line")}}selected{{/if}}>Linie</option>
+                  </select>
+                </div>
+                <div class="npc-attack-field">
+                  <label>AoE m</label>
+                  <input type="number" name="system.attackValues.{{index}}.npcAoeRadiusM" value="{{default attack.npcAoeRadiusM 0}}" min="0" step="1" data-dtype="Number"/>
+                </div>
+                <div class="npc-attack-field npc-attack-field--check">
+                  <label>Split</label>
+                  <label class="npc-attack-checkbox-label"><input type="checkbox" name="system.attackValues.{{index}}.npcSplitAttack" {{#if attack.npcSplitAttack}}checked{{/if}} data-dtype="Boolean"/></label>
+                </div>
+                <div class="npc-attack-field">
+                  <label>Splash Nd8</label>
+                  <select name="system.attackValues.{{index}}.npcMeleeAoeBonusD8" data-dtype="Number">
+                    <option value="" {{#unless attack.npcMeleeAoeBonusD8}}selected{{/unless}}>—</option>
+                    {{#each (range 1 16)}}
+                    <option value="{{this}}" {{#if (eqNum ../attack.npcMeleeAoeBonusD8 this)}}selected{{/if}}>{{this}}d8</option>
                     {{/each}}
                   </select>
                 </div>
@@ -507,17 +658,14 @@
                 <div class="npc-attack-special-row">
                   <select name="system.attackValues.{{../index}}.specials.{{si}}.special" class="special-select">
                     <option value="">—</option>
-                    <option value="Bleed" {{#if (eq sp.special "Bleed")}}selected{{/if}}>Bleed</option>
-                    <option value="Ignite" {{#if (eq sp.special "Ignite")}}selected{{/if}}>Ignite</option>
-                    <option value="Freeze" {{#if (eq sp.special "Freeze")}}selected{{/if}}>Freeze</option>
-                    <option value="Poison" {{#if (eq sp.special "Poison")}}selected{{/if}}>Poison</option>
-                    <option value="Stun" {{#if (eq sp.special "Stun")}}selected{{/if}}>Stun</option>
-                    <option value="Knockdown" {{#if (eq sp.special "Knockdown")}}selected{{/if}}>Knockdown</option>
+                    {{#each @root.npcSpecialSelectOptions}}
+                    <option value="{{this.value}}" {{#if (eq sp.special this.value)}}selected{{/if}}>{{this.label}}</option>
+                    {{/each}}
                   </select>
                   <select name="system.attackValues.{{../index}}.specials.{{si}}.specialValue" data-dtype="Number">
                     <option value="">—</option>
                     {{#each (range 1 10)}}
-                    <option value="{{this}}" {{#if (eq sp.specialValue this)}}selected{{/if}}>{{this}}</option>
+                    <option value="{{this}}" {{#if (eqNum sp.specialValue this)}}selected{{/if}}>{{this}}</option>
                     {{/each}}
                   </select>
                   <button type="button" class="npc-power-special-del" data-scope="extra" data-attack-index="{{../index}}" data-special-index="{{si}}"><i class="fas fa-trash"></i></button>
@@ -535,7 +683,7 @@
 
     <div class="npc-section npc-special-lists">
       <h3 class="npc-section__title"><i class="fas fa-list"></i> Spezial-Listen (Schaden / Raises)</h3>
-      <p class="hint">Einträge mit „Auto“ werden beim Schaden ohne Raise angewendet. Andere erscheinen in der Raise-Auswahl.</p>
+      <p class="hint">Freitext-Zeilen für den <strong>Schadensdialog</strong> (nicht „Races“ — gemeint sind <strong>Raises</strong>, also übrige Erfolgsgrade). <strong>Name</strong> = Kurzbezeichnung in der Liste; <strong>Wert</strong> = Beschreibung oder Zahl, die beim Anwenden übernommen wird (je nach Dialog-Logik). <strong>Auto</strong>: wird beim Schaden automatisch mit angeboten bzw. vorgeschlagen, <em>ohne</em> dass du einen Raise dafür „kaufst“. Ohne Auto erscheint der Eintrag in der Auswahl, wenn Raises ausgegeben werden. Zwei Blöcke: <strong>NSC-Speziale</strong> (Kampf/Schaden-Kontext) und <strong>Raise-Speziale</strong> (nur Raise-Liste).</p>
       <div class="npc-special-list-block">
         <div class="npc-special-list-header">
           <span>NSC-Speziale</span>

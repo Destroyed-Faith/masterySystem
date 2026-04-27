@@ -43,6 +43,10 @@ export interface RadialCombatOption {
     /** Melee attack power with a radius AoE: one pick applies the attack to every hostile in reach. */
     burstMeleeAoE?: boolean;
     burstMeleeRadiusMeters?: number;
+    /** NSC-Angriff: Split wie mechanics.splitAttack (zwei Karten). */
+    npcSplitAttack?: boolean;
+    /** NSC Melee-AoE: Bonus-W8 für Sekundärziele (kein Power-Item nötig). */
+    npcMeleeAoeBonusD8?: number;
 }
 /**
  * Inner segment definition

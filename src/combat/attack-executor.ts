@@ -57,6 +57,9 @@ function newSplitPairId(): string {
  */
 function detectSplitAttack(option: RadialCombatOption): boolean {
   try {
+    if (option.source === 'npc-attack') {
+      return !!(option as any).npcSplitAttack;
+    }
     if (option.source !== 'power' || !option.item) return false;
     const tid = String((option.item.system as any)?.templateId || '');
     if (tid === 'active-melee-weapon-split' || tid === 'active-ranged-weapon-split') {

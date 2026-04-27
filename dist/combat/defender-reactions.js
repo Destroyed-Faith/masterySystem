@@ -7,7 +7,7 @@
  * interact with the phasing step, not post-phasing mitigation.
  */
 import { getActionEconomyActor, getReactionActionsSummary, hasPowerBeenUsedThisRound, markPowerUsedThisRound, spendReactionAction, } from './action-economy.js';
-import { resolvePowerMechanics } from '../utils/power-mechanics.js';
+import { buildActorMechanicsBreakdown, resolvePowerMechanics } from '../utils/power-mechanics.js';
 function defenderActorForEconomy(defender) {
     return (getActionEconomyActor(defender) ?? defender);
 }
@@ -131,13 +131,28 @@ export async function promptDefenderReactionsBeforeMitigation(params) {
         return empty;
     await markPowerUsedThisRound(economyDef, combat, chosen.item.id);
     const mech = resolvePowerMechanics(chosen.item);
-    const mit = extractMitigationFromMechanics(mech);
+    let mit = extractMitigationFromMechanics(mech);
     const ev = Math.max(0, Math.floor(Number(mech?.evade) || 0));
+    // Reaction DR% only applies when a sanctioned slotted passive already
+    // contributes DR% (same stacking rule as Active Buff: Damage Reduction).
+    let reactionDrBlocked = false;
+    if (mit.reactionDrPct > 0) {
+        const bd = buildActorMechanicsBreakdown(economyDef);
+        const passiveBase = bd.damageReductionPct.passive.reduce((s, r) => s + (r.value || 0), 0);
+        if (passiveBase <= 0) {
+            mit = { ...mit, reactionDrPct: 0 };
+            reactionDrBlocked = true;
+        }
+    }
     let note = '';
     if (mit.reactionArmorFlat > 0)
         note += ` +${mit.reactionArmorFlat} Armor (this hit)`;
     if (mit.reactionDrPct > 0)
         note += ` +${mit.reactionDrPct}% DR (this hit)`;
+    if (reactionDrBlocked) {
+        note +=
+            ' <em>(Reaction DR% requires a slotted <strong>Damage Reduction</strong> passive contributing DR%.)</em>';
+    }
     if (ev > 0) {
         note += ` <em>(+${ev} Evade is not applied retroactively after the hit — track manually if needed.)</em>`;
     }

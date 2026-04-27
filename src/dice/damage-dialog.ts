@@ -1354,6 +1354,16 @@ async function applyDamageToTarget(
       console.debug?.('Mastery System | [APPLY DAMAGE] defender reactions skipped', err);
     }
 
+    // Recompute combat totals (armor / DR% / …) so mitigation matches the sheet
+    // and carousel after slotting or buff changes — same idea as combat-carousel.
+    if (typeof (target as any).prepareDerivedData === 'function') {
+      try {
+        (target as any).prepareDerivedData();
+      } catch (prepErr) {
+        console.warn('Mastery System | [APPLY DAMAGE] prepareDerivedData before mitigation failed', prepErr);
+      }
+    }
+
     // Create blood pool at target token position (if token exists on canvas)
     if (damage > 0 && canvas?.ready) {
       const targetToken = (target as any).getActiveTokens?.()?.[0] || 

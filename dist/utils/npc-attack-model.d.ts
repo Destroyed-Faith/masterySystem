@@ -2,6 +2,8 @@
  * NPC attack helpers — d8 pool sizes, phase index, damage formula.
  */
 import type { AttackValue } from '../types/actor.js';
+/** Human-readable name for chat / attack card (catalog id or legacy key). */
+export declare function displayNpcSpecialName(raw: string): string;
 /** Effective attack row for display / damage (includes merged specials). */
 export declare function normalizeNpcAttackRow(attack: AttackValue): AttackValue;
 export declare function resolveNpcAttackList(system: any): {

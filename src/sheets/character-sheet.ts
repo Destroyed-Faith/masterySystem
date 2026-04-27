@@ -55,6 +55,13 @@ const BaseActorSheet: any = (foundry as any)?.appv1?.sheets?.ActorSheet || (Acto
 export class MasteryCharacterSheet extends BaseActorSheet {
   /** Preserves <details open> for Token-Radial prefs across re-renders (checkbox updates call render). */
   private _radialManeuverPrefsDetailsOpen?: boolean;
+  /** Preserves <details open> for Passive Slot manager on the Powers tab. */
+  private _passiveSlotManagerDetailsOpen?: boolean;
+  /**
+   * Preserves <details open> for the grouped powers list.
+   * `undefined` means first paint: expanded (see getData: `!== false`).
+   */
+  private _powersListDetailsOpen?: boolean;
 
   private _showStash: boolean = false;
   /** Last pointer-down on equipment tile (for click vs drag distinction). */
@@ -796,6 +803,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
     context.radialManeuverPrefsPanel = buildRadialManeuverPrefsContext(context.system);
     context.radialManeuverPrefsDetailsOpen = this._radialManeuverPrefsDetailsOpen === true;
+    context.passiveSlotManagerDetailsOpen = this._passiveSlotManagerDetailsOpen === true;
+    if (context.creationComplete) {
+      context.powersByTypeGroups = this.#buildPowersByTypeGroups(context.items?.powers || []);
+      context.powersListDetailsOpen = this._powersListDetailsOpen !== false;
+    } else {
+      context.powersByTypeGroups = [];
+      context.powersListDetailsOpen = true;
+    }
 
     // Add active buffs data - ALWAYS set as array, even if empty
     context.activeBuffs = [];
@@ -929,6 +944,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const det = this.element.find('.radial-maneuver-prefs-details')[0];
       if (det instanceof HTMLDetailsElement) {
         this._radialManeuverPrefsDetailsOpen = det.open;
+      }
+      const psd = this.element.find('.passive-slot-manager-details')[0];
+      if (psd instanceof HTMLDetailsElement) {
+        this._passiveSlotManagerDetailsOpen = psd.open;
+      }
+      const pld = this.element.find('.powers-list-details')[0];
+      if (pld instanceof HTMLDetailsElement) {
+        this._powersListDetailsOpen = pld.open;
       }
     }
 
@@ -1084,6 +1107,54 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       armor,
       gear
     };
+  }
+
+  /**
+   * Bucket key for sheet grouping (Powers tab, post-creation). Spell / unknown → `other` (shown as „Sonstiges“).
+   */
+  #powerTypeGroupKey(power: any): 'movement' | 'active' | 'activeBuff' | 'passive' | 'reaction' | 'other' {
+    const raw = String((power?.system as any)?.powerType ?? '')
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, '');
+    const t = raw.replace(/_/g, '-');
+    if (t === 'movement') return 'movement';
+    if (t === 'active' || t === 'utility') return 'active';
+    if (t === 'active-buff' || t === 'activebuff' || t === 'buff') return 'activeBuff';
+    if (t === 'passive') return 'passive';
+    if (t === 'reaction') return 'reaction';
+    return 'other';
+  }
+
+  /** Vertical groups for the Powers tab (same UX idea as radial maneuver prefs rowsByGroup). */
+  #buildPowersByTypeGroups(powers: any[]): { groupKey: string; groupLabel: string; powers: any[] }[] {
+    const buckets: Record<'movement' | 'active' | 'activeBuff' | 'passive' | 'reaction' | 'other', any[]> = {
+      movement: [],
+      active: [],
+      activeBuff: [],
+      passive: [],
+      reaction: [],
+      other: []
+    };
+    for (const p of powers) {
+      buckets[this.#powerTypeGroupKey(p)].push(p);
+    }
+    const order: (keyof typeof buckets)[] = ['movement', 'active', 'activeBuff', 'passive', 'reaction', 'other'];
+    const labels: Record<keyof typeof buckets, string> = {
+      movement: 'Movement',
+      active: 'Actives & Utility',
+      activeBuff: 'Active Buffs',
+      passive: 'Passives',
+      reaction: 'Reactions',
+      other: 'Sonstiges'
+    };
+    const out: { groupKey: string; groupLabel: string; powers: any[] }[] = [];
+    for (const key of order) {
+      const list = buckets[key];
+      if (list.length === 0) continue;
+      out.push({ groupKey: key, groupLabel: labels[key], powers: list });
+    }
+    return out;
   }
 
   /**

@@ -46,19 +46,36 @@ function buildNpcAttackRadialOptions(actor) {
     if (!attacks.length)
         return [];
     const phaseKey = phaseIndex == null ? 'root' : String(phaseIndex);
-    return attacks.map((atk, index) => ({
-        id: `npc-attack-${phaseKey}-${index}`,
-        name: (atk?.name && String(atk.name).trim()) || `Angriff ${index + 1}`,
-        description: buildNpcAttackDescription(atk),
-        slot: 'attack',
-        source: 'npc-attack',
-        range: 2,
-        npcAttackIndex: index,
-        npcPhaseIndex: phaseIndex,
-        costsAction: true,
-        costsMovement: false,
-        tags: ['attack', 'npc-attack']
-    }));
+    return attacks.map((atk, index) => {
+        const kind = String(atk?.npcRangeKind || '').toLowerCase() === 'ranged' ? 'ranged' : 'melee';
+        const rangeM = kind === 'ranged'
+            ? Math.max(6, Math.floor(Number(atk?.npcRangeMeters) || 12))
+            : 2;
+        const shapeRaw = String(atk?.npcAoeShape || 'none').toLowerCase();
+        const shape = shapeRaw === 'radius' || shapeRaw === 'cone' || shapeRaw === 'line' ? shapeRaw : 'none';
+        const rad = Math.max(0, Math.floor(Number(atk?.npcAoeRadiusM) || 0));
+        const burstMelee = kind === 'melee' && shape === 'radius' && rad > 0;
+        const splash = Math.max(0, Math.floor(Number(atk?.npcMeleeAoeBonusD8) || 0));
+        return {
+            id: `npc-attack-${phaseKey}-${index}`,
+            name: (atk?.name && String(atk.name).trim()) || `Angriff ${index + 1}`,
+            description: buildNpcAttackDescription(atk),
+            slot: 'attack',
+            source: 'npc-attack',
+            range: rangeM,
+            aoeShape: shape,
+            aoeRadiusMeters: rad > 0 ? rad : undefined,
+            burstMeleeAoE: burstMelee,
+            burstMeleeRadiusMeters: burstMelee ? rad : undefined,
+            npcAttackIndex: index,
+            npcPhaseIndex: phaseIndex,
+            costsAction: true,
+            costsMovement: false,
+            npcSplitAttack: !!atk?.npcSplitAttack,
+            npcMeleeAoeBonusD8: splash,
+            tags: ['attack', 'npc-attack']
+        };
+    });
 }
 /**
  * Parse range string (e.g., "8m", "12m", "Self") to numeric meters

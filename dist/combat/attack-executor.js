@@ -27,6 +27,9 @@ function newSplitPairId() {
  */
 function detectSplitAttack(option) {
     try {
+        if (option.source === 'npc-attack') {
+            return !!option.npcSplitAttack;
+        }
         if (option.source !== 'power' || !option.item)
             return false;
         const tid = String(option.item.system?.templateId || '');

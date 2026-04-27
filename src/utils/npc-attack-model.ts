@@ -3,6 +3,30 @@
  */
 
 import type { AttackValue, NpcAttackSpecialEntry } from '../types/actor.js';
+import { ALL_SPECIAL_EFFECTS, getEffectBaseName } from './special-effects.js';
+
+/** Legacy sheet values (capitalized) → display label */
+const LEGACY_NPC_SPECIAL_LABEL: Record<string, string> = {
+  Bleed: 'Bleeding',
+  Ignite: 'Ignite',
+  Freeze: 'Freeze',
+  Poison: 'Poisoned',
+  Stun: 'Stun',
+  Knockdown: 'Knockdown'
+};
+
+/** Human-readable name for chat / attack card (catalog id or legacy key). */
+export function displayNpcSpecialName(raw: string): string {
+  const k = String(raw || '').trim();
+  if (!k) return '';
+  if (LEGACY_NPC_SPECIAL_LABEL[k]) return LEGACY_NPC_SPECIAL_LABEL[k];
+  const low = k.toLowerCase();
+  const hit = ALL_SPECIAL_EFFECTS.find((e) => e.id === low);
+  if (hit) {
+    return getEffectBaseName(hit.name).replace(/\(X\)/gi, '').trim() || hit.id;
+  }
+  return k;
+}
 
 const MAX_D = 99;
 
@@ -133,7 +157,7 @@ export function formatNpcAttackSpecialsLine(attack: AttackValue | null | undefin
   if (!attack) return '';
   return mergeSpecialsFromLegacy(attack)
     .filter((s) => s.special && String(s.special).trim())
-    .map((s) => formatNpcSpecialLabel(String(s.special), s.specialValue))
+    .map((s) => formatNpcSpecialLabel(displayNpcSpecialName(String(s.special)), s.specialValue))
     .join(', ');
 }
 

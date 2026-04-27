@@ -826,7 +826,9 @@ export async function handleChosenCombatOption(token, option) {
                 });
                 return;
             }
-            const powerBonus = extractMeleeAoePowerBonusD8(option.item);
+            const powerBonus = option.source === 'npc-attack'
+                ? Math.max(0, Math.floor(Number(option.npcMeleeAoeBonusD8) || 0))
+                : extractMeleeAoePowerBonusD8(option.item);
             if (burstIds.length > 1 && powerBonus <= 0) {
                 ui.notifications?.warn?.('Melee AoE: power has no unconditional +Nd8 splash on damageRider.flat — secondary splash disabled.');
             }

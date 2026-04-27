@@ -340,6 +340,18 @@ export interface AttackValue {
   attackDiceCount?: number;
   /** Damage pool: d8 count (sheet dropdown 4–16) */
   damageDiceCount?: number;
+  /** Nahkampf (Standard) oder Fernkampf — steuert Radial-Reichweite und Angriffsart. */
+  npcRangeKind?: 'melee' | 'ranged' | '' | string;
+  /** Maximale Reichweite in Metern bei Fernangriff (Radial: >4 m ⇒ Fern-Zielauswahl). */
+  npcRangeMeters?: number;
+  /** AoE-Form für Nah-/Fern (Radial-Metadaten; Nah-Burst nutzt „radius“ + Radius). */
+  npcAoeShape?: 'none' | 'radius' | 'cone' | 'line' | string;
+  /** AoE-Radius in Metern (wenn npcAoeShape === radius). */
+  npcAoeRadiusM?: number;
+  /** Wie Split-Attack-Powers: zwei Treffer, Pool & Schaden je floor(Hälfte). */
+  npcSplitAttack?: boolean;
+  /** Bonus-W8 nur für Melee-AoE-Sekundärziele (wenn Radius-AoE aktiv). */
+  npcMeleeAoeBonusD8?: number;
   /** Multiple specials on this attack */
   specials?: NpcAttackSpecialEntry[];
   /** @deprecated Single special — migrated to specials[] in UI; still read for old data */

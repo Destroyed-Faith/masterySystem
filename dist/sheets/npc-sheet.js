@@ -3,6 +3,7 @@
  * Simplified sheet for non-player characters
  */
 import { MasteryCharacterSheet } from './character-sheet.js';
+import { ALL_SPECIAL_EFFECTS, getEffectBaseName } from '../utils/special-effects.js';
 function dup(obj) {
     const fn = foundry.utils?.duplicate;
     return fn ? fn(obj) : JSON.parse(JSON.stringify(obj));
@@ -34,6 +35,63 @@ function normalizeAttackValuesArray(raw) {
             .map((k) => dup(o[k]));
     }
     return [];
+}
+/** Coerce sheet / FormData strings so attack & damage pool &lt;select&gt; `eq` matches. */
+function normalizeNpcAttackRowForContext(row) {
+    const o = row && typeof row === 'object' ? { ...row } : {};
+    const intKeys = ['attackDiceCount', 'damageDiceCount', 'npcRangeMeters', 'npcAoeRadiusM', 'npcMeleeAoeBonusD8'];
+    for (const k of intKeys) {
+        const raw = o[k];
+        if (raw === '' || raw === null || raw === undefined) {
+            delete o[k];
+            continue;
+        }
+        const n = Math.floor(Number(raw));
+        if (Number.isFinite(n) && n > 0)
+            o[k] = n;
+        else
+            delete o[k];
+    }
+    if (o.npcSplitAttack === true || o.npcSplitAttack === 'true' || o.npcSplitAttack === 'on') {
+        o.npcSplitAttack = true;
+    }
+    else {
+        delete o.npcSplitAttack;
+    }
+    const rk = String(o.npcRangeKind || '').toLowerCase();
+    if (rk === 'ranged')
+        o.npcRangeKind = 'ranged';
+    else
+        delete o.npcRangeKind;
+    const sh = String(o.npcAoeShape || '').toLowerCase();
+    if (sh === 'radius' || sh === 'cone' || sh === 'line')
+        o.npcAoeShape = sh;
+    else
+        delete o.npcAoeShape;
+    return o;
+}
+function buildNpcSpecialDropdownOptions() {
+    const legacy = [
+        { value: 'Bleed', label: 'Bleed (Legacy)' },
+        { value: 'Ignite', label: 'Ignite (Legacy)' },
+        { value: 'Freeze', label: 'Freeze (Legacy)' },
+        { value: 'Poison', label: 'Poison (Legacy)' },
+        { value: 'Stun', label: 'Stun (Legacy)' },
+        { value: 'Knockdown', label: 'Knockdown (Legacy)' }
+    ];
+    const seen = new Set(legacy.map((x) => x.value));
+    const fromCatalog = [];
+    for (const e of ALL_SPECIAL_EFFECTS) {
+        if (!e.hasValue)
+            continue;
+        if (seen.has(e.id))
+            continue;
+        seen.add(e.id);
+        const label = getEffectBaseName(e.name).replace(/\(X\)/gi, '').trim() || e.id;
+        fromCatalog.push({ value: e.id, label });
+    }
+    fromCatalog.sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: 'base' }));
+    return [...legacy, ...fromCatalog];
 }
 export class MasteryNpcSheet extends MasteryCharacterSheet {
     /** @override */
@@ -126,6 +184,22 @@ export class MasteryNpcSheet extends MasteryCharacterSheet {
                 }
                 return phase;
             });
+        }
+        if (context.actor?.type === 'npc' && context.system) {
+            context.npcSpecialSelectOptions = buildNpcSpecialDropdownOptions();
+            context.system.npcBaseAttack = normalizeNpcAttackRowForContext(context.system.npcBaseAttack);
+            if (Array.isArray(context.system.attackValues)) {
+                context.system.attackValues = context.system.attackValues.map((r) => normalizeNpcAttackRowForContext(r));
+            }
+            if (Array.isArray(context.system.phases)) {
+                context.system.phases = context.system.phases.map((ph) => ({
+                    ...ph,
+                    npcBaseAttack: normalizeNpcAttackRowForContext(ph.npcBaseAttack),
+                    attackValues: Array.isArray(ph.attackValues)
+                        ? ph.attackValues.map((r) => normalizeNpcAttackRowForContext(r))
+                        : ph.attackValues
+                }));
+            }
         }
         return context;
     }
