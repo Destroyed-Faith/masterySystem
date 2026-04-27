@@ -2535,6 +2535,18 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Power details toggle
     html.find('.power-toggle-details').on('click', this.#onPowerToggleDetails.bind(this));
 
+    html
+      .off('change.msPowerRename', '.power-display-name-input')
+      .on('change.msPowerRename', '.power-display-name-input', this.#onPowerDisplayNameChange.bind(this));
+    html
+      .off('keydown.msPowerRename', '.power-display-name-input')
+      .on('keydown.msPowerRename', '.power-display-name-input', (ev: JQuery.TriggeredEvent) => {
+        if ((ev as JQuery.KeyDownEvent).key === 'Enter') {
+          ev.preventDefault();
+          (ev.currentTarget as HTMLInputElement)?.blur();
+        }
+      });
+
     // Power mechanics editor (structured block)
     html.find('.power-edit-mechanics').on('click', this.#onPowerEditMechanics.bind(this));
     
@@ -4876,6 +4888,29 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     });
   }
 
+  async #onPowerDisplayNameChange(event: JQuery.ChangeEvent) {
+    const el = event.currentTarget as HTMLInputElement | null;
+    if (!el) return;
+    const itemId = el.getAttribute('data-item-id');
+    if (!itemId) return;
+    const item = this.actor.items.get(itemId) as any;
+    if (!item || item.type !== 'power') return;
+    const next = el.value.trim();
+    if (!next) {
+      el.value = item.name;
+      (ui as any).notifications?.warn('Power name cannot be empty.');
+      return;
+    }
+    if (next === item.name) return;
+    try {
+      await item.update({ name: next });
+    } catch (e) {
+      console.error('Mastery System | Failed to rename power', e);
+      el.value = item.name;
+      (ui as any).notifications?.error('Could not rename power.');
+    }
+  }
+
   async #onPowerEditMechanics(event: JQuery.ClickEvent) {
     event.preventDefault();
     event.stopPropagation();
@@ -5538,6 +5573,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Also enable power rank selects (they're select elements, not buttons)
     html.find('.power-rank-select').prop('disabled', false);
     html.find('.power-radial-checkbox').prop('disabled', false);
+    html.find('.power-display-name-input').prop('disabled', false);
     
     // Double-check all creation buttons are enabled
     const addDisadvantageBtn = html.find('.add-disadvantage-btn');

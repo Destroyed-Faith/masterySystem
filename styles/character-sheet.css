@@ -2592,6 +2592,27 @@
   min-width: 0;
 }
 
+.mastery-system.sheet.actor.character .power-display-name-input {
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--df-text-primary, #e8e8e8);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin: 0 6px 0 0;
+}
+
+.mastery-system.sheet.actor.character .power-display-name-input:focus {
+  outline: none;
+  border-color: rgba(102, 170, 255, 0.75);
+  box-shadow: 0 0 0 1px rgba(102, 170, 255, 0.35);
+}
+
 .mastery-system.sheet.actor.character .power-level-badge {
   font-size: 13px;
   padding: 5px 10px;

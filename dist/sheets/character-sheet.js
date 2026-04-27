@@ -2340,6 +2340,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('.power-use-btn').on('click', this.#onPowerUse.bind(this));
         // Power details toggle
         html.find('.power-toggle-details').on('click', this.#onPowerToggleDetails.bind(this));
+        html
+            .off('change.msPowerRename', '.power-display-name-input')
+            .on('change.msPowerRename', '.power-display-name-input', this.#onPowerDisplayNameChange.bind(this));
+        html
+            .off('keydown.msPowerRename', '.power-display-name-input')
+            .on('keydown.msPowerRename', '.power-display-name-input', (ev) => {
+            if (ev.key === 'Enter') {
+                ev.preventDefault();
+                ev.currentTarget?.blur();
+            }
+        });
         // Power mechanics editor (structured block)
         html.find('.power-edit-mechanics').on('click', this.#onPowerEditMechanics.bind(this));
         // Power level increase/decrease (with confirmation)
@@ -4411,6 +4422,33 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ui.notifications?.error('Failed to remove active buff.');
         });
     }
+    async #onPowerDisplayNameChange(event) {
+        const el = event.currentTarget;
+        if (!el)
+            return;
+        const itemId = el.getAttribute('data-item-id');
+        if (!itemId)
+            return;
+        const item = this.actor.items.get(itemId);
+        if (!item || item.type !== 'power')
+            return;
+        const next = el.value.trim();
+        if (!next) {
+            el.value = item.name;
+            ui.notifications?.warn('Power name cannot be empty.');
+            return;
+        }
+        if (next === item.name)
+            return;
+        try {
+            await item.update({ name: next });
+        }
+        catch (e) {
+            console.error('Mastery System | Failed to rename power', e);
+            el.value = item.name;
+            ui.notifications?.error('Could not rename power.');
+        }
+    }
     async #onPowerEditMechanics(event) {
         event.preventDefault();
         event.stopPropagation();
@@ -5017,6 +5055,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Also enable power rank selects (they're select elements, not buttons)
         html.find('.power-rank-select').prop('disabled', false);
         html.find('.power-radial-checkbox').prop('disabled', false);
+        html.find('.power-display-name-input').prop('disabled', false);
         // Double-check all creation buttons are enabled
         const addDisadvantageBtn = html.find('.add-disadvantage-btn');
         const addPowerCreationBtn = html.find('.add-power-creation-btn');
