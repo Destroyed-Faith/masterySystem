@@ -140,13 +140,15 @@ export async function promptDefenderReactionsBeforeMitigation(params) {
     const mech = resolvePowerMechanics(chosen.item);
     let mit = extractMitigationFromMechanics(mech);
     const ev = Math.max(0, Math.floor(Number(mech?.evade) || 0));
-    // Reaction DR% only applies when a sanctioned slotted passive already
-    // contributes DR% (same stacking rule as Active Buff: Damage Reduction).
+    // Reaction DR% only applies when the character already has continuous DR% on
+    // the sheet (passive and/or buff layers). If the breakdown rows miss a value
+    // but `system.combat.damageReductionPct` is still > 0, allow stacking.
     let reactionDrBlocked = false;
     if (mit.reactionDrPct > 0) {
         const bd = buildActorMechanicsBreakdown(economyDef);
         const passiveBase = bd.damageReductionPct.passive.reduce((s, r) => s + (r.value || 0), 0);
-        if (passiveBase <= 0) {
+        const sheetDr = Math.max(0, Math.floor(Number(economyDef.system?.combat?.damageReductionPct) || 0));
+        if (passiveBase <= 0 && sheetDr <= 0) {
             mit = { ...mit, reactionDrPct: 0 };
             reactionDrBlocked = true;
         }
@@ -158,7 +160,7 @@ export async function promptDefenderReactionsBeforeMitigation(params) {
         note += ` +${mit.reactionDrPct}% DR (this hit)`;
     if (reactionDrBlocked) {
         note +=
-            ' <em>(Reaction DR% requires a slotted <strong>Damage Reduction</strong> passive contributing DR%.)</em>';
+            ' <em>(Reaction DR% needs slotted <strong>Damage Reduction</strong> DR% and/or a sustained DR% on the character sheet.)</em>';
     }
     if (ev > 0) {
         note += ` <em>(+${ev} Evade is not applied retroactively after the hit — track manually if needed.)</em>`;

@@ -724,11 +724,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         context.passiveSlotManagerDetailsOpen = this._passiveSlotManagerDetailsOpen === true;
         if (context.creationComplete) {
             context.powersByTypeGroups = this.#buildPowersByTypeGroups(context.items?.powers || []);
-            context.powersListDetailsOpen = this._powersListDetailsOpen !== false;
+            /* Default: collapsed; open only if user expanded in this session (saved across re-renders). */
+            context.powersListDetailsOpen = this._powersListDetailsOpen === true;
         }
         else {
             context.powersByTypeGroups = [];
-            context.powersListDetailsOpen = true;
+            context.powersListDetailsOpen = false;
         }
         // Add active buffs data - ALWAYS set as array, even if empty
         context.activeBuffs = [];

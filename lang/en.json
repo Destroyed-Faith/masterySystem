@@ -48,7 +48,9 @@
       "reactionUseWhenDamaged": "Reaction powers are chosen when you take damage from an attack (dialog after phasing). They are not fired from the radial during your turn."
     },
     "reactionDialogTitle": "Reaction — {defender}",
-    "reactionDecline": "Decline (no reaction)"
+    "reactionDecline": "Decline (no reaction)",
+    "combatStripDrSustained": "DR {pct}% (sustained, excludes per-hit reaction bonus)",
+    "combatStripReactionDrNote": "Per-hit reaction DR% is added in the damage dialog, not in this sustained value."
   }
 }
 

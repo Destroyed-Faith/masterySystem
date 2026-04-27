@@ -1618,8 +1618,11 @@
         </summary>
         <div class="radial-maneuver-prefs-body powers-list-details-body">
           {{#each powersByTypeGroups}}
-          <details class="radial-maneuver-prefs-group powers-by-type-group powers-type-group-details" open>
-            <summary class="radial-maneuver-prefs-group-label powers-type-group-details-summary">{{this.groupLabel}}</summary>
+          <details class="radial-maneuver-prefs-group powers-by-type-group powers-type-group-details">
+            <summary class="radial-maneuver-prefs-group-label powers-type-group-details-summary">
+              <i class="fas fa-grip-lines-vertical powers-type-group-handle" aria-hidden="true"></i>
+              <span class="powers-type-group-label-text">{{this.groupLabel}}</span>
+            </summary>
             <div class="powers-type-group-list">
             {{#each this.powers}}
             <div class="power-card" data-item-id="{{this.id}}">

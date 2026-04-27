@@ -64,12 +64,12 @@ export async function applyBloodRaiseHpLoss(actor, amount) {
     const system = actor.system ?? {};
     const health = system.health ?? {};
     const bars = Array.isArray(health.bars) ? health.bars : undefined;
-    const currentBar = Number.isFinite(health.currentBar) ? health.currentBar : 0;
     if (!bars || bars.length === 0)
         return 0;
     const barsClone = bars.map((b) => ({ ...b }));
     const before = barsClone.reduce((sum, b) => sum + b.current, 0);
-    const newCurrent = applyDamage(barsClone, currentBar, amount);
+    // Same as strike damage: pools drain from the first (Healthy) bar onward.
+    const newCurrent = applyDamage(barsClone, 0, amount);
     const after = barsClone.reduce((sum, b) => sum + b.current, 0);
     const lost = Math.max(0, before - after);
     const prior = Number(actor.getFlag?.(FLAG_SCOPE, FLAG_BLOOD_RAISE_HP) ?? 0) || 0;

@@ -90,12 +90,32 @@ describe('Health Bar Calculations', () => {
     expect(getCurrentPenalty(bars, 1)).toBe(-1);
   });
 
-  it('returns -2 penalty when Injured bar is the first broken', () => {
+  it('returns 0 from Healthy when it is the first bar with any damage', () => {
     const bars = initializeHealthBars(8);
     bars[0].current = 0; // Healthy depleted
     bars[1].current = 0; // Bruised depleted
     bars[2].current = 10; // Injured partially damaged
-    expect(getCurrentPenalty(bars, 2)).toBe(0); // Healthy (index 0) has current=0 < max=16, penalty=0
+    // First "broken" bar in index order is 0 (0 < max) → its penalty is 0.
+    expect(getCurrentPenalty(bars, 0)).toBe(0);
+  });
+
+  it('returns -2 when first damaged bar in order is Injured (Healthy and Bruised full)', () => {
+    const bars = initializeHealthBars(8);
+    bars[0].current = 16;
+    bars[1].current = 16;
+    bars[2].current = 8;
+    expect(getCurrentPenalty(bars, 0)).toBe(-2);
+  });
+
+  it('applies damage from a later start index (legacy) before inner pools', () => {
+    const bars = initializeHealthBars(8);
+    // Start at "Wounded" bar (3): 1 point comes off that pool first
+    const idx = applyDamage(bars, 3, 1);
+    expect(bars[0].current).toBe(16);
+    expect(bars[1].current).toBe(16);
+    expect(bars[2].current).toBe(16);
+    expect(bars[3].current).toBe(15);
+    expect(idx).toBe(3);
   });
 
   it('applies damage with overflow between bars', () => {

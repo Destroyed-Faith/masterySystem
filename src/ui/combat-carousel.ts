@@ -223,6 +223,11 @@ export class CombatCarouselApp extends BaseCarousel {
         const drPct = Math.max(0, Math.min(100, Math.floor(Number(c.damageReductionPct ?? 0) || 0)));
         const stripTooltip = (() => {
           try {
+            const i18n = (globalThis as any).game?.i18n;
+            const loc = (k: string, fb: string) => {
+              const s = i18n?.localize?.(k);
+              return s && !String(s).startsWith('MASTERY.') ? String(s) : fb;
+            };
             const a = Math.floor(Number(c.armorTotal ?? 0) || 0);
             const e = Math.floor(Number(c.evadeTotal ?? 0) || 0);
             const dr = drPct;
@@ -234,6 +239,14 @@ export class CombatCarouselApp extends BaseCarousel {
                 .slice(0, max)
                 .map((r: any) => `${r.label}: ${r.display ?? r.value}`)
                 .join('\n');
+            const drLine = loc('MASTERY.combatStripDrSustained', 'DR {pct}%').replace(
+              '{pct}',
+              String(dr),
+            );
+            const reactionNote = loc(
+              'MASTERY.combatStripReactionDrNote',
+              'Per-hit reaction DR% is added in the damage dialog, not in this sustained value.',
+            );
             return [
               `Armor ${a}`,
               line(ar, 8),
@@ -241,8 +254,10 @@ export class CombatCarouselApp extends BaseCarousel {
               `Evade ${e}`,
               line(ev, 8),
               '',
-              `DR ${dr}%`,
+              drLine,
               line(drR, 8),
+              '',
+              reactionNote,
             ]
               .filter(Boolean)
               .join('\n');

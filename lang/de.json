@@ -48,6 +48,8 @@
       "reactionUseWhenDamaged": "Reaktions-Powers wählst du bei eingehendem Schaden (Dialog nach Phasing). Sie starten nicht über das Radial in deinem Zug."
     },
     "reactionDialogTitle": "Reaktion — {defender}",
-    "reactionDecline": "Ablehnen (keine Reaktion)"
+    "reactionDecline": "Ablehnen (keine Reaktion)",
+    "combatStripDrSustained": "DR {pct}% (Dauer, ohne pro-Treffer-Reaktion)",
+    "combatStripReactionDrNote": "Reaktions-DR% pro Treffer im Schadens-Dialog, nicht in dieser ständigen Anzeige."
   }
 }

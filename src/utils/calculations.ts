@@ -102,26 +102,18 @@ export function updateHealthBars(bars: HealthBar[], vitality: number): void {
  * The penalty applies as soon as a bar is broken (current < max).
  * We check from bar 0 upwards to find the first broken bar.
  */
-export function getCurrentPenalty(bars: HealthBar[], currentBar: number): number {
+export function getCurrentPenalty(bars: HealthBar[], _currentBar: number): number {
   if (!bars || bars.length === 0) {
     return 0;
   }
-  
-  // Clamp currentBar to valid range
-  if (currentBar < 0) currentBar = 0;
-  if (currentBar >= bars.length) currentBar = bars.length - 1;
-  
-  // Check all bars from 0 to currentBar to find the first broken one
-  // Once a bar is broken (current < max), that penalty applies
-  for (let i = 0; i <= currentBar && i < bars.length; i++) {
+
+  // First broken bar from 0 → n-1 (independent of legacy `currentBar` index).
+  for (let i = 0; i < bars.length; i++) {
     const bar = bars[i];
-    // If this bar is broken (current < max), return its penalty
     if (bar.current < bar.max) {
       return bar.penalty;
     }
   }
-  
-  // No bars are broken, no penalty
   return 0;
 }
 

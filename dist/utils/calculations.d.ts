@@ -45,7 +45,7 @@ export declare function updateHealthBars(bars: HealthBar[], vitality: number): v
  * The penalty applies as soon as a bar is broken (current < max).
  * We check from bar 0 upwards to find the first broken bar.
  */
-export declare function getCurrentPenalty(bars: HealthBar[], currentBar: number): number;
+export declare function getCurrentPenalty(bars: HealthBar[], _currentBar: number): number;
 /**
  * Apply damage to health bars
  * Returns the new current bar index (clamped to max bars - 1)

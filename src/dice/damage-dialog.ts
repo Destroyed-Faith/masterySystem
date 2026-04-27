@@ -1467,12 +1467,11 @@ async function applyDamageToTarget(
       // Import applyDamage helper from calculations.ts
       const { applyDamage: applyDamageToBars } = await import('../utils/calculations.js');
 
-      // Copy bars array to mutate
+      // Copy bars array to mutate. Always deplete from bar 0 (left / Healthy) first
+      // so the segmented HP strip matches the wound track; do not use currentBar
+      // as the starting index.
       const bars = [...system.health.bars];
-      let barIndex = system.health.currentBar || 0;
-
-      // Apply damage using helper function (handles overflow between bars)
-      barIndex = applyDamageToBars(bars, barIndex, remaining);
+      let barIndex = applyDamageToBars(bars, 0, remaining);
 
       // Clamp barIndex to valid range
       if (barIndex >= bars.length) {
@@ -1515,8 +1514,16 @@ async function applyDamageToTarget(
     }
 
     const tail: string[] = [];
-    if (tempHPConsumption.reducedBy > 0) tail.push(`TempHP ${tempHPConsumption.reducedBy}`);
-    tail.push(`Bars ${barDamage}`);
+    if (tempHPConsumption.reducedBy > 0) {
+      tail.push(`TempHP ${tempHPConsumption.reducedBy}`);
+    }
+    if (barDamage > 0) {
+      tail.push(`Bars ${barDamage}`);
+    } else if (mitigated > 0 && tempHPConsumption.reducedBy > 0) {
+      tail.push('HP bars 0 (all from Temp-HP this hit)');
+    } else {
+      tail.push('Bars 0');
+    }
     return {
       rawDamage: mitigation.rawDamage,
       armorApplied: mitigation.armorApplied,
