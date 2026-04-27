@@ -1125,6 +1125,23 @@ async function applyDamageToTarget(target, damage, attacker, count8s = 0) {
             // Phasing module not yet loaded or target has no charges — treat as pass.
             console.debug?.('Mastery System | [APPLY DAMAGE] phasing skipped', err);
         }
+        let reactionArmorFlat = 0;
+        let reactionDrPct = 0;
+        try {
+            const combat = globalThis.game?.combat ?? null;
+            const { promptDefenderReactionsBeforeMitigation } = await import('../combat/defender-reactions.js');
+            const reactMit = await promptDefenderReactionsBeforeMitigation({
+                defender: target,
+                attacker: attacker,
+                combat,
+                rawDamage: damage,
+            });
+            reactionArmorFlat = reactMit.reactionArmorFlat;
+            reactionDrPct = reactMit.reactionDrPct;
+        }
+        catch (err) {
+            console.debug?.('Mastery System | [APPLY DAMAGE] defender reactions skipped', err);
+        }
         // Create blood pool at target token position (if token exists on canvas)
         if (damage > 0 && canvas?.ready) {
             const targetToken = target.getActiveTokens?.()?.[0] ||
@@ -1161,11 +1178,13 @@ async function applyDamageToTarget(target, damage, attacker, count8s = 0) {
             damageReductionPctRead: Number(system.combat?.damageReductionPct ?? 0),
             count8s,
         });
+        const baseArmorTotal = Number(system.combat?.armorTotal ?? 0);
         const mitigation = applyDefensiveMitigation({
             rawDamage: damage,
             count8s,
-            armorTotal: Number(system.combat?.armorTotal ?? 0),
+            armorTotal: baseArmorTotal + reactionArmorFlat,
             damageReductionPct: Number(system.combat?.damageReductionPct ?? 0),
+            reactionDrPct,
         });
         const mitigated = mitigation.mitigatedDamage;
         // Step 2: Route tempHP reduction through the passive-trigger pool so that

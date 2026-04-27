@@ -786,6 +786,18 @@ export async function handleChosenCombatOption(token: any, option: RadialCombatO
     return;
   }
 
+  const reactionPower =
+    option.source === 'power' &&
+    (((option as any).powerType === 'reaction') ||
+      ((option.item?.system as any)?.powerType === 'reaction'));
+  if (reactionPower) {
+    ui.notifications?.info(
+      game?.i18n?.localize('MASTERY.combat.reactionUseWhenDamaged') ??
+        'Reaction powers are chosen when you take damage from an attack (dialog after phasing). They are not fired from the radial during your turn.',
+    );
+    return;
+  }
+
   // Debug: Log remaining actions when opening radial
   const roundState = getRoundState(actor, combat);
   console.log('Mastery System | [ACTION ECONOMY] Remaining actions:', {

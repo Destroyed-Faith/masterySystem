@@ -172,6 +172,18 @@
   z-index: 1;
 }
 
+.ms-carousel-reactions {
+  font-size: 0.65rem;
+  color: #cce;
+  text-align: center;
+  margin: 0.1rem 0 0;
+  line-height: 1.2;
+}
+
+.ms-carousel-reactions strong {
+  color: #9df;
+}
+
 /* Portrait Name */
 .portrait-name {
   font-size: 0.85rem;

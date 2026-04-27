@@ -15,8 +15,12 @@ import {
   buildCombatantsIteratorOrder,
   logInitiativeOrderDebug,
 } from '../utils/combat-trace-debug.js';
+import {
+  getActionEconomyActor,
+  getReactionActionsSummary,
+  isStonePowersConfigurationLocked,
+} from '../combat/action-economy.js';
 import { requestEndTurn } from '../combat/end-turn.js';
-import { isStonePowersConfigurationLocked } from '../combat/action-economy.js';
 import { StonePowersDialog } from '../stones/stone-powers-dialog.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -257,11 +261,15 @@ export class CombatCarouselApp extends BaseCarousel {
         combatStrip = null;
       }
       
+      const reactSum = getReactionActionsSummary((getActionEconomyActor(actor) ?? actor) as any, combat);
+
       combatants.push({
         id: combatant.id,
         name: combatant.name || actor.name,
         img: portraitImg,
         initiative: combatant.initiative ?? 0,
+        reactionRemaining: reactSum.remaining,
+        reactionTotal: reactSum.total,
         isCurrent: combatant.id === currentCombatantId,
         hidden: combatant.hidden || false,
         defeated: combatant.defeated || false,

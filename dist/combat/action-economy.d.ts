@@ -135,6 +135,16 @@ export declare function getAvailableAttackActions(actor: Actor, combat: Combat |
  */
 export declare function getAvailableMovementActions(actor: Actor, combat: Combat | null): number;
 /**
+ * Remaining reaction actions this combat round (initiative shop / stones increase `total`).
+ */
+export declare function getAvailableReactionActions(actor: Actor, combat: Combat | null): number;
+/** Read-only `{ used, total, remaining }` for UI / chat. */
+export declare function getReactionActionsSummary(actor: Actor, combat: Combat | null): {
+    used: number;
+    total: number;
+    remaining: number;
+};
+/**
  * Consume an attack action (alias for spendAttackAction)
  */
 export declare function consumeAttackAction(actor: Actor, combat: Combat | null): Promise<boolean>;

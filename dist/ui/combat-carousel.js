@@ -10,8 +10,8 @@
  * Migrated to Foundry VTT v13 ApplicationV2 + HandlebarsApplicationMixin
  */
 import { buildCombatTurnSnapshot, buildCombatantsIteratorOrder, logInitiativeOrderDebug, } from '../utils/combat-trace-debug.js';
+import { getActionEconomyActor, getReactionActionsSummary, isStonePowersConfigurationLocked, } from '../combat/action-economy.js';
 import { requestEndTurn } from '../combat/end-turn.js';
-import { isStonePowersConfigurationLocked } from '../combat/action-economy.js';
 import { StonePowersDialog } from '../stones/stone-powers-dialog.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
@@ -217,11 +217,14 @@ export class CombatCarouselApp extends BaseCarousel {
             catch {
                 combatStrip = null;
             }
+            const reactSum = getReactionActionsSummary((getActionEconomyActor(actor) ?? actor), combat);
             combatants.push({
                 id: combatant.id,
                 name: combatant.name || actor.name,
                 img: portraitImg,
                 initiative: combatant.initiative ?? 0,
+                reactionRemaining: reactSum.remaining,
+                reactionTotal: reactSum.total,
                 isCurrent: combatant.id === currentCombatantId,
                 hidden: combatant.hidden || false,
                 defeated: combatant.defeated || false,

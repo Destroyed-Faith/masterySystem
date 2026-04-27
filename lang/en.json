@@ -44,7 +44,8 @@
       "noTokens": "Please select at least one character token"
     },
     "combat": {
-      "powerAlreadyUsedThisRound": "This power has already been used this round."
+      "powerAlreadyUsedThisRound": "This power has already been used this round.",
+      "reactionUseWhenDamaged": "Reaction powers are chosen when you take damage from an attack (dialog after phasing). They are not fired from the radial during your turn."
     }
   }
 }

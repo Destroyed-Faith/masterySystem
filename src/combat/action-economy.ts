@@ -473,6 +473,26 @@ export function getAvailableMovementActions(actor: Actor, combat: Combat | null)
 }
 
 /**
+ * Remaining reaction actions this combat round (initiative shop / stones increase `total`).
+ */
+export function getAvailableReactionActions(actor: Actor, combat: Combat | null): number {
+  const roundState = getRoundState(actor, combat);
+  return Math.max(0, roundState.reactionActions.total - roundState.reactionActions.used);
+}
+
+/** Read-only `{ used, total, remaining }` for UI / chat. */
+export function getReactionActionsSummary(actor: Actor, combat: Combat | null): {
+  used: number;
+  total: number;
+  remaining: number;
+} {
+  const roundState = getRoundState(actor, combat);
+  const total = Math.max(0, Math.floor(Number(roundState.reactionActions?.total) || 0));
+  const used = Math.max(0, Math.floor(Number(roundState.reactionActions?.used) || 0));
+  return { used, total, remaining: Math.max(0, total - used) };
+}
+
+/**
  * Consume an attack action (alias for spendAttackAction)
  */
 export async function consumeAttackAction(actor: Actor, combat: Combat | null): Promise<boolean> {

@@ -8,6 +8,8 @@
  * - Quick action buttons
  */
 
+import { getRoundState } from '../combat/action-economy.js';
+
 const ApplicationV2 = (foundry.applications.api as any)?.ApplicationV2 || Application;
 
 export class CombatActionOverlay extends ApplicationV2 {
@@ -106,11 +108,33 @@ export class CombatActionOverlay extends ApplicationV2 {
   async getData(): Promise<any> {
     const system = this.actor.system as any;
 
-    const actions = system.actions ?? {
+    const combat = (game as any).combat as Combat | null | undefined;
+    let actions = system.actions ?? {
       attack: { max: 1, used: 0 },
       movement: { max: 1, used: 0 },
       reaction: { max: 1, used: 0 }
     };
+    if (combat?.id) {
+      try {
+        const rs = getRoundState(this.actor, combat);
+        actions = {
+          attack: {
+            max: rs.attackActions.total,
+            used: rs.attackActions.used
+          },
+          movement: {
+            max: rs.movementActions.total,
+            used: rs.movementActions.used
+          },
+          reaction: {
+            max: rs.reactionActions.total,
+            used: rs.reactionActions.used
+          }
+        };
+      } catch {
+        /* keep legacy system.actions */
+      }
+    }
 
     const resources = system.resources ?? {
       stones: { current: 0, maximum: 0 },
