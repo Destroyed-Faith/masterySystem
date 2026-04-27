@@ -41,36 +41,20 @@ function areAllCombatantsDone(combat, round) {
     return allCombatants.every((combatant) => state.stonesDone[combatant.id] === round);
 }
 /**
- * After stone powers for a round, roll initiative (dice + CR + shop) for all combatants once per round.
+ * After stone powers for a round: full initiative phase (dice + CR + Initiative Shop for PCs,
+ * `setupTurns`, Mastery first-actor sync) for **every** round. Idempotent per round via
+ * `initiativePhaseDoneByRound`. Carousel alignment uses Foundry `combat.turns` + existing sync.
  */
 export async function runInitiativePhaseAfterStones(combat, round) {
     const state = getStonePowersState(combat);
     logInitiativeOrderDebug('runInitiativePhaseAfterStones.enter', {
         round,
         initiativePhaseDoneForRound: !!state.initiativePhaseDoneByRound?.[round],
-        rerollInitiativeAfterStonesEachRound: globalThis.game?.settings?.get?.('mastery-system', 'rerollInitiativeAfterStonesEachRound') ===
-            true,
         snapshot: buildCombatTurnSnapshot(combat),
         combatantsIteratorOrder: buildCombatantsIteratorOrder(combat),
     });
     if (state.initiativePhaseDoneByRound?.[round]) {
         console.log('Mastery System | Initiative phase already done for round', round);
-        return;
-    }
-    const rerollEachRound = globalThis.game?.settings?.get?.('mastery-system', 'rerollInitiativeAfterStonesEachRound') ===
-        true;
-    if (round > 1 && !rerollEachRound) {
-        const sSkip = getStonePowersState(combat);
-        await updateStonePowersState(combat, {
-            initiativePhaseDoneByRound: { ...(sSkip.initiativePhaseDoneByRound || {}), [round]: true },
-        });
-        console.log('Mastery System | Skipping initiative phase after stones (round > 1; enable world setting rerollInitiativeAfterStonesEachRound to restore every-round reroll)');
-        logInitiativeOrderDebug('runInitiativePhaseAfterStones.skippedRoundGt1', {
-            round,
-            note: 'No executeInitiativePhase — `turns` / `combat.turn` unchanged by this path.',
-            snapshot: buildCombatTurnSnapshot(combat),
-            combatantsIteratorOrder: buildCombatantsIteratorOrder(combat),
-        });
         return;
     }
     try {
