@@ -12,6 +12,12 @@
 import { PassiveSelectionDialog } from '../sheets/passive-selection-dialog.js';
 import { CombatCarouselApp } from '../ui/combat-carousel.js';
 import { openStonePowersForAllCombatants } from './stone-powers-flow.js';
+import { syncCombatTurnToHighestInitiativeFirst } from './initiative-roll.js';
+import {
+  buildCombatTurnSnapshot,
+  buildCombatantsIteratorOrder,
+  logInitiativeOrderDebug,
+} from '../utils/combat-trace-debug.js';
 
 const SOCKET_NAME = 'system.mastery-system';
 
@@ -113,7 +119,15 @@ async function handleInitiativeConfirmed(combat: Combat, combatantId: string, fi
         // Fallback: trigger updateCombat which should sort
         await combat.update({ turn: combat.turn ?? 0 });
       }
-      
+
+      await syncCombatTurnToHighestInitiativeFirst(combat);
+
+      logInitiativeOrderDebug('encounter-start.allPCsConfirmed.afterSetupAndSync', {
+        note: 'Encounter pipeline: setupTurns + syncCombatTurnToHighestInitiativeFirst',
+        snapshot: buildCombatTurnSnapshot(combat),
+        combatantsIteratorOrder: buildCombatantsIteratorOrder(combat),
+      });
+
       // Small delay to ensure combat sorting is complete
       await new Promise(resolve => setTimeout(resolve, 100));
       

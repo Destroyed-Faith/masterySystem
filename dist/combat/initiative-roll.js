@@ -7,7 +7,7 @@ import { masteryRoll } from '../dice/roll-handler.js';
 import { calculateMaxSkillRank } from '../utils/calculations.js';
 import { getEquippedEquipmentInitiativeModifier } from '../utils/equipment-modifiers.js';
 import { readManualAdjustments } from '../utils/manual-adjustments.js';
-import { buildCombatTurnSnapshot, logCombatTrace } from '../utils/combat-trace-debug.js';
+import { buildCombatTurnSnapshot, buildCombatantsIteratorOrder, logCombatTrace, logInitiativeOrderDebug, } from '../utils/combat-trace-debug.js';
 const CR_SKILL_KEY = 'combatReflexes';
 function getMasteryRank(actor) {
     if (!actor || !actor.system)
@@ -147,6 +147,11 @@ export async function rollInitiativeForCombatant(combatant, options = {}) {
 export async function executeInitiativePhase(combat) {
     const { InitiativeShopDialog } = await import('./initiative-shop-dialog.js');
     console.log('Mastery System | Initiative phase for combat', combat.id, 'round', combat.round);
+    logInitiativeOrderDebug('executeInitiativePhase.start', {
+        note: '`turns` before rolls/shops; `combatants` is encounter iteration order (may differ).',
+        snapshot: buildCombatTurnSnapshot(combat),
+        combatantsIteratorOrder: buildCombatantsIteratorOrder(combat),
+    });
     const npcs = [];
     const pcs = [];
     for (const combatant of combat.combatants) {
@@ -190,12 +195,93 @@ export async function executeInitiativePhase(combat) {
             await c.update({ initiative: 0 });
         }
     }
+    logInitiativeOrderDebug('executeInitiativePhase.beforeSetupTurns', {
+        note: 'After all rolls/shops and null→0 initiative pin; Foundry has not re-sorted yet.',
+        snapshot: buildCombatTurnSnapshot(combat),
+        combatantsIteratorOrder: buildCombatantsIteratorOrder(combat),
+    });
     if (typeof combat.setupTurns === 'function') {
         await combat.setupTurns();
     }
+    logInitiativeOrderDebug('executeInitiativePhase.afterSetupTurns.beforeSync', {
+        note: '`combat.turn` is Foundry default after setupTurns; next step applies Mastery first-actor rule.',
+        snapshot: buildCombatTurnSnapshot(combat),
+        combatantsIteratorOrder: buildCombatantsIteratorOrder(combat),
+    });
+    await syncCombatTurnToHighestInitiativeFirst(combat);
     logCombatTrace('initiative-phase-after-setupTurns', {
         snapshot: buildCombatTurnSnapshot(combat),
     });
+    logInitiativeOrderDebug('executeInitiativePhase.end', {
+        note: 'After syncCombatTurnToHighestInitiativeFirst.',
+        snapshot: buildCombatTurnSnapshot(combat),
+        combatantsIteratorOrder: buildCombatantsIteratorOrder(combat),
+    });
+}
+/**
+ * Index of the combatant who should act first: highest initiative (desc).
+ * Tie-break: lexicographically smaller combatant id (deterministic; avoids implicit player-first ordering).
+ * Non-defeated beats defeated at equal initiative.
+ */
+export function findTurnIndexHighestInitiativeFirst(combat) {
+    const turns = Array.isArray(combat.turns) ? [...combat.turns] : [];
+    if (!turns.length)
+        return Math.max(0, Number(combat.turn) || 0);
+    const candidateBeatsBest = (best, cand) => {
+        const bd = !!best?.defeated;
+        const cd = !!cand?.defeated;
+        if (!bd && cd)
+            return false;
+        if (bd && !cd)
+            return true;
+        const bi = Number(best?.initiative ?? -Infinity);
+        const ci = Number(cand?.initiative ?? -Infinity);
+        if (ci > bi)
+            return true;
+        if (ci < bi)
+            return false;
+        return String(cand.id ?? '') < String(best.id ?? '');
+    };
+    let bestIdx = 0;
+    for (let i = 1; i < turns.length; i++) {
+        if (candidateBeatsBest(turns[bestIdx], turns[i]))
+            bestIdx = i;
+    }
+    return bestIdx;
+}
+/** After `setupTurns()`, ensure `combat.turn` points at highest-initiative combatant (Mastery first-actor rule). */
+export async function syncCombatTurnToHighestInitiativeFirst(combat) {
+    try {
+        const turns = Array.isArray(combat.turns) ? [...combat.turns] : [];
+        const desired = findTurnIndexHighestInitiativeFirst(combat);
+        const chosen = turns[desired];
+        logInitiativeOrderDebug('syncCombatTurnToHighestInitiativeFirst', {
+            tieBreakRule: 'Highest initiative in `combat.turns`; non-defeated over defeated; tie → lexicographically smaller combatant.id',
+            foundryTurnIndexBefore: combat.turn,
+            masteryHighestIniFirstIndex: desired,
+            willUpdateTurnPointer: desired !== combat.turn,
+            chosenFirstActor: chosen
+                ? {
+                    combatantId: chosen.id,
+                    name: chosen.name,
+                    initiative: chosen.initiative ?? null,
+                    defeated: !!chosen.defeated,
+                }
+                : null,
+            snapshot: buildCombatTurnSnapshot(combat),
+            combatantsIteratorOrder: buildCombatantsIteratorOrder(combat),
+        });
+        if (desired !== combat.turn) {
+            await combat.update({ turn: desired });
+            logInitiativeOrderDebug('syncCombatTurnToHighestInitiativeFirst.afterUpdate', {
+                requestedTurnIndex: desired,
+                snapshot: buildCombatTurnSnapshot(combat),
+            });
+        }
+    }
+    catch (e) {
+        console.warn('Mastery System | syncCombatTurnToHighestInitiativeFirst failed', e);
+    }
 }
 /** @deprecated Prefer executeInitiativePhase; kept for compatibility. */
 export async function rollInitiativeForAllCombatants(combat) {

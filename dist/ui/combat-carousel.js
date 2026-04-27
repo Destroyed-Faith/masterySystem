@@ -9,6 +9,7 @@
  *
  * Migrated to Foundry VTT v13 ApplicationV2 + HandlebarsApplicationMixin
  */
+import { buildCombatTurnSnapshot, buildCombatantsIteratorOrder, logInitiativeOrderDebug, } from '../utils/combat-trace-debug.js';
 import { requestEndTurn } from '../combat/end-turn.js';
 import { isStonePowersConfigurationLocked } from '../combat/action-economy.js';
 import { StonePowersDialog } from '../stones/stone-powers-dialog.js';
@@ -94,31 +95,24 @@ export class CombatCarouselApp extends BaseCarousel {
         const resource2Path = game.settings.get('mastery-system', 'carouselResource2Path') || 'tracked.stress';
         const resource1Label = game.settings.get('mastery-system', 'carouselResource1Label') || 'HP';
         const resource2Label = game.settings.get('mastery-system', 'carouselResource2Label') || 'Stress';
-        // Build combatants array
+        // Build combatants array — use Foundry's `combat.turns` order as-is so portrait order
+        // matches `combat.turn` / `nextTurn`. Re-sorting here broke alignment with the tracker.
         const combatants = [];
-        // Use combat.turns if available and has items, otherwise sort combatants by initiative
-        let turns = combat.turns || [];
+        const rawTurnsArray = Array.isArray(combat.turns) ? combat.turns : [];
+        let turns = [...rawTurnsArray];
+        let turnsSource = turns.length > 0
+            ? 'combat.turns (Foundry order, carousel uses as-is)'
+            : 'fallback (empty combat.turns): sorted combatants by ini desc, id tiebreak';
         if (turns.length === 0 && combat.combatants) {
-            // Sort by initiative descending (highest first)
             turns = Array.from(combat.combatants.values()).sort((a, b) => {
                 const aInit = a.initiative ?? 0;
                 const bInit = b.initiative ?? 0;
-                // If initiatives are equal, maintain original order
                 if (aInit === bInit)
-                    return 0;
+                    return String(a.id ?? '').localeCompare(String(b.id ?? ''));
                 return bInit - aInit;
             });
         }
-        else if (turns.length > 0) {
-            // Ensure turns are sorted by initiative (in case Foundry didn't sort them)
-            turns = [...turns].sort((a, b) => {
-                const aInit = a.initiative ?? 0;
-                const bInit = b.initiative ?? 0;
-                if (aInit === bInit)
-                    return 0;
-                return bInit - aInit;
-            });
-        }
+        const currentCombatantId = combat.combatant?.id ?? combat.current?.combatantId ?? null;
         for (const combatant of turns) {
             const actor = combatant.actor;
             if (!actor)
@@ -228,7 +222,7 @@ export class CombatCarouselApp extends BaseCarousel {
                 name: combatant.name || actor.name,
                 img: portraitImg,
                 initiative: combatant.initiative ?? 0,
-                isCurrent: combatant.id === combat.current?.combatantId,
+                isCurrent: combatant.id === currentCombatantId,
                 hidden: combatant.hidden || false,
                 defeated: combatant.defeated || false,
                 resource1: {
@@ -250,6 +244,22 @@ export class CombatCarouselApp extends BaseCarousel {
                 stonePlanLocked: actor.type === 'character' && isStonePowersConfigurationLocked(actor, combat)
             });
         }
+        logInitiativeOrderDebug('carousel._prepareContext', {
+            turnsSource,
+            rawCombatTurnsLength: rawTurnsArray.length,
+            paintedCardCount: combatants.length,
+            currentCombatantId: combat.combatant?.id ?? combat.current?.combatantId ?? null,
+            combatTurnIndex: combat.turn,
+            /** Left-to-right portrait order (only combatants with actors). */
+            carouselCardOrder: combatants.map((c) => ({
+                id: c.id,
+                name: c.name,
+                initiative: c.initiative,
+                isCurrent: c.isCurrent,
+            })),
+            foundrySnapshot: buildCombatTurnSnapshot(combat),
+            combatantsIteratorOrder: buildCombatantsIteratorOrder(combat),
+        });
         return {
             active: true,
             combatants,

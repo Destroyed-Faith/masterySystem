@@ -6,6 +6,7 @@
  * `runMasteryCombatRoundAdvancePipeline` (ein Hook-Pfad, keine Race mit zweitem updateCombat).
  */
 import { StonePowersDialog } from '../stones/stone-powers-dialog.js';
+import { buildCombatTurnSnapshot, buildCombatantsIteratorOrder, logInitiativeOrderDebug, } from '../utils/combat-trace-debug.js';
 import { executeInitiativePhase } from './initiative-roll.js';
 import { clearStonePowersConfigurationLocksInCombat, regenStonesEndOfRound, refillStonePoolsFromAttributes, resetRoundState, syncStonePoolCapsFromAttributes } from './action-economy.js';
 const SOCKET_NAME = 'system.mastery-system';
@@ -44,11 +45,39 @@ function areAllCombatantsDone(combat, round) {
  */
 export async function runInitiativePhaseAfterStones(combat, round) {
     const state = getStonePowersState(combat);
+    logInitiativeOrderDebug('runInitiativePhaseAfterStones.enter', {
+        round,
+        initiativePhaseDoneForRound: !!state.initiativePhaseDoneByRound?.[round],
+        rerollInitiativeAfterStonesEachRound: globalThis.game?.settings?.get?.('mastery-system', 'rerollInitiativeAfterStonesEachRound') ===
+            true,
+        snapshot: buildCombatTurnSnapshot(combat),
+        combatantsIteratorOrder: buildCombatantsIteratorOrder(combat),
+    });
     if (state.initiativePhaseDoneByRound?.[round]) {
         console.log('Mastery System | Initiative phase already done for round', round);
         return;
     }
+    const rerollEachRound = globalThis.game?.settings?.get?.('mastery-system', 'rerollInitiativeAfterStonesEachRound') ===
+        true;
+    if (round > 1 && !rerollEachRound) {
+        const sSkip = getStonePowersState(combat);
+        await updateStonePowersState(combat, {
+            initiativePhaseDoneByRound: { ...(sSkip.initiativePhaseDoneByRound || {}), [round]: true },
+        });
+        console.log('Mastery System | Skipping initiative phase after stones (round > 1; enable world setting rerollInitiativeAfterStonesEachRound to restore every-round reroll)');
+        logInitiativeOrderDebug('runInitiativePhaseAfterStones.skippedRoundGt1', {
+            round,
+            note: 'No executeInitiativePhase — `turns` / `combat.turn` unchanged by this path.',
+            snapshot: buildCombatTurnSnapshot(combat),
+            combatantsIteratorOrder: buildCombatantsIteratorOrder(combat),
+        });
+        return;
+    }
     try {
+        logInitiativeOrderDebug('runInitiativePhaseAfterStones.runningExecuteInitiativePhase', {
+            round,
+            snapshot: buildCombatTurnSnapshot(combat),
+        });
         await executeInitiativePhase(combat);
     }
     catch (e) {
@@ -58,6 +87,11 @@ export async function runInitiativePhaseAfterStones(combat, round) {
     const s = getStonePowersState(combat);
     await updateStonePowersState(combat, {
         initiativePhaseDoneByRound: { ...(s.initiativePhaseDoneByRound || {}), [round]: true }
+    });
+    logInitiativeOrderDebug('runInitiativePhaseAfterStones.done', {
+        round,
+        snapshot: buildCombatTurnSnapshot(combat),
+        combatantsIteratorOrder: buildCombatantsIteratorOrder(combat),
     });
 }
 async function openStonePowersForCombatant(combat, combatant, round) {

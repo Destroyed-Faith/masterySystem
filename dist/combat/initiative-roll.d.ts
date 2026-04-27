@@ -39,6 +39,14 @@ export declare function rollInitiativeForCombatant(combatant: Combatant, options
  * Full initiative phase: NPCs auto; PCs with owner/GM get shop; others auto roll without CR prompt.
  */
 export declare function executeInitiativePhase(combat: Combat): Promise<void>;
+/**
+ * Index of the combatant who should act first: highest initiative (desc).
+ * Tie-break: lexicographically smaller combatant id (deterministic; avoids implicit player-first ordering).
+ * Non-defeated beats defeated at equal initiative.
+ */
+export declare function findTurnIndexHighestInitiativeFirst(combat: Combat): number;
+/** After `setupTurns()`, ensure `combat.turn` points at highest-initiative combatant (Mastery first-actor rule). */
+export declare function syncCombatTurnToHighestInitiativeFirst(combat: Combat): Promise<void>;
 /** @deprecated Prefer executeInitiativePhase; kept for compatibility. */
 export declare function rollInitiativeForAllCombatants(combat: Combat): Promise<void>;
 /**

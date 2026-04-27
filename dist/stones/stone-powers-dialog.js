@@ -528,6 +528,7 @@ export class StonePowersDialog extends BaseDialog {
         this.#pullSessionPartialsIntoInstance();
         const combat = game.combat;
         const combatActive = !!combat;
+        const combatStarted = !!combat?.started;
         if (!this.combatant && combat) {
             this.combatant = resolveStonePowersCombatant(this.actor, combat);
         }
@@ -614,6 +615,7 @@ export class StonePowersDialog extends BaseDialog {
             !!this.combatant &&
             !stonePlanLocked &&
             !combatMissingFromTracker &&
+            !combatStarted &&
             !!user &&
             (user.isGM || this.actor.isOwner);
         // Determine default attribute for generic powers
@@ -855,6 +857,7 @@ export class StonePowersDialog extends BaseDialog {
             generalPowers,
             defaultGeneralAttrKey,
             combatActive,
+            combatStarted,
             combatMissingFromTracker,
             hasCombat,
             stonePlanLocked,

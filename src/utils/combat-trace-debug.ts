@@ -5,6 +5,10 @@
  * - World setting **Debug: Combat turns & initiative** (`debugCombatTurns`)
  * - Client setting **Debug Mode** (`debugMode`)
  * - Console: `globalThis.MSY_DEBUG_COMBAT = true` then reload.
+ *
+ * Initiative / Karussell / `turns` vs. `combatants` (extra detail):
+ * - Console: `globalThis.MSY_DEBUG_INITIATIVE = true` (reload optional if hooks miss it)
+ * - Or enable any of the flags above — then `logInitiativeOrderDebug` also fires.
  */
 
 function duplicateNonEmptyIds(ids: (string | null | undefined)[]): string[] {
@@ -27,6 +31,45 @@ export function isCombatTraceDebugEnabled(): boolean {
     return g.settings.get('mastery-system', 'debugMode') === true;
   } catch {
     return false;
+  }
+}
+
+/** Verbose initiative / `combat.turns` / carousel alignment (console). */
+export function isInitiativeOrderDebugEnabled(): boolean {
+  try {
+    if ((globalThis as any).MSY_DEBUG_INITIATIVE === true) return true;
+    return isCombatTraceDebugEnabled();
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * `combat.combatants` iteration order (often encounter / sheet order — not necessarily `turns`).
+ * Compare to `buildCombatTurnSnapshot().turnOrder` to spot mismatches.
+ */
+export function buildCombatantsIteratorOrder(combat: any): unknown[] {
+  if (!combat?.combatants) return [];
+  try {
+    return Array.from(combat.combatants as Iterable<any>).map((c: any, i: number) => ({
+      iteratorIndex: i,
+      combatantId: c?.id ?? null,
+      name: c?.name ?? null,
+      initiative: c?.initiative ?? null,
+      defeated: !!c?.defeated,
+      actorId: c?.actor?.id ?? null,
+    }));
+  } catch (e) {
+    return [{ error: String(e) }];
+  }
+}
+
+export function logInitiativeOrderDebug(phase: string, payload: Record<string, unknown>): void {
+  if (!isInitiativeOrderDebugEnabled()) return;
+  try {
+    console.warn(`Mastery System | [INI-ORDER-DEBUG] ${phase}`, payload);
+  } catch {
+    /* ignore */
   }
 }
 

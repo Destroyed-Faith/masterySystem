@@ -361,9 +361,12 @@
   </div>
   {{/if}}
 
+  {{#unless combatStarted}}
   <p class="stone-powers-close-hint">Voll bezahlte Stein-Wellen werden beim <strong>Übernehmen &amp; schließen</strong> abgerechnet (Pools, Kampf-Rundenstatus). Unvollständige Wellen bleiben bis zur nächsten vollen Welle offen.</p>
+  {{/unless}}
 
   <div class="dialog-footer stone-powers-footer">
+    {{#unless combatStarted}}
     <div class="stone-prefs-bar">
       <label class="stone-prefs-label">
         <input type="checkbox" class="js-stone-prefs-use-defaults"
@@ -377,6 +380,7 @@
         <i class="fas fa-save"></i> Standard speichern
       </button>
     </div>
+    {{/unless}}
     <button type="button" class="dialog-btn dialog-btn-primary js-close" title="Verbucht voll bezahlte Wellen und schließt den Dialog.">
       <i class="fas fa-check"></i> Übernehmen &amp; schließen
     </button>

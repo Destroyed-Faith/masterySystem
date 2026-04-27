@@ -1164,6 +1164,15 @@ function registerSystemSettings() {
     default: false
   });
 
+  (game as any).settings.register('mastery-system', 'rerollInitiativeAfterStonesEachRound', {
+    name: 'Reroll initiative after Stone Powers every round',
+    hint: 'When off (default), only round 1 runs the full initiative phase (dice + Initiative Shop) after Stone Powers; later rounds skip it so the carousel is not reshuffled each round. Turn on if your table re-rolls initiative after stones every round.',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false
+  });
+
   // Mastery Rank - Global default
   (game as any).settings.register('mastery-system', 'defaultMasteryRank', {
     name: 'Default Mastery Rank',
