@@ -745,6 +745,13 @@ function registerHandlebarsHelpersImmediate() {
     Handlebars.registerHelper('inc', function (value) {
         return parseInt(String(value)) + 1;
     });
+    /** Coerce to string (e.g. level index for levels["5"] lookup). */
+    Handlebars.registerHelper('str', function (value) {
+        return String(value ?? '');
+    });
+    Handlebars.registerHelper('isNil', function (value) {
+        return value == null;
+    });
     // Helper for creating a range array: {{#each (range 1 8)}}...{{/each}}
     Handlebars.registerHelper('range', function (start, end) {
         const startNum = Number(start) || 1;

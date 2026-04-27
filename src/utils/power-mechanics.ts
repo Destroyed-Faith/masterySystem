@@ -330,7 +330,9 @@ export function isSanctionedPhasingName(
   sourceKind: 'passive' | 'buff' | 'reaction',
 ): boolean {
   const expected = PHASING_SANCTIONED_POWER_NAMES[sourceKind];
-  return normalizePowerName(powerName) === expected;
+  const raw = normalizePowerName(powerName);
+  const stripped = stripBuffPrefixForDrName(powerName);
+  return raw === expected || stripped === expected;
 }
 
 /**

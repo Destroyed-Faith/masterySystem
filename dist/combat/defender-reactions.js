@@ -94,29 +94,36 @@ export async function promptDefenderReactionsBeforeMitigation(params) {
     const Dialog = globalThis.Dialog;
     if (!Dialog)
         return empty;
+    const i18n = globalThis.game?.i18n;
+    const loc = (k, fb) => {
+        const s = i18n?.localize?.(k);
+        return s && !String(s).startsWith('MASTERY.') ? String(s) : fb;
+    };
     const chosen = await new Promise((resolve) => {
-        const buttons = {
-            decline: {
-                label: globalThis.game?.i18n?.localize?.('MASTERY.reactionDecline') ?? 'No reaction',
-                callback: () => resolve({ item: null }),
-            },
-        };
+        // Power buttons first (left); Decline last (right).
+        const buttons = {};
         for (const item of powers) {
             const id = `react_${item.id}`;
+            const pnm = String(item.name ?? 'Reaction').trim();
             buttons[id] = {
-                label: String(item.name ?? 'Reaction').slice(0, 48),
+                label: pnm.length > 48 ? `${pnm.slice(0, 45)}…` : pnm,
                 callback: () => resolve({ item }),
             };
         }
+        buttons.decline = {
+            label: loc('MASTERY.reactionDecline', 'Decline (no reaction)'),
+            callback: () => resolve({ item: null }),
+        };
         const attackerName = attacker?.name ?? 'Attacker';
+        const titleRaw = loc('MASTERY.reactionDialogTitle', 'Reaction — {defender}');
+        const dialogTitle = titleRaw.replace(/\{defender\}/g, defName);
         try {
             new Dialog({
-                title: globalThis.game?.i18n?.localize?.('MASTERY.reactionDialogTitle') ??
-                    `Reaction — ${defName}`,
+                title: dialogTitle,
                 content: `<p><strong>${attackerName}</strong> deals <strong>${rawDamage}</strong> raw damage (after phasing checks).</p>
             <p>Spend <strong>1 Reaction</strong> (${summary.remaining}/${summary.total} left) and pick a power, or decline.</p>`,
                 buttons,
-                default: 'decline',
+                default: powers.length ? `react_${powers[0].id}` : 'decline',
                 close: () => resolve({ item: null }),
             }).render(true);
         }

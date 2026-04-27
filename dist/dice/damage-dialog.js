@@ -3,6 +3,8 @@
  * Appears after successful attack roll to calculate and apply damage
  */
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
+import { collectMechanicsContributions } from '../utils/power-mechanics.js';
+import { getPassiveSlots } from '../powers/passives.js';
 import { resolveEquippedWeaponForAttackType } from '../utils/equipment-modifiers.js';
 import { formatNpcSpecialLabel, getNpcAttackByIndex, npcDamageDiceFormula, npcSpecialEffectString } from '../utils/npc-attack-model.js';
 import { previewTempHPConsumption } from '../combat/passive-triggers.js';
@@ -932,11 +934,27 @@ function buildNpcSpecialOptionsFromActor(actor) {
     });
     return { options, autoEffectStrings };
 }
-async function calculatePassiveDamage(_actor) {
-    // Note: getPassiveSlots doesn't exist in a separate module
-    // For now, skip passive damage calculation until passives module is properly implemented
-    console.warn('Mastery System | [DAMAGE DIALOG] getPassiveSlots not available, skipping passive damage');
-    return '0';
+/**
+ * Sums `rollDice.damage` (d8 count) from only **slotted passive** mechanics
+ * contributions — same source as the character attack breakdown.
+ */
+async function calculatePassiveDamage(actor) {
+    try {
+        const contributions = collectMechanicsContributions(actor);
+        let d8 = 0;
+        for (const c of contributions) {
+            if (c.sourceKind !== 'passive')
+                continue;
+            const n = c.mechanics?.rollDice?.damage;
+            if (typeof n === 'number' && n > 0)
+                d8 += Math.floor(n);
+        }
+        return d8 > 0 ? `${d8}d8` : '0';
+    }
+    catch (e) {
+        console.warn('Mastery System | [DAMAGE DIALOG] calculatePassiveDamage failed', e);
+        return '0';
+    }
 }
 /**
  * Collect all available specials (powers, passives, weapon specials)
@@ -998,10 +1016,26 @@ async function collectAvailableSpecials(actor, weapon, selectedPower) {
             effect: system.effect || ''
         });
     }
-    // Get passives that can be used on attack (from passive slots)
-    // Note: getPassiveSlots doesn't exist in a separate module
-    // For now, skip passive specials until passives module is properly implemented
-    console.warn('Mastery System | [DAMAGE DIALOG] getPassiveSlots not available, skipping passive specials');
+    const byId = (id) => items.find((item) => item.id === id || item._id === id || (item.name != null && String(item.name) === id));
+    for (const slot of getPassiveSlots(actor)) {
+        if (!slot.passive?.id)
+            continue;
+        const power = byId(String(slot.passive.id));
+        if (!power || power.type !== 'power')
+            continue;
+        const ps = power.system || {};
+        if (ps.powerType !== 'passive' || !ps.canUseOnAttack)
+            continue;
+        if (specials.some((s) => s.id === power.id))
+            continue;
+        specials.push({
+            id: power.id,
+            name: power.name,
+            type: 'passive',
+            description: ps.description || ps.effect || '',
+            effect: ps.effect || ps.description || ''
+        });
+    }
     // Get weapon specials (use the weaponSpecials already resolved above, not duplicate)
     // Note: weaponSpecials is already set from weaponForDamage earlier in the function
     if (weapon && weapon.system?.specials) {

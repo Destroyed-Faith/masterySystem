@@ -44,7 +44,10 @@
       "noTokens": "Bitte mindestens einen Charaktertoken auswählen"
     },
     "combat": {
-      "powerAlreadyUsedThisRound": "Diese Power wurde in dieser Runde bereits genutzt."
-    }
+      "powerAlreadyUsedThisRound": "Diese Power wurde in dieser Runde bereits genutzt.",
+      "reactionUseWhenDamaged": "Reaktions-Powers wählst du bei eingehendem Schaden (Dialog nach Phasing). Sie starten nicht über das Radial in deinem Zug."
+    },
+    "reactionDialogTitle": "Reaktion — {defender}",
+    "reactionDecline": "Ablehnen (keine Reaktion)"
   }
 }

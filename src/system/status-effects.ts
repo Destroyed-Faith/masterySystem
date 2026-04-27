@@ -30,7 +30,8 @@ export interface MasteryStatusEffect {
   statuses?: string[];
 }
 
-const ICON = (name: string) => `icons/svg/${name}.svg`;
+/** Core `icons/svg/*` paths are not guaranteed; ship minimal SVGs with the system. */
+const ICON = (name: string) => `systems/mastery-system/assets/icons/status/${name}.svg`;
 
 /**
  * Single source of truth for the token HUD radial.

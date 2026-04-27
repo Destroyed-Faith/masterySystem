@@ -18,7 +18,8 @@
  * Data in `src/stones/stone-powers.ts` that still uses the short forms is
  * intentionally left unchanged here.
  */
-const ICON = (name) => `icons/svg/${name}.svg`;
+/** Core `icons/svg/*` paths are not guaranteed; ship minimal SVGs with the system. */
+const ICON = (name) => `systems/mastery-system/assets/icons/status/${name}.svg`;
 /**
  * Single source of truth for the token HUD radial.
  * Keep ordered by gameplay category (debuffs first, then damage-over-time,

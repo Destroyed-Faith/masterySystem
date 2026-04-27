@@ -36,11 +36,10 @@ export function applyDefensiveMitigation(input) {
     });
     // Step 1 — flat Armor.
     const afterArmor = Math.max(0, raw - armor);
-    // Step 2 — DR%. Round toward the attacker (ceil) so fractional hits still
-    // hurt; the rule text reads "take X% less damage" which in practice rounds
-    // the *remaining* damage down, i.e. Math.floor of the post-DR value. Ceiling
-    // the reduction is equivalent.
-    const reduction = Math.floor((afterArmor * drTotal) / 100);
+    // Step 2 — DR%. Reduce damage by the percentage; round the *reduction amount*
+    // with Math.ceil so any fractional % favors the defender (less HP lost), per
+    // playtest rule: e.g. 10% of 18 → 2 off → 16 after (not 17 with floor(1.8)).
+    const reduction = Math.min(afterArmor, Math.ceil((afterArmor * drTotal) / 100));
     const afterDr = Math.max(0, afterArmor - reduction);
     logDrDebug('mitigation-after-dr', {
         afterArmor,

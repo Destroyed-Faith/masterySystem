@@ -4,7 +4,7 @@
  * the five load-bearing behaviours from the plan:
  *
  *   1. Armor is subtracted first.
- *   2. DR% applies to the post-armor value, floored.
+ *   2. DR% reduction amount is rounded up (defender-favorable).
  *   3. The 8s-minimum rule kicks in when reduced damage ≤ 0.
  *   4. Reaction-DR stacks additively on top of the continuous DR for the
  *      current hit only, clamped to 100%.
@@ -103,9 +103,19 @@ describe('applyDefensiveMitigation', () => {
       armorTotal: 5,
       damageReductionPct: 50,
     });
-    // 20 − 5 = 15 → ×0.5 = 7 (floored reduction 7, keep 8)
-    expect(result.mitigatedDamage).toBe(8);
-    expect(result.breakdownLine.endsWith('→ 8')).toBe(true);
+    // 20 − 5 = 15 → 50% reduction ceils to 8 off → 7 (8s-min not used; 7 > 0)
+    expect(result.mitigatedDamage).toBe(7);
+    expect(result.breakdownLine.endsWith('→ 7')).toBe(true);
+  });
+
+  it('favors defender on fractional DR% (e.g. 10% of 18 after armor)', () => {
+    const result = applyDefensiveMitigation({
+      rawDamage: 20,
+      count8s: 0,
+      armorTotal: 2,
+      damageReductionPct: 10,
+    });
+    expect(result.mitigatedDamage).toBe(16);
   });
 });
 

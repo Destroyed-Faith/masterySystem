@@ -13,7 +13,7 @@ import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_POWER_REQUIREMENTS } from '..
 import { findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid.js';
 import { buildPostCreationSnapshot } from '../utils/xp-post-creation.js';
 import { resetCharacterForRecreation } from '../utils/reset-character.js';
-import { slotPassive, unslotPassive } from '../powers/passives.js';
+import { getPassiveSlots, slotPassive, unslotPassive } from '../powers/passives.js';
 import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items.js';
 import { getNormalizedEquipSlots } from '../utils/equip-slots.js';
 import { XP_COSTS } from '../utils/constants.js';
@@ -377,6 +377,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Add system data
         context.system = actorData.system;
         context.flags = actorData.flags;
+        if (this.actor.type === 'character') {
+            context.maxPurchasablePowerLevel = this.#getMaxPurchasablePowerLevel();
+        }
         // Check if character creation is complete
         // Treat undefined as complete (no migration, older actors should not be stuck in creation UI)
         const creationCompleteRaw = context.system.creation?.complete;
@@ -1037,7 +1040,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const order = ['movement', 'active', 'activeBuff', 'passive', 'reaction', 'other'];
         const labels = {
             movement: 'Movement',
-            active: 'Actives & Utility',
+            active: 'Actives',
             activeBuff: 'Active Buffs',
             passive: 'Passives',
             reaction: 'Reactions',
@@ -1488,6 +1491,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     await unslotPassive(this.actor, slotIndex);
                 }
                 else {
+                    const slots = getPassiveSlots(this.actor);
+                    for (const s of slots) {
+                        if (s.slotIndex === slotIndex)
+                            continue;
+                        const oid = s.passive?.id;
+                        if (oid != null && String(oid) === pid) {
+                            await unslotPassive(this.actor, s.slotIndex);
+                        }
+                    }
                     await slotPassive(this.actor, slotIndex, pid);
                 }
                 this.render(false);
@@ -2494,6 +2506,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // fallback: treat current level as baseline if missing
         return lvl;
     }
+    /** Max power level purchasable: min(12, Mastery Rank × 2). */
+    #getMaxPurchasablePowerLevel() {
+        const mr = Math.max(1, Math.floor(Number(this.actor.system?.mastery?.rank) || 1));
+        return Math.min(12, mr * 2);
+    }
     /**
      * Calculate net pending cost (signed) for all pending power level changes
      * Positive pending: costs for increasing
@@ -2965,10 +2982,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             pending,
             effectiveLevel
         });
-        // Check max level (12)
-        if (effectiveLevel >= 12) {
-            console.warn('Mastery System | #onPowerIncreaseLevel: Max level reached', { effectiveLevel });
-            ui.notifications?.warn('This power cannot exceed maximum level (12).');
+        const levelCap = this.#getMaxPurchasablePowerLevel();
+        if (effectiveLevel >= levelCap) {
+            console.warn('Mastery System | #onPowerIncreaseLevel: Max level reached', { effectiveLevel, levelCap });
+            ui.notifications?.warn(`This power cannot exceed your current maximum (level ${levelCap}; Mastery Rank × 2, cap 12).`);
             return;
         }
         // Simulate the new pending state
@@ -3101,7 +3118,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             decreaseBtn.prop('disabled', effectiveLevel <= minLevel);
             // Update increase button state
             const increaseBtn = html.find(`.power-increase-level[data-item-id="${itemId}"]`);
-            if (effectiveLevel >= 12) {
+            if (effectiveLevel >= this.#getMaxPurchasablePowerLevel()) {
                 increaseBtn.prop('disabled', true);
             }
             else {
@@ -3155,6 +3172,19 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         };
         // Track power changes for history
         const powerChanges = [];
+        const cap = this.#getMaxPurchasablePowerLevel();
+        for (const [powerId, pending] of Object.entries(this._pendingPowerLevelChanges)) {
+            if (pending > 0) {
+                const p = this.actor.items.get(powerId);
+                if (p) {
+                    const cl = p.system.level || 1;
+                    if (cl + pending > cap) {
+                        ui.notifications?.error('Pending level increases exceed your current maximum (Mastery Rank × 2). Adjust or cancel.');
+                        return;
+                    }
+                }
+            }
+        }
         // Apply updates
         for (const [powerId, pending] of Object.entries(this._pendingPowerLevelChanges)) {
             if (pending !== 0) {
@@ -3162,7 +3192,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 if (powerItem) {
                     const currentLevel = powerItem.system.level || 1;
                     const minLevel = this.#getPowerMinLevel(powerItem);
-                    const newLevel = Math.max(minLevel, Math.min(12, currentLevel + pending)); // Clamp to [minLevel..12]
+                    const newLevel = Math.max(minLevel, Math.min(cap, currentLevel + pending)); // Clamp to [minLevel..cap]
                     // Calculate cost for this power's change
                     let powerCost = 0;
                     if (pending > 0) {

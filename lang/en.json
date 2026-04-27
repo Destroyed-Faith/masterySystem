@@ -46,7 +46,9 @@
     "combat": {
       "powerAlreadyUsedThisRound": "This power has already been used this round.",
       "reactionUseWhenDamaged": "Reaction powers are chosen when you take damage from an attack (dialog after phasing). They are not fired from the radial during your turn."
-    }
+    },
+    "reactionDialogTitle": "Reaction — {defender}",
+    "reactionDecline": "Decline (no reaction)"
   }
 }
 

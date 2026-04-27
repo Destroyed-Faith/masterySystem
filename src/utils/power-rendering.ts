@@ -131,7 +131,7 @@ export function renderSpecials(specials: PowerSpecial[]): string {
 /**
  * Render a PowerLevelRow to a table row HTML
  */
-export function renderPowerLevelRow(levelRow: PowerLevelRow, level: 1 | 2 | 3 | 4): string {
+export function renderPowerLevelRow(levelRow: PowerLevelRow, level: number): string {
   const type = levelRow.type || '—';
   const range = renderRange(levelRow.range);
   const aoe = renderAoe(levelRow.aoe);
@@ -156,10 +156,18 @@ export function renderPowerLevelRow(levelRow: PowerLevelRow, level: 1 | 2 | 3 | 
   return html;
 }
 
+const MAX_LEVEL_TABLE = 16;
+
 /**
- * Render a power level table with all 4 levels
+ * Render a power level table for every defined level 1..16 (rows only when data exists).
  */
-export function renderPowerLevelTable(levels: Record<'1' | '2' | '3' | '4', PowerLevelRow>, showTrigger: boolean = false): string {
+export function renderPowerLevelTable(
+  levels: Record<string, PowerLevelRow> | null | undefined,
+  showTrigger: boolean = false,
+): string {
+  if (!levels || typeof levels !== 'object') {
+    return '<p class="power-level-table-empty">—</p>';
+  }
   let html = '<table class="power-level-table">';
   html += '<thead><tr>';
   html += '<th>Level</th>';
@@ -174,15 +182,15 @@ export function renderPowerLevelTable(levels: Record<'1' | '2' | '3' | '4', Powe
   }
   html += '</tr></thead>';
   html += '<tbody>';
-  
-  for (const levelKey of ['1', '2', '3', '4'] as const) {
-    const level = parseInt(levelKey) as 1 | 2 | 3 | 4;
-    const levelRow = levels[levelKey];
+
+  for (let n = 1; n <= MAX_LEVEL_TABLE; n++) {
+    const levelKey = String(n);
+    const levelRow = (levels as Record<string, PowerLevelRow>)[levelKey];
     if (levelRow) {
-      html += renderPowerLevelRow(levelRow, level);
+      html += renderPowerLevelRow(levelRow, n);
     }
   }
-  
+
   html += '</tbody></table>';
   return html;
 }

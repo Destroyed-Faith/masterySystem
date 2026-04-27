@@ -311,7 +311,9 @@ function isSanctionedDR(contribution) {
 /** Same check for Phasing declarations. Exported so the runtime can reuse. */
 export function isSanctionedPhasingName(powerName, sourceKind) {
     const expected = PHASING_SANCTIONED_POWER_NAMES[sourceKind];
-    return normalizePowerName(powerName) === expected;
+    const raw = normalizePowerName(powerName);
+    const stripped = stripBuffPrefixForDrName(powerName);
+    return raw === expected || stripped === expected;
 }
 /**
  * Enumerate every active mechanics contribution for an actor:

@@ -2504,6 +2504,26 @@
   margin-top: 4px;
 }
 
+.mastery-system.sheet.actor.character .powers-type-group-details {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 6px 8px 10px;
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.mastery-system.sheet.actor.character .powers-type-group-details > summary.powers-type-group-details-summary {
+  cursor: pointer;
+  list-style: none;
+  font-weight: 700;
+  color: var(--df-text-secondary, #c9a227);
+  margin-bottom: 6px;
+  padding: 2px 0;
+}
+
+.mastery-system.sheet.actor.character .powers-type-group-details > summary.powers-type-group-details-summary::-webkit-details-marker {
+  display: none;
+}
+
 .mastery-system.sheet.actor.character .powers-type-group-list {
   display: flex;
   flex-direction: column;
@@ -9337,6 +9357,11 @@
   color: var(--df-text-primary, #d0d0d0);
   border-radius: 3px;
   font-size: 0.85rem;
+}
+
+.mastery-system.sheet.actor.character .passive-slot-select option {
+  background: #1c1f24;
+  color: #e8e8e8;
 }
 
 .mastery-system.sheet.actor.character .passive-slot-activate {

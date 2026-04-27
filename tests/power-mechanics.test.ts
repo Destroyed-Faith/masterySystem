@@ -10,6 +10,7 @@ import {
   evaluateConditionGate,
   collectConditionalDamageRiders,
   extractMeleeAoePowerBonusD8,
+  isSanctionedPhasingName,
 } from '../src/utils/power-mechanics';
 import { aoeSecondaryBodySaveDc } from '../src/combat/aoe-melee-resolution';
 import type { PowerMechanics } from '../src/types/item';
@@ -814,6 +815,22 @@ describe('extractMeleeAoePowerBonusD8', () => {
       },
     };
     expect(extractMeleeAoePowerBonusD8(item)).toBe(1);
+  });
+});
+
+describe('isSanctionedPhasingName', () => {
+  it('matches slot display names with Passive: prefix for Ghostform', () => {
+    expect(isSanctionedPhasingName('Passive: Ghostform', 'passive')).toBe(true);
+    expect(isSanctionedPhasingName('ghostform', 'passive')).toBe(true);
+  });
+  it('matches Active Buff: for Ghost Mantle', () => {
+    expect(isSanctionedPhasingName('Active Buff: Ghost Mantle', 'buff')).toBe(true);
+  });
+  it('matches Reaction: for Ghost Slip', () => {
+    expect(isSanctionedPhasingName('Reaction: Ghost Slip', 'reaction')).toBe(true);
+  });
+  it('rejects wrong names', () => {
+    expect(isSanctionedPhasingName('Random', 'passive')).toBe(false);
   });
 });
 

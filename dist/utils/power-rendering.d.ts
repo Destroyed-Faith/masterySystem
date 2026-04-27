@@ -22,9 +22,9 @@ export declare function renderSpecials(specials: PowerSpecial[]): string;
 /**
  * Render a PowerLevelRow to a table row HTML
  */
-export declare function renderPowerLevelRow(levelRow: PowerLevelRow, level: 1 | 2 | 3 | 4): string;
+export declare function renderPowerLevelRow(levelRow: PowerLevelRow, level: number): string;
 /**
- * Render a power level table with all 4 levels
+ * Render a power level table for every defined level 1..16 (rows only when data exists).
  */
-export declare function renderPowerLevelTable(levels: Record<'1' | '2' | '3' | '4', PowerLevelRow>, showTrigger?: boolean): string;
+export declare function renderPowerLevelTable(levels: Record<string, PowerLevelRow> | null | undefined, showTrigger?: boolean): string;
 //# sourceMappingURL=power-rendering.d.ts.map

@@ -144,10 +144,14 @@ export function renderPowerLevelRow(levelRow, level) {
     html += `</tr>`;
     return html;
 }
+const MAX_LEVEL_TABLE = 16;
 /**
- * Render a power level table with all 4 levels
+ * Render a power level table for every defined level 1..16 (rows only when data exists).
  */
 export function renderPowerLevelTable(levels, showTrigger = false) {
+    if (!levels || typeof levels !== 'object') {
+        return '<p class="power-level-table-empty">—</p>';
+    }
     let html = '<table class="power-level-table">';
     html += '<thead><tr>';
     html += '<th>Level</th>';
@@ -162,11 +166,11 @@ export function renderPowerLevelTable(levels, showTrigger = false) {
     }
     html += '</tr></thead>';
     html += '<tbody>';
-    for (const levelKey of ['1', '2', '3', '4']) {
-        const level = parseInt(levelKey);
+    for (let n = 1; n <= MAX_LEVEL_TABLE; n++) {
+        const levelKey = String(n);
         const levelRow = levels[levelKey];
         if (levelRow) {
-            html += renderPowerLevelRow(levelRow, level);
+            html += renderPowerLevelRow(levelRow, n);
         }
     }
     html += '</tbody></table>';

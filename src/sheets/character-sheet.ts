@@ -429,7 +429,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Add system data
     context.system = actorData.system;
     context.flags = actorData.flags;
-    
+    if (this.actor.type === 'character') {
+      context.maxPurchasablePowerLevel = this.#getMaxPurchasablePowerLevel();
+    }
+
     // Check if character creation is complete
     // Treat undefined as complete (no migration, older actors should not be stuck in creation UI)
     const creationCompleteRaw = context.system.creation?.complete;
@@ -1142,7 +1145,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const order: (keyof typeof buckets)[] = ['movement', 'active', 'activeBuff', 'passive', 'reaction', 'other'];
     const labels: Record<keyof typeof buckets, string> = {
       movement: 'Movement',
-      active: 'Actives & Utility',
+      active: 'Actives',
       activeBuff: 'Active Buffs',
       passive: 'Passives',
       reaction: 'Reactions',
@@ -1626,6 +1629,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (pid === '') {
           await unslotPassive(this.actor as any, slotIndex);
         } else {
+          const slots = getPassiveSlots(this.actor as any);
+          for (const s of slots) {
+            if (s.slotIndex === slotIndex) continue;
+            const oid = s.passive?.id;
+            if (oid != null && String(oid) === pid) {
+              await unslotPassive(this.actor as any, s.slotIndex);
+            }
+          }
           await slotPassive(this.actor as any, slotIndex, pid);
         }
         this.render(false);
@@ -2685,6 +2696,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     return lvl;
   }
 
+  /** Max power level purchasable: min(12, Mastery Rank × 2). */
+  #getMaxPurchasablePowerLevel(): number {
+    const mr = Math.max(1, Math.floor(Number((this.actor.system as any)?.mastery?.rank) || 1));
+    return Math.min(12, mr * 2);
+  }
+
   /**
    * Calculate net pending cost (signed) for all pending power level changes
    * Positive pending: costs for increasing
@@ -3237,10 +3254,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       effectiveLevel
     });
     
-    // Check max level (12)
-    if (effectiveLevel >= 12) {
-      console.warn('Mastery System | #onPowerIncreaseLevel: Max level reached', { effectiveLevel });
-      (ui as any).notifications?.warn('This power cannot exceed maximum level (12).');
+    const levelCap = this.#getMaxPurchasablePowerLevel();
+    if (effectiveLevel >= levelCap) {
+      console.warn('Mastery System | #onPowerIncreaseLevel: Max level reached', { effectiveLevel, levelCap });
+      (ui as any).notifications?.warn(
+        `This power cannot exceed your current maximum (level ${levelCap}; Mastery Rank × 2, cap 12).`,
+      );
       return;
     }
     
@@ -3398,7 +3417,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       
       // Update increase button state
       const increaseBtn = html.find(`.power-increase-level[data-item-id="${itemId}"]`);
-      if (effectiveLevel >= 12) {
+      if (effectiveLevel >= this.#getMaxPurchasablePowerLevel()) {
         increaseBtn.prop('disabled', true);
       } else {
         const nextLevel = effectiveLevel + 1;
@@ -3459,6 +3478,22 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Track power changes for history
     const powerChanges: Array<{powerId: string; powerName: string; from: number; to: number; cost: number}> = [];
     
+    const cap = this.#getMaxPurchasablePowerLevel();
+    for (const [powerId, pending] of Object.entries(this._pendingPowerLevelChanges)) {
+      if (pending > 0) {
+        const p = this.actor.items.get(powerId);
+        if (p) {
+          const cl = (p.system as any).level || 1;
+          if (cl + pending > cap) {
+            (ui as any).notifications?.error(
+              'Pending level increases exceed your current maximum (Mastery Rank × 2). Adjust or cancel.',
+            );
+            return;
+          }
+        }
+      }
+    }
+
     // Apply updates
     for (const [powerId, pending] of Object.entries(this._pendingPowerLevelChanges)) {
       if (pending !== 0) {
@@ -3466,7 +3501,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         if (powerItem) {
           const currentLevel = (powerItem.system as any).level || 1;
           const minLevel = this.#getPowerMinLevel(powerItem);
-          const newLevel = Math.max(minLevel, Math.min(12, currentLevel + pending)); // Clamp to [minLevel..12]
+          const newLevel = Math.max(minLevel, Math.min(cap, currentLevel + pending)); // Clamp to [minLevel..cap]
           
           // Calculate cost for this power's change
           let powerCost = 0;

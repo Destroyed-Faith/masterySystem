@@ -1364,10 +1364,11 @@
                 <select class="passive-slot-select" data-slot-index="{{this.index}}" {{#unless @root.editable}}disabled{{/unless}}>
                   <option value="">— leer —</option>
                   {{#each @root.passiveSlotView.availablePassives}}
+                    {{#if (or (isNil this.slottedInSlot) (eqNum this.slottedInSlot ../this.index))}}
                     <option value="{{this.id}}"
                       {{#if (eq ../this.passiveId this.id)}}selected{{/if}}
-                      {{#if (and this.slottedInSlot (ne this.slottedInSlot ../this.index))}}disabled{{/if}}
                     >{{this.name}}{{#if this.summary}} — {{this.summary}}{{/if}}</option>
+                    {{/if}}
                   {{/each}}
                 </select>
               </div>
@@ -1549,12 +1550,12 @@
                           </tr>
                         </thead>
                         <tbody>
-                          {{#each (array '1' '2' '3' '4')}}
-                          {{#with (lookup ../this.system.levels this)}}
-                          <tr class="power-level-row {{#if (selectedPowerTableRow ../this ../../this.system)}}selected is-current-power-level{{/if}}" data-level="{{../this}}">
-                            <td class="power-level-cell {{#if (selectedPowerTableRow ../this ../../this.system)}}is-current{{/if}}">
+                          {{#each (range 1 16)}}
+                          {{#with (lookup ../this.system.levels (str this))}}
+                          <tr class="power-level-row {{#if (selectedPowerTableRow (str ../this) ../../this.system)}}selected is-current-power-level{{/if}}" data-level="{{../this}}">
+                            <td class="power-level-cell {{#if (selectedPowerTableRow (str ../this) ../../this.system)}}is-current{{/if}}">
                               <span class="power-level-num">{{../this}}</span>
-                              {{#if (selectedPowerTableRow ../this ../../this.system)}}
+                              {{#if (selectedPowerTableRow (str ../this) ../../this.system)}}
                               <span class="power-level-current-badge" title="Row used at your current power level">Current</span>
                               {{/if}}
                             </td>
@@ -1617,8 +1618,8 @@
         </summary>
         <div class="radial-maneuver-prefs-body powers-list-details-body">
           {{#each powersByTypeGroups}}
-          <div class="radial-maneuver-prefs-group powers-by-type-group">
-            <span class="radial-maneuver-prefs-group-label">{{this.groupLabel}}</span>
+          <details class="radial-maneuver-prefs-group powers-by-type-group powers-type-group-details" open>
+            <summary class="radial-maneuver-prefs-group-label powers-type-group-details-summary">{{this.groupLabel}}</summary>
             <div class="powers-type-group-list">
             {{#each this.powers}}
             <div class="power-card" data-item-id="{{this.id}}">
@@ -1668,7 +1669,7 @@
                     <button type="button" class="power-decrease-level" data-item-id="{{this.id}}" title="Decrease Power Level (Pending)">
                       <i class="fas fa-minus"></i>
                     </button>
-                    <button type="button" class="power-increase-level" data-item-id="{{this.id}}" title="Increase Power Level (Pending)" {{#if (gte (default this.system.level 1) 12)}}disabled{{/if}}>
+                    <button type="button" class="power-increase-level" data-item-id="{{this.id}}" title="Increase Power Level (Pending)" {{#if (gte (default this.system.level 1) (default @root.maxPurchasablePowerLevel 12))}}disabled{{/if}}>
                       <i class="fas fa-plus"></i>
                     </button>
                   </div>
@@ -1726,12 +1727,12 @@
                         </tr>
                       </thead>
                       <tbody>
-                        {{#each (array '1' '2' '3' '4')}}
-                        {{#with (lookup ../this.system.levels this)}}
-                        <tr class="power-level-row {{#if (selectedPowerTableRow ../this ../../this.system)}}selected is-current-power-level{{/if}}" data-level="{{../this}}">
-                          <td class="power-level-cell {{#if (selectedPowerTableRow ../this ../../this.system)}}is-current{{/if}}">
+                        {{#each (range 1 16)}}
+                        {{#with (lookup ../this.system.levels (str this))}}
+                        <tr class="power-level-row {{#if (selectedPowerTableRow (str ../this) ../../this.system)}}selected is-current-power-level{{/if}}" data-level="{{../this}}">
+                          <td class="power-level-cell {{#if (selectedPowerTableRow (str ../this) ../../this.system)}}is-current{{/if}}">
                             <span class="power-level-num">{{../this}}</span>
-                            {{#if (selectedPowerTableRow ../this ../../this.system)}}
+                            {{#if (selectedPowerTableRow (str ../this) ../../this.system)}}
                             <span class="power-level-current-badge" title="Row used at your current power level">Current</span>
                             {{/if}}
                           </td>
@@ -1782,7 +1783,7 @@
             </div>
             {{/each}}
             </div>
-          </div>
+          </details>
           {{else}}
           <p class="empty-message">No powers yet. Click "Add Mastery Power" or "Add Spell" to start.</p>
           {{/each}}
