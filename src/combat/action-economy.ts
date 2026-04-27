@@ -461,7 +461,23 @@ export function getAvailableAttackActions(actor: Actor, combat: Combat | null): 
   const owner = getActionEconomyActor(actor) ?? actor;
   const stunnedLock = Math.max(0, getStunnedRank(owner));
   const effectiveTotal = Math.max(0, roundState.attackActions.total - stunnedLock);
-  return Math.max(0, effectiveTotal - roundState.attackActions.used);
+  const n = Math.max(0, effectiveTotal - roundState.attackActions.used);
+  if (n === 0) {
+    console.debug('Mastery System | [action-economy] getAvailableAttackActions: 0 remaining', {
+      actorId: (owner as any).id,
+      name: (owner as any).name,
+      combatId: (combat as any)?.id,
+      combatRound: combat?.round,
+      combatTurn: combat?.turn,
+      stateRound: roundState.round,
+      stateTurn: roundState.turn,
+      used: roundState.attackActions.used,
+      total: roundState.attackActions.total,
+      effectiveTotal,
+      stunnedLock,
+    });
+  }
+  return n;
 }
 
 /**

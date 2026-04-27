@@ -10,6 +10,8 @@ import { formatNpcSpecialLabel, getNpcAttackByIndex, npcDamageDiceFormula, npcSp
 import { previewTempHPConsumption } from '../combat/passive-triggers.js';
 import { applyDefensiveMitigation, countNaturalEights } from '../combat/damage-mitigation.js';
 import { logDrDebug } from '../utils/dr-debug.js';
+/** One roll-damage resolution per damage-card message (guards pop-up + chat double-click). */
+const rollDamageMessageLocks = new Set();
 /**
  * Show damage dialog after successful attack
  */
@@ -763,122 +765,139 @@ function initializeDamageCard(messageId, resolve) {
     refreshRaiseSpecialExclusivity(messageElement);
     // Handle roll damage button
     messageElement.find('.roll-damage-btn').on('click', async function () {
+        const $btn = $(this);
+        const lockKey = `roll-dmg:${messageId}`;
+        if (rollDamageMessageLocks.has(lockKey)) {
+            return;
+        }
+        rollDamageMessageLocks.add(lockKey);
+        $btn.prop('disabled', true);
+        let rollDamageCompleted = false;
         console.log('Mastery System | [ROLL DAMAGE BUTTON] Button clicked', {
             messageId: messageId,
             buttonData: {
-                attackerId: $(this).data('attacker-id'),
-                targetId: $(this).data('target-id')
+                attackerId: $btn.data('attacker-id'),
+                targetId: $btn.data('target-id')
             }
         });
-        const message = game.messages?.get(messageId);
-        if (!message) {
-            console.error('Mastery System | [ROLL DAMAGE BUTTON] Could not find damage card message', {
-                messageId,
-                allMessageIds: Array.from(game.messages?.keys() || []).slice(0, 10)
-            });
-            ui.notifications?.error('Could not find damage card message');
-            return;
-        }
-        // Get flags early so we can use targetTokenId for target resolution
-        const flags = message.getFlag('mastery-system') || message.flags?.['mastery-system'];
-        const attackerId = $(this).data('attacker-id');
-        const targetId = $(this).data('target-id');
-        const attacker = game.actors?.get(attackerId);
-        // Resolve target: prefer token actor if targetTokenId exists in flags (for unlinked tokens)
-        let target = null;
-        if (flags?.targetTokenId) {
-            // Try to get token document from current scene
-            const tokenDoc = canvas?.scene?.tokens?.get(flags.targetTokenId);
-            if (tokenDoc?.actor) {
-                target = tokenDoc.actor;
-                console.log('Mastery System | [ROLL DAMAGE BUTTON] Resolved target from token', {
-                    targetTokenId: flags.targetTokenId,
-                    targetId: target.id,
-                    targetName: target.name,
-                    isTokenActor: true
+        try {
+            const message = game.messages?.get(messageId);
+            if (!message) {
+                console.error('Mastery System | [ROLL DAMAGE BUTTON] Could not find damage card message', {
+                    messageId,
+                    allMessageIds: Array.from(game.messages?.keys() || []).slice(0, 10)
+                });
+                ui.notifications?.error('Could not find damage card message');
+                return;
+            }
+            // Get flags early so we can use targetTokenId for target resolution
+            const flags = message.getFlag('mastery-system') || message.flags?.['mastery-system'];
+            const attackerId = $btn.data('attacker-id');
+            const targetId = $btn.data('target-id');
+            const attacker = game.actors?.get(attackerId);
+            // Resolve target: prefer token actor if targetTokenId exists in flags (for unlinked tokens)
+            let target = null;
+            if (flags?.targetTokenId) {
+                // Try to get token document from current scene
+                const tokenDoc = canvas?.scene?.tokens?.get(flags.targetTokenId);
+                if (tokenDoc?.actor) {
+                    target = tokenDoc.actor;
+                    console.log('Mastery System | [ROLL DAMAGE BUTTON] Resolved target from token', {
+                        targetTokenId: flags.targetTokenId,
+                        targetId: target.id,
+                        targetName: target.name,
+                        isTokenActor: true
+                    });
+                }
+            }
+            // Fallback to base actor if token not found
+            if (!target) {
+                target = game.actors?.get(targetId);
+                console.log('Mastery System | [ROLL DAMAGE BUTTON] Resolved target from base actor', {
+                    targetId: targetId,
+                    targetName: target ? target.name : null,
+                    isTokenActor: false
                 });
             }
-        }
-        // Fallback to base actor if token not found
-        if (!target) {
-            target = game.actors?.get(targetId);
-            console.log('Mastery System | [ROLL DAMAGE BUTTON] Resolved target from base actor', {
-                targetId: targetId,
-                targetName: target ? target.name : null,
-                isTokenActor: false
-            });
-        }
-        if (!attacker || !target) {
-            console.error('Mastery System | [ROLL DAMAGE BUTTON] Could not find attacker or target', {
-                attackerId,
-                targetId,
-                attackerFound: !!attacker,
-                targetFound: !!target,
-                targetTokenId: flags?.targetTokenId
-            });
-            ui.notifications?.error('Could not find attacker or target');
-            return;
-        }
-        console.log('Mastery System | [ROLL DAMAGE BUTTON] Flags retrieved', {
-            messageId,
-            hasFlags: !!flags,
-            flagsKeys: flags ? Object.keys(flags) : [],
-            baseDamage: flags?.baseDamage,
-            powerDamage: flags?.powerDamage,
-            passiveDamage: flags?.passiveDamage,
-            raises: flags?.raises,
-            raisesType: typeof flags?.raises,
-            availableSpecials: flags?.availableSpecials?.length || 0
-        });
-        if (!flags) {
-            console.error('Mastery System | [ROLL DAMAGE BUTTON] Could not find damage card data', {
+            if (!attacker || !target) {
+                console.error('Mastery System | [ROLL DAMAGE BUTTON] Could not find attacker or target', {
+                    attackerId,
+                    targetId,
+                    attackerFound: !!attacker,
+                    targetFound: !!target,
+                    targetTokenId: flags?.targetTokenId
+                });
+                ui.notifications?.error('Could not find attacker or target');
+                return;
+            }
+            console.log('Mastery System | [ROLL DAMAGE BUTTON] Flags retrieved', {
                 messageId,
-                messageFlags: message.flags,
-                messageFlagsKeys: Object.keys(message.flags || {})
+                hasFlags: !!flags,
+                flagsKeys: flags ? Object.keys(flags) : [],
+                baseDamage: flags?.baseDamage,
+                powerDamage: flags?.powerDamage,
+                passiveDamage: flags?.passiveDamage,
+                raises: flags?.raises,
+                raisesType: typeof flags?.raises,
+                availableSpecials: flags?.availableSpecials?.length || 0
             });
-            ui.notifications?.error('Could not find damage card data');
-            return;
+            if (!flags) {
+                console.error('Mastery System | [ROLL DAMAGE BUTTON] Could not find damage card data', {
+                    messageId,
+                    messageFlags: message.flags,
+                    messageFlagsKeys: Object.keys(message.flags || {})
+                });
+                ui.notifications?.error('Could not find damage card data');
+                return;
+            }
+            // Collect raise selections
+            const raiseSelections = new Map();
+            messageElement.find('.raise-selection').each(function () {
+                const raiseIndex = parseInt($(this).data('raise-index'));
+                const selectionValue = $(this).val();
+                if (selectionValue === 'damage') {
+                    raiseSelections.set(raiseIndex, { type: 'damage', value: '1d8' });
+                }
+                else if (selectionValue && selectionValue.startsWith('special:')) {
+                    const specialId = selectionValue.replace('special:', '');
+                    raiseSelections.set(raiseIndex, { type: 'special', value: specialId });
+                }
+            });
+            console.log('Mastery System | [ROLL DAMAGE BUTTON] Raise selections collected', {
+                messageId,
+                raiseSelectionsSize: raiseSelections.size,
+                raiseSelections: Array.from(raiseSelections.entries())
+            });
+            // Calculate damage
+            console.log('Mastery System | [ROLL DAMAGE BUTTON] Calling calculateDamageResult', {
+                messageId,
+                baseDamage: flags.baseDamage,
+                powerDamage: flags.powerDamage,
+                passiveDamage: flags.passiveDamage,
+                raises: flags.raises,
+                raisesType: typeof flags.raises,
+                availableSpecialsCount: flags.availableSpecials?.length || 0,
+                raiseSelectionsSize: raiseSelections.size
+            });
+            const result = await calculateDamageResult(flags.baseDamage, flags.powerDamage, flags.passiveDamage, flags.raises, raiseSelections, flags.availableSpecials, attacker, target, Math.max(0, Number(flags.stoneDamageBonusDice) || 0), Math.max(0, Number(flags.npcAutoDamageDice) || 0), Array.isArray(flags.npcAutoSpecialStrings) ? flags.npcAutoSpecialStrings : [], flags.selectedPowerId || null, !!flags.splitAttack);
+            console.log('Mastery System | [ROLL DAMAGE BUTTON] calculateDamageResult returned', {
+                messageId,
+                hasResult: !!result,
+                resultKeys: result ? Object.keys(result) : [],
+                totalDamage: result?.totalDamage,
+                baseDamage: result?.baseDamage,
+                powerDamage: result?.powerDamage,
+                passiveDamage: result?.passiveDamage
+            });
+            rollDamageCompleted = true;
+            resolve(result);
         }
-        // Collect raise selections
-        const raiseSelections = new Map();
-        messageElement.find('.raise-selection').each(function () {
-            const raiseIndex = parseInt($(this).data('raise-index'));
-            const selectionValue = $(this).val();
-            if (selectionValue === 'damage') {
-                raiseSelections.set(raiseIndex, { type: 'damage', value: '1d8' });
+        finally {
+            if (!rollDamageCompleted) {
+                rollDamageMessageLocks.delete(lockKey);
+                $btn.prop('disabled', false);
             }
-            else if (selectionValue && selectionValue.startsWith('special:')) {
-                const specialId = selectionValue.replace('special:', '');
-                raiseSelections.set(raiseIndex, { type: 'special', value: specialId });
-            }
-        });
-        console.log('Mastery System | [ROLL DAMAGE BUTTON] Raise selections collected', {
-            messageId,
-            raiseSelectionsSize: raiseSelections.size,
-            raiseSelections: Array.from(raiseSelections.entries())
-        });
-        // Calculate damage
-        console.log('Mastery System | [ROLL DAMAGE BUTTON] Calling calculateDamageResult', {
-            messageId,
-            baseDamage: flags.baseDamage,
-            powerDamage: flags.powerDamage,
-            passiveDamage: flags.passiveDamage,
-            raises: flags.raises,
-            raisesType: typeof flags.raises,
-            availableSpecialsCount: flags.availableSpecials?.length || 0,
-            raiseSelectionsSize: raiseSelections.size
-        });
-        const result = await calculateDamageResult(flags.baseDamage, flags.powerDamage, flags.passiveDamage, flags.raises, raiseSelections, flags.availableSpecials, attacker, target, Math.max(0, Number(flags.stoneDamageBonusDice) || 0), Math.max(0, Number(flags.npcAutoDamageDice) || 0), Array.isArray(flags.npcAutoSpecialStrings) ? flags.npcAutoSpecialStrings : [], flags.selectedPowerId || null, !!flags.splitAttack);
-        console.log('Mastery System | [ROLL DAMAGE BUTTON] calculateDamageResult returned', {
-            messageId,
-            hasResult: !!result,
-            resultKeys: result ? Object.keys(result) : [],
-            totalDamage: result?.totalDamage,
-            baseDamage: result?.baseDamage,
-            powerDamage: result?.powerDamage,
-            passiveDamage: result?.passiveDamage
-        });
-        resolve(result);
+        }
     });
     // Handle cancel button
     messageElement.find('.cancel-damage-btn').on('click', function () {
@@ -1262,11 +1281,26 @@ async function applyDamageToTarget(target, damage, attacker, count8s = 0) {
                 barIndex = bars.length - 1;
             }
             // Merge tempHP pool updates with bar updates for a single write.
-            await target.update({
-                ...tempHPConsumption.patch,
-                'system.health.currentBar': barIndex,
-                'system.health.bars': bars
-            });
+            try {
+                await target.update({
+                    ...tempHPConsumption.patch,
+                    'system.health.currentBar': barIndex,
+                    'system.health.bars': bars
+                });
+            }
+            catch (e) {
+                if (mitigated > 0) {
+                    console.warn('Mastery System | [APPLY DAMAGE] actor.update (bars) failed with mitigation > 0', {
+                        err: e,
+                        targetId: target.id,
+                        targetName: target.name,
+                        mitigated,
+                        remaining,
+                        barDamage,
+                    });
+                }
+                throw e;
+            }
             console.log('Mastery System | [APPLY DAMAGE] Damage applied to bars', {
                 targetId: target.id,
                 targetName: target.name,
@@ -1280,7 +1314,21 @@ async function applyDamageToTarget(target, damage, attacker, count8s = 0) {
         }
         else if (Object.keys(tempHPConsumption.patch).length > 0) {
             // Only tempHP was reduced, no bar damage
-            await target.update(tempHPConsumption.patch);
+            try {
+                await target.update(tempHPConsumption.patch);
+            }
+            catch (e) {
+                if (mitigated > 0) {
+                    console.warn('Mastery System | [APPLY DAMAGE] actor.update (tempHP) failed with mitigation > 0', {
+                        err: e,
+                        targetId: target.id,
+                        targetName: target.name,
+                        mitigated,
+                        patch: tempHPConsumption.patch,
+                    });
+                }
+                throw e;
+            }
             console.log('Mastery System | [APPLY DAMAGE] Only tempHP reduced', {
                 targetId: target.id,
                 tempHPBefore: system.health.tempHP,

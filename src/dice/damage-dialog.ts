@@ -17,6 +17,9 @@ import { previewTempHPConsumption } from '../combat/passive-triggers.js';
 import { applyDefensiveMitigation, countNaturalEights } from '../combat/damage-mitigation.js';
 import { logDrDebug } from '../utils/dr-debug.js';
 
+/** One roll-damage resolution per damage-card message (guards pop-up + chat double-click). */
+const rollDamageMessageLocks = new Set<string>();
+
 export interface DamageDialogData {
   attacker: Actor;
   target: Actor;
@@ -902,14 +905,24 @@ function initializeDamageCard(messageId: string, resolve: (result: DamageResult 
   
   // Handle roll damage button
   messageElement.find('.roll-damage-btn').on('click', async function() {
+    const $btn = $(this);
+    const lockKey = `roll-dmg:${messageId}`;
+    if (rollDamageMessageLocks.has(lockKey)) {
+      return;
+    }
+    rollDamageMessageLocks.add(lockKey);
+    $btn.prop('disabled', true);
+    let rollDamageCompleted = false;
+
     console.log('Mastery System | [ROLL DAMAGE BUTTON] Button clicked', {
       messageId: messageId,
       buttonData: {
-        attackerId: $(this).data('attacker-id'),
-        targetId: $(this).data('target-id')
+        attackerId: $btn.data('attacker-id'),
+        targetId: $btn.data('target-id')
       }
     });
-    
+
+    try {
     const message = (game as any).messages?.get(messageId);
     if (!message) {
       console.error('Mastery System | [ROLL DAMAGE BUTTON] Could not find damage card message', {
@@ -919,12 +932,12 @@ function initializeDamageCard(messageId: string, resolve: (result: DamageResult 
       ui.notifications?.error('Could not find damage card message');
       return;
     }
-    
+
     // Get flags early so we can use targetTokenId for target resolution
     const flags = message.getFlag('mastery-system') || message.flags?.['mastery-system'];
-    
-    const attackerId = $(this).data('attacker-id');
-    const targetId = $(this).data('target-id');
+
+    const attackerId = $btn.data('attacker-id');
+    const targetId = $btn.data('target-id');
     const attacker = (game as any).actors?.get(attackerId);
     
     // Resolve target: prefer token actor if targetTokenId exists in flags (for unlinked tokens)
@@ -1042,8 +1055,15 @@ function initializeDamageCard(messageId: string, resolve: (result: DamageResult 
       powerDamage: result?.powerDamage,
       passiveDamage: result?.passiveDamage
     });
-    
+
     resolve(result);
+    rollDamageCompleted = true;
+    } finally {
+      if (!rollDamageCompleted) {
+        rollDamageMessageLocks.delete(lockKey);
+        $btn.prop('disabled', false);
+      }
+    }
   });
   
   // Handle cancel button
@@ -1479,11 +1499,25 @@ async function applyDamageToTarget(
       }
 
       // Merge tempHP pool updates with bar updates for a single write.
-      await (target as any).update({
-        ...tempHPConsumption.patch,
-        'system.health.currentBar': barIndex,
-        'system.health.bars': bars
-      });
+      try {
+        await (target as any).update({
+          ...tempHPConsumption.patch,
+          'system.health.currentBar': barIndex,
+          'system.health.bars': bars
+        });
+      } catch (e) {
+        if (mitigated > 0) {
+          console.warn('Mastery System | [APPLY DAMAGE] actor.update (bars) failed with mitigation > 0', {
+            err: e,
+            targetId: (target as any).id,
+            targetName: (target as any).name,
+            mitigated,
+            remaining,
+            barDamage,
+          });
+        }
+        throw e;
+      }
 
       console.log('Mastery System | [APPLY DAMAGE] Damage applied to bars', {
         targetId: (target as any).id,
@@ -1497,7 +1531,20 @@ async function applyDamageToTarget(
       });
     } else if (Object.keys(tempHPConsumption.patch).length > 0) {
       // Only tempHP was reduced, no bar damage
-      await (target as any).update(tempHPConsumption.patch);
+      try {
+        await (target as any).update(tempHPConsumption.patch);
+      } catch (e) {
+        if (mitigated > 0) {
+          console.warn('Mastery System | [APPLY DAMAGE] actor.update (tempHP) failed with mitigation > 0', {
+            err: e,
+            targetId: (target as any).id,
+            targetName: (target as any).name,
+            mitigated,
+            patch: tempHPConsumption.patch,
+          });
+        }
+        throw e;
+      }
 
       console.log('Mastery System | [APPLY DAMAGE] Only tempHP reduced', {
         targetId: (target as any).id,

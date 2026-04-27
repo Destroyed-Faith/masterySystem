@@ -345,7 +345,23 @@ export function getAvailableAttackActions(actor, combat) {
     const owner = getActionEconomyActor(actor) ?? actor;
     const stunnedLock = Math.max(0, getStunnedRank(owner));
     const effectiveTotal = Math.max(0, roundState.attackActions.total - stunnedLock);
-    return Math.max(0, effectiveTotal - roundState.attackActions.used);
+    const n = Math.max(0, effectiveTotal - roundState.attackActions.used);
+    if (n === 0) {
+        console.debug('Mastery System | [action-economy] getAvailableAttackActions: 0 remaining', {
+            actorId: owner.id,
+            name: owner.name,
+            combatId: combat?.id,
+            combatRound: combat?.round,
+            combatTurn: combat?.turn,
+            stateRound: roundState.round,
+            stateTurn: roundState.turn,
+            used: roundState.attackActions.used,
+            total: roundState.attackActions.total,
+            effectiveTotal,
+            stunnedLock,
+        });
+    }
+    return n;
 }
 /**
  * Get available movement actions (remaining count)

@@ -538,9 +538,16 @@
   overflow: hidden;
 }
 
+/* Anchor fill to the right so lost HP is visually "eaten" from the left (void grows from the left). */
 .ms-hp-segment-fill {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  left: auto;
   height: 100%;
   transition: width 0.2s ease-out;
+  max-width: 100%;
 }
 
 /* Color severity per wound level. Each severity uses a *fill* color only —

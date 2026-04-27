@@ -125,10 +125,53 @@ export async function promptDefenderReactionsBeforeMitigation(params: {
     return s && !String(s).startsWith('MASTERY.') ? String(s) : fb;
   };
   const chosen: { item: any } | { item: null } = await new Promise((resolve) => {
-    // Power buttons first (left); Decline last (right).
+    const attackerName = (attacker as any)?.name ?? 'Attacker';
+    const titleRaw = loc('MASTERY.reactionDialogTitle', 'Reaction — {defender}');
+    const dialogTitle = titleRaw.replace(/\{defender\}/g, defName);
+    const bodyIntro = `<p><strong>${attackerName}</strong> deals <strong>${rawDamage}</strong> raw damage (after phasing checks).</p>
+            <p>Spend <strong>1 Reaction</strong> (${summary.remaining}/${summary.total} left) and pick a power, or decline.</p>`;
+
+    if (powers.length >= 2) {
+      const optionsHtml = powers
+        .map((item) => {
+          const pnm = String(item.name ?? 'Reaction').trim();
+          const label = pnm.length > 80 ? `${pnm.slice(0, 77)}…` : pnm;
+          return `<option value="${(item as any).id}">${label}</option>`;
+        })
+        .join('');
+      try {
+        new Dialog({
+          title: dialogTitle,
+          content: `${bodyIntro}
+            <label for="ms-reaction-pick" style="display:block; margin-top:0.5em; font-size:0.9em; opacity:0.9">Reaction power</label>
+            <select id="ms-reaction-pick" class="ms-reaction-pick" style="width:100%; margin-top:0.25em; margin-bottom:0.5em;">${optionsHtml}</select>`,
+          buttons: {
+            apply: {
+              label: loc('MASTERY.reactionUse', 'Use reaction'),
+              callback: (html: JQuery) => {
+                const id = String(html.find('#ms-reaction-pick').val() || '');
+                const item = powers.find((p) => (p as any).id === id) ?? null;
+                resolve({ item });
+              },
+            },
+            decline: {
+              label: loc('MASTERY.reactionDecline', 'Decline (no reaction)'),
+              callback: () => resolve({ item: null }),
+            },
+          },
+          default: 'apply',
+          close: () => resolve({ item: null }),
+        } as any).render(true);
+      } catch {
+        resolve({ item: null });
+      }
+      return;
+    }
+
+    // 1 power: one named button + Decline
     const buttons: Record<string, { label: string; callback: () => void }> = {};
     for (const item of powers) {
-      const id = `react_${item.id}`;
+      const id = `react_${(item as any).id}`;
       const pnm = String(item.name ?? 'Reaction').trim();
       buttons[id] = {
         label: pnm.length > 48 ? `${pnm.slice(0, 45)}…` : pnm,
@@ -139,16 +182,12 @@ export async function promptDefenderReactionsBeforeMitigation(params: {
       label: loc('MASTERY.reactionDecline', 'Decline (no reaction)'),
       callback: () => resolve({ item: null }),
     };
-    const attackerName = (attacker as any)?.name ?? 'Attacker';
-    const titleRaw = loc('MASTERY.reactionDialogTitle', 'Reaction — {defender}');
-    const dialogTitle = titleRaw.replace(/\{defender\}/g, defName);
     try {
       new Dialog({
         title: dialogTitle,
-        content: `<p><strong>${attackerName}</strong> deals <strong>${rawDamage}</strong> raw damage (after phasing checks).</p>
-            <p>Spend <strong>1 Reaction</strong> (${summary.remaining}/${summary.total} left) and pick a power, or decline.</p>`,
+        content: bodyIntro,
         buttons,
-        default: powers.length ? `react_${powers[0].id}` : 'decline',
+        default: powers.length ? `react_${(powers[0] as any).id}` : 'decline',
         close: () => resolve({ item: null }),
       } as any).render(true);
     } catch {

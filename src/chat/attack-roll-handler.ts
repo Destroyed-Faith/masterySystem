@@ -12,6 +12,8 @@ function readAttackButtonDataInt(button: JQuery, kebab: string, fallback: number
   return Number.isFinite(n) ? n : fallback;
 }
 
+const rollAttackMessageLocks = new Set<string>();
+
 export function registerAttackRollClickHandler(): void {
   console.log('Mastery System | DEBUG: Setting up global roll-attack-btn handler on chat log');
   
@@ -124,9 +126,16 @@ export function registerAttackRollClickHandler(): void {
       });
       return;
     }
-    
+
+    const lockId = String(messageId);
+    if (rollAttackMessageLocks.has(lockId)) {
+      return;
+    }
+    rollAttackMessageLocks.add(lockId);
+
     const resetRollButton = () => {
       button.prop('disabled', false).html('<i class="fas fa-dice-d20"></i> Roll');
+      rollAttackMessageLocks.delete(lockId);
     };
 
     // Disable button during roll

@@ -11,9 +11,9 @@ const faithRerollLocks = new Set<string>();
 /** Avoid duplicate socket listeners if init runs more than once */
 let faithFractureSocketRegistered = false;
 
-function userOwnsActor(user: User | null | undefined, actor: any): boolean {
+/** Strict OWNER check for spending Faith Fracture — no GM bypass on other players' characters. */
+function userIsOwnerOfActorForFaith(user: User | null | undefined, actor: any): boolean {
   if (!user) return false;
-  if (user.isGM) return true;
   return typeof actor?.testUserPermission === 'function' && actor.testUserPermission(user, 'OWNER');
 }
 
@@ -24,7 +24,7 @@ function getActorsWithFaithForUser(user: User | null | undefined): any[] {
     const sys = a?.system as any;
     const cur = sys?.faithFractures?.current ?? 0;
     if (cur < 1) continue;
-    if (userOwnsActor(user, a)) list.push(a);
+    if (userIsOwnerOfActorForFaith(user, a)) list.push(a);
   }
   return list;
 }
@@ -125,7 +125,7 @@ export async function executeFaithFractureReroll(
       return { ok: false, error: 'Spending actor not found.' };
     }
 
-    if (!userOwnsActor(requester, spender)) {
+    if (!userIsOwnerOfActorForFaith(requester, spender)) {
       return { ok: false, error: 'You cannot spend Faith from that character.' };
     }
 
