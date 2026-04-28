@@ -2,6 +2,12 @@
  * Damage Dialog for Mastery System
  * Appears after successful attack roll to calculate and apply damage
  */
+/**
+ * Re-attach Roll / Cancel listeners when the log re-renders (Foundry v13
+ * `renderChatMessageHTML`). Without this, handlers are lost while an in-memory
+ * roll lock can remain — the button stays dead after reload/reroll flows.
+ */
+export declare function registerDamageCardChatHooks(): void;
 export interface DamageDialogData {
     attacker: Actor;
     target: Actor;
@@ -45,6 +51,10 @@ export interface DamageResult {
     mitigation?: AppliedDamageSummary;
 }
 export declare function showDamageDialog(attacker: Actor, target: Actor, weaponId: string | null, selectedPowerId: string | null, raises: number, flags?: any): Promise<DamageResult | null>;
+/**
+ * Bind damage-card UI (raises, roll, cancel). Safe to call again after chat HTML refresh.
+ */
+export declare function attachDamageCardHandlers(messageId: string): void;
 /**
  * Result of the full defensive pipeline for one strike. Exposed so that the
  * chat card assembly (and split-attack logging) can render a single-line

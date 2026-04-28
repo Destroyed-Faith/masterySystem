@@ -3,7 +3,8 @@
  *
  * Pipeline order (per strike, per target):
  *   raw  →  −armorTotal (flat Armor)
- *         →  × (1 − DR%)  (percentage, after armor, clamped 0–100)
+ *         →  continuous DR% on post-armor damage (ceil, defender-favorable)
+ *         →  reaction DR% on the remainder (same rounding), then
  *         →  8s-minimum-rule: if the reduced value would be ≤ 0 but the raw
  *            damage roll produced at least one natural "8", the strike still
  *            inflicts `count8s` damage — never zero.
@@ -23,7 +24,7 @@ export interface DefensiveMitigationResult {
     rawDamage: number;
     /** Flat Armor subtracted before DR%. */
     armorApplied: number;
-    /** Percentage DR that was applied (0–100, after passive/buff gating). */
+    /** Effective DR% on the post-armor pool (0–100), after sequential base + reaction steps. */
     drPercent: number;
     /** Damage value fed into Temp-HP consumption after the 8s-floor. */
     mitigatedDamage: number;
@@ -46,9 +47,8 @@ export interface DefensiveMitigationInput {
     /** Percentage DR on the target (from `system.combat.damageReductionPct`). */
     damageReductionPct: number;
     /**
-     * Per-hit Reaction-DR bonus. Optional override the caller passes in when a
-     * Reaction (Unyielding Intercept) fires for exactly this attack. The
-     * aggregator deliberately keeps Reaction DR out of the continuous total.
+     * Per-hit Reaction-DR bonus (%). Applied **after** continuous `damageReductionPct`
+     * on the post-armor remainder for this strike only.
      */
     reactionDrPct?: number;
 }

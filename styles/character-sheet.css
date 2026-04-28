@@ -6256,15 +6256,35 @@
 }
 
 .mastery-system.power-catalog-dialog .power-catalog-filters .power-form-group {
-  flex: 1 1 160px;
-  min-width: 140px;
+  flex: 1 1 200px;
+  min-width: 180px;
   gap: 0.25rem;
   margin: 0;
 }
 
+/* Readable filter + spell selects (avoids clipped / tiny text in Foundry dialogs). */
+.window-app.dialog.mastery-system.power-catalog-dialog select.power-form-select,
+.window-app.dialog.mastery-system.power-catalog-dialog .power-form-select {
+  min-height: 2.65rem;
+  line-height: 1.4;
+  font-size: 1rem;
+  padding: 0.55rem 0.7rem;
+  box-sizing: border-box;
+}
+
 .mastery-system.power-catalog-dialog .power-catalog-select {
-  min-height: 220px;
+  min-height: 260px;
+  line-height: 1.45;
+  font-size: 0.95rem;
   font-family: inherit;
+}
+
+.window-app.dialog.mastery-system.power-catalog-dialog .pc-spell-rules-hint {
+  font-size: 0.92rem !important;
+  color: #3a3a3a !important;
+  margin: 0.4rem 0 0 !important;
+  line-height: 1.55 !important;
+  max-width: 52rem;
 }
 
 .mastery-system.power-catalog-dialog .power-catalog-count {

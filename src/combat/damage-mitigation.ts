@@ -3,7 +3,8 @@
  *
  * Pipeline order (per strike, per target):
  *   raw  →  −armorTotal (flat Armor)
- *         →  × (1 − DR%)  (percentage, after armor, clamped 0–100)
+ *         →  continuous DR% on post-armor damage (ceil, defender-favorable)
+ *         →  reaction DR% on the remainder (same rounding), then
  *         →  8s-minimum-rule: if the reduced value would be ≤ 0 but the raw
  *            damage roll produced at least one natural "8", the strike still
  *            inflicts `count8s` damage — never zero.
@@ -26,7 +27,7 @@ export interface DefensiveMitigationResult {
   rawDamage: number;
   /** Flat Armor subtracted before DR%. */
   armorApplied: number;
-  /** Percentage DR that was applied (0–100, after passive/buff gating). */
+  /** Effective DR% on the post-armor pool (0–100), after sequential base + reaction steps. */
   drPercent: number;
   /** Damage value fed into Temp-HP consumption after the 8s-floor. */
   mitigatedDamage: number;
@@ -50,9 +51,8 @@ export interface DefensiveMitigationInput {
   /** Percentage DR on the target (from `system.combat.damageReductionPct`). */
   damageReductionPct: number;
   /**
-   * Per-hit Reaction-DR bonus. Optional override the caller passes in when a
-   * Reaction (Unyielding Intercept) fires for exactly this attack. The
-   * aggregator deliberately keeps Reaction DR out of the continuous total.
+   * Per-hit Reaction-DR bonus (%). Applied **after** continuous `damageReductionPct`
+   * on the post-armor remainder for this strike only.
    */
   reactionDrPct?: number;
 }
@@ -67,28 +67,35 @@ export function applyDefensiveMitigation(input: DefensiveMitigationInput): Defen
   const drBase = Math.max(0, Math.min(100, Math.floor(Number(input.damageReductionPct) || 0)));
   const drReact = Math.max(0, Math.min(100, Math.floor(Number(input.reactionDrPct) || 0)));
 
-  // Reaction DR stacks additively on top of the continuous DR total for this
-  // single hit only (the Reaction itself enforces 1/round via its own slot).
-  const drTotal = Math.max(0, Math.min(100, drBase + drReact));
+  // Step 1 — flat Armor.
+  const afterArmor = Math.max(0, raw - armor);
+
+  // Step 2 — DR% in sequence: continuous sheet DR first, then per-hit reaction DR
+  // on the remainder (each step uses ceil on the reduction — defender-favorable).
+  const reductionBase =
+    drBase > 0 ? Math.min(afterArmor, Math.ceil((afterArmor * drBase) / 100)) : 0;
+  const afterBaseDr = Math.max(0, afterArmor - reductionBase);
+  const reductionReact =
+    drReact > 0 && afterBaseDr > 0
+      ? Math.min(afterBaseDr, Math.ceil((afterBaseDr * drReact) / 100))
+      : 0;
+  const afterDr = Math.max(0, afterBaseDr - reductionReact);
+  const reductionTotal = reductionBase + reductionReact;
+  const effectiveDrPct =
+    afterArmor > 0 ? Math.min(100, Math.round((100 * reductionTotal) / afterArmor)) : 0;
   logDrDebug('mitigation-apply', {
     raw,
     armor,
     drBasePct: drBase,
     reactionDrPct: drReact,
-    drTotalPct: drTotal,
+    afterArmor,
+    reductionBase,
+    reductionReact,
+    effectiveDrPct,
   });
-
-  // Step 1 — flat Armor.
-  const afterArmor = Math.max(0, raw - armor);
-
-  // Step 2 — DR%. Reduce damage by the percentage; round the *reduction amount*
-  // with Math.ceil so any fractional % favors the defender (less HP lost), per
-  // playtest rule: e.g. 10% of 18 → 2 off → 16 after (not 17 with floor(1.8)).
-  const reduction = Math.min(afterArmor, Math.ceil((afterArmor * drTotal) / 100));
-  const afterDr = Math.max(0, afterArmor - reduction);
   logDrDebug('mitigation-after-dr', {
     afterArmor,
-    reductionFromDr: reduction,
+    reductionFromDr: reductionTotal,
     afterDr,
     min8sRuleWillApply: afterDr <= 0 && count8s > 0,
   });
@@ -103,7 +110,8 @@ export function applyDefensiveMitigation(input: DefensiveMitigationInput): Defen
 
   const parts: string[] = [`Raw ${raw}`];
   if (armor > 0) parts.push(`Armor ${armor}`);
-  if (drTotal > 0) parts.push(`DR ${drTotal}%`);
+  if (drBase > 0) parts.push(`DR ${drBase}%`);
+  if (drReact > 0) parts.push(`Reaction DR ${drReact}%`);
   if (min8sUsed) parts.push(`8s-min ${count8s}`);
   parts.push(`→ ${mitigated}`);
   const breakdownLine = parts.join(' → ');
@@ -111,7 +119,7 @@ export function applyDefensiveMitigation(input: DefensiveMitigationInput): Defen
   return {
     rawDamage: raw,
     armorApplied: armor,
-    drPercent: drTotal,
+    drPercent: effectiveDrPct,
     mitigatedDamage: mitigated,
     min8sUsed,
     count8s,

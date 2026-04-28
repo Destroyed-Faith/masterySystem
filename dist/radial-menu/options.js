@@ -7,6 +7,7 @@ import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { getMovementRangeBonusMeters, hasPowerBeenUsedThisRound } from '../combat/action-economy.js';
 import { formatNpcAttackSpecialsLine, npcAttackDiceCount, npcDamageDiceFormula, resolveNpcAttackList } from '../utils/npc-attack-model.js';
 import { resolvePowerMechanics } from '../utils/power-mechanics.js';
+import { formatRadialPowerDisplayName } from './power-radial-label.js';
 /**
  * True when activating spends an action: legacy `cost.action === true` or
  * string `attack` / `full` / `utility` (e.g. catalog active buffs).
@@ -618,20 +619,16 @@ export async function getAllCombatOptionsForActor(actor) {
             actionCost === 'movement';
         const costsAction = actionCost === true || cost.actions === true ||
             (typeof actionCost === 'string' && ['attack', 'full', 'utility'].includes(actionCost));
-        // Label split-attack powers so the user sees "× 2" in the radial menu.
-        // Split detection uses the same rank-aware helper the attack-executor uses
-        // so homebrew / non-standard data layouts stay in sync.
-        let displayName = item.name;
+        // Strip tier suffixes, mark spells, and label split-attack powers (× 2).
+        let splitAttack = false;
         try {
-            const { resolvePowerMechanics } = await import('../utils/power-mechanics.js');
             const mech = resolvePowerMechanics(item);
-            if (mech?.splitAttack === true) {
-                displayName = `${item.name} × 2`;
-            }
+            splitAttack = mech?.splitAttack === true;
         }
         catch {
-            /* ignore — power-mechanics import failure should never break the menu. */
+            /* ignore */
         }
+        const displayName = formatRadialPowerDisplayName(item, { splitAttack });
         const option = {
             id: item.id,
             name: displayName,

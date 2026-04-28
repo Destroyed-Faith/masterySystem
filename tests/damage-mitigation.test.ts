@@ -6,8 +6,8 @@
  *   1. Armor is subtracted first.
  *   2. DR% reduction amount is rounded up (defender-favorable).
  *   3. The 8s-minimum rule kicks in when reduced damage ≤ 0.
- *   4. Reaction-DR stacks additively on top of the continuous DR for the
- *      current hit only, clamped to 100%.
+ *   4. Reaction-DR applies after continuous DR on the remaining damage (sequential
+ *      percentages, each reduction ceil'd defender-favorably).
  *   5. The resulting `breakdownLine` reflects the actual sequence for chat
  *      logging (Raw → Armor → DR → 8s-min → result).
  */
@@ -59,7 +59,7 @@ describe('applyDefensiveMitigation', () => {
     expect(result.min8sUsed).toBe(false);
   });
 
-  it('stacks Reaction-DR additively with the continuous DR, clamped to 100%', () => {
+  it('applies Reaction-DR after continuous DR on the remainder (sequential)', () => {
     const result = applyDefensiveMitigation({
       rawDamage: 40,
       count8s: 0,
@@ -67,8 +67,11 @@ describe('applyDefensiveMitigation', () => {
       damageReductionPct: 30,
       reactionDrPct: 20,
     });
-    expect(result.drPercent).toBe(50);
-    expect(result.mitigatedDamage).toBe(20);
+    // 40 − 30% (12) = 28 → 20% of 28 = ceil(5.6) = 6 off → 22
+    expect(result.mitigatedDamage).toBe(22);
+    expect(result.drPercent).toBe(45);
+    expect(result.breakdownLine).toContain('DR 30%');
+    expect(result.breakdownLine).toContain('Reaction DR 20%');
   });
 
   it('clamps DR% values above 100', () => {

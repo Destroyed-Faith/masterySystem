@@ -206,18 +206,26 @@ export async function promptDefenderReactionsBeforeMitigation(params: {
   let mit = extractMitigationFromMechanics(mech);
   const ev = Math.max(0, Math.floor(Number(mech?.evade) || 0));
 
-  // Reaction DR% only applies when the character already has continuous DR% on
-  // the sheet (passive and/or buff layers). If the breakdown rows miss a value
-  // but `system.combat.damageReductionPct` is still > 0, allow stacking.
+  // Reaction DR% only applies when this defender already has continuous DR% on
+  // the sheet. Use the same actor document that receives damage (token / linked
+  // actor), not only `economyDef`: for unlinked PCs `getActionEconomyActor`
+  // points at the world actor while passives and `prepareDerivedData` live on
+  // the token actor — gating on the prototype wrongly saw 0% and stripped reaction DR.
   let reactionDrBlocked = false;
   if (mit.reactionDrPct > 0) {
-    const bd = buildActorMechanicsBreakdown(economyDef as any);
+    const drSubject = defender as any;
+    if (typeof drSubject.prepareDerivedData === 'function') {
+      try {
+        drSubject.prepareDerivedData();
+      } catch {
+        /* ignore */
+      }
+    }
+    const bd = buildActorMechanicsBreakdown(drSubject);
     const passiveBase = bd.damageReductionPct.passive.reduce((s, r) => s + (r.value || 0), 0);
-    const sheetDr = Math.max(
-      0,
-      Math.floor(Number((economyDef as any).system?.combat?.damageReductionPct) || 0),
-    );
-    if (passiveBase <= 0 && sheetDr <= 0) {
+    const sheetDr = Math.max(0, Math.floor(Number(drSubject.system?.combat?.damageReductionPct) || 0));
+    const totalFromBreakdown = Math.max(0, Math.floor(Number(bd.totals?.damageReductionPct) || 0));
+    if (passiveBase <= 0 && sheetDr <= 0 && totalFromBreakdown <= 0) {
       mit = { ...mit, reactionDrPct: 0 };
       reactionDrBlocked = true;
     }

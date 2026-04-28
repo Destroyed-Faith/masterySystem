@@ -14,9 +14,11 @@
  *
  * For Actives (category === 'active'), a Step 4 panel exposes the
  * "Make this a Spell?" toggle, the casting attribute (Intellect/Resolve),
- * and — when the resolution is a saveSpell — the Save type (body/mind/spirit),
- * all pre-filled from the template's `spellHints`.
+ * and resolution (attack vs save). Save family for save spells is taken from
+ * the chosen Special's data in `special-effects.ts`, then `spellHints.defaultSaveType`.
  */
+import { calculateBaseTN, calculateSaveDC } from '../combat/spell-roll-handler.js';
+import { SPECIAL_EFFECTS_BY_ID } from '../utils/special-effects.js';
 import { renderRange, renderAoe, renderDuration, renderPowerLevelTable } from '../utils/power-rendering.js';
 import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_POWER_REQUIREMENTS, filterCatalog, findCatalogEntryByName, findTemplateById, getSubfamiliesByCategory, getVisibleSpecialOptions, } from '../utils/power-catalog.js';
 /** How many powers of a given category the actor already owns. */
@@ -45,6 +47,39 @@ function countByCategory(actor) {
             counts[cat]++;
     }
     return counts;
+}
+/** Map Special Effect `save` text to a single save family for spell items. */
+function spellSaveTypeFromSpecialSave(save) {
+    if (!save)
+        return undefined;
+    const t = String(save).trim();
+    if (t === '—' || t === '-' || t.toLowerCase() === 'none')
+        return undefined;
+    const low = t.toLowerCase();
+    if (low.includes('body'))
+        return 'body';
+    if (low.includes('mind'))
+        return 'mind';
+    if (low.includes('spirit'))
+        return 'spirit';
+    return undefined;
+}
+/**
+ * Save spell family: chosen Special first (Body/Mind/Spirit from effect ref),
+ * else template `spellHints.defaultSaveType`, else Body.
+ */
+export function resolveSpellSaveTypeForEntry(entry, template) {
+    const key = entry.chosenSpecial?.key;
+    if (key) {
+        const eff = SPECIAL_EFFECTS_BY_ID.get(key);
+        const fromSpec = spellSaveTypeFromSpecialSave(eff?.save);
+        if (fromSpec)
+            return fromSpec;
+    }
+    const d = template?.spellHints?.defaultSaveType;
+    if (d === 'body' || d === 'mind' || d === 'spirit')
+        return d;
+    return 'body';
 }
 /** Friendly label for a subfamily key. */
 function labelSubfamily(key) {
@@ -124,13 +159,8 @@ export async function showPowerCreationDialog(actor, options) {
               <option value="saveSpell">Save Spell (vs Save DC)</option>
             </select>
           </div>
-          <div class="form-group pc-save-group" style="display:none;">
-            <label class="power-form-label">Save Type:</label>
-            <select id="pc-save-type" class="power-form-select">
-              <option value="body">Body</option>
-              <option value="mind">Mind</option>
-              <option value="spirit">Spirit</option>
-            </select>
+          <div class="form-group pc-spell-rules-wrap">
+            <p class="pc-spell-rules-hint" id="pc-spell-rules-hint"></p>
           </div>
         </div>
       </div>
@@ -181,14 +211,11 @@ export async function showPowerCreationDialog(actor, options) {
                     const spellResolution = isSpell
                         ? ($html.find('#pc-resolution').val() || 'spellAttack')
                         : undefined;
-                    const spellSaveType = isSpell && spellResolution === 'saveSpell'
-                        ? ($html.find('#pc-save-type').val() || 'body')
-                        : undefined;
                     if (isSpell && rank > maxSpellLevel) {
                         ui.notifications?.error(`Spell Level ${rank} exceeds Max Spell Level for this character (MR ${masteryRank} × 2 = ${maxSpellLevel}).`);
                         return false;
                     }
-                    const itemData = buildItemDataFromEntry(entry, rank, { isSpell, castingAttribute, spellResolution, spellSaveType });
+                    const itemData = buildItemDataFromEntry(entry, rank, { isSpell, castingAttribute, spellResolution });
                     if (!itemData) {
                         ui.notifications?.error('Failed to construct power item data');
                         return false;
@@ -228,8 +255,8 @@ export async function showPowerCreationDialog(actor, options) {
                         'min-height': '300px',
                         'max-height': '90vh',
                         width: 'auto',
-                        'min-width': '560px',
-                        'max-width': '960px',
+                        'min-width': '640px',
+                        'max-width': '980px',
                     });
                     const contentElement = dialogElement.find('.window-content');
                     if (contentElement.length) {
@@ -256,8 +283,8 @@ export async function showPowerCreationDialog(actor, options) {
             const $spellFields = html.find('#pc-spell-fields');
             const $castingAttr = html.find('#pc-casting-attr');
             const $resolution = html.find('#pc-resolution');
-            const $saveGroup = html.find('.pc-save-group');
-            const $saveType = html.find('#pc-save-type');
+            const $spellHint = html.find('#pc-spell-rules-hint');
+            const $rankSelect = html.find('#pc-rank');
             const refreshSubfamilyDropdown = () => {
                 const category = $categorySelect.val() || '';
                 $subfamilySelect.empty();
@@ -337,16 +364,44 @@ export async function showPowerCreationDialog(actor, options) {
                 $details.hide();
                 $description.empty();
                 $levelTable.empty();
+                updatePcSpellRulesHint();
             };
             const refreshSpellPanelDefaults = (template) => {
                 if (!template || !template.spellHints)
                     return;
                 $resolution.val(template.spellHints.defaultResolution);
-                if (template.spellHints.defaultSaveType) {
-                    $saveType.val(template.spellHints.defaultSaveType);
+            };
+            const updatePcSpellRulesHint = () => {
+                if (!$spellHint.length)
+                    return;
+                const showSpell = $isSpell.prop('checked') && $categorySelect.val() === 'active';
+                if (!showSpell) {
+                    $spellHint.text('');
+                    return;
                 }
-                const isSave = template.spellHints.defaultResolution === 'saveSpell' && !!template.spellHints.defaultSaveType;
-                $saveGroup.toggle(isSave);
+                const rankVal = creationComplete && $rankSelect.length
+                    ? Math.max(1, Math.min(16, parseInt(String($rankSelect.val() || '1'), 10) || 1))
+                    : 2;
+                const castingTn = calculateBaseTN(rankVal);
+                const saveDc = calculateSaveDC(masteryRank);
+                const res = $resolution.val() || 'spellAttack';
+                const powerName = $powerSelect.val() || '';
+                const ent = powerName ? findCatalogEntryByName(powerName) : undefined;
+                const tmpl = ent ? findTemplateById(ent.templateId) : undefined;
+                const inferredSave = res === 'saveSpell' && ent ? resolveSpellSaveTypeForEntry(ent, tmpl) : null;
+                if (res === 'spellAttack') {
+                    $spellHint.html(`<strong>Spell attack:</strong> Roll your casting attribute (keep = Mastery Rank) vs the target’s Evade. ` +
+                        `<strong>Raises</strong> after the roll can improve damage, special potency, Range, AoE, and other riders (per spell rules).`);
+                }
+                else {
+                    const saveLine = inferredSave
+                        ? `Targets roll a <strong>${inferredSave.charAt(0).toUpperCase() + inferredSave.slice(1)}</strong> save (from this power’s Special); no separate picker needed.`
+                        : '';
+                    $spellHint.html(`<strong>Casting roll TN</strong> for your pool vs success is <strong>${castingTn}</strong> ` +
+                        `(8×⌈Spell Level÷2⌉ at Spell Level <strong>${rankVal}</strong> — in steps of 8 every two levels: 8, 16, 24, …). ` +
+                        `<strong>Save DC</strong> targets must beat is <strong>${saveDc}</strong> (8× your Mastery Rank, MR <strong>${masteryRank}</strong>). ` +
+                        `Raises after the casting roll can improve damage, the special, Range, AoE, etc. ${saveLine}`);
+                }
             };
             $categorySelect.on('change', () => {
                 refreshSubfamilyDropdown();
@@ -362,10 +417,11 @@ export async function showPowerCreationDialog(actor, options) {
             $searchInput.on('input', refreshList);
             $isSpell.on('change', () => {
                 $spellFields.toggle($isSpell.prop('checked'));
+                updatePcSpellRulesHint();
             });
-            $resolution.on('change', () => {
-                $saveGroup.toggle($resolution.val() === 'saveSpell');
-            });
+            $resolution.on('change', updatePcSpellRulesHint);
+            $castingAttr.on('change', updatePcSpellRulesHint);
+            $rankSelect.on('change', updatePcSpellRulesHint);
             $powerSelect.on('change', function () {
                 const name = $(this).val() || '';
                 if (!name) {
@@ -381,12 +437,14 @@ export async function showPowerCreationDialog(actor, options) {
                 $details.show();
                 const template = findTemplateById(entry.templateId);
                 refreshSpellPanelDefaults(template);
+                updatePcSpellRulesHint();
             });
             // Initial boot
             refreshSubfamilyDropdown();
             refreshActiveOnlyVisibility();
             refreshSpecialDropdown();
             refreshList();
+            updatePcSpellRulesHint();
         },
     });
     dialog.render(true);
@@ -406,6 +464,11 @@ function renderEntryDetails(entry, $description, $levelTable) {
 /** Build the full item data object for `actor.createEmbeddedDocuments`. */
 function buildItemDataFromEntry(entry, rank, spell) {
     const template = entry.raw;
+    const templateDoc = findTemplateById(entry.templateId);
+    let spellSaveType;
+    if (spell.isSpell && spell.spellResolution === 'saveSpell') {
+        spellSaveType = resolveSpellSaveTypeForEntry(entry, templateDoc);
+    }
     const chosenSpecial = entry.chosenSpecial
         ? { key: entry.chosenSpecial.key, tier: entry.chosenSpecial.tier }
         : undefined;
@@ -459,7 +522,7 @@ function buildItemDataFromEntry(entry, rank, spell) {
             isSpell: spell.isSpell,
             castingAttribute: spell.castingAttribute,
             spellResolution: spell.spellResolution,
-            spellSaveType: spell.spellSaveType,
+            spellSaveType,
             // Legacy surface (kept so the rest of the UI keeps rendering)
             powerType: template.category === 'activeBuff' ? 'buff' : template.category,
             range: renderRange(levelRow.range),

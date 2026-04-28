@@ -12,6 +12,47 @@ import { applyDefensiveMitigation, countNaturalEights } from '../combat/damage-m
 import { logDrDebug } from '../utils/dr-debug.js';
 /** One roll-damage resolution per damage-card message (guards pop-up + chat double-click). */
 const rollDamageMessageLocks = new Set();
+/** Pending Promise resolver for each open damage chat card (re-bind after chat re-render). */
+const damageCardPendingResolves = new Map();
+const damageCardSettledMessageIds = new Set();
+let damageCardChatHooksRegistered = false;
+function completeDamageCard(messageId, result) {
+    if (damageCardSettledMessageIds.has(messageId))
+        return;
+    const fn = damageCardPendingResolves.get(messageId);
+    if (!fn)
+        return;
+    damageCardSettledMessageIds.add(messageId);
+    damageCardPendingResolves.delete(messageId);
+    fn(result);
+}
+/**
+ * Re-attach Roll / Cancel listeners when the log re-renders (Foundry v13
+ * `renderChatMessageHTML`). Without this, handlers are lost while an in-memory
+ * roll lock can remain — the button stays dead after reload/reroll flows.
+ */
+export function registerDamageCardChatHooks() {
+    if (damageCardChatHooksRegistered)
+        return;
+    damageCardChatHooksRegistered = true;
+    Hooks.on('renderChatMessageHTML', (message, htmlRaw) => {
+        try {
+            const ms = message.flags?.['mastery-system'];
+            if (ms?.damageType !== 'selection')
+                return;
+            const $root = htmlRaw instanceof HTMLElement ? $(htmlRaw) : htmlRaw;
+            const inNode = $root.find('.mastery-damage-card').length > 0 ||
+                $root.is('.mastery-damage-card') ||
+                $root.closest('.message').find('.mastery-damage-card').length > 0;
+            if (!inNode)
+                return;
+            attachDamageCardHandlers(message.id);
+        }
+        catch (e) {
+            console.warn('Mastery System | damage card renderChatMessageHTML hook', e);
+        }
+    });
+}
 /**
  * Show damage dialog after successful attack
  */
@@ -566,10 +607,9 @@ export async function showDamageDialog(attacker, target, weaponId, selectedPower
                 weaponId: message.flags?.['mastery-system']?.weaponId,
                 raises: message.flags?.['mastery-system']?.raises
             });
-            // Initialize the damage card UI
-            setTimeout(() => {
-                initializeDamageCard(message.id, resolve);
-            }, 100);
+            damageCardPendingResolves.set(message.id, resolve);
+            registerDamageCardChatHooks();
+            setTimeout(() => attachDamageCardHandlers(message.id), 100);
         });
     });
 }
@@ -738,16 +778,22 @@ function refreshRaiseSpecialExclusivity(messageElement) {
     });
 }
 /**
- * Initialize damage card UI and event handlers
+ * Bind damage-card UI (raises, roll, cancel). Safe to call again after chat HTML refresh.
  */
-function initializeDamageCard(messageId, resolve) {
+export function attachDamageCardHandlers(messageId) {
+    if (damageCardSettledMessageIds.has(messageId))
+        return;
+    if (!damageCardPendingResolves.has(messageId))
+        return;
     const messageElement = $(`.message[data-message-id="${messageId}"]`);
     if (!messageElement.length) {
         console.warn('Mastery System | Could not find damage card message element', messageId);
         return;
     }
-    // Handle raise selection changes (legacy nested special-select + exclusivity for inline specials)
-    messageElement.find('.raise-selection').on('change', function () {
+    messageElement
+        .find('.raise-selection')
+        .off('change.msDmgRaise')
+        .on('change.msDmgRaise', function () {
         const raiseIndex = parseInt($(this).data('raise-index'));
         const selectionType = $(this).val();
         const specialSelect = messageElement.find(`.special-select[data-raise-index="${raiseIndex}"]`);
@@ -763,8 +809,7 @@ function initializeDamageCard(messageId, resolve) {
         refreshRaiseSpecialExclusivity(messageElement);
     });
     refreshRaiseSpecialExclusivity(messageElement);
-    // Handle roll damage button
-    messageElement.find('.roll-damage-btn').on('click', async function () {
+    messageElement.find('.roll-damage-btn').off('click.msRollDamage').on('click.msRollDamage', async function () {
         const $btn = $(this);
         const lockKey = `roll-dmg:${messageId}`;
         if (rollDamageMessageLocks.has(lockKey)) {
@@ -777,8 +822,8 @@ function initializeDamageCard(messageId, resolve) {
             messageId: messageId,
             buttonData: {
                 attackerId: $btn.data('attacker-id'),
-                targetId: $btn.data('target-id')
-            }
+                targetId: $btn.data('target-id'),
+            },
         });
         try {
             const message = game.messages?.get(messageId);
@@ -889,19 +934,23 @@ function initializeDamageCard(messageId, resolve) {
                 powerDamage: result?.powerDamage,
                 passiveDamage: result?.passiveDamage
             });
+            completeDamageCard(messageId, result);
             rollDamageCompleted = true;
-            resolve(result);
         }
         finally {
+            rollDamageMessageLocks.delete(lockKey);
             if (!rollDamageCompleted) {
-                rollDamageMessageLocks.delete(lockKey);
                 $btn.prop('disabled', false);
             }
         }
     });
-    // Handle cancel button
-    messageElement.find('.cancel-damage-btn').on('click', function () {
-        resolve(null);
+    messageElement.find('.cancel-damage-btn').off('click.msDmgCancel').on('click.msDmgCancel', function () {
+        if (damageCardSettledMessageIds.has(messageId))
+            return;
+        rollDamageMessageLocks.delete(`roll-dmg:${messageId}`);
+        const $btn = messageElement.find('.roll-damage-btn');
+        $btn.prop('disabled', false);
+        completeDamageCard(messageId, null);
     });
 }
 /**
@@ -1178,6 +1227,17 @@ async function applyDamageToTarget(target, damage, attacker, count8s = 0) {
             // Phasing module not yet loaded or target has no charges — treat as pass.
             console.debug?.('Mastery System | [APPLY DAMAGE] phasing skipped', err);
         }
+        // Recompute combat totals before defender reactions so DR gating and the
+        // reaction dialog see the same `system.combat` as mitigation (token vs
+        // prototype mismatch otherwise strips reaction DR%).
+        if (typeof target.prepareDerivedData === 'function') {
+            try {
+                target.prepareDerivedData();
+            }
+            catch (prepErr) {
+                console.warn('Mastery System | [APPLY DAMAGE] prepareDerivedData before reactions failed', prepErr);
+            }
+        }
         let reactionArmorFlat = 0;
         let reactionDrPct = 0;
         try {
@@ -1195,8 +1255,6 @@ async function applyDamageToTarget(target, damage, attacker, count8s = 0) {
         catch (err) {
             console.debug?.('Mastery System | [APPLY DAMAGE] defender reactions skipped', err);
         }
-        // Recompute combat totals (armor / DR% / …) so mitigation matches the sheet
-        // and carousel after slotting or buff changes — same idea as combat-carousel.
         if (typeof target.prepareDerivedData === 'function') {
             try {
                 target.prepareDerivedData();

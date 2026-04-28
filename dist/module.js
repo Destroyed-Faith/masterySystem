@@ -18,6 +18,7 @@ import { refreshRadialMenuActionLabelsIfOpenForActor } from './token-radial-menu
 import { initializeTurnIndicator } from './turn-indicator.js';
 import { handleRadialMenuOpened, handleRadialMenuClosed } from './radial-menu/rendering.js';
 import { registerAttackRollClickHandler } from './chat/attack-roll-handler.js';
+import { registerDamageCardChatHooks } from './dice/damage-dialog.js';
 // Import combat-related modules statically
 import { PassiveSelectionDialog } from './sheets/passive-selection-dialog.js';
 import { CombatCarouselApp } from './ui/combat-carousel.js';
@@ -2228,6 +2229,7 @@ Hooks.once('ready', async function () {
     }
     // Register attack roll click handler
     registerAttackRollClickHandler();
+    registerDamageCardChatHooks();
     // Register skill spend click handler
     const { registerSkillSpendClickHandler } = await import('./chat/skill-spend-handler.js');
     registerSkillSpendClickHandler();
