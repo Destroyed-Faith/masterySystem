@@ -6,7 +6,7 @@
  * standard attack:
  *
  *   1. Spell Attack  → pool = casting attribute, keep = mastery rank,
- *                      TN = target.evade + 4 × raises.
+ *                      TN = calculateBaseTN(spellLevel) + 4 × raises (same as casting-table rules).
  *   2. Save Spell    → caster rolls Casting Roll vs Base TN (+ 4 × raises).
  *                      On success, each target rolls Save vs Save DC
  *                      (= 8 × caster mastery rank).

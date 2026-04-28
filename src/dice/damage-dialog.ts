@@ -17,6 +17,36 @@ import { previewTempHPConsumption } from '../combat/passive-triggers.js';
 import { applyDefensiveMitigation, countNaturalEights } from '../combat/damage-mitigation.js';
 import { logDrDebug } from '../utils/dr-debug.js';
 
+/** Embedded item by id (Foundry Collection.get, array, or Map values). */
+function resolveEmbeddedItemOnActor(actor: any, itemId: string): any | undefined {
+  if (!actor?.items || !itemId) return undefined;
+  const coll = actor.items;
+  if (typeof coll.get === 'function') {
+    const got = coll.get(itemId);
+    if (got) return got;
+  }
+  let list: any[] = [];
+  if (Array.isArray(coll)) list = coll;
+  else if (coll instanceof Map) list = Array.from(coll.values());
+  else if (coll.size !== undefined && typeof coll.values === 'function') {
+    list = Array.from(coll.values());
+  }
+  return list.find((item: any) => item?.id === itemId || item?._id === itemId);
+}
+
+/** Power item for damage card: embedded actor item or world item owned by actor. */
+function resolvePowerItemForDamage(actor: any, powerId: string): any | undefined {
+  const embedded = resolveEmbeddedItemOnActor(actor, powerId);
+  if (embedded?.type === 'power') return embedded;
+  try {
+    const gi = (game as any).items?.get(powerId);
+    if (gi?.type === 'power' && gi.actor?.id === actor?.id) return gi;
+  } catch {
+    /* ignore */
+  }
+  return undefined;
+}
+
 /** One roll-damage resolution per damage-card message (guards pop-up + chat double-click). */
 const rollDamageMessageLocks = new Set<string>();
 
@@ -433,27 +463,12 @@ export async function showDamageDialog(
   let powerSpecials: string[] = [];
   let selectedPowerData: any = null;
   
-  // Ensure items is an array for power loading too
-  let powerItems: any[] = [];
-  if ((attacker as any).items) {
-    if (Array.isArray((attacker as any).items)) {
-      powerItems = (attacker as any).items;
-    } else if ((attacker as any).items instanceof Map) {
-      powerItems = Array.from((attacker as any).items.values());
-    } else if ((attacker as any).items.size !== undefined && (attacker as any).items.values) {
-      // Foundry Collection-like object
-      powerItems = Array.from((attacker as any).items.values());
-    } else {
-      powerItems = [];
-    }
-  }
-  
   console.log('Mastery System | [DAMAGE DIALOG] Power loading', {
     selectedPowerId: selectedPowerId,
     hasSelectedPowerId: !!selectedPowerId,
-    totalItems: powerItems.length,
-    specialItems: powerItems.filter((item: any) => item.type === 'power').length,
-    allSpecialIds: powerItems.filter((item: any) => item.type === 'power').map((item: any) => ({
+    totalItems: items.length,
+    specialItems: items.filter((item: any) => item.type === 'power').length,
+    allSpecialIds: items.filter((item: any) => item.type === 'power').map((item: any) => ({
       id: item.id,
       name: item.name,
       powerType: (item.system as any)?.powerType
@@ -471,7 +486,7 @@ export async function showDamageDialog(
   };
   
   if (selectedPowerId) {
-    const selectedPower = items.find((item: any) => item.id === selectedPowerId);
+    const selectedPower = resolvePowerItemForDamage(actorToUse, selectedPowerId);
     console.log('Mastery System | [DAMAGE DIALOG] Power search result', {
       selectedPowerId: selectedPowerId,
       powerFound: !!selectedPower,
@@ -576,6 +591,26 @@ export async function showDamageDialog(
         specialItems: items.filter((item: any) => item.type === 'power').length,
         allSpecialIds: items.filter((item: any) => item.type === 'power').map((item: any) => item.id)
       });
+      const fbDmg = flags?.selectedPowerDamage;
+      const fbSpecs = flags?.selectedPowerSpecials;
+      const hasFbDamage = fbDmg != null && String(fbDmg).trim() !== '';
+      const hasFbSpecs = Array.isArray(fbSpecs) && fbSpecs.length > 0;
+      if (hasFbDamage || hasFbSpecs) {
+        powerDamage = hasFbDamage ? cleanPowerDamage(fbDmg as string) : '0';
+        powerSpecials = hasFbSpecs ? [...fbSpecs] : [];
+        selectedPowerData = {
+          id: selectedPowerId,
+          name: 'Power',
+          level: Math.max(1, Number(flags?.selectedPowerLevel) || 1),
+          specials: powerSpecials,
+          damage: powerDamage
+        };
+        console.warn('Mastery System | [DAMAGE DIALOG] Using attack-card flag fallback for power data', {
+          selectedPowerId,
+          powerDamage,
+          powerSpecialsCount: powerSpecials.length
+        });
+      }
     }
   } else {
     console.log('Mastery System | [DAMAGE DIALOG] No power selected (selectedPowerId is null/undefined)', {
@@ -1576,8 +1611,10 @@ async function applyDamageToTarget(
       console.log('Mastery System | [APPLY DAMAGE] Damage applied to bars', {
         targetId: (target as any).id,
         targetName: (target as any).name,
-        damage,
-        remaining,
+        damageInput: damage,
+        mitigatedDamage: mitigated,
+        remainingAfterTempHP: remaining,
+        barDamageApplied: barDamage,
         tempHPAbsorbed: tempHPConsumption.reducedBy,
         oldBarIndex: system.health.currentBar || 0,
         newBarIndex: barIndex,

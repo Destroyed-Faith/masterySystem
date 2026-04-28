@@ -436,8 +436,10 @@ export async function showPowerCreationDialog(
 
                 if (res === 'spellAttack') {
                     $spellHint.html(
-                        `<strong>Spell attack:</strong> Roll your casting attribute (keep = Mastery Rank) vs the target’s Evade. ` +
-                            `<strong>Raises</strong> after the roll can improve damage, special potency, Range, AoE, and other riders (per spell rules).`,
+                        `<strong>Spell attack:</strong> Roll your casting attribute (keep = Mastery Rank) vs <strong>Casting TN ${castingTn}</strong> ` +
+                            `(8×⌈Spell Level÷2⌉ at Spell Level <strong>${rankVal}</strong>). ` +
+                            `<strong>Declared Raises</strong> before the roll add +4 each to that TN. ` +
+                            `<strong>Raises</strong> after a successful hit can improve damage, special potency, Range, AoE, and other riders (per spell rules).`,
                     );
                 } else {
                     const saveLine = inferredSave

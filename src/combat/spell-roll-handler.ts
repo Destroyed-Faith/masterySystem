@@ -6,7 +6,7 @@
  * standard attack:
  *
  *   1. Spell Attack  → pool = casting attribute, keep = mastery rank,
- *                      TN = target.evade + 4 × raises.
+ *                      TN = calculateBaseTN(spellLevel) + 4 × raises (same as casting-table rules).
  *   2. Save Spell    → caster rolls Casting Roll vs Base TN (+ 4 × raises).
  *                      On success, each target rolls Save vs Save DC
  *                      (= 8 × caster mastery rank).
@@ -260,10 +260,7 @@ export async function rollSpell(params: SpellRollParams): Promise<SpellRollResul
   const rawRaises = Math.max(0, Math.floor(declaredRaises));
   const totalRaises = bloodApplied + rawRaises;
 
-  const baseTn =
-    resolution === 'spellAttack'
-      ? Number(target?.system?.combat?.evadeTotal ?? target?.system?.combat?.evade ?? 6)
-      : calculateBaseTN(spellLevel);
+  const baseTn = calculateBaseTN(spellLevel);
   const finalTn = baseTn + totalRaises * 4 + (Number(gmModifier) || 0);
 
   // HP cost for Blood Raises fires *before* the roll per the SRD wording.
@@ -276,7 +273,7 @@ export async function rollSpell(params: SpellRollParams): Promise<SpellRollResul
   const autoFlavor = [
     flavor,
     resolution === 'spellAttack'
-      ? `Spell Attack vs Evade ${baseTn}`
+      ? `Spell Attack — Casting TN ${baseTn}`
       : `Save Spell — Base TN ${baseTn}${supportMode ? ' (support)' : ''}`,
     totalRaises > 0 ? `+${totalRaises} Raise${totalRaises === 1 ? '' : 's'} (+${totalRaises * 4} TN)` : undefined,
     bloodApplied > 0 ? `Blood Raises: ${bloodApplied} (−${bloodHpLost} HP)` : undefined,

@@ -16,6 +16,7 @@ import {
 } from "../utils/npc-attack-model.js";
 import { resolvePowerMechanics } from "../utils/power-mechanics.js";
 import { RAISE_INCREMENT } from "../utils/constants.js";
+import { calculateBaseTN } from "./spell-roll-handler.js";
 
 /** Bookkeeping for a single strike of a split-attack pair. */
 interface SplitContext {
@@ -344,31 +345,50 @@ export async function createAttackCard(
     mightStones: (attacker.system as any)?.attributes?.might?.stones
   });
   
-  // Get target evade
-  const targetEvade = getTargetEvade(target);
-  const baseEvade = targetEvade;
-  
+  // Base TN: Evade (weapon / martial) or Casting TN from Power Level (Active-as-Spell attack)
+  const targetEvadeFromActor = getTargetEvade(target);
+
   // Get power info if applicable
   let selectedPowerId: string | null = null;
   let selectedPowerLevel: number | null = null;
   let selectedPowerSpecials: string[] = [];
   let selectedPowerDamage: string | null = null;
-  
+
+  let tnKind: 'evade' | 'casting' = 'evade';
+  let castingBaseTn: number | null = null;
+
   if (option.source === 'power' && option.item) {
     selectedPowerId = option.item.id;
     const powerSystem = (option.item.system as any) || {};
     selectedPowerLevel = powerSystem.level || null;
-    
-    // Extract specials and damage from power data
+
+    // Extract specials and damage from option.powerData or embedded item system (damage-card fallback).
     if (option.item.name) {
-      // Try to get from option data if available
       const powerData = (option as any).powerData;
       if (powerData) {
         selectedPowerSpecials = powerData.specials || [];
         selectedPowerDamage = powerData.damage || null;
       }
     }
+    if (selectedPowerSpecials.length === 0 && Array.isArray(powerSystem.specials)) {
+      selectedPowerSpecials = [...powerSystem.specials];
+    }
+    if (!selectedPowerDamage && powerSystem.roll?.damage != null) {
+      selectedPowerDamage = String(powerSystem.roll.damage);
+    }
+
+    if (powerSystem.isSpell === true) {
+      tnKind = 'casting';
+      const lvl = Math.max(1, Math.floor(Number(selectedPowerLevel) || 1));
+      castingBaseTn = calculateBaseTN(lvl);
+    }
   }
+
+  /** Base TN before declared raises (+4 each). Stored in flags.targetEvade for roll-handler compat. */
+  const baseTnBeforeRaises =
+    tnKind === 'casting' && castingBaseTn != null ? castingBaseTn : targetEvadeFromActor;
+  const targetEvade = baseTnBeforeRaises;
+  const baseEvade = baseTnBeforeRaises;
   
   const tr =
     attackType === "ranged"
@@ -431,7 +451,10 @@ export async function createAttackCard(
     npcPhaseIndex: isNpcAttack ? ((option as any).npcPhaseIndex ?? null) : undefined,
     npcAttackName: isNpcAttack
       ? (npcAttackRow?.name?.trim() || option.name || "NSC-Angriff")
-      : undefined
+      : undefined,
+    tnKind,
+    ...(castingBaseTn != null ? { castingBaseTn } : {}),
+    targetEvadeFromActor: tnKind === 'casting' ? targetEvadeFromActor : undefined
   };
   
   // Debug log before creating message
@@ -542,8 +565,13 @@ export async function createAttackCard(
     return `<option value="${value}">${value}</option>`;
   }).join('');
   
+  const raisesTitle =
+    tnKind === 'casting'
+      ? `Each step adds +${RAISE_INCREMENT} to the Casting TN before the roll (Power Level → Base TN). The same value caps how many Raises may be spent on damage (0 = no cap).`
+      : `Each step adds +${RAISE_INCREMENT} to the target Evade TN before the roll. The same value caps how many Raises may be spent on damage (0 = no cap).`;
+
   const raisesDropdown = `
-    <div class="raises-input-group" title="Each step adds +${RAISE_INCREMENT} to the target Evade TN before the roll. The same value caps how many Raises may be spent on damage (0 = no cap).">
+    <div class="raises-input-group" title="${attackCardEsc(raisesTitle)}">
       <label for="raises-select-${attacker.id}-${target.id}">Raises:</label>
       <select id="raises-select-${attacker.id}-${target.id}" class="raises-select" data-message-id="">
         <option value="0" selected>0</option>
@@ -595,10 +623,17 @@ export async function createAttackCard(
             ? `<div class="detail-row"><span class="detail-label">Disadvantage:</span><span class="detail-value">Yes (Threatened Ranged)</span></div>`
             : ""
         }
-        <div class="detail-row">
+        ${
+          tnKind === 'casting' && castingBaseTn != null
+            ? `<div class="detail-row">
+          <span class="detail-label">Casting TN:</span>
+          <span class="detail-value">${castingBaseTn} (Power Level ${Math.max(1, Math.floor(Number(selectedPowerLevel) || 1))})</span>
+        </div>`
+            : `<div class="detail-row">
           <span class="detail-label">Target Evade:</span>
           <span class="detail-value">${targetEvade}</span>
-        </div>
+        </div>`
+        }
         ${weapon ? `<div class="detail-row"><span class="detail-label">Weapon:</span><span class="detail-value">${attackCardEsc(weapon.name)}</span></div>` : ""}
         ${innatesHtml}
         ${weaponSpecialsHtml}

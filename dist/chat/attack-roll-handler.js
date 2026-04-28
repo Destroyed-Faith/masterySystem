@@ -237,6 +237,7 @@ export function registerAttackRollClickHandler() {
             if (flags.rollDisadvantage) {
                 keepDice = Math.max(1, keepDice - 1);
             }
+            const tnKind = flags.tnKind === 'casting' ? 'casting' : 'evade';
             console.log('Mastery System | DEBUG: Roll parameters', {
                 numDice: numDice,
                 keepDice: keepDice,
@@ -244,6 +245,7 @@ export function registerAttackRollClickHandler() {
                 rollDisadvantage: !!flags.rollDisadvantage,
                 skill: 0,
                 tn: currentTargetEvade,
+                tnKind,
                 raises: declaredRaisesForTn,
                 baseEvade: flags.targetEvade,
                 adjustedEvade: currentTargetEvade,
@@ -270,6 +272,17 @@ export function registerAttackRollClickHandler() {
                 ? ` (Disadvantage: keep ${baseKeepDice} → ${keepDice})`
                 : '';
             const attackKind = flags.attackType === 'ranged' ? 'Ranged' : 'Melee';
+            const targetActorForFlavor = game.actors?.get(flags.targetId);
+            const rollFlavor = tnKind === 'casting'
+                ? `Roll ${numDice}d8 keep ${keepDice} vs Casting TN ${currentTargetEvade}${declaredRaisesForTn > 0
+                    ? ` (${declaredRaisesForTn} declared raise${declaredRaisesForTn > 1 ? 's' : ''} included)`
+                    : ''}${disadvantageNote}`
+                : `Roll ${numDice}d8 keep ${keepDice} vs ${targetActorForFlavor?.name || 'Target'}'s Evade (${currentTargetEvade}${declaredRaisesForTn > 0
+                    ? `, ${declaredRaisesForTn} raise${declaredRaisesForTn > 1 ? 's' : ''}`
+                    : ''})${disadvantageNote}`;
+            const rollLabel = tnKind === 'casting'
+                ? `Spell Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`
+                : `${attackKind} Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`;
             const actionEco = await import('../combat/action-economy.js');
             const economyForStones = actionEco.getActionEconomyActor(freshAttacker) ?? freshAttacker;
             const combatRef = game.combat;
@@ -281,8 +294,8 @@ export function registerAttackRollClickHandler() {
                 keepDice: keepDice,
                 skill: 0,
                 tn: currentTargetEvade,
-                label: `${attackKind} Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`,
-                flavor: `Roll ${numDice}d8 keep ${keepDice} vs ${game.actors?.get(flags.targetId)?.name || 'Target'}'s Evade (${currentTargetEvade}${declaredRaisesForTn > 0 ? `, ${declaredRaisesForTn} raise${declaredRaisesForTn > 1 ? 's' : ''}` : ''})${disadvantageNote}`,
+                label: rollLabel,
+                flavor: rollFlavor,
                 actorId: flags.attackerId,
                 rollKind: 'attack',
                 targetActorId: flags.targetId,
