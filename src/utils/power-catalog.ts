@@ -50,14 +50,33 @@ export const CATEGORY_LABELS: Record<PowerCategory, string> = {
     passive: 'Passive',
 };
 
-/** Requirements for character creation — total 7 powers. */
+/**
+ * Requirements for character creation per category.
+ *
+ * Players Guide 2988–3008 ("Choose your Powers"): a starting character
+ * picks **4 Powers total** with no per-category split — only the total
+ * count and the requirement that two of them be raised to Rank 2 at
+ * creation. We keep this map for backward compatibility with the older
+ * 7-powers-by-category UI but set every category to `0`; the actual
+ * gate now lives in `CREATION_POWER_TOTAL` and `CREATION_POWERS_AT_RANK_2`
+ * below.
+ *
+ * @deprecated UI code should branch on `CREATION_POWER_TOTAL` /
+ *             `CREATION_POWERS_AT_RANK_2` instead of summing this map.
+ */
 export const CREATION_POWER_REQUIREMENTS: Record<PowerCategory, number> = {
-    active: 2,
-    activeBuff: 1,
-    movement: 1,
-    reaction: 1,
-    passive: 2,
+    active: 0,
+    activeBuff: 0,
+    movement: 0,
+    reaction: 0,
+    passive: 0,
 };
+
+/** Players Guide 3002: total Powers picked at character creation. */
+export const CREATION_POWER_TOTAL = 4;
+
+/** Players Guide 3004: Powers raised to Rank 2 at character creation. */
+export const CREATION_POWERS_AT_RANK_2 = 2;
 
 /** Structural mechanics axes used by the secondary "Effect Type" filter. */
 export const EFFECT_TYPE_KEYS = [

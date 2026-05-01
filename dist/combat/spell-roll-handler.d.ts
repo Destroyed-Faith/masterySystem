@@ -26,10 +26,38 @@ import type { MasteryRollResult } from '../types/index';
 export declare function getMaxSpellLevel(masteryRank: number): number;
 /** Whether an actor of `masteryRank` can cast/learn a spell at `spellLevel`. */
 export declare function canCastSpellAtLevel(masteryRank: number, spellLevel: number): boolean;
-/** Base TN for a Casting Roll by Spell Level — `8 × ceil(level / 2)`. */
+/**
+ * Spell Tier I–VIII (Players Guide 7912–7923).
+ *
+ *   I → 8, II → 16, III → 24, IV → 32, V → 40, VI → 48, VII → 56, VIII → 64.
+ *
+ * Each Tier covers two consecutive Power Levels (L1+L2 = Tier I, etc.) so the
+ * "Spell Tier" surface always lines up with the underlying Active Power Level.
+ */
+export type SpellTier = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+export declare const SPELL_TIER_TABLE: Record<SpellTier, number>;
+/** Spell Tier (I–VIII) that contains the given Power Level (1–16). */
+export declare function spellTierForPowerLevel(spellLevel: number): SpellTier;
+/** Casting TN for a Spell of Tier I..VIII (Players Guide 7912–7923). */
+export declare function castingTNForTier(tier: SpellTier): number;
+/**
+ * Base Casting TN for a Spell built from a Power of `spellLevel` (1..16).
+ *
+ * Equivalent to `castingTNForTier(spellTierForPowerLevel(spellLevel))`, kept
+ * as a stand-alone export because every existing caller already uses
+ * `calculateBaseTN(...)`.
+ */
 export declare function calculateBaseTN(spellLevel: number): number;
-/** Save DC a target must beat for a Save Spell — `8 × caster Mastery Rank`. */
-export declare function calculateSaveDC(masteryRank: number): number;
+/**
+ * Save DC a target must beat for a Save Spell.
+ *
+ * Players Guide saving-throw chapter (~6840–6864) defines the DC as
+ * `8 × caster Mastery Rank` *plus* the caster's Intellect scaling
+ * (`floor(Intellect/8)`). The optional `intellect` argument keeps the
+ * legacy single-arg signature working for callers that have not been
+ * updated to the attribute-aware version yet.
+ */
+export declare function calculateSaveDC(masteryRank: number, intellect?: number): number;
 /**
  * Deduct `amount` HP from the actor, bypassing armor (blood magic). Records
  * the amount lost so it cannot be healed until combat ends.
@@ -37,10 +65,16 @@ export declare function calculateSaveDC(masteryRank: number): number;
  */
 export declare function applyBloodRaiseHpLoss(actor: any, amount: number): Promise<number>;
 /**
- * Apply `amount` stress to the actor (fizzled spell penalty). Returns the
- * actual new current-bar index.
+ * Apply `amount` stress to the actor.
+ *
+ * Players Guide stress chapter (~6493–6502): `floor(Resolve/8)` Stress
+ * Armor reduces every *involuntary* stress hit; voluntary stress (push
+ * casts, Focus power-ups, etc.) ignores Stress Armor. Pass
+ * `{ voluntary: true }` to bypass the armor.
  */
-export declare function applyStressToActor(actor: any, amount: number): Promise<number>;
+export declare function applyStressToActor(actor: any, amount: number, options?: {
+    voluntary?: boolean;
+}): Promise<number>;
 /** Roll `1d8` and apply the result as stress. Returns the stress inflicted. */
 export declare function applyFizzleStress(actor: any): Promise<number>;
 /**

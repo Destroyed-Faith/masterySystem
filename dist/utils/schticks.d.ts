@@ -1,6 +1,11 @@
 /**
- * Schticks configuration for Mastery System
- * Schticks are small character traits/quirks chosen during character creation
+ * Schticks configuration for Mastery System.
+ *
+ * Players Guide ~3134+: Schticks are **purely cosmetic** character traits
+ * — colour, quirks, narrative hooks. The base game grants `+1` Schtick per
+ * Mastery Rank, and an *optional* extra Schtick may be purchased for 2
+ * Mastery Points during character creation. They never grant mechanical
+ * dice/HP/save bonuses, so the catalog must read as pure roleplay flavour.
  */
 export interface SchtickDefinition {
     id: string;

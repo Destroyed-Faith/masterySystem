@@ -1549,7 +1549,9 @@ function registerConfigConstants() {
         skillPoints: 40,
         maxAttributeAtCreation: 8,
         maxSkillAtCreation: 4,
-        minDisadvantagePoints: 2,
+        // Players Guide ~5158–5164: only the maximum (8) is canonical; the
+        // minimum defaults to 0 so a character may take no disadvantages.
+        minDisadvantagePoints: 0,
         maxDisadvantagePoints: 8
     };
 }
@@ -2235,6 +2237,9 @@ Hooks.once('ready', async function () {
     registerSkillSpendClickHandler();
     const { registerFaithFractureRerollHandlers } = await import('./chat/faith-fracture-reroll.js');
     registerFaithFractureRerollHandlers();
+    // Players Guide ~6052–6067 — End-of-turn Save Ends prompt buttons.
+    const { registerSaveEndsChatHandlers } = await import('./combat/save-ends.js');
+    registerSaveEndsChatHandlers();
     // Migration: Add default weapon to existing actors if missing
     console.log('Mastery System | Running equipment migration...');
     const actors = game.actors?.filter((a) => a.type === 'character' || a.type === 'npc') || [];

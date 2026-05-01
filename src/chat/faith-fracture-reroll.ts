@@ -217,9 +217,23 @@ function onRenderChatMessageFaithReroll(message: ChatMessage, htmlRaw: HTMLEleme
 
     if (root.find('.faith-fracture-reroll-btn').length) return;
 
+    // Players Guide ~5522: 1 Reroll Point can either reroll your own roll or
+    // **force the GM to reroll** their roll (e.g., a hit against you). We
+    // detect whether the rolling actor is one the current user controls so
+    // the label flips between "Reroll" and "Force GM Reroll".
+    const recipeActorId = (flags.rollRecipe as MasteryRollRecipe | null)?.actorId || null;
+    const recipeActor = recipeActorId ? (game as any).actors?.get(recipeActorId) : null;
+    const isOwnRoll = recipeActor
+      ? userIsOwnerOfActorForFaith(game.user as User, recipeActor)
+      : false;
+    const btnLabel = isOwnRoll ? 'Reroll (1 Faith Fracture)' : 'Force GM Reroll (1 Faith Fracture)';
+    const btnTitle = isOwnRoll
+      ? 'Spend 1 Faith Fracture from a character you control to reroll this Mastery roll. Once per roll, table-wide.'
+      : 'Force the GM to reroll this Mastery roll. Spend 1 Faith Fracture from a character you control. Once per roll, table-wide.';
+
     const bar = $(`<div class="mastery-faith-reroll-bar">
-    <button type="button" class="faith-fracture-reroll-btn" title="Costs 1 Faith Fracture from a character you control. Each roll only once.">
-      <i class="fas fa-sync-alt"></i> Reroll (1 Faith Fracture)
+    <button type="button" class="faith-fracture-reroll-btn" title="${btnTitle}">
+      <i class="fas fa-sync-alt"></i> ${btnLabel}
     </button>
     <span class="faith-fracture-reroll-hint">One reroll per roll, shared by the whole table.</span>
   </div>`);

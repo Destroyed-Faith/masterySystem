@@ -120,7 +120,9 @@ function sanitizeDiceNotation(str) {
 const MAX_MASTERY_DAMAGE_DICE = 99;
 /**
  * Mastery damage uses d8 only: a lone positive integer N (number or digit-only string)
- * means Nd8 (exploding), never N flat. Formulas that already contain dice notation are unchanged.
+ * means Nd8 (NOT exploding), never N flat. Players Guide ~5854: damage dice
+ * do not explode unless a rule (Crit, Brutal, …) explicitly says so.
+ * Formulas that already contain dice notation are returned unchanged.
  */
 function masteryCoercePlainNumberToNd8(sanitizedFormula) {
     const t = (sanitizedFormula || '').trim();
@@ -130,22 +132,24 @@ function masteryCoercePlainNumberToNd8(sanitizedFormula) {
         const n = parseInt(t, 10);
         if (!Number.isFinite(n) || n <= 0)
             return '0';
-        return `${Math.min(n, MAX_MASTERY_DAMAGE_DICE)}d8x`;
+        return `${Math.min(n, MAX_MASTERY_DAMAGE_DICE)}d8`;
     }
     return t;
 }
-/** Apply Mastery exploding d8 (Foundry `x`) to Nd8 terms not already marked d8x/d8X. Avoids touching d10, d12, d80, etc. */
+/**
+ * No-op kept for callers — Mastery damage never explodes by default. If a
+ * specific power / special wants exploding damage it must build the formula
+ * itself (e.g. `${n}d8x8`) via the appropriate template hook.
+ */
 function masteryApplyExplodingD8(formula) {
-    if (!formula || formula === '0')
-        return formula;
-    return formula.replace(/(\d+)d8(?![xX0-9])/g, '$1d8x');
+    return formula;
 }
 function weaponOrPowerNumericToNd8(raw) {
     if (typeof raw === 'number' && Number.isFinite(raw)) {
         const n = Math.floor(raw);
         if (n <= 0)
             return '0';
-        return `${Math.min(n, MAX_MASTERY_DAMAGE_DICE)}d8x`;
+        return `${Math.min(n, MAX_MASTERY_DAMAGE_DICE)}d8`;
     }
     if (typeof raw === 'string') {
         const tr = raw.trim();
@@ -153,7 +157,7 @@ function weaponOrPowerNumericToNd8(raw) {
             const n = parseInt(tr, 10);
             if (n <= 0)
                 return '0';
-            return `${Math.min(n, MAX_MASTERY_DAMAGE_DICE)}d8x`;
+            return `${Math.min(n, MAX_MASTERY_DAMAGE_DICE)}d8`;
         }
     }
     return null;
@@ -962,7 +966,7 @@ export function attachDamageCardHandlers(messageId) {
                 availableSpecialsCount: flags.availableSpecials?.length || 0,
                 raiseSelectionsSize: raiseSelections.size
             });
-            const result = await calculateDamageResult(flags.baseDamage, flags.powerDamage, flags.passiveDamage, flags.raises, raiseSelections, flags.availableSpecials, attacker, target, Math.max(0, Number(flags.stoneDamageBonusDice) || 0), Math.max(0, Number(flags.npcAutoDamageDice) || 0), Array.isArray(flags.npcAutoSpecialStrings) ? flags.npcAutoSpecialStrings : [], flags.selectedPowerId || null, !!flags.splitAttack);
+            const result = await calculateDamageResult(flags.baseDamage, flags.powerDamage, flags.passiveDamage, flags.raises, raiseSelections, flags.availableSpecials, attacker, target, Math.max(0, Number(flags.stoneDamageBonusDice) || 0), Math.max(0, Number(flags.npcAutoDamageDice) || 0), Array.isArray(flags.npcAutoSpecialStrings) ? flags.npcAutoSpecialStrings : [], flags.selectedPowerId || null, !!flags.splitAttack, flags.attackType === 'ranged' ? 'ranged' : 'melee');
             console.log('Mastery System | [ROLL DAMAGE BUTTON] calculateDamageResult returned', {
                 messageId,
                 hasResult: !!result,
@@ -1472,7 +1476,7 @@ async function applyDamageToTarget(target, damage, attacker, count8s = 0) {
 /**
  * Calculate damage result from selections
  */
-async function calculateDamageResult(baseDamage, powerDamage, passiveDamage, raises, raiseSelections, availableSpecials, attacker, target, stoneDamageBonusDice = 0, npcAutoDamageDice = 0, npcAutoSpecialStrings = [], selectedPowerId = null, splitAttack = false) {
+async function calculateDamageResult(baseDamage, powerDamage, passiveDamage, raises, raiseSelections, availableSpecials, attacker, target, stoneDamageBonusDice = 0, npcAutoDamageDice = 0, npcAutoSpecialStrings = [], selectedPowerId = null, splitAttack = false, attackType = 'melee') {
     // Roll base damage
     // Sanitize dice notations before rolling
     const sanitizedBaseDamage = sanitizeDiceNotation(baseDamage || '0');
@@ -1600,9 +1604,28 @@ async function calculateDamageResult(baseDamage, powerDamage, passiveDamage, rai
     catch (e) {
         console.warn('Mastery System | [CALCULATE DAMAGE] manual damage bonus failed', e);
     }
-    // Total damage = Base Weapon + Might stone bonus + Power Damage + Raises + Conditional + Manual (Passives separate)
+    // Players Guide attribute scaling (~5957–5965): Might/8 = +2 melee damage
+    // per successful melee/unarmed strike. Applies as a flat bonus, never on
+    // ranged/spell strikes. Read directly from the actor's pre-derived
+    // `system.scaling.mightDamageBonus` so any rank-up / mid-session bump is
+    // reflected immediately.
+    let mightMeleeBonus = 0;
+    if (attackType === 'melee' && attacker) {
+        try {
+            const mb = Number(attacker?.system?.scaling?.mightDamageBonus ?? 0) || 0;
+            if (mb > 0) {
+                mightMeleeBonus = mb;
+                rollDetails.push(`Might melee bonus: +${mb}`);
+            }
+        }
+        catch {
+            mightMeleeBonus = 0;
+        }
+    }
+    // Total damage = Base Weapon + Might stone bonus + Might/8 melee bonus + Power Damage + Raises + Conditional + Manual (Passives separate)
     const totalDamage = baseDamageRolled
         + stoneMightDamageRolled
+        + mightMeleeBonus
         + powerDamageRolled
         + raiseDamage
         + conditionalDamageRolled

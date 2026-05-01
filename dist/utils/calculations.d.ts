@@ -22,30 +22,40 @@ export declare function updateAttributeStones(attribute: AttributeData): void;
  */
 export declare function calculateHealthBarMax(vitality: number): number;
 /**
- * Initialize health bars with proper max HP values
- * 4 bars: Healthy (0 penalty), Bruised (-1 penalty), Injured (-2 penalty), Wounded (-4 penalty)
- * Each bar = Vitality × 2 boxes
+ * Initialize health bars with proper max HP values.
+ *
+ * Players Guide ~6499–6513 — five health levels:
+ *   Healthy → Bruised → Injured → Wounded → Incapacitated.
+ * Each non-Incapacitated bar holds `Vitality × 2` boxes; Incapacitated is a
+ * single-box "you go down at 0" state. The legacy `penalty` field stores the
+ * flat dice penalty for the rare callers that still want a per-step value;
+ * the canonical penalty is the percentage table in `HEALTH_PENALTY_FRACTIONS`.
  */
 export declare function initializeHealthBars(vitality: number): HealthBar[];
 /**
- * Update health bars when vitality changes
+ * Update health bars when vitality changes.
+ *
+ * Bars 0–3 carry `Vitality × 2` boxes; the fifth bar (Incapacitated) is a
+ * single box and never scales with Vitality (Players Guide ~6510). Older
+ * actors created before the 5-bar migration may still have only four bars
+ * — in that case we append the Incapacitated bar in place.
  */
 export declare function updateHealthBars(bars: HealthBar[], vitality: number): void;
 /**
- * Get the current active health bar penalty
- * Penalty applies when a health bar is broken (current < max)
- * Returns the penalty value from the first broken bar (checking from bar 0 upwards)
+ * Get the current active health bar penalty.
  *
- * Rules:
- * - Healthy (bar 0): No penalty (penalty = 0)
- * - Bruised (bar 1): -1 penalty if current < max
- * - Injured (bar 2): -2 penalty if current < max
- * - Wounded (bar 3): -4 penalty if current < max
+ * Players Guide ~6518–6544: the dice penalty is **a fraction of the rolled
+ * pool**, applied late in the stack and floored (never below 0). The
+ * fractions per broken bar live in `HEALTH_PENALTY_FRACTIONS` (0%, 10%,
+ * 20%, 30%, 40%). Pre-migration callers without a `pool` argument get the
+ * legacy flat dice penalty so existing code paths keep working until they
+ * are switched over to the percentage-aware variant.
  *
- * The penalty applies as soon as a bar is broken (current < max).
- * We check from bar 0 upwards to find the first broken bar.
+ * @param bars        actor health bars
+ * @param _currentBar legacy index — ignored; we always use the first broken bar
+ * @param pool        optional pre-penalty dice pool (Attribute, MR, etc.)
  */
-export declare function getCurrentPenalty(bars: HealthBar[], _currentBar: number): number;
+export declare function getCurrentPenalty(bars: HealthBar[], _currentBar: number, pool?: number): number;
 /**
  * Apply damage to health bars
  * Returns the new current bar index (clamped to max bars - 1)

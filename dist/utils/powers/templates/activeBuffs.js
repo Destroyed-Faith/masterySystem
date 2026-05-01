@@ -294,6 +294,43 @@ export const ACTIVE_BUFF_TEMPLATES = [
         }),
     },
     {
+        templateId: 'ab-immovable-temp-hp',
+        templateName: 'Immovable + Temporary HP',
+        name: 'Active Buff: Immovable + Temporary HP',
+        subfamily: 'defensive-control',
+        category: 'activeBuff',
+        tags: [],
+        fluff: 'You root yourself in place: forced movement, knockdown, and grapple slip past you, while a buffer of Temporary HP holds the line.',
+        cost: { action: 'attack' },
+        roll: { kind: 'none' },
+        // Source: Actives.md ~5238–5414. Immovable is a fixed 80 PP rider
+        // (no scaling). Levels 1–2 cannot afford it; from L3 the leftover
+        // PP fund Temporary HP. Duration is fixed at 2 Rounds.
+        levels: buildLevels((lvl) => {
+            const budget = lvl * 30;
+            const IMMOVABLE_COST = 80;
+            const tempHpFromLeftover = Math.max(0, budget - IMMOVABLE_COST);
+            const hasImmovable = budget >= IMMOVABLE_COST;
+            const duration = { kind: 'rounds', rounds: 2 };
+            if (!hasImmovable) {
+                return activeBuffRow({
+                    duration,
+                    effectText: 'No effect at this Power rank — Immovable costs 80 PP and the budget is too low.',
+                    mechanics: { duration: 'untilNextTurn' },
+                });
+            }
+            return activeBuffRow({
+                duration,
+                effectText: `For **2 Rounds** you become **Immovable** and gain **${tempHpFromLeftover} Temporary HP**. While Immovable you ignore Push, Pull, Prone, forced movement, and grapple-based forced moves.`,
+                specials: [{ key: 'immovable', target: 'self' }],
+                mechanics: {
+                    tempHP: String(tempHpFromLeftover),
+                    duration: 'untilNextTurn',
+                },
+            });
+        }),
+    },
+    {
         templateId: 'ab-special-overdrive',
         templateName: 'Special Overdrive',
         name: 'Active Buff: Special Overdrive',

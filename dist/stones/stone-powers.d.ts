@@ -22,5 +22,5 @@ export declare const STONE_POWERS: Record<string, StonePower>;
 /**
  * Organized by attribute for UI display
  */
-export declare const STONE_POWERS_BY_ATTRIBUTE: Record<AttributeKey | 'generic', StonePower[]>;
+export declare const STONE_POWERS_BY_ATTRIBUTE: Record<AttributeKey | 'generic' | 'wits', StonePower[]>;
 //# sourceMappingURL=stone-powers.d.ts.map

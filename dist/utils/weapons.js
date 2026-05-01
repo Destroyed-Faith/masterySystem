@@ -164,7 +164,7 @@ export const WEAPONS = [
         weaponDamage: '1d8',
         hands: 1,
         innateAbilities: ['Finesse', 'Reach (+1 m)'],
-        special: 'Grappled(1)',
+        special: '',
         description: 'Flexible reach and control.'
     },
     {

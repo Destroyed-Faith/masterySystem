@@ -72,6 +72,69 @@ const GENERIC_POWERS = [
             roundState.stoneBonuses.extraReactions += 1;
             await setRoundState(actor, roundState);
         }
+    },
+    {
+        id: 'generic.exchangePassive',
+        name: 'Exchange (Passive)',
+        attribute: 'generic',
+        category: 'passive',
+        description: 'On your turn, swap one of your bound Passive choices for a different one of equal or lower cost. Cumulative cost scales with the number of swaps used this scene. Players Guide ~5662.',
+        effect: 'On your turn, swap one of your bound Passive choices for a different one of equal or lower cost. Cost = (1 + previous swaps this scene) generic stones (cumulative). Players Guide ~5662.',
+        apply: async (actor, _combatant) => {
+            const flagKey = 'exchangePassiveSwapsThisScene';
+            const prior = Number(actor.getFlag?.('mastery-system', flagKey) ?? 0) || 0;
+            await actor.setFlag?.('mastery-system', flagKey, prior + 1);
+            ui.notifications?.info(`${actor.name}: Exchange Passive applied (swap #${prior + 1} this scene — next swap costs ${prior + 2} generic stones).`);
+        }
+    }
+];
+/**
+ * Wits Powers - Paid from Wits pool. Players Guide ~5754–5760.
+ */
+const WITS_POWERS = [
+    {
+        id: 'wits.poolInitiative',
+        name: 'Pool Initiative',
+        attribute: 'wits',
+        category: 'reaction',
+        description: 'After initiative is rolled but before the order is locked, swap your initiative result with another willing creature. Players Guide ~5754.',
+        effect: 'After initiative is rolled but before the order is locked, swap your initiative result with another willing creature.',
+        apply: async (actor, _combatant) => {
+            await actor.setFlag?.('mastery-system', 'pendingPoolInitiative', true);
+        }
+    },
+    {
+        id: 'wits.reopenInitiativeShop',
+        name: 'Reopen Initiative Shop',
+        attribute: 'wits',
+        category: 'action',
+        description: 'Reopen the Initiative Shop on your turn to spend remaining points. Players Guide ~5755.',
+        effect: 'Reopen the Initiative Shop on your turn to spend remaining points.',
+        apply: async (actor, _combatant) => {
+            await actor.setFlag?.('mastery-system', 'pendingReopenInitiativeShop', true);
+        }
+    },
+    {
+        id: 'wits.tempoShift',
+        name: 'Tempo Shift',
+        attribute: 'wits',
+        category: 'action',
+        description: 'Move yourself or an ally up to 4 slots earlier in the initiative order this round. Players Guide ~5756.',
+        effect: 'Move yourself or an ally up to 4 slots earlier in the initiative order this round.',
+        apply: async (actor, _combatant) => {
+            await actor.setFlag?.('mastery-system', 'pendingTempoShift', { slots: 4 });
+        }
+    },
+    {
+        id: 'wits.removeSpecialsPerception',
+        name: 'Remove Specials',
+        attribute: 'wits',
+        category: 'action',
+        description: 'Remove from yourself or an ally within 6 m one: Blinded / Deafened / Mark. Players Guide ~5760.',
+        effect: 'Remove from yourself or an ally within 6 m one: Blinded / Deafened / Mark.',
+        apply: async (_actor, _combatant) => {
+            await _actor.setFlag('mastery-system', 'pendingRemoveSpecials', ['blinded', 'deafened', 'mark']);
+        }
     }
 ];
 /**
@@ -100,11 +163,11 @@ const MIGHT_POWERS = [
     },
     {
         id: 'might.ignoreArmor4',
-        name: 'Ignore 4 Armor',
+        name: 'Ignore Armor (4 or 2× Breaker)',
         attribute: 'might',
         category: 'action',
-        description: 'Ignore 4 Armor with ALL your attacks this turn',
-        effect: 'Ignore 4 Armor with ALL your attacks this turn.',
+        description: 'Ignore 4 Armor with ALL your attacks this turn, OR double your Might Armor Breaker (whichever is higher).',
+        effect: 'Ignore 4 Armor with ALL your attacks this turn, OR double your Might Armor Breaker (whichever is higher). Players Guide ~5675.',
         apply: async (actor, _combatant) => {
             const combat = game.combat;
             const roundState = getRoundState(actor, combat);
@@ -114,20 +177,25 @@ const MIGHT_POWERS = [
             if (!roundState.stoneBonuses.armorPenetration) {
                 roundState.stoneBonuses.armorPenetration = 0;
             }
-            roundState.stoneBonuses.armorPenetration += 4;
+            // Players Guide ~5675: take the higher of "ignore 4" and "double the
+            // attribute-driven Might Armor Breaker (⌊Might/8⌋)".
+            const armorBreaker = Math.max(0, Math.floor(Number(actor?.system?.scaling?.armorBreaker ?? 0) || 0));
+            const bonus = Math.max(4, armorBreaker * 2);
+            roundState.stoneBonuses.armorPenetration += bonus;
             await setRoundState(actor, roundState);
         }
     },
     {
-        id: 'might.enemyLoseAttack1',
-        name: '-1 Attack (Enemy)',
+        id: 'might.staggerEnemy',
+        name: 'Stagger (−2 Attacks)',
         attribute: 'might',
         category: 'action',
-        description: 'Target loses 1 Attack for this round, but can prevent with a successful Body Save',
-        effect: 'Target loses 1 Attack for this round, but can prevent with a successful Body Save.',
+        description: 'Target makes a Body Save; on a failure, the target loses 2 Attack dice on its next attack this round.',
+        effect: 'Target makes a Body Save; on a failure, the target loses 2 Attack dice on its next attack this round. Players Guide ~5676.',
         apply: async (_actor, combatant) => {
-            // This requires target selection - store flag for later processing
-            await combatant.setFlag('mastery-system', 'pendingEnemyAttackReduction', 1);
+            // Players Guide ~5676: −2 dice instead of −1, gated by a Body Save.
+            await combatant.setFlag('mastery-system', 'pendingEnemyAttackReduction', 2);
+            await combatant.setFlag('mastery-system', 'pendingEnemyAttackReductionSave', 'body');
         }
     },
     {
@@ -206,6 +274,25 @@ const AGILITY_POWERS = [
         }
     },
     {
+        id: 'agility.evasiveStep',
+        name: 'Evasive Step (4 m, no OA)',
+        attribute: 'agility',
+        category: 'reaction',
+        description: 'Move up to 4 m without provoking Opportunity Attacks. Players Guide ~5690.',
+        effect: 'Move up to 4 m without provoking Opportunity Attacks (Players Guide ~5690).',
+        apply: async (actor, _combatant) => {
+            const combat = game.combat;
+            const roundState = getRoundState(actor, combat);
+            if (!roundState.stoneBonuses) {
+                roundState.stoneBonuses = { extraAttacks: 0, extraReactions: 0, extraMoveMeters: 0 };
+            }
+            // Surface as +4 m of bonus movement plus a "no OA" rider tracked via flag.
+            roundState.moveBonusMeters = (roundState.moveBonusMeters ?? 0) + 4;
+            await setRoundState(actor, roundState);
+            await actor.setFlag?.('mastery-system', 'pendingNoOaMove', 4);
+        }
+    },
+    {
         id: 'agility.removeSpecialsElemental',
         name: 'Remove Specials',
         attribute: 'agility',
@@ -233,17 +320,35 @@ const VITALITY_POWERS = [
         }
     },
     {
-        id: 'vitality.heal2d8',
-        name: 'Heal 2d8',
+        id: 'vitality.heal4d8',
+        name: 'Heal 4d8',
         attribute: 'vitality',
         category: 'action',
-        description: 'Recover 2d8 HP per activation',
-        effect: 'Recover 2d8 HP per activation.',
+        description: 'Recover 4d8 HP per activation',
+        effect: 'Recover 4d8 HP per activation. Players Guide ~5702–5703.',
         apply: async (actor, _combatant) => {
-            const healAmount = await new Roll('2d8').evaluate({ async: true });
+            const healAmount = await new Roll('4d8').evaluate({ async: true });
             const total = healAmount.total || 0;
             await actor.heal(total);
             ui.notifications?.info(`${actor.name} healed ${total} HP`);
+        }
+    },
+    {
+        id: 'vitality.removeScar',
+        name: 'Remove a Scar',
+        attribute: 'vitality',
+        category: 'action',
+        description: 'Permanently remove one Scarred slot. Players Guide ~5702.',
+        effect: 'Permanently remove one Scarred slot from yourself or a willing ally within 6 m.',
+        apply: async (actor, _combatant) => {
+            const system = actor.system ?? {};
+            const scar = Math.max(0, Number(system?.health?.scarred ?? 0) || 0);
+            if (scar <= 0) {
+                ui.notifications?.warn(`${actor.name} has no Scars to remove.`);
+                return;
+            }
+            await actor.update?.({ 'system.health.scarred': scar - 1 });
+            ui.notifications?.info(`${actor.name} removed a Scar (${scar} → ${scar - 1}).`);
         }
     },
     {
@@ -445,14 +550,20 @@ const INFLUENCE_POWERS = [
         }
     },
     {
-        id: 'influence.rally',
-        name: 'Rally',
+        id: 'influence.extraPassive',
+        name: 'Extra Passive',
         attribute: 'influence',
         category: 'action',
-        description: 'All allies within 5m heal 2d8 HP and 2d8 Stress, up to their current Health/Stress Bar',
-        effect: 'All allies within 5m heal 2d8 HP and 2d8 Stress, up to their current Health/Stress Bar.',
-        apply: async (_actor, _combatant) => {
-            await _actor.setFlag('mastery-system', 'pendingRally', { range: 5, hpHeal: '2d8', stressHeal: '2d8' });
+        description: 'Trigger one of your owned Passive abilities a second time this round. Players Guide ~5746.',
+        effect: 'Trigger one of your owned Passive abilities a second time this round (Players Guide ~5746).',
+        apply: async (actor, _combatant) => {
+            const combat = game.combat;
+            const roundState = getRoundState(actor, combat);
+            if (!roundState.stoneBonuses) {
+                roundState.stoneBonuses = { extraAttacks: 0, extraReactions: 0, extraMoveMeters: 0 };
+            }
+            roundState.stoneBonuses.extraPassives = (roundState.stoneBonuses.extraPassives ?? 0) + 1;
+            await setRoundState(actor, roundState);
         }
     },
     {
@@ -473,7 +584,16 @@ const INFLUENCE_POWERS = [
  */
 export const STONE_POWERS = {};
 // Add all powers to registry
-[...GENERIC_POWERS, ...MIGHT_POWERS, ...AGILITY_POWERS, ...VITALITY_POWERS, ...INTELLECT_POWERS, ...RESOLVE_POWERS, ...INFLUENCE_POWERS].forEach(power => {
+[
+    ...GENERIC_POWERS,
+    ...MIGHT_POWERS,
+    ...AGILITY_POWERS,
+    ...VITALITY_POWERS,
+    ...INTELLECT_POWERS,
+    ...RESOLVE_POWERS,
+    ...INFLUENCE_POWERS,
+    ...WITS_POWERS,
+].forEach(power => {
     STONE_POWERS[power.id] = power;
 });
 /**
@@ -486,6 +606,7 @@ export const STONE_POWERS_BY_ATTRIBUTE = {
     vitality: VITALITY_POWERS,
     intellect: INTELLECT_POWERS,
     resolve: RESOLVE_POWERS,
-    influence: INFLUENCE_POWERS
+    influence: INFLUENCE_POWERS,
+    wits: WITS_POWERS,
 };
 //# sourceMappingURL=stone-powers.js.map

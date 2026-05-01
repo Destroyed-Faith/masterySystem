@@ -57,9 +57,21 @@ export interface RollOptions {
     attackDiceCap?: number;
     /**
      * Agility stone Crit / similar: pool d8s explode on **7–8** (each exploding face
-     * adds another d8) instead of the default sum-divisible-by-8 chain.
+     * adds another d8) instead of the default face-equals-8 chain.
      */
     attackExplodeDiceOn78?: boolean;
+    /**
+     * Combat Advantage (Players Guide ~6457–6467): once, after the initial pool
+     * is rolled, every die showing **1** is rerolled (replacement value is kept).
+     * Only applies to the initial pool, never to explosion dice.
+     */
+    rollAdvantage?: boolean;
+    /**
+     * Combat Disadvantage (Players Guide ~6471–6477): of all initial-pool dice
+     * that show **8**, only **one** chosen die explodes; the others stay flat 8.
+     * Pool size and Keep are unchanged.
+     */
+    rollDisadvantage?: boolean;
 }
 /** Stored on chat messages so a Faith Fracture reroll can repeat the same roll setup. */
 export interface MasteryRollRecipe {
@@ -80,6 +92,10 @@ export interface MasteryRollRecipe {
     attackDiceCap?: number;
     /** Mirrors `RollOptions.attackExplodeDiceOn78` for Faith Fracture rerolls. */
     attackExplodeDiceOn78?: boolean;
+    /** Mirrors `RollOptions.rollAdvantage` for Faith Fracture rerolls. */
+    rollAdvantage?: boolean;
+    /** Mirrors `RollOptions.rollDisadvantage` for Faith Fracture rerolls. */
+    rollDisadvantage?: boolean;
 }
 /**
  * Perform a Mastery System roll

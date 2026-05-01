@@ -9,8 +9,11 @@ import { getAllSchticks } from '../utils/schticks.js';
 import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
 import { showEchoCardPickDialog, showEchoCreationDialog } from './character-sheet-echo-dialog.js';
 import { buildFreshTraitUses, getActiveEchoTraits, getCardOption, getEcho, getEchoCard, getEchoSubChoice, getUnlockedCardSlots, isMrPerRest, isTraitGatedByMr } from '../utils/echos/index.js';
-import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_POWER_REQUIREMENTS } from '../utils/power-catalog.js';
+import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_POWER_REQUIREMENTS, CREATION_POWER_TOTAL, CREATION_POWERS_AT_RANK_2 } from '../utils/power-catalog.js';
+import { getLanguage as getLanguageDef, normalizeKnownLanguages } from '../utils/languages.js';
+import { showLanguagesDialog } from './languages-dialog.js';
 import { findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid.js';
+import { loadZoneFromBands, movementPenaltyForLoad } from '../utils/encumbrance.js';
 import { buildPostCreationSnapshot } from '../utils/xp-post-creation.js';
 import { resetCharacterForRecreation } from '../utils/reset-character.js';
 import { getPassiveSlots, slotPassive, unslotPassive } from '../powers/passives.js';
@@ -472,7 +475,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             if (cat && cat in categoryCounts)
                 categoryCounts[cat]++;
         }
-        const totalPowersRequired = Object.values(CREATION_POWER_REQUIREMENTS).reduce((a, b) => a + b, 0);
+        /**
+         * Players Guide 2988–3008: a starting character picks **4 Powers
+         * total** (not a 2/1/1/1/2 per-category split) with **2 of those 4
+         * raised to Rank 2** at creation. The legacy per-category UI rows
+         * are kept around for visualisation only — every category requires
+         * `0` and the real gate is the totals + Rank-2 count below.
+         */
+        const totalPowersRequired = CREATION_POWER_TOTAL;
+        const totalPowersSelected = powers.length;
+        const powersAtRank2 = powers.filter((p) => Number(p.system?.level ?? 1) >= 2).length;
         const categoryRequirements = CATEGORY_ORDER.map(cat => ({
             key: cat,
             label: CATEGORY_LABELS[cat],
@@ -480,7 +492,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             selected: categoryCounts[cat],
             valid: categoryCounts[cat] === CREATION_POWER_REQUIREMENTS[cat]
         }));
-        const categoriesValid = categoryRequirements.every(r => r.valid);
+        const categoriesValid = totalPowersSelected === CREATION_POWER_TOTAL &&
+            powersAtRank2 === CREATION_POWERS_AT_RANK_2;
         // --- Echo view ------------------------------------------------------------
         const rawEcho = (context.system.echo || {});
         const echoKey = rawEcho.key || '';
@@ -552,6 +565,24 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             }
             : null;
         context.echoView = echoView;
+        /**
+         * Languages view (Players Guide 3100–3127). Common Tongue is always
+         * known; the picker enforces ≥ 1 additional language at character
+         * creation. The handlebars template renders `languagesView.list` as
+         * tag chips and `languagesView.creationValid` toggles a warning hint.
+         */
+        {
+            const knownRaw = context.system?.languages?.known ?? ['common'];
+            const norm = normalizeKnownLanguages(knownRaw);
+            context.languagesView = {
+                list: norm.cleaned
+                    .map((key) => getLanguageDef(key))
+                    .filter((d) => !!d)
+                    .map((d) => ({ key: d.key, name: d.name, isCommon: !!d.isCommon })),
+                pickedNonCommon: norm.pickedNonCommon,
+                creationValid: norm.creationValid,
+            };
+        }
         console.log('Mastery System | getData - Powers Status:', {
             totalPowers: powers.length,
             selectedTrees: selectedTrees,
@@ -1244,6 +1275,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             { key: 'offhand', label: 'Offhand' },
             { key: 'boot', label: 'Boots' }
         ];
+        // Players Guide 7575–7579: Load zone & movement penalty.
+        // Map the legacy 3-band (Normal / Encumbered / Overloaded) representation
+        // onto the canonical 24 × 9 / Zone-1-2-3 model so the load and the
+        // movement penalty stay synchronized regardless of which band view we
+        // ship in the UI.
+        const loadZone = loadZoneFromBands({
+            normalCount: notItems.length,
+            encumberedCount: encItems.length,
+            overloadedCount: heavyItems.length,
+        });
+        const movementPenaltyM = movementPenaltyForLoad(loadZone);
         return {
             showStash: this._showStash,
             bandCols: BAND_COLS,
@@ -1256,7 +1298,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 heavyCells: heavyCellsData.cells,
                 notOverflow: notCellsData.overflow,
                 encOverflow: encCellsData.overflow,
-                heavyOverflow: heavyCellsData.overflow
+                heavyOverflow: heavyCellsData.overflow,
+                loadZone,
+                loadZoneLabel: loadZone === 'overloaded' ? 'Overloaded'
+                    : loadZone === 'encumbered' ? 'Encumbered'
+                        : 'Normal Load',
+                movementPenaltyM,
             },
             stash: {
                 cells: stashCellsData.cells,
@@ -1596,6 +1643,20 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 return;
             const { showMinorExpressionsDialog } = await import('./minor-expressions-dialog.js');
             await showMinorExpressionsDialog(this.actor, { focusAttribute: attr });
+            this.render(false);
+        });
+        /**
+         * Players Guide 3100–3127: open the Languages picker dialog. The
+         * Common Tongue is always pre-selected and locked; players choose
+         * additional languages reflecting their origin/training.
+         */
+        html.find('.open-languages-btn').on('click', async (ev) => {
+            ev.preventDefault();
+            if (!this.actor.isOwner && !game.user?.isGM) {
+                ui.notifications?.warn('Only the owner (or GM) can edit languages.');
+                return;
+            }
+            await showLanguagesDialog(this.actor);
             this.render(false);
         });
         // Roll buttons work for everyone
@@ -2700,11 +2761,21 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ui.notifications?.warn(`Not enough XP for this change (net ${netPendingCost} vs ${xpState.available} available).`);
             return;
         }
-        const maxAttributeSpend = Math.floor(xpState.totalEarned / 2);
-        if (xpState.spentAttributes + netPendingCost > maxAttributeSpend) {
-            ui.notifications?.warn(`Attribute XP cap: after this change you would have ${xpState.spentAttributes + netPendingCost} / ${maxAttributeSpend} ` +
-                `(max 50% of ${xpState.totalEarned} total earned XP on attributes). Spend XP on skills or powers first, or refund attribute XP with −.`);
-            return;
+        /**
+         * Players Guide 7121–7132: per-step 50% Attribute Rule. Clicking
+         * "+" must not push the *current step's* Attribute share above
+         * `floor(stepTotal / 2) + 1`.
+         */
+        {
+            const stepRaw = this.actor.system?.xp?.currentStep ?? {};
+            const stepAttr = Math.max(0, Math.floor(Number(stepRaw.attrSpent) || 0));
+            const stepNonAttr = Math.max(0, Math.floor(Number(stepRaw.nonAttrSpent) || 0));
+            const projectedAttr = stepAttr + Math.max(0, netPendingCost);
+            const cap = Math.floor((projectedAttr + stepNonAttr) / 2) + 1;
+            if (projectedAttr > cap) {
+                ui.notifications?.warn(`Step 50% rule: this Attribute spend would push the current step's Attribute share to ${projectedAttr} XP, but the cap (with ${stepNonAttr} non-Attribute XP this step) is ${cap} XP. Spend XP on Skills, Powers or Artifacts in this step first, or click "End XP Step".`);
+                return;
+            }
         }
         this._pendingAttributeChanges[attributeName] = nextPending;
         if (this._pendingAttributeChanges[attributeName] === 0) {
@@ -2788,7 +2859,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const totalAbsPending = Object.values(this._pendingAttributeChanges).reduce((sum, val) => sum + Math.abs(val), 0);
         html.find('#pending-attribute-changes-count').text(totalAbsPending);
         html.find('#remaining-attribute-xp').text(Math.max(0, remainingPoints));
-        const maxAttributeSpend = Math.floor(xpState.totalEarned / 2);
+        /**
+         * Players Guide 7121–7132: per-step 50% Attribute Rule. The disable
+         * check on each "+" button now consults the current step bucket
+         * (`system.xp.currentStep`) instead of the lifetime cap.
+         */
+        const stepRaw = this.actor.system?.xp?.currentStep ?? {};
+        const stepStateForUi = {
+            attrSpent: Math.max(0, Math.floor(Number(stepRaw.attrSpent) || 0)),
+            nonAttrSpent: Math.max(0, Math.floor(Number(stepRaw.nonAttrSpent) || 0)),
+        };
         const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
         for (const attrKey of attributeKeys) {
             const pending = this._pendingAttributeChanges[attrKey] || 0;
@@ -2818,8 +2898,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 if (simulateMap[attrKey] === 0)
                     delete simulateMap[attrKey];
                 const simNet = this.#calculateAttributePendingNetCost(simulateMap);
-                const overCap = xpState.spentAttributes + simNet > maxAttributeSpend;
-                increaseBtn.prop('disabled', simNet > xpState.available || overCap);
+                // Per-step 50% rule: the simulated Attribute spend (incl. all pending) must fit within
+                // floor((stepAttr + stepNonAttr + simNet) / 2) + tolerance.
+                const projectedAttr = stepStateForUi.attrSpent + Math.max(0, simNet);
+                const projectedTotal = projectedAttr + stepStateForUi.nonAttrSpent;
+                const cap = Math.floor(projectedTotal / 2) + 1;
+                const overStepCap = projectedAttr > cap;
+                increaseBtn.prop('disabled', simNet > xpState.available || overStepCap);
             }
         }
         const confirmBtn = html.find('#confirm-attribute-changes-btn');
@@ -2888,12 +2973,27 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ui.notifications?.error(`Not enough XP! Net cost: ${totalNetCost}, Available: ${xpState.available}`);
             return;
         }
-        const maxAttributeSpend = Math.floor(xpState.totalEarned / 2);
-        const newSpentAttributes = xpState.spentAttributes + totalNetCost;
-        if (newSpentAttributes > maxAttributeSpend || newSpentAttributes < 0) {
-            ui.notifications?.error(`Attribute XP limits violated. Would be ${newSpentAttributes} / ${maxAttributeSpend} (50% of ${xpState.totalEarned} total earned on attributes).`);
-            return;
+        /**
+         * Players Guide 7121–7132: at most 50% of the XP spent in the
+         * **current upgrade step** may go on Attributes (+1 XP rounding
+         * tolerance). The legacy lifetime cap was conceptually wrong; we
+         * now consult the per-step bucket via `xp-step-rule.ts`.
+         */
+        const stepRule = await import('../utils/xp-step-rule.js');
+        const stepBefore = stepRule.readStep(this.actor);
+        let stepAfter = stepBefore;
+        if (totalNetCost > 0) {
+            const check = stepRule.checkAttrSpend(stepBefore, totalNetCost);
+            if (!check.ok) {
+                ui.notifications?.error(`Step 50% rule: this Attribute spend (${totalNetCost} XP) would push the step's Attribute share to ${stepBefore.attrSpent + totalNetCost} XP, but the cap with the current step total is ${check.cap} XP. Spend ${check.requiredNonAttr} XP on Skills/Powers/Artifacts in this step first, or click "End XP Step" to start a new step.`);
+                return;
+            }
+            stepAfter = stepRule.applyAttrSpend(stepBefore, totalNetCost);
         }
+        else if (totalNetCost < 0) {
+            stepAfter = stepRule.refundAttrSpend(stepBefore, -totalNetCost);
+        }
+        const newSpentAttributes = Math.max(0, xpState.spentAttributes + totalNetCost);
         const beforeState = {
             available: xpState.available,
             totalEarned: xpState.totalEarned,
@@ -2903,6 +3003,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         updates['system.points.xp'] = xpState.available - totalNetCost;
         updates['system.xp.totalSpent'] = Math.max(0, xpState.totalSpent + totalNetCost);
         updates['system.xp.spentAttributes'] = newSpentAttributes;
+        updates['system.xp.currentStep.attrSpent'] = stepAfter.attrSpent;
+        updates['system.xp.currentStep.nonAttrSpent'] = stepAfter.nonAttrSpent;
         if (!this.actor.system.xp) {
             updates['system.xp.totalEarned'] = xpState.totalEarned;
             updates['system.xp.history'] = [];
@@ -3238,8 +3340,22 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         // Update XP (netCost can be negative for refunds)
         const newXP = availableXP - netCost;
+        /**
+         * Players Guide 7121–7132: Power XP counts as **non-Attribute**
+         * spending in the per-step 50% rule and increases the budget for
+         * future Attribute spends in the same step.
+         */
+        const stepRulePow = await import('../utils/xp-step-rule.js');
+        const stepBeforePow = stepRulePow.readStep(this.actor);
+        let stepAfterPow = stepBeforePow;
+        if (netCost > 0)
+            stepAfterPow = stepRulePow.applyNonAttrSpend(stepBeforePow, netCost);
+        else if (netCost < 0)
+            stepAfterPow = stepRulePow.refundNonAttrSpend(stepBeforePow, -netCost);
         const updates = {
-            'system.points.xp': newXP
+            'system.points.xp': newXP,
+            'system.xp.currentStep.attrSpent': stepAfterPow.attrSpent,
+            'system.xp.currentStep.nonAttrSpent': stepAfterPow.nonAttrSpent,
         };
         // Update totalSpent (only if netCost is positive)
         if (netCost > 0) {
@@ -3317,16 +3433,18 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const actorData = this.actor.system;
         let numDice = actorData.attributes?.[attribute]?.value || 0;
         const keepDice = actorData.mastery?.rank || 2;
+        // Players Guide minimum-pool rule (~5888–5899) — apply *before* the
+        // health penalty so the percentage scales with the post-floor pool.
+        numDice = Math.max(numDice, keepDice);
         const { getCurrentPenalty } = await import('../utils/calculations.js');
         const healthBars = actorData.health?.bars || [];
         const currentBar = actorData.health?.currentBar ?? 0;
-        const healthPenalty = getCurrentPenalty(healthBars, currentBar);
+        const healthPenalty = getCurrentPenalty(healthBars, currentBar, numDice);
         numDice = Math.max(1, numDice + healthPenalty);
         const attrLabel = attribute.charAt(0).toUpperCase() + attribute.slice(1);
         let flavor = `Attribute: ${attrLabel}, Base TN: ${rollOptions.baseTN}, Raises: ${rollOptions.raises}`;
         if (healthPenalty < 0) {
-            const penaltyText = healthPenalty === -1 ? '1' : healthPenalty === -2 ? '2' : healthPenalty === -4 ? '4' : String(Math.abs(healthPenalty));
-            flavor += ` (Health penalty: -${penaltyText} dice)`;
+            flavor += ` (Health penalty: ${healthPenalty} dice)`;
         }
         const { masteryRoll } = await import('../dice/roll-handler.js');
         await masteryRoll({
@@ -3506,7 +3624,21 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const system = this.actor.system;
         const attributeValue = system.attributes?.[rollOptions.attributeKey]?.value || 0;
         const masteryRank = system.mastery?.rank || 2;
-        let numDice = attributeValue;
+        // Players Guide skill rules (~1880–1893): the skill is "active" only
+        // when its rating ≥ MR. Below that threshold the player rolls **half
+        // the attribute** (rounded down, never < 1) and may not spend skill
+        // points after the roll. The minimum-pool floor (max(attribute, MR))
+        // applies in both modes.
+        const skillRating = Number(system?.skills?.[skillKey] ?? 0);
+        const fullPoolReady = skillRating >= masteryRank;
+        let baseAttrPool = attributeValue;
+        let halfPoolFlavor = '';
+        if (!fullPoolReady) {
+            const halved = Math.max(1, Math.floor(attributeValue / 2));
+            halfPoolFlavor = ` Half-pool: skill rating ${skillRating} < MR ${masteryRank} → ⌊${attributeValue}/2⌋ = ${halved}d8, no skill points may be spent.`;
+            baseAttrPool = halved;
+        }
+        let numDice = Math.max(baseAttrPool, masteryRank);
         let equipPenaltyFlavor = '';
         if (skillDef.category === SKILL_CATEGORIES.PHYSICAL) {
             const penDice = getEquippedPhysicalSkillPenaltyDice(this.actor);
@@ -3522,10 +3654,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             skill: 0, // No auto skill bonus
             tn: rollOptions.finalTN,
             label: `${skillDef.name} Check`,
-            flavor: `Attribute: ${rollOptions.attributeKey.charAt(0).toUpperCase() + rollOptions.attributeKey.slice(1)}, Base TN: ${rollOptions.baseTN}, Raises: ${rollOptions.raises}.${equipPenaltyFlavor}`,
+            flavor: `Attribute: ${rollOptions.attributeKey.charAt(0).toUpperCase() + rollOptions.attributeKey.slice(1)}, Base TN: ${rollOptions.baseTN}, Raises: ${rollOptions.raises}.${equipPenaltyFlavor}${halfPoolFlavor}`,
             actorId: this.actor.id,
-            skillKey: skillKey,
-            isSkillRoll: true,
+            // Half-pool mode: the rule says no points may be spent, so we hide
+            // the spend buttons entirely by suppressing the skill-roll flag.
+            skillKey: fullPoolReady ? skillKey : undefined,
+            isSkillRoll: fullPoolReady,
             baseModifier: 0,
             rollKind: 'skill',
             autoFailIntent: 'skill',
@@ -3544,23 +3678,47 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     async #promptForSkillRollOptions(_skillKey, skillDef, forcedAttribute) {
         const system = this.actor.system;
         const masteryRank = system.mastery?.rank || 2;
-        const standardTN = masteryRank * 8;
-        // Calculate difficulty TNs based on MR
-        const difficulties = {
-            trivial: standardTN - 8,
-            easy: standardTN - 4,
-            standard: standardTN,
-            challenging: standardTN + 4,
-            hard: standardTN + 8,
-            veryHard: standardTN + 12,
-            heroic: standardTN + 16
+        // Players Guide skill-difficulty chapter (~1860–1879): Standard TN = 8 ×
+        // Challenge MR (the GM-set difficulty), NOT 8 × the rolling actor's MR.
+        // We default the Challenge to the actor's own MR so a self-test starts
+        // at the familiar TN, but expose a 1–16 picker so any GM challenge MR
+        // can be selected directly.
+        const buildDifficulties = (challengeMR) => {
+            const std = Math.max(1, Math.floor(challengeMR)) * 8;
+            return {
+                trivial: std - 8,
+                easy: std - 4,
+                standard: std,
+                challenging: std + 4,
+                hard: std + 8,
+                veryHard: std + 12,
+                heroic: std + 16,
+            };
         };
+        const challengeMR = Math.max(1, Math.min(16, masteryRank));
+        const difficulties = buildDifficulties(challengeMR);
         const attrList = skillDef.attributes || [];
         const lockedAttr = forcedAttribute && attrList.map((a) => a.toLowerCase()).includes(forcedAttribute)
             ? attrList.find((a) => a.toLowerCase() === forcedAttribute) || forcedAttribute
             : null;
         const hasMultipleAttributes = attrList.length > 1 && !lockedAttr;
         const defaultAttribute = lockedAttr || attrList[0];
+        // Players Guide full-pool / minimum-pool rules (~1880–1893):
+        //   - The skill is only "on" if the rating is ≥ MR; with a smaller
+        //     rating only **half the attribute** can roll (rounded down,
+        //     never below 1) and the skill is unusable for spending.
+        //   - The minimum pool floor is `max(attribute, MR)`.
+        const skillRating = Number(system?.skills?.[_skillKey] ?? 0);
+        const skillsSpent = Number(system?.skillsSpent?.[_skillKey] ?? 0);
+        const remainingPool = Math.max(0, skillRating - skillsSpent);
+        const fullPoolReady = skillRating >= masteryRank;
+        const buildPoolPreview = (attr) => {
+            const attrValue = Number(system?.attributes?.[attr]?.value ?? 0);
+            const usableAttr = fullPoolReady ? attrValue : Math.max(1, Math.floor(attrValue / 2));
+            const floored = Math.max(usableAttr, masteryRank);
+            return { attrValue, usableAttr, floored };
+        };
+        const initialPreview = buildPoolPreview(defaultAttribute);
         const content = `
       <form class="mastery-dialog-form">
         ${hasMultipleAttributes ? `
@@ -3583,17 +3741,35 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             </div>
           </div>
         `}
-        
+
+        <div class="md-group">
+          <label class="md-label">Skill Pool <span class="md-sublabel">(rating ${skillRating} / pool left ${remainingPool}; ≥ MR ${masteryRank} for full effect)</span></label>
+          <div class="md-attr-display" id="skill-pool-status">
+            ${fullPoolReady
+            ? `Full pool — rolling ${initialPreview.floored}d8 (attribute ${initialPreview.attrValue}, MR floor ${masteryRank}).`
+            : `Half pool only — skill rating ${skillRating} &lt; MR ${masteryRank}; rolling ${initialPreview.floored}d8 (⌊${initialPreview.attrValue}/2⌋ = ${initialPreview.usableAttr}, MR floor ${masteryRank}). No skill points may be spent.`}
+          </div>
+        </div>
+
+        <div class="md-group">
+          <label class="md-label">Challenge MR <span class="md-sublabel">(GM difficulty — Standard TN = 8 × Challenge MR)</span></label>
+          <select name="challengeMR" id="skill-roll-challengeMR" class="md-select">
+            ${Array.from({ length: 16 }, (_, i) => i + 1)
+            .map((mr) => `<option value="${mr}" ${mr === challengeMR ? 'selected' : ''}>MR ${mr} (Standard ${mr * 8})</option>`)
+            .join('')}
+          </select>
+        </div>
+
         <div class="md-group md-group-difficulty">
           <label class="md-label">Difficulty</label>
           <select name="baseTN" id="skill-roll-baseTN" class="md-select md-select-difficulty">
-            <option value="${difficulties.trivial}">Trivial (${difficulties.trivial})</option>
-            <option value="${difficulties.easy}">Easy (${difficulties.easy})</option>
-            <option value="${difficulties.standard}" selected>Standard (${difficulties.standard})</option>
-            <option value="${difficulties.challenging}">Challenging (${difficulties.challenging})</option>
-            <option value="${difficulties.hard}">Hard (${difficulties.hard})</option>
-            <option value="${difficulties.veryHard}">Very Hard (${difficulties.veryHard})</option>
-            <option value="${difficulties.heroic}">Heroic (${difficulties.heroic})</option>
+            <option value="trivial">Trivial (<span data-bucket="trivial">${difficulties.trivial}</span>)</option>
+            <option value="easy">Easy (<span data-bucket="easy">${difficulties.easy}</span>)</option>
+            <option value="standard" selected>Standard (<span data-bucket="standard">${difficulties.standard}</span>)</option>
+            <option value="challenging">Challenging (<span data-bucket="challenging">${difficulties.challenging}</span>)</option>
+            <option value="hard">Hard (<span data-bucket="hard">${difficulties.hard}</span>)</option>
+            <option value="veryHard">Very Hard (<span data-bucket="veryHard">${difficulties.veryHard}</span>)</option>
+            <option value="heroic">Heroic (<span data-bucket="heroic">${difficulties.heroic}</span>)</option>
             <option value="custom">Custom…</option>
           </select>
         </div>
@@ -3629,13 +3805,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                         label: '<i class="fas fa-dice-d20"></i> Roll',
                         callback: (html) => {
                             const attributeKey = html.find('[name="attribute"]').val();
-                            const baseTNSelect = html.find('[name="baseTN"]').val();
+                            const challengeMRVal = Math.max(1, Math.min(16, parseInt(html.find('[name="challengeMR"]').val()) || challengeMR));
+                            const challengeBuckets = buildDifficulties(challengeMRVal);
+                            const bucket = html.find('[name="baseTN"]').val();
                             let baseTN;
-                            if (baseTNSelect === 'custom') {
+                            if (bucket === 'custom') {
                                 baseTN = parseInt(html.find('[name="customTN"]').val()) || 0;
                             }
                             else {
-                                baseTN = parseInt(baseTNSelect) || difficulties.standard;
+                                baseTN =
+                                    challengeBuckets[bucket] ?? challengeBuckets.standard;
                             }
                             const raises = parseInt(html.find('[name="raises"]').val()) || 0;
                             const finalTN = baseTN + (raises * 4);
@@ -3667,14 +3846,26 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                         const isCustom = $(this).val() === 'custom';
                         $html.find('#custom-tn-group').toggle(isCustom);
                     });
+                    const refreshDifficultyLabels = () => {
+                        const mr = Math.max(1, Math.min(16, parseInt($html.find('[name="challengeMR"]').val()) || challengeMR));
+                        const buckets = buildDifficulties(mr);
+                        for (const key of Object.keys(buckets)) {
+                            $html.find(`[data-bucket="${key}"]`).text(String(buckets[key]));
+                        }
+                        const customField = $html.find('[name="customTN"]');
+                        if (!customField.is(':focus'))
+                            customField.val(String(buckets.standard));
+                    };
                     const updateFinalTN = () => {
-                        const baseTNSelect = $html.find('[name="baseTN"]').val();
+                        const mr = Math.max(1, Math.min(16, parseInt($html.find('[name="challengeMR"]').val()) || challengeMR));
+                        const buckets = buildDifficulties(mr);
+                        const bucket = $html.find('[name="baseTN"]').val();
                         let baseTN;
-                        if (baseTNSelect === 'custom') {
+                        if (bucket === 'custom') {
                             baseTN = parseInt($html.find('[name="customTN"]').val()) || 0;
                         }
                         else {
-                            baseTN = parseInt(baseTNSelect) || difficulties.standard;
+                            baseTN = buckets[bucket] ?? buckets.standard;
                         }
                         const raises = parseInt($html.find('[name="raises"]').val()) || 0;
                         const finalTN = baseTN + (raises * 4);
@@ -3682,17 +3873,25 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     };
                     const updateAutoRaisePool = () => {
                         const attr = $html.find('[name="attribute"]').val() || defaultAttribute;
-                        const baseDice = system.attributes?.[attr]?.value || 0;
+                        const preview = buildPoolPreview(attr);
                         const autoRaises = Math.max(0, parseInt($html.find('[name="autoRaises"]').val()) || 0);
                         const cost = autoRaises * 4;
-                        const finalPool = Math.max(1, baseDice - cost);
+                        const baseAfterFloor = preview.floored;
+                        const finalPool = Math.max(1, baseAfterFloor - cost);
                         const text = autoRaises > 0
-                            ? `${baseDice} − ${cost} = ${finalPool}d8 (+${autoRaises} auto raise${autoRaises > 1 ? 's' : ''})`
-                            : `${baseDice}d8`;
+                            ? `${baseAfterFloor} − ${cost} = ${finalPool}d8 (+${autoRaises} auto raise${autoRaises > 1 ? 's' : ''})`
+                            : `${baseAfterFloor}d8`;
                         $html.find('#auto-raise-pool-display').text(text);
+                        $html.find('#skill-pool-status').text(fullPoolReady
+                            ? `Full pool — rolling ${preview.floored}d8 (attribute ${preview.attrValue}, MR floor ${masteryRank}).`
+                            : `Half pool only — skill rating ${skillRating} < MR ${masteryRank}; rolling ${preview.floored}d8 (⌊${preview.attrValue}/2⌋ = ${preview.usableAttr}, MR floor ${masteryRank}). No skill points may be spent.`);
                     };
-                    $html.find('[name="baseTN"], [name="customTN"], [name="raises"]').on('change input', updateFinalTN);
+                    $html
+                        .find('[name="baseTN"], [name="customTN"], [name="raises"], [name="challengeMR"]')
+                        .on('change input', updateFinalTN);
+                    $html.find('[name="challengeMR"]').on('change input', refreshDifficultyLabels);
                     $html.find('[name="attribute"], [name="autoRaises"]').on('change input', updateAutoRaisePool);
+                    refreshDifficultyLabels();
                     updateFinalTN();
                     updateAutoRaisePool();
                 }
@@ -3834,22 +4033,86 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             echoUpdates['system.echo.traitUses'] = buildFreshTraitUses(echo.key, echo.subChoiceKey || null, masteryRank);
             echoChanged = true;
         }
-        await this.actor.update({
+        // Players Guide ~6998+ Safe Haven Rest:
+        //  • All HP bars topped to max, including Incapacitated.
+        //  • All Stress bars cleared.
+        //  • All Scarred bars cleared.
+        //  • Mastery Charges reset to MR.
+        //  • Sealed / Lost / Bound stones release back to the Stone pool.
+        //  • Stone-Bound forms revert.
+        //  • Skills, Vitality save uses, Faith Fractures and Echo uses refresh.
+        const updates = {
             'system.skillsSpent': skillsSpent,
             'system.saves.vitalitySpent': 0,
             'system.saves.vitalityUsesRemaining': 4,
             ...(faithMax > 0 ? { 'system.faithFractures.current': faithMax } : {}),
-            ...echoUpdates
-        });
-        console.log('Mastery System | Safe Haven Rest: Reset all skill points and Vitality save uses', {
+            ...echoUpdates,
+        };
+        // HP bars — restore every bar to its max (including Incapacitated which
+        // is a single box). Tempt-HP and Scarred slots are cleared too.
+        const hpBars = Array.isArray(system?.health?.bars) ? system.health.bars : [];
+        if (hpBars.length > 0) {
+            const restoredBars = hpBars.map((b) => ({ ...b, current: b.max }));
+            updates['system.health.bars'] = restoredBars;
+            updates['system.health.currentBar'] = 0;
+            updates['system.health.tempHP'] = 0;
+            // Scarred slots (when present) end at the same time.
+            updates['system.health.scarred'] = 0;
+        }
+        // Stress bars — Players Guide ~6493: a Safe Haven Rest fully clears
+        // both the active stress total and the scarred stress reservoir.
+        const stressBars = Array.isArray(system?.stress?.bars) ? system.stress.bars : [];
+        if (stressBars.length > 0) {
+            const restoredStress = stressBars.map((b) => ({ ...b, current: b.max }));
+            updates['system.stress.bars'] = restoredStress;
+            updates['system.stress.currentBar'] = 0;
+            updates['system.stress.scarred'] = 0;
+        }
+        // Mastery Charges — Players Guide rest chapter: reset to Mastery Rank.
+        if (system?.mastery && Object.prototype.hasOwnProperty.call(system.mastery, 'charges')) {
+            updates['system.mastery.charges'] = masteryRank;
+        }
+        // Sealed / Lost / Bound stones — Safe Haven Rest releases all of them.
+        if (system?.stones) {
+            if (Object.prototype.hasOwnProperty.call(system.stones, 'sealed')) {
+                updates['system.stones.sealed'] = 0;
+            }
+            if (Object.prototype.hasOwnProperty.call(system.stones, 'lost')) {
+                updates['system.stones.lost'] = 0;
+            }
+            if (Object.prototype.hasOwnProperty.call(system.stones, 'bound')) {
+                updates['system.stones.bound'] = 0;
+            }
+            if (Object.prototype.hasOwnProperty.call(system.stones, 'bondedFormActive')) {
+                updates['system.stones.bondedFormActive'] = false;
+            }
+        }
+        // Status effects — diminishing & timed effects all end on a long rest.
+        if (Array.isArray(system?.statusEffects) && system.statusEffects.length > 0) {
+            updates['system.statusEffects'] = [];
+        }
+        // Blood Raise HP loss flag — combat-specific; clear so future healing
+        // is not blocked by the leftover marker.
+        try {
+            if (this.actor.getFlag?.('mastery-system', 'bloodRaiseHpLost') != null) {
+                await this.actor.unsetFlag?.('mastery-system', 'bloodRaiseHpLost');
+            }
+        }
+        catch (err) {
+            console.warn('Mastery System | Safe Haven blood raise flag clear failed', err);
+        }
+        await this.actor.update(updates);
+        console.log('Mastery System | Safe Haven Rest: Full restoration applied', {
             actorId: this.actor.id,
             actorName: this.actor.name,
             skillsReset: Object.keys(skillsSpent).length,
-            echoReset: echoChanged
+            echoReset: echoChanged,
+            hpBarsRestored: hpBars.length,
+            stressBarsRestored: stressBars.length,
+            masteryChargesReset: !!system?.mastery && Object.prototype.hasOwnProperty.call(system.mastery, 'charges'),
+            stonesReleased: !!system?.stones,
         });
-        ui.notifications?.info(faithMax > 0
-            ? 'All Skill Points, Vitality save uses, and Faith Fractures restored!'
-            : 'All Skill Points and Vitality save uses restored!');
+        ui.notifications?.info('Safe Haven Rest: HP, Stress, Scars, Stones, Mastery Charges, Skills, Vitality saves, Faith Fractures and Echo uses fully restored.');
         this.render();
     }
     /**
@@ -3921,10 +4184,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             return;
         }
         const keepDice = actorData.mastery?.rank || 2;
+        // Players Guide minimum-pool rule (~5888–5899).
+        numDice = Math.max(numDice, keepDice);
         const { getCurrentPenalty } = await import('../utils/calculations.js');
         const healthBars = actorData.health?.bars || [];
         const currentBar = actorData.health?.currentBar ?? 0;
-        const healthPenalty = getCurrentPenalty(healthBars, currentBar);
+        const healthPenalty = getCurrentPenalty(healthBars, currentBar, numDice);
         numDice = Math.max(1, numDice + healthPenalty);
         const tn = await this.#promptForTN();
         if (tn === null)
@@ -4185,7 +4450,20 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             }
             changes.push({ skillKey, from: current, to: target, delta: pending, cost: skillNet });
         }
+        /**
+         * Players Guide 7121–7132: Skill XP counts as **non-Attribute**
+         * spending in the per-step 50% rule.
+         */
+        const stepRuleSk = await import('../utils/xp-step-rule.js');
+        const stepBeforeSk = stepRuleSk.readStep(this.actor);
+        let stepAfterSk = stepBeforeSk;
+        if (netCost > 0)
+            stepAfterSk = stepRuleSk.applyNonAttrSpend(stepBeforeSk, netCost);
+        else if (netCost < 0)
+            stepAfterSk = stepRuleSk.refundNonAttrSpend(stepBeforeSk, -netCost);
         updates['system.points.xp'] = availableXP - netCost;
+        updates['system.xp.currentStep.attrSpent'] = stepAfterSk.attrSpent;
+        updates['system.xp.currentStep.nonAttrSpent'] = stepAfterSk.nonAttrSpent;
         if (netCost > 0) {
             updates['system.xp.totalSpent'] = xpState.totalSpent + netCost;
         }
@@ -5786,14 +6064,26 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ui.notifications?.error(`Must spend exactly ${skillPointsConfig} skill points. Currently spent: ${skillPointsSpent}`);
             return;
         }
-        for (const cat of CATEGORY_ORDER) {
-            const need = CREATION_POWER_REQUIREMENTS[cat];
-            const have = creationCategoryCounts[cat];
-            if (have !== need) {
-                ui.notifications?.error(`Must select exactly ${need} ${CATEGORY_LABELS[cat]} power${need === 1 ? '' : 's'}. Currently: ${have}.`);
-                return;
-            }
+        /**
+         * Players Guide 2988–3008: 4 starting Powers, 2 of them at Rank 2.
+         * The old per-category split (2 active / 1 buff / 1 movement / 1
+         * reaction / 2 passive) is no longer enforced — players choose any
+         * mix that fits the concept.
+         */
+        if (powers.length !== CREATION_POWER_TOTAL) {
+            ui.notifications?.error(`Must choose exactly ${CREATION_POWER_TOTAL} starting Powers. Currently: ${powers.length}.`);
+            return;
         }
+        const startingPowersAtRank2 = powers.filter((p) => Number(p.system?.level ?? 1) >= 2).length;
+        if (startingPowersAtRank2 !== CREATION_POWERS_AT_RANK_2) {
+            ui.notifications?.error(`Must raise exactly ${CREATION_POWERS_AT_RANK_2} of your starting Powers to Rank 2 (currently ${startingPowersAtRank2}). The remaining ${CREATION_POWER_TOTAL - CREATION_POWERS_AT_RANK_2} Powers stay at Rank 1.`);
+            return;
+        }
+        // Reference legacy per-category map so unused-import warnings stay quiet.
+        void creationCategoryCounts;
+        void CATEGORY_ORDER;
+        void CREATION_POWER_REQUIREMENTS;
+        void CATEGORY_LABELS;
         if (disadvantagePoints < minDisadvantagePts) {
             ui.notifications?.error(`You must take at least ${minDisadvantagePts} points of disadvantages to finish creation (currently ${disadvantagePoints}).`);
             return;

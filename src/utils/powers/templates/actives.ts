@@ -21,6 +21,7 @@ import type { PowerTemplate } from './_shared.js';
 import { buildLevels, activeRow } from './_shared.js';
 import type { ActiveSpecialSlot, ActiveSpecialTier, AoeSpec, RangeSpec, SpellHints } from '../../../types/item.js';
 import { getEligibleSpecialsForTier } from './_specials.js';
+import { solveDamageRow } from '../pp-budget.js';
 
 const MELEE_RANGE: RangeSpec = { kind: 'melee', note: 'Melee Reach' };
 const R_NONE: AoeSpec = { shape: 'none' };
@@ -33,27 +34,27 @@ function aoeRadius(lvl: number, step = 1, base = 2): AoeSpec {
     return { shape: 'radius', radiusM: base + Math.floor((lvl - 1) * step), center: 'targetPoint', targetFilter: 'enemies' };
 }
 
-/** Start-PP table → damage dice progression per level (soft heuristic). */
-function damageDiceForTier(tier: ActiveSpecialTier, lvl: number): string {
-    // Higher tier = lower damage rider (more PP goes into the special).
-    // T3/T4: ~ceil(lvl/2)d8; T5: ~ceil(lvl/3)d8 + 1; T6: flat 1d8.
-    switch (tier) {
-        case 3: return `${Math.max(1, Math.ceil(lvl / 2))}d8`;
-        case 4: return `${Math.max(1, Math.ceil(lvl / 2))}d8`;
-        case 5: return `${Math.max(1, Math.ceil(lvl / 3) + 1)}d8`;
-        case 6: return `1d8`;
-    }
-}
-
-/** Special rank progression per level (from Actives.md T(X)=X(X+1)/2 tables). */
-function specialRankForTier(tier: ActiveSpecialTier, lvl: number): number {
-    // Approximate curves from actives.md calculations.
-    switch (tier) {
-        case 3: return Math.min(17, [3, 5, 6, 8, 9, 10, 11, 12, 12, 13, 14, 14, 15, 16, 16, 17][lvl - 1]);
-        case 4: return Math.min(14, [2, 3, 4, 5, 6, 7, 8, 8, 9, 10, 10, 11, 12, 12, 13, 14][lvl - 1]);
-        case 5: return Math.min(10, [1, 2, 3, 3, 4, 4, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10][lvl - 1]);
-        case 6: return Math.min(8, [1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 7, 8][lvl - 1]);
-    }
+/**
+ * Solve damage rider + special rank for one row using the canonical
+ * 30 PP / level budget (see `pp-budget.ts`). The helper applies the
+ * Damage Anchor at level 4 by default (Actives.md ~79–90 / 600+).
+ */
+function rowFromBudget(opts: {
+    tier: ActiveSpecialTier;
+    lvl: number;
+    isRanged: boolean;
+    aoe?: boolean;
+}): { dice: string; rank: number; rangeM: number } {
+    const r = solveDamageRow(opts.tier as 3 | 4 | 5 | 6, opts.lvl, {
+        isRanged: opts.isRanged,
+        aoe: !!opts.aoe,
+        anchorLvl: 4,
+    });
+    return {
+        dice: `${Math.max(0, r.damageDice)}d8`,
+        rank: r.specialRank,
+        rangeM: r.rangeM,
+    };
 }
 
 // ─── Factory helpers ─────────────────────────────────────────────────────
@@ -82,16 +83,15 @@ function damageSingleTemplate(def: {
         cost: { action: 'attack' },
         roll: { kind: 'attack', attribute: isRanged ? 'agility' : 'might' },
         levels: buildLevels((lvl) => {
-            const dice = damageDiceForTier(def.tier, lvl);
-            const rank = specialRankForTier(def.tier, lvl);
+            const r = rowFromBudget({ tier: def.tier, lvl, isRanged, aoe: false });
             return activeRow({
                 type: isRanged ? 'Ranged' : 'Melee',
                 range: isRanged ? rangedRange(lvl) : MELEE_RANGE,
                 aoe: R_NONE,
-                effectText: `Deal **+${dice} damage** on hit.`,
-                dice,
-                specials: [{ key: 'SPECIAL', rank, note: 'bound at item-create via chosenSpecial' }],
-                mechanics: { damageRider: { flat: `+${dice}` }, applyWhen: 'attack-rider' },
+                effectText: `Deal **+${r.dice} damage** on hit.`,
+                dice: r.dice,
+                specials: [{ key: 'SPECIAL', rank: r.rank, note: 'bound at item-create via chosenSpecial' }],
+                mechanics: { damageRider: { flat: `+${r.dice}` }, applyWhen: 'attack-rider' },
             });
         }),
     };
@@ -112,27 +112,43 @@ function damageAoeTemplate(def: {
         name,
         subfamily: 'damage-aoe',
         category: 'active',
-        tags: [],
+        // Players Guide: AoE Actives are inherently magical / counterspell-able
+        // when cast as Spells; tag them so Counterspell, anti-magic and the
+        // Spell-Focus pipeline can find them.
+        tags: ['spell'],
         specialSlot: slot,
         spellHints,
         fluff: `A ${isRanged ? 'ranged' : 'melee'} area strike that applies a Tier ${def.tier} Special to everything in the blast.`,
         cost: { action: 'attack' },
         roll: { kind: 'attack', attribute: isRanged ? 'agility' : 'might' },
         levels: buildLevels((lvl) => {
-            const dice = damageDiceForTier(def.tier, lvl);
-            const rank = specialRankForTier(def.tier, lvl);
+            const r = rowFromBudget({ tier: def.tier, lvl, isRanged, aoe: true });
             return activeRow({
                 type: isRanged ? 'Ranged AoE' : 'Melee AoE',
                 range: isRanged ? rangedRange(lvl, 12) : MELEE_RANGE,
                 aoe: aoeRadius(lvl),
-                effectText: `Deal **+${dice} damage** to every affected creature.`,
-                dice,
-                specials: [{ key: 'SPECIAL', rank, note: 'bound at item-create via chosenSpecial' }],
-                mechanics: { damageRider: { flat: `+${dice}` }, applyWhen: 'attack-rider' },
+                effectText: `Deal **+${r.dice} damage** to every affected creature; Special applies at half value.`,
+                dice: r.dice,
+                specials: [{ key: 'SPECIAL', rank: r.rank, note: 'bound at item-create via chosenSpecial (AoE = half value, T(X+1) cost)' }],
+                mechanics: { damageRider: { flat: `+${r.dice}` }, applyWhen: 'attack-rider' },
             });
         }),
     };
 }
+
+/**
+ * Persistent Zone — Source: Actives.md ~144–145, ~600+, ~1196+.
+ *
+ * Rules implemented here:
+ *   • No attack roll (auto-applies to creatures inside).
+ *   • Fixed duration: 4 Rounds.
+ *   • Radius table per Power Level: 1m → 4m (see ZONE_RADIUS_TABLE).
+ *   • Special applies once per Round per creature (`usageLimit`).
+ *   • Cost uses AoE pricing (T(X+1)).
+ */
+const ZONE_RADIUS_TABLE: readonly number[] = [
+    1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4,
+];
 
 function persistentZoneTemplate(tier: ActiveSpecialTier): PowerTemplate {
     const id = `active-ranged-zone-t${tier}`;
@@ -145,27 +161,49 @@ function persistentZoneTemplate(tier: ActiveSpecialTier): PowerTemplate {
         name,
         subfamily: 'persistent-zone',
         category: 'active',
-        tags: [],
+        tags: ['spell'],
         specialSlot: slot,
         spellHints,
-        fluff: `A lingering hazard zone that applies a Tier ${tier} Special to creatures inside.`,
+        fluff: `A lingering hazard zone (4 Rounds) that automatically applies a Tier ${tier} Special to creatures inside, once per Round per creature.`,
         cost: { action: 'attack' },
-        roll: { kind: 'attack', attribute: 'intellect' },
+        // No attack roll — placement is automatic.
+        roll: { kind: 'none' },
         levels: buildLevels((lvl) => {
-            const rank = specialRankForTier(tier, lvl);
+            // Persistent Zone uses AoE pricing (half-value, T(X+1) cost),
+            // but pays no Range step cost — the zone is placed, not thrown.
+            const r = rowFromBudget({ tier, lvl, isRanged: false, aoe: true });
+            const radius = ZONE_RADIUS_TABLE[lvl - 1];
             return activeRow({
                 type: 'Ranged Zone',
                 range: rangedRange(lvl, 12),
-                aoe: { shape: 'zone', radiusM: 2 + Math.floor((lvl - 1) / 2), center: 'targetPoint', targetFilter: 'enemies' },
-                duration: { kind: 'masteryRankRounds' },
-                effectText: `Creatures inside the zone suffer the chosen Tier ${tier} Special at **rank ${rank}** while inside.`,
-                specials: [{ key: 'SPECIAL', rank, note: 'bound at item-create via chosenSpecial' }],
-                mechanics: { applyWhen: 'attack-rider' },
+                aoe: { shape: 'zone', radiusM: radius, center: 'targetPoint', targetFilter: 'enemies' },
+                duration: { kind: 'rounds', rounds: 4 },
+                effectText: `Place a **${radius} m** zone for **4 Rounds**. No attack roll. Each creature inside (including those that enter on later turns) suffers the chosen Tier ${tier} Special at **rank ${r.rank}** — applied **once per Round per creature** (refreshed on the caster's turn-start).`,
+                specials: [{ key: 'SPECIAL', rank: r.rank, note: 'persistent-zone: auto-apply, once/round/creature' }],
+                mechanics: {
+                    applyWhen: 'manual',
+                    duration: 'untilNextTurn',
+                    usageLimit: { per: 'round', max: 1 },
+                },
             });
         }),
     };
 }
 
+/**
+ * Control templates (push/pull/prone/disarm).
+ *
+ * Source: Actives.md ~2611–2900.
+ *
+ *   • **Push / Pull**: pay-per-meter (`30 PP per 2 m`, i.e. `15 PP / m`).
+ *     Melee → `lvl × 2 m` per level. Ranged → range first (5 PP / +4 m
+ *     after 8 m), then spend the remainder on push/pull meters.
+ *   • **Prone / Disarm**: Diminishing Tier 3 specials, scale with the
+ *     standard `T(X) × 3 PP` table.
+ *
+ * Compound templates (Push+Pull, Push+Prone, Pull+Disarm) split the
+ * remaining budget evenly across the involved specials.
+ */
 function controlTemplate(def: {
     id: string;
     flavour: 'melee' | 'ranged';
@@ -173,6 +211,7 @@ function controlTemplate(def: {
     specials: string[];
 }): PowerTemplate {
     const isRanged = def.flavour === 'ranged';
+    const PP_PER_METER = 15; // 30 PP / 2 m
     return {
         templateId: def.id,
         templateName: def.name,
@@ -185,13 +224,48 @@ function controlTemplate(def: {
         cost: { action: 'attack' },
         roll: { kind: 'attack', attribute: isRanged ? 'agility' : 'might' },
         levels: buildLevels((lvl) => {
-            const m = Math.min(16, 2 + lvl);
+            // Total PP this level + range cost for ranged variants.
+            const totalPP = lvl * 30;
+            const rangeM = isRanged ? 8 + (lvl - 1) * 4 : 0;
+            const rangeCostPP = isRanged ? Math.max(0, Math.ceil((rangeM - 8) / 4) * 5) : 0;
+            const remaining = Math.max(0, totalPP - rangeCostPP);
+
+            // Compound templates split the budget evenly between specials.
+            const slice = Math.floor(remaining / def.specials.length);
+
+            const computedSpecials = def.specials.map((k) => {
+                if (k === 'push' || k === 'pull') {
+                    // Quantize to 2 m (30 PP) granularity.
+                    const meters = Math.max(2, Math.floor(slice / PP_PER_METER / 2) * 2);
+                    return { key: k, rank: meters };
+                }
+                if (k === 'disarm') {
+                    // Disarm is binary; if budget covers ≥ 12 PP it applies.
+                    return slice >= 12 ? { key: k } : null;
+                }
+                // Diminishing T3 (prone, expose, mark, …): pick max X for slice.
+                let x = 0;
+                while (((x + 1) * (x + 2) / 2) * 3 <= slice) {
+                    x += 1;
+                    if (x > 32) break;
+                }
+                return x > 0 ? { key: k, rank: x } : null;
+            }).filter((s): s is { key: string; rank?: number } => s !== null);
+
+            const desc = computedSpecials.map((s) => {
+                if (s.key === 'push' || s.key === 'pull') return `**${s.key} ${s.rank} m**`;
+                if (s.rank !== undefined) return `**${s.key}(${s.rank})**`;
+                return `**${s.key}**`;
+            }).join(' + ');
+
             return activeRow({
                 type: isRanged ? 'Ranged' : 'Melee',
                 range: isRanged ? rangedRange(lvl, 8) : MELEE_RANGE,
                 aoe: R_NONE,
-                effectText: `Apply **${def.specials.join(' + ')}** at rank/${m} m as appropriate.`,
-                specials: def.specials.map((k) => ({ key: k, rank: m })),
+                effectText: computedSpecials.length === 0
+                    ? 'No effect at this Power rank — budget too low.'
+                    : `Apply ${desc}.`,
+                specials: computedSpecials,
                 mechanics: { applyWhen: 'attack-rider' },
             });
         }),
@@ -213,7 +287,7 @@ function supportTemplate(def: {
         name: def.name,
         subfamily: `support-${def.mode}`,
         category: 'active',
-        tags: [],
+        tags: ['spell'],
         spellHints,
         fluff: `A ${def.aoe ? 'wide' : 'single-target'} ${def.flavour} ${def.mode} effect.`,
         cost: { action: 'attack' },
@@ -250,7 +324,7 @@ function mixedTemplate(def: {
         name: def.name,
         subfamily: 'mixed',
         category: 'active',
-        tags: [],
+        tags: ['spell'],
         spellHints: { defaultResolution: 'saveSpell' },
         fluff: def.kind === 'heal-cleanse'
             ? 'A single act of restoration that both heals and clears a lingering affliction.'
@@ -319,8 +393,8 @@ function buildActiveTemplates(): PowerTemplate[] {
     // Control — Melee + Ranged × (push-pull, pull-disarm, push-prone) = 6
     controlTemplate({ id: 'active-melee-control-push-pull', flavour: 'melee', name: 'Melee Control — Push + Pull', specials: ['push', 'pull'] }),
     controlTemplate({ id: 'active-ranged-control-push-pull', flavour: 'ranged', name: 'Ranged Control — Push + Pull', specials: ['push', 'pull'] }),
-    controlTemplate({ id: 'active-melee-control-pull-disarm', flavour: 'melee', name: 'Melee Control — Pull + Disarm', specials: ['pull'] }),
-    controlTemplate({ id: 'active-ranged-control-pull-disarm', flavour: 'ranged', name: 'Ranged Control — Pull + Disarm', specials: ['pull'] }),
+    controlTemplate({ id: 'active-melee-control-pull-disarm', flavour: 'melee', name: 'Melee Control — Pull + Disarm', specials: ['pull', 'disarm'] }),
+    controlTemplate({ id: 'active-ranged-control-pull-disarm', flavour: 'ranged', name: 'Ranged Control — Pull + Disarm', specials: ['pull', 'disarm'] }),
     controlTemplate({ id: 'active-melee-control-push-prone', flavour: 'melee', name: 'Melee Control — Push + Prone', specials: ['push', 'prone'] }),
     controlTemplate({ id: 'active-ranged-control-push-prone', flavour: 'ranged', name: 'Ranged Control — Push + Prone', specials: ['push', 'prone'] }),
 
@@ -351,7 +425,7 @@ function buildActiveTemplates(): PowerTemplate[] {
         name: 'Ranged Barrier — 4 Rounds',
         subfamily: 'barrier',
         category: 'active',
-        tags: [],
+        tags: ['spell'],
         spellHints: { defaultResolution: 'saveSpell', defaultSaveType: 'body' },
         fluff: 'A summoned wall of force, stone, wood, or ice that lasts for several rounds.',
         cost: { action: 'attack' },
@@ -481,7 +555,7 @@ function rangedImagesTemplate(): PowerTemplate {
         name: 'Ranged Images — 4 Rounds',
         subfamily: 'illusion',
         category: 'active',
-        tags: [],
+        tags: ['spell'],
         spellHints: { defaultResolution: 'saveSpell', defaultSaveType: 'mind' },
         fluff: 'A ranged illusion Active that creates false sensory information for 4 Rounds. Images do not deal damage, block movement, or apply Specials — they only make creatures believe things are present.',
         cost: { action: 'attack' },

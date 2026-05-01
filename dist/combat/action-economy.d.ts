@@ -57,6 +57,12 @@ export interface RoundState {
         saveKeepBonus?: number;
         spellPoolDice?: number;
         spellKeepDice?: number;
+        /**
+         * Players Guide ~5746 (`influence.extraPassive`): when > 0, the actor
+         * may trigger one of their owned Passive abilities a second time this
+         * round. Decrement on use.
+         */
+        extraPassives?: number;
     };
 }
 /**

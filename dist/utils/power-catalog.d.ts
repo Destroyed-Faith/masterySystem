@@ -24,8 +24,25 @@ import { type PowerTemplate } from './powers/templates/index.js';
 /** Category keys used in filter UI (in display order). */
 export declare const CATEGORY_ORDER: PowerCategory[];
 export declare const CATEGORY_LABELS: Record<PowerCategory, string>;
-/** Requirements for character creation — total 7 powers. */
+/**
+ * Requirements for character creation per category.
+ *
+ * Players Guide 2988–3008 ("Choose your Powers"): a starting character
+ * picks **4 Powers total** with no per-category split — only the total
+ * count and the requirement that two of them be raised to Rank 2 at
+ * creation. We keep this map for backward compatibility with the older
+ * 7-powers-by-category UI but set every category to `0`; the actual
+ * gate now lives in `CREATION_POWER_TOTAL` and `CREATION_POWERS_AT_RANK_2`
+ * below.
+ *
+ * @deprecated UI code should branch on `CREATION_POWER_TOTAL` /
+ *             `CREATION_POWERS_AT_RANK_2` instead of summing this map.
+ */
 export declare const CREATION_POWER_REQUIREMENTS: Record<PowerCategory, number>;
+/** Players Guide 3002: total Powers picked at character creation. */
+export declare const CREATION_POWER_TOTAL = 4;
+/** Players Guide 3004: Powers raised to Rank 2 at character creation. */
+export declare const CREATION_POWERS_AT_RANK_2 = 2;
 /** Structural mechanics axes used by the secondary "Effect Type" filter. */
 export declare const EFFECT_TYPE_KEYS: readonly ["armor", "evade", "initiativeD8", "regen", "tempHP", "saveDice", "damageRider", "movementBonus"];
 export type EffectTypeKey = typeof EFFECT_TYPE_KEYS[number];

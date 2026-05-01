@@ -221,11 +221,76 @@ export function registerAttackRollClickHandler() {
             else {
                 numDice = flags.attributeValue ?? 2;
             }
-            // Apply health penalty (reduces dice pool)
+            // Players Guide minimum-pool rule (~5888–5899): an attacker with an
+            // attribute below their Mastery Rank still rolls dice equal to MR
+            // (Keep stays MR). Apply *before* the health penalty so the floor
+            // and the health hit interact correctly.
+            const masteryRankForFloor = flags.masteryRank ?? (attackerForRoll?.system?.mastery?.rank ?? 2);
+            numDice = Math.max(numDice, masteryRankForFloor);
+            // Players Guide 7497–7521: Range Bands.
+            // For ranged attacks the dice pool is multiplied by the band:
+            //   Short = 100% / Medium = 75% / Long = 50%, min 1 die.
+            // Agility scales the bands by +1 / +2 / +4 m per full 8 Agility.
+            // The pre-band pool is used as the basis; the health penalty applies
+            // after, so the two reductions stay independent (just like in the
+            // Players Guide examples).
+            let rangeBandNote = '';
+            if (flags.attackType === 'ranged' && flags.targetTokenId) {
+                try {
+                    const { dicePoolAtDistance } = await import('../utils/range-bands.js');
+                    const { measureSceneDistanceBetweenPoints } = await import('../utils/grid-range.js');
+                    const attackerToken = attackerForRoll?.getActiveTokens?.()?.[0];
+                    const targetTokenDoc = canvas?.scene?.tokens?.get(flags.targetTokenId);
+                    const targetToken = targetTokenDoc?.object;
+                    const attackerCenter = attackerToken?.center;
+                    const targetCenter = targetToken?.center;
+                    if (attackerCenter && targetCenter) {
+                        const distanceM = measureSceneDistanceBetweenPoints(attackerCenter, targetCenter);
+                        // Resolve the weapon's printed range string. Falls back to the
+                        // canonical 8/16/32m bands when nothing is on the weapon.
+                        const weaponRange = flags.weaponRange ||
+                            (() => {
+                                const w = (attackerForRoll?.items?.get?.(flags.weaponId)) || null;
+                                return w?.system?.range || '8/16/32m';
+                            })();
+                        const agility = Number(attackerForRoll?.system?.attributes?.agility?.value ?? 0) || 0;
+                        const result = dicePoolAtDistance({
+                            rangeText: weaponRange,
+                            agility,
+                            distanceM,
+                            pool: numDice,
+                        });
+                        if (result.band === 'out-of-range') {
+                            ui.notifications?.warn(`Target is out of range (${distanceM.toFixed(1)} m vs Long ${result.bands.long} m).`);
+                            resetRollButton();
+                            if (spentActionOnRoll && actorToRefund) {
+                                const { refundAttackAction } = await import('../combat/action-economy.js');
+                                await refundAttackAction(actorToRefund, game.combat);
+                            }
+                            return;
+                        }
+                        const adjusted = result.pool;
+                        if (adjusted !== numDice) {
+                            const bandLabel = result.band === 'short' ? 'Short' : result.band === 'medium' ? 'Medium' : 'Long';
+                            const bandPctLabel = result.band === 'short' ? '100%' : result.band === 'medium' ? '75%' : '50%';
+                            rangeBandNote = ` (Range Band: ${bandLabel} ${bandPctLabel} → ${numDice} → ${adjusted})`;
+                            numDice = adjusted;
+                        }
+                        else {
+                            rangeBandNote = ' (Range Band: Short)';
+                        }
+                    }
+                }
+                catch (err) {
+                    console.warn('Mastery System | Range Band evaluation failed:', err);
+                }
+            }
+            // Players Guide ~6518–6544: health penalty is a *percentage of the
+            // rolled pool* (10/20/30/40 % per broken bar, floored).
             const { getCurrentPenalty } = await import('../utils/calculations.js');
             const healthBars = attackerForRoll?.system?.health?.bars || [];
             const currentBar = attackerForRoll?.system?.health?.currentBar ?? 0;
-            const healthPenalty = getCurrentPenalty(healthBars, currentBar);
+            const healthPenalty = getCurrentPenalty(healthBars, currentBar, numDice);
             // Health penalty reduces the dice pool (numDice)
             // Penalty is negative (e.g., -1, -2, -4), so we add it to reduce numDice
             numDice = Math.max(1, numDice + healthPenalty); // Minimum 1 die
@@ -234,9 +299,10 @@ export function registerAttackRollClickHandler() {
             const splitAttackDiceCap = flags.splitAttack === true ? numDice : undefined;
             let keepDice = flags.masteryRank ?? (attackerForRoll?.system?.mastery?.rank ?? 2);
             const baseKeepDice = keepDice;
-            if (flags.rollDisadvantage) {
-                keepDice = Math.max(1, keepDice - 1);
-            }
+            // Disadvantage is no longer modeled as a Keep reduction (Players Guide
+            // ~6471–6477 says only one chosen 8 may explode; pool & keep are
+            // unchanged). The flag is forwarded to `masteryRoll` below so the
+            // dice engine can apply the correct rule.
             const tnKind = flags.tnKind === 'casting' ? 'casting' : 'evade';
             console.log('Mastery System | DEBUG: Roll parameters', {
                 numDice: numDice,
@@ -268,18 +334,22 @@ export function registerAttackRollClickHandler() {
             // Perform the attack roll with d8 dice (exploding 8s handled in roll-handler)
             // Label should reflect "Roll N d8 keep K"
             console.log('Mastery System | DEBUG: Calling masteryRoll...');
-            const disadvantageNote = flags.rollDisadvantage
-                ? ` (Disadvantage: keep ${baseKeepDice} → ${keepDice})`
+            const advantageNote = flags.rollAdvantage
+                ? ' (Advantage: reroll any 1 once)'
                 : '';
+            const disadvantageNote = flags.rollDisadvantage
+                ? ' (Disadvantage: only one 8 explodes)'
+                : '';
+            void baseKeepDice;
             const attackKind = flags.attackType === 'ranged' ? 'Ranged' : 'Melee';
             const targetActorForFlavor = game.actors?.get(flags.targetId);
             const rollFlavor = tnKind === 'casting'
                 ? `Roll ${numDice}d8 keep ${keepDice} vs Casting TN ${currentTargetEvade}${declaredRaisesForTn > 0
                     ? ` (${declaredRaisesForTn} declared raise${declaredRaisesForTn > 1 ? 's' : ''} included)`
-                    : ''}${disadvantageNote}`
+                    : ''}${advantageNote}${disadvantageNote}${rangeBandNote}`
                 : `Roll ${numDice}d8 keep ${keepDice} vs ${targetActorForFlavor?.name || 'Target'}'s Evade (${currentTargetEvade}${declaredRaisesForTn > 0
                     ? `, ${declaredRaisesForTn} raise${declaredRaisesForTn > 1 ? 's' : ''}`
-                    : ''})${disadvantageNote}`;
+                    : ''})${advantageNote}${disadvantageNote}${rangeBandNote}`;
             const rollLabel = tnKind === 'casting'
                 ? `Spell Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`
                 : `${attackKind} Attack (${flags.attribute.charAt(0).toUpperCase() + flags.attribute.slice(1)})`;
@@ -306,6 +376,8 @@ export function registerAttackRollClickHandler() {
                     ? { attackDiceCap: splitAttackDiceCap }
                     : {}),
                 ...(attackExplodeDiceOn78 ? { attackExplodeDiceOn78: true } : {}),
+                ...(flags.rollAdvantage ? { rollAdvantage: true } : {}),
+                ...(flags.rollDisadvantage ? { rollDisadvantage: true } : {}),
             });
             if (attackExplodeDiceOn78) {
                 const rs2 = actionEco.getRoundState(economyForStones, combatRef);

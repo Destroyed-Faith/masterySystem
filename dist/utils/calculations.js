@@ -2,6 +2,7 @@
  * Calculation utilities for Mastery System
  * Handles Stones, Health Bars, and other derived values
  */
+import { HEALTH_PENALTY_FRACTIONS } from './constants.js';
 /**
  * Calculate the number of Stones from an attribute value
  * Every 8 attribute points = 1 Stone
@@ -33,76 +34,90 @@ export function calculateHealthBarMax(vitality) {
     return vitality * 2;
 }
 /**
- * Initialize health bars with proper max HP values
- * 4 bars: Healthy (0 penalty), Bruised (-1 penalty), Injured (-2 penalty), Wounded (-4 penalty)
- * Each bar = Vitality × 2 boxes
+ * Initialize health bars with proper max HP values.
+ *
+ * Players Guide ~6499–6513 — five health levels:
+ *   Healthy → Bruised → Injured → Wounded → Incapacitated.
+ * Each non-Incapacitated bar holds `Vitality × 2` boxes; Incapacitated is a
+ * single-box "you go down at 0" state. The legacy `penalty` field stores the
+ * flat dice penalty for the rare callers that still want a per-step value;
+ * the canonical penalty is the percentage table in `HEALTH_PENALTY_FRACTIONS`.
  */
 export function initializeHealthBars(vitality) {
     const maxHP = calculateHealthBarMax(vitality);
     return [
-        {
-            name: 'Healthy',
-            max: maxHP,
-            current: maxHP,
-            penalty: 0
-        },
-        {
-            name: 'Bruised',
-            max: maxHP,
-            current: maxHP,
-            penalty: -1
-        },
-        {
-            name: 'Injured',
-            max: maxHP,
-            current: maxHP,
-            penalty: -2
-        },
-        {
-            name: 'Wounded',
-            max: maxHP,
-            current: maxHP,
-            penalty: -4
-        }
+        { name: 'Healthy', max: maxHP, current: maxHP, penalty: 0 },
+        { name: 'Bruised', max: maxHP, current: maxHP, penalty: -1 },
+        { name: 'Injured', max: maxHP, current: maxHP, penalty: -2 },
+        { name: 'Wounded', max: maxHP, current: maxHP, penalty: -4 },
+        { name: 'Incapacitated', max: 1, current: 1, penalty: -6 },
     ];
 }
 /**
- * Update health bars when vitality changes
+ * Update health bars when vitality changes.
+ *
+ * Bars 0–3 carry `Vitality × 2` boxes; the fifth bar (Incapacitated) is a
+ * single box and never scales with Vitality (Players Guide ~6510). Older
+ * actors created before the 5-bar migration may still have only four bars
+ * — in that case we append the Incapacitated bar in place.
  */
 export function updateHealthBars(bars, vitality) {
     const maxHP = calculateHealthBarMax(vitality);
-    for (const bar of bars) {
+    for (let i = 0; i < bars.length; i++) {
+        const bar = bars[i];
+        const isIncap = bar.name === 'Incapacitated' || i === 4;
+        if (isIncap) {
+            bar.max = 1;
+            bar.current = Math.min(bar.current, 1);
+            continue;
+        }
         const ratio = bar.max > 0 ? bar.current / bar.max : 1;
         bar.max = maxHP;
         bar.current = Math.min(Math.floor(maxHP * ratio), maxHP);
     }
+    // Migrate legacy 4-bar actors so the Incapacitated bar exists.
+    if (bars.length === 4) {
+        bars.push({ name: 'Incapacitated', max: 1, current: 1, penalty: -6 });
+    }
 }
 /**
- * Get the current active health bar penalty
- * Penalty applies when a health bar is broken (current < max)
- * Returns the penalty value from the first broken bar (checking from bar 0 upwards)
+ * Get the current active health bar penalty.
  *
- * Rules:
- * - Healthy (bar 0): No penalty (penalty = 0)
- * - Bruised (bar 1): -1 penalty if current < max
- * - Injured (bar 2): -2 penalty if current < max
- * - Wounded (bar 3): -4 penalty if current < max
+ * Players Guide ~6518–6544: the dice penalty is **a fraction of the rolled
+ * pool**, applied late in the stack and floored (never below 0). The
+ * fractions per broken bar live in `HEALTH_PENALTY_FRACTIONS` (0%, 10%,
+ * 20%, 30%, 40%). Pre-migration callers without a `pool` argument get the
+ * legacy flat dice penalty so existing code paths keep working until they
+ * are switched over to the percentage-aware variant.
  *
- * The penalty applies as soon as a bar is broken (current < max).
- * We check from bar 0 upwards to find the first broken bar.
+ * @param bars        actor health bars
+ * @param _currentBar legacy index — ignored; we always use the first broken bar
+ * @param pool        optional pre-penalty dice pool (Attribute, MR, etc.)
  */
-export function getCurrentPenalty(bars, _currentBar) {
+export function getCurrentPenalty(bars, _currentBar, pool) {
     if (!bars || bars.length === 0) {
         return 0;
     }
-    // First broken bar from 0 → n-1 (independent of legacy `currentBar` index).
+    let brokenIndex = -1;
     for (let i = 0; i < bars.length; i++) {
         const bar = bars[i];
         if (bar.current < bar.max) {
-            return bar.penalty;
+            brokenIndex = i;
+            break;
         }
     }
-    return 0;
+    if (brokenIndex < 0)
+        return 0;
+    if (typeof pool === 'number' && Number.isFinite(pool)) {
+        const fraction = HEALTH_PENALTY_FRACTIONS[brokenIndex] ?? 0;
+        if (fraction <= 0)
+            return 0;
+        const penalty = -Math.floor(pool * fraction);
+        return penalty;
+    }
+    // Legacy fallback: flat per-bar dice penalty (kept until all callers
+    // pass `pool`).
+    return bars[brokenIndex].penalty;
 }
 /**
  * Apply damage to health bars

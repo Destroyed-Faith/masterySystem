@@ -1,6 +1,16 @@
 /**
- * General Items Storage Dialog
- * A modular window where players can drag items from storage to their inventory
+ * General Items Storage Dialog — homebrew "Stash" extension.
+ *
+ * The Players Guide (~7544–7805) only describes the **24 × 9** Inventory
+ * Grid the character carries on their person. There is **no** canonical
+ * stash / extra storage. The 10 × 6 stash exposed by this dialog is a
+ * Foundry-side convenience that lets players park items they don't want
+ * cluttering their carry inventory (downtime gear, party loot, etc.).
+ *
+ * It deliberately doesn't apply Encumbrance penalties (see
+ * `src/utils/encumbrance.ts`) — only items in the carry grid contribute
+ * to load zones. If a campaign wants Players-Guide-strict rules, simply
+ * keep this dialog empty.
  */
 // Types are available globally in Foundry VTT
 import { seedGeneralItemsStorage } from '../utils/seed-general-items.js';

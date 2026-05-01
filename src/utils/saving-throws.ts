@@ -1,6 +1,8 @@
 /**
  * Saving Throw utility functions
- * Per Player's Guide: 3 categories, dual-attribute selection, DC = MR × 8
+ * Per Player's Guide saving-throw chapter (~6840–6864):
+ *   - 3 categories, dual-attribute selection.
+ *   - DC = 8 × source Mastery Rank + ⌊source Intellect / 8⌋.
  */
 
 import { SAVING_THROWS, SAVE_DC_BY_MR } from './constants.js';
@@ -25,10 +27,19 @@ export function getSaveAttributes(category: SaveCategory): [string, string] {
 }
 
 /**
- * Calculate saving throw DC from source's Mastery Rank
+ * Calculate saving throw DC from source's Mastery Rank.
+ *
+ * The optional `sourceIntellect` argument adds the Intellect scaling bonus
+ * (⌊Intellect/8⌋). When omitted (legacy callers) the DC matches the old
+ * `MR × 8` table for backwards compatibility.
  */
-export function calculateSaveDC(sourceMR: number): number {
-  return SAVE_DC_BY_MR[sourceMR] ?? sourceMR * 8;
+export function calculateSaveDC(sourceMR: number, sourceIntellect: number = 0): number {
+  const baseTN = SAVE_DC_BY_MR[sourceMR] ?? sourceMR * 8;
+  const intBonus = Math.max(
+    0,
+    Math.floor((Number.isFinite(sourceIntellect) ? sourceIntellect : 0) / 8),
+  );
+  return baseTN + intBonus;
 }
 
 /**
@@ -37,7 +48,8 @@ export function calculateSaveDC(sourceMR: number): number {
 export function buildSaveRollInfo(
   category: SaveCategory,
   attributes: Record<string, { value: number }>,
-  sourceMR: number
+  sourceMR: number,
+  sourceIntellect: number = 0
 ): SaveRollInfo {
   const [attr1Name, attr2Name] = getSaveAttributes(category);
   const attr1Value = attributes[attr1Name]?.value ?? 0;
@@ -45,7 +57,7 @@ export function buildSaveRollInfo(
   
   const chosenAttribute = attr1Value >= attr2Value ? attr1Name : attr2Name;
   const dicePool = Math.max(attr1Value, attr2Value);
-  const dc = calculateSaveDC(sourceMR);
+  const dc = calculateSaveDC(sourceMR, sourceIntellect);
   
   return {
     category,

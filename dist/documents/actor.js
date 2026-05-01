@@ -7,6 +7,7 @@ import { buildActorMechanicsBreakdown } from '../utils/power-mechanics.js';
 import { logDrDebug } from '../utils/dr-debug.js';
 import { normalizeManualAdjustments } from '../utils/manual-adjustments.js';
 import { getRoundState } from '../combat/action-economy.js';
+import { deriveMasteryRankFromStones, STARTING_MASTERY_RANK } from '../utils/mastery-rank-sync.js';
 export class MasteryActor extends Actor {
     /**
      * Augment the basic actor data with additional dynamic data
@@ -93,7 +94,33 @@ export class MasteryActor extends Actor {
             else {
                 system.stones.current = Math.max(0, Math.min(system.stones.current, system.stones.maximum));
             }
-            // Initialize health bars (4 bars: Healthy, Bruised, Injured, Wounded)
+            /**
+             * Players Guide 7232–7239: derive the **suggested** Mastery Rank
+             * from the actor's total Stones. We never overwrite a higher,
+             * GM-set rank — only suggest a floor based on the doc table —
+             * because Shared Mastery (7246–7254) is a GM/world decision.
+             *
+             * `system.mastery.suggestedRank` exposes the recommendation to
+             * the UI; the live `system.mastery.rank` is auto-promoted only
+             * when it falls **below** the suggested floor (e.g. fresh actor
+             * with zero rank yet many stones, or a migration from older data).
+             */
+            if (!system.mastery) {
+                system.mastery = { rank: STARTING_MASTERY_RANK, points: 0, experience: 0 };
+            }
+            const suggestedRank = deriveMasteryRankFromStones(system.stones.total);
+            system.mastery.suggestedRank = suggestedRank;
+            const currentRank = Math.max(STARTING_MASTERY_RANK, Math.floor(Number(system.mastery.rank) || STARTING_MASTERY_RANK));
+            if (currentRank < suggestedRank) {
+                system.mastery.rank = suggestedRank;
+            }
+            else {
+                system.mastery.rank = currentRank;
+            }
+            // Initialize health bars — 5 bars per Players Guide 6499–6513:
+            // Healthy → Bruised → Injured → Wounded → Incapacitated. Bars 0–3
+            // each hold `Vitality × 2` boxes; the fifth bar (Incapacitated)
+            // is a fixed single box ("you go down at 0").
             if (this.type === 'character') {
                 // Normalize player/GM-authored manual adjustments so the rest of
                 // prepareBaseData + prepareDerivedData can read `system.manual.*`
@@ -115,10 +142,8 @@ export class MasteryActor extends Actor {
                 else {
                     // Ensure bars is an array (migrate from object if needed)
                     if (!Array.isArray(system.health.bars)) {
-                        // Convert object to array if needed
                         if (system.health.bars && typeof system.health.bars === 'object' && system.health.bars !== null) {
                             const barsObj = system.health.bars;
-                            // Check if it's an object with numeric keys (old format)
                             const keys = Object.keys(barsObj);
                             if (keys.length > 0 && keys.some((k) => !isNaN(parseInt(k)))) {
                                 system.health.bars = Object.keys(barsObj)
@@ -126,7 +151,6 @@ export class MasteryActor extends Actor {
                                     .map(key => barsObj[key]);
                             }
                             else {
-                                // Not a valid object format, initialize fresh
                                 system.health.bars = initializeHealthBars(vitality);
                             }
                         }
@@ -134,42 +158,52 @@ export class MasteryActor extends Actor {
                             system.health.bars = initializeHealthBars(vitality);
                         }
                     }
-                    // Ensure we have exactly 4 bars (remove any extra bars)
                     if (!system.health.bars || system.health.bars.length === 0) {
                         system.health.bars = initializeHealthBars(vitality);
                     }
                     else {
-                        // Limit to 4 bars maximum (remove any 5th bar)
-                        if (system.health.bars.length > 4) {
-                            system.health.bars = system.health.bars.slice(0, 4);
+                        // Migrate legacy 4-bar actors: append the Incapacitated bar.
+                        if (system.health.bars.length === 4) {
+                            system.health.bars.push({ name: 'Incapacitated', max: 1, current: 1, penalty: -6 });
                         }
-                        // Add missing bars if less than 4
-                        if (system.health.bars.length < 4) {
-                            const allBarNames = ['Healthy', 'Bruised', 'Injured', 'Wounded'];
-                            const penalties = [0, -1, -2, -4];
-                            for (let i = system.health.bars.length; i < 4; i++) {
-                                system.health.bars.push({
-                                    name: allBarNames[i],
-                                    max: maxHP,
-                                    current: maxHP,
-                                    penalty: penalties[i]
-                                });
-                            }
+                        // Trim accidental >5-bar histories.
+                        if (system.health.bars.length > 5) {
+                            system.health.bars = system.health.bars.slice(0, 5);
                         }
-                        // Update max HP and penalties for all bars
-                        const penalties = [0, -1, -2, -4];
-                        for (let i = 0; i < system.health.bars.length && i < 4; i++) {
+                        // Add missing bars if less than 5
+                        const allBarNames = ['Healthy', 'Bruised', 'Injured', 'Wounded', 'Incapacitated'];
+                        const penalties = [0, -1, -2, -4, -6];
+                        for (let i = system.health.bars.length; i < 5; i++) {
+                            const isIncap = i === 4;
+                            system.health.bars.push({
+                                name: allBarNames[i],
+                                max: isIncap ? 1 : maxHP,
+                                current: isIncap ? 1 : maxHP,
+                                penalty: penalties[i]
+                            });
+                        }
+                        // Refresh max HP / penalties. Bars 0–3 scale with Vitality;
+                        // bar 4 (Incapacitated) is a fixed single box.
+                        for (let i = 0; i < system.health.bars.length && i < 5; i++) {
                             const bar = system.health.bars[i];
+                            const isIncap = i === 4 || bar.name === 'Incapacitated';
+                            const targetMax = isIncap ? 1 : maxHP;
                             const ratio = bar.max > 0 ? bar.current / bar.max : 1;
-                            bar.max = maxHP;
-                            bar.current = Math.min(Math.floor(maxHP * ratio), maxHP);
+                            bar.max = targetMax;
+                            bar.current = Math.min(Math.floor(targetMax * ratio), targetMax);
                             bar.penalty = penalties[i];
                         }
                     }
-                    // Update max HP for all bars based on current vitality
-                    // Only iterate if it's an array
+                    // Update max HP for non-Incapacitated bars based on current Vitality.
                     if (Array.isArray(system.health.bars)) {
-                        for (const bar of system.health.bars) {
+                        for (let i = 0; i < system.health.bars.length; i++) {
+                            const bar = system.health.bars[i];
+                            const isIncap = i === 4 || bar.name === 'Incapacitated';
+                            if (isIncap) {
+                                bar.max = 1;
+                                bar.current = Math.min(bar.current ?? 1, 1);
+                                continue;
+                            }
                             const ratio = bar.max > 0 ? bar.current / bar.max : 1;
                             bar.max = maxHP;
                             bar.current = Math.min(Math.floor(maxHP * ratio), maxHP);

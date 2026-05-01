@@ -48,6 +48,12 @@ export class XpManagementSettings extends BaseApplication {
             const spentAttributes = xp.spentAttributes ?? 0;
             const available = points.xp ?? 0;
             const maxAttributeSpend = Math.floor(totalEarned / 2);
+            // Players Guide 7121–7132 — per-step 50% Attribute Rule bucket.
+            const stepRaw = xp.currentStep ?? {};
+            const currentStep = {
+                attrSpent: Math.max(0, Math.floor(Number(stepRaw.attrSpent) || 0)),
+                nonAttrSpent: Math.max(0, Math.floor(Number(stepRaw.nonAttrSpent) || 0)),
+            };
             return {
                 id: actor.id,
                 name: actor.name,
@@ -59,7 +65,8 @@ export class XpManagementSettings extends BaseApplication {
                     available: available,
                     totalEarned: totalEarned,
                     spentAttributes: spentAttributes,
-                    maxAttributeSpend: maxAttributeSpend
+                    maxAttributeSpend: maxAttributeSpend,
+                    currentStep,
                 }
             };
         });
@@ -272,6 +279,30 @@ export class XpManagementSettings extends BaseApplication {
                     });
                 }
             }).render(true);
+        });
+        /**
+         * Players Guide 7121–7132 — End the current upgrade step. Clears
+         * the per-step Attribute / Non-Attribute counters so the next
+         * spend starts a fresh 50%-rule bucket.
+         */
+        html.find('.end-xp-step-btn').on('click', async (event) => {
+            const button = $(event.currentTarget);
+            const characterId = button.data('character-id');
+            const actor = game.actors?.get(characterId);
+            if (!actor) {
+                ui.notifications?.error('Character not found.');
+                return;
+            }
+            const isOwner = actor.isOwner || game.user?.isGM;
+            if (!isOwner) {
+                ui.notifications?.warn('Only the owner (or GM) can end this character\'s XP step.');
+                return;
+            }
+            const stepRule = await import('../utils/xp-step-rule.js');
+            const before = stepRule.readStep(actor);
+            await stepRule.endStep(actor);
+            ui.notifications?.info(`XP step ended for ${actor.name} (Attr: ${before.attrSpent} XP, Non-Attr: ${before.nonAttrSpent} XP).`);
+            this.render();
         });
         html.find('.reset-progress-xp-btn').on('click', async (event) => {
             const button = $(event.currentTarget);

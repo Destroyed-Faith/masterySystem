@@ -426,7 +426,8 @@ export async function showPowerCreationDialog(
                     ? Math.max(1, Math.min(16, parseInt(String($rankSelect.val() || '1'), 10) || 1))
                     : 2;
                 const castingTn = calculateBaseTN(rankVal);
-                const saveDc = calculateSaveDC(masteryRank);
+                const intellectVal = Number(system?.attributes?.intellect?.value ?? 0);
+                const saveDc = calculateSaveDC(masteryRank, intellectVal);
                 const res = ($resolution.val() as SpellResolution) || 'spellAttack';
                 const powerName = ($powerSelect.val() as string) || '';
                 const ent = powerName ? findCatalogEntryByName(powerName) : undefined;
@@ -448,7 +449,7 @@ export async function showPowerCreationDialog(
                     $spellHint.html(
                         `<strong>Casting roll TN</strong> for your pool vs success is <strong>${castingTn}</strong> ` +
                             `(8×⌈Spell Level÷2⌉ at Spell Level <strong>${rankVal}</strong> — in steps of 8 every two levels: 8, 16, 24, …). ` +
-                            `<strong>Save DC</strong> targets must beat is <strong>${saveDc}</strong> (8× your Mastery Rank, MR <strong>${masteryRank}</strong>). ` +
+                            `<strong>Save DC</strong> targets must beat is <strong>${saveDc}</strong> (8× MR <strong>${masteryRank}</strong> + ⌊Intellect/8⌋ = <strong>${Math.floor(intellectVal / 8)}</strong>). ` +
                             `Raises after the casting roll can improve damage, the special, Range, AoE, etc. ${saveLine}`,
                     );
                 }

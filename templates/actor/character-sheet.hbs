@@ -292,6 +292,29 @@
         </div>
         {{/if}}
 
+        <!-- Languages (Players Guide 3100–3127) -->
+        <div class="form-group languages-section">
+          <label>Languages:</label>
+          <div class="languages-row">
+            <span class="languages-list">
+              {{#if languagesView.list}}
+                {{#each languagesView.list}}<span class="language-tag">{{this.name}}</span>{{/each}}
+              {{else}}
+                <span class="language-empty">Common Tongue</span>
+              {{/if}}
+            </span>
+            <button type="button" class="open-languages-btn" title="Pick the languages your character speaks">
+              <i class="fas fa-language"></i> Languages
+            </button>
+          </div>
+          {{#unless languagesView.creationValid}}
+          <p class="hint hint-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            Pick at least 1 additional language at character creation.
+          </p>
+          {{/unless}}
+        </div>
+
         <!-- Echo Notes (moved from Biography tab's Echo freetext) -->
         <div class="form-group">
           <label>Echo Notes:</label>

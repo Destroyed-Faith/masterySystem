@@ -51,7 +51,9 @@
               <td class="xp-cell"><strong>{{this.xp.spent}}</strong></td>
               <td class="xp-cell"><strong>{{this.xp.available}}</strong></td>
               <td class="xp-cell"><strong>{{this.xp.totalEarned}}</strong></td>
-              <td class="xp-cell">{{this.xp.spentAttributes}} / {{this.xp.maxAttributeSpend}}</td>
+              <td class="xp-cell" title="Per-step 50% rule (Players Guide 7121–7132): Attribute / Non-Attribute spending in the current upgrade step.">
+                {{this.xp.currentStep.attrSpent}} / {{this.xp.currentStep.nonAttrSpent}}
+              </td>
               <td class="grant-cell">
                 <div class="grant-controls">
                   <div class="grant-group">
@@ -61,6 +63,9 @@
                     </button>
                   </div>
                   <div class="xp-row-actions">
+                    <button type="button" class="end-xp-step-btn" data-character-id="{{this.id}}" title="End current XP step (Players Guide 7121–7132). Resets the per-step 50% Attribute Rule counters.">
+                      <i class="fas fa-flag-checkered"></i>
+                    </button>
                     <button type="button" class="history-xp-btn" data-character-id="{{this.id}}" title="XP History">
                       <i class="fas fa-history"></i>
                     </button>

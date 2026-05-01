@@ -6,44 +6,106 @@ import { EXPLODE_VALUE, RAISE_INCREMENT, AUTO_RAISE_DICE_COST } from '../utils/c
 import { evaluateAutoFail } from '../system/auto-fail.js';
 import { manualKindFromRollKind, manualRollBonusForKind, readManualAdjustments, } from '../utils/manual-adjustments.js';
 /**
- * Roll one pool die: exploding d8s while running total is divisible by 8 (Mastery rules).
- * Returns each face for Foundry display (exploded flags) and the pool die total.
+ * Roll one pool die: each face of **8** explodes (Players Guide ~5850–5854 —
+ * "On an 8, reroll that die and add the new result"). Returns the per-face
+ * trail, total, and an `exploded` flag for Foundry display.
  */
 function rollExplodingDieChain() {
     const faces = [];
     let exploded = false;
     while (true) {
-        faces.push(Math.floor(Math.random() * 8) + 1);
-        const sum = faces.reduce((a, b) => a + b, 0);
-        if (sum % EXPLODE_VALUE !== 0)
+        const face = Math.floor(Math.random() * 8) + 1;
+        faces.push(face);
+        if (face !== EXPLODE_VALUE)
             break;
         exploded = true;
     }
     const total = faces.reduce((a, b) => a + b, 0);
     return { faces, total, exploded };
 }
-/** Crit stone / status: each face of 7–8 triggers another d8 in the same pool die chain. */
+/** Crit stone / similar: each face of 7–8 triggers another d8 in the same pool die chain. */
 function rollExplodingDieChain78() {
     const faces = [];
     let exploded = false;
     while (true) {
-        faces.push(Math.floor(Math.random() * 8) + 1);
-        const last = faces[faces.length - 1];
-        if (last < 7)
+        const face = Math.floor(Math.random() * 8) + 1;
+        faces.push(face);
+        if (face < 7)
             break;
         exploded = true;
     }
     const total = faces.reduce((a, b) => a + b, 0);
     return { faces, total, exploded };
 }
+/** Single non-exploding d8 face. */
+function rollFlatD8() {
+    return Math.floor(Math.random() * 8) + 1;
+}
 /**
- * Roll multiple exploding d8s (pool dice).
+ * Roll the initial pool. Standard rule: every face of 8 explodes. With
+ * Disadvantage, only one chosen 8 explodes; with Advantage, every initial
+ * face of 1 is rerolled exactly once before resolving explosions.
  */
-function rollDice(numDice, explodeOn78) {
+function rollDice(numDice, options) {
+    const explodeOn78 = !!options?.explodeOn78;
+    const rollAdvantage = !!options?.rollAdvantage;
+    const rollDisadvantage = !!options?.rollDisadvantage;
     const dice = [];
     const exploded = [];
     const dieChains = [];
+    if (rollDisadvantage) {
+        // Phase 1: roll every die flat (no explosions yet). Phase 2: of the dice
+        // that came up 8, explode exactly one (we pick the first index, but any
+        // choice is mathematically equivalent for the explosion expectation).
+        const initial = [];
+        for (let i = 0; i < numDice; i++) {
+            let face = rollFlatD8();
+            if (rollAdvantage && face === 1)
+                face = rollFlatD8();
+            initial.push(face);
+        }
+        const eightIndex = initial.findIndex((f) => f === 8);
+        for (let i = 0; i < numDice; i++) {
+            const face = initial[i];
+            if (i === eightIndex) {
+                // Explode this 8 only (recursive face=8 chain) and prepend the
+                // initial 8 to the chain so display shows 8 + ... = total.
+                const tail = rollExplodingDieChain();
+                const faces = [face, ...tail.faces];
+                const total = faces.reduce((a, b) => a + b, 0);
+                dieChains.push(faces);
+                dice.push(total);
+                if (faces.length > 1)
+                    exploded.push(i);
+            }
+            else {
+                dieChains.push([face]);
+                dice.push(face);
+            }
+        }
+        return { dice, exploded, dieChains };
+    }
     for (let i = 0; i < numDice; i++) {
+        if (rollAdvantage) {
+            // Initial face — reroll only if it lands on 1, then run the normal
+            // explosion chain (both for face=8 and for the optional 7–8 mode).
+            let initialFace = rollFlatD8();
+            if (initialFace === 1)
+                initialFace = rollFlatD8();
+            const explodes = explodeOn78 ? initialFace >= 7 : initialFace === 8;
+            if (!explodes) {
+                dieChains.push([initialFace]);
+                dice.push(initialFace);
+                continue;
+            }
+            const tail = explodeOn78 ? rollExplodingDieChain78() : rollExplodingDieChain();
+            const faces = [initialFace, ...tail.faces];
+            const total = faces.reduce((a, b) => a + b, 0);
+            dieChains.push(faces);
+            dice.push(total);
+            exploded.push(i);
+            continue;
+        }
         const chain = explodeOn78 ? rollExplodingDieChain78() : rollExplodingDieChain();
         dieChains.push(chain.faces);
         dice.push(chain.total);
@@ -205,6 +267,24 @@ export async function masteryRoll(options) {
     if (explodeAttack78) {
         flavor = flavor ? `${flavor} | Crit: d8 pool explodes on 7–8` : 'Crit: d8 pool explodes on 7–8';
     }
+    const rollAdvantage = !!options.rollAdvantage;
+    const rollDisadvantage = !!options.rollDisadvantage;
+    if (rollAdvantage && rollDisadvantage) {
+        // Per the player guide adv/disadv chapter the two cancel out (the
+        // disadvantage rule is "only one die may explode" — Advantage cannot
+        // grant additional 1-rerolls when it has been negated). We keep both
+        // flags off so the standard rule applies.
+        const note = 'Advantage + Disadvantage cancel — rolling normally';
+        flavor = flavor ? `${flavor} | ${note}` : note;
+    }
+    else if (rollAdvantage) {
+        const note = 'Advantage: reroll any face of 1 once';
+        flavor = flavor ? `${flavor} | ${note}` : note;
+    }
+    else if (rollDisadvantage) {
+        const note = 'Disadvantage: only one 8 may explode';
+        flavor = flavor ? `${flavor} | ${note}` : note;
+    }
     console.log('Mastery System | DEBUG: masteryRoll called', {
         numDice,
         keepDice,
@@ -213,9 +293,17 @@ export async function masteryRoll(options) {
         label,
         flavor,
         attackExplodeDiceOn78: explodeAttack78,
+        rollAdvantage,
+        rollDisadvantage,
     });
     // Roll the dice
-    const { dice, exploded, dieChains } = rollDice(numDice, explodeAttack78);
+    const useAdv = rollAdvantage && !rollDisadvantage;
+    const useDis = rollDisadvantage && !rollAdvantage;
+    const { dice, exploded, dieChains } = rollDice(numDice, {
+        explodeOn78: explodeAttack78,
+        rollAdvantage: useAdv,
+        rollDisadvantage: useDis,
+    });
     console.log('Mastery System | DEBUG: Dice rolled', {
         numDice,
         dice,
@@ -300,6 +388,8 @@ export async function masteryRoll(options) {
             ? { attackDiceCap: Math.floor(options.attackDiceCap) }
             : {}),
         ...(options.attackExplodeDiceOn78 ? { attackExplodeDiceOn78: true } : {}),
+        ...(rollAdvantage ? { rollAdvantage: true } : {}),
+        ...(rollDisadvantage ? { rollDisadvantage: true } : {}),
     };
     // Send to chat
     await sendRollToChat(result, label, flavor, options.actorId, options.skillKey, options.isSkillRoll, options.baseModifier, options.isSaveRoll, rollRecipe);
@@ -373,7 +463,9 @@ async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillR
             saveVitalityUsesRemaining = actorData.saves?.vitalityUsesRemaining ?? 4;
             const MR = actorData.mastery?.rank || 2;
             const diceTotal = result.kept.reduce((sum, d) => sum + d, 0) + (baseModifier || 0);
-            if (saveVitalityUsesRemaining > 0 && saveVitalityPool > 0) {
+            // Same MR-step / all-in rule as skill spending — exposed only when the
+            // pool is at least one MR-step.
+            if (saveVitalityUsesRemaining > 0 && saveVitalityPool >= MR) {
                 const added = new Set();
                 for (let amount = MR; amount <= saveVitalityPool; amount += MR) {
                     const newTotal = diceTotal + amount;
@@ -403,7 +495,11 @@ async function sendRollToChat(result, label, flavor, actorId, skillKey, isSkillR
             // Auto-Raises already baked into result.raises; we re-apply them to any
             // hypothetical spend-previews so the buttons show the full post-spend tally.
             const autoRaisesBonus = Math.max(0, result.autoRaises ?? 0);
-            if (remainingPool > 0) {
+            // Players Guide ~1836–1838: spend either 0, an MR-step (MR / 2MR / 3MR …)
+            // *or* the entire remaining pool (the all-in option, only valid when the
+            // pool is at least one MR-step). When the remaining pool is < MR the
+            // only legal spend is 0, so we expose no buttons.
+            if (remainingPool >= MR) {
                 const added = new Set();
                 for (let amount = MR; amount <= remainingPool; amount += MR) {
                     const newTotal = diceTotal + amount;
@@ -577,14 +673,20 @@ export async function quickRoll(actor, attributeName, skillName, tn, label, modi
     let numDice = actorData.attributes?.[attributeName]?.value || 0;
     // Get mastery rank (number to keep)
     const keepDice = actorData.mastery?.rank || 1;
+    // Players Guide minimum-pool rule (~5888–5899): you can never roll fewer
+    // dice than your Mastery Rank. Apply *before* health penalties so the
+    // penalty subtracts from the floor as well.
+    numDice = Math.max(numDice, keepDice);
     // For skill rolls, do NOT auto-add skill bonus - it's now a consumable resource spent after the roll
     // Only use provided modifier if explicitly given (for non-skill rolls or situational modifiers)
     const skillBonus = modifier !== undefined ? modifier : 0;
-    // Apply health penalty (reduces dice pool)
+    // Players Guide ~6518–6544: health penalty is a *percentage of the rolled
+    // pool* (10/20/30/40 % per broken bar, floored). Resolve it against the
+    // post-floor pool so the percentage scales with the actual dice rolled.
     const { getCurrentPenalty } = await import('../utils/calculations.js');
     const healthBars = actorData.health?.bars || [];
     const currentBar = actorData.health?.currentBar ?? 0;
-    const healthPenalty = getCurrentPenalty(healthBars, currentBar);
+    const healthPenalty = getCurrentPenalty(healthBars, currentBar, numDice);
     // Health penalty reduces the dice pool (numDice)
     // Penalty is negative (e.g., -1, -2, -4), so we add it to reduce numDice
     numDice = Math.max(1, numDice + healthPenalty); // Minimum 1 die

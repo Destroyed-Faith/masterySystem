@@ -29,10 +29,10 @@ export async function showWeaponCreationDialog(actor: Actor): Promise<void> {
         <select name="weapon" id="weapon-select" class="weapon-select">
           <option value="">-- Select a Weapon --</option>
           <optgroup label="One-Handed Melee">
-            ${oneHanded.filter((w: any) => !w.innateAbilities.includes('Ranged')).map(createWeaponOption).join('')}
+            ${oneHanded.filter((w: any) => !w.innateAbilities.some((a: string) => /^ranged/i.test(a.trim()))).map(createWeaponOption).join('')}
           </optgroup>
           <optgroup label="Two-Handed Melee">
-            ${twoHanded.filter((w: any) => !w.innateAbilities.includes('Ranged')).map(createWeaponOption).join('')}
+            ${twoHanded.filter((w: any) => !w.innateAbilities.some((a: string) => /^ranged/i.test(a.trim()))).map(createWeaponOption).join('')}
           </optgroup>
           <optgroup label="Ranged">
             ${ranged.map(createWeaponOption).join('')}
@@ -104,10 +104,23 @@ export async function showWeaponCreationDialog(actor: Actor): Promise<void> {
           const option = $html.find('#weapon-select option:selected')[0] as HTMLOptionElement;
           const equipped = $html.find('#weapon-equipped').is(':checked');
           
-          // Determine weapon type (melee or ranged)
+          // Determine weapon type (melee or ranged). Players Guide 7499–7521
+          // describes range as Short / Medium / Long bands carried inside the
+          // ability tag (`Ranged (8/16/32m)`), so an exact `'Ranged'` match is
+          // wrong — match the prefix instead.
           const abilities = option.dataset.abilities ? option.dataset.abilities.split('|') : [];
-          const isRanged = abilities.includes('Ranged');
-          
+          const rangedAbility = abilities.find((a: string) => /^ranged/i.test(a.trim())) || '';
+          const isRanged = !!rangedAbility;
+
+          // Try to extract band notation (e.g. `(8/16/32m)`) so we can store
+          // the canonical band string instead of the legacy `'30m'` placeholder.
+          // Falls back to the unmodified ability text when no parens are found.
+          let rangeText = '';
+          if (isRanged) {
+            const m = rangedAbility.match(/\(([^)]+)\)/);
+            rangeText = m ? m[1] : rangedAbility.replace(/^ranged\s*/i, '').trim() || '8/16/32m';
+          }
+
           const hands = parseInt(option.dataset.hands || '1', 10);
           const itemData = {
             name: weaponName,
@@ -115,9 +128,9 @@ export async function showWeaponCreationDialog(actor: Actor): Promise<void> {
             system: {
               weaponType: isRanged ? 'ranged' : 'melee',
               damage: option.dataset.damage || '1d8',
-              range: isRanged ? '30m' : '0m',
-              specials: option.dataset.special && option.dataset.special !== '—' 
-                ? [option.dataset.special] 
+              range: isRanged ? rangeText : '0m',
+              specials: option.dataset.special && option.dataset.special !== '—'
+                ? [option.dataset.special]
                 : [],
               equipped: equipped,
               hands,

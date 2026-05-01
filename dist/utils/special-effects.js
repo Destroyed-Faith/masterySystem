@@ -112,10 +112,10 @@ export const DIMINISHING_EFFECTS = [
         description: 'Suffer −X dice on attacks unless attacking the creature that applied the Mark. The effect ends immediately after you make an attack against that creature.',
         duration: 'Diminishing (X→0); ends on attack vs. marker',
         stacking: 'Yes',
-        removal: 'Mind Save (end of turn), Meditation Remove Action, or Cleanse.',
+        removal: 'Mind Save (end of turn), Concealment Remove Action, or Cleanse.',
         hasValue: true,
         save: 'Mind',
-        removeAction: 'Meditation',
+        removeAction: 'Concealment',
         dispellable: true,
         pricing: '4 × T(X)',
         startPP: 4
@@ -124,7 +124,7 @@ export const DIMINISHING_EFFECTS = [
         id: 'poisoned',
         name: 'Poisoned(X)',
         category: 'diminishing',
-        description: 'Suffer −X on attacks and checks.',
+        description: 'Healing you receive is reduced by X. At Tick, take X stress (this stress ignores Stress Armor).',
         duration: 'Diminishing (X→0)',
         stacking: 'Yes',
         removal: 'Body Save (end of turn), Medicine Remove Action, or Cleanse.',
@@ -171,10 +171,10 @@ export const DIMINISHING_EFFECTS = [
         description: 'Suffer −X dice to Body, Mind, and Spirit Saves.',
         duration: 'Diminishing (X→0)',
         stacking: 'Yes',
-        removal: 'Spirit Save (end of turn), Meditation Remove Action, or Cleanse.',
+        removal: 'Spirit Save (end of turn), Occultism Remove Action, or Cleanse.',
         hasValue: true,
         save: 'Spirit',
-        removeAction: 'Meditation',
+        removeAction: 'Occultism',
         dispellable: true,
         pricing: '6 × T(X)',
         startPP: 6
@@ -186,10 +186,10 @@ export const DIMINISHING_EFFECTS = [
         description: 'Choose one when applied: Body, Mind, or Spirit. Suffer −X dice to that Save type.',
         duration: 'Diminishing (X→0)',
         stacking: 'Yes',
-        removal: 'Spirit Save (end of turn), Meditation Remove Action, or Cleanse.',
+        removal: 'Spirit Save (end of turn), Medicine Remove Action, or Cleanse.',
         hasValue: true,
         save: 'Spirit',
-        removeAction: 'Meditation',
+        removeAction: 'Medicine',
         dispellable: true,
         pricing: '5 × T(X)',
         startPP: 5
@@ -223,6 +223,21 @@ export const DIMINISHING_EFFECTS = [
         dispellable: true,
         pricing: '6 × T(X)',
         startPP: 6
+    },
+    {
+        id: 'root',
+        name: 'Root(X)',
+        category: 'diminishing',
+        description: 'Your Speed becomes 0 m. You may spend an Attack Action on your turn to make a Break Strength check (TN = 8 × X) — on a success, Root ends; otherwise, Root persists. Diminishing: at the end of each round, X decreases by 1.',
+        duration: 'Diminishing (X→0)',
+        stacking: 'No',
+        removal: 'Body Save (end of turn), Break Strength check (TN = 8 × X) on your turn, Athletics Remove Action, or Cleanse.',
+        hasValue: true,
+        save: 'Body',
+        removeAction: 'Athletics',
+        dispellable: true,
+        pricing: '6 × T(X)',
+        startPP: 6
     }
 ];
 /**
@@ -250,11 +265,24 @@ export const TIMED_EFFECTS = [
         description: 'You cannot willingly move closer to the source of your fear. If already adjacent, you must move away, hold position, or spend your Attack Action to steady yourself. While Frightened, suffer −X dice on attacks against the source.',
         duration: 'Mastery Rank Rounds',
         stacking: 'No',
-        removal: 'Mind Save, Meditation Remove Action, or Cleanse.',
+        removal: 'Mind Save, Leadership Remove Action, or Cleanse.',
         hasValue: true,
         save: 'Mind',
-        removeAction: 'Meditation',
+        removeAction: 'Leadership',
         dispellable: true,
+        pricing: '15 × X'
+    },
+    {
+        id: 'brace',
+        name: 'Brace(X)',
+        category: 'timed',
+        description: 'Your Speed becomes 0 m. While Braced, your Shield value is doubled for Armor calculation. Brace is Timed (Mastery Rank rounds + X) and ends early if you move, drop your shield, or are knocked Prone.',
+        duration: 'Mastery Rank Rounds + X',
+        stacking: 'No',
+        removal: 'Ends when the duration expires, you move, drop your shield, or are knocked Prone.',
+        hasValue: true,
+        save: '—',
+        dispellable: false,
         pricing: '15 × X'
     },
     {
@@ -288,19 +316,6 @@ export const TIMED_EFFECTS = [
  * Until Broken / Until Used Effects — persist until consumed or internal counter reaches 0.
  */
 export const UNTIL_USED_EFFECTS = [
-    {
-        id: 'brace',
-        name: 'Brace(X)',
-        category: 'untilUsed',
-        description: 'Your Speed becomes 0 m. While Braced, your Shield value is doubled for Armor calculation. At the end of each of your turns, reduce Brace by 1.',
-        duration: 'Until X reaches 0',
-        stacking: 'No',
-        removal: 'Ends when X reaches 0, you move, drop your shield, or are knocked Prone.',
-        hasValue: true,
-        save: '—',
-        dispellable: false,
-        pricing: '15 × X'
-    },
     {
         id: 'bulwark',
         name: 'Bulwark(X)',
@@ -424,6 +439,19 @@ export const INSTANT_EFFECTS = [
         pricing: '2 × X'
     },
     {
+        id: 'disarm',
+        name: 'Disarm',
+        category: 'instant',
+        description: "Force the target to drop one held item. The item lands at the target's feet (or up to X meters away if the Power scales the throw distance). The target may pick it up next turn for a Movement action.",
+        duration: 'Instant',
+        stacking: 'No',
+        removal: 'Body Save negates on apply.',
+        hasValue: false,
+        save: 'Body',
+        dispellable: false,
+        pricing: 'special'
+    },
+    {
         id: 'smite',
         name: 'Smite(X)',
         category: 'instant',
@@ -456,16 +484,16 @@ export const INSTANT_EFFECTS = [
 export const SUPPORT_EFFECTS = [
     {
         id: 'cleanse',
-        name: 'Cleanse(X)',
+        name: 'Cleanse',
         category: 'support',
-        description: 'Apply Cleanse X times. Each application reduces one eligible ongoing effect by 4 (X → X−4, minimum 0). The same effect on the same target cannot be chosen more than once by the same use of a Power.',
+        description: 'Reduce a single eligible ongoing effect on one target by 4 (X → X−4, minimum 0). Stacks per cast: a Power may explicitly buy multiple cleanses, but each one targets a different ongoing effect (or the same effect on a different creature).',
         duration: 'Instant',
         stacking: 'No',
         removal: '—',
-        hasValue: true,
+        hasValue: false,
         save: '—',
         dispellable: false,
-        pricing: '15 × X'
+        pricing: '15 PP per cleanse'
     },
     {
         id: 'dispel-magic',

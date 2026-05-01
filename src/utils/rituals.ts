@@ -1,142 +1,309 @@
 /**
- * Ritual System - Foundation
- * Per Player's Guide: Out-of-combat casting, Stone Sealing, TN 20 + 4/Raise
+ * Ritual System.
  *
- * Rituals are a special type of power used outside of combat.
- * They require sealing stones (bound for the duration) and a
- * ritual roll against TN 20 + 4 per declared raise.
+ * Source: Players Guide 8954–9171.
+ *
+ *   • Rituals are out-of-combat Skill Checks against
+ *     **TN = 8 × Ritual MR** (the MR of the *target*, not the caster).
+ *     The GM may shift the TN in **±4 steps** for situational modifiers.
+ *   • Each Ritual lists one or more **Allowed Skill Categories** rather
+ *     than a fixed Skill / Attribute.  The player picks any single Skill
+ *     from one of the listed categories that fits the described method
+ *     (GM has final approval).
+ *   • Raises are counted **after** the roll: every full +4 over TN = 1
+ *     Raise.  A Ritual can succeed with 0 Raises (basic effect only).
+ *   • Costs come out of the caster's Stone Pool and are **Sealed** until
+ *     the next Safe Haven Rest.
  */
+
+export type RitualSkillCategory =
+    | 'physical'
+    | 'knowledge'
+    | 'social'
+    | 'survival'
+    | 'martial';
 
 export interface RitualDefinition {
-  name: string;
-  description: string;
-  stoneCost: number;
-  sealDuration: string;
-  tn: number;
-  raises: string[];
-  attribute: string;
+    name: string;
+    description: string;
+    /** Number of Stones consumed (Sealed) when the Ritual succeeds. */
+    stoneCost: number;
+    /**
+     * Skill Categories the player may choose from. The chosen Skill must
+     * match the described method.
+     */
+    allowedSkillCategories: RitualSkillCategory[];
+    /**
+     * Per-Raise narrative outcomes (`raises[i]` = effect at i Raises over TN).
+     */
+    raises: string[];
+    /** Casting time descriptor (Players Guide 9122–9126). */
+    castingTime: string;
+    /** Default duration descriptor for the Ritual's effect. */
+    duration: string;
+    /**
+     * @deprecated Single-attribute hint kept for migration. The runtime now
+     * uses `allowedSkillCategories` + a player-chosen Skill.
+     */
+    attribute?: string;
 }
 
-export const RITUAL_BASE_TN = 20;
-export const RITUAL_RAISE_TN_INCREASE = 4;
-
 /**
- * Calculate ritual TN based on declared raises
+ * Skills available per category (Players Guide 8980–8986).  Used by the
+ * skill-picker to filter Skills the player may choose for a given Ritual.
  */
-export function calculateRitualTN(declaredRaises: number): number {
-  return RITUAL_BASE_TN + (declaredRaises * RITUAL_RAISE_TN_INCREASE);
+export const RITUAL_SKILLS_BY_CATEGORY: Record<RitualSkillCategory, readonly string[]> = {
+    physical: [
+        'Athletics', 'Acrobatics', 'Stealth', 'Concealment', 'Ride', 'Sleight of Hand',
+    ] as const,
+    knowledge: [
+        'Lore', 'Alchemy', 'Crafting', 'Artisanry', 'Engineering', 'Medicine',
+        'Navigation', 'Occultism', 'Investigation',
+    ] as const,
+    social: [
+        'Persuasion', 'Deception', 'Intimidation', 'Leadership', 'Performance',
+        'Streetwise', 'Empathy', 'Negotiation', 'Seduction', 'Etiquette',
+    ] as const,
+    survival: [
+        'Survival', 'Animal Handling', 'Tracking', 'Herbalism', 'Weather Sense',
+    ] as const,
+    martial: [
+        'Hand-to-Hand', 'Melee Weapons', 'Ranged Weapons', 'Defensive Combat', 'Combat Reflexes',
+    ] as const,
+};
+
+/**
+ * Standard Ritual TN: `8 × Ritual MR`.  GMs may shift by ±4 per modifier.
+ *
+ * @param ritualMR  MR of the *target* (creature, item, place, …) — not the caster.
+ * @param modifier  Optional flat ±4 step modifier (positive = harder).
+ */
+export function calculateRitualTN(ritualMR: number, modifier = 0): number {
+    const mr = Math.max(1, Math.floor(Number(ritualMR) || 1));
+    const mod = Math.floor(Number(modifier) || 0);
+    return 8 * mr + mod;
 }
 
 /**
- * Core ritual definitions from the Player's Guide
+ * Count Raises from a Ritual roll result.  Every full +4 over TN = 1 Raise;
+ * failure = 0 Raises.
+ */
+export function countRitualRaises(rollTotal: number, tn: number): number {
+    if (!Number.isFinite(rollTotal) || rollTotal < tn) return 0;
+    return Math.floor((rollTotal - tn) / 4);
+}
+
+/**
+ * Return all Skills that may be chosen for a Ritual based on its allowed
+ * categories.  De-duplicates across categories.
+ */
+export function eligibleSkillsForRitual(ritual: RitualDefinition): string[] {
+    const out = new Set<string>();
+    for (const cat of ritual.allowedSkillCategories) {
+        for (const s of RITUAL_SKILLS_BY_CATEGORY[cat]) out.add(s);
+    }
+    return Array.from(out);
+}
+
+/**
+ * Core ritual catalog.  The catalog intentionally stays small — Players
+ * Guide 9180+ lists the canonical Rituals (Detect Magic, Locate Object,
+ * Augury, …); add more entries here as they ship.
  */
 export const RITUALS: RitualDefinition[] = [
-  {
-    name: 'Ward',
-    description: 'Create a protective barrier over an area. Seals the stone for the duration.',
-    stoneCost: 1,
-    sealDuration: '1 SHR',
-    tn: RITUAL_BASE_TN,
-    raises: ['+1 Raise: Extend duration', '+2 Raises: Larger area'],
-    attribute: 'resolve'
-  },
-  {
-    name: 'Scrying',
-    description: 'View a distant location or person through a reflective surface.',
-    stoneCost: 1,
-    sealDuration: '1 scene',
-    tn: RITUAL_BASE_TN,
-    raises: ['+1 Raise: Clearer vision', '+2 Raises: Audio included'],
-    attribute: 'intellect'
-  },
-  {
-    name: 'Binding',
-    description: 'Bind a willing or helpless entity to an object or location.',
-    stoneCost: 2,
-    sealDuration: 'Permanent (until broken)',
-    tn: RITUAL_BASE_TN,
-    raises: ['+1 Raise: Stronger binding', '+2 Raises: Hidden binding'],
-    attribute: 'resolve'
-  },
-  {
-    name: 'Cleansing',
-    description: 'Remove curses, corruption, or lingering magical effects from a target.',
-    stoneCost: 1,
-    sealDuration: 'Instant',
-    tn: RITUAL_BASE_TN,
-    raises: ['+1 Raise: More thorough cleansing'],
-    attribute: 'resolve'
-  },
-  {
-    name: 'Communion',
-    description: 'Communicate with spirits, ancestors, or divine entities.',
-    stoneCost: 1,
-    sealDuration: '1 scene',
-    tn: RITUAL_BASE_TN,
-    raises: ['+1 Raise: Longer conversation', '+2 Raises: More clarity'],
-    attribute: 'influence'
-  },
-  {
-    name: 'Crafting',
-    description: 'Infuse an item with temporary magical properties.',
-    stoneCost: 1,
-    sealDuration: '1 SHR',
-    tn: RITUAL_BASE_TN,
-    raises: ['+1 Raise: Stronger effect', '+2 Raises: Longer duration'],
-    attribute: 'intellect'
-  },
-  {
-    name: 'Divination',
-    description: 'Gain insight into future events or hidden truths.',
-    stoneCost: 1,
-    sealDuration: 'Instant',
-    tn: RITUAL_BASE_TN,
-    raises: ['+1 Raise: More specific answer'],
-    attribute: 'wits'
-  },
-  {
-    name: 'Healing',
-    description: 'Heal wounds beyond normal rest. Restores one health bar level.',
-    stoneCost: 2,
-    sealDuration: 'Instant',
-    tn: RITUAL_BASE_TN,
-    raises: ['+1 Raise: Heal additional bar'],
-    attribute: 'vitality'
-  },
-  {
-    name: 'Summoning',
-    description: 'Call forth a creature or entity to serve temporarily.',
-    stoneCost: 2,
-    sealDuration: '1 scene',
-    tn: RITUAL_BASE_TN,
-    raises: ['+1 Raise: Stronger summon', '+2 Raises: Longer duration'],
-    attribute: 'resolve'
-  },
-  {
-    name: 'Translocation',
-    description: 'Teleport to a known location. Range and accuracy depend on raises.',
-    stoneCost: 2,
-    sealDuration: 'Instant',
-    tn: RITUAL_BASE_TN,
-    raises: ['+1 Raise: More passengers', '+2 Raises: Greater distance'],
-    attribute: 'intellect'
-  },
-  {
-    name: 'Transformation',
-    description: 'Alter the physical form of yourself or a willing target.',
-    stoneCost: 2,
-    sealDuration: '1 SHR',
-    tn: RITUAL_BASE_TN,
-    raises: ['+1 Raise: More drastic change', '+2 Raises: Longer duration'],
-    attribute: 'vitality'
-  },
-  {
-    name: 'Illusion',
-    description: 'Create a convincing sensory illusion.',
-    stoneCost: 1,
-    sealDuration: '1 scene',
-    tn: RITUAL_BASE_TN,
-    raises: ['+1 Raise: More senses affected', '+2 Raises: Larger area'],
-    attribute: 'influence'
-  }
+    {
+        name: 'Detect Magic',
+        description:
+            'Attune your senses to lingering magical auras; the world bleeds color where power flows.',
+        stoneCost: 1,
+        allowedSkillCategories: ['knowledge'],
+        castingTime: 'Concentration, up to 10 minutes',
+        duration: 'Up to 10 minutes',
+        raises: [
+            'Sense faint auras of active or latent magic within 10 m (basic schools).',
+            'Discern strength and structure of each aura (traps, wards, enchantments).',
+            'Read the emotional tone or purpose behind each magic.',
+            'Trace each aura back to its source within 100 m.',
+            'Pierce veils and illusions; for 1 round see into the Fade.',
+        ],
+        attribute: 'intellect',
+    },
+    {
+        name: 'Locate Object',
+        description:
+            'Trace a pattern in the air; a pull forms in your mind toward what you seek.',
+        stoneCost: 1,
+        allowedSkillCategories: ['survival'],
+        castingTime: 'Concentration, up to 10 minutes',
+        duration: 'Up to 10 minutes',
+        raises: [
+            'Sense direction of a known object within 60 m.',
+            'Range expands to 300 m; pick the right item among similar ones.',
+            'Receive sensory flashes of the object\'s environment.',
+            'Penetrate up to 2 m of stone or one divine barrier; range 1 km.',
+            'See through the object\'s memory; range 5 km.',
+        ],
+        attribute: 'wits',
+    },
+    {
+        name: 'Augury',
+        description:
+            'Cast marked stones, whisper prayers, or let blood fall on sacred ground to ask the world for an omen.',
+        stoneCost: 1,
+        allowedSkillCategories: ['knowledge', 'social', 'survival'],
+        castingTime: '10 minutes',
+        duration: 'Instant',
+        raises: [
+            'Receive a single one-word omen about a chosen path.',
+            'Receive a richer impression: emotion, presence, or hint of consequence.',
+            'See a fragmentary vision of one possible outcome.',
+            'Receive a clear answer to one specific yes/no question.',
+            'Glimpse a powerful unfolding truth tied to the path you asked about.',
+        ],
+        attribute: 'wits',
+    },
+    {
+        name: 'Ward',
+        description:
+            'Lay protective sigils over an area, guarding it from intruders or magic.',
+        stoneCost: 1,
+        allowedSkillCategories: ['knowledge'],
+        castingTime: '1 hour',
+        duration: 'Until next Safe Haven Rest',
+        raises: [
+            'Ward a small area against intrusion; alerts you when crossed.',
+            'Ward also blocks scrying / divination.',
+            'Ward repels chosen creature type with mild discomfort.',
+            'Ward holds firm against forced entry; intruders take Stress.',
+            'Ward becomes hidden and self-renewing for the duration.',
+        ],
+        attribute: 'resolve',
+    },
+    {
+        name: 'Cleansing',
+        description:
+            'Remove curses, corruption, or lingering magical effects from a target.',
+        stoneCost: 2,
+        allowedSkillCategories: ['knowledge', 'survival'],
+        castingTime: '10 minutes',
+        duration: 'Instant',
+        raises: [
+            'Cleanse the surface symptoms of a single affliction.',
+            'Cleanse one minor curse, taint, or magical residue.',
+            'Cleanse a deep curse or lingering possession.',
+            'Cleanse and ward the target against the same curse for 1 day.',
+            'Cleanse permanently; restore one Scarred Stress bar.',
+        ],
+        attribute: 'resolve',
+    },
+    {
+        name: 'Communion',
+        description:
+            'Reach across the Veil to speak with spirits, ancestors, or divine entities.',
+        stoneCost: 1,
+        allowedSkillCategories: ['social', 'knowledge'],
+        castingTime: '30 minutes',
+        duration: '1 scene',
+        raises: [
+            'Receive a brief impression: presence, emotion, or symbol.',
+            'Hear a single short response.',
+            'Hold a brief two-way conversation.',
+            'Receive guidance or warning relevant to the scene.',
+            'Bind a lasting agreement, promise, or oath.',
+        ],
+        attribute: 'influence',
+    },
+    {
+        name: 'Bind Familiar',
+        description:
+            'Establish a lasting magical bond with a chosen creature, awakening it as your Familiar.',
+        stoneCost: 2,
+        allowedSkillCategories: ['knowledge', 'social', 'survival'],
+        castingTime: '1 hour',
+        duration: 'Permanent (until broken)',
+        raises: [
+            'Bond a Familiar of MR equal to your own ÷ 2 (rounded down, min 1).',
+            'Bond a Familiar at MR equal to your own.',
+            'Bond a Familiar with one upgraded movement mode.',
+            'Bond a Familiar that can speak telepathically with you.',
+            'Bond a Familiar that shares one of your Passive abilities.',
+        ],
+        attribute: 'resolve',
+    },
+    {
+        name: 'Summoning',
+        description:
+            'Call forth a creature or entity to serve temporarily.',
+        stoneCost: 2,
+        allowedSkillCategories: ['knowledge', 'social'],
+        castingTime: '30 minutes',
+        duration: '1 scene',
+        raises: [
+            'Summon a minor servant or messenger.',
+            'Summon a stronger entity bound by a single task.',
+            'Summon multiple entities at once.',
+            'Summon for an extended duration.',
+            'Bind the summon for repeat callings during this scene.',
+        ],
+        attribute: 'resolve',
+    },
+    {
+        name: 'Translocation',
+        description:
+            'Open a controlled passage between two known locations.',
+        stoneCost: 2,
+        allowedSkillCategories: ['knowledge'],
+        castingTime: '10 minutes',
+        duration: 'Instant',
+        raises: [
+            'Travel alone to a familiar location within sight.',
+            'Bring one passenger.',
+            'Range extends to a known location within the same region.',
+            'Bring up to 4 passengers across one region boundary.',
+            'Bring an entire party across a great distance.',
+        ],
+        attribute: 'intellect',
+    },
+    {
+        name: 'Transformation',
+        description:
+            'Alter the physical form of yourself or a willing target.',
+        stoneCost: 2,
+        allowedSkillCategories: ['knowledge', 'survival'],
+        castingTime: '1 hour',
+        duration: 'Until next Safe Haven Rest',
+        raises: [
+            'Cosmetic change: face, hair, skin, voice.',
+            'Alter physical features and minor anatomy.',
+            'Change to another humanoid form.',
+            'Take on the form of a known beast.',
+            'Take on a strange or supernatural form (GM approval).',
+        ],
+        attribute: 'vitality',
+    },
+    {
+        name: 'Illusion',
+        description:
+            'Create a convincing sensory illusion in a chosen area.',
+        stoneCost: 1,
+        allowedSkillCategories: ['social', 'knowledge'],
+        castingTime: '30 minutes',
+        duration: 'Up to 1 scene',
+        raises: [
+            'Create a small static visual illusion.',
+            'Add motion and small ambient sound.',
+            'Affect multiple senses (sight + sound).',
+            'Create a complex scene with several moving parts.',
+            'Make the illusion respond to observers (limited reactivity).',
+        ],
+        attribute: 'influence',
+    },
 ];
+
+/**
+ * Convenience: look up a Ritual by name (case-insensitive).
+ */
+export function getRitualByName(name: string): RitualDefinition | undefined {
+    const lower = name.trim().toLowerCase();
+    return RITUALS.find((r) => r.name.toLowerCase() === lower);
+}

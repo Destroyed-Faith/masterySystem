@@ -103,9 +103,11 @@ export function validatePower(power: any): { valid: boolean; errors: string[] } 
     if (!power.levels || typeof power.levels !== 'object') {
       errors.push('Power missing required "levels" field');
     } else {
-      // Validate all 4 levels exist
-      const levelKeys = ['1', '2', '3', '4'] as const;
-      for (const key of levelKeys) {
+      // Players Guide / Actives.md: Active templates run 1..16. Validate all
+      // 16 keys exist so future migrations / catalog rebuilds can rely on a
+      // dense level table.
+      for (let i = 1; i <= 16; i++) {
+        const key = String(i);
         if (!power.levels[key]) {
           errors.push(`Power missing required level "${key}"`);
         }

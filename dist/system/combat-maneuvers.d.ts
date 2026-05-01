@@ -55,10 +55,18 @@ export interface CombatManeuver {
     };
 }
 /**
- * All available Combat Maneuvers
+ * All available Combat Maneuvers — canonical list from Players Guide
+ * 6815–6985.
  *
- * NOTE: These are based on common RPG patterns and the categories described.
- * Update with exact names/descriptions from the Players Guide when available.
+ * Categories
+ *   • Movement Options       (consume Movement, exclusive per turn)
+ *   • Escape Rule (Flee)     (consumes Movement, suppresses everything else)
+ *   • Defensive Reactions    (consume Reaction, react to incoming hit)
+ *   • Support Reactions      (consume Reaction, help allies)
+ *   • Tactical Reactions     (consume Reaction, opportunity attacks)
+ *   • Combat Actions         (Stances / declarations that consume Attack
+ *                              Actions)
+ *   • Initiative: Delay      (no slot — initiative-time decision)
  */
 export declare const COMBAT_MANEUVERS: CombatManeuver[];
 /**

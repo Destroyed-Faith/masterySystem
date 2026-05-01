@@ -2,6 +2,110 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.6.0] - 2026-05-01
+
+Doc-Code Gap Audit release — 7 waves of changes that align the runtime
+with **Players Guide v0.8.0** and **Actives.md**.
+
+### Added
+
+- **Power Engine:** `src/utils/powers/pp-budget.ts` — central 30 PP/level
+  budget engine (Damage Anchor, diminishing `T(X)`, AoE `T(X+1)+halve`,
+  range `+5 PP / +4 m`).
+- **Range Bands:** `src/utils/range-bands.ts` — Short/Medium/Long bands
+  (100/75/50% pool, +1m/+2m/+4m per 8 Agility); wired into the attack
+  roll handler with out-of-range refunds.
+- **Encumbrance:** `src/utils/encumbrance.ts` — single-grid (24×9) load
+  zones (Normal / Encumbered / Overloaded) and movement penalties
+  (-4 m / -6 m); rendered on the character sheet.
+- **Save Ends:** `src/combat/save-ends.ts` — End-of-turn Save Ends prompt
+  with per-round caps and `−4` reduction on success.
+- **Mastery Rank Sync:** `src/utils/mastery-rank-sync.ts` — derive MR
+  from total Stones, Rank-Up bundle (+1 Mastery Charge, +1 Schtick row).
+- **XP Step Rule:** `src/utils/xp-step-rule.ts` — per-step 50% Attribute
+  Rule with ±1 XP tolerance; replaces the lifetime cap. End-XP-Step
+  button + bucket display in XP management.
+- **Languages:** `src/utils/languages.ts` + picker dialog; canon list
+  from Players Guide 3100–3127, picker enforces ≥1 extra at creation.
+- **Social Combat:** `src/system/social-combat.ts` — Phased Challenge
+  subsystem (Setup Pool, Lead/Support, 4d8 Stress on failed phases,
+  outcome thresholds 4/8).
+- **Divine Clash math:** `src/divine-clash/divine-clash-math.ts` —
+  Vitality / Overhang / Group Strike / Shared Defense / Overdrive +
+  regen-after-Overdrive helpers.
+- **Wits Stones, Generic Exchange Passive, Vitality Remove-Scar,
+  Agility Evasive Step, Influence Extra-Passive** stone powers.
+- **`Root(X)`** Special; canonical `disarm` Special definition.
+
+### Changed
+
+- **Dice mechanics:** Exploding dice now trigger on a rolled face of 8
+  (not running-total %8); damage dice no longer explode by default;
+  Disadvantage permits only one exploding die; Advantage rerolls 1s in
+  the initial pool; Min-Pool Rule = `max(attribute, MR)`.
+- **Skill rolls:** Full-Pool Requirement (Skill ≥ MR), per-step Skill
+  spend (no All-In below MR), Standard TN derived from a user-selectable
+  Challenge MR.
+- **Attribute scaling applied:** Might melee damage `+(2 × Might/8)`,
+  Resolve Stress Armor `floor(Resolve/8)`, Wits Initiative `+Wits/8`,
+  Intellect Save TN `+Intellect/8`.
+- **Health:** 5 health bars (Healthy → Bruised → Injured → Wounded →
+  Incapacitated); percentage-based dice penalties (`-10 / -20 / -30 /
+  -40%`) instead of flat `-1 / -2 / -4`.
+- **Safe Haven Rest:** Restores HP/Stress/Scar bars, releases
+  Sealed/Lost/Bound stones, clears Stone-Bound forms, refills Mastery
+  Charges and Faith Fractures.
+- **Power-Engine refactor:** Damage / AoE / Persistent-Zone / Control /
+  Buff templates use `pp-budget.ts`. Persistent zones: no attack roll,
+  4-round duration, radius table, once-per-round-per-creature.
+  Push/Pull priced per meter; Prone/Disarm via diminishing T3.
+- **Power validation** loops 1..16 (was 1..4); `(Spell)` / `(Charged)`
+  tags propagated.
+- **Combat Maneuvers:** Replaced with the canonical Players Guide list
+  (Dash/Disengage/Flee/Dodge/Block/Parry/Aid/Interpose/Grapple/Guard/
+  Oversight/Delay/…).
+- **Rituals:** Refactored to flexible Skill-Picker model (Players Guide
+  8961–9171); TN = `8 × Ritual MR ± 4 GM modifiers`; canonical 11
+  rituals in `src/utils/rituals.ts`. Stone-powers ritual catalog
+  documented as expansion content.
+- **Familiars:** Movement upgrades `+4m ground / +2m flying`; HP cap
+  capped at 5 picks; `MR × 4` total familiars and stones-per-familiar.
+- **Artifacts:** Capacity = `MR × 2` artifacts; Bind Stones at L1/L4/L8;
+  5-stage Taint model.
+- **Spells:** Tier table 8/16/24/…/64 (`spellTierForPowerLevel`); Save
+  DC includes `+ floor(Intellect/8)`; Resolve Stress Armor applied to
+  involuntary stress.
+- **Character Creation:** Validates **4 starting Powers with 2 at Rank 2**
+  (Players Guide 2988–3008) instead of the old 7-by-category split.
+- **Schticks** reduced to purely cosmetic flavour (no `+1k0`, `+1
+  Vitality` riders).
+- **Faith Fractures default max** lowered to 8; Force-GM-Reroll exposed
+  via the chat button when the rolling actor isn't owned by the user;
+  `minDisadvantagePoints` lowered to 0.
+
+### Fixed
+
+- **Whip** special cleared (no `Grappled(1)`).
+- **Skill primaries:** Athletics (`might + agility`), Hand-to-Hand
+  (`might`), Defensive Combat (`vitality`).
+- **Special Effects reference:** `mark` / `soulburn` / `weaken` /
+  `frightened` removal skills, `cleanse` semantics (single −4),
+  `brace` re-categorised as Timed; `poisoned` description aligned.
+- **Tier eligibility (`_specials.ts`):** T4/T5/T6 Specials and Root added.
+- **Weapon dialog ranged detection** now matches `Ranged (8/16/32m)`
+  tokens; range stored as the band string.
+
+### Documentation
+
+- **Players Guide v0.8.0** Char-Creation Step 8 stress source corrected
+  to *"Health from Vitality, Stress from Resolve and Intellect"*.
+- **Save DC** chapter now documents `8 × MR + ⌊Intellect/8⌋`.
+- **Stash 10×6** documented as a Foundry-side homebrew convenience that
+  does **not** affect Encumbrance.
+- **Minor Expressions UI** uses the canon "Reroll Points" terminology;
+  the underlying `system.faithFractures` field is preserved as a
+  synonym for backward compatibility.
+
 ## [0.5.16] - 2026-04-26
 
 ### Fixed

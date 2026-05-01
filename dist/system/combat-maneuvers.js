@@ -13,372 +13,265 @@
  * - Advanced Specials: Modify Attack actions (Multiattack, Autofire, etc.)
  */
 /**
- * All available Combat Maneuvers
+ * All available Combat Maneuvers — canonical list from Players Guide
+ * 6815–6985.
  *
- * NOTE: These are based on common RPG patterns and the categories described.
- * Update with exact names/descriptions from the Players Guide when available.
+ * Categories
+ *   • Movement Options       (consume Movement, exclusive per turn)
+ *   • Escape Rule (Flee)     (consumes Movement, suppresses everything else)
+ *   • Defensive Reactions    (consume Reaction, react to incoming hit)
+ *   • Support Reactions      (consume Reaction, help allies)
+ *   • Tactical Reactions     (consume Reaction, opportunity attacks)
+ *   • Combat Actions         (Stances / declarations that consume Attack
+ *                              Actions)
+ *   • Initiative: Delay      (no slot — initiative-time decision)
  */
 export const COMBAT_MANEUVERS = [
     // ========================================
-    // MOVEMENT MANEUVERS
+    // MOVEMENT OPTIONS
+    // (Players Guide 6822–6848 — choose one Movement use per turn unless a
+    //  Power says otherwise.)
     // ========================================
+    {
+        id: "move",
+        name: "Move",
+        description: "Move up to your Speed.",
+        slot: "movement",
+        category: "movement",
+        tags: ["movement", "basic"],
+        effect: "Move up to your Speed this turn. Movement provokes Opportunity Attacks as normal. You may draw or sheathe a weapon as part of your Movement.",
+    },
     {
         id: "dash",
         name: "Dash",
-        description: "Move at double speed",
+        description: "Focus entirely on movement (2× Speed).",
         slot: "movement",
         category: "movement",
         tags: ["movement", "speed"],
-        effect: "Move up to 2× your Speed this turn. Cannot be split with regular movement."
+        effect: "Move up to **2× your normal Speed** this turn. You cannot perform your base Attack Action, but you may still buy additional attacks using Stones. Movement provokes Opportunity Attacks as normal.",
     },
     {
         id: "disengage",
         name: "Disengage",
-        description: "Move without provoking opportunity attacks",
+        description: "Withdraw without provoking Opportunity Attacks.",
         slot: "movement",
         category: "movement",
         tags: ["movement", "defensive"],
-        effect: "Move normally, but enemies cannot make opportunity attacks against you this turn."
+        effect: "Move up to your normal Speed this turn **without provoking Opportunity Attacks**. You cannot perform your base Attack Action this turn (unless granted by a Stone).",
     },
     {
-        id: "tactical-retreat",
-        name: "Tactical Retreat",
-        description: "Move away while maintaining defensive posture",
+        id: "quick-load",
+        name: "Quick Load",
+        description: "Spend Movement to perform Reload (1).",
         slot: "movement",
         category: "movement",
-        tags: ["movement", "defensive", "tactical"],
-        effect: "Move up to your Speed away from enemies. Gain +1 to Defense until the start of your next turn."
-    },
-    {
-        id: "flee-you-fools",
-        name: "Flee You Fools!",
-        description: "Desperate escape maneuver",
-        slot: "movement",
-        category: "movement",
-        tags: ["movement", "escape", "desperate"],
-        effect: "Move up to 3× your Speed, but you cannot take any other actions this turn and provoke opportunity attacks."
+        tags: ["movement", "reload"],
+        requirements: {
+            requiresFreeHand: true,
+        },
+        effect: "Instead of moving, spend your Movement to perform **Reload (1)**. You may convert Movement into Reload multiple times per turn (max **MR** total Reload per turn). Requires a free hand and the ability to manipulate the weapon/ammunition. You cannot Quick Load while Immobilized/Restrained.",
     },
     {
         id: "stand-up",
         name: "Stand Up",
-        description: "Rise from prone position",
-        slot: "movement", // Still in movement segment, but costs Action
+        description: "Recover from Prone (costs 1 Attack Action).",
+        slot: "attack",
         category: "movement",
         tags: ["movement", "prone"],
         requirements: {
-            requiresProne: true
+            requiresProne: true,
         },
-        effect: "Stand up from prone position. Costs 1 Attack Action. Does not limit movement. Standing up itself does not provoke OA."
+        effect: "Standing up costs **one Attack Action** but does not limit your movement. You may move normally after standing. Standing up itself does not provoke Opportunity Attacks; only the movement you take afterward might.",
     },
+    // ========================================
+    // ESCAPE RULE
+    // (Players Guide 6859–6870)
+    // ========================================
     {
-        id: "charge",
-        name: "Charge",
-        description: "Move and attack with bonus",
+        id: "flee",
+        name: "Flee",
+        description: "Escape danger at 4× Speed.",
         slot: "movement",
         category: "movement",
-        tags: ["movement", "attack", "offensive"],
-        effect: "Move up to your Speed toward an enemy, then make one attack with +1d8 damage. Must move in a straight line."
-    },
-    {
-        id: "move",
-        name: "Move",
-        description: "Normal movement (walk, run, swim, climb, leap)",
-        slot: "movement",
-        category: "movement",
-        tags: ["movement", "basic"],
-        effect: "Move up to your Speed. Can be used for walking, running, swimming (half speed), climbing (half speed), or leaping (Athletics check required)."
+        tags: ["movement", "escape"],
+        effect: "Move up to **4× your normal Speed** directly away from danger. You cannot make Attacks, take Reactions, or spend Stones until the start of your next turn. This movement provokes Opportunity Attacks as normal (unless you used Disengage this turn). The GM may immediately transition into a chase / escape resolution if appropriate.",
     },
     // ========================================
     // DEFENSIVE REACTIONS
+    // (Players Guide 6874–6884)
     // ========================================
     {
         id: "parry",
         name: "Parry",
-        description: "Deflect an incoming melee attack",
+        description: "Contest a melee hit with your weapon.",
         slot: "reaction",
         category: "defensive-reaction",
         tags: ["reaction", "defensive", "melee"],
         requirements: {
             requiresMeleeWeapon: true,
-            requiresFreeHand: true
         },
-        effect: "When targeted by a melee attack, make an opposed roll. If you succeed, reduce damage by your weapon's damage dice."
+        effect: "When hit by a melee attack, roll a Contest (Weapon Skill + Might/Agility vs. Attack Roll). On success, the attack is deflected. Requires a melee weapon.",
     },
     {
         id: "dodge",
         name: "Dodge",
-        description: "Evade an incoming attack",
+        description: "Raise your TN to be hit by MR × 4.",
         slot: "reaction",
         category: "defensive-reaction",
         tags: ["reaction", "defensive", "evasion"],
-        effect: "When targeted by an attack, make an Agility check. If you succeed, the attack misses."
+        effect: "When targeted by **any attack**, raise your TN to be hit by **Mastery Rank × 4** until the attack resolves.",
     },
     {
         id: "block",
-        name: "Block",
-        description: "Intercept an attack with shield or weapon",
+        name: "Block (Shield)",
+        description: "Raise your TN to be hit by MR × 4 (shield).",
         slot: "reaction",
         category: "defensive-reaction",
         tags: ["reaction", "defensive", "shield"],
         requirements: {
-            requiresShield: true
+            requiresShield: true,
         },
-        effect: "When targeted by an attack, use your shield to block. Reduce damage by your shield's Block value."
+        effect: "When targeted by **any attack**, raise your TN to be hit by **Mastery Rank × 4**. Requires a shield.",
     },
     {
-        id: "defensive-roll",
-        name: "Defensive Roll",
-        description: "Roll to reduce damage from an attack",
+        id: "dive-for-cover",
+        name: "Dive for Cover",
+        description: "Move 2 × MR m to escape an AoE.",
         slot: "reaction",
         category: "defensive-reaction",
-        tags: ["reaction", "defensive", "damage-reduction"],
-        effect: "When hit by an attack, make an Agility check. Reduce damage by 1d8 per success."
-    },
-    {
-        id: "brace",
-        name: "Brace",
-        description: "Prepare to receive a charge or impact",
-        slot: "reaction",
-        category: "defensive-reaction",
-        tags: ["reaction", "defensive", "stance"],
-        requirements: {
-            requiresStanding: true
-        },
-        effect: "When an enemy moves into melee range, you may make an attack against them. If they charge, they take additional damage."
+        tags: ["reaction", "defensive", "movement"],
+        effect: "When an AoE is placed and you are inside its area, you may spend your Reaction to immediately move up to **2 × your Mastery Rank meters**. If this movement takes you completely outside the AoE, you are not affected by that AoE's damage or payload. If you remain inside, the AoE affects you normally. This does **not** provoke Opportunity Attacks.",
     },
     // ========================================
     // SUPPORT REACTIONS
+    // (Players Guide 6888–6892)
     // ========================================
     {
         id: "aid",
         name: "Aid",
-        description: "Help an ally with their action",
+        description: "Grant an ally +2 flat to a roll within 8 m.",
         slot: "reaction",
         category: "support-reaction",
-        tags: ["reaction", "support", "aid"],
-        effect: "When an ally within range makes an attack or check, you may grant them +1d8 to their roll. Must be adjacent or within 2m."
+        tags: ["reaction", "support"],
+        effect: "When an ally within **8 m** makes an Attack, Save, or Skill check, give them **+2 flat bonus**. Must be justified in roleplay.",
     },
     {
         id: "interpose",
         name: "Interpose",
-        description: "Place yourself between an ally and danger",
+        description: "Take half of an adjacent ally's damage.",
         slot: "reaction",
         category: "support-reaction",
         tags: ["reaction", "support", "protection"],
-        effect: "When an ally within 2m is targeted by an attack, you may move into the attack's path. The attack targets you instead."
-    },
-    {
-        id: "cover-fire",
-        name: "Cover Fire",
-        description: "Provide covering fire for an ally",
-        slot: "reaction",
-        category: "support-reaction",
-        tags: ["reaction", "support", "ranged"],
-        requirements: {
-            requiresRangedWeapon: true
-        },
-        effect: "When an ally moves, make a ranged attack against an enemy. If you hit, that enemy has disadvantage on attacks against your ally this turn."
+        effect: "When an ally within **2 m** takes damage, you may step in and take **half of it**.",
     },
     // ========================================
     // TACTICAL REACTIONS
+    // (Players Guide 6897–6900)
     // ========================================
     {
         id: "opportunity-attack",
         name: "Opportunity Attack",
-        description: "Strike an enemy leaving melee range",
+        description: "Strike an enemy leaving your melee reach.",
         slot: "reaction",
         category: "tactical-reaction",
         tags: ["reaction", "tactical", "opportunity-attack", "melee"],
         requirements: {
-            requiresMeleeWeapon: true
+            requiresMeleeWeapon: true,
         },
-        effect: "When an enemy leaves your melee range, you may make one melee attack against them."
-    },
-    {
-        id: "readied-action",
-        name: "Readied Action",
-        description: "Prepare to act when a trigger occurs",
-        slot: "reaction",
-        category: "tactical-reaction",
-        tags: ["reaction", "tactical", "prepared"],
-        effect: "Declare a trigger condition and an action. When the trigger occurs, you may use your Reaction to perform that action."
-    },
-    {
-        id: "counter-attack",
-        name: "Counter Attack",
-        description: "Strike back after defending",
-        slot: "reaction",
-        category: "tactical-reaction",
-        tags: ["reaction", "tactical", "counter"],
-        requirements: {
-            requiresMeleeWeapon: true
-        },
-        effect: "After successfully Parrying or Dodging an attack, you may make a melee attack against that enemy."
+        effect: "When an enemy **leaves your melee reach** by movement, you may spend your Reaction to immediately make **one Basic Melee Attack** against them. This attack **cannot use a Power** — it deals weapon damage + passives + active buffs only.",
     },
     // ========================================
     // COMBAT ACTIONS / STANCES
+    // (Players Guide 6902–6963)
     // ========================================
     {
         id: "parry-stance",
         name: "Parry Stance",
-        description: "Adopt a defensive fighting stance",
+        description: "Give up Attack Actions; one Parry contest sets your TN.",
         slot: "attack",
         category: "combat-action",
-        tags: ["stance", "defensive", "ongoing"],
+        tags: ["stance", "defensive", "melee"],
         requirements: {
             requiresMeleeWeapon: true,
-            requiresFreeHand: true
         },
-        effect: "Enter a defensive stance. Gain +2 to Parry attempts and +1 to Defense. Lasts until you take another Action or are knocked prone."
+        effect: "Stance. Give up **all Attack Actions** this round (including extra Attacks). Roll one Parry Contest; the result becomes your TN vs all melee attacks until your next turn.",
     },
     {
         id: "dodge-stance",
         name: "Dodge Stance",
-        description: "Adopt an evasive fighting stance",
+        description: "Convert Attack Actions into +4 Evade each.",
         slot: "attack",
         category: "combat-action",
-        tags: ["stance", "defensive", "evasion", "ongoing"],
-        effect: "Enter an evasive stance. Gain +2 to Dodge attempts and +1 to Defense against ranged attacks. Lasts until you take another Action or are knocked prone."
+        tags: ["stance", "defensive", "evasion"],
+        effect: "Stance. Convert your Attack Actions into defense. For **each** Attack Action you give up this round, gain **+4 Evade** until your next turn. (You may convert your last remaining Attack Action when using a Stance.)",
     },
     {
-        id: "shield-wall",
-        name: "Shield Wall",
-        description: "Form a defensive formation with allies",
+        id: "shield-stance",
+        name: "Shield Stance",
+        description: "Stand fast: Movement 0; convert attacks into Evade + Armor.",
         slot: "attack",
         category: "combat-action",
-        tags: ["stance", "defensive", "formation", "ongoing"],
+        tags: ["stance", "defensive", "shield"],
         requirements: {
-            requiresShield: true
+            requiresShield: true,
         },
-        effect: "Form a shield wall with adjacent allies who also have shields. All participants gain +2 to Defense and +1 to Block attempts. Lasts until you or an ally breaks formation."
+        effect: "Stance. Requires a shield. Your Movement becomes **0 m** until your next turn. For each Attack Action you give up this round, gain **+(Shield Evade modifier, min 0)** to Evade and **+(Armor Value from worn armor)** as temporary Armor until your next turn.",
     },
     {
-        id: "aggressive-stance",
-        name: "Aggressive Stance",
-        description: "Adopt an offensive fighting stance",
+        id: "grapple",
+        name: "Grapple",
+        description: "Restrain a creature within reach.",
         slot: "attack",
         category: "combat-action",
-        tags: ["stance", "offensive", "ongoing"],
-        requirements: {
-            requiresMeleeWeapon: true
-        },
-        effect: "Enter an aggressive stance. Gain +1d8 to damage on melee attacks, but take -1 to Defense. Lasts until you take another Action."
+        tags: ["combat-action", "control", "melee"],
+        effect: "Attempt to restrain a creature within reach. Contest (Might/Agility Roll + optional HtH Skill vs. Might/Agility Roll + optional HtH Skill). On success, the target is **Grappled**. The target may attempt to end the grapple on their turn; if the grapple remains, you may deal **MR weapon damage dice** to the target.",
     },
     {
-        id: "aim",
-        name: "Aim",
-        description: "Take careful aim with a ranged weapon",
+        id: "reckless-attack",
+        name: "Reckless Attack",
+        description: "All-out: Advantage on attacks, enemies have Advantage on you.",
         slot: "attack",
         category: "combat-action",
-        tags: ["stance", "ranged", "ongoing"],
-        requirements: {
-            requiresRangedWeapon: true
-        },
-        effect: "Take careful aim. Your next ranged attack gains +2d8 to the attack roll. Lasts until you make an attack or take another Action."
+        tags: ["combat-action", "offensive"],
+        effect: "When you declare your Attack this round, fight without defense or restraint. Gain **Advantage on all Attack Rolls** against enemies until the start of your next turn. **All enemies gain Advantage** on Attack Rolls against you until the start of your next turn. You cannot combine this maneuver with any defensive stance (Parry, Dodge, Shield Stance, etc.).",
     },
     {
-        id: "total-defense",
-        name: "Total Defense",
-        description: "Focus entirely on defense",
+        id: "guard-melee",
+        name: "Guard (Melee)",
+        description: "Free Basic Melee Attack each time an enemy enters reach.",
         slot: "attack",
         category: "combat-action",
-        tags: ["stance", "defensive", "ongoing"],
-        effect: "Focus entirely on defense. Gain +3 to Defense until the start of your next turn. You cannot make attacks while in Total Defense."
-    },
-    // ========================================
-    // ADVANCED SPECIALS
-    // ========================================
-    {
-        id: "multiattack-2",
-        name: "Multiattack (2)",
-        description: "Make two attacks with a single Action",
-        slot: "attack",
-        category: "advanced-special",
-        tags: ["advanced", "multiattack", "attack-modifier"],
-        effect: "When you take the Attack action, you may make two attacks instead of one. Both attacks use the same weapon and modifiers."
-    },
-    {
-        id: "multiattack-3",
-        name: "Multiattack (3)",
-        description: "Make three attacks with a single Action",
-        slot: "attack",
-        category: "advanced-special",
-        tags: ["advanced", "multiattack", "attack-modifier"],
-        effect: "When you take the Attack action, you may make three attacks instead of one. All attacks use the same weapon and modifiers."
-    },
-    {
-        id: "autofire-2",
-        name: "Autofire (2)",
-        description: "Fire two shots with a ranged weapon",
-        slot: "attack",
-        category: "advanced-special",
-        tags: ["advanced", "autofire", "ranged", "attack-modifier"],
-        requirements: {
-            requiresRangedWeapon: true
-        },
-        effect: "When you take the Attack action with a ranged weapon, you may fire two shots. Both shots target the same or different enemies within range."
-    },
-    {
-        id: "autofire-3",
-        name: "Autofire (3)",
-        description: "Fire three shots with a ranged weapon",
-        slot: "attack",
-        category: "advanced-special",
-        tags: ["advanced", "autofire", "ranged", "attack-modifier"],
-        requirements: {
-            requiresRangedWeapon: true
-        },
-        effect: "When you take the Attack action with a ranged weapon, you may fire three shots. All shots may target the same or different enemies within range."
-    },
-    {
-        id: "power-attack",
-        name: "Power Attack",
-        description: "Sacrifice accuracy for damage",
-        slot: "attack",
-        category: "advanced-special",
-        tags: ["advanced", "attack-modifier", "melee"],
-        requirements: {
-            requiresMeleeWeapon: true
-        },
-        effect: "When making a melee attack, you may take a penalty of up to -2d8 to your attack roll to gain +2d8 damage per die penalty."
-    },
-    {
-        id: "precise-shot",
-        name: "Precise Shot",
-        description: "Aim for a specific body part",
-        slot: "attack",
-        category: "advanced-special",
-        tags: ["advanced", "attack-modifier", "ranged"],
-        requirements: {
-            requiresRangedWeapon: true
-        },
-        effect: "When making a ranged attack, you may take a -1d8 penalty to target a specific body part. Success grants additional effects (GM discretion)."
-    },
-    {
-        id: "cleave",
-        name: "Cleave",
-        description: "Strike multiple adjacent enemies",
-        slot: "attack",
-        category: "advanced-special",
-        tags: ["advanced", "attack-modifier", "melee", "aoe"],
+        tags: ["combat-action", "control", "melee"],
         requirements: {
             requiresMeleeWeapon: true,
-            requiresTwoHanded: true
         },
-        effect: "When you reduce an enemy to 0 Health with a melee attack, you may make another attack against an adjacent enemy as part of the same Action."
+        effect: "Focus on controlling your reach until your next turn. While Guarding, **each time** an enemy **enters** your melee reach, you may spend your **Reaction** to immediately make **one Basic Melee Attack** against them (no Power; weapon damage + passives + active buffs only). You may do this multiple times per round if you have additional Reactions, but each attack costs 1 Reaction.",
     },
     {
-        id: "whirlwind-attack",
-        name: "Whirlwind Attack",
-        description: "Strike all enemies around you",
+        id: "oversight",
+        name: "Oversight (Ranged Overwatch)",
+        description: "Free Basic Ranged Attack on a triggered creature/zone.",
         slot: "attack",
-        category: "advanced-special",
-        tags: ["advanced", "attack-modifier", "melee", "aoe"],
+        category: "combat-action",
+        tags: ["combat-action", "ranged"],
         requirements: {
-            requiresMeleeWeapon: true
+            requiresRangedWeapon: true,
         },
-        effect: "Make a melee attack against all enemies within your melee reach. Each attack uses the same attack roll, but damage is rolled separately."
-    }
+        effect: "Choose **one creature** you can see **or** **one zone/lane**. Until your next turn, when your chosen trigger occurs, you may spend your **Reaction** to immediately make **one Basic Ranged Attack** (no Power; weapon damage + passives + active buffs only). Multiple shots per round if you have additional Reactions, but each shot costs 1 Reaction. **Trigger choices:** the target moves (leaves cover / enters line of sight / enters your zone), or a creature enters your chosen zone.",
+    },
+    // ========================================
+    // INITIATIVE: DELAY
+    // (Players Guide 6968–6984 — declared at the start of your turn.)
+    // ========================================
+    {
+        id: "initiative-delay",
+        name: "Initiative: Delay",
+        description: "Skip your turn; act after another creature finishes.",
+        slot: "utility",
+        category: "advanced-special",
+        tags: ["initiative", "delay"],
+        effect: "Trigger at the start of your turn: skip and act immediately after any other creature finishes its turn. Your Initiative permanently changes to that position. Delaying past the round boundary carries the turn into the next round; you may take it after any creature's turn but never interrupt one. If you were last to act, your new Initiative becomes (highest Initiative + 1). You cannot delay if Incapacitated or Surprised; if you delay past your next natural turn, you lose that turn.",
+    },
 ];
 /**
  * Get all maneuvers available to an actor

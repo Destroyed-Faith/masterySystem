@@ -41,14 +41,48 @@ export function canCastSpellAtLevel(masteryRank, spellLevel) {
         return false;
     return spellLevel <= getMaxSpellLevel(masteryRank);
 }
-/** Base TN for a Casting Roll by Spell Level — `8 × ceil(level / 2)`. */
-export function calculateBaseTN(spellLevel) {
+export const SPELL_TIER_TABLE = {
+    1: 8,
+    2: 16,
+    3: 24,
+    4: 32,
+    5: 40,
+    6: 48,
+    7: 56,
+    8: 64,
+};
+/** Spell Tier (I–VIII) that contains the given Power Level (1–16). */
+export function spellTierForPowerLevel(spellLevel) {
     const lvl = Math.max(1, Math.min(16, Math.floor(spellLevel)));
-    return 8 * Math.ceil(lvl / 2);
+    return Math.ceil(lvl / 2);
 }
-/** Save DC a target must beat for a Save Spell — `8 × caster Mastery Rank`. */
-export function calculateSaveDC(masteryRank) {
-    return 8 * Math.max(1, Math.floor(masteryRank));
+/** Casting TN for a Spell of Tier I..VIII (Players Guide 7912–7923). */
+export function castingTNForTier(tier) {
+    return SPELL_TIER_TABLE[tier];
+}
+/**
+ * Base Casting TN for a Spell built from a Power of `spellLevel` (1..16).
+ *
+ * Equivalent to `castingTNForTier(spellTierForPowerLevel(spellLevel))`, kept
+ * as a stand-alone export because every existing caller already uses
+ * `calculateBaseTN(...)`.
+ */
+export function calculateBaseTN(spellLevel) {
+    return castingTNForTier(spellTierForPowerLevel(spellLevel));
+}
+/**
+ * Save DC a target must beat for a Save Spell.
+ *
+ * Players Guide saving-throw chapter (~6840–6864) defines the DC as
+ * `8 × caster Mastery Rank` *plus* the caster's Intellect scaling
+ * (`floor(Intellect/8)`). The optional `intellect` argument keeps the
+ * legacy single-arg signature working for callers that have not been
+ * updated to the attribute-aware version yet.
+ */
+export function calculateSaveDC(masteryRank, intellect = 0) {
+    const baseTN = 8 * Math.max(1, Math.floor(masteryRank));
+    const intBonus = Math.max(0, Math.floor((Number.isFinite(intellect) ? intellect : 0) / 8));
+    return baseTN + intBonus;
 }
 // ──────────────────────────────────────────────────────────────────────────
 // Casting-cost mutators (HP for Blood Raises, Stress for fizzle)
@@ -86,10 +120,14 @@ export async function applyBloodRaiseHpLoss(actor, amount) {
     return lost;
 }
 /**
- * Apply `amount` stress to the actor (fizzled spell penalty). Returns the
- * actual new current-bar index.
+ * Apply `amount` stress to the actor.
+ *
+ * Players Guide stress chapter (~6493–6502): `floor(Resolve/8)` Stress
+ * Armor reduces every *involuntary* stress hit; voluntary stress (push
+ * casts, Focus power-ups, etc.) ignores Stress Armor. Pass
+ * `{ voluntary: true }` to bypass the armor.
  */
-export async function applyStressToActor(actor, amount) {
+export async function applyStressToActor(actor, amount, options) {
     if (!actor || amount <= 0)
         return 0;
     const system = actor.system ?? {};
@@ -98,8 +136,20 @@ export async function applyStressToActor(actor, amount) {
     const currentBar = Number.isFinite(stress.currentBar) ? stress.currentBar : 0;
     if (!bars || bars.length === 0)
         return currentBar;
+    let appliedAmount = amount;
+    if (!options?.voluntary) {
+        const armor = Math.max(0, Math.floor(Number(system?.scaling?.resolveStressArmor ?? 0) || 0));
+        if (armor > 0) {
+            appliedAmount = Math.max(0, amount - armor);
+            if (appliedAmount === 0) {
+                // Fully absorbed by armor — nothing to commit, but signal to the
+                // caller that the armor "ate" the entire hit.
+                return currentBar;
+            }
+        }
+    }
     const barsClone = bars.map((b) => ({ ...b }));
-    const newCurrent = applyStress(barsClone, currentBar, amount);
+    const newCurrent = applyStress(barsClone, currentBar, appliedAmount);
     try {
         await actor.update({
             'system.stress.bars': barsClone,
@@ -166,7 +216,9 @@ export async function rollSpell(params) {
     const system = actor?.system ?? {};
     const attrValue = Number(system.attributes?.[castingAttribute]?.value ?? 0);
     const masteryRank = Number(masteryRankOverride ?? system.mastery?.rank ?? 1);
-    const numDice = Math.max(1, attrValue);
+    // Players Guide minimum-pool rule (~5888–5899): the pool can never be
+    // smaller than the caster's Mastery Rank.
+    const numDice = Math.max(1, Math.max(attrValue, masteryRank));
     const keepDice = Math.max(1, masteryRank);
     const bloodApplied = Math.max(0, Math.floor(bloodRaises));
     const rawRaises = Math.max(0, Math.floor(declaredRaises));
@@ -221,7 +273,9 @@ export async function rollSpell(params) {
         bloodHpLost,
         success,
         raises,
-        saveDc: resolution === 'saveSpell' && !supportMode ? calculateSaveDC(masteryRank) : null,
+        saveDc: resolution === 'saveSpell' && !supportMode
+            ? calculateSaveDC(masteryRank, Number(system.attributes?.intellect?.value ?? 0))
+            : null,
         stressTaken,
         resolution,
         ...(saveType ? { saveType } : {}),

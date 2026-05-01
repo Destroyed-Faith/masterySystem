@@ -8,7 +8,8 @@ export const FAMILIAR_UPGRADE_CATEGORY_OPTIONS = [
     { value: 'evade', label: 'Evade (+4)' },
     { value: 'attack', label: 'Attack (+2d8)' },
     { value: 'damage', label: 'Damage (+1d8)' },
-    { value: 'movement', label: 'Movement (+2 m ground / +1 m flying)' }
+    // Players Guide 9642: Movement = +4 m ground or +2 m flying.
+    { value: 'movement', label: 'Movement (+4 m ground / +2 m flying)' }
 ];
 /** Base + 8 upgrade tiers — index = number of category upgrades taken. */
 export const FAMILIAR_HP_BY_TIER = [
@@ -19,8 +20,10 @@ export const FAMILIAR_EVADE_BY_TIER = [4, 8, 12, 16, 20, 24, 28, 32, 36];
 /** Attack: dice count for Xd8 */
 export const FAMILIAR_ATTACK_DICE_BY_TIER = [2, 4, 6, 8, 10, 12, 14, 16, 18];
 export const FAMILIAR_DAMAGE_DICE_BY_TIER = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-export const FAMILIAR_GROUND_MOVEMENT_BY_TIER = [8, 10, 12, 14, 16, 18, 20, 22, 24];
-export const FAMILIAR_FLYING_MOVEMENT_BY_TIER = [4, 5, 6, 7, 8, 9, 10, 11, 12];
+// Players Guide 9622–9643: base 8 m / 4 m, every Movement upgrade adds
+// +4 m ground or +2 m flying.
+export const FAMILIAR_GROUND_MOVEMENT_BY_TIER = [8, 12, 16, 20, 24, 28, 32, 36, 40];
+export const FAMILIAR_FLYING_MOVEMENT_BY_TIER = [4, 6, 8, 10, 12, 14, 16, 18, 20];
 const MAX_TIER_INDEX = 8;
 function sizeFromHpUpgrades(hpUpgrades) {
     if (hpUpgrades <= 0)
@@ -85,6 +88,17 @@ function dedupeSharedSenses(groups, warnings) {
     }
     return out;
 }
+/**
+ * Players Guide 9701–9712 caps:
+ *   • Stones per Familiar = `Mastery Rank × 4`
+ *   • Total Familiars per actor = `Mastery Rank × 4`
+ */
+export function getMaxStonesPerFamiliar(masteryRank) {
+    return Math.max(1, Math.floor(Number(masteryRank) || 1)) * 4;
+}
+export function getMaxFamiliarCount(masteryRank) {
+    return Math.max(1, Math.floor(Number(masteryRank) || 1)) * 4;
+}
 /** Read-only reference grid for the Summons tab (9 columns: base + 8 upgrades). */
 export function getFamiliarProgressionTableRows() {
     return [
@@ -130,8 +144,11 @@ export function buildFamiliarResult(input) {
     const moveTable = input.movementType === 'ground' ? FAMILIAR_GROUND_MOVEMENT_BY_TIER : FAMILIAR_FLYING_MOVEMENT_BY_TIER;
     const movementM = tierLookup(moveTable, movementUpgrades, 'Movement', warnings);
     const size = sizeFromHpUpgrades(hpUpgrades);
-    if (hpUpgrades > 8) {
-        warnings.push('HP upgrades exceed maximum track (8).');
+    // Players Guide 9637: HP can be chosen at most 5 times per Familiar
+    // (Tiny → Small → Medium → Large is 3 size jumps, but the catalog table
+    // tops out at +5 HP picks before the size cap is reached at Large).
+    if (hpUpgrades > 5) {
+        warnings.push('HP upgrades exceed Players Guide cap (max 5 HP picks per Familiar).');
     }
     return {
         familiarName: input.familiarName.trim() || '(unnamed)',
