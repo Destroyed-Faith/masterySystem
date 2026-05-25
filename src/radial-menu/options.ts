@@ -17,6 +17,7 @@ import {
 } from '../utils/npc-attack-model.js';
 import { resolvePowerMechanics } from '../utils/power-mechanics.js';
 import { formatRadialPowerDisplayName } from './power-radial-label.js';
+import { buildArtifactRadialOptions } from './artifact-options.js';
 
 /**
  * True when activating spends an action: legacy `cost.action === true` or
@@ -882,7 +883,20 @@ export async function getAllCombatOptionsForActor(actor: any): Promise<RadialCom
   // Add non-movement maneuvers
   const nonMovementManeuvers = allManeuvers.filter(m => m.slot !== 'movement');
   options.push(...nonMovementManeuvers);
-  
+
+  // --- ARTIFACT POWERS (Level Progression → Active / Active Buff / Movement / Support) ---
+  // Surfaces unlocked artifact actives from every equipped artifact's
+  // `system.levelProgression` rows (level ≤ currentLevel). Reactions
+  // are handled by the defender-reactions pipeline, not the radial menu.
+  try {
+    const artifactOptions = buildArtifactRadialOptions(actor);
+    if (artifactOptions.length > 0) {
+      options.push(...artifactOptions);
+    }
+  } catch (err) {
+    console.warn('Mastery System | Could not build artifact radial options:', err);
+  }
+
   // Logging
   console.log(`Mastery System | Collected movement powers: ${movementPowers.length}`);
   console.log(`Mastery System | Movement segment final options: [${movementOptions.map(o => o.id).join(', ')}]`);

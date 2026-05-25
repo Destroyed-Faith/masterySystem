@@ -284,7 +284,7 @@
     }
   },
   "Item": {
-    "types": ["power", "masteryNode", "echo", "schtick", "artifact", "condition", "weapon", "armor", "shield", "gear"],
+    "types": ["power", "echo", "schtick", "artifact", "condition", "weapon", "armor", "shield", "gear"],
     "templates": {
       "base": {
         "description": "",
@@ -335,16 +335,6 @@
       "requirements": {
         "masteryRank": 1,
         "other": ""
-      }
-    },
-    "masteryNode": {
-      "templates": ["base"],
-      "tree": "",
-      "level": 1,
-      "bonus": "",
-      "requirements": {
-        "masteryRank": 1,
-        "prerequisites": []
       }
     },
     "echo": {
@@ -403,7 +393,15 @@
         "masteryRank": 1
       },
       "powers": [],
-      "equipSlots": ["mainhand", "offhand"]
+      "equipSlots": ["mainhand", "offhand"],
+      "slot": "",
+      "baseProfile": "",
+      "baseValues": [],
+      "stoneFunction": null,
+      "binding": "unbound",
+      "echoKey": "",
+      "currentLevel": 1,
+      "levelProgression": []
     },
     "condition": {
       "templates": ["base"],
@@ -432,7 +430,7 @@
       "evadeModifier": 0,
       "skillPenalty": "",
       "type": "light",
-      "equipSlots": ["chest"],
+      "equipSlots": ["body"],
       "equipped": false
     },
     "shield": {

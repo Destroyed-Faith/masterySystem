@@ -52,24 +52,64 @@ export declare const CREATION: {
     MIN_DISADVANTAGE_POINTS: number;
     MAX_DISADVANTAGE_POINTS: number;
 };
+export declare const MAX_POWER_LEVEL = 16;
+/**
+ * XP Costs for Progression (new spec).
+ *
+ *   Attributes — band cost = floor((nextValue - 1) / 8) + 1, going from 1 XP
+ *       (values 1–8) up to 10 XP (values 73–80). `ATTRIBUTE` is the explicit
+ *       lookup table; `attributeBandCost(next)` is the runtime helper.
+ *
+ *   Skills    — same banded table as Attributes (1 / 2 / … / 10 XP) instead
+ *       of the old `R × SKILL_PER_RANK` ramp. `SKILL` aliases `ATTRIBUTE`.
+ *
+ *   Powers    — `cost = 2 × newLevel` for levels 1..16. POWER_LEVEL[i] is the
+ *       cost for buying level `i + 1`. `powerLevelCost(level)` is the helper.
+ *
+ *   Artifacts — flat 8 XP per +1 level (`ARTIFACT_LEVEL`). MR gating still
+ *       limits the maximum reachable level (see `getMaxArtifactSystemLevelForMasteryRank`).
+ */
 export declare const XP_COSTS: {
     ATTRIBUTE: {
         min: number;
         max: number;
         cost: number;
     }[];
-    /** Multiplier for buying rank N: cost = N × SKILL_PER_RANK (1 → N XP per step). */
-    SKILL_PER_RANK: number;
+    readonly SKILL: {
+        min: number;
+        max: number;
+        cost: number;
+    }[];
     POWER_LEVEL: number[];
-    NEW_TREE: number;
-    ARTIFACT_ACCESS: number;
     ARTIFACT_LEVEL: number;
 };
+/** XP cost to raise an Attribute (or Skill) to `nextValue` (1..80). */
+export declare function attributeBandCost(nextValue: number): number;
+/** XP cost to raise a Power to `level` (1..16); `cost = 2 × level`. */
+export declare function powerLevelCost(level: number): number;
+/**
+ * Mastery Rank Advancement (new spec — based on total Stone count).
+ *
+ *  | Total Stones | MR | Tier         |
+ *  |--------------|----|--------------|
+ *  | 1 – 7        | 2  | Adept        |
+ *  | 8 – 13       | 3  | Expert       |
+ *  | 14 – 20      | 4  | Master       |
+ *  | 21 – 29      | 5  | Grandmaster  |
+ *  | 30 – 39      | 6  | Legend       |
+ *  | 40 – 49      | 7  | Mythic       |
+ *  | 50 – 70      | 8  | Godlevel     |
+ */
 export declare const MR_ADVANCEMENT: {
     stones: number;
     mr: number;
     tier: string;
 }[];
+/**
+ * Divine Scale label within MR8 (50–70 Stones). Returns `null` for any
+ * Stone total below 50 (i.e. MR 7 or lower).
+ */
+export declare function getDivineScale(totalStones: number): 'Lesser God' | 'True God' | 'High God' | 'Apex God' | null;
 export declare const SAVING_THROWS: {
     body: string[];
     mind: string[];

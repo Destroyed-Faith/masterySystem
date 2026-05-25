@@ -280,7 +280,6 @@ export interface CharacterData {
   xp?: {
     totalEarned: number;
     totalSpent: number;
-    spentAttributes: number;
     /** Post-creation floor per attribute (set at finalize; used for XP refunds). */
     attributeBaselines?: Record<string, number>;
     /** Immutable snapshot after creation (attributes, skills, powers); used for GM progression reset. */
@@ -289,6 +288,17 @@ export interface CharacterData {
       skills: Record<string, number>;
       skillsSpent: Record<string, number>;
       powerLevels: Record<string, number>;
+    };
+    /**
+     * New spec — Upgrade Step state. Each individual Attribute / Skill /
+     * Power / Artifact can be bumped at most once per Upgrade Step.
+     * Cleared when the GM (or owner) ends the step.
+     */
+    currentStep?: {
+      attributes: string[];
+      skills: string[];
+      powers: string[];
+      artifacts: string[];
     };
     history: Array<{
       ts: number;
@@ -299,8 +309,8 @@ export interface CharacterData {
       amount: number;
       note?: string;
       details?: any;
-      before: { available: number; totalEarned: number; totalSpent: number; spentAttributes: number; };
-      after: { available: number; totalEarned: number; totalSpent: number; spentAttributes: number; };
+      before: { available: number; totalEarned: number; totalSpent: number };
+      after: { available: number; totalEarned: number; totalSpent: number };
     }>;
   };
   // Derived tracked resources for Combat Carousel module

@@ -885,28 +885,55 @@ export async function clearCombatStoneTurnBonusesForActor(actor, combat) {
     const sb = roundState.stoneBonuses;
     const changed = (sb.evadeBonus ?? 0) !== 0 ||
         (sb.damageBonus ?? 0) !== 0 ||
+        (sb.meleeDamageBonusDice ?? 0) !== 0 ||
         (sb.armorPenetration ?? 0) !== 0 ||
+        (sb.meleeIgnoreArmor ?? 0) !== 0 ||
         (sb.freeRaises ?? 0) !== 0 ||
         (sb.critRaises ?? 0) !== 0 ||
         (sb.tempArmor ?? 0) !== 0 ||
         (sb.saveKeepBonus ?? 0) !== 0 ||
         (sb.spellPoolDice ?? 0) !== 0 ||
-        (sb.spellKeepDice ?? 0) !== 0;
+        (sb.spellKeepDice ?? 0) !== 0 ||
+        (sb.tempHpGrantedThisTurn ?? 0) !== 0 ||
+        (sb.ignoreWoundPenalties ?? 0) !== 0 ||
+        (sb.spellAutoRaises ?? 0) !== 0 ||
+        (sb.spellSaveBonus ?? 0) !== 0 ||
+        (sb.spellSpecialBoost ?? 0) !== 0 ||
+        (sb.damageReductionBoostPct ?? 0) !== 0 ||
+        (sb.phasingChargesFromStones ?? 0) !== 0;
     if (!changed)
         return;
+    // Round-long bonuses persist through spotlight changes; per-turn bonuses
+    // reset when the actor's spotlight in the initiative tracker ends.
     roundState.stoneBonuses = {
         extraAttacks: sb.extraAttacks ?? 0,
         extraReactions: sb.extraReactions ?? 0,
         extraMoveMeters: sb.extraMoveMeters ?? 0,
         evadeBonus: 0,
         damageBonus: 0,
+        meleeDamageBonusDice: 0,
         armorPenetration: 0,
+        meleeIgnoreArmor: 0,
         freeRaises: 0,
         critRaises: 0,
         tempArmor: 0,
         saveKeepBonus: 0,
         spellPoolDice: 0,
         spellKeepDice: 0,
+        tempHpGrantedThisTurn: 0,
+        ignoreWoundPenalties: 0,
+        secondChanceFreeBoxes: sb.secondChanceFreeBoxes ?? 0,
+        spellAutoRaises: 0,
+        spellSaveBonus: 0,
+        extraSpellActions: sb.extraSpellActions ?? 0,
+        spellSpecialBoost: 0,
+        damageReductionBoostPct: 0,
+        saveAllBonus: sb.saveAllBonus ?? 0,
+        incomingSpecialReduction: sb.incomingSpecialReduction ?? 0,
+        phasingChargesFromStones: 0,
+        initiativeBonus: sb.initiativeBonus ?? 0,
+        reactionRangeBonus: sb.reactionRangeBonus ?? 0,
+        extraPassives: sb.extraPassives ?? 0,
     };
     await setRoundState(owner, roundState);
 }

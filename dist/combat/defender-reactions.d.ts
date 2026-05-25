@@ -16,6 +16,14 @@ export interface DefenderReactionMitigation {
 }
 /**
  * Reaction-type power items the defender can still use this round (equipped, not used).
+ *
+ * Includes:
+ *   - regular `power` items with `system.powerType === 'reaction'`, and
+ *   - synthetic items materialized from each equipped artifact's
+ *     `system.levelProgression` rows of type `'Reaction'` (up to
+ *     `system.currentLevel`). Synthetic items carry an `id` like
+ *     `artifact-reaction:<artifactItemId>:<level>` so they participate
+ *     in the same once-per-round bookkeeping.
  */
 export declare function getEligibleReactionPowers(defender: Actor, combat: Combat | null): any[];
 /**

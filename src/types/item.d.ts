@@ -3,8 +3,8 @@
  */
 
 export interface MasteryItemData {
-  type: 'power' | 'masteryNode' | 'echo' | 'schtick' | 'artifact' | 'condition' | 'weapon' | 'armor' | 'shield' | 'gear';
-  system: PowerData | MasteryNodeData | EchoData | SchtickData | ArtifactData | ConditionData | WeaponData | ArmorData | ShieldData | GearData;
+  type: 'power' | 'echo' | 'schtick' | 'artifact' | 'condition' | 'weapon' | 'armor' | 'shield' | 'gear';
+  system: PowerData | EchoData | SchtickData | ArtifactData | ConditionData | WeaponData | ArmorData | ShieldData | GearData;
 }
 
 // === Base Item Data (common to all items) ===
@@ -616,17 +616,6 @@ export interface PowerData extends BaseItemData {
   overcast?: number;
 }
 
-// === Mastery Node Data ===
-export interface MasteryNodeData extends BaseItemData {
-  tree: string;
-  level: number;
-  bonus: string;
-  requirements: {
-    masteryRank: number;
-    prerequisites: string[];
-  };
-}
-
 // === Echo Data ===
 export interface EchoData extends BaseItemData {
   echoType: string;
@@ -647,6 +636,110 @@ export interface SchtickData extends BaseItemData {
 }
 
 export type ArtifactKind = 'weapon' | 'armor' | 'shield' | 'gear';
+
+/**
+ * Canonical artifact slot keys (new spec). Distinct from the legacy
+ * `artifactKind` enum which is kept for backwards compatibility.
+ */
+export type ArtifactSlotKey =
+  | 'mainHand'
+  | 'offHand'
+  | 'body'
+  | 'head'
+  | 'feet'
+  | 'amulet'
+  | 'ring';
+
+/** Base Profile (physical/inherent kind) per the new Artifacts spec. */
+export type ArtifactBaseProfileKey =
+  | 'oneHandedWeapon'
+  | 'twoHandedWeapon'
+  | 'shield'
+  | 'bodyArmor'
+  | 'noArmorBody'
+  | 'robe'
+  | 'headArmor'
+  | 'feet'
+  | 'amulet'
+  | 'ring'
+  | 'lantern'
+  | 'custom';
+
+/** Type of Base Value (catalog entry from the spec). */
+export type ArtifactBaseValueType =
+  | 'weaponDamage'
+  | 'thrownRange'
+  | 'weaponSpecial'
+  | 'bodyArmor'
+  | 'headArmor'
+  | 'shieldValue'
+  | 'evade'
+  | 'movement'
+  | 'sense'
+  | 'minorFeature';
+
+/** Stone Function variant on an artifact (max 1 per artifact). */
+export type ArtifactStoneFunctionKind =
+  | 'stonePowerSupport'
+  | 'stonePool'
+  | 'stoneRefresh'
+  | 'stoneBattery';
+
+/**
+ * One Base Value entry on an artifact. The `kind` field hints at the
+ * baseline table that should be consulted; `value` holds either the
+ * resolved numeric/string baseline (autocomputed at level-up time) or
+ * a custom override the GM entered manually.
+ */
+export interface ArtifactBaseValue {
+  /** Stable id within the artifact (`a` / `b` / `c` per the spec). */
+  slot: 'a' | 'b' | 'c';
+  type: ArtifactBaseValueType;
+  /** Human-readable label (shown in builder/sheet). */
+  label: string;
+  /**
+   * Resolved scalar — meaning depends on `type`:
+   *   weaponDamage → dice string ("4d8")
+   *   thrownRange / movement / armor / evade / shieldValue → numeric meters/points
+   *   weaponSpecial → numeric rank
+   *   sense / minorFeature → free-form note (kept in `note` field)
+   */
+  value?: number | string;
+  /** Optional descriptive note. */
+  note?: string;
+  /** True if the value follows the spec baseline, false if GM overrode. */
+  isBaseline?: boolean;
+}
+
+/** A Stone Function block on an artifact. */
+export interface ArtifactStoneFunction {
+  kind: ArtifactStoneFunctionKind;
+  /** Attribute key (`might`, `agility`, …) the function targets. */
+  attribute?: string;
+  /** For Stone Power Support: the supported Stone Power id (string). */
+  stonePowerId?: string;
+  /** Optional descriptive note. */
+  note?: string;
+}
+
+/**
+ * A single row in an Artifact's Level Progression (Level 1..10).
+ * Each row describes the named Active / Reaction / Passive / Stone
+ * Function the artifact grants at that level.
+ */
+export interface ArtifactLevelProgressionRow {
+  level: number;
+  name: string;
+  /** Active, Reaction, Passive, Active Buff, Movement, Stone Function, Ultimate, Support. */
+  type: string;
+  range?: string;
+  aoe?: string;
+  duration?: string;
+  effect?: string;
+  special?: string;
+  /** Optional structured power if this row also grants a usable Active/Reaction. */
+  embeddedPowerId?: string;
+}
 
 /** Weapon special line: effect id + optional rank/strength (same shape as SpecialEffectReference). */
 export interface ArtifactWeaponSpecialRef {
@@ -700,11 +793,29 @@ export interface ArtifactData extends BaseItemData {
   powers: (EmbeddedPowerData | NewArtifactPowerData | ArtifactPowerData)[]; // Powers embedded in the artifact (supports both old and new format)
   /** What kind of item this node represents (drives which profile fields apply). */
   artifactKind?: ArtifactKind;
-  /** When artifactKind is gear: paperdoll slot key (helmet, ring1, belt, …). */
+  /** When artifactKind is gear: canonical paperdoll slot key (head, amulet, ring, feet, body). */
   gearSlot?: string;
   artifactWeapon?: ArtifactWeaponProfile;
   artifactArmor?: ArtifactArmorProfile;
   artifactShield?: ArtifactShieldProfile;
+
+  // ----- New Artifact spec (Artefacts.md) -----
+  /** Canonical Equipment Slot the artifact occupies. */
+  slot?: ArtifactSlotKey | '';
+  /** Base Profile (physical kind) — drives which Base Values are allowed. */
+  baseProfile?: ArtifactBaseProfileKey | '';
+  /** Base Values that define what the artifact physically is (max per slot). */
+  baseValues?: ArtifactBaseValue[];
+  /** Optional Stone Function — at most one per artifact. */
+  stoneFunction?: ArtifactStoneFunction | null;
+  /** Binding kind on this character. */
+  binding?: 'unbound' | 'bound' | 'echo';
+  /** When binding is `echo`: which Echo key granted it (e.g. `dwarfs`). */
+  echoKey?: string;
+  /** Current player-progression level (1..10) on this artifact. */
+  currentLevel?: number;
+  /** Authored Level Progression — rows for levels 1..10. */
+  levelProgression?: ArtifactLevelProgressionRow[];
 }
 
 // === Condition Data ===

@@ -749,7 +749,6 @@ async function showArtifactDialogForActor(actor) {
                 levels[actor.id] = serializeActorArtifactProgress({
                     nodeId: rootNodeId,
                     linked: prev.linked,
-                    ultimateUnlocked: prev.ultimateUnlocked
                 });
                 await rootItem.setFlag('mastery-system', 'actorLevels', levels);
                 ui.notifications?.info(`Gave ${rootItem.name} to ${actor.name}`);

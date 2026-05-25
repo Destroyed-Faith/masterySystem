@@ -18,8 +18,9 @@ import { buildPostCreationSnapshot } from '../utils/xp-post-creation.js';
 import { resetCharacterForRecreation } from '../utils/reset-character.js';
 import { getPassiveSlots, slotPassive, unslotPassive } from '../powers/passives.js';
 import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items.js';
-import { getNormalizedEquipSlots } from '../utils/equip-slots.js';
-import { XP_COSTS } from '../utils/constants.js';
+import { getNormalizedEquipSlots, normalizeSlotKey } from '../utils/equip-slots.js';
+import { attributeBandCost, powerLevelCost } from '../utils/constants.js';
+import { calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculations.js';
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { matchesMasteryWeaponCatalog } from '../utils/weapons.js';
 import { buildRadialManeuverPrefsContext } from '../utils/radial-maneuver-prefs.js';
@@ -1198,7 +1199,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             const flags = item.getFlag?.('mastery-system', 'equipment') || {};
             const container = flags.container ?? 'inventory';
             const band = flags.band ?? 'not';
-            const slot = flags.slot ?? null;
+            // Normalize legacy slot keys (helmet/chest/boot/necklace/ring1/ring2)
+            // to the canonical 7-slot vocabulary at read time.
+            const slot = normalizeSlotKey(flags.slot) ?? null;
             // Backward compatibility: if item.system.equipped is true and no slot flag
             if (!slot && item.system?.equipped === true) {
                 if (item.type === 'weapon') {
@@ -1210,23 +1213,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     continue;
                 }
                 else if (item.type === 'armor') {
-                    slotMap['chest'] = item;
+                    slotMap['body'] = item;
                     continue;
                 }
             }
             // Treat backpack items as inventory items (they go into encumbrance bands)
             // Backpack container flag is kept for future use, but items are displayed in bands
             if (slot) {
-                // Only first item per slot (ring1/ring2 handled separately)
-                if (!slotMap[slot] || (slot === 'ring1' || slot === 'ring2')) {
-                    if (slot === 'ring1' || slot === 'ring2') {
-                        if (!slotMap[slot]) {
-                            slotMap[slot] = item;
-                        }
-                    }
-                    else {
-                        slotMap[slot] = item;
-                    }
+                if (!slotMap[slot]) {
+                    slotMap[slot] = item;
                 }
             }
             else if (container === 'stash') {
@@ -1261,19 +1256,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const encCellsData = toCells(encItems, BAND_COLS, BAND_ROWS);
         const heavyCellsData = toCells(heavyItems, BAND_COLS, BAND_ROWS);
         const stashCellsData = toCells(stashItems, STASH_COLS, STASH_ROWS);
-        // Slot definitions
+        // Slot definitions — canonical 7-slot vocabulary (Artefacts.md).
         const slotDefs = [
-            { key: 'helmet', label: 'Helmet' },
-            { key: 'necklace', label: 'Necklace' },
-            { key: 'chest', label: 'Chest' },
-            { key: 'cloak', label: 'Cloak' },
-            { key: 'glove', label: 'Gloves' },
-            { key: 'ring1', label: 'Ring' },
-            { key: 'belt', label: 'Belt' },
-            { key: 'mainhand', label: 'Mainhand' },
-            { key: 'leggings', label: 'Leggings' },
-            { key: 'offhand', label: 'Offhand' },
-            { key: 'boot', label: 'Boots' }
+            { key: 'mainhand', label: 'Main Hand' },
+            { key: 'offhand', label: 'Off Hand' },
+            { key: 'body', label: 'Body' },
+            { key: 'head', label: 'Head' },
+            { key: 'feet', label: 'Feet' },
+            { key: 'amulet', label: 'Amulet' },
+            { key: 'ring', label: 'Ring' }
         ];
         // Players Guide 7575–7579: Load zone & movement penalty.
         // Map the legacy 3-band (Normal / Encumbered / Overloaded) representation
@@ -1668,7 +1659,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('.safe-haven-rest').on('click', this.#onSafeHavenRest.bind(this));
         html.find('.gm-award-faith-fracture').on('click', this.#onGmAwardFaithFracture.bind(this));
         // Point spending buttons (JavaScript will check permissions)
-        html.find('.attribute-spend-point').on('click', this.#onAttributeSpendPoint.bind(this));
+        // Note: legacy `.attribute-spend-point` immediate-spend handler removed —
+        // the only attribute spend path is now the pending/confirm flow via
+        // `.attr-increase-xp` (which respects the once-per-step rule).
         html.find('.skill-spend-point').on('click', this.#onSkillSpendPoint.bind(this));
         html.find('.skill-refund-point').on('click', this.#onSkillRefundPoint.bind(this));
         html.find('.confirm-skill-changes').on('click', this.#onConfirmSkillChanges.bind(this));
@@ -2476,13 +2469,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('.stone-adjust').on('click', this.#onStoneAdjust.bind(this));
     }
     /**
-     * Calculate cost to increase an attribute from current value to next value
-     * Cost tiers: 1-8 = 1pt, 9-16 = 2pt, 17-24 = 3pt, etc.
+     * Calculate cost to increase an attribute from current value to next value.
+     * New spec: bands 1–8 / 9–16 / … / 73–80 cost 1 / 2 / … / 10 XP per +1.
      */
     #calculateAttributeCost(currentValue) {
-        const nextValue = currentValue + 1;
-        const tier = Math.floor((nextValue - 1) / 8);
-        return tier + 1;
+        return attributeBandCost(currentValue + 1);
     }
     /** Floor for attribute value when refunding XP (set at creation finalize; migrated for older actors). */
     #getAttributeXpBaseline(attributeKey) {
@@ -2545,28 +2536,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         return net;
     }
     /**
-     * Calculate cost to increase a power to a specific level
-     * Level 1: 2 MP, Level 2: 4 MP, Level 3: 8 MP, Level 4: 16 MP,
-     * Level 5: 24 MP, Level 6: 32 MP, Level 7-12: 40 MP per level
+     * Calculate cost to raise a power to a specific level.
+     * New spec: `cost = 2 × newLevel` for levels 1–16 (2, 4, 6, …, 32 XP).
      */
     #calculatePowerLevelCost(targetLevel) {
-        if (targetLevel <= 0)
-            return 0;
-        if (targetLevel === 1)
-            return 2;
-        if (targetLevel === 2)
-            return 4;
-        if (targetLevel === 3)
-            return 8;
-        if (targetLevel === 4)
-            return 16;
-        if (targetLevel === 5)
-            return 24;
-        if (targetLevel === 6)
-            return 32;
-        if (targetLevel >= 7 && targetLevel <= 12)
-            return 40;
-        return 0; // Invalid level
+        return powerLevelCost(targetLevel);
     }
     /**
      * Get a power's minimum level (baseline from character creation)
@@ -2579,10 +2553,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // fallback: treat current level as baseline if missing
         return lvl;
     }
-    /** Max power level purchasable: min(12, Mastery Rank × 2). */
+    /**
+     * Max Power Level a character of the actor's MR may purchase.
+     * MR 1–2 → 4, MR 3 → 8, MR 4 → 12, MR 5+ → 16.
+     */
     #getMaxPurchasablePowerLevel() {
         const mr = Math.max(1, Math.floor(Number(this.actor.system?.mastery?.rank) || 1));
-        return Math.min(12, mr * 2);
+        return calculateMaxPowerLevel(mr);
     }
     /**
      * Calculate net pending cost (signed) for all pending power level changes
@@ -2627,7 +2604,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             available: points.xp ?? 0,
             totalEarned: xp.totalEarned ?? 0,
             totalSpent: xp.totalSpent ?? 0,
-            spentAttributes: xp.spentAttributes ?? 0,
             history: xp.history ?? []
         };
     }
@@ -2637,7 +2613,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     #pushXpHistory(actor, entry) {
         const system = actor.system || {};
         if (!system.xp) {
-            system.xp = { totalEarned: 0, totalSpent: 0, spentAttributes: 0, history: [] };
+            system.xp = { totalEarned: 0, totalSpent: 0, history: [] };
         }
         if (!system.xp.history) {
             system.xp.history = [];
@@ -2649,52 +2625,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
     }
     /**
-     * Handle spending attribute points
-     */
-    async #onAttributeSpendPoint(event) {
-        event.preventDefault();
-        // Check if user is owner
-        if (!this.actor.isOwner) {
-            ui.notifications?.warn('Only the owner can spend Attribute Points.');
-            return;
-        }
-        const element = event.currentTarget;
-        const attributeName = element.dataset.attribute;
-        if (!attributeName)
-            return;
-        // Save scroll position
-        const attributesTab = this.element.find('.tab.attributes');
-        const scrollTop = attributesTab.scrollTop();
-        const currentValue = this.actor.system.attributes[attributeName]?.value || 0;
-        const xpState = this.#getXpState(this.actor);
-        const cost = this.#calculateAttributeCost(currentValue);
-        // Check if we have enough points
-        if (xpState.available < cost) {
-            ui.notifications?.warn(`Not enough XP! You need ${cost} points, but only have ${xpState.available}.`);
-            return;
-        }
-        // Check max value
-        if (currentValue >= 80) {
-            ui.notifications?.warn('This attribute is already at maximum value (80).');
-            return;
-        }
-        // Update attribute and spend points
-        const updates = {};
-        updates[`system.attributes.${attributeName}.value`] = currentValue + 1;
-        updates['system.points.xp'] = xpState.available - cost;
-        await this.actor.update(updates);
-        await this.render();
-        // Restore scroll position
-        const newAttributesTab = this.element.find('.tab.attributes');
-        if (newAttributesTab.length) {
-            newAttributesTab.scrollTop(scrollTop);
-        }
-        ui.notifications?.info(`${attributeName.charAt(0).toUpperCase() + attributeName.slice(1)} increased to ${currentValue + 1}! (Cost: ${cost} points, Remaining: ${xpState.available - cost})`);
-    }
-    /**
      * Handle pending attribute increase (XP distribution mode)
      */
-    #onAttributeIncreaseXP(event) {
+    async #onAttributeIncreaseXP(event) {
         event.preventDefault();
         event.stopPropagation();
         console.log('Mastery System | #onAttributeIncreaseXP called', {
@@ -2744,6 +2677,25 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ui.notifications?.warn('This attribute cannot exceed maximum value (80).');
             return;
         }
+        /**
+         * New spec — once-per-step rule. Each Attribute may be increased by
+         * at most +1 per Upgrade Step. The pending delta is therefore capped
+         * at +1, and if the attribute has *already* been bumped earlier in
+         * this same step (and not refunded back below its step-start value)
+         * we reject the click.
+         */
+        if (nextPending > 1) {
+            ui.notifications?.warn(`${attributeName.charAt(0).toUpperCase() + attributeName.slice(1)} can only be increased by +1 per Upgrade Step. End the current step first to increase it again.`);
+            return;
+        }
+        {
+            const stepRule = await import('../utils/xp-step-rule.js');
+            const step = stepRule.readStep(this.actor);
+            if (nextPending > 0 && stepRule.isBumped(step, 'attribute', attributeName)) {
+                ui.notifications?.warn(`${attributeName.charAt(0).toUpperCase() + attributeName.slice(1)} was already increased this Upgrade Step. End the current step first to increase it again.`);
+                return;
+            }
+        }
         const simulateMap = { ...this._pendingAttributeChanges, [attributeName]: nextPending };
         if (simulateMap[attributeName] === 0)
             delete simulateMap[attributeName];
@@ -2760,22 +2712,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             });
             ui.notifications?.warn(`Not enough XP for this change (net ${netPendingCost} vs ${xpState.available} available).`);
             return;
-        }
-        /**
-         * Players Guide 7121–7132: per-step 50% Attribute Rule. Clicking
-         * "+" must not push the *current step's* Attribute share above
-         * `floor(stepTotal / 2) + 1`.
-         */
-        {
-            const stepRaw = this.actor.system?.xp?.currentStep ?? {};
-            const stepAttr = Math.max(0, Math.floor(Number(stepRaw.attrSpent) || 0));
-            const stepNonAttr = Math.max(0, Math.floor(Number(stepRaw.nonAttrSpent) || 0));
-            const projectedAttr = stepAttr + Math.max(0, netPendingCost);
-            const cap = Math.floor((projectedAttr + stepNonAttr) / 2) + 1;
-            if (projectedAttr > cap) {
-                ui.notifications?.warn(`Step 50% rule: this Attribute spend would push the current step's Attribute share to ${projectedAttr} XP, but the cap (with ${stepNonAttr} non-Attribute XP this step) is ${cap} XP. Spend XP on Skills, Powers or Artifacts in this step first, or click "End XP Step".`);
-                return;
-            }
         }
         this._pendingAttributeChanges[attributeName] = nextPending;
         if (this._pendingAttributeChanges[attributeName] === 0) {
@@ -2860,15 +2796,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.find('#pending-attribute-changes-count').text(totalAbsPending);
         html.find('#remaining-attribute-xp').text(Math.max(0, remainingPoints));
         /**
-         * Players Guide 7121–7132: per-step 50% Attribute Rule. The disable
-         * check on each "+" button now consults the current step bucket
-         * (`system.xp.currentStep`) instead of the lifetime cap.
+         * New spec — once-per-step rule. Each Attribute may only be increased
+         * by +1 per Upgrade Step. Disable "+" if the attribute is already at
+         * its pending cap of +1 OR if it was already bumped earlier this step.
          */
-        const stepRaw = this.actor.system?.xp?.currentStep ?? {};
-        const stepStateForUi = {
-            attrSpent: Math.max(0, Math.floor(Number(stepRaw.attrSpent) || 0)),
-            nonAttrSpent: Math.max(0, Math.floor(Number(stepRaw.nonAttrSpent) || 0)),
-        };
+        const bumpedAttributes = new Set(Array.isArray(this.actor.system?.xp?.currentStep?.attributes)
+            ? this.actor.system.xp.currentStep.attributes.map((v) => String(v ?? ''))
+            : []);
         const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
         for (const attrKey of attributeKeys) {
             const pending = this._pendingAttributeChanges[attrKey] || 0;
@@ -2890,21 +2824,20 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             const increaseBtn = html.find(`.attr-increase-xp[data-attribute="${attrKey}"]`);
             const nextPending = pending + 1;
             const effectiveAfter = currentValue + nextPending;
-            if (effectiveAfter > 80) {
+            const wouldExceedStepCap = nextPending > 1 || (nextPending > 0 && bumpedAttributes.has(attrKey));
+            if (effectiveAfter > 80 || wouldExceedStepCap) {
                 increaseBtn.prop('disabled', true);
+                if (wouldExceedStepCap) {
+                    increaseBtn.attr('title', 'Already increased this Upgrade Step. End the current step first to increase it again.');
+                }
             }
             else {
+                increaseBtn.removeAttr('title');
                 const simulateMap = { ...this._pendingAttributeChanges, [attrKey]: nextPending };
                 if (simulateMap[attrKey] === 0)
                     delete simulateMap[attrKey];
                 const simNet = this.#calculateAttributePendingNetCost(simulateMap);
-                // Per-step 50% rule: the simulated Attribute spend (incl. all pending) must fit within
-                // floor((stepAttr + stepNonAttr + simNet) / 2) + tolerance.
-                const projectedAttr = stepStateForUi.attrSpent + Math.max(0, simNet);
-                const projectedTotal = projectedAttr + stepStateForUi.nonAttrSpent;
-                const cap = Math.floor(projectedTotal / 2) + 1;
-                const overStepCap = projectedAttr > cap;
-                increaseBtn.prop('disabled', simNet > xpState.available || overStepCap);
+                increaseBtn.prop('disabled', simNet > xpState.available);
             }
         }
         const confirmBtn = html.find('#confirm-attribute-changes-btn');
@@ -2974,37 +2907,40 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             return;
         }
         /**
-         * Players Guide 7121–7132: at most 50% of the XP spent in the
-         * **current upgrade step** may go on Attributes (+1 XP rounding
-         * tolerance). The legacy lifetime cap was conceptually wrong; we
-         * now consult the per-step bucket via `xp-step-rule.ts`.
+         * New spec — once-per-step rule. For each attribute with a positive
+         * pending delta, mark it bumped in `system.xp.currentStep.attributes`.
+         * For attributes refunded back to (or below) their step-start value,
+         * un-bump them so the player may re-bump later in the same step.
+         *
+         * Defensive: reject if the attribute is already in the bump list AND
+         * pending > 0 (UI normally prevents this).
          */
         const stepRule = await import('../utils/xp-step-rule.js');
-        const stepBefore = stepRule.readStep(this.actor);
-        let stepAfter = stepBefore;
-        if (totalNetCost > 0) {
-            const check = stepRule.checkAttrSpend(stepBefore, totalNetCost);
-            if (!check.ok) {
-                ui.notifications?.error(`Step 50% rule: this Attribute spend (${totalNetCost} XP) would push the step's Attribute share to ${stepBefore.attrSpent + totalNetCost} XP, but the cap with the current step total is ${check.cap} XP. Spend ${check.requiredNonAttr} XP on Skills/Powers/Artifacts in this step first, or click "End XP Step" to start a new step.`);
-                return;
+        let stepAfter = stepRule.readStep(this.actor);
+        for (const { attr } of attributeChanges) {
+            const pending = this._pendingAttributeChanges[attr] || 0;
+            if (pending > 0) {
+                if (stepRule.isBumped(stepAfter, 'attribute', attr)) {
+                    ui.notifications?.error(`Step rule: ${attr} was already increased this Upgrade Step. End the current step first.`);
+                    return;
+                }
+                stepAfter = stepRule.recordBump(stepAfter, 'attribute', attr);
             }
-            stepAfter = stepRule.applyAttrSpend(stepBefore, totalNetCost);
+            else if (pending < 0) {
+                stepAfter = stepRule.undoBump(stepAfter, 'attribute', attr);
+            }
         }
-        else if (totalNetCost < 0) {
-            stepAfter = stepRule.refundAttrSpend(stepBefore, -totalNetCost);
-        }
-        const newSpentAttributes = Math.max(0, xpState.spentAttributes + totalNetCost);
         const beforeState = {
             available: xpState.available,
             totalEarned: xpState.totalEarned,
             totalSpent: xpState.totalSpent,
-            spentAttributes: xpState.spentAttributes
         };
         updates['system.points.xp'] = xpState.available - totalNetCost;
         updates['system.xp.totalSpent'] = Math.max(0, xpState.totalSpent + totalNetCost);
-        updates['system.xp.spentAttributes'] = newSpentAttributes;
-        updates['system.xp.currentStep.attrSpent'] = stepAfter.attrSpent;
-        updates['system.xp.currentStep.nonAttrSpent'] = stepAfter.nonAttrSpent;
+        updates['system.xp.currentStep.attributes'] = [...stepAfter.attributes];
+        updates['system.xp.currentStep.skills'] = [...stepAfter.skills];
+        updates['system.xp.currentStep.powers'] = [...stepAfter.powers];
+        updates['system.xp.currentStep.artifacts'] = [...stepAfter.artifacts];
         if (!this.actor.system.xp) {
             updates['system.xp.totalEarned'] = xpState.totalEarned;
             updates['system.xp.history'] = [];
@@ -3030,7 +2966,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     available: xpState.available - totalNetCost,
                     totalEarned: xpState.totalEarned,
                     totalSpent: Math.max(0, xpState.totalSpent + totalNetCost),
-                    spentAttributes: newSpentAttributes
                 }
             };
             this.#pushXpHistory(this.actor, historyEntry);
@@ -3064,7 +2999,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     /**
      * Handle pending power level increase
      */
-    #onPowerIncreaseLevel(event) {
+    async #onPowerIncreaseLevel(event) {
         event.preventDefault();
         event.stopPropagation();
         console.log('Mastery System | #onPowerIncreaseLevel called', {
@@ -3099,8 +3034,24 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const levelCap = this.#getMaxPurchasablePowerLevel();
         if (effectiveLevel >= levelCap) {
             console.warn('Mastery System | #onPowerIncreaseLevel: Max level reached', { effectiveLevel, levelCap });
-            ui.notifications?.warn(`This power cannot exceed your current maximum (level ${levelCap}; Mastery Rank × 2, cap 12).`);
+            ui.notifications?.warn(`This power cannot exceed your current maximum (level ${levelCap}; MR 1-2 cap 4, MR 3 cap 8, MR 4 cap 12, MR 5+ cap 16).`);
             return;
+        }
+        /**
+         * New spec — once-per-step rule. Each Power may be increased by at
+         * most +1 per Upgrade Step.
+         */
+        if (pending + 1 > 1) {
+            ui.notifications?.warn(`${item.name} can only be increased by +1 Level per Upgrade Step. End the current step first to increase it again.`);
+            return;
+        }
+        {
+            const stepRule = await import('../utils/xp-step-rule.js');
+            const step = stepRule.readStep(this.actor);
+            if (pending + 1 > 0 && stepRule.isBumped(step, 'power', itemId)) {
+                ui.notifications?.warn(`${item.name} was already increased this Upgrade Step. End the current step first to increase it again.`);
+                return;
+            }
         }
         // Simulate the new pending state
         const simulateMap = { ...this._pendingPowerLevelChanges, [itemId]: pending + 1 };
@@ -3209,6 +3160,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Update pending changes count and remaining XP
         html.find('#pending-power-level-changes-count').text(totalPendingChanges);
         html.find('#remaining-power-level-mp').text(Math.max(0, remainingXP));
+        // Once-per-step rule: powers already bumped this step have "+" disabled.
+        const bumpedPowers = new Set(Array.isArray(this.actor.system?.xp?.currentStep?.powers)
+            ? this.actor.system.xp.currentStep.powers.map((v) => String(v ?? ''))
+            : []);
         // Update each power's pending display and button states
         const powers = this.actor.items.filter((item) => item.type === 'power');
         for (const power of powers) {
@@ -3232,14 +3187,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             decreaseBtn.prop('disabled', effectiveLevel <= minLevel);
             // Update increase button state
             const increaseBtn = html.find(`.power-increase-level[data-item-id="${itemId}"]`);
-            if (effectiveLevel >= this.#getMaxPurchasablePowerLevel()) {
+            const nextPending = pending + 1;
+            const wouldExceedStepCap = nextPending > 1 || (nextPending > 0 && bumpedPowers.has(itemId));
+            if (effectiveLevel >= this.#getMaxPurchasablePowerLevel() || wouldExceedStepCap) {
                 increaseBtn.prop('disabled', true);
+                if (wouldExceedStepCap) {
+                    increaseBtn.attr('title', 'Already increased this Upgrade Step. End the current step first to increase it again.');
+                }
             }
             else {
-                const nextLevel = effectiveLevel + 1;
-                const nextCost = this.#calculatePowerLevelCost(nextLevel);
-                // Check if we can afford this increase (considering all pending changes)
-                const simulateMap = { ...this._pendingPowerLevelChanges, [itemId]: pending + 1 };
+                increaseBtn.removeAttr('title');
+                const simulateMap = { ...this._pendingPowerLevelChanges, [itemId]: nextPending };
                 const simulateNetCost = this.#calculatePowerPendingNetCost(simulateMap);
                 increaseBtn.prop('disabled', simulateNetCost > availableXP);
             }
@@ -3282,7 +3240,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             available: xpState.available,
             totalEarned: xpState.totalEarned,
             totalSpent: xpState.totalSpent,
-            spentAttributes: xpState.spentAttributes
         };
         // Track power changes for history
         const powerChanges = [];
@@ -3293,7 +3250,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 if (p) {
                     const cl = p.system.level || 1;
                     if (cl + pending > cap) {
-                        ui.notifications?.error('Pending level increases exceed your current maximum (Mastery Rank × 2). Adjust or cancel.');
+                        ui.notifications?.error(`Pending level increases exceed your current maximum (${cap}). Adjust or cancel.`);
                         return;
                     }
                 }
@@ -3341,21 +3298,31 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Update XP (netCost can be negative for refunds)
         const newXP = availableXP - netCost;
         /**
-         * Players Guide 7121–7132: Power XP counts as **non-Attribute**
-         * spending in the per-step 50% rule and increases the budget for
-         * future Attribute spends in the same step.
+         * New spec — once-per-step rule. Each Power may only be increased by
+         * +1 per Upgrade Step. Mark each positively-bumped power; un-bump on
+         * refund.
          */
         const stepRulePow = await import('../utils/xp-step-rule.js');
-        const stepBeforePow = stepRulePow.readStep(this.actor);
-        let stepAfterPow = stepBeforePow;
-        if (netCost > 0)
-            stepAfterPow = stepRulePow.applyNonAttrSpend(stepBeforePow, netCost);
-        else if (netCost < 0)
-            stepAfterPow = stepRulePow.refundNonAttrSpend(stepBeforePow, -netCost);
+        let stepAfterPow = stepRulePow.readStep(this.actor);
+        for (const change of powerChanges) {
+            const pending = this._pendingPowerLevelChanges[change.powerId] || 0;
+            if (pending > 0) {
+                if (stepRulePow.isBumped(stepAfterPow, 'power', change.powerId)) {
+                    ui.notifications?.error(`Step rule: ${change.powerName} was already increased this Upgrade Step. End the current step first.`);
+                    return;
+                }
+                stepAfterPow = stepRulePow.recordBump(stepAfterPow, 'power', change.powerId);
+            }
+            else if (pending < 0) {
+                stepAfterPow = stepRulePow.undoBump(stepAfterPow, 'power', change.powerId);
+            }
+        }
         const updates = {
             'system.points.xp': newXP,
-            'system.xp.currentStep.attrSpent': stepAfterPow.attrSpent,
-            'system.xp.currentStep.nonAttrSpent': stepAfterPow.nonAttrSpent,
+            'system.xp.currentStep.attributes': [...stepAfterPow.attributes],
+            'system.xp.currentStep.skills': [...stepAfterPow.skills],
+            'system.xp.currentStep.powers': [...stepAfterPow.powers],
+            'system.xp.currentStep.artifacts': [...stepAfterPow.artifacts],
         };
         // Update totalSpent (only if netCost is positive)
         if (netCost > 0) {
@@ -3364,7 +3331,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         // Ensure XP structure exists
         if (!this.actor.system.xp) {
             updates['system.xp.totalEarned'] = xpState.totalEarned;
-            updates['system.xp.spentAttributes'] = 0;
             updates['system.xp.history'] = [];
         }
         await this.actor.update(updates);
@@ -3385,7 +3351,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     available: newXP,
                     totalEarned: xpState.totalEarned,
                     totalSpent: netCost > 0 ? xpState.totalSpent + netCost : xpState.totalSpent,
-                    spentAttributes: xpState.spentAttributes
                 }
             };
             this.#pushXpHistory(this.actor, historyEntry);
@@ -4215,8 +4180,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         });
     }
     /**
-     * Handle spending mastery points on skills
-     * Cost for step onto rank R is R × SKILL_PER_RANK (default: R XP).
+     * Handle spending XP on skills.
+     *
+     * New spec: Skills use the same banded XP table as Attributes
+     * (1 / 2 / … / 10 XP per +1, by band). Each Skill may be increased by
+     * at most +1 per Upgrade Step.
      */
     async #onSkillSpendPoint(event) {
         event.preventDefault();
@@ -4234,14 +4202,27 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const pending = this._pendingSkillRankChanges[skillKey] || 0;
         const effective = current + pending;
         const masteryRank = this.actor.system.mastery?.rank || 2;
-        const maxSkill = 4 * masteryRank;
+        const maxSkill = calculateMaxSkillRank(masteryRank);
         if (effective >= maxSkill)
             return;
+        // Once-per-step rule.
+        if (pending + 1 > 1) {
+            ui.notifications?.warn(`${skillKey} can only be increased by +1 per Upgrade Step. End the current step first to increase it again.`);
+            return;
+        }
+        {
+            const stepRule = await import('../utils/xp-step-rule.js');
+            const step = stepRule.readStep(this.actor);
+            if (pending + 1 > 0 && stepRule.isBumped(step, 'skill', skillKey)) {
+                ui.notifications?.warn(`${skillKey} was already increased this Upgrade Step. End the current step first to increase it again.`);
+                return;
+            }
+        }
         const simulateMap = { ...this._pendingSkillRankChanges, [skillKey]: pending + 1 };
         const netCost = this.#calculateSkillPendingNetCost(simulateMap);
         const availableXP = this.actor.system.points?.xp || 0;
         if (netCost > availableXP) {
-            const nextCost = (effective + 1) * XP_COSTS.SKILL_PER_RANK;
+            const nextCost = attributeBandCost(effective + 1);
             ui.notifications?.warn(`Not enough XP! This increase would cost ${nextCost} XP, but you only have ${availableXP}.`);
             return;
         }
@@ -4252,7 +4233,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     /**
      * Decrease a skill rank and refund XP
-     * Refund model: dropping from rank R -> R-1 refunds (R × SKILL_PER_RANK) XP (reverse of buy cost)
+     * Refund model: dropping from rank R -> R-1 refunds the banded XP cost of R (reverse of buy cost).
      */
     async #onSkillRefundPoint(event) {
         event.preventDefault();
@@ -4279,31 +4260,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     /**
      * Calculate net pending cost (signed) for all pending skill rank changes.
-     * Step onto rank R costs R × SKILL_PER_RANK (default: R XP). Refund symmetric.
+     *
+     * New spec: Skills use the banded Attribute table — `attributeBandCost(R)`
+     * is the XP cost of buying rank R. Refunds are symmetric.
      */
     #calculateSkillPendingNetCost(pendingMap) {
-        const m = XP_COSTS.SKILL_PER_RANK;
         let net = 0;
         for (const [skillKey, pending] of Object.entries(pendingMap)) {
-            if (!pending)
-                continue;
-            const currentRaw = this.actor.system.skills?.[skillKey] ?? 0;
-            const current = Number(currentRaw) || 0;
-            if (pending > 0) {
-                for (let i = 1; i <= pending; i++) {
-                    const targetRank = current + i;
-                    net += targetRank * m;
-                }
-            }
-            else {
-                const steps = Math.abs(pending);
-                for (let i = 0; i < steps; i++) {
-                    const refundRank = current - i;
-                    if (refundRank <= 0)
-                        break;
-                    net -= refundRank * m;
-                }
-            }
+            net += this.#calculateSingleSkillPendingXpNet(skillKey, pending);
         }
         return net;
     }
@@ -4311,13 +4275,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     #calculateSingleSkillPendingXpNet(skillKey, pending) {
         if (!pending)
             return 0;
-        const m = XP_COSTS.SKILL_PER_RANK;
         const currentRaw = this.actor.system.skills?.[skillKey] ?? 0;
         const current = Number(currentRaw) || 0;
         let net = 0;
         if (pending > 0) {
             for (let i = 1; i <= pending; i++) {
-                net += (current + i) * m;
+                net += attributeBandCost(current + i);
             }
         }
         else {
@@ -4326,7 +4289,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 const refundRank = current - i;
                 if (refundRank <= 0)
                     break;
-                net -= refundRank * m;
+                net -= attributeBandCost(refundRank);
             }
         }
         return net;
@@ -4362,7 +4325,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         cancelBtn.prop('disabled', totalPendingChanges <= 0);
         // Enable/disable per-skill +/- buttons + per-row pending labels
         const masteryRank = this.actor.system.mastery?.rank || 2;
-        const maxSkill = 4 * masteryRank;
+        const maxSkill = calculateMaxSkillRank(masteryRank);
+        const bumpedSkills = new Set(Array.isArray(this.actor.system?.xp?.currentStep?.skills)
+            ? this.actor.system.xp.currentStep.skills.map((v) => String(v ?? ''))
+            : []);
         for (const skillKey of Object.keys(SKILLS)) {
             const currentRaw = this.actor.system.skills?.[skillKey] ?? 0;
             const current = Number(currentRaw) || 0;
@@ -4371,11 +4337,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             const minusBtn = html.find(`.skill-refund-point[data-skill="${skillKey}"]`);
             minusBtn.prop('disabled', effective <= 0);
             const plusBtn = html.find(`.skill-spend-point[data-skill="${skillKey}"]`);
-            if (effective >= maxSkill) {
+            const nextPending = pending + 1;
+            const wouldExceedStepCap = nextPending > 1 || (nextPending > 0 && bumpedSkills.has(skillKey));
+            if (effective >= maxSkill || wouldExceedStepCap) {
                 plusBtn.prop('disabled', true);
+                if (wouldExceedStepCap) {
+                    plusBtn.attr('title', 'Already increased this Upgrade Step. End the current step first to increase it again.');
+                }
             }
             else {
-                const simulateMap = { ...this._pendingSkillRankChanges, [skillKey]: pending + 1 };
+                plusBtn.removeAttr('title');
+                const simulateMap = { ...this._pendingSkillRankChanges, [skillKey]: nextPending };
                 const simulateNet = this.#calculateSkillPendingNetCost(simulateMap);
                 plusBtn.prop('disabled', simulateNet > availableXP);
             }
@@ -4420,7 +4392,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             return;
         }
         const masteryRank = this.actor.system.mastery?.rank || 2;
-        const maxSkill = 4 * masteryRank;
+        const maxSkill = calculateMaxSkillRank(masteryRank);
         const updates = {};
         const changes = [];
         for (const [skillKey, pending] of Object.entries(this._pendingSkillRankChanges)) {
@@ -4432,51 +4404,49 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             if (target === current)
                 continue;
             updates[`system.skills.${skillKey}`] = target;
-            // Per-skill net cost (signed)
-            let skillNet = 0;
-            const m = XP_COSTS.SKILL_PER_RANK;
-            if (pending > 0) {
-                for (let i = 1; i <= pending; i++) {
-                    skillNet += (current + i) * m;
-                }
-            }
-            else {
-                for (let i = 0; i < Math.abs(pending); i++) {
-                    const refundRank = current - i;
-                    if (refundRank <= 0)
-                        break;
-                    skillNet -= refundRank * m;
-                }
-            }
-            changes.push({ skillKey, from: current, to: target, delta: pending, cost: skillNet });
+            changes.push({
+                skillKey,
+                from: current,
+                to: target,
+                delta: pending,
+                cost: this.#calculateSingleSkillPendingXpNet(skillKey, pending),
+            });
         }
         /**
-         * Players Guide 7121–7132: Skill XP counts as **non-Attribute**
-         * spending in the per-step 50% rule.
+         * New spec — once-per-step rule. Each Skill may only be increased by
+         * +1 per Upgrade Step. Mark each positively-bumped skill; un-bump on
+         * refund.
          */
         const stepRuleSk = await import('../utils/xp-step-rule.js');
-        const stepBeforeSk = stepRuleSk.readStep(this.actor);
-        let stepAfterSk = stepBeforeSk;
-        if (netCost > 0)
-            stepAfterSk = stepRuleSk.applyNonAttrSpend(stepBeforeSk, netCost);
-        else if (netCost < 0)
-            stepAfterSk = stepRuleSk.refundNonAttrSpend(stepBeforeSk, -netCost);
+        let stepAfterSk = stepRuleSk.readStep(this.actor);
+        for (const change of changes) {
+            if (change.delta > 0) {
+                if (stepRuleSk.isBumped(stepAfterSk, 'skill', change.skillKey)) {
+                    ui.notifications?.error(`Step rule: ${change.skillKey} was already increased this Upgrade Step. End the current step first.`);
+                    return;
+                }
+                stepAfterSk = stepRuleSk.recordBump(stepAfterSk, 'skill', change.skillKey);
+            }
+            else if (change.delta < 0) {
+                stepAfterSk = stepRuleSk.undoBump(stepAfterSk, 'skill', change.skillKey);
+            }
+        }
         updates['system.points.xp'] = availableXP - netCost;
-        updates['system.xp.currentStep.attrSpent'] = stepAfterSk.attrSpent;
-        updates['system.xp.currentStep.nonAttrSpent'] = stepAfterSk.nonAttrSpent;
+        updates['system.xp.currentStep.attributes'] = [...stepAfterSk.attributes];
+        updates['system.xp.currentStep.skills'] = [...stepAfterSk.skills];
+        updates['system.xp.currentStep.powers'] = [...stepAfterSk.powers];
+        updates['system.xp.currentStep.artifacts'] = [...stepAfterSk.artifacts];
         if (netCost > 0) {
             updates['system.xp.totalSpent'] = xpState.totalSpent + netCost;
         }
         if (!this.actor.system.xp) {
             updates['system.xp.totalEarned'] = xpState.totalEarned;
-            updates['system.xp.spentAttributes'] = 0;
             updates['system.xp.history'] = [];
         }
         const beforeState = {
             available: xpState.available,
             totalEarned: xpState.totalEarned,
             totalSpent: xpState.totalSpent,
-            spentAttributes: xpState.spentAttributes
         };
         await this.actor.update(updates);
         if (netCost !== 0) {
@@ -4495,7 +4465,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     available: availableXP - netCost,
                     totalEarned: xpState.totalEarned,
                     totalSpent: netCost > 0 ? xpState.totalSpent + netCost : xpState.totalSpent,
-                    spentAttributes: xpState.spentAttributes
                 }
             };
             this.#pushXpHistory(this.actor, historyEntry);
@@ -6130,7 +6099,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         let preservedAvailable = Math.max(0, Number(points.xp) || 0);
         let preservedTotalEarned = Math.max(0, Number(xpExisting.totalEarned) || 0);
         const preservedTotalSpent = Math.max(0, Number(xpExisting.totalSpent) || 0);
-        const preservedSpentAttributes = Math.max(0, Number(xpExisting.spentAttributes) || 0);
         const preservedHistory = Array.isArray(xpExisting.history) ? [...xpExisting.history] : [];
         if (preservedTotalEarned === 0 && preservedAvailable > 0) {
             preservedTotalEarned = preservedAvailable;
@@ -6141,10 +6109,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         updateData['system.points.xp'] = preservedAvailable;
         updateData['system.xp.totalEarned'] = preservedTotalEarned;
         updateData['system.xp.totalSpent'] = preservedTotalSpent;
-        updateData['system.xp.spentAttributes'] = preservedSpentAttributes;
         updateData['system.xp.attributeBaselines'] = attributeBaselines;
         updateData['system.xp.postCreationProgress'] = postCreationProgress;
         updateData['system.xp.history'] = preservedHistory;
+        // Initialize the once-per-step bump bucket at finalize.
+        updateData['system.xp.currentStep'] = { attributes: [], skills: [], powers: [], artifacts: [] };
         try {
             await this.actor.update(updateData);
             // Ensure all power items have minLevel set to their current level
@@ -6294,7 +6263,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             if (shields.length > 0)
                 return shields[0];
         }
-        else if (slotKey === 'chest') {
+        else if (slotKey === 'body') {
             const armor = items.filter((it) => it.type === 'armor' && it.system?.equipped === true);
             if (armor.length > 0)
                 return armor[0];
@@ -6379,17 +6348,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     /** Right-click equip: slots shown in equipment tab inventory / stash grids. */
     #inventoryEquipContextMenuEntries() {
         const slots = [
-            { key: 'helmet', label: 'Helmet' },
-            { key: 'necklace', label: 'Necklace' },
-            { key: 'chest', label: 'Chest' },
-            { key: 'cloak', label: 'Cloak' },
-            { key: 'glove', label: 'Gloves' },
-            { key: 'ring1', label: 'Ring' },
-            { key: 'belt', label: 'Belt' },
-            { key: 'mainhand', label: 'Main hand' },
-            { key: 'leggings', label: 'Leggings' },
-            { key: 'offhand', label: 'Off hand' },
-            { key: 'boot', label: 'Boots' }
+            { key: 'mainhand', label: 'Main Hand' },
+            { key: 'offhand', label: 'Off Hand' },
+            { key: 'body', label: 'Body' },
+            { key: 'head', label: 'Head' },
+            { key: 'feet', label: 'Feet' },
+            { key: 'amulet', label: 'Amulet' },
+            { key: 'ring', label: 'Ring' },
         ];
         const entries = [
             {
@@ -6429,18 +6394,18 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 }
             },
             {
-                name: 'Equip (chest)',
+                name: 'Equip (body)',
                 icon: '<i class="fas fa-tshirt"></i>',
                 group: 'quick',
                 condition: (target) => {
                     const item = this.#itemFromInventoryTileContextTarget(target);
-                    return !!item && !!getNormalizedEquipSlots(item)?.includes('chest');
+                    return !!item && !!getNormalizedEquipSlots(item)?.includes('body');
                 },
                 callback: async (target) => {
                     const item = this.#itemFromInventoryTileContextTarget(target);
                     if (!item)
                         return;
-                    if (await this.#applyEquipToSlot(item, 'chest')) {
+                    if (await this.#applyEquipToSlot(item, 'body')) {
                         await this.render(true, { focus: false });
                     }
                 }
@@ -6478,7 +6443,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 return !!item && !getNormalizedEquipSlots(item);
             },
             callback: () => {
-                ui.notifications?.info('Set system.equipSlots on this item to a non-empty array of slot keys (e.g. ["mainhand"], ["chest"], ["ring1"]).');
+                ui.notifications?.info('Set system.equipSlots on this item to a non-empty array of slot keys (e.g. ["mainhand"], ["body"], ["ring"]).');
             }
         });
         return entries;

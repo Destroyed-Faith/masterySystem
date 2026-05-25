@@ -163,11 +163,15 @@ describe('Actor Data Model - template.json', () => {
 describe('Item Data Model - template.json', () => {
   describe('Item Types', () => {
     it('defines all required item types', () => {
-      const required = ['power', 'masteryNode', 'echo', 'schtick', 'artifact',
+      const required = ['power', 'echo', 'schtick', 'artifact',
                         'condition', 'weapon', 'armor', 'shield', 'gear'];
       for (const type of required) {
         expect(template.Item.types).toContain(type);
       }
+    });
+
+    it('does not define the retired masteryNode item type', () => {
+      expect(template.Item.types).not.toContain('masteryNode');
     });
   });
 

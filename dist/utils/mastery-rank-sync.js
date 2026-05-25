@@ -1,34 +1,26 @@
 /**
  * Mastery Rank synchronisation helpers.
  *
- * Source: Players Guide 7207–7270 ("Mastery Rank Progression").
+ * New spec — Mastery Rank Progression (driven by total Stones):
  *
- *   • Starting Point (7224–7226): characters begin at MR 2.
- *   • Recommended Mastery Progression (7232–7239):
+ *   | Total Stones | Suggested MR        | Tier         |
+ *   |--------------|---------------------|--------------|
+ *   |   1 –  7     | MR 2 — Adept        | Trained      |
+ *   |   8 – 13     | MR 3 — Expert       | Veteran      |
+ *   |  14 – 20     | MR 4 — Master       | Hero-tier    |
+ *   |  21 – 29     | MR 5 — Grandmaster  | Apex         |
+ *   |  30 – 39     | MR 6 — Legend       | Mythic       |
+ *   |  40 – 49     | MR 7 — Mythic       | Mythic+      |
+ *   |  50 – 70     | MR 8 — Godlevel     | Divine       |
  *
- *       | Total Stones | Suggested MR        | Tier         |
- *       |--------------|---------------------|--------------|
- *       |   1 –  7     | M2 — Adept          | Trained adv. |
- *       |   8 – 11     | M3 — Expert         | Veteran      |
- *       |  12 – 15     | M4 — Master         | Hero-tier    |
- *       |  16 – 19     | M5 — Grandmaster    | Apex hero    |
- *       |  20+         | M6 — Legend         | Mythic       |
- *
- *     The implementation in `MR_ADVANCEMENT` (constants.ts) was never
- *     consulted; this module provides `deriveMasteryRankFromStones`,
- *     `syncActorMasteryRank`, and `applyRankUpBundle` so the runtime
- *     can wire stones → MR + the rank-up bundle (+1 Mastery Charge,
- *     +1 Keep, +1 Schtick slot) automatically.
- *
- *   • Rank-up bundle (7263–7268):
+ *   Rank-up bundle:
  *       – +1 Mastery Charge (used by Charged powers)
  *       – +1 Keep on all rolls (handled by the dice subsystem reading
  *         `system.mastery.rank`)
- *       – +1 Schtick slot per Mastery Rank (Players Guide 3148–3152)
+ *       – +1 Schtick slot per Mastery Rank
  *
- *   • Shared Mastery (7246–7254): the GM may opt to keep the party's
- *     MR in sync. This helper exposes the *suggested* MR; whether the
- *     world actually applies it is a GM decision.
+ *   MR 8 Divine Scale: `getDivineScale(totalStones)` further classifies
+ *   Godlevel characters as Lesser / True / High / Apex God for display.
  */
 import { MR_ADVANCEMENT } from './constants.js';
 /** Recommended starting Mastery Rank (Players Guide 7224–7226). */

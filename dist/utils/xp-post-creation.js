@@ -33,7 +33,7 @@ export function actorHasPostCreationSnapshot(actor) {
 }
 /**
  * GM: restore attributes, skills, power levels, and session skill spend to post-creation snapshot;
- * return all earned XP to the available pool (totalSpent / spentAttributes cleared).
+ * return all earned XP to the available pool (totalSpent cleared).
  */
 export async function resetActorProgressToPostCreation(actor, options) {
     const xp = actor.system?.xp;
@@ -49,7 +49,6 @@ export async function resetActorProgressToPostCreation(actor, options) {
         available: actor.system.points?.xp ?? 0,
         totalEarned,
         totalSpent: xp.totalSpent ?? 0,
-        spentAttributes: xp.spentAttributes ?? 0
     };
     const updates = {};
     for (const k of ATTRIBUTE_KEYS) {
@@ -74,7 +73,8 @@ export async function resetActorProgressToPostCreation(actor, options) {
     }
     updates['system.points.xp'] = totalEarned;
     updates['system.xp.totalSpent'] = 0;
-    updates['system.xp.spentAttributes'] = 0;
+    // Reset the once-per-step bump lists too — a progression reset is a clean slate.
+    updates['system.xp.currentStep'] = { attributes: [], skills: [], powers: [], artifacts: [] };
     const historyEntry = {
         ts: Date.now(),
         userId: options.gmUserId,
@@ -89,7 +89,6 @@ export async function resetActorProgressToPostCreation(actor, options) {
             available: totalEarned,
             totalEarned,
             totalSpent: 0,
-            spentAttributes: 0
         }
     };
     const prior = Array.isArray(xp.history) ? [...xp.history] : [];

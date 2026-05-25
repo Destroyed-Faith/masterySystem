@@ -140,16 +140,14 @@ export function getArtifactTreeWeaponDamagePresets() {
         return { value: v, label: v };
     });
 }
-/** Accessory slots aligned with character sheet equipment (non-weapon/armor/shield). */
+/**
+ * Accessory slots aligned with the canonical 7-slot character sheet
+ * equipment vocabulary (non-weapon/armor/shield).
+ */
 export const ARTIFACT_GEAR_SLOT_OPTIONS = [
-    { value: 'helmet', label: 'Helmet' },
-    { value: 'necklace', label: 'Necklace' },
-    { value: 'cloak', label: 'Cloak' },
-    { value: 'glove', label: 'Gloves' },
-    { value: 'ring1', label: 'Ring (1)' },
-    { value: 'ring2', label: 'Ring (2)' },
-    { value: 'belt', label: 'Belt' },
-    { value: 'leggings', label: 'Leggings' },
-    { value: 'boot', label: 'Boots' }
+    { value: 'head', label: 'Head' },
+    { value: 'amulet', label: 'Amulet' },
+    { value: 'ring', label: 'Ring' },
+    { value: 'feet', label: 'Feet' },
 ];
 //# sourceMappingURL=artifact-node-options.js.map

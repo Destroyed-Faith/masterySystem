@@ -1,119 +1,125 @@
 /**
- * Attribute Spend Limit — the **50% Rule** (Players Guide 7121–7132).
+ * Upgrade Step rule — new spec.
  *
- * > Whenever you spend XP (including banked XP), at most 50% of the XP
- * > you spend in that upgrade step may go to **Attributes**.  The rule
- * > applies to **each step** — you may split spending across multiple
- * > steps. If exact 50/50 splitting is impossible due to pricing, you
- * > may exceed the Attribute share by **up to 1 XP** in that step.
+ * During each Upgrade Step, each individual upgrade may be increased only
+ * once. You may bump several different Attributes, several different Skills,
+ * several different Powers, and several different Artifacts, but the *same*
+ * Attribute / Skill / Power / Artifact may not be bumped twice in the same
+ * step.
  *
- * The legacy implementation enforced a *lifetime* cap
- * (`spentAttributes ≤ floor(totalEarned / 2)`) which is conceptually
- * wrong: the cap is per **upgrade step**, not per character.
+ * This replaces the old 50%-of-step Attribute spending cap. There is no
+ * longer a fixed percentage limit on Attribute spending; progression is
+ * controlled by the per-step bump limit, XP costs, Stone thresholds, and
+ * the natural need to invest in Skills, Powers, and Artifacts.
  *
- * The runtime represents an "upgrade step" as a transient bucket on the
- * actor (`system.xp.currentStep = { attrSpent, nonAttrSpent }`). Every
- * confirmed XP spend appends to the relevant bucket; an explicit
- * "End Step" action resets the bucket (typically at downtime end).
+ * State shape (`system.xp.currentStep`):
+ *
+ *   {
+ *     attributes: string[]; // attribute keys bumped this step
+ *     skills:     string[]; // skill keys bumped this step
+ *     powers:     string[]; // power item IDs bumped this step
+ *     artifacts:  string[]; // artifact item IDs bumped this step
+ *   }
+ *
+ * An "End Step" action clears all four lists.
  */
 
-export const XP_STEP_TOLERANCE = 1;
+export type UpgradeKind = 'attribute' | 'skill' | 'power' | 'artifact';
 
 export interface XpStepState {
-    /** XP spent on Attributes during the current upgrade step. */
-    attrSpent: number;
-    /** XP spent on everything else (Skills, Powers, Artifacts, …). */
-    nonAttrSpent: number;
+    attributes: string[];
+    skills: string[];
+    powers: string[];
+    artifacts: string[];
 }
 
+const KIND_TO_KEY: Record<UpgradeKind, keyof XpStepState> = {
+    attribute: 'attributes',
+    skill: 'skills',
+    power: 'powers',
+    artifact: 'artifacts',
+};
+
+/** Fresh empty step bucket. */
 export function emptyStep(): XpStepState {
-    return { attrSpent: 0, nonAttrSpent: 0 };
+    return { attributes: [], skills: [], powers: [], artifacts: [] };
 }
 
+function sanitizeList(input: unknown): string[] {
+    if (!Array.isArray(input)) return [];
+    const seen = new Set<string>();
+    const out: string[] = [];
+    for (const v of input) {
+        const s = v == null ? '' : String(v).trim();
+        if (!s || seen.has(s)) continue;
+        seen.add(s);
+        out.push(s);
+    }
+    return out;
+}
+
+/** Read the step bucket from an actor, tolerating legacy / missing shapes. */
 export function readStep(actor: any): XpStepState {
-    const raw = actor?.system?.xp?.currentStep;
+    const raw = (actor?.system?.xp?.currentStep ?? {}) as Record<string, unknown>;
     return {
-        attrSpent: Math.max(0, Math.floor(Number(raw?.attrSpent) || 0)),
-        nonAttrSpent: Math.max(0, Math.floor(Number(raw?.nonAttrSpent) || 0)),
+        attributes: sanitizeList(raw.attributes),
+        skills: sanitizeList(raw.skills),
+        powers: sanitizeList(raw.powers),
+        artifacts: sanitizeList(raw.artifacts),
     };
 }
 
-/**
- * Maximum Attribute XP that may be spent in a step whose total XP would
- * become `stepTotal`. Adds the documented `+1 XP` rounding tolerance.
- */
-export function maxAttrInStep(stepTotal: number): number {
-    const total = Math.max(0, Math.floor(stepTotal));
-    return Math.floor(total / 2) + XP_STEP_TOLERANCE;
+/** Has the given Attribute / Skill / Power / Artifact already been bumped this step? */
+export function isBumped(state: XpStepState, kind: UpgradeKind, id: string): boolean {
+    const key = KIND_TO_KEY[kind];
+    const list = state?.[key] ?? [];
+    const target = String(id ?? '').trim();
+    if (!target) return false;
+    return list.includes(target);
 }
 
-/**
- * Check whether the actor may spend `attrCost` more XP on Attributes
- * **without** also spending non-Attribute XP first. Returns the gap
- * (`> 0` means "you would over-spend by N XP on Attributes") and a
- * helper `requiredNonAttr` describing how much non-Attribute XP would
- * be needed to legalize the spend.
- */
-export function checkAttrSpend(
-    state: XpStepState,
-    attrCost: number,
-): { ok: boolean; over: number; requiredNonAttr: number; cap: number } {
-    const cost = Math.max(0, Math.floor(attrCost));
-    const newAttr = state.attrSpent + cost;
-    const newTotal = newAttr + state.nonAttrSpent;
-    const cap = maxAttrInStep(newTotal);
-    const over = Math.max(0, newAttr - cap);
-    // requiredNonAttr: solve newAttr ≤ floor((newAttr + nonAttr) / 2) + tol
-    // → 2*newAttr − 2*tol ≤ newAttr + nonAttr → nonAttr ≥ newAttr − 2*tol
-    const requiredNonAttr = Math.max(
-        0,
-        newAttr - 2 * XP_STEP_TOLERANCE - state.nonAttrSpent,
-    );
-    return { ok: over === 0, over, requiredNonAttr, cap };
-}
-
-/** Apply a confirmed Attribute spend to the step bucket. */
-export function applyAttrSpend(state: XpStepState, attrCost: number): XpStepState {
-    return {
-        attrSpent: state.attrSpent + Math.max(0, Math.floor(attrCost)),
-        nonAttrSpent: state.nonAttrSpent,
+/** Return a new state with `id` recorded as bumped this step. Idempotent. */
+export function recordBump(state: XpStepState, kind: UpgradeKind, id: string): XpStepState {
+    const target = String(id ?? '').trim();
+    const key = KIND_TO_KEY[kind];
+    const next: XpStepState = {
+        attributes: [...(state?.attributes ?? [])],
+        skills: [...(state?.skills ?? [])],
+        powers: [...(state?.powers ?? [])],
+        artifacts: [...(state?.artifacts ?? [])],
     };
+    if (!target) return next;
+    if (!next[key].includes(target)) next[key].push(target);
+    return next;
 }
 
-/** Apply a confirmed non-Attribute spend (Skills / Powers / Artifacts). */
-export function applyNonAttrSpend(state: XpStepState, nonAttrCost: number): XpStepState {
-    return {
-        attrSpent: state.attrSpent,
-        nonAttrSpent: state.nonAttrSpent + Math.max(0, Math.floor(nonAttrCost)),
+/** Return a new state with `id` removed from the bumped list. Idempotent. */
+export function undoBump(state: XpStepState, kind: UpgradeKind, id: string): XpStepState {
+    const target = String(id ?? '').trim();
+    const key = KIND_TO_KEY[kind];
+    const next: XpStepState = {
+        attributes: [...(state?.attributes ?? [])],
+        skills: [...(state?.skills ?? [])],
+        powers: [...(state?.powers ?? [])],
+        artifacts: [...(state?.artifacts ?? [])],
     };
+    if (!target) return next;
+    next[key] = next[key].filter((v) => v !== target);
+    return next;
 }
 
 /**
- * Refund support: a refund (negative spend) reduces the matching bucket
- * but never below zero. Used when a player decreases an attribute or
- * skill they purchased earlier in the same step.
- */
-export function refundAttrSpend(state: XpStepState, refund: number): XpStepState {
-    const r = Math.max(0, Math.floor(refund));
-    return { attrSpent: Math.max(0, state.attrSpent - r), nonAttrSpent: state.nonAttrSpent };
-}
-
-export function refundNonAttrSpend(state: XpStepState, refund: number): XpStepState {
-    const r = Math.max(0, Math.floor(refund));
-    return { attrSpent: state.attrSpent, nonAttrSpent: Math.max(0, state.nonAttrSpent - r) };
-}
-
-/**
- * Persist the step state on the actor and append a history entry. The
- * caller owns whatever else needs to change (XP totals, attribute
- * values, …). This helper is intentionally side-effect-light so the
- * existing confirm flows can wrap their own update batches around it.
+ * Persist a step state on the actor and (optionally) append a history note.
+ * Side-effect-light: caller owns the rest of the update batch (XP totals,
+ * attribute/skill/power values, …).
  */
 export async function commitStep(actor: any, next: XpStepState, options?: { historyNote?: string }): Promise<void> {
     if (!actor) return;
     await actor.update({
-        'system.xp.currentStep.attrSpent': next.attrSpent,
-        'system.xp.currentStep.nonAttrSpent': next.nonAttrSpent,
+        'system.xp.currentStep.attributes': [...next.attributes],
+        'system.xp.currentStep.skills': [...next.skills],
+        'system.xp.currentStep.powers': [...next.powers],
+        'system.xp.currentStep.artifacts': [...next.artifacts],
     });
     if (options?.historyNote) {
         const list = Array.isArray(actor.system?.xp?.history) ? [...actor.system.xp.history] : [];
@@ -128,23 +134,31 @@ export async function commitStep(actor: any, next: XpStepState, options?: { hist
 }
 
 /**
- * "End Step" action: clear the bucket and append a summary history
- * entry. Players typically call this at the end of a downtime block
- * once they have spent everything they intend to.
+ * "End Step" action: clear all four bump lists and append a summary history
+ * entry. Players typically call this at the end of a downtime block once
+ * they have spent everything they intend to spend.
  */
 export async function endStep(actor: any): Promise<XpStepState> {
     const before = readStep(actor);
     const next = emptyStep();
     if (actor) {
         await actor.update({
-            'system.xp.currentStep.attrSpent': 0,
-            'system.xp.currentStep.nonAttrSpent': 0,
+            'system.xp.currentStep.attributes': [],
+            'system.xp.currentStep.skills': [],
+            'system.xp.currentStep.powers': [],
+            'system.xp.currentStep.artifacts': [],
         });
         const list = Array.isArray(actor.system?.xp?.history) ? [...actor.system.xp.history] : [];
+        const summary = [
+            `${before.attributes.length} attr`,
+            `${before.skills.length} skill`,
+            `${before.powers.length} power`,
+            `${before.artifacts.length} artifact`,
+        ].join(', ');
         list.push({
             ts: Date.now(),
             kind: 'step-end',
-            note: `Step closed (Attr: ${before.attrSpent} XP, Non-Attr: ${before.nonAttrSpent} XP)`,
+            note: `Step closed (${summary})`,
             before,
             after: next,
         });

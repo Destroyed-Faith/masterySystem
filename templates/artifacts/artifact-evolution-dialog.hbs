@@ -1,7 +1,12 @@
 <div class="ae-dialog">
   <p class="ae-intro">
-    <strong>Mastery &amp; cap:</strong> MR 1 — base item only (no link). MR 2–6 — link ({{constants.linkStone}} stone), then each step: {{constants.upStone}} stone + {{constants.upXp}} XP.
-    Max artifact level = (MR − 1) × 2 (max {{constants.maxLevel}}). MR 6: optional ultimate ({{constants.ultXp}} XP) at level {{constants.maxLevel}}.
+    <strong>Mastery &amp; cap:</strong> MR 1 — base item only (no link). MR 2+ — link (free), then each step: {{constants.upXp}} XP per +1 level.
+    Max artifact level = (MR − 1) × 2 (cap {{constants.maxLevel}}).
+    Each artifact may only be upgraded once per Upgrade Step.
+  </p>
+  <p class="ae-intro {{#if capacity.full}}ae-warn{{/if}}">
+    <strong>Artifact Capacity:</strong> {{capacity.bound}} / {{capacity.max}} bound.
+    {{#if capacity.full}} Capacity full — unbind an Artifact to link another.{{/if}}
   </p>
 
   {{#if cards.length}}
@@ -10,16 +15,28 @@
     <h3 class="ae-card-title">{{displayName}}</h3>
     <p class="ae-card-meta">
       MR {{masteryRank}} — max item level <strong>{{maxSystemLevel}}</strong> ·
-      Stones <strong>{{stones}}</strong> · XP <strong>{{xp}}</strong>
+      XP <strong>{{xp}}</strong>
     </p>
-    <p class="ae-current">Current: <strong>{{currentLabel}}</strong> (system level {{currentSystemLevel}}) {{#unless linked}}<span class="ae-warn">· not linked</span>{{/unless}}</p>
+    <p class="ae-current">
+      Current: <strong>{{currentLabel}}</strong> (system level {{currentSystemLevel}})
+      {{#unless linked}}<span class="ae-warn">· not linked</span>{{/unless}}
+      {{#if isEchoBound}}<span class="ae-tag ae-tag-echo">Echo-bound</span>{{else if (eq bindingKind "bound")}}<span class="ae-tag ae-tag-bound">Bound</span>{{else}}<span class="ae-tag ae-tag-unbound">Unbound</span>{{/if}}
+    </p>
 
-    {{#if canLinkRules}}
+    {{#if isEchoBound}}
+      <p class="ae-muted">Echo-bound — cannot be unbound; always counts as linked.</p>
+    {{else if canLinkRules}}
       {{#unless linked}}
-      <button type="button" class="ae-btn ae-btn-primary" data-action="ae-link" data-root-id="{{rootWorldId}}" data-emb-id="{{embeddedId}}"
-        {{#unless (gte stones ../constants.linkStone)}}disabled title="Need {{../constants.linkStone}} stone"{{/unless}}>
-        Link artifact ({{../constants.linkStone}} stone, permanent)
-      </button>
+        {{#if linkDisabledReason}}
+        <button type="button" class="ae-btn ae-btn-primary" disabled title="{{linkDisabledReason}}">
+          Link artifact (free, permanent)
+        </button>
+        <p class="ae-path-reason">{{linkDisabledReason}}</p>
+        {{else}}
+        <button type="button" class="ae-btn ae-btn-primary" data-action="ae-link" data-root-id="{{rootWorldId}}" data-emb-id="{{embeddedId}}">
+          Link artifact (free, permanent)
+        </button>
+        {{/if}}
       {{/unless}}
     {{else}}
       <p class="ae-muted">Mastery Rank 2+ required to link.</p>
@@ -36,7 +53,7 @@
             data-root-id="{{../rootWorldId}}" data-emb-id="{{../embeddedId}}"
             data-target-world-id="{{worldItemId}}" data-target-node-id="{{nodeId}}"
             {{#if disabledReason}}disabled title="{{disabledReason}}"{{/if}}>
-            → {{label}} (level {{targetLevel}}) — {{@root.constants.upStone}} stone + {{@root.constants.upXp}} XP
+            → {{label}} (level {{targetLevel}}) — {{@root.constants.upXp}} XP
           </button>
           {{#if disabledReason}}<span class="ae-path-reason">{{disabledReason}}</span>{{/if}}
         </li>
@@ -44,19 +61,6 @@
       </ul>
       {{else}}
       <p class="ae-muted">No further branches from this node (or tree ends here).</p>
-      {{/if}}
-    </div>
-    {{/if}}
-
-    {{#if canUltimate}}
-    <div class="ae-ultimate">
-      {{#if ultimateUnlocked}}
-      <p class="ae-success">Ultimate unlocked.</p>
-      {{else}}
-      <button type="button" class="ae-btn ae-btn-ultimate" data-action="ae-ultimate" data-root-id="{{rootWorldId}}" data-emb-id="{{embeddedId}}"
-        {{#unless (gte xp ../constants.ultXp)}}disabled title="Need {{../constants.ultXp}} XP"{{/unless}}>
-        Unlock ultimate ({{../constants.ultXp}} XP)
-      </button>
       {{/if}}
     </div>
     {{/if}}

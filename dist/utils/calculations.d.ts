@@ -95,14 +95,33 @@ export declare function healStressFromBars(bars: HealthBar[], currentBar: number
     currentBar: number;
 };
 /**
- * Calculate maximum skill rank based on Mastery Rank
- * Max skill = 4 × Mastery Rank
+ * Maximum skill rank a character may reach.
+ *
+ * The new XP spec uses the same banded cost table for Attributes and Skills
+ * (1 / 2 / … / 10 XP per +1) up to 80, so the old `MR × 4` cap is dropped.
+ * Skills are now bounded by the shared attribute cap (`MAX_ATTRIBUTE`, 80).
+ *
+ * The `masteryRank` parameter is kept for callers, but is intentionally
+ * unused — we always return `MAX_ATTRIBUTE`.
  */
-export declare function calculateMaxSkillRank(masteryRank: number): number;
+export declare function calculateMaxSkillRank(_masteryRank: number): number;
 /**
- * Validate skill value against mastery rank
+ * Validate skill value against the skill cap.
  */
 export declare function validateSkillValue(skillValue: number, masteryRank: number): number;
+/**
+ * Maximum Power Level a character of the given Mastery Rank may purchase.
+ *
+ *   | MR    | Max Power Level |
+ *   |-------|-----------------|
+ *   | 1 – 2 | 4               |
+ *   | 3     | 8               |
+ *   | 4     | 12              |
+ *   | 5+    | 16              |
+ *
+ * The hard ceiling is `MAX_POWER_LEVEL` (16) regardless of MR.
+ */
+export declare function calculateMaxPowerLevel(masteryRank: number): number;
 /**
  * Might Scaling: Melee Damage bonus = 2 * floor(Might / 8)
  * Flat bonus applied per successful melee/unarmed hit.

@@ -149,7 +149,6 @@ const DEFAULT_TYPE_ICONS = {
     schtick: 'icons/svg/lightning.svg',
     condition: 'icons/svg/acid.svg',
     echo: 'icons/svg/sound.svg',
-    masteryNode: 'icons/svg/upgrade.svg',
 };
 /**
  * Resolve the best icon path for an item by name and type.

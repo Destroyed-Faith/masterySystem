@@ -11,8 +11,10 @@ import {
   initializeStressBars,
   applyStress,
   calculateMaxSkillRank,
+  calculateMaxPowerLevel,
   validateSkillValue,
 } from '../src/utils/calculations';
+import { MAX_ATTRIBUTE, MAX_POWER_LEVEL } from '../src/utils/constants';
 
 describe('Stone Calculations', () => {
   it('calculates stones as floor(attribute/8)', () => {
@@ -63,13 +65,14 @@ describe('Health Bar Calculations', () => {
     expect(calculateHealthBarMax(16)).toBe(32);
   });
 
-  it('initializes 4 health bars with correct penalties', () => {
+  it('initializes 5 health bars with correct penalties', () => {
     const bars = initializeHealthBars(8);
-    expect(bars).toHaveLength(4);
+    expect(bars).toHaveLength(5);
     expect(bars[0]).toEqual({ name: 'Healthy', max: 16, current: 16, penalty: 0 });
     expect(bars[1]).toEqual({ name: 'Bruised', max: 16, current: 16, penalty: -1 });
     expect(bars[2]).toEqual({ name: 'Injured', max: 16, current: 16, penalty: -2 });
     expect(bars[3]).toEqual({ name: 'Wounded', max: 16, current: 16, penalty: -4 });
+    expect(bars[4]).toEqual({ name: 'Incapacitated', max: 1, current: 1, penalty: -6 });
   });
 
   it('returns 0 penalty when no bars are broken', () => {
@@ -169,20 +172,41 @@ describe('Stress Bar Calculations', () => {
   });
 });
 
-describe('Skill Calculations', () => {
-  it('calculates max skill rank as 4 * MR', () => {
-    expect(calculateMaxSkillRank(1)).toBe(4);
-    expect(calculateMaxSkillRank(2)).toBe(8);
-    expect(calculateMaxSkillRank(3)).toBe(12);
-    expect(calculateMaxSkillRank(4)).toBe(16);
-    expect(calculateMaxSkillRank(8)).toBe(32);
+describe('Skill Calculations (new spec — shared attribute cap)', () => {
+  it('returns MAX_ATTRIBUTE for every Mastery Rank', () => {
+    expect(calculateMaxSkillRank(1)).toBe(MAX_ATTRIBUTE);
+    expect(calculateMaxSkillRank(2)).toBe(MAX_ATTRIBUTE);
+    expect(calculateMaxSkillRank(4)).toBe(MAX_ATTRIBUTE);
+    expect(calculateMaxSkillRank(8)).toBe(MAX_ATTRIBUTE);
   });
 
-  it('validates skill value against MR cap', () => {
-    expect(validateSkillValue(4, 1)).toBe(4); // At max
-    expect(validateSkillValue(5, 1)).toBe(4); // Over max, clamped
-    expect(validateSkillValue(8, 2)).toBe(8); // At max
-    expect(validateSkillValue(10, 2)).toBe(8); // Over max, clamped
-    expect(validateSkillValue(3, 2)).toBe(3); // Under max, unchanged
+  it('validates skill value against the shared 80 cap regardless of MR', () => {
+    expect(validateSkillValue(80, 1)).toBe(80);
+    expect(validateSkillValue(81, 1)).toBe(80);
+    expect(validateSkillValue(50, 2)).toBe(50);
+    expect(validateSkillValue(120, 8)).toBe(80);
+  });
+});
+
+describe('Power Level Cap by Mastery Rank (new spec)', () => {
+  it('caps at 4 for MR1-MR2', () => {
+    expect(calculateMaxPowerLevel(1)).toBe(4);
+    expect(calculateMaxPowerLevel(2)).toBe(4);
+  });
+
+  it('caps at 8 for MR3', () => {
+    expect(calculateMaxPowerLevel(3)).toBe(8);
+  });
+
+  it('caps at 12 for MR4', () => {
+    expect(calculateMaxPowerLevel(4)).toBe(12);
+  });
+
+  it('caps at 16 for MR5+', () => {
+    expect(calculateMaxPowerLevel(5)).toBe(MAX_POWER_LEVEL);
+    expect(calculateMaxPowerLevel(6)).toBe(MAX_POWER_LEVEL);
+    expect(calculateMaxPowerLevel(7)).toBe(MAX_POWER_LEVEL);
+    expect(calculateMaxPowerLevel(8)).toBe(MAX_POWER_LEVEL);
+    expect(MAX_POWER_LEVEL).toBe(16);
   });
 });

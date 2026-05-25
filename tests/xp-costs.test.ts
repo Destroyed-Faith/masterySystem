@@ -1,34 +1,27 @@
 import { describe, it, expect } from 'vitest';
-import { XP_COSTS } from '../src/utils/constants';
+import {
+  XP_COSTS,
+  attributeBandCost,
+  powerLevelCost,
+  MAX_POWER_LEVEL,
+} from '../src/utils/constants';
 
-/**
- * Helper: get XP cost for raising an attribute from currentValue to currentValue+1
- */
+/** New spec: XP cost to raise an Attribute from currentValue to currentValue+1. */
 function getAttributeXPCost(currentValue: number): number {
-  for (const tier of XP_COSTS.ATTRIBUTE) {
-    if (currentValue + 1 >= tier.min && currentValue + 1 <= tier.max) {
-      return tier.cost;
-    }
-  }
-  return 5; // GM discretion for 33+
+  return attributeBandCost(currentValue + 1);
 }
 
-/**
- * Helper: get XP cost for raising a skill to newRank
- */
+/** New spec: Skills use the same banded table as Attributes. */
 function getSkillXPCost(newRank: number): number {
-  return newRank * XP_COSTS.SKILL_PER_RANK;
+  return attributeBandCost(newRank);
 }
 
-/**
- * Helper: get XP cost for a power at a given level
- */
+/** New spec: power level cost = 2 × newLevel for levels 1..16. */
 function getPowerLevelCost(level: number): number {
-  if (level < 1 || level > 12) return 0;
-  return XP_COSTS.POWER_LEVEL[level - 1];
+  return powerLevelCost(level);
 }
 
-describe('Attribute XP Costs', () => {
+describe('Attribute XP Costs (new banded table to 80)', () => {
   it('costs 1 XP per point from 0 to 8', () => {
     for (let v = 0; v < 8; v++) {
       expect(getAttributeXPCost(v)).toBe(1);
@@ -53,65 +46,100 @@ describe('Attribute XP Costs', () => {
     }
   });
 
-  it('total cost to raise from 2 (creation base at M2) to 8 is 6 XP', () => {
+  it('costs scale through the upper bands all the way to 80', () => {
+    for (let v = 32; v < 40; v++) expect(getAttributeXPCost(v)).toBe(5);
+    for (let v = 40; v < 48; v++) expect(getAttributeXPCost(v)).toBe(6);
+    for (let v = 48; v < 56; v++) expect(getAttributeXPCost(v)).toBe(7);
+    for (let v = 56; v < 64; v++) expect(getAttributeXPCost(v)).toBe(8);
+    for (let v = 64; v < 72; v++) expect(getAttributeXPCost(v)).toBe(9);
+    for (let v = 72; v < 80; v++) expect(getAttributeXPCost(v)).toBe(10);
+  });
+
+  it('total cost to raise from 2 (creation base at MR2) to 8 is 6 XP', () => {
     let total = 0;
     for (let v = 2; v < 8; v++) {
       total += getAttributeXPCost(v);
     }
-    expect(total).toBe(6); // 6 points * 1 XP each
-  });
-});
-
-describe('Skill XP Costs', () => {
-  it('costs newRank * SKILL_PER_RANK XP (1 → newRank XP)', () => {
-    expect(getSkillXPCost(1)).toBe(1);
-    expect(getSkillXPCost(2)).toBe(2);
-    expect(getSkillXPCost(3)).toBe(3);
-    expect(getSkillXPCost(4)).toBe(4);
-    expect(getSkillXPCost(5)).toBe(5);
-    expect(getSkillXPCost(8)).toBe(8);
-    expect(getSkillXPCost(32)).toBe(32);
+    expect(total).toBe(6);
   });
 
-  it('total cost to raise skill from 0 to 4 is 10 XP', () => {
+  it('total cost to raise from 0 to 80 is the band sum', () => {
     let total = 0;
-    for (let r = 1; r <= 4; r++) {
-      total += getSkillXPCost(r);
-    }
-    expect(total).toBe(1 + 2 + 3 + 4);
-    expect(total).toBe(10);
+    for (let v = 0; v < 80; v++) total += getAttributeXPCost(v);
+    // 8 points in each of 10 bands, costs 1..10 → 8 × (1+2+...+10) = 8 × 55 = 440
+    expect(total).toBe(8 * (1 + 2 + 3 + 4 + 5 + 6 + 7 + 8 + 9 + 10));
+    expect(total).toBe(440);
   });
 });
 
-describe('Power Level XP Costs', () => {
+describe('Skill XP Costs (now share the attribute band)', () => {
+  it('matches the attribute band cost for any rank', () => {
+    for (let r = 1; r <= 80; r++) {
+      expect(getSkillXPCost(r)).toBe(attributeBandCost(r));
+    }
+  });
+
+  it('total cost to raise skill from 0 to 4 is 4 XP (all in band 1)', () => {
+    let total = 0;
+    for (let r = 1; r <= 4; r++) total += getSkillXPCost(r);
+    expect(total).toBe(4);
+  });
+
+  it('XP_COSTS.SKILL aliases XP_COSTS.ATTRIBUTE', () => {
+    expect(XP_COSTS.SKILL).toBe(XP_COSTS.ATTRIBUTE);
+  });
+});
+
+describe('Power Level XP Costs (new spec: cost = 2 × level, cap 16)', () => {
+  it('every level 1..16 costs 2 × level', () => {
+    for (let lvl = 1; lvl <= 16; lvl++) {
+      expect(getPowerLevelCost(lvl)).toBe(2 * lvl);
+    }
+  });
+
   it('level 1 costs 2 XP', () => expect(getPowerLevelCost(1)).toBe(2));
-  it('level 2 costs 4 XP', () => expect(getPowerLevelCost(2)).toBe(4));
-  it('level 3 costs 8 XP', () => expect(getPowerLevelCost(3)).toBe(8));
-  it('level 4 costs 16 XP', () => expect(getPowerLevelCost(4)).toBe(16));
-  it('level 5 costs 24 XP', () => expect(getPowerLevelCost(5)).toBe(24));
-  it('level 6 costs 32 XP', () => expect(getPowerLevelCost(6)).toBe(32));
+  it('level 8 costs 16 XP', () => expect(getPowerLevelCost(8)).toBe(16));
+  it('level 12 costs 24 XP (old cap)', () => expect(getPowerLevelCost(12)).toBe(24));
+  it('level 16 costs 32 XP (new cap)', () => expect(getPowerLevelCost(16)).toBe(32));
 
-  it('levels 7-12 all cost 40 XP', () => {
-    for (let lvl = 7; lvl <= 12; lvl++) {
-      expect(getPowerLevelCost(lvl)).toBe(40);
-    }
+  it('returns 0 for level 0 or out-of-range', () => {
+    expect(getPowerLevelCost(0)).toBe(0);
+    expect(getPowerLevelCost(MAX_POWER_LEVEL + 1)).toBe(0);
+    expect(getPowerLevelCost(99)).toBe(0);
   });
 
-  it('total cost from level 1 to 6 is 86 XP', () => {
+  it('total cost from level 1 to 6 is 42 XP', () => {
     let total = 0;
-    for (let lvl = 1; lvl <= 6; lvl++) {
-      total += getPowerLevelCost(lvl);
-    }
-    expect(total).toBe(2 + 4 + 8 + 16 + 24 + 32);
-    expect(total).toBe(86);
+    for (let lvl = 1; lvl <= 6; lvl++) total += getPowerLevelCost(lvl);
+    expect(total).toBe(2 + 4 + 6 + 8 + 10 + 12);
+    expect(total).toBe(42);
   });
 
-  it('total cost from level 1 to 12 is 326 XP', () => {
+  it('total cost from level 1 to 12 is 156 XP', () => {
     let total = 0;
-    for (let lvl = 1; lvl <= 12; lvl++) {
-      total += getPowerLevelCost(lvl);
-    }
-    expect(total).toBe(86 + 6 * 40);
-    expect(total).toBe(326);
+    for (let lvl = 1; lvl <= 12; lvl++) total += getPowerLevelCost(lvl);
+    // 2 × (1+2+...+12) = 2 × 78
+    expect(total).toBe(156);
+  });
+
+  it('total cost from level 1 to 16 is 272 XP', () => {
+    let total = 0;
+    for (let lvl = 1; lvl <= 16; lvl++) total += getPowerLevelCost(lvl);
+    // 2 × (1+2+...+16) = 2 × 136
+    expect(total).toBe(272);
+  });
+});
+
+describe('Removed / retired XP constants', () => {
+  it('XP_COSTS.NEW_TREE no longer exists', () => {
+    expect((XP_COSTS as any).NEW_TREE).toBeUndefined();
+  });
+
+  it('XP_COSTS.ARTIFACT_ACCESS no longer exists', () => {
+    expect((XP_COSTS as any).ARTIFACT_ACCESS).toBeUndefined();
+  });
+
+  it('XP_COSTS.SKILL_PER_RANK no longer exists (replaced by banded table)', () => {
+    expect((XP_COSTS as any).SKILL_PER_RANK).toBeUndefined();
   });
 });

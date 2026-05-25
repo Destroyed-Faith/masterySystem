@@ -4,12 +4,16 @@ import {
   RAISE_INCREMENT,
   MAX_MASTERY_RANK,
   MAX_ATTRIBUTE,
+  MAX_POWER_LEVEL,
   HEALTH_BARS_COUNT,
   HEALTH_PENALTIES,
   INITIATIVE_SHOP,
   CREATION,
   XP_COSTS,
+  attributeBandCost,
+  powerLevelCost,
   MR_ADVANCEMENT,
+  getDivineScale,
   SAVING_THROWS,
   SAVE_DC_BY_MR,
   ECHO_SPEEDS,
@@ -28,8 +32,8 @@ describe('Dice Constants (Player\'s Guide compliance)', () => {
 });
 
 describe('Attribute Constants', () => {
-  it('max attribute allows high-tier progression (33+)', () => {
-    expect(MAX_ATTRIBUTE).toBeGreaterThanOrEqual(32);
+  it('extends to 80 to cover the new MR2-MR8 progression band', () => {
+    expect(MAX_ATTRIBUTE).toBe(80);
   });
 });
 
@@ -42,16 +46,16 @@ describe('Combat Constants', () => {
     expect(REACTIONS_PER_ROUND).toBe(1);
   });
 
-  it('max mastery rank is 8', () => {
+  it('max mastery rank is 8 (Godlevel)', () => {
     expect(MAX_MASTERY_RANK).toBe(8);
   });
 
-  it('4 health bars (Healthy, Bruised, Injured, Wounded)', () => {
-    expect(HEALTH_BARS_COUNT).toBe(4);
+  it('5 health bars (Healthy, Bruised, Injured, Wounded, Incapacitated)', () => {
+    expect(HEALTH_BARS_COUNT).toBe(5);
   });
 
-  it('health penalties are [0, -1, -2, -4]', () => {
-    expect(HEALTH_PENALTIES).toEqual([0, -1, -2, -4]);
+  it('health penalties array has 5 entries', () => {
+    expect(HEALTH_PENALTIES).toEqual([0, -1, -2, -4, -6]);
   });
 });
 
@@ -96,8 +100,8 @@ describe('Character Creation Constants', () => {
     expect(CREATION.MAX_SKILL_AT_CREATION).toBe(4);
   });
 
-  it('min disadvantage points at creation is 2', () => {
-    expect(CREATION.MIN_DISADVANTAGE_POINTS).toBe(2);
+  it('min disadvantage points at creation is 0 (canonical)', () => {
+    expect(CREATION.MIN_DISADVANTAGE_POINTS).toBe(0);
   });
 
   it('max disadvantage points is 8', () => {
@@ -105,57 +109,122 @@ describe('Character Creation Constants', () => {
   });
 });
 
-describe('XP Cost Tables (Player\'s Guide)', () => {
-  it('attribute costs scale by tier', () => {
-    expect(XP_COSTS.ATTRIBUTE[0]).toEqual({ min: 0, max: 8, cost: 1 });
+describe('XP Cost Tables (new spec)', () => {
+  it('attribute band table covers values 1..80 with cost 1..10', () => {
+    expect(XP_COSTS.ATTRIBUTE[0]).toEqual({ min: 1, max: 8, cost: 1 });
     expect(XP_COSTS.ATTRIBUTE[1]).toEqual({ min: 9, max: 16, cost: 2 });
     expect(XP_COSTS.ATTRIBUTE[2]).toEqual({ min: 17, max: 24, cost: 3 });
     expect(XP_COSTS.ATTRIBUTE[3]).toEqual({ min: 25, max: 32, cost: 4 });
+    expect(XP_COSTS.ATTRIBUTE[9]).toEqual({ min: 73, max: 80, cost: 10 });
+    expect(XP_COSTS.ATTRIBUTE).toHaveLength(10);
   });
 
-  it('skill cost multiplier is 1 (cost = new_rank × multiplier)', () => {
-    expect(XP_COSTS.SKILL_PER_RANK).toBe(1);
+  it('skills share the attribute band (SKILL aliases ATTRIBUTE)', () => {
+    expect(XP_COSTS.SKILL).toBe(XP_COSTS.ATTRIBUTE);
   });
 
-  it('power level costs are correct', () => {
-    expect(XP_COSTS.POWER_LEVEL[0]).toBe(2);  // Level 1
-    expect(XP_COSTS.POWER_LEVEL[1]).toBe(4);  // Level 2
-    expect(XP_COSTS.POWER_LEVEL[2]).toBe(8);  // Level 3
-    expect(XP_COSTS.POWER_LEVEL[3]).toBe(16); // Level 4
-    expect(XP_COSTS.POWER_LEVEL[4]).toBe(24); // Level 5
-    expect(XP_COSTS.POWER_LEVEL[5]).toBe(32); // Level 6
-    for (let i = 6; i < 12; i++) {
-      expect(XP_COSTS.POWER_LEVEL[i]).toBe(40); // Levels 7-12
+  it('attributeBandCost returns floor((v - 1) / 8) + 1', () => {
+    expect(attributeBandCost(1)).toBe(1);
+    expect(attributeBandCost(8)).toBe(1);
+    expect(attributeBandCost(9)).toBe(2);
+    expect(attributeBandCost(16)).toBe(2);
+    expect(attributeBandCost(17)).toBe(3);
+    expect(attributeBandCost(32)).toBe(4);
+    expect(attributeBandCost(40)).toBe(5);
+    expect(attributeBandCost(72)).toBe(9);
+    expect(attributeBandCost(73)).toBe(10);
+    expect(attributeBandCost(80)).toBe(10);
+  });
+
+  it('power level cost array runs 2..32 for levels 1..16', () => {
+    expect(XP_COSTS.POWER_LEVEL).toHaveLength(16);
+    for (let i = 0; i < 16; i++) {
+      expect(XP_COSTS.POWER_LEVEL[i]).toBe(2 * (i + 1));
     }
   });
 
-  it('new tree costs 1 XP', () => {
-    expect(XP_COSTS.NEW_TREE).toBe(1);
+  it('powerLevelCost returns 2 × level for levels 1..16, 0 otherwise', () => {
+    expect(powerLevelCost(0)).toBe(0);
+    expect(powerLevelCost(1)).toBe(2);
+    expect(powerLevelCost(8)).toBe(16);
+    expect(powerLevelCost(16)).toBe(32);
+    expect(powerLevelCost(17)).toBe(0);
   });
 
-  it('artifact access costs 1 XP', () => {
-    expect(XP_COSTS.ARTIFACT_ACCESS).toBe(1);
+  it('MAX_POWER_LEVEL is 16', () => {
+    expect(MAX_POWER_LEVEL).toBe(16);
   });
 
-  it('artifact level costs 8 XP', () => {
+  it('artifact level costs 8 XP per +1', () => {
     expect(XP_COSTS.ARTIFACT_LEVEL).toBe(8);
+  });
+
+  it('retired tree / artifact-access constants are gone', () => {
+    expect((XP_COSTS as any).NEW_TREE).toBeUndefined();
+    expect((XP_COSTS as any).ARTIFACT_ACCESS).toBeUndefined();
+    expect((XP_COSTS as any).SKILL_PER_RANK).toBeUndefined();
   });
 });
 
-describe('Mastery Rank Advancement', () => {
-  it('starts at M2 with 1 stone', () => {
+describe('Mastery Rank Advancement (MR2-MR8)', () => {
+  it('starts at MR2 with 1 stone', () => {
     expect(MR_ADVANCEMENT[0]).toEqual({ stones: 1, mr: 2, tier: 'Adept' });
   });
 
-  it('advances to M3 at 8 stones', () => {
+  it('advances to MR3 at 8 stones', () => {
     expect(MR_ADVANCEMENT[1]).toEqual({ stones: 8, mr: 3, tier: 'Expert' });
   });
 
-  it('advances to M6 at 20 stones', () => {
-    const legend = MR_ADVANCEMENT.find(a => a.mr === 6);
-    expect(legend).toBeDefined();
-    expect(legend!.stones).toBe(20);
-    expect(legend!.tier).toBe('Legend');
+  it('advances to MR4 at 14 stones', () => {
+    const row = MR_ADVANCEMENT.find(a => a.mr === 4);
+    expect(row).toEqual({ stones: 14, mr: 4, tier: 'Master' });
+  });
+
+  it('advances to MR5 at 21 stones', () => {
+    const row = MR_ADVANCEMENT.find(a => a.mr === 5);
+    expect(row).toEqual({ stones: 21, mr: 5, tier: 'Grandmaster' });
+  });
+
+  it('advances to MR6 at 30 stones', () => {
+    const row = MR_ADVANCEMENT.find(a => a.mr === 6);
+    expect(row).toEqual({ stones: 30, mr: 6, tier: 'Legend' });
+  });
+
+  it('advances to MR7 (Mythic) at 40 stones', () => {
+    const row = MR_ADVANCEMENT.find(a => a.mr === 7);
+    expect(row).toEqual({ stones: 40, mr: 7, tier: 'Mythic' });
+  });
+
+  it('advances to MR8 (Godlevel) at 50 stones', () => {
+    const row = MR_ADVANCEMENT.find(a => a.mr === 8);
+    expect(row).toEqual({ stones: 50, mr: 8, tier: 'Godlevel' });
+  });
+});
+
+describe('Divine Scale (MR8 sub-tier)', () => {
+  it('returns null below 50 stones', () => {
+    expect(getDivineScale(0)).toBeNull();
+    expect(getDivineScale(49)).toBeNull();
+  });
+
+  it('Lesser God for 50-55 stones', () => {
+    expect(getDivineScale(50)).toBe('Lesser God');
+    expect(getDivineScale(55)).toBe('Lesser God');
+  });
+
+  it('True God for 56-63 stones', () => {
+    expect(getDivineScale(56)).toBe('True God');
+    expect(getDivineScale(63)).toBe('True God');
+  });
+
+  it('High God for 64-69 stones', () => {
+    expect(getDivineScale(64)).toBe('High God');
+    expect(getDivineScale(69)).toBe('High God');
+  });
+
+  it('Apex God for 70+ stones', () => {
+    expect(getDivineScale(70)).toBe('Apex God');
+    expect(getDivineScale(120)).toBe('Apex God');
   });
 });
 
@@ -180,6 +249,8 @@ describe('Save DC by Mastery Rank', () => {
   it('M4 DC = 32', () => expect(SAVE_DC_BY_MR[4]).toBe(32));
   it('M5 DC = 40', () => expect(SAVE_DC_BY_MR[5]).toBe(40));
   it('M6 DC = 48', () => expect(SAVE_DC_BY_MR[6]).toBe(48));
+  it('M7 DC = 56', () => expect(SAVE_DC_BY_MR[7]).toBe(56));
+  it('M8 DC = 64', () => expect(SAVE_DC_BY_MR[8]).toBe(64));
 });
 
 describe('Echo Speeds', () => {

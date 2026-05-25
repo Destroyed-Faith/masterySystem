@@ -1,36 +1,88 @@
 /**
- * Rules for linking / upgrading artifact evolution items on actors (Mastery Rank gates, costs).
+ * Rules for upgrading artifact evolution items on actors (Mastery Rank gates, costs)
+ * AND binding rules (Artifact Capacity, Echo-bound, slot blocking).
  *
- * Source: Players Guide 9773–9913.
+ * New XP spec — Artifacts:
+ *   • Flat 8 XP per +1 artifact level (`ARTIFACT_UPGRADE_XP_COST`).
+ *   • Maximum reachable artifact level = `(MR - 1) × 2`, capped at 16
+ *     (`getMaxArtifactSystemLevelForMasteryRank`). MR 1 cannot evolve at all.
+ *   • All Stone-based costs (link, upgrade, ultimate) and the legacy XP
+ *     Ultimate cost have been removed.
+ *
+ * New Artifact spec (Artefacts.md):
+ *   • Artifact Capacity = flat 4 simultaneous bound Artifacts per character
+ *     (`ARTIFACT_CAPACITY_DEFAULT`). Echo Artifacts count against this.
+ *   • Bindings come in three flavors: `unbound`, `bound`, `echo`.
+ *     `echo` bindings cannot be unbound through normal means.
  */
-export declare const ARTIFACT_LINK_STONE_COST = 1;
-export declare const ARTIFACT_UPGRADE_STONE_COST = 1;
+import { type ArtifactSlot } from './artifact-rules.js';
 export declare const ARTIFACT_UPGRADE_XP_COST = 8;
-export declare const ARTIFACT_ULTIMATE_XP_COST = 40;
-export declare const ARTIFACT_MAX_SYSTEM_LEVEL = 8;
+export declare const ARTIFACT_MAX_SYSTEM_LEVEL = 16;
 /**
- * Bind-Stone schedule per Players Guide 9939: 1 Stone at Lv 1, +1 at Lv 4,
- * +1 at Lv 8 → 1 / 2 / 3 stones depending on the artifact's awakened tier.
+ * New spec: flat Artifact Capacity. Every character can bind up to four
+ * Artifacts at the same time, regardless of Mastery Rank. Echo Artifacts
+ * count against this number.
  */
-export declare function getArtifactBindStonesForLevel(level: number): number;
+export declare const ARTIFACT_CAPACITY_DEFAULT = 4;
 /**
- * Players Guide 9819–9830: total simultaneous Artifact bonds an actor may
- * sustain.  `Artifact Capacity = Mastery Rank × 2`.
+ * Returns the flat Artifact Capacity for a character. The old MR×2 formula
+ * has been replaced by a single value; `masteryRank` is kept in the signature
+ * so callers that still pass it do not break.
  */
-export declare function getArtifactCapacityForMasteryRank(masteryRank: number): number;
-/** Max artifact system.level the actor may reach: (MR - 1) * 2, capped at 8. MR 1 => 0 (no link / no upgrades). */
+export declare function getArtifactCapacityForMasteryRank(_masteryRank?: number): number;
+/**
+ * Max artifact system.level the actor may reach:
+ *   `(MR - 1) × 2`, capped at `ARTIFACT_MAX_SYSTEM_LEVEL` (16).
+ *   MR 1 → 0 (no link / no upgrades).
+ */
 export declare function getMaxArtifactSystemLevelForMasteryRank(masteryRank: number): number;
 /**
- * Taint escalation stages (Players Guide 9876–9912).
- *
- *   • Stage 0 — Harmony   (in tune; powers continue to unlock)
- *   • Stage 1 — Irritation (sustained neglect; the artifact "goes silent")
- *   • Stage 2 — Fracture   (active disobedience; one ability blocked)
- *   • Stage 3 — Wrath      (mockery / cleansing; psychic damage, nightmares,
- *                           disadvantage on checks)
- *   • Stage 4 — Collapse   (permanent disobedience; artifact breaks for
- *                           this bearer)
+ * Max spec-level (1..10) an actor may reach. Mirrors the spec ARTIFACT_MAX_LEVEL
+ * but allows MR gating in the future. For now: MR 2+ may reach level 10.
  */
+export declare function getMaxArtifactSpecLevelForMasteryRank(masteryRank: number): number;
+export declare function canArtifactLink(masteryRank: number): boolean;
+/** Binding kind for an artifact instance on a character. */
+export type ArtifactBindingKind = 'unbound' | 'bound' | 'echo';
+/** Per-actor progress record kept on the root world item flag. */
+export interface ArtifactActorProgress {
+    nodeId: string;
+    linked: boolean;
+}
+/** Read progress from root item flag (supports legacy number = old "level" only). */
+export declare function readActorArtifactProgress(flagVal: unknown, rootNodeId: string): ArtifactActorProgress;
+export declare function serializeActorArtifactProgress(p: ArtifactActorProgress): Record<string, unknown>;
+/**
+ * Read the binding kind off an embedded artifact item.
+ * - `flags['mastery-system'].echoBound` set → `'echo'`
+ * - `system.binding === 'bound'` OR linked progress on root → `'bound'`
+ * - else `'unbound'`
+ */
+export declare function getArtifactBindingKind(item: any): ArtifactBindingKind;
+/**
+ * Count how many of the actor's embedded artifact items currently count
+ * against Artifact Capacity. An item counts when its binding is `bound`
+ * or `echo`. Unbound items in inventory do not count.
+ */
+export declare function countBoundArtifacts(actor: any): number;
+/**
+ * True if the actor can bind one more Artifact. Echo-bound artifacts
+ * still count against capacity but can never be unbound, so we treat
+ * them as occupying a permanent capacity slot.
+ */
+export declare function canBindMoreArtifacts(actor: any): boolean;
+/**
+ * True if the actor can equip an artifact that occupies the given slot keys
+ * (paperdoll keys, e.g. `['mainhand','offhand']` for a two-handed weapon).
+ * Returns false when any of the requested slots is already occupied by a
+ * different artifact / equipped item.
+ */
+export declare function canEquipArtifactInSlots(actor: any, slotKeys: string[]): boolean;
+/**
+ * Look up the canonical artifact slot stored on an item. Falls back to
+ * inferring from artifactKind / gearSlot if the new `slot` field is missing.
+ */
+export declare function getArtifactSlot(item: any): ArtifactSlot | null;
 export type TaintStage = 0 | 1 | 2 | 3 | 4;
 export interface TaintStageDefinition {
     stage: TaintStage;
@@ -40,14 +92,4 @@ export interface TaintStageDefinition {
 }
 export declare const TAINT_STAGES: readonly TaintStageDefinition[];
 export declare function getTaintStage(stage: number): TaintStageDefinition;
-export declare function canArtifactLink(masteryRank: number): boolean;
-export declare function canUnlockArtifactUltimate(masteryRank: number): boolean;
-export interface ArtifactActorProgress {
-    nodeId: string;
-    linked: boolean;
-    ultimateUnlocked?: boolean;
-}
-/** Read progress from root item flag (supports legacy number = old “level” only). */
-export declare function readActorArtifactProgress(flagVal: unknown, rootNodeId: string): ArtifactActorProgress;
-export declare function serializeActorArtifactProgress(p: ArtifactActorProgress): Record<string, unknown>;
 //# sourceMappingURL=artifact-actor-rules.d.ts.map

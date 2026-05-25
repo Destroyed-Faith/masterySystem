@@ -85,7 +85,7 @@ export class ArtifactBuilder extends BaseApplication {
       itemMap.set(item.id, item);
     }
 
-    // Build actor assignments list (flag stores { nodeId, linked, ultimateUnlocked? } or legacy number)
+    // Build actor assignments list (flag stores { nodeId, linked } or legacy number)
     const actorLevels = (this.rootItem as any).getFlag('mastery-system', 'actorLevels') || {};
     const rootNodeId = (this.rootItem as any).getFlag('mastery-system', 'nodeId') as string;
     const assignments: any[] = [];
@@ -569,7 +569,6 @@ export class ArtifactBuilder extends BaseApplication {
     actorLevels[actorId] = serializeActorArtifactProgress({
       nodeId: rootNodeId,
       linked: prev.linked,
-      ultimateUnlocked: prev.ultimateUnlocked
     });
     await (this.rootItem as any).setFlag('mastery-system', 'actorLevels', actorLevels);
     await (this as any).render();

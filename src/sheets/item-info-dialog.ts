@@ -22,7 +22,6 @@ function typeLabel(t: string): string {
     condition: 'Condition',
     echo: 'Echo',
     schtick: 'Schtick',
-    masteryNode: 'Mastery Node'
   };
   return labels[t] || t;
 }

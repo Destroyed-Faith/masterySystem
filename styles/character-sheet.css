@@ -8799,39 +8799,38 @@
   z-index: 0;
 }
 
-/* Paperdoll: helmet centered over chest col; necklace cols 3–5; torso row; belt & leggings & boots = chest width only; leggings tall as chest torso stack; boots 2× belt row */
+/*
+ * Paperdoll — canonical 7-slot vocabulary (Artefacts.md).
+ * Slots: Main Hand · Off Hand · Body · Head · Feet · Amulet · Ring.
+ *
+ * Layout:
+ *   row 1                         head
+ *   row 2     amulet               ring
+ *   row 3  mainhand  body         offhand
+ *   row 4                         feet
+ */
 .df-equipped-grid {
+  --df-paperdoll-square: minmax(52px, 3.75rem);
   --df-paperdoll-helm: minmax(48px, 3.25rem);
-  /* Torso is two equal rows; glove + ring are each one row tall → each square ≈ 50% of chest/cloak column height */
-  --df-paperdoll-side-square: minmax(52px, 3.75rem);
-  --df-equip-belt-row-h: 44px;
-  /* Same vertical span as chest (two torso rows + gap between them) */
-  --df-equip-leggings-h: calc(2 * 3.75rem + 8px);
   position: relative;
   z-index: 1;
   display: grid;
   grid-template-columns:
-    var(--df-paperdoll-helm)
+    var(--df-paperdoll-square)
     minmax(72px, 1.55fr)
-    minmax(34px, 0.5fr)
-    var(--df-paperdoll-helm)
-    var(--df-paperdoll-side-square);
+    var(--df-paperdoll-square);
   grid-template-rows:
     var(--df-paperdoll-helm)
-    var(--df-paperdoll-side-square)
-    var(--df-paperdoll-side-square)
-    minmax(var(--df-equip-belt-row-h), auto)
-    minmax(var(--df-equip-leggings-h), auto)
-    minmax(calc(2 * var(--df-equip-belt-row-h)), auto);
+    var(--df-paperdoll-square)
+    var(--df-paperdoll-square)
+    var(--df-paperdoll-helm);
   gap: 8px;
   align-items: stretch;
   grid-template-areas:
-    ". . necklace necklace necklace"
-    "mainhand chest cloak offhand glove"
-    "mainhand chest cloak offhand ring1"
-    ". belt . . ."
-    ". leggings . . ."
-    ". boot . . .";
+    ".         head    .       "
+    "amulet    .       ring    "
+    "mainhand  body    offhand "
+    ".         feet    .       ";
 }
 
 .df-equipped-grid > .df-equip-slot {
@@ -8873,10 +8872,9 @@
   color: var(--df-text-secondary, #a0a0a0);
 }
 
-/* Slot -> Grid Areas */
-.df-equip-slot.slot-helmet {
-  grid-column: 2;
-  grid-row: 1;
+/* Slot -> Grid Areas (canonical 7-slot vocabulary) */
+.df-equip-slot.slot-head {
+  grid-area: head;
   justify-self: center;
   align-self: center;
   width: min(100%, 3.25rem);
@@ -8885,21 +8883,8 @@
   min-width: 0;
 }
 
-.df-equip-slot.slot-necklace {
-  grid-area: necklace;
-  min-height: 0;
-}
-
-.df-equip-slot.slot-cloak {
-  grid-area: cloak;
-}
-
-.df-equip-slot.slot-chest {
-  grid-area: chest;
-}
-
-.df-equip-slot.slot-glove {
-  grid-area: glove;
+.df-equip-slot.slot-amulet {
+  grid-area: amulet;
   aspect-ratio: 1;
   align-self: stretch;
   justify-self: stretch;
@@ -8907,8 +8892,8 @@
   max-height: 100%;
 }
 
-.df-equip-slot.slot-ring1 {
-  grid-area: ring1;
+.df-equip-slot.slot-ring {
+  grid-area: ring;
   aspect-ratio: 1;
   align-self: stretch;
   justify-self: stretch;
@@ -8916,16 +8901,18 @@
   max-height: 100%;
 }
 
-.df-equip-slot.slot-belt {
-  grid-area: belt;
+.df-equip-slot.slot-body {
+  grid-area: body;
 }
 
-.df-equip-slot.slot-leggings {
-  grid-area: leggings;
-}
-
-.df-equip-slot.slot-boot {
-  grid-area: boot;
+.df-equip-slot.slot-feet {
+  grid-area: feet;
+  justify-self: center;
+  align-self: center;
+  width: min(100%, 3.25rem);
+  aspect-ratio: 1;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .df-equip-slot.slot-mainhand {

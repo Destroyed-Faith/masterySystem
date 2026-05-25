@@ -11,12 +11,16 @@ import {
   spendStoneAbility,
   spendGenericStoneAbilityWithPerAttributeDeductions,
   getActionEconomyActor,
+  getStoneUsageCount,
+  getGenericStonePowerUsageCount,
+  calculateStoneCost,
   type RoundState,
   type AttributeKey
 } from '../combat/action-economy.js';
 
 // Import canonical stone powers definition
-import { STONE_POWERS, type StonePower } from './stone-powers.js';
+import { STONE_POWERS, tierForUseIndex, type StonePower } from './stone-powers.js';
+import { getArtifactStoneSupportPrefill } from '../utils/artifact-stone-functions.js';
 
 // Re-export for backward compatibility
 export { STONE_POWERS, type StonePower };
@@ -58,6 +62,24 @@ export async function activateStonePower(options: {
     poolAttribute = power.attribute;
   }
   
+  // Compute the tier from the current usage count (BEFORE the increment
+  // that spendStoneAbility will perform on success). The cost matches.
+  //
+  // Artifact "Stone Power Support" Stone Functions pre-fill the activation
+  // to a higher tier. The pre-fill behaves as if the power had been used
+  // `prefillTier - 1` times already this turn, so the first activation
+  // jumps to the prefill tier and pays the cost matching that tier.
+  // Subsequent activations on the same turn scale normally from there.
+  const combat = (game as any).combat;
+  const rawUsesBefore = abilityId.startsWith('generic.')
+    ? getGenericStonePowerUsageCount(actor, abilityId, combat)
+    : getStoneUsageCount(actor, poolAttribute, abilityId, combat);
+  const prefillTier = getArtifactStoneSupportPrefill(actor, abilityId, poolAttribute);
+  const prefillBaseline = Math.max(0, prefillTier - 1);
+  const usesBefore = Math.max(rawUsesBefore, prefillBaseline);
+  const tier = tierForUseIndex(usesBefore);
+  const cost = calculateStoneCost(usesBefore);
+
   // Use the action economy system to handle stone spending
   return await spendStoneAbility(
     actor,
@@ -65,8 +87,7 @@ export async function activateStonePower(options: {
     poolAttribute,
     abilityId,
     async (_roundState: RoundState) => {
-      // Apply power effect (modifies roundState)
-      await power.apply(actor, combatant);
+      await power.apply({ actor, combatant, tier, cost });
     }
   );
 }
@@ -92,13 +113,23 @@ export async function activateGenericStonePowerMixed(options: {
     return false;
   }
 
+  const combat = (game as any).combat;
+  const rawUsesBefore = getGenericStonePowerUsageCount(actor, abilityId, combat);
+  // Generic / multi-pool activations get the highest Support prefill from
+  // any equipped artifact (attribute-agnostic match).
+  const prefillTier = getArtifactStoneSupportPrefill(actor, abilityId);
+  const prefillBaseline = Math.max(0, prefillTier - 1);
+  const usesBefore = Math.max(rawUsesBefore, prefillBaseline);
+  const tier = tierForUseIndex(usesBefore);
+  const cost = calculateStoneCost(usesBefore);
+
   return spendGenericStoneAbilityWithPerAttributeDeductions(
     actor,
     combatant,
     abilityId,
     perAttributeStones,
     async (_roundState: RoundState) => {
-      await power.apply(actor, combatant);
+      await power.apply({ actor, combatant, tier, cost });
     }
   );
 }

@@ -22,6 +22,85 @@
       <p class="node-editor-hint node-level-item-hint">Weapon / armor / shield use standard equip slots. Gear picks a ring, belt, cloak, etc.</p>
     </div>
 
+    <!-- New Artifact Spec fields: Slot, Base Profile, Base Values, Stone Function -->
+    <div class="node-editor-span2 node-spec-row" style="border-top:1px dashed var(--color-border-light-primary,#888);padding-top:8px;">
+      <h4 class="node-profile-title">Artifact Spec (Slot, Base Profile, Base Values, Stone Function)</h4>
+      <p class="node-editor-hint">From <em>Artefacts.md</em>. The Slot drives which Base Profiles and Base Values are legal, and which Attributes may host the Stone Function.</p>
+      <div class="node-editor-grid">
+        <div class="form-group">
+          <label>Slot</label>
+          <select id="node-spec-slot" {{#unless isLineageRoot}}disabled{{/unless}}>
+            <option value="">— Choose Slot —</option>
+            {{#each specSlotOptions as |opt|}}
+            <option value="{{opt.key}}" {{#if (eq ../specSlot opt.key)}}selected{{/if}}>{{opt.label}}</option>
+            {{/each}}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Base Profile</label>
+          <select id="node-spec-base-profile" {{#unless isLineageRoot}}disabled{{/unless}}>
+            <option value="">— Choose Profile —</option>
+            {{#each specBaseProfileOptions as |opt|}}
+            <option value="{{opt.key}}" {{#if (eq ../specBaseProfile opt.key)}}selected{{/if}}>{{opt.label}}</option>
+            {{/each}}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Binding</label>
+          <select id="node-spec-binding">
+            <option value="unbound" {{#if (eq specBinding "unbound")}}selected{{/if}}>Unbound</option>
+            <option value="bound" {{#if (eq specBinding "bound")}}selected{{/if}}>Bound</option>
+            <option value="echo" {{#if (eq specBinding "echo")}}selected{{/if}}>Echo-bound</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Base Values <span class="node-editor-hint-inline" id="node-spec-bv-limit-hint">(slot determines limit)</span></label>
+        <div id="node-spec-base-values" class="node-multi-select">
+          {{#each specBaseValueRows as |row|}}
+          <div class="node-select-row node-spec-bv-row">
+            <select class="node-spec-bv-slot">
+              <option value="a" {{#if (eq row.slot "a")}}selected{{/if}}>A (Level 1)</option>
+              <option value="b" {{#if (eq row.slot "b")}}selected{{/if}}>B (Level 4)</option>
+              <option value="c" {{#if (eq row.slot "c")}}selected{{/if}}>C (Level 7)</option>
+            </select>
+            <select class="node-spec-bv-type">
+              {{#each ../specBaseValueTypeOptions as |opt|}}
+              <option value="{{opt.key}}" {{#if (eq ../row.type opt.key)}}selected{{/if}}>{{opt.label}}</option>
+              {{/each}}
+            </select>
+            <input type="text" class="node-spec-bv-label" value="{{row.label}}" placeholder="Label (e.g. Weapon Damage)" />
+            <input type="text" class="node-spec-bv-value" value="{{row.valueStr}}" placeholder="Value (4d8 / +4 / +8 m)" />
+            <button type="button" class="node-row-remove" title="Remove">×</button>
+          </div>
+          {{/each}}
+        </div>
+        <button type="button" class="node-add-row" data-target="spec-bv">+ Add Base Value</button>
+      </div>
+
+      <div class="form-group node-editor-span2">
+        <label>Stone Function <span class="node-editor-hint-inline">(max 1 per artifact)</span></label>
+        <div class="node-editor-grid">
+          <select id="node-spec-stone-fn-kind">
+            <option value="">— None —</option>
+            <option value="stonePowerSupport" {{#if (eq specStoneFnKind "stonePowerSupport")}}selected{{/if}}>Stone Power Support</option>
+            <option value="stonePool" {{#if (eq specStoneFnKind "stonePool")}}selected{{/if}}>Stone Pool</option>
+            <option value="stoneRefresh" {{#if (eq specStoneFnKind "stoneRefresh")}}selected{{/if}}>Stone Refresh</option>
+            <option value="stoneBattery" {{#if (eq specStoneFnKind "stoneBattery")}}selected{{/if}}>Stone Battery</option>
+          </select>
+          <select id="node-spec-stone-fn-attr">
+            <option value="">— Attribute (slot-gated) —</option>
+            {{#each specStoneFnAttrOptions as |opt|}}
+            <option value="{{opt.key}}" {{#if (eq ../specStoneFnAttr opt.key)}}selected{{/if}}>{{opt.label}}</option>
+            {{/each}}
+          </select>
+          <input type="text" id="node-spec-stone-fn-power" value="{{specStoneFnPowerId}}" placeholder="(Power id — only for Support)" />
+        </div>
+        <p class="node-editor-hint" id="node-spec-slot-power-hint">{{specSlotAccessHint}}</p>
+      </div>
+    </div>
+
     <div class="form-group node-editor-span2">
       <label>Inventory size</label>
       <select id="node-inventory-size">

@@ -12,6 +12,7 @@
  * All writes land on the Actor under `system.echo.*` \u2014 no Item type involved.
  */
 import { ALL_ECHOS, buildFreshTraitUses, ECHO_KEY_ORDER, getAllEchos, getEcho, getEchoCard, getUnlockedCardSlots, isMrPerRest } from '../utils/echos/index.js';
+import { buildArtifactSystemFromEchoDef, getEchoArtifactRules, listSelectableEchoArtifacts, } from '../utils/echo-artifacts.js';
 /** Small HTML-escape helper used in dialog content (inline strings). */
 function esc(s) {
     return String(s ?? '').replace(/[&<>"']/g, ch => ({
@@ -106,6 +107,12 @@ export async function showEchoCreationDialog(actor) {
         </select>
       </div>
 
+      <div class="echo-form-group" id="ec-artifact-group" style="display:none;">
+        <label class="echo-form-label">Echo Artifacts <span class="echo-form-hint" id="ec-artifact-hint"></span></label>
+        <div id="ec-artifact-options" class="echo-form-checks"></div>
+        <div class="echo-artifact-preview" id="ec-artifact-preview"></div>
+      </div>
+
       <div class="echo-form-group" id="ec-card-group" style="display:none;">
         <label class="echo-form-label">Start Card <span class="echo-form-hint">(1 from the deck)</span></label>
         <select name="startCardId" id="ec-card" class="echo-form-select">
@@ -151,6 +158,22 @@ export async function showEchoCreationDialog(actor) {
                             ui.notifications?.warn('Please choose a start card.');
                             return false;
                         }
+                        // Echo Artifact validation + creation
+                        const echoArtifactRules = getEchoArtifactRules(echoKey);
+                        const selectedArtifactKeys = [];
+                        $html.find('input[name="echoArtifactKey"]:checked').each(function () {
+                            const v = String($(this).val() || '');
+                            if (v)
+                                selectedArtifactKeys.push(v);
+                        });
+                        if (selectedArtifactKeys.length < echoArtifactRules.requiredAtCreation) {
+                            ui.notifications?.warn(`This Echo requires at least ${echoArtifactRules.requiredAtCreation} Echo Artifact(s).`);
+                            return false;
+                        }
+                        if (selectedArtifactKeys.length > echoArtifactRules.maxAtCreation) {
+                            ui.notifications?.warn(`This Echo allows at most ${echoArtifactRules.maxAtCreation} Echo Artifact(s).`);
+                            return false;
+                        }
                         const traitUses = buildFreshTraitUses(echoKey, subChoiceKey || null, masteryRank);
                         await actor.update({
                             'system.echo': {
@@ -163,7 +186,39 @@ export async function showEchoCreationDialog(actor) {
                             },
                             'system.bio.echo': def.name
                         });
-                        ui.notifications?.info(`Echo set to ${def.name}.`);
+                        // Remove any previously-created echo-bound artifacts so we always
+                        // reflect the latest selection (in case the player re-opens the dialog).
+                        const oldEchoArtifacts = actor.items.filter((it) => it.type === 'artifact' && it.getFlag?.('mastery-system', 'echoBound'));
+                        if (oldEchoArtifacts.length > 0) {
+                            const ids = oldEchoArtifacts.map((it) => it.id).filter(Boolean);
+                            if (ids.length > 0) {
+                                await actor.deleteEmbeddedDocuments('Item', ids);
+                            }
+                        }
+                        // Create the embedded artifact item(s) for the newly picked echo artifacts.
+                        const availableDefs = listSelectableEchoArtifacts(echoKey, subChoiceKey || null);
+                        const docs = [];
+                        for (const aKey of selectedArtifactKeys) {
+                            const aDef = availableDefs.find((d) => d.key === aKey);
+                            if (!aDef)
+                                continue;
+                            docs.push({
+                                name: aDef.name,
+                                type: 'artifact',
+                                img: 'icons/svg/upgrade.svg',
+                                system: buildArtifactSystemFromEchoDef(aDef),
+                                flags: {
+                                    'mastery-system': {
+                                        echoBound: aDef.echoKey,
+                                        echoArtifactKey: aDef.key,
+                                    },
+                                },
+                            });
+                        }
+                        if (docs.length > 0) {
+                            await actor.createEmbeddedDocuments('Item', docs);
+                        }
+                        ui.notifications?.info(`Echo set to ${def.name}${docs.length ? ` (+${docs.length} Echo Artifact${docs.length === 1 ? '' : 's'})` : ''}.`);
                         return true;
                     }
                 },
@@ -206,9 +261,76 @@ export async function showEchoCreationDialog(actor) {
                 const $subOptions = html.find('#ec-subchoice-options');
                 const $veiledGroup = html.find('#ec-veiled-group');
                 const $veiled = html.find('#ec-veiled');
+                const $artifactGroup = html.find('#ec-artifact-group');
+                const $artifactHint = html.find('#ec-artifact-hint');
+                const $artifactOptions = html.find('#ec-artifact-options');
+                const $artifactPreview = html.find('#ec-artifact-preview');
                 const $cardGroup = html.find('#ec-card-group');
                 const $card = html.find('#ec-card');
                 const $cardPreview = html.find('#ec-card-preview');
+                const renderArtifactPreview = (defs) => {
+                    const selectedKeys = [];
+                    $artifactOptions
+                        .find('input[name="echoArtifactKey"]:checked')
+                        .each(function () {
+                        const v = String($(this).val() || '');
+                        if (v)
+                            selectedKeys.push(v);
+                    });
+                    if (selectedKeys.length === 0) {
+                        $artifactPreview.empty();
+                        return;
+                    }
+                    const blocks = selectedKeys
+                        .map((k) => defs.find((d) => d.key === k))
+                        .filter((d) => !!d)
+                        .map((d) => {
+                        const bvHtml = d.baseValues
+                            .map((bv) => `<li><strong>Base Value ${bv.slot.toUpperCase()} \u2014 ${esc(bv.label)}:</strong> ${esc(bv.note)}</li>`)
+                            .join('');
+                        return `
+                <div class="echo-artifact-card">
+                  <div class="echo-artifact-name"><strong>${esc(d.name)}</strong> \u2014 ${esc(d.slot)}</div>
+                  <div class="echo-artifact-desc">${esc(d.description)}</div>
+                  ${d.restriction ? `<div class="echo-artifact-restriction"><em>${esc(d.restriction)}</em></div>` : ''}
+                  <ul class="echo-artifact-bv">${bvHtml}</ul>
+                </div>
+              `;
+                    })
+                        .join('');
+                    $artifactPreview.html(blocks);
+                };
+                const refreshArtifactOptions = () => {
+                    const key = String($echo.val() || '');
+                    const subKey = String(html.find('input[name="subChoiceKey"]:checked').val() || '');
+                    const rules = getEchoArtifactRules(key);
+                    const defs = listSelectableEchoArtifacts(key, subKey || null);
+                    $artifactOptions.empty();
+                    $artifactPreview.empty();
+                    if (rules.maxAtCreation <= 0 || defs.length === 0) {
+                        $artifactGroup.hide();
+                        return;
+                    }
+                    const inputType = rules.maxAtCreation === 1 ? 'radio' : 'checkbox';
+                    const requiredText = rules.requiredAtCreation === rules.maxAtCreation
+                        ? `Choose exactly ${rules.requiredAtCreation}`
+                        : `Choose ${rules.requiredAtCreation}\u2013${rules.maxAtCreation}`;
+                    $artifactHint.text(`(${requiredText} of ${defs.length})`);
+                    const rows = defs
+                        .map((d, idx) => `
+              <label class="echo-form-check-row">
+                <input type="${inputType}" name="echoArtifactKey" value="${esc(d.key)}"${idx === 0 && rules.maxAtCreation === 1 ? ' checked' : ''} />
+                <span><strong>${esc(d.name)}</strong> <em>(${esc(d.slot)})</em> \u2014 ${esc(d.description)}</span>
+              </label>
+            `)
+                        .join('');
+                    $artifactOptions.html(rows);
+                    $artifactOptions.on('change', 'input[name="echoArtifactKey"]', () => {
+                        renderArtifactPreview(defs);
+                    });
+                    $artifactGroup.show();
+                    renderArtifactPreview(defs);
+                };
                 const refreshForEcho = () => {
                     const key = String($echo.val() || '');
                     const def = getEcho(key);
@@ -217,6 +339,9 @@ export async function showEchoCreationDialog(actor) {
                     $subOptions.empty();
                     $veiledGroup.hide();
                     $veiled.empty().append('<option value="">-- Choose another Echo\'s appearance --</option>');
+                    $artifactGroup.hide();
+                    $artifactOptions.empty();
+                    $artifactPreview.empty();
                     $cardGroup.hide();
                     $card.empty().append('<option value="">-- Choose your first card --</option>');
                     $cardPreview.empty();
@@ -232,6 +357,7 @@ export async function showEchoCreationDialog(actor) {
               </label>
             `).join('');
                         $subOptions.html(radios);
+                        $subOptions.off('change.echoArtifact').on('change.echoArtifact', 'input[name="subChoiceKey"]', refreshArtifactOptions);
                         $subGroup.show();
                     }
                     if (def.veiledForm) {
@@ -246,6 +372,7 @@ export async function showEchoCreationDialog(actor) {
                         $veiled.append(veiledOpts);
                         $veiledGroup.show();
                     }
+                    refreshArtifactOptions();
                     const cardOpts = def.deck.map(c => `
             <option value="${esc(c.id)}">${esc(c.name)}</option>
           `).join('');

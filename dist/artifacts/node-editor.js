@@ -3,6 +3,7 @@
  * Edit a single artifact node's data (kind + type-specific profile).
  */
 import { ARTIFACT_GEAR_SLOT_OPTIONS, getArtifactSpecialSelectOptions, getArtifactTreeWeaponDamagePresets, getArtifactWeaponInnateOptions } from '../utils/artifact-node-options.js';
+import { ARTIFACT_SLOT_KEYS, ARTIFACT_SLOT_LABELS, ATTRIBUTE_ACCESS_BY_SLOT, BASE_PROFILE_LABELS, BASE_PROFILES_BY_SLOT, BASE_VALUE_LIMIT_BY_SLOT, BASE_VALUE_TYPE_LABELS, isAttributeAllowedForStoneFunctionInSlot, isBaseValueTypeAllowedForSlot, SLOT_POWER_ACCESS, } from '../utils/artifact-rules.js';
 import { syncArtifactInheritedFromParent } from '../utils/artifact-folder-sync.js';
 import { pushWorldArtifactNodeToEmbeddedActors } from '../utils/artifact-embedded-sync.js';
 import { inferArtifactEquipSlots } from '../utils/equip-slots.js';
@@ -220,6 +221,65 @@ export class NodeEditor extends BaseDialog {
             emb.length === 0
                 ? 'No embedded powers on this item yet.'
                 : `${emb.length} power(s) on this item: ${emb.map((p) => p.name).join(', ')}`;
+        // ---- New Artifact spec block ----
+        const specSlot = String(system.slot || '');
+        const specBaseProfile = String(system.baseProfile || '');
+        const specBinding = String(system.binding || 'unbound');
+        const baseValues = Array.isArray(system.baseValues)
+            ? system.baseValues
+            : [];
+        const stoneFn = system.stoneFunction || null;
+        data.specSlot = specSlot;
+        data.specBaseProfile = specBaseProfile;
+        data.specBinding = specBinding;
+        data.specStoneFnKind = stoneFn?.kind || '';
+        data.specStoneFnAttr = stoneFn?.attribute || '';
+        data.specStoneFnPowerId = stoneFn?.stonePowerId || '';
+        data.specSlotOptions = ARTIFACT_SLOT_KEYS.map((k) => ({
+            key: k,
+            label: ARTIFACT_SLOT_LABELS[k],
+        }));
+        const allowedProfiles = specSlot ? BASE_PROFILES_BY_SLOT[specSlot] || [] : Object.keys(BASE_PROFILE_LABELS);
+        data.specBaseProfileOptions = allowedProfiles.map((k) => ({
+            key: k,
+            label: BASE_PROFILE_LABELS[k],
+        }));
+        data.specBaseValueTypeOptions = Object.entries(BASE_VALUE_TYPE_LABELS)
+            .filter(([type]) => specSlot ? isBaseValueTypeAllowedForSlot(specSlot, type) : true)
+            .map(([key, label]) => ({ key, label }));
+        const attrCatalog = {
+            might: 'Might',
+            agility: 'Agility',
+            vitality: 'Vitality',
+            intellect: 'Intellect',
+            resolve: 'Resolve',
+            influence: 'Influence',
+            wits: 'Wits',
+        };
+        const allowedAttrs = specSlot ? ATTRIBUTE_ACCESS_BY_SLOT[specSlot] || [] : Object.keys(attrCatalog);
+        data.specStoneFnAttrOptions = allowedAttrs.map((k) => ({
+            key: k,
+            label: attrCatalog[k] || k,
+        }));
+        const slotAccess = specSlot ? SLOT_POWER_ACCESS[specSlot] : null;
+        data.specSlotAccessHint = slotAccess
+            ? `Slot "${ARTIFACT_SLOT_LABELS[specSlot]}" — Primary: ${slotAccess.primary.join(', ')}. Secondary: ${slotAccess.secondary.join(', ') || '—'}. Not allowed: ${slotAccess.notAllowed.join(', ') || '—'}.`
+            : 'Pick a Slot to see allowed Powers / Base Values.';
+        data.specBaseValueRows = (baseValues.length > 0
+            ? baseValues
+            : [{ slot: 'a', type: 'minorFeature', label: '', value: '' }]).map((bv) => ({
+            slot: bv.slot || 'a',
+            type: bv.type || 'minorFeature',
+            label: bv.label || '',
+            valueStr: bv.value != null ? String(bv.value) : '',
+        }));
+        if (specSlot) {
+            const limit = BASE_VALUE_LIMIT_BY_SLOT[specSlot];
+            data.specBaseValueLimit = limit;
+        }
+        else {
+            data.specBaseValueLimit = 3;
+        }
         return data;
     }
     activateListeners(html) {
@@ -236,6 +296,104 @@ export class NodeEditor extends BaseDialog {
         syncKindUi();
         html.find('#node-weapon-type').on('change', () => syncWeaponRangeLabel(html));
         syncWeaponRangeLabel(html);
+        // --- Artifact Spec: dynamic slot → base-profile / base-value-types / stone-fn attribute sync ---
+        const $specSlot = html.find('#node-spec-slot');
+        const $specBaseProfile = html.find('#node-spec-base-profile');
+        const $specBvContainer = html.find('#node-spec-base-values');
+        const $specStoneFnAttr = html.find('#node-spec-stone-fn-attr');
+        const $specBvLimitHint = html.find('#node-spec-bv-limit-hint');
+        const $specSlotHint = html.find('#node-spec-slot-power-hint');
+        const ATTR_LABELS = {
+            might: 'Might',
+            agility: 'Agility',
+            vitality: 'Vitality',
+            intellect: 'Intellect',
+            resolve: 'Resolve',
+            influence: 'Influence',
+            wits: 'Wits',
+        };
+        const refreshSpecForSlot = () => {
+            const slot = String($specSlot.val() || '').trim();
+            // Base Profile options
+            const allowedProfiles = slot
+                ? BASE_PROFILES_BY_SLOT[slot] || []
+                : Object.keys(BASE_PROFILE_LABELS);
+            const currentProfile = String($specBaseProfile.val() || '');
+            $specBaseProfile.empty();
+            $specBaseProfile.append('<option value="">— Choose Profile —</option>');
+            for (const k of allowedProfiles) {
+                const sel = k === currentProfile ? ' selected' : '';
+                $specBaseProfile.append(`<option value="${k}"${sel}>${BASE_PROFILE_LABELS[k]}</option>`);
+            }
+            // Base Value type options (per row dropdown)
+            const allowedTypes = Object.keys(BASE_VALUE_TYPE_LABELS).filter((t) => (slot ? isBaseValueTypeAllowedForSlot(slot, t) : true));
+            $specBvContainer.find('.node-spec-bv-type').each((_i, el) => {
+                const $sel = $(el);
+                const prev = String($sel.val() || '');
+                $sel.empty();
+                for (const t of allowedTypes) {
+                    const sel = t === prev ? ' selected' : '';
+                    $sel.append(`<option value="${t}"${sel}>${BASE_VALUE_TYPE_LABELS[t]}</option>`);
+                }
+            });
+            // Stone Function attribute options
+            const allowedAttrs = slot
+                ? ATTRIBUTE_ACCESS_BY_SLOT[slot] || []
+                : Object.keys(ATTR_LABELS);
+            const curAttr = String($specStoneFnAttr.val() || '');
+            $specStoneFnAttr.empty();
+            $specStoneFnAttr.append('<option value="">— Attribute (slot-gated) —</option>');
+            for (const a of allowedAttrs) {
+                const sel = a === curAttr ? ' selected' : '';
+                $specStoneFnAttr.append(`<option value="${a}"${sel}>${ATTR_LABELS[a] || a}</option>`);
+            }
+            // Limit hint
+            const limit = slot ? BASE_VALUE_LIMIT_BY_SLOT[slot] : 3;
+            $specBvLimitHint.text(`(max ${limit} Base Value${limit === 1 ? '' : 's'} for this slot)`);
+            // Slot access hint
+            if (slot) {
+                const access = SLOT_POWER_ACCESS[slot];
+                const label = ARTIFACT_SLOT_LABELS[slot];
+                $specSlotHint.text(`Slot "${label}" — Primary: ${access.primary.join(', ')}. Secondary: ${access.secondary.join(', ') || '—'}. Not allowed: ${access.notAllowed.join(', ') || '—'}.`);
+            }
+            else {
+                $specSlotHint.text('Pick a Slot to see allowed Powers / Base Values.');
+            }
+        };
+        $specSlot.on('change', refreshSpecForSlot);
+        refreshSpecForSlot();
+        // --- "+ Add Base Value" cloning ---
+        html.find('.node-add-row[data-target="spec-bv"]').on('click', () => {
+            const slot = String($specSlot.val() || '').trim();
+            const limit = slot ? BASE_VALUE_LIMIT_BY_SLOT[slot] : 3;
+            const rows = $specBvContainer.find('.node-spec-bv-row');
+            if (rows.length >= limit) {
+                ui.notifications?.warn(`Slot allows at most ${limit} Base Value(s).`);
+                return;
+            }
+            const $first = rows.first();
+            const $clone = $first.clone();
+            $clone.find('input').val('');
+            $clone.find('select').each((_i, sel) => {
+                const $sel = $(sel);
+                const opts = $sel.find('option');
+                if (opts.length > 0)
+                    $sel.val(String(opts.first().attr('value') || ''));
+            });
+            $specBvContainer.append($clone);
+        });
+        // Remove handler for spec base-value rows (uses existing .node-row-remove, but must allow removing all the way down to 0)
+        html.on('click', '.node-spec-bv-row .node-row-remove', (e) => {
+            const $row = $(e.currentTarget).closest('.node-spec-bv-row');
+            const $parent = $row.parent();
+            if ($parent.find('.node-spec-bv-row').length <= 1) {
+                $row.find('input').val('');
+            }
+            else {
+                $row.remove();
+            }
+            e.stopPropagation();
+        });
         const cloneInnateRow = () => {
             const $c = html.find('#node-weapon-innates');
             const $first = $c.find('.node-select-row').not('.node-row-locked').first();
@@ -422,10 +580,76 @@ export class NodeEditor extends BaseDialog {
         };
         const inventorySize = String(html.find('#node-inventory-size').val() || '1x1').trim() || '1x1';
         const clearedBonuses = { attack: 0, damage: '', defense: 0, specials: [] };
+        // ---- New Artifact Spec (Slot / Base Profile / Base Values / Stone Function / Binding) ----
+        const specSlotRaw = String(html.find('#node-spec-slot').val() || '').trim();
+        const specSlot = ARTIFACT_SLOT_KEYS.includes(specSlotRaw)
+            ? specSlotRaw
+            : null;
+        const specBaseProfileRaw = String(html.find('#node-spec-base-profile').val() || '').trim();
+        let specBaseProfile = null;
+        if (specSlot && specBaseProfileRaw) {
+            const allowed = BASE_PROFILES_BY_SLOT[specSlot] || [];
+            if (allowed.includes(specBaseProfileRaw)) {
+                specBaseProfile = specBaseProfileRaw;
+            }
+        }
+        const specBindingRaw = String(html.find('#node-spec-binding').val() || 'unbound').trim();
+        const specBinding = specBindingRaw === 'echo' || specBindingRaw === 'bound' || specBindingRaw === 'unbound'
+            ? specBindingRaw
+            : 'unbound';
+        const baseValueLimit = specSlot ? BASE_VALUE_LIMIT_BY_SLOT[specSlot] : 3;
+        const baseValueRows = html.find('.node-spec-bv-row').toArray();
+        const baseValues = [];
+        for (const row of baseValueRows) {
+            if (baseValues.length >= baseValueLimit)
+                break;
+            const $row = $(row);
+            const slotLetterRaw = String($row.find('.node-spec-bv-slot').val() || 'a').trim().toLowerCase();
+            const slotLetter = slotLetterRaw === 'b' || slotLetterRaw === 'c' ? slotLetterRaw : 'a';
+            const typeRaw = String($row.find('.node-spec-bv-type').val() || '').trim();
+            if (!typeRaw)
+                continue;
+            if (specSlot && !isBaseValueTypeAllowedForSlot(specSlot, typeRaw)) {
+                continue;
+            }
+            const label = String($row.find('.node-spec-bv-label').val() || '').trim();
+            const valueStr = String($row.find('.node-spec-bv-value').val() || '').trim();
+            const valueNum = Number(valueStr);
+            baseValues.push({
+                slot: slotLetter,
+                type: typeRaw,
+                label,
+                value: valueStr === '' || Number.isNaN(valueNum) ? valueStr : valueNum,
+            });
+        }
+        const stoneFnKindRaw = String(html.find('#node-spec-stone-fn-kind').val() || '').trim();
+        const stoneFnAttrRaw = String(html.find('#node-spec-stone-fn-attr').val() || '').trim();
+        const stoneFnPowerRaw = String(html.find('#node-spec-stone-fn-power').val() || '').trim();
+        let stoneFunction = null;
+        const stoneFnKinds = [
+            'stonePowerSupport',
+            'stonePool',
+            'stoneRefresh',
+            'stoneBattery',
+        ];
+        if (stoneFnKindRaw &&
+            stoneFnAttrRaw &&
+            stoneFnKinds.includes(stoneFnKindRaw) &&
+            (!specSlot || isAttributeAllowedForStoneFunctionInSlot(specSlot, stoneFnAttrRaw))) {
+            stoneFunction = {
+                kind: stoneFnKindRaw,
+                attribute: stoneFnAttrRaw,
+            };
+            if (stoneFnKindRaw === 'stonePowerSupport' && stoneFnPowerRaw) {
+                stoneFunction.stonePowerId = stoneFnPowerRaw;
+            }
+        }
         const equipSlots = inferArtifactEquipSlots({
             artifactKind: kind,
             gearSlot,
-            artifactWeapon
+            artifactWeapon,
+            slot: specSlot || undefined,
+            baseProfile: specBaseProfile || undefined,
         });
         const updates = {
             'system.artifactKind': kind,
@@ -436,6 +660,11 @@ export class NodeEditor extends BaseDialog {
             'system.bonuses': clearedBonuses,
             'system.requirements': requirements,
             'system.inventorySize': inventorySize,
+            'system.slot': specSlot,
+            'system.baseProfile': specBaseProfile,
+            'system.baseValues': baseValues,
+            'system.stoneFunction': stoneFunction,
+            'system.binding': specBinding,
             ...(equipSlots ? { 'system.equipSlots': equipSlots } : {})
         };
         await this.item.update(updates);

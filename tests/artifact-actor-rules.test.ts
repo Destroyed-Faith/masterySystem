@@ -1,63 +1,79 @@
 import { describe, expect, it } from 'vitest';
 import {
   ARTIFACT_MAX_SYSTEM_LEVEL,
+  ARTIFACT_UPGRADE_XP_COST,
   canArtifactLink,
-  canUnlockArtifactUltimate,
   getMaxArtifactSystemLevelForMasteryRank,
   readActorArtifactProgress,
-  serializeActorArtifactProgress
+  serializeActorArtifactProgress,
 } from '../src/utils/artifact-actor-rules.js';
 
+describe('Artifact constants (new spec)', () => {
+  it('upgrade costs flat 8 XP per +1', () => {
+    expect(ARTIFACT_UPGRADE_XP_COST).toBe(8);
+  });
+
+  it('hard caps system level at 16 (matches new MR-gated power cap)', () => {
+    expect(ARTIFACT_MAX_SYSTEM_LEVEL).toBe(16);
+  });
+});
+
 describe('getMaxArtifactSystemLevelForMasteryRank', () => {
-  it('caps by MR and at 8', () => {
+  it('caps by MR using (MR - 1) × 2, hard-capped at ARTIFACT_MAX_SYSTEM_LEVEL', () => {
     expect(getMaxArtifactSystemLevelForMasteryRank(1)).toBe(0);
     expect(getMaxArtifactSystemLevelForMasteryRank(2)).toBe(2);
     expect(getMaxArtifactSystemLevelForMasteryRank(3)).toBe(4);
     expect(getMaxArtifactSystemLevelForMasteryRank(4)).toBe(6);
     expect(getMaxArtifactSystemLevelForMasteryRank(5)).toBe(8);
-    expect(getMaxArtifactSystemLevelForMasteryRank(6)).toBe(8);
+    expect(getMaxArtifactSystemLevelForMasteryRank(6)).toBe(10);
+    expect(getMaxArtifactSystemLevelForMasteryRank(7)).toBe(12);
+    expect(getMaxArtifactSystemLevelForMasteryRank(8)).toBe(14);
     expect(getMaxArtifactSystemLevelForMasteryRank(99)).toBe(ARTIFACT_MAX_SYSTEM_LEVEL);
   });
 });
 
-describe('canArtifactLink / canUnlockArtifactUltimate', () => {
+describe('canArtifactLink', () => {
   it('MR1 cannot link; MR2+ can', () => {
     expect(canArtifactLink(1)).toBe(false);
     expect(canArtifactLink(2)).toBe(true);
-  });
-  it('ultimate only MR6+', () => {
-    expect(canUnlockArtifactUltimate(5)).toBe(false);
-    expect(canUnlockArtifactUltimate(6)).toBe(true);
+    expect(canArtifactLink(5)).toBe(true);
+    expect(canArtifactLink(8)).toBe(true);
   });
 });
 
 describe('readActorArtifactProgress', () => {
   const root = 'node-root';
-  it('reads object form', () => {
-    expect(readActorArtifactProgress({ nodeId: 'a', linked: true, ultimateUnlocked: true }, root)).toEqual({
+  it('reads object form (linked + nodeId)', () => {
+    expect(readActorArtifactProgress({ nodeId: 'a', linked: true }, root)).toEqual({
       nodeId: 'a',
       linked: true,
-      ultimateUnlocked: true
     });
   });
-  it('legacy number falls back to root node', () => {
-    expect(readActorArtifactProgress(3, root).nodeId).toBe(root);
-    expect(readActorArtifactProgress(3, root).linked).toBe(false);
+
+  it('ignores the retired ultimateUnlocked flag if present in old data', () => {
+    expect(readActorArtifactProgress({ nodeId: 'a', linked: true, ultimateUnlocked: true } as any, root)).toEqual({
+      nodeId: 'a',
+      linked: true,
+    });
+  });
+
+  it('legacy number falls back to root node, unlinked', () => {
+    const out = readActorArtifactProgress(3, root);
+    expect(out.nodeId).toBe(root);
+    expect(out.linked).toBe(false);
   });
 });
 
 describe('serializeActorArtifactProgress', () => {
-  it('omits ultimate when false', () => {
+  it('serializes node + linked', () => {
     expect(serializeActorArtifactProgress({ nodeId: 'x', linked: true })).toEqual({
       nodeId: 'x',
-      linked: true
+      linked: true,
     });
   });
-  it('includes ultimate when true', () => {
-    expect(serializeActorArtifactProgress({ nodeId: 'x', linked: true, ultimateUnlocked: true })).toEqual({
-      nodeId: 'x',
-      linked: true,
-      ultimateUnlocked: true
-    });
+
+  it('does not emit the retired ultimateUnlocked field', () => {
+    const out = serializeActorArtifactProgress({ nodeId: 'x', linked: true }) as Record<string, unknown>;
+    expect(out).not.toHaveProperty('ultimateUnlocked');
   });
 });

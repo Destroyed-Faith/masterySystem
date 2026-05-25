@@ -4,10 +4,13 @@
 import { calculateStones, calculateTotalStones, updateAttributeStones, initializeHealthBars, initializeStressBars, calculateHealthBarMax, calculateStressBarMax, calculateMightDamageBonus, calculateAgilityEvadeBonus, calculateAgilityRangeBonus, calculateIntellectSaveTNBonus, calculateResolveStressArmor, calculateInfluenceSkillBonus, calculateWitsInitiativeBonus, calculateArmorBreaker, calculateBaseEvade } from '../utils/calculations.js';
 import { getInitiativeEquipmentRows, getEquippedEquipmentInitiativeModifier } from '../utils/equipment-modifiers.js';
 import { buildActorMechanicsBreakdown } from '../utils/power-mechanics.js';
+import { buildArtifactBaseValueBreakdown } from '../utils/artifact-base-values.js';
+import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
 import { logDrDebug } from '../utils/dr-debug.js';
 import { normalizeManualAdjustments } from '../utils/manual-adjustments.js';
 import { getRoundState } from '../combat/action-economy.js';
 import { deriveMasteryRankFromStones, STARTING_MASTERY_RANK } from '../utils/mastery-rank-sync.js';
+import { getDivineScale } from '../utils/constants.js';
 export class MasteryActor extends Actor {
     /**
      * Augment the basic actor data with additional dynamic data
@@ -117,6 +120,9 @@ export class MasteryActor extends Actor {
             else {
                 system.mastery.rank = currentRank;
             }
+            // New spec — MR 8 Divine Scale (Lesser/True/High/Apex God) for display.
+            // `null` when total Stones < 50 (i.e. the actor is below Godlevel).
+            system.mastery.divineScale = getDivineScale(system.stones.total);
             // Initialize health bars — 5 bars per Players Guide 6499–6513:
             // Healthy → Bruised → Injured → Wounded → Incapacitated. Bars 0–3
             // each hold `Vitality × 2` boxes; the fifth bar (Incapacitated)
@@ -568,6 +574,95 @@ export class MasteryActor extends Actor {
                             ? `+${system.combat.initiativeEquipmentTotal}`
                             : String(system.combat.initiativeEquipmentTotal);
             }
+        }
+        // Artifact Base Values (Artefacts.md spec) — equipped artifacts
+        // contribute armor / evade / minor armor / head armor / movement
+        // numbers from their `system.baseValues` rows. Echo-bound artifacts
+        // always contribute; other artifacts only contribute when equipped.
+        const artifactBv = buildArtifactBaseValueBreakdown(this);
+        if (!system.derived)
+            system.derived = {};
+        system.derived.artifactBaseValues = artifactBv;
+        const fmtArtifact = (n) => (n > 0 ? `+${n}` : String(n));
+        system.combat.artifactMovementBonus = artifactBv.movementBonus;
+        system.combat.headArmor = artifactBv.headArmor;
+        system.combat.minorArmor = artifactBv.minorArmor;
+        if (artifactBv.armorBonus !== 0 || artifactBv.minorArmor !== 0 || artifactBv.headArmor !== 0) {
+            const totalArtifactArmor = artifactBv.armorBonus + artifactBv.minorArmor + artifactBv.headArmor;
+            system.combat.armorTotal = (system.combat.armorTotal || 0) + totalArtifactArmor;
+            for (const row of artifactBv.rows.armor) {
+                system.combat.armorBreakdownRows.push({
+                    label: row.source,
+                    detail: `Artifact · ${row.label ?? row.type}`,
+                    value: row.value,
+                    display: fmtArtifact(row.value),
+                });
+            }
+            for (const row of artifactBv.rows.headArmor) {
+                system.combat.armorBreakdownRows.push({
+                    label: row.source,
+                    detail: `Head Armor · ${row.label ?? row.type}`,
+                    value: row.value,
+                    display: fmtArtifact(row.value),
+                });
+            }
+            for (const row of artifactBv.rows.minorArmor) {
+                system.combat.armorBreakdownRows.push({
+                    label: row.source,
+                    detail: `Minor Armor · ${row.label ?? row.type}`,
+                    value: row.value,
+                    display: fmtArtifact(row.value),
+                });
+            }
+        }
+        if (artifactBv.evadeBonus !== 0) {
+            system.combat.evadeTotal = (system.combat.evadeTotal || 0) + artifactBv.evadeBonus;
+            for (const row of artifactBv.rows.evade) {
+                system.combat.evadeBreakdownRows.push({
+                    label: row.source,
+                    detail: `Artifact · ${row.label ?? row.type}`,
+                    value: row.value,
+                    display: fmtArtifact(row.value),
+                });
+            }
+        }
+        // Artifact Stone Functions — derive per-attribute bonuses to the
+        // actor's stone pool (Stone Pool), per-round refresh (Stone Refresh)
+        // and battery capacity (Stone Battery). Surface them under
+        // `system.stones.fromArtifacts` so the sheet / radial menu can show
+        // them without re-walking artifact items.
+        try {
+            const stoneFnStatus = getArtifactStoneFunctionStatus(this);
+            if (!system.stones)
+                system.stones = {};
+            system.stones.fromArtifacts = {
+                pool: stoneFnStatus.pool,
+                refresh: stoneFnStatus.refresh,
+                battery: stoneFnStatus.battery,
+                supports: stoneFnStatus.supports.map((s) => ({
+                    source: s.source,
+                    attribute: s.attribute,
+                    tier: s.value,
+                    powerId: s.stonePowerId,
+                })),
+            };
+            // Add Stone Pool extras to the actor's stones.maximum so the player
+            // can spend them (currently treated as bonus capacity, no separate
+            // tracking — Pool slots are stored on the artifact in the spec but
+            // are surfaced here as additional usable pool to keep the existing
+            // single-pool UI workable).
+            const totalPoolExtra = Object.values(stoneFnStatus.pool).reduce((a, b) => a + (Number(b) || 0), 0);
+            if (totalPoolExtra > 0) {
+                const baseMax = Number(system.stones.maximum) || 0;
+                system.stones.maximum = baseMax + totalPoolExtra;
+                const cur = Number(system.stones.current) || 0;
+                if (cur < baseMax + totalPoolExtra) {
+                    // Don't auto-fill on prepare — keep current value, just lift the cap.
+                }
+            }
+        }
+        catch (err) {
+            console.warn('Mastery System | could not aggregate artifact stone functions', err);
         }
         // Stone Powers — agility (+8 Evade per activation) and similar effects
         // store a round-scoped `stoneBonuses.evadeBonus` on the action-economy

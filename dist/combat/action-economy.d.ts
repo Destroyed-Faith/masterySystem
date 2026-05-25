@@ -4,7 +4,7 @@
  * Manages per-round action budgets, stone spending, and initiative shop bonuses
  * for the Mastery System combat rules.
  */
-export type AttributeKey = 'might' | 'agility' | 'vitality' | 'intellect' | 'resolve' | 'influence';
+export type AttributeKey = 'might' | 'agility' | 'vitality' | 'intellect' | 'resolve' | 'influence' | 'wits';
 /**
  * Nutzungszähler für General-Stonepowers (generic.*): ein Wert pro Macht/Zug — unabhängig davon,
  * welcher Pool bezahlt hat. Sonst startet jede Farbe wieder bei Kosten 1 und die UI bleibt leer.
@@ -48,21 +48,56 @@ export interface RoundState {
         extraAttacks: number;
         extraReactions: number;
         extraMoveMeters: number;
+        /** Generic per-hit damage-die bonus (legacy field — still consumed by damage-dialog). */
         damageBonus?: number;
+        /** New: Might.MeleeDamage tier value — bonus damage dice on next MELEE damage roll only, then cleared. */
+        meleeDamageBonusDice?: number;
+        /** Generic armor-penetration on attacks (legacy field — kept for compatibility). */
         armorPenetration?: number;
+        /** Might.IgnoreArmor — ignore this much armor on melee attacks this turn. */
+        meleeIgnoreArmor?: number;
         evadeBonus?: number;
+        /** Legacy: number of attacks-this-round that may have Crit(1). Consumed by attack-roll-handler. */
         critRaises?: number;
+        /** Might.Armor — flat temp armor until start of next turn. */
         tempArmor?: number;
+        /** Legacy: +keep raises on next spell/skill roll (saves/skills). */
         freeRaises?: number;
         saveKeepBonus?: number;
         spellPoolDice?: number;
         spellKeepDice?: number;
         /**
-         * Players Guide ~5746 (`influence.extraPassive`): when > 0, the actor
-         * may trigger one of their owned Passive abilities a second time this
-         * round. Decrement on use.
+         * Players Guide ~5746 (legacy `influence.extraPassive`): when > 0, the
+         * actor may trigger one of their owned Passive abilities a second time
+         * this round. Kept for backward compatibility with downstream code.
          */
         extraPassives?: number;
+        /** Vitality.TempHP — total temp HP granted this turn (audit/UI only). */
+        tempHpGrantedThisTurn?: number;
+        /** Vitality.EndureInjury — number of wound/injury penalties to ignore until next turn. `-1` = ignore all. */
+        ignoreWoundPenalties?: number;
+        /** Vitality.SecondChance — free boxes left in Wounded when downing-blow is converted (1..4). */
+        secondChanceFreeBoxes?: number;
+        /** Intellect.SpellRaises — automatic raises added to every spell this turn. */
+        spellAutoRaises?: number;
+        /** Intellect.SpellDefense — bonus to Saves vs. Spells until next turn. */
+        spellSaveBonus?: number;
+        /** Intellect.SpellAction — extra attack actions this round, restricted to Spells. */
+        extraSpellActions?: number;
+        /** Intellect.SpecialBoost — +X to one eligible Special on each spell this turn. */
+        spellSpecialBoost?: number;
+        /** Resolve.DamageReductionBoost — additional %DR until next turn (0.10/0.20/0.30). */
+        damageReductionBoostPct?: number;
+        /** Resolve.SaveBoost — flat bonus to all Saves this round. */
+        saveAllBonus?: number;
+        /** Resolve.SpecialReduction — minus to incoming Special values against you this round (floored at 0). */
+        incomingSpecialReduction?: number;
+        /** Wits.Phasing — phasing charges granted by stone power (consumed by phasing system). */
+        phasingChargesFromStones?: number;
+        /** Wits.InitiativeBoost — flat bonus to Initiative this round. */
+        initiativeBonus?: number;
+        /** Wits.ReactionRange — extra meters added to all of your Reaction ranges this round. */
+        reactionRangeBonus?: number;
     };
 }
 /**

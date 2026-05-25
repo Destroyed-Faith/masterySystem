@@ -16,6 +16,7 @@ import {
   spendReactionAction,
 } from './action-economy.js';
 import { buildActorMechanicsBreakdown, resolvePowerMechanics } from '../utils/power-mechanics.js';
+import { buildArtifactReactionOptions } from '../radial-menu/artifact-options.js';
 
 export interface DefenderReactionMitigation {
   /** Extra flat armor for this damage instance only. */
@@ -51,6 +52,14 @@ async function postReactionChat(content: string, defender: any): Promise<void> {
 
 /**
  * Reaction-type power items the defender can still use this round (equipped, not used).
+ *
+ * Includes:
+ *   - regular `power` items with `system.powerType === 'reaction'`, and
+ *   - synthetic items materialized from each equipped artifact's
+ *     `system.levelProgression` rows of type `'Reaction'` (up to
+ *     `system.currentLevel`). Synthetic items carry an `id` like
+ *     `artifact-reaction:<artifactItemId>:<level>` so they participate
+ *     in the same once-per-round bookkeeping.
  */
 export function getEligibleReactionPowers(defender: Actor, combat: Combat | null): any[] {
   if (!defender || !combat) return [];
@@ -69,6 +78,31 @@ export function getEligibleReactionPowers(defender: Actor, combat: Combat | null
     if (mech?.phasing?.reactionSingleHit) continue;
     out.push(item);
   }
+
+  // Artifact reactions — surfaced as synthetic items that look enough
+  // like a regular power-item for the dialog. They never carry
+  // structured mitigation in `mechanics`, so the chat message will
+  // surface the rules text instead of a numeric DR/Armor patch.
+  try {
+    const artifactReactions = buildArtifactReactionOptions(owner);
+    for (const opt of artifactReactions) {
+      if (hasPowerBeenUsedThisRound(owner as Actor, combat, opt.id)) continue;
+      out.push({
+        id: opt.id,
+        name: opt.name,
+        type: 'artifact',
+        system: { powerType: 'reaction', description: opt.description },
+        artifactReactionMeta: {
+          artifactItemId: (opt.item as any)?.id,
+          artifactName: (opt.item as any)?.name,
+          description: opt.description,
+        },
+      });
+    }
+  } catch (err) {
+    console.warn('Mastery System | defender-reactions: artifact reaction collection failed', err);
+  }
+
   return out;
 }
 

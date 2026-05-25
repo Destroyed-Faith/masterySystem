@@ -18,6 +18,7 @@
 import { seedGeneralItemsStorage } from '../utils/seed-general-items';
 import { getItemIcon } from '../utils/item-icons';
 import { matchesMasteryWeaponCatalog } from '../utils/weapons';
+import { normalizeSlotKey } from '../utils/equip-slots.js';
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2) as typeof ApplicationV2;
@@ -229,7 +230,7 @@ export class GeneralItemsStorageDialog extends BaseDialog {
       const flags = item.getFlag?.('mastery-system', 'equipment') || {};
       const container = flags.container ?? 'inventory';
       const band = flags.band ?? 'not';
-      const slot = flags.slot ?? null;
+      const slot = normalizeSlotKey(flags.slot) ?? null;
 
       if (!slot && (item.system as any)?.equipped === true) {
         if (item.type === 'weapon') {
@@ -239,21 +240,15 @@ export class GeneralItemsStorageDialog extends BaseDialog {
           slotMap['offhand'] = item;
           continue;
         } else if (item.type === 'armor') {
-          slotMap['chest'] = item;
+          slotMap['body'] = item;
           continue;
         }
       }
 
       // Treat backpack items as inventory items (they go into encumbrance bands)
       if (slot) {
-        if (!slotMap[slot] || (slot === 'ring1' || slot === 'ring2')) {
-          if (slot === 'ring1' || slot === 'ring2') {
-            if (!slotMap[slot]) {
-              slotMap[slot] = item;
-            }
-          } else {
-            slotMap[slot] = item;
-          }
+        if (!slotMap[slot]) {
+          slotMap[slot] = item;
         }
       } else if (container === 'stash') {
         stashItems.push(item);
@@ -275,17 +270,13 @@ export class GeneralItemsStorageDialog extends BaseDialog {
     const stashCellsData = toCells(stashItems, STASH_SIZE);
 
     const slotDefs = [
-      { key: 'helmet', label: 'Helmet' },
-      { key: 'necklace', label: 'Necklace' },
-      { key: 'chest', label: 'Chest' },
-      { key: 'cloak', label: 'Cloak' },
-      { key: 'glove', label: 'Gloves' },
-      { key: 'ring1', label: 'Ring' },
-      { key: 'belt', label: 'Belt' },
-      { key: 'mainhand', label: 'Mainhand' },
-      { key: 'leggings', label: 'Leggings' },
-      { key: 'offhand', label: 'Offhand' },
-      { key: 'boot', label: 'Boots' }
+      { key: 'mainhand', label: 'Main Hand' },
+      { key: 'offhand', label: 'Off Hand' },
+      { key: 'body', label: 'Body' },
+      { key: 'head', label: 'Head' },
+      { key: 'feet', label: 'Feet' },
+      { key: 'amulet', label: 'Amulet' },
+      { key: 'ring', label: 'Ring' },
     ];
 
     return {

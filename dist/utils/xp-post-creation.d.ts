@@ -11,7 +11,7 @@ export declare function buildPostCreationSnapshot(actor: any): PostCreationProgr
 export declare function actorHasPostCreationSnapshot(actor: any): boolean;
 /**
  * GM: restore attributes, skills, power levels, and session skill spend to post-creation snapshot;
- * return all earned XP to the available pool (totalSpent / spentAttributes cleared).
+ * return all earned XP to the available pool (totalSpent cleared).
  */
 export declare function resetActorProgressToPostCreation(actor: any, options: {
     gmUserId: string;

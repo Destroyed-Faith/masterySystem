@@ -239,7 +239,7 @@ export async function seedGeneralItemsStorage(): Promise<any[]> {
         skillPenalty: armor.skillPenalty === '—' ? '' : armor.skillPenalty,
         type: armor.type,
         equipped: false,
-        equipSlots: ['chest']
+        equipSlots: ['body']
       }
     });
   }

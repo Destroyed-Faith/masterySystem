@@ -42,18 +42,37 @@ export class XpManagementSettings extends BaseApplication {
             const system = actor.system || {};
             const points = system.points || {};
             const xp = system.xp || {};
-            // Get XP state (backward compatible)
             const totalEarned = xp.totalEarned ?? 0;
             const totalSpent = xp.totalSpent ?? 0;
-            const spentAttributes = xp.spentAttributes ?? 0;
             const available = points.xp ?? 0;
-            const maxAttributeSpend = Math.floor(totalEarned / 2);
-            // Players Guide 7121–7132 — per-step 50% Attribute Rule bucket.
+            /**
+             * New spec — once-per-step rule. Surface the current step's bumped
+             * lists for the GM table.
+             */
             const stepRaw = xp.currentStep ?? {};
+            const sanitize = (input) => Array.isArray(input) ? input.map((v) => String(v ?? '')).filter((s) => s.length > 0) : [];
             const currentStep = {
-                attrSpent: Math.max(0, Math.floor(Number(stepRaw.attrSpent) || 0)),
-                nonAttrSpent: Math.max(0, Math.floor(Number(stepRaw.nonAttrSpent) || 0)),
+                attributes: sanitize(stepRaw.attributes),
+                skills: sanitize(stepRaw.skills),
+                powers: sanitize(stepRaw.powers),
+                artifacts: sanitize(stepRaw.artifacts),
             };
+            const stepSummary = (() => {
+                const parts = [];
+                if (currentStep.attributes.length)
+                    parts.push(`Attrs: ${currentStep.attributes.join(', ')}`);
+                if (currentStep.skills.length)
+                    parts.push(`Skills: ${currentStep.skills.join(', ')}`);
+                if (currentStep.powers.length)
+                    parts.push(`Powers: ${currentStep.powers.length}`);
+                if (currentStep.artifacts.length)
+                    parts.push(`Artifacts: ${currentStep.artifacts.length}`);
+                return parts.length ? parts.join(' | ') : 'No bumps';
+            })();
+            const stepTotal = currentStep.attributes.length +
+                currentStep.skills.length +
+                currentStep.powers.length +
+                currentStep.artifacts.length;
             return {
                 id: actor.id,
                 name: actor.name,
@@ -64,9 +83,9 @@ export class XpManagementSettings extends BaseApplication {
                     spent: totalSpent,
                     available: available,
                     totalEarned: totalEarned,
-                    spentAttributes: spentAttributes,
-                    maxAttributeSpend: maxAttributeSpend,
                     currentStep,
+                    stepSummary,
+                    stepTotal,
                 }
             };
         });
@@ -96,7 +115,6 @@ export class XpManagementSettings extends BaseApplication {
                 available: points.xp ?? 0,
                 totalEarned: xp.totalEarned ?? 0,
                 totalSpent: xp.totalSpent ?? 0,
-                spentAttributes: xp.spentAttributes ?? 0,
                 history: xp.history ?? []
             };
         };
@@ -104,7 +122,7 @@ export class XpManagementSettings extends BaseApplication {
         const pushXpHistory = (actor, entry) => {
             const system = actor.system || {};
             if (!system.xp) {
-                system.xp = { totalEarned: 0, totalSpent: 0, spentAttributes: 0, history: [] };
+                system.xp = { totalEarned: 0, totalSpent: 0, history: [] };
             }
             if (!system.xp.history) {
                 system.xp.history = [];
@@ -133,7 +151,6 @@ export class XpManagementSettings extends BaseApplication {
                 available: xpState.available,
                 totalEarned: xpState.totalEarned,
                 totalSpent: xpState.totalSpent,
-                spentAttributes: xpState.spentAttributes
             };
             const updates = {
                 'system.points.xp': xpState.available + amount,
@@ -141,7 +158,6 @@ export class XpManagementSettings extends BaseApplication {
             };
             if (!actor.system.xp) {
                 updates['system.xp.totalSpent'] = 0;
-                updates['system.xp.spentAttributes'] = 0;
                 updates['system.xp.history'] = [];
             }
             await actor.update(updates);
@@ -159,7 +175,6 @@ export class XpManagementSettings extends BaseApplication {
                     available: xpState.available + amount,
                     totalEarned: xpState.totalEarned + amount,
                     totalSpent: xpState.totalSpent,
-                    spentAttributes: xpState.spentAttributes
                 }
             };
             pushXpHistory(actor, historyEntry);
@@ -184,7 +199,6 @@ export class XpManagementSettings extends BaseApplication {
                     available: xpState.available,
                     totalEarned: xpState.totalEarned,
                     totalSpent: xpState.totalSpent,
-                    spentAttributes: xpState.spentAttributes
                 };
                 const updates = {
                     'system.points.xp': xpState.available + amount,
@@ -192,7 +206,6 @@ export class XpManagementSettings extends BaseApplication {
                 };
                 if (!actor.system.xp) {
                     updates['system.xp.totalSpent'] = 0;
-                    updates['system.xp.spentAttributes'] = 0;
                     updates['system.xp.history'] = [];
                 }
                 await actor.update(updates);
@@ -209,7 +222,6 @@ export class XpManagementSettings extends BaseApplication {
                         available: xpState.available + amount,
                         totalEarned: xpState.totalEarned + amount,
                         totalSpent: xpState.totalSpent,
-                        spentAttributes: xpState.spentAttributes
                     }
                 };
                 pushXpHistory(actor, historyEntry);
@@ -281,9 +293,9 @@ export class XpManagementSettings extends BaseApplication {
             }).render(true);
         });
         /**
-         * Players Guide 7121–7132 — End the current upgrade step. Clears
-         * the per-step Attribute / Non-Attribute counters so the next
-         * spend starts a fresh 50%-rule bucket.
+         * New spec — End the current Upgrade Step. Clears the once-per-step
+         * bump lists so the next click of "+" on each Attribute / Skill /
+         * Power / Artifact is allowed again.
          */
         html.find('.end-xp-step-btn').on('click', async (event) => {
             const button = $(event.currentTarget);
@@ -301,7 +313,13 @@ export class XpManagementSettings extends BaseApplication {
             const stepRule = await import('../utils/xp-step-rule.js');
             const before = stepRule.readStep(actor);
             await stepRule.endStep(actor);
-            ui.notifications?.info(`XP step ended for ${actor.name} (Attr: ${before.attrSpent} XP, Non-Attr: ${before.nonAttrSpent} XP).`);
+            const summary = [
+                `${before.attributes.length} attr`,
+                `${before.skills.length} skill`,
+                `${before.powers.length} power`,
+                `${before.artifacts.length} artifact`,
+            ].join(', ');
+            ui.notifications?.info(`XP step ended for ${actor.name} (${summary}).`);
             this.render();
         });
         html.find('.reset-progress-xp-btn').on('click', async (event) => {

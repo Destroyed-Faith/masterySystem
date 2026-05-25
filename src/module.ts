@@ -49,6 +49,18 @@ import { actorHasPostCreationSnapshot, resetActorProgressToPostCreation } from '
 import { getPowerDefinitionRank } from './utils/power-definition-rank.js';
 import { buildMasteryStatusEffects } from './system/status-effects.js';
 import { registerTemplatesCutoverSetting, runTemplatesCutover } from './migrations/templates-cutover.js';
+import {
+  registerXpCurrentStepCutoverSetting,
+  runXpCurrentStepCutover,
+} from './migrations/xp-currentstep-cutover.js';
+import {
+  registerArtifactSpecBackfillSetting,
+  runArtifactSpecBackfill,
+} from './migrations/artifact-spec-backfill.js';
+import {
+  registerPaperdollSlotCanonicalSetting,
+  runPaperdollSlotCanonical,
+} from './migrations/paperdoll-slot-canonical.js';
 
 // Dice roller functions are imported in sheets where needed
 
@@ -150,6 +162,11 @@ Hooks.once('init', async function() {
 
   // Trees → Templates cutover: one-time Hard-Reset of Power items.
   registerTemplatesCutoverSetting();
+  // New-spec XP Upgrade-Step cutover: normalize `system.xp.currentStep` and
+  // drop the retired `system.xp.spentAttributes` field.
+  registerXpCurrentStepCutoverSetting();
+  registerArtifactSpecBackfillSetting();
+  registerPaperdollSlotCanonicalSetting();
   
   // Setup XP Management inline in settings
   setupXpManagementInline();
@@ -1342,50 +1359,65 @@ function setupXpManagementInline() {
     htmlContent += '<button type="button" class="bulk-grant-btn"><i class="fas fa-gift"></i> Grant to All</button></div>';
     htmlContent += '</div></div>';
     
-    // Characters Table
+    // Characters Table — new spec: surface the once-per-step bump summary
+    // in place of the legacy `maxAttributeSpend` column.
     htmlContent += '<div class="characters-list"><table class="xp-table xp-table-compact"><thead><tr>';
-    htmlContent += '<th>Character</th><th>Player</th><th>Spent</th><th>Avail.</th><th>Earned</th><th>Attr cap</th><th>Actions</th>';
+    htmlContent += '<th>Character</th><th>Player</th><th>Spent</th><th>Avail.</th><th>Earned</th><th>Step bumps</th><th>Actions</th>';
     htmlContent += '</tr></thead><tbody>';
-    
+
     if (characters.length === 0) {
       htmlContent += '<tr><td colspan="7" class="empty-message"><i class="fas fa-info-circle"></i> No player characters found.</td></tr>';
     } else {
+      const sanitize = (input: unknown): string[] =>
+        Array.isArray(input) ? input.map((v) => String(v ?? '')).filter((s) => s.length > 0) : [];
+
       characters.forEach((actor: any) => {
         const system = actor.system || {};
         const points = system.points || {};
         const xp = system.xp || {};
-        
-        // Get XP state (backward compatible)
+
         const totalEarned = xp.totalEarned ?? 0;
         const totalSpent = xp.totalSpent ?? 0;
-        const spentAttributes = xp.spentAttributes ?? 0;
         const available = points.xp ?? 0;
-        const maxAttributeSpend = Math.floor(totalEarned / 2);
-        
+
+        const stepRaw = xp.currentStep ?? {};
+        const stepAttrs = sanitize(stepRaw.attributes);
+        const stepSkills = sanitize(stepRaw.skills);
+        const stepPowers = sanitize(stepRaw.powers);
+        const stepArtifacts = sanitize(stepRaw.artifacts);
+        const stepTotal = stepAttrs.length + stepSkills.length + stepPowers.length + stepArtifacts.length;
+        const stepSummaryParts: string[] = [];
+        if (stepAttrs.length) stepSummaryParts.push(`Attrs: ${stepAttrs.join(', ')}`);
+        if (stepSkills.length) stepSummaryParts.push(`Skills: ${stepSkills.join(', ')}`);
+        if (stepPowers.length) stepSummaryParts.push(`Powers: ${stepPowers.length}`);
+        if (stepArtifacts.length) stepSummaryParts.push(`Artifacts: ${stepArtifacts.length}`);
+        const stepSummary = stepSummaryParts.length ? stepSummaryParts.join(' | ') : 'No bumps this step';
+
         const playerName = (game as any).users?.find((u: any) => u.character?.id === actor.id)?.name || 'Unassigned';
         const isGM = (game as any).user?.isGM;
         const hasSnap = actorHasPostCreationSnapshot(actor);
         const resetBtn = isGM
           ? `<button type="button" class="reset-progress-xp-btn" data-character-id="${actor.id}" title="Reset to post-creation (attributes, skills, powers). All earned XP becomes available."${hasSnap ? '' : ' disabled'}><i class="fas fa-undo"></i></button>`
           : '';
-        
+
         htmlContent += `<tr data-character-id="${actor.id}">`;
         htmlContent += `<td class="character-cell"><img src="${actor.img}" alt="${actor.name}" class="character-avatar" /><span class="character-name">${actor.name}</span></td>`;
         htmlContent += `<td class="player-cell">${playerName}</td>`;
         htmlContent += `<td class="xp-cell"><strong>${totalSpent}</strong></td>`;
         htmlContent += `<td class="xp-cell"><strong>${available}</strong></td>`;
         htmlContent += `<td class="xp-cell"><strong>${totalEarned}</strong></td>`;
-        htmlContent += `<td class="xp-cell">${spentAttributes} / ${maxAttributeSpend}</td>`;
+        htmlContent += `<td class="xp-cell" title="${stepSummary.replace(/"/g, '&quot;')}">${stepTotal}</td>`;
         htmlContent += `<td class="grant-cell"><div class="grant-controls">`;
         htmlContent += `<div class="grant-group"><input type="number" class="xp-amount-input" data-character-id="${actor.id}" min="0" value="0" placeholder="+" title="Grant XP" />`;
         htmlContent += `<button type="button" class="grant-xp-btn" data-character-id="${actor.id}" title="Grant XP"><i class="fas fa-plus"></i></button></div>`;
         htmlContent += `<div class="xp-row-actions">`;
+        htmlContent += `<button type="button" class="end-xp-step-btn" data-character-id="${actor.id}" title="End current Upgrade Step. Clears the once-per-step bump lists for Attributes / Skills / Powers / Artifacts."><i class="fas fa-flag-checkered"></i></button>`;
         htmlContent += `<button type="button" class="history-xp-btn" data-character-id="${actor.id}" title="XP History"><i class="fas fa-history"></i></button>`;
         htmlContent += resetBtn;
         htmlContent += `</div></div></td></tr>`;
       });
     }
-    
+
     htmlContent += '</tbody></table></div>';
     customContainer.html(htmlContent);
     
@@ -1402,16 +1434,15 @@ function setupXpManagementInline() {
         available: points.xp ?? 0,
         totalEarned: xp.totalEarned ?? 0,
         totalSpent: xp.totalSpent ?? 0,
-        spentAttributes: xp.spentAttributes ?? 0,
         history: xp.history ?? []
       };
     };
-    
+
     // Helper function to push XP history
     const pushXpHistory = (actor: any, entry: any) => {
       const system = actor.system || {};
       if (!system.xp) {
-        system.xp = { totalEarned: 0, totalSpent: 0, spentAttributes: 0, history: [] };
+        system.xp = { totalEarned: 0, totalSpent: 0, history: [] };
       }
       if (!system.xp.history) {
         system.xp.history = [];
@@ -1421,45 +1452,43 @@ function setupXpManagementInline() {
         system.xp.history = system.xp.history.slice(-200);
       }
     };
-    
+
     // Grant XP button
     customContainer.find('.grant-xp-btn').on('click', async (event) => {
       const button = $(event.currentTarget);
       const characterId = button.data('character-id');
       const amount = parseInt(button.siblings('.xp-amount-input').val() as string) || 0;
-      
+
       if (amount <= 0) {
         ui.notifications?.warn('Please enter a valid amount greater than 0.');
         return;
       }
-      
+
       const actor = (game as any).actors?.get(characterId);
       if (!actor) {
         ui.notifications?.error('Character not found.');
         return;
       }
-      
+
       const xpState = getXpState(actor);
       const beforeState = {
         available: xpState.available,
         totalEarned: xpState.totalEarned,
         totalSpent: xpState.totalSpent,
-        spentAttributes: xpState.spentAttributes
       };
-      
+
       const updates: any = {
         'system.points.xp': xpState.available + amount,
         'system.xp.totalEarned': xpState.totalEarned + amount
       };
-      
+
       if (!actor.system.xp) {
         updates['system.xp.totalSpent'] = 0;
-        updates['system.xp.spentAttributes'] = 0;
         updates['system.xp.history'] = [];
       }
-      
+
       await actor.update(updates);
-      
+
       // Add history entry
       const user = (game as any).user;
       const historyEntry = {
@@ -1474,53 +1503,77 @@ function setupXpManagementInline() {
           available: xpState.available + amount,
           totalEarned: xpState.totalEarned + amount,
           totalSpent: xpState.totalSpent,
-          spentAttributes: xpState.spentAttributes
         }
       };
       pushXpHistory(actor, historyEntry);
       await actor.update({ 'system.xp.history': actor.system.xp.history });
-      
+
       ui.notifications?.info(`Granted ${amount} XP to ${actor.name}.`);
-      
+
       // Re-render settings to update display
       app.render();
     });
-    
+
+    // End Upgrade Step button — clears the once-per-step bump lists.
+    customContainer.find('.end-xp-step-btn').on('click', async (event) => {
+      const button = $(event.currentTarget);
+      const characterId = button.data('character-id');
+      const actor = (game as any).actors?.get(characterId);
+      if (!actor) {
+        ui.notifications?.error('Character not found.');
+        return;
+      }
+      const isOwner = actor.isOwner || (game as any).user?.isGM;
+      if (!isOwner) {
+        ui.notifications?.warn('Only the owner (or GM) can end this character\'s XP step.');
+        return;
+      }
+      const stepRule = await import('./utils/xp-step-rule.js');
+      const before = stepRule.readStep(actor);
+      await stepRule.endStep(actor);
+      const summary = [
+        `${before.attributes.length} attr`,
+        `${before.skills.length} skill`,
+        `${before.powers.length} power`,
+        `${before.artifacts.length} artifact`,
+      ].join(', ');
+      ui.notifications?.info(`XP step ended for ${actor.name} (${summary}).`);
+      app.render();
+    });
+
     // Bulk grant
     customContainer.find('.bulk-grant-btn').on('click', async (event) => {
       const amount = parseInt(customContainer.find('.bulk-xp-amount').val() as string) || 0;
-      
+
       if (amount <= 0) {
         ui.notifications?.warn('Please enter a valid amount greater than 0.');
         return;
       }
-      
+
       const characters = (game as any).actors?.filter((actor: any) => actor.type === 'character') || [];
       let updated = 0;
       const user = (game as any).user;
-      
+
       for (const actor of characters) {
         const xpState = getXpState(actor);
         const beforeState = {
           available: xpState.available,
           totalEarned: xpState.totalEarned,
           totalSpent: xpState.totalSpent,
-          spentAttributes: xpState.spentAttributes
         };
-        
+
         const updates: any = {
           'system.points.xp': xpState.available + amount,
           'system.xp.totalEarned': xpState.totalEarned + amount
         };
-        
+
         if (!actor.system.xp) {
           updates['system.xp.totalSpent'] = 0;
-          updates['system.xp.spentAttributes'] = 0;
           updates['system.xp.history'] = [];
         }
-        
+
         await actor.update(updates);
-        
+
         // Add history entry
         const historyEntry = {
           ts: Date.now(),
@@ -1534,7 +1587,6 @@ function setupXpManagementInline() {
             available: xpState.available + amount,
             totalEarned: xpState.totalEarned + amount,
             totalSpent: xpState.totalSpent,
-            spentAttributes: xpState.spentAttributes
           }
         };
         pushXpHistory(actor, historyEntry);
@@ -2386,6 +2438,29 @@ Hooks.once('ready', async function() {
     await runTemplatesCutover();
   } catch (error) {
     console.warn('Mastery System | Templates cutover failed', error);
+  }
+
+  // One-shot new-spec XP Upgrade-Step cutover (GM-only, guarded by world setting).
+  try {
+    await runXpCurrentStepCutover();
+  } catch (error) {
+    console.warn('Mastery System | XP Upgrade-Step cutover failed', error);
+  }
+
+  // One-shot Artifact spec backfill (GM-only, guarded by world setting).
+  try {
+    await runArtifactSpecBackfill();
+  } catch (error) {
+    console.warn('Mastery System | Artifact spec backfill failed', error);
+  }
+
+  // One-shot Paperdoll Slot canonicalization (GM-only, guarded by world setting).
+  // Maps legacy slot keys (helmet/chest/boot/necklace/ring1/ring2/cloak/glove/belt/leggings)
+  // onto the canonical 7-slot vocabulary (mainhand/offhand/body/head/feet/amulet/ring).
+  try {
+    await runPaperdollSlotCanonical();
+  } catch (error) {
+    console.warn('Mastery System | Paperdoll slot canonicalization failed', error);
   }
   
   // Re-initialize Artifact Awakening as fallback (in case init hook failed)

@@ -45,7 +45,7 @@ export async function resetCharacterForRecreation(actor, options) {
     const xp = system.xp ?? {};
     const totalEarned = Number.isFinite(xp.totalEarned) ? Number(xp.totalEarned) : 0;
     // 1) Remove every embedded item (powers, gear, weapons, armor, shields,
-    //    schticks, artifacts, conditions, echo items, masteryNodes, …).
+    //    schticks, artifacts, conditions, echo items, …).
     //    A post-reset `createActor`-style seed is NOT automatic, so we
     //    re-create the default "Unarmed" weapon at the end.
     const itemIds = [];
@@ -203,22 +203,22 @@ export async function resetCharacterForRecreation(actor, options) {
     };
     // XP: refund ALL earned XP back into the spendable pool. totalEarned
     // stays as-is so the lifetime figure is preserved. totalSpent /
-    // spentAttributes / attributeBaselines / postCreationProgress are
-    // cleared because the next creation pass will reset these anyway.
+    // attributeBaselines / postCreationProgress / once-per-step bump
+    // lists are cleared because the next creation pass will reset these
+    // anyway.
     updates['system.points.attribute'] = 0;
     updates['system.points.mastery'] = 0;
     updates['system.points.xp'] = totalEarned;
     updates['system.xp.totalEarned'] = totalEarned;
     updates['system.xp.totalSpent'] = 0;
-    updates['system.xp.spentAttributes'] = 0;
     updates['system.xp.attributeBaselines'] = {};
     updates['system.xp.postCreationProgress'] = null;
+    updates['system.xp.currentStep'] = { attributes: [], skills: [], powers: [], artifacts: [] };
     // Append an audit-log entry. Capped at 200 entries (same as post-creation helper).
     const beforeState = {
         available: system.points?.xp ?? 0,
         totalEarned,
         totalSpent: xp.totalSpent ?? 0,
-        spentAttributes: xp.spentAttributes ?? 0,
     };
     const historyEntry = {
         ts: Date.now(),
@@ -235,7 +235,6 @@ export async function resetCharacterForRecreation(actor, options) {
             available: totalEarned,
             totalEarned,
             totalSpent: 0,
-            spentAttributes: 0,
         },
     };
     const prior = Array.isArray(xp.history) ? [...xp.history] : [];

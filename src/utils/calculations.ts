@@ -4,7 +4,7 @@
  */
 
 import { AttributeData, HealthBar } from '../types';
-import { HEALTH_PENALTY_FRACTIONS } from './constants.js';
+import { HEALTH_PENALTY_FRACTIONS, MAX_ATTRIBUTE, MAX_POWER_LEVEL } from './constants.js';
 
 /**
  * Calculate the number of Stones from an attribute value
@@ -326,19 +326,45 @@ export function healStressFromBars(
 }
 
 /**
- * Calculate maximum skill rank based on Mastery Rank
- * Max skill = 4 × Mastery Rank
+ * Maximum skill rank a character may reach.
+ *
+ * The new XP spec uses the same banded cost table for Attributes and Skills
+ * (1 / 2 / … / 10 XP per +1) up to 80, so the old `MR × 4` cap is dropped.
+ * Skills are now bounded by the shared attribute cap (`MAX_ATTRIBUTE`, 80).
+ *
+ * The `masteryRank` parameter is kept for callers, but is intentionally
+ * unused — we always return `MAX_ATTRIBUTE`.
  */
-export function calculateMaxSkillRank(masteryRank: number): number {
-  return masteryRank * 4;
+export function calculateMaxSkillRank(_masteryRank: number): number {
+  return MAX_ATTRIBUTE;
 }
 
 /**
- * Validate skill value against mastery rank
+ * Validate skill value against the skill cap.
  */
 export function validateSkillValue(skillValue: number, masteryRank: number): number {
   const maxSkill = calculateMaxSkillRank(masteryRank);
   return Math.min(skillValue, maxSkill);
+}
+
+/**
+ * Maximum Power Level a character of the given Mastery Rank may purchase.
+ *
+ *   | MR    | Max Power Level |
+ *   |-------|-----------------|
+ *   | 1 – 2 | 4               |
+ *   | 3     | 8               |
+ *   | 4     | 12              |
+ *   | 5+    | 16              |
+ *
+ * The hard ceiling is `MAX_POWER_LEVEL` (16) regardless of MR.
+ */
+export function calculateMaxPowerLevel(masteryRank: number): number {
+  const mr = Math.max(1, Math.floor(Number(masteryRank) || 1));
+  if (mr <= 2) return Math.min(4, MAX_POWER_LEVEL);
+  if (mr === 3) return Math.min(8, MAX_POWER_LEVEL);
+  if (mr === 4) return Math.min(12, MAX_POWER_LEVEL);
+  return MAX_POWER_LEVEL;
 }
 
 // ============================================================

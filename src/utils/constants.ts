@@ -79,30 +79,94 @@ export const CREATION = {
     MAX_DISADVANTAGE_POINTS: 8
 };
 
-// XP Costs for Progression
+// Power level cap (1..16). Per-MR caps live in `calculateMaxPowerLevel`.
+export const MAX_POWER_LEVEL = 16;
+
+/**
+ * XP Costs for Progression (new spec).
+ *
+ *   Attributes — band cost = floor((nextValue - 1) / 8) + 1, going from 1 XP
+ *       (values 1–8) up to 10 XP (values 73–80). `ATTRIBUTE` is the explicit
+ *       lookup table; `attributeBandCost(next)` is the runtime helper.
+ *
+ *   Skills    — same banded table as Attributes (1 / 2 / … / 10 XP) instead
+ *       of the old `R × SKILL_PER_RANK` ramp. `SKILL` aliases `ATTRIBUTE`.
+ *
+ *   Powers    — `cost = 2 × newLevel` for levels 1..16. POWER_LEVEL[i] is the
+ *       cost for buying level `i + 1`. `powerLevelCost(level)` is the helper.
+ *
+ *   Artifacts — flat 8 XP per +1 level (`ARTIFACT_LEVEL`). MR gating still
+ *       limits the maximum reachable level (see `getMaxArtifactSystemLevelForMasteryRank`).
+ */
 export const XP_COSTS = {
     ATTRIBUTE: [
-        { min: 0, max: 8, cost: 1 },
+        { min: 1, max: 8, cost: 1 },
         { min: 9, max: 16, cost: 2 },
         { min: 17, max: 24, cost: 3 },
-        { min: 25, max: 32, cost: 4 }
+        { min: 25, max: 32, cost: 4 },
+        { min: 33, max: 40, cost: 5 },
+        { min: 41, max: 48, cost: 6 },
+        { min: 49, max: 56, cost: 7 },
+        { min: 57, max: 64, cost: 8 },
+        { min: 65, max: 72, cost: 9 },
+        { min: 73, max: 80, cost: 10 }
     ],
-    /** Multiplier for buying rank N: cost = N × SKILL_PER_RANK (1 → N XP per step). */
-    SKILL_PER_RANK: 1,
-    POWER_LEVEL: [2, 4, 8, 16, 24, 32, 40, 40, 40, 40, 40, 40], // Levels 1-12
-    NEW_TREE: 1,
-    ARTIFACT_ACCESS: 1,
+    get SKILL() { return XP_COSTS.ATTRIBUTE; },
+    POWER_LEVEL: [
+        2, 4, 6, 8, 10, 12, 14, 16,
+        18, 20, 22, 24, 26, 28, 30, 32
+    ], // Levels 1-16, cost = 2 × level
     ARTIFACT_LEVEL: 8
 };
 
-// Mastery Rank Advancement (based on total Stone count)
+/** XP cost to raise an Attribute (or Skill) to `nextValue` (1..80). */
+export function attributeBandCost(nextValue: number): number {
+    const v = Math.max(1, Math.floor(Number(nextValue) || 1));
+    return Math.floor((v - 1) / 8) + 1;
+}
+
+/** XP cost to raise a Power to `level` (1..16); `cost = 2 × level`. */
+export function powerLevelCost(level: number): number {
+    const l = Math.max(0, Math.floor(Number(level) || 0));
+    if (l <= 0 || l > MAX_POWER_LEVEL) return 0;
+    return 2 * l;
+}
+
+/**
+ * Mastery Rank Advancement (new spec — based on total Stone count).
+ *
+ *  | Total Stones | MR | Tier         |
+ *  |--------------|----|--------------|
+ *  | 1 – 7        | 2  | Adept        |
+ *  | 8 – 13       | 3  | Expert       |
+ *  | 14 – 20      | 4  | Master       |
+ *  | 21 – 29      | 5  | Grandmaster  |
+ *  | 30 – 39      | 6  | Legend       |
+ *  | 40 – 49      | 7  | Mythic       |
+ *  | 50 – 70      | 8  | Godlevel     |
+ */
 export const MR_ADVANCEMENT = [
     { stones: 1, mr: 2, tier: 'Adept' },
     { stones: 8, mr: 3, tier: 'Expert' },
-    { stones: 12, mr: 4, tier: 'Master' },
-    { stones: 16, mr: 5, tier: 'Grandmaster' },
-    { stones: 20, mr: 6, tier: 'Legend' }
+    { stones: 14, mr: 4, tier: 'Master' },
+    { stones: 21, mr: 5, tier: 'Grandmaster' },
+    { stones: 30, mr: 6, tier: 'Legend' },
+    { stones: 40, mr: 7, tier: 'Mythic' },
+    { stones: 50, mr: 8, tier: 'Godlevel' }
 ];
+
+/**
+ * Divine Scale label within MR8 (50–70 Stones). Returns `null` for any
+ * Stone total below 50 (i.e. MR 7 or lower).
+ */
+export function getDivineScale(totalStones: number): 'Lesser God' | 'True God' | 'High God' | 'Apex God' | null {
+    const s = Math.max(0, Math.floor(Number(totalStones) || 0));
+    if (s < 50) return null;
+    if (s <= 55) return 'Lesser God';
+    if (s <= 63) return 'True God';
+    if (s <= 69) return 'High God';
+    return 'Apex God'; // 70+
+}
 
 // Saving Throw categories
 export const SAVING_THROWS = {
@@ -111,9 +175,9 @@ export const SAVING_THROWS = {
     spirit: ['resolve', 'influence']
 };
 
-// Save DC by source Mastery Rank
+// Save DC by source Mastery Rank (DC = 8 × MR; covers MR1..MR8 for the new spec)
 export const SAVE_DC_BY_MR: Record<number, number> = {
-    1: 8, 2: 16, 3: 24, 4: 32, 5: 40, 6: 48
+    1: 8, 2: 16, 3: 24, 4: 32, 5: 40, 6: 48, 7: 56, 8: 64
 };
 
 // Echo base speeds
