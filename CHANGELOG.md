@@ -2,6 +2,63 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.7.0] - 2026-05-25
+
+Mastery System refactor release — neues XP-Spec, tier-basierte Stone Powers,
+vollstaendiges Artefakt-System nach Artefacts.md, kanonisches 7-Slot-Equipment.
+
+### Added
+
+- **Stone Powers neu:** 32 Powers / 4 Tiers, exponentielle Kostenkette
+  (1/2/4/8), RoundState-Integration, umfassende Tests mit gemockten
+  Foundry-Globals.
+- **Artefakt-Datenmodell:** `slot`, `baseProfile`, `baseValues`,
+  `stoneFunction`, `binding` (`unbound` / `bound` / `echo`), `echoKey`,
+  `currentLevel`, `levelProgression`.
+- **`src/utils/artifact-rules.ts`** mit Baseline-Tabellen
+  (Damage/Armor/Evade/Movement/Thrown/Weapon-Specials), Slot-Power-Access,
+  Attribute-Access pro Slot, Stage-Progression.
+- **Echo-Artefakt-Katalog** (Stonebound Soles, Elven Stride, Titan Scars,
+  Wyrm Scales, Serpent Scales, Dragon Claws, Sentinel/Judicator/Oracle
+  Frame), integriert in den Character-Creation-Dialog.
+- **Combat-Integration:** Aggregation von Artefakt-Base-Values in
+  Armor / Evade / Movement / Head-Armor / Minor-Armor; Artefakt-Actives
+  im Radial-Menue; Reactions im Defender-Reactions-Pipeline; Stone
+  Functions (Support prefill, Pool-Bonus, Refresh, Battery).
+- **Migrationen:** `artifact-spec-backfill` (Artefakt-Felder nachfuellen),
+  `paperdoll-slot-canonical` (Equipment-Slot-Keys auf 7-Slot-Vokabular
+  normalisieren), `xp-currentstep-cutover`.
+- **Tests:** `artifact-rules`, `echo-artifacts`, `artifact-capacity`,
+  `stone-powers`, `xp-step-rule` (40+ neue Tests).
+
+### Changed
+
+- **XP-Spec:** Neue Kostenkette fuer Attribute/Skills/Powers; Mastery Rank
+  cappt Power-Level + Skill-Rank; Artefakte kosten flat 8 XP pro +1
+  (gecappt bei `(MR-1)*2`, max 16); Once-per-Step-Regel fuer alle
+  Spend-Kategorien.
+- **Equipment-Slots auf kanonische 7 reduziert:** `mainhand`, `offhand`,
+  `body`, `head`, `feet`, `amulet`, `ring`. Umbenannt:
+  `helmet` -> `head`, `chest` -> `body`, `boot` -> `feet`,
+  `necklace` -> `amulet`, `ring1` -> `ring`.
+- **Paperdoll-CSS-Grid** komplett neu fuer das 7-Slot-Layout.
+- **Artifact Capacity flach 4** pro Charakter (statt MR x 2);
+  Echo-Bound-Artefakte koennen nicht entbunden werden.
+- **GM-XP-UI:** "Attr cap" -> "Step bumps" Summary.
+- **Stone Power Support** prefillt Aktivierungs-Tiers (`usesBefore`-
+  Anpassung in `stone-activation.ts`); **Stone Pool**-Bonus erhoeht
+  `system.stones.maximum`; Refresh/Battery unter
+  `system.stones.fromArtifacts` exponiert.
+
+### Removed
+
+- **Mastery Trees** komplett entfernt (`src/utils/mastery-trees.ts`).
+- **Item-Type `masteryNode`** aus `system.json` entfernt.
+- **Legacy XP-Ultimate-Kosten** + Artefakt-Stone-Kosten entfernt.
+- **Equipment-Slots** `cloak`, `glove`, `belt`, `leggings`, `ring2`
+  entfernt; bestehende Items in entfernten Slots werden durch die
+  `paperdoll-slot-canonical`-Migration zurueck ins Inventar gelegt.
+
 ## [0.6.0] - 2026-05-01
 
 Doc-Code Gap Audit release — 7 waves of changes that align the runtime
