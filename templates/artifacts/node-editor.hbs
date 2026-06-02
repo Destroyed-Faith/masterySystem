@@ -43,7 +43,7 @@
       </div>
 
       <div class="form-group">
-        <label>Base Values <span class="node-editor-hint-inline" id="node-spec-bv-limit-hint">(slot determines limit)</span></label>
+        <label>Base Values <span class="node-editor-hint-inline" id="node-spec-bv-limit-hint">(values auto-scale with the Artifact's level)</span></label>
         <div id="node-spec-base-values" class="node-multi-select">
           {{#each specBaseValueRows as |row|}}
           <div class="node-select-row node-spec-bv-row">
@@ -57,8 +57,14 @@
               <option value="{{opt.key}}" {{#if (eq ../row.type opt.key)}}selected{{/if}}>{{opt.label}}</option>
               {{/each}}
             </select>
-            <input type="text" class="node-spec-bv-label" value="{{row.label}}" placeholder="Label (e.g. Weapon Damage)" />
-            <input type="text" class="node-spec-bv-value" value="{{row.valueStr}}" placeholder="Value (4d8 / +4 / +8 m)" />
+            <select class="node-spec-bv-special {{#unless row.isSpecial}}hidden{{/unless}}" data-current="{{row.specialId}}">
+              <option value="">— Choose Special —</option>
+              {{#each ../specSpecialOptions as |opt|}}
+              <option value="{{opt.id}}" {{#if (eq ../row.specialId opt.id)}}selected{{/if}}>{{opt.label}}</option>
+              {{/each}}
+            </select>
+            <span class="node-spec-bv-derived" title="Auto-derived from Base Profile + level">{{#if row.derivedDisplay}}{{row.derivedDisplay}}{{else}}—{{/if}}</span>
+            <input type="text" class="node-spec-bv-override" value="{{row.overrideStr}}" placeholder="override (optional)" title="Leave empty to use the auto value" />
             <button type="button" class="node-row-remove" title="Remove">×</button>
           </div>
           {{/each}}
@@ -82,16 +88,17 @@
             <option value="power" {{#if (eq row.kind "power")}}selected{{/if}}>Power</option>
             <option value="stoneFunction" {{#if (eq row.kind "stoneFunction")}}selected{{/if}}>Stone Function</option>
           </select>
-          <select class="node-pick-power {{#unless row.isPower}}hidden{{/unless}}">
-            <option value="">— Choose Power —</option>
-            {{#each ../powerCatalogOptions as |grp|}}
-            <optgroup label="{{grp.category}}">
-              {{#each grp.options as |opt|}}
-              <option value="{{opt.id}}" {{#if (eq ../../row.powerTemplateId opt.id)}}selected{{/if}}>{{opt.label}}</option>
-              {{/each}}
-            </optgroup>
-            {{/each}}
-          </select>
+          <span class="node-pick-power-wrap {{#unless row.isPower}}hidden{{/unless}}">
+            <select class="node-pick-power-cat" data-current="{{row.powerCategory}}" title="Filter powers by type">
+              <option value="active">Active</option>
+              <option value="activeBuff">Active Buff</option>
+              <option value="reaction">Reaction</option>
+              <option value="movement">Movement</option>
+            </select>
+            <select class="node-pick-power" data-current="{{row.powerTemplateId}}">
+              <option value="">— Choose Power —</option>
+            </select>
+          </span>
           <span class="node-pick-stonefn {{#unless row.isStoneFn}}hidden{{/unless}}">
             <select class="node-pick-stone-kind">
               <option value="">— Stone Function —</option>
@@ -106,7 +113,11 @@
               <option value="{{opt.key}}" {{#if (eq ../../row.stoneAttr opt.key)}}selected{{/if}}>{{opt.label}}</option>
               {{/each}}
             </select>
-            <input type="text" class="node-pick-stone-power" value="{{row.stonePowerId}}" placeholder="(Stone Power id — Support only)" />
+            <span class="node-pick-stone-power-wrap {{#unless (eq row.stoneKind "stonePowerSupport")}}hidden{{/unless}}" title="Stone Power supported by this artifact (4 per attribute)">
+              <select class="node-pick-stone-power" data-current="{{row.stonePowerId}}">
+                <option value="">— Choose Stone Power —</option>
+              </select>
+            </span>
           </span>
         </div>
         {{/each}}

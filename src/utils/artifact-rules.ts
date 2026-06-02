@@ -140,7 +140,7 @@ export const BASE_PROFILES_BY_SLOT: Record<ArtifactSlot, ArtifactBaseProfile[]> 
   body: ['bodyArmor', 'noArmorBody', 'robe'],
   head: ['headArmor'],
   feet: ['feet'],
-  amulet: ['amulet', 'lantern'],
+  amulet: ['amulet'],
   ring: ['ring'],
 };
 

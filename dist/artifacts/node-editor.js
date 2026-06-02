@@ -11,6 +11,8 @@ import { buildArtifactNodeIdMap, findRootItem, getAncestorChainRootFirst, getLoc
 import { normalizePowersForEditor } from '../utils/embedded-power-ui-constants.js';
 import { EmbeddedPowerDialog } from './embedded-power-dialog.js';
 import { getEffectById, parseEffectStrings } from '../utils/special-effects.js';
+import { STONE_POWERS_BY_ATTRIBUTE } from '../stones/stone-powers.js';
+import { deriveBaseValueDisplay, scaleWeaponSpecial, isScalingWeaponSpecial, } from '../utils/artifact-base-derive.js';
 // Use V1 Application for reliable template rendering in v13
 const BaseDialog = foundry?.appv1?.Application || Application;
 const TREE_DAMAGE_PRESETS = getArtifactTreeWeaponDamagePresets();
@@ -299,13 +301,57 @@ export class NodeEditor extends BaseDialog {
         data.specSlotAccessHint = slotAccess
             ? `Slot "${ARTIFACT_SLOT_LABELS[specSlot]}" — Primary: ${slotAccess.primary.join(', ')}. Secondary: ${slotAccess.secondary.join(', ') || '—'}. Not allowed: ${slotAccess.notAllowed.join(', ') || '—'}.`
             : 'Pick a Slot to see allowed Powers / Base Values.';
+        // Auto-derive: Base Values scale from Base Profile + this node's level.
+        // The GM picks the *type* (and, for Specials, *which* Special); the value
+        // is computed. A small override is allowed for fairness tuning.
+        const nodeLevel = Math.max(1, Math.min(10, Number(system.level) || 1));
+        const specialOptions = data.specialSelectOptions || [];
+        // Map: base-value type → derived display at this level/profile (for JS recompute).
+        const typeDerivedMap = {};
+        for (const type of Object.keys(BASE_VALUE_TYPE_LABELS)) {
+            typeDerivedMap[type] = deriveBaseValueDisplay(type, nodeLevel, specBaseProfile || undefined).display;
+        }
+        // Map: special option id → derived numeric value at this level ('' if qualitative).
+        const specialValueMap = {};
+        for (const opt of specialOptions) {
+            const v = scaleWeaponSpecial(opt.label, nodeLevel);
+            specialValueMap[opt.id] = v == null ? '' : String(v);
+        }
+        this._typeDerivedMap = typeDerivedMap;
+        this._specialValueMap = specialValueMap;
+        this._nodeLevel = nodeLevel;
+        const deriveRowDisplay = (type, specialId) => {
+            if (type === 'weaponSpecial')
+                return specialValueMap[specialId] || '';
+            return typeDerivedMap[type] || '';
+        };
         data.specBaseValueRows = (baseValues.length > 0
             ? baseValues
-            : [{ slot: 'a', type: 'minorFeature', label: '', value: '' }]).map((bv) => ({
-            slot: bv.slot || 'a',
-            type: bv.type || 'minorFeature',
-            label: bv.label || '',
-            valueStr: bv.value != null ? String(bv.value) : '',
+            : [{ slot: 'a', type: 'weaponDamage', label: '', value: '' }]).map((bv) => {
+            const type = bv.type || 'minorFeature';
+            const isSpecial = type === 'weaponSpecial';
+            // For Specials the stored label holds the chosen Special; match it back to an option id.
+            const storedLabel = String(bv.label || '');
+            const matched = isSpecial
+                ? specialOptions.find((o) => o.id === storedLabel || o.label === storedLabel)
+                : undefined;
+            const specialId = matched?.id || '';
+            const derivedDisplay = deriveRowDisplay(type, specialId);
+            const storedValue = bv.value != null ? String(bv.value) : '';
+            // Treat a stored value that differs from the derived one as a manual override.
+            const overrideStr = storedValue && storedValue !== derivedDisplay ? storedValue : '';
+            return {
+                slot: bv.slot || 'a',
+                type,
+                isSpecial,
+                specialId,
+                derivedDisplay,
+                overrideStr,
+            };
+        });
+        data.specSpecialOptions = specialOptions.map((o) => ({
+            id: o.id,
+            label: isScalingWeaponSpecial(o.label) ? o.label : `${o.label} (qualitative)`,
         }));
         if (specSlot) {
             const limit = BASE_VALUE_LIMIT_BY_SLOT[specSlot];
@@ -315,7 +361,21 @@ export class NodeEditor extends BaseDialog {
             data.specBaseValueLimit = 3;
         }
         // ---- Level Progression picks (3 lines @ Basic Level 1/2/3) ----
-        data.powerCatalogOptions = getArtifactPowerCatalogOptions();
+        const powerCatalog = getArtifactPowerCatalogOptions();
+        data.powerCatalogOptions = powerCatalog;
+        // templateId → category, used to preselect the category filter per row.
+        const idToCategory = new Map();
+        for (const grp of powerCatalog) {
+            for (const opt of grp.options)
+                idToCategory.set(opt.id, grp.category);
+        }
+        // Stash data the listeners need to (re)build dynamic selects client-side.
+        this._powerCatalog = powerCatalog;
+        const stonePowerOptionsByAttr = {};
+        for (const [attr, list] of Object.entries(STONE_POWERS_BY_ATTRIBUTE)) {
+            stonePowerOptionsByAttr[attr] = list.map((p) => ({ id: p.id, name: p.name }));
+        }
+        this._stonePowerOptionsByAttr = stonePowerOptionsByAttr;
         const storedPicks = Array.isArray(system.progressionPicks)
             ? system.progressionPicks
             : [];
@@ -332,12 +392,14 @@ export class NodeEditor extends BaseDialog {
         data.progressionPickRows = [1, 2, 3].map((lvl) => {
             const p = pickByLevel.get(lvl);
             const sf = p?.stoneFunction || null;
+            const powerTemplateId = p?.powerTemplateId || '';
             return {
                 level: lvl,
                 kind: p?.kind || 'none',
                 isPower: p?.kind === 'power',
                 isStoneFn: p?.kind === 'stoneFunction',
-                powerTemplateId: p?.powerTemplateId || '',
+                powerTemplateId,
+                powerCategory: powerTemplateId ? idToCategory.get(powerTemplateId) || 'active' : 'active',
                 stoneKind: sf?.kind || '',
                 stoneAttr: sf?.attribute || '',
                 stonePowerId: sf?.stonePowerId || '',
@@ -431,11 +493,39 @@ export class NodeEditor extends BaseDialog {
         $specSlot.on('change', refreshSpecForSlot);
         $specBaseProfile.on('change', syncKindUi);
         refreshSpecForSlot();
-        // --- Level Progression picks: toggle Power vs Stone Function fields per row ---
+        // --- Level Progression picks: Power (catalog, filtered by category) or Stone Function ---
+        const powerCatalog = (this._powerCatalog || []);
+        const stonePowerOptionsByAttr = (this._stonePowerOptionsByAttr || {});
+        const escHtml = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        const populatePowerSelect = ($row, desired) => {
+            const cat = String($row.find('.node-pick-power-cat').val() || 'active');
+            const $sel = $row.find('.node-pick-power');
+            const grp = powerCatalog.find((g) => g.category === cat);
+            const opts = grp ? grp.options : [];
+            $sel.empty();
+            $sel.append('<option value="">— Choose Power —</option>');
+            for (const o of opts) {
+                const sel = o.id === desired ? ' selected' : '';
+                $sel.append(`<option value="${escHtml(o.id)}"${sel}>${escHtml(o.label)}</option>`);
+            }
+        };
+        const populateStonePowerSelect = ($row, desired) => {
+            const attr = String($row.find('.node-pick-stone-attr').val() || '');
+            const $sel = $row.find('.node-pick-stone-power');
+            const opts = stonePowerOptionsByAttr[attr] || [];
+            $sel.empty();
+            $sel.append('<option value="">— Choose Stone Power —</option>');
+            for (const o of opts) {
+                const sel = o.id === desired ? ' selected' : '';
+                $sel.append(`<option value="${escHtml(o.id)}"${sel}>${escHtml(o.name)}</option>`);
+            }
+        };
         const syncProgressionRow = ($row) => {
             const kind = String($row.find('.node-pick-kind').val() || 'none');
-            $row.find('.node-pick-power').toggleClass('hidden', kind !== 'power');
+            $row.find('.node-pick-power-wrap').toggleClass('hidden', kind !== 'power');
             $row.find('.node-pick-stonefn').toggleClass('hidden', kind !== 'stoneFunction');
+            const stoneKind = String($row.find('.node-pick-stone-kind').val() || '');
+            $row.find('.node-pick-stone-power-wrap').toggleClass('hidden', stoneKind !== 'stonePowerSupport');
         };
         const refreshStoneFnWarning = () => {
             const count = html
@@ -444,11 +534,62 @@ export class NodeEditor extends BaseDialog {
                 .filter((el) => String($(el).val() || '') === 'stoneFunction').length;
             html.find('.node-progression-stonefn-warning').toggleClass('hidden', count <= 1);
         };
-        html.find('.node-progression-pick').each((_i, el) => syncProgressionRow($(el)));
+        html.find('.node-progression-pick').each((_i, el) => {
+            const $row = $(el);
+            const $cat = $row.find('.node-pick-power-cat');
+            $cat.val(String($cat.attr('data-current') || 'active'));
+            populatePowerSelect($row, String($row.find('.node-pick-power').attr('data-current') || ''));
+            populateStonePowerSelect($row, String($row.find('.node-pick-stone-power').attr('data-current') || ''));
+            syncProgressionRow($row);
+        });
         refreshStoneFnWarning();
         html.on('change', '.node-pick-kind', (e) => {
             syncProgressionRow($(e.currentTarget).closest('.node-progression-pick'));
             refreshStoneFnWarning();
+        });
+        html.on('change', '.node-pick-power-cat', (e) => {
+            populatePowerSelect($(e.currentTarget).closest('.node-progression-pick'), '');
+        });
+        html.on('change', '.node-pick-stone-kind', (e) => {
+            syncProgressionRow($(e.currentTarget).closest('.node-progression-pick'));
+        });
+        html.on('change', '.node-pick-stone-attr', (e) => {
+            const $row = $(e.currentTarget).closest('.node-progression-pick');
+            populateStonePowerSelect($row, String($row.find('.node-pick-stone-power').val() || ''));
+        });
+        // When the Slot changes (attribute access changes), refresh per-pick Stone Power lists.
+        $specSlot.on('change', () => {
+            html.find('.node-progression-pick').each((_i, el) => {
+                const $row = $(el);
+                populateStonePowerSelect($row, String($row.find('.node-pick-stone-power').val() || ''));
+            });
+        });
+        // --- Base Values: auto-derived value + Special picker (no free-text math) ---
+        const typeDerivedMap = (this._typeDerivedMap || {});
+        const specialValueMap = (this._specialValueMap || {});
+        const syncBvRow = ($row) => {
+            const type = String($row.find('.node-spec-bv-type').val() || '');
+            const isSpecial = type === 'weaponSpecial';
+            $row.find('.node-spec-bv-special').toggleClass('hidden', !isSpecial);
+            let derived = '';
+            if (isSpecial) {
+                const sid = String($row.find('.node-spec-bv-special').val() || '');
+                derived = specialValueMap[sid] || '';
+            }
+            else {
+                derived = typeDerivedMap[type] || '';
+            }
+            $row
+                .find('.node-spec-bv-derived')
+                .text(derived || '—')
+                .attr('data-derived', derived);
+        };
+        html.find('.node-spec-bv-row').each((_i, el) => syncBvRow($(el)));
+        html.on('change', '.node-spec-bv-type', (e) => {
+            syncBvRow($(e.currentTarget).closest('.node-spec-bv-row'));
+        });
+        html.on('change', '.node-spec-bv-special', (e) => {
+            syncBvRow($(e.currentTarget).closest('.node-spec-bv-row'));
         });
         // --- "+ Add Base Value" cloning ---
         html.find('.node-add-row[data-target="spec-bv"]').on('click', () => {
@@ -469,6 +610,7 @@ export class NodeEditor extends BaseDialog {
                     $sel.val(String(opts.first().attr('value') || ''));
             });
             $specBvContainer.append($clone);
+            syncBvRow($clone);
         });
         // Remove handler for spec base-value rows (uses existing .node-row-remove, but must allow removing all the way down to 0)
         html.on('click', '.node-spec-bv-row .node-row-remove', (e) => {
@@ -701,8 +843,21 @@ export class NodeEditor extends BaseDialog {
             if (specSlot && !isBaseValueTypeAllowedForSlot(specSlot, typeRaw)) {
                 continue;
             }
-            const label = String($row.find('.node-spec-bv-label').val() || '').trim();
-            const valueStr = String($row.find('.node-spec-bv-value').val() || '').trim();
+            const isSpecial = typeRaw === 'weaponSpecial';
+            // Label: for a Special, store the chosen Special id; otherwise the type label.
+            let label;
+            if (isSpecial) {
+                label = String($row.find('.node-spec-bv-special').val() || '').trim();
+                if (!label)
+                    continue; // a Special row with no Special chosen is dropped
+            }
+            else {
+                label = BASE_VALUE_TYPE_LABELS[typeRaw] || '';
+            }
+            // Value: manual override wins, else the auto-derived value.
+            const overrideStr = String($row.find('.node-spec-bv-override').val() || '').trim();
+            const derivedStr = String($row.find('.node-spec-bv-derived').attr('data-derived') || '').trim();
+            const valueStr = overrideStr || derivedStr;
             const valueNum = Number(valueStr);
             baseValues.push({
                 slot: slotLetter,

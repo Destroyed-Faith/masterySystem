@@ -494,6 +494,24 @@
   min-width: 0;
 }
 
+.node-editor-form .node-spec-bv-derived {
+  flex: 0 0 auto;
+  min-width: 4rem;
+  text-align: center;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: var(--df-surface-2, rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--df-border, rgba(255, 255, 255, 0.15));
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.node-editor-form .node-spec-bv-override {
+  flex: 0 0 7rem;
+  min-width: 0;
+  font-size: 0.78rem;
+}
+
 .node-editor-form .node-special-row {
   align-items: flex-end;
 }

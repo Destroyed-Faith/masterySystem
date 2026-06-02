@@ -108,7 +108,7 @@ export const BASE_PROFILES_BY_SLOT = {
     body: ['bodyArmor', 'noArmorBody', 'robe'],
     head: ['headArmor'],
     feet: ['feet'],
-    amulet: ['amulet', 'lantern'],
+    amulet: ['amulet'],
     ring: ['ring'],
 };
 /** Does this Base Profile occupy two hand slots (i.e. Main + Off)? */
