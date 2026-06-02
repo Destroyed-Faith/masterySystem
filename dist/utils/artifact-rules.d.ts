@@ -25,7 +25,7 @@
  *   • `src/documents/actor.ts` (combat-side base-value aggregation)
  */
 /** The seven Equipment Slots defined by the new Artifact spec. */
-export declare const ARTIFACT_SLOT_KEYS: readonly ["mainHand", "offHand", "body", "head", "feet", "amulet", "ring"];
+export declare const ARTIFACT_SLOT_KEYS: readonly ["mainHand", "offHand", "bothHands", "body", "head", "feet", "amulet", "ring"];
 export type ArtifactSlot = (typeof ARTIFACT_SLOT_KEYS)[number];
 /** Display label for each artifact slot. */
 export declare const ARTIFACT_SLOT_LABELS: Record<ArtifactSlot, string>;

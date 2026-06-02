@@ -104,6 +104,31 @@ export function getArtifactSpecialSelectOptions() {
     }
     return Array.from(map.values()).sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: 'base' }));
 }
+/**
+ * Power catalog options for the Level Progression picker, grouped by category
+ * (Active, Reaction, Active Buff, Movement, Passive). The `id` is the catalog
+ * `templateId`; the label is the human-readable template name.
+ */
+export function getArtifactPowerCatalogOptions() {
+    const byCategory = new Map();
+    for (const tpl of ALL_POWER_TEMPLATES) {
+        const id = String(tpl.templateId || '').trim();
+        if (!id)
+            continue;
+        const label = String(tpl.templateName || id).trim();
+        const category = String(tpl.category || 'Other').trim();
+        if (!byCategory.has(category))
+            byCategory.set(category, []);
+        byCategory.get(category).push({ id, label });
+    }
+    const groups = [];
+    for (const [category, options] of byCategory) {
+        options.sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: 'base' }));
+        groups.push({ category, options });
+    }
+    groups.sort((a, b) => a.category.localeCompare(b.category, undefined, { sensitivity: 'base' }));
+    return groups;
+}
 /** Innate lines: catalog table + all keys from WEAPON_PROPERTIES. */
 export function getArtifactWeaponInnateOptions() {
     const set = new Set();

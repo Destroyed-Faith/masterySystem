@@ -644,6 +644,7 @@ export type ArtifactKind = 'weapon' | 'armor' | 'shield' | 'gear';
 export type ArtifactSlotKey =
   | 'mainHand'
   | 'offHand'
+  | 'bothHands'
   | 'body'
   | 'head'
   | 'feet'
@@ -720,6 +721,24 @@ export interface ArtifactStoneFunction {
   stonePowerId?: string;
   /** Optional descriptive note. */
   note?: string;
+}
+
+/**
+ * One Level Progression pick (the authoring shorthand for the spec's Level
+ * Progression table). An artifact has up to three picks, introduced at Basic
+ * levels 1, 2 and 3. Each pick is either a Power (chosen from the catalog) or
+ * a Stone Function. The runtime auto-scales the pick across the Improved /
+ * Greater stages (PL 4 → 10 → 16) and an Ultimate at Level 10.
+ */
+export interface ArtifactProgressionPick {
+  /** Basic level that introduces this line (1, 2 or 3). */
+  level: 1 | 2 | 3;
+  /** What this pick grants. `none` = empty slot. */
+  kind: 'none' | 'power' | 'stoneFunction';
+  /** For `power`: the catalog `templateId`. */
+  powerTemplateId?: string;
+  /** For `stoneFunction`: the Stone Function definition. */
+  stoneFunction?: ArtifactStoneFunction | null;
 }
 
 /**
@@ -808,6 +827,8 @@ export interface ArtifactData extends BaseItemData {
   baseValues?: ArtifactBaseValue[];
   /** Optional Stone Function — at most one per artifact. */
   stoneFunction?: ArtifactStoneFunction | null;
+  /** Level Progression picks (up to 3, introduced at Basic levels 1–3). */
+  progressionPicks?: ArtifactProgressionPick[];
   /** Binding kind on this character. */
   binding?: 'unbound' | 'bound' | 'echo';
   /** When binding is `echo`: which Echo key granted it (e.g. `dwarfs`). */

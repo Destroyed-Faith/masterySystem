@@ -10,6 +10,19 @@ export type ArtifactSpecialSelectOption = {
  * All special IDs for artifact weapon rows: rulebook effects, weapon table, every mastery power definition.
  */
 export declare function getArtifactSpecialSelectOptions(): ArtifactSpecialSelectOption[];
+export type ArtifactPowerCatalogGroup = {
+    category: string;
+    options: {
+        id: string;
+        label: string;
+    }[];
+};
+/**
+ * Power catalog options for the Level Progression picker, grouped by category
+ * (Active, Reaction, Active Buff, Movement, Passive). The `id` is the catalog
+ * `templateId`; the label is the human-readable template name.
+ */
+export declare function getArtifactPowerCatalogOptions(): ArtifactPowerCatalogGroup[];
 /** Innate lines: catalog table + all keys from WEAPON_PROPERTIES. */
 export declare function getArtifactWeaponInnateOptions(): string[];
 /** Damage dice presets (matches former artifact builder). */

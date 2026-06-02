@@ -33,6 +33,7 @@
 export const ARTIFACT_SLOT_KEYS = [
   'mainHand',
   'offHand',
+  'bothHands',
   'body',
   'head',
   'feet',
@@ -46,6 +47,7 @@ export type ArtifactSlot = (typeof ARTIFACT_SLOT_KEYS)[number];
 export const ARTIFACT_SLOT_LABELS: Record<ArtifactSlot, string> = {
   mainHand: 'Main Hand',
   offHand: 'Off Hand',
+  bothHands: 'Both Hands (Main + Off)',
   body: 'Body',
   head: 'Head',
   feet: 'Feet',
@@ -61,6 +63,7 @@ export const ARTIFACT_SLOT_LABELS: Record<ArtifactSlot, string> = {
 export const ARTIFACT_SLOT_TO_PAPERDOLL: Record<ArtifactSlot, string[]> = {
   mainHand: ['mainhand'],
   offHand: ['offhand'],
+  bothHands: ['mainhand', 'offhand'],
   body: ['body'],
   head: ['head'],
   feet: ['feet'],
@@ -131,8 +134,9 @@ export const BASE_PROFILE_LABELS: Record<ArtifactBaseProfile, string> = {
 
 /** Profiles allowed for each canonical slot. */
 export const BASE_PROFILES_BY_SLOT: Record<ArtifactSlot, ArtifactBaseProfile[]> = {
-  mainHand: ['oneHandedWeapon', 'twoHandedWeapon', 'shield'],
+  mainHand: ['oneHandedWeapon', 'shield'],
   offHand: ['oneHandedWeapon', 'shield'],
+  bothHands: ['twoHandedWeapon'],
   body: ['bodyArmor', 'noArmorBody', 'robe'],
   head: ['headArmor'],
   feet: ['feet'],
@@ -160,6 +164,7 @@ export function isTwoHandedProfile(profile: ArtifactBaseProfile): boolean {
 export const BASE_VALUE_LIMIT_BY_SLOT: Record<ArtifactSlot, number> = {
   mainHand: 2,
   offHand: 2,
+  bothHands: 2,
   body: 1,
   head: 2,
   feet: 2,
@@ -221,6 +226,7 @@ export const STONE_FUNCTION_LABELS: Record<ArtifactStoneFunctionKind, string> = 
 export const ATTRIBUTE_ACCESS_BY_SLOT: Record<ArtifactSlot, string[]> = {
   mainHand: ['might', 'agility'],
   offHand: ['might', 'agility'],
+  bothHands: ['might', 'agility'],
   body: ['vitality', 'might'],
   head: ['wits', 'intellect'],
   feet: ['agility', 'vitality'],
@@ -286,6 +292,11 @@ export const SLOT_POWER_ACCESS: Record<ArtifactSlot, SlotPowerAccess> = {
     notAllowed: ['Movement', 'Passives', 'Defensive Active Buffs'],
   },
   offHand: {
+    primary: ['Actives'],
+    secondary: ['Reactions (Shield/Counter/Guard)'],
+    notAllowed: ['Movement', 'Passives', 'Defensive Active Buffs'],
+  },
+  bothHands: {
     primary: ['Actives'],
     secondary: ['Reactions (Shield/Counter/Guard)'],
     notAllowed: ['Movement', 'Passives', 'Defensive Active Buffs'],
@@ -496,6 +507,7 @@ export function isBaseValueTypeAllowedForSlot(
   switch (slot) {
     case 'mainHand':
     case 'offHand':
+    case 'bothHands':
       return ['weaponDamage', 'thrownRange', 'weaponSpecial', 'shieldValue', 'minorFeature']
         .includes(type);
     case 'body':

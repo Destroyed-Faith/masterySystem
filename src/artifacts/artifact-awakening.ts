@@ -586,108 +586,78 @@ export function initializeArtifactAwakening(): void {
 }
 
 /**
- * Create a new artifact (folder + root item)
+ * Find the next free placeholder artifact name (Placeholder-1, Placeholder-2, …).
+ * A name is considered taken if either an Item folder of that name exists or a
+ * root artifact item (`<name> - Level 1-1`) already exists.
+ */
+function findFreePlaceholderArtifactName(): string {
+  const folders: any[] = (game as any).folders?.contents || [];
+  const items: any[] = (game as any).items?.contents || [];
+  const isTaken = (name: string): boolean => {
+    const folderTaken = folders.some((f) => f?.type === 'Item' && f?.name === name);
+    const itemTaken = items.some(
+      (it) => typeof it?.name === 'string' && it.name === `${name} - Level 1-1`
+    );
+    return folderTaken || itemTaken;
+  };
+  let n = 1;
+  while (isTaken(`Placeholder-${n}`)) n++;
+  return `Placeholder-${n}`;
+}
+
+/**
+ * Create a new artifact (folder + root item) and open the Artifact Builder
+ * immediately. No intermediate dialog: the artifact is created under an
+ * auto-incremented placeholder name so the folder can be laid out right away,
+ * and the GM edits everything in the builder / node editor.
  */
 async function createNewArtifact(): Promise<void> {
-  // Use DialogV2 for Foundry v13
-  let content: string;
   try {
-    content = await renderTemplate('systems/mastery-system/templates/artifacts/artifact-creation-dialog.hbs', {});
-  } catch (error) {
-    // Fallback if template doesn't exist
-    content = `
-      <form class="artifact-creation-form">
-        <div class="form-group">
-          <label>Artifact Name:</label>
-          <input type="text" id="artifact-name" name="artifact-name" placeholder="Enter artifact name..." />
-        </div>
-      </form>
-    `;
-  }
-  
-  new Dialog({
-    title: 'Create New Artifact',
-    content: content,
-    buttons: {
-      create: {
-        icon: '<i class="fas fa-check"></i>',
-        label: 'Create',
-        callback: async (html: JQuery) => {
-          const name = html.find('#artifact-name').val() as string;
-          if (!name || name.trim() === '') {
-            ui.notifications?.warn('Please enter an artifact name.');
-            return false;
-          }
+    const baseName = findFreePlaceholderArtifactName();
 
-          try {
-            // Get form values
-            const attack = parseInt(html.find('#artifact-attack').val() as string, 10) || 0;
-            const defense = parseInt(html.find('#artifact-defense').val() as string, 10) || 0;
-            const damage = (html.find('#artifact-damage').val() as string) || '';
-            const lore = (html.find('#artifact-lore').val() as string) || '';
-            const stones = parseInt(html.find('#artifact-stones').val() as string, 10) || 0;
-            const masteryRank = parseInt(html.find('#artifact-mastery-rank').val() as string, 10) || 1;
+    const folder = await (Folder as any).create({
+      name: baseName,
+      type: 'Item',
+      folder: null
+    });
 
-            // Create folder
-            const folder = await (Folder as any).create({
-              name: name.trim(),
-              type: 'Item',
-              folder: null
-            });
-
-            // Create root artifact item
-            const rootItemData = {
-              name: `${name.trim()} - Level 1-1`,
-              type: 'artifact',
-              folder: folder.id,
-              system: {
-                level: 1,
-                equipped: false,
-                effects: [],
-                bonuses: {
-                  attack: attack,
-                  damage: damage,
-                  defense: defense,
-                  specials: []
-                },
-                lore: lore,
-                requirements: {
-                  stones: stones,
-                  masteryRank: masteryRank
-                },
-                description: ''
-              },
-              flags: {
-                'mastery-system': {
-                  nodeId: (foundry.utils as any).randomID(),
-                  parentIds: [],
-                  childIds: [],
-                  isRoot: true
-                }
-              }
-            };
-
-            await (Item as any).create(rootItemData);
-            ui.notifications?.info(`Created artifact: ${name.trim()}`);
-            return true;
-          } catch (error) {
-            console.error('Mastery System | Error creating artifact', error);
-            ui.notifications?.error('Failed to create artifact.');
-            return false;
-          }
-        }
+    const rootItemData = {
+      name: `${baseName} - Level 1-1`,
+      type: 'artifact',
+      folder: folder.id,
+      system: {
+        level: 1,
+        equipped: false,
+        effects: [],
+        bonuses: { attack: 0, damage: '', defense: 0, specials: [] },
+        lore: '',
+        requirements: { stones: 0, masteryRank: 1 },
+        description: ''
       },
-      cancel: {
-        icon: '<i class="fas fa-times"></i>',
-        label: 'Cancel',
-        callback: () => {}
+      flags: {
+        'mastery-system': {
+          nodeId: (foundry.utils as any).randomID(),
+          parentIds: [],
+          childIds: [],
+          isRoot: true
+        }
       }
-    },
-    default: 'create',
-    close: () => {}
-  }, {
-    width: 400
-  }).render(true);
+    };
+
+    const rootItem = await (Item as any).create(rootItemData);
+    if (!rootItem) {
+      ui.notifications?.error('Failed to create artifact.');
+      return;
+    }
+
+    ui.notifications?.info(`Created artifact: ${baseName}`);
+
+    const builder = new ArtifactBuilder(rootItem);
+    (builder as any).render(true);
+  } catch (error) {
+    console.error('Mastery System | Error creating artifact', error);
+    ui.notifications?.error('Failed to create artifact.');
+  }
 }
 
 /**

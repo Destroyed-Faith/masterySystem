@@ -9,6 +9,7 @@ import type {
   ArtifactBaseValue,
   ArtifactBaseValueType,
   ArtifactKind,
+  ArtifactProgressionPick,
   ArtifactShieldProfile,
   ArtifactSlotKey,
   ArtifactStoneFunction,
@@ -18,6 +19,7 @@ import type {
 } from '../types/item.js';
 import {
   ARTIFACT_GEAR_SLOT_OPTIONS,
+  getArtifactPowerCatalogOptions,
   getArtifactSpecialSelectOptions,
   getArtifactTreeWeaponDamagePresets,
   getArtifactWeaponInnateOptions
@@ -215,6 +217,42 @@ function coerceTreeDamage(damageStr: string): string {
   return '1d8';
 }
 
+/**
+ * Derive the legacy `artifactKind` from the new spec Base Profile.
+ * The Item Type is no longer chosen directly; Slot + Base Profile drive it.
+ */
+function deriveArtifactKindFromProfile(baseProfile: string): ArtifactKind {
+  switch (baseProfile) {
+    case 'oneHandedWeapon':
+    case 'twoHandedWeapon':
+      return 'weapon';
+    case 'shield':
+      return 'shield';
+    case 'bodyArmor':
+    case 'robe':
+    case 'noArmorBody':
+      return 'armor';
+    default:
+      return 'gear';
+  }
+}
+
+/** Derive the legacy gear paperdoll slot from the canonical artifact Slot. */
+function deriveGearSlotFromSlot(slot: string): string {
+  switch (slot) {
+    case 'head':
+      return 'head';
+    case 'feet':
+      return 'feet';
+    case 'amulet':
+      return 'amulet';
+    case 'ring':
+      return 'ring';
+    default:
+      return '';
+  }
+}
+
 function syncWeaponRangeLabel(html: JQuery): void {
   const melee = html.find('#node-weapon-type').val() === 'melee';
   html.find('#node-weapon-range-label').text(melee ? 'Reach' : 'Range');
@@ -367,6 +405,36 @@ export class NodeEditor extends BaseDialog {
       data.specBaseValueLimit = 3;
     }
 
+    // ---- Level Progression picks (3 lines @ Basic Level 1/2/3) ----
+    data.powerCatalogOptions = getArtifactPowerCatalogOptions();
+
+    const storedPicks = Array.isArray(system.progressionPicks)
+      ? (system.progressionPicks as ArtifactProgressionPick[])
+      : [];
+    const pickByLevel = new Map<number, ArtifactProgressionPick>();
+    for (const p of storedPicks) {
+      const lvl = Number(p?.level);
+      if (lvl >= 1 && lvl <= 3) pickByLevel.set(lvl, p);
+    }
+    // Back-compat: if no picks yet but a legacy single stoneFunction exists, seed it on Level 1.
+    if (storedPicks.length === 0 && stoneFn) {
+      pickByLevel.set(1, { level: 1, kind: 'stoneFunction', stoneFunction: stoneFn });
+    }
+    data.progressionPickRows = [1, 2, 3].map((lvl) => {
+      const p = pickByLevel.get(lvl);
+      const sf = p?.stoneFunction || null;
+      return {
+        level: lvl,
+        kind: p?.kind || 'none',
+        isPower: p?.kind === 'power',
+        isStoneFn: p?.kind === 'stoneFunction',
+        powerTemplateId: p?.powerTemplateId || '',
+        stoneKind: sf?.kind || '',
+        stoneAttr: sf?.attribute || '',
+        stonePowerId: sf?.stonePowerId || '',
+      };
+    });
+
     return data;
   }
 
@@ -374,15 +442,15 @@ export class NodeEditor extends BaseDialog {
     super.activateListeners(html);
 
     const syncKindUi = () => {
-      const kind = html.find('#node-artifact-kind').val() as string;
+      const profile = String(html.find('#node-spec-base-profile').val() || '');
+      const kind = deriveArtifactKindFromProfile(profile);
+      html.find('#node-derived-kind').val(kind);
       html.find('[data-profile]').each((_i, el) => {
         const $el = $(el);
         const p = String($el.data('profile') || '');
         $el.toggleClass('hidden', p !== kind);
       });
     };
-
-    html.find('#node-artifact-kind').on('change', syncKindUi);
     syncKindUi();
 
     html.find('#node-weapon-type').on('change', () => syncWeaponRangeLabel(html));
@@ -392,7 +460,6 @@ export class NodeEditor extends BaseDialog {
     const $specSlot = html.find('#node-spec-slot');
     const $specBaseProfile = html.find('#node-spec-base-profile');
     const $specBvContainer = html.find('#node-spec-base-values');
-    const $specStoneFnAttr = html.find('#node-spec-stone-fn-attr');
     const $specBvLimitHint = html.find('#node-spec-bv-limit-hint');
     const $specSlotHint = html.find('#node-spec-slot-power-hint');
 
@@ -437,17 +504,20 @@ export class NodeEditor extends BaseDialog {
         }
       });
 
-      // Stone Function attribute options
+      // Stone Function attribute options (per Level Progression pick, slot-gated)
       const allowedAttrs = slot
         ? ATTRIBUTE_ACCESS_BY_SLOT[slot] || []
         : (Object.keys(ATTR_LABELS) as (keyof typeof ATTR_LABELS)[]);
-      const curAttr = String($specStoneFnAttr.val() || '');
-      $specStoneFnAttr.empty();
-      $specStoneFnAttr.append('<option value="">— Attribute (slot-gated) —</option>');
-      for (const a of allowedAttrs) {
-        const sel = a === curAttr ? ' selected' : '';
-        $specStoneFnAttr.append(`<option value="${a}"${sel}>${ATTR_LABELS[a as string] || a}</option>`);
-      }
+      html.find('.node-pick-stone-attr').each((_i, el) => {
+        const $sel = $(el);
+        const curAttr = String($sel.val() || '');
+        $sel.empty();
+        $sel.append('<option value="">— Attribute (slot-gated) —</option>');
+        for (const a of allowedAttrs) {
+          const sel = a === curAttr ? ' selected' : '';
+          $sel.append(`<option value="${a}"${sel}>${ATTR_LABELS[a as string] || a}</option>`);
+        }
+      });
 
       // Limit hint
       const limit = slot ? BASE_VALUE_LIMIT_BY_SLOT[slot] : 3;
@@ -463,10 +533,34 @@ export class NodeEditor extends BaseDialog {
       } else {
         $specSlotHint.text('Pick a Slot to see allowed Powers / Base Values.');
       }
+
+      // Keep the derived Item Type + visible profile block in sync.
+      syncKindUi();
     };
 
     $specSlot.on('change', refreshSpecForSlot);
+    $specBaseProfile.on('change', syncKindUi);
     refreshSpecForSlot();
+
+    // --- Level Progression picks: toggle Power vs Stone Function fields per row ---
+    const syncProgressionRow = ($row: JQuery) => {
+      const kind = String($row.find('.node-pick-kind').val() || 'none');
+      $row.find('.node-pick-power').toggleClass('hidden', kind !== 'power');
+      $row.find('.node-pick-stonefn').toggleClass('hidden', kind !== 'stoneFunction');
+    };
+    const refreshStoneFnWarning = () => {
+      const count = html
+        .find('.node-progression-pick .node-pick-kind')
+        .toArray()
+        .filter((el) => String($(el).val() || '') === 'stoneFunction').length;
+      html.find('.node-progression-stonefn-warning').toggleClass('hidden', count <= 1);
+    };
+    html.find('.node-progression-pick').each((_i, el) => syncProgressionRow($(el)));
+    refreshStoneFnWarning();
+    html.on('change', '.node-pick-kind', (e: JQuery.ChangeEvent) => {
+      syncProgressionRow($(e.currentTarget).closest('.node-progression-pick'));
+      refreshStoneFnWarning();
+    });
 
     // --- "+ Add Base Value" cloning ---
     html.find('.node-add-row[data-target="spec-bv"]').on('click', () => {
@@ -647,8 +741,10 @@ export class NodeEditor extends BaseDialog {
   async saveNode(html: JQuery): Promise<void> {
     const lineage = resolveLineageForItem(this.item);
 
-    let kind = html.find('#node-artifact-kind').val() as ArtifactKind;
-    let gearSlot = kind === 'gear' ? String(html.find('#node-gear-slot').val() || '').trim() : '';
+    const baseProfileVal = String(html.find('#node-spec-base-profile').val() || '').trim();
+    const slotVal = String(html.find('#node-spec-slot').val() || '').trim();
+    let kind = deriveArtifactKindFromProfile(baseProfileVal);
+    let gearSlot = kind === 'gear' ? deriveGearSlotFromSlot(slotVal) : '';
     let weaponType = (html.find('#node-weapon-type').val() as 'melee' | 'ranged') || 'melee';
     let hands = Math.min(2, Math.max(1, parseInt(html.find('#node-weapon-hands').val() as string, 10) || 1));
 
@@ -720,11 +816,10 @@ export class NodeEditor extends BaseDialog {
       }
     }
 
-    const specBindingRaw = String(html.find('#node-spec-binding').val() || 'unbound').trim();
+    // Binding is no longer edited here; preserve whatever the item already has.
+    const existingBinding = String((this.item.system as any).binding || 'unbound').trim();
     const specBinding =
-      specBindingRaw === 'echo' || specBindingRaw === 'bound' || specBindingRaw === 'unbound'
-        ? specBindingRaw
-        : 'unbound';
+      existingBinding === 'echo' || existingBinding === 'bound' ? existingBinding : 'unbound';
 
     const baseValueLimit = specSlot ? BASE_VALUE_LIMIT_BY_SLOT[specSlot] : 3;
     const baseValueRows = html.find('.node-spec-bv-row').toArray();
@@ -751,29 +846,53 @@ export class NodeEditor extends BaseDialog {
       });
     }
 
-    const stoneFnKindRaw = String(html.find('#node-spec-stone-fn-kind').val() || '').trim();
-    const stoneFnAttrRaw = String(html.find('#node-spec-stone-fn-attr').val() || '').trim();
-    const stoneFnPowerRaw = String(html.find('#node-spec-stone-fn-power').val() || '').trim();
-    let stoneFunction: ArtifactStoneFunction | null = null;
+    // ---- Level Progression picks (Level 1/2/3 = Power or Stone Function) ----
     const stoneFnKinds: ArtifactStoneFunctionKind[] = [
       'stonePowerSupport',
       'stonePool',
       'stoneRefresh',
       'stoneBattery',
     ];
-    if (
-      stoneFnKindRaw &&
-      stoneFnAttrRaw &&
-      (stoneFnKinds as string[]).includes(stoneFnKindRaw) &&
-      (!specSlot || isAttributeAllowedForStoneFunctionInSlot(specSlot, stoneFnAttrRaw as any))
-    ) {
-      stoneFunction = {
-        kind: stoneFnKindRaw as ArtifactStoneFunctionKind,
-        attribute: stoneFnAttrRaw as any,
-      };
-      if (stoneFnKindRaw === 'stonePowerSupport' && stoneFnPowerRaw) {
-        stoneFunction.stonePowerId = stoneFnPowerRaw;
+    const progressionPicks: ArtifactProgressionPick[] = [];
+    html.find('.node-progression-pick').each((_i, el) => {
+      const $row = $(el);
+      const levelRaw = parseInt(String($row.attr('data-level') || ''), 10);
+      const level = (levelRaw === 2 || levelRaw === 3 ? levelRaw : 1) as 1 | 2 | 3;
+      const kindRaw = String($row.find('.node-pick-kind').val() || 'none').trim();
+
+      if (kindRaw === 'power') {
+        const powerTemplateId = String($row.find('.node-pick-power').val() || '').trim();
+        if (powerTemplateId) {
+          progressionPicks.push({ level, kind: 'power', powerTemplateId });
+        }
+      } else if (kindRaw === 'stoneFunction') {
+        const sfKind = String($row.find('.node-pick-stone-kind').val() || '').trim();
+        const sfAttr = String($row.find('.node-pick-stone-attr').val() || '').trim();
+        const sfPower = String($row.find('.node-pick-stone-power').val() || '').trim();
+        if (
+          sfKind &&
+          sfAttr &&
+          (stoneFnKinds as string[]).includes(sfKind) &&
+          (!specSlot || isAttributeAllowedForStoneFunctionInSlot(specSlot, sfAttr as any))
+        ) {
+          const sf: ArtifactStoneFunction = {
+            kind: sfKind as ArtifactStoneFunctionKind,
+            attribute: sfAttr as any,
+          };
+          if (sfKind === 'stonePowerSupport' && sfPower) sf.stonePowerId = sfPower;
+          progressionPicks.push({ level, kind: 'stoneFunction', stoneFunction: sf });
+        }
       }
+    });
+
+    // Derive the single canonical Stone Function from the first Stone Function pick
+    // (keeps the actor-side aggregator working). Spec allows only one; soft-warn on more.
+    const stoneFnPicks = progressionPicks.filter((p) => p.kind === 'stoneFunction' && p.stoneFunction);
+    const stoneFunction: ArtifactStoneFunction | null = stoneFnPicks[0]?.stoneFunction || null;
+    if (stoneFnPicks.length > 1) {
+      ui.notifications?.warn(
+        'More than one Stone Function selected; the spec allows at most one per artifact. Only the first is applied.',
+      );
     }
 
     const equipSlots = inferArtifactEquipSlots({
@@ -797,6 +916,7 @@ export class NodeEditor extends BaseDialog {
       'system.baseProfile': specBaseProfile,
       'system.baseValues': baseValues,
       'system.stoneFunction': stoneFunction,
+      'system.progressionPicks': progressionPicks,
       'system.binding': specBinding,
       ...(equipSlots ? { 'system.equipSlots': equipSlots } : {})
     };
