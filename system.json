@@ -2,7 +2,7 @@
   "id": "mastery-system",
   "title": "Mastery System / Destroyed Faith",
   "description": "A dark fantasy tabletop RPG system featuring Roll & Keep dice mechanics, Attribute Stones, Mastery Ranks, and divine power progression.",
-  "version": "0.7.2",
+  "version": "0.8.0",
   "template": "template.json",
   "logo": "assets/logo.png",
   "banner": "assets/banner.jpg",
@@ -78,6 +78,16 @@
       "name": "sample-artifacts",
       "label": "Sample Artifacts",
       "path": "packs/sample-artifacts",
+      "type": "Item",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "echo-artifacts",
+      "label": "Echo Artifacts",
+      "path": "packs/echo-artifacts",
       "type": "Item",
       "ownership": {
         "PLAYER": "OBSERVER",

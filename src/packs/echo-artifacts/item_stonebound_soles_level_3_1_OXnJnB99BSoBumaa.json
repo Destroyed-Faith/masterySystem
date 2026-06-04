@@ -1,0 +1,778 @@
+{
+  "name": "Stonebound Soles - Level 3-1",
+  "type": "artifact",
+  "img": "icons/svg/upgrade.svg",
+  "system": {
+    "level": 3,
+    "currentLevel": 3,
+    "equipped": false,
+    "effects": [],
+    "artifactKind": "gear",
+    "gearSlot": "feet",
+    "slot": "feet",
+    "baseProfile": "feet",
+    "binding": "echo",
+    "echoKey": "dwarfs",
+    "baseValues": [
+      {
+        "slot": "a",
+        "type": "sense",
+        "label": "Tremorsense",
+        "value": 0,
+        "note": "Ground-contact detection; depth scales with level.",
+        "isBaseline": true
+      }
+    ],
+    "levelProgression": [
+      {
+        "level": 1,
+        "name": "Anchoring Stance I",
+        "type": "Active Buff",
+        "range": "Self",
+        "duration": "2 Rounds",
+        "effect": "You become Immovable and gain 40 Temporary HP.",
+        "special": "Immovable + Temporary HP"
+      },
+      {
+        "level": 2,
+        "name": "Stone-Sure Step I",
+        "type": "Movement",
+        "range": "Self",
+        "duration": "Instant",
+        "effect": "Move up to 8 m along a legal ground path. This movement does not provoke movement-triggered Reactions.",
+        "special": "Safe Movement"
+      },
+      {
+        "level": 3,
+        "name": "Stoneweave Guard I",
+        "type": "Support",
+        "range": "Self",
+        "duration": "Special",
+        "effect": "When you activate an Active Buff that grants Armor, you may increase that Buff's effective Power Level by +1 and its duration by +1 round (cannot exceed PL 16). Uses per Safe Haven Rest: half MR, rounded up.",
+        "special": "Armor Buff Empowerment"
+      },
+      {
+        "level": 4,
+        "name": "Anchoring Stance II",
+        "type": "Active Buff",
+        "range": "Self",
+        "duration": "2 Rounds",
+        "effect": "You become Immovable and gain 220 Temporary HP.",
+        "special": "Immovable + Temporary HP"
+      },
+      {
+        "level": 5,
+        "name": "Stone-Sure Step II",
+        "type": "Movement",
+        "range": "Self",
+        "duration": "Instant",
+        "effect": "Move up to 14 m along a legal ground path. This movement does not provoke movement-triggered Reactions.",
+        "special": "Safe Movement"
+      },
+      {
+        "level": 6,
+        "name": "Stoneweave Guard II",
+        "type": "Support",
+        "range": "Self",
+        "duration": "Special",
+        "effect": "When you activate an Active Buff that grants Armor, you may increase its Power Level by +2 and duration by +2 rounds (cannot exceed PL 16).",
+        "special": "Armor Buff Empowerment"
+      },
+      {
+        "level": 7,
+        "name": "Anchoring Stance III",
+        "type": "Active Buff",
+        "range": "Self",
+        "duration": "2 Rounds",
+        "effect": "You become Immovable and gain 400 Temporary HP.",
+        "special": "Immovable + Temporary HP"
+      },
+      {
+        "level": 8,
+        "name": "Stone-Sure Step III",
+        "type": "Movement",
+        "range": "Self",
+        "duration": "Instant",
+        "effect": "Move up to 20 m along a legal ground path (Safe Movement).",
+        "special": "Safe Movement"
+      },
+      {
+        "level": 9,
+        "name": "Stoneweave Guard III",
+        "type": "Support",
+        "range": "Self",
+        "duration": "Special",
+        "effect": "When you activate an Active Buff that grants Armor, you may increase its Power Level by +3 and duration by +3 rounds (cannot exceed PL 16).",
+        "special": "Armor Buff Empowerment"
+      },
+      {
+        "level": 10,
+        "name": "True Stonebound Soles",
+        "type": "Ultimate",
+        "range": "Self",
+        "duration": "Special",
+        "effect": "Stonebound Soles fully awaken. Choose or define one final Tremorsense, Armor, Immovable, Safe Movement, or stone defense effect with GM approval.",
+        "special": "True Stonebound Soles"
+      }
+    ],
+    "stoneFunction": null,
+    "progressionPicks": [],
+    "lore": "Ancestral weight, deep-road memory, and the old bond between dwarven bodies and stone.",
+    "description": "Ancestral weight, deep-road memory, and the old bond between dwarven bodies and stone.\n\nA dwarf with Stonebound Soles cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact.",
+    "bonuses": {
+      "attack": 0,
+      "damage": "",
+      "defense": 0,
+      "specials": []
+    },
+    "requirements": {
+      "stones": 0,
+      "masteryRank": 1
+    },
+    "powers": [
+      {
+        "id": "stoneboundSoles-pw-1",
+        "name": "Anchoring Stance I",
+        "fluff": "Special: Immovable + Temporary HP",
+        "category": "activeBuff",
+        "tags": [],
+        "cost": {
+          "action": "full"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "Active Buff",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "rounds",
+              "rounds": 1
+            },
+            "effect": {
+              "text": "You become Immovable and gain 40 Temporary HP."
+            },
+            "specials": [],
+            "lvl": 1
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          }
+        }
+      },
+      {
+        "id": "stoneboundSoles-pw-2",
+        "name": "Stone-Sure Step I",
+        "fluff": "Special: Safe Movement",
+        "category": "movement",
+        "tags": [],
+        "cost": {
+          "action": "movement"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "Movement",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": "Move up to 8 m along a legal ground path. This movement does not provoke movement-triggered Reactions."
+            },
+            "specials": [],
+            "lvl": 2
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          }
+        }
+      },
+      {
+        "id": "stoneboundSoles-pw-3",
+        "name": "Stoneweave Guard I",
+        "fluff": "Special: Armor Buff Empowerment",
+        "category": "passive",
+        "tags": [],
+        "cost": {
+          "action": "none"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "Support",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "instant",
+              "note": "Special"
+            },
+            "effect": {
+              "text": "When you activate an Active Buff that grants Armor, you may increase that Buff's effective Power Level by +1 and its duration by +1 round (cannot exceed PL 16). Uses per Safe Haven Rest: half MR, rounded up."
+            },
+            "specials": [],
+            "lvl": 3
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          }
+        }
+      }
+    ],
+    "inventorySize": "1x1",
+    "equipSlots": [
+      "feet"
+    ]
+  },
+  "flags": {
+    "mastery-system": {
+      "nodeId": "stoneboundSoles-l3",
+      "parentIds": [
+        "stoneboundSoles-l2"
+      ],
+      "childIds": [
+        "stoneboundSoles-l4"
+      ],
+      "echoBound": "dwarfs",
+      "echoArtifactKey": "stoneboundSoles"
+    }
+  },
+  "_id": "OXnJnB99BSoBumaa",
+  "folder": "NVXELEcs85JEtkKV",
+  "_key": "!items!OXnJnB99BSoBumaa"
+}

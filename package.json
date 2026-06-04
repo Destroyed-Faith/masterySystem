@@ -1,10 +1,11 @@
 {
   "name": "mastery-system",
-  "version": "0.7.2",
+  "version": "0.8.0",
   "description": "Foundry VTT system for Mastery System / Destroyed Faith",
   "main": "dist/module.js",
   "scripts": {
     "build": "tsc && node scripts/fix-imports.js",
+    "build:packs": "node scripts/build-echo-artifact-pack.mjs",
     "watch": "tsc --watch",
     "clean": "rimraf dist",
     "rebuild": "npm run clean && npm run build",
@@ -27,6 +28,7 @@
   "author": "Daniel Rodrigo Navarro Melendo",
   "license": "SEE LICENSE IN LICENSE",
   "devDependencies": {
+    "@foundryvtt/foundryvtt-cli": "^3.0.3",
     "@league-of-foundry-developers/foundry-vtt-types": "^13.0.0",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",

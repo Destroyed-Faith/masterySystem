@@ -1,0 +1,1227 @@
+{
+  "name": "Dragon Claws - Level 5-1",
+  "type": "artifact",
+  "img": "icons/svg/sword.svg",
+  "system": {
+    "level": 5,
+    "currentLevel": 5,
+    "equipped": false,
+    "effects": [],
+    "artifactKind": "weapon",
+    "gearSlot": "",
+    "slot": "mainHand",
+    "baseProfile": "twoHandedWeapon",
+    "binding": "echo",
+    "echoKey": "dragonborn",
+    "baseValues": [
+      {
+        "slot": "a",
+        "type": "weaponDamage",
+        "label": "Claw / Tail Damage",
+        "value": "9d8",
+        "isBaseline": true
+      },
+      {
+        "slot": "b",
+        "type": "weaponSpecial",
+        "label": "Penetration",
+        "value": 4,
+        "isBaseline": true
+      }
+    ],
+    "levelProgression": [
+      {
+        "level": 1,
+        "name": "Extra Attack Support I",
+        "type": "Stone Power Support",
+        "range": "Self",
+        "duration": "Instant",
+        "effect": "Dragon Claws support the Extra Attack Stone Power and pre-fill Tier 2.",
+        "special": "Extra Attack"
+      },
+      {
+        "level": 2,
+        "name": "Rending Spiral I",
+        "type": "Active",
+        "range": "Self",
+        "aoe": "Radius 3 m",
+        "duration": "Instant",
+        "effect": "Affected creatures take your current Claw / Tail Weapon Damage.",
+        "special": "Bleeding(3)"
+      },
+      {
+        "level": 3,
+        "name": "Tail Sweep I",
+        "type": "Active",
+        "range": "Self",
+        "aoe": "Radius 3 m",
+        "duration": "Instant",
+        "effect": "Affected creatures take Claw / Tail Damage and are pushed 2 m.",
+        "special": "Push"
+      },
+      {
+        "level": 4,
+        "name": "Extra Attack Support II",
+        "type": "Stone Power Support",
+        "range": "Self",
+        "duration": "Instant",
+        "effect": "Pre-fills Tier 3 of the Extra Attack Stone Power.",
+        "special": "Extra Attack"
+      },
+      {
+        "level": 5,
+        "name": "Rending Spiral II",
+        "type": "Active",
+        "range": "Self",
+        "aoe": "Radius 6 m",
+        "duration": "Instant",
+        "effect": "Affected creatures take Claw / Tail Damage.",
+        "special": "Bleeding(5)"
+      },
+      {
+        "level": 6,
+        "name": "Tail Sweep II",
+        "type": "Active",
+        "range": "Self",
+        "aoe": "Radius 5 m",
+        "duration": "Instant",
+        "effect": "Affected creatures take Claw / Tail Damage and are pushed 6 m.",
+        "special": "Push"
+      },
+      {
+        "level": 7,
+        "name": "Extra Attack Support III",
+        "type": "Stone Power Support",
+        "range": "Self",
+        "duration": "Instant",
+        "effect": "Pre-fills Tier 4 of the Extra Attack Stone Power.",
+        "special": "Extra Attack"
+      },
+      {
+        "level": 8,
+        "name": "Rending Spiral III",
+        "type": "Active",
+        "range": "Self",
+        "aoe": "Radius 7 m",
+        "duration": "Instant",
+        "effect": "Affected creatures take Claw / Tail Damage.",
+        "special": "Bleeding(7)"
+      },
+      {
+        "level": 9,
+        "name": "Tail Sweep III",
+        "type": "Active",
+        "range": "Self",
+        "aoe": "Radius 7 m",
+        "duration": "Instant",
+        "effect": "Affected creatures take Claw / Tail Damage and are pushed 10 m.",
+        "special": "Push"
+      },
+      {
+        "level": 10,
+        "name": "True Dragon Claws",
+        "type": "Ultimate",
+        "range": "Self",
+        "duration": "Special",
+        "effect": "Dragon Claws fully awaken. Choose or define one final Claw or Tail effect.",
+        "special": "True Dragon Claws"
+      }
+    ],
+    "stoneFunction": null,
+    "progressionPicks": [],
+    "lore": "Both hands become natural weapons: claws, scales, and tail.",
+    "description": "Both hands become natural weapons: claws, scales, and tail.\n\nA Dragonborn with Dragon Claws cannot wield another weapon, shield, or hand-based Artifact while using them. Occupies both hand slots.",
+    "bonuses": {
+      "attack": 0,
+      "damage": "",
+      "defense": 0,
+      "specials": []
+    },
+    "requirements": {
+      "stones": 0,
+      "masteryRank": 1
+    },
+    "powers": [
+      {
+        "id": "dragonClaws-pw-1",
+        "name": "Extra Attack Support I",
+        "fluff": "Special: Extra Attack",
+        "category": "passive",
+        "tags": [
+          "stone-function"
+        ],
+        "cost": {
+          "action": "none"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "Stone Power Support",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": "Dragon Claws support the Extra Attack Stone Power and pre-fill Tier 2."
+            },
+            "specials": [],
+            "lvl": 1
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          }
+        }
+      },
+      {
+        "id": "dragonClaws-pw-2",
+        "name": "Rending Spiral I",
+        "fluff": "Special: Bleeding(3)",
+        "category": "active",
+        "tags": [],
+        "cost": {
+          "action": "attack"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "Active",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": {
+              "shape": "radius",
+              "m": 3,
+              "radiusM": 3
+            },
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": "Affected creatures take your current Claw / Tail Weapon Damage."
+            },
+            "specials": [],
+            "lvl": 2
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          }
+        }
+      },
+      {
+        "id": "dragonClaws-pw-3",
+        "name": "Tail Sweep I",
+        "fluff": "Special: Push",
+        "category": "active",
+        "tags": [],
+        "cost": {
+          "action": "attack"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "Active",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": {
+              "shape": "radius",
+              "m": 3,
+              "radiusM": 3
+            },
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": "Affected creatures take Claw / Tail Damage and are pushed 2 m."
+            },
+            "specials": [],
+            "lvl": 3
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          }
+        }
+      },
+      {
+        "id": "dragonClaws-pw-4",
+        "name": "Extra Attack Support II",
+        "fluff": "Special: Extra Attack",
+        "category": "passive",
+        "tags": [
+          "stone-function"
+        ],
+        "cost": {
+          "action": "none"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "Stone Power Support",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": "Pre-fills Tier 3 of the Extra Attack Stone Power."
+            },
+            "specials": [],
+            "lvl": 4
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          }
+        }
+      },
+      {
+        "id": "dragonClaws-pw-5",
+        "name": "Rending Spiral II",
+        "fluff": "Special: Bleeding(5)",
+        "category": "active",
+        "tags": [],
+        "cost": {
+          "action": "attack"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "Active",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": {
+              "shape": "radius",
+              "m": 6,
+              "radiusM": 6
+            },
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": "Affected creatures take Claw / Tail Damage."
+            },
+            "specials": [],
+            "lvl": 5
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          }
+        }
+      }
+    ],
+    "inventorySize": "1x1",
+    "artifactWeapon": {
+      "weaponType": "melee",
+      "damage": "9d8",
+      "range": "0m",
+      "hands": 2,
+      "innateAbilities": [],
+      "specials": []
+    },
+    "equipSlots": [
+      "mainhand",
+      "offhand"
+    ]
+  },
+  "flags": {
+    "mastery-system": {
+      "nodeId": "dragonClaws-l5",
+      "parentIds": [
+        "dragonClaws-l4"
+      ],
+      "childIds": [
+        "dragonClaws-l6"
+      ],
+      "echoBound": "dragonborn",
+      "echoArtifactKey": "dragonClaws"
+    }
+  },
+  "_id": "iD9hZCTqXqaCETwy",
+  "folder": "7ROHADMpz88CbCb0",
+  "_key": "!items!iD9hZCTqXqaCETwy"
+}

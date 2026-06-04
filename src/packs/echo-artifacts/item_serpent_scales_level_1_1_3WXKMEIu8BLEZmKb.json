@@ -1,0 +1,361 @@
+{
+  "name": "Serpent Scales - Level 1-1",
+  "type": "artifact",
+  "img": "icons/svg/statue.svg",
+  "system": {
+    "level": 1,
+    "currentLevel": 1,
+    "equipped": false,
+    "effects": [],
+    "artifactKind": "armor",
+    "gearSlot": "",
+    "slot": "body",
+    "baseProfile": "bodyArmor",
+    "binding": "echo",
+    "echoKey": "dragonborn",
+    "baseValues": [
+      {
+        "slot": "a",
+        "type": "bodyArmor",
+        "label": "Light Echo Armor",
+        "value": 8,
+        "note": "No Light Armor drawback.",
+        "isBaseline": true
+      }
+    ],
+    "levelProgression": [
+      {
+        "level": 1,
+        "name": "Dragon Wings I",
+        "type": "Movement",
+        "range": "Self",
+        "duration": "Instant",
+        "effect": "You may fly up to 6 m.",
+        "special": "Flight"
+      },
+      {
+        "level": 2,
+        "name": "Mobility Buff Extension I",
+        "type": "Support",
+        "range": "Self",
+        "duration": "Passive",
+        "effect": "Active Buffs that grant Movement or Evade gain +1 round duration.",
+        "special": "Mobility Buff Extension"
+      },
+      {
+        "level": 3,
+        "name": "Evasion Stone Support I",
+        "type": "Stone Power Support",
+        "range": "Self",
+        "duration": "Instant",
+        "effect": "Serpent Scales support the Agility Ability: Evade Stone Power and pre-fill Tier 2.",
+        "special": "Evade Stone Power"
+      },
+      {
+        "level": 4,
+        "name": "Dragon Wings II",
+        "type": "Movement",
+        "range": "Self",
+        "duration": "Instant",
+        "effect": "You may fly up to 15 m.",
+        "special": "Flight"
+      },
+      {
+        "level": 5,
+        "name": "Mobility Buff Extension II",
+        "type": "Support",
+        "range": "Self",
+        "duration": "Passive",
+        "effect": "Mobility Active Buffs gain +2 rounds duration.",
+        "special": "Mobility Buff Extension"
+      },
+      {
+        "level": 6,
+        "name": "Evasion Stone Support II",
+        "type": "Stone Power Support",
+        "range": "Self",
+        "duration": "Instant",
+        "effect": "Pre-fills Tier 3 of the Agility Ability: Evade Stone Power.",
+        "special": "Evade Stone Power"
+      },
+      {
+        "level": 7,
+        "name": "Dragon Wings III",
+        "type": "Movement",
+        "range": "Self",
+        "duration": "Instant",
+        "effect": "You may fly up to 24 m.",
+        "special": "Flight"
+      },
+      {
+        "level": 8,
+        "name": "Mobility Buff Extension III",
+        "type": "Support",
+        "range": "Self",
+        "duration": "Passive",
+        "effect": "Mobility Active Buffs gain +3 rounds duration.",
+        "special": "Mobility Buff Extension"
+      },
+      {
+        "level": 9,
+        "name": "Evasion Stone Support III",
+        "type": "Stone Power Support",
+        "range": "Self",
+        "duration": "Instant",
+        "effect": "Pre-fills Tier 4 of the Agility Ability: Evade Stone Power.",
+        "special": "Evade Stone Power"
+      },
+      {
+        "level": 10,
+        "name": "Serpent Transformation",
+        "type": "Ultimate",
+        "range": "Self",
+        "duration": "Special",
+        "effect": "You unlock your Serpent Dragon Form.",
+        "special": "Serpent Dragon Form"
+      }
+    ],
+    "stoneFunction": null,
+    "progressionPicks": [],
+    "lore": "A lighter form of Dragonborn natural armor — flexible, smooth, built for movement.",
+    "description": "A lighter form of Dragonborn natural armor — flexible, smooth, built for movement.\n\nA Dragonborn with Serpent Scales cannot wear mundane armor or another Body Artifact.",
+    "bonuses": {
+      "attack": 0,
+      "damage": "",
+      "defense": 0,
+      "specials": []
+    },
+    "requirements": {
+      "stones": 0,
+      "masteryRank": 1
+    },
+    "powers": [
+      {
+        "id": "serpentScales-pw-1",
+        "name": "Dragon Wings I",
+        "fluff": "Special: Flight",
+        "category": "movement",
+        "tags": [],
+        "cost": {
+          "action": "movement"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "Movement",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": "You may fly up to 6 m."
+            },
+            "specials": [],
+            "lvl": 1
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          }
+        }
+      }
+    ],
+    "inventorySize": "1x1",
+    "equipSlots": [
+      "body"
+    ]
+  },
+  "flags": {
+    "mastery-system": {
+      "nodeId": "serpentScales-l1",
+      "parentIds": [],
+      "childIds": [
+        "serpentScales-l2"
+      ],
+      "isRoot": true,
+      "echoBound": "dragonborn",
+      "echoArtifactKey": "serpentScales"
+    }
+  },
+  "_id": "3WXKMEIu8BLEZmKb",
+  "folder": "ocXK7ZFwS8KsKb95",
+  "_key": "!items!3WXKMEIu8BLEZmKb"
+}

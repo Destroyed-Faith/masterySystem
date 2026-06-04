@@ -44,6 +44,7 @@ import { registerDivineClashSettings } from './divine-clash/divine-clash-setting
 import { initializeDivineClashHooks } from './divine-clash/divine-clash-hooks.js';
 import { initializeArtifactAwakening } from './artifacts/artifact-awakening.js';
 import { seedGeneralItemsStorage } from './utils/seed-general-items.js';
+import { seedArtifactLibrary } from './utils/seed-artifact-library.js';
 import { getItemIcon, normalizeWeaponNameKey } from './utils/item-icons.js';
 import { actorHasPostCreationSnapshot, resetActorProgressToPostCreation } from './utils/xp-post-creation.js';
 import { getPowerDefinitionRank } from './utils/power-definition-rank.js';
@@ -57,6 +58,10 @@ import {
   registerArtifactSpecBackfillSetting,
   runArtifactSpecBackfill,
 } from './migrations/artifact-spec-backfill.js';
+import {
+  registerEchoArtifactTreeMigrationSetting,
+  runEchoArtifactTreeMigration,
+} from './migrations/echo-artifact-tree-migration.js';
 import {
   registerPaperdollSlotCanonicalSetting,
   runPaperdollSlotCanonical,
@@ -166,6 +171,7 @@ Hooks.once('init', async function() {
   // drop the retired `system.xp.spentAttributes` field.
   registerXpCurrentStepCutoverSetting();
   registerArtifactSpecBackfillSetting();
+  registerEchoArtifactTreeMigrationSetting();
   registerPaperdollSlotCanonicalSetting();
   
   // Setup XP Management inline in settings
@@ -2431,6 +2437,17 @@ Hooks.once('ready', async function() {
     } catch (error) {
       console.warn('Mastery System | Failed to seed General Items Storage on ready', error);
     }
+
+    // Seed the Echo Artifact library (folder + 10-level Builder-Tree per Echo
+    // Artifact). Idempotent — existing trees and their actorLevels are kept.
+    try {
+      const createdArtifacts = await seedArtifactLibrary();
+      if (createdArtifacts > 0) {
+        console.log(`Mastery System | Seeded ${createdArtifacts} Echo Artifact items on ready`);
+      }
+    } catch (error) {
+      console.warn('Mastery System | Failed to seed Echo Artifact library on ready', error);
+    }
   }
 
   // One-shot Trees → Templates power cutover (GM-only, guarded by world setting).
@@ -2452,6 +2469,15 @@ Hooks.once('ready', async function() {
     await runArtifactSpecBackfill();
   } catch (error) {
     console.warn('Mastery System | Artifact spec backfill failed', error);
+  }
+
+  // One-shot Echo Artifact → Builder-Tree migration (GM-only, guarded). Runs
+  // after the library is seeded above so legacy single-item grants can be
+  // re-linked to the new 10-level trees.
+  try {
+    await runEchoArtifactTreeMigration();
+  } catch (error) {
+    console.warn('Mastery System | Echo Artifact tree migration failed', error);
   }
 
   // One-shot Paperdoll Slot canonicalization (GM-only, guarded by world setting).

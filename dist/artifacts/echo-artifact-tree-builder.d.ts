@@ -1,0 +1,47 @@
+/**
+ * Echo Artifact Tree Builder (pure)
+ *
+ * Turns an `EchoArtifactDefinition` (see `src/utils/echo-artifacts.ts`) into a
+ * full Artifact Builder *tree*: one Folder + ten linked `artifact` node items
+ * (Level 1 .. Level 10), exactly the shape the Node Editor / Artifact Builder
+ * produce. Nodes are linked through the stable custom `nodeId` flags
+ * (`parentIds` / `childIds`), NOT document `_id`, so a generated tree survives
+ * compendium import and duplication intact.
+ *
+ * This module is **pure**: no Foundry globals, no `game`, no DOM, no random.
+ * Node ids are deterministic (`<key>-l<level>`) so repeated builds — at runtime
+ * seeding and at pack-compile time (plain Node) — produce identical, stable
+ * trees. That is exactly what lets the world library and the shipped pack stay
+ * in sync with zero drift.
+ */
+import type { EchoArtifactDefinition } from '../utils/echo-artifacts.js';
+/** One generated node (artifact item data minus its folder, which is set at seed time). */
+export interface GeneratedArtifactNode {
+    nodeId: string;
+    level: number;
+    isRoot: boolean;
+    parentNodeId: string | null;
+    childNodeId: string | null;
+    /** Foundry-ready item data (folder injected by the seeder / pack writer). */
+    itemData: Record<string, unknown>;
+}
+export interface GeneratedArtifactTree {
+    echoArtifactKey: string;
+    echoKey: string;
+    /** Display name for the world folder / compendium folder. */
+    folderName: string;
+    /** The 10 nodes, ordered Level 1 → Level 10. */
+    nodes: GeneratedArtifactNode[];
+}
+/**
+ * Build the full 10-node linear tree for one Echo Artifact.
+ *
+ * Node naming matches the Artifact Builder convention (`<Name> - Level N-1`).
+ * Powers accumulate: a Level-N node carries every Level-Progression power from
+ * Level 1 up to and including N. Base Values are resolved to their exact value
+ * at each node's level.
+ */
+export declare function buildEchoArtifactTree(def: EchoArtifactDefinition): GeneratedArtifactTree;
+/** Build trees for every Echo Artifact in the catalog. */
+export declare function buildAllEchoArtifactTrees(): GeneratedArtifactTree[];
+//# sourceMappingURL=echo-artifact-tree-builder.d.ts.map

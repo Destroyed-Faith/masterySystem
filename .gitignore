@@ -32,6 +32,10 @@ packs/*/*.db
 packs/*/*.db-shm
 packs/*/*.db-wal
 
+# Compiled compendium packs (LevelDB) — build artifacts produced by
+# `npm run build:packs`. The reviewable source lives in `src/packs/**`.
+packs/echo-artifacts/
+
 # Temporary files
 *.tmp
 

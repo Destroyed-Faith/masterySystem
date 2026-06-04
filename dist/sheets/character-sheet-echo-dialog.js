@@ -13,6 +13,7 @@
  */
 import { ALL_ECHOS, buildFreshTraitUses, ECHO_KEY_ORDER, getAllEchos, getEcho, getEchoCard, getUnlockedCardSlots, isMrPerRest } from '../utils/echos/index.js';
 import { buildArtifactSystemFromEchoDef, getEchoArtifactRules, listSelectableEchoArtifacts, } from '../utils/echo-artifacts.js';
+import { grantEchoArtifactTreeToActor } from '../utils/seed-artifact-library.js';
 /** Small HTML-escape helper used in dialog content (inline strings). */
 function esc(s) {
     return String(s ?? '').replace(/[&<>"']/g, ch => ({
@@ -195,30 +196,47 @@ export async function showEchoCreationDialog(actor) {
                                 await actor.deleteEmbeddedDocuments('Item', ids);
                             }
                         }
-                        // Create the embedded artifact item(s) for the newly picked echo artifacts.
+                        // Grant the newly picked echo artifacts. Preferred path: hand out
+                        // the *root* of the seeded Builder-Tree (folder + 10 linked levels)
+                        // so the artifact can be evolved along the tree. Fallback (library
+                        // not seeded yet): create a single embedded artifact item.
                         const availableDefs = listSelectableEchoArtifacts(echoKey, subChoiceKey || null);
-                        const docs = [];
+                        let grantedCount = 0;
+                        const fallbackDocs = [];
                         for (const aKey of selectedArtifactKeys) {
                             const aDef = availableDefs.find((d) => d.key === aKey);
                             if (!aDef)
                                 continue;
-                            docs.push({
-                                name: aDef.name,
-                                type: 'artifact',
-                                img: 'icons/svg/upgrade.svg',
-                                system: buildArtifactSystemFromEchoDef(aDef),
-                                flags: {
-                                    'mastery-system': {
-                                        echoBound: aDef.echoKey,
-                                        echoArtifactKey: aDef.key,
+                            let granted = null;
+                            try {
+                                granted = await grantEchoArtifactTreeToActor(actor, aDef.key);
+                            }
+                            catch (err) {
+                                console.warn('[mastery-system] tree grant failed, falling back to single item', err);
+                            }
+                            if (granted) {
+                                grantedCount += 1;
+                            }
+                            else {
+                                fallbackDocs.push({
+                                    name: aDef.name,
+                                    type: 'artifact',
+                                    img: 'icons/svg/upgrade.svg',
+                                    system: buildArtifactSystemFromEchoDef(aDef),
+                                    flags: {
+                                        'mastery-system': {
+                                            echoBound: aDef.echoKey,
+                                            echoArtifactKey: aDef.key,
+                                        },
                                     },
-                                },
-                            });
+                                });
+                            }
                         }
-                        if (docs.length > 0) {
-                            await actor.createEmbeddedDocuments('Item', docs);
+                        if (fallbackDocs.length > 0) {
+                            await actor.createEmbeddedDocuments('Item', fallbackDocs);
+                            grantedCount += fallbackDocs.length;
                         }
-                        ui.notifications?.info(`Echo set to ${def.name}${docs.length ? ` (+${docs.length} Echo Artifact${docs.length === 1 ? '' : 's'})` : ''}.`);
+                        ui.notifications?.info(`Echo set to ${def.name}${grantedCount ? ` (+${grantedCount} Echo Artifact${grantedCount === 1 ? '' : 's'})` : ''}.`);
                         return true;
                     }
                 },
