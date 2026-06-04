@@ -1806,7 +1806,8 @@
         "wyrmScales-l9"
       ],
       "echoBound": "dragonborn",
-      "echoArtifactKey": "wyrmScales"
+      "echoArtifactKey": "wyrmScales",
+      "seedVersion": 2
     }
   },
   "_id": "QZzvuBBCO4vBuJCf",

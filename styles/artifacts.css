@@ -444,6 +444,58 @@
   padding-bottom: 6px;
 }
 
+.node-editor-form .node-levelprog-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.74rem;
+  margin-top: 6px;
+}
+
+.node-editor-form .node-levelprog-table th,
+.node-editor-form .node-levelprog-table td {
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  padding: 3px 6px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.node-editor-form .node-levelprog-table th {
+  background: var(--df-bg-secondary, #2a2e33);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.66rem;
+}
+
+.node-editor-form .node-levelprog-lvl {
+  text-align: center;
+  font-weight: 700;
+  width: 2.2em;
+}
+
+.node-editor-form .node-levelprog-name {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.node-editor-form .node-levelprog-special {
+  display: block;
+  font-weight: 400;
+  font-style: italic;
+  opacity: 0.7;
+  font-size: 0.66rem;
+}
+
+.node-editor-form .node-levelprog-effect {
+  font-weight: 400;
+  opacity: 0.92;
+}
+
+.node-editor-form .node-levelprog-current {
+  background: var(--df-accent-soft, rgba(192, 83, 30, 0.18));
+  outline: 1px solid var(--df-accent, #c0531e);
+}
+
 .node-editor-form .node-weapon-damage-reach-row {
   display: grid;
   grid-template-columns: 1fr 1fr;

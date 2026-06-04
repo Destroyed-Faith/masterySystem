@@ -1603,7 +1603,8 @@
         "oracleFrame-l8"
       ],
       "echoBound": "sentinels",
-      "echoArtifactKey": "oracleFrame"
+      "echoArtifactKey": "oracleFrame",
+      "seedVersion": 2
     }
   },
   "_id": "McZ5lE7EyDnEsrMM",

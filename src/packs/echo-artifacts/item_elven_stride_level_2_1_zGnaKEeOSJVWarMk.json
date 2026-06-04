@@ -560,7 +560,8 @@
         "elvenStride-l3"
       ],
       "echoBound": "elves",
-      "echoArtifactKey": "elvenStride"
+      "echoArtifactKey": "elvenStride",
+      "seedVersion": 2
     }
   },
   "_id": "zGnaKEeOSJVWarMk",

@@ -353,7 +353,8 @@
       ],
       "isRoot": true,
       "echoBound": "sentinels",
-      "echoArtifactKey": "sentinelFrame"
+      "echoArtifactKey": "sentinelFrame",
+      "seedVersion": 2
     }
   },
   "_id": "2TQ9LCn6oHNCYjDQ",

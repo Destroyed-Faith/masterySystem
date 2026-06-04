@@ -15,6 +15,12 @@
  * in sync with zero drift.
  */
 import type { EchoArtifactDefinition } from '../utils/echo-artifacts.js';
+/**
+ * Content version of the generated trees. Bump this whenever the generator's
+ * output (base values, powers, slot/profile, etc.) changes so the world seeder
+ * can detect stale library copies and refresh them in place.
+ */
+export declare const ECHO_ARTIFACT_SEED_VERSION = 2;
 /** One generated node (artifact item data minus its folder, which is set at seed time). */
 export interface GeneratedArtifactNode {
     nodeId: string;

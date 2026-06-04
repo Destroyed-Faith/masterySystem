@@ -978,7 +978,8 @@
         "titanScars-l5"
       ],
       "echoBound": "titanborn",
-      "echoArtifactKey": "titanScars"
+      "echoArtifactKey": "titanScars",
+      "seedVersion": 2
     }
   },
   "_id": "w0yE1ChdNN2CSGmV",

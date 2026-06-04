@@ -129,7 +129,9 @@ export function isTwoHandedProfile(profile) {
 export const BASE_VALUE_LIMIT_BY_SLOT = {
     mainHand: 2,
     offHand: 2,
-    bothHands: 2,
+    // Two-handed weapons may carry Weapon Damage + two Weapon Specials
+    // (e.g. Dragon Claws: Damage A, Penetration B, Brutal Impact C).
+    bothHands: 3,
     body: 1,
     head: 2,
     feet: 2,

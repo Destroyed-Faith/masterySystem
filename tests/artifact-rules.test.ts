@@ -31,9 +31,9 @@ import {
 } from '../src/utils/artifact-rules.js';
 
 describe('Artifact rules — slot vocabulary', () => {
-    it('exposes exactly the seven canonical slots', () => {
+    it('exposes the canonical slots (incl. the both-hands two-handed slot)', () => {
         expect([...ARTIFACT_SLOT_KEYS].sort()).toEqual(
-            ['amulet', 'body', 'feet', 'head', 'mainHand', 'offHand', 'ring'].sort(),
+            ['amulet', 'body', 'bothHands', 'feet', 'head', 'mainHand', 'offHand', 'ring'].sort(),
         );
     });
 

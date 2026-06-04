@@ -96,16 +96,16 @@ const GENERIC_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     name: 'Extra Attack',
     attribute: 'generic',
     category: 'action',
-    description: 'Gain additional Attack Actions this round (T3: +1, T4: +2).',
+    description: 'Gain additional Attack Actions this round (T2: +1, T3: +2, T4: +3).',
     tiers: [
-      { label: null, description: 'No effect — ramp step.' },
       { label: null, description: 'No effect — ramp step.' },
       { label: '+1 Attack Action', description: 'Gain 1 additional Attack Action this round.', value: 1 },
       { label: '+2 Attack Actions', description: 'Gain 2 additional Attack Actions this round.', value: 2 },
+      { label: '+3 Attack Actions', description: 'Gain 3 additional Attack Actions this round.', value: 3 },
     ],
     apply: async ({ actor, tier }) => {
       const combat = (game as any).combat;
-      const bonus = tier === 3 ? 1 : tier === 4 ? 2 : 0;
+      const bonus = [0, 1, 2, 3][tier - 1] ?? 0;
       if (bonus <= 0) return;
       const roundState = getRoundState(actor, combat);
       roundState.attackActions.total += bonus;

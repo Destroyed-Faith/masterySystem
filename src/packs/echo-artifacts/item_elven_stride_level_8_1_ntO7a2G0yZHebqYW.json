@@ -1813,7 +1813,8 @@
         "elvenStride-l9"
       ],
       "echoBound": "elves",
-      "echoArtifactKey": "elvenStride"
+      "echoArtifactKey": "elvenStride",
+      "seedVersion": 2
     }
   },
   "_id": "ntO7a2G0yZHebqYW",

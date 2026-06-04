@@ -1603,7 +1603,8 @@
         "titanScars-l8"
       ],
       "echoBound": "titanborn",
-      "echoArtifactKey": "titanScars"
+      "echoArtifactKey": "titanScars",
+      "seedVersion": 2
     }
   },
   "_id": "FuLLEDUHxCDDjeY4",

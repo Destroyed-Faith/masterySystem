@@ -108,6 +108,38 @@
       <p class="node-editor-hint node-progression-stonefn-warning hidden" style="color:var(--color-text-hyperlink,#c0531e);">More than one Stone Function selected — the spec allows at most one Stone Function per artifact.</p>
     </div>
 
+    <!-- Read-only overview of the authored Level Progression (Level 1–10) -->
+    {{#if hasLevelProgression}}
+    <div class="node-editor-span2 node-levelprog-overview" style="border-top:1px dashed var(--color-border-light-primary,#888);padding-top:8px;">
+      <h4 class="node-profile-title">Level Progression (Level 1–10)</h4>
+      <p class="node-editor-hint">What this artifact grants at each Level. The first three lines define the artifact; Levels 4–10 scale the same lines across stages (PL 4 → 10 → 16) plus an Ultimate at Level 10. The current node's level is highlighted.</p>
+      <table class="node-levelprog-table">
+        <thead>
+          <tr>
+            <th>Lvl</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Range</th>
+            <th>Duration</th>
+            <th>Effect</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each levelProgressionRows as |row|}}
+          <tr class="{{#if row.isCurrent}}node-levelprog-current{{/if}}">
+            <td class="node-levelprog-lvl">{{row.level}}</td>
+            <td class="node-levelprog-name">{{row.name}}{{#if row.special}}<span class="node-levelprog-special" title="Special">{{row.special}}</span>{{/if}}</td>
+            <td>{{row.type}}</td>
+            <td>{{row.range}}</td>
+            <td>{{row.duration}}</td>
+            <td class="node-levelprog-effect">{{row.effect}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+    {{/if}}
+
     <div class="form-group node-editor-span2">
       <label>Inventory size</label>
       <select id="node-inventory-size">

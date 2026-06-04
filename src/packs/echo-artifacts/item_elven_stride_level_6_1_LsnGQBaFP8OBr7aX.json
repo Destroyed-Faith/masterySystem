@@ -1398,7 +1398,8 @@
         "elvenStride-l7"
       ],
       "echoBound": "elves",
-      "echoArtifactKey": "elvenStride"
+      "echoArtifactKey": "elvenStride",
+      "seedVersion": 2
     }
   },
   "_id": "LsnGQBaFP8OBr7aX",

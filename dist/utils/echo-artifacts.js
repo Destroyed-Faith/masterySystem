@@ -584,7 +584,7 @@ const DRAGON_CLAWS = {
     key: 'dragonClaws',
     name: 'Dragon Claws',
     echoKey: 'dragonborn',
-    slot: 'mainHand',
+    slot: 'bothHands',
     baseProfile: 'twoHandedWeapon',
     description: 'Both hands become natural weapons: claws, scales, and tail.',
     restriction: 'A Dragonborn with Dragon Claws cannot wield another weapon, shield, or hand-based Artifact while using them. Occupies both hand slots.',

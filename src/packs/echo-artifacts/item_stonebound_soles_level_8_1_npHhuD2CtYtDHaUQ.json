@@ -1814,7 +1814,8 @@
         "stoneboundSoles-l9"
       ],
       "echoBound": "dwarfs",
-      "echoArtifactKey": "stoneboundSoles"
+      "echoArtifactKey": "stoneboundSoles",
+      "seedVersion": 2
     }
   },
   "_id": "npHhuD2CtYtDHaUQ",

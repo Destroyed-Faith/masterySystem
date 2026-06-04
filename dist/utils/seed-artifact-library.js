@@ -16,7 +16,7 @@
  * `flags.mastery-system.echoArtifactKey`. Existing trees are never touched, so
  * per-actor progress stored on the root (`actorLevels`) is preserved.
  */
-import { buildAllEchoArtifactTrees } from '../artifacts/echo-artifact-tree-builder.js';
+import { buildAllEchoArtifactTrees, ECHO_ARTIFACT_SEED_VERSION, } from '../artifacts/echo-artifact-tree-builder.js';
 import { readActorArtifactProgress, serializeActorArtifactProgress, } from './artifact-actor-rules.js';
 export const ECHO_ARTIFACT_LIBRARY_FOLDER_NAME = 'Echo Artifacts';
 function findItemFolder(name, parentId) {
@@ -39,6 +39,63 @@ export function findEchoArtifactWorldItem(echoArtifactKey, predicate) {
         return predicate ? predicate(it) : true;
     });
 }
+/** All seeded world node items for an Echo Artifact key. */
+function findAllEchoArtifactWorldItems(echoArtifactKey) {
+    const items = Array.from(game.items ?? []);
+    return items.filter((it) => it.type === 'artifact' &&
+        it.getFlag?.('mastery-system', 'echoArtifactKey') === echoArtifactKey);
+}
+/**
+ * Refresh an already-seeded tree in place to the current generator output.
+ * Existing node items are matched by their stable `nodeId` flag and updated
+ * (name / img / system / structural flags) — their `_id`, folder, and the
+ * root's `actorLevels` are preserved, so actor evolution links survive.
+ * Missing nodes are created in the same sub-folder. Returns nodes touched.
+ */
+async function upgradeEchoArtifactTreeInPlace(tree, existingItems) {
+    const byNodeId = new Map();
+    let folderId = null;
+    for (const it of existingItems) {
+        const nid = it.getFlag?.('mastery-system', 'nodeId');
+        if (nid)
+            byNodeId.set(String(nid), it);
+        if (folderId == null)
+            folderId = it.folder?.id ?? null;
+    }
+    let touched = 0;
+    const toCreate = [];
+    for (const node of tree.nodes) {
+        const existing = byNodeId.get(node.nodeId);
+        const data = foundry.utils.duplicate(node.itemData);
+        const flags = data.flags?.['mastery-system'] || {};
+        if (existing) {
+            const update = {
+                name: data.name,
+                img: data.img,
+                system: data.system,
+                'flags.mastery-system.nodeId': flags.nodeId,
+                'flags.mastery-system.parentIds': flags.parentIds || [],
+                'flags.mastery-system.childIds': flags.childIds || [],
+                'flags.mastery-system.echoBound': flags.echoBound,
+                'flags.mastery-system.echoArtifactKey': flags.echoArtifactKey,
+                'flags.mastery-system.seedVersion': ECHO_ARTIFACT_SEED_VERSION,
+            };
+            if (flags.isRoot)
+                update['flags.mastery-system.isRoot'] = true;
+            await existing.update(update);
+            touched += 1;
+        }
+        else {
+            data.folder = folderId;
+            toCreate.push(data);
+        }
+    }
+    if (toCreate.length > 0) {
+        const created = await Item.createDocuments(toCreate, { render: false });
+        touched += Array.isArray(created) ? created.length : 0;
+    }
+    return touched;
+}
 /** Resolve the Level-1 *root* world item for an Echo Artifact (the tree entry point). */
 export function findEchoArtifactRootInWorld(echoArtifactKey) {
     return (findEchoArtifactWorldItem(echoArtifactKey, (it) => it.getFlag?.('mastery-system', 'isRoot') === true) || findEchoArtifactWorldItem(echoArtifactKey));
@@ -56,11 +113,18 @@ export async function seedArtifactLibrary() {
     const parentFolder = await ensureItemFolder(ECHO_ARTIFACT_LIBRARY_FOLDER_NAME, null);
     const parentId = parentFolder?.id ?? null;
     const toCreate = [];
+    let upgraded = 0;
     for (const tree of trees) {
-        // Skip artifacts that already exist in the world (preserve actorLevels).
-        const already = findEchoArtifactWorldItem(tree.echoArtifactKey);
-        if (already)
+        const existing = findAllEchoArtifactWorldItems(tree.echoArtifactKey);
+        if (existing.length > 0) {
+            // Already seeded — refresh in place only if the content version changed,
+            // so per-actor progress (`actorLevels`) and evolution links are kept.
+            const isStale = existing.some((it) => Number(it.getFlag?.('mastery-system', 'seedVersion') || 0) !== ECHO_ARTIFACT_SEED_VERSION);
+            if (isStale) {
+                upgraded += await upgradeEchoArtifactTreeInPlace(tree, existing);
+            }
             continue;
+        }
         const subFolder = await ensureItemFolder(tree.folderName, parentId);
         const subId = subFolder?.id ?? null;
         for (const node of tree.nodes) {
@@ -69,15 +133,20 @@ export async function seedArtifactLibrary() {
             toCreate.push(data);
         }
     }
-    if (toCreate.length === 0)
-        return 0;
-    const created = await Item.createDocuments(toCreate, { render: false });
-    const count = Array.isArray(created) ? created.length : 0;
+    let count = 0;
+    if (toCreate.length > 0) {
+        const created = await Item.createDocuments(toCreate, { render: false });
+        count = Array.isArray(created) ? created.length : 0;
+    }
     if (count > 0) {
         console.log(`Mastery System | Seeded ${count} Echo Artifact node items`);
         ui.notifications?.info(`Seeded ${count} Echo Artifact items (${ECHO_ARTIFACT_LIBRARY_FOLDER_NAME}).`);
     }
-    return count;
+    if (upgraded > 0) {
+        console.log(`Mastery System | Refreshed ${upgraded} Echo Artifact node items to v${ECHO_ARTIFACT_SEED_VERSION}`);
+        ui.notifications?.info(`Refreshed ${upgraded} Echo Artifact items to the latest data.`);
+    }
+    return count + upgraded;
 }
 /**
  * Grant the *root* of an Echo Artifact Builder-Tree to an actor as an embedded

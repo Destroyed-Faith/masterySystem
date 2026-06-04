@@ -9,6 +9,7 @@ import type {
   ArtifactBaseValue,
   ArtifactBaseValueType,
   ArtifactKind,
+  ArtifactLevelProgressionRow,
   ArtifactProgressionPick,
   ArtifactShieldProfile,
   ArtifactSlotKey,
@@ -535,6 +536,28 @@ export class NodeEditor extends BaseDialog {
       };
     });
 
+    // ---- Read-only Level Progression overview (Level 1..10) ----
+    // The authored table from `system.levelProgression`: shows exactly what the
+    // artifact grants at each level so the GM/player can see the whole curve.
+    const lpRowsRaw = Array.isArray(system.levelProgression)
+      ? (system.levelProgression as ArtifactLevelProgressionRow[])
+      : [];
+    const nodeLvlForHighlight = Math.max(1, Math.min(10, Number(system.level) || 1));
+    data.levelProgressionRows = lpRowsRaw
+      .slice()
+      .sort((a, b) => (Number(a?.level) || 0) - (Number(b?.level) || 0))
+      .map((r) => ({
+        level: r.level,
+        name: r.name || '—',
+        type: r.type || '—',
+        range: r.range || '—',
+        duration: r.duration || '—',
+        effect: r.effect || '',
+        special: r.special || '',
+        isCurrent: Number(r.level) === nodeLvlForHighlight,
+      }));
+    data.hasLevelProgression = data.levelProgressionRows.length > 0;
+
     return data;
   }
 
@@ -640,6 +663,45 @@ export class NodeEditor extends BaseDialog {
       });
     };
 
+    // Enforce no-duplicate Base Value types across rows: a type chosen in one
+    // row is disabled in every other row's dropdown. "Weapon Special" is exempt
+    // (two different specials are allowed), but the *same* special is disabled
+    // in other rows. Keeps the UI honest with the save-time dedup.
+    const syncBaseValueExclusivity = () => {
+      const $rows = $specBvContainer.find('.node-spec-bv-row');
+      const chosenTypes = new Set<string>();
+      const chosenSpecials = new Set<string>();
+      $rows.each((_i, el) => {
+        const t = String($(el).find('.node-spec-bv-type').val() || '');
+        if (t && t !== 'none' && t !== 'weaponSpecial') chosenTypes.add(t);
+        const sid = String($(el).find('.node-spec-bv-special').val() || '');
+        if (sid) chosenSpecials.add(sid);
+      });
+      $rows.each((_i, el) => {
+        const $row = $(el);
+        const own = String($row.find('.node-spec-bv-type').val() || '');
+        $row.find('.node-spec-bv-type option').each((_j, opt) => {
+          const $opt = $(opt);
+          const val = String($opt.attr('value') || '');
+          if (val === 'none' || val === 'weaponSpecial' || val === own) {
+            $opt.prop('disabled', false);
+            return;
+          }
+          $opt.prop('disabled', chosenTypes.has(val));
+        });
+        const ownSpecial = String($row.find('.node-spec-bv-special').val() || '');
+        $row.find('.node-spec-bv-special option').each((_j, opt) => {
+          const $opt = $(opt);
+          const val = String($opt.attr('value') || '');
+          if (!val || val === ownSpecial) {
+            $opt.prop('disabled', false);
+            return;
+          }
+          $opt.prop('disabled', chosenSpecials.has(val));
+        });
+      });
+    };
+
     const refreshSpecForSlot = () => {
       const slot = String($specSlot.val() || '').trim() as ArtifactSlotKey | '';
 
@@ -692,6 +754,9 @@ export class NodeEditor extends BaseDialog {
 
       // Keep the derived Item Type + visible profile block in sync.
       syncKindUi();
+
+      // Disable already-used types across the freshly-built rows.
+      syncBaseValueExclusivity();
     };
 
     $specSlot.on('change', refreshSpecForSlot);
@@ -787,9 +852,11 @@ export class NodeEditor extends BaseDialog {
     // refreshSpecForSlot). Here we only react to the per-row choices changing.
     html.on('change', '.node-spec-bv-type', (e: JQuery.ChangeEvent) => {
       syncBvRow($(e.currentTarget).closest('.node-spec-bv-row'));
+      syncBaseValueExclusivity();
     });
     html.on('change', '.node-spec-bv-special', (e: JQuery.ChangeEvent) => {
       syncBvRow($(e.currentTarget).closest('.node-spec-bv-row'));
+      syncBaseValueExclusivity();
     });
 
     const cloneInnateRow = () => {
@@ -1023,6 +1090,11 @@ export class NodeEditor extends BaseDialog {
     const baseValueRows = html.find('.node-spec-bv-row').toArray();
     const baseValues: ArtifactBaseValue[] = [];
     const usedLetters = new Set<string>();
+    // A Base Value type may appear only once per artifact — except "Weapon
+    // Special", where two *different* specials are allowed (e.g. Dragon Claws:
+    // Penetration + Brutal Impact). Duplicates are dropped on save.
+    const usedTypes = new Set<string>();
+    const usedSpecialIds = new Set<string>();
     for (const row of baseValueRows) {
       if (baseValues.length >= baseValueLimit) break;
       const $row = $(row);
@@ -1035,16 +1107,20 @@ export class NodeEditor extends BaseDialog {
       if (specSlot && !isBaseValueTypeAllowedForSlot(specSlot, typeRaw as SpecBaseValueType)) {
         continue;
       }
-      usedLetters.add(slotLetter);
       const isSpecial = typeRaw === 'weaponSpecial';
+      if (!isSpecial && usedTypes.has(typeRaw)) continue; // no duplicate non-special types
       // Label: for a Special, store the chosen Special id; otherwise the type label.
       let label: string;
       if (isSpecial) {
         label = String($row.find('.node-spec-bv-special').val() || '').trim();
         if (!label) continue; // a Special row with no Special chosen is dropped
+        if (usedSpecialIds.has(label)) continue; // no duplicate Specials
+        usedSpecialIds.add(label);
       } else {
         label = BASE_VALUE_TYPE_LABELS[typeRaw as ArtifactBaseValueType] || '';
+        usedTypes.add(typeRaw);
       }
+      usedLetters.add(slotLetter);
       // Value: manual override wins, else the auto-derived value.
       const overrideStr = String($row.find('.node-spec-bv-override').val() || '').trim();
       const derivedStr = String($row.find('.node-spec-bv-derived').attr('data-derived') || '').trim();

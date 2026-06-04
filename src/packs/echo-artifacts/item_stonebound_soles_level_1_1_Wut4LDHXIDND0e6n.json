@@ -353,7 +353,8 @@
       ],
       "isRoot": true,
       "echoBound": "dwarfs",
-      "echoArtifactKey": "stoneboundSoles"
+      "echoArtifactKey": "stoneboundSoles",
+      "seedVersion": 2
     }
   },
   "_id": "Wut4LDHXIDND0e6n",

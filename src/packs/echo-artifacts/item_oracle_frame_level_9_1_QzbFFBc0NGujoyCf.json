@@ -2021,7 +2021,8 @@
         "oracleFrame-l10"
       ],
       "echoBound": "sentinels",
-      "echoArtifactKey": "oracleFrame"
+      "echoArtifactKey": "oracleFrame",
+      "seedVersion": 2
     }
   },
   "_id": "QzbFFBc0NGujoyCf",

@@ -560,7 +560,8 @@
         "wyrmScales-l3"
       ],
       "echoBound": "dragonborn",
-      "echoArtifactKey": "wyrmScales"
+      "echoArtifactKey": "wyrmScales",
+      "seedVersion": 2
     }
   },
   "_id": "ebimqCPE7urCArV3",

@@ -2227,7 +2227,8 @@
       ],
       "childIds": [],
       "echoBound": "sentinels",
-      "echoArtifactKey": "judicatorFrame"
+      "echoArtifactKey": "judicatorFrame",
+      "seedVersion": 2
     }
   },
   "_id": "r2uQEC6PWIDCNIih",

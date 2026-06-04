@@ -2021,7 +2021,8 @@
         "judicatorFrame-l10"
       ],
       "echoBound": "sentinels",
-      "echoArtifactKey": "judicatorFrame"
+      "echoArtifactKey": "judicatorFrame",
+      "seedVersion": 2
     }
   },
   "_id": "tjq9k86R1jPzdQne",

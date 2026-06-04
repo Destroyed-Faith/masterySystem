@@ -1815,7 +1815,8 @@
         "sentinelFrame-l9"
       ],
       "echoBound": "sentinels",
-      "echoArtifactKey": "sentinelFrame"
+      "echoArtifactKey": "sentinelFrame",
+      "seedVersion": 2
     }
   },
   "_id": "RNJcBDgkuTADxc6s",

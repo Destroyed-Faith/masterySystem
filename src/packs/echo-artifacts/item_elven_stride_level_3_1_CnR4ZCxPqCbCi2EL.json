@@ -768,7 +768,8 @@
         "elvenStride-l4"
       ],
       "echoBound": "elves",
-      "echoArtifactKey": "elvenStride"
+      "echoArtifactKey": "elvenStride",
+      "seedVersion": 2
     }
   },
   "_id": "CnR4ZCxPqCbCi2EL",

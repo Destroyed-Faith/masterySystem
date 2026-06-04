@@ -1606,7 +1606,8 @@
         "elvenStride-l8"
       ],
       "echoBound": "elves",
-      "echoArtifactKey": "elvenStride"
+      "echoArtifactKey": "elvenStride",
+      "seedVersion": 2
     }
   },
   "_id": "WnDiJBHQcqKB220y",

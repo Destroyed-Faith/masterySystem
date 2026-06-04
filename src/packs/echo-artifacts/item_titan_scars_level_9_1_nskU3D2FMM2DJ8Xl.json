@@ -2021,7 +2021,8 @@
         "titanScars-l10"
       ],
       "echoBound": "titanborn",
-      "echoArtifactKey": "titanScars"
+      "echoArtifactKey": "titanScars",
+      "seedVersion": 2
     }
   },
   "_id": "nskU3D2FMM2DJ8Xl",

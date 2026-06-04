@@ -1603,7 +1603,8 @@
         "judicatorFrame-l8"
       ],
       "echoBound": "sentinels",
-      "echoArtifactKey": "judicatorFrame"
+      "echoArtifactKey": "judicatorFrame",
+      "seedVersion": 2
     }
   },
   "_id": "D9DimSWpZlhtQRkw",

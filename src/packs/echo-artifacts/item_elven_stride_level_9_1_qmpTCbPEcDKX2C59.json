@@ -2021,7 +2021,8 @@
         "elvenStride-l10"
       ],
       "echoBound": "elves",
-      "echoArtifactKey": "elvenStride"
+      "echoArtifactKey": "elvenStride",
+      "seedVersion": 2
     }
   },
   "_id": "qmpTCbPEcDKX2C59",

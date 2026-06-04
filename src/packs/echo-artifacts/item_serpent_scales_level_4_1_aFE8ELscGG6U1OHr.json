@@ -976,7 +976,8 @@
         "serpentScales-l5"
       ],
       "echoBound": "dragonborn",
-      "echoArtifactKey": "serpentScales"
+      "echoArtifactKey": "serpentScales",
+      "seedVersion": 2
     }
   },
   "_id": "aFE8ELscGG6U1OHr",

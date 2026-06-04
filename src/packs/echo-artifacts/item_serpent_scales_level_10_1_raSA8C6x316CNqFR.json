@@ -2221,7 +2221,8 @@
       ],
       "childIds": [],
       "echoBound": "dragonborn",
-      "echoArtifactKey": "serpentScales"
+      "echoArtifactKey": "serpentScales",
+      "seedVersion": 2
     }
   },
   "_id": "raSA8C6x316CNqFR",

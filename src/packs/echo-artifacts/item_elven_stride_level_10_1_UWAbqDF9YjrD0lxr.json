@@ -2227,7 +2227,8 @@
       ],
       "childIds": [],
       "echoBound": "elves",
-      "echoArtifactKey": "elvenStride"
+      "echoArtifactKey": "elvenStride",
+      "seedVersion": 2
     }
   },
   "_id": "UWAbqDF9YjrD0lxr",

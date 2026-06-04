@@ -12,8 +12,9 @@
  * All writes land on the Actor under `system.echo.*` \u2014 no Item type involved.
  */
 import { ALL_ECHOS, buildFreshTraitUses, ECHO_KEY_ORDER, getAllEchos, getEcho, getEchoCard, getUnlockedCardSlots, isMrPerRest } from '../utils/echos/index.js';
-import { buildArtifactSystemFromEchoDef, getEchoArtifactRules, listSelectableEchoArtifacts, } from '../utils/echo-artifacts.js';
-import { grantEchoArtifactTreeToActor } from '../utils/seed-artifact-library.js';
+import { getEchoArtifactRules, listSelectableEchoArtifacts, } from '../utils/echo-artifacts.js';
+import { grantEchoArtifactTreeToActor, seedArtifactLibrary } from '../utils/seed-artifact-library.js';
+import { buildEchoArtifactTree } from '../artifacts/echo-artifact-tree-builder.js';
 /** Small HTML-escape helper used in dialog content (inline strings). */
 function esc(s) {
     return String(s ?? '').replace(/[&<>"']/g, ch => ({
@@ -210,6 +211,12 @@ export async function showEchoCreationDialog(actor) {
                             let granted = null;
                             try {
                                 granted = await grantEchoArtifactTreeToActor(actor, aDef.key);
+                                // If the world library has not been seeded yet, seed it now
+                                // (GM) and retry, so the actor links to the real Builder-Tree.
+                                if (!granted && game.user?.isGM) {
+                                    await seedArtifactLibrary();
+                                    granted = await grantEchoArtifactTreeToActor(actor, aDef.key);
+                                }
                             }
                             catch (err) {
                                 console.warn('[mastery-system] tree grant failed, falling back to single item', err);
@@ -218,18 +225,11 @@ export async function showEchoCreationDialog(actor) {
                                 grantedCount += 1;
                             }
                             else {
-                                fallbackDocs.push({
-                                    name: aDef.name,
-                                    type: 'artifact',
-                                    img: 'icons/svg/upgrade.svg',
-                                    system: buildArtifactSystemFromEchoDef(aDef),
-                                    flags: {
-                                        'mastery-system': {
-                                            echoBound: aDef.echoKey,
-                                            echoArtifactKey: aDef.key,
-                                        },
-                                    },
-                                });
+                                // Last-resort single item: use the generator's faithful Level-1
+                                // root node (correct slot/profile, base values, powers).
+                                const rootNode = buildEchoArtifactTree(aDef).nodes[0];
+                                const rootData = foundry.utils.duplicate(rootNode.itemData);
+                                fallbackDocs.push(rootData);
                             }
                         }
                         if (fallbackDocs.length > 0) {

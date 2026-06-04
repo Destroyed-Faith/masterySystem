@@ -2221,7 +2221,8 @@
       ],
       "childIds": [],
       "echoBound": "dragonborn",
-      "echoArtifactKey": "wyrmScales"
+      "echoArtifactKey": "wyrmScales",
+      "seedVersion": 2
     }
   },
   "_id": "771kCCMVdcBCbsEU",

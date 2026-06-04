@@ -2228,7 +2228,8 @@
       ],
       "childIds": [],
       "echoBound": "dwarfs",
-      "echoArtifactKey": "stoneboundSoles"
+      "echoArtifactKey": "stoneboundSoles",
+      "seedVersion": 2
     }
   },
   "_id": "OlYUKC9NxcLCu0Ll",

@@ -269,20 +269,18 @@ describe('apply() — runs cleanly across every power and tier', () => {
 });
 
 describe('Generic powers — Extra Attack', () => {
-  it('T1 and T2 are ramp steps (no extra attack granted)', async () => {
+  it('T1 is a ramp step (no extra attack granted)', async () => {
     const power = STONE_POWERS['generic.extraAttack'];
     expect(power).toBeDefined();
-    for (const tier of [1, 2]) {
-      const actor = makeMockActor();
-      await power.apply({ actor: actor as any, combatant: makeMockCombatant() as any, tier, cost: 2 ** (tier - 1) });
-      expect(actor._roundState.attackActions.total).toBe(1);
-      expect(actor._roundState.stoneBonuses.extraAttacks).toBe(0);
-    }
+    const actor = makeMockActor();
+    await power.apply({ actor: actor as any, combatant: makeMockCombatant() as any, tier: 1, cost: 1 });
+    expect(actor._roundState.attackActions.total).toBe(1);
+    expect(actor._roundState.stoneBonuses.extraAttacks).toBe(0);
   });
 
-  it('T3 grants +1 Attack Action, T4 grants +2', async () => {
+  it('T2 grants +1, T3 grants +2, T4 grants +3 Attack Actions (Player\'s Guide)', async () => {
     const power = STONE_POWERS['generic.extraAttack'];
-    for (const [tier, expected] of [[3, 1], [4, 2]] as const) {
+    for (const [tier, expected] of [[2, 1], [3, 2], [4, 3]] as const) {
       const actor = makeMockActor();
       await power.apply({ actor: actor as any, combatant: makeMockCombatant() as any, tier, cost: 2 ** (tier - 1) });
       expect(actor._roundState.attackActions.total).toBe(1 + expected);

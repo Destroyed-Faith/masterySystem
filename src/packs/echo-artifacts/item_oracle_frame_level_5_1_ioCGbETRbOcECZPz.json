@@ -1187,7 +1187,8 @@
         "oracleFrame-l6"
       ],
       "echoBound": "sentinels",
-      "echoArtifactKey": "oracleFrame"
+      "echoArtifactKey": "oracleFrame",
+      "seedVersion": 2
     }
   },
   "_id": "ioCGbETRbOcECZPz",

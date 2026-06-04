@@ -2015,7 +2015,8 @@
         "serpentScales-l10"
       ],
       "echoBound": "dragonborn",
-      "echoArtifactKey": "serpentScales"
+      "echoArtifactKey": "serpentScales",
+      "seedVersion": 2
     }
   },
   "_id": "R7zNHBgUbFGBxMne",

@@ -2230,7 +2230,8 @@
       ],
       "childIds": [],
       "echoBound": "sentinels",
-      "echoArtifactKey": "sentinelFrame"
+      "echoArtifactKey": "sentinelFrame",
+      "seedVersion": 2
     }
   },
   "_id": "c7F1PBNke9QB6rSk",

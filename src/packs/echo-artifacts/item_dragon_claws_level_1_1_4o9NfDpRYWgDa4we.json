@@ -9,7 +9,7 @@
     "effects": [],
     "artifactKind": "weapon",
     "gearSlot": "",
-    "slot": "mainHand",
+    "slot": "bothHands",
     "baseProfile": "twoHandedWeapon",
     "binding": "echo",
     "echoKey": "dragonborn",
@@ -368,7 +368,8 @@
       ],
       "isRoot": true,
       "echoBound": "dragonborn",
-      "echoArtifactKey": "dragonClaws"
+      "echoArtifactKey": "dragonClaws",
+      "seedVersion": 2
     }
   },
   "_id": "4o9NfDpRYWgDa4we",

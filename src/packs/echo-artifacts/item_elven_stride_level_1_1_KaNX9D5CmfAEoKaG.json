@@ -352,7 +352,8 @@
       ],
       "isRoot": true,
       "echoBound": "elves",
-      "echoArtifactKey": "elvenStride"
+      "echoArtifactKey": "elvenStride",
+      "seedVersion": 2
     }
   },
   "_id": "KaNX9D5CmfAEoKaG",

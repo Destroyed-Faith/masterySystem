@@ -24,12 +24,12 @@ import {
   type EchoDefinition
 } from '../utils/echos/index.js';
 import {
-  buildArtifactSystemFromEchoDef,
   getEchoArtifactRules,
   listSelectableEchoArtifacts,
   type EchoArtifactDefinition,
 } from '../utils/echo-artifacts.js';
-import { grantEchoArtifactTreeToActor } from '../utils/seed-artifact-library.js';
+import { grantEchoArtifactTreeToActor, seedArtifactLibrary } from '../utils/seed-artifact-library.js';
+import { buildEchoArtifactTree } from '../artifacts/echo-artifact-tree-builder.js';
 
 /** Small HTML-escape helper used in dialog content (inline strings). */
 function esc(s: string | undefined | null): string {
@@ -245,24 +245,23 @@ export async function showEchoCreationDialog(actor: Actor): Promise<void> {
               let granted: any = null;
               try {
                 granted = await grantEchoArtifactTreeToActor(actor, aDef.key);
+                // If the world library has not been seeded yet, seed it now
+                // (GM) and retry, so the actor links to the real Builder-Tree.
+                if (!granted && game.user?.isGM) {
+                  await seedArtifactLibrary();
+                  granted = await grantEchoArtifactTreeToActor(actor, aDef.key);
+                }
               } catch (err) {
                 console.warn('[mastery-system] tree grant failed, falling back to single item', err);
               }
               if (granted) {
                 grantedCount += 1;
               } else {
-                fallbackDocs.push({
-                  name: aDef.name,
-                  type: 'artifact',
-                  img: 'icons/svg/upgrade.svg',
-                  system: buildArtifactSystemFromEchoDef(aDef),
-                  flags: {
-                    'mastery-system': {
-                      echoBound: aDef.echoKey,
-                      echoArtifactKey: aDef.key,
-                    },
-                  },
-                });
+                // Last-resort single item: use the generator's faithful Level-1
+                // root node (correct slot/profile, base values, powers).
+                const rootNode = buildEchoArtifactTree(aDef).nodes[0];
+                const rootData = foundry.utils.duplicate(rootNode.itemData) as any;
+                fallbackDocs.push(rootData);
               }
             }
             if (fallbackDocs.length > 0) {

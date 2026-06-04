@@ -649,7 +649,7 @@ const DRAGON_CLAWS: EchoArtifactDefinition = {
   key: 'dragonClaws',
   name: 'Dragon Claws',
   echoKey: 'dragonborn',
-  slot: 'mainHand',
+  slot: 'bothHands',
   baseProfile: 'twoHandedWeapon',
   description: 'Both hands become natural weapons: claws, scales, and tail.',
   restriction:

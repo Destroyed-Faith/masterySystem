@@ -2226,7 +2226,8 @@
       ],
       "childIds": [],
       "echoBound": "titanborn",
-      "echoArtifactKey": "titanScars"
+      "echoArtifactKey": "titanScars",
+      "seedVersion": 2
     }
   },
   "_id": "vaXPCAy8GBRqKgEg",

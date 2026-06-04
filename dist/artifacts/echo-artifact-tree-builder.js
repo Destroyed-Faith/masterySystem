@@ -17,6 +17,12 @@
 import { ECHO_ARTIFACTS } from '../utils/echo-artifacts.js';
 import { bodyArmorBonusForLevel, feetEvadeForLevel, minorArmorForLevel, weaponDamageForLevel, } from '../utils/artifact-base-derive.js';
 import { getMinorMovementBaselineB, getPaperdollSlotsForArtifact, } from '../utils/artifact-rules.js';
+/**
+ * Content version of the generated trees. Bump this whenever the generator's
+ * output (base values, powers, slot/profile, etc.) changes so the world seeder
+ * can detect stale library copies and refresh them in place.
+ */
+export const ECHO_ARTIFACT_SEED_VERSION = 2;
 const ARTIFACT_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 const ALL_POWER_LEVEL_KEYS = [
     '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16',
@@ -348,6 +354,7 @@ export function buildEchoArtifactTree(def) {
                     ...(isRoot ? { isRoot: true } : {}),
                     echoBound: def.echoKey,
                     echoArtifactKey: def.key,
+                    seedVersion: ECHO_ARTIFACT_SEED_VERSION,
                 },
             },
         };

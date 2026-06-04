@@ -84,4 +84,29 @@ describe('Echo Artifact tree builder — exact Base Values', () => {
     expect(types(10).filter((t: string) => t === 'weaponSpecial').length).toBe(2);
     expect((tree.nodes[9].itemData.system as any).baseValues[0].value).toBe('16d8');
   });
+
+  it('Dragon Claws use the two-handed bothHands slot and occupy both hands', () => {
+    const tree = buildEchoArtifactTree(getEchoArtifact('dragonClaws')!);
+    const sys = tree.nodes[0].itemData.system as any;
+    expect(sys.slot).toBe('bothHands');
+    expect(sys.baseProfile).toBe('twoHandedWeapon');
+    expect(sys.equipSlots).toEqual(['mainhand', 'offhand']);
+  });
+
+  it('every node carries the authored 1–10 level progression table', () => {
+    for (const tree of buildAllEchoArtifactTrees()) {
+      for (const node of tree.nodes) {
+        const lp = (node.itemData.system as any).levelProgression;
+        expect(Array.isArray(lp)).toBe(true);
+        expect(lp.length).toBe(10);
+      }
+    }
+  });
+
+  it('stamps the current seed version on every node (for in-place refresh)', () => {
+    const tree = buildEchoArtifactTree(getEchoArtifact('titanScars')!);
+    for (const node of tree.nodes) {
+      expect(flag(node, 'seedVersion')).toBeGreaterThanOrEqual(2);
+    }
+  });
 });
