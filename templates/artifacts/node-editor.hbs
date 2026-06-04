@@ -3,19 +3,6 @@
     {{#if lineageHint}}
     <p class="node-editor-hint node-editor-span2 node-lineage-hint">{{lineageHint}}</p>
     {{/if}}
-    <div class="node-editor-span2 node-level-item-row">
-      <div class="node-level-item-grid">
-        <div class="form-group">
-          <label>Level</label>
-          <input type="number" id="node-level" value="{{level}}" disabled />
-        </div>
-        <div class="form-group">
-          <label>Item type <span class="node-editor-hint-inline">(auto from Slot + Base Profile)</span></label>
-          <input type="text" id="node-derived-kind" value="{{artifactKind}}" readonly />
-        </div>
-      </div>
-      <p class="node-editor-hint node-level-item-hint">The item type is derived from the Slot and Base Profile chosen below — pick those instead of setting the type directly.</p>
-    </div>
 
     <!-- New Artifact Spec fields: Slot, Base Profile, Base Values, Stone Function -->
     <div class="node-editor-span2 node-spec-row" style="border-top:1px dashed var(--color-border-light-primary,#888);padding-top:8px;">
@@ -44,15 +31,13 @@
 
       <div class="form-group">
         <label>Base Values <span class="node-editor-hint-inline" id="node-spec-bv-limit-hint">(values auto-scale with the Artifact's level)</span></label>
+        <p class="node-editor-hint">This Slot grants a fixed set of Base Value slots — <strong>A</strong> (from Artifact Level 1), <strong>B</strong> (from Level 4) and <strong>C</strong> (from Level 7). You only choose <em>what</em> each slot does; set its type to <strong>— None —</strong> to leave it unused.</p>
         <div id="node-spec-base-values" class="node-multi-select">
           {{#each specBaseValueRows as |row|}}
-          <div class="node-select-row node-spec-bv-row">
-            <select class="node-spec-bv-slot">
-              <option value="a" {{#if (eq row.slot "a")}}selected{{/if}}>A (Level 1)</option>
-              <option value="b" {{#if (eq row.slot "b")}}selected{{/if}}>B (Level 4)</option>
-              <option value="c" {{#if (eq row.slot "c")}}selected{{/if}}>C (Level 7)</option>
-            </select>
+          <div class="node-select-row node-spec-bv-row" data-bv-slot="{{row.slot}}">
+            <span class="node-spec-bv-slot-label" title="Unlocks at the shown Artifact Level">{{row.slotLabel}}</span>
             <select class="node-spec-bv-type">
+              <option value="none" {{#if row.isNone}}selected{{/if}}>— None —</option>
               {{#each ../specBaseValueTypeOptions as |opt|}}
               <option value="{{opt.key}}" {{#if (eq ../row.type opt.key)}}selected{{/if}}>{{opt.label}}</option>
               {{/each}}
@@ -63,13 +48,11 @@
               <option value="{{opt.id}}" {{#if (eq ../row.specialId opt.id)}}selected{{/if}}>{{opt.label}}</option>
               {{/each}}
             </select>
-            <span class="node-spec-bv-derived" title="Auto-derived from Base Profile + level">{{#if row.derivedDisplay}}{{row.derivedDisplay}}{{else}}—{{/if}}</span>
-            <input type="text" class="node-spec-bv-override" value="{{row.overrideStr}}" placeholder="override (optional)" title="Leave empty to use the auto value" />
-            <button type="button" class="node-row-remove" title="Remove">×</button>
+            <span class="node-spec-bv-derived" title="Auto-calculated from Base Profile + Artifact Level">{{#if row.derivedDisplay}}{{row.derivedDisplay}}{{else}}—{{/if}}</span>
+            <input type="text" class="node-spec-bv-override" value="{{row.overrideStr}}" placeholder="override (optional)" />
           </div>
           {{/each}}
         </div>
-        <button type="button" class="node-add-row" data-target="spec-bv">+ Add Base Value</button>
       </div>
 
       <p class="node-editor-hint" id="node-spec-slot-power-hint">{{specSlotAccessHint}}</p>

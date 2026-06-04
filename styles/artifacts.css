@@ -343,17 +343,6 @@
   grid-column: 1 / -1;
 }
 
-.node-editor-form .node-level-item-row .node-level-item-grid {
-  display: grid;
-  grid-template-columns: minmax(100px, 1fr) minmax(180px, 2fr);
-  gap: 12px 16px;
-  align-items: end;
-}
-
-.node-editor-form .node-level-item-hint {
-  margin-top: 8px;
-}
-
 .node-editor-form .form-group {
   display: flex;
   flex-direction: column;
@@ -510,6 +499,15 @@
   flex: 0 0 7rem;
   min-width: 0;
   font-size: 0.78rem;
+}
+
+.node-editor-form .node-spec-bv-slot-label {
+  flex: 0 0 5rem;
+  min-width: 0;
+  font-weight: 600;
+  font-size: 0.78rem;
+  white-space: nowrap;
+  opacity: 0.85;
 }
 
 .node-editor-form .node-special-row {

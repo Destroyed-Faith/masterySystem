@@ -30,6 +30,7 @@ import {
   ATTRIBUTE_ACCESS_BY_SLOT,
   BASE_PROFILE_LABELS,
   BASE_PROFILES_BY_SLOT,
+  BASE_VALUE_HARD_CAP,
   BASE_VALUE_LIMIT_BY_SLOT,
   BASE_VALUE_TYPE_LABELS,
   isAttributeAllowedForStoneFunctionInSlot,
@@ -68,6 +69,14 @@ const BaseDialog: any = (foundry as any)?.appv1?.Application || (Application as 
 
 const TREE_DAMAGE_PRESETS = getArtifactTreeWeaponDamagePresets();
 const TREE_PRESET_VALUES = new Set(TREE_DAMAGE_PRESETS.map((p) => p.value));
+
+/** Base Value slot letters → label (letter + the Artifact Level it unlocks at). */
+const BV_LETTER_LABELS: Record<'a' | 'b' | 'c', string> = {
+  a: 'A · Level 1',
+  b: 'B · Level 4',
+  c: 'C · Level 7',
+};
+const BV_LETTERS: readonly ('a' | 'b' | 'c')[] = ['a', 'b', 'c'];
 
 /** Inventory grid presets (aligned with item-info-dialog gear sizes). */
 const INVENTORY_SIZE_PRESETS = [
@@ -424,10 +433,34 @@ export class NodeEditor extends BaseDialog {
       return typeDerivedMap[type] || '';
     };
 
-    data.specBaseValueRows = (baseValues.length > 0
-      ? baseValues
-      : [{ slot: 'a', type: 'weaponDamage', label: '', value: '' } as ArtifactBaseValue]
-    ).map((bv) => {
+    // The Slot fixes how many Base Value slots exist (A=Level 1, B=Level 4,
+    // C=Level 7). We render exactly that many rows with fixed letters — the GM
+    // only picks what each slot does (or leaves it as "None"). No add/remove and
+    // no duplicate letters.
+    const bvLimit = specSlot ? BASE_VALUE_LIMIT_BY_SLOT[specSlot] : BASE_VALUE_HARD_CAP;
+    data.specBaseValueLimit = bvLimit;
+    const bvLetters = (['a', 'b', 'c'] as const).slice(0, Math.max(1, bvLimit));
+    const bvByLetter = new Map<string, ArtifactBaseValue>();
+    for (const bv of baseValues) {
+      const letter = bv.slot === 'b' || bv.slot === 'c' ? bv.slot : 'a';
+      if (!bvByLetter.has(letter)) bvByLetter.set(letter, bv);
+    }
+
+    data.specBaseValueRows = bvLetters.map((letter) => {
+      const slotLabel = BV_LETTER_LABELS[letter];
+      const bv = bvByLetter.get(letter);
+      if (!bv) {
+        return {
+          slot: letter,
+          slotLabel,
+          type: 'none',
+          isNone: true,
+          isSpecial: false,
+          specialId: '',
+          derivedDisplay: '',
+          overrideStr: '',
+        };
+      }
       const type = bv.type || 'minorFeature';
       const isSpecial = type === 'weaponSpecial';
       // For Specials the stored label holds the chosen Special; match it back to an option id.
@@ -441,8 +474,10 @@ export class NodeEditor extends BaseDialog {
       // Treat a stored value that differs from the derived one as a manual override.
       const overrideStr = storedValue && storedValue !== derivedDisplay ? storedValue : '';
       return {
-        slot: bv.slot || 'a',
+        slot: letter,
+        slotLabel,
         type,
+        isNone: false,
         isSpecial,
         specialId,
         derivedDisplay,
@@ -454,13 +489,6 @@ export class NodeEditor extends BaseDialog {
       id: o.id,
       label: isScalingWeaponSpecial(o.label) ? o.label : `${o.label} (qualitative)`,
     }));
-
-    if (specSlot) {
-      const limit = BASE_VALUE_LIMIT_BY_SLOT[specSlot];
-      data.specBaseValueLimit = limit;
-    } else {
-      data.specBaseValueLimit = 3;
-    }
 
     // ---- Level Progression picks (3 lines @ Basic Level 1/2/3) ----
     const powerCatalog = getArtifactPowerCatalogOptions();
@@ -545,6 +573,73 @@ export class NodeEditor extends BaseDialog {
       wits: 'Wits',
     };
 
+    // --- Base Values: auto-derived value + Special picker (no free-text math) ---
+    const typeDerivedMap = ((this as any)._typeDerivedMap || {}) as Record<string, string>;
+    const specialValueMap = ((this as any)._specialValueMap || {}) as Record<string, string>;
+    const syncBvRow = ($row: JQuery) => {
+      const type = String($row.find('.node-spec-bv-type').val() || '');
+      const isSpecial = type === 'weaponSpecial';
+      $row.find('.node-spec-bv-special').toggleClass('hidden', !isSpecial);
+      const isNone = type === 'none' || type === '';
+      // A "None" slot has nothing to derive or override.
+      $row.find('.node-spec-bv-override').prop('disabled', isNone);
+      let derived = '';
+      if (isSpecial) {
+        const sid = String($row.find('.node-spec-bv-special').val() || '');
+        derived = specialValueMap[sid] || '';
+      } else if (!isNone) {
+        derived = typeDerivedMap[type] || '';
+      }
+      $row
+        .find('.node-spec-bv-derived')
+        .text(derived || '—')
+        .attr('data-derived', derived);
+    };
+
+    // Render exactly the Base Value slots this Slot grants (A / B / C up to the
+    // slot limit), each with a fixed letter — no add/remove, no duplicates.
+    const rebuildBaseValueRows = (slot: ArtifactSlotKey | '') => {
+      const limit = slot ? BASE_VALUE_LIMIT_BY_SLOT[slot] : BASE_VALUE_HARD_CAP;
+      const count = Math.max(1, limit);
+      const allowedTypes = (Object.keys(BASE_VALUE_TYPE_LABELS) as SpecBaseValueType[]).filter(
+        (t) => (slot ? isBaseValueTypeAllowedForSlot(slot, t) : true),
+      );
+
+      // Add or remove whole rows so we have exactly `count`.
+      while ($specBvContainer.find('.node-spec-bv-row').length < count) {
+        const $clone = $specBvContainer.find('.node-spec-bv-row').first().clone();
+        $clone.find('.node-spec-bv-type').val('none');
+        $clone.find('.node-spec-bv-special').val('').addClass('hidden');
+        $clone.find('.node-spec-bv-override').val('');
+        $specBvContainer.append($clone);
+      }
+      while ($specBvContainer.find('.node-spec-bv-row').length > count) {
+        $specBvContainer.find('.node-spec-bv-row').last().remove();
+      }
+
+      // Fix the letter label + repopulate the type dropdown (keeping the choice
+      // if it is still legal, otherwise falling back to None).
+      $specBvContainer.find('.node-spec-bv-row').each((i, el) => {
+        const $row = $(el);
+        const letter = BV_LETTERS[i] || 'a';
+        $row.attr('data-bv-slot', letter);
+        $row.find('.node-spec-bv-slot-label').text(BV_LETTER_LABELS[letter]);
+
+        const $type = $row.find('.node-spec-bv-type');
+        const prev = String($type.val() || 'none');
+        $type.empty();
+        $type.append('<option value="none">— None —</option>');
+        for (const t of allowedTypes) {
+          const sel = t === prev ? ' selected' : '';
+          $type.append(`<option value="${t}"${sel}>${BASE_VALUE_TYPE_LABELS[t]}</option>`);
+        }
+        if (prev !== 'none' && !allowedTypes.includes(prev as SpecBaseValueType)) {
+          $type.val('none');
+        }
+        syncBvRow($row);
+      });
+    };
+
     const refreshSpecForSlot = () => {
       const slot = String($specSlot.val() || '').trim() as ArtifactSlotKey | '';
 
@@ -562,19 +657,8 @@ export class NodeEditor extends BaseDialog {
         );
       }
 
-      // Base Value type options (per row dropdown)
-      const allowedTypes = (Object.keys(BASE_VALUE_TYPE_LABELS) as SpecBaseValueType[]).filter(
-        (t) => (slot ? isBaseValueTypeAllowedForSlot(slot, t) : true),
-      );
-      $specBvContainer.find('.node-spec-bv-type').each((_i, el) => {
-        const $sel = $(el);
-        const prev = String($sel.val() || '');
-        $sel.empty();
-        for (const t of allowedTypes) {
-          const sel = t === prev ? ' selected' : '';
-          $sel.append(`<option value="${t}"${sel}>${BASE_VALUE_TYPE_LABELS[t]}</option>`);
-        }
-      });
+      // Base Value rows: fixed slots (A/B/C up to the slot limit), fixed letters.
+      rebuildBaseValueRows(slot);
 
       // Stone Function attribute options (per Level Progression pick, slot-gated)
       const allowedAttrs = slot
@@ -592,8 +676,8 @@ export class NodeEditor extends BaseDialog {
       });
 
       // Limit hint
-      const limit = slot ? BASE_VALUE_LIMIT_BY_SLOT[slot] : 3;
-      $specBvLimitHint.text(`(max ${limit} Base Value${limit === 1 ? '' : 's'} for this slot)`);
+      const limit = slot ? BASE_VALUE_LIMIT_BY_SLOT[slot] : BASE_VALUE_HARD_CAP;
+      $specBvLimitHint.text(`(this slot grants ${limit} Base Value slot${limit === 1 ? '' : 's'} — values auto-scale with the Artifact's level)`);
 
       // Slot access hint
       if (slot) {
@@ -699,64 +783,13 @@ export class NodeEditor extends BaseDialog {
       });
     });
 
-    // --- Base Values: auto-derived value + Special picker (no free-text math) ---
-    const typeDerivedMap = ((this as any)._typeDerivedMap || {}) as Record<string, string>;
-    const specialValueMap = ((this as any)._specialValueMap || {}) as Record<string, string>;
-    const syncBvRow = ($row: JQuery) => {
-      const type = String($row.find('.node-spec-bv-type').val() || '');
-      const isSpecial = type === 'weaponSpecial';
-      $row.find('.node-spec-bv-special').toggleClass('hidden', !isSpecial);
-      let derived = '';
-      if (isSpecial) {
-        const sid = String($row.find('.node-spec-bv-special').val() || '');
-        derived = specialValueMap[sid] || '';
-      } else {
-        derived = typeDerivedMap[type] || '';
-      }
-      $row
-        .find('.node-spec-bv-derived')
-        .text(derived || '—')
-        .attr('data-derived', derived);
-    };
-    html.find('.node-spec-bv-row').each((_i, el) => syncBvRow($(el)));
+    // Base Value rows are kept in sync by `rebuildBaseValueRows` (called from
+    // refreshSpecForSlot). Here we only react to the per-row choices changing.
     html.on('change', '.node-spec-bv-type', (e: JQuery.ChangeEvent) => {
       syncBvRow($(e.currentTarget).closest('.node-spec-bv-row'));
     });
     html.on('change', '.node-spec-bv-special', (e: JQuery.ChangeEvent) => {
       syncBvRow($(e.currentTarget).closest('.node-spec-bv-row'));
-    });
-
-    // --- "+ Add Base Value" cloning ---
-    html.find('.node-add-row[data-target="spec-bv"]').on('click', () => {
-      const slot = String($specSlot.val() || '').trim() as ArtifactSlotKey | '';
-      const limit = slot ? BASE_VALUE_LIMIT_BY_SLOT[slot] : 3;
-      const rows = $specBvContainer.find('.node-spec-bv-row');
-      if (rows.length >= limit) {
-        ui.notifications?.warn(`Slot allows at most ${limit} Base Value(s).`);
-        return;
-      }
-      const $first = rows.first();
-      const $clone = $first.clone();
-      $clone.find('input').val('');
-      $clone.find('select').each((_i, sel) => {
-        const $sel = $(sel);
-        const opts = $sel.find('option');
-        if (opts.length > 0) $sel.val(String(opts.first().attr('value') || ''));
-      });
-      $specBvContainer.append($clone);
-      syncBvRow($clone);
-    });
-
-    // Remove handler for spec base-value rows (uses existing .node-row-remove, but must allow removing all the way down to 0)
-    html.on('click', '.node-spec-bv-row .node-row-remove', (e: JQuery.ClickEvent) => {
-      const $row = $(e.currentTarget).closest('.node-spec-bv-row');
-      const $parent = $row.parent();
-      if ($parent.find('.node-spec-bv-row').length <= 1) {
-        $row.find('input').val('');
-      } else {
-        $row.remove();
-      }
-      e.stopPropagation();
     });
 
     const cloneInnateRow = () => {
@@ -986,20 +1019,23 @@ export class NodeEditor extends BaseDialog {
     const specBinding =
       existingBinding === 'echo' || existingBinding === 'bound' ? existingBinding : 'unbound';
 
-    const baseValueLimit = specSlot ? BASE_VALUE_LIMIT_BY_SLOT[specSlot] : 3;
+    const baseValueLimit = specSlot ? BASE_VALUE_LIMIT_BY_SLOT[specSlot] : BASE_VALUE_HARD_CAP;
     const baseValueRows = html.find('.node-spec-bv-row').toArray();
     const baseValues: ArtifactBaseValue[] = [];
+    const usedLetters = new Set<string>();
     for (const row of baseValueRows) {
       if (baseValues.length >= baseValueLimit) break;
       const $row = $(row);
-      const slotLetterRaw = String($row.find('.node-spec-bv-slot').val() || 'a').trim().toLowerCase();
+      const slotLetterRaw = String($row.attr('data-bv-slot') || 'a').trim().toLowerCase();
       const slotLetter: 'a' | 'b' | 'c' =
         slotLetterRaw === 'b' || slotLetterRaw === 'c' ? slotLetterRaw : 'a';
+      if (usedLetters.has(slotLetter)) continue; // never emit duplicate letters
       const typeRaw = String($row.find('.node-spec-bv-type').val() || '').trim();
-      if (!typeRaw) continue;
+      if (!typeRaw || typeRaw === 'none') continue; // "None" slots are not stored
       if (specSlot && !isBaseValueTypeAllowedForSlot(specSlot, typeRaw as SpecBaseValueType)) {
         continue;
       }
+      usedLetters.add(slotLetter);
       const isSpecial = typeRaw === 'weaponSpecial';
       // Label: for a Special, store the chosen Special id; otherwise the type label.
       let label: string;
