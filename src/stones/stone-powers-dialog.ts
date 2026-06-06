@@ -26,6 +26,7 @@ import {
   getActionEconomyActor
 } from '../combat/action-economy.js';
 import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
+import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
 import { refreshRadialMenuActionLabelsIfOpenForActor } from '../token-radial-menu.js';
 import {
   STONE_RITUALS_CATALOG,
@@ -283,7 +284,7 @@ function resolveStonePowersCombatant(actor: Actor, combat: Combat): Combatant | 
   return null;
 }
 
-type DropSlotState = 'done' | 'filled' | 'active' | 'locked';
+type DropSlotState = 'done' | 'filled' | 'active' | 'locked' | 'support';
 
 /**
  * Wert für Attribut-Selektoren `[data-power-id="…"]` in querySelector.
@@ -301,6 +302,27 @@ type StonePayLaneCell = {
 };
 
 /**
+ * Lanes pre-filled by Artifact Support Stones for a Stone Power Support of
+ * `prefillTier` (2..4).
+ *
+ * The support covers the tier's wave cost (2^(tier-1) stones) and sits
+ * directly above the anchor: tier 2 → lanes [1,2], tier 3 → [1..4],
+ * tier 4 → [1..8]. The player still primes the power by dropping a single
+ * own stone into the anchor (lane 0); the support lanes are decorative and
+ * are not part of the player `occupied` set. Returns `undefined` when there
+ * is no support or it is no longer available this turn.
+ */
+function buildSupportLaneSet(prefillTier: number, usesThisTurn: number): Set<number> | undefined {
+  if (!(prefillTier >= 2)) return undefined;
+  // The support only applies to the very first activation of the power this turn.
+  if (usesThisTurn !== 0) return undefined;
+  const count = Math.min(STONE_PAYMENT_LANE_COUNT - 1, Math.pow(2, prefillTier - 1));
+  const set = new Set<number>();
+  for (let i = 1; i <= count; i++) set.add(i);
+  return set;
+}
+
+/**
  * UI/Drop: Segment-Freigabe — erst Anchor (1), nach Stein die beiden Mitten (2), dann Quad (4), dann Oct (8).
  * Innerhalb eines freigeschalteten Segments beliebige leere Lane; Reihenfolge innerhalb Mid/Quad/Oct frei.
  */
@@ -309,7 +331,8 @@ function buildStonePaymentLanes(
   spendableNet: number,
   planLocked: boolean,
   occupied: number[],
-  debugLabel?: string
+  debugLabel?: string,
+  supportLanes?: Set<number>
 ): {
   paymentAnchor: StonePayLaneCell[];
   paymentMid: StonePayLaneCell[];
@@ -322,6 +345,11 @@ function buildStonePaymentLanes(
   const laneState = (laneIndex: number): DropSlotState => {
     if (laneIndex < 0 || laneIndex >= STONE_PAYMENT_LANE_COUNT) return 'locked';
     if (o.has(laneIndex)) return 'filled';
+    // Artifact "Stone Power Support" pre-fills lanes above the anchor with
+    // Artifact Support Stones (free, artifact-provided). They are purely
+    // visual: not in the `occupied` player set, so they never participate in
+    // segment-unlock or settle.
+    if (supportLanes?.has(laneIndex)) return 'support';
     if (planLocked) return 'locked';
     if (spendableNet < 1) return 'locked';
     if (allowed.has(laneIndex)) return 'active';
@@ -627,6 +655,23 @@ export class StonePowersDialog extends BaseDialog {
     const poolOwner = getActionEconomyActor(this.actor) ?? this.actor;
     const system = (poolOwner as any).system;
     const stonePools = system.stonePools || {};
+
+    // Artifact "Stone Power Support" Stone Functions pre-fill an activation to
+    // a higher tier. Resolve them once (off the same actor the economy uses)
+    // so power cards can surface the Artifact Support Stones + their source.
+    const artifactStoneSupports = getArtifactStoneFunctionStatus(poolOwner).supports;
+    const supportForPower = (
+      powerId: string,
+      attr?: string
+    ): { tier: number; source: string } | null => {
+      let best: { tier: number; source: string } | null = null;
+      for (const s of artifactStoneSupports) {
+        if (!s.stonePowerId || s.stonePowerId !== powerId) continue;
+        if (attr && s.attribute !== attr) continue;
+        if (!best || s.value > best.tier) best = { tier: s.value, source: s.source };
+      }
+      return best;
+    };
     const availablePowers = getAvailableStonePowers(this.actor);
     
     // Filter pools to only show those with max > 0 (includes optional Wits)
@@ -757,12 +802,16 @@ export class StonePowersDialog extends BaseDialog {
       const description = power.description || power.effect || '';
       const accKey = `${power.id}:${attrKey}:${usesThisTurn}`;
       const occupied = this.#stoneOccGet(accKey);
+      const support = supportForPower(power.id, attrKey);
+      const supportTier = support?.tier ?? 0;
+      const supportLanes = buildSupportLaneSet(supportTier, usesThisTurn);
       const laneSegs = buildStonePaymentLanes(
         usesThisTurn,
         spendableNet,
         stonePlanLocked,
         occupied,
-        `${power.id}/${attrKey}`
+        `${power.id}/${attrKey}`,
+        supportLanes
       );
 
       return {
@@ -774,6 +823,9 @@ export class StonePowersDialog extends BaseDialog {
         canAfford,
         selectedAttrKey: attrKey,
         usesThisTurn,
+        supportTier,
+        supportSource: support?.source ?? '',
+        supportActive: !!supportLanes,
         ...laneSegs
       };
     };
@@ -810,12 +862,16 @@ export class StonePowersDialog extends BaseDialog {
       const spendableNet = totalSpendableNetAllPools();
       const occupied = this.#stoneOccGet(genericUnifiedAccKey(power.id, usesThisTurn));
       const sp = STONE_POWERS[power.id];
+      const support = supportForPower(power.id);
+      const supportTier = support?.tier ?? 0;
+      const supportLanes = buildSupportLaneSet(supportTier, usesThisTurn);
       const laneSegs = buildStonePaymentLanes(
         usesThisTurn,
         spendableNet,
         stonePlanLocked,
         occupied,
-        `${power.id}/general`
+        `${power.id}/general`,
+        supportLanes
       );
       return {
         id: power.id,
@@ -827,6 +883,9 @@ export class StonePowersDialog extends BaseDialog {
         canAfford,
         selectedAttrKey: attrKey,
         usesThisTurn,
+        supportTier,
+        supportSource: support?.source ?? '',
+        supportActive: !!supportLanes,
         ...laneSegs
       };
     });

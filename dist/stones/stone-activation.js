@@ -42,14 +42,15 @@ export async function activateStonePower(options) {
     else {
         poolAttribute = power.attribute;
     }
-    // Compute the tier from the current usage count (BEFORE the increment
-    // that spendStoneAbility will perform on success). The cost matches.
-    //
-    // Artifact "Stone Power Support" Stone Functions pre-fill the activation
-    // to a higher tier. The pre-fill behaves as if the power had been used
-    // `prefillTier - 1` times already this turn, so the first activation
-    // jumps to the prefill tier and pays the cost matching that tier.
-    // Subsequent activations on the same turn scale normally from there.
+    // Artifact "Stone Power Support" Stone Functions provide Artifact Support
+    // Stones that raise the tier:
+    //   • The EFFECT tier is floored to the support's pre-fill tier (the
+    //     artifact has pre-filled the lanes up to that tier).
+    //   • The player only pays the raw-wave cost (the anchor = 1 stone on the
+    //     first activation); the Artifact Support Stones are provided by the
+    //     artifact. spendStoneAbility deducts that raw cost, so `cost` mirrors it.
+    // Subsequent activations on the same turn scale normally from the raw
+    // usage count, but the tier never drops below the support floor.
     const combat = game.combat;
     const rawUsesBefore = abilityId.startsWith('generic.')
         ? getGenericStonePowerUsageCount(actor, abilityId, combat)
@@ -58,7 +59,7 @@ export async function activateStonePower(options) {
     const prefillBaseline = Math.max(0, prefillTier - 1);
     const usesBefore = Math.max(rawUsesBefore, prefillBaseline);
     const tier = tierForUseIndex(usesBefore);
-    const cost = calculateStoneCost(usesBefore);
+    const cost = calculateStoneCost(rawUsesBefore);
     // Use the action economy system to handle stone spending
     return await spendStoneAbility(actor, combatant, poolAttribute, abilityId, async (_roundState) => {
         await power.apply({ actor, combatant, tier, cost });
@@ -82,12 +83,14 @@ export async function activateGenericStonePowerMixed(options) {
     const combat = game.combat;
     const rawUsesBefore = getGenericStonePowerUsageCount(actor, abilityId, combat);
     // Generic / multi-pool activations get the highest Support prefill from
-    // any equipped artifact (attribute-agnostic match).
+    // any equipped artifact (attribute-agnostic match). The effect tier is
+    // floored to the prefill tier while the player only pays the raw wave
+    // cost (the Artifact Support Stones are provided by the artifact).
     const prefillTier = getArtifactStoneSupportPrefill(actor, abilityId);
     const prefillBaseline = Math.max(0, prefillTier - 1);
     const usesBefore = Math.max(rawUsesBefore, prefillBaseline);
     const tier = tierForUseIndex(usesBefore);
-    const cost = calculateStoneCost(usesBefore);
+    const cost = calculateStoneCost(rawUsesBefore);
     return spendGenericStoneAbilityWithPerAttributeDeductions(actor, combatant, abilityId, perAttributeStones, async (_roundState) => {
         await power.apply({ actor, combatant, tier, cost });
     });

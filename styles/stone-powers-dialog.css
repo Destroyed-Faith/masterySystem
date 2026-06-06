@@ -283,6 +283,63 @@
   border-style: dashed;
 }
 
+/* Artifact "Stone Power Support" — Artifact Support Stones (pre-filled,
+   artifact-provided). Not droppable; purely a visual that the equipped
+   artifact already covers this tier's wave once the anchor stone is placed. */
+.stone-powers-dialog .ms-stone-drop-slot.slot-support {
+  border-style: solid;
+  border-color: rgba(255, 198, 60, 0.85);
+  box-shadow: inset 0 0 6px rgba(255, 198, 60, 0.4);
+  cursor: not-allowed;
+}
+
+.stone-powers-dialog .ms-stone-drop-slot.slot-support .ms-slot-gem-support {
+  pointer-events: none;
+}
+
+.stone-powers-dialog .ms-slot-gem-support {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 35% 35% 45% 45%;
+  color: rgba(60, 40, 0, 0.92);
+  background: radial-gradient(circle at 35% 30%, #ffe9a8, #f4c34a 55%, #c98a18);
+  box-shadow: 0 0 6px rgba(255, 205, 80, 0.7);
+}
+
+.stone-powers-dialog .ms-slot-gem-support .fa-gem {
+  font-size: 0.6rem;
+}
+
+/* Support badge on the power title. */
+.stone-powers-dialog .power-support-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 4px;
+  padding: 0 5px;
+  border-radius: 8px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  line-height: 1.5;
+  color: rgba(60, 40, 0, 0.95);
+  background: linear-gradient(180deg, #ffe9a8, #f4c34a);
+  border: 1px solid rgba(201, 138, 24, 0.85);
+  white-space: nowrap;
+}
+
+.stone-powers-dialog .power-support-badge.is-spent {
+  color: rgba(255, 232, 168, 0.65);
+  background: rgba(120, 96, 40, 0.35);
+  border-color: rgba(201, 138, 24, 0.4);
+}
+
+.stone-powers-dialog .power-support-badge .fa-gem {
+  font-size: 0.6rem;
+}
+
 .stone-powers-dialog .ms-stone-drop-slot.slot-no-drag.slot-active {
   cursor: default;
 }
