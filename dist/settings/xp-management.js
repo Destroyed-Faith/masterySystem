@@ -45,6 +45,8 @@ export class XpManagementSettings extends BaseApplication {
             const totalEarned = xp.totalEarned ?? 0;
             const totalSpent = xp.totalSpent ?? 0;
             const available = points.xp ?? 0;
+            const freeAvailable = points.xpFree ?? 0;
+            const freeEarned = xp.freeEarned ?? 0;
             /**
              * New spec — once-per-step rule. Surface the current step's bumped
              * lists for the GM table.
@@ -82,6 +84,8 @@ export class XpManagementSettings extends BaseApplication {
                 xp: {
                     spent: totalSpent,
                     available: available,
+                    freeAvailable: freeAvailable,
+                    freeEarned: freeEarned,
                     totalEarned: totalEarned,
                     currentStep,
                     stepSummary,
@@ -113,6 +117,8 @@ export class XpManagementSettings extends BaseApplication {
             const xp = system.xp || {};
             return {
                 available: points.xp ?? 0,
+                freeAvailable: points.xpFree ?? 0,
+                freeEarned: xp.freeEarned ?? 0,
                 totalEarned: xp.totalEarned ?? 0,
                 totalSpent: xp.totalSpent ?? 0,
                 history: xp.history ?? []
@@ -156,10 +162,6 @@ export class XpManagementSettings extends BaseApplication {
                 'system.points.xp': xpState.available + amount,
                 'system.xp.totalEarned': xpState.totalEarned + amount
             };
-            // Initial post-creation award (the "D&D → this system" conversion batch)
-            // may be spent freely; every later award re-imposes the once-per-step
-            // "+1" rule on Attributes / Skills. First award == totalEarned was 0.
-            updates['system.xp.initialAwardUnrestricted'] = (xpState.totalEarned ?? 0) <= 0;
             if (!actor.system.xp) {
                 updates['system.xp.totalSpent'] = 0;
                 updates['system.xp.history'] = [];
@@ -187,6 +189,56 @@ export class XpManagementSettings extends BaseApplication {
             // Re-render to update display
             this.render();
         });
+        // Handle grant FREE XP buttons (spent first, no once-per-step limit)
+        html.find('.grant-free-xp-btn').on('click', async (event) => {
+            const button = $(event.currentTarget);
+            const characterId = button.data('character-id');
+            const amount = parseInt(button.siblings('.free-xp-amount-input').val()) || 0;
+            if (amount <= 0) {
+                ui.notifications?.warn('Please enter a valid amount greater than 0.');
+                return;
+            }
+            const actor = game.actors?.get(characterId);
+            if (!actor) {
+                ui.notifications?.error('Character not found.');
+                return;
+            }
+            const xpState = getXpState(actor);
+            const beforeState = {
+                available: xpState.available,
+                totalEarned: xpState.totalEarned,
+                totalSpent: xpState.totalSpent,
+            };
+            const updates = {
+                'system.points.xpFree': xpState.freeAvailable + amount,
+                'system.xp.freeEarned': xpState.freeEarned + amount,
+            };
+            if (!actor.system.xp) {
+                updates['system.xp.totalSpent'] = 0;
+                updates['system.xp.history'] = [];
+            }
+            await actor.update(updates);
+            const user = game.user;
+            const historyEntry = {
+                ts: Date.now(),
+                userId: user?.id || '',
+                userName: user?.name || 'System',
+                kind: 'grant',
+                category: 'xp',
+                amount: amount,
+                note: 'free',
+                before: beforeState,
+                after: {
+                    available: xpState.available,
+                    totalEarned: xpState.totalEarned,
+                    totalSpent: xpState.totalSpent,
+                }
+            };
+            pushXpHistory(actor, historyEntry);
+            await actor.update({ 'system.xp.history': actor.system.xp.history });
+            ui.notifications?.info(`Granted ${amount} Free XP to ${actor.name}.`);
+            this.render();
+        });
         // Handle bulk grant
         html.find('.bulk-grant-btn').on('click', async (event) => {
             const amount = parseInt(html.find('.bulk-xp-amount').val()) || 0;
@@ -208,9 +260,6 @@ export class XpManagementSettings extends BaseApplication {
                     'system.points.xp': xpState.available + amount,
                     'system.xp.totalEarned': xpState.totalEarned + amount
                 };
-                // First award (totalEarned was 0) is the free-spend conversion batch;
-                // later awards re-impose the once-per-step rule.
-                updates['system.xp.initialAwardUnrestricted'] = (xpState.totalEarned ?? 0) <= 0;
                 if (!actor.system.xp) {
                     updates['system.xp.totalSpent'] = 0;
                     updates['system.xp.history'] = [];
@@ -237,6 +286,54 @@ export class XpManagementSettings extends BaseApplication {
             }
             ui.notifications?.info(`Granted ${amount} XP to ${updated} characters.`);
             // Re-render to update display
+            this.render();
+        });
+        // Handle bulk FREE grant (spent first, no once-per-step limit)
+        html.find('.bulk-grant-free-btn').on('click', async () => {
+            const amount = parseInt(html.find('.bulk-free-xp-amount').val()) || 0;
+            if (amount <= 0) {
+                ui.notifications?.warn('Please enter a valid amount greater than 0.');
+                return;
+            }
+            const characters = game.actors?.filter((actor) => actor.type === 'character') || [];
+            let updated = 0;
+            const user = game.user;
+            for (const actor of characters) {
+                const xpState = getXpState(actor);
+                const beforeState = {
+                    available: xpState.available,
+                    totalEarned: xpState.totalEarned,
+                    totalSpent: xpState.totalSpent,
+                };
+                const updates = {
+                    'system.points.xpFree': xpState.freeAvailable + amount,
+                    'system.xp.freeEarned': xpState.freeEarned + amount,
+                };
+                if (!actor.system.xp) {
+                    updates['system.xp.totalSpent'] = 0;
+                    updates['system.xp.history'] = [];
+                }
+                await actor.update(updates);
+                const historyEntry = {
+                    ts: Date.now(),
+                    userId: user?.id || '',
+                    userName: user?.name || 'System',
+                    kind: 'grant',
+                    category: 'xp',
+                    amount: amount,
+                    note: 'free',
+                    before: beforeState,
+                    after: {
+                        available: xpState.available,
+                        totalEarned: xpState.totalEarned,
+                        totalSpent: xpState.totalSpent,
+                    }
+                };
+                pushXpHistory(actor, historyEntry);
+                await actor.update({ 'system.xp.history': actor.system.xp.history });
+                updated++;
+            }
+            ui.notifications?.info(`Granted ${amount} Free XP to ${updated} characters.`);
             this.render();
         });
         // History button

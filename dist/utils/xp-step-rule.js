@@ -33,21 +33,6 @@ const KIND_TO_KEY = {
 export function emptyStep() {
     return { attributes: [], skills: [], powers: [], artifacts: [] };
 }
-/**
- * Initial post-creation XP award exemption.
- *
- * The FIRST XP award a character receives after creation (the "D&D → this
- * system" conversion batch) may be spent freely: the once-per-step "+1" bump
- * limit does NOT apply to Attributes and Skills, so the player can dump the
- * whole batch however they like. Every LATER award re-imposes the normal
- * "+1 per step" rule.
- *
- * The flag lives at `system.xp.initialAwardUnrestricted` and is toggled by the
- * XP grant UI (true on the first grant, false on every grant after that).
- */
-export function isInitialAwardUnrestricted(actor) {
-    return actor?.system?.xp?.initialAwardUnrestricted === true;
-}
 function sanitizeList(input) {
     if (!Array.isArray(input))
         return [];

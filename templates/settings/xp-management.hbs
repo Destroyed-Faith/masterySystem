@@ -17,10 +17,17 @@
         <h3>Bulk Grant XP</h3>
         <div class="bulk-grant-controls">
           <div class="bulk-grant-group">
-            <label>XP:</label>
+            <label>Regular XP:</label>
             <input type="number" class="bulk-xp-amount" min="0" value="0" />
-            <button type="button" class="bulk-grant-btn">
+            <button type="button" class="bulk-grant-btn" title="Grant regular XP (once-per-step rule applies) to all characters">
               <i class="fas fa-gift"></i> Grant to All
+            </button>
+          </div>
+          <div class="bulk-grant-group">
+            <label>Free XP:</label>
+            <input type="number" class="bulk-free-xp-amount" min="0" value="0" />
+            <button type="button" class="bulk-grant-free-btn" title="Grant Free XP (spent first, no once-per-step limit) to all characters">
+              <i class="fas fa-star"></i> Grant Free to All
             </button>
           </div>
         </div>
@@ -35,6 +42,7 @@
               <th>Player</th>
               <th>Spent</th>
               <th>Avail.</th>
+              <th>Free Avail.</th>
               <th>Earned</th>
               <th>Step bumps</th>
               <th>Actions</th>
@@ -50,6 +58,7 @@
               <td class="player-cell">{{this.player}}</td>
               <td class="xp-cell"><strong>{{this.xp.spent}}</strong></td>
               <td class="xp-cell"><strong>{{this.xp.available}}</strong></td>
+              <td class="xp-cell xp-cell-free" title="Free XP available ({{this.xp.freeEarned}} granted total)"><strong>{{this.xp.freeAvailable}}</strong></td>
               <td class="xp-cell"><strong>{{this.xp.totalEarned}}</strong></td>
               <td class="xp-cell" title="{{this.xp.stepSummary}}">
                 {{this.xp.stepTotal}}
@@ -57,9 +66,15 @@
               <td class="grant-cell">
                 <div class="grant-controls">
                   <div class="grant-group">
-                    <input type="number" class="xp-amount-input" data-character-id="{{this.id}}" min="0" value="0" placeholder="+" title="Grant XP" />
-                    <button type="button" class="grant-xp-btn" data-character-id="{{this.id}}" title="Grant XP">
+                    <input type="number" class="xp-amount-input" data-character-id="{{this.id}}" min="0" value="0" placeholder="+" title="Grant regular XP (once-per-step rule applies)" />
+                    <button type="button" class="grant-xp-btn" data-character-id="{{this.id}}" title="Grant regular XP (once-per-step rule applies)">
                       <i class="fas fa-plus"></i>
+                    </button>
+                  </div>
+                  <div class="grant-group grant-group-free">
+                    <input type="number" class="free-xp-amount-input" data-character-id="{{this.id}}" min="0" value="0" placeholder="+" title="Grant Free XP (spent first, no once-per-step limit)" />
+                    <button type="button" class="grant-free-xp-btn" data-character-id="{{this.id}}" title="Grant Free XP (spent first, no once-per-step limit)">
+                      <i class="fas fa-star"></i>
                     </button>
                   </div>
                   <div class="xp-row-actions">
@@ -80,7 +95,7 @@
             </tr>
             {{else}}
             <tr>
-              <td colspan="7" class="empty-message">
+              <td colspan="8" class="empty-message">
                 <i class="fas fa-info-circle"></i> No player characters found.
               </td>
             </tr>

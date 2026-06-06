@@ -276,10 +276,20 @@ export interface CharacterData {
   // XP system (unified currency)
   points?: {
     xp?: number;
+    /**
+     * Free XP balance. Spent BEFORE regular XP and without the once-per-step
+     * bump limit (GM-granted "spend freely" / testing batches). While > 0 the
+     * character is in the unrestricted "free phase".
+     */
+    xpFree?: number;
   };
   xp?: {
     totalEarned: number;
     totalSpent: number;
+    /** Lifetime Free XP granted (used as the refund cap for the free pool). */
+    freeEarned?: number;
+    /** Lifetime Free XP spent. */
+    freeSpent?: number;
     /** Post-creation floor per attribute (set at finalize; used for XP refunds). */
     attributeBaselines?: Record<string, number>;
     /** Immutable snapshot after creation (attributes, skills, powers); used for GM progression reset. */

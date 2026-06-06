@@ -242,6 +242,12 @@ export async function resetCharacterForRecreation(
     updates['system.points.xp'] = totalEarned;
     updates['system.xp.totalEarned'] = totalEarned;
     updates['system.xp.totalSpent'] = 0;
+    // Free XP pool: refund all granted Free XP back into the spendable free
+    // pool; freeEarned (lifetime figure) is preserved, freeSpent reset.
+    const freeEarned = Number.isFinite(xp.freeEarned) ? Number(xp.freeEarned) : 0;
+    updates['system.points.xpFree'] = freeEarned;
+    updates['system.xp.freeEarned'] = freeEarned;
+    updates['system.xp.freeSpent'] = 0;
     updates['system.xp.attributeBaselines'] = {};
     updates['system.xp.postCreationProgress'] = null;
     updates['system.xp.currentStep'] = { attributes: [], skills: [], powers: [], artifacts: [] };

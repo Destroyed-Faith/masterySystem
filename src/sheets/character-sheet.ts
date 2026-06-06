@@ -2694,17 +2694,70 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   /**
    * Get XP state, ensuring all fields exist (backward compatibility)
    */
-  #getXpState(actor: any): { available: number; totalEarned: number; totalSpent: number; history: any[] } {
+  #getXpState(actor: any): {
+    available: number;
+    regularAvailable: number;
+    freeAvailable: number;
+    freeEarned: number;
+    freeSpent: number;
+    totalEarned: number;
+    totalSpent: number;
+    history: any[];
+  } {
     const system = actor.system || {};
     const points = system.points || {};
     const xp = system.xp || {};
-    
+
+    const regularAvailable = points.xp ?? 0;
+    const freeAvailable = points.xpFree ?? 0;
+
     return {
-      available: points.xp ?? 0,
+      // Combined spendable XP (Free + regular) — used for affordability checks.
+      available: regularAvailable + freeAvailable,
+      regularAvailable,
+      freeAvailable,
+      freeEarned: xp.freeEarned ?? 0,
+      freeSpent: xp.freeSpent ?? 0,
       totalEarned: xp.totalEarned ?? 0,
       totalSpent: xp.totalSpent ?? 0,
       history: xp.history ?? []
     };
+  }
+
+  /**
+   * Two-pool XP accounting (free-first). Given a net cost (positive = spend,
+   * negative = refund), return the new balances for both pools. Free XP is
+   * spent before regular XP; refunds refill the free pool first (capped at
+   * `freeEarned`) so up/down testing in the free phase does not leak XP into
+   * the regular pool.
+   */
+  #applyXpCost(
+    xpState: { regularAvailable: number; freeAvailable: number; freeEarned: number; freeSpent: number; totalSpent: number },
+    netCost: number
+  ): { pointsXp: number; pointsXpFree: number; totalSpent: number; freeSpent: number } {
+    let regular = xpState.regularAvailable;
+    let free = xpState.freeAvailable;
+    let totalSpent = xpState.totalSpent;
+    let freeSpent = xpState.freeSpent;
+
+    if (netCost > 0) {
+      const fromFree = Math.min(free, netCost);
+      const fromReg = netCost - fromFree;
+      free -= fromFree;
+      regular -= fromReg;
+      freeSpent += fromFree;
+      totalSpent += fromReg;
+    } else if (netCost < 0) {
+      const refund = -netCost;
+      const toFree = Math.max(0, Math.min(refund, xpState.freeEarned - free));
+      const toReg = refund - toFree;
+      free += toFree;
+      regular += toReg;
+      freeSpent = Math.max(0, freeSpent - toFree);
+      totalSpent = Math.max(0, totalSpent - toReg);
+    }
+
+    return { pointsXp: regular, pointsXpFree: free, totalSpent: Math.max(0, totalSpent), freeSpent: Math.max(0, freeSpent) };
   }
 
   /**
@@ -2795,8 +2848,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      * this same step (and not refunded back below its step-start value)
      * we reject the click.
      */
-    // Initial post-creation award is exempt from the once-per-step "+1" cap.
-    if (!this.#initialAwardUnrestricted()) {
+    // Free-XP phase is exempt from the once-per-step "+1" cap.
+    if (!this.#hasFreeXp()) {
       if (nextPending > 1) {
         (ui as any).notifications?.warn(
           `${attributeName.charAt(0).toUpperCase() + attributeName.slice(1)} can only be increased by +1 per Upgrade Step. End the current step first to increase it again.`,
@@ -2920,12 +2973,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   /**
-   * Initial post-creation XP award: the first award after creation may be
-   * spent freely (no once-per-step "+1" cap on Attributes / Skills). Toggled
-   * by the XP grant UI via `system.xp.initialAwardUnrestricted`.
+   * Free-XP phase: while the character has any Free XP available
+   * (`system.points.xpFree > 0`), upgrades are spent freely — no once-per-step
+   * "+1" cap on Attributes / Skills / Powers. Free XP is always spent before
+   * regular XP; once it is exhausted, the normal once-per-step rule applies to
+   * the regular pool again.
    */
-  #initialAwardUnrestricted(): boolean {
-    return (this.actor.system as any)?.xp?.initialAwardUnrestricted === true;
+  #hasFreeXp(): boolean {
+    return ((this.actor.system as any)?.points?.xpFree ?? 0) > 0;
   }
 
   /**
@@ -2976,9 +3031,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const increaseBtn = html.find(`.attr-increase-xp[data-attribute="${attrKey}"]`);
       const nextPending = pending + 1;
       const effectiveAfter = currentValue + nextPending;
-      // Initial post-creation award: spend freely (no per-step cap).
+      // Free-XP phase: spend freely (no per-step cap).
       const wouldExceedStepCap =
-        !this.#initialAwardUnrestricted() &&
+        !this.#hasFreeXp() &&
         (nextPending > 1 || (nextPending > 0 && bumpedAttributes.has(attrKey)));
       if (effectiveAfter > 80 || wouldExceedStepCap) {
         increaseBtn.prop('disabled', true);
@@ -3078,9 +3133,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      */
     const stepRule = await import('../utils/xp-step-rule.js');
     let stepAfter = stepRule.readStep(this.actor);
-    // Initial post-creation award: do not enforce or record per-step bumps so
-    // the player can keep increasing the same Attribute within the batch.
-    const unrestrictedAttr = this.#initialAwardUnrestricted();
+    // Free-XP phase: do not enforce or record per-step bumps so the player can
+    // keep increasing the same Attribute within the batch.
+    const unrestrictedAttr = this.#hasFreeXp();
     for (const { attr } of attributeChanges) {
       if (unrestrictedAttr) continue;
       const pending = this._pendingAttributeChanges[attr] || 0;
@@ -3103,8 +3158,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       totalSpent: xpState.totalSpent,
     };
 
-    updates['system.points.xp'] = xpState.available - totalNetCost;
-    updates['system.xp.totalSpent'] = Math.max(0, xpState.totalSpent + totalNetCost);
+    // Two-pool accounting: Free XP is spent before regular XP.
+    const acctAttr = this.#applyXpCost(xpState, totalNetCost);
+    updates['system.points.xp'] = acctAttr.pointsXp;
+    updates['system.points.xpFree'] = acctAttr.pointsXpFree;
+    updates['system.xp.totalSpent'] = acctAttr.totalSpent;
+    updates['system.xp.freeSpent'] = acctAttr.freeSpent;
     updates['system.xp.currentStep.attributes'] = [...stepAfter.attributes];
     updates['system.xp.currentStep.skills'] = [...stepAfter.skills];
     updates['system.xp.currentStep.powers'] = [...stepAfter.powers];
@@ -3137,7 +3196,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         after: {
           available: xpState.available - totalNetCost,
           totalEarned: xpState.totalEarned,
-          totalSpent: Math.max(0, xpState.totalSpent + totalNetCost),
+          totalSpent: acctAttr.totalSpent,
         }
       };
       this.#pushXpHistory(this.actor, historyEntry);
@@ -3230,16 +3289,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
 
     /**
-     * New spec — once-per-step rule. Each Power may be increased by at
-     * most +1 per Upgrade Step.
+     * Once-per-step rule. Each Power may be increased by at most +1 per
+     * Upgrade Step — UNLESS the character is in the Free-XP phase, where
+     * upgrades may be stacked freely.
      */
-    if (pending + 1 > 1) {
-      (ui as any).notifications?.warn(
-        `${item.name} can only be increased by +1 Level per Upgrade Step. End the current step first to increase it again.`,
-      );
-      return;
-    }
-    {
+    if (!this.#hasFreeXp()) {
+      if (pending + 1 > 1) {
+        (ui as any).notifications?.warn(
+          `${item.name} can only be increased by +1 Level per Upgrade Step. End the current step first to increase it again.`,
+        );
+        return;
+      }
       const stepRule = await import('../utils/xp-step-rule.js');
       const step = stepRule.readStep(this.actor);
       if (pending + 1 > 0 && stepRule.isBumped(step, 'power', itemId)) {
@@ -3253,7 +3313,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Simulate the new pending state
     const simulateMap = { ...this._pendingPowerLevelChanges, [itemId]: pending + 1 };
     const netCost = this.#calculatePowerPendingNetCost(simulateMap);
-    const availableXP = this.actor.system.points?.xp || 0;
+    // Combined spendable XP (Free pool is spent first, then regular).
+    const availableXP = (this.actor.system.points?.xp || 0) + (this.actor.system.points?.xpFree || 0);
     
     console.log('Mastery System | #onPowerIncreaseLevel: Cost check', {
       netCost,
@@ -3367,7 +3428,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     // Calculate net pending cost (signed)
     const netPendingCost = this.#calculatePowerPendingNetCost(this._pendingPowerLevelChanges);
-    const availableXP = this.actor.system.points?.xp || 0;
+    // Combined spendable XP (Free pool is spent first, then regular).
+    const availableXP = (this.actor.system.points?.xp || 0) + (this.actor.system.points?.xpFree || 0);
     const remainingXP = availableXP - netPendingCost; // Can be negative if refunding
     this.#setHeaderXpDisplay(remainingXP);
     
@@ -3412,7 +3474,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       // Update increase button state
       const increaseBtn = html.find(`.power-increase-level[data-item-id="${itemId}"]`);
       const nextPending = pending + 1;
-      const wouldExceedStepCap = nextPending > 1 || (nextPending > 0 && bumpedPowers.has(itemId));
+      // Free-XP phase: spend freely (no per-step cap).
+      const wouldExceedStepCap =
+        !this.#hasFreeXp() &&
+        (nextPending > 1 || (nextPending > 0 && bumpedPowers.has(itemId)));
       if (effectiveLevel >= this.#getMaxPurchasablePowerLevel() || wouldExceedStepCap) {
         increaseBtn.prop('disabled', true);
         if (wouldExceedStepCap) {
@@ -3453,7 +3518,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     
     // Get XP state
     const xpState = this.#getXpState(this.actor);
-    const availableXP = this.actor.system.points?.xp || 0;
+    const availableXP = xpState.available; // combined Free + regular
     
     // Calculate net cost (signed - can be negative for refunds)
     const netCost = this.#calculatePowerPendingNetCost(this._pendingPowerLevelChanges);
@@ -3532,16 +3597,19 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       }
     }
     
-    // Update XP (netCost can be negative for refunds)
-    const newXP = availableXP - netCost;
+    // Two-pool accounting: Free XP is spent before regular XP.
+    const acct = this.#applyXpCost(xpState, netCost);
+    const newXP = acct.pointsXp + acct.pointsXpFree; // combined remaining
     /**
-     * New spec — once-per-step rule. Each Power may only be increased by
-     * +1 per Upgrade Step. Mark each positively-bumped power; un-bump on
-     * refund.
+     * Once-per-step rule. Each Power may only be increased by +1 per Upgrade
+     * Step — UNLESS the character is in the Free-XP phase (unrestricted).
+     * Mark each positively-bumped power; un-bump on refund.
      */
+    const unrestrictedPow = this.#hasFreeXp();
     const stepRulePow = await import('../utils/xp-step-rule.js');
     let stepAfterPow = stepRulePow.readStep(this.actor);
     for (const change of powerChanges) {
+      if (unrestrictedPow) continue;
       const pending = this._pendingPowerLevelChanges[change.powerId] || 0;
       if (pending > 0) {
         if (stepRulePow.isBumped(stepAfterPow, 'power', change.powerId)) {
@@ -3557,17 +3625,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
 
     const updates: any = {
-      'system.points.xp': newXP,
+      'system.points.xp': acct.pointsXp,
+      'system.points.xpFree': acct.pointsXpFree,
+      'system.xp.totalSpent': acct.totalSpent,
+      'system.xp.freeSpent': acct.freeSpent,
       'system.xp.currentStep.attributes': [...stepAfterPow.attributes],
       'system.xp.currentStep.skills': [...stepAfterPow.skills],
       'system.xp.currentStep.powers': [...stepAfterPow.powers],
       'system.xp.currentStep.artifacts': [...stepAfterPow.artifacts],
     };
-
-    // Update totalSpent (only if netCost is positive)
-    if (netCost > 0) {
-      updates['system.xp.totalSpent'] = xpState.totalSpent + netCost;
-    }
 
     // Ensure XP structure exists
     if (!this.actor.system.xp) {
@@ -3593,7 +3659,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         after: {
           available: newXP,
           totalEarned: xpState.totalEarned,
-          totalSpent: netCost > 0 ? xpState.totalSpent + netCost : xpState.totalSpent,
+          totalSpent: acct.totalSpent,
         }
       };
       this.#pushXpHistory(this.actor, historyEntry);
@@ -4586,8 +4652,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const maxSkill = calculateMaxSkillRank(masteryRank);
     if (effective >= maxSkill) return;
 
-    // Once-per-step rule (skipped during the free-spend initial award).
-    if (!this.#initialAwardUnrestricted()) {
+    // Once-per-step rule (skipped during the Free-XP phase).
+    if (!this.#hasFreeXp()) {
       if (pending + 1 > 1) {
         (ui as any).notifications?.warn(
           `${skillKey} can only be increased by +1 per Upgrade Step. End the current step first to increase it again.`,
@@ -4606,7 +4672,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
     const simulateMap = { ...this._pendingSkillRankChanges, [skillKey]: pending + 1 };
     const netCost = this.#calculateSkillPendingNetCost(simulateMap);
-    const availableXP = this.actor.system.points?.xp || 0;
+    // Combined spendable XP (Free pool is spent first, then regular).
+    const availableXP = (this.actor.system.points?.xp || 0) + (this.actor.system.points?.xpFree || 0);
     if (netCost > availableXP) {
       const nextCost = attributeBandCost(effective + 1);
       (ui as any).notifications?.warn(`Not enough XP! This increase would cost ${nextCost} XP, but you only have ${availableXP}.`);
@@ -4687,7 +4754,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    */
   #updateSkillXPUI() {
     const html = this.element;
-    const availableXP = this.actor.system.points?.xp || 0;
+    // Combined spendable XP (Free pool is spent first, then regular).
+    const availableXP = (this.actor.system.points?.xp || 0) + (this.actor.system.points?.xpFree || 0);
     const netPendingCost = this.#calculateSkillPendingNetCost(this._pendingSkillRankChanges);
     const remainingXP = availableXP - netPendingCost;
     this.#setHeaderXpDisplay(remainingXP);
@@ -4732,9 +4800,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
       const plusBtn = html.find(`.skill-spend-point[data-skill="${skillKey}"]`);
       const nextPending = pending + 1;
-      // Initial post-creation award: spend freely (no per-step cap).
+      // Free-XP phase: spend freely (no per-step cap).
       const wouldExceedStepCap =
-        !this.#initialAwardUnrestricted() &&
+        !this.#hasFreeXp() &&
         (nextPending > 1 || (nextPending > 0 && bumpedSkills.has(skillKey)));
       if (effective >= maxSkill || wouldExceedStepCap) {
         plusBtn.prop('disabled', true);
@@ -4784,7 +4852,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     }
     
     const xpState = this.#getXpState(this.actor);
-    const availableXP = this.actor.system.points?.xp || 0;
+    const availableXP = xpState.available; // combined Free + regular
     const netCost = this.#calculateSkillPendingNetCost(this._pendingSkillRankChanges);
     
     if (netCost > availableXP) {
@@ -4821,8 +4889,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      */
     const stepRuleSk = await import('../utils/xp-step-rule.js');
     let stepAfterSk = stepRuleSk.readStep(this.actor);
-    // Initial post-creation award: do not enforce or record per-step bumps.
-    const unrestrictedSk = this.#initialAwardUnrestricted();
+    // Free-XP phase: do not enforce or record per-step bumps.
+    const unrestrictedSk = this.#hasFreeXp();
     for (const change of changes) {
       if (unrestrictedSk) continue;
       if (change.delta > 0) {
@@ -4837,14 +4905,16 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         stepAfterSk = stepRuleSk.undoBump(stepAfterSk, 'skill', change.skillKey);
       }
     }
-    updates['system.points.xp'] = availableXP - netCost;
+    // Two-pool accounting: Free XP is spent before regular XP.
+    const acctSk = this.#applyXpCost(xpState, netCost);
+    updates['system.points.xp'] = acctSk.pointsXp;
+    updates['system.points.xpFree'] = acctSk.pointsXpFree;
+    updates['system.xp.totalSpent'] = acctSk.totalSpent;
+    updates['system.xp.freeSpent'] = acctSk.freeSpent;
     updates['system.xp.currentStep.attributes'] = [...stepAfterSk.attributes];
     updates['system.xp.currentStep.skills'] = [...stepAfterSk.skills];
     updates['system.xp.currentStep.powers'] = [...stepAfterSk.powers];
     updates['system.xp.currentStep.artifacts'] = [...stepAfterSk.artifacts];
-    if (netCost > 0) {
-      updates['system.xp.totalSpent'] = xpState.totalSpent + netCost;
-    }
 
     if (!this.actor.system.xp) {
       updates['system.xp.totalEarned'] = xpState.totalEarned;
@@ -4874,7 +4944,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         after: {
           available: availableXP - netCost,
           totalEarned: xpState.totalEarned,
-          totalSpent: netCost > 0 ? xpState.totalSpent + netCost : xpState.totalSpent,
+          totalSpent: acctSk.totalSpent,
         }
       };
       this.#pushXpHistory(this.actor, historyEntry);
@@ -6686,6 +6756,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     updateData['system.xp.attributeBaselines'] = attributeBaselines;
     updateData['system.xp.postCreationProgress'] = postCreationProgress;
     updateData['system.xp.history'] = preservedHistory;
+    // Free XP pool: preserve any already-granted Free XP across finalize.
+    updateData['system.points.xpFree'] = Math.max(0, Number(points.xpFree) || 0);
+    updateData['system.xp.freeEarned'] = Math.max(0, Number((xpExisting as any).freeEarned) || 0);
+    updateData['system.xp.freeSpent'] = Math.max(0, Number((xpExisting as any).freeSpent) || 0);
     // Initialize the once-per-step bump bucket at finalize.
     updateData['system.xp.currentStep'] = { attributes: [], skills: [], powers: [], artifacts: [] };
     

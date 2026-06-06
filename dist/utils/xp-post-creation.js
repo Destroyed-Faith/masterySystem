@@ -73,6 +73,10 @@ export async function resetActorProgressToPostCreation(actor, options) {
     }
     updates['system.points.xp'] = totalEarned;
     updates['system.xp.totalSpent'] = 0;
+    // Free XP pool: restore all granted Free XP to the spendable free pool.
+    const freeEarned = xp.freeEarned ?? 0;
+    updates['system.points.xpFree'] = freeEarned;
+    updates['system.xp.freeSpent'] = 0;
     // Reset the once-per-step bump lists too — a progression reset is a clean slate.
     updates['system.xp.currentStep'] = { attributes: [], skills: [], powers: [], artifacts: [] };
     const historyEntry = {
