@@ -3,6 +3,7 @@
  * Mirrors armor skill-penalty resolution used in item-info-dialog.
  */
 import { getArmorDefinitionForType, getShieldDefinitionForType } from './equipment.js';
+import { resolveEquippedWeaponForAttackType as resolveEquippedWeaponForAttackTypeWithUnarmed } from './unarmed-fallback.js';
 function collectItems(actor) {
     if (!actor?.items)
         return [];
@@ -164,16 +165,10 @@ export function getInitiativeEquipmentRows(actor) {
     ];
 }
 /**
- * Strict equipped-only weapon for attack type (no unequipped / name fallbacks).
- * Multiple equipped weapons should not occur (preUpdateItem enforces one per type).
+ * Equipped weapon for attack type. Melee falls back to virtual unarmed when
+ * nothing is equipped (see `unarmed-fallback.ts`).
  */
 export function resolveEquippedWeaponForAttackType(items, attackType) {
-    const equippedWeapons = items.filter((i) => i.type === 'weapon' && i.system?.equipped === true);
-    if (equippedWeapons.length === 0)
-        return null;
-    if (attackType === 'ranged') {
-        return equippedWeapons.find((w) => w.system?.weaponType === 'ranged') || null;
-    }
-    return (equippedWeapons.find((w) => w.system?.weaponType !== 'ranged') || null);
+    return resolveEquippedWeaponForAttackTypeWithUnarmed(items, attackType);
 }
 //# sourceMappingURL=equipment-modifiers.js.map

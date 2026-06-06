@@ -4,6 +4,7 @@
  */
 
 import { getArmorDefinitionForType, getShieldDefinitionForType } from './equipment.js';
+import { resolveEquippedWeaponForAttackType as resolveEquippedWeaponForAttackTypeWithUnarmed } from './unarmed-fallback.js';
 
 function collectItems(actor: any): any[] {
   if (!actor?.items) return [];
@@ -176,23 +177,12 @@ export function getInitiativeEquipmentRows(actor: any): Array<{
 }
 
 /**
- * Strict equipped-only weapon for attack type (no unequipped / name fallbacks).
- * Multiple equipped weapons should not occur (preUpdateItem enforces one per type).
+ * Equipped weapon for attack type. Melee falls back to virtual unarmed when
+ * nothing is equipped (see `unarmed-fallback.ts`).
  */
 export function resolveEquippedWeaponForAttackType(
   items: any[],
-  attackType: 'melee' | 'ranged'
+  attackType: 'melee' | 'ranged',
 ): any | null {
-  const equippedWeapons = items.filter(
-    (i: any) => i.type === 'weapon' && (i.system as any)?.equipped === true
-  );
-  if (equippedWeapons.length === 0) return null;
-
-  if (attackType === 'ranged') {
-    return equippedWeapons.find((w: any) => (w.system as any)?.weaponType === 'ranged') || null;
-  }
-
-  return (
-    equippedWeapons.find((w: any) => (w.system as any)?.weaponType !== 'ranged') || null
-  );
+  return resolveEquippedWeaponForAttackTypeWithUnarmed(items, attackType);
 }

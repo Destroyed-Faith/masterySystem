@@ -1,10 +1,10 @@
 {
-  "name": "Elven Stride - Level 4-1",
+  "name": "Elven Stride (Earth) - Level 3-1",
   "type": "artifact",
   "img": "icons/svg/upgrade.svg",
   "system": {
-    "level": 4,
-    "currentLevel": 4,
+    "level": 3,
+    "currentLevel": 3,
     "equipped": false,
     "effects": [],
     "artifactKind": "gear",
@@ -18,14 +18,7 @@
         "slot": "a",
         "type": "evade",
         "label": "Evade",
-        "value": 5,
-        "isBaseline": true
-      },
-      {
-        "slot": "b",
-        "type": "movement",
-        "label": "Clinging",
-        "value": 1,
+        "value": 4,
         "isBaseline": true
       }
     ],
@@ -139,8 +132,8 @@
         "powerTemplateId": "ab-evade"
       }
     ],
-    "lore": "Otherworldly balance, reflex, clinging movement, and elemental lineage. Pick an Elemental Lineage when the artifact is created.",
-    "description": "Otherworldly balance, reflex, clinging movement, and elemental lineage. Pick an Elemental Lineage when the artifact is created.\n\nAn elf with Elven Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact.",
+    "lore": "Elven Stride (Earth): otherworldly balance, reflex, clinging movement, and Earth lineage empowerment.",
+    "description": "Elven Stride (Earth): otherworldly balance, reflex, clinging movement, and Earth lineage empowerment.\n\nAn elf with Elven Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact.",
     "bonuses": {
       "attack": 0,
       "damage": "",
@@ -159,19 +152,19 @@
   },
   "flags": {
     "mastery-system": {
-      "nodeId": "elvenStride-l4",
+      "nodeId": "elvenStrideEarth-l3",
       "parentIds": [
-        "elvenStride-l3"
+        "elvenStrideEarth-l2"
       ],
       "childIds": [
-        "elvenStride-l5"
+        "elvenStrideEarth-l4"
       ],
       "echoBound": "elves",
-      "echoArtifactKey": "elvenStride",
-      "seedVersion": 5
+      "echoArtifactKey": "elvenStrideEarth",
+      "seedVersion": 6
     }
   },
-  "_id": "bHt6GDqeUyFD515p",
-  "folder": "VB2DfkYd5d1QpUhG",
-  "_key": "!items!bHt6GDqeUyFD515p"
+  "_id": "k1XuwVew2xEmkduz",
+  "folder": "5VGWHEKtrNGEbl3m",
+  "_key": "!items!k1XuwVew2xEmkduz"
 }

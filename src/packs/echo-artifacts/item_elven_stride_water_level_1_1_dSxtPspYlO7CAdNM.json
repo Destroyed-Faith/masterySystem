@@ -1,10 +1,10 @@
 {
-  "name": "Elven Stride - Level 3-1",
+  "name": "Elven Stride (Water) - Level 1-1",
   "type": "artifact",
   "img": "icons/svg/upgrade.svg",
   "system": {
-    "level": 3,
-    "currentLevel": 3,
+    "level": 1,
+    "currentLevel": 1,
     "equipped": false,
     "effects": [],
     "artifactKind": "gear",
@@ -18,7 +18,7 @@
         "slot": "a",
         "type": "evade",
         "label": "Evade",
-        "value": 4,
+        "value": 2,
         "isBaseline": true
       }
     ],
@@ -132,8 +132,8 @@
         "powerTemplateId": "ab-evade"
       }
     ],
-    "lore": "Otherworldly balance, reflex, clinging movement, and elemental lineage. Pick an Elemental Lineage when the artifact is created.",
-    "description": "Otherworldly balance, reflex, clinging movement, and elemental lineage. Pick an Elemental Lineage when the artifact is created.\n\nAn elf with Elven Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact.",
+    "lore": "Elven Stride (Water): otherworldly balance, reflex, clinging movement, and Water lineage empowerment.",
+    "description": "Elven Stride (Water): otherworldly balance, reflex, clinging movement, and Water lineage empowerment.\n\nAn elf with Elven Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact.",
     "bonuses": {
       "attack": 0,
       "damage": "",
@@ -152,19 +152,18 @@
   },
   "flags": {
     "mastery-system": {
-      "nodeId": "elvenStride-l3",
-      "parentIds": [
-        "elvenStride-l2"
-      ],
+      "nodeId": "elvenStrideWater-l1",
+      "parentIds": [],
       "childIds": [
-        "elvenStride-l4"
+        "elvenStrideWater-l2"
       ],
+      "isRoot": true,
       "echoBound": "elves",
-      "echoArtifactKey": "elvenStride",
-      "seedVersion": 5
+      "echoArtifactKey": "elvenStrideWater",
+      "seedVersion": 6
     }
   },
-  "_id": "CnR4ZCxPqCbCi2EL",
-  "folder": "VB2DfkYd5d1QpUhG",
-  "_key": "!items!CnR4ZCxPqCbCi2EL"
+  "_id": "dSxtPspYlO7CAdNM",
+  "folder": "ksmWRDVVBfSDG8Zn",
+  "_key": "!items!dSxtPspYlO7CAdNM"
 }

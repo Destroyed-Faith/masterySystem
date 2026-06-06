@@ -30,8 +30,8 @@ export declare function getInitiativeEquipmentRows(actor: any): Array<{
     display: string;
 }>;
 /**
- * Strict equipped-only weapon for attack type (no unequipped / name fallbacks).
- * Multiple equipped weapons should not occur (preUpdateItem enforces one per type).
+ * Equipped weapon for attack type. Melee falls back to virtual unarmed when
+ * nothing is equipped (see `unarmed-fallback.ts`).
  */
 export declare function resolveEquippedWeaponForAttackType(items: any[], attackType: 'melee' | 'ranged'): any | null;
 //# sourceMappingURL=equipment-modifiers.d.ts.map

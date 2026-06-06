@@ -1,10 +1,10 @@
 {
-  "name": "Elven Stride - Level 10-1",
+  "name": "Elven Stride (Earth) - Level 1-1",
   "type": "artifact",
   "img": "icons/svg/upgrade.svg",
   "system": {
-    "level": 10,
-    "currentLevel": 10,
+    "level": 1,
+    "currentLevel": 1,
     "equipped": false,
     "effects": [],
     "artifactKind": "gear",
@@ -18,14 +18,7 @@
         "slot": "a",
         "type": "evade",
         "label": "Evade",
-        "value": 12,
-        "isBaseline": true
-      },
-      {
-        "slot": "b",
-        "type": "movement",
-        "label": "Clinging",
-        "value": 4,
+        "value": 2,
         "isBaseline": true
       }
     ],
@@ -139,8 +132,8 @@
         "powerTemplateId": "ab-evade"
       }
     ],
-    "lore": "Otherworldly balance, reflex, clinging movement, and elemental lineage. Pick an Elemental Lineage when the artifact is created.",
-    "description": "Otherworldly balance, reflex, clinging movement, and elemental lineage. Pick an Elemental Lineage when the artifact is created.\n\nAn elf with Elven Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact.",
+    "lore": "Elven Stride (Earth): otherworldly balance, reflex, clinging movement, and Earth lineage empowerment.",
+    "description": "Elven Stride (Earth): otherworldly balance, reflex, clinging movement, and Earth lineage empowerment.\n\nAn elf with Elven Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact.",
     "bonuses": {
       "attack": 0,
       "damage": "",
@@ -159,17 +152,18 @@
   },
   "flags": {
     "mastery-system": {
-      "nodeId": "elvenStride-l10",
-      "parentIds": [
-        "elvenStride-l9"
+      "nodeId": "elvenStrideEarth-l1",
+      "parentIds": [],
+      "childIds": [
+        "elvenStrideEarth-l2"
       ],
-      "childIds": [],
+      "isRoot": true,
       "echoBound": "elves",
-      "echoArtifactKey": "elvenStride",
-      "seedVersion": 5
+      "echoArtifactKey": "elvenStrideEarth",
+      "seedVersion": 6
     }
   },
-  "_id": "UWAbqDF9YjrD0lxr",
-  "folder": "VB2DfkYd5d1QpUhG",
-  "_key": "!items!UWAbqDF9YjrD0lxr"
+  "_id": "eFSmiBPsqujBAVF3",
+  "folder": "5VGWHEKtrNGEbl3m",
+  "_key": "!items!eFSmiBPsqujBAVF3"
 }

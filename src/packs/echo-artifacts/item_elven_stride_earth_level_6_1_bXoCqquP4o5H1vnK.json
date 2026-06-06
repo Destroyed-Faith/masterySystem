@@ -1,10 +1,10 @@
 {
-  "name": "Elven Stride - Level 5-1",
+  "name": "Elven Stride (Earth) - Level 6-1",
   "type": "artifact",
   "img": "icons/svg/upgrade.svg",
   "system": {
-    "level": 5,
-    "currentLevel": 5,
+    "level": 6,
+    "currentLevel": 6,
     "equipped": false,
     "effects": [],
     "artifactKind": "gear",
@@ -18,14 +18,14 @@
         "slot": "a",
         "type": "evade",
         "label": "Evade",
-        "value": 6,
+        "value": 7,
         "isBaseline": true
       },
       {
         "slot": "b",
         "type": "movement",
         "label": "Clinging",
-        "value": 1,
+        "value": 2,
         "isBaseline": true
       }
     ],
@@ -139,8 +139,8 @@
         "powerTemplateId": "ab-evade"
       }
     ],
-    "lore": "Otherworldly balance, reflex, clinging movement, and elemental lineage. Pick an Elemental Lineage when the artifact is created.",
-    "description": "Otherworldly balance, reflex, clinging movement, and elemental lineage. Pick an Elemental Lineage when the artifact is created.\n\nAn elf with Elven Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact.",
+    "lore": "Elven Stride (Earth): otherworldly balance, reflex, clinging movement, and Earth lineage empowerment.",
+    "description": "Elven Stride (Earth): otherworldly balance, reflex, clinging movement, and Earth lineage empowerment.\n\nAn elf with Elven Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact.",
     "bonuses": {
       "attack": 0,
       "damage": "",
@@ -159,19 +159,19 @@
   },
   "flags": {
     "mastery-system": {
-      "nodeId": "elvenStride-l5",
+      "nodeId": "elvenStrideEarth-l6",
       "parentIds": [
-        "elvenStride-l4"
+        "elvenStrideEarth-l5"
       ],
       "childIds": [
-        "elvenStride-l6"
+        "elvenStrideEarth-l7"
       ],
       "echoBound": "elves",
-      "echoArtifactKey": "elvenStride",
-      "seedVersion": 5
+      "echoArtifactKey": "elvenStrideEarth",
+      "seedVersion": 6
     }
   },
-  "_id": "eAYstCPnw0uC8ukb",
-  "folder": "VB2DfkYd5d1QpUhG",
-  "_key": "!items!eAYstCPnw0uC8ukb"
+  "_id": "bXoCqquP4o5H1vnK",
+  "folder": "5VGWHEKtrNGEbl3m",
+  "_key": "!items!bXoCqquP4o5H1vnK"
 }

@@ -7,6 +7,7 @@ import type { RadialCombatOption } from "../token-radial-menu";
 import { logActorItemSummary } from "../utils/debug-helpers";
 import { getAttackAttributeForPowerTreeOrSchool } from "../utils/power-roll-attribute.js";
 import { resolveEquippedWeaponForAttackType } from "../utils/equipment-modifiers.js";
+import { createVirtualUnarmedWeapon, isVirtualUnarmedWeapon } from "../utils/unarmed-fallback.js";
 import { evaluateThreatenedRanged } from "./threatened-ranged.js";
 import {
   formatNpcAttackSpecialsLine,
@@ -296,21 +297,12 @@ export async function createAttackCard(
     weapon = null;
   }
 
-  let weaponId = weapon?.id ?? null;
-  
-  // Set flags with weaponId (always, even if null)
-  if (!weapon && !isNpcAttack) {
-    console.warn('Mastery System | [ATTACK EXECUTOR] Actor has no weapon items; baseDamage will fallback.', {
-      attackerId: attacker.id,
-      attackerName: attacker.name,
-      totalItems: items.length,
-      itemTypes: Object.keys(items.reduce((acc: Record<string, number>, item: any) => {
-        const type = item.type || 'unknown';
-        acc[type] = (acc[type] || 0) + 1;
-        return acc;
-      }, {}))
-    });
+  if (!weapon && !isNpcAttack && attackType === 'melee') {
+    weapon = createVirtualUnarmedWeapon();
   }
+
+  // Virtual unarmed has no embedded item id — omit weaponId so damage dialog uses fallback.
+  let weaponId = weapon && !isVirtualUnarmedWeapon(weapon) ? weapon.id ?? null : null;
   
   console.log('Mastery System | [ATTACK EXECUTOR] Weapon resolution', {
     attackerId: attacker.id,

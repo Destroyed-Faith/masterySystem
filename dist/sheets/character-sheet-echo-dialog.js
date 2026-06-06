@@ -18,10 +18,10 @@ import { buildEchoArtifactTree } from '../artifacts/echo-artifact-tree-builder.j
 import { inferArtifactEquipSlots } from '../utils/equip-slots.js';
 /**
  * Equip a freshly-granted Echo Artifact into its slot and mark it Echo-bound
- * (locked). For Elven Stride, the chosen Elemental Lineage is stamped onto the
- * item so the lineage that drives Elemental Lineage I/II/III is recorded.
+ * (locked). Elven Stride lineage is encoded in which of the four stride items
+ * was granted (Fire / Earth / Water / Air).
  */
-async function equipEchoArtifact(actor, item, subChoiceKey) {
+async function equipEchoArtifact(actor, item) {
     if (!item)
         return;
     const sys = item.system || {};
@@ -47,9 +47,6 @@ async function equipEchoArtifact(actor, item, subChoiceKey) {
     // already set by the generator).
     update['flags.mastery-system.echoBound'] = true;
     update['flags.mastery-system.echoLocked'] = true;
-    if (item.getFlag?.('mastery-system', 'echoArtifactKey') === 'elvenStride' && subChoiceKey) {
-        update['system.elementalLineage'] = subChoiceKey;
-    }
     await item.update(update);
 }
 /** Small HTML-escape helper used in dialog content (inline strings). */
@@ -275,13 +272,11 @@ export async function showEchoCreationDialog(actor) {
                             if (Array.isArray(created))
                                 grantedItems.push(...created);
                         }
-                        // Echo Artifacts are Echo-bound: auto-equip them to their slot and
-                        // stamp the chosen Elemental Lineage (Elven Stride) so the lineage
-                        // is recorded on the item. They are locked in their slot and cannot
-                        // be unequipped, removed, or replaced (enforced elsewhere).
+                        // Echo Artifacts are Echo-bound: auto-equip them to their slot.
+                        // They are locked and cannot be unequipped, removed, or replaced.
                         for (const item of grantedItems) {
                             try {
-                                await equipEchoArtifact(actor, item, subChoiceKey || null);
+                                await equipEchoArtifact(actor, item);
                             }
                             catch (err) {
                                 console.warn('[mastery-system] failed to auto-equip echo artifact', err);

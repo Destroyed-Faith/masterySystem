@@ -110,7 +110,7 @@ describe('Echo Artifact tree builder — exact Base Values', () => {
   });
 
   it('stamps the current seed version on every node (for in-place refresh)', () => {
-    expect(ECHO_ARTIFACT_SEED_VERSION).toBe(4);
+    expect(ECHO_ARTIFACT_SEED_VERSION).toBe(6);
     const tree = buildEchoArtifactTree(getEchoArtifact('titanScars')!);
     for (const node of tree.nodes) {
       expect(flag(node, 'seedVersion')).toBe(ECHO_ARTIFACT_SEED_VERSION);
@@ -150,7 +150,7 @@ describe('Echo Artifact tree builder — Stone Function auto-fill', () => {
   });
 
   it('omits a Stone Function for artifacts without a slot-legal one (Elven Stride)', () => {
-    const tree = buildEchoArtifactTree(getEchoArtifact('elvenStride')!);
+    const tree = buildEchoArtifactTree(getEchoArtifact('elvenStrideFire')!);
     for (const node of tree.nodes) {
       expect((node.itemData.system as any).stoneFunction).toBeNull();
     }

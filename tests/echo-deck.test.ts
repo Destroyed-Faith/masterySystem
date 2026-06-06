@@ -143,14 +143,9 @@ describe('Echo Card Usage + Safe-Haven Reset Simulation', () => {
 });
 
 describe('Echo Sub-Choice Validation', () => {
-  it('Elves require an Elemental Lineage sub-choice (4 options)', () => {
+  it('Elves choose Elemental Lineage via echo artifact, not racial sub-choice', () => {
     const def = getEcho('elves')!;
-    expect(def.subChoices).toBeDefined();
-    expect(def.subChoices!.length).toBe(4);
-    for (const sc of def.subChoices!) {
-      expect(getEchoSubChoice('elves', sc.key)).toBeDefined();
-    }
-    expect(getEchoSubChoice('elves', 'not-a-real-key')).toBeUndefined();
+    expect(def.subChoices === undefined || def.subChoices.length === 0).toBe(true);
   });
 
   it('Sentinels require an Order Protocol sub-choice (3 options)', () => {
@@ -172,11 +167,11 @@ describe('Echo Sub-Choice Validation', () => {
     expect(getEcho('elves')!.veiledForm).toBeFalsy();
   });
 
-  it('getActiveEchoTraits includes sub-choice trait when picked', () => {
+  it('Elven lineage traits are not racial traits (they live on Elven Stride artifacts)', () => {
     const withoutSub = getActiveEchoTraits('elves', null);
     const withSub = getActiveEchoTraits('elves', 'fire');
-    expect(withSub.length).toBe(withoutSub.length + 1);
-    expect(withSub.find(t => t.id === 'ember-surge')).toBeDefined();
+    expect(withSub.length).toBe(withoutSub.length);
+    expect(withSub.find(t => t.id === 'ember-surge')).toBeUndefined();
   });
 });
 

@@ -1,10 +1,10 @@
 {
-  "name": "Elven Stride - Level 2-1",
+  "name": "Elven Stride (Water) - Level 7-1",
   "type": "artifact",
   "img": "icons/svg/upgrade.svg",
   "system": {
-    "level": 2,
-    "currentLevel": 2,
+    "level": 7,
+    "currentLevel": 7,
     "equipped": false,
     "effects": [],
     "artifactKind": "gear",
@@ -18,7 +18,14 @@
         "slot": "a",
         "type": "evade",
         "label": "Evade",
-        "value": 3,
+        "value": 8,
+        "isBaseline": true
+      },
+      {
+        "slot": "b",
+        "type": "movement",
+        "label": "Clinging",
+        "value": 2,
         "isBaseline": true
       }
     ],
@@ -132,8 +139,8 @@
         "powerTemplateId": "ab-evade"
       }
     ],
-    "lore": "Otherworldly balance, reflex, clinging movement, and elemental lineage. Pick an Elemental Lineage when the artifact is created.",
-    "description": "Otherworldly balance, reflex, clinging movement, and elemental lineage. Pick an Elemental Lineage when the artifact is created.\n\nAn elf with Elven Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact.",
+    "lore": "Elven Stride (Water): otherworldly balance, reflex, clinging movement, and Water lineage empowerment.",
+    "description": "Elven Stride (Water): otherworldly balance, reflex, clinging movement, and Water lineage empowerment.\n\nAn elf with Elven Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact.",
     "bonuses": {
       "attack": 0,
       "damage": "",
@@ -152,19 +159,19 @@
   },
   "flags": {
     "mastery-system": {
-      "nodeId": "elvenStride-l2",
+      "nodeId": "elvenStrideWater-l7",
       "parentIds": [
-        "elvenStride-l1"
+        "elvenStrideWater-l6"
       ],
       "childIds": [
-        "elvenStride-l3"
+        "elvenStrideWater-l8"
       ],
       "echoBound": "elves",
-      "echoArtifactKey": "elvenStride",
-      "seedVersion": 5
+      "echoArtifactKey": "elvenStrideWater",
+      "seedVersion": 6
     }
   },
-  "_id": "zGnaKEeOSJVWarMk",
-  "folder": "VB2DfkYd5d1QpUhG",
-  "_key": "!items!zGnaKEeOSJVWarMk"
+  "_id": "nq7OLE2DjGKEJ6uf",
+  "folder": "ksmWRDVVBfSDG8Zn",
+  "_key": "!items!nq7OLE2DjGKEJ6uf"
 }

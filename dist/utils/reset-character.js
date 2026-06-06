@@ -46,8 +46,7 @@ export async function resetCharacterForRecreation(actor, options) {
     const totalEarned = Number.isFinite(xp.totalEarned) ? Number(xp.totalEarned) : 0;
     // 1) Remove every embedded item (powers, gear, weapons, armor, shields,
     //    schticks, artifacts, conditions, echo items, …).
-    //    A post-reset `createActor`-style seed is NOT automatic, so we
-    //    re-create the default "Unarmed" weapon at the end.
+    //    Unarmed attacks use the virtual unarmed profile when no weapon is equipped.
     const itemIds = [];
     try {
         const iter = actor.items;
@@ -258,29 +257,6 @@ export async function resetCharacterForRecreation(actor, options) {
             removedItemCount,
             returnedXp: totalEarned,
         };
-    }
-    // 5) Re-seed a default "Unarmed" weapon so the sheet isn't weapon-less
-    //    (matches the `createActor` hook behavior for brand-new actors).
-    try {
-        const unarmedWeapon = {
-            name: 'Unarmed',
-            type: 'weapon',
-            system: {
-                weaponType: 'melee',
-                damage: '1d8',
-                range: '0m',
-                specials: [],
-                equipped: true,
-                hands: 1,
-                innateAbilities: [],
-                description: 'Basic unarmed strikes using fists, feet, or natural weapons.',
-                equipSlots: ['mainhand', 'offhand'],
-            },
-        };
-        await actor.createEmbeddedDocuments('Item', [unarmedWeapon]);
-    }
-    catch (err) {
-        console.warn('Mastery System | Reset: could not re-seed Unarmed weapon:', err);
     }
     return {
         ok: true,

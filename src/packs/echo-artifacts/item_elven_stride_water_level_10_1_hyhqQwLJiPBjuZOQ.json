@@ -1,0 +1,175 @@
+{
+  "name": "Elven Stride (Water) - Level 10-1",
+  "type": "artifact",
+  "img": "icons/svg/upgrade.svg",
+  "system": {
+    "level": 10,
+    "currentLevel": 10,
+    "equipped": false,
+    "effects": [],
+    "artifactKind": "gear",
+    "gearSlot": "feet",
+    "slot": "feet",
+    "baseProfile": "feet",
+    "binding": "echo",
+    "echoKey": "elves",
+    "baseValues": [
+      {
+        "slot": "a",
+        "type": "evade",
+        "label": "Evade",
+        "value": 12,
+        "isBaseline": true
+      },
+      {
+        "slot": "b",
+        "type": "movement",
+        "label": "Clinging",
+        "value": 4,
+        "isBaseline": true
+      }
+    ],
+    "levelProgression": [
+      {
+        "level": 1,
+        "name": "Evade I",
+        "type": "Reaction",
+        "range": "Self",
+        "aoe": "",
+        "duration": "Instant",
+        "effect": "Gain **+16 Evade** against the triggering attack.",
+        "special": ""
+      },
+      {
+        "level": 2,
+        "name": "Wall Walk I",
+        "type": "Movement",
+        "range": "Self",
+        "aoe": "",
+        "duration": "Instant",
+        "effect": "Move up to **10 m** along walls, ceilings, or similar solid surfaces.",
+        "special": ""
+      },
+      {
+        "level": 3,
+        "name": "Evade I",
+        "type": "Active Buff",
+        "range": "Self",
+        "aoe": "",
+        "duration": "MR Rounds",
+        "effect": "Gain **+26 Evade**.",
+        "special": ""
+      },
+      {
+        "level": 4,
+        "name": "Evade II",
+        "type": "Reaction",
+        "range": "Self",
+        "aoe": "",
+        "duration": "Instant",
+        "effect": "Gain **+40 Evade** against the triggering attack.",
+        "special": ""
+      },
+      {
+        "level": 5,
+        "name": "Wall Walk II",
+        "type": "Movement",
+        "range": "Self",
+        "aoe": "",
+        "duration": "Instant",
+        "effect": "Move up to **25 m** along walls, ceilings, or similar solid surfaces.",
+        "special": ""
+      },
+      {
+        "level": 6,
+        "name": "Evade II",
+        "type": "Active Buff",
+        "range": "Self",
+        "aoe": "",
+        "duration": "MR Rounds",
+        "effect": "Gain **+62 Evade**.",
+        "special": ""
+      },
+      {
+        "level": 7,
+        "name": "Evade III",
+        "type": "Reaction",
+        "range": "Self",
+        "aoe": "",
+        "duration": "Instant",
+        "effect": "Gain **+64 Evade** against the triggering attack.",
+        "special": ""
+      },
+      {
+        "level": 8,
+        "name": "Wall Walk III",
+        "type": "Movement",
+        "range": "Self",
+        "aoe": "",
+        "duration": "Instant",
+        "effect": "Move up to **28 m** along walls, ceilings, or similar solid surfaces.",
+        "special": ""
+      },
+      {
+        "level": 9,
+        "name": "Evade III",
+        "type": "Active Buff",
+        "range": "Self",
+        "aoe": "",
+        "duration": "MR Rounds",
+        "effect": "Gain **+98 Evade**.",
+        "special": ""
+      }
+    ],
+    "stoneFunction": null,
+    "progressionPicks": [
+      {
+        "level": 1,
+        "kind": "power",
+        "powerTemplateId": "reaction-evade"
+      },
+      {
+        "level": 2,
+        "kind": "power",
+        "powerTemplateId": "movement-wall-walk"
+      },
+      {
+        "level": 3,
+        "kind": "power",
+        "powerTemplateId": "ab-evade"
+      }
+    ],
+    "lore": "Elven Stride (Water): otherworldly balance, reflex, clinging movement, and Water lineage empowerment.",
+    "description": "Elven Stride (Water): otherworldly balance, reflex, clinging movement, and Water lineage empowerment.\n\nAn elf with Elven Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact.",
+    "bonuses": {
+      "attack": 0,
+      "damage": "",
+      "defense": 0,
+      "specials": []
+    },
+    "requirements": {
+      "stones": 0,
+      "masteryRank": 1
+    },
+    "powers": [],
+    "inventorySize": "1x1",
+    "equipSlots": [
+      "feet"
+    ]
+  },
+  "flags": {
+    "mastery-system": {
+      "nodeId": "elvenStrideWater-l10",
+      "parentIds": [
+        "elvenStrideWater-l9"
+      ],
+      "childIds": [],
+      "echoBound": "elves",
+      "echoArtifactKey": "elvenStrideWater",
+      "seedVersion": 6
+    }
+  },
+  "_id": "hyhqQwLJiPBjuZOQ",
+  "folder": "ksmWRDVVBfSDG8Zn",
+  "_key": "!items!hyhqQwLJiPBjuZOQ"
+}

@@ -91,7 +91,7 @@ export function showRadialInfoPanel(token: any, option: RadialCombatOption): voi
     if (equippedWeapon) {
       const weaponSystem = equippedWeapon.system as any;
       damageText = weaponSystem.damage || weaponSystem.weaponDamage || '';
-      
+
       // Get reach from weapon
       const innateAbilities = weaponSystem.innateAbilities || [];
       const reachAbility = innateAbilities.find((a: string) => a.includes('Reach'));
@@ -110,11 +110,13 @@ export function showRadialInfoPanel(token: any, option: RadialCombatOption): voi
           }
         }
       }
-      
+
       // Get special ability
       if (weaponSystem.special && weaponSystem.special !== '—') {
         specialText = weaponSystem.special;
       }
+    } else {
+      damageText = '1d8';
     }
   }
   

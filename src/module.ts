@@ -62,6 +62,7 @@ import {
   registerEchoArtifactTreeMigrationSetting,
   runEchoArtifactTreeMigration,
 } from './migrations/echo-artifact-tree-migration.js';
+import { runElvenStrideLineageMigration } from './migrations/elven-stride-lineage-migration.js';
 import {
   registerPaperdollSlotCanonicalSetting,
   runPaperdollSlotCanonical,
@@ -2068,48 +2069,8 @@ Hooks.on('preCreateActor', async (actor: any, data: any, _options: any, _userId:
   }
 });
 
-// Post-create hook to add default weapon if needed
-Hooks.on('createActor', async (actor: any, _options: any, _userId: string) => {
-  // Only add default weapon for characters and NPCs
-  if (actor.type !== 'character' && actor.type !== 'npc') {
-    return;
-  }
-  
-  // Only add if this is the creating user (not a sync from another client)
-  if (_userId !== (game as any).user?.id) {
-    return;
-  }
-  
-  try {
-    // Check if actor has any weapon items
-    const items = actor.items || [];
-    const hasWeapon = items.some((item: any) => item.type === 'weapon');
-    
-    if (!hasWeapon) {
-      // Create default "Unarmed" weapon
-      const unarmedWeapon = {
-        name: 'Unarmed',
-        type: 'weapon',
-        system: {
-          weaponType: 'melee',
-          damage: '1d8',
-          range: '0m',
-          specials: [],
-          equipped: true,
-          hands: 1,
-          innateAbilities: [],
-          description: 'Basic unarmed strikes using fists, feet, or natural weapons.',
-          equipSlots: ['mainhand', 'offhand']
-        }
-      };
-      
-      await actor.createEmbeddedDocuments('Item', [unarmedWeapon]);
-      console.log(`Mastery System | Added default "Unarmed" weapon to ${actor.name}`);
-    }
-  } catch (error) {
-    console.warn('Mastery System | Could not add default weapon to actor:', error);
-  }
-});
+// Characters without an equipped weapon are implicitly unarmed (virtual profile in
+// `unarmed-fallback.ts`) — no embedded "Unarmed" item is created.
 
 /**
  * Migration hook - set creationComplete=true for existing characters without the flag
@@ -2576,48 +2537,38 @@ Hooks.once('ready', async function() {
   const { registerSaveEndsChatHandlers } = await import('./combat/save-ends.js');
   registerSaveEndsChatHandlers();
   
-  // Migration: Add default weapon to existing actors if missing
-  console.log('Mastery System | Running equipment migration...');
-  
-  const actors = (game as any).actors?.filter((a: any) => 
-    a.type === 'character' || a.type === 'npc'
+  const migrationActors = (game as any).actors?.filter((a: any) =>
+    a.type === 'character' || a.type === 'npc',
   ) || [];
-  
-  let migrated = 0;
-  
-  for (const actor of actors) {
-    try {
-      const items = actor.items || [];
-      const hasWeapon = items.some((item: any) => item.type === 'weapon');
-      
-      if (!hasWeapon) {
-        const unarmedWeapon = {
-          name: 'Unarmed',
-          type: 'weapon',
-          system: {
-            weaponType: 'melee',
-            damage: '1d8',
-            range: '0m',
-            specials: [],
-            equipped: true,
-            hands: 1,
-            innateAbilities: [],
-            description: 'Basic unarmed strikes using fists, feet, or natural weapons.',
-            equipSlots: ['mainhand', 'offhand']
-          }
-        };
-        
-        await actor.createEmbeddedDocuments('Item', [unarmedWeapon]);
-        migrated++;
-        console.log(`Mastery System | Added default "Unarmed" weapon to ${actor.name}`);
+
+  // Migration: remove legacy auto-seeded "Unarmed" weapon items (virtual unarmed replaces them).
+  if (game.user?.isGM) {
+    const { isLegacyUnarmedItem } = await import('./utils/unarmed-fallback.js');
+    let removed = 0;
+    for (const actor of migrationActors) {
+      try {
+        const legacyIds = Array.from(actor.items || [])
+          .filter((item: any) => isLegacyUnarmedItem(item))
+          .map((item: any) => item.id)
+          .filter(Boolean);
+        if (legacyIds.length > 0) {
+          await actor.deleteEmbeddedDocuments('Item', legacyIds, { masterySystemForceDelete: true });
+          removed += legacyIds.length;
+        }
+      } catch (error) {
+        console.warn(`Mastery System | Could not strip legacy Unarmed from ${actor.name}:`, error);
       }
-    } catch (error) {
-      console.warn(`Mastery System | Could not migrate actor ${actor.name}:`, error);
+    }
+    if (removed > 0) {
+      console.log(`Mastery System | Removed ${removed} legacy Unarmed weapon item(s)`);
     }
   }
-  
-  if (migrated > 0) {
-    console.log(`Mastery System | Migrated ${migrated} actors (added default weapon)`);
+
+  // Migration: legacy single-key Elven Stride → lineage-specific echo artifact trees.
+  try {
+    await runElvenStrideLineageMigration(migrationActors);
+  } catch (error) {
+    console.warn('Mastery System | Elven Stride lineage migration failed', error);
   }
 
   // Migration: Backfill inventory sizes for existing items (GM only)
@@ -2637,7 +2588,7 @@ Hooks.once('ready', async function() {
         updated++;
       }
 
-      for (const actor of actors) {
+      for (const actor of migrationActors) {
         const actorItems = Array.from(actor.items || []) as any[];
         for (const item of actorItems) {
           const currentSize = (item.system as any)?.inventorySize;
@@ -2669,7 +2620,7 @@ Hooks.once('ready', async function() {
       for (const item of worldItems) {
         await applyWeaponSizeFix(item);
       }
-      for (const actor of actors) {
+      for (const actor of migrationActors) {
         for (const item of Array.from(actor.items || []) as any[]) {
           await applyWeaponSizeFix(item);
         }
@@ -2709,7 +2660,7 @@ Hooks.once('ready', async function() {
       for (const item of worldItems) {
         await migrateCatalogWeaponFromGear(item);
       }
-      for (const actor of actors) {
+      for (const actor of migrationActors) {
         for (const item of Array.from(actor.items || []) as any[]) {
           await migrateCatalogWeaponFromGear(item);
         }
@@ -2752,7 +2703,7 @@ Hooks.once('ready', async function() {
         equipMigrated++;
       }
 
-      for (const actor of actors) {
+      for (const actor of migrationActors) {
         const actorItems = Array.from(actor.items || []) as any[];
         for (const item of actorItems) {
           if (!needsBackfill(item)) continue;
@@ -2778,7 +2729,7 @@ Hooks.once('ready', async function() {
     if (equipmentModule.getAllArmor && equipmentModule.getAllShields) {
       let backfilled = 0;
       
-      for (const actor of actors) {
+      for (const actor of migrationActors) {
         try {
           const system = (actor as any).system;
           const combat = system?.combat || {};

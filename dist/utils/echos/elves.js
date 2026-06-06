@@ -16,56 +16,8 @@ export const ELVES_ECHO = {
             usage: 'mr-per-rest'
         }
     ],
-    // The Elemental Lineage is the lineage you choose for your Elven Stride Echo
-    // Artifact. It is NOT a separate racial per-rest ability — it determines what
-    // Elven Stride's Elemental Lineage I / II / III do (artifact levels 3 / 6 / 9).
-    subChoiceLabel: 'Elemental Lineage (Elven Stride)',
-    subChoices: [
-        {
-            key: 'fire',
-            name: 'Fire Lineage \u2014 Ember Surge',
-            trait: {
-                id: 'ember-surge',
-                name: 'Ember Surge (Fire)',
-                effect: 'Your Elven Stride empowers offensive Active Buffs. When you activate an Active Buff that grants Damage, you may raise its effective Power Level and duration (Elemental Lineage I/II/III at Elven Stride levels 3/6/9; +1/+2/+3 and +1/+2/+3 rounds, max Power Level 16). Uses per Safe Haven Rest: half your Mastery Rank, rounded up.',
-                flavor: 'Heat turns intent into consequence.',
-                usage: 'passive'
-            }
-        },
-        {
-            key: 'earth',
-            name: 'Earth Lineage \u2014 Stoneweave Guard',
-            trait: {
-                id: 'stoneweave-guard',
-                name: 'Stoneweave Guard (Earth)',
-                effect: 'Your Elven Stride empowers defensive Armor Active Buffs. When you activate an Active Buff that grants Armor, you may raise its effective Power Level and duration (Elemental Lineage I/II/III at Elven Stride levels 3/6/9; +1/+2/+3 and +1/+2/+3 rounds, max Power Level 16). Uses per Safe Haven Rest: half your Mastery Rank, rounded up.',
-                flavor: 'Stone answers violence with weight.',
-                usage: 'passive'
-            }
-        },
-        {
-            key: 'water',
-            name: 'Water Lineage \u2014 Tidal Slip',
-            trait: {
-                id: 'tidal-slip',
-                name: 'Tidal Slip (Water)',
-                effect: 'Your Elven Stride empowers defensive Evade Active Buffs. When you activate an Active Buff that grants Evade, you may raise its effective Power Level and duration (Elemental Lineage I/II/III at Elven Stride levels 3/6/9; +1/+2/+3 and +1/+2/+3 rounds, max Power Level 16). Uses per Safe Haven Rest: half your Mastery Rank, rounded up.',
-                flavor: 'You are where the blade was, not where it lands.',
-                usage: 'passive'
-            }
-        },
-        {
-            key: 'air',
-            name: 'Air Lineage \u2014 Wind-First',
-            trait: {
-                id: 'wind-first',
-                name: 'Wind-First (Air)',
-                effect: 'Your Elven Stride empowers movement-based Active Buffs. When you activate an Active Buff that grants Evade or movement-related positioning, you may raise its effective Power Level and duration (Elemental Lineage I/II/III at Elven Stride levels 3/6/9; +1/+2/+3 and +1/+2/+3 rounds, max Power Level 16). Uses per Safe Haven Rest: half your Mastery Rank, rounded up.',
-                flavor: 'The first breath is already movement.',
-                usage: 'passive'
-            }
-        }
-    ],
+    // Elemental Lineage is chosen via the Elven Stride Echo Artifact picker (four
+    // separate items: Fire / Earth / Water / Air), not as a racial sub-choice.
     deck: [
         {
             id: 'mask-of-the-fair',

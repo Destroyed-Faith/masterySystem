@@ -76,6 +76,21 @@ describe('Echo Artifact catalog — lookups', () => {
             expect(def.echoKey).toBe('dwarfs');
         }
     });
+
+    it('Elves pick exactly one of four lineage-specific Elven Stride artifacts', () => {
+        const elfList = listSelectableEchoArtifacts('elves');
+        const keys = elfList.map((d) => d.key).sort();
+        expect(keys).toEqual([
+            'elvenStrideAir',
+            'elvenStrideEarth',
+            'elvenStrideFire',
+            'elvenStrideWater',
+        ]);
+        const rule = getEchoArtifactRules('elves');
+        expect(rule.requiredAtCreation).toBe(1);
+        expect(rule.maxAtCreation).toBe(1);
+        expect(rule.exclusiveGroups?.[0]?.sort()).toEqual(keys);
+    });
 });
 
 describe('buildArtifactSystemFromEchoDef — artifact item shape', () => {

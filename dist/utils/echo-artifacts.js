@@ -6,7 +6,7 @@
  *
  *   • Human:      0 required, 0 maximum.
  *   • Dwarf:      1 required, 1 maximum.   (Stonebound Soles — Feet)
- *   • Elf:        1 required, 1 maximum.   (Elven Stride — Feet, lineage sub-choice)
+ *   • Elf:        1 required, 1 maximum.   (One Elven Stride per Elemental Lineage)
  *   • Sentinel:   1 required, 1 maximum.   (One frame per Order)
  *   • Titanborn:  1 required, 1 maximum.   (Titan Scars — Body)
  *   • Dragonborn: 1 required, 3 maximum.   (Dragon Claws, Dragon Head, and one
@@ -146,116 +146,209 @@ const STONEBOUND_SOLES = {
 // ----------------------------------------------------------------------
 // Elven Stride (Elf)
 // ----------------------------------------------------------------------
-const ELVEN_STRIDE = {
-    key: 'elvenStride',
-    name: 'Elven Stride',
-    echoKey: 'elves',
-    slot: 'feet',
-    baseProfile: 'feet',
-    description: 'Otherworldly balance, reflex, clinging movement, and elemental lineage. Pick an Elemental Lineage when the artifact is created.',
-    restriction: 'An elf with Elven Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact.',
-    progressionPickIds: {
-        1: 'reaction-evade',
-        2: 'movement-wall-walk',
-        3: 'ab-evade',
-    },
-    baseValues: [
-        { slot: 'a', label: 'Evade', note: '+2 to +12 Evade across levels.' },
-        { slot: 'b', label: 'Clinging', note: '+1 to +4 m Clinging at higher levels.' },
+/** Shared Elven Stride shell; lineage-specific L3/L6/L9 rows are injected. */
+function buildElvenStrideDefinition(opts) {
+    const [l3, l6, l9] = opts.lineageRows;
+    return {
+        key: opts.key,
+        name: opts.name,
+        echoKey: 'elves',
+        slot: 'feet',
+        baseProfile: 'feet',
+        description: `Elven Stride (${opts.lineageLabel}): otherworldly balance, reflex, clinging movement, and ${opts.lineageLabel} lineage empowerment.`,
+        restriction: 'An elf with Elven Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact.',
+        progressionPickIds: {
+            1: 'reaction-evade',
+            2: 'movement-wall-walk',
+            3: 'ab-evade',
+        },
+        baseValues: [
+            { slot: 'a', label: 'Evade', note: '+2 to +12 Evade across levels.' },
+            { slot: 'b', label: 'Clinging', note: '+1 to +4 m Clinging at higher levels.' },
+        ],
+        levelProgression: [
+            {
+                level: 1,
+                name: 'Otherworld Reflex I',
+                type: 'Reaction',
+                range: 'Self',
+                duration: 'Triggering attack only',
+                effect: 'Gain +4 Evade against the triggering attack.',
+                special: 'Otherworld Reflex',
+            },
+            {
+                level: 2,
+                name: 'Elven Cling I',
+                type: 'Movement',
+                range: 'Self',
+                duration: 'Instant',
+                effect: 'Move up to 10 m along walls, ceilings, or similar solid surfaces.',
+                special: 'Wall Walk',
+            },
+            {
+                level: 3,
+                name: l3.name,
+                type: 'Support',
+                range: 'Self',
+                duration: 'Special',
+                effect: l3.effect,
+                special: l3.special,
+            },
+            {
+                level: 4,
+                name: 'Otherworld Reflex II',
+                type: 'Reaction',
+                range: 'Self',
+                duration: 'Triggering attack only',
+                effect: 'Gain +8 Evade against the triggering attack.',
+                special: 'Otherworld Reflex',
+            },
+            {
+                level: 5,
+                name: 'Elven Cling II',
+                type: 'Movement',
+                range: 'Self',
+                duration: 'Instant',
+                effect: 'Move up to 25 m along walls, ceilings, or similar solid surfaces.',
+                special: 'Wall Walk',
+            },
+            {
+                level: 6,
+                name: l6.name,
+                type: 'Support',
+                range: 'Self',
+                duration: 'Special',
+                effect: l6.effect,
+                special: l6.special,
+            },
+            {
+                level: 7,
+                name: 'Otherworld Reflex III',
+                type: 'Reaction',
+                range: 'Self',
+                duration: 'Triggering attack only',
+                effect: 'Gain +12 Evade against the triggering attack.',
+                special: 'Otherworld Reflex',
+            },
+            {
+                level: 8,
+                name: 'Elven Cling III',
+                type: 'Movement',
+                range: 'Self',
+                duration: 'Instant',
+                effect: 'Move up to 28 m along walls, ceilings, or similar solid surfaces.',
+                special: 'Wall Walk',
+            },
+            {
+                level: 9,
+                name: l9.name,
+                type: 'Support',
+                range: 'Self',
+                duration: 'Special',
+                effect: l9.effect,
+                special: l9.special,
+            },
+            {
+                level: 10,
+                name: 'True Elven Stride',
+                type: 'Ultimate',
+                range: 'Self',
+                duration: 'Special',
+                effect: 'Elven Stride fully awakens. Choose or define one final movement, reflex, clinging, lineage, or agility effect with GM approval.',
+                special: 'True Elven Stride',
+            },
+        ],
+    };
+}
+const lineageUsesNote = 'Uses per Safe Haven Rest: half Mastery Rank, rounded up. The Active Buff cannot exceed Power Level 16.';
+const ELVEN_STRIDE_FIRE = buildElvenStrideDefinition({
+    key: 'elvenStrideFire',
+    name: 'Elven Stride (Fire)',
+    lineageLabel: 'Fire',
+    lineageRows: [
+        {
+            name: 'Ember Surge I',
+            effect: `When you activate an Active Buff that grants Damage as one of its effects, you may increase that Buff's effective Power Level by +1 and its duration by +1 round. ${lineageUsesNote}`,
+            special: 'Damage Buff Empowerment',
+        },
+        {
+            name: 'Ember Surge II',
+            effect: `When you activate an Active Buff that grants Damage as one of its effects, you may increase that Buff's effective Power Level by +2 and its duration by +2 rounds. ${lineageUsesNote}`,
+            special: 'Damage Buff Empowerment',
+        },
+        {
+            name: 'Ember Surge III',
+            effect: `When you activate an Active Buff that grants Damage as one of its effects, you may increase that Buff's effective Power Level by +3 and its duration by +3 rounds. ${lineageUsesNote}`,
+            special: 'Damage Buff Empowerment',
+        },
     ],
-    levelProgression: [
+});
+const ELVEN_STRIDE_EARTH = buildElvenStrideDefinition({
+    key: 'elvenStrideEarth',
+    name: 'Elven Stride (Earth)',
+    lineageLabel: 'Earth',
+    lineageRows: [
         {
-            level: 1,
-            name: 'Otherworld Reflex I',
-            type: 'Reaction',
-            range: 'Self',
-            duration: 'Triggering attack only',
-            effect: 'Gain +4 Evade against the triggering attack.',
-            special: 'Otherworld Reflex',
+            name: 'Stoneweave Guard I',
+            effect: `When you activate an Active Buff that grants Armor as one of its effects, you may increase that Buff's effective Power Level by +1 and its duration by +1 round. ${lineageUsesNote}`,
+            special: 'Armor Buff Empowerment',
         },
         {
-            level: 2,
-            name: 'Elven Cling I',
-            type: 'Movement',
-            range: 'Self',
-            duration: 'Instant',
-            effect: 'Move up to 10 m along walls, ceilings, or similar solid surfaces.',
-            special: 'Wall Walk',
+            name: 'Stoneweave Guard II',
+            effect: `When you activate an Active Buff that grants Armor as one of its effects, you may increase that Buff's effective Power Level by +2 and its duration by +2 rounds. ${lineageUsesNote}`,
+            special: 'Armor Buff Empowerment',
         },
         {
-            level: 3,
-            name: 'Elemental Lineage I',
-            type: 'Support',
-            range: 'Self',
-            duration: 'Special',
-            effect: 'Use the chosen Elemental Lineage I effect.',
-            special: 'Elemental Lineage',
-        },
-        {
-            level: 4,
-            name: 'Otherworld Reflex II',
-            type: 'Reaction',
-            range: 'Self',
-            duration: 'Triggering attack only',
-            effect: 'Gain +8 Evade against the triggering attack.',
-            special: 'Otherworld Reflex',
-        },
-        {
-            level: 5,
-            name: 'Elven Cling II',
-            type: 'Movement',
-            range: 'Self',
-            duration: 'Instant',
-            effect: 'Move up to 25 m along walls, ceilings, or similar solid surfaces.',
-            special: 'Wall Walk',
-        },
-        {
-            level: 6,
-            name: 'Elemental Lineage II',
-            type: 'Support',
-            range: 'Self',
-            duration: 'Special',
-            effect: 'Use the chosen Elemental Lineage II effect.',
-            special: 'Elemental Lineage',
-        },
-        {
-            level: 7,
-            name: 'Otherworld Reflex III',
-            type: 'Reaction',
-            range: 'Self',
-            duration: 'Triggering attack only',
-            effect: 'Gain +12 Evade against the triggering attack.',
-            special: 'Otherworld Reflex',
-        },
-        {
-            level: 8,
-            name: 'Elven Cling III',
-            type: 'Movement',
-            range: 'Self',
-            duration: 'Instant',
-            effect: 'Move up to 28 m along walls, ceilings, or similar solid surfaces.',
-            special: 'Wall Walk',
-        },
-        {
-            level: 9,
-            name: 'Elemental Lineage III',
-            type: 'Support',
-            range: 'Self',
-            duration: 'Special',
-            effect: 'Use the chosen Elemental Lineage III effect.',
-            special: 'Elemental Lineage',
-        },
-        {
-            level: 10,
-            name: 'True Elven Stride',
-            type: 'Ultimate',
-            range: 'Self',
-            duration: 'Special',
-            effect: 'Elven Stride fully awakens. Choose or define one final movement, reflex, clinging, lineage, or agility effect with GM approval.',
-            special: 'True Elven Stride',
+            name: 'Stoneweave Guard III',
+            effect: `When you activate an Active Buff that grants Armor as one of its effects, you may increase that Buff's effective Power Level by +3 and its duration by +3 rounds. ${lineageUsesNote}`,
+            special: 'Armor Buff Empowerment',
         },
     ],
-};
+});
+const ELVEN_STRIDE_WATER = buildElvenStrideDefinition({
+    key: 'elvenStrideWater',
+    name: 'Elven Stride (Water)',
+    lineageLabel: 'Water',
+    lineageRows: [
+        {
+            name: 'Tidal Slip I',
+            effect: `When you activate an Active Buff that grants Evade as one of its effects, you may increase that Buff's effective Power Level by +1 and its duration by +1 round. ${lineageUsesNote}`,
+            special: 'Evade Buff Empowerment',
+        },
+        {
+            name: 'Tidal Slip II',
+            effect: `When you activate an Active Buff that grants Evade as one of its effects, you may increase that Buff's effective Power Level by +2 and its duration by +2 rounds. ${lineageUsesNote}`,
+            special: 'Evade Buff Empowerment',
+        },
+        {
+            name: 'Tidal Slip III',
+            effect: `When you activate an Active Buff that grants Evade as one of its effects, you may increase that Buff's effective Power Level by +3 and its duration by +3 rounds. ${lineageUsesNote}`,
+            special: 'Evade Buff Empowerment',
+        },
+    ],
+});
+const ELVEN_STRIDE_AIR = buildElvenStrideDefinition({
+    key: 'elvenStrideAir',
+    name: 'Elven Stride (Air)',
+    lineageLabel: 'Air',
+    lineageRows: [
+        {
+            name: 'Wind-First I',
+            effect: `When you activate an Active Buff that grants Evade or movement-related positioning as one of its effects, you may increase that Buff's effective Power Level by +1 and its duration by +1 round. ${lineageUsesNote}`,
+            special: 'Wind Buff Empowerment',
+        },
+        {
+            name: 'Wind-First II',
+            effect: `When you activate an Active Buff that grants Evade or movement-related positioning as one of its effects, you may increase that Buff's effective Power Level by +2 and its duration by +2 rounds. ${lineageUsesNote}`,
+            special: 'Wind Buff Empowerment',
+        },
+        {
+            name: 'Wind-First III',
+            effect: `When you activate an Active Buff that grants Evade or movement-related positioning as one of its effects, you may increase that Buff's effective Power Level by +3 and its duration by +3 rounds. ${lineageUsesNote}`,
+            special: 'Wind Buff Empowerment',
+        },
+    ],
+});
 // ----------------------------------------------------------------------
 // Titan Scars (Titanborn)
 // ----------------------------------------------------------------------
@@ -1226,7 +1319,10 @@ const ORACLE_FRAME = {
 // ----------------------------------------------------------------------
 export const ECHO_ARTIFACTS = {
     stoneboundSoles: STONEBOUND_SOLES,
-    elvenStride: ELVEN_STRIDE,
+    elvenStrideFire: ELVEN_STRIDE_FIRE,
+    elvenStrideEarth: ELVEN_STRIDE_EARTH,
+    elvenStrideWater: ELVEN_STRIDE_WATER,
+    elvenStrideAir: ELVEN_STRIDE_AIR,
     titanScars: TITAN_SCARS,
     wyrmScales: WYRM_SCALES,
     serpentScales: SERPENT_SCALES,
@@ -1248,7 +1344,8 @@ export const ECHO_ARTIFACT_RULES = {
         echoKey: 'elves',
         requiredAtCreation: 1,
         maxAtCreation: 1,
-        availableKeys: ['elvenStride'],
+        availableKeys: ['elvenStrideFire', 'elvenStrideEarth', 'elvenStrideWater', 'elvenStrideAir'],
+        exclusiveGroups: [['elvenStrideFire', 'elvenStrideEarth', 'elvenStrideWater', 'elvenStrideAir']],
     },
     sentinels: {
         echoKey: 'sentinels',

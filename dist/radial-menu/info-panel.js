@@ -101,6 +101,9 @@ export function showRadialInfoPanel(token, option) {
                 specialText = weaponSystem.special;
             }
         }
+        else {
+            damageText = '1d8';
+        }
     }
     // Build info HTML
     let infoHTML = `

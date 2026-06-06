@@ -401,7 +401,7 @@ export class MasteryActor extends Actor {
     }
     
     // Set derived equipment names and IDs
-    system.combat.activeWeaponName = equippedWeapon?.name || null;
+    system.combat.activeWeaponName = equippedWeapon?.name || 'Unarmed';
     system.combat.activeWeaponId = equippedWeapon?.id || null;
     system.combat.armorName = equippedArmor?.name || null;
     system.combat.armorId = equippedArmor?.id || null;

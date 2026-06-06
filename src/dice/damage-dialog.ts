@@ -7,6 +7,7 @@ import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { collectMechanicsContributions } from '../utils/power-mechanics.js';
 import { getPassiveSlots } from '../powers/passives.js';
 import { resolveEquippedWeaponForAttackType } from '../utils/equipment-modifiers.js';
+import { applyMeleeUnarmedFallback } from '../utils/unarmed-fallback.js';
 import {
   formatNpcSpecialLabel,
   getNpcAttackByIndex,
@@ -414,24 +415,13 @@ export async function showDamageDialog(
     }
   }
 
-  // Method 4: Legacy — equipped melee, then any equipped (if attackType missing, e.g. old messages)
+  // Method 4: Virtual unarmed when no equipped weapon (melee only)
   if (!isNpcAttackFlow && !weaponForDamage) {
-    weaponForDamage = items.find(
-      (item: any) =>
-        item.type === 'weapon' &&
-        (item.system as any)?.equipped === true &&
-        (item.system as any)?.weaponType === 'melee'
-    );
-  }
-  if (!isNpcAttackFlow && !weaponForDamage) {
-    weaponForDamage = items.find(
-      (item: any) => item.type === 'weapon' && (item.system as any)?.equipped === true
-    );
-  }
-
-  // Method 5: First weapon item on actor (last resort for base damage string)
-  if (!isNpcAttackFlow && !weaponForDamage) {
-    weaponForDamage = items.find((item: any) => item.type === 'weapon');
+    const atk =
+      flags?.attackType === 'ranged' || flags?.attackType === 'melee'
+        ? flags.attackType
+        : 'melee';
+    weaponForDamage = applyMeleeUnarmedFallback(weaponForDamage, atk);
   }
   
   console.log('Mastery System | [DAMAGE DIALOG] Weapon loading', {
