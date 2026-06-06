@@ -177,10 +177,12 @@ const MIGHT_POWERS_RAW = [
         ],
         apply: async ({ actor, tier }) => {
             const combat = game.combat;
+            // Tiers are cumulative TOTALS (+4/+8/+16/+32). SET, don't stack, so
+            // ramping +4→+8 yields +8 (not +12).
             const bonus = [4, 8, 16, 32][tier - 1] ?? 0;
             const roundState = getRoundState(actor, combat);
             const sb = ensureStoneBonuses(roundState);
-            sb.tempArmor = (sb.tempArmor ?? 0) + bonus;
+            sb.tempArmor = bonus;
             await setRoundState(actor, roundState);
         },
     },
@@ -333,17 +335,22 @@ const VITALITY_POWERS_RAW = [
         ],
         apply: async ({ actor, tier }) => {
             const combat = game.combat;
+            // Tiers are cumulative TOTALS (20/40/80/160), not per-wave increments.
             const hp = [20, 40, 80, 160][tier - 1] ?? 0;
             // Canonical field is `tempHP` (capital P) — the damage pipeline and all
-            // health math read/consume that. Writing the lowercase `tempHp` mirror
-            // here meant the granted Temp HP was never seen on incoming damage.
-            const current = Math.max(0, Number(actor.system?.health?.tempHP ?? 0) || 0);
-            await actor.update?.({ 'system.health.tempHP': current + hp });
+            // health math read/consume that.
             const roundState = getRoundState(actor, combat);
             const sb = ensureStoneBonuses(roundState);
-            sb.tempHpGrantedThisTurn = (sb.tempHpGrantedThisTurn ?? 0) + hp;
+            const prevGranted = Math.max(0, Number(sb.tempHpGrantedThisTurn ?? 0) || 0);
+            const current = Math.max(0, Number(actor.system?.health?.tempHP ?? 0) || 0);
+            // SET the stone-granted portion to the new tier total instead of stacking
+            // it: ramping 20→40 yields 40 (not 60), and re-activating never balloons.
+            // Any non-stone Temp HP (e.g. Lean Ward) is preserved.
+            const baseTempHp = Math.max(0, current - prevGranted);
+            await actor.update?.({ 'system.health.tempHP': baseTempHp + hp });
+            sb.tempHpGrantedThisTurn = hp;
             await setRoundState(actor, roundState);
-            ui.notifications?.info(`${actor.name}: +${hp} Temp HP until your next turn.`);
+            ui.notifications?.info(`${actor.name}: ${hp} Temp HP until the start of your next turn.`);
         },
     },
     {
@@ -566,12 +573,14 @@ const RESOLVE_POWERS_RAW = [
         ],
         apply: async ({ actor, tier }) => {
             const combat = game.combat;
+            // Tiers are cumulative TOTALS. SET, don't stack, so ramping +10%→+20%
+            // yields +20% (not +30%).
             const pct = [0, 10, 20, 30][tier - 1] ?? 0;
             if (pct <= 0)
                 return;
             const roundState = getRoundState(actor, combat);
             const sb = ensureStoneBonuses(roundState);
-            sb.damageReductionBoostPct = (sb.damageReductionBoostPct ?? 0) + pct;
+            sb.damageReductionBoostPct = pct;
             await setRoundState(actor, roundState);
         },
     },

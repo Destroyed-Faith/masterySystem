@@ -1197,6 +1197,22 @@ export async function clearCombatStoneTurnBonusesForActor(actor: Actor, combat: 
     (sb.damageReductionBoostPct ?? 0) !== 0 ||
     (sb.phasingChargesFromStones ?? 0) !== 0;
   if (!changed) return;
+  // Expire Temp HP granted by the Vitality "Temporary HP" stone power. It is a
+  // per-turn buff ("until your next turn"): decrement the scalar mirror by the
+  // amount this turn granted so it neither persists nor stacks additively
+  // across turns/rounds. Any still-unused portion is simply lost on expiry.
+  const grantedTempHp = Math.max(0, Math.floor(Number(sb.tempHpGrantedThisTurn ?? 0) || 0));
+  if (grantedTempHp > 0) {
+    const curTempHp = Math.max(0, Math.floor(Number((owner as any).system?.health?.tempHP ?? 0) || 0));
+    const nextTempHp = Math.max(0, curTempHp - grantedTempHp);
+    if (nextTempHp !== curTempHp) {
+      try {
+        await (owner as any).update?.({ 'system.health.tempHP': nextTempHp });
+      } catch (e) {
+        console.warn('Mastery System | Failed to expire stone Temp HP', e);
+      }
+    }
+  }
   // Round-long bonuses persist through spotlight changes; per-turn bonuses
   // reset when the actor's spotlight in the initiative tracker ends.
   roundState.stoneBonuses = {

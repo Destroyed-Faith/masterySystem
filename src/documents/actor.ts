@@ -740,6 +740,45 @@ export class MasteryActor extends Actor {
       });
     }
 
+    // Stone Powers — Might "Armor" (+4/8/16/32 flat Armor) and Resolve
+    // "Damage Reduction Boost" (+% DR) store round-scoped bonuses on the
+    // action-economy round state. Surface them on Armor Total / DR % (and the
+    // breakdowns) so the sheet, carousel AND the damage pipeline agree with
+    // what actually applies during the round.
+    let stoneArmorBonus = 0;
+    let stoneDrBonusPct = 0;
+    try {
+      const g = globalThis as any;
+      const combat = g.game?.combat ?? null;
+      const sb = getRoundState(this as any, combat)?.stoneBonuses;
+      stoneArmorBonus = Math.max(0, Math.floor(Number(sb?.tempArmor ?? 0) || 0));
+      stoneDrBonusPct = Math.max(0, Math.floor(Number(sb?.damageReductionBoostPct ?? 0) || 0));
+    } catch {
+      stoneArmorBonus = 0;
+      stoneDrBonusPct = 0;
+    }
+    (system.combat as any).stoneArmorBonus = stoneArmorBonus;
+    (system.combat as any).stoneDrBonusPct = stoneDrBonusPct;
+    if (stoneArmorBonus > 0) {
+      system.combat.armorTotal = (system.combat.armorTotal || 0) + stoneArmorBonus;
+      (system.combat.armorBreakdownRows as any[]).push({
+        label: 'Stone Powers',
+        detail: 'Temp Armor — clears when your turn ends in the tracker',
+        value: stoneArmorBonus,
+        display: `+${stoneArmorBonus}`,
+      });
+    }
+    if (stoneDrBonusPct > 0) {
+      const curDr = Number(system.combat.damageReductionPct) || 0;
+      system.combat.damageReductionPct = Math.max(0, Math.min(100, curDr + stoneDrBonusPct));
+      (system.combat.damageReductionRows as any[]).push({
+        label: 'Stone Powers',
+        detail: 'DR Boost — clears when your turn ends in the tracker',
+        value: stoneDrBonusPct,
+        display: `+${stoneDrBonusPct}%`,
+      });
+    }
+
     // Attribute Scaling Passives
     if (system.attributes) {
       const might = system.attributes.might?.value || 0;
