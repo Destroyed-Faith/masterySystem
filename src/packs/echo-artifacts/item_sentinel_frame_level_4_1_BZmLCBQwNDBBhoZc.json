@@ -116,7 +116,20 @@
       }
     ],
     "stoneFunction": null,
-    "progressionPicks": [],
+    "progressionPicks": [
+      {
+        "level": 1,
+        "kind": "none"
+      },
+      {
+        "level": 2,
+        "kind": "none"
+      },
+      {
+        "level": 3,
+        "kind": "none"
+      }
+    ],
     "lore": "The armored enforcer frame — an iron wall of heavenly order.",
     "description": "The armored enforcer frame — an iron wall of heavenly order.\n\nA character with a Sentinel Body Artifact cannot wear mundane armor or bind another Body Artifact.",
     "bonuses": {
@@ -981,7 +994,7 @@
       ],
       "echoBound": "sentinels",
       "echoArtifactKey": "sentinelFrame",
-      "seedVersion": 2
+      "seedVersion": 3
     }
   },
   "_id": "BZmLCBQwNDBBhoZc",

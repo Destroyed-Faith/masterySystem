@@ -115,8 +115,30 @@
         "special": "Wyrm Dragon Form"
       }
     ],
-    "stoneFunction": null,
-    "progressionPicks": [],
+    "stoneFunction": {
+      "kind": "stonePowerSupport",
+      "attribute": "might",
+      "stonePowerId": "might.armor"
+    },
+    "progressionPicks": [
+      {
+        "level": 1,
+        "kind": "none"
+      },
+      {
+        "level": 2,
+        "kind": "none"
+      },
+      {
+        "level": 3,
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stonePowerSupport",
+          "attribute": "might",
+          "stonePowerId": "might.armor"
+        }
+      }
+    ],
     "lore": "The heaviest form of Dragonborn natural armor — the character’s body itself.",
     "description": "The heaviest form of Dragonborn natural armor — the character’s body itself.\n\nA Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.",
     "bonuses": {
@@ -1807,7 +1829,7 @@
       ],
       "echoBound": "dragonborn",
       "echoArtifactKey": "wyrmScales",
-      "seedVersion": 2
+      "seedVersion": 3
     }
   },
   "_id": "QZzvuBBCO4vBuJCf",

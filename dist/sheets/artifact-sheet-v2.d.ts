@@ -6,6 +6,8 @@ declare const ApplicationV2: typeof import("@league-of-foundry-developers/foundr
 declare const BaseSheet: typeof ApplicationV2;
 export declare class ArtifactSheetV2 extends BaseSheet {
     private _item;
+    /** Remembered active tab so re-renders (add/delete power) keep their place. */
+    private _activeTab;
     static DEFAULT_OPTIONS: {
         id: string;
         classes: string[];
@@ -28,6 +30,10 @@ export declare class ArtifactSheetV2 extends BaseSheet {
     get document(): Item;
     _prepareContext(_options: any): Promise<any>;
     _onRender(_element: HTMLElement, _options: any): Promise<void>;
+    /** Wire up tab navigation without relying on Foundry's removed global `Tabs`. */
+    private _bindTabs;
+    /** Show one tab, hide the rest, and remember the choice across re-renders. */
+    private _activateTab;
     private _onPowerAction;
     private _onFormChange;
     private _updateLevelField;

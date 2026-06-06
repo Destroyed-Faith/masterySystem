@@ -21,6 +21,43 @@
   <section class="sheet-body">
     {{!-- Description Tab --}}
     <div class="tab" data-group="primary" data-tab="description">
+      {{!-- Read summary: what this artifact is + what it does --}}
+      <div class="artifact-summary">
+        <div class="artifact-summary-meta">
+          {{#if summary.slotLabel}}<span class="artifact-chip">{{summary.slotLabel}}</span>{{/if}}
+          {{#if summary.baseProfileLabel}}<span class="artifact-chip">{{summary.baseProfileLabel}}</span>{{/if}}
+          <span class="artifact-chip">Level {{summary.currentLevel}}</span>
+        </div>
+
+        {{#if summary.hasBaseValues}}
+        <div class="artifact-summary-section">
+          <h4>Base Values</h4>
+          <ul class="artifact-basevalues">
+            {{#each summary.baseValues}}
+            <li><strong>{{slot}}</strong> {{label}} <span class="artifact-bv-type">({{typeLabel}})</span>{{#if value}} — <span class="artifact-bv-value">{{value}}</span>{{/if}}</li>
+            {{/each}}
+          </ul>
+        </div>
+        {{/if}}
+
+        {{#if summary.hasAbilities}}
+        <div class="artifact-summary-section">
+          <h4>Abilities by Level</h4>
+          <ul class="artifact-abilities">
+            {{#each summary.abilities}}
+            <li class="artifact-ability {{#unless unlocked}}artifact-ability-locked{{/unless}}">
+              <span class="artifact-ability-lvl">L{{level}}</span>
+              <span class="artifact-ability-name">{{name}}</span>
+              {{#if type}}<span class="artifact-ability-type">{{type}}</span>{{/if}}
+              {{#if effect}}<div class="artifact-ability-effect">{{effect}}</div>{{/if}}
+              {{#if special}}<div class="artifact-ability-special">Special: {{special}}</div>{{/if}}
+            </li>
+            {{/each}}
+          </ul>
+        </div>
+        {{/if}}
+      </div>
+
       <div class="form-group">
         <label>Level</label>
         <input type="number" name="system.level" value="{{system.level}}" min="1" {{#unless isEditable}}disabled{{/unless}}/>

@@ -615,7 +615,7 @@ export class NodeEditor extends BaseDialog {
       }
       $row
         .find('.node-spec-bv-derived')
-        .text(derived || '—')
+        .text(derived ? `auto: ${derived}` : '—')
         .attr('data-derived', derived);
     };
 

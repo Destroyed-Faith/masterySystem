@@ -25,7 +25,16 @@ export declare function findEchoArtifactRootInWorld(echoArtifactKey: string): an
  * Seed the Echo Artifact library. GM-only and idempotent.
  * @returns number of node items created across all artifacts.
  */
-export declare function seedArtifactLibrary(): Promise<number>;
+export declare function seedArtifactLibrary(options?: {
+    force?: boolean;
+}): Promise<number>;
+/**
+ * GM-triggered hard refresh of the whole Echo Artifact library. Re-runs the
+ * seeder in upgrade mode (force = true) so every existing tree is rebuilt in
+ * place from the current generator output and pushed to embedded actor copies —
+ * a guaranteed manual fix when auto-detection (seedVersion) is somehow bypassed.
+ */
+export declare function forceRefreshEchoArtifactLibrary(): Promise<number>;
 /**
  * Grant the *root* of an Echo Artifact Builder-Tree to an actor as an embedded
  * artifact item, wired to the world tree for evolution (mirrors the GM "Give

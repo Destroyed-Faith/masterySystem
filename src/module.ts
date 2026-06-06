@@ -44,7 +44,7 @@ import { registerDivineClashSettings } from './divine-clash/divine-clash-setting
 import { initializeDivineClashHooks } from './divine-clash/divine-clash-hooks.js';
 import { initializeArtifactAwakening } from './artifacts/artifact-awakening.js';
 import { seedGeneralItemsStorage } from './utils/seed-general-items.js';
-import { seedArtifactLibrary } from './utils/seed-artifact-library.js';
+import { seedArtifactLibrary, forceRefreshEchoArtifactLibrary } from './utils/seed-artifact-library.js';
 import { getItemIcon, normalizeWeaponNameKey } from './utils/item-icons.js';
 import { actorHasPostCreationSnapshot, resetActorProgressToPostCreation } from './utils/xp-post-creation.js';
 import { getPowerDefinitionRank } from './utils/power-definition-rank.js';
@@ -141,14 +141,16 @@ Hooks.once('init', async function() {
   });
   console.log('Mastery System | Registered NPC Sheet');
   
-  // Register Item sheet
+  // Register Item sheet for every type EXCEPT artifact (artifacts use ArtifactSheetV2
+  // exclusively, so the legacy generic sheet never competes for the default slot).
   foundry.documents.collections.Items.registerSheet('mastery-system', MasteryItemSheet, {
+    types: ['power', 'echo', 'schtick', 'condition', 'weapon', 'armor', 'shield', 'gear'],
     makeDefault: true,
     label: 'Mastery Item Sheet'
   });
   console.log('Mastery System | Registered Item Sheet');
   
-  // Register Artifact sheet V2 (for power editing) - override default for artifacts
+  // Register Artifact sheet V2 (for power editing) - sole default for artifacts
   foundry.documents.collections.Items.registerSheet('mastery-system', ArtifactSheetV2, {
     types: ['artifact'],
     makeDefault: true,
@@ -1177,6 +1179,26 @@ function registerSystemSettings() {
     default: true
   });
   
+  // GM "button": toggling this on force-refreshes the Echo Artifact library
+  // (rebuilds every seeded tree from the current generator and pushes the
+  // refresh to embedded actor copies), then resets itself to off.
+  (game as any).settings.register('mastery-system', 'refreshEchoArtifacts', {
+    name: 'Refresh Echo Artifact Library',
+    hint: 'Enable and Save to rebuild all Echo Artifact trees in the world from the latest data (fixes empty/stale Base Values, Stone Functions, and abilities). Resets automatically.',
+    scope: 'world',
+    config: true,
+    type: Boolean,
+    default: false,
+    onChange: async (value: boolean) => {
+      if (!value) return;
+      try {
+        if (game.user?.isGM) await forceRefreshEchoArtifactLibrary();
+      } finally {
+        await (game as any).settings.set('mastery-system', 'refreshEchoArtifacts', false);
+      }
+    },
+  });
+
   // Debug mode
   (game as any).settings.register('mastery-system', 'debugMode', {
     name: 'Debug Mode',
@@ -2449,6 +2471,11 @@ Hooks.once('ready', async function() {
       console.warn('Mastery System | Failed to seed Echo Artifact library on ready', error);
     }
   }
+
+  // Expose a small GM/macro API: game.masterySystem.refreshEchoArtifacts().
+  (game as any).masterySystem = Object.assign((game as any).masterySystem || {}, {
+    refreshEchoArtifacts: forceRefreshEchoArtifactLibrary,
+  });
 
   // One-shot Trees → Templates power cutover (GM-only, guarded by world setting).
   try {

@@ -25,6 +25,7 @@ import {
   readActorArtifactProgress,
   serializeActorArtifactProgress,
 } from './artifact-actor-rules.js';
+import { pushWorldArtifactNodeToEmbeddedActors } from './artifact-embedded-sync.js';
 
 export const ECHO_ARTIFACT_LIBRARY_FOLDER_NAME = 'Echo Artifacts';
 
@@ -103,6 +104,14 @@ async function upgradeEchoArtifactTreeInPlace(
       };
       if (flags.isRoot) update['flags.mastery-system.isRoot'] = true;
       await existing.update(update);
+      // Propagate the refreshed node to any actor that already holds this copy
+      // (matched by evolutionRootItemId + evolutionNodeId), so live characters
+      // pick up the new Base Values / Stone Function without re-granting.
+      try {
+        await pushWorldArtifactNodeToEmbeddedActors(existing);
+      } catch (e) {
+        console.warn('Mastery System | Failed to push refreshed artifact node to actors', e);
+      }
       touched += 1;
     } else {
       data.folder = folderId;
@@ -131,8 +140,9 @@ export function findEchoArtifactRootInWorld(echoArtifactKey: string): any {
  * Seed the Echo Artifact library. GM-only and idempotent.
  * @returns number of node items created across all artifacts.
  */
-export async function seedArtifactLibrary(): Promise<number> {
+export async function seedArtifactLibrary(options: { force?: boolean } = {}): Promise<number> {
   if (!game.user?.isGM) return 0;
+  const force = options.force === true;
 
   const trees = buildAllEchoArtifactTrees();
   if (trees.length === 0) return 0;
@@ -147,12 +157,16 @@ export async function seedArtifactLibrary(): Promise<number> {
     const existing = findAllEchoArtifactWorldItems(tree.echoArtifactKey);
 
     if (existing.length > 0) {
-      // Already seeded — refresh in place only if the content version changed,
-      // so per-actor progress (`actorLevels`) and evolution links are kept.
-      const isStale = existing.some(
-        (it) =>
-          Number(it.getFlag?.('mastery-system', 'seedVersion') || 0) !== ECHO_ARTIFACT_SEED_VERSION,
-      );
+      // Already seeded — refresh in place when forced or when the content
+      // version changed, so per-actor progress (`actorLevels`) and evolution
+      // links are kept.
+      const isStale =
+        force ||
+        existing.some(
+          (it) =>
+            Number(it.getFlag?.('mastery-system', 'seedVersion') || 0) !==
+            ECHO_ARTIFACT_SEED_VERSION,
+        );
       if (isStale) {
         upgraded += await upgradeEchoArtifactTreeInPlace(tree, existing);
       }
@@ -184,6 +198,26 @@ export async function seedArtifactLibrary(): Promise<number> {
     ui.notifications?.info(`Refreshed ${upgraded} Echo Artifact items to the latest data.`);
   }
   return count + upgraded;
+}
+
+/**
+ * GM-triggered hard refresh of the whole Echo Artifact library. Re-runs the
+ * seeder in upgrade mode (force = true) so every existing tree is rebuilt in
+ * place from the current generator output and pushed to embedded actor copies —
+ * a guaranteed manual fix when auto-detection (seedVersion) is somehow bypassed.
+ */
+export async function forceRefreshEchoArtifactLibrary(): Promise<number> {
+  if (!game.user?.isGM) {
+    ui.notifications?.warn('Only the GM can refresh the Echo Artifact library.');
+    return 0;
+  }
+  const n = await seedArtifactLibrary({ force: true });
+  ui.notifications?.info(
+    n > 0
+      ? `Echo Artifact library refreshed (${n} node items updated).`
+      : 'Echo Artifact library is already up to date.',
+  );
+  return n;
 }
 
 /**

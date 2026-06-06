@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buildAllEchoArtifactTrees,
   buildEchoArtifactTree,
+  ECHO_ARTIFACT_SEED_VERSION,
 } from '../src/artifacts/echo-artifact-tree-builder.js';
 import { ECHO_ARTIFACTS, getEchoArtifact } from '../src/utils/echo-artifacts.js';
 
@@ -104,9 +105,49 @@ describe('Echo Artifact tree builder — exact Base Values', () => {
   });
 
   it('stamps the current seed version on every node (for in-place refresh)', () => {
+    expect(ECHO_ARTIFACT_SEED_VERSION).toBe(3);
     const tree = buildEchoArtifactTree(getEchoArtifact('titanScars')!);
     for (const node of tree.nodes) {
-      expect(flag(node, 'seedVersion')).toBeGreaterThanOrEqual(2);
+      expect(flag(node, 'seedVersion')).toBe(ECHO_ARTIFACT_SEED_VERSION);
+    }
+  });
+});
+
+describe('Echo Artifact tree builder — Stone Function auto-fill', () => {
+  it('Dragon Claws carry the Extra Attack stone support + matching L1 pick', () => {
+    const tree = buildEchoArtifactTree(getEchoArtifact('dragonClaws')!);
+    // The Stone Function unlocks at level 1, so it is active on every node.
+    for (const node of tree.nodes) {
+      const sys = node.itemData.system as any;
+      expect(sys.stoneFunction).toEqual({
+        kind: 'stonePowerSupport',
+        attribute: 'might',
+        stonePowerId: 'generic.extraAttack',
+      });
+      const l1 = (sys.progressionPicks as any[]).find((p) => p.level === 1);
+      expect(l1.kind).toBe('stoneFunction');
+      expect(l1.stoneFunction.stonePowerId).toBe('generic.extraAttack');
+    }
+  });
+
+  it('gates the active Stone Function by its unlock level (Wyrm Scales = L3)', () => {
+    const tree = buildEchoArtifactTree(getEchoArtifact('wyrmScales')!);
+    // Below L3 the active stoneFunction is null; the editable pick is still authored.
+    expect((tree.nodes[0].itemData.system as any).stoneFunction).toBeNull();
+    expect((tree.nodes[2].itemData.system as any).stoneFunction).toEqual({
+      kind: 'stonePowerSupport',
+      attribute: 'might',
+      stonePowerId: 'might.armor',
+    });
+    const picks = (tree.nodes[0].itemData.system as any).progressionPicks as any[];
+    const l3 = picks.find((p) => p.level === 3);
+    expect(l3.kind).toBe('stoneFunction');
+  });
+
+  it('omits a Stone Function for artifacts without a slot-legal one (Elven Stride)', () => {
+    const tree = buildEchoArtifactTree(getEchoArtifact('elvenStride')!);
+    for (const node of tree.nodes) {
+      expect((node.itemData.system as any).stoneFunction).toBeNull();
     }
   });
 });

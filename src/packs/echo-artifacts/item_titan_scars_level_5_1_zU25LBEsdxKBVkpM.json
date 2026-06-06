@@ -115,8 +115,30 @@
         "special": "True Titan Scars"
       }
     ],
-    "stoneFunction": null,
-    "progressionPicks": [],
+    "stoneFunction": {
+      "kind": "stonePowerSupport",
+      "attribute": "might",
+      "stonePowerId": "might.meleeDamage"
+    },
+    "progressionPicks": [
+      {
+        "level": 1,
+        "kind": "none"
+      },
+      {
+        "level": 2,
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stonePowerSupport",
+          "attribute": "might",
+          "stonePowerId": "might.meleeDamage"
+        }
+      },
+      {
+        "level": 3,
+        "kind": "none"
+      }
+    ],
     "lore": "Ancient scars, stone-like tissue, Titan blood, and broken divine bindings grown into the body.",
     "description": "Ancient scars, stone-like tissue, Titan blood, and broken divine bindings grown into the body.\n\nA Titanborn with Titan Scars cannot wear mundane armor or bind another Body Artifact.",
     "bonuses": {
@@ -1188,7 +1210,7 @@
       ],
       "echoBound": "titanborn",
       "echoArtifactKey": "titanScars",
-      "seedVersion": 2
+      "seedVersion": 3
     }
   },
   "_id": "zU25LBEsdxKBVkpM",

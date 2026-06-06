@@ -134,8 +134,30 @@
         "special": "True Dragon Claws"
       }
     ],
-    "stoneFunction": null,
-    "progressionPicks": [],
+    "stoneFunction": {
+      "kind": "stonePowerSupport",
+      "attribute": "might",
+      "stonePowerId": "generic.extraAttack"
+    },
+    "progressionPicks": [
+      {
+        "level": 1,
+        "kind": "stoneFunction",
+        "stoneFunction": {
+          "kind": "stonePowerSupport",
+          "attribute": "might",
+          "stonePowerId": "generic.extraAttack"
+        }
+      },
+      {
+        "level": 2,
+        "kind": "none"
+      },
+      {
+        "level": 3,
+        "kind": "none"
+      }
+    ],
     "lore": "Both hands become natural weapons: claws, scales, and tail.",
     "description": "Both hands become natural weapons: claws, scales, and tail.\n\nA Dragonborn with Dragon Claws cannot wield another weapon, shield, or hand-based Artifact while using them. Occupies both hand slots.",
     "bonuses": {
@@ -1646,7 +1668,7 @@
       ],
       "echoBound": "dragonborn",
       "echoArtifactKey": "dragonClaws",
-      "seedVersion": 2
+      "seedVersion": 3
     }
   },
   "_id": "oPq8mBZ2EHoBIA3r",

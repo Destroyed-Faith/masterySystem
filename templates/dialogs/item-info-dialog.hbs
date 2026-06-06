@@ -94,12 +94,36 @@
     <h3 class="item-info-section-title">Artifact</h3>
     <dl class="item-info-dl item-info-dl-grid">
       <dt>Level</dt><dd>{{artifactProfile.level}}</dd>
+      {{#if artifactProfile.slotLabel}}<dt>Slot</dt><dd>{{artifactProfile.slotLabel}}</dd>{{/if}}
+      {{#if artifactProfile.baseProfileLabel}}<dt>Base profile</dt><dd>{{artifactProfile.baseProfileLabel}}</dd>{{/if}}
       <dt>Inventory size</dt><dd>{{artifactProfile.inventorySize}}</dd>
       {{#if artifactProfile.requirements}}
       <dt>Requirements</dt>
       <dd>Stones {{artifactProfile.requirements.stones}} · MR {{artifactProfile.requirements.masteryRank}}</dd>
       {{/if}}
     </dl>
+
+    {{#if artifactProfile.hasBaseValues}}
+    <h4 class="item-info-subtitle">Base values</h4>
+    <ul class="item-info-special-list">
+      {{#each artifactProfile.baseValues}}
+      <li><strong>{{slot}}</strong> {{label}} <span class="item-info-muted">({{typeLabel}})</span>{{#if value}} — {{value}}{{/if}}</li>
+      {{/each}}
+    </ul>
+    {{/if}}
+
+    {{#if artifactProfile.hasAbilities}}
+    <h4 class="item-info-subtitle">Abilities by level</h4>
+    <ul class="item-info-ability-list">
+      {{#each artifactProfile.abilities}}
+      <li class="{{#unless unlocked}}item-info-muted{{/unless}}">
+        <span class="item-info-ability-name">L{{level}} · {{name}}{{#if type}} <span class="item-info-muted">({{type}})</span>{{/if}}</span>
+        {{#if effect}}<span class="item-info-ability-desc">{{effect}}</span>{{/if}}
+        {{#if special}}<span class="item-info-ability-desc">Special: {{special}}</span>{{/if}}
+      </li>
+      {{/each}}
+    </ul>
+    {{/if}}
     {{#if artifactProfile.legacyBonuses.show}}
     <h4 class="item-info-subtitle">Legacy flat bonuses</h4>
     <dl class="item-info-dl item-info-dl-grid">

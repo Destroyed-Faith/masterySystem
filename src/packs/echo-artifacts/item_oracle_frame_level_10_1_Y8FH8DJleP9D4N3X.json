@@ -116,7 +116,20 @@
       }
     ],
     "stoneFunction": null,
-    "progressionPicks": [],
+    "progressionPicks": [
+      {
+        "level": 1,
+        "kind": "none"
+      },
+      {
+        "level": 2,
+        "kind": "none"
+      },
+      {
+        "level": 3,
+        "kind": "none"
+      }
+    ],
     "lore": "An arcane vessel of command, prophecy, and divine will.",
     "description": "An arcane vessel of command, prophecy, and divine will.\n\nA character with a Sentinel Body Artifact cannot wear mundane armor or bind another Body Artifact.",
     "bonuses": {
@@ -2228,7 +2241,7 @@
       "childIds": [],
       "echoBound": "sentinels",
       "echoArtifactKey": "oracleFrame",
-      "seedVersion": 2
+      "seedVersion": 3
     }
   },
   "_id": "Y8FH8DJleP9D4N3X",

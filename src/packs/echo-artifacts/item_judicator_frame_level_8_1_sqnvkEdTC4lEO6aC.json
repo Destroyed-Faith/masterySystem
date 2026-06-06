@@ -116,7 +116,20 @@
       }
     ],
     "stoneFunction": null,
-    "progressionPicks": [],
+    "progressionPicks": [
+      {
+        "level": 1,
+        "kind": "none"
+      },
+      {
+        "level": 2,
+        "kind": "none"
+      },
+      {
+        "level": 3,
+        "kind": "none"
+      }
+    ],
     "lore": "A judge, inquisitor, and divine executioner frame.",
     "description": "A judge, inquisitor, and divine executioner frame.\n\nA character with a Sentinel Body Artifact cannot wear mundane armor or bind another Body Artifact.",
     "bonuses": {
@@ -1813,7 +1826,7 @@
       ],
       "echoBound": "sentinels",
       "echoArtifactKey": "judicatorFrame",
-      "seedVersion": 2
+      "seedVersion": 3
     }
   },
   "_id": "sqnvkEdTC4lEO6aC",

@@ -4,11 +4,14 @@
  */
 import { EMBEDDED_POWER_ACTION_COSTS, EMBEDDED_POWER_AOE_SHAPES, EMBEDDED_POWER_CATEGORIES, EMBEDDED_POWER_DURATION_KINDS, EMBEDDED_POWER_LIMIT_PERS, EMBEDDED_POWER_RANGE_KINDS, createDefaultEmbeddedPower, ensurePowerLevels } from '../utils/embedded-power-ui-constants.js';
 import { isOldPowerStructure, migrateArtifactPower } from '../utils/power-migration.js';
+import { ARTIFACT_SLOT_LABELS, BASE_PROFILE_LABELS, BASE_VALUE_TYPE_LABELS, } from '../utils/artifact-rules.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 // Type workaround for Mixin
 const BaseSheet = HandlebarsApplicationMixin(ApplicationV2);
 export class ArtifactSheetV2 extends BaseSheet {
     _item;
+    /** Remembered active tab so re-renders (add/delete power) keep their place. */
+    _activeTab = 'description';
     static DEFAULT_OPTIONS = {
         id: 'mastery-artifact-sheet',
         classes: ['mastery-system', 'sheet', 'item', 'artifact'],
@@ -66,10 +69,42 @@ export class ArtifactSheetV2 extends BaseSheet {
             ];
             return powerData;
         });
+        // ---- Read-friendly summary (what the artifact is + what it does) ----
+        const slotKey = String(system.slot || '');
+        const profileKey = String(system.baseProfile || '');
+        const currentLevel = Math.max(1, Math.min(10, Number(system.currentLevel) || Number(system.level) || 1));
+        const baseValueRows = (Array.isArray(system.baseValues) ? system.baseValues : [])
+            .map((bv) => ({
+            slot: String(bv.slot || '').toUpperCase(),
+            typeLabel: BASE_VALUE_TYPE_LABELS[bv.type] || bv.type || '',
+            label: bv.label || '',
+            value: bv.value != null && bv.value !== '' ? String(bv.value) : (bv.note || ''),
+        }));
+        const abilities = (Array.isArray(system.levelProgression) ? system.levelProgression : [])
+            .slice()
+            .sort((a, b) => (Number(a?.level) || 0) - (Number(b?.level) || 0))
+            .map((row) => ({
+            level: Number(row.level) || 1,
+            name: row.name || '',
+            type: row.type || '',
+            effect: row.effect || '',
+            special: row.special || '',
+            unlocked: (Number(row.level) || 1) <= currentLevel,
+        }));
+        const summary = {
+            slotLabel: ARTIFACT_SLOT_LABELS[slotKey] || '',
+            baseProfileLabel: BASE_PROFILE_LABELS[profileKey] || '',
+            currentLevel,
+            baseValues: baseValueRows,
+            abilities,
+            hasAbilities: abilities.length > 0,
+            hasBaseValues: baseValueRows.length > 0,
+        };
         return {
             item: this.item,
             system,
             powers,
+            summary,
             isEditable: this.item.isOwner,
             categories: EMBEDDED_POWER_CATEGORIES,
             actionCosts: EMBEDDED_POWER_ACTION_COSTS,
@@ -101,11 +136,37 @@ export class ArtifactSheetV2 extends BaseSheet {
         html.addEventListener('input', handleFormChange);
         // Handle special add/remove
         html.addEventListener('click', this._onSpecialAction.bind(this));
-        // Initialize tabs using Foundry's tab system
-        const tabs = html.querySelector('.sheet-tabs');
-        if (tabs && !tabs._tabs) {
-            new Tabs({ navSelector: '.sheet-tabs', contentSelector: '.sheet-body', initial: 'description' }).bind(html);
+        // Tabs: robust manual switching (the legacy global `Tabs` was removed in v13).
+        this._bindTabs(html);
+    }
+    /** Wire up tab navigation without relying on Foundry's removed global `Tabs`. */
+    _bindTabs(html) {
+        const navItems = Array.from(html.querySelectorAll('.sheet-tabs [data-tab]'));
+        const available = navItems.map((a) => a.dataset.tab || '').filter(Boolean);
+        if (available.length && !available.includes(this._activeTab)) {
+            this._activeTab = available[0];
         }
+        for (const nav of navItems) {
+            nav.addEventListener('click', (ev) => {
+                ev.preventDefault();
+                const tab = nav.dataset.tab;
+                if (tab)
+                    this._activateTab(html, tab);
+            });
+        }
+        this._activateTab(html, this._activeTab);
+    }
+    /** Show one tab, hide the rest, and remember the choice across re-renders. */
+    _activateTab(html, tabName) {
+        this._activeTab = tabName;
+        html.querySelectorAll('.sheet-tabs [data-tab]').forEach((a) => {
+            a.classList.toggle('active', a.dataset.tab === tabName);
+        });
+        html.querySelectorAll('.sheet-body .tab[data-tab]').forEach((t) => {
+            const on = t.dataset.tab === tabName;
+            t.classList.toggle('active', on);
+            t.style.display = on ? '' : 'none';
+        });
     }
     async _onPowerAction(event) {
         const target = event.target;

@@ -123,7 +123,20 @@
       }
     ],
     "stoneFunction": null,
-    "progressionPicks": [],
+    "progressionPicks": [
+      {
+        "level": 1,
+        "kind": "none"
+      },
+      {
+        "level": 2,
+        "kind": "none"
+      },
+      {
+        "level": 3,
+        "kind": "none"
+      }
+    ],
     "lore": "Ancestral weight, deep-road memory, and the old bond between dwarven bodies and stone.",
     "description": "Ancestral weight, deep-road memory, and the old bond between dwarven bodies and stone.\n\nA dwarf with Stonebound Soles cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact.",
     "bonuses": {
@@ -1400,7 +1413,7 @@
       ],
       "echoBound": "dwarfs",
       "echoArtifactKey": "stoneboundSoles",
-      "seedVersion": 2
+      "seedVersion": 3
     }
   },
   "_id": "t1y77C8Oaz6CPHmO",

@@ -28,7 +28,24 @@
  * The catalog is pure data; it is consumed by `character-sheet-echo-dialog.ts`
  * during creation, and by `artifact-actor-rules.ts` for echo-bound checks.
  */
-import type { ArtifactBaseProfileKey, ArtifactSlotKey, ArtifactLevelProgressionRow } from '../types/item.js';
+import type { ArtifactBaseProfileKey, ArtifactSlotKey, ArtifactLevelProgressionRow, ArtifactStoneFunctionKind } from '../types/item.js';
+/**
+ * Authoring shorthand for an Echo Artifact's single canonical Stone Function.
+ * The generator copies this onto `system.stoneFunction` (so the actor-side
+ * aggregator applies it) and emits a matching `progressionPicks` entry at
+ * `level` (so the Node Editor's editable picks reflect it). Only authored for
+ * artifacts whose primary Stone Function uses a slot-legal Attribute
+ * (`ATTRIBUTE_ACCESS_BY_SLOT`) and an existing Stone Power id.
+ */
+export interface EchoArtifactStoneFunctionHint {
+    kind: ArtifactStoneFunctionKind;
+    /** Attribute pool (must be legal for the artifact's slot). */
+    attribute: string;
+    /** For Stone Power Support: the supported Stone Power id. */
+    stonePowerId?: string;
+    /** Basic level (1-3) that introduces the Stone Function. */
+    level: 1 | 2 | 3;
+}
 export interface EchoArtifactBaseValueHint {
     /** Label as it appears in the Player's Guide (Base Value A / B / C). */
     slot: 'a' | 'b' | 'c';
@@ -53,6 +70,14 @@ export interface EchoArtifactDefinition {
     levelProgression: ArtifactLevelProgressionRow[];
     /** Free-text restriction note (e.g. "occupies both hand slots"). */
     restriction?: string;
+    /**
+     * Optional canonical Stone Function. Authored only when slot-legal (see
+     * `EchoArtifactStoneFunctionHint`). Artifacts whose stone supports use an
+     * attribute outside their slot's access (e.g. body frames supporting
+     * Resolve/Wits/Influence) intentionally omit this and keep their stone
+     * supports purely as Level Progression abilities.
+     */
+    stoneFunction?: EchoArtifactStoneFunctionHint;
 }
 export declare const ECHO_ARTIFACTS: Record<string, EchoArtifactDefinition>;
 /** Per-Echo character-creation rules. */
@@ -80,5 +105,20 @@ export declare function listSelectableEchoArtifacts(echoKey: string, subChoiceKe
  * Artifact definition — used when seeding the embedded artifact item
  * on character creation.
  */
+export declare function buildEchoStoneFunction(def: EchoArtifactDefinition): {
+    kind: ArtifactStoneFunctionKind;
+    attribute: string;
+    stonePowerId?: string;
+} | null;
+/**
+ * Build the up-to-three Level Progression picks from an Echo definition.
+ * Currently emits the authored Stone Function pick (if any); other levels
+ * stay `none` (the bespoke active/movement rows live on the 1-10 table).
+ */
+export declare function buildEchoProgressionPicks(def: EchoArtifactDefinition): {
+    level: 1 | 2 | 3;
+    kind: 'none' | 'power' | 'stoneFunction';
+    stoneFunction?: unknown;
+}[];
 export declare function buildArtifactSystemFromEchoDef(def: EchoArtifactDefinition): Record<string, unknown>;
 //# sourceMappingURL=echo-artifacts.d.ts.map

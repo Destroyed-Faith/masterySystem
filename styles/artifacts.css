@@ -1368,3 +1368,55 @@
   color: #f88;
 }
 
+/* --- Artifact Sheet V2: read summary (what the artifact is + does) --- */
+.artifact-sheet-v2 .sheet-body .tab { display: none; }
+.artifact-sheet-v2 .sheet-body .tab.active { display: block; }
+.artifact-sheet-v2 .sheet-tabs .item.active { font-weight: 700; text-decoration: underline; }
+
+.artifact-summary {
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  background: var(--df-bg-body, #14181b);
+}
+.artifact-summary-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.artifact-chip {
+  font-size: 0.8rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  background: var(--df-bg-header, #1b2124);
+  color: var(--df-text-secondary, #b8c0c6);
+}
+.artifact-summary-section { margin-top: 8px; }
+.artifact-summary-section h4 { margin: 0 0 4px; font-size: 0.85rem; opacity: 0.85; }
+.artifact-basevalues,
+.artifact-abilities {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.artifact-bv-type { opacity: 0.7; font-size: 0.85em; }
+.artifact-bv-value { font-weight: 600; }
+.artifact-ability { padding: 3px 0; border-bottom: 1px dashed var(--df-border-primary, #2a2f33); }
+.artifact-ability-locked { opacity: 0.45; }
+.artifact-ability-lvl {
+  display: inline-block;
+  min-width: 2.2em;
+  font-weight: 700;
+  opacity: 0.8;
+}
+.artifact-ability-name { font-weight: 600; }
+.artifact-ability-type { opacity: 0.7; font-size: 0.85em; margin-left: 4px; }
+.artifact-ability-effect { font-size: 0.85rem; opacity: 0.85; margin-left: 2.2em; }
+.artifact-ability-special { font-size: 0.8rem; opacity: 0.7; margin-left: 2.2em; }
+

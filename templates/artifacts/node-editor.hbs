@@ -48,8 +48,8 @@
               <option value="{{opt.id}}" {{#if (eq ../row.specialId opt.id)}}selected{{/if}}>{{opt.label}}</option>
               {{/each}}
             </select>
-            <span class="node-spec-bv-derived" title="Auto-calculated from Base Profile + Artifact Level">{{#if row.derivedDisplay}}{{row.derivedDisplay}}{{else}}—{{/if}}</span>
-            <input type="text" class="node-spec-bv-override" value="{{row.overrideStr}}" placeholder="override (optional)" />
+            <span class="node-spec-bv-derived" data-derived="{{row.derivedDisplay}}" title="Auto-calculated from Base Profile + Artifact Level">{{#if row.derivedDisplay}}auto: {{row.derivedDisplay}}{{else}}—{{/if}}</span>
+            <input type="text" class="node-spec-bv-override" value="{{row.overrideStr}}" placeholder="Value" title="The Base Value for this slot. Leave blank to use the auto-scaled value shown on the left." />
           </div>
           {{/each}}
         </div>

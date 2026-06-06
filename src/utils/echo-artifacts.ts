@@ -33,7 +33,26 @@ import type {
   ArtifactBaseProfileKey,
   ArtifactSlotKey,
   ArtifactLevelProgressionRow,
+  ArtifactStoneFunctionKind,
 } from '../types/item.js';
+
+/**
+ * Authoring shorthand for an Echo Artifact's single canonical Stone Function.
+ * The generator copies this onto `system.stoneFunction` (so the actor-side
+ * aggregator applies it) and emits a matching `progressionPicks` entry at
+ * `level` (so the Node Editor's editable picks reflect it). Only authored for
+ * artifacts whose primary Stone Function uses a slot-legal Attribute
+ * (`ATTRIBUTE_ACCESS_BY_SLOT`) and an existing Stone Power id.
+ */
+export interface EchoArtifactStoneFunctionHint {
+  kind: ArtifactStoneFunctionKind;
+  /** Attribute pool (must be legal for the artifact's slot). */
+  attribute: string;
+  /** For Stone Power Support: the supported Stone Power id. */
+  stonePowerId?: string;
+  /** Basic level (1-3) that introduces the Stone Function. */
+  level: 1 | 2 | 3;
+}
 
 export interface EchoArtifactBaseValueHint {
   /** Label as it appears in the Player's Guide (Base Value A / B / C). */
@@ -60,6 +79,14 @@ export interface EchoArtifactDefinition {
   levelProgression: ArtifactLevelProgressionRow[];
   /** Free-text restriction note (e.g. "occupies both hand slots"). */
   restriction?: string;
+  /**
+   * Optional canonical Stone Function. Authored only when slot-legal (see
+   * `EchoArtifactStoneFunctionHint`). Artifacts whose stone supports use an
+   * attribute outside their slot's access (e.g. body frames supporting
+   * Resolve/Wits/Influence) intentionally omit this and keep their stone
+   * supports purely as Level Progression abilities.
+   */
+  stoneFunction?: EchoArtifactStoneFunctionHint;
 }
 
 // ----------------------------------------------------------------------
@@ -307,6 +334,12 @@ const TITAN_SCARS: EchoArtifactDefinition = {
     'Ancient scars, stone-like tissue, Titan blood, and broken divine bindings grown into the body.',
   restriction:
     'A Titanborn with Titan Scars cannot wear mundane armor or bind another Body Artifact.',
+  stoneFunction: {
+    kind: 'stonePowerSupport',
+    attribute: 'might',
+    stonePowerId: 'might.meleeDamage',
+    level: 2,
+  },
   baseValues: [
     {
       slot: 'a',
@@ -426,6 +459,12 @@ const WYRM_SCALES: EchoArtifactDefinition = {
   description: 'The heaviest form of Dragonborn natural armor — the character\u2019s body itself.',
   restriction:
     'A Dragonborn with Wyrm Scales cannot wear mundane armor or another Body Artifact.',
+  stoneFunction: {
+    kind: 'stonePowerSupport',
+    attribute: 'might',
+    stonePowerId: 'might.armor',
+    level: 3,
+  },
   baseValues: [
     {
       slot: 'a',
@@ -654,6 +693,12 @@ const DRAGON_CLAWS: EchoArtifactDefinition = {
   description: 'Both hands become natural weapons: claws, scales, and tail.',
   restriction:
     'A Dragonborn with Dragon Claws cannot wield another weapon, shield, or hand-based Artifact while using them. Occupies both hand slots.',
+  stoneFunction: {
+    kind: 'stonePowerSupport',
+    attribute: 'might',
+    stonePowerId: 'generic.extraAttack',
+    level: 1,
+  },
   baseValues: [
     {
       slot: 'a',
@@ -1214,6 +1259,44 @@ export function listSelectableEchoArtifacts(
  * Artifact definition — used when seeding the embedded artifact item
  * on character creation.
  */
+export function buildEchoStoneFunction(
+  def: EchoArtifactDefinition,
+): { kind: ArtifactStoneFunctionKind; attribute: string; stonePowerId?: string } | null {
+  const sf = def.stoneFunction;
+  if (!sf) return null;
+  const out: { kind: ArtifactStoneFunctionKind; attribute: string; stonePowerId?: string } = {
+    kind: sf.kind,
+    attribute: sf.attribute,
+  };
+  if (sf.kind === 'stonePowerSupport' && sf.stonePowerId) out.stonePowerId = sf.stonePowerId;
+  return out;
+}
+
+/**
+ * Build the up-to-three Level Progression picks from an Echo definition.
+ * Currently emits the authored Stone Function pick (if any); other levels
+ * stay `none` (the bespoke active/movement rows live on the 1-10 table).
+ */
+export function buildEchoProgressionPicks(
+  def: EchoArtifactDefinition,
+): { level: 1 | 2 | 3; kind: 'none' | 'power' | 'stoneFunction'; stoneFunction?: unknown }[] {
+  const picks: { level: 1 | 2 | 3; kind: 'none' | 'power' | 'stoneFunction'; stoneFunction?: unknown }[] = [
+    { level: 1, kind: 'none' },
+    { level: 2, kind: 'none' },
+    { level: 3, kind: 'none' },
+  ];
+  const sf = def.stoneFunction;
+  if (sf) {
+    const idx = sf.level - 1;
+    picks[idx] = {
+      level: sf.level,
+      kind: 'stoneFunction',
+      stoneFunction: buildEchoStoneFunction(def),
+    };
+  }
+  return picks;
+}
+
 export function buildArtifactSystemFromEchoDef(
   def: EchoArtifactDefinition,
 ): Record<string, unknown> {
@@ -1254,6 +1337,8 @@ export function buildArtifactSystemFromEchoDef(
       isBaseline: true,
     })),
     levelProgression: def.levelProgression,
+    stoneFunction: buildEchoStoneFunction(def),
+    progressionPicks: buildEchoProgressionPicks(def),
     lore: def.description,
     bonuses: { attack: 0, damage: '', defense: 0, specials: [] },
     requirements: { stones: 0, masteryRank: 1 },

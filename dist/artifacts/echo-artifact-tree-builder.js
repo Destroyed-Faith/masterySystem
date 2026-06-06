@@ -14,7 +14,7 @@
  * trees. That is exactly what lets the world library and the shipped pack stay
  * in sync with zero drift.
  */
-import { ECHO_ARTIFACTS } from '../utils/echo-artifacts.js';
+import { ECHO_ARTIFACTS, buildEchoStoneFunction, buildEchoProgressionPicks, } from '../utils/echo-artifacts.js';
 import { bodyArmorBonusForLevel, feetEvadeForLevel, minorArmorForLevel, weaponDamageForLevel, } from '../utils/artifact-base-derive.js';
 import { getMinorMovementBaselineB, getPaperdollSlotsForArtifact, } from '../utils/artifact-rules.js';
 /**
@@ -22,7 +22,7 @@ import { getMinorMovementBaselineB, getPaperdollSlotsForArtifact, } from '../uti
  * output (base values, powers, slot/profile, etc.) changes so the world seeder
  * can detect stale library copies and refresh them in place.
  */
-export const ECHO_ARTIFACT_SEED_VERSION = 2;
+export const ECHO_ARTIFACT_SEED_VERSION = 3;
 const ARTIFACT_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 const ALL_POWER_LEVEL_KEYS = [
     '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16',
@@ -330,8 +330,13 @@ export function buildEchoArtifactTree(def) {
             echoKey: def.echoKey,
             baseValues: baseValuesAtLevel(def.key, level),
             levelProgression: def.levelProgression,
-            stoneFunction: null,
-            progressionPicks: [],
+            // The editable picks always carry the authored progression so the Node
+            // Editor's top fields match the bottom table; the *active* Stone Function
+            // is only applied mechanically once the node reaches its unlock level.
+            stoneFunction: def.stoneFunction && level >= def.stoneFunction.level
+                ? buildEchoStoneFunction(def)
+                : null,
+            progressionPicks: buildEchoProgressionPicks(def),
             lore: def.description,
             description: def.restriction ? `${def.description}\n\n${def.restriction}` : def.description,
             bonuses: { attack: 0, damage: '', defense: 0, specials: [] },

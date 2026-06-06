@@ -6,6 +6,7 @@ import { describeInnateAbility, getWeapon, WEAPONS } from '../utils/weapons.js';
 import { getArmorDefinitionForType, getShieldDefinitionForType, normalizeShieldTypeKey } from '../utils/equipment.js';
 import { formatEffectReference } from '../utils/special-effects.js';
 import { ARTIFACT_GEAR_SLOT_OPTIONS } from '../utils/artifact-node-options.js';
+import { ARTIFACT_SLOT_LABELS, BASE_PROFILE_LABELS, BASE_VALUE_TYPE_LABELS, } from '../utils/artifact-rules.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
 function typeLabel(t) {
@@ -392,11 +393,39 @@ export class ItemInfoDialog extends BaseDialog {
                         ? 'Tower'
                         : String(ash.type || '—');
             const gearSlotRaw = typeof sys.gearSlot === 'string' ? sys.gearSlot : '';
+            // New spec: slot / profile, Base Values, and the per-level abilities.
+            const currentLevel = Math.max(1, Math.min(10, Number(sys.currentLevel) || Number(sys.level) || 1));
+            const slotKey = String(sys.slot || '');
+            const profileKey = String(sys.baseProfile || '');
+            const baseValueRows = (Array.isArray(sys.baseValues) ? sys.baseValues : []).map((bv) => ({
+                slot: String(bv.slot || '').toUpperCase(),
+                typeLabel: BASE_VALUE_TYPE_LABELS[bv.type] || bv.type || '',
+                label: bv.label || '',
+                value: bv.value != null && bv.value !== '' ? String(bv.value) : (bv.note || ''),
+            }));
+            const abilityRows = (Array.isArray(sys.levelProgression) ? sys.levelProgression : [])
+                .slice()
+                .sort((a, b) => (Number(a?.level) || 0) - (Number(b?.level) || 0))
+                .map((row) => ({
+                level: Number(row.level) || 1,
+                name: row.name || '',
+                type: row.type || '',
+                effect: row.effect || '',
+                special: row.special || '',
+                unlocked: (Number(row.level) || 1) <= currentLevel,
+            }));
             const req = sys.requirements && typeof sys.requirements === 'object' ? sys.requirements : null;
             const reqStones = req && req.stones != null ? req.stones : null;
             const reqMr = req && req.masteryRank != null ? req.masteryRank : null;
             base.artifactProfile = {
                 level: sys.level ?? '—',
+                currentLevel,
+                slotLabel: ARTIFACT_SLOT_LABELS[slotKey] || '',
+                baseProfileLabel: BASE_PROFILE_LABELS[profileKey] || '',
+                baseValues: baseValueRows,
+                hasBaseValues: baseValueRows.length > 0,
+                abilities: abilityRows,
+                hasAbilities: abilityRows.length > 0,
                 lore: sys.lore || '',
                 requirements: reqStones != null || reqMr != null
                     ? {

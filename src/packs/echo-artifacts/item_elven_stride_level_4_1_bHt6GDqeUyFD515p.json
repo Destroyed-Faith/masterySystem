@@ -122,7 +122,20 @@
       }
     ],
     "stoneFunction": null,
-    "progressionPicks": [],
+    "progressionPicks": [
+      {
+        "level": 1,
+        "kind": "none"
+      },
+      {
+        "level": 2,
+        "kind": "none"
+      },
+      {
+        "level": 3,
+        "kind": "none"
+      }
+    ],
     "lore": "Otherworldly balance, reflex, clinging movement, and elemental lineage. Pick an Elemental Lineage when the artifact is created.",
     "description": "Otherworldly balance, reflex, clinging movement, and elemental lineage. Pick an Elemental Lineage when the artifact is created.\n\nAn elf with Elven Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact.",
     "bonuses": {
@@ -984,7 +997,7 @@
       ],
       "echoBound": "elves",
       "echoArtifactKey": "elvenStride",
-      "seedVersion": 2
+      "seedVersion": 3
     }
   },
   "_id": "bHt6GDqeUyFD515p",

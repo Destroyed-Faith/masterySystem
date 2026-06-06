@@ -505,7 +505,7 @@ export class NodeEditor extends BaseDialog {
             }
             $row
                 .find('.node-spec-bv-derived')
-                .text(derived || '—')
+                .text(derived ? `auto: ${derived}` : '—')
                 .attr('data-derived', derived);
         };
         // Render exactly the Base Value slots this Slot grants (A / B / C up to the

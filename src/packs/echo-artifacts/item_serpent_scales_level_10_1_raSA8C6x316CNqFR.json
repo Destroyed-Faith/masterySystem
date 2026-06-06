@@ -116,7 +116,20 @@
       }
     ],
     "stoneFunction": null,
-    "progressionPicks": [],
+    "progressionPicks": [
+      {
+        "level": 1,
+        "kind": "none"
+      },
+      {
+        "level": 2,
+        "kind": "none"
+      },
+      {
+        "level": 3,
+        "kind": "none"
+      }
+    ],
     "lore": "A lighter form of Dragonborn natural armor — flexible, smooth, built for movement.",
     "description": "A lighter form of Dragonborn natural armor — flexible, smooth, built for movement.\n\nA Dragonborn with Serpent Scales cannot wear mundane armor or another Body Artifact.",
     "bonuses": {
@@ -2222,7 +2235,7 @@
       "childIds": [],
       "echoBound": "dragonborn",
       "echoArtifactKey": "serpentScales",
-      "seedVersion": 2
+      "seedVersion": 3
     }
   },
   "_id": "raSA8C6x316CNqFR",
