@@ -1,71 +1,62 @@
 /**
- * Artifact Item Sheet V2 (Foundry v13 ApplicationV2)
- * Supports editing artifact powers with the new schema
+ * Artifact Item Sheet (Foundry v13)
+ *
+ * Built on the proven classic `ItemSheet` base (same as `MasteryItemSheet`)
+ * so that `item.sheet` resolves and double-click opens reliably — a plain
+ * ApplicationV2 is NOT a document sheet and makes `item.sheet` null, which is
+ * what previously threw `cannot read properties of null (reading 'render')`
+ * when clicking an artifact in the Items directory.
+ *
+ * Provides a read-friendly summary (slot / profile / level, Base Values, and
+ * the per-level abilities from `system.levelProgression`) plus GM power editing.
  */
 import { EMBEDDED_POWER_ACTION_COSTS, EMBEDDED_POWER_AOE_SHAPES, EMBEDDED_POWER_CATEGORIES, EMBEDDED_POWER_DURATION_KINDS, EMBEDDED_POWER_LIMIT_PERS, EMBEDDED_POWER_RANGE_KINDS, createDefaultEmbeddedPower, ensurePowerLevels } from '../utils/embedded-power-ui-constants.js';
 import { isOldPowerStructure, migrateArtifactPower } from '../utils/power-migration.js';
 import { ARTIFACT_SLOT_LABELS, BASE_PROFILE_LABELS, BASE_VALUE_TYPE_LABELS, } from '../utils/artifact-rules.js';
-const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
-// Type workaround for Mixin
-const BaseSheet = HandlebarsApplicationMixin(ApplicationV2);
-export class ArtifactSheetV2 extends BaseSheet {
-    _item;
-    /** Remembered active tab so re-renders (add/delete power) keep their place. */
-    _activeTab = 'description';
-    static DEFAULT_OPTIONS = {
-        id: 'mastery-artifact-sheet',
-        classes: ['mastery-system', 'sheet', 'item', 'artifact'],
-        width: 700,
-        height: 800,
-        resizable: true,
-        tabs: [
-            {
-                navSelector: '.sheet-tabs',
-                contentSelector: '.sheet-body',
-                initial: 'description'
-            }
-        ]
-    };
-    static PARTS = {
-        content: { template: 'systems/mastery-system/templates/item/artifact-sheet-v2.hbs' }
-    };
-    constructor(item, options = {}) {
-        const mergedOptions = foundry.utils.mergeObject(ArtifactSheetV2.DEFAULT_OPTIONS, options);
-        super(mergedOptions);
-        this._item = item;
-    }
-    get item() {
-        return this._item;
-    }
-    get document() {
-        return this._item;
-    }
-    async _prepareContext(_options) {
-        const system = this.item.system;
-        // Ensure powers are migrated
-        if (system.powers && Array.isArray(system.powers)) {
-            system.powers = system.powers.map((power) => {
-                if (isOldPowerStructure(power)) {
-                    return migrateArtifactPower(power);
+export class ArtifactSheetV2 extends foundry.appv1.sheets.ItemSheet {
+    /** @override */
+    static get defaultOptions() {
+        return foundry.utils.mergeObject(super.defaultOptions, {
+            classes: ['mastery-system', 'sheet', 'item', 'artifact-sheet-v2'],
+            width: 700,
+            height: 800,
+            resizable: true,
+            submitOnChange: true,
+            closeOnSubmit: false,
+            tabs: [
+                {
+                    navSelector: '.sheet-tabs',
+                    contentSelector: '.sheet-body',
+                    initial: 'description'
                 }
-                return power;
-            });
+            ]
+        });
+    }
+    /** @override */
+    get template() {
+        return 'systems/mastery-system/templates/item/artifact-sheet-v2.hbs';
+    }
+    /** @override */
+    getData(options) {
+        const context = super.getData(options);
+        const item = this.item;
+        const system = item.system;
+        // Migrate any legacy embedded powers in place for display.
+        if (system.powers && Array.isArray(system.powers)) {
+            system.powers = system.powers.map((power) => isOldPowerStructure(power) ? migrateArtifactPower(power) : power);
         }
-        // Prepare power data for template
         const powers = (system.powers || []).map((power, index) => {
             const powerData = {
                 ...power,
                 index,
-                expanded: false, // UI state for expanded editor
-                tagsString: Array.isArray(power.tags) ? power.tags.join(', ') : ''
+                tagsString: Array.isArray(power.tags) ? power.tags.join(', ') : '',
             };
             powerData.levels = ensurePowerLevels(powerData);
-            // Convert levels to array for easier template iteration
             powerData.levelsArray = [
                 { key: '1', data: powerData.levels['1'] },
                 { key: '2', data: powerData.levels['2'] },
                 { key: '3', data: powerData.levels['3'] },
-                { key: '4', data: powerData.levels['4'] }
+                { key: '4', data: powerData.levels['4'] },
             ];
             return powerData;
         });
@@ -73,12 +64,11 @@ export class ArtifactSheetV2 extends BaseSheet {
         const slotKey = String(system.slot || '');
         const profileKey = String(system.baseProfile || '');
         const currentLevel = Math.max(1, Math.min(10, Number(system.currentLevel) || Number(system.level) || 1));
-        const baseValueRows = (Array.isArray(system.baseValues) ? system.baseValues : [])
-            .map((bv) => ({
+        const baseValueRows = (Array.isArray(system.baseValues) ? system.baseValues : []).map((bv) => ({
             slot: String(bv.slot || '').toUpperCase(),
             typeLabel: BASE_VALUE_TYPE_LABELS[bv.type] || bv.type || '',
             label: bv.label || '',
-            value: bv.value != null && bv.value !== '' ? String(bv.value) : (bv.note || ''),
+            value: bv.value != null && bv.value !== '' ? String(bv.value) : bv.note || '',
         }));
         const abilities = (Array.isArray(system.levelProgression) ? system.levelProgression : [])
             .slice()
@@ -91,7 +81,11 @@ export class ArtifactSheetV2 extends BaseSheet {
             special: row.special || '',
             unlocked: (Number(row.level) || 1) <= currentLevel,
         }));
-        const summary = {
+        context.item = item;
+        context.system = system;
+        context.powers = powers;
+        context.isEditable = this.isEditable;
+        context.summary = {
             slotLabel: ARTIFACT_SLOT_LABELS[slotKey] || '',
             baseProfileLabel: BASE_PROFILE_LABELS[profileKey] || '',
             currentLevel,
@@ -100,258 +94,117 @@ export class ArtifactSheetV2 extends BaseSheet {
             hasAbilities: abilities.length > 0,
             hasBaseValues: baseValueRows.length > 0,
         };
-        return {
-            item: this.item,
-            system,
-            powers,
-            summary,
-            isEditable: this.item.isOwner,
-            categories: EMBEDDED_POWER_CATEGORIES,
-            actionCosts: EMBEDDED_POWER_ACTION_COSTS,
-            rangeKinds: EMBEDDED_POWER_RANGE_KINDS,
-            aoeShapes: EMBEDDED_POWER_AOE_SHAPES,
-            durationKinds: EMBEDDED_POWER_DURATION_KINDS,
-            limitPers: EMBEDDED_POWER_LIMIT_PERS
-        };
+        context.categories = EMBEDDED_POWER_CATEGORIES;
+        context.actionCosts = EMBEDDED_POWER_ACTION_COSTS;
+        context.rangeKinds = EMBEDDED_POWER_RANGE_KINDS;
+        context.aoeShapes = EMBEDDED_POWER_AOE_SHAPES;
+        context.durationKinds = EMBEDDED_POWER_DURATION_KINDS;
+        context.limitPers = EMBEDDED_POWER_LIMIT_PERS;
+        return context;
     }
-    async _onRender(_element, _options) {
-        await super._onRender?.(_element, _options);
-        if (!this.item.isOwner)
+    /** @override */
+    activateListeners(html) {
+        super.activateListeners(html);
+        if (!this.isEditable)
             return;
-        const html = this.element;
-        if (!html)
-            return;
-        // Handle power actions
-        html.addEventListener('click', this._onPowerAction.bind(this));
-        // Handle form changes - debounced updates
-        let formUpdateTimeout = null;
-        const handleFormChange = (event) => {
-            if (formUpdateTimeout)
-                clearTimeout(formUpdateTimeout);
-            formUpdateTimeout = window.setTimeout(() => {
-                this._onFormChange(event);
-            }, 300);
-        };
-        html.addEventListener('change', handleFormChange);
-        html.addEventListener('input', handleFormChange);
-        // Handle special add/remove
-        html.addEventListener('click', this._onSpecialAction.bind(this));
-        // Tabs: robust manual switching (the legacy global `Tabs` was removed in v13).
-        this._bindTabs(html);
-    }
-    /** Wire up tab navigation without relying on Foundry's removed global `Tabs`. */
-    _bindTabs(html) {
-        const navItems = Array.from(html.querySelectorAll('.sheet-tabs [data-tab]'));
-        const available = navItems.map((a) => a.dataset.tab || '').filter(Boolean);
-        if (available.length && !available.includes(this._activeTab)) {
-            this._activeTab = available[0];
-        }
-        for (const nav of navItems) {
-            nav.addEventListener('click', (ev) => {
-                ev.preventDefault();
-                const tab = nav.dataset.tab;
-                if (tab)
-                    this._activateTab(html, tab);
-            });
-        }
-        this._activateTab(html, this._activeTab);
-    }
-    /** Show one tab, hide the rest, and remember the choice across re-renders. */
-    _activateTab(html, tabName) {
-        this._activeTab = tabName;
-        html.querySelectorAll('.sheet-tabs [data-tab]').forEach((a) => {
-            a.classList.toggle('active', a.dataset.tab === tabName);
+        // Delegated so dynamically-rendered power rows keep working after re-render.
+        html.on('click', '[data-action]', (ev) => {
+            const el = ev.currentTarget;
+            const action = el.dataset.action;
+            if (!action)
+                return;
+            if (action === 'add-special' || action === 'remove-special') {
+                void this._onSpecialAction(el);
+            }
+            else {
+                void this._onPowerAction(el);
+            }
         });
-        html.querySelectorAll('.sheet-body .tab[data-tab]').forEach((t) => {
-            const on = t.dataset.tab === tabName;
-            t.classList.toggle('active', on);
-            t.style.display = on ? '' : 'none';
+        // Keep the comma-separated tag field in sync as an array on change.
+        html.on('change', 'input[name$=".tags"]', (ev) => {
+            const input = ev.currentTarget;
+            const m = input.name.match(/system\.powers\.(\d+)\.tags/);
+            if (!m)
+                return;
+            const index = parseInt(m[1], 10);
+            const system = this.item.system;
+            const powers = foundry.utils.deepClone(system.powers || []);
+            if (index >= 0 && index < powers.length) {
+                powers[index] = {
+                    ...powers[index],
+                    tags: input.value.split(',').map((t) => t.trim()).filter(Boolean),
+                };
+                void this.item.update({ 'system.powers': powers });
+            }
         });
     }
-    async _onPowerAction(event) {
-        const target = event.target;
+    /**
+     * Rebuild the powers array (and other array-shaped fields) from the flattened
+     * form data. The classic ItemSheet would otherwise expand `system.powers.0.x`
+     * into an index-keyed object and clobber the array.
+     * @override
+     */
+    async _updateObject(_event, formData) {
+        const expanded = foundry.utils.expandObject(formData);
+        const sys = expanded.system || {};
+        if (sys.powers && typeof sys.powers === 'object' && !Array.isArray(sys.powers)) {
+            const current = foundry.utils.deepClone(this.item.system.powers || []);
+            for (const [k, patch] of Object.entries(sys.powers)) {
+                const idx = Number(k);
+                if (!Number.isInteger(idx) || idx < 0)
+                    continue;
+                const merged = foundry.utils.mergeObject(current[idx] || {}, patch, { inplace: false });
+                if (typeof merged.tags === 'string') {
+                    merged.tags = merged.tags.split(',').map((t) => t.trim()).filter(Boolean);
+                }
+                current[idx] = merged;
+            }
+            sys.powers = current;
+        }
+        if (sys.bonuses && typeof sys.bonuses.specials === 'string') {
+            sys.bonuses.specials = sys.bonuses.specials
+                .split('\n')
+                .map((s) => s.trim())
+                .filter(Boolean);
+        }
+        expanded.system = sys;
+        return this.item.update(expanded);
+    }
+    async _onPowerAction(target) {
         const action = target.dataset.action;
         if (!action)
             return;
-        event.preventDefault();
-        event.stopPropagation();
         const system = this.item.system;
-        const powers = (system.powers || []).map((power) => {
-            if (isOldPowerStructure(power)) {
-                return migrateArtifactPower(power);
-            }
-            return power;
-        });
+        const powers = (system.powers || []).map((power) => isOldPowerStructure(power) ? migrateArtifactPower(power) : power);
         if (action === 'add-power') {
-            const newPower = createDefaultEmbeddedPower(foundry.utils.randomID());
-            powers.push(newPower);
+            powers.push(createDefaultEmbeddedPower(foundry.utils.randomID()));
             await this.item.update({ 'system.powers': powers });
-            await this.render();
         }
         else if (action === 'duplicate-power') {
-            const index = parseInt(target.dataset.index || '0');
+            const index = parseInt(target.dataset.index || '0', 10);
             if (index >= 0 && index < powers.length) {
                 const powerToClone = powers[index];
                 const cloned = {
                     ...powerToClone,
                     id: foundry.utils.randomID(),
-                    name: `${powerToClone.name} (Copy)`
+                    name: `${powerToClone.name} (Copy)`,
                 };
                 powers.splice(index + 1, 0, cloned);
                 await this.item.update({ 'system.powers': powers });
-                await this.render();
             }
         }
         else if (action === 'delete-power') {
-            const index = parseInt(target.dataset.index || '0');
+            const index = parseInt(target.dataset.index || '0', 10);
             if (index >= 0 && index < powers.length) {
                 powers.splice(index, 1);
                 await this.item.update({ 'system.powers': powers });
-                await this.render();
             }
         }
         else if (action === 'toggle-power') {
             const powerElement = target.closest('.power-item');
-            if (powerElement) {
-                const editor = powerElement.querySelector('.power-editor');
-                if (editor) {
-                    editor.classList.toggle('expanded');
-                }
-            }
-        }
-    }
-    async _onFormChange(event) {
-        const target = event.target;
-        if (!target.name || !target.name.startsWith('system.'))
-            return;
-        // Handle tags field (comma-separated string to array)
-        if (target.name.includes('.tags') && target.name.startsWith('system.powers.')) {
-            const match = target.name.match(/system\.powers\.(\d+)\.tags/);
-            if (match) {
-                const index = parseInt(match[1]);
-                const tagsString = target.value;
-                const tags = tagsString.split(',').map(t => t.trim()).filter(t => t.length > 0);
-                const system = this.item.system;
-                const powers = [...(system.powers || [])];
-                if (index >= 0 && index < powers.length) {
-                    const power = { ...powers[index], tags };
-                    powers[index] = power;
-                    await this.item.update({ 'system.powers': powers });
-                    return;
-                }
-            }
-        }
-        // Handle power level field updates
-        if (target.name.startsWith('system.powers.')) {
-            const match = target.name.match(/system\.powers\.(\d+)\.(.+)/);
-            if (match) {
-                const index = parseInt(match[1]);
-                const fieldPath = match[2];
-                const system = this.item.system;
-                const powers = [...(system.powers || [])];
-                if (index >= 0 && index < powers.length) {
-                    const power = foundry.utils.deepClone(powers[index]);
-                    // Handle level field updates
-                    if (fieldPath.startsWith('levels.')) {
-                        const levelMatch = fieldPath.match(/levels\.([1234])\.(.+)/);
-                        if (levelMatch) {
-                            const levelKey = levelMatch[1];
-                            const levelField = levelMatch[2];
-                            if (!power.levels) {
-                                power.levels = {
-                                    '1': this._createEmptyLevel(),
-                                    '2': this._createEmptyLevel(),
-                                    '3': this._createEmptyLevel(),
-                                    '4': this._createEmptyLevel()
-                                };
-                            }
-                            const level = foundry.utils.deepClone(power.levels[levelKey]);
-                            this._updateLevelField(level, levelField, target.value, target.type);
-                            power.levels = { ...power.levels, [levelKey]: level };
-                        }
-                    }
-                    else {
-                        // Handle top-level power fields
-                        const pathParts = fieldPath.split('.');
-                        let current = power;
-                        for (let i = 0; i < pathParts.length - 1; i++) {
-                            if (!current[pathParts[i]]) {
-                                current[pathParts[i]] = {};
-                            }
-                            current = current[pathParts[i]];
-                        }
-                        const lastKey = pathParts[pathParts.length - 1];
-                        const value = target.type === 'number' ? (target.value === '' ? undefined : parseFloat(target.value)) :
-                            target.type === 'checkbox' ? target.checked :
-                                target.value;
-                        current[lastKey] = value;
-                    }
-                    powers[index] = power;
-                    await this.item.update({ 'system.powers': powers });
-                    return;
-                }
-            }
-        }
-        // For other system fields, use standard update
-        const updateData = {};
-        updateData[target.name] = target.type === 'number' ? (target.value === '' ? undefined : parseFloat(target.value)) :
-            target.type === 'checkbox' ? target.checked :
-                target.value;
-        await this.item.update(updateData);
-    }
-    _updateLevelField(level, fieldPath, value, inputType) {
-        const parts = fieldPath.split('.');
-        if (parts[0] === 'range') {
-            if (parts[1] === 'kind') {
-                level.range = value === '' || value === 'none' ? null : { kind: value, m: level.range?.m, note: level.range?.note };
-            }
-            else if (parts[1] === 'm') {
-                if (!level.range)
-                    level.range = { kind: 'distance' };
-                level.range.m = value === '' ? undefined : (inputType === 'number' ? parseFloat(value) || undefined : parseFloat(value) || undefined);
-            }
-            else if (parts[1] === 'note') {
-                if (!level.range)
-                    level.range = { kind: 'distance' };
-                level.range.note = value || undefined;
-            }
-        }
-        else if (parts[0] === 'aoe') {
-            if (parts[1] === 'shape') {
-                level.aoe = value === '' || value === 'none' ? null : { shape: value, m: level.aoe?.m, note: level.aoe?.note };
-            }
-            else if (parts[1] === 'm') {
-                if (!level.aoe)
-                    level.aoe = { shape: 'radius' };
-                level.aoe.m = value === '' ? undefined : (inputType === 'number' ? parseFloat(value) || undefined : parseFloat(value) || undefined);
-            }
-            else if (parts[1] === 'note') {
-                if (!level.aoe)
-                    level.aoe = { shape: 'radius' };
-                level.aoe.note = value || undefined;
-            }
-        }
-        else if (parts[0] === 'duration') {
-            if (parts[1] === 'kind') {
-                level.duration = { ...level.duration, kind: value };
-            }
-            else if (parts[1] === 'rounds') {
-                level.duration = { ...level.duration, rounds: value === '' ? undefined : parseFloat(value) || undefined };
-            }
-            else if (parts[1] === 'note') {
-                level.duration = { ...level.duration, note: value || undefined };
-            }
-        }
-        else if (parts[0] === 'effect') {
-            if (parts[1] === 'text') {
-                level.effect = { ...level.effect, text: value };
-            }
-            else if (parts[1] === 'dice') {
-                level.effect = { ...level.effect, dice: value || undefined };
-            }
-        }
-        else if (parts[0] === 'type') {
-            level.type = value;
+            const editor = powerElement?.querySelector('.power-editor');
+            if (editor)
+                editor.style.display = editor.style.display === 'none' ? '' : 'none';
         }
     }
     _createEmptyLevel() {
@@ -361,58 +214,47 @@ export class ArtifactSheetV2 extends BaseSheet {
             aoe: null,
             duration: { kind: 'instant' },
             effect: { text: '' },
-            specials: []
+            specials: [],
         };
     }
-    async _onSpecialAction(event) {
-        const target = event.target;
+    async _onSpecialAction(target) {
         const action = target.dataset.action;
-        if (!action || (action !== 'add-special' && action !== 'remove-special'))
+        if (action !== 'add-special' && action !== 'remove-special')
             return;
-        event.preventDefault();
-        event.stopPropagation();
-        const powerIndex = parseInt(target.dataset.powerIndex || '0');
+        const powerIndex = parseInt(target.dataset.powerIndex || '0', 10);
         const levelKey = target.dataset.levelKey;
-        const specialIndex = target.dataset.specialIndex ? parseInt(target.dataset.specialIndex) : undefined;
+        const specialIndex = target.dataset.specialIndex ? parseInt(target.dataset.specialIndex, 10) : undefined;
         const system = this.item.system;
-        const powers = (system.powers || []).map((power) => {
-            if (isOldPowerStructure(power)) {
-                return migrateArtifactPower(power);
-            }
-            return power;
-        });
-        if (powerIndex >= 0 && powerIndex < powers.length) {
-            const power = { ...powers[powerIndex] };
-            if (!power.levels) {
-                power.levels = {
-                    '1': this._createEmptyLevel(),
-                    '2': this._createEmptyLevel(),
-                    '3': this._createEmptyLevel(),
-                    '4': this._createEmptyLevel()
-                };
-            }
-            const level = { ...power.levels[levelKey] };
-            const specials = [...(level.specials || [])];
-            if (action === 'add-special') {
-                const key = await this._promptForSpecialKey();
-                if (key) {
-                    specials.push({ key });
-                    level.specials = specials;
-                    power.levels = { ...power.levels, [levelKey]: level };
-                    powers[powerIndex] = power;
-                    await this.item.update({ 'system.powers': powers });
-                    await this.render();
-                }
-            }
-            else if (action === 'remove-special' && specialIndex !== undefined) {
-                specials.splice(specialIndex, 1);
-                level.specials = specials;
-                power.levels = { ...power.levels, [levelKey]: level };
-                powers[powerIndex] = power;
-                await this.item.update({ 'system.powers': powers });
-                await this.render();
-            }
+        const powers = (system.powers || []).map((power) => isOldPowerStructure(power) ? migrateArtifactPower(power) : power);
+        if (powerIndex < 0 || powerIndex >= powers.length)
+            return;
+        const power = { ...powers[powerIndex] };
+        if (!power.levels) {
+            power.levels = {
+                '1': this._createEmptyLevel(),
+                '2': this._createEmptyLevel(),
+                '3': this._createEmptyLevel(),
+                '4': this._createEmptyLevel(),
+            };
         }
+        const level = { ...power.levels[levelKey] };
+        const specials = [...(level.specials || [])];
+        if (action === 'add-special') {
+            const key = await this._promptForSpecialKey();
+            if (!key)
+                return;
+            specials.push({ key });
+        }
+        else if (action === 'remove-special' && specialIndex !== undefined) {
+            specials.splice(specialIndex, 1);
+        }
+        else {
+            return;
+        }
+        level.specials = specials;
+        power.levels = { ...power.levels, [levelKey]: level };
+        powers[powerIndex] = power;
+        await this.item.update({ 'system.powers': powers });
     }
     async _promptForSpecialKey() {
         return new Promise((resolve) => {
@@ -424,14 +266,6 @@ export class ArtifactSheetV2 extends BaseSheet {
               <label>Special Key:</label>
               <input type="text" name="specialKey" placeholder="e.g., Push, Ignite, Bleed"/>
             </div>
-            <div class="form-group">
-              <label>Rank (optional):</label>
-              <input type="number" name="rank" placeholder="e.g., 2"/>
-            </div>
-            <div class="form-group">
-              <label>Note (optional):</label>
-              <input type="text" name="note" placeholder="Additional details"/>
-            </div>
           </form>
         `,
                 buttons: {
@@ -440,14 +274,11 @@ export class ArtifactSheetV2 extends BaseSheet {
                         callback: (html) => {
                             const key = html.find('[name="specialKey"]').val();
                             resolve(key?.trim() || null);
-                        }
+                        },
                     },
-                    cancel: {
-                        label: 'Cancel',
-                        callback: () => resolve(null)
-                    }
+                    cancel: { label: 'Cancel', callback: () => resolve(null) },
                 },
-                default: 'add'
+                default: 'add',
             }).render(true);
         });
     }

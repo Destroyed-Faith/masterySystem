@@ -130,7 +130,7 @@
     "stoneFunction": {
       "kind": "stonePowerSupport",
       "attribute": "might",
-      "stonePowerId": "generic.extraAttack"
+      "stonePowerId": "might.meleeDamage"
     },
     "progressionPicks": [
       {
@@ -139,7 +139,7 @@
         "stoneFunction": {
           "kind": "stonePowerSupport",
           "attribute": "might",
-          "stonePowerId": "generic.extraAttack"
+          "stonePowerId": "might.meleeDamage"
         }
       },
       {

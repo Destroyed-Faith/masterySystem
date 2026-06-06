@@ -114,7 +114,7 @@ describe('Echo Artifact tree builder — exact Base Values', () => {
 });
 
 describe('Echo Artifact tree builder — Stone Function auto-fill', () => {
-  it('Dragon Claws carry the Extra Attack stone support + matching L1 pick', () => {
+  it('Dragon Claws carry a slot-legal Might stone support + matching L1 pick', () => {
     const tree = buildEchoArtifactTree(getEchoArtifact('dragonClaws')!);
     // The Stone Function unlocks at level 1, so it is active on every node.
     for (const node of tree.nodes) {
@@ -122,11 +122,11 @@ describe('Echo Artifact tree builder — Stone Function auto-fill', () => {
       expect(sys.stoneFunction).toEqual({
         kind: 'stonePowerSupport',
         attribute: 'might',
-        stonePowerId: 'generic.extraAttack',
+        stonePowerId: 'might.meleeDamage',
       });
       const l1 = (sys.progressionPicks as any[]).find((p) => p.level === 1);
       expect(l1.kind).toBe('stoneFunction');
-      expect(l1.stoneFunction.stonePowerId).toBe('generic.extraAttack');
+      expect(l1.stoneFunction.stonePowerId).toBe('might.meleeDamage');
     }
   });
 

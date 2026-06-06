@@ -600,10 +600,13 @@ const DRAGON_CLAWS = {
     baseProfile: 'twoHandedWeapon',
     description: 'Both hands become natural weapons: claws, scales, and tail.',
     restriction: 'A Dragonborn with Dragon Claws cannot wield another weapon, shield, or hand-based Artifact while using them. Occupies both hand slots.',
+    // Stone Power Support targets an Attribute's Stone Power. The generic Extra
+    // Attack power is not attribute-bound, so it cannot be a slot-gated support;
+    // Dragon Claws instead support the Might: Melee Damage Stone Power.
     stoneFunction: {
         kind: 'stonePowerSupport',
         attribute: 'might',
-        stonePowerId: 'generic.extraAttack',
+        stonePowerId: 'might.meleeDamage',
         level: 1,
     },
     baseValues: [
