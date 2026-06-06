@@ -50,6 +50,21 @@ import type { MinorExpressionAttribute } from '../utils/minor-expressions.js';
 // Use namespaced ActorSheet when available to avoid deprecation warnings
 const BaseActorSheet: any = (foundry as any)?.appv1?.sheets?.ActorSheet || (ActorSheet as any);
 
+/**
+ * True when an item is an Echo-bound artifact that is locked into its slot
+ * (Elven Stride, Wyrm/Serpent Scales, Dragon Claws, Dragon Head, etc.). Such
+ * items are auto-equipped at creation and can never be unequipped, displaced,
+ * or deleted by the player.
+ */
+function isEchoLockedItem(item: any): boolean {
+  if (!item || item.type !== 'artifact') return false;
+  const fl = item.getFlag?.('mastery-system', 'echoLocked');
+  if (fl === true) return true;
+  // Fall back to the binding/echoBound markers set by the generator.
+  if (item.getFlag?.('mastery-system', 'echoBound') === true) return true;
+  return String((item.system as any)?.binding || '') === 'echo';
+}
+
 export class MasteryCharacterSheet extends BaseActorSheet {
   /** Preserves <details open> for Token-Radial prefs across re-renders (checkbox updates call render). */
   private _radialManeuverPrefsDetailsOpen?: boolean;
@@ -6967,6 +6982,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
     const previousItem = this.#getItemInEquipSlot(slot);
     if (previousItem && previousItem.id !== item.id) {
+      // Echo-bound artifacts permanently occupy their slot and cannot be
+      // displaced (e.g. Elven Stride on Feet, Dragon Head on Head).
+      if (isEchoLockedItem(previousItem)) {
+        ui.notifications?.warn(
+          `${previousItem.name} is Echo-bound and permanently occupies the ${slot} slot. Nothing else can be equipped there.`,
+        );
+        return false;
+      }
       const prevFlags = previousItem.getFlag('mastery-system', 'equipment') || {};
       const newPrevFlags = { ...prevFlags, slot: null };
       await previousItem.update({
@@ -7116,6 +7139,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   async #updateItemEquipmentFlags(item: any, target: HTMLElement, event?: DragEvent): Promise<void> {
     const dropType = target.dataset.dfDrop;
     if (!dropType) return;
+
+    // Echo-bound artifacts are locked into their slot — they cannot be moved to
+    // the stash or an inventory band (i.e. unequipped).
+    if (isEchoLockedItem(item) && (dropType === 'stash' || dropType === 'band')) {
+      ui.notifications?.warn(`${item.name} is Echo-bound and cannot be unequipped.`);
+      return;
+    }
 
     const currentFlags = item.getFlag('mastery-system', 'equipment') || {};
     const newFlags: any = { ...currentFlags };

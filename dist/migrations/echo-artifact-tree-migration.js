@@ -87,7 +87,9 @@ export async function runEchoArtifactTreeMigration() {
                         // non-fatal
                     }
                 }
-                await actor.deleteEmbeddedDocuments('Item', [item.id]);
+                await actor.deleteEmbeddedDocuments('Item', [item.id], {
+                    masterySystemForceDelete: true,
+                });
                 upgraded += 1;
             }
             catch (err) {

@@ -1,0 +1,68 @@
+{
+  "name": "Dragon Head - Level 6-1",
+  "type": "artifact",
+  "img": "icons/svg/upgrade.svg",
+  "system": {
+    "level": 6,
+    "currentLevel": 6,
+    "equipped": false,
+    "effects": [],
+    "artifactKind": "gear",
+    "gearSlot": "head",
+    "slot": "head",
+    "baseProfile": "headArmor",
+    "binding": "echo",
+    "echoKey": "dragonborn",
+    "baseValues": [],
+    "levelProgression": [],
+    "stoneFunction": null,
+    "progressionPicks": [
+      {
+        "level": 1,
+        "kind": "none"
+      },
+      {
+        "level": 2,
+        "kind": "none"
+      },
+      {
+        "level": 3,
+        "kind": "none"
+      }
+    ],
+    "lore": "A draconic head: a scaling Bite weapon, a Breath Weapon, the Draconic Roar armor aura, and stone-refreshing Draconic Recovery. Pick a Breath Shape and a Breath Special when the artifact is created.",
+    "description": "A draconic head: a scaling Bite weapon, a Breath Weapon, the Draconic Roar armor aura, and stone-refreshing Draconic Recovery. Pick a Breath Shape and a Breath Special when the artifact is created.\n\nA Dragonborn with Dragon Head cannot wear another Head Artifact, helmet, mask, crown, or magical headgear.",
+    "bonuses": {
+      "attack": 0,
+      "damage": "",
+      "defense": 0,
+      "specials": []
+    },
+    "requirements": {
+      "stones": 0,
+      "masteryRank": 1
+    },
+    "powers": [],
+    "inventorySize": "1x1",
+    "equipSlots": [
+      "head"
+    ]
+  },
+  "flags": {
+    "mastery-system": {
+      "nodeId": "dragonHead-l6",
+      "parentIds": [
+        "dragonHead-l5"
+      ],
+      "childIds": [
+        "dragonHead-l7"
+      ],
+      "echoBound": "dragonborn",
+      "echoArtifactKey": "dragonHead",
+      "seedVersion": 5
+    }
+  },
+  "_id": "Bq45FCQDgxECfaHp",
+  "folder": "nkzJE27aBDJ0maGY",
+  "_key": "!items!Bq45FCQDgxECfaHp"
+}

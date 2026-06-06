@@ -9,7 +9,9 @@
  *   • Elf:        1 required, 1 maximum.   (Elven Stride — Feet, lineage sub-choice)
  *   • Sentinel:   1 required, 1 maximum.   (One frame per Order)
  *   • Titanborn:  1 required, 1 maximum.   (Titan Scars — Body)
- *   • Dragonborn: 1 required, 3 maximum.   (Wyrm Scales / Serpent Scales / Dragon Claws)
+ *   • Dragonborn: 1 required, 3 maximum.   (Dragon Claws, Dragon Head, and one
+ *                  of Wyrm Scales / Serpent Scales — the two body armors are
+ *                  mutually exclusive.)
  *   • Unbound:    0 required, 0 maximum.
  *
  * Each entry below describes:
@@ -753,6 +755,128 @@ const DRAGON_CLAWS = {
     ],
 };
 // ----------------------------------------------------------------------
+// Dragon Head (Dragonborn)
+// ----------------------------------------------------------------------
+const DRAGON_HEAD = {
+    key: 'dragonHead',
+    name: 'Dragon Head',
+    echoKey: 'dragonborn',
+    slot: 'head',
+    baseProfile: 'headArmor',
+    description: 'A draconic head: a scaling Bite weapon, a Breath Weapon, the Draconic Roar armor aura, and stone-refreshing Draconic Recovery. Pick a Breath Shape and a Breath Special when the artifact is created.',
+    restriction: 'A Dragonborn with Dragon Head cannot wear another Head Artifact, helmet, mask, crown, or magical headgear.',
+    baseValues: [
+        {
+            slot: 'a',
+            label: 'Bite Weapon Damage',
+            note: '1d8 to 10d8 across levels.',
+        },
+        {
+            slot: 'b',
+            label: 'Scent of Blood',
+            note: 'Detect from L4, Locate from L7, Identify at L10.',
+        },
+    ],
+    levelProgression: [
+        {
+            level: 1,
+            name: 'Breath Weapon I',
+            type: 'Active',
+            range: 'Self',
+            aoe: 'Chosen Breath Shape',
+            duration: 'Instant',
+            effect: 'Bite Damage + 8d8 damage to affected creatures.',
+            special: 'Chosen Breath Special',
+        },
+        {
+            level: 2,
+            name: 'Draconic Roar I',
+            type: 'Active Buff',
+            range: 'Self',
+            aoe: 'Radius 8 m',
+            duration: 'Mastery Rank Rounds',
+            effect: 'You and allies in the area gain +12 Armor.',
+            special: 'Armor Aura',
+        },
+        {
+            level: 3,
+            name: 'Draconic Recovery I',
+            type: 'Stone Refresh',
+            range: 'Self',
+            duration: 'Instant',
+            effect: 'Restore 1 spent Stone of the chosen Attribute.',
+            special: 'Stone Refresh',
+        },
+        {
+            level: 4,
+            name: 'Breath Weapon II',
+            type: 'Active',
+            range: 'Self',
+            aoe: 'Chosen Breath Shape',
+            duration: 'Instant',
+            effect: 'Bite Damage + 16d8 damage to affected creatures.',
+            special: 'Chosen Breath Special',
+        },
+        {
+            level: 5,
+            name: 'Draconic Roar II',
+            type: 'Active Buff',
+            range: 'Self',
+            aoe: 'Radius 20 m',
+            duration: 'Mastery Rank Rounds',
+            effect: 'You and allies in the area gain +28 Armor.',
+            special: 'Armor Aura',
+        },
+        {
+            level: 6,
+            name: 'Draconic Recovery II',
+            type: 'Stone Refresh',
+            range: 'Self',
+            duration: 'Instant',
+            effect: 'Restore 2 spent Stones of the chosen Attribute.',
+            special: 'Stone Refresh',
+        },
+        {
+            level: 7,
+            name: 'Breath Weapon III',
+            type: 'Active',
+            range: 'Self',
+            aoe: 'Chosen Breath Shape',
+            duration: 'Instant',
+            effect: 'Bite Damage + 24d8 damage to affected creatures.',
+            special: 'Chosen Breath Special',
+        },
+        {
+            level: 8,
+            name: 'Draconic Roar III',
+            type: 'Active Buff',
+            range: 'Self',
+            aoe: 'Radius 32 m',
+            duration: 'Mastery Rank Rounds',
+            effect: 'You and allies in the area gain +44 Armor.',
+            special: 'Armor Aura',
+        },
+        {
+            level: 9,
+            name: 'Draconic Recovery III',
+            type: 'Stone Refresh',
+            range: 'Self',
+            duration: 'Instant',
+            effect: 'Restore 4 spent Stones of the chosen Attribute.',
+            special: 'Stone Refresh',
+        },
+        {
+            level: 10,
+            name: 'True Dragon Head',
+            type: 'Ultimate',
+            range: 'Self',
+            duration: 'Special',
+            effect: 'Choose or define one final Breath, Bite, Roar, Recovery, or Head effect with GM approval.',
+            special: 'True Dragon Head',
+        },
+    ],
+};
+// ----------------------------------------------------------------------
 // Sentinel Frames (Sentinel — one frame per Order)
 // ----------------------------------------------------------------------
 const SENTINEL_FRAME = {
@@ -1107,6 +1231,7 @@ export const ECHO_ARTIFACTS = {
     wyrmScales: WYRM_SCALES,
     serpentScales: SERPENT_SCALES,
     dragonClaws: DRAGON_CLAWS,
+    dragonHead: DRAGON_HEAD,
     sentinelFrame: SENTINEL_FRAME,
     judicatorFrame: JUDICATOR_FRAME,
     oracleFrame: ORACLE_FRAME,
@@ -1141,7 +1266,10 @@ export const ECHO_ARTIFACT_RULES = {
         echoKey: 'dragonborn',
         requiredAtCreation: 1,
         maxAtCreation: 3,
-        availableKeys: ['wyrmScales', 'serpentScales', 'dragonClaws'],
+        // Claws (both hands), Head (head) and one Body armor. Wyrm Scales and
+        // Serpent Scales both occupy the Body slot, so they are mutually exclusive.
+        availableKeys: ['dragonClaws', 'dragonHead', 'wyrmScales', 'serpentScales'],
+        exclusiveGroups: [['wyrmScales', 'serpentScales']],
     },
     unbound: { echoKey: 'unbound', requiredAtCreation: 0, maxAtCreation: 0, availableKeys: [] },
 };
@@ -1173,6 +1301,30 @@ export function listSelectableEchoArtifacts(echoKey, subChoiceKey) {
         out.push(def);
     }
     return out;
+}
+/**
+ * Validate a set of selected Echo Artifact keys against an Echo's rules
+ * (count + mutually-exclusive groups). Returns an error string, or null if OK.
+ */
+export function validateEchoArtifactSelection(echoKey, selectedKeys) {
+    const rules = getEchoArtifactRules(echoKey);
+    const unique = Array.from(new Set(selectedKeys.filter(Boolean)));
+    if (unique.length < rules.requiredAtCreation) {
+        return `This Echo requires at least ${rules.requiredAtCreation} Echo Artifact(s).`;
+    }
+    if (unique.length > rules.maxAtCreation) {
+        return `This Echo allows at most ${rules.maxAtCreation} Echo Artifact(s).`;
+    }
+    for (const group of rules.exclusiveGroups ?? []) {
+        const chosen = unique.filter((k) => group.includes(k));
+        if (chosen.length > 1) {
+            const names = chosen
+                .map((k) => getEchoArtifact(k)?.name ?? k)
+                .join(' / ');
+            return `You may pick only one of: ${names}.`;
+        }
+    }
+    return null;
 }
 /**
  * Build a partial `system` object for an artifact item from an Echo

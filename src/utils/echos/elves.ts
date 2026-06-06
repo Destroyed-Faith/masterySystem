@@ -9,7 +9,7 @@ export const ELVES_ECHO: EchoDefinition = {
     'Children of the Otherworld, Eloria. Stranded when the Four Stone Gates were sealed. Demonic marks catch like thorns in them, never fully sinking \u2014 but that resistance is its own private war.',
   creatureType: 'Humanoid',
   size: 'medium',
-  speed: 12,
+  speed: 10,
   coreTraits: [
     {
       id: 'otherworld-reflex',
@@ -20,54 +20,57 @@ export const ELVES_ECHO: EchoDefinition = {
       usage: 'mr-per-rest'
     }
   ],
-  subChoiceLabel: 'Elemental Lineage',
+  // The Elemental Lineage is the lineage you choose for your Elven Stride Echo
+  // Artifact. It is NOT a separate racial per-rest ability — it determines what
+  // Elven Stride's Elemental Lineage I / II / III do (artifact levels 3 / 6 / 9).
+  subChoiceLabel: 'Elemental Lineage (Elven Stride)',
   subChoices: [
     {
-      key: 'earth',
-      name: 'Earth Lineage',
+      key: 'fire',
+      name: 'Fire Lineage \u2014 Ember Surge',
       trait: {
-        id: 'stoneweave-guard',
-        name: 'Stoneweave Guard',
+        id: 'ember-surge',
+        name: 'Ember Surge (Fire)',
         effect:
-          'Mastery Rank per Safe Haven Rest: when you are hit by an attack, after the roll but before damage is applied, conjure a plate of earth and glyph-stone. Gain Armor + your Mastery Rank against that one attack only.',
-        flavor: 'Stone answers violence with weight.',
-        usage: 'mr-per-rest'
+          'Your Elven Stride empowers offensive Active Buffs. When you activate an Active Buff that grants Damage, you may raise its effective Power Level and duration (Elemental Lineage I/II/III at Elven Stride levels 3/6/9; +1/+2/+3 and +1/+2/+3 rounds, max Power Level 16). Uses per Safe Haven Rest: half your Mastery Rank, rounded up.',
+        flavor: 'Heat turns intent into consequence.',
+        usage: 'passive'
       }
     },
     {
-      key: 'air',
-      name: 'Air Lineage',
+      key: 'earth',
+      name: 'Earth Lineage \u2014 Stoneweave Guard',
       trait: {
-        id: 'wind-first',
-        name: 'Wind-First',
+        id: 'stoneweave-guard',
+        name: 'Stoneweave Guard (Earth)',
         effect:
-          'Mastery Rank per Safe Haven Rest: when you roll Initiative, after seeing your result, add your doubled Mastery Rank to your Initiative total.',
-        flavor: 'The first breath is already movement.',
-        usage: 'mr-per-rest'
+          'Your Elven Stride empowers defensive Armor Active Buffs. When you activate an Active Buff that grants Armor, you may raise its effective Power Level and duration (Elemental Lineage I/II/III at Elven Stride levels 3/6/9; +1/+2/+3 and +1/+2/+3 rounds, max Power Level 16). Uses per Safe Haven Rest: half your Mastery Rank, rounded up.',
+        flavor: 'Stone answers violence with weight.',
+        usage: 'passive'
       }
     },
     {
       key: 'water',
-      name: 'Water Lineage',
+      name: 'Water Lineage \u2014 Tidal Slip',
       trait: {
         id: 'tidal-slip',
-        name: 'Tidal Slip',
+        name: 'Tidal Slip (Water)',
         effect:
-          'Mastery Rank per Safe Haven Rest: when an enemy targets you with an attack and the roll is already made, raise your Evade by + your Mastery Rank against that one attack.',
+          'Your Elven Stride empowers defensive Evade Active Buffs. When you activate an Active Buff that grants Evade, you may raise its effective Power Level and duration (Elemental Lineage I/II/III at Elven Stride levels 3/6/9; +1/+2/+3 and +1/+2/+3 rounds, max Power Level 16). Uses per Safe Haven Rest: half your Mastery Rank, rounded up.',
         flavor: 'You are where the blade was, not where it lands.',
-        usage: 'mr-per-rest'
+        usage: 'passive'
       }
     },
     {
-      key: 'fire',
-      name: 'Fire Lineage',
+      key: 'air',
+      name: 'Air Lineage \u2014 Wind-First',
       trait: {
-        id: 'ember-surge',
-        name: 'Ember Surge',
+        id: 'wind-first',
+        name: 'Wind-First (Air)',
         effect:
-          'Mastery Rank per Safe Haven Rest: when you hit with an attack, before rolling damage, add a number of bonus damage dice equal to your Mastery Rank to that damage pool.',
-        flavor: 'Heat turns intent into consequence.',
-        usage: 'mr-per-rest'
+          'Your Elven Stride empowers movement-based Active Buffs. When you activate an Active Buff that grants Evade or movement-related positioning, you may raise its effective Power Level and duration (Elemental Lineage I/II/III at Elven Stride levels 3/6/9; +1/+2/+3 and +1/+2/+3 rounds, max Power Level 16). Uses per Safe Haven Rest: half your Mastery Rank, rounded up.',
+        flavor: 'The first breath is already movement.',
+        usage: 'passive'
       }
     }
   ],

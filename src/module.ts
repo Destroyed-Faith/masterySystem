@@ -2971,3 +2971,25 @@ Hooks.on('preUpdateItem', async (item: any, changes: any, _options: any, _userId
     console.log(`Mastery System | Unequipped ${otherEquippedItems.length} other ${itemType}(s) when equipping ${item.name}`);
   }
 });
+
+/**
+ * Echo-bound artifacts are intrinsic to the character (Elven Stride, Wyrm /
+ * Serpent Scales, Dragon Claws, Dragon Head, frames, ...). They are auto-equipped
+ * at creation and must never be deleted by the player. Programmatic flows that
+ * legitimately remove them (full reset, echo re-selection, tree migration) pass
+ * `{ masterySystemForceDelete: true }` to bypass this guard.
+ */
+Hooks.on('preDeleteItem', (item: any, options: any, _userId: string) => {
+  if (options?.masterySystemForceDelete === true) return true;
+  if (!item?.parent || item.parent.documentName !== 'Actor') return true;
+  if (item.type !== 'artifact') return true;
+  const locked =
+    item.getFlag?.('mastery-system', 'echoLocked') === true ||
+    item.getFlag?.('mastery-system', 'echoBound') === true ||
+    String((item.system as any)?.binding || '') === 'echo';
+  if (!locked) return true;
+  (ui as any)?.notifications?.warn(
+    `${item.name} is an Echo-bound artifact and cannot be removed. Use "Reset Character" to start over.`,
+  );
+  return false;
+});

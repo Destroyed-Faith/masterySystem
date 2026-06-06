@@ -65,7 +65,7 @@ export async function resetCharacterForRecreation(actor, options) {
     let removedItemCount = 0;
     if (itemIds.length > 0) {
         try {
-            await actor.deleteEmbeddedDocuments('Item', itemIds);
+            await actor.deleteEmbeddedDocuments('Item', itemIds, { masterySystemForceDelete: true });
             removedItemCount = itemIds.length;
         }
         catch (err) {

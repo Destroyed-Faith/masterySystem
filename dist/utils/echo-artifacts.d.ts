@@ -9,7 +9,9 @@
  *   • Elf:        1 required, 1 maximum.   (Elven Stride — Feet, lineage sub-choice)
  *   • Sentinel:   1 required, 1 maximum.   (One frame per Order)
  *   • Titanborn:  1 required, 1 maximum.   (Titan Scars — Body)
- *   • Dragonborn: 1 required, 3 maximum.   (Wyrm Scales / Serpent Scales / Dragon Claws)
+ *   • Dragonborn: 1 required, 3 maximum.   (Dragon Claws, Dragon Head, and one
+ *                  of Wyrm Scales / Serpent Scales — the two body armors are
+ *                  mutually exclusive.)
  *   • Unbound:    0 required, 0 maximum.
  *
  * Each entry below describes:
@@ -98,6 +100,12 @@ export interface EchoArtifactRules {
     maxAtCreation: number;
     /** Echo-Artifact keys offered to this Echo at character creation. */
     availableKeys: string[];
+    /**
+     * Mutually-exclusive groups: the player may select AT MOST ONE key from each
+     * listed group. Used e.g. for Dragonborn body armor where Wyrm Scales and
+     * Serpent Scales are an OR choice (both occupy the Body slot).
+     */
+    exclusiveGroups?: string[][];
 }
 export declare const ECHO_ARTIFACT_RULES: Record<string, EchoArtifactRules>;
 /** Lookup an Echo Artifact by key. */
@@ -109,6 +117,11 @@ export declare function getEchoArtifactRules(echoKey: string | null | undefined)
  * filtered by sub-choice gating. Used by the Echo creation dialog.
  */
 export declare function listSelectableEchoArtifacts(echoKey: string, subChoiceKey?: string | null): EchoArtifactDefinition[];
+/**
+ * Validate a set of selected Echo Artifact keys against an Echo's rules
+ * (count + mutually-exclusive groups). Returns an error string, or null if OK.
+ */
+export declare function validateEchoArtifactSelection(echoKey: string, selectedKeys: string[]): string | null;
 /**
  * Build a partial `system` object for an artifact item from an Echo
  * Artifact definition — used when seeding the embedded artifact item

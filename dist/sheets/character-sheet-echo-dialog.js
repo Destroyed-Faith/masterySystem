@@ -12,9 +12,46 @@
  * All writes land on the Actor under `system.echo.*` \u2014 no Item type involved.
  */
 import { ALL_ECHOS, buildFreshTraitUses, ECHO_KEY_ORDER, getAllEchos, getEcho, getEchoCard, getUnlockedCardSlots, isMrPerRest } from '../utils/echos/index.js';
-import { getEchoArtifactRules, listSelectableEchoArtifacts, } from '../utils/echo-artifacts.js';
+import { getEchoArtifactRules, listSelectableEchoArtifacts, validateEchoArtifactSelection, } from '../utils/echo-artifacts.js';
 import { grantEchoArtifactTreeToActor, seedArtifactLibrary } from '../utils/seed-artifact-library.js';
 import { buildEchoArtifactTree } from '../artifacts/echo-artifact-tree-builder.js';
+import { inferArtifactEquipSlots } from '../utils/equip-slots.js';
+/**
+ * Equip a freshly-granted Echo Artifact into its slot and mark it Echo-bound
+ * (locked). For Elven Stride, the chosen Elemental Lineage is stamped onto the
+ * item so the lineage that drives Elemental Lineage I/II/III is recorded.
+ */
+async function equipEchoArtifact(actor, item, subChoiceKey) {
+    if (!item)
+        return;
+    const sys = item.system || {};
+    const slots = inferArtifactEquipSlots(sys) || [];
+    const primarySlot = slots[0] || null;
+    const currentFlags = item.getFlag?.('mastery-system', 'equipment') || {};
+    const update = {
+        'system.equipped': true,
+    };
+    // Persist equipSlots so occupancy checks (canEquipArtifactInSlots) see this
+    // item filling its slot(s) even before any paperdoll interaction.
+    if (slots.length > 0)
+        update['system.equipSlots'] = slots;
+    if (primarySlot) {
+        update['flags.mastery-system.equipment'] = {
+            ...currentFlags,
+            container: 'inventory',
+            slot: primarySlot,
+            band: currentFlags.band || 'not',
+        };
+    }
+    // Mark as echo-bound + locked (defence in depth alongside the echoBound flag
+    // already set by the generator).
+    update['flags.mastery-system.echoBound'] = true;
+    update['flags.mastery-system.echoLocked'] = true;
+    if (item.getFlag?.('mastery-system', 'echoArtifactKey') === 'elvenStride' && subChoiceKey) {
+        update['system.elementalLineage'] = subChoiceKey;
+    }
+    await item.update(update);
+}
 /** Small HTML-escape helper used in dialog content (inline strings). */
 function esc(s) {
     return String(s ?? '').replace(/[&<>"']/g, ch => ({
@@ -161,19 +198,15 @@ export async function showEchoCreationDialog(actor) {
                             return false;
                         }
                         // Echo Artifact validation + creation
-                        const echoArtifactRules = getEchoArtifactRules(echoKey);
                         const selectedArtifactKeys = [];
                         $html.find('input[name="echoArtifactKey"]:checked').each(function () {
                             const v = String($(this).val() || '');
                             if (v)
                                 selectedArtifactKeys.push(v);
                         });
-                        if (selectedArtifactKeys.length < echoArtifactRules.requiredAtCreation) {
-                            ui.notifications?.warn(`This Echo requires at least ${echoArtifactRules.requiredAtCreation} Echo Artifact(s).`);
-                            return false;
-                        }
-                        if (selectedArtifactKeys.length > echoArtifactRules.maxAtCreation) {
-                            ui.notifications?.warn(`This Echo allows at most ${echoArtifactRules.maxAtCreation} Echo Artifact(s).`);
+                        const artifactError = validateEchoArtifactSelection(echoKey, selectedArtifactKeys);
+                        if (artifactError) {
+                            ui.notifications?.warn(artifactError);
                             return false;
                         }
                         const traitUses = buildFreshTraitUses(echoKey, subChoiceKey || null, masteryRank);
@@ -194,7 +227,9 @@ export async function showEchoCreationDialog(actor) {
                         if (oldEchoArtifacts.length > 0) {
                             const ids = oldEchoArtifacts.map((it) => it.id).filter(Boolean);
                             if (ids.length > 0) {
-                                await actor.deleteEmbeddedDocuments('Item', ids);
+                                await actor.deleteEmbeddedDocuments('Item', ids, {
+                                    masterySystemForceDelete: true,
+                                });
                             }
                         }
                         // Grant the newly picked echo artifacts. Preferred path: hand out
@@ -204,6 +239,7 @@ export async function showEchoCreationDialog(actor) {
                         const availableDefs = listSelectableEchoArtifacts(echoKey, subChoiceKey || null);
                         let grantedCount = 0;
                         const fallbackDocs = [];
+                        const grantedItems = [];
                         for (const aKey of selectedArtifactKeys) {
                             const aDef = availableDefs.find((d) => d.key === aKey);
                             if (!aDef)
@@ -223,6 +259,7 @@ export async function showEchoCreationDialog(actor) {
                             }
                             if (granted) {
                                 grantedCount += 1;
+                                grantedItems.push(granted);
                             }
                             else {
                                 // Last-resort single item: use the generator's faithful Level-1
@@ -233,8 +270,22 @@ export async function showEchoCreationDialog(actor) {
                             }
                         }
                         if (fallbackDocs.length > 0) {
-                            await actor.createEmbeddedDocuments('Item', fallbackDocs);
+                            const created = await actor.createEmbeddedDocuments('Item', fallbackDocs);
                             grantedCount += fallbackDocs.length;
+                            if (Array.isArray(created))
+                                grantedItems.push(...created);
+                        }
+                        // Echo Artifacts are Echo-bound: auto-equip them to their slot and
+                        // stamp the chosen Elemental Lineage (Elven Stride) so the lineage
+                        // is recorded on the item. They are locked in their slot and cannot
+                        // be unequipped, removed, or replaced (enforced elsewhere).
+                        for (const item of grantedItems) {
+                            try {
+                                await equipEchoArtifact(actor, item, subChoiceKey || null);
+                            }
+                            catch (err) {
+                                console.warn('[mastery-system] failed to auto-equip echo artifact', err);
+                            }
                         }
                         ui.notifications?.info(`Echo set to ${def.name}${grantedCount ? ` (+${grantedCount} Echo Artifact${grantedCount === 1 ? '' : 's'})` : ''}.`);
                         return true;
@@ -333,7 +384,15 @@ export async function showEchoCreationDialog(actor) {
                     const requiredText = rules.requiredAtCreation === rules.maxAtCreation
                         ? `Choose exactly ${rules.requiredAtCreation}`
                         : `Choose ${rules.requiredAtCreation}\u2013${rules.maxAtCreation}`;
-                    $artifactHint.text(`(${requiredText} of ${defs.length})`);
+                    const exclusiveNote = (rules.exclusiveGroups ?? [])
+                        .map((group) => group
+                        .map((k) => defs.find((d) => d.key === k)?.name)
+                        .filter(Boolean)
+                        .join(' or '))
+                        .filter((s) => s.length > 0)
+                        .map((s) => ` \u2014 only one of: ${s}`)
+                        .join('');
+                    $artifactHint.text(`(${requiredText} of ${defs.length}${exclusiveNote})`);
                     const rows = defs
                         .map((d, idx) => `
               <label class="echo-form-check-row">
@@ -343,7 +402,25 @@ export async function showEchoCreationDialog(actor) {
             `)
                         .join('');
                     $artifactOptions.html(rows);
-                    $artifactOptions.on('change', 'input[name="echoArtifactKey"]', () => {
+                    const exclusiveGroups = rules.exclusiveGroups ?? [];
+                    $artifactOptions.off('change.echoArtifactSel').on('change.echoArtifactSel', 'input[name="echoArtifactKey"]', function () {
+                        const $changed = $(this);
+                        // Enforce mutually-exclusive groups: checking one member
+                        // unchecks the others in the same group.
+                        if ($changed.prop('checked') && inputType === 'checkbox') {
+                            const val = String($changed.val() || '');
+                            for (const group of exclusiveGroups) {
+                                if (!group.includes(val))
+                                    continue;
+                                for (const sibling of group) {
+                                    if (sibling === val)
+                                        continue;
+                                    $artifactOptions
+                                        .find(`input[name="echoArtifactKey"][value="${sibling}"]`)
+                                        .prop('checked', false);
+                                }
+                            }
+                        }
                         renderArtifactPreview(defs);
                     });
                     $artifactGroup.show();

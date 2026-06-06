@@ -88,7 +88,9 @@ export async function runEchoArtifactTreeMigration(): Promise<void> {
             // non-fatal
           }
         }
-        await (actor as any).deleteEmbeddedDocuments('Item', [item.id]);
+        await (actor as any).deleteEmbeddedDocuments('Item', [item.id], {
+          masterySystemForceDelete: true,
+        });
         upgraded += 1;
       } catch (err) {
         failed += 1;

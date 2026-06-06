@@ -6,7 +6,7 @@ export const DRAGONBORN_ECHO = {
     summary: 'Last living echoes of the First Dragons \u2014 a people who survived extermination by learning to disappear. Bloodlines kept narrow, gatherings rare, true names quiet. Survival taught them that being overlooked is the highest form of power.',
     creatureType: 'Humanoid',
     size: 'medium',
-    speed: 12,
+    speed: 8,
     veiledForm: true,
     coreTraits: [
         {
