@@ -26,108 +26,111 @@
     "levelProgression": [
       {
         "level": 1,
-        "name": "Anchoring Stance I",
+        "name": "Immovable + Temporary HP I",
         "type": "Active Buff",
         "range": "Self",
+        "aoe": "",
         "duration": "2 Rounds",
-        "effect": "You become Immovable and gain 40 Temporary HP.",
-        "special": "Immovable + Temporary HP"
+        "effect": "For **2 Rounds** you become **Immovable** and gain **40 Temporary HP**. While Immovable you ignore Push, Pull, Prone, forced movement, and grapple-based forced moves.",
+        "special": "immovable"
       },
       {
         "level": 2,
-        "name": "Stone-Sure Step I",
+        "name": "Safe Movement I",
         "type": "Movement",
         "range": "Self",
+        "aoe": "",
         "duration": "Instant",
-        "effect": "Move up to 8 m along a legal ground path. This movement does not provoke movement-triggered Reactions.",
-        "special": "Safe Movement"
+        "effect": "Move up to **8 m** along a legal ground path. This movement does not provoke movement-triggered Reactions.",
+        "special": ""
       },
       {
         "level": 3,
-        "name": "Stoneweave Guard I",
-        "type": "Support",
+        "name": "Armor I",
+        "type": "Active Buff",
         "range": "Self",
-        "duration": "Special",
-        "effect": "When you activate an Active Buff that grants Armor, you may increase that Buff's effective Power Level by +1 and its duration by +1 round (cannot exceed PL 16). Uses per Safe Haven Rest: half MR, rounded up.",
-        "special": "Armor Buff Empowerment"
+        "aoe": "",
+        "duration": "MR Rounds",
+        "effect": "Gain **+17 Armor**.",
+        "special": ""
       },
       {
         "level": 4,
-        "name": "Anchoring Stance II",
+        "name": "Immovable + Temporary HP II",
         "type": "Active Buff",
         "range": "Self",
+        "aoe": "",
         "duration": "2 Rounds",
-        "effect": "You become Immovable and gain 220 Temporary HP.",
-        "special": "Immovable + Temporary HP"
+        "effect": "For **2 Rounds** you become **Immovable** and gain **220 Temporary HP**. While Immovable you ignore Push, Pull, Prone, forced movement, and grapple-based forced moves.",
+        "special": "immovable"
       },
       {
         "level": 5,
-        "name": "Stone-Sure Step II",
+        "name": "Safe Movement II",
         "type": "Movement",
         "range": "Self",
+        "aoe": "",
         "duration": "Instant",
-        "effect": "Move up to 14 m along a legal ground path. This movement does not provoke movement-triggered Reactions.",
-        "special": "Safe Movement"
+        "effect": "Move up to **14 m** along a legal ground path. This movement does not provoke movement-triggered Reactions.",
+        "special": ""
       },
       {
         "level": 6,
-        "name": "Stoneweave Guard II",
-        "type": "Support",
+        "name": "Armor II",
+        "type": "Active Buff",
         "range": "Self",
-        "duration": "Special",
-        "effect": "When you activate an Active Buff that grants Armor, you may increase its Power Level by +2 and duration by +2 rounds (cannot exceed PL 16).",
-        "special": "Armor Buff Empowerment"
+        "aoe": "",
+        "duration": "MR Rounds",
+        "effect": "Gain **+41 Armor**.",
+        "special": ""
       },
       {
         "level": 7,
-        "name": "Anchoring Stance III",
+        "name": "Immovable + Temporary HP III",
         "type": "Active Buff",
         "range": "Self",
+        "aoe": "",
         "duration": "2 Rounds",
-        "effect": "You become Immovable and gain 400 Temporary HP.",
-        "special": "Immovable + Temporary HP"
+        "effect": "For **2 Rounds** you become **Immovable** and gain **400 Temporary HP**. While Immovable you ignore Push, Pull, Prone, forced movement, and grapple-based forced moves.",
+        "special": "immovable"
       },
       {
         "level": 8,
-        "name": "Stone-Sure Step III",
+        "name": "Safe Movement III",
         "type": "Movement",
         "range": "Self",
+        "aoe": "",
         "duration": "Instant",
-        "effect": "Move up to 20 m along a legal ground path (Safe Movement).",
-        "special": "Safe Movement"
+        "effect": "Move up to **20 m** along a legal ground path. This movement does not provoke movement-triggered Reactions.",
+        "special": ""
       },
       {
         "level": 9,
-        "name": "Stoneweave Guard III",
-        "type": "Support",
+        "name": "Armor III",
+        "type": "Active Buff",
         "range": "Self",
-        "duration": "Special",
-        "effect": "When you activate an Active Buff that grants Armor, you may increase its Power Level by +3 and duration by +3 rounds (cannot exceed PL 16).",
-        "special": "Armor Buff Empowerment"
-      },
-      {
-        "level": 10,
-        "name": "True Stonebound Soles",
-        "type": "Ultimate",
-        "range": "Self",
-        "duration": "Special",
-        "effect": "Stonebound Soles fully awaken. Choose or define one final Tremorsense, Armor, Immovable, Safe Movement, or stone defense effect with GM approval.",
-        "special": "True Stonebound Soles"
+        "aoe": "",
+        "duration": "MR Rounds",
+        "effect": "Gain **+65 Armor**.",
+        "special": ""
       }
     ],
     "stoneFunction": null,
     "progressionPicks": [
       {
         "level": 1,
-        "kind": "none"
+        "kind": "power",
+        "powerTemplateId": "ab-immovable-temp-hp"
       },
       {
         "level": 2,
-        "kind": "none"
+        "kind": "power",
+        "powerTemplateId": "movement-safe-movement"
       },
       {
         "level": 3,
-        "kind": "none"
+        "kind": "power",
+        "powerTemplateId": "ab-armor"
       }
     ],
     "lore": "Ancestral weight, deep-road memory, and the old bond between dwarven bodies and stone.",
@@ -142,216 +145,7 @@
       "stones": 0,
       "masteryRank": 1
     },
-    "powers": [
-      {
-        "id": "stoneboundSoles-pw-1",
-        "name": "Anchoring Stance I",
-        "fluff": "Special: Immovable + Temporary HP",
-        "category": "activeBuff",
-        "tags": [],
-        "cost": {
-          "action": "full"
-        },
-        "levels": {
-          "1": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "2": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "3": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "4": {
-            "type": "Active Buff",
-            "range": {
-              "kind": "self"
-            },
-            "aoe": null,
-            "duration": {
-              "kind": "rounds",
-              "rounds": 1
-            },
-            "effect": {
-              "text": "You become Immovable and gain 40 Temporary HP."
-            },
-            "specials": [],
-            "lvl": 1
-          },
-          "5": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "6": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "7": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "8": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "9": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "10": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "11": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "12": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "13": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "14": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "15": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "16": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          }
-        }
-      }
-    ],
+    "powers": [],
     "inventorySize": "1x1",
     "equipSlots": [
       "feet"
@@ -367,7 +161,7 @@
       "isRoot": true,
       "echoBound": "dwarfs",
       "echoArtifactKey": "stoneboundSoles",
-      "seedVersion": 3
+      "seedVersion": 4
     }
   },
   "_id": "Wut4LDHXIDND0e6n",

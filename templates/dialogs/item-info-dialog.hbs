@@ -204,22 +204,6 @@
     {{/if}}
     {{/if}}
 
-    {{#if artifactProfile.embeddedPowers.length}}
-    <h4 class="item-info-subtitle">Embedded powers</h4>
-    <ul class="item-info-ability-list">
-      {{#each artifactProfile.embeddedPowers}}
-      <li>
-        <span class="item-info-ability-name">{{this.name}}</span>
-        {{#if this.category}}
-        <span class="item-info-ability-desc">{{this.category}}</span>
-        {{/if}}
-      </li>
-      {{/each}}
-    </ul>
-    {{else}}
-    <p class="item-info-muted">No embedded powers on this artifact.</p>
-    {{/if}}
-
     {{#if artifactProfile.lore}}
     <h4 class="item-info-subtitle">Lore</h4>
     <div class="item-info-lore">{{artifactProfile.lore}}</div>

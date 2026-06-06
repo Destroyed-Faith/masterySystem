@@ -68,21 +68,6 @@ function artifactGearSlotLabel(value) {
     const opt = ARTIFACT_GEAR_SLOT_OPTIONS.find((o) => o.value === v);
     return opt?.label || v;
 }
-function embeddedArtifactPowerRows(powers) {
-    const out = [];
-    for (const p of powers) {
-        if (!p || typeof p !== 'object')
-            continue;
-        const o = p;
-        const name = String(o.name ?? '').trim() || '—';
-        const cat = o.category;
-        out.push({
-            name,
-            category: typeof cat === 'string' && cat.trim() ? cat : undefined
-        });
-    }
-    return out;
-}
 /** Quick-edit only for items embedded on an actor (not world / compendium templates). */
 function isEmbeddedOnActor(item) {
     const p = item?.parent;
@@ -362,7 +347,6 @@ export class ItemInfoDialog extends BaseDialog {
             const def = bonuses.defense != null ? Number(bonuses.defense) : 0;
             const dmgLegacy = typeof bonuses.damage === 'string' ? bonuses.damage.trim() : '';
             const showLegacyBonuses = atk !== 0 || def !== 0 || (dmgLegacy !== '' && dmgLegacy !== '—');
-            const powersArr = Array.isArray(sys.powers) ? sys.powers : [];
             const kindRaw = sys.artifactKind;
             const kind = kindRaw === 'weapon' || kindRaw === 'armor' || kindRaw === 'shield' || kindRaw === 'gear'
                 ? kindRaw
@@ -447,7 +431,6 @@ export class ItemInfoDialog extends BaseDialog {
                         damage: bonuses.damage || '—'
                     }
                     : { show: false },
-                embeddedPowers: embeddedArtifactPowerRows(powersArr),
                 weapon: kind === 'weapon'
                     ? {
                         damage: aw.damage != null && String(aw.damage).trim() !== ''

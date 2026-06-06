@@ -6,10 +6,9 @@ import { ARTIFACT_GEAR_SLOT_OPTIONS, getArtifactPowerCatalogOptions, getArtifact
 import { ARTIFACT_SLOT_KEYS, ARTIFACT_SLOT_LABELS, ATTRIBUTE_ACCESS_BY_SLOT, BASE_PROFILE_LABELS, BASE_PROFILES_BY_SLOT, BASE_VALUE_HARD_CAP, BASE_VALUE_LIMIT_BY_SLOT, BASE_VALUE_TYPE_LABELS, isAttributeAllowedForStoneFunctionInSlot, isBaseValueTypeAllowedForSlot, SLOT_POWER_ACCESS, } from '../utils/artifact-rules.js';
 import { syncArtifactInheritedFromParent } from '../utils/artifact-folder-sync.js';
 import { pushWorldArtifactNodeToEmbeddedActors } from '../utils/artifact-embedded-sync.js';
+import { deriveLevelProgressionFromPicks } from './progression-compiler.js';
 import { inferArtifactEquipSlots } from '../utils/equip-slots.js';
-import { buildArtifactNodeIdMap, findRootItem, getAncestorChainRootFirst, getLockedWeaponBasics, getMaxTotalEmbeddedPowers, getMergedAncestorPowerIds, getTreeDepth, isLineageRootItem, mergeInnatesFromAncestors, mergeSpecialRefsFromAncestors, specialRefKey } from '../utils/artifact-tree-lineage.js';
-import { normalizePowersForEditor } from '../utils/embedded-power-ui-constants.js';
-import { EmbeddedPowerDialog } from './embedded-power-dialog.js';
+import { buildArtifactNodeIdMap, findRootItem, getAncestorChainRootFirst, getLockedWeaponBasics, getTreeDepth, isLineageRootItem, mergeInnatesFromAncestors, mergeSpecialRefsFromAncestors, specialRefKey } from '../utils/artifact-tree-lineage.js';
 import { getEffectById, parseEffectStrings } from '../utils/special-effects.js';
 import { STONE_POWERS_BY_ATTRIBUTE } from '../stones/stone-powers.js';
 import { deriveBaseValueDisplay, scaleWeaponSpecial, isScalingWeaponSpecial, } from '../utils/artifact-base-derive.js';
@@ -110,9 +109,7 @@ function resolveLineageForItem(item) {
     const lockedBasics = getLockedWeaponBasics(rootSystem);
     const { ordered: lockedInnateList, set: lockedInnateSet } = mergeInnatesFromAncestors(ancestors);
     const { ordered: lockedSpecialList, keySet: lockedSpecialKeySet } = mergeSpecialRefsFromAncestors(ancestors);
-    const mergedAncestorPowerIds = getMergedAncestorPowerIds(ancestors);
     const depth = folderItems.length ? getTreeDepth(item, nodeIdMap) : 1;
-    const maxTotalPowers = getMaxTotalEmbeddedPowers(isLineageRoot, depth, mergedAncestorPowerIds.size);
     return {
         isLineageRoot,
         lockedBasics,
@@ -120,8 +117,6 @@ function resolveLineageForItem(item) {
         lockedInnateSet,
         lockedSpecialList,
         lockedSpecialKeySet,
-        mergedAncestorPowerIds,
-        maxTotalPowers,
         depth,
         rootArmorType: rootSystem?.artifactArmor?.type || 'light',
         rootShieldType: rootSystem?.artifactShield?.type || 'parry'
@@ -258,12 +253,7 @@ export class NodeEditor extends BaseDialog {
         data.isLineageRoot = lineage.isLineageRoot;
         data.lineageHint = lineage.isLineageRoot
             ? ''
-            : 'Tree child: item type, weapon type, hands, gear slot, and armor/shield type match the root node. Inherited innates/specials/powers cannot be removed; you can add more.';
-        const emb = normalizePowersForEditor(system.powers);
-        data.embeddedPowersSummary =
-            emb.length === 0
-                ? 'No embedded powers on this item yet.'
-                : `${emb.length} power(s) on this item: ${emb.map((p) => p.name).join(', ')}`;
+            : 'Tree child: item type, weapon type, hands, gear slot, and armor/shield type match the root node. Inherited innates/specials cannot be removed; you can add more.';
         // ---- New Artifact spec block ----
         const specSlot = String(system.slot || '');
         const specBaseProfile = String(system.baseProfile || '');
@@ -676,6 +666,59 @@ export class NodeEditor extends BaseDialog {
                 .filter((el) => String($(el).val() || '') === 'stoneFunction').length;
             html.find('.node-progression-stonefn-warning').toggleClass('hidden', count <= 1);
         };
+        // Read the current picks straight from the DOM (same shape `saveNode` builds).
+        const readProgressionPicksFromDom = () => {
+            const picks = [];
+            html.find('.node-progression-pick').each((_i, el) => {
+                const $row = $(el);
+                const levelRaw = parseInt(String($row.attr('data-level') || ''), 10);
+                const level = (levelRaw === 2 || levelRaw === 3 ? levelRaw : 1);
+                const kind = String($row.find('.node-pick-kind').val() || 'none').trim();
+                if (kind === 'power') {
+                    const powerTemplateId = String($row.find('.node-pick-power').val() || '').trim();
+                    if (powerTemplateId)
+                        picks.push({ level, kind: 'power', powerTemplateId });
+                }
+                else if (kind === 'stoneFunction') {
+                    const sfKind = String($row.find('.node-pick-stone-kind').val() || '').trim();
+                    const sfAttr = String($row.find('.node-pick-stone-attr').val() || '').trim();
+                    const sfPower = String($row.find('.node-pick-stone-power').val() || '').trim();
+                    if (sfKind && sfAttr) {
+                        const sf = {
+                            kind: sfKind,
+                            attribute: sfAttr,
+                        };
+                        if (sfKind === 'stonePowerSupport' && sfPower)
+                            sf.stonePowerId = sfPower;
+                        picks.push({ level, kind: 'stoneFunction', stoneFunction: sf });
+                    }
+                }
+            });
+            return picks;
+        };
+        // Regenerate the read-only Level Progression table from the live picks so the
+        // bottom table stays in sync with the picks above without needing a save.
+        const previewNodeLevel = Math.max(1, Math.min(10, Number(this.item.system?.level) || 1));
+        const rebuildLevelProgressionPreview = () => {
+            const rows = deriveLevelProgressionFromPicks(readProgressionPicksFromDom());
+            const $tbody = html.find('.node-levelprog-table tbody');
+            $tbody.empty();
+            for (const r of rows) {
+                const cur = Number(r.level) === previewNodeLevel ? ' class="node-levelprog-current"' : '';
+                const special = r.special
+                    ? `<span class="node-levelprog-special" title="Special">${escHtml(r.special)}</span>`
+                    : '';
+                $tbody.append(`<tr${cur}>` +
+                    `<td class="node-levelprog-lvl">${escHtml(String(r.level))}</td>` +
+                    `<td class="node-levelprog-name">${escHtml(r.name || '—')}${special}</td>` +
+                    `<td>${escHtml(r.type || '—')}</td>` +
+                    `<td>${escHtml(r.range || '—')}</td>` +
+                    `<td>${escHtml(r.duration || '—')}</td>` +
+                    `<td class="node-levelprog-effect">${escHtml(r.effect || '')}</td>` +
+                    `</tr>`);
+            }
+            html.find('.node-levelprog-empty').toggleClass('hidden', rows.length > 0);
+        };
         html.find('.node-progression-pick').each((_i, el) => {
             const $row = $(el);
             const $cat = $row.find('.node-pick-power-cat');
@@ -685,19 +728,30 @@ export class NodeEditor extends BaseDialog {
             syncProgressionRow($row);
         });
         refreshStoneFnWarning();
+        rebuildLevelProgressionPreview();
         html.on('change', '.node-pick-kind', (e) => {
             syncProgressionRow($(e.currentTarget).closest('.node-progression-pick'));
             refreshStoneFnWarning();
+            rebuildLevelProgressionPreview();
         });
         html.on('change', '.node-pick-power-cat', (e) => {
             populatePowerSelect($(e.currentTarget).closest('.node-progression-pick'), '');
+            rebuildLevelProgressionPreview();
+        });
+        html.on('change', '.node-pick-power', () => {
+            rebuildLevelProgressionPreview();
         });
         html.on('change', '.node-pick-stone-kind', (e) => {
             syncProgressionRow($(e.currentTarget).closest('.node-progression-pick'));
+            rebuildLevelProgressionPreview();
         });
         html.on('change', '.node-pick-stone-attr', (e) => {
             const $row = $(e.currentTarget).closest('.node-progression-pick');
             populateStonePowerSelect($row, String($row.find('.node-pick-stone-power').val() || ''));
+            rebuildLevelProgressionPreview();
+        });
+        html.on('change', '.node-pick-stone-power', () => {
+            rebuildLevelProgressionPreview();
         });
         // When the Slot changes (attribute access changes), refresh per-pick Stone Power lists.
         $specSlot.on('change', () => {
@@ -705,6 +759,7 @@ export class NodeEditor extends BaseDialog {
                 const $row = $(el);
                 populateStonePowerSelect($row, String($row.find('.node-pick-stone-power').val() || ''));
             });
+            rebuildLevelProgressionPreview();
         });
         // Base Value rows are kept in sync by `rebuildBaseValueRows` (called from
         // refreshSpecForSlot). Here we only react to the per-row choices changing.
@@ -785,18 +840,6 @@ export class NodeEditor extends BaseDialog {
         });
         html.find('button[data-button="cancel"]').on('click', () => {
             this.close();
-        });
-        html.find('[data-action="open-embedded-powers"]').on('click', () => {
-            const lin = resolveLineageForItem(this.item);
-            new EmbeddedPowerDialog(this.item, {
-                onSaved: () => this.render(false),
-                lineage: {
-                    isLineageRoot: lin.isLineageRoot,
-                    lockedPowerIds: lin.mergedAncestorPowerIds,
-                    maxTotalPowers: lin.maxTotalPowers,
-                    treeDepth: lin.depth
-                }
-            }).render(true);
         });
     }
     collectSelectValues(html, selectClass) {
@@ -1017,6 +1060,9 @@ export class NodeEditor extends BaseDialog {
         if (stoneFnPicks.length > 1) {
             ui.notifications?.warn('More than one Stone Function selected; the spec allows at most one per artifact. Only the first is applied.');
         }
+        // Picks are the single source of truth: regenerate the 1-10 Level Progression
+        // table from the picks (auto-scaled across stages I/II/III at PL 4/10/16).
+        const levelProgression = deriveLevelProgressionFromPicks(progressionPicks);
         const equipSlots = inferArtifactEquipSlots({
             artifactKind: kind,
             gearSlot,
@@ -1038,6 +1084,8 @@ export class NodeEditor extends BaseDialog {
             'system.baseValues': baseValues,
             'system.stoneFunction': stoneFunction,
             'system.progressionPicks': progressionPicks,
+            'system.levelProgression': levelProgression,
+            'system.powers': [],
             'system.binding': specBinding,
             ...(equipSlots ? { 'system.equipSlots': equipSlots } : {})
         };

@@ -3,7 +3,7 @@
  * UI for managing artifact evolution tree nodes
  */
 import { NodeEditor } from './node-editor.js';
-import { normalizePowersForEditor } from '../utils/embedded-power-ui-constants.js';
+import { deriveLevelProgressionFromPicks } from './progression-compiler.js';
 import { syncArtifactInheritedFromParent } from '../utils/artifact-folder-sync.js';
 import { pushWorldArtifactNodeToEmbeddedActors } from '../utils/artifact-embedded-sync.js';
 import { inferArtifactEquipSlots } from '../utils/equip-slots.js';
@@ -237,7 +237,13 @@ export class ArtifactBuilder extends BaseApplication {
                     masteryRank: parentRequirements.masteryRank || 1
                 },
                 description: parentSystem.description || '',
-                powers: normalizePowersForEditor(foundry.utils.duplicate(parentSystem.powers || [])),
+                slot: parentSystem.slot || '',
+                baseProfile: parentSystem.baseProfile || '',
+                baseValues: foundry.utils.duplicate(parentSystem.baseValues || []),
+                stoneFunction: parentSystem.stoneFunction ?? null,
+                progressionPicks: foundry.utils.duplicate(parentSystem.progressionPicks || []),
+                levelProgression: deriveLevelProgressionFromPicks(parentSystem.progressionPicks || []),
+                powers: [],
                 ...(equipSlots ? { equipSlots } : {})
             },
             flags: {

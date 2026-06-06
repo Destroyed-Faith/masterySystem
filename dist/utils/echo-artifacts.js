@@ -39,6 +39,11 @@ const STONEBOUND_SOLES = {
     baseProfile: 'feet',
     description: 'Ancestral weight, deep-road memory, and the old bond between dwarven bodies and stone.',
     restriction: 'A dwarf with Stonebound Soles cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact.',
+    progressionPickIds: {
+        1: 'ab-immovable-temp-hp',
+        2: 'movement-safe-movement',
+        3: 'ab-armor',
+    },
     baseValues: [
         { slot: 'a', label: 'Tremorsense', note: 'Ground-contact detection within 4–16 m.' },
         { slot: 'b', label: 'Armor (Feet)', note: '+1 to +4 Armor at higher levels.' },
@@ -147,6 +152,11 @@ const ELVEN_STRIDE = {
     baseProfile: 'feet',
     description: 'Otherworldly balance, reflex, clinging movement, and elemental lineage. Pick an Elemental Lineage when the artifact is created.',
     restriction: 'An elf with Elven Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact.',
+    progressionPickIds: {
+        1: 'reaction-evade',
+        2: 'movement-wall-walk',
+        3: 'ab-evade',
+    },
     baseValues: [
         { slot: 'a', label: 'Evade', note: '+2 to +12 Evade across levels.' },
         { slot: 'b', label: 'Clinging', note: '+1 to +4 m Clinging at higher levels.' },
@@ -260,6 +270,10 @@ const TITAN_SCARS = {
         attribute: 'might',
         stonePowerId: 'might.meleeDamage',
         level: 2,
+    },
+    progressionPickIds: {
+        1: 'ab-damage',
+        3: 'active-ranged-single-heal',
     },
     baseValues: [
         {
@@ -378,6 +392,10 @@ const WYRM_SCALES = {
         stonePowerId: 'might.armor',
         level: 3,
     },
+    progressionPickIds: {
+        1: 'movement-flight',
+        2: 'ab-armor',
+    },
     baseValues: [
         {
             slot: 'a',
@@ -489,6 +507,11 @@ const SERPENT_SCALES = {
     baseProfile: 'bodyArmor',
     description: 'A lighter form of Dragonborn natural armor — flexible, smooth, built for movement.',
     restriction: 'A Dragonborn with Serpent Scales cannot wear mundane armor or another Body Artifact.',
+    progressionPickIds: {
+        1: 'movement-flight',
+        2: 'ab-evade',
+        3: 'passive-evade',
+    },
     baseValues: [
         {
             slot: 'a',
@@ -608,6 +631,10 @@ const DRAGON_CLAWS = {
         attribute: 'might',
         stonePowerId: 'might.meleeDamage',
         level: 1,
+    },
+    progressionPickIds: {
+        2: 'active-melee-damage-dispel-mixed',
+        3: 'active-melee-control-push-pull',
     },
     baseValues: [
         {
@@ -737,6 +764,11 @@ const SENTINEL_FRAME = {
     description: 'The armored enforcer frame — an iron wall of heavenly order.',
     requiresSubChoice: 'sentinel',
     restriction: 'A character with a Sentinel Body Artifact cannot wear mundane armor or bind another Body Artifact.',
+    progressionPickIds: {
+        1: 'active-ranged-single-heal',
+        2: 'ab-temp-hp',
+        3: 'passive-regeneration',
+    },
     baseValues: [
         {
             slot: 'a',
@@ -846,6 +878,11 @@ const JUDICATOR_FRAME = {
     description: 'A judge, inquisitor, and divine executioner frame.',
     requiresSubChoice: 'judicator',
     restriction: 'A character with a Sentinel Body Artifact cannot wear mundane armor or bind another Body Artifact.',
+    progressionPickIds: {
+        1: 'ab-armor',
+        2: 'passive-regeneration',
+        3: 'reaction-damage-reduction',
+    },
     baseValues: [
         {
             slot: 'a',
@@ -955,6 +992,11 @@ const ORACLE_FRAME = {
     description: 'An arcane vessel of command, prophecy, and divine will.',
     requiresSubChoice: 'oracle',
     restriction: 'A character with a Sentinel Body Artifact cannot wear mundane armor or bind another Body Artifact.',
+    progressionPickIds: {
+        1: 'ab-armor',
+        2: 'ab-special-overdrive',
+        3: 'passive-temp-hp',
+    },
     baseValues: [
         {
             slot: 'a',
@@ -1151,8 +1193,9 @@ export function buildEchoStoneFunction(def) {
 }
 /**
  * Build the up-to-three Level Progression picks from an Echo definition.
- * Currently emits the authored Stone Function pick (if any); other levels
- * stay `none` (the bespoke active/movement rows live on the 1-10 table).
+ * Each Basic level (1-3) becomes a catalog Power pick (from `progressionPickIds`)
+ * or, when claimed by `stoneFunction`, the Stone Function pick. The 1-10 table is
+ * generated from these picks by `deriveLevelProgressionFromPicks`.
  */
 export function buildEchoProgressionPicks(def) {
     const picks = [
@@ -1160,10 +1203,18 @@ export function buildEchoProgressionPicks(def) {
         { level: 2, kind: 'none' },
         { level: 3, kind: 'none' },
     ];
+    // Catalog Power picks per level.
+    const ids = def.progressionPickIds || {};
+    for (const lvl of [1, 2, 3]) {
+        const tplId = ids[lvl];
+        if (tplId) {
+            picks[lvl - 1] = { level: lvl, kind: 'power', powerTemplateId: tplId };
+        }
+    }
+    // Stone Function pick claims its level (overrides any Power pick there).
     const sf = def.stoneFunction;
     if (sf) {
-        const idx = sf.level - 1;
-        picks[idx] = {
+        picks[sf.level - 1] = {
             level: sf.level,
             kind: 'stoneFunction',
             stoneFunction: buildEchoStoneFunction(def),

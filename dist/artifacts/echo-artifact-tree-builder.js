@@ -15,6 +15,7 @@
  * in sync with zero drift.
  */
 import { ECHO_ARTIFACTS, buildEchoStoneFunction, buildEchoProgressionPicks, } from '../utils/echo-artifacts.js';
+import { deriveLevelProgressionFromPicks } from './progression-compiler.js';
 import { bodyArmorBonusForLevel, feetEvadeForLevel, minorArmorForLevel, weaponDamageForLevel, } from '../utils/artifact-base-derive.js';
 import { getMinorMovementBaselineB, getPaperdollSlotsForArtifact, } from '../utils/artifact-rules.js';
 /**
@@ -22,7 +23,7 @@ import { getMinorMovementBaselineB, getPaperdollSlotsForArtifact, } from '../uti
  * output (base values, powers, slot/profile, etc.) changes so the world seeder
  * can detect stale library copies and refresh them in place.
  */
-export const ECHO_ARTIFACT_SEED_VERSION = 3;
+export const ECHO_ARTIFACT_SEED_VERSION = 4;
 const ARTIFACT_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 const ALL_POWER_LEVEL_KEYS = [
     '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16',
@@ -299,21 +300,15 @@ export function buildEchoArtifactTree(def) {
     const kind = deriveArtifactKind(def.baseProfile);
     const img = iconForKind(kind);
     const paperdoll = getPaperdollSlotsForArtifact(def.slot, def.baseProfile);
-    const progressionByLevel = new Map();
-    for (const row of def.levelProgression)
-        progressionByLevel.set(row.level, row);
+    // Picks are the single source of truth: the editable picks drive the 1-10
+    // Level Progression table (auto-scaled across stages I/II/III at PL 4/10/16).
+    const picks = buildEchoProgressionPicks(def);
+    const levelProgression = deriveLevelProgressionFromPicks(picks);
     const nodeId = (level) => `${def.key}-l${level}`;
     const nodes = ARTIFACT_LEVELS.map((level) => {
         const isRoot = level === 1;
         const parentNodeId = isRoot ? null : nodeId(level - 1);
         const childNodeId = level === 10 ? null : nodeId(level + 1);
-        // Cumulative powers: every progression row up to this level.
-        const powers = [];
-        for (let l = 1; l <= level; l++) {
-            const row = progressionByLevel.get(l);
-            if (row)
-                powers.push(buildEmbeddedPower(def.key, row));
-        }
         const isWeapon = kind === 'weapon';
         const system = {
             level,
@@ -329,19 +324,21 @@ export function buildEchoArtifactTree(def) {
             binding: 'echo',
             echoKey: def.echoKey,
             baseValues: baseValuesAtLevel(def.key, level),
-            levelProgression: def.levelProgression,
-            // The editable picks always carry the authored progression so the Node
-            // Editor's top fields match the bottom table; the *active* Stone Function
-            // is only applied mechanically once the node reaches its unlock level.
+            // Generated from the editable picks so the Node Editor's top fields match
+            // the 1-10 table; the same table is shared by every node (runtime filters
+            // by currentLevel).
+            levelProgression,
+            // The *active* Stone Function is only applied mechanically once the node
+            // reaches its unlock level.
             stoneFunction: def.stoneFunction && level >= def.stoneFunction.level
                 ? buildEchoStoneFunction(def)
                 : null,
-            progressionPicks: buildEchoProgressionPicks(def),
+            progressionPicks: picks,
             lore: def.description,
             description: def.restriction ? `${def.description}\n\n${def.restriction}` : def.description,
             bonuses: { attack: 0, damage: '', defense: 0, specials: [] },
             requirements: { stones: 0, masteryRank: 1 },
-            powers,
+            powers: [],
             inventorySize: '1x1',
             ...(isWeapon ? { artifactWeapon: weaponProfileAtLevel(def, level) } : {}),
             ...(paperdoll.length ? { equipSlots: paperdoll } : {}),

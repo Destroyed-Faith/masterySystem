@@ -3,7 +3,6 @@
  * Used by Artifact Builder and Node Editor after saves.
  */
 
-import { normalizePowersForEditor } from './embedded-power-ui-constants.js';
 import {
   buildArtifactNodeIdMap,
   getAncestorChainRootFirst,
@@ -11,11 +10,12 @@ import {
   mergeArtifactShieldForChildSync,
   mergeArtifactWeaponForChildSync,
   mergeInnatesFromAncestors,
-  mergePowersParentToChild,
   mergeSpecialRefsFromAncestors
 } from './artifact-tree-lineage.js';
 import { pushWorldArtifactNodeToEmbeddedActors } from './artifact-embedded-sync.js';
 import { inferArtifactEquipSlots } from './equip-slots.js';
+import { deriveLevelProgressionFromPicks } from '../artifacts/progression-compiler.js';
+import type { ArtifactProgressionPick } from '../types/item.js';
 
 function getFolderArtifactItems(parentItem: Item): Item[] {
   const folderId = (parentItem as any).folder?.id;
@@ -85,9 +85,12 @@ export async function syncArtifactInheritedFromParent(parentItem: Item): Promise
     const mergedArmor = mergeArtifactArmorForChildSync(parentArmor, childSystem.artifactArmor || defaultArmor);
     const mergedShield = mergeArtifactShieldForChildSync(parentShield, childSystem.artifactShield || defaultShield);
 
-    const mergedPowers = normalizePowersForEditor(
-      mergePowersParentToChild(parentSystem.powers || [], childSystem.powers || []) as any[]
-    );
+    // Picks drive the progression: the whole tree shares the parent's picks and
+    // the derived Level Progression table. Embedded powers are no longer used.
+    const inheritedPicks: ArtifactProgressionPick[] = Array.isArray(parentSystem.progressionPicks)
+      ? parentSystem.progressionPicks
+      : [];
+    const inheritedProgression = deriveLevelProgressionFromPicks(inheritedPicks);
 
     const updates: any = {
       'system.artifactKind': parentSystem.artifactKind || 'weapon',
@@ -99,7 +102,10 @@ export async function syncArtifactInheritedFromParent(parentItem: Item): Promise
       'system.bonuses.damage': parentBonuses.damage || '',
       'system.bonuses.defense': parentBonuses.defense || 0,
       'system.bonuses.specials': [...(parentBonuses.specials || [])],
-      'system.powers': mergedPowers
+      'system.stoneFunction': parentSystem.stoneFunction ?? null,
+      'system.progressionPicks': inheritedPicks,
+      'system.levelProgression': inheritedProgression,
+      'system.powers': []
     };
 
     const inferredSlots = inferArtifactEquipSlots({

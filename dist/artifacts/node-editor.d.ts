@@ -16,8 +16,6 @@ declare function resolveLineageForItem(item: Item): {
     lockedInnateSet: Set<string>;
     lockedSpecialList: ArtifactWeaponSpecialRef[];
     lockedSpecialKeySet: Set<string>;
-    mergedAncestorPowerIds: Set<string>;
-    maxTotalPowers: number;
     depth: number;
     rootArmorType: any;
     rootShieldType: any;

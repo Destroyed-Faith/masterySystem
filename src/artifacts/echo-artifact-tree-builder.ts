@@ -30,6 +30,8 @@ import {
   buildEchoStoneFunction,
   buildEchoProgressionPicks,
 } from '../utils/echo-artifacts.js';
+import { deriveLevelProgressionFromPicks } from './progression-compiler.js';
+import type { ArtifactProgressionPick } from '../types/item.js';
 import {
   bodyArmorBonusForLevel,
   feetEvadeForLevel,
@@ -46,7 +48,7 @@ import {
  * output (base values, powers, slot/profile, etc.) changes so the world seeder
  * can detect stale library copies and refresh them in place.
  */
-export const ECHO_ARTIFACT_SEED_VERSION = 3;
+export const ECHO_ARTIFACT_SEED_VERSION = 4;
 
 const ARTIFACT_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
 const ALL_POWER_LEVEL_KEYS: PowerLevelKey[] = [
@@ -346,8 +348,11 @@ export function buildEchoArtifactTree(def: EchoArtifactDefinition): GeneratedArt
   const kind = deriveArtifactKind(def.baseProfile);
   const img = iconForKind(kind);
   const paperdoll = getPaperdollSlotsForArtifact(def.slot as any, def.baseProfile as any);
-  const progressionByLevel = new Map<number, ArtifactLevelProgressionRow>();
-  for (const row of def.levelProgression) progressionByLevel.set(row.level, row);
+
+  // Picks are the single source of truth: the editable picks drive the 1-10
+  // Level Progression table (auto-scaled across stages I/II/III at PL 4/10/16).
+  const picks = buildEchoProgressionPicks(def) as ArtifactProgressionPick[];
+  const levelProgression = deriveLevelProgressionFromPicks(picks);
 
   const nodeId = (level: number) => `${def.key}-l${level}`;
 
@@ -355,13 +360,6 @@ export function buildEchoArtifactTree(def: EchoArtifactDefinition): GeneratedArt
     const isRoot = level === 1;
     const parentNodeId = isRoot ? null : nodeId(level - 1);
     const childNodeId = level === 10 ? null : nodeId(level + 1);
-
-    // Cumulative powers: every progression row up to this level.
-    const powers: EmbeddedPowerData[] = [];
-    for (let l = 1; l <= level; l++) {
-      const row = progressionByLevel.get(l);
-      if (row) powers.push(buildEmbeddedPower(def.key, row));
-    }
 
     const isWeapon = kind === 'weapon';
     const system: Record<string, unknown> = {
@@ -379,20 +377,22 @@ export function buildEchoArtifactTree(def: EchoArtifactDefinition): GeneratedArt
       binding: 'echo',
       echoKey: def.echoKey,
       baseValues: baseValuesAtLevel(def.key, level),
-      levelProgression: def.levelProgression,
-      // The editable picks always carry the authored progression so the Node
-      // Editor's top fields match the bottom table; the *active* Stone Function
-      // is only applied mechanically once the node reaches its unlock level.
+      // Generated from the editable picks so the Node Editor's top fields match
+      // the 1-10 table; the same table is shared by every node (runtime filters
+      // by currentLevel).
+      levelProgression,
+      // The *active* Stone Function is only applied mechanically once the node
+      // reaches its unlock level.
       stoneFunction:
         def.stoneFunction && level >= def.stoneFunction.level
           ? buildEchoStoneFunction(def)
           : null,
-      progressionPicks: buildEchoProgressionPicks(def),
+      progressionPicks: picks,
       lore: def.description,
       description: def.restriction ? `${def.description}\n\n${def.restriction}` : def.description,
       bonuses: { attack: 0, damage: '', defense: 0, specials: [] },
       requirements: { stones: 0, masteryRank: 1 },
-      powers,
+      powers: [],
       inventorySize: '1x1',
       ...(isWeapon ? { artifactWeapon: weaponProfileAtLevel(def, level) } : {}),
       ...(paperdoll.length ? { equipSlots: paperdoll } : {}),

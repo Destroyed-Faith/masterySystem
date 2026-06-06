@@ -2,10 +2,10 @@
  * Propagate merged artifact profile + powers from a parent item to all descendants in the same folder.
  * Used by Artifact Builder and Node Editor after saves.
  */
-import { normalizePowersForEditor } from './embedded-power-ui-constants.js';
-import { buildArtifactNodeIdMap, getAncestorChainRootFirst, mergeArtifactArmorForChildSync, mergeArtifactShieldForChildSync, mergeArtifactWeaponForChildSync, mergeInnatesFromAncestors, mergePowersParentToChild, mergeSpecialRefsFromAncestors } from './artifact-tree-lineage.js';
+import { buildArtifactNodeIdMap, getAncestorChainRootFirst, mergeArtifactArmorForChildSync, mergeArtifactShieldForChildSync, mergeArtifactWeaponForChildSync, mergeInnatesFromAncestors, mergeSpecialRefsFromAncestors } from './artifact-tree-lineage.js';
 import { pushWorldArtifactNodeToEmbeddedActors } from './artifact-embedded-sync.js';
 import { inferArtifactEquipSlots } from './equip-slots.js';
+import { deriveLevelProgressionFromPicks } from '../artifacts/progression-compiler.js';
 function getFolderArtifactItems(parentItem) {
     const folderId = parentItem.folder?.id;
     if (!folderId)
@@ -56,7 +56,12 @@ export async function syncArtifactInheritedFromParent(parentItem) {
         const mergedWeapon = mergeArtifactWeaponForChildSync(parentWeapon, childWeapon, lockedInnates, lockedInnateSet, lockedSpecs, lockedSpecKeys);
         const mergedArmor = mergeArtifactArmorForChildSync(parentArmor, childSystem.artifactArmor || defaultArmor);
         const mergedShield = mergeArtifactShieldForChildSync(parentShield, childSystem.artifactShield || defaultShield);
-        const mergedPowers = normalizePowersForEditor(mergePowersParentToChild(parentSystem.powers || [], childSystem.powers || []));
+        // Picks drive the progression: the whole tree shares the parent's picks and
+        // the derived Level Progression table. Embedded powers are no longer used.
+        const inheritedPicks = Array.isArray(parentSystem.progressionPicks)
+            ? parentSystem.progressionPicks
+            : [];
+        const inheritedProgression = deriveLevelProgressionFromPicks(inheritedPicks);
         const updates = {
             'system.artifactKind': parentSystem.artifactKind || 'weapon',
             'system.gearSlot': parentSystem.gearSlot || '',
@@ -67,7 +72,10 @@ export async function syncArtifactInheritedFromParent(parentItem) {
             'system.bonuses.damage': parentBonuses.damage || '',
             'system.bonuses.defense': parentBonuses.defense || 0,
             'system.bonuses.specials': [...(parentBonuses.specials || [])],
-            'system.powers': mergedPowers
+            'system.stoneFunction': parentSystem.stoneFunction ?? null,
+            'system.progressionPicks': inheritedPicks,
+            'system.levelProgression': inheritedProgression,
+            'system.powers': []
         };
         const inferredSlots = inferArtifactEquipSlots({
             artifactKind: parentSystem.artifactKind || 'weapon',

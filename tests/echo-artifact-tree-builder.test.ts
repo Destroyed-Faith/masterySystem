@@ -5,6 +5,7 @@ import {
   ECHO_ARTIFACT_SEED_VERSION,
 } from '../src/artifacts/echo-artifact-tree-builder.js';
 import { ECHO_ARTIFACTS, getEchoArtifact } from '../src/utils/echo-artifacts.js';
+import { deriveLevelProgressionFromPicks } from '../src/artifacts/progression-compiler.js';
 
 function flag(node: any, key: string) {
   return node.itemData.flags['mastery-system'][key];
@@ -53,13 +54,10 @@ describe('Echo Artifact tree builder — structure', () => {
     expect(a.nodes[9].nodeId).toBe('serpentScales-l10');
   });
 
-  it('powers accumulate cumulatively level by level', () => {
+  it('carries no embedded powers (picks-drive model)', () => {
     for (const tree of buildAllEchoArtifactTrees()) {
-      let prev = -1;
       for (const node of tree.nodes) {
-        const count = (node.itemData.system as any).powers.length;
-        expect(count).toBeGreaterThanOrEqual(prev);
-        prev = count;
+        expect((node.itemData.system as any).powers).toEqual([]);
       }
     }
   });
@@ -94,18 +92,25 @@ describe('Echo Artifact tree builder — exact Base Values', () => {
     expect(sys.equipSlots).toEqual(['mainhand', 'offhand']);
   });
 
-  it('every node carries the authored 1–10 level progression table', () => {
+  it('generates the level progression table from the picks (levels 1–9, no L10)', () => {
     for (const tree of buildAllEchoArtifactTrees()) {
       for (const node of tree.nodes) {
-        const lp = (node.itemData.system as any).levelProgression;
+        const sys = node.itemData.system as any;
+        const lp = sys.levelProgression;
         expect(Array.isArray(lp)).toBe(true);
-        expect(lp.length).toBe(10);
+        // Derived exactly from the node's picks.
+        expect(lp).toEqual(deriveLevelProgressionFromPicks(sys.progressionPicks));
+        // No Level 10 Ultimate row; only the picks' staged levels appear.
+        for (const row of lp) {
+          expect(row.level).toBeGreaterThanOrEqual(1);
+          expect(row.level).toBeLessThanOrEqual(9);
+        }
       }
     }
   });
 
   it('stamps the current seed version on every node (for in-place refresh)', () => {
-    expect(ECHO_ARTIFACT_SEED_VERSION).toBe(3);
+    expect(ECHO_ARTIFACT_SEED_VERSION).toBe(4);
     const tree = buildEchoArtifactTree(getEchoArtifact('titanScars')!);
     for (const node of tree.nodes) {
       expect(flag(node, 'seedVersion')).toBe(ECHO_ARTIFACT_SEED_VERSION);

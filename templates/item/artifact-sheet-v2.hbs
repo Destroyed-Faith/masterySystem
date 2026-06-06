@@ -13,7 +13,7 @@
   <nav class="sheet-tabs tabs" data-group="primary">
     <a class="item" data-tab="description">Description</a>
     <a class="item" data-tab="bonuses">Bonuses</a>
-    <a class="item" data-tab="powers">Powers</a>
+    <a class="item" data-tab="progression">Progression</a>
     <a class="item" data-tab="requirements">Requirements</a>
   </nav>
 
@@ -92,156 +92,35 @@
       </div>
     </div>
 
-    {{!-- Powers Tab --}}
-    <div class="tab" data-group="primary" data-tab="powers">
-      {{#if isEditable}}
-      <div class="powers-header">
-        <h3>Powers</h3>
-        <button type="button" class="power-action" data-action="add-power">Add Power</button>
-      </div>
+    {{!-- Progression Tab (read-only; generated from the Level 1/2/3 picks) --}}
+    <div class="tab" data-group="primary" data-tab="progression">
+      <p class="artifact-progression-hint">Abilities are generated from the artifact's Level 1/2/3 picks. Edit them in the Artifact Builder node editor. Levels at or below the current Level ({{summary.currentLevel}}) are unlocked.</p>
+      {{#if summary.hasAbilities}}
+      <table class="artifact-progression-table">
+        <thead>
+          <tr>
+            <th>Lvl</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Effect</th>
+            <th>Special</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each summary.abilities}}
+          <tr class="{{#unless unlocked}}artifact-ability-locked{{/unless}}">
+            <td>{{level}}</td>
+            <td>{{name}}</td>
+            <td>{{type}}</td>
+            <td>{{effect}}</td>
+            <td>{{special}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      {{else}}
+      <p class="artifact-progression-empty">No progression yet — pick a Power or Stone Function in the Artifact Builder.</p>
       {{/if}}
-      
-      <div class="powers-list">
-        {{#each powers}}
-        <div class="power-item" data-power-index="{{index}}">
-          <div class="power-header">
-            <button type="button" class="power-toggle" data-action="toggle-power" data-index="{{index}}">
-              <span class="power-name">{{name}}</span>
-              <span class="power-category">({{category}})</span>
-            </button>
-            {{#if ../isEditable}}
-            <div class="power-actions">
-              <button type="button" class="power-action" data-action="duplicate-power" data-index="{{index}}" title="Duplicate">📋</button>
-              <button type="button" class="power-action" data-action="delete-power" data-index="{{index}}" title="Delete">🗑️</button>
-            </div>
-            {{/if}}
-          </div>
-          
-          <div class="power-editor" style="display: none;">
-            <div class="power-basic-fields">
-              <div class="form-group">
-                <label>Name</label>
-                <input type="text" name="system.powers.{{index}}.name" value="{{name}}" />
-              </div>
-              <div class="form-group">
-                <label>Category</label>
-                <select name="system.powers.{{index}}.category">
-                  {{#each ../categories}}
-                  <option value="{{this}}" {{#if (eq ../category this)}}selected{{/if}}>{{this}}</option>
-                  {{/each}}
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Tags (comma-separated)</label>
-                <input type="text" name="system.powers.{{index}}.tags" value="{{tagsString}}" placeholder="spell, charged" />
-              </div>
-              <div class="form-group">
-                <label>Action Cost</label>
-                <select name="system.powers.{{index}}.cost.action">
-                  {{#each ../actionCosts}}
-                  <option value="{{this}}" {{#if (eq ../cost.action this)}}selected{{/if}}>{{this}}</option>
-                  {{/each}}
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Stones</label>
-                <input type="number" name="system.powers.{{index}}.cost.stones" value="{{cost.stones}}" min="0" />
-              </div>
-              <div class="form-group">
-                <label>Charges</label>
-                <input type="number" name="system.powers.{{index}}.cost.charges" value="{{cost.charges}}" min="0" />
-              </div>
-              {{#if (or (eq category 'reaction') (eq category 'passive'))}}
-              <div class="form-group">
-                <label>Trigger</label>
-                <input type="text" name="system.powers.{{index}}.trigger" value="{{trigger}}" placeholder="When..." />
-              </div>
-              {{/if}}
-            </div>
-            
-            <div class="power-levels-table">
-              <h4>Power Levels</h4>
-              <table class="power-levels">
-                <thead>
-                  <tr>
-                    <th>Level</th>
-                    <th>Type</th>
-                    <th>Range</th>
-                    <th>AoE</th>
-                    <th>Duration</th>
-                    <th>Effect</th>
-                    <th>Specials</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {{#each levelsArray}}
-                  <tr data-level="{{key}}">
-                    <td><strong>{{key}}</strong></td>
-                    <td>
-                      <input type="text" name="system.powers.{{../index}}.levels.{{key}}.type" value="{{data.type}}" placeholder="Melee, Ranged, Buff..." />
-                    </td>
-                    <td>
-                      <select name="system.powers.{{../index}}.levels.{{key}}.range.kind">
-                        <option value="">None</option>
-                        {{#each ../../rangeKinds}}
-                        <option value="{{this}}" {{#if (eq ../data.range.kind this)}}selected{{/if}}>{{this}}</option>
-                        {{/each}}
-                      </select>
-                      {{#if data.range}}
-                      <input type="number" name="system.powers.{{../index}}.levels.{{key}}.range.m" value="{{data.range.m}}" placeholder="m" min="0" />
-                      <input type="text" name="system.powers.{{../index}}.levels.{{key}}.range.note" value="{{data.range.note}}" placeholder="note" />
-                      {{/if}}
-                    </td>
-                    <td>
-                      <select name="system.powers.{{../index}}.levels.{{key}}.aoe.shape">
-                        {{#each ../../aoeShapes}}
-                        <option value="{{this}}" {{#if (eq ../data.aoe.shape this)}}selected{{/if}}>{{this}}</option>
-                        {{/each}}
-                      </select>
-                      {{#if data.aoe}}
-                      <input type="number" name="system.powers.{{../index}}.levels.{{key}}.aoe.m" value="{{data.aoe.m}}" placeholder="m" min="0" />
-                      <input type="text" name="system.powers.{{../index}}.levels.{{key}}.aoe.note" value="{{data.aoe.note}}" placeholder="note" />
-                      {{/if}}
-                    </td>
-                    <td>
-                      <select name="system.powers.{{../index}}.levels.{{key}}.duration.kind">
-                        {{#each ../../durationKinds}}
-                        <option value="{{this}}" {{#if (eq ../data.duration.kind this)}}selected{{/if}}>{{this}}</option>
-                        {{/each}}
-                      </select>
-                      {{#if (contains (array "rounds" "masteryRounds" "masteryRankRounds") data.duration.kind)}}
-                      <input type="number" name="system.powers.{{../index}}.levels.{{key}}.duration.rounds" value="{{data.duration.rounds}}" placeholder="rounds" min="1" />
-                      {{/if}}
-                      <input type="text" name="system.powers.{{../index}}.levels.{{key}}.duration.note" value="{{data.duration.note}}" placeholder="note" />
-                    </td>
-                    <td>
-                      <textarea name="system.powers.{{../index}}.levels.{{key}}.effect.text" rows="2" placeholder="Effect description">{{data.effect.text}}</textarea>
-                      <input type="text" name="system.powers.{{../index}}.levels.{{key}}.effect.dice" value="{{data.effect.dice}}" placeholder="dice (e.g., 4d8)" />
-                    </td>
-                    <td>
-                      <div class="specials-list">
-                        {{#each data.specials}}
-                        <div class="special-item">
-                          <span>{{key}}{{#if rank}}({{rank}}){{/if}}</span>
-                          {{#if ../../../../isEditable}}
-                          <button type="button" class="special-remove" data-action="remove-special" data-power-index="{{../../index}}" data-level-key="{{../../key}}" data-special-index="{{@index}}">×</button>
-                          {{/if}}
-                        </div>
-                        {{/each}}
-                        {{#if ../../../isEditable}}
-                        <button type="button" class="special-add" data-action="add-special" data-power-index="{{../index}}" data-level-key="{{key}}">+ Add</button>
-                        {{/if}}
-                      </div>
-                    </td>
-                  </tr>
-                  {{/each}}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-        {{/each}}
-      </div>
     </div>
 
     {{!-- Requirements Tab --}}

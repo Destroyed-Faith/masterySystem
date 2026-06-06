@@ -87,6 +87,15 @@ export interface EchoArtifactDefinition {
    * supports purely as Level Progression abilities.
    */
   stoneFunction?: EchoArtifactStoneFunctionHint;
+  /**
+   * Catalog Power picks per Basic level (1-3). Each value is a catalog
+   * `templateId` (see `ALL_POWER_TEMPLATES`). These are the picks-drive source:
+   * the 1-10 Level Progression table is generated from them. A level claimed by
+   * `stoneFunction` is filled by the Stone Function pick instead and should be
+   * omitted here. Best-effort mappings of the rulebook lines to catalog Powers;
+   * a GM can refine them in the Artifact Builder node editor.
+   */
+  progressionPickIds?: Partial<Record<1 | 2 | 3, string>>;
 }
 
 // ----------------------------------------------------------------------
@@ -103,6 +112,11 @@ const STONEBOUND_SOLES: EchoArtifactDefinition = {
     'Ancestral weight, deep-road memory, and the old bond between dwarven bodies and stone.',
   restriction:
     'A dwarf with Stonebound Soles cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact.',
+  progressionPickIds: {
+    1: 'ab-immovable-temp-hp',
+    2: 'movement-safe-movement',
+    3: 'ab-armor',
+  },
   baseValues: [
     { slot: 'a', label: 'Tremorsense', note: 'Ground-contact detection within 4–16 m.' },
     { slot: 'b', label: 'Armor (Feet)', note: '+1 to +4 Armor at higher levels.' },
@@ -221,6 +235,11 @@ const ELVEN_STRIDE: EchoArtifactDefinition = {
     'Otherworldly balance, reflex, clinging movement, and elemental lineage. Pick an Elemental Lineage when the artifact is created.',
   restriction:
     'An elf with Elven Stride cannot wear another Feet Artifact, magical boots, hooves, talons, or similar Feet-based Artifact.',
+  progressionPickIds: {
+    1: 'reaction-evade',
+    2: 'movement-wall-walk',
+    3: 'ab-evade',
+  },
   baseValues: [
     { slot: 'a', label: 'Evade', note: '+2 to +12 Evade across levels.' },
     { slot: 'b', label: 'Clinging', note: '+1 to +4 m Clinging at higher levels.' },
@@ -339,6 +358,10 @@ const TITAN_SCARS: EchoArtifactDefinition = {
     attribute: 'might',
     stonePowerId: 'might.meleeDamage',
     level: 2,
+  },
+  progressionPickIds: {
+    1: 'ab-damage',
+    3: 'active-ranged-single-heal',
   },
   baseValues: [
     {
@@ -465,6 +488,10 @@ const WYRM_SCALES: EchoArtifactDefinition = {
     stonePowerId: 'might.armor',
     level: 3,
   },
+  progressionPickIds: {
+    1: 'movement-flight',
+    2: 'ab-armor',
+  },
   baseValues: [
     {
       slot: 'a',
@@ -579,6 +606,11 @@ const SERPENT_SCALES: EchoArtifactDefinition = {
   description: 'A lighter form of Dragonborn natural armor — flexible, smooth, built for movement.',
   restriction:
     'A Dragonborn with Serpent Scales cannot wear mundane armor or another Body Artifact.',
+  progressionPickIds: {
+    1: 'movement-flight',
+    2: 'ab-evade',
+    3: 'passive-evade',
+  },
   baseValues: [
     {
       slot: 'a',
@@ -701,6 +733,10 @@ const DRAGON_CLAWS: EchoArtifactDefinition = {
     attribute: 'might',
     stonePowerId: 'might.meleeDamage',
     level: 1,
+  },
+  progressionPickIds: {
+    2: 'active-melee-damage-dispel-mixed',
+    3: 'active-melee-control-push-pull',
   },
   baseValues: [
     {
@@ -833,6 +869,11 @@ const SENTINEL_FRAME: EchoArtifactDefinition = {
   requiresSubChoice: 'sentinel',
   restriction:
     'A character with a Sentinel Body Artifact cannot wear mundane armor or bind another Body Artifact.',
+  progressionPickIds: {
+    1: 'active-ranged-single-heal',
+    2: 'ab-temp-hp',
+    3: 'passive-regeneration',
+  },
   baseValues: [
     {
       slot: 'a',
@@ -948,6 +989,11 @@ const JUDICATOR_FRAME: EchoArtifactDefinition = {
   requiresSubChoice: 'judicator',
   restriction:
     'A character with a Sentinel Body Artifact cannot wear mundane armor or bind another Body Artifact.',
+  progressionPickIds: {
+    1: 'ab-armor',
+    2: 'passive-regeneration',
+    3: 'reaction-damage-reduction',
+  },
   baseValues: [
     {
       slot: 'a',
@@ -1062,6 +1108,11 @@ const ORACLE_FRAME: EchoArtifactDefinition = {
   requiresSubChoice: 'oracle',
   restriction:
     'A character with a Sentinel Body Artifact cannot wear mundane armor or bind another Body Artifact.',
+  progressionPickIds: {
+    1: 'ab-armor',
+    2: 'ab-special-overdrive',
+    3: 'passive-temp-hp',
+  },
   baseValues: [
     {
       slot: 'a',
@@ -1277,26 +1328,48 @@ export function buildEchoStoneFunction(
 
 /**
  * Build the up-to-three Level Progression picks from an Echo definition.
- * Currently emits the authored Stone Function pick (if any); other levels
- * stay `none` (the bespoke active/movement rows live on the 1-10 table).
+ * Each Basic level (1-3) becomes a catalog Power pick (from `progressionPickIds`)
+ * or, when claimed by `stoneFunction`, the Stone Function pick. The 1-10 table is
+ * generated from these picks by `deriveLevelProgressionFromPicks`.
  */
 export function buildEchoProgressionPicks(
   def: EchoArtifactDefinition,
-): { level: 1 | 2 | 3; kind: 'none' | 'power' | 'stoneFunction'; stoneFunction?: unknown }[] {
-  const picks: { level: 1 | 2 | 3; kind: 'none' | 'power' | 'stoneFunction'; stoneFunction?: unknown }[] = [
+): {
+  level: 1 | 2 | 3;
+  kind: 'none' | 'power' | 'stoneFunction';
+  powerTemplateId?: string;
+  stoneFunction?: unknown;
+}[] {
+  const picks: {
+    level: 1 | 2 | 3;
+    kind: 'none' | 'power' | 'stoneFunction';
+    powerTemplateId?: string;
+    stoneFunction?: unknown;
+  }[] = [
     { level: 1, kind: 'none' },
     { level: 2, kind: 'none' },
     { level: 3, kind: 'none' },
   ];
+
+  // Catalog Power picks per level.
+  const ids = def.progressionPickIds || {};
+  for (const lvl of [1, 2, 3] as const) {
+    const tplId = ids[lvl];
+    if (tplId) {
+      picks[lvl - 1] = { level: lvl, kind: 'power', powerTemplateId: tplId };
+    }
+  }
+
+  // Stone Function pick claims its level (overrides any Power pick there).
   const sf = def.stoneFunction;
   if (sf) {
-    const idx = sf.level - 1;
-    picks[idx] = {
+    picks[sf.level - 1] = {
       level: sf.level,
       kind: 'stoneFunction',
       stoneFunction: buildEchoStoneFunction(def),
     };
   }
+
   return picks;
 }
 

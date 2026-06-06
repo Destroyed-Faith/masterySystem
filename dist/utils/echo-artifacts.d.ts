@@ -78,6 +78,15 @@ export interface EchoArtifactDefinition {
      * supports purely as Level Progression abilities.
      */
     stoneFunction?: EchoArtifactStoneFunctionHint;
+    /**
+     * Catalog Power picks per Basic level (1-3). Each value is a catalog
+     * `templateId` (see `ALL_POWER_TEMPLATES`). These are the picks-drive source:
+     * the 1-10 Level Progression table is generated from them. A level claimed by
+     * `stoneFunction` is filled by the Stone Function pick instead and should be
+     * omitted here. Best-effort mappings of the rulebook lines to catalog Powers;
+     * a GM can refine them in the Artifact Builder node editor.
+     */
+    progressionPickIds?: Partial<Record<1 | 2 | 3, string>>;
 }
 export declare const ECHO_ARTIFACTS: Record<string, EchoArtifactDefinition>;
 /** Per-Echo character-creation rules. */
@@ -112,12 +121,14 @@ export declare function buildEchoStoneFunction(def: EchoArtifactDefinition): {
 } | null;
 /**
  * Build the up-to-three Level Progression picks from an Echo definition.
- * Currently emits the authored Stone Function pick (if any); other levels
- * stay `none` (the bespoke active/movement rows live on the 1-10 table).
+ * Each Basic level (1-3) becomes a catalog Power pick (from `progressionPickIds`)
+ * or, when claimed by `stoneFunction`, the Stone Function pick. The 1-10 table is
+ * generated from these picks by `deriveLevelProgressionFromPicks`.
  */
 export declare function buildEchoProgressionPicks(def: EchoArtifactDefinition): {
     level: 1 | 2 | 3;
     kind: 'none' | 'power' | 'stoneFunction';
+    powerTemplateId?: string;
     stoneFunction?: unknown;
 }[];
 export declare function buildArtifactSystemFromEchoDef(def: EchoArtifactDefinition): Record<string, unknown>;

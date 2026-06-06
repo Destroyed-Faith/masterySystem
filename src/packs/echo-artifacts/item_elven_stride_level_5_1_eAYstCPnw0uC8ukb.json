@@ -32,108 +32,111 @@
     "levelProgression": [
       {
         "level": 1,
-        "name": "Otherworld Reflex I",
+        "name": "Evade I",
         "type": "Reaction",
         "range": "Self",
-        "duration": "Triggering attack only",
-        "effect": "Gain +4 Evade against the triggering attack.",
-        "special": "Otherworld Reflex"
+        "aoe": "",
+        "duration": "Instant",
+        "effect": "Gain **+16 Evade** against the triggering attack.",
+        "special": ""
       },
       {
         "level": 2,
-        "name": "Elven Cling I",
+        "name": "Wall Walk I",
         "type": "Movement",
         "range": "Self",
+        "aoe": "",
         "duration": "Instant",
-        "effect": "Move up to 10 m along walls, ceilings, or similar solid surfaces.",
-        "special": "Wall Walk"
+        "effect": "Move up to **10 m** along walls, ceilings, or similar solid surfaces.",
+        "special": ""
       },
       {
         "level": 3,
-        "name": "Elemental Lineage I",
-        "type": "Support",
+        "name": "Evade I",
+        "type": "Active Buff",
         "range": "Self",
-        "duration": "Special",
-        "effect": "Use the chosen Elemental Lineage I effect.",
-        "special": "Elemental Lineage"
+        "aoe": "",
+        "duration": "MR Rounds",
+        "effect": "Gain **+26 Evade**.",
+        "special": ""
       },
       {
         "level": 4,
-        "name": "Otherworld Reflex II",
+        "name": "Evade II",
         "type": "Reaction",
         "range": "Self",
-        "duration": "Triggering attack only",
-        "effect": "Gain +8 Evade against the triggering attack.",
-        "special": "Otherworld Reflex"
+        "aoe": "",
+        "duration": "Instant",
+        "effect": "Gain **+40 Evade** against the triggering attack.",
+        "special": ""
       },
       {
         "level": 5,
-        "name": "Elven Cling II",
+        "name": "Wall Walk II",
         "type": "Movement",
         "range": "Self",
+        "aoe": "",
         "duration": "Instant",
-        "effect": "Move up to 25 m along walls, ceilings, or similar solid surfaces.",
-        "special": "Wall Walk"
+        "effect": "Move up to **25 m** along walls, ceilings, or similar solid surfaces.",
+        "special": ""
       },
       {
         "level": 6,
-        "name": "Elemental Lineage II",
-        "type": "Support",
+        "name": "Evade II",
+        "type": "Active Buff",
         "range": "Self",
-        "duration": "Special",
-        "effect": "Use the chosen Elemental Lineage II effect.",
-        "special": "Elemental Lineage"
+        "aoe": "",
+        "duration": "MR Rounds",
+        "effect": "Gain **+62 Evade**.",
+        "special": ""
       },
       {
         "level": 7,
-        "name": "Otherworld Reflex III",
+        "name": "Evade III",
         "type": "Reaction",
         "range": "Self",
-        "duration": "Triggering attack only",
-        "effect": "Gain +12 Evade against the triggering attack.",
-        "special": "Otherworld Reflex"
+        "aoe": "",
+        "duration": "Instant",
+        "effect": "Gain **+64 Evade** against the triggering attack.",
+        "special": ""
       },
       {
         "level": 8,
-        "name": "Elven Cling III",
+        "name": "Wall Walk III",
         "type": "Movement",
         "range": "Self",
+        "aoe": "",
         "duration": "Instant",
-        "effect": "Move up to 28 m along walls, ceilings, or similar solid surfaces.",
-        "special": "Wall Walk"
+        "effect": "Move up to **28 m** along walls, ceilings, or similar solid surfaces.",
+        "special": ""
       },
       {
         "level": 9,
-        "name": "Elemental Lineage III",
-        "type": "Support",
+        "name": "Evade III",
+        "type": "Active Buff",
         "range": "Self",
-        "duration": "Special",
-        "effect": "Use the chosen Elemental Lineage III effect.",
-        "special": "Elemental Lineage"
-      },
-      {
-        "level": 10,
-        "name": "True Elven Stride",
-        "type": "Ultimate",
-        "range": "Self",
-        "duration": "Special",
-        "effect": "Elven Stride fully awakens. Choose or define one final movement, reflex, clinging, lineage, or agility effect with GM approval.",
-        "special": "True Elven Stride"
+        "aoe": "",
+        "duration": "MR Rounds",
+        "effect": "Gain **+98 Evade**.",
+        "special": ""
       }
     ],
     "stoneFunction": null,
     "progressionPicks": [
       {
         "level": 1,
-        "kind": "none"
+        "kind": "power",
+        "powerTemplateId": "reaction-evade"
       },
       {
         "level": 2,
-        "kind": "none"
+        "kind": "power",
+        "powerTemplateId": "movement-wall-walk"
       },
       {
         "level": 3,
-        "kind": "none"
+        "kind": "power",
+        "powerTemplateId": "ab-evade"
       }
     ],
     "lore": "Otherworldly balance, reflex, clinging movement, and elemental lineage. Pick an Elemental Lineage when the artifact is created.",
@@ -148,1046 +151,7 @@
       "stones": 0,
       "masteryRank": 1
     },
-    "powers": [
-      {
-        "id": "elvenStride-pw-1",
-        "name": "Otherworld Reflex I",
-        "fluff": "Special: Otherworld Reflex",
-        "category": "reaction",
-        "tags": [],
-        "cost": {
-          "action": "reaction"
-        },
-        "levels": {
-          "1": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "2": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "3": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "4": {
-            "type": "Reaction",
-            "range": {
-              "kind": "self"
-            },
-            "aoe": null,
-            "duration": {
-              "kind": "untilNextTurn",
-              "note": "Triggering attack only"
-            },
-            "effect": {
-              "text": "Gain +4 Evade against the triggering attack."
-            },
-            "specials": [],
-            "lvl": 1
-          },
-          "5": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "6": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "7": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "8": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "9": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "10": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "11": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "12": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "13": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "14": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "15": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "16": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          }
-        }
-      },
-      {
-        "id": "elvenStride-pw-2",
-        "name": "Elven Cling I",
-        "fluff": "Special: Wall Walk",
-        "category": "movement",
-        "tags": [],
-        "cost": {
-          "action": "movement"
-        },
-        "levels": {
-          "1": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "2": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "3": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "4": {
-            "type": "Movement",
-            "range": {
-              "kind": "self"
-            },
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": "Move up to 10 m along walls, ceilings, or similar solid surfaces."
-            },
-            "specials": [],
-            "lvl": 2
-          },
-          "5": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "6": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "7": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "8": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "9": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "10": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "11": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "12": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "13": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "14": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "15": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "16": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          }
-        }
-      },
-      {
-        "id": "elvenStride-pw-3",
-        "name": "Elemental Lineage I",
-        "fluff": "Special: Elemental Lineage",
-        "category": "passive",
-        "tags": [],
-        "cost": {
-          "action": "none"
-        },
-        "levels": {
-          "1": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "2": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "3": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "4": {
-            "type": "Support",
-            "range": {
-              "kind": "self"
-            },
-            "aoe": null,
-            "duration": {
-              "kind": "instant",
-              "note": "Special"
-            },
-            "effect": {
-              "text": "Use the chosen Elemental Lineage I effect."
-            },
-            "specials": [],
-            "lvl": 3
-          },
-          "5": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "6": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "7": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "8": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "9": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "10": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "11": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "12": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "13": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "14": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "15": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "16": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          }
-        }
-      },
-      {
-        "id": "elvenStride-pw-4",
-        "name": "Otherworld Reflex II",
-        "fluff": "Special: Otherworld Reflex",
-        "category": "reaction",
-        "tags": [],
-        "cost": {
-          "action": "reaction"
-        },
-        "levels": {
-          "1": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "2": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "3": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "4": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "5": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "6": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "7": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "8": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "9": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "10": {
-            "type": "Reaction",
-            "range": {
-              "kind": "self"
-            },
-            "aoe": null,
-            "duration": {
-              "kind": "untilNextTurn",
-              "note": "Triggering attack only"
-            },
-            "effect": {
-              "text": "Gain +8 Evade against the triggering attack."
-            },
-            "specials": [],
-            "lvl": 4
-          },
-          "11": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "12": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "13": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "14": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "15": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "16": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          }
-        }
-      },
-      {
-        "id": "elvenStride-pw-5",
-        "name": "Elven Cling II",
-        "fluff": "Special: Wall Walk",
-        "category": "movement",
-        "tags": [],
-        "cost": {
-          "action": "movement"
-        },
-        "levels": {
-          "1": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "2": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "3": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "4": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "5": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "6": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "7": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "8": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "9": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "10": {
-            "type": "Movement",
-            "range": {
-              "kind": "self"
-            },
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": "Move up to 25 m along walls, ceilings, or similar solid surfaces."
-            },
-            "specials": [],
-            "lvl": 5
-          },
-          "11": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "12": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "13": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "14": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "15": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          },
-          "16": {
-            "type": "",
-            "range": null,
-            "aoe": null,
-            "duration": {
-              "kind": "instant"
-            },
-            "effect": {
-              "text": ""
-            },
-            "specials": []
-          }
-        }
-      }
-    ],
+    "powers": [],
     "inventorySize": "1x1",
     "equipSlots": [
       "feet"
@@ -1204,7 +168,7 @@
       ],
       "echoBound": "elves",
       "echoArtifactKey": "elvenStride",
-      "seedVersion": 3
+      "seedVersion": 4
     }
   },
   "_id": "eAYstCPnw0uC8ukb",

@@ -108,11 +108,10 @@
       <p class="node-editor-hint node-progression-stonefn-warning hidden" style="color:var(--color-text-hyperlink,#c0531e);">More than one Stone Function selected — the spec allows at most one Stone Function per artifact.</p>
     </div>
 
-    <!-- Read-only overview of the authored Level Progression (Level 1–10) -->
-    {{#if hasLevelProgression}}
+    <!-- Live overview of the Level Progression (Level 1–9), generated from the picks above -->
     <div class="node-editor-span2 node-levelprog-overview" style="border-top:1px dashed var(--color-border-light-primary,#888);padding-top:8px;">
-      <h4 class="node-profile-title">Level Progression (Level 1–10)</h4>
-      <p class="node-editor-hint">What this artifact grants at each Level. The first three lines define the artifact; Levels 4–10 scale the same lines across stages (PL 4 → 10 → 16) plus an Ultimate at Level 10. The current node's level is highlighted.</p>
+      <h4 class="node-profile-title">Level Progression (generated from picks)</h4>
+      <p class="node-editor-hint">Generated from the three picks above. Each pick scales across stages I / II / III (PL 4 → 10 → 16): Pick 1 fills Levels 1/4/7, Pick 2 fills 2/5/8, Pick 3 fills 3/6/9. The current node's level is highlighted. Change a pick to update this table.</p>
       <table class="node-levelprog-table">
         <thead>
           <tr>
@@ -137,8 +136,8 @@
           {{/each}}
         </tbody>
       </table>
+      <p class="node-levelprog-empty node-editor-hint {{#if hasLevelProgression}}hidden{{/if}}">No progression yet — pick a Power or Stone Function above to generate the table.</p>
     </div>
-    {{/if}}
 
     <div class="form-group node-editor-span2">
       <label>Inventory size</label>
@@ -282,13 +281,6 @@
     <div class="form-group">
       <label>Mastery rank required</label>
       <input type="number" id="node-mastery-rank" value="{{requirements.masteryRank}}" min="1" />
-    </div>
-
-    <div class="form-group node-editor-span2 node-embedded-powers-row">
-      <label>Embedded powers</label>
-      <p class="node-editor-hint">Powers live on this item (<code>system.powers</code>). <strong>Root (Level 1):</strong> define base powers here. <strong>Child nodes:</strong> inherited powers are read-only; use <strong>+</strong> in the embedded editor to add <strong>this tier’s</strong> power (it syncs to descendants). / <strong>Wurzel:</strong> Basis-Powers. <strong>Kinder:</strong> geerbte nur lesen; mit <strong>+</strong> die Power <strong>dieser Stufe</strong> anlegen (wird nach unten vererbt).</p>
-      <p class="node-embedded-powers-summary" role="status">{{embeddedPowersSummary}}</p>
-      <button type="button" class="node-open-embedded-powers" data-action="open-embedded-powers">Edit embedded powers…</button>
     </div>
   </div>
 
