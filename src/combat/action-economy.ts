@@ -216,10 +216,27 @@ export function getActionEconomyActor(actor: Actor | null | undefined): Actor | 
   if (baseId) {
     const world = (game as any).actors?.get(baseId);
     if (world && (world as any).type === 'character') {
-      return world as Actor;
+      // Unlinked tokens carry their own attribute build on the token delta,
+      // while the world prototype may still sit at defaults. Stone pools derive
+      // from attributes, so only route to the world actor when it actually has
+      // the (equal/greater) stone capacity; otherwise keep the built token actor
+      // so its pools/flags stay consistent with what the player sees and plays.
+      if (totalStoneCapacityFromAttributes(world) >= totalStoneCapacityFromAttributes(actor)) {
+        return world as Actor;
+      }
     }
   }
   return actor;
+}
+
+/** Sum of attribute-derived stone-pool capacity (⌊value/8⌋) across the core pools. */
+function totalStoneCapacityFromAttributes(actor: Actor | null | undefined): number {
+  const attrs = (actor as any)?.system?.attributes ?? {};
+  let sum = 0;
+  for (const attr of STONE_POOL_ATTRIBUTE_KEYS) {
+    sum += Math.floor((Number(attrs?.[attr]?.value) || 0) / 8);
+  }
+  return sum;
 }
 
 /**
