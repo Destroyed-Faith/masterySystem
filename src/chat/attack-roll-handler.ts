@@ -157,8 +157,15 @@ export function registerAttackRollClickHandler(): void {
         throw new Error('Attacker not found');
       }
       
-      // Ensure we have fresh actor reference (not stale) - reload from game.actors
-      const freshAttacker = (game as any).actors?.get(attacker.id) || attacker;
+      // Ensure we have fresh actor reference (not stale).
+      // Prefer the SPEAKER's actor so UNLINKED tokens resolve to their own
+      // (synthetic) actor — its delta carries the real attribute build and the
+      // equipped items. `game.actors.get(id)` would return the world/prototype
+      // actor (default attributes, possibly missing the equipped weapon).
+      const freshAttacker =
+        (ChatMessage as any).getSpeakerActor?.(message.speaker) ??
+        (game as any).actors?.get(attacker.id) ??
+        attacker;
 
       const costsAction = flags.costsAction !== false;
       if (costsAction) {
@@ -220,10 +227,17 @@ export function registerAttackRollClickHandler(): void {
       const autoRaises = Math.max(0, readAttackButtonDataInt(button, 'auto-raises', 0));
       
       // Compute numDice from ACTOR at click time (not from stale flags)
-      // This ensures we always use the current attribute value
-      const attackerForRoll = message.speaker?.actor ? 
-        (game as any).actors.get(message.speaker.actor) : 
-        ((game as any).actors?.get(flags.attackerId));
+      // This ensures we always use the current attribute value.
+      //
+      // Resolve via ChatMessage.getSpeakerActor so UNLINKED tokens use their
+      // own (synthetic) actor — its delta carries the real attribute build.
+      // `game.actors.get(speaker.actor)` would return the world/prototype actor
+      // (often default attributes), making e.g. Might 8 roll as the 2d8 default.
+      const attackerForRoll =
+        (ChatMessage as any).getSpeakerActor?.(message.speaker) ??
+        (message.speaker?.actor
+          ? (game as any).actors.get(message.speaker.actor)
+          : (game as any).actors?.get(flags.attackerId));
       
       const attributeKey = flags.attribute?.toLowerCase();
       const liveAttr = attackerForRoll?.system?.attributes?.[attributeKey]?.value;
@@ -450,8 +464,11 @@ export function registerAttackRollClickHandler(): void {
       
       // If attack was successful, show damage dialog
       if (result.success && result.raises >= 0) {
-        // Always get fresh actors to ensure latest items
-        const freshAttackerForDialog = (game as any).actors?.get(flags.attackerId) || freshAttacker;
+        // Always get fresh actors to ensure latest items. Reuse the
+        // speaker-resolved `freshAttacker` (token actor for unlinked tokens) so
+        // the damage dialog sees the right attributes AND equipped items; do
+        // NOT re-fetch via game.actors.get() — that loses the token actor.
+        const freshAttackerForDialog = freshAttacker;
         
         // Resolve target: prefer token actor if targetTokenId exists (for unlinked tokens)
         let target: any = null;

@@ -292,9 +292,15 @@ export async function showDamageDialog(
     flagsRaises: flags?.raises
   });
   
-  // CRITICAL: Always get fresh actor from game to ensure we have latest items
-  // The attacker parameter might be a stale reference
-  const freshAttacker = (attacker as any).id ? (game as any).actors?.get((attacker as any).id) : attacker;
+  // CRITICAL: Always get fresh actor from game to ensure we have latest items.
+  // The attacker parameter might be a stale reference — BUT for an UNLINKED
+  // token the synthetic token actor shares the base actor's id, so
+  // `game.actors.get(id)` would return the world/prototype actor (default
+  // attributes, possibly missing the equipped weapon + the token's delta).
+  // Keep the token actor as-is in that case; only re-fetch for world actors.
+  const freshAttacker = (attacker as any)?.isToken
+    ? attacker
+    : ((attacker as any)?.id ? (game as any).actors?.get((attacker as any).id) : attacker);
   const actorToUse = freshAttacker || attacker;
 
   let stoneDamageBonusDice = 0;
