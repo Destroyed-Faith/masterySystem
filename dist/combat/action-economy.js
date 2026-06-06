@@ -99,19 +99,24 @@ export function getActionEconomyActor(actor) {
     if (doc?.actorLink === true) {
         return actor;
     }
+    // Unlinked token: pick a SINGLE canonical owner for action-economy flags
+    // (round state, stone usage/pools) so that writers and readers never diverge
+    // — regardless of whether we were handed the world (prototype) actor or the
+    // token's own (built) actor. Unlinked tokens often carry the real attribute
+    // build on the token delta while the world prototype still sits at defaults;
+    // stone pools / round-state derive from attributes, so the built token actor
+    // must win when it has the greater capacity. Resolving symmetrically here is
+    // what makes e.g. a stone power (written via the token actor) visible to the
+    // damage dialog (which refetches the world actor by id).
     const baseId = doc?.actorId ?? anyA.id;
-    if (baseId) {
-        const world = game.actors?.get(baseId);
-        if (world && world.type === 'character') {
-            // Unlinked tokens carry their own attribute build on the token delta,
-            // while the world prototype may still sit at defaults. Stone pools derive
-            // from attributes, so only route to the world actor when it actually has
-            // the (equal/greater) stone capacity; otherwise keep the built token actor
-            // so its pools/flags stay consistent with what the player sees and plays.
-            if (totalStoneCapacityFromAttributes(world) >= totalStoneCapacityFromAttributes(actor)) {
-                return world;
-            }
-        }
+    const world = baseId ? game.actors?.get(baseId) : undefined;
+    const tokenActor = (doc?.actor ?? (anyA.isToken ? actor : undefined));
+    if (tokenActor &&
+        totalStoneCapacityFromAttributes(tokenActor) > totalStoneCapacityFromAttributes(world)) {
+        return tokenActor;
+    }
+    if (world && world.type === 'character') {
+        return world;
     }
     return actor;
 }

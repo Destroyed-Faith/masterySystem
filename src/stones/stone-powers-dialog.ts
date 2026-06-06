@@ -1784,6 +1784,24 @@ export class StonePowersDialog extends BaseDialog {
         el.style.setProperty('border-color', 'rgba(102, 187, 106, 0.95)', 'important');
       }
     }
+    this.#reconcilePrimedSupportLanes(root);
+  }
+
+  /**
+   * Stone Power Support: once the player primes a supported power by placing
+   * the anchor stone (lane 0 → slot-filled), flip its gold Artifact Support
+   * Stones to a "primed/active" green look so it's clear the higher tier is now
+   * in effect. Runs over every power host so it also clears when the anchor is
+   * removed (the accumulator for that power may already be empty by then).
+   */
+  #reconcilePrimedSupportLanes(root: HTMLElement): void {
+    root.querySelectorAll('.power-drop-slots').forEach((host) => {
+      const anchor = host.querySelector('.ms-stone-drop-slot[data-lane-index="0"]');
+      const primed = !!anchor && anchor.classList.contains('slot-filled');
+      host
+        .querySelectorAll('.ms-stone-drop-slot.slot-support')
+        .forEach((s) => s.classList.toggle('is-primed', primed));
+    });
   }
 
   /**
