@@ -40,10 +40,13 @@
 
           <!-- Segmented HP Bar (one segment per wound level, color-graded) -->
           {{#if combatant.hpSegments.length}}
-            <div class="ms-hp-bar" title="HP: {{combatant.hpTotalCurrent}}/{{combatant.hpTotalMax}}">
+            <div class="ms-hp-bar" title="HP: {{combatant.hpTotalCurrent}}/{{combatant.hpTotalMax}}{{#if combatant.tempHP}} (+{{combatant.tempHP}} Temp HP){{/if}}">
               <div class="ms-hp-bar-header">
                 <span class="ms-hp-bar-label">HP</span>
-                <span class="ms-hp-bar-totals">{{combatant.hpTotalCurrent}}/{{combatant.hpTotalMax}}</span>
+                <span class="ms-hp-bar-totals">
+                  {{combatant.hpTotalCurrent}}/{{combatant.hpTotalMax}}
+                  {{#if combatant.tempHP}}<span class="ms-hp-temp" title="Temporary HP">+{{combatant.tempHP}}</span>{{/if}}
+                </span>
               </div>
               <div class="ms-hp-bar-track">
                 {{#each combatant.hpSegments as |seg|}}

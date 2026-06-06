@@ -36,12 +36,6 @@ import { findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../u
 import { loadZoneFromBands, movementPenaltyForLoad } from '../utils/encumbrance.js';
 import { buildPostCreationSnapshot } from '../utils/xp-post-creation.js';
 import { resetCharacterForRecreation } from '../utils/reset-character.js';
-import {
-  getPassiveSlots,
-  getAvailablePassives,
-  slotPassive,
-  unslotPassive
-} from '../powers/passives.js';
 import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items';
 import { getNormalizedEquipSlots, normalizeSlotKey } from '../utils/equip-slots.js';
 import { XP_COSTS, attributeBandCost, powerLevelCost } from '../utils/constants';
@@ -59,8 +53,6 @@ const BaseActorSheet: any = (foundry as any)?.appv1?.sheets?.ActorSheet || (Acto
 export class MasteryCharacterSheet extends BaseActorSheet {
   /** Preserves <details open> for Token-Radial prefs across re-renders (checkbox updates call render). */
   private _radialManeuverPrefsDetailsOpen?: boolean;
-  /** Preserves <details open> for Passive Slot manager on the Powers tab. */
-  private _passiveSlotManagerDetailsOpen?: boolean;
   /**
    * Preserves <details open> for the grouped powers list.
    * `undefined` means first paint: expanded (see getData: `!== false`).
@@ -840,7 +832,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
     context.radialManeuverPrefsPanel = buildRadialManeuverPrefsContext(context.system);
     context.radialManeuverPrefsDetailsOpen = this._radialManeuverPrefsDetailsOpen === true;
-    context.passiveSlotManagerDetailsOpen = this._passiveSlotManagerDetailsOpen === true;
     if (context.creationComplete) {
       context.powersByTypeGroups = this.#buildPowersByTypeGroups(context.items?.powers || []);
       /* Default: collapsed; open only if user expanded in this session (saved across re-renders). */
@@ -893,19 +884,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Intentionally no icon strip on Attributes (was confusing vs. Powers-tab buff list).
     context.statusEffects = [];
     
-    // Passive Slot Manager — always visible on the sheet (Powers tab) so players
-    // can slot & activate passives outside of combat. The Combat-Start dialog
-    // in `src/sheets/passive-selection-dialog.ts` keeps working in parallel.
-    // Data shape: { slots: [{index, hasPassive, isActive, passiveName, passiveId, summary}],
-    //               availablePassives: [{id, name, category, summary}],
-    //               activeCount, maxSlots, canActivateMore }
-    try {
-      const { buildPassiveSlotView } = await import('../utils/passive-slot-view.js');
-      context.passiveSlotView = buildPassiveSlotView(this.actor);
-    } catch (err) {
-      console.error('Mastery System | Failed to build passive slot view', err);
-      context.passiveSlotView = { slots: [], availablePassives: [], activeCount: 0, maxSlots: 0, canActivateMore: false };
-    }
+    // Passive slotting happens exclusively in combat (Combat-Start dialog).
+    // The character-sheet "Passive Slots" manager was removed: it implied a
+    // false pre-selection outside combat and was unrelated to the in-combat
+    // passive slots.
 
     // Compact combat-stats: only while this actor is in the **active** encounter.
     try {
@@ -982,10 +964,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const det = this.element.find('.radial-maneuver-prefs-details')[0];
       if (det instanceof HTMLDetailsElement) {
         this._radialManeuverPrefsDetailsOpen = det.open;
-      }
-      const psd = this.element.find('.passive-slot-manager-details')[0];
-      if (psd instanceof HTMLDetailsElement) {
-        this._passiveSlotManagerDetailsOpen = psd.open;
       }
       const pld = this.element.find('.powers-list-details')[0];
       if (pld instanceof HTMLDetailsElement) {
@@ -1663,100 +1641,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       });
     }
 
-    // Passive Slot Manager — slot / activate / unslot outside of combat.
-    html.find('.passive-slot-select').off('change.passive-slot').on('change.passive-slot', async (e: JQuery.ChangeEvent) => {
-      const el = e.currentTarget as HTMLSelectElement;
-      const slotIndex = Number(el.dataset.slotIndex);
-      const pid = String(el.value || '');
-      if (!Number.isFinite(slotIndex)) return;
-      try {
-        if (pid === '') {
-          await unslotPassive(this.actor as any, slotIndex);
-        } else {
-          const slots = getPassiveSlots(this.actor as any);
-          for (const s of slots) {
-            if (s.slotIndex === slotIndex) continue;
-            const oid = s.passive?.id;
-            if (oid != null && String(oid) === pid) {
-              await unslotPassive(this.actor as any, s.slotIndex);
-            }
-          }
-          await slotPassive(this.actor as any, slotIndex, pid);
-        }
-        this.render(false);
-      } catch (err) {
-        console.error('Mastery System | passive slot change failed', err);
-        (ui as any).notifications?.error('Konnte Passive-Slot nicht aktualisieren.');
-      }
-    });
-
-    html.find('.passive-slot-clear').off('click.passive-slot').on('click.passive-slot', async (e: JQuery.ClickEvent) => {
-      e.preventDefault();
-      const el = e.currentTarget as HTMLButtonElement;
-      const slotIndex = Number(el.dataset.slotIndex);
-      if (!Number.isFinite(slotIndex)) return;
-      try {
-        await unslotPassive(this.actor as any, slotIndex);
-        this.render(false);
-      } catch (err) {
-        console.error('Mastery System | passive slot clear failed', err);
-        (ui as any).notifications?.error('Konnte Passive-Slot nicht leeren.');
-      }
-    });
-
-    // GM-only Mechanics Debug button: dumps the current aggregated mechanics
-    // contributions + breakdown to the chat log so GMs can diagnose why a
-    // passive isn't adding (e.g. slot not active, power missing mechanics,
-    // legacy item without templateId fallback).
-    html.find('.passive-slot-debug-btn').off('click.passive-slot-debug').on('click.passive-slot-debug', async (e: JQuery.ClickEvent) => {
-      e.preventDefault();
-      try {
-        const { collectMechanicsContributions, buildActorMechanicsBreakdown } = await import('../utils/power-mechanics.js');
-        const contrib = collectMechanicsContributions(this.actor as any);
-        const bd = buildActorMechanicsBreakdown(this.actor as any);
-        const sys: any = (this.actor as any).system ?? {};
-        const passives = sys.passives ?? {};
-        const slotRows: string[] = [];
-        for (const key of Object.keys(passives)) {
-          if (!/^slot\d+$/.test(key)) continue;
-          const s = passives[key];
-          slotRows.push(`${key}: id=${s?.passive?.id ?? '—'} name=${s?.passive?.name ?? '—'} active=${s?.active === true}`);
-        }
-        const esc = (s: string) => String(s)
-          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        const contribHtml = contrib.length === 0
-          ? '<em>Keine Mechanics-Beiträge aktiv</em>'
-          : contrib.map((c: any) => `<li><strong>${esc(c.source)}</strong> [${esc(c.sourceKind)}]: ${esc(JSON.stringify(c.mechanics))}</li>`).join('');
-        const slotHtml = slotRows.length === 0
-          ? '<em>Keine Passive-Slots konfiguriert</em>'
-          : slotRows.map(r => `<li>${esc(r)}</li>`).join('');
-        const totalsHtml = `
-          <li>Armor: ${bd.totals.armor}</li>
-          <li>Evade: ${bd.totals.evade}</li>
-          <li>Initiative d8: ${bd.totals.initiativeD8}</li>
-          <li>Regen: ${bd.totals.regen}</li>
-          <li>DR %: ${bd.totals.damageReductionPct}</li>`;
-        const content = `
-          <div class="mastery-mechanics-debug">
-            <h3><i class="fas fa-bug"></i> Mechanics Debug — ${esc(String((this.actor as any).name))}</h3>
-            <h4>Passive Slots (raw)</h4>
-            <ul>${slotHtml}</ul>
-            <h4>Active Contributions</h4>
-            <ul>${contribHtml}</ul>
-            <h4>Aggregated Totals</h4>
-            <ul>${totalsHtml}</ul>
-          </div>`;
-        await (globalThis as any).ChatMessage.create({
-          user: (game as any).user?.id,
-          whisper: [(game as any).user?.id].filter(Boolean),
-          content,
-        });
-        console.log('Mastery System | [MECHANICS DEBUG]', { contrib, breakdown: bd, passives });
-      } catch (err) {
-        console.error('Mastery System | mechanics debug failed', err);
-        (ui as any).notifications?.error('Mechanics-Debug fehlgeschlagen — siehe Konsole.');
-      }
-    });
+    // Passive slotting is handled exclusively by the in-combat dialog; the
+    // character-sheet passive-slot manager (and its handlers) were removed.
 
     // Check if creation is incomplete - don't lock, just disable non-creation fields
     const creationComplete = (this.actor as any).system?.creation?.complete !== false;

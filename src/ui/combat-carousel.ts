@@ -169,6 +169,9 @@ export class CombatCarouselApp extends BaseCarousel {
       }> = [];
       let hpTotalCurrent = 0;
       let hpTotalMax = 0;
+      // Temp HP (e.g. Vitality "Temporary HP" stone power) — shown as a separate
+      // badge on the banner so players can see their cushion before damage lands.
+      const tempHP = Math.max(0, Math.floor(Number((actor.system as any)?.health?.tempHP ?? 0) || 0));
       try {
         const bars = (actor.system as any)?.health?.bars;
         if (Array.isArray(bars) && bars.length > 0) {
@@ -299,6 +302,7 @@ export class CombatCarouselApp extends BaseCarousel {
         statusIcons: statusIcons.filter((item: any) => item && item.icon),
         hpTotalCurrent,
         hpTotalMax,
+        tempHP,
         hpSegments,
         combatStrip,
         hasToken: !!token,

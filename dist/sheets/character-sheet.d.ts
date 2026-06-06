@@ -7,8 +7,6 @@ export declare class MasteryCharacterSheet extends BaseActorSheet {
     #private;
     /** Preserves <details open> for Token-Radial prefs across re-renders (checkbox updates call render). */
     private _radialManeuverPrefsDetailsOpen?;
-    /** Preserves <details open> for Passive Slot manager on the Powers tab. */
-    private _passiveSlotManagerDetailsOpen?;
     /**
      * Preserves <details open> for the grouped powers list.
      * `undefined` means first paint: expanded (see getData: `!== false`).

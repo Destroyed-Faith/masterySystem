@@ -518,6 +518,17 @@
   font-variant-numeric: tabular-nums;
 }
 
+.ms-hp-temp {
+  margin-left: 4px;
+  padding: 0 4px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.85em;
+  color: #0b1d12;
+  background: #4ad08a;
+  box-shadow: 0 0 4px rgba(74, 208, 138, 0.7);
+}
+
 .ms-hp-bar-track {
   display: flex;
   width: 100%;

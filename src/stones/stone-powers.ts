@@ -387,8 +387,11 @@ const VITALITY_POWERS_RAW: Array<Omit<StonePower, 'effect'>> = [
     apply: async ({ actor, tier }) => {
       const combat = (game as any).combat;
       const hp = [20, 40, 80, 160][tier - 1] ?? 0;
-      const current = Math.max(0, Number((actor as any).system?.health?.tempHp ?? 0) || 0);
-      await (actor as any).update?.({ 'system.health.tempHp': current + hp });
+      // Canonical field is `tempHP` (capital P) — the damage pipeline and all
+      // health math read/consume that. Writing the lowercase `tempHp` mirror
+      // here meant the granted Temp HP was never seen on incoming damage.
+      const current = Math.max(0, Number((actor as any).system?.health?.tempHP ?? 0) || 0);
+      await (actor as any).update?.({ 'system.health.tempHP': current + hp });
       const roundState = getRoundState(actor, combat);
       const sb = ensureStoneBonuses(roundState);
       sb.tempHpGrantedThisTurn = (sb.tempHpGrantedThisTurn ?? 0) + hp;
