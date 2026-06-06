@@ -529,8 +529,36 @@ export class CombatCarouselApp extends BaseCarousel {
         const combatant = combat.combatants.get(combatantId);
         if (!combatant) return;
 
-        const actor = combatant.actor;
-        if (!actor || actor.type !== 'character') return;
+        // Resolve the TOKEN's actor explicitly. `combatant.actor` can fall back
+        // to the world/prototype actor (default attributes, empty stone pools)
+        // when the token reference is shaky — which made the dialog open empty.
+        // The token document's actor is the same (synthetic, delta-carrying)
+        // actor the character sheet uses, so the carousel now matches the sheet.
+        const tokenDoc =
+          (combatant as any).token ??
+          (combatant.sceneId
+            ? (game as any).scenes?.get(combatant.sceneId)?.tokens?.get((combatant as any).tokenId)
+            : null);
+        const actor = (tokenDoc?.actor ?? combatant.actor) as Actor | undefined;
+        if (!actor || (actor as any).type !== 'character') return;
+
+        // Diagnostic: if the resolved actor has no stone-pool capacity the
+        // dialog will look "dead". Logging the source + pool maxes makes the
+        // unlinked-token vs world-actor mismatch obvious in the console.
+        try {
+          const pools = (actor as any).system?.stonePools ?? {};
+          console.log('Mastery System | [CAROUSEL] Opening Stone Powers', {
+            via: tokenDoc?.actor ? 'tokenDocument.actor' : 'combatant.actor',
+            actorId: (actor as any).id,
+            actorName: (actor as any).name,
+            isToken: (actor as any).isToken === true,
+            poolMaxes: Object.fromEntries(
+              Object.entries(pools).map(([k, v]: [string, any]) => [k, v?.max ?? 0]),
+            ),
+          });
+        } catch {
+          /* diagnostic only */
+        }
 
         try {
           await StonePowersDialog.showForActor(actor as Actor, combatant);
