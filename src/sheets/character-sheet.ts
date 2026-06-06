@@ -2787,13 +2787,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      * this same step (and not refunded back below its step-start value)
      * we reject the click.
      */
-    if (nextPending > 1) {
-      (ui as any).notifications?.warn(
-        `${attributeName.charAt(0).toUpperCase() + attributeName.slice(1)} can only be increased by +1 per Upgrade Step. End the current step first to increase it again.`,
-      );
-      return;
-    }
-    {
+    // Initial post-creation award is exempt from the once-per-step "+1" cap.
+    if (!this.#initialAwardUnrestricted()) {
+      if (nextPending > 1) {
+        (ui as any).notifications?.warn(
+          `${attributeName.charAt(0).toUpperCase() + attributeName.slice(1)} can only be increased by +1 per Upgrade Step. End the current step first to increase it again.`,
+        );
+        return;
+      }
       const stepRule = await import('../utils/xp-step-rule.js');
       const step = stepRule.readStep(this.actor);
       if (nextPending > 0 && stepRule.isBumped(step, 'attribute', attributeName)) {
@@ -2911,6 +2912,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
   }
 
   /**
+   * Initial post-creation XP award: the first award after creation may be
+   * spent freely (no once-per-step "+1" cap on Attributes / Skills). Toggled
+   * by the XP grant UI via `system.xp.initialAwardUnrestricted`.
+   */
+  #initialAwardUnrestricted(): boolean {
+    return (this.actor.system as any)?.xp?.initialAwardUnrestricted === true;
+  }
+
+  /**
    * Update the attribute XP distribution UI
    */
   #updateAttributeXPUI() {
@@ -2958,7 +2968,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       const increaseBtn = html.find(`.attr-increase-xp[data-attribute="${attrKey}"]`);
       const nextPending = pending + 1;
       const effectiveAfter = currentValue + nextPending;
-      const wouldExceedStepCap = nextPending > 1 || (nextPending > 0 && bumpedAttributes.has(attrKey));
+      // Initial post-creation award: spend freely (no per-step cap).
+      const wouldExceedStepCap =
+        !this.#initialAwardUnrestricted() &&
+        (nextPending > 1 || (nextPending > 0 && bumpedAttributes.has(attrKey)));
       if (effectiveAfter > 80 || wouldExceedStepCap) {
         increaseBtn.prop('disabled', true);
         if (wouldExceedStepCap) {
@@ -3057,7 +3070,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      */
     const stepRule = await import('../utils/xp-step-rule.js');
     let stepAfter = stepRule.readStep(this.actor);
+    // Initial post-creation award: do not enforce or record per-step bumps so
+    // the player can keep increasing the same Attribute within the batch.
+    const unrestrictedAttr = this.#initialAwardUnrestricted();
     for (const { attr } of attributeChanges) {
+      if (unrestrictedAttr) continue;
       const pending = this._pendingAttributeChanges[attr] || 0;
       if (pending > 0) {
         if (stepRule.isBumped(stepAfter, 'attribute', attr)) {
@@ -4561,14 +4578,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const maxSkill = calculateMaxSkillRank(masteryRank);
     if (effective >= maxSkill) return;
 
-    // Once-per-step rule.
-    if (pending + 1 > 1) {
-      (ui as any).notifications?.warn(
-        `${skillKey} can only be increased by +1 per Upgrade Step. End the current step first to increase it again.`,
-      );
-      return;
-    }
-    {
+    // Once-per-step rule (skipped during the free-spend initial award).
+    if (!this.#initialAwardUnrestricted()) {
+      if (pending + 1 > 1) {
+        (ui as any).notifications?.warn(
+          `${skillKey} can only be increased by +1 per Upgrade Step. End the current step first to increase it again.`,
+        );
+        return;
+      }
       const stepRule = await import('../utils/xp-step-rule.js');
       const step = stepRule.readStep(this.actor);
       if (pending + 1 > 0 && stepRule.isBumped(step, 'skill', skillKey)) {
@@ -4707,7 +4724,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
       const plusBtn = html.find(`.skill-spend-point[data-skill="${skillKey}"]`);
       const nextPending = pending + 1;
-      const wouldExceedStepCap = nextPending > 1 || (nextPending > 0 && bumpedSkills.has(skillKey));
+      // Initial post-creation award: spend freely (no per-step cap).
+      const wouldExceedStepCap =
+        !this.#initialAwardUnrestricted() &&
+        (nextPending > 1 || (nextPending > 0 && bumpedSkills.has(skillKey)));
       if (effective >= maxSkill || wouldExceedStepCap) {
         plusBtn.prop('disabled', true);
         if (wouldExceedStepCap) {
@@ -4793,7 +4813,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      */
     const stepRuleSk = await import('../utils/xp-step-rule.js');
     let stepAfterSk = stepRuleSk.readStep(this.actor);
+    // Initial post-creation award: do not enforce or record per-step bumps.
+    const unrestrictedSk = this.#initialAwardUnrestricted();
     for (const change of changes) {
+      if (unrestrictedSk) continue;
       if (change.delta > 0) {
         if (stepRuleSk.isBumped(stepAfterSk, 'skill', change.skillKey)) {
           (ui as any).notifications?.error(

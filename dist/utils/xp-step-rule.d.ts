@@ -32,6 +32,19 @@ export interface XpStepState {
 }
 /** Fresh empty step bucket. */
 export declare function emptyStep(): XpStepState;
+/**
+ * Initial post-creation XP award exemption.
+ *
+ * The FIRST XP award a character receives after creation (the "D&D → this
+ * system" conversion batch) may be spent freely: the once-per-step "+1" bump
+ * limit does NOT apply to Attributes and Skills, so the player can dump the
+ * whole batch however they like. Every LATER award re-imposes the normal
+ * "+1 per step" rule.
+ *
+ * The flag lives at `system.xp.initialAwardUnrestricted` and is toggled by the
+ * XP grant UI (true on the first grant, false on every grant after that).
+ */
+export declare function isInitialAwardUnrestricted(actor: any): boolean;
 /** Read the step bucket from an actor, tolerating legacy / missing shapes. */
 export declare function readStep(actor: any): XpStepState;
 /** Has the given Attribute / Skill / Power / Artifact already been bumped this step? */

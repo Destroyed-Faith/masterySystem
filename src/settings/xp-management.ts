@@ -173,6 +173,11 @@ export class XpManagementSettings extends BaseApplication {
         'system.xp.totalEarned': xpState.totalEarned + amount
       };
 
+      // Initial post-creation award (the "D&D → this system" conversion batch)
+      // may be spent freely; every later award re-imposes the once-per-step
+      // "+1" rule on Attributes / Skills. First award == totalEarned was 0.
+      updates['system.xp.initialAwardUnrestricted'] = (xpState.totalEarned ?? 0) <= 0;
+
       if (!actor.system.xp) {
         updates['system.xp.totalSpent'] = 0;
         updates['system.xp.history'] = [];
@@ -230,6 +235,10 @@ export class XpManagementSettings extends BaseApplication {
           'system.points.xp': xpState.available + amount,
           'system.xp.totalEarned': xpState.totalEarned + amount
         };
+
+        // First award (totalEarned was 0) is the free-spend conversion batch;
+        // later awards re-impose the once-per-step rule.
+        updates['system.xp.initialAwardUnrestricted'] = (xpState.totalEarned ?? 0) <= 0;
 
         if (!actor.system.xp) {
           updates['system.xp.totalSpent'] = 0;
