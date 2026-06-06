@@ -39,13 +39,13 @@
             <select class="node-spec-bv-type">
               <option value="none" {{#if row.isNone}}selected{{/if}}>— None —</option>
               {{#each ../specBaseValueTypeOptions as |opt|}}
-              <option value="{{opt.key}}" {{#if (eq ../row.type opt.key)}}selected{{/if}}>{{opt.label}}</option>
+              <option value="{{opt.key}}" {{#if (eq row.type opt.key)}}selected{{/if}}>{{opt.label}}</option>
               {{/each}}
             </select>
             <select class="node-spec-bv-special {{#unless row.isSpecial}}hidden{{/unless}}" data-current="{{row.specialId}}">
               <option value="">— Choose Special —</option>
               {{#each ../specSpecialOptions as |opt|}}
-              <option value="{{opt.id}}" {{#if (eq ../row.specialId opt.id)}}selected{{/if}}>{{opt.label}}</option>
+              <option value="{{opt.id}}" {{#if (eq row.specialId opt.id)}}selected{{/if}}>{{opt.label}}</option>
               {{/each}}
             </select>
             <span class="node-spec-bv-derived" data-derived="{{row.derivedDisplay}}" title="Auto-calculated from Base Profile + Artifact Level">{{#if row.derivedDisplay}}auto: {{row.derivedDisplay}}{{else}}—{{/if}}</span>
@@ -93,7 +93,7 @@
             <select class="node-pick-stone-attr">
               <option value="">— Attribute (slot-gated) —</option>
               {{#each ../specStoneFnAttrOptions as |opt|}}
-              <option value="{{opt.key}}" {{#if (eq ../../row.stoneAttr opt.key)}}selected{{/if}}>{{opt.label}}</option>
+              <option value="{{opt.key}}" {{#if (eq row.stoneAttr opt.key)}}selected{{/if}}>{{opt.label}}</option>
               {{/each}}
             </select>
             <span class="node-pick-stone-power-wrap {{#unless (eq row.stoneKind "stonePowerSupport")}}hidden{{/unless}}" title="Stone Power supported by this artifact (4 per attribute)">

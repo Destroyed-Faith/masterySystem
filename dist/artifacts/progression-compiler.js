@@ -95,11 +95,16 @@ export function deriveLevelProgressionFromPicks(picks) {
         }
         else if (pick.kind === 'stoneFunction' && pick.stoneFunction) {
             const effect = stoneFunctionEffect(pick.stoneFunction);
+            // Stone Power Support keeps the established "Stone Support" name (matches the
+            // seeded echo tables); the other stone kinds name the row after their kind.
+            const baseName = pick.stoneFunction.kind === 'stonePowerSupport'
+                ? 'Stone Support'
+                : STONE_KIND_LABELS[pick.stoneFunction.kind] || 'Stone Function';
             for (let s = 0; s < STAGE_NUMERALS.length; s++) {
                 const level = baseLevel + 3 * s;
                 rows.push({
                     level,
-                    name: `Stone Support ${STAGE_NUMERALS[s]}`,
+                    name: `${baseName} ${STAGE_NUMERALS[s]}`,
                     type: 'Support',
                     range: 'Self',
                     aoe: '',
