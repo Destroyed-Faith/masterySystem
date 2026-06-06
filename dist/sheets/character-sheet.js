@@ -2362,10 +2362,17 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     /** Floor for attribute value when refunding XP (set at creation finalize; migrated for older actors). */
     #getAttributeXpBaseline(attributeKey) {
         const system = this.actor.system;
+        const current = Number(system.attributes?.[attributeKey]?.value ?? 2) || 0;
         const b = system.xp?.attributeBaselines?.[attributeKey];
-        if (typeof b === 'number' && !Number.isNaN(b))
-            return b;
-        return system.attributes?.[attributeKey]?.value ?? 2;
+        if (typeof b === 'number' && !Number.isNaN(b)) {
+            // Defensive clamp: a stored baseline must never exceed the current value.
+            // If a stale/too-high baseline was snapshotted (e.g. before a GM reset or
+            // a rebuild lowered the attribute, or off the world actor vs. an unlinked
+            // token), the floor would otherwise sit ABOVE the current value and
+            // wrongly reject even simple increases ("Invalid attribute change …").
+            return Math.min(b, current);
+        }
+        return current;
     }
     /** One-time: snapshot current attributes as XP refund floors for legacy completed characters. */
     async #migrateAttributeBaselinesIfNeeded() {
