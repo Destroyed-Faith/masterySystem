@@ -19,7 +19,7 @@ import {
 } from '../combat/action-economy.js';
 
 // Import canonical stone powers definition
-import { STONE_POWERS, tierForUseIndex, type StonePower } from './stone-powers.js';
+import { STONE_POWERS, tierForUseIndex, stonePowerSkipsFirstTier, type StonePower } from './stone-powers.js';
 import { getArtifactStoneSupportPrefill } from '../utils/artifact-stone-functions.js';
 
 // Re-export for backward compatibility
@@ -75,11 +75,14 @@ export async function activateStonePower(options: {
   const rawUsesBefore = abilityId.startsWith('generic.')
     ? getGenericStonePowerUsageCount(actor, abilityId, combat)
     : getStoneUsageCount(actor, poolAttribute, abilityId, combat);
+  // Ramp powers (no Tier 1, e.g. Extra Attack) start one segment higher: the
+  // first activation is Tier 2 and the player pays the Tier-2 cost.
+  const rampSkip = stonePowerSkipsFirstTier(abilityId) ? 1 : 0;
   const prefillTier = getArtifactStoneSupportPrefill(actor, abilityId, poolAttribute);
   const prefillBaseline = Math.max(0, prefillTier - 1);
-  const usesBefore = Math.max(rawUsesBefore, prefillBaseline);
+  const usesBefore = Math.max(rawUsesBefore + rampSkip, prefillBaseline);
   const tier = tierForUseIndex(usesBefore);
-  const cost = calculateStoneCost(rawUsesBefore);
+  const cost = calculateStoneCost(rawUsesBefore + rampSkip);
 
   // Use the action economy system to handle stone spending
   return await spendStoneAbility(
@@ -89,7 +92,8 @@ export async function activateStonePower(options: {
     abilityId,
     async (_roundState: RoundState) => {
       await power.apply({ actor, combatant, tier, cost });
-    }
+    },
+    cost
   );
 }
 
@@ -120,11 +124,12 @@ export async function activateGenericStonePowerMixed(options: {
   // any equipped artifact (attribute-agnostic match). The effect tier is
   // floored to the prefill tier while the player only pays the raw wave
   // cost (the Artifact Support Stones are provided by the artifact).
+  const rampSkip = stonePowerSkipsFirstTier(abilityId) ? 1 : 0;
   const prefillTier = getArtifactStoneSupportPrefill(actor, abilityId);
   const prefillBaseline = Math.max(0, prefillTier - 1);
-  const usesBefore = Math.max(rawUsesBefore, prefillBaseline);
+  const usesBefore = Math.max(rawUsesBefore + rampSkip, prefillBaseline);
   const tier = tierForUseIndex(usesBefore);
-  const cost = calculateStoneCost(rawUsesBefore);
+  const cost = calculateStoneCost(rawUsesBefore + rampSkip);
 
   return spendGenericStoneAbilityWithPerAttributeDeductions(
     actor,
@@ -133,7 +138,8 @@ export async function activateGenericStonePowerMixed(options: {
     perAttributeStones,
     async (_roundState: RoundState) => {
       await power.apply({ actor, combatant, tier, cost });
-    }
+    },
+    cost
   );
 }
 

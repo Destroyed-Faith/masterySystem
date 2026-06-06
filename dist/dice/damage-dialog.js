@@ -168,7 +168,14 @@ function resolveWeaponBaseDamage(weapon) {
         return '1d8';
     }
     const weaponSystem = weapon.system;
-    const baseDamageRaw = weaponSystem.damage ??
+    // Artifact weapons (e.g. Dragon Claws) keep their dice on
+    // `system.artifactWeapon.damage` (e.g. "4d8"), NOT on `system.damage`.
+    // Prefer it when present so artifacts don't fall back to the 1d8 default.
+    const artifactWeaponDamage = typeof weaponSystem.artifactWeapon?.damage === 'string'
+        ? weaponSystem.artifactWeapon.damage.trim()
+        : '';
+    const baseDamageRaw = (artifactWeaponDamage.length > 0 ? artifactWeaponDamage : undefined) ??
+        weaponSystem.damage ??
         weaponSystem.weaponDamage ??
         weaponSystem.roll?.damage ??
         weaponSystem.damage?.value ??

@@ -283,6 +283,23 @@
   border-style: dashed;
 }
 
+/* Disabled lead lane (ramp power with no Tier 1, e.g. Extra Attack): the
+   Tier-1 field is not selectable — the player must start in the Tier-2 field. */
+.stone-powers-dialog .ms-stone-drop-slot.slot-disabled {
+  opacity: 0.3;
+  border-style: dashed;
+  border-color: rgba(150, 150, 150, 0.5);
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(120, 120, 120, 0.12),
+    rgba(120, 120, 120, 0.12) 3px,
+    transparent 3px,
+    transparent 6px
+  );
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 /* Artifact "Stone Power Support" — Artifact Support Stones (pre-filled,
    artifact-provided). Not droppable; purely a visual that the equipped
    artifact already covers this tier's wave once the anchor stone is placed. */

@@ -847,4 +847,17 @@ export function tierForUseIndex(usesBefore) {
     const t = Math.max(1, Math.min(4, Math.floor(usesBefore) + 1));
     return t;
 }
+/**
+ * True when a power's Tier 1 is a no-op "ramp step" (label === null), meaning
+ * its first real effect is Tier 2. Such powers start one segment higher: the
+ * Tier-1 / Anchor field is disabled and the first activation costs 2 stones.
+ * Currently this is only Extra Attack — the deliberate exception so an extra
+ * Attack Action can't be bought for a single stone.
+ */
+export function stonePowerSkipsFirstTier(powerId) {
+    const t0 = STONE_POWERS[powerId]?.tiers?.[0];
+    if (!t0)
+        return false;
+    return (t0.label === null || t0.label === undefined) && t0.value === undefined;
+}
 //# sourceMappingURL=stone-powers.js.map

@@ -16,7 +16,7 @@ import {
   activateStonePower,
   activateGenericStonePowerMixed
 } from './stone-activation.js';
-import { STONE_POWERS_BY_ATTRIBUTE, type StonePower } from './stone-powers.js';
+import { STONE_POWERS_BY_ATTRIBUTE, stonePowerSkipsFirstTier, type StonePower } from './stone-powers.js';
 import {
   getStoneUsageCount,
   getGenericStonePowerUsageCount,
@@ -152,6 +152,31 @@ function nextStoneSegmentToFill(occupied: number[]): number | null {
   return null;
 }
 
+/**
+ * Some powers have a no-op Tier 1 "ramp step" (e.g. Extra Attack), so their
+ * first real activation is Tier 2 = the Mid segment (2 stones). Such powers
+ * skip the leading segment(s): the Anchor renders disabled and the first
+ * payable wave is the Mid segment.
+ */
+function rampSkipSegmentsForPower(powerId: string): number {
+  return stonePowerSkipsFirstTier(powerId) ? 1 : 0;
+}
+
+/** Lane indices of the leading segments skipped by a ramp power (e.g. [0]). */
+function rampSkipLeadLanes(powerId: string): number[] {
+  const segs = rampSkipSegmentsForPower(powerId);
+  if (segs <= 0) return [];
+  const lanes: number[] = [];
+  for (let s = 0; s < segs; s++) lanes.push(...lanesInStonePaymentSegment(s));
+  return lanes;
+}
+
+/** Occupied lanes augmented with skipped lead lanes (for segment-unlock only). */
+function occWithRampSkip(occupied: number[], powerId: string): number[] {
+  const lead = rampSkipLeadLanes(powerId);
+  return lead.length ? [...occupied, ...lead] : occupied;
+}
+
 /** Warum ein leeres Feld nicht `slot-active` ist (Debug / Drop-Warn). */
 function explainLaneInactiveReason(
   laneIndex: number,
@@ -284,7 +309,7 @@ function resolveStonePowersCombatant(actor: Actor, combat: Combat): Combatant | 
   return null;
 }
 
-type DropSlotState = 'done' | 'filled' | 'active' | 'locked' | 'support';
+type DropSlotState = 'done' | 'filled' | 'active' | 'locked' | 'support' | 'disabled';
 
 /**
  * Wert für Attribut-Selektoren `[data-power-id="…"]` in querySelector.
@@ -332,7 +357,8 @@ function buildStonePaymentLanes(
   planLocked: boolean,
   occupied: number[],
   debugLabel?: string,
-  supportLanes?: Set<number>
+  supportLanes?: Set<number>,
+  leadLockedLanes?: number[]
 ): {
   paymentAnchor: StonePayLaneCell[];
   paymentMid: StonePayLaneCell[];
@@ -340,11 +366,19 @@ function buildStonePaymentLanes(
   paymentOct: StonePayLaneCell[];
 } {
   const o = new Set(occupied);
-  const allowed = allowedSegmentDropLanes(occupied);
+  const leadLocked = new Set(leadLockedLanes ?? []);
+  // Ramp powers (no Tier 1) treat their leading segment as already satisfied so
+  // the next segment unlocks immediately; those lanes are disabled, not payable.
+  const allowed = allowedSegmentDropLanes(
+    leadLocked.size ? [...occupied, ...leadLocked] : occupied
+  );
 
   const laneState = (laneIndex: number): DropSlotState => {
     if (laneIndex < 0 || laneIndex >= STONE_PAYMENT_LANE_COUNT) return 'locked';
     if (o.has(laneIndex)) return 'filled';
+    // Disabled lead lane of a ramp power (e.g. Extra Attack Tier 1): greyed,
+    // not droppable — the player must start in the next (Tier 2) segment.
+    if (leadLocked.has(laneIndex)) return 'disabled';
     // Artifact "Stone Power Support" pre-fills lanes above the anchor with
     // Artifact Support Stones (free, artifact-provided). They are purely
     // visual: not in the `occupied` player set, so they never participate in
@@ -856,7 +890,12 @@ export class StonePowersDialog extends BaseDialog {
     const attributeSpecificPowers = availablePowers.filter(p => p.attribute !== 'generic');
     
     const generalPowers = genericPowers.map((power) => {
-      const { attrKey, usesThisTurn, nextCost } = resolveGenericAttrAndStats(power.id);
+      const { attrKey, usesThisTurn } = resolveGenericAttrAndStats(power.id);
+      // Ramp powers (no Tier 1, e.g. Extra Attack) start one segment higher:
+      // first activation = Tier 2 (2 stones), Anchor disabled.
+      const rampSkip = rampSkipSegmentsForPower(power.id);
+      const leadLockedLanes = rampSkipLeadLanes(power.id);
+      const nextCost = calculateStoneCost(usesThisTurn + rampSkip);
       const canAfford = canAffordGenericNextCost(nextCost);
       const description = power.description || power.effect || '';
       const spendableNet = totalSpendableNetAllPools();
@@ -871,7 +910,8 @@ export class StonePowersDialog extends BaseDialog {
         stonePlanLocked,
         occupied,
         `${power.id}/general`,
-        supportLanes
+        supportLanes,
+        leadLockedLanes
       );
       return {
         id: power.id,
@@ -1314,7 +1354,9 @@ export class StonePowersDialog extends BaseDialog {
 
     if (currentUses !== usesInKey) return false;
 
-    const nextCost = calculateStoneCost(usesInKey);
+    // Ramp powers (no Tier 1) start one segment higher, so the first wave
+    // costs the Tier-2 amount; mirror the dialog's nextCost here.
+    const nextCost = calculateStoneCost(usesInKey + rampSkipSegmentsForPower(powerId));
     const perAttr: Record<string, number> = {};
 
     if (isGenericUnifiedAccKey(accKey)) {
@@ -1569,7 +1611,7 @@ export class StonePowersDialog extends BaseDialog {
       ? genericUnifiedAccKey(powerId, uses)
       : `${powerId}:${fixedPayAttr!}:${uses}`;
     let occ = this.#stoneOccGet(accKey);
-    const seg = nextStoneSegmentToFill(occ);
+    const seg = nextStoneSegmentToFill(occWithRampSkip(occ, powerId));
     if (seg === null) {
       dlogStoneDnD('autoFillPowerCluster', { powerId, isGeneric, segment: null, note: 'all_segments_full' });
       return;
@@ -1582,7 +1624,7 @@ export class StonePowersDialog extends BaseDialog {
     for (const lane of emptyInSeg) {
       this.#pullSessionPartialsIntoInstance();
       occ = this.#stoneOccGet(accKey);
-      if (!isLaneAllowedBySegmentUnlock(occ, lane)) break;
+      if (!isLaneAllowedBySegmentUnlock(occWithRampSkip(occ, powerId), lane)) break;
 
       let chosenAttr: string;
       if (isGeneric) {
@@ -2234,7 +2276,7 @@ export class StonePowersDialog extends BaseDialog {
           dlogStoneDnD('drop abort: Lane schon belegt', { laneIndex, occ });
           return;
         }
-        if (!isLaneAllowedBySegmentUnlock(occ, laneIndex)) {
+        if (!isLaneAllowedBySegmentUnlock(occWithRampSkip(occ, powerId), laneIndex)) {
           dlogStoneDnD('drop abort: Lane durch Segment-Freigabe blockiert', { laneIndex, occ });
           return;
         }

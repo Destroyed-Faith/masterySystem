@@ -566,7 +566,7 @@ export async function setStonePool(actor, attribute, current) {
  * @param applyEffect Function to apply the ability effect (adds actions/bonuses to roundState)
  * @returns true if successful, false if failed
  */
-export async function spendStoneAbility(actor, _combatant, attribute, abilityKey, applyEffect) {
+export async function spendStoneAbility(actor, _combatant, attribute, abilityKey, applyEffect, expectedCost) {
     // NPCs cannot use stone abilities for action bonuses
     if (!isPC(actor)) {
         ui.notifications?.warn('NPCs cannot use stone abilities for action bonuses');
@@ -582,7 +582,10 @@ export async function spendStoneAbility(actor, _combatant, attribute, abilityKey
     const uses = isGenericStoneAbility
         ? getGenericStonePowerUsageCount(actor, abilityKey, combat)
         : getStoneUsageCount(actor, attribute, abilityKey, combat);
-    const cost = calculateStoneCost(uses);
+    // Ramp powers (no Tier 1) pass an explicit higher first-wave cost.
+    const cost = expectedCost !== undefined && Number.isFinite(expectedCost) && expectedCost > 0
+        ? Math.floor(expectedCost)
+        : calculateStoneCost(uses);
     // Get stone pool
     const pool = getStonePool(actor, attribute);
     // Check if enough stones
@@ -620,7 +623,7 @@ export async function spendStoneAbility(actor, _combatant, attribute, abilityKey
  * General-Stonepower mit Aufteilung auf mehrere Pool-Farben (wie im Dialog pro Lane).
  * Summe pro Attribut muss exakt `calculateStoneCost(uses)` ergeben.
  */
-export async function spendGenericStoneAbilityWithPerAttributeDeductions(actor, _combatant, abilityKey, perAttributeCounts, applyEffect) {
+export async function spendGenericStoneAbilityWithPerAttributeDeductions(actor, _combatant, abilityKey, perAttributeCounts, applyEffect, expectedCost) {
     if (!isPC(actor)) {
         ui.notifications?.warn('NPCs cannot use stone abilities for action bonuses');
         return false;
@@ -635,7 +638,11 @@ export async function spendGenericStoneAbilityWithPerAttributeDeductions(actor, 
         return false;
     }
     const uses = getGenericStonePowerUsageCount(actor, abilityKey, combat);
-    const cost = calculateStoneCost(uses);
+    // Ramp powers (no Tier 1) pass an explicit higher cost for their first wave;
+    // fall back to the standard exponential cost otherwise.
+    const cost = expectedCost !== undefined && Number.isFinite(expectedCost) && expectedCost > 0
+        ? Math.floor(expectedCost)
+        : calculateStoneCost(uses);
     let sum = 0;
     const counts = {};
     for (const attr of STONE_USAGE_ATTR_KEYS) {

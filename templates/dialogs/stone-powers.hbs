@@ -80,7 +80,7 @@
                        data-is-generic="true"
                        data-slot-index="{{ls.slotIndex}}"
                        data-lane-index="{{ls.laneIndex}}"
-                       title="{{#if (eq ls.state 'active')}}Beliebigen Attribut-Stein hier ablegen{{/if}}{{#if (eq ls.state 'filled')}}Gelegt — zum Freigeben in den Pool ziehen{{/if}}{{#if (eq ls.state 'locked')}}{{#if ../canAfford}}Später{{else}}Nicht genug Steine in einem Pool{{/if}}{{/if}}">
+                       title="{{#if (eq ls.state 'active')}}Beliebigen Attribut-Stein hier ablegen{{/if}}{{#if (eq ls.state 'filled')}}Gelegt — zum Freigeben in den Pool ziehen{{/if}}{{#if (eq ls.state 'disabled')}}Kein Tier 1 — starte im Tier-2-Feld{{/if}}{{#if (eq ls.state 'locked')}}{{#if ../canAfford}}Später{{else}}Nicht genug Steine in einem Pool{{/if}}{{/if}}">
                     <div class="ms-stone-slot-fill">{{#if (eq ls.state 'support')}}<span class="ms-stone-gem-chip ms-slot-gem-support" title="Artifact Support Stone (vom Artefakt bereitgestellt)"><i class="fas fa-gem"></i></span>{{/if}}</div>
                   </div>
                   {{/each}}

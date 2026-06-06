@@ -772,7 +772,8 @@ export async function spendStoneAbility(
   _combatant: Combatant,
   attribute: AttributeKey,
   abilityKey: string,
-  applyEffect: (roundState: RoundState) => Promise<void>
+  applyEffect: (roundState: RoundState) => Promise<void>,
+  expectedCost?: number
 ): Promise<boolean> {
   // NPCs cannot use stone abilities for action bonuses
   if (!isPC(actor)) {
@@ -791,7 +792,11 @@ export async function spendStoneAbility(
   const uses = isGenericStoneAbility
     ? getGenericStonePowerUsageCount(actor, abilityKey, combat)
     : getStoneUsageCount(actor, attribute, abilityKey, combat);
-  const cost = calculateStoneCost(uses);
+  // Ramp powers (no Tier 1) pass an explicit higher first-wave cost.
+  const cost =
+    expectedCost !== undefined && Number.isFinite(expectedCost) && expectedCost > 0
+      ? Math.floor(expectedCost)
+      : calculateStoneCost(uses);
   
   // Get stone pool
   const pool = getStonePool(actor, attribute);
@@ -846,7 +851,8 @@ export async function spendGenericStoneAbilityWithPerAttributeDeductions(
   _combatant: Combatant,
   abilityKey: string,
   perAttributeCounts: Partial<Record<AttributeKey, number>>,
-  applyEffect: (roundState: RoundState) => Promise<void>
+  applyEffect: (roundState: RoundState) => Promise<void>,
+  expectedCost?: number
 ): Promise<boolean> {
   if (!isPC(actor)) {
     ui.notifications?.warn('NPCs cannot use stone abilities for action bonuses');
@@ -865,7 +871,12 @@ export async function spendGenericStoneAbilityWithPerAttributeDeductions(
   }
 
   const uses = getGenericStonePowerUsageCount(actor, abilityKey, combat);
-  const cost = calculateStoneCost(uses);
+  // Ramp powers (no Tier 1) pass an explicit higher cost for their first wave;
+  // fall back to the standard exponential cost otherwise.
+  const cost =
+    expectedCost !== undefined && Number.isFinite(expectedCost) && expectedCost > 0
+      ? Math.floor(expectedCost)
+      : calculateStoneCost(uses);
 
   let sum = 0;
   const counts: Partial<Record<AttributeKey, number>> = {};

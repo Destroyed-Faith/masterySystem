@@ -62,4 +62,12 @@ export declare const STONE_POWERS_BY_ATTRIBUTE: Record<AttributeKey | 'generic',
  * clamped). The new spec stops at tier 4; further activations stay at T4.
  */
 export declare function tierForUseIndex(usesBefore: number): number;
+/**
+ * True when a power's Tier 1 is a no-op "ramp step" (label === null), meaning
+ * its first real effect is Tier 2. Such powers start one segment higher: the
+ * Tier-1 / Anchor field is disabled and the first activation costs 2 stones.
+ * Currently this is only Extra Attack — the deliberate exception so an extra
+ * Attack Action can't be bought for a single stone.
+ */
+export declare function stonePowerSkipsFirstTier(powerId: string): boolean;
 //# sourceMappingURL=stone-powers.d.ts.map

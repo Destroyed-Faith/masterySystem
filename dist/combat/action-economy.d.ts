@@ -243,12 +243,12 @@ export declare function setStonePool(actor: Actor, attribute: AttributeKey, curr
  * @param applyEffect Function to apply the ability effect (adds actions/bonuses to roundState)
  * @returns true if successful, false if failed
  */
-export declare function spendStoneAbility(actor: Actor, _combatant: Combatant, attribute: AttributeKey, abilityKey: string, applyEffect: (roundState: RoundState) => Promise<void>): Promise<boolean>;
+export declare function spendStoneAbility(actor: Actor, _combatant: Combatant, attribute: AttributeKey, abilityKey: string, applyEffect: (roundState: RoundState) => Promise<void>, expectedCost?: number): Promise<boolean>;
 /**
  * General-Stonepower mit Aufteilung auf mehrere Pool-Farben (wie im Dialog pro Lane).
  * Summe pro Attribut muss exakt `calculateStoneCost(uses)` ergeben.
  */
-export declare function spendGenericStoneAbilityWithPerAttributeDeductions(actor: Actor, _combatant: Combatant, abilityKey: string, perAttributeCounts: Partial<Record<AttributeKey, number>>, applyEffect: (roundState: RoundState) => Promise<void>): Promise<boolean>;
+export declare function spendGenericStoneAbilityWithPerAttributeDeductions(actor: Actor, _combatant: Combatant, abilityKey: string, perAttributeCounts: Partial<Record<AttributeKey, number>>, applyEffect: (roundState: RoundState) => Promise<void>, expectedCost?: number): Promise<boolean>;
 /**
  * End-of-round stone regen: Mastery Rank stones, automatic.
  * Each stone goes to the next pool that can accept it, in order of attribute value (highest first);
