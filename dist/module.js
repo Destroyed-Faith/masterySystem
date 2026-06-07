@@ -1256,21 +1256,26 @@ function setupXpManagementInline() {
         // Get all player characters
         const characters = game.actors?.filter((actor) => actor.type === 'character') || [];
         // Build the UI
-        let htmlContent = '<div class="xp-management-header"><h3><i class="fas fa-coins"></i> Character XP Management</h3></div>';
+        let htmlContent = '<div class="xp-management-header"><h3><i class="fas fa-coins"></i> Character XP Management</h3>';
+        htmlContent += '<p class="hint">Regular XP: Session-Vergabe (max. +1 pro Attribut/Skill/Power/Artefakt pro Upgrade Step). ';
+        htmlContent += '<strong>Free XP</strong>: frei verteilbar ohne Step-Limit. Die Flagge beendet nur den aktuellen Step — sie ersetzt kein Free XP.</p></div>';
         // Bulk Grant Section
         htmlContent += '<div class="bulk-grant-section"><h4>Bulk Grant XP</h4>';
         htmlContent += '<div class="bulk-grant-controls">';
-        htmlContent += '<div class="bulk-grant-group"><label>XP:</label>';
+        htmlContent += '<div class="bulk-grant-group"><label>Regular XP:</label>';
         htmlContent += '<input type="number" class="bulk-xp-amount" min="0" value="0" />';
-        htmlContent += '<button type="button" class="bulk-grant-btn"><i class="fas fa-gift"></i> Grant to All</button></div>';
+        htmlContent += '<button type="button" class="bulk-grant-btn" title="Session-XP an alle (Once-per-Step gilt)"><i class="fas fa-gift"></i> Grant to All</button></div>';
+        htmlContent += '<div class="bulk-grant-group"><label>Free XP:</label>';
+        htmlContent += '<input type="number" class="bulk-free-xp-amount" min="0" value="0" />';
+        htmlContent += '<button type="button" class="bulk-grant-free-btn" title="Free XP an alle (frei verteilbar, kein Step-Limit)"><i class="fas fa-star"></i> Grant Free to All</button></div>';
         htmlContent += '</div></div>';
         // Characters Table — new spec: surface the once-per-step bump summary
         // in place of the legacy `maxAttributeSpend` column.
         htmlContent += '<div class="characters-list"><table class="xp-table xp-table-compact"><thead><tr>';
-        htmlContent += '<th>Character</th><th>Player</th><th>Spent</th><th>Avail.</th><th>Earned</th><th>Step bumps</th><th>Actions</th>';
+        htmlContent += '<th>Character</th><th>Player</th><th>Spent</th><th>Avail.</th><th>Free Avail.</th><th>Earned</th><th>Step bumps</th><th>Actions</th>';
         htmlContent += '</tr></thead><tbody>';
         if (characters.length === 0) {
-            htmlContent += '<tr><td colspan="7" class="empty-message"><i class="fas fa-info-circle"></i> No player characters found.</td></tr>';
+            htmlContent += '<tr><td colspan="8" class="empty-message"><i class="fas fa-info-circle"></i> No player characters found.</td></tr>';
         }
         else {
             const sanitize = (input) => Array.isArray(input) ? input.map((v) => String(v ?? '')).filter((s) => s.length > 0) : [];
@@ -1281,6 +1286,8 @@ function setupXpManagementInline() {
                 const totalEarned = xp.totalEarned ?? 0;
                 const totalSpent = xp.totalSpent ?? 0;
                 const available = points.xp ?? 0;
+                const freeAvailable = points.xpFree ?? 0;
+                const freeEarned = xp.freeEarned ?? 0;
                 const stepRaw = xp.currentStep ?? {};
                 const stepAttrs = sanitize(stepRaw.attributes);
                 const stepSkills = sanitize(stepRaw.skills);
@@ -1308,13 +1315,16 @@ function setupXpManagementInline() {
                 htmlContent += `<td class="player-cell">${playerName}</td>`;
                 htmlContent += `<td class="xp-cell"><strong>${totalSpent}</strong></td>`;
                 htmlContent += `<td class="xp-cell"><strong>${available}</strong></td>`;
+                htmlContent += `<td class="xp-cell xp-cell-free" title="Free XP verfügbar (${freeEarned} vergeben gesamt)"><strong>${freeAvailable}</strong></td>`;
                 htmlContent += `<td class="xp-cell"><strong>${totalEarned}</strong></td>`;
                 htmlContent += `<td class="xp-cell" title="${stepSummary.replace(/"/g, '&quot;')}">${stepTotal}</td>`;
                 htmlContent += `<td class="grant-cell"><div class="grant-controls">`;
-                htmlContent += `<div class="grant-group"><input type="number" class="xp-amount-input" data-character-id="${actor.id}" min="0" value="0" placeholder="+" title="Grant XP" />`;
-                htmlContent += `<button type="button" class="grant-xp-btn" data-character-id="${actor.id}" title="Grant XP"><i class="fas fa-plus"></i></button></div>`;
+                htmlContent += `<div class="grant-group"><input type="number" class="xp-amount-input" data-character-id="${actor.id}" min="0" value="0" placeholder="+" title="Regular XP (Session)" />`;
+                htmlContent += `<button type="button" class="grant-xp-btn" data-character-id="${actor.id}" title="Regular XP vergeben"><i class="fas fa-plus"></i></button></div>`;
+                htmlContent += `<div class="grant-group grant-group-free"><input type="number" class="free-xp-amount-input" data-character-id="${actor.id}" min="0" value="0" placeholder="+" title="Free XP (frei verteilbar)" />`;
+                htmlContent += `<button type="button" class="grant-free-xp-btn" data-character-id="${actor.id}" title="Free XP vergeben — kein Step-Limit"><i class="fas fa-star"></i></button></div>`;
                 htmlContent += `<div class="xp-row-actions">`;
-                htmlContent += `<button type="button" class="end-xp-step-btn" data-character-id="${actor.id}" title="End current Upgrade Step. Clears the once-per-step bump lists for Attributes / Skills / Powers / Artifacts."><i class="fas fa-flag-checkered"></i></button>`;
+                htmlContent += `<button type="button" class="end-xp-step-btn" data-character-id="${actor.id}" title="Upgrade Step beenden: +1-Limit-Listen leeren. Erlaubt im nächsten Step erneut +1 auf dasselbe Attribut/Skill — ersetzt kein Free XP."><i class="fas fa-flag-checkered"></i></button>`;
                 htmlContent += `<button type="button" class="history-xp-btn" data-character-id="${actor.id}" title="XP History"><i class="fas fa-history"></i></button>`;
                 htmlContent += resetBtn;
                 htmlContent += `</div></div></td></tr>`;
@@ -1332,6 +1342,8 @@ function setupXpManagementInline() {
             const xp = system.xp || {};
             return {
                 available: points.xp ?? 0,
+                freeAvailable: points.xpFree ?? 0,
+                freeEarned: xp.freeEarned ?? 0,
                 totalEarned: xp.totalEarned ?? 0,
                 totalSpent: xp.totalSpent ?? 0,
                 history: xp.history ?? []
@@ -1398,8 +1410,54 @@ function setupXpManagementInline() {
             };
             pushXpHistory(actor, historyEntry);
             await actor.update({ 'system.xp.history': actor.system.xp.history });
-            ui.notifications?.info(`Granted ${amount} XP to ${actor.name}.`);
+            ui.notifications?.info(`Granted ${amount} regular XP to ${actor.name}.`);
             // Re-render settings to update display
+            app.render();
+        });
+        // Grant Free XP button (no once-per-step limit on the character sheet)
+        customContainer.find('.grant-free-xp-btn').on('click', async (event) => {
+            const button = $(event.currentTarget);
+            const characterId = button.data('character-id');
+            const amount = parseInt(button.siblings('.free-xp-amount-input').val()) || 0;
+            if (amount <= 0) {
+                ui.notifications?.warn('Please enter a valid amount greater than 0.');
+                return;
+            }
+            const actor = game.actors?.get(characterId);
+            if (!actor) {
+                ui.notifications?.error('Character not found.');
+                return;
+            }
+            const xpState = getXpState(actor);
+            const beforeState = {
+                available: xpState.available,
+                totalEarned: xpState.totalEarned,
+                totalSpent: xpState.totalSpent,
+            };
+            const updates = {
+                'system.points.xpFree': xpState.freeAvailable + amount,
+                'system.xp.freeEarned': xpState.freeEarned + amount,
+            };
+            if (!actor.system.xp) {
+                updates['system.xp.totalSpent'] = 0;
+                updates['system.xp.history'] = [];
+            }
+            await actor.update(updates);
+            const user = game.user;
+            const historyEntry = {
+                ts: Date.now(),
+                userId: user?.id || '',
+                userName: user?.name || 'System',
+                kind: 'grant',
+                category: 'xp',
+                amount: amount,
+                note: 'free',
+                before: beforeState,
+                after: beforeState,
+            };
+            pushXpHistory(actor, historyEntry);
+            await actor.update({ 'system.xp.history': actor.system.xp.history });
+            ui.notifications?.info(`Granted ${amount} Free XP to ${actor.name} (frei verteilbar).`);
             app.render();
         });
         // End Upgrade Step button — clears the once-per-step bump lists.
@@ -1425,7 +1483,7 @@ function setupXpManagementInline() {
                 `${before.powers.length} power`,
                 `${before.artifacts.length} artifact`,
             ].join(', ');
-            ui.notifications?.info(`XP step ended for ${actor.name} (${summary}).`);
+            ui.notifications?.info(`Upgrade Step beendet für ${actor.name} (${summary}). Im neuen Step ist wieder +1 pro Wert möglich. Für freie Verteilung: Free XP (★) vergeben.`);
             app.render();
         });
         // Bulk grant
@@ -1473,8 +1531,51 @@ function setupXpManagementInline() {
                 await actor.update({ 'system.xp.history': actor.system.xp.history });
                 updated++;
             }
-            ui.notifications?.info(`Granted ${amount} XP to ${updated} characters.`);
+            ui.notifications?.info(`Granted ${amount} regular XP to ${updated} characters.`);
             // Re-render settings to update display
+            app.render();
+        });
+        customContainer.find('.bulk-grant-free-btn').on('click', async (event) => {
+            const amount = parseInt(customContainer.find('.bulk-free-xp-amount').val()) || 0;
+            if (amount <= 0) {
+                ui.notifications?.warn('Please enter a valid amount greater than 0.');
+                return;
+            }
+            const characters = game.actors?.filter((actor) => actor.type === 'character') || [];
+            let updated = 0;
+            const user = game.user;
+            for (const actor of characters) {
+                const xpState = getXpState(actor);
+                const beforeState = {
+                    available: xpState.available,
+                    totalEarned: xpState.totalEarned,
+                    totalSpent: xpState.totalSpent,
+                };
+                const updates = {
+                    'system.points.xpFree': xpState.freeAvailable + amount,
+                    'system.xp.freeEarned': xpState.freeEarned + amount,
+                };
+                if (!actor.system.xp) {
+                    updates['system.xp.totalSpent'] = 0;
+                    updates['system.xp.history'] = [];
+                }
+                await actor.update(updates);
+                const historyEntry = {
+                    ts: Date.now(),
+                    userId: user?.id || '',
+                    userName: user?.name || 'System',
+                    kind: 'grant',
+                    category: 'xp',
+                    amount: amount,
+                    note: 'free',
+                    before: beforeState,
+                    after: beforeState,
+                };
+                pushXpHistory(actor, historyEntry);
+                await actor.update({ 'system.xp.history': actor.system.xp.history });
+                updated++;
+            }
+            ui.notifications?.info(`Granted ${amount} Free XP to ${updated} characters (frei verteilbar).`);
             app.render();
         });
         // History button

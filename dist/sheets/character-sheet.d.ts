@@ -20,6 +20,11 @@ export declare class MasteryCharacterSheet extends BaseActorSheet {
     static get defaultOptions(): any;
     /** @override */
     get template(): string;
+    /**
+     * Refresh XP distribution controls when the GM ends an Upgrade Step or
+     * grants XP from world settings while this sheet is open.
+     */
+    _onUpdate(changed: Record<string, unknown>, _options: unknown, _userId: string): void;
     /** @override */
     getData(options?: any): Promise<any>;
     /** @override */

@@ -86,7 +86,10 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const el = html.find('#sheet-xp-display');
     if (!el.length) return;
     const n = Number(value);
-    el.text(String(Number.isFinite(n) ? Math.max(0, Math.floor(n)) : 0));
+    const total = Number.isFinite(n) ? Math.max(0, Math.floor(n)) : 0;
+    const free = Math.max(0, Math.floor(Number((this.actor.system as any)?.points?.xpFree ?? 0)));
+    el.text(free > 0 ? `${total} (★${free})` : String(total));
+    el.attr('title', free > 0 ? `${total} XP gesamt, davon ${free} Free XP (frei verteilbar)` : 'Verfügbare XP');
   }
 
   /** @override */
@@ -430,6 +433,32 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const templatePath = 'systems/mastery-system/templates/actor/character-sheet.hbs';
     console.log('Mastery System | Character Sheet template path:', templatePath);
     return templatePath;
+  }
+
+  /**
+   * Refresh XP distribution controls when the GM ends an Upgrade Step or
+   * grants XP from world settings while this sheet is open.
+   */
+  _onUpdate(changed: Record<string, unknown>, _options: unknown, _userId: string) {
+    if (typeof super._onUpdate === 'function') {
+      super._onUpdate(changed, _options, _userId);
+    }
+    const keys = Object.keys(changed ?? {});
+    const xpTouched = keys.some(
+      (k) =>
+        k.startsWith('system.points') ||
+        k.startsWith('system.xp.currentStep') ||
+        k === 'system.xp',
+    );
+    if (!xpTouched || !this.rendered) return;
+    try {
+      this.#updateAttributeXPUI();
+      this.#updateSkillXPUI();
+      this.#updatePowerLevelUI();
+    } catch {
+      // Sheet may be mid-render; a full render is still safer than stale locks.
+      this.render(false);
+    }
   }
 
   /** @override */
@@ -3053,10 +3082,18 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       if (effectiveAfter > 80 || wouldExceedStepCap) {
         increaseBtn.prop('disabled', true);
         if (wouldExceedStepCap) {
-          increaseBtn.attr('title', 'Already increased this Upgrade Step. End the current step first to increase it again.');
+          increaseBtn.attr(
+            'title',
+            this.#hasFreeXp()
+              ? ''
+              : 'Bereits in diesem Upgrade Step erhöht. GM: Step beenden (Flagge) oder Free XP (★) für freie Verteilung.',
+          );
         }
       } else {
         increaseBtn.removeAttr('title');
+        if (this.#hasFreeXp()) {
+          increaseBtn.attr('title', 'Free XP aktiv — frei verteilbar (kein Step-Limit).');
+        }
         const simulateMap = { ...this._pendingAttributeChanges, [attrKey]: nextPending };
         if (simulateMap[attrKey] === 0) delete simulateMap[attrKey];
         const simNet = this.#calculateAttributePendingNetCost(simulateMap);
@@ -3496,10 +3533,18 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       if (effectiveLevel >= this.#getMaxPurchasablePowerLevel() || wouldExceedStepCap) {
         increaseBtn.prop('disabled', true);
         if (wouldExceedStepCap) {
-          increaseBtn.attr('title', 'Already increased this Upgrade Step. End the current step first to increase it again.');
+          increaseBtn.attr(
+            'title',
+            this.#hasFreeXp()
+              ? ''
+              : 'Bereits in diesem Upgrade Step erhöht. GM: Step beenden (Flagge) oder Free XP (★) für freie Verteilung.',
+          );
         }
       } else {
         increaseBtn.removeAttr('title');
+        if (this.#hasFreeXp()) {
+          increaseBtn.attr('title', 'Free XP aktiv — frei verteilbar (kein Step-Limit).');
+        }
         const simulateMap = { ...this._pendingPowerLevelChanges, [itemId]: nextPending };
         const simulateNetCost = this.#calculatePowerPendingNetCost(simulateMap);
         increaseBtn.prop('disabled', simulateNetCost > availableXP);
@@ -4822,10 +4867,18 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       if (effective >= maxSkill || wouldExceedStepCap) {
         plusBtn.prop('disabled', true);
         if (wouldExceedStepCap) {
-          plusBtn.attr('title', 'Already increased this Upgrade Step. End the current step first to increase it again.');
+          plusBtn.attr(
+            'title',
+            this.#hasFreeXp()
+              ? ''
+              : 'Bereits in diesem Upgrade Step erhöht. GM: Step beenden (Flagge) oder Free XP (★) für freie Verteilung.',
+          );
         }
       } else {
         plusBtn.removeAttr('title');
+        if (this.#hasFreeXp()) {
+          plusBtn.attr('title', 'Free XP aktiv — frei verteilbar (kein Step-Limit).');
+        }
         const simulateMap = { ...this._pendingSkillRankChanges, [skillKey]: nextPending };
         const simulateNet = this.#calculateSkillPendingNetCost(simulateMap);
         plusBtn.prop('disabled', simulateNet > availableXP);
