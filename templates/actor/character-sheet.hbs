@@ -226,6 +226,13 @@
               <em>{{echoView.def.tagline}}</em><br/>
               Type: {{echoView.def.creatureType}} · Size: {{echoView.def.size}} · Speed: {{echoView.def.speed}} m
             </div>
+            {{#if echoView.def.veiledForm}}
+            <div class="echo-veiled-callout">
+              <strong>Veiled Form:</strong>
+              {{#if echoView.veiled}}appears as <em>{{echoView.veiled.name}}</em>{{else}}not chosen yet — pick in Echo dialog{{/if}}.
+              Appearance only; you remain Dragonborn mechanically.
+            </div>
+            {{/if}}
           </div>
 
           <div class="echo-deck-traits">
@@ -1396,11 +1403,19 @@
           <h3><i class="fas fa-magic"></i> Character Creation: Powers & Magic Selection</h3>
           <div class="creation-status">
             <div class="status-item">
-              <label>Powers Selected:</label>
+              <label>Total:</label>
               <span class="{{#if (eq creation.powersSelected creation.powersRequired)}}valid{{else}}invalid{{/if}}">
                 {{creation.powersSelected}} / {{creation.powersRequired}}
               </span>
             </div>
+            {{#each creation.categoryRequirements}}
+            <div class="status-item">
+              <label>{{this.label}}:</label>
+              <span class="{{#if this.valid}}valid{{else}}invalid{{/if}}">
+                {{this.selected}} / {{this.required}}
+              </span>
+            </div>
+            {{/each}}
             <div class="status-item">
               <label>At Rank 2:</label>
               <span class="{{#if (eq creation.powersAtRank2 creation.powersAtRank2Required)}}valid{{else}}invalid{{/if}}">
@@ -1413,9 +1428,8 @@
         <div class="creation-instructions">
           <p><strong>Character Creation Rules:</strong></p>
           <ul>
-            <li>Select exactly <strong>4 Powers</strong> in any mix of categories.</li>
-            <li><strong>2</strong> of those 4 must be at <strong>Rank 2</strong>; the other <strong>2</strong> stay at Rank 1 (use the rank dropdown when adding).</li>
-            <li>Mastery Trees and Spell Schools share one picker – filter by Category, Tag (e.g. Spell) and Special (Ignite, Freeze, Shock, …).</li>
+            <li><strong>Powers</strong> — choose <strong>2 Active</strong>, <strong>2 Passive</strong>, <strong>1 Reaction</strong>, <strong>1 Movement</strong>, and <strong>1 Active Buff</strong>. All are <strong>Rank 2</strong>.</li>
+            <li>Mastery Trees and Spell Schools share one picker – filter by Category, Subfamily, and Special (Ignite, Freeze, Shock, …).</li>
             <li>Choose your <strong>Echo</strong> (ancestry, with sub-choice / Veiled Form if required) and pick your <strong>first Echo Card</strong>.</li>
           </ul>
         </div>

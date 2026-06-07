@@ -41,28 +41,47 @@ export const CATEGORY_LABELS = {
 /**
  * Requirements for character creation per category.
  *
- * Players Guide 2988–3008 ("Choose your Powers"): a starting character
- * picks **4 Powers total** with no per-category split — only the total
- * count and the requirement that two of them be raised to Rank 2 at
- * creation. We keep this map for backward compatibility with the older
- * 7-powers-by-category UI but set every category to `0`; the actual
- * gate now lives in `CREATION_POWER_TOTAL` and `CREATION_POWERS_AT_RANK_2`
- * below.
- *
- * @deprecated UI code should branch on `CREATION_POWER_TOTAL` /
- *             `CREATION_POWERS_AT_RANK_2` instead of summing this map.
+ * Starting character: **2 Active**, **2 Passive**, **1 Reaction**,
+ * **1 Movement**, **1 Active Buff** — all at **Rank 2**.
  */
 export const CREATION_POWER_REQUIREMENTS = {
-    active: 0,
-    activeBuff: 0,
-    movement: 0,
-    reaction: 0,
-    passive: 0,
+    active: 2,
+    activeBuff: 1,
+    movement: 1,
+    reaction: 1,
+    passive: 2,
 };
-/** Players Guide 3002: total Powers picked at character creation. */
-export const CREATION_POWER_TOTAL = 4;
-/** Players Guide 3004: Powers raised to Rank 2 at character creation. */
-export const CREATION_POWERS_AT_RANK_2 = 2;
+/** Total Powers picked at character creation (sum of requirements above). */
+export const CREATION_POWER_TOTAL = 7;
+/** All starting Powers must be Rank 2 (= total count). */
+export const CREATION_POWERS_AT_RANK_2 = CREATION_POWER_TOTAL;
+/** Count embedded power items by `PowerCategory` (legacy `powerType` fallback). */
+export function countPowersByCategory(powers) {
+    const counts = {
+        active: 0,
+        activeBuff: 0,
+        movement: 0,
+        reaction: 0,
+        passive: 0,
+    };
+    for (const p of powers) {
+        const sys = p.system || {};
+        let cat = sys.category;
+        if (!cat) {
+            const pt = sys.powerType;
+            if (pt === 'buff')
+                cat = 'activeBuff';
+            else if (pt === 'utility')
+                cat = 'active';
+            else if (pt === 'active' || pt === 'passive' || pt === 'reaction' || pt === 'movement') {
+                cat = pt;
+            }
+        }
+        if (cat && cat in counts)
+            counts[cat]++;
+    }
+    return counts;
+}
 /** Structural mechanics axes used by the secondary "Effect Type" filter. */
 export const EFFECT_TYPE_KEYS = [
     'armor',

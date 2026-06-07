@@ -1723,6 +1723,16 @@
   font-style: italic;
 }
 
+.mastery-system.sheet.actor.character .echo-veiled-callout {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-left: 3px solid var(--df-accent, #c9a227);
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--df-text-primary, #d0d0d0);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
 /* Traits list */
 .mastery-system.sheet.actor.character .echo-deck-traits {
   display: flex;

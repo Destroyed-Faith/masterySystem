@@ -79,15 +79,15 @@ function renderTraitsPreview(def) {
     `
         : '';
     const veiledBlock = def.veiledForm
-        ? `<div class="echo-veiled-preview"><em>Requires choosing a Veiled Form (another Echo's appearance).</em></div>`
+        ? `<div class="echo-veiled-preview"><strong>Veiled Form (required):</strong> Pick another Echo\u2019s appearance below. Appearance only \u2014 no Traits, Size, or other mechanics from that Echo.</div>`
         : '';
     return `
     <div class="echo-traits-preview">
       <div class="echo-meta"><strong>Type:</strong> ${esc(def.creatureType)} \u00b7 <strong>Size:</strong> ${esc(def.size)} \u00b7 <strong>Speed:</strong> ${def.speed} m</div>
-      <div class="echo-summary">${esc(def.summary)}</div>
+      ${veiledBlock}
       <div class="echo-traits-list">${coreRows}</div>
       ${subBlock}
-      ${veiledBlock}
+      <div class="echo-summary">${esc(def.summary)}</div>
     </div>
   `;
 }

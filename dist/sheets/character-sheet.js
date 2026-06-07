@@ -9,7 +9,7 @@ import { getAllSchticks } from '../utils/schticks.js';
 import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
 import { showEchoCardPickDialog, showEchoCreationDialog } from './character-sheet-echo-dialog.js';
 import { buildFreshTraitUses, getActiveEchoTraits, getCardOption, getEcho, getEchoCard, getEchoSubChoice, getUnlockedCardSlots, isMrPerRest, isTraitGatedByMr } from '../utils/echos/index.js';
-import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_POWER_REQUIREMENTS, CREATION_POWER_TOTAL, CREATION_POWERS_AT_RANK_2 } from '../utils/power-catalog.js';
+import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_POWER_REQUIREMENTS, CREATION_POWER_TOTAL, CREATION_POWERS_AT_RANK_2, countPowersByCategory } from '../utils/power-catalog.js';
 import { getLanguage as getLanguageDef, normalizeKnownLanguages } from '../utils/languages.js';
 import { showLanguagesDialog } from './languages-dialog.js';
 import { findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid.js';
@@ -517,13 +517,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             if (cat && cat in categoryCounts)
                 categoryCounts[cat]++;
         }
-        /**
-         * Players Guide 2988–3008: a starting character picks **4 Powers
-         * total** (not a 2/1/1/1/2 per-category split) with **2 of those 4
-         * raised to Rank 2** at creation. The legacy per-category UI rows
-         * are kept around for visualisation only — every category requires
-         * `0` and the real gate is the totals + Rank-2 count below.
-         */
+        /** Starting character: 2 Active, 2 Passive, 1 Reaction, 1 Movement, 1 Active Buff — all Rank 2. */
         const totalPowersRequired = CREATION_POWER_TOTAL;
         const totalPowersSelected = powers.length;
         const powersAtRank2 = powers.filter((p) => Number(p.system?.level ?? 1) >= 2).length;
@@ -534,7 +528,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             selected: categoryCounts[cat],
             valid: categoryCounts[cat] === CREATION_POWER_REQUIREMENTS[cat]
         }));
-        const categoriesValid = totalPowersSelected === CREATION_POWER_TOTAL &&
+        const categoriesValid = CATEGORY_ORDER.every(cat => categoryCounts[cat] === CREATION_POWER_REQUIREMENTS[cat]) &&
+            totalPowersSelected === CREATION_POWER_TOTAL &&
             powersAtRank2 === CREATION_POWERS_AT_RANK_2;
         // --- Echo view ------------------------------------------------------------
         const rawEcho = (context.system.echo || {});
@@ -5049,7 +5044,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 if (isPower && inCreationMode) {
                     // Count remaining powers
                     const remainingPowers = this.actor.items.filter((i) => i.type === 'power');
-                    ui.notifications?.info(`Power "${itemName}" removed. ${remainingPowers.length} of 4 Powers selected.`);
+                    ui.notifications?.info(`Power "${itemName}" removed. ${remainingPowers.length} of ${CREATION_POWER_TOTAL} Powers selected.`);
                 }
                 else {
                     ui.notifications?.info(`"${itemName}" deleted.`);
@@ -6030,25 +6025,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const minDisadvantagePts = CONFIG.MASTERY?.creation?.minDisadvantagePoints ?? 2;
         // Validate powers & magic
         const powers = this.actor.items.filter((item) => item.type === 'power');
-        // Per-category validation against CREATION_POWER_REQUIREMENTS
-        const creationCategoryCounts = {
-            active: 0, activeBuff: 0, movement: 0, reaction: 0, passive: 0
-        };
-        for (const p of powers) {
-            const sys = p.system || {};
-            let cat = sys.category;
-            if (!cat) {
-                const pt = sys.powerType;
-                if (pt === 'buff')
-                    cat = 'activeBuff';
-                else if (pt === 'utility')
-                    cat = 'active';
-                else if (pt === 'active' || pt === 'passive' || pt === 'reaction' || pt === 'movement')
-                    cat = pt;
-            }
-            if (cat && cat in creationCategoryCounts)
-                creationCategoryCounts[cat]++;
-        }
+        const creationCategoryCounts = countPowersByCategory(powers);
         // Validate attribute distribution (2×8, 2×6, 2×4, 1×2)
         const attrValues = attributeKeys.map(key => system.attributes?.[key]?.value || masteryRank);
         const c8 = attrValues.filter((v) => v === 8).length;
@@ -6063,26 +6040,23 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             ui.notifications?.error(`Must spend exactly ${skillPointsConfig} skill points. Currently spent: ${skillPointsSpent}`);
             return;
         }
-        /**
-         * Players Guide 2988–3008: 4 starting Powers, 2 of them at Rank 2.
-         * The old per-category split (2 active / 1 buff / 1 movement / 1
-         * reaction / 2 passive) is no longer enforced — players choose any
-         * mix that fits the concept.
-         */
+        for (const cat of CATEGORY_ORDER) {
+            const need = CREATION_POWER_REQUIREMENTS[cat];
+            const have = creationCategoryCounts[cat];
+            if (have !== need) {
+                ui.notifications?.error(`Must choose exactly ${need} ${CATEGORY_LABELS[cat]} power(s). Currently: ${have}.`);
+                return;
+            }
+        }
         if (powers.length !== CREATION_POWER_TOTAL) {
             ui.notifications?.error(`Must choose exactly ${CREATION_POWER_TOTAL} starting Powers. Currently: ${powers.length}.`);
             return;
         }
         const startingPowersAtRank2 = powers.filter((p) => Number(p.system?.level ?? 1) >= 2).length;
         if (startingPowersAtRank2 !== CREATION_POWERS_AT_RANK_2) {
-            ui.notifications?.error(`Must raise exactly ${CREATION_POWERS_AT_RANK_2} of your starting Powers to Rank 2 (currently ${startingPowersAtRank2}). The remaining ${CREATION_POWER_TOTAL - CREATION_POWERS_AT_RANK_2} Powers stay at Rank 1.`);
+            ui.notifications?.error(`All ${CREATION_POWER_TOTAL} starting Powers must be at Rank 2 (currently ${startingPowersAtRank2}).`);
             return;
         }
-        // Reference legacy per-category map so unused-import warnings stay quiet.
-        void creationCategoryCounts;
-        void CATEGORY_ORDER;
-        void CREATION_POWER_REQUIREMENTS;
-        void CATEGORY_LABELS;
         if (disadvantagePoints < minDisadvantagePts) {
             ui.notifications?.error(`You must take at least ${minDisadvantagePts} points of disadvantages to finish creation (currently ${disadvantagePoints}).`);
             return;

@@ -20,7 +20,7 @@
 import { calculateBaseTN, calculateSaveDC } from '../combat/spell-roll-handler.js';
 import { SPECIAL_EFFECTS_BY_ID } from '../utils/special-effects.js';
 import { renderRange, renderAoe, renderDuration, renderPowerLevelTable } from '../utils/power-rendering.js';
-import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_POWER_TOTAL, CREATION_POWERS_AT_RANK_2, filterCatalog, findCatalogEntryByName, findTemplateById, getSubfamiliesByCategory, getVisibleSpecialOptions, } from '../utils/power-catalog.js';
+import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_POWER_REQUIREMENTS, CREATION_POWER_TOTAL, countPowersByCategory, filterCatalog, findCatalogEntryByName, findTemplateById, getSubfamiliesByCategory, getVisibleSpecialOptions, } from '../utils/power-catalog.js';
 /** Map Special Effect `save` text to a single save family for spell items. */
 function spellSaveTypeFromSpecialSave(save) {
     if (!save)
@@ -147,11 +147,9 @@ export async function showPowerCreationDialog(actor, options) {
       ` : `
       <div class="form-group power-form-group">
         <label class="power-form-label">Rank:</label>
-        <select name="rank" id="pc-rank" class="power-form-select">
-          <option value="1">Rank 1</option>
-          <option value="2" selected>Rank 2</option>
-        </select>
-        <p class="power-form-hint" style="color:#888;font-size:0.85em;margin:4px 0 0;">Pick exactly ${CREATION_POWERS_AT_RANK_2} Powers at Rank 2 and ${CREATION_POWER_TOTAL - CREATION_POWERS_AT_RANK_2} at Rank 1.</p>
+        <input type="hidden" name="rank" id="pc-rank" value="2" />
+        <span class="power-form-fixed-rank">Rank 2 <span class="power-form-hint">(fixed during character creation)</span></span>
+        <p class="power-form-hint" style="color:#888;font-size:0.85em;margin:4px 0 0;">All ${CREATION_POWER_TOTAL} starting Powers are Rank 2.</p>
       </div>
       `}
     </form>
@@ -175,7 +173,9 @@ export async function showPowerCreationDialog(actor, options) {
                         ui.notifications?.error('Power not found in catalog');
                         return false;
                     }
-                    const rank = parseInt($html.find('#pc-rank').val() || '1', 10);
+                    let rank = parseInt($html.find('#pc-rank').val() || '1', 10);
+                    if (!creationComplete)
+                        rank = 2;
                     const isSpell = entry.category === 'active' && !!$html.find('#pc-is-spell').prop('checked');
                     const castingAttribute = isSpell
                         ? ($html.find('#pc-casting-attr').val() || 'intellect')
@@ -198,9 +198,15 @@ export async function showPowerCreationDialog(actor, options) {
                             ui.notifications?.error(`You already have the maximum number of starting Powers (${CREATION_POWER_TOTAL}) for character creation.`);
                             return false;
                         }
-                        const atRank2 = existingPowers.filter((p) => Number(p.system?.level ?? 1) >= 2).length;
-                        if (rank >= 2 && atRank2 >= CREATION_POWERS_AT_RANK_2) {
-                            ui.notifications?.error(`You already have ${CREATION_POWERS_AT_RANK_2} Powers at Rank 2. Add the remaining at Rank 1.`);
+                        const catCounts = countPowersByCategory(existingPowers);
+                        const cat = entry.category;
+                        const catMax = CREATION_POWER_REQUIREMENTS[cat];
+                        if (catCounts[cat] >= catMax) {
+                            ui.notifications?.error(`You already have the maximum number of ${CATEGORY_LABELS[cat]} powers (${catMax}) for character creation.`);
+                            return false;
+                        }
+                        if (rank !== 2) {
+                            ui.notifications?.error('All starting Powers must be Rank 2 during character creation.');
                             return false;
                         }
                         if (rank > masteryRank) {

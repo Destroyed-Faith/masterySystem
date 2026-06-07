@@ -2,8 +2,8 @@ export const DRAGONBORN_ECHO = {
     key: 'dragonborn',
     name: 'Dragonborn',
     tagline: 'We were erased. We remember.',
-    theme: 'Hidden heirs of dragons living in human skins, guarding old lines, sealed hoards, and the last song that binds their souls.',
-    summary: 'Last living echoes of the First Dragons \u2014 a people who survived extermination by learning to disappear. Bloodlines kept narrow, gatherings rare, true names quiet. Survival taught them that being overlooked is the highest form of power.',
+    theme: 'Hidden heirs of dragons living in human skins.',
+    summary: 'Dragonborn survive by disappearing in plain sight. At creation you must pick a Veiled Form \u2014 another Echo\u2019s appearance only; you remain Dragonborn for all mechanics.',
     creatureType: 'Humanoid',
     size: 'medium',
     speed: 8,
@@ -15,20 +15,6 @@ export const DRAGONBORN_ECHO = {
             effect: 'Choose one other Echo appearance that your Dragonborn permanently wears in public. You look and sound like that Echo at a glance. You do not gain any Traits, Size benefits, or special rules from that Echo. You are still Dragonborn for all mechanics. Under close inspection by a suspicious party, the GM may call for a Deception or Performance roll (TN Standard) to maintain the veil.',
             flavor: 'Survival is camouflage.',
             usage: 'passive'
-        },
-        {
-            id: 'hoard-thread',
-            name: 'Hoard Thread',
-            effect: 'Mastery Rank per Safe Haven Rest: when you need a plausible mundane item, tool, travel supply, or modest payment, you may declare you retrieve it from your sealed hoard (GM may veto only if it breaks the fiction).',
-            flavor: 'The world can burn. The hoard remembers.',
-            usage: 'mr-per-rest'
-        },
-        {
-            id: 'melody-of-the-beginning',
-            name: 'Melody of the Beginning',
-            effect: 'Mastery Rank per Safe Haven Rest at dawn or dusk: take a silent beat and roll Lore or Occultism. On success, learn one useful truth about a place, relic, or lineage. Each Raise makes it more specific.',
-            flavor: 'For one breath, you are not alone.',
-            usage: 'mr-per-rest'
         }
     ],
     deck: [
