@@ -282,7 +282,7 @@ export async function showEchoCreationDialog(actor) {
                                 console.warn('[mastery-system] failed to auto-equip echo artifact', err);
                             }
                         }
-                        ui.notifications?.info(`Echo set to ${def.name}${grantedCount ? ` (+${grantedCount} Echo Artifact${grantedCount === 1 ? '' : 's'})` : ''}.`);
+                        ui.notifications?.info(`Echo set to ${def.name}${grantedCount ? ` (+${grantedCount} Echo Artifact${grantedCount === 1 ? '' : 's'})` : ''}. Ab MR2: 1 Stone zum Aktivieren im Equipment-Tab.`);
                         return true;
                     }
                 },

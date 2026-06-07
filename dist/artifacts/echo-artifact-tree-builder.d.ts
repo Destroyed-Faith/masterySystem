@@ -20,7 +20,7 @@ import type { EchoArtifactDefinition } from '../utils/echo-artifacts.js';
  * output (base values, powers, slot/profile, etc.) changes so the world seeder
  * can detect stale library copies and refresh them in place.
  */
-export declare const ECHO_ARTIFACT_SEED_VERSION = 6;
+export declare const ECHO_ARTIFACT_SEED_VERSION = 7;
 /** One generated node (artifact item data minus its folder, which is set at seed time). */
 export interface GeneratedArtifactNode {
     nodeId: string;
@@ -43,9 +43,9 @@ export interface GeneratedArtifactTree {
  * Build the full 10-node linear tree for one Echo Artifact.
  *
  * Node naming matches the Artifact Builder convention (`<Name> - Level N-1`).
- * Powers accumulate: a Level-N node carries every Level-Progression power from
- * Level 1 up to and including N. Base Values are resolved to their exact value
- * at each node's level.
+ * Each node stores only the abilities unlocked at that level (1 / 2 / 3 slots,
+ * upgrading in place at L4 and L7) plus embedded powers for those rows. Base
+ * Values are resolved to their exact value at each node's level.
  */
 export declare function buildEchoArtifactTree(def: EchoArtifactDefinition): GeneratedArtifactTree;
 /** Build trees for every Echo Artifact in the catalog. */

@@ -18,6 +18,7 @@ import {
   BASE_PROFILE_LABELS,
   BASE_VALUE_TYPE_LABELS,
 } from '../utils/artifact-rules.js';
+import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
 
 export class ArtifactSheetV2 extends foundry.appv1.sheets.ItemSheet {
   /** @override */
@@ -67,17 +68,18 @@ export class ArtifactSheetV2 extends foundry.appv1.sheets.ItemSheet {
       }),
     );
 
-    const abilities = (Array.isArray((system as any).levelProgression) ? (system as any).levelProgression : [])
-      .slice()
-      .sort((a: any, b: any) => (Number(a?.level) || 0) - (Number(b?.level) || 0))
-      .map((row: any) => ({
-        level: Number(row.level) || 1,
-        name: row.name || '',
-        type: row.type || '',
-        effect: row.effect || '',
-        special: row.special || '',
-        unlocked: (Number(row.level) || 1) <= currentLevel,
-      }));
+    const visibleRows = visibleAbilityRows(
+      Array.isArray((system as any).levelProgression) ? (system as any).levelProgression : [],
+      currentLevel,
+    );
+    const abilities = visibleRows.map((row: any) => ({
+      level: Number(row.level) || 1,
+      name: row.name || '',
+      type: row.type || '',
+      effect: row.effect || '',
+      special: row.special || '',
+      unlocked: true,
+    }));
 
     context.item = item;
     context.system = system;

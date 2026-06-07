@@ -9487,3 +9487,141 @@
   opacity: 0.3;
   cursor: not-allowed;
 }
+
+/* Artifact activation / upgrade — Equipment tab */
+.mastery-system.sheet.actor.character .equipment-controls--row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  height: auto !important;
+  min-height: 6px;
+}
+
+.mastery-system.sheet.actor.character .artifact-equipment-strip {
+  margin: 12px 0 16px;
+  padding: 10px 12px;
+  border: 1px solid var(--df-border, rgba(255, 255, 255, 0.12));
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.mastery-system.sheet.actor.character .artifact-equipment-strip h4 {
+  margin: 0 0 6px;
+  font-size: 13px;
+}
+
+.mastery-system.sheet.actor.character .artifact-strip-hint {
+  margin: 0 0 10px;
+  font-size: 11px;
+  color: var(--df-text-secondary, #a0a0a0);
+}
+
+.mastery-system.sheet.actor.character .artifact-strip-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mastery-system.sheet.actor.character .artifact-strip-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--df-border, rgba(255, 255, 255, 0.1));
+}
+
+.mastery-system.sheet.actor.character .artifact-strip-card--inactive {
+  border-color: rgba(220, 160, 60, 0.35);
+}
+
+.mastery-system.sheet.actor.character .artifact-strip-head {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 140px;
+}
+
+.mastery-system.sheet.actor.character .artifact-strip-level {
+  font-size: 11px;
+  color: var(--df-text-secondary, #a0a0a0);
+}
+
+.mastery-system.sheet.actor.character .artifact-strip-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.mastery-system.sheet.actor.character .artifact-strip-btn {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--df-border, rgba(255, 255, 255, 0.2));
+  background: rgba(80, 120, 200, 0.2);
+  color: inherit;
+  cursor: pointer;
+}
+
+.mastery-system.sheet.actor.character .artifact-strip-btn--upgrade {
+  background: rgba(60, 140, 90, 0.25);
+}
+
+.mastery-system.sheet.actor.character .artifact-strip-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.mastery-system.sheet.actor.character .artifact-strip-reason,
+.mastery-system.sheet.actor.character .artifact-strip-muted {
+  font-size: 10px;
+  color: var(--df-text-secondary, #a0a0a0);
+}
+
+.mastery-system.sheet.actor.character .df-artifact-badge {
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  font-size: 9px;
+  line-height: 1.2;
+  padding: 1px 3px;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.65);
+  color: #e8d48a;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.mastery-system.sheet.actor.character .df-artifact-actions {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  z-index: 3;
+  display: flex;
+  gap: 2px;
+}
+
+.mastery-system.sheet.actor.character .df-artifact-btn {
+  font-size: 9px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(80, 120, 200, 0.35);
+  color: #fff;
+  cursor: pointer;
+}
+
+.mastery-system.sheet.actor.character .df-artifact-btn--xp {
+  background: rgba(60, 140, 90, 0.4);
+}
+
+.mastery-system.sheet.actor.character .df-item-tile {
+  position: relative;
+}

@@ -6,8 +6,8 @@
  *   • Flat 8 XP per +1 artifact level (`ARTIFACT_UPGRADE_XP_COST`).
  *   • Maximum reachable artifact level = `(MR - 1) × 2`, capped at 16
  *     (`getMaxArtifactSystemLevelForMasteryRank`). MR 1 cannot evolve at all.
- *   • All Stone-based costs (link, upgrade, ultimate) and the legacy XP
- *     Ultimate cost have been removed.
+ *   • Link / activation: 1 Stone once per artifact (`ARTIFACT_LINK_STONE_COST`).
+ *   • Per-upgrade Stone costs and the legacy XP Ultimate cost have been removed.
  *
  * New Artifact spec (Artefacts.md):
  *   • Artifact Capacity = flat 4 simultaneous bound Artifacts per character
@@ -22,6 +22,7 @@ import {
 } from './artifact-rules.js';
 
 export const ARTIFACT_UPGRADE_XP_COST = 8;
+export const ARTIFACT_LINK_STONE_COST = 1;
 export const ARTIFACT_MAX_SYSTEM_LEVEL = 16;
 
 /**
@@ -64,6 +65,23 @@ export function getMaxArtifactSpecLevelForMasteryRank(masteryRank: number): numb
 
 export function canArtifactLink(masteryRank: number): boolean {
   return getMaxArtifactSystemLevelForMasteryRank(masteryRank) >= 2;
+}
+
+/** Current spendable stones on the actor (`system.stones.current`). */
+export function actorStonesCurrent(actor: any): number {
+  return Math.max(0, Number(actor?.system?.stones?.current) || 0);
+}
+
+export function canSpendArtifactLinkStone(actor: any): boolean {
+  return actorStonesCurrent(actor) >= ARTIFACT_LINK_STONE_COST;
+}
+
+/** Deduct one Stone for artifact activation. Returns false when insufficient. */
+export async function spendArtifactLinkStone(actor: Actor): Promise<boolean> {
+  if (!canSpendArtifactLinkStone(actor)) return false;
+  const next = actorStonesCurrent(actor) - ARTIFACT_LINK_STONE_COST;
+  await actor.update({ 'system.stones.current': next });
+  return true;
 }
 
 // ----------------------------------------------------------------------
@@ -115,6 +133,41 @@ export function getArtifactBindingKind(item: any): ArtifactBindingKind {
   if (sysBinding === 'echo') return 'echo';
   if (sysBinding === 'bound') return 'bound';
   return 'unbound';
+}
+
+/** True when the artifact occupies a paperdoll slot or is echo-bound (always worn). */
+export function isArtifactEquippedOnActor(item: any): boolean {
+  if (!item) return false;
+  if (getArtifactBindingKind(item) === 'echo') return true;
+  if ((item.system as any)?.equipped === true) return true;
+  try {
+    const flagSlot = item.getFlag?.('mastery-system', 'equipment')?.slot;
+    if (typeof flagSlot === 'string' && flagSlot.length > 0) return true;
+  } catch {
+    // ignore
+  }
+  return false;
+}
+
+/**
+ * Read whether this embedded artifact is activated (`linked`) for the actor.
+ * Progress is stored on the world root item's `actorLevels` flag.
+ */
+export function isArtifactLinkedOnActor(actor: any, item: any): boolean {
+  const rootWorldId = item?.getFlag?.('mastery-system', 'evolutionRootItemId');
+  if (!rootWorldId || !actor?.id) return false;
+  const root = (typeof game !== 'undefined' ? (game as any)?.items?.get(rootWorldId) : null);
+  if (!root) return false;
+  const rootNodeId = root.getFlag?.('mastery-system', 'nodeId') as string | undefined;
+  if (!rootNodeId) return false;
+  const actorLevels = (root.getFlag?.('mastery-system', 'actorLevels') || {}) as Record<string, unknown>;
+  return readActorArtifactProgress(actorLevels[actor.id], rootNodeId).linked;
+}
+
+/** Equipped and activated — required for mechanical artifact benefits. */
+export function isArtifactMechanicallyActive(actor: any, item: any): boolean {
+  if (!item || item.type !== 'artifact') return false;
+  return isArtifactEquippedOnActor(item) && isArtifactLinkedOnActor(actor, item);
 }
 
 /**

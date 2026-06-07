@@ -30,7 +30,6 @@ import {
   buildEchoStoneFunction,
   buildEchoProgressionPicks,
 } from '../utils/echo-artifacts.js';
-import { deriveLevelProgressionFromPicks } from './progression-compiler.js';
 import type { ArtifactProgressionPick } from '../types/item.js';
 import {
   bodyArmorBonusForLevel,
@@ -38,6 +37,10 @@ import {
   minorArmorForLevel,
   weaponDamageForLevel,
 } from '../utils/artifact-base-derive.js';
+import {
+  resolveFullLevelProgression,
+  visibleAbilityRows,
+} from '../utils/artifact-visible-abilities.js';
 import {
   getMinorMovementBaselineB,
   getPaperdollSlotsForArtifact,
@@ -48,7 +51,7 @@ import {
  * output (base values, powers, slot/profile, etc.) changes so the world seeder
  * can detect stale library copies and refresh them in place.
  */
-export const ECHO_ARTIFACT_SEED_VERSION = 6;
+export const ECHO_ARTIFACT_SEED_VERSION = 7;
 
 const ARTIFACT_LEVELS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
 const ALL_POWER_LEVEL_KEYS: PowerLevelKey[] = [
@@ -87,6 +90,15 @@ function weaponSpecialRankForLevel(table: [number, number, number, number], leve
 
 function clampLevel(level: number): number {
   return Math.max(1, Math.min(10, Math.floor(Number(level) || 1)));
+}
+
+/** Scent of Blood tier — Detect L4, Locate L7, Identify L10. */
+function scentOfBloodTierForLevel(level: number): string {
+  const l = clampLevel(level);
+  if (l >= 10) return 'Identify';
+  if (l >= 7) return 'Locate';
+  if (l >= 4) return 'Detect';
+  return '';
 }
 
 /** A single Base Value slot on an echo artifact, with an exact per-level value. */
@@ -149,6 +161,17 @@ const BASE_VALUE_TABLES: Record<string, BaseValueSpec[]> = {
   ],
   oracleFrame: [
     { slot: 'a', type: 'bodyArmor', label: 'Light Echo Armor', unlock: 1, valueAt: (l) => lightEchoArmorForLevel(l), note: 'No Light Armor drawback.' },
+  ],
+  dragonHead: [
+    { slot: 'a', type: 'weaponDamage', label: 'Bite Weapon Damage', unlock: 1, valueAt: (l) => weaponDamageForLevel(l) },
+    {
+      slot: 'b',
+      type: 'sense',
+      label: 'Scent of Blood',
+      unlock: 4,
+      valueAt: (l) => scentOfBloodTierForLevel(l),
+      note: 'Detect from L4, Locate from L7, Identify at L10.',
+    },
   ],
 };
 
@@ -352,19 +375,17 @@ export interface GeneratedArtifactTree {
  * Build the full 10-node linear tree for one Echo Artifact.
  *
  * Node naming matches the Artifact Builder convention (`<Name> - Level N-1`).
- * Powers accumulate: a Level-N node carries every Level-Progression power from
- * Level 1 up to and including N. Base Values are resolved to their exact value
- * at each node's level.
+ * Each node stores only the abilities unlocked at that level (1 / 2 / 3 slots,
+ * upgrading in place at L4 and L7) plus embedded powers for those rows. Base
+ * Values are resolved to their exact value at each node's level.
  */
 export function buildEchoArtifactTree(def: EchoArtifactDefinition): GeneratedArtifactTree {
   const kind = deriveArtifactKind(def.baseProfile);
   const img = iconForKind(kind);
   const paperdoll = getPaperdollSlotsForArtifact(def.slot as any, def.baseProfile as any);
 
-  // Picks are the single source of truth: the editable picks drive the 1-10
-  // Level Progression table (auto-scaled across stages I/II/III at PL 4/10/16).
   const picks = buildEchoProgressionPicks(def) as ArtifactProgressionPick[];
-  const levelProgression = deriveLevelProgressionFromPicks(picks);
+  const fullProgression = resolveFullLevelProgression(def.levelProgression, picks);
 
   const nodeId = (level: number) => `${def.key}-l${level}`;
 
@@ -374,6 +395,9 @@ export function buildEchoArtifactTree(def: EchoArtifactDefinition): GeneratedArt
     const childNodeId = level === 10 ? null : nodeId(level + 1);
 
     const isWeapon = kind === 'weapon';
+    const levelProgression = visibleAbilityRows(fullProgression, level);
+    const powers = levelProgression.map((row) => buildEmbeddedPower(def.key, row));
+
     const system: Record<string, unknown> = {
       level,
       currentLevel: level,
@@ -389,12 +413,7 @@ export function buildEchoArtifactTree(def: EchoArtifactDefinition): GeneratedArt
       binding: 'echo',
       echoKey: def.echoKey,
       baseValues: baseValuesAtLevel(def.key, level),
-      // Generated from the editable picks so the Node Editor's top fields match
-      // the 1-10 table; the same table is shared by every node (runtime filters
-      // by currentLevel).
       levelProgression,
-      // The *active* Stone Function is only applied mechanically once the node
-      // reaches its unlock level.
       stoneFunction:
         def.stoneFunction && level >= def.stoneFunction.level
           ? buildEchoStoneFunction(def)
@@ -404,7 +423,7 @@ export function buildEchoArtifactTree(def: EchoArtifactDefinition): GeneratedArt
       description: def.restriction ? `${def.description}\n\n${def.restriction}` : def.description,
       bonuses: { attack: 0, damage: '', defense: 0, specials: [] },
       requirements: { stones: 0, masteryRank: 1 },
-      powers: [],
+      powers,
       inventorySize: '1x1',
       ...(isWeapon ? { artifactWeapon: weaponProfileAtLevel(def, level) } : {}),
       ...(paperdoll.length ? { equipSlots: paperdoll } : {}),

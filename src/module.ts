@@ -67,6 +67,10 @@ import {
   registerPaperdollSlotCanonicalSetting,
   runPaperdollSlotCanonical,
 } from './migrations/paperdoll-slot-canonical.js';
+import {
+  registerArtifactEchoLinkMigrationSetting,
+  runArtifactEchoLinkMigration,
+} from './migrations/artifact-echo-link-migration.js';
 
 // Dice roller functions are imported in sheets where needed
 
@@ -174,6 +178,7 @@ Hooks.once('init', async function() {
   // drop the retired `system.xp.spentAttributes` field.
   registerXpCurrentStepCutoverSetting();
   registerArtifactSpecBackfillSetting();
+  registerArtifactEchoLinkMigrationSetting();
   registerEchoArtifactTreeMigrationSetting();
   registerPaperdollSlotCanonicalSetting();
   
@@ -2598,6 +2603,12 @@ Hooks.once('ready', async function() {
     await runArtifactSpecBackfill();
   } catch (error) {
     console.warn('Mastery System | Artifact spec backfill failed', error);
+  }
+
+  try {
+    await runArtifactEchoLinkMigration();
+  } catch (error) {
+    console.warn('Mastery System | Echo artifact link reset migration failed', error);
   }
 
   // One-shot Echo Artifact → Builder-Tree migration (GM-only, guarded). Runs

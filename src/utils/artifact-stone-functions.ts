@@ -27,7 +27,7 @@ import {
     getStoneRefreshAmount,
     getStoneBatteryCapacity,
 } from './artifact-rules.js';
-import { getArtifactBindingKind } from './artifact-actor-rules.js';
+import { isArtifactMechanicallyActive } from './artifact-actor-rules.js';
 import type { ArtifactStoneFunction, ArtifactStoneFunctionKind } from '../types/item.js';
 
 export interface ArtifactStoneFunctionRecord {
@@ -44,19 +44,6 @@ export interface ArtifactStoneFunctionRecord {
     artifactItemId?: string;
     /** Stone Power id (only set for Support). */
     stonePowerId?: string;
-}
-
-function isArtifactEquipped(item: any): boolean {
-    if (!item) return false;
-    if (getArtifactBindingKind(item) === 'echo') return true;
-    if ((item.system as any)?.equipped === true) return true;
-    try {
-        const flagSlot = item.getFlag?.('mastery-system', 'equipment')?.slot;
-        if (typeof flagSlot === 'string' && flagSlot.length > 0) return true;
-    } catch {
-        // ignore
-    }
-    return false;
 }
 
 function resolveStoneFunction(item: any): ArtifactStoneFunction | null {
@@ -94,7 +81,7 @@ export function getArtifactStoneFunctions(actor: any): ArtifactStoneFunctionReco
     const items: any[] = Array.from(actor.items);
     for (const item of items) {
         if (item?.type !== 'artifact') continue;
-        if (!isArtifactEquipped(item)) continue;
+        if (!isArtifactMechanicallyActive(actor, item)) continue;
         const fn = resolveStoneFunction(item);
         if (!fn) continue;
         const sys = (item.system as any) || {};

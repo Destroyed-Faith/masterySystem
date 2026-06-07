@@ -33,86 +33,6 @@
         "duration": "Instant",
         "effect": "Fly up to **6 m**.",
         "special": ""
-      },
-      {
-        "level": 2,
-        "name": "Evade I",
-        "type": "Active Buff",
-        "range": "Self",
-        "aoe": "",
-        "duration": "MR Rounds",
-        "effect": "Gain **+26 Evade**.",
-        "special": ""
-      },
-      {
-        "level": 3,
-        "name": "Evade I",
-        "type": "Passive",
-        "range": "Self",
-        "aoe": "",
-        "duration": "",
-        "effect": "Gain **+8 Evade**.",
-        "special": ""
-      },
-      {
-        "level": 4,
-        "name": "Flight II",
-        "type": "Movement",
-        "range": "Self",
-        "aoe": "",
-        "duration": "Instant",
-        "effect": "Fly up to **15 m**.",
-        "special": ""
-      },
-      {
-        "level": 5,
-        "name": "Evade II",
-        "type": "Active Buff",
-        "range": "Self",
-        "aoe": "",
-        "duration": "MR Rounds",
-        "effect": "Gain **+62 Evade**.",
-        "special": ""
-      },
-      {
-        "level": 6,
-        "name": "Evade II",
-        "type": "Passive",
-        "range": "Self",
-        "aoe": "",
-        "duration": "",
-        "effect": "Gain **+20 Evade**.",
-        "special": ""
-      },
-      {
-        "level": 7,
-        "name": "Flight III",
-        "type": "Movement",
-        "range": "Self",
-        "aoe": "",
-        "duration": "Instant",
-        "effect": "Fly up to **24 m**.",
-        "special": ""
-      },
-      {
-        "level": 8,
-        "name": "Evade III",
-        "type": "Active Buff",
-        "range": "Self",
-        "aoe": "",
-        "duration": "MR Rounds",
-        "effect": "Gain **+98 Evade**.",
-        "special": ""
-      },
-      {
-        "level": 9,
-        "name": "Evade III",
-        "type": "Passive",
-        "range": "Self",
-        "aoe": "",
-        "duration": "",
-        "effect": "Gain **+32 Evade**.",
-        "special": ""
       }
     ],
     "stoneFunction": null,
@@ -145,7 +65,214 @@
       "stones": 0,
       "masteryRank": 1
     },
-    "powers": [],
+    "powers": [
+      {
+        "id": "serpentScales-pw-1",
+        "name": "Flight I",
+        "category": "movement",
+        "tags": [],
+        "cost": {
+          "action": "movement"
+        },
+        "levels": {
+          "1": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "2": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "3": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "4": {
+            "type": "Movement",
+            "range": {
+              "kind": "self"
+            },
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": "Fly up to **6 m**."
+            },
+            "specials": [],
+            "lvl": 1
+          },
+          "5": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "6": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "7": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "8": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "9": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "10": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "11": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "12": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "13": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "14": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "15": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          },
+          "16": {
+            "type": "",
+            "range": null,
+            "aoe": null,
+            "duration": {
+              "kind": "instant"
+            },
+            "effect": {
+              "text": ""
+            },
+            "specials": []
+          }
+        }
+      }
+    ],
     "inventorySize": "1x1",
     "equipSlots": [
       "body"
@@ -161,7 +288,7 @@
       "isRoot": true,
       "echoBound": "dragonborn",
       "echoArtifactKey": "serpentScales",
-      "seedVersion": 6
+      "seedVersion": 7
     }
   },
   "_id": "3WXKMEIu8BLEZmKb",

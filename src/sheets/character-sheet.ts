@@ -43,6 +43,8 @@ import { calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculat
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { matchesMasteryWeaponCatalog } from '../utils/weapons';
 import { buildRadialManeuverPrefsContext } from '../utils/radial-maneuver-prefs.js';
+import { ARTIFACT_LINK_STONE_COST, ARTIFACT_UPGRADE_XP_COST } from '../utils/artifact-actor-rules.js';
+import { buildArtifactEvolutionCards } from '../artifacts/artifact-evolution-actions.js';
 import type { MinorExpressionAttribute } from '../utils/minor-expressions.js';
 // Removed: showWeaponCreationDialog, showArmorCreationDialog, showShieldCreationDialog
 // Replaced with General Items Storage and Store dialogs
@@ -1416,6 +1418,27 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     });
     const movementPenaltyM = movementPenaltyForLoad(loadZone);
 
+    const evolutionCards = buildArtifactEvolutionCards(this.actor);
+    const cardByEmbId = new Map(evolutionCards.map((c) => [c.embeddedId, c]));
+
+    const mapArtifactMeta = (item: any) => {
+      if (!item || item.type !== 'artifact') return null;
+      const card = cardByEmbId.get(item.id);
+      if (!card) return null;
+      return {
+        embeddedId: card.embeddedId,
+        rootWorldId: card.rootWorldId,
+        displayName: card.displayName,
+        currentSystemLevel: card.currentSystemLevel,
+        linked: card.linked,
+        canActivate: card.canActivate,
+        linkDisabledReason: card.linkDisabledReason,
+        nextUpgrade: card.nextUpgrade,
+        linkStoneCost: ARTIFACT_LINK_STONE_COST,
+        upgradeXpCost: ARTIFACT_UPGRADE_XP_COST,
+      };
+    };
+
     return {
       showStash: this._showStash,
       bandCols: BAND_COLS,
@@ -1440,10 +1463,19 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         cells: stashCellsData.cells,
         overflow: stashCellsData.overflow
       },
-      equipSlots: slotDefs.map(def => ({
-        ...def,
-        item: slotMap[def.key] || null
-      }))
+      equipSlots: slotDefs.map((def) => {
+        const item = slotMap[def.key] || null;
+        return {
+          ...def,
+          item,
+          artifactMeta: mapArtifactMeta(item),
+        };
+      }),
+      artifactStrip: evolutionCards,
+      artifactConstants: {
+        linkStone: ARTIFACT_LINK_STONE_COST,
+        upXp: ARTIFACT_UPGRADE_XP_COST,
+      },
     };
   }
 
@@ -1806,6 +1838,36 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       if (!this.actor.isOwner) return;
       const { openArtifactEvolutionDialog } = await import('../artifacts/artifact-evolution-dialog.js');
       await openArtifactEvolutionDialog(this.actor);
+    });
+
+    html.on('click', '[data-action="artifact-activate"]', async (ev: JQuery.ClickEvent) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      if (!this.actor.isOwner) return;
+      const $btn = $(ev.currentTarget);
+      const { linkArtifactForActor } = await import('../artifacts/artifact-evolution-actions.js');
+      const ok = await linkArtifactForActor(
+        this.actor,
+        String($btn.data('root-id')),
+        String($btn.data('emb-id')),
+      );
+      if (ok) this.render(false);
+    });
+
+    html.on('click', '[data-action="artifact-upgrade"]', async (ev: JQuery.ClickEvent) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      if (!this.actor.isOwner) return;
+      const $btn = $(ev.currentTarget);
+      const { upgradeArtifactForActor } = await import('../artifacts/artifact-evolution-actions.js');
+      const ok = await upgradeArtifactForActor(
+        this.actor,
+        String($btn.data('root-id')),
+        String($btn.data('emb-id')),
+        String($btn.data('target-world-id')),
+        String($btn.data('target-node-id')),
+      );
+      if (ok) this.render(false);
     });
     
     // Schticks selection (per rank)

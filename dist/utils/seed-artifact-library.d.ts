@@ -42,7 +42,7 @@ export declare function forceRefreshEchoArtifactLibrary(): Promise<number>;
  *
  * The embedded item carries `evolutionRootItemId` / `evolutionNodeId` so the
  * Artifact Evolution dialog can walk the tree, and the world root records this
- * actor's progress in `actorLevels` (echo artifacts start already linked).
+ * actor's progress in `actorLevels` (echo artifacts start inactive until activated).
  *
  * @returns the created embedded item, or `null` if the world library has not
  *          been seeded yet (caller should fall back to a single-item grant).

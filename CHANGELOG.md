@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.22] - 2026-06-06
+
+### Added
+
+- **Artifact activation:** Linking an artifact now costs **1 Stone** once (MR 2+). Echo artifacts start **inactive** on grant and must be activated like any other tree-linked artifact.
+- **Equipment tab UI:** Artifact strip and paperdoll badges with **Activate (1 Stone)** / **+1 (8 XP)** controls; **Artifacts** button opens the evolution dialog.
+
+### Changed
+
+- **Mechanical gating:** Stone Functions and artifact mechanical benefits require the artifact to be **activated** (`linked`), not merely equipped.
+- **Echo grant:** `grantEchoArtifactTreeToActor` writes `linked: false` on the world root progress flag.
+
+### Fixed
+
+- **Migration:** MR1 characters with legacy auto-linked Echo artifacts are reset to inactive (one-shot world migration).
+
 ## [0.7.0] - 2026-05-25
 
 Mastery System refactor release — neues XP-Spec, tier-basierte Stone Powers,

@@ -17,7 +17,7 @@
  * per-actor progress stored on the root (`actorLevels`) is preserved.
  */
 import { buildAllEchoArtifactTrees, ECHO_ARTIFACT_SEED_VERSION, } from '../artifacts/echo-artifact-tree-builder.js';
-import { readActorArtifactProgress, serializeActorArtifactProgress, } from './artifact-actor-rules.js';
+import { serializeActorArtifactProgress, } from './artifact-actor-rules.js';
 import { pushWorldArtifactNodeToEmbeddedActors } from './artifact-embedded-sync.js';
 export const ECHO_ARTIFACT_LIBRARY_FOLDER_NAME = 'Echo Artifacts';
 function findItemFolder(name, parentId) {
@@ -186,7 +186,7 @@ export async function forceRefreshEchoArtifactLibrary() {
  *
  * The embedded item carries `evolutionRootItemId` / `evolutionNodeId` so the
  * Artifact Evolution dialog can walk the tree, and the world root records this
- * actor's progress in `actorLevels` (echo artifacts start already linked).
+ * actor's progress in `actorLevels` (echo artifacts start inactive until activated).
  *
  * @returns the created embedded item, or `null` if the world library has not
  *          been seeded yet (caller should fall back to a single-item grant).
@@ -213,10 +213,8 @@ export async function grantEchoArtifactTreeToActor(actor, echoArtifactKey) {
     await created.setFlag('mastery-system', 'evolutionNodeId', rootNodeId);
     const actorId = actor.id;
     const levels = { ...(rootItem.getFlag('mastery-system', 'actorLevels') || {}) };
-    const prev = readActorArtifactProgress(levels[actorId], rootNodeId);
-    // Echo-bound artifacts are intrinsic → always linked.
-    levels[actorId] = serializeActorArtifactProgress({ nodeId: rootNodeId, linked: true });
-    void prev;
+    // Echo-bound artifacts are equipped but inactive until the player spends 1 Stone at MR2+.
+    levels[actorId] = serializeActorArtifactProgress({ nodeId: rootNodeId, linked: false });
     await rootItem.setFlag('mastery-system', 'actorLevels', levels);
     return created;
 }

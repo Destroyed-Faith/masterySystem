@@ -43,6 +43,7 @@ import { registerArtifactSpecBackfillSetting, runArtifactSpecBackfill, } from '.
 import { registerEchoArtifactTreeMigrationSetting, runEchoArtifactTreeMigration, } from './migrations/echo-artifact-tree-migration.js';
 import { runElvenStrideLineageMigration } from './migrations/elven-stride-lineage-migration.js';
 import { registerPaperdollSlotCanonicalSetting, runPaperdollSlotCanonical, } from './migrations/paperdoll-slot-canonical.js';
+import { registerArtifactEchoLinkMigrationSetting, runArtifactEchoLinkMigration, } from './migrations/artifact-echo-link-migration.js';
 // Dice roller functions are imported in sheets where needed
 console.log('Mastery System | All imports completed');
 // Register Handlebars helpers immediately (before init hook)
@@ -131,6 +132,7 @@ Hooks.once('init', async function () {
     // drop the retired `system.xp.spentAttributes` field.
     registerXpCurrentStepCutoverSetting();
     registerArtifactSpecBackfillSetting();
+    registerArtifactEchoLinkMigrationSetting();
     registerEchoArtifactTreeMigrationSetting();
     registerPaperdollSlotCanonicalSetting();
     // Setup XP Management inline in settings
@@ -2369,6 +2371,12 @@ Hooks.once('ready', async function () {
     }
     catch (error) {
         console.warn('Mastery System | Artifact spec backfill failed', error);
+    }
+    try {
+        await runArtifactEchoLinkMigration();
+    }
+    catch (error) {
+        console.warn('Mastery System | Echo artifact link reset migration failed', error);
     }
     // One-shot Echo Artifact → Builder-Tree migration (GM-only, guarded). Runs
     // after the library is seeded above so legacy single-item grants can be

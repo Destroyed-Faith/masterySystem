@@ -12,6 +12,7 @@
  * Artifact Builder node editor — this sheet never edits embedded powers.
  */
 import { ARTIFACT_SLOT_LABELS, BASE_PROFILE_LABELS, BASE_VALUE_TYPE_LABELS, } from '../utils/artifact-rules.js';
+import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
 export class ArtifactSheetV2 extends foundry.appv1.sheets.ItemSheet {
     /** @override */
     static get defaultOptions() {
@@ -50,16 +51,14 @@ export class ArtifactSheetV2 extends foundry.appv1.sheets.ItemSheet {
             label: bv.label || '',
             value: bv.value != null && bv.value !== '' ? String(bv.value) : bv.note || '',
         }));
-        const abilities = (Array.isArray(system.levelProgression) ? system.levelProgression : [])
-            .slice()
-            .sort((a, b) => (Number(a?.level) || 0) - (Number(b?.level) || 0))
-            .map((row) => ({
+        const visibleRows = visibleAbilityRows(Array.isArray(system.levelProgression) ? system.levelProgression : [], currentLevel);
+        const abilities = visibleRows.map((row) => ({
             level: Number(row.level) || 1,
             name: row.name || '',
             type: row.type || '',
             effect: row.effect || '',
             special: row.special || '',
-            unlocked: (Number(row.level) || 1) <= currentLevel,
+            unlocked: true,
         }));
         context.item = item;
         context.system = system;

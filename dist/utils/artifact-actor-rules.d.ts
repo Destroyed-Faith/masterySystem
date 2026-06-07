@@ -6,8 +6,8 @@
  *   • Flat 8 XP per +1 artifact level (`ARTIFACT_UPGRADE_XP_COST`).
  *   • Maximum reachable artifact level = `(MR - 1) × 2`, capped at 16
  *     (`getMaxArtifactSystemLevelForMasteryRank`). MR 1 cannot evolve at all.
- *   • All Stone-based costs (link, upgrade, ultimate) and the legacy XP
- *     Ultimate cost have been removed.
+ *   • Link / activation: 1 Stone once per artifact (`ARTIFACT_LINK_STONE_COST`).
+ *   • Per-upgrade Stone costs and the legacy XP Ultimate cost have been removed.
  *
  * New Artifact spec (Artefacts.md):
  *   • Artifact Capacity = flat 4 simultaneous bound Artifacts per character
@@ -17,6 +17,7 @@
  */
 import { type ArtifactSlot } from './artifact-rules.js';
 export declare const ARTIFACT_UPGRADE_XP_COST = 8;
+export declare const ARTIFACT_LINK_STONE_COST = 1;
 export declare const ARTIFACT_MAX_SYSTEM_LEVEL = 16;
 /**
  * New spec: flat Artifact Capacity. Every character can bind up to four
@@ -42,6 +43,11 @@ export declare function getMaxArtifactSystemLevelForMasteryRank(masteryRank: num
  */
 export declare function getMaxArtifactSpecLevelForMasteryRank(masteryRank: number): number;
 export declare function canArtifactLink(masteryRank: number): boolean;
+/** Current spendable stones on the actor (`system.stones.current`). */
+export declare function actorStonesCurrent(actor: any): number;
+export declare function canSpendArtifactLinkStone(actor: any): boolean;
+/** Deduct one Stone for artifact activation. Returns false when insufficient. */
+export declare function spendArtifactLinkStone(actor: Actor): Promise<boolean>;
 /** Binding kind for an artifact instance on a character. */
 export type ArtifactBindingKind = 'unbound' | 'bound' | 'echo';
 /** Per-actor progress record kept on the root world item flag. */
@@ -59,6 +65,15 @@ export declare function serializeActorArtifactProgress(p: ArtifactActorProgress)
  * - else `'unbound'`
  */
 export declare function getArtifactBindingKind(item: any): ArtifactBindingKind;
+/** True when the artifact occupies a paperdoll slot or is echo-bound (always worn). */
+export declare function isArtifactEquippedOnActor(item: any): boolean;
+/**
+ * Read whether this embedded artifact is activated (`linked`) for the actor.
+ * Progress is stored on the world root item's `actorLevels` flag.
+ */
+export declare function isArtifactLinkedOnActor(actor: any, item: any): boolean;
+/** Equipped and activated — required for mechanical artifact benefits. */
+export declare function isArtifactMechanicallyActive(actor: any, item: any): boolean;
 /**
  * Count how many of the actor's embedded artifact items currently count
  * against Artifact Capacity. An item counts when its binding is `bound`

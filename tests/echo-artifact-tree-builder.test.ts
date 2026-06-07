@@ -5,7 +5,7 @@ import {
   ECHO_ARTIFACT_SEED_VERSION,
 } from '../src/artifacts/echo-artifact-tree-builder.js';
 import { ECHO_ARTIFACTS, getEchoArtifact } from '../src/utils/echo-artifacts.js';
-import { deriveLevelProgressionFromPicks } from '../src/artifacts/progression-compiler.js';
+import { visibleAbilityRows, resolveFullLevelProgression } from '../src/utils/artifact-visible-abilities.js';
 
 function flag(node: any, key: string) {
   return node.itemData.flags['mastery-system'][key];
@@ -54,10 +54,15 @@ describe('Echo Artifact tree builder — structure', () => {
     expect(a.nodes[9].nodeId).toBe('serpentScales-l10');
   });
 
-  it('carries no embedded powers (picks-drive model)', () => {
+  it('embeds one power per visible ability row at each level', () => {
     for (const tree of buildAllEchoArtifactTrees()) {
       for (const node of tree.nodes) {
-        expect((node.itemData.system as any).powers).toEqual([]);
+        const sys = node.itemData.system as any;
+        expect(sys.powers.length).toBe(sys.levelProgression.length);
+        for (const p of sys.powers) {
+          expect(p.id).toMatch(/^[\w]+-pw-\d+$/);
+          expect(p.name).toBeTruthy();
+        }
       }
     }
   });
@@ -92,25 +97,23 @@ describe('Echo Artifact tree builder — exact Base Values', () => {
     expect(sys.equipSlots).toEqual(['mainhand', 'offhand']);
   });
 
-  it('generates the level progression table from the picks (levels 1–9, no L10)', () => {
+  it('stores only abilities unlocked at each node level (1 / 2 / 3 slots)', () => {
     for (const tree of buildAllEchoArtifactTrees()) {
+      const def = getEchoArtifact(tree.echoArtifactKey)!;
+      const full = resolveFullLevelProgression(def.levelProgression, (tree.nodes[0].itemData.system as any).progressionPicks);
       for (const node of tree.nodes) {
         const sys = node.itemData.system as any;
-        const lp = sys.levelProgression;
-        expect(Array.isArray(lp)).toBe(true);
-        // Derived exactly from the node's picks.
-        expect(lp).toEqual(deriveLevelProgressionFromPicks(sys.progressionPicks));
-        // No Level 10 Ultimate row; only the picks' staged levels appear.
-        for (const row of lp) {
-          expect(row.level).toBeGreaterThanOrEqual(1);
-          expect(row.level).toBeLessThanOrEqual(9);
-        }
+        expect(sys.levelProgression).toEqual(visibleAbilityRows(full, node.level));
+        expect(sys.levelProgression.length).toBeLessThanOrEqual(node.level >= 10 ? 4 : 3);
+        if (node.level === 1) expect(sys.levelProgression).toHaveLength(1);
+        if (node.level === 2) expect(sys.levelProgression).toHaveLength(2);
+        if (node.level >= 3 && node.level <= 9) expect(sys.levelProgression).toHaveLength(3);
       }
     }
   });
 
   it('stamps the current seed version on every node (for in-place refresh)', () => {
-    expect(ECHO_ARTIFACT_SEED_VERSION).toBe(6);
+    expect(ECHO_ARTIFACT_SEED_VERSION).toBe(7);
     const tree = buildEchoArtifactTree(getEchoArtifact('titanScars')!);
     for (const node of tree.nodes) {
       expect(flag(node, 'seedVersion')).toBe(ECHO_ARTIFACT_SEED_VERSION);
@@ -154,5 +157,31 @@ describe('Echo Artifact tree builder — Stone Function auto-fill', () => {
     for (const node of tree.nodes) {
       expect((node.itemData.system as any).stoneFunction).toBeNull();
     }
+  });
+});
+
+describe('Echo Artifact tree builder — Dragon Head', () => {
+  it('has Bite damage and gated Scent of Blood base values', () => {
+    const tree = buildEchoArtifactTree(getEchoArtifact('dragonHead')!);
+    const l1 = (tree.nodes[0].itemData.system as any).baseValues;
+    expect(l1.map((b: any) => b.type)).toEqual(['weaponDamage']);
+    expect(l1[0].value).toBe('1d8');
+
+    const l4 = (tree.nodes[3].itemData.system as any).baseValues;
+    expect(l4.map((b: any) => b.label)).toEqual(['Bite Weapon Damage', 'Scent of Blood']);
+    expect(l4.find((b: any) => b.label === 'Scent of Blood').value).toBe('Detect');
+
+    const l10bv = (tree.nodes[9].itemData.system as any).baseValues;
+    expect(l10bv.find((b: any) => b.label === 'Scent of Blood').value).toBe('Identify');
+  });
+
+  it('exposes Breath / Roar / Recovery from authored progression', () => {
+    const tree = buildEchoArtifactTree(getEchoArtifact('dragonHead')!);
+    const l3 = (tree.nodes[2].itemData.system as any).levelProgression.map((r: any) => r.name);
+    expect(l3).toEqual(['Breath Weapon I', 'Draconic Roar I', 'Draconic Recovery I']);
+
+    const l10 = (tree.nodes[9].itemData.system as any).levelProgression.map((r: any) => r.name);
+    expect(l10).toContain('True Dragon Head');
+    expect(l10).toHaveLength(4);
   });
 });

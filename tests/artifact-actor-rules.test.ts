@@ -1,14 +1,22 @@
 import { describe, expect, it } from 'vitest';
 import {
+  ARTIFACT_LINK_STONE_COST,
   ARTIFACT_MAX_SYSTEM_LEVEL,
   ARTIFACT_UPGRADE_XP_COST,
+  actorStonesCurrent,
   canArtifactLink,
+  canSpendArtifactLinkStone,
   getMaxArtifactSystemLevelForMasteryRank,
+  isArtifactMechanicallyActive,
   readActorArtifactProgress,
   serializeActorArtifactProgress,
 } from '../src/utils/artifact-actor-rules.js';
 
 describe('Artifact constants (new spec)', () => {
+  it('activation costs 1 Stone once', () => {
+    expect(ARTIFACT_LINK_STONE_COST).toBe(1);
+  });
+
   it('upgrade costs flat 8 XP per +1', () => {
     expect(ARTIFACT_UPGRADE_XP_COST).toBe(8);
   });
@@ -61,6 +69,28 @@ describe('readActorArtifactProgress', () => {
     const out = readActorArtifactProgress(3, root);
     expect(out.nodeId).toBe(root);
     expect(out.linked).toBe(false);
+  });
+});
+
+describe('artifact link stone helpers', () => {
+  it('canSpendArtifactLinkStone requires at least 1 stone', () => {
+    const actor = { system: { stones: { current: 0 } } };
+    expect(canSpendArtifactLinkStone(actor)).toBe(false);
+    expect(actorStonesCurrent({ system: { stones: { current: 1 } } })).toBe(1);
+    expect(canSpendArtifactLinkStone({ system: { stones: { current: 1 } } })).toBe(true);
+  });
+});
+
+describe('isArtifactMechanicallyActive', () => {
+  it('returns false without linked progress (no game.items)', () => {
+    const actor = { id: 'a1', items: [] };
+    const item = {
+      type: 'artifact',
+      id: 'emb1',
+      system: { binding: 'echo' },
+      getFlag: () => 'root1',
+    };
+    expect(isArtifactMechanicallyActive(actor, item)).toBe(false);
   });
 });
 

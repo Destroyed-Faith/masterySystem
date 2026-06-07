@@ -21,24 +21,7 @@
  * `prepareDerivedData` (read-only) and from `activateStonePower` (read-only).
  */
 import { getStonePoolStoredStones, getStonePowerSupportPrefillTier, getStoneRefreshAmount, getStoneBatteryCapacity, } from './artifact-rules.js';
-import { getArtifactBindingKind } from './artifact-actor-rules.js';
-function isArtifactEquipped(item) {
-    if (!item)
-        return false;
-    if (getArtifactBindingKind(item) === 'echo')
-        return true;
-    if (item.system?.equipped === true)
-        return true;
-    try {
-        const flagSlot = item.getFlag?.('mastery-system', 'equipment')?.slot;
-        if (typeof flagSlot === 'string' && flagSlot.length > 0)
-            return true;
-    }
-    catch {
-        // ignore
-    }
-    return false;
-}
+import { isArtifactMechanicallyActive } from './artifact-actor-rules.js';
 function resolveStoneFunction(item) {
     const sys = item?.system || {};
     const fn = sys.stoneFunction;
@@ -76,7 +59,7 @@ export function getArtifactStoneFunctions(actor) {
     for (const item of items) {
         if (item?.type !== 'artifact')
             continue;
-        if (!isArtifactEquipped(item))
+        if (!isArtifactMechanicallyActive(actor, item))
             continue;
         const fn = resolveStoneFunction(item);
         if (!fn)

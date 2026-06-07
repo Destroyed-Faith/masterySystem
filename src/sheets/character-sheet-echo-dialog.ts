@@ -311,7 +311,7 @@ export async function showEchoCreationDialog(actor: Actor): Promise<void> {
               }
             }
             (ui as any).notifications?.info(
-              `Echo set to ${def.name}${grantedCount ? ` (+${grantedCount} Echo Artifact${grantedCount === 1 ? '' : 's'})` : ''}.`,
+              `Echo set to ${def.name}${grantedCount ? ` (+${grantedCount} Echo Artifact${grantedCount === 1 ? '' : 's'})` : ''}. Ab MR2: 1 Stone zum Aktivieren im Equipment-Tab.`,
             );
             return true;
           }
