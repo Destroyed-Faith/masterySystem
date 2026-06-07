@@ -23,7 +23,6 @@ import { calculateMaxPowerLevel, calculateMaxSkillRank } from '../utils/calculat
 import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { matchesMasteryWeaponCatalog } from '../utils/weapons.js';
 import { buildRadialManeuverPrefsContext } from '../utils/radial-maneuver-prefs.js';
-import { ARTIFACT_LINK_STONE_COST, ARTIFACT_UPGRADE_XP_COST } from '../utils/artifact-actor-rules.js';
 import { buildArtifactEvolutionCards } from '../artifacts/artifact-evolution-actions.js';
 // Removed: showWeaponCreationDialog, showArmorCreationDialog, showShieldCreationDialog
 // Replaced with General Items Storage and Store dialogs
@@ -1318,16 +1317,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             if (!card)
                 return null;
             return {
-                embeddedId: card.embeddedId,
-                rootWorldId: card.rootWorldId,
-                displayName: card.displayName,
                 currentSystemLevel: card.currentSystemLevel,
                 linked: card.linked,
-                canActivate: card.canActivate,
-                linkDisabledReason: card.linkDisabledReason,
-                nextUpgrade: card.nextUpgrade,
-                linkStoneCost: ARTIFACT_LINK_STONE_COST,
-                upgradeXpCost: ARTIFACT_UPGRADE_XP_COST,
             };
         };
         return {
@@ -1361,11 +1352,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     artifactMeta: mapArtifactMeta(item),
                 };
             }),
-            artifactStrip: evolutionCards,
-            artifactConstants: {
-                linkStone: ARTIFACT_LINK_STONE_COST,
-                upXp: ARTIFACT_UPGRADE_XP_COST,
-            },
         };
     }
     /**

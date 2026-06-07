@@ -201,8 +201,17 @@ export async function grantEchoArtifactTreeToActor(actor, echoArtifactKey) {
         return null;
     // Avoid duplicating the same tree on the actor.
     const existing = Array.from(actor.items).find((i) => i.type === 'artifact' && i.getFlag?.('mastery-system', 'evolutionRootItemId') === rootId);
-    if (existing)
-        return existing;
+    if (existing) {
+        const emb = existing;
+        const { echoEmbeddedArtifactNeedsSync, syncEmbeddedArtifactFromWorldNode } = await import('./artifact-echo-repair.js');
+        if (echoEmbeddedArtifactNeedsSync(emb)) {
+            await syncEmbeddedArtifactFromWorldNode(emb, actor);
+        }
+        if (emb.getFlag?.('mastery-system', 'artifactActivated') !== true) {
+            await emb.setFlag('mastery-system', 'artifactActivated', false);
+        }
+        return emb;
+    }
     const itemData = foundry.utils.duplicate(rootItem.toObject());
     delete itemData._id;
     const createdDocs = await actor.createEmbeddedDocuments('Item', [itemData]);
@@ -211,6 +220,8 @@ export async function grantEchoArtifactTreeToActor(actor, echoArtifactKey) {
         return null;
     await created.setFlag('mastery-system', 'evolutionRootItemId', rootId);
     await created.setFlag('mastery-system', 'evolutionNodeId', rootNodeId);
+    await created.setFlag('mastery-system', 'echoArtifactKey', echoArtifactKey);
+    await created.setFlag('mastery-system', 'artifactActivated', false);
     const actorId = actor.id;
     const levels = { ...(rootItem.getFlag('mastery-system', 'actorLevels') || {}) };
     // Echo-bound artifacts are equipped but inactive until the player spends 1 Stone at MR2+.

@@ -131,12 +131,23 @@ export function isArtifactEquippedOnActor(item) {
     return false;
 }
 /**
- * Read whether this embedded artifact is activated (`linked`) for the actor.
- * Progress is stored on the world root item's `actorLevels` flag.
+ * Read whether this embedded artifact is activated for the actor.
+ * Echo artifacts use `artifactActivated` on the item; legacy world `linked`
+ * alone does not activate Echo items (prevents auto-linked grant state).
  */
 export function isArtifactLinkedOnActor(actor, item) {
-    const rootWorldId = item?.getFlag?.('mastery-system', 'evolutionRootItemId');
-    if (!rootWorldId || !actor?.id)
+    if (!item || !actor?.id)
+        return false;
+    const activated = item.getFlag?.('mastery-system', 'artifactActivated');
+    if (activated === true)
+        return true;
+    if (activated === false)
+        return false;
+    const kind = getArtifactBindingKind(item);
+    if (kind === 'echo')
+        return false;
+    const rootWorldId = item.getFlag?.('mastery-system', 'evolutionRootItemId');
+    if (!rootWorldId)
         return false;
     const root = (typeof game !== 'undefined' ? game?.items?.get(rootWorldId) : null);
     if (!root)

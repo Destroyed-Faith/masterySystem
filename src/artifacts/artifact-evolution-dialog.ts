@@ -14,6 +14,7 @@ import {
   ARTIFACT_UPGRADE_XP_COST,
   countBoundArtifacts,
 } from '../utils/artifact-actor-rules.js';
+import { repairActorEchoArtifacts } from '../utils/artifact-echo-repair.js';
 import {
   buildArtifactEvolutionCards,
   linkArtifactForActor,
@@ -33,7 +34,7 @@ export class ArtifactEvolutionDialog extends BaseApp {
   static get defaultOptions(): any {
     return foundry.utils.mergeObject(super.defaultOptions || {}, {
       id: 'artifact-evolution-dialog',
-      title: 'Artifact evolution',
+      title: 'Echo & Artifact Progression',
       template: 'systems/mastery-system/templates/artifacts/artifact-evolution-dialog.hbs',
       classes: ['mastery-system', 'artifact-evolution-dialog'],
       width: 560,
@@ -90,6 +91,11 @@ export class ArtifactEvolutionDialog extends BaseApp {
 }
 
 export async function openArtifactEvolutionDialog(actor: Actor): Promise<void> {
+  try {
+    await repairActorEchoArtifacts(actor);
+  } catch (err) {
+    console.warn('[mastery-system] echo artifact repair failed', err);
+  }
   const dlg = new ArtifactEvolutionDialog(actor);
   (dlg as any).render(true);
 }

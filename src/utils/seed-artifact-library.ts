@@ -248,7 +248,19 @@ export async function grantEchoArtifactTreeToActor(
     (i: any) =>
       i.type === 'artifact' && i.getFlag?.('mastery-system', 'evolutionRootItemId') === rootId,
   );
-  if (existing) return existing;
+  if (existing) {
+    const emb = existing as any;
+    const { echoEmbeddedArtifactNeedsSync, syncEmbeddedArtifactFromWorldNode } = await import(
+      './artifact-echo-repair.js'
+    );
+    if (echoEmbeddedArtifactNeedsSync(emb)) {
+      await syncEmbeddedArtifactFromWorldNode(emb, actor);
+    }
+    if (emb.getFlag?.('mastery-system', 'artifactActivated') !== true) {
+      await emb.setFlag('mastery-system', 'artifactActivated', false);
+    }
+    return emb;
+  }
 
   const itemData = foundry.utils.duplicate((rootItem as any).toObject());
   delete (itemData as any)._id;
@@ -259,6 +271,8 @@ export async function grantEchoArtifactTreeToActor(
 
   await created.setFlag('mastery-system', 'evolutionRootItemId', rootId);
   await created.setFlag('mastery-system', 'evolutionNodeId', rootNodeId);
+  await created.setFlag('mastery-system', 'echoArtifactKey', echoArtifactKey);
+  await created.setFlag('mastery-system', 'artifactActivated', false);
 
   const actorId = (actor as any).id;
   const levels = { ...((rootItem as any).getFlag('mastery-system', 'actorLevels') || {}) };

@@ -1778,11 +1778,6 @@
           <button type="button" class="general-items-btn" title="Open General Items Storage">
             <i class="fas fa-box"></i> General Items
           </button>
-          {{#if hasArtifactEvolution}}
-          <button type="button" class="artifact-evolution-btn stone-powers-btn-header" data-action="openArtifactEvolution" title="Artifact evolution — activate and upgrade">
-            <i class="fas fa-project-diagram"></i> Artifacts
-          </button>
-          {{/if}}
           {{#if (userIsGM)}}
           <button type="button" class="store-btn" title="Open Store (GM Only)">
             <i class="fas fa-store"></i> Store
@@ -1790,47 +1785,6 @@
           {{/if}}
         </div>
       </div>
-
-      {{#if equipmentUi.artifactStrip.length}}
-      <section class="artifact-equipment-strip">
-        <h4><i class="fas fa-gem"></i> Echo &amp; Artifact Progression</h4>
-        <p class="artifact-strip-hint">Activate with {{equipmentUi.artifactConstants.linkStone}} Stone (MR2+), then +1 level for {{equipmentUi.artifactConstants.upXp}} XP per Upgrade Step.</p>
-        <ul class="artifact-strip-list">
-          {{#each equipmentUi.artifactStrip}}
-          <li class="artifact-strip-card {{#unless linked}}artifact-strip-card--inactive{{/unless}}">
-            <div class="artifact-strip-head">
-              <strong>{{displayName}}</strong>
-              <span class="artifact-strip-level">L{{currentSystemLevel}}{{#unless linked}} · inaktiv{{else}} · aktiv{{/unless}}</span>
-            </div>
-            <div class="artifact-strip-actions">
-              {{#unless linked}}
-                {{#if canActivate}}
-                <button type="button" class="artifact-strip-btn" data-action="artifact-activate" data-root-id="{{rootWorldId}}" data-emb-id="{{embeddedId}}">
-                  Aktivieren ({{@root.equipmentUi.artifactConstants.linkStone}} Stone)
-                </button>
-                {{else}}
-                <button type="button" class="artifact-strip-btn" disabled title="{{linkDisabledReason}}">Aktivieren ({{@root.equipmentUi.artifactConstants.linkStone}} Stone)</button>
-                {{#if linkDisabledReason}}<span class="artifact-strip-reason">{{linkDisabledReason}}</span>{{/if}}
-                {{/if}}
-              {{else}}
-                {{#if nextUpgrade}}
-                <button type="button" class="artifact-strip-btn artifact-strip-btn--upgrade" data-action="artifact-upgrade"
-                  data-root-id="{{rootWorldId}}" data-emb-id="{{embeddedId}}"
-                  data-target-world-id="{{nextUpgrade.worldItemId}}" data-target-node-id="{{nextUpgrade.nodeId}}">
-                  +1 → {{nextUpgrade.label}} ({{@root.equipmentUi.artifactConstants.upXp}} XP)
-                </button>
-                {{else if atMaxTierForMr}}
-                <span class="artifact-strip-muted">Max level for current MR</span>
-                {{else}}
-                <span class="artifact-strip-muted">No upgrade path</span>
-                {{/if}}
-              {{/unless}}
-            </div>
-          </li>
-          {{/each}}
-        </ul>
-      </section>
-      {{/if}}
       
       {{#if equipmentUi}}
       <div class="df-equipment-layout">
@@ -1874,7 +1828,14 @@
           </div>
           
           <div class="df-equipped-panel">
-            <h4>Equipped</h4>
+            <div class="df-equipped-header">
+              <h4>Equipped</h4>
+              {{#if hasArtifactEvolution}}
+              <button type="button" class="artifact-evolution-btn df-artifacts-btn" data-action="openArtifactEvolution" title="Echo &amp; Artifact Progression — activate and upgrade">
+                <i class="fas fa-project-diagram"></i> Artifacts
+              </button>
+              {{/if}}
+            </div>
             <div class="df-equipped-grid">
               {{#each equipmentUi.equipSlots}}
                 <div class="df-equip-slot df-dropzone slot-{{this.key}}" data-df-drop="equip-slot" data-slot="{{this.key}}">
@@ -1883,22 +1844,8 @@
                     <div class="df-item-tile item df-draggable-item" data-item-id="{{this.item.id}}" data-inventory-size="{{this.item.system.inventorySize}}" draggable="true" title="{{this.item.name}}">
                       <img class="df-item-icon" src="{{this.item.img}}" />
                       {{#if this.artifactMeta}}
-                      <div class="df-artifact-badge">
-                        L{{this.artifactMeta.currentSystemLevel}}{{#unless this.artifactMeta.linked}} · off{{/unless}}
-                      </div>
-                      <div class="df-artifact-actions">
-                        {{#unless this.artifactMeta.linked}}
-                          {{#if this.artifactMeta.canActivate}}
-                          <button type="button" class="df-artifact-btn" data-action="artifact-activate" data-root-id="{{this.artifactMeta.rootWorldId}}" data-emb-id="{{this.artifactMeta.embeddedId}}" title="Activate ({{this.artifactMeta.linkStoneCost}} Stone)">+Stone</button>
-                          {{/if}}
-                        {{else}}
-                          {{#if this.artifactMeta.nextUpgrade}}
-                          <button type="button" class="df-artifact-btn df-artifact-btn--xp" data-action="artifact-upgrade"
-                            data-root-id="{{this.artifactMeta.rootWorldId}}" data-emb-id="{{this.artifactMeta.embeddedId}}"
-                            data-target-world-id="{{this.artifactMeta.nextUpgrade.worldItemId}}" data-target-node-id="{{this.artifactMeta.nextUpgrade.nodeId}}"
-                            title="+1 ({{this.artifactMeta.upgradeXpCost}} XP)">+XP</button>
-                          {{/if}}
-                        {{/unless}}
+                      <div class="df-artifact-badge {{#unless this.artifactMeta.linked}}df-artifact-badge--inactive{{/unless}}">
+                        L{{this.artifactMeta.currentSystemLevel}}{{#unless this.artifactMeta.linked}} · inaktiv{{else}} · aktiv{{/unless}}
                       </div>
                       {{/if}}
                       <div class="df-item-actions">

@@ -306,12 +306,15 @@ export async function showEchoCreationDialog(actor: Actor): Promise<void> {
             for (const item of grantedItems) {
               try {
                 await equipEchoArtifact(actor, item);
+                if (item.getFlag?.('mastery-system', 'artifactActivated') !== true) {
+                  await item.setFlag('mastery-system', 'artifactActivated', false);
+                }
               } catch (err) {
                 console.warn('[mastery-system] failed to auto-equip echo artifact', err);
               }
             }
             (ui as any).notifications?.info(
-              `Echo set to ${def.name}${grantedCount ? ` (+${grantedCount} Echo Artifact${grantedCount === 1 ? '' : 's'})` : ''}. Ab MR2: 1 Stone zum Aktivieren im Equipment-Tab.`,
+              `Echo set to ${def.name}${grantedCount ? ` (+${grantedCount} Echo Artifact${grantedCount === 1 ? '' : 's'})` : ''}. Ab MR2: 1 Stone zum Aktivieren über Artifacts.`,
             );
             return true;
           }

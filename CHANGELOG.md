@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.23] - 2026-06-06
+
+### Changed
+
+- **Equipment tab:** Removed inline artifact progression strip; **Artifacts** button moved to the Equipped panel and opens the **Echo & Artifact Progression** modal.
+- **Activation source of truth:** Echo artifacts use `artifactActivated` on the embedded item; legacy world `linked` alone no longer shows them as active.
+
+### Fixed
+
+- **L1 inactive:** All echo artifacts default to **L1 · inaktiv** until the player spends 1 Stone in the Artifacts dialog.
+- **Abilities gating:** Base values and abilities appear in the modal and artifact sheet only when activated.
+- **Dragon Head / stale embeds:** Repair syncs missing `baseValues` / `levelProgression` from the world Builder-Tree; migration normalizes flags on existing worlds.
+- **Misleading “No upgrade path”:** Upgrade paths are hidden until the artifact is activated.
+
 ## [0.9.22] - 2026-06-06
 
 ### Added

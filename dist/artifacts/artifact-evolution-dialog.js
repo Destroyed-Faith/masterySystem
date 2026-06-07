@@ -7,6 +7,7 @@
  *   • Each Artifact may only be upgraded once per Upgrade Step.
  */
 import { ARTIFACT_CAPACITY_DEFAULT, ARTIFACT_LINK_STONE_COST, ARTIFACT_MAX_SYSTEM_LEVEL, ARTIFACT_UPGRADE_XP_COST, countBoundArtifacts, } from '../utils/artifact-actor-rules.js';
+import { repairActorEchoArtifacts } from '../utils/artifact-echo-repair.js';
 import { buildArtifactEvolutionCards, linkArtifactForActor, upgradeArtifactForActor, } from './artifact-evolution-actions.js';
 const BaseApp = foundry?.appv1?.Application || Application;
 export class ArtifactEvolutionDialog extends BaseApp {
@@ -18,7 +19,7 @@ export class ArtifactEvolutionDialog extends BaseApp {
     static get defaultOptions() {
         return foundry.utils.mergeObject(super.defaultOptions || {}, {
             id: 'artifact-evolution-dialog',
-            title: 'Artifact evolution',
+            title: 'Echo & Artifact Progression',
             template: 'systems/mastery-system/templates/artifacts/artifact-evolution-dialog.hbs',
             classes: ['mastery-system', 'artifact-evolution-dialog'],
             width: 560,
@@ -65,6 +66,12 @@ export class ArtifactEvolutionDialog extends BaseApp {
     }
 }
 export async function openArtifactEvolutionDialog(actor) {
+    try {
+        await repairActorEchoArtifacts(actor);
+    }
+    catch (err) {
+        console.warn('[mastery-system] echo artifact repair failed', err);
+    }
     const dlg = new ArtifactEvolutionDialog(actor);
     dlg.render(true);
 }

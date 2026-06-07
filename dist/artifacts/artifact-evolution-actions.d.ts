@@ -31,6 +31,17 @@ export interface ArtifactEvolutionCard {
     linkDisabledReason: string;
     canActivate: boolean;
     nextUpgrade: ArtifactEvolutionPath | null;
+    baseValues: Array<{
+        label: string;
+        value: string;
+    }>;
+    abilities: Array<{
+        name: string;
+        type: string;
+        effect: string;
+    }>;
+    hasBaseValues: boolean;
+    hasAbilities: boolean;
 }
 /** Build evolution cards for every tree-linked embedded artifact on the actor. */
 export declare function buildArtifactEvolutionCards(actor: Actor): ArtifactEvolutionCard[];

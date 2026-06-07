@@ -40,6 +40,10 @@
         </div>
         {{/if}}
 
+        {{#unless mechanicallyActive}}
+        <p class="artifact-inactive-hint">Inactive on this character — activate via <strong>Artifacts</strong> (1 Stone at MR2+) to unlock base values and abilities.</p>
+        {{/unless}}
+
         {{#if summary.hasAbilities}}
         <div class="artifact-summary-section">
           <h4>Abilities by Level</h4>

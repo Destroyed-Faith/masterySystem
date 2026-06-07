@@ -44,6 +44,7 @@ import { registerEchoArtifactTreeMigrationSetting, runEchoArtifactTreeMigration,
 import { runElvenStrideLineageMigration } from './migrations/elven-stride-lineage-migration.js';
 import { registerPaperdollSlotCanonicalSetting, runPaperdollSlotCanonical, } from './migrations/paperdoll-slot-canonical.js';
 import { registerArtifactEchoLinkMigrationSetting, runArtifactEchoLinkMigration, } from './migrations/artifact-echo-link-migration.js';
+import { registerArtifactEchoActivationMigrationSetting, runArtifactEchoActivationMigration, } from './migrations/artifact-echo-activation-migration.js';
 // Dice roller functions are imported in sheets where needed
 console.log('Mastery System | All imports completed');
 // Register Handlebars helpers immediately (before init hook)
@@ -133,6 +134,7 @@ Hooks.once('init', async function () {
     registerXpCurrentStepCutoverSetting();
     registerArtifactSpecBackfillSetting();
     registerArtifactEchoLinkMigrationSetting();
+    registerArtifactEchoActivationMigrationSetting();
     registerEchoArtifactTreeMigrationSetting();
     registerPaperdollSlotCanonicalSetting();
     // Setup XP Management inline in settings
@@ -2377,6 +2379,12 @@ Hooks.once('ready', async function () {
     }
     catch (error) {
         console.warn('Mastery System | Echo artifact link reset migration failed', error);
+    }
+    try {
+        await runArtifactEchoActivationMigration();
+    }
+    catch (error) {
+        console.warn('Mastery System | Echo artifact activation migration failed', error);
     }
     // One-shot Echo Artifact → Builder-Tree migration (GM-only, guarded). Runs
     // after the library is seeded above so legacy single-item grants can be

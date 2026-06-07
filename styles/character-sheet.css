@@ -9488,6 +9488,29 @@
   cursor: not-allowed;
 }
 
+.mastery-system.sheet.actor.character .df-equipped-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.mastery-system.sheet.actor.character .df-equipped-header h4 {
+  margin: 0;
+}
+
+.mastery-system.sheet.actor.character .df-artifacts-btn {
+  font-size: 11px;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+
+.mastery-system.sheet.actor.character .df-artifact-badge--inactive {
+  opacity: 0.85;
+  color: var(--df-text-secondary, #a0a0a0);
+}
+
 /* Artifact activation / upgrade — Equipment tab */
 .mastery-system.sheet.actor.character .equipment-controls--row {
   display: flex;

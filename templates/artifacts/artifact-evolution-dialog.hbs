@@ -18,68 +18,77 @@
       Stones <strong>{{stones}}</strong> · XP <strong>{{xp}}</strong>
     </p>
     <p class="ae-current">
-      Current: <strong>{{currentLabel}}</strong> (system level {{currentSystemLevel}})
-      {{#unless linked}}<span class="ae-warn">· inactive</span>{{/unless}}
+      L{{currentSystemLevel}}
+      {{#unless linked}}<span class="ae-warn">· inaktiv</span>{{else}}<span class="ae-success">· aktiv</span>{{/unless}}
       {{#if isEchoBound}}<span class="ae-tag ae-tag-echo">Echo-bound</span>{{else if (eq bindingKind "bound")}}<span class="ae-tag ae-tag-bound">Bound</span>{{else}}<span class="ae-tag ae-tag-unbound">Unbound</span>{{/if}}
     </p>
 
-    {{#if isEchoBound}}
-      {{#unless linked}}
-        {{#if canLinkRules}}
-          {{#if linkDisabledReason}}
-          <button type="button" class="ae-btn ae-btn-primary" disabled title="{{linkDisabledReason}}">
-            Activate ({{@root.constants.linkStone}} Stone)
-          </button>
-          <p class="ae-path-reason">{{linkDisabledReason}}</p>
-          {{else}}
-          <button type="button" class="ae-btn ae-btn-primary" data-action="ae-link" data-root-id="{{rootWorldId}}" data-emb-id="{{embeddedId}}">
-            Activate ({{@root.constants.linkStone}} Stone)
-          </button>
-          <p class="ae-muted">Echo-bound — activate from MR2 with {{@root.constants.linkStone}} Stone.</p>
-          {{/if}}
-        {{else}}
-          <p class="ae-muted">Mastery Rank 2+ required to activate.</p>
-        {{/if}}
-      {{/unless}}
-    {{else if canLinkRules}}
-      {{#unless linked}}
+    {{#unless linked}}
+      {{#if canLinkRules}}
         {{#if linkDisabledReason}}
         <button type="button" class="ae-btn ae-btn-primary" disabled title="{{linkDisabledReason}}">
-          Activate ({{@root.constants.linkStone}} Stone)
+          Aktivieren ({{@root.constants.linkStone}} Stone)
         </button>
         <p class="ae-path-reason">{{linkDisabledReason}}</p>
         {{else}}
         <button type="button" class="ae-btn ae-btn-primary" data-action="ae-link" data-root-id="{{rootWorldId}}" data-emb-id="{{embeddedId}}">
-          Activate ({{@root.constants.linkStone}} Stone)
+          Aktivieren ({{@root.constants.linkStone}} Stone)
         </button>
+        <p class="ae-muted">Spend {{@root.constants.linkStone}} Stone once to activate. Abilities unlock after activation.</p>
         {{/if}}
-      {{/unless}}
-    {{else}}
-      <p class="ae-muted">Mastery Rank 2+ required to activate.</p>
-    {{/if}}
-
-    {{#if linked}}
-    <div class="ae-paths">
-      <h4>Evolution paths</h4>
-      {{#if paths.length}}
-      <ul class="ae-path-list">
-        {{#each paths}}
-        <li>
-          <button type="button" class="ae-btn ae-btn-path" data-action="ae-upgrade"
-            data-root-id="{{../rootWorldId}}" data-emb-id="{{../embeddedId}}"
-            data-target-world-id="{{worldItemId}}" data-target-node-id="{{nodeId}}"
-            {{#if disabledReason}}disabled title="{{disabledReason}}"{{/if}}>
-            → {{label}} (level {{targetLevel}}) — {{@root.constants.upXp}} XP
-          </button>
-          {{#if disabledReason}}<span class="ae-path-reason">{{disabledReason}}</span>{{/if}}
-        </li>
-        {{/each}}
-      </ul>
       {{else}}
-      <p class="ae-muted">No further branches from this node (or tree ends here).</p>
+        <p class="ae-muted">Mastery Rank 2+ required to activate.</p>
       {{/if}}
-    </div>
-    {{/if}}
+    {{else}}
+      {{#if hasBaseValues}}
+      <div class="ae-base-values">
+        <h4>Base Values</h4>
+        <ul class="ae-stat-list">
+          {{#each baseValues}}
+          <li><strong>{{label}}</strong>{{#if value}}: {{value}}{{/if}}</li>
+          {{/each}}
+        </ul>
+      </div>
+      {{/if}}
+
+      {{#if hasAbilities}}
+      <div class="ae-abilities">
+        <h4>Abilities (L{{currentSystemLevel}})</h4>
+        <ul class="ae-ability-list">
+          {{#each abilities}}
+          <li>
+            <strong>{{name}}</strong>
+            {{#if type}}<span class="ae-ability-type">{{type}}</span>{{/if}}
+            {{#if effect}}<p class="ae-ability-effect">{{effect}}</p>{{/if}}
+          </li>
+          {{/each}}
+        </ul>
+      </div>
+      {{/if}}
+
+      <div class="ae-paths">
+        <h4>Evolution paths</h4>
+        {{#if paths.length}}
+        <ul class="ae-path-list">
+          {{#each paths}}
+          <li>
+            <button type="button" class="ae-btn ae-btn-path" data-action="ae-upgrade"
+              data-root-id="{{../rootWorldId}}" data-emb-id="{{../embeddedId}}"
+              data-target-world-id="{{worldItemId}}" data-target-node-id="{{nodeId}}"
+              {{#if disabledReason}}disabled title="{{disabledReason}}"{{/if}}>
+              → {{label}} (level {{targetLevel}}) — {{@root.constants.upXp}} XP
+            </button>
+            {{#if disabledReason}}<span class="ae-path-reason">{{disabledReason}}</span>{{/if}}
+          </li>
+          {{/each}}
+        </ul>
+        {{else if atMaxTierForMr}}
+        <p class="ae-muted">Max level for current Mastery Rank.</p>
+        {{else}}
+        <p class="ae-muted">No further branches from this node.</p>
+        {{/if}}
+      </div>
+    {{/unless}}
   </section>
   {{/each}}
   {{else}}

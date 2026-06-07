@@ -68,8 +68,9 @@ export declare function getArtifactBindingKind(item: any): ArtifactBindingKind;
 /** True when the artifact occupies a paperdoll slot or is echo-bound (always worn). */
 export declare function isArtifactEquippedOnActor(item: any): boolean;
 /**
- * Read whether this embedded artifact is activated (`linked`) for the actor.
- * Progress is stored on the world root item's `actorLevels` flag.
+ * Read whether this embedded artifact is activated for the actor.
+ * Echo artifacts use `artifactActivated` on the item; legacy world `linked`
+ * alone does not activate Echo items (prevents auto-linked grant state).
  */
 export declare function isArtifactLinkedOnActor(actor: any, item: any): boolean;
 /** Equipped and activated — required for mechanical artifact benefits. */

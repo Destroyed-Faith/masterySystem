@@ -12,6 +12,7 @@
  * Artifact Builder node editor — this sheet never edits embedded powers.
  */
 import { ARTIFACT_SLOT_LABELS, BASE_PROFILE_LABELS, BASE_VALUE_TYPE_LABELS, } from '../utils/artifact-rules.js';
+import { isArtifactLinkedOnActor } from '../utils/artifact-actor-rules.js';
 import { visibleAbilityRows } from '../utils/artifact-visible-abilities.js';
 export class ArtifactSheetV2 extends foundry.appv1.sheets.ItemSheet {
     /** @override */
@@ -45,13 +46,21 @@ export class ArtifactSheetV2 extends foundry.appv1.sheets.ItemSheet {
         const slotKey = String(system.slot || '');
         const profileKey = String(system.baseProfile || '');
         const currentLevel = Math.max(1, Math.min(10, Number(system.currentLevel) || Number(system.level) || 1));
-        const baseValueRows = (Array.isArray(system.baseValues) ? system.baseValues : []).map((bv) => ({
-            slot: String(bv.slot || '').toUpperCase(),
-            typeLabel: BASE_VALUE_TYPE_LABELS[bv.type] || bv.type || '',
-            label: bv.label || '',
-            value: bv.value != null && bv.value !== '' ? String(bv.value) : bv.note || '',
-        }));
-        const visibleRows = visibleAbilityRows(Array.isArray(system.levelProgression) ? system.levelProgression : [], currentLevel);
+        const parentActor = item.parent?.documentName === 'Actor' ? item.parent : null;
+        const mechanicallyActive = parentActor
+            ? isArtifactLinkedOnActor(parentActor, item)
+            : true;
+        const baseValueRows = mechanicallyActive
+            ? (Array.isArray(system.baseValues) ? system.baseValues : []).map((bv) => ({
+                slot: String(bv.slot || '').toUpperCase(),
+                typeLabel: BASE_VALUE_TYPE_LABELS[bv.type] || bv.type || '',
+                label: bv.label || '',
+                value: bv.value != null && bv.value !== '' ? String(bv.value) : bv.note || '',
+            }))
+            : [];
+        const visibleRows = mechanicallyActive
+            ? visibleAbilityRows(Array.isArray(system.levelProgression) ? system.levelProgression : [], currentLevel)
+            : [];
         const abilities = visibleRows.map((row) => ({
             level: Number(row.level) || 1,
             name: row.name || '',
@@ -63,6 +72,7 @@ export class ArtifactSheetV2 extends foundry.appv1.sheets.ItemSheet {
         context.item = item;
         context.system = system;
         context.isEditable = this.isEditable;
+        context.mechanicallyActive = mechanicallyActive;
         context.summary = {
             slotLabel: ARTIFACT_SLOT_LABELS[slotKey] || '',
             baseProfileLabel: BASE_PROFILE_LABELS[profileKey] || '',

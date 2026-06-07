@@ -13,11 +13,13 @@ import {
   countBoundArtifacts,
   getArtifactBindingKind,
   getMaxArtifactSystemLevelForMasteryRank,
+  isArtifactLinkedOnActor,
   readActorArtifactProgress,
   serializeActorArtifactProgress,
   spendArtifactLinkStone,
   type ArtifactActorProgress,
 } from '../utils/artifact-actor-rules.js';
+import { summarizeEmbeddedArtifactDisplay } from '../utils/artifact-echo-repair.js';
 import {
   buildArtifactDisplayLabels,
   collectArtifactNodeMeta,
@@ -56,6 +58,10 @@ export interface ArtifactEvolutionCard {
   linkDisabledReason: string;
   canActivate: boolean;
   nextUpgrade: ArtifactEvolutionPath | null;
+  baseValues: Array<{ label: string; value: string }>;
+  abilities: Array<{ name: string; type: string; effect: string }>;
+  hasBaseValues: boolean;
+  hasAbilities: boolean;
 }
 
 function actorXpAvailable(actor: Actor): number {
@@ -129,9 +135,11 @@ export function buildArtifactEvolutionCards(actor: Actor): ArtifactEvolutionCard
     const alreadyBumped = isBumped(stepState as any, 'artifact', embeddedId);
     const bindingKind = getArtifactBindingKind(emb);
     const isEchoBound = bindingKind === 'echo';
+    const linked = isArtifactLinkedOnActor(A, emb);
+    const display = summarizeEmbeddedArtifactDisplay(emb, linked);
 
     let linkDisabledReason = '';
-    if (progress.linked) {
+    if (linked) {
       linkDisabledReason = '';
     } else if (!canArtifactLink(masteryRank)) {
       linkDisabledReason = 'Mastery Rank 2+ required to activate.';
@@ -145,7 +153,7 @@ export function buildArtifactEvolutionCards(actor: Actor): ArtifactEvolutionCard
       const cid = (child as any).getFlag('mastery-system', 'nodeId') as string;
       const tl = (child.system as any)?.level ?? currentSysLevel + 1;
       let disabledReason = '';
-      if (!progress.linked) disabledReason = 'Activate the artifact first.';
+      if (!linked) disabledReason = 'Activate the artifact first.';
       else if (!canArtifactLink(masteryRank)) disabledReason = 'Mastery Rank 2+ required.';
       else if (tl > maxSys) disabledReason = `Your MR allows artifact level up to ${maxSys} only.`;
       else if (actorXpAvailable(actor) < ARTIFACT_UPGRADE_XP_COST) disabledReason = 'Not enough XP.';
@@ -172,19 +180,23 @@ export function buildArtifactEvolutionCards(actor: Actor): ArtifactEvolutionCard
       masteryRank,
       maxSystemLevel: maxSys,
       canLinkRules: canArtifactLink(masteryRank),
-      linked: progress.linked,
+      linked,
       progress,
       currentSystemLevel: currentSysLevel,
       currentLabel: labels.get(progress.nodeId) || `Level ${currentSysLevel}`,
       xp: actorXpAvailable(actor),
       stones,
       paths,
-      atMaxTierForMr: currentSysLevel >= maxSys && maxSys >= 1,
+      atMaxTierForMr: linked && currentSysLevel >= maxSys && maxSys >= 1,
       bindingKind,
       isEchoBound,
       linkDisabledReason,
-      canActivate: !progress.linked && !linkDisabledReason,
-      nextUpgrade,
+      canActivate: !linked && !linkDisabledReason,
+      nextUpgrade: linked ? nextUpgrade : null,
+      baseValues: display.baseValues,
+      abilities: display.abilities,
+      hasBaseValues: display.hasBaseValues,
+      hasAbilities: display.hasAbilities,
     });
   }
 
@@ -211,13 +223,13 @@ export async function linkArtifactForActor(
 
   const rootNodeId = root.getFlag('mastery-system', 'nodeId') as string;
   const levels = { ...((root.getFlag('mastery-system', 'actorLevels') || {}) as any) };
-  const cur = readActorArtifactProgress(levels[A.id], rootNodeId);
-  if (cur.linked) {
+  const emb = A.items.get(embeddedId);
+  if (emb && isArtifactLinkedOnActor(actor, emb)) {
     ui.notifications?.info('Already activated.');
     return false;
   }
 
-  const emb = A.items.get(embeddedId);
+  const cur = readActorArtifactProgress(levels[A.id], rootNodeId);
   if (emb) {
     const currentKind = getArtifactBindingKind(emb);
     if (currentKind === 'unbound' && !canBindMoreArtifacts(actor)) {
@@ -243,6 +255,7 @@ export async function linkArtifactForActor(
   await root.setFlag('mastery-system', 'actorLevels', levels);
 
   if (emb) {
+    await emb.setFlag('mastery-system', 'artifactActivated', true);
     const currentKind = getArtifactBindingKind(emb);
     if (currentKind === 'unbound') {
       try {
@@ -277,11 +290,12 @@ export async function upgradeArtifactForActor(
   const maxSys = getMaxArtifactSystemLevelForMasteryRank(mr);
   const rootNodeId = root.getFlag('mastery-system', 'nodeId') as string;
   const levels = { ...((root.getFlag('mastery-system', 'actorLevels') || {}) as any) };
-  const prog = readActorArtifactProgress(levels[A.id], rootNodeId);
-  if (!prog.linked) {
+  if (!isArtifactLinkedOnActor(actor, emb)) {
     ui.notifications?.warn('Activate the artifact first.');
     return false;
   }
+
+  const prog = readActorArtifactProgress(levels[A.id], rootNodeId);
 
   const tl = (targetWorld.system as any)?.level ?? 1;
   if (tl > maxSys) {
@@ -337,6 +351,7 @@ export async function upgradeArtifactForActor(
   });
   await emb.setFlag('mastery-system', 'evolutionRootItemId', rootWorldId);
   await emb.setFlag('mastery-system', 'evolutionNodeId', targetNodeId);
+  await emb.setFlag('mastery-system', 'artifactActivated', true);
   if (equip) await emb.setFlag('mastery-system', 'equipment', equip);
 
   const nextProg: ArtifactActorProgress = {

@@ -1318,9 +1318,42 @@
 }
 
 .artifact-evolution-dialog .ae-success {
-  margin: 8px 0 0 0;
   color: #6bc46e;
   font-size: 0.88rem;
+}
+
+.artifact-evolution-dialog .ae-base-values,
+.artifact-evolution-dialog .ae-abilities {
+  margin: 10px 0 0;
+}
+
+.artifact-evolution-dialog .ae-base-values h4,
+.artifact-evolution-dialog .ae-abilities h4,
+.artifact-evolution-dialog .ae-paths h4 {
+  margin: 0 0 6px;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--df-text-secondary, #a0a0a0);
+}
+
+.artifact-evolution-dialog .ae-stat-list,
+.artifact-evolution-dialog .ae-ability-list {
+  margin: 0;
+  padding: 0 0 0 16px;
+  font-size: 0.88rem;
+}
+
+.artifact-evolution-dialog .ae-ability-type {
+  margin-left: 6px;
+  font-size: 0.78rem;
+  color: var(--df-text-secondary, #8a9399);
+}
+
+.artifact-evolution-dialog .ae-ability-effect {
+  margin: 2px 0 0;
+  font-size: 0.82rem;
+  color: var(--df-text-secondary, #b0b8bc);
 }
 
 /* Builder: actor allocation row */

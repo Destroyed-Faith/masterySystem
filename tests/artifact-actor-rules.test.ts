@@ -7,6 +7,8 @@ import {
   canArtifactLink,
   canSpendArtifactLinkStone,
   getMaxArtifactSystemLevelForMasteryRank,
+  getArtifactBindingKind,
+  isArtifactLinkedOnActor,
   isArtifactMechanicallyActive,
   readActorArtifactProgress,
   serializeActorArtifactProgress,
@@ -81,6 +83,29 @@ describe('artifact link stone helpers', () => {
   });
 });
 
+describe('isArtifactLinkedOnActor (echo)', () => {
+  it('echo items stay inactive unless artifactActivated is true', () => {
+    const actor = { id: 'a1' };
+    const echoItem = {
+      type: 'artifact',
+      system: { binding: 'echo' },
+      getFlag: (_ns: string, key: string) => {
+        if (key === 'echoBound') return 'dragonborn';
+        if (key === 'artifactActivated') return false;
+        return undefined;
+      },
+    };
+    expect(getArtifactBindingKind(echoItem)).toBe('echo');
+    expect(isArtifactLinkedOnActor(actor, echoItem)).toBe(false);
+
+    const activeEcho = {
+      ...echoItem,
+      getFlag: (_ns: string, key: string) => (key === 'artifactActivated' ? true : echoItem.getFlag(_ns, key)),
+    };
+    expect(isArtifactLinkedOnActor(actor, activeEcho)).toBe(true);
+  });
+});
+
 describe('isArtifactMechanicallyActive', () => {
   it('returns false without linked progress (no game.items)', () => {
     const actor = { id: 'a1', items: [] };
@@ -88,7 +113,11 @@ describe('isArtifactMechanicallyActive', () => {
       type: 'artifact',
       id: 'emb1',
       system: { binding: 'echo' },
-      getFlag: () => 'root1',
+      getFlag: (_ns: string, key: string) => {
+        if (key === 'artifactActivated') return false;
+        if (key === 'echoBound') return true;
+        return undefined;
+      },
     };
     expect(isArtifactMechanicallyActive(actor, item)).toBe(false);
   });
