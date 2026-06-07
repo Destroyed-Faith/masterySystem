@@ -15,6 +15,7 @@
  *   • Bindings come in three flavors: `unbound`, `bound`, `echo`.
  *     `echo` bindings cannot be unbound through normal means.
  */
+import { type AttributeKey } from '../combat/action-economy.js';
 import { type ArtifactSlot } from './artifact-rules.js';
 export declare const ARTIFACT_UPGRADE_XP_COST = 8;
 export declare const ARTIFACT_LINK_STONE_COST = 1;
@@ -43,10 +44,14 @@ export declare function getMaxArtifactSystemLevelForMasteryRank(masteryRank: num
  */
 export declare function getMaxArtifactSpecLevelForMasteryRank(masteryRank: number): number;
 export declare function canArtifactLink(masteryRank: number): boolean;
-/** Current spendable stones on the actor (`system.stones.current`). */
+/** Spendable stones in one attribute pool (`current − sustained`). */
+export declare function poolSpendableStones(actor: any, attr: string): number;
+/** Total spendable stones across all attribute pools (falls back to legacy `stones.current`). */
 export declare function actorStonesCurrent(actor: any): number;
+/** First attribute pool with at least one spendable stone. */
+export declare function firstPoolWithSpendableStone(actor: any): AttributeKey | null;
 export declare function canSpendArtifactLinkStone(actor: any): boolean;
-/** Deduct one Stone for artifact activation. Returns false when insufficient. */
+/** Deduct one Stone from the first pool with capacity. Returns false when insufficient. */
 export declare function spendArtifactLinkStone(actor: Actor): Promise<boolean>;
 /** Binding kind for an artifact instance on a character. */
 export type ArtifactBindingKind = 'unbound' | 'bound' | 'echo';

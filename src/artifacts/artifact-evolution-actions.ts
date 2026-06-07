@@ -65,15 +65,23 @@ export interface ArtifactEvolutionCard {
 }
 
 function actorXpAvailable(actor: Actor): number {
-  return (actor.system as any)?.points?.xp ?? 0;
+  const sys = (actor.system as any) || {};
+  const regular = Math.max(0, Number(sys.points?.xp) || 0);
+  const free = Math.max(0, Number(sys.points?.xpFree) || 0);
+  return regular + free;
 }
 
 async function spendActorXp(actor: Actor, amount: number): Promise<boolean> {
-  const avail = actorXpAvailable(actor);
-  if (avail < amount) return false;
-  const spent = (actor.system as any)?.xp?.totalSpent ?? 0;
+  const sys = (actor.system as any) || {};
+  const free = Math.max(0, Number(sys.points?.xpFree) || 0);
+  const regular = Math.max(0, Number(sys.points?.xp) || 0);
+  if (free + regular < amount) return false;
+  const fromFree = Math.min(free, amount);
+  const fromRegular = amount - fromFree;
+  const spent = (sys.xp?.totalSpent ?? 0);
   await actor.update({
-    'system.points.xp': avail - amount,
+    'system.points.xpFree': free - fromFree,
+    'system.points.xp': regular - fromRegular,
     'system.xp.totalSpent': spent + amount,
   });
   return true;

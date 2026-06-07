@@ -7,15 +7,23 @@ import { summarizeEmbeddedArtifactDisplay } from '../utils/artifact-echo-repair.
 import { buildArtifactDisplayLabels, collectArtifactNodeMeta, getChildWorldItemsForNode, getWorldArtifactItemsInFolder, resolveWorldItemByNodeId, } from '../utils/artifact-actor-tree.js';
 import { isBumped, recordBump } from '../utils/xp-step-rule.js';
 function actorXpAvailable(actor) {
-    return actor.system?.points?.xp ?? 0;
+    const sys = actor.system || {};
+    const regular = Math.max(0, Number(sys.points?.xp) || 0);
+    const free = Math.max(0, Number(sys.points?.xpFree) || 0);
+    return regular + free;
 }
 async function spendActorXp(actor, amount) {
-    const avail = actorXpAvailable(actor);
-    if (avail < amount)
+    const sys = actor.system || {};
+    const free = Math.max(0, Number(sys.points?.xpFree) || 0);
+    const regular = Math.max(0, Number(sys.points?.xp) || 0);
+    if (free + regular < amount)
         return false;
-    const spent = actor.system?.xp?.totalSpent ?? 0;
+    const fromFree = Math.min(free, amount);
+    const fromRegular = amount - fromFree;
+    const spent = (sys.xp?.totalSpent ?? 0);
     await actor.update({
-        'system.points.xp': avail - amount,
+        'system.points.xpFree': free - fromFree,
+        'system.points.xp': regular - fromRegular,
         'system.xp.totalSpent': spent + amount,
     });
     return true;

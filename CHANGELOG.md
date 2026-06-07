@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.25] - 2026-06-06
+
+### Fixed
+
+- **Artifact activation stones:** Reads spendable stones from `stonePools` (not legacy `stones.current`); XP display/spend includes `points.xpFree`.
+
 ## [0.9.24] - 2026-06-06
 
 ### Fixed

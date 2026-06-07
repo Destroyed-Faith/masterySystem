@@ -75,11 +75,25 @@ describe('readActorArtifactProgress', () => {
 });
 
 describe('artifact link stone helpers', () => {
-  it('canSpendArtifactLinkStone requires at least 1 stone', () => {
+  it('canSpendArtifactLinkStone requires at least 1 stone (legacy stones.current)', () => {
     const actor = { system: { stones: { current: 0 } } };
     expect(canSpendArtifactLinkStone(actor)).toBe(false);
     expect(actorStonesCurrent({ system: { stones: { current: 1 } } })).toBe(1);
     expect(canSpendArtifactLinkStone({ system: { stones: { current: 1 } } })).toBe(true);
+  });
+
+  it('sums spendable stones from stonePools (current − sustained)', () => {
+    const actor = {
+      system: {
+        stonePools: {
+          might: { current: 2, max: 2, sustained: 1 },
+          agility: { current: 1, max: 1, sustained: 0 },
+          vitality: { current: 0, max: 0, sustained: 0 },
+        },
+      },
+    };
+    expect(actorStonesCurrent(actor)).toBe(2);
+    expect(canSpendArtifactLinkStone(actor)).toBe(true);
   });
 });
 
