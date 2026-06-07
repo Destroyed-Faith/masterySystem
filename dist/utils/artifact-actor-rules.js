@@ -133,6 +133,9 @@ export function canSpendArtifactLinkStone(actor) {
 export function canSpendArtifactLinkStoneFromPool(actor, stoneAttr) {
     return poolSpendableStones(actor, stoneAttr) >= ARTIFACT_LINK_STONE_COST;
 }
+export function getArtifactStonePoolLabel(attr) {
+    return STONE_POOL_LABELS[attr] || attr;
+}
 /** Deduct one Stone from the chosen attribute pool (or legacy `stones.current`). */
 export async function spendArtifactLinkStone(actor, stoneAttr) {
     if (usesStonePoolEconomy(actor)) {
@@ -149,6 +152,28 @@ export async function spendArtifactLinkStone(actor, stoneAttr) {
     const sys = economyActor(actor)?.system || {};
     const next = Math.max(0, Number(sys.stones?.current) || 0) - ARTIFACT_LINK_STONE_COST;
     await actor.update({ 'system.stones.current': next });
+    return true;
+}
+/** Refund one activation Stone to the pool it was spent from (GM reset). */
+export async function refundArtifactLinkStone(actor, stoneAttr) {
+    if (usesStonePoolEconomy(actor)) {
+        if (!stoneAttr)
+            return false;
+        const owner = economyActor(actor);
+        const pool = owner?.system?.stonePools?.[stoneAttr];
+        if (!pool)
+            return false;
+        const current = Math.max(0, Number(pool.current) || 0);
+        const max = Math.max(0, Number(pool.max) || 0);
+        const sustained = Math.max(0, Number(pool.sustained) || 0);
+        const cap = Math.max(0, max - sustained);
+        await setStonePool(actor, stoneAttr, Math.min(cap, current + ARTIFACT_LINK_STONE_COST));
+        return true;
+    }
+    const sys = economyActor(actor)?.system || {};
+    const cur = Math.max(0, Number(sys.stones?.current) || 0);
+    const max = Math.max(0, Number(sys.stones?.maximum) || cur + ARTIFACT_LINK_STONE_COST);
+    await actor.update({ 'system.stones.current': Math.min(max, cur + ARTIFACT_LINK_STONE_COST) });
     return true;
 }
 /** Read progress from root item flag (supports legacy number = old "level" only). */

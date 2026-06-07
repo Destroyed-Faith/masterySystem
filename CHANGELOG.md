@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.28] - 2026-06-06
+
+### Added
+
+- **GM artifact reset:** In the Artifacts dialog, GMs can reset activation — refunds the spent Stone to its pool so the player can choose again (evolution level unchanged). Activation pool is stored on the item.
+
 ## [0.9.27] - 2026-06-06
 
 ### Changed

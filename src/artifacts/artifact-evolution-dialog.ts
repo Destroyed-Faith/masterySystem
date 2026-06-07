@@ -20,6 +20,7 @@ import { repairActorEchoArtifacts } from '../utils/artifact-echo-repair.js';
 import {
   buildArtifactEvolutionCards,
   linkArtifactForActor,
+  resetArtifactActivationForActor,
   upgradeArtifactForActor,
 } from './artifact-evolution-actions.js';
 
@@ -57,6 +58,7 @@ export class ArtifactEvolutionDialog extends BaseDialog {
       cards: buildArtifactEvolutionCards(this.actor),
       stonePools,
       usesStonePools: usesStonePoolEconomy(this.actor),
+      isGM: game.user?.isGM === true,
       capacity: {
         bound: boundCount,
         max: ARTIFACT_CAPACITY_DEFAULT,
@@ -130,6 +132,27 @@ export class ArtifactEvolutionDialog extends BaseDialog {
       btn.onclick = async (ev) => {
         ev.preventDefault();
         const ok = await linkArtifactForActor(
+          this.actor,
+          String(btn.dataset.rootId),
+          String(btn.dataset.embId),
+        );
+        if (ok) await this.render({ force: true });
+      };
+    });
+
+    root.querySelectorAll<HTMLElement>('[data-action="ae-gm-reset"]').forEach((btn) => {
+      btn.onclick = async (ev) => {
+        ev.preventDefault();
+        const displayName = btn.dataset.displayName || 'Artifact';
+        const confirmed = await Dialog.confirm({
+          title: 'GM: Aktivierung zurücksetzen',
+          content: `<p>Stone zurückgeben und <strong>${displayName}</strong> deaktivieren? Der Spieler kann den Pool neu wählen. Evolution-Level bleibt erhalten.</p>`,
+          yes: () => true,
+          no: () => false,
+          defaultYes: false,
+        });
+        if (!confirmed) return;
+        const ok = await resetArtifactActivationForActor(
           this.actor,
           String(btn.dataset.rootId),
           String(btn.dataset.embId),

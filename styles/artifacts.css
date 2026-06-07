@@ -1405,6 +1405,27 @@
   background: var(--df-bg-panel, #1e2428);
 }
 
+.artifact-evolution-dialog .ae-gm-panel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(201, 162, 39, 0.35);
+}
+
+.artifact-evolution-dialog .ae-btn-gm {
+  border-color: #9a7b2e;
+  color: #e8c547;
+  font-size: 0.8rem;
+}
+
+.artifact-evolution-dialog .ae-btn-gm:hover:not(:disabled) {
+  border-color: #c9a227;
+  background: rgba(201, 162, 39, 0.12);
+}
+
 .artifact-evolution-dialog .ae-empty {
   margin: 0;
   color: var(--df-text-secondary, #a0a0a0);

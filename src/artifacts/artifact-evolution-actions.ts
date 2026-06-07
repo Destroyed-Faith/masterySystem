@@ -13,8 +13,10 @@ import {
   countBoundArtifacts,
   getArtifactBindingKind,
   getMaxArtifactSystemLevelForMasteryRank,
+  getArtifactStonePoolLabel,
   isArtifactLinkedOnActor,
   readActorArtifactProgress,
+  refundArtifactLinkStone,
   serializeActorArtifactProgress,
   spendArtifactLinkStone,
   usesStonePoolEconomy,
@@ -63,6 +65,8 @@ export interface ArtifactEvolutionCard {
   abilities: Array<{ name: string; type: string; effect: string }>;
   hasBaseValues: boolean;
   hasAbilities: boolean;
+  activationStoneAttr: string;
+  activationStoneLabel: string;
 }
 
 function actorXpAvailable(actor: Actor): number {
@@ -180,6 +184,12 @@ export function buildArtifactEvolutionCards(actor: Actor): ArtifactEvolutionCard
 
     const nextUpgrade = paths.find((p) => !p.disabledReason) || null;
 
+    const activationStoneAttr =
+      (emb.getFlag?.('mastery-system', 'artifactActivationStoneAttr') as string | undefined) || '';
+    const activationStoneLabel = activationStoneAttr
+      ? getArtifactStonePoolLabel(activationStoneAttr)
+      : '';
+
     const rw = rootWorld as any;
     cards.push({
       embeddedId,
@@ -206,6 +216,8 @@ export function buildArtifactEvolutionCards(actor: Actor): ArtifactEvolutionCard
       abilities: display.abilities,
       hasBaseValues: display.hasBaseValues,
       hasAbilities: display.hasAbilities,
+      activationStoneAttr,
+      activationStoneLabel,
     });
   }
 
@@ -276,6 +288,11 @@ export async function linkArtifactForActor(
 
   if (emb) {
     await emb.setFlag('mastery-system', 'artifactActivated', true);
+    if (stoneAttr) {
+      await emb.setFlag('mastery-system', 'artifactActivationStoneAttr', stoneAttr);
+    } else {
+      await emb.unsetFlag('mastery-system', 'artifactActivationStoneAttr');
+    }
     const currentKind = getArtifactBindingKind(emb);
     if (currentKind === 'unbound') {
       try {
@@ -286,7 +303,65 @@ export async function linkArtifactForActor(
     }
   }
 
-  ui.notifications?.info(`Artifact activated (${ARTIFACT_LINK_STONE_COST} Stone). You can now spend XP to evolve it.`);
+  const poolNote = stoneAttr ? ` (${getArtifactStonePoolLabel(stoneAttr)})` : '';
+  ui.notifications?.info(
+    `Artifact activated (${ARTIFACT_LINK_STONE_COST} Stone${poolNote}). You can now spend XP to evolve it.`,
+  );
+  return true;
+}
+
+/**
+ * GM-only: deactivate artifact and refund its activation Stone so the player
+ * can choose a different pool.
+ */
+export async function resetArtifactActivationForActor(
+  actor: Actor,
+  rootWorldId: string,
+  embeddedId: string,
+): Promise<boolean> {
+  if (!game.user?.isGM) {
+    ui.notifications?.warn('Nur der GM kann die Artifact-Aktivierung zurücksetzen.');
+    return false;
+  }
+
+  const A = actor as any;
+  const root = (game as any).items?.get(rootWorldId);
+  const emb = A.items.get(embeddedId);
+  if (!root || !emb) return false;
+
+  if (!isArtifactLinkedOnActor(actor, emb)) {
+    ui.notifications?.info('Artifact ist bereits inaktiv.');
+    return false;
+  }
+
+  const rootNodeId = root.getFlag('mastery-system', 'nodeId') as string;
+  const levels = { ...((root.getFlag('mastery-system', 'actorLevels') || {}) as any) };
+  const prog = readActorArtifactProgress(levels[A.id], rootNodeId);
+  const stoneAttr = emb.getFlag('mastery-system', 'artifactActivationStoneAttr') as string | undefined;
+
+  let refunded = false;
+  if (stoneAttr) {
+    refunded = await refundArtifactLinkStone(actor, stoneAttr);
+  } else if (!usesStonePoolEconomy(actor)) {
+    refunded = await refundArtifactLinkStone(actor);
+  }
+
+  levels[A.id] = serializeActorArtifactProgress({ ...prog, linked: false });
+  await root.setFlag('mastery-system', 'actorLevels', levels);
+
+  await emb.setFlag('mastery-system', 'artifactActivated', false);
+  await emb.unsetFlag('mastery-system', 'artifactActivationStoneAttr');
+
+  const poolNote = stoneAttr ? ` (${getArtifactStonePoolLabel(stoneAttr)})` : '';
+  if (refunded) {
+    ui.notifications?.info(`Artifact-Aktivierung zurückgesetzt${poolNote}. Stone erstattet.`);
+  } else if (usesStonePoolEconomy(actor) && !stoneAttr) {
+    ui.notifications?.warn(
+      'Artifact deaktiviert. Kein Stone-Pool gespeichert (alte Aktivierung) — keine automatische Erstattung.',
+    );
+  } else {
+    ui.notifications?.info(`Artifact-Aktivierung zurückgesetzt${poolNote}.`);
+  }
   return true;
 }
 

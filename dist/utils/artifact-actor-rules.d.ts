@@ -61,8 +61,11 @@ export declare function usesStonePoolEconomy(actor: any): boolean;
 export declare function listArtifactSpendableStonePools(actor: any): ArtifactStonePoolOption[];
 export declare function canSpendArtifactLinkStone(actor: any): boolean;
 export declare function canSpendArtifactLinkStoneFromPool(actor: any, stoneAttr: string): boolean;
+export declare function getArtifactStonePoolLabel(attr: string): string;
 /** Deduct one Stone from the chosen attribute pool (or legacy `stones.current`). */
 export declare function spendArtifactLinkStone(actor: Actor, stoneAttr?: string): Promise<boolean>;
+/** Refund one activation Stone to the pool it was spent from (GM reset). */
+export declare function refundArtifactLinkStone(actor: Actor, stoneAttr?: string): Promise<boolean>;
 /** Binding kind for an artifact instance on a character. */
 export type ArtifactBindingKind = 'unbound' | 'bound' | 'echo';
 /** Per-actor progress record kept on the root world item flag. */

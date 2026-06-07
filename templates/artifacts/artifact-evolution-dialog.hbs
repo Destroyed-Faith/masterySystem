@@ -85,6 +85,18 @@
         </details>
         {{/if}}
 
+        {{#if @root.isGM}}
+        <div class="ae-gm-panel">
+          {{#if activationStoneLabel}}
+          <span class="ae-muted">Aktiviert mit: <strong>{{activationStoneLabel}}</strong></span>
+          {{/if}}
+          <button type="button" class="ae-btn ae-btn-gm" data-action="ae-gm-reset"
+            data-root-id="{{rootWorldId}}" data-emb-id="{{embeddedId}}" data-display-name="{{displayName}}">
+            GM: Aktivierung zurücksetzen
+          </button>
+        </div>
+        {{/if}}
+
         <details class="ae-details" {{#if paths.length}}open{{/if}}>
           <summary>Evolution</summary>
           {{#if paths.length}}

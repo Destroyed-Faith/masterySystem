@@ -2,7 +2,7 @@
  * Shared artifact link / upgrade actions for the Evolution dialog and
  * Equipment-tab controls on the character sheet.
  */
-import { ARTIFACT_CAPACITY_DEFAULT, ARTIFACT_LINK_STONE_COST, ARTIFACT_UPGRADE_XP_COST, canArtifactLink, canBindMoreArtifacts, canSpendArtifactLinkStone, countBoundArtifacts, getArtifactBindingKind, getMaxArtifactSystemLevelForMasteryRank, isArtifactLinkedOnActor, readActorArtifactProgress, serializeActorArtifactProgress, spendArtifactLinkStone, usesStonePoolEconomy, } from '../utils/artifact-actor-rules.js';
+import { ARTIFACT_CAPACITY_DEFAULT, ARTIFACT_LINK_STONE_COST, ARTIFACT_UPGRADE_XP_COST, canArtifactLink, canBindMoreArtifacts, canSpendArtifactLinkStone, countBoundArtifacts, getArtifactBindingKind, getMaxArtifactSystemLevelForMasteryRank, getArtifactStonePoolLabel, isArtifactLinkedOnActor, readActorArtifactProgress, refundArtifactLinkStone, serializeActorArtifactProgress, spendArtifactLinkStone, usesStonePoolEconomy, } from '../utils/artifact-actor-rules.js';
 import { summarizeEmbeddedArtifactDisplay } from '../utils/artifact-echo-repair.js';
 import { buildArtifactDisplayLabels, collectArtifactNodeMeta, getChildWorldItemsForNode, getWorldArtifactItemsInFolder, resolveWorldItemByNodeId, } from '../utils/artifact-actor-tree.js';
 import { isBumped, recordBump } from '../utils/xp-step-rule.js';
@@ -118,6 +118,10 @@ export function buildArtifactEvolutionCards(actor) {
             };
         });
         const nextUpgrade = paths.find((p) => !p.disabledReason) || null;
+        const activationStoneAttr = emb.getFlag?.('mastery-system', 'artifactActivationStoneAttr') || '';
+        const activationStoneLabel = activationStoneAttr
+            ? getArtifactStonePoolLabel(activationStoneAttr)
+            : '';
         const rw = rootWorld;
         cards.push({
             embeddedId,
@@ -144,6 +148,8 @@ export function buildArtifactEvolutionCards(actor) {
             abilities: display.abilities,
             hasBaseValues: display.hasBaseValues,
             hasAbilities: display.hasAbilities,
+            activationStoneAttr,
+            activationStoneLabel,
         });
     }
     return cards;
@@ -201,6 +207,12 @@ export async function linkArtifactForActor(actor, rootWorldId, embeddedId, stone
     await root.setFlag('mastery-system', 'actorLevels', levels);
     if (emb) {
         await emb.setFlag('mastery-system', 'artifactActivated', true);
+        if (stoneAttr) {
+            await emb.setFlag('mastery-system', 'artifactActivationStoneAttr', stoneAttr);
+        }
+        else {
+            await emb.unsetFlag('mastery-system', 'artifactActivationStoneAttr');
+        }
         const currentKind = getArtifactBindingKind(emb);
         if (currentKind === 'unbound') {
             try {
@@ -211,7 +223,53 @@ export async function linkArtifactForActor(actor, rootWorldId, embeddedId, stone
             }
         }
     }
-    ui.notifications?.info(`Artifact activated (${ARTIFACT_LINK_STONE_COST} Stone). You can now spend XP to evolve it.`);
+    const poolNote = stoneAttr ? ` (${getArtifactStonePoolLabel(stoneAttr)})` : '';
+    ui.notifications?.info(`Artifact activated (${ARTIFACT_LINK_STONE_COST} Stone${poolNote}). You can now spend XP to evolve it.`);
+    return true;
+}
+/**
+ * GM-only: deactivate artifact and refund its activation Stone so the player
+ * can choose a different pool.
+ */
+export async function resetArtifactActivationForActor(actor, rootWorldId, embeddedId) {
+    if (!game.user?.isGM) {
+        ui.notifications?.warn('Nur der GM kann die Artifact-Aktivierung zurücksetzen.');
+        return false;
+    }
+    const A = actor;
+    const root = game.items?.get(rootWorldId);
+    const emb = A.items.get(embeddedId);
+    if (!root || !emb)
+        return false;
+    if (!isArtifactLinkedOnActor(actor, emb)) {
+        ui.notifications?.info('Artifact ist bereits inaktiv.');
+        return false;
+    }
+    const rootNodeId = root.getFlag('mastery-system', 'nodeId');
+    const levels = { ...(root.getFlag('mastery-system', 'actorLevels') || {}) };
+    const prog = readActorArtifactProgress(levels[A.id], rootNodeId);
+    const stoneAttr = emb.getFlag('mastery-system', 'artifactActivationStoneAttr');
+    let refunded = false;
+    if (stoneAttr) {
+        refunded = await refundArtifactLinkStone(actor, stoneAttr);
+    }
+    else if (!usesStonePoolEconomy(actor)) {
+        refunded = await refundArtifactLinkStone(actor);
+    }
+    levels[A.id] = serializeActorArtifactProgress({ ...prog, linked: false });
+    await root.setFlag('mastery-system', 'actorLevels', levels);
+    await emb.setFlag('mastery-system', 'artifactActivated', false);
+    await emb.unsetFlag('mastery-system', 'artifactActivationStoneAttr');
+    const poolNote = stoneAttr ? ` (${getArtifactStonePoolLabel(stoneAttr)})` : '';
+    if (refunded) {
+        ui.notifications?.info(`Artifact-Aktivierung zurückgesetzt${poolNote}. Stone erstattet.`);
+    }
+    else if (usesStonePoolEconomy(actor) && !stoneAttr) {
+        ui.notifications?.warn('Artifact deaktiviert. Kein Stone-Pool gespeichert (alte Aktivierung) — keine automatische Erstattung.');
+    }
+    else {
+        ui.notifications?.info(`Artifact-Aktivierung zurückgesetzt${poolNote}.`);
+    }
     return true;
 }
 /** Upgrade an artifact one tree step — costs 8 XP. */
