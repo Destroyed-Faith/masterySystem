@@ -695,6 +695,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             disadvantagesReviewed,
             powersSelected: selectedPowers.length,
             powersRequired: totalPowersRequired,
+            powersAtRank2,
+            powersAtRank2Required: CREATION_POWERS_AT_RANK_2,
             categoryRequirements,
             categoryCounts,
             categoriesValid,

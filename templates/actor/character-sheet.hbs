@@ -1401,22 +1401,20 @@
                 {{creation.powersSelected}} / {{creation.powersRequired}}
               </span>
             </div>
-            {{#each creation.categoryRequirements}}
             <div class="status-item">
-              <label>{{this.label}}:</label>
-              <span class="{{#if this.valid}}valid{{else}}invalid{{/if}}">
-                {{this.selected}} / {{this.required}}
+              <label>At Rank 2:</label>
+              <span class="{{#if (eq creation.powersAtRank2 creation.powersAtRank2Required)}}valid{{else}}invalid{{/if}}">
+                {{creation.powersAtRank2}} / {{creation.powersAtRank2Required}}
               </span>
             </div>
-            {{/each}}
           </div>
         </div>
 
         <div class="creation-instructions">
           <p><strong>Character Creation Rules:</strong></p>
           <ul>
-            <li>Select exactly: <strong>2 Actives</strong>, <strong>1 Active Buff</strong>, <strong>1 Movement</strong>, <strong>1 Reaction</strong>, <strong>2 Passives</strong> (7 Powers total).</li>
-            <li>All Powers are added at <strong>Rank 2</strong> during character creation (fixed purchase rank).</li>
+            <li>Select exactly <strong>4 Powers</strong> in any mix of categories.</li>
+            <li><strong>2</strong> of those 4 must be at <strong>Rank 2</strong>; the other <strong>2</strong> stay at Rank 1 (use the rank dropdown when adding).</li>
             <li>Mastery Trees and Spell Schools share one picker – filter by Category, Tag (e.g. Spell) and Special (Ignite, Freeze, Shock, …).</li>
             <li>Choose your <strong>Echo</strong> (ancestry, with sub-choice / Veiled Form if required) and pick your <strong>first Echo Card</strong>.</li>
           </ul>
@@ -1466,7 +1464,7 @@
                     {{/if}}
                   </div>
                   <div class="power-controls">
-                    <span class="power-rank-static" title="Fixed at Rank 2 during character creation">Rank {{default this.system.level 2}}</span>
+                    <span class="power-rank-static" title="Power rank at creation">Rank {{default this.system.level 1}}</span>
                     <button type="button" class="power-toggle-details" data-item-id="{{this.id}}" title="Toggle Details">
                       <i class="fas fa-chevron-down"></i>
                     </button>

@@ -34,7 +34,8 @@ import { renderRange, renderAoe, renderDuration, renderPowerLevelTable } from '.
 import {
     CATEGORY_LABELS,
     CATEGORY_ORDER,
-    CREATION_POWER_REQUIREMENTS,
+    CREATION_POWER_TOTAL,
+    CREATION_POWERS_AT_RANK_2,
     filterCatalog,
     findCatalogEntryByName,
     findTemplateById,
@@ -43,30 +44,6 @@ import {
     type CatalogEntry,
 } from '../utils/power-catalog.js';
 import type { PowerTemplate } from '../utils/powers/templates/index.js';
-
-/** How many powers of a given category the actor already owns. */
-function countByCategory(actor: Actor): Record<PowerCategory, number> {
-    const counts: Record<PowerCategory, number> = {
-        active: 0,
-        activeBuff: 0,
-        movement: 0,
-        reaction: 0,
-        passive: 0,
-    };
-    const powers = (actor as any).items.filter((i: any) => i.type === 'power');
-    for (const p of powers) {
-        const sys = p.system || {};
-        let cat: PowerCategory | undefined = sys.category;
-        if (!cat) {
-            const pt = sys.powerType;
-            if (pt === 'buff') cat = 'activeBuff';
-            else if (pt === 'utility') cat = 'active';
-            else if (pt === 'active' || pt === 'passive' || pt === 'reaction' || pt === 'movement') cat = pt;
-        }
-        if (cat && cat in counts) counts[cat]++;
-    }
-    return counts;
-}
 
 /** Map Special Effect `save` text to a single save family for spell items. */
 function spellSaveTypeFromSpecialSave(save: string | undefined): SpellSaveType | undefined {
@@ -201,7 +178,11 @@ export async function showPowerCreationDialog(
       ` : `
       <div class="form-group power-form-group">
         <label class="power-form-label">Rank:</label>
-        <div class="power-form-static">Rank 2 <span style="color:#888;">(fixed during character creation)</span></div>
+        <select name="rank" id="pc-rank" class="power-form-select">
+          <option value="1">Rank 1</option>
+          <option value="2" selected>Rank 2</option>
+        </select>
+        <p class="power-form-hint" style="color:#888;font-size:0.85em;margin:4px 0 0;">Pick exactly ${CREATION_POWERS_AT_RANK_2} Powers at Rank 2 and ${CREATION_POWER_TOTAL - CREATION_POWERS_AT_RANK_2} at Rank 1.</p>
       </div>
       `}
     </form>
@@ -228,12 +209,7 @@ export async function showPowerCreationDialog(
                         return false;
                     }
 
-                    // During character creation, all powers are bought at
-                    // Rank 2 (per v0.5.9 design update). Post-creation, the
-                    // player picks the rank explicitly (≤ Mastery Rank).
-                    const rank = creationComplete
-                        ? parseInt(($html.find('#pc-rank').val() as string) || '1')
-                        : 2;
+                    const rank = parseInt(($html.find('#pc-rank').val() as string) || '1', 10);
 
                     const isSpell = entry.category === 'active' && !!$html.find('#pc-is-spell').prop('checked');
                     const castingAttribute = isSpell
@@ -257,11 +233,19 @@ export async function showPowerCreationDialog(
                     }
 
                     if (!creationComplete) {
-                        const counts = countByCategory(actor);
-                        const target = CREATION_POWER_REQUIREMENTS[entry.category];
-                        if (counts[entry.category] >= target) {
+                        const existingPowers = (actor as any).items.filter((i: any) => i.type === 'power');
+                        if (existingPowers.length >= CREATION_POWER_TOTAL) {
                             ui.notifications?.error(
-                                `You already have the maximum number of ${CATEGORY_LABELS[entry.category]} powers (${target}) for character creation.`,
+                                `You already have the maximum number of starting Powers (${CREATION_POWER_TOTAL}) for character creation.`,
+                            );
+                            return false;
+                        }
+                        const atRank2 = existingPowers.filter(
+                            (p: any) => Number(p.system?.level ?? 1) >= 2,
+                        ).length;
+                        if (rank >= 2 && atRank2 >= CREATION_POWERS_AT_RANK_2) {
+                            ui.notifications?.error(
+                                `You already have ${CREATION_POWERS_AT_RANK_2} Powers at Rank 2. Add the remaining at Rank 1.`,
                             );
                             return false;
                         }
@@ -422,7 +406,7 @@ export async function showPowerCreationDialog(
                     $spellHint.text('');
                     return;
                 }
-                const rankVal = creationComplete && $rankSelect.length
+                const rankVal = $rankSelect.length
                     ? Math.max(1, Math.min(16, parseInt(String($rankSelect.val() || '1'), 10) || 1))
                     : 2;
                 const castingTn = calculateBaseTN(rankVal);
