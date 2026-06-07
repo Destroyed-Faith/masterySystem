@@ -14,6 +14,12 @@
  *
  * GM-only (callers enforce the permission check).
  */
+/**
+ * Foundry merges nested objects on update — assigning `{}` does not remove
+ * existing skill keys. Use `-=` deletion so creation skill points reset.
+ */
+/** @internal Exported for tests — Foundry `-=` deletion for skill buckets. */
+export declare function clearSkillBucketsInUpdateBatch(updates: Record<string, unknown>, system: any): void;
 export interface ResetCharacterResult {
     ok: boolean;
     error?: string;

@@ -27,6 +27,26 @@ const ATTRIBUTE_KEYS = [
     'wits',
 ] as const;
 
+/**
+ * Foundry merges nested objects on update — assigning `{}` does not remove
+ * existing skill keys. Use `-=` deletion so creation skill points reset.
+ */
+/** @internal Exported for tests — Foundry `-=` deletion for skill buckets. */
+export function clearSkillBucketsInUpdateBatch(updates: Record<string, unknown>, system: any): void {
+    const skills = system?.skills;
+    if (skills && typeof skills === 'object') {
+        for (const key of Object.keys(skills)) {
+            updates[`system.skills.-=${key}`] = null;
+        }
+    }
+    const spent = system?.skillsSpent;
+    if (spent && typeof spent === 'object') {
+        for (const key of Object.keys(spent)) {
+            updates[`system.skillsSpent.-=${key}`] = null;
+        }
+    }
+}
+
 export interface ResetCharacterResult {
     ok: boolean;
     error?: string;
@@ -122,11 +142,8 @@ export async function resetCharacterForRecreation(
         updates[`system.attributes.${k}.stones`] = 0;
     }
 
-    // Skills & session uses fully cleared. Using `-=` deletion semantics
-    // (via `system.skills`: {}) would leave legacy keys; explicit empty
-    // objects replace the buckets instead.
-    updates['system.skills'] = {};
-    updates['system.skillsSpent'] = {};
+    // Skills & session spend fully cleared (creation points + roll pool).
+    clearSkillBucketsInUpdateBatch(updates, system);
 
     // Mastery defaults (rank 2, points 0, experience 0) per template.json.
     updates['system.mastery.rank'] = 2;

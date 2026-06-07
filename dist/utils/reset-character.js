@@ -25,6 +25,25 @@ const ATTRIBUTE_KEYS = [
     'wits',
 ];
 /**
+ * Foundry merges nested objects on update — assigning `{}` does not remove
+ * existing skill keys. Use `-=` deletion so creation skill points reset.
+ */
+/** @internal Exported for tests — Foundry `-=` deletion for skill buckets. */
+export function clearSkillBucketsInUpdateBatch(updates, system) {
+    const skills = system?.skills;
+    if (skills && typeof skills === 'object') {
+        for (const key of Object.keys(skills)) {
+            updates[`system.skills.-=${key}`] = null;
+        }
+    }
+    const spent = system?.skillsSpent;
+    if (spent && typeof spent === 'object') {
+        for (const key of Object.keys(spent)) {
+            updates[`system.skillsSpent.-=${key}`] = null;
+        }
+    }
+}
+/**
  * Wipe the character back to creation-ready state. Keeps name, portrait,
  * ownership, folder, flags, prototype token, and the lifetime earned-XP
  * figure. Everything else (items, attributes, skills, powers, echo, bio
@@ -109,11 +128,8 @@ export async function resetCharacterForRecreation(actor, options) {
         updates[`system.attributes.${k}.value`] = 2;
         updates[`system.attributes.${k}.stones`] = 0;
     }
-    // Skills & session uses fully cleared. Using `-=` deletion semantics
-    // (via `system.skills`: {}) would leave legacy keys; explicit empty
-    // objects replace the buckets instead.
-    updates['system.skills'] = {};
-    updates['system.skillsSpent'] = {};
+    // Skills & session spend fully cleared (creation points + roll pool).
+    clearSkillBucketsInUpdateBatch(updates, system);
     // Mastery defaults (rank 2, points 0, experience 0) per template.json.
     updates['system.mastery.rank'] = 2;
     updates['system.mastery.points'] = 0;
