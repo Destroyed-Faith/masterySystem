@@ -30,6 +30,13 @@
               <i class="fas fa-star"></i> Grant Free to All
             </button>
           </div>
+          {{#if (userIsGM)}}
+          <div class="bulk-grant-group bulk-reset-group">
+            <button type="button" class="bulk-reset-xp-account-btn" title="XP-Konten und History für alle Charaktere auf 0">
+              <i class="fas fa-eraser"></i> Reset XP (All)
+            </button>
+          </div>
+          {{/if}}
         </div>
       </div>
       
@@ -85,6 +92,9 @@
                       <i class="fas fa-history"></i>
                     </button>
                     {{#if (userIsGM)}}
+                    <button type="button" class="reset-xp-account-btn" data-character-id="{{this.id}}" title="XP-Konten und History auf 0 (Attribute/Skills bleiben)">
+                      <i class="fas fa-eraser"></i>
+                    </button>
                     <button type="button" class="reset-progress-xp-btn" data-character-id="{{this.id}}" title="Reset to post-creation (attributes, skills, powers). All earned XP becomes available." {{#unless this.hasPostCreationSnapshot}}disabled{{/unless}}>
                       <i class="fas fa-undo"></i>
                     </button>

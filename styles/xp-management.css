@@ -361,6 +361,40 @@
   background: #444;
 }
 
+.mastery-xp-management-inline .bulk-reset-xp-account-btn,
+.mastery-xp-management .bulk-reset-xp-account-btn {
+  padding: 0.35rem 0.65rem;
+  background: #8b4513;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.82rem;
+}
+
+.mastery-xp-management-inline .bulk-reset-xp-account-btn:hover,
+.mastery-xp-management .bulk-reset-xp-account-btn:hover {
+  background: #6d360f;
+}
+
+.mastery-xp-management-inline .reset-xp-account-btn,
+.mastery-xp-management .reset-xp-account-btn {
+  padding: 0.28rem 0.4rem;
+  min-width: 1.75rem;
+  background: #8b4513;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.72rem;
+  line-height: 1;
+}
+
+.mastery-xp-management-inline .reset-xp-account-btn:hover,
+.mastery-xp-management .reset-xp-account-btn:hover {
+  background: #6d360f;
+}
+
 .mastery-xp-management-inline .reset-progress-xp-btn,
 .mastery-xp-management .reset-progress-xp-btn {
   padding: 0.28rem 0.4rem;
@@ -408,4 +442,15 @@
 
 .mastery-xp-management-inline .xp-management-header h3 {
   font-size: 1.15rem;
+}
+
+.xp-reset-summary {
+  margin: 0.5rem 0 0.75rem 1.25rem;
+  font-size: 0.9rem;
+}
+
+.xp-reset-note {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  opacity: 0.9;
 }

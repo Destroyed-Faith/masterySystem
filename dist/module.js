@@ -1268,6 +1268,7 @@ function setupXpManagementInline() {
         htmlContent += '<div class="bulk-grant-group"><label>Free XP:</label>';
         htmlContent += '<input type="number" class="bulk-free-xp-amount" min="0" value="0" />';
         htmlContent += '<button type="button" class="bulk-grant-free-btn" title="Free XP an alle (frei verteilbar, kein Step-Limit)"><i class="fas fa-star"></i> Grant Free to All</button></div>';
+        htmlContent += '<div class="bulk-grant-group bulk-reset-group"><button type="button" class="bulk-reset-xp-account-btn" title="XP-Konten und History für alle Charaktere auf 0"><i class="fas fa-eraser"></i> Reset XP (All)</button></div>';
         htmlContent += '</div></div>';
         // Characters Table — new spec: surface the once-per-step bump summary
         // in place of the legacy `maxAttributeSpend` column.
@@ -1326,6 +1327,9 @@ function setupXpManagementInline() {
                 htmlContent += `<div class="xp-row-actions">`;
                 htmlContent += `<button type="button" class="end-xp-step-btn" data-character-id="${actor.id}" title="Upgrade Step beenden: +1-Limit-Listen leeren. Erlaubt im nächsten Step erneut +1 auf dasselbe Attribut/Skill — ersetzt kein Free XP."><i class="fas fa-flag-checkered"></i></button>`;
                 htmlContent += `<button type="button" class="history-xp-btn" data-character-id="${actor.id}" title="XP History"><i class="fas fa-history"></i></button>`;
+                if (isGM) {
+                    htmlContent += `<button type="button" class="reset-xp-account-btn" data-character-id="${actor.id}" title="XP-Konten und History auf 0 (Attribute/Skills bleiben)"><i class="fas fa-eraser"></i></button>`;
+                }
                 htmlContent += resetBtn;
                 htmlContent += `</div></div></td></tr>`;
             });
@@ -1577,6 +1581,20 @@ function setupXpManagementInline() {
             }
             ui.notifications?.info(`Granted ${amount} Free XP to ${updated} characters (frei verteilbar).`);
             app.render();
+        });
+        customContainer.find('.bulk-reset-xp-account-btn').on('click', async () => {
+            const { promptResetAllCharactersXpAccounting } = await import('./utils/xp-account-reset.js');
+            promptResetAllCharactersXpAccounting(() => app.render());
+        });
+        customContainer.find('.reset-xp-account-btn').on('click', async (event) => {
+            const characterId = $(event.currentTarget).data('character-id');
+            const actor = game.actors?.get(characterId);
+            if (!actor) {
+                ui.notifications?.error('Character not found.');
+                return;
+            }
+            const { promptResetActorXpAccounting } = await import('./utils/xp-account-reset.js');
+            promptResetActorXpAccounting(actor, () => app.render());
         });
         // History button
         customContainer.find('.history-xp-btn').on('click', async (event) => {

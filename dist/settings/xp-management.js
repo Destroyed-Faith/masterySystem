@@ -3,6 +3,7 @@
  * Allows GM to view character XP spending and grant XP allowances
  */
 import { actorHasPostCreationSnapshot, resetActorProgressToPostCreation } from '../utils/xp-post-creation.js';
+import { promptResetActorXpAccounting, promptResetAllCharactersXpAccounting, } from '../utils/xp-account-reset.js';
 // Use ApplicationV2 with HandlebarsApplicationMixin if available, otherwise fall back to Application
 let BaseApplication;
 if (foundry?.applications?.api?.ApplicationV2 && foundry?.applications?.api?.HandlebarsApplicationMixin) {
@@ -425,6 +426,19 @@ export class XpManagementSettings extends BaseApplication {
             ].join(', ');
             ui.notifications?.info(`XP step ended for ${actor.name} (${summary}).`);
             this.render();
+        });
+        html.find('.bulk-reset-xp-account-btn').on('click', () => {
+            promptResetAllCharactersXpAccounting(() => this.render());
+        });
+        html.find('.reset-xp-account-btn').on('click', async (event) => {
+            const button = $(event.currentTarget);
+            const characterId = button.data('character-id');
+            const actor = game.actors?.get(characterId);
+            if (!actor) {
+                ui.notifications?.error('Character not found.');
+                return;
+            }
+            promptResetActorXpAccounting(actor, () => this.render());
         });
         html.find('.reset-progress-xp-btn').on('click', async (event) => {
             const button = $(event.currentTarget);
