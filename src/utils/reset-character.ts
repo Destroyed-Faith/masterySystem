@@ -16,6 +16,7 @@
  */
 
 import { DEFAULT_MANUAL_ADJUSTMENTS } from './manual-adjustments.js';
+import { getWorldDefaultMasteryRank } from './mastery-rank-sync.js';
 
 const ATTRIBUTE_KEYS = [
     'might',
@@ -146,7 +147,7 @@ export async function resetCharacterForRecreation(
     clearSkillBucketsInUpdateBatch(updates, system);
 
     // Mastery defaults (rank 2, points 0, experience 0) per template.json.
-    updates['system.mastery.rank'] = 2;
+    updates['system.mastery.rank'] = getWorldDefaultMasteryRank();
     updates['system.mastery.points'] = 0;
     updates['system.mastery.experience'] = 0;
 

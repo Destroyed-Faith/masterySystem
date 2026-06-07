@@ -25,6 +25,17 @@
 import { MR_ADVANCEMENT } from './constants.js';
 /** Recommended starting Mastery Rank (Players Guide 7224–7226). */
 export const STARTING_MASTERY_RANK = 2;
+/** World setting `defaultMasteryRank` (fallback when an actor has no MR stored). */
+export function getWorldDefaultMasteryRank() {
+    try {
+        const raw = game?.settings?.get('mastery-system', 'defaultMasteryRank');
+        const n = Math.floor(Number(raw) || STARTING_MASTERY_RANK);
+        return Math.max(1, Math.min(8, n));
+    }
+    catch {
+        return STARTING_MASTERY_RANK;
+    }
+}
 /** Compute the suggested Mastery Rank from a total Stone count. */
 export function deriveMasteryRankFromStones(totalStones) {
     const stones = Math.max(0, Math.floor(Number(totalStones) || 0));

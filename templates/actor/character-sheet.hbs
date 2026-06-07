@@ -36,7 +36,23 @@
     <div class="header-info">
       <div class="mastery-rank-box" title="Mastery Rank">
         <label>MR</label>
+        {{#if isGM}}
+        <select class="mastery-rank-select" data-dtype="Number" title="GM: Mastery Rank für diesen Charakter" aria-label="Mastery Rank">
+          <option value="1" {{#if (eqNum system.mastery.rank 1)}}selected{{/if}}>1</option>
+          <option value="2" {{#if (eqNum system.mastery.rank 2)}}selected{{/if}}>2</option>
+          <option value="3" {{#if (eqNum system.mastery.rank 3)}}selected{{/if}}>3</option>
+          <option value="4" {{#if (eqNum system.mastery.rank 4)}}selected{{/if}}>4</option>
+          <option value="5" {{#if (eqNum system.mastery.rank 5)}}selected{{/if}}>5</option>
+          <option value="6" {{#if (eqNum system.mastery.rank 6)}}selected{{/if}}>6</option>
+          <option value="7" {{#if (eqNum system.mastery.rank 7)}}selected{{/if}}>7</option>
+          <option value="8" {{#if (eqNum system.mastery.rank 8)}}selected{{/if}}>8</option>
+        </select>
+        {{#if system.mastery.suggestedRank}}
+        <span class="rank-stone-hint" title="Empfehlung aus Total Stones (nur Hinweis, kein Auto-Rank-Up)">↗{{system.mastery.suggestedRank}}</span>
+        {{/if}}
+        {{else}}
         <span class="rank-value">{{default system.mastery.rank 2}}</span>
+        {{/if}}
       </div>
       
       {{#if creationComplete}}
@@ -1828,10 +1844,6 @@
 
         <div class="df-equipment-bottom">
         <aside class="df-equipment-side">
-          <div class="df-side-header">
-            <button type="button" class="df-stash-toggle" title="Stash / Händler"><i class="fas fa-store"></i></button>
-          </div>
-          
           <div class="df-equipped-panel">
             <h4>Equipped</h4>
             <div class="df-equipped-grid">
@@ -1859,7 +1871,7 @@
             </div>
           </div>
           
-          <div class="df-stash-panel {{#unless equipmentUi.showStash}}collapsed{{/unless}}">
+          <div class="df-stash-panel">
             <h4>Stash</h4>
             <div class="df-stash-grid df-dropzone" data-df-drop="stash">
               {{#each equipmentUi.stash.cells}}

@@ -13,6 +13,7 @@
    CSS Variables - Rulebook Palette
    ======================================== */
 :root {
+  --df-font-head: 'Laviossa', var(--df-font-head);
   --df-bg-primary: #20272B;
   --df-bg-panel: #2a3136;
   --df-bg-header: #1b2124;
@@ -46,7 +47,7 @@
   padding: 0.5rem 1rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   font-size: 0.9rem;
   font-weight: 400;
 }
@@ -105,7 +106,7 @@
 .application.mastery-system:not(.sheet) h2,
 .application.mastery-system:not(.sheet) h3,
 .application.mastery-system:not(.sheet) h4 {
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   color: var(--df-text-primary);
   font-weight: 400;
   margin: 0.5rem 0;
@@ -309,7 +310,7 @@
 }
 
 .application.mastery-system:not(.sheet) .stone-powers-dialog .power-name {
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   font-size: 1rem;
   color: var(--df-text-primary);
   font-weight: 400;
@@ -417,7 +418,7 @@
 
 .carousel-portrait .portrait-name {
   color: var(--df-text-primary);
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   font-size: 0.9rem;
 }
 
@@ -497,7 +498,7 @@
 }
 
 .application.mastery-system:not(.sheet).initiative-shop .actor-info h2 {
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   color: var(--df-text-primary);
 }
 
@@ -607,7 +608,7 @@
 .application.mastery-system:not(.sheet) th {
   padding: 0.75rem;
   text-align: left;
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   font-size: 0.9rem;
   font-weight: 400;
   text-transform: uppercase;
@@ -700,7 +701,7 @@
 }
 
 #chat-log .chat-message .message-header .message-sender {
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   color: var(--df-text-secondary);
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -754,7 +755,7 @@
 }
 
 #chat-log .mastery-roll .roll-header h3 {
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   color: var(--df-text-secondary);
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -802,7 +803,7 @@
   border-bottom: none;
   padding-top: 8px;
   margin-top: 8px;
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   color: var(--df-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -865,7 +866,7 @@
   color: var(--df-text-primary);
   border-radius: 6px;
   padding: 6px 10px;
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   letter-spacing: 0.45px;
   text-transform: uppercase;
   font-size: 11px;
@@ -907,7 +908,7 @@
 }
 
 #chat-log .mastery-attack-card .attack-header h3 {
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   color: var(--df-text-secondary);
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -973,7 +974,7 @@
 
 #chat-log .mastery-attack-card .raises-input-group label {
   color: var(--df-text-muted);
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -1005,7 +1006,7 @@
   border-radius: 6px;
   padding: 8px 16px;
   color: var(--df-text-primary);
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -1042,7 +1043,7 @@
 }
 
 #chat-log .mastery-damage-card .damage-header h3 {
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   color: var(--df-text-secondary);
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -1099,7 +1100,7 @@
 }
 
 #chat-log .mastery-damage-card .raises-section h4 {
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   color: var(--df-text-secondary);
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -1134,7 +1135,7 @@
 
 #chat-log .mastery-damage-card .raise-item label {
   color: var(--df-text-muted);
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -1179,7 +1180,7 @@
   border-radius: 6px;
   padding: 8px 16px;
   color: var(--df-text-primary);
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -1219,7 +1220,7 @@
 }
 
 #chat-log .mastery-system-damage h3 {
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   color: var(--df-text-secondary);
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -1279,7 +1280,7 @@
 }
 
 #chat-log .mastery-system-info h3 {
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   color: var(--df-text-secondary);
   letter-spacing: 0.1em;
   text-transform: uppercase;

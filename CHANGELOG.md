@@ -2,6 +2,38 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.31] - 2026-06-06
+
+### Changed
+
+- **Typography:** Überschriften nutzen **Laviossa** (Regelwerk-Font von Forge) statt Cinzel Decorative; Fließtext bleibt Cormorant Garamond.
+- **Item sheets:** Artefakte nutzen nur noch **Artifact Sheet** (ehem. V2). Der alte **Mastery Item Sheet**-Pfad mit `artifact-sheet.hbs` ist entfernt; Registrierung wird beim Start neu gesetzt.
+- **Equipment:** Toten Stash-Toggle-Button entfernt; Stash-Panel bleibt dauerhaft sichtbar.
+
+### Fixed
+
+- **Artifact sheet picker:** Artefakte, die noch am Legacy-Item-Sheet hingen, werden auf den Artifact Sheet zurückgesetzt (GM, Welt-Laden).
+
+## [0.9.30] - 2026-06-06
+
+### Changed
+
+- **Character sheet:** Foundry’s generic core `ActorSheet` is unregistered — only the Mastery **Character Sheet** remains (no duplicate “default vs advanced” picker). Label shortened from “Mastery Character Sheet”.
+
+### Fixed
+
+- **Sheet picker:** Characters still bound to the legacy core sheet are reset to the default Mastery sheet on world load (GM).
+
+## [0.9.29] - 2026-06-06
+
+### Changed
+
+- **Mastery Rank:** No automatic rank-up from Total Stones. MR is GM-controlled via dropdown on the character sheet; world **Default Mastery Rank** applies to new characters. Stone-based value remains as optional hint (↗N).
+
+### Fixed
+
+- **Character sheet MR:** GM dropdown is injected on render when the installed template is still the read-only span (Forge worlds on 0.9.28).
+
 ## [0.9.28] - 2026-06-06
 
 ### Added

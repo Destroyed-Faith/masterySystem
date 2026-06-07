@@ -134,11 +134,20 @@ Hooks.once('init', async function() {
   (CONFIG as any).statusEffects = buildMasteryStatusEffects();
   
   // Register custom sheet application classes
-  // Register Character sheet first
+  const coreActorSheet = (foundry as any).appv1?.sheets?.ActorSheet;
+  if (coreActorSheet) {
+    try {
+      foundry.documents.collections.Actors.unregisterSheet('core', coreActorSheet);
+      console.log('Mastery System | Unregistered core ActorSheet');
+    } catch (err) {
+      console.warn('Mastery System | Could not unregister core ActorSheet', err);
+    }
+  }
+
   foundry.documents.collections.Actors.registerSheet('mastery-system', MasteryCharacterSheet, {
     types: ['character'],
     makeDefault: true,
-    label: 'Mastery Character Sheet'
+    label: 'Character Sheet'
   });
   console.log('Mastery System | Registered Character Sheet');
   
@@ -150,22 +159,42 @@ Hooks.once('init', async function() {
   });
   console.log('Mastery System | Registered NPC Sheet');
   
-  // Register Item sheet for every type EXCEPT artifact (artifacts use ArtifactSheetV2
-  // exclusively, so the legacy generic sheet never competes for the default slot).
+  const coreItemSheet = (foundry as any).appv1?.sheets?.ItemSheet;
+  if (coreItemSheet) {
+    try {
+      foundry.documents.collections.Items.unregisterSheet('core', coreItemSheet);
+      console.log('Mastery System | Unregistered core ItemSheet');
+    } catch (err) {
+      console.warn('Mastery System | Could not unregister core ItemSheet', err);
+    }
+  }
+
+  // Re-register cleanly so older builds that registered MasteryItemSheet for *all*
+  // item types (incl. artifact) no longer offer the legacy artifact-sheet.hbs.
+  try {
+    foundry.documents.collections.Items.unregisterSheet('mastery-system', MasteryItemSheet);
+  } catch (err) {
+    console.warn('Mastery System | Could not unregister prior MasteryItemSheet registration', err);
+  }
+  try {
+    foundry.documents.collections.Items.unregisterSheet('mastery-system', ArtifactSheetV2);
+  } catch (err) {
+    console.warn('Mastery System | Could not unregister prior ArtifactSheetV2 registration', err);
+  }
+
   foundry.documents.collections.Items.registerSheet('mastery-system', MasteryItemSheet, {
     types: ['power', 'echo', 'schtick', 'condition', 'weapon', 'armor', 'shield', 'gear'],
     makeDefault: true,
-    label: 'Mastery Item Sheet'
+    label: 'Item Sheet'
   });
   console.log('Mastery System | Registered Item Sheet');
-  
-  // Register Artifact sheet V2 (for power editing) - sole default for artifacts
+
   foundry.documents.collections.Items.registerSheet('mastery-system', ArtifactSheetV2, {
     types: ['artifact'],
     makeDefault: true,
-    label: 'Artifact Sheet V2'
+    label: 'Artifact Sheet'
   });
-  console.log('Mastery System | Registered Artifact Sheet V2');
+  console.log('Mastery System | Registered Artifact Sheet');
   
   // Register system settings
   registerSystemSettings();
@@ -1241,7 +1270,7 @@ function registerSystemSettings() {
   // Mastery Rank - Global default
   (game as any).settings.register('mastery-system', 'defaultMasteryRank', {
     name: 'Default Mastery Rank',
-    hint: 'Default Mastery Rank for all characters (can be overridden per player)',
+    hint: 'Start-MR für neue Charaktere ohne gespeicherten Rank. Pro Charakter setzt der GM den MR am Bogen (Dropdown). Kein Auto-Rank-Up aus Stones.',
     scope: 'world',
     config: true,
     type: Number,
@@ -2563,6 +2592,40 @@ Hooks.once('ready', async function() {
 
   // Seed General Items Storage once per world load (GM only)
   if (game.user?.isGM) {
+    // Drop legacy sheet selections so defaults apply after sheet registration changes.
+    try {
+      const legacyActorSheets = new Set(['ActorSheet', 'foundry.appv1.sheets.ActorSheet']);
+      const characters = (game as any).actors?.filter((a: any) => a.type === 'character') || [];
+      for (const actor of characters) {
+        const sheetClass = String(actor.getFlag?.('core', 'sheetClass') || '');
+        if (sheetClass && legacyActorSheets.has(sheetClass)) {
+          await actor.unsetFlag('core', 'sheetClass');
+        }
+      }
+
+      const legacyArtifactItemSheets = new Set([
+        'ItemSheet',
+        'foundry.appv1.sheets.ItemSheet',
+        'MasteryItemSheet',
+      ]);
+      const resetArtifactSheet = async (item: any) => {
+        const sheetClass = String(item.getFlag?.('core', 'sheetClass') || '');
+        if (sheetClass && legacyArtifactItemSheets.has(sheetClass)) {
+          await item.unsetFlag('core', 'sheetClass');
+        }
+      };
+      for (const item of (game as any).items?.filter((i: any) => i.type === 'artifact') || []) {
+        await resetArtifactSheet(item);
+      }
+      for (const actor of (game as any).actors || []) {
+        for (const item of actor.items?.filter((i: any) => i.type === 'artifact') || []) {
+          await resetArtifactSheet(item);
+        }
+      }
+    } catch (err) {
+      console.warn('Mastery System | Could not migrate legacy sheet selection', err);
+    }
+
     try {
       const createdItems = await seedGeneralItemsStorage();
       if (createdItems.length > 0) {

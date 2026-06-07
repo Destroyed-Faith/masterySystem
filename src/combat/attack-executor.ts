@@ -144,15 +144,11 @@ function getMasteryRank(actor: any): number {
   if (!actor || !actor.system) return 2; // Default
   
   const system = actor.system as any;
-  if (system.mastery?.rank) {
-    return system.mastery.rank;
-  }
-  
-  // Fallback to settings
-  const playerMasteryRanks = (game as any).settings?.get('mastery-system', 'playerMasteryRanks') || {};
+  const rank = Math.floor(Number(system.mastery?.rank) || 0);
+  if (rank >= 1) return Math.min(8, rank);
+
   const defaultMasteryRank = (game as any).settings?.get('mastery-system', 'defaultMasteryRank') || 2;
-  const playerId = actor.getFlag?.('mastery-system', 'playerId') || actor.ownership?.default || '';
-  return playerMasteryRanks[playerId] || defaultMasteryRank;
+  return Math.max(1, Math.min(8, Math.floor(Number(defaultMasteryRank) || 2)));
 }
 
 /**

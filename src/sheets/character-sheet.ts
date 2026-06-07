@@ -75,7 +75,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    */
   private _powersListDetailsOpen?: boolean;
 
-  private _showStash: boolean = false;
   /** Last pointer-down on equipment tile (for click vs drag distinction). */
   #itemInfoPointerDown: { itemId: string; x: number; y: number } | null = null;
   private _pendingAttributeChanges: Record<string, number> = {}; // Signed pending attribute deltas (XP mode)
@@ -793,18 +792,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       willShowCreationUI: !context.creationComplete
     });
     
-    // Get Mastery Rank from settings (per player or global default)
-    const playerMasteryRanks = (game as any).settings.get('mastery-system', 'playerMasteryRanks') || {};
-    const defaultMasteryRank = (game as any).settings.get('mastery-system', 'defaultMasteryRank') || 2;
-    const playerId = this.actor.getFlag('mastery-system', 'playerId') || this.actor.ownership?.default || '';
-    const masteryRankFromSettings = playerMasteryRanks[playerId] || defaultMasteryRank;
-    
-    // Use setting value if actor doesn't have one set, otherwise use actor's value
-    if (!context.system.mastery?.rank) {
-      context.system.mastery = context.system.mastery || {};
-      context.system.mastery.rank = masteryRankFromSettings;
-    }
-    
+    context.isGM = !!(game as any).user?.isGM;
+    context.defaultMasteryRank = (game as any).settings.get('mastery-system', 'defaultMasteryRank') || 2;
+
     // Add configuration data
     context.config = (CONFIG as any).MASTERY;
     
@@ -1431,7 +1421,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     };
 
     return {
-      showStash: this._showStash,
       bandCols: BAND_COLS,
       bandRows: BAND_ROWS,
       stashCols: STASH_COLS,
@@ -1669,6 +1658,56 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     return groupedSkills;
   }
 
+  /**
+   * GM-only MR dropdown. Injects the control when an older template still renders
+   * a read-only span (e.g. before 0.9.29 was installed on the world).
+   */
+  #bindGmMasteryRankSelect(html: JQuery): void {
+    if (!(game as any).user?.isGM) return;
+
+    const box = html.find('.mastery-rank-box');
+    if (!box.length) return;
+
+    let select = box.find('.mastery-rank-select');
+    if (!select.length) {
+      const rank = Math.max(
+        1,
+        Math.min(8, Math.floor(Number((this.actor.system as any)?.mastery?.rank) || 2))
+      );
+      const options = [1, 2, 3, 4, 5, 6, 7, 8]
+        .map((n) => `<option value="${n}"${n === rank ? ' selected' : ''}>${n}</option>`)
+        .join('');
+      box.find('.rank-value').replaceWith(
+        `<select class="mastery-rank-select" data-dtype="Number" title="GM: Mastery Rank für diesen Charakter" aria-label="Mastery Rank">${options}</select>`
+      );
+      select = box.find('.mastery-rank-select');
+
+      const suggested = Math.floor(Number((this.actor.system as any)?.mastery?.suggestedRank) || 0);
+      if (suggested >= 1 && suggested <= 8 && !box.find('.rank-stone-hint').length) {
+        box.append(
+          `<span class="rank-stone-hint" title="Empfehlung aus Total Stones (nur Hinweis, kein Auto-Rank-Up)">↗${suggested}</span>`
+        );
+      }
+    }
+
+    select.off('change.masteryRank').on('change.masteryRank', async (ev: JQuery.ChangeEvent) => {
+      const newRank = Math.max(1, Math.min(8, Math.floor(Number($(ev.currentTarget).val()) || 2)));
+      const oldRank = Math.max(1, Math.floor(Number((this.actor.system as any)?.mastery?.rank) || 2));
+      if (newRank === oldRank) return;
+      try {
+        await this.actor.update({ 'system.mastery.rank': newRank });
+        if (newRank > oldRank) {
+          const { applyRankUpBundle } = await import('../utils/mastery-rank-sync.js');
+          await applyRankUpBundle(this.actor, newRank - oldRank);
+        }
+        await this.render(false);
+      } catch (err) {
+        console.warn('[mastery-system] MR update failed', err);
+        (ui as any).notifications?.error('Mastery Rank konnte nicht gespeichert werden.');
+      }
+    });
+  }
+
   /** @override */
   activateListeners(html: JQuery) {
     console.log('Mastery System | activateListeners START', {
@@ -1679,6 +1718,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     });
     
     super.activateListeners(html);
+
+    this.#bindGmMasteryRankSelect(html);
     
     console.log('Mastery System | activateListeners called AFTER super', {
       htmlLength: html.length,
@@ -2251,12 +2292,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       });
     }
     
-    // Stash toggle
-    html.find('.df-stash-toggle').on('click', (ev: JQuery.ClickEvent) => {
-      ev.preventDefault();
-      this._showStash = !this._showStash;
-      this.render();
-    });
     html.find('.equipment-item input[type="radio"][name^="equipped-"]').on('change', this.#onEquipmentToggle.bind(this));
 
     const sheetEl = html.get(0) as HTMLElement | undefined;
@@ -2556,13 +2591,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       clearDropHighlight();
     });
     
-    // Stash toggle
-    html.find('.df-stash-toggle').on('click', (ev: JQuery.ClickEvent) => {
-      ev.preventDefault();
-      this._showStash = !this._showStash;
-      this.render();
-    });
-
     // Add spell
     // Removed add-spell-btn handler - using add-spell-creation-btn instead
     

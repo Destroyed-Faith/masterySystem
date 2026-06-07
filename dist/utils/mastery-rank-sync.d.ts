@@ -24,6 +24,8 @@
  */
 /** Recommended starting Mastery Rank (Players Guide 7224–7226). */
 export declare const STARTING_MASTERY_RANK = 2;
+/** World setting `defaultMasteryRank` (fallback when an actor has no MR stored). */
+export declare function getWorldDefaultMasteryRank(): number;
 /** Compute the suggested Mastery Rank from a total Stone count. */
 export declare function deriveMasteryRankFromStones(totalStones: number): number;
 /** Tier label for the supplied Mastery Rank ("Adept" .. "Legend"). */

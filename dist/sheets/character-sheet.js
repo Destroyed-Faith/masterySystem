@@ -53,7 +53,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      * `undefined` means first paint: expanded (see getData: `!== false`).
      */
     _powersListDetailsOpen;
-    _showStash = false;
     /** Last pointer-down on equipment tile (for click vs drag distinction). */
     #itemInfoPointerDown = null;
     _pendingAttributeChanges = {}; // Signed pending attribute deltas (XP mode)
@@ -724,16 +723,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             itemsPowers: items.powers?.length || 0,
             willShowCreationUI: !context.creationComplete
         });
-        // Get Mastery Rank from settings (per player or global default)
-        const playerMasteryRanks = game.settings.get('mastery-system', 'playerMasteryRanks') || {};
-        const defaultMasteryRank = game.settings.get('mastery-system', 'defaultMasteryRank') || 2;
-        const playerId = this.actor.getFlag('mastery-system', 'playerId') || this.actor.ownership?.default || '';
-        const masteryRankFromSettings = playerMasteryRanks[playerId] || defaultMasteryRank;
-        // Use setting value if actor doesn't have one set, otherwise use actor's value
-        if (!context.system.mastery?.rank) {
-            context.system.mastery = context.system.mastery || {};
-            context.system.mastery.rank = masteryRankFromSettings;
-        }
+        context.isGM = !!game.user?.isGM;
+        context.defaultMasteryRank = game.settings.get('mastery-system', 'defaultMasteryRank') || 2;
         // Add configuration data
         context.config = CONFIG.MASTERY;
         // Enrich biography info for display
@@ -1322,7 +1313,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             };
         };
         return {
-            showStash: this._showStash,
             bandCols: BAND_COLS,
             bandRows: BAND_ROWS,
             stashCols: STASH_COLS,
@@ -1534,6 +1524,48 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         return groupedSkills;
     }
+    /**
+     * GM-only MR dropdown. Injects the control when an older template still renders
+     * a read-only span (e.g. before 0.9.29 was installed on the world).
+     */
+    #bindGmMasteryRankSelect(html) {
+        if (!game.user?.isGM)
+            return;
+        const box = html.find('.mastery-rank-box');
+        if (!box.length)
+            return;
+        let select = box.find('.mastery-rank-select');
+        if (!select.length) {
+            const rank = Math.max(1, Math.min(8, Math.floor(Number(this.actor.system?.mastery?.rank) || 2)));
+            const options = [1, 2, 3, 4, 5, 6, 7, 8]
+                .map((n) => `<option value="${n}"${n === rank ? ' selected' : ''}>${n}</option>`)
+                .join('');
+            box.find('.rank-value').replaceWith(`<select class="mastery-rank-select" data-dtype="Number" title="GM: Mastery Rank für diesen Charakter" aria-label="Mastery Rank">${options}</select>`);
+            select = box.find('.mastery-rank-select');
+            const suggested = Math.floor(Number(this.actor.system?.mastery?.suggestedRank) || 0);
+            if (suggested >= 1 && suggested <= 8 && !box.find('.rank-stone-hint').length) {
+                box.append(`<span class="rank-stone-hint" title="Empfehlung aus Total Stones (nur Hinweis, kein Auto-Rank-Up)">↗${suggested}</span>`);
+            }
+        }
+        select.off('change.masteryRank').on('change.masteryRank', async (ev) => {
+            const newRank = Math.max(1, Math.min(8, Math.floor(Number($(ev.currentTarget).val()) || 2)));
+            const oldRank = Math.max(1, Math.floor(Number(this.actor.system?.mastery?.rank) || 2));
+            if (newRank === oldRank)
+                return;
+            try {
+                await this.actor.update({ 'system.mastery.rank': newRank });
+                if (newRank > oldRank) {
+                    const { applyRankUpBundle } = await import('../utils/mastery-rank-sync.js');
+                    await applyRankUpBundle(this.actor, newRank - oldRank);
+                }
+                await this.render(false);
+            }
+            catch (err) {
+                console.warn('[mastery-system] MR update failed', err);
+                ui.notifications?.error('Mastery Rank konnte nicht gespeichert werden.');
+            }
+        });
+    }
     /** @override */
     activateListeners(html) {
         console.log('Mastery System | activateListeners START', {
@@ -1543,6 +1575,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             htmlContent: html[0]?.tagName
         });
         super.activateListeners(html);
+        this.#bindGmMasteryRankSelect(html);
         console.log('Mastery System | activateListeners called AFTER super', {
             htmlLength: html.length,
             actorName: this.actor?.name
@@ -2057,12 +2090,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 }
             });
         }
-        // Stash toggle
-        html.find('.df-stash-toggle').on('click', (ev) => {
-            ev.preventDefault();
-            this._showStash = !this._showStash;
-            this.render();
-        });
         html.find('.equipment-item input[type="radio"][name^="equipped-"]').on('change', this.#onEquipmentToggle.bind(this));
         const sheetEl = html.get(0);
         if (sheetEl) {
@@ -2350,12 +2377,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         });
         html.off('drop.df-grid').on('drop.df-grid', '.df-enc-band', () => {
             clearDropHighlight();
-        });
-        // Stash toggle
-        html.find('.df-stash-toggle').on('click', (ev) => {
-            ev.preventDefault();
-            this._showStash = !this._showStash;
-            this.render();
         });
         // Add spell
         // Removed add-spell-btn handler - using add-spell-creation-btn instead

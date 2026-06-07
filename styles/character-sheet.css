@@ -64,7 +64,33 @@
   border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 4px;
   min-width: 40px;
-  max-width: 50px;
+  max-width: 64px;
+}
+
+.mastery-system.sheet.actor.character .mastery-rank-select {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 3px;
+  color: var(--df-text-primary, #d0d0d0);
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  padding: 1px 2px;
+  cursor: pointer;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.mastery-system.sheet.actor.character .mastery-rank-select:hover {
+  border-color: var(--df-border-highlight, rgba(255, 255, 255, 0.25));
+}
+
+.mastery-system.sheet.actor.character .rank-stone-hint {
+  font-size: 9px;
+  line-height: 1;
+  text-align: center;
+  color: #c9a227;
+  opacity: 0.9;
 }
 
 .mastery-system.sheet.actor.character .points-box {
@@ -115,7 +141,7 @@
   color: var(--df-text-secondary, #a0a0a0);
   text-align: center;
   line-height: 1;
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
 }
 
 .mastery-system.sheet.actor.character .rank-value,
@@ -143,7 +169,7 @@
   font-size: 24px;
   font-weight: 700;
   padding: 4px 8px;
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
 }
 
 .mastery-system.sheet.actor.character .character-name-box h1 {
@@ -151,7 +177,7 @@
   font-size: 24px;
   font-weight: 700;
   color: var(--df-text-primary, #d0d0d0);
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
 }
 
 .mastery-system.sheet.actor.character .profile-img {
@@ -319,14 +345,14 @@
   font-size: 20px;
   font-weight: bold;
   width: 100%;
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
 }
 
 .mastery-system.sheet.actor.character .charname span {
   color: var(--df-text-primary, #d0d0d0);
   font-size: 20px;
   font-weight: bold;
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
 }
 
 .mastery-system.sheet.actor.character .mastery-rank-display {
@@ -524,7 +550,7 @@
   letter-spacing: 2px;
   border-bottom: 3px solid var(--df-border-primary, #3a3f44);
   padding-bottom: 15px;
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
 }
 
 .mastery-system.sheet.actor.character .attributes-grid {
@@ -585,7 +611,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
 }
 
 .mastery-system.sheet.actor.character .attribute-name i {
@@ -686,7 +712,7 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--df-text-secondary, #a0a0a0);
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
 }
 
 .mastery-system.sheet.actor.character .minor-expressions-names {
@@ -1337,7 +1363,7 @@
   font-size: 14px;
   color: var(--df-text-primary, #d0d0d0);
   text-transform: uppercase;
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
 }
 
 .mastery-system.sheet.actor.character .saving-throw-value-group {
@@ -1397,7 +1423,7 @@
   font-size: 14px;
   color: var(--df-text-primary, #d0d0d0);
   min-width: 80px;
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
 }
 
 .mastery-system.sheet.actor.character .evade-value-container input,
@@ -1442,7 +1468,7 @@
   min-width: 30px;
   text-align: center;
   margin: 0;
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
 }
 
 .mastery-system.sheet.actor.character .attribute-circle-wrapper {
@@ -1572,7 +1598,7 @@
   font-weight: bold;
   color: var(--df-text-primary, #d0d0d0);
   font-size: 14px;
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
 }
 
 .mastery-system.sheet.actor.character .echo-content .form-group input[type="text"],
@@ -1617,7 +1643,7 @@
 .mastery-system.sheet.actor.character .creation-echo-header h4 {
   margin: 0;
   color: var(--df-text-primary, #d0d0d0);
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   font-size: 16px;
   flex: 0 0 auto;
 }
@@ -1689,7 +1715,7 @@
   display: block;
   margin: 0 0 10px 0;
   color: var(--df-text-primary, #d0d0d0);
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   font-weight: bold;
   font-size: 15px;
 }
@@ -1702,7 +1728,7 @@
 
 .mastery-system.sheet.actor.character .echo-deck-title {
   color: var(--df-text-primary, #d0d0d0);
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   font-size: 16px;
   margin-bottom: 4px;
 }
@@ -1745,7 +1771,7 @@
 .mastery-system.sheet.actor.character .echo-deck-traits > label,
 .mastery-system.sheet.actor.character .echo-deck-traits > strong {
   color: var(--df-text-primary, #d0d0d0);
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   font-size: 14px;
   margin: 0 0 2px 0;
 }
@@ -1768,7 +1794,7 @@
   gap: 8px;
   flex-wrap: wrap;
   color: var(--df-text-primary, #e8e8e8);
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   font-weight: 600;
   font-size: 14px;
   margin-bottom: 4px;
@@ -1827,7 +1853,7 @@
 .mastery-system.sheet.actor.character .echo-deck-cards-header h4 {
   margin: 0;
   color: var(--df-text-primary, #d0d0d0);
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   font-size: 14px;
 }
 
@@ -1876,7 +1902,7 @@
 
 .mastery-system.sheet.actor.character .echo-card-name strong {
   color: var(--df-text-primary, #e8e8e8);
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   font-size: 14px;
 }
 
@@ -1958,7 +1984,7 @@
 /* Biography fields integrated into Echo tab (Blood / Concept / Appearance / Notes) */
 .mastery-system.sheet.actor.character .echo-tab-content .form-group label {
   color: var(--df-text-primary, #d0d0d0);
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   font-weight: bold;
   font-size: 13px;
 }
@@ -2035,7 +2061,7 @@
 
 .mastery-system.dialog.power-mechanics-editor .pme-section > legend {
   padding: 0 6px;
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   font-size: 12px;
   color: var(--df-text-primary, #e8e8e8);
 }
@@ -2083,7 +2109,7 @@
 
 .mastery-system.dialog.power-mechanics-editor .pme-raw > summary {
   cursor: pointer;
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   font-size: 12px;
   color: var(--df-text-primary, #d0d0d0);
 }
@@ -2144,7 +2170,7 @@
   margin: 0;
   color: var(--df-text-primary, #d0d0d0);
   font-size: 18px;
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
 }
 
 /* Power and Spell Cards - Beautiful detailed styling */
@@ -2194,7 +2220,7 @@
   letter-spacing: 0.06em;
   color: var(--df-text-secondary, #a0a0a0);
   margin-bottom: 4px;
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
 }
 
 .mastery-system.sheet.actor.character .power-fluff-body {
@@ -2310,7 +2336,7 @@
   font-size: 16px;
   font-weight: bold;
   color: var(--df-text-primary, #d0d0d0);
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
 }
 
 .mastery-system.sheet.actor.character .power-controls,
@@ -2574,7 +2600,7 @@
   color: var(--df-text-primary, #d0d0d0);
   min-width: 120px;
   flex-shrink: 0;
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -3009,7 +3035,7 @@
   margin: 0 0 10px 0;
   font-size: 20px;
   color: var(--df-text-primary, #d0d0d0);
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
 }
 
 .mastery-system.sheet.actor.character .skills-description {
@@ -3035,7 +3061,7 @@
   border-bottom: 2px solid var(--df-border-primary, #3a3f44);
   padding-bottom: 8px;
   text-transform: uppercase;
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
 }
 
 .mastery-system.sheet.actor.character .skills-list {
@@ -3140,7 +3166,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
 }
 
 .mastery-system.sheet.actor.character .category-header-compact i {
@@ -3220,7 +3246,7 @@
   color: var(--df-text-primary, #d0d0d0);
   border-radius: 6px;
   padding: 6px 12px;
-  font-family: var(--df-font-head, 'Cinzel Decorative', serif);
+  font-family: var(--df-font-head);
   letter-spacing: 0.5px;
   text-transform: uppercase;
   font-size: 11px;
@@ -3234,7 +3260,7 @@
   color: var(--df-text-primary, #d0d0d0);
   border-radius: 6px;
   padding: 6px 10px;
-  font-family: var(--df-font-head, 'Cinzel Decorative', serif);
+  font-family: var(--df-font-head);
   letter-spacing: 0.4px;
   text-transform: uppercase;
   font-size: 10px;
@@ -4912,7 +4938,7 @@
 
 /* ========== Combat Statistics ========== */
 .mastery-system.sheet.actor.character .combat-stats-section h3 {
-  font-family: var(--ms-font-head, 'Cinzel Decorative', serif);
+  font-family: var(--ms-font-head);
   color: var(--ms-muted, #aeb5c0);
   letter-spacing: 0.8px;
   text-transform: uppercase;
@@ -4992,7 +5018,7 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 4px;
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
 }
 
 .mastery-system.sheet.actor.character .stat-value {
@@ -5177,7 +5203,7 @@
 
 /* ========== Saving Throws ========== */
 .mastery-system.sheet.actor.character .saving-throws-section h3 {
-  font-family: var(--ms-font-head, 'Cinzel Decorative', serif);
+  font-family: var(--ms-font-head);
   color: var(--ms-muted, #aeb5c0);
   letter-spacing: 0.8px;
   text-transform: uppercase;
@@ -5235,7 +5261,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: 'Cinzel Decorative', serif;
+  font-family: var(--df-font-head);
 }
 
 .mastery-system.sheet.actor.character .save-title i {
@@ -8762,34 +8788,10 @@
 }
 
 /* Stash Panel */
-.df-stash-panel.collapsed {
-  display: none;
-}
-
 .df-stash-grid {
   display: grid;
   grid-template-columns: repeat(10, 1fr);
   grid-auto-rows: 26px;
-}
-
-.df-side-header {
-  display: flex;
-  justify-content: flex-end;
-  padding: 4px;
-}
-
-.df-stash-toggle {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: var(--df-text-primary, #d0d0d0);
-  padding: 6px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.df-stash-toggle:hover {
-  background: rgba(0, 0, 0, 0.5);
-  border-color: rgba(255, 255, 255, 0.4);
 }
 
 /* PAPERDOLL */

@@ -22,7 +22,7 @@
 }
 
 #chat-log .chat-message .message-header .message-sender {
-  font-family: var(--ms-font-head, 'Cinzel Decorative', serif);
+  font-family: var(--ms-font-head);
   color: var(--ms-muted, #a0a0a0);
   letter-spacing: 0.6px;
   text-transform: uppercase;

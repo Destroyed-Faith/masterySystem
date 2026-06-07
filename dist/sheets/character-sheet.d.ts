@@ -12,7 +12,6 @@ export declare class MasteryCharacterSheet extends BaseActorSheet {
      * `undefined` means first paint: expanded (see getData: `!== false`).
      */
     private _powersListDetailsOpen?;
-    private _showStash;
     private _pendingAttributeChanges;
     private _pendingPowerLevelChanges;
     private _pendingSkillRankChanges;

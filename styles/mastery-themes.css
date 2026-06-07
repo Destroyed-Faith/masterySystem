@@ -4,6 +4,22 @@
  */
 
 /* ========================================
+   Rulebook heading font (Destroyed Faith / Laviossa)
+   ======================================== */
+@font-face {
+  font-family: 'Laviossa';
+  src: url('https://assets.forge-vtt.com/6727fe2e3c793ad173f66d6b/destroyed-Faith%20Adventures/Fonts/LaviossaMedium.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --df-font-head: 'Laviossa', 'Cinzel Decorative', serif;
+  --ms-font-head: 'Laviossa', 'Cinzel Decorative', 'Cormorant Garamond', serif;
+}
+
+/* ========================================
    RULEBOOK THEME (ms-theme-rulebook)
    ======================================== */
 
@@ -22,7 +38,7 @@
   --ms-shadow: rgba(0, 0, 0, 0.55);
   --ms-radius: 10px;
   --ms-gap: 8px;
-  --ms-font-head: "Cinzel", "Cinzel Decorative", "Cormorant Garamond", "Garamond", serif;
+  --ms-font-head: "Laviossa", "Cinzel Decorative", "Cormorant Garamond", "Garamond", serif;
   --ms-font-body: "Cormorant Garamond", "Georgia", serif;
 
   /* Subtle book/noise texture background */

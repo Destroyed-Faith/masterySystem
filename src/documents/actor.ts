@@ -27,7 +27,11 @@ import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-function
 import { logDrDebug } from '../utils/dr-debug.js';
 import { normalizeManualAdjustments } from '../utils/manual-adjustments.js';
 import { getRoundState } from '../combat/action-economy.js';
-import { deriveMasteryRankFromStones, STARTING_MASTERY_RANK } from '../utils/mastery-rank-sync.js';
+import {
+  deriveMasteryRankFromStones,
+  getWorldDefaultMasteryRank,
+  STARTING_MASTERY_RANK,
+} from '../utils/mastery-rank-sync.js';
 import { getDivineScale } from '../utils/constants.js';
 
 export class MasteryActor extends Actor {
@@ -126,26 +130,19 @@ export class MasteryActor extends Actor {
       }
 
       /**
-       * Players Guide 7232–7239: derive the **suggested** Mastery Rank
-       * from the actor's total Stones. We never overwrite a higher,
-       * GM-set rank — only suggest a floor based on the doc table —
-       * because Shared Mastery (7246–7254) is a GM/world decision.
-       *
-       * `system.mastery.suggestedRank` exposes the recommendation to
-       * the UI; the live `system.mastery.rank` is auto-promoted only
-       * when it falls **below** the suggested floor (e.g. fresh actor
-       * with zero rank yet many stones, or a migration from older data).
+       * Players Guide 7232–7239: Stones → **suggested** MR for GM reference only.
+       * Live `system.mastery.rank` is set by the GM on the character sheet
+       * (or world default for new actors) — never auto-promoted from Stones.
        */
       if (!system.mastery) {
-        system.mastery = { rank: STARTING_MASTERY_RANK, points: 0, experience: 0 };
+        system.mastery = { rank: getWorldDefaultMasteryRank(), points: 0, experience: 0 };
       }
-      const suggestedRank = deriveMasteryRankFromStones(system.stones.total);
-      system.mastery.suggestedRank = suggestedRank;
-      const currentRank = Math.max(STARTING_MASTERY_RANK, Math.floor(Number(system.mastery.rank) || STARTING_MASTERY_RANK));
-      if (currentRank < suggestedRank) {
-        system.mastery.rank = suggestedRank;
+      system.mastery.suggestedRank = deriveMasteryRankFromStones(system.stones.total);
+      const storedRank = Math.floor(Number(system.mastery.rank) || 0);
+      if (!Number.isFinite(storedRank) || storedRank < 1) {
+        system.mastery.rank = getWorldDefaultMasteryRank();
       } else {
-        system.mastery.rank = currentRank;
+        system.mastery.rank = Math.max(1, Math.min(8, storedRank));
       }
       // New spec — MR 8 Divine Scale (Lesser/True/High/Apex God) for display.
       // `null` when total Stones < 50 (i.e. the actor is below Godlevel).
