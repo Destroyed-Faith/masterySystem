@@ -1870,28 +1870,6 @@
               {{/each}}
             </div>
           </div>
-          
-          <div class="df-stash-panel">
-            <h4>Stash</h4>
-            <div class="df-stash-grid df-dropzone" data-df-drop="stash">
-              {{#each equipmentUi.stash.cells}}
-                <div class="df-cell {{#if this.occupied}}df-cell--occupied{{/if}} {{#if this.item}}df-cell--item{{/if}}" data-col="{{this.col}}" data-row="{{this.row}}" style="grid-column: {{this.col}} / span {{default this.spanW 1}}; grid-row: {{this.row}} / span {{default this.spanH 1}};">
-                  {{#if this.item}}
-                    <div class="df-item-tile item df-draggable-item" data-item-id="{{this.item.id}}" data-inventory-size="{{this.item.system.inventorySize}}" draggable="true" title="{{this.item.name}}">
-                      <img class="df-item-icon" src="{{this.item.img}}" />
-                      <div class="df-item-actions">
-                        <a class="item-edit" title="Edit"><i class="fas fa-edit"></i></a>
-                        <a class="item-delete" title="Delete"><i class="fas fa-trash"></i></a>
-                      </div>
-                    </div>
-                  {{/if}}
-                </div>
-              {{/each}}
-              {{#if equipmentUi.stash.overflow}}
-                <div class="df-overflow">+{{equipmentUi.stash.overflow}}</div>
-              {{/if}}
-            </div>
-          </div>
         </aside>
         </div>
       </div>

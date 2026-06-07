@@ -1117,9 +1117,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const BAND_COLS = 24;
         const BAND_ROWS = 9;
         const BAND_SIZE = BAND_COLS * BAND_ROWS;
-        const STASH_COLS = 10;
-        const STASH_ROWS = 6;
-        const STASH_SIZE = STASH_COLS * STASH_ROWS;
         // Collect all equipment items
         const equipmentItems = [
             ...(items.weapons || []),
@@ -1212,7 +1209,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         };
         // Read flags and split items
         const inventoryItems = [];
-        const stashItems = [];
         const notItems = [];
         const encItems = [];
         const heavyItems = [];
@@ -1246,10 +1242,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     slotMap[slot] = item;
                 }
             }
-            else if (container === 'stash') {
-                stashItems.push(item);
-            }
             else {
+                // Legacy stash flags: show in carry inventory (stash panel removed from sheet).
                 inventoryItems.push(item);
                 notItems.push(item);
             }
@@ -1270,14 +1264,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             notCount: notItems.length,
             encCount: encItems.length,
             heavyCount: heavyItems.length,
-            stashCount: stashItems.length,
             slotCount: Object.keys(slotMap).length
         });
         // Convert to cells
         const notCellsData = toCells(notItems, BAND_COLS, BAND_ROWS);
         const encCellsData = toCells(encItems, BAND_COLS, BAND_ROWS);
         const heavyCellsData = toCells(heavyItems, BAND_COLS, BAND_ROWS);
-        const stashCellsData = toCells(stashItems, STASH_COLS, STASH_ROWS);
         // Slot definitions — canonical 7-slot vocabulary (Artefacts.md).
         const slotDefs = [
             { key: 'mainhand', label: 'Main Hand' },
@@ -1315,8 +1307,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         return {
             bandCols: BAND_COLS,
             bandRows: BAND_ROWS,
-            stashCols: STASH_COLS,
-            stashRows: STASH_ROWS,
             inventory: {
                 notCells: notCellsData.cells,
                 encCells: encCellsData.cells,
@@ -1329,10 +1319,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                     : loadZone === 'encumbered' ? 'Encumbered'
                         : 'Normal Load',
                 movementPenaltyM,
-            },
-            stash: {
-                cells: stashCellsData.cells,
-                overflow: stashCellsData.overflow
             },
             equipSlots: slotDefs.map((def) => {
                 const item = slotMap[def.key] || null;
@@ -1985,7 +1971,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             dragEvent.__msDropTarget = target || undefined;
             await this._onDrop(dragEvent);
         });
-        const invEquipSelector = '.tab.equipment .df-enc-band .df-draggable-item, .tab.equipment .df-stash-grid .df-draggable-item';
+        const invEquipSelector = '.tab.equipment .df-enc-band .df-draggable-item';
         const ContextMenuCls = foundry.applications?.ux?.ContextMenu;
         if (ContextMenuCls) {
             new ContextMenuCls(html, invEquipSelector, this.#inventoryEquipContextMenuEntries(), {

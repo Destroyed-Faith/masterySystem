@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.32] - 2026-06-06
+
+### Removed
+
+- **Equipment Stash panel** on the character sheet (10×6 grid). Items with legacy stash flags still appear in the carry inventory grid.
+
 ## [0.9.31] - 2026-06-06
 
 ### Changed

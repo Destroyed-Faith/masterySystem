@@ -8787,13 +8787,6 @@
   color: var(--df-text-primary, #fff);
 }
 
-/* Stash Panel */
-.df-stash-grid {
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  grid-auto-rows: 26px;
-}
-
 /* PAPERDOLL */
 .df-equipped-panel {
   position: relative;
