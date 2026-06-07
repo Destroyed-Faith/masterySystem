@@ -108,7 +108,7 @@
       </button>
       {{else}}
       <span class="creation-status">
-        Remaining: Attributes ({{#if creation.attributeDistributionValid}}done{{else}}{{creation.attrCount8}}/2×8, {{creation.attrCount6}}/2×6, {{creation.attrCount4}}/2×4, {{creation.attrCount2}}/1×2{{/if}}), Skills ({{creation.skillPointsRemaining}} remaining){{#unless creation.disadvantagesValid}}, Disadvantages ({{creation.disadvantagePoints}}/{{creation.disadvantagePointsMin}}–{{creation.disadvantagePointsMax}} pts){{/unless}}{{#unless creation.echoCreationValid}}, Echo (not chosen){{/unless}}.
+        Remaining: Attributes ({{#if creation.attributeDistributionValid}}done{{else}}{{creation.attrCount8}}/2×8, {{creation.attrCount6}}/2×6, {{creation.attrCount4}}/2×4, {{creation.attrCount2}}/1×2{{/if}}), Skills ({{creation.skillPointsRemaining}} remaining), Powers ({{creation.powersSelected}}/{{creation.powersRequired}}){{#unless creation.disadvantagesValid}}, Disadvantages ({{creation.disadvantagePoints}}/{{creation.disadvantagePointsMin}}–{{creation.disadvantagePointsMax}} pts){{/unless}}{{#unless creation.echoCreationValid}}, Echo (not chosen){{/unless}}{{#unless creation.languagesCreationValid}}, Languages (need 1+ besides Common){{/unless}}.
       </span>
       {{/if}}
       {{#if (userIsGM)}}
@@ -1587,11 +1587,11 @@
       <!-- Powers List (Normal Mode): collapsible + grouped by power type (same UX pattern as Token-Radial Standard-Manöver). -->
       <details class="powers-list-details powers-list-section"{{#if powersListDetailsOpen}} open{{/if}}>
         <summary class="radial-maneuver-prefs-summary powers-list-details-summary">
-          <i class="fas fa-bolt"></i> Powers <span class="powers-list-details-sub">(nach Typ)</span>
+          <i class="fas fa-bolt"></i> Powers <span class="powers-list-details-sub">({{items.powers.length}} — nach Typ, alle Gruppen aufklappen)</span>
         </summary>
         <div class="radial-maneuver-prefs-body powers-list-details-body">
           {{#each powersByTypeGroups}}
-          <details class="radial-maneuver-prefs-group powers-by-type-group powers-type-group-details">
+          <details class="radial-maneuver-prefs-group powers-by-type-group powers-type-group-details"{{#if @root.powersGroupsExpanded}} open{{/if}}>
             <summary class="radial-maneuver-prefs-group-label powers-type-group-details-summary">
               <i class="fas fa-grip-lines-vertical powers-type-group-handle" aria-hidden="true"></i>
               <span class="powers-type-group-label-text">{{this.groupLabel}}</span>

@@ -36,9 +36,12 @@ import {
     CATEGORY_ORDER,
     CREATION_POWER_REQUIREMENTS,
     CREATION_POWER_TOTAL,
+    actorAlreadyHasPower,
+    collectOwnedPowerIdentityKeys,
     countPowersByCategory,
     filterCatalog,
     findCatalogEntryByName,
+    powerIdentityKeyFromEntry,
     findTemplateById,
     getSubfamiliesByCategory,
     getVisibleSpecialOptions,
@@ -232,8 +235,18 @@ export async function showPowerCreationDialog(
                         return false;
                     }
 
+                    const existingPowers = (actor as any).items.filter((i: any) => i.type === 'power');
+                    if (actorAlreadyHasPower(existingPowers, entry)) {
+                        const specialSuffix = entry.chosenSpecial?.key
+                            ? ` (${entry.chosenSpecial.key})`
+                            : '';
+                        ui.notifications?.error(
+                            `You already have "${entry.templateName}"${specialSuffix} on this character. Each power can only be chosen once.`,
+                        );
+                        return false;
+                    }
+
                     if (!creationComplete) {
-                        const existingPowers = (actor as any).items.filter((i: any) => i.type === 'power');
                         if (existingPowers.length >= CREATION_POWER_TOTAL) {
                             ui.notifications?.error(
                                 `You already have the maximum number of starting Powers (${CREATION_POWER_TOTAL}) for character creation.`,
@@ -374,12 +387,17 @@ export async function showPowerCreationDialog(
                     actorEchoKey,
                 });
 
+                const ownedKeys = collectOwnedPowerIdentityKeys(
+                    (actor as any).items.filter((i: any) => i.type === 'power'),
+                );
+                const available = entries.filter((e) => !ownedKeys.has(powerIdentityKeyFromEntry(e)));
+
                 $powerSelect.empty();
-                if (entries.length === 0) {
+                if (available.length === 0) {
                     $powerSelect.append('<option value="">-- No matching powers --</option>');
                 } else {
                     $powerSelect.append('<option value="">-- Select a Power --</option>');
-                    for (const e of entries) {
+                    for (const e of available) {
                         const badges: string[] = [];
                         if (e.chosenSpecial) badges.push(e.chosenSpecial.key);
                         const badgeStr = badges.length ? ` (${badges.join(', ')})` : '';
@@ -391,7 +409,12 @@ export async function showPowerCreationDialog(
                         $powerSelect.append(opt);
                     }
                 }
-                $count.text(`${entries.length} power${entries.length === 1 ? '' : 's'} match the current filter`);
+                const skipped = entries.length - available.length;
+                const base = `${available.length} available`;
+                const suffix = skipped > 0
+                    ? ` (${skipped} already on character)`
+                    : ` (${entries.length} match filter)`;
+                $count.text(`${base}${suffix}`);
                 $details.hide();
                 $description.empty();
                 $levelTable.empty();

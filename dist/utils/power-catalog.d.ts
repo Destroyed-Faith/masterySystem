@@ -35,6 +35,65 @@ export declare const CREATION_POWER_REQUIREMENTS: Record<PowerCategory, number>;
 export declare const CREATION_POWER_TOTAL = 7;
 /** All starting Powers must be Rank 2 (= total count). */
 export declare const CREATION_POWERS_AT_RANK_2 = 7;
+/** Resolve a power item's category (`system.category` with legacy `powerType` fallback). */
+export declare function resolvePowerCategoryFromItem(power: {
+    system?: {
+        category?: PowerCategory;
+        powerType?: string;
+    };
+}): PowerCategory | null;
+/** Stable identity for duplicate detection (`templateId`, plus Special for Actives). */
+export declare function powerIdentityKey(input: {
+    templateId?: string;
+    templateName?: string;
+    category?: PowerCategory;
+    chosenSpecial?: {
+        key?: string;
+    } | null;
+}): string;
+export declare function powerIdentityKeyFromItem(item: {
+    system?: {
+        templateId?: string;
+        templateName?: string;
+        category?: PowerCategory;
+        chosenSpecial?: {
+            key?: string;
+        };
+    };
+}): string;
+export declare function powerIdentityKeyFromEntry(entry: CatalogEntry): string;
+export declare function collectOwnedPowerIdentityKeys(powers: Iterable<{
+    system?: {
+        templateId?: string;
+        templateName?: string;
+        category?: PowerCategory;
+        chosenSpecial?: {
+            key?: string;
+        };
+    };
+}>): Set<string>;
+export declare function actorAlreadyHasPower(existingPowers: Iterable<{
+    system?: {
+        templateId?: string;
+        templateName?: string;
+        category?: PowerCategory;
+        chosenSpecial?: {
+            key?: string;
+        };
+    };
+}>, entry: CatalogEntry): boolean;
+/** @returns First duplicate label if any power appears more than once. */
+export declare function findDuplicatePowerLabel(powers: Iterable<{
+    name?: string;
+    system?: {
+        templateId?: string;
+        templateName?: string;
+        category?: PowerCategory;
+        chosenSpecial?: {
+            key?: string;
+        };
+    };
+}>): string | null;
 /** Count embedded power items by `PowerCategory` (legacy `powerType` fallback). */
 export declare function countPowersByCategory(powers: Iterable<{
     system?: {

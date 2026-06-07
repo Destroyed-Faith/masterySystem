@@ -55,6 +55,87 @@ export const CREATION_POWER_REQUIREMENTS = {
 export const CREATION_POWER_TOTAL = 7;
 /** All starting Powers must be Rank 2 (= total count). */
 export const CREATION_POWERS_AT_RANK_2 = CREATION_POWER_TOTAL;
+/** Resolve a power item's category (`system.category` with legacy `powerType` fallback). */
+export function resolvePowerCategoryFromItem(power) {
+    const sys = power.system || {};
+    let cat = sys.category;
+    if (!cat) {
+        const pt = sys.powerType;
+        if (pt === 'buff')
+            cat = 'activeBuff';
+        else if (pt === 'utility')
+            cat = 'active';
+        else if (pt === 'active' || pt === 'passive' || pt === 'reaction' || pt === 'movement') {
+            cat = pt;
+        }
+    }
+    if (cat && cat in CREATION_POWER_REQUIREMENTS)
+        return cat;
+    return null;
+}
+/** Stable identity for duplicate detection (`templateId`, plus Special for Actives). */
+export function powerIdentityKey(input) {
+    const tid = String(input.templateId || '').trim();
+    if (tid) {
+        const special = String(input.chosenSpecial?.key || '').trim();
+        return special ? `${tid}::${special}` : tid;
+    }
+    const cat = String(input.category || '').trim();
+    const name = String(input.templateName || '').trim();
+    if (cat && name)
+        return `${cat}::${name}`;
+    return name;
+}
+export function powerIdentityKeyFromItem(item) {
+    const sys = item.system || {};
+    return powerIdentityKey({
+        templateId: sys.templateId,
+        templateName: sys.templateName,
+        category: sys.category,
+        chosenSpecial: sys.chosenSpecial,
+    });
+}
+export function powerIdentityKeyFromEntry(entry) {
+    return powerIdentityKey({
+        templateId: entry.templateId,
+        templateName: entry.templateName,
+        category: entry.category,
+        chosenSpecial: entry.chosenSpecial,
+    });
+}
+export function collectOwnedPowerIdentityKeys(powers) {
+    const out = new Set();
+    for (const p of powers) {
+        const k = powerIdentityKeyFromItem(p);
+        if (k)
+            out.add(k);
+    }
+    return out;
+}
+export function actorAlreadyHasPower(existingPowers, entry) {
+    const key = powerIdentityKeyFromEntry(entry);
+    if (!key)
+        return false;
+    for (const p of existingPowers) {
+        if (powerIdentityKeyFromItem(p) === key)
+            return true;
+    }
+    return false;
+}
+/** @returns First duplicate label if any power appears more than once. */
+export function findDuplicatePowerLabel(powers) {
+    const seen = new Map();
+    for (const p of powers) {
+        const key = powerIdentityKeyFromItem(p);
+        if (!key)
+            continue;
+        const label = String(p.system?.templateName || p.name || key);
+        if (seen.has(key))
+            return label;
+        seen.set(key, label);
+    }
+    return null;
+}
 /** Count embedded power items by `PowerCategory` (legacy `powerType` fallback). */
 export function countPowersByCategory(powers) {
     const counts = {
@@ -65,19 +146,8 @@ export function countPowersByCategory(powers) {
         passive: 0,
     };
     for (const p of powers) {
-        const sys = p.system || {};
-        let cat = sys.category;
-        if (!cat) {
-            const pt = sys.powerType;
-            if (pt === 'buff')
-                cat = 'activeBuff';
-            else if (pt === 'utility')
-                cat = 'active';
-            else if (pt === 'active' || pt === 'passive' || pt === 'reaction' || pt === 'movement') {
-                cat = pt;
-            }
-        }
-        if (cat && cat in counts)
+        const cat = resolvePowerCategoryFromItem(p);
+        if (cat)
             counts[cat]++;
     }
     return counts;

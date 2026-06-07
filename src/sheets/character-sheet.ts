@@ -28,7 +28,7 @@ import {
   isMrPerRest,
   isTraitGatedByMr
 } from '../utils/echos/index.js';
-import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_POWER_REQUIREMENTS, CREATION_POWER_TOTAL, CREATION_POWERS_AT_RANK_2, countPowersByCategory } from '../utils/power-catalog.js';
+import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_POWER_REQUIREMENTS, CREATION_POWER_TOTAL, CREATION_POWERS_AT_RANK_2, countPowersByCategory, findDuplicatePowerLabel, resolvePowerCategoryFromItem } from '../utils/power-catalog.js';
 import { getLanguage as getLanguageDef, normalizeKnownLanguages } from '../utils/languages.js';
 import { showLanguagesDialog } from './languages-dialog.js';
 import type { PowerCategory } from '../types/item.js';
@@ -770,11 +770,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       schticksValid: schticksValidation.ok,
       powersValid: categoriesValid,
       echoCreationValid,
+      languagesCreationValid: context.languagesView?.creationValid !== false,
       canFinalize: attributeDistributionValid &&
                    skillPointsSpent === skillPointsConfig &&
                    categoriesValid &&
                    disadvantagesValid &&
-                   echoCreationValid
+                   echoCreationValid &&
+                   context.languagesView?.creationValid !== false
     };
     
     console.log('Mastery System | getData - Final Context Check:', {
@@ -875,11 +877,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     context.radialManeuverPrefsDetailsOpen = this._radialManeuverPrefsDetailsOpen === true;
     if (context.creationComplete) {
       context.powersByTypeGroups = this.#buildPowersByTypeGroups(context.items?.powers || []);
-      /* Default: collapsed; open only if user expanded in this session (saved across re-renders). */
+      /* Default: collapsed; open after finalize or when user expanded in this session. */
       context.powersListDetailsOpen = this._powersListDetailsOpen === true;
+      context.powersGroupsExpanded = this._powersListDetailsOpen === true;
     } else {
       context.powersByTypeGroups = [];
       context.powersListDetailsOpen = false;
+      context.powersGroupsExpanded = false;
     }
 
     // Add active buffs data - ALWAYS set as array, even if empty
@@ -1170,6 +1174,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
    * Bucket key for sheet grouping (Powers tab, post-creation). Spell / unknown → `other` (shown as „Sonstiges“).
    */
   #powerTypeGroupKey(power: any): 'movement' | 'active' | 'activeBuff' | 'passive' | 'reaction' | 'other' {
+    const cat = resolvePowerCategoryFromItem(power);
+    if (cat) return cat;
     const raw = String((power?.system as any)?.powerType ?? '')
       .trim()
       .toLowerCase()
@@ -6721,6 +6727,13 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         return;
       }
     }
+    const duplicatePower = findDuplicatePowerLabel(powers);
+    if (duplicatePower) {
+      ui.notifications?.error(
+        `Duplicate power "${duplicatePower}". Each power template can only be chosen once.`
+      );
+      return;
+    }
     if (powers.length !== CREATION_POWER_TOTAL) {
       ui.notifications?.error(
         `Must choose exactly ${CREATION_POWER_TOTAL} starting Powers. Currently: ${powers.length}.`
@@ -6746,6 +6759,38 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       );
       return;
     }
+
+    const rawEcho = system.echo || {};
+    const echoDef = getEcho(rawEcho.key);
+    const echoSubChoice = echoDef?.subChoices?.length
+      ? getEchoSubChoice(rawEcho.key, rawEcho.subChoiceKey || null)
+      : undefined;
+    if (!echoDef) {
+      ui.notifications?.error('Choose an Echo before finalizing character creation.');
+      return;
+    }
+    if (echoDef.subChoices?.length && !rawEcho.subChoiceKey) {
+      ui.notifications?.error(`Choose a ${echoDef.subChoiceLabel || 'sub-choice'} for your Echo before finalizing.`);
+      return;
+    }
+    if (echoDef.veiledForm && !rawEcho.veiledFormKey) {
+      ui.notifications?.error('Choose a Veiled Form for your Dragonborn before finalizing.');
+      return;
+    }
+    const startCards: string[] = Array.isArray(rawEcho.selectedCardIds)
+      ? rawEcho.selectedCardIds.filter((id: any) => typeof id === 'string')
+      : [];
+    if (startCards.length < 1) {
+      ui.notifications?.error('Pick at least one Echo start card before finalizing.');
+      return;
+    }
+
+    const langNorm = normalizeKnownLanguages(system.languages?.known);
+    if (!langNorm.creationValid) {
+      ui.notifications?.error('Pick at least one additional language (besides Common) before finalizing.');
+      return;
+    }
+    void echoSubChoice;
     
     // Validate power ranks don't exceed Mastery Rank
     const invalidPowers = powers.filter((p: any) => (p.system?.level || 1) > masteryRank);
@@ -6814,7 +6859,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     updateData['system.xp.currentStep'] = { attributes: [], skills: [], powers: [], artifacts: [] };
     
     try {
-      await this.actor.update(updateData);
+      await this.actor.update(updateData, { render: false });
       
       // Ensure all power items have minLevel set to their current level
       const powerItems = this.actor.items.filter((item: any) => item.type === 'power');
@@ -6825,9 +6870,28 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           await power.update({ 'system.minLevel': lvl });
         }
       }
-      
-      ui.notifications?.info('Character creation complete!');
-      this.render();
+
+      const refreshed = (game as any).actors?.get(this.actor.id) ?? this.actor;
+      const savedPowers = refreshed.items.filter((item: any) => item.type === 'power');
+      const savedCounts = countPowersByCategory(savedPowers);
+      const echoLabel = [
+        echoDef.name,
+        echoSubChoice?.name,
+        echoDef.veiledForm && rawEcho.veiledFormKey ? `veiled as ${getEcho(rawEcho.veiledFormKey)?.name || rawEcho.veiledFormKey}` : '',
+      ].filter(Boolean).join(' · ');
+
+      if (savedPowers.length !== CREATION_POWER_TOTAL) {
+        ui.notifications?.warn(
+          `Character creation marked complete, but only ${savedPowers.length} of ${CREATION_POWER_TOTAL} Powers are on this actor. Check the Items tab in the sidebar — if powers are missing, re-add them before playing.`,
+        );
+      } else {
+        ui.notifications?.info(
+          `Character creation complete — ${savedPowers.length} Powers saved (${CATEGORY_ORDER.map(c => `${savedCounts[c]} ${CATEGORY_LABELS[c]}`).join(', ')}). Echo: ${echoLabel}.`,
+        );
+      }
+
+      this._powersListDetailsOpen = true;
+      this.render(false);
     } catch (error) {
       console.error('Mastery System | Failed to finalize character creation', error);
       ui.notifications?.error('Failed to finalize character creation.');

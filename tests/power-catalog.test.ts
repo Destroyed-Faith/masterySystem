@@ -5,6 +5,9 @@ import {
     getSubfamiliesByCategory,
     CATEGORY_ORDER,
     _resetCatalogCache,
+    actorAlreadyHasPower,
+    findDuplicatePowerLabel,
+    powerIdentityKeyFromEntry,
 } from '../src/utils/power-catalog';
 
 describe('Power Catalog (Templates refactor)', () => {
@@ -104,5 +107,27 @@ describe('Power Catalog (Templates refactor)', () => {
         expect(row4.specials).toEqual([{ key: 'stunned' }]);
         const row1 = (melee!.raw as any).levels['1'];
         expect(row1.specials).toEqual([]);
+    });
+
+    it('detects duplicate passive powers by templateId', () => {
+        const entries = getAllCatalogEntries();
+        const dr = entries.find((e) => e.templateId === 'passive-damage-reduction');
+        expect(dr).toBeDefined();
+        const owned = [{ system: { templateId: 'passive-damage-reduction', templateName: 'Damage Reduction', category: 'passive' } }];
+        expect(actorAlreadyHasPower(owned, dr!)).toBe(true);
+        expect(findDuplicatePowerLabel([
+            owned[0],
+            { name: 'Damage Reduction (copy)', system: owned[0].system },
+        ])).toBe('Damage Reduction');
+    });
+
+    it('treats active specials as distinct identities on the same template', () => {
+        const entries = getAllCatalogEntries();
+        const tier3 = entries.filter((e) => e.category === 'active' && e.tier === 3);
+        const a = tier3[0];
+        const b = tier3.find((e) => e.templateId === a.templateId && e.chosenSpecial?.key !== a.chosenSpecial?.key);
+        if (!b) return;
+        expect(powerIdentityKeyFromEntry(a)).not.toBe(powerIdentityKeyFromEntry(b));
+        expect(actorAlreadyHasPower([{ system: { templateId: a.templateId, chosenSpecial: a.chosenSpecial } }], b)).toBe(false);
     });
 });

@@ -20,7 +20,7 @@
 import { calculateBaseTN, calculateSaveDC } from '../combat/spell-roll-handler.js';
 import { SPECIAL_EFFECTS_BY_ID } from '../utils/special-effects.js';
 import { renderRange, renderAoe, renderDuration, renderPowerLevelTable } from '../utils/power-rendering.js';
-import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_POWER_REQUIREMENTS, CREATION_POWER_TOTAL, countPowersByCategory, filterCatalog, findCatalogEntryByName, findTemplateById, getSubfamiliesByCategory, getVisibleSpecialOptions, } from '../utils/power-catalog.js';
+import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_POWER_REQUIREMENTS, CREATION_POWER_TOTAL, actorAlreadyHasPower, collectOwnedPowerIdentityKeys, countPowersByCategory, filterCatalog, findCatalogEntryByName, powerIdentityKeyFromEntry, findTemplateById, getSubfamiliesByCategory, getVisibleSpecialOptions, } from '../utils/power-catalog.js';
 /** Map Special Effect `save` text to a single save family for spell items. */
 function spellSaveTypeFromSpecialSave(save) {
     if (!save)
@@ -192,8 +192,15 @@ export async function showPowerCreationDialog(actor, options) {
                         ui.notifications?.error('Failed to construct power item data');
                         return false;
                     }
+                    const existingPowers = actor.items.filter((i) => i.type === 'power');
+                    if (actorAlreadyHasPower(existingPowers, entry)) {
+                        const specialSuffix = entry.chosenSpecial?.key
+                            ? ` (${entry.chosenSpecial.key})`
+                            : '';
+                        ui.notifications?.error(`You already have "${entry.templateName}"${specialSuffix} on this character. Each power can only be chosen once.`);
+                        return false;
+                    }
                     if (!creationComplete) {
-                        const existingPowers = actor.items.filter((i) => i.type === 'power');
                         if (existingPowers.length >= CREATION_POWER_TOTAL) {
                             ui.notifications?.error(`You already have the maximum number of starting Powers (${CREATION_POWER_TOTAL}) for character creation.`);
                             return false;
@@ -323,13 +330,15 @@ export async function showPowerCreationDialog(actor, options) {
                     search,
                     actorEchoKey,
                 });
+                const ownedKeys = collectOwnedPowerIdentityKeys(actor.items.filter((i) => i.type === 'power'));
+                const available = entries.filter((e) => !ownedKeys.has(powerIdentityKeyFromEntry(e)));
                 $powerSelect.empty();
-                if (entries.length === 0) {
+                if (available.length === 0) {
                     $powerSelect.append('<option value="">-- No matching powers --</option>');
                 }
                 else {
                     $powerSelect.append('<option value="">-- Select a Power --</option>');
-                    for (const e of entries) {
+                    for (const e of available) {
                         const badges = [];
                         if (e.chosenSpecial)
                             badges.push(e.chosenSpecial.key);
@@ -342,7 +351,12 @@ export async function showPowerCreationDialog(actor, options) {
                         $powerSelect.append(opt);
                     }
                 }
-                $count.text(`${entries.length} power${entries.length === 1 ? '' : 's'} match the current filter`);
+                const skipped = entries.length - available.length;
+                const base = `${available.length} available`;
+                const suffix = skipped > 0
+                    ? ` (${skipped} already on character)`
+                    : ` (${entries.length} match filter)`;
+                $count.text(`${base}${suffix}`);
                 $details.hide();
                 $description.empty();
                 $levelTable.empty();
