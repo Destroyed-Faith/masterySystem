@@ -1778,6 +1778,11 @@
           <button type="button" class="general-items-btn" title="Open General Items Storage">
             <i class="fas fa-box"></i> General Items
           </button>
+          {{#if hasArtifactEvolution}}
+          <button type="button" class="artifact-evolution-btn stone-powers-btn-header" data-action="openArtifactEvolution" title="Echo &amp; Artifact Progression — activate and upgrade">
+            <i class="fas fa-project-diagram"></i> Artifacts
+          </button>
+          {{/if}}
           {{#if (userIsGM)}}
           <button type="button" class="store-btn" title="Open Store (GM Only)">
             <i class="fas fa-store"></i> Store
@@ -1828,14 +1833,7 @@
           </div>
           
           <div class="df-equipped-panel">
-            <div class="df-equipped-header">
-              <h4>Equipped</h4>
-              {{#if hasArtifactEvolution}}
-              <button type="button" class="artifact-evolution-btn df-artifacts-btn" data-action="openArtifactEvolution" title="Echo &amp; Artifact Progression — activate and upgrade">
-                <i class="fas fa-project-diagram"></i> Artifacts
-              </button>
-              {{/if}}
-            </div>
+            <h4>Equipped</h4>
             <div class="df-equipped-grid">
               {{#each equipmentUi.equipSlots}}
                 <div class="df-equip-slot df-dropzone slot-{{this.key}}" data-df-drop="equip-slot" data-slot="{{this.key}}">

@@ -9,59 +9,76 @@
 import { ARTIFACT_CAPACITY_DEFAULT, ARTIFACT_LINK_STONE_COST, ARTIFACT_MAX_SYSTEM_LEVEL, ARTIFACT_UPGRADE_XP_COST, countBoundArtifacts, } from '../utils/artifact-actor-rules.js';
 import { repairActorEchoArtifacts } from '../utils/artifact-echo-repair.js';
 import { buildArtifactEvolutionCards, linkArtifactForActor, upgradeArtifactForActor, } from './artifact-evolution-actions.js';
-const BaseApp = foundry?.appv1?.Application || Application;
-export class ArtifactEvolutionDialog extends BaseApp {
+const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
+const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
+export class ArtifactEvolutionDialog extends BaseDialog {
     actor;
-    constructor(actor) {
-        super();
+    static DEFAULT_OPTIONS = {
+        id: 'artifact-evolution-dialog',
+        classes: ['mastery-system', 'artifact-evolution-dialog'],
+        position: { width: 560, height: 640 },
+        window: {
+            title: 'Echo & Artifact Progression',
+            resizable: true,
+        },
+    };
+    static PARTS = {
+        content: { template: 'systems/mastery-system/templates/artifacts/artifact-evolution-dialog.hbs' },
+    };
+    constructor(actor, options = {}) {
+        const mergedOptions = foundry.utils.mergeObject(ArtifactEvolutionDialog.DEFAULT_OPTIONS, options);
+        super(mergedOptions);
         this.actor = actor;
     }
-    static get defaultOptions() {
-        return foundry.utils.mergeObject(super.defaultOptions || {}, {
-            id: 'artifact-evolution-dialog',
-            title: 'Echo & Artifact Progression',
-            template: 'systems/mastery-system/templates/artifacts/artifact-evolution-dialog.hbs',
-            classes: ['mastery-system', 'artifact-evolution-dialog'],
-            width: 560,
-            height: 640,
-            resizable: true,
-        });
-    }
-    getData(_options) {
-        const data = super.getData ? super.getData(_options) : {};
-        data.actor = this.actor;
-        data.cards = buildArtifactEvolutionCards(this.actor);
+    async _prepareContext(_options) {
         const boundCount = countBoundArtifacts(this.actor);
-        data.capacity = {
-            bound: boundCount,
-            max: ARTIFACT_CAPACITY_DEFAULT,
-            full: boundCount >= ARTIFACT_CAPACITY_DEFAULT,
+        return {
+            actor: this.actor,
+            cards: buildArtifactEvolutionCards(this.actor),
+            capacity: {
+                bound: boundCount,
+                max: ARTIFACT_CAPACITY_DEFAULT,
+                full: boundCount >= ARTIFACT_CAPACITY_DEFAULT,
+            },
+            constants: {
+                linkStone: ARTIFACT_LINK_STONE_COST,
+                upXp: ARTIFACT_UPGRADE_XP_COST,
+                maxLevel: ARTIFACT_MAX_SYSTEM_LEVEL,
+            },
         };
-        data.constants = {
-            linkStone: ARTIFACT_LINK_STONE_COST,
-            upXp: ARTIFACT_UPGRADE_XP_COST,
-            maxLevel: ARTIFACT_MAX_SYSTEM_LEVEL,
-        };
-        return data;
     }
-    activateListeners(html) {
-        super.activateListeners(html);
-        html.find('[data-action="ae-close"]').on('click', () => this.close());
-        html.on('click', '[data-action="ae-link"]', async (e) => {
-            const rootId = $(e.currentTarget).data('root-id');
-            const embId = $(e.currentTarget).data('emb-id');
-            const ok = await linkArtifactForActor(this.actor, String(rootId), String(embId));
-            if (ok)
-                await this.render(false);
+    async _onRender(_context, _options) {
+        const root = this.element;
+        if (!root)
+            return;
+        const closeBtn = root.querySelector('[data-action="ae-close"]');
+        if (closeBtn) {
+            closeBtn.onclick = (ev) => {
+                ev.preventDefault();
+                this.close();
+            };
+        }
+        root.querySelectorAll('[data-action="ae-link"]').forEach((btn) => {
+            btn.onclick = async (ev) => {
+                ev.preventDefault();
+                const rootId = btn.dataset.rootId;
+                const embId = btn.dataset.embId;
+                const ok = await linkArtifactForActor(this.actor, String(rootId), String(embId));
+                if (ok)
+                    await this.render({ force: true });
+            };
         });
-        html.on('click', '[data-action="ae-upgrade"]', async (e) => {
-            const rootId = $(e.currentTarget).data('root-id');
-            const embId = $(e.currentTarget).data('emb-id');
-            const targetWorldId = $(e.currentTarget).data('target-world-id');
-            const targetNodeId = $(e.currentTarget).data('target-node-id');
-            const ok = await upgradeArtifactForActor(this.actor, String(rootId), String(embId), String(targetWorldId), String(targetNodeId));
-            if (ok)
-                await this.render(false);
+        root.querySelectorAll('[data-action="ae-upgrade"]').forEach((btn) => {
+            btn.onclick = async (ev) => {
+                ev.preventDefault();
+                const rootId = btn.dataset.rootId;
+                const embId = btn.dataset.embId;
+                const targetWorldId = btn.dataset.targetWorldId;
+                const targetNodeId = btn.dataset.targetNodeId;
+                const ok = await upgradeArtifactForActor(this.actor, String(rootId), String(embId), String(targetWorldId), String(targetNodeId));
+                if (ok)
+                    await this.render({ force: true });
+            };
         });
     }
 }
@@ -71,6 +88,12 @@ export async function openArtifactEvolutionDialog(actor) {
     }
     catch (err) {
         console.warn('[mastery-system] echo artifact repair failed', err);
+    }
+    const existing = foundry.applications.instances.get('artifact-evolution-dialog');
+    if (existing) {
+        existing.bringToFront?.();
+        await existing.render({ force: true });
+        return;
     }
     const dlg = new ArtifactEvolutionDialog(actor);
     dlg.render(true);

@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.24] - 2026-06-06
+
+### Fixed
+
+- **ArtifactEvolutionDialog:** Migrated to Foundry v13 `ApplicationV2` + `HandlebarsApplicationMixin` (fixes render crash).
+
+### Changed
+
+- **Equipment tab:** Artifacts button restored to the top control row beside General Items / Store.
+
 ## [0.9.23] - 2026-06-06
 
 ### Changed

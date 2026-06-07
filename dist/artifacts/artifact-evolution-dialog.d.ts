@@ -6,13 +6,30 @@
  *   • Maximum reachable level = `(MR - 1) × 2`, capped at 16.
  *   • Each Artifact may only be upgraded once per Upgrade Step.
  */
-declare const BaseApp: any;
-export declare class ArtifactEvolutionDialog extends BaseApp {
+declare const ApplicationV2: typeof import("@league-of-foundry-developers/foundry-vtt-types/src/foundry/client/applications/api/application.mjs").default;
+declare const BaseDialog: typeof ApplicationV2;
+export declare class ArtifactEvolutionDialog extends BaseDialog {
     private actor;
-    constructor(actor: Actor);
-    static get defaultOptions(): any;
-    getData(_options?: any): any;
-    activateListeners(html: JQuery): void;
+    static DEFAULT_OPTIONS: {
+        id: string;
+        classes: string[];
+        position: {
+            width: number;
+            height: number;
+        };
+        window: {
+            title: string;
+            resizable: boolean;
+        };
+    };
+    static PARTS: {
+        content: {
+            template: string;
+        };
+    };
+    constructor(actor: Actor, options?: Record<string, unknown>);
+    protected _prepareContext(_options: unknown): Promise<Record<string, unknown>>;
+    protected _onRender(_context: unknown, _options: unknown): Promise<void>;
 }
 export declare function openArtifactEvolutionDialog(actor: Actor): Promise<void>;
 export {};
