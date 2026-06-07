@@ -45,8 +45,8 @@ export interface ArtifactEvolutionCard {
 }
 /** Build evolution cards for every tree-linked embedded artifact on the actor. */
 export declare function buildArtifactEvolutionCards(actor: Actor): ArtifactEvolutionCard[];
-/** Activate (link) an artifact — costs 1 Stone once. */
-export declare function linkArtifactForActor(actor: Actor, rootWorldId: string, embeddedId: string): Promise<boolean>;
+/** Activate (link) an artifact — costs 1 Stone once from a chosen pool. */
+export declare function linkArtifactForActor(actor: Actor, rootWorldId: string, embeddedId: string, stoneAttr?: string): Promise<boolean>;
 /** Upgrade an artifact one tree step — costs 8 XP. */
 export declare function upgradeArtifactForActor(actor: Actor, rootWorldId: string, embeddedId: string, targetWorldItemId: string, targetNodeId: string): Promise<boolean>;
 //# sourceMappingURL=artifact-evolution-actions.d.ts.map

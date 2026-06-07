@@ -15,8 +15,15 @@
  *   • Bindings come in three flavors: `unbound`, `bound`, `echo`.
  *     `echo` bindings cannot be unbound through normal means.
  */
-import { type AttributeKey } from '../combat/action-economy.js';
 import { type ArtifactSlot } from './artifact-rules.js';
+export interface ArtifactStonePoolOption {
+    key: string;
+    label: string;
+    spendable: number;
+    fill: string;
+    stroke: string;
+    canSpend: boolean;
+}
 export declare const ARTIFACT_UPGRADE_XP_COST = 8;
 export declare const ARTIFACT_LINK_STONE_COST = 1;
 export declare const ARTIFACT_MAX_SYSTEM_LEVEL = 16;
@@ -48,11 +55,14 @@ export declare function canArtifactLink(masteryRank: number): boolean;
 export declare function poolSpendableStones(actor: any, attr: string): number;
 /** Total spendable stones across all attribute pools (falls back to legacy `stones.current`). */
 export declare function actorStonesCurrent(actor: any): number;
-/** First attribute pool with at least one spendable stone. */
-export declare function firstPoolWithSpendableStone(actor: any): AttributeKey | null;
+/** True when the actor uses per-attribute `stonePools` (not legacy `stones.current` only). */
+export declare function usesStonePoolEconomy(actor: any): boolean;
+/** Pools the player may choose from when activating an artifact. */
+export declare function listArtifactSpendableStonePools(actor: any): ArtifactStonePoolOption[];
 export declare function canSpendArtifactLinkStone(actor: any): boolean;
-/** Deduct one Stone from the first pool with capacity. Returns false when insufficient. */
-export declare function spendArtifactLinkStone(actor: Actor): Promise<boolean>;
+export declare function canSpendArtifactLinkStoneFromPool(actor: any, stoneAttr: string): boolean;
+/** Deduct one Stone from the chosen attribute pool (or legacy `stones.current`). */
+export declare function spendArtifactLinkStone(actor: Actor, stoneAttr?: string): Promise<boolean>;
 /** Binding kind for an artifact instance on a character. */
 export type ArtifactBindingKind = 'unbound' | 'bound' | 'echo';
 /** Per-actor progress record kept on the root world item flag. */

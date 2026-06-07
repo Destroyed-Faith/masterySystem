@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.26] - 2026-06-06
+
+### Added
+
+- **Artifact activation:** Player chooses which attribute Stone pool to spend when activating an echo/artifact item.
+
 ## [0.9.25] - 2026-06-06
 
 ### Fixed

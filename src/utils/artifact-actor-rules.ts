@@ -22,10 +22,30 @@ import {
   STONE_POOL_ATTRIBUTE_KEYS,
   type AttributeKey,
 } from '../combat/action-economy.js';
+import { getStoneGemStyle } from './stone-attribute-ui.js';
 import {
   ARTIFACT_MAX_LEVEL as SPEC_ARTIFACT_MAX_LEVEL,
   type ArtifactSlot,
 } from './artifact-rules.js';
+
+const STONE_POOL_LABELS: Record<string, string> = {
+  might: 'Might',
+  agility: 'Agility',
+  vitality: 'Vitality',
+  intellect: 'Intellect',
+  resolve: 'Resolve',
+  influence: 'Influence',
+  wits: 'Wits',
+};
+
+export interface ArtifactStonePoolOption {
+  key: string;
+  label: string;
+  spendable: number;
+  fill: string;
+  stroke: string;
+  canSpend: boolean;
+}
 
 export const ARTIFACT_UPGRADE_XP_COST = 8;
 export const ARTIFACT_LINK_STONE_COST = 1;
@@ -103,27 +123,57 @@ export function actorStonesCurrent(actor: any): number {
   return Math.max(0, Number(sys.stones?.current) || 0);
 }
 
-/** First attribute pool with at least one spendable stone. */
-export function firstPoolWithSpendableStone(actor: any): AttributeKey | null {
+/** True when the actor uses per-attribute `stonePools` (not legacy `stones.current` only). */
+export function usesStonePoolEconomy(actor: any): boolean {
+  const pools = (economyActor(actor)?.system as any)?.stonePools;
+  return !!(pools && typeof pools === 'object' && Object.keys(pools).length > 0);
+}
+
+/** Pools the player may choose from when activating an artifact. */
+export function listArtifactSpendableStonePools(actor: any): ArtifactStonePoolOption[] {
+  if (!usesStonePoolEconomy(actor)) return [];
+  const sys = (economyActor(actor)?.system as any) || {};
+  const pools = sys.stonePools || {};
+  const out: ArtifactStonePoolOption[] = [];
   for (const attr of STONE_POOL_ATTRIBUTE_KEYS) {
-    if (poolSpendableStones(actor, attr) >= 1) return attr;
+    const spendable = poolSpendableStones(actor, attr);
+    const max = Math.max(0, Number(pools[attr]?.max) || 0);
+    if (max <= 0 && spendable <= 0) continue;
+    const style = getStoneGemStyle(attr) ?? { fill: '#888888', stroke: '#aaaaaa' };
+    out.push({
+      key: attr,
+      label: STONE_POOL_LABELS[attr] || attr,
+      spendable,
+      fill: style.fill,
+      stroke: style.stroke,
+      canSpend: spendable >= ARTIFACT_LINK_STONE_COST,
+    });
   }
-  return null;
+  return out;
 }
 
 export function canSpendArtifactLinkStone(actor: any): boolean {
   return actorStonesCurrent(actor) >= ARTIFACT_LINK_STONE_COST;
 }
 
-/** Deduct one Stone from the first pool with capacity. Returns false when insufficient. */
-export async function spendArtifactLinkStone(actor: Actor): Promise<boolean> {
+export function canSpendArtifactLinkStoneFromPool(actor: any, stoneAttr: string): boolean {
+  return poolSpendableStones(actor, stoneAttr) >= ARTIFACT_LINK_STONE_COST;
+}
+
+/** Deduct one Stone from the chosen attribute pool (or legacy `stones.current`). */
+export async function spendArtifactLinkStone(actor: Actor, stoneAttr?: string): Promise<boolean> {
+  if (usesStonePoolEconomy(actor)) {
+    if (!stoneAttr || !canSpendArtifactLinkStoneFromPool(actor, stoneAttr)) return false;
+    const owner = economyActor(actor);
+    const pool = (owner?.system as any)?.stonePools?.[stoneAttr];
+    const current = Math.max(0, Number(pool?.current) || 0);
+    await setStonePool(actor, stoneAttr as AttributeKey, current - ARTIFACT_LINK_STONE_COST);
+    return true;
+  }
   if (!canSpendArtifactLinkStone(actor)) return false;
-  const attr = firstPoolWithSpendableStone(actor);
-  if (!attr) return false;
-  const owner = economyActor(actor);
-  const pool = (owner?.system as any)?.stonePools?.[attr];
-  const current = Math.max(0, Number(pool?.current) || 0);
-  await setStonePool(actor, attr, current - ARTIFACT_LINK_STONE_COST);
+  const sys = (economyActor(actor)?.system as any) || {};
+  const next = Math.max(0, Number(sys.stones?.current) || 0) - ARTIFACT_LINK_STONE_COST;
+  await actor.update({ 'system.stones.current': next });
   return true;
 }
 

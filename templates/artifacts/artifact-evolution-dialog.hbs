@@ -30,6 +30,21 @@
           Aktivieren ({{@root.constants.linkStone}} Stone)
         </button>
         <p class="ae-path-reason">{{linkDisabledReason}}</p>
+        {{else if @root.usesStonePools}}
+        <p class="ae-muted">Stone auswählen ({{@root.constants.linkStone}} wird dauerhaft verbraucht):</p>
+        <div class="ae-stone-pools">
+          {{#each @root.stonePools}}
+          <button type="button" class="ae-stone-btn" data-action="ae-link"
+            data-root-id="{{../rootWorldId}}" data-emb-id="{{../embeddedId}}" data-stone-attr="{{key}}"
+            {{#unless canSpend}}disabled title="Kein freier {{label}}-Stone"{{/unless}}
+            style="--ae-gem-fill: {{fill}}; --ae-gem-stroke: {{stroke}};">
+            <span class="ae-stone-gem" aria-hidden="true"></span>
+            <span class="ae-stone-label">{{label}}</span>
+            <span class="ae-stone-count">{{spendable}}</span>
+          </button>
+          {{/each}}
+        </div>
+        <p class="ae-muted">Fähigkeiten werden nach der Aktivierung freigeschaltet.</p>
         {{else}}
         <button type="button" class="ae-btn ae-btn-primary" data-action="ae-link" data-root-id="{{rootWorldId}}" data-emb-id="{{embeddedId}}">
           Aktivieren ({{@root.constants.linkStone}} Stone)

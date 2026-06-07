@@ -2,7 +2,7 @@
  * Shared artifact link / upgrade actions for the Evolution dialog and
  * Equipment-tab controls on the character sheet.
  */
-import { ARTIFACT_CAPACITY_DEFAULT, ARTIFACT_LINK_STONE_COST, ARTIFACT_UPGRADE_XP_COST, canArtifactLink, canBindMoreArtifacts, canSpendArtifactLinkStone, countBoundArtifacts, getArtifactBindingKind, getMaxArtifactSystemLevelForMasteryRank, isArtifactLinkedOnActor, readActorArtifactProgress, serializeActorArtifactProgress, spendArtifactLinkStone, } from '../utils/artifact-actor-rules.js';
+import { ARTIFACT_CAPACITY_DEFAULT, ARTIFACT_LINK_STONE_COST, ARTIFACT_UPGRADE_XP_COST, canArtifactLink, canBindMoreArtifacts, canSpendArtifactLinkStone, countBoundArtifacts, getArtifactBindingKind, getMaxArtifactSystemLevelForMasteryRank, isArtifactLinkedOnActor, readActorArtifactProgress, serializeActorArtifactProgress, spendArtifactLinkStone, usesStonePoolEconomy, } from '../utils/artifact-actor-rules.js';
 import { summarizeEmbeddedArtifactDisplay } from '../utils/artifact-echo-repair.js';
 import { buildArtifactDisplayLabels, collectArtifactNodeMeta, getChildWorldItemsForNode, getWorldArtifactItemsInFolder, resolveWorldItemByNodeId, } from '../utils/artifact-actor-tree.js';
 import { isBumped, recordBump } from '../utils/xp-step-rule.js';
@@ -148,8 +148,8 @@ export function buildArtifactEvolutionCards(actor) {
     }
     return cards;
 }
-/** Activate (link) an artifact — costs 1 Stone once. */
-export async function linkArtifactForActor(actor, rootWorldId, embeddedId) {
+/** Activate (link) an artifact — costs 1 Stone once from a chosen pool. */
+export async function linkArtifactForActor(actor, rootWorldId, embeddedId, stoneAttr) {
     const A = actor;
     if (!A.isOwner)
         return false;
@@ -176,13 +176,25 @@ export async function linkArtifactForActor(actor, rootWorldId, embeddedId) {
             return false;
         }
     }
-    if (!canSpendArtifactLinkStone(actor)) {
-        ui.notifications?.warn(`Not enough Stones (need ${ARTIFACT_LINK_STONE_COST}).`);
-        return false;
+    if (usesStonePoolEconomy(actor)) {
+        if (!stoneAttr) {
+            ui.notifications?.warn('Wähle einen Stone aus deinem Pool.');
+            return false;
+        }
+        if (!(await spendArtifactLinkStone(actor, stoneAttr))) {
+            ui.notifications?.warn(`Nicht genug ${stoneAttr} Stones (benötigt ${ARTIFACT_LINK_STONE_COST}).`);
+            return false;
+        }
     }
-    if (!(await spendArtifactLinkStone(actor))) {
-        ui.notifications?.warn(`Not enough Stones (need ${ARTIFACT_LINK_STONE_COST}).`);
-        return false;
+    else {
+        if (!canSpendArtifactLinkStone(actor)) {
+            ui.notifications?.warn(`Not enough Stones (need ${ARTIFACT_LINK_STONE_COST}).`);
+            return false;
+        }
+        if (!(await spendArtifactLinkStone(actor))) {
+            ui.notifications?.warn(`Not enough Stones (need ${ARTIFACT_LINK_STONE_COST}).`);
+            return false;
+        }
     }
     const next = { ...cur, linked: true };
     levels[A.id] = serializeActorArtifactProgress(next);

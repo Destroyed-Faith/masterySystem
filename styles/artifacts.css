@@ -1356,6 +1356,55 @@
   color: var(--df-text-secondary, #b0b8bc);
 }
 
+.artifact-evolution-dialog .ae-stone-pools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 4px;
+}
+
+.artifact-evolution-dialog .ae-stone-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--df-text-primary, #e8e8e8);
+  cursor: pointer;
+  font-size: 0.82rem;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.artifact-evolution-dialog .ae-stone-btn:hover:not(:disabled) {
+  border-color: var(--ae-gem-stroke, #aaa);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.artifact-evolution-dialog .ae-stone-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.artifact-evolution-dialog .ae-stone-gem {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--ae-gem-fill, #888);
+  border: 2px solid var(--ae-gem-stroke, #aaa);
+  flex-shrink: 0;
+}
+
+.artifact-evolution-dialog .ae-stone-label {
+  font-weight: 600;
+}
+
+.artifact-evolution-dialog .ae-stone-count {
+  opacity: 0.85;
+  font-size: 0.78rem;
+}
+
 /* Builder: actor allocation row */
 .artifact-builder .artifact-assignments-hint {
   margin: 0 0 8px 0;

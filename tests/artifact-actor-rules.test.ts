@@ -6,6 +6,8 @@ import {
   actorStonesCurrent,
   canArtifactLink,
   canSpendArtifactLinkStone,
+  canSpendArtifactLinkStoneFromPool,
+  listArtifactSpendableStonePools,
   getMaxArtifactSystemLevelForMasteryRank,
   getArtifactBindingKind,
   isArtifactLinkedOnActor,
@@ -94,6 +96,11 @@ describe('artifact link stone helpers', () => {
     };
     expect(actorStonesCurrent(actor)).toBe(2);
     expect(canSpendArtifactLinkStone(actor)).toBe(true);
+    expect(canSpendArtifactLinkStoneFromPool(actor, 'might')).toBe(true);
+    expect(canSpendArtifactLinkStoneFromPool(actor, 'vitality')).toBe(false);
+    const pools = listArtifactSpendableStonePools(actor);
+    expect(pools.map((p) => p.key)).toEqual(['might', 'agility']);
+    expect(pools.find((p) => p.key === 'agility')?.canSpend).toBe(true);
   });
 });
 

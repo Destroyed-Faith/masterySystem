@@ -13,6 +13,8 @@ import {
   ARTIFACT_MAX_SYSTEM_LEVEL,
   ARTIFACT_UPGRADE_XP_COST,
   countBoundArtifacts,
+  listArtifactSpendableStonePools,
+  usesStonePoolEconomy,
 } from '../utils/artifact-actor-rules.js';
 import { repairActorEchoArtifacts } from '../utils/artifact-echo-repair.js';
 import {
@@ -49,9 +51,12 @@ export class ArtifactEvolutionDialog extends BaseDialog {
 
   protected async _prepareContext(_options: unknown): Promise<Record<string, unknown>> {
     const boundCount = countBoundArtifacts(this.actor);
+    const stonePools = listArtifactSpendableStonePools(this.actor);
     return {
       actor: this.actor,
       cards: buildArtifactEvolutionCards(this.actor),
+      stonePools,
+      usesStonePools: usesStonePoolEconomy(this.actor),
       capacity: {
         bound: boundCount,
         max: ARTIFACT_CAPACITY_DEFAULT,
@@ -82,7 +87,13 @@ export class ArtifactEvolutionDialog extends BaseDialog {
         ev.preventDefault();
         const rootId = btn.dataset.rootId;
         const embId = btn.dataset.embId;
-        const ok = await linkArtifactForActor(this.actor, String(rootId), String(embId));
+        const stoneAttr = btn.dataset.stoneAttr;
+        const ok = await linkArtifactForActor(
+          this.actor,
+          String(rootId),
+          String(embId),
+          stoneAttr || undefined,
+        );
         if (ok) await this.render({ force: true });
       };
     });

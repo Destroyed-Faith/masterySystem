@@ -17,6 +17,7 @@ import {
   readActorArtifactProgress,
   serializeActorArtifactProgress,
   spendArtifactLinkStone,
+  usesStonePoolEconomy,
   type ArtifactActorProgress,
 } from '../utils/artifact-actor-rules.js';
 import { summarizeEmbeddedArtifactDisplay } from '../utils/artifact-echo-repair.js';
@@ -211,11 +212,12 @@ export function buildArtifactEvolutionCards(actor: Actor): ArtifactEvolutionCard
   return cards;
 }
 
-/** Activate (link) an artifact — costs 1 Stone once. */
+/** Activate (link) an artifact — costs 1 Stone once from a chosen pool. */
 export async function linkArtifactForActor(
   actor: Actor,
   rootWorldId: string,
   embeddedId: string,
+  stoneAttr?: string,
 ): Promise<boolean> {
   const A = actor as any;
   if (!A.isOwner) return false;
@@ -248,14 +250,24 @@ export async function linkArtifactForActor(
     }
   }
 
-  if (!canSpendArtifactLinkStone(actor)) {
-    ui.notifications?.warn(`Not enough Stones (need ${ARTIFACT_LINK_STONE_COST}).`);
-    return false;
-  }
-
-  if (!(await spendArtifactLinkStone(actor))) {
-    ui.notifications?.warn(`Not enough Stones (need ${ARTIFACT_LINK_STONE_COST}).`);
-    return false;
+  if (usesStonePoolEconomy(actor)) {
+    if (!stoneAttr) {
+      ui.notifications?.warn('Wähle einen Stone aus deinem Pool.');
+      return false;
+    }
+    if (!(await spendArtifactLinkStone(actor, stoneAttr))) {
+      ui.notifications?.warn(`Nicht genug ${stoneAttr} Stones (benötigt ${ARTIFACT_LINK_STONE_COST}).`);
+      return false;
+    }
+  } else {
+    if (!canSpendArtifactLinkStone(actor)) {
+      ui.notifications?.warn(`Not enough Stones (need ${ARTIFACT_LINK_STONE_COST}).`);
+      return false;
+    }
+    if (!(await spendArtifactLinkStone(actor))) {
+      ui.notifications?.warn(`Not enough Stones (need ${ARTIFACT_LINK_STONE_COST}).`);
+      return false;
+    }
   }
 
   const next: ArtifactActorProgress = { ...cur, linked: true };

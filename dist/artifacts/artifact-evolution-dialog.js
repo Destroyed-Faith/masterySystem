@@ -6,7 +6,7 @@
  *   • Maximum reachable level = `(MR - 1) × 2`, capped at 16.
  *   • Each Artifact may only be upgraded once per Upgrade Step.
  */
-import { ARTIFACT_CAPACITY_DEFAULT, ARTIFACT_LINK_STONE_COST, ARTIFACT_MAX_SYSTEM_LEVEL, ARTIFACT_UPGRADE_XP_COST, countBoundArtifacts, } from '../utils/artifact-actor-rules.js';
+import { ARTIFACT_CAPACITY_DEFAULT, ARTIFACT_LINK_STONE_COST, ARTIFACT_MAX_SYSTEM_LEVEL, ARTIFACT_UPGRADE_XP_COST, countBoundArtifacts, listArtifactSpendableStonePools, usesStonePoolEconomy, } from '../utils/artifact-actor-rules.js';
 import { repairActorEchoArtifacts } from '../utils/artifact-echo-repair.js';
 import { buildArtifactEvolutionCards, linkArtifactForActor, upgradeArtifactForActor, } from './artifact-evolution-actions.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -32,9 +32,12 @@ export class ArtifactEvolutionDialog extends BaseDialog {
     }
     async _prepareContext(_options) {
         const boundCount = countBoundArtifacts(this.actor);
+        const stonePools = listArtifactSpendableStonePools(this.actor);
         return {
             actor: this.actor,
             cards: buildArtifactEvolutionCards(this.actor),
+            stonePools,
+            usesStonePools: usesStonePoolEconomy(this.actor),
             capacity: {
                 bound: boundCount,
                 max: ARTIFACT_CAPACITY_DEFAULT,
@@ -63,7 +66,8 @@ export class ArtifactEvolutionDialog extends BaseDialog {
                 ev.preventDefault();
                 const rootId = btn.dataset.rootId;
                 const embId = btn.dataset.embId;
-                const ok = await linkArtifactForActor(this.actor, String(rootId), String(embId));
+                const stoneAttr = btn.dataset.stoneAttr;
+                const ok = await linkArtifactForActor(this.actor, String(rootId), String(embId), stoneAttr || undefined);
                 if (ok)
                     await this.render({ force: true });
             };
