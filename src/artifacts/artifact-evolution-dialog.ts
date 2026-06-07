@@ -70,9 +70,33 @@ export class ArtifactEvolutionDialog extends BaseDialog {
     };
   }
 
+  #dialogRoot(): HTMLElement | null {
+    const el = (this as any).element as HTMLElement | undefined;
+    return el?.querySelector('.ae-dialog') ?? el ?? null;
+  }
+
+  #firstEnabledOption(select: HTMLSelectElement | null): HTMLOptionElement | null {
+    if (!select) return null;
+    return Array.from(select.options).find((o) => o.value && !o.disabled) ?? null;
+  }
+
   protected async _onRender(_context: unknown, _options: unknown): Promise<void> {
-    const root = (this as any).element as HTMLElement | undefined;
+    const root = this.#dialogRoot();
     if (!root) return;
+
+    root.querySelectorAll<HTMLSelectElement>('.ae-stone-select').forEach((sel) => {
+      if (!sel.value) {
+        const first = this.#firstEnabledOption(sel);
+        if (first) sel.value = first.value;
+      }
+    });
+
+    root.querySelectorAll<HTMLSelectElement>('.ae-path-select').forEach((sel) => {
+      if (!sel.value || sel.selectedOptions[0]?.disabled) {
+        const first = this.#firstEnabledOption(sel);
+        if (first) sel.value = first.value;
+      }
+    });
 
     const closeBtn = root.querySelector<HTMLElement>('[data-action="ae-close"]');
     if (closeBtn) {
@@ -82,35 +106,54 @@ export class ArtifactEvolutionDialog extends BaseDialog {
       };
     }
 
-    root.querySelectorAll<HTMLElement>('[data-action="ae-link"]').forEach((btn) => {
+    root.querySelectorAll<HTMLElement>('[data-action="ae-activate"]').forEach((btn) => {
       btn.onclick = async (ev) => {
         ev.preventDefault();
-        const rootId = btn.dataset.rootId;
-        const embId = btn.dataset.embId;
-        const stoneAttr = btn.dataset.stoneAttr;
+        const card = btn.closest('.ae-card');
+        const sel = card?.querySelector<HTMLSelectElement>('.ae-stone-select');
+        const stoneAttr = sel?.value;
+        if (!stoneAttr) {
+          ui.notifications?.warn('Wähle einen Stone aus deinem Pool.');
+          return;
+        }
         const ok = await linkArtifactForActor(
           this.actor,
-          String(rootId),
-          String(embId),
-          stoneAttr || undefined,
+          String(btn.dataset.rootId),
+          String(btn.dataset.embId),
+          stoneAttr,
         );
         if (ok) await this.render({ force: true });
       };
     });
 
-    root.querySelectorAll<HTMLElement>('[data-action="ae-upgrade"]').forEach((btn) => {
+    root.querySelectorAll<HTMLElement>('[data-action="ae-link"]').forEach((btn) => {
       btn.onclick = async (ev) => {
         ev.preventDefault();
-        const rootId = btn.dataset.rootId;
-        const embId = btn.dataset.embId;
-        const targetWorldId = btn.dataset.targetWorldId;
-        const targetNodeId = btn.dataset.targetNodeId;
+        const ok = await linkArtifactForActor(
+          this.actor,
+          String(btn.dataset.rootId),
+          String(btn.dataset.embId),
+        );
+        if (ok) await this.render({ force: true });
+      };
+    });
+
+    root.querySelectorAll<HTMLElement>('[data-action="ae-upgrade-selected"]').forEach((btn) => {
+      btn.onclick = async (ev) => {
+        ev.preventDefault();
+        const card = btn.closest('.ae-card');
+        const sel = card?.querySelector<HTMLSelectElement>('.ae-path-select');
+        const opt = sel?.selectedOptions[0];
+        if (!sel?.value || !opt || opt.disabled) {
+          ui.notifications?.warn('Wähle einen gültigen Evolution-Pfad.');
+          return;
+        }
         const ok = await upgradeArtifactForActor(
           this.actor,
-          String(rootId),
-          String(embId),
-          String(targetWorldId),
-          String(targetNodeId),
+          String(btn.dataset.rootId),
+          String(btn.dataset.embId),
+          String(opt.dataset.worldId),
+          String(sel.value),
         );
         if (ok) await this.render({ force: true });
       };

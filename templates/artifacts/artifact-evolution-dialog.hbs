@@ -1,114 +1,121 @@
 <div class="ae-dialog">
-  <p class="ae-intro">
-    <strong>Mastery &amp; cap:</strong> MR 1 — base item only (inactive). MR 2+ — activate with <strong>{{constants.linkStone}} Stone</strong> (once), then each step: {{constants.upXp}} XP per +1 level.
-    Max artifact level = (MR − 1) × 2 (cap {{constants.maxLevel}}).
-    Each artifact may only be upgraded once per Upgrade Step.
-  </p>
-  <p class="ae-intro {{#if capacity.full}}ae-warn{{/if}}">
-    <strong>Artifact Capacity:</strong> {{capacity.bound}} / {{capacity.max}} bound.
-    {{#if capacity.full}} Capacity full — unbind an Artifact to link another.{{/if}}
-  </p>
+  <div class="ae-scroll-body">
+    <details class="ae-rules-details">
+      <summary>Regeln &amp; Kapazität</summary>
+      <p class="ae-intro">
+        <strong>Mastery &amp; cap:</strong> MR 1 — inaktiv. MR 2+ — <strong>{{constants.linkStone}} Stone</strong> (einmal), dann {{constants.upXp}} XP pro Stufe.
+        Max = (MR − 1) × 2 (cap {{constants.maxLevel}}). Ein Upgrade pro Upgrade Step.
+      </p>
+      <p class="ae-intro {{#if capacity.full}}ae-warn{{/if}}">
+        <strong>Artifact Capacity:</strong> {{capacity.bound}} / {{capacity.max}} bound.
+        {{#if capacity.full}} Voll — erst ein Artefakt lösen.{{/if}}
+      </p>
+    </details>
 
-  {{#if cards.length}}
-  {{#each cards}}
-  <section class="ae-card" data-emb-id="{{embeddedId}}">
-    <h3 class="ae-card-title">{{displayName}}</h3>
-    <p class="ae-card-meta">
-      MR {{masteryRank}} — max item level <strong>{{maxSystemLevel}}</strong> ·
-      Stones <strong>{{stones}}</strong> · XP <strong>{{xp}}</strong>
-    </p>
-    <p class="ae-current">
-      L{{currentSystemLevel}}
-      {{#unless linked}}<span class="ae-warn">· inaktiv</span>{{else}}<span class="ae-success">· aktiv</span>{{/unless}}
-      {{#if isEchoBound}}<span class="ae-tag ae-tag-echo">Echo-bound</span>{{else if (eq bindingKind "bound")}}<span class="ae-tag ae-tag-bound">Bound</span>{{else}}<span class="ae-tag ae-tag-unbound">Unbound</span>{{/if}}
-    </p>
+    {{#if cards.length}}
+    {{#each cards}}
+    <section class="ae-card" data-emb-id="{{embeddedId}}">
+      <header class="ae-card-head">
+        <h3 class="ae-card-title">{{displayName}}</h3>
+        <span class="ae-card-badge">
+          L{{currentSystemLevel}}
+          {{#unless linked}}· inaktiv{{else}}· aktiv{{/unless}}
+        </span>
+      </header>
+      <p class="ae-card-meta">
+        MR {{masteryRank}} · max L{{maxSystemLevel}} · Stones <strong>{{stones}}</strong> · XP <strong>{{xp}}</strong>
+        {{#if isEchoBound}}<span class="ae-tag ae-tag-echo">Echo</span>{{/if}}
+      </p>
 
-    {{#unless linked}}
-      {{#if canLinkRules}}
-        {{#if linkDisabledReason}}
-        <button type="button" class="ae-btn ae-btn-primary" disabled title="{{linkDisabledReason}}">
-          Aktivieren ({{@root.constants.linkStone}} Stone)
-        </button>
-        <p class="ae-path-reason">{{linkDisabledReason}}</p>
-        {{else if @root.usesStonePools}}
-        <p class="ae-muted">Stone auswählen ({{@root.constants.linkStone}} wird dauerhaft verbraucht):</p>
-        <div class="ae-stone-pools">
-          {{#each @root.stonePools}}
-          <button type="button" class="ae-stone-btn" data-action="ae-link"
-            data-root-id="{{../rootWorldId}}" data-emb-id="{{../embeddedId}}" data-stone-attr="{{key}}"
-            {{#unless canSpend}}disabled title="Kein freier {{label}}-Stone"{{/unless}}
-            style="--ae-gem-fill: {{fill}}; --ae-gem-stroke: {{stroke}};">
-            <span class="ae-stone-gem" aria-hidden="true"></span>
-            <span class="ae-stone-label">{{label}}</span>
-            <span class="ae-stone-count">{{spendable}}</span>
+      {{#unless linked}}
+        {{#if canLinkRules}}
+          {{#if linkDisabledReason}}
+          <button type="button" class="ae-btn ae-btn-primary" disabled title="{{linkDisabledReason}}">
+            Aktivieren ({{@root.constants.linkStone}} Stone)
           </button>
-          {{/each}}
-        </div>
-        <p class="ae-muted">Fähigkeiten werden nach der Aktivierung freigeschaltet.</p>
+          <p class="ae-path-reason">{{linkDisabledReason}}</p>
+          {{else if @root.usesStonePools}}
+          <div class="ae-activate-row">
+            <label class="ae-field-label" for="ae-stone-{{embeddedId}}">Stone-Pool</label>
+            <select id="ae-stone-{{embeddedId}}" class="ae-stone-select" data-emb-id="{{embeddedId}}">
+              <option value="">— Pool wählen —</option>
+              {{#each @root.stonePools}}
+              <option value="{{key}}" {{#unless canSpend}}disabled{{/unless}}>
+                {{label}} ({{spendable}} frei)
+              </option>
+              {{/each}}
+            </select>
+            <button type="button" class="ae-btn ae-btn-primary" data-action="ae-activate"
+              data-root-id="{{rootWorldId}}" data-emb-id="{{embeddedId}}">
+              Aktivieren
+            </button>
+          </div>
+          {{else}}
+          <button type="button" class="ae-btn ae-btn-primary" data-action="ae-link" data-root-id="{{rootWorldId}}" data-emb-id="{{embeddedId}}">
+            Aktivieren ({{@root.constants.linkStone}} Stone)
+          </button>
+          {{/if}}
         {{else}}
-        <button type="button" class="ae-btn ae-btn-primary" data-action="ae-link" data-root-id="{{rootWorldId}}" data-emb-id="{{embeddedId}}">
-          Aktivieren ({{@root.constants.linkStone}} Stone)
-        </button>
-        <p class="ae-muted">Spend {{@root.constants.linkStone}} Stone once to activate. Abilities unlock after activation.</p>
+          <p class="ae-muted">Mastery Rank 2+ required to activate.</p>
         {{/if}}
       {{else}}
-        <p class="ae-muted">Mastery Rank 2+ required to activate.</p>
-      {{/if}}
-    {{else}}
-      {{#if hasBaseValues}}
-      <div class="ae-base-values">
-        <h4>Base Values</h4>
-        <ul class="ae-stat-list">
-          {{#each baseValues}}
-          <li><strong>{{label}}</strong>{{#if value}}: {{value}}{{/if}}</li>
-          {{/each}}
-        </ul>
-      </div>
-      {{/if}}
-
-      {{#if hasAbilities}}
-      <div class="ae-abilities">
-        <h4>Abilities (L{{currentSystemLevel}})</h4>
-        <ul class="ae-ability-list">
-          {{#each abilities}}
-          <li>
-            <strong>{{name}}</strong>
-            {{#if type}}<span class="ae-ability-type">{{type}}</span>{{/if}}
-            {{#if effect}}<p class="ae-ability-effect">{{effect}}</p>{{/if}}
-          </li>
-          {{/each}}
-        </ul>
-      </div>
-      {{/if}}
-
-      <div class="ae-paths">
-        <h4>Evolution paths</h4>
-        {{#if paths.length}}
-        <ul class="ae-path-list">
-          {{#each paths}}
-          <li>
-            <button type="button" class="ae-btn ae-btn-path" data-action="ae-upgrade"
-              data-root-id="{{../rootWorldId}}" data-emb-id="{{../embeddedId}}"
-              data-target-world-id="{{worldItemId}}" data-target-node-id="{{nodeId}}"
-              {{#if disabledReason}}disabled title="{{disabledReason}}"{{/if}}>
-              → {{label}} (level {{targetLevel}}) — {{@root.constants.upXp}} XP
-            </button>
-            {{#if disabledReason}}<span class="ae-path-reason">{{disabledReason}}</span>{{/if}}
-          </li>
-          {{/each}}
-        </ul>
-        {{else if atMaxTierForMr}}
-        <p class="ae-muted">Max level for current Mastery Rank.</p>
-        {{else}}
-        <p class="ae-muted">No further branches from this node.</p>
+        {{#if hasBaseValues}}
+        <details class="ae-details">
+          <summary>Base Values</summary>
+          <ul class="ae-stat-list">
+            {{#each baseValues}}
+            <li><strong>{{label}}</strong>{{#if value}}: {{value}}{{/if}}</li>
+            {{/each}}
+          </ul>
+        </details>
         {{/if}}
-      </div>
-    {{/unless}}
-  </section>
-  {{/each}}
-  {{else}}
-  <p class="ae-empty">No evolution-bound artifacts on this actor. A GM must assign you in the Artifact Builder and give you the Level 1 item.</p>
-  {{/if}}
+
+        {{#if hasAbilities}}
+        <details class="ae-details" open>
+          <summary>Abilities (L{{currentSystemLevel}})</summary>
+          <ul class="ae-ability-list">
+            {{#each abilities}}
+            <li>
+              <strong>{{name}}</strong>
+              {{#if type}}<span class="ae-ability-type">{{type}}</span>{{/if}}
+              {{#if effect}}<p class="ae-ability-effect">{{effect}}</p>{{/if}}
+            </li>
+            {{/each}}
+          </ul>
+        </details>
+        {{/if}}
+
+        <details class="ae-details" {{#if paths.length}}open{{/if}}>
+          <summary>Evolution</summary>
+          {{#if paths.length}}
+          <div class="ae-upgrade-row">
+            <label class="ae-field-label" for="ae-path-{{embeddedId}}">Pfad</label>
+            <select id="ae-path-{{embeddedId}}" class="ae-path-select" data-emb-id="{{embeddedId}}">
+              {{#each paths}}
+              <option value="{{nodeId}}" data-world-id="{{worldItemId}}"
+                {{#if disabledReason}}disabled title="{{disabledReason}}"{{/if}}>
+                {{label}} (L{{targetLevel}}, {{@root.constants.upXp}} XP){{#if disabledReason}} — {{disabledReason}}{{/if}}
+              </option>
+              {{/each}}
+            </select>
+            <button type="button" class="ae-btn ae-btn-primary" data-action="ae-upgrade-selected"
+              data-root-id="{{rootWorldId}}" data-emb-id="{{embeddedId}}">
+              Upgraden
+            </button>
+          </div>
+          {{else if atMaxTierForMr}}
+          <p class="ae-muted">Max level for current Mastery Rank.</p>
+          {{else}}
+          <p class="ae-muted">No further branches from this node.</p>
+          {{/if}}
+        </details>
+      {{/unless}}
+    </section>
+    {{/each}}
+    {{else}}
+    <p class="ae-empty">No evolution-bound artifacts on this actor.</p>
+    {{/if}}
+  </div>
 
   <footer class="ae-footer">
     <button type="button" class="ae-btn" data-action="ae-close">Close</button>

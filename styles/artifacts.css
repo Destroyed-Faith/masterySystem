@@ -1214,13 +1214,46 @@
 /* Artifact evolution dialog (actor) */
 .artifact-evolution-dialog .window-content {
   padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: calc(90vh - 48px);
 }
 
 .artifact-evolution-dialog .ae-dialog {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  max-height: 100%;
+}
+
+.artifact-evolution-dialog .ae-scroll-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
   padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
+}
+
+.artifact-evolution-dialog .ae-rules-details {
+  font-size: 0.85rem;
+  color: var(--df-text-secondary, #a8b0b8);
+}
+
+.artifact-evolution-dialog .ae-rules-details summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--df-text-primary, #e8eaed);
+  margin-bottom: 4px;
+}
+
+.artifact-evolution-dialog .ae-rules-details[open] summary {
+  margin-bottom: 8px;
 }
 
 .artifact-evolution-dialog .ae-intro {
@@ -1233,13 +1266,71 @@
 .artifact-evolution-dialog .ae-card {
   border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 8px;
-  padding: 12px;
+  padding: 10px 12px;
   background: var(--df-bg-panel, #1e2428);
+  flex-shrink: 0;
+}
+
+.artifact-evolution-dialog .ae-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
 }
 
 .artifact-evolution-dialog .ae-card-title {
-  margin: 0 0 6px 0;
-  font-size: 1.05rem;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.artifact-evolution-dialog .ae-card-badge {
+  font-size: 0.78rem;
+  white-space: nowrap;
+  color: var(--df-text-secondary, #a0a0a0);
+}
+
+.artifact-evolution-dialog .ae-details {
+  margin-top: 8px;
+  font-size: 0.88rem;
+}
+
+.artifact-evolution-dialog .ae-details summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--df-text-secondary, #b0b8bc);
+  list-style-position: outside;
+}
+
+.artifact-evolution-dialog .ae-details[open] summary {
+  margin-bottom: 6px;
+}
+
+.artifact-evolution-dialog .ae-activate-row,
+.artifact-evolution-dialog .ae-upgrade-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.artifact-evolution-dialog .ae-field-label {
+  font-size: 0.78rem;
+  color: var(--df-text-secondary, #8a9399);
+  white-space: nowrap;
+}
+
+.artifact-evolution-dialog .ae-stone-select,
+.artifact-evolution-dialog .ae-path-select {
+  width: 100%;
+  min-width: 0;
+  padding: 5px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--df-border-primary, #3a3f44);
+  background: var(--df-bg-body, #14181b);
+  color: var(--df-text-primary, #e8eaed);
+  font-size: 0.85rem;
 }
 
 .artifact-evolution-dialog .ae-card-meta,
@@ -1307,9 +1398,11 @@
 }
 
 .artifact-evolution-dialog .ae-footer {
-  margin-top: 8px;
-  padding-top: 8px;
+  flex-shrink: 0;
+  margin: 0;
+  padding: 8px 14px;
   border-top: 1px solid var(--df-border-primary, #3a3f44);
+  background: var(--df-bg-panel, #1e2428);
 }
 
 .artifact-evolution-dialog .ae-empty {
@@ -1354,55 +1447,6 @@
   margin: 2px 0 0;
   font-size: 0.82rem;
   color: var(--df-text-secondary, #b0b8bc);
-}
-
-.artifact-evolution-dialog .ae-stone-pools {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 8px 0 4px;
-}
-
-.artifact-evolution-dialog .ae-stone-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  border: 1px solid var(--df-border-primary, #3a3f44);
-  border-radius: 6px;
-  background: rgba(0, 0, 0, 0.2);
-  color: var(--df-text-primary, #e8e8e8);
-  cursor: pointer;
-  font-size: 0.82rem;
-  transition: border-color 0.15s, background 0.15s;
-}
-
-.artifact-evolution-dialog .ae-stone-btn:hover:not(:disabled) {
-  border-color: var(--ae-gem-stroke, #aaa);
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.artifact-evolution-dialog .ae-stone-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.artifact-evolution-dialog .ae-stone-gem {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--ae-gem-fill, #888);
-  border: 2px solid var(--ae-gem-stroke, #aaa);
-  flex-shrink: 0;
-}
-
-.artifact-evolution-dialog .ae-stone-label {
-  font-weight: 600;
-}
-
-.artifact-evolution-dialog .ae-stone-count {
-  opacity: 0.85;
-  font-size: 0.78rem;
 }
 
 /* Builder: actor allocation row */

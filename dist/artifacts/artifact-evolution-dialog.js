@@ -50,10 +50,33 @@ export class ArtifactEvolutionDialog extends BaseDialog {
             },
         };
     }
+    #dialogRoot() {
+        const el = this.element;
+        return el?.querySelector('.ae-dialog') ?? el ?? null;
+    }
+    #firstEnabledOption(select) {
+        if (!select)
+            return null;
+        return Array.from(select.options).find((o) => o.value && !o.disabled) ?? null;
+    }
     async _onRender(_context, _options) {
-        const root = this.element;
+        const root = this.#dialogRoot();
         if (!root)
             return;
+        root.querySelectorAll('.ae-stone-select').forEach((sel) => {
+            if (!sel.value) {
+                const first = this.#firstEnabledOption(sel);
+                if (first)
+                    sel.value = first.value;
+            }
+        });
+        root.querySelectorAll('.ae-path-select').forEach((sel) => {
+            if (!sel.value || sel.selectedOptions[0]?.disabled) {
+                const first = this.#firstEnabledOption(sel);
+                if (first)
+                    sel.value = first.value;
+            }
+        });
         const closeBtn = root.querySelector('[data-action="ae-close"]');
         if (closeBtn) {
             closeBtn.onclick = (ev) => {
@@ -61,25 +84,40 @@ export class ArtifactEvolutionDialog extends BaseDialog {
                 this.close();
             };
         }
-        root.querySelectorAll('[data-action="ae-link"]').forEach((btn) => {
+        root.querySelectorAll('[data-action="ae-activate"]').forEach((btn) => {
             btn.onclick = async (ev) => {
                 ev.preventDefault();
-                const rootId = btn.dataset.rootId;
-                const embId = btn.dataset.embId;
-                const stoneAttr = btn.dataset.stoneAttr;
-                const ok = await linkArtifactForActor(this.actor, String(rootId), String(embId), stoneAttr || undefined);
+                const card = btn.closest('.ae-card');
+                const sel = card?.querySelector('.ae-stone-select');
+                const stoneAttr = sel?.value;
+                if (!stoneAttr) {
+                    ui.notifications?.warn('Wähle einen Stone aus deinem Pool.');
+                    return;
+                }
+                const ok = await linkArtifactForActor(this.actor, String(btn.dataset.rootId), String(btn.dataset.embId), stoneAttr);
                 if (ok)
                     await this.render({ force: true });
             };
         });
-        root.querySelectorAll('[data-action="ae-upgrade"]').forEach((btn) => {
+        root.querySelectorAll('[data-action="ae-link"]').forEach((btn) => {
             btn.onclick = async (ev) => {
                 ev.preventDefault();
-                const rootId = btn.dataset.rootId;
-                const embId = btn.dataset.embId;
-                const targetWorldId = btn.dataset.targetWorldId;
-                const targetNodeId = btn.dataset.targetNodeId;
-                const ok = await upgradeArtifactForActor(this.actor, String(rootId), String(embId), String(targetWorldId), String(targetNodeId));
+                const ok = await linkArtifactForActor(this.actor, String(btn.dataset.rootId), String(btn.dataset.embId));
+                if (ok)
+                    await this.render({ force: true });
+            };
+        });
+        root.querySelectorAll('[data-action="ae-upgrade-selected"]').forEach((btn) => {
+            btn.onclick = async (ev) => {
+                ev.preventDefault();
+                const card = btn.closest('.ae-card');
+                const sel = card?.querySelector('.ae-path-select');
+                const opt = sel?.selectedOptions[0];
+                if (!sel?.value || !opt || opt.disabled) {
+                    ui.notifications?.warn('Wähle einen gültigen Evolution-Pfad.');
+                    return;
+                }
+                const ok = await upgradeArtifactForActor(this.actor, String(btn.dataset.rootId), String(btn.dataset.embId), String(opt.dataset.worldId), String(sel.value));
                 if (ok)
                     await this.render({ force: true });
             };
