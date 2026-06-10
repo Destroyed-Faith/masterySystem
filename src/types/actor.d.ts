@@ -333,6 +333,8 @@ export interface CharacterData {
   derived?: DerivedData;
   /** Player/GM-authored manual adjustments applied on top of computed stats. */
   manual?: ManualAdjustments;
+  /** Bound familiars / summons (persistent stone bindings). */
+  familiars?: BoundFamiliarRecord[];
 }
 
 // Status effect structure
@@ -494,6 +496,15 @@ export interface NpcData {
 }
 
 // === Summon Data ===
+export interface SummonFamiliarLink {
+  familiarId: string;
+  ownerActorId: string;
+  movementType: 'ground' | 'flying';
+  size: string;
+  sharedSenses: string[];
+  boundStoneCount: number;
+}
+
 export interface SummonData {
   bio: {
     name: string;
@@ -501,23 +512,54 @@ export interface SummonData {
     duration: string;
     description: string;
   };
-  attributes: {
-    might: { value: number };
-    agility: { value: number };
-    vitality: { value: number };
-    wits: { value: number };
-  };
+  familiar?: SummonFamiliarLink;
   health: {
-    current: number;
-    maximum: number;
+    bars: HealthBar[];
+    currentBar: number;
+    tempHP: number;
   };
   combat: {
     evade: number;
     armor: number;
     speed: number;
   };
-  abilities: any[];
+  npcBaseAttack?: {
+    name: string;
+    attackDiceCount: number;
+    damageDiceCount: number;
+    specials?: unknown[];
+  };
+  attackValues?: unknown[];
+  attackSlots?: number;
+  npcMovementSlots?: number;
   notes: string;
+}
+
+export interface BoundFamiliarRecord {
+  id: string;
+  name: string;
+  img: string;
+  movementType: 'ground' | 'flying';
+  ownerActorId: string;
+  baseStone: { attribute: string };
+  upgradeStones: {
+    id: string;
+    attribute: string;
+    picks: [string, string];
+  }[];
+  sharedSenses: { group: string; attribute: string }[];
+  boundStoneCount: number;
+  stats: {
+    hp: number;
+    armor: number;
+    evade: number;
+    attack: string;
+    damage: string;
+    movementM: number;
+  };
+  size: string;
+  summonActorId?: string;
+  locked: boolean;
 }
 
 // === Divine Entity Data ===

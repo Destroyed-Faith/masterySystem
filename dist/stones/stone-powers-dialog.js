@@ -13,7 +13,9 @@ import { getStoneGemStyle } from '../utils/stone-attribute-ui.js';
 import { getArtifactStoneFunctionStatus } from '../utils/artifact-stone-functions.js';
 import { refreshRadialMenuActionLabelsIfOpenForActor } from '../token-radial-menu.js';
 import { STONE_RITUALS_CATALOG } from './rituals-catalog.js';
-import { buildFamiliarResult, FAMILIAR_UPGRADE_CATEGORY_OPTIONS, getFamiliarProgressionTableRows } from './familiar-rules.js';
+import { FAMILIAR_UPGRADE_CATEGORY_OPTIONS, getFamiliarProgressionTableRows, getMaxFamiliarCount, getMaxStonesPerFamiliar, } from './familiar-rules.js';
+import { bindFamiliarToActor, buildFamiliarResultFromDraft, collectDraftStoneCounts, countDraftBoundStones, emptyFamiliarDraft, getFamiliarsFromActor, progressionHighlightTiers, releaseFamiliarFromActor, SHARED_SENSE_UI, validateFamiliarDraft, } from './familiar-bind.js';
+import { createSummonActorForFamiliar, deleteSummonActor, placeFamiliarToken, } from './familiar-actor-factory.js';
 const STONE_DRAG_MIME = 'application/x-mastery-stone-attribute';
 const STONE_RETURN_MIME = 'application/x-mastery-stone-return-acc';
 /**
@@ -425,16 +427,9 @@ export class StonePowersDialog extends BaseDialog {
     _stoneRoundPlanHydratedKey = null;
     /** Scroll im Dialog-Inhalt vor Re-Render merken (Stein setzen sonst springt nach oben). */
     _stonePowersContentScrollTop = 0;
-    /** Summons tab: Familiar builder (dialog-only, nicht persistiert). */
-    _familiarBuilder = {
-        name: '',
-        movementType: 'ground',
-        upgradeRows: [],
-        sharedSight: false,
-        sharedHearing: false,
-        sharedTasteSmell: false,
-        sharedTouch: false
-    };
+    /** Summons tab: list view or new-familiar editor. */
+    _familiarView = 'list';
+    _familiarDraft = emptyFamiliarDraft();
     static DEFAULT_OPTIONS = {
         id: "mastery-stone-powers",
         classes: ["mastery-system", "stone-powers-dialog"],
@@ -517,53 +512,210 @@ export class StonePowersDialog extends BaseDialog {
             return;
         placed[slotIndex] = null;
     }
-    #readFamiliarBuilderFromDom(root) {
+    #readFamiliarDraftFromDom(root) {
         const form = root.querySelector('.stone-familiar-form');
         if (!form)
             return;
-        const name = form.querySelector('.js-familiar-name')?.value ?? '';
+        const draft = this._familiarDraft;
+        draft.name = form.querySelector('.js-familiar-name')?.value ?? draft.name;
+        draft.img = form.querySelector('.js-familiar-img')?.value ?? draft.img;
         const movRaw = form.querySelector('input[name="familiarMovement"]:checked')?.value;
-        const movementType = movRaw === 'flying' ? 'flying' : 'ground';
+        draft.movementType = movRaw === 'flying' ? 'flying' : 'ground';
         const rows = [];
         form.querySelectorAll('.js-familiar-upgrade-row').forEach((el) => {
             const row = el;
             const id = row.dataset.rowId || '';
+            const existing = draft.upgradeRows.find((r) => r.id === id);
             const a = row.querySelector('.js-familiar-pick-a')?.value;
             const b = row.querySelector('.js-familiar-pick-b')?.value;
             if (!id || !a || !b)
                 return;
-            rows.push({ id, pickA: a, pickB: b });
+            rows.push({
+                id,
+                attribute: existing?.attribute ?? null,
+                pickA: a,
+                pickB: b,
+            });
         });
-        this._familiarBuilder = {
-            name,
-            movementType,
-            upgradeRows: rows,
-            sharedSight: !!form.querySelector('.js-familiar-sense-sight')?.checked,
-            sharedHearing: !!form.querySelector('.js-familiar-sense-hearing')?.checked,
-            sharedTasteSmell: !!form.querySelector('.js-familiar-sense-taste')?.checked,
-            sharedTouch: !!form.querySelector('.js-familiar-sense-touch')?.checked
+        draft.upgradeRows = rows;
+        for (const s of SHARED_SENSE_UI) {
+            const cb = form.querySelector(`.js-familiar-sense-enable[data-sense-field="${s.field}"]`);
+            draft[s.field].enabled = !!cb?.checked;
+        }
+    }
+    #firstSpendableFamiliarAttr() {
+        for (const attr of ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits']) {
+            if (this.#spendableNetForAttr(attr) >= 1)
+                return attr;
+        }
+        return null;
+    }
+    #assignFamiliarStone(slot, rowId, senseField) {
+        const pick = this.#firstSpendableFamiliarAttr();
+        if (!pick) {
+            ui.notifications?.warn('No free stones in your pools.');
+            return;
+        }
+        if (slot === 'base') {
+            this._familiarDraft.baseStoneAttr = pick;
+        }
+        else if (slot === 'upgrade' && rowId) {
+            const row = this._familiarDraft.upgradeRows.find((r) => r.id === rowId);
+            if (row)
+                row.attribute = pick;
+        }
+        else if (slot === 'sense' && senseField && senseField in this._familiarDraft) {
+            const key = senseField;
+            this._familiarDraft[key].attribute = pick;
+        }
+    }
+    #clearFamiliarStone(slot, rowId, senseField) {
+        if (slot === 'base') {
+            this._familiarDraft.baseStoneAttr = null;
+        }
+        else if (slot === 'upgrade' && rowId) {
+            const row = this._familiarDraft.upgradeRows.find((r) => r.id === rowId);
+            if (row)
+                row.attribute = null;
+        }
+        else if (slot === 'sense' && senseField && senseField in this._familiarDraft) {
+            const key = senseField;
+            this._familiarDraft[key].attribute = null;
+        }
+    }
+    #stoneUiForAttr(attr) {
+        if (!attr)
+            return { filled: false, label: '', gemStyle: { fill: '#888', stroke: '#aaa' } };
+        return {
+            filled: true,
+            label: poolDisplayName(attr),
+            gemStyle: getStoneGemStyle(attr) ?? { fill: '#888888', stroke: '#aaaaaa' },
         };
     }
+    async #bindFamiliarDraft(createActor) {
+        const mr = Math.max(1, Math.floor(Number(this.actor.system?.mastery?.rank) || 1));
+        this.#readFamiliarDraftFromDom(getStonePowersContentRoot(this) ?? document.body);
+        const record = await bindFamiliarToActor(this.actor, this._familiarDraft, mr);
+        if (!record)
+            return;
+        if (createActor) {
+            const summon = await createSummonActorForFamiliar(record, this.actor);
+            if (summon) {
+                const familiars = getFamiliarsFromActor(this.actor);
+                const idx = familiars.findIndex((f) => f.id === record.id);
+                if (idx >= 0) {
+                    familiars[idx] = { ...familiars[idx], summonActorId: summon.id };
+                    await this.actor.update({ 'system.familiars': familiars });
+                }
+            }
+        }
+        this._familiarDraft = emptyFamiliarDraft();
+        this._familiarView = 'list';
+        ui.notifications?.info(`Bound familiar "${record.name}".`);
+        await this.render({ force: true });
+    }
     #bindFamiliarForm(root) {
+        root.querySelector('.js-familiar-new')?.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            this._familiarDraft = emptyFamiliarDraft();
+            this._familiarView = 'editor';
+            void this.render({ force: true });
+        });
+        root.querySelectorAll('.js-familiar-release').forEach((btn) => {
+            btn.onclick = async (ev) => {
+                ev.preventDefault();
+                const id = btn.dataset.familiarId;
+                if (!id)
+                    return;
+                const familiars = getFamiliarsFromActor(this.actor);
+                const rec = familiars.find((f) => f.id === id);
+                if (rec?.summonActorId)
+                    await deleteSummonActor(rec.summonActorId);
+                await releaseFamiliarFromActor(this.actor, id);
+                ui.notifications?.info('Familiar bond released; stones returned to pool.');
+                await this.render({ force: true });
+            };
+        });
+        root.querySelectorAll('.js-familiar-create-actor').forEach((btn) => {
+            btn.onclick = async (ev) => {
+                ev.preventDefault();
+                const id = btn.dataset.familiarId;
+                if (!id)
+                    return;
+                const familiars = getFamiliarsFromActor(this.actor);
+                const rec = familiars.find((f) => f.id === id);
+                if (!rec)
+                    return;
+                const summon = await createSummonActorForFamiliar(rec, this.actor);
+                if (!summon)
+                    return;
+                const idx = familiars.findIndex((f) => f.id === id);
+                familiars[idx] = { ...familiars[idx], summonActorId: summon.id };
+                await this.actor.update({ 'system.familiars': familiars });
+                await this.render({ force: true });
+            };
+        });
+        root.querySelectorAll('.js-familiar-open-actor').forEach((btn) => {
+            btn.onclick = async (ev) => {
+                ev.preventDefault();
+                const id = btn.dataset.familiarId;
+                const rec = getFamiliarsFromActor(this.actor).find((f) => f.id === id);
+                if (!rec?.summonActorId)
+                    return;
+                const actor = game.actors?.get(rec.summonActorId);
+                actor?.sheet?.render(true);
+            };
+        });
+        root.querySelectorAll('.js-familiar-place-token').forEach((btn) => {
+            btn.onclick = async (ev) => {
+                ev.preventDefault();
+                const id = btn.dataset.familiarId;
+                const rec = getFamiliarsFromActor(this.actor).find((f) => f.id === id);
+                if (!rec?.summonActorId)
+                    return;
+                const summon = game.actors?.get(rec.summonActorId);
+                if (!summon)
+                    return;
+                await placeFamiliarToken(summon, this.actor);
+            };
+        });
         const form = root.querySelector('.stone-familiar-form');
         if (!form)
             return;
         const rerender = () => {
-            this.#readFamiliarBuilderFromDom(root);
+            this.#readFamiliarDraftFromDom(root);
             void this.render({ force: true });
         };
-        form.addEventListener('change', rerender);
-        form.querySelector('.js-familiar-name')?.addEventListener('input', rerender);
+        form.addEventListener('change', (ev) => {
+            const t = ev.target;
+            if (t.classList.contains('js-familiar-name') || t.classList.contains('js-familiar-img'))
+                return;
+            rerender();
+        });
+        form.querySelector('.js-familiar-name')?.addEventListener('blur', rerender);
+        form.querySelector('.js-familiar-img')?.addEventListener('blur', rerender);
+        root.querySelector('.js-familiar-back')?.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            this._familiarView = 'list';
+            void this.render({ force: true });
+        });
         form.addEventListener('click', (ev) => {
             const t = ev.target;
+            if (t.closest('.js-familiar-bind')) {
+                ev.preventDefault();
+                void this.#bindFamiliarDraft(false);
+                return;
+            }
+            if (t.closest('.js-familiar-bind-and-actor')) {
+                ev.preventDefault();
+                void this.#bindFamiliarDraft(true);
+                return;
+            }
             if (t.closest('.js-familiar-add-upgrade-stone')) {
                 ev.preventDefault();
-                this.#readFamiliarBuilderFromDom(root);
-                const id = typeof globalThis.foundry !== 'undefined' &&
-                    foundry.utils?.randomID
-                    ? foundry.utils.randomID()
-                    : `u${Date.now()}`;
-                this._familiarBuilder.upgradeRows.push({ id, pickA: 'hp', pickB: 'armor' });
+                this.#readFamiliarDraftFromDom(root);
+                const id = foundry.utils?.randomID?.() ?? `u${Date.now()}`;
+                this._familiarDraft.upgradeRows.push({ id, attribute: null, pickA: 'hp', pickB: 'armor' });
                 void this.render({ force: true });
                 return;
             }
@@ -571,10 +723,40 @@ export class StonePowersDialog extends BaseDialog {
             if (rm) {
                 ev.preventDefault();
                 const rowId = rm.dataset.rowId || rm.closest('[data-row-id]')?.getAttribute('data-row-id');
-                this.#readFamiliarBuilderFromDom(root);
+                this.#readFamiliarDraftFromDom(root);
                 if (rowId) {
-                    this._familiarBuilder.upgradeRows = this._familiarBuilder.upgradeRows.filter((r) => r.id !== rowId);
+                    this._familiarDraft.upgradeRows = this._familiarDraft.upgradeRows.filter((r) => r.id !== rowId);
                 }
+                void this.render({ force: true });
+                return;
+            }
+            const clearBtn = t.closest('.js-familiar-clear-stone');
+            if (clearBtn) {
+                ev.preventDefault();
+                ev.stopPropagation();
+                const kind = clearBtn.dataset.slotKind;
+                this.#clearFamiliarStone(kind, clearBtn.dataset.rowId, clearBtn.dataset.senseField);
+                void this.render({ force: true });
+                return;
+            }
+            const baseSlot = t.closest('.js-familiar-base-slot');
+            if (baseSlot) {
+                ev.preventDefault();
+                this.#assignFamiliarStone('base');
+                void this.render({ force: true });
+                return;
+            }
+            const upgradeSlot = t.closest('.js-familiar-upgrade-slot');
+            if (upgradeSlot) {
+                ev.preventDefault();
+                this.#assignFamiliarStone('upgrade', upgradeSlot.dataset.rowId);
+                void this.render({ force: true });
+                return;
+            }
+            const senseSlot = t.closest('.js-familiar-sense-slot');
+            if (senseSlot) {
+                ev.preventDefault();
+                this.#assignFamiliarStone('sense', undefined, senseSlot.dataset.senseField);
                 void this.render({ force: true });
             }
         });
@@ -640,7 +822,7 @@ export class StonePowersDialog extends BaseDialog {
         const hasCombat = combatActive && !!this.combatant;
         const stonePlanLocked = !!(combat && this.combatant && isStonePowersConfigurationLocked(this.actor, combat));
         const mainTab = this._stonePowersMainTab;
-        const showStonePools = mainTab === 'combat' || mainTab === 'rituals';
+        const showStonePools = mainTab === 'combat' || mainTab === 'rituals' || mainTab === 'summons';
         const dragPoolEnabled = mainTab === 'rituals' || (mainTab === 'combat' && !stonePlanLocked);
         const ritualDragEnabled = mainTab === 'rituals';
         const tabCombatActive = mainTab === 'combat';
@@ -917,33 +1099,40 @@ export class StonePowersDialog extends BaseDialog {
             });
         }
         const masteryRankForFamiliar = Math.max(1, Math.floor(Number(system.mastery?.rank) || 1));
-        const fb = this._familiarBuilder;
-        const upgradeStonesForRules = fb.upgradeRows.map((r) => ({
-            id: r.id,
-            picks: [r.pickA, r.pickB]
+        const familiarCap = getMaxStonesPerFamiliar(masteryRankForFamiliar);
+        const familiarMaxCount = getMaxFamiliarCount(masteryRankForFamiliar);
+        const boundFamiliarsRaw = getFamiliarsFromActor(this.actor);
+        const boundFamiliars = boundFamiliarsRaw.map((f) => ({
+            ...f,
+            hasToken: !!f.summonActorId,
         }));
-        const sharedSensesForRules = [];
-        if (fb.sharedSight)
-            sharedSensesForRules.push('sight');
-        if (fb.sharedHearing)
-            sharedSensesForRules.push('hearing');
-        if (fb.sharedTasteSmell)
-            sharedSensesForRules.push('tasteSmell');
-        if (fb.sharedTouch)
-            sharedSensesForRules.push('touchPressure');
-        let familiarResult = null;
-        try {
-            familiarResult = buildFamiliarResult({
-                familiarName: fb.name,
-                movementType: fb.movementType,
-                upgradeStones: upgradeStonesForRules,
-                sharedSenses: sharedSensesForRules,
-                masteryRank: masteryRankForFamiliar
-            });
-        }
-        catch (e) {
-            console.warn('Mastery System | buildFamiliarResult failed', e);
-        }
+        const familiarDraft = this._familiarDraft;
+        const familiarResult = buildFamiliarResultFromDraft(familiarDraft, masteryRankForFamiliar);
+        const familiarValidation = validateFamiliarDraft(familiarDraft, masteryRankForFamiliar, boundFamiliarsRaw.length, this.#spendableMapForFamiliarValidation());
+        const familiarDraftBoundCount = countDraftBoundStones(familiarDraft);
+        const highlightTiers = progressionHighlightTiers(familiarResult);
+        const familiarProgressionTable = getFamiliarProgressionTableRows().map((row) => ({
+            label: row.label,
+            cells: row.cells.map((value, tierIndex) => ({
+                value,
+                isHighlight: highlightTiers[row.label] === tierIndex,
+            })),
+        }));
+        const familiarSenseOptions = SHARED_SENSE_UI.map((s) => {
+            const slot = familiarDraft[s.field];
+            const canEnable = !slot.enabled &&
+                familiarDraftBoundCount < familiarCap &&
+                this.#firstSpendableFamiliarAttr() != null;
+            return {
+                ...s,
+                enabled: slot.enabled,
+                canEnable: slot.enabled || canEnable,
+                stoneUi: this.#stoneUiForAttr(slot.attribute),
+            };
+        });
+        const familiarCanAddUpgrade = familiarDraft.baseStoneAttr != null &&
+            familiarDraftBoundCount < familiarCap &&
+            this.#firstSpendableFamiliarAttr() != null;
         return {
             actor: this.actor,
             pools,
@@ -965,14 +1154,31 @@ export class StonePowersDialog extends BaseDialog {
             tabRitualsActive,
             tabSummonsActive,
             ritualRows,
-            familiarBuilder: fb,
-            familiarBuilderMovementIsGround: fb.movementType === 'ground',
-            familiarBuilderMovementIsFlying: fb.movementType === 'flying',
+            familiarView: this._familiarView,
+            familiarViewIsList: this._familiarView === 'list',
+            familiarViewIsEditor: this._familiarView === 'editor',
+            familiarDraft,
+            familiarDraftMovementIsGround: familiarDraft.movementType === 'ground',
+            familiarDraftMovementIsFlying: familiarDraft.movementType === 'flying',
+            familiarDraftBaseStoneUi: this.#stoneUiForAttr(familiarDraft.baseStoneAttr),
+            familiarDraftUpgradeRows: familiarDraft.upgradeRows.map((row) => ({
+                ...row,
+                stoneUi: this.#stoneUiForAttr(row.attribute),
+            })),
             familiarUpgradeCategoryOptions: FAMILIAR_UPGRADE_CATEGORY_OPTIONS,
+            familiarSenseOptions,
             familiarResult,
-            familiarProgressionTable: getFamiliarProgressionTableRows(),
+            familiarValidation,
+            familiarProgressionTable,
             familiarMasteryRank: masteryRankForFamiliar,
-            familiarMasteryCap: masteryRankForFamiliar * 4,
+            familiarMasteryCap: familiarCap,
+            familiarMaxCount,
+            familiarListCount: boundFamiliarsRaw.length,
+            familiarDraftBoundCount,
+            familiarCanAddNew: boundFamiliarsRaw.length < familiarMaxCount,
+            familiarCanAddUpgrade,
+            familiarCanBind: familiarValidation.canBind,
+            boundFamiliars,
             prefsUseDefaults,
             canSavePrefs,
             showCombatRoundPlanSave,
@@ -1367,7 +1573,7 @@ export class StonePowersDialog extends BaseDialog {
         });
         dlogStoneLanes('DOM nach sync (Lanes 0–2)', { rowCount: rows.length, rows });
     }
-    #reservedStonesInDialogForAttr(attr) {
+    #reservedStonesNonFamiliar(attr) {
         this.#pullSessionPartialsIntoInstance();
         let sum = 0;
         for (const [accKey, val] of this._stoneDropAccumulators) {
@@ -1392,6 +1598,21 @@ export class StonePowersDialog extends BaseDialog {
             }
         }
         return sum;
+    }
+    #reservedStonesInDialogForAttr(attr) {
+        let sum = this.#reservedStonesNonFamiliar(attr);
+        if (this._stonePowersMainTab === 'summons') {
+            const draftCounts = collectDraftStoneCounts(this._familiarDraft);
+            sum += draftCounts[attr] ?? 0;
+        }
+        return sum;
+    }
+    #spendableMapForFamiliarValidation() {
+        const out = {};
+        for (const attr of ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits']) {
+            out[attr] = Math.max(0, this.#actorPoolSpendable(attr) - this.#reservedStonesNonFamiliar(attr));
+        }
+        return out;
     }
     #actorPoolSpendable(attr) {
         const poolOwner = getActionEconomyActor(this.actor) ?? this.actor;

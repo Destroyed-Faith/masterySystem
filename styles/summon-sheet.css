@@ -1,0 +1,27 @@
+.mastery-system.sheet.summon .summon-meta,
+.mastery-system.sheet.summon .summon-owner {
+  font-size: 0.85rem;
+  color: #b0bec5;
+  margin: 0.2rem 0;
+}
+
+.mastery-system.sheet.summon .summon-dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.2rem 0.75rem;
+  margin: 0.5rem 0;
+}
+
+.mastery-system.sheet.summon .summon-dl dt {
+  color: #90a4ae;
+}
+
+.mastery-system.sheet.summon .summon-senses ul {
+  margin: 0.25rem 0 0.5rem 1rem;
+  padding: 0;
+}
+
+.mastery-system.sheet.summon .summon-notes p {
+  font-size: 0.85rem;
+  color: #cfd8dc;
+}

@@ -10,6 +10,7 @@ import { MasteryActor } from './documents/actor.js';
 import { MasteryItem } from './documents/item.js';
 import { MasteryCharacterSheet } from './sheets/character-sheet.js';
 import { MasteryNpcSheet } from './sheets/npc-sheet.js';
+import { MasterySummonSheet } from './sheets/summon-sheet.js';
 import { MasteryItemSheet } from './sheets/item-sheet.js';
 import { ArtifactSheetV2 } from './sheets/artifact-sheet-v2.js';
 // Combat hooks are imported dynamically to avoid build errors if dist/combat doesn't exist yet
@@ -158,6 +159,13 @@ Hooks.once('init', async function() {
     label: 'Mastery NPC Sheet'
   });
   console.log('Mastery System | Registered NPC Sheet');
+
+  foundry.documents.collections.Actors.registerSheet('mastery-system', MasterySummonSheet, {
+    types: ['summon'],
+    makeDefault: true,
+    label: 'Summon Sheet'
+  });
+  console.log('Mastery System | Registered Summon Sheet');
   
   const coreItemSheet = (foundry as any).appv1?.sheets?.ItemSheet;
   if (coreItemSheet) {
@@ -1934,6 +1942,7 @@ async function preloadTemplates() {
     // Actor sheets (only load existing templates)
     'systems/mastery-system/templates/actor/character-sheet.hbs',
     'systems/mastery-system/templates/actor/npc-sheet.hbs',
+    'systems/mastery-system/templates/actor/summon-sheet.hbs',
     
     // Item sheets (only load existing templates)
     'systems/mastery-system/templates/item/power-sheet.hbs',

@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.33] - 2026-06-06
+
+### Added
+
+- **Summons tab overhaul:** Full familiar binding flow in Stone Powers — wizard (basics → base stone → upgrades → shared senses), per-slot attribute stone assignment, live stat preview, and `system.familiars[]` persistence with sustained pool accounting.
+- **Summon actors:** `familiar-actor-factory` creates `summon`-type world actors in a Familiars folder; **Place Token** on scene; new **Summon Sheet** (read-only statblock).
+- **Playwright E2E:** Optional Forge/local smoke tests (`npm run test:e2e`) with `e2e/.env` (gitignored credentials).
+
+### Fixed
+
+- **Familiar name input:** No longer types backwards (removed full re-render on every keystroke).
+- **Stone pools** visible on Summons tab; reference table highlights current upgrade tiers.
+
 ## [0.9.32] - 2026-06-06
 
 ### Removed

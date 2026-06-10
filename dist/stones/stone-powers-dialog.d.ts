@@ -35,8 +35,9 @@ export declare class StonePowersDialog extends BaseDialog {
     private _stoneRoundPlanHydratedKey;
     /** Scroll im Dialog-Inhalt vor Re-Render merken (Stein setzen sonst springt nach oben). */
     private _stonePowersContentScrollTop;
-    /** Summons tab: Familiar builder (dialog-only, nicht persistiert). */
-    private _familiarBuilder;
+    /** Summons tab: list view or new-familiar editor. */
+    private _familiarView;
+    private _familiarDraft;
     static DEFAULT_OPTIONS: {
         id: string;
         classes: string[];

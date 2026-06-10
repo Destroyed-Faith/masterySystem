@@ -206,7 +206,8 @@
       "minorExpressions": [],
       "languages": {
         "known": ["common"]
-      }
+      },
+      "familiars": []
     },
     "npc": {
       "templates": ["base", "combatant"],
@@ -250,36 +251,48 @@
       "notes": ""
     },
     "summon": {
+      "templates": ["base", "combatant"],
+      "bloodColor": "#4a148c",
       "bio": {
         "name": "",
-        "summonType": "",
-        "duration": "",
+        "summonType": "Familiar",
+        "duration": "Permanent (bound)",
         "description": ""
       },
-      "attributes": {
-        "might": {
-          "value": 2
-        },
-        "agility": {
-          "value": 2
-        },
-        "vitality": {
-          "value": 2
-        },
-        "wits": {
-          "value": 2
-        }
+      "familiar": {
+        "familiarId": "",
+        "ownerActorId": "",
+        "movementType": "ground",
+        "size": "Tiny",
+        "sharedSenses": [],
+        "boundStoneCount": 1
       },
       "health": {
-        "current": 10,
-        "maximum": 10
+        "bars": [
+          {
+            "name": "Healthy",
+            "max": 10,
+            "current": 10,
+            "penalty": 0
+          }
+        ],
+        "currentBar": 0,
+        "tempHP": 0
       },
       "combat": {
-        "evade": 10,
+        "evade": 4,
         "armor": 0,
-        "speed": 6
+        "speed": 8
       },
-      "abilities": [],
+      "npcBaseAttack": {
+        "name": "Familiar Attack",
+        "attackDiceCount": 2,
+        "damageDiceCount": 1,
+        "specials": []
+      },
+      "attackValues": [],
+      "attackSlots": 1,
+      "npcMovementSlots": 1,
       "notes": ""
     }
   },

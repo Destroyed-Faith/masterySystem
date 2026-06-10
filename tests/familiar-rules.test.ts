@@ -43,15 +43,15 @@ describe('Familiar canonical tables', () => {
     }
   });
 
-  it('Ground movement: 8 + 2 per tier', () => {
+  it('Ground movement: 8 + 4 per tier', () => {
     for (let i = 0; i <= 8; i++) {
-      expect(FAMILIAR_GROUND_MOVEMENT_BY_TIER[i]).toBe(8 + 2 * i);
+      expect(FAMILIAR_GROUND_MOVEMENT_BY_TIER[i]).toBe(8 + 4 * i);
     }
   });
 
-  it('Flying movement: 4 + tier', () => {
+  it('Flying movement: 4 + 2 per tier', () => {
     for (let i = 0; i <= 8; i++) {
-      expect(FAMILIAR_FLYING_MOVEMENT_BY_TIER[i]).toBe(4 + i);
+      expect(FAMILIAR_FLYING_MOVEMENT_BY_TIER[i]).toBe(4 + 2 * i);
     }
   });
 });
@@ -93,7 +93,7 @@ describe('buildFamiliarResult', () => {
     expect(r.hpUpgrades).toBe(1);
     expect(r.damageUpgrades).toBe(1);
     expect(r.finalStats.evade).toBe(8);
-    expect(r.finalStats.movementM).toBe(10);
+    expect(r.finalStats.movementM).toBe(12);
     expect(r.finalStats.hp).toBe(22);
     expect(r.finalStats.damage).toBe('2d8');
     expect(r.size).toBe('Small');

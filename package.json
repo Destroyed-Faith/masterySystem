@@ -1,6 +1,6 @@
 {
   "name": "mastery-system",
-  "version": "0.9.32",
+  "version": "0.9.33",
   "description": "Foundry VTT system for Mastery System / Destroyed Faith",
   "main": "dist/module.js",
   "scripts": {
@@ -15,6 +15,9 @@
     "audit:passive-runtime": "node scripts/audit-passive-runtime.js",
     "fix:tree-special-keys": "node scripts/fix-tree-special-keys.js",
     "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:ui": "playwright test --ui",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write \"src/**/*.ts\""
   },
@@ -28,10 +31,12 @@
   "author": "Daniel Rodrigo Navarro Melendo",
   "license": "SEE LICENSE IN LICENSE",
   "devDependencies": {
+    "@playwright/test": "^1.52.0",
     "@foundryvtt/foundryvtt-cli": "^3.0.3",
     "@league-of-foundry-developers/foundry-vtt-types": "^13.0.0",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
+    "dotenv": "^16.5.0",
     "eslint": "^8.57.0",
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5",

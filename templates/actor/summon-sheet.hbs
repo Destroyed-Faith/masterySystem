@@ -1,0 +1,56 @@
+<form class="{{cssClass}} summon-sheet" autocomplete="off">
+  <header class="sheet-header">
+    <div class="portrait-section">
+      <div class="profile-img-wrapper">
+        <div class="profile-img-container">
+          <img class="profile-img" src="{{actor.img}}" alt="{{actor.name}}" />
+        </div>
+        <div class="profile-img-label">FAMILIAR</div>
+      </div>
+    </div>
+    <div class="header-info">
+      <div class="character-name-box">
+        <h1>{{actor.name}}</h1>
+      </div>
+      <p class="summon-meta">{{system.bio.summonType}} · {{familiarSize}} · {{familiarMovement}}</p>
+      <p class="summon-owner">Owner: <a href="#" data-action="open-owner">{{ownerName}}</a></p>
+    </div>
+  </header>
+
+  <section class="summon-statblock">
+    <h3>Combat</h3>
+    <dl class="summon-dl">
+      <dt>HP</dt><dd>{{familiarStats.hp}}</dd>
+      <dt>Armor</dt><dd>{{familiarStats.armor}}</dd>
+      <dt>Evade</dt><dd>{{familiarStats.evade}}</dd>
+      <dt>Movement</dt><dd>{{familiarStats.speed}} m</dd>
+      <dt>Attack</dt><dd>{{familiarStats.attack}}</dd>
+      <dt>Damage</dt><dd>{{familiarStats.damage}}</dd>
+      <dt>Bound Stones</dt><dd>{{boundStoneCount}}</dd>
+    </dl>
+  </section>
+
+  {{#if sharedSenseLabels.length}}
+  <section class="summon-senses">
+    <h3>Shared Senses</h3>
+    <ul>
+      {{#each sharedSenseLabels}}
+      <li>{{this}}</li>
+      {{/each}}
+    </ul>
+  </section>
+  {{/if}}
+
+  {{#if system.bio.description}}
+  <section class="summon-notes">
+    <h3>Notes</h3>
+    <p>{{system.bio.description}}</p>
+  </section>
+  {{/if}}
+
+  {{#if system.notes}}
+  <section class="summon-notes">
+    <p>{{system.notes}}</p>
+  </section>
+  {{/if}}
+</form>

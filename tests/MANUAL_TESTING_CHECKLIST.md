@@ -218,7 +218,23 @@ Bei Saves steht 2d8 K2 +2 <- wo kommen die +2 her>
 
 ---
 
-## 8. Passives
+## 8. Summons & Familiars (Stone Powers → Summons tab)
+
+- [ ] Stone pools visible on Summons tab
+- [ ] Name field types normally (not backwards)
+- [ ] New Summon wizard: basics → base stone → upgrades → senses
+- [ ] Each stone slot assigns a specific attribute from the pool
+- [ ] Live preview shows stats and bound-stone budget
+- [ ] Bind Familiar persists on character; sustained stones deducted
+- [ ] Multiple familiars up to MR × 4
+- [ ] Create Actor produces summon in Familiars folder
+- [ ] Place Token drops token on scene near owner
+- [ ] Release Bond returns stones and removes summon actor
+- [ ] Summon sheet shows read-only statblock
+
+---
+
+## 9. Passives
 
 - [ ] Passive selection dialog opens before combat
 - [ ] Can select up to MR passives from available passive powers
@@ -227,7 +243,7 @@ Bei Saves steht 2d8 K2 +2 <- wo kommen die +2 her>
 
 ---
 
-## 9. UI & Themes
+## 10. UI & Themes
 
 - [ ] All 4 themes work: Rulebook, Ember, Ashen, Bloodmoon
 - [ ] Character sheet tabs: Attributes, Skills, Powers, Equipment, Disadvantages, Biography
