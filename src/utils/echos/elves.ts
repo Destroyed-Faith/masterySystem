@@ -10,16 +10,7 @@ export const ELVES_ECHO: EchoDefinition = {
   creatureType: 'Humanoid',
   size: 'medium',
   speed: 10,
-  coreTraits: [
-    {
-      id: 'otherworld-reflex',
-      name: 'Otherworld Reflex',
-      effect:
-        'Mastery Rank per Safe Haven Rest: declare at any time (even after initiative is rolled). Until the start of your next turn, your Evade increases by +4. Does not stack with itself; cannot be extended beyond one turn.',
-      flavor: 'For a heartbeat, you are not quite here.',
-      usage: 'mr-per-rest'
-    }
-  ],
+  coreTraits: [],
   // Elemental Lineage is chosen via the Elven Stride Echo Artifact picker (four
   // separate items: Fire / Earth / Water / Air), not as a racial sub-choice.
   deck: [

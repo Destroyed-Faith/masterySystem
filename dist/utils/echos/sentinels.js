@@ -7,15 +7,7 @@ export const SENTINELS_ECHO = {
     creatureType: 'Humanoid',
     size: 'medium',
     speed: 10,
-    coreTraits: [
-        {
-            id: 'core-directive',
-            name: 'Core Directive',
-            effect: 'You are dedicated to preserve the creation of the gods. Mastery Rank per Safe Haven Rest: when you act clearly in service of it, gain +1 Free Raise on one relevant roll. If you knowingly act against it, mark 1d8 Stress.',
-            flavor: 'Built to obey, forced to choose.',
-            usage: 'mr-per-rest'
-        }
-    ],
+    coreTraits: [],
     subChoiceLabel: 'Order Protocol',
     subChoices: [
         {

@@ -8,7 +8,7 @@ import { DISADVANTAGES, getDisadvantageDefinition, calculateDisadvantagePoints, 
 import { getAllSchticks } from '../utils/schticks.js';
 import { showPowerCreationDialog } from './character-sheet-power-dialog.js';
 import { showEchoCardPickDialog, showEchoCreationDialog } from './character-sheet-echo-dialog.js';
-import { buildFreshTraitUses, getActiveEchoTraits, getCardOption, getEcho, getEchoCard, getEchoSubChoice, getUnlockedCardSlots, isMrPerRest, isTraitGatedByMr } from '../utils/echos/index.js';
+import { buildFreshTraitUses, getCardOption, getEcho, getEchoCard, getEchoSubChoice, getUnlockedCardSlots } from '../utils/echos/index.js';
 import { CATEGORY_LABELS, CATEGORY_ORDER, CREATION_POWER_REQUIREMENTS, CREATION_POWER_TOTAL, CREATION_POWERS_AT_RANK_2, countPowersByCategory, findDuplicatePowerLabel, resolvePowerCategoryFromItem } from '../utils/power-catalog.js';
 import { getLanguage as getLanguageDef, normalizeKnownLanguages } from '../utils/languages.js';
 import { showLanguagesDialog } from './languages-dialog.js';
@@ -547,32 +547,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         const cardUses = (rawEcho.cardUses && typeof rawEcho.cardUses === 'object')
             ? { ...rawEcho.cardUses }
             : {};
-        const traitUses = (rawEcho.traitUses && typeof rawEcho.traitUses === 'object')
-            ? { ...rawEcho.traitUses }
-            : {};
         const unlockedCardSlots = echoDef ? getUnlockedCardSlots(masteryRank) : 0;
         const canAddCard = !!echoDef && selectedCardIds.length < unlockedCardSlots;
-        const activeTraits = echoDef
-            ? getActiveEchoTraits(echoKey, echoSubChoice?.key || null).map(t => {
-                const gated = isTraitGatedByMr(t.usage, masteryRank);
-                const trackedUses = isMrPerRest(t.usage) || t.usage === 'once-per-rest' || t.usage === 'unlock-mr6-once';
-                const maxUses = isMrPerRest(t.usage)
-                    ? masteryRank
-                    : (t.usage === 'once-per-rest' || t.usage === 'unlock-mr6-once' ? 1 : 0);
-                return {
-                    id: t.id,
-                    name: t.name,
-                    effect: t.effect,
-                    flavor: t.flavor || '',
-                    usage: t.usage,
-                    isMrPerRest: isMrPerRest(t.usage),
-                    gated,
-                    trackedUses,
-                    remaining: trackedUses ? (typeof traitUses[t.id] === 'number' ? traitUses[t.id] : maxUses) : 0,
-                    max: maxUses
-                };
-            })
-            : [];
         const deckView = echoDef
             ? echoDef.deck.map(c => ({
                 id: c.id,
@@ -593,7 +569,6 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 def: echoDef,
                 subChoice: echoSubChoice || null,
                 veiled: veiledDef || null,
-                traits: activeTraits,
                 deck: deckView,
                 selectedCardIds,
                 unlockedCardSlots,
@@ -1956,6 +1931,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         html.off('dragover.ms-equipment-drop').on('dragover.ms-equipment-drop', '[data-df-drop]', (ev) => {
             ev.preventDefault();
             ev.stopPropagation();
+            const target = ev.currentTarget;
+            if (target?.dataset?.dfDrop === 'equip-trash') {
+                html.find('.df-equip-trash').removeClass('df-drop-valid');
+                $(target).addClass('df-drop-valid');
+            }
         });
         html.off('drop.ms-equipment-drop').on('drop.ms-equipment-drop', '[data-df-drop]', async (ev) => {
             ev.preventDefault();
@@ -2158,6 +2138,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         });
         html.off('dragend.df-grid').on('dragend.df-grid', '.df-item-tile', () => {
             html.find('.df-item-tile[data-dragging="true"]').removeAttr('data-dragging').removeAttr('data-drag-size');
+            html.find('.df-equip-trash').removeClass('df-drop-valid');
             delete window.__msDragInventorySize;
             delete window.__msDragItemId;
         });
@@ -6655,6 +6636,23 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             if (!slot)
                 return;
             await this.#applyEquipToSlot(item, slot);
+        }
+        else if (dropType === 'equip-trash') {
+            if (isEchoLockedItem(item)) {
+                ui.notifications?.warn(`${item.name} is Echo-bound and cannot be deleted.`);
+                return;
+            }
+            const confirmed = await Dialog.confirm({
+                title: 'Delete Item',
+                content: `<p>Delete <strong>${item.name}</strong> permanently?</p>`,
+                yes: () => true,
+                no: () => false,
+                defaultYes: false,
+            });
+            if (confirmed) {
+                await item.delete();
+                ui.notifications?.info(`Deleted ${item.name}.`);
+            }
         }
     }
 }

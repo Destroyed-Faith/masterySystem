@@ -7,22 +7,7 @@ export const UNBOUND_ECHO = {
     creatureType: 'Manifestation',
     size: 'medium',
     speed: 12,
-    coreTraits: [
-        {
-            id: 'answer-instinct',
-            name: 'Answer Instinct',
-            effect: 'Mastery Rank per Safe Haven Rest: after you roll a Physical, Survival, or Social skill, you may take 1 Stress to gain +1 Raise.',
-            flavor: 'The world asks. You respond.',
-            usage: 'mr-per-rest'
-        },
-        {
-            id: 'wyld-vow',
-            name: 'Wyld Vow',
-            effect: 'Mastery Rank per Safe Haven Rest: when you openly oppose something clearly unnatural in the scene (demonic corruption, divine enforcement, forced blasphemous ritual, predation that violates the land), gain +1 Free Raise on your next roll directly serving that opposition this scene. If you knowingly aid the unnatural instead, mark 1d8 Stress.',
-            flavor: 'You are not kind. You are corrective.',
-            usage: 'mr-per-rest'
-        }
-    ],
+    coreTraits: [],
     deck: [
         {
             id: 'hunger-shapes-the-path',

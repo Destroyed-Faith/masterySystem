@@ -10,24 +10,7 @@ export const DWARFS_ECHO: EchoDefinition = {
   creatureType: 'Humanoid',
   size: 'medium',
   speed: 9,
-  coreTraits: [
-    {
-      id: 'holdfast-plating',
-      name: 'Holdfast Plating',
-      effect:
-        'Mastery Rank per Safe Haven Rest: with tools and a blacksmith, you can raise the armor value of any Armor piece (Shield or Armor) by your Mastery Rank.',
-      flavor: 'A mountain does not negotiate with the storm.',
-      usage: 'mr-per-rest'
-    },
-    {
-      id: 'uncorruptable',
-      name: 'Uncorruptable',
-      effect:
-        'You cannot gain Demonic Marks (willingly or unwillingly). Any effect that would place or awaken a Mark on you fails. You always have Advantage on Spirit Saving Throw rolls.',
-      flavor: 'Hell cannot anchor in stone.',
-      usage: 'passive'
-    }
-  ],
+  coreTraits: [],
   deck: [
     {
       id: 'unbreakable-terms',

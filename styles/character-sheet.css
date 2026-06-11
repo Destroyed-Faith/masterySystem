@@ -1721,20 +1721,36 @@
 }
 
 .mastery-system.sheet.actor.character .echo-deck-summary {
-  padding-bottom: 10px;
+  padding-bottom: 8px;
   border-bottom: 1px solid var(--df-border-subtle, rgba(255,255,255,0.08));
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .mastery-system.sheet.actor.character .echo-deck-title {
   color: var(--df-text-primary, #d0d0d0);
   font-family: var(--df-font-head);
-  font-size: 16px;
-  margin-bottom: 4px;
+  font-size: 18px;
+  margin-bottom: 6px;
 }
 
 .mastery-system.sheet.actor.character .echo-deck-title strong {
   color: var(--df-text-primary, #f0f0f0);
+}
+
+.mastery-system.sheet.actor.character .echo-deck-details {
+  margin-top: 2px;
+}
+
+.mastery-system.sheet.actor.character .echo-deck-details > summary {
+  cursor: pointer;
+  color: var(--df-text-secondary, #a0a0a0);
+  font-size: 12px;
+  font-family: 'Cormorant Garamond', serif;
+  user-select: none;
+}
+
+.mastery-system.sheet.actor.character .echo-deck-details > summary:hover {
+  color: var(--df-text-primary, #d0d0d0);
 }
 
 .mastery-system.sheet.actor.character .echo-deck-meta {
@@ -1742,6 +1758,14 @@
   font-size: 13px;
   font-family: 'Cormorant Garamond', serif;
   line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.mastery-system.sheet.actor.character .echo-deck-type-meta {
+  font-size: 12px;
 }
 
 .mastery-system.sheet.actor.character .echo-deck-meta em {
@@ -1839,7 +1863,7 @@
 .mastery-system.sheet.actor.character .echo-deck-cards {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .mastery-system.sheet.actor.character .echo-deck-cards-header {
@@ -1883,7 +1907,7 @@
   background: var(--df-bg-primary, #20272B);
   border: 1px solid var(--df-border-primary, #3a3f44);
   border-radius: 6px;
-  padding: 10px 12px;
+  padding: 14px 16px;
   color: var(--df-text-primary, #d0d0d0);
 }
 
@@ -1903,7 +1927,7 @@
 .mastery-system.sheet.actor.character .echo-card-name strong {
   color: var(--df-text-primary, #e8e8e8);
   font-family: var(--df-font-head);
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .mastery-system.sheet.actor.character .echo-card-used-label {
@@ -1918,9 +1942,10 @@
 
 .mastery-system.sheet.actor.character .echo-card-trigger {
   color: var(--df-text-secondary, #a0a0a0);
-  font-size: 12px;
+  font-size: 13px;
   font-family: 'Cormorant Garamond', serif;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  line-height: 1.45;
 }
 
 .mastery-system.sheet.actor.character .echo-card-trigger em {
@@ -1934,13 +1959,14 @@
   padding-left: 20px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
 }
 
 .mastery-system.sheet.actor.character .echo-card-option {
   color: var(--df-text-primary, #d0d0d0);
   font-family: 'Cormorant Garamond', serif;
-  font-size: 13px;
+  font-size: 14px;
+  line-height: 1.45;
 }
 
 .mastery-system.sheet.actor.character .echo-card-option-head {
@@ -1948,7 +1974,8 @@
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
+  min-height: 1.6em;
 }
 
 .mastery-system.sheet.actor.character .echo-card-option-skill {
@@ -1978,7 +2005,8 @@
 
 .mastery-system.sheet.actor.character .echo-card-option-desc {
   color: var(--df-text-primary, #c8c8c8);
-  line-height: 1.5;
+  line-height: 1.55;
+  font-size: 13px;
 }
 
 /* Biography fields integrated into Echo tab (Blood / Concept / Appearance / Notes) */
@@ -8651,7 +8679,11 @@
 }
 
 .df-equipment-side {
-  width: min(420px, 100%);
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 10px;
+  width: min(480px, 100%);
   max-width: 100%;
   display: flex;
   flex-direction: column;
@@ -8790,6 +8822,41 @@
 /* PAPERDOLL */
 .df-equipped-panel {
   position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.df-equip-trash {
+  flex: 0 0 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 120px;
+  padding: 8px 4px;
+  border: 2px dashed rgba(200, 80, 80, 0.45);
+  border-radius: 10px;
+  background: rgba(80, 20, 20, 0.2);
+  color: #ef9a9a;
+  font-size: 11px;
+  text-align: center;
+  cursor: default;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.df-equip-trash i {
+  font-size: 1.25rem;
+}
+
+.df-equip-trash.df-drop-valid {
+  border-color: rgba(239, 154, 154, 0.9);
+  background: rgba(120, 30, 30, 0.45);
+}
+
+.df-equip-trash-label {
+  line-height: 1.2;
+  opacity: 0.85;
 }
 
 .df-equipped-panel::before {
@@ -8810,12 +8877,12 @@
  *
  * Layout:
  *   row 1                         head
- *   row 2     amulet               ring
- *   row 3  mainhand  body         offhand
+ *   row 2     amulet    body      ring
+ *   row 3  mainhand    body    offhand
  *   row 4                         feet
  */
 .df-equipped-grid {
-  --df-paperdoll-square: minmax(52px, 3.75rem);
+  --df-paperdoll-square: minmax(56px, 4rem);
   --df-paperdoll-helm: minmax(48px, 3.25rem);
   position: relative;
   z-index: 1;
@@ -8833,7 +8900,7 @@
   align-items: stretch;
   grid-template-areas:
     ".         head    .       "
-    "amulet    .       ring    "
+    "amulet    body    ring    "
     "mainhand  body    offhand "
     ".         feet    .       ";
 }

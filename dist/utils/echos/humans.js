@@ -7,22 +7,7 @@ export const HUMANS_ECHO = {
     creatureType: 'Humanoid',
     size: 'medium',
     speed: 10,
-    coreTraits: [
-        {
-            id: 'bad-options',
-            name: 'Bad Options',
-            effect: 'Mastery Rank per Safe Haven Rest: after you roll a Skill check, you may reroll a die. Multiple uses on the same roll are allowed up to your daily uses. A die can\u2019t be rerolled twice.',
-            flavor: 'Humans don\u2019t find good choices. They survive the bad ones.',
-            usage: 'mr-per-rest'
-        },
-        {
-            id: 'jack-of-all-trades',
-            name: 'Jack of all Trades',
-            effect: 'Mastery Rank per Safe Haven Rest: before you roll any check (including attack rolls), you may add +(Mastery Rank \u00d7 4) to that roll.',
-            flavor: 'When it matters, humans commit fully.',
-            usage: 'mr-per-rest'
-        }
-    ],
+    coreTraits: [],
     deck: [
         {
             id: 'refuse-to-give-up',

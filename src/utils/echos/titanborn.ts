@@ -10,31 +10,7 @@ export const TITANBORN_ECHO: EchoDefinition = {
   creatureType: 'Humanoid',
   size: 'medium',
   speed: 12,
-  coreTraits: [
-    {
-      id: 'large-form',
-      name: 'Large Form',
-      effect:
-        'Starting at Mastery Level 3, you can use an Action to become Large, if space allows. No duration limit; may end at will.',
-      flavor: 'The titan\u2019s might awakens within.',
-      usage: 'unlock-mr3'
-    },
-    {
-      id: 'true-form',
-      name: 'True Form',
-      effect:
-        'Starting at Mastery Level 6, once per Safe Haven Rest, as an Action, enter your True Titan Form for 1 minute. Become Huge and Armor +6.',
-      flavor: 'The full strength of the old blood reveals itself.',
-      usage: 'unlock-mr6-once'
-    },
-    {
-      id: 'powerful-build',
-      name: 'Powerful Build',
-      effect: 'Gain Advantage on checks to end Grappled.',
-      flavor: 'Even among mortals, their strength is legend.',
-      usage: 'passive'
-    }
-  ],
+  coreTraits: [],
   deck: [
     {
       id: 'giantblood-portent',

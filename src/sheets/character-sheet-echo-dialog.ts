@@ -20,7 +20,6 @@ import {
   getEcho,
   getEchoCard,
   getUnlockedCardSlots,
-  isMrPerRest,
   type EchoDefinition
 } from '../utils/echos/index.js';
 import {
@@ -79,14 +78,6 @@ function esc(s: string | undefined | null): string {
 
 /** Render the traits preview for a given Echo (used in the picker sidebar). */
 function renderTraitsPreview(def: EchoDefinition): string {
-  const coreRows = def.coreTraits
-    .map(t => `
-      <div class="echo-trait-row">
-        <div class="echo-trait-name">${esc(t.name)}${isMrPerRest(t.usage) ? ' <span class="echo-trait-usage" title="Uses = Mastery Rank, restored on Safe Haven Rest">(MR / rest)</span>' : ''}</div>
-        <div class="echo-trait-effect">${esc(t.effect)}</div>
-      </div>
-    `).join('');
-
   const subBlock = def.subChoices?.length
     ? `
       <div class="echo-subchoice-preview">
@@ -106,7 +97,6 @@ function renderTraitsPreview(def: EchoDefinition): string {
     <div class="echo-traits-preview">
       <div class="echo-meta"><strong>Type:</strong> ${esc(def.creatureType)} \u00b7 <strong>Size:</strong> ${esc(def.size)} \u00b7 <strong>Speed:</strong> ${def.speed} m</div>
       ${veiledBlock}
-      <div class="echo-traits-list">${coreRows}</div>
       ${subBlock}
       <div class="echo-summary">${esc(def.summary)}</div>
     </div>

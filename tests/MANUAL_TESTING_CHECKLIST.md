@@ -202,8 +202,18 @@ Bei Saves steht 2d8 K2 +2 <- wo kommen die +2 her>
 
 ### 6.4 Inventory
 - [ ] Drag-and-drop equipment
+- [ ] Paperdoll body slot spans amulet/ring row through hands row (taller center column)
+- [ ] Equipment tiles have no edit/delete overlay buttons (drag + click info still work)
+- [ ] Trash dropzone right of paperdoll: drag item → confirm → deletes item
+- [ ] Echo-bound items cannot be dropped on trash (warning shown)
 - [ ] General Items Storage opens
 - [ ] Store (GM) opens
+
+### 6.5 Echo Deck (Attributes tab)
+- [ ] Echo Deck shows race name prominently; tagline/type/size in collapsed "Race details"
+- [ ] No "Core Traits" section on sheet (traits live on Echo artifacts)
+- [ ] Echo cards have more vertical space; Roll/Use buttons still work
+- [ ] Echo creation dialog preview shows meta + sub-choice only (no core trait list)
 
 ---
 

@@ -122,23 +122,19 @@ describe('Echo Card Usage + Safe-Haven Reset Simulation', () => {
     expect(actorEcho.cardUses[def.deck[0].id]).toBeUndefined();
   });
 
-  it('buildFreshTraitUses respects Mastery Rank for mr-per-rest traits', () => {
-    const def = getEcho('humans')!;
-    const mrPerRestTraits = def.coreTraits.filter(t => isMrPerRest(t.usage));
-    expect(mrPerRestTraits.length).toBeGreaterThan(0);
+  it('buildFreshTraitUses respects Mastery Rank for mr-per-rest sub-choice traits', () => {
+    const sc = getEchoSubChoice('sentinels', 'judicators')!;
+    expect(isMrPerRest(sc.trait.usage)).toBe(true);
 
-    const usesAtMr1 = buildFreshTraitUses('humans', null, 1);
-    const usesAtMr3 = buildFreshTraitUses('humans', null, 3);
-    for (const t of mrPerRestTraits) {
-      expect(usesAtMr1[t.id]).toBe(1);
-      expect(usesAtMr3[t.id]).toBe(3);
-    }
+    const usesAtMr1 = buildFreshTraitUses('sentinels', 'judicators', 1);
+    const usesAtMr3 = buildFreshTraitUses('sentinels', 'judicators', 3);
+    expect(usesAtMr1[sc.trait.id]).toBe(1);
+    expect(usesAtMr3[sc.trait.id]).toBe(3);
   });
 
-  it('buildFreshTraitUses tracks once-per-rest unlockables as 1 use', () => {
-    const uses = buildFreshTraitUses('titanborn', null, 6);
-    // True Form is `unlock-mr6-once` and should carry 1 use.
-    expect(uses['true-form']).toBe(1);
+  it('buildFreshTraitUses returns empty when no active traits', () => {
+    expect(buildFreshTraitUses('humans', null, 3)).toEqual({});
+    expect(buildFreshTraitUses('elves', null, 3)).toEqual({});
   });
 });
 
@@ -167,11 +163,16 @@ describe('Echo Sub-Choice Validation', () => {
     expect(getEcho('elves')!.veiledForm).toBeFalsy();
   });
 
-  it('Elven lineage traits are not racial traits (they live on Elven Stride artifacts)', () => {
-    const withoutSub = getActiveEchoTraits('elves', null);
-    const withSub = getActiveEchoTraits('elves', 'fire');
-    expect(withSub.length).toBe(withoutSub.length);
-    expect(withSub.find(t => t.id === 'ember-surge')).toBeUndefined();
+  it('racial core traits are empty (mechanics live on Echo artifacts)', () => {
+    expect(getActiveEchoTraits('elves', null)).toHaveLength(0);
+    expect(getActiveEchoTraits('humans', null)).toHaveLength(0);
+    expect(getActiveEchoTraits('elves', 'fire')).toHaveLength(0);
+  });
+
+  it('getActiveEchoTraits includes sub-choice trait when chosen', () => {
+    const traits = getActiveEchoTraits('sentinels', 'judicators');
+    expect(traits).toHaveLength(1);
+    expect(traits[0].id).toBe('sentence-engine');
   });
 });
 

@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.34] - 2026-06-06
+
+### Changed
+
+- **Equipment paperdoll:** Body slot spans amulet/ring row through hands for a taller center column.
+- **Equipment UX:** Removed tiny edit/delete overlays on inventory and equipped tiles; drag-and-click info unchanged.
+- **Equipment trash zone:** Drop items on the bin right of the paperdoll to delete (with confirm); Echo-bound items blocked.
+- **Echo Deck:** Racial core traits removed from data and sheet UI (mechanics via Echo artifacts); race name and cards get more space; tagline/meta collapsed under “Race details”.
+- **Echo dialog:** Creation preview shows meta, sub-choice, and summary only (no core trait list).
+
 ## [0.9.33] - 2026-06-06
 
 ### Added

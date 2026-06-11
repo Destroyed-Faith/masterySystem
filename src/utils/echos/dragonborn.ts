@@ -11,16 +11,7 @@ export const DRAGONBORN_ECHO: EchoDefinition = {
   size: 'medium',
   speed: 8,
   veiledForm: true,
-  coreTraits: [
-    {
-      id: 'veiled-form',
-      name: 'Veiled Form',
-      effect:
-        'Choose one other Echo appearance that your Dragonborn permanently wears in public. You look and sound like that Echo at a glance. You do not gain any Traits, Size benefits, or special rules from that Echo. You are still Dragonborn for all mechanics. Under close inspection by a suspicious party, the GM may call for a Deception or Performance roll (TN Standard) to maintain the veil.',
-      flavor: 'Survival is camouflage.',
-      usage: 'passive'
-    }
-  ],
+  coreTraits: [],
   deck: [
     {
       id: 'melody-bound-memory',
