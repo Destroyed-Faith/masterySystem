@@ -41,9 +41,11 @@ export function isLegacyUnarmedItem(item) {
         return false;
     if (String(item.name || '').trim().toLowerCase() !== 'unarmed')
         return false;
-    const sys = item.system || {};
-    const dmg = String(sys.damage ?? sys.weaponDamage ?? '').trim();
-    return dmg === '1d8' || dmg === '1';
+    if (item.system?.virtualUnarmed === true)
+        return false;
+    if (item.getFlag?.('mastery-system', 'virtualUnarmed') === true)
+        return false;
+    return true;
 }
 /**
  * Resolve equipped weapon for an attack type. Melee falls back to the virtual

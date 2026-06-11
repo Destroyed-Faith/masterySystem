@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.35] - 2026-06-06
+
+### Fixed
+
+- **Equipment inventory drag-and-drop:** Disabled Foundry’s duplicate `.df-dropzone` handler that broke grid placement and caused `undefined id` create errors.
+- **Inventory placement:** Resolve drop cell from event path; auto-find first free slot when no cell is hit.
+- **Legacy Unarmed item:** Auto-remove embedded “Unarmed” weapons on sheet open; hide from equipment UI; trash drop deletes them (virtual unarmed is used instead).
+
 ## [0.9.34] - 2026-06-06
 
 ### Changed

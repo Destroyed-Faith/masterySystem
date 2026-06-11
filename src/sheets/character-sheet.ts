@@ -30,6 +30,7 @@ import { getLanguage as getLanguageDef, normalizeKnownLanguages } from '../utils
 import { showLanguagesDialog } from './languages-dialog.js';
 import type { PowerCategory } from '../types/item.js';
 import { findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../utils/inventory-grid';
+import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
 import { loadZoneFromBands, movementPenaltyForLoad } from '../utils/encumbrance.js';
 import { buildPostCreationSnapshot } from '../utils/xp-post-creation.js';
 import { resetCharacterForRecreation } from '../utils/reset-character.js';
@@ -106,7 +107,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       ],
       dragDrop: [
         { dragSelector: '.item-list .item', dropSelector: null },
-        { dragSelector: '.df-draggable-item', dropSelector: '.df-dropzone' }
+        // Equipment grid/slots/trash use custom `[data-df-drop]` handlers — Foundry's
+        // default `.df-dropzone` drop would duplicate items and break placement.
+        { dragSelector: '.df-draggable-item', dropSelector: null }
       ],
       // `.sheet-body` is the actual overflow-y:auto container (see
       // character-sheet.css). The per-tab selectors stay for safety in case
@@ -1190,14 +1193,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     const BAND_ROWS = 9;
     const BAND_SIZE = BAND_COLS * BAND_ROWS;
 
-    // Collect all equipment items
+    // Collect all equipment items (legacy auto-seeded Unarmed weapons are virtual — hide/remove them)
     const equipmentItems: any[] = [
       ...(items.weapons || []),
       ...(items.armor || []),
       ...(items.shields || []),
       ...(items.gear || []),
       ...(items.artifacts || [])
-    ];
+    ].filter((item: any) => !isLegacyUnarmedItem(item));
 
     // Helper: convert items array to cells array
     const toCells = (itemList: any[], cols: number, rows: number) => {
@@ -2114,6 +2117,9 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     // Equipment handlers
     html.find('.general-items-btn').on('click', this.#onGeneralItemsClick.bind(this));
     html.find('.store-btn').on('click', this.#onStoreClick.bind(this));
+    if (this.actor.isOwner) {
+      void this.#purgeLegacyUnarmedItems();
+    }
 
     const dropTargets = html.find('[data-df-drop]');
     console.log('Mastery System | [Equipment Drop] Drop targets in sheet', {
@@ -2141,15 +2147,22 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     html.off('drop.ms-equipment-drop').on('drop.ms-equipment-drop', '[data-df-drop]', async (ev: JQuery.DropEvent) => {
       ev.preventDefault();
       ev.stopPropagation();
+      ev.stopImmediatePropagation?.();
       const target = ev.currentTarget as HTMLElement | null;
+      const dragEvent = (ev.originalEvent ?? ev) as unknown as DragEvent;
+      const path = (dragEvent.composedPath?.() || []) as HTMLElement[];
+      const cellFromPath = path.find(el => el?.classList?.contains?.('df-cell'));
+      const cellFromTarget = (ev.target as HTMLElement)?.closest?.('.df-cell') as HTMLElement | null;
+      (dragEvent as any).__msDropTarget = target || undefined;
+      (dragEvent as any).__msDropCell = cellFromTarget || cellFromPath || undefined;
       console.log('Mastery System | [Equipment Drop] Delegated drop handler', {
         targetClass: target?.className,
         dropType: target?.dataset?.dfDrop,
         band: target?.dataset?.band,
-        slot: target?.dataset?.slot
+        slot: target?.dataset?.slot,
+        cellCol: (dragEvent as any).__msDropCell?.dataset?.col,
+        cellRow: (dragEvent as any).__msDropCell?.dataset?.row
       });
-      const dragEvent = (ev.originalEvent ?? ev) as unknown as DragEvent;
-      (dragEvent as any).__msDropTarget = target || undefined;
       await this._onDrop(dragEvent);
     });
 
@@ -6991,6 +7004,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     } else if (data.data?._id) {
       droppedItem = this.actor.items.get(data.data._id);
     }
+    if (!droppedItem) {
+      const dragItemId = (window as any).__msDragItemId as string | undefined;
+      if (dragItemId) {
+        droppedItem = this.actor.items.get(dragItemId);
+      }
+    }
     console.log('Mastery System | [Equipment Drop] Resolved item', {
       itemId: droppedItem?.id,
       itemName: droppedItem?.name,
@@ -7030,21 +7049,25 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
     // World/compendium item dropped on sheet - create embedded copy first
     if (!droppedItem.parent || droppedItem.parent.id !== this.actor.id) {
-      const itemData = foundry.utils.deepClone(droppedItem.toObject());
-      delete itemData._id;
-      delete itemData.folder;
+      const itemData = this.#sanitizeItemDataForActorEmbed(droppedItem.toObject());
       console.log('Mastery System | [Equipment Drop] Creating embedded copy', {
         sourceId: droppedItem?.id,
         sourceName: droppedItem?.name,
         targetActor: this.actor?.id
       });
-      const [created] = await this.actor.createEmbeddedDocuments('Item', [itemData], { render: false });
-      console.log('Mastery System | [Equipment Drop] Embedded create result', {
-        createdId: created?.id,
-        createdName: created?.name
-      });
-      if (!created) return false;
-      droppedItem = created;
+      try {
+        const [created] = await this.actor.createEmbeddedDocuments('Item', [itemData], { render: false });
+        console.log('Mastery System | [Equipment Drop] Embedded create result', {
+          createdId: created?.id,
+          createdName: created?.name
+        });
+        if (!created) return false;
+        droppedItem = created;
+      } catch (error) {
+        console.error('Mastery System | [Equipment Drop] Failed to create embedded item', error);
+        ui.notifications?.error(`Could not add ${droppedItem.name} to this character.`);
+        return false;
+      }
     }
 
     // Internal item - update flags
@@ -7272,6 +7295,63 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     return entries;
   }
 
+  /** Strip legacy auto-seeded Unarmed weapon items (virtual unarmed replaces them). */
+  async #purgeLegacyUnarmedItems(): Promise<void> {
+    const legacyIds = Array.from(this.actor.items.values())
+      .filter((item: any) => isLegacyUnarmedItem(item))
+      .map((item: any) => item.id)
+      .filter(Boolean);
+    if (legacyIds.length === 0) return;
+    try {
+      await this.actor.deleteEmbeddedDocuments('Item', legacyIds, { masterySystemForceDelete: true } as any);
+      console.log(`Mastery System | Removed ${legacyIds.length} legacy Unarmed item(s) from ${this.actor.name}`);
+      await this.render(false);
+    } catch (error) {
+      console.warn(`Mastery System | Could not remove legacy Unarmed from ${this.actor.name}:`, error);
+    }
+  }
+
+  /** Clone item data for embedding on this actor without stale cross-document ids. */
+  #sanitizeItemDataForActorEmbed(itemData: Record<string, unknown>): Record<string, unknown> {
+    const data = foundry.utils.deepClone(itemData) as Record<string, unknown>;
+    delete data._id;
+    delete data.folder;
+    delete data.ownership;
+    delete data.sort;
+    return data;
+  }
+
+  /** Resolve the inventory grid cell under a drop event (if any). */
+  #resolveDropCell(event?: DragEvent): HTMLElement | null {
+    if (!event) return null;
+    const fromEvent = (event as any).__msDropCell as HTMLElement | undefined;
+    if (fromEvent?.classList?.contains('df-cell')) return fromEvent;
+    const fromTarget = (event.target as HTMLElement | null)?.closest?.('.df-cell') as HTMLElement | null;
+    if (fromTarget) return fromTarget;
+    const path = (event.composedPath?.() || []) as HTMLElement[];
+    return path.find(el => el?.classList?.contains?.('df-cell')) || null;
+  }
+
+  /** Collect occupied inventory rects for a band (excluding one item id). */
+  #inventoryBandRects(band: string, excludeItemId?: string): Array<{ x: number; y: number; w: number; h: number }> {
+    const BAND_COLS = 24;
+    const BAND_ROWS = 9;
+    return (Array.from(this.actor.items.values()) as any[])
+      .filter((it: any) => it.id !== excludeItemId)
+      .map((it: any) => {
+        const flags = it.getFlag?.('mastery-system', 'equipment') || {};
+        if (flags.container !== 'inventory' || flags.band !== band || !flags.grid?.x || !flags.grid?.y) return null;
+        const s = parseInventorySize(it.system?.inventorySize);
+        return {
+          x: flags.grid.x,
+          y: flags.grid.y,
+          w: Math.min(BAND_COLS, s.w),
+          h: Math.min(BAND_ROWS, s.h)
+        };
+      })
+      .filter(Boolean) as Array<{ x: number; y: number; w: number; h: number }>;
+  }
+
   /**
    * Helper: Update item equipment flags based on drop target
    */
@@ -7312,41 +7392,39 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         newFlags.container = 'inventory';
         newFlags.band = band;
         newFlags.slot = null;
-        const cell = (event?.target as HTMLElement | null)?.closest?.('.df-cell') as HTMLElement | null;
+        const BAND_COLS = 24;
+        const BAND_ROWS = 9;
+        const size = parseInventorySize(item?.system?.inventorySize);
+        const w = Math.min(BAND_COLS, size.w);
+        const h = Math.min(BAND_ROWS, size.h);
+        const cell = this.#resolveDropCell(event);
+        let gridPos: { x: number; y: number } | null = null;
+
         if (cell) {
           const col = Number(cell.dataset?.col || 0);
           const row = Number(cell.dataset?.row || 0);
           if (col > 0 && row > 0) {
-            const BAND_COLS = 24;
-            const BAND_ROWS = 9;
-            const size = parseInventorySize(item?.system?.inventorySize);
-            const w = Math.min(BAND_COLS, size.w);
-            const h = Math.min(BAND_ROWS, size.h);
             const candidate = { x: col, y: row, w, h };
-            const items = Array.from(this.actor.items.values()) as any[];
-            const rects = items
-              .filter((it: any) => it.id !== item.id)
-              .map((it: any) => {
-                const flags = it.getFlag?.('mastery-system', 'equipment') || {};
-                if (flags.container !== 'inventory' || flags.band !== band || !flags.grid?.x || !flags.grid?.y) return null;
-                const s = parseInventorySize(it.system?.inventorySize);
-                return { x: flags.grid.x, y: flags.grid.y, w: Math.min(BAND_COLS, s.w), h: Math.min(BAND_ROWS, s.h) };
-              })
-              .filter(Boolean) as Array<{ x: number; y: number; w: number; h: number }>;
+            const rects = this.#inventoryBandRects(band, item.id);
             const fits = fitsInGrid(candidate.x, candidate.y, candidate.w, candidate.h, BAND_COLS, BAND_ROWS)
               && !rects.some(rect => rectsOverlap(rect, candidate));
             if (fits) {
-              newFlags.grid = { x: candidate.x, y: candidate.y };
-            } else {
-              ui.notifications?.warn('No space for this item at the target position.');
-              return;
+              gridPos = { x: col, y: row };
             }
-          } else {
-            return;
           }
-        } else {
+        }
+
+        if (!gridPos) {
+          const rects = this.#inventoryBandRects(band, item.id);
+          gridPos = findFirstFit(rects, w, h, BAND_COLS, BAND_ROWS);
+        }
+
+        if (!gridPos) {
+          ui.notifications?.warn('No space for this item in inventory.');
           return;
         }
+
+        newFlags.grid = gridPos;
         await item.update({
           'flags.mastery-system.equipment': newFlags,
           'system.equipped': false
@@ -7360,6 +7438,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     } else if (dropType === 'equip-trash') {
       if (isEchoLockedItem(item)) {
         ui.notifications?.warn(`${item.name} is Echo-bound and cannot be deleted.`);
+        return;
+      }
+      if (isLegacyUnarmedItem(item)) {
+        await this.actor.deleteEmbeddedDocuments('Item', [item.id], { masterySystemForceDelete: true } as any);
+        ui.notifications?.info('Removed legacy Unarmed item (melee uses virtual unarmed).');
         return;
       }
       const confirmed = await Dialog.confirm({

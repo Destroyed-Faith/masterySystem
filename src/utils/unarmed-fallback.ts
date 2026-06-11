@@ -57,9 +57,9 @@ export function isVirtualUnarmedWeapon(item: any | null | undefined): boolean {
 export function isLegacyUnarmedItem(item: any): boolean {
   if (!item || item.type !== 'weapon') return false;
   if (String(item.name || '').trim().toLowerCase() !== 'unarmed') return false;
-  const sys = item.system || {};
-  const dmg = String(sys.damage ?? sys.weaponDamage ?? '').trim();
-  return dmg === '1d8' || dmg === '1';
+  if (item.system?.virtualUnarmed === true) return false;
+  if (item.getFlag?.('mastery-system', 'virtualUnarmed') === true) return false;
+  return true;
 }
 
 /**
