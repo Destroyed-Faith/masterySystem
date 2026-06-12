@@ -10,11 +10,9 @@
  * variant, so the user can search directly by the target Special
  * (e.g. "Ignite", "Bleeding", "Sundered", …).
  */
+/** Start PP 3 — Poison Group only (agent.md §10.15). */
 export const TIER_3_SPECIALS = [
     'poisoned',
-    'expose',
-    'prone',
-    'mark',
 ];
 /** Tier 4 eligibility per Actives.md ~374–407. */
 export const TIER_4_SPECIALS = [

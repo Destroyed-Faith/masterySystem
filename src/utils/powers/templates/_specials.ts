@@ -13,11 +13,9 @@
 
 import type { ActiveSpecialTier } from '../../../types/item.js';
 
+/** Start PP 3 — Poison Group only (agent.md §10.15). */
 export const TIER_3_SPECIALS: readonly string[] = [
     'poisoned',
-    'expose',
-    'prone',
-    'mark',
 ] as const;
 
 /** Tier 4 eligibility per Actives.md ~374–407. */

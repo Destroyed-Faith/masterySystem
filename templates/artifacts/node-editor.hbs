@@ -64,7 +64,7 @@
       <p class="node-editor-hint">Pick up to three lines, introduced at Basic <strong>Level 1, 2 and 3</strong>. Each pick is a <strong>Power</strong> (from the catalog) or a <strong>Stone Function</strong>. The system scales them automatically across stages (PL 4 → 10 → 16) plus an Ultimate at Level 10 — you only author the first three. Spec: at most one Stone Function per artifact.</p>
       <div id="node-progression-picks" class="node-multi-select">
         {{#each progressionPickRows as |row|}}
-        <div class="node-select-row node-progression-pick" data-level="{{row.level}}">
+        <div class="node-select-row node-progression-pick" data-level="{{row.level}}"{{#if row.legacyTemplateId}} data-legacy-template-id="{{row.legacyTemplateId}}"{{/if}}>
           <span class="node-pick-level-label" title="Introduced at Basic Level {{row.level}}">Level {{row.level}}</span>
           <select class="node-pick-kind">
             <option value="none" {{#if (eq row.kind "none")}}selected{{/if}}>— Empty —</option>
@@ -72,15 +72,25 @@
             <option value="stoneFunction" {{#if (eq row.kind "stoneFunction")}}selected{{/if}}>Stone Function</option>
           </select>
           <span class="node-pick-power-wrap {{#unless row.isPower}}hidden{{/unless}}">
-            <select class="node-pick-power-cat" data-current="{{row.powerCategory}}" title="Filter powers by type">
-              <option value="active">Active</option>
-              <option value="activeBuff">Active Buff</option>
-              <option value="reaction">Reaction</option>
-              <option value="movement">Movement</option>
+            {{#if row.legacyNonMartial}}
+            <span class="node-pick-legacy-warning" title="Replace with a delivery + Special pick, or leave unchanged to keep this legacy template.">Legacy: {{row.legacyTemplateId}}</span>
+            {{else}}
+            <select class="node-pick-delivery" data-current="{{row.delivery}}" title="Martial damage delivery form">
+              <option value="">— Delivery —</option>
+              {{#each ../martialDeliveryOptions as |opt|}}
+              <option value="{{opt.value}}" {{#if (eq row.delivery opt.value)}}selected{{/if}}>{{opt.label}}</option>
+              {{/each}}
             </select>
-            <select class="node-pick-power" data-current="{{row.powerTemplateId}}">
-              <option value="">— Choose Power —</option>
+            <select class="node-pick-special" data-current="{{row.specialKey}}" title="Special applied by this power">
+              <option value="">— Choose Special —</option>
+              {{#each ../martialSpecialOptions as |opt|}}
+              <option value="{{opt.key}}" title="{{opt.description}}" {{#if (eq row.specialKey opt.key)}}selected{{/if}}>{{opt.label}}</option>
+              {{/each}}
             </select>
+            {{#if row.needsSpecial}}
+            <span class="node-pick-special-hint" title="Tier templates require a Special">Please choose a Special.</span>
+            {{/if}}
+            {{/if}}
           </span>
           <span class="node-pick-stonefn {{#unless row.isStoneFn}}hidden{{/unless}}">
             <select class="node-pick-stone-kind">

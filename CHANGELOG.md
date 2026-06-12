@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.40] - 2026-06-12
+
+### Fixed
+
+- **Mark tier:** Removed `mark` from Tier 3 Special eligibility (Start PP 4 only); Tier 3 is now the Poison Group (`poisoned` only). Character Creation no longer lists duplicate Tier 3 / Tier 4 Mark entries.
+
+### Added
+
+- **Artifact Node Editor — Special-first power picks:** Progression picks use Delivery + Special dropdowns instead of opaque tier templates. Tier is derived from the chosen Special; preview names show e.g. “Melee AoE Special Damage (Mark) I” with bound Special ranks.
+
+### Changed
+
+- **`ArtifactProgressionPick`:** Stores `delivery` and `chosenSpecial` alongside `powerTemplateId`. Legacy martial picks without a Special prompt re-selection; non-martial legacy template ids are preserved with a warning.
+
 ## [0.9.39] - 2026-06-12
 
 ### Added

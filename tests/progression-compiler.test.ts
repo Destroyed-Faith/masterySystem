@@ -61,4 +61,21 @@ describe('deriveLevelProgressionFromPicks', () => {
       deriveLevelProgressionFromPicks([{ level: 1, kind: 'power', powerTemplateId: 'does-not-exist' }]),
     ).toEqual([]);
   });
+
+  it('binds chosenSpecial and uses Special-first display names for martial picks', () => {
+    const picks: ArtifactProgressionPick[] = [
+      {
+        level: 1,
+        kind: 'power',
+        delivery: 'melee-aoe',
+        powerTemplateId: 'active-melee-aoe-damage-t4',
+        chosenSpecial: { key: 'mark', tier: 4 },
+      },
+    ];
+    const rows = deriveLevelProgressionFromPicks(picks);
+    expect(rows).toHaveLength(3);
+    expect(rows[0].name).toBe('Melee AoE Special Damage (Mark) I');
+    expect(rows[0].special.toLowerCase()).toContain('mark');
+    expect(rows[0].special).not.toBe('SPECIAL');
+  });
 });

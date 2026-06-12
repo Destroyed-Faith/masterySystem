@@ -20,11 +20,17 @@ import type {
 } from '../types/item.js';
 import {
   ARTIFACT_GEAR_SLOT_OPTIONS,
-  getArtifactPowerCatalogOptions,
   getArtifactSpecialSelectOptions,
   getArtifactTreeWeaponDamagePresets,
   getArtifactWeaponInnateOptions
 } from '../utils/artifact-node-options.js';
+import {
+  listMartialDamageSpecialOptions,
+  MARTIAL_DELIVERY_OPTIONS,
+  parseLegacyPick,
+  resolvePickFromUi,
+  type MartialDelivery,
+} from '../utils/artifact-power-pick.js';
 import {
   ARTIFACT_SLOT_KEYS,
   ARTIFACT_SLOT_LABELS,
@@ -67,6 +73,24 @@ const BaseDialog: any = (foundry as any)?.appv1?.Application || (Application as 
 
 const TREE_DAMAGE_PRESETS = getArtifactTreeWeaponDamagePresets();
 const TREE_PRESET_VALUES = new Set(TREE_DAMAGE_PRESETS.map((p) => p.value));
+
+/** Read martial delivery + Special (or legacy template id) from a progression-pick row. */
+function readPowerPickFieldsFromRow(
+  $row: JQuery,
+): Pick<ArtifactProgressionPick, 'powerTemplateId' | 'delivery' | 'chosenSpecial'> | null {
+  const delivery = String($row.find('.node-pick-delivery').val() || '').trim();
+  const specialKey = String($row.find('.node-pick-special').val() || '').trim();
+  if (delivery && specialKey) {
+    try {
+      return resolvePickFromUi(delivery as MartialDelivery, specialKey);
+    } catch {
+      return null;
+    }
+  }
+  const legacyId = String($row.attr('data-legacy-template-id') || '').trim();
+  if (legacyId) return { powerTemplateId: legacyId };
+  return null;
+}
 
 /** Base Value slot letters → label (letter + the Artifact Level it unlocks at). */
 const BV_LETTER_LABELS: Record<'a' | 'b' | 'c', string> = {
@@ -479,15 +503,8 @@ export class NodeEditor extends BaseDialog {
     }));
 
     // ---- Level Progression picks (3 lines @ Basic Level 1/2/3) ----
-    const powerCatalog = getArtifactPowerCatalogOptions();
-    data.powerCatalogOptions = powerCatalog;
-    // templateId → category, used to preselect the category filter per row.
-    const idToCategory = new Map<string, string>();
-    for (const grp of powerCatalog) {
-      for (const opt of grp.options) idToCategory.set(opt.id, grp.category);
-    }
-    // Stash data the listeners need to (re)build dynamic selects client-side.
-    (this as any)._powerCatalog = powerCatalog;
+    data.martialDeliveryOptions = MARTIAL_DELIVERY_OPTIONS;
+    data.martialSpecialOptions = listMartialDamageSpecialOptions();
     const stonePowerOptionsByAttr: Record<string, { id: string; name: string }[]> = {};
     for (const [attr, list] of Object.entries(STONE_POWERS_BY_ATTRIBUTE)) {
       stonePowerOptionsByAttr[attr] = (list as any[]).map((p) => ({ id: p.id, name: p.name }));
@@ -509,14 +526,17 @@ export class NodeEditor extends BaseDialog {
     data.progressionPickRows = [1, 2, 3].map((lvl) => {
       const p = pickByLevel.get(lvl);
       const sf = p?.stoneFunction || null;
-      const powerTemplateId = p?.powerTemplateId || '';
+      const legacy = p?.kind === 'power' ? parseLegacyPick(p) : null;
       return {
         level: lvl,
         kind: p?.kind || 'none',
         isPower: p?.kind === 'power',
         isStoneFn: p?.kind === 'stoneFunction',
-        powerTemplateId,
-        powerCategory: powerTemplateId ? idToCategory.get(powerTemplateId) || 'active' : 'active',
+        delivery: legacy?.delivery || '',
+        specialKey: legacy?.specialKey || '',
+        legacyNonMartial: legacy?.isLegacyNonMartial || false,
+        legacyTemplateId: legacy?.isLegacyNonMartial ? p?.powerTemplateId || '' : '',
+        needsSpecial: legacy?.needsSpecial || false,
         stoneKind: sf?.kind || '',
         stoneAttr: sf?.attribute || '',
         stonePowerId: sf?.stonePowerId || '',
@@ -751,10 +771,6 @@ export class NodeEditor extends BaseDialog {
     refreshSpecForSlot();
 
     // --- Level Progression picks: Power (catalog, filtered by category) or Stone Function ---
-    const powerCatalog = ((this as any)._powerCatalog || []) as {
-      category: string;
-      options: { id: string; label: string }[];
-    }[];
     const stonePowerOptionsByAttr = ((this as any)._stonePowerOptionsByAttr || {}) as Record<
       string,
       { id: string; name: string }[]
@@ -762,18 +778,7 @@ export class NodeEditor extends BaseDialog {
     const escHtml = (s: string) =>
       String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-    const populatePowerSelect = ($row: JQuery, desired: string) => {
-      const cat = String($row.find('.node-pick-power-cat').val() || 'active');
-      const $sel = $row.find('.node-pick-power');
-      const grp = powerCatalog.find((g) => g.category === cat);
-      const opts = grp ? grp.options : [];
-      $sel.empty();
-      $sel.append('<option value="">— Choose Power —</option>');
-      for (const o of opts) {
-        const sel = o.id === desired ? ' selected' : '';
-        $sel.append(`<option value="${escHtml(o.id)}"${sel}>${escHtml(o.label)}</option>`);
-      }
-    };
+    const readPowerPickFields = readPowerPickFieldsFromRow;
 
     const populateStonePowerSelect = ($row: JQuery, desired: string) => {
       const attr = String($row.find('.node-pick-stone-attr').val() || '');
@@ -812,8 +817,10 @@ export class NodeEditor extends BaseDialog {
         const level = (levelRaw === 2 || levelRaw === 3 ? levelRaw : 1) as 1 | 2 | 3;
         const kind = String($row.find('.node-pick-kind').val() || 'none').trim();
         if (kind === 'power') {
-          const powerTemplateId = String($row.find('.node-pick-power').val() || '').trim();
-          if (powerTemplateId) picks.push({ level, kind: 'power', powerTemplateId });
+          const resolved = readPowerPickFields($row);
+          if (resolved?.powerTemplateId) {
+            picks.push({ level, kind: 'power', ...resolved });
+          }
         } else if (kind === 'stoneFunction') {
           const sfKind = String($row.find('.node-pick-stone-kind').val() || '').trim();
           const sfAttr = String($row.find('.node-pick-stone-attr').val() || '').trim();
@@ -859,9 +866,10 @@ export class NodeEditor extends BaseDialog {
 
     html.find('.node-progression-pick').each((_i, el) => {
       const $row = $(el);
-      const $cat = $row.find('.node-pick-power-cat');
-      $cat.val(String($cat.attr('data-current') || 'active'));
-      populatePowerSelect($row, String($row.find('.node-pick-power').attr('data-current') || ''));
+      const $delivery = $row.find('.node-pick-delivery');
+      if ($delivery.length) $delivery.val(String($delivery.attr('data-current') || ''));
+      const $special = $row.find('.node-pick-special');
+      if ($special.length) $special.val(String($special.attr('data-current') || ''));
       populateStonePowerSelect($row, String($row.find('.node-pick-stone-power').attr('data-current') || ''));
       syncProgressionRow($row);
     });
@@ -873,11 +881,7 @@ export class NodeEditor extends BaseDialog {
       refreshStoneFnWarning();
       rebuildLevelProgressionPreview();
     });
-    html.on('change', '.node-pick-power-cat', (e: JQuery.ChangeEvent) => {
-      populatePowerSelect($(e.currentTarget).closest('.node-progression-pick'), '');
-      rebuildLevelProgressionPreview();
-    });
-    html.on('change', '.node-pick-power', () => {
+    html.on('change', '.node-pick-delivery, .node-pick-special', () => {
       rebuildLevelProgressionPreview();
     });
     html.on('change', '.node-pick-stone-kind', (e: JQuery.ChangeEvent) => {
@@ -1189,9 +1193,9 @@ export class NodeEditor extends BaseDialog {
       const kindRaw = String($row.find('.node-pick-kind').val() || 'none').trim();
 
       if (kindRaw === 'power') {
-        const powerTemplateId = String($row.find('.node-pick-power').val() || '').trim();
-        if (powerTemplateId) {
-          progressionPicks.push({ level, kind: 'power', powerTemplateId });
+        const resolved = readPowerPickFieldsFromRow($row);
+        if (resolved?.powerTemplateId) {
+          progressionPicks.push({ level, kind: 'power', ...resolved });
         }
       } else if (kindRaw === 'stoneFunction') {
         const sfKind = String($row.find('.node-pick-stone-kind').val() || '').trim();

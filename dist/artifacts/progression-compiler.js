@@ -16,6 +16,7 @@
 import { getTemplate } from '../utils/powers/index.js';
 import { renderRange, renderAoe, renderDuration, renderSpecials } from '../utils/power-rendering.js';
 import { STONE_POWERS } from '../stones/stone-powers.js';
+import { artifactPowerRowLabel, } from '../utils/artifact-power-pick.js';
 /** Roman numeral per stage index (0-based). */
 const STAGE_NUMERALS = ['I', 'II', 'III'];
 /** Power Level consulted for each stage (Basic / Improved / Greater). */
@@ -43,6 +44,17 @@ function clean(s) {
     if (t === '—' || t === 'N/A')
         return '';
     return t;
+}
+/** Replace SPECIAL placeholder with the chosen Special key for preview / compile. */
+function bindChosenSpecialRow(lr, chosenKey) {
+    const specials = (lr.specials || []).map((s) => s.key === 'SPECIAL' ? { ...s, key: chosenKey } : s);
+    return { ...lr, specials };
+}
+function powerPickDisplayName(pick, tpl) {
+    if (pick.delivery && pick.chosenSpecial?.key) {
+        return artifactPowerRowLabel(pick.delivery, pick.chosenSpecial.key);
+    }
+    return tpl.templateName;
 }
 /** Human-readable effect text for a Stone Function support row. */
 function stoneFunctionEffect(sf) {
@@ -75,15 +87,18 @@ export function deriveLevelProgressionFromPicks(picks) {
             const tpl = pick.powerTemplateId ? getTemplate(pick.powerTemplateId) : undefined;
             if (!tpl)
                 continue;
+            const displayBase = powerPickDisplayName(pick, tpl);
+            const chosenKey = pick.chosenSpecial?.key;
             for (let s = 0; s < STAGE_NUMERALS.length; s++) {
                 const level = baseLevel + 3 * s;
                 const pl = STAGE_POWER_LEVELS[s];
-                const lr = tpl.levels[pl];
-                if (!lr)
+                const lrRaw = tpl.levels[pl];
+                if (!lrRaw)
                     continue;
+                const lr = chosenKey ? bindChosenSpecialRow(lrRaw, chosenKey) : lrRaw;
                 rows.push({
                     level,
-                    name: `${tpl.templateName} ${STAGE_NUMERALS[s]}`,
+                    name: `${displayBase} ${STAGE_NUMERALS[s]}`,
                     type: lr.type || tpl.category || 'Active',
                     range: clean(renderRange(lr.range ?? null)),
                     aoe: clean(renderAoe(lr.aoe ?? null)),

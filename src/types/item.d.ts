@@ -737,6 +737,10 @@ export interface ArtifactProgressionPick {
   kind: 'none' | 'power' | 'stoneFunction';
   /** For `power`: the catalog `templateId`. */
   powerTemplateId?: string;
+  /** For martial damage picks: delivery form (Special-first UI). */
+  delivery?: 'melee-single' | 'melee-aoe' | 'ranged-single' | 'ranged-aoe';
+  /** For martial damage picks: bound Special + derived tier. */
+  chosenSpecial?: { key: string; tier: ActiveSpecialTier };
   /** For `stoneFunction`: the Stone Function definition. */
   stoneFunction?: ArtifactStoneFunction | null;
 }
