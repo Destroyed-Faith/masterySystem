@@ -16,7 +16,8 @@ import {
   listArtifactSpendableStonePools,
   usesStonePoolEconomy,
 } from '../utils/artifact-actor-rules.js';
-import { repairActorEchoArtifacts } from '../utils/artifact-echo-repair.js';
+import { repairArtifactEvolutionLinks } from '../utils/artifact-echo-repair.js';
+import { listUnwiredEmbeddedArtifacts } from '../utils/artifact-tree-grant.js';
 import {
   buildArtifactEvolutionCards,
   linkArtifactForActor,
@@ -53,9 +54,12 @@ export class ArtifactEvolutionDialog extends BaseDialog {
   protected async _prepareContext(_options: unknown): Promise<Record<string, unknown>> {
     const boundCount = countBoundArtifacts(this.actor);
     const stonePools = listArtifactSpendableStonePools(this.actor);
+    const unwired = listUnwiredEmbeddedArtifacts(this.actor);
     return {
       actor: this.actor,
       cards: buildArtifactEvolutionCards(this.actor),
+      unwiredArtifacts: unwired.map((e: any) => ({ id: e.id, name: e.name })),
+      hasUnwiredArtifacts: unwired.length > 0,
       stonePools,
       usesStonePools: usesStonePoolEconomy(this.actor),
       isGM: game.user?.isGM === true,
@@ -181,14 +185,30 @@ export class ArtifactEvolutionDialog extends BaseDialog {
         if (ok) await this.render({ force: true });
       };
     });
+
+    root.querySelectorAll<HTMLElement>('[data-action="ae-wire-artifact"]').forEach((btn) => {
+      btn.onclick = async (ev) => {
+        ev.preventDefault();
+        const embId = String(btn.dataset.embId);
+        const emb = (this.actor as any).items.get(embId);
+        if (!emb) return;
+        const { wireEmbeddedArtifactToWorldTree } = await import('../utils/artifact-tree-grant.js');
+        const wire = await wireEmbeddedArtifactToWorldTree(this.actor, emb, { notify: true });
+        if (!wire.ok && !wire.alreadyWired) {
+          ui.notifications?.warn(wire.reason || 'Could not link artifact to world tree.');
+          return;
+        }
+        await this.render({ force: true });
+      };
+    });
   }
 }
 
 export async function openArtifactEvolutionDialog(actor: Actor): Promise<void> {
   try {
-    await repairActorEchoArtifacts(actor);
+    await repairArtifactEvolutionLinks(actor);
   } catch (err) {
-    console.warn('[mastery-system] echo artifact repair failed', err);
+    console.warn('[mastery-system] artifact evolution repair failed', err);
   }
 
   const existing = foundry.applications.instances.get('artifact-evolution-dialog');

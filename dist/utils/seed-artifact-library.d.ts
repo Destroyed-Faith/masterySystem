@@ -16,6 +16,7 @@
  * `flags.mastery-system.echoArtifactKey`. Existing trees are never touched, so
  * per-actor progress stored on the root (`actorLevels`) is preserved.
  */
+export { grantArtifactTreeToActor, grantEchoArtifactTreeToActor } from './artifact-tree-grant.js';
 export declare const ECHO_ARTIFACT_LIBRARY_FOLDER_NAME = "Echo Artifacts";
 export declare const GENERAL_ARTIFACT_LIBRARY_FOLDER_NAME = "General Artifacts";
 /** Find a seeded Echo-Artifact node item by its catalog key + node flag. */
@@ -36,17 +37,4 @@ export declare function seedArtifactLibrary(options?: {
  * a guaranteed manual fix when auto-detection (seedVersion) is somehow bypassed.
  */
 export declare function forceRefreshEchoArtifactLibrary(): Promise<number>;
-/**
- * Grant the *root* of an Echo Artifact Builder-Tree to an actor as an embedded
- * artifact item, wired to the world tree for evolution (mirrors the GM "Give
- * Artifact" flow in `artifact-awakening.ts`).
- *
- * The embedded item carries `evolutionRootItemId` / `evolutionNodeId` so the
- * Artifact Evolution dialog can walk the tree, and the world root records this
- * actor's progress in `actorLevels` (echo artifacts start inactive until activated).
- *
- * @returns the created embedded item, or `null` if the world library has not
- *          been seeded yet (caller should fall back to a single-item grant).
- */
-export declare function grantEchoArtifactTreeToActor(actor: Actor, echoArtifactKey: string): Promise<any | null>;
 //# sourceMappingURL=seed-artifact-library.d.ts.map

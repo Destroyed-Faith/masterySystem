@@ -1,0 +1,198 @@
+<div class="ph-dialog">
+  <div class="ph-scroll-body">
+    <details class="ph-section" open>
+      <summary><i class="fas fa-chart-line"></i> Overview</summary>
+      <div class="ph-overview">
+        <p>
+          <strong>XP:</strong> {{hub.xp.available}} available
+          ({{hub.xp.regularAvailable}} regular{{#if hub.xp.freeAvailable}}, {{hub.xp.freeAvailable}} free ★{{/if}})
+        </p>
+        <p><strong>Mastery Rank:</strong> {{hub.masteryRank}}</p>
+        {{#if hasFreeXpPhase}}
+        <p class="ph-free-xp"><i class="fas fa-star"></i> Free XP phase — no per-step limits.</p>
+        {{/if}}
+        <p class="{{#if capacity.full}}ae-warn{{/if}}">
+          <strong>Artifact Capacity:</strong> {{capacity.bound}} / {{capacity.max}} bound
+          {{#if capacity.full}} — full{{/if}}
+        </p>
+        {{#if remainingAfterPending}}
+        <p class="ph-muted">After pending changes: {{remainingAfterPending}} XP remaining</p>
+        {{/if}}
+      </div>
+    </details>
+
+    <details class="ph-section" {{#if expandAttributes}}open{{/if}}>
+      <summary><i class="fas fa-dumbbell"></i> Attributes</summary>
+      <div class="ph-grid">
+        {{#each hub.attributes}}
+        <div class="ph-row">
+          <span class="ph-label">{{this.label}}</span>
+          <span class="ph-value">{{this.value}}{{#if (lookup ../pendingAttributes this.key)}} <em class="ph-pending">({{lookup ../pendingAttributes this.key}})</em>{{/if}}</span>
+          <div class="ph-controls">
+            <button type="button" class="ph-btn" data-action="ph-attr-dec" data-attr="{{this.key}}">−</button>
+            <button type="button" class="ph-btn" data-action="ph-attr-inc" data-attr="{{this.key}}">+</button>
+          </div>
+        </div>
+        {{/each}}
+      </div>
+      <div class="ph-confirm-row">
+        <span class="ph-cost">Net cost: {{attrNet}} XP</span>
+        <button type="button" class="ae-btn ae-btn-primary" data-action="ph-confirm-attr" {{#unless hasPendingAttributes}}disabled{{/unless}}>
+          Confirm Attributes
+        </button>
+      </div>
+    </details>
+
+    <details class="ph-section" {{#if expandSkills}}open{{/if}}>
+      <summary><i class="fas fa-book"></i> Skills</summary>
+      {{#each hub.skillGroups}}
+      <h4 class="ph-subhead">{{this.category}}</h4>
+      <div class="ph-grid">
+        {{#each this.skills}}
+        <div class="ph-row">
+          <span class="ph-label">{{this.name}}</span>
+          <span class="ph-value">{{this.value}}{{#if (lookup ../../pendingSkills this.key)}} <em class="ph-pending">({{lookup ../../pendingSkills this.key}})</em>{{/if}}</span>
+          <div class="ph-controls">
+            <button type="button" class="ph-btn" data-action="ph-skill-dec" data-skill="{{this.key}}">−</button>
+            <button type="button" class="ph-btn" data-action="ph-skill-inc" data-skill="{{this.key}}">+</button>
+          </div>
+        </div>
+        {{/each}}
+      </div>
+      {{/each}}
+      <div class="ph-confirm-row">
+        <span class="ph-cost">Net cost: {{skillNet}} XP</span>
+        <button type="button" class="ae-btn ae-btn-primary" data-action="ph-confirm-skills" {{#unless hasPendingSkills}}disabled{{/unless}}>
+          Confirm Skills
+        </button>
+      </div>
+    </details>
+
+    <details class="ph-section" {{#if expandPowers}}open{{/if}}>
+      <summary><i class="fas fa-bolt"></i> Powers</summary>
+      <div class="ph-grid">
+        {{#each hub.powers}}
+        <div class="ph-row">
+          <span class="ph-label">{{this.name}}</span>
+          <span class="ph-value">L{{this.level}}{{#if (lookup ../pendingPowers this.id)}} <em class="ph-pending">({{lookup ../pendingPowers this.id}})</em>{{/if}}</span>
+          <div class="ph-controls">
+            <button type="button" class="ph-btn" data-action="ph-power-dec" data-power-id="{{this.id}}">−</button>
+            <button type="button" class="ph-btn" data-action="ph-power-inc" data-power-id="{{this.id}}">+</button>
+          </div>
+        </div>
+        {{/each}}
+      </div>
+      <div class="ph-confirm-row">
+        <span class="ph-cost">Net cost: {{powerNet}} XP</span>
+        <button type="button" class="ae-btn ae-btn-primary" data-action="ph-confirm-powers" {{#unless hasPendingPowers}}disabled{{/unless}}>
+          Confirm Powers
+        </button>
+      </div>
+    </details>
+
+    <details class="ph-section" {{#if expandArtifacts}}open{{/if}}>
+      <summary><i class="fas fa-project-diagram"></i> Artifacts</summary>
+      <p class="ae-intro">
+        MR 2+ — <strong>{{constants.linkStone}} Stone</strong> to activate, then {{constants.upXp}} XP per level.
+        Max = (MR − 1) × 2 (cap {{constants.maxLevel}}).
+      </p>
+
+      {{#if hub.unwiredArtifacts.length}}
+      <section class="ph-unwired">
+        <h4>Not linked to evolution tree</h4>
+        {{#each hub.unwiredArtifacts}}
+        <div class="ph-unwired-row">
+          <span>{{this.name}}</span>
+          <button type="button" class="ae-btn ae-btn-primary" data-action="ph-wire-artifact" data-emb-id="{{this.id}}">
+            Mit World-Tree verbinden
+          </button>
+        </div>
+        {{/each}}
+      </section>
+      {{/if}}
+
+      {{#if cards.length}}
+      {{#each cards}}
+      <section class="ae-card" data-emb-id="{{embeddedId}}">
+        <header class="ae-card-head">
+          <h3 class="ae-card-title">{{displayName}}</h3>
+          <span class="ae-card-badge">
+            L{{currentSystemLevel}}
+            {{#unless linked}}· inaktiv{{else}}· aktiv{{/unless}}
+          </span>
+        </header>
+        <p class="ae-card-meta">
+          MR {{masteryRank}} · max L{{maxSystemLevel}} · Stones <strong>{{stones}}</strong> · XP <strong>{{xp}}</strong>
+        </p>
+
+        {{#unless linked}}
+          {{#if canLinkRules}}
+            {{#if linkDisabledReason}}
+            <button type="button" class="ae-btn ae-btn-primary" disabled title="{{linkDisabledReason}}">
+              Aktivieren ({{@root.constants.linkStone}} Stone)
+            </button>
+            <p class="ae-path-reason">{{linkDisabledReason}}</p>
+            {{else if @root.usesStonePools}}
+            <div class="ae-activate-row">
+              <label class="ae-field-label" for="ae-stone-{{embeddedId}}">Stone-Pool</label>
+              <select id="ae-stone-{{embeddedId}}" class="ae-stone-select" data-emb-id="{{embeddedId}}">
+                <option value="">— Pool wählen —</option>
+                {{#each @root.stonePools}}
+                <option value="{{key}}" {{#unless canSpend}}disabled{{/unless}}>
+                  {{label}} ({{spendable}} frei)
+                </option>
+                {{/each}}
+              </select>
+              <button type="button" class="ae-btn ae-btn-primary" data-action="ae-activate"
+                data-root-id="{{rootWorldId}}" data-emb-id="{{embeddedId}}">
+                Aktivieren
+              </button>
+            </div>
+            {{else}}
+            <button type="button" class="ae-btn ae-btn-primary" data-action="ae-link" data-root-id="{{rootWorldId}}" data-emb-id="{{embeddedId}}">
+              Aktivieren ({{@root.constants.linkStone}} Stone)
+            </button>
+            {{/if}}
+          {{else}}
+            <p class="ae-muted">Mastery Rank 2+ required to activate.</p>
+          {{/if}}
+        {{else}}
+          <details class="ae-details" {{#if paths.length}}open{{/if}}>
+            <summary>Evolution</summary>
+            {{#if paths.length}}
+            <div class="ae-upgrade-row">
+              <label class="ae-field-label" for="ae-path-{{embeddedId}}">Pfad</label>
+              <select id="ae-path-{{embeddedId}}" class="ae-path-select" data-emb-id="{{embeddedId}}">
+                {{#each paths}}
+                <option value="{{nodeId}}" data-world-id="{{worldItemId}}"
+                  {{#if disabledReason}}disabled title="{{disabledReason}}"{{/if}}>
+                  {{label}} (L{{targetLevel}}, {{@root.constants.upXp}} XP){{#if disabledReason}} — {{disabledReason}}{{/if}}
+                </option>
+                {{/each}}
+              </select>
+              <button type="button" class="ae-btn ae-btn-primary" data-action="ae-upgrade-selected"
+                data-root-id="{{rootWorldId}}" data-emb-id="{{embeddedId}}">
+                Upgraden
+              </button>
+            </div>
+            {{else if atMaxTierForMr}}
+            <p class="ae-muted">Max level for current Mastery Rank.</p>
+            {{else}}
+            <p class="ae-muted">No further branches from this node.</p>
+            {{/if}}
+          </details>
+        {{/unless}}
+      </section>
+      {{/each}}
+      {{else}}
+      {{#unless hasUnwiredArtifacts}}
+      <p class="ae-empty">No artifacts on this actor.</p>
+      {{/unless}}
+      {{/if}}
+    </details>
+  </div>
+
+  <footer class="ae-footer">
+    <button type="button" class="ae-btn" data-action="ph-close">Close</button>
+  </footer>
+</div>

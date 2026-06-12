@@ -1759,7 +1759,10 @@ async function preloadTemplates() {
         // Dice dialogs
         'systems/mastery-system/templates/dice/damage-dialog.hbs',
         // Character creation wizard
-        'systems/mastery-system/templates/dialogs/disadvantage-config.hbs'
+        'systems/mastery-system/templates/dialogs/disadvantage-config.hbs',
+        // Progression / artifact dialogs
+        'systems/mastery-system/templates/artifacts/artifact-evolution-dialog.hbs',
+        'systems/mastery-system/templates/artifacts/progression-hub-dialog.hbs',
     ];
     try {
         await foundry.applications.handlebars.loadTemplates(templatePaths);

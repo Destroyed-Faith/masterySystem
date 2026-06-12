@@ -7,7 +7,8 @@
  *   • Each Artifact may only be upgraded once per Upgrade Step.
  */
 import { ARTIFACT_CAPACITY_DEFAULT, ARTIFACT_LINK_STONE_COST, ARTIFACT_MAX_SYSTEM_LEVEL, ARTIFACT_UPGRADE_XP_COST, countBoundArtifacts, listArtifactSpendableStonePools, usesStonePoolEconomy, } from '../utils/artifact-actor-rules.js';
-import { repairActorEchoArtifacts } from '../utils/artifact-echo-repair.js';
+import { repairArtifactEvolutionLinks } from '../utils/artifact-echo-repair.js';
+import { listUnwiredEmbeddedArtifacts } from '../utils/artifact-tree-grant.js';
 import { buildArtifactEvolutionCards, linkArtifactForActor, resetArtifactActivationForActor, upgradeArtifactForActor, } from './artifact-evolution-actions.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const BaseDialog = HandlebarsApplicationMixin(ApplicationV2);
@@ -33,9 +34,12 @@ export class ArtifactEvolutionDialog extends BaseDialog {
     async _prepareContext(_options) {
         const boundCount = countBoundArtifacts(this.actor);
         const stonePools = listArtifactSpendableStonePools(this.actor);
+        const unwired = listUnwiredEmbeddedArtifacts(this.actor);
         return {
             actor: this.actor,
             cards: buildArtifactEvolutionCards(this.actor),
+            unwiredArtifacts: unwired.map((e) => ({ id: e.id, name: e.name })),
+            hasUnwiredArtifacts: unwired.length > 0,
             stonePools,
             usesStonePools: usesStonePoolEconomy(this.actor),
             isGM: game.user?.isGM === true,
@@ -141,14 +145,30 @@ export class ArtifactEvolutionDialog extends BaseDialog {
                     await this.render({ force: true });
             };
         });
+        root.querySelectorAll('[data-action="ae-wire-artifact"]').forEach((btn) => {
+            btn.onclick = async (ev) => {
+                ev.preventDefault();
+                const embId = String(btn.dataset.embId);
+                const emb = this.actor.items.get(embId);
+                if (!emb)
+                    return;
+                const { wireEmbeddedArtifactToWorldTree } = await import('../utils/artifact-tree-grant.js');
+                const wire = await wireEmbeddedArtifactToWorldTree(this.actor, emb, { notify: true });
+                if (!wire.ok && !wire.alreadyWired) {
+                    ui.notifications?.warn(wire.reason || 'Could not link artifact to world tree.');
+                    return;
+                }
+                await this.render({ force: true });
+            };
+        });
     }
 }
 export async function openArtifactEvolutionDialog(actor) {
     try {
-        await repairActorEchoArtifacts(actor);
+        await repairArtifactEvolutionLinks(actor);
     }
     catch (err) {
-        console.warn('[mastery-system] echo artifact repair failed', err);
+        console.warn('[mastery-system] artifact evolution repair failed', err);
     }
     const existing = foundry.applications.instances.get('artifact-evolution-dialog');
     if (existing) {

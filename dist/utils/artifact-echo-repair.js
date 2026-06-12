@@ -1,12 +1,12 @@
 /**
- * Repair / sync embedded Echo artifacts against the world Builder-Tree.
+ * Repair / sync embedded artifacts against the world Builder-Tree.
  */
-import { getArtifactBindingKind, readActorArtifactProgress, serializeActorArtifactProgress, } from './artifact-actor-rules.js';
 import { getWorldArtifactItemsInFolder, resolveWorldItemByNodeId, } from './artifact-actor-tree.js';
 import { visibleAbilityRows } from './artifact-visible-abilities.js';
+import { wireEmbeddedArtifactToWorldTree, inferArtifactKeyFromName } from './artifact-tree-grant.js';
 import { findEchoArtifactRootInWorld } from './seed-artifact-library.js';
 /** True when the embedded copy looks stale (missing progression data). */
-export function echoEmbeddedArtifactNeedsSync(emb) {
+export function embeddedArtifactNeedsSync(emb) {
     if (!emb || emb.type !== 'artifact')
         return false;
     const sys = emb.system || {};
@@ -15,10 +15,18 @@ export function echoEmbeddedArtifactNeedsSync(emb) {
     const hasLp = Array.isArray(lp) && lp.length > 0;
     const hasBv = Array.isArray(bv) && bv.length > 0;
     const echoKey = emb.getFlag?.('mastery-system', 'echoArtifactKey');
-    const isEcho = emb.getFlag?.('mastery-system', 'echoBound') || sys.binding === 'echo' || echoKey;
-    if (!isEcho)
+    const isTree = !!emb.getFlag?.('mastery-system', 'evolutionRootItemId') ||
+        emb.getFlag?.('mastery-system', 'echoBound') ||
+        sys.binding === 'echo' ||
+        sys.binding === 'bound' ||
+        echoKey;
+    if (!isTree)
         return false;
     return !hasLp || !hasBv;
+}
+/** @deprecated Use embeddedArtifactNeedsSync */
+export function echoEmbeddedArtifactNeedsSync(emb) {
+    return embeddedArtifactNeedsSync(emb);
 }
 /**
  * Copy name/img/system from the matching world tree node onto the actor item.
@@ -45,82 +53,41 @@ export async function syncEmbeddedArtifactFromWorldNode(emb, actor) {
     return true;
 }
 /**
- * Wire a legacy / fallback Echo artifact (no evolution root) to the world tree
- * and refresh its Level-1 data.
+ * Wire a legacy embedded artifact (no evolution root) to the world tree
+ * and refresh its node data.
  */
-export async function repairEchoArtifactTreeLink(actor, emb) {
-    const echoKey = emb.getFlag?.('mastery-system', 'echoArtifactKey') ||
-        inferEchoKeyFromName(emb.name);
-    if (!echoKey)
+export async function repairArtifactEvolutionLink(actor, emb) {
+    if (emb.getFlag?.('mastery-system', 'evolutionRootItemId'))
         return false;
-    const rootItem = findEchoArtifactRootInWorld(echoKey);
-    if (!rootItem)
+    const artifactKey = emb.getFlag?.('mastery-system', 'echoArtifactKey') ||
+        inferArtifactKeyFromName(emb.name);
+    if (artifactKey && !findEchoArtifactRootInWorld(artifactKey)) {
         return false;
-    const rootId = rootItem.id;
-    const rootNodeId = rootItem.getFlag?.('mastery-system', 'nodeId');
-    if (!rootNodeId)
-        return false;
-    await emb.setFlag('mastery-system', 'evolutionRootItemId', rootId);
-    await emb.setFlag('mastery-system', 'evolutionNodeId', rootNodeId);
-    await emb.setFlag('mastery-system', 'echoArtifactKey', echoKey);
-    const actorId = actor.id;
-    const levels = { ...(rootItem.getFlag('mastery-system', 'actorLevels') || {}) };
-    const prev = readActorArtifactProgress(levels[actorId], rootNodeId);
-    if (emb.getFlag?.('mastery-system', 'artifactActivated') !== true) {
-        levels[actorId] = serializeActorArtifactProgress({ ...prev, linked: false });
-        await rootItem.setFlag('mastery-system', 'actorLevels', levels);
     }
-    return syncEmbeddedArtifactFromWorldNode(emb, actor);
+    const res = await wireEmbeddedArtifactToWorldTree(actor, emb, { notify: false });
+    return res.ok;
 }
-function inferEchoKeyFromName(name) {
-    const n = String(name || '').toLowerCase();
-    if (n.includes('dragon head'))
-        return 'dragonHead';
-    if (n.includes('dragon claw'))
-        return 'dragonClaws';
-    if (n.includes('serpent scale'))
-        return 'serpentScales';
-    if (n.includes('wyrm scale'))
-        return 'wyrmScales';
-    if (n.includes('titan scar'))
-        return 'titanScars';
-    if (n.includes('stonebound sole'))
-        return 'stoneboundSoles';
-    if (n.includes('elven stride') && n.includes('fire'))
-        return 'elvenStrideFire';
-    if (n.includes('elven stride') && n.includes('earth'))
-        return 'elvenStrideEarth';
-    if (n.includes('elven stride') && n.includes('water'))
-        return 'elvenStrideWater';
-    if (n.includes('elven stride') && n.includes('air'))
-        return 'elvenStrideAir';
-    if (n.includes('sentinel frame'))
-        return 'sentinelFrame';
-    if (n.includes('judicator frame'))
-        return 'judicatorFrame';
-    if (n.includes('oracle frame'))
-        return 'oracleFrame';
-    return null;
+/** @deprecated Use repairArtifactEvolutionLink */
+export async function repairEchoArtifactTreeLink(actor, emb) {
+    return repairArtifactEvolutionLink(actor, emb);
 }
 /**
- * Repair all echo artifacts on an actor: wire missing tree links, sync stale
- * Level-1 data from the world library, and ensure activation flags exist.
+ * Repair all tree-linked artifacts on an actor: wire missing links, sync stale
+ * data from the world library, and ensure activation flags exist.
  */
-export async function repairActorEchoArtifacts(actor) {
+export async function repairArtifactEvolutionLinks(actor) {
     if (!actor?.items?.filter)
         return 0;
     let fixes = 0;
     const artifacts = Array.from(actor.items.filter((it) => it.type === 'artifact'));
     for (const emb of artifacts) {
-        if (getArtifactBindingKind(emb) !== 'echo')
-            continue;
         const rootWorldId = emb.getFlag?.('mastery-system', 'evolutionRootItemId');
         if (!rootWorldId) {
-            if (await repairEchoArtifactTreeLink(actor, emb))
+            if (await repairArtifactEvolutionLink(actor, emb))
                 fixes++;
             continue;
         }
-        if (echoEmbeddedArtifactNeedsSync(emb)) {
+        if (embeddedArtifactNeedsSync(emb)) {
             if (await syncEmbeddedArtifactFromWorldNode(emb, actor))
                 fixes++;
         }
@@ -131,6 +98,10 @@ export async function repairActorEchoArtifacts(actor) {
         }
     }
     return fixes;
+}
+/** @deprecated Use repairArtifactEvolutionLinks */
+export async function repairActorEchoArtifacts(actor) {
+    return repairArtifactEvolutionLinks(actor);
 }
 /** Summarize abilities / base values from an embedded artifact for UI panels. */
 export function summarizeEmbeddedArtifactDisplay(emb, active) {

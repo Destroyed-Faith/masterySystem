@@ -1,7 +1,9 @@
 /**
- * Repair / sync embedded Echo artifacts against the world Builder-Tree.
+ * Repair / sync embedded artifacts against the world Builder-Tree.
  */
 /** True when the embedded copy looks stale (missing progression data). */
+export declare function embeddedArtifactNeedsSync(emb: any): boolean;
+/** @deprecated Use embeddedArtifactNeedsSync */
 export declare function echoEmbeddedArtifactNeedsSync(emb: any): boolean;
 /**
  * Copy name/img/system from the matching world tree node onto the actor item.
@@ -9,14 +11,18 @@ export declare function echoEmbeddedArtifactNeedsSync(emb: any): boolean;
  */
 export declare function syncEmbeddedArtifactFromWorldNode(emb: any, actor: any): Promise<boolean>;
 /**
- * Wire a legacy / fallback Echo artifact (no evolution root) to the world tree
- * and refresh its Level-1 data.
+ * Wire a legacy embedded artifact (no evolution root) to the world tree
+ * and refresh its node data.
  */
+export declare function repairArtifactEvolutionLink(actor: any, emb: any): Promise<boolean>;
+/** @deprecated Use repairArtifactEvolutionLink */
 export declare function repairEchoArtifactTreeLink(actor: any, emb: any): Promise<boolean>;
 /**
- * Repair all echo artifacts on an actor: wire missing tree links, sync stale
- * Level-1 data from the world library, and ensure activation flags exist.
+ * Repair all tree-linked artifacts on an actor: wire missing links, sync stale
+ * data from the world library, and ensure activation flags exist.
  */
+export declare function repairArtifactEvolutionLinks(actor: any): Promise<number>;
+/** @deprecated Use repairArtifactEvolutionLinks */
 export declare function repairActorEchoArtifacts(actor: any): Promise<number>;
 /** Summarize abilities / base values from an embedded artifact for UI panels. */
 export declare function summarizeEmbeddedArtifactDisplay(emb: any, active: boolean): {

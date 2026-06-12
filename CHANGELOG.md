@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.38] - 2026-06-12
+
+### Added
+
+- **Unified Progression Hub:** New dialog bundles Attributes, Skills, Powers, and Artifacts in collapsible sections — primary entry for post-creation XP and artifact progression.
+- **Artifact tree wiring:** `artifact-tree-grant.ts` wires embedded artifacts to world evolution trees on drag-and-drop; `grantArtifactTreeToActor` works for Echo and General artifacts.
+- **Shared progression logic:** `progression-hub-actions.ts` centralizes XP cost calculation and confirm apply for attributes, skills, and powers (character sheet and hub share the same code).
+
+### Fixed
+
+- **General artifact upgrades:** Dragged General Artifacts now receive `evolutionRootItemId` / `evolutionNodeId` automatically; repair generalized beyond Echo-only paths.
+- **Artifact discovery:** Progression and Artifacts buttons appear when any embedded artifact exists; unwired items show a “Mit World-Tree verbinden” repair action; equipment badge opens the hub on the Artifacts section.
+
 ## [0.9.37] - 2026-06-12
 
 ### Fixed

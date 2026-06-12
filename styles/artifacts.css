@@ -1470,6 +1470,134 @@
   color: var(--df-text-secondary, #b0b8bc);
 }
 
+.artifact-evolution-dialog .ae-unwired,
+.progression-hub-dialog .ph-unwired {
+  margin: 0 0 12px;
+  padding: 10px;
+  border: 1px dashed rgba(240, 160, 96, 0.45);
+  border-radius: 6px;
+  background: rgba(240, 160, 96, 0.08);
+}
+
+.artifact-evolution-dialog .ae-unwired-title,
+.progression-hub-dialog .ph-unwired h4 {
+  margin: 0 0 8px;
+  font-size: 0.9rem;
+}
+
+.artifact-evolution-dialog .ae-unwired-row,
+.progression-hub-dialog .ph-unwired-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.progression-hub-dialog .window-content {
+  padding: 0;
+}
+
+.progression-hub-dialog .ph-dialog {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.progression-hub-dialog .ph-scroll-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 12px;
+}
+
+.progression-hub-dialog .ph-section {
+  margin-bottom: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 0 8px 8px;
+}
+
+.progression-hub-dialog .ph-section > summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 8px 4px;
+}
+
+.progression-hub-dialog .ph-overview p {
+  margin: 4px 0;
+  font-size: 0.9rem;
+}
+
+.progression-hub-dialog .ph-free-xp {
+  color: #e8d48a;
+}
+
+.progression-hub-dialog .ph-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.progression-hub-dialog .ph-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+}
+
+.progression-hub-dialog .ph-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.progression-hub-dialog .ph-value {
+  min-width: 3rem;
+  text-align: right;
+}
+
+.progression-hub-dialog .ph-pending {
+  color: #8fd4ff;
+  font-style: normal;
+}
+
+.progression-hub-dialog .ph-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.progression-hub-dialog .ph-btn {
+  min-width: 1.6rem;
+  padding: 2px 6px;
+}
+
+.progression-hub-dialog .ph-confirm-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.progression-hub-dialog .ph-subhead {
+  margin: 8px 0 4px;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+.progression-hub-dialog .ph-muted {
+  font-size: 0.82rem;
+  opacity: 0.75;
+}
+
+/* Reuse artifact evolution card styles inside the hub */
+.progression-hub-dialog .ae-card {
+  margin-top: 8px;
+}
+
 /* Builder: actor allocation row */
 .artifact-builder .artifact-assignments-hint {
   margin: 0 0 8px 0;

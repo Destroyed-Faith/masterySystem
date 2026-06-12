@@ -12,6 +12,20 @@
       </p>
     </details>
 
+    {{#if hasUnwiredArtifacts}}
+    <section class="ae-unwired">
+      <h3 class="ae-unwired-title">Not linked to evolution tree</h3>
+      {{#each unwiredArtifacts}}
+      <div class="ae-unwired-row">
+        <span>{{this.name}}</span>
+        <button type="button" class="ae-btn ae-btn-primary" data-action="ae-wire-artifact" data-emb-id="{{this.id}}">
+          Mit World-Tree verbinden
+        </button>
+      </div>
+      {{/each}}
+    </section>
+    {{/if}}
+
     {{#if cards.length}}
     {{#each cards}}
     <section class="ae-card" data-emb-id="{{embeddedId}}">
@@ -125,7 +139,9 @@
     </section>
     {{/each}}
     {{else}}
+    {{#unless hasUnwiredArtifacts}}
     <p class="ae-empty">No evolution-bound artifacts on this actor.</p>
+    {{/unless}}
     {{/if}}
   </div>
 

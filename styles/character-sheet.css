@@ -1053,7 +1053,8 @@
 }
 
 .mastery-system .sheet-body .attribute-xp-confirm-row .stone-powers-btn-header,
-.mastery-system .sheet-body .attribute-xp-confirm-row .artifact-evolution-btn {
+.mastery-system .sheet-body .attribute-xp-confirm-row .artifact-evolution-btn,
+.mastery-system .sheet-body .attribute-xp-confirm-row .progression-hub-btn {
   flex: 0 0 auto;
   width: auto;
 }
@@ -9682,6 +9683,15 @@
   color: #e8d48a;
   pointer-events: none;
   z-index: 2;
+}
+
+.mastery-system.sheet.actor.character .df-artifact-badge[data-action="openProgressionArtifacts"] {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.mastery-system.sheet.actor.character .df-artifact-badge--unwired {
+  color: #f0a060;
 }
 
 .mastery-system.sheet.actor.character .df-artifact-actions {

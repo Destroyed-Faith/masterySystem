@@ -25,6 +25,8 @@ import { getPowerDefinitionRank } from '../utils/power-definition-rank.js';
 import { matchesMasteryWeaponCatalog } from '../utils/weapons.js';
 import { buildRadialManeuverPrefsContext } from '../utils/radial-maneuver-prefs.js';
 import { buildArtifactEvolutionCards } from '../artifacts/artifact-evolution-actions.js';
+import { actorHasProgressionArtifacts } from '../utils/artifact-tree-grant.js';
+import { applyAttributePendingChanges, calculateAttributePendingNetCost, calculatePowerPendingNetCost, calculateSingleSkillPendingXpNet, calculateSkillPendingNetCost, } from '../progression/progression-hub-actions.js';
 // Removed: showWeaponCreationDialog, showArmorCreationDialog, showShieldCreationDialog
 // Replaced with General Items Storage and Store dialogs
 // Use namespaced ActorSheet when available to avoid deprecation warnings
@@ -760,7 +762,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         // Build Equipment UI Context
         context.equipmentUi = this.#prepareEquipmentUi(context.items);
-        context.hasArtifactEvolution = Array.from(this.actor.items).some((i) => i.type === 'artifact' && i.getFlag?.('mastery-system', 'evolutionRootItemId'));
+        context.hasProgressionArtifacts = actorHasProgressionArtifacts(this.actor);
+        context.hasArtifactEvolution = context.hasProgressionArtifacts;
         context.radialManeuverPrefsPanel = buildRadialManeuverPrefsContext(context.system);
         context.radialManeuverPrefsDetailsOpen = this._radialManeuverPrefsDetailsOpen === true;
         if (context.creationComplete) {
@@ -1275,11 +1278,21 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             if (!item || item.type !== 'artifact')
                 return null;
             const card = cardByEmbId.get(item.id);
-            if (!card)
-                return null;
+            if (card) {
+                return {
+                    currentSystemLevel: card.currentSystemLevel,
+                    linked: card.linked,
+                    embeddedId: item.id,
+                    unwired: false,
+                };
+            }
+            const sys = item.system || {};
+            const level = Math.max(1, Number(sys.currentLevel ?? sys.level ?? 1));
             return {
-                currentSystemLevel: card.currentSystemLevel,
-                linked: card.linked,
+                currentSystemLevel: level,
+                linked: false,
+                embeddedId: item.id,
+                unwired: true,
             };
         };
         return {
@@ -1667,6 +1680,23 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 return;
             const { openArtifactEvolutionDialog } = await import('../artifacts/artifact-evolution-dialog.js');
             await openArtifactEvolutionDialog(this.actor);
+        });
+        html.find('[data-action="openProgressionHub"]').on('click', async (ev) => {
+            ev.preventDefault();
+            if (!this.actor.isOwner)
+                return;
+            const $btn = $(ev.currentTarget);
+            const section = String($btn.data('expandSection') || $btn.attr('data-expand-section') || 'overview');
+            const { openProgressionHubDialog } = await import('../artifacts/progression-hub-dialog.js');
+            await openProgressionHubDialog(this.actor, { expandSection: section });
+        });
+        html.on('click', '.df-artifact-badge[data-action="openProgressionArtifacts"]', async (ev) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+            if (!this.actor.isOwner)
+                return;
+            const { openProgressionHubDialog } = await import('../artifacts/progression-hub-dialog.js');
+            await openProgressionHubDialog(this.actor, { expandSection: 'artifacts' });
         });
         html.on('click', '[data-action="artifact-activate"]', async (ev) => {
             ev.preventDefault();
@@ -2490,30 +2520,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      * Net XP effect of pending attribute deltas (positive = spend, negative = refund).
      */
     #calculateAttributePendingNetCost(pendingMap) {
-        let net = 0;
-        const keys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
-        for (const attr of keys) {
-            const pending = pendingMap[attr] || 0;
-            if (!pending)
-                continue;
-            const current = this.actor.system.attributes[attr]?.value || 0;
-            if (pending > 0) {
-                for (let i = 0; i < pending; i++) {
-                    net += this.#calculateAttributeCost(current + i);
-                }
-            }
-            else {
-                const baseline = this.#getAttributeXpBaseline(attr);
-                const steps = Math.abs(pending);
-                for (let i = 0; i < steps; i++) {
-                    const dropFrom = current - i;
-                    if (dropFrom <= baseline)
-                        break;
-                    net -= this.#calculateAttributeCost(dropFrom - 1);
-                }
-            }
-        }
-        return net;
+        return calculateAttributePendingNetCost(this.actor, pendingMap);
     }
     /**
      * Calculate cost to raise a power to a specific level.
@@ -2547,31 +2554,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      * Negative pending: refunds for decreasing
      */
     #calculatePowerPendingNetCost(pendingMap) {
-        let net = 0;
-        for (const [powerId, pending] of Object.entries(pendingMap)) {
-            if (!pending)
-                continue;
-            const powerItem = this.actor.items.get(powerId);
-            if (!powerItem)
-                continue;
-            const currentLevel = powerItem.system.level ?? 1;
-            if (pending > 0) {
-                // Increasing: sum cost(targetLevel = currentLevel + i) for i=1..pending
-                for (let i = 1; i <= pending; i++) {
-                    const targetLevel = currentLevel + i;
-                    net += this.#calculatePowerLevelCost(targetLevel);
-                }
-            }
-            else {
-                // Decreasing: subtract cost(refundLevel = currentLevel - i) for i=0..abs(pending)-1
-                const steps = Math.abs(pending);
-                for (let i = 0; i < steps; i++) {
-                    const refundLevel = currentLevel - i; // refund the level you are dropping FROM
-                    net -= this.#calculatePowerLevelCost(refundLevel);
-                }
-            }
-        }
-        return net;
+        return calculatePowerPendingNetCost(this.actor, pendingMap);
     }
     /**
      * Get XP state, ensuring all fields exist (backward compatibility)
@@ -2893,28 +2876,20 @@ export class MasteryCharacterSheet extends BaseActorSheet {
     async #onConfirmAttributeChanges(event) {
         event.preventDefault();
         event.stopPropagation();
-        // Check if user is owner
         if (!this.actor.isOwner) {
             ui.notifications?.warn('Only the owner can confirm Attribute Point changes.');
             return;
         }
-        // Get XP state
         const xpState = this.#getXpState(this.actor);
-        let totalNetCost = 0;
-        const updates = {};
-        const attributeChanges = [];
+        const totalNetCost = this.#calculateAttributePendingNetCost(this._pendingAttributeChanges);
         const attributeKeys = ['might', 'agility', 'vitality', 'intellect', 'resolve', 'influence', 'wits'];
+        const attributeChanges = [];
         for (const attrKey of attributeKeys) {
             const pending = this._pendingAttributeChanges[attrKey] || 0;
             if (!pending)
                 continue;
             const currentValue = this.actor.system.attributes[attrKey]?.value || 0;
             const newValue = currentValue + pending;
-            const baseline = this.#getAttributeXpBaseline(attrKey);
-            if (newValue < baseline || newValue > 80) {
-                ui.notifications?.error(`Invalid attribute change for ${attrKey} (${currentValue} → ${newValue}).`);
-                return;
-            }
             let attrCost = 0;
             if (pending > 0) {
                 for (let i = 0; i < pending; i++) {
@@ -2924,75 +2899,27 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             else {
                 for (let i = 0; i < Math.abs(pending); i++) {
                     const dropFrom = currentValue - i;
+                    const baseline = this.#getAttributeXpBaseline(attrKey);
                     if (dropFrom <= baseline)
                         break;
                     attrCost -= this.#calculateAttributeCost(dropFrom - 1);
                 }
             }
-            totalNetCost += attrCost;
-            updates[`system.attributes.${attrKey}.value`] = newValue;
-            attributeChanges.push({
-                attr: attrKey,
-                from: currentValue,
-                to: newValue,
-                cost: attrCost
-            });
-        }
-        if (totalNetCost > xpState.available) {
-            ui.notifications?.error(`Not enough XP! Net cost: ${totalNetCost}, Available: ${xpState.available}`);
-            return;
-        }
-        /**
-         * New spec — once-per-step rule. For each attribute with a positive
-         * pending delta, mark it bumped in `system.xp.currentStep.attributes`.
-         * For attributes refunded back to (or below) their step-start value,
-         * un-bump them so the player may re-bump later in the same step.
-         *
-         * Defensive: reject if the attribute is already in the bump list AND
-         * pending > 0 (UI normally prevents this).
-         */
-        const stepRule = await import('../utils/xp-step-rule.js');
-        let stepAfter = stepRule.readStep(this.actor);
-        // Free-XP phase: do not enforce or record per-step bumps so the player can
-        // keep increasing the same Attribute within the batch.
-        const unrestrictedAttr = this.#hasFreeXp();
-        for (const { attr } of attributeChanges) {
-            if (unrestrictedAttr)
-                continue;
-            const pending = this._pendingAttributeChanges[attr] || 0;
-            if (pending > 0) {
-                if (stepRule.isBumped(stepAfter, 'attribute', attr)) {
-                    ui.notifications?.error(`Step rule: ${attr} was already increased this Upgrade Step. End the current step first.`);
-                    return;
-                }
-                stepAfter = stepRule.recordBump(stepAfter, 'attribute', attr);
-            }
-            else if (pending < 0) {
-                stepAfter = stepRule.undoBump(stepAfter, 'attribute', attr);
-            }
+            attributeChanges.push({ attr: attrKey, from: currentValue, to: newValue, cost: attrCost });
         }
         const beforeState = {
             available: xpState.available,
             totalEarned: xpState.totalEarned,
             totalSpent: xpState.totalSpent,
         };
-        // Two-pool accounting: Free XP is spent before regular XP.
-        const acctAttr = this.#applyXpCost(xpState, totalNetCost);
-        updates['system.points.xp'] = acctAttr.pointsXp;
-        updates['system.points.xpFree'] = acctAttr.pointsXpFree;
-        updates['system.xp.totalSpent'] = acctAttr.totalSpent;
-        updates['system.xp.freeSpent'] = acctAttr.freeSpent;
-        updates['system.xp.currentStep.attributes'] = [...stepAfter.attributes];
-        updates['system.xp.currentStep.skills'] = [...stepAfter.skills];
-        updates['system.xp.currentStep.powers'] = [...stepAfter.powers];
-        updates['system.xp.currentStep.artifacts'] = [...stepAfter.artifacts];
-        if (!this.actor.system.xp) {
-            updates['system.xp.totalEarned'] = xpState.totalEarned;
-            updates['system.xp.history'] = [];
+        const result = await applyAttributePendingChanges(this.actor, this._pendingAttributeChanges);
+        if (!result.ok) {
+            ui.notifications?.error(result.error || 'Could not apply attribute changes.');
+            return;
         }
-        await this.actor.update(updates);
         const user = game.user;
         if (attributeChanges.length > 0) {
+            const afterXp = this.#getXpState(this.actor);
             const historyEntry = {
                 ts: Date.now(),
                 userId: user?.id || '',
@@ -3008,25 +2935,24 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                         : undefined,
                 before: beforeState,
                 after: {
-                    available: xpState.available - totalNetCost,
-                    totalEarned: xpState.totalEarned,
-                    totalSpent: acctAttr.totalSpent,
-                }
+                    available: afterXp.available,
+                    totalEarned: afterXp.totalEarned,
+                    totalSpent: afterXp.totalSpent,
+                },
             };
             this.#pushXpHistory(this.actor, historyEntry);
             await this.actor.update({ 'system.xp.history': this.actor.system.xp.history });
         }
         this._pendingAttributeChanges = {};
         if (totalNetCost > 0) {
-            ui.notifications?.info(`Attribute changes confirmed! Cost: ${totalNetCost} XP, Remaining: ${xpState.available - totalNetCost}`);
+            ui.notifications?.info(`Attribute changes confirmed! Cost: ${totalNetCost} XP, Remaining: ${this.#getXpState(this.actor).available}`);
         }
         else if (totalNetCost < 0) {
-            ui.notifications?.info(`Attribute changes confirmed! Refund: ${Math.abs(totalNetCost)} XP, Remaining: ${xpState.available - totalNetCost}`);
+            ui.notifications?.info(`Attribute changes confirmed! Refund: ${Math.abs(totalNetCost)} XP, Remaining: ${this.#getXpState(this.actor).available}`);
         }
         else {
             ui.notifications?.info('Attribute changes confirmed.');
         }
-        // Re-render
         await this.render();
     }
     /**
@@ -4324,34 +4250,11 @@ export class MasteryCharacterSheet extends BaseActorSheet {
      * is the XP cost of buying rank R. Refunds are symmetric.
      */
     #calculateSkillPendingNetCost(pendingMap) {
-        let net = 0;
-        for (const [skillKey, pending] of Object.entries(pendingMap)) {
-            net += this.#calculateSingleSkillPendingXpNet(skillKey, pending);
-        }
-        return net;
+        return calculateSkillPendingNetCost(this.actor, pendingMap);
     }
     /** Net XP cost (positive) or refund (negative) for one skill's pending rank delta only. */
     #calculateSingleSkillPendingXpNet(skillKey, pending) {
-        if (!pending)
-            return 0;
-        const currentRaw = this.actor.system.skills?.[skillKey] ?? 0;
-        const current = Number(currentRaw) || 0;
-        let net = 0;
-        if (pending > 0) {
-            for (let i = 1; i <= pending; i++) {
-                net += attributeBandCost(current + i);
-            }
-        }
-        else {
-            const steps = Math.abs(pending);
-            for (let i = 0; i < steps; i++) {
-                const refundRank = current - i;
-                if (refundRank <= 0)
-                    break;
-                net -= attributeBandCost(refundRank);
-            }
-        }
-        return net;
+        return calculateSingleSkillPendingXpNet(this.actor, skillKey, pending);
     }
     /**
      * Update the skill XP distribution UI (pending/remaining + enable/disable buttons)
@@ -6250,6 +6153,24 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         return super._onSubmit(event, options);
     }
     /**
+     * Wire a freshly embedded artifact to the world evolution tree when possible.
+     */
+    async #tryWireDroppedArtifact(embedded, sourceWorld) {
+        if (!embedded || embedded.type !== 'artifact')
+            return;
+        if (embedded.getFlag?.('mastery-system', 'evolutionRootItemId'))
+            return;
+        const sourceNodeId = sourceWorld?.getFlag?.('mastery-system', 'nodeId');
+        const embeddedNodeId = embedded.getFlag?.('mastery-system', 'nodeId');
+        if (!sourceNodeId && !embeddedNodeId) {
+            const { inferArtifactKeyFromName } = await import('../utils/artifact-tree-grant.js');
+            if (!inferArtifactKeyFromName(embedded.name) && !sourceWorld)
+                return;
+        }
+        const { wireEmbeddedArtifactToWorldTree } = await import('../utils/artifact-tree-grant.js');
+        await wireEmbeddedArtifactToWorldTree(this.actor, embedded, { sourceWorldItem: sourceWorld });
+    }
+    /**
      * Handle drag and drop for equipment
      */
     async _onDrop(event) {
@@ -6301,6 +6222,15 @@ export class MasteryCharacterSheet extends BaseActorSheet {
             itemParent: droppedItem?.parent?.id
         });
         if (!droppedItem) {
+            let sourceWorldItem = null;
+            if (data.uuid) {
+                try {
+                    sourceWorldItem = await fromUuid(data.uuid);
+                }
+                catch {
+                    sourceWorldItem = null;
+                }
+            }
             // External item - let parent handle creation first
             const itemCountBefore = this.actor.items.size;
             const result = await super._onDrop(event);
@@ -6318,6 +6248,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                         itemId: droppedItem.id,
                         itemName: droppedItem.name
                     });
+                    await this.#tryWireDroppedArtifact(droppedItem, sourceWorldItem);
                     // New item created, now set flags
                     await this.#updateItemEquipmentFlags(droppedItem, target, event);
                     this._lastDroppedItemId = droppedItem?.id;
@@ -6330,6 +6261,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         }
         // World/compendium item dropped on sheet - create embedded copy first
         if (!droppedItem.parent || droppedItem.parent.id !== this.actor.id) {
+            const sourceWorldItem = droppedItem;
             const itemData = this.#sanitizeItemDataForActorEmbed(droppedItem.toObject());
             console.log('Mastery System | [Equipment Drop] Creating embedded copy', {
                 sourceId: droppedItem?.id,
@@ -6345,6 +6277,7 @@ export class MasteryCharacterSheet extends BaseActorSheet {
                 if (!created)
                     return false;
                 droppedItem = created;
+                await this.#tryWireDroppedArtifact(created, sourceWorldItem);
             }
             catch (error) {
                 console.error('Mastery System | [Equipment Drop] Failed to create embedded item', error);

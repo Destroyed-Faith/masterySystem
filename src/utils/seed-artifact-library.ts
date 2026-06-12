@@ -22,11 +22,9 @@ import {
   buildAllGeneralArtifactTrees,
   ECHO_ARTIFACT_SEED_VERSION,
 } from '../artifacts/echo-artifact-tree-builder.js';
-import {
-  readActorArtifactProgress,
-  serializeActorArtifactProgress,
-} from './artifact-actor-rules.js';
 import { pushWorldArtifactNodeToEmbeddedActors } from './artifact-embedded-sync.js';
+
+export { grantArtifactTreeToActor, grantEchoArtifactTreeToActor } from './artifact-tree-grant.js';
 
 export const ECHO_ARTIFACT_LIBRARY_FOLDER_NAME = 'Echo Artifacts';
 export const GENERAL_ARTIFACT_LIBRARY_FOLDER_NAME = 'General Artifacts';
@@ -233,67 +231,4 @@ export async function forceRefreshEchoArtifactLibrary(): Promise<number> {
       : 'Echo Artifact library is already up to date.',
   );
   return n;
-}
-
-/**
- * Grant the *root* of an Echo Artifact Builder-Tree to an actor as an embedded
- * artifact item, wired to the world tree for evolution (mirrors the GM "Give
- * Artifact" flow in `artifact-awakening.ts`).
- *
- * The embedded item carries `evolutionRootItemId` / `evolutionNodeId` so the
- * Artifact Evolution dialog can walk the tree, and the world root records this
- * actor's progress in `actorLevels` (echo artifacts start inactive until activated).
- *
- * @returns the created embedded item, or `null` if the world library has not
- *          been seeded yet (caller should fall back to a single-item grant).
- */
-export async function grantEchoArtifactTreeToActor(
-  actor: Actor,
-  echoArtifactKey: string,
-): Promise<any | null> {
-  const rootItem = findEchoArtifactRootInWorld(echoArtifactKey);
-  if (!rootItem) return null;
-
-  const rootId = rootItem.id as string;
-  const rootNodeId = rootItem.getFlag?.('mastery-system', 'nodeId') as string | undefined;
-  if (!rootNodeId) return null;
-
-  // Avoid duplicating the same tree on the actor.
-  const existing = Array.from((actor as any).items).find(
-    (i: any) =>
-      i.type === 'artifact' && i.getFlag?.('mastery-system', 'evolutionRootItemId') === rootId,
-  );
-  if (existing) {
-    const emb = existing as any;
-    const { echoEmbeddedArtifactNeedsSync, syncEmbeddedArtifactFromWorldNode } = await import(
-      './artifact-echo-repair.js'
-    );
-    if (echoEmbeddedArtifactNeedsSync(emb)) {
-      await syncEmbeddedArtifactFromWorldNode(emb, actor);
-    }
-    if (emb.getFlag?.('mastery-system', 'artifactActivated') !== true) {
-      await emb.setFlag('mastery-system', 'artifactActivated', false);
-    }
-    return emb;
-  }
-
-  const itemData = foundry.utils.duplicate((rootItem as any).toObject());
-  delete (itemData as any)._id;
-
-  const createdDocs = await (actor as any).createEmbeddedDocuments('Item', [itemData]);
-  const created = createdDocs?.[0];
-  if (!created) return null;
-
-  await created.setFlag('mastery-system', 'evolutionRootItemId', rootId);
-  await created.setFlag('mastery-system', 'evolutionNodeId', rootNodeId);
-  await created.setFlag('mastery-system', 'echoArtifactKey', echoArtifactKey);
-  await created.setFlag('mastery-system', 'artifactActivated', false);
-
-  const actorId = (actor as any).id;
-  const levels = { ...((rootItem as any).getFlag('mastery-system', 'actorLevels') || {}) };
-  // Echo-bound artifacts are equipped but inactive until the player spends 1 Stone at MR2+.
-  levels[actorId] = serializeActorArtifactProgress({ nodeId: rootNodeId, linked: false });
-  await (rootItem as any).setFlag('mastery-system', 'actorLevels', levels);
-
-  return created;
 }
