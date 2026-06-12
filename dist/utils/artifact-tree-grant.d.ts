@@ -26,4 +26,9 @@ export declare function grantEchoArtifactTreeToActor(actor: Actor, echoArtifactK
 export declare function actorHasProgressionArtifacts(actor: Actor): boolean;
 /** Embedded artifacts missing evolution wiring but potentially repairable. */
 export declare function listUnwiredEmbeddedArtifacts(actor: Actor): any[];
+/**
+ * Reset a general (non-Echo) embedded artifact to Level 1 / inactive while
+ * keeping it on the actor. Used during character reset for recreation.
+ */
+export declare function resetGeneralArtifactForRecreation(actor: Actor, emb: any): Promise<void>;
 //# sourceMappingURL=artifact-tree-grant.d.ts.map

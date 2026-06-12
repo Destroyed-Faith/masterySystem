@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.39] - 2026-06-12
+
+### Added
+
+- **Reset Character — General artifacts:** General/bound artifacts are kept on the actor and reset to Level 1 / inactive instead of being deleted. Echo artifacts are still removed with the rest of the Echo wipe.
+
+### Changed
+
+- **Reset Character — equip prompt:** When equipped general artifacts exist, the GM is asked whether they should stay on the paperdoll after reset or move to inventory. Echo artifacts are excluded from this choice.
+
 ## [0.9.38] - 2026-06-12
 
 ### Added

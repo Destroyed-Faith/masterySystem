@@ -26,8 +26,22 @@ export interface ResetCharacterResult {
     ok: boolean;
     error?: string;
     removedItemCount: number;
+    keptGeneralArtifactCount: number;
     returnedXp: number;
 }
+export interface ResetCharacterOptions {
+    gmUserId: string;
+    gmUserName: string;
+    /** When true, equipped general/bound artifacts keep their paperdoll slot after reset. */
+    keepEquippedGeneralArtifacts?: boolean;
+}
+/** General (non-Echo) artifact embedded on the actor. */
+export declare function isGeneralEmbeddedArtifact(item: any): boolean;
+/** Equipped general artifacts (Echo excluded) — for reset equip prompt. */
+export declare function listEquippedGeneralArtifacts(actor: any): Array<{
+    id: string;
+    name: string;
+}>;
 /**
  * Wipe the character back to creation-ready state. Keeps name, portrait,
  * ownership, folder, flags, prototype token, and the lifetime earned-XP
@@ -36,8 +50,5 @@ export interface ResetCharacterResult {
  * saves, faith fractures, minor expressions, disadvantages, schticks, and
  * derived bookkeeping) is reset to the template baseline.
  */
-export declare function resetCharacterForRecreation(actor: any, options: {
-    gmUserId: string;
-    gmUserName: string;
-}): Promise<ResetCharacterResult>;
+export declare function resetCharacterForRecreation(actor: any, options: ResetCharacterOptions): Promise<ResetCharacterResult>;
 //# sourceMappingURL=reset-character.d.ts.map

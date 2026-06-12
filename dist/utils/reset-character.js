@@ -17,6 +17,8 @@
 import { DEFAULT_MANUAL_ADJUSTMENTS } from './manual-adjustments.js';
 import { getWorldDefaultMasteryRank } from './mastery-rank-sync.js';
 import { SKILLS } from './skills.js';
+import { getArtifactBindingKind, isArtifactEquippedOnActor } from './artifact-actor-rules.js';
+import { resetGeneralArtifactForRecreation } from './artifact-tree-grant.js';
 const ATTRIBUTE_KEYS = [
     'might',
     'agility',
@@ -56,6 +58,35 @@ export function clearSkillBucketsInUpdateBatch(updates, system) {
         }
     }
 }
+/** General (non-Echo) artifact embedded on the actor. */
+export function isGeneralEmbeddedArtifact(item) {
+    return item?.type === 'artifact' && getArtifactBindingKind(item) !== 'echo';
+}
+/** Equipped general artifacts (Echo excluded) — for reset equip prompt. */
+export function listEquippedGeneralArtifacts(actor) {
+    const out = [];
+    try {
+        const iter = actor?.items;
+        if (!iter)
+            return out;
+        for (const it of iter) {
+            if (!isGeneralEmbeddedArtifact(it))
+                continue;
+            if (!isArtifactEquippedOnActor(it))
+                continue;
+            const id = it?.id ?? it?._id;
+            if (id)
+                out.push({ id: String(id), name: String(it.name ?? 'Artifact') });
+        }
+    }
+    catch {
+        // ignore
+    }
+    return out;
+}
+function defaultInventoryEquipmentFlags() {
+    return { container: 'inventory', band: 'not' };
+}
 /**
  * Wipe the character back to creation-ready state. Keeps name, portrait,
  * ownership, folder, flags, prototype token, and the lifetime earned-XP
@@ -70,23 +101,43 @@ export async function resetCharacterForRecreation(actor, options) {
             ok: false,
             error: 'Reset is only supported for character actors.',
             removedItemCount: 0,
+            keptGeneralArtifactCount: 0,
             returnedXp: 0,
         };
     }
     const system = actor.system ?? {};
     const xp = system.xp ?? {};
     const totalEarned = Number.isFinite(xp.totalEarned) ? Number(xp.totalEarned) : 0;
-    // 1) Remove every embedded item (powers, gear, weapons, armor, shields,
-    //    schticks, artifacts, conditions, echo items, …).
-    //    Unarmed attacks use the virtual unarmed profile when no weapon is equipped.
-    const itemIds = [];
+    // 1) Remove embedded items except general (non-Echo) artifacts, which are
+    //    reset to Level 1 / inactive and optionally keep their equip slot.
+    const itemIdsToDelete = [];
+    const generalArtifactPlans = [];
     try {
         const iter = actor.items;
         if (iter) {
             for (const it of iter) {
                 const id = it?.id ?? it?._id;
-                if (id)
-                    itemIds.push(String(id));
+                if (!id)
+                    continue;
+                if (isGeneralEmbeddedArtifact(it)) {
+                    const rawFlags = it.getFlag?.('mastery-system', 'equipment') || {};
+                    const flags = foundry.utils.duplicate(rawFlags);
+                    const slot = flags?.slot;
+                    const hasEquipSlot = typeof slot === 'string' && slot.length > 0;
+                    let equipment;
+                    if (hasEquipSlot) {
+                        equipment = options.keepEquippedGeneralArtifacts === true
+                            ? flags
+                            : defaultInventoryEquipmentFlags();
+                    }
+                    else {
+                        equipment = flags;
+                    }
+                    generalArtifactPlans.push({ id: String(id), equipment });
+                }
+                else {
+                    itemIdsToDelete.push(String(id));
+                }
             }
         }
     }
@@ -94,10 +145,10 @@ export async function resetCharacterForRecreation(actor, options) {
         console.warn('Mastery System | Reset: failed to enumerate items:', err);
     }
     let removedItemCount = 0;
-    if (itemIds.length > 0) {
+    if (itemIdsToDelete.length > 0) {
         try {
-            await actor.deleteEmbeddedDocuments('Item', itemIds, { masterySystemForceDelete: true });
-            removedItemCount = itemIds.length;
+            await actor.deleteEmbeddedDocuments('Item', itemIdsToDelete, { masterySystemForceDelete: true });
+            removedItemCount = itemIdsToDelete.length;
         }
         catch (err) {
             console.error('Mastery System | Reset: deleteEmbeddedDocuments failed:', err);
@@ -105,8 +156,26 @@ export async function resetCharacterForRecreation(actor, options) {
                 ok: false,
                 error: 'Failed to delete embedded items during reset.',
                 removedItemCount: 0,
+                keptGeneralArtifactCount: 0,
                 returnedXp: 0,
             };
+        }
+    }
+    let keptGeneralArtifactCount = 0;
+    for (const plan of generalArtifactPlans) {
+        const emb = actor.items.get(plan.id);
+        if (!emb)
+            continue;
+        try {
+            await resetGeneralArtifactForRecreation(actor, emb);
+            await emb.update({
+                'flags.mastery-system.equipment': plan.equipment,
+                'system.equipped': false,
+            });
+            keptGeneralArtifactCount++;
+        }
+        catch (err) {
+            console.warn('Mastery System | Reset: failed to reset general artifact', plan.id, err);
         }
     }
     // 2) Remove every ActiveEffect so no stale buffs linger.
@@ -263,7 +332,12 @@ export async function resetCharacterForRecreation(actor, options) {
         amount: 0,
         note: 'GM reset: character wiped back to creation (name + portrait preserved); ' +
             'all earned XP returned to pool, spent trackers cleared.',
-        details: { resetForRecreation: true, removedItems: removedItemCount },
+        details: {
+            resetForRecreation: true,
+            removedItems: removedItemCount,
+            keptGeneralArtifacts: keptGeneralArtifactCount,
+            keepEquippedGeneralArtifacts: options.keepEquippedGeneralArtifacts === true,
+        },
         before: beforeState,
         after: {
             available: totalEarned,
@@ -284,12 +358,14 @@ export async function resetCharacterForRecreation(actor, options) {
             ok: false,
             error: 'Failed to persist reset updates on the actor.',
             removedItemCount,
+            keptGeneralArtifactCount,
             returnedXp: totalEarned,
         };
     }
     return {
         ok: true,
         removedItemCount,
+        keptGeneralArtifactCount,
         returnedXp: totalEarned,
     };
 }

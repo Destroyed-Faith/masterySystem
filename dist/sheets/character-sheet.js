@@ -16,7 +16,7 @@ import { findFirstFit, fitsInGrid, parseInventorySize, rectsOverlap } from '../u
 import { isLegacyUnarmedItem } from '../utils/unarmed-fallback.js';
 import { loadZoneFromBands, movementPenaltyForLoad } from '../utils/encumbrance.js';
 import { buildPostCreationSnapshot } from '../utils/xp-post-creation.js';
-import { resetCharacterForRecreation } from '../utils/reset-character.js';
+import { resetCharacterForRecreation, listEquippedGeneralArtifacts } from '../utils/reset-character.js';
 import { getDefaultInventorySizeForItemData } from '../utils/seed-general-items.js';
 import { getNormalizedEquipSlots, normalizeSlotKey } from '../utils/equip-slots.js';
 import { attributeBandCost, powerLevelCost } from '../utils/constants.js';
@@ -5382,7 +5382,8 @@ export class MasteryCharacterSheet extends BaseActorSheet {
           <p><strong>Destructive action — cannot be undone without a world backup.</strong></p>
           <p>This will <strong>wipe</strong> the character and drop them back into Character Creation:</p>
           <ul style="margin: 4px 0 8px 20px;">
-            <li><strong>Removed:</strong> all powers, gear, weapons, armor, schticks, artifacts, conditions (<em>${itemCount}</em> item(s)), all attribute / skill values, Echo, disadvantages, passive slot assignments, manual adjustments, active effects, faith fractures, minor expressions.</li>
+            <li><strong>Removed:</strong> all powers, gear, weapons, armor, schticks, Echo artifacts, conditions (<em>${itemCount}</em> item(s) total), all attribute / skill values, Echo, disadvantages, passive slot assignments, manual adjustments, active effects, faith fractures, minor expressions.</li>
+            <li><strong>General artifacts:</strong> reset to Level 1 / inactive and kept on the character; you will be asked whether equipped ones stay on the paperdoll.</li>
             <li><strong>Kept:</strong> name, portrait/token, ownership, folder, flags, and the lifetime earned XP (<em>${totalEarned}</em> XP).</li>
             <li><strong>After reset:</strong> the full <em>${totalEarned}</em> XP is added back to the player's available pool for re-distribution once creation is finalized again.</li>
           </ul>
@@ -5405,17 +5406,43 @@ export class MasteryCharacterSheet extends BaseActorSheet {
         });
         if (!secondConfirm)
             return;
+        const equippedGeneral = listEquippedGeneralArtifacts(actor);
+        let keepEquippedGeneralArtifacts = false;
+        if (equippedGeneral.length > 0) {
+            const names = equippedGeneral.map((a) => a.name).join(', ');
+            keepEquippedGeneralArtifacts = await Dialog.confirm({
+                title: 'General-Artefakte ausgerüstet lassen?',
+                content: `
+          <div class="mastery-reset-char-artifacts">
+            <p>Dieser Charakter hat <strong>${equippedGeneral.length}</strong> ausgerüstete(s) General-Artefakt(e):</p>
+            <p><em>${names}</em></p>
+            <p>Sie werden auf <strong>Stufe 1 / inaktiv</strong> zurückgesetzt.</p>
+            <p>Sollen sie <strong>weiterhin ausgerüstet</strong> bleiben?</p>
+            <p class="notes">Echo-Artefakte werden entfernt und sind davon ausgenommen.</p>
+          </div>
+        `,
+                yes: () => true,
+                no: () => false,
+                defaultYes: true,
+                yesLabel: 'Ja, ausgerüstet lassen',
+                noLabel: 'Nein, ins Inventar',
+            });
+        }
         const gmUser = game.user;
         try {
             const result = await resetCharacterForRecreation(actor, {
                 gmUserId: String(gmUser?.id ?? ''),
                 gmUserName: String(gmUser?.name ?? 'GM'),
+                keepEquippedGeneralArtifacts,
             });
             if (!result.ok) {
                 ui.notifications?.error(`Reset failed: ${result.error ?? 'unknown error'}`);
                 return;
             }
-            ui.notifications?.info(`Character reset. ${result.removedItemCount} item(s) removed, ${result.returnedXp} XP returned to the pool.`);
+            const keptNote = result.keptGeneralArtifactCount > 0
+                ? ` ${result.keptGeneralArtifactCount} General-Artefakt(e) zurückgesetzt${keepEquippedGeneralArtifacts ? ' (ausgerüstet)' : ' (ins Inventar)'}.`
+                : '';
+            ui.notifications?.info(`Character reset. ${result.removedItemCount} item(s) removed, ${result.returnedXp} XP returned to the pool.${keptNote}`);
             await this.render(true);
         }
         catch (err) {

@@ -184,4 +184,37 @@ export function listUnwiredEmbeddedArtifacts(actor) {
     }
     return out;
 }
+/**
+ * Reset a general (non-Echo) embedded artifact to Level 1 / inactive while
+ * keeping it on the actor. Used during character reset for recreation.
+ */
+export async function resetGeneralArtifactForRecreation(actor, emb) {
+    if (!emb || emb.type !== 'artifact')
+        return;
+    if (!emb.getFlag?.('mastery-system', 'evolutionRootItemId')) {
+        await wireEmbeddedArtifactToWorldTree(actor, emb, { notify: false });
+    }
+    const rootWorldId = emb.getFlag?.('mastery-system', 'evolutionRootItemId');
+    if (!rootWorldId)
+        return;
+    const root = game.items?.get(rootWorldId);
+    if (!root)
+        return;
+    const rootNodeId = root.getFlag?.('mastery-system', 'nodeId');
+    if (!rootNodeId)
+        return;
+    const actorId = actor.id;
+    const levels = {
+        ...(root.getFlag?.('mastery-system', 'actorLevels') || {}),
+    };
+    levels[actorId] = serializeActorArtifactProgress({ nodeId: rootNodeId, linked: false });
+    await root.setFlag('mastery-system', 'actorLevels', levels);
+    await emb.setFlag('mastery-system', 'evolutionNodeId', rootNodeId);
+    await emb.setFlag('mastery-system', 'artifactActivated', false);
+    if (typeof emb.unsetFlag === 'function') {
+        await emb.unsetFlag('mastery-system', 'artifactActivationStoneAttr');
+    }
+    const { syncEmbeddedArtifactFromWorldNode } = await import('./artifact-echo-repair.js');
+    await syncEmbeddedArtifactFromWorldNode(emb, actor);
+}
 //# sourceMappingURL=artifact-tree-grant.js.map

@@ -228,3 +228,40 @@ export function listUnwiredEmbeddedArtifacts(actor: Actor): any[] {
   }
   return out;
 }
+
+/**
+ * Reset a general (non-Echo) embedded artifact to Level 1 / inactive while
+ * keeping it on the actor. Used during character reset for recreation.
+ */
+export async function resetGeneralArtifactForRecreation(actor: Actor, emb: any): Promise<void> {
+  if (!emb || emb.type !== 'artifact') return;
+
+  if (!emb.getFlag?.('mastery-system', 'evolutionRootItemId')) {
+    await wireEmbeddedArtifactToWorldTree(actor, emb, { notify: false });
+  }
+
+  const rootWorldId = emb.getFlag?.('mastery-system', 'evolutionRootItemId') as string | undefined;
+  if (!rootWorldId) return;
+
+  const root = (game as any).items?.get(rootWorldId);
+  if (!root) return;
+
+  const rootNodeId = root.getFlag?.('mastery-system', 'nodeId') as string | undefined;
+  if (!rootNodeId) return;
+
+  const actorId = (actor as any).id;
+  const levels = {
+    ...((root.getFlag?.('mastery-system', 'actorLevels') || {}) as Record<string, unknown>),
+  };
+  levels[actorId] = serializeActorArtifactProgress({ nodeId: rootNodeId, linked: false });
+  await root.setFlag('mastery-system', 'actorLevels', levels);
+
+  await emb.setFlag('mastery-system', 'evolutionNodeId', rootNodeId);
+  await emb.setFlag('mastery-system', 'artifactActivated', false);
+  if (typeof emb.unsetFlag === 'function') {
+    await emb.unsetFlag('mastery-system', 'artifactActivationStoneAttr');
+  }
+
+  const { syncEmbeddedArtifactFromWorldNode } = await import('./artifact-echo-repair.js');
+  await syncEmbeddedArtifactFromWorldNode(emb, actor);
+}
