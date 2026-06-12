@@ -14,7 +14,7 @@ import {
   calculateMaxPowerLevel,
   validateSkillValue,
 } from '../src/utils/calculations';
-import { MAX_ATTRIBUTE, MAX_POWER_LEVEL } from '../src/utils/constants';
+import { MAX_POWER_LEVEL } from '../src/utils/constants';
 
 describe('Stone Calculations', () => {
   it('calculates stones as floor(attribute/8)', () => {
@@ -172,19 +172,21 @@ describe('Stress Bar Calculations', () => {
   });
 });
 
-describe('Skill Calculations (new spec — shared attribute cap)', () => {
-  it('returns MAX_ATTRIBUTE for every Mastery Rank', () => {
-    expect(calculateMaxSkillRank(1)).toBe(MAX_ATTRIBUTE);
-    expect(calculateMaxSkillRank(2)).toBe(MAX_ATTRIBUTE);
-    expect(calculateMaxSkillRank(4)).toBe(MAX_ATTRIBUTE);
-    expect(calculateMaxSkillRank(8)).toBe(MAX_ATTRIBUTE);
+describe('Skill Calculations (MR × 4 cap)', () => {
+  it('returns MR × 4 for each Mastery Rank', () => {
+    expect(calculateMaxSkillRank(1)).toBe(4);
+    expect(calculateMaxSkillRank(2)).toBe(8);
+    expect(calculateMaxSkillRank(3)).toBe(12);
+    expect(calculateMaxSkillRank(4)).toBe(16);
+    expect(calculateMaxSkillRank(8)).toBe(32);
   });
 
-  it('validates skill value against the shared 80 cap regardless of MR', () => {
-    expect(validateSkillValue(80, 1)).toBe(80);
-    expect(validateSkillValue(81, 1)).toBe(80);
-    expect(validateSkillValue(50, 2)).toBe(50);
-    expect(validateSkillValue(120, 8)).toBe(80);
+  it('validates skill value against the MR × 4 cap', () => {
+    expect(validateSkillValue(8, 2)).toBe(8);
+    expect(validateSkillValue(9, 2)).toBe(8);
+    expect(validateSkillValue(12, 3)).toBe(12);
+    expect(validateSkillValue(13, 3)).toBe(12);
+    expect(validateSkillValue(50, 8)).toBe(32);
   });
 });
 

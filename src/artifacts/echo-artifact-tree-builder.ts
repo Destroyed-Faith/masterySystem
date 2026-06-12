@@ -139,6 +139,25 @@ function starfallenShieldValueForLevel(level: number): number {
 function frostboundThrownRangeForLevel(level: number): number {
   return clampLevel(level) + 5;
 }
+/** Lor-Keth's Staff weapon damage — 1d8 (L1) … 10d8 (L10). */
+function lorKethStaffDamageForLevel(level: number): string {
+  return `${clampLevel(level)}d8`;
+}
+/** Lor-Keth's Staff Storm Rune tier — Shock Rune L4-6, Greater L7-9, True L10. */
+function lorKethStormRuneForLevel(level: number): string {
+  const l = clampLevel(level);
+  if (l < 4) return '';
+  if (l >= 10) return 'True Shock Rune';
+  if (l >= 7) return 'Greater Shock Rune';
+  return 'Shock Rune';
+}
+/** Lor-Keth's Staff Giant Weight tier — Giant Weight L7-9, True L10. */
+function lorKethGiantWeightForLevel(level: number): string {
+  const l = clampLevel(level);
+  if (l < 7) return '';
+  if (l >= 10) return 'True Giant Weight';
+  return 'Giant Weight';
+}
 
 /** A single Base Value slot on an echo artifact, with an exact per-level value. */
 interface BaseValueSpec {
@@ -272,6 +291,25 @@ const BASE_VALUE_TABLES: Record<string, BaseValueSpec[]> = {
     },
   ],
   lanternOfTheHollowStar: [],
+  lorKethsStaff: [
+    { slot: 'a', type: 'weaponDamage', label: 'Staff Damage', unlock: 1, valueAt: (l) => lorKethStaffDamageForLevel(l) },
+    {
+      slot: 'b',
+      type: 'sense',
+      label: 'Storm Rune',
+      unlock: 4,
+      valueAt: (l) => lorKethStormRuneForLevel(l),
+      note: 'Base item feature; does not create attacks, actions, Stone uses, or reactions by itself.',
+    },
+    {
+      slot: 'c',
+      type: 'sense',
+      label: 'Giant Weight',
+      unlock: 7,
+      valueAt: (l) => lorKethGiantWeightForLevel(l),
+      note: 'Base item feature; requires both hands.',
+    },
+  ],
 };
 
 // ---------------------------------------------------------------------------

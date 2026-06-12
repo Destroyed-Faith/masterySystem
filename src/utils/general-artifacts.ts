@@ -888,6 +888,143 @@ const LANTERN_OF_THE_HOLLOW_STAR: GeneralArtifactDefinition = {
 };
 
 // ----------------------------------------------------------------------
+// Lor-Keth's Staff (Two-Handed Stone Staff, Main Hand + Off Hand)
+// ----------------------------------------------------------------------
+
+const LOR_KETHS_STAFF: GeneralArtifactDefinition = {
+  key: 'lorKethsStaff',
+  name: "Lor-Keth's Staff",
+  echoKey: '',
+  slot: 'bothHands',
+  baseProfile: 'twoHandedWeapon',
+  description:
+    "Lor-Keth's Staff is a two-handed Rod of the Storm Ancestors. It was forged for giants, shaped from smooth blue-gray stone, and awakened by old runes of storm and bloodline.\n\nThe Staff changes with its bearer.\n\nIt is not a wand. It is a giant's weapon.",
+  restriction:
+    "Lor-Keth's Staff requires both hands.\n\nWhile wielding it, the character cannot wield another weapon, shield, or Hand Artifact.",
+  stoneFunction: {
+    kind: 'stonePowerSupport',
+    attribute: 'might',
+    stonePowerId: 'might.ignoreArmor',
+    level: 1,
+  },
+  baseValues: [
+    { slot: 'a', label: 'Staff Damage', note: '1d8 to 10d8 across levels.' },
+    {
+      slot: 'b',
+      label: 'Storm Rune',
+      note: 'Shock Rune from L4, Greater Shock Rune from L7, True Shock Rune at L10.',
+    },
+    {
+      slot: 'c',
+      label: 'Giant Weight',
+      note: 'Giant Weight from L7, True Giant Weight at L10.',
+    },
+  ],
+  levelProgression: [
+    {
+      level: 1,
+      name: 'Giant Shock Strike I',
+      type: 'Active',
+      range: 'Melee Reach',
+      duration: 'Instant',
+      effect:
+        "Use Melee — Damage + Start PP 6 Special at Power Level 4. Make a melee attack with Lor-Keth's Staff. On hit, deal Staff Weapon Damage + 2d8 damage.",
+      special: 'Shock(5)',
+    },
+    {
+      level: 2,
+      name: 'Ancestor Guard I',
+      type: 'Reaction',
+      range: 'Self',
+      duration: 'Triggering attack or damage instance only',
+      effect:
+        'Use Reaction: Armor at Power Level 4. When you are hit or would take damage, gain +10 Armor against the triggering attack or damage instance.',
+      special: 'Armor',
+    },
+    {
+      level: 3,
+      name: 'Might Ignore Armor Support I',
+      type: 'Stone Power Support',
+      range: 'Self',
+      duration: 'Instant',
+      effect:
+        "Lor-Keth's Staff supports the Might Ability Ignore Armor and pre-fills Tier 2. You must still pay Tier 1 yourself. If Tier 1 is not paid, the pre-filled Tier 2 has no effect.",
+      special: 'Ignore Armor',
+    },
+    {
+      level: 4,
+      name: 'Giant Shock Strike II',
+      type: 'Active',
+      range: 'Melee Reach',
+      duration: 'Instant',
+      effect:
+        "Use Melee — Damage + Start PP 6 Special at Power Level 10. Make a melee attack with Lor-Keth's Staff. On hit, deal Staff Weapon Damage + 2d8 damage.",
+      special: 'Shock(9)',
+    },
+    {
+      level: 5,
+      name: 'Ancestor Guard II',
+      type: 'Reaction',
+      range: 'Self',
+      duration: 'Triggering attack or damage instance only',
+      effect:
+        'Use Reaction: Armor at Power Level 10. When you are hit or would take damage, gain +26 Armor against the triggering attack or damage instance.',
+      special: 'Armor',
+    },
+    {
+      level: 6,
+      name: 'Might Ignore Armor Support II',
+      type: 'Stone Power Support',
+      range: 'Self',
+      duration: 'Instant',
+      effect:
+        "Lor-Keth's Staff pre-fills Tier 3 of the Might Ability Ignore Armor. You must still pay Tier 1 and Tier 2 yourself. If Tier 1 and Tier 2 are not paid, the pre-filled Tier 3 has no effect.",
+      special: 'Ignore Armor',
+    },
+    {
+      level: 7,
+      name: 'Giant Shock Strike III',
+      type: 'Active',
+      range: 'Melee Reach',
+      duration: 'Instant',
+      effect:
+        "Use Melee — Damage + Start PP 6 Special at Power Level 16. Make a melee attack with Lor-Keth's Staff. On hit, deal Staff Weapon Damage + 2d8 damage.",
+      special: 'Shock(11)',
+    },
+    {
+      level: 8,
+      name: 'Ancestor Guard III',
+      type: 'Reaction',
+      range: 'Self',
+      duration: 'Triggering attack or damage instance only',
+      effect:
+        'Use Reaction: Armor at Power Level 16. When you are hit or would take damage, gain +42 Armor against the triggering attack or damage instance.',
+      special: 'Armor',
+    },
+    {
+      level: 9,
+      name: 'Might Ignore Armor Support III',
+      type: 'Stone Power Support',
+      range: 'Self',
+      duration: 'Instant',
+      effect:
+        "Lor-Keth's Staff pre-fills Tier 4 of the Might Ability Ignore Armor. You must still pay Tier 1, Tier 2, and Tier 3 yourself. If the lower tiers are not paid, the pre-filled Tier 4 has no effect.",
+      special: 'Ignore Armor',
+    },
+    {
+      level: 10,
+      name: 'Heart of the Storm Ancestors',
+      type: 'Ultimate',
+      range: 'Self',
+      duration: 'Special',
+      effect:
+        'The Staff fully awakens as a giant-forged ancestral weapon. Choose or define one final Storm Ancestor effect with GM approval.',
+      special: 'True Storm Ancestor',
+    },
+  ],
+};
+
+// ----------------------------------------------------------------------
 // Registry
 // ----------------------------------------------------------------------
 
@@ -899,6 +1036,7 @@ export const GENERAL_ARTIFACTS: Record<string, GeneralArtifactDefinition> = {
   staffOfTheDark: STAFF_OF_THE_DARK,
   starfallenForceshield: STARFALLEN_FORCESHIELD,
   lanternOfTheHollowStar: LANTERN_OF_THE_HOLLOW_STAR,
+  lorKethsStaff: LOR_KETHS_STAFF,
 };
 
 /** Lookup a General Artifact by key. */

@@ -290,7 +290,14 @@ export async function applySkillPendingChanges(actor, pendingMap) {
         if (!pending)
             continue;
         const current = Number(actor.system.skills?.[skillKey] ?? 0) || 0;
-        const target = Math.max(0, Math.min(maxSkill, current + pending));
+        const desired = current + pending;
+        if (pending > 0 && desired > maxSkill) {
+            return {
+                ok: false,
+                error: `${skillKey} cannot exceed ${maxSkill} at Mastery Rank ${masteryRank} (MR × 4).`,
+            };
+        }
+        const target = Math.max(0, Math.min(maxSkill, desired));
         if (target === current)
             continue;
         if (!unrestricted && pending > 0) {

@@ -4,6 +4,7 @@
 import { ARTIFACT_CAPACITY_DEFAULT, ARTIFACT_LINK_STONE_COST, ARTIFACT_MAX_SYSTEM_LEVEL, ARTIFACT_UPGRADE_XP_COST, listArtifactSpendableStonePools, usesStonePoolEconomy, } from '../utils/artifact-actor-rules.js';
 import { repairArtifactEvolutionLinks } from '../utils/artifact-echo-repair.js';
 import { applyAttributePendingChanges, applyPowerPendingChanges, applySkillPendingChanges, buildProgressionHubContext, calculateAttributePendingNetCost, calculatePowerPendingNetCost, calculateSkillPendingNetCost, getAttributeXpBaseline, hasFreeXp, } from '../progression/progression-hub-actions.js';
+import { calculateMaxSkillRank } from '../utils/calculations.js';
 import { buildArtifactEvolutionCards, linkArtifactForActor, resetArtifactActivationForActor, upgradeArtifactForActor, } from './artifact-evolution-actions.js';
 import { wireEmbeddedArtifactToWorldTree } from '../utils/artifact-tree-grant.js';
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -128,6 +129,14 @@ export class ProgressionHubDialog extends BaseDialog {
             btn.onclick = (ev) => {
                 ev.preventDefault();
                 const key = String(btn.dataset.skill);
+                const masteryRank = this.actor.system?.mastery?.rank ?? 2;
+                const maxSkill = calculateMaxSkillRank(masteryRank);
+                const current = Number(this.actor.system.skills?.[key] ?? 0) || 0;
+                const pending = this.pendingSkills[key] || 0;
+                if (current + pending >= maxSkill) {
+                    ui.notifications?.warn(`Skill cap ${maxSkill} at Mastery Rank ${masteryRank} (MR × 4).`);
+                    return;
+                }
                 this.#bumpPending(this.pendingSkills, key, 1);
             };
         });

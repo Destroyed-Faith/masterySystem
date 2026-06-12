@@ -112,6 +112,30 @@ function starfallenShieldValueForLevel(level) {
 function frostboundThrownRangeForLevel(level) {
     return clampLevel(level) + 5;
 }
+/** Lor-Keth's Staff weapon damage — 1d8 (L1) … 10d8 (L10). */
+function lorKethStaffDamageForLevel(level) {
+    return `${clampLevel(level)}d8`;
+}
+/** Lor-Keth's Staff Storm Rune tier — Shock Rune L4-6, Greater L7-9, True L10. */
+function lorKethStormRuneForLevel(level) {
+    const l = clampLevel(level);
+    if (l < 4)
+        return '';
+    if (l >= 10)
+        return 'True Shock Rune';
+    if (l >= 7)
+        return 'Greater Shock Rune';
+    return 'Shock Rune';
+}
+/** Lor-Keth's Staff Giant Weight tier — Giant Weight L7-9, True L10. */
+function lorKethGiantWeightForLevel(level) {
+    const l = clampLevel(level);
+    if (l < 7)
+        return '';
+    if (l >= 10)
+        return 'True Giant Weight';
+    return 'Giant Weight';
+}
 /**
  * Per-echo-artifact Base Value tables. The numbers are the system's canonical
  * baselines (see `artifact-base-derive.ts` / Artefacts.md). Echo body armor
@@ -231,6 +255,25 @@ const BASE_VALUE_TABLES = {
         },
     ],
     lanternOfTheHollowStar: [],
+    lorKethsStaff: [
+        { slot: 'a', type: 'weaponDamage', label: 'Staff Damage', unlock: 1, valueAt: (l) => lorKethStaffDamageForLevel(l) },
+        {
+            slot: 'b',
+            type: 'sense',
+            label: 'Storm Rune',
+            unlock: 4,
+            valueAt: (l) => lorKethStormRuneForLevel(l),
+            note: 'Base item feature; does not create attacks, actions, Stone uses, or reactions by itself.',
+        },
+        {
+            slot: 'c',
+            type: 'sense',
+            label: 'Giant Weight',
+            unlock: 7,
+            valueAt: (l) => lorKethGiantWeightForLevel(l),
+            note: 'Base item feature; requires both hands.',
+        },
+    ],
 };
 // ---------------------------------------------------------------------------
 // Level Progression row → embedded power mapping

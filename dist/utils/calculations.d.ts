@@ -95,16 +95,12 @@ export declare function healStressFromBars(bars: HealthBar[], currentBar: number
     currentBar: number;
 };
 /**
- * Maximum skill rank a character may reach.
+ * Maximum skill rank a character may reach at a given Mastery Rank.
  *
- * The new XP spec uses the same banded cost table for Attributes and Skills
- * (1 / 2 / … / 10 XP per +1) up to 80, so the old `MR × 4` cap is dropped.
- * Skills are now bounded by the shared attribute cap (`MAX_ATTRIBUTE`, 80).
- *
- * The `masteryRank` parameter is kept for callers, but is intentionally
- * unused — we always return `MAX_ATTRIBUTE`.
+ * Rule: **MR × 4** (MR 2 → 8, MR 3 → 12, MR 4 → 16, …).
+ * Applies to XP upgrades (including Free XP) and general skill validation.
  */
-export declare function calculateMaxSkillRank(_masteryRank: number): number;
+export declare function calculateMaxSkillRank(masteryRank: number): number;
 /**
  * Validate skill value against the skill cap.
  */

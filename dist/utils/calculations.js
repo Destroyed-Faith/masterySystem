@@ -2,7 +2,7 @@
  * Calculation utilities for Mastery System
  * Handles Stones, Health Bars, and other derived values
  */
-import { HEALTH_PENALTY_FRACTIONS, MAX_ATTRIBUTE, MAX_POWER_LEVEL } from './constants.js';
+import { HEALTH_PENALTY_FRACTIONS, MAX_POWER_LEVEL } from './constants.js';
 /**
  * Calculate the number of Stones from an attribute value
  * Every 8 attribute points = 1 Stone
@@ -284,17 +284,14 @@ export function healStressFromBars(bars, currentBar, amount) {
     return { bars: clone, currentBar: newCurrentBar };
 }
 /**
- * Maximum skill rank a character may reach.
+ * Maximum skill rank a character may reach at a given Mastery Rank.
  *
- * The new XP spec uses the same banded cost table for Attributes and Skills
- * (1 / 2 / … / 10 XP per +1) up to 80, so the old `MR × 4` cap is dropped.
- * Skills are now bounded by the shared attribute cap (`MAX_ATTRIBUTE`, 80).
- *
- * The `masteryRank` parameter is kept for callers, but is intentionally
- * unused — we always return `MAX_ATTRIBUTE`.
+ * Rule: **MR × 4** (MR 2 → 8, MR 3 → 12, MR 4 → 16, …).
+ * Applies to XP upgrades (including Free XP) and general skill validation.
  */
-export function calculateMaxSkillRank(_masteryRank) {
-    return MAX_ATTRIBUTE;
+export function calculateMaxSkillRank(masteryRank) {
+    const mr = Math.max(1, Math.floor(Number(masteryRank) || 1));
+    return mr * 4;
 }
 /**
  * Validate skill value against the skill cap.

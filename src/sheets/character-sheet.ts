@@ -4696,7 +4696,12 @@ export class MasteryCharacterSheet extends BaseActorSheet {
 
     const masteryRank = this.actor.system.mastery?.rank || 2;
     const maxSkill = calculateMaxSkillRank(masteryRank);
-    if (effective >= maxSkill) return;
+    if (effective >= maxSkill) {
+      (ui as any).notifications?.warn(
+        `${skillKey} cannot exceed ${maxSkill} at Mastery Rank ${masteryRank} (MR × 4).`,
+      );
+      return;
+    }
 
     // Once-per-step rule (skipped during the Free-XP phase).
     if (!this.#hasFreeXp()) {
@@ -4904,7 +4909,14 @@ export class MasteryCharacterSheet extends BaseActorSheet {
       if (!pending) continue;
       const currentRaw = this.actor.system.skills?.[skillKey] ?? 0;
       const current = Number(currentRaw) || 0;
-      const target = Math.max(0, Math.min(maxSkill, current + pending));
+      const desired = current + pending;
+      if (pending > 0 && desired > maxSkill) {
+        (ui as any).notifications?.error(
+          `${skillKey} cannot exceed ${maxSkill} at Mastery Rank ${masteryRank} (MR × 4).`,
+        );
+        return;
+      }
+      const target = Math.max(0, Math.min(maxSkill, desired));
       if (target === current) continue;
       updates[`system.skills.${skillKey}`] = target;
       changes.push({

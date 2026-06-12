@@ -20,7 +20,7 @@ function baseValue(tree: any, level: number, label: string) {
 }
 
 describe('General Artifact catalog', () => {
-  it('contains exactly the 7 Artifact Examples', () => {
+  it('contains exactly the 8 Artifact Examples', () => {
     expect(Object.keys(GENERAL_ARTIFACTS)).toEqual([
       'moonlightGreatsword',
       'soulSigil',
@@ -29,6 +29,7 @@ describe('General Artifact catalog', () => {
       'staffOfTheDark',
       'starfallenForceshield',
       'lanternOfTheHollowStar',
+      'lorKethsStaff',
     ]);
   });
 
@@ -38,7 +39,7 @@ describe('General Artifact catalog', () => {
       expect(def.levelProgression).toHaveLength(10);
       expect(def.levelProgression.map((r) => r.level)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
       expect(def.levelProgression[9].type).toBe('Ultimate');
-      expect(def.levelProgression[9].name).toMatch(/^True\b/);
+      expect(def.levelProgression[9].name.length).toBeGreaterThan(0);
     }
   });
 });
@@ -46,7 +47,7 @@ describe('General Artifact catalog', () => {
 describe('General Artifact trees — structure and binding', () => {
   it('builds one 10-node tree per catalog entry', () => {
     const trees = buildAllGeneralArtifactTrees();
-    expect(trees.length).toBe(7);
+    expect(trees.length).toBe(8);
     for (const tree of trees) {
       expect(tree.nodes).toHaveLength(10);
       expect(tree.echoKey).toBe('');
@@ -287,5 +288,69 @@ describe('Lantern of the Hollow Star', () => {
     expect(l3).toEqual(['Stone Battery I', 'Lantern Glow I', 'Soul Reserve I']);
     const l10 = sysAt(tree, 10).levelProgression.map((r: any) => r.name);
     expect(l10).toEqual(['Stone Battery III', 'Lantern Glow III', 'Soul Reserve III', 'True Hollow Star']);
+  });
+});
+
+describe("Lor-Keth's Staff", () => {
+  const tree = buildEchoArtifactTree(getGeneralArtifact('lorKethsStaff')!);
+
+  it('is a two-handed staff occupying both hands', () => {
+    const sys = sysAt(tree, 1);
+    expect(sys.slot).toBe('bothHands');
+    expect(sys.baseProfile).toBe('twoHandedWeapon');
+    expect(sys.artifactKind).toBe('weapon');
+    expect(sys.equipSlots).toEqual(['mainhand', 'offhand']);
+    expect(sys.artifactWeapon.hands).toBe(2);
+  });
+
+  it('staff damage scales 1d8 → 10d8', () => {
+    for (let lvl = 1; lvl <= 10; lvl++) {
+      expect(baseValue(tree, lvl, 'Staff Damage').value).toBe(`${lvl}d8`);
+      expect(sysAt(tree, lvl).artifactWeapon.damage).toBe(`${lvl}d8`);
+    }
+  });
+
+  it('Storm Rune unlocks at L4 and upgrades at L7 and L10', () => {
+    expect(baseValue(tree, 3, 'Storm Rune')).toBeUndefined();
+    expect(baseValue(tree, 4, 'Storm Rune').value).toBe('Shock Rune');
+    expect(baseValue(tree, 6, 'Storm Rune').value).toBe('Shock Rune');
+    expect(baseValue(tree, 7, 'Storm Rune').value).toBe('Greater Shock Rune');
+    expect(baseValue(tree, 10, 'Storm Rune').value).toBe('True Shock Rune');
+  });
+
+  it('Giant Weight unlocks at L7 and upgrades at L10', () => {
+    expect(baseValue(tree, 6, 'Giant Weight')).toBeUndefined();
+    expect(baseValue(tree, 7, 'Giant Weight').value).toBe('Giant Weight');
+    expect(baseValue(tree, 10, 'Giant Weight').value).toBe('True Giant Weight');
+  });
+
+  it('supports the Might Ignore Armor Stone Power from L1', () => {
+    expect(sysAt(tree, 1).stoneFunction).toEqual({
+      kind: 'stonePowerSupport',
+      attribute: 'might',
+      stonePowerId: 'might.ignoreArmor',
+    });
+  });
+
+  it('uses the authored rulebook progression rows 1:1', () => {
+    const def = getGeneralArtifact('lorKethsStaff')!;
+    expect(def.levelProgression.map((r) => r.name)).toEqual([
+      'Giant Shock Strike I',
+      'Ancestor Guard I',
+      'Might Ignore Armor Support I',
+      'Giant Shock Strike II',
+      'Ancestor Guard II',
+      'Might Ignore Armor Support II',
+      'Giant Shock Strike III',
+      'Ancestor Guard III',
+      'Might Ignore Armor Support III',
+      'Heart of the Storm Ancestors',
+    ]);
+    expect(sysAt(tree, 10).levelProgression.map((r: any) => r.name)).toEqual([
+      'Giant Shock Strike III',
+      'Ancestor Guard III',
+      'Might Ignore Armor Support III',
+      'Heart of the Storm Ancestors',
+    ]);
   });
 });

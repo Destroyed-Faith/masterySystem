@@ -22,6 +22,7 @@ import {
   getAttributeXpBaseline,
   hasFreeXp,
 } from '../progression/progression-hub-actions.js';
+import { calculateMaxSkillRank } from '../utils/calculations.js';
 import {
   buildArtifactEvolutionCards,
   linkArtifactForActor,
@@ -168,6 +169,16 @@ export class ProgressionHubDialog extends BaseDialog {
       btn.onclick = (ev) => {
         ev.preventDefault();
         const key = String(btn.dataset.skill);
+        const masteryRank = (this.actor.system as any)?.mastery?.rank ?? 2;
+        const maxSkill = calculateMaxSkillRank(masteryRank);
+        const current = Number((this.actor.system as any).skills?.[key] ?? 0) || 0;
+        const pending = this.pendingSkills[key] || 0;
+        if (current + pending >= maxSkill) {
+          ui.notifications?.warn(
+            `Skill cap ${maxSkill} at Mastery Rank ${masteryRank} (MR × 4).`,
+          );
+          return;
+        }
         this.#bumpPending(this.pendingSkills, key, 1);
       };
     });

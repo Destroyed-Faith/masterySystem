@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.41] - 2026-06-12
+
+### Added
+
+- **Lor-Keth's Staff:** Eighth General Artifact — two-handed bound stone staff (Staff Damage 1d8–10d8, Storm Rune, Giant Weight) with Giant Shock Strike, Ancestor Guard, and Might Ignore Armor Support progression.
+
+### Fixed
+
+- **Skill cap:** Skills are capped at **Mastery Rank × 4** again (MR 2 → 8, MR 3 → 12, …), including Free XP spending. Character sheet, Progression Hub, and apply paths enforce the limit with clear warnings.
+
 ## [0.9.40] - 2026-06-12
 
 ### Fixed
