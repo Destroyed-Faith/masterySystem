@@ -16,9 +16,11 @@
  */
 /**
  * Foundry merges nested objects on update — assigning `{}` does not remove
- * existing skill keys. Use `-=` deletion so creation skill points reset.
+ * existing skill keys. The full character reset uses `diff: false`, which
+ * does not apply `-=` deletion operators; zero every catalog skill explicitly
+ * and `-=` any legacy/orphan keys.
  */
-/** @internal Exported for tests — Foundry `-=` deletion for skill buckets. */
+/** @internal Exported for tests — skill bucket reset batch keys. */
 export declare function clearSkillBucketsInUpdateBatch(updates: Record<string, unknown>, system: any): void;
 export interface ResetCharacterResult {
     ok: boolean;

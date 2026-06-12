@@ -17,6 +17,7 @@
 
 import { DEFAULT_MANUAL_ADJUSTMENTS } from './manual-adjustments.js';
 import { getWorldDefaultMasteryRank } from './mastery-rank-sync.js';
+import { SKILLS } from './skills.js';
 
 const ATTRIBUTE_KEYS = [
     'might',
@@ -30,20 +31,32 @@ const ATTRIBUTE_KEYS = [
 
 /**
  * Foundry merges nested objects on update — assigning `{}` does not remove
- * existing skill keys. Use `-=` deletion so creation skill points reset.
+ * existing skill keys. The full character reset uses `diff: false`, which
+ * does not apply `-=` deletion operators; zero every catalog skill explicitly
+ * and `-=` any legacy/orphan keys.
  */
-/** @internal Exported for tests — Foundry `-=` deletion for skill buckets. */
+/** @internal Exported for tests — skill bucket reset batch keys. */
 export function clearSkillBucketsInUpdateBatch(updates: Record<string, unknown>, system: any): void {
+    const catalogKeys = Object.keys(SKILLS);
+    for (const key of catalogKeys) {
+        updates[`system.skills.${key}`] = 0;
+        updates[`system.skillsSpent.${key}`] = 0;
+    }
+
     const skills = system?.skills;
     if (skills && typeof skills === 'object') {
         for (const key of Object.keys(skills)) {
-            updates[`system.skills.-=${key}`] = null;
+            if (!catalogKeys.includes(key)) {
+                updates[`system.skills.-=${key}`] = null;
+            }
         }
     }
     const spent = system?.skillsSpent;
     if (spent && typeof spent === 'object') {
         for (const key of Object.keys(spent)) {
-            updates[`system.skillsSpent.-=${key}`] = null;
+            if (!catalogKeys.includes(key)) {
+                updates[`system.skillsSpent.-=${key}`] = null;
+            }
         }
     }
 }

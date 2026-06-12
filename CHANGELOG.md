@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.37] - 2026-06-12
+
+### Fixed
+
+- **Reset Character:** Skills and session skill spend (`skillsSpent`) now reset to 0. The reset batch uses `diff: false`, which does not apply Foundry `-=` deletions on nested fields — catalog skills are zeroed explicitly instead.
+
 ## [0.9.36] - 2026-06-12
 
 ### Added
