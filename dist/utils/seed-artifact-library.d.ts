@@ -17,6 +17,7 @@
  * per-actor progress stored on the root (`actorLevels`) is preserved.
  */
 export declare const ECHO_ARTIFACT_LIBRARY_FOLDER_NAME = "Echo Artifacts";
+export declare const GENERAL_ARTIFACT_LIBRARY_FOLDER_NAME = "General Artifacts";
 /** Find a seeded Echo-Artifact node item by its catalog key + node flag. */
 export declare function findEchoArtifactWorldItem(echoArtifactKey: string, predicate?: (item: any) => boolean): any;
 /** Resolve the Level-1 *root* world item for an Echo Artifact (the tree entry point). */

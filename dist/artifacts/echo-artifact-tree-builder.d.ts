@@ -50,4 +50,6 @@ export interface GeneratedArtifactTree {
 export declare function buildEchoArtifactTree(def: EchoArtifactDefinition): GeneratedArtifactTree;
 /** Build trees for every Echo Artifact in the catalog. */
 export declare function buildAllEchoArtifactTrees(): GeneratedArtifactTree[];
+/** Build trees for every General (bound, non-Echo) Artifact in the catalog. */
+export declare function buildAllGeneralArtifactTrees(): GeneratedArtifactTree[];
 //# sourceMappingURL=echo-artifact-tree-builder.d.ts.map

@@ -15,6 +15,7 @@
  * in sync with zero drift.
  */
 import { ECHO_ARTIFACTS, buildEchoStoneFunction, buildEchoProgressionPicks, } from '../utils/echo-artifacts.js';
+import { GENERAL_ARTIFACTS } from '../utils/general-artifacts.js';
 import { bodyArmorBonusForLevel, feetEvadeForLevel, minorArmorForLevel, weaponDamageForLevel, } from '../utils/artifact-base-derive.js';
 import { resolveFullLevelProgression, visibleAbilityRows, } from '../utils/artifact-visible-abilities.js';
 import { getMinorMovementBaselineB, getPaperdollSlotsForArtifact, } from '../utils/artifact-rules.js';
@@ -72,6 +73,44 @@ function scentOfBloodTierForLevel(level) {
     if (l >= 4)
         return 'Detect';
     return '';
+}
+// --- General-artifact per-level tables (Artifact Examples, Player's Guide) ---
+/** One-handed general weapon damage — 2d8 (L1) … 11d8 (L10). */
+function oneHandedGeneralDamageForLevel(level) {
+    return `${clampLevel(level) + 1}d8`;
+}
+/** Staff of the Dark Hex rank — Hex(2) L4-5, Hex(3) L6-7, Hex(4) L8-9, Hex(5) L10. */
+function hexRankForLevel(level) {
+    const l = clampLevel(level);
+    if (l >= 10)
+        return 5;
+    if (l >= 8)
+        return 4;
+    if (l >= 6)
+        return 3;
+    return 2;
+}
+/** Soul Sigil Silver Veil Evade — +8 (L1) … +26 (L10), +2 per level. */
+function soulSigilEvadeForLevel(level) {
+    return 6 + 2 * clampLevel(level);
+}
+/** Shadowgrave Armor hybrid Armor — 4,4,5,5,6,6,7,7,8,9. */
+const SHADOWGRAVE_ARMOR_TABLE = [4, 4, 5, 5, 6, 6, 7, 7, 8, 9];
+function shadowgraveArmorForLevel(level) {
+    return SHADOWGRAVE_ARMOR_TABLE[clampLevel(level) - 1];
+}
+/** Shadowgrave Armor hybrid Evade — +4 (L1) … +13 (L10), +1 per level. */
+function shadowgraveEvadeForLevel(level) {
+    return 3 + clampLevel(level);
+}
+/** Starfallen Forceshield Shield Value — +4,+4,+4,+5,+5,+5,+6,+6,+6,+8. */
+const STARFALLEN_SHIELD_TABLE = [4, 4, 4, 5, 5, 5, 6, 6, 6, 8];
+function starfallenShieldValueForLevel(level) {
+    return STARFALLEN_SHIELD_TABLE[clampLevel(level) - 1];
+}
+/** Frostbound Returning Axe thrown range — 9 m (L4) … 15 m (L10). */
+function frostboundThrownRangeForLevel(level) {
+    return clampLevel(level) + 5;
 }
 /**
  * Per-echo-artifact Base Value tables. The numbers are the system's canonical
@@ -133,6 +172,65 @@ const BASE_VALUE_TABLES = {
             note: 'Detect from L4, Locate from L7, Identify at L10.',
         },
     ],
+    // --- General artifacts (Artifact Examples) ---
+    moonlightGreatsword: [
+        { slot: 'a', type: 'weaponDamage', label: 'Weapon Damage', unlock: 1, valueAt: (l) => twoHandedEchoDamageForLevel(l) },
+        { slot: 'b', type: 'weaponSpecial', label: 'Smite', unlock: 4, valueAt: (l) => weaponSpecialRankForLevel([0, 4, 8, 8], l) },
+        { slot: 'c', type: 'weaponSpecial', label: 'Expose', unlock: 7, valueAt: (l) => weaponSpecialRankForLevel([0, 0, 4, 8], l) },
+    ],
+    soulSigil: [
+        {
+            slot: 'a',
+            type: 'evade',
+            label: 'Evade (Silver Veil)',
+            unlock: 1,
+            valueAt: (l) => soulSigilEvadeForLevel(l),
+            note: 'Silver Veil is not Armor; the Soul Sigil grants no Armor.',
+        },
+    ],
+    frostboundReturningAxe: [
+        { slot: 'a', type: 'weaponDamage', label: 'Weapon Damage', unlock: 1, valueAt: (l) => oneHandedGeneralDamageForLevel(l) },
+        {
+            slot: 'b',
+            type: 'thrownRange',
+            label: 'Thrown Return',
+            unlock: 4,
+            valueAt: (l) => `${frostboundThrownRangeForLevel(l)} m`,
+            note: 'Returning: the Axe returns to the wielder after the attack resolves.',
+        },
+    ],
+    shadowgraveArmor: [
+        {
+            slot: 'a',
+            type: 'bodyArmor',
+            label: 'Hybrid Defense (Armor)',
+            unlock: 1,
+            valueAt: (l) => shadowgraveArmorForLevel(l),
+            note: 'No Damage Reduction, no Phasing.',
+        },
+        {
+            slot: 'a',
+            type: 'evade',
+            label: 'Hybrid Defense (Evade)',
+            unlock: 1,
+            valueAt: (l) => shadowgraveEvadeForLevel(l),
+        },
+    ],
+    staffOfTheDark: [
+        { slot: 'a', type: 'weaponDamage', label: 'Weapon Damage', unlock: 1, valueAt: (l) => oneHandedGeneralDamageForLevel(l) },
+        { slot: 'b', type: 'weaponSpecial', label: 'Hex', unlock: 4, valueAt: (l) => hexRankForLevel(l) },
+    ],
+    starfallenForceshield: [
+        {
+            slot: 'a',
+            type: 'shieldValue',
+            label: 'Shield Value',
+            unlock: 1,
+            valueAt: (l) => starfallenShieldValueForLevel(l),
+            note: 'Drawback: -2d8 Physical Skill Checks. Stacks with Armor Value as normal Armor resolution.',
+        },
+    ],
+    lanternOfTheHollowStar: [],
 };
 // ---------------------------------------------------------------------------
 // Level Progression row → embedded power mapping
@@ -322,6 +420,12 @@ function weaponProfileAtLevel(def, level) {
     const hands = def.baseProfile === 'twoHandedWeapon' ? 2 : 1;
     return { weaponType: 'melee', damage, range: '0m', hands, innateAbilities: [], specials: [] };
 }
+/** Shield profile for shield-kind artifacts at the given level (Shield Value scales). */
+function shieldProfileAtLevel(def, level) {
+    const shieldBv = (BASE_VALUE_TABLES[def.key] || []).find((b) => b.type === 'shieldValue');
+    const shieldValue = shieldBv ? Number(shieldBv.valueAt(level)) || 0 : 0;
+    return { type: 'medium', shieldValue, evadeBonus: 0, skillPenalty: '-2d8 Physical Skill Checks' };
+}
 /**
  * Build the full 10-node linear tree for one Echo Artifact.
  *
@@ -331,11 +435,21 @@ function weaponProfileAtLevel(def, level) {
  * Values are resolved to their exact value at each node's level.
  */
 export function buildEchoArtifactTree(def) {
+    // General (non-Echo) artifacts use the same authoring shape with an empty
+    // `echoKey`: they bind as 'bound', never carry the `echoBound` flag, and
+    // their authored Level Progression tables are the source of truth (no
+    // picks-derived recompilation).
+    const isGeneral = !def.echoKey;
     const kind = deriveArtifactKind(def.baseProfile);
     const img = iconForKind(kind);
-    const paperdoll = getPaperdollSlotsForArtifact(def.slot, def.baseProfile);
+    const paperdollOverride = def.paperdollSlots;
+    const paperdoll = paperdollOverride && paperdollOverride.length > 0
+        ? paperdollOverride
+        : getPaperdollSlotsForArtifact(def.slot, def.baseProfile);
     const picks = buildEchoProgressionPicks(def);
-    const fullProgression = resolveFullLevelProgression(def.levelProgression, picks);
+    const fullProgression = isGeneral
+        ? [...def.levelProgression]
+        : resolveFullLevelProgression(def.levelProgression, picks);
     const nodeId = (level) => `${def.key}-l${level}`;
     const nodes = ARTIFACT_LEVELS.map((level) => {
         const isRoot = level === 1;
@@ -355,7 +469,7 @@ export function buildEchoArtifactTree(def) {
                 : '',
             slot: def.slot,
             baseProfile: def.baseProfile,
-            binding: 'echo',
+            binding: isGeneral ? 'bound' : 'echo',
             echoKey: def.echoKey,
             baseValues: baseValuesAtLevel(def.key, level),
             levelProgression,
@@ -370,6 +484,7 @@ export function buildEchoArtifactTree(def) {
             powers,
             inventorySize: '1x1',
             ...(isWeapon ? { artifactWeapon: weaponProfileAtLevel(def, level) } : {}),
+            ...(kind === 'shield' ? { artifactShield: shieldProfileAtLevel(def, level) } : {}),
             ...(paperdoll.length ? { equipSlots: paperdoll } : {}),
         };
         const itemData = {
@@ -383,7 +498,7 @@ export function buildEchoArtifactTree(def) {
                     parentIds: parentNodeId ? [parentNodeId] : [],
                     childIds: childNodeId ? [childNodeId] : [],
                     ...(isRoot ? { isRoot: true } : {}),
-                    echoBound: def.echoKey,
+                    ...(isGeneral ? {} : { echoBound: def.echoKey }),
                     echoArtifactKey: def.key,
                     seedVersion: ECHO_ARTIFACT_SEED_VERSION,
                 },
@@ -401,5 +516,9 @@ export function buildEchoArtifactTree(def) {
 /** Build trees for every Echo Artifact in the catalog. */
 export function buildAllEchoArtifactTrees() {
     return Object.values(ECHO_ARTIFACTS).map((def) => buildEchoArtifactTree(def));
+}
+/** Build trees for every General (bound, non-Echo) Artifact in the catalog. */
+export function buildAllGeneralArtifactTrees() {
+    return Object.values(GENERAL_ARTIFACTS).map((def) => buildEchoArtifactTree(def));
 }
 //# sourceMappingURL=echo-artifact-tree-builder.js.map

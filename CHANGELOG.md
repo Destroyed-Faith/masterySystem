@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.9.36] - 2026-06-12
+
+### Added
+
+- **General Artifacts:** Seven bound (non-Echo) artifact examples (Moonlight Greatsword, Soul Sigil, Frostbound Returning Axe, Shadowgrave Armor, Staff of the Dark, Starfallen Forceshield, Lantern of the Hollow Star) as full 10-node Artifact Builder trees, seeded into a new world folder **General Artifacts**.
+- **Artifact pipeline:** Tree builder generalized for `binding: 'bound'` artifacts (no `echoBound` flag); per-artifact base-value tables (damage, evade, armor, shield, thrown range, Smite/Expose/Hex); shield profile with skill penalty for Starfallen Forceshield.
+- **Tests:** `tests/general-artifacts.test.ts` covers all seven trees, scaling tables, stone functions, and binding rules.
+
+### Changed
+
+- **Shield base values:** `shieldValue` on equipped artifacts now contributes to armor total (Starfallen Forceshield stacks with body armor as intended).
+
 ## [0.9.35] - 2026-06-06
 
 ### Fixed

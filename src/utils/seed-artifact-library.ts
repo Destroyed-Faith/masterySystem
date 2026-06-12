@@ -19,6 +19,7 @@
 
 import {
   buildAllEchoArtifactTrees,
+  buildAllGeneralArtifactTrees,
   ECHO_ARTIFACT_SEED_VERSION,
 } from '../artifacts/echo-artifact-tree-builder.js';
 import {
@@ -28,6 +29,7 @@ import {
 import { pushWorldArtifactNodeToEmbeddedActors } from './artifact-embedded-sync.js';
 
 export const ECHO_ARTIFACT_LIBRARY_FOLDER_NAME = 'Echo Artifacts';
+export const GENERAL_ARTIFACT_LIBRARY_FOLDER_NAME = 'General Artifacts';
 
 function findItemFolder(name: string, parentId: string | null): any {
   return (game as any).folders?.find(
@@ -98,10 +100,13 @@ async function upgradeEchoArtifactTreeInPlace(
         'flags.mastery-system.nodeId': flags.nodeId,
         'flags.mastery-system.parentIds': flags.parentIds || [],
         'flags.mastery-system.childIds': flags.childIds || [],
-        'flags.mastery-system.echoBound': flags.echoBound,
         'flags.mastery-system.echoArtifactKey': flags.echoArtifactKey,
         'flags.mastery-system.seedVersion': ECHO_ARTIFACT_SEED_VERSION,
       };
+      // General (bound) trees never carry the echoBound flag.
+      if (flags.echoBound !== undefined) {
+        update['flags.mastery-system.echoBound'] = flags.echoBound;
+      }
       if (flags.isRoot) update['flags.mastery-system.isRoot'] = true;
       await existing.update(update);
       // Propagate the refreshed node to any actor that already holds this copy
@@ -144,42 +149,52 @@ export async function seedArtifactLibrary(options: { force?: boolean } = {}): Pr
   if (!game.user?.isGM) return 0;
   const force = options.force === true;
 
-  const trees = buildAllEchoArtifactTrees();
-  if (trees.length === 0) return 0;
-
-  const parentFolder = await ensureItemFolder(ECHO_ARTIFACT_LIBRARY_FOLDER_NAME, null);
-  const parentId = parentFolder?.id ?? null;
+  // Echo trees live under "Echo Artifacts", general (bound) trees under
+  // "General Artifacts" — both share the same idempotent upgrade logic.
+  const libraries: { folderName: string; trees: ReturnType<typeof buildAllEchoArtifactTrees> }[] = [
+    { folderName: ECHO_ARTIFACT_LIBRARY_FOLDER_NAME, trees: buildAllEchoArtifactTrees() },
+    { folderName: GENERAL_ARTIFACT_LIBRARY_FOLDER_NAME, trees: buildAllGeneralArtifactTrees() },
+  ];
 
   const toCreate: any[] = [];
   let upgraded = 0;
 
-  for (const tree of trees) {
-    const existing = findAllEchoArtifactWorldItems(tree.echoArtifactKey);
+  for (const library of libraries) {
+    if (library.trees.length === 0) continue;
+    let parentId: string | null | undefined;
 
-    if (existing.length > 0) {
-      // Already seeded — refresh in place when forced or when the content
-      // version changed, so per-actor progress (`actorLevels`) and evolution
-      // links are kept.
-      const isStale =
-        force ||
-        existing.some(
-          (it) =>
-            Number(it.getFlag?.('mastery-system', 'seedVersion') || 0) !==
-            ECHO_ARTIFACT_SEED_VERSION,
-        );
-      if (isStale) {
-        upgraded += await upgradeEchoArtifactTreeInPlace(tree, existing);
+    for (const tree of library.trees) {
+      const existing = findAllEchoArtifactWorldItems(tree.echoArtifactKey);
+
+      if (existing.length > 0) {
+        // Already seeded — refresh in place when forced or when the content
+        // version changed, so per-actor progress (`actorLevels`) and evolution
+        // links are kept.
+        const isStale =
+          force ||
+          existing.some(
+            (it) =>
+              Number(it.getFlag?.('mastery-system', 'seedVersion') || 0) !==
+              ECHO_ARTIFACT_SEED_VERSION,
+          );
+        if (isStale) {
+          upgraded += await upgradeEchoArtifactTreeInPlace(tree, existing);
+        }
+        continue;
       }
-      continue;
-    }
 
-    const subFolder = await ensureItemFolder(tree.folderName, parentId);
-    const subId = subFolder?.id ?? null;
+      if (parentId === undefined) {
+        const parentFolder = await ensureItemFolder(library.folderName, null);
+        parentId = parentFolder?.id ?? null;
+      }
+      const subFolder = await ensureItemFolder(tree.folderName, parentId ?? null);
+      const subId = subFolder?.id ?? null;
 
-    for (const node of tree.nodes) {
-      const data = foundry.utils.duplicate(node.itemData);
-      (data as any).folder = subId;
-      toCreate.push(data);
+      for (const node of tree.nodes) {
+        const data = foundry.utils.duplicate(node.itemData);
+        (data as any).folder = subId;
+        toCreate.push(data);
+      }
     }
   }
 

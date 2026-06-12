@@ -177,6 +177,11 @@ export function buildArtifactBaseValueBreakdown(actor) {
                     out.rows.movement.push({ source, type, value, label: contribLabel });
                     break;
                 case 'shieldValue':
+                    // Artifact shields: Shield Value stacks with Armor Value as normal
+                    // Armor resolution (e.g. Starfallen Forceshield).
+                    out.armorBonus += value;
+                    out.rows.armor.push({ source, type, value, label: contribLabel });
+                    break;
                 case 'weaponDamage':
                 case 'thrownRange':
                 case 'weaponSpecial':
