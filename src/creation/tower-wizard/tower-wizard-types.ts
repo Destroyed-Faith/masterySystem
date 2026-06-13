@@ -2,6 +2,7 @@
  * Tower Wizard — shared types.
  */
 
+import type { CastingAttribute, SpellResolution } from '../../types/item.js';
 import type { PowerGrantSpec } from '../../utils/power-item-builder.js';
 
 export type DefensePackageId = 'armor' | 'evade' | 'damage-reduction' | 'phasing';
@@ -22,18 +23,29 @@ export type DeliveryMode = 'melee' | 'ranged';
 export type WeakenSaveChoice = 'body' | 'mind' | 'spirit';
 
 export type TowerWizardStep =
-    | 'intro'
     | 'defense'
     | 'passive2'
-    | 'defenseSummary'
-    | 'buffLimitation'
-    | 'spellcaster'
     | 'offense'
     | 'weakenSave'
     | 'delivery'
-    | 'combatLoop'
-    | 'warnings'
     | 'review';
+
+export type OffenseActiveVariant =
+    | 'weapon-single'
+    | 'weapon-aoe'
+    | 'weapon-split'
+    | 'damage-t3'
+    | 'damage-t4'
+    | 'damage-t4-spell';
+
+export interface OffenseActiveOverride {
+    /** `offense-0` or `offense-1` */
+    grantKey: string;
+    variant?: OffenseActiveVariant;
+    isSpell?: boolean;
+    castingAttribute?: CastingAttribute;
+    spellResolution?: SpellResolution;
+}
 
 export type CatalogStatus = 'ok' | 'missing';
 
@@ -51,7 +63,7 @@ export interface TowerWizardSelection {
     offenseId: OffensePackageId;
     delivery: DeliveryMode;
     weakenSave: WeakenSaveChoice | null;
-    spellcaster: boolean;
+    offenseActiveOverrides?: OffenseActiveOverride[];
 }
 
 export interface TowerWizardDefensePackage {
@@ -88,7 +100,12 @@ export interface OffenseResolveContext {
 
 export interface PackageReviewRow {
     role: string;
+    grantKey?: string;
     displayName: string;
     mechanicalName: string;
     rank: number;
+    spec: PowerGrantSpec;
+    configurable?: boolean;
+    variantOptions?: Array<{ id: OffenseActiveVariant; label: string }>;
+    override?: OffenseActiveOverride;
 }

@@ -1,5 +1,5 @@
 /**
- * Tower Wizard — guided beginner combat package dialog.
+ * Tower Wizard — guided combat package dialog.
  */
 declare const ApplicationV2: typeof import("@league-of-foundry-developers/foundry-vtt-types/src/foundry/client/applications/api/application.mjs").default;
 declare const BaseDialog: typeof ApplicationV2;

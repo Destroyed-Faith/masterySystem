@@ -12,7 +12,6 @@ const baseSelection: TowerWizardSelection = {
     offenseId: 'direct-damage',
     delivery: 'melee',
     weakenSave: null,
-    spellcaster: false,
 };
 
 function mockPowerItem(category: string, level: number, templateId: string, special?: string) {

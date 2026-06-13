@@ -20,12 +20,13 @@ describe('tower-wizard-packages', () => {
         }
     });
 
-    it('second passive options exclude combined passives', () => {
+    it('second passive options exclude combined passives and awareness', () => {
         for (const pkg of TOWER_WIZARD_DEFENSE_PACKAGES) {
             for (const id of pkg.secondPassiveTemplateIds) {
                 expect(id.startsWith('conditional-passive-')).toBe(false);
                 expect(id.includes('-armor-')).toBe(false);
                 expect(id.includes('-evade-')).toBe(false);
+                expect(id).not.toBe('passive-heightened-senses');
             }
         }
     });
@@ -43,7 +44,6 @@ describe('tower-wizard-packages', () => {
             offenseId: 'direct-damage',
             delivery: 'melee',
             weakenSave: null,
-            spellcaster: false,
         };
         const specs = buildPackageGrantSpecs(selection);
         expect(specs).toHaveLength(TOWER_WIZARD_POWER_TOTAL);
@@ -52,6 +52,35 @@ describe('tower-wizard-packages', () => {
         actives.forEach((a) => expect(a.rank).toBe(TOWER_WIZARD_OFFENSIVE_RANK));
         const review = buildPackageReview(selection);
         expect(review.allOk).toBe(true);
+    });
+
+    it('hex package second active can be configured as split weapon', () => {
+        const selection: TowerWizardSelection = {
+            defenseId: 'phasing',
+            secondPassiveTemplateId: 'passive-temp-hp',
+            offenseId: 'hex-spell',
+            delivery: 'ranged',
+            weakenSave: null,
+            offenseActiveOverrides: [
+                {
+                    grantKey: 'offense-0',
+                    isSpell: true,
+                    castingAttribute: 'intellect',
+                    spellResolution: 'saveSpell',
+                },
+                {
+                    grantKey: 'offense-1',
+                    variant: 'weapon-split',
+                    isSpell: false,
+                },
+            ],
+        };
+        const specs = buildPackageGrantSpecs(selection);
+        const actives = specs.filter((s) => s.templateId.startsWith('active-'));
+        expect(actives[0].special).toBe('hex');
+        expect(actives[0].isSpell).toBe(true);
+        expect(actives[1].templateId).toBe('active-ranged-weapon-split');
+        expect(actives[1].isSpell).toBe(false);
     });
 
     it('armor defense recommends expected offense packages', () => {

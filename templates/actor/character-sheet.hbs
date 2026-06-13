@@ -1583,6 +1583,12 @@
       {{/unless}}
       
       {{#if creationComplete}}
+      <div class="post-creation-wizard-bar">
+        <p>Rebuild your combat package (2 Passive R4, 1 Active Buff R4, 1 Reaction R4, 2 Active R2). Power upgrade XP on replaced Powers is refunded.</p>
+        <button type="button" class="open-tower-wizard-btn" title="Open the Combat Package Wizard">
+          <i class="fas fa-magic"></i> Combat Package Wizard
+        </button>
+      </div>
       <!-- Powers List (Normal Mode): collapsible + grouped by power type (same UX pattern as Token-Radial Standard-Manöver). -->
       <details class="powers-list-details powers-list-section"{{#if powersListDetailsOpen}} open{{/if}}>
         <summary class="radial-maneuver-prefs-summary powers-list-details-summary">
